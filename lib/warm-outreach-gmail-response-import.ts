@@ -44,6 +44,71 @@ export type WarmOutreachGmailImportCandidateStatus =
   | 'blocked_existing_response'
   | 'provider_disabled'
 
+export const WARM_OUTREACH_GMAIL_RESPONSE_IMPORT_REQUIRED_SCOPES = [
+  'https://www.googleapis.com/auth/gmail.readonly',
+] as const
+
+export type WarmOutreachGmailResponseImportActivationState =
+  | 'ready_for_mock_import'
+  | 'live_import_disabled'
+  | 'provider_disabled'
+  | 'provider_missing'
+  | 'missing_gmail_token'
+  | 'missing_gmail_scope'
+  | 'blocked_manual_recovery'
+
+export type WarmOutreachGmailResponseImportActivationInput = {
+  dryRunImportEnabled?: boolean
+  providerDisabled?: boolean
+  providerConfigured?: boolean
+  gmailTokenAvailable?: boolean
+  grantedScopes?: string[] | string | null
+  requiredScopes?: string[]
+  liveImportRequested?: boolean
+  manualRecoveryRequired?: boolean
+  manualRecoveryReasons?: string[]
+}
+
+export type WarmOutreachGmailResponseImportActivationReadiness = {
+  version: 'warm-outreach-gmail-response-import-activation/v1'
+  provider: 'gmail'
+  state: WarmOutreachGmailResponseImportActivationState
+  label: string
+  canRunMockImport: boolean
+  canRunLiveImport: false
+  dryRunImportEnabled: boolean
+  liveProviderImportEnabled: false
+  providerPollingEnabled: false
+  gmailApiCalled: false
+  databaseWritesEnabled: false
+  providerConfigured: boolean | null
+  gmailTokenAvailable: boolean | null
+  requiredScopes: string[]
+  grantedScopes: string[]
+  missingScopes: string[]
+  blockedReasons: string[]
+  nextOperatorAction: string
+  recoveryPath: string
+  futureLiveSwitch: {
+    key: 'ENABLE_WARM_GMAIL_RESPONSE_IMPORT'
+    enabled: false
+    detail: string
+  }
+  gateRows: Array<{
+    key:
+      | 'mock_import'
+      | 'live_import'
+      | 'provider_config'
+      | 'gmail_token'
+      | 'gmail_scope'
+      | 'manual_recovery'
+    label: string
+    state: 'ready' | 'disabled' | 'missing' | 'blocked' | 'not_checked'
+    detail: string
+    nextAction: string
+  }>
+}
+
 export type WarmOutreachGmailResponseImportCandidate = {
   provider: 'gmail'
   status: WarmOutreachGmailImportCandidateStatus
@@ -117,6 +182,7 @@ export type WarmOutreachGmailResponseImportPlan = {
     existingResponse: number
     providerDisabled: number
   }
+  activationReadiness: WarmOutreachGmailResponseImportActivationReadiness
   auditNotes: string[]
 }
 
@@ -143,6 +209,14 @@ function record(value: unknown): PortfolioRow {
 
 function rows(value: PortfolioRow[] | undefined): PortfolioRow[] {
   return Array.isArray(value) ? value : []
+}
+
+function scopeList(value: string[] | string | null | undefined): string[] {
+  if (Array.isArray(value)) {
+    return value.map((item) => text(item)).filter(Boolean) as string[]
+  }
+  const raw = text(value)
+  return raw ? raw.split(/[,\s]+/).map((item) => item.trim()).filter(Boolean) : []
 }
 
 function stableHash(value: unknown) {
@@ -401,10 +475,221 @@ function recoveryPathFor(status: WarmOutreachGmailImportCandidateStatus) {
   }
 }
 
+function activationLabel(state: WarmOutreachGmailResponseImportActivationState) {
+  switch (state) {
+    case 'ready_for_mock_import':
+      return 'Ready for mock import'
+    case 'live_import_disabled':
+      return 'Live import disabled'
+    case 'provider_disabled':
+      return 'Provider disabled'
+    case 'provider_missing':
+      return 'Gmail provider missing'
+    case 'missing_gmail_token':
+      return 'Gmail token missing'
+    case 'missing_gmail_scope':
+      return 'Gmail read scope missing'
+    case 'blocked_manual_recovery':
+    default:
+      return 'Blocked for manual recovery'
+  }
+}
+
+function activationNextAction(state: WarmOutreachGmailResponseImportActivationState) {
+  switch (state) {
+    case 'ready_for_mock_import':
+      return 'Run the dry-run route with mocked Gmail replies and local Portfolio rows.'
+    case 'live_import_disabled':
+      return 'Use mocked dry-run planning only; live Gmail reads require a future captain-authorized activation switch.'
+    case 'provider_disabled':
+      return 'Leave Gmail response import disabled and use manual Portfolio response capture.'
+    case 'provider_missing':
+      return 'Configure the Gmail response-import provider before any future live-read smoke.'
+    case 'missing_gmail_token':
+      return 'Reconnect Gmail from Admin Credentials before any future live-read smoke.'
+    case 'missing_gmail_scope':
+      return 'Reconnect Gmail with gmail.readonly before any future response polling/import activation.'
+    case 'blocked_manual_recovery':
+    default:
+      return 'Resolve duplicate, ambiguous, suppressed, or existing-evidence states in Portfolio before import.'
+  }
+}
+
+function activationRecoveryPath(state: WarmOutreachGmailResponseImportActivationState) {
+  switch (state) {
+    case 'ready_for_mock_import':
+      return 'Mock planning can run now; approved evidence still goes through the existing warm response lifecycle.'
+    case 'live_import_disabled':
+      return 'Keep the provider-read path off; review mock candidates and request a separate captain gate for any live Gmail read.'
+    case 'provider_disabled':
+      return 'Do not poll Gmail; capture responses manually in the contact workroom.'
+    case 'provider_missing':
+      return 'Add provider configuration evidence without enabling polling or importing live messages.'
+    case 'missing_gmail_token':
+      return 'Use the existing Admin -> Credentials Gmail profile flow; stop at OAuth, SSO, OTP, or account gates.'
+    case 'missing_gmail_scope':
+      return 'Confirm the stored OAuth scope includes the readonly Gmail scope before any future provider read.'
+    case 'blocked_manual_recovery':
+    default:
+      return 'Open the relationship packet and repair the local match/evidence state before any import attempt.'
+  }
+}
+
+export function buildWarmOutreachGmailResponseImportActivationReadiness(
+  input: WarmOutreachGmailResponseImportActivationInput = {},
+): WarmOutreachGmailResponseImportActivationReadiness {
+  const dryRunImportEnabled = input.dryRunImportEnabled !== false
+  const requiredScopes = input.requiredScopes?.length
+    ? input.requiredScopes
+    : [...WARM_OUTREACH_GMAIL_RESPONSE_IMPORT_REQUIRED_SCOPES]
+  const grantedScopes = scopeList(input.grantedScopes)
+  const grantedScopeSet = new Set(grantedScopes)
+  const missingScopes = requiredScopes.filter((scope) => !grantedScopeSet.has(scope))
+  const providerConfiguredKnown = typeof input.providerConfigured === 'boolean'
+  const tokenKnown = typeof input.gmailTokenAvailable === 'boolean'
+  const scopeKnown = input.grantedScopes !== undefined
+  const manualRecoveryReasons = input.manualRecoveryReasons?.filter(Boolean) ?? []
+
+  const state: WarmOutreachGmailResponseImportActivationState =
+    input.providerDisabled || !dryRunImportEnabled
+      ? 'provider_disabled'
+      : input.manualRecoveryRequired
+        ? 'blocked_manual_recovery'
+        : providerConfiguredKnown && !input.providerConfigured
+          ? 'provider_missing'
+          : tokenKnown && !input.gmailTokenAvailable
+            ? 'missing_gmail_token'
+            : scopeKnown && missingScopes.length > 0
+              ? 'missing_gmail_scope'
+              : input.liveImportRequested || providerConfiguredKnown || tokenKnown || scopeKnown
+                ? 'live_import_disabled'
+                : 'ready_for_mock_import'
+  const canRunMockImport =
+    dryRunImportEnabled &&
+    state !== 'provider_disabled' &&
+    state !== 'blocked_manual_recovery'
+  const blockedReasons = [
+    state === 'provider_disabled' ? 'Gmail response import provider is disabled.' : null,
+    state === 'provider_missing' ? 'Gmail response import provider configuration is missing.' : null,
+    state === 'missing_gmail_token' ? 'No connected Gmail token is available for this admin.' : null,
+    state === 'missing_gmail_scope' ? `Stored Gmail OAuth scope is missing: ${missingScopes.join(', ')}.` : null,
+    state === 'live_import_disabled' ? 'Live Gmail response reads are disabled by default.' : null,
+    ...manualRecoveryReasons,
+  ].filter(Boolean) as string[]
+  const providerConfigState = providerConfiguredKnown
+    ? input.providerConfigured ? 'ready' : 'missing'
+    : 'not_checked'
+  const gmailTokenState = tokenKnown
+    ? input.gmailTokenAvailable ? 'ready' : 'missing'
+    : 'not_checked'
+  const gmailScopeState = scopeKnown
+    ? missingScopes.length === 0 ? 'ready' : 'missing'
+    : 'not_checked'
+
+  return {
+    version: 'warm-outreach-gmail-response-import-activation/v1',
+    provider: 'gmail',
+    state,
+    label: activationLabel(state),
+    canRunMockImport,
+    canRunLiveImport: false,
+    dryRunImportEnabled,
+    liveProviderImportEnabled: false,
+    providerPollingEnabled: false,
+    gmailApiCalled: false,
+    databaseWritesEnabled: false,
+    providerConfigured: providerConfiguredKnown ? Boolean(input.providerConfigured) : null,
+    gmailTokenAvailable: tokenKnown ? Boolean(input.gmailTokenAvailable) : null,
+    requiredScopes,
+    grantedScopes,
+    missingScopes: scopeKnown ? missingScopes : [],
+    blockedReasons,
+    nextOperatorAction: activationNextAction(state),
+    recoveryPath: activationRecoveryPath(state),
+    futureLiveSwitch: {
+      key: 'ENABLE_WARM_GMAIL_RESPONSE_IMPORT',
+      enabled: false,
+      detail:
+        'Reserved for a future captain-authorized live Gmail read. This readiness layer never enables it.',
+    },
+    gateRows: [
+      {
+        key: 'mock_import',
+        label: 'Mock import',
+        state: canRunMockImport ? 'ready' : 'blocked',
+        detail: canRunMockImport
+          ? 'Dry-run planning can use mocked Gmail payloads and local Portfolio rows.'
+          : 'Dry-run planning is blocked by provider or manual recovery state.',
+        nextAction: canRunMockImport
+          ? 'Run the admin dry-run route with fixture payloads.'
+          : 'Resolve the blocker before dry-run planning.',
+      },
+      {
+        key: 'live_import',
+        label: 'Live import',
+        state: 'disabled',
+        detail: 'Gmail polling/import remains disabled in default tests, preview QA, and route rendering.',
+        nextAction: 'Request a separate captain authorization before any live Gmail read is added.',
+      },
+      {
+        key: 'provider_config',
+        label: 'Provider',
+        state: providerConfigState,
+        detail: providerConfiguredKnown
+          ? input.providerConfigured
+            ? 'Gmail response-import provider configuration is present.'
+            : 'Gmail response-import provider configuration is missing.'
+          : 'Provider configuration was not checked for this no-egress dry-run request.',
+        nextAction: providerConfiguredKnown && !input.providerConfigured
+          ? 'Configure provider metadata before live-read smoke.'
+          : 'Keep provider reads disabled.',
+      },
+      {
+        key: 'gmail_token',
+        label: 'Gmail token',
+        state: gmailTokenState,
+        detail: tokenKnown
+          ? input.gmailTokenAvailable
+            ? 'A connected Gmail token is present in readiness metadata.'
+            : 'No connected Gmail token is present in readiness metadata.'
+          : 'Token presence was not checked for this no-egress dry-run request.',
+        nextAction: tokenKnown && !input.gmailTokenAvailable
+          ? 'Reconnect Gmail from Admin Credentials.'
+          : 'Do not read Gmail until a separate activation gate exists.',
+      },
+      {
+        key: 'gmail_scope',
+        label: 'Gmail scope',
+        state: gmailScopeState,
+        detail: scopeKnown
+          ? missingScopes.length === 0
+            ? 'Stored scope evidence includes gmail.readonly.'
+            : `Missing scope evidence: ${missingScopes.join(', ')}.`
+          : 'Scope evidence was not checked for this no-egress dry-run request.',
+        nextAction: scopeKnown && missingScopes.length > 0
+          ? 'Reconnect Gmail with readonly scope before live-read smoke.'
+          : 'Keep mock planning separate from live provider authority.',
+      },
+      {
+        key: 'manual_recovery',
+        label: 'Manual recovery',
+        state: input.manualRecoveryRequired ? 'blocked' : 'ready',
+        detail: input.manualRecoveryRequired
+          ? manualRecoveryReasons.join(' ') || 'The latest candidate needs manual recovery.'
+          : 'No duplicate, ambiguous, suppressed, or existing-evidence blocker is active.',
+        nextAction: input.manualRecoveryRequired
+          ? 'Resolve the contact or queue evidence state in Portfolio.'
+          : 'Review ready candidates through the existing warm response lifecycle.',
+      },
+    ],
+  }
+}
+
 export function planWarmOutreachGmailResponseImport(args: {
   replies: WarmOutreachGmailReplyPayload[]
   rows: WarmOutreachGmailImportPortfolioRows
   dryRunImportEnabled?: boolean
+  activation?: WarmOutreachGmailResponseImportActivationInput
 }): WarmOutreachGmailResponseImportPlan {
   const dryRunImportEnabled = args.dryRunImportEnabled !== false
   const contacts = rows(args.rows.contacts)
@@ -613,6 +898,20 @@ export function planWarmOutreachGmailResponseImport(args: {
         : summary.total === 0
           ? 'blocked'
           : 'manual_review_required'
+  const manualRecoveryReasons = candidates
+    .filter((candidate) => candidate.status !== 'ready_for_review')
+    .flatMap((candidate) => candidate.blockers.length > 0
+      ? candidate.blockers
+      : [candidate.statusLabel])
+  const activationReadiness = buildWarmOutreachGmailResponseImportActivationReadiness({
+    ...args.activation,
+    dryRunImportEnabled,
+    manualRecoveryRequired:
+      dryRunImportEnabled &&
+      candidates.length > 0 &&
+      candidates.every((candidate) => candidate.status !== 'ready_for_review'),
+    manualRecoveryReasons,
+  })
 
   return {
     version: 'warm-outreach-gmail-response-import/v1',
@@ -637,6 +936,7 @@ export function planWarmOutreachGmailResponseImport(args: {
             : 'Gmail response import needs human review',
     candidates,
     summary,
+    activationReadiness,
     auditNotes: [
       'This planner accepts mocked Gmail reply payloads and local Portfolio rows only.',
       'No Gmail API, Gmail draft, Gmail send, Slack dispatch, n8n dispatch, or provider polling is performed.',

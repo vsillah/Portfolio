@@ -205,6 +205,12 @@ describe('warm outreach response monitoring', () => {
         status: 'ready_for_mock_import',
         matchedContactId: 42,
       },
+      activationReadiness: {
+        state: 'ready_for_mock_import',
+        canRunMockImport: true,
+        canRunLiveImport: false,
+        liveProviderImportEnabled: false,
+      },
     })
     expect(monitoring.operatorDecisionPaths).toEqual(
       expect.arrayContaining([
@@ -263,6 +269,13 @@ describe('warm outreach response monitoring', () => {
       latestCandidate: {
         status: 'imported_response_recorded',
       },
+      activationReadiness: {
+        state: 'blocked_manual_recovery',
+        canRunMockImport: false,
+        blockedReasons: expect.arrayContaining([
+          'Existing Gmail response evidence is already recorded in Portfolio.',
+        ]),
+      },
       dedupe: {
         duplicateReplayBlocked: true,
       },
@@ -307,6 +320,11 @@ describe('warm outreach response monitoring', () => {
       latestCandidate: {
         status: 'ready_for_mock_import',
         matchedOutreachQueueId: 'queue-1',
+      },
+      activationReadiness: {
+        state: 'ready_for_mock_import',
+        canRunMockImport: true,
+        canRunLiveImport: false,
       },
     })
     expect(monitoring.expectedReplyBy).toBe('2026-08-17T12:00:00.000Z')

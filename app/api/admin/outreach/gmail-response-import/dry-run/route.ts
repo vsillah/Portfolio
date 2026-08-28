@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import {
   planWarmOutreachGmailResponseImport,
+  type WarmOutreachGmailResponseImportActivationInput,
   type WarmOutreachGmailImportPortfolioRows,
   type WarmOutreachGmailReplyPayload,
 } from '@/lib/warm-outreach-gmail-response-import'
@@ -56,6 +57,29 @@ function parseRows(value: unknown): WarmOutreachGmailImportPortfolioRows | null 
   }
 }
 
+function parseStringList(value: unknown): string[] | string | null | undefined {
+  if (value == null) return value as null | undefined
+  if (typeof value === 'string') return value
+  if (Array.isArray(value) && value.every((item) => typeof item === 'string')) {
+    return value
+  }
+  return undefined
+}
+
+function parseActivation(value: unknown): WarmOutreachGmailResponseImportActivationInput | undefined {
+  if (!isObject(value)) return undefined
+  const grantedScopes = parseStringList(value.grantedScopes ?? value.scope)
+  const requiredScopes = parseStringList(value.requiredScopes)
+  return {
+    providerDisabled: typeof value.providerDisabled === 'boolean' ? value.providerDisabled : undefined,
+    providerConfigured: typeof value.providerConfigured === 'boolean' ? value.providerConfigured : undefined,
+    gmailTokenAvailable: typeof value.gmailTokenAvailable === 'boolean' ? value.gmailTokenAvailable : undefined,
+    grantedScopes,
+    requiredScopes: Array.isArray(requiredScopes) ? requiredScopes : undefined,
+    liveImportRequested: typeof value.liveImportRequested === 'boolean' ? value.liveImportRequested : undefined,
+  }
+}
+
 /**
  * POST /api/admin/outreach/gmail-response-import/dry-run
  *
@@ -73,20 +97,26 @@ export async function POST(request: NextRequest) {
   if (body.dryRun === false) {
     return jsonError('Only dry-run Gmail response import planning is enabled.', 403)
   }
+  if (body.liveProviderImportEnabled === true || body.providerPollingEnabled === true) {
+    return jsonError('Live Gmail response import and provider polling are disabled for this route.', 403)
+  }
 
   const replies = parseReplies(body.replies)
   if (!replies) return jsonError('replies must be an array of mocked Gmail reply payloads.', 400)
-  if (replies.length === 0) return jsonError('At least one mocked Gmail reply is required.', 400)
 
   const portfolioRows = parseRows(body.portfolioRows)
   if (!portfolioRows) {
     return jsonError('portfolioRows must include local Portfolio-shaped rows for dry-run matching.', 400)
   }
+  const activation = parseActivation(
+    body.gmailProviderReadiness ?? body.providerReadiness ?? body.activationReadiness,
+  )
 
   const plan = planWarmOutreachGmailResponseImport({
     replies,
     rows: portfolioRows,
     dryRunImportEnabled: body.dryRunImportEnabled !== false,
+    activation,
   })
 
   return NextResponse.json({

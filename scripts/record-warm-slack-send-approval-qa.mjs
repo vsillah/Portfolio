@@ -375,7 +375,7 @@ async function captureVideoFrame(name, durationSeconds) {
 }
 
 await captureVideoFrame('01-initial-workroom.png', 2.5)
-await mobileWorkroom.getByText('Ready for one-step send approval request').scrollIntoViewIfNeeded()
+await mobileWorkroom.getByText('Activation readiness: Live import disabled').scrollIntoViewIfNeeded()
 await mobile.page.waitForTimeout(300)
 await captureVideoFrame('02-real-recipient-rollout.png', 2.5)
 await mobileWorkroom.getByText('Provider execution readiness').scrollIntoViewIfNeeded()
@@ -438,7 +438,7 @@ const desktopResponse = await desktop.page.goto(qaUrl)
 await assertPortfolioRouteReached(desktop.page, desktopResponse)
 const desktopWorkroom = desktop.page.locator(workroomSelector)
 await desktopWorkroom.waitFor({ timeout: 15_000 })
-await desktopWorkroom.getByText('Ready for one-step send approval request').scrollIntoViewIfNeeded()
+await desktopWorkroom.getByText('Activation readiness: Live import disabled').scrollIntoViewIfNeeded()
 await desktopWorkroom.getByRole('button', { name: 'Request send approval' }).click()
 await desktopWorkroom.getByText(/QA local Slack approval request recorded/).waitFor({ timeout: 10_000 })
 await desktop.page.waitForTimeout(500)

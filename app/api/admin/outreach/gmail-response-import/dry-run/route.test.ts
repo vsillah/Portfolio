@@ -94,6 +94,13 @@ describe('POST /api/admin/outreach/gmail-response-import/dry-run', () => {
       summary: {
         readyForReview: 1,
       },
+      activationReadiness: {
+        state: 'ready_for_mock_import',
+        canRunMockImport: true,
+        canRunLiveImport: false,
+        gmailApiCalled: false,
+        databaseWritesEnabled: false,
+      },
     })
     expect(json.plan.candidates[0]).toMatchObject({
       status: 'ready_for_review',
@@ -119,6 +126,71 @@ describe('POST /api/admin/outreach/gmail-response-import/dry-run', () => {
     })
   })
 
+  it('rejects live provider import and polling requests', async () => {
+    const response = await POST(request({
+      replies: [reply],
+      portfolioRows,
+      liveProviderImportEnabled: true,
+    }))
+
+    expect(response.status).toBe(403)
+    await expect(response.json()).resolves.toEqual({
+      error: 'Live Gmail response import and provider polling are disabled for this route.',
+    })
+  })
+
+  it('returns no-payload readiness without requiring live Gmail access', async () => {
+    const response = await POST(request({
+      replies: [],
+      portfolioRows,
+      gmailProviderReadiness: {
+        providerConfigured: false,
+      },
+    }))
+
+    expect(response.status).toBe(200)
+    const json = await response.json()
+    expect(json.plan).toMatchObject({
+      state: 'blocked',
+      candidates: [],
+      summary: {
+        total: 0,
+      },
+      activationReadiness: {
+        state: 'provider_missing',
+        canRunMockImport: true,
+        canRunLiveImport: false,
+        providerConfigured: false,
+        gmailApiCalled: false,
+        databaseWritesEnabled: false,
+      },
+    })
+  })
+
+  it('reports missing Gmail readonly scope from supplied readiness metadata', async () => {
+    const response = await POST(request({
+      replies: [reply],
+      portfolioRows,
+      gmailProviderReadiness: {
+        providerConfigured: true,
+        gmailTokenAvailable: true,
+        grantedScopes: [
+          'https://www.googleapis.com/auth/gmail.compose',
+          'https://www.googleapis.com/auth/userinfo.email',
+        ],
+      },
+    }))
+
+    expect(response.status).toBe(200)
+    const json = await response.json()
+    expect(json.plan.activationReadiness).toMatchObject({
+      state: 'missing_gmail_scope',
+      missingScopes: ['https://www.googleapis.com/auth/gmail.readonly'],
+      canRunMockImport: true,
+      canRunLiveImport: false,
+    })
+  })
+
   it('returns provider-disabled planning when the dry-run planner is disabled', async () => {
     const response = await POST(request({
       replies: [reply],
@@ -137,6 +209,11 @@ describe('POST /api/admin/outreach/gmail-response-import/dry-run', () => {
       externalActionsEnabled: false,
       slackDispatchEnabled: false,
       n8nDispatchEnabled: false,
+      activationReadiness: {
+        state: 'provider_disabled',
+        canRunMockImport: false,
+        canRunLiveImport: false,
+      },
     })
     expect(json.plan.candidates[0]).toMatchObject({
       status: 'provider_disabled',
