@@ -1021,7 +1021,6 @@ function firstSubmittedWarmGmailEvidence(rows: PortfolioRow[], input: {
       text(execution.idempotencyKey)
     const submitted =
       (!inboundResponse && ['sent', 'submitted', 'delivered'].includes(status ?? '')) ||
-      (!inboundResponse && Boolean(text(row.sent_at) ?? text(row.sentAt))) ||
       executionStatus === 'sent' ||
       execution.gmail_send_called === true ||
       execution.gmailSendCalled === true ||
