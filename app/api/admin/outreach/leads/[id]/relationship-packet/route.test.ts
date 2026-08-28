@@ -22,41 +22,49 @@ import { GET } from './route'
 
 type TableRows = Record<string, unknown[]>
 
+const selectedColumns = new Map<string, string>()
+
 function request(url = 'http://localhost/api/admin/outreach/leads/42/relationship-packet') {
   return new NextRequest(url)
 }
 
-function singleQuery(data: unknown | null) {
+function singleQuery(table: string, data: unknown | null) {
   return {
-    select: vi.fn(() => ({
-      eq: vi.fn(() => ({
-        single: vi.fn(() =>
-          Promise.resolve({
-            data,
-            error: data ? null : { message: 'not found' },
-          }),
-        ),
-      })),
-    })),
+    select: vi.fn((columns: string) => {
+      selectedColumns.set(table, columns)
+      return {
+        eq: vi.fn(() => ({
+          single: vi.fn(() =>
+            Promise.resolve({
+              data,
+              error: data ? null : { message: 'not found' },
+            }),
+          ),
+        })),
+      }
+    }),
   }
 }
 
-function listQuery(data: unknown[]) {
+function listQuery(table: string, data: unknown[]) {
   const limit = vi.fn(() => Promise.resolve({ data, error: null }))
   const order = vi.fn(() => ({ limit }))
   const eq = vi.fn(() => ({ order }))
-  const select = vi.fn(() => ({ eq }))
+  const select = vi.fn((columns: string) => {
+    selectedColumns.set(table, columns)
+    return { eq }
+  })
   return { select, eq, order, limit }
 }
 
 function setupRows(rows: TableRows) {
   mocks.from.mockImplementation((table: string) => {
     if (table === 'contact_submissions') {
-      return singleQuery(rows.contact_submissions?.[0] ?? null)
+      return singleQuery(table, rows.contact_submissions?.[0] ?? null)
     }
 
     if (table in rows) {
-      return listQuery(rows[table] ?? [])
+      return listQuery(table, rows[table] ?? [])
     }
 
     throw new Error(`Unexpected table: ${table}`)
@@ -84,6 +92,7 @@ const lead = {
 describe('GET /api/admin/outreach/leads/[id]/relationship-packet', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    selectedColumns.clear()
     mocks.verifyAdmin.mockResolvedValue({ user: { id: 'admin-user' } })
     mocks.isAuthError.mockReturnValue(false)
   })
@@ -253,6 +262,119 @@ describe('GET /api/admin/outreach/leads/[id]/relationship-packet', () => {
     expect(JSON.stringify(json)).not.toContain('raw private body')
     expect(JSON.stringify(json)).not.toContain('private preview')
     expect(JSON.stringify(json)).not.toContain('raw transcript')
+  })
+
+  it('uses production-shaped Gmail draft evidence from outreach_queue generation_inputs for send approval readiness', async () => {
+    setupRows({
+      contact_submissions: [lead],
+      contact_communications: [],
+      outreach_queue: [
+        {
+          id: 'queue-production-shaped',
+          contact_submission_id: 42,
+          channel: 'email',
+          subject: 'Warm follow-up',
+          sequence_step: 1,
+          status: 'draft',
+          thread_id: 'gmail-thread-production-shaped',
+          message_id: 'gmail-message-production-shaped',
+          sent_at: null,
+          generation_inputs: {
+            gmail_draft_creation: {
+              draft_id: 'gmail-draft-production-shaped',
+              thread_id: 'gmail-thread-production-shaped',
+              message_id: 'gmail-message-production-shaped',
+              created_at: '2026-08-28T12:00:00.000Z',
+              connected_as: 'vambah@amadutown.com',
+              required_sender: 'vambah@amadutown.com',
+              authorization: 'create_gmail_draft_for_recipient',
+              authorized_by: 'admin-user',
+              provider: 'gmail_user_oauth',
+              provider_action: 'drafts.create',
+              idempotency_key: 'warm-outreach:gmail-draft:v1:queue-production-shaped:42:email',
+              external_send_blocked: true,
+            },
+          },
+          created_at: '2026-08-28T12:00:00.000Z',
+        },
+      ],
+      email_messages: [],
+      meeting_records: [
+        {
+          id: 'meeting-1',
+          contact_submission_id: 42,
+          meeting_type: 'discovery',
+          meeting_date: '2026-08-19T00:00:00Z',
+          structured_notes: { summary: 'Discussed nonprofit operations.' },
+          created_at: '2026-08-19T00:00:00Z',
+        },
+      ],
+      meeting_action_tasks: [
+        {
+          id: 'task-1',
+          contact_submission_id: 42,
+          meeting_record_id: 'meeting-1',
+          title: 'Send follow-up packet',
+          status: 'pending',
+          due_date: '2026-08-25',
+          task_category: 'follow_up',
+          outreach_queue_id: 'queue-production-shaped',
+          created_at: '2026-08-19T00:00:00Z',
+        },
+      ],
+    })
+
+    const response = await GET(request(), { params: Promise.resolve({ id: '42' }) })
+
+    expect(response.status).toBe(200)
+    expect(selectedColumns.get('outreach_queue')).toContain('generation_inputs')
+    const json = await response.json()
+    const emailReadiness = json.sendReadiness.modes.warm_1_to_1.find(
+      (item: { channel: string }) => item.channel === 'email',
+    )
+    expect(emailReadiness).toMatchObject({
+      state: 'provider_gate_required',
+      emailSendLifecycle: {
+        state: 'blocked_before_provider_activation',
+        realRecipientRolloutReadiness: {
+          state: 'ready_for_send_request',
+          eligibleForSendApprovalRequest: true,
+          canBuildSlackApprovalPayload: true,
+          requirements: {
+            draftEvidence: {
+              state: 'tracked',
+              draftId: 'gmail-draft-production-shaped',
+            },
+            senderMatch: {
+              state: 'matched',
+              requiredSender: 'vambah@amadutown.com',
+              connectedAs: 'vambah@amadutown.com',
+            },
+            provider: {
+              state: 'configured',
+            },
+            authorization: {
+              state: 'missing',
+            },
+            submittedEvidence: {
+              state: 'missing',
+            },
+          },
+          executionBoundary: {
+            slackDispatch: false,
+            gmailSend: false,
+            providerCalls: false,
+          },
+        },
+      },
+    })
+    expect(json.executionBoundary).toMatchObject({
+      readOnly: true,
+      providerCalls: false,
+      createsDraft: false,
+      externalSend: false,
+      slackAction: false,
+    })
   })
 
   it('returns 404 when the lead does not exist', async () => {

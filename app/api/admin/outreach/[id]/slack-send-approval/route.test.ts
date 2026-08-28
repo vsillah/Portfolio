@@ -49,6 +49,7 @@ function outreachRow(overrides: Record<string, unknown> = {}) {
     body: 'Following up on the operations conversation.',
     thread_id: 'gmail-thread-1',
     message_id: 'gmail-message-1',
+    sent_at: null,
     generation_inputs: {
       gmail_draft_creation: {
         draft_id: 'gmail-draft-1',
@@ -374,6 +375,35 @@ describe('POST /api/admin/outreach/[id]/slack-send-approval', () => {
     expect(update).not.toHaveBeenCalled()
   })
 
+  it('blocks stale rows with sent_at evidence even if readiness says requestable', async () => {
+    const { update } = mockSupabase(outreachRow({
+      sent_at: '2026-08-28T12:00:00.000Z',
+      generation_inputs: {
+        gmail_draft_creation: {
+          draft_id: 'gmail-draft-1',
+          message_id: 'gmail-message-1',
+          thread_id: 'gmail-thread-1',
+          connected_as: 'vambah@amadutown.com',
+          required_sender: 'vambah@amadutown.com',
+          external_send_blocked: true,
+        },
+      },
+    }))
+
+    const response = await POST(makeRequest(), params())
+
+    expect(response.status).toBe(409)
+    await expect(response.json()).resolves.toMatchObject({
+      error: 'Warm Gmail send approval request is blocked because submitted/send evidence already exists (sent at). Do not request or send a duplicate.',
+      executionBoundary: {
+        gmailSendCalled: false,
+        externalSendEnabled: false,
+        providerExecutionEnabled: false,
+      },
+    })
+    expect(update).not.toHaveBeenCalled()
+  })
+
   it('blocks stale rows with existing send authorization even if readiness says requestable', async () => {
     const { update } = mockSupabase(outreachRow({
       generation_inputs: {
@@ -400,6 +430,41 @@ describe('POST /api/admin/outreach/[id]/slack-send-approval', () => {
     expect(response.status).toBe(409)
     await expect(response.json()).resolves.toMatchObject({
       error: 'Warm Gmail send approval request is superseded by existing approved authorization evidence. No duplicate request was recorded.',
+      executionBoundary: {
+        gmailSendCalled: false,
+        externalSendEnabled: false,
+        providerExecutionEnabled: false,
+      },
+    })
+    expect(update).not.toHaveBeenCalled()
+  })
+
+  it('blocks camelCase send authorization evidence before recording a duplicate request', async () => {
+    const { update } = mockSupabase(outreachRow({
+      generation_inputs: {
+        gmailDraftCreation: {
+          draftId: 'gmail-draft-1',
+          messageId: 'gmail-message-1',
+          threadId: 'gmail-thread-1',
+          connectedAs: 'vambah@amadutown.com',
+          requiredSender: 'vambah@amadutown.com',
+          externalSendBlocked: true,
+        },
+        warmGmailSendAuthorization: {
+          status: 'rejected',
+          decisionKey: 'warm-outreach:slack-gmail-send-decision:v1:rejected',
+          externalSendAuthorizationIntent: true,
+          gmailSendCalled: false,
+          externalSendPerformed: false,
+        },
+      },
+    }))
+
+    const response = await POST(makeRequest(), params())
+
+    expect(response.status).toBe(409)
+    await expect(response.json()).resolves.toMatchObject({
+      error: 'Warm Gmail send approval request is superseded by existing rejected authorization evidence. No duplicate request was recorded.',
       executionBoundary: {
         gmailSendCalled: false,
         externalSendEnabled: false,

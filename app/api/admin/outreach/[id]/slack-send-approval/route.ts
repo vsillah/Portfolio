@@ -19,6 +19,7 @@ type QueueRow = {
   body: string | null
   thread_id: string | null
   message_id: string | null
+  sent_at: string | null
   generation_inputs: Record<string, unknown> | null
   contact_submissions:
     | {
@@ -52,14 +53,25 @@ function record(value: unknown): Record<string, unknown> {
     : {}
 }
 
+function evidence(
+  generationInputs: Record<string, unknown>,
+  snakeKey: string,
+  camelKey: string,
+): Record<string, unknown> {
+  return {
+    ...record(generationInputs[snakeKey]),
+    ...record(generationInputs[camelKey]),
+  }
+}
+
 function stringValue(value: unknown) {
   const text = typeof value === 'string' ? value.trim() : ''
   return text || null
 }
 
 function gmailDraftUrl(generationInputs: Record<string, unknown>) {
-  const draft = record(generationInputs.gmail_draft_creation)
-  const draftId = stringValue(draft.draft_id)
+  const draft = evidence(generationInputs, 'gmail_draft_creation', 'gmailDraftCreation')
+  const draftId = stringValue(draft.draft_id) ?? stringValue(draft.draftId)
   return draftId ? `https://mail.google.com/mail/u/0/#drafts/${encodeURIComponent(draftId)}` : null
 }
 
@@ -75,7 +87,11 @@ function blockedBoundary() {
 }
 
 function existingAuthorization(generationInputs: Record<string, unknown>) {
-  const authorization = record(generationInputs.warm_gmail_send_authorization)
+  const authorization = evidence(
+    generationInputs,
+    'warm_gmail_send_authorization',
+    'warmGmailSendAuthorization',
+  )
   const status = stringValue(authorization.status)?.toLowerCase()
   if (status === 'approved' || status === 'rejected' || status === 'revision_requested') {
     return status
@@ -91,8 +107,15 @@ function existingSubmittedEvidence(
   if (queueStatus === 'sent' || queueStatus === 'submitted' || queueStatus === 'delivered') {
     return queueStatus
   }
+  if (stringValue(item.sent_at)) {
+    return 'sent_at'
+  }
 
-  const execution = record(generationInputs.warm_gmail_send_execution)
+  const execution = evidence(
+    generationInputs,
+    'warm_gmail_send_execution',
+    'warmGmailSendExecution',
+  )
   const executionStatus = stringValue(execution.status)?.toLowerCase()
   if (
     executionStatus === 'sent' ||
@@ -102,7 +125,12 @@ function existingSubmittedEvidence(
   ) {
     return executionStatus
   }
-  if (execution.gmail_send_called === true || execution.external_send_performed === true) {
+  if (
+    execution.gmail_send_called === true ||
+    execution.gmailSendCalled === true ||
+    execution.external_send_performed === true ||
+    execution.externalSendPerformed === true
+  ) {
     return 'external_send_evidence'
   }
   return null
@@ -140,6 +168,7 @@ export async function POST(
       body,
       thread_id,
       message_id,
+      sent_at,
       generation_inputs,
       contact_submissions (
         id,
