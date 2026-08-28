@@ -393,6 +393,12 @@ export type WarmOutreachRealRecipientGmailRolloutReadiness = {
     recordsAuthorizationIntentOnly: true
     gmailSendCalled: false
     providerExecutionEnabled: false
+    approvalRequestRecovery: {
+      status: 'portfolio_request_available_slack_dispatch_disabled'
+      label: string
+      detail: string
+      nextAction: string
+    }
   }
   executionBoundary: {
     slackDispatch: false
@@ -1187,7 +1193,7 @@ function buildRealRecipientGmailRolloutReadiness(args: {
       : finalSendAuthorityState === 'sent_do_not_resend'
         ? 'No send action remains. Review sent evidence only; do not replay this message.'
         : exactNextAction === 'approve_send_request'
-          ? 'Build the Slack approval card for this exact queue row; Slack records intent only and does not send Gmail.'
+          ? 'Request send approval for this exact queue row from the relationship packet; Portfolio records intent only and Gmail send stays disabled.'
           : exactNextAction === 'captain_enable_exact_execution'
             ? 'Captain must use the exact per-recipient execution gate with the send flag enabled; this contact surface keeps the live send action disabled.'
             : blockers[0] ?? 'Resolve blockers before requesting or executing a one-recipient Gmail canary.'
@@ -1367,6 +1373,8 @@ function buildRealRecipientGmailRolloutReadiness(args: {
       actionIds: ['warm_gmail_send.approve', 'warm_gmail_send.reject', 'warm_gmail_send.revise'],
       payloadDedupeKey: `warm-outreach:slack-gmail-send-card:v1:${stableHash({
         contactId: args.contactId,
+        channel: 'email',
+        outreachQueueId: draft.sourceIds[0] ?? null,
         messageVersionKey: args.lifecycle.messageVersionKey,
       })}`,
       status: slackApprovalStatus,
@@ -1375,6 +1383,14 @@ function buildRealRecipientGmailRolloutReadiness(args: {
       recordsAuthorizationIntentOnly: true,
       gmailSendCalled: false,
       providerExecutionEnabled: false,
+      approvalRequestRecovery: {
+        status: 'portfolio_request_available_slack_dispatch_disabled',
+        label: 'Portfolio recovery path',
+        detail:
+          'Slack dispatch is disabled. The relationship packet can still record a local one-recipient approval request without posting to Slack or calling Gmail.',
+        nextAction:
+          'Use Request send approval in this contact workroom, then record approve, reject, or revise before any separate Gmail send execution gate.',
+      },
     },
     executionBoundary: {
       slackDispatch: false,

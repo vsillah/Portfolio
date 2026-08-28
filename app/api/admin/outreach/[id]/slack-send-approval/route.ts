@@ -63,6 +63,51 @@ function gmailDraftUrl(generationInputs: Record<string, unknown>) {
   return draftId ? `https://mail.google.com/mail/u/0/#drafts/${encodeURIComponent(draftId)}` : null
 }
 
+function blockedBoundary() {
+  return {
+    portfolioCanonicalAudit: true,
+    slackAttentionSurfaceOnly: true,
+    gmailSendCalled: false,
+    externalSendEnabled: false,
+    providerExecutionEnabled: false,
+    schedulingEnabled: false,
+  }
+}
+
+function existingAuthorization(generationInputs: Record<string, unknown>) {
+  const authorization = record(generationInputs.warm_gmail_send_authorization)
+  const status = stringValue(authorization.status)?.toLowerCase()
+  if (status === 'approved' || status === 'rejected' || status === 'revision_requested') {
+    return status
+  }
+  return null
+}
+
+function existingSubmittedEvidence(
+  item: QueueRow,
+  generationInputs: Record<string, unknown>,
+) {
+  const queueStatus = stringValue(item.status)?.toLowerCase()
+  if (queueStatus === 'sent' || queueStatus === 'submitted' || queueStatus === 'delivered') {
+    return queueStatus
+  }
+
+  const execution = record(generationInputs.warm_gmail_send_execution)
+  const executionStatus = stringValue(execution.status)?.toLowerCase()
+  if (
+    executionStatus === 'sent' ||
+    executionStatus === 'submitted' ||
+    executionStatus === 'delivered' ||
+    executionStatus === 'sent_secondary_log_repair_required'
+  ) {
+    return executionStatus
+  }
+  if (execution.gmail_send_called === true || execution.external_send_performed === true) {
+    return 'external_send_evidence'
+  }
+  return null
+}
+
 /**
  * POST /api/admin/outreach/[id]/slack-send-approval
  *
@@ -164,6 +209,28 @@ export async function POST(
   }
 
   const generationInputs = record(item.generation_inputs)
+  const authorizationStatus = existingAuthorization(generationInputs)
+  if (authorizationStatus) {
+    return NextResponse.json(
+      {
+        error: `Warm Gmail send approval request is superseded by existing ${authorizationStatus.replace(/_/g, ' ')} authorization evidence. No duplicate request was recorded.`,
+        executionBoundary: blockedBoundary(),
+      },
+      { status: 409 },
+    )
+  }
+
+  const submittedEvidence = existingSubmittedEvidence(item, generationInputs)
+  if (submittedEvidence) {
+    return NextResponse.json(
+      {
+        error: `Warm Gmail send approval request is blocked because submitted/send evidence already exists (${submittedEvidence.replace(/_/g, ' ')}). Do not request or send a duplicate.`,
+        executionBoundary: blockedBoundary(),
+      },
+      { status: 409 },
+    )
+  }
+
   const contact = item.contact_submissions
   const portfolioUrl = `${baseUrl()}/admin/outreach?tab=leads&id=${item.contact_submission_id}&contactId=${item.contact_submission_id}&queueId=${encodeURIComponent(item.id)}`
   const card = buildWarmGmailSendApprovalSlackPayload({
@@ -238,6 +305,14 @@ export async function POST(
       requested: true,
       sent: false,
       reason: 'This route records the approval request and builds the card only. Slack delivery remains a separate activation gate.',
+    },
+    approvalRecovery: {
+      status: 'portfolio_request_recorded_slack_dispatch_disabled',
+      label: 'Portfolio recovery path',
+      detail:
+        'Slack dispatch is disabled in this lane. Portfolio recorded the one-recipient approval request locally and returned the Slack review card payload without posting it.',
+      nextAction:
+        'Review this request in the contact workroom or approved Slack review surface; record approve, reject, or revise before any separate Gmail send execution gate.',
     },
     executionBoundary: {
       portfolioCanonicalAudit: true,

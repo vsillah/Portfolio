@@ -280,6 +280,7 @@ function RealRecipientRolloutCard({
       const body = await response.json().catch(() => ({})) as {
         error?: string
         approvalRequest?: { status?: string }
+        approvalRecovery?: { nextAction?: string }
       }
       if (!response.ok) throw new Error(body.error ?? 'Could not build Slack approval payload.')
       const status = body.approvalRequest?.status
@@ -293,7 +294,10 @@ function RealRecipientRolloutCard({
       } else {
         setLocalApprovalStatus('pending')
       }
-      setRequestReceipt('Local Slack approval request recorded in Portfolio. Slack dispatch off. Gmail send off.')
+      setRequestReceipt(
+        body.approvalRecovery?.nextAction ??
+        'Local send approval request recorded in Portfolio. Slack dispatch off. Gmail send off.',
+      )
     } catch (error) {
       setRequestError(error instanceof Error ? error.message : 'Could not build Slack approval payload.')
     } finally {
@@ -310,6 +314,19 @@ function RealRecipientRolloutCard({
     ['Execution', readiness.requirements.execution.state],
     ['Submitted evidence', readiness.requirements.submittedEvidence.state],
   ] as const
+  const requestButtonLabel =
+    requestLoading
+      ? 'Requesting approval'
+      : slackStatus === 'pending'
+        ? 'Refresh approval request'
+        : slackStatus === 'approved'
+          ? 'Approval recorded'
+          : slackStatus === 'rejected'
+            ? 'Approval rejected'
+            : slackStatus === 'revision_requested'
+              ? 'Revision requested'
+              : 'Request send approval'
+  const recovery = readiness.slackApprovalContract.approvalRequestRecovery
   const primaryDetail =
     readiness.blockers[0] ??
     (readiness.state === 'ready_for_send_request'
@@ -379,7 +396,7 @@ function RealRecipientRolloutCard({
             </p>
             <div className="mt-2 grid gap-1.5 text-[10px] leading-4 sm:grid-cols-3">
               <p className="rounded-md border border-current/20 bg-background/20 p-2">
-                Slack intent: {slackApprovalStatusLabel(receipt.approvalEvidence.slackApprovalStatus)}. Gmail auth: {receipt.approvalEvidence.portfolioAuthorizationState.replace(/_/g, ' ')}.
+                Approval intent: {slackApprovalStatusLabel(receipt.approvalEvidence.slackApprovalStatus)}. Gmail auth: {receipt.approvalEvidence.portfolioAuthorizationState.replace(/_/g, ' ')}.
               </p>
               <p className="rounded-md border border-current/20 bg-background/20 p-2">
                 Draft evidence: {receipt.draftEvidence.state}. Sender: {receipt.recipientIdentity.senderState}.
@@ -407,13 +424,13 @@ function RealRecipientRolloutCard({
                   Provider: {receipt.gmailCapability.providerState}. Suppression: {receipt.suppressionAndIdempotency.suppressionState}.
                 </p>
                 <p className="break-words">
-                  Slack dispatch: {receipt.approvalEvidence.slackDispatchStatus.replace(/_/g, ' ')}. Approval records intent only.
+                  Dispatch: {receipt.approvalEvidence.slackDispatchStatus.replace(/_/g, ' ')}. Approval records intent only.
                 </p>
                 <p className="break-words">
-                  Slack payload: {readiness.slackApprovalContract.route}.
+                  Approval route: {readiness.slackApprovalContract.route}.
                 </p>
                 <p className="break-all">
-                  Slack dedupe: {readiness.slackApprovalContract.payloadDedupeKey}
+                  Approval dedupe: {readiness.slackApprovalContract.payloadDedupeKey}
                 </p>
                 <p className="break-words">
                   Last action: {receipt.lastActionEvidence.status.replace(/_/g, ' ')}.
@@ -428,7 +445,7 @@ function RealRecipientRolloutCard({
       </div>
       <div className="mt-2 grid gap-1.5 text-[10px] leading-4 text-current/85 sm:grid-cols-2">
         <p className="break-words">
-          Slack approval: {slackApprovalStatusLabel(slackStatus)}. Slack dispatch: {readiness.slackApprovalContract.slackDispatchStatus.replace(/_/g, ' ')}.
+          Approval request: {slackApprovalStatusLabel(slackStatus)}. Slack dispatch: {readiness.slackApprovalContract.slackDispatchStatus.replace(/_/g, ' ')}.
         </p>
         <p>
           Approval records intent only. Gmail send: off.
@@ -440,6 +457,13 @@ function RealRecipientRolloutCard({
           Operator state: {readiness.requirements.execution.state.replace(/_/g, ' ')}.
         </p>
       </div>
+      {recovery && readiness.slackApprovalContract.dispatchEnabled === false && (
+        <div className="mt-2 rounded-md border border-sky-500/25 bg-background/25 p-2 text-[11px] leading-4 text-current/85">
+          <p className="font-semibold">{recovery.label}</p>
+          <p className="mt-1">{recovery.detail}</p>
+          <p className="mt-1">Next action: {recovery.nextAction}</p>
+        </div>
+      )}
       <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <button
           type="button"
@@ -448,10 +472,10 @@ function RealRecipientRolloutCard({
           className="inline-flex min-h-9 w-full items-center justify-center gap-2 rounded-md border border-sky-500/35 bg-sky-500/10 px-3 text-xs font-semibold text-sky-100 transition-colors hover:bg-sky-500/20 disabled:cursor-not-allowed disabled:border-silicon-slate disabled:bg-silicon-slate/20 disabled:text-muted-foreground sm:w-auto"
         >
           <MessageSquare size={13} aria-hidden />
-          {requestLoading ? 'Building payload' : 'Build Slack approval card'}
+          {requestButtonLabel}
         </button>
         <p className="text-[10px] leading-4 text-current/80">
-          Local request only; no Slack or Gmail send runs here.
+          Approval request only; no Slack post or Gmail send runs here.
         </p>
       </div>
       {requestError && (

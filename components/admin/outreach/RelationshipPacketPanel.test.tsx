@@ -359,6 +359,14 @@ function sendReadiness(
             recordsAuthorizationIntentOnly: true,
             gmailSendCalled: false,
             providerExecutionEnabled: false,
+            approvalRequestRecovery: {
+              status: 'portfolio_request_available_slack_dispatch_disabled',
+              label: 'Portfolio recovery path',
+              detail:
+                'Slack dispatch is disabled. The relationship packet can still record a local one-recipient approval request without posting to Slack or calling Gmail.',
+              nextAction:
+                'Use Request send approval in this contact workroom, then record approve, reject, or revise before any separate Gmail send execution gate.',
+            },
           },
           executionBoundary: {
             slackDispatch: false,
@@ -728,9 +736,11 @@ describe('RelationshipPacketPanel', () => {
     expect(screen.getByText('Provider: missing')).toBeInTheDocument()
     expect(screen.getByText('Authorization: missing')).toBeInTheDocument()
     expect(screen.getByText('Submitted evidence: missing')).toBeInTheDocument()
-    expect(screen.getByText('Slack approval: not sent. Slack dispatch: not sent.')).toBeInTheDocument()
+    expect(screen.getByText('Approval request: not sent. Slack dispatch: not sent.')).toBeInTheDocument()
     expect(screen.getByText('Approval records intent only. Gmail send: off.')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Build Slack approval card' })).toBeDisabled()
+    expect(screen.getByText('Portfolio recovery path')).toBeInTheDocument()
+    expect(screen.getByText(/Slack dispatch is disabled/i)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Request send approval' })).toBeDisabled()
     expect(screen.getByText('Draft packet: ready for review')).toBeInTheDocument()
     expect(screen.getByText('Provider capability smoke: blocked')).toBeInTheDocument()
     expect(screen.getByText(/Queue key: warm-outreach:email-send-queue:v1:/)).toBeInTheDocument()
@@ -967,8 +977,8 @@ describe('RelationshipPacketPanel', () => {
       />,
     )
 
-    expect(screen.getByText('Slack approval: pending. Slack dispatch: not sent.')).toBeInTheDocument()
-    expect(screen.getByText('Local request only; no Slack or Gmail send runs here.')).toBeInTheDocument()
+    expect(screen.getByText('Approval request: pending. Slack dispatch: not sent.')).toBeInTheDocument()
+    expect(screen.getByText('Approval request only; no Slack post or Gmail send runs here.')).toBeInTheDocument()
 
     for (const status of ['approved', 'rejected', 'revision_requested'] as const) {
       rerender(
@@ -979,7 +989,7 @@ describe('RelationshipPacketPanel', () => {
           />,
       )
       expect(screen.getByText(
-        `Slack approval: ${status === 'revision_requested' ? 'revision requested' : status}. Slack dispatch: not sent.`,
+        `Approval request: ${status === 'revision_requested' ? 'revision requested' : status}. Slack dispatch: not sent.`,
       )).toBeInTheDocument()
       expect(screen.getByText('Approval records intent only. Gmail send: off.')).toBeInTheDocument()
       expect(screen.getByText(/Operator state:/)).toBeInTheDocument()
@@ -1000,7 +1010,7 @@ describe('RelationshipPacketPanel', () => {
       />,
     )
 
-    const button = screen.getByRole('button', { name: 'Build Slack approval card' })
+    const button = screen.getByRole('button', { name: 'Request send approval' })
     expect(button).toBeEnabled()
 
     fireEvent.click(button)
@@ -1011,16 +1021,14 @@ describe('RelationshipPacketPanel', () => {
     expect(screen.getByText('Canary proof receipt')).toBeInTheDocument()
     expect(screen.getByLabelText('Live Gmail send disabled')).toBeInTheDocument()
     expect(screen.getByText(
-      'Slack intent: not sent. Gmail auth: missing.',
+      'Approval intent: not sent. Gmail auth: missing.',
     )).toBeInTheDocument()
     expect(screen.getByText('Draft evidence: tracked. Sender: matched.')).toBeInTheDocument()
     expect(screen.getByText('Send evidence: none. Gmail execution: disabled.')).toBeInTheDocument()
     expect(screen.getByText('Proof details')).toBeInTheDocument()
     expect(screen.getByText(`Queue row: ${WARM_SLACK_SEND_APPROVAL_QA_QUEUE_ID}`)).toBeInTheDocument()
-    expect(screen.getByText(
-      'Next step: Build the Slack approval card for this exact queue row; Slack records intent only and does not send Gmail.',
-    )).toBeInTheDocument()
-    expect(screen.getByText('Slack approval: pending. Slack dispatch: not sent.')).toBeInTheDocument()
+    expect(screen.getByText(/Use Request send approval in this contact workroom/)).toBeInTheDocument()
+    expect(screen.getByText('Approval request: pending. Slack dispatch: not sent.')).toBeInTheDocument()
     expect(fetchMock).not.toHaveBeenCalled()
 
     vi.stubGlobal('fetch', previousFetch)

@@ -189,7 +189,7 @@ describe('warm Gmail send Slack approval', () => {
     )
   })
 
-  it('dedupes Slack cards by recipient and message version, not queue row noise', () => {
+  it('dedupes Slack cards by exact queue row, recipient, channel, and message version', () => {
     const first = buildWarmGmailSendApprovalSlackPayload({
       contactId: 42,
       outreachQueueId: 'queue-1',
@@ -217,7 +217,7 @@ describe('warm Gmail send Slack approval', () => {
       }),
     })
 
-    expect(replay.dedupeKey).toBe(first.dedupeKey)
+    expect(replay.dedupeKey).not.toBe(first.dedupeKey)
     expect(nextVersion.dedupeKey).not.toBe(first.dedupeKey)
   })
 

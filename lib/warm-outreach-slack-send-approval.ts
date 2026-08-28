@@ -77,10 +77,14 @@ function stringValue(value: unknown) {
 
 export function warmGmailSendApprovalDedupeKey(input: {
   contactId: number
+  outreachQueueId?: string | null
+  channel?: 'email'
   messageVersionKey: string
 }) {
   return `warm-outreach:slack-gmail-send-card:v1:${stableHash({
     contactId: input.contactId,
+    channel: input.channel ?? 'email',
+    outreachQueueId: input.outreachQueueId ?? null,
     messageVersionKey: input.messageVersionKey,
   })}`
 }
@@ -220,6 +224,8 @@ export function buildWarmGmailSendApprovalSlackPayload(
     blocks,
     dedupeKey: warmGmailSendApprovalDedupeKey({
       contactId: input.contactId,
+      outreachQueueId: input.outreachQueueId ?? null,
+      channel: 'email',
       messageVersionKey: input.lifecycle.messageVersionKey,
     }),
     actionScope: scope,
