@@ -1,0 +1,12 @@
+{
+  "route": "http://localhost:3000/admin/contacts/42?qa=warm-slack-send-approval#warm-response-lifecycle",
+  "screenshots": {
+    "mobile360": "/Users/vambahsillah/.codex/worktrees/91d3/Portfolio/docs/warm-outreach-qa/warm-response-followup-contact-mobile-360.png",
+    "mobile390": "/Users/vambahsillah/.codex/worktrees/91d3/Portfolio/docs/warm-outreach-qa/warm-response-followup-contact-mobile-390.png",
+    "mobile430": "/Users/vambahsillah/.codex/worktrees/91d3/Portfolio/docs/warm-outreach-qa/warm-response-followup-contact-mobile-430.png",
+    "desktop": "/Users/vambahsillah/.codex/worktrees/91d3/Portfolio/docs/warm-outreach-qa/warm-response-followup-contact-desktop.png"
+  },
+  "mp4Path": "/Users/vambahsillah/.codex/worktrees/91d3/Portfolio/docs/warm-outreach-qa/warm-response-followup-contact-workroom.mp4",
+  "rawVideoPath": null,
+  "unexpectedRequests": []
+}
