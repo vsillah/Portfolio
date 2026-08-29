@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   AlertTriangle,
   CheckCircle2,
@@ -32,6 +32,11 @@ import type {
   WarmGmailOperatingLoop,
   WarmGmailOperatingLoopState,
 } from '@/lib/warm-outreach-gmail-operating-loop'
+import type {
+  WarmSmsApprovalState,
+  WarmSmsReadiness,
+  WarmSmsReadinessState,
+} from '@/lib/warm-outreach-sms-readiness'
 
 type SendReadinessItem =
   WarmOutreachResponseMonitoring['sendReadiness']['modes']['warm_1_to_1'][number]
@@ -44,6 +49,7 @@ export interface RelationshipPacketApiResponse {
   packet: WarmOutreachRelationshipPacket
   readiness: WarmOutreachReadiness
   contextSummary: WarmOutreachContextSummary
+  smsReadiness?: WarmSmsReadiness
   executionBoundary: {
     source: string
     readOnly: boolean
@@ -1303,6 +1309,203 @@ function BoundaryFlag({
   )
 }
 
+function smsReadinessClasses(state: WarmSmsReadinessState) {
+  if (state === 'manual_ready') return 'border-emerald-500/30 bg-emerald-500/10 text-emerald-100'
+  if (state === 'manual_review_required') return 'border-sky-500/30 bg-sky-500/10 text-sky-100'
+  return 'border-red-500/30 bg-red-500/10 text-red-100'
+}
+
+function smsCheckClasses(status: WarmSmsReadiness['consentAndSuppression']['checks'][number]['status']) {
+  if (status === 'passed') return 'border-emerald-500/25 bg-emerald-500/10 text-emerald-100'
+  if (status === 'blocked') return 'border-red-500/25 bg-red-500/10 text-red-100'
+  return 'border-amber-500/25 bg-amber-500/10 text-amber-100'
+}
+
+function smsDecisionClasses(state: WarmSmsApprovalState) {
+  if (state === 'approved_manual_ready') return 'border-emerald-500/30 bg-emerald-500/10 text-emerald-100'
+  if (state === 'revision_requested') return 'border-amber-500/30 bg-amber-500/10 text-amber-100'
+  if (state === 'rejected') return 'border-red-500/30 bg-red-500/10 text-red-100'
+  return 'border-silicon-slate bg-background/30 text-muted-foreground'
+}
+
+function smsDecisionLabel(state: WarmSmsApprovalState) {
+  if (state === 'approved_manual_ready') return 'Approved for manual use'
+  if (state === 'revision_requested') return 'Revision requested'
+  if (state === 'rejected') return 'Rejected'
+  return 'Not reviewed'
+}
+
+function SmsManualOutreachCard({ readiness }: { readiness?: WarmSmsReadiness | null }) {
+  const [decision, setDecision] = useState<WarmSmsApprovalState>(
+    readiness?.approval.state ?? 'not_reviewed',
+  )
+  const [draftText, setDraftText] = useState(readiness?.draft.preview ?? '')
+
+  useEffect(() => {
+    setDecision(readiness?.approval.state ?? 'not_reviewed')
+    setDraftText(readiness?.draft.preview ?? '')
+  }, [readiness?.approval.state, readiness?.contactId, readiness?.draft.preview])
+
+  if (!readiness) return null
+
+  const blocked = readiness.state === 'blocked'
+  const canApprove = !blocked && draftText.trim().length > 0
+  const decisionDetail =
+    decision === 'approved_manual_ready'
+      ? 'Manual readiness is recorded on this screen only. Portfolio still cannot send SMS.'
+      : decision === 'revision_requested'
+        ? 'Revise the text here, then approve manual readiness or reject it.'
+        : decision === 'rejected'
+          ? 'This SMS draft is rejected. Resolve the reason before any manual outreach.'
+          : 'Review the checks and draft before recording a manual-only decision.'
+
+  return (
+    <div id="warm-sms-readiness" className={`rounded-md border p-3 ${smsReadinessClasses(readiness.state)}`}>
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide">
+            <Phone size={14} aria-hidden />
+            Warm SMS manual readiness
+          </p>
+          <p className="mt-1 text-sm font-semibold">{readiness.label}</p>
+          <p className="mt-1 text-[11px] leading-4 opacity-85">
+            SMS is stricter than email here: phone, source, relationship rationale, suppression, opt-out sensitivity, and manual-only handling must be visible first.
+          </p>
+        </div>
+        <span className="inline-flex min-h-7 w-fit shrink-0 items-center gap-1.5 rounded-full border border-current/25 bg-background/25 px-2 py-0.5 text-[10px] font-semibold">
+          <LockKeyhole size={12} aria-hidden />
+          No SMS provider
+        </span>
+      </div>
+
+      <div className="mt-3 grid gap-2 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+        <div className="rounded-md border border-current/20 bg-background/20 p-2.5">
+          <p className="text-[10px] font-semibold uppercase tracking-wide">Phone and consent basis</p>
+          <p className="mt-1 text-[11px] leading-4">
+            Phone: {readiness.phoneReadiness.present ? 'present' : 'missing'} from {readiness.phoneReadiness.source}.
+          </p>
+          <p className="mt-1 text-[11px] leading-4 opacity-85">{readiness.phoneReadiness.provenance}</p>
+          <p className="mt-1 text-[11px] leading-4">
+            Relationship: {readiness.relationshipRationale.status} / {readiness.relationshipRationale.sourceCount} source(s), {readiness.relationshipRationale.signalCount} signal(s).
+          </p>
+          <p className="mt-1 text-[11px] leading-4 opacity-85">{readiness.consentAndSuppression.rationale}</p>
+        </div>
+
+        <div className="rounded-md border border-current/20 bg-background/20 p-2.5">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0">
+              <p className="text-[10px] font-semibold uppercase tracking-wide">Draft preview</p>
+              <p className="mt-1 text-[11px] leading-4">
+                {readiness.draft.templateLabel}: {readiness.draft.selectionReason}
+              </p>
+            </div>
+            <span className="w-fit shrink-0 rounded-full border border-current/25 px-2 py-0.5 text-[10px] font-semibold">
+              {draftText.length}/{readiness.draft.maxRecommendedCharacters}
+            </span>
+          </div>
+          <label className="mt-2 block">
+            <span className="sr-only">Warm SMS draft text</span>
+            <textarea
+              value={draftText}
+              onChange={(event) => setDraftText(event.target.value)}
+              rows={3}
+              className="min-h-[82px] w-full resize-y rounded-md border border-current/20 bg-background/35 p-2 text-xs leading-5 text-foreground outline-none transition-colors focus:border-sky-300"
+            />
+          </label>
+          <p className="mt-1 text-[10px] leading-4 opacity-80">
+            Draft helper only. Manual send remains outside Portfolio and must stop on any opt-out or uncertainty.
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-2 grid gap-1.5 sm:grid-cols-2 xl:grid-cols-3">
+        {readiness.consentAndSuppression.checks.map((check) => (
+          <div key={check.key} className={`rounded-md border p-2 ${smsCheckClasses(check.status)}`}>
+            <p className="text-[10px] font-semibold uppercase tracking-wide">{check.label}</p>
+            <p className="mt-1 text-[10px] leading-4">{check.detail}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className={`mt-2 rounded-md border p-2.5 ${smsDecisionClasses(decision)}`}>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0">
+            <p className="text-[10px] font-semibold uppercase tracking-wide">Manual decision state</p>
+            <p className="mt-1 text-sm font-semibold">{smsDecisionLabel(decision)}</p>
+            <p className="mt-1 text-[11px] leading-4">{decisionDetail}</p>
+          </div>
+          <div className="grid w-full grid-cols-1 gap-1.5 sm:w-auto sm:grid-cols-3">
+            <button
+              type="button"
+              disabled={!canApprove}
+              onClick={() => setDecision('approved_manual_ready')}
+              className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-md border border-emerald-500/35 bg-emerald-500/10 px-2 text-[11px] font-semibold text-emerald-100 transition-colors hover:bg-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <CheckCircle2 size={13} aria-hidden />
+              Approve
+            </button>
+            <button
+              type="button"
+              disabled={blocked}
+              onClick={() => setDecision('revision_requested')}
+              className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-md border border-amber-500/35 bg-amber-500/10 px-2 text-[11px] font-semibold text-amber-100 transition-colors hover:bg-amber-500/20 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <RefreshCw size={13} aria-hidden />
+              Revise
+            </button>
+            <button
+              type="button"
+              onClick={() => setDecision('rejected')}
+              className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-md border border-red-500/35 bg-red-500/10 px-2 text-[11px] font-semibold text-red-100 transition-colors hover:bg-red-500/20"
+            >
+              <ShieldAlert size={13} aria-hidden />
+              Reject
+            </button>
+          </div>
+        </div>
+        <p className="mt-2 text-[10px] leading-4 opacity-80">
+          Approval records manual-send readiness only. SMS delivery, provider calls, phone import, Slack, Gmail, n8n, and production mutation are off. Generic “proceed” is ignored for SMS sending.
+        </p>
+      </div>
+
+      <details className="mt-2 rounded-md border border-current/20 bg-background/20 p-2">
+        <summary className="cursor-pointer text-[10px] font-semibold uppercase tracking-wide">
+          SMS drafting aids and boundary
+        </summary>
+        <div className="mt-2 space-y-2">
+          <div className="flex flex-wrap gap-1.5">
+            {[
+              'Prior collaborator',
+              'Referral / common connection',
+              'Community relationship',
+              'Dormant lead',
+              'Advisor / investor',
+              'Follow-up after prior email',
+            ].map((label) => (
+              <span key={label} className="inline-flex min-h-7 items-center rounded-full border border-current/20 bg-background/25 px-2 py-1 text-[10px] font-semibold">
+                {label}
+              </span>
+            ))}
+          </div>
+          <ul className="space-y-1">
+            {readiness.draft.guidance.map((item) => (
+              <li key={item} className="text-[11px] leading-4">{item}</li>
+            ))}
+          </ul>
+          {readiness.recoveryStep && (
+            <p className="rounded-md border border-current/20 bg-background/25 p-2 text-[11px] leading-4">
+              Recovery: {readiness.recoveryStep}
+            </p>
+          )}
+          <p className="text-[10px] leading-4 opacity-80">
+            Boundary: manual only {readiness.executionBoundary.manualOnly ? 'yes' : 'no'} / SMS delivery {readiness.executionBoundary.smsDelivery ? 'enabled' : 'off'} / provider calls {readiness.executionBoundary.smsProviderCalls ? 'enabled' : 'off'}.
+          </p>
+        </div>
+      </details>
+    </div>
+  )
+}
+
 function LocalEvidenceFlag({ visible }: { visible: boolean }) {
   return (
     <span className="inline-flex min-h-7 items-center rounded-md border border-sky-500/25 bg-sky-500/10 px-2 py-1 text-xs text-sky-100">
@@ -1357,6 +1560,7 @@ export default function RelationshipPacketPanel({
 }: RelationshipPacketPanelProps) {
   const readiness = data?.readiness
   const packet = data?.packet
+  const smsReadiness = data?.smsReadiness
   const responseMonitoring = data?.responseMonitoring
   const sourceInventory = packet?.sourceInventory
   const hasInventoryEvidence =
@@ -1459,6 +1663,8 @@ export default function RelationshipPacketPanel({
               <ListBlock title="Review warnings" items={readiness.warnings} />
             </div>
           )}
+
+          <SmsManualOutreachCard readiness={smsReadiness} />
 
           <div className="rounded-md border border-silicon-slate/70 bg-silicon-slate/20 p-3">
             <p className="mb-2 text-[11px] font-medium uppercase tracking-wide text-muted-foreground/80">

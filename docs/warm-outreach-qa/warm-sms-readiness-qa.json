@@ -1,0 +1,94 @@
+{
+  "route": "http://127.0.0.1:3027/admin/outreach?tab=leads&filter=warm&id=42&contactId=42&qa=warm-slack-send-approval#warm-sms-readiness",
+  "screenshots": [
+    {
+      "name": "mobile-360",
+      "viewport": {
+        "width": 360,
+        "height": 800
+      },
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/55b6/Portfolio/docs/warm-outreach-qa/warm-sms-readiness-mobile-360.png",
+      "hasSmsReadiness": true,
+      "hasManualBoundary": true,
+      "hasApprovalCopy": true,
+      "horizontalOverflow": false,
+      "unexpectedRequests": []
+    },
+    {
+      "name": "mobile-390",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/55b6/Portfolio/docs/warm-outreach-qa/warm-sms-readiness-mobile-390.png",
+      "hasSmsReadiness": true,
+      "hasManualBoundary": true,
+      "hasApprovalCopy": true,
+      "horizontalOverflow": false,
+      "unexpectedRequests": []
+    },
+    {
+      "name": "mobile-430",
+      "viewport": {
+        "width": 430,
+        "height": 932
+      },
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/55b6/Portfolio/docs/warm-outreach-qa/warm-sms-readiness-mobile-430.png",
+      "hasSmsReadiness": true,
+      "hasManualBoundary": true,
+      "hasApprovalCopy": true,
+      "horizontalOverflow": false,
+      "unexpectedRequests": []
+    },
+    {
+      "name": "tablet-768",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/55b6/Portfolio/docs/warm-outreach-qa/warm-sms-readiness-tablet-768.png",
+      "hasSmsReadiness": true,
+      "hasManualBoundary": true,
+      "hasApprovalCopy": true,
+      "horizontalOverflow": false,
+      "unexpectedRequests": []
+    },
+    {
+      "name": "desktop-1440",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/55b6/Portfolio/docs/warm-outreach-qa/warm-sms-readiness-desktop-1440.png",
+      "hasSmsReadiness": true,
+      "hasManualBoundary": true,
+      "hasApprovalCopy": true,
+      "horizontalOverflow": false,
+      "unexpectedRequests": []
+    }
+  ],
+  "sourceFrames": [
+    "/Users/vambahsillah/.codex/worktrees/55b6/Portfolio/test-results/warm-sms-readiness-qa/source/01-sms-readiness.png",
+    "/Users/vambahsillah/.codex/worktrees/55b6/Portfolio/test-results/warm-sms-readiness-qa/source/02-sms-approved.png",
+    "/Users/vambahsillah/.codex/worktrees/55b6/Portfolio/test-results/warm-sms-readiness-qa/source/03-sms-revision.png",
+    "/Users/vambahsillah/.codex/worktrees/55b6/Portfolio/test-results/warm-sms-readiness-qa/source/04-sms-rejected.png"
+  ],
+  "compositeFrames": [
+    "/Users/vambahsillah/.codex/worktrees/55b6/Portfolio/test-results/warm-sms-readiness-qa/composite/frame-01.png",
+    "/Users/vambahsillah/.codex/worktrees/55b6/Portfolio/test-results/warm-sms-readiness-qa/composite/frame-02.png",
+    "/Users/vambahsillah/.codex/worktrees/55b6/Portfolio/test-results/warm-sms-readiness-qa/composite/frame-03.png",
+    "/Users/vambahsillah/.codex/worktrees/55b6/Portfolio/test-results/warm-sms-readiness-qa/composite/frame-04.png"
+  ],
+  "mp4Path": "/Users/vambahsillah/.codex/worktrees/55b6/Portfolio/docs/warm-outreach-qa/warm-sms-readiness-manual-qa.mp4",
+  "externalRequests": [],
+  "boundaries": {
+    "smsDelivery": false,
+    "smsProviderCalls": false,
+    "phoneImport": false,
+    "slackDispatch": false,
+    "gmailAction": false,
+    "n8nDispatch": false,
+    "productionDataMutation": false,
+    "migration": false
+  }
+}

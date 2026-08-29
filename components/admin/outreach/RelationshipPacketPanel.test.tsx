@@ -17,6 +17,7 @@ import {
   buildWarmOutreachGmailResponseImportActivationReadiness,
   buildWarmOutreachGmailResponseImportCanaryReadiness,
 } from '@/lib/warm-outreach-gmail-response-import'
+import { buildWarmSmsReadiness } from '@/lib/warm-outreach-sms-readiness'
 import {
   WARM_SLACK_SEND_APPROVAL_QA_QUEUE_ID,
   warmSlackSendApprovalQaRelationshipPacket,
@@ -1379,6 +1380,90 @@ describe('RelationshipPacketPanel', () => {
     expect(screen.getByText('External Gmail send authority blocked')).toBeInTheDocument()
     expect(screen.getByText('Draft creation: off')).toBeInTheDocument()
     expect(screen.getByText('External send: off')).toBeInTheDocument()
+  })
+
+  it('renders SMS readiness and records only local manual approval state', () => {
+    const previousFetch = globalThis.fetch
+    const fetchMock = vi.fn()
+    vi.stubGlobal('fetch', fetchMock)
+    const smsReady: RelationshipPacketApiResponse = {
+      ...packetResponse,
+      smsReadiness: buildWarmSmsReadiness({
+        packet: packetResponse.packet,
+        readiness: packetResponse.readiness,
+      }),
+    }
+
+    render(<RelationshipPacketPanel loading={false} error={null} data={smsReady} />)
+
+    expect(screen.getByText('Warm SMS manual readiness')).toBeInTheDocument()
+    expect(screen.getByText('SMS draft needs manual review')).toBeInTheDocument()
+    expect(screen.getByText('No SMS provider')).toBeInTheDocument()
+    expect(screen.getByText(/Phone: present from contact_submissions.phone_number/)).toBeInTheDocument()
+    expect(screen.getByText('Phone number present')).toBeInTheDocument()
+    expect(screen.getByText('Phone source provenance')).toBeInTheDocument()
+    expect(screen.getByText('Relationship rationale')).toBeInTheDocument()
+    expect(screen.getByText('Opt-out sensitivity')).toBeInTheDocument()
+    expect(screen.getAllByText('Manual only').length).toBeGreaterThan(0)
+    expect((screen.getByRole('textbox', { name: 'Warm SMS draft text' }) as HTMLTextAreaElement).value).toMatch(/Hi Ada/)
+    expect(screen.getByText('SMS drafting aids and boundary')).toBeInTheDocument()
+    expect(screen.getAllByText('Community relationship').length).toBeGreaterThan(0)
+    expect(screen.getByText('Not reviewed')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Approve' }))
+    expect(screen.getByText('Approved for manual use')).toBeInTheDocument()
+    expect(screen.getByText(/Manual readiness is recorded on this screen only/)).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Revise' }))
+    expect(screen.getByText('Revision requested')).toBeInTheDocument()
+    const textarea = screen.getByLabelText('Warm SMS draft text')
+    fireEvent.change(textarea, {
+      target: {
+        value: 'Hi Amina, quick check on the Portfolio QA follow-up. Is this worth a short look this week?',
+      },
+    })
+    expect(screen.getByDisplayValue(/Portfolio QA follow-up/)).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Reject' }))
+    expect(screen.getByText('Rejected')).toBeInTheDocument()
+    expect(screen.getByText(/SMS delivery, provider calls, phone import, Slack, Gmail, n8n, and production mutation are off/)).toBeInTheDocument()
+    expect(fetchMock).not.toHaveBeenCalled()
+
+    vi.stubGlobal('fetch', previousFetch)
+  })
+
+  it('shows blocked SMS recovery without enabling approval when phone readiness fails', () => {
+    const baseSms = buildWarmSmsReadiness({
+      packet: {
+        ...packetResponse.packet,
+        channelCapabilities: {
+          ...packetResponse.packet.channelCapabilities,
+          phone_contact: {
+            available: false,
+            providerConfigured: false,
+            supportsExternalSend: false,
+            manualOnly: true,
+            reason: 'No phone number is present.',
+          },
+        },
+      },
+      readiness: packetResponse.readiness,
+    })
+    const blockedSms: RelationshipPacketApiResponse = {
+      ...packetResponse,
+      smsReadiness: baseSms,
+    }
+
+    render(<RelationshipPacketPanel loading={false} error={null} data={blockedSms} />)
+
+    expect(screen.getByText('SMS manual outreach blocked')).toBeInTheDocument()
+    expect(screen.getByText(/Phone: missing from missing/)).toBeInTheDocument()
+    expect(screen.getByText('Recovery: No phone number is present in the Portfolio contact record.')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Approve' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Revise' })).toBeDisabled()
+    fireEvent.click(screen.getByRole('button', { name: 'Reject' }))
+    expect(screen.getByText('Rejected')).toBeInTheDocument()
+    expect(screen.getByText(/Boundary: manual only yes \/ SMS delivery off \/ provider calls off/)).toBeInTheDocument()
   })
 
   it('exports stable label helpers for adapter tests', () => {
