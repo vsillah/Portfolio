@@ -1407,6 +1407,9 @@ function SmsManualOutreachCard({ readiness }: { readiness?: WarmSmsReadiness | n
   const blocked = readiness.state === 'blocked'
   const suppressed = loop.gates.smsPromptsSuppressed
   const providerReadiness = readiness.providerReadiness
+  const providerChecksPassed = providerReadiness.consentAndSuppression.checks
+    .filter((check) => check.status === 'passed').length
+  const providerChecksTotal = providerReadiness.consentAndSuppression.checks.length
   const canApprove = !blocked && !suppressed && draftText.trim().length > 0
   const decisionDetail =
     decision === 'approved_manual_ready'
@@ -1521,58 +1524,77 @@ function SmsManualOutreachCard({ readiness }: { readiness?: WarmSmsReadiness | n
         id="warm-sms-provider-readiness"
         className={`mt-2 rounded-md border p-2.5 ${smsProviderReadinessClasses(providerReadiness.state)}`}
       >
-        <div className="flex flex-col gap-2 lg:flex-row lg:items-start lg:justify-between">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0">
             <p className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wide">
               <ShieldCheck size={13} aria-hidden />
               Warm SMS provider readiness · future phase
             </p>
             <p className="mt-1 text-sm font-semibold">{providerReadiness.label}</p>
-            <p className="mt-1 text-[11px] leading-4">{providerReadiness.operatorNextAction}</p>
           </div>
-          <div className="grid w-full grid-cols-1 gap-1.5 sm:grid-cols-3 lg:w-auto">
-            <span className="inline-flex min-h-8 items-center justify-center rounded-md border border-current/20 bg-background/25 px-2 text-[10px] font-semibold">
-              Provider: {providerReadiness.provider.configured ? 'configured' : 'missing'}
-            </span>
-            <span className="inline-flex min-h-8 items-center justify-center rounded-md border border-current/20 bg-background/25 px-2 text-[10px] font-semibold">
-              Flag: {providerReadiness.authorizationBoundary.providerFlagEnabled ? 'modeled on' : 'off'}
-            </span>
-            <span className="inline-flex min-h-8 items-center justify-center rounded-md border border-current/20 bg-background/25 px-2 text-[10px] font-semibold">
-              Live send: off
-            </span>
-          </div>
+          <span className="inline-flex min-h-7 w-fit shrink-0 items-center rounded-full border border-current/25 bg-background/25 px-2 py-0.5 text-[10px] font-semibold">
+            {providerReadiness.consentAndSuppression.status === 'clear'
+              ? `${providerChecksPassed}/${providerChecksTotal} safety checks clear`
+              : 'Safety review incomplete'}
+          </span>
         </div>
 
-        <div className="mt-2 grid gap-1.5 sm:grid-cols-2 xl:grid-cols-4">
-          {providerReadiness.consentAndSuppression.checks.map((check) => (
-            <div key={check.key} className={`rounded-md border p-2 ${smsCheckClasses(check.status)}`}>
-              <p className="text-[10px] font-semibold uppercase tracking-wide">{check.label}</p>
-              <p className="mt-1 text-[10px] leading-4">{check.detail}</p>
-            </div>
-          ))}
+        <div className="mt-2 flex flex-wrap gap-1.5" aria-label="Critical SMS provider boundaries">
+          <span data-sms-provider-critical-boundary className="inline-flex min-h-7 items-center rounded-full border border-current/20 bg-background/25 px-2 py-1 text-[10px] font-semibold">
+            Provider: {providerReadiness.provider.configured
+              ? providerReadiness.provider.enabled ? 'configured / modeled on' : 'configured / disabled'
+              : 'not configured'}
+          </span>
+          <span data-sms-provider-critical-boundary className="inline-flex min-h-7 items-center rounded-full border border-current/20 bg-background/25 px-2 py-1 text-[10px] font-semibold">
+            Provider calls: off
+          </span>
+          <span data-sms-provider-critical-boundary className="inline-flex min-h-7 items-center rounded-full border border-current/20 bg-background/25 px-2 py-1 text-[10px] font-semibold">
+            Live send: off
+          </span>
+          <span data-sms-provider-critical-boundary className="inline-flex min-h-7 items-center rounded-full border border-current/20 bg-background/25 px-2 py-1 text-[10px] font-semibold">
+            Generic proceed: rejected
+          </span>
+          <span data-sms-provider-critical-boundary className="inline-flex min-h-7 items-center rounded-full border border-current/20 bg-background/25 px-2 py-1 text-[10px] font-semibold">
+            Approval: per-recipient required
+          </span>
         </div>
 
-        <div className="mt-2 grid gap-2 md:grid-cols-2">
-          <div className="rounded-md border border-current/20 bg-background/25 p-2 text-[11px] leading-4">
-            <p className="text-[10px] font-semibold uppercase tracking-wide">Exact next gate</p>
-            <p className="mt-1">
-              {providerReadiness.eligibility.humanApprovedDraftCreation
-                ? 'A provider-bound draft would require its own human approval; no provider draft action exists in this phase.'
-                : providerReadiness.operatorNextAction}
-            </p>
-          </div>
-          <div className="rounded-md border border-current/20 bg-background/25 p-2 text-[11px] leading-4">
-            <p className="text-[10px] font-semibold uppercase tracking-wide">Future-send boundary</p>
-            <p className="mt-1">
-              Live provider send requires a separate current per-recipient approval and provider flag. Generic “proceed” is not send authority. No send route is implemented here.
-            </p>
-          </div>
+        <div className="mt-2 rounded-md border border-current/20 bg-background/25 p-2 text-[11px] leading-4">
+          <p className="text-[10px] font-semibold uppercase tracking-wide">Exact next gate</p>
+          <p className="mt-1">
+            {providerReadiness.eligibility.humanApprovedDraftCreation
+              ? 'Request a separate human approval for provider-bound draft creation. A later send still needs current per-recipient approval and the provider flag.'
+              : providerReadiness.operatorNextAction}
+          </p>
         </div>
-        <p className="mt-2 text-[10px] leading-4 opacity-80">
-          Consent audit: {providerReadiness.consentAndSuppression.auditedAt ?? 'missing'}.
-          {' '}Provider calls {providerReadiness.provider.providerCallsEnabled ? 'enabled' : 'off'}; SMS delivery {providerReadiness.provider.smsDeliveryEnabled ? 'enabled' : 'off'}.
-          {' '}The manual SMS loop below remains a separate local workflow.
-        </p>
+
+        <details
+          data-testid="warm-sms-provider-details"
+          className="mt-2 rounded-md border border-current/20 bg-background/20 p-2"
+        >
+          <summary className="flex cursor-pointer items-center justify-between gap-2 text-[10px] font-semibold uppercase tracking-wide">
+            <span>Consent, suppression, and audit details</span>
+            <span className="shrink-0 rounded-full border border-current/20 px-2 py-0.5 normal-case tracking-normal">
+              {providerChecksPassed}/{providerChecksTotal} clear
+            </span>
+          </summary>
+          <div className="mt-2 grid gap-1.5 sm:grid-cols-2 xl:grid-cols-4">
+            {providerReadiness.consentAndSuppression.checks.map((check) => (
+              <div
+                key={check.key}
+                data-sms-provider-check
+                className={`rounded-md border p-2 ${smsCheckClasses(check.status)}`}
+              >
+                <p className="text-[10px] font-semibold uppercase tracking-wide">{check.label}</p>
+                <p className="mt-1 text-[10px] leading-4">{check.detail}</p>
+              </div>
+            ))}
+          </div>
+          <p className="mt-2 text-[10px] leading-4 opacity-80">
+            Consent audit: {providerReadiness.consentAndSuppression.auditedAt ?? 'missing'}.
+            {' '}No send route is implemented. The manual SMS loop below remains a separate local workflow.
+          </p>
+        </details>
       </div>
 
       <div id="warm-sms-manual-decision" className={`mt-2 rounded-md border p-2.5 ${smsDecisionClasses(decision)}`}>
