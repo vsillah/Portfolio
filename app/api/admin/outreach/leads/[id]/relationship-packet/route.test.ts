@@ -205,6 +205,48 @@ describe('GET /api/admin/outreach/leads/[id]/relationship-packet', () => {
       humanReviewRequired: true,
       approvalBoundary: 'draft_only_no_external_send',
     })
+    expect(json.smsReadiness).toMatchObject({
+      version: 'warm-outreach-sms-readiness/v1',
+      contactId: '42',
+      channel: 'phone_contact',
+      state: 'manual_review_required',
+      phoneReadiness: {
+        present: true,
+        source: 'contact_submissions.phone_number',
+        rawPhoneReturned: false,
+      },
+      consentAndSuppression: {
+        status: 'clear_for_manual_review',
+        checks: expect.arrayContaining([
+          expect.objectContaining({ key: 'phone_present', status: 'passed' }),
+          expect.objectContaining({ key: 'opt_out', status: 'review_required' }),
+          expect.objectContaining({ key: 'manual_only', status: 'review_required' }),
+        ]),
+      },
+      draft: {
+        templateFamily: 'referral_common_connection',
+        maxRecommendedCharacters: 240,
+      },
+      approval: {
+        state: 'not_reviewed',
+        recordsManualReadinessOnly: true,
+        smsDeliveryEnabled: false,
+        providerCallsEnabled: false,
+        externalSendEnabled: false,
+        genericProceedAccepted: false,
+      },
+      executionBoundary: {
+        manualOnly: true,
+        smsProviderConfigured: false,
+        smsProviderCalls: false,
+        smsDelivery: false,
+        phoneImport: false,
+        slackDispatch: false,
+        gmailAction: false,
+        n8nDispatch: false,
+        productionDataMutation: false,
+      },
+    })
     expect(json.executionBoundary).toEqual({
       source: 'local_portfolio_rows',
       readOnly: true,
@@ -453,6 +495,16 @@ describe('GET /api/admin/outreach/leads/[id]/relationship-packet', () => {
       status: 'blocked',
       blockers: expect.arrayContaining(['Contact is marked do not contact in Portfolio.']),
     })
+    expect(json.smsReadiness).toMatchObject({
+      state: 'blocked',
+      consentAndSuppression: {
+        status: 'blocked',
+      },
+      executionBoundary: {
+        smsDelivery: false,
+        smsProviderCalls: false,
+      },
+    })
   })
 
   it('keeps removed leads blocked in readiness', async () => {
@@ -558,6 +610,55 @@ describe('GET /api/admin/outreach/leads/[id]/relationship-packet', () => {
       available: true,
       manualOnly: true,
       supportsExternalSend: false,
+    })
+  })
+
+  it('keeps SMS readiness blocked when no phone number is present', async () => {
+    setupRows({
+      contact_submissions: [{ ...lead, phone_number: null }],
+      contact_communications: [],
+      outreach_queue: [],
+      email_messages: [],
+      meeting_records: [
+        {
+          id: 'meeting-1',
+          contact_submission_id: 42,
+          meeting_type: 'discovery',
+          meeting_date: '2026-08-19T00:00:00Z',
+          created_at: '2026-08-19T00:00:00Z',
+        },
+      ],
+      meeting_action_tasks: [],
+    })
+
+    const response = await GET(
+      request('http://localhost/api/admin/outreach/leads/42/relationship-packet?preferred_channel=phone_contact'),
+      { params: Promise.resolve({ id: '42' }) },
+    )
+
+    expect(response.status).toBe(200)
+    const json = await response.json()
+    expect(json.packet.channelCapabilities.phone_contact).toMatchObject({
+      available: false,
+      manualOnly: true,
+      supportsExternalSend: false,
+    })
+    expect(json.smsReadiness).toMatchObject({
+      state: 'blocked',
+      phoneReadiness: {
+        present: false,
+        source: 'missing',
+      },
+      consentAndSuppression: {
+        blockers: expect.arrayContaining([
+          'No phone number is present in the Portfolio contact record.',
+        ]),
+      },
+      recoveryStep: 'No phone number is present in the Portfolio contact record.',
+      executionBoundary: {
+        smsDelivery: false,
+        smsProviderCalls: false,
+      },
     })
   })
 
