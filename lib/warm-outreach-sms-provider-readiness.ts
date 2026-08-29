@@ -45,9 +45,115 @@ export const warmSmsProviderCapabilityRequirements = [
 export type WarmSmsProviderCapabilityKey =
   (typeof warmSmsProviderCapabilityRequirements)[number]['key']
 
+export const warmSmsProviderSetupCandidates = [
+  {
+    key: 'twilio_messaging',
+    label: 'Twilio Messaging',
+    capabilityFit: 'candidate',
+    setupWork:
+      'Map account reference, sender identity, delivery callback, STOP webhook, and no-send test mode.',
+  },
+  {
+    key: 'telnyx_messaging',
+    label: 'Telnyx Messaging',
+    capabilityFit: 'candidate',
+    setupWork:
+      'Map messaging profile, sender identity, webhook signing, opt-out handling, and sandbox constraints.',
+  },
+  {
+    key: 'messagebird_messaging',
+    label: 'MessageBird / Bird',
+    capabilityFit: 'candidate',
+    setupWork:
+      'Map channel identity, delivery report callbacks, inbound STOP handling, and no-send validation.',
+  },
+  {
+    key: 'custom_disabled_adapter',
+    label: 'Custom disabled adapter',
+    capabilityFit: 'review_only',
+    setupWork:
+      'Keep the adapter inert while provider contracts, approvals, and audit requirements are reviewed.',
+  },
+] as const
+
+export type WarmSmsProviderSetupCandidateKey =
+  (typeof warmSmsProviderSetupCandidates)[number]['key']
+
+export type WarmSmsProviderSetupReadinessState =
+  | 'recipient_evidence_required'
+  | 'provider_path_required'
+  | 'disabled_configuration_review_required'
+  | 'capability_mapping_required'
+  | 'setup_audit_required'
+  | 'setup_ready_activation_disabled'
+
+export type WarmSmsProviderSetupConfigurationKey =
+  | 'SMS_PROVIDER_ADAPTER'
+  | 'SMS_PROVIDER_CREDENTIAL_REFERENCE'
+  | 'SMS_PROVIDER_SENDER_REFERENCE'
+  | 'SMS_PROVIDER_DELIVERY_CALLBACK'
+  | 'SMS_PROVIDER_OPT_OUT_CALLBACK'
+  | 'ENABLE_WARM_SMS_PROVIDER_EXECUTION'
+
+export type WarmSmsProviderSetupConfigurationStatus =
+  | 'missing'
+  | 'review_required'
+  | 'disabled_verified'
+
+export type WarmSmsProviderSetupConfigurationItem = {
+  key: WarmSmsProviderSetupConfigurationKey
+  label: string
+  status: WarmSmsProviderSetupConfigurationStatus
+  rawValueReturned: false
+  detail: string
+}
+
+export type WarmSmsProviderSetupReadiness = {
+  version: 'warm-outreach-sms-provider-setup-readiness/v1'
+  state: WarmSmsProviderSetupReadinessState
+  label: string
+  selectedPath: {
+    candidateKey: WarmSmsProviderSetupCandidateKey | null
+    label: string
+    selectionStatus: WarmSmsProviderActivationInput['providerSelectionStatus']
+    selectionNote: string
+    availableCandidates: Array<{
+      key: WarmSmsProviderSetupCandidateKey
+      label: string
+      capabilityFit: string
+      setupWork: string
+      externalCallsEnabled: false
+    }>
+  }
+  configurationValidation: {
+    status: WarmSmsProviderActivationInput['configurationStatus']
+    label: string
+    credentialsRead: false
+    environmentVariablesChanged: false
+    providerSettingsChanged: false
+    featureFlagEnabled: false
+    requiredEnvironment: WarmSmsProviderSetupConfigurationItem[]
+  }
+  operatorPath: {
+    canReviewNow: string[]
+    blockedByProviderSetup: string[]
+    requiredBeforeAnyLiveSend: string[]
+    nextAction: string
+  }
+  executionBoundary: {
+    providerCallsEnabled: false
+    smsDeliveryEnabled: false
+    credentialsRead: false
+    environmentChanges: false
+    featureFlagEnabled: false
+    routeImplemented: false
+  }
+}
+
 export type WarmSmsProviderActivationInput = {
   providerSelectionStatus: 'not_selected' | 'candidate' | 'selected'
   providerSelectionNote: string | null
+  providerSetupCandidate?: WarmSmsProviderSetupCandidateKey | null
   configurationStatus: 'not_reviewed' | 'planned_disabled' | 'verified_disabled'
   configurationNote: string | null
   capabilityEvidence: Partial<Record<WarmSmsProviderCapabilityKey, {
@@ -137,6 +243,7 @@ export type WarmSmsProviderReadiness = {
     sendRouteImplemented: false
     externalSendEnabled: false
   }
+  setupReadiness: WarmSmsProviderSetupReadiness
   activationReadiness: {
     version: 'warm-outreach-sms-provider-activation-readiness/v1'
     state:
@@ -242,6 +349,22 @@ function normalizedNote(value: string | null) {
 function validTimestamp(value: string | null) {
   if (!value) return false
   return Number.isFinite(Date.parse(value))
+}
+
+function providerSetupCandidateFor(
+  activation: WarmSmsProviderActivationInput,
+): WarmSmsProviderSetupCandidateKey | null {
+  if (activation.providerSetupCandidate !== undefined) {
+    return activation.providerSetupCandidate
+  }
+  return activation.providerSelectionStatus === 'selected'
+    ? 'custom_disabled_adapter'
+    : null
+}
+
+function setupCandidateLabel(candidateKey: WarmSmsProviderSetupCandidateKey | null) {
+  return warmSmsProviderSetupCandidates.find((candidate) => candidate.key === candidateKey)?.label ??
+    'No provider path selected'
 }
 
 function cooldownSnapshot(lastContactAt: string | null, cooldownDays: number, now: string) {
@@ -443,6 +566,75 @@ export function buildWarmSmsProviderReadiness(
     planned_disabled: 'A disabled configuration is modeled, but provider-specific review evidence is incomplete.',
     verified_disabled: 'The disabled configuration contract was reviewed without enabling provider execution.',
   }
+  const setupCandidate = providerSetupCandidateFor(activation)
+  let setupState: WarmSmsProviderSetupReadinessState
+  if (!consentPrerequisitesMet) {
+    setupState = 'recipient_evidence_required'
+  } else if (activation.providerSelectionStatus !== 'selected' || !setupCandidate) {
+    setupState = 'provider_path_required'
+  } else if (activation.configurationStatus !== 'verified_disabled') {
+    setupState = 'disabled_configuration_review_required'
+  } else if (!capabilitiesComplete) {
+    setupState = 'capability_mapping_required'
+  } else if (!activationReviewedAtValid) {
+    setupState = 'setup_audit_required'
+  } else {
+    setupState = 'setup_ready_activation_disabled'
+  }
+  const setupLabels: Record<WarmSmsProviderSetupReadinessState, string> = {
+    recipient_evidence_required: 'Recipient consent and suppression evidence required',
+    provider_path_required: 'SMS provider path selection required',
+    disabled_configuration_review_required: 'Disabled provider configuration review required',
+    capability_mapping_required: 'Provider capability mapping incomplete',
+    setup_audit_required: 'Provider setup audit timestamp required',
+    setup_ready_activation_disabled: 'Provider setup reviewed; activation remains disabled',
+  }
+  const configurationValidationRows: WarmSmsProviderSetupConfigurationItem[] = [
+    {
+      key: 'SMS_PROVIDER_ADAPTER',
+      label: 'Provider adapter',
+      status: setupCandidate ? 'review_required' : 'missing',
+      rawValueReturned: false,
+      detail: setupCandidate
+        ? `${setupCandidateLabel(setupCandidate)} is modeled for review only.`
+        : 'Choose the provider path before any configuration review.',
+    },
+    {
+      key: 'SMS_PROVIDER_CREDENTIAL_REFERENCE',
+      label: 'Credential reference',
+      status: activation.configurationStatus === 'verified_disabled' ? 'disabled_verified' : 'review_required',
+      rawValueReturned: false,
+      detail: 'Record only the presence of a future credential reference. Do not read, display, or write secrets here.',
+    },
+    {
+      key: 'SMS_PROVIDER_SENDER_REFERENCE',
+      label: 'Sender identity',
+      status: activation.configurationStatus === 'verified_disabled' ? 'disabled_verified' : 'review_required',
+      rawValueReturned: false,
+      detail: 'Verify the sender identity requirement without enabling or contacting a provider.',
+    },
+    {
+      key: 'SMS_PROVIDER_DELIVERY_CALLBACK',
+      label: 'Delivery callback',
+      status: activation.configurationStatus === 'verified_disabled' ? 'disabled_verified' : 'review_required',
+      rawValueReturned: false,
+      detail: 'Map where delivered, failed, and unknown delivery outcomes would be recorded after a future provider attempt.',
+    },
+    {
+      key: 'SMS_PROVIDER_OPT_OUT_CALLBACK',
+      label: 'Opt-out callback',
+      status: activation.configurationStatus === 'verified_disabled' ? 'disabled_verified' : 'review_required',
+      rawValueReturned: false,
+      detail: 'Map how STOP-style replies would update suppression before another SMS prompt can appear.',
+    },
+    {
+      key: 'ENABLE_WARM_SMS_PROVIDER_EXECUTION',
+      label: 'Execution feature flag',
+      status: 'disabled_verified',
+      rawValueReturned: false,
+      detail: 'The execution flag must stay disabled until a later captain-approved activation phase.',
+    },
+  ]
 
   return {
     version: 'warm-outreach-sms-provider-readiness/v1',
@@ -547,6 +739,62 @@ export function buildWarmSmsProviderReadiness(
       genericProceedAccepted: false,
       sendRouteImplemented: false,
       externalSendEnabled: false,
+    },
+    setupReadiness: {
+      version: 'warm-outreach-sms-provider-setup-readiness/v1',
+      state: setupState,
+      label: setupLabels[setupState],
+      selectedPath: {
+        candidateKey: setupCandidate,
+        label: setupCandidateLabel(setupCandidate),
+        selectionStatus: activation.providerSelectionStatus,
+        selectionNote:
+          normalizedNote(activation.providerSelectionNote) ?? selectionNotes[activation.providerSelectionStatus],
+        availableCandidates: warmSmsProviderSetupCandidates.map((candidate) => ({
+          ...candidate,
+          externalCallsEnabled: false,
+        })),
+      },
+      configurationValidation: {
+        status: activation.configurationStatus,
+        label: configurationNotes[activation.configurationStatus],
+        credentialsRead: false,
+        environmentVariablesChanged: false,
+        providerSettingsChanged: false,
+        featureFlagEnabled: false,
+        requiredEnvironment: configurationValidationRows,
+      },
+      operatorPath: {
+        canReviewNow: [
+          'Provider path candidates and tradeoffs',
+          'Disabled configuration checklist',
+          'Capability gaps and no-send test requirements',
+          'Future per-recipient authorization contract',
+        ],
+        blockedByProviderSetup: [
+          'Credential validation',
+          'Provider API calls',
+          'Delivery callback verification',
+          'Inbound opt-out webhook verification',
+          'Live SMS delivery',
+        ],
+        requiredBeforeAnyLiveSend: [
+          'Provider path selected and reviewed',
+          'Disabled configuration verified without exposing secrets',
+          'All capability evidence verified',
+          'Consent, suppression, phone provenance, and cooldown audit current for the recipient',
+          'Current per-recipient approval matched to contact, SMS channel, message version, and idempotency key',
+        ],
+        nextAction: setupLabels[setupState],
+      },
+      executionBoundary: {
+        providerCallsEnabled: false,
+        smsDeliveryEnabled: false,
+        credentialsRead: false,
+        environmentChanges: false,
+        featureFlagEnabled: false,
+        routeImplemented: false,
+      },
     },
     activationReadiness: {
       version: 'warm-outreach-sms-provider-activation-readiness/v1',

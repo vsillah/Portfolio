@@ -286,6 +286,49 @@ describe('GET /api/admin/outreach/leads/[id]/relationship-packet', () => {
           sendRouteImplemented: false,
           externalSendEnabled: false,
         },
+        setupReadiness: {
+          version: 'warm-outreach-sms-provider-setup-readiness/v1',
+          state: 'recipient_evidence_required',
+          selectedPath: {
+            candidateKey: null,
+            selectionStatus: 'not_selected',
+          },
+          configurationValidation: {
+            credentialsRead: false,
+            environmentVariablesChanged: false,
+            providerSettingsChanged: false,
+            featureFlagEnabled: false,
+            requiredEnvironment: expect.arrayContaining([
+              expect.objectContaining({
+                key: 'SMS_PROVIDER_ADAPTER',
+                status: 'missing',
+                rawValueReturned: false,
+              }),
+              expect.objectContaining({
+                key: 'ENABLE_WARM_SMS_PROVIDER_EXECUTION',
+                status: 'disabled_verified',
+                rawValueReturned: false,
+              }),
+            ]),
+          },
+          operatorPath: {
+            blockedByProviderSetup: expect.arrayContaining([
+              'Provider API calls',
+              'Live SMS delivery',
+            ]),
+            requiredBeforeAnyLiveSend: expect.arrayContaining([
+              'Current per-recipient approval matched to contact, SMS channel, message version, and idempotency key',
+            ]),
+          },
+          executionBoundary: {
+            providerCallsEnabled: false,
+            smsDeliveryEnabled: false,
+            credentialsRead: false,
+            environmentChanges: false,
+            featureFlagEnabled: false,
+            routeImplemented: false,
+          },
+        },
         activationReadiness: {
           version: 'warm-outreach-sms-provider-activation-readiness/v1',
           state: 'consent_or_suppression_required',

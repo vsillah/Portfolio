@@ -1371,6 +1371,14 @@ function smsProviderCapabilityClasses(
   return smsCheckClasses('review_required')
 }
 
+function smsSetupValidationClasses(
+  status: WarmSmsReadiness['providerReadiness']['setupReadiness']['configurationValidation']['requiredEnvironment'][number]['status'],
+) {
+  if (status === 'disabled_verified') return smsCheckClasses('passed')
+  if (status === 'missing') return smsCheckClasses('blocked')
+  return smsCheckClasses('review_required')
+}
+
 function SmsManualOutreachCard({ readiness }: { readiness?: WarmSmsReadiness | null }) {
   const [decision, setDecision] = useState<WarmSmsApprovalState>(
     readiness?.approval.state ?? 'not_reviewed',
@@ -1416,6 +1424,7 @@ function SmsManualOutreachCard({ readiness }: { readiness?: WarmSmsReadiness | n
   const suppressed = loop.gates.smsPromptsSuppressed
   const providerReadiness = readiness.providerReadiness
   const activationReadiness = providerReadiness.activationReadiness
+  const setupReadiness = providerReadiness.setupReadiness
   const providerChecksPassed = providerReadiness.consentAndSuppression.checks
     .filter((check) => check.status === 'passed').length
   const providerChecksTotal = providerReadiness.consentAndSuppression.checks.length
@@ -1429,6 +1438,18 @@ function SmsManualOutreachCard({ readiness }: { readiness?: WarmSmsReadiness | n
           ? 'This SMS draft is rejected. Resolve the reason before any manual outreach.'
           : 'Review the checks and draft before recording a manual-only decision.'
   const activeStageIndex = warmSmsManualLoopStages.findIndex((stage) => stage.state === loop.state)
+  const setupGateLabel =
+    setupReadiness.state === 'recipient_evidence_required'
+      ? 'recipient evidence'
+      : setupReadiness.state === 'provider_path_required'
+        ? 'provider path'
+        : setupReadiness.state === 'disabled_configuration_review_required'
+          ? 'config review'
+          : setupReadiness.state === 'capability_mapping_required'
+            ? 'capability map'
+            : setupReadiness.state === 'setup_audit_required'
+              ? 'setup audit'
+              : 'reviewed, disabled'
 
   async function handleCopyApprovedDraft() {
     if (!loop.gates.canCopyApprovedDraft) return
@@ -1568,6 +1589,21 @@ function SmsManualOutreachCard({ readiness }: { readiness?: WarmSmsReadiness | n
           </span>
         </div>
 
+        <div data-sms-provider-setup-summary className="mt-2 flex flex-wrap gap-1.5">
+          <span className="inline-flex min-h-7 items-center rounded-full border border-current/20 bg-background/25 px-2 py-1 text-[10px] font-semibold">
+            Setup path: {setupReadiness.selectedPath.label} / {setupReadiness.selectedPath.selectionStatus.replaceAll('_', ' ')}
+          </span>
+          <span className="inline-flex min-h-7 items-center rounded-full border border-current/20 bg-background/25 px-2 py-1 text-[10px] font-semibold">
+            Config validation: {setupReadiness.configurationValidation.status.replaceAll('_', ' ')}
+          </span>
+          <span className="inline-flex min-h-7 items-center rounded-full border border-current/20 bg-background/25 px-2 py-1 text-[10px] font-semibold">
+            Credentials read: no · env changed: no
+          </span>
+          <span className="inline-flex min-h-7 items-center rounded-full border border-current/20 bg-background/25 px-2 py-1 text-[10px] font-semibold">
+            Setup gate: {setupGateLabel}
+          </span>
+        </div>
+
         <div className="mt-2 rounded-md border border-current/20 bg-background/25 p-2 text-[11px] leading-4">
           <p className="text-[10px] font-semibold uppercase tracking-wide">Exact next gate</p>
           <p className="mt-1" data-testid="warm-sms-activation-next-step">
@@ -1606,6 +1642,58 @@ function SmsManualOutreachCard({ readiness }: { readiness?: WarmSmsReadiness | n
               <p className="mt-1 text-[10px] leading-4 opacity-80">
                 {activationReadiness.providerSummary.configurationNote} Credentials read: no. Environment changes: no.
               </p>
+            </div>
+          </div>
+
+          <div data-sms-provider-setup-path className="mt-2 grid gap-1.5 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
+            <div className="rounded-md border border-current/20 bg-background/25 p-2">
+              <p className="text-[10px] font-semibold uppercase tracking-wide">Provider setup path</p>
+              <p className="mt-1 text-[10px] leading-4">
+                {setupReadiness.selectedPath.selectionNote}
+              </p>
+              <div className="mt-2 grid gap-1.5 sm:grid-cols-2">
+                {setupReadiness.selectedPath.availableCandidates.map((candidate) => (
+                  <div
+                    key={candidate.key}
+                    data-sms-provider-setup-candidate
+                    className={`rounded-md border p-2 ${
+                      candidate.key === setupReadiness.selectedPath.candidateKey
+                        ? 'border-sky-500/30 bg-sky-500/10 text-sky-100'
+                        : 'border-current/15 bg-background/20 text-muted-foreground'
+                    }`}
+                  >
+                    <p className="text-[10px] font-semibold uppercase tracking-wide">{candidate.label}</p>
+                    <p className="mt-1 text-[10px] leading-4">
+                      {candidate.capabilityFit.replaceAll('_', ' ')} · calls off
+                    </p>
+                    <p className="mt-1 text-[10px] leading-4 opacity-80">{candidate.setupWork}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div data-sms-configuration-validation className="rounded-md border border-current/20 bg-background/25 p-2">
+              <p className="text-[10px] font-semibold uppercase tracking-wide">Environment and config validation</p>
+              <p className="mt-1 text-[10px] leading-4">
+                {setupReadiness.configurationValidation.label} Provider settings changed: no. Feature flag enabled: no.
+              </p>
+              <div className="mt-2 grid gap-1.5 sm:grid-cols-2">
+                {setupReadiness.configurationValidation.requiredEnvironment.map((item) => (
+                  <div
+                    key={item.key}
+                    data-sms-provider-config-item
+                    className={`rounded-md border p-2 ${smsSetupValidationClasses(item.status)}`}
+                  >
+                    <p className="text-[10px] font-semibold uppercase tracking-wide">{item.label}</p>
+                    <p className="mt-1 text-[10px] leading-4">
+                      {item.key} · {item.status.replaceAll('_', ' ')}
+                    </p>
+                    <p className="mt-1 text-[10px] leading-4 opacity-80">
+                      {item.detail} Raw value returned: no.
+                    </p>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 
@@ -1684,6 +1772,36 @@ function SmsManualOutreachCard({ readiness }: { readiness?: WarmSmsReadiness | n
                   <li key={step}>{step}</li>
                 ))}
               </ol>
+            </div>
+          </div>
+
+          <div data-sms-operator-setup-path className="mt-2 rounded-md border border-current/20 bg-background/25 p-2">
+            <p className="text-[10px] font-semibold uppercase tracking-wide">Operator setup path</p>
+            <div className="mt-2 grid gap-1.5 sm:grid-cols-3">
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-wide">Review now</p>
+                <ul className="mt-1 space-y-1 text-[10px] leading-4 opacity-90">
+                  {setupReadiness.operatorPath.canReviewNow.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-wide">Blocked by setup</p>
+                <ul className="mt-1 space-y-1 text-[10px] leading-4 opacity-90">
+                  {setupReadiness.operatorPath.blockedByProviderSetup.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-wide">Before live SMS</p>
+                <ul className="mt-1 space-y-1 text-[10px] leading-4 opacity-90">
+                  {setupReadiness.operatorPath.requiredBeforeAnyLiveSend.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </div>
             </div>
           </div>
 

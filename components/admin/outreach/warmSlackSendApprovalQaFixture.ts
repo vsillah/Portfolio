@@ -893,6 +893,7 @@ export const warmSlackSendApprovalQaRelationshipPacket = {
         providerSelectionStatus: 'selected',
         providerSelectionNote:
           'Synthetic future SMS adapter is the test-owned provider candidate recorded for architecture review.',
+        providerSetupCandidate: 'custom_disabled_adapter',
         configurationStatus: 'planned_disabled',
         configurationNote:
           'Synthetic configuration is modeled as disabled. No credentials, environment values, or provider settings were read or changed.',
