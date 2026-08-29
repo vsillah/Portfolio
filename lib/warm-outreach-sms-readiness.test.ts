@@ -6,6 +6,7 @@ import {
 } from './warm-outreach-relationship-intelligence'
 import {
   buildWarmSmsReadiness,
+  evaluateWarmSmsManualLoop,
   selectWarmSmsTemplateFamily,
 } from './warm-outreach-sms-readiness'
 
@@ -272,5 +273,134 @@ describe('warm SMS readiness', () => {
       relationshipSignals: ['collaborator'],
       commonalities: [],
     })).family).toBe('prior_collaborator')
+  })
+
+  it('evaluates manual SMS loop transitions without enabling provider gates', () => {
+    const base = {
+      readinessState: 'manual_ready' as const,
+      approvalState: 'approved_manual_ready' as const,
+      draftText: 'Hi Amina, worth a quick check-in this week?',
+      draftRevised: false,
+      manualSendPrepared: false,
+      evidenceRecorded: false,
+      evidence: {
+        sentAt: null,
+        channel: 'manual_sms' as const,
+        operatorNote: '',
+        outcome: 'no_response_yet' as const,
+      },
+    }
+
+    expect(evaluateWarmSmsManualLoop(base)).toMatchObject({
+      state: 'readiness_reviewed',
+      gates: {
+        canCopyApprovedDraft: true,
+        canPrepareManualSend: true,
+        smsDeliveryEnabled: false,
+        externalProviderCallsEnabled: false,
+        genericProceedAccepted: false,
+      },
+    })
+    expect(evaluateWarmSmsManualLoop({
+      ...base,
+      draftRevised: true,
+      approvalState: 'revision_requested',
+    }).state).toBe('draft_revised')
+    expect(evaluateWarmSmsManualLoop({
+      ...base,
+      manualSendPrepared: true,
+    }).state).toBe('manual_send_prepared')
+    expect(evaluateWarmSmsManualLoop({
+      ...base,
+      manualSendPrepared: true,
+      evidenceRecorded: true,
+    })).toMatchObject({
+      state: 'manual_send_evidence_recorded',
+      evidenceComplete: false,
+      missingEvidence: ['timestamp', 'operator note'],
+    })
+    expect(evaluateWarmSmsManualLoop({
+      ...base,
+      manualSendPrepared: true,
+      evidenceRecorded: true,
+      evidence: {
+        sentAt: '2026-08-29T12:00:00.000Z',
+        channel: 'manual_sms',
+        operatorNote: 'Sent manually from phone after review.',
+        outcome: 'no_response_yet',
+      },
+    })).toMatchObject({
+      state: 'response_expected',
+      evidenceComplete: true,
+      response: {
+        responseReceived: false,
+        followUpDraftNeeded: false,
+        suppressesFutureSms: false,
+      },
+    })
+  })
+
+  it('classifies manual SMS outcomes and suppresses future prompts on stop states', () => {
+    const base = {
+      readinessState: 'manual_ready' as const,
+      approvalState: 'approved_manual_ready' as const,
+      draftText: 'Hi Amina, worth a quick check-in this week?',
+      draftRevised: false,
+      manualSendPrepared: true,
+      evidenceRecorded: true,
+      evidence: {
+        sentAt: '2026-08-29T12:00:00.000Z',
+        channel: 'manual_sms' as const,
+        operatorNote: 'Sent manually from phone after review.',
+        outcome: 'interested' as const,
+      },
+    }
+
+    expect(evaluateWarmSmsManualLoop(base)).toMatchObject({
+      state: 'follow_up_draft_needed',
+      response: {
+        responseReceived: true,
+        followUpDraftNeeded: true,
+        suppressesFutureSms: false,
+      },
+    })
+    expect(evaluateWarmSmsManualLoop({
+      ...base,
+      evidence: {
+        ...base.evidence,
+        outcome: 'not_now',
+      },
+    })).toMatchObject({
+      state: 'response_received',
+      response: {
+        responseReceived: true,
+        followUpDraftNeeded: false,
+        suppressesFutureSms: false,
+      },
+    })
+    expect(evaluateWarmSmsManualLoop({
+      ...base,
+      evidence: {
+        ...base.evidence,
+        outcome: 'stop_opt_out',
+      },
+    })).toMatchObject({
+      state: 'suppressed_stop',
+      response: {
+        suppressesFutureSms: true,
+      },
+      gates: {
+        canCopyApprovedDraft: false,
+        canPrepareManualSend: false,
+        smsPromptsSuppressed: true,
+      },
+    })
+    expect(evaluateWarmSmsManualLoop({
+      ...base,
+      evidence: {
+        ...base.evidence,
+        outcome: 'wrong_number',
+      },
+    }).state).toBe('suppressed_stop')
   })
 })

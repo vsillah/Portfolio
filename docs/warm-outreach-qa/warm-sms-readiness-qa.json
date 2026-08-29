@@ -7,19 +7,51 @@
         "width": 360,
         "height": 800
       },
-      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/55b6/Portfolio/docs/warm-outreach-qa/warm-sms-readiness-mobile-360.png",
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/96ca/Portfolio/docs/warm-outreach-qa/warm-sms-readiness-mobile-360.png",
       "hasSmsReadiness": true,
       "hasManualBoundary": true,
       "hasApprovalCopy": true,
+      "hasManualLoop": true,
+      "hasEvidenceCapture": true,
+      "hasResponseOutcome": true,
       "horizontalOverflow": false,
+      "inputStyles": {
+        "smsDraftTextarea": {
+          "backgroundColor": "rgba(18, 30, 49, 0.9)",
+          "color": "rgb(234, 236, 238)",
+          "borderColor": "rgba(44, 62, 80, 0.7)",
+          "colorScheme": "dark",
+          "caretColor": "rgb(212, 175, 55)",
+          "placeholderColor": "rgba(234, 236, 238, 0.72)"
+        },
+        "operatorNoteTextarea": {
+          "backgroundColor": "rgba(44, 62, 80, 0.2)",
+          "color": "rgb(234, 236, 238)",
+          "borderColor": "rgba(44, 62, 80, 0.6)",
+          "colorScheme": "dark",
+          "caretColor": "rgb(212, 175, 55)",
+          "placeholderColor": "rgba(234, 236, 238, 0.72)"
+        },
+        "responseOutcomeSelect": {
+          "backgroundColor": "rgba(44, 62, 80, 0.2)",
+          "color": "rgb(234, 236, 238)",
+          "borderColor": "rgba(44, 62, 80, 0.6)",
+          "colorScheme": "dark",
+          "caretColor": "rgb(234, 236, 238)"
+        }
+      },
       "textareaStyles": {
         "backgroundColor": "rgba(18, 30, 49, 0.9)",
         "color": "rgb(234, 236, 238)",
         "borderColor": "rgba(44, 62, 80, 0.7)",
         "colorScheme": "dark",
+        "caretColor": "rgb(212, 175, 55)",
         "placeholderColor": "rgba(234, 236, 238, 0.72)"
       },
       "textareaUsesDarkMode": true,
+      "operatorNoteUsesDarkMode": true,
+      "responseOutcomeUsesDarkMode": true,
+      "allManualInputsUseDarkMode": true,
       "unexpectedRequests": []
     },
     {
@@ -28,19 +60,51 @@
         "width": 390,
         "height": 844
       },
-      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/55b6/Portfolio/docs/warm-outreach-qa/warm-sms-readiness-mobile-390.png",
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/96ca/Portfolio/docs/warm-outreach-qa/warm-sms-readiness-mobile-390.png",
       "hasSmsReadiness": true,
       "hasManualBoundary": true,
       "hasApprovalCopy": true,
+      "hasManualLoop": true,
+      "hasEvidenceCapture": true,
+      "hasResponseOutcome": true,
       "horizontalOverflow": false,
+      "inputStyles": {
+        "smsDraftTextarea": {
+          "backgroundColor": "rgba(18, 30, 49, 0.9)",
+          "color": "rgb(234, 236, 238)",
+          "borderColor": "rgba(44, 62, 80, 0.7)",
+          "colorScheme": "dark",
+          "caretColor": "rgb(212, 175, 55)",
+          "placeholderColor": "rgba(234, 236, 238, 0.72)"
+        },
+        "operatorNoteTextarea": {
+          "backgroundColor": "rgba(44, 62, 80, 0.2)",
+          "color": "rgb(234, 236, 238)",
+          "borderColor": "rgba(44, 62, 80, 0.6)",
+          "colorScheme": "dark",
+          "caretColor": "rgb(212, 175, 55)",
+          "placeholderColor": "rgba(234, 236, 238, 0.72)"
+        },
+        "responseOutcomeSelect": {
+          "backgroundColor": "rgba(44, 62, 80, 0.2)",
+          "color": "rgb(234, 236, 238)",
+          "borderColor": "rgba(44, 62, 80, 0.6)",
+          "colorScheme": "dark",
+          "caretColor": "rgb(234, 236, 238)"
+        }
+      },
       "textareaStyles": {
         "backgroundColor": "rgba(18, 30, 49, 0.9)",
         "color": "rgb(234, 236, 238)",
         "borderColor": "rgba(44, 62, 80, 0.7)",
         "colorScheme": "dark",
+        "caretColor": "rgb(212, 175, 55)",
         "placeholderColor": "rgba(234, 236, 238, 0.72)"
       },
       "textareaUsesDarkMode": true,
+      "operatorNoteUsesDarkMode": true,
+      "responseOutcomeUsesDarkMode": true,
+      "allManualInputsUseDarkMode": true,
       "unexpectedRequests": []
     },
     {
@@ -49,19 +113,51 @@
         "width": 430,
         "height": 932
       },
-      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/55b6/Portfolio/docs/warm-outreach-qa/warm-sms-readiness-mobile-430.png",
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/96ca/Portfolio/docs/warm-outreach-qa/warm-sms-readiness-mobile-430.png",
       "hasSmsReadiness": true,
       "hasManualBoundary": true,
       "hasApprovalCopy": true,
+      "hasManualLoop": true,
+      "hasEvidenceCapture": true,
+      "hasResponseOutcome": true,
       "horizontalOverflow": false,
+      "inputStyles": {
+        "smsDraftTextarea": {
+          "backgroundColor": "rgba(18, 30, 49, 0.9)",
+          "color": "rgb(234, 236, 238)",
+          "borderColor": "rgba(44, 62, 80, 0.7)",
+          "colorScheme": "dark",
+          "caretColor": "rgb(212, 175, 55)",
+          "placeholderColor": "rgba(234, 236, 238, 0.72)"
+        },
+        "operatorNoteTextarea": {
+          "backgroundColor": "rgba(44, 62, 80, 0.2)",
+          "color": "rgb(234, 236, 238)",
+          "borderColor": "rgba(44, 62, 80, 0.6)",
+          "colorScheme": "dark",
+          "caretColor": "rgb(212, 175, 55)",
+          "placeholderColor": "rgba(234, 236, 238, 0.72)"
+        },
+        "responseOutcomeSelect": {
+          "backgroundColor": "rgba(44, 62, 80, 0.2)",
+          "color": "rgb(234, 236, 238)",
+          "borderColor": "rgba(44, 62, 80, 0.6)",
+          "colorScheme": "dark",
+          "caretColor": "rgb(234, 236, 238)"
+        }
+      },
       "textareaStyles": {
         "backgroundColor": "rgba(18, 30, 49, 0.9)",
         "color": "rgb(234, 236, 238)",
         "borderColor": "rgba(44, 62, 80, 0.7)",
         "colorScheme": "dark",
+        "caretColor": "rgb(212, 175, 55)",
         "placeholderColor": "rgba(234, 236, 238, 0.72)"
       },
       "textareaUsesDarkMode": true,
+      "operatorNoteUsesDarkMode": true,
+      "responseOutcomeUsesDarkMode": true,
+      "allManualInputsUseDarkMode": true,
       "unexpectedRequests": []
     },
     {
@@ -70,19 +166,51 @@
         "width": 768,
         "height": 1024
       },
-      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/55b6/Portfolio/docs/warm-outreach-qa/warm-sms-readiness-tablet-768.png",
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/96ca/Portfolio/docs/warm-outreach-qa/warm-sms-readiness-tablet-768.png",
       "hasSmsReadiness": true,
       "hasManualBoundary": true,
       "hasApprovalCopy": true,
+      "hasManualLoop": true,
+      "hasEvidenceCapture": true,
+      "hasResponseOutcome": true,
       "horizontalOverflow": false,
+      "inputStyles": {
+        "smsDraftTextarea": {
+          "backgroundColor": "rgba(18, 30, 49, 0.9)",
+          "color": "rgb(234, 236, 238)",
+          "borderColor": "rgba(44, 62, 80, 0.7)",
+          "colorScheme": "dark",
+          "caretColor": "rgb(212, 175, 55)",
+          "placeholderColor": "rgba(234, 236, 238, 0.72)"
+        },
+        "operatorNoteTextarea": {
+          "backgroundColor": "rgba(44, 62, 80, 0.2)",
+          "color": "rgb(234, 236, 238)",
+          "borderColor": "rgba(44, 62, 80, 0.6)",
+          "colorScheme": "dark",
+          "caretColor": "rgb(212, 175, 55)",
+          "placeholderColor": "rgba(234, 236, 238, 0.72)"
+        },
+        "responseOutcomeSelect": {
+          "backgroundColor": "rgba(44, 62, 80, 0.2)",
+          "color": "rgb(234, 236, 238)",
+          "borderColor": "rgba(44, 62, 80, 0.6)",
+          "colorScheme": "dark",
+          "caretColor": "rgb(234, 236, 238)"
+        }
+      },
       "textareaStyles": {
         "backgroundColor": "rgba(18, 30, 49, 0.9)",
         "color": "rgb(234, 236, 238)",
         "borderColor": "rgba(44, 62, 80, 0.7)",
         "colorScheme": "dark",
+        "caretColor": "rgb(212, 175, 55)",
         "placeholderColor": "rgba(234, 236, 238, 0.72)"
       },
       "textareaUsesDarkMode": true,
+      "operatorNoteUsesDarkMode": true,
+      "responseOutcomeUsesDarkMode": true,
+      "allManualInputsUseDarkMode": true,
       "unexpectedRequests": []
     },
     {
@@ -91,35 +219,73 @@
         "width": 1440,
         "height": 1000
       },
-      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/55b6/Portfolio/docs/warm-outreach-qa/warm-sms-readiness-desktop-1440.png",
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/96ca/Portfolio/docs/warm-outreach-qa/warm-sms-readiness-desktop-1440.png",
       "hasSmsReadiness": true,
       "hasManualBoundary": true,
       "hasApprovalCopy": true,
+      "hasManualLoop": true,
+      "hasEvidenceCapture": true,
+      "hasResponseOutcome": true,
       "horizontalOverflow": false,
+      "inputStyles": {
+        "smsDraftTextarea": {
+          "backgroundColor": "rgba(18, 30, 49, 0.9)",
+          "color": "rgb(234, 236, 238)",
+          "borderColor": "rgba(44, 62, 80, 0.7)",
+          "colorScheme": "dark",
+          "caretColor": "rgb(212, 175, 55)",
+          "placeholderColor": "rgba(234, 236, 238, 0.72)"
+        },
+        "operatorNoteTextarea": {
+          "backgroundColor": "rgba(44, 62, 80, 0.2)",
+          "color": "rgb(234, 236, 238)",
+          "borderColor": "rgba(44, 62, 80, 0.6)",
+          "colorScheme": "dark",
+          "caretColor": "rgb(212, 175, 55)",
+          "placeholderColor": "rgba(234, 236, 238, 0.72)"
+        },
+        "responseOutcomeSelect": {
+          "backgroundColor": "rgba(44, 62, 80, 0.2)",
+          "color": "rgb(234, 236, 238)",
+          "borderColor": "rgba(44, 62, 80, 0.6)",
+          "colorScheme": "dark",
+          "caretColor": "rgb(234, 236, 238)"
+        }
+      },
       "textareaStyles": {
         "backgroundColor": "rgba(18, 30, 49, 0.9)",
         "color": "rgb(234, 236, 238)",
         "borderColor": "rgba(44, 62, 80, 0.7)",
         "colorScheme": "dark",
+        "caretColor": "rgb(212, 175, 55)",
         "placeholderColor": "rgba(234, 236, 238, 0.72)"
       },
       "textareaUsesDarkMode": true,
+      "operatorNoteUsesDarkMode": true,
+      "responseOutcomeUsesDarkMode": true,
+      "allManualInputsUseDarkMode": true,
       "unexpectedRequests": []
     }
   ],
   "sourceFrames": [
-    "/Users/vambahsillah/.codex/worktrees/55b6/Portfolio/test-results/warm-sms-readiness-qa/source/01-sms-readiness.png",
-    "/Users/vambahsillah/.codex/worktrees/55b6/Portfolio/test-results/warm-sms-readiness-qa/source/02-sms-approved.png",
-    "/Users/vambahsillah/.codex/worktrees/55b6/Portfolio/test-results/warm-sms-readiness-qa/source/03-sms-revision.png",
-    "/Users/vambahsillah/.codex/worktrees/55b6/Portfolio/test-results/warm-sms-readiness-qa/source/04-sms-rejected.png"
+    "/Users/vambahsillah/.codex/worktrees/96ca/Portfolio/test-results/warm-sms-readiness-qa/source/01-sms-readiness.png",
+    "/Users/vambahsillah/.codex/worktrees/96ca/Portfolio/test-results/warm-sms-readiness-qa/source/02-sms-approved-copy.png",
+    "/Users/vambahsillah/.codex/worktrees/96ca/Portfolio/test-results/warm-sms-readiness-qa/source/03-sms-prepared-evidence.png",
+    "/Users/vambahsillah/.codex/worktrees/96ca/Portfolio/test-results/warm-sms-readiness-qa/source/04-sms-follow-up-needed.png",
+    "/Users/vambahsillah/.codex/worktrees/96ca/Portfolio/test-results/warm-sms-readiness-qa/source/05-sms-suppressed-stop.png",
+    "/Users/vambahsillah/.codex/worktrees/96ca/Portfolio/test-results/warm-sms-readiness-qa/source/06-sms-revision.png",
+    "/Users/vambahsillah/.codex/worktrees/96ca/Portfolio/test-results/warm-sms-readiness-qa/source/07-sms-rejected.png"
   ],
   "compositeFrames": [
-    "/Users/vambahsillah/.codex/worktrees/55b6/Portfolio/test-results/warm-sms-readiness-qa/composite/frame-01.png",
-    "/Users/vambahsillah/.codex/worktrees/55b6/Portfolio/test-results/warm-sms-readiness-qa/composite/frame-02.png",
-    "/Users/vambahsillah/.codex/worktrees/55b6/Portfolio/test-results/warm-sms-readiness-qa/composite/frame-03.png",
-    "/Users/vambahsillah/.codex/worktrees/55b6/Portfolio/test-results/warm-sms-readiness-qa/composite/frame-04.png"
+    "/Users/vambahsillah/.codex/worktrees/96ca/Portfolio/test-results/warm-sms-readiness-qa/composite/frame-01.png",
+    "/Users/vambahsillah/.codex/worktrees/96ca/Portfolio/test-results/warm-sms-readiness-qa/composite/frame-02.png",
+    "/Users/vambahsillah/.codex/worktrees/96ca/Portfolio/test-results/warm-sms-readiness-qa/composite/frame-03.png",
+    "/Users/vambahsillah/.codex/worktrees/96ca/Portfolio/test-results/warm-sms-readiness-qa/composite/frame-04.png",
+    "/Users/vambahsillah/.codex/worktrees/96ca/Portfolio/test-results/warm-sms-readiness-qa/composite/frame-05.png",
+    "/Users/vambahsillah/.codex/worktrees/96ca/Portfolio/test-results/warm-sms-readiness-qa/composite/frame-06.png",
+    "/Users/vambahsillah/.codex/worktrees/96ca/Portfolio/test-results/warm-sms-readiness-qa/composite/frame-07.png"
   ],
-  "mp4Path": "/Users/vambahsillah/.codex/worktrees/55b6/Portfolio/docs/warm-outreach-qa/warm-sms-readiness-manual-qa.mp4",
+  "mp4Path": "/Users/vambahsillah/.codex/worktrees/96ca/Portfolio/docs/warm-outreach-qa/warm-sms-manual-operating-loop-qa.mp4",
   "externalRequests": [],
   "boundaries": {
     "smsDelivery": false,

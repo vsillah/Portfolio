@@ -14,7 +14,7 @@ const baseUrl = (process.env.QA_BASE_URL || 'http://127.0.0.1:3027').replace(/\/
 const contactId = 42
 const qaPath = `/admin/outreach?tab=leads&filter=warm&id=${contactId}&contactId=${contactId}&qa=warm-slack-send-approval#warm-sms-readiness`
 const qaUrl = new URL(qaPath, baseUrl).toString()
-const mp4Path = path.join(outputDir, 'warm-sms-readiness-manual-qa.mp4')
+const mp4Path = path.join(outputDir, 'warm-sms-manual-operating-loop-qa.mp4')
 const receiptPath = path.join(outputDir, 'warm-sms-readiness-qa.json')
 
 await mkdir(outputDir, { recursive: true })
@@ -103,7 +103,8 @@ function collectUnexpectedRequests(page) {
     const url = new URL(request.url())
     const blockedLocalPath =
       /\/api\/admin\/outreach\/[^/]+\/(?:slack-send-approval|gmail-user-draft|gmail-user-send|gmail-draft-canary)\b/i.test(url.pathname) ||
-      /\/api\/admin\/outreach\/gmail-response-import\b/i.test(url.pathname)
+      /\/api\/admin\/outreach\/gmail-response-import\b/i.test(url.pathname) ||
+      /\/api\/admin\/outreach\/[^/]+\/(?:sms|text|provider-send|manual-send)\b/i.test(url.pathname)
     const blockedHost = /slack\.com|gmail\.com|googleapis\.com|twilio\.com|telnyx\.com|messagebird\.com|linkedin\.com|facebook\.com|n8n/i.test(url.hostname)
     if (blockedHost || blockedLocalPath) requests.push(request.url())
   })
@@ -136,19 +137,50 @@ async function viewportEvidence(browser, name, viewport) {
     hasSmsReadiness: /Warm SMS manual readiness/i.test(document.body.innerText),
     hasManualBoundary: /No SMS provider/i.test(document.body.innerText),
     hasApprovalCopy: /Approval records manual.?send readiness only/i.test(document.body.innerText),
+    hasManualLoop: /Manual SMS operating loop/i.test(document.body.innerText),
+    hasEvidenceCapture: /Manual send evidence/i.test(document.body.innerText),
+    hasResponseOutcome: /Manual response outcome/i.test(document.body.innerText),
     clientWidth: document.documentElement.clientWidth,
     scrollWidth: document.documentElement.scrollWidth,
   }))
-  const textareaStyles = await qa.page.getByLabel('Warm SMS draft text').evaluate((element) => {
+  const smsDraftTextareaStyles = await qa.page.getByLabel('Warm SMS draft text').evaluate((element) => {
     const style = window.getComputedStyle(element)
     return {
       backgroundColor: style.backgroundColor,
       color: style.color,
       borderColor: style.borderColor,
       colorScheme: style.colorScheme,
+      caretColor: style.caretColor,
       placeholderColor: window.getComputedStyle(element, '::placeholder').color,
     }
   })
+  const operatorNoteTextareaStyles = await qa.page.getByLabel('Operator note').evaluate((element) => {
+    const style = window.getComputedStyle(element)
+    return {
+      backgroundColor: style.backgroundColor,
+      color: style.color,
+      borderColor: style.borderColor,
+      colorScheme: style.colorScheme,
+      caretColor: style.caretColor,
+      placeholderColor: window.getComputedStyle(element, '::placeholder').color,
+    }
+  })
+  const responseOutcomeSelectStyles = await qa.page.getByLabel('Manual SMS response outcome').evaluate((element) => {
+    const style = window.getComputedStyle(element)
+    return {
+      backgroundColor: style.backgroundColor,
+      color: style.color,
+      borderColor: style.borderColor,
+      colorScheme: style.colorScheme,
+      caretColor: style.caretColor,
+    }
+  })
+  const inputUsesDarkMode = (styles) => (
+    styles.colorScheme === 'dark' &&
+    styles.backgroundColor !== 'rgb(255, 255, 255)' &&
+    styles.color !== 'rgb(0, 0, 0)' &&
+    styles.borderColor !== 'rgb(255, 255, 255)'
+  )
   const screenshotPath = path.join(outputDir, `warm-sms-readiness-${name}.png`)
   await qa.page.screenshot({ path: screenshotPath, fullPage: true })
   await qa.context.close()
@@ -159,13 +191,23 @@ async function viewportEvidence(browser, name, viewport) {
     hasSmsReadiness: contentChecks.hasSmsReadiness,
     hasManualBoundary: contentChecks.hasManualBoundary,
     hasApprovalCopy: contentChecks.hasApprovalCopy,
+    hasManualLoop: contentChecks.hasManualLoop,
+    hasEvidenceCapture: contentChecks.hasEvidenceCapture,
+    hasResponseOutcome: contentChecks.hasResponseOutcome,
     horizontalOverflow: contentChecks.scrollWidth > contentChecks.clientWidth,
-    textareaStyles,
-    textareaUsesDarkMode:
-      textareaStyles.colorScheme === 'dark' &&
-      textareaStyles.backgroundColor !== 'rgb(255, 255, 255)' &&
-      textareaStyles.color !== 'rgb(0, 0, 0)' &&
-      textareaStyles.borderColor !== 'rgb(255, 255, 255)',
+    inputStyles: {
+      smsDraftTextarea: smsDraftTextareaStyles,
+      operatorNoteTextarea: operatorNoteTextareaStyles,
+      responseOutcomeSelect: responseOutcomeSelectStyles,
+    },
+    textareaStyles: smsDraftTextareaStyles,
+    textareaUsesDarkMode: inputUsesDarkMode(smsDraftTextareaStyles),
+    operatorNoteUsesDarkMode: inputUsesDarkMode(operatorNoteTextareaStyles),
+    responseOutcomeUsesDarkMode: inputUsesDarkMode(responseOutcomeSelectStyles),
+    allManualInputsUseDarkMode:
+      inputUsesDarkMode(smsDraftTextareaStyles) &&
+      inputUsesDarkMode(operatorNoteTextareaStyles) &&
+      inputUsesDarkMode(responseOutcomeSelectStyles),
     unexpectedRequests: qa.unexpectedRequests,
   }
 }
@@ -184,16 +226,40 @@ async function smsFrame(browser, fileName, action) {
 const browser = await chromium.launch()
 const frameResults = []
 frameResults.push(await smsFrame(browser, '01-sms-readiness.png', null))
-frameResults.push(await smsFrame(browser, '02-sms-approved.png', async (card) => {
-  await card.getByRole('button', { name: 'Approve' }).click()
+frameResults.push(await smsFrame(browser, '02-sms-approved-copy.png', async (card) => {
+  await card.getByRole('button', { name: 'Approve', exact: true }).click()
+  await card.getByRole('button', { name: 'Copy approved draft' }).click()
   await card.getByText('Approved for manual use').waitFor({ timeout: 10_000 })
 }))
-frameResults.push(await smsFrame(browser, '03-sms-revision.png', async (card) => {
+frameResults.push(await smsFrame(browser, '03-sms-prepared-evidence.png', async (card) => {
+  await card.getByRole('button', { name: 'Approve', exact: true }).click()
+  await card.getByRole('button', { name: 'Prepare manual use' }).click()
+  await card.getByLabel('Operator note').fill('Sent manually from phone after reviewing the consent basis.')
+  await card.getByRole('button', { name: 'Record manual evidence' }).click()
+  await card.getByText(/Evidence: complete at/).waitFor({ timeout: 10_000 })
+}))
+frameResults.push(await smsFrame(browser, '04-sms-follow-up-needed.png', async (card) => {
+  await card.getByRole('button', { name: 'Approve', exact: true }).click()
+  await card.getByRole('button', { name: 'Prepare manual use' }).click()
+  await card.getByLabel('Operator note').fill('Contact replied with interest; follow-up needs review.')
+  await card.getByRole('button', { name: 'Record manual evidence' }).click()
+  await card.getByLabel('Manual SMS response outcome').selectOption('interested')
+  await card.getByText('Follow-up draft: needed').waitFor({ timeout: 10_000 })
+}))
+frameResults.push(await smsFrame(browser, '05-sms-suppressed-stop.png', async (card) => {
+  await card.getByRole('button', { name: 'Approve', exact: true }).click()
+  await card.getByRole('button', { name: 'Prepare manual use' }).click()
+  await card.getByLabel('Operator note').fill('Contact asked not to receive text messages.')
+  await card.getByRole('button', { name: 'Record manual evidence' }).click()
+  await card.getByLabel('Manual SMS response outcome').selectOption('stop_opt_out')
+  await card.getByText('SMS prompts: suppressed').waitFor({ timeout: 10_000 })
+}))
+frameResults.push(await smsFrame(browser, '06-sms-revision.png', async (card) => {
   await card.getByRole('button', { name: 'Revise' }).click()
   await card.getByLabel('Warm SMS draft text').fill('Hi Amina, quick check on the Portfolio QA follow-up. Is this worth a short look this week?')
   await card.getByText('Revision requested').waitFor({ timeout: 10_000 })
 }))
-frameResults.push(await smsFrame(browser, '04-sms-rejected.png', async (card) => {
+frameResults.push(await smsFrame(browser, '07-sms-rejected.png', async (card) => {
   await card.getByRole('button', { name: 'Reject' }).click()
   await card.getByText('Rejected', { exact: true }).waitFor({ timeout: 10_000 })
 }))
@@ -312,20 +378,41 @@ const frames = [
   },
   {
     source: frameResults[1].screenshotPath,
-    title: 'Approval is manual-only',
-    scenario: 'The operator approves the SMS text on the local card.',
-    expected: 'Approval records manual readiness only. It does not call SMS, Slack, Gmail, n8n, or any provider.',
-    gate: 'Manual use is the stopping point. A generic proceed is not SMS send authority.',
+    title: 'Approved draft copy path',
+    scenario: 'The operator approves the SMS text and uses the copy affordance.',
+    expected: 'The card shows a visible clipboard success or fallback state. It does not call SMS, Slack, Gmail, n8n, or any provider.',
+    gate: 'The copied text is only for manual use outside Portfolio.',
   },
   {
     source: frameResults[2].screenshotPath,
+    title: 'Manual-send evidence captured',
+    scenario: 'After preparing manual use, the operator records timestamp, channel, and a short note.',
+    expected: 'Evidence stays minimal and privacy-conscious: no raw SMS body, phone number, screenshot, or private reply content.',
+    gate: 'This evidence confirms an outside manual step. It is not provider-send authority.',
+  },
+  {
+    source: frameResults[3].screenshotPath,
+    title: 'Response creates review work',
+    scenario: 'The manual outcome is classified as interested.',
+    expected: 'Portfolio marks follow-up draft needed. It does not send a follow-up automatically.',
+    gate: 'Next action is another reviewed draft, not an SMS send.',
+  },
+  {
+    source: frameResults[4].screenshotPath,
+    title: 'Stop outcome suppresses SMS',
+    scenario: 'The operator records a stop or opt-out outcome from the manual SMS thread.',
+    expected: 'The card fails closed and suppresses future SMS prompts for this contact.',
+    gate: 'No copy, prepare, or future SMS prompt should continue after stop evidence.',
+  },
+  {
+    source: frameResults[5].screenshotPath,
     title: 'Revision stays local',
     scenario: 'The operator revises the short draft in the workroom.',
     expected: 'The edited text stays on screen as a review aid. No draft creation, import, or provider write is triggered.',
     gate: 'Next action: approve revised manual text or reject it.',
   },
   {
-    source: frameResults[3].screenshotPath,
+    source: frameResults[6].screenshotPath,
     title: 'Reject remains fail-closed',
     scenario: 'The operator rejects the SMS draft.',
     expected: 'The card records rejection state and keeps SMS delivery off.',
@@ -377,11 +464,11 @@ if (externalRequests.length > 0) {
 if (viewportResults.some((item) => item.horizontalOverflow)) {
   throw new Error(`Horizontal overflow detected: ${viewportResults.filter((item) => item.horizontalOverflow).map((item) => item.name).join(', ')}`)
 }
-if (viewportResults.some((item) => !item.hasSmsReadiness || !item.hasManualBoundary || !item.hasApprovalCopy)) {
-  throw new Error(`A viewport missed SMS readiness, manual boundary, or approval-boundary copy: ${JSON.stringify(viewportResults, null, 2)}`)
+if (viewportResults.some((item) => !item.hasSmsReadiness || !item.hasManualBoundary || !item.hasApprovalCopy || !item.hasManualLoop || !item.hasEvidenceCapture || !item.hasResponseOutcome)) {
+  throw new Error(`A viewport missed SMS readiness, manual boundary, loop, evidence, response, or approval-boundary copy: ${JSON.stringify(viewportResults, null, 2)}`)
 }
-if (viewportResults.some((item) => !item.textareaUsesDarkMode)) {
-  throw new Error(`A viewport rendered the SMS draft textarea with light-mode styling: ${JSON.stringify(viewportResults, null, 2)}`)
+if (viewportResults.some((item) => !item.allManualInputsUseDarkMode)) {
+  throw new Error(`A viewport rendered a manual SMS input with light-mode styling: ${JSON.stringify(viewportResults, null, 2)}`)
 }
 
 const receipt = {
