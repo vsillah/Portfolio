@@ -889,6 +889,41 @@ export const warmSlackSendApprovalQaRelationshipPacket = {
       draftApproval: {
         approvedForProviderDraftCreation: false,
       },
+      activation: {
+        providerSelectionStatus: 'selected',
+        providerSelectionNote:
+          'Synthetic future SMS adapter is the test-owned provider candidate recorded for architecture review.',
+        configurationStatus: 'planned_disabled',
+        configurationNote:
+          'Synthetic configuration is modeled as disabled. No credentials, environment values, or provider settings were read or changed.',
+        capabilityEvidence: {
+          outbound_message_submission: {
+            status: 'verified',
+            evidence: 'Synthetic contract documents a fail-closed outbound submission boundary.',
+          },
+          sender_identity_compliance: {
+            status: 'verified',
+            evidence: 'Synthetic sender identity requirements are represented without a live sender.',
+          },
+          delivery_status_callbacks: {
+            status: 'gap',
+            evidence: 'No provider-specific delivery callback contract is selected.',
+          },
+          inbound_opt_out_ingestion: {
+            status: 'gap',
+            evidence: 'No provider-specific STOP webhook or suppression update path is implemented.',
+          },
+          idempotent_submission: {
+            status: 'not_verified',
+            evidence: 'The Portfolio key contract is modeled, but provider-side duplicate behavior is unverified.',
+          },
+          sandbox_or_no_send_test: {
+            status: 'not_verified',
+            evidence: 'A provider-supported no-send test path has not been chosen.',
+          },
+        },
+        reviewedAt: null,
+      },
       now: '2026-08-29T12:00:00.000Z',
     }),
     operatorNextAction:

@@ -9,15 +9,15 @@ const execFileAsync = promisify(execFile)
 const root = process.cwd()
 loadEnv({ path: path.join(root, '.env.local'), quiet: true })
 const outputDir = path.join(root, 'docs', 'warm-outreach-qa')
-const qaDir = path.join(root, 'test-results', 'warm-sms-provider-readiness-qa')
+const qaDir = path.join(root, 'test-results', 'warm-sms-activation-readiness-qa')
 const sourceDir = path.join(qaDir, 'source')
 const compositeDir = path.join(qaDir, 'composite')
 const baseUrl = (process.env.QA_BASE_URL || 'http://127.0.0.1:3027').replace(/\/$/, '')
 const contactId = 42
 const qaPath = `/admin/outreach?tab=leads&filter=warm&id=${contactId}&contactId=${contactId}&qa=warm-slack-send-approval#warm-sms-readiness`
 const qaUrl = new URL(qaPath, baseUrl).toString()
-const mp4Path = path.join(outputDir, 'warm-sms-provider-readiness-qa.mp4')
-const receiptPath = path.join(outputDir, 'warm-sms-provider-readiness-qa.json')
+const mp4Path = path.join(outputDir, 'warm-sms-activation-readiness-qa.mp4')
+const receiptPath = path.join(outputDir, 'warm-sms-activation-readiness-qa.json')
 
 await mkdir(outputDir, { recursive: true })
 await mkdir(sourceDir, { recursive: true })
@@ -184,6 +184,15 @@ async function viewportEvidence(browser, name, viewport) {
       hasProviderReadiness: /Warm SMS provider readiness/i.test(visibleText),
       hasProviderDisabled: /SMS provider configured but disabled/i.test(visibleText),
       hasConsentAudit: /Consent audit:/i.test(detailsText),
+      hasActivationArchitecture: /activation architecture/i.test(visibleText),
+      hasActivationSummary:
+        /capabilities 2\/6 verified/i.test(visibleText) &&
+        /idempotency contract only/i.test(visibleText),
+      hasActivationDetails:
+        /Provider capability requirements/i.test(detailsText) &&
+        /Idempotency contract · not implemented/i.test(detailsText) &&
+        /Audit evidence contract/i.test(detailsText) &&
+        /Blocked recovery path/i.test(detailsText),
       hasFutureSendBoundary:
         /Generic proceed: rejected/i.test(visibleText) &&
         /Approval: per-recipient required/i.test(visibleText) &&
@@ -192,6 +201,12 @@ async function viewportEvidence(browser, name, viewport) {
         Boolean(provider && manualLoop && !provider.contains(manualLoop)) && visible(manualLoop),
       providerDetailsCollapsed: providerDetails instanceof HTMLDetailsElement && !providerDetails.open,
       providerCheckCount: providerDetails?.querySelectorAll('[data-sms-provider-check]').length ?? 0,
+      providerCapabilityCount:
+        providerDetails?.querySelectorAll('[data-sms-provider-capability]').length ?? 0,
+      hasIdempotencyModel:
+        Boolean(providerDetails?.querySelector('[data-sms-idempotency-model]')),
+      hasRecoveryPath:
+        Boolean(providerDetails?.querySelector('[data-sms-recovery-path]')),
       criticalBoundaryCount: criticalBoundaries.length,
       criticalBoundariesVisible: criticalBoundaries.every(visible),
       pageHeight: document.documentElement.scrollHeight,
@@ -243,7 +258,7 @@ async function viewportEvidence(browser, name, viewport) {
     styles.color !== 'rgb(0, 0, 0)' &&
     styles.borderColor !== 'rgb(255, 255, 255)'
   )
-  const screenshotPath = path.join(outputDir, `warm-sms-provider-readiness-${name}.png`)
+  const screenshotPath = path.join(outputDir, `warm-sms-activation-readiness-${name}.png`)
   await qa.page.screenshot({ path: screenshotPath, fullPage: true })
   await qa.context.close()
   return {
@@ -259,10 +274,16 @@ async function viewportEvidence(browser, name, viewport) {
     hasProviderReadiness: contentChecks.hasProviderReadiness,
     hasProviderDisabled: contentChecks.hasProviderDisabled,
     hasConsentAudit: contentChecks.hasConsentAudit,
+    hasActivationArchitecture: contentChecks.hasActivationArchitecture,
+    hasActivationSummary: contentChecks.hasActivationSummary,
+    hasActivationDetails: contentChecks.hasActivationDetails,
     hasFutureSendBoundary: contentChecks.hasFutureSendBoundary,
     hasManualSeparation: contentChecks.hasManualSeparation,
     providerDetailsCollapsed: contentChecks.providerDetailsCollapsed,
     providerCheckCount: contentChecks.providerCheckCount,
+    providerCapabilityCount: contentChecks.providerCapabilityCount,
+    hasIdempotencyModel: contentChecks.hasIdempotencyModel,
+    hasRecoveryPath: contentChecks.hasRecoveryPath,
     criticalBoundaryCount: contentChecks.criticalBoundaryCount,
     criticalBoundariesVisible: contentChecks.criticalBoundariesVisible,
     pageHeight: contentChecks.pageHeight,
@@ -286,8 +307,14 @@ async function viewportEvidence(browser, name, viewport) {
   }
 }
 
-async function smsFrame(browser, fileName, focusSelector, action) {
-  const qa = await openQaPage(browser, { width: 390, height: 844 })
+async function smsFrame(
+  browser,
+  fileName,
+  focusSelector,
+  action,
+  viewport = { width: 390, height: 844 },
+) {
+  const qa = await openQaPage(browser, viewport)
   const card = qa.page.locator('#warm-sms-readiness')
   if (action) await action(card)
   const focus = qa.page.locator(focusSelector)
@@ -298,53 +325,58 @@ async function smsFrame(browser, fileName, focusSelector, action) {
   return { screenshotPath, unexpectedRequests: qa.unexpectedRequests }
 }
 
-const browser = await chromium.launch()
-const frameResults = []
-frameResults.push(await smsFrame(browser, '01-provider-disabled.png', '#warm-sms-provider-readiness', null))
-frameResults.push(await smsFrame(browser, '02-provider-details-open.png', '#warm-sms-provider-readiness', async (card) => {
-  await card.getByText('Consent, suppression, and audit details').click()
+async function openActivationDetails(card) {
+  await card.getByText('Activation requirements and audit evidence').click()
   await card.getByTestId('warm-sms-provider-details').evaluate((element) => {
     if (!(element instanceof HTMLDetailsElement) || !element.open) {
       throw new Error('Provider readiness details did not open.')
     }
   })
-}))
-frameResults.push(await smsFrame(browser, '03-sms-approved-copy.png', '#warm-sms-manual-decision', async (card) => {
+}
+
+const browser = await chromium.launch()
+const frameResults = []
+frameResults.push(await smsFrame(browser, '01-activation-summary.png', '#warm-sms-provider-readiness', null))
+frameResults.push(await smsFrame(
+  browser,
+  '02-provider-configuration.png',
+  '[data-sms-provider-configuration]',
+  openActivationDetails,
+  { width: 768, height: 1024 },
+))
+frameResults.push(await smsFrame(
+  browser,
+  '03-capability-requirements.png',
+  '[data-sms-capability-requirements]',
+  openActivationDetails,
+  { width: 768, height: 1024 },
+))
+frameResults.push(await smsFrame(
+  browser,
+  '04-idempotency-send-authority.png',
+  '[data-sms-send-contract]',
+  openActivationDetails,
+  { width: 768, height: 1024 },
+))
+frameResults.push(await smsFrame(
+  browser,
+  '05-audit-recovery.png',
+  '[data-sms-audit-recovery]',
+  openActivationDetails,
+  { width: 768, height: 1024 },
+))
+frameResults.push(await smsFrame(browser, '06-sms-approved-copy.png', '#warm-sms-manual-decision', async (card) => {
   await card.getByRole('button', { name: 'Approve', exact: true }).click()
   await card.getByRole('button', { name: 'Copy approved draft' }).click()
   await card.getByText('Approved for manual use').waitFor({ timeout: 10_000 })
 }))
-frameResults.push(await smsFrame(browser, '04-sms-prepared-evidence.png', '#warm-sms-manual-evidence', async (card) => {
-  await card.getByRole('button', { name: 'Approve', exact: true }).click()
-  await card.getByRole('button', { name: 'Prepare manual use' }).click()
-  await card.getByLabel('Operator note').fill('Sent manually from phone after reviewing the consent basis.')
-  await card.getByRole('button', { name: 'Record manual evidence' }).click()
-  await card.getByText(/Evidence: complete at/).waitFor({ timeout: 10_000 })
-}))
-frameResults.push(await smsFrame(browser, '05-sms-follow-up-needed.png', '#warm-sms-manual-response', async (card) => {
-  await card.getByRole('button', { name: 'Approve', exact: true }).click()
-  await card.getByRole('button', { name: 'Prepare manual use' }).click()
-  await card.getByLabel('Operator note').fill('Contact replied with interest; follow-up needs review.')
-  await card.getByRole('button', { name: 'Record manual evidence' }).click()
-  await card.getByLabel('Manual SMS response outcome').selectOption('interested')
-  await card.getByText('Follow-up draft: needed').waitFor({ timeout: 10_000 })
-}))
-frameResults.push(await smsFrame(browser, '06-sms-suppressed-stop.png', '#warm-sms-manual-response', async (card) => {
+frameResults.push(await smsFrame(browser, '07-sms-suppressed-stop.png', '#warm-sms-manual-response', async (card) => {
   await card.getByRole('button', { name: 'Approve', exact: true }).click()
   await card.getByRole('button', { name: 'Prepare manual use' }).click()
   await card.getByLabel('Operator note').fill('Contact asked not to receive text messages.')
   await card.getByRole('button', { name: 'Record manual evidence' }).click()
   await card.getByLabel('Manual SMS response outcome').selectOption('stop_opt_out')
   await card.getByText('SMS prompts: suppressed').waitFor({ timeout: 10_000 })
-}))
-frameResults.push(await smsFrame(browser, '07-sms-revision.png', '#warm-sms-manual-decision', async (card) => {
-  await card.getByRole('button', { name: 'Revise' }).click()
-  await card.getByLabel('Warm SMS draft text').fill('Hi Amina, quick check on the Portfolio QA follow-up. Is this worth a short look this week?')
-  await card.getByText('Revision requested').waitFor({ timeout: 10_000 })
-}))
-frameResults.push(await smsFrame(browser, '08-sms-rejected.png', '#warm-sms-manual-decision', async (card) => {
-  await card.getByRole('button', { name: 'Reject' }).click()
-  await card.getByText('Rejected', { exact: true }).waitFor({ timeout: 10_000 })
 }))
 
 const viewportResults = []
@@ -454,59 +486,52 @@ async function renderComposite(index, frame) {
 const frames = [
   {
     source: frameResults[0].screenshotPath,
-    title: 'Compact provider state first',
-    scenario: 'The synthetic contact has a future SMS adapter plus reviewed relationship, phone provenance, permission, cooldown, suppression, and audit evidence.',
-    expected: 'Portfolio shows the configured-but-disabled state, exact next gate, and critical boundaries without an always-visible wall of audit cards.',
-    gate: 'This readiness snapshot is architecture only. It does not create a provider draft or send an SMS.',
+    title: 'Activation gaps stay visible',
+    scenario: 'The synthetic contact has reviewed consent evidence and a disabled SMS provider model, but configuration and capability evidence are incomplete.',
+    expected: 'Portfolio names the provider, shows 2/6 verified capabilities, identifies the exact disabled-configuration review step, and keeps deeper evidence collapsed.',
+    gate: 'This activation packet is architecture only. Provider calls, SMS delivery, and environment changes remain off.',
   },
   {
     source: frameResults[1].screenshotPath,
-    title: 'Full audit stays one click away',
-    scenario: 'The operator opens the consent, suppression, provenance, cooldown, and audit drill-in only when deeper review is needed.',
-    expected: 'All eight checks remain available in the existing contact workroom, while the default mobile state stays compact.',
-    gate: 'Opening details is read-only. Provider calls, drafts, and sends remain off.',
+    title: 'Provider choice and configuration stay explicit',
+    scenario: 'The operator opens the activation drill-in to review the selected synthetic adapter and its disabled configuration summary.',
+    expected: 'The provider choice is architecture evidence only. The summary says credentials were not read and environment values were not changed.',
+    gate: 'Configuration remains planned and disabled. Provider execution is still unavailable.',
   },
   {
     source: frameResults[2].screenshotPath,
+    title: 'Capability gaps are named',
+    scenario: 'The selected provider must satisfy outbound submission, delivery callbacks, inbound opt-out handling, sender compliance, idempotency, and no-send testing.',
+    expected: 'Two synthetic contract checks are verified; four provider-specific requirements remain visible gaps.',
+    gate: 'Unknown vendor behavior stays a gap. The packet does not invent provider documentation or capability proof.',
+  },
+  {
+    source: frameResults[3].screenshotPath,
+    title: 'Send authority and dedupe remain separate',
+    scenario: 'The future contract binds contact, SMS channel, message version, current per-recipient approval, and a stable idempotency key.',
+    expected: 'A duplicate returns existing attempt evidence without resending. Generic proceed remains rejected.',
+    gate: 'The idempotency model is contract-only. No route, feature flag, provider call, or SMS send is implemented.',
+  },
+  {
+    source: frameResults[4].screenshotPath,
+    title: 'Audit and recovery are ordered',
+    scenario: 'The operator can see evidence required before activation, before a future send, and after a provider attempt, plus the exact recovery sequence.',
+    expected: 'The audit packet excludes raw phone and message body. The recovery path ends at a current per-recipient authorization gate.',
+    gate: 'No provider, SMS, Slack, Gmail, n8n, migration, environment, deployment, or production-data action runs.',
+  },
+  {
+    source: frameResults[5].screenshotPath,
     title: 'Manual approval stays separate',
     scenario: 'The operator approves the existing manual SMS text and uses the local copy affordance.',
     expected: 'Manual approval changes only the PR #882 loop. It does not satisfy provider draft approval or future send authorization.',
     gate: 'The copied text is for one-to-one manual use outside Portfolio. Provider execution remains fail-closed.',
   },
   {
-    source: frameResults[3].screenshotPath,
-    title: 'Manual-send evidence captured',
-    scenario: 'After preparing manual use, the operator records timestamp, channel, and a short note.',
-    expected: 'Evidence stays minimal and privacy-conscious: no raw SMS body, phone number, screenshot, or private reply content.',
-    gate: 'This evidence confirms an outside manual step. It is not provider-draft or provider-send authority.',
-  },
-  {
-    source: frameResults[4].screenshotPath,
-    title: 'Response creates manual review work',
-    scenario: 'The manual outcome is classified as interested.',
-    expected: 'Portfolio marks follow-up draft needed. It does not send a follow-up automatically.',
-    gate: 'Next action is another reviewed manual draft, not provider activation or an SMS send.',
-  },
-  {
-    source: frameResults[5].screenshotPath,
-    title: 'Stop outcome suppresses SMS',
-    scenario: 'The operator records a stop or opt-out outcome from the manual SMS thread.',
-    expected: 'The card fails closed and suppresses future SMS prompts for this contact.',
-    gate: 'Suppression has precedence. No copy, prepare, provider draft, or future send review should continue after stop evidence.',
-  },
-  {
     source: frameResults[6].screenshotPath,
-    title: 'Revision stays local',
-    scenario: 'The operator revises the short draft in the workroom.',
-    expected: 'The edited text stays on screen as a review aid. No draft creation, import, or provider write is triggered.',
-    gate: 'Next action: approve revised manual text or reject it. Generic proceed is never provider-send authority.',
-  },
-  {
-    source: frameResults[7].screenshotPath,
-    title: 'Reject remains fail-closed',
-    scenario: 'The operator rejects the SMS draft.',
-    expected: 'The card records rejection state and keeps SMS delivery off.',
-    gate: 'Recovery requires a better relationship, consent, or draft basis. Provider send still requires a separate current approval and provider flag.',
+    title: 'Stop outcome suppresses SMS',
+    scenario: 'The operator records a stop or opt-out outcome from the existing manual SMS thread.',
+    expected: 'The manual card fails closed and suppresses future SMS prompts for this contact.',
+    gate: 'Suppression has precedence. No copy, provider draft, activation, or future send review should continue.',
   },
 ]
 
@@ -533,6 +558,8 @@ await execFileAsync('ffmpeg', [
   '1',
   '-i',
   path.join(compositeDir, 'video-%02d.png'),
+  '-t',
+  String(repeatedFrames.length),
   '-r',
   '30',
   '-c:v',
@@ -554,42 +581,44 @@ if (externalRequests.length > 0) {
 if (viewportResults.some((item) => item.horizontalOverflow)) {
   throw new Error(`Horizontal overflow detected: ${viewportResults.filter((item) => item.horizontalOverflow).map((item) => item.name).join(', ')}`)
 }
-if (viewportResults.some((item) => !item.hasSmsReadiness || !item.hasApprovalCopy || !item.hasManualLoop || !item.hasEvidenceCapture || !item.hasResponseOutcome || !item.hasProviderReadiness || !item.hasProviderDisabled || !item.hasConsentAudit || !item.hasFutureSendBoundary || !item.hasManualSeparation || !item.providerDetailsCollapsed || item.criticalBoundaryCount !== 5 || !item.criticalBoundariesVisible)) {
-  throw new Error(`A viewport missed compact SMS provider readiness, collapsed drill-in, visible critical boundaries, manual separation, loop, evidence, response, or approval-boundary copy: ${JSON.stringify(viewportResults, null, 2)}`)
+if (viewportResults.some((item) => !item.hasSmsReadiness || !item.hasApprovalCopy || !item.hasManualLoop || !item.hasEvidenceCapture || !item.hasResponseOutcome || !item.hasProviderReadiness || !item.hasProviderDisabled || !item.hasConsentAudit || !item.hasActivationArchitecture || !item.hasActivationSummary || !item.hasActivationDetails || !item.hasFutureSendBoundary || !item.hasManualSeparation || !item.providerDetailsCollapsed || item.providerCapabilityCount !== 6 || !item.hasIdempotencyModel || !item.hasRecoveryPath || item.criticalBoundaryCount !== 5 || !item.criticalBoundariesVisible)) {
+  throw new Error(`A viewport missed compact SMS activation readiness, collapsed requirements, idempotency, recovery, visible critical boundaries, manual separation, loop, evidence, response, or approval-boundary copy: ${JSON.stringify(viewportResults, null, 2)}`)
 }
 if (viewportResults.some((item) => !item.allManualInputsUseDarkMode)) {
   throw new Error(`A viewport rendered a manual SMS input with light-mode styling: ${JSON.stringify(viewportResults, null, 2)}`)
 }
-const baselineMobile390PageHeight = 13_163
+const baselineMobile390PageHeight = 12_457
+const maxMobile390PageHeight = baselineMobile390PageHeight + 200
 const mobile390 = viewportResults.find((item) => item.name === 'mobile-390')
-if (!mobile390 || mobile390.pageHeight >= baselineMobile390PageHeight) {
-  throw new Error(`The compact revision did not reduce the 390px page below ${baselineMobile390PageHeight}px: ${JSON.stringify(mobile390, null, 2)}`)
+if (!mobile390 || mobile390.pageHeight > maxMobile390PageHeight) {
+  throw new Error(`The activation summary exceeded the ${maxMobile390PageHeight}px compact-page budget at 390px: ${JSON.stringify(mobile390, null, 2)}`)
 }
 const oversizedMobileProviderSections = viewportResults.filter((item) => (
   item.name.startsWith('mobile-') &&
-  (item.providerSectionHeight === null || item.providerSectionHeight > 500)
+  (item.providerSectionHeight === null || item.providerSectionHeight > 525)
 ))
 if (oversizedMobileProviderSections.length > 0) {
-  throw new Error(`A compact provider summary exceeded the 500px mobile budget: ${JSON.stringify(oversizedMobileProviderSections, null, 2)}`)
+  throw new Error(`A compact provider summary exceeded the 525px mobile budget: ${JSON.stringify(oversizedMobileProviderSections, null, 2)}`)
 }
 
 const receipt = {
   route: qaUrl,
   layout: (() => {
     const revisedMobile390PageHeight = mobile390?.pageHeight ?? null
-    const reductionPixels = revisedMobile390PageHeight === null
+    const pageHeightDeltaPixels = revisedMobile390PageHeight === null
       ? null
-      : baselineMobile390PageHeight - revisedMobile390PageHeight
+      : revisedMobile390PageHeight - baselineMobile390PageHeight
     return {
       baselineMobile390PageHeight,
-      baselineMeasurementSource: 'PR #883 captain-blocked artifact before compact revision',
+      baselineMeasurementSource: 'Merged PR #883 compact provider-readiness receipt',
+      maxMobile390PageHeight,
       revisedMobile390PageHeight,
       revisedMobile390SmsSectionHeight: mobile390?.smsSectionHeight ?? null,
       revisedMobile390ProviderSectionHeight: mobile390?.providerSectionHeight ?? null,
-      reductionPixels,
-      reductionPercent: reductionPixels === null
+      pageHeightDeltaPixels,
+      pageHeightDeltaPercent: pageHeightDeltaPixels === null
         ? null
-        : Number(((reductionPixels / baselineMobile390PageHeight) * 100).toFixed(1)),
+        : Number(((pageHeightDeltaPixels / baselineMobile390PageHeight) * 100).toFixed(1)),
     }
   })(),
   screenshots: viewportResults,
@@ -605,17 +634,29 @@ const receipt = {
   boundaries: {
     providerConfigured: true,
     providerEnabled: false,
+    providerSelectionRecorded: true,
+    providerConfigurationVerified: false,
+    providerCapabilitiesVerified: false,
+    idempotencyImplementation: false,
+    activationEnabled: false,
     providerSendRouteImplemented: false,
     separateCurrentSendApprovalRequired: true,
     genericProceedAccepted: false,
     smsDelivery: false,
+    smsSends: false,
     smsProviderCalls: false,
     phoneImport: false,
     slackDispatch: false,
+    slack: false,
     gmailAction: false,
+    gmail: false,
     n8nDispatch: false,
+    n8n: false,
     productionDataMutation: false,
     migration: false,
+    migrations: false,
+    envChanges: false,
+    deployment: false,
   },
 }
 

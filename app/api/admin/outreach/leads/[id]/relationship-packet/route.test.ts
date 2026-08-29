@@ -286,6 +286,52 @@ describe('GET /api/admin/outreach/leads/[id]/relationship-packet', () => {
           sendRouteImplemented: false,
           externalSendEnabled: false,
         },
+        activationReadiness: {
+          version: 'warm-outreach-sms-provider-activation-readiness/v1',
+          state: 'consent_or_suppression_required',
+          providerSummary: {
+            selectionStatus: 'not_selected',
+            configurationStatus: 'not_reviewed',
+            credentialsRead: false,
+            environmentChanges: false,
+          },
+          capabilitySummary: {
+            verified: 0,
+            total: 6,
+            status: 'gaps_remain',
+          },
+          consentPrerequisites: {
+            required: true,
+            met: false,
+            phoneProvenanceVerified: false,
+            permissionDocumented: false,
+            auditTimestampValid: false,
+          },
+          sendAuthority: {
+            genericProceedAccepted: false,
+            currentPerRecipientApprovalRequired: true,
+            requiredApproval: 'authorize_warm_sms_send_for_specific_recipient',
+            liveSendEnabled: false,
+          },
+          idempotencyModel: {
+            status: 'contract_only',
+            implemented: false,
+            namespace: 'warm-sms-send:v1',
+            recordBeforeProviderAttempt: true,
+          },
+          auditEvidence: {
+            status: 'incomplete',
+            storesRawPhone: false,
+            storesRawMessageBody: false,
+          },
+          executionBoundary: {
+            activationEnabled: false,
+            providerCallsEnabled: false,
+            smsDeliveryEnabled: false,
+            routeImplemented: false,
+            featureFlagEnabled: false,
+          },
+        },
       },
       executionBoundary: {
         manualOnly: true,
@@ -557,6 +603,14 @@ describe('GET /api/admin/outreach/leads/[id]/relationship-packet', () => {
         consentAndSuppression: {
           status: 'suppressed',
           suppressionPrecedence: true,
+        },
+        activationReadiness: {
+          state: 'consent_or_suppression_required',
+          executionBoundary: {
+            activationEnabled: false,
+            providerCallsEnabled: false,
+            smsDeliveryEnabled: false,
+          },
         },
       },
       executionBoundary: {

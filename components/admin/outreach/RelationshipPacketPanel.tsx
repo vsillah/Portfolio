@@ -1363,6 +1363,14 @@ function smsProviderReadinessClasses(state: WarmSmsReadiness['providerReadiness'
   return 'border-red-500/30 bg-red-500/10 text-red-100'
 }
 
+function smsProviderCapabilityClasses(
+  status: WarmSmsReadiness['providerReadiness']['activationReadiness']['capabilitySummary']['requirements'][number]['status'],
+) {
+  if (status === 'verified') return smsCheckClasses('passed')
+  if (status === 'gap') return smsCheckClasses('blocked')
+  return smsCheckClasses('review_required')
+}
+
 function SmsManualOutreachCard({ readiness }: { readiness?: WarmSmsReadiness | null }) {
   const [decision, setDecision] = useState<WarmSmsApprovalState>(
     readiness?.approval.state ?? 'not_reviewed',
@@ -1407,6 +1415,7 @@ function SmsManualOutreachCard({ readiness }: { readiness?: WarmSmsReadiness | n
   const blocked = readiness.state === 'blocked'
   const suppressed = loop.gates.smsPromptsSuppressed
   const providerReadiness = readiness.providerReadiness
+  const activationReadiness = providerReadiness.activationReadiness
   const providerChecksPassed = providerReadiness.consentAndSuppression.checks
     .filter((check) => check.status === 'passed').length
   const providerChecksTotal = providerReadiness.consentAndSuppression.checks.length
@@ -1528,7 +1537,7 @@ function SmsManualOutreachCard({ readiness }: { readiness?: WarmSmsReadiness | n
           <div className="min-w-0">
             <p className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wide">
               <ShieldCheck size={13} aria-hidden />
-              Warm SMS provider readiness · future phase
+              Warm SMS provider readiness · activation architecture
             </p>
             <p className="mt-1 text-sm font-semibold">{providerReadiness.label}</p>
           </div>
@@ -1561,10 +1570,11 @@ function SmsManualOutreachCard({ readiness }: { readiness?: WarmSmsReadiness | n
 
         <div className="mt-2 rounded-md border border-current/20 bg-background/25 p-2 text-[11px] leading-4">
           <p className="text-[10px] font-semibold uppercase tracking-wide">Exact next gate</p>
-          <p className="mt-1">
-            {providerReadiness.eligibility.humanApprovedDraftCreation
-              ? 'Request a separate human approval for provider-bound draft creation. A later send still needs current per-recipient approval and the provider flag.'
-              : providerReadiness.operatorNextAction}
+          <p className="mt-1" data-testid="warm-sms-activation-next-step">
+            {activationReadiness.blockedRecovery.nextStep}
+          </p>
+          <p className="mt-1 text-[10px] opacity-80" data-sms-activation-summary>
+            {activationReadiness.providerSummary.name ?? 'Provider not selected'} · selection {activationReadiness.providerSummary.selectionStatus.replaceAll('_', ' ')} · configuration {activationReadiness.providerSummary.configurationStatus.replaceAll('_', ' ')} · capabilities {activationReadiness.capabilitySummary.verified}/{activationReadiness.capabilitySummary.total} verified · idempotency contract only.
           </p>
         </div>
 
@@ -1573,11 +1583,35 @@ function SmsManualOutreachCard({ readiness }: { readiness?: WarmSmsReadiness | n
           className="mt-2 rounded-md border border-current/20 bg-background/20 p-2"
         >
           <summary className="flex cursor-pointer items-center justify-between gap-2 text-[10px] font-semibold uppercase tracking-wide">
-            <span>Consent, suppression, and audit details</span>
+            <span>Activation requirements and audit evidence</span>
             <span className="shrink-0 rounded-full border border-current/20 px-2 py-0.5 normal-case tracking-normal">
-              {providerChecksPassed}/{providerChecksTotal} clear
+              Provider activation blocked
             </span>
           </summary>
+          <div data-sms-provider-configuration className="mt-2 grid gap-1.5 sm:grid-cols-2">
+            <div className="rounded-md border border-current/20 bg-background/25 p-2">
+              <p className="text-[10px] font-semibold uppercase tracking-wide">Provider selection</p>
+              <p className="mt-1 text-[10px] leading-4">
+                {activationReadiness.providerSummary.name ?? 'No provider selected'} · {activationReadiness.providerSummary.selectionStatus.replaceAll('_', ' ')}
+              </p>
+              <p className="mt-1 text-[10px] leading-4 opacity-80">
+                {activationReadiness.providerSummary.selectionNote}
+              </p>
+            </div>
+            <div className="rounded-md border border-current/20 bg-background/25 p-2">
+              <p className="text-[10px] font-semibold uppercase tracking-wide">Disabled configuration</p>
+              <p className="mt-1 text-[10px] leading-4">
+                {activationReadiness.providerSummary.configurationStatus.replaceAll('_', ' ')}
+              </p>
+              <p className="mt-1 text-[10px] leading-4 opacity-80">
+                {activationReadiness.providerSummary.configurationNote} Credentials read: no. Environment changes: no.
+              </p>
+            </div>
+          </div>
+
+          <p className="mt-2 text-[10px] font-semibold uppercase tracking-wide">
+            Consent and suppression prerequisites
+          </p>
           <div className="mt-2 grid gap-1.5 sm:grid-cols-2 xl:grid-cols-4">
             {providerReadiness.consentAndSuppression.checks.map((check) => (
               <div
@@ -1590,9 +1624,72 @@ function SmsManualOutreachCard({ readiness }: { readiness?: WarmSmsReadiness | n
               </div>
             ))}
           </div>
+
+          <p className="mt-2 text-[10px] font-semibold uppercase tracking-wide">
+            Provider capability requirements
+          </p>
+          <div data-sms-capability-requirements className="mt-2 grid gap-1.5 sm:grid-cols-2 xl:grid-cols-3">
+            {activationReadiness.capabilitySummary.requirements.map((requirement) => (
+              <div
+                key={requirement.key}
+                data-sms-provider-capability
+                className={`rounded-md border p-2 ${smsProviderCapabilityClasses(requirement.status)}`}
+              >
+                <p className="text-[10px] font-semibold uppercase tracking-wide">{requirement.label}</p>
+                <p className="mt-1 text-[10px] leading-4">{requirement.detail}</p>
+                <p className="mt-1 text-[10px] leading-4 opacity-80">
+                  {requirement.status.replaceAll('_', ' ')} · {requirement.evidence}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          <div data-sms-send-contract className="mt-2 grid gap-1.5 sm:grid-cols-2">
+            <div data-sms-idempotency-model className="rounded-md border border-current/20 bg-background/25 p-2">
+              <p className="text-[10px] font-semibold uppercase tracking-wide">Idempotency contract · not implemented</p>
+              <p className="mt-1 text-[10px] leading-4">
+                Namespace: {activationReadiness.idempotencyModel.namespace}. Match contact, SMS channel, message version, and the current per-recipient approval key before any future provider attempt.
+              </p>
+              <p className="mt-1 text-[10px] leading-4 opacity-80">
+                Duplicate policy: return existing attempt evidence without resending. A provider message ID is required after any future attempt.
+              </p>
+            </div>
+            <div className="rounded-md border border-current/20 bg-background/25 p-2">
+              <p className="text-[10px] font-semibold uppercase tracking-wide">Send authority boundary</p>
+              <p className="mt-1 text-[10px] leading-4">
+                Required approval: authorize warm SMS send for specific recipient. Generic proceed is rejected.
+              </p>
+              <p className="mt-1 text-[10px] leading-4 opacity-80">
+                Approval must match contact, SMS channel, message version, and idempotency key. Live send: off.
+              </p>
+            </div>
+          </div>
+
+          <div data-sms-audit-recovery className="mt-2 grid gap-1.5 sm:grid-cols-2">
+            <div className="rounded-md border border-current/20 bg-background/25 p-2">
+              <p className="text-[10px] font-semibold uppercase tracking-wide">Audit evidence contract</p>
+              <p className="mt-1 text-[10px] leading-4">
+                Before activation: provider selection, disabled configuration review, and capability evidence review. Before any future send: consent, suppression, phone provenance, current per-recipient approval, message version, and idempotency key.
+              </p>
+              <p className="mt-1 text-[10px] leading-4 opacity-80">
+                After any future provider attempt: timestamp, provider message ID, delivery status, and result classification. Raw phone and raw message body stay out of this audit packet.
+              </p>
+            </div>
+
+            <div data-sms-recovery-path className="rounded-md border border-current/20 bg-background/25 p-2">
+              <p className="text-[10px] font-semibold uppercase tracking-wide">Blocked recovery path</p>
+              <p className="mt-1 text-[10px] leading-4">{activationReadiness.blockedRecovery.reason}</p>
+              <ol className="mt-1 list-decimal space-y-1 pl-4 text-[10px] leading-4 opacity-90">
+                {activationReadiness.blockedRecovery.steps.map((step) => (
+                  <li key={step}>{step}</li>
+                ))}
+              </ol>
+            </div>
+          </div>
+
           <p className="mt-2 text-[10px] leading-4 opacity-80">
             Consent audit: {providerReadiness.consentAndSuppression.auditedAt ?? 'missing'}.
-            {' '}No send route is implemented. The manual SMS loop below remains a separate local workflow.
+            {' '}No send route or feature flag is implemented. The manual SMS loop below remains a separate local workflow.
           </p>
         </details>
       </div>

@@ -3,10 +3,59 @@ export const warmSmsProviderReadinessStates = [
   'provider_configured_disabled',
   'consent_or_suppression_not_satisfied',
   'eligible_for_human_approved_draft_creation',
+  'provider_activation_requirements_not_satisfied',
   'eligible_for_future_explicit_send_authorization',
 ] as const
 
 export type WarmSmsProviderReadinessState = (typeof warmSmsProviderReadinessStates)[number]
+
+export const warmSmsProviderCapabilityRequirements = [
+  {
+    key: 'outbound_message_submission',
+    label: 'Outbound message submission',
+    detail: 'Document the provider endpoint, sender identity rules, and fail-closed error contract.',
+  },
+  {
+    key: 'delivery_status_callbacks',
+    label: 'Delivery status callbacks',
+    detail: 'Verify durable provider message IDs plus delivered, failed, and unknown outcome handling.',
+  },
+  {
+    key: 'inbound_opt_out_ingestion',
+    label: 'Inbound stop / opt-out ingestion',
+    detail: 'Verify STOP-style replies update suppression before another SMS prompt can appear.',
+  },
+  {
+    key: 'sender_identity_compliance',
+    label: 'Sender identity and compliance',
+    detail: 'Document the approved sender, registration requirements, geography, and recipient rules.',
+  },
+  {
+    key: 'idempotent_submission',
+    label: 'Idempotent submission',
+    detail: 'Verify a stable request key or equivalent provider-safe duplicate prevention mechanism.',
+  },
+  {
+    key: 'sandbox_or_no_send_test',
+    label: 'Sandbox or no-send test',
+    detail: 'Identify a provider-supported test path that cannot contact a real recipient.',
+  },
+] as const
+
+export type WarmSmsProviderCapabilityKey =
+  (typeof warmSmsProviderCapabilityRequirements)[number]['key']
+
+export type WarmSmsProviderActivationInput = {
+  providerSelectionStatus: 'not_selected' | 'candidate' | 'selected'
+  providerSelectionNote: string | null
+  configurationStatus: 'not_reviewed' | 'planned_disabled' | 'verified_disabled'
+  configurationNote: string | null
+  capabilityEvidence: Partial<Record<WarmSmsProviderCapabilityKey, {
+    status: 'verified' | 'gap' | 'not_verified'
+    evidence: string | null
+  }>>
+  reviewedAt: string | null
+}
 
 export type WarmSmsProviderReadinessInput = {
   provider: {
@@ -31,6 +80,7 @@ export type WarmSmsProviderReadinessInput = {
   draftApproval: {
     approvedForProviderDraftCreation: boolean
   }
+  activation?: WarmSmsProviderActivationInput
   now: string
 }
 
@@ -86,6 +136,99 @@ export type WarmSmsProviderReadiness = {
     genericProceedAccepted: false
     sendRouteImplemented: false
     externalSendEnabled: false
+  }
+  activationReadiness: {
+    version: 'warm-outreach-sms-provider-activation-readiness/v1'
+    state:
+      | 'consent_or_suppression_required'
+      | 'provider_selection_required'
+      | 'provider_configuration_review_required'
+      | 'capability_evidence_required'
+      | 'activation_audit_required'
+      | 'architecture_ready_activation_disabled'
+    label: string
+    providerSummary: {
+      name: string | null
+      selectionStatus: WarmSmsProviderActivationInput['providerSelectionStatus']
+      selectionNote: string
+      configurationStatus: WarmSmsProviderActivationInput['configurationStatus']
+      configurationNote: string
+      credentialsRead: false
+      environmentChanges: false
+    }
+    capabilitySummary: {
+      verified: number
+      total: number
+      status: 'complete' | 'gaps_remain'
+      requirements: Array<{
+        key: WarmSmsProviderCapabilityKey
+        label: string
+        detail: string
+        status: 'verified' | 'gap' | 'not_verified'
+        evidence: string
+      }>
+    }
+    consentPrerequisites: {
+      required: true
+      met: boolean
+      suppressionClear: boolean
+      phoneProvenanceVerified: boolean
+      permissionDocumented: boolean
+      auditTimestampValid: boolean
+    }
+    sendAuthority: {
+      genericProceedAccepted: false
+      currentPerRecipientApprovalRequired: true
+      requiredApproval: 'authorize_warm_sms_send_for_specific_recipient'
+      approvalMustMatch: ['contact_id', 'channel_sms', 'message_version', 'idempotency_key']
+      liveSendEnabled: false
+    }
+    idempotencyModel: {
+      status: 'contract_only'
+      implemented: false
+      namespace: 'warm-sms-send:v1'
+      keyParts: ['contact_id', 'channel_sms', 'message_version', 'current_per_recipient_approval_key']
+      recordBeforeProviderAttempt: true
+      duplicatePolicy: 'return_existing_attempt_evidence_without_resend'
+      providerMessageIdRequiredAfterAttempt: true
+    }
+    auditEvidence: {
+      status: 'complete' | 'incomplete'
+      reviewedAt: string | null
+      requiredBeforeActivation: [
+        'provider_selection_record',
+        'disabled_configuration_review',
+        'capability_evidence_review',
+      ]
+      requiredBeforeFutureSend: [
+        'consent_snapshot',
+        'suppression_snapshot',
+        'phone_provenance',
+        'current_per_recipient_approval',
+        'message_version',
+        'idempotency_key',
+      ]
+      requiredAfterProviderAttempt: [
+        'attempt_timestamp',
+        'provider_message_id',
+        'delivery_status',
+        'result_classification',
+      ]
+      storesRawPhone: false
+      storesRawMessageBody: false
+    }
+    blockedRecovery: {
+      reason: string
+      nextStep: string
+      steps: [string, string, string, string, string]
+    }
+    executionBoundary: {
+      activationEnabled: false
+      providerCallsEnabled: false
+      smsDeliveryEnabled: false
+      routeImplemented: false
+      featureFlagEnabled: false
+    }
   }
   operatorNextAction: string
   recoveryStep: string | null
@@ -160,6 +303,64 @@ export function buildWarmSmsProviderReadiness(
   ]
   const blockers = [...suppressionBlockers, ...evidenceBlockers]
 
+  const consentStatus: WarmSmsProviderReadiness['consentAndSuppression']['status'] =
+    suppressionBlockers.length > 0
+      ? 'suppressed'
+      : cooldown.active
+        ? 'cooldown_active'
+        : evidenceBlockers.length > 0
+          ? 'needs_evidence'
+          : 'clear'
+
+  const activation = input.activation ?? {
+    providerSelectionStatus: normalizedNote(input.provider.name)
+      ? input.provider.configured ? 'selected' as const : 'candidate' as const
+      : 'not_selected' as const,
+    providerSelectionNote: null,
+    configurationStatus: input.provider.configured
+      ? 'planned_disabled' as const
+      : 'not_reviewed' as const,
+    configurationNote: null,
+    capabilityEvidence: {},
+    reviewedAt: null,
+  }
+  const capabilityRequirements = warmSmsProviderCapabilityRequirements.map((requirement) => {
+    const evidence = activation.capabilityEvidence[requirement.key]
+    return {
+      ...requirement,
+      status: evidence?.status ?? 'not_verified' as const,
+      evidence: normalizedNote(evidence?.evidence ?? null) ?? 'No provider-specific evidence is recorded.',
+    }
+  })
+  const verifiedCapabilityCount = capabilityRequirements.filter(
+    (requirement) => requirement.status === 'verified',
+  ).length
+  const capabilitiesComplete = verifiedCapabilityCount === capabilityRequirements.length
+  const activationReviewedAtValid = validTimestamp(activation.reviewedAt)
+  const consentPrerequisitesMet = blockers.length === 0
+
+  let activationState: WarmSmsProviderReadiness['activationReadiness']['state']
+  if (!consentPrerequisitesMet) {
+    activationState = 'consent_or_suppression_required'
+  } else if (activation.providerSelectionStatus !== 'selected') {
+    activationState = 'provider_selection_required'
+  } else if (activation.configurationStatus !== 'verified_disabled') {
+    activationState = 'provider_configuration_review_required'
+  } else if (!capabilitiesComplete) {
+    activationState = 'capability_evidence_required'
+  } else if (!activationReviewedAtValid) {
+    activationState = 'activation_audit_required'
+  } else {
+    activationState = 'architecture_ready_activation_disabled'
+  }
+  const activationArchitectureReady =
+    activationState === 'architecture_ready_activation_disabled'
+  const activationAuditComplete =
+    activation.providerSelectionStatus === 'selected' &&
+    activation.configurationStatus === 'verified_disabled' &&
+    capabilitiesComplete &&
+    activationReviewedAtValid
+
   let state: WarmSmsProviderReadinessState
   if (suppressionBlockers.length > 0 || evidenceBlockers.length > 0) {
     state = 'consent_or_suppression_not_satisfied'
@@ -169,6 +370,8 @@ export function buildWarmSmsProviderReadiness(
     state = 'provider_configured_disabled'
   } else if (!input.draftApproval.approvedForProviderDraftCreation) {
     state = 'eligible_for_human_approved_draft_creation'
+  } else if (!activationArchitectureReady) {
+    state = 'provider_activation_requirements_not_satisfied'
   } else {
     state = 'eligible_for_future_explicit_send_authorization'
   }
@@ -178,6 +381,7 @@ export function buildWarmSmsProviderReadiness(
     provider_configured_disabled: 'SMS provider configured but disabled',
     consent_or_suppression_not_satisfied: 'SMS consent or suppression checks not satisfied',
     eligible_for_human_approved_draft_creation: 'Eligible for human-approved SMS draft creation',
+    provider_activation_requirements_not_satisfied: 'SMS provider activation requirements not satisfied',
     eligible_for_future_explicit_send_authorization: 'Eligible for a future explicit send-authorization review',
   }
   const nextActions: Record<WarmSmsProviderReadinessState, string> = {
@@ -191,18 +395,54 @@ export function buildWarmSmsProviderReadiness(
         : `Resolve the consent record before provider SMS review: ${evidenceBlockers[0] ?? 'consent evidence is incomplete'}`,
     eligible_for_human_approved_draft_creation:
       'Request a separate human approval for provider-bound draft creation. This state does not authorize or perform a send.',
+    provider_activation_requirements_not_satisfied:
+      'Complete the provider activation evidence packet before a future per-recipient send-authorization review.',
     eligible_for_future_explicit_send_authorization:
       'A future send path must still require a current per-recipient approval plus the provider flag; generic proceed is never enough.',
   }
 
-  const consentStatus: WarmSmsProviderReadiness['consentAndSuppression']['status'] =
-    suppressionBlockers.length > 0
-      ? 'suppressed'
-      : cooldown.active
-        ? 'cooldown_active'
-        : evidenceBlockers.length > 0
-          ? 'needs_evidence'
-          : 'clear'
+  const activationLabels: Record<
+    WarmSmsProviderReadiness['activationReadiness']['state'],
+    string
+  > = {
+    consent_or_suppression_required: 'Activation blocked by recipient safety evidence',
+    provider_selection_required: 'Provider selection decision required',
+    provider_configuration_review_required: 'Disabled provider configuration review required',
+    capability_evidence_required: 'Provider capability evidence required',
+    activation_audit_required: 'Activation evidence review required',
+    architecture_ready_activation_disabled: 'Activation architecture reviewed; execution remains disabled',
+  }
+  const activationNextSteps: Record<
+    WarmSmsProviderReadiness['activationReadiness']['state'],
+    string
+  > = {
+    consent_or_suppression_required:
+      blockers[0] ?? 'Complete the consent, provenance, suppression, and audit record for this recipient.',
+    provider_selection_required:
+      'Record an operator-reviewed provider choice and source documentation; do not enter credentials here.',
+    provider_configuration_review_required:
+      'Document a disabled configuration review with secrets excluded and keep provider execution off.',
+    capability_evidence_required: (() => {
+      const nextRequirement = capabilityRequirements.find((requirement) => requirement.status !== 'verified')
+      return nextRequirement
+        ? `Verify ${nextRequirement.label.toLowerCase()} against the selected provider documentation or leave it recorded as a gap.`
+        : 'Record the provider capability review.'
+    })(),
+    activation_audit_required:
+      'Record when provider selection, disabled configuration, and capability evidence were last reviewed.',
+    architecture_ready_activation_disabled:
+      'Ask the Integration Captain to review the activation packet. Live provider calls and SMS delivery remain disabled.',
+  }
+  const selectionNotes: Record<WarmSmsProviderActivationInput['providerSelectionStatus'], string> = {
+    not_selected: 'No provider choice is recorded. Vendor uncertainty remains an explicit activation gap.',
+    candidate: 'A provider candidate is named, but the operator decision is not confirmed.',
+    selected: 'A provider choice is recorded for architecture review only.',
+  }
+  const configurationNotes: Record<WarmSmsProviderActivationInput['configurationStatus'], string> = {
+    not_reviewed: 'No provider configuration review is recorded.',
+    planned_disabled: 'A disabled configuration is modeled, but provider-specific review evidence is incomplete.',
+    verified_disabled: 'The disabled configuration contract was reviewed without enabling provider execution.',
+  }
 
   return {
     version: 'warm-outreach-sms-provider-readiness/v1',
@@ -296,7 +536,7 @@ export function buildWarmSmsProviderReadiness(
         state === 'eligible_for_human_approved_draft_creation' ||
         state === 'eligible_for_future_explicit_send_authorization',
       futureExplicitSendAuthorization:
-        state === 'eligible_for_future_explicit_send_authorization',
+        state === 'eligible_for_future_explicit_send_authorization' && activationArchitectureReady,
       liveProviderSend: false,
     },
     authorizationBoundary: {
@@ -307,6 +547,102 @@ export function buildWarmSmsProviderReadiness(
       genericProceedAccepted: false,
       sendRouteImplemented: false,
       externalSendEnabled: false,
+    },
+    activationReadiness: {
+      version: 'warm-outreach-sms-provider-activation-readiness/v1',
+      state: activationState,
+      label: activationLabels[activationState],
+      providerSummary: {
+        name: normalizedNote(input.provider.name),
+        selectionStatus: activation.providerSelectionStatus,
+        selectionNote:
+          normalizedNote(activation.providerSelectionNote) ?? selectionNotes[activation.providerSelectionStatus],
+        configurationStatus: activation.configurationStatus,
+        configurationNote:
+          normalizedNote(activation.configurationNote) ?? configurationNotes[activation.configurationStatus],
+        credentialsRead: false,
+        environmentChanges: false,
+      },
+      capabilitySummary: {
+        verified: verifiedCapabilityCount,
+        total: capabilityRequirements.length,
+        status: capabilitiesComplete ? 'complete' : 'gaps_remain',
+        requirements: capabilityRequirements,
+      },
+      consentPrerequisites: {
+        required: true,
+        met: consentPrerequisitesMet,
+        suppressionClear: suppressionBlockers.length === 0,
+        phoneProvenanceVerified:
+          input.consent.phoneProvenance === 'known' && Boolean(provenanceNote),
+        permissionDocumented:
+          input.consent.permissionStatus === 'documented' && Boolean(permissionNote),
+        auditTimestampValid: auditedAtValid,
+      },
+      sendAuthority: {
+        genericProceedAccepted: false,
+        currentPerRecipientApprovalRequired: true,
+        requiredApproval: 'authorize_warm_sms_send_for_specific_recipient',
+        approvalMustMatch: ['contact_id', 'channel_sms', 'message_version', 'idempotency_key'],
+        liveSendEnabled: false,
+      },
+      idempotencyModel: {
+        status: 'contract_only',
+        implemented: false,
+        namespace: 'warm-sms-send:v1',
+        keyParts: [
+          'contact_id',
+          'channel_sms',
+          'message_version',
+          'current_per_recipient_approval_key',
+        ],
+        recordBeforeProviderAttempt: true,
+        duplicatePolicy: 'return_existing_attempt_evidence_without_resend',
+        providerMessageIdRequiredAfterAttempt: true,
+      },
+      auditEvidence: {
+        status: activationAuditComplete ? 'complete' : 'incomplete',
+        reviewedAt: activationReviewedAtValid ? activation.reviewedAt : null,
+        requiredBeforeActivation: [
+          'provider_selection_record',
+          'disabled_configuration_review',
+          'capability_evidence_review',
+        ],
+        requiredBeforeFutureSend: [
+          'consent_snapshot',
+          'suppression_snapshot',
+          'phone_provenance',
+          'current_per_recipient_approval',
+          'message_version',
+          'idempotency_key',
+        ],
+        requiredAfterProviderAttempt: [
+          'attempt_timestamp',
+          'provider_message_id',
+          'delivery_status',
+          'result_classification',
+        ],
+        storesRawPhone: false,
+        storesRawMessageBody: false,
+      },
+      blockedRecovery: {
+        reason: activationLabels[activationState],
+        nextStep: activationNextSteps[activationState],
+        steps: [
+          'Record the provider selection decision and its source documentation.',
+          'Review a disabled configuration summary without exposing or changing credentials.',
+          'Verify all required capabilities, including opt-out ingestion and duplicate prevention.',
+          'Re-audit this recipient\'s consent, suppression, phone provenance, and cooldown evidence.',
+          'Keep future send authority separate: require a current per-recipient approval matched to the message version and idempotency key.',
+        ],
+      },
+      executionBoundary: {
+        activationEnabled: false,
+        providerCallsEnabled: false,
+        smsDeliveryEnabled: false,
+        routeImplemented: false,
+        featureFlagEnabled: false,
+      },
     },
     operatorNextAction: nextActions[state],
     recoveryStep: blockers[0] ?? null,
