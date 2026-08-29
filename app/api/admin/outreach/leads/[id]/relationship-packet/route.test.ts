@@ -254,6 +254,39 @@ describe('GET /api/admin/outreach/leads/[id]/relationship-packet', () => {
         smsDeliveryEnabled: false,
         genericProceedAccepted: false,
       },
+      providerReadiness: {
+        version: 'warm-outreach-sms-provider-readiness/v1',
+        state: 'consent_or_suppression_not_satisfied',
+        provider: {
+          configured: false,
+          enabled: false,
+          providerCallsEnabled: false,
+          smsDeliveryEnabled: false,
+        },
+        consentAndSuppression: {
+          status: 'needs_evidence',
+          suppressionPrecedence: true,
+          checks: expect.arrayContaining([
+            expect.objectContaining({ key: 'known_relationship_basis', status: 'passed' }),
+            expect.objectContaining({ key: 'phone_provenance', status: 'blocked' }),
+            expect.objectContaining({ key: 'permission_consent_note', status: 'blocked' }),
+            expect.objectContaining({ key: 'audit_timestamp', status: 'blocked' }),
+          ]),
+        },
+        eligibility: {
+          humanApprovedDraftCreation: false,
+          futureExplicitSendAuthorization: false,
+          liveProviderSend: false,
+        },
+        authorizationBoundary: {
+          currentPerRecipientApprovalRequired: true,
+          providerFlagRequired: true,
+          providerFlagEnabled: false,
+          genericProceedAccepted: false,
+          sendRouteImplemented: false,
+          externalSendEnabled: false,
+        },
+      },
       executionBoundary: {
         manualOnly: true,
         smsProviderConfigured: false,
@@ -518,6 +551,13 @@ describe('GET /api/admin/outreach/leads/[id]/relationship-packet', () => {
       state: 'blocked',
       consentAndSuppression: {
         status: 'blocked',
+      },
+      providerReadiness: {
+        state: 'consent_or_suppression_not_satisfied',
+        consentAndSuppression: {
+          status: 'suppressed',
+          suppressionPrecedence: true,
+        },
       },
       executionBoundary: {
         smsDelivery: false,
