@@ -1405,7 +1405,7 @@ describe('RelationshipPacketPanel', () => {
     expect(screen.getByText('Warm SMS manual readiness')).toBeInTheDocument()
     expect(screen.getByText('SMS draft needs manual review')).toBeInTheDocument()
     expect(screen.getByText('No SMS provider')).toBeInTheDocument()
-    expect(screen.getByText('Warm SMS provider readiness · future phase')).toBeInTheDocument()
+    expect(screen.getByText('Warm SMS provider readiness · activation architecture')).toBeInTheDocument()
     expect(screen.getByText('SMS consent or suppression checks not satisfied')).toBeInTheDocument()
     const criticalBoundaries = [...document.querySelectorAll('[data-sms-provider-critical-boundary]')]
       .map((element) => element.textContent)
@@ -1417,12 +1417,25 @@ describe('RelationshipPacketPanel', () => {
     ]))
     const providerDetails = screen.getByTestId('warm-sms-provider-details')
     expect(providerDetails).not.toHaveAttribute('open')
-    fireEvent.click(screen.getByText('Consent, suppression, and audit details'))
+    expect(screen.getByTestId('warm-sms-activation-next-step')).toHaveTextContent(
+      /verified phone provenance and a source note are required/i,
+    )
+    expect(document.querySelector('[data-sms-activation-summary]')).toHaveTextContent(
+      /Provider not selected · selection not selected · configuration not reviewed · capabilities 0\/6 verified · idempotency contract only/i,
+    )
+    fireEvent.click(screen.getByText('Activation requirements and audit evidence'))
     expect(providerDetails).toHaveAttribute('open')
-    fireEvent.click(screen.getByText('Consent, suppression, and audit details'))
+    fireEvent.click(screen.getByText('Activation requirements and audit evidence'))
     expect(providerDetails).not.toHaveAttribute('open')
     expect(screen.getByText('Permission / consent note')).toBeInTheDocument()
     expect(screen.getByText('Consent audit timestamp')).toBeInTheDocument()
+    expect(document.querySelectorAll('[data-sms-provider-capability]')).toHaveLength(6)
+    expect(document.querySelector('[data-sms-idempotency-model]')).toHaveTextContent(
+      /return existing attempt evidence without resending/i,
+    )
+    expect(document.querySelector('[data-sms-recovery-path]')).toHaveTextContent(
+      /current per-recipient approval matched to the message version and idempotency key/i,
+    )
     expect(screen.getByText(/Phone: present from contact_submissions.phone_number/)).toBeInTheDocument()
     expect(screen.getByText('Phone number present')).toBeInTheDocument()
     expect(screen.getByText('Phone source provenance')).toBeInTheDocument()
@@ -1744,7 +1757,13 @@ describe('RelationshipPacketPanel', () => {
     expect(screen.getByText('Provider: configured / disabled')).toBeInTheDocument()
     expect(screen.getByText('Generic proceed: rejected')).toBeInTheDocument()
     expect(screen.getByText('Approval: per-recipient required')).toBeInTheDocument()
-    expect(screen.getAllByText(/Keep the provider disabled until captain review/).length).toBeGreaterThan(0)
+    expect(screen.getByTestId('warm-sms-activation-next-step')).toHaveTextContent(
+      /Document a disabled configuration review with secrets excluded/i,
+    )
+    expect(document.querySelector('[data-sms-activation-summary]')).toHaveTextContent(
+      /Synthetic future SMS adapter · selection selected · configuration planned disabled · capabilities 2\/6 verified · idempotency contract only/i,
+    )
+    expect(document.querySelectorAll('[data-sms-provider-capability]')).toHaveLength(6)
     expect(screen.getByTestId('warm-sms-provider-details')).not.toHaveAttribute('open')
     expect(screen.getByText('Manual SMS operating loop')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Approve' })).toBeEnabled()

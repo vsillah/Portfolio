@@ -67,6 +67,15 @@ describe('warm SMS provider readiness', () => {
       eligibility: {
         liveProviderSend: false,
       },
+      activationReadiness: {
+        state: 'provider_selection_required',
+        providerSummary: {
+          selectionStatus: 'not_selected',
+          configurationStatus: 'not_reviewed',
+          credentialsRead: false,
+          environmentChanges: false,
+        },
+      },
     })
 
     const disabled = buildWarmSmsProviderReadiness(input({
@@ -83,6 +92,13 @@ describe('warm SMS provider readiness', () => {
       authorizationBoundary: {
         providerFlagEnabled: false,
         externalSendEnabled: false,
+      },
+      activationReadiness: {
+        state: 'provider_configuration_review_required',
+        providerSummary: {
+          selectionStatus: 'selected',
+          configurationStatus: 'planned_disabled',
+        },
       },
     })
   })
@@ -135,6 +151,19 @@ describe('warm SMS provider readiness', () => {
       'The contact is marked do not contact.',
     ])
     expect(readiness.operatorNextAction).toMatch(/Preserve the suppression evidence/)
+    expect(readiness.activationReadiness).toMatchObject({
+      state: 'consent_or_suppression_required',
+      consentPrerequisites: {
+        required: true,
+        met: false,
+        suppressionClear: false,
+      },
+      executionBoundary: {
+        activationEnabled: false,
+        providerCallsEnabled: false,
+        smsDeliveryEnabled: false,
+      },
+    })
   })
 
   it('enforces the last-contact cooldown and exposes its audit boundary', () => {
@@ -170,6 +199,21 @@ describe('warm SMS provider readiness', () => {
 
     const futureAuthorizationEligible = buildWarmSmsProviderReadiness(input({
       draftApproval: { approvedForProviderDraftCreation: true },
+      activation: {
+        providerSelectionStatus: 'selected',
+        providerSelectionNote: 'Synthetic provider selected.',
+        configurationStatus: 'verified_disabled',
+        configurationNote: 'Disabled configuration contract reviewed.',
+        capabilityEvidence: {
+          outbound_message_submission: { status: 'verified', evidence: 'Reviewed.' },
+          delivery_status_callbacks: { status: 'verified', evidence: 'Reviewed.' },
+          inbound_opt_out_ingestion: { status: 'verified', evidence: 'Reviewed.' },
+          sender_identity_compliance: { status: 'verified', evidence: 'Reviewed.' },
+          idempotent_submission: { status: 'verified', evidence: 'Reviewed.' },
+          sandbox_or_no_send_test: { status: 'verified', evidence: 'Reviewed.' },
+        },
+        reviewedAt: '2026-08-29T12:30:00.000Z',
+      },
     }))
     expect(futureAuthorizationEligible).toMatchObject({
       state: 'eligible_for_future_explicit_send_authorization',
@@ -187,6 +231,122 @@ describe('warm SMS provider readiness', () => {
         sendRouteImplemented: false,
         externalSendEnabled: false,
       },
+    })
+  })
+
+  it('models provider capabilities and an exact recovery path without reading credentials', () => {
+    const readiness = buildWarmSmsProviderReadiness(input({
+      activation: {
+        providerSelectionStatus: 'selected',
+        providerSelectionNote: 'Synthetic provider selected for contract review.',
+        configurationStatus: 'verified_disabled',
+        configurationNote: 'Disabled configuration contract reviewed without provider access.',
+        capabilityEvidence: {
+          outbound_message_submission: {
+            status: 'verified',
+            evidence: 'Submission boundary documented.',
+          },
+          delivery_status_callbacks: {
+            status: 'gap',
+            evidence: 'Delivery callbacks are not yet mapped.',
+          },
+        },
+        reviewedAt: '2026-08-29T12:30:00.000Z',
+      },
+    }))
+
+    expect(readiness.activationReadiness).toMatchObject({
+      version: 'warm-outreach-sms-provider-activation-readiness/v1',
+      state: 'capability_evidence_required',
+      providerSummary: {
+        selectionStatus: 'selected',
+        configurationStatus: 'verified_disabled',
+        credentialsRead: false,
+        environmentChanges: false,
+      },
+      capabilitySummary: {
+        verified: 1,
+        total: 6,
+        status: 'gaps_remain',
+      },
+      idempotencyModel: {
+        status: 'contract_only',
+        implemented: false,
+        namespace: 'warm-sms-send:v1',
+        recordBeforeProviderAttempt: true,
+        duplicatePolicy: 'return_existing_attempt_evidence_without_resend',
+      },
+      sendAuthority: {
+        genericProceedAccepted: false,
+        currentPerRecipientApprovalRequired: true,
+        requiredApproval: 'authorize_warm_sms_send_for_specific_recipient',
+        liveSendEnabled: false,
+      },
+      auditEvidence: {
+        storesRawPhone: false,
+        storesRawMessageBody: false,
+      },
+    })
+    expect(readiness.activationReadiness.capabilitySummary.requirements).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ key: 'outbound_message_submission', status: 'verified' }),
+        expect.objectContaining({ key: 'delivery_status_callbacks', status: 'gap' }),
+        expect.objectContaining({ key: 'inbound_opt_out_ingestion', status: 'not_verified' }),
+        expect.objectContaining({ key: 'idempotent_submission', status: 'not_verified' }),
+      ]),
+    )
+    expect(readiness.activationReadiness.blockedRecovery.nextStep).toMatch(
+      /delivery status callbacks/i,
+    )
+    expect(readiness.activationReadiness.blockedRecovery.steps).toHaveLength(5)
+  })
+
+  it('keeps provider calls and sends disabled when every activation contract is reviewed', () => {
+    const verified = {
+      status: 'verified' as const,
+      evidence: 'Synthetic contract evidence.',
+    }
+    const readiness = buildWarmSmsProviderReadiness(input({
+      activation: {
+        providerSelectionStatus: 'selected',
+        providerSelectionNote: 'Synthetic provider selected.',
+        configurationStatus: 'verified_disabled',
+        configurationNote: 'Disabled configuration contract reviewed.',
+        capabilityEvidence: {
+          outbound_message_submission: verified,
+          delivery_status_callbacks: verified,
+          inbound_opt_out_ingestion: verified,
+          sender_identity_compliance: verified,
+          idempotent_submission: verified,
+          sandbox_or_no_send_test: verified,
+        },
+        reviewedAt: '2026-08-29T12:30:00.000Z',
+      },
+    }))
+
+    expect(readiness.activationReadiness).toMatchObject({
+      state: 'architecture_ready_activation_disabled',
+      capabilitySummary: {
+        verified: 6,
+        total: 6,
+        status: 'complete',
+      },
+      auditEvidence: {
+        status: 'complete',
+        reviewedAt: '2026-08-29T12:30:00.000Z',
+      },
+      executionBoundary: {
+        activationEnabled: false,
+        providerCallsEnabled: false,
+        smsDeliveryEnabled: false,
+        routeImplemented: false,
+        featureFlagEnabled: false,
+      },
+    })
+    expect(readiness.authorizationBoundary).toMatchObject({
+      genericProceedAccepted: false,
+      sendRouteImplemented: false,
+      externalSendEnabled: false,
     })
   })
 })
