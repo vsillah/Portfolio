@@ -1423,10 +1423,45 @@ describe('RelationshipPacketPanel', () => {
     expect(document.querySelector('[data-sms-activation-summary]')).toHaveTextContent(
       /Provider not selected · selection not selected · configuration not reviewed · capabilities 0\/6 verified · idempotency contract only/i,
     )
+    expect(document.querySelector('[data-sms-provider-setup-summary]')).toHaveTextContent(
+      /No provider path selected \/ not selected/i,
+    )
+    expect(document.querySelector('[data-sms-provider-setup-summary]')).toHaveTextContent(
+      /Credentials read: no · env changed: no/i,
+    )
     fireEvent.click(screen.getByText('Activation requirements and audit evidence'))
     expect(providerDetails).toHaveAttribute('open')
     fireEvent.click(screen.getByText('Activation requirements and audit evidence'))
     expect(providerDetails).not.toHaveAttribute('open')
+    expect(document.querySelector('[data-sms-provider-setup-path]')).toHaveTextContent(
+      /Provider setup path/i,
+    )
+    expect(document.querySelector('[data-sms-provider-setup-path]')).toHaveTextContent(
+      /Twilio Messaging/i,
+    )
+    expect(document.querySelector('[data-sms-provider-setup-path]')).toHaveTextContent(
+      /Custom disabled adapter/i,
+    )
+    expect(document.querySelectorAll('[data-sms-provider-setup-candidate]')).toHaveLength(4)
+    expect(document.querySelector('[data-sms-configuration-validation]')).toHaveTextContent(
+      /Environment and config validation/i,
+    )
+    expect(document.querySelector('[data-sms-configuration-validation]')).toHaveTextContent(
+      /ENABLE_WARM_SMS_PROVIDER_EXECUTION · disabled verified/i,
+    )
+    expect(document.querySelector('[data-sms-configuration-validation]')).toHaveTextContent(
+      /Raw value returned: no/i,
+    )
+    expect(document.querySelectorAll('[data-sms-provider-config-item]')).toHaveLength(6)
+    expect(document.querySelector('[data-sms-operator-setup-path]')).toHaveTextContent(
+      /Blocked by setup/i,
+    )
+    expect(document.querySelector('[data-sms-operator-setup-path]')).toHaveTextContent(
+      /Live SMS delivery/i,
+    )
+    expect(document.querySelector('[data-sms-operator-setup-path]')).toHaveTextContent(
+      /Current per-recipient approval matched to contact, SMS channel, message version, and idempotency key/i,
+    )
     expect(screen.getByText('Permission / consent note')).toBeInTheDocument()
     expect(screen.getByText('Consent audit timestamp')).toBeInTheDocument()
     expect(document.querySelectorAll('[data-sms-provider-capability]')).toHaveLength(6)
