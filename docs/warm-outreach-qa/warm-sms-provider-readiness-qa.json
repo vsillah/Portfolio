@@ -1,0 +1,330 @@
+{
+  "route": "http://127.0.0.1:3027/admin/outreach?tab=leads&filter=warm&id=42&contactId=42&qa=warm-slack-send-approval#warm-sms-readiness",
+  "screenshots": [
+    {
+      "name": "mobile-360",
+      "viewport": {
+        "width": 360,
+        "height": 800
+      },
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/2fdb/Portfolio/docs/warm-outreach-qa/warm-sms-provider-readiness-mobile-360.png",
+      "hasSmsReadiness": true,
+      "hasManualBoundary": true,
+      "hasApprovalCopy": true,
+      "hasManualLoop": true,
+      "hasEvidenceCapture": true,
+      "hasResponseOutcome": true,
+      "hasProviderReadiness": true,
+      "hasProviderDisabled": true,
+      "hasConsentAudit": true,
+      "hasFutureSendBoundary": true,
+      "hasManualSeparation": true,
+      "horizontalOverflow": false,
+      "inputStyles": {
+        "smsDraftTextarea": {
+          "backgroundColor": "rgba(18, 30, 49, 0.9)",
+          "color": "rgb(234, 236, 238)",
+          "borderColor": "rgba(44, 62, 80, 0.7)",
+          "colorScheme": "dark",
+          "caretColor": "rgb(212, 175, 55)",
+          "placeholderColor": "rgba(234, 236, 238, 0.72)"
+        },
+        "operatorNoteTextarea": {
+          "backgroundColor": "rgba(44, 62, 80, 0.2)",
+          "color": "rgb(234, 236, 238)",
+          "borderColor": "rgba(44, 62, 80, 0.6)",
+          "colorScheme": "dark",
+          "caretColor": "rgb(212, 175, 55)",
+          "placeholderColor": "rgba(234, 236, 238, 0.72)"
+        },
+        "responseOutcomeSelect": {
+          "backgroundColor": "rgba(44, 62, 80, 0.2)",
+          "color": "rgb(234, 236, 238)",
+          "borderColor": "rgba(44, 62, 80, 0.6)",
+          "colorScheme": "dark",
+          "caretColor": "rgb(234, 236, 238)"
+        }
+      },
+      "textareaStyles": {
+        "backgroundColor": "rgba(18, 30, 49, 0.9)",
+        "color": "rgb(234, 236, 238)",
+        "borderColor": "rgba(44, 62, 80, 0.7)",
+        "colorScheme": "dark",
+        "caretColor": "rgb(212, 175, 55)",
+        "placeholderColor": "rgba(234, 236, 238, 0.72)"
+      },
+      "textareaUsesDarkMode": true,
+      "operatorNoteUsesDarkMode": true,
+      "responseOutcomeUsesDarkMode": true,
+      "allManualInputsUseDarkMode": true,
+      "unexpectedRequests": []
+    },
+    {
+      "name": "mobile-390",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/2fdb/Portfolio/docs/warm-outreach-qa/warm-sms-provider-readiness-mobile-390.png",
+      "hasSmsReadiness": true,
+      "hasManualBoundary": true,
+      "hasApprovalCopy": true,
+      "hasManualLoop": true,
+      "hasEvidenceCapture": true,
+      "hasResponseOutcome": true,
+      "hasProviderReadiness": true,
+      "hasProviderDisabled": true,
+      "hasConsentAudit": true,
+      "hasFutureSendBoundary": true,
+      "hasManualSeparation": true,
+      "horizontalOverflow": false,
+      "inputStyles": {
+        "smsDraftTextarea": {
+          "backgroundColor": "rgba(18, 30, 49, 0.9)",
+          "color": "rgb(234, 236, 238)",
+          "borderColor": "rgba(44, 62, 80, 0.7)",
+          "colorScheme": "dark",
+          "caretColor": "rgb(212, 175, 55)",
+          "placeholderColor": "rgba(234, 236, 238, 0.72)"
+        },
+        "operatorNoteTextarea": {
+          "backgroundColor": "rgba(44, 62, 80, 0.2)",
+          "color": "rgb(234, 236, 238)",
+          "borderColor": "rgba(44, 62, 80, 0.6)",
+          "colorScheme": "dark",
+          "caretColor": "rgb(212, 175, 55)",
+          "placeholderColor": "rgba(234, 236, 238, 0.72)"
+        },
+        "responseOutcomeSelect": {
+          "backgroundColor": "rgba(44, 62, 80, 0.2)",
+          "color": "rgb(234, 236, 238)",
+          "borderColor": "rgba(44, 62, 80, 0.6)",
+          "colorScheme": "dark",
+          "caretColor": "rgb(234, 236, 238)"
+        }
+      },
+      "textareaStyles": {
+        "backgroundColor": "rgba(18, 30, 49, 0.9)",
+        "color": "rgb(234, 236, 238)",
+        "borderColor": "rgba(44, 62, 80, 0.7)",
+        "colorScheme": "dark",
+        "caretColor": "rgb(212, 175, 55)",
+        "placeholderColor": "rgba(234, 236, 238, 0.72)"
+      },
+      "textareaUsesDarkMode": true,
+      "operatorNoteUsesDarkMode": true,
+      "responseOutcomeUsesDarkMode": true,
+      "allManualInputsUseDarkMode": true,
+      "unexpectedRequests": []
+    },
+    {
+      "name": "mobile-430",
+      "viewport": {
+        "width": 430,
+        "height": 932
+      },
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/2fdb/Portfolio/docs/warm-outreach-qa/warm-sms-provider-readiness-mobile-430.png",
+      "hasSmsReadiness": true,
+      "hasManualBoundary": true,
+      "hasApprovalCopy": true,
+      "hasManualLoop": true,
+      "hasEvidenceCapture": true,
+      "hasResponseOutcome": true,
+      "hasProviderReadiness": true,
+      "hasProviderDisabled": true,
+      "hasConsentAudit": true,
+      "hasFutureSendBoundary": true,
+      "hasManualSeparation": true,
+      "horizontalOverflow": false,
+      "inputStyles": {
+        "smsDraftTextarea": {
+          "backgroundColor": "rgba(18, 30, 49, 0.9)",
+          "color": "rgb(234, 236, 238)",
+          "borderColor": "rgba(44, 62, 80, 0.7)",
+          "colorScheme": "dark",
+          "caretColor": "rgb(212, 175, 55)",
+          "placeholderColor": "rgba(234, 236, 238, 0.72)"
+        },
+        "operatorNoteTextarea": {
+          "backgroundColor": "rgba(44, 62, 80, 0.2)",
+          "color": "rgb(234, 236, 238)",
+          "borderColor": "rgba(44, 62, 80, 0.6)",
+          "colorScheme": "dark",
+          "caretColor": "rgb(212, 175, 55)",
+          "placeholderColor": "rgba(234, 236, 238, 0.72)"
+        },
+        "responseOutcomeSelect": {
+          "backgroundColor": "rgba(44, 62, 80, 0.2)",
+          "color": "rgb(234, 236, 238)",
+          "borderColor": "rgba(44, 62, 80, 0.6)",
+          "colorScheme": "dark",
+          "caretColor": "rgb(234, 236, 238)"
+        }
+      },
+      "textareaStyles": {
+        "backgroundColor": "rgba(18, 30, 49, 0.9)",
+        "color": "rgb(234, 236, 238)",
+        "borderColor": "rgba(44, 62, 80, 0.7)",
+        "colorScheme": "dark",
+        "caretColor": "rgb(212, 175, 55)",
+        "placeholderColor": "rgba(234, 236, 238, 0.72)"
+      },
+      "textareaUsesDarkMode": true,
+      "operatorNoteUsesDarkMode": true,
+      "responseOutcomeUsesDarkMode": true,
+      "allManualInputsUseDarkMode": true,
+      "unexpectedRequests": []
+    },
+    {
+      "name": "tablet-768",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/2fdb/Portfolio/docs/warm-outreach-qa/warm-sms-provider-readiness-tablet-768.png",
+      "hasSmsReadiness": true,
+      "hasManualBoundary": true,
+      "hasApprovalCopy": true,
+      "hasManualLoop": true,
+      "hasEvidenceCapture": true,
+      "hasResponseOutcome": true,
+      "hasProviderReadiness": true,
+      "hasProviderDisabled": true,
+      "hasConsentAudit": true,
+      "hasFutureSendBoundary": true,
+      "hasManualSeparation": true,
+      "horizontalOverflow": false,
+      "inputStyles": {
+        "smsDraftTextarea": {
+          "backgroundColor": "rgba(18, 30, 49, 0.9)",
+          "color": "rgb(234, 236, 238)",
+          "borderColor": "rgba(44, 62, 80, 0.7)",
+          "colorScheme": "dark",
+          "caretColor": "rgb(212, 175, 55)",
+          "placeholderColor": "rgba(234, 236, 238, 0.72)"
+        },
+        "operatorNoteTextarea": {
+          "backgroundColor": "rgba(44, 62, 80, 0.2)",
+          "color": "rgb(234, 236, 238)",
+          "borderColor": "rgba(44, 62, 80, 0.6)",
+          "colorScheme": "dark",
+          "caretColor": "rgb(212, 175, 55)",
+          "placeholderColor": "rgba(234, 236, 238, 0.72)"
+        },
+        "responseOutcomeSelect": {
+          "backgroundColor": "rgba(44, 62, 80, 0.2)",
+          "color": "rgb(234, 236, 238)",
+          "borderColor": "rgba(44, 62, 80, 0.6)",
+          "colorScheme": "dark",
+          "caretColor": "rgb(234, 236, 238)"
+        }
+      },
+      "textareaStyles": {
+        "backgroundColor": "rgba(18, 30, 49, 0.9)",
+        "color": "rgb(234, 236, 238)",
+        "borderColor": "rgba(44, 62, 80, 0.7)",
+        "colorScheme": "dark",
+        "caretColor": "rgb(212, 175, 55)",
+        "placeholderColor": "rgba(234, 236, 238, 0.72)"
+      },
+      "textareaUsesDarkMode": true,
+      "operatorNoteUsesDarkMode": true,
+      "responseOutcomeUsesDarkMode": true,
+      "allManualInputsUseDarkMode": true,
+      "unexpectedRequests": []
+    },
+    {
+      "name": "desktop-1440",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/2fdb/Portfolio/docs/warm-outreach-qa/warm-sms-provider-readiness-desktop-1440.png",
+      "hasSmsReadiness": true,
+      "hasManualBoundary": true,
+      "hasApprovalCopy": true,
+      "hasManualLoop": true,
+      "hasEvidenceCapture": true,
+      "hasResponseOutcome": true,
+      "hasProviderReadiness": true,
+      "hasProviderDisabled": true,
+      "hasConsentAudit": true,
+      "hasFutureSendBoundary": true,
+      "hasManualSeparation": true,
+      "horizontalOverflow": false,
+      "inputStyles": {
+        "smsDraftTextarea": {
+          "backgroundColor": "rgba(18, 30, 49, 0.9)",
+          "color": "rgb(234, 236, 238)",
+          "borderColor": "rgba(44, 62, 80, 0.7)",
+          "colorScheme": "dark",
+          "caretColor": "rgb(212, 175, 55)",
+          "placeholderColor": "rgba(234, 236, 238, 0.72)"
+        },
+        "operatorNoteTextarea": {
+          "backgroundColor": "rgba(44, 62, 80, 0.2)",
+          "color": "rgb(234, 236, 238)",
+          "borderColor": "rgba(44, 62, 80, 0.6)",
+          "colorScheme": "dark",
+          "caretColor": "rgb(212, 175, 55)",
+          "placeholderColor": "rgba(234, 236, 238, 0.72)"
+        },
+        "responseOutcomeSelect": {
+          "backgroundColor": "rgba(44, 62, 80, 0.2)",
+          "color": "rgb(234, 236, 238)",
+          "borderColor": "rgba(44, 62, 80, 0.6)",
+          "colorScheme": "dark",
+          "caretColor": "rgb(234, 236, 238)"
+        }
+      },
+      "textareaStyles": {
+        "backgroundColor": "rgba(18, 30, 49, 0.9)",
+        "color": "rgb(234, 236, 238)",
+        "borderColor": "rgba(44, 62, 80, 0.7)",
+        "colorScheme": "dark",
+        "caretColor": "rgb(212, 175, 55)",
+        "placeholderColor": "rgba(234, 236, 238, 0.72)"
+      },
+      "textareaUsesDarkMode": true,
+      "operatorNoteUsesDarkMode": true,
+      "responseOutcomeUsesDarkMode": true,
+      "allManualInputsUseDarkMode": true,
+      "unexpectedRequests": []
+    }
+  ],
+  "sourceFrames": [
+    "/Users/vambahsillah/.codex/worktrees/2fdb/Portfolio/test-results/warm-sms-provider-readiness-qa/source/01-provider-disabled.png",
+    "/Users/vambahsillah/.codex/worktrees/2fdb/Portfolio/test-results/warm-sms-provider-readiness-qa/source/02-sms-approved-copy.png",
+    "/Users/vambahsillah/.codex/worktrees/2fdb/Portfolio/test-results/warm-sms-provider-readiness-qa/source/03-sms-prepared-evidence.png",
+    "/Users/vambahsillah/.codex/worktrees/2fdb/Portfolio/test-results/warm-sms-provider-readiness-qa/source/04-sms-follow-up-needed.png",
+    "/Users/vambahsillah/.codex/worktrees/2fdb/Portfolio/test-results/warm-sms-provider-readiness-qa/source/05-sms-suppressed-stop.png",
+    "/Users/vambahsillah/.codex/worktrees/2fdb/Portfolio/test-results/warm-sms-provider-readiness-qa/source/06-sms-revision.png",
+    "/Users/vambahsillah/.codex/worktrees/2fdb/Portfolio/test-results/warm-sms-provider-readiness-qa/source/07-sms-rejected.png"
+  ],
+  "compositeFrames": [
+    "/Users/vambahsillah/.codex/worktrees/2fdb/Portfolio/test-results/warm-sms-provider-readiness-qa/composite/frame-01.png",
+    "/Users/vambahsillah/.codex/worktrees/2fdb/Portfolio/test-results/warm-sms-provider-readiness-qa/composite/frame-02.png",
+    "/Users/vambahsillah/.codex/worktrees/2fdb/Portfolio/test-results/warm-sms-provider-readiness-qa/composite/frame-03.png",
+    "/Users/vambahsillah/.codex/worktrees/2fdb/Portfolio/test-results/warm-sms-provider-readiness-qa/composite/frame-04.png",
+    "/Users/vambahsillah/.codex/worktrees/2fdb/Portfolio/test-results/warm-sms-provider-readiness-qa/composite/frame-05.png",
+    "/Users/vambahsillah/.codex/worktrees/2fdb/Portfolio/test-results/warm-sms-provider-readiness-qa/composite/frame-06.png",
+    "/Users/vambahsillah/.codex/worktrees/2fdb/Portfolio/test-results/warm-sms-provider-readiness-qa/composite/frame-07.png"
+  ],
+  "mp4Path": "/Users/vambahsillah/.codex/worktrees/2fdb/Portfolio/docs/warm-outreach-qa/warm-sms-provider-readiness-qa.mp4",
+  "externalRequests": [],
+  "boundaries": {
+    "providerConfigured": true,
+    "providerEnabled": false,
+    "providerSendRouteImplemented": false,
+    "separateCurrentSendApprovalRequired": true,
+    "genericProceedAccepted": false,
+    "smsDelivery": false,
+    "smsProviderCalls": false,
+    "phoneImport": false,
+    "slackDispatch": false,
+    "gmailAction": false,
+    "n8nDispatch": false,
+    "productionDataMutation": false,
+    "migration": false
+  }
+}

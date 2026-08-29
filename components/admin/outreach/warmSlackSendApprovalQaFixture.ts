@@ -7,6 +7,7 @@ import {
   warmSmsManualLoopStages,
   warmSmsManualResponseOutcomes,
 } from '@/lib/warm-outreach-sms-readiness'
+import { buildWarmSmsProviderReadiness } from '@/lib/warm-outreach-sms-provider-readiness'
 import type { RelationshipPacketApiResponse } from './RelationshipPacketPanel'
 
 export const WARM_SLACK_SEND_APPROVAL_QA_CONTACT_ID = 42
@@ -862,12 +863,40 @@ export const warmSlackSendApprovalQaRelationshipPacket = {
       smsDeliveryEnabled: false,
       genericProceedAccepted: false,
     },
+    providerReadiness: buildWarmSmsProviderReadiness({
+      provider: {
+        name: 'Synthetic future SMS adapter',
+        configured: true,
+        enabled: false,
+      },
+      consent: {
+        knownRelationshipBasis: true,
+        relationshipBasisNote:
+          'Synthetic QA relationship evidence documents a prior working conversation and a requested follow-up.',
+        phoneProvenance: 'known',
+        phoneProvenanceNote:
+          'The synthetic contact supplied this test-owned number in the Portfolio QA fixture.',
+        permissionStatus: 'documented',
+        permissionNote:
+          'Synthetic QA consent note: a one-to-one SMS follow-up is allowed for this fixture only.',
+        optOutStop: false,
+        wrongNumber: false,
+        doNotContact: false,
+        lastContactAt: '2026-08-10T12:00:00.000Z',
+        cooldownDays: 7,
+        auditedAt: timestamp,
+      },
+      draftApproval: {
+        approvedForProviderDraftCreation: false,
+      },
+      now: '2026-08-29T12:00:00.000Z',
+    }),
     operatorNextAction:
       'Review the draft, revise or reject it, or approve the text for manual use from this contact workroom.',
     recoveryStep: null,
     executionBoundary: {
       manualOnly: true,
-      smsProviderConfigured: false,
+      smsProviderConfigured: true,
       smsProviderCalls: false,
       smsDelivery: false,
       phoneImport: false,

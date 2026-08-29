@@ -2,6 +2,11 @@ import type {
   WarmOutreachReadiness,
   WarmOutreachRelationshipPacket,
 } from './warm-outreach-relationship-intelligence'
+import {
+  buildWarmSmsProviderReadiness,
+  type WarmSmsProviderReadiness,
+  type WarmSmsProviderReadinessInput,
+} from './warm-outreach-sms-provider-readiness'
 
 export const warmSmsTemplateFamilies = [
   'prior_collaborator',
@@ -198,11 +203,12 @@ export type WarmSmsReadiness = {
     smsDeliveryEnabled: false
     genericProceedAccepted: false
   }
+  providerReadiness: WarmSmsProviderReadiness
   operatorNextAction: string
   recoveryStep: string | null
   executionBoundary: {
     manualOnly: true
-    smsProviderConfigured: false
+    smsProviderConfigured: boolean
     smsProviderCalls: false
     smsDelivery: false
     phoneImport: false
@@ -453,6 +459,7 @@ function smsPreview(
 export function buildWarmSmsReadiness(args: {
   packet: WarmOutreachRelationshipPacket
   readiness: WarmOutreachReadiness
+  providerReadiness?: WarmSmsProviderReadinessInput
 }): WarmSmsReadiness {
   const packet = args.packet
   const phoneCapability = packet.channelCapabilities.phone_contact
@@ -484,6 +491,34 @@ export function buildWarmSmsReadiness(args: {
       : !relationship.present
         ? 'relationship_rationale_required'
         : 'clear_for_manual_review'
+  const providerReadiness = buildWarmSmsProviderReadiness(args.providerReadiness ?? {
+    provider: {
+      name: null,
+      configured: phoneCapability?.providerConfigured === true,
+      enabled:
+        phoneCapability?.providerConfigured === true &&
+        phoneCapability.supportsExternalSend === true &&
+        phoneCapability.manualOnly !== true,
+    },
+    consent: {
+      knownRelationshipBasis: relationship.present,
+      relationshipBasisNote: relationship.present ? packet.relationshipBasis : null,
+      phoneProvenance: phonePresent ? 'unverified' : 'missing',
+      phoneProvenanceNote: phonePresent ? phoneCapability?.reason ?? null : null,
+      permissionStatus: relationship.present ? 'relationship_basis_only' : 'missing',
+      permissionNote: null,
+      optOutStop: packet.suppression.unsubscribed,
+      wrongNumber: false,
+      doNotContact: packet.suppression.doNotContact || Boolean(packet.suppression.removedAt),
+      lastContactAt: null,
+      cooldownDays: 7,
+      auditedAt: null,
+    },
+    draftApproval: {
+      approvedForProviderDraftCreation: false,
+    },
+    now: new Date().toISOString(),
+  })
 
   return {
     version: 'warm-outreach-sms-readiness/v1',
@@ -618,6 +653,7 @@ export function buildWarmSmsReadiness(args: {
       smsDeliveryEnabled: false,
       genericProceedAccepted: false,
     },
+    providerReadiness,
     operatorNextAction:
       state === 'blocked'
         ? 'Resolve the blocked SMS readiness check before reviewing draft text.'
@@ -628,7 +664,7 @@ export function buildWarmSmsReadiness(args: {
         : null,
     executionBoundary: {
       manualOnly: true,
-      smsProviderConfigured: false,
+      smsProviderConfigured: providerReadiness.provider.configured,
       smsProviderCalls: false,
       smsDelivery: false,
       phoneImport: false,
