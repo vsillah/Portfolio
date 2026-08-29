@@ -1060,11 +1060,18 @@ describe('RelationshipPacketPanel', () => {
     expect(screen.getByText('Real-recipient Gmail rollout')).toBeInTheDocument()
     expect(screen.getByText('Real Gmail send request blocked')).toBeInTheDocument()
     expect(screen.getByText('Resolve blocker')).toBeInTheDocument()
-    expect(screen.getByText('Draft: missing')).toBeInTheDocument()
+    expect(screen.getAllByText('Draft: missing').length).toBeGreaterThan(0)
     expect(screen.getByText('Sender: missing')).toBeInTheDocument()
     expect(screen.getAllByText('Provider: missing').length).toBeGreaterThan(0)
     expect(screen.getByText('Authorization: missing')).toBeInTheDocument()
     expect(screen.getByText('Submitted evidence: missing')).toBeInTheDocument()
+    expect(screen.getByLabelText('Warm Gmail execution readiness')).toBeInTheDocument()
+    expect(screen.getByText('Execution readiness')).toBeInTheDocument()
+    expect(screen.getAllByText('Execution blocked').length).toBeGreaterThan(0)
+    expect(screen.getByText('Exact gate locked')).toBeInTheDocument()
+    expect(screen.getByText('Safe next step: Open the warm queue row, repair the named readiness gate, then return to this same item.')).toBeInTheDocument()
+    expect(screen.getByText('Exact execution evidence')).toBeInTheDocument()
+    expect(screen.getByText(/Authorization: execute_warm_gmail_send_for_authorized_recipient/)).toBeInTheDocument()
     expect(screen.getByText('Approval request: not sent. Slack dispatch: not sent.')).toBeInTheDocument()
     expect(screen.getByText('Approval records intent only. Gmail send: off.')).toBeInTheDocument()
     expect(screen.getByText('Portfolio recovery path')).toBeInTheDocument()
@@ -1335,6 +1342,21 @@ describe('RelationshipPacketPanel', () => {
                           duplicateDetected: true,
                         },
                       },
+                      gmailOperatingLoop: {
+                        ...emailItem.emailSendLifecycle!.gmailOperatingLoop,
+                        operatorContext: {
+                          ...emailItem.emailSendLifecycle!.gmailOperatingLoop.operatorContext,
+                          gmailDraftId: 'r3600377219184694601',
+                          gmailThreadId: '1a043d900ee02b0f',
+                        },
+                        executionGate: {
+                          ...emailItem.emailSendLifecycle!.gmailOperatingLoop.executionGate,
+                          requiredEvidence: {
+                            ...emailItem.emailSendLifecycle!.gmailOperatingLoop.executionGate.requiredEvidence,
+                            gmailDraftId: 'r3600377219184694601',
+                          },
+                        },
+                      },
                     },
                   }
                 : item
@@ -1348,6 +1370,7 @@ describe('RelationshipPacketPanel', () => {
 
     expect(screen.getByText('Gmail draft exists and is tracked')).toBeInTheDocument()
     expect(screen.getByText(/Draft: r3600377219184694601 \/ Thread: 1a043d900ee02b0f \/ Message: 1a043d900ee02b0f/)).toBeInTheDocument()
+    expect(screen.getByText('Draft: r3600377219184694601')).toBeInTheDocument()
     expect(screen.getByText(/tracking evidence only; external send still needs separate approval/i)).toBeInTheDocument()
     expect(screen.getByText('External send blocked')).toBeInTheDocument()
     expect(screen.getByText('separate external send authority')).toBeInTheDocument()
@@ -1448,7 +1471,7 @@ describe('RelationshipPacketPanel', () => {
 
     expect(screen.getByText('Approval request: pending. Slack dispatch: not sent.')).toBeInTheDocument()
     expect(screen.getAllByText('Approval requested')).not.toHaveLength(0)
-    expect(screen.getByText('Approval: requested')).toBeInTheDocument()
+    expect(screen.getAllByText('Approval: requested').length).toBeGreaterThan(0)
     expect(screen.getByText('Record approval decision')).toBeInTheDocument()
     expect(screen.getByText(/Slack dispatch: off\. Gmail send: off\. Response polling: off/)).toBeInTheDocument()
 

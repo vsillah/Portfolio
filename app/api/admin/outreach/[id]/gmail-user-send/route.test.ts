@@ -123,8 +123,12 @@ function authorization(overrides: Record<string, unknown> = {}) {
     status: 'approved',
     contact_submission_id: 123,
     outreach_queue_id: 'queue-1',
+    recipient_email: 'alice@example.com',
+    channel: 'email',
+    gmail_draft_id: DRAFT_ID,
     message_version_key: MESSAGE_VERSION_KEY,
     send_queue_idempotency_key: SEND_QUEUE_KEY,
+    submitted_evidence_key: SUBMITTED_EVIDENCE_KEY,
     approval_intent_recorded: true,
     external_send_authorization_intent: true,
     gmail_send_called: false,
@@ -623,6 +627,61 @@ describe('POST /api/admin/outreach/[id]/gmail-user-send', () => {
     expect(mocks.sendUserGmailDraft).not.toHaveBeenCalled()
   })
 
+  it('blocks live execution when exact authorization evidence points to a different draft and recipient', async () => {
+    process.env.ENABLE_WARM_GMAIL_SEND_EXECUTION = 'true'
+    const row = outreachRow({
+      generation_inputs: {
+        gmail_draft_creation: draftEvidence(),
+        warm_gmail_send_authorization: authorization({
+          recipient_email: 'wrong@example.com',
+          gmail_draft_id: 'gmail-draft-other',
+          submitted_evidence_key: 'warm-outreach:email-submitted-evidence:v1:other',
+        }),
+      },
+    })
+    const { outreachUpdate } = mockSupabase({ outreachItem: row })
+
+    const response = await POST(makeRequest(executionPayload(row)), params())
+
+    expect(response.status).toBe(403)
+    await expect(response.json()).resolves.toMatchObject({
+      status: 'blocked_no_send',
+      blockers: expect.arrayContaining([
+        'Authorization recipient email does not match this outreach item.',
+        'Authorization Gmail draft id does not match the tracked Gmail draft evidence.',
+        'Authorization submitted evidence key does not match current lifecycle evidence.',
+      ]),
+      gmailSendCalled: false,
+      externalSendPerformed: false,
+    })
+    expect(outreachUpdate).not.toHaveBeenCalled()
+    expect(mocks.sendUserGmailDraft).not.toHaveBeenCalled()
+  })
+
+  it('keeps the enabled live gate fail-closed when Portfolio authorization is missing', async () => {
+    process.env.ENABLE_WARM_GMAIL_SEND_EXECUTION = 'true'
+    const row = outreachRow({
+      generation_inputs: {
+        gmail_draft_creation: draftEvidence(),
+      },
+    })
+    const { outreachUpdate } = mockSupabase({ outreachItem: row })
+
+    const response = await POST(makeRequest(executionPayload(row)), params())
+
+    expect(response.status).toBe(403)
+    await expect(response.json()).resolves.toMatchObject({
+      status: 'blocked_no_send',
+      blockers: expect.arrayContaining([
+        'Portfolio warm Gmail send authorization is missing or not approved.',
+      ]),
+      gmailSendCalled: false,
+      externalSendPerformed: false,
+    })
+    expect(outreachUpdate).not.toHaveBeenCalled()
+    expect(mocks.sendUserGmailDraft).not.toHaveBeenCalled()
+  })
+
   it('blocks when suppression or consent evidence is not clear', async () => {
     mocks.getRelationshipPacket.mockResolvedValue(
       NextResponse.json(
@@ -694,6 +753,7 @@ describe('POST /api/admin/outreach/[id]/gmail-user-send', () => {
   })
 
   it('prevents duplicate replay when submitted send evidence already exists', async () => {
+    process.env.ENABLE_WARM_GMAIL_SEND_EXECUTION = 'true'
     mockSupabase({
       contactCommunications: [
         {

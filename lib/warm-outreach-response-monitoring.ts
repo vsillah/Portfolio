@@ -2596,10 +2596,20 @@ function buildEmailSendLifecycle(args: {
       submittedEvidenceKey,
     },
   })
-  const queueId = text(asRows(args.rows?.outreachQueue).find(isEmailRow)?.id)
+  const emailQueueRow = asRows(args.rows?.outreachQueue).find(isEmailRow)
+  const queueId = text(emailQueueRow?.id)
   const gmailOperatingLoop = buildWarmGmailOperatingLoop({
     contactId: args.contactId,
     queueId,
+    recipientLabel: text(args.packet.contactName),
+    recipientEmail: normalizeEmail(firstValue(emailQueueRow ?? {}, [
+      'recipient_email',
+      'recipientEmail',
+      'email',
+    ])),
+    gmailDraftId: realRecipientRolloutReadiness.requirements.draftEvidence.draftId,
+    gmailThreadId: realRecipientRolloutReadiness.requirements.draftEvidence.threadId,
+    approvalDecisionKey: realRecipientRolloutReadiness.requirements.authorization.decisionKey,
     messageVersionKey,
     sendQueueIdempotencyKey,
     submittedEvidenceKey,

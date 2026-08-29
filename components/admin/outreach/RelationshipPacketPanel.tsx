@@ -316,6 +316,15 @@ function operatingLoopStageClasses(status: WarmGmailOperatingLoop['stages'][numb
   return 'border-silicon-slate bg-background/25 text-muted-foreground'
 }
 
+function operatingLoopGateClasses(state: WarmGmailOperatingLoop['executionGate']['state']) {
+  if (state === 'submitted_evidence_recorded' || state === 'response_monitoring') {
+    return 'border-emerald-400/30 bg-emerald-400/10 text-emerald-50'
+  }
+  if (state === 'live_execution_eligible') return 'border-sky-400/35 bg-sky-400/10 text-sky-50'
+  if (state === 'blocked') return 'border-red-400/35 bg-red-400/10 text-red-50'
+  return 'border-amber-400/35 bg-amber-400/10 text-amber-50'
+}
+
 function localRequestedStages(
   stages: WarmGmailOperatingLoop['stages'],
   localState: WarmGmailOperatingLoopState,
@@ -350,6 +359,8 @@ function GmailOperatingLoopCard({
     ? localRequestedStages(loop.stages, localState)
     : loop.stages
   const currentLabel = stages.find((stage) => stage.key === localState)?.label ?? loop.label
+  const gate = loop.executionGate
+  const context = loop.operatorContext
   const action = localApprovalRequested
     ? {
         ...loop.nextAction,
@@ -436,6 +447,54 @@ function GmailOperatingLoopCard({
             <p className="mt-0.5 text-[10px] font-semibold leading-4">{stage.label}</p>
           </div>
         ))}
+      </div>
+
+      <div
+        aria-label="Warm Gmail execution readiness"
+        className={`mt-3 rounded-md border p-2.5 ${operatingLoopGateClasses(gate.state)}`}
+      >
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0">
+            <p className="text-[10px] font-semibold uppercase tracking-wide">Execution readiness</p>
+            <p className="mt-1 text-sm font-semibold">{gate.label}</p>
+            <p className="mt-1 text-[11px] leading-4 opacity-85">
+              {gate.blockedReason ?? gate.safeNextStep}
+            </p>
+          </div>
+          <span className="inline-flex min-h-7 w-fit shrink-0 items-center gap-1.5 rounded-full border border-current/25 bg-background/25 px-2 py-0.5 text-[10px] font-semibold">
+            <LockKeyhole size={12} aria-hidden />
+            {gate.liveSendEligible ? 'Exact gate eligible' : 'Exact gate locked'}
+          </span>
+        </div>
+        <div className="mt-2 grid gap-1.5 text-[10px] leading-4 sm:grid-cols-2 xl:grid-cols-4">
+          <p className="rounded-md border border-current/20 bg-background/20 p-2">
+            Recipient: {context.recipientLabel}
+            {context.recipientEmail ? ` / ${context.recipientEmail}` : ''}
+          </p>
+          <p className="break-all rounded-md border border-current/20 bg-background/20 p-2">
+            Draft: {context.gmailDraftId ?? 'missing'}
+          </p>
+          <p className="break-all rounded-md border border-current/20 bg-background/20 p-2">
+            Approval: {context.approvalDecisionKey ?? authority.sendApproval.replace(/_/g, ' ')}
+          </p>
+          <p className="rounded-md border border-current/20 bg-background/20 p-2">
+            Submitted evidence: {loop.audit.submittedEvidenceRecorded ? 'recorded' : 'none'}
+          </p>
+        </div>
+        <p className="mt-2 text-[10px] leading-4 opacity-80">
+          Safe next step: {gate.safeNextStep}
+        </p>
+        <details className="mt-2 rounded-md border border-current/20 bg-background/20 p-2">
+          <summary className="cursor-pointer text-[10px] font-semibold uppercase tracking-wide">
+            Exact execution evidence
+          </summary>
+          <div className="mt-2 grid gap-1.5 text-[10px] leading-4 sm:grid-cols-2">
+            <p className="break-all">Message version: {gate.requiredEvidence.messageVersionKey}</p>
+            <p className="break-all">Send key: {gate.requiredEvidence.sendQueueIdempotencyKey}</p>
+            <p className="break-all">Submitted key: {gate.requiredEvidence.submittedEvidenceKey}</p>
+            <p className="break-all">Authorization: {gate.requiredAuthorization}</p>
+          </div>
+        </details>
       </div>
 
       <div className="mt-3 grid gap-1.5 text-[10px] leading-4 sm:grid-cols-4">

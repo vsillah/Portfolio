@@ -426,7 +426,8 @@ describe('OutreachAdminPage deep links', () => {
     expect(await within(workroom).findByText(
       `QA local Slack approval request recorded for ${WARM_SLACK_SEND_APPROVAL_QA_QUEUE_ID}. Slack dispatch off. Gmail send off. Provider calls off.`,
     )).toBeInTheDocument()
-    expect(within(workroom).getByText('Approval request: pending. Slack dispatch: not sent.')).toBeInTheDocument()
+    expect(within(workroom).getAllByText('Approval requested').length).toBeGreaterThan(0)
+    expect(within(workroom).getByText('Record approval decision')).toBeInTheDocument()
     expect(fetchMock.mock.calls.some(([url]) => String(url).includes('/slack-send-approval'))).toBe(false)
     expect(fetchMock.mock.calls.some(([url]) => String(url).includes('/api/admin/outreach/leads/42/relationship-packet'))).toBe(false)
   })

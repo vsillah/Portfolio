@@ -56,6 +56,38 @@ export type WarmGmailOperatingLoop = {
     submittedEvidenceRecorded: boolean
     secondaryLogRepairRequired: boolean
   }
+  operatorContext: {
+    recipientLabel: string
+    recipientEmail: string | null
+    queueLabel: string
+    messageVersionKey: string
+    gmailDraftId: string | null
+    gmailThreadId: string | null
+    approvalDecisionKey: string | null
+  }
+  executionGate: {
+    state:
+      | 'draft_required'
+      | 'approval_request_required'
+      | 'authorization_required'
+      | 'live_execution_disabled'
+      | 'live_execution_eligible'
+      | 'submitted_evidence_recorded'
+      | 'response_monitoring'
+      | 'blocked'
+    label: string
+    blockedReason: string | null
+    safeNextStep: string
+    liveSendEligible: boolean
+    liveSendActionEnabledOnThisSurface: false
+    requiredAuthorization: 'execute_warm_gmail_send_for_authorized_recipient'
+    requiredEvidence: {
+      messageVersionKey: string
+      sendQueueIdempotencyKey: string
+      submittedEvidenceKey: string
+      gmailDraftId: string | null
+    }
+  }
   reviewMoment: {
     kind: 'single_slack_or_portfolio_review'
     requestRoute: '/api/admin/outreach/[id]/slack-send-approval'
@@ -82,6 +114,11 @@ export type WarmGmailOperatingLoop = {
 export type BuildWarmGmailOperatingLoopInput = {
   contactId: number
   queueId: string | null
+  recipientLabel?: string | null
+  recipientEmail?: string | null
+  gmailDraftId?: string | null
+  gmailThreadId?: string | null
+  approvalDecisionKey?: string | null
   messageVersionKey: string
   sendQueueIdempotencyKey: string
   submittedEvidenceKey: string
@@ -306,6 +343,76 @@ function nextAction(
   }
 }
 
+function executionGate(
+  input: BuildWarmGmailOperatingLoopInput,
+  state: WarmGmailOperatingLoopState,
+  blockers: string[],
+  action: WarmGmailOperatingLoop['nextAction'],
+): WarmGmailOperatingLoop['executionGate'] {
+  const liveEligible =
+    !input.submittedEvidenceRecorded &&
+    !input.secondaryLogRepairRequired &&
+    blockers.length === 0 &&
+    input.authorizationStatus === 'approved' &&
+    (input.executionState === 'eligible_for_execution' || input.executionState === 'approved_for_send')
+  const submitted = input.submittedEvidenceRecorded || input.executionState === 'sent'
+
+  const gateState: WarmGmailOperatingLoop['executionGate']['state'] =
+    blockers.length > 0
+      ? 'blocked'
+      : input.responseMonitoringAttached && submitted
+        ? 'response_monitoring'
+        : submitted
+          ? 'submitted_evidence_recorded'
+          : liveEligible && input.executionState === 'eligible_for_execution'
+            ? 'live_execution_eligible'
+            : input.authorizationStatus === 'approved'
+              ? 'live_execution_disabled'
+              : state === 'send_approval_requested'
+                ? 'authorization_required'
+                : input.draftTracked
+                  ? 'approval_request_required'
+                  : 'draft_required'
+
+  const label: Record<WarmGmailOperatingLoop['executionGate']['state'], string> = {
+    draft_required: 'Draft evidence required',
+    approval_request_required: 'Approval request required',
+    authorization_required: 'Authorization decision required',
+    live_execution_disabled: 'Live execution disabled',
+    live_execution_eligible: 'Live execution eligible',
+    submitted_evidence_recorded: 'Submitted evidence recorded',
+    response_monitoring: 'Response monitoring active',
+    blocked: 'Execution blocked',
+  }
+
+  const safeNextStep: Record<WarmGmailOperatingLoop['executionGate']['state'], string> = {
+    draft_required: 'Create and track the exact Gmail draft before requesting send approval.',
+    approval_request_required: 'Request approval for this exact queue row; Slack dispatch and Gmail send stay off.',
+    authorization_required: 'Record approve, reject, or revise against the exact message version before any execution gate.',
+    live_execution_disabled: 'Captain must first record local eligibility, then separately enable the exact live execution flag outside this UI.',
+    live_execution_eligible: 'Captain may run the exact send route only with the listed authorization and evidence keys; this UI remains no-send.',
+    submitted_evidence_recorded: 'Review sent evidence only; do not replay this message version.',
+    response_monitoring: 'Use the contact response lifecycle; live Gmail polling remains a separate gate.',
+    blocked: action.recovery,
+  }
+
+  return {
+    state: gateState,
+    label: label[gateState],
+    blockedReason: blockers[0] ?? null,
+    safeNextStep: safeNextStep[gateState],
+    liveSendEligible: gateState === 'live_execution_eligible',
+    liveSendActionEnabledOnThisSurface: false,
+    requiredAuthorization: 'execute_warm_gmail_send_for_authorized_recipient',
+    requiredEvidence: {
+      messageVersionKey: input.messageVersionKey,
+      sendQueueIdempotencyKey: input.sendQueueIdempotencyKey,
+      submittedEvidenceKey: input.submittedEvidenceKey,
+      gmailDraftId: input.gmailDraftId ?? null,
+    },
+  }
+}
+
 export function buildWarmGmailOperatingLoop(
   input: BuildWarmGmailOperatingLoopInput,
 ): WarmGmailOperatingLoop {
@@ -327,6 +434,7 @@ export function buildWarmGmailOperatingLoop(
   const duplicateSendBlocked = input.submittedEvidenceRecorded || input.executionState === 'sent'
   const currentIndex = WARM_GMAIL_OPERATING_LOOP_STATES.indexOf(state)
   const action = nextAction(input, state, blockedReasons)
+  const gate = executionGate(input, state, blockedReasons, action)
   const portfolioDeepLink = portfolioReviewRoute(input.contactId, input.queueId)
   const responseReviewRoute = contactReviewRoute(input.contactId)
 
@@ -368,6 +476,16 @@ export function buildWarmGmailOperatingLoop(
       submittedEvidenceRecorded: input.submittedEvidenceRecorded,
       secondaryLogRepairRequired: input.secondaryLogRepairRequired,
     },
+    operatorContext: {
+      recipientLabel: input.recipientLabel?.trim() || `Contact #${input.contactId}`,
+      recipientEmail: input.recipientEmail?.trim() || null,
+      queueLabel: input.queueId ? `Queue ${input.queueId}` : 'Queue row missing',
+      messageVersionKey: input.messageVersionKey,
+      gmailDraftId: input.gmailDraftId?.trim() || null,
+      gmailThreadId: input.gmailThreadId?.trim() || null,
+      approvalDecisionKey: input.approvalDecisionKey?.trim() || null,
+    },
+    executionGate: gate,
     reviewMoment: {
       kind: 'single_slack_or_portfolio_review',
       requestRoute: '/api/admin/outreach/[id]/slack-send-approval',

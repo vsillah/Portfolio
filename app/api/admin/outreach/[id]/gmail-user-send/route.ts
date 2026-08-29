@@ -584,12 +584,26 @@ export async function POST(
       authorization.outreach_queue_id === item.id
         ? null
         : 'Authorization outreach queue id does not match this outreach item.',
+      normalizeEmail(authorization.recipient_email ?? authorization.recipientEmail) === normalizeEmail(recipientEmail)
+        ? null
+        : 'Authorization recipient email does not match this outreach item.',
+      authorization.channel === 'email'
+        ? null
+        : 'Authorization channel must be email.',
+      !gmailDraftId ||
+      authorization.gmail_draft_id === gmailDraftId ||
+      authorization.gmailDraftId === gmailDraftId
+        ? null
+        : 'Authorization Gmail draft id does not match the tracked Gmail draft evidence.',
       authorization.message_version_key === lifecycle.messageVersionKey
         ? null
         : 'Authorization message version is stale or mismatched.',
       authorization.send_queue_idempotency_key === lifecycle.sendQueueIdempotencyKey
         ? null
         : 'Authorization send queue idempotency key does not match current lifecycle evidence.',
+      authorization.submitted_evidence_key === lifecycle.submittedEvidenceKey
+        ? null
+        : 'Authorization submitted evidence key does not match current lifecycle evidence.',
     ].filter(Boolean) as string[]
 
     const draftBlockers = [
