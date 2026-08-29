@@ -2,6 +2,11 @@
 
 import type { WarmOutreachChannel } from '@/lib/warm-outreach-relationship-intelligence'
 import { buildWarmGmailOperatingLoop } from '@/lib/warm-outreach-gmail-operating-loop'
+import {
+  classifyWarmSmsManualResponseOutcome,
+  warmSmsManualLoopStages,
+  warmSmsManualResponseOutcomes,
+} from '@/lib/warm-outreach-sms-readiness'
 import type { RelationshipPacketApiResponse } from './RelationshipPacketPanel'
 
 export const WARM_SLACK_SEND_APPROVAL_QA_CONTACT_ID = 42
@@ -831,6 +836,31 @@ export const warmSlackSendApprovalQaRelationshipPacket = {
       externalSendEnabled: false,
       genericProceedAccepted: false,
       allowedDecisions: ['approve_manual_ready', 'request_revision', 'reject'],
+    },
+    operatingLoop: {
+      version: 'warm-outreach-sms-manual-loop/v1',
+      states: warmSmsManualLoopStages,
+      manualEvidence: {
+        requiredFields: ['timestamp', 'channel', 'operator_note'],
+        privacyBoundary:
+          'Record only when the manual outside-SMS step happened, the manual channel, and a short operator note. Do not store the raw SMS body, phone number, screenshots, or private reply content.',
+        channel: 'manual_sms',
+        storesRawSmsBody: false,
+        storesPhoneNumber: false,
+        requiresScreenshot: false,
+      },
+      responseOutcomes: warmSmsManualResponseOutcomes.map((outcome) => {
+        const response = classifyWarmSmsManualResponseOutcome(outcome)
+        return {
+          outcome,
+          label: response.label,
+          suppressesFutureSms: response.suppressesFutureSms,
+          followUpDraftNeeded: response.followUpDraftNeeded,
+        }
+      }),
+      externalProviderCallsEnabled: false,
+      smsDeliveryEnabled: false,
+      genericProceedAccepted: false,
     },
     operatorNextAction:
       'Review the draft, revise or reject it, or approve the text for manual use from this contact workroom.',

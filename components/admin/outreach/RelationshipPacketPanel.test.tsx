@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, within } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import RelationshipPacketPanel, {
   describeChannelCapability,
@@ -1382,10 +1382,16 @@ describe('RelationshipPacketPanel', () => {
     expect(screen.getByText('External send: off')).toBeInTheDocument()
   })
 
-  it('renders SMS readiness and records only local manual approval state', () => {
+  it('renders SMS readiness and records only local manual operating-loop state', async () => {
     const previousFetch = globalThis.fetch
+    const previousNavigator = globalThis.navigator
     const fetchMock = vi.fn()
+    const writeText = vi.fn().mockResolvedValue(undefined)
     vi.stubGlobal('fetch', fetchMock)
+    vi.stubGlobal('navigator', {
+      ...previousNavigator,
+      clipboard: { writeText },
+    })
     const smsReady: RelationshipPacketApiResponse = {
       ...packetResponse,
       smsReadiness: buildWarmSmsReadiness({
@@ -1414,10 +1420,97 @@ describe('RelationshipPacketPanel', () => {
     expect(screen.getByText('SMS drafting aids and boundary')).toBeInTheDocument()
     expect(screen.getAllByText('Community relationship').length).toBeGreaterThan(0)
     expect(screen.getByText('Not reviewed')).toBeInTheDocument()
+    expect(screen.getByText('Manual SMS operating loop')).toBeInTheDocument()
+    expect(screen.getAllByText('Readiness reviewed').length).toBeGreaterThan(0)
+    expect(screen.getByText('Manual-send prepared')).toBeInTheDocument()
+    expect(screen.getByText('Manual-send evidence recorded')).toBeInTheDocument()
+    expect(screen.getByText('Response expected')).toBeInTheDocument()
+    expect(screen.getByText('Response received')).toBeInTheDocument()
+    expect(screen.getByText('Follow-up draft needed')).toBeInTheDocument()
+    expect(screen.getByText('Suppressed / stop')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Copy approved draft' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Prepare manual use' })).toBeDisabled()
 
     fireEvent.click(screen.getByRole('button', { name: 'Approve' }))
     expect(screen.getByText('Approved for manual use')).toBeInTheDocument()
     expect(screen.getByText(/Manual readiness is recorded on this screen only/)).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Copy approved draft' }))
+    await waitFor(() => expect(writeText).toHaveBeenCalledWith(expect.stringMatching(/^Hi Ada/)))
+    expect(screen.getByText(/Approved SMS draft copied/)).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Prepare manual use' }))
+    expect(screen.getAllByText('Manual-send prepared').length).toBeGreaterThan(0)
+    fireEvent.change(screen.getByLabelText('Operator note'), {
+      target: { value: 'Sent manually from phone after reviewing the consent basis.' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'Record manual evidence' }))
+    expect(screen.getAllByText('Response expected').length).toBeGreaterThan(0)
+    expect(screen.getByText(/Evidence: complete at/)).toBeInTheDocument()
+    fireEvent.change(screen.getByLabelText('Manual SMS response outcome'), {
+      target: { value: 'interested' },
+    })
+    expect(screen.getAllByText('Follow-up draft needed').length).toBeGreaterThan(0)
+    expect(screen.getByText('Follow-up draft: needed')).toBeInTheDocument()
+    fireEvent.change(screen.getByLabelText('Manual SMS response outcome'), {
+      target: { value: 'stop_opt_out' },
+    })
+    expect(screen.getAllByText('Suppressed / stop').length).toBeGreaterThan(0)
+    expect(screen.getByText('SMS prompts: suppressed')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Copy approved draft' })).toBeDisabled()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Revise' }))
+    expect(screen.queryByText('Revision requested')).not.toBeInTheDocument()
+    const textarea = screen.getByLabelText('Warm SMS draft text')
+    expect(textarea).toBeDisabled()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Reject' }))
+    expect(screen.getByText('Rejected')).toBeInTheDocument()
+    expect(screen.getByText(/SMS delivery, provider calls, phone import, Slack, Gmail, n8n, and production mutation are off/)).toBeInTheDocument()
+    expect(fetchMock).not.toHaveBeenCalled()
+
+    vi.stubGlobal('fetch', previousFetch)
+    vi.stubGlobal('navigator', previousNavigator)
+  })
+
+  it('shows clipboard fallback without making external or provider calls', async () => {
+    const previousFetch = globalThis.fetch
+    const previousNavigator = globalThis.navigator
+    const fetchMock = vi.fn()
+    vi.stubGlobal('fetch', fetchMock)
+    vi.stubGlobal('navigator', {
+      ...previousNavigator,
+      clipboard: {
+        writeText: vi.fn().mockRejectedValue(new Error('blocked clipboard')),
+      },
+    })
+    const smsReady: RelationshipPacketApiResponse = {
+      ...packetResponse,
+      smsReadiness: buildWarmSmsReadiness({
+        packet: packetResponse.packet,
+        readiness: packetResponse.readiness,
+      }),
+    }
+
+    render(<RelationshipPacketPanel loading={false} error={null} data={smsReady} />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Approve' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Copy approved draft' }))
+    expect(await screen.findByText(/Clipboard unavailable/)).toBeInTheDocument()
+    expect(fetchMock).not.toHaveBeenCalled()
+
+    vi.stubGlobal('fetch', previousFetch)
+    vi.stubGlobal('navigator', previousNavigator)
+  })
+
+  it('keeps revised SMS drafts local and evidence incomplete until minimal fields exist', () => {
+    const smsReady: RelationshipPacketApiResponse = {
+      ...packetResponse,
+      smsReadiness: buildWarmSmsReadiness({
+        packet: packetResponse.packet,
+        readiness: packetResponse.readiness,
+      }),
+    }
+
+    render(<RelationshipPacketPanel loading={false} error={null} data={smsReady} />)
 
     fireEvent.click(screen.getByRole('button', { name: 'Revise' }))
     expect(screen.getByText('Revision requested')).toBeInTheDocument()
@@ -1429,12 +1522,10 @@ describe('RelationshipPacketPanel', () => {
     })
     expect(screen.getByDisplayValue(/Portfolio QA follow-up/)).toBeInTheDocument()
 
-    fireEvent.click(screen.getByRole('button', { name: 'Reject' }))
-    expect(screen.getByText('Rejected')).toBeInTheDocument()
-    expect(screen.getByText(/SMS delivery, provider calls, phone import, Slack, Gmail, n8n, and production mutation are off/)).toBeInTheDocument()
-    expect(fetchMock).not.toHaveBeenCalled()
-
-    vi.stubGlobal('fetch', previousFetch)
+    fireEvent.click(screen.getByRole('button', { name: 'Approve' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Prepare manual use' }))
+    expect(screen.getByRole('button', { name: 'Record manual evidence' })).toBeDisabled()
+    expect(screen.getByText(/Evidence: missing timestamp, operator note/)).toBeInTheDocument()
   })
 
   it('shows blocked SMS recovery without enabling approval when phone readiness fails', () => {

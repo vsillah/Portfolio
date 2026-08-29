@@ -235,6 +235,25 @@ describe('GET /api/admin/outreach/leads/[id]/relationship-packet', () => {
         externalSendEnabled: false,
         genericProceedAccepted: false,
       },
+      operatingLoop: {
+        version: 'warm-outreach-sms-manual-loop/v1',
+        manualEvidence: {
+          requiredFields: ['timestamp', 'channel', 'operator_note'],
+          channel: 'manual_sms',
+          storesRawSmsBody: false,
+          storesPhoneNumber: false,
+          requiresScreenshot: false,
+        },
+        responseOutcomes: expect.arrayContaining([
+          expect.objectContaining({ outcome: 'no_response_yet', suppressesFutureSms: false }),
+          expect.objectContaining({ outcome: 'interested', followUpDraftNeeded: true }),
+          expect.objectContaining({ outcome: 'stop_opt_out', suppressesFutureSms: true }),
+          expect.objectContaining({ outcome: 'wrong_number', suppressesFutureSms: true }),
+        ]),
+        externalProviderCallsEnabled: false,
+        smsDeliveryEnabled: false,
+        genericProceedAccepted: false,
+      },
       executionBoundary: {
         manualOnly: true,
         smsProviderConfigured: false,

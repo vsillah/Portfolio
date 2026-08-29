@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react'
 import {
   AlertTriangle,
   CheckCircle2,
+  ClipboardCheck,
+  ClipboardCopy,
   Database,
   FileText,
   LockKeyhole,
@@ -11,6 +13,7 @@ import {
   MessageSquare,
   Phone,
   RefreshCw,
+  Send,
   ShieldAlert,
   ShieldCheck,
   Sparkles,
@@ -34,8 +37,13 @@ import type {
 } from '@/lib/warm-outreach-gmail-operating-loop'
 import type {
   WarmSmsApprovalState,
+  WarmSmsManualResponseOutcome,
   WarmSmsReadiness,
   WarmSmsReadinessState,
+} from '@/lib/warm-outreach-sms-readiness'
+import {
+  evaluateWarmSmsManualLoop,
+  warmSmsManualLoopStages,
 } from '@/lib/warm-outreach-sms-readiness'
 
 type SendReadinessItem =
@@ -1335,21 +1343,57 @@ function smsDecisionLabel(state: WarmSmsApprovalState) {
   return 'Not reviewed'
 }
 
+function smsLoopStageClasses(active: boolean, complete: boolean, suppressed: boolean) {
+  if (suppressed) return 'border-red-500/30 bg-red-500/10 text-red-100'
+  if (active) return 'border-sky-500/35 bg-sky-500/10 text-sky-100'
+  if (complete) return 'border-emerald-500/25 bg-emerald-500/10 text-emerald-100'
+  return 'border-current/15 bg-background/20 text-muted-foreground'
+}
+
 function SmsManualOutreachCard({ readiness }: { readiness?: WarmSmsReadiness | null }) {
   const [decision, setDecision] = useState<WarmSmsApprovalState>(
     readiness?.approval.state ?? 'not_reviewed',
   )
   const [draftText, setDraftText] = useState(readiness?.draft.preview ?? '')
+  const [draftRevised, setDraftRevised] = useState(false)
+  const [copyStatus, setCopyStatus] = useState<'idle' | 'copied' | 'failed'>('idle')
+  const [manualSendPrepared, setManualSendPrepared] = useState(false)
+  const [evidenceRecorded, setEvidenceRecorded] = useState(false)
+  const [evidenceTimestamp, setEvidenceTimestamp] = useState<string | null>(null)
+  const [operatorNote, setOperatorNote] = useState('')
+  const [responseOutcome, setResponseOutcome] = useState<WarmSmsManualResponseOutcome>('no_response_yet')
 
   useEffect(() => {
     setDecision(readiness?.approval.state ?? 'not_reviewed')
     setDraftText(readiness?.draft.preview ?? '')
+    setDraftRevised(false)
+    setCopyStatus('idle')
+    setManualSendPrepared(false)
+    setEvidenceRecorded(false)
+    setEvidenceTimestamp(null)
+    setOperatorNote('')
+    setResponseOutcome('no_response_yet')
   }, [readiness?.approval.state, readiness?.contactId, readiness?.draft.preview])
 
   if (!readiness) return null
 
+  const loop = evaluateWarmSmsManualLoop({
+    readinessState: readiness.state,
+    approvalState: decision,
+    draftText,
+    draftRevised,
+    manualSendPrepared,
+    evidenceRecorded,
+    evidence: {
+      sentAt: evidenceTimestamp,
+      channel: 'manual_sms',
+      operatorNote,
+      outcome: responseOutcome,
+    },
+  })
   const blocked = readiness.state === 'blocked'
-  const canApprove = !blocked && draftText.trim().length > 0
+  const suppressed = loop.gates.smsPromptsSuppressed
+  const canApprove = !blocked && !suppressed && draftText.trim().length > 0
   const decisionDetail =
     decision === 'approved_manual_ready'
       ? 'Manual readiness is recorded on this screen only. Portfolio still cannot send SMS.'
@@ -1358,6 +1402,23 @@ function SmsManualOutreachCard({ readiness }: { readiness?: WarmSmsReadiness | n
         : decision === 'rejected'
           ? 'This SMS draft is rejected. Resolve the reason before any manual outreach.'
           : 'Review the checks and draft before recording a manual-only decision.'
+  const activeStageIndex = warmSmsManualLoopStages.findIndex((stage) => stage.state === loop.state)
+
+  async function handleCopyApprovedDraft() {
+    if (!loop.gates.canCopyApprovedDraft) return
+    try {
+      if (!navigator.clipboard?.writeText) throw new Error('Clipboard API unavailable')
+      await navigator.clipboard.writeText(draftText)
+      setCopyStatus('copied')
+    } catch {
+      setCopyStatus('failed')
+    }
+  }
+
+  function recordManualEvidence() {
+    setEvidenceTimestamp(new Date().toISOString())
+    setEvidenceRecorded(true)
+  }
 
   return (
     <div id="warm-sms-readiness" className={`rounded-md border p-3 ${smsReadinessClasses(readiness.state)}`}>
@@ -1407,10 +1468,18 @@ function SmsManualOutreachCard({ readiness }: { readiness?: WarmSmsReadiness | n
             <span className="sr-only">Warm SMS draft text</span>
             <textarea
               value={draftText}
-              onChange={(event) => setDraftText(event.target.value)}
+              onChange={(event) => {
+                setDraftText(event.target.value)
+                setDraftRevised(true)
+                if (decision === 'approved_manual_ready') setDecision('revision_requested')
+                setManualSendPrepared(false)
+                setEvidenceRecorded(false)
+                setEvidenceTimestamp(null)
+                setCopyStatus('idle')
+              }}
               placeholder="Keep this short, relationship-aware, and manual-send only."
               autoComplete="off"
-              disabled={blocked}
+              disabled={blocked || suppressed}
               rows={3}
               className="min-h-[82px] w-full resize-y rounded-md border border-silicon-slate/70 bg-imperial-navy/90 p-2 text-xs leading-5 text-platinum-white caret-radiant-gold shadow-inner outline-none transition-colors [color-scheme:dark] placeholder:text-muted-foreground focus:border-radiant-gold/70 focus:ring-2 focus:ring-radiant-gold/25 disabled:cursor-not-allowed disabled:border-silicon-slate/60 disabled:bg-silicon-slate/20 disabled:text-muted-foreground/70 disabled:opacity-70"
             />
@@ -1441,7 +1510,10 @@ function SmsManualOutreachCard({ readiness }: { readiness?: WarmSmsReadiness | n
             <button
               type="button"
               disabled={!canApprove}
-              onClick={() => setDecision('approved_manual_ready')}
+              onClick={() => {
+                setDecision('approved_manual_ready')
+                setCopyStatus('idle')
+              }}
               className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-md border border-emerald-500/35 bg-emerald-500/10 px-2 text-[11px] font-semibold text-emerald-100 transition-colors hover:bg-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <CheckCircle2 size={13} aria-hidden />
@@ -1449,8 +1521,13 @@ function SmsManualOutreachCard({ readiness }: { readiness?: WarmSmsReadiness | n
             </button>
             <button
               type="button"
-              disabled={blocked}
-              onClick={() => setDecision('revision_requested')}
+              disabled={blocked || suppressed}
+              onClick={() => {
+                setDecision('revision_requested')
+                setManualSendPrepared(false)
+                setEvidenceRecorded(false)
+                setEvidenceTimestamp(null)
+              }}
               className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-md border border-amber-500/35 bg-amber-500/10 px-2 text-[11px] font-semibold text-amber-100 transition-colors hover:bg-amber-500/20 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <RefreshCw size={13} aria-hidden />
@@ -1458,7 +1535,12 @@ function SmsManualOutreachCard({ readiness }: { readiness?: WarmSmsReadiness | n
             </button>
             <button
               type="button"
-              onClick={() => setDecision('rejected')}
+              onClick={() => {
+                setDecision('rejected')
+                setManualSendPrepared(false)
+                setEvidenceRecorded(false)
+                setEvidenceTimestamp(null)
+              }}
               className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-md border border-red-500/35 bg-red-500/10 px-2 text-[11px] font-semibold text-red-100 transition-colors hover:bg-red-500/20"
             >
               <ShieldAlert size={13} aria-hidden />
@@ -1469,6 +1551,150 @@ function SmsManualOutreachCard({ readiness }: { readiness?: WarmSmsReadiness | n
         <p className="mt-2 text-[10px] leading-4 opacity-80">
           Approval records manual-send readiness only. SMS delivery, provider calls, phone import, Slack, Gmail, n8n, and production mutation are off. Generic “proceed” is ignored for SMS sending.
         </p>
+      </div>
+
+      <div className="mt-2 rounded-md border border-current/20 bg-background/20 p-2.5">
+        <div className="flex flex-col gap-2 lg:flex-row lg:items-start lg:justify-between">
+          <div className="min-w-0">
+            <p className="text-[10px] font-semibold uppercase tracking-wide">Manual SMS operating loop</p>
+            <p className="mt-1 text-sm font-semibold">{loop.label}</p>
+            <p className="mt-1 text-[11px] leading-4">{loop.operatorNextAction}</p>
+            {loop.recoveryStep && (
+              <p className="mt-1 rounded-md border border-current/20 bg-background/25 p-2 text-[11px] leading-4">
+                Recovery: {loop.recoveryStep}
+              </p>
+            )}
+          </div>
+          <div className="grid w-full grid-cols-1 gap-1.5 sm:grid-cols-2 lg:w-auto">
+            <button
+              type="button"
+              disabled={!loop.gates.canCopyApprovedDraft}
+              onClick={handleCopyApprovedDraft}
+              className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-md border border-sky-500/35 bg-sky-500/10 px-2 text-[11px] font-semibold text-sky-100 transition-colors hover:bg-sky-500/20 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <ClipboardCopy size={13} aria-hidden />
+              Copy approved draft
+            </button>
+            <button
+              type="button"
+              disabled={!loop.gates.canPrepareManualSend}
+              onClick={() => setManualSendPrepared(true)}
+              className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-md border border-emerald-500/35 bg-emerald-500/10 px-2 text-[11px] font-semibold text-emerald-100 transition-colors hover:bg-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <Send size={13} aria-hidden />
+              Prepare manual use
+            </button>
+          </div>
+        </div>
+        {copyStatus !== 'idle' && (
+          <p className={`mt-2 rounded-md border p-2 text-[11px] leading-4 ${
+            copyStatus === 'copied'
+              ? 'border-emerald-500/25 bg-emerald-500/10 text-emerald-100'
+              : 'border-amber-500/25 bg-amber-500/10 text-amber-100'
+          }`}>
+            {copyStatus === 'copied'
+              ? 'Approved SMS draft copied. Send manually outside Portfolio, then record minimal evidence here.'
+              : 'Clipboard unavailable. Select the draft text and copy it manually; Portfolio still will not send SMS.'}
+          </p>
+        )}
+        <div className="mt-2 grid gap-1.5 sm:grid-cols-2 xl:grid-cols-4">
+          {warmSmsManualLoopStages.map((stage, index) => (
+            <div
+              key={stage.state}
+              className={`rounded-md border p-2 ${smsLoopStageClasses(
+                stage.state === loop.state,
+                activeStageIndex >= index && loop.state !== 'suppressed_stop',
+                stage.state === 'suppressed_stop' && suppressed,
+              )}`}
+            >
+              <p className="text-[10px] font-semibold uppercase tracking-wide">{stage.label}</p>
+              <p className="mt-1 text-[10px] leading-4">{stage.detail}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-2 grid gap-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+        <div className="rounded-md border border-current/20 bg-background/20 p-2.5">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0">
+              <p className="text-[10px] font-semibold uppercase tracking-wide">Manual send evidence</p>
+              <p className="mt-1 text-[11px] leading-4">
+                Timestamp, channel, and operator note only. No raw SMS body, phone number, screenshot, provider send, or private reply content is required.
+              </p>
+            </div>
+            <span className="inline-flex min-h-7 w-fit shrink-0 items-center gap-1.5 rounded-full border border-current/25 bg-background/25 px-2 py-0.5 text-[10px] font-semibold">
+              <ClipboardCheck size={12} aria-hidden />
+              Channel: manual SMS
+            </span>
+          </div>
+          <label className="mt-2 block">
+            <span className="text-[10px] font-semibold uppercase tracking-wide">Operator note</span>
+            <textarea
+              value={operatorNote}
+              onChange={(event) => {
+                setOperatorNote(event.target.value)
+                if (evidenceRecorded) {
+                  setEvidenceRecorded(false)
+                  setEvidenceTimestamp(null)
+                }
+              }}
+              placeholder="Example: Sent manually from phone after reviewing consent basis."
+              disabled={!manualSendPrepared || suppressed}
+              rows={3}
+              className="mt-1 min-h-[78px] w-full resize-y rounded-md border border-current/25 bg-background/25 p-2 text-xs leading-5 outline-none transition-colors placeholder:text-muted-foreground focus:border-radiant-gold/70 focus:ring-2 focus:ring-radiant-gold/25 disabled:cursor-not-allowed disabled:opacity-50"
+            />
+          </label>
+          <button
+            type="button"
+            disabled={!loop.gates.canRecordEvidence || operatorNote.trim().length === 0}
+            onClick={recordManualEvidence}
+            className="mt-2 inline-flex min-h-9 w-full items-center justify-center gap-1.5 rounded-md border border-emerald-500/35 bg-emerald-500/10 px-2 text-[11px] font-semibold text-emerald-100 transition-colors hover:bg-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+          >
+            <CheckCircle2 size={13} aria-hidden />
+            Record manual evidence
+          </button>
+          <p className="mt-2 text-[10px] leading-4 opacity-80">
+            Evidence: {loop.evidenceComplete ? `complete at ${evidenceTimestamp}` : loop.missingEvidence.length > 0 ? `missing ${loop.missingEvidence.join(', ')}` : 'ready'}.
+          </p>
+        </div>
+
+        <div className={`rounded-md border p-2.5 ${
+          suppressed
+            ? 'border-red-500/30 bg-red-500/10 text-red-100'
+            : 'border-current/20 bg-background/20'
+        }`}>
+          <p className="text-[10px] font-semibold uppercase tracking-wide">Manual response outcome</p>
+          <p className="mt-1 text-[11px] leading-4">
+            Classify only the non-sensitive result of the manual SMS thread. Stop or wrong-number outcomes suppress future SMS prompts.
+          </p>
+          <label className="mt-2 block">
+            <span className="sr-only">Manual SMS response outcome</span>
+            <select
+              value={responseOutcome}
+              onChange={(event) => setResponseOutcome(event.target.value as WarmSmsManualResponseOutcome)}
+              disabled={!manualSendPrepared && !evidenceRecorded}
+              className="w-full rounded-md border border-current/25 bg-background/80 p-2 text-xs text-foreground outline-none transition-colors focus:border-radiant-gold/70 focus:ring-2 focus:ring-radiant-gold/25 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {readiness.operatingLoop.responseOutcomes.map((outcome) => (
+                <option key={outcome.outcome} value={outcome.outcome}>{outcome.label}</option>
+              ))}
+            </select>
+          </label>
+          <p className="mt-2 text-sm font-semibold">{loop.response.label}</p>
+          <p className="mt-1 text-[11px] leading-4">{loop.response.detail}</p>
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            <span className="inline-flex min-h-7 items-center rounded-full border border-current/20 bg-background/25 px-2 py-1 text-[10px] font-semibold">
+              Response: {loop.response.responseReceived ? 'received' : 'expected'}
+            </span>
+            <span className="inline-flex min-h-7 items-center rounded-full border border-current/20 bg-background/25 px-2 py-1 text-[10px] font-semibold">
+              Follow-up draft: {loop.response.followUpDraftNeeded ? 'needed' : 'not needed'}
+            </span>
+            <span className="inline-flex min-h-7 items-center rounded-full border border-current/20 bg-background/25 px-2 py-1 text-[10px] font-semibold">
+              SMS prompts: {suppressed ? 'suppressed' : 'available after review'}
+            </span>
+          </div>
+        </div>
       </div>
 
       <details className="mt-2 rounded-md border border-current/20 bg-background/20 p-2">

@@ -22,6 +22,107 @@ export type WarmSmsApprovalState =
   | 'revision_requested'
   | 'rejected'
 
+export type WarmSmsManualLoopState =
+  | 'readiness_reviewed'
+  | 'draft_revised'
+  | 'manual_send_prepared'
+  | 'manual_send_evidence_recorded'
+  | 'response_expected'
+  | 'response_received'
+  | 'follow_up_draft_needed'
+  | 'suppressed_stop'
+
+export const warmSmsManualResponseOutcomes = [
+  'no_response_yet',
+  'interested',
+  'not_now',
+  'stop_opt_out',
+  'wrong_number',
+  'needs_follow_up',
+] as const
+
+export type WarmSmsManualResponseOutcome = (typeof warmSmsManualResponseOutcomes)[number]
+
+export type WarmSmsManualEvidenceInput = {
+  sentAt: string | null
+  channel: 'manual_sms'
+  operatorNote: string
+  outcome: WarmSmsManualResponseOutcome
+}
+
+export type WarmSmsManualLoopEvaluation = {
+  state: WarmSmsManualLoopState
+  label: string
+  operatorNextAction: string
+  recoveryStep: string | null
+  evidenceComplete: boolean
+  missingEvidence: string[]
+  response: {
+    outcome: WarmSmsManualResponseOutcome
+    label: string
+    detail: string
+    responseReceived: boolean
+    followUpDraftNeeded: boolean
+    suppressesFutureSms: boolean
+  }
+  gates: {
+    canCopyApprovedDraft: boolean
+    canPrepareManualSend: boolean
+    canRecordEvidence: boolean
+    smsPromptsSuppressed: boolean
+    externalProviderCallsEnabled: false
+    smsDeliveryEnabled: false
+    genericProceedAccepted: false
+  }
+}
+
+export const warmSmsManualLoopStages: Array<{
+  state: WarmSmsManualLoopState
+  label: string
+  detail: string
+}> = [
+  {
+    state: 'readiness_reviewed',
+    label: 'Readiness reviewed',
+    detail: 'Phone, source, relationship basis, suppression, and opt-out sensitivity were reviewed.',
+  },
+  {
+    state: 'draft_revised',
+    label: 'Draft revised',
+    detail: 'The operator adjusted the short SMS text before manual use.',
+  },
+  {
+    state: 'manual_send_prepared',
+    label: 'Manual-send prepared',
+    detail: 'The approved draft is ready to copy for a one-to-one send outside Portfolio.',
+  },
+  {
+    state: 'manual_send_evidence_recorded',
+    label: 'Manual-send evidence recorded',
+    detail: 'Minimal local evidence records when the outside SMS step happened.',
+  },
+  {
+    state: 'response_expected',
+    label: 'Response expected',
+    detail: 'The contact has not responded yet; no follow-up should be drafted until a result is known.',
+  },
+  {
+    state: 'response_received',
+    label: 'Response received',
+    detail: 'The operator recorded a non-sensitive outcome from the manual SMS thread.',
+  },
+  {
+    state: 'follow_up_draft_needed',
+    label: 'Follow-up draft needed',
+    detail: 'The response creates a new draft-review need, not an automatic send.',
+  },
+  {
+    state: 'suppressed_stop',
+    label: 'Suppressed / stop',
+    detail: 'Stop, opt-out, or wrong-number evidence suppresses further SMS prompts.',
+  },
+]
+
 export type WarmSmsReadiness = {
   version: 'warm-outreach-sms-readiness/v1'
   contactId: string
@@ -76,6 +177,27 @@ export type WarmSmsReadiness = {
     genericProceedAccepted: false
     allowedDecisions: ['approve_manual_ready', 'request_revision', 'reject']
   }
+  operatingLoop: {
+    version: 'warm-outreach-sms-manual-loop/v1'
+    states: typeof warmSmsManualLoopStages
+    manualEvidence: {
+      requiredFields: ['timestamp', 'channel', 'operator_note']
+      privacyBoundary: string
+      channel: 'manual_sms'
+      storesRawSmsBody: false
+      storesPhoneNumber: false
+      requiresScreenshot: false
+    }
+    responseOutcomes: Array<{
+      outcome: WarmSmsManualResponseOutcome
+      label: string
+      suppressesFutureSms: boolean
+      followUpDraftNeeded: boolean
+    }>
+    externalProviderCallsEnabled: false
+    smsDeliveryEnabled: false
+    genericProceedAccepted: false
+  }
   operatorNextAction: string
   recoveryStep: string | null
   executionBoundary: {
@@ -88,6 +210,123 @@ export type WarmSmsReadiness = {
     gmailAction: false
     n8nDispatch: false
     productionDataMutation: false
+  }
+}
+
+export function classifyWarmSmsManualResponseOutcome(outcome: WarmSmsManualResponseOutcome) {
+  const labels: Record<WarmSmsManualResponseOutcome, string> = {
+    no_response_yet: 'No response yet',
+    interested: 'Interested',
+    not_now: 'Not now',
+    stop_opt_out: 'Stop / opt out',
+    wrong_number: 'Wrong number',
+    needs_follow_up: 'Needs follow-up',
+  }
+  const details: Record<WarmSmsManualResponseOutcome, string> = {
+    no_response_yet: 'Wait for a response before drafting another SMS touch.',
+    interested: 'A response is present; draft the next follow-up for review before any action.',
+    not_now: 'Record the outcome and pause further SMS unless a later relationship basis is created.',
+    stop_opt_out: 'Fail closed. Suppress future SMS prompts and do not prepare another draft.',
+    wrong_number: 'Fail closed. Suppress future SMS prompts until the contact record is corrected and reviewed.',
+    needs_follow_up: 'Create a follow-up draft request; this is not send authority.',
+  }
+  const suppressesFutureSms = outcome === 'stop_opt_out' || outcome === 'wrong_number'
+  const followUpDraftNeeded = outcome === 'interested' || outcome === 'needs_follow_up'
+  return {
+    outcome,
+    label: labels[outcome],
+    detail: details[outcome],
+    responseReceived: outcome !== 'no_response_yet',
+    followUpDraftNeeded,
+    suppressesFutureSms,
+  }
+}
+
+export function evaluateWarmSmsManualLoop(args: {
+  readinessState: WarmSmsReadinessState
+  approvalState: WarmSmsApprovalState
+  draftText: string
+  draftRevised: boolean
+  manualSendPrepared: boolean
+  evidenceRecorded: boolean
+  evidence: WarmSmsManualEvidenceInput
+}): WarmSmsManualLoopEvaluation {
+  const response = classifyWarmSmsManualResponseOutcome(args.evidence.outcome)
+  const missingEvidence = [
+    ...(!args.evidence.sentAt ? ['timestamp'] : []),
+    ...(args.evidence.channel !== 'manual_sms' ? ['channel'] : []),
+    ...(args.evidence.operatorNote.trim().length === 0 ? ['operator note'] : []),
+  ]
+  const evidenceComplete = args.evidenceRecorded && missingEvidence.length === 0
+  const draftIsApproved = args.approvalState === 'approved_manual_ready'
+  const draftUsable = args.draftText.trim().length > 0
+  const readinessBlocked = args.readinessState === 'blocked'
+  const smsPromptsSuppressed = response.suppressesFutureSms
+  const canCopyApprovedDraft = draftIsApproved && draftUsable && !readinessBlocked && !smsPromptsSuppressed
+  const canPrepareManualSend = canCopyApprovedDraft
+  const canRecordEvidence = args.manualSendPrepared && !readinessBlocked && !smsPromptsSuppressed
+
+  let state: WarmSmsManualLoopState = 'readiness_reviewed'
+  if (smsPromptsSuppressed) {
+    state = 'suppressed_stop'
+  } else if (evidenceComplete && response.followUpDraftNeeded) {
+    state = 'follow_up_draft_needed'
+  } else if (evidenceComplete && response.responseReceived) {
+    state = 'response_received'
+  } else if (evidenceComplete && response.outcome === 'no_response_yet') {
+    state = 'response_expected'
+  } else if (args.evidenceRecorded) {
+    state = 'manual_send_evidence_recorded'
+  } else if (args.manualSendPrepared) {
+    state = 'manual_send_prepared'
+  } else if (args.draftRevised || args.approvalState === 'revision_requested') {
+    state = 'draft_revised'
+  }
+
+  const labels = new Map(warmSmsManualLoopStages.map((stage) => [stage.state, stage.label]))
+  const operatorNextAction =
+    readinessBlocked
+      ? 'Resolve readiness blockers before copying or preparing a manual SMS.'
+      : smsPromptsSuppressed
+        ? 'Stop SMS follow-up for this contact and preserve suppression evidence.'
+        : state === 'follow_up_draft_needed'
+          ? 'Draft a follow-up for review. Do not send from Portfolio.'
+          : state === 'response_received'
+            ? 'Record the outcome and wait for a new reviewed basis before future SMS.'
+            : state === 'response_expected'
+              ? 'Wait for a response or classify the manual outcome when one arrives.'
+              : state === 'manual_send_evidence_recorded'
+                ? 'Complete timestamp, channel, and operator-note evidence before expecting a response.'
+                : state === 'manual_send_prepared'
+                  ? 'Send manually outside Portfolio, then record minimal evidence here.'
+                  : state === 'draft_revised'
+                    ? 'Approve the revised draft before preparing manual use.'
+                    : 'Review readiness and approve, revise, or reject the draft.'
+
+  return {
+    state,
+    label: labels.get(state) ?? 'Readiness reviewed',
+    operatorNextAction,
+    recoveryStep:
+      readinessBlocked
+        ? 'Resolve phone basis, relationship rationale, or suppression blockers first.'
+        : args.evidenceRecorded && !evidenceComplete
+          ? `Complete manual evidence: ${missingEvidence.join(', ')}.`
+          : smsPromptsSuppressed
+            ? response.detail
+            : null,
+    evidenceComplete,
+    missingEvidence,
+    response,
+    gates: {
+      canCopyApprovedDraft,
+      canPrepareManualSend,
+      canRecordEvidence,
+      smsPromptsSuppressed,
+      externalProviderCallsEnabled: false,
+      smsDeliveryEnabled: false,
+      genericProceedAccepted: false,
+    },
   }
 }
 
@@ -353,6 +592,31 @@ export function buildWarmSmsReadiness(args: {
       externalSendEnabled: false,
       genericProceedAccepted: false,
       allowedDecisions: ['approve_manual_ready', 'request_revision', 'reject'],
+    },
+    operatingLoop: {
+      version: 'warm-outreach-sms-manual-loop/v1',
+      states: warmSmsManualLoopStages,
+      manualEvidence: {
+        requiredFields: ['timestamp', 'channel', 'operator_note'],
+        privacyBoundary:
+          'Record only when the manual outside-SMS step happened, the manual channel, and a short operator note. Do not store the raw SMS body, phone number, screenshots, or private reply content.',
+        channel: 'manual_sms',
+        storesRawSmsBody: false,
+        storesPhoneNumber: false,
+        requiresScreenshot: false,
+      },
+      responseOutcomes: warmSmsManualResponseOutcomes.map((outcome) => {
+        const response = classifyWarmSmsManualResponseOutcome(outcome)
+        return {
+          outcome,
+          label: response.label,
+          suppressesFutureSms: response.suppressesFutureSms,
+          followUpDraftNeeded: response.followUpDraftNeeded,
+        }
+      }),
+      externalProviderCallsEnabled: false,
+      smsDeliveryEnabled: false,
+      genericProceedAccepted: false,
     },
     operatorNextAction:
       state === 'blocked'
