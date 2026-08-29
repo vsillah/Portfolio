@@ -1642,7 +1642,7 @@ function SmsManualOutreachCard({ readiness }: { readiness?: WarmSmsReadiness | n
               placeholder="Example: Sent manually from phone after reviewing consent basis."
               disabled={!manualSendPrepared || suppressed}
               rows={3}
-              className="mt-1 min-h-[78px] w-full resize-y rounded-md border border-current/25 bg-background/25 p-2 text-xs leading-5 outline-none transition-colors placeholder:text-muted-foreground focus:border-radiant-gold/70 focus:ring-2 focus:ring-radiant-gold/25 disabled:cursor-not-allowed disabled:opacity-50"
+              className="mt-1 min-h-[78px] w-full resize-y rounded-md border border-silicon-slate/70 bg-imperial-navy/90 p-2 text-xs leading-5 text-platinum-white caret-radiant-gold outline-none transition-colors [color-scheme:dark] placeholder:text-muted-foreground focus:border-radiant-gold/70 focus:ring-2 focus:ring-radiant-gold/25 disabled:cursor-not-allowed disabled:border-silicon-slate/60 disabled:bg-silicon-slate/20 disabled:text-muted-foreground/70 disabled:opacity-70"
             />
           </label>
           <button
@@ -1674,10 +1674,10 @@ function SmsManualOutreachCard({ readiness }: { readiness?: WarmSmsReadiness | n
               value={responseOutcome}
               onChange={(event) => setResponseOutcome(event.target.value as WarmSmsManualResponseOutcome)}
               disabled={!manualSendPrepared && !evidenceRecorded}
-              className="w-full rounded-md border border-current/25 bg-background/80 p-2 text-xs text-foreground outline-none transition-colors focus:border-radiant-gold/70 focus:ring-2 focus:ring-radiant-gold/25 disabled:cursor-not-allowed disabled:opacity-50"
+              className="w-full rounded-md border border-silicon-slate/70 bg-imperial-navy/90 p-2 text-xs text-platinum-white outline-none transition-colors [color-scheme:dark] focus:border-radiant-gold/70 focus:ring-2 focus:ring-radiant-gold/25 disabled:cursor-not-allowed disabled:border-silicon-slate/60 disabled:bg-silicon-slate/20 disabled:text-muted-foreground/70 disabled:opacity-70"
             >
               {readiness.operatingLoop.responseOutcomes.map((outcome) => (
-                <option key={outcome.outcome} value={outcome.outcome}>{outcome.label}</option>
+                <option key={outcome.outcome} value={outcome.outcome} className="bg-imperial-navy text-platinum-white">{outcome.label}</option>
               ))}
             </select>
           </label>

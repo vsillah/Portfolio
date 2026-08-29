@@ -143,16 +143,44 @@ async function viewportEvidence(browser, name, viewport) {
     clientWidth: document.documentElement.clientWidth,
     scrollWidth: document.documentElement.scrollWidth,
   }))
-  const textareaStyles = await qa.page.getByLabel('Warm SMS draft text').evaluate((element) => {
+  const smsDraftTextareaStyles = await qa.page.getByLabel('Warm SMS draft text').evaluate((element) => {
     const style = window.getComputedStyle(element)
     return {
       backgroundColor: style.backgroundColor,
       color: style.color,
       borderColor: style.borderColor,
       colorScheme: style.colorScheme,
+      caretColor: style.caretColor,
       placeholderColor: window.getComputedStyle(element, '::placeholder').color,
     }
   })
+  const operatorNoteTextareaStyles = await qa.page.getByLabel('Operator note').evaluate((element) => {
+    const style = window.getComputedStyle(element)
+    return {
+      backgroundColor: style.backgroundColor,
+      color: style.color,
+      borderColor: style.borderColor,
+      colorScheme: style.colorScheme,
+      caretColor: style.caretColor,
+      placeholderColor: window.getComputedStyle(element, '::placeholder').color,
+    }
+  })
+  const responseOutcomeSelectStyles = await qa.page.getByLabel('Manual SMS response outcome').evaluate((element) => {
+    const style = window.getComputedStyle(element)
+    return {
+      backgroundColor: style.backgroundColor,
+      color: style.color,
+      borderColor: style.borderColor,
+      colorScheme: style.colorScheme,
+      caretColor: style.caretColor,
+    }
+  })
+  const inputUsesDarkMode = (styles) => (
+    styles.colorScheme === 'dark' &&
+    styles.backgroundColor !== 'rgb(255, 255, 255)' &&
+    styles.color !== 'rgb(0, 0, 0)' &&
+    styles.borderColor !== 'rgb(255, 255, 255)'
+  )
   const screenshotPath = path.join(outputDir, `warm-sms-readiness-${name}.png`)
   await qa.page.screenshot({ path: screenshotPath, fullPage: true })
   await qa.context.close()
@@ -167,12 +195,19 @@ async function viewportEvidence(browser, name, viewport) {
     hasEvidenceCapture: contentChecks.hasEvidenceCapture,
     hasResponseOutcome: contentChecks.hasResponseOutcome,
     horizontalOverflow: contentChecks.scrollWidth > contentChecks.clientWidth,
-    textareaStyles,
-    textareaUsesDarkMode:
-      textareaStyles.colorScheme === 'dark' &&
-      textareaStyles.backgroundColor !== 'rgb(255, 255, 255)' &&
-      textareaStyles.color !== 'rgb(0, 0, 0)' &&
-      textareaStyles.borderColor !== 'rgb(255, 255, 255)',
+    inputStyles: {
+      smsDraftTextarea: smsDraftTextareaStyles,
+      operatorNoteTextarea: operatorNoteTextareaStyles,
+      responseOutcomeSelect: responseOutcomeSelectStyles,
+    },
+    textareaStyles: smsDraftTextareaStyles,
+    textareaUsesDarkMode: inputUsesDarkMode(smsDraftTextareaStyles),
+    operatorNoteUsesDarkMode: inputUsesDarkMode(operatorNoteTextareaStyles),
+    responseOutcomeUsesDarkMode: inputUsesDarkMode(responseOutcomeSelectStyles),
+    allManualInputsUseDarkMode:
+      inputUsesDarkMode(smsDraftTextareaStyles) &&
+      inputUsesDarkMode(operatorNoteTextareaStyles) &&
+      inputUsesDarkMode(responseOutcomeSelectStyles),
     unexpectedRequests: qa.unexpectedRequests,
   }
 }
@@ -432,8 +467,8 @@ if (viewportResults.some((item) => item.horizontalOverflow)) {
 if (viewportResults.some((item) => !item.hasSmsReadiness || !item.hasManualBoundary || !item.hasApprovalCopy || !item.hasManualLoop || !item.hasEvidenceCapture || !item.hasResponseOutcome)) {
   throw new Error(`A viewport missed SMS readiness, manual boundary, loop, evidence, response, or approval-boundary copy: ${JSON.stringify(viewportResults, null, 2)}`)
 }
-if (viewportResults.some((item) => !item.textareaUsesDarkMode)) {
-  throw new Error(`A viewport rendered the SMS draft textarea with light-mode styling: ${JSON.stringify(viewportResults, null, 2)}`)
+if (viewportResults.some((item) => !item.allManualInputsUseDarkMode)) {
+  throw new Error(`A viewport rendered a manual SMS input with light-mode styling: ${JSON.stringify(viewportResults, null, 2)}`)
 }
 
 const receipt = {

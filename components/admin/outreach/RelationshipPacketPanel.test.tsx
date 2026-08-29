@@ -1439,6 +1439,16 @@ describe('RelationshipPacketPanel', () => {
     expect(screen.getByText(/Approved SMS draft copied/)).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Prepare manual use' }))
     expect(screen.getAllByText('Manual-send prepared').length).toBeGreaterThan(0)
+    const operatorNoteTextarea = screen.getByLabelText('Operator note') as HTMLTextAreaElement
+    expect(operatorNoteTextarea).toHaveClass('bg-imperial-navy/90')
+    expect(operatorNoteTextarea).toHaveClass('text-platinum-white')
+    expect(operatorNoteTextarea).toHaveClass('caret-radiant-gold')
+    expect(operatorNoteTextarea).toHaveClass('placeholder:text-muted-foreground')
+    expect(operatorNoteTextarea).toHaveClass('[color-scheme:dark]')
+    const outcomeSelect = screen.getByLabelText('Manual SMS response outcome') as HTMLSelectElement
+    expect(outcomeSelect).toHaveClass('bg-imperial-navy/90')
+    expect(outcomeSelect).toHaveClass('text-platinum-white')
+    expect(outcomeSelect).toHaveClass('[color-scheme:dark]')
     fireEvent.change(screen.getByLabelText('Operator note'), {
       target: { value: 'Sent manually from phone after reviewing the consent basis.' },
     })

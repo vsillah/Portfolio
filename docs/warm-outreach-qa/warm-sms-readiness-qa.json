@@ -15,14 +15,43 @@
       "hasEvidenceCapture": true,
       "hasResponseOutcome": true,
       "horizontalOverflow": false,
+      "inputStyles": {
+        "smsDraftTextarea": {
+          "backgroundColor": "rgba(18, 30, 49, 0.9)",
+          "color": "rgb(234, 236, 238)",
+          "borderColor": "rgba(44, 62, 80, 0.7)",
+          "colorScheme": "dark",
+          "caretColor": "rgb(212, 175, 55)",
+          "placeholderColor": "rgba(234, 236, 238, 0.72)"
+        },
+        "operatorNoteTextarea": {
+          "backgroundColor": "rgba(44, 62, 80, 0.2)",
+          "color": "rgb(234, 236, 238)",
+          "borderColor": "rgba(44, 62, 80, 0.6)",
+          "colorScheme": "dark",
+          "caretColor": "rgb(212, 175, 55)",
+          "placeholderColor": "rgba(234, 236, 238, 0.72)"
+        },
+        "responseOutcomeSelect": {
+          "backgroundColor": "rgba(44, 62, 80, 0.2)",
+          "color": "rgb(234, 236, 238)",
+          "borderColor": "rgba(44, 62, 80, 0.6)",
+          "colorScheme": "dark",
+          "caretColor": "rgb(234, 236, 238)"
+        }
+      },
       "textareaStyles": {
         "backgroundColor": "rgba(18, 30, 49, 0.9)",
         "color": "rgb(234, 236, 238)",
         "borderColor": "rgba(44, 62, 80, 0.7)",
         "colorScheme": "dark",
+        "caretColor": "rgb(212, 175, 55)",
         "placeholderColor": "rgba(234, 236, 238, 0.72)"
       },
       "textareaUsesDarkMode": true,
+      "operatorNoteUsesDarkMode": true,
+      "responseOutcomeUsesDarkMode": true,
+      "allManualInputsUseDarkMode": true,
       "unexpectedRequests": []
     },
     {
@@ -39,14 +68,43 @@
       "hasEvidenceCapture": true,
       "hasResponseOutcome": true,
       "horizontalOverflow": false,
+      "inputStyles": {
+        "smsDraftTextarea": {
+          "backgroundColor": "rgba(18, 30, 49, 0.9)",
+          "color": "rgb(234, 236, 238)",
+          "borderColor": "rgba(44, 62, 80, 0.7)",
+          "colorScheme": "dark",
+          "caretColor": "rgb(212, 175, 55)",
+          "placeholderColor": "rgba(234, 236, 238, 0.72)"
+        },
+        "operatorNoteTextarea": {
+          "backgroundColor": "rgba(44, 62, 80, 0.2)",
+          "color": "rgb(234, 236, 238)",
+          "borderColor": "rgba(44, 62, 80, 0.6)",
+          "colorScheme": "dark",
+          "caretColor": "rgb(212, 175, 55)",
+          "placeholderColor": "rgba(234, 236, 238, 0.72)"
+        },
+        "responseOutcomeSelect": {
+          "backgroundColor": "rgba(44, 62, 80, 0.2)",
+          "color": "rgb(234, 236, 238)",
+          "borderColor": "rgba(44, 62, 80, 0.6)",
+          "colorScheme": "dark",
+          "caretColor": "rgb(234, 236, 238)"
+        }
+      },
       "textareaStyles": {
         "backgroundColor": "rgba(18, 30, 49, 0.9)",
         "color": "rgb(234, 236, 238)",
         "borderColor": "rgba(44, 62, 80, 0.7)",
         "colorScheme": "dark",
+        "caretColor": "rgb(212, 175, 55)",
         "placeholderColor": "rgba(234, 236, 238, 0.72)"
       },
       "textareaUsesDarkMode": true,
+      "operatorNoteUsesDarkMode": true,
+      "responseOutcomeUsesDarkMode": true,
+      "allManualInputsUseDarkMode": true,
       "unexpectedRequests": []
     },
     {
@@ -63,14 +121,43 @@
       "hasEvidenceCapture": true,
       "hasResponseOutcome": true,
       "horizontalOverflow": false,
+      "inputStyles": {
+        "smsDraftTextarea": {
+          "backgroundColor": "rgba(18, 30, 49, 0.9)",
+          "color": "rgb(234, 236, 238)",
+          "borderColor": "rgba(44, 62, 80, 0.7)",
+          "colorScheme": "dark",
+          "caretColor": "rgb(212, 175, 55)",
+          "placeholderColor": "rgba(234, 236, 238, 0.72)"
+        },
+        "operatorNoteTextarea": {
+          "backgroundColor": "rgba(44, 62, 80, 0.2)",
+          "color": "rgb(234, 236, 238)",
+          "borderColor": "rgba(44, 62, 80, 0.6)",
+          "colorScheme": "dark",
+          "caretColor": "rgb(212, 175, 55)",
+          "placeholderColor": "rgba(234, 236, 238, 0.72)"
+        },
+        "responseOutcomeSelect": {
+          "backgroundColor": "rgba(44, 62, 80, 0.2)",
+          "color": "rgb(234, 236, 238)",
+          "borderColor": "rgba(44, 62, 80, 0.6)",
+          "colorScheme": "dark",
+          "caretColor": "rgb(234, 236, 238)"
+        }
+      },
       "textareaStyles": {
         "backgroundColor": "rgba(18, 30, 49, 0.9)",
         "color": "rgb(234, 236, 238)",
         "borderColor": "rgba(44, 62, 80, 0.7)",
         "colorScheme": "dark",
+        "caretColor": "rgb(212, 175, 55)",
         "placeholderColor": "rgba(234, 236, 238, 0.72)"
       },
       "textareaUsesDarkMode": true,
+      "operatorNoteUsesDarkMode": true,
+      "responseOutcomeUsesDarkMode": true,
+      "allManualInputsUseDarkMode": true,
       "unexpectedRequests": []
     },
     {
@@ -87,14 +174,43 @@
       "hasEvidenceCapture": true,
       "hasResponseOutcome": true,
       "horizontalOverflow": false,
+      "inputStyles": {
+        "smsDraftTextarea": {
+          "backgroundColor": "rgba(18, 30, 49, 0.9)",
+          "color": "rgb(234, 236, 238)",
+          "borderColor": "rgba(44, 62, 80, 0.7)",
+          "colorScheme": "dark",
+          "caretColor": "rgb(212, 175, 55)",
+          "placeholderColor": "rgba(234, 236, 238, 0.72)"
+        },
+        "operatorNoteTextarea": {
+          "backgroundColor": "rgba(44, 62, 80, 0.2)",
+          "color": "rgb(234, 236, 238)",
+          "borderColor": "rgba(44, 62, 80, 0.6)",
+          "colorScheme": "dark",
+          "caretColor": "rgb(212, 175, 55)",
+          "placeholderColor": "rgba(234, 236, 238, 0.72)"
+        },
+        "responseOutcomeSelect": {
+          "backgroundColor": "rgba(44, 62, 80, 0.2)",
+          "color": "rgb(234, 236, 238)",
+          "borderColor": "rgba(44, 62, 80, 0.6)",
+          "colorScheme": "dark",
+          "caretColor": "rgb(234, 236, 238)"
+        }
+      },
       "textareaStyles": {
         "backgroundColor": "rgba(18, 30, 49, 0.9)",
         "color": "rgb(234, 236, 238)",
         "borderColor": "rgba(44, 62, 80, 0.7)",
         "colorScheme": "dark",
+        "caretColor": "rgb(212, 175, 55)",
         "placeholderColor": "rgba(234, 236, 238, 0.72)"
       },
       "textareaUsesDarkMode": true,
+      "operatorNoteUsesDarkMode": true,
+      "responseOutcomeUsesDarkMode": true,
+      "allManualInputsUseDarkMode": true,
       "unexpectedRequests": []
     },
     {
@@ -111,14 +227,43 @@
       "hasEvidenceCapture": true,
       "hasResponseOutcome": true,
       "horizontalOverflow": false,
+      "inputStyles": {
+        "smsDraftTextarea": {
+          "backgroundColor": "rgba(18, 30, 49, 0.9)",
+          "color": "rgb(234, 236, 238)",
+          "borderColor": "rgba(44, 62, 80, 0.7)",
+          "colorScheme": "dark",
+          "caretColor": "rgb(212, 175, 55)",
+          "placeholderColor": "rgba(234, 236, 238, 0.72)"
+        },
+        "operatorNoteTextarea": {
+          "backgroundColor": "rgba(44, 62, 80, 0.2)",
+          "color": "rgb(234, 236, 238)",
+          "borderColor": "rgba(44, 62, 80, 0.6)",
+          "colorScheme": "dark",
+          "caretColor": "rgb(212, 175, 55)",
+          "placeholderColor": "rgba(234, 236, 238, 0.72)"
+        },
+        "responseOutcomeSelect": {
+          "backgroundColor": "rgba(44, 62, 80, 0.2)",
+          "color": "rgb(234, 236, 238)",
+          "borderColor": "rgba(44, 62, 80, 0.6)",
+          "colorScheme": "dark",
+          "caretColor": "rgb(234, 236, 238)"
+        }
+      },
       "textareaStyles": {
         "backgroundColor": "rgba(18, 30, 49, 0.9)",
         "color": "rgb(234, 236, 238)",
         "borderColor": "rgba(44, 62, 80, 0.7)",
         "colorScheme": "dark",
+        "caretColor": "rgb(212, 175, 55)",
         "placeholderColor": "rgba(234, 236, 238, 0.72)"
       },
       "textareaUsesDarkMode": true,
+      "operatorNoteUsesDarkMode": true,
+      "responseOutcomeUsesDarkMode": true,
+      "allManualInputsUseDarkMode": true,
       "unexpectedRequests": []
     }
   ],
