@@ -12,6 +12,14 @@
       "hasManualBoundary": true,
       "hasApprovalCopy": true,
       "horizontalOverflow": false,
+      "textareaStyles": {
+        "backgroundColor": "rgba(18, 30, 49, 0.9)",
+        "color": "rgb(234, 236, 238)",
+        "borderColor": "rgba(44, 62, 80, 0.7)",
+        "colorScheme": "dark",
+        "placeholderColor": "rgba(234, 236, 238, 0.72)"
+      },
+      "textareaUsesDarkMode": true,
       "unexpectedRequests": []
     },
     {
@@ -25,6 +33,14 @@
       "hasManualBoundary": true,
       "hasApprovalCopy": true,
       "horizontalOverflow": false,
+      "textareaStyles": {
+        "backgroundColor": "rgba(18, 30, 49, 0.9)",
+        "color": "rgb(234, 236, 238)",
+        "borderColor": "rgba(44, 62, 80, 0.7)",
+        "colorScheme": "dark",
+        "placeholderColor": "rgba(234, 236, 238, 0.72)"
+      },
+      "textareaUsesDarkMode": true,
       "unexpectedRequests": []
     },
     {
@@ -38,6 +54,14 @@
       "hasManualBoundary": true,
       "hasApprovalCopy": true,
       "horizontalOverflow": false,
+      "textareaStyles": {
+        "backgroundColor": "rgba(18, 30, 49, 0.9)",
+        "color": "rgb(234, 236, 238)",
+        "borderColor": "rgba(44, 62, 80, 0.7)",
+        "colorScheme": "dark",
+        "placeholderColor": "rgba(234, 236, 238, 0.72)"
+      },
+      "textareaUsesDarkMode": true,
       "unexpectedRequests": []
     },
     {
@@ -51,6 +75,14 @@
       "hasManualBoundary": true,
       "hasApprovalCopy": true,
       "horizontalOverflow": false,
+      "textareaStyles": {
+        "backgroundColor": "rgba(18, 30, 49, 0.9)",
+        "color": "rgb(234, 236, 238)",
+        "borderColor": "rgba(44, 62, 80, 0.7)",
+        "colorScheme": "dark",
+        "placeholderColor": "rgba(234, 236, 238, 0.72)"
+      },
+      "textareaUsesDarkMode": true,
       "unexpectedRequests": []
     },
     {
@@ -64,6 +96,14 @@
       "hasManualBoundary": true,
       "hasApprovalCopy": true,
       "horizontalOverflow": false,
+      "textareaStyles": {
+        "backgroundColor": "rgba(18, 30, 49, 0.9)",
+        "color": "rgb(234, 236, 238)",
+        "borderColor": "rgba(44, 62, 80, 0.7)",
+        "colorScheme": "dark",
+        "placeholderColor": "rgba(234, 236, 238, 0.72)"
+      },
+      "textareaUsesDarkMode": true,
       "unexpectedRequests": []
     }
   ],

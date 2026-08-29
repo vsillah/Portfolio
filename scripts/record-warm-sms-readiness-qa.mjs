@@ -139,6 +139,16 @@ async function viewportEvidence(browser, name, viewport) {
     clientWidth: document.documentElement.clientWidth,
     scrollWidth: document.documentElement.scrollWidth,
   }))
+  const textareaStyles = await qa.page.getByLabel('Warm SMS draft text').evaluate((element) => {
+    const style = window.getComputedStyle(element)
+    return {
+      backgroundColor: style.backgroundColor,
+      color: style.color,
+      borderColor: style.borderColor,
+      colorScheme: style.colorScheme,
+      placeholderColor: window.getComputedStyle(element, '::placeholder').color,
+    }
+  })
   const screenshotPath = path.join(outputDir, `warm-sms-readiness-${name}.png`)
   await qa.page.screenshot({ path: screenshotPath, fullPage: true })
   await qa.context.close()
@@ -150,6 +160,12 @@ async function viewportEvidence(browser, name, viewport) {
     hasManualBoundary: contentChecks.hasManualBoundary,
     hasApprovalCopy: contentChecks.hasApprovalCopy,
     horizontalOverflow: contentChecks.scrollWidth > contentChecks.clientWidth,
+    textareaStyles,
+    textareaUsesDarkMode:
+      textareaStyles.colorScheme === 'dark' &&
+      textareaStyles.backgroundColor !== 'rgb(255, 255, 255)' &&
+      textareaStyles.color !== 'rgb(0, 0, 0)' &&
+      textareaStyles.borderColor !== 'rgb(255, 255, 255)',
     unexpectedRequests: qa.unexpectedRequests,
   }
 }
@@ -363,6 +379,9 @@ if (viewportResults.some((item) => item.horizontalOverflow)) {
 }
 if (viewportResults.some((item) => !item.hasSmsReadiness || !item.hasManualBoundary || !item.hasApprovalCopy)) {
   throw new Error(`A viewport missed SMS readiness, manual boundary, or approval-boundary copy: ${JSON.stringify(viewportResults, null, 2)}`)
+}
+if (viewportResults.some((item) => !item.textareaUsesDarkMode)) {
+  throw new Error(`A viewport rendered the SMS draft textarea with light-mode styling: ${JSON.stringify(viewportResults, null, 2)}`)
 }
 
 const receipt = {

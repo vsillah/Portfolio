@@ -1408,8 +1408,11 @@ function SmsManualOutreachCard({ readiness }: { readiness?: WarmSmsReadiness | n
             <textarea
               value={draftText}
               onChange={(event) => setDraftText(event.target.value)}
+              placeholder="Keep this short, relationship-aware, and manual-send only."
+              autoComplete="off"
+              disabled={blocked}
               rows={3}
-              className="min-h-[82px] w-full resize-y rounded-md border border-current/20 bg-background/35 p-2 text-xs leading-5 text-foreground outline-none transition-colors focus:border-sky-300"
+              className="min-h-[82px] w-full resize-y rounded-md border border-silicon-slate/70 bg-imperial-navy/90 p-2 text-xs leading-5 text-platinum-white caret-radiant-gold shadow-inner outline-none transition-colors [color-scheme:dark] placeholder:text-muted-foreground focus:border-radiant-gold/70 focus:ring-2 focus:ring-radiant-gold/25 disabled:cursor-not-allowed disabled:border-silicon-slate/60 disabled:bg-silicon-slate/20 disabled:text-muted-foreground/70 disabled:opacity-70"
             />
           </label>
           <p className="mt-1 text-[10px] leading-4 opacity-80">
