@@ -1469,6 +1469,60 @@ describe('RelationshipPacketPanel', () => {
     expect(document.querySelector('[data-sms-provider-selection-plan]')).toHaveTextContent(
       /Keep disabled: execution flag, provider API, live SMS, production env, contact-data transmission/i,
     )
+    expect(document.querySelector('[data-sms-telnyx-reference-plan]')).toHaveTextContent(
+      /Telnyx reference and environment plan/i,
+    )
+    expect(document.querySelector('[data-sms-telnyx-reference-plan]')).toHaveTextContent(
+      /SMS_PROVIDER_ADAPTER=telnyx_messaging planned/i,
+    )
+    expect(document.querySelector('[data-sms-telnyx-reference-plan]')).toHaveTextContent(
+      /ENABLE_WARM_SMS_PROVIDER_EXECUTION=false/i,
+    )
+    expect(document.querySelector('[data-sms-telnyx-reference-plan]')).toHaveTextContent(
+      /confirm account, register sender, configure callbacks, store secret references, update Vercel later, run the no-send canary/i,
+    )
+    expect(document.querySelector('[data-sms-telnyx-env-plan]')).toHaveTextContent(
+      /SMS_PROVIDER_CREDENTIAL_REFERENCE/i,
+    )
+    expect(document.querySelector('[data-sms-telnyx-env-plan]')).toHaveTextContent(
+      /SMS_PROVIDER_SENDER_REFERENCE/i,
+    )
+    expect(document.querySelector('[data-sms-telnyx-env-plan]')).toHaveTextContent(
+      /SMS_PROVIDER_DELIVERY_CALLBACK/i,
+    )
+    expect(document.querySelector('[data-sms-telnyx-env-plan]')).toHaveTextContent(
+      /SMS_PROVIDER_OPT_OUT_CALLBACK/i,
+    )
+    expect(document.querySelector('[data-sms-telnyx-env-plan]')).toHaveTextContent(
+      /WARM_SMS_MESSAGE_VERSION_KEY/i,
+    )
+    expect(document.querySelector('[data-sms-telnyx-env-plan]')).toHaveTextContent(
+      /WARM_SMS_IDEMPOTENCY_NAMESPACE/i,
+    )
+    expect(document.querySelector('[data-sms-telnyx-env-plan]')).toHaveTextContent(
+      /WARM_SMS_AUDIT_KEY/i,
+    )
+    expect(document.querySelector('[data-sms-telnyx-env-plan]')).toHaveTextContent(
+      /WARM_SMS_DELIVERY_CONFIRMATION_STORE/i,
+    )
+    expect(document.querySelector('[data-sms-workflow-separation]')).toHaveTextContent(
+      /Manual SMS/i,
+    )
+    expect(document.querySelector('[data-sms-workflow-separation]')).toHaveTextContent(
+      /Gmail/i,
+    )
+    expect(document.querySelector('[data-sms-workflow-separation]')).toHaveTextContent(
+      /Slack/i,
+    )
+    expect(document.querySelector('[data-sms-workflow-separation]')).toHaveTextContent(
+      /Provider activation/i,
+    )
+    expect(document.querySelector('[data-sms-workflow-separation]')).toHaveTextContent(
+      /External send/i,
+    )
+    expect(document.querySelector('[data-sms-telnyx-reference-plan]')).toHaveTextContent(
+      /provider calls off, SMS delivery off, credentials read no, env changed no, migrations no, production-data mutation no, external requests 0/i,
+    )
     fireEvent.click(screen.getByText('Activation requirements and audit evidence'))
     expect(providerDetails).toHaveAttribute('open')
     fireEvent.click(screen.getByText('Activation requirements and audit evidence'))
@@ -1893,6 +1947,21 @@ describe('RelationshipPacketPanel', () => {
     )
     expect(document.querySelector('[data-sms-provider-selection-plan]')).toHaveTextContent(
       /Planning only/i,
+    )
+    expect(document.querySelector('[data-sms-telnyx-reference-plan]')).toHaveTextContent(
+      /Telnyx planning only/i,
+    )
+    expect(document.querySelector('[data-sms-telnyx-reference-plan]')).toHaveTextContent(
+      /Live SMS canary/i,
+    )
+    expect(document.querySelector('[data-sms-telnyx-env-plan]')).toHaveTextContent(
+      /Planned redacted environment references \(10\)/i,
+    )
+    expect(document.querySelector('[data-sms-telnyx-env-plan]')).toHaveTextContent(
+      /ENABLE_WARM_SMS_PROVIDER_EXECUTION/i,
+    )
+    expect(document.querySelector('[data-sms-telnyx-reference-plan]')).toHaveTextContent(
+      /Telnyx activation requires later explicit approval and env work/i,
     )
     fireEvent.click(screen.getByText('Activation requirements and audit evidence'))
     expect(document.querySelector('[data-sms-provider-selection-comparison]')).toHaveTextContent(

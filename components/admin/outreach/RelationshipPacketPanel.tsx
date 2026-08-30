@@ -1436,6 +1436,7 @@ function SmsManualOutreachCard({ readiness }: { readiness?: WarmSmsReadiness | n
   const activationReadiness = providerReadiness.activationReadiness
   const setupReadiness = providerReadiness.setupReadiness
   const providerSelectionPlan = providerReadiness.providerSelectionPlan
+  const telnyxReferencePlan = providerSelectionPlan.telnyxReferencePlan
   const transportReadiness = providerReadiness.transportReadiness
   const noSendCanary = providerReadiness.noSendCanary
   const providerChecksPassed = providerReadiness.consentAndSuppression.checks
@@ -1637,6 +1638,68 @@ function SmsManualOutreachCard({ readiness }: { readiness?: WarmSmsReadiness | n
           </p>
           <p className="mt-1 opacity-85">
             Keep disabled: execution flag, provider API, live SMS, production env, contact-data transmission.
+          </p>
+        </div>
+
+        <div
+          data-sms-telnyx-reference-plan
+          className="mt-2 rounded-md border border-current/20 bg-background/25 p-2 text-[10px] leading-4"
+        >
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0">
+              <p className="text-[10px] font-semibold uppercase tracking-wide">Telnyx reference and environment plan</p>
+              <p className="mt-1 font-semibold">
+                Adapter: SMS_PROVIDER_ADAPTER={telnyxReferencePlan.plannedAdapterValue} planned. Execution flag: ENABLE_WARM_SMS_PROVIDER_EXECUTION=false.
+              </p>
+              <p className="mt-1 opacity-85">
+                This is a reference plan for Vambah-owned setup only: confirm account, register sender, configure callbacks, store secret references, update Vercel later, run the no-send canary, then hold provider activation and live SMS canary for separate approvals.
+              </p>
+            </div>
+            <span className="inline-flex min-h-7 w-fit shrink-0 items-center rounded-full border border-current/25 bg-background/25 px-2 py-0.5 text-[10px] font-semibold">
+              Telnyx planning only
+            </span>
+          </div>
+
+          <p className="mt-2 text-[10px] leading-4 opacity-90">
+            Setup gates: {telnyxReferencePlan.setupGates.map((gate) => gate.label).join(' / ')}.
+          </p>
+
+          <details
+            data-sms-telnyx-env-plan
+            className="mt-2 rounded-md border border-current/20 bg-background/20 p-2"
+          >
+            <summary className="cursor-pointer text-[10px] font-semibold uppercase tracking-wide">
+              Planned redacted environment references ({telnyxReferencePlan.plannedEnvironment.length})
+            </summary>
+            <div className="mt-2 grid gap-1.5 sm:grid-cols-2 xl:grid-cols-3">
+              {telnyxReferencePlan.plannedEnvironment.map((item) => (
+                <div key={item.key} className="min-w-0 rounded-md border border-current/20 bg-background/25 p-2">
+                  <p className="break-all text-[10px] font-semibold uppercase tracking-wide">{item.key}</p>
+                  <p className="mt-1 break-words text-[10px] leading-4">{item.plannedValue}</p>
+                  <p className="mt-1 text-[10px] leading-4 opacity-80">
+                    {item.detail} Raw value returned: no. Env mutated: no.
+                  </p>
+                </div>
+              ))}
+            </div>
+          </details>
+
+          <div data-sms-workflow-separation className="mt-2 flex flex-wrap gap-1.5">
+            {telnyxReferencePlan.workflowSeparation.map((item) => (
+              <span
+                key={item.channel}
+                title={item.boundary}
+                className="inline-flex min-h-7 items-center rounded-full border border-current/20 bg-background/20 px-2 py-1 text-[10px] font-semibold"
+              >
+                {item.label}
+              </span>
+            ))}
+          </div>
+          <p className="mt-1 text-[10px] leading-4 opacity-80">
+            Manual copy/evidence, Gmail, Slack, Telnyx activation, and live SMS send authority stay separate. Telnyx activation requires later explicit approval and env work.
+          </p>
+          <p className="mt-2 text-[10px] leading-4 opacity-80">
+            Safety boundary: provider calls off, SMS delivery off, credentials read no, env changed no, migrations no, production-data mutation no, external requests {telnyxReferencePlan.executionBoundary.externalRequests.length}.
           </p>
         </div>
 

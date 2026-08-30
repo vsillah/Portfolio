@@ -164,11 +164,13 @@ async function viewportEvidence(browser, name, viewport) {
   const contentChecks = await qa.page.evaluate(() => {
     const provider = document.querySelector('#warm-sms-provider-readiness')
     const providerDetails = document.querySelector('[data-testid="warm-sms-provider-details"]')
+    const telnyxPlan = document.querySelector('[data-sms-telnyx-reference-plan]')
     const smsSection = document.querySelector('#warm-sms-readiness')
     const manualLoop = document.querySelector('#warm-sms-manual-loop')
     const criticalBoundaries = [...document.querySelectorAll('[data-sms-provider-critical-boundary]')]
     const visibleText = document.body.innerText
     const detailsText = providerDetails?.textContent ?? ''
+    const telnyxText = telnyxPlan?.textContent ?? ''
     const visible = (element) => {
       if (!(element instanceof HTMLElement)) return false
       const rect = element.getBoundingClientRect()
@@ -224,6 +226,39 @@ async function viewportEvidence(browser, name, viewport) {
       hasProviderSelectionBoundary:
         /choose owned provider\/account and redacted sender, callback, signing, and secret-location refs/i.test(visibleText) &&
         /Keep disabled: execution flag, provider API, live SMS, production env, contact-data transmission/i.test(visibleText),
+      hasTelnyxReferencePlan:
+        /Telnyx reference and environment plan/i.test(telnyxText) &&
+        /SMS_PROVIDER_ADAPTER=telnyx_messaging planned/i.test(telnyxText) &&
+        /ENABLE_WARM_SMS_PROVIDER_EXECUTION=false/i.test(telnyxText) &&
+        /Telnyx planning only/i.test(telnyxText),
+      hasTelnyxSetupGates:
+        /Choose or confirm Telnyx account/i.test(telnyxText) &&
+        /Register sender/i.test(telnyxText) &&
+        /Configure delivery callback/i.test(telnyxText) &&
+        /Configure opt-out callback/i.test(telnyxText) &&
+        /Store secret references/i.test(telnyxText) &&
+        /Update Vercel later/i.test(telnyxText) &&
+        /Run no-send canary/i.test(telnyxText) &&
+        /Enable provider later/i.test(telnyxText) &&
+        /Per-recipient send approval/i.test(telnyxText) &&
+        /Live SMS canary/i.test(telnyxText),
+      hasTelnyxEnvPlan:
+        /Planned redacted environment references \(10\)/i.test(telnyxText) &&
+        /SMS_PROVIDER_CREDENTIAL_REFERENCE/i.test(telnyxText) &&
+        /SMS_PROVIDER_SENDER_REFERENCE/i.test(telnyxText) &&
+        /SMS_PROVIDER_DELIVERY_CALLBACK/i.test(telnyxText) &&
+        /SMS_PROVIDER_OPT_OUT_CALLBACK/i.test(telnyxText) &&
+        /WARM_SMS_MESSAGE_VERSION_KEY/i.test(telnyxText) &&
+        /WARM_SMS_IDEMPOTENCY_NAMESPACE/i.test(telnyxText) &&
+        /WARM_SMS_AUDIT_KEY/i.test(telnyxText) &&
+        /WARM_SMS_DELIVERY_CONFIRMATION_STORE/i.test(telnyxText),
+      hasTelnyxBoundary:
+        /Manual SMS/i.test(telnyxText) &&
+        /Gmail/i.test(telnyxText) &&
+        /Slack/i.test(telnyxText) &&
+        /Provider activation/i.test(telnyxText) &&
+        /External send/i.test(telnyxText) &&
+        /provider calls off, SMS delivery off, credentials read no, env changed no, migrations no, production-data mutation no, external requests 0/i.test(telnyxText),
       hasProviderSelectionComparison:
         /Provider comparison/i.test(detailsText) &&
         /Selection status: provider selection and configuration planning only/i.test(detailsText) &&
@@ -355,6 +390,10 @@ async function viewportEvidence(browser, name, viewport) {
     hasSetupSummary: contentChecks.hasSetupSummary,
     hasProviderSelectionPlan: contentChecks.hasProviderSelectionPlan,
     hasProviderSelectionBoundary: contentChecks.hasProviderSelectionBoundary,
+    hasTelnyxReferencePlan: contentChecks.hasTelnyxReferencePlan,
+    hasTelnyxSetupGates: contentChecks.hasTelnyxSetupGates,
+    hasTelnyxEnvPlan: contentChecks.hasTelnyxEnvPlan,
+    hasTelnyxBoundary: contentChecks.hasTelnyxBoundary,
     hasProviderSelectionComparison: contentChecks.hasProviderSelectionComparison,
     hasProviderSelectionCandidateCoverage: contentChecks.hasProviderSelectionCandidateCoverage,
     hasProviderSelectionNoSendBoundary: contentChecks.hasProviderSelectionNoSendBoundary,
@@ -611,10 +650,10 @@ const frames = [
   },
   {
     source: frameResults[2].screenshotPath,
-    title: 'Provider recommendation is explicit',
+    title: 'Telnyx reference plan is explicit',
     scenario: 'The operator reviews the existing warm outreach contact surface before any SMS provider is activated.',
-    expected: 'Portfolio recommends Telnyx for disabled setup review, keeps the Vambah-owned setup step compact, and names what must stay disabled.',
-    gate: 'This is provider-selection planning only. No credentials, provider requests, SMS sends, environment changes, or contact-data transmission occur.',
+    expected: 'Portfolio recommends Telnyx, shows Vambah-owned setup gates, lists redacted planned env references, and keeps manual SMS, Gmail, Slack, activation, and external send separate.',
+    gate: 'This is provider-reference planning only. No credentials, provider requests, SMS sends, environment changes, migrations, or contact-data transmission occur.',
   },
   {
     source: frameResults[3].screenshotPath,
@@ -727,8 +766,8 @@ if (externalRequests.length > 0) {
 if (viewportResults.some((item) => item.horizontalOverflow)) {
   throw new Error(`Horizontal overflow detected: ${viewportResults.filter((item) => item.horizontalOverflow).map((item) => item.name).join(', ')}`)
 }
-if (viewportResults.some((item) => !item.hasSmsReadiness || !item.hasApprovalCopy || !item.hasManualLoop || !item.hasEvidenceCapture || !item.hasResponseOutcome || !item.hasProviderReadiness || !item.hasProviderDisabled || !item.hasConsentAudit || !item.hasActivationArchitecture || !item.hasTransportContract || !item.hasTransportNoSendCopy || !item.hasTransportSummary || !item.hasNoSendCanary || !item.hasNoSendCanaryBoundary || !item.hasActivationChecklist || !item.hasDeliveryPlaceholder || !item.hasActivationSummary || !item.hasSetupSummary || !item.hasProviderSelectionPlan || !item.hasProviderSelectionBoundary || !item.hasProviderSelectionComparison || !item.hasProviderSelectionCandidateCoverage || !item.hasProviderSelectionNoSendBoundary || !item.hasActivationDetails || !item.hasSetupDetails || !item.hasTransportDetails || !item.hasSetupEnvBoundary || !item.hasFutureSendBoundary || !item.hasManualSeparation || !item.providerDetailsCollapsed || item.providerCapabilityCount !== 6 || item.providerSetupCandidateCount !== 4 || item.providerSelectionCandidateCount !== 4 || item.providerConfigItemCount !== 6 || !item.hasIdempotencyModel || !item.hasRecoveryPath || item.criticalBoundaryCount !== 5 || !item.criticalBoundariesVisible)) {
-  throw new Error(`A viewport missed compact SMS provider-selection, transport/setup/activation readiness, no-send copy, collapsed requirements, setup details, config validation, idempotency, recovery, visible critical boundaries, manual separation, loop, evidence, response, or approval-boundary copy: ${JSON.stringify(viewportResults, null, 2)}`)
+if (viewportResults.some((item) => !item.hasSmsReadiness || !item.hasApprovalCopy || !item.hasManualLoop || !item.hasEvidenceCapture || !item.hasResponseOutcome || !item.hasProviderReadiness || !item.hasProviderDisabled || !item.hasConsentAudit || !item.hasActivationArchitecture || !item.hasTransportContract || !item.hasTransportNoSendCopy || !item.hasTransportSummary || !item.hasNoSendCanary || !item.hasNoSendCanaryBoundary || !item.hasActivationChecklist || !item.hasDeliveryPlaceholder || !item.hasActivationSummary || !item.hasSetupSummary || !item.hasProviderSelectionPlan || !item.hasProviderSelectionBoundary || !item.hasTelnyxReferencePlan || !item.hasTelnyxSetupGates || !item.hasTelnyxEnvPlan || !item.hasTelnyxBoundary || !item.hasProviderSelectionComparison || !item.hasProviderSelectionCandidateCoverage || !item.hasProviderSelectionNoSendBoundary || !item.hasActivationDetails || !item.hasSetupDetails || !item.hasTransportDetails || !item.hasSetupEnvBoundary || !item.hasFutureSendBoundary || !item.hasManualSeparation || !item.providerDetailsCollapsed || item.providerCapabilityCount !== 6 || item.providerSetupCandidateCount !== 4 || item.providerSelectionCandidateCount !== 4 || item.providerConfigItemCount !== 6 || !item.hasIdempotencyModel || !item.hasRecoveryPath || item.criticalBoundaryCount !== 5 || !item.criticalBoundariesVisible)) {
+  throw new Error(`A viewport missed compact SMS Telnyx provider-reference, provider-selection, transport/setup/activation readiness, no-send copy, collapsed requirements, setup details, config validation, idempotency, recovery, visible critical boundaries, manual separation, loop, evidence, response, or approval-boundary copy: ${JSON.stringify(viewportResults, null, 2)}`)
 }
 if (viewportResults.some((item) => !item.allManualInputsUseDarkMode)) {
   throw new Error(`A viewport rendered a manual SMS input with light-mode styling: ${JSON.stringify(viewportResults, null, 2)}`)
@@ -741,10 +780,10 @@ if (!mobile390 || mobile390.pageHeight > maxMobile390PageHeight) {
 }
 const oversizedMobileProviderSections = viewportResults.filter((item) => (
   item.name.startsWith('mobile-') &&
-  (item.providerSectionHeight === null || item.providerSectionHeight > 2200)
+  (item.providerSectionHeight === null || item.providerSectionHeight > 3000)
 ))
 if (oversizedMobileProviderSections.length > 0) {
-  throw new Error(`A compact provider summary exceeded the 2200px mobile budget: ${JSON.stringify(oversizedMobileProviderSections, null, 2)}`)
+  throw new Error(`A compact Telnyx provider-reference summary exceeded the 3000px mobile budget: ${JSON.stringify(oversizedMobileProviderSections, null, 2)}`)
 }
 
 const receipt = {
@@ -786,6 +825,19 @@ const receipt = {
     senderReferenceReady: true,
     deliveryConfirmationPlaceholder: true,
     recommendedProvider: 'telnyx_messaging',
+    telnyxReferencePlan: true,
+    telnyxPlannedEnvironmentKeys: [
+      'SMS_PROVIDER_ADAPTER',
+      'SMS_PROVIDER_CREDENTIAL_REFERENCE',
+      'SMS_PROVIDER_SENDER_REFERENCE',
+      'SMS_PROVIDER_DELIVERY_CALLBACK',
+      'SMS_PROVIDER_OPT_OUT_CALLBACK',
+      'WARM_SMS_MESSAGE_VERSION_KEY',
+      'WARM_SMS_IDEMPOTENCY_NAMESPACE',
+      'WARM_SMS_AUDIT_KEY',
+      'WARM_SMS_DELIVERY_CONFIRMATION_STORE',
+      'ENABLE_WARM_SMS_PROVIDER_EXECUTION',
+    ],
     providerSelectionPlanningOnly: true,
     providerSelectionCandidateCount: 4,
     providerSelectionRecorded: true,
