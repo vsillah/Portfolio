@@ -45,6 +45,7 @@ import {
   evaluateWarmSmsManualLoop,
   warmSmsManualLoopStages,
 } from '@/lib/warm-outreach-sms-readiness'
+import type { WarmSmsTelnyxNoSendCanaryResult } from '@/lib/warm-outreach-sms-provider-readiness'
 
 type SendReadinessItem =
   WarmOutreachResponseMonitoring['sendReadiness']['modes']['warm_1_to_1'][number]
@@ -82,6 +83,8 @@ export interface GmailDraftCanaryResult {
   activationReadiness?: WarmOutreachGmailProviderActivationReadiness
 }
 
+export type SmsTelnyxNoSendCanaryResult = WarmSmsTelnyxNoSendCanaryResult
+
 interface RelationshipPacketPanelProps {
   loading: boolean
   error: string | null
@@ -90,6 +93,10 @@ interface RelationshipPacketPanelProps {
   gmailDraftCanaryError?: string | null
   gmailDraftCanaryResult?: GmailDraftCanaryResult | null
   onGmailDraftCanary?: () => void
+  smsTelnyxCanaryLoading?: boolean
+  smsTelnyxCanaryError?: string | null
+  smsTelnyxCanaryResult?: SmsTelnyxNoSendCanaryResult | null
+  onSmsTelnyxNoSendCanary?: () => void
   inertSlackApprovalRequest?: boolean
 }
 
@@ -1402,7 +1409,19 @@ function smsTelnyxActivationPlanningStepClasses(
   return 'border-amber-500/25 bg-amber-500/10 text-amber-100'
 }
 
-function SmsManualOutreachCard({ readiness }: { readiness?: WarmSmsReadiness | null }) {
+function SmsManualOutreachCard({
+  readiness,
+  smsTelnyxCanaryLoading = false,
+  smsTelnyxCanaryError = null,
+  smsTelnyxCanaryResult = null,
+  onSmsTelnyxNoSendCanary,
+}: {
+  readiness?: WarmSmsReadiness | null
+  smsTelnyxCanaryLoading?: boolean
+  smsTelnyxCanaryError?: string | null
+  smsTelnyxCanaryResult?: SmsTelnyxNoSendCanaryResult | null
+  onSmsTelnyxNoSendCanary?: () => void
+}) {
   const [decision, setDecision] = useState<WarmSmsApprovalState>(
     readiness?.approval.state ?? 'not_reviewed',
   )
@@ -1871,13 +1890,28 @@ function SmsManualOutreachCard({ readiness }: { readiness?: WarmSmsReadiness | n
         >
           <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
             <div className="min-w-0">
-              <p className="text-[10px] font-semibold uppercase tracking-wide">No-send canary simulation</p>
+              <p className="text-[10px] font-semibold uppercase tracking-wide">Telnyx no-send canary</p>
               <p className="mt-1 text-sm font-semibold">{noSendCanary.label}</p>
               <p className="mt-1 text-[10px] leading-4 opacity-85">{noSendCanary.detail}</p>
             </div>
-            <span className="inline-flex min-h-7 w-fit shrink-0 items-center rounded-full border border-current/25 bg-background/25 px-2 py-0.5 text-[10px] font-semibold">
-              {noSendCanary.result.status.replaceAll('_', ' ')}
-            </span>
+            <div className="flex w-full flex-col gap-1.5 sm:w-auto sm:items-end">
+              <span className="inline-flex min-h-7 w-fit shrink-0 items-center rounded-full border border-current/25 bg-background/25 px-2 py-0.5 text-[10px] font-semibold">
+                {smsTelnyxCanaryResult?.status.replaceAll('_', ' ') ?? noSendCanary.result.status.replaceAll('_', ' ')}
+              </span>
+              {onSmsTelnyxNoSendCanary && (
+                <button
+                  type="button"
+                  disabled={smsTelnyxCanaryLoading}
+                  onClick={onSmsTelnyxNoSendCanary}
+                  className="inline-flex min-h-9 w-full items-center justify-center gap-1.5 rounded-md border border-sky-400/35 bg-sky-400/10 px-2 text-[11px] font-semibold text-sky-50 transition-colors hover:bg-sky-400/20 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+                >
+                  {smsTelnyxCanaryLoading
+                    ? <RefreshCw size={13} className="animate-spin" aria-hidden />
+                    : <ShieldCheck size={13} aria-hidden />}
+                  {smsTelnyxCanaryLoading ? 'Running canary' : 'Run SMS no-send canary'}
+                </button>
+              )}
+            </div>
           </div>
           <div data-sms-provider-activation-checklist className="mt-2 grid grid-cols-2 gap-1.5 sm:grid-cols-3">
             {providerReadiness.activationChecklist.map((item) => (
@@ -1891,10 +1925,12 @@ function SmsManualOutreachCard({ readiness }: { readiness?: WarmSmsReadiness | n
               </div>
             ))}
           </div>
-          <div className="mt-2 rounded-md border border-current/20 bg-background/25 p-2 text-[10px] leading-4">
-            <div>
-              <p className="text-[10px] font-semibold uppercase tracking-wide">Route plan</p>
-              <p className="mt-1">
+          <details className="mt-2 rounded-md border border-current/20 bg-background/25 p-2 text-[10px] leading-4">
+            <summary className="cursor-pointer font-semibold uppercase tracking-wide">
+              Route plan and no-send boundary
+            </summary>
+            <div className="mt-2">
+              <p>
                 Surface: existing warm outreach contact surface. Provider: {noSendCanary.routePlan.selectedProvider.label}.
               </p>
               <p className="mt-1 break-all opacity-80">
@@ -1908,7 +1944,71 @@ function SmsManualOutreachCard({ readiness }: { readiness?: WarmSmsReadiness | n
                 Provider calls: off. SMS delivery: off. Env changed: no. External requests: {noSendCanary.executionBoundary.externalRequests.length}.
               </p>
             </div>
-          </div>
+          </details>
+          {(smsTelnyxCanaryResult || smsTelnyxCanaryError) && (
+            <div
+              role={smsTelnyxCanaryError ? 'alert' : 'status'}
+              className={`mt-2 rounded-md border p-2 text-[10px] leading-4 ${
+                smsTelnyxCanaryError || smsTelnyxCanaryResult?.status === 'blocked_no_send'
+                  ? 'border-amber-400/35 bg-amber-400/10 text-amber-50'
+                  : 'border-emerald-400/35 bg-emerald-400/10 text-emerald-50'
+              }`}
+            >
+              <p className="font-semibold">
+                {smsTelnyxCanaryError ?? smsTelnyxCanaryResult?.message}
+              </p>
+              {smsTelnyxCanaryResult && (
+                <>
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    <p className="w-fit rounded-md border border-current/20 bg-background/20 px-2 py-1">
+                      Env setup: {smsTelnyxCanaryResult.readiness.envSetupPresent ? 'present' : 'blocked'}
+                    </p>
+                    <p className="w-fit rounded-md border border-current/20 bg-background/20 px-2 py-1">
+                      Adapter: {smsTelnyxCanaryResult.provider.selectedProvider.label}
+                    </p>
+                    <p className="w-fit max-w-full break-all rounded-md border border-current/20 bg-background/20 px-2 py-1">
+                      Message: {smsTelnyxCanaryResult.idempotency.messageVersionKey}
+                    </p>
+                    <p className="w-fit max-w-full break-all rounded-md border border-current/20 bg-background/20 px-2 py-1">
+                      Canary key: {smsTelnyxCanaryResult.idempotency.canaryIdempotencyKey}
+                    </p>
+                    <p className="w-fit rounded-md border border-current/20 bg-background/20 px-2 py-1">
+                      Provider activation: disabled
+                    </p>
+                    <p className="w-fit rounded-md border border-current/20 bg-background/20 px-2 py-1">
+                      Live SMS: unavailable
+                    </p>
+                    <p className="w-fit rounded-md border border-current/20 bg-background/20 px-2 py-1">
+                      Per-recipient send: separate
+                    </p>
+                    <p className="w-fit rounded-md border border-current/20 bg-background/20 px-2 py-1">
+                      External requests: {smsTelnyxCanaryResult.externalRequests.length}
+                    </p>
+                  </div>
+                  <details className="mt-2 rounded-md border border-current/20 bg-background/20 p-2">
+                    <summary className="cursor-pointer font-semibold">
+                      {smsTelnyxCanaryResult.redactedReferences.length} redacted env/config references verified. Raw values returned: no.
+                    </summary>
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      {smsTelnyxCanaryResult.redactedReferences.map((item) => (
+                        <p key={item.key} className="w-fit max-w-full break-words rounded-md border border-current/20 bg-background/20 px-2 py-1">
+                          {item.key}: {item.status.replaceAll('_', ' ')}. Raw value returned: no.
+                        </p>
+                      ))}
+                    </div>
+                  </details>
+                  {smsTelnyxCanaryResult.blockedReasons.length > 0 && (
+                    <p className="mt-2 rounded-md border border-current/20 bg-background/20 p-2">
+                      Blocker: {smsTelnyxCanaryResult.blockedReasons[0]}
+                    </p>
+                  )}
+                  <p className="mt-2 opacity-80">
+                    Provider calls: off. SMS delivery: off. Provider activation: off. Feature flag enabled: no. Telnyx API called: no. Raw phone/message: no.
+                  </p>
+                </>
+              )}
+            </div>
+          )}
         </div>
 
         <details
@@ -2199,7 +2299,7 @@ function SmsManualOutreachCard({ readiness }: { readiness?: WarmSmsReadiness | n
 
           <p className="mt-2 text-[10px] leading-4 opacity-80">
             Consent audit: {providerReadiness.consentAndSuppression.auditedAt ?? 'missing'}.
-            {' '}No send route or feature flag is implemented. The manual SMS loop below remains a separate local workflow.
+            {' '}Only the Telnyx no-send audit route is implemented. Provider activation, live SMS, and per-recipient sends remain unavailable. The manual SMS loop below remains a separate local workflow.
           </p>
         </details>
       </div>
@@ -2486,11 +2586,15 @@ export default function RelationshipPacketPanel({
   gmailDraftCanaryError,
   gmailDraftCanaryLoading,
   gmailDraftCanaryResult,
+  smsTelnyxCanaryError,
+  smsTelnyxCanaryLoading,
+  smsTelnyxCanaryResult,
   loading,
   error,
   data,
   inertSlackApprovalRequest,
   onGmailDraftCanary,
+  onSmsTelnyxNoSendCanary,
 }: RelationshipPacketPanelProps) {
   const readiness = data?.readiness
   const packet = data?.packet
@@ -2598,7 +2702,13 @@ export default function RelationshipPacketPanel({
             </div>
           )}
 
-          <SmsManualOutreachCard readiness={smsReadiness} />
+          <SmsManualOutreachCard
+            readiness={smsReadiness}
+            smsTelnyxCanaryLoading={smsTelnyxCanaryLoading}
+            smsTelnyxCanaryError={smsTelnyxCanaryError}
+            smsTelnyxCanaryResult={smsTelnyxCanaryResult}
+            onSmsTelnyxNoSendCanary={onSmsTelnyxNoSendCanary}
+          />
 
           <div className="rounded-md border border-silicon-slate/70 bg-silicon-slate/20 p-3">
             <p className="mb-2 text-[11px] font-medium uppercase tracking-wide text-muted-foreground/80">

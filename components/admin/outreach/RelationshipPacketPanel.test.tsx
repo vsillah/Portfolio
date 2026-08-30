@@ -4,6 +4,7 @@ import RelationshipPacketPanel, {
   describeChannelCapability,
   relationshipReadinessLabel,
   type RelationshipPacketApiResponse,
+  type SmsTelnyxNoSendCanaryResult,
 } from './RelationshipPacketPanel'
 import type { WarmOutreachChannel } from '@/lib/warm-outreach-relationship-intelligence'
 import { buildWarmGmailOperatingLoop } from '@/lib/warm-outreach-gmail-operating-loop'
@@ -1421,7 +1422,7 @@ describe('RelationshipPacketPanel', () => {
     expect(document.querySelector('[data-sms-transport-next-action]')).toHaveTextContent(
       /Verified phone provenance and a source note are required/i,
     )
-    expect(screen.getByText('No-send canary simulation')).toBeInTheDocument()
+    expect(screen.getByText('Telnyx no-send canary')).toBeInTheDocument()
     expect(screen.getByText('No-send canary blocked by readiness gaps')).toBeInTheDocument()
     expect(document.querySelector('[data-sms-no-send-canary]')).toHaveTextContent(
       /Readiness gaps block the no-send canary simulation/i,
@@ -1951,7 +1952,7 @@ describe('RelationshipPacketPanel', () => {
     expect(document.querySelector('[data-sms-transport-readiness]')).toHaveTextContent(
       /Provider message ID: placeholder only\. Delivery status: placeholder only/i,
     )
-    expect(screen.getByText('No-send canary simulation')).toBeInTheDocument()
+    expect(screen.getByText('Telnyx no-send canary')).toBeInTheDocument()
     expect(screen.getByText('No-send canary can route configuration without SMS delivery')).toBeInTheDocument()
     expect(document.querySelector('[data-sms-provider-activation-checklist]')).toHaveTextContent(
       /Transport configured/i,
@@ -2042,5 +2043,182 @@ describe('RelationshipPacketPanel', () => {
     expect(fetchMock).not.toHaveBeenCalled()
 
     vi.stubGlobal('fetch', previousFetch)
+  })
+
+  it('surfaces the executable Telnyx SMS no-send canary receipt without enabling live SMS', async () => {
+    const onSmsTelnyxNoSendCanary = vi.fn()
+    const result: SmsTelnyxNoSendCanaryResult = {
+      version: 'warm-outreach-sms-telnyx-no-send-canary/v1',
+      status: 'passed_no_send',
+      message:
+        'No-send Telnyx SMS canary passed. No Telnyx API call ran, no SMS was sent, and provider activation remains disabled.',
+      contactId: '42',
+      provider: {
+        expectedProvider: 'telnyx_messaging',
+        selectedProvider: {
+          key: 'telnyx_messaging',
+          label: 'Telnyx Messaging',
+          configured: true,
+          unavailable: false,
+          rawValueReturned: false,
+        },
+        selectedProviderVerified: true,
+        rawAdapterReturned: false,
+      },
+      noSendCanary: true,
+      externalRequests: [],
+      providerCallsEnabled: false,
+      smsDeliveryEnabled: false,
+      providerActivationEnabled: false,
+      featureFlagEnabled: false,
+      smsDeliveryEnabledReason:
+        'No-send canary only; live SMS requires later activation and per-recipient approval.',
+      readiness: {
+        envSetupPresent: true,
+        selectedProviderAdapter: 'passed',
+        disabledExecutionFlag: 'passed',
+        consentSuppressionPrerequisites: 'passed',
+        messageVersion: 'passed',
+        idempotencyNamespace: 'passed',
+        auditKey: 'passed',
+        credentialReference: 'passed',
+        senderReference: 'passed',
+        deliveryCallbackReference: 'passed',
+        optOutCallbackReference: 'passed',
+        deliveryConfirmationStore: 'passed',
+        providerCapabilityEvidence: 'passed',
+        liveSmsUnavailable: true,
+        providerActivationStillDisabled: true,
+        perRecipientSendStillSeparate: true,
+      },
+      redactedReferences: [
+        {
+          key: 'SMS_PROVIDER_ADAPTER',
+          label: 'Provider adapter',
+          status: 'present_redacted',
+          rawValueReturned: false,
+        },
+        {
+          key: 'SMS_PROVIDER_CREDENTIAL_REFERENCE',
+          label: 'Credential reference',
+          status: 'present_redacted',
+          rawValueReturned: false,
+        },
+        {
+          key: 'SMS_PROVIDER_SENDER_REFERENCE',
+          label: 'Sender identity reference',
+          status: 'present_redacted',
+          rawValueReturned: false,
+        },
+        {
+          key: 'SMS_PROVIDER_DELIVERY_CALLBACK',
+          label: 'Delivery callback mapping',
+          status: 'present_redacted',
+          rawValueReturned: false,
+        },
+        {
+          key: 'SMS_PROVIDER_OPT_OUT_CALLBACK',
+          label: 'Opt-out callback mapping',
+          status: 'present_redacted',
+          rawValueReturned: false,
+        },
+        {
+          key: 'WARM_SMS_MESSAGE_VERSION_KEY',
+          label: 'Message version key',
+          status: 'present_redacted',
+          rawValueReturned: false,
+        },
+        {
+          key: 'WARM_SMS_IDEMPOTENCY_NAMESPACE',
+          label: 'Idempotency namespace',
+          status: 'present_redacted',
+          rawValueReturned: false,
+        },
+        {
+          key: 'WARM_SMS_AUDIT_KEY',
+          label: 'Audit key',
+          status: 'present_redacted',
+          rawValueReturned: false,
+        },
+        {
+          key: 'WARM_SMS_DELIVERY_CONFIRMATION_STORE',
+          label: 'Delivery confirmation store',
+          status: 'present_redacted',
+          rawValueReturned: false,
+        },
+        {
+          key: 'ENABLE_WARM_SMS_PROVIDER_EXECUTION',
+          label: 'Execution feature flag',
+          status: 'disabled_verified',
+          rawValueReturned: false,
+        },
+      ],
+      idempotency: {
+        namespace: 'warm-sms-send:v1',
+        messageVersionKey: 'qa-sms-message-v1',
+        auditKey: 'warm-sms-audit:v1:qa',
+        canaryIdempotencyKey: 'warm-sms-send:v1:canary:no-send:abc123',
+        auditEvidenceKey: 'warm-sms-audit:v1:qa:no-send-canary:def456',
+        duplicatePolicy: 'return_existing_no_send_evidence_without_provider_call',
+        stableResult: true,
+      },
+      deliveryConfirmation: {
+        storeMapped: true,
+        status: 'placeholder_only',
+        providerMessageId: null,
+        deliveryStatus: null,
+      },
+      blockedReasons: [],
+      executionBoundary: {
+        localRowsOnly: true,
+        noSendAuditOnly: true,
+        providerCallsEnabled: false,
+        smsDeliveryEnabled: false,
+        providerActivationEnabled: false,
+        featureFlagEnabled: false,
+        telnyxApiCalled: false,
+        rawCredentialsReturned: false,
+        rawPhoneReturned: false,
+        rawMessageBodyReturned: false,
+        credentialsRead: false,
+        secretManagerMutated: false,
+        environmentVariablesChanged: false,
+        databaseWritesEnabled: false,
+        slackDispatchEnabled: false,
+        gmailActionEnabled: false,
+        n8nDispatchEnabled: false,
+        externalRequests: [],
+      },
+    }
+
+    render(
+      <RelationshipPacketPanel
+        loading={false}
+        error={null}
+        data={warmSlackSendApprovalQaRelationshipPacket}
+        smsTelnyxCanaryResult={result}
+        onSmsTelnyxNoSendCanary={onSmsTelnyxNoSendCanary}
+      />,
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'Run SMS no-send canary' }))
+
+    expect(onSmsTelnyxNoSendCanary).toHaveBeenCalledTimes(1)
+    expect(screen.getByText(/No-send Telnyx SMS canary passed/)).toBeInTheDocument()
+    expect(screen.getByText('Env setup: present')).toBeInTheDocument()
+    expect(screen.getByText('Provider activation: disabled')).toBeInTheDocument()
+    expect(screen.getByText('Live SMS: unavailable')).toBeInTheDocument()
+    expect(screen.getByText('Per-recipient send: separate')).toBeInTheDocument()
+    expect(screen.getAllByText('External requests: 0').length).toBeGreaterThan(0)
+    expect(screen.getByText('Canary key: warm-sms-send:v1:canary:no-send:abc123')).toBeInTheDocument()
+    expect(document.querySelector('[data-sms-no-send-canary]')).toHaveTextContent(
+      /Feature flag enabled: no\. Telnyx API called: no\. Raw phone\/message: no/i,
+    )
+    expect(document.querySelector('[data-sms-no-send-canary]')).toHaveTextContent(
+      /SMS_PROVIDER_CREDENTIAL_REFERENCE: present redacted\. Raw value returned: no/i,
+    )
+    expect(document.querySelector('[data-sms-no-send-canary]')).toHaveTextContent(
+      /ENABLE_WARM_SMS_PROVIDER_EXECUTION: disabled verified\. Raw value returned: no/i,
+    )
   })
 })
