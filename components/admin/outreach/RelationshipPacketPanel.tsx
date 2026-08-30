@@ -1435,6 +1435,7 @@ function SmsManualOutreachCard({ readiness }: { readiness?: WarmSmsReadiness | n
   const providerReadiness = readiness.providerReadiness
   const activationReadiness = providerReadiness.activationReadiness
   const setupReadiness = providerReadiness.setupReadiness
+  const providerSelectionPlan = providerReadiness.providerSelectionPlan
   const transportReadiness = providerReadiness.transportReadiness
   const noSendCanary = providerReadiness.noSendCanary
   const providerChecksPassed = providerReadiness.consentAndSuppression.checks
@@ -1616,6 +1617,29 @@ function SmsManualOutreachCard({ readiness }: { readiness?: WarmSmsReadiness | n
           </span>
         </div>
 
+        <div
+          data-sms-provider-selection-plan
+          className="mt-2 rounded-md border border-current/20 bg-background/25 p-2 text-[10px] leading-4"
+        >
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0">
+              <p className="text-[10px] font-semibold uppercase tracking-wide">Provider selection recommendation</p>
+              <p className="mt-1 font-semibold">
+                Recommended: {providerSelectionPlan.recommendedProvider.label}. Fits profile, sender, callbacks, opt-out, idempotency, and no-send canary.
+              </p>
+            </div>
+            <span className="inline-flex min-h-7 w-fit shrink-0 items-center rounded-full border border-current/25 bg-background/25 px-2 py-0.5 text-[10px] font-semibold">
+              Planning only
+            </span>
+          </div>
+          <p className="mt-1 opacity-85">
+            Next Vambah setup: choose owned provider/account and redacted sender, callback, signing, and secret-location refs.
+          </p>
+          <p className="mt-1 opacity-85">
+            Keep disabled: execution flag, provider API, live SMS, production env, contact-data transmission.
+          </p>
+        </div>
+
         <div className="mt-2 rounded-md border border-current/20 bg-background/25 p-2 text-[11px] leading-4">
           <p className="text-[10px] font-semibold uppercase tracking-wide">Exact next gate</p>
           <p className="mt-1" data-testid="warm-sms-activation-next-step">
@@ -1715,20 +1739,20 @@ function SmsManualOutreachCard({ readiness }: { readiness?: WarmSmsReadiness | n
               </div>
             ))}
           </div>
-          <div className="mt-2 grid gap-1.5 sm:grid-cols-2">
-            <div className="rounded-md border border-current/20 bg-background/25 p-2">
+          <div className="mt-2 rounded-md border border-current/20 bg-background/25 p-2 text-[10px] leading-4">
+            <div>
               <p className="text-[10px] font-semibold uppercase tracking-wide">Route plan</p>
-              <p className="mt-1 text-[10px] leading-4">
+              <p className="mt-1">
                 Surface: existing warm outreach contact surface. Provider: {noSendCanary.routePlan.selectedProvider.label}.
               </p>
-              <p className="mt-1 break-all text-[10px] leading-4 opacity-80">
+              <p className="mt-1 break-all opacity-80">
                 Key: {noSendCanary.routePlan.idempotencyKeyPreview}
               </p>
             </div>
-            <div className="rounded-md border border-current/20 bg-background/25 p-2">
+            <div className="mt-2">
               <p className="text-[10px] font-semibold uppercase tracking-wide">Canary result boundary</p>
-              <p className="mt-1 text-[10px] leading-4">{noSendCanary.result.reason}</p>
-              <p className="mt-1 text-[10px] leading-4 opacity-80">
+              <p className="mt-1">{noSendCanary.result.reason}</p>
+              <p className="mt-1 opacity-80">
                 Provider calls: off. SMS delivery: off. Env changed: no. External requests: {noSendCanary.executionBoundary.externalRequests.length}.
               </p>
             </div>
@@ -1815,6 +1839,77 @@ function SmsManualOutreachCard({ readiness }: { readiness?: WarmSmsReadiness | n
                   </div>
                 ))}
               </div>
+            </div>
+          </div>
+
+          <div data-sms-provider-selection-comparison className="mt-2 rounded-md border border-current/20 bg-background/25 p-2">
+            <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
+              <div className="min-w-0">
+                <p className="text-[10px] font-semibold uppercase tracking-wide">Provider comparison</p>
+                <p className="mt-1 text-[10px] leading-4">
+                  Selection status: {providerSelectionPlan.decisionGate.currentDecision.replaceAll('_', ' ')}. Next approval: {providerSelectionPlan.decisionGate.nextRequiredApproval.replaceAll('_', ' ')}.
+                </p>
+              </div>
+              <span className="w-fit shrink-0 rounded-full border border-current/20 px-2 py-0.5 text-[10px] font-semibold">
+                External requests: {providerSelectionPlan.decisionGate.externalRequests.length}
+              </span>
+            </div>
+            <div className="mt-2 grid gap-1.5 lg:grid-cols-2">
+              {providerSelectionPlan.candidates.map((candidate) => (
+                <details
+                  key={candidate.key}
+                  data-sms-provider-selection-candidate
+                  className={`rounded-md border p-2 ${
+                    candidate.recommendation === 'recommended'
+                      ? 'border-sky-500/30 bg-sky-500/10 text-sky-100'
+                      : 'border-current/15 bg-background/20 text-muted-foreground'
+                  }`}
+                >
+                  <summary className="cursor-pointer text-[10px] font-semibold uppercase tracking-wide">
+                    {candidate.label} · {candidate.recommendation.replaceAll('_', ' ')}
+                  </summary>
+                  <dl className="mt-2 grid gap-1.5 text-[10px] leading-4 sm:grid-cols-2">
+                    <div>
+                      <dt className="font-semibold">Capability fit</dt>
+                      <dd className="mt-0.5">{candidate.capabilityFit}</dd>
+                    </div>
+                    <div>
+                      <dt className="font-semibold">Setup work</dt>
+                      <dd className="mt-0.5">{candidate.setupWork}</dd>
+                    </div>
+                    <div>
+                      <dt className="font-semibold">Consent / suppression</dt>
+                      <dd className="mt-0.5">{candidate.consentSuppressionCompatibility}</dd>
+                    </div>
+                    <div>
+                      <dt className="font-semibold">Delivery callbacks</dt>
+                      <dd className="mt-0.5">{candidate.deliveryCallbackRequirements}</dd>
+                    </div>
+                    <div>
+                      <dt className="font-semibold">Opt-out handling</dt>
+                      <dd className="mt-0.5">{candidate.optOutHandling}</dd>
+                    </div>
+                    <div>
+                      <dt className="font-semibold">Idempotency</dt>
+                      <dd className="mt-0.5">{candidate.idempotencySupport}</dd>
+                    </div>
+                    <div>
+                      <dt className="font-semibold">Credential/env refs</dt>
+                      <dd className="mt-0.5 break-words">{candidate.expectedCredentialReferences.join(', ')}</dd>
+                    </div>
+                    <div>
+                      <dt className="font-semibold">No-send validation</dt>
+                      <dd className="mt-0.5">{candidate.noSendValidationRoute}</dd>
+                    </div>
+                  </dl>
+                  <p className="mt-2 text-[10px] leading-4">
+                    Blocker: {candidate.blockers[0]}
+                  </p>
+                  <p className="mt-1 text-[10px] leading-4 opacity-80">
+                    Provider calls: off. SMS delivery: off. Raw credentials returned: no.
+                  </p>
+                </details>
+              ))}
             </div>
           </div>
 

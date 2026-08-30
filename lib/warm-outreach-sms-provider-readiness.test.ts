@@ -206,6 +206,24 @@ describe('warm SMS provider readiness', () => {
           routeImplemented: false,
         },
       },
+      providerSelectionPlan: {
+        version: 'warm-outreach-sms-provider-selection-plan/v1',
+        recommendedProvider: {
+          key: 'telnyx_messaging',
+          label: 'Telnyx Messaging',
+          status: 'recommended_for_disabled_setup_review',
+          configuredInSnapshot: false,
+        },
+        decisionGate: {
+          currentDecision: 'provider_selection_and_configuration_planning_only',
+          nextRequiredApproval: 'explicit_sms_provider_activation_approval',
+          activationEnabled: false,
+          providerCallsEnabled: false,
+          smsDeliveryEnabled: false,
+          environmentVariablesChanged: false,
+          externalRequests: [],
+        },
+      },
       transportReadiness: {
         version: 'warm-outreach-sms-provider-transport-readiness/v1',
         state: 'not_configured',
@@ -554,6 +572,68 @@ describe('warm SMS provider readiness', () => {
         expect.objectContaining({ key: 'custom_disabled_adapter', externalCallsEnabled: false }),
       ]),
     )
+    expect(readiness.providerSelectionPlan).toMatchObject({
+      version: 'warm-outreach-sms-provider-selection-plan/v1',
+      recommendedProvider: {
+        key: 'telnyx_messaging',
+        label: 'Telnyx Messaging',
+        configuredInSnapshot: false,
+      },
+      remainingVambahOwnedSetupStep: expect.stringContaining('redacted references'),
+      mustRemainDisabledUntilExplicitActivation: [
+        'ENABLE_WARM_SMS_PROVIDER_EXECUTION',
+        'provider API requests',
+        'live SMS delivery',
+        'production env changes',
+        'contact-data transmission',
+      ],
+      decisionGate: {
+        currentDecision: 'provider_selection_and_configuration_planning_only',
+        nextRequiredApproval: 'explicit_sms_provider_activation_approval',
+        activationEnabled: false,
+        providerCallsEnabled: false,
+        smsDeliveryEnabled: false,
+        environmentVariablesChanged: false,
+        externalRequests: [],
+      },
+    })
+    expect(readiness.providerSelectionPlan.candidates).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          key: 'twilio_messaging',
+          recommendation: 'fallback',
+          consentSuppressionCompatibility: expect.stringContaining('consent'),
+          deliveryCallbackRequirements: expect.stringContaining('delivered'),
+          optOutHandling: expect.stringContaining('STOP'),
+          idempotencySupport: expect.stringContaining('Portfolio-side'),
+          expectedCredentialReferences: expect.arrayContaining([
+            'SMS_PROVIDER_CREDENTIAL_REFERENCE',
+            'SMS_PROVIDER_DELIVERY_CALLBACK',
+            'SMS_PROVIDER_OPT_OUT_CALLBACK',
+            'ENABLE_WARM_SMS_PROVIDER_EXECUTION',
+          ]),
+          providerCallsEnabled: false,
+          smsDeliveryEnabled: false,
+          rawCredentialsReturned: false,
+        }),
+        expect.objectContaining({
+          key: 'telnyx_messaging',
+          recommendation: 'recommended',
+          blockers: expect.arrayContaining([
+            expect.stringContaining('Vambah must confirm the owned provider account'),
+          ]),
+        }),
+        expect.objectContaining({
+          key: 'messagebird_messaging',
+          recommendation: 'fallback',
+        }),
+        expect.objectContaining({
+          key: 'custom_disabled_adapter',
+          recommendation: 'review_only',
+          blockers: expect.arrayContaining(['Not acceptable for live SMS activation.']),
+        }),
+      ]),
+    )
     expect(readiness.transportReadiness).toMatchObject({
       state: 'configured_disabled',
       selectedProvider: {
@@ -710,6 +790,11 @@ describe('warm SMS provider readiness', () => {
         environmentVariablesChanged: false,
         externalRequests: [],
       },
+    })
+    expect(readiness.providerSelectionPlan.recommendedProvider).toMatchObject({
+      key: 'telnyx_messaging',
+      label: 'Telnyx Messaging',
+      configuredInSnapshot: true,
     })
     expect(readiness.activationChecklist).toEqual([
       expect.objectContaining({

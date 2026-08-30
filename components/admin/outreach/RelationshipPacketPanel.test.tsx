@@ -1457,6 +1457,18 @@ describe('RelationshipPacketPanel', () => {
     expect(document.querySelector('[data-sms-provider-setup-summary]')).toHaveTextContent(
       /Credentials read: no · env changed: no/i,
     )
+    expect(document.querySelector('[data-sms-provider-selection-plan]')).toHaveTextContent(
+      /Provider selection recommendation/i,
+    )
+    expect(document.querySelector('[data-sms-provider-selection-plan]')).toHaveTextContent(
+      /Recommended: Telnyx Messaging/i,
+    )
+    expect(document.querySelector('[data-sms-provider-selection-plan]')).toHaveTextContent(
+      /Next Vambah setup: choose owned provider\/account and redacted sender, callback, signing, and secret-location refs/i,
+    )
+    expect(document.querySelector('[data-sms-provider-selection-plan]')).toHaveTextContent(
+      /Keep disabled: execution flag, provider API, live SMS, production env, contact-data transmission/i,
+    )
     fireEvent.click(screen.getByText('Activation requirements and audit evidence'))
     expect(providerDetails).toHaveAttribute('open')
     fireEvent.click(screen.getByText('Activation requirements and audit evidence'))
@@ -1489,6 +1501,31 @@ describe('RelationshipPacketPanel', () => {
     )
     expect(document.querySelector('[data-sms-operator-setup-path]')).toHaveTextContent(
       /Current per-recipient approval matched to contact, SMS channel, message version, and idempotency key/i,
+    )
+    expect(document.querySelector('[data-sms-provider-selection-comparison]')).toHaveTextContent(
+      /Provider comparison/i,
+    )
+    expect(document.querySelector('[data-sms-provider-selection-comparison]')).toHaveTextContent(
+      /Selection status: provider selection and configuration planning only/i,
+    )
+    expect(document.querySelector('[data-sms-provider-selection-comparison]')).toHaveTextContent(
+      /Next approval: explicit sms provider activation approval/i,
+    )
+    expect(document.querySelectorAll('[data-sms-provider-selection-candidate]')).toHaveLength(4)
+    expect(document.querySelector('[data-sms-provider-selection-comparison]')).toHaveTextContent(
+      /Twilio Messaging · fallback/i,
+    )
+    expect(document.querySelector('[data-sms-provider-selection-comparison]')).toHaveTextContent(
+      /Telnyx Messaging · recommended/i,
+    )
+    expect(document.querySelector('[data-sms-provider-selection-comparison]')).toHaveTextContent(
+      /MessageBird \/ Bird · fallback/i,
+    )
+    expect(document.querySelector('[data-sms-provider-selection-comparison]')).toHaveTextContent(
+      /Custom disabled adapter · review only/i,
+    )
+    expect(document.querySelector('[data-sms-provider-selection-comparison]')).toHaveTextContent(
+      /Provider calls: off\. SMS delivery: off\. Raw credentials returned: no/i,
     )
     expect(screen.getByText('Permission / consent note')).toBeInTheDocument()
     expect(screen.getByText('Consent audit timestamp')).toBeInTheDocument()
@@ -1851,6 +1888,23 @@ describe('RelationshipPacketPanel', () => {
     expect(document.querySelector('[data-sms-no-send-canary]')).toHaveTextContent(
       /Provider calls: off\. SMS delivery: off\. Env changed: no\. External requests: 0/i,
     )
+    expect(document.querySelector('[data-sms-provider-selection-plan]')).toHaveTextContent(
+      /Recommended: Telnyx Messaging/i,
+    )
+    expect(document.querySelector('[data-sms-provider-selection-plan]')).toHaveTextContent(
+      /Planning only/i,
+    )
+    fireEvent.click(screen.getByText('Activation requirements and audit evidence'))
+    expect(document.querySelector('[data-sms-provider-selection-comparison]')).toHaveTextContent(
+      /Telnyx Messaging · recommended/i,
+    )
+    expect(document.querySelector('[data-sms-provider-selection-comparison]')).toHaveTextContent(
+      /Credential\/env refs/i,
+    )
+    expect(document.querySelector('[data-sms-provider-selection-comparison]')).toHaveTextContent(
+      /WARM_SMS_IDEMPOTENCY_NAMESPACE/i,
+    )
+    fireEvent.click(screen.getByText('Activation requirements and audit evidence'))
     expect(screen.getByText('Generic proceed: rejected')).toBeInTheDocument()
     expect(screen.getByText('Approval: per-recipient required')).toBeInTheDocument()
     expect(screen.getByTestId('warm-sms-activation-next-step')).toHaveTextContent(

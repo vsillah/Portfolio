@@ -79,6 +79,53 @@ export const warmSmsProviderSetupCandidates = [
 export type WarmSmsProviderSetupCandidateKey =
   (typeof warmSmsProviderSetupCandidates)[number]['key']
 
+export type WarmSmsProviderSelectionCandidate = {
+  key: WarmSmsProviderSetupCandidateKey
+  label: string
+  recommendation: 'recommended' | 'fallback' | 'review_only'
+  capabilityFit: string
+  setupWork: string
+  consentSuppressionCompatibility: string
+  deliveryCallbackRequirements: string
+  optOutHandling: string
+  idempotencySupport: string
+  expectedCredentialReferences: WarmSmsProviderTransportConfigurationKey[]
+  noSendValidationRoute: string
+  blockers: string[]
+  providerCallsEnabled: false
+  smsDeliveryEnabled: false
+  rawCredentialsReturned: false
+}
+
+export type WarmSmsProviderSelectionPlan = {
+  version: 'warm-outreach-sms-provider-selection-plan/v1'
+  recommendedProvider: {
+    key: WarmSmsProviderSetupCandidateKey
+    label: string
+    status: 'recommended_for_disabled_setup_review'
+    configuredInSnapshot: boolean
+  }
+  why: string[]
+  remainingVambahOwnedSetupStep: string
+  mustRemainDisabledUntilExplicitActivation: [
+    'ENABLE_WARM_SMS_PROVIDER_EXECUTION',
+    'provider API requests',
+    'live SMS delivery',
+    'production env changes',
+    'contact-data transmission',
+  ]
+  candidates: WarmSmsProviderSelectionCandidate[]
+  decisionGate: {
+    currentDecision: 'provider_selection_and_configuration_planning_only'
+    nextRequiredApproval: 'explicit_sms_provider_activation_approval'
+    activationEnabled: false
+    providerCallsEnabled: false
+    smsDeliveryEnabled: false
+    environmentVariablesChanged: false
+    externalRequests: []
+  }
+}
+
 export type WarmSmsProviderSetupReadinessState =
   | 'recipient_evidence_required'
   | 'provider_path_required'
@@ -431,6 +478,7 @@ export type WarmSmsProviderReadiness = {
     externalSendEnabled: false
   }
   setupReadiness: WarmSmsProviderSetupReadiness
+  providerSelectionPlan: WarmSmsProviderSelectionPlan
   transportReadiness: WarmSmsProviderTransportReadiness
   activationChecklist: WarmSmsProviderActivationChecklistItem[]
   noSendCanary: WarmSmsProviderNoSendCanaryReadiness
@@ -555,6 +603,184 @@ function providerSetupCandidateFor(
 function setupCandidateLabel(candidateKey: WarmSmsProviderSetupCandidateKey | null) {
   return warmSmsProviderSetupCandidates.find((candidate) => candidate.key === candidateKey)?.label ??
     'No provider path selected'
+}
+
+function providerSelectionCandidate(
+  key: WarmSmsProviderSetupCandidateKey,
+): WarmSmsProviderSelectionCandidate {
+  const candidate = warmSmsProviderSetupCandidates.find((item) => item.key === key)
+  const commonCredentialReferences: WarmSmsProviderTransportConfigurationKey[] = [
+    'SMS_PROVIDER_ADAPTER',
+    'SMS_PROVIDER_CREDENTIAL_REFERENCE',
+    'SMS_PROVIDER_SENDER_REFERENCE',
+    'SMS_PROVIDER_DELIVERY_CALLBACK',
+    'SMS_PROVIDER_OPT_OUT_CALLBACK',
+    'WARM_SMS_MESSAGE_VERSION_KEY',
+    'WARM_SMS_IDEMPOTENCY_NAMESPACE',
+    'WARM_SMS_AUDIT_KEY',
+    'WARM_SMS_DELIVERY_CONFIRMATION_STORE',
+    'ENABLE_WARM_SMS_PROVIDER_EXECUTION',
+  ]
+  const candidates: Record<WarmSmsProviderSetupCandidateKey, WarmSmsProviderSelectionCandidate> = {
+    twilio_messaging: {
+      key,
+      label: candidate?.label ?? 'Twilio Messaging',
+      recommendation: 'fallback',
+      capabilityFit:
+        'Strong SMS fit with mature sender, webhook, delivery receipt, and STOP workflows; good fallback if Twilio is already the owned account.',
+      setupWork:
+        'Confirm account ownership, compliant sender identity, callback signatures, delivery-status mapping, STOP ingestion, disabled flag, and sandbox/no-send behavior.',
+      consentSuppressionCompatibility:
+        'Compatible only after Portfolio consent, phone provenance, suppression, cooldown, and per-recipient approval snapshots are recorded before any future attempt.',
+      deliveryCallbackRequirements:
+        'Map delivered, failed, undelivered, queued, and unknown outcomes into the future delivery confirmation store before activation.',
+      optOutHandling:
+        'Inbound STOP, STOPALL, UNSUBSCRIBE, CANCEL, END, and QUIT style replies must create suppression evidence before another SMS prompt is shown.',
+      idempotencySupport:
+        'Use Portfolio-side message-version and approval-key idempotency before provider submission; do not rely on provider retry behavior alone.',
+      expectedCredentialReferences: commonCredentialReferences,
+      noSendValidationRoute:
+        'Use the existing warm outreach contact surface to resolve adapter, sender reference, callbacks, audit key, and idempotency preview with provider calls off.',
+      blockers: [
+        'Provider-owned sender identity and callback signing review not recorded.',
+        'No live SMS route, provider request path, or delivery reconciliation is enabled in this PR.',
+      ],
+      providerCallsEnabled: false,
+      smsDeliveryEnabled: false,
+      rawCredentialsReturned: false,
+    },
+    telnyx_messaging: {
+      key,
+      label: candidate?.label ?? 'Telnyx Messaging',
+      recommendation: 'recommended',
+      capabilityFit:
+        'Recommended planning candidate because the current model already names messaging profile, sender identity, webhook signing, opt-out handling, and sandbox constraints as setup work.',
+      setupWork:
+        'Confirm account ownership, messaging profile, sender reference, webhook signing policy, delivery callbacks, opt-out callback, disabled flag, and no-send canary route.',
+      consentSuppressionCompatibility:
+        'Fits the Portfolio gate model if opt-out ingestion writes suppression before retry and if every future attempt reuses consent, suppression, and phone provenance snapshots.',
+      deliveryCallbackRequirements:
+        'Map sent, delivered, failed, rejected, and unknown callback classes into the placeholder delivery confirmation store before activation.',
+      optOutHandling:
+        'Inbound STOP-style events must become local suppression evidence and block future SMS prompts until reviewed.',
+      idempotencySupport:
+        'Use Portfolio-side idempotency namespace, message version, contact id, SMS channel, and current approval key before any provider request.',
+      expectedCredentialReferences: commonCredentialReferences,
+      noSendValidationRoute:
+        'Run a local no-send canary on the existing warm outreach contact surface; it resolves the selected provider contract without transmitting contact data.',
+      blockers: [
+        'Vambah must confirm the owned provider account, messaging profile, sender reference, and callback signing posture.',
+        'Provider activation, production env changes, and contact-data transmission remain blocked until explicit approval.',
+      ],
+      providerCallsEnabled: false,
+      smsDeliveryEnabled: false,
+      rawCredentialsReturned: false,
+    },
+    messagebird_messaging: {
+      key,
+      label: candidate?.label ?? 'MessageBird / Bird',
+      recommendation: 'fallback',
+      capabilityFit:
+        'Viable candidate if Bird is the owned account, but the current Portfolio model needs more callback and opt-out evidence before selection.',
+      setupWork:
+        'Confirm channel identity, delivery-report callbacks, inbound STOP handling, signature verification, disabled flag, and no-send validation path.',
+      consentSuppressionCompatibility:
+        'Compatible only if inbound opt-out events can be turned into suppression evidence before any future draft or send prompt.',
+      deliveryCallbackRequirements:
+        'Map delivery reports into the future confirmation store with durable provider message IDs and normalized failure classes.',
+      optOutHandling:
+        'STOP-style inbound events must block additional SMS prompts and preserve review evidence without storing raw private reply bodies.',
+      idempotencySupport:
+        'Use Portfolio-side duplicate prevention for contact, SMS channel, message version, and current approval key.',
+      expectedCredentialReferences: commonCredentialReferences,
+      noSendValidationRoute:
+        'Use the existing warm outreach contact surface to prove configuration routing while provider requests and SMS delivery stay off.',
+      blockers: [
+        'Provider-specific callback signing, delivery status classes, and opt-out event mapping are not reviewed.',
+        'No provider account or sender reference is confirmed in this code snapshot.',
+      ],
+      providerCallsEnabled: false,
+      smsDeliveryEnabled: false,
+      rawCredentialsReturned: false,
+    },
+    custom_disabled_adapter: {
+      key,
+      label: candidate?.label ?? 'Custom disabled adapter',
+      recommendation: 'review_only',
+      capabilityFit:
+        'Useful as an inert adapter for QA and audit rehearsal, but it cannot validate real carrier delivery, callback, or opt-out behavior.',
+      setupWork:
+        'Keep the adapter disabled and use it only to rehearse configuration shape, audit keys, idempotency keys, and no-send UI boundaries.',
+      consentSuppressionCompatibility:
+        'Can verify that Portfolio refuses SMS when consent or suppression gates fail, but it does not prove provider compliance.',
+      deliveryCallbackRequirements:
+        'Use placeholder-only delivery confirmation; no provider message ID or live callback can be produced.',
+      optOutHandling:
+        'Use synthetic local STOP outcomes only. Real opt-out ingestion still requires a provider callback path later.',
+      idempotencySupport:
+        'Can exercise Portfolio-side idempotency previews without any provider request.',
+      expectedCredentialReferences: [
+        'SMS_PROVIDER_ADAPTER',
+        'WARM_SMS_MESSAGE_VERSION_KEY',
+        'WARM_SMS_IDEMPOTENCY_NAMESPACE',
+        'WARM_SMS_AUDIT_KEY',
+        'ENABLE_WARM_SMS_PROVIDER_EXECUTION',
+      ],
+      noSendValidationRoute:
+        'Use the existing warm outreach contact surface for no-send canary rehearsal only.',
+      blockers: [
+        'Not acceptable for live SMS activation.',
+        'Does not prove provider callbacks, carrier delivery, or production opt-out handling.',
+      ],
+      providerCallsEnabled: false,
+      smsDeliveryEnabled: false,
+      rawCredentialsReturned: false,
+    },
+  }
+  return candidates[key]
+}
+
+function buildWarmSmsProviderSelectionPlan(args: {
+  selectedCandidate: WarmSmsProviderSetupCandidateKey | null
+  transportConfig: WarmSmsProviderTransportConfigSnapshot
+}): WarmSmsProviderSelectionPlan {
+  const recommendedKey: WarmSmsProviderSetupCandidateKey = 'telnyx_messaging'
+  return {
+    version: 'warm-outreach-sms-provider-selection-plan/v1',
+    recommendedProvider: {
+      key: recommendedKey,
+      label: setupCandidateLabel(recommendedKey),
+      status: 'recommended_for_disabled_setup_review',
+      configuredInSnapshot: args.selectedCandidate === recommendedKey ||
+        args.transportConfig.selectedProvider.key === recommendedKey,
+    },
+    why: [
+      'It maps cleanly to the current Portfolio readiness model: provider profile, sender reference, webhook signing, delivery callbacks, opt-out callback, disabled execution flag, audit key, and idempotency namespace.',
+      'It keeps the next step concrete without implying activation: Vambah can verify owned account/profile/sender references while Portfolio keeps provider calls and SMS delivery off.',
+      'Twilio remains a credible fallback if that is the already-owned account; Bird needs more callback and opt-out evidence before first selection.',
+    ],
+    remainingVambahOwnedSetupStep:
+      'Choose the owned SMS provider account for Portfolio and provide only redacted references for account, sender/profile, callback signing policy, and where secrets will live; do not paste credentials into this surface.',
+    mustRemainDisabledUntilExplicitActivation: [
+      'ENABLE_WARM_SMS_PROVIDER_EXECUTION',
+      'provider API requests',
+      'live SMS delivery',
+      'production env changes',
+      'contact-data transmission',
+    ],
+    candidates: warmSmsProviderSetupCandidates.map((candidate) =>
+      providerSelectionCandidate(candidate.key),
+    ),
+    decisionGate: {
+      currentDecision: 'provider_selection_and_configuration_planning_only',
+      nextRequiredApproval: 'explicit_sms_provider_activation_approval',
+      activationEnabled: false,
+      providerCallsEnabled: false,
+      smsDeliveryEnabled: false,
+      environmentVariablesChanged: false,
+      externalRequests: [],
+    },
+  }
 }
 
 function transportConfigValue(
@@ -1091,6 +1317,10 @@ export function buildWarmSmsProviderReadiness(
       externalRequests: [],
     },
   }
+  const providerSelectionPlan = buildWarmSmsProviderSelectionPlan({
+    selectedCandidate: setupCandidate,
+    transportConfig,
+  })
   const transportConfigured = transportReadiness.state === 'configured_ready'
   const providerDisabled =
     input.provider.configured &&
@@ -1374,6 +1604,7 @@ export function buildWarmSmsProviderReadiness(
         routeImplemented: false,
       },
     },
+    providerSelectionPlan,
     transportReadiness,
     activationChecklist,
     noSendCanary,
