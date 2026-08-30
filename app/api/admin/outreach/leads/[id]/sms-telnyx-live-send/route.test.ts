@@ -221,9 +221,49 @@ function providerReadiness(overrides: {
 function relationshipBody(readiness = providerReadiness()) {
   return {
     smsReadiness: {
+      relationshipRationale: {
+        status: 'present',
+        basis: 'Synthetic relationship evidence supports this one-recipient SMS test.',
+      },
+      phoneReadiness: {
+        present: true,
+        provenance: 'Synthetic phone source is recorded for route-test review.',
+      },
       providerReadiness: readiness,
     },
   }
+}
+
+function manualRelationshipBody() {
+  return relationshipBody(
+    buildWarmSmsProviderReadiness({
+      provider: {
+        name: null,
+        configured: false,
+        enabled: false,
+      },
+      consent: {
+        knownRelationshipBasis: true,
+        relationshipBasisNote:
+          'Synthetic relationship evidence supports this one-recipient SMS test.',
+        phoneProvenance: 'unverified',
+        phoneProvenanceNote:
+          'Synthetic phone source is recorded for route-test review.',
+        permissionStatus: 'relationship_basis_only',
+        permissionNote: null,
+        optOutStop: false,
+        wrongNumber: false,
+        doNotContact: false,
+        lastContactAt: null,
+        cooldownDays: 7,
+        auditedAt: null,
+      },
+      draftApproval: {
+        approvedForProviderDraftCreation: false,
+      },
+      now: '2026-08-29T13:00:00.000Z',
+    }),
+  )
 }
 
 function makeRequest(body: Record<string, unknown> = {}) {
@@ -605,6 +645,48 @@ describe('POST /api/admin/outreach/leads/[id]/sms-telnyx-live-send', () => {
     expect(JSON.stringify(json)).not.toContain(RAW_PHONE)
     expect(JSON.stringify(json)).not.toContain(RAW_MESSAGE)
     expect(JSON.stringify(json)).not.toContain('op://Portfolio/Warm SMS Telnyx/credential')
+  })
+
+  it('uses exact queue approval and no-send evidence to satisfy production live-send readiness overlay', async () => {
+    mocks.getRelationshipPacket.mockResolvedValue(NextResponse.json(manualRelationshipBody()))
+    const sender = vi.fn().mockResolvedValue({
+      ok: true,
+      providerMessageId: 'telnyx-message-production-shape',
+      deliveryStatus: 'accepted',
+    })
+    setWarmSmsTelnyxSenderForTesting(sender)
+    const { updatePayloads } = mockSupabase()
+
+    const response = await POST(makeRequest(executionPayload()), params())
+    const json = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(json).toMatchObject({
+      status: 'sent',
+      telnyxApiCalled: true,
+      externalSendPerformed: true,
+      liveSendReadiness: {
+        state: 'ready_for_live_one_recipient_execution',
+        providerSmoke: {
+          provider: 'telnyx_messaging',
+          available: true,
+          capabilityVerified: true,
+          selectedProviderVerified: true,
+        },
+        executionBoundary: {
+          genericProceedAccepted: false,
+          providerCallsEnabled: true,
+          smsDeliveryEnabled: true,
+        },
+      },
+    })
+    expect(sender).toHaveBeenCalledTimes(1)
+    expect(updatePayloads[1]).toMatchObject({
+      status: 'sent',
+      message_id: 'telnyx-message-production-shape',
+    })
+    expect(JSON.stringify(json)).not.toContain(RAW_PHONE)
+    expect(JSON.stringify(json)).not.toContain(RAW_MESSAGE)
   })
 
   it('records a mocked Telnyx failure without exposing raw phone or message content', async () => {
