@@ -1389,6 +1389,19 @@ function smsTransportReadinessClasses(
   return 'border-red-500/30 bg-red-500/10 text-red-100'
 }
 
+function smsTelnyxActivationPlanningStepClasses(
+  status: WarmSmsReadiness['providerReadiness']['telnyxActivationPlanningGate']['steps'][number]['status'],
+) {
+  if (status === 'complete' || status === 'passed_no_send_canary') {
+    return 'border-emerald-500/25 bg-emerald-500/10 text-emerald-100'
+  }
+  if (status === 'active') return 'border-sky-500/25 bg-sky-500/10 text-sky-100'
+  if (status === 'disabled' || status === 'unavailable') {
+    return 'border-red-500/25 bg-red-500/10 text-red-100'
+  }
+  return 'border-amber-500/25 bg-amber-500/10 text-amber-100'
+}
+
 function SmsManualOutreachCard({ readiness }: { readiness?: WarmSmsReadiness | null }) {
   const [decision, setDecision] = useState<WarmSmsApprovalState>(
     readiness?.approval.state ?? 'not_reviewed',
@@ -1437,6 +1450,7 @@ function SmsManualOutreachCard({ readiness }: { readiness?: WarmSmsReadiness | n
   const setupReadiness = providerReadiness.setupReadiness
   const providerSelectionPlan = providerReadiness.providerSelectionPlan
   const telnyxReferencePlan = providerSelectionPlan.telnyxReferencePlan
+  const telnyxActivationPlanningGate = providerReadiness.telnyxActivationPlanningGate
   const transportReadiness = providerReadiness.transportReadiness
   const noSendCanary = providerReadiness.noSendCanary
   const providerChecksPassed = providerReadiness.consentAndSuppression.checks
@@ -1701,6 +1715,81 @@ function SmsManualOutreachCard({ readiness }: { readiness?: WarmSmsReadiness | n
           <p className="mt-2 text-[10px] leading-4 opacity-80">
             Safety boundary: provider calls off, SMS delivery off, credentials read no, env changed no, migrations no, production-data mutation no, external requests {telnyxReferencePlan.executionBoundary.externalRequests.length}.
           </p>
+        </div>
+
+        <div
+          data-sms-telnyx-activation-planning
+          className="mt-2 rounded-md border border-sky-500/25 bg-sky-500/10 p-2 text-sky-50"
+        >
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0">
+              <p className="text-[10px] font-semibold uppercase tracking-wide">Telnyx activation planning gate</p>
+              <p className="mt-1 text-sm font-semibold">{telnyxActivationPlanningGate.label}</p>
+              <p className="mt-1 text-[10px] leading-4 opacity-85">
+                Reference plan complete; activation planning active; env setup pending; no-send canary {telnyxActivationPlanningGate.noSendCanaryState}; provider activation disabled; live SMS unavailable.
+              </p>
+            </div>
+            <span className="inline-flex min-h-7 w-fit shrink-0 items-center rounded-full border border-current/25 bg-background/25 px-2 py-0.5 text-[10px] font-semibold">
+              {telnyxActivationPlanningGate.currentGate.replaceAll('_', ' ')}
+            </span>
+          </div>
+
+          <div data-sms-telnyx-gate-sequence className="mt-2 grid gap-1.5 sm:grid-cols-2 xl:grid-cols-4">
+            {telnyxActivationPlanningGate.steps.map((step) => (
+              <div
+                key={step.key}
+                title={step.detail}
+                className={`min-w-0 rounded-md border p-2 ${smsTelnyxActivationPlanningStepClasses(step.status)}`}
+              >
+                <p className="text-[10px] font-semibold uppercase tracking-wide">{step.label}</p>
+                <p className="mt-1 text-[10px] leading-3">{step.status.replaceAll('_', ' ')}</p>
+              </div>
+            ))}
+          </div>
+
+          <details
+            data-sms-telnyx-activation-drill-in
+            className="mt-2 rounded-md border border-current/20 bg-background/20 p-2"
+          >
+            <summary className="cursor-pointer text-[10px] font-semibold uppercase tracking-wide">
+              Redacted setup refs and later approval gates
+            </summary>
+            <div className="mt-2 grid gap-1.5 lg:grid-cols-2">
+              <div className="rounded-md border border-current/20 bg-background/25 p-2">
+                <p className="text-[10px] font-semibold uppercase tracking-wide">Redacted Telnyx references</p>
+                <div className="mt-2 grid gap-1.5 sm:grid-cols-2">
+                  {telnyxActivationPlanningGate.redactedReferences.map((item) => (
+                    <div key={item.key} className="min-w-0 rounded-md border border-current/20 bg-background/25 p-2">
+                      <p className="break-all text-[10px] font-semibold uppercase tracking-wide">{item.key}</p>
+                      <p className="mt-1 text-[10px] leading-4 opacity-80">
+                        {item.detail} Raw value returned: no.
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="rounded-md border border-current/20 bg-background/25 p-2">
+                <p className="text-[10px] font-semibold uppercase tracking-wide">Later gates requiring current approval</p>
+                <div className="mt-2 grid gap-1.5 sm:grid-cols-2">
+                  {telnyxActivationPlanningGate.laterApprovalGates.map((gate) => (
+                    <div key={gate.key} className="min-w-0 rounded-md border border-amber-500/25 bg-amber-500/10 p-2 text-amber-50">
+                      <p className="text-[10px] font-semibold uppercase tracking-wide">{gate.label}</p>
+                      <p className="mt-1 text-[10px] leading-4">
+                        Requires current Vambah approval. Enabled now: no.
+                      </p>
+                      <p className="mt-1 text-[10px] leading-4 opacity-80">{gate.detail}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <p className="mt-2 text-[10px] leading-4 opacity-80">
+              Active boundary: {telnyxActivationPlanningGate.activeBoundary.featureFlag}=false; provider calls off; SMS delivery off; Telnyx activation off; live canary off; per-recipient send off.
+            </p>
+            <p className="mt-1 text-[10px] leading-4 opacity-80">
+              No secret manager mutation, Vercel env mutation, Telnyx API call, Slack dispatch, Gmail action, n8n dispatch, migration, or production-data mutation occurred. External requests {telnyxActivationPlanningGate.executionBoundary.externalRequests.length}.
+            </p>
+          </details>
         </div>
 
         <div className="mt-2 rounded-md border border-current/20 bg-background/25 p-2 text-[11px] leading-4">

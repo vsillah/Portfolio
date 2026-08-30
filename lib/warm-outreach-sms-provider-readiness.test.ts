@@ -694,6 +694,149 @@ describe('warm SMS provider readiness', () => {
         expect.objectContaining({ channel: 'external_send' }),
       ]),
     )
+    expect(readiness.telnyxActivationPlanningGate).toMatchObject({
+      version: 'warm-outreach-sms-telnyx-activation-planning-gate/v1',
+      state: 'activation_planning_gate_active',
+      label: 'Telnyx activation planning gate active',
+      currentGate: 'telnyx_activation_planning_only',
+      referencePlanComplete: true,
+      activationPlanningGateActive: true,
+      envSetupPending: true,
+      noSendCanaryState: 'pending',
+      providerActivationDisabled: true,
+      liveSendUnavailable: true,
+      activeBoundary: {
+        featureFlag: 'ENABLE_WARM_SMS_PROVIDER_EXECUTION',
+        requiredValue: false,
+        providerCallsEnabled: false,
+        smsDeliveryEnabled: false,
+        providerActivationEnabled: false,
+        liveCanaryEnabled: false,
+        perRecipientSendEnabled: false,
+      },
+      executionBoundary: {
+        providerCallsEnabled: false,
+        smsDeliveryEnabled: false,
+        credentialsRead: false,
+        secretManagerMutated: false,
+        environmentVariablesChanged: false,
+        vercelChanged: false,
+        migrationsApplied: false,
+        productionDataMutation: false,
+        slackDispatchEnabled: false,
+        gmailActionEnabled: false,
+        n8nDispatchEnabled: false,
+        externalRequests: [],
+      },
+    })
+    expect(readiness.telnyxActivationPlanningGate.steps).toEqual([
+      expect.objectContaining({
+        key: 'reference_plan_complete',
+        status: 'complete',
+        externalActionEnabled: false,
+      }),
+      expect.objectContaining({
+        key: 'activation_planning_gate_active',
+        status: 'active',
+        externalActionEnabled: false,
+      }),
+      expect.objectContaining({
+        key: 'provider_account_confirmation',
+        status: 'pending_vambah',
+        externalActionEnabled: false,
+      }),
+      expect.objectContaining({
+        key: 'sender_profile_registration',
+        status: 'pending_vambah',
+        externalActionEnabled: false,
+      }),
+      expect.objectContaining({
+        key: 'callback_url_readiness',
+        status: 'pending_captain',
+        externalActionEnabled: false,
+      }),
+      expect.objectContaining({
+        key: 'secret_reference_placement',
+        status: 'requires_current_vambah_approval',
+        externalActionEnabled: false,
+      }),
+      expect.objectContaining({
+        key: 'vercel_env_update_request',
+        status: 'requires_current_vambah_approval',
+        externalActionEnabled: false,
+      }),
+      expect.objectContaining({
+        key: 'disabled_provider_config_verification',
+        status: 'pending_captain',
+        externalActionEnabled: false,
+      }),
+      expect.objectContaining({
+        key: 'no_send_canary',
+        status: 'pending_no_send_canary',
+        externalActionEnabled: false,
+      }),
+      expect.objectContaining({
+        key: 'provider_activation_disabled',
+        status: 'disabled',
+        externalActionEnabled: false,
+      }),
+      expect.objectContaining({
+        key: 'live_sms_canary_unavailable',
+        status: 'unavailable',
+        externalActionEnabled: false,
+      }),
+      expect.objectContaining({
+        key: 'per_recipient_send_unavailable',
+        status: 'unavailable',
+        externalActionEnabled: false,
+      }),
+    ])
+    expect(readiness.telnyxActivationPlanningGate.redactedReferences).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          key: 'TELNYX_ACCOUNT_REFERENCE',
+          status: 'planned_reference_only',
+          rawValueReturned: false,
+        }),
+        expect.objectContaining({ key: 'TELNYX_MESSAGING_PROFILE_REFERENCE' }),
+        expect.objectContaining({ key: 'TELNYX_SENDER_REFERENCE' }),
+        expect.objectContaining({ key: 'TELNYX_WEBHOOK_SIGNING_REFERENCE' }),
+        expect.objectContaining({ key: 'TELNYX_DELIVERY_CALLBACK_REFERENCE' }),
+        expect.objectContaining({ key: 'TELNYX_OPT_OUT_CALLBACK_REFERENCE' }),
+      ]),
+    )
+    expect(readiness.telnyxActivationPlanningGate.laterApprovalGates).toEqual([
+      expect.objectContaining({
+        key: 'vercel_env_mutation',
+        requiresCurrentVambahApproval: true,
+        enabledNow: false,
+      }),
+      expect.objectContaining({
+        key: 'secret_manager_update',
+        requiresCurrentVambahApproval: true,
+        enabledNow: false,
+      }),
+      expect.objectContaining({
+        key: 'telnyx_provider_activation',
+        requiresCurrentVambahApproval: true,
+        enabledNow: false,
+      }),
+      expect.objectContaining({
+        key: 'provider_api_calls',
+        requiresCurrentVambahApproval: true,
+        enabledNow: false,
+      }),
+      expect.objectContaining({
+        key: 'live_sms_canary',
+        requiresCurrentVambahApproval: true,
+        enabledNow: false,
+      }),
+      expect.objectContaining({
+        key: 'per_recipient_sms_send',
+        requiresCurrentVambahApproval: true,
+        enabledNow: false,
+      }),
+    ])
     expect(readiness.transportReadiness).toMatchObject({
       state: 'configured_disabled',
       selectedProvider: {
@@ -1018,5 +1161,92 @@ describe('warm SMS provider readiness', () => {
         externalRequests: [],
       },
     })
+
+    expect(readiness.telnyxActivationPlanningGate).toMatchObject({
+      state: 'activation_planning_gate_active',
+      label: 'Telnyx activation planning gate active',
+      envSetupPending: true,
+      noSendCanaryState: 'pending',
+      providerActivationDisabled: true,
+      liveSendUnavailable: true,
+      activeBoundary: {
+        featureFlag: 'ENABLE_WARM_SMS_PROVIDER_EXECUTION',
+        requiredValue: false,
+        providerCallsEnabled: false,
+        smsDeliveryEnabled: false,
+        providerActivationEnabled: false,
+        liveCanaryEnabled: false,
+        perRecipientSendEnabled: false,
+      },
+    })
+    expect(readiness.telnyxActivationPlanningGate.steps).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ key: 'no_send_canary', status: 'pending_no_send_canary' }),
+        expect.objectContaining({ key: 'provider_activation_disabled', status: 'disabled' }),
+        expect.objectContaining({ key: 'live_sms_canary_unavailable', status: 'unavailable' }),
+        expect.objectContaining({ key: 'per_recipient_send_unavailable', status: 'unavailable' }),
+      ]),
+    )
+    expect(readiness.telnyxActivationPlanningGate.laterApprovalGates.map((gate) => gate.key)).toEqual([
+      'vercel_env_mutation',
+      'secret_manager_update',
+      'telnyx_provider_activation',
+      'provider_api_calls',
+      'live_sms_canary',
+      'per_recipient_sms_send',
+    ])
+    expect(readiness.telnyxActivationPlanningGate.laterApprovalGates.every(
+      (gate) => gate.requiresCurrentVambahApproval && !gate.enabledNow,
+    )).toBe(true)
+
+    const passedCanary = buildWarmSmsProviderReadiness(input({
+      provider: {
+        name: 'Synthetic SMS provider',
+        configured: true,
+        enabled: false,
+      },
+      activation: {
+        providerSelectionStatus: 'selected',
+        providerSelectionNote: 'Synthetic provider selected.',
+        providerSetupCandidate: 'telnyx_messaging',
+        configurationStatus: 'verified_disabled',
+        configurationNote: 'Disabled configuration contract reviewed.',
+        noSendCanaryPassed: true,
+        capabilityEvidence: {
+          outbound_message_submission: verified,
+          delivery_status_callbacks: verified,
+          inbound_opt_out_ingestion: verified,
+          sender_identity_compliance: verified,
+          idempotent_submission: verified,
+          sandbox_or_no_send_test: verified,
+        },
+        reviewedAt: '2026-08-29T12:30:00.000Z',
+      },
+      transportConfig: {
+        SMS_PROVIDER_ADAPTER: 'telnyx_messaging',
+        SMS_PROVIDER_CREDENTIAL_REFERENCE: 'infisical:/warm-sms/telnyx',
+        SMS_PROVIDER_SENDER_REFERENCE: 'telnyx-sender-ref',
+        SMS_PROVIDER_DELIVERY_CALLBACK: '/api/provider/sms/delivery',
+        SMS_PROVIDER_OPT_OUT_CALLBACK: '/api/provider/sms/stop',
+        WARM_SMS_DELIVERY_CONFIRMATION_STORE: 'outreach_delivery_attempts',
+        WARM_SMS_MESSAGE_VERSION_KEY: 'message-v1',
+        WARM_SMS_IDEMPOTENCY_NAMESPACE: 'warm-sms-send:v1',
+        WARM_SMS_AUDIT_KEY: 'audit-v1',
+        ENABLE_WARM_SMS_PROVIDER_EXECUTION: false,
+      },
+    }))
+    expect(passedCanary.telnyxActivationPlanningGate).toMatchObject({
+      state: 'no_send_canary_passed_provider_activation_disabled',
+      label: 'No-send canary passed; Telnyx activation remains disabled',
+      noSendCanaryState: 'passed',
+      providerActivationDisabled: true,
+      liveSendUnavailable: true,
+    })
+    expect(passedCanary.telnyxActivationPlanningGate.steps).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ key: 'no_send_canary', status: 'passed_no_send_canary' }),
+        expect.objectContaining({ key: 'provider_activation_disabled', status: 'disabled' }),
+      ]),
+    )
   })
 })
