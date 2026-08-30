@@ -20,6 +20,12 @@ import {
 } from '@/lib/warm-outreach-gmail-response-import'
 import { buildWarmSmsReadiness } from '@/lib/warm-outreach-sms-readiness'
 import {
+  buildWarmSmsCandidateReview,
+  warmSmsCandidateMetadata,
+  warmSmsMessageVersionKey,
+  type WarmSmsCandidateQueueRow,
+} from '@/lib/warm-outreach-sms-candidate'
+import {
   WARM_SLACK_SEND_APPROVAL_QA_QUEUE_ID,
   warmSlackSendApprovalQaRelationshipPacket,
 } from './warmSlackSendApprovalQaFixture'
@@ -1832,6 +1838,127 @@ describe('RelationshipPacketPanel', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Reject' }))
     expect(screen.getByText('Rejected')).toBeInTheDocument()
     expect(screen.getByText(/Boundary: manual only yes \/ SMS delivery off \/ provider calls off/)).toBeInTheDocument()
+  })
+
+  it('prepares an SMS candidate queue row without sending or calling a provider', async () => {
+    const previousFetch = globalThis.fetch
+    const messageVersionKey = warmSmsMessageVersionKey(42, 'community_relationship')
+    const candidateRow: WarmSmsCandidateQueueRow = {
+      id: 'sms-candidate-42',
+      contact_submission_id: 42,
+      channel: 'sms',
+      status: 'draft',
+      subject: 'Warm SMS candidate',
+      sequence_step: 1,
+      thread_id: null,
+      message_id: null,
+      sent_at: null,
+      replied_at: null,
+      generation_inputs: warmSmsCandidateMetadata({
+        contactId: 42,
+        contactName: 'Ada Operator',
+        messageVersionKey,
+        smsSendIdempotencyKey: `warm-sms-send:v1:sms-candidate-42:42:${messageVersionKey}`,
+        submittedEvidenceKey: `warm-sms-audit:v1:submitted:sms-candidate-42:42:${messageVersionKey}`,
+        templateFamily: 'community_relationship',
+        templateLabel: 'Community relationship',
+        preparedBy: 'admin-user',
+        preparedAt: '2026-08-30T17:20:00.000Z',
+      }),
+      created_at: '2026-08-30T17:20:00.000Z',
+    }
+    const baseSms = buildWarmSmsReadiness({
+      packet: packetResponse.packet,
+      readiness: packetResponse.readiness,
+    })
+    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({
+      outcome: 'created',
+      message: 'SMS candidate queue row prepared for review. No SMS was sent and no Telnyx call was made.',
+      candidateReview: buildWarmSmsCandidateReview({
+        readiness: baseSms,
+        queueRows: [candidateRow],
+      }),
+      executionBoundary: {
+        createsQueueArtifact: true,
+        providerCallsEnabled: false,
+        smsDeliveryEnabled: false,
+        telnyxApiCalled: false,
+        externalRequests: [],
+      },
+    }), { status: 200 }))
+    vi.stubGlobal('fetch', fetchMock)
+    const smsReady: RelationshipPacketApiResponse = {
+      ...packetResponse,
+      smsReadiness: baseSms,
+    }
+
+    render(<RelationshipPacketPanel loading={false} error={null} data={smsReady} />)
+
+    expect(screen.getByText('SMS candidate row')).toBeInTheDocument()
+    expect(screen.getByText('Ready to prepare SMS candidate')).toBeInTheDocument()
+    expect(screen.getByText('Queue: missing')).toBeInTheDocument()
+    expect(screen.getByText('Status: not prepared')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Prepare candidate' }))
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledWith(
+      '/api/admin/outreach/leads/42/sms-candidate',
+      expect.objectContaining({
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+      }),
+    ))
+    expect(JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body))).toMatchObject({
+      messageText: expect.stringMatching(/^Hi Ada/),
+    })
+    expect(await screen.findByText(/SMS candidate queue row prepared for review/)).toBeInTheDocument()
+    expect(screen.getByText('SMS candidate row exists')).toBeInTheDocument()
+    expect(screen.getByText('Queue: sms-candidate-42')).toBeInTheDocument()
+    expect(screen.getByText('Status: draft')).toBeInTheDocument()
+    expect(screen.getByText('Approval: missing')).toBeInTheDocument()
+    expect(screen.getByText('Send evidence: none')).toBeInTheDocument()
+    expect(screen.getByText(/provider calls off \/ SMS delivery off \/ Telnyx API no/)).toBeInTheDocument()
+
+    vi.stubGlobal('fetch', previousFetch)
+  })
+
+  it('shows an existing SMS candidate row as the next review gate', () => {
+    const messageVersionKey = warmSmsMessageVersionKey(42, 'community_relationship')
+    const candidateRow: WarmSmsCandidateQueueRow = {
+      id: 'sms-candidate-existing',
+      contact_submission_id: 42,
+      channel: 'sms',
+      status: 'draft',
+      subject: 'Warm SMS candidate',
+      sequence_step: 1,
+      generation_inputs: warmSmsCandidateMetadata({
+        contactId: 42,
+        contactName: 'Ada Operator',
+        messageVersionKey,
+        smsSendIdempotencyKey: `warm-sms-send:v1:sms-candidate-existing:42:${messageVersionKey}`,
+        submittedEvidenceKey: `warm-sms-audit:v1:submitted:sms-candidate-existing:42:${messageVersionKey}`,
+        templateFamily: 'community_relationship',
+        templateLabel: 'Community relationship',
+        preparedBy: 'admin-user',
+        preparedAt: '2026-08-30T17:30:00.000Z',
+      }),
+      created_at: '2026-08-30T17:30:00.000Z',
+    }
+    const smsReady: RelationshipPacketApiResponse = {
+      ...packetResponse,
+      smsReadiness: buildWarmSmsReadiness({
+        packet: packetResponse.packet,
+        readiness: packetResponse.readiness,
+        queueRows: [candidateRow],
+      }),
+    }
+
+    render(<RelationshipPacketPanel loading={false} error={null} data={smsReady} />)
+
+    expect(screen.getByText('SMS candidate row exists')).toBeInTheDocument()
+    expect(screen.getByText('Queue: sms-candidate-existing')).toBeInTheDocument()
+    expect(screen.getByText('Status: draft')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Candidate exists' })).toBeDisabled()
+    expect(screen.getByText(/Use the existing queue row for review/)).toBeInTheDocument()
   })
 
   it('exports stable label helpers for adapter tests', () => {

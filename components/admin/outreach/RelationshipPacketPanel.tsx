@@ -35,6 +35,11 @@ import type {
   WarmGmailOperatingLoop,
   WarmGmailOperatingLoopState,
 } from '@/lib/warm-outreach-gmail-operating-loop'
+import {
+  buildWarmSmsCandidateReview,
+  type WarmSmsCandidateQueueArtifact,
+  type WarmSmsCandidateReview,
+} from '@/lib/warm-outreach-sms-candidate'
 import type {
   WarmSmsApprovalState,
   WarmSmsManualResponseOutcome,
@@ -86,6 +91,27 @@ export interface GmailDraftCanaryResult {
 export type SmsTelnyxNoSendCanaryResult = WarmSmsTelnyxNoSendCanaryResult
 
 const WARM_SMS_SEND_AUTHORIZATION = 'execute_warm_sms_send_for_authorized_recipient'
+
+type SmsCandidateRouteResult = {
+  outcome?: 'created' | 'existing' | 'blocked'
+  message?: string
+  candidate?: WarmSmsCandidateQueueArtifact | null
+  candidateReview?: WarmSmsCandidateReview | null
+  blockers?: string[]
+  executionBoundary?: {
+    createsQueueArtifact?: boolean
+    providerCallsEnabled?: boolean
+    smsDeliveryEnabled?: boolean
+    telnyxApiCalled?: boolean
+    externalSendEnabled?: boolean
+    slackDispatchEnabled?: boolean
+    gmailActionEnabled?: boolean
+    n8nDispatchEnabled?: boolean
+    rawPhoneReturned?: boolean
+    rawMessageBodyReturned?: boolean
+    externalRequests?: unknown[]
+  }
+}
 
 interface RelationshipPacketPanelProps {
   loading: boolean
@@ -1443,6 +1469,10 @@ function SmsManualOutreachCard({
   const [evidenceTimestamp, setEvidenceTimestamp] = useState<string | null>(null)
   const [operatorNote, setOperatorNote] = useState('')
   const [responseOutcome, setResponseOutcome] = useState<WarmSmsManualResponseOutcome>('no_response_yet')
+  const [candidateLoading, setCandidateLoading] = useState(false)
+  const [candidateError, setCandidateError] = useState<string | null>(null)
+  const [candidateReceipt, setCandidateReceipt] = useState<string | null>(null)
+  const [localCandidateReview, setLocalCandidateReview] = useState<WarmSmsCandidateReview | null>(null)
 
   useEffect(() => {
     setDecision(readiness?.approval.state ?? 'not_reviewed')
@@ -1454,6 +1484,10 @@ function SmsManualOutreachCard({
     setEvidenceTimestamp(null)
     setOperatorNote('')
     setResponseOutcome('no_response_yet')
+    setCandidateLoading(false)
+    setCandidateError(null)
+    setCandidateReceipt(null)
+    setLocalCandidateReview(null)
   }, [readiness?.approval.state, readiness?.contactId, readiness?.draft.preview])
 
   if (!readiness) return null
@@ -1475,6 +1509,10 @@ function SmsManualOutreachCard({
   const blocked = readiness.state === 'blocked'
   const suppressed = loop.gates.smsPromptsSuppressed
   const providerReadiness = readiness.providerReadiness
+  const candidateReview = localCandidateReview ?? readiness.candidateReview ?? buildWarmSmsCandidateReview({
+    readiness,
+  })
+  const candidateArtifact = candidateReview.queueArtifact
   const activationReadiness = providerReadiness.activationReadiness
   const setupReadiness = providerReadiness.setupReadiness
   const providerSelectionPlan = providerReadiness.providerSelectionPlan
@@ -1609,6 +1647,34 @@ function SmsManualOutreachCard({
     setEvidenceRecorded(true)
   }
 
+  async function prepareSmsCandidate() {
+    if (!candidateReview.prepareAction.enabledOnThisSurface) return
+    setCandidateLoading(true)
+    setCandidateError(null)
+    setCandidateReceipt(null)
+    try {
+      const response = await fetch(`/api/admin/outreach/leads/${encodeURIComponent(readiness.contactId)}/sms-candidate`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ messageText: draftText }),
+      })
+      const body = await response.json().catch(() => ({})) as SmsCandidateRouteResult
+      if (!response.ok) {
+        const blocker = body.blockers?.[0] ? ` ${body.blockers[0]}` : ''
+        throw new Error(`${body.message ?? 'Could not prepare SMS candidate.'}${blocker}`)
+      }
+      if (body.candidateReview) setLocalCandidateReview(body.candidateReview)
+      setCandidateReceipt(
+        body.message ??
+        'SMS candidate queue row prepared for review. No SMS was sent and no provider call was made.',
+      )
+    } catch (error) {
+      setCandidateError(error instanceof Error ? error.message : 'Could not prepare SMS candidate.')
+    } finally {
+      setCandidateLoading(false)
+    }
+  }
+
   return (
     <div id="warm-sms-readiness" className={`rounded-md border p-3 ${smsReadinessClasses(readiness.state)}`}>
       <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
@@ -1690,6 +1756,95 @@ function SmsManualOutreachCard({
             <p className="mt-1 text-[10px] leading-4">{check.detail}</p>
           </div>
         ))}
+      </div>
+
+      <div
+        id="warm-sms-candidate-review"
+        className={`mt-2 rounded-md border p-2.5 ${
+          candidateReview.state === 'candidate_exists'
+            ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-100'
+            : candidateReview.state === 'ready_to_prepare'
+              ? 'border-sky-500/30 bg-sky-500/10 text-sky-100'
+              : 'border-amber-500/30 bg-amber-500/10 text-amber-100'
+        }`}
+      >
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0">
+            <p className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wide">
+              <ClipboardCheck size={13} aria-hidden />
+              SMS candidate row
+            </p>
+            <p className="mt-1 text-sm font-semibold">{candidateReview.label}</p>
+            <p className="mt-1 text-[10px] leading-4 opacity-85">{candidateReview.detail}</p>
+          </div>
+          <button
+            type="button"
+            disabled={!candidateReview.prepareAction.enabledOnThisSurface || candidateLoading}
+            onClick={() => { void prepareSmsCandidate() }}
+            className="inline-flex min-h-9 w-full shrink-0 items-center justify-center gap-1.5 rounded-md border border-sky-400/35 bg-sky-400/10 px-2 text-[11px] font-semibold text-sky-50 transition-colors hover:bg-sky-400/20 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+          >
+            {candidateLoading
+              ? <RefreshCw size={13} className="animate-spin" aria-hidden />
+              : <ClipboardCheck size={13} aria-hidden />}
+            {candidateLoading ? 'Preparing' : candidateReview.prepareAction.label}
+          </button>
+        </div>
+        <div className="mt-2 grid gap-1.5 text-[10px] leading-4 sm:grid-cols-2 xl:grid-cols-4">
+          <p className="rounded-md border border-current/20 bg-background/20 p-2">
+            Queue: {candidateArtifact?.id ?? 'missing'}
+          </p>
+          <p className="rounded-md border border-current/20 bg-background/20 p-2">
+            Status: {candidateArtifact?.status ?? 'not prepared'}
+          </p>
+          <p className="rounded-md border border-current/20 bg-background/20 p-2">
+            Approval: {candidateArtifact?.approvalState.replaceAll('_', ' ') ?? 'missing'}
+          </p>
+          <p className="rounded-md border border-current/20 bg-background/20 p-2">
+            Send evidence: {candidateArtifact?.submittedEvidenceRecorded ? 'recorded' : 'none'}
+          </p>
+        </div>
+        <details className="mt-2 rounded-md border border-current/20 bg-background/20 p-2">
+          <summary className="cursor-pointer text-[10px] font-semibold uppercase tracking-wide">
+            Candidate prerequisites and boundary
+          </summary>
+          <div className="mt-2 grid gap-1.5 sm:grid-cols-2 xl:grid-cols-3">
+            {candidateReview.prerequisites.map((item) => (
+              <div key={item.key} className={`rounded-md border p-2 ${smsCheckClasses(item.status === 'missing' ? 'review_required' : item.status)}`}>
+                <p className="text-[10px] font-semibold uppercase tracking-wide">{item.label}</p>
+                <p className="mt-1 text-[10px] leading-4">{item.detail}</p>
+              </div>
+            ))}
+          </div>
+          {candidateArtifact && (
+            <div className="mt-2 grid gap-1.5 text-[10px] leading-4 sm:grid-cols-2">
+              <p className="break-all rounded-md border border-current/20 bg-background/20 p-2">
+                Message version: {candidateArtifact.messageVersionKey}
+              </p>
+              <p className="break-all rounded-md border border-current/20 bg-background/20 p-2">
+                Send key: {candidateArtifact.smsSendIdempotencyKey}
+              </p>
+              <p className="break-all rounded-md border border-current/20 bg-background/20 p-2">
+                Submitted evidence: {candidateArtifact.submittedEvidenceKey}
+              </p>
+              <p className="rounded-md border border-current/20 bg-background/20 p-2">
+                Raw phone/body returned: no
+              </p>
+            </div>
+          )}
+          <p className="mt-2 text-[10px] leading-4 opacity-80">
+            Boundary: queue artifact only {candidateReview.executionBoundary.createsQueueArtifact ? 'available' : 'locked'} / provider calls off / SMS delivery off / Telnyx API no / Slack, Gmail, and n8n off / external requests {candidateReview.executionBoundary.externalRequests.length}.
+          </p>
+        </details>
+        {candidateError && (
+          <p role="alert" className="mt-2 rounded-md border border-red-500/35 bg-red-500/10 p-2 text-[11px] leading-4 text-red-100">
+            {candidateError}
+          </p>
+        )}
+        {candidateReceipt && (
+          <p role="status" className="mt-2 rounded-md border border-emerald-500/30 bg-emerald-500/10 p-2 text-[11px] leading-4 text-emerald-100">
+            {candidateReceipt}
+          </p>
+        )}
       </div>
 
       <div

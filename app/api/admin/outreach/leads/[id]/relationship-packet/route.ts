@@ -201,7 +201,11 @@ export async function GET(
         actionTasks,
       },
     })
-    const smsReadiness = buildWarmSmsReadiness({ packet, readiness })
+    const smsReadiness = buildWarmSmsReadiness({
+      packet,
+      readiness,
+      queueRows: outreachQueue,
+    })
 
     return NextResponse.json({
       packet,
