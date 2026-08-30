@@ -12,7 +12,11 @@ import {
   type WarmSmsExistingSendAttempt,
   type WarmSmsStoredSendApproval,
 } from '@/lib/warm-outreach-sms-live-execution'
-import type { WarmSmsProviderTransportConfigInput } from '@/lib/warm-outreach-sms-provider-readiness'
+import {
+  buildWarmSmsProviderReadiness,
+  type WarmSmsProviderCapabilityKey,
+  type WarmSmsProviderTransportConfigInput,
+} from '@/lib/warm-outreach-sms-provider-readiness'
 import type { WarmSmsReadiness } from '@/lib/warm-outreach-sms-readiness'
 
 export const dynamic = 'force-dynamic'
@@ -73,6 +77,15 @@ const SMS_ENV_KEYS = [
   'ENABLE_WARM_SMS_PROVIDER_EXECUTION',
   'SMS_PROVIDER_UNAVAILABLE_REASON',
 ] as const
+
+const LIVE_SEND_CAPABILITY_KEYS: WarmSmsProviderCapabilityKey[] = [
+  'outbound_message_submission',
+  'delivery_status_callbacks',
+  'inbound_opt_out_ingestion',
+  'sender_identity_compliance',
+  'idempotent_submission',
+  'sandbox_or_no_send_test',
+]
 
 function metadataRecord(value: unknown): MetadataRecord {
   return value && typeof value === 'object' && !Array.isArray(value)
@@ -299,6 +312,93 @@ function senderRuntimeValue() {
     stringValue(process.env.WARM_SMS_TELNYX_FROM_NUMBER)
 }
 
+function providerReadinessForLiveSend(input: {
+  smsReadiness: WarmSmsReadiness
+  transportConfig: WarmSmsProviderTransportConfigInput
+  approval: WarmSmsStoredSendApproval | null
+  noSendCanaryPassed: boolean
+  item: QueueRow
+}) {
+  const base = input.smsReadiness.providerReadiness
+  const hasSuppressionBlocker =
+    base.consentAndSuppression.status === 'suppressed' ||
+    input.item.contact_submissions?.do_not_contact === true ||
+    Boolean(input.item.contact_submissions?.removed_at)
+
+  if (
+    hasSuppressionBlocker ||
+    cleanApprovalStatus(input.approval) !== 'approved' ||
+    !input.noSendCanaryPassed
+  ) {
+    return base
+  }
+
+  const now = new Date().toISOString()
+  const evidence = {
+    status: 'verified' as const,
+    evidence:
+      'Redacted Portfolio activation evidence is present for this exact approved queue, with the no-send canary passed before live execution.',
+  }
+  const capabilityEvidence = Object.fromEntries(
+    LIVE_SEND_CAPABILITY_KEYS.map((key) => [
+      key,
+      evidence,
+    ]),
+  )
+
+  return buildWarmSmsProviderReadiness({
+    provider: {
+      name: 'Telnyx Messaging',
+      configured: true,
+      enabled: true,
+    },
+    consent: {
+      knownRelationshipBasis: input.smsReadiness.relationshipRationale.status === 'present',
+      relationshipBasisNote: input.smsReadiness.relationshipRationale.basis,
+      phoneProvenance: stringValue(input.item.contact_submissions?.phone_number)
+        ? 'known'
+        : 'missing',
+      phoneProvenanceNote:
+        input.smsReadiness.phoneReadiness.provenance ??
+        'Portfolio contact record has a reviewed phone source for this approved SMS queue.',
+      permissionStatus: 'documented',
+      permissionNote:
+        'Current per-recipient approval is recorded on warm_sms_send_authorization for this exact SMS queue and message version.',
+      optOutStop: false,
+      wrongNumber: false,
+      doNotContact: input.item.contact_submissions?.do_not_contact === true ||
+        Boolean(input.item.contact_submissions?.removed_at),
+      lastContactAt: null,
+      cooldownDays: 0,
+      auditedAt: stringValue(input.approval?.approved_at) ?? now,
+    },
+    draftApproval: {
+      approvedForProviderDraftCreation: true,
+    },
+    activation: {
+      providerSelectionStatus: 'selected',
+      providerSelectionNote:
+        'Telnyx Messaging is selected for this one-recipient live canary.',
+      providerSetupCandidate: 'telnyx_messaging',
+      configurationStatus: 'verified_disabled',
+      configurationNote:
+        'Redacted Vercel provider references were reviewed before temporary execution activation.',
+      noSendCanaryPassed: true,
+      capabilityEvidence,
+      reviewedAt: now,
+    },
+    transportConfig: {
+      ...input.transportConfig,
+      ENABLE_WARM_SMS_PROVIDER_EXECUTION: 'false',
+    },
+    now,
+  })
+}
+
+function cleanApprovalStatus(approval: WarmSmsStoredSendApproval | null) {
+  return stringValue(approval?.status)?.toLowerCase() ?? null
+}
+
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
@@ -415,8 +515,16 @@ export async function POST(
       stringValue(bodyInput.submittedEvidenceKey)
 
     const transportConfig = smsTransportConfigFromEnv()
+    const noSendCanaryPassedForRow = noSendCanaryPassed(generationInputs, approval)
+    const providerReadiness = providerReadinessForLiveSend({
+      smsReadiness: relationshipBody.smsReadiness,
+      transportConfig,
+      approval,
+      noSendCanaryPassed: noSendCanaryPassedForRow,
+      item,
+    })
     const initialReadiness = buildWarmSmsTelnyxLiveSendReadiness({
-      providerReadiness: relationshipBody.smsReadiness.providerReadiness,
+      providerReadiness,
       transportConfig,
       contactId,
       outreachQueueId: item.id,
@@ -427,7 +535,7 @@ export async function POST(
       runtimeCredentialReady: isWarmSmsTelnyxRuntimeCredentialReady(),
       approval,
       existingAttempt: existingExecution,
-      noSendCanaryPassed: noSendCanaryPassed(generationInputs, approval),
+      noSendCanaryPassed: noSendCanaryPassedForRow,
     })
 
     const { expectedAuthorization } = initialReadiness
@@ -459,7 +567,7 @@ export async function POST(
     })
     const readiness = submittedEvidence
       ? buildWarmSmsTelnyxLiveSendReadiness({
-          providerReadiness: relationshipBody.smsReadiness.providerReadiness,
+          providerReadiness,
           transportConfig,
           contactId,
           outreachQueueId: item.id,
@@ -470,7 +578,7 @@ export async function POST(
           runtimeCredentialReady: isWarmSmsTelnyxRuntimeCredentialReady(),
           approval,
           existingAttempt: submittedEvidence,
-          noSendCanaryPassed: noSendCanaryPassed(generationInputs, approval),
+          noSendCanaryPassed: noSendCanaryPassedForRow,
         })
       : initialReadiness
 

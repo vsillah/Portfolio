@@ -24,6 +24,7 @@ export type WarmSmsStoredSendApproval = {
   no_send_canary_passed?: boolean | null
   telnyx_api_called?: boolean | null
   external_send_performed?: boolean | null
+  approved_at?: string | null
 }
 
 export type WarmSmsExistingSendAttempt = {
