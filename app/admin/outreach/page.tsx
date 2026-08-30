@@ -55,6 +55,7 @@ import AddLeadModal from '@/components/admin/outreach/AddLeadModal'
 import RelationshipPacketPanel, {
   type GmailDraftCanaryResult,
   type RelationshipPacketApiResponse,
+  type SmsTelnyxNoSendCanaryResult,
 } from '@/components/admin/outreach/RelationshipPacketPanel'
 import {
   WARM_SLACK_SEND_APPROVAL_QA_CONTACT_ID,
@@ -265,6 +266,9 @@ function OutreachContent() {
   const [gmailDraftCanaryLoadingLeadId, setGmailDraftCanaryLoadingLeadId] = useState<number | null>(null)
   const [gmailDraftCanaryErrors, setGmailDraftCanaryErrors] = useState<Record<number, string | null>>({})
   const [gmailDraftCanaryResults, setGmailDraftCanaryResults] = useState<Record<number, GmailDraftCanaryResult | null>>({})
+  const [smsTelnyxCanaryLoadingLeadId, setSmsTelnyxCanaryLoadingLeadId] = useState<number | null>(null)
+  const [smsTelnyxCanaryErrors, setSmsTelnyxCanaryErrors] = useState<Record<number, string | null>>({})
+  const [smsTelnyxCanaryResults, setSmsTelnyxCanaryResults] = useState<Record<number, SmsTelnyxNoSendCanaryResult | null>>({})
 
   // Add lead modal
   const [showAddLeadModal, setShowAddLeadModal] = useState(false)
@@ -774,6 +778,8 @@ function OutreachContent() {
     setRelationshipPacketError(null)
     setGmailDraftCanaryErrors((prev) => ({ ...prev, [leadId]: null }))
     setGmailDraftCanaryResults((prev) => ({ ...prev, [leadId]: null }))
+    setSmsTelnyxCanaryErrors((prev) => ({ ...prev, [leadId]: null }))
+    setSmsTelnyxCanaryResults((prev) => ({ ...prev, [leadId]: null }))
     setRelationshipPacketLoading(true)
 
     if (warmSlackSendApprovalQaMode && leadId === WARM_SLACK_SEND_APPROVAL_QA_CONTACT_ID) {
@@ -862,6 +868,45 @@ function OutreachContent() {
       setGmailDraftCanaryLoadingLeadId(null)
     }
   }, [gmailDraftCanaryLoadingLeadId])
+
+  const runSmsTelnyxNoSendCanary = useCallback(async (leadId: number) => {
+    if (smsTelnyxCanaryLoadingLeadId != null) return
+    setSmsTelnyxCanaryLoadingLeadId(leadId)
+    setSmsTelnyxCanaryErrors((prev) => ({ ...prev, [leadId]: null }))
+    setSmsTelnyxCanaryResults((prev) => ({ ...prev, [leadId]: null }))
+    try {
+      const session = await getCurrentSession()
+      if (!session?.access_token) {
+        setSmsTelnyxCanaryErrors((prev) => ({
+          ...prev,
+          [leadId]: 'Admin session is required to run the SMS no-send canary.',
+        }))
+        return
+      }
+      const res = await fetch(`/api/admin/outreach/leads/${leadId}/sms-telnyx-no-send-canary`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+      const body = (await res.json().catch(() => ({}))) as SmsTelnyxNoSendCanaryResult & { error?: string }
+      if (!res.ok) {
+        setSmsTelnyxCanaryErrors((prev) => ({
+          ...prev,
+          [leadId]: body.error || 'SMS no-send canary failed.',
+        }))
+        return
+      }
+      setSmsTelnyxCanaryResults((prev) => ({ ...prev, [leadId]: body }))
+      setGenerateOutreachToast(body.message || 'SMS no-send canary completed.')
+      setTimeout(() => setGenerateOutreachToast(null), 7000)
+    } catch {
+      setSmsTelnyxCanaryErrors((prev) => ({
+        ...prev,
+        [leadId]: 'SMS no-send canary failed.',
+      }))
+    } finally {
+      setSmsTelnyxCanaryLoadingLeadId(null)
+    }
+  }, [smsTelnyxCanaryLoadingLeadId])
 
   useEffect(() => {
     if (leadRowMenuOpenId == null) return
@@ -1379,6 +1424,10 @@ function OutreachContent() {
                     gmailDraftCanaryError={gmailDraftCanaryErrors[outreachWorkroomLead.id] ?? null}
                     gmailDraftCanaryResult={gmailDraftCanaryResults[outreachWorkroomLead.id] ?? null}
                     onGmailDraftCanary={() => { void runGmailDraftCanary(outreachWorkroomLead.id) }}
+                    smsTelnyxCanaryLoading={smsTelnyxCanaryLoadingLeadId === outreachWorkroomLead.id}
+                    smsTelnyxCanaryError={smsTelnyxCanaryErrors[outreachWorkroomLead.id] ?? null}
+                    smsTelnyxCanaryResult={smsTelnyxCanaryResults[outreachWorkroomLead.id] ?? null}
+                    onSmsTelnyxNoSendCanary={() => { void runSmsTelnyxNoSendCanary(outreachWorkroomLead.id) }}
                   />
                 </div>
               </section>
@@ -1999,6 +2048,10 @@ function OutreachContent() {
                                   gmailDraftCanaryError={gmailDraftCanaryErrors[lead.id] ?? null}
                                   gmailDraftCanaryResult={gmailDraftCanaryResults[lead.id] ?? null}
                                   onGmailDraftCanary={() => { void runGmailDraftCanary(lead.id) }}
+                                  smsTelnyxCanaryLoading={smsTelnyxCanaryLoadingLeadId === lead.id}
+                                  smsTelnyxCanaryError={smsTelnyxCanaryErrors[lead.id] ?? null}
+                                  smsTelnyxCanaryResult={smsTelnyxCanaryResults[lead.id] ?? null}
+                                  onSmsTelnyxNoSendCanary={() => { void runSmsTelnyxNoSendCanary(lead.id) }}
                                 />
 
                                 {/* Contact Info */}

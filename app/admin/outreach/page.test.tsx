@@ -432,6 +432,151 @@ describe('OutreachAdminPage deep links', () => {
     expect(fetchMock.mock.calls.some(([url]) => String(url).includes('/api/admin/outreach/leads/42/relationship-packet'))).toBe(false)
   })
 
+  it('runs the SMS Telnyx no-send canary from the existing selected workroom', async () => {
+    window.history.replaceState(
+      {},
+      '',
+      '/admin/outreach?tab=leads&id=42&contactId=42&qa=warm-slack-send-approval',
+    )
+    const fetchMock = vi.fn(async (url: string) => {
+      if (url.startsWith('/api/admin/outreach/leads/42/sms-telnyx-no-send-canary')) {
+        return Response.json({
+          version: 'warm-outreach-sms-telnyx-no-send-canary/v1',
+          status: 'passed_no_send',
+          message:
+            'No-send Telnyx SMS canary passed. No Telnyx API call ran, no SMS was sent, and provider activation remains disabled.',
+          contactId: '42',
+          provider: {
+            expectedProvider: 'telnyx_messaging',
+            selectedProvider: {
+              key: 'telnyx_messaging',
+              label: 'Telnyx Messaging',
+              configured: true,
+              unavailable: false,
+              rawValueReturned: false,
+            },
+            selectedProviderVerified: true,
+            rawAdapterReturned: false,
+          },
+          noSendCanary: true,
+          externalRequests: [],
+          providerCallsEnabled: false,
+          smsDeliveryEnabled: false,
+          providerActivationEnabled: false,
+          featureFlagEnabled: false,
+          smsDeliveryEnabledReason:
+            'No-send canary only; live SMS requires later activation and per-recipient approval.',
+          readiness: {
+            envSetupPresent: true,
+            selectedProviderAdapter: 'passed',
+            disabledExecutionFlag: 'passed',
+            consentSuppressionPrerequisites: 'passed',
+            messageVersion: 'passed',
+            idempotencyNamespace: 'passed',
+            auditKey: 'passed',
+            credentialReference: 'passed',
+            senderReference: 'passed',
+            deliveryCallbackReference: 'passed',
+            optOutCallbackReference: 'passed',
+            deliveryConfirmationStore: 'passed',
+            providerCapabilityEvidence: 'passed',
+            liveSmsUnavailable: true,
+            providerActivationStillDisabled: true,
+            perRecipientSendStillSeparate: true,
+          },
+          redactedReferences: [
+            {
+              key: 'SMS_PROVIDER_CREDENTIAL_REFERENCE',
+              label: 'Credential reference',
+              status: 'present_redacted',
+              rawValueReturned: false,
+            },
+            {
+              key: 'ENABLE_WARM_SMS_PROVIDER_EXECUTION',
+              label: 'Execution feature flag',
+              status: 'disabled_verified',
+              rawValueReturned: false,
+            },
+          ],
+          idempotency: {
+            namespace: 'warm-sms-send:v1',
+            messageVersionKey: 'qa-sms-message-v1',
+            auditKey: 'warm-sms-audit:v1:qa',
+            canaryIdempotencyKey: 'warm-sms-send:v1:canary:no-send:abc123',
+            auditEvidenceKey: 'warm-sms-audit:v1:qa:no-send-canary:def456',
+            duplicatePolicy: 'return_existing_no_send_evidence_without_provider_call',
+            stableResult: true,
+          },
+          deliveryConfirmation: {
+            storeMapped: true,
+            status: 'placeholder_only',
+            providerMessageId: null,
+            deliveryStatus: null,
+          },
+          blockedReasons: [],
+          executionBoundary: {
+            localRowsOnly: true,
+            noSendAuditOnly: true,
+            providerCallsEnabled: false,
+            smsDeliveryEnabled: false,
+            providerActivationEnabled: false,
+            featureFlagEnabled: false,
+            telnyxApiCalled: false,
+            rawCredentialsReturned: false,
+            rawPhoneReturned: false,
+            rawMessageBodyReturned: false,
+            credentialsRead: false,
+            secretManagerMutated: false,
+            environmentVariablesChanged: false,
+            databaseWritesEnabled: false,
+            slackDispatchEnabled: false,
+            gmailActionEnabled: false,
+            n8nDispatchEnabled: false,
+            externalRequests: [],
+          },
+        })
+      }
+      if (url.startsWith('/api/admin/outreach/leads')) {
+        return Response.json({ leads: [warmSlackSendApprovalQaLead], total: 1, page: 1 })
+      }
+      if (url.startsWith('/api/admin/value-evidence/workflow-status')) {
+        return Response.json({})
+      }
+      if (url.startsWith('/api/admin/chat-escalations')) {
+        return Response.json({ escalations: [], total: 0 })
+      }
+      if (url.startsWith('/api/admin/sales/contact-meetings')) {
+        return Response.json({ meetings: [] })
+      }
+      if (url.startsWith('/api/meeting-action-tasks')) {
+        return Response.json({ tasks: [] })
+      }
+      return Response.json({})
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    render(<OutreachAdminPage />)
+
+    const workroom = await screen.findByLabelText(`Outreach workroom for ${warmSlackSendApprovalQaLead.name}`)
+    fireEvent.click(within(workroom).getByRole('button', { name: 'Run SMS no-send canary' }))
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledWith(
+        '/api/admin/outreach/leads/42/sms-telnyx-no-send-canary',
+        expect.objectContaining({
+          method: 'POST',
+          headers: { Authorization: 'Bearer admin-token' },
+        }),
+      )
+    })
+    expect(await within(workroom).findByText(/No-send Telnyx SMS canary passed/)).toBeInTheDocument()
+    expect(within(workroom).getByText('Env setup: present')).toBeInTheDocument()
+    expect(within(workroom).getByText('Provider activation: disabled')).toBeInTheDocument()
+    expect(within(workroom).getByText('Live SMS: unavailable')).toBeInTheDocument()
+    expect(within(workroom).getAllByText('External requests: 0').length).toBeGreaterThan(0)
+    expect(fetchMock.mock.calls.some(([url]) => /telnyx\.com|slack\.com|gmail\.com|googleapis\.com|n8n/i.test(String(url)))).toBe(false)
+  })
+
   it('opens outreach in a dedicated selected workroom instead of rendering the generator inside each lead row', async () => {
     window.history.replaceState({}, '', '/admin/outreach?tab=leads')
 

@@ -725,6 +725,96 @@ export type WarmSmsProviderReadiness = {
   recoveryStep: string | null
 }
 
+export type WarmSmsTelnyxNoSendCanaryResult = {
+  version: 'warm-outreach-sms-telnyx-no-send-canary/v1'
+  status: 'passed_no_send' | 'blocked_no_send'
+  message: string
+  contactId: string
+  provider: {
+    expectedProvider: 'telnyx_messaging'
+    selectedProvider: WarmSmsProviderTransportConfigSnapshot['selectedProvider']
+    selectedProviderVerified: boolean
+    rawAdapterReturned: false
+  }
+  noSendCanary: true
+  externalRequests: []
+  providerCallsEnabled: false
+  smsDeliveryEnabled: false
+  providerActivationEnabled: false
+  featureFlagEnabled: false
+  smsDeliveryEnabledReason: string
+  readiness: {
+    envSetupPresent: boolean
+    selectedProviderAdapter: 'passed' | 'blocked'
+    disabledExecutionFlag: 'passed' | 'blocked'
+    consentSuppressionPrerequisites: 'passed' | 'blocked'
+    messageVersion: 'passed' | 'blocked'
+    idempotencyNamespace: 'passed' | 'blocked'
+    auditKey: 'passed' | 'blocked'
+    credentialReference: 'passed' | 'blocked'
+    senderReference: 'passed' | 'blocked'
+    deliveryCallbackReference: 'passed' | 'blocked'
+    optOutCallbackReference: 'passed' | 'blocked'
+    deliveryConfirmationStore: 'passed' | 'blocked'
+    providerCapabilityEvidence: 'passed' | 'blocked'
+    liveSmsUnavailable: true
+    providerActivationStillDisabled: true
+    perRecipientSendStillSeparate: true
+  }
+  redactedReferences: Array<{
+    key: WarmSmsProviderTransportConfigurationKey
+    label: string
+    status: 'present_redacted' | 'missing' | 'disabled_verified' | 'blocked'
+    rawValueReturned: false
+  }>
+  idempotency: {
+    namespace: string
+    messageVersionKey: string
+    auditKey: string
+    canaryIdempotencyKey: string
+    auditEvidenceKey: string
+    duplicatePolicy: 'return_existing_no_send_evidence_without_provider_call'
+    stableResult: true
+  }
+  deliveryConfirmation: {
+    storeMapped: boolean
+    status: 'placeholder_only'
+    providerMessageId: null
+    deliveryStatus: null
+  }
+  blockedReasons: string[]
+  executionBoundary: {
+    localRowsOnly: true
+    noSendAuditOnly: true
+    providerCallsEnabled: false
+    smsDeliveryEnabled: false
+    providerActivationEnabled: false
+    featureFlagEnabled: false
+    telnyxApiCalled: false
+    rawCredentialsReturned: false
+    rawPhoneReturned: false
+    rawMessageBodyReturned: false
+    credentialsRead: false
+    secretManagerMutated: false
+    environmentVariablesChanged: false
+    databaseWritesEnabled: false
+    slackDispatchEnabled: false
+    gmailActionEnabled: false
+    n8nDispatchEnabled: false
+    externalRequests: []
+  }
+}
+
+function stableHash(value: unknown): string {
+  const source = JSON.stringify(value)
+  let hash = 2166136261
+  for (let index = 0; index < source.length; index += 1) {
+    hash ^= source.charCodeAt(index)
+    hash = Math.imul(hash, 16777619)
+  }
+  return (hash >>> 0).toString(16).padStart(8, '0')
+}
+
 function normalizedNote(value: string | null) {
   const note = value?.trim()
   return note ? note : null
@@ -2264,5 +2354,191 @@ export function buildWarmSmsProviderReadiness(
     },
     operatorNextAction: nextActions[state],
     recoveryStep: blockers[0] ?? null,
+  }
+}
+
+export function buildWarmSmsTelnyxNoSendCanaryResult(args: {
+  contactId: string | number
+  providerReadiness: WarmSmsProviderReadiness
+  transportConfig?: WarmSmsProviderTransportConfigInput
+}): WarmSmsTelnyxNoSendCanaryResult {
+  const contactId = String(args.contactId)
+  const transportConfig = parseWarmSmsProviderTransportConfig(args.transportConfig ?? {})
+  const configByKey = new Map(transportConfig.configItems.map((item) => [item.key, item]))
+
+  function itemPresent(key: WarmSmsProviderTransportConfigurationKey) {
+    return configByKey.get(key)?.status === 'present_redacted'
+  }
+
+  function passed(value: boolean) {
+    return value ? 'passed' as const : 'blocked' as const
+  }
+
+  function redactedStatus(key: WarmSmsProviderTransportConfigurationKey) {
+    const item = configByKey.get(key)
+    if (!item) return 'missing' as const
+    if (item.status === 'disabled') return 'disabled_verified' as const
+    return item.status
+  }
+
+  const selectedProviderVerified = transportConfig.selectedProvider.key === 'telnyx_messaging'
+  const disabledExecutionFlag = !transportConfig.executionFlagEnabled
+  const consentSuppressionClear =
+    args.providerReadiness.consentAndSuppression.status === 'clear' &&
+    args.providerReadiness.transportReadiness.consentSuppressionRequirements.met
+  const credentialReference = transportConfig.credentialReferenceRecorded
+  const senderReference = transportConfig.senderReferenceRecorded
+  const deliveryCallbackReference = transportConfig.deliveryCallbackRecorded
+  const optOutCallbackReference = transportConfig.optOutCallbackRecorded
+  const deliveryConfirmationStore = transportConfig.deliveryConfirmationStoreMapped
+  const providerCapabilityEvidence =
+    (
+      args.providerReadiness.activationReadiness.capabilitySummary.status === 'complete' &&
+      args.providerReadiness.transportReadiness.capabilityReadiness.status === 'ready'
+    ) ||
+    (
+      selectedProviderVerified &&
+      senderReference &&
+      deliveryCallbackReference &&
+      optOutCallbackReference &&
+      deliveryConfirmationStore
+    )
+  const messageVersion = itemPresent('WARM_SMS_MESSAGE_VERSION_KEY')
+  const idempotencyNamespace = itemPresent('WARM_SMS_IDEMPOTENCY_NAMESPACE')
+  const auditKey = itemPresent('WARM_SMS_AUDIT_KEY')
+  const envSetupPresent =
+    selectedProviderVerified &&
+    disabledExecutionFlag &&
+    credentialReference &&
+    senderReference &&
+    deliveryCallbackReference &&
+    optOutCallbackReference &&
+    deliveryConfirmationStore &&
+    messageVersion &&
+    idempotencyNamespace &&
+    auditKey
+
+  const blockedReasons = [
+    ...(!selectedProviderVerified ? ['SMS_PROVIDER_ADAPTER must resolve to Telnyx Messaging.'] : []),
+    ...(!credentialReference ? ['SMS_PROVIDER_CREDENTIAL_REFERENCE is missing.'] : []),
+    ...(!senderReference ? ['SMS_PROVIDER_SENDER_REFERENCE is missing.'] : []),
+    ...(!deliveryCallbackReference ? ['SMS_PROVIDER_DELIVERY_CALLBACK is missing.'] : []),
+    ...(!optOutCallbackReference ? ['SMS_PROVIDER_OPT_OUT_CALLBACK is missing.'] : []),
+    ...(!deliveryConfirmationStore ? ['WARM_SMS_DELIVERY_CONFIRMATION_STORE is missing.'] : []),
+    ...(!messageVersion ? ['WARM_SMS_MESSAGE_VERSION_KEY is missing.'] : []),
+    ...(!idempotencyNamespace ? ['WARM_SMS_IDEMPOTENCY_NAMESPACE is missing.'] : []),
+    ...(!auditKey ? ['WARM_SMS_AUDIT_KEY is missing.'] : []),
+    ...(!disabledExecutionFlag ? ['ENABLE_WARM_SMS_PROVIDER_EXECUTION must remain disabled.'] : []),
+    ...(!consentSuppressionClear
+      ? [args.providerReadiness.consentAndSuppression.blockers[0] ??
+        'Consent and suppression prerequisites are not clear.']
+      : []),
+  ]
+  const passedNoSend = blockedReasons.length === 0
+  const canaryIdempotencyKey =
+    `${transportConfig.idempotencyNamespace}:canary:no-send:${stableHash({
+      contactId,
+      provider: transportConfig.selectedProvider.key,
+      messageVersionKey: transportConfig.messageVersionKey,
+      auditKey: transportConfig.auditKey,
+    })}`
+  const auditEvidenceKey =
+    `${transportConfig.auditKey}:no-send-canary:${stableHash({
+      contactId,
+      canaryIdempotencyKey,
+    })}`
+  const redactedReferenceKeys: WarmSmsProviderTransportConfigurationKey[] = [
+    'SMS_PROVIDER_ADAPTER',
+    'SMS_PROVIDER_CREDENTIAL_REFERENCE',
+    'SMS_PROVIDER_SENDER_REFERENCE',
+    'SMS_PROVIDER_DELIVERY_CALLBACK',
+    'SMS_PROVIDER_OPT_OUT_CALLBACK',
+    'WARM_SMS_MESSAGE_VERSION_KEY',
+    'WARM_SMS_IDEMPOTENCY_NAMESPACE',
+    'WARM_SMS_AUDIT_KEY',
+    'WARM_SMS_DELIVERY_CONFIRMATION_STORE',
+    'ENABLE_WARM_SMS_PROVIDER_EXECUTION',
+  ]
+
+  return {
+    version: 'warm-outreach-sms-telnyx-no-send-canary/v1',
+    status: passedNoSend ? 'passed_no_send' : 'blocked_no_send',
+    message: passedNoSend
+      ? 'No-send Telnyx SMS canary passed. No Telnyx API call ran, no SMS was sent, and provider activation remains disabled.'
+      : `No-send Telnyx SMS canary blocked. ${blockedReasons[0]}`,
+    contactId,
+    provider: {
+      expectedProvider: 'telnyx_messaging',
+      selectedProvider: transportConfig.selectedProvider,
+      selectedProviderVerified,
+      rawAdapterReturned: false,
+    },
+    noSendCanary: true,
+    externalRequests: [],
+    providerCallsEnabled: false,
+    smsDeliveryEnabled: false,
+    providerActivationEnabled: false,
+    featureFlagEnabled: false,
+    smsDeliveryEnabledReason: 'No-send canary only; live SMS requires later activation and per-recipient approval.',
+    readiness: {
+      envSetupPresent,
+      selectedProviderAdapter: passed(selectedProviderVerified),
+      disabledExecutionFlag: passed(disabledExecutionFlag),
+      consentSuppressionPrerequisites: passed(consentSuppressionClear),
+      messageVersion: passed(messageVersion),
+      idempotencyNamespace: passed(idempotencyNamespace),
+      auditKey: passed(auditKey),
+      credentialReference: passed(credentialReference),
+      senderReference: passed(senderReference),
+      deliveryCallbackReference: passed(deliveryCallbackReference),
+      optOutCallbackReference: passed(optOutCallbackReference),
+      deliveryConfirmationStore: passed(deliveryConfirmationStore),
+      providerCapabilityEvidence: passed(providerCapabilityEvidence),
+      liveSmsUnavailable: true,
+      providerActivationStillDisabled: true,
+      perRecipientSendStillSeparate: true,
+    },
+    redactedReferences: redactedReferenceKeys.map((key) => ({
+      key,
+      label: configByKey.get(key)?.label ?? key,
+      status: redactedStatus(key),
+      rawValueReturned: false,
+    })),
+    idempotency: {
+      namespace: transportConfig.idempotencyNamespace,
+      messageVersionKey: transportConfig.messageVersionKey,
+      auditKey: transportConfig.auditKey,
+      canaryIdempotencyKey,
+      auditEvidenceKey,
+      duplicatePolicy: 'return_existing_no_send_evidence_without_provider_call',
+      stableResult: true,
+    },
+    deliveryConfirmation: {
+      storeMapped: deliveryConfirmationStore,
+      status: 'placeholder_only',
+      providerMessageId: null,
+      deliveryStatus: null,
+    },
+    blockedReasons,
+    executionBoundary: {
+      localRowsOnly: true,
+      noSendAuditOnly: true,
+      providerCallsEnabled: false,
+      smsDeliveryEnabled: false,
+      providerActivationEnabled: false,
+      featureFlagEnabled: false,
+      telnyxApiCalled: false,
+      rawCredentialsReturned: false,
+      rawPhoneReturned: false,
+      rawMessageBodyReturned: false,
+      credentialsRead: false,
+      secretManagerMutated: false,
+      environmentVariablesChanged: false,
+      databaseWritesEnabled: false,
+      slackDispatchEnabled: false,
+      gmailActionEnabled: false,
+      n8nDispatchEnabled: false,
+      externalRequests: [],
+    },
   }
 }

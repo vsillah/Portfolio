@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   buildWarmSmsProviderReadiness,
+  buildWarmSmsTelnyxNoSendCanaryResult,
   parseWarmSmsProviderTransportConfig,
   type WarmSmsProviderReadinessInput,
 } from './warm-outreach-sms-provider-readiness'
@@ -1248,5 +1249,211 @@ describe('warm SMS provider readiness', () => {
         expect.objectContaining({ key: 'provider_activation_disabled', status: 'disabled' }),
       ]),
     )
+  })
+
+  it('builds a stable Telnyx no-send canary receipt without provider calls or raw secrets', () => {
+    const verified = {
+      status: 'verified' as const,
+      evidence: 'Synthetic contract evidence.',
+    }
+    const providerReadiness = buildWarmSmsProviderReadiness(input({
+      provider: {
+        name: 'Synthetic SMS provider',
+        configured: true,
+        enabled: false,
+      },
+      activation: {
+        providerSelectionStatus: 'selected',
+        providerSelectionNote: 'Telnyx selected for no-send review.',
+        providerSetupCandidate: 'telnyx_messaging',
+        configurationStatus: 'verified_disabled',
+        configurationNote: 'Disabled Telnyx configuration reviewed.',
+        capabilityEvidence: {
+          outbound_message_submission: verified,
+          delivery_status_callbacks: verified,
+          inbound_opt_out_ingestion: verified,
+          sender_identity_compliance: verified,
+          idempotent_submission: verified,
+          sandbox_or_no_send_test: verified,
+        },
+        reviewedAt: '2026-08-29T12:30:00.000Z',
+      },
+      transportConfig: {
+        SMS_PROVIDER_ADAPTER: 'telnyx_messaging',
+        SMS_PROVIDER_CREDENTIAL_REFERENCE: 'redacted-secret-reference',
+        SMS_PROVIDER_SENDER_REFERENCE: 'redacted-sender-reference',
+        SMS_PROVIDER_DELIVERY_CALLBACK: 'delivery-callback-reference',
+        SMS_PROVIDER_OPT_OUT_CALLBACK: 'opt-out-callback-reference',
+        WARM_SMS_DELIVERY_CONFIRMATION_STORE: 'delivery-confirmation-store',
+        WARM_SMS_MESSAGE_VERSION_KEY: 'message-v1',
+        WARM_SMS_IDEMPOTENCY_NAMESPACE: 'warm-sms-send:v1',
+        WARM_SMS_AUDIT_KEY: 'audit-v1',
+        ENABLE_WARM_SMS_PROVIDER_EXECUTION: false,
+      },
+    }))
+
+    const result = buildWarmSmsTelnyxNoSendCanaryResult({
+      contactId: 42,
+      providerReadiness,
+      transportConfig: {
+        SMS_PROVIDER_ADAPTER: 'telnyx_messaging',
+        SMS_PROVIDER_CREDENTIAL_REFERENCE: 'redacted-secret-reference',
+        SMS_PROVIDER_SENDER_REFERENCE: 'redacted-sender-reference',
+        SMS_PROVIDER_DELIVERY_CALLBACK: 'delivery-callback-reference',
+        SMS_PROVIDER_OPT_OUT_CALLBACK: 'opt-out-callback-reference',
+        WARM_SMS_DELIVERY_CONFIRMATION_STORE: 'delivery-confirmation-store',
+        WARM_SMS_MESSAGE_VERSION_KEY: 'message-v1',
+        WARM_SMS_IDEMPOTENCY_NAMESPACE: 'warm-sms-send:v1',
+        WARM_SMS_AUDIT_KEY: 'audit-v1',
+        ENABLE_WARM_SMS_PROVIDER_EXECUTION: false,
+      },
+    })
+    const repeated = buildWarmSmsTelnyxNoSendCanaryResult({
+      contactId: 42,
+      providerReadiness,
+      transportConfig: {
+        SMS_PROVIDER_ADAPTER: 'telnyx_messaging',
+        SMS_PROVIDER_CREDENTIAL_REFERENCE: 'redacted-secret-reference',
+        SMS_PROVIDER_SENDER_REFERENCE: 'redacted-sender-reference',
+        SMS_PROVIDER_DELIVERY_CALLBACK: 'delivery-callback-reference',
+        SMS_PROVIDER_OPT_OUT_CALLBACK: 'opt-out-callback-reference',
+        WARM_SMS_DELIVERY_CONFIRMATION_STORE: 'delivery-confirmation-store',
+        WARM_SMS_MESSAGE_VERSION_KEY: 'message-v1',
+        WARM_SMS_IDEMPOTENCY_NAMESPACE: 'warm-sms-send:v1',
+        WARM_SMS_AUDIT_KEY: 'audit-v1',
+        ENABLE_WARM_SMS_PROVIDER_EXECUTION: false,
+      },
+    })
+
+    expect(result).toMatchObject({
+      version: 'warm-outreach-sms-telnyx-no-send-canary/v1',
+      status: 'passed_no_send',
+      noSendCanary: true,
+      providerCallsEnabled: false,
+      smsDeliveryEnabled: false,
+      providerActivationEnabled: false,
+      featureFlagEnabled: false,
+      externalRequests: [],
+      provider: {
+        expectedProvider: 'telnyx_messaging',
+        selectedProviderVerified: true,
+        rawAdapterReturned: false,
+      },
+      readiness: {
+        envSetupPresent: true,
+        selectedProviderAdapter: 'passed',
+        disabledExecutionFlag: 'passed',
+        consentSuppressionPrerequisites: 'passed',
+        messageVersion: 'passed',
+        idempotencyNamespace: 'passed',
+        auditKey: 'passed',
+        credentialReference: 'passed',
+        senderReference: 'passed',
+        deliveryCallbackReference: 'passed',
+        optOutCallbackReference: 'passed',
+        deliveryConfirmationStore: 'passed',
+        providerCapabilityEvidence: 'passed',
+        liveSmsUnavailable: true,
+        providerActivationStillDisabled: true,
+        perRecipientSendStillSeparate: true,
+      },
+      idempotency: {
+        namespace: 'warm-sms-send:v1',
+        messageVersionKey: 'message-v1',
+        auditKey: 'audit-v1',
+        duplicatePolicy: 'return_existing_no_send_evidence_without_provider_call',
+        stableResult: true,
+      },
+      deliveryConfirmation: {
+        storeMapped: true,
+        status: 'placeholder_only',
+        providerMessageId: null,
+        deliveryStatus: null,
+      },
+      executionBoundary: {
+        localRowsOnly: true,
+        noSendAuditOnly: true,
+        providerCallsEnabled: false,
+        smsDeliveryEnabled: false,
+        providerActivationEnabled: false,
+        featureFlagEnabled: false,
+        telnyxApiCalled: false,
+        rawCredentialsReturned: false,
+        rawPhoneReturned: false,
+        rawMessageBodyReturned: false,
+        databaseWritesEnabled: false,
+        slackDispatchEnabled: false,
+        gmailActionEnabled: false,
+        n8nDispatchEnabled: false,
+        externalRequests: [],
+      },
+    })
+    expect(result.idempotency.canaryIdempotencyKey).toBe(repeated.idempotency.canaryIdempotencyKey)
+    expect(result.redactedReferences).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        key: 'SMS_PROVIDER_CREDENTIAL_REFERENCE',
+        status: 'present_redacted',
+        rawValueReturned: false,
+      }),
+      expect.objectContaining({
+        key: 'SMS_PROVIDER_SENDER_REFERENCE',
+        status: 'present_redacted',
+        rawValueReturned: false,
+      }),
+      expect.objectContaining({
+        key: 'ENABLE_WARM_SMS_PROVIDER_EXECUTION',
+        status: 'disabled_verified',
+        rawValueReturned: false,
+      }),
+    ]))
+    expect(JSON.stringify(result)).not.toContain('redacted-secret-reference')
+    expect(JSON.stringify(result)).not.toContain('redacted-sender-reference')
+  })
+
+  it('blocks the Telnyx no-send canary when the execution flag is enabled or prerequisites are missing', () => {
+    const providerReadiness = buildWarmSmsProviderReadiness(input({
+      consent: {
+        ...input().consent,
+        optOutStop: true,
+      },
+    }))
+    const result = buildWarmSmsTelnyxNoSendCanaryResult({
+      contactId: 42,
+      providerReadiness,
+      transportConfig: {
+        SMS_PROVIDER_ADAPTER: 'telnyx_messaging',
+        SMS_PROVIDER_CREDENTIAL_REFERENCE: 'redacted-secret-reference',
+        WARM_SMS_MESSAGE_VERSION_KEY: 'message-v1',
+        WARM_SMS_IDEMPOTENCY_NAMESPACE: 'warm-sms-send:v1',
+        WARM_SMS_AUDIT_KEY: 'audit-v1',
+        ENABLE_WARM_SMS_PROVIDER_EXECUTION: true,
+      },
+    })
+
+    expect(result).toMatchObject({
+      status: 'blocked_no_send',
+      providerCallsEnabled: false,
+      smsDeliveryEnabled: false,
+      providerActivationEnabled: false,
+      featureFlagEnabled: false,
+      readiness: {
+        envSetupPresent: false,
+        disabledExecutionFlag: 'blocked',
+        consentSuppressionPrerequisites: 'blocked',
+        senderReference: 'blocked',
+        deliveryCallbackReference: 'blocked',
+        optOutCallbackReference: 'blocked',
+        deliveryConfirmationStore: 'blocked',
+      },
+      executionBoundary: {
+        telnyxApiCalled: false,
+        databaseWritesEnabled: false,
+        externalRequests: [],
+      },
+    })
+    expect(result.blockedReasons).toEqual(expect.arrayContaining([
+      'ENABLE_WARM_SMS_PROVIDER_EXECUTION must remain disabled.',
+      'Stop or opt-out evidence suppresses SMS.',
+    ]))
   })
 })
