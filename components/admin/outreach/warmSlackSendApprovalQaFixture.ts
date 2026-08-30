@@ -894,9 +894,9 @@ export const warmSlackSendApprovalQaRelationshipPacket = {
         providerSelectionNote:
           'Synthetic future SMS adapter is the test-owned provider candidate recorded for architecture review.',
         providerSetupCandidate: 'custom_disabled_adapter',
-        configurationStatus: 'planned_disabled',
+        configurationStatus: 'verified_disabled',
         configurationNote:
-          'Synthetic configuration is modeled as disabled. No credentials, environment values, or provider settings were read or changed.',
+          'Synthetic disabled configuration is reviewed. No credentials, environment values, or provider settings were read or changed.',
         capabilityEvidence: {
           outbound_message_submission: {
             status: 'verified',
@@ -907,23 +907,35 @@ export const warmSlackSendApprovalQaRelationshipPacket = {
             evidence: 'Synthetic sender identity requirements are represented without a live sender.',
           },
           delivery_status_callbacks: {
-            status: 'gap',
-            evidence: 'No provider-specific delivery callback contract is selected.',
+            status: 'verified',
+            evidence: 'Synthetic delivery callback mapping is recorded as a placeholder only.',
           },
           inbound_opt_out_ingestion: {
-            status: 'gap',
-            evidence: 'No provider-specific STOP webhook or suppression update path is implemented.',
+            status: 'verified',
+            evidence: 'Synthetic STOP handling is mapped to future suppression review without webhook activation.',
           },
           idempotent_submission: {
-            status: 'not_verified',
-            evidence: 'The Portfolio key contract is modeled, but provider-side duplicate behavior is unverified.',
+            status: 'verified',
+            evidence: 'Synthetic duplicate-prevention contract returns existing attempt evidence without resend.',
           },
           sandbox_or_no_send_test: {
-            status: 'not_verified',
-            evidence: 'A provider-supported no-send test path has not been chosen.',
+            status: 'verified',
+            evidence: 'Local no-send canary simulation is selected; it never contacts a provider.',
           },
         },
-        reviewedAt: null,
+        reviewedAt: timestamp,
+      },
+      transportConfig: {
+        SMS_PROVIDER_ADAPTER: 'custom_disabled_adapter',
+        SMS_PROVIDER_CREDENTIAL_REFERENCE: 'synthetic-secret-reference-only',
+        SMS_PROVIDER_SENDER_REFERENCE: 'synthetic-sender-reference-only',
+        SMS_PROVIDER_DELIVERY_CALLBACK: 'synthetic-delivery-callback-placeholder',
+        SMS_PROVIDER_OPT_OUT_CALLBACK: 'synthetic-opt-out-callback-placeholder',
+        WARM_SMS_DELIVERY_CONFIRMATION_STORE: 'synthetic_delivery_confirmation_store',
+        WARM_SMS_MESSAGE_VERSION_KEY: 'qa-sms-message-v1',
+        WARM_SMS_IDEMPOTENCY_NAMESPACE: 'warm-sms-send:v1',
+        WARM_SMS_AUDIT_KEY: 'warm-sms-audit:v1:qa',
+        ENABLE_WARM_SMS_PROVIDER_EXECUTION: false,
       },
       now: '2026-08-29T12:00:00.000Z',
     }),
