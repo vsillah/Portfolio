@@ -173,6 +173,103 @@ export type WarmSmsProviderSelectionPlan = {
   }
 }
 
+export type WarmSmsTelnyxActivationPlanningGateStepStatus =
+  | 'complete'
+  | 'active'
+  | 'pending_vambah'
+  | 'pending_captain'
+  | 'requires_current_vambah_approval'
+  | 'pending_no_send_canary'
+  | 'passed_no_send_canary'
+  | 'disabled'
+  | 'unavailable'
+
+export type WarmSmsTelnyxActivationPlanningGateStep = {
+  key:
+    | 'reference_plan_complete'
+    | 'activation_planning_gate_active'
+    | 'provider_account_confirmation'
+    | 'sender_profile_registration'
+    | 'callback_url_readiness'
+    | 'secret_reference_placement'
+    | 'vercel_env_update_request'
+    | 'disabled_provider_config_verification'
+    | 'no_send_canary'
+    | 'provider_activation_disabled'
+    | 'live_sms_canary_unavailable'
+    | 'per_recipient_send_unavailable'
+  label: string
+  status: WarmSmsTelnyxActivationPlanningGateStepStatus
+  detail: string
+  externalActionEnabled: false
+}
+
+export type WarmSmsTelnyxActivationPlanningGate = {
+  version: 'warm-outreach-sms-telnyx-activation-planning-gate/v1'
+  state:
+    | 'activation_planning_gate_active'
+    | 'env_setup_pending'
+    | 'no_send_canary_pending'
+    | 'no_send_canary_passed_provider_activation_disabled'
+  label: string
+  currentGate: 'telnyx_activation_planning_only'
+  referencePlanComplete: true
+  activationPlanningGateActive: true
+  envSetupPending: true
+  noSendCanaryState: 'pending' | 'passed'
+  providerActivationDisabled: true
+  liveSendUnavailable: true
+  activeBoundary: {
+    featureFlag: 'ENABLE_WARM_SMS_PROVIDER_EXECUTION'
+    requiredValue: false
+    providerCallsEnabled: false
+    smsDeliveryEnabled: false
+    providerActivationEnabled: false
+    liveCanaryEnabled: false
+    perRecipientSendEnabled: false
+  }
+  steps: WarmSmsTelnyxActivationPlanningGateStep[]
+  redactedReferences: Array<{
+    key:
+      | 'TELNYX_ACCOUNT_REFERENCE'
+      | 'TELNYX_MESSAGING_PROFILE_REFERENCE'
+      | 'TELNYX_SENDER_REFERENCE'
+      | 'TELNYX_WEBHOOK_SIGNING_REFERENCE'
+      | 'TELNYX_DELIVERY_CALLBACK_REFERENCE'
+      | 'TELNYX_OPT_OUT_CALLBACK_REFERENCE'
+    status: 'planned_reference_only'
+    rawValueReturned: false
+    detail: string
+  }>
+  laterApprovalGates: Array<{
+    key:
+      | 'vercel_env_mutation'
+      | 'secret_manager_update'
+      | 'telnyx_provider_activation'
+      | 'provider_api_calls'
+      | 'live_sms_canary'
+      | 'per_recipient_sms_send'
+    label: string
+    requiresCurrentVambahApproval: true
+    enabledNow: false
+    detail: string
+  }>
+  executionBoundary: {
+    providerCallsEnabled: false
+    smsDeliveryEnabled: false
+    credentialsRead: false
+    secretManagerMutated: false
+    environmentVariablesChanged: false
+    vercelChanged: false
+    migrationsApplied: false
+    productionDataMutation: false
+    slackDispatchEnabled: false
+    gmailActionEnabled: false
+    n8nDispatchEnabled: false
+    externalRequests: []
+  }
+}
+
 export type WarmSmsProviderSetupReadinessState =
   | 'recipient_evidence_required'
   | 'provider_path_required'
@@ -436,6 +533,7 @@ export type WarmSmsProviderActivationInput = {
   providerSetupCandidate?: WarmSmsProviderSetupCandidateKey | null
   configurationStatus: 'not_reviewed' | 'planned_disabled' | 'verified_disabled'
   configurationNote: string | null
+  noSendCanaryPassed?: boolean
   capabilityEvidence: Partial<Record<WarmSmsProviderCapabilityKey, {
     status: 'verified' | 'gap' | 'not_verified'
     evidence: string | null
@@ -526,6 +624,7 @@ export type WarmSmsProviderReadiness = {
   }
   setupReadiness: WarmSmsProviderSetupReadiness
   providerSelectionPlan: WarmSmsProviderSelectionPlan
+  telnyxActivationPlanningGate: WarmSmsTelnyxActivationPlanningGate
   transportReadiness: WarmSmsProviderTransportReadiness
   activationChecklist: WarmSmsProviderActivationChecklistItem[]
   noSendCanary: WarmSmsProviderNoSendCanaryReadiness
@@ -1038,6 +1137,223 @@ function buildWarmSmsTelnyxProviderReferencePlan(): WarmSmsTelnyxProviderReferen
       environmentVariablesChanged: false,
       migrationsApplied: false,
       productionDataMutation: false,
+      externalRequests: [],
+    },
+  }
+}
+
+function buildWarmSmsTelnyxActivationPlanningGate(args: {
+  noSendCanaryPassed: boolean
+}): WarmSmsTelnyxActivationPlanningGate {
+  const noSendCanaryState = args.noSendCanaryPassed ? 'passed' : 'pending'
+  const noSendCanaryStatus: WarmSmsTelnyxActivationPlanningGateStepStatus =
+    args.noSendCanaryPassed ? 'passed_no_send_canary' : 'pending_no_send_canary'
+  return {
+    version: 'warm-outreach-sms-telnyx-activation-planning-gate/v1',
+    state: args.noSendCanaryPassed
+      ? 'no_send_canary_passed_provider_activation_disabled'
+      : 'activation_planning_gate_active',
+    label: args.noSendCanaryPassed
+      ? 'No-send canary passed; Telnyx activation remains disabled'
+      : 'Telnyx activation planning gate active',
+    currentGate: 'telnyx_activation_planning_only',
+    referencePlanComplete: true,
+    activationPlanningGateActive: true,
+    envSetupPending: true,
+    noSendCanaryState,
+    providerActivationDisabled: true,
+    liveSendUnavailable: true,
+    activeBoundary: {
+      featureFlag: 'ENABLE_WARM_SMS_PROVIDER_EXECUTION',
+      requiredValue: false,
+      providerCallsEnabled: false,
+      smsDeliveryEnabled: false,
+      providerActivationEnabled: false,
+      liveCanaryEnabled: false,
+      perRecipientSendEnabled: false,
+    },
+    steps: [
+      {
+        key: 'reference_plan_complete',
+        label: 'Reference plan complete',
+        status: 'complete',
+        detail: 'PR #890 established the Telnyx provider reference and environment plan.',
+        externalActionEnabled: false,
+      },
+      {
+        key: 'activation_planning_gate_active',
+        label: 'Activation planning gate active',
+        status: 'active',
+        detail: 'This phase prepares operator review for later provider/env setup while execution stays disabled.',
+        externalActionEnabled: false,
+      },
+      {
+        key: 'provider_account_confirmation',
+        label: 'Provider account confirmation',
+        status: 'pending_vambah',
+        detail: 'Vambah must confirm the owned Telnyx account outside Portfolio before any secret or provider work.',
+        externalActionEnabled: false,
+      },
+      {
+        key: 'sender_profile_registration',
+        label: 'Sender/profile registration',
+        status: 'pending_vambah',
+        detail: 'Register or confirm the Telnyx sender/profile reference without exposing numbers in Portfolio.',
+        externalActionEnabled: false,
+      },
+      {
+        key: 'callback_url_readiness',
+        label: 'Callback URL readiness',
+        status: 'pending_captain',
+        detail: 'Plan delivery and opt-out callback URLs for a later captain-controlled implementation and smoke.',
+        externalActionEnabled: false,
+      },
+      {
+        key: 'secret_reference_placement',
+        label: 'Secret reference placement',
+        status: 'requires_current_vambah_approval',
+        detail: 'Secret-manager updates require current Vambah approval and are not performed in this phase.',
+        externalActionEnabled: false,
+      },
+      {
+        key: 'vercel_env_update_request',
+        label: 'Vercel env update request',
+        status: 'requires_current_vambah_approval',
+        detail: 'Vercel environment mutation requires current Vambah approval and a later captain gate.',
+        externalActionEnabled: false,
+      },
+      {
+        key: 'disabled_provider_config_verification',
+        label: 'Disabled provider config verification',
+        status: 'pending_captain',
+        detail: 'After redacted references exist, verify config with ENABLE_WARM_SMS_PROVIDER_EXECUTION=false.',
+        externalActionEnabled: false,
+      },
+      {
+        key: 'no_send_canary',
+        label: 'No-send canary',
+        status: noSendCanaryStatus,
+        detail: args.noSendCanaryPassed
+          ? 'A no-send canary receipt can be reviewed; provider activation and live SMS still require later approval.'
+          : 'Run only after disabled references are placed; it must show externalRequests: [] and no contact-data transmission.',
+        externalActionEnabled: false,
+      },
+      {
+        key: 'provider_activation_disabled',
+        label: 'Provider activation disabled',
+        status: 'disabled',
+        detail: 'Telnyx activation is unavailable until a later explicit provider activation approval.',
+        externalActionEnabled: false,
+      },
+      {
+        key: 'live_sms_canary_unavailable',
+        label: 'Live SMS canary unavailable',
+        status: 'unavailable',
+        detail: 'A live SMS canary is a separate later gate after provider activation approval.',
+        externalActionEnabled: false,
+      },
+      {
+        key: 'per_recipient_send_unavailable',
+        label: 'Per-recipient send unavailable',
+        status: 'unavailable',
+        detail: 'Every recipient still needs exact current SMS send approval before any future live attempt.',
+        externalActionEnabled: false,
+      },
+    ],
+    redactedReferences: [
+      {
+        key: 'TELNYX_ACCOUNT_REFERENCE',
+        status: 'planned_reference_only',
+        rawValueReturned: false,
+        detail: 'Owned account reference only; no account token, API key, or billing data is read.',
+      },
+      {
+        key: 'TELNYX_MESSAGING_PROFILE_REFERENCE',
+        status: 'planned_reference_only',
+        rawValueReturned: false,
+        detail: 'Messaging profile reference only; no provider dashboard data is fetched.',
+      },
+      {
+        key: 'TELNYX_SENDER_REFERENCE',
+        status: 'planned_reference_only',
+        rawValueReturned: false,
+        detail: 'Sender/profile reference only; raw phone numbers stay out of this packet.',
+      },
+      {
+        key: 'TELNYX_WEBHOOK_SIGNING_REFERENCE',
+        status: 'planned_reference_only',
+        rawValueReturned: false,
+        detail: 'Webhook signing reference only; no signing secret is read or shown.',
+      },
+      {
+        key: 'TELNYX_DELIVERY_CALLBACK_REFERENCE',
+        status: 'planned_reference_only',
+        rawValueReturned: false,
+        detail: 'Delivery callback reference only; no callback endpoint is activated here.',
+      },
+      {
+        key: 'TELNYX_OPT_OUT_CALLBACK_REFERENCE',
+        status: 'planned_reference_only',
+        rawValueReturned: false,
+        detail: 'Opt-out callback reference only; STOP handling remains a future implementation gate.',
+      },
+    ],
+    laterApprovalGates: [
+      {
+        key: 'vercel_env_mutation',
+        label: 'Vercel env mutation',
+        requiresCurrentVambahApproval: true,
+        enabledNow: false,
+        detail: 'Adding or changing Vercel env vars is outside this PR.',
+      },
+      {
+        key: 'secret_manager_update',
+        label: 'Secret manager update',
+        requiresCurrentVambahApproval: true,
+        enabledNow: false,
+        detail: 'Secret placement or rotation remains a later approved step.',
+      },
+      {
+        key: 'telnyx_provider_activation',
+        label: 'Telnyx provider activation',
+        requiresCurrentVambahApproval: true,
+        enabledNow: false,
+        detail: 'Provider activation requires explicit later approval after disabled config verification.',
+      },
+      {
+        key: 'provider_api_calls',
+        label: 'Provider API calls',
+        requiresCurrentVambahApproval: true,
+        enabledNow: false,
+        detail: 'No Telnyx API call, lookup, validation, or send is authorized by this planning gate.',
+      },
+      {
+        key: 'live_sms_canary',
+        label: 'Live SMS canary',
+        requiresCurrentVambahApproval: true,
+        enabledNow: false,
+        detail: 'A live canary is a separate future action after provider activation.',
+      },
+      {
+        key: 'per_recipient_sms_send',
+        label: 'Per-recipient SMS send',
+        requiresCurrentVambahApproval: true,
+        enabledNow: false,
+        detail: 'Each recipient send must be separately approved with contact, channel, message version, and idempotency key.',
+      },
+    ],
+    executionBoundary: {
+      providerCallsEnabled: false,
+      smsDeliveryEnabled: false,
+      credentialsRead: false,
+      secretManagerMutated: false,
+      environmentVariablesChanged: false,
+      vercelChanged: false,
+      migrationsApplied: false,
+      productionDataMutation: false,
+      slackDispatchEnabled: false,
+      gmailActionEnabled: false,
+      n8nDispatchEnabled: false,
       externalRequests: [],
     },
   }
@@ -1681,6 +1997,9 @@ export function buildWarmSmsProviderReadiness(
       externalRequests: [],
     },
   }
+  const telnyxActivationPlanningGate = buildWarmSmsTelnyxActivationPlanningGate({
+    noSendCanaryPassed: activation.noSendCanaryPassed === true,
+  })
 
   return {
     version: 'warm-outreach-sms-provider-readiness/v1',
@@ -1843,6 +2162,7 @@ export function buildWarmSmsProviderReadiness(
       },
     },
     providerSelectionPlan,
+    telnyxActivationPlanningGate,
     transportReadiness,
     activationChecklist,
     noSendCanary,

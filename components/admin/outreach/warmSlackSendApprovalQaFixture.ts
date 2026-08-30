@@ -865,7 +865,7 @@ export const warmSlackSendApprovalQaRelationshipPacket = {
     },
     providerReadiness: buildWarmSmsProviderReadiness({
       provider: {
-        name: 'Synthetic future SMS adapter',
+        name: 'Synthetic SMS provider',
         configured: true,
         enabled: false,
       },
@@ -892,8 +892,8 @@ export const warmSlackSendApprovalQaRelationshipPacket = {
       activation: {
         providerSelectionStatus: 'selected',
         providerSelectionNote:
-          'Synthetic future SMS adapter is the test-owned provider candidate recorded for architecture review.',
-        providerSetupCandidate: 'custom_disabled_adapter',
+          'Synthetic Telnyx reference is the test-owned provider candidate recorded for activation planning review.',
+        providerSetupCandidate: 'telnyx_messaging',
         configurationStatus: 'verified_disabled',
         configurationNote:
           'Synthetic disabled configuration is reviewed. No credentials, environment values, or provider settings were read or changed.',
@@ -926,11 +926,11 @@ export const warmSlackSendApprovalQaRelationshipPacket = {
         reviewedAt: timestamp,
       },
       transportConfig: {
-        SMS_PROVIDER_ADAPTER: 'custom_disabled_adapter',
-        SMS_PROVIDER_CREDENTIAL_REFERENCE: 'synthetic-secret-reference-only',
-        SMS_PROVIDER_SENDER_REFERENCE: 'synthetic-sender-reference-only',
-        SMS_PROVIDER_DELIVERY_CALLBACK: 'synthetic-delivery-callback-placeholder',
-        SMS_PROVIDER_OPT_OUT_CALLBACK: 'synthetic-opt-out-callback-placeholder',
+        SMS_PROVIDER_ADAPTER: 'telnyx_messaging',
+        SMS_PROVIDER_CREDENTIAL_REFERENCE: 'synthetic-telnyx-secret-reference-only',
+        SMS_PROVIDER_SENDER_REFERENCE: 'synthetic-telnyx-sender-reference-only',
+        SMS_PROVIDER_DELIVERY_CALLBACK: 'synthetic-telnyx-delivery-callback-placeholder',
+        SMS_PROVIDER_OPT_OUT_CALLBACK: 'synthetic-telnyx-opt-out-callback-placeholder',
         WARM_SMS_DELIVERY_CONFIRMATION_STORE: 'synthetic_delivery_confirmation_store',
         WARM_SMS_MESSAGE_VERSION_KEY: 'qa-sms-message-v1',
         WARM_SMS_IDEMPOTENCY_NAMESPACE: 'warm-sms-send:v1',

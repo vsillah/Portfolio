@@ -1481,6 +1481,35 @@ describe('RelationshipPacketPanel', () => {
     expect(document.querySelector('[data-sms-telnyx-reference-plan]')).toHaveTextContent(
       /confirm account, register sender, configure callbacks, store secret references, update Vercel later, run the no-send canary/i,
     )
+    expect(document.querySelector('[data-sms-telnyx-activation-planning]')).toHaveTextContent(
+      /Telnyx activation planning gate/i,
+    )
+    expect(document.querySelector('[data-sms-telnyx-activation-planning]')).toHaveTextContent(
+      /Reference plan complete; activation planning active; env setup pending; no-send canary pending; provider activation disabled; live SMS unavailable/i,
+    )
+    expect(document.querySelector('[data-sms-telnyx-gate-sequence]')).toHaveTextContent(
+      /Reference plan complete/i,
+    )
+    expect(document.querySelector('[data-sms-telnyx-gate-sequence]')).toHaveTextContent(
+      /Activation planning gate active/i,
+    )
+    expect(document.querySelector('[data-sms-telnyx-gate-sequence]')).toHaveTextContent(
+      /Vercel env update request/i,
+    )
+    const telnyxActivationDetails = document.querySelector('[data-sms-telnyx-activation-drill-in]')
+    expect(telnyxActivationDetails).not.toHaveAttribute('open')
+    expect(telnyxActivationDetails).toHaveTextContent(/TELNYX_ACCOUNT_REFERENCE/i)
+    expect(telnyxActivationDetails).toHaveTextContent(/TELNYX_MESSAGING_PROFILE_REFERENCE/i)
+    expect(telnyxActivationDetails).toHaveTextContent(/TELNYX_WEBHOOK_SIGNING_REFERENCE/i)
+    expect(telnyxActivationDetails).toHaveTextContent(/Vercel env mutation/i)
+    expect(telnyxActivationDetails).toHaveTextContent(/Secret manager update/i)
+    expect(telnyxActivationDetails).toHaveTextContent(/Telnyx provider activation/i)
+    expect(telnyxActivationDetails).toHaveTextContent(/Provider API calls/i)
+    expect(telnyxActivationDetails).toHaveTextContent(/Live SMS canary/i)
+    expect(telnyxActivationDetails).toHaveTextContent(/Per-recipient SMS send/i)
+    expect(telnyxActivationDetails).toHaveTextContent(
+      /No secret manager mutation, Vercel env mutation, Telnyx API call, Slack dispatch, Gmail action, n8n dispatch, migration, or production-data mutation occurred\. External requests 0/i,
+    )
     expect(document.querySelector('[data-sms-telnyx-env-plan]')).toHaveTextContent(
       /SMS_PROVIDER_CREDENTIAL_REFERENCE/i,
     )
@@ -1914,7 +1943,7 @@ describe('RelationshipPacketPanel', () => {
     expect(screen.getByText('Provider: configured / disabled')).toBeInTheDocument()
     expect(screen.getByText('SMS transport configured-ready; send remains off')).toBeInTheDocument()
     expect(document.querySelector('[data-sms-transport-readiness]')).toHaveTextContent(
-      /Custom disabled adapter/i,
+      /Telnyx Messaging/i,
     )
     expect(document.querySelector('[data-sms-transport-readiness]')).toHaveTextContent(
       /Sender: ready\. Capabilities: 6\/6/i,
@@ -1963,6 +1992,27 @@ describe('RelationshipPacketPanel', () => {
     expect(document.querySelector('[data-sms-telnyx-reference-plan]')).toHaveTextContent(
       /Telnyx activation requires later explicit approval and env work/i,
     )
+    expect(document.querySelector('[data-sms-telnyx-activation-planning]')).toHaveTextContent(
+      /Telnyx activation planning gate active/i,
+    )
+    expect(document.querySelector('[data-sms-telnyx-activation-planning]')).toHaveTextContent(
+      /env setup pending; no-send canary pending; provider activation disabled; live SMS unavailable/i,
+    )
+    expect(document.querySelector('[data-sms-telnyx-gate-sequence]')).toHaveTextContent(
+      /Secret reference placement/i,
+    )
+    expect(document.querySelector('[data-sms-telnyx-gate-sequence]')).toHaveTextContent(
+      /Disabled provider config verification/i,
+    )
+    const telnyxActivationDetails = document.querySelector('[data-sms-telnyx-activation-drill-in]')
+    expect(telnyxActivationDetails).not.toHaveAttribute('open')
+    expect(telnyxActivationDetails).toHaveTextContent(/TELNYX_ACCOUNT_REFERENCE/i)
+    expect(telnyxActivationDetails).toHaveTextContent(/Requires current Vambah approval\. Enabled now: no/i)
+    expect(telnyxActivationDetails).toHaveTextContent(/Provider API calls/i)
+    expect(telnyxActivationDetails).toHaveTextContent(/Per-recipient SMS send/i)
+    expect(telnyxActivationDetails).toHaveTextContent(
+      /ENABLE_WARM_SMS_PROVIDER_EXECUTION=false; provider calls off; SMS delivery off; Telnyx activation off; live canary off; per-recipient send off/i,
+    )
     fireEvent.click(screen.getByText('Activation requirements and audit evidence'))
     expect(document.querySelector('[data-sms-provider-selection-comparison]')).toHaveTextContent(
       /Telnyx Messaging · recommended/i,
@@ -1980,7 +2030,7 @@ describe('RelationshipPacketPanel', () => {
       /Ask the Integration Captain to review the activation packet/i,
     )
     expect(document.querySelector('[data-sms-activation-summary]')).toHaveTextContent(
-      /Synthetic future SMS adapter · selection selected · configuration verified disabled · capabilities 6\/6 verified · idempotency contract only/i,
+      /Synthetic SMS provider · selection selected · configuration verified disabled · capabilities 6\/6 verified · idempotency contract only/i,
     )
     expect(document.querySelectorAll('[data-sms-provider-capability]')).toHaveLength(6)
     expect(document.querySelector('[data-sms-transport-config-items]')).toHaveTextContent(

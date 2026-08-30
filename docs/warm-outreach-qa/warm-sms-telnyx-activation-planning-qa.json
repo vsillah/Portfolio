@@ -1,0 +1,173 @@
+{
+  "route": "http://127.0.0.1:3027/admin/outreach?tab=leads&filter=warm&id=42&contactId=42&qa=warm-slack-send-approval#warm-sms-readiness",
+  "screenshots": [
+    {
+      "name": "mobile-360",
+      "viewport": {
+        "width": 360,
+        "height": 800
+      },
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/6d49/Portfolio/docs/warm-outreach-qa/warm-sms-telnyx-activation-planning-mobile-360.png",
+      "horizontalOverflow": false,
+      "unexpectedRequests": [],
+      "hasPlanningGate": true,
+      "hasStateSeparation": true,
+      "hasCurrentGate": true,
+      "hasGateSequence": true,
+      "gateCount": 12,
+      "drillInCollapsed": true,
+      "hasRedactedReferences": true,
+      "hasLaterApprovalGates": true,
+      "hasBoundary": true,
+      "hasManualAndProviderSeparation": true,
+      "clientWidth": 360,
+      "scrollWidth": 360,
+      "pageHeight": 16580
+    },
+    {
+      "name": "mobile-390",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/6d49/Portfolio/docs/warm-outreach-qa/warm-sms-telnyx-activation-planning-mobile-390.png",
+      "horizontalOverflow": false,
+      "unexpectedRequests": [],
+      "hasPlanningGate": true,
+      "hasStateSeparation": true,
+      "hasCurrentGate": true,
+      "hasGateSequence": true,
+      "gateCount": 12,
+      "drillInCollapsed": true,
+      "hasRedactedReferences": true,
+      "hasLaterApprovalGates": true,
+      "hasBoundary": true,
+      "hasManualAndProviderSeparation": true,
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "pageHeight": 15608
+    },
+    {
+      "name": "mobile-430",
+      "viewport": {
+        "width": 430,
+        "height": 932
+      },
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/6d49/Portfolio/docs/warm-outreach-qa/warm-sms-telnyx-activation-planning-mobile-430.png",
+      "horizontalOverflow": false,
+      "unexpectedRequests": [],
+      "hasPlanningGate": true,
+      "hasStateSeparation": true,
+      "hasCurrentGate": true,
+      "hasGateSequence": true,
+      "gateCount": 12,
+      "drillInCollapsed": true,
+      "hasRedactedReferences": true,
+      "hasLaterApprovalGates": true,
+      "hasBoundary": true,
+      "hasManualAndProviderSeparation": true,
+      "clientWidth": 430,
+      "scrollWidth": 430,
+      "pageHeight": 14682
+    },
+    {
+      "name": "tablet-768",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/6d49/Portfolio/docs/warm-outreach-qa/warm-sms-telnyx-activation-planning-tablet-768.png",
+      "horizontalOverflow": false,
+      "unexpectedRequests": [],
+      "hasPlanningGate": true,
+      "hasStateSeparation": true,
+      "hasCurrentGate": true,
+      "hasGateSequence": true,
+      "gateCount": 12,
+      "drillInCollapsed": true,
+      "hasRedactedReferences": true,
+      "hasLaterApprovalGates": true,
+      "hasBoundary": true,
+      "hasManualAndProviderSeparation": true,
+      "clientWidth": 768,
+      "scrollWidth": 768,
+      "pageHeight": 9543
+    },
+    {
+      "name": "desktop-1440",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/6d49/Portfolio/docs/warm-outreach-qa/warm-sms-telnyx-activation-planning-desktop-1440.png",
+      "horizontalOverflow": false,
+      "unexpectedRequests": [],
+      "hasPlanningGate": true,
+      "hasStateSeparation": true,
+      "hasCurrentGate": true,
+      "hasGateSequence": true,
+      "gateCount": 12,
+      "drillInCollapsed": true,
+      "hasRedactedReferences": true,
+      "hasLaterApprovalGates": true,
+      "hasBoundary": true,
+      "hasManualAndProviderSeparation": true,
+      "clientWidth": 1440,
+      "scrollWidth": 1440,
+      "pageHeight": 7091
+    }
+  ],
+  "sourceFrames": [
+    "/Users/vambahsillah/.codex/worktrees/6d49/Portfolio/test-results/warm-sms-telnyx-activation-planning-qa/source/01-activation-planning-summary.png",
+    "/Users/vambahsillah/.codex/worktrees/6d49/Portfolio/test-results/warm-sms-telnyx-activation-planning-qa/source/02-gate-sequence.png",
+    "/Users/vambahsillah/.codex/worktrees/6d49/Portfolio/test-results/warm-sms-telnyx-activation-planning-qa/source/03-redacted-refs-and-approval-gates.png",
+    "/Users/vambahsillah/.codex/worktrees/6d49/Portfolio/test-results/warm-sms-telnyx-activation-planning-qa/source/04-no-send-canary-boundary.png",
+    "/Users/vambahsillah/.codex/worktrees/6d49/Portfolio/test-results/warm-sms-telnyx-activation-planning-qa/source/05-provider-activation-audit.png"
+  ],
+  "compositeFrames": [
+    "/Users/vambahsillah/.codex/worktrees/6d49/Portfolio/test-results/warm-sms-telnyx-activation-planning-qa/composite/frame-01.png",
+    "/Users/vambahsillah/.codex/worktrees/6d49/Portfolio/test-results/warm-sms-telnyx-activation-planning-qa/composite/frame-02.png",
+    "/Users/vambahsillah/.codex/worktrees/6d49/Portfolio/test-results/warm-sms-telnyx-activation-planning-qa/composite/frame-03.png",
+    "/Users/vambahsillah/.codex/worktrees/6d49/Portfolio/test-results/warm-sms-telnyx-activation-planning-qa/composite/frame-04.png",
+    "/Users/vambahsillah/.codex/worktrees/6d49/Portfolio/test-results/warm-sms-telnyx-activation-planning-qa/composite/frame-05.png"
+  ],
+  "mp4Path": "/Users/vambahsillah/.codex/worktrees/6d49/Portfolio/docs/warm-outreach-qa/warm-sms-telnyx-activation-planning-qa.mp4",
+  "externalRequests": [],
+  "networkPolicy": {
+    "allNonLocalRequestsBlockedBeforeDispatch": true,
+    "prohibitedProviderAndSendRoutesAborted": true,
+    "syntheticFixtureRoutesOnly": true
+  },
+  "boundaries": {
+    "referencePlanComplete": true,
+    "activationPlanningGateActive": true,
+    "envSetupPending": true,
+    "noSendCanaryState": "pending",
+    "providerActivationDisabled": true,
+    "liveSendUnavailable": true,
+    "telnyxProviderActivation": false,
+    "enableWarmSmsProviderExecution": false,
+    "smsProviderCalls": false,
+    "smsDelivery": false,
+    "smsSends": false,
+    "phoneImport": false,
+    "slackDispatch": false,
+    "gmailAction": false,
+    "n8nDispatch": false,
+    "secretManagerMutation": false,
+    "vercelEnvMutation": false,
+    "productionDataMutation": false,
+    "migrations": false,
+    "providerApiCalls": false,
+    "liveSmsCanary": false,
+    "perRecipientSmsSend": false,
+    "laterApprovalGates": [
+      "Vercel env mutation",
+      "Secret manager update",
+      "Telnyx provider activation",
+      "Provider API calls",
+      "Live SMS canary",
+      "Each per-recipient SMS send"
+    ]
+  }
+}
