@@ -97,6 +97,52 @@ export type WarmSmsProviderSelectionCandidate = {
   rawCredentialsReturned: false
 }
 
+export type WarmSmsTelnyxProviderReferencePlan = {
+  version: 'warm-outreach-sms-telnyx-provider-reference/v1'
+  providerKey: 'telnyx_messaging'
+  label: 'Telnyx Messaging reference plan'
+  status: 'planning_reference_only'
+  plannedAdapterValue: 'telnyx_messaging'
+  setupGates: Array<{
+    key:
+      | 'confirm_telnyx_account'
+      | 'register_sender'
+      | 'configure_delivery_callback'
+      | 'configure_opt_out_callback'
+      | 'store_secret_references'
+      | 'update_vercel_later'
+      | 'run_no_send_canary'
+      | 'enable_provider_later'
+      | 'per_recipient_send_approval'
+      | 'live_sms_canary'
+    label: string
+    state: 'vambah_owned' | 'later_captain_gate' | 'future_explicit_approval'
+    detail: string
+  }>
+  plannedEnvironment: Array<{
+    key: Exclude<WarmSmsProviderTransportConfigurationKey, 'SMS_PROVIDER_UNAVAILABLE_REASON'>
+    label: string
+    plannedValue: string
+    rawValueReturned: false
+    environmentMutated: false
+    detail: string
+  }>
+  workflowSeparation: Array<{
+    channel: 'manual_sms' | 'gmail' | 'slack' | 'provider_activation' | 'external_send'
+    label: string
+    boundary: string
+  }>
+  executionBoundary: {
+    providerCallsEnabled: false
+    smsDeliveryEnabled: false
+    credentialsRead: false
+    environmentVariablesChanged: false
+    migrationsApplied: false
+    productionDataMutation: false
+    externalRequests: []
+  }
+}
+
 export type WarmSmsProviderSelectionPlan = {
   version: 'warm-outreach-sms-provider-selection-plan/v1'
   recommendedProvider: {
@@ -114,6 +160,7 @@ export type WarmSmsProviderSelectionPlan = {
     'production env changes',
     'contact-data transmission',
   ]
+  telnyxReferencePlan: WarmSmsTelnyxProviderReferencePlan
   candidates: WarmSmsProviderSelectionCandidate[]
   decisionGate: {
     currentDecision: 'provider_selection_and_configuration_planning_only'
@@ -768,6 +815,7 @@ function buildWarmSmsProviderSelectionPlan(args: {
       'production env changes',
       'contact-data transmission',
     ],
+    telnyxReferencePlan: buildWarmSmsTelnyxProviderReferencePlan(),
     candidates: warmSmsProviderSetupCandidates.map((candidate) =>
       providerSelectionCandidate(candidate.key),
     ),
@@ -803,6 +851,196 @@ function providerCandidateFromConfig(value: string | null) {
   if (normalized === 'telnyx') return 'telnyx_messaging'
   if (normalized === 'messagebird' || normalized === 'bird') return 'messagebird_messaging'
   return warmSmsProviderSetupCandidates.find((candidate) => candidate.key === normalized)?.key ?? null
+}
+
+function buildWarmSmsTelnyxProviderReferencePlan(): WarmSmsTelnyxProviderReferencePlan {
+  return {
+    version: 'warm-outreach-sms-telnyx-provider-reference/v1',
+    providerKey: 'telnyx_messaging',
+    label: 'Telnyx Messaging reference plan',
+    status: 'planning_reference_only',
+    plannedAdapterValue: 'telnyx_messaging',
+    setupGates: [
+      {
+        key: 'confirm_telnyx_account',
+        label: 'Choose or confirm Telnyx account',
+        state: 'vambah_owned',
+        detail: 'Vambah confirms the owned account/profile outside Portfolio before any credential or provider setup work.',
+      },
+      {
+        key: 'register_sender',
+        label: 'Register sender',
+        state: 'vambah_owned',
+        detail: 'Confirm the compliant sender or messaging profile reference without exposing the sender value in this UI.',
+      },
+      {
+        key: 'configure_delivery_callback',
+        label: 'Configure delivery callback',
+        state: 'later_captain_gate',
+        detail: 'Plan where delivery receipts would land; no callback route is activated in this phase.',
+      },
+      {
+        key: 'configure_opt_out_callback',
+        label: 'Configure opt-out callback',
+        state: 'later_captain_gate',
+        detail: 'Plan STOP-style inbound handling so suppression wins before any future SMS prompt.',
+      },
+      {
+        key: 'store_secret_references',
+        label: 'Store secret references',
+        state: 'vambah_owned',
+        detail: 'Store credentials only through the approved secret manager later; this plan records reference names only.',
+      },
+      {
+        key: 'update_vercel_later',
+        label: 'Update Vercel later',
+        state: 'later_captain_gate',
+        detail: 'Vercel environment changes remain a later captain-controlled step, not part of this PR.',
+      },
+      {
+        key: 'run_no_send_canary',
+        label: 'Run no-send canary',
+        state: 'later_captain_gate',
+        detail: 'Run the existing no-send canary after the disabled references are reviewed; it must transmit no contact data.',
+      },
+      {
+        key: 'enable_provider_later',
+        label: 'Enable provider later',
+        state: 'future_explicit_approval',
+        detail: 'Provider execution requires explicit later activation; ENABLE_WARM_SMS_PROVIDER_EXECUTION remains false now.',
+      },
+      {
+        key: 'per_recipient_send_approval',
+        label: 'Per-recipient send approval',
+        state: 'future_explicit_approval',
+        detail: 'Every live attempt must match contact, SMS channel, message version, and idempotency key.',
+      },
+      {
+        key: 'live_sms_canary',
+        label: 'Live SMS canary',
+        state: 'future_explicit_approval',
+        detail: 'A live SMS canary is a separate later gate after provider activation and per-recipient authority.',
+      },
+    ],
+    plannedEnvironment: [
+      {
+        key: 'SMS_PROVIDER_ADAPTER',
+        label: 'Provider adapter',
+        plannedValue: 'telnyx_messaging planned',
+        rawValueReturned: false,
+        environmentMutated: false,
+        detail: 'Reference value only; do not write it to any environment in this phase.',
+      },
+      {
+        key: 'SMS_PROVIDER_CREDENTIAL_REFERENCE',
+        label: 'Credential reference',
+        plannedValue: 'redacted Telnyx credential reference planned',
+        rawValueReturned: false,
+        environmentMutated: false,
+        detail: 'Presence-only future secret reference; never paste or read the credential here.',
+      },
+      {
+        key: 'SMS_PROVIDER_SENDER_REFERENCE',
+        label: 'Sender reference',
+        plannedValue: 'redacted Telnyx sender/profile reference planned',
+        rawValueReturned: false,
+        environmentMutated: false,
+        detail: 'Presence-only sender/profile reference for later disabled setup review.',
+      },
+      {
+        key: 'SMS_PROVIDER_DELIVERY_CALLBACK',
+        label: 'Delivery callback',
+        plannedValue: 'delivery callback reference planned',
+        rawValueReturned: false,
+        environmentMutated: false,
+        detail: 'Future callback mapping only; no route is activated and no provider callback is accepted.',
+      },
+      {
+        key: 'SMS_PROVIDER_OPT_OUT_CALLBACK',
+        label: 'Opt-out callback',
+        plannedValue: 'opt-out callback reference planned',
+        rawValueReturned: false,
+        environmentMutated: false,
+        detail: 'Future STOP-style callback mapping only; no inbound provider event is processed.',
+      },
+      {
+        key: 'WARM_SMS_MESSAGE_VERSION_KEY',
+        label: 'Message version key',
+        plannedValue: 'planned stable message-version key',
+        rawValueReturned: false,
+        environmentMutated: false,
+        detail: 'Future per-recipient authority must bind to this message version.',
+      },
+      {
+        key: 'WARM_SMS_IDEMPOTENCY_NAMESPACE',
+        label: 'Idempotency namespace',
+        plannedValue: 'planned warm SMS idempotency namespace',
+        rawValueReturned: false,
+        environmentMutated: false,
+        detail: 'Future duplicate prevention namespace; no send route is implemented here.',
+      },
+      {
+        key: 'WARM_SMS_AUDIT_KEY',
+        label: 'Audit key',
+        plannedValue: 'planned audit evidence key',
+        rawValueReturned: false,
+        environmentMutated: false,
+        detail: 'Future consent, suppression, and delivery evidence key; raw phone and body stay excluded.',
+      },
+      {
+        key: 'WARM_SMS_DELIVERY_CONFIRMATION_STORE',
+        label: 'Delivery confirmation store',
+        plannedValue: 'planned delivery-confirmation store reference',
+        rawValueReturned: false,
+        environmentMutated: false,
+        detail: 'Future persistence reference for provider message ID and delivery status after a later attempt.',
+      },
+      {
+        key: 'ENABLE_WARM_SMS_PROVIDER_EXECUTION',
+        label: 'Execution flag',
+        plannedValue: 'false',
+        rawValueReturned: false,
+        environmentMutated: false,
+        detail: 'Must remain false through this reference and no-send canary phase.',
+      },
+    ],
+    workflowSeparation: [
+      {
+        channel: 'manual_sms',
+        label: 'Manual SMS',
+        boundary: 'Manual copy/evidence remains local and separate from provider activation.',
+      },
+      {
+        channel: 'gmail',
+        label: 'Gmail',
+        boundary: 'Gmail draft, canary, and send gates do not authorize SMS.',
+      },
+      {
+        channel: 'slack',
+        label: 'Slack',
+        boundary: 'Slack approval recording is separate from SMS provider setup and delivery.',
+      },
+      {
+        channel: 'provider_activation',
+        label: 'Provider activation',
+        boundary: 'Telnyx activation requires later explicit approval and env work.',
+      },
+      {
+        channel: 'external_send',
+        label: 'External send',
+        boundary: 'A live SMS requires current per-recipient send approval plus a live canary gate.',
+      },
+    ],
+    executionBoundary: {
+      providerCallsEnabled: false,
+      smsDeliveryEnabled: false,
+      credentialsRead: false,
+      environmentVariablesChanged: false,
+      migrationsApplied: false,
+      productionDataMutation: false,
+      externalRequests: [],
+    },
+  }
 }
 
 export function parseWarmSmsProviderTransportConfig(

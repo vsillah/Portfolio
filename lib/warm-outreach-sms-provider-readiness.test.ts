@@ -587,6 +587,45 @@ describe('warm SMS provider readiness', () => {
         'production env changes',
         'contact-data transmission',
       ],
+      telnyxReferencePlan: {
+        version: 'warm-outreach-sms-telnyx-provider-reference/v1',
+        providerKey: 'telnyx_messaging',
+        status: 'planning_reference_only',
+        plannedAdapterValue: 'telnyx_messaging',
+        plannedEnvironment: expect.arrayContaining([
+          expect.objectContaining({
+            key: 'SMS_PROVIDER_ADAPTER',
+            plannedValue: 'telnyx_messaging planned',
+            rawValueReturned: false,
+            environmentMutated: false,
+          }),
+          expect.objectContaining({
+            key: 'SMS_PROVIDER_CREDENTIAL_REFERENCE',
+            rawValueReturned: false,
+            environmentMutated: false,
+          }),
+          expect.objectContaining({ key: 'SMS_PROVIDER_SENDER_REFERENCE' }),
+          expect.objectContaining({ key: 'SMS_PROVIDER_DELIVERY_CALLBACK' }),
+          expect.objectContaining({ key: 'SMS_PROVIDER_OPT_OUT_CALLBACK' }),
+          expect.objectContaining({ key: 'WARM_SMS_MESSAGE_VERSION_KEY' }),
+          expect.objectContaining({ key: 'WARM_SMS_IDEMPOTENCY_NAMESPACE' }),
+          expect.objectContaining({ key: 'WARM_SMS_AUDIT_KEY' }),
+          expect.objectContaining({ key: 'WARM_SMS_DELIVERY_CONFIRMATION_STORE' }),
+          expect.objectContaining({
+            key: 'ENABLE_WARM_SMS_PROVIDER_EXECUTION',
+            plannedValue: 'false',
+          }),
+        ]),
+        executionBoundary: {
+          providerCallsEnabled: false,
+          smsDeliveryEnabled: false,
+          credentialsRead: false,
+          environmentVariablesChanged: false,
+          migrationsApplied: false,
+          productionDataMutation: false,
+          externalRequests: [],
+        },
+      },
       decisionGate: {
         currentDecision: 'provider_selection_and_configuration_planning_only',
         nextRequiredApproval: 'explicit_sms_provider_activation_approval',
@@ -632,6 +671,27 @@ describe('warm SMS provider readiness', () => {
           recommendation: 'review_only',
           blockers: expect.arrayContaining(['Not acceptable for live SMS activation.']),
         }),
+      ]),
+    )
+    expect(readiness.providerSelectionPlan.telnyxReferencePlan.setupGates.map((gate) => gate.key)).toEqual([
+      'confirm_telnyx_account',
+      'register_sender',
+      'configure_delivery_callback',
+      'configure_opt_out_callback',
+      'store_secret_references',
+      'update_vercel_later',
+      'run_no_send_canary',
+      'enable_provider_later',
+      'per_recipient_send_approval',
+      'live_sms_canary',
+    ])
+    expect(readiness.providerSelectionPlan.telnyxReferencePlan.workflowSeparation).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ channel: 'manual_sms' }),
+        expect.objectContaining({ channel: 'gmail' }),
+        expect.objectContaining({ channel: 'slack' }),
+        expect.objectContaining({ channel: 'provider_activation' }),
+        expect.objectContaining({ channel: 'external_send' }),
       ]),
     )
     expect(readiness.transportReadiness).toMatchObject({
