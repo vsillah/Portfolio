@@ -1436,6 +1436,49 @@ describe('RelationshipPacketPanel', () => {
     expect(document.querySelector('[data-sms-no-send-canary]')).toHaveTextContent(
       /Provider calls: off\. SMS delivery: off\. Env changed: no\. External requests: 0/i,
     )
+    expect(screen.getByText('Live Telnyx one-recipient readiness')).toBeInTheDocument()
+    expect(document.querySelector('[data-sms-live-telnyx-readiness]')).toHaveTextContent(
+      /no-send canary passed, credential\/provider smoke available, explicit per-recipient send approval, then live one-recipient SMS execution/i,
+    )
+    expect(document.querySelector('[data-sms-live-telnyx-readiness]')).toHaveTextContent(
+      /This screen shows readiness only; it does not render a live-send button/i,
+    )
+    expect(document.querySelector('[data-sms-live-sequence]')).toHaveTextContent(
+      /No-send canary passed/i,
+    )
+    expect(document.querySelector('[data-sms-live-sequence]')).toHaveTextContent(
+      /Credential\/provider smoke available/i,
+    )
+    expect(document.querySelector('[data-sms-live-sequence]')).toHaveTextContent(
+      /Explicit per-recipient send approval/i,
+    )
+    expect(document.querySelector('[data-sms-live-sequence]')).toHaveTextContent(
+      /Live one-recipient SMS execution/i,
+    )
+    expect(document.querySelector('[data-sms-live-recovery-states]')).toHaveTextContent(
+      /Missing 1Password credential/i,
+    )
+    expect(document.querySelector('[data-sms-live-recovery-states]')).toHaveTextContent(
+      /Missing sender\/profile/i,
+    )
+    expect(document.querySelector('[data-sms-live-recovery-states]')).toHaveTextContent(
+      /Execution flag disabled/i,
+    )
+    expect(document.querySelector('[data-sms-live-recovery-states]')).toHaveTextContent(
+      /Consent\/suppression failure/i,
+    )
+    expect(document.querySelector('[data-sms-live-recovery-states]')).toHaveTextContent(
+      /Duplicate idempotency key/i,
+    )
+    expect(document.querySelector('[data-sms-live-recovery-states]')).toHaveTextContent(
+      /Absent per-recipient approval/i,
+    )
+    expect(document.querySelector('[data-sms-live-route-contract]')).toHaveTextContent(
+      /POST \/api\/admin\/outreach\/leads\/\[id\]\/sms-telnyx-live-send requires execute_warm_sms_send_for_authorized_recipient; generic proceed is rejected/i,
+    )
+    expect(document.querySelector('[data-sms-live-route-contract]')).toHaveTextContent(
+      /no live SMS from this UI, no secret values returned, no raw phone shown, no raw message body shown, and no provider request during readiness QA/i,
+    )
     const criticalBoundaries = [...document.querySelectorAll('[data-sms-provider-critical-boundary]')]
       .map((element) => element.textContent)
     expect(criticalBoundaries).toEqual(expect.arrayContaining([

@@ -85,6 +85,8 @@ export interface GmailDraftCanaryResult {
 
 export type SmsTelnyxNoSendCanaryResult = WarmSmsTelnyxNoSendCanaryResult
 
+const WARM_SMS_SEND_AUTHORIZATION = 'execute_warm_sms_send_for_authorized_recipient'
+
 interface RelationshipPacketPanelProps {
   loading: boolean
   error: string | null
@@ -1409,6 +1411,14 @@ function smsTelnyxActivationPlanningStepClasses(
   return 'border-amber-500/25 bg-amber-500/10 text-amber-100'
 }
 
+function smsLiveExecutionGateClasses(status: 'passed' | 'available' | 'required' | 'blocked') {
+  if (status === 'passed' || status === 'available') {
+    return 'border-emerald-500/25 bg-emerald-500/10 text-emerald-100'
+  }
+  if (status === 'required') return 'border-sky-500/25 bg-sky-500/10 text-sky-100'
+  return 'border-red-500/25 bg-red-500/10 text-red-100'
+}
+
 function SmsManualOutreachCard({
   readiness,
   smsTelnyxCanaryLoading = false,
@@ -1472,6 +1482,91 @@ function SmsManualOutreachCard({
   const telnyxActivationPlanningGate = providerReadiness.telnyxActivationPlanningGate
   const transportReadiness = providerReadiness.transportReadiness
   const noSendCanary = providerReadiness.noSendCanary
+  const credentialReadiness = transportReadiness.credentialReadiness ?? {
+    status: 'missing' as const,
+    credentialReferenceRecorded: false,
+    runtimeCredentialAvailable: false,
+    rawCredentialsReturned: false,
+    detail: 'Credential readiness must be rechecked by the guarded live route.',
+  }
+  const smsLiveNoSendPassed =
+    smsTelnyxCanaryResult?.status === 'passed_no_send' ||
+    noSendCanary.state === 'ready_no_send_simulation'
+  const smsLiveProviderSmokeAvailable =
+    smsLiveNoSendPassed &&
+    transportReadiness.selectedProvider.key === 'telnyx_messaging' &&
+    credentialReadiness.credentialReferenceRecorded &&
+    transportReadiness.senderReadiness.senderReferenceRecorded &&
+    transportReadiness.capabilityReadiness.status === 'ready'
+  const smsLiveSequence = [
+    {
+      key: 'no_send_canary_passed',
+      label: 'No-send canary passed',
+      status: smsLiveNoSendPassed ? 'passed' as const : 'blocked' as const,
+      detail:
+        'The canary must pass with no Telnyx API call, no SMS delivery, and externalRequests: 0.',
+    },
+    {
+      key: 'credential_provider_smoke',
+      label: 'Credential/provider smoke available',
+      status: smsLiveProviderSmokeAvailable ? 'available' as const : 'blocked' as const,
+      detail:
+        'Telnyx credential reference, runtime secret availability, sender/profile, callbacks, and capability evidence must be verified by the guarded route.',
+    },
+    {
+      key: 'per_recipient_send_approval',
+      label: 'Explicit per-recipient send approval',
+      status: 'required' as const,
+      detail:
+        'Stored approval must match the contact, queue/message row, SMS channel, message version, idempotency key, and submitted evidence key.',
+    },
+    {
+      key: 'live_one_recipient_sms_execution',
+      label: 'Live one-recipient SMS execution',
+      status: 'blocked' as const,
+      detail:
+        'No live-send button is rendered in this phase. The route remains blocked until provider activation and exact recipient authority pass.',
+    },
+  ]
+  const smsLiveRecoveryStates = [
+    {
+      label: 'Missing 1Password credential',
+      blocked: !credentialReadiness.credentialReferenceRecorded,
+      recovery:
+        'Confirm the Telnyx credential through the approved secret path; never paste or expose the raw credential here.',
+    },
+    {
+      label: 'Missing sender/profile',
+      blocked: !transportReadiness.senderReadiness.senderReferenceRecorded,
+      recovery:
+        'Record the approved Telnyx sender or messaging-profile reference before any provider attempt.',
+    },
+    {
+      label: 'Execution flag disabled',
+      blocked: true,
+      recovery:
+        'ENABLE_WARM_SMS_PROVIDER_EXECUTION stays disabled until captain activation approval.',
+    },
+    {
+      label: 'Consent/suppression failure',
+      blocked: providerReadiness.consentAndSuppression.status !== 'clear',
+      recovery:
+        providerReadiness.consentAndSuppression.blockers[0] ??
+        'Resolve recipient safety evidence before live-send readiness.',
+    },
+    {
+      label: 'Duplicate idempotency key',
+      blocked: false,
+      recovery:
+        'The guarded route checks existing submitted evidence and returns existing attempt evidence without resending.',
+    },
+    {
+      label: 'Absent per-recipient approval',
+      blocked: true,
+      recovery:
+        'Approval must be stored for this exact contact, queue row, SMS channel, message version, idempotency key, and submitted evidence key.',
+    },
+  ]
   const providerChecksPassed = providerReadiness.consentAndSuppression.checks
     .filter((check) => check.status === 'passed').length
   const providerChecksTotal = providerReadiness.consentAndSuppression.checks.length
@@ -2009,6 +2104,67 @@ function SmsManualOutreachCard({
               )}
             </div>
           )}
+        </div>
+
+        <div
+          data-sms-live-telnyx-readiness
+          className="mt-2 rounded-md border border-sky-400/25 bg-sky-400/10 p-2.5 text-sky-50"
+        >
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0">
+              <p className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wide">
+                <Send size={13} aria-hidden />
+                Live Telnyx one-recipient readiness
+              </p>
+              <p className="mt-1 text-sm font-semibold">No-send passed before live-send authority</p>
+              <p className="mt-1 text-[10px] leading-4 opacity-85">
+                Sequence: no-send canary passed, credential/provider smoke available, explicit per-recipient send approval, then live one-recipient SMS execution. This screen shows readiness only; it does not render a live-send button.
+              </p>
+            </div>
+            <span className="inline-flex min-h-7 w-fit shrink-0 items-center rounded-full border border-current/25 bg-background/25 px-2 py-0.5 text-[10px] font-semibold">
+              Live SMS blocked
+            </span>
+          </div>
+          <div data-sms-live-sequence className="mt-2 grid gap-1.5 sm:grid-cols-2 xl:grid-cols-4">
+            {smsLiveSequence.map((step) => (
+              <div
+                key={step.key}
+                className={`min-w-0 rounded-md border p-2 ${smsLiveExecutionGateClasses(step.status)}`}
+              >
+                <p className="text-[10px] font-semibold uppercase tracking-wide">{step.label}</p>
+                <p className="mt-1 text-[10px] leading-3">{step.status}</p>
+                <p className="mt-1 text-[10px] leading-4 opacity-85">{step.detail}</p>
+              </div>
+            ))}
+          </div>
+          <div data-sms-live-recovery-states className="mt-2 grid gap-1.5 sm:grid-cols-2 xl:grid-cols-3">
+            {smsLiveRecoveryStates.map((state) => (
+              <div
+                key={state.label}
+                className={`rounded-md border p-2 ${
+                  state.blocked
+                    ? 'border-amber-400/30 bg-amber-400/10 text-amber-50'
+                    : 'border-silicon-slate bg-background/20 text-muted-foreground'
+                }`}
+              >
+                <p className="text-[10px] font-semibold uppercase tracking-wide">{state.label}</p>
+                <p className="mt-1 text-[10px] leading-4">{state.blocked ? 'Blocked now' : 'Checked by route'}</p>
+                <p className="mt-1 text-[10px] leading-4 opacity-85">{state.recovery}</p>
+              </div>
+            ))}
+          </div>
+          <div data-sms-live-route-contract className="mt-2 rounded-md border border-current/20 bg-background/25 p-2 text-[10px] leading-4">
+            <p className="font-semibold uppercase tracking-wide">Guarded route contract</p>
+            <p className="mt-1 break-words">
+              POST /api/admin/outreach/leads/[id]/sms-telnyx-live-send requires {WARM_SMS_SEND_AUTHORIZATION}; generic proceed is rejected.
+            </p>
+            <p className="mt-1 opacity-85">
+              Required match: contact id, queue/message id, channel sms, message version, idempotency key, submitted evidence key, consent/suppression snapshot, Telnyx capability verification, runtime credential, sender/profile, and ENABLE_WARM_SMS_PROVIDER_EXECUTION=true.
+            </p>
+            <p className="mt-1 opacity-85">
+              Boundary: no live SMS from this UI, no secret values returned, no raw phone shown, no raw message body shown, and no provider request during readiness QA.
+            </p>
+          </div>
         </div>
 
         <details
