@@ -7,6 +7,11 @@ import {
   type WarmSmsProviderReadiness,
   type WarmSmsProviderReadinessInput,
 } from './warm-outreach-sms-provider-readiness'
+import {
+  buildWarmSmsCandidateReview,
+  type WarmSmsCandidateQueueRow,
+  type WarmSmsCandidateReview,
+} from './warm-outreach-sms-candidate'
 
 export const warmSmsTemplateFamilies = [
   'prior_collaborator',
@@ -204,6 +209,7 @@ export type WarmSmsReadiness = {
     genericProceedAccepted: false
   }
   providerReadiness: WarmSmsProviderReadiness
+  candidateReview: WarmSmsCandidateReview
   operatorNextAction: string
   recoveryStep: string | null
   executionBoundary: {
@@ -460,6 +466,7 @@ export function buildWarmSmsReadiness(args: {
   packet: WarmOutreachRelationshipPacket
   readiness: WarmOutreachReadiness
   providerReadiness?: WarmSmsProviderReadinessInput
+  queueRows?: WarmSmsCandidateQueueRow[]
 }): WarmSmsReadiness {
   const packet = args.packet
   const phoneCapability = packet.channelCapabilities.phone_contact
@@ -520,7 +527,7 @@ export function buildWarmSmsReadiness(args: {
     now: new Date().toISOString(),
   })
 
-  return {
+  const readinessPayload: Omit<WarmSmsReadiness, 'candidateReview'> = {
     version: 'warm-outreach-sms-readiness/v1',
     contactId: String(packet.contactId),
     contactName: packet.contactName ?? null,
@@ -673,5 +680,13 @@ export function buildWarmSmsReadiness(args: {
       n8nDispatch: false,
       productionDataMutation: false,
     },
+  }
+
+  return {
+    ...readinessPayload,
+    candidateReview: buildWarmSmsCandidateReview({
+      readiness: readinessPayload,
+      queueRows: args.queueRows,
+    }),
   }
 }
