@@ -1407,6 +1407,20 @@ describe('RelationshipPacketPanel', () => {
     expect(screen.getByText('No SMS provider')).toBeInTheDocument()
     expect(screen.getByText('Warm SMS provider readiness · activation architecture')).toBeInTheDocument()
     expect(screen.getByText('SMS consent or suppression checks not satisfied')).toBeInTheDocument()
+    expect(screen.getByText('Provider transport contract')).toBeInTheDocument()
+    expect(screen.getByText('SMS transport blocked by recipient or safety gates')).toBeInTheDocument()
+    expect(document.querySelector('[data-sms-transport-readiness]')).toHaveTextContent(
+      /This phase records readiness only\. It does not send SMS, activate a provider, mutate env, or call an external service/i,
+    )
+    expect(document.querySelector('[data-sms-transport-readiness]')).toHaveTextContent(
+      /Selected provider/i,
+    )
+    expect(document.querySelector('[data-sms-transport-readiness]')).toHaveTextContent(
+      /Delivery confirmation/i,
+    )
+    expect(document.querySelector('[data-sms-transport-next-action]')).toHaveTextContent(
+      /Verified phone provenance and a source note are required/i,
+    )
     const criticalBoundaries = [...document.querySelectorAll('[data-sms-provider-critical-boundary]')]
       .map((element) => element.textContent)
     expect(criticalBoundaries).toEqual(expect.arrayContaining([
@@ -1470,6 +1484,9 @@ describe('RelationshipPacketPanel', () => {
     )
     expect(document.querySelector('[data-sms-recovery-path]')).toHaveTextContent(
       /current per-recipient approval matched to the message version and idempotency key/i,
+    )
+    expect(document.querySelector('[data-sms-transport-config-items]')).toHaveTextContent(
+      /External requests: 0\. Credentials read: no\. Environment variables changed: no/i,
     )
     expect(screen.getByText(/Phone: present from contact_submissions.phone_number/)).toBeInTheDocument()
     expect(screen.getByText('Phone number present')).toBeInTheDocument()
@@ -1790,6 +1807,16 @@ describe('RelationshipPacketPanel', () => {
     expect(screen.getByText('SMS provider configured but disabled')).toBeInTheDocument()
     expect(screen.getByText('Provider configured · disabled')).toBeInTheDocument()
     expect(screen.getByText('Provider: configured / disabled')).toBeInTheDocument()
+    expect(screen.getByText('SMS transport configured but disabled')).toBeInTheDocument()
+    expect(document.querySelector('[data-sms-transport-readiness]')).toHaveTextContent(
+      /Custom disabled adapter/i,
+    )
+    expect(document.querySelector('[data-sms-transport-readiness]')).toHaveTextContent(
+      /Sender: missing\. Capabilities: 2\/6/i,
+    )
+    expect(document.querySelector('[data-sms-transport-readiness]')).toHaveTextContent(
+      /Provider message ID: placeholder only\. Delivery status: placeholder only/i,
+    )
     expect(screen.getByText('Generic proceed: rejected')).toBeInTheDocument()
     expect(screen.getByText('Approval: per-recipient required')).toBeInTheDocument()
     expect(screen.getByTestId('warm-sms-activation-next-step')).toHaveTextContent(
@@ -1799,6 +1826,9 @@ describe('RelationshipPacketPanel', () => {
       /Synthetic future SMS adapter · selection selected · configuration planned disabled · capabilities 2\/6 verified · idempotency contract only/i,
     )
     expect(document.querySelectorAll('[data-sms-provider-capability]')).toHaveLength(6)
+    expect(document.querySelector('[data-sms-transport-config-items]')).toHaveTextContent(
+      /External requests: 0\. Credentials read: no\. Environment variables changed: no/i,
+    )
     expect(screen.getByTestId('warm-sms-provider-details')).not.toHaveAttribute('open')
     expect(screen.getByText('Manual SMS operating loop')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Approve' })).toBeEnabled()

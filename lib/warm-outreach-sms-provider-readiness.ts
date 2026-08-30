@@ -87,6 +87,13 @@ export type WarmSmsProviderSetupReadinessState =
   | 'setup_audit_required'
   | 'setup_ready_activation_disabled'
 
+export type WarmSmsProviderTransportReadinessState =
+  | 'not_configured'
+  | 'configured_disabled'
+  | 'configured_ready'
+  | 'blocked'
+  | 'unavailable'
+
 export type WarmSmsProviderSetupConfigurationKey =
   | 'SMS_PROVIDER_ADAPTER'
   | 'SMS_PROVIDER_CREDENTIAL_REFERENCE'
@@ -94,6 +101,14 @@ export type WarmSmsProviderSetupConfigurationKey =
   | 'SMS_PROVIDER_DELIVERY_CALLBACK'
   | 'SMS_PROVIDER_OPT_OUT_CALLBACK'
   | 'ENABLE_WARM_SMS_PROVIDER_EXECUTION'
+
+export type WarmSmsProviderTransportConfigurationKey =
+  | WarmSmsProviderSetupConfigurationKey
+  | 'WARM_SMS_MESSAGE_VERSION_KEY'
+  | 'WARM_SMS_IDEMPOTENCY_NAMESPACE'
+  | 'WARM_SMS_AUDIT_KEY'
+  | 'WARM_SMS_DELIVERY_CONFIRMATION_STORE'
+  | 'SMS_PROVIDER_UNAVAILABLE_REASON'
 
 export type WarmSmsProviderSetupConfigurationStatus =
   | 'missing'
@@ -106,6 +121,111 @@ export type WarmSmsProviderSetupConfigurationItem = {
   status: WarmSmsProviderSetupConfigurationStatus
   rawValueReturned: false
   detail: string
+}
+
+export type WarmSmsProviderTransportConfigInput = Partial<
+  Record<WarmSmsProviderTransportConfigurationKey, string | boolean | null | undefined>
+>
+
+export type WarmSmsProviderTransportConfigSnapshot = {
+  version: 'warm-outreach-sms-transport-config/v1'
+  state: WarmSmsProviderTransportReadinessState
+  selectedProvider: {
+    key: WarmSmsProviderSetupCandidateKey | null
+    label: string
+    configured: boolean
+    unavailable: boolean
+    rawValueReturned: false
+  }
+  senderReferenceRecorded: boolean
+  credentialReferenceRecorded: boolean
+  deliveryCallbackRecorded: boolean
+  optOutCallbackRecorded: boolean
+  executionFlagEnabled: boolean
+  messageVersionKey: string
+  idempotencyNamespace: string
+  auditKey: string
+  deliveryConfirmationStoreMapped: boolean
+  unavailableReason: string | null
+  blockers: string[]
+  configItems: Array<{
+    key: WarmSmsProviderTransportConfigurationKey
+    label: string
+    status: 'present_redacted' | 'missing' | 'disabled' | 'blocked'
+    rawValueReturned: false
+    detail: string
+  }>
+  externalRequests: []
+}
+
+export type WarmSmsProviderTransportReadiness = {
+  version: 'warm-outreach-sms-provider-transport-readiness/v1'
+  state: WarmSmsProviderTransportReadinessState
+  label: string
+  selectedProvider: WarmSmsProviderTransportConfigSnapshot['selectedProvider']
+  senderReadiness: {
+    status: 'missing' | 'ready' | 'blocked' | 'unavailable'
+    senderReferenceRecorded: boolean
+    rawSenderReturned: false
+    detail: string
+  }
+  capabilityReadiness: {
+    status: 'missing' | 'partial' | 'ready' | 'blocked'
+    verified: number
+    total: number
+    required: WarmSmsProviderCapabilityKey[]
+    detail: string
+  }
+  consentSuppressionRequirements: {
+    required: true
+    met: boolean
+    suppressionClear: boolean
+    phoneProvenanceVerified: boolean
+    permissionDocumented: boolean
+    auditTimestampValid: boolean
+  }
+  auditAndIdempotency: {
+    messageVersionKey: string
+    idempotencyNamespace: string
+    auditKey: string
+    idempotencyKeyPreview: string
+    rawPhoneStored: false
+    rawMessageBodyStored: false
+    recordBeforeProviderAttempt: true
+    duplicatePolicy: 'return_existing_attempt_evidence_without_resend'
+    requiredBeforeAttempt: [
+      'consent_snapshot',
+      'suppression_snapshot',
+      'current_per_recipient_approval',
+      'message_version',
+      'idempotency_key',
+    ]
+  }
+  deliveryConfirmation: {
+    status: 'placeholder_only'
+    deliveryStoreMapped: boolean
+    providerMessageId: null
+    deliveryStatus: null
+    requiredAfterFutureAttempt: [
+      'attempt_timestamp',
+      'provider_message_id',
+      'delivery_status',
+      'result_classification',
+    ]
+    detail: string
+  }
+  blockedReasons: string[]
+  nextAction: string
+  executionBoundary: {
+    providerCallsEnabled: false
+    smsDeliveryEnabled: false
+    providerActivationEnabled: false
+    routeImplemented: false
+    featureFlagEnabled: false
+    credentialsRead: false
+    environmentVariablesChanged: false
+    externalRequests: []
+  }
 }
 
 export type WarmSmsProviderSetupReadiness = {
@@ -187,6 +307,7 @@ export type WarmSmsProviderReadinessInput = {
     approvedForProviderDraftCreation: boolean
   }
   activation?: WarmSmsProviderActivationInput
+  transportConfig?: WarmSmsProviderTransportConfigInput
   now: string
 }
 
@@ -244,6 +365,7 @@ export type WarmSmsProviderReadiness = {
     externalSendEnabled: false
   }
   setupReadiness: WarmSmsProviderSetupReadiness
+  transportReadiness: WarmSmsProviderTransportReadiness
   activationReadiness: {
     version: 'warm-outreach-sms-provider-activation-readiness/v1'
     state:
@@ -365,6 +487,140 @@ function providerSetupCandidateFor(
 function setupCandidateLabel(candidateKey: WarmSmsProviderSetupCandidateKey | null) {
   return warmSmsProviderSetupCandidates.find((candidate) => candidate.key === candidateKey)?.label ??
     'No provider path selected'
+}
+
+function transportConfigValue(
+  config: WarmSmsProviderTransportConfigInput,
+  key: WarmSmsProviderTransportConfigurationKey,
+) {
+  const value = config[key]
+  if (typeof value === 'boolean') return value ? 'true' : 'false'
+  return normalizedNote(value ?? null)
+}
+
+function transportFlagEnabled(value: string | null) {
+  return /^(1|true|yes|on|enabled)$/i.test(value ?? '')
+}
+
+function providerCandidateFromConfig(value: string | null) {
+  if (!value) return null
+  const normalized = value.toLowerCase().replace(/[\s-]+/g, '_')
+  if (normalized === 'twilio') return 'twilio_messaging'
+  if (normalized === 'telnyx') return 'telnyx_messaging'
+  if (normalized === 'messagebird' || normalized === 'bird') return 'messagebird_messaging'
+  return warmSmsProviderSetupCandidates.find((candidate) => candidate.key === normalized)?.key ?? null
+}
+
+export function parseWarmSmsProviderTransportConfig(
+  config: WarmSmsProviderTransportConfigInput = {},
+): WarmSmsProviderTransportConfigSnapshot {
+  const adapterValue = transportConfigValue(config, 'SMS_PROVIDER_ADAPTER')
+  const providerKey = providerCandidateFromConfig(adapterValue)
+  const senderReferenceRecorded = Boolean(transportConfigValue(config, 'SMS_PROVIDER_SENDER_REFERENCE'))
+  const credentialReferenceRecorded = Boolean(transportConfigValue(config, 'SMS_PROVIDER_CREDENTIAL_REFERENCE'))
+  const deliveryCallbackRecorded = Boolean(transportConfigValue(config, 'SMS_PROVIDER_DELIVERY_CALLBACK'))
+  const optOutCallbackRecorded = Boolean(transportConfigValue(config, 'SMS_PROVIDER_OPT_OUT_CALLBACK'))
+  const deliveryConfirmationStoreMapped = Boolean(
+    transportConfigValue(config, 'WARM_SMS_DELIVERY_CONFIRMATION_STORE'),
+  )
+  const executionFlagEnabled = transportFlagEnabled(
+    transportConfigValue(config, 'ENABLE_WARM_SMS_PROVIDER_EXECUTION'),
+  )
+  const unavailableReason = transportConfigValue(config, 'SMS_PROVIDER_UNAVAILABLE_REASON')
+  const messageVersionKey =
+    transportConfigValue(config, 'WARM_SMS_MESSAGE_VERSION_KEY') ?? 'pending-message-version'
+  const idempotencyNamespace =
+    transportConfigValue(config, 'WARM_SMS_IDEMPOTENCY_NAMESPACE') ?? 'warm-sms-send:v1'
+  const auditKey =
+    transportConfigValue(config, 'WARM_SMS_AUDIT_KEY') ?? 'warm-sms-transport-audit:v1:pending'
+  const missingRequired = [
+    ...(!credentialReferenceRecorded ? ['Credential reference is not recorded.'] : []),
+    ...(!senderReferenceRecorded ? ['Sender identity reference is not recorded.'] : []),
+    ...(!deliveryCallbackRecorded ? ['Delivery callback mapping is not recorded.'] : []),
+    ...(!optOutCallbackRecorded ? ['Opt-out callback mapping is not recorded.'] : []),
+    ...(!deliveryConfirmationStoreMapped ? ['Delivery confirmation store mapping is not recorded.'] : []),
+  ]
+  const unavailable = Boolean(adapterValue && !providerKey) || Boolean(unavailableReason)
+  const blockers = [
+    ...(!adapterValue ? ['SMS provider adapter is not configured.'] : []),
+    ...(adapterValue && !providerKey ? [`SMS provider adapter "${adapterValue}" is not supported by this readiness model.`] : []),
+    ...(unavailableReason ? [unavailableReason] : []),
+    ...(executionFlagEnabled
+      ? ['ENABLE_WARM_SMS_PROVIDER_EXECUTION is enabled; this readiness phase fails closed and does not send SMS.']
+      : []),
+    ...missingRequired,
+  ]
+
+  let state: WarmSmsProviderTransportReadinessState
+  if (!adapterValue) {
+    state = 'not_configured'
+  } else if (unavailable) {
+    state = 'unavailable'
+  } else if (executionFlagEnabled) {
+    state = 'blocked'
+  } else if (missingRequired.length > 0) {
+    state = 'configured_disabled'
+  } else {
+    state = 'configured_ready'
+  }
+
+  function configItem(
+    key: WarmSmsProviderTransportConfigurationKey,
+    label: string,
+    present: boolean,
+    detail: string,
+    statusOverride?: 'disabled' | 'blocked',
+  ) {
+    return {
+      key,
+      label,
+      status: statusOverride ?? (present ? 'present_redacted' as const : 'missing' as const),
+      rawValueReturned: false as const,
+      detail,
+    }
+  }
+
+  return {
+    version: 'warm-outreach-sms-transport-config/v1',
+    state,
+    selectedProvider: {
+      key: providerKey,
+      label: setupCandidateLabel(providerKey),
+      configured: Boolean(providerKey),
+      unavailable,
+      rawValueReturned: false,
+    },
+    senderReferenceRecorded,
+    credentialReferenceRecorded,
+    deliveryCallbackRecorded,
+    optOutCallbackRecorded,
+    executionFlagEnabled,
+    messageVersionKey,
+    idempotencyNamespace,
+    auditKey,
+    deliveryConfirmationStoreMapped,
+    unavailableReason,
+    blockers,
+    configItems: [
+      configItem(
+        'SMS_PROVIDER_ADAPTER',
+        'Provider adapter',
+        Boolean(providerKey),
+        'Only the selected provider label is returned; raw adapter values stay out of the UI.',
+        unavailable ? 'blocked' : undefined,
+      ),
+      configItem('SMS_PROVIDER_CREDENTIAL_REFERENCE', 'Credential reference', credentialReferenceRecorded, 'Presence only. This parser never reads or returns provider credentials.'),
+      configItem('SMS_PROVIDER_SENDER_REFERENCE', 'Sender identity reference', senderReferenceRecorded, 'Presence only. Sender identity details stay in the provider setup record.'),
+      configItem('SMS_PROVIDER_DELIVERY_CALLBACK', 'Delivery callback mapping', deliveryCallbackRecorded, 'Presence only. Future delivery callbacks remain disabled.'),
+      configItem('SMS_PROVIDER_OPT_OUT_CALLBACK', 'Opt-out callback mapping', optOutCallbackRecorded, 'Presence only. Future STOP ingestion remains disabled.'),
+      configItem('WARM_SMS_DELIVERY_CONFIRMATION_STORE', 'Delivery confirmation store', deliveryConfirmationStoreMapped, 'Presence only. This phase adds a placeholder, not provider reconciliation.'),
+      configItem('WARM_SMS_MESSAGE_VERSION_KEY', 'Message version key', Boolean(transportConfigValue(config, 'WARM_SMS_MESSAGE_VERSION_KEY')), 'Stable key required before any future per-recipient send authorization.'),
+      configItem('WARM_SMS_IDEMPOTENCY_NAMESPACE', 'Idempotency namespace', Boolean(transportConfigValue(config, 'WARM_SMS_IDEMPOTENCY_NAMESPACE')), 'Stable namespace for duplicate prevention before provider attempts.'),
+      configItem('WARM_SMS_AUDIT_KEY', 'Audit key', Boolean(transportConfigValue(config, 'WARM_SMS_AUDIT_KEY')), 'Stable audit key for consent, suppression, and future delivery evidence.'),
+      configItem('ENABLE_WARM_SMS_PROVIDER_EXECUTION', 'Execution feature flag', !executionFlagEnabled, 'Must remain disabled in this readiness phase.', executionFlagEnabled ? 'blocked' : 'disabled'),
+    ],
+    externalRequests: [],
+  }
 }
 
 function cooldownSnapshot(lastContactAt: string | null, cooldownDays: number, now: string) {
@@ -635,6 +891,138 @@ export function buildWarmSmsProviderReadiness(
       detail: 'The execution flag must stay disabled until a later captain-approved activation phase.',
     },
   ]
+  const transportConfig = parseWarmSmsProviderTransportConfig(input.transportConfig ?? {
+    SMS_PROVIDER_ADAPTER: setupCandidate,
+    ENABLE_WARM_SMS_PROVIDER_EXECUTION: false,
+  })
+  const transportBlockedReasons = [
+    ...(!consentPrerequisitesMet ? blockers : []),
+    ...(transportConfig.state === 'not_configured' ||
+      transportConfig.state === 'configured_disabled' ||
+      transportConfig.state === 'blocked' ||
+      transportConfig.state === 'unavailable'
+      ? transportConfig.blockers
+      : []),
+    ...(!capabilitiesComplete ? ['All provider transport capabilities must be verified before a future send review.'] : []),
+    ...(!activationReviewedAtValid ? ['Provider transport audit timestamp is missing or invalid.'] : []),
+  ]
+  const transportState: WarmSmsProviderTransportReadinessState =
+    !consentPrerequisitesMet
+      ? 'blocked'
+      : transportConfig.state === 'configured_ready' && (!capabilitiesComplete || !activationReviewedAtValid)
+        ? 'configured_disabled'
+        : transportConfig.state
+  const transportLabels: Record<WarmSmsProviderTransportReadinessState, string> = {
+    not_configured: 'SMS transport not configured',
+    configured_disabled: 'SMS transport configured but disabled',
+    configured_ready: 'SMS transport configured-ready; send remains off',
+    blocked: 'SMS transport blocked by recipient or safety gates',
+    unavailable: 'Selected SMS transport unavailable',
+  }
+  const transportNextActions: Record<WarmSmsProviderTransportReadinessState, string> = {
+    not_configured:
+      'Select a provider transport and map sender, opt-out, delivery, audit, and idempotency placeholders before any future activation review.',
+    configured_disabled:
+      'Complete the disabled transport contract and capability evidence. This does not activate the provider or send SMS.',
+    configured_ready:
+      'Hold for a later captain-reviewed provider activation and a current per-recipient send authorization. This phase still sends nothing.',
+    blocked:
+      transportBlockedReasons[0] ?? 'Resolve recipient safety gates before provider transport review.',
+    unavailable:
+      transportConfig.unavailableReason ?? 'Choose a supported SMS transport or leave SMS provider delivery unavailable.',
+  }
+  const transportReadiness: WarmSmsProviderTransportReadiness = {
+    version: 'warm-outreach-sms-provider-transport-readiness/v1',
+    state: transportState,
+    label: transportLabels[transportState],
+    selectedProvider: transportConfig.selectedProvider,
+    senderReadiness: {
+      status:
+        transportState === 'unavailable'
+          ? 'unavailable'
+          : transportState === 'blocked'
+            ? 'blocked'
+            : transportConfig.senderReferenceRecorded
+              ? 'ready'
+              : 'missing',
+      senderReferenceRecorded: transportConfig.senderReferenceRecorded,
+      rawSenderReturned: false,
+      detail: transportConfig.senderReferenceRecorded
+        ? 'A sender identity reference is recorded without exposing the sender value.'
+        : 'Record the approved sender identity reference before a future provider attempt.',
+    },
+    capabilityReadiness: {
+      status:
+        transportState === 'blocked'
+          ? 'blocked'
+          : verifiedCapabilityCount === 0
+            ? 'missing'
+            : capabilitiesComplete
+              ? 'ready'
+              : 'partial',
+      verified: verifiedCapabilityCount,
+      total: capabilityRequirements.length,
+      required: warmSmsProviderCapabilityRequirements.map((requirement) => requirement.key),
+      detail: capabilitiesComplete
+        ? 'All modeled provider capabilities are verified for architecture review only.'
+        : 'Provider capability evidence is incomplete; provider calls and SMS delivery remain disabled.',
+    },
+    consentSuppressionRequirements: {
+      required: true,
+      met: consentPrerequisitesMet,
+      suppressionClear: suppressionBlockers.length === 0,
+      phoneProvenanceVerified:
+        input.consent.phoneProvenance === 'known' && Boolean(provenanceNote),
+      permissionDocumented:
+        input.consent.permissionStatus === 'documented' && Boolean(permissionNote),
+      auditTimestampValid: auditedAtValid,
+    },
+    auditAndIdempotency: {
+      messageVersionKey: transportConfig.messageVersionKey,
+      idempotencyNamespace: transportConfig.idempotencyNamespace,
+      auditKey: transportConfig.auditKey,
+      idempotencyKeyPreview:
+        `${transportConfig.idempotencyNamespace}:contact:{contact_id}:sms:${transportConfig.messageVersionKey}:approval:{approval_key}`,
+      rawPhoneStored: false,
+      rawMessageBodyStored: false,
+      recordBeforeProviderAttempt: true,
+      duplicatePolicy: 'return_existing_attempt_evidence_without_resend',
+      requiredBeforeAttempt: [
+        'consent_snapshot',
+        'suppression_snapshot',
+        'current_per_recipient_approval',
+        'message_version',
+        'idempotency_key',
+      ],
+    },
+    deliveryConfirmation: {
+      status: 'placeholder_only',
+      deliveryStoreMapped: transportConfig.deliveryConfirmationStoreMapped,
+      providerMessageId: null,
+      deliveryStatus: null,
+      requiredAfterFutureAttempt: [
+        'attempt_timestamp',
+        'provider_message_id',
+        'delivery_status',
+        'result_classification',
+      ],
+      detail: transportConfig.deliveryConfirmationStoreMapped
+        ? 'Delivery confirmation has a mapped placeholder; no callback is active and no provider message exists.'
+        : 'Map where future delivery confirmation would be recorded before any provider activation review.',
+    },
+    blockedReasons: transportBlockedReasons,
+    nextAction: transportNextActions[transportState],
+    executionBoundary: {
+      providerCallsEnabled: false,
+      smsDeliveryEnabled: false,
+      providerActivationEnabled: false,
+      routeImplemented: false,
+      featureFlagEnabled: false,
+      credentialsRead: false,
+      environmentVariablesChanged: false,
+      externalRequests: [],
+    },
+  }
 
   return {
     version: 'warm-outreach-sms-provider-readiness/v1',
@@ -796,6 +1184,7 @@ export function buildWarmSmsProviderReadiness(
         routeImplemented: false,
       },
     },
+    transportReadiness,
     activationReadiness: {
       version: 'warm-outreach-sms-provider-activation-readiness/v1',
       state: activationState,

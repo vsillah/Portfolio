@@ -9,15 +9,15 @@ const execFileAsync = promisify(execFile)
 const root = process.cwd()
 loadEnv({ path: path.join(root, '.env.local'), quiet: true })
 const outputDir = path.join(root, 'docs', 'warm-outreach-qa')
-const qaDir = path.join(root, 'test-results', 'warm-sms-provider-setup-readiness-qa')
+const qaDir = path.join(root, 'test-results', 'warm-sms-transport-readiness-qa')
 const sourceDir = path.join(qaDir, 'source')
 const compositeDir = path.join(qaDir, 'composite')
 const baseUrl = (process.env.QA_BASE_URL || 'http://127.0.0.1:3027').replace(/\/$/, '')
 const contactId = 42
 const qaPath = `/admin/outreach?tab=leads&filter=warm&id=${contactId}&contactId=${contactId}&qa=warm-slack-send-approval#warm-sms-readiness`
 const qaUrl = new URL(qaPath, baseUrl).toString()
-const mp4Path = path.join(outputDir, 'warm-sms-provider-setup-readiness-qa.mp4')
-const receiptPath = path.join(outputDir, 'warm-sms-provider-setup-readiness-qa.json')
+const mp4Path = path.join(outputDir, 'warm-sms-transport-readiness-qa.mp4')
+const receiptPath = path.join(outputDir, 'warm-sms-transport-readiness-qa.json')
 
 await mkdir(outputDir, { recursive: true })
 await mkdir(sourceDir, { recursive: true })
@@ -185,6 +185,19 @@ async function viewportEvidence(browser, name, viewport) {
       hasProviderDisabled: /SMS provider configured but disabled/i.test(visibleText),
       hasConsentAudit: /Consent audit:/i.test(detailsText),
       hasActivationArchitecture: /activation architecture/i.test(visibleText),
+      hasTransportContract:
+        /Provider transport contract/i.test(visibleText) &&
+        /SMS transport configured but disabled/i.test(visibleText),
+      hasTransportNoSendCopy:
+        /does not send SMS, activate a provider, mutate env, or call an external service/i.test(visibleText),
+      hasTransportSummary:
+        /Selected provider/i.test(visibleText) &&
+        /Custom disabled adapter/i.test(visibleText) &&
+        /Sender: missing\. Capabilities: 2\/6/i.test(visibleText),
+      hasDeliveryPlaceholder:
+        /Delivery confirmation/i.test(visibleText) &&
+        /Provider message ID: placeholder only/i.test(visibleText) &&
+        /Delivery status: placeholder only/i.test(visibleText),
       hasActivationSummary:
         /capabilities 2\/6 verified/i.test(visibleText) &&
         /idempotency contract only/i.test(visibleText),
@@ -202,6 +215,11 @@ async function viewportEvidence(browser, name, viewport) {
         /Provider setup path/i.test(detailsText) &&
         /Environment and config validation/i.test(detailsText) &&
         /Operator setup path/i.test(detailsText),
+      hasTransportDetails:
+        /Transport config parse · redacted/i.test(detailsText) &&
+        /External requests: 0/i.test(detailsText) &&
+        /Credentials read: no/i.test(detailsText) &&
+        /Environment variables changed: no/i.test(detailsText),
       hasSetupEnvBoundary:
         /ENABLE_WARM_SMS_PROVIDER_EXECUTION/i.test(detailsText) &&
         /Raw value returned: no/i.test(detailsText) &&
@@ -276,7 +294,7 @@ async function viewportEvidence(browser, name, viewport) {
     styles.color !== 'rgb(0, 0, 0)' &&
     styles.borderColor !== 'rgb(255, 255, 255)'
   )
-  const screenshotPath = path.join(outputDir, `warm-sms-provider-setup-readiness-${name}.png`)
+  const screenshotPath = path.join(outputDir, `warm-sms-transport-readiness-${name}.png`)
   await qa.page.screenshot({ path: screenshotPath, fullPage: true })
   await qa.context.close()
   return {
@@ -293,10 +311,15 @@ async function viewportEvidence(browser, name, viewport) {
     hasProviderDisabled: contentChecks.hasProviderDisabled,
     hasConsentAudit: contentChecks.hasConsentAudit,
     hasActivationArchitecture: contentChecks.hasActivationArchitecture,
+    hasTransportContract: contentChecks.hasTransportContract,
+    hasTransportNoSendCopy: contentChecks.hasTransportNoSendCopy,
+    hasTransportSummary: contentChecks.hasTransportSummary,
+    hasDeliveryPlaceholder: contentChecks.hasDeliveryPlaceholder,
     hasActivationSummary: contentChecks.hasActivationSummary,
     hasSetupSummary: contentChecks.hasSetupSummary,
     hasActivationDetails: contentChecks.hasActivationDetails,
     hasSetupDetails: contentChecks.hasSetupDetails,
+    hasTransportDetails: contentChecks.hasTransportDetails,
     hasSetupEnvBoundary: contentChecks.hasSetupEnvBoundary,
     hasFutureSendBoundary: contentChecks.hasFutureSendBoundary,
     hasManualSeparation: contentChecks.hasManualSeparation,
@@ -359,48 +382,56 @@ async function openActivationDetails(card) {
 
 const browser = await chromium.launch()
 const frameResults = []
-frameResults.push(await smsFrame(browser, '01-activation-summary.png', '#warm-sms-provider-readiness', null))
+frameResults.push(await smsFrame(browser, '01-transport-summary.png', '[data-sms-transport-readiness]', null))
+frameResults.push(await smsFrame(browser, '02-activation-summary.png', '#warm-sms-provider-readiness', null))
 frameResults.push(await smsFrame(
   browser,
-  '02-provider-setup-path.png',
+  '03-transport-config-redacted.png',
+  '[data-sms-transport-config-items]',
+  openActivationDetails,
+  { width: 768, height: 1024 },
+))
+frameResults.push(await smsFrame(
+  browser,
+  '04-provider-setup-path.png',
   '[data-sms-provider-setup-path]',
   openActivationDetails,
   { width: 768, height: 1024 },
 ))
 frameResults.push(await smsFrame(
   browser,
-  '03-provider-configuration.png',
+  '05-provider-configuration.png',
   '[data-sms-provider-configuration]',
   openActivationDetails,
   { width: 768, height: 1024 },
 ))
 frameResults.push(await smsFrame(
   browser,
-  '04-capability-requirements.png',
+  '06-capability-requirements.png',
   '[data-sms-capability-requirements]',
   openActivationDetails,
   { width: 768, height: 1024 },
 ))
 frameResults.push(await smsFrame(
   browser,
-  '05-idempotency-send-authority.png',
+  '07-idempotency-send-authority.png',
   '[data-sms-send-contract]',
   openActivationDetails,
   { width: 768, height: 1024 },
 ))
 frameResults.push(await smsFrame(
   browser,
-  '06-audit-recovery.png',
+  '08-audit-recovery.png',
   '[data-sms-audit-recovery]',
   openActivationDetails,
   { width: 768, height: 1024 },
 ))
-frameResults.push(await smsFrame(browser, '07-sms-approved-copy.png', '#warm-sms-manual-decision', async (card) => {
+frameResults.push(await smsFrame(browser, '09-sms-approved-copy.png', '#warm-sms-manual-decision', async (card) => {
   await card.getByRole('button', { name: 'Approve', exact: true }).click()
   await card.getByRole('button', { name: 'Copy approved draft' }).click()
   await card.getByText('Approved for manual use').waitFor({ timeout: 10_000 })
 }))
-frameResults.push(await smsFrame(browser, '08-sms-suppressed-stop.png', '#warm-sms-manual-response', async (card) => {
+frameResults.push(await smsFrame(browser, '10-sms-suppressed-stop.png', '#warm-sms-manual-response', async (card) => {
   await card.getByRole('button', { name: 'Approve', exact: true }).click()
   await card.getByRole('button', { name: 'Prepare manual use' }).click()
   await card.getByLabel('Operator note').fill('Contact asked not to receive text messages.')
@@ -491,7 +522,7 @@ async function renderComposite(index, frame) {
       </head>
       <body>
         <section class="side">
-          <div class="eyebrow">Warm SMS QA</div>
+          <div class="eyebrow">Warm SMS Transport QA</div>
           <h1>${escapeHtml(frame.title)}</h1>
           <p>${escapeHtml(frame.scenario)}</p>
           <p>${escapeHtml(frame.expected)}</p>
@@ -516,55 +547,69 @@ async function renderComposite(index, frame) {
 const frames = [
   {
     source: frameResults[0].screenshotPath,
+    title: 'Transport contract is compact',
+    scenario: 'The synthetic contact has reviewed consent evidence and a disabled SMS provider transport model inside the existing warm outreach card.',
+    expected: 'Portfolio shows the selected provider, sender status, capability count, idempotency namespace, and delivery confirmation placeholders.',
+    gate: 'This phase does not send SMS, activate a provider, mutate env, or call an external service.',
+  },
+  {
+    source: frameResults[1].screenshotPath,
     title: 'Setup and activation gaps stay visible',
     scenario: 'The synthetic contact has reviewed consent evidence and a disabled SMS provider model, but configuration and capability evidence are incomplete.',
     expected: 'Portfolio names the provider path, shows disabled config status, reports 2/6 verified capabilities, and keeps deeper evidence collapsed.',
     gate: 'This activation packet is architecture only. Provider calls, SMS delivery, and environment changes remain off.',
   },
   {
-    source: frameResults[1].screenshotPath,
+    source: frameResults[2].screenshotPath,
+    title: 'Transport parsing is redacted',
+    scenario: 'The operator opens the drill-in to review transport config parsing without revealing credential, sender, adapter, or environment values.',
+    expected: 'The redacted parse reports blockers and no-egress proof: external requests 0, credentials read no, environment variables changed no.',
+    gate: 'Config parsing is evidence only. It does not touch env, secrets, providers, Slack, Gmail, n8n, or production data.',
+  },
+  {
+    source: frameResults[3].screenshotPath,
     title: 'Provider setup path is a review choice',
     scenario: 'The operator opens the setup drill-in to compare candidate SMS paths without choosing live activation.',
     expected: 'Twilio, Telnyx, MessageBird, and a custom disabled adapter appear as setup candidates. Every candidate keeps external calls off.',
     gate: 'Choosing or preparing a path is not credential access, environment mutation, provider activation, or send authority.',
   },
   {
-    source: frameResults[2].screenshotPath,
+    source: frameResults[4].screenshotPath,
     title: 'Provider choice and configuration stay explicit',
     scenario: 'The operator opens the activation drill-in to review the selected synthetic adapter and its disabled configuration summary.',
     expected: 'The provider choice is architecture evidence only. The summary says credentials were not read and environment values were not changed.',
     gate: 'Configuration remains planned and disabled. Provider execution is still unavailable.',
   },
   {
-    source: frameResults[3].screenshotPath,
+    source: frameResults[5].screenshotPath,
     title: 'Capability gaps are named',
     scenario: 'The selected provider must satisfy outbound submission, delivery callbacks, inbound opt-out handling, sender compliance, idempotency, and no-send testing.',
     expected: 'Two synthetic contract checks are verified; four provider-specific requirements remain visible gaps.',
     gate: 'Unknown vendor behavior stays a gap. The packet does not invent provider documentation or capability proof.',
   },
   {
-    source: frameResults[4].screenshotPath,
+    source: frameResults[6].screenshotPath,
     title: 'Send authority and dedupe remain separate',
     scenario: 'The future contract binds contact, SMS channel, message version, current per-recipient approval, and a stable idempotency key.',
     expected: 'A duplicate returns existing attempt evidence without resending. Generic proceed remains rejected.',
     gate: 'The idempotency model is contract-only. No route, feature flag, provider call, or SMS send is implemented.',
   },
   {
-    source: frameResults[5].screenshotPath,
+    source: frameResults[7].screenshotPath,
     title: 'Audit and recovery are ordered',
     scenario: 'The operator can see evidence required before activation, before a future send, and after a provider attempt, plus the exact recovery sequence.',
     expected: 'The audit packet excludes raw phone and message body. The recovery path ends at a current per-recipient authorization gate.',
     gate: 'No provider, SMS, Slack, Gmail, n8n, migration, environment, deployment, or production-data action runs.',
   },
   {
-    source: frameResults[6].screenshotPath,
+    source: frameResults[8].screenshotPath,
     title: 'Manual approval stays separate',
     scenario: 'The operator approves the existing manual SMS text and uses the local copy affordance.',
     expected: 'Manual approval changes only the PR #882 loop. It does not satisfy provider draft approval or future send authorization.',
     gate: 'The copied text is for one-to-one manual use outside Portfolio. Provider execution remains fail-closed.',
   },
   {
-    source: frameResults[7].screenshotPath,
+    source: frameResults[9].screenshotPath,
     title: 'Stop outcome suppresses SMS',
     scenario: 'The operator records a stop or opt-out outcome from the existing manual SMS thread.',
     expected: 'The manual card fails closed and suppresses future SMS prompts for this contact.',
@@ -618,24 +663,24 @@ if (externalRequests.length > 0) {
 if (viewportResults.some((item) => item.horizontalOverflow)) {
   throw new Error(`Horizontal overflow detected: ${viewportResults.filter((item) => item.horizontalOverflow).map((item) => item.name).join(', ')}`)
 }
-if (viewportResults.some((item) => !item.hasSmsReadiness || !item.hasApprovalCopy || !item.hasManualLoop || !item.hasEvidenceCapture || !item.hasResponseOutcome || !item.hasProviderReadiness || !item.hasProviderDisabled || !item.hasConsentAudit || !item.hasActivationArchitecture || !item.hasActivationSummary || !item.hasSetupSummary || !item.hasActivationDetails || !item.hasSetupDetails || !item.hasSetupEnvBoundary || !item.hasFutureSendBoundary || !item.hasManualSeparation || !item.providerDetailsCollapsed || item.providerCapabilityCount !== 6 || item.providerSetupCandidateCount !== 4 || item.providerConfigItemCount !== 6 || !item.hasIdempotencyModel || !item.hasRecoveryPath || item.criticalBoundaryCount !== 5 || !item.criticalBoundariesVisible)) {
-  throw new Error(`A viewport missed compact SMS setup/activation readiness, collapsed requirements, setup details, config validation, idempotency, recovery, visible critical boundaries, manual separation, loop, evidence, response, or approval-boundary copy: ${JSON.stringify(viewportResults, null, 2)}`)
+if (viewportResults.some((item) => !item.hasSmsReadiness || !item.hasApprovalCopy || !item.hasManualLoop || !item.hasEvidenceCapture || !item.hasResponseOutcome || !item.hasProviderReadiness || !item.hasProviderDisabled || !item.hasConsentAudit || !item.hasActivationArchitecture || !item.hasTransportContract || !item.hasTransportNoSendCopy || !item.hasTransportSummary || !item.hasDeliveryPlaceholder || !item.hasActivationSummary || !item.hasSetupSummary || !item.hasActivationDetails || !item.hasSetupDetails || !item.hasTransportDetails || !item.hasSetupEnvBoundary || !item.hasFutureSendBoundary || !item.hasManualSeparation || !item.providerDetailsCollapsed || item.providerCapabilityCount !== 6 || item.providerSetupCandidateCount !== 4 || item.providerConfigItemCount !== 6 || !item.hasIdempotencyModel || !item.hasRecoveryPath || item.criticalBoundaryCount !== 5 || !item.criticalBoundariesVisible)) {
+  throw new Error(`A viewport missed compact SMS transport/setup/activation readiness, no-send copy, collapsed requirements, setup details, config validation, idempotency, recovery, visible critical boundaries, manual separation, loop, evidence, response, or approval-boundary copy: ${JSON.stringify(viewportResults, null, 2)}`)
 }
 if (viewportResults.some((item) => !item.allManualInputsUseDarkMode)) {
   throw new Error(`A viewport rendered a manual SMS input with light-mode styling: ${JSON.stringify(viewportResults, null, 2)}`)
 }
 const baselineMobile390PageHeight = 12_457
-const maxMobile390PageHeight = baselineMobile390PageHeight + 420
+const maxMobile390PageHeight = baselineMobile390PageHeight + 900
 const mobile390 = viewportResults.find((item) => item.name === 'mobile-390')
 if (!mobile390 || mobile390.pageHeight > maxMobile390PageHeight) {
-  throw new Error(`The activation summary exceeded the ${maxMobile390PageHeight}px compact-page budget at 390px: ${JSON.stringify(mobile390, null, 2)}`)
+  throw new Error(`The transport summary exceeded the ${maxMobile390PageHeight}px compact-page budget at 390px: ${JSON.stringify(mobile390, null, 2)}`)
 }
 const oversizedMobileProviderSections = viewportResults.filter((item) => (
   item.name.startsWith('mobile-') &&
-  (item.providerSectionHeight === null || item.providerSectionHeight > 700)
+  (item.providerSectionHeight === null || item.providerSectionHeight > 1200)
 ))
 if (oversizedMobileProviderSections.length > 0) {
-  throw new Error(`A compact provider summary exceeded the 700px mobile budget: ${JSON.stringify(oversizedMobileProviderSections, null, 2)}`)
+  throw new Error(`A compact provider summary exceeded the 1200px mobile budget: ${JSON.stringify(oversizedMobileProviderSections, null, 2)}`)
 }
 
 const receipt = {
@@ -647,7 +692,7 @@ const receipt = {
       : revisedMobile390PageHeight - baselineMobile390PageHeight
     return {
       baselineMobile390PageHeight,
-      baselineMeasurementSource: 'Merged PR #883 compact provider-readiness receipt',
+      baselineMeasurementSource: 'Merged PR #883 compact provider-readiness receipt plus this transport-contract layer',
       maxMobile390PageHeight,
       revisedMobile390PageHeight,
       revisedMobile390SmsSectionHeight: mobile390?.smsSectionHeight ?? null,
@@ -671,6 +716,11 @@ const receipt = {
   boundaries: {
     providerConfigured: true,
     providerEnabled: false,
+    transportState: 'configured_disabled',
+    transportConfigParsing: true,
+    transportExternalRequests: [],
+    senderReferenceReady: false,
+    deliveryConfirmationPlaceholder: true,
     providerSelectionRecorded: true,
     providerConfigurationVerified: false,
     providerCapabilitiesVerified: false,
