@@ -1436,6 +1436,7 @@ function SmsManualOutreachCard({ readiness }: { readiness?: WarmSmsReadiness | n
   const activationReadiness = providerReadiness.activationReadiness
   const setupReadiness = providerReadiness.setupReadiness
   const transportReadiness = providerReadiness.transportReadiness
+  const noSendCanary = providerReadiness.noSendCanary
   const providerChecksPassed = providerReadiness.consentAndSuppression.checks
     .filter((check) => check.status === 'passed').length
   const providerChecksTotal = providerReadiness.consentAndSuppression.checks.length
@@ -1682,6 +1683,56 @@ function SmsManualOutreachCard({ readiness }: { readiness?: WarmSmsReadiness | n
           <p className="mt-2 text-[10px] leading-4 opacity-85" data-sms-transport-next-action>
             {transportReadiness.nextAction}
           </p>
+        </div>
+
+        <div
+          data-sms-no-send-canary
+          className={`mt-2 rounded-md border p-2.5 ${
+            noSendCanary.state === 'ready_no_send_simulation'
+              ? 'border-emerald-500/25 bg-emerald-500/10 text-emerald-50'
+              : 'border-amber-500/25 bg-amber-500/10 text-amber-50'
+          }`}
+        >
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0">
+              <p className="text-[10px] font-semibold uppercase tracking-wide">No-send canary simulation</p>
+              <p className="mt-1 text-sm font-semibold">{noSendCanary.label}</p>
+              <p className="mt-1 text-[10px] leading-4 opacity-85">{noSendCanary.detail}</p>
+            </div>
+            <span className="inline-flex min-h-7 w-fit shrink-0 items-center rounded-full border border-current/25 bg-background/25 px-2 py-0.5 text-[10px] font-semibold">
+              {noSendCanary.result.status.replaceAll('_', ' ')}
+            </span>
+          </div>
+          <div data-sms-provider-activation-checklist className="mt-2 grid grid-cols-2 gap-1.5 sm:grid-cols-3">
+            {providerReadiness.activationChecklist.map((item) => (
+              <div
+                key={item.key}
+                title={item.detail}
+                className={`min-h-12 rounded-md border p-1.5 ${smsCheckClasses(item.status)}`}
+              >
+                <p className="text-[10px] font-semibold uppercase tracking-wide">{item.label}</p>
+                <p className="mt-1 text-[10px] leading-3">{item.status.replaceAll('_', ' ')}</p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-2 grid gap-1.5 sm:grid-cols-2">
+            <div className="rounded-md border border-current/20 bg-background/25 p-2">
+              <p className="text-[10px] font-semibold uppercase tracking-wide">Route plan</p>
+              <p className="mt-1 text-[10px] leading-4">
+                Surface: existing warm outreach contact surface. Provider: {noSendCanary.routePlan.selectedProvider.label}.
+              </p>
+              <p className="mt-1 break-all text-[10px] leading-4 opacity-80">
+                Key: {noSendCanary.routePlan.idempotencyKeyPreview}
+              </p>
+            </div>
+            <div className="rounded-md border border-current/20 bg-background/25 p-2">
+              <p className="text-[10px] font-semibold uppercase tracking-wide">Canary result boundary</p>
+              <p className="mt-1 text-[10px] leading-4">{noSendCanary.result.reason}</p>
+              <p className="mt-1 text-[10px] leading-4 opacity-80">
+                Provider calls: off. SMS delivery: off. Env changed: no. External requests: {noSendCanary.executionBoundary.externalRequests.length}.
+              </p>
+            </div>
+          </div>
         </div>
 
         <details

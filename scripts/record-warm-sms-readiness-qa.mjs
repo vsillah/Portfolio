@@ -187,19 +187,30 @@ async function viewportEvidence(browser, name, viewport) {
       hasActivationArchitecture: /activation architecture/i.test(visibleText),
       hasTransportContract:
         /Provider transport contract/i.test(visibleText) &&
-        /SMS transport configured but disabled/i.test(visibleText),
+        /SMS transport configured-ready; send remains off/i.test(visibleText),
       hasTransportNoSendCopy:
         /does not send SMS, activate a provider, mutate env, or call an external service/i.test(visibleText),
       hasTransportSummary:
         /Selected provider/i.test(visibleText) &&
         /Custom disabled adapter/i.test(visibleText) &&
-        /Sender: missing\. Capabilities: 2\/6/i.test(visibleText),
+        /Sender: ready\. Capabilities: 6\/6/i.test(visibleText),
+      hasNoSendCanary:
+        /No-send canary simulation/i.test(visibleText) &&
+        /No-send canary can route configuration without SMS delivery/i.test(visibleText) &&
+        /would route no send/i.test(visibleText),
+      hasNoSendCanaryBoundary:
+        /Provider calls: off\. SMS delivery: off\. Env changed: no\. External requests: 0/i.test(visibleText),
+      hasActivationChecklist:
+        /Transport configured/i.test(visibleText) &&
+        /Provider disabled/i.test(visibleText) &&
+        /No-send canary eligible/i.test(visibleText) &&
+        /Live send eligible/i.test(visibleText),
       hasDeliveryPlaceholder:
         /Delivery confirmation/i.test(visibleText) &&
         /Provider message ID: placeholder only/i.test(visibleText) &&
         /Delivery status: placeholder only/i.test(visibleText),
       hasActivationSummary:
-        /capabilities 2\/6 verified/i.test(visibleText) &&
+        /capabilities 6\/6 verified/i.test(visibleText) &&
         /idempotency contract only/i.test(visibleText),
       hasSetupSummary:
         /Setup path/i.test(visibleText) &&
@@ -314,6 +325,9 @@ async function viewportEvidence(browser, name, viewport) {
     hasTransportContract: contentChecks.hasTransportContract,
     hasTransportNoSendCopy: contentChecks.hasTransportNoSendCopy,
     hasTransportSummary: contentChecks.hasTransportSummary,
+    hasNoSendCanary: contentChecks.hasNoSendCanary,
+    hasNoSendCanaryBoundary: contentChecks.hasNoSendCanaryBoundary,
+    hasActivationChecklist: contentChecks.hasActivationChecklist,
     hasDeliveryPlaceholder: contentChecks.hasDeliveryPlaceholder,
     hasActivationSummary: contentChecks.hasActivationSummary,
     hasSetupSummary: contentChecks.hasSetupSummary,
@@ -554,10 +568,10 @@ const frames = [
   },
   {
     source: frameResults[1].screenshotPath,
-    title: 'Setup and activation gaps stay visible',
-    scenario: 'The synthetic contact has reviewed consent evidence and a disabled SMS provider model, but configuration and capability evidence are incomplete.',
-    expected: 'Portfolio names the provider path, shows disabled config status, reports 2/6 verified capabilities, and keeps deeper evidence collapsed.',
-    gate: 'This activation packet is architecture only. Provider calls, SMS delivery, and environment changes remain off.',
+    title: 'Setup and activation readiness stays explicit',
+    scenario: 'The synthetic contact has reviewed consent evidence and a disabled SMS provider model with complete local no-send canary prerequisites.',
+    expected: 'Portfolio names the provider path, shows verified disabled config status, reports 6/6 verified capabilities, and keeps deeper evidence collapsed.',
+    gate: 'This activation packet is canary-ready only. Provider calls, SMS delivery, and environment changes remain off.',
   },
   {
     source: frameResults[2].screenshotPath,
@@ -582,10 +596,10 @@ const frames = [
   },
   {
     source: frameResults[5].screenshotPath,
-    title: 'Capability gaps are named',
+    title: 'Capability evidence supports no-send canary review',
     scenario: 'The selected provider must satisfy outbound submission, delivery callbacks, inbound opt-out handling, sender compliance, idempotency, and no-send testing.',
-    expected: 'Two synthetic contract checks are verified; four provider-specific requirements remain visible gaps.',
-    gate: 'Unknown vendor behavior stays a gap. The packet does not invent provider documentation or capability proof.',
+    expected: 'All six synthetic requirements are verified for the no-send canary while the provider stays disabled.',
+    gate: 'Synthetic capability evidence supports local routing review only. The packet still cannot send SMS.',
   },
   {
     source: frameResults[6].screenshotPath,
@@ -663,24 +677,24 @@ if (externalRequests.length > 0) {
 if (viewportResults.some((item) => item.horizontalOverflow)) {
   throw new Error(`Horizontal overflow detected: ${viewportResults.filter((item) => item.horizontalOverflow).map((item) => item.name).join(', ')}`)
 }
-if (viewportResults.some((item) => !item.hasSmsReadiness || !item.hasApprovalCopy || !item.hasManualLoop || !item.hasEvidenceCapture || !item.hasResponseOutcome || !item.hasProviderReadiness || !item.hasProviderDisabled || !item.hasConsentAudit || !item.hasActivationArchitecture || !item.hasTransportContract || !item.hasTransportNoSendCopy || !item.hasTransportSummary || !item.hasDeliveryPlaceholder || !item.hasActivationSummary || !item.hasSetupSummary || !item.hasActivationDetails || !item.hasSetupDetails || !item.hasTransportDetails || !item.hasSetupEnvBoundary || !item.hasFutureSendBoundary || !item.hasManualSeparation || !item.providerDetailsCollapsed || item.providerCapabilityCount !== 6 || item.providerSetupCandidateCount !== 4 || item.providerConfigItemCount !== 6 || !item.hasIdempotencyModel || !item.hasRecoveryPath || item.criticalBoundaryCount !== 5 || !item.criticalBoundariesVisible)) {
+if (viewportResults.some((item) => !item.hasSmsReadiness || !item.hasApprovalCopy || !item.hasManualLoop || !item.hasEvidenceCapture || !item.hasResponseOutcome || !item.hasProviderReadiness || !item.hasProviderDisabled || !item.hasConsentAudit || !item.hasActivationArchitecture || !item.hasTransportContract || !item.hasTransportNoSendCopy || !item.hasTransportSummary || !item.hasNoSendCanary || !item.hasNoSendCanaryBoundary || !item.hasActivationChecklist || !item.hasDeliveryPlaceholder || !item.hasActivationSummary || !item.hasSetupSummary || !item.hasActivationDetails || !item.hasSetupDetails || !item.hasTransportDetails || !item.hasSetupEnvBoundary || !item.hasFutureSendBoundary || !item.hasManualSeparation || !item.providerDetailsCollapsed || item.providerCapabilityCount !== 6 || item.providerSetupCandidateCount !== 4 || item.providerConfigItemCount !== 6 || !item.hasIdempotencyModel || !item.hasRecoveryPath || item.criticalBoundaryCount !== 5 || !item.criticalBoundariesVisible)) {
   throw new Error(`A viewport missed compact SMS transport/setup/activation readiness, no-send copy, collapsed requirements, setup details, config validation, idempotency, recovery, visible critical boundaries, manual separation, loop, evidence, response, or approval-boundary copy: ${JSON.stringify(viewportResults, null, 2)}`)
 }
 if (viewportResults.some((item) => !item.allManualInputsUseDarkMode)) {
   throw new Error(`A viewport rendered a manual SMS input with light-mode styling: ${JSON.stringify(viewportResults, null, 2)}`)
 }
 const baselineMobile390PageHeight = 12_457
-const maxMobile390PageHeight = baselineMobile390PageHeight + 900
+const maxMobile390PageHeight = baselineMobile390PageHeight + 2400
 const mobile390 = viewportResults.find((item) => item.name === 'mobile-390')
 if (!mobile390 || mobile390.pageHeight > maxMobile390PageHeight) {
   throw new Error(`The transport summary exceeded the ${maxMobile390PageHeight}px compact-page budget at 390px: ${JSON.stringify(mobile390, null, 2)}`)
 }
 const oversizedMobileProviderSections = viewportResults.filter((item) => (
   item.name.startsWith('mobile-') &&
-  (item.providerSectionHeight === null || item.providerSectionHeight > 1200)
+  (item.providerSectionHeight === null || item.providerSectionHeight > 2000)
 ))
 if (oversizedMobileProviderSections.length > 0) {
-  throw new Error(`A compact provider summary exceeded the 1200px mobile budget: ${JSON.stringify(oversizedMobileProviderSections, null, 2)}`)
+  throw new Error(`A compact provider summary exceeded the 2000px mobile budget: ${JSON.stringify(oversizedMobileProviderSections, null, 2)}`)
 }
 
 const receipt = {
@@ -716,14 +730,16 @@ const receipt = {
   boundaries: {
     providerConfigured: true,
     providerEnabled: false,
-    transportState: 'configured_disabled',
+    transportState: 'configured_ready',
     transportConfigParsing: true,
     transportExternalRequests: [],
-    senderReferenceReady: false,
+    senderReferenceReady: true,
     deliveryConfirmationPlaceholder: true,
     providerSelectionRecorded: true,
-    providerConfigurationVerified: false,
-    providerCapabilitiesVerified: false,
+    providerConfigurationVerified: true,
+    providerCapabilitiesVerified: true,
+    noSendCanaryEligible: true,
+    noSendCanaryResult: 'would_route_no_send',
     idempotencyImplementation: false,
     activationEnabled: false,
     providerSendRouteImplemented: false,

@@ -711,5 +711,167 @@ describe('warm SMS provider readiness', () => {
         externalRequests: [],
       },
     })
+    expect(readiness.activationChecklist).toEqual([
+      expect.objectContaining({
+        key: 'transport_configured',
+        status: 'passed',
+      }),
+      expect.objectContaining({
+        key: 'provider_disabled',
+        status: 'blocked',
+      }),
+      expect.objectContaining({
+        key: 'provider_enabled',
+        status: 'review_required',
+      }),
+      expect.objectContaining({
+        key: 'consent_suppression_clear',
+        status: 'passed',
+      }),
+      expect.objectContaining({
+        key: 'canary_eligible',
+        status: 'blocked',
+      }),
+      expect.objectContaining({
+        key: 'live_send_eligible',
+        status: 'blocked',
+      }),
+    ])
+    expect(readiness.noSendCanary).toMatchObject({
+      version: 'warm-outreach-sms-no-send-canary-readiness/v1',
+      state: 'blocked_by_readiness',
+      prerequisiteSummary: {
+        transportConfigured: true,
+        providerDisabled: false,
+        providerEnabled: true,
+        consentSuppressionClear: true,
+        canaryEligible: false,
+        liveSendEligible: false,
+      },
+      result: {
+        status: 'blocked',
+        providerCallsEnabled: false,
+        smsDeliveryEnabled: false,
+        providerActivationEnabled: false,
+        environmentVariablesChanged: false,
+        providerMessageId: null,
+        deliveryStatus: null,
+        deliveryConfirmationStatus: 'placeholder_only',
+        externalRequests: [],
+      },
+      executionBoundary: {
+        simulationOnly: true,
+        providerCallsEnabled: false,
+        smsDeliveryEnabled: false,
+        credentialsRead: false,
+        databaseWritesEnabled: false,
+        externalRequests: [],
+      },
+    })
+  })
+
+  it('marks a disabled fully mapped transport as eligible for a no-send canary simulation', () => {
+    const verified = {
+      status: 'verified' as const,
+      evidence: 'Synthetic contract evidence.',
+    }
+    const readiness = buildWarmSmsProviderReadiness(input({
+      provider: {
+        name: 'Synthetic SMS provider',
+        configured: true,
+        enabled: false,
+      },
+      activation: {
+        providerSelectionStatus: 'selected',
+        providerSelectionNote: 'Synthetic provider selected.',
+        providerSetupCandidate: 'telnyx_messaging',
+        configurationStatus: 'verified_disabled',
+        configurationNote: 'Disabled configuration contract reviewed.',
+        capabilityEvidence: {
+          outbound_message_submission: verified,
+          delivery_status_callbacks: verified,
+          inbound_opt_out_ingestion: verified,
+          sender_identity_compliance: verified,
+          idempotent_submission: verified,
+          sandbox_or_no_send_test: verified,
+        },
+        reviewedAt: '2026-08-29T12:30:00.000Z',
+      },
+      transportConfig: {
+        SMS_PROVIDER_ADAPTER: 'telnyx_messaging',
+        SMS_PROVIDER_CREDENTIAL_REFERENCE: 'infisical:/warm-sms/telnyx',
+        SMS_PROVIDER_SENDER_REFERENCE: 'telnyx-sender-ref',
+        SMS_PROVIDER_DELIVERY_CALLBACK: '/api/provider/sms/delivery',
+        SMS_PROVIDER_OPT_OUT_CALLBACK: '/api/provider/sms/stop',
+        WARM_SMS_DELIVERY_CONFIRMATION_STORE: 'outreach_delivery_attempts',
+        WARM_SMS_MESSAGE_VERSION_KEY: 'message-v1',
+        WARM_SMS_IDEMPOTENCY_NAMESPACE: 'warm-sms-send:v1',
+        WARM_SMS_AUDIT_KEY: 'audit-v1',
+        ENABLE_WARM_SMS_PROVIDER_EXECUTION: false,
+      },
+    }))
+
+    expect(readiness.state).toBe('provider_configured_disabled')
+    expect(readiness.activationChecklist).toEqual([
+      expect.objectContaining({ key: 'transport_configured', status: 'passed' }),
+      expect.objectContaining({ key: 'provider_disabled', status: 'passed' }),
+      expect.objectContaining({ key: 'provider_enabled', status: 'blocked' }),
+      expect.objectContaining({ key: 'consent_suppression_clear', status: 'passed' }),
+      expect.objectContaining({ key: 'canary_eligible', status: 'passed' }),
+      expect.objectContaining({ key: 'live_send_eligible', status: 'blocked' }),
+    ])
+    expect(readiness.noSendCanary).toMatchObject({
+      state: 'ready_no_send_simulation',
+      label: 'No-send canary can route configuration without SMS delivery',
+      simulatedRoute: 'existing_warm_outreach_contact_surface',
+      routePlan: {
+        selectedProvider: {
+          key: 'telnyx_messaging',
+          label: 'Telnyx Messaging',
+          rawValueReturned: false,
+        },
+        messageVersionKey: 'message-v1',
+        idempotencyKeyPreview: 'warm-sms-send:v1:contact:{contact_id}:sms:message-v1:approval:{approval_key}',
+        auditKey: 'audit-v1',
+        senderReferenceRecorded: true,
+        deliveryCallbackRecorded: true,
+        optOutCallbackRecorded: true,
+        deliveryConfirmationStoreMapped: true,
+        rawPhoneReturned: false,
+        rawMessageBodyReturned: false,
+      },
+      prerequisiteSummary: {
+        transportConfigured: true,
+        providerDisabled: true,
+        providerEnabled: false,
+        consentSuppressionClear: true,
+        canaryEligible: true,
+        liveSendEligible: false,
+      },
+      result: {
+        status: 'would_route_no_send',
+        providerCallsEnabled: false,
+        smsDeliveryEnabled: false,
+        providerActivationEnabled: false,
+        environmentVariablesChanged: false,
+        providerMessageId: null,
+        deliveryStatus: null,
+        deliveryConfirmationStatus: 'placeholder_only',
+        externalRequests: [],
+      },
+      executionBoundary: {
+        simulationOnly: true,
+        providerCallsEnabled: false,
+        smsDeliveryEnabled: false,
+        providerActivationEnabled: false,
+        credentialsRead: false,
+        environmentVariablesChanged: false,
+        databaseWritesEnabled: false,
+        slackDispatchEnabled: false,
+        gmailActionEnabled: false,
+        n8nDispatchEnabled: false,
+        externalRequests: [],
+      },
+    })
   })
 })

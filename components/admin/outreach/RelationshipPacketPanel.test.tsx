@@ -1421,6 +1421,20 @@ describe('RelationshipPacketPanel', () => {
     expect(document.querySelector('[data-sms-transport-next-action]')).toHaveTextContent(
       /Verified phone provenance and a source note are required/i,
     )
+    expect(screen.getByText('No-send canary simulation')).toBeInTheDocument()
+    expect(screen.getByText('No-send canary blocked by readiness gaps')).toBeInTheDocument()
+    expect(document.querySelector('[data-sms-no-send-canary]')).toHaveTextContent(
+      /Readiness gaps block the no-send canary simulation/i,
+    )
+    expect(document.querySelector('[data-sms-provider-activation-checklist]')).toHaveTextContent(
+      /Transport configured/i,
+    )
+    expect(document.querySelector('[data-sms-provider-activation-checklist]')).toHaveTextContent(
+      /Provider enabled/i,
+    )
+    expect(document.querySelector('[data-sms-no-send-canary]')).toHaveTextContent(
+      /Provider calls: off\. SMS delivery: off\. Env changed: no\. External requests: 0/i,
+    )
     const criticalBoundaries = [...document.querySelectorAll('[data-sms-provider-critical-boundary]')]
       .map((element) => element.textContent)
     expect(criticalBoundaries).toEqual(expect.arrayContaining([
@@ -1807,23 +1821,43 @@ describe('RelationshipPacketPanel', () => {
     expect(screen.getByText('SMS provider configured but disabled')).toBeInTheDocument()
     expect(screen.getByText('Provider configured · disabled')).toBeInTheDocument()
     expect(screen.getByText('Provider: configured / disabled')).toBeInTheDocument()
-    expect(screen.getByText('SMS transport configured but disabled')).toBeInTheDocument()
+    expect(screen.getByText('SMS transport configured-ready; send remains off')).toBeInTheDocument()
     expect(document.querySelector('[data-sms-transport-readiness]')).toHaveTextContent(
       /Custom disabled adapter/i,
     )
     expect(document.querySelector('[data-sms-transport-readiness]')).toHaveTextContent(
-      /Sender: missing\. Capabilities: 2\/6/i,
+      /Sender: ready\. Capabilities: 6\/6/i,
     )
     expect(document.querySelector('[data-sms-transport-readiness]')).toHaveTextContent(
       /Provider message ID: placeholder only\. Delivery status: placeholder only/i,
     )
+    expect(screen.getByText('No-send canary simulation')).toBeInTheDocument()
+    expect(screen.getByText('No-send canary can route configuration without SMS delivery')).toBeInTheDocument()
+    expect(document.querySelector('[data-sms-provider-activation-checklist]')).toHaveTextContent(
+      /Transport configured/i,
+    )
+    expect(document.querySelector('[data-sms-provider-activation-checklist]')).toHaveTextContent(
+      /Provider disabled/i,
+    )
+    expect(document.querySelector('[data-sms-provider-activation-checklist]')).toHaveTextContent(
+      /No-send canary eligible/i,
+    )
+    expect(document.querySelector('[data-sms-provider-activation-checklist]')).toHaveTextContent(
+      /Live send eligible/i,
+    )
+    expect(document.querySelector('[data-sms-no-send-canary]')).toHaveTextContent(
+      /would route no send/i,
+    )
+    expect(document.querySelector('[data-sms-no-send-canary]')).toHaveTextContent(
+      /Provider calls: off\. SMS delivery: off\. Env changed: no\. External requests: 0/i,
+    )
     expect(screen.getByText('Generic proceed: rejected')).toBeInTheDocument()
     expect(screen.getByText('Approval: per-recipient required')).toBeInTheDocument()
     expect(screen.getByTestId('warm-sms-activation-next-step')).toHaveTextContent(
-      /Document a disabled configuration review with secrets excluded/i,
+      /Ask the Integration Captain to review the activation packet/i,
     )
     expect(document.querySelector('[data-sms-activation-summary]')).toHaveTextContent(
-      /Synthetic future SMS adapter · selection selected · configuration planned disabled · capabilities 2\/6 verified · idempotency contract only/i,
+      /Synthetic future SMS adapter · selection selected · configuration verified disabled · capabilities 6\/6 verified · idempotency contract only/i,
     )
     expect(document.querySelectorAll('[data-sms-provider-capability]')).toHaveLength(6)
     expect(document.querySelector('[data-sms-transport-config-items]')).toHaveTextContent(

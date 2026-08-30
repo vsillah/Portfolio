@@ -228,6 +228,72 @@ export type WarmSmsProviderTransportReadiness = {
   }
 }
 
+export type WarmSmsProviderActivationChecklistItem = {
+  key:
+    | 'transport_configured'
+    | 'provider_disabled'
+    | 'provider_enabled'
+    | 'consent_suppression_clear'
+    | 'canary_eligible'
+    | 'live_send_eligible'
+  label: string
+  status: WarmSmsProviderCheckStatus
+  detail: string
+}
+
+export type WarmSmsProviderNoSendCanaryReadiness = {
+  version: 'warm-outreach-sms-no-send-canary-readiness/v1'
+  state: 'blocked_by_readiness' | 'ready_no_send_simulation'
+  label: string
+  detail: string
+  simulatedRoute: 'existing_warm_outreach_contact_surface'
+  routePlan: {
+    selectedProvider: WarmSmsProviderTransportConfigSnapshot['selectedProvider']
+    messageVersionKey: string
+    idempotencyKeyPreview: string
+    auditKey: string
+    senderReferenceRecorded: boolean
+    deliveryCallbackRecorded: boolean
+    optOutCallbackRecorded: boolean
+    deliveryConfirmationStoreMapped: boolean
+    rawPhoneReturned: false
+    rawMessageBodyReturned: false
+  }
+  prerequisiteSummary: {
+    transportConfigured: boolean
+    providerDisabled: boolean
+    providerEnabled: boolean
+    consentSuppressionClear: boolean
+    canaryEligible: boolean
+    liveSendEligible: false
+  }
+  result: {
+    status: 'blocked' | 'would_route_no_send'
+    reason: string
+    providerCallsEnabled: false
+    smsDeliveryEnabled: false
+    providerActivationEnabled: false
+    environmentVariablesChanged: false
+    providerMessageId: null
+    deliveryStatus: null
+    deliveryConfirmationStatus: 'placeholder_only'
+    externalRequests: []
+  }
+  executionBoundary: {
+    simulationOnly: true
+    providerCallsEnabled: false
+    smsDeliveryEnabled: false
+    providerActivationEnabled: false
+    credentialsRead: false
+    environmentVariablesChanged: false
+    databaseWritesEnabled: false
+    slackDispatchEnabled: false
+    gmailActionEnabled: false
+    n8nDispatchEnabled: false
+    externalRequests: []
+  }
+}
+
 export type WarmSmsProviderSetupReadiness = {
   version: 'warm-outreach-sms-provider-setup-readiness/v1'
   state: WarmSmsProviderSetupReadinessState
@@ -366,6 +432,8 @@ export type WarmSmsProviderReadiness = {
   }
   setupReadiness: WarmSmsProviderSetupReadiness
   transportReadiness: WarmSmsProviderTransportReadiness
+  activationChecklist: WarmSmsProviderActivationChecklistItem[]
+  noSendCanary: WarmSmsProviderNoSendCanaryReadiness
   activationReadiness: {
     version: 'warm-outreach-sms-provider-activation-readiness/v1'
     state:
@@ -1023,6 +1091,128 @@ export function buildWarmSmsProviderReadiness(
       externalRequests: [],
     },
   }
+  const transportConfigured = transportReadiness.state === 'configured_ready'
+  const providerDisabled =
+    input.provider.configured &&
+    !input.provider.enabled &&
+    !transportConfig.executionFlagEnabled
+  const providerEnabled = input.provider.configured && input.provider.enabled
+  const canaryEligible =
+    transportConfigured &&
+    providerDisabled &&
+    consentPrerequisitesMet &&
+    capabilitiesComplete &&
+    activationReviewedAtValid &&
+    transportConfig.deliveryConfirmationStoreMapped
+  const activationChecklist: WarmSmsProviderActivationChecklistItem[] = [
+    {
+      key: 'transport_configured',
+      label: 'Transport configured',
+      status: transportConfigured ? 'passed' : 'blocked',
+      detail: transportConfigured
+        ? 'Adapter, sender, callbacks, delivery store, audit key, and idempotency namespace are mapped.'
+        : transportBlockedReasons[0] ?? 'Complete the redacted transport configuration before a no-send canary.',
+    },
+    {
+      key: 'provider_disabled',
+      label: 'Provider disabled',
+      status: providerDisabled ? 'passed' : 'blocked',
+      detail: providerDisabled
+        ? 'Provider execution remains disabled, which is required for this no-send canary phase.'
+        : providerEnabled
+          ? 'Provider appears enabled; this phase fails closed and will not run a canary.'
+          : 'Record a disabled provider configuration before the no-send canary can be reviewed.',
+    },
+    {
+      key: 'provider_enabled',
+      label: 'Provider enabled',
+      status: providerEnabled ? 'review_required' : 'blocked',
+      detail: providerEnabled
+        ? 'A later activation phase must review this enabled state; live sends are still off here.'
+        : 'Provider enablement is intentionally absent in this PR and remains a later explicit gate.',
+    },
+    {
+      key: 'consent_suppression_clear',
+      label: 'Consent and suppression clear',
+      status: consentPrerequisitesMet ? 'passed' : 'blocked',
+      detail: consentPrerequisitesMet
+        ? 'Recipient consent, phone provenance, suppression, and cooldown prerequisites are clear in this snapshot.'
+        : blockers[0] ?? 'Resolve recipient safety evidence before canary review.',
+    },
+    {
+      key: 'canary_eligible',
+      label: 'No-send canary eligible',
+      status: canaryEligible ? 'passed' : 'blocked',
+      detail: canaryEligible
+        ? 'The selected provider configuration can be routed through the local canary simulation without external SMS calls.'
+        : 'Canary eligibility requires configured transport, disabled provider execution, verified capability evidence, delivery placeholder mapping, and a setup audit timestamp.',
+    },
+    {
+      key: 'live_send_eligible',
+      label: 'Live send eligible',
+      status: 'blocked',
+      detail: 'Always false in this PR. Live SMS requires a later route, provider flag, delivery confirmation, and current per-recipient authorization.',
+    },
+  ]
+  const noSendCanary: WarmSmsProviderNoSendCanaryReadiness = {
+    version: 'warm-outreach-sms-no-send-canary-readiness/v1',
+    state: canaryEligible ? 'ready_no_send_simulation' : 'blocked_by_readiness',
+    label: canaryEligible
+      ? 'No-send canary can route configuration without SMS delivery'
+      : 'No-send canary blocked by readiness gaps',
+    detail: canaryEligible
+      ? 'The canary would resolve the selected provider adapter, message version, audit key, and idempotency preview inside the existing warm outreach contact surface only.'
+      : activationChecklist.find((item) => item.status === 'blocked')?.detail ??
+        'Complete provider activation prerequisites before no-send canary review.',
+    simulatedRoute: 'existing_warm_outreach_contact_surface',
+    routePlan: {
+      selectedProvider: transportReadiness.selectedProvider,
+      messageVersionKey: transportReadiness.auditAndIdempotency.messageVersionKey,
+      idempotencyKeyPreview: transportReadiness.auditAndIdempotency.idempotencyKeyPreview,
+      auditKey: transportReadiness.auditAndIdempotency.auditKey,
+      senderReferenceRecorded: transportReadiness.senderReadiness.senderReferenceRecorded,
+      deliveryCallbackRecorded: transportConfig.deliveryCallbackRecorded,
+      optOutCallbackRecorded: transportConfig.optOutCallbackRecorded,
+      deliveryConfirmationStoreMapped: transportReadiness.deliveryConfirmation.deliveryStoreMapped,
+      rawPhoneReturned: false,
+      rawMessageBodyReturned: false,
+    },
+    prerequisiteSummary: {
+      transportConfigured,
+      providerDisabled,
+      providerEnabled,
+      consentSuppressionClear: consentPrerequisitesMet,
+      canaryEligible,
+      liveSendEligible: false,
+    },
+    result: {
+      status: canaryEligible ? 'would_route_no_send' : 'blocked',
+      reason: canaryEligible
+        ? 'Local route simulation can resolve the selected provider configuration and audit contract; it will not call a provider or transmit SMS.'
+        : 'Readiness gaps block the no-send canary simulation.',
+      providerCallsEnabled: false,
+      smsDeliveryEnabled: false,
+      providerActivationEnabled: false,
+      environmentVariablesChanged: false,
+      providerMessageId: null,
+      deliveryStatus: null,
+      deliveryConfirmationStatus: 'placeholder_only',
+      externalRequests: [],
+    },
+    executionBoundary: {
+      simulationOnly: true,
+      providerCallsEnabled: false,
+      smsDeliveryEnabled: false,
+      providerActivationEnabled: false,
+      credentialsRead: false,
+      environmentVariablesChanged: false,
+      databaseWritesEnabled: false,
+      slackDispatchEnabled: false,
+      gmailActionEnabled: false,
+      n8nDispatchEnabled: false,
+      externalRequests: [],
+    },
+  }
 
   return {
     version: 'warm-outreach-sms-provider-readiness/v1',
@@ -1185,6 +1375,8 @@ export function buildWarmSmsProviderReadiness(
       },
     },
     transportReadiness,
+    activationChecklist,
+    noSendCanary,
     activationReadiness: {
       version: 'warm-outreach-sms-provider-activation-readiness/v1',
       state: activationState,
