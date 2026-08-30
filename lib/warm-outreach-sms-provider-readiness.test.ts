@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   buildWarmSmsProviderReadiness,
+  parseWarmSmsProviderTransportConfig,
   type WarmSmsProviderReadinessInput,
 } from './warm-outreach-sms-provider-readiness'
 
@@ -52,6 +53,113 @@ function input(
 }
 
 describe('warm SMS provider readiness', () => {
+  it('parses transport config into redacted fail-closed readiness states', () => {
+    expect(parseWarmSmsProviderTransportConfig()).toMatchObject({
+      state: 'not_configured',
+      selectedProvider: {
+        key: null,
+        configured: false,
+        rawValueReturned: false,
+      },
+      executionFlagEnabled: false,
+      blockers: expect.arrayContaining(['SMS provider adapter is not configured.']),
+      externalRequests: [],
+    })
+
+    const disabled = parseWarmSmsProviderTransportConfig({
+      SMS_PROVIDER_ADAPTER: 'twilio',
+      SMS_PROVIDER_CREDENTIAL_REFERENCE: 'infisical:/warm-sms/twilio',
+      ENABLE_WARM_SMS_PROVIDER_EXECUTION: false,
+    })
+    expect(disabled).toMatchObject({
+      state: 'configured_disabled',
+      selectedProvider: {
+        key: 'twilio_messaging',
+        label: 'Twilio Messaging',
+        rawValueReturned: false,
+      },
+      credentialReferenceRecorded: true,
+      senderReferenceRecorded: false,
+      blockers: expect.arrayContaining([
+        'Sender identity reference is not recorded.',
+        'Delivery callback mapping is not recorded.',
+        'Opt-out callback mapping is not recorded.',
+        'Delivery confirmation store mapping is not recorded.',
+      ]),
+      configItems: expect.arrayContaining([
+        expect.objectContaining({
+          key: 'SMS_PROVIDER_CREDENTIAL_REFERENCE',
+          status: 'present_redacted',
+          rawValueReturned: false,
+        }),
+      ]),
+    })
+
+    const ready = parseWarmSmsProviderTransportConfig({
+      SMS_PROVIDER_ADAPTER: 'telnyx_messaging',
+      SMS_PROVIDER_CREDENTIAL_REFERENCE: 'infisical:/warm-sms/telnyx',
+      SMS_PROVIDER_SENDER_REFERENCE: 'telnyx-profile-ref',
+      SMS_PROVIDER_DELIVERY_CALLBACK: '/api/provider/sms/delivery',
+      SMS_PROVIDER_OPT_OUT_CALLBACK: '/api/provider/sms/stop',
+      WARM_SMS_DELIVERY_CONFIRMATION_STORE: 'outreach_delivery_attempts',
+      WARM_SMS_MESSAGE_VERSION_KEY: 'message-v1',
+      WARM_SMS_IDEMPOTENCY_NAMESPACE: 'warm-sms-send:v2',
+      WARM_SMS_AUDIT_KEY: 'audit-v1',
+      ENABLE_WARM_SMS_PROVIDER_EXECUTION: false,
+    })
+    expect(ready).toMatchObject({
+      state: 'configured_ready',
+      selectedProvider: {
+        key: 'telnyx_messaging',
+        label: 'Telnyx Messaging',
+      },
+      senderReferenceRecorded: true,
+      deliveryConfirmationStoreMapped: true,
+      messageVersionKey: 'message-v1',
+      idempotencyNamespace: 'warm-sms-send:v2',
+      auditKey: 'audit-v1',
+      blockers: [],
+      externalRequests: [],
+    })
+
+    expect(parseWarmSmsProviderTransportConfig({
+      SMS_PROVIDER_ADAPTER: 'unknown_sms_vendor',
+      SMS_PROVIDER_UNAVAILABLE_REASON: 'Provider is not approved for Portfolio.',
+    })).toMatchObject({
+      state: 'unavailable',
+      selectedProvider: {
+        key: null,
+        unavailable: true,
+      },
+      blockers: expect.arrayContaining([
+        'Provider is not approved for Portfolio.',
+      ]),
+    })
+
+    expect(parseWarmSmsProviderTransportConfig({
+      SMS_PROVIDER_ADAPTER: 'twilio_messaging',
+      SMS_PROVIDER_CREDENTIAL_REFERENCE: 'present',
+      SMS_PROVIDER_SENDER_REFERENCE: 'present',
+      SMS_PROVIDER_DELIVERY_CALLBACK: 'present',
+      SMS_PROVIDER_OPT_OUT_CALLBACK: 'present',
+      WARM_SMS_DELIVERY_CONFIRMATION_STORE: 'present',
+      ENABLE_WARM_SMS_PROVIDER_EXECUTION: 'true',
+    })).toMatchObject({
+      state: 'blocked',
+      executionFlagEnabled: true,
+      blockers: expect.arrayContaining([
+        'ENABLE_WARM_SMS_PROVIDER_EXECUTION is enabled; this readiness phase fails closed and does not send SMS.',
+      ]),
+      configItems: expect.arrayContaining([
+        expect.objectContaining({
+          key: 'ENABLE_WARM_SMS_PROVIDER_EXECUTION',
+          status: 'blocked',
+          rawValueReturned: false,
+        }),
+      ]),
+    })
+  })
+
   it('distinguishes missing and disabled provider states without enabling calls', () => {
     const missing = buildWarmSmsProviderReadiness(input({
       provider: { name: null, configured: false, enabled: false },
@@ -96,6 +204,22 @@ describe('warm SMS provider readiness', () => {
           environmentChanges: false,
           featureFlagEnabled: false,
           routeImplemented: false,
+        },
+      },
+      transportReadiness: {
+        version: 'warm-outreach-sms-provider-transport-readiness/v1',
+        state: 'not_configured',
+        selectedProvider: {
+          configured: false,
+          rawValueReturned: false,
+        },
+        executionBoundary: {
+          providerCallsEnabled: false,
+          smsDeliveryEnabled: false,
+          providerActivationEnabled: false,
+          credentialsRead: false,
+          environmentVariablesChanged: false,
+          externalRequests: [],
         },
       },
     })
@@ -144,6 +268,22 @@ describe('warm SMS provider readiness', () => {
           credentialsRead: false,
           environmentVariablesChanged: false,
           featureFlagEnabled: false,
+        },
+      },
+      transportReadiness: {
+        state: 'configured_disabled',
+        selectedProvider: {
+          key: 'custom_disabled_adapter',
+          label: 'Custom disabled adapter',
+        },
+        senderReadiness: {
+          status: 'missing',
+          rawSenderReturned: false,
+        },
+        deliveryConfirmation: {
+          status: 'placeholder_only',
+          providerMessageId: null,
+          deliveryStatus: null,
         },
       },
     })
@@ -208,6 +348,24 @@ describe('warm SMS provider readiness', () => {
         activationEnabled: false,
         providerCallsEnabled: false,
         smsDeliveryEnabled: false,
+      },
+    })
+    expect(readiness.transportReadiness).toMatchObject({
+      state: 'blocked',
+      consentSuppressionRequirements: {
+        required: true,
+        met: false,
+        suppressionClear: false,
+      },
+      blockedReasons: expect.arrayContaining([
+        'Stop or opt-out evidence suppresses SMS.',
+        'Wrong-number evidence suppresses SMS.',
+        'The contact is marked do not contact.',
+      ]),
+      executionBoundary: {
+        providerCallsEnabled: false,
+        smsDeliveryEnabled: false,
+        externalRequests: [],
       },
     })
   })
@@ -396,6 +554,34 @@ describe('warm SMS provider readiness', () => {
         expect.objectContaining({ key: 'custom_disabled_adapter', externalCallsEnabled: false }),
       ]),
     )
+    expect(readiness.transportReadiness).toMatchObject({
+      state: 'configured_disabled',
+      selectedProvider: {
+        key: 'twilio_messaging',
+        label: 'Twilio Messaging',
+      },
+      capabilityReadiness: {
+        status: 'partial',
+        verified: 1,
+        total: 6,
+      },
+      auditAndIdempotency: {
+        rawPhoneStored: false,
+        rawMessageBodyStored: false,
+        recordBeforeProviderAttempt: true,
+        duplicatePolicy: 'return_existing_attempt_evidence_without_resend',
+      },
+      deliveryConfirmation: {
+        status: 'placeholder_only',
+        providerMessageId: null,
+        deliveryStatus: null,
+      },
+      executionBoundary: {
+        providerCallsEnabled: false,
+        smsDeliveryEnabled: false,
+        externalRequests: [],
+      },
+    })
   })
 
   it('keeps provider calls and sends disabled when every activation contract is reviewed', () => {
@@ -419,6 +605,18 @@ describe('warm SMS provider readiness', () => {
           sandbox_or_no_send_test: verified,
         },
         reviewedAt: '2026-08-29T12:30:00.000Z',
+      },
+      transportConfig: {
+        SMS_PROVIDER_ADAPTER: 'telnyx_messaging',
+        SMS_PROVIDER_CREDENTIAL_REFERENCE: 'infisical:/warm-sms/telnyx',
+        SMS_PROVIDER_SENDER_REFERENCE: 'telnyx-sender-ref',
+        SMS_PROVIDER_DELIVERY_CALLBACK: '/api/provider/sms/delivery',
+        SMS_PROVIDER_OPT_OUT_CALLBACK: '/api/provider/sms/stop',
+        WARM_SMS_DELIVERY_CONFIRMATION_STORE: 'outreach_delivery_attempts',
+        WARM_SMS_MESSAGE_VERSION_KEY: 'message-v1',
+        WARM_SMS_IDEMPOTENCY_NAMESPACE: 'warm-sms-send:v1',
+        WARM_SMS_AUDIT_KEY: 'audit-v1',
+        ENABLE_WARM_SMS_PROVIDER_EXECUTION: false,
       },
     }))
 
@@ -464,6 +662,54 @@ describe('warm SMS provider readiness', () => {
       genericProceedAccepted: false,
       sendRouteImplemented: false,
       externalSendEnabled: false,
+    })
+    expect(readiness.transportReadiness).toMatchObject({
+      state: 'configured_ready',
+      label: 'SMS transport configured-ready; send remains off',
+      selectedProvider: {
+        key: 'telnyx_messaging',
+        label: 'Telnyx Messaging',
+        rawValueReturned: false,
+      },
+      senderReadiness: {
+        status: 'ready',
+        senderReferenceRecorded: true,
+        rawSenderReturned: false,
+      },
+      capabilityReadiness: {
+        status: 'ready',
+        verified: 6,
+        total: 6,
+      },
+      consentSuppressionRequirements: {
+        met: true,
+        suppressionClear: true,
+        phoneProvenanceVerified: true,
+        permissionDocumented: true,
+        auditTimestampValid: true,
+      },
+      auditAndIdempotency: {
+        messageVersionKey: 'message-v1',
+        idempotencyNamespace: 'warm-sms-send:v1',
+        auditKey: 'audit-v1',
+        idempotencyKeyPreview: 'warm-sms-send:v1:contact:{contact_id}:sms:message-v1:approval:{approval_key}',
+      },
+      deliveryConfirmation: {
+        status: 'placeholder_only',
+        deliveryStoreMapped: true,
+        providerMessageId: null,
+        deliveryStatus: null,
+      },
+      executionBoundary: {
+        providerCallsEnabled: false,
+        smsDeliveryEnabled: false,
+        providerActivationEnabled: false,
+        routeImplemented: false,
+        featureFlagEnabled: false,
+        credentialsRead: false,
+        environmentVariablesChanged: false,
+        externalRequests: [],
+      },
     })
   })
 })

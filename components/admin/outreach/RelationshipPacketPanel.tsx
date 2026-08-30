@@ -1379,6 +1379,16 @@ function smsSetupValidationClasses(
   return smsCheckClasses('review_required')
 }
 
+function smsTransportReadinessClasses(
+  state: WarmSmsReadiness['providerReadiness']['transportReadiness']['state'],
+) {
+  if (state === 'configured_ready') return 'border-emerald-500/30 bg-emerald-500/10 text-emerald-100'
+  if (state === 'configured_disabled' || state === 'not_configured') {
+    return 'border-amber-500/30 bg-amber-500/10 text-amber-100'
+  }
+  return 'border-red-500/30 bg-red-500/10 text-red-100'
+}
+
 function SmsManualOutreachCard({ readiness }: { readiness?: WarmSmsReadiness | null }) {
   const [decision, setDecision] = useState<WarmSmsApprovalState>(
     readiness?.approval.state ?? 'not_reviewed',
@@ -1425,6 +1435,7 @@ function SmsManualOutreachCard({ readiness }: { readiness?: WarmSmsReadiness | n
   const providerReadiness = readiness.providerReadiness
   const activationReadiness = providerReadiness.activationReadiness
   const setupReadiness = providerReadiness.setupReadiness
+  const transportReadiness = providerReadiness.transportReadiness
   const providerChecksPassed = providerReadiness.consentAndSuppression.checks
     .filter((check) => check.status === 'passed').length
   const providerChecksTotal = providerReadiness.consentAndSuppression.checks.length
@@ -1614,6 +1625,65 @@ function SmsManualOutreachCard({ readiness }: { readiness?: WarmSmsReadiness | n
           </p>
         </div>
 
+        <div
+          data-sms-transport-readiness
+          className={`mt-2 rounded-md border p-2.5 ${smsTransportReadinessClasses(transportReadiness.state)}`}
+        >
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0">
+              <p className="text-[10px] font-semibold uppercase tracking-wide">Provider transport contract</p>
+              <p className="mt-1 text-sm font-semibold">{transportReadiness.label}</p>
+              <p className="mt-1 text-[10px] leading-4 opacity-85">
+                This phase records readiness only. It does not send SMS, activate a provider, mutate env, or call an external service.
+              </p>
+            </div>
+            <span className="inline-flex min-h-7 w-fit shrink-0 items-center rounded-full border border-current/25 bg-background/25 px-2 py-0.5 text-[10px] font-semibold">
+              {transportReadiness.state.replaceAll('_', ' ')}
+            </span>
+          </div>
+          <div className="mt-2 grid grid-cols-2 gap-1.5 xl:grid-cols-4">
+            <div className="rounded-md border border-current/20 bg-background/25 p-1.5">
+              <p className="text-[10px] font-semibold uppercase tracking-wide">Selected provider</p>
+              <p className="mt-1 text-[10px] leading-3">
+                {transportReadiness.selectedProvider.label}
+              </p>
+              <p className="mt-1 text-[9px] leading-3 opacity-80">
+                Configured: {transportReadiness.selectedProvider.configured ? 'yes' : 'no'} · raw value: no
+              </p>
+            </div>
+            <div className="rounded-md border border-current/20 bg-background/25 p-1.5">
+              <p className="text-[10px] font-semibold uppercase tracking-wide">Sender and capability</p>
+              <p className="mt-1 text-[10px] leading-3">
+                Sender: {transportReadiness.senderReadiness.status}. Capabilities: {transportReadiness.capabilityReadiness.verified}/{transportReadiness.capabilityReadiness.total}.
+              </p>
+              <p className="mt-1 text-[9px] leading-3 opacity-80">
+                Sender reference recorded: {transportReadiness.senderReadiness.senderReferenceRecorded ? 'yes' : 'no'}
+              </p>
+            </div>
+            <div className="rounded-md border border-current/20 bg-background/25 p-1.5">
+              <p className="text-[10px] font-semibold uppercase tracking-wide">Audit and idempotency</p>
+              <p className="mt-1 text-[10px] leading-3">
+                {transportReadiness.auditAndIdempotency.idempotencyNamespace}
+              </p>
+              <p className="mt-1 text-[9px] leading-3 opacity-80">
+                Message version: {transportReadiness.auditAndIdempotency.messageVersionKey} · raw phone/body: no
+              </p>
+            </div>
+            <div className="rounded-md border border-current/20 bg-background/25 p-1.5">
+              <p className="text-[10px] font-semibold uppercase tracking-wide">Delivery confirmation</p>
+              <p className="mt-1 text-[10px] leading-3">
+                {transportReadiness.deliveryConfirmation.status.replaceAll('_', ' ')} · mapped {transportReadiness.deliveryConfirmation.deliveryStoreMapped ? 'yes' : 'no'}
+              </p>
+              <p className="mt-1 text-[9px] leading-3 opacity-80">
+                Provider message ID: placeholder only. Delivery status: placeholder only.
+              </p>
+            </div>
+          </div>
+          <p className="mt-2 text-[10px] leading-4 opacity-85" data-sms-transport-next-action>
+            {transportReadiness.nextAction}
+          </p>
+        </div>
+
         <details
           data-testid="warm-sms-provider-details"
           className="mt-2 rounded-md border border-current/20 bg-background/20 p-2"
@@ -1751,6 +1821,30 @@ function SmsManualOutreachCard({ readiness }: { readiness?: WarmSmsReadiness | n
                 Approval must match contact, SMS channel, message version, and idempotency key. Live send: off.
               </p>
             </div>
+          </div>
+
+          <div data-sms-transport-config-items className="mt-2 rounded-md border border-current/20 bg-background/25 p-2">
+            <p className="text-[10px] font-semibold uppercase tracking-wide">Transport config parse · redacted</p>
+            <div className="mt-2 grid gap-1.5 sm:grid-cols-2 xl:grid-cols-3">
+              {transportReadiness.selectedProvider.configured && transportReadiness.blockedReasons.length === 0 ? (
+                <div className="rounded-md border border-emerald-500/25 bg-emerald-500/10 p-2 text-emerald-100">
+                  <p className="text-[10px] font-semibold uppercase tracking-wide">No transport blockers</p>
+                  <p className="mt-1 text-[10px] leading-4">
+                    Provider transport can be reviewed for a future gate. Provider activation and SMS delivery remain off.
+                  </p>
+                </div>
+              ) : (
+                transportReadiness.blockedReasons.slice(0, 6).map((reason) => (
+                  <div key={reason} className="rounded-md border border-amber-500/25 bg-amber-500/10 p-2 text-amber-100">
+                    <p className="text-[10px] font-semibold uppercase tracking-wide">Transport blocker</p>
+                    <p className="mt-1 text-[10px] leading-4">{reason}</p>
+                  </div>
+                ))
+              )}
+            </div>
+            <p className="mt-2 text-[10px] leading-4 opacity-80">
+              External requests: {transportReadiness.executionBoundary.externalRequests.length}. Credentials read: no. Environment variables changed: no.
+            </p>
           </div>
 
           <div data-sms-audit-recovery className="mt-2 grid gap-1.5 sm:grid-cols-2">
