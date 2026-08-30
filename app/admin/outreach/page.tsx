@@ -269,6 +269,7 @@ function OutreachContent() {
   const [smsTelnyxCanaryLoadingLeadId, setSmsTelnyxCanaryLoadingLeadId] = useState<number | null>(null)
   const [smsTelnyxCanaryErrors, setSmsTelnyxCanaryErrors] = useState<Record<number, string | null>>({})
   const [smsTelnyxCanaryResults, setSmsTelnyxCanaryResults] = useState<Record<number, SmsTelnyxNoSendCanaryResult | null>>({})
+  const [authToken, setAuthToken] = useState<string | null>(null)
 
   // Add lead modal
   const [showAddLeadModal, setShowAddLeadModal] = useState(false)
@@ -629,6 +630,18 @@ function OutreachContent() {
     const qs = params.toString()
     router.replace(`/admin/outreach?${qs}`)
   }, [searchParams, router])
+
+  useEffect(() => {
+    let cancelled = false
+    getCurrentSession()
+      .then((currentSession) => {
+        if (!cancelled) setAuthToken(currentSession?.access_token ?? null)
+      })
+      .catch(() => {
+        if (!cancelled) setAuthToken(null)
+      })
+    return () => { cancelled = true }
+  }, [])
 
   // Fetch escalations for the expanded lead (for "Chat escalations for this contact")
   useEffect(() => {
@@ -1416,6 +1429,7 @@ function OutreachContent() {
                     />
                   )}
                   <RelationshipPacketPanel
+                    authToken={authToken}
                     loading={relationshipPacketLeadId === outreachWorkroomLead.id && relationshipPacketLoading}
                     error={relationshipPacketLeadId === outreachWorkroomLead.id ? relationshipPacketError : null}
                     data={relationshipPacketLeadId === outreachWorkroomLead.id ? relationshipPacketData : null}
@@ -2040,6 +2054,7 @@ function OutreachContent() {
                             >
                               <div className="p-4 grid grid-cols-1 lg:grid-cols-2 gap-6">
                                 <RelationshipPacketPanel
+                                  authToken={authToken}
                                   loading={relationshipPacketLeadId === lead.id && relationshipPacketLoading}
                                   error={relationshipPacketLeadId === lead.id ? relationshipPacketError : null}
                                   data={relationshipPacketLeadId === lead.id ? relationshipPacketData : null}

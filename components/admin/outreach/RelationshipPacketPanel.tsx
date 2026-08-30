@@ -114,6 +114,7 @@ type SmsCandidateRouteResult = {
 }
 
 interface RelationshipPacketPanelProps {
+  authToken?: string | null
   loading: boolean
   error: string | null
   data: RelationshipPacketApiResponse | null
@@ -1446,12 +1447,14 @@ function smsLiveExecutionGateClasses(status: 'passed' | 'available' | 'required'
 }
 
 function SmsManualOutreachCard({
+  authToken,
   readiness,
   smsTelnyxCanaryLoading = false,
   smsTelnyxCanaryError = null,
   smsTelnyxCanaryResult = null,
   onSmsTelnyxNoSendCanary,
 }: {
+  authToken?: string | null
   readiness?: WarmSmsReadiness | null
   smsTelnyxCanaryLoading?: boolean
   smsTelnyxCanaryError?: string | null
@@ -1650,13 +1653,20 @@ function SmsManualOutreachCard({
 
   async function prepareSmsCandidate() {
     if (!candidateReview.prepareAction.enabledOnThisSurface) return
+    if (!authToken) {
+      setCandidateError('Authentication is required before preparing an SMS candidate.')
+      return
+    }
     setCandidateLoading(true)
     setCandidateError(null)
     setCandidateReceipt(null)
     try {
       const response = await fetch(`/api/admin/outreach/leads/${encodeURIComponent(activeReadiness.contactId)}/sms-candidate`, {
         method: 'POST',
-        headers: { 'content-type': 'application/json' },
+        headers: {
+          'content-type': 'application/json',
+          Authorization: `Bearer ${authToken}`,
+        },
         body: JSON.stringify({ messageText: draftText }),
       })
       const body = await response.json().catch(() => ({})) as SmsCandidateRouteResult
@@ -2904,6 +2914,7 @@ export default function RelationshipPacketPanel({
   loading,
   error,
   data,
+  authToken,
   inertSlackApprovalRequest,
   onGmailDraftCanary,
   onSmsTelnyxNoSendCanary,
@@ -3015,6 +3026,7 @@ export default function RelationshipPacketPanel({
           )}
 
           <SmsManualOutreachCard
+            authToken={authToken}
             readiness={smsReadiness}
             smsTelnyxCanaryLoading={smsTelnyxCanaryLoading}
             smsTelnyxCanaryError={smsTelnyxCanaryError}

@@ -1407,7 +1407,7 @@ describe('RelationshipPacketPanel', () => {
       }),
     }
 
-    render(<RelationshipPacketPanel loading={false} error={null} data={smsReady} />)
+    render(<RelationshipPacketPanel authToken="admin-token" loading={false} error={null} data={smsReady} />)
 
     expect(screen.getByText('Warm SMS manual readiness')).toBeInTheDocument()
     expect(screen.getByText('SMS draft needs manual review')).toBeInTheDocument()
@@ -1767,7 +1767,7 @@ describe('RelationshipPacketPanel', () => {
       }),
     }
 
-    render(<RelationshipPacketPanel loading={false} error={null} data={smsReady} />)
+    render(<RelationshipPacketPanel authToken="admin-token" loading={false} error={null} data={smsReady} />)
 
     fireEvent.click(screen.getByRole('button', { name: 'Approve' }))
     fireEvent.click(screen.getByRole('button', { name: 'Copy approved draft' }))
@@ -1892,7 +1892,7 @@ describe('RelationshipPacketPanel', () => {
       smsReadiness: baseSms,
     }
 
-    render(<RelationshipPacketPanel loading={false} error={null} data={smsReady} />)
+    render(<RelationshipPacketPanel authToken="admin-token" loading={false} error={null} data={smsReady} />)
 
     expect(screen.getByText('SMS candidate row')).toBeInTheDocument()
     expect(screen.getByText('Ready to prepare SMS candidate')).toBeInTheDocument()
@@ -1904,7 +1904,10 @@ describe('RelationshipPacketPanel', () => {
       '/api/admin/outreach/leads/42/sms-candidate',
       expect.objectContaining({
         method: 'POST',
-        headers: { 'content-type': 'application/json' },
+        headers: {
+          'content-type': 'application/json',
+          Authorization: 'Bearer admin-token',
+        },
       }),
     ))
     expect(JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body))).toMatchObject({
@@ -1917,6 +1920,28 @@ describe('RelationshipPacketPanel', () => {
     expect(screen.getByText('Approval: missing')).toBeInTheDocument()
     expect(screen.getByText('Send evidence: none')).toBeInTheDocument()
     expect(screen.getByText(/provider calls off \/ SMS delivery off \/ Telnyx API no/)).toBeInTheDocument()
+
+    vi.stubGlobal('fetch', previousFetch)
+  })
+
+  it('does not prepare an SMS candidate without an auth token', async () => {
+    const previousFetch = globalThis.fetch
+    const fetchMock = vi.fn()
+    vi.stubGlobal('fetch', fetchMock)
+    const smsReady: RelationshipPacketApiResponse = {
+      ...packetResponse,
+      smsReadiness: buildWarmSmsReadiness({
+        packet: packetResponse.packet,
+        readiness: packetResponse.readiness,
+      }),
+    }
+
+    render(<RelationshipPacketPanel loading={false} error={null} data={smsReady} />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Prepare candidate' }))
+
+    expect(await screen.findByText('Authentication is required before preparing an SMS candidate.')).toBeInTheDocument()
+    expect(fetchMock).not.toHaveBeenCalled()
 
     vi.stubGlobal('fetch', previousFetch)
   })
