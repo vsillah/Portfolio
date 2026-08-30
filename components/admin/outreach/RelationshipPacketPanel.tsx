@@ -1492,8 +1492,9 @@ function SmsManualOutreachCard({
 
   if (!readiness) return null
 
+  const activeReadiness = readiness
   const loop = evaluateWarmSmsManualLoop({
-    readinessState: readiness.state,
+    readinessState: activeReadiness.state,
     approvalState: decision,
     draftText,
     draftRevised,
@@ -1506,7 +1507,7 @@ function SmsManualOutreachCard({
       outcome: responseOutcome,
     },
   })
-  const blocked = readiness.state === 'blocked'
+  const blocked = activeReadiness.state === 'blocked'
   const suppressed = loop.gates.smsPromptsSuppressed
   const providerReadiness = readiness.providerReadiness
   const candidateReview = localCandidateReview ?? readiness.candidateReview ?? buildWarmSmsCandidateReview({
@@ -1653,7 +1654,7 @@ function SmsManualOutreachCard({
     setCandidateError(null)
     setCandidateReceipt(null)
     try {
-      const response = await fetch(`/api/admin/outreach/leads/${encodeURIComponent(readiness.contactId)}/sms-candidate`, {
+      const response = await fetch(`/api/admin/outreach/leads/${encodeURIComponent(activeReadiness.contactId)}/sms-candidate`, {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ messageText: draftText }),

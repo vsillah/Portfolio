@@ -13,6 +13,7 @@ import {
 } from '@/lib/warm-outreach-relationship-intelligence'
 import { buildWarmOutreachResponseMonitoring } from '@/lib/warm-outreach-response-monitoring'
 import { buildWarmSmsReadiness } from '@/lib/warm-outreach-sms-readiness'
+import type { WarmSmsCandidateQueueRow } from '@/lib/warm-outreach-sms-candidate'
 
 export const dynamic = 'force-dynamic'
 
@@ -24,6 +25,53 @@ type InventoryRow = NonNullable<WarmOutreachSourceInventoryRows['contactCommunic
 
 function listData<T extends InventoryRow>(result: { data?: T[] | null }): T[] {
   return Array.isArray(result.data) ? result.data : []
+}
+
+function stringValue(value: unknown): string | null {
+  if (typeof value === 'string') {
+    const text = value.trim()
+    return text || null
+  }
+
+  if (typeof value === 'number' && Number.isFinite(value)) return String(value)
+  return null
+}
+
+function contactIdValue(value: unknown): WarmSmsCandidateQueueRow['contact_submission_id'] {
+  if (typeof value === 'string' || typeof value === 'number') return value
+  return null
+}
+
+function numberValue(value: unknown): number | null {
+  return typeof value === 'number' && Number.isFinite(value) ? value : null
+}
+
+function recordValue(value: unknown): WarmSmsCandidateQueueRow['generation_inputs'] {
+  return value && typeof value === 'object' && !Array.isArray(value)
+    ? value as WarmSmsCandidateQueueRow['generation_inputs']
+    : null
+}
+
+function smsCandidateQueueRows(rows: InventoryRow[]): WarmSmsCandidateQueueRow[] {
+  return rows.flatMap((row) => {
+    const id = stringValue(row.id)
+    if (!id) return []
+
+    return [{
+      id,
+      contact_submission_id: contactIdValue(row.contact_submission_id),
+      channel: stringValue(row.channel),
+      status: stringValue(row.status),
+      subject: stringValue(row.subject),
+      sequence_step: numberValue(row.sequence_step),
+      thread_id: stringValue(row.thread_id),
+      message_id: stringValue(row.message_id),
+      sent_at: stringValue(row.sent_at),
+      replied_at: stringValue(row.replied_at),
+      generation_inputs: recordValue(row.generation_inputs),
+      created_at: stringValue(row.created_at),
+    }]
+  })
 }
 
 function hasSuppressedStatus(rows: InventoryRow[]): boolean {
@@ -204,7 +252,7 @@ export async function GET(
     const smsReadiness = buildWarmSmsReadiness({
       packet,
       readiness,
-      queueRows: outreachQueue,
+      queueRows: smsCandidateQueueRows(outreachQueue),
     })
 
     return NextResponse.json({
