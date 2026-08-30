@@ -360,6 +360,13 @@ export type WarmSmsProviderTransportReadiness = {
     rawSenderReturned: false
     detail: string
   }
+  credentialReadiness: {
+    status: 'missing' | 'ready' | 'blocked' | 'unavailable'
+    credentialReferenceRecorded: boolean
+    runtimeCredentialAvailable: false
+    rawCredentialsReturned: false
+    detail: string
+  }
   capabilityReadiness: {
     status: 'missing' | 'partial' | 'ready' | 'blocked'
     verified: number
@@ -1888,6 +1895,22 @@ export function buildWarmSmsProviderReadiness(
       detail: transportConfig.senderReferenceRecorded
         ? 'A sender identity reference is recorded without exposing the sender value.'
         : 'Record the approved sender identity reference before a future provider attempt.',
+    },
+    credentialReadiness: {
+      status:
+        transportState === 'unavailable'
+          ? 'unavailable'
+          : transportState === 'blocked'
+            ? 'blocked'
+            : transportConfig.credentialReferenceRecorded
+              ? 'ready'
+              : 'missing',
+      credentialReferenceRecorded: transportConfig.credentialReferenceRecorded,
+      runtimeCredentialAvailable: false,
+      rawCredentialsReturned: false,
+      detail: transportConfig.credentialReferenceRecorded
+        ? 'A credential reference is recorded, but runtime secret availability is verified only by the guarded live route.'
+        : 'Record the approved 1Password or secret-manager reference before a future provider attempt.',
     },
     capabilityReadiness: {
       status:
