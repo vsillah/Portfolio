@@ -630,7 +630,7 @@ async function buildSocialCalendarApprovalDuePayload() {
       type: 'section',
       text: mrkdwn([
         '*Content calendar approvals are due*',
-        `These unreleased calendar rows are stale or scheduled within ${socialCalendarApprovalReminderWindowHours()} hours with an outstanding approval gate. Slack is the reminder surface; Portfolio is the canonical decision path.`,
+        `These unreleased calendar rows are stale or scheduled within ${socialCalendarApprovalReminderWindowHours()} hours with an outstanding approval gate. Slack can record internal draft-handoff decisions; Portfolio remains the canonical readiness surface.`,
       ].join('\n')),
     },
   ]
@@ -665,11 +665,37 @@ async function buildSocialCalendarApprovalDuePayload() {
     blocks.push({
       type: 'actions',
       elements: [
+        ...(!item.stale ? [
+          slackButton({
+            label: 'Authorize handoff',
+            actionId: 'social_calendar_draft_handoff_approve',
+            style: 'primary',
+            value: {
+              action: 'social_calendar_draft_handoff.approve',
+              schemaVersion: 'social-calendar-approval/v1',
+              calendarItemId: item.row.id,
+              contentId: item.row.social_content_queue?.id ?? item.row.social_content_id ?? undefined,
+              note: 'Authorize Draft Handoff tapped in Slack. Record internal content-readiness approval only; do not publish, schedule externally, upload, or call providers.',
+            },
+            confirmText: 'Authorize the internal draft handoff for this calendar item? This will not publish, schedule externally, upload, or call providers.',
+          }),
+          slackButton({
+            label: 'Reject',
+            actionId: 'social_calendar_draft_handoff_reject',
+            value: {
+              action: 'social_calendar_draft_handoff.reject',
+              schemaVersion: 'social-calendar-approval/v1',
+              calendarItemId: item.row.id,
+              contentId: item.row.social_content_queue?.id ?? item.row.social_content_id ?? undefined,
+              note: 'Rejected from Slack. Keep content pipeline blocked until the calendar item is revised.',
+            },
+          }),
+        ] : []),
         slackButton({
           label: item.stale ? 'Review recovery' : 'Open gate',
           actionId: item.stale ? 'open_social_calendar_recalibration' : 'open_social_calendar_approval_gate',
           url: agentUrl(socialCalendarApprovalDeepLink(item.row)),
-          style: 'primary',
+          style: item.stale ? 'primary' : undefined,
         }),
         slackButton({
           label: 'Open calendar',

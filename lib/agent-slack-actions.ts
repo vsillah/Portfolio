@@ -12,6 +12,10 @@ import { routeAgentInboxItem } from '@/lib/agent-inbox-routing'
 import { supabaseAdmin } from '@/lib/supabase'
 import { decodeSlackActionValue, type SlackAgentActionValue } from '@/lib/agent-slack-blocks'
 import { decideSocialCommentReplyFromSlack } from '@/lib/social-comment-attention'
+import {
+  authorizeCalendarDraftHandoff,
+  rejectCalendarDraftHandoff,
+} from '@/lib/social-content-calendar-handoff'
 import { decideWarmGmailSendAuthorizationFromSlack } from '@/lib/warm-outreach-slack-send-approval'
 
 export type SlackInteractivePayload = {
@@ -122,6 +126,7 @@ function idempotencyKey(payload: SlackInteractivePayload, value: SlackAgentActio
     value.approvalId ??
     value.workItemId ??
     value.runId ??
+    value.calendarItemId ??
     value.commentId ??
     value.contentId ??
     value.sendQueueIdempotencyKey ??
@@ -285,6 +290,50 @@ async function decideApprovalFromSlack(input: {
 async function runIdForWorkItem(workItemId: string) {
   const item = await getAgentWorkItem(workItemId)
   return item?.active_run_id ?? item?.source_run_id ?? null
+}
+
+function socialCalendarUrl(calendarItemId: string) {
+  return `${baseUrl()}/admin/agents/content-intelligence?section=calendar&calendar_item=${encodeURIComponent(calendarItemId)}`
+}
+
+function socialContentUrl(contentId?: string | null) {
+  return contentId ? `${baseUrl()}/admin/social-content/${contentId}` : null
+}
+
+async function decideSocialCalendarDraftHandoffFromSlack(input: {
+  calendarItemId: string
+  status: 'authorized' | 'rejected'
+  slackUserId: string
+  decisionNotes: string
+}) {
+  const auth = { user: { id: `slack:${input.slackUserId}` } }
+
+  if (input.status === 'authorized') {
+    const result = await authorizeCalendarDraftHandoff(input.calendarItemId, auth)
+    const contentUrl = socialContentUrl(result.socialContentId)
+    return [
+      result.alreadyAuthorized
+        ? 'Content calendar draft handoff was already authorized.'
+        : 'Content calendar draft handoff authorized from Slack.',
+      contentUrl ? `Content readiness: ${contentUrl}` : `Calendar: ${socialCalendarUrl(input.calendarItemId)}`,
+      result.handoffWorkItemId ? `Handoff work item: ${result.handoffWorkItemId}` : null,
+      'External publishing, provider calls, uploads, scheduling, Gmail, and SMS remain disabled.',
+    ].filter(Boolean).join('\n')
+  }
+
+  const result = await rejectCalendarDraftHandoff({
+    id: input.calendarItemId,
+    decisionNote: input.decisionNotes,
+    auth,
+  })
+  return [
+    result.alreadyRejected
+      ? 'Content calendar draft handoff was already rejected.'
+      : 'Content calendar draft handoff rejected from Slack.',
+    result.revisionWorkItemId ? `Revision work item: ${result.revisionWorkItemId}` : null,
+    `Calendar: ${socialCalendarUrl(input.calendarItemId)}`,
+    'No external action was taken.',
+  ].filter(Boolean).join('\n')
 }
 
 export async function handleSlackAgentAction(payload: SlackInteractivePayload): Promise<SlackAgentActionResult> {
@@ -481,6 +530,42 @@ export async function handleSlackAgentAction(payload: SlackInteractivePayload): 
       idempotencyKey: key,
     })
     return { responseType: 'ephemeral', text }
+  }
+
+  if (
+    value.action === 'social_calendar_draft_handoff.approve' ||
+    value.action === 'social_calendar_draft_handoff.reject' ||
+    value.action === 'social_calendar.approve' ||
+    value.action === 'social_calendar.reject'
+  ) {
+    if (!value.calendarItemId) {
+      return {
+        responseType: 'ephemeral',
+        text: 'Missing content calendar item id. Open Portfolio and use the Content Intelligence calendar decision path.',
+      }
+    }
+    const status = value.action.endsWith('.approve') ? 'authorized' : 'rejected'
+    try {
+      const text = await decideSocialCalendarDraftHandoffFromSlack({
+        calendarItemId: value.calendarItemId,
+        status,
+        slackUserId: authorization.userId,
+        decisionNotes: value.note || (
+          status === 'authorized'
+            ? 'Authorize Draft Handoff tapped in Slack. Record internal content-readiness approval only; do not publish or call providers.'
+            : 'Rejected from Slack. Keep content pipeline blocked until revised.'
+        ),
+      })
+      return { responseType: 'ephemeral', text }
+    } catch (error) {
+      return {
+        responseType: 'ephemeral',
+        text: [
+          `Content calendar approval blocked: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          `Open Portfolio: ${socialCalendarUrl(value.calendarItemId)}`,
+        ].join('\n'),
+      }
+    }
   }
 
   if (

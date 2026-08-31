@@ -229,6 +229,32 @@ describe('social-content-calendar-handoff', () => {
     expect(result.socialContentId).toBe('social-existing-1')
   })
 
+  it('treats already-authorized calendar handoffs as idempotent without new drafts or work items', async () => {
+    const item = baseCalendarItem({
+      authorization_status: 'authorized',
+      social_content_id: 'social-existing-1',
+      metadata: {
+        platform_draft_handoff: {
+          kind: 'linkedin_social_content_draft',
+          work_item_id: 'work-existing-1',
+          social_content_id: 'social-existing-1',
+        },
+      },
+    })
+    mockReadCalendarItem(item)
+
+    const result = await authorizeCalendarDraftHandoff('calendar-1', auth)
+
+    expect(mocks.from).toHaveBeenCalledTimes(1)
+    expect(mocks.createAgentWorkItem).not.toHaveBeenCalled()
+    expect(result).toMatchObject({
+      socialContentId: 'social-existing-1',
+      handoffWorkItemId: 'work-existing-1',
+      handoffKind: 'linkedin_social_content_draft',
+      alreadyAuthorized: true,
+    })
+  })
+
   it('authorizes YouTube Shorts calendar items by creating a gated YouTube Social Content draft', async () => {
     const item = baseCalendarItem({
       channel: 'youtube_shorts',
@@ -515,5 +541,44 @@ describe('social-content-calendar-handoff', () => {
     expect(result).toMatchObject({
       revisionWorkItemId: 'work-handoff-1',
     })
+  })
+
+  it('treats already-rejected calendar handoffs as idempotent without duplicate revision work', async () => {
+    const item = baseCalendarItem({
+      authorization_status: 'rejected',
+      metadata: {
+        revision_work_item_id: 'work-revision-existing',
+      },
+    })
+    mockReadCalendarItem(item)
+
+    const result = await rejectCalendarDraftHandoff({
+      id: 'calendar-1',
+      decisionNote: 'Still needs revision.',
+      auth,
+    })
+
+    expect(mocks.from).toHaveBeenCalledTimes(1)
+    expect(mocks.createAgentWorkItem).not.toHaveBeenCalled()
+    expect(result).toMatchObject({
+      revisionWorkItemId: 'work-revision-existing',
+      alreadyRejected: true,
+    })
+  })
+
+  it('blocks Slack-style reject attempts after a calendar handoff is already authorized', async () => {
+    const item = baseCalendarItem({
+      authorization_status: 'authorized',
+      social_content_id: 'social-existing-1',
+    })
+    mockReadCalendarItem(item)
+
+    await expect(rejectCalendarDraftHandoff({
+      id: 'calendar-1',
+      decisionNote: 'Reject stale button.',
+      auth,
+    })).rejects.toThrow('Calendar item is already authorized')
+
+    expect(mocks.createAgentWorkItem).not.toHaveBeenCalled()
   })
 })

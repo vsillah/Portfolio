@@ -357,7 +357,7 @@ describe('Agent Ops Slack notifications', () => {
     expect(blocks).not.toContain('approval.approve')
   })
 
-  it('builds Content Intelligence calendar approval due packets with exact gate links', async () => {
+  it('builds Content Intelligence calendar approval due packets with Slack handoff decisions and exact gate links', async () => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date('2026-08-15T12:00:00.000Z'))
     process.env.NEXT_PUBLIC_BASE_URL = 'https://amadutown.com'
@@ -401,6 +401,12 @@ describe('Agent Ops Slack notifications', () => {
     expect(blocks).toContain('Visual/media readiness')
     expect(blocks).toContain('Integration Captain / Vambah')
     expect(blocks).toContain('Provider/manual path is visible and fail-closed.')
+    expect(blocks).toContain('social_calendar_draft_handoff.approve')
+    expect(blocks).toContain('social-calendar-approval/v1')
+    expect(blocks).toContain('calendar-approval-1')
+    expect(blocks).toContain('Authorize handoff')
+    expect(blocks).toContain('Reject')
+    expect(blocks).toContain('do not publish, schedule externally, upload, or call providers')
     expect(blocks).toContain('/admin/social-content/social-1?step=visuals')
     expect(blocks).not.toContain('approval.approve')
     expect(blocks).not.toContain('agent_approval_approve')
@@ -437,6 +443,7 @@ describe('Agent Ops Slack notifications', () => {
     expect(blocks).toContain('Release window elapsed before approval.')
     expect(blocks).toContain('/admin/agents/content-intelligence?section=calendar')
     expect(blocks).toContain('Review recovery')
+    expect(blocks).not.toContain('social_calendar_draft_handoff.approve')
     expect(blocks).not.toContain('approval.approve')
   })
 
