@@ -327,8 +327,19 @@ function formatScheduledFor(value: string | null | undefined) {
 function socialCalendarApprovalDeepLink(row: SocialContentCalendarItem) {
   const gate = calendarApprovalGateSummary(row)
   const socialContentId = row.social_content_queue?.id ?? row.social_content_id
-  if (socialContentId) return `/admin/social-content/${socialContentId}?step=${gate.deepLinkStep}`
-  return `/admin/agents/content-intelligence?section=calendar&calendar_item=${encodeURIComponent(row.id)}`
+  if (socialContentId) return socialContentGateDeepLink(socialContentId, gate.deepLinkStep)
+  return `/admin/agents/content-intelligence?section=calendar&calendar_item=${encodeURIComponent(row.id)}#content-calendar-gate`
+}
+
+function socialContentGateDeepLink(id: string, step: 'copy' | 'visuals' | 'draft' | 'submit' | 'status') {
+  const sectionIds = {
+    copy: 'social-copy-gate',
+    visuals: 'social-visual-assets-gate',
+    draft: 'social-draft-approval-gate',
+    submit: 'social-platform-submission-gate',
+    status: 'social-publication-status-gate',
+  }
+  return `/admin/social-content/${id}?step=${step}#${sectionIds[step]}`
 }
 
 function socialCalendarApprovalDedupeKey(items: SocialCalendarApprovalAttentionItem[]) {
@@ -603,8 +614,8 @@ async function buildSocialPublishGateDuePayload() {
             ? 'open_social_content_stale_schedule_recovery'
             : 'open_social_content_submission_gate',
           url: agentUrl(item.staleSchedule
-            ? `/admin/social-content/${item.row.id}`
-            : `/admin/social-content/${item.row.id}?step=submit`),
+            ? socialContentGateDeepLink(item.row.id, 'status')
+            : socialContentGateDeepLink(item.row.id, 'submit')),
           style: 'primary',
         }),
         slackButton({
@@ -819,14 +830,14 @@ async function buildSocialCommentAttentionPayload() {
               },
             }),
             slackButton({
-              label: 'Open review',
+              label: 'Open gate',
               actionId: 'open_social_comment_review',
               url: agentUrl(socialCommentDeepLink(row)),
             }),
           ]
         : [
             slackButton({
-              label: 'Open review',
+              label: 'Open gate',
               actionId: 'open_social_comment_review',
               url: agentUrl(socialCommentDeepLink(row)),
               style: 'primary',
@@ -961,9 +972,9 @@ async function buildPendingApprovalPayload() {
               confirmText: `Approve ${run?.title ?? approval.run_id}?`,
             })
           : slackButton({
-              label: 'Open decision',
+              label: 'Open gate',
               actionId: 'open_decision',
-              url: agentUrl(`/admin/agents/coordination?approvalRunId=${approval.run_id}`),
+              url: agentUrl(`/admin/agents/coordination?approvalRunId=${approval.run_id}#vercel-autoresearch-approval-gate`),
             }),
         slackButton({
           label: 'Ask Shaka',
