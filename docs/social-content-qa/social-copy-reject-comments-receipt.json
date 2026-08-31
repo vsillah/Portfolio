@@ -1,0 +1,17 @@
+{
+  "exactUrl": "http://127.0.0.1:3097/admin/social-content/bb5bcfe7-3de8-4fdc-b13f-da85416e8cad?step=copy&qa=slack-content-calendar-approval#social-copy-gate",
+  "mp4Path": "/Users/vambahsillah/.codex/worktrees/2322/Portfolio/docs/social-content-qa/social-copy-reject-comments-mobile.mp4",
+  "noFeedbackReject": {
+    "capturedStatus": "rejected",
+    "visibleCopyGateState": "Copy: Rejected",
+    "persistedRevisionFeedback": false
+  },
+  "feedbackReject": {
+    "capturedStatus": "rejected",
+    "visibleCopyGateState": "Copy: Rejected",
+    "capturedRevisionStatus": "revision_requested",
+    "capturedRevisionAction": "reject_with_feedback"
+  },
+  "calibrationRevisionRequests": 0,
+  "externalRequests": []
+}
