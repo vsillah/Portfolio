@@ -21,7 +21,7 @@ type CalendarActionAuth = {
 type HandoffResult = {
   calendarItem: SocialContentCalendarItem
   socialContentId: string | null
-  handoffWorkItemId: string
+  handoffWorkItemId: string | null
   handoffKind:
     | 'linkedin_social_content_draft'
     | 'youtube_social_content_draft'
@@ -29,6 +29,7 @@ type HandoffResult = {
     | 'facebook_social_content_draft'
     | 'x_social_content_draft'
     | 'channel_planning_handoff'
+  alreadyAuthorized?: boolean
 }
 
 function calendarSelect() {
@@ -358,6 +359,24 @@ export async function authorizeCalendarDraftHandoff(
 ): Promise<HandoffResult> {
   const item = await readCalendarItem(id)
   const metadata = parseMetadata(item.metadata)
+  const existingPlatformDraftHandoff = parseMetadata(metadata.platform_draft_handoff)
+  const existingSocialContentId = item.social_content_id
+    ?? (typeof existingPlatformDraftHandoff.social_content_id === 'string'
+      ? existingPlatformDraftHandoff.social_content_id
+      : null)
+
+  if (item.authorization_status === 'authorized') {
+    return {
+      calendarItem: item,
+      socialContentId: existingSocialContentId,
+      handoffWorkItemId: typeof existingPlatformDraftHandoff.work_item_id === 'string'
+        ? existingPlatformDraftHandoff.work_item_id
+        : null,
+      handoffKind: handoffKindFor(item, existingSocialContentId),
+      alreadyAuthorized: true,
+    }
+  }
+
   const socialContentId = supportsSocialContentDraft(item)
     ? await createSocialContentDraftForCalendarItem(item, auth)
     : item.social_content_id
@@ -417,6 +436,21 @@ export async function rejectCalendarDraftHandoff(input: {
 }) {
   const item = await readCalendarItem(input.id)
   const metadata = parseMetadata(item.metadata)
+  if (item.authorization_status === 'authorized') {
+    throw new Error('Calendar item is already authorized. Open Portfolio to revise or recover the downstream handoff instead of rejecting from Slack.')
+  }
+
+  if (item.authorization_status === 'rejected') {
+    const revisionWorkItemId = typeof metadata.revision_work_item_id === 'string'
+      ? metadata.revision_work_item_id
+      : null
+    return {
+      calendarItem: item,
+      revisionWorkItemId,
+      alreadyRejected: true,
+    }
+  }
+
   const rejectedAt = new Date().toISOString()
   const revisionWorkItem = await createAgentWorkItem({
     title: `Revise content calendar item: ${item.title}`,
@@ -478,5 +512,6 @@ export async function rejectCalendarDraftHandoff(input: {
   return {
     calendarItem: data as SocialContentCalendarItem,
     revisionWorkItemId: revisionWorkItem.id,
+    alreadyRejected: false,
   }
 }

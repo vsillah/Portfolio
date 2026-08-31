@@ -46,11 +46,13 @@ export type SlackCommandResponsePayload = {
 
 export type SlackAgentActionValue = {
   action: string
+  schemaVersion?: string
   approvalId?: string
   runId?: string
   workItemId?: string
   agentKey?: string
   contentId?: string
+  calendarItemId?: string
   commentId?: string
   contactId?: number
   outreachQueueId?: string

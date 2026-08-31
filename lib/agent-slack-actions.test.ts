@@ -11,6 +11,8 @@ const mocks = vi.hoisted(() => ({
   markAgentWorkItemReadyForKanban: vi.fn(),
   recordAgentWorkItemBlocker: vi.fn(),
   routeAgentInboxItem: vi.fn(),
+  authorizeCalendarDraftHandoff: vi.fn(),
+  rejectCalendarDraftHandoff: vi.fn(),
 }))
 
 vi.mock('@/lib/supabase', () => ({
@@ -38,21 +40,35 @@ vi.mock('@/lib/agent-inbox-routing', () => ({
   routeAgentInboxItem: mocks.routeAgentInboxItem,
 }))
 
+vi.mock('@/lib/social-content-calendar-handoff', () => ({
+  authorizeCalendarDraftHandoff: mocks.authorizeCalendarDraftHandoff,
+  rejectCalendarDraftHandoff: mocks.rejectCalendarDraftHandoff,
+}))
+
 import { handleSlackAgentAction } from '@/lib/agent-slack-actions'
 
 const ORIGINAL_ENV = process.env
 
-function queryResult(result: unknown) {
-  const query: Record<string, unknown> = {
-    select: vi.fn(() => query),
-    eq: vi.fn(() => query),
-    maybeSingle: vi.fn(() => Promise.resolve(result)),
-    update: vi.fn(() => query),
-    insert: vi.fn(() => Promise.resolve(result)),
-    limit: vi.fn(() => Promise.resolve(result)),
-    then: (resolve: (value: unknown) => unknown, reject: (reason?: unknown) => unknown) =>
-      Promise.resolve(result).then(resolve, reject),
-  }
+type QueryMock = {
+  select: ReturnType<typeof vi.fn>
+  eq: ReturnType<typeof vi.fn>
+  maybeSingle: ReturnType<typeof vi.fn>
+  update: ReturnType<typeof vi.fn>
+  insert: ReturnType<typeof vi.fn>
+  limit: ReturnType<typeof vi.fn>
+  then: (resolve: (value: unknown) => unknown, reject: (reason?: unknown) => unknown) => Promise<unknown>
+}
+
+function queryResult(result: unknown): QueryMock {
+  const query = {} as QueryMock
+  query.select = vi.fn(() => query)
+  query.eq = vi.fn(() => query)
+  query.maybeSingle = vi.fn(() => Promise.resolve(result))
+  query.update = vi.fn(() => query)
+  query.insert = vi.fn(() => Promise.resolve(result))
+  query.limit = vi.fn(() => Promise.resolve(result))
+  query.then = (resolve: (value: unknown) => unknown, reject: (reason?: unknown) => unknown) =>
+    Promise.resolve(result).then(resolve, reject)
   return query
 }
 
@@ -150,6 +166,28 @@ describe('Agent Ops Slack actions', () => {
       'idempotency_key',
       'slack-agent-action:U123:1716400000.000:social_comment_reply.approve:comment-1',
     )
+  })
+
+  it('uses calendar item id in Slack action idempotency keys for content calendar decisions', async () => {
+    const recordedActionQuery = queryResult({
+      data: { id: 'event-1' },
+      error: null,
+    })
+    mocks.from.mockReturnValueOnce(recordedActionQuery)
+
+    const result = await handleSlackAgentAction(payload({
+      action: 'social_calendar_draft_handoff.approve',
+      schemaVersion: 'social-calendar-approval/v1',
+      calendarItemId: 'calendar-1',
+      contentId: 'social-1',
+    }))
+
+    expect(result.text).toContain('Already handled this Slack action')
+    expect(recordedActionQuery.eq).toHaveBeenCalledWith(
+      'idempotency_key',
+      'slack-agent-action:U123:1716400000.000:social_calendar_draft_handoff.approve:calendar-1',
+    )
+    expect(mocks.authorizeCalendarDraftHandoff).not.toHaveBeenCalled()
   })
 
   it('uses warm Gmail send key in Slack action idempotency keys', async () => {
@@ -546,6 +584,101 @@ describe('Agent Ops Slack actions', () => {
 
     expect(result.text).toContain('Portfolio review required')
     expect(mocks.from).toHaveBeenCalledTimes(2)
+  })
+
+  it('authorizes content calendar draft handoffs from Slack without external execution', async () => {
+    mocks.from.mockReturnValueOnce(queryResult({ data: null, error: null }))
+    mocks.authorizeCalendarDraftHandoff.mockResolvedValue({
+      calendarItem: { id: 'calendar-1', authorization_status: 'authorized' },
+      socialContentId: 'social-1',
+      handoffWorkItemId: 'work-handoff-1',
+      handoffKind: 'linkedin_social_content_draft',
+    })
+
+    const result = await handleSlackAgentAction(payload({
+      action: 'social_calendar_draft_handoff.approve',
+      schemaVersion: 'social-calendar-approval/v1',
+      calendarItemId: 'calendar-1',
+      contentId: 'social-1',
+      note: 'Looks ready for internal handoff.',
+    }))
+
+    expect(mocks.authorizeCalendarDraftHandoff).toHaveBeenCalledWith(
+      'calendar-1',
+      { user: { id: 'slack:U123' } },
+    )
+    expect(result.text).toContain('Content calendar draft handoff authorized from Slack')
+    expect(result.text).toContain('/admin/social-content/social-1')
+    expect(result.text).toContain('External publishing, provider calls, uploads, scheduling, Gmail, and SMS remain disabled.')
+  })
+
+  it('reports already-authorized content calendar handoffs as idempotent from Slack', async () => {
+    mocks.from.mockReturnValueOnce(queryResult({ data: null, error: null }))
+    mocks.authorizeCalendarDraftHandoff.mockResolvedValue({
+      calendarItem: { id: 'calendar-1', authorization_status: 'authorized' },
+      socialContentId: 'social-1',
+      handoffWorkItemId: 'work-handoff-1',
+      handoffKind: 'linkedin_social_content_draft',
+      alreadyAuthorized: true,
+    })
+
+    const result = await handleSlackAgentAction(payload({
+      action: 'social_calendar.approve',
+      calendarItemId: 'calendar-1',
+    }))
+
+    expect(result.text).toContain('already authorized')
+    expect(mocks.authorizeCalendarDraftHandoff).toHaveBeenCalledTimes(1)
+    expect(mocks.rejectCalendarDraftHandoff).not.toHaveBeenCalled()
+  })
+
+  it('rejects content calendar draft handoffs from Slack and leaves provider actions off', async () => {
+    mocks.from.mockReturnValueOnce(queryResult({ data: null, error: null }))
+    mocks.rejectCalendarDraftHandoff.mockResolvedValue({
+      calendarItem: { id: 'calendar-1', authorization_status: 'rejected' },
+      revisionWorkItemId: 'work-revision-1',
+    })
+
+    const result = await handleSlackAgentAction(payload({
+      action: 'social_calendar_draft_handoff.reject',
+      schemaVersion: 'social-calendar-approval/v1',
+      calendarItemId: 'calendar-1',
+      note: 'Needs stronger source boundary.',
+    }))
+
+    expect(mocks.rejectCalendarDraftHandoff).toHaveBeenCalledWith({
+      id: 'calendar-1',
+      decisionNote: 'Needs stronger source boundary.',
+      auth: { user: { id: 'slack:U123' } },
+    })
+    expect(result.text).toContain('Content calendar draft handoff rejected from Slack')
+    expect(result.text).toContain('No external action was taken.')
+  })
+
+  it('surfaces precise Portfolio recovery when a Slack calendar handoff is blocked', async () => {
+    mocks.from.mockReturnValueOnce(queryResult({ data: null, error: null }))
+    mocks.authorizeCalendarDraftHandoff.mockRejectedValue(new Error('Calendar item not found'))
+
+    const result = await handleSlackAgentAction(payload({
+      action: 'social_calendar_draft_handoff.approve',
+      calendarItemId: 'missing-calendar',
+    }))
+
+    expect(result.text).toContain('Content calendar approval blocked: Calendar item not found')
+    expect(result.text).toContain('/admin/agents/content-intelligence?section=calendar&calendar_item=missing-calendar')
+  })
+
+  it('rejects malformed Slack calendar decision payloads before mutation', async () => {
+    mocks.from.mockReturnValueOnce(queryResult({ data: null, error: null }))
+
+    const result = await handleSlackAgentAction(payload({
+      action: 'social_calendar_draft_handoff.approve',
+      contentId: 'social-1',
+    }))
+
+    expect(result.text).toContain('Missing content calendar item id')
+    expect(mocks.authorizeCalendarDraftHandoff).not.toHaveBeenCalled()
+    expect(mocks.rejectCalendarDraftHandoff).not.toHaveBeenCalled()
   })
 
   it('drafts a proposed AutoResearch work item from a high-signal insight Slack action', async () => {
