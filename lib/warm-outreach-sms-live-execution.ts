@@ -196,6 +196,7 @@ function attemptMatches(attempt: WarmSmsExistingSendAttempt | null, input: {
   submittedEvidenceKey: string
 }) {
   if (!attempt) return false
+  if (clean(attempt.status)?.toLowerCase() === 'eligible_for_execution') return false
   return (
     clean(attempt.idempotencyKey) === input.idempotencyKey ||
     clean(attempt.submittedEvidenceKey) === input.submittedEvidenceKey
