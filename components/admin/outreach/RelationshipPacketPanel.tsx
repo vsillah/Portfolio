@@ -8,6 +8,7 @@ import {
   ClipboardCopy,
   Database,
   FileText,
+  Info,
   LockKeyhole,
   Mail,
   MessageSquare,
@@ -1867,12 +1868,19 @@ function SmsManualOutreachCard({
             <div className="min-w-0">
               <p className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wide">
                 <ShieldCheck size={13} aria-hidden />
-                Warm SMS provider readiness · activation architecture
+                Warm SMS provider readiness
+                <span
+                  className="group relative inline-flex items-center"
+                  aria-label="Provider audit context"
+                  title="Provider setup, Telnyx planning, transport checks, no-send canary, and live-send audit details are collapsed to keep the operator path focused."
+                >
+                  <Info size={12} aria-hidden />
+                  <span className="pointer-events-none absolute left-0 top-5 z-20 hidden w-64 rounded-md border border-silicon-slate/70 bg-background px-2 py-1.5 text-[10px] font-medium normal-case leading-4 tracking-normal text-foreground shadow-lg group-hover:block group-focus-within:block">
+                    Provider setup, Telnyx planning, transport checks, no-send canary, and live-send audit details are collapsed to keep the operator path focused.
+                  </span>
+                </span>
               </p>
-              <p className="mt-1 text-sm font-semibold">Provider audit collapsed</p>
-              <p className="mt-1 text-[10px] leading-4 opacity-85">
-                Provider setup, Telnyx planning, transport checks, no-send canary, and live-send audit details are collapsed to keep the operator path focused.
-              </p>
+              <p className="mt-1 text-sm font-semibold">Provider audit</p>
             </div>
             <span className="inline-flex min-h-7 w-fit shrink-0 items-center rounded-full border border-current/25 bg-background/25 px-2 py-0.5 text-[10px] font-semibold">
               {providerReadiness.consentAndSuppression.status === 'clear'
@@ -1882,13 +1890,10 @@ function SmsManualOutreachCard({
           </div>
           <div className="mt-2 flex flex-wrap gap-1.5" aria-label="Collapsed SMS provider boundary summary">
             <span className="inline-flex min-h-7 items-center rounded-full border border-current/20 bg-background/25 px-2 py-1 text-[10px] font-semibold">
-              Provider calls: off
+              Provider execution locked
             </span>
             <span className="inline-flex min-h-7 items-center rounded-full border border-current/20 bg-background/25 px-2 py-1 text-[10px] font-semibold">
-              Live send locked
-            </span>
-            <span className="inline-flex min-h-7 items-center rounded-full border border-current/20 bg-background/25 px-2 py-1 text-[10px] font-semibold">
-              Open audit drill-in
+              Review audit
             </span>
           </div>
         </summary>
