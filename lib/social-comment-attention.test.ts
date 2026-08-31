@@ -152,7 +152,7 @@ describe('Social comment attention plumbing', () => {
 
   it('links Slack review actions to the Engagement Inbox route', () => {
     expect(socialCommentDeepLink(row())).toBe(
-      '/admin/social-content/engagement-inbox?comment=comment-1&post=social-post-1',
+      '/admin/social-content/engagement-inbox?comment=comment-1&post=social-post-1#social-comment-review-gate',
     )
   })
 

@@ -28,6 +28,7 @@ export type SlackInteractivePayload = {
   actions?: Array<{
     action_id?: string
     value?: string
+    url?: string
   }>
   callback_id?: string
   trigger_id?: string
@@ -342,6 +343,13 @@ export async function handleSlackAgentAction(payload: SlackInteractivePayload): 
 
   const value = actionFromPayload(payload)
   if (!value) {
+    const url = payload.actions?.[0]?.url?.trim()
+    if (url) {
+      return {
+        responseType: 'ephemeral',
+        text: `Opening Portfolio review gate. Complete the decision in Portfolio: ${url}`,
+      }
+    }
     return { responseType: 'ephemeral', text: 'Slack action rejected: missing or invalid action payload.' }
   }
 

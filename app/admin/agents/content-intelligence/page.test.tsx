@@ -17,6 +17,20 @@ vi.mock('@/lib/auth', () => ({
 
 describe('ContentIntelligencePage', () => {
   beforeEach(() => {
+    vi.clearAllMocks()
+    window.history.replaceState({}, '', '/admin/agents/content-intelligence')
+    vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) => {
+      callback(0)
+      return 0
+    })
+    Object.defineProperty(window.HTMLElement.prototype, 'scrollIntoView', {
+      configurable: true,
+      value: vi.fn(),
+    })
+    Object.defineProperty(window.HTMLElement.prototype, 'focus', {
+      configurable: true,
+      value: vi.fn(),
+    })
     vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input)
       if (url === '/api/admin/social-content/intelligence/research-runs') {
@@ -1360,6 +1374,40 @@ describe('ContentIntelligencePage', () => {
     expect(authorizeCall).toBeTruthy()
     expect(authorizeCall?.[1]).toMatchObject({ method: 'POST' })
     expect(JSON.parse(String(authorizeCall?.[1]?.body))).toEqual({})
+  })
+
+  it('focuses a calendar approval row from the Slack deep-link query', async () => {
+    window.history.replaceState({}, '', '/admin/agents/content-intelligence?section=calendar&calendar_item=calendar-due-now')
+
+    render(<ContentIntelligencePage />)
+
+    expect(await screen.findByText('Linked calendar row focused')).toBeInTheDocument()
+    expect(screen.getByText(/Opened from a Slack approval reminder for calendar-due-now/)).toBeInTheDocument()
+
+    const focusedRow = await screen.findByLabelText('Focused calendar row Due-now TikTok proof cutdown')
+    expect(focusedRow).toHaveClass('ring-2')
+    expect(within(focusedRow).getByRole('button', { name: 'Authorize Draft Handoff' })).toBeInTheDocument()
+    expect(within(focusedRow).getByRole('button', { name: 'Reject' })).toBeInTheDocument()
+
+    await waitFor(() => {
+      expect(window.HTMLElement.prototype.scrollIntoView).toHaveBeenCalled()
+      expect(window.HTMLElement.prototype.focus).toHaveBeenCalledWith({ preventScroll: true })
+    })
+  })
+
+  it('shows a recovery notice when a Slack-linked calendar row is absent', async () => {
+    window.history.replaceState({}, '', '/admin/agents/content-intelligence?section=calendar&calendar_item=missing-calendar-item')
+
+    render(<ContentIntelligencePage />)
+
+    expect(await screen.findByText('Linked calendar row unavailable')).toBeInTheDocument()
+    expect(screen.getByText('Calendar row missing-calendar-item is not present in this environment.')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Clear focus' }))
+
+    await waitFor(() => {
+      expect(screen.queryByText('Linked calendar row unavailable')).not.toBeInTheDocument()
+    })
   })
 
   it('edits a pending calendar item without authorizing or publishing it', async () => {
