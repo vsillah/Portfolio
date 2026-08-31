@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { type FormEvent, type ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
+import { type FormEvent, type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   ArrowUpDown,
   BarChart3,
@@ -361,6 +361,22 @@ const TABLE_PAGE_SIZE = 6
 const TEMPLATE_PAGE_SIZE = 1
 const CALENDAR_PAGE_SIZE = 8
 const AUTORESEARCH_BACKLOG_PAGE_SIZE = 1
+
+function currentUrlSearchParams() {
+  if (typeof window === 'undefined') return new URLSearchParams()
+  return new URLSearchParams(window.location.search)
+}
+
+function initialActiveSection(): IntelligenceSection {
+  const section = currentUrlSearchParams().get('section') as IntelligenceSection | null
+  if (section && SECTION_TABS.some((candidate) => candidate.key === section)) return section
+  if (currentUrlSearchParams().get('calendar_item')) return 'calendar'
+  return 'calendar'
+}
+
+function initialFocusedCalendarItemId() {
+  return currentUrlSearchParams().get('calendar_item') || null
+}
 
 function stringValue(value: unknown) {
   return typeof value === 'string' && value.trim() ? value.trim() : null
@@ -885,6 +901,7 @@ export default function ContentIntelligencePage() {
 }
 
 function ContentIntelligenceContent() {
+  const calendarItemRefs = useRef<Record<string, HTMLElement | null>>({})
   const [packets, setPackets] = useState<ResearchPacket[]>([])
   const [insights, setInsights] = useState<AgentWorkItem[]>([])
   const [calendarItems, setCalendarItems] = useState<CalendarItem[]>([])
@@ -929,7 +946,9 @@ function ContentIntelligenceContent() {
   const [calendarDecisionNotes, setCalendarDecisionNotes] = useState<Record<string, string>>({})
   const [editingCalendarItemId, setEditingCalendarItemId] = useState<string | null>(null)
   const [calendarEditForms, setCalendarEditForms] = useState<Record<string, CalendarForm>>({})
-  const [activeSection, setActiveSection] = useState<IntelligenceSection>('calendar')
+  const [activeSection, setActiveSection] = useState<IntelligenceSection>(() => initialActiveSection())
+  const [focusedCalendarItemId, setFocusedCalendarItemId] = useState<string | null>(() => initialFocusedCalendarItemId())
+  const [calendarFocusRecovery, setCalendarFocusRecovery] = useState<string | null>(null)
   const [expandedPanels, setExpandedPanels] = useState<Record<string, boolean>>({
     templateLibrary: false,
     calendarPlanner: false,
@@ -1140,6 +1159,7 @@ function ContentIntelligenceContent() {
   const filteredCalendarItems = useMemo(() => {
     const search = normalizeSearch(calendarContentSearch)
     return calendarItems.filter((item) => {
+      if (focusedCalendarItemId && item.id === focusedCalendarItemId) return true
       if (calendarCampaignFilter && item.campaign_id !== calendarCampaignFilter) return false
       if (calendarChannelFilter && item.channel !== calendarChannelFilter) return false
       if (calendarPhaseFilter && item.campaign_phase !== calendarPhaseFilter) return false
@@ -1175,6 +1195,7 @@ function ContentIntelligenceContent() {
     calendarChannelFilter,
     calendarItems,
     calendarPhaseFilter,
+    focusedCalendarItemId,
   ])
 
   const pagedCalendarItems = useMemo(() => {
@@ -1183,6 +1204,38 @@ function ContentIntelligenceContent() {
   }, [calendarPage, filteredCalendarItems])
 
   const calendarTotalPages = Math.max(1, Math.ceil(filteredCalendarItems.length / CALENDAR_PAGE_SIZE))
+
+  useEffect(() => {
+    if (!focusedCalendarItemId) {
+      setCalendarFocusRecovery(null)
+      return
+    }
+    if (!calendarItems.length) return
+
+    const focusedIndex = filteredCalendarItems.findIndex((item) => item.id === focusedCalendarItemId)
+    if (focusedIndex === -1) {
+      setCalendarFocusRecovery(`Calendar row ${focusedCalendarItemId} is not present in this environment.`)
+      return
+    }
+
+    setCalendarFocusRecovery(null)
+    setActiveSection('calendar')
+    const page = Math.floor(focusedIndex / CALENDAR_PAGE_SIZE) + 1
+    if (calendarPage !== page) setCalendarPage(page)
+  }, [calendarItems, calendarPage, filteredCalendarItems, focusedCalendarItemId])
+
+  useEffect(() => {
+    if (!focusedCalendarItemId || activeSection !== 'calendar') return
+    if (!pagedCalendarItems.some((item) => item.id === focusedCalendarItemId)) return
+
+    const element = calendarItemRefs.current[focusedCalendarItemId]
+    if (!element) return
+
+    window.requestAnimationFrame(() => {
+      element.scrollIntoView({ block: 'center', behavior: 'smooth' })
+      element.focus({ preventScroll: true })
+    })
+  }, [activeSection, focusedCalendarItemId, pagedCalendarItems])
 
   useEffect(() => {
     setCalendarPage(1)
@@ -2213,6 +2266,35 @@ function ContentIntelligenceContent() {
             />
           </div>
 
+          {focusedCalendarItemId ? (
+            <div className={`mb-4 rounded-lg border p-3 text-sm leading-6 ${
+              calendarFocusRecovery
+                ? 'border-amber-500/35 bg-amber-500/10 text-amber-50'
+                : 'border-blue-500/35 bg-blue-500/10 text-blue-50'
+            }`}>
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold uppercase tracking-wide">
+                    {calendarFocusRecovery ? 'Linked calendar row unavailable' : 'Linked calendar row focused'}
+                  </p>
+                  <p className="mt-1 break-words">
+                    {calendarFocusRecovery ?? `Opened from a Slack approval reminder for ${focusedCalendarItemId}. Review the expanded row below and use the visible authorize or reject action.`}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFocusedCalendarItemId(null)
+                    setCalendarFocusRecovery(null)
+                  }}
+                  className="inline-flex min-h-9 shrink-0 items-center justify-center rounded-md border border-current/30 px-3 py-1.5 text-xs font-semibold transition hover:bg-white/10"
+                >
+                  Clear focus
+                </button>
+              </div>
+            </div>
+          ) : null}
+
           <div id="content-calendar-gate" className="scroll-mt-28 overflow-hidden rounded-lg border border-silicon-slate/70 bg-silicon-slate/20">
             <div className="hidden border-b border-silicon-slate/70 bg-background/35 px-3 py-3 text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground md:grid md:grid-cols-[10rem_minmax(0,1fr)_12rem_9rem_9rem_14rem] md:gap-3">
               <span>Release</span>
@@ -2232,7 +2314,11 @@ function ContentIntelligenceContent() {
                   decisionNote={calendarDecisionNotes[item.id] ?? ''}
                   editForm={calendarEditForms[item.id] ?? null}
                   isEditing={editingCalendarItemId === item.id}
+                  isFocused={focusedCalendarItemId === item.id}
                   campaigns={campaigns}
+                  registerRowRef={(element) => {
+                    calendarItemRefs.current[item.id] = element
+                  }}
                   onAuthorize={authorizeCalendarItem}
                   onBeginEdit={beginEditCalendarItem}
                   onCancelEdit={cancelEditCalendarItem}
@@ -3973,7 +4059,9 @@ type CalendarItemRowProps = {
   decisionNote: string
   editForm: CalendarForm | null
   isEditing: boolean
+  isFocused: boolean
   campaigns: CampaignOption[]
+  registerRowRef: (element: HTMLElement | null) => void
   onAuthorize: (item: CalendarItem) => void
   onBeginEdit: (item: CalendarItem) => void
   onCancelEdit: (id: string) => void
@@ -3990,6 +4078,8 @@ function CalendarItemQueueRow(props: CalendarItemRowProps) {
     actionItemId,
     rejectingItemId,
     isEditing,
+    isFocused,
+    registerRowRef,
     onAuthorize,
     onBeginEdit,
     onBeginReject,
@@ -4012,20 +4102,34 @@ function CalendarItemQueueRow(props: CalendarItemRowProps) {
   const isPending = item.authorization_status === 'pending'
   const isRejected = item.authorization_status === 'rejected'
   const isBusy = actionItemId === item.id
-  const showExpandedWorkflow = isEditing || rejectingItemId === item.id
+  const showExpandedWorkflow = isEditing || rejectingItemId === item.id || isFocused
   const gateSummary = calendarApprovalGateSummary(item)
   const timing = calendarTimingState(item)
 
   if (showExpandedWorkflow) {
     return (
-      <div className="bg-background/20 px-3 py-3">
+      <div
+        ref={registerRowRef}
+        tabIndex={isFocused ? -1 : undefined}
+        aria-label={isFocused ? `Focused calendar row ${item.title}` : undefined}
+        className={`bg-background/20 px-3 py-3 outline-none ${
+          isFocused ? 'border-l-4 border-amber-400 ring-2 ring-amber-300/60 ring-inset' : ''
+        }`}
+      >
         <CalendarItemCard {...props} />
       </div>
     )
   }
 
   return (
-    <div className="grid gap-4 px-3 py-4 transition hover:bg-background/30 md:grid-cols-[10rem_minmax(0,1fr)_12rem_9rem_9rem_14rem] md:gap-3">
+    <div
+      ref={registerRowRef}
+      tabIndex={isFocused ? -1 : undefined}
+      aria-label={isFocused ? `Focused calendar row ${item.title}` : undefined}
+      className={`grid gap-4 px-3 py-4 outline-none transition hover:bg-background/30 md:grid-cols-[10rem_minmax(0,1fr)_12rem_9rem_9rem_14rem] md:gap-3 ${
+        isFocused ? 'border-l-4 border-amber-400 ring-2 ring-amber-300/60 ring-inset' : ''
+      }`}
+    >
       <div>
         <p className="mb-1 text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground md:hidden">Release</p>
         <p className="font-semibold text-foreground">{formatCalendarDate(item.scheduled_for)}</p>

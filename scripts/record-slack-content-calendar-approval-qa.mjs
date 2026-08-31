@@ -21,7 +21,8 @@ await mkdir(frameDir, { recursive: true })
 await mkdir(productDir, { recursive: true })
 
 let calendarAuthorizationStatus = 'pending'
-let slackActionCount = 0
+let portfolioAuthorizeCount = 0
+let slackNativeReplayCount = 0
 
 const user = {
   id: 'qa-admin-user',
@@ -229,8 +230,35 @@ async function installRoutes(page) {
     items: [calendarItem()],
     pagination: { page: 1, limit: 50, total: 1, totalPages: 1 },
   }))
+  await page.route('**/api/admin/social-content/calendar/calendar-slack-approval/authorize', async (route) => {
+    portfolioAuthorizeCount += 1
+    const alreadyAuthorized = calendarAuthorizationStatus === 'authorized'
+    calendarAuthorizationStatus = 'authorized'
+    await json(route, {
+      ok: true,
+      item: calendarItem(),
+      handoff: {
+        kind: 'linkedin_social_content_draft',
+        work_item_id: 'work-handoff-slack-calendar',
+        social_content_id: 'social-slack-calendar',
+      },
+      already_authorized: alreadyAuthorized,
+      side_effects: {
+        slack_send: false,
+        provider_generation: false,
+        upload: false,
+        external_schedule: false,
+        publish: false,
+        external_post: false,
+        gmail_draft: false,
+        sms_send: false,
+        internal_draft_handoff_created: true,
+        social_content_draft_created: true,
+      },
+    })
+  })
   await page.route('**/api/slack/agent/actions', async (route) => {
-    slackActionCount += 1
+    slackNativeReplayCount += 1
     const alreadyAuthorized = calendarAuthorizationStatus === 'authorized'
     calendarAuthorizationStatus = 'authorized'
     await json(route, {
@@ -368,7 +396,7 @@ const context = await browser.newContext({ viewport: { width: 1600, height: 844 
 const page = await context.newPage()
 await seedSession(page)
 await installRoutes(page)
-const unexpectedRequests = collectUnexpectedRequests(page)
+const unexpectedRequestGetters = [collectUnexpectedRequests(page)]
 
 const pendingResponse = await page.goto(qaUrl)
 if (!pendingResponse || pendingResponse.status() >= 400) {
@@ -380,6 +408,17 @@ await calendarTitle.scrollIntoViewIfNeeded()
 await page.waitForFunction(() => document.body.innerText.includes('pending'), null, { timeout: 10_000 })
 const pendingScreenshot = path.join(productDir, '01-content-calendar-pending.png')
 await page.screenshot({ path: pendingScreenshot, fullPage: false })
+
+await page.getByRole('button', { name: /Authorize Draft Handoff/i }).last().click()
+await page.waitForFunction(() => document.body.innerText.includes('Draft handoff authorized'), null, { timeout: 10_000 })
+
+const authorizedCalendarTitle = page.getByText('Slack approval callback QA', { exact: true }).last()
+await authorizedCalendarTitle.waitFor({ state: 'attached', timeout: 20_000 })
+await authorizedCalendarTitle.scrollIntoViewIfNeeded()
+await page.waitForFunction(() => document.body.innerText.includes('authorized'), null, { timeout: 10_000 })
+await page.locator('a[href="/admin/social-content/social-slack-calendar"]').first().waitFor({ state: 'attached', timeout: 10_000 })
+const authorizedScreenshot = path.join(productDir, '02-content-calendar-authorized.png')
+await page.screenshot({ path: authorizedScreenshot, fullPage: false })
 
 await page.evaluate(async () => {
   const payload = {
@@ -401,30 +440,31 @@ await page.evaluate(async () => {
     body: new URLSearchParams({ payload: JSON.stringify(payload) }).toString(),
   })
 })
-
-await page.reload()
-const authorizedCalendarTitle = page.getByText('Slack approval callback QA', { exact: true }).last()
-await authorizedCalendarTitle.waitFor({ state: 'attached', timeout: 20_000 })
-await authorizedCalendarTitle.scrollIntoViewIfNeeded()
-await page.waitForFunction(() => document.body.innerText.includes('authorized'), null, { timeout: 10_000 })
-await page.waitForFunction(() => document.body.innerText.includes('Details'), null, { timeout: 10_000 })
-const authorizedScreenshot = path.join(productDir, '02-content-calendar-authorized.png')
-await page.screenshot({ path: authorizedScreenshot, fullPage: false })
-
-await page.evaluate(async () => {
-  await fetch('/api/slack/agent/actions', {
-    method: 'POST',
-    headers: { 'content-type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({ payload: JSON.stringify({ duplicate: true }) }).toString(),
-  })
-})
 await page.reload()
 await page.waitForFunction(() => document.body.innerText.includes('authorized'), null, { timeout: 10_000 })
+await page.locator('a[href="/admin/social-content/social-slack-calendar"]').first().waitFor({ state: 'attached', timeout: 10_000 })
 await page.getByText('Slack approval callback QA', { exact: true }).last().scrollIntoViewIfNeeded()
 const duplicateScreenshot = path.join(productDir, '03-content-calendar-duplicate-idempotent.png')
 await page.screenshot({ path: duplicateScreenshot, fullPage: false })
 
 await context.close()
+
+const mobileContext = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true })
+const mobilePage = await mobileContext.newPage()
+await seedSession(mobilePage)
+await installRoutes(mobilePage)
+unexpectedRequestGetters.push(collectUnexpectedRequests(mobilePage))
+const mobileResponse = await mobilePage.goto(qaUrl)
+if (!mobileResponse || mobileResponse.status() >= 400) {
+  throw new Error(`Content Intelligence mobile QA route failed: ${mobileResponse?.status()}`)
+}
+await mobilePage.getByText('Slack approval callback QA', { exact: true }).last().waitFor({ state: 'attached', timeout: 20_000 })
+await mobilePage.getByText('Slack approval callback QA', { exact: true }).last().scrollIntoViewIfNeeded()
+await mobilePage.waitForFunction(() => document.body.innerText.includes('authorized'), null, { timeout: 10_000 })
+const mobileScreenshot = path.join(productDir, '04-content-calendar-mobile-authorized.png')
+await mobilePage.screenshot({ path: mobileScreenshot, fullPage: false })
+await mobileContext.close()
+
 await browser.close()
 
 const frames = [
@@ -438,7 +478,7 @@ const frames = [
   },
   {
     path: await compositeFrame('02-authorized.png', authorizedScreenshot, 'Approval Recorded', [
-      { label: 'Action', text: 'A safe local Slack action payload is simulated for social-calendar-approval/v1.' },
+      { label: 'Action', text: 'The visible Portfolio gate button is clicked after landing from the Slack deep link.' },
       { label: 'Result', text: 'Portfolio reloads the same route and shows authorized with a linked handoff/draft path.' },
       { label: 'Status', text: 'This proves the content readiness page reflects the persisted approval shape.' },
     ]),
@@ -452,9 +492,18 @@ const frames = [
     ]),
     durationSeconds: 3,
   },
+  {
+    path: await compositeFrame('04-mobile.png', mobileScreenshot, 'Mobile Check', [
+      { label: 'Viewport', text: 'The same Slack-linked calendar item is visible at 390px mobile width.' },
+      { label: 'Result', text: 'The row remains authorized and the gate actions collapse without clipping the status path.' },
+      { label: 'Surface', text: 'Content Intelligence calendar approval queue.' },
+    ]),
+    durationSeconds: 3,
+  },
 ]
 await createMp4(frames)
 
+const externalRequests = unexpectedRequestGetters.flatMap((getter) => getter())
 const summary = {
   qaUrl,
   qaPath,
@@ -463,10 +512,12 @@ const summary = {
     pending: pendingScreenshot,
     authorized: authorizedScreenshot,
     duplicate: duplicateScreenshot,
+    mobile: mobileScreenshot,
   },
-  slackActionCount,
+  portfolioAuthorizeCount,
+  slackNativeReplayCount,
   finalAuthorizationStatus: calendarAuthorizationStatus,
-  externalRequests: unexpectedRequests(),
+  externalRequests,
 }
 
 if (summary.externalRequests.length > 0) {

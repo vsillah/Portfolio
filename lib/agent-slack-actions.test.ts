@@ -212,6 +212,24 @@ describe('Agent Ops Slack actions', () => {
     )
   })
 
+  it('acknowledges Portfolio-gate URL buttons without mutating state', async () => {
+    const result = await handleSlackAgentAction({
+      type: 'block_actions',
+      user: { id: 'U123', username: 'vambah' },
+      action_ts: '1716400000.000',
+      actions: [{
+        action_id: 'open_social_calendar_approval_gate',
+        url: 'https://amadutown.com/admin/agents/content-intelligence?section=calendar&calendar_item=calendar-1',
+      }],
+    })
+
+    expect(result).toEqual({
+      responseType: 'ephemeral',
+      text: 'Opening Portfolio review gate. Complete the decision in Portfolio: https://amadutown.com/admin/agents/content-intelligence?section=calendar&calendar_item=calendar-1',
+    })
+    expect(mocks.from).not.toHaveBeenCalled()
+  })
+
   it('requires Portfolio review for high-risk approvals', async () => {
     mocks.from
       .mockReturnValueOnce(queryResult({ data: null, error: null }))
