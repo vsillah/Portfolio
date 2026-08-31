@@ -133,6 +133,7 @@ describe('SocialCommentInboxPage', () => {
 
     const article = screen.getAllByText('Potential Client')[0].closest('article')
     expect(article).toBeTruthy()
+    expect(article).not.toHaveAttribute('id', 'social-comment-review-gate')
     const panel = within(article as HTMLElement)
     expect(panel.getByText('Original post')).toBeInTheDocument()
     expect(panel.getByText('Inbound comment')).toBeInTheDocument()
@@ -224,7 +225,7 @@ describe('SocialCommentInboxPage', () => {
   })
 
   it('hydrates the initial post filter from the deep-link query', async () => {
-    window.history.replaceState({}, '', '/admin/social-content/engagement-inbox?comment=comment-1&post=social-1')
+    window.history.replaceState({}, '', '/admin/social-content/engagement-inbox?comment=comment-1&post=social-1#social-comment-review-gate')
 
     render(<SocialCommentInboxPage />)
 
@@ -240,14 +241,21 @@ describe('SocialCommentInboxPage', () => {
     })
     expect(window.location.search).toContain('comment=comment-1')
     expect(window.location.search).toContain('post=social-1')
+    expect(window.location.hash).toBe('#social-comment-review-gate')
+    const article = screen.getAllByText('Potential Client')[0].closest('article')
+    expect(article).toHaveAttribute('id', 'social-comment-review-gate')
+    const gate = within(article as HTMLElement)
+    expect(gate.getByRole('button', { name: /^Approve$/i })).toBeInTheDocument()
+    expect(gate.getByRole('button', { name: /^Reject$/i })).toBeInTheDocument()
   })
 
   it('focuses and highlights the linked comment after comments load', async () => {
-    window.history.replaceState({}, '', '/admin/social-content/engagement-inbox?comment=comment-1&post=social-1')
+    window.history.replaceState({}, '', '/admin/social-content/engagement-inbox?comment=comment-1&post=social-1#social-comment-review-gate')
 
     render(<SocialCommentInboxPage />)
 
     const focusedCard = await screen.findByLabelText('Focused comment from Potential Client')
+    expect(focusedCard).toHaveAttribute('id', 'social-comment-review-gate')
     expect(focusedCard).toHaveClass('ring-2')
     await waitFor(() => {
       expect(window.HTMLElement.prototype.scrollIntoView).toHaveBeenCalled()

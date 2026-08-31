@@ -2213,7 +2213,7 @@ function ContentIntelligenceContent() {
             />
           </div>
 
-          <div className="overflow-hidden rounded-lg border border-silicon-slate/70 bg-silicon-slate/20">
+          <div id="content-calendar-gate" className="scroll-mt-28 overflow-hidden rounded-lg border border-silicon-slate/70 bg-silicon-slate/20">
             <div className="hidden border-b border-silicon-slate/70 bg-background/35 px-3 py-3 text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground md:grid md:grid-cols-[10rem_minmax(0,1fr)_12rem_9rem_9rem_14rem] md:gap-3">
               <span>Release</span>
               <span>Content</span>

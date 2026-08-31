@@ -572,6 +572,7 @@ export default function SocialCommentInboxPage() {
             return (
               <article
                 key={comment.id}
+                id={isFocused ? 'social-comment-review-gate' : undefined}
                 ref={(element) => {
                   commentRefs.current[comment.id] = element
                 }}

@@ -1352,6 +1352,7 @@ function OutreachContent() {
 
             {outreachWorkroomLead && (
               <section
+                id="warm-outreach-approval-gate"
                 className="mb-6 rounded-xl border border-emerald-500/30 bg-emerald-950/10 p-3 shadow-[0_18px_60px_rgba(0,0,0,0.22)] sm:p-4"
                 aria-label={`Outreach workroom for ${outreachWorkroomLead.name}`}
               >
