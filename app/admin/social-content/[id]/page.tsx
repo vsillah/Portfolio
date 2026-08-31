@@ -2412,12 +2412,12 @@ function SocialContentDetailPage() {
     ? 'Add Feedback'
     : 'Request Revision'
   const copyRevisionActionButtons = canRequestCopyRevision ? (
-    <div className="flex flex-wrap items-center gap-2">
+    <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
       <button
         type="button"
         onClick={() => handleCopyRevisionAction('generate')}
         disabled={requestingCopyRevision || (copyRevisionAction === 'generate' && !copyRevisionHasContext)}
-        className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
+        className={`inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50 sm:w-48 ${
           copyRevisionAction === 'generate'
             ? 'bg-amber-300 text-slate-950'
             : 'bg-amber-400 text-slate-950 hover:bg-amber-300'
@@ -3139,7 +3139,7 @@ function SocialContentDetailPage() {
 	                </div>
 	                <h2 className="mt-2 text-lg font-semibold text-gray-100">Approve or request revision</h2>
 	              </div>
-	              <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap sm:justify-end xl:shrink-0">
+	              <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:flex-nowrap sm:justify-end xl:shrink-0">
 	                <button
 	                  type="button"
 	                  onClick={() => {
@@ -3151,7 +3151,7 @@ function SocialContentDetailPage() {
 	                  }}
 	                  disabled={copyApprovalPrimaryDisabled}
 	                  title={approveBlockedTitle}
-	                  className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-green-500 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+	                  className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-green-500 disabled:cursor-not-allowed disabled:opacity-50 sm:w-48"
 	                >
 	                  {approving ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
 	                  {copyReviewPrimaryLabel}
@@ -3161,7 +3161,7 @@ function SocialContentDetailPage() {
 	                    type="button"
 	                    onClick={handleReject}
 	                    disabled={saving}
-	                    className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-amber-500/35 px-4 py-2 text-sm font-semibold text-amber-100 transition-colors hover:bg-amber-500/10 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+	                    className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-amber-500/35 px-4 py-2 text-sm font-semibold text-amber-100 transition-colors hover:bg-amber-500/10 disabled:cursor-not-allowed disabled:opacity-50 sm:w-48"
 	                  >
 	                    <XCircle className="h-4 w-4" />
 	                    Request Revision
