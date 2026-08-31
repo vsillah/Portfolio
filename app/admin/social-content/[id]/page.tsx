@@ -2409,10 +2409,8 @@ function SocialContentDetailPage() {
   const copyRevisionDetailsOpen = copyRevisionAction !== null
   const copyRevisionHasContext = Boolean(copyRevisionRequest.trim() || calibrationFeedback.triggering_event.trim())
   const copyRevisionGenerateButtonLabel = copyRevisionAction === 'generate' && !copyRevisionHasContext
-    ? 'Add Feedback to Generate'
-    : copyRevisionIsApprovalRollback
-      ? 'Reopen and Generate Revision'
-      : 'Reject and Generate Revision'
+    ? 'Add Feedback'
+    : 'Request Revision'
   const copyRevisionActionButtons = canRequestCopyRevision ? (
     <div className="flex flex-wrap items-center gap-2">
       <button
@@ -2926,6 +2924,22 @@ function SocialContentDetailPage() {
       navigateToReviewQueueItem(nextItem.id)
     }
   }
+  const copyApprovalPrimaryDisabled = !isEditable || approving || !canApproveCurrentDraft || videoPrivacyBlocked
+  const copyApprovalDisabledReason = !isEditable
+    ? copyGateState === 'approved'
+      ? 'Copy is already approved. Use the revision action only if this draft needs to be reopened.'
+      : 'This copy is not editable in the current lifecycle state.'
+    : videoPrivacyBlocked
+      ? redactionGate.message || 'Video privacy review must be resolved before approval.'
+      : !canApproveCurrentDraft
+        ? approveBlockedTitle || 'Resolve the copy readiness blockers before approval.'
+        : null
+  const copyReviewPrimaryLabel = nextDraftReviewQueueItem || nextReviewQueueItem
+    ? 'Approve Copy & Next'
+    : 'Approve Copy'
+  const copyReviewBoundaryCopy = isDraftOnlyPilot
+    ? 'Draft-level approval is the legitimate copy gate for this calendar path. It records copy approval and queues only internal reference and visual-review work.'
+    : 'This records copy approval and prepares internal publication rows. Provider submission, scheduling, uploads, and public publishing remain behind later gates.'
   const renderSectionGateControls = (
     gateKey: SectionGateKey,
     label: string,
@@ -3106,6 +3120,69 @@ function SocialContentDetailPage() {
           canonicalLabel="Open selected approval step"
           tone={mobileSummaryTone}
         />
+	        {activeApprovalStep === 'copy' && (
+	          <section
+	            id="social-copy-gate"
+	            aria-label="Copy review decision gate"
+	            className="scroll-mt-28 rounded-xl border border-emerald-500/25 bg-emerald-500/10 p-4 sm:p-5"
+	          >
+	            <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+	              <div className="min-w-0">
+	                <div className="flex flex-wrap items-center gap-2">
+	                  <p className="admin-console-eyebrow text-emerald-200">Copy Review Decision</p>
+	                  <span className={`inline-flex w-fit rounded-full border px-2 py-0.5 text-[10px] font-semibold ${GATE_STATE_CONFIG[copyGateState].className}`}>
+	                    Copy: {GATE_STATE_CONFIG[copyGateState].label}
+	                  </span>
+	                  <span className="rounded-full border border-emerald-400/30 px-2 py-0.5 text-[10px] font-semibold text-emerald-100">
+	                    Draft {reviewQueueItems.length ? normalizedReviewQueueIndex + 1 : 1} of {reviewQueueItems.length || 1}
+	                  </span>
+	                </div>
+	                <h2 className="mt-2 text-lg font-semibold text-gray-100">Approve or request revision</h2>
+	              </div>
+	              <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap sm:justify-end xl:shrink-0">
+	                <button
+	                  type="button"
+	                  onClick={() => {
+	                    if (isDraftOnlyPilot) {
+	                      void handleApproveAndNext()
+	                      return
+	                    }
+	                    setShowConfirmModal(true)
+	                  }}
+	                  disabled={copyApprovalPrimaryDisabled}
+	                  title={approveBlockedTitle}
+	                  className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-green-500 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+	                >
+	                  {approving ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+	                  {copyReviewPrimaryLabel}
+	                </button>
+	                {canRequestCopyRevision ? copyRevisionActionButtons : isEditable ? (
+	                  <button
+	                    type="button"
+	                    onClick={handleReject}
+	                    disabled={saving}
+	                    className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-amber-500/35 px-4 py-2 text-sm font-semibold text-amber-100 transition-colors hover:bg-amber-500/10 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+	                  >
+	                    <XCircle className="h-4 w-4" />
+	                    Request Revision
+	                  </button>
+	                ) : null}
+	              </div>
+	            </div>
+	            <p className="mt-3 text-sm leading-6 text-emerald-50/90">
+	              {copyReviewBoundaryCopy}
+	            </p>
+	            <p className="mt-1 text-xs leading-5 text-emerald-50/70">
+	              This does not publish, schedule, upload media, call platform providers, send Gmail, send SMS, or trigger external outreach.
+	            </p>
+	            {copyApprovalDisabledReason && (
+	              <p className="mt-2 rounded-md border border-amber-500/25 bg-gray-950/45 px-3 py-2 text-xs leading-5 text-amber-100">
+	                {copyApprovalDisabledReason}
+	              </p>
+	            )}
+	            {copyRevisionFeedbackFields}
+	          </section>
+	        )}
 	        {isAgentSocialPilot && (
 	          <section className="admin-console-card rounded-xl border border-radiant-gold/25 p-4 sm:p-5">
             <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(18rem,auto)] xl:items-start">
@@ -3870,9 +3947,12 @@ function SocialContentDetailPage() {
 	          <div className="min-w-0 space-y-4">
 	            {/* Post text */}
 	            {activeApprovalStep === 'copy' && (
-	            <div id="social-copy-gate" className="scroll-mt-28 rounded-xl border border-gray-800 bg-gray-900 p-4">
-              <div className="mb-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                <label className="text-sm font-medium text-gray-400">Post Text</label>
+	            <div id="social-copy-editor" className="scroll-mt-28 rounded-xl border border-gray-800 bg-gray-900 p-4">
+              <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="admin-console-eyebrow">Copy Fields</p>
+                  <h2 className="mt-1 text-lg font-semibold text-gray-100">Draft body and metadata</h2>
+                </div>
                 <span className={`inline-flex w-fit rounded-full border px-2 py-0.5 text-[10px] font-semibold ${GATE_STATE_CONFIG[copyGateState].className}`}>
                   Copy: {GATE_STATE_CONFIG[copyGateState].label}
                 </span>
@@ -3987,6 +4067,7 @@ function SocialContentDetailPage() {
                   )}
                 </div>
               )}
+              <label className="mb-2 block text-sm font-medium text-gray-400">Post Text</label>
               <textarea
                 value={postText}
                 onChange={(e) => setPostText(e.target.value)}
@@ -4079,12 +4160,6 @@ function SocialContentDetailPage() {
                   className="w-full bg-gray-800 text-gray-200 border border-gray-700 rounded-lg px-3 py-2 text-sm disabled:opacity-60"
                 />
               </div>
-              {canRequestCopyRevision && !isDraftOnlyPilot && (
-                <div className="mt-4 flex flex-col gap-3 rounded-lg border border-amber-500/25 bg-amber-500/10 p-3 lg:flex-row lg:items-center lg:justify-end">
-                  {copyRevisionActionButtons}
-                </div>
-              )}
-              {canRequestCopyRevision && !isDraftOnlyPilot && copyRevisionFeedbackFields}
 	            </div>
 	            )}
 
@@ -4984,36 +5059,6 @@ function SocialContentDetailPage() {
             </div>
           </div>
 	        </div>
-	        )}
-
-	        {activeApprovalStep === 'copy' && isDraftOnlyPilot && (
-	          <section id="social-copy-decision-gate" className="admin-console-card rounded-xl border border-amber-500/25 p-4">
-	            <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
-	              <div className="flex min-w-0 items-center gap-3">
-	                <CheckCircle2 className="h-4 w-4 shrink-0 text-green-300" />
-	                <div className="min-w-0">
-	                  <p className="admin-console-eyebrow">Copy Review Decision</p>
-	                  <p className="mt-1 text-xs text-gray-500">
-	                    Draft {reviewQueueItems.length ? normalizedReviewQueueIndex + 1 : 1} of {reviewQueueItems.length || 1}
-	                  </p>
-	                </div>
-	              </div>
-	              <div className="flex flex-wrap items-center gap-2 xl:justify-end">
-	                <button
-	                  type="button"
-	                  onClick={handleApproveAndNext}
-	                  disabled={!isEditable || approving || !canApproveCurrentDraft || videoPrivacyBlocked}
-	                  title={approveBlockedTitle}
-	                  className="inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-green-500 disabled:cursor-not-allowed disabled:opacity-50"
-	                >
-	                  {approving ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
-	                  {nextDraftReviewQueueItem || nextReviewQueueItem ? 'Approve Draft & Next' : 'Approve Draft'}
-	                </button>
-	                {copyRevisionActionButtons}
-	              </div>
-	            </div>
-	            {copyRevisionFeedbackFields}
-	          </section>
 	        )}
 
 	        {/* ================================================================ */}
