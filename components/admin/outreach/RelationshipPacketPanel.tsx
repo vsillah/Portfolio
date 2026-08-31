@@ -1858,15 +1858,46 @@ function SmsManualOutreachCard({
         )}
       </div>
 
-      <div
+      <details
         id="warm-sms-provider-readiness"
         className={`mt-2 rounded-md border p-2.5 ${smsProviderReadinessClasses(providerReadiness.state)}`}
       >
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+        <summary className="cursor-pointer list-none">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0">
+              <p className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wide">
+                <ShieldCheck size={13} aria-hidden />
+                Warm SMS provider readiness · activation architecture
+              </p>
+              <p className="mt-1 text-sm font-semibold">Provider audit collapsed</p>
+              <p className="mt-1 text-[10px] leading-4 opacity-85">
+                Provider setup, Telnyx planning, transport checks, no-send canary, and live-send audit details are collapsed to keep the operator path focused.
+              </p>
+            </div>
+            <span className="inline-flex min-h-7 w-fit shrink-0 items-center rounded-full border border-current/25 bg-background/25 px-2 py-0.5 text-[10px] font-semibold">
+              {providerReadiness.consentAndSuppression.status === 'clear'
+                ? `${providerChecksPassed}/${providerChecksTotal} safety checks clear`
+                : 'Safety review incomplete'}
+            </span>
+          </div>
+          <div className="mt-2 flex flex-wrap gap-1.5" aria-label="Collapsed SMS provider boundary summary">
+            <span className="inline-flex min-h-7 items-center rounded-full border border-current/20 bg-background/25 px-2 py-1 text-[10px] font-semibold">
+              Provider calls: off
+            </span>
+            <span className="inline-flex min-h-7 items-center rounded-full border border-current/20 bg-background/25 px-2 py-1 text-[10px] font-semibold">
+              Live send locked
+            </span>
+            <span className="inline-flex min-h-7 items-center rounded-full border border-current/20 bg-background/25 px-2 py-1 text-[10px] font-semibold">
+              Open audit drill-in
+            </span>
+          </div>
+        </summary>
+
+        <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0">
             <p className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wide">
               <ShieldCheck size={13} aria-hidden />
-              Warm SMS provider readiness · activation architecture
+              Provider readiness details
             </p>
             <p className="mt-1 text-sm font-semibold">{providerReadiness.label}</p>
           </div>
@@ -2624,7 +2655,7 @@ function SmsManualOutreachCard({
             {' '}Only the Telnyx no-send audit route is implemented. Provider activation, live SMS, and per-recipient sends remain unavailable. The manual SMS loop below remains a separate local workflow.
           </p>
         </details>
-      </div>
+      </details>
 
       <div id="warm-sms-manual-decision" className={`mt-2 rounded-md border p-2.5 ${smsDecisionClasses(decision)}`}>
         <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
@@ -2904,6 +2935,70 @@ function ValuePill({ label, value }: { label: string; value: string }) {
   )
 }
 
+function operatorActionSummary({
+  readiness,
+  smsReadiness,
+  responseMonitoring,
+}: {
+  readiness: WarmOutreachReadiness
+  smsReadiness?: WarmSmsReadiness
+  responseMonitoring?: WarmOutreachResponseMonitoring
+}) {
+  if (smsReadiness?.state === 'blocked') {
+    return {
+      label: 'Resolve SMS setup gate',
+      detail: smsReadiness.recoveryStep ?? smsReadiness.label,
+      tone: 'blocked' as const,
+    }
+  }
+  if (smsReadiness?.state === 'manual_ready') {
+    return {
+      label: 'Prepare SMS candidate',
+      detail: 'Review the draft, prepare one local candidate row, then request explicit per-recipient approval before any provider execution.',
+      tone: 'ready' as const,
+    }
+  }
+  if (smsReadiness?.state === 'manual_review_required') {
+    return {
+      label: 'Review SMS draft',
+      detail: 'Confirm relationship basis, suppression state, and draft language before preparing a local candidate row.',
+      tone: 'review' as const,
+    }
+  }
+  if (responseMonitoring?.status === 'manual_response_captured' || responseMonitoring?.status === 'imported_response_captured') {
+    return {
+      label: 'Draft follow-up',
+      detail: responseMonitoring.proposedFollowUp.description,
+      tone: 'ready' as const,
+    }
+  }
+  if (readiness.status === 'blocked') {
+    return {
+      label: 'Resolve readiness blocker',
+      detail: readiness.blockers[0] ?? 'Relationship context is not ready for outreach review.',
+      tone: 'blocked' as const,
+    }
+  }
+  if (readiness.status === 'draft_ready') {
+    return {
+      label: 'Review outreach draft',
+      detail: 'Use the workroom draft controls, then keep approval, provider action, and external send as separate gates.',
+      tone: 'ready' as const,
+    }
+  }
+  return {
+    label: 'Review relationship packet',
+    detail: readiness.warnings[0] ?? 'Confirm local relationship evidence before moving to a draft or provider-specific gate.',
+    tone: 'review' as const,
+  }
+}
+
+function operatorActionClasses(tone: 'ready' | 'review' | 'blocked') {
+  if (tone === 'ready') return 'border-emerald-500/35 bg-emerald-500/10 text-emerald-100'
+  if (tone === 'blocked') return 'border-red-500/35 bg-red-500/10 text-red-100'
+  return 'border-amber-500/35 bg-amber-500/10 text-amber-100'
+}
+
 export default function RelationshipPacketPanel({
   gmailDraftCanaryError,
   gmailDraftCanaryLoading,
@@ -2930,6 +3025,10 @@ export default function RelationshipPacketPanel({
       (sourceInventory?.safeToMention.length ?? 0) > 0 ||
       (sourceInventory?.summarizeOnly.length ?? 0) > 0 ||
       (sourceInventory?.doNotMention.length ?? 0) > 0)
+  const actionSummary =
+    readiness
+      ? operatorActionSummary({ readiness, smsReadiness, responseMonitoring })
+      : null
 
   return (
     <section className="lg:col-span-2 rounded-lg border border-silicon-slate/80 bg-background/60 p-4">
@@ -2972,6 +3071,44 @@ export default function RelationshipPacketPanel({
 
       {!loading && !error && data && packet && readiness && (
         <div className="mt-3 space-y-3">
+          {actionSummary && (
+            <div className={`rounded-lg border p-3 ${operatorActionClasses(actionSummary.tone)}`}>
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div className="min-w-0">
+                  <p className="text-[11px] font-semibold uppercase tracking-wide opacity-80">
+                    Current operator action
+                  </p>
+                  <p className="mt-1 text-base font-semibold">{actionSummary.label}</p>
+                  <p className="mt-1 text-xs leading-5 opacity-85">{actionSummary.detail}</p>
+                </div>
+                <a
+                  href={smsReadiness ? '#warm-sms-readiness' : '#warm-source-provenance'}
+                  className="inline-flex min-h-10 w-full shrink-0 items-center justify-center gap-2 rounded-md border border-current/25 bg-background/20 px-3 text-xs font-semibold transition-colors hover:bg-background/30 sm:w-auto"
+                >
+                  Go to action
+                </a>
+              </div>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                <span className="inline-flex min-h-7 items-center rounded-full border border-current/20 bg-background/20 px-2 py-1 text-[10px] font-semibold">
+                  Readiness: {relationshipReadinessLabel(readiness.status)}
+                </span>
+                {readiness.selectedChannel && (
+                  <span className="inline-flex min-h-7 items-center rounded-full border border-current/20 bg-background/20 px-2 py-1 text-[10px] font-semibold">
+                    Channel: {CHANNEL_LABELS[readiness.selectedChannel]}
+                  </span>
+                )}
+                {smsReadiness && (
+                  <span className="inline-flex min-h-7 items-center rounded-full border border-current/20 bg-background/20 px-2 py-1 text-[10px] font-semibold">
+                    SMS: {smsReadiness.state.replaceAll('_', ' ')}
+                  </span>
+                )}
+                <span className="inline-flex min-h-7 items-center rounded-full border border-current/20 bg-background/20 px-2 py-1 text-[10px] font-semibold">
+                  External send locked
+                </span>
+              </div>
+            </div>
+          )}
+
           <div className="grid gap-3 md:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
             <div className="rounded-md border border-silicon-slate/70 bg-silicon-slate/20 p-3">
               <p className="mb-1 text-[11px] font-medium uppercase tracking-wide text-muted-foreground/80">
@@ -3034,7 +3171,7 @@ export default function RelationshipPacketPanel({
             onSmsTelnyxNoSendCanary={onSmsTelnyxNoSendCanary}
           />
 
-          <div className="rounded-md border border-silicon-slate/70 bg-silicon-slate/20 p-3">
+          <div id="warm-source-provenance" className="rounded-md border border-silicon-slate/70 bg-silicon-slate/20 p-3">
             <p className="mb-2 text-[11px] font-medium uppercase tracking-wide text-muted-foreground/80">
               Source and provenance summary
             </p>
