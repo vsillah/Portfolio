@@ -647,6 +647,60 @@ describe('POST /api/admin/outreach/leads/[id]/sms-telnyx-live-send', () => {
     expect(JSON.stringify(json)).not.toContain('op://Portfolio/Warm SMS Telnyx/credential')
   })
 
+  it('allows existing eligible readiness evidence to advance to one live send', async () => {
+    const sender = vi.fn().mockResolvedValue({
+      ok: true,
+      providerMessageId: 'telnyx-message-after-readiness',
+      deliveryStatus: 'accepted',
+    })
+    setWarmSmsTelnyxSenderForTesting(sender)
+    const row = outreachRow({
+      generation_inputs: {
+        warm_sms_message_version_key: MESSAGE_VERSION_KEY,
+        warm_sms_send_authorization: authorization(),
+        warm_sms_telnyx_execution: {
+          version: 'warm-outreach-sms-telnyx-live-send/v1',
+          status: 'eligible_for_execution',
+          provider: 'telnyx_messaging',
+          message_version_key: MESSAGE_VERSION_KEY,
+          sms_send_idempotency_key: SMS_SEND_IDEMPOTENCY_KEY,
+          submitted_evidence_key: SUBMITTED_EVIDENCE_KEY,
+          idempotency_key: SMS_SEND_IDEMPOTENCY_KEY,
+          telnyx_api_called: false,
+          external_send_performed: false,
+        },
+      },
+    })
+    const { updatePayloads } = mockSupabase({ outreachItem: row })
+
+    const response = await POST(makeRequest(executionPayload(row)), params())
+    const json = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(json).toMatchObject({
+      status: 'sent',
+      providerMessageId: 'telnyx-message-after-readiness',
+      telnyxApiCalled: true,
+      externalSendPerformed: true,
+      liveSendReadiness: {
+        state: 'ready_for_live_one_recipient_execution',
+      },
+    })
+    expect(sender).toHaveBeenCalledTimes(1)
+    expect(updatePayloads[0]).toMatchObject({
+      generation_inputs: {
+        warm_sms_telnyx_execution: expect.objectContaining({
+          status: 'sending',
+          idempotency_key: SMS_SEND_IDEMPOTENCY_KEY,
+        }),
+      },
+    })
+    expect(updatePayloads[1]).toMatchObject({
+      status: 'sent',
+      message_id: 'telnyx-message-after-readiness',
+    })
+  })
+
   it('uses exact queue approval and no-send evidence to satisfy production live-send readiness overlay', async () => {
     mocks.getRelationshipPacket.mockResolvedValue(NextResponse.json(manualRelationshipBody()))
     const sender = vi.fn().mockResolvedValue({
