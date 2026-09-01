@@ -91,10 +91,48 @@ function installDbMocks(agentRunRows: Array<Record<string, unknown>> = []) {
 describe('GET /api/admin/social-content/engagement/comments', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    vi.unstubAllEnvs()
     delete process.env.SOCIAL_COMMENT_SLACK_ATTENTION_ENABLED
     mocks.verifyAdmin.mockResolvedValue({ user: { id: 'admin-user' } })
     mocks.isAuthError.mockReturnValue(false)
     installDbMocks()
+  })
+
+  it('serves the exact preview QA locked and recoverable reply fixture without database reads', async () => {
+    vi.stubEnv('VERCEL_ENV', 'preview')
+
+    const response = await GET(request('http://localhost/api/admin/social-content/engagement/comments?comment=comment-qa-locked&post=social-qa-locked&review=reply&source=slack') as never)
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(body).toMatchObject({
+      fixture: true,
+      integration_note: expect.stringContaining('Synthetic engagement reply QA fixture only'),
+      alertReliability: {
+        label: 'QA fixture',
+        activation: {
+          enabled: false,
+          reason: 'qa_fixture_no_external_dispatch',
+        },
+      },
+    })
+    expect(body.items).toHaveLength(2)
+    expect(body.items[0]).toMatchObject({
+      id: 'comment-qa-locked',
+      socialContentId: 'social-qa-locked',
+      status: 'responded',
+      approvalState: 'rejected',
+      submittedReplyLocked: true,
+    })
+    expect(body.items[1]).toMatchObject({
+      id: 'comment-qa-recoverable',
+      socialContentId: 'social-qa-locked',
+      status: 'needs_qa',
+      approvalState: 'rejected',
+      submittedReplyLocked: false,
+    })
+    expect(body.summary).toMatchObject({ total: 2, responded: 1, needs_qa: 1 })
+    expect(mocks.from).not.toHaveBeenCalled()
   })
 
   it('does not apply a platform condition when filter is all or omitted', async () => {

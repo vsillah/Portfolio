@@ -284,6 +284,87 @@ describe('/api/admin/social-content/[id]/engagement/comments', () => {
     })
   })
 
+  it('serves the preview QA engagement reply fixture without database reads', async () => {
+    vi.stubEnv('VERCEL_ENV', 'preview')
+
+    const response = await GET(request() as never, { params: { id: 'social-qa-locked' } })
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(body).toMatchObject({
+      fixture: true,
+      integration_note: expect.stringContaining('Synthetic engagement reply QA fixture only'),
+    })
+    expect(body.comments).toHaveLength(2)
+    expect(body.comments[0]).toMatchObject({
+      id: 'comment-qa-locked',
+      submittedReplyLocked: true,
+      approvalState: 'rejected',
+    })
+    expect(body.comments[1]).toMatchObject({
+      id: 'comment-qa-recoverable',
+      socialContentId: 'social-qa-locked',
+      approvalState: 'rejected',
+    })
+    expect(mocks.from).not.toHaveBeenCalled()
+  })
+
+  it('records the preview QA return-to-review state without provider calls or database mutation', async () => {
+    vi.stubEnv('VERCEL_ENV', 'preview')
+    const fetchMock = vi.fn()
+    vi.stubGlobal('fetch', fetchMock)
+
+    const response = await POST(request({
+      action: 'return_to_review',
+      comment_id: 'comment-qa-recoverable',
+      draft_reply: 'Replacement reply that names the approval boundary.',
+    }) as never, { params: { id: 'social-qa-locked' } })
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(body).toMatchObject({
+      fixture: true,
+      ok: true,
+      blocked: false,
+      message: 'Revised reply saved and returned to review. Approval is required before any provider submission.',
+      integration_note: expect.stringContaining('without provider calls or production-row mutation'),
+    })
+    expect(body.comments[1]).toMatchObject({
+      id: 'comment-qa-recoverable',
+      draftReply: 'Replacement reply that names the approval boundary.',
+      approvalState: 'drafted',
+      actionHistory: expect.arrayContaining([
+        expect.objectContaining({ action: 'return_to_review' }),
+      ]),
+    })
+    expect(fetchMock).not.toHaveBeenCalled()
+    expect(mocks.from).not.toHaveBeenCalled()
+    expect(mocks.update).not.toHaveBeenCalled()
+  })
+
+  it('keeps the preview QA submitted-provider-evidence fixture locked without recording no-op actions', async () => {
+    vi.stubEnv('VERCEL_ENV', 'preview')
+
+    const response = await POST(request({
+      action: 'return_to_review',
+      comment_id: 'comment-qa-locked',
+      draft_reply: 'Trying to change submitted evidence.',
+    }) as never, { params: { id: 'social-qa-locked' } })
+    const body = await response.json()
+
+    expect(response.status).toBe(409)
+    expect(body).toMatchObject({
+      fixture: true,
+      ok: false,
+      blocked: true,
+      already_submitted: true,
+      message: 'Reply already has submitted provider evidence. Local review is locked to preserve the canonical provider record.',
+    })
+    expect(body.integration_note).toContain('no local no-op review action was recorded')
+    expect(mocks.from).not.toHaveBeenCalled()
+    expect(mocks.update).not.toHaveBeenCalled()
+  })
+
   it('does not run X refresh without admin auth', async () => {
     mocks.verifyAdmin.mockResolvedValue({ error: 'Unauthorized', status: 401 })
     mocks.isAuthError.mockReturnValue(true)
@@ -812,7 +893,7 @@ describe('/api/admin/social-content/[id]/engagement/comments', () => {
     }))
   })
 
-  it('preserves submitted provider evidence when later review actions are clicked', async () => {
+  it('blocks later review actions on submitted provider evidence without recording a no-op action', async () => {
     installDbMocks({ comment: submittedYouTubeCommentRow })
 
     const response = await POST(request({
@@ -822,28 +903,15 @@ describe('/api/admin/social-content/[id]/engagement/comments', () => {
     }) as never, { params: { id: 'social-1' } })
     const body = await response.json()
 
-    expect(response.status).toBe(200)
+    expect(response.status).toBe(409)
     expect(body).toMatchObject({
-      ok: true,
-      blocked: false,
+      ok: false,
+      blocked: true,
       already_submitted: true,
       message: expect.stringContaining('submitted provider evidence'),
     })
-    expect(mocks.update).toHaveBeenCalledWith(expect.objectContaining({
-      updated_by: 'admin-user',
-      metadata: expect.objectContaining({
-        ui_action_history: expect.arrayContaining([
-          expect.objectContaining({
-            action: 'approve',
-            note: expect.stringContaining('submitted provider evidence'),
-          }),
-        ]),
-      }),
-    }))
-    expect(mocks.update.mock.calls.at(-1)?.[0]).not.toHaveProperty('response_approval_state')
-    expect(mocks.update.mock.calls.at(-1)?.[0]).not.toHaveProperty('reply_submission_state')
-    expect(mocks.update.mock.calls.at(-1)?.[0]).not.toHaveProperty('reply_provider_comment_id')
-    expect(mocks.update.mock.calls.at(-1)?.[0]).not.toHaveProperty('reply_submitted_at')
+    expect(body.integration_note).toContain('no local no-op review action was recorded')
+    expect(mocks.update).not.toHaveBeenCalled()
     expect(body.comments[0]).toMatchObject({
       status: 'responded',
     })
@@ -869,9 +937,9 @@ describe('/api/admin/social-content/[id]/engagement/comments', () => {
       ok: false,
       blocked: true,
       already_submitted: true,
-      message: 'Reply already has submitted provider evidence. Local revision is locked to preserve the canonical provider record.',
+      message: 'Reply already has submitted provider evidence. Local review is locked to preserve the canonical provider record.',
     })
-    expect(body.integration_note).toContain('no local no-op revision action was recorded')
+    expect(body.integration_note).toContain('no local no-op review action was recorded')
     expect(mocks.update).not.toHaveBeenCalled()
     expect(body.comments[0]).toMatchObject({
       status: 'responded',

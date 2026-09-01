@@ -26,6 +26,11 @@ import {
   type CommentReplySubmissionResult,
 } from '@/lib/social-comment-reply-submission'
 import { refreshPublishedXComments } from '@/lib/x-comment-ingestion'
+import {
+  getEngagementInboxQaFixtureCommentsPayload,
+  getEngagementInboxQaFixtureItems,
+  isEngagementInboxQaFixtureContentId,
+} from '@/lib/social-comment-engagement-qa-fixture'
 
 export const dynamic = 'force-dynamic'
 
@@ -349,9 +354,25 @@ export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } },
 ) {
+  if (isEngagementInboxQaFixtureContentId(params.id)) {
+    return NextResponse.json({
+      fixture: true,
+      comments: getEngagementInboxQaFixtureItems(),
+      integration_note: 'Synthetic engagement reply QA fixture only. No provider ingestion, reply submission, or production-row action was attempted.',
+    })
+  }
+
   const auth = await verifyAdmin(request)
   if (isAuthError(auth)) {
     return NextResponse.json({ error: auth.error }, { status: auth.status })
+  }
+
+  if (isEngagementInboxQaFixtureContentId(params.id)) {
+    return NextResponse.json({
+      fixture: true,
+      comments: getEngagementInboxQaFixtureItems(),
+      integration_note: 'Synthetic engagement reply QA fixture only. No provider ingestion, reply submission, or production-row action was attempted.',
+    })
   }
 
   if (!supabaseAdmin) {
@@ -389,6 +410,22 @@ export async function POST(
   request: NextRequest,
   { params }: { params: { id: string } },
 ) {
+  const body = await request.json().catch(() => ({}))
+  const action = asAction(body.action)
+  if (!action) {
+    return NextResponse.json({ error: 'Unsupported comment inbox action' }, { status: 400 })
+  }
+
+  if (isEngagementInboxQaFixtureContentId(params.id)) {
+    const fixture = getEngagementInboxQaFixtureCommentsPayload({
+      action,
+      commentId: optionalText(body.comment_id),
+      draftReply: optionalText(body.draft_reply),
+      actorId: 'qa-admin-user',
+    })
+    return NextResponse.json(fixture.body, { status: fixture.status })
+  }
+
   const auth = await verifyAdmin(request)
   if (isAuthError(auth)) {
     return NextResponse.json({ error: auth.error }, { status: auth.status })
@@ -396,12 +433,6 @@ export async function POST(
 
   if (!supabaseAdmin) {
     return NextResponse.json({ error: 'Server configuration error' }, { status: 500 })
-  }
-
-  const body = await request.json().catch(() => ({}))
-  const action = asAction(body.action)
-  if (!action) {
-    return NextResponse.json({ error: 'Unsupported comment inbox action' }, { status: 400 })
   }
 
   const { post, error: postError } = await fetchPost(params.id)
@@ -498,59 +529,17 @@ export async function POST(
   let integrationNote = 'No external comment reply was submitted. This action only updated canonical local workflow state.'
 
   if (hasSubmittedEvidence && action !== 'submit') {
-    if (action === 'return_to_review') {
-      return responseWithComments({
-        post,
-        contentId: params.id,
-        status: 409,
-        ok: false,
-        blocked: true,
-        message: 'Reply already has submitted provider evidence. Local revision is locked to preserve the canonical provider record.',
-        integrationNote: 'No external comment reply was submitted. Existing provider reply evidence remains authoritative, and no local no-op revision action was recorded.',
-        extra: {
-          already_submitted: true,
-        },
-      })
-    }
-
-    patch = {
-      updated_by: actorId,
-      metadata: appendActionHistory(comment.metadata, {
-        ...historyEvent,
-        note: historyEvent.note
-          || 'Reply already has submitted provider evidence; local review action was recorded without changing submitted state.',
-      }),
-    }
-    message = 'Reply already has submitted provider evidence. The local action was recorded without changing submitted state.'
-    integrationNote = 'No external comment reply was submitted. Existing provider reply evidence remains authoritative.'
-    const { error: updateError } = await supabaseAdmin
-      .from('social_content_comments')
-      .update(patch)
-      .eq('id', commentId)
-      .eq('content_id', params.id)
-      .select(COMMENT_SELECT)
-      .single()
-
-    if (updateError) {
-      if (isCommentInboxStorageUnavailable(updateError)) {
-        return unavailableResponse(409)
-      }
-
-      return NextResponse.json({ error: 'Failed to record comment inbox action' }, { status: 500 })
-    }
-
-    const { comments, error } = await fetchComments(params.id, post)
-    if (error && isCommentInboxStorageUnavailable(error)) {
-      return unavailableResponse(409)
-    }
-
-    return NextResponse.json({
-      ok,
-      blocked,
-      already_submitted: true,
-      message,
-      comments,
-      integration_note: integrationNote,
+    return responseWithComments({
+      post,
+      contentId: params.id,
+      status: 409,
+      ok: false,
+      blocked: true,
+      message: 'Reply already has submitted provider evidence. Local review is locked to preserve the canonical provider record.',
+      integrationNote: 'No external comment reply was submitted. Existing provider reply evidence remains authoritative, and no local no-op review action was recorded.',
+      extra: {
+        already_submitted: true,
+      },
     })
   }
 
