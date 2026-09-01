@@ -16,6 +16,7 @@ const screenshotPath = path.join(outputDir, 'engagement-inbox-rejected-reply-loc
 const receiptPath = path.join(outputDir, 'engagement-inbox-rejected-reply-receipt-2026-09-01.json')
 const exactPath = '/admin/social-content/engagement-inbox?comment=comment-qa-locked&post=social-qa-locked&review=reply&source=slack#social-comment-review-gate'
 const exactUrl = `${baseUrl}${exactPath}`
+const allowedQaHost = new URL(baseUrl).hostname
 
 if (!existsSync(path.join(root, 'node_modules'))) {
   throw new Error('node_modules is required. In worktrees, temporarily link the main Portfolio node_modules before running this recorder.')
@@ -214,7 +215,12 @@ async function installRoutes(page) {
       return route.fulfill({ status: 200, json: user })
     }
 
-    if (isBlockedExternal(request.url()) && !url.hostname.includes('127.0.0.1') && !url.hostname.includes('localhost')) {
+    if (
+      isBlockedExternal(request.url())
+      && url.hostname !== allowedQaHost
+      && !url.hostname.includes('127.0.0.1')
+      && !url.hostname.includes('localhost')
+    ) {
       externalRequests.push(request.url())
       return route.abort()
     }
@@ -406,7 +412,7 @@ async function runScenario(browser, viewport, mp4Path, mobile = false) {
   await recoverableCard.scrollIntoViewIfNeeded()
   await expect(recoverableCard.getByText('Review locked')).toBeVisible()
   await recoverableCard.getByRole('button', { name: 'Revise Reply', exact: true }).click()
-  await expect(recoverableCard.getByText('Revision mode')).toBeVisible()
+  await expect(recoverableCard.getByText('Revision mode', { exact: true })).toBeVisible()
   await expect(recoverableCard.getByLabel('Reply revision')).toBeVisible()
   await expect(recoverableCard.getByRole('button', { name: 'Revise Reply', exact: true })).toHaveCount(0)
   expect(capturedActions).toHaveLength(0)
@@ -455,22 +461,20 @@ if (!mobile.capturedActions.some((action) => action.action === 'return_to_review
 await writeFile(receiptPath, JSON.stringify({
   generatedAt: new Date().toISOString(),
   routesCovered: [exactPath],
-  previewUrl: baseUrl,
+  qaBaseUrl: baseUrl,
   exactUrl,
+  externalRequests,
   videoPath: path.relative(root, desktopMp4Path),
   mobileVideoPath: path.relative(root, mobileMp4Path),
   screenshotPath: path.relative(root, screenshotPath),
-  desktopMp4Path,
-  mobileMp4Path,
-  desktop: {
-    viewport: desktop.viewport,
-    capturedActions: desktop.capturedActions,
+  coverage: {
+    desktopViewport: desktop.viewport,
+    mobileViewport: mobile.viewport,
+    recordedLocalActions: {
+      lockedSubmittedEvidenceNoPost: true,
+      recoverableReturnToReviewPosts: true,
+    },
   },
-  mobile: {
-    viewport: mobile.viewport,
-    capturedActions: mobile.capturedActions,
-  },
-  externalRequests,
 }, null, 2))
 
 console.log(JSON.stringify({
