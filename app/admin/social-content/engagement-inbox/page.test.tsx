@@ -224,6 +224,26 @@ describe('SocialCommentInboxPage', () => {
     expect(screen.getByText(/Unsupported providers will appear here once their comments are imported/i)).toBeInTheDocument()
   })
 
+  it('marks status metric filters active and exposes the clear action', async () => {
+    render(<SocialCommentInboxPage />)
+
+    await waitFor(() => {
+      expect(screen.getAllByText('Potential Client').length).toBeGreaterThanOrEqual(1)
+    })
+
+    fireEvent.click(screen.getByRole('button', { name: 'Filter comments to Lead (1)' }))
+
+    const activeMetric = await screen.findByRole('button', { name: 'Clear Lead comment filter (1)' })
+    expect(activeMetric).toHaveAttribute('aria-pressed', 'true')
+    expect(activeMetric).toHaveAttribute('title', 'Click to clear this status filter')
+    expect(screen.getByLabelText(/Status/i)).toHaveValue('lead')
+
+    fireEvent.click(activeMetric)
+
+    await waitFor(() => expect(screen.getByLabelText(/Status/i)).toHaveValue('all'))
+    expect(screen.getByRole('button', { name: 'Filter comments to Lead (1)' })).toHaveAttribute('aria-pressed', 'false')
+  })
+
   it('hydrates the initial post filter from the deep-link query', async () => {
     window.history.replaceState({}, '', '/admin/social-content/engagement-inbox?comment=comment-1&post=social-1#social-comment-review-gate')
 
