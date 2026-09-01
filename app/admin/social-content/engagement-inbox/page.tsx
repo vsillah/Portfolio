@@ -292,7 +292,7 @@ export default function SocialCommentInboxPage() {
 
   const runAction = async (
     comment: SocialCommentInboxItem,
-    action: 'draft_response' | 'approve' | 'reject' | 'ignore' | 'submit',
+    action: 'draft_response' | 'approve' | 'reject' | 'ignore' | 'submit' | 'return_to_review',
   ) => {
     setActionLoading(`${comment.id}:${action}`)
     setNotice(null)
@@ -569,6 +569,7 @@ export default function SocialCommentInboxPage() {
             const actionKey = (action: string) => `${comment.id}:${action}`
             const isFocused = focusedCommentId === comment.id || focusedCommentId === comment.providerCommentId
             const draftText = drafts[comment.id]?.trim() ?? ''
+            const isRejected = comment.approvalState === 'rejected'
             return (
               <article
                 key={comment.id}
@@ -666,53 +667,92 @@ export default function SocialCommentInboxPage() {
                         placeholder="Draft a reply for review. This does not send externally."
                       />
                     </label>
-                    <div className="flex flex-wrap gap-2">
-                      <button
-                        type="button"
-                        onClick={() => runAction(comment, 'draft_response')}
-                        disabled={actionLoading === actionKey('draft_response')}
-                        className="inline-flex min-h-9 items-center justify-center gap-2 rounded-lg border border-blue-500/40 bg-blue-500/10 px-3 py-2 text-xs font-semibold text-blue-100 hover:bg-blue-500/20 disabled:opacity-60"
-                      >
-                        {actionLoading === actionKey('draft_response') ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <MessageSquare className="h-3.5 w-3.5" />}
-                        Draft Response
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => runAction(comment, 'approve')}
-                        disabled={actionLoading === actionKey('approve') || !(drafts[comment.id] ?? '').trim()}
-                        className="inline-flex min-h-9 items-center justify-center gap-2 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-xs font-semibold text-emerald-100 hover:bg-emerald-500/20 disabled:opacity-60"
-                      >
-                        <CheckCircle2 className="h-3.5 w-3.5" />
-                        Approve
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => runAction(comment, 'reject')}
-                        disabled={actionLoading === actionKey('reject')}
-                        className="inline-flex min-h-9 items-center justify-center gap-2 rounded-lg border border-red-500/40 bg-red-500/10 px-3 py-2 text-xs font-semibold text-red-100 hover:bg-red-500/20 disabled:opacity-60"
-                      >
-                        <XCircle className="h-3.5 w-3.5" />
-                        Reject
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => runAction(comment, 'ignore')}
-                        disabled={actionLoading === actionKey('ignore')}
-                        className="inline-flex min-h-9 items-center justify-center gap-2 rounded-lg border border-gray-600 px-3 py-2 text-xs font-semibold text-muted-foreground hover:bg-muted disabled:opacity-60"
-                      >
-                        Ignore
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => runAction(comment, 'submit')}
-                        disabled={actionLoading === actionKey('submit') || !submitReady}
-                        title={submitReady ? 'Queue guarded provider submission request' : comment.providerCapability.blocker || comment.providerCapability.recoveryPath}
-                        className="inline-flex min-h-9 items-center justify-center gap-2 rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs font-semibold text-amber-100 hover:bg-amber-500/20 disabled:cursor-not-allowed disabled:opacity-55"
-                      >
-                        {actionLoading === actionKey('submit') ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
-                        Submit
-                      </button>
-                    </div>
+                    {isRejected ? (
+                      <div className="rounded-lg border border-red-500/35 bg-red-500/10 p-3">
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                          <div className="min-w-0">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <XCircle className="h-4 w-4 shrink-0 text-red-200" />
+                              <p className="text-sm font-semibold text-red-100">Reply rejected</p>
+                              <span className="rounded-full border border-red-500/35 px-2 py-0.5 text-[0.7rem] font-semibold uppercase text-red-100">
+                                Review locked
+                              </span>
+                            </div>
+                            <p className="mt-2 text-xs leading-5 text-red-50/90">
+                              Approve, reject, and provider submit stay unavailable for this rejected reply until the draft is revised and returned to review.
+                            </p>
+                          </div>
+                          <div className="flex shrink-0 flex-wrap gap-2">
+                            <button
+                              type="button"
+                              onClick={() => runAction(comment, 'return_to_review')}
+                              disabled={actionLoading === actionKey('return_to_review') || !draftText}
+                              className="inline-flex min-h-9 items-center justify-center gap-2 rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs font-semibold text-amber-100 hover:bg-amber-500/20 disabled:cursor-not-allowed disabled:opacity-60"
+                            >
+                              {actionLoading === actionKey('return_to_review') ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <MessageSquare className="h-3.5 w-3.5" />}
+                              Revise Reply
+                            </button>
+                            <button
+                              type="button"
+                              disabled
+                              title={comment.providerCapability.blocker || comment.providerCapability.recoveryPath}
+                              className="inline-flex min-h-9 items-center justify-center gap-2 rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs font-semibold text-amber-100 opacity-55"
+                            >
+                              <Send className="h-3.5 w-3.5" />
+                              Submit
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex flex-wrap gap-2">
+                        <button
+                          type="button"
+                          onClick={() => runAction(comment, 'draft_response')}
+                          disabled={actionLoading === actionKey('draft_response')}
+                          className="inline-flex min-h-9 items-center justify-center gap-2 rounded-lg border border-blue-500/40 bg-blue-500/10 px-3 py-2 text-xs font-semibold text-blue-100 hover:bg-blue-500/20 disabled:opacity-60"
+                        >
+                          {actionLoading === actionKey('draft_response') ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <MessageSquare className="h-3.5 w-3.5" />}
+                          Draft Response
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => runAction(comment, 'approve')}
+                          disabled={actionLoading === actionKey('approve') || !draftText}
+                          className="inline-flex min-h-9 items-center justify-center gap-2 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-xs font-semibold text-emerald-100 hover:bg-emerald-500/20 disabled:opacity-60"
+                        >
+                          <CheckCircle2 className="h-3.5 w-3.5" />
+                          Approve
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => runAction(comment, 'reject')}
+                          disabled={actionLoading === actionKey('reject')}
+                          className="inline-flex min-h-9 items-center justify-center gap-2 rounded-lg border border-red-500/40 bg-red-500/10 px-3 py-2 text-xs font-semibold text-red-100 hover:bg-red-500/20 disabled:opacity-60"
+                        >
+                          <XCircle className="h-3.5 w-3.5" />
+                          Reject
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => runAction(comment, 'ignore')}
+                          disabled={actionLoading === actionKey('ignore')}
+                          className="inline-flex min-h-9 items-center justify-center gap-2 rounded-lg border border-gray-600 px-3 py-2 text-xs font-semibold text-muted-foreground hover:bg-muted disabled:opacity-60"
+                        >
+                          Ignore
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => runAction(comment, 'submit')}
+                          disabled={actionLoading === actionKey('submit') || !submitReady}
+                          title={submitReady ? 'Queue guarded provider submission request' : comment.providerCapability.blocker || comment.providerCapability.recoveryPath}
+                          className="inline-flex min-h-9 items-center justify-center gap-2 rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs font-semibold text-amber-100 hover:bg-amber-500/20 disabled:cursor-not-allowed disabled:opacity-55"
+                        >
+                          {actionLoading === actionKey('submit') ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
+                          Submit
+                        </button>
+                      </div>
+                    )}
                   </div>
 
                   <aside>

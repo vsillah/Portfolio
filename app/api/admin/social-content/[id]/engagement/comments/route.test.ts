@@ -702,6 +702,88 @@ describe('/api/admin/social-content/[id]/engagement/comments', () => {
     }))
   })
 
+  it('blocks repeated approve or reject decisions on a rejected reply review', async () => {
+    installDbMocks({
+      comment: {
+        ...commentRow,
+        response_approval_state: 'rejected',
+        reply_submission_state: 'draft',
+        proposed_reply_text: 'Needs revision.',
+        approved_reply_text: null,
+      },
+    })
+
+    const approve = await POST(request({
+      action: 'approve',
+      comment_id: 'comment-1',
+      draft_reply: 'Trying to approve without revision recovery.',
+    }) as never, { params: { id: 'social-1' } })
+    const approveBody = await approve.json()
+
+    expect(approve.status).toBe(409)
+    expect(approveBody).toMatchObject({
+      ok: false,
+      blocked: true,
+      message: 'Reply review is rejected. Revise the reply and return it to review before approving or rejecting again.',
+    })
+    expect(approveBody.integration_note).toContain('No external comment reply was submitted')
+    expect(approveBody.integration_note).toContain('locked until the explicit recovery action runs')
+    expect(mocks.update).not.toHaveBeenCalled()
+
+    const reject = await POST(request({
+      action: 'reject',
+      comment_id: 'comment-1',
+      draft_reply: 'Trying to reject again.',
+    }) as never, { params: { id: 'social-1' } })
+    const rejectBody = await reject.json()
+
+    expect(reject.status).toBe(409)
+    expect(rejectBody).toMatchObject({
+      ok: false,
+      blocked: true,
+      message: 'Reply review is rejected. Revise the reply and return it to review before approving or rejecting again.',
+    })
+    expect(mocks.update).not.toHaveBeenCalled()
+  })
+
+  it('returns a revised rejected reply to pending review without external submission', async () => {
+    installDbMocks({
+      comment: {
+        ...commentRow,
+        response_approval_state: 'rejected',
+        reply_submission_state: 'draft',
+        proposed_reply_text: 'Needs revision.',
+        approved_reply_text: null,
+      },
+    })
+
+    const response = await POST(request({
+      action: 'return_to_review',
+      comment_id: 'comment-1',
+      draft_reply: 'Revised reply for a fresh review.',
+    }) as never, { params: { id: 'social-1' } })
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(body).toMatchObject({
+      ok: true,
+      blocked: false,
+      message: 'Revised reply saved and returned to review. Approval is required before any provider submission.',
+    })
+    expect(body.integration_note).toContain('No external comment reply was submitted')
+    expect(mocks.update).toHaveBeenCalledWith(expect.objectContaining({
+      proposed_reply_text: 'Revised reply for a fresh review.',
+      approved_reply_text: null,
+      response_approval_state: 'pending',
+      reply_submission_state: 'draft',
+      metadata: expect.objectContaining({
+        ui_action_history: expect.arrayContaining([
+          expect.objectContaining({ action: 'return_to_review' }),
+        ]),
+      }),
+    }))
+  })
+
   it('preserves submitted provider evidence when later review actions are clicked', async () => {
     installDbMocks({ comment: submittedYouTubeCommentRow })
 
