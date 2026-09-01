@@ -551,6 +551,7 @@ function SocialContentDetailPage() {
   const [savingGoldStandard, setSavingGoldStandard] = useState(false)
   const [revisingCalibration, setRevisingCalibration] = useState(false)
   const [requestingCopyRevision, setRequestingCopyRevision] = useState(false)
+  const [copyRejecting, setCopyRejecting] = useState(false)
   const [loadingTopicBacklog, setLoadingTopicBacklog] = useState(false)
   const [topicBacklogItems, setTopicBacklogItems] = useState<TopicBacklogRecord[]>([])
   const [topicBacklogUnavailable, setTopicBacklogUnavailable] = useState(false)
@@ -1374,6 +1375,7 @@ function SocialContentDetailPage() {
 
   const handleCancelCopyRevision = () => {
     setCopyRevisionAction(null)
+    setCopyRejecting(false)
   }
 
   const handleSectionGateDecision = async (
@@ -1542,24 +1544,81 @@ function SocialContentDetailPage() {
     }
   }
 
-  const handleReject = async () => {
+  const handleReject = async (options: { withCopyFeedback?: boolean } = {}) => {
+    const isCopyReject = activeApprovalStep === 'copy'
+    const revisionRequest = copyRevisionRequest.trim()
+    if (isCopyReject && !copyRejecting) {
+      setCopyRejecting(true)
+      return
+    }
     if (!confirm('Reject this post? It will return to draft state for re-editing.')) return
     setSaving(true)
     try {
       const session = await getCurrentSession()
       if (!session) return
 
-      await fetch(`/api/admin/social-content/${id}`, {
+      const requestedAt = new Date().toISOString()
+      const shouldPersistCopyFeedback = Boolean(isCopyReject && options.withCopyFeedback && revisionRequest)
+      const existingRag = asRecord(item?.rag_context) ?? {}
+      const existingCalibration = asRecord(existingRag.content_calibration) ?? {}
+      const revisionRequests = Array.isArray(existingCalibration.revision_requests)
+        ? existingCalibration.revision_requests
+        : []
+      const nextAdminNotes = isCopyReject
+        ? [
+            adminNotes,
+            shouldPersistCopyFeedback
+              ? `Copy rejected on ${requestedAt}.\n${revisionRequest}`
+              : `Copy rejected on ${requestedAt}.`,
+          ].filter(Boolean).join('\n\n')
+        : adminNotes
+      const body: Record<string, unknown> = {
+        status: 'rejected',
+        admin_notes: nextAdminNotes,
+      }
+      if (shouldPersistCopyFeedback) {
+        body.rag_context = {
+          ...existingRag,
+          content_calibration: {
+            ...existingCalibration,
+            status: 'revision_requested',
+            operator_feedback: buildOperatorFeedback(revisionRequest),
+            approval_rejection: {
+              rejected_at: requestedAt,
+              previous_status: item?.status ?? null,
+              reason: revisionRequest,
+            },
+            revision_requests: [
+              ...revisionRequests,
+              {
+                created_at: requestedAt,
+                previous_status: item?.status ?? null,
+                request: revisionRequest,
+                action: 'reject_with_feedback',
+              },
+            ].slice(-10),
+          },
+        }
+      }
+
+      const res = await fetch(`/api/admin/social-content/${id}`, {
         method: 'PUT',
         headers: {
           Authorization: `Bearer ${session.access_token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ status: 'rejected', admin_notes: adminNotes }),
+        body: JSON.stringify(body),
       })
+      const data = await res.json()
+      if (!res.ok) {
+        showMsg('error', data.error || 'Failed to reject')
+        return
+      }
 
-      setItem(prev => prev ? { ...prev, status: 'rejected' as ContentStatus } : prev)
-      showMsg('success', 'Rejected')
+      setItem(prev => prev ? { ...prev, ...data.item } : data.item)
+      setAdminNotes(asString((data.item as SocialContentItem | undefined)?.admin_notes) || nextAdminNotes)
+      setCopyRejecting(false)
+      showMsg('success', isCopyReject ? 'Copy rejected' : 'Rejected')
     } catch {
       showMsg('error', 'Failed to reject')
     } finally {
@@ -2407,16 +2466,25 @@ function SocialContentDetailPage() {
   const canRequestCopyRevision = (isAgentSocialPilot || isDraftOnlyPilot) && (item.status === 'approved' || isEditable)
   const copyRevisionIsApprovalRollback = item.status === 'approved'
   const copyRevisionDetailsOpen = copyRevisionAction !== null
+  const copyFeedbackDetailsOpen = item.status !== 'rejected' && (copyRevisionDetailsOpen || copyRejecting)
   const copyRevisionHasContext = Boolean(copyRevisionRequest.trim() || calibrationFeedback.triggering_event.trim())
   const copyRevisionGenerateButtonLabel = copyRevisionAction === 'generate' && !copyRevisionHasContext
     ? 'Add Feedback'
     : 'Request Revision'
-  const copyRevisionActionButtons = canRequestCopyRevision ? (
-    <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
+  const copyRevisionActionButtons = canRequestCopyRevision && (copyRejecting || !isEditable) ? (
+    <div className="flex w-full flex-col gap-2 sm:w-48">
       <button
         type="button"
-        onClick={() => handleCopyRevisionAction('generate')}
-        disabled={requestingCopyRevision || (copyRevisionAction === 'generate' && !copyRevisionHasContext)}
+        onClick={() => {
+          if (copyRejecting) {
+            void handleReject({ withCopyFeedback: true })
+            return
+          }
+          handleCopyRevisionAction('generate')
+        }}
+        disabled={copyRejecting
+          ? saving || !copyRevisionRequest.trim()
+          : requestingCopyRevision || (copyRevisionAction === 'generate' && !copyRevisionHasContext)}
         className={`inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50 sm:w-48 ${
           copyRevisionAction === 'generate'
             ? 'bg-amber-300 text-slate-950'
@@ -2426,9 +2494,14 @@ function SocialContentDetailPage() {
         {requestingCopyRevision ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
         {copyRevisionGenerateButtonLabel}
       </button>
+      {copyRejecting && (
+        <p className="text-xs leading-5 text-emerald-50/75">
+          Add feedback and choose Request Revision for Shaka, or choose Reject again to reject without comments.
+        </p>
+      )}
     </div>
   ) : null
-  const copyRevisionFeedbackFields = copyRevisionDetailsOpen ? (
+  const copyRevisionFeedbackFields = copyFeedbackDetailsOpen ? (
     <div className="mt-3 rounded-lg border border-amber-500/25 bg-gray-950/35 p-3">
       <div className="flex items-center justify-end">
         <button
@@ -2462,7 +2535,7 @@ function SocialContentDetailPage() {
             }}
             rows={3}
             className="mt-2 w-full rounded-lg border border-amber-500/25 bg-gray-950/70 px-3 py-2 text-sm normal-case leading-6 tracking-normal text-gray-100 placeholder:text-gray-500"
-            placeholder="What should change before this can be approved?"
+            placeholder="Optional: what should change before this can be approved?"
           />
         </label>
       </div>
@@ -2497,8 +2570,13 @@ function SocialContentDetailPage() {
     : scheduledFor
       ? 'Approve & Schedule'
       : 'Approve & Publish'
+  const copyGateRejected = item.status === 'rejected'
+    || agentPilotCalibrationStatus === 'revision_requested'
+    || Boolean(asRecord(agentPilotCalibration?.approval_rejection))
   const copyGateRawState: GateState = isDurableCopyApprovedStatus(item.status)
     ? 'approved'
+    : copyGateRejected
+      ? 'rejected'
     : isEditable
       ? 'in_review'
       : gateStateFromRawStatus(item.status)
@@ -2668,6 +2746,7 @@ function SocialContentDetailPage() {
     },
   })
   const copyGateState = lifecycleProjection.steps.copy.state as GateState
+  const copyRejectionResolved = copyGateState === 'rejected'
   const effectiveSupportingContextGateState = lifecycleProjection.steps.context.state as GateState
   const effectiveVisualWorkflowGateState = lifecycleProjection.steps.visuals.state as GateState
   const effectiveDraftGateState = lifecycleProjection.steps.draft.state as GateState
@@ -2722,6 +2801,9 @@ function SocialContentDetailPage() {
   const rawApprovalStep = searchParams.get('step')
   const requestedApprovalStep: ApprovalStep | null = isApprovalStep(rawApprovalStep) ? rawApprovalStep : null
   const activeApprovalStep: ApprovalStep = requestedApprovalStep ?? nextReviewGate?.step ?? 'copy'
+  const copyRejectActionLabel = activeApprovalStep === 'copy'
+    ? 'Reject'
+    : 'Reject'
   const approvalStepTabs: Array<{
     step: ApprovalStep
     label: string
@@ -2798,14 +2880,26 @@ function SocialContentDetailPage() {
       waitingOnYou: contextMissingAfterCopyApproval ? 'Yes - context recovery decision' : 'No',
     },
     copy: {
-      title: copyGateState === 'approved' ? 'Copy approved' : 'Copy review',
+      title: copyGateState === 'approved'
+        ? 'Copy approved'
+        : copyRejectionResolved
+          ? 'Copy rejected'
+          : 'Copy review',
       body: copyGateState === 'approved'
         ? 'The post, CTA, hashtags, and acronym clarity have passed editorial review. This does not authorize visual generation, provider handoff, scheduling, or publication.'
-        : 'Review or revise the public copy before downstream visual and platform work can proceed.',
+        : copyRejectionResolved
+          ? 'The copy decision is recorded as rejected. Revise the draft before returning this item to review.'
+          : 'Review or revise the public copy before downstream visual and platform work can proceed.',
       owner: 'Vambah / Shaka',
       lastUpdate: item.reviewed_by ? new Date(item.updated_at).toLocaleString() : 'Awaiting editorial decision',
-      nextAction: copyGateState === 'approved' ? 'Move to visual strategy and QA.' : 'Approve the copy or reject with revision feedback.',
-      waitingOnYou: copyGateState === 'approved' ? 'No' : 'Yes - editorial decision',
+      nextAction: copyGateState === 'approved'
+        ? 'Move to visual strategy and QA.'
+        : copyRejectionResolved
+          ? 'Revise the draft before reopening copy review.'
+          : copyRejecting
+            ? 'Complete the copy decision in the gate below.'
+          : 'Approve the copy or choose Reject to open optional feedback.',
+      waitingOnYou: copyGateState === 'approved' || copyRejectionResolved ? 'No' : 'Yes - editorial decision',
     },
     visuals: {
       title: lifecycleBlockedDetail('visuals') ? 'Visual lifecycle mismatch'
@@ -2878,7 +2972,9 @@ function SocialContentDetailPage() {
       : activeApprovalStepDetail.waitingOnYou.startsWith('Yes')
         ? 'yellow'
         : 'blue'
-  const mobileSummaryBlocker = activeApprovalStep === 'status'
+  const mobileSummaryBlocker = activeApprovalStep === 'copy' && copyRejectionResolved
+    ? null
+    : activeApprovalStep === 'status'
     ? publicationSummary && ['failed', 'blocked', 'ambiguous'].includes(publicationSummary.state)
       ? publicationSummary.reason ?? publicationSummary.explanation
       : null
@@ -2940,6 +3036,16 @@ function SocialContentDetailPage() {
   const copyReviewBoundaryCopy = isDraftOnlyPilot
     ? 'Draft-level approval is the legitimate copy gate for this calendar path. It records copy approval and queues only internal reference and visual-review work.'
     : 'This records copy approval and prepares internal publication rows. Provider submission, scheduling, uploads, and public publishing remain behind later gates.'
+  const copyGateHeading = copyRejectionResolved
+    ? 'Copy decision recorded'
+    : copyRejecting
+      ? 'Reject or request revision'
+      : 'Approve or reject copy'
+  const copyGateActionHint = copyRejectionResolved
+    ? 'Copy rejection is recorded. Revise the draft before returning it to review.'
+    : copyRejecting
+      ? null
+      : copyReviewBoundaryCopy
   const renderSectionGateControls = (
     gateKey: SectionGateKey,
     label: string,
@@ -3137,45 +3243,63 @@ function SocialContentDetailPage() {
 	                    Draft {reviewQueueItems.length ? normalizedReviewQueueIndex + 1 : 1} of {reviewQueueItems.length || 1}
 	                  </span>
 	                </div>
-	                <h2 className="mt-2 text-lg font-semibold text-gray-100">Approve or request revision</h2>
+                <h2 className="mt-2 text-lg font-semibold text-gray-100">{copyGateHeading}</h2>
 	              </div>
-	              <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:flex-nowrap sm:justify-end xl:shrink-0">
-	                <button
-	                  type="button"
-	                  onClick={() => {
-	                    if (isDraftOnlyPilot) {
-	                      void handleApproveAndNext()
-	                      return
-	                    }
-	                    setShowConfirmModal(true)
-	                  }}
-	                  disabled={copyApprovalPrimaryDisabled}
-	                  title={approveBlockedTitle}
-	                  className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-green-500 disabled:cursor-not-allowed disabled:opacity-50 sm:w-48"
-	                >
-	                  {approving ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
-	                  {copyReviewPrimaryLabel}
-	                </button>
-	                {canRequestCopyRevision ? copyRevisionActionButtons : isEditable ? (
-	                  <button
-	                    type="button"
-	                    onClick={handleReject}
-	                    disabled={saving}
-	                    className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-amber-500/35 px-4 py-2 text-sm font-semibold text-amber-100 transition-colors hover:bg-amber-500/10 disabled:cursor-not-allowed disabled:opacity-50 sm:w-48"
-	                  >
-	                    <XCircle className="h-4 w-4" />
-	                    Request Revision
-	                  </button>
-	                ) : null}
-	              </div>
-	            </div>
-	            <p className="mt-3 text-sm leading-6 text-emerald-50/90">
-	              {copyReviewBoundaryCopy}
-	            </p>
-	            <p className="mt-1 text-xs leading-5 text-emerald-50/70">
-	              This does not publish, schedule, upload media, call platform providers, send Gmail, send SMS, or trigger external outreach.
-	            </p>
-	            {copyApprovalDisabledReason && (
+              <div className="flex w-full flex-col gap-2 sm:w-auto xl:shrink-0">
+                <div className="flex w-full flex-col gap-2 sm:flex-row sm:flex-wrap sm:justify-end">
+                  {copyRejectionResolved ? (
+                    <button
+                      type="button"
+                      disabled
+                      className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-red-500/45 bg-red-500/10 px-4 py-2 text-sm font-semibold text-red-100 disabled:cursor-not-allowed sm:w-48"
+                    >
+                      <XCircle className="h-4 w-4" />
+                      Rejected
+                    </button>
+                  ) : (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => {
+	                          if (isDraftOnlyPilot) {
+	                            void handleApproveAndNext()
+	                            return
+	                          }
+	                          setShowConfirmModal(true)
+	                        }}
+	                        disabled={copyApprovalPrimaryDisabled}
+	                        title={approveBlockedTitle}
+	                        className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-green-500 disabled:cursor-not-allowed disabled:opacity-50 sm:w-48"
+	                      >
+                        {approving ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+                        {copyReviewPrimaryLabel}
+                      </button>
+                      {isEditable && (
+                        <button
+                          type="button"
+                          onClick={() => void handleReject()}
+                          disabled={saving}
+                          className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-red-500/45 px-4 py-2 text-sm font-semibold text-red-200 transition-colors hover:bg-red-500/10 disabled:cursor-not-allowed disabled:opacity-50 sm:w-48"
+                        >
+                          {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <XCircle className="h-4 w-4" />}
+                          {copyRejectActionLabel}
+                        </button>
+                      )}
+                      {copyRevisionActionButtons}
+                    </>
+                  )}
+                </div>
+                {copyGateActionHint && (
+                  <p className="text-xs leading-5 text-emerald-50/75 sm:max-w-[32rem] sm:text-right">
+                    {copyGateActionHint}
+                  </p>
+                )}
+                <p className="text-xs leading-5 text-emerald-50/65 sm:max-w-[32rem] sm:text-right">
+                  This does not publish, schedule, upload media, call platform providers, send Gmail, send SMS, or trigger external outreach.
+                </p>
+              </div>
+            </div>
+	            {!copyRejectionResolved && copyApprovalDisabledReason && (
 	              <p className="mt-2 rounded-md border border-amber-500/25 bg-gray-950/45 px-3 py-2 text-xs leading-5 text-amber-100">
 	                {copyApprovalDisabledReason}
 	              </p>
@@ -5061,7 +5185,7 @@ function SocialContentDetailPage() {
 	        </div>
 	        )}
 
-	        {/* ================================================================ */}
+		        {/* ================================================================ */}
 	        {/* SECTION 2: "Where & When" Publish Panel                          */}
         {/* ================================================================ */}
 	        {activeApprovalStep === 'draft' && (
@@ -5236,14 +5360,14 @@ function SocialContentDetailPage() {
 
           {/* Action buttons */}
           {isEditable && (
-            <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-700">
+            <div className="flex flex-col gap-2 border-t border-gray-700 pt-4 sm:flex-row sm:items-center sm:justify-end">
               <button
-                onClick={handleReject}
+                onClick={() => void handleReject()}
                 disabled={saving}
-                className="flex items-center gap-1.5 px-4 py-2 text-red-400 hover:bg-red-900/30 border border-red-900/50 rounded-lg text-sm transition-colors disabled:opacity-50"
+                className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg border border-red-900/50 px-4 py-2 text-sm text-red-400 transition-colors hover:bg-red-900/30 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
               >
-                <XCircle className="w-4 h-4" />
-                Reject
+                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <XCircle className="w-4 h-4" />}
+                {copyRejectActionLabel}
               </button>
               <button
                 onClick={() => {
@@ -5255,7 +5379,7 @@ function SocialContentDetailPage() {
                 }}
                 disabled={approving || !canApproveCurrentDraft || videoPrivacyBlocked}
                 title={approveBlockedTitle}
-                className="flex items-center gap-1.5 px-5 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+                className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-green-600 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-green-500 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
               >
                 {approving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                 {approveActionLabel}
