@@ -63,142 +63,11 @@ const session = {
   user,
 }
 
-const recoverableRejectedComment = {
-  id: 'comment-qa-recoverable',
-  socialContentId: 'social-qa-1',
-  platform: 'youtube',
-  providerCommentId: 'youtube-comment-qa-1',
-  providerPermalink: 'https://youtube.example.test/comment/qa-1',
-  authorDisplayName: 'Synthetic Reviewer',
-  body: 'Can this reply explain the approval boundary clearly?',
-  status: 'needs_qa',
-  classification: {
-    label: 'buying lead intent',
-    priority: 'high',
-    reason: 'Synthetic service question for reject-state QA.',
-  },
-  draftReply: 'Original rejected reply: yes, this workflow can help.',
-  approvalState: 'rejected',
-  submittedReplyLocked: false,
-  submittedReplyLockReason: null,
-  providerCapability: {
-    provider: 'youtube_data_api',
-    automaticReply: true,
-    verified: true,
-    humanGateSatisfied: false,
-    blocker: 'Human approval is required before any reply can be submitted.',
-    recoveryPath: 'Reply manually from the provider permalink after a separate provider gate.',
-  },
-  actionHistory: [{
-    action: 'reject',
-    at: '2026-09-01T12:00:00.000Z',
-    by: 'qa-admin-user',
-    note: null,
-  }],
-  createdAt: '2026-09-01T11:50:00.000Z',
-  updatedAt: '2026-09-01T12:00:00.000Z',
-  campaignId: 'campaign-qa',
-  campaignLabel: 'Synthetic Engagement QA',
-  postLabel: 'Synthetic comment reply review',
-  postExcerpt: 'Synthetic Portfolio QA post. No external publishing or provider submission is represented.',
-}
-
-const submittedLockedComment = {
-  id: 'comment-qa-locked',
-  socialContentId: 'social-qa-locked',
-  platform: 'youtube',
-  providerCommentId: 'youtube-comment-submitted-1',
-  providerPermalink: 'https://youtube.example.test/comment/submitted-1',
-  authorDisplayName: 'Synthetic Submitted Viewer',
-  body: 'This reply already has provider evidence. Can I revise it?',
-  status: 'responded',
-  classification: {
-    label: 'answered comment',
-    priority: 'medium',
-    reason: 'Synthetic submitted-evidence boundary case.',
-  },
-  draftReply: 'This rejected reply was already submitted to the provider.',
-  approvalState: 'rejected',
-  submittedReplyLocked: true,
-  submittedReplyLockReason: 'Reply already has submitted provider evidence. Local revision is locked so Portfolio does not rewrite or obscure the canonical provider record.',
-  providerCapability: {
-    provider: 'youtube_data_api',
-    automaticReply: true,
-    verified: true,
-    humanGateSatisfied: false,
-    blocker: 'Submitted provider evidence is authoritative.',
-    recoveryPath: 'Review provider evidence before making any local correction.',
-  },
-  actionHistory: [{
-    action: 'reject',
-    at: '2026-09-01T12:08:00.000Z',
-    by: 'qa-admin-user',
-    note: 'Rejected after provider evidence existed.',
-  }],
-  createdAt: '2026-09-01T11:55:00.000Z',
-  updatedAt: '2026-09-01T12:08:00.000Z',
-  campaignId: 'campaign-qa',
-  campaignLabel: 'Synthetic Engagement QA',
-  postLabel: 'Synthetic submitted reply review',
-  postExcerpt: 'Synthetic submitted provider evidence case. No external publishing or provider submission is represented.',
-}
-
-let currentComments = [submittedLockedComment, recoverableRejectedComment]
 const capturedActions = []
 const externalRequests = []
 
 function isBlockedExternal(url) {
   return /gmail|slack|linkedin|facebook|instagram|tiktok|youtube|n8n|telnyx|resend/i.test(url)
-}
-
-function inboxResponse() {
-  return {
-    items: currentComments,
-    summary: {
-      total: 2,
-      new: 0,
-      needs_qa: 1,
-      auto_send_pending: 0,
-      lead: 0,
-      escalated: 0,
-      responded: 1,
-      ignored: 0,
-    },
-    filteredSummary: {
-      total: 2,
-      new: 0,
-      needs_qa: 1,
-      auto_send_pending: 0,
-      lead: 0,
-      escalated: 0,
-      responded: 1,
-      ignored: 0,
-    },
-    alertReliability: {
-      state: 'disabled',
-      label: 'Alerts disabled',
-      summary: 'Synthetic QA keeps Slack/provider dispatch disabled; the inbox is the local review surface.',
-      deliveryMode: 'disabled',
-      activation: {
-        enabled: false,
-        reason: 'qa_fixture_no_external_dispatch',
-      },
-      counts: {
-        itemCount: 2,
-        sent: 0,
-        deduped: 0,
-        skipped: 2,
-        errors: 0,
-      },
-      reasons: ['Synthetic fixture only.'],
-      lastActionableNextStep: 'Review eligible comments in the Engagement Inbox.',
-      nextStep: {
-        label: 'Open inbox',
-        href: '/admin/social-content/engagement-inbox',
-      },
-      lastRun: null,
-    },
-  }
 }
 
 async function installRoutes(page) {
@@ -213,6 +82,16 @@ async function installRoutes(page) {
 
     if (url.hostname.endsWith('.supabase.co') && pathname.includes('/auth/v1/user')) {
       return route.fulfill({ status: 200, json: user })
+    }
+
+    if (url.hostname.endsWith('.supabase.co') && pathname.includes('/rest/v1/user_profiles')) {
+      return route.fulfill({
+        status: 200,
+        json: [{
+          id: user.id,
+          role: 'admin',
+        }],
+      })
     }
 
     if (
@@ -240,64 +119,9 @@ async function installRoutes(page) {
       })
     }
 
-    if (pathname === '/api/admin/social-content/engagement/comments') {
-      return route.fulfill({ status: 200, json: inboxResponse() })
-    }
-
-    if (pathname === '/api/admin/social-content/social-qa-1/engagement/comments') {
-      const body = JSON.parse(request.postData() || '{}')
-      capturedActions.push(body)
-      if (body.action === 'return_to_review') {
-        const revisedComment = {
-          ...recoverableRejectedComment,
-          draftReply: body.draft_reply,
-          approvalState: 'drafted',
-          actionHistory: [
-            {
-              action: 'return_to_review',
-              at: '2026-09-01T12:05:00.000Z',
-              by: user.id,
-              note: null,
-            },
-            ...recoverableRejectedComment.actionHistory,
-          ],
-        }
-        currentComments = [submittedLockedComment, revisedComment]
-        return route.fulfill({
-          status: 200,
-          json: {
-            ok: true,
-            blocked: false,
-            message: 'Revised reply saved and returned to review. Approval is required before any provider submission.',
-            comments: currentComments,
-            integration_note: 'No external comment reply was submitted. This action only updated canonical local workflow state.',
-          },
-        })
-      }
-      return route.fulfill({
-        status: 409,
-        json: {
-          ok: false,
-          blocked: true,
-          message: 'Synthetic QA blocks all non-recovery actions.',
-          comments: currentComments,
-        },
-      })
-    }
-
-    if (pathname === '/api/admin/social-content/social-qa-locked/engagement/comments') {
+    if (pathname === '/api/admin/social-content/social-qa-locked/engagement/comments' && request.method() === 'POST') {
       capturedActions.push(JSON.parse(request.postData() || '{}'))
-      return route.fulfill({
-        status: 409,
-        json: {
-          ok: false,
-          blocked: true,
-          already_submitted: true,
-          message: 'Reply already has submitted provider evidence. Local revision is locked to preserve the canonical provider record.',
-          comments: currentComments,
-          integration_note: 'No external comment reply was submitted. Existing provider reply evidence remains authoritative, and no local no-op revision action was recorded.',
-        },
-      })
+      return route.fallback()
     }
 
     return route.fallback()
@@ -375,7 +199,6 @@ async function convertToMp4(sourceVideo, targetPath) {
 }
 
 async function runScenario(browser, viewport, mp4Path, mobile = false) {
-  currentComments = [submittedLockedComment, recoverableRejectedComment]
   capturedActions.length = 0
 
   const context = await browser.newContext({

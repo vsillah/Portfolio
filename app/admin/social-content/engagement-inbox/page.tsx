@@ -97,6 +97,15 @@ const EMPTY_SUMMARY: SocialCommentInboxSummary = {
   ignored: 0,
 }
 
+function summarizeVisibleComments(items: SocialCommentInboxItem[]): SocialCommentInboxSummary {
+  const next = { ...EMPTY_SUMMARY }
+  next.total = items.length
+  for (const item of items) {
+    next[item.status] += 1
+  }
+  return next
+}
+
 const STATUS_CLASS: Record<SocialCommentStatus, string> = {
   new: 'border-blue-500/35 bg-blue-500/10 text-blue-100',
   needs_qa: 'border-amber-500/40 bg-amber-500/10 text-amber-100',
@@ -339,6 +348,36 @@ export default function SocialCommentInboxPage() {
   const [unavailable, setUnavailable] = useState<InboxUnavailableState | null>(null)
   const [alertReliability, setAlertReliability] = useState<AlertReliabilityStatus | null>(null)
 
+  const applyCommentPayload = useCallback((
+    data: Record<string, unknown>,
+    key: 'items' | 'comments',
+  ) => {
+    const nextComments = Array.isArray(data[key]) ? data[key] as SocialCommentInboxItem[] : []
+    setComments(nextComments)
+    setSummary(data.summary && typeof data.summary === 'object'
+      ? data.summary as SocialCommentInboxSummary
+      : summarizeVisibleComments(nextComments))
+    setFilteredSummary(data.filteredSummary && typeof data.filteredSummary === 'object'
+      ? data.filteredSummary as SocialCommentInboxSummary
+      : summarizeVisibleComments(nextComments))
+    if (data.alertReliability && typeof data.alertReliability === 'object') {
+      setAlertReliability(data.alertReliability as AlertReliabilityStatus)
+    }
+
+    const nextDrafts: Record<string, string> = {}
+    for (const comment of nextComments) {
+      nextDrafts[comment.id] = comment.draftReply ?? ''
+    }
+    setDrafts(nextDrafts)
+    setRevisionNotes((current) => {
+      const next = { ...current }
+      for (const comment of nextComments) {
+        if (next[comment.id] === undefined) next[comment.id] = ''
+      }
+      return next
+    })
+  }, [])
+
   useEffect(() => {
     if (typeof window === 'undefined') return
 
@@ -383,28 +422,13 @@ export default function SocialCommentInboxPage() {
         message: typeof data.message === 'string' ? data.message : 'Comment inbox storage is unavailable.',
         recovery: typeof data.recovery === 'string' ? data.recovery : 'Apply the comment inbox migration to the bound database before validating populated rows.',
       } : null)
-      setComments(Array.isArray(data.items) ? data.items : [])
-      setSummary(data.summary ?? EMPTY_SUMMARY)
-      setFilteredSummary(data.filteredSummary ?? EMPTY_SUMMARY)
-      setAlertReliability(data.alertReliability && typeof data.alertReliability === 'object' ? data.alertReliability : null)
-      const nextDrafts: Record<string, string> = {}
-      for (const comment of data.items ?? []) {
-        nextDrafts[comment.id] = comment.draftReply ?? ''
-      }
-      setDrafts(nextDrafts)
-      setRevisionNotes((current) => {
-        const next = { ...current }
-        for (const comment of data.items ?? []) {
-          if (next[comment.id] === undefined) next[comment.id] = ''
-        }
-        return next
-      })
+      applyCommentPayload(data, 'items')
     } catch (error) {
       setNotice({ type: 'error', text: error instanceof Error ? error.message : 'Failed to load comment inbox' })
     } finally {
       setLoading(false)
     }
-  }, [filters])
+  }, [applyCommentPayload, filters])
 
   useEffect(() => {
     fetchComments()
@@ -509,7 +533,11 @@ export default function SocialCommentInboxPage() {
       if (action === 'return_to_review' && response.ok) {
         setRevisionMode((current) => ({ ...current, [comment.id]: false }))
       }
-      await fetchComments()
+      if (data.fixture && Array.isArray(data.comments)) {
+        applyCommentPayload(data, 'comments')
+      } else {
+        await fetchComments()
+      }
     } catch (error) {
       setCommentNotices((current) => ({
         ...current,

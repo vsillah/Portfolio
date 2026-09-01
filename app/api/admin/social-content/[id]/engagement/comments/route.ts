@@ -26,6 +26,12 @@ import {
   type CommentReplySubmissionResult,
 } from '@/lib/social-comment-reply-submission'
 import { refreshPublishedXComments } from '@/lib/x-comment-ingestion'
+import {
+  explicitEngagementInboxQaFixtureEnabled,
+  getEngagementInboxQaFixtureCommentsPayload,
+  getEngagementInboxQaFixtureItems,
+  isEngagementInboxQaFixtureContentId,
+} from '@/lib/social-comment-engagement-qa-fixture'
 
 export const dynamic = 'force-dynamic'
 
@@ -349,9 +355,25 @@ export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } },
 ) {
+  if (explicitEngagementInboxQaFixtureEnabled() && isEngagementInboxQaFixtureContentId(params.id)) {
+    return NextResponse.json({
+      fixture: true,
+      comments: getEngagementInboxQaFixtureItems(),
+      integration_note: 'Synthetic engagement reply QA fixture only. No provider ingestion, reply submission, or production-row action was attempted.',
+    })
+  }
+
   const auth = await verifyAdmin(request)
   if (isAuthError(auth)) {
     return NextResponse.json({ error: auth.error }, { status: auth.status })
+  }
+
+  if (isEngagementInboxQaFixtureContentId(params.id)) {
+    return NextResponse.json({
+      fixture: true,
+      comments: getEngagementInboxQaFixtureItems(),
+      integration_note: 'Synthetic engagement reply QA fixture only. No provider ingestion, reply submission, or production-row action was attempted.',
+    })
   }
 
   if (!supabaseAdmin) {
@@ -389,19 +411,39 @@ export async function POST(
   request: NextRequest,
   { params }: { params: { id: string } },
 ) {
+  const body = await request.json().catch(() => ({}))
+  const action = asAction(body.action)
+  if (!action) {
+    return NextResponse.json({ error: 'Unsupported comment inbox action' }, { status: 400 })
+  }
+
+  if (explicitEngagementInboxQaFixtureEnabled() && isEngagementInboxQaFixtureContentId(params.id)) {
+    const fixture = getEngagementInboxQaFixtureCommentsPayload({
+      action,
+      commentId: optionalText(body.comment_id),
+      draftReply: optionalText(body.draft_reply),
+      actorId: 'qa-admin-user',
+    })
+    return NextResponse.json(fixture.body, { status: fixture.status })
+  }
+
   const auth = await verifyAdmin(request)
   if (isAuthError(auth)) {
     return NextResponse.json({ error: auth.error }, { status: auth.status })
   }
 
-  if (!supabaseAdmin) {
-    return NextResponse.json({ error: 'Server configuration error' }, { status: 500 })
+  if (isEngagementInboxQaFixtureContentId(params.id)) {
+    const fixture = getEngagementInboxQaFixtureCommentsPayload({
+      action,
+      commentId: optionalText(body.comment_id),
+      draftReply: optionalText(body.draft_reply),
+      actorId: auth.user.id,
+    })
+    return NextResponse.json(fixture.body, { status: fixture.status })
   }
 
-  const body = await request.json().catch(() => ({}))
-  const action = asAction(body.action)
-  if (!action) {
-    return NextResponse.json({ error: 'Unsupported comment inbox action' }, { status: 400 })
+  if (!supabaseAdmin) {
+    return NextResponse.json({ error: 'Server configuration error' }, { status: 500 })
   }
 
   const { post, error: postError } = await fetchPost(params.id)

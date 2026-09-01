@@ -495,6 +495,85 @@ describe('SocialCommentInboxPage', () => {
     expect(screen.getByText('Review the draft, then approve it, reject it with feedback, or edit it again.')).toBeInTheDocument()
   })
 
+  it('keeps preview QA fixture return-to-review lifecycle visible from the action response', async () => {
+    window.history.replaceState({}, '', '/admin/social-content/engagement-inbox?comment=comment-qa-recoverable&post=social-qa-locked&review=reply&source=slack#social-comment-review-gate')
+    const rejectedComment = {
+      ...comment,
+      id: 'comment-qa-recoverable',
+      socialContentId: 'social-qa-locked',
+      providerCommentId: 'youtube-comment-qa-recoverable',
+      authorDisplayName: 'Synthetic Reviewer',
+      status: 'needs_qa',
+      approvalState: 'rejected',
+      draftReply: 'Original rejected reply: yes, this workflow can help.',
+      actionHistory: [{
+        action: 'reject',
+        at: '2026-09-01T12:00:00.000Z',
+        by: 'qa-admin-user',
+        note: 'Synthetic QA feedback: make the approval boundary explicit before review.',
+      }],
+    }
+    const returnedToReviewComment = {
+      ...rejectedComment,
+      approvalState: 'drafted',
+      draftReply: 'Replacement reply that names the approval boundary.',
+      actionHistory: [{
+        action: 'return_to_review',
+        at: '2026-09-01T12:08:00.000Z',
+        by: 'qa-admin-user',
+        note: 'Synthetic QA local return-to-review state.',
+      }, ...rejectedComment.actionHistory],
+    }
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
+      if (init?.method === 'POST') {
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({
+            fixture: true,
+            ok: true,
+            message: 'Revised reply saved and returned to review. Approval is required before any provider submission.',
+            comments: [returnedToReviewComment],
+            summary: { total: 1, new: 0, needs_qa: 1, auto_send_pending: 0, lead: 0, escalated: 0, responded: 0, ignored: 0 },
+            filteredSummary: { total: 1, new: 0, needs_qa: 1, auto_send_pending: 0, lead: 0, escalated: 0, responded: 0, ignored: 0 },
+          }),
+        } as Response
+      }
+
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          fixture: true,
+          items: [rejectedComment],
+          summary: { total: 1, new: 0, needs_qa: 1, auto_send_pending: 0, lead: 0, escalated: 0, responded: 0, ignored: 0 },
+          filteredSummary: { total: 1, new: 0, needs_qa: 1, auto_send_pending: 0, lead: 0, escalated: 0, responded: 0, ignored: 0 },
+          alertReliability,
+        }),
+      } as Response
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    render(<SocialCommentInboxPage />)
+
+    const focusedCard = await screen.findByLabelText('Focused comment from Synthetic Reviewer')
+    const panel = within(focusedCard)
+    fireEvent.click(panel.getByRole('button', { name: /^Revise Reply$/i }))
+    fireEvent.change(await panel.findByLabelText('Revision feedback or replacement reply'), {
+      target: { value: 'Replacement reply that names the approval boundary.' },
+    })
+    fireEvent.click(panel.getByRole('button', { name: /^Submit Revision$/i }))
+
+    expect(await screen.findByText('Revision was received and saved as the current draft reply.')).toBeInTheDocument()
+    expect(screen.getByDisplayValue('Replacement reply that names the approval boundary.')).toBeInTheDocument()
+    expect(screen.getByText(/Returned to review:/i)).toBeInTheDocument()
+    expect(screen.queryByText('Linked comment not visible')).not.toBeInTheDocument()
+    const postCalls = fetchMock.mock.calls.filter(([, init]) => init?.method === 'POST')
+    const getCalls = fetchMock.mock.calls.filter(([, init]) => init?.method !== 'POST')
+    expect(postCalls).toHaveLength(1)
+    expect(getCalls).toHaveLength(1)
+  })
+
   it('opens revision mode for rejected replies without an existing draft and waits for new text', async () => {
     const rejectedComment = {
       ...comment,

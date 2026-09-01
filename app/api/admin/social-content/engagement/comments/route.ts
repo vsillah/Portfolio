@@ -15,6 +15,11 @@ import {
   type SocialCommentAlertReliabilityStatus,
   type SocialCommentAttentionRow,
 } from '@/lib/social-comment-attention'
+import {
+  explicitEngagementInboxQaFixtureEnabled,
+  getEngagementInboxQaFixturePayload,
+  isEngagementInboxQaFixtureListRequest,
+} from '@/lib/social-comment-engagement-qa-fixture'
 
 export const dynamic = 'force-dynamic'
 
@@ -223,21 +228,33 @@ async function fetchPostsByContentId(contentIds: string[]) {
  * remain outside this UI lane.
  */
 export async function GET(request: NextRequest) {
-  const auth = await verifyAdmin(request)
-  if (isAuthError(auth)) {
-    return NextResponse.json({ error: auth.error }, { status: auth.status })
-  }
-
-  if (!supabaseAdmin) {
-    return NextResponse.json({ error: 'Server configuration error' }, { status: 500 })
-  }
-
   const { searchParams } = new URL(request.url)
   const filters = {
     status: socialCommentStatus(searchParams.get('status')),
     platform: socialPlatform(searchParams.get('platform')),
     campaign: searchParams.get('campaign') || 'all',
     post: searchParams.get('post') || 'all',
+  }
+  const qaFixtureRequest = isEngagementInboxQaFixtureListRequest({
+    post: filters.post,
+    comment: searchParams.get('comment'),
+  })
+
+  if (explicitEngagementInboxQaFixtureEnabled() && qaFixtureRequest) {
+    return NextResponse.json(getEngagementInboxQaFixturePayload(filters))
+  }
+
+  const auth = await verifyAdmin(request)
+  if (isAuthError(auth)) {
+    return NextResponse.json({ error: auth.error }, { status: auth.status })
+  }
+
+  if (qaFixtureRequest) {
+    return NextResponse.json(getEngagementInboxQaFixturePayload(filters))
+  }
+
+  if (!supabaseAdmin) {
+    return NextResponse.json({ error: 'Server configuration error' }, { status: 500 })
   }
 
   let query = supabaseAdmin
