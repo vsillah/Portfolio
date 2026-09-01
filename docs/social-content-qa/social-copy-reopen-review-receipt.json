@@ -1,0 +1,15 @@
+{
+  "route_equivalent": "/admin/social-content/[id]?step=copy#social-copy-gate",
+  "production_reference": "/admin/social-content/bb5bcfe7-3de8-4fdc-b13f-da85416e8cad?step=copy&qa=slack-content-calendar-approval&deploy=b368c584#social-copy-gate",
+  "fixture": "synthetic rejected Social Content copy gate",
+  "externalRequests": [],
+  "productionDataMutations": false,
+  "validates": [
+    "Copy: Rejected state shows Return to Copy Review recovery CTA",
+    "Approve/reject decisions remain unavailable before recovery",
+    "Edited draft returns to Copy: In review",
+    "No publishing, scheduling, provider, Slack, Gmail, SMS, or outreach action runs"
+  ],
+  "videoPath": "/Users/vambahsillah/.codex/worktrees/a85f/Portfolio/docs/social-content-qa/social-copy-reopen-review-mobile.mp4",
+  "generatedAt": "2026-09-01T04:22:02.505Z"
+}

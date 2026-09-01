@@ -739,6 +739,87 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(screen.queryByText('Publish immediately after approval')).not.toBeInTheDocument()
   })
 
+  it('lets rejected copy return to review after the operator edits the draft', async () => {
+    const rejectedItem = {
+      ...baseItem,
+      status: 'rejected',
+      post_text: 'This opener still feels too abstract.',
+      reviewed_by: 'admin-user',
+      rag_context: {
+        ...baseItem.rag_context,
+        content_calibration: {
+          status: 'revision_generation_requested',
+          operator_feedback: {
+            revision_request: 'Make the opening more concrete before approval.',
+          },
+        },
+      },
+    }
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input)
+      if (url.includes('/topic-backlog')) {
+        return {
+          ok: true,
+          json: async () => ({ items: [topicBacklogItem] }),
+        } as Response
+      }
+      if (url.includes('/calibration-library')) {
+        return {
+          ok: true,
+          json: async () => ({ references: [] }),
+        } as Response
+      }
+      if (init?.method === 'PUT') {
+        const body = JSON.parse(String(init.body))
+        return {
+          ok: true,
+          json: async () => ({
+            item: {
+              ...rejectedItem,
+              ...body,
+              status: 'draft',
+              updated_at: '2026-06-12T10:10:00.000Z',
+            },
+          }),
+        } as Response
+      }
+      return {
+        ok: true,
+        json: async () => ({ item: rejectedItem }),
+      } as Response
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    renderAtStep('copy')
+
+    expect((await screen.findAllByText('Copy: Rejected')).length).toBeGreaterThan(0)
+    expect(screen.getByText('Copy revision')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Return to Copy Review' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /Reject and Generate Revision/i })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /Approve Copy/i })).not.toBeInTheDocument()
+
+    fireEvent.change(screen.getByDisplayValue('This opener still feels too abstract.'), {
+      target: { value: 'A founder opened the review and immediately found the missing approval path.' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'Return to Copy Review' }))
+
+    await waitFor(() => {
+      const reopenCall = fetchMock.mock.calls.find(([, init]) => init?.method === 'PUT')
+      expect(reopenCall).toBeTruthy()
+      const body = JSON.parse(String(reopenCall?.[1]?.body))
+      expect(body.status).toBe('draft')
+      expect(body.post_text).toContain('missing approval path')
+      expect(body.rag_context.content_calibration.status).toBe('returned_to_copy_review')
+      expect(body.rag_context.content_calibration.copy_review_reopen).toMatchObject({
+        previous_status: 'rejected',
+      })
+    })
+    expect(await screen.findByText('Copy returned to review')).toBeInTheDocument()
+    expect(screen.getAllByText('Copy: In review').length).toBeGreaterThan(0)
+    expect(screen.getByRole('button', { name: /Approve Copy/i })).not.toBeDisabled()
+    expect(screen.getByRole('button', { name: /^Reject$/i })).toBeInTheDocument()
+  })
+
   it('shows YouTube release readiness before the final submission gate', async () => {
     const youtubeItem = {
       ...baseItem,
@@ -1385,7 +1466,7 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(within(gateSection as HTMLElement).queryByRole('button', { name: /Approve Copy/i })).not.toBeInTheDocument()
     expect(within(gateSection as HTMLElement).getByText(/Copy rejection is recorded/i)).toBeInTheDocument()
     expect(within(screen.getByLabelText('Copy rejected mobile workflow summary')).queryByText(/The copy decision is recorded as rejected/i)).not.toBeInTheDocument()
-    expect(within(screen.getByLabelText('Copy rejected mobile workflow summary')).getByText('Revise the draft before reopening copy review.')).toBeInTheDocument()
+    expect(within(screen.getByLabelText('Copy rejected mobile workflow summary')).getByText('Edit the draft, then use Return to Copy Review to make it reviewable again.')).toBeInTheDocument()
     expect(fetchMock.mock.calls.some(([url]) => String(url).includes('/calibration-revision'))).toBe(false)
   })
 
@@ -1476,7 +1557,7 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(within(gateSection as HTMLElement).queryByRole('button', { name: /Approve Copy/i })).not.toBeInTheDocument()
     expect(within(gateSection as HTMLElement).getByText(/Copy rejection is recorded/i)).toBeInTheDocument()
     expect(within(screen.getByLabelText('Copy rejected mobile workflow summary')).queryByText(/The copy decision is recorded as rejected/i)).not.toBeInTheDocument()
-    expect(within(screen.getByLabelText('Copy rejected mobile workflow summary')).getByText('Revise the draft before reopening copy review.')).toBeInTheDocument()
+    expect(within(screen.getByLabelText('Copy rejected mobile workflow summary')).getByText('Edit the draft, then use Return to Copy Review to make it reviewable again.')).toBeInTheDocument()
     expect(screen.queryByText('Copy rejected with revision feedback.')).not.toBeInTheDocument()
     expect(fetchMock.mock.calls.some(([url]) => String(url).includes('/calibration-revision'))).toBe(false)
   })
