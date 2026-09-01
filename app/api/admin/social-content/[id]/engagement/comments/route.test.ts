@@ -812,7 +812,7 @@ describe('/api/admin/social-content/[id]/engagement/comments', () => {
     }))
   })
 
-  it('preserves submitted provider evidence when later review actions are clicked', async () => {
+  it('blocks later review actions on submitted provider evidence without recording a no-op action', async () => {
     installDbMocks({ comment: submittedYouTubeCommentRow })
 
     const response = await POST(request({
@@ -822,28 +822,15 @@ describe('/api/admin/social-content/[id]/engagement/comments', () => {
     }) as never, { params: { id: 'social-1' } })
     const body = await response.json()
 
-    expect(response.status).toBe(200)
+    expect(response.status).toBe(409)
     expect(body).toMatchObject({
-      ok: true,
-      blocked: false,
+      ok: false,
+      blocked: true,
       already_submitted: true,
       message: expect.stringContaining('submitted provider evidence'),
     })
-    expect(mocks.update).toHaveBeenCalledWith(expect.objectContaining({
-      updated_by: 'admin-user',
-      metadata: expect.objectContaining({
-        ui_action_history: expect.arrayContaining([
-          expect.objectContaining({
-            action: 'approve',
-            note: expect.stringContaining('submitted provider evidence'),
-          }),
-        ]),
-      }),
-    }))
-    expect(mocks.update.mock.calls.at(-1)?.[0]).not.toHaveProperty('response_approval_state')
-    expect(mocks.update.mock.calls.at(-1)?.[0]).not.toHaveProperty('reply_submission_state')
-    expect(mocks.update.mock.calls.at(-1)?.[0]).not.toHaveProperty('reply_provider_comment_id')
-    expect(mocks.update.mock.calls.at(-1)?.[0]).not.toHaveProperty('reply_submitted_at')
+    expect(body.integration_note).toContain('no local no-op review action was recorded')
+    expect(mocks.update).not.toHaveBeenCalled()
     expect(body.comments[0]).toMatchObject({
       status: 'responded',
     })
@@ -869,9 +856,9 @@ describe('/api/admin/social-content/[id]/engagement/comments', () => {
       ok: false,
       blocked: true,
       already_submitted: true,
-      message: 'Reply already has submitted provider evidence. Local revision is locked to preserve the canonical provider record.',
+      message: 'Reply already has submitted provider evidence. Local review is locked to preserve the canonical provider record.',
     })
-    expect(body.integration_note).toContain('no local no-op revision action was recorded')
+    expect(body.integration_note).toContain('no local no-op review action was recorded')
     expect(mocks.update).not.toHaveBeenCalled()
     expect(body.comments[0]).toMatchObject({
       status: 'responded',

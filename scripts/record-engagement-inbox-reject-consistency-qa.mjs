@@ -393,8 +393,11 @@ async function runScenario(browser, viewport, mp4Path, mobile = false) {
   const recoverableCard = page.getByText('Synthetic Reviewer').first().locator('xpath=ancestor::article[1]')
 
   await expect(lockedCard.getByText('Reply rejected')).toBeVisible()
-  await expect(lockedCard.getByText('Provider evidence locked')).toBeVisible()
-  await expect(lockedCard.getByText(/Local revision is locked/i)).toBeVisible()
+  await expect(lockedCard.getByText('Provider evidence locked').first()).toBeVisible()
+  await expect(lockedCard.locator('#comment-qa-locked-submitted-reply-lock-reason')).toContainText(/Local revision is locked/i)
+  await expect(lockedCard.getByRole('region', { name: /Reply lifecycle/i })).toBeVisible()
+  await expect(lockedCard.getByText('Submitted provider evidence is authoritative. Portfolio is not changing local review state for this reply.')).toBeVisible()
+  await expect(lockedCard.getByText('Review controls are locked.')).toBeVisible()
   await expect(lockedCard.getByRole('button', { name: 'Revise Reply', exact: true })).toHaveCount(0)
   await expect(lockedCard.getByRole('button', { name: 'Revision Locked', exact: true })).toBeDisabled()
   await expect(lockedCard.getByRole('button', { name: 'Submit', exact: true })).toBeDisabled()
@@ -405,26 +408,37 @@ async function runScenario(browser, viewport, mp4Path, mobile = false) {
   await verifyNoHorizontalOverflow(page)
   await annotate(
     page,
-    `${mobile ? 'Mobile 390x844' : 'Desktop 1280x720'}: Slack engagement deep link opens the rejected/responded YouTube reply. Submitted provider evidence locks revision inline; repeat clicks do not post local no-op actions.`,
+    `${mobile ? 'Mobile 390x844' : 'Desktop 1280x720'}: submitted provider evidence is locked in the decision panel. The lifecycle section explains that review controls are locked and no repeated no-op action is recorded.`,
   )
   await page.waitForTimeout(1100)
 
   await recoverableCard.scrollIntoViewIfNeeded()
   await expect(recoverableCard.getByText('Review locked')).toBeVisible()
+  await expect(recoverableCard.getByText('This reply is rejected and waiting for an operator revision or replacement reply.')).toBeVisible()
   await recoverableCard.getByRole('button', { name: 'Revise Reply', exact: true }).click()
   await expect(recoverableCard.getByText('Revision mode', { exact: true })).toBeVisible()
-  await expect(recoverableCard.getByLabel('Reply revision')).toBeVisible()
+  await expect(recoverableCard.getByText('The revision box is open locally. Text entered here is not saved until Submit Revision is clicked.')).toBeVisible()
+  await expect(recoverableCard.getByLabel('Revision feedback or replacement reply')).toBeVisible()
   await expect(recoverableCard.getByRole('button', { name: 'Revise Reply', exact: true })).toHaveCount(0)
   expect(capturedActions).toHaveLength(0)
-  await recoverableCard.getByLabel('Reply revision').fill('Revised reply: this can help, but Portfolio still requires human approval before any provider submission.')
-  await recoverableCard.getByRole('button', { name: 'Return to Review', exact: true }).click()
+  await annotate(
+    page,
+    'Feedback step: Revise Reply opens an in-place text box. The lifecycle panel says the text is local until Submit Revision is clicked.',
+    mobile ? 'top' : 'bottom',
+  )
+  await page.waitForTimeout(900)
+  await recoverableCard.getByLabel('Revision feedback or replacement reply').fill('Revised reply: this can help, but Portfolio still requires human approval before any provider submission.')
+  await recoverableCard.getByRole('button', { name: 'Submit Revision', exact: true }).click()
   await expect(page.getByText('Revised reply saved and returned to review')).toBeVisible()
+  await expect(recoverableCard.getByText('Revision was received and saved as the current draft reply.')).toBeVisible()
+  await expect(recoverableCard.getByText('Ready for review', { exact: true })).toBeVisible()
+  await expect(recoverableCard.getByText('Review the draft, then approve it, reject it with feedback, or edit it again.')).toBeVisible()
   await expect(recoverableCard.getByRole('button', { name: 'Approve', exact: true })).toBeVisible()
   await expect(recoverableCard.getByRole('button', { name: 'Reject', exact: true })).toBeVisible()
   await expect(recoverableCard.getByRole('button', { name: 'Submit', exact: true })).toBeDisabled()
   await annotate(
     page,
-    'Recovery check: recoverable rejection opens in-place revision mode first, then Return to Review persists the edited draft locally. Provider submission remains blocked.',
+    'Lifecycle result: Submit Revision records one local return_to_review action. The panel now says Ready for review and tells the operator to review, approve, reject with feedback, or edit again.',
     mobile ? 'top' : 'bottom',
   )
   await verifyNoHorizontalOverflow(page)

@@ -498,59 +498,17 @@ export async function POST(
   let integrationNote = 'No external comment reply was submitted. This action only updated canonical local workflow state.'
 
   if (hasSubmittedEvidence && action !== 'submit') {
-    if (action === 'return_to_review') {
-      return responseWithComments({
-        post,
-        contentId: params.id,
-        status: 409,
-        ok: false,
-        blocked: true,
-        message: 'Reply already has submitted provider evidence. Local revision is locked to preserve the canonical provider record.',
-        integrationNote: 'No external comment reply was submitted. Existing provider reply evidence remains authoritative, and no local no-op revision action was recorded.',
-        extra: {
-          already_submitted: true,
-        },
-      })
-    }
-
-    patch = {
-      updated_by: actorId,
-      metadata: appendActionHistory(comment.metadata, {
-        ...historyEvent,
-        note: historyEvent.note
-          || 'Reply already has submitted provider evidence; local review action was recorded without changing submitted state.',
-      }),
-    }
-    message = 'Reply already has submitted provider evidence. The local action was recorded without changing submitted state.'
-    integrationNote = 'No external comment reply was submitted. Existing provider reply evidence remains authoritative.'
-    const { error: updateError } = await supabaseAdmin
-      .from('social_content_comments')
-      .update(patch)
-      .eq('id', commentId)
-      .eq('content_id', params.id)
-      .select(COMMENT_SELECT)
-      .single()
-
-    if (updateError) {
-      if (isCommentInboxStorageUnavailable(updateError)) {
-        return unavailableResponse(409)
-      }
-
-      return NextResponse.json({ error: 'Failed to record comment inbox action' }, { status: 500 })
-    }
-
-    const { comments, error } = await fetchComments(params.id, post)
-    if (error && isCommentInboxStorageUnavailable(error)) {
-      return unavailableResponse(409)
-    }
-
-    return NextResponse.json({
-      ok,
-      blocked,
-      already_submitted: true,
-      message,
-      comments,
-      integration_note: integrationNote,
+    return responseWithComments({
+      post,
+      contentId: params.id,
+      status: 409,
+      ok: false,
+      blocked: true,
+      message: 'Reply already has submitted provider evidence. Local review is locked to preserve the canonical provider record.',
+      integrationNote: 'No external comment reply was submitted. Existing provider reply evidence remains authoritative, and no local no-op review action was recorded.',
+      extra: {
+        already_submitted: true,
+      },
     })
   }
 

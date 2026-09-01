@@ -396,6 +396,17 @@ describe('SocialCommentInboxPage', () => {
         note: null,
       }],
     }
+    const returnedToReviewComment = {
+      ...rejectedComment,
+      approvalState: 'drafted',
+      draftReply: 'Revised reply with a clearer answer.',
+      actionHistory: [{
+        action: 'return_to_review',
+        at: '2026-08-06T12:08:00.000Z',
+        by: 'admin-user',
+        note: null,
+      }, ...rejectedComment.actionHistory],
+    }
     const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
       if (init?.method === 'POST') {
         return {
@@ -409,11 +420,12 @@ describe('SocialCommentInboxPage', () => {
         } as Response
       }
 
+      const isAfterPostRefresh = fetchMock.mock.calls.some(([, requestInit]) => requestInit?.method === 'POST')
       return {
         ok: true,
         status: 200,
         json: async () => ({
-          items: [rejectedComment],
+          items: [isAfterPostRefresh ? returnedToReviewComment : rejectedComment],
           summary: { total: 1, new: 0, needs_qa: 1, auto_send_pending: 0, lead: 0, escalated: 0, responded: 0, ignored: 0 },
           filteredSummary: { total: 1, new: 0, needs_qa: 1, auto_send_pending: 0, lead: 0, escalated: 0, responded: 0, ignored: 0 },
           alertReliability,
@@ -431,6 +443,11 @@ describe('SocialCommentInboxPage', () => {
     expect(await panel.findByText('Reply rejected')).toBeInTheDocument()
     expect(panel.getByText('Review locked')).toBeInTheDocument()
     expect(panel.getByText('Revise opens the local editor before any review state changes.')).toBeInTheDocument()
+    expect(panel.getByRole('region', { name: /Reply lifecycle/i })).toBeInTheDocument()
+    expect(panel.getByText('Revision requested')).toBeInTheDocument()
+    expect(panel.getByText('This reply is rejected and waiting for an operator revision or replacement reply.')).toBeInTheDocument()
+    expect(panel.getByText('No written feedback was saved with the rejection.')).toBeInTheDocument()
+    expect(panel.getByText('Review is locked until a revision is submitted.')).toBeInTheDocument()
     expect(panel.queryByRole('button', { name: /^Approve$/i })).not.toBeInTheDocument()
     expect(panel.queryByRole('button', { name: /^Reject$/i })).not.toBeInTheDocument()
     expect(panel.getByRole('button', { name: /^Submit$/i })).toBeDisabled()
@@ -438,8 +455,9 @@ describe('SocialCommentInboxPage', () => {
     fireEvent.click(panel.getByRole('button', { name: /^Revise Reply$/i }))
 
     expect(await panel.findByText('Revision mode')).toBeInTheDocument()
-    expect(await panel.findByLabelText('Reply revision')).toHaveValue('This reply needs a sharper answer.')
-    expect(panel.getByRole('button', { name: /^Return to Review$/i })).toBeInTheDocument()
+    expect(panel.getByText('The revision box is open locally. Text entered here is not saved until Submit Revision is clicked.')).toBeInTheDocument()
+    expect(await panel.findByLabelText('Revision feedback or replacement reply')).toHaveValue('This reply needs a sharper answer.')
+    expect(panel.getByRole('button', { name: /^Submit Revision$/i })).toBeInTheDocument()
     expect(panel.queryByRole('button', { name: /^Revise Reply$/i })).not.toBeInTheDocument()
     expect(fetchMock).not.toHaveBeenCalledWith(
       '/api/admin/social-content/social-1/engagement/comments',
@@ -449,10 +467,10 @@ describe('SocialCommentInboxPage', () => {
       }),
     )
 
-    fireEvent.change(panel.getByLabelText('Reply revision'), {
+    fireEvent.change(panel.getByLabelText('Revision feedback or replacement reply'), {
       target: { value: 'Revised reply with a clearer answer.' },
     })
-    fireEvent.click(panel.getByRole('button', { name: /^Return to Review$/i }))
+    fireEvent.click(panel.getByRole('button', { name: /^Submit Revision$/i }))
 
     await waitFor(() => {
       expect(fetchMock).toHaveBeenCalledWith(
@@ -471,6 +489,10 @@ describe('SocialCommentInboxPage', () => {
       }),
     )
     expect(await screen.findByText(/Revised reply saved and returned to review/i)).toBeInTheDocument()
+    expect(await screen.findByText('Revision was received and saved as the current draft reply.')).toBeInTheDocument()
+    expect(screen.getByText(/Returned to review:/i)).toBeInTheDocument()
+    expect(screen.getByText('No Amina or owner update is currently tracked. The reply is ready for operator review.')).toBeInTheDocument()
+    expect(screen.getByText('Review the draft, then approve it, reject it with feedback, or edit it again.')).toBeInTheDocument()
   })
 
   it('opens revision mode for rejected replies without an existing draft and waits for new text', async () => {
@@ -522,17 +544,20 @@ describe('SocialCommentInboxPage', () => {
 
     fireEvent.click(revise)
 
-    const revisionEditor = await panel.findByLabelText('Reply revision')
+    const revisionEditor = await panel.findByLabelText('Revision feedback or replacement reply')
     expect(revisionEditor).toHaveValue('')
     expect(panel.queryByRole('button', { name: /^Revise Reply$/i })).not.toBeInTheDocument()
-    expect(panel.getByRole('button', { name: /^Return to Review$/i })).toBeDisabled()
+    expect(panel.getByText('Saved in history: Needs a replacement reply.')).toBeInTheDocument()
+    expect(panel.getByText('Enter feedback or replacement reply text before submitting the revision.')).toBeInTheDocument()
+    expect(panel.getByRole('button', { name: /^Submit Revision$/i })).toBeDisabled()
     expect(fetchMock).not.toHaveBeenCalledWith(
       '/api/admin/social-content/social-1/engagement/comments',
       expect.objectContaining({ method: 'POST' }),
     )
 
     fireEvent.change(revisionEditor, { target: { value: 'Fresh replacement reply.' } })
-    fireEvent.click(panel.getByRole('button', { name: /^Return to Review$/i }))
+    expect(panel.getByText('Submit the revision to return the edited reply to review.')).toBeInTheDocument()
+    fireEvent.click(panel.getByRole('button', { name: /^Submit Revision$/i }))
 
     await waitFor(() => {
       expect(fetchMock).toHaveBeenCalledWith(
@@ -594,8 +619,11 @@ describe('SocialCommentInboxPage', () => {
     const card = rejectedHeading.closest('article')
     expect(card).toBeTruthy()
     const panel = within(card as HTMLElement)
-    expect(panel.getByText('Provider evidence locked')).toBeInTheDocument()
+    expect(panel.getAllByText('Provider evidence locked').length).toBeGreaterThanOrEqual(1)
     expect(panel.getAllByText(/Local revision is locked/i).length).toBeGreaterThanOrEqual(1)
+    expect(panel.getByText('Submitted provider evidence is authoritative. Portfolio is not changing local review state for this reply.')).toBeInTheDocument()
+    expect(panel.getByText('Saved in history: Rejected after provider evidence existed.')).toBeInTheDocument()
+    expect(panel.getByText('Review controls are locked.')).toBeInTheDocument()
     expect(panel.queryByRole('button', { name: /^Revise Reply$/i })).not.toBeInTheDocument()
     const lockedButton = panel.getByRole('button', { name: /^Revision Locked$/i })
     expect(lockedButton).toBeDisabled()

@@ -1,40 +1,26 @@
 {
-  "generatedAt": "2026-09-01T17:57:40.252Z",
+  "generatedAt": "2026-09-01T18:25:44.259Z",
   "routesCovered": [
     "/admin/social-content/engagement-inbox?comment=comment-qa-locked&post=social-qa-locked&review=reply&source=slack#social-comment-review-gate"
   ],
-  "previewUrl": "http://127.0.0.1:3108",
+  "qaBaseUrl": "http://127.0.0.1:3108",
   "exactUrl": "http://127.0.0.1:3108/admin/social-content/engagement-inbox?comment=comment-qa-locked&post=social-qa-locked&review=reply&source=slack#social-comment-review-gate",
+  "externalRequests": [],
   "videoPath": "docs/qa/slack-approval-lifecycle/engagement-inbox-rejected-reply-recovery-qa-2026-09-01.mp4",
   "mobileVideoPath": "docs/qa/slack-approval-lifecycle/engagement-inbox-rejected-reply-mobile-qa-2026-09-01.mp4",
   "screenshotPath": "docs/qa/slack-approval-lifecycle/engagement-inbox-rejected-reply-locked-state-2026-09-01.png",
-  "desktopMp4Path": "/Users/vambahsillah/.codex/worktrees/c0ca/Portfolio/docs/qa/slack-approval-lifecycle/engagement-inbox-rejected-reply-recovery-qa-2026-09-01.mp4",
-  "mobileMp4Path": "/Users/vambahsillah/.codex/worktrees/c0ca/Portfolio/docs/qa/slack-approval-lifecycle/engagement-inbox-rejected-reply-mobile-qa-2026-09-01.mp4",
-  "desktop": {
-    "viewport": {
+  "coverage": {
+    "desktopViewport": {
       "width": 1280,
       "height": 720
     },
-    "capturedActions": [
-      {
-        "action": "return_to_review",
-        "comment_id": "comment-qa-recoverable",
-        "draft_reply": "Revised reply: this can help, but Portfolio still requires human approval before any provider submission."
-      }
-    ]
-  },
-  "mobile": {
-    "viewport": {
+    "mobileViewport": {
       "width": 390,
       "height": 844
     },
-    "capturedActions": [
-      {
-        "action": "return_to_review",
-        "comment_id": "comment-qa-recoverable",
-        "draft_reply": "Revised reply: this can help, but Portfolio still requires human approval before any provider submission."
-      }
-    ]
-  },
-  "externalRequests": []
+    "recordedLocalActions": {
+      "lockedSubmittedEvidenceNoPost": true,
+      "recoverableReturnToReviewPosts": true
+    }
+  }
 }

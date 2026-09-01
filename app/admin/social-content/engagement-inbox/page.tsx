@@ -164,6 +164,155 @@ function formatActionTime(value: string) {
   return date.toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })
 }
 
+function latestAction(
+  comment: SocialCommentInboxItem,
+  action: SocialCommentInboxItem['actionHistory'][number]['action'],
+) {
+  return comment.actionHistory.find((item) => item.action === action)
+}
+
+function revisionFeedbackText(comment: SocialCommentInboxItem) {
+  const rejected = latestAction(comment, 'reject')
+  return rejected?.note?.trim() || null
+}
+
+function ReplyLifecyclePanel({
+  comment,
+  draftText,
+  isDraftUpdating,
+  isRevisionMode,
+  isRevisionSubmitting,
+}: {
+  comment: SocialCommentInboxItem
+  draftText: string
+  isDraftUpdating: boolean
+  isRevisionMode: boolean
+  isRevisionSubmitting: boolean
+}) {
+  const feedback = revisionFeedbackText(comment)
+  const revisionEvent = latestAction(comment, 'return_to_review')
+  const draftEvent = latestAction(comment, 'draft_response')
+  const hasPersistedRevision = Boolean(revisionEvent)
+  const hasReviewableDraft = comment.approvalState === 'drafted' && Boolean(draftText)
+
+  let stage = 'Review not started'
+  let tone = 'border-gray-600 bg-gray-900/65 text-gray-100'
+  let summary = 'No reply feedback or draft update has been recorded for this comment yet.'
+  let ownerStatus = 'No owner or agent update is currently tracked for this reply.'
+  let nextAction = 'Draft a reply, approve an existing draft, or reject with feedback.'
+  let feedbackState = 'No written feedback saved yet.'
+  let revisionState = 'No revision has been returned to review yet.'
+  let reviewState = 'Waiting for a draft or decision.'
+
+  if (comment.submittedReplyLocked) {
+    stage = 'Provider evidence locked'
+    tone = 'border-red-500/35 bg-red-500/10 text-red-100'
+    summary = 'Submitted provider evidence is authoritative. Portfolio is not changing local review state for this reply.'
+    ownerStatus = 'No Amina or owner update is tracked because submitted provider evidence is locked.'
+    nextAction = 'Inspect provider evidence or handle any correction outside this local revision workflow.'
+    feedbackState = feedback ? `Saved in history: ${feedback}` : 'No new feedback can be recorded from this locked panel.'
+    revisionState = 'Revision is locked after provider submission evidence.'
+    reviewState = 'Review controls are locked.'
+  } else if (isRevisionSubmitting) {
+    stage = 'Revision received'
+    tone = 'border-emerald-500/35 bg-emerald-500/10 text-emerald-100'
+    summary = 'Portfolio is saving the replacement reply locally and returning it to the review queue.'
+    ownerStatus = 'Save in progress. No provider reply is being sent.'
+    nextAction = 'Wait for the save to finish, then review the updated draft.'
+    feedbackState = feedback ? `Saved in history: ${feedback}` : 'Current revision text will be saved as the replacement draft.'
+    revisionState = 'Revision submission is in progress.'
+    reviewState = 'Returning to review.'
+  } else if (isRevisionMode) {
+    stage = 'Revision requested'
+    tone = 'border-amber-500/40 bg-amber-500/10 text-amber-100'
+    summary = 'The revision box is open locally. Text entered here is not saved until Submit Revision is clicked.'
+    ownerStatus = 'No Amina or owner update is currently tracked from this local edit.'
+    nextAction = draftText
+      ? 'Submit the revision to return the edited reply to review.'
+      : 'Enter feedback or replacement reply text before submitting the revision.'
+    feedbackState = feedback ? `Saved in history: ${feedback}` : 'Add revision guidance or replacement reply text in the box below.'
+    revisionState = 'Revision input is open locally.'
+    reviewState = 'Review is paused until the revision is submitted.'
+  } else if (comment.approvalState === 'rejected') {
+    stage = 'Revision requested'
+    tone = 'border-red-500/35 bg-red-500/10 text-red-100'
+    summary = 'This reply is rejected and waiting for an operator revision or replacement reply.'
+    ownerStatus = 'No Amina or owner update is currently tracked for this reply.'
+    nextAction = 'Click Revise Reply, enter the revision, then submit it back to review.'
+    feedbackState = feedback ? `Saved in history: ${feedback}` : 'No written feedback was saved with the rejection.'
+    revisionState = 'Waiting for revision input.'
+    reviewState = 'Review is locked until a revision is submitted.'
+  } else if (isDraftUpdating) {
+    stage = 'Updating draft'
+    tone = 'border-blue-500/35 bg-blue-500/10 text-blue-100'
+    summary = 'Portfolio is updating the local draft reply. This does not submit anything to a provider.'
+    ownerStatus = 'Draft update is in progress in this browser action.'
+    nextAction = 'Wait for the draft to appear, then review it before approval.'
+    feedbackState = feedback ? `Saved in history: ${feedback}` : 'No rejection feedback is attached to this draft update.'
+    revisionState = draftEvent ? `Previous draft update: ${formatActionTime(draftEvent.at)}` : 'Draft update requested.'
+    reviewState = 'Waiting for draft update.'
+  } else if (hasPersistedRevision && hasReviewableDraft) {
+    stage = 'Ready for review'
+    tone = 'border-emerald-500/35 bg-emerald-500/10 text-emerald-100'
+    summary = 'Revision was received and saved as the current draft reply.'
+    ownerStatus = 'No Amina or owner update is currently tracked. The reply is ready for operator review.'
+    nextAction = 'Review the draft, then approve it, reject it with feedback, or edit it again.'
+    feedbackState = feedback ? `Saved in history: ${feedback}` : 'No written rejection feedback is attached to the latest revision.'
+    revisionState = `Returned to review: ${formatActionTime(revisionEvent!.at)}`
+    reviewState = 'Ready for review.'
+  } else if (hasReviewableDraft) {
+    stage = 'Ready for review'
+    tone = 'border-blue-500/35 bg-blue-500/10 text-blue-100'
+    summary = 'A local draft reply is available for review.'
+    ownerStatus = 'No Amina or owner update is currently tracked for this reply.'
+    nextAction = 'Approve, reject with feedback, edit the draft, or keep waiting if more context is needed.'
+    feedbackState = feedback ? `Saved in history: ${feedback}` : 'No rejection feedback is attached to this draft.'
+    revisionState = 'No returned revision is recorded yet.'
+    reviewState = 'Ready for review.'
+  } else if (comment.approvalState === 'approved') {
+    stage = 'Approved locally'
+    tone = 'border-emerald-500/35 bg-emerald-500/10 text-emerald-100'
+    summary = 'This reply has local approval. Provider submission still requires the separate provider gate.'
+    ownerStatus = 'No Amina or owner update is currently tracked for this reply.'
+    nextAction = 'Use provider submission only if the separate capability gate is satisfied.'
+    feedbackState = feedback ? `Saved in history: ${feedback}` : 'No rejection feedback is attached.'
+    revisionState = hasPersistedRevision ? `Returned to review: ${formatActionTime(revisionEvent!.at)}` : 'No returned revision is recorded.'
+    reviewState = 'Approved locally.'
+  }
+
+  return (
+    <div role="region" aria-label={`Reply lifecycle for ${comment.authorDisplayName}`} className={`rounded-lg border p-3 ${tone}`}>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <p className="text-xs font-semibold uppercase tracking-[0.14em]">Reply lifecycle</p>
+        <span className="rounded-full border border-current/30 px-2 py-0.5 text-[0.7rem] font-semibold uppercase">
+          {stage}
+        </span>
+      </div>
+      <p className="mt-2 text-xs leading-5">{summary}</p>
+      <div className="mt-3 grid gap-2 text-xs leading-5 md:grid-cols-3">
+        <div className="rounded-md border border-current/20 bg-background/50 px-2.5 py-2">
+          <p className="font-semibold">Feedback</p>
+          <p className="mt-1 opacity-85">{feedbackState}</p>
+        </div>
+        <div className="rounded-md border border-current/20 bg-background/50 px-2.5 py-2">
+          <p className="font-semibold">Revision</p>
+          <p className="mt-1 opacity-85">{revisionState}</p>
+        </div>
+        <div className="rounded-md border border-current/20 bg-background/50 px-2.5 py-2">
+          <p className="font-semibold">Review</p>
+          <p className="mt-1 opacity-85">{reviewState}</p>
+        </div>
+      </div>
+      <p className="mt-3 text-xs leading-5">
+        <span className="font-semibold">Owner/agent status:</span> {ownerStatus}
+      </p>
+      <p className="mt-1 text-xs leading-5">
+        <span className="font-semibold">Next action:</span> {nextAction}
+      </p>
+    </div>
+  )
+}
+
 function canSubmit(comment: SocialCommentInboxItem) {
   return comment.status !== 'responded'
     && comment.approvalState === 'approved'
@@ -624,6 +773,8 @@ export default function SocialCommentInboxPage() {
             const isRejected = comment.approvalState === 'rejected'
             const isRevisionMode = revisionMode[comment.id] === true
             const inlineNotice = commentNotices[comment.id]
+            const isDraftUpdating = actionLoading === actionKey('draft_response')
+            const isRevisionSubmitting = actionLoading === actionKey('return_to_review')
             const submittedReplyLockReason = comment.submittedReplyLockReason
               || 'Reply already has submitted provider evidence. Local revision is locked.'
             const submittedReplyLockReasonId = `${comment.id}-submitted-reply-lock-reason`
@@ -766,8 +917,8 @@ export default function SocialCommentInboxPage() {
                                     disabled={actionLoading === actionKey('return_to_review') || !draftText}
                                     className="inline-flex min-h-9 items-center justify-center gap-2 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-xs font-semibold text-emerald-100 hover:bg-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-60"
                                   >
-                                    {actionLoading === actionKey('return_to_review') ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
-                                    Return to Review
+                                    {isRevisionSubmitting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
+                                    Submit Revision
                                   </button>
                                   <button
                                     type="button"
@@ -814,15 +965,24 @@ export default function SocialCommentInboxPage() {
                             ) : (
                               <p className="text-xs leading-5 text-red-100/80">
                                 {isRevisionMode
-                                  ? 'Return to review reopens the local approval gate only.'
+                                  ? 'Submit revision reopens the local approval gate only.'
                                   : 'Revise opens the local editor before any review state changes.'}
                               </p>
                             )}
                           </div>
                         </div>
+                        <div className="mt-3">
+                          <ReplyLifecyclePanel
+                            comment={comment}
+                            draftText={draftText}
+                            isDraftUpdating={isDraftUpdating}
+                            isRevisionMode={isRevisionMode}
+                            isRevisionSubmitting={isRevisionSubmitting}
+                          />
+                        </div>
                         {isRevisionMode && !comment.submittedReplyLocked ? (
                           <label className="mt-3 block text-xs font-semibold uppercase tracking-[0.14em] text-red-100/85">
-                            Reply revision
+                            Revision feedback or replacement reply
                             <textarea
                               value={drafts[comment.id] ?? ''}
                               onChange={(event) => setDrafts((current) => ({ ...current, [comment.id]: event.target.value }))}
@@ -880,6 +1040,15 @@ export default function SocialCommentInboxPage() {
                             </p>
                           </div>
                         </div>
+                        <div className="mt-3">
+                          <ReplyLifecyclePanel
+                            comment={comment}
+                            draftText={draftText}
+                            isDraftUpdating={isDraftUpdating}
+                            isRevisionMode={isRevisionMode}
+                            isRevisionSubmitting={isRevisionSubmitting}
+                          />
+                        </div>
                         {inlineNotice ? (
                           <div className={`mt-3 rounded-lg border p-3 text-xs leading-5 ${inlineNotice.type === 'success' ? 'border-emerald-500/35 bg-emerald-500/10 text-emerald-100' : 'border-red-500/35 bg-red-500/10 text-red-100'}`}>
                             {inlineNotice.text}
@@ -888,6 +1057,13 @@ export default function SocialCommentInboxPage() {
                       </div>
                     ) : (
                       <div className="space-y-3">
+                        <ReplyLifecyclePanel
+                          comment={comment}
+                          draftText={draftText}
+                          isDraftUpdating={isDraftUpdating}
+                          isRevisionMode={isRevisionMode}
+                          isRevisionSubmitting={isRevisionSubmitting}
+                        />
                         <label className="block text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
                           Revision note
                           <textarea
