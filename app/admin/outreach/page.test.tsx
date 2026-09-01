@@ -367,6 +367,24 @@ describe('OutreachAdminPage deep links', () => {
     })
   })
 
+  it('hydrates contacted dashboard drilldowns into the visible status dropdown', async () => {
+    window.history.replaceState({}, '', '/admin/outreach?tab=leads&status=contacted')
+    const fetchMock = vi.mocked(fetch)
+
+    render(<OutreachAdminPage />)
+
+    await screen.findByText('Ada Operator')
+    const statusFilter = screen.getAllByRole('combobox')[1]
+    expect(statusFilter).toHaveValue('sequence_active')
+    expect(screen.getByRole('option', { name: 'Contacted' })).toHaveValue('sequence_active')
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledWith(
+        expect.stringContaining('status=sequence_active'),
+        expect.any(Object),
+      )
+    })
+  })
+
   it('hydrates the selected workroom from the contactId query alias', async () => {
     window.history.replaceState({}, '', '/admin/outreach?tab=leads&contactId=42')
 

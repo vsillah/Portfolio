@@ -175,8 +175,72 @@ describe('SocialContentQueuePage Instagram provider setup', () => {
     )
   })
 
+  it('hydrates status and platform filters from drilldown query links', async () => {
+    const requests: string[] = []
+    window.history.replaceState({}, '', '/admin/social-content?status=published&platform=linkedin')
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input)
+      requests.push(url)
+
+      if (url.includes('/api/admin/social-content/config')) {
+        return { ok: true, json: async () => ({ configs: [] }) } as Response
+      }
+
+      return {
+        ok: true,
+        json: async () => ({
+          items: [{
+            id: 'social-published',
+            meeting_record_id: null,
+            platform: 'linkedin',
+            status: 'published',
+            post_text: 'published LinkedIn social copy',
+            cta_text: null,
+            cta_url: null,
+            hashtags: ['#AgentOps'],
+            image_url: null,
+            image_prompt: null,
+            framework_visual_type: null,
+            voiceover_url: null,
+            voiceover_text: null,
+            video_url: null,
+            topic_extracted: { topic: 'published topic' },
+            hormozi_framework: null,
+            rag_context: {},
+            scheduled_for: null,
+            published_at: '2026-09-16T12:00:00.000Z',
+            platform_post_id: null,
+            admin_notes: null,
+            reviewed_by: null,
+            target_platforms: ['linkedin'],
+            video_generation_method: 'none',
+            youtube_title: null,
+            youtube_description: null,
+            created_at: '2026-09-01T12:00:00.000Z',
+            updated_at: '2026-09-01T12:00:00.000Z',
+          }],
+          stats: { draft: 0, approved: 0, scheduled: 0, published: 1, rejected: 0, total: 1 },
+          pagination: { page: 1, limit: 20, total: 1, totalPages: 1 },
+        }),
+      } as Response
+    }))
+
+    render(<SocialContentQueuePage />)
+
+    expect(await screen.findByText('published LinkedIn social copy')).toBeInTheDocument()
+    expect(screen.getByRole('combobox', { name: 'Filter social content by status' })).toHaveValue('published')
+    expect(screen.getByRole('combobox', { name: 'Filter social content by platform' })).toHaveValue('linkedin')
+    expect(screen.getByRole('button', { name: 'Filter social content to published (1)' })).toHaveAttribute('aria-pressed', 'true')
+    expect(requests.some((url) => (
+      url.includes('/api/admin/social-content?') &&
+      url.includes('status=published') &&
+      url.includes('platform=linkedin')
+    ))).toBe(true)
+  })
+
   it('keeps status metric filters and the status dropdown in sync', async () => {
     const requests: string[] = []
+    window.history.replaceState({}, '', '/admin/social-content')
     const itemForStatus = (status: 'draft' | 'approved' | 'scheduled' | 'published' | 'rejected') => ({
       id: `social-${status}`,
       meeting_record_id: null,

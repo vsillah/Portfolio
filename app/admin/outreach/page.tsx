@@ -152,6 +152,11 @@ function selectedLeadIdFromParams(searchParams: { get(name: string): string | nu
 
 type TabType = 'leads' | 'escalations'
 
+function initialLeadStatusFilter(searchParams: { get(name: string): string | null } | null) {
+  const status = searchParams?.get('status') || 'all'
+  return status === 'contacted' ? 'sequence_active' : status
+}
+
 interface ChatEscalationRow {
   id: number
   session_id: string
@@ -197,7 +202,7 @@ function OutreachContent() {
     return (filter === 'warm' || filter === 'cold') ? filter : 'all'
   })
   const [leadsStatusFilter, setLeadsStatusFilter] = useState<string>(() => {
-    return searchParams?.get('status') || 'all'
+    return initialLeadStatusFilter(searchParams)
   })
   const [leadsSourceFilter, setLeadsSourceFilter] = useState<string>(() => {
     return searchParams?.get('source') || 'all'
@@ -1226,7 +1231,7 @@ function OutreachContent() {
               >
                 <option value="all">All Status</option>
                 <option value="new">New</option>
-                <option value="contacted">Contacted</option>
+                <option value="sequence_active">Contacted</option>
                 <option value="replied">Replied</option>
                 <option value="booked">Booked</option>
                 <option value="opted_out">Opted Out</option>

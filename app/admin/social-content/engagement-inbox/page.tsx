@@ -402,17 +402,25 @@ export default function SocialCommentInboxPage() {
                   <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">Visible</p>
                   <p className="mt-0.5 text-xl font-semibold text-foreground">{filteredSummary.total} / {summary.total}</p>
                 </div>
-                {statusCounts.slice(0, 7).map((status) => (
-                  <button
-                    type="button"
-                    key={status.value}
-                    onClick={() => setFilters((current) => ({ ...current, status: current.status === status.value ? 'all' : status.value }))}
-                    className={`min-h-14 rounded-lg border px-3 py-2 text-left transition-colors hover:bg-muted/60 ${filters.status === status.value ? STATUS_CLASS[status.value] : 'border-border bg-background text-foreground'}`}
-                  >
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.08em] opacity-75">{status.label}</p>
-                    <p className="mt-0.5 text-lg font-semibold">{status.count}</p>
-                  </button>
-                ))}
+                {statusCounts.slice(0, 7).map((status) => {
+                  const isActive = filters.status === status.value
+                  return (
+                    <button
+                      type="button"
+                      key={status.value}
+                      aria-label={isActive
+                        ? `Clear ${status.label} comment filter (${status.count})`
+                        : `Filter comments to ${status.label} (${status.count})`}
+                      aria-pressed={isActive}
+                      title={isActive ? 'Click to clear this status filter' : `Filter to ${status.label}`}
+                      onClick={() => setFilters((current) => ({ ...current, status: current.status === status.value ? 'all' : status.value }))}
+                      className={`min-h-14 rounded-lg border px-3 py-2 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300/70 ${isActive ? STATUS_CLASS[status.value] : 'border-border bg-background text-foreground hover:bg-muted/60'}`}
+                    >
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.08em] opacity-75">{status.label}</p>
+                      <p className="mt-0.5 text-lg font-semibold">{status.count}</p>
+                    </button>
+                  )
+                })}
               </div>
             </div>
             {alertReliability && (
