@@ -109,6 +109,19 @@ Formal GitHub approval requires a reviewer account that is different from the PR
 
 When a distinct reviewer identity is not available, the integration captain should instead add a PR comment headed `Captain Review: PASS` or `Captain Review: REJECT` with the exact validation performed, then merge or return the PR based on that review. State in the handoff that no formal GitHub approval was possible because the available reviewer identity matched the author.
 
+## Portfolio UX Architecture Rule
+
+When developing Portfolio admin, agent-ops, content, outreach, review, or approval surfaces, default to compact, action-led UX architecture instead of static explanatory copy.
+
+- Put the primary decision, status, and next action near the top of the surface.
+- Use existing Portfolio table, list, card, stat-tile, filter, pagination, reject/revise/approve, locked-state, and mobile patterns before inventing a new interaction model.
+- Communicate state with concise headings, chips, one-line helper text, inline disabled reasons, and tooltips. Avoid paragraph-heavy panels that read like documentation.
+- Move long context, audit details, guardrails, provenance, examples, and source notes behind progressive disclosure such as details panels, tabs, drawers, pagination, or tooltips.
+- A review surface should answer five questions quickly: what is this, what changed, what is blocked, what can I do now, and what happens after I act.
+- On mobile, reduce vertical scan burden first. Prefer summary rows with drill-ins over repeated full-detail blocks.
+- If a metric tile, status chip, or control looks interactive, it should either perform the expected interaction or clearly present itself as non-interactive.
+- During captain review, treat excessive static copy, unclear call-to-action placement, hidden recovery paths, repeated explanatory cards, or non-actionable pseudo-controls as UX defects.
+
 ## Human QA Video Evidence Rule
 
 Whenever a Portfolio change reaches Vambah's human QA gate for changed product behavior, the captain handoff must include a short video walkthrough or equivalent screen-recorded test artifact showing the exact operator path being reviewed.
