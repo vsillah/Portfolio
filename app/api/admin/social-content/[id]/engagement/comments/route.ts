@@ -27,7 +27,6 @@ import {
 } from '@/lib/social-comment-reply-submission'
 import { refreshPublishedXComments } from '@/lib/x-comment-ingestion'
 import {
-  explicitEngagementInboxQaFixtureEnabled,
   getEngagementInboxQaFixtureCommentsPayload,
   getEngagementInboxQaFixtureItems,
   isEngagementInboxQaFixtureContentId,
@@ -355,7 +354,7 @@ export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } },
 ) {
-  if (explicitEngagementInboxQaFixtureEnabled() && isEngagementInboxQaFixtureContentId(params.id)) {
+  if (isEngagementInboxQaFixtureContentId(params.id)) {
     return NextResponse.json({
       fixture: true,
       comments: getEngagementInboxQaFixtureItems(),
@@ -417,7 +416,7 @@ export async function POST(
     return NextResponse.json({ error: 'Unsupported comment inbox action' }, { status: 400 })
   }
 
-  if (explicitEngagementInboxQaFixtureEnabled() && isEngagementInboxQaFixtureContentId(params.id)) {
+  if (isEngagementInboxQaFixtureContentId(params.id)) {
     const fixture = getEngagementInboxQaFixtureCommentsPayload({
       action,
       commentId: optionalText(body.comment_id),
@@ -430,16 +429,6 @@ export async function POST(
   const auth = await verifyAdmin(request)
   if (isAuthError(auth)) {
     return NextResponse.json({ error: auth.error }, { status: auth.status })
-  }
-
-  if (isEngagementInboxQaFixtureContentId(params.id)) {
-    const fixture = getEngagementInboxQaFixtureCommentsPayload({
-      action,
-      commentId: optionalText(body.comment_id),
-      draftReply: optionalText(body.draft_reply),
-      actorId: auth.user.id,
-    })
-    return NextResponse.json(fixture.body, { status: fixture.status })
   }
 
   if (!supabaseAdmin) {

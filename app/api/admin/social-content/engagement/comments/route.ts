@@ -16,7 +16,6 @@ import {
   type SocialCommentAttentionRow,
 } from '@/lib/social-comment-attention'
 import {
-  explicitEngagementInboxQaFixtureEnabled,
   getEngagementInboxQaFixturePayload,
   isEngagementInboxQaFixtureListRequest,
 } from '@/lib/social-comment-engagement-qa-fixture'
@@ -240,17 +239,13 @@ export async function GET(request: NextRequest) {
     comment: searchParams.get('comment'),
   })
 
-  if (explicitEngagementInboxQaFixtureEnabled() && qaFixtureRequest) {
+  if (qaFixtureRequest) {
     return NextResponse.json(getEngagementInboxQaFixturePayload(filters))
   }
 
   const auth = await verifyAdmin(request)
   if (isAuthError(auth)) {
     return NextResponse.json({ error: auth.error }, { status: auth.status })
-  }
-
-  if (qaFixtureRequest) {
-    return NextResponse.json(getEngagementInboxQaFixturePayload(filters))
   }
 
   if (!supabaseAdmin) {
