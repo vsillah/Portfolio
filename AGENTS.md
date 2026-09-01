@@ -145,6 +145,16 @@ When a Portfolio preview, staging, or production-equivalent QA route redirects t
 - If the password manager, SSO, OTP, CAPTCHA, account checkpoint, or browser permission prompt requires Vambah's action, stop at that exact gate and give step-by-step instructions for completing it.
 - A successful preview login does not grant merge, deployment, provider activation, Gmail draft creation, external send, Slack action, or production-data mutation authority.
 
+## Telnyx QA Login Recovery Rule
+
+For Telnyx QA/setup, use the existing 1Password `Telnyx - AmaduTown` item and return to the exact Telnyx or Portfolio setup route after login.
+
+- This rule applies only to Telnyx setup, provider QA, account configuration, sender/profile verification, and Portfolio warm SMS provider review.
+- Do not store, quote, log, commit, or summarize the Telnyx password, TOTP seed, API key, recovery code, or other raw secret in the repo, memory, docs, PRs, comments, or chat.
+- If Telnyx requires OTP, CAPTCHA, new-device approval, billing confirmation, account upgrade, number purchase, API key creation, permission change, or another external side effect, stop at that gate and ask Vambah for action-time approval with the exact action and destination.
+- Successful Telnyx login does not grant authority to create API keys, change billing, buy numbers, assign recurring charges, enable Vercel execution flags, call Telnyx APIs, or send SMS.
+- After Telnyx login, return to the exact route, tab, profile, messaging settings page, or Portfolio warm SMS review URL that triggered the login.
+
 ## Human And Task-Thread Closeout Rule
 
 Merge and deployment success are not always the end of the lane. Keep implementation, review-helper, or smoke-test task threads visible when Vambah still needs to complete human QA or visible approval.
