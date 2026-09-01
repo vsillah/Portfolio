@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import type { ReactNode } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import SocialContentQueuePage from './page'
@@ -44,7 +44,10 @@ vi.mock('@/lib/agentic-content-review-packets', () => ({
 }))
 
 vi.mock('next/image', () => ({
-  default: ({ alt, src }: { alt: string; src: string }) => <img alt={alt} src={src} />,
+  default: ({ alt, src }: { alt: string; src: string }) => (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img alt={alt} src={src} />
+  ),
 }))
 
 describe('SocialContentQueuePage Instagram provider setup', () => {
@@ -170,5 +173,113 @@ describe('SocialContentQueuePage Instagram provider setup', () => {
       'href',
       expect.stringContaining('/admin/social-content/social-stale?step=status'),
     )
+  })
+
+  it('keeps status metric filters and the status dropdown in sync', async () => {
+    const requests: string[] = []
+    const itemForStatus = (status: 'draft' | 'approved' | 'scheduled' | 'published' | 'rejected') => ({
+      id: `social-${status}`,
+      meeting_record_id: null,
+      platform: 'linkedin',
+      status,
+      post_text: `${status} social copy`,
+      cta_text: null,
+      cta_url: null,
+      hashtags: ['#AgentOps'],
+      image_url: null,
+      image_prompt: null,
+      framework_visual_type: null,
+      voiceover_url: null,
+      voiceover_text: null,
+      video_url: null,
+      topic_extracted: { topic: `${status} topic` },
+      hormozi_framework: null,
+      rag_context: {},
+      scheduled_for: status === 'scheduled' ? '2026-09-15T12:00:00.000Z' : null,
+      published_at: status === 'published' ? '2026-09-16T12:00:00.000Z' : null,
+      platform_post_id: null,
+      admin_notes: null,
+      reviewed_by: null,
+      target_platforms: ['linkedin'],
+      video_generation_method: 'none',
+      youtube_title: null,
+      youtube_description: null,
+      created_at: '2026-09-01T12:00:00.000Z',
+      updated_at: '2026-09-01T12:00:00.000Z',
+    })
+    const allItems = [
+      itemForStatus('draft'),
+      itemForStatus('approved'),
+      itemForStatus('scheduled'),
+      itemForStatus('published'),
+      itemForStatus('rejected'),
+    ]
+
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input)
+      requests.push(url)
+
+      if (url.includes('/api/admin/social-content/config')) {
+        return { ok: true, json: async () => ({ configs: [] }) } as Response
+      }
+
+      const parsedUrl = new URL(url, 'http://localhost')
+      const requestedStatus = parsedUrl.searchParams.get('status')
+      const items = requestedStatus && requestedStatus !== 'all'
+        ? allItems.filter((item) => item.status === requestedStatus)
+        : allItems
+
+      return {
+        ok: true,
+        json: async () => ({
+          items,
+          stats: { draft: 1, approved: 1, scheduled: 1, published: 1, rejected: 1, total: 5 },
+          pagination: { page: 1, limit: 20, total: items.length, totalPages: 1 },
+        }),
+      } as Response
+    }))
+
+    render(<SocialContentQueuePage />)
+
+    expect(await screen.findByText('draft social copy')).toBeInTheDocument()
+    const statusSelect = screen.getByRole('combobox', { name: 'Filter social content by status' }) as HTMLSelectElement
+    const draftMetric = screen.getByRole('button', { name: 'Filter social content to drafts (1)' })
+
+    fireEvent.click(draftMetric)
+
+    await waitFor(() => expect(statusSelect.value).toBe('draft'))
+    await waitFor(() => {
+      expect(requests.some((url) => url.includes('/api/admin/social-content?') && url.includes('status=draft'))).toBe(true)
+    })
+    expect(draftMetric).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByText('draft social copy')).toBeInTheDocument()
+    expect(screen.queryByText('approved social copy')).not.toBeInTheDocument()
+
+    fireEvent.change(statusSelect, { target: { value: 'rejected' } })
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Filter social content to rejected (1)' })).toHaveAttribute('aria-pressed', 'true')
+    })
+    await waitFor(() => {
+      expect(requests.some((url) => url.includes('/api/admin/social-content?') && url.includes('status=rejected'))).toBe(true)
+    })
+    expect(screen.getByText('rejected social copy')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Show all social content (5 total)' }))
+
+    await waitFor(() => expect(statusSelect.value).toBe('all'))
+    expect(screen.getByRole('button', { name: 'Show all social content (5 total)' })).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByText('approved social copy')).toBeInTheDocument()
+  })
+
+  it('explains an empty status-filtered queue', async () => {
+    render(<SocialContentQueuePage />)
+
+    const rejectedMetric = await screen.findByRole('button', { name: 'Filter social content to rejected (0)' })
+    fireEvent.click(rejectedMetric)
+
+    expect(await screen.findByText('No rejected social content found.')).toBeInTheDocument()
+    expect(screen.getByText('Adjust or clear filters to return to the full review queue.')).toBeInTheDocument()
+    expect(rejectedMetric).toHaveAttribute('aria-pressed', 'true')
   })
 })
