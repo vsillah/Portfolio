@@ -134,6 +134,17 @@ Whenever a Portfolio change reaches Vambah's human QA gate for changed product b
 - Store or reference the video alongside the PR, captain review comment, QA packet, or handoff summary so the reviewed evidence is durable.
 - Do not ask Vambah for human QA on changed behavior with only automated test output unless video capture is technically blocked; if blocked, state why and provide screenshots plus exact reproduction steps.
 
+## Portfolio Preview Login Recovery Rule
+
+When a Portfolio preview, staging, or production-equivalent QA route redirects the in-app Browser to `/auth/login`, the Integration Captain should attempt the established Portfolio login recovery path before handing the blocker back to Vambah.
+
+- Use the same browser surface Vambah is expected to QA in, preferably the in-app Browser when that is the requested or active review surface.
+- Reuse an existing authenticated session when available; otherwise use the established password-manager assisted Portfolio sign-in steps that Vambah has previously approved for QA access.
+- After login succeeds, navigate back to the exact original QA URL, including route, query string, selected item, and hash anchor, then verify that the reviewed UI state is visible.
+- Keep credential handling separate from QA approval: do not reveal, store, paste into chat, or transmit passwords, OTPs, API keys, recovery codes, or other secrets outside the intended login form.
+- If the password manager, SSO, OTP, CAPTCHA, account checkpoint, or browser permission prompt requires Vambah's action, stop at that exact gate and give step-by-step instructions for completing it.
+- A successful preview login does not grant merge, deployment, provider activation, Gmail draft creation, external send, Slack action, or production-data mutation authority.
+
 ## Human And Task-Thread Closeout Rule
 
 Merge and deployment success are not always the end of the lane. Keep implementation, review-helper, or smoke-test task threads visible when Vambah still needs to complete human QA or visible approval.
