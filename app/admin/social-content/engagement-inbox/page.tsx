@@ -624,6 +624,9 @@ export default function SocialCommentInboxPage() {
             const isRejected = comment.approvalState === 'rejected'
             const isRevisionMode = revisionMode[comment.id] === true
             const inlineNotice = commentNotices[comment.id]
+            const submittedReplyLockReason = comment.submittedReplyLockReason
+              || 'Reply already has submitted provider evidence. Local revision is locked.'
+            const submittedReplyLockReasonId = `${comment.id}-submitted-reply-lock-reason`
             return (
               <article
                 key={comment.id}
@@ -689,7 +692,7 @@ export default function SocialCommentInboxPage() {
                         {comment.classification.label}{comment.classification.reason ? `: ${comment.classification.reason}` : ''}
                       </p>
                     </div>
-                    {!isRejected && (
+                    {!isRejected && !comment.submittedReplyLocked && (
                       <label className="block text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
                         <span className="flex flex-wrap items-center gap-2">
                           <span>Draft reply</span>
@@ -736,72 +739,85 @@ export default function SocialCommentInboxPage() {
                             </div>
                             <p className="mt-2 text-xs leading-5 text-red-50/90">
                               {comment.submittedReplyLocked
-                                ? comment.submittedReplyLockReason
+                                ? submittedReplyLockReason
                                 : isRevisionMode
                                   ? 'Edit the reply below, then return it to review. No provider reply is sent from this action.'
                                   : 'Approve, reject, and provider submit stay unavailable for this rejected reply until the draft is revised and returned to review.'}
                             </p>
                           </div>
-                          <div className="flex shrink-0 flex-wrap gap-2">
-                            {comment.submittedReplyLocked ? (
+                          <div className="shrink-0 space-y-2 sm:max-w-[19rem]">
+                            <div className="flex flex-wrap gap-2">
+                              {comment.submittedReplyLocked ? (
+                                <button
+                                  type="button"
+                                  disabled
+                                  aria-describedby={submittedReplyLockReasonId}
+                                  title={submittedReplyLockReason}
+                                  className="inline-flex min-h-9 items-center justify-center gap-2 rounded-lg border border-red-500/35 bg-red-500/10 px-3 py-2 text-xs font-semibold text-red-100 opacity-60"
+                                >
+                                  <ShieldAlert className="h-3.5 w-3.5" />
+                                  Revision Locked
+                                </button>
+                              ) : isRevisionMode ? (
+                                <>
+                                  <button
+                                    type="button"
+                                    onClick={() => runAction(comment, 'return_to_review')}
+                                    disabled={actionLoading === actionKey('return_to_review') || !draftText}
+                                    className="inline-flex min-h-9 items-center justify-center gap-2 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-xs font-semibold text-emerald-100 hover:bg-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-60"
+                                  >
+                                    {actionLoading === actionKey('return_to_review') ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
+                                    Return to Review
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => setRevisionMode((current) => ({ ...current, [comment.id]: false }))}
+                                    disabled={actionLoading === actionKey('return_to_review')}
+                                    className="inline-flex min-h-9 items-center justify-center gap-2 rounded-lg border border-gray-600 px-3 py-2 text-xs font-semibold text-muted-foreground hover:bg-muted disabled:opacity-60"
+                                  >
+                                    Cancel
+                                  </button>
+                                </>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setRevisionMode((current) => ({ ...current, [comment.id]: true }))
+                                    setCommentNotices((current) => ({
+                                      ...current,
+                                      [comment.id]: {
+                                        type: 'success',
+                                        text: 'Revision mode opened. Edit the reply and return it to review when ready.',
+                                      },
+                                    }))
+                                  }}
+                                  className="inline-flex min-h-9 items-center justify-center gap-2 rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs font-semibold text-amber-100 hover:bg-amber-500/20 disabled:cursor-not-allowed disabled:opacity-60"
+                                >
+                                  <MessageSquare className="h-3.5 w-3.5" />
+                                  Revise Reply
+                                </button>
+                              )}
                               <button
                                 type="button"
                                 disabled
-                                title={comment.submittedReplyLockReason ?? 'Submitted provider evidence locks local revision.'}
-                                className="inline-flex min-h-9 items-center justify-center gap-2 rounded-lg border border-red-500/35 bg-red-500/10 px-3 py-2 text-xs font-semibold text-red-100 opacity-60"
+                                title={comment.providerCapability.blocker || comment.providerCapability.recoveryPath}
+                                className="inline-flex min-h-9 items-center justify-center gap-2 rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs font-semibold text-amber-100 opacity-55"
                               >
-                                <ShieldAlert className="h-3.5 w-3.5" />
-                                Revision Locked
+                                <Send className="h-3.5 w-3.5" />
+                                Submit
                               </button>
-                            ) : isRevisionMode ? (
-                              <>
-                                <button
-                                  type="button"
-                                  onClick={() => runAction(comment, 'return_to_review')}
-                                  disabled={actionLoading === actionKey('return_to_review') || !draftText}
-                                  className="inline-flex min-h-9 items-center justify-center gap-2 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-xs font-semibold text-emerald-100 hover:bg-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-60"
-                                >
-                                  {actionLoading === actionKey('return_to_review') ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
-                                  Return to Review
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => setRevisionMode((current) => ({ ...current, [comment.id]: false }))}
-                                  disabled={actionLoading === actionKey('return_to_review')}
-                                  className="inline-flex min-h-9 items-center justify-center gap-2 rounded-lg border border-gray-600 px-3 py-2 text-xs font-semibold text-muted-foreground hover:bg-muted disabled:opacity-60"
-                                >
-                                  Cancel
-                                </button>
-                              </>
+                            </div>
+                            {comment.submittedReplyLocked ? (
+                              <p id={submittedReplyLockReasonId} className="rounded-md border border-red-500/30 bg-background/70 px-2.5 py-2 text-xs leading-5 text-red-100">
+                                {submittedReplyLockReason}
+                              </p>
                             ) : (
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setRevisionMode((current) => ({ ...current, [comment.id]: true }))
-                                  setCommentNotices((current) => ({
-                                    ...current,
-                                    [comment.id]: {
-                                      type: 'success',
-                                      text: 'Revision mode opened. Edit the reply and return it to review when ready.',
-                                    },
-                                  }))
-                                }}
-                                disabled={!draftText}
-                                className="inline-flex min-h-9 items-center justify-center gap-2 rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs font-semibold text-amber-100 hover:bg-amber-500/20 disabled:cursor-not-allowed disabled:opacity-60"
-                              >
-                                <MessageSquare className="h-3.5 w-3.5" />
-                                Revise Reply
-                              </button>
+                              <p className="text-xs leading-5 text-red-100/80">
+                                {isRevisionMode
+                                  ? 'Return to review reopens the local approval gate only.'
+                                  : 'Revise opens the local editor before any review state changes.'}
+                              </p>
                             )}
-                            <button
-                              type="button"
-                              disabled
-                              title={comment.providerCapability.blocker || comment.providerCapability.recoveryPath}
-                              className="inline-flex min-h-9 items-center justify-center gap-2 rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs font-semibold text-amber-100 opacity-55"
-                            >
-                              <Send className="h-3.5 w-3.5" />
-                              Submit
-                            </button>
                           </div>
                         </div>
                         {isRevisionMode && !comment.submittedReplyLocked ? (
@@ -816,6 +832,54 @@ export default function SocialCommentInboxPage() {
                             />
                           </label>
                         ) : null}
+                        {inlineNotice ? (
+                          <div className={`mt-3 rounded-lg border p-3 text-xs leading-5 ${inlineNotice.type === 'success' ? 'border-emerald-500/35 bg-emerald-500/10 text-emerald-100' : 'border-red-500/35 bg-red-500/10 text-red-100'}`}>
+                            {inlineNotice.text}
+                          </div>
+                        ) : null}
+                      </div>
+                    ) : comment.submittedReplyLocked ? (
+                      <div className="rounded-lg border border-red-500/35 bg-red-500/10 p-3">
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                          <div className="min-w-0">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <ShieldAlert className="h-4 w-4 shrink-0 text-red-200" />
+                              <p className="text-sm font-semibold text-red-100">Provider evidence locked</p>
+                              <span className="rounded-full border border-red-500/35 px-2 py-0.5 text-[0.7rem] font-semibold uppercase text-red-100">
+                                Review locked
+                              </span>
+                            </div>
+                            <p className="mt-2 text-xs leading-5 text-red-50/90">
+                              Submitted provider evidence is authoritative. Local approve, reject, revise, and submit controls are locked for this reply.
+                            </p>
+                          </div>
+                          <div className="shrink-0 space-y-2 sm:max-w-[19rem]">
+                            <div className="flex flex-wrap gap-2">
+                              <button
+                                type="button"
+                                disabled
+                                aria-describedby={submittedReplyLockReasonId}
+                                title={submittedReplyLockReason}
+                                className="inline-flex min-h-9 items-center justify-center gap-2 rounded-lg border border-red-500/35 bg-red-500/10 px-3 py-2 text-xs font-semibold text-red-100 opacity-60"
+                              >
+                                <ShieldAlert className="h-3.5 w-3.5" />
+                                Review Locked
+                              </button>
+                              <button
+                                type="button"
+                                disabled
+                                title={submittedReplyLockReason}
+                                className="inline-flex min-h-9 items-center justify-center gap-2 rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs font-semibold text-amber-100 opacity-55"
+                              >
+                                <Send className="h-3.5 w-3.5" />
+                                Submit
+                              </button>
+                            </div>
+                            <p id={submittedReplyLockReasonId} className="rounded-md border border-red-500/30 bg-background/70 px-2.5 py-2 text-xs leading-5 text-red-100">
+                              {submittedReplyLockReason}
+                            </p>
+                          </div>
+                        </div>
                         {inlineNotice ? (
                           <div className={`mt-3 rounded-lg border p-3 text-xs leading-5 ${inlineNotice.type === 'success' ? 'border-emerald-500/35 bg-emerald-500/10 text-emerald-100' : 'border-red-500/35 bg-red-500/10 text-red-100'}`}>
                             {inlineNotice.text}

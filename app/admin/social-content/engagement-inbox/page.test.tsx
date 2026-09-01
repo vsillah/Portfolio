@@ -430,6 +430,7 @@ describe('SocialCommentInboxPage', () => {
     const panel = within(card as HTMLElement)
     expect(await panel.findByText('Reply rejected')).toBeInTheDocument()
     expect(panel.getByText('Review locked')).toBeInTheDocument()
+    expect(panel.getByText('Revise opens the local editor before any review state changes.')).toBeInTheDocument()
     expect(panel.queryByRole('button', { name: /^Approve$/i })).not.toBeInTheDocument()
     expect(panel.queryByRole('button', { name: /^Reject$/i })).not.toBeInTheDocument()
     expect(panel.getByRole('button', { name: /^Submit$/i })).toBeDisabled()
@@ -470,6 +471,78 @@ describe('SocialCommentInboxPage', () => {
       }),
     )
     expect(await screen.findByText(/Revised reply saved and returned to review/i)).toBeInTheDocument()
+  })
+
+  it('opens revision mode for rejected replies without an existing draft and waits for new text', async () => {
+    const rejectedComment = {
+      ...comment,
+      status: 'needs_qa',
+      approvalState: 'rejected',
+      draftReply: '',
+      actionHistory: [{
+        action: 'reject',
+        at: '2026-08-06T12:05:00.000Z',
+        by: 'admin-user',
+        note: 'Needs a replacement reply.',
+      }],
+    }
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
+      if (init?.method === 'POST') {
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({
+            ok: true,
+            message: 'Revised reply saved and returned to review. Approval is required before any provider submission.',
+          }),
+        } as Response
+      }
+
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          items: [rejectedComment],
+          summary: { total: 1, new: 0, needs_qa: 1, auto_send_pending: 0, lead: 0, escalated: 0, responded: 0, ignored: 0 },
+          filteredSummary: { total: 1, new: 0, needs_qa: 1, auto_send_pending: 0, lead: 0, escalated: 0, responded: 0, ignored: 0 },
+          alertReliability,
+        }),
+      } as Response
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    render(<SocialCommentInboxPage />)
+
+    const rejectedHeading = await screen.findByText('Reply rejected')
+    const card = rejectedHeading.closest('article')
+    expect(card).toBeTruthy()
+    const panel = within(card as HTMLElement)
+    const revise = panel.getByRole('button', { name: /^Revise Reply$/i })
+    expect(revise).not.toBeDisabled()
+
+    fireEvent.click(revise)
+
+    const revisionEditor = await panel.findByLabelText('Reply revision')
+    expect(revisionEditor).toHaveValue('')
+    expect(panel.queryByRole('button', { name: /^Revise Reply$/i })).not.toBeInTheDocument()
+    expect(panel.getByRole('button', { name: /^Return to Review$/i })).toBeDisabled()
+    expect(fetchMock).not.toHaveBeenCalledWith(
+      '/api/admin/social-content/social-1/engagement/comments',
+      expect.objectContaining({ method: 'POST' }),
+    )
+
+    fireEvent.change(revisionEditor, { target: { value: 'Fresh replacement reply.' } })
+    fireEvent.click(panel.getByRole('button', { name: /^Return to Review$/i }))
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledWith(
+        '/api/admin/social-content/social-1/engagement/comments',
+        expect.objectContaining({
+          method: 'POST',
+          body: expect.stringContaining('Fresh replacement reply.'),
+        }),
+      )
+    })
   })
 
   it('locks rejected responded replies with submitted provider evidence inline and avoids no-op posts', async () => {
@@ -522,10 +595,13 @@ describe('SocialCommentInboxPage', () => {
     expect(card).toBeTruthy()
     const panel = within(card as HTMLElement)
     expect(panel.getByText('Provider evidence locked')).toBeInTheDocument()
-    expect(panel.getByText(/Local revision is locked/i)).toBeInTheDocument()
+    expect(panel.getAllByText(/Local revision is locked/i).length).toBeGreaterThanOrEqual(1)
     expect(panel.queryByRole('button', { name: /^Revise Reply$/i })).not.toBeInTheDocument()
     const lockedButton = panel.getByRole('button', { name: /^Revision Locked$/i })
     expect(lockedButton).toBeDisabled()
+    const lockReasonId = lockedButton.getAttribute('aria-describedby')
+    expect(lockReasonId).toBeTruthy()
+    expect(document.getElementById(lockReasonId as string)).toHaveTextContent(/submitted provider evidence/i)
 
     fireEvent.click(lockedButton)
     fireEvent.click(lockedButton)
@@ -537,32 +613,54 @@ describe('SocialCommentInboxPage', () => {
     expect(screen.queryByText(/local action was recorded without changing submitted state/i)).not.toBeInTheDocument()
   })
 
-  it('does not offer provider submit for already responded comments', async () => {
-    vi.stubGlobal('fetch', vi.fn(async () => ({
-      ok: true,
-      status: 200,
-      json: async () => ({
-        items: [{
-          ...comment,
-          status: 'responded',
-          approvalState: 'approved',
-          providerCapability: {
-            provider: 'youtube_data_api',
-            automaticReply: true,
-            verified: true,
-            humanGateSatisfied: true,
-            blocker: null,
-            recoveryPath: 'YouTube reply capability verified.',
-          },
-        }],
-        summary: { total: 1, new: 0, needs_qa: 0, auto_send_pending: 0, lead: 0, escalated: 0, responded: 1, ignored: 0 },
-        filteredSummary: { total: 1, new: 0, needs_qa: 0, auto_send_pending: 0, lead: 0, escalated: 0, responded: 1, ignored: 0 },
-        alertReliability,
-      }),
-    } as Response)))
+  it('locks review controls for already responded comments with submitted provider evidence', async () => {
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
+      if (init?.method === 'POST') {
+        throw new Error('Submitted-evidence rows must not post repeated local review actions.')
+      }
+
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          items: [{
+            ...comment,
+            status: 'responded',
+            approvalState: 'approved',
+            providerCapability: {
+              provider: 'youtube_data_api',
+              automaticReply: true,
+              verified: true,
+              humanGateSatisfied: true,
+              blocker: null,
+              recoveryPath: 'YouTube reply capability verified.',
+            },
+            submittedReplyLocked: true,
+            submittedReplyLockReason: 'Reply already has submitted provider evidence. Local revision is locked so Portfolio does not rewrite or obscure the canonical provider record.',
+          }],
+          summary: { total: 1, new: 0, needs_qa: 0, auto_send_pending: 0, lead: 0, escalated: 0, responded: 1, ignored: 0 },
+          filteredSummary: { total: 1, new: 0, needs_qa: 0, auto_send_pending: 0, lead: 0, escalated: 0, responded: 1, ignored: 0 },
+          alertReliability,
+        }),
+      } as Response
+    })
+    vi.stubGlobal('fetch', fetchMock)
 
     render(<SocialCommentInboxPage />)
 
-    expect(await screen.findByRole('button', { name: /^Submit$/i })).toBeDisabled()
+    const lockedButton = await screen.findByRole('button', { name: /^Review Locked$/i })
+    expect(lockedButton).toBeDisabled()
+    expect(screen.getByText(/Local approve, reject, revise, and submit controls are locked/i)).toBeInTheDocument()
+    expect(screen.queryByLabelText(/Draft reply/i)).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /^Approve$/i })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /^Reject$/i })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /^Ignore$/i })).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /^Submit$/i })).toBeDisabled()
+    fireEvent.click(lockedButton)
+    expect(fetchMock).not.toHaveBeenCalledWith(
+      '/api/admin/social-content/social-1/engagement/comments',
+      expect.objectContaining({ method: 'POST' }),
+    )
+    expect(screen.queryByText(/local action was recorded without changing submitted state/i)).not.toBeInTheDocument()
   })
 })
