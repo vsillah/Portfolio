@@ -570,6 +570,7 @@ function SocialContentDetailPage() {
   const [calibrationFeedback, setCalibrationFeedback] = useState<CalibrationFeedback>(EMPTY_CALIBRATION_FEEDBACK)
   const [commentInboxItems, setCommentInboxItems] = useState<SocialCommentInboxItem[]>([])
   const [commentDrafts, setCommentDrafts] = useState<Record<string, string>>({})
+  const [commentRevisionNotes, setCommentRevisionNotes] = useState<Record<string, string>>({})
   const [commentInboxUnavailable, setCommentInboxUnavailable] = useState<CommentInboxUnavailableState | null>(null)
   const commentRefreshInFlightRef = useRef(false)
 
@@ -719,22 +720,32 @@ function SocialContentDetailPage() {
         })
         setCommentInboxItems([])
         setCommentDrafts({})
+        setCommentRevisionNotes({})
         return
       }
       if (!res.ok) {
         console.error('Failed to fetch social comment inbox:', data.error || res.status)
         setCommentInboxItems([])
         setCommentDrafts({})
+        setCommentRevisionNotes({})
         return
       }
 
       const comments = Array.isArray(data.comments) ? data.comments as SocialCommentInboxItem[] : []
       setCommentInboxItems(comments)
       setCommentDrafts(Object.fromEntries(comments.map((comment) => [comment.id, comment.draftReply])))
+      setCommentRevisionNotes((current) => {
+        const next = { ...current }
+        for (const comment of comments) {
+          if (next[comment.id] === undefined) next[comment.id] = ''
+        }
+        return next
+      })
     } catch (err) {
       console.error('Failed to fetch social comment inbox:', err)
       setCommentInboxItems([])
       setCommentDrafts({})
+      setCommentRevisionNotes({})
     }
   }, [id])
 
@@ -1887,6 +1898,9 @@ function SocialContentDetailPage() {
           action,
           comment_id: comment?.id,
           draft_reply: comment ? commentDrafts[comment.id] ?? '' : undefined,
+          note: comment && action === 'reject'
+            ? commentRevisionNotes[comment.id]?.trim() || 'Rejected from Portfolio post detail review.'
+            : undefined,
         }),
       })
       const data = await res.json()
@@ -1897,6 +1911,15 @@ function SocialContentDetailPage() {
       if (Array.isArray(data.comments)) {
         setCommentInboxItems(data.comments)
         setCommentDrafts(Object.fromEntries(data.comments.map((item: SocialCommentInboxItem) => [item.id, item.draftReply])))
+        setCommentRevisionNotes((current) => {
+          const next = { ...current }
+          for (const item of data.comments as SocialCommentInboxItem[]) {
+            if (next[item.id] === undefined || (action === 'reject' && item.id === comment?.id && res.ok)) {
+              next[item.id] = ''
+            }
+          }
+          return next
+        })
       }
       if (data.unavailable) {
         setCommentInboxUnavailable({
@@ -6060,6 +6083,7 @@ function SocialContentDetailPage() {
                         <div className="flex flex-wrap items-center gap-2">
                           <span className="rounded-full border border-gray-700 bg-gray-800 px-2.5 py-1 text-xs font-semibold text-gray-200">{platformName}</span>
                           <span className="rounded-full border border-amber-500/35 bg-amber-500/10 px-2.5 py-1 text-xs font-semibold text-amber-100">{comment.status.replace(/_/g, ' ')}</span>
+                          <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-xs font-semibold text-emerald-100">Reply {comment.approvalState.replace(/_/g, ' ')}</span>
                           <span className="rounded-full border border-blue-500/35 bg-blue-500/10 px-2.5 py-1 text-xs font-semibold text-blue-100">{comment.classification.label}</span>
                         </div>
                         <p className="mt-3 text-sm font-semibold text-gray-100">{comment.authorDisplayName}</p>
@@ -6077,6 +6101,16 @@ function SocialContentDetailPage() {
                             rows={3}
                             className="mt-1 w-full resize-y rounded-lg border border-gray-700 bg-gray-950 px-3 py-2 text-sm leading-6 text-gray-100 placeholder:text-gray-600"
                             placeholder="Draft a reviewed reply. This does not send externally."
+                          />
+                        </label>
+                        <label className="mt-3 block text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">
+                          Revision note
+                          <textarea
+                            value={commentRevisionNotes[comment.id] ?? ''}
+                            onChange={(event) => setCommentRevisionNotes((current) => ({ ...current, [comment.id]: event.target.value }))}
+                            rows={2}
+                            className="mt-1 w-full resize-y rounded-lg border border-gray-700 bg-gray-950 px-3 py-2 text-sm normal-case leading-6 tracking-normal text-gray-100 placeholder:text-gray-600"
+                            placeholder="What should change if this reply is rejected or sent back?"
                           />
                         </label>
                         <div className="mt-3 flex flex-wrap gap-2">

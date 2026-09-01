@@ -702,6 +702,34 @@ describe('/api/admin/social-content/[id]/engagement/comments', () => {
     }))
   })
 
+  it('records reject revision notes and preserves the draft without external submission', async () => {
+    const response = await POST(request({
+      action: 'reject',
+      comment_id: 'comment-1',
+      draft_reply: 'Needs a sharper reply.',
+      note: 'Name the human approval boundary before this can move forward.',
+    }) as never, { params: { id: 'social-1' } })
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(body.integration_note).toContain('No external comment reply was submitted')
+    expect(mocks.update).toHaveBeenCalledWith(expect.objectContaining({
+      proposed_reply_text: 'Needs a sharper reply.',
+      response_approval_state: 'rejected',
+      reply_submission_state: 'draft',
+      metadata: expect.objectContaining({
+        ui_action_history: expect.arrayContaining([
+          expect.objectContaining({
+            action: 'reject',
+            note: 'Name the human approval boundary before this can move forward.',
+          }),
+        ]),
+      }),
+    }))
+    expect(mocks.update.mock.calls.at(-1)?.[0]).not.toHaveProperty('reply_provider_comment_id')
+    expect(mocks.update.mock.calls.at(-1)?.[0]).not.toHaveProperty('reply_submitted_at')
+  })
+
   it('blocks repeated approve or reject decisions on a rejected reply review', async () => {
     installDbMocks({
       comment: {
@@ -818,6 +846,37 @@ describe('/api/admin/social-content/[id]/engagement/comments', () => {
     expect(mocks.update.mock.calls.at(-1)?.[0]).not.toHaveProperty('reply_submitted_at')
     expect(body.comments[0]).toMatchObject({
       status: 'responded',
+    })
+  })
+
+  it('blocks return-to-review on submitted provider evidence without recording a no-op action', async () => {
+    installDbMocks({
+      comment: {
+        ...submittedYouTubeCommentRow,
+        response_approval_state: 'rejected',
+      },
+    })
+
+    const response = await POST(request({
+      action: 'return_to_review',
+      comment_id: 'comment-1',
+      draft_reply: 'Trying to revise after provider submission.',
+    }) as never, { params: { id: 'social-1' } })
+    const body = await response.json()
+
+    expect(response.status).toBe(409)
+    expect(body).toMatchObject({
+      ok: false,
+      blocked: true,
+      already_submitted: true,
+      message: 'Reply already has submitted provider evidence. Local revision is locked to preserve the canonical provider record.',
+    })
+    expect(body.integration_note).toContain('no local no-op revision action was recorded')
+    expect(mocks.update).not.toHaveBeenCalled()
+    expect(body.comments[0]).toMatchObject({
+      status: 'responded',
+      approvalState: 'rejected',
+      submittedReplyLocked: true,
     })
   })
 })

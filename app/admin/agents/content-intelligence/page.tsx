@@ -378,6 +378,18 @@ function initialFocusedCalendarItemId() {
   return currentUrlSearchParams().get('calendar_item') || null
 }
 
+const SOCIAL_CONTENT_APPROVAL_STEP_FRAGMENTS = {
+  copy: 'social-copy-gate',
+  visuals: 'social-visual-assets-gate',
+  draft: 'social-draft-approval-gate',
+  submit: 'social-platform-submission-gate',
+  status: 'social-publication-status-gate',
+} as const
+
+function socialContentGateHref(id: string, step: keyof typeof SOCIAL_CONTENT_APPROVAL_STEP_FRAGMENTS = 'copy') {
+  return `/admin/social-content/${id}?step=${step}#${SOCIAL_CONTENT_APPROVAL_STEP_FRAGMENTS[step]}`
+}
+
 function stringValue(value: unknown) {
   return typeof value === 'string' && value.trim() ? value.trim() : null
 }
@@ -1170,6 +1182,8 @@ function ContentIntelligenceContent() {
         const sourceLabels = metadataStringArray(metadata.source_labels)
         const searchableValues = [
           item.title,
+          item.id,
+          item.social_content_id,
           item.planned_angle,
           item.agent_work_items?.title,
           item.social_content_queue?.id,
@@ -4199,7 +4213,7 @@ function CalendarItemQueueRow(props: CalendarItemRowProps) {
         <div className="flex flex-col gap-2">
           {socialContentId ? (
             <Link
-              href={`/admin/social-content/${socialContentId}`}
+              href={socialContentGateHref(socialContentId, gateSummary.deepLinkStep)}
               className="inline-flex min-h-8 items-center justify-center rounded-md border border-silicon-slate/70 px-3 py-1.5 text-xs font-semibold text-muted-foreground transition hover:border-white/30 hover:text-foreground"
             >
               Details
@@ -4511,7 +4525,7 @@ function CalendarItemCard({
           </Link>
         ) : null}
         {item.social_content_id ? (
-          <Link href={`/admin/social-content/${item.social_content_id}`} className="text-blue-200 hover:text-blue-100">
+          <Link href={socialContentGateHref(item.social_content_id, gateSummary.deepLinkStep)} className="text-blue-200 hover:text-blue-100">
             Draft
           </Link>
         ) : null}
@@ -4521,7 +4535,7 @@ function CalendarItemCard({
           </Link>
         ) : null}
         {!item.social_content_id && socialContentId ? (
-          <Link href={`/admin/social-content/${socialContentId}`} className="text-blue-200 hover:text-blue-100">
+          <Link href={socialContentGateHref(socialContentId, gateSummary.deepLinkStep)} className="text-blue-200 hover:text-blue-100">
             Draft
           </Link>
         ) : null}
