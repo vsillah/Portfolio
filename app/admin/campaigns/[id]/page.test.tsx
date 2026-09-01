@@ -218,6 +218,40 @@ describe('CampaignDetailPage content calendar gates', () => {
     });
   });
 
+  it('locks rejected campaign calendar actions and routes recovery to Content Intelligence', async () => {
+    campaignResponse = {
+      ...campaignDetail,
+      social_content_calendar_items: [
+        {
+          ...campaignDetail.social_content_calendar_items[0],
+          authorization_status: 'rejected',
+          metadata: ({
+            ...(campaignDetail.social_content_calendar_items[0].metadata as Record<string, unknown>),
+            authorization_decision_note: 'Clarify the proof point before this can be authorized.',
+            returned_to_shaka: true,
+            external_execution_enabled: false,
+          } as unknown as typeof campaignDetail.social_content_calendar_items[0]['metadata']),
+        },
+      ],
+    };
+
+    render(<CampaignDetailPage />);
+
+    expect(await screen.findByRole('heading', { name: 'Agent Ops Campaign' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Content Calendar1' }));
+
+    const rejectedRow = screen.getByLabelText('Campaign calendar row Tease: Approval gates');
+    const recoveryLink = screen.getByRole('link', { name: 'Edit and Return to Review' });
+
+    expect(screen.getByText('Calendar authorization rejected')).toBeInTheDocument();
+    expect(screen.getByText('Decision note: Clarify the proof point before this can be authorized.')).toBeInTheDocument();
+    expect(screen.getByText('Authorize and repeat reject are locked until this item is revised and returned to pending review.')).toBeInTheDocument();
+    expect(rejectedRow).toContainElement(recoveryLink);
+    expect(recoveryLink).toHaveAttribute('href', '/admin/agents/content-intelligence?section=calendar&calendar_item=calendar-1#content-calendar-gate');
+    expect(screen.queryByRole('button', { name: 'Authorize Draft Handoff' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Reject' })).not.toBeInTheDocument();
+  });
+
   it('auto-selects the recommended template when campaign signals point to video production', async () => {
     campaignResponse = {
       ...campaignDetail,

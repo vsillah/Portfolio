@@ -4105,13 +4105,14 @@ function CalendarItemQueueRow(props: CalendarItemRowProps) {
   const showExpandedWorkflow = isEditing || rejectingItemId === item.id || isFocused
   const gateSummary = calendarApprovalGateSummary(item)
   const timing = calendarTimingState(item)
+  const rowLabel = isFocused ? `Focused calendar row ${item.title}` : `Calendar row ${item.title}`
 
   if (showExpandedWorkflow) {
     return (
       <div
         ref={registerRowRef}
         tabIndex={isFocused ? -1 : undefined}
-        aria-label={isFocused ? `Focused calendar row ${item.title}` : undefined}
+        aria-label={rowLabel}
         className={`bg-background/20 px-3 py-3 outline-none ${
           isFocused ? 'border-l-4 border-amber-400 ring-2 ring-amber-300/60 ring-inset' : ''
         }`}
@@ -4125,7 +4126,7 @@ function CalendarItemQueueRow(props: CalendarItemRowProps) {
     <div
       ref={registerRowRef}
       tabIndex={isFocused ? -1 : undefined}
-      aria-label={isFocused ? `Focused calendar row ${item.title}` : undefined}
+      aria-label={rowLabel}
       className={`grid gap-4 px-3 py-4 outline-none transition hover:bg-background/30 md:grid-cols-[10rem_minmax(0,1fr)_12rem_9rem_9rem_14rem] md:gap-3 ${
         isFocused ? 'border-l-4 border-amber-400 ring-2 ring-amber-300/60 ring-inset' : ''
       }`}
@@ -4211,7 +4212,7 @@ function CalendarItemQueueRow(props: CalendarItemRowProps) {
               Handoff
             </Link>
           ) : null}
-          {isPending || isRejected ? (
+          {isPending ? (
             <div className="grid gap-2">
               <button
                 type="button"
@@ -4239,6 +4240,21 @@ function CalendarItemQueueRow(props: CalendarItemRowProps) {
               >
                 <XCircle className="h-3.5 w-3.5" />
                 Reject
+              </button>
+            </div>
+          ) : isRejected ? (
+            <div className="grid gap-2 rounded-md border border-red-500/25 bg-red-500/10 p-2">
+              <p className="text-[0.68rem] leading-5 text-red-100/85">
+                Rejected rows stay locked until the calendar item is revised.
+              </p>
+              <button
+                type="button"
+                onClick={() => onBeginEdit(item)}
+                disabled={isBusy}
+                className="inline-flex min-h-8 items-center justify-center gap-2 rounded-md border border-blue-500/40 bg-blue-500/10 px-3 py-1.5 text-xs font-semibold text-blue-100 transition hover:bg-blue-500/20 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                <Pencil className="h-3.5 w-3.5" />
+                Edit and Return to Review
               </button>
             </div>
           ) : null}
@@ -4286,11 +4302,14 @@ function CalendarItemCard({
     ?? (typeof platformDraftHandoff.social_content_id === 'string' ? platformDraftHandoff.social_content_id : null)
   const isPending = item.authorization_status === 'pending'
   const isRejected = item.authorization_status === 'rejected'
-  const showRejectNote = rejectingItemId === item.id || isRejected
+  const showRejectNote = rejectingItemId === item.id && isPending
   const isBusy = actionItemId === item.id
   const canEdit = isPending || isRejected
   const gateSummary = calendarApprovalGateSummary(item)
   const timing = calendarTimingState(item)
+  const rejectedDecisionNote = typeof metadata.authorization_decision_note === 'string'
+    ? metadata.authorization_decision_note.trim()
+    : ''
   return (
     <div className="rounded-md border border-silicon-slate/60 bg-background/35 p-3">
       {isEditing && editForm ? (
@@ -4520,6 +4539,24 @@ function CalendarItemCard({
           />
         </label>
       ) : null}
+      {!isEditing && isRejected ? (
+        <div className="mt-3 rounded-md border border-red-500/30 bg-red-500/10 p-3">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <p className="text-xs font-semibold text-red-100">Calendar authorization rejected</p>
+            <span className="rounded-full border border-red-300/30 px-2 py-0.5 text-[0.68rem] font-semibold text-red-100">
+              Rejected
+            </span>
+          </div>
+          {rejectedDecisionNote ? (
+            <p className="mt-2 text-[0.68rem] leading-5 text-red-100/85">
+              Decision note: {rejectedDecisionNote}
+            </p>
+          ) : null}
+          <p className="mt-2 text-[0.68rem] leading-5 text-red-100/85">
+            Authorize and repeat reject are locked until edits are saved and this item returns to pending review.
+          </p>
+        </div>
+      ) : null}
       {isPending || isRejected ? (
         <div className="mt-3 flex flex-col gap-2 sm:flex-row">
           {canEdit && !isEditing ? (
@@ -4530,27 +4567,31 @@ function CalendarItemCard({
               className="inline-flex min-h-9 flex-1 items-center justify-center gap-2 rounded-md border border-blue-500/40 bg-blue-500/10 px-3 py-2 text-xs font-semibold text-blue-100 transition hover:bg-blue-500/20 disabled:cursor-not-allowed disabled:opacity-60"
             >
               <Pencil className="h-3.5 w-3.5" />
-              Edit
+              {isRejected ? 'Edit and Return to Review' : 'Edit'}
             </button>
           ) : null}
-          <button
-            type="button"
-            onClick={() => onAuthorize(item)}
-            disabled={isBusy || isEditing}
-            className="inline-flex min-h-9 flex-1 items-center justify-center gap-2 rounded-md border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-xs font-semibold text-emerald-100 transition hover:bg-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            <CheckCircle2 className="h-3.5 w-3.5" />
-            {isBusy ? 'Authorizing...' : 'Authorize Draft Handoff'}
-          </button>
-          <button
-            type="button"
-            onClick={() => showRejectNote ? onReject(item) : onBeginReject(item.id)}
-            disabled={isBusy || isEditing}
-            className="inline-flex min-h-9 flex-1 items-center justify-center gap-2 rounded-md border border-red-500/40 bg-red-500/10 px-3 py-2 text-xs font-semibold text-red-100 transition hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            <XCircle className="h-3.5 w-3.5" />
-            {isRejected ? 'Rejected' : showRejectNote ? 'Submit Rejection' : 'Reject'}
-          </button>
+          {isPending ? (
+            <>
+              <button
+                type="button"
+                onClick={() => onAuthorize(item)}
+                disabled={isBusy || isEditing}
+                className="inline-flex min-h-9 flex-1 items-center justify-center gap-2 rounded-md border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-xs font-semibold text-emerald-100 transition hover:bg-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                <CheckCircle2 className="h-3.5 w-3.5" />
+                {isBusy ? 'Authorizing...' : 'Authorize Draft Handoff'}
+              </button>
+              <button
+                type="button"
+                onClick={() => showRejectNote ? onReject(item) : onBeginReject(item.id)}
+                disabled={isBusy || isEditing}
+                className="inline-flex min-h-9 flex-1 items-center justify-center gap-2 rounded-md border border-red-500/40 bg-red-500/10 px-3 py-2 text-xs font-semibold text-red-100 transition hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                <XCircle className="h-3.5 w-3.5" />
+                {showRejectNote ? 'Submit Rejection' : 'Reject'}
+              </button>
+            </>
+          ) : null}
         </div>
       ) : null}
     </div>
