@@ -104,7 +104,10 @@ describe('getSocialCommentInboxItem', () => {
   })
 
   it('maps submitted replies and answered comments into responded', () => {
-    expect(getSocialCommentInboxItem(row({ reply_submission_state: 'submitted' })).status).toBe('responded')
+    const submitted = getSocialCommentInboxItem(row({ reply_submission_state: 'submitted' }))
+    expect(submitted.status).toBe('responded')
+    expect(submitted.submittedReplyLocked).toBe(true)
+    expect(submitted.submittedReplyLockReason).toContain('submitted provider evidence')
     expect(getSocialCommentInboxItem(row({
       classification_status: 'ignored',
       response_approval_state: 'rejected',

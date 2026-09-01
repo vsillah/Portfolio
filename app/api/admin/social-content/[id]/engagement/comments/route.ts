@@ -498,6 +498,21 @@ export async function POST(
   let integrationNote = 'No external comment reply was submitted. This action only updated canonical local workflow state.'
 
   if (hasSubmittedEvidence && action !== 'submit') {
+    if (action === 'return_to_review') {
+      return responseWithComments({
+        post,
+        contentId: params.id,
+        status: 409,
+        ok: false,
+        blocked: true,
+        message: 'Reply already has submitted provider evidence. Local revision is locked to preserve the canonical provider record.',
+        integrationNote: 'No external comment reply was submitted. Existing provider reply evidence remains authoritative, and no local no-op revision action was recorded.',
+        extra: {
+          already_submitted: true,
+        },
+      })
+    }
+
     patch = {
       updated_by: actorId,
       metadata: appendActionHistory(comment.metadata, {

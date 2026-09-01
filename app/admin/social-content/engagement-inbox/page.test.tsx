@@ -436,6 +436,23 @@ describe('SocialCommentInboxPage', () => {
 
     fireEvent.click(panel.getByRole('button', { name: /^Revise Reply$/i }))
 
+    expect(await panel.findByText('Revision mode')).toBeInTheDocument()
+    expect(await panel.findByLabelText('Reply revision')).toHaveValue('This reply needs a sharper answer.')
+    expect(panel.getByRole('button', { name: /^Return to Review$/i })).toBeInTheDocument()
+    expect(panel.queryByRole('button', { name: /^Revise Reply$/i })).not.toBeInTheDocument()
+    expect(fetchMock).not.toHaveBeenCalledWith(
+      '/api/admin/social-content/social-1/engagement/comments',
+      expect.objectContaining({
+        method: 'POST',
+        body: expect.stringContaining('"action":"return_to_review"'),
+      }),
+    )
+
+    fireEvent.change(panel.getByLabelText('Reply revision'), {
+      target: { value: 'Revised reply with a clearer answer.' },
+    })
+    fireEvent.click(panel.getByRole('button', { name: /^Return to Review$/i }))
+
     await waitFor(() => {
       expect(fetchMock).toHaveBeenCalledWith(
         '/api/admin/social-content/social-1/engagement/comments',
@@ -449,10 +466,75 @@ describe('SocialCommentInboxPage', () => {
       '/api/admin/social-content/social-1/engagement/comments',
       expect.objectContaining({
         method: 'POST',
-        body: expect.stringContaining('This reply needs a sharper answer.'),
+        body: expect.stringContaining('Revised reply with a clearer answer.'),
       }),
     )
     expect(await screen.findByText(/Revised reply saved and returned to review/i)).toBeInTheDocument()
+  })
+
+  it('locks rejected responded replies with submitted provider evidence inline and avoids no-op posts', async () => {
+    const lockedComment = {
+      ...comment,
+      platform: 'youtube',
+      providerPermalink: 'https://youtube.example/comment/1',
+      status: 'responded',
+      approvalState: 'rejected',
+      draftReply: 'This rejected reply was already submitted.',
+      submittedReplyLocked: true,
+      submittedReplyLockReason: 'Reply already has submitted provider evidence. Local revision is locked so Portfolio does not rewrite or obscure the canonical provider record.',
+      providerCapability: {
+        provider: 'youtube_data_api',
+        automaticReply: true,
+        verified: true,
+        humanGateSatisfied: false,
+        blocker: 'Submitted provider evidence is authoritative.',
+        recoveryPath: 'Review provider evidence before making any local correction.',
+      },
+      actionHistory: [{
+        action: 'reject',
+        at: '2026-08-06T12:05:00.000Z',
+        by: 'admin-user',
+        note: 'Rejected after provider evidence existed.',
+      }],
+    }
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
+      if (init?.method === 'POST') {
+        throw new Error('Submitted-evidence locked replies must not post local no-op actions.')
+      }
+
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          items: [lockedComment],
+          summary: { total: 1, new: 0, needs_qa: 0, auto_send_pending: 0, lead: 0, escalated: 0, responded: 1, ignored: 0 },
+          filteredSummary: { total: 1, new: 0, needs_qa: 0, auto_send_pending: 0, lead: 0, escalated: 0, responded: 1, ignored: 0 },
+          alertReliability,
+        }),
+      } as Response
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    render(<SocialCommentInboxPage />)
+
+    const rejectedHeading = await screen.findByText('Reply rejected')
+    const card = rejectedHeading.closest('article')
+    expect(card).toBeTruthy()
+    const panel = within(card as HTMLElement)
+    expect(panel.getByText('Provider evidence locked')).toBeInTheDocument()
+    expect(panel.getByText(/Local revision is locked/i)).toBeInTheDocument()
+    expect(panel.queryByRole('button', { name: /^Revise Reply$/i })).not.toBeInTheDocument()
+    const lockedButton = panel.getByRole('button', { name: /^Revision Locked$/i })
+    expect(lockedButton).toBeDisabled()
+
+    fireEvent.click(lockedButton)
+    fireEvent.click(lockedButton)
+
+    expect(fetchMock).not.toHaveBeenCalledWith(
+      '/api/admin/social-content/social-1/engagement/comments',
+      expect.objectContaining({ method: 'POST' }),
+    )
+    expect(screen.queryByText(/local action was recorded without changing submitted state/i)).not.toBeInTheDocument()
   })
 
   it('does not offer provider submit for already responded comments', async () => {

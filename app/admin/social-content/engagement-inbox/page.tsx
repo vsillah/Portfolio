@@ -185,6 +185,8 @@ export default function SocialCommentInboxPage() {
   const [notice, setNotice] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const [drafts, setDrafts] = useState<Record<string, string>>({})
   const [revisionNotes, setRevisionNotes] = useState<Record<string, string>>({})
+  const [revisionMode, setRevisionMode] = useState<Record<string, boolean>>({})
+  const [commentNotices, setCommentNotices] = useState<Record<string, { type: 'success' | 'error'; text: string }>>({})
   const [unavailable, setUnavailable] = useState<InboxUnavailableState | null>(null)
   const [alertReliability, setAlertReliability] = useState<AlertReliabilityStatus | null>(null)
 
@@ -302,8 +304,24 @@ export default function SocialCommentInboxPage() {
     comment: SocialCommentInboxItem,
     action: 'draft_response' | 'approve' | 'reject' | 'ignore' | 'submit' | 'return_to_review',
   ) => {
+    if (action === 'return_to_review' && comment.submittedReplyLocked) {
+      setCommentNotices((current) => ({
+        ...current,
+        [comment.id]: {
+          type: 'error',
+          text: comment.submittedReplyLockReason
+            || 'Reply already has submitted provider evidence. Local revision is locked.',
+        },
+      }))
+      return
+    }
     setActionLoading(`${comment.id}:${action}`)
     setNotice(null)
+    setCommentNotices((current) => {
+      const next = { ...current }
+      delete next[comment.id]
+      return next
+    })
     try {
       const session = await getCurrentSession()
       if (!session) return
@@ -324,21 +342,33 @@ export default function SocialCommentInboxPage() {
       })
       const data = await response.json()
       if (!response.ok && response.status !== 409) throw new Error(data.error || data.message || 'Comment action failed')
-      setNotice({
-        type: response.ok ? 'success' : 'error',
-        text: action === 'draft_response' && response.ok
-          ? 'Draft response generated in the Draft reply box. Review it before approval.'
-          : data.message || (response.ok ? 'Comment action recorded.' : 'Comment action blocked.'),
-      })
+      setCommentNotices((current) => ({
+        ...current,
+        [comment.id]: {
+          type: response.ok ? 'success' : 'error',
+          text: action === 'draft_response' && response.ok
+            ? 'Draft response generated in the Draft reply box. Review it before approval.'
+            : data.message || (response.ok ? 'Comment action recorded.' : 'Comment action blocked.'),
+        },
+      }))
       if (action === 'draft_response' && response.ok) {
         setFocusedCommentId(comment.id)
       }
       if (action === 'reject' && response.ok) {
         setRevisionNotes((current) => ({ ...current, [comment.id]: '' }))
       }
+      if (action === 'return_to_review' && response.ok) {
+        setRevisionMode((current) => ({ ...current, [comment.id]: false }))
+      }
       await fetchComments()
     } catch (error) {
-      setNotice({ type: 'error', text: error instanceof Error ? error.message : 'Comment action failed' })
+      setCommentNotices((current) => ({
+        ...current,
+        [comment.id]: {
+          type: 'error',
+          text: error instanceof Error ? error.message : 'Comment action failed',
+        },
+      }))
     } finally {
       setActionLoading(null)
     }
@@ -592,6 +622,8 @@ export default function SocialCommentInboxPage() {
             const isFocused = focusedCommentId === comment.id || focusedCommentId === comment.providerCommentId
             const draftText = drafts[comment.id]?.trim() ?? ''
             const isRejected = comment.approvalState === 'rejected'
+            const isRevisionMode = revisionMode[comment.id] === true
+            const inlineNotice = commentNotices[comment.id]
             return (
               <article
                 key={comment.id}
@@ -657,38 +689,40 @@ export default function SocialCommentInboxPage() {
                         {comment.classification.label}{comment.classification.reason ? `: ${comment.classification.reason}` : ''}
                       </p>
                     </div>
-                    <label className="block text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-                      <span className="flex flex-wrap items-center gap-2">
-                        <span>Draft reply</span>
-                        {draftText && (
-                          <span className="rounded-full border border-blue-500/35 bg-blue-500/10 px-2 py-0.5 text-[0.65rem] font-semibold tracking-normal text-blue-100">
-                            Generated response ready for review
-                          </span>
-                        )}
-                        {draftText && (
-                          <span className="group relative inline-flex">
-                            <button
-                              type="button"
-                              aria-label="Generated reply guardrail"
-                              title="This generated response stays local until approval and provider submission gates pass."
-                              className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-blue-500/35 bg-blue-500/10 text-blue-100"
-                            >
-                              <Info className="h-3.5 w-3.5" />
-                            </button>
-                            <span className="pointer-events-none absolute left-0 top-7 z-10 hidden w-64 rounded-md border border-blue-500/35 bg-background px-3 py-2 text-xs font-normal normal-case leading-5 tracking-normal text-blue-100 shadow-lg group-hover:block group-focus-within:block">
-                              This generated response stays local until approval and provider submission gates pass.
+                    {!isRejected && (
+                      <label className="block text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                        <span className="flex flex-wrap items-center gap-2">
+                          <span>Draft reply</span>
+                          {draftText && (
+                            <span className="rounded-full border border-blue-500/35 bg-blue-500/10 px-2 py-0.5 text-[0.65rem] font-semibold tracking-normal text-blue-100">
+                              Generated response ready for review
                             </span>
-                          </span>
-                        )}
-                      </span>
-                      <textarea
-                        value={drafts[comment.id] ?? ''}
-                        onChange={(event) => setDrafts((current) => ({ ...current, [comment.id]: event.target.value }))}
-                        rows={4}
-                        className={`mt-1 w-full resize-y rounded-lg border bg-background px-3 py-2 text-sm leading-6 text-foreground placeholder:text-muted-foreground ${draftText ? 'border-blue-500/50 shadow-[0_0_0_1px_rgba(96,165,250,0.28)]' : 'border-border'}`}
-                        placeholder="Draft a reply for review. This does not send externally."
-                      />
-                    </label>
+                          )}
+                          {draftText && (
+                            <span className="group relative inline-flex">
+                              <button
+                                type="button"
+                                aria-label="Generated reply guardrail"
+                                title="This generated response stays local until approval and provider submission gates pass."
+                                className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-blue-500/35 bg-blue-500/10 text-blue-100"
+                              >
+                                <Info className="h-3.5 w-3.5" />
+                              </button>
+                              <span className="pointer-events-none absolute left-0 top-7 z-10 hidden w-64 rounded-md border border-blue-500/35 bg-background px-3 py-2 text-xs font-normal normal-case leading-5 tracking-normal text-blue-100 shadow-lg group-hover:block group-focus-within:block">
+                                This generated response stays local until approval and provider submission gates pass.
+                              </span>
+                            </span>
+                          )}
+                        </span>
+                        <textarea
+                          value={drafts[comment.id] ?? ''}
+                          onChange={(event) => setDrafts((current) => ({ ...current, [comment.id]: event.target.value }))}
+                          rows={4}
+                          className={`mt-1 w-full resize-y rounded-lg border bg-background px-3 py-2 text-sm leading-6 text-foreground placeholder:text-muted-foreground ${draftText ? 'border-blue-500/50 shadow-[0_0_0_1px_rgba(96,165,250,0.28)]' : 'border-border'}`}
+                          placeholder="Draft a reply for review. This does not send externally."
+                        />
+                      </label>
+                    )}
                     {isRejected ? (
                       <div className="rounded-lg border border-red-500/35 bg-red-500/10 p-3">
                         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -697,23 +731,68 @@ export default function SocialCommentInboxPage() {
                               <XCircle className="h-4 w-4 shrink-0 text-red-200" />
                               <p className="text-sm font-semibold text-red-100">Reply rejected</p>
                               <span className="rounded-full border border-red-500/35 px-2 py-0.5 text-[0.7rem] font-semibold uppercase text-red-100">
-                                Review locked
+                                {comment.submittedReplyLocked ? 'Provider evidence locked' : isRevisionMode ? 'Revision mode' : 'Review locked'}
                               </span>
                             </div>
                             <p className="mt-2 text-xs leading-5 text-red-50/90">
-                              Approve, reject, and provider submit stay unavailable for this rejected reply until the draft is revised and returned to review.
+                              {comment.submittedReplyLocked
+                                ? comment.submittedReplyLockReason
+                                : isRevisionMode
+                                  ? 'Edit the reply below, then return it to review. No provider reply is sent from this action.'
+                                  : 'Approve, reject, and provider submit stay unavailable for this rejected reply until the draft is revised and returned to review.'}
                             </p>
                           </div>
                           <div className="flex shrink-0 flex-wrap gap-2">
-                            <button
-                              type="button"
-                              onClick={() => runAction(comment, 'return_to_review')}
-                              disabled={actionLoading === actionKey('return_to_review') || !draftText}
-                              className="inline-flex min-h-9 items-center justify-center gap-2 rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs font-semibold text-amber-100 hover:bg-amber-500/20 disabled:cursor-not-allowed disabled:opacity-60"
-                            >
-                              {actionLoading === actionKey('return_to_review') ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <MessageSquare className="h-3.5 w-3.5" />}
-                              Revise Reply
-                            </button>
+                            {comment.submittedReplyLocked ? (
+                              <button
+                                type="button"
+                                disabled
+                                title={comment.submittedReplyLockReason ?? 'Submitted provider evidence locks local revision.'}
+                                className="inline-flex min-h-9 items-center justify-center gap-2 rounded-lg border border-red-500/35 bg-red-500/10 px-3 py-2 text-xs font-semibold text-red-100 opacity-60"
+                              >
+                                <ShieldAlert className="h-3.5 w-3.5" />
+                                Revision Locked
+                              </button>
+                            ) : isRevisionMode ? (
+                              <>
+                                <button
+                                  type="button"
+                                  onClick={() => runAction(comment, 'return_to_review')}
+                                  disabled={actionLoading === actionKey('return_to_review') || !draftText}
+                                  className="inline-flex min-h-9 items-center justify-center gap-2 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-xs font-semibold text-emerald-100 hover:bg-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-60"
+                                >
+                                  {actionLoading === actionKey('return_to_review') ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
+                                  Return to Review
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setRevisionMode((current) => ({ ...current, [comment.id]: false }))}
+                                  disabled={actionLoading === actionKey('return_to_review')}
+                                  className="inline-flex min-h-9 items-center justify-center gap-2 rounded-lg border border-gray-600 px-3 py-2 text-xs font-semibold text-muted-foreground hover:bg-muted disabled:opacity-60"
+                                >
+                                  Cancel
+                                </button>
+                              </>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setRevisionMode((current) => ({ ...current, [comment.id]: true }))
+                                  setCommentNotices((current) => ({
+                                    ...current,
+                                    [comment.id]: {
+                                      type: 'success',
+                                      text: 'Revision mode opened. Edit the reply and return it to review when ready.',
+                                    },
+                                  }))
+                                }}
+                                disabled={!draftText}
+                                className="inline-flex min-h-9 items-center justify-center gap-2 rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs font-semibold text-amber-100 hover:bg-amber-500/20 disabled:cursor-not-allowed disabled:opacity-60"
+                              >
+                                <MessageSquare className="h-3.5 w-3.5" />
+                                Revise Reply
+                              </button>
+                            )}
                             <button
                               type="button"
                               disabled
@@ -725,6 +804,23 @@ export default function SocialCommentInboxPage() {
                             </button>
                           </div>
                         </div>
+                        {isRevisionMode && !comment.submittedReplyLocked ? (
+                          <label className="mt-3 block text-xs font-semibold uppercase tracking-[0.14em] text-red-100/85">
+                            Reply revision
+                            <textarea
+                              value={drafts[comment.id] ?? ''}
+                              onChange={(event) => setDrafts((current) => ({ ...current, [comment.id]: event.target.value }))}
+                              rows={4}
+                              className="mt-1 w-full resize-y rounded-lg border border-red-500/30 bg-background px-3 py-2 text-sm normal-case leading-6 tracking-normal text-foreground placeholder:text-muted-foreground"
+                              placeholder="Revise the reply before returning it to review."
+                            />
+                          </label>
+                        ) : null}
+                        {inlineNotice ? (
+                          <div className={`mt-3 rounded-lg border p-3 text-xs leading-5 ${inlineNotice.type === 'success' ? 'border-emerald-500/35 bg-emerald-500/10 text-emerald-100' : 'border-red-500/35 bg-red-500/10 text-red-100'}`}>
+                            {inlineNotice.text}
+                          </div>
+                        ) : null}
                       </div>
                     ) : (
                       <div className="space-y-3">
@@ -785,6 +881,11 @@ export default function SocialCommentInboxPage() {
                             Submit
                           </button>
                         </div>
+                        {inlineNotice ? (
+                          <div className={`rounded-lg border p-3 text-xs leading-5 ${inlineNotice.type === 'success' ? 'border-emerald-500/35 bg-emerald-500/10 text-emerald-100' : 'border-red-500/35 bg-red-500/10 text-red-100'}`}>
+                            {inlineNotice.text}
+                          </div>
+                        ) : null}
                       </div>
                     )}
                   </div>

@@ -848,4 +848,35 @@ describe('/api/admin/social-content/[id]/engagement/comments', () => {
       status: 'responded',
     })
   })
+
+  it('blocks return-to-review on submitted provider evidence without recording a no-op action', async () => {
+    installDbMocks({
+      comment: {
+        ...submittedYouTubeCommentRow,
+        response_approval_state: 'rejected',
+      },
+    })
+
+    const response = await POST(request({
+      action: 'return_to_review',
+      comment_id: 'comment-1',
+      draft_reply: 'Trying to revise after provider submission.',
+    }) as never, { params: { id: 'social-1' } })
+    const body = await response.json()
+
+    expect(response.status).toBe(409)
+    expect(body).toMatchObject({
+      ok: false,
+      blocked: true,
+      already_submitted: true,
+      message: 'Reply already has submitted provider evidence. Local revision is locked to preserve the canonical provider record.',
+    })
+    expect(body.integration_note).toContain('no local no-op revision action was recorded')
+    expect(mocks.update).not.toHaveBeenCalled()
+    expect(body.comments[0]).toMatchObject({
+      status: 'responded',
+      approvalState: 'rejected',
+      submittedReplyLocked: true,
+    })
+  })
 })

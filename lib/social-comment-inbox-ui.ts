@@ -62,6 +62,8 @@ export interface SocialCommentInboxItem {
   }
   draftReply: string
   approvalState: 'not_started' | 'drafted' | 'approved' | 'rejected'
+  submittedReplyLocked: boolean
+  submittedReplyLockReason: string | null
   providerCapability: SocialCommentProviderCapabilityUi
   actionHistory: SocialCommentActionHistoryItem[]
   createdAt: string | null
@@ -327,9 +329,13 @@ export function getSocialCommentInboxItem(
   const socialContentId = asString(row.content_id) || asString(post?.id)
   const postInfo = postProjection(post, socialContentId || 'unknown')
   const hasSubmittedEvidence = Boolean(
-    asString(row.reply_provider_comment_id)
+    replyState === 'submitted'
+    || asString(row.reply_provider_comment_id)
     || asString(row.reply_submitted_at)
   )
+  const submittedReplyLockReason = hasSubmittedEvidence
+    ? 'Reply already has submitted provider evidence. Local revision is locked so Portfolio does not rewrite or obscure the canonical provider record.'
+    : null
 
   return {
     id: asString(row.id) || asString(row.provider_comment_id) || `${socialContentId || platform}-comment`,
@@ -347,6 +353,8 @@ export function getSocialCommentInboxItem(
     },
     draftReply: asString(row.proposed_reply_text) || asString(row.approved_reply_text),
     approvalState: uiApprovalState(approvalState, replyState),
+    submittedReplyLocked: hasSubmittedEvidence,
+    submittedReplyLockReason,
     providerCapability: normalizeCapability(row, platform, approvalState),
     actionHistory: actionHistoryFromMetadata(metadata),
     createdAt: asStringOrNull(row.captured_at),

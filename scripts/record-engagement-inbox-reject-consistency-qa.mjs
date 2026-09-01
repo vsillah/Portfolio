@@ -7,13 +7,14 @@ import { promisify } from 'node:util'
 
 const execFileAsync = promisify(execFile)
 const root = process.cwd()
-const baseUrl = process.env.QA_BASE_URL || 'http://127.0.0.1:3108'
-const outputDir = path.join(root, 'docs', 'qa')
-const rawVideoDir = path.join(outputDir, '.engagement-inbox-reject-video')
-const desktopMp4Path = path.join(outputDir, 'engagement-inbox-reject-consistency-qa-2026-09-01.mp4')
-const mobileMp4Path = path.join(outputDir, 'engagement-inbox-reject-consistency-mobile-qa-2026-09-01.mp4')
-const receiptPath = path.join(outputDir, 'engagement-inbox-reject-consistency-receipt-2026-09-01.json')
-const exactPath = '/admin/social-content/engagement-inbox?comment=comment-qa-1#social-comment-review-gate'
+const baseUrl = (process.env.QA_BASE_URL || 'http://127.0.0.1:3108').replace(/\/$/, '')
+const outputDir = path.join(root, 'docs', 'qa', 'slack-approval-lifecycle')
+const rawVideoDir = path.join(root, 'tmp', 'engagement-inbox-reject-video')
+const desktopMp4Path = path.join(outputDir, 'engagement-inbox-rejected-reply-recovery-qa-2026-09-01.mp4')
+const mobileMp4Path = path.join(outputDir, 'engagement-inbox-rejected-reply-mobile-qa-2026-09-01.mp4')
+const screenshotPath = path.join(outputDir, 'engagement-inbox-rejected-reply-locked-state-2026-09-01.png')
+const receiptPath = path.join(outputDir, 'engagement-inbox-rejected-reply-receipt-2026-09-01.json')
+const exactPath = '/admin/social-content/engagement-inbox?comment=comment-qa-locked&post=social-qa-locked&review=reply&source=slack#social-comment-review-gate'
 const exactUrl = `${baseUrl}${exactPath}`
 
 if (!existsSync(path.join(root, 'node_modules'))) {
@@ -61,12 +62,12 @@ const session = {
   user,
 }
 
-const rejectedComment = {
-  id: 'comment-qa-1',
+const recoverableRejectedComment = {
+  id: 'comment-qa-recoverable',
   socialContentId: 'social-qa-1',
-  platform: 'linkedin',
-  providerCommentId: 'urn:li:comment:qa-1',
-  providerPermalink: 'https://linkedin.example.test/comment/qa-1',
+  platform: 'youtube',
+  providerCommentId: 'youtube-comment-qa-1',
+  providerPermalink: 'https://youtube.example.test/comment/qa-1',
   authorDisplayName: 'Synthetic Reviewer',
   body: 'Can this reply explain the approval boundary clearly?',
   status: 'needs_qa',
@@ -77,10 +78,12 @@ const rejectedComment = {
   },
   draftReply: 'Original rejected reply: yes, this workflow can help.',
   approvalState: 'rejected',
+  submittedReplyLocked: false,
+  submittedReplyLockReason: null,
   providerCapability: {
-    provider: 'linkedin_organization',
-    automaticReply: false,
-    verified: false,
+    provider: 'youtube_data_api',
+    automaticReply: true,
+    verified: true,
     humanGateSatisfied: false,
     blocker: 'Human approval is required before any reply can be submitted.',
     recoveryPath: 'Reply manually from the provider permalink after a separate provider gate.',
@@ -99,7 +102,47 @@ const rejectedComment = {
   postExcerpt: 'Synthetic Portfolio QA post. No external publishing or provider submission is represented.',
 }
 
-let currentComment = rejectedComment
+const submittedLockedComment = {
+  id: 'comment-qa-locked',
+  socialContentId: 'social-qa-locked',
+  platform: 'youtube',
+  providerCommentId: 'youtube-comment-submitted-1',
+  providerPermalink: 'https://youtube.example.test/comment/submitted-1',
+  authorDisplayName: 'Synthetic Submitted Viewer',
+  body: 'This reply already has provider evidence. Can I revise it?',
+  status: 'responded',
+  classification: {
+    label: 'answered comment',
+    priority: 'medium',
+    reason: 'Synthetic submitted-evidence boundary case.',
+  },
+  draftReply: 'This rejected reply was already submitted to the provider.',
+  approvalState: 'rejected',
+  submittedReplyLocked: true,
+  submittedReplyLockReason: 'Reply already has submitted provider evidence. Local revision is locked so Portfolio does not rewrite or obscure the canonical provider record.',
+  providerCapability: {
+    provider: 'youtube_data_api',
+    automaticReply: true,
+    verified: true,
+    humanGateSatisfied: false,
+    blocker: 'Submitted provider evidence is authoritative.',
+    recoveryPath: 'Review provider evidence before making any local correction.',
+  },
+  actionHistory: [{
+    action: 'reject',
+    at: '2026-09-01T12:08:00.000Z',
+    by: 'qa-admin-user',
+    note: 'Rejected after provider evidence existed.',
+  }],
+  createdAt: '2026-09-01T11:55:00.000Z',
+  updatedAt: '2026-09-01T12:08:00.000Z',
+  campaignId: 'campaign-qa',
+  campaignLabel: 'Synthetic Engagement QA',
+  postLabel: 'Synthetic submitted reply review',
+  postExcerpt: 'Synthetic submitted provider evidence case. No external publishing or provider submission is represented.',
+}
+
+let currentComments = [submittedLockedComment, recoverableRejectedComment]
 const capturedActions = []
 const externalRequests = []
 
@@ -109,25 +152,25 @@ function isBlockedExternal(url) {
 
 function inboxResponse() {
   return {
-    items: [currentComment],
+    items: currentComments,
     summary: {
-      total: 1,
+      total: 2,
       new: 0,
       needs_qa: 1,
       auto_send_pending: 0,
       lead: 0,
       escalated: 0,
-      responded: 0,
+      responded: 1,
       ignored: 0,
     },
     filteredSummary: {
-      total: 1,
+      total: 2,
       new: 0,
       needs_qa: 1,
       auto_send_pending: 0,
       lead: 0,
       escalated: 0,
-      responded: 0,
+      responded: 1,
       ignored: 0,
     },
     alertReliability: {
@@ -140,10 +183,10 @@ function inboxResponse() {
         reason: 'qa_fixture_no_external_dispatch',
       },
       counts: {
-        itemCount: 1,
+        itemCount: 2,
         sent: 0,
         deduped: 0,
-        skipped: 1,
+        skipped: 2,
         errors: 0,
       },
       reasons: ['Synthetic fixture only.'],
@@ -162,6 +205,10 @@ async function installRoutes(page) {
     const request = route.request()
     const url = new URL(request.url())
     const pathname = url.pathname
+
+    if (url.hostname.endsWith('.supabase.co') && pathname.includes('/auth/v1/token')) {
+      return route.fulfill({ status: 200, json: session })
+    }
 
     if (url.hostname.endsWith('.supabase.co') && pathname.includes('/auth/v1/user')) {
       return route.fulfill({ status: 200, json: user })
@@ -195,8 +242,8 @@ async function installRoutes(page) {
       const body = JSON.parse(request.postData() || '{}')
       capturedActions.push(body)
       if (body.action === 'return_to_review') {
-        currentComment = {
-          ...currentComment,
+        const revisedComment = {
+          ...recoverableRejectedComment,
           draftReply: body.draft_reply,
           approvalState: 'drafted',
           actionHistory: [
@@ -206,16 +253,17 @@ async function installRoutes(page) {
               by: user.id,
               note: null,
             },
-            ...currentComment.actionHistory,
+            ...recoverableRejectedComment.actionHistory,
           ],
         }
+        currentComments = [submittedLockedComment, revisedComment]
         return route.fulfill({
           status: 200,
           json: {
             ok: true,
             blocked: false,
             message: 'Revised reply saved and returned to review. Approval is required before any provider submission.',
-            comments: [currentComment],
+            comments: currentComments,
             integration_note: 'No external comment reply was submitted. This action only updated canonical local workflow state.',
           },
         })
@@ -226,7 +274,22 @@ async function installRoutes(page) {
           ok: false,
           blocked: true,
           message: 'Synthetic QA blocks all non-recovery actions.',
-          comments: [currentComment],
+          comments: currentComments,
+        },
+      })
+    }
+
+    if (pathname === '/api/admin/social-content/social-qa-locked/engagement/comments') {
+      capturedActions.push(JSON.parse(request.postData() || '{}'))
+      return route.fulfill({
+        status: 409,
+        json: {
+          ok: false,
+          blocked: true,
+          already_submitted: true,
+          message: 'Reply already has submitted provider evidence. Local revision is locked to preserve the canonical provider record.',
+          comments: currentComments,
+          integration_note: 'No external comment reply was submitted. Existing provider reply evidence remains authoritative, and no local no-op revision action was recorded.',
         },
       })
     }
@@ -241,6 +304,14 @@ async function seedSession(page) {
   ).hostname.split('.')[0]
   const storageKey = `sb-${supabaseProjectRef}-auth-token`
   await page.addInitScript(({ key, value }) => {
+    const serialized = JSON.stringify(value)
+    const originalGetItem = window.Storage.prototype.getItem
+    window.Storage.prototype.getItem = function getItemWithQaSession(storageKey) {
+      if (/^sb-.*-auth-token$/.test(String(storageKey))) {
+        return originalGetItem.call(this, storageKey) ?? serialized
+      }
+      return originalGetItem.call(this, storageKey)
+    }
     window.localStorage.setItem(key, JSON.stringify(value))
     window.localStorage.setItem('sb-127-auth-token', JSON.stringify(value))
   }, { key: storageKey, value: session })
@@ -298,7 +369,7 @@ async function convertToMp4(sourceVideo, targetPath) {
 }
 
 async function runScenario(browser, viewport, mp4Path, mobile = false) {
-  currentComment = rejectedComment
+  currentComments = [submittedLockedComment, recoverableRejectedComment]
   capturedActions.length = 0
 
   const context = await browser.newContext({
@@ -312,32 +383,48 @@ async function runScenario(browser, viewport, mp4Path, mobile = false) {
   await page.goto(exactUrl, { waitUntil: 'networkidle' })
   const gate = page.locator('#social-comment-review-gate')
   await gate.waitFor({ timeout: 15_000 })
-  await expect(gate.getByText('Reply rejected')).toBeVisible()
-  await expect(gate.getByText('Review locked')).toBeVisible()
-  await expect(gate.getByRole('button', { name: 'Approve', exact: true })).toHaveCount(0)
-  await expect(gate.getByRole('button', { name: 'Reject', exact: true })).toHaveCount(0)
-  await expect(gate.getByRole('button', { name: 'Submit', exact: true })).toBeDisabled()
-  await expect(gate.getByRole('button', { name: 'Revise Reply', exact: true })).toBeVisible()
+  const lockedCard = page.getByText('Synthetic Submitted Viewer').first().locator('xpath=ancestor::article[1]')
+  const recoverableCard = page.getByText('Synthetic Reviewer').first().locator('xpath=ancestor::article[1]')
+
+  await expect(lockedCard.getByText('Reply rejected')).toBeVisible()
+  await expect(lockedCard.getByText('Provider evidence locked')).toBeVisible()
+  await expect(lockedCard.getByText(/Local revision is locked/i)).toBeVisible()
+  await expect(lockedCard.getByRole('button', { name: 'Revise Reply', exact: true })).toHaveCount(0)
+  await expect(lockedCard.getByRole('button', { name: 'Revision Locked', exact: true })).toBeDisabled()
+  await expect(lockedCard.getByRole('button', { name: 'Submit', exact: true })).toBeDisabled()
+  await lockedCard.getByRole('button', { name: 'Revision Locked', exact: true }).click({ force: true })
+  await lockedCard.getByRole('button', { name: 'Revision Locked', exact: true }).click({ force: true })
+  expect(capturedActions).toHaveLength(0)
+  await expect(page.getByText(/local action was recorded without changing submitted state/i)).toHaveCount(0)
   await verifyNoHorizontalOverflow(page)
   await annotate(
     page,
-    `${mobile ? 'Mobile 390x844' : 'Desktop 1280x720'}: rejected reply is locked; approve/reject are unavailable; Submit is blocked until a fresh approval exists.`,
+    `${mobile ? 'Mobile 390x844' : 'Desktop 1280x720'}: Slack engagement deep link opens the rejected/responded YouTube reply. Submitted provider evidence locks revision inline; repeat clicks do not post local no-op actions.`,
   )
   await page.waitForTimeout(1100)
 
-  const textarea = gate.getByPlaceholder('Draft a reply for review. This does not send externally.')
-  await textarea.fill('Revised reply: this can help, but Portfolio still requires human approval before any provider submission.')
-  await gate.getByRole('button', { name: 'Revise Reply', exact: true }).click()
+  await recoverableCard.scrollIntoViewIfNeeded()
+  await expect(recoverableCard.getByText('Review locked')).toBeVisible()
+  await recoverableCard.getByRole('button', { name: 'Revise Reply', exact: true }).click()
+  await expect(recoverableCard.getByText('Revision mode')).toBeVisible()
+  await expect(recoverableCard.getByLabel('Reply revision')).toBeVisible()
+  await expect(recoverableCard.getByRole('button', { name: 'Revise Reply', exact: true })).toHaveCount(0)
+  expect(capturedActions).toHaveLength(0)
+  await recoverableCard.getByLabel('Reply revision').fill('Revised reply: this can help, but Portfolio still requires human approval before any provider submission.')
+  await recoverableCard.getByRole('button', { name: 'Return to Review', exact: true }).click()
   await expect(page.getByText('Revised reply saved and returned to review')).toBeVisible()
-  await expect(gate.getByRole('button', { name: 'Approve', exact: true })).toBeVisible()
-  await expect(gate.getByRole('button', { name: 'Reject', exact: true })).toBeVisible()
-  await expect(gate.getByRole('button', { name: 'Submit', exact: true })).toBeDisabled()
+  await expect(recoverableCard.getByRole('button', { name: 'Approve', exact: true })).toBeVisible()
+  await expect(recoverableCard.getByRole('button', { name: 'Reject', exact: true })).toBeVisible()
+  await expect(recoverableCard.getByRole('button', { name: 'Submit', exact: true })).toBeDisabled()
   await annotate(
     page,
-    'Recovery check: Revise Reply saved the edited draft and returned the card to pending reply review; provider submission remains blocked.',
+    'Recovery check: recoverable rejection opens in-place revision mode first, then Return to Review persists the edited draft locally. Provider submission remains blocked.',
     mobile ? 'top' : 'bottom',
   )
   await verifyNoHorizontalOverflow(page)
+  if (!mobile) {
+    await page.screenshot({ path: screenshotPath, fullPage: true })
+  }
   await page.waitForTimeout(1400)
 
   const rawVideo = await closeRecordedContext(context, page)
@@ -366,7 +453,13 @@ if (!mobile.capturedActions.some((action) => action.action === 'return_to_review
 }
 
 await writeFile(receiptPath, JSON.stringify({
+  generatedAt: new Date().toISOString(),
+  routesCovered: [exactPath],
+  previewUrl: baseUrl,
   exactUrl,
+  videoPath: path.relative(root, desktopMp4Path),
+  mobileVideoPath: path.relative(root, mobileMp4Path),
+  screenshotPath: path.relative(root, screenshotPath),
   desktopMp4Path,
   mobileMp4Path,
   desktop: {
