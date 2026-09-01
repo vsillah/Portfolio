@@ -1,0 +1,23 @@
+{
+  "generatedAt": "2026-09-01T17:08:43.584Z",
+  "scenario": "social-copy-prompt-leakage-gate",
+  "source": "synthetic_fixture",
+  "videoPath": "docs/qa/social-copy-leakage-gate/social-copy-leakage-gate.mp4",
+  "screenshots": {
+    "blocked": "docs/qa/social-copy-leakage-gate/social-copy-leakage-gate-blocked.png",
+    "clean": "docs/qa/social-copy-leakage-gate/social-copy-leakage-gate-clean.png"
+  },
+  "assertions": [
+    "Leaked prompt/meta-instruction copy renders Copy: Blocked.",
+    "Leaked copy disables Approve Draft.",
+    "Revision-needed guidance is visible on the canonical copy review surface.",
+    "Clean copy removes the block and returns to normal Copy: In Review state."
+  ],
+  "safety": {
+    "externalRequests": [],
+    "productionData": false,
+    "providersCalled": false,
+    "publishingOrScheduling": false,
+    "gmailSlackSms": false
+  }
+}

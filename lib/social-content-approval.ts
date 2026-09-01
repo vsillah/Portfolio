@@ -5,6 +5,8 @@ import { syncCampaignCalendarForSocialContent } from '@/lib/social-content-calen
 import {
   deriveSocialContentLifecycleProjection,
   lifecyclePrerequisiteFailure,
+  socialContentFinalCopyQualityFailure,
+  validateSocialContentFinalCopyQuality,
 } from '@/lib/social-content-lifecycle'
 
 type SocialContentApprovalPayload = Record<string, unknown>
@@ -119,6 +121,13 @@ export async function approveSocialContentItem({
   }
 
   const ragContext = recordValue(item.rag_context)
+  const copyQualityFailure = socialContentFinalCopyQualityFailure(
+    validateSocialContentFinalCopyQuality({ ...item, rag_context: ragContext }),
+  )
+  if (copyQualityFailure) {
+    throw new SocialContentApprovalError(409, copyQualityFailure)
+  }
+
   const copyPrerequisiteFailure = lifecyclePrerequisiteFailure(
     deriveSocialContentLifecycleProjection({ item: { ...item, rag_context: ragContext } }),
     'copy',
