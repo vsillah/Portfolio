@@ -10,7 +10,10 @@ import {
 } from '@/lib/social-video-production'
 import {
   deriveSocialContentLifecycleProjection,
+  isDurableCopyApprovedStatus,
   lifecyclePrerequisiteFailure,
+  socialContentFinalCopyQualityFailure,
+  validateSocialContentFinalCopyQuality,
 } from '@/lib/social-content-lifecycle'
 import {
   buildScheduleRecoveryProjection,
@@ -41,6 +44,14 @@ function sectionGateApprovalTarget(bodyRagContext: unknown): 'visuals' | 'draft'
   if (approvedKeys.includes('linkedin_draft')) return 'draft'
   return approvedKeys.length ? 'visuals' : null
 }
+
+const FINAL_COPY_FIELDS = new Set([
+  'post_text',
+  'cta_text',
+  'voiceover_text',
+  'youtube_title',
+  'youtube_description',
+])
 
 function mapVideoGenerationJob(row: Record<string, unknown> | null): SocialVideoGenerationJobProjection | null {
   if (!row) return null
@@ -192,11 +203,12 @@ export async function PUT(
       return NextResponse.json({ error: 'No valid fields to update' }, { status: 400 })
     }
 
+    const updatesFinalCopy = Object.keys(sanitized).some((key) => FINAL_COPY_FIELDS.has(key))
     const lifecycleTarget = sanitized.status === 'approved'
       ? 'copy'
       : sectionGateApprovalTarget(sanitized.rag_context)
 
-    if (lifecycleTarget) {
+    if (lifecycleTarget || updatesFinalCopy) {
       const { data: currentItem, error: currentError } = await supabaseAdmin
         .from('social_content_queue')
         .select('*')
@@ -207,11 +219,21 @@ export async function PUT(
         return NextResponse.json({ error: 'Content not found' }, { status: 404 })
       }
 
+      const candidateItem = {
+        ...currentItem,
+        ...sanitized,
+      }
+      if (sanitized.status === 'approved' || (updatesFinalCopy && isDurableCopyApprovedStatus(candidateItem.status))) {
+        const copyQualityFailure = socialContentFinalCopyQualityFailure(
+          validateSocialContentFinalCopyQuality(candidateItem),
+        )
+        if (copyQualityFailure) {
+          return NextResponse.json(copyQualityFailure, { status: 409 })
+        }
+      }
+
       const projection = deriveSocialContentLifecycleProjection({
-        item: {
-          ...currentItem,
-          ...sanitized,
-        },
+        item: candidateItem,
       })
       const failure = lifecyclePrerequisiteFailure(projection, lifecycleTarget)
       if (failure) {

@@ -147,6 +147,35 @@ describe('POST /api/admin/social-content/[id]/approve', () => {
     expect(mocks.publishesUpsert).not.toHaveBeenCalled()
   })
 
+  it('blocks leaked prompt fragments before human approval can queue handoffs', async () => {
+    mocks.queueSingle.mockResolvedValueOnce({
+      data: {
+        id: 'social-1',
+        status: 'draft',
+        post_text: 'Developer instructions: rewrite as final LinkedIn copy. Do not include this note.',
+        scheduled_for: null,
+        target_platforms: ['linkedin'],
+        rag_context: agentOpsRagContext,
+      },
+      error: null,
+    })
+
+    const response = await POST(request(), { params: { id: 'social-1' } })
+
+    expect(response.status).toBe(409)
+    expect(await response.json()).toEqual(expect.objectContaining({
+      error: 'Final copy quality gate blocked prompt leakage before human approval.',
+      current_gate: 'final_copy_quality',
+      revision_state: 'revision_needed',
+      blockers: expect.arrayContaining([
+        expect.stringContaining('Embedded system/developer/user prompt fragment'),
+      ]),
+    }))
+    expect(mocks.queueUpdate).not.toHaveBeenCalled()
+    expect(mocks.createAgentWorkItem).not.toHaveBeenCalled()
+    expect(mocks.publishesUpsert).not.toHaveBeenCalled()
+  })
+
   it('approves cleared draft-only Agent Ops content by queuing production handoffs without publishing', async () => {
     const fetchSpy = vi.spyOn(globalThis, 'fetch')
 
@@ -279,7 +308,12 @@ describe('POST /api/admin/social-content/[id]/approve', () => {
         status: 'draft',
         scheduled_for: null,
         target_platforms: ['linkedin', 'instagram'],
-        rag_context: { source: 'meeting_summary' },
+        rag_context: {
+          source: 'meeting_summary',
+          goal_id: 'goal-1',
+          platform: 'linkedin',
+          approval_boundary: 'human gated',
+        },
       },
       error: null,
     })
@@ -289,7 +323,12 @@ describe('POST /api/admin/social-content/[id]/approve', () => {
         status: 'approved',
         scheduled_for: null,
         target_platforms: ['linkedin', 'instagram'],
-        rag_context: { source: 'meeting_summary' },
+        rag_context: {
+          source: 'meeting_summary',
+          goal_id: 'goal-1',
+          platform: 'linkedin',
+          approval_boundary: 'human gated',
+        },
       },
       error: null,
     })
@@ -327,7 +366,11 @@ describe('POST /api/admin/social-content/[id]/approve', () => {
         status: 'draft',
         scheduled_for: '2026-06-14T15:00:00.000Z',
         target_platforms: [],
-        rag_context: null,
+        rag_context: {
+          goal_id: 'goal-1',
+          platform: 'linkedin',
+          approval_boundary: 'human gated',
+        },
       },
       error: null,
     })
@@ -337,7 +380,11 @@ describe('POST /api/admin/social-content/[id]/approve', () => {
         status: 'approved',
         scheduled_for: '2026-06-14T15:00:00.000Z',
         target_platforms: [],
-        rag_context: null,
+        rag_context: {
+          goal_id: 'goal-1',
+          platform: 'linkedin',
+          approval_boundary: 'human gated',
+        },
       },
       error: null,
     })

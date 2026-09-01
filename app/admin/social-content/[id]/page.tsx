@@ -67,6 +67,7 @@ import {
   deriveSocialContentLifecycleProjection,
   hasSocialContentVisualPrerequisites,
   isDurableCopyApprovedStatus,
+  validateSocialContentFinalCopyQuality,
 } from '@/lib/social-content-lifecycle'
 import {
   derivePublicationProjection,
@@ -2524,9 +2525,18 @@ function SocialContentDetailPage() {
   const videoPrivacyBlocked = Boolean(productionAssets && !redactionGate.ready)
   const acronymClarityIssues = getAcronymClarityIssues([postText, ctaText].filter(Boolean).join('\n'))
   const copyHasBlockingAcronymIssues = acronymClarityIssues.some((issue) => issue.status === 'needs_expansion')
-  const canApproveCurrentDraft = canApproveAgentPilot && !copyHasBlockingAcronymIssues
+  const copyQualityGate = validateSocialContentFinalCopyQuality({
+    ...item,
+    post_text: postText,
+    cta_text: ctaText || null,
+    voiceover_text: voiceoverText || null,
+  })
+  const copyHasPromptLeakage = copyQualityGate.status === 'blocked'
+  const canApproveCurrentDraft = canApproveAgentPilot && !copyHasBlockingAcronymIssues && !copyHasPromptLeakage
   const approveBlockedTitle = videoPrivacyBlocked
     ? 'Video privacy review required before publish readiness'
+    : copyHasPromptLeakage
+      ? 'Final copy quality gate found internal prompt or meta-instruction leakage'
     : copyHasBlockingAcronymIssues
       ? 'Write out known acronyms before approval'
       : canApproveAgentPilot
@@ -2642,13 +2652,15 @@ function SocialContentDetailPage() {
   const copyGateRejected = item.status === 'rejected'
     || agentPilotCalibrationStatus === 'revision_requested'
     || Boolean(asRecord(agentPilotCalibration?.approval_rejection))
-  const copyGateRawState: GateState = isDurableCopyApprovedStatus(item.status)
-    ? 'approved'
-    : copyGateRejected
-      ? 'rejected'
-    : isEditable
-      ? 'in_review'
-      : gateStateFromRawStatus(item.status)
+  const copyGateRawState: GateState = copyHasPromptLeakage && !copyGateRejected
+    ? 'blocked'
+    : isDurableCopyApprovedStatus(item.status)
+      ? 'approved'
+      : copyGateRejected
+        ? 'rejected'
+        : isEditable
+          ? 'in_review'
+          : gateStateFromRawStatus(item.status)
   const contextSourcePacketPath = asString(ragContext?.launch_packet_path)
     || asString(ragContext?.source_packet_path)
     || asString(ragContext?.source_packet)
@@ -2950,26 +2962,38 @@ function SocialContentDetailPage() {
       waitingOnYou: contextMissingAfterCopyApproval ? 'Yes - context recovery decision' : 'No',
     },
     copy: {
-      title: copyGateState === 'approved'
+      title: copyHasPromptLeakage
+        ? 'Copy needs revision'
+        : copyGateState === 'approved'
         ? 'Copy approved'
         : copyRejectionResolved
           ? 'Copy rejected'
           : 'Copy review',
-      body: copyGateState === 'approved'
+      body: copyHasPromptLeakage
+        ? copyQualityGate.summary
+        : copyGateState === 'approved'
         ? 'The post, CTA, hashtags, and acronym clarity have passed editorial review. This does not authorize visual generation, provider handoff, scheduling, or publication.'
         : copyRejectionResolved
           ? 'The last copy review rejected this draft. Revise the public copy, then return it to copy review before downstream visual and platform work can proceed.'
           : 'Review or revise the public copy before downstream visual and platform work can proceed.',
       owner: 'Vambah / Shaka',
       lastUpdate: item.reviewed_by ? new Date(item.updated_at).toLocaleString() : 'Awaiting editorial decision',
-      nextAction: copyGateState === 'approved'
-        ? 'Move to visual strategy and QA.'
-        : copyRejectionResolved
-          ? 'Edit the draft, then use Return to Copy Review to make it reviewable again.'
-          : copyRejecting
-            ? 'Complete the copy decision in the gate below.'
-            : 'Approve the copy or choose Reject to open optional feedback.',
-      waitingOnYou: copyGateState === 'approved' ? 'No' : copyRejectionResolved ? 'Yes - copy revision' : 'Yes - editorial decision',
+      nextAction: copyHasPromptLeakage
+        ? copyQualityGate.recoveryAction
+        : copyGateState === 'approved'
+          ? 'Move to visual strategy and QA.'
+          : copyRejectionResolved
+            ? 'Edit the draft, then use Return to Copy Review to make it reviewable again.'
+            : copyRejecting
+              ? 'Complete the copy decision in the gate below.'
+              : 'Approve the copy or choose Reject to open optional feedback.',
+      waitingOnYou: copyGateState === 'approved'
+        ? 'No'
+        : copyHasPromptLeakage
+          ? 'Yes - revision needed'
+          : copyRejectionResolved
+            ? 'Yes - copy revision'
+            : 'Yes - editorial decision',
     },
     visuals: {
       title: lifecycleBlockedDetail('visuals') ? 'Visual lifecycle mismatch'
@@ -4151,6 +4175,19 @@ function SocialContentDetailPage() {
                   Copy: {GATE_STATE_CONFIG[copyGateState].label}
                 </span>
               </div>
+              {copyHasPromptLeakage && (
+                <div className="mb-3 rounded-lg border border-red-500/35 bg-red-500/10 p-3 text-sm leading-6 text-red-50">
+                  <p className="font-semibold">Final copy quality gate blocked approval</p>
+                  <p className="mt-1 text-red-50/80">{copyQualityGate.recoveryAction}</p>
+                  <ul className="mt-2 space-y-1 text-xs leading-5 text-red-50/75">
+                    {copyQualityGate.findings.slice(0, 4).map((finding, index) => (
+                      <li key={`${finding.code}-${finding.field}-${index}`}>
+                        {finding.label} in {finding.field}: {finding.excerpt}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
               {isAgentSocialPilot && (
                 <div className="mb-4 rounded-lg border border-blue-500/25 bg-blue-500/10 p-3">
                   <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">

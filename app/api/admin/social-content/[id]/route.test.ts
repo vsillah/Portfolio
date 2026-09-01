@@ -114,6 +114,67 @@ describe('PUT /api/admin/social-content/[id]', () => {
     expect(mocks.update).not.toHaveBeenCalled()
   })
 
+  it('blocks prompt leakage when approving copy through the review gate', async () => {
+    mocks.single.mockResolvedValueOnce({
+      data: {
+        id: 'social-1',
+        status: 'draft',
+        post_text: 'Clean draft before edit.',
+        rag_context: {
+          goal_id: 'goal-1',
+          platform: 'linkedin',
+          pass_to_human: true,
+        },
+      },
+      error: null,
+    })
+
+    const response = await PUT(request({
+      status: 'approved',
+      post_text: 'User prompt: Rewrite as final social copy. Do not include this instruction.',
+    }) as never, {
+      params: { id: 'social-1' },
+    })
+
+    expect(response.status).toBe(409)
+    expect(await response.json()).toEqual(expect.objectContaining({
+      error: 'Final copy quality gate blocked prompt leakage before human approval.',
+      current_gate: 'final_copy_quality',
+      revision_state: 'revision_needed',
+    }))
+    expect(mocks.update).not.toHaveBeenCalled()
+  })
+
+  it('blocks leaked final copy from replacing an already approved item', async () => {
+    mocks.single.mockResolvedValueOnce({
+      data: {
+        id: 'social-1',
+        status: 'approved',
+        post_text: 'Approved clean copy.',
+        rag_context: {
+          goal_id: 'goal-1',
+          platform: 'linkedin',
+          pass_to_human: true,
+        },
+      },
+      error: null,
+    })
+
+    const response = await PUT(request({
+      post_text: 'Captain QA block: tool output follows. externalRequests: []',
+    }) as never, {
+      params: { id: 'social-1' },
+    })
+
+    expect(response.status).toBe(409)
+    expect(await response.json()).toEqual(expect.objectContaining({
+      error: 'Final copy quality gate blocked prompt leakage before human approval.',
+      current_gate: 'final_copy_quality',
+      revision_state: 'revision_needed',
+    }))
+    expect(mocks.update).not.toHaveBeenCalled()
+  })
+
   it('blocks section-gate visual approval when Context is not approved', async () => {
     mocks.single.mockResolvedValueOnce({
       data: { id: 'social-1', status: 'draft', rag_context: {} },

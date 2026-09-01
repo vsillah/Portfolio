@@ -3,8 +3,15 @@ import type { ContentStatus, SocialContentItem, SocialContentPublish } from '@/l
 export type SocialContentLifecycleStep = 'context' | 'copy' | 'visuals' | 'draft' | 'submit' | 'status'
 export type SocialContentLifecycleState = 'approved' | 'in_review' | 'pending' | 'blocked' | 'rejected'
 
-type LifecycleItem = Partial<Pick<SocialContentItem,
+export type LifecycleItem = Partial<Pick<SocialContentItem,
   | 'status'
+  | 'post_text'
+  | 'cta_text'
+  | 'voiceover_text'
+  | 'youtube_title'
+  | 'youtube_description'
+  | 'companion_post_text'
+  | 'carousel_slides'
   | 'rag_context'
   | 'target_platforms'
   | 'image_url'
@@ -34,6 +41,22 @@ export type SocialContentLifecycleProjection = {
   mismatches: SocialContentLifecycleMismatch[]
 }
 
+export type SocialContentCopyQualityFinding = {
+  code: string
+  label: string
+  field: string
+  excerpt: string
+  severity: 'high' | 'medium'
+}
+
+export type SocialContentCopyQualityGate = {
+  status: 'passed' | 'blocked'
+  findings: SocialContentCopyQualityFinding[]
+  checkedFields: string[]
+  summary: string
+  recoveryAction: string
+}
+
 const LIFECYCLE_ORDER: SocialContentLifecycleStep[] = ['context', 'copy', 'visuals', 'draft', 'submit', 'status']
 
 const STEP_LABELS: Record<SocialContentLifecycleStep, string> = {
@@ -55,6 +78,148 @@ function asString(value: unknown): string {
 
 function asArray(value: unknown): unknown[] {
   return Array.isArray(value) ? value : []
+}
+
+function excerptAround(text: string, index: number, length: number) {
+  const start = Math.max(0, index - 48)
+  const end = Math.min(text.length, index + length + 72)
+  const prefix = start > 0 ? '...' : ''
+  const suffix = end < text.length ? '...' : ''
+  return `${prefix}${text.slice(start, end).replace(/\s+/g, ' ').trim()}${suffix}`
+}
+
+const PROMPT_LEAKAGE_PATTERNS: Array<{
+  code: string
+  label: string
+  severity: 'high' | 'medium'
+  pattern: RegExp
+}> = [
+  {
+    code: 'role_prompt_fragment',
+    label: 'Embedded system/developer/user prompt fragment',
+    severity: 'high',
+    pattern: /(?:^|\n)\s*(?:#{1,6}\s*)?(?:system|developer|user|assistant)\s+(?:prompt|message|instructions?)\s*:/i,
+  },
+  {
+    code: 'xml_prompt_tag',
+    label: 'Prompt XML tag leaked into copy',
+    severity: 'high',
+    pattern: /<\/?(?:system|developer|user|assistant|codex_delegation|instructions?|input)\b[^>]*>/i,
+  },
+  {
+    code: 'agent_directive',
+    label: 'Internal agent directive leaked into copy',
+    severity: 'high',
+    pattern: /\b(?:internal\s+)?(?:agent|captain|codex|shaka|amina)\s+(?:instruction|instructions|directive|prompt|qa block|handoff|worktree|lane)\b/i,
+  },
+  {
+    code: 'rewrite_instruction',
+    label: 'Rewrite instruction leaked into final copy',
+    severity: 'high',
+    pattern: /\b(?:rewrite|revise|generate|write)\s+(?:this|the|it|as|into|in the voice of)\b/i,
+  },
+  {
+    code: 'forbidden_content_instruction',
+    label: 'Forbidden-content instruction leaked into copy',
+    severity: 'high',
+    pattern: /\b(?:do not|don't)\s+include\b/i,
+  },
+  {
+    code: 'planning_scaffold',
+    label: 'Planning or checklist scaffold leaked into copy',
+    severity: 'medium',
+    pattern: /(?:^|\n)\s*(?:plan|checklist|todo|acceptance criteria|validation|qa notes?|debug|tool output|provenance|source register)\s*:/i,
+  },
+  {
+    code: 'checkbox_scaffold',
+    label: 'Checklist syntax leaked into copy',
+    severity: 'medium',
+    pattern: /(?:^|\n)\s*[-*]\s*\[[ xX]\]\s+\S+/,
+  },
+  {
+    code: 'tool_debug_metadata',
+    label: 'Tool, provenance, or debug metadata leaked into copy',
+    severity: 'high',
+    pattern: /\b(?:externalRequests|unexpectedRequests|idempotencyKey|rag_context|pass_to_human|current_gate|publish_gate|blocked_actions|tool_call|function_call)\b/i,
+  },
+  {
+    code: 'model_refusal_meta',
+    label: 'Model/meta response text leaked into copy',
+    severity: 'medium',
+    pattern: /\b(?:as an ai|i (?:cannot|can't) comply|i don't have access to|knowledge cutoff)\b/i,
+  },
+]
+
+function collectFinalCopyFields(item: LifecycleItem): Array<{ field: string; text: string }> {
+  const fields: Array<{ field: string; text: string }> = []
+  const add = (field: string, value: unknown) => {
+    const text = asString(value)
+    if (text) fields.push({ field, text })
+  }
+
+  add('post_text', item.post_text)
+  add('cta_text', item.cta_text)
+  add('companion_post_text', item.companion_post_text)
+  add('voiceover_text', item.voiceover_text)
+  add('youtube_title', item.youtube_title)
+  add('youtube_description', item.youtube_description)
+
+  asArray(item.carousel_slides).forEach((slide, index) => {
+    const record = asRecord(slide)
+    if (!record) return
+    for (const key of ['eyebrow', 'headline', 'subhead', 'body', 'blockquote', 'cta_label', 'caption'] as const) {
+      add(`carousel_slides.${index}.${key}`, record[key])
+    }
+  })
+
+  return fields
+}
+
+export function validateSocialContentFinalCopyQuality(item: LifecycleItem): SocialContentCopyQualityGate {
+  const fields = collectFinalCopyFields(item)
+  const findings: SocialContentCopyQualityFinding[] = []
+
+  for (const field of fields) {
+    for (const leakagePattern of PROMPT_LEAKAGE_PATTERNS) {
+      const match = leakagePattern.pattern.exec(field.text)
+      if (!match) continue
+      findings.push({
+        code: leakagePattern.code,
+        label: leakagePattern.label,
+        field: field.field,
+        excerpt: excerptAround(field.text, match.index, match[0].length),
+        severity: leakagePattern.severity,
+      })
+    }
+  }
+
+  return {
+    status: findings.some((finding) => finding.severity === 'high') ? 'blocked' : findings.length ? 'blocked' : 'passed',
+    findings,
+    checkedFields: fields.map((field) => field.field),
+    summary: findings.length
+      ? `Final copy quality gate found ${findings.length} prompt/meta-instruction leakage pattern${findings.length === 1 ? '' : 's'}.`
+      : 'Final copy quality gate passed.',
+    recoveryAction: findings.length
+      ? 'Revise the public copy to remove internal prompts, agent instructions, tool/debug metadata, and planning scaffolding before human approval.'
+      : 'Continue to the normal copy review gate.',
+  }
+}
+
+export function socialContentFinalCopyQualityFailure(
+  qualityGate: SocialContentCopyQualityGate,
+  lifecycleStep: SocialContentLifecycleStep = 'copy',
+) {
+  if (qualityGate.status !== 'blocked') return null
+  return {
+    error: 'Final copy quality gate blocked prompt leakage before human approval.',
+    lifecycle_step: lifecycleStep,
+    current_gate: 'final_copy_quality',
+    revision_state: 'revision_needed',
+    blockers: qualityGate.findings.map((finding) => `${finding.label} in ${finding.field}`),
+    recovery_action: qualityGate.recoveryAction,
+    quality_gate: qualityGate,
+  }
 }
 
 function gateApproved(ragContext: Record<string, unknown> | null, key: string) {
@@ -159,6 +324,7 @@ export function deriveSocialContentLifecycleProjection(input: {
   const ragContext = asRecord(item.rag_context)
   const submissionOrPublishEvidence = hasSubmissionOrPublishEvidence(item)
   const actualPublishedEvidence = hasActualPublishedEvidence(item)
+  const copyQualityGate = validateSocialContentFinalCopyQuality(item)
   const rawStates: Record<SocialContentLifecycleStep, SocialContentLifecycleState> = {
     context: hasSocialContentContextEvidence(item) ? 'approved' : 'pending',
     copy: isDurableCopyApprovedStatus(item.status) ? 'approved' : item.status === 'rejected' ? 'rejected' : 'pending',
@@ -167,6 +333,9 @@ export function deriveSocialContentLifecycleProjection(input: {
     submit: asString(asRecord(ragContext?.platform_submission_gate)?.status) === 'approved' || submissionOrPublishEvidence ? 'approved' : 'pending',
     status: actualPublishedEvidence ? 'approved' : 'pending',
     ...input.rawStates,
+  }
+  if (copyQualityGate.status === 'blocked' && rawStates.copy !== 'rejected') {
+    rawStates.copy = 'blocked'
   }
   const steps = {} as SocialContentLifecycleProjection['steps']
   const mismatches: SocialContentLifecycleMismatch[] = []

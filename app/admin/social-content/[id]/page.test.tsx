@@ -297,7 +297,7 @@ describe('SocialContentDetailRoute visual production review', () => {
       name: 'provider failure',
       item: {
         status: 'scheduled',
-        scheduled_for: '2026-08-15T13:00:00.000Z',
+        scheduled_for: '2026-09-15T13:00:00.000Z',
         publishes: [{
           id: 'publish-x-3',
           content_id: 'social-1',
