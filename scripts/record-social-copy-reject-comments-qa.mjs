@@ -224,43 +224,83 @@ const page = await context.newPage()
 page.on('dialog', (dialog) => dialog.accept())
 await seedSession(page)
 await installRoutes(page)
+const copyRevisionGuidanceText = 'Add feedback and choose Request Revision for Shaka, or choose Reject again to reject without comments.'
+const copySummaryGuidanceCount = async () => page
+  .locator('section[aria-label="Copy review mobile workflow summary"]')
+  .getByText(copyRevisionGuidanceText)
+  .count()
+const rejectedSummaryBodyCount = async () => page
+  .locator('section[aria-label="Copy rejected mobile workflow summary"]')
+  .getByText(/The copy decision is recorded as rejected/i)
+  .count()
 
 await page.goto(exactUrl, { waitUntil: 'networkidle' })
 await page.locator('#social-copy-gate').waitFor({ timeout: 15_000 })
-await page.getByRole('button', { name: 'Reject', exact: true }).scrollIntoViewIfNeeded()
+let copyGate = page.locator('#social-copy-gate')
+await copyGate.getByText('Copy: In review').waitFor({ timeout: 5_000 })
+const noFeedbackInitialCopyGateState = await copyGate.getByText('Copy: In review').textContent()
+const noFeedbackInitialRequestRevisionButtons = await copyGate.getByRole('button', { name: 'Request Revision' }).count()
+await copyGate.getByRole('button', { name: 'Reject', exact: true }).scrollIntoViewIfNeeded()
 await page.waitForTimeout(700)
-await page.getByRole('button', { name: 'Reject', exact: true }).click()
+await copyGate.getByRole('button', { name: 'Reject', exact: true }).click()
 await page.getByLabel('Revision feedback for Shaka').waitFor({ timeout: 5_000 })
+await copyGate.getByText(copyRevisionGuidanceText).waitFor({ timeout: 5_000 })
+const noFeedbackSummaryGuidanceAfterReject = await copySummaryGuidanceCount()
+await copyGate.getByRole('button', { name: 'Request Revision' }).waitFor({ timeout: 5_000 })
+const noFeedbackRequestRevisionEnabled = await copyGate.getByRole('button', { name: 'Request Revision' }).isEnabled()
 await page.waitForTimeout(900)
 const noFeedbackPutResponse = page.waitForResponse((response) => (
   response.url().endsWith(`/api/admin/social-content/${contentId}`)
   && response.request().method() === 'PUT'
 ))
-await page.getByRole('button', { name: 'Submit Rejection' }).click()
+await copyGate.getByRole('button', { name: 'Reject', exact: true }).click()
 await noFeedbackPutResponse
 await page.locator('#social-copy-gate').getByText('Copy: Rejected').waitFor({ timeout: 5_000 })
 const noFeedbackVisibleCopyState = await page.locator('#social-copy-gate').getByText('Copy: Rejected').textContent()
+const noFeedbackResolvedRejectedButtonDisabled = await page.locator('#social-copy-gate').getByRole('button', { name: 'Rejected' }).isDisabled()
+const noFeedbackFinalRejectButtons = await page.locator('#social-copy-gate').getByRole('button', { name: 'Reject', exact: true }).count()
+const noFeedbackFinalRequestRevisionButtons = await page.locator('#social-copy-gate').getByRole('button', { name: 'Request Revision' }).count()
+const noFeedbackFinalApproveButtons = await page.locator('#social-copy-gate').getByRole('button', { name: /Approve Copy/ }).count()
+const noFeedbackRejectedSummaryBodyCount = await rejectedSummaryBodyCount()
 await page.waitForTimeout(900)
 
 latestItem = {
   ...socialItem,
+  status: 'draft',
+  reviewed_by: null,
+  admin_notes: null,
+  rag_context: { ...socialItem.rag_context },
   post_text: 'Second synthetic pass: the operator can add optional comments for Shaka before rejecting.',
   updated_at: new Date().toISOString(),
 }
 
+await page.goto('about:blank')
 await page.goto(exactUrl, { waitUntil: 'networkidle' })
 await page.locator('#social-copy-gate').waitFor({ timeout: 15_000 })
-await page.getByRole('button', { name: 'Reject', exact: true }).scrollIntoViewIfNeeded()
+copyGate = page.locator('#social-copy-gate')
+await copyGate.getByText('Copy: In review').waitFor({ timeout: 5_000 })
+const feedbackInitialCopyGateState = await copyGate.getByText('Copy: In review').textContent()
+const feedbackInitialRequestRevisionButtons = await copyGate.getByRole('button', { name: 'Request Revision' }).count()
+await copyGate.getByRole('button', { name: 'Reject', exact: true }).scrollIntoViewIfNeeded()
 await page.waitForTimeout(1000)
-await page.getByRole('button', { name: 'Reject', exact: true }).click()
+await copyGate.getByRole('button', { name: 'Reject', exact: true }).click()
 await page.getByLabel('Revision feedback for Shaka').scrollIntoViewIfNeeded()
+await copyGate.getByRole('button', { name: 'Request Revision' }).waitFor({ timeout: 5_000 })
+const feedbackSummaryGuidanceAfterReject = await copySummaryGuidanceCount()
+const feedbackRequestRevisionInitiallyEnabled = await copyGate.getByRole('button', { name: 'Request Revision' }).isEnabled()
 await page.waitForTimeout(1200)
 await page.getByLabel('Revision feedback for Shaka').fill('Add the Slack canary context, name what failed, and give Shaka a concrete revision path before this copy returns for approval.')
 await page.getByLabel('Revision feedback for Shaka').scrollIntoViewIfNeeded()
+const feedbackRequestRevisionEnabledAfterFeedback = await copyGate.getByRole('button', { name: 'Request Revision' }).isEnabled()
 await page.waitForTimeout(1800)
-await page.getByRole('button', { name: 'Submit Rejection' }).click()
+await copyGate.getByRole('button', { name: 'Request Revision' }).click()
 await page.locator('#social-copy-gate').getByText('Copy: Rejected').waitFor({ timeout: 5_000 })
 const feedbackVisibleCopyState = await page.locator('#social-copy-gate').getByText('Copy: Rejected').textContent()
+const feedbackResolvedRejectedButtonDisabled = await page.locator('#social-copy-gate').getByRole('button', { name: 'Rejected' }).isDisabled()
+const feedbackFinalRejectButtons = await page.locator('#social-copy-gate').getByRole('button', { name: 'Reject', exact: true }).count()
+const feedbackFinalRequestRevisionButtons = await page.locator('#social-copy-gate').getByRole('button', { name: 'Request Revision' }).count()
+const feedbackFinalApproveButtons = await page.locator('#social-copy-gate').getByRole('button', { name: /Approve Copy/ }).count()
+const feedbackRejectedSummaryBodyCount = await rejectedSummaryBodyCount()
 await page.waitForTimeout(1200)
 
 const video = page.video()
@@ -273,6 +313,37 @@ const feedbackBody = capturedPutBodies[1]
 
 if (!noFeedbackBody || !feedbackBody) {
   throw new Error(`QA expected two rejection PUT requests, saw ${capturedPutBodies.length}`)
+}
+if (noFeedbackInitialRequestRevisionButtons !== 0 || feedbackInitialRequestRevisionButtons !== 0) {
+  throw new Error('QA expected Request Revision to be hidden before Reject opens optional feedback')
+}
+if (noFeedbackInitialCopyGateState !== 'Copy: In review' || feedbackInitialCopyGateState !== 'Copy: In review') {
+  throw new Error('QA expected each rejection scenario to start from Copy: In review')
+}
+if (noFeedbackRequestRevisionEnabled || feedbackRequestRevisionInitiallyEnabled) {
+  throw new Error('QA expected Request Revision to stay disabled until revision feedback is entered')
+}
+if (noFeedbackSummaryGuidanceAfterReject > 0 || feedbackSummaryGuidanceAfterReject > 0) {
+  throw new Error('QA expected reject/revision guidance to stay below the copy gate action area, not in the mobile summary')
+}
+if (noFeedbackRejectedSummaryBodyCount > 0 || feedbackRejectedSummaryBodyCount > 0) {
+  throw new Error('QA expected resolved copy rejection detail to stay out of the mobile summary blocker area')
+}
+if (!feedbackRequestRevisionEnabledAfterFeedback) {
+  throw new Error('QA expected Request Revision to enable after optional revision feedback was entered')
+}
+if (!noFeedbackResolvedRejectedButtonDisabled || !feedbackResolvedRejectedButtonDisabled) {
+  throw new Error('QA expected the copy gate to resolve into a disabled Rejected action after decision')
+}
+if (
+  noFeedbackFinalRejectButtons
+  || noFeedbackFinalRequestRevisionButtons
+  || noFeedbackFinalApproveButtons
+  || feedbackFinalRejectButtons
+  || feedbackFinalRequestRevisionButtons
+  || feedbackFinalApproveButtons
+) {
+  throw new Error('QA expected live copy decision actions to disappear after rejection is recorded')
 }
 if (noFeedbackBody?.rag_context) {
   throw new Error('QA blank rejection unexpectedly persisted revision feedback metadata')
@@ -306,13 +377,32 @@ await writeFile(receiptPath, JSON.stringify({
   exactUrl,
   mp4Path,
   noFeedbackReject: {
+    initialCopyGateState: noFeedbackInitialCopyGateState,
     capturedStatus: noFeedbackBody.status,
+    initialRequestRevisionButtons: noFeedbackInitialRequestRevisionButtons,
+    summaryGuidanceCountAfterReject: noFeedbackSummaryGuidanceAfterReject,
+    rejectedSummaryBodyCount: noFeedbackRejectedSummaryBodyCount,
+    requestRevisionEnabledBeforeFeedback: noFeedbackRequestRevisionEnabled,
     visibleCopyGateState: noFeedbackVisibleCopyState,
+    resolvedRejectedButtonDisabled: noFeedbackResolvedRejectedButtonDisabled,
+    finalRejectButtons: noFeedbackFinalRejectButtons,
+    finalRequestRevisionButtons: noFeedbackFinalRequestRevisionButtons,
+    finalApproveButtons: noFeedbackFinalApproveButtons,
     persistedRevisionFeedback: Boolean(noFeedbackBody.rag_context?.content_calibration?.operator_feedback?.revision_request),
   },
   feedbackReject: {
+    initialCopyGateState: feedbackInitialCopyGateState,
     capturedStatus: feedbackBody.status,
+    initialRequestRevisionButtons: feedbackInitialRequestRevisionButtons,
+    summaryGuidanceCountAfterReject: feedbackSummaryGuidanceAfterReject,
+    rejectedSummaryBodyCount: feedbackRejectedSummaryBodyCount,
+    requestRevisionEnabledBeforeFeedback: feedbackRequestRevisionInitiallyEnabled,
+    requestRevisionEnabledAfterFeedback: feedbackRequestRevisionEnabledAfterFeedback,
     visibleCopyGateState: feedbackVisibleCopyState,
+    resolvedRejectedButtonDisabled: feedbackResolvedRejectedButtonDisabled,
+    finalRejectButtons: feedbackFinalRejectButtons,
+    finalRequestRevisionButtons: feedbackFinalRequestRevisionButtons,
+    finalApproveButtons: feedbackFinalApproveButtons,
     capturedRevisionStatus: feedbackBody.rag_context.content_calibration.status,
     capturedRevisionAction: feedbackBody.rag_context.content_calibration.revision_requests.at(-1).action,
   },
