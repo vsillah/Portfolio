@@ -1,0 +1,11 @@
+{
+  "generatedAt": "2026-09-01T16:08:59Z",
+  "routesCovered": [
+    "/admin/social-content/social-due-now?step=visuals#social-visual-assets-gate",
+    "/admin/agents/content-intelligence?section=calendar&calendar_item=calendar-due-now#content-calendar-gate",
+    "/admin/social-content/engagement-inbox?comment=comment-1&post=social-1&review=reply&source=slack#social-comment-review-gate"
+  ],
+  "externalRequests": [],
+  "videoPath": "docs/qa/slack-approval-lifecycle/slack-approval-lifecycle-gates.mp4",
+  "screenshotPath": "docs/qa/slack-approval-lifecycle/slack-approval-lifecycle-gates.png"
+}
