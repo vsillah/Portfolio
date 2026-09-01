@@ -1400,7 +1400,7 @@ describe('ContentIntelligencePage', () => {
   })
 
   it('focuses a calendar approval row from the Slack deep-link query', async () => {
-    window.history.replaceState({}, '', '/admin/agents/content-intelligence?section=calendar&calendar_item=calendar-due-now')
+    window.history.replaceState({}, '', '/admin/agents/content-intelligence?section=calendar&calendar_item=calendar-due-now#content-calendar-gate')
 
     render(<ContentIntelligencePage />)
 
@@ -1411,6 +1411,10 @@ describe('ContentIntelligencePage', () => {
     expect(focusedRow).toHaveClass('ring-2')
     expect(within(focusedRow).getByRole('button', { name: 'Authorize Draft Handoff' })).toBeInTheDocument()
     expect(within(focusedRow).getByRole('button', { name: 'Reject' })).toBeInTheDocument()
+    expect(within(focusedRow).getByRole('link', { name: 'Draft' })).toHaveAttribute(
+      'href',
+      '/admin/social-content/social-due-now?step=visuals#social-visual-assets-gate',
+    )
 
     await waitFor(() => {
       expect(window.HTMLElement.prototype.scrollIntoView).toHaveBeenCalled()

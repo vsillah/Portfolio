@@ -582,6 +582,7 @@ export async function POST(
       ...patch,
       response_approval_state: 'rejected',
       reply_submission_state: draftReply ? 'draft' : 'not_applicable',
+      proposed_reply_text: draftReply,
     }
   }
 

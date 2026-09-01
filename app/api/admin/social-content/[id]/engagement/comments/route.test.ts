@@ -702,6 +702,34 @@ describe('/api/admin/social-content/[id]/engagement/comments', () => {
     }))
   })
 
+  it('records reject revision notes and preserves the draft without external submission', async () => {
+    const response = await POST(request({
+      action: 'reject',
+      comment_id: 'comment-1',
+      draft_reply: 'Needs a sharper reply.',
+      note: 'Name the human approval boundary before this can move forward.',
+    }) as never, { params: { id: 'social-1' } })
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(body.integration_note).toContain('No external comment reply was submitted')
+    expect(mocks.update).toHaveBeenCalledWith(expect.objectContaining({
+      proposed_reply_text: 'Needs a sharper reply.',
+      response_approval_state: 'rejected',
+      reply_submission_state: 'draft',
+      metadata: expect.objectContaining({
+        ui_action_history: expect.arrayContaining([
+          expect.objectContaining({
+            action: 'reject',
+            note: 'Name the human approval boundary before this can move forward.',
+          }),
+        ]),
+      }),
+    }))
+    expect(mocks.update.mock.calls.at(-1)?.[0]).not.toHaveProperty('reply_provider_comment_id')
+    expect(mocks.update.mock.calls.at(-1)?.[0]).not.toHaveProperty('reply_submitted_at')
+  })
+
   it('blocks repeated approve or reject decisions on a rejected reply review', async () => {
     installDbMocks({
       comment: {

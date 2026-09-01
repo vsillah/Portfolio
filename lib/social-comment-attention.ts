@@ -327,6 +327,8 @@ function providerExternalSubmissionEnabled(row: SocialCommentAttentionRow) {
 export function socialCommentDeepLink(row: Pick<SocialCommentAttentionRow, 'id' | 'content_id'>) {
   const params = new URLSearchParams({ comment: row.id })
   if (row.content_id) params.set('post', row.content_id)
+  params.set('review', 'reply')
+  params.set('source', 'slack')
   return `/admin/social-content/engagement-inbox?${params.toString()}#social-comment-review-gate`
 }
 

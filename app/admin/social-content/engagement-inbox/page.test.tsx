@@ -245,7 +245,7 @@ describe('SocialCommentInboxPage', () => {
   })
 
   it('hydrates the initial post filter from the deep-link query', async () => {
-    window.history.replaceState({}, '', '/admin/social-content/engagement-inbox?comment=comment-1&post=social-1#social-comment-review-gate')
+    window.history.replaceState({}, '', '/admin/social-content/engagement-inbox?comment=comment-1&post=social-1&review=reply&source=slack#social-comment-review-gate')
 
     render(<SocialCommentInboxPage />)
 
@@ -261,6 +261,8 @@ describe('SocialCommentInboxPage', () => {
     })
     expect(window.location.search).toContain('comment=comment-1')
     expect(window.location.search).toContain('post=social-1')
+    expect(window.location.search).toContain('review=reply')
+    expect(window.location.search).toContain('source=slack')
     expect(window.location.hash).toBe('#social-comment-review-gate')
     const article = screen.getAllByText('Potential Client')[0].closest('article')
     expect(article).toHaveAttribute('id', 'social-comment-review-gate')
@@ -352,6 +354,33 @@ describe('SocialCommentInboxPage', () => {
       }))
     })
     expect(await screen.findByText('Comment action recorded.')).toBeInTheDocument()
+  })
+
+  it('records reject revision notes without submitting externally', async () => {
+    render(<SocialCommentInboxPage />)
+
+    await waitFor(() => {
+      expect(screen.getAllByText('Potential Client').length).toBeGreaterThanOrEqual(1)
+    })
+    fireEvent.change(screen.getByLabelText('Revision note'), {
+      target: { value: 'Make the reply more specific before approval.' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: /^Reject$/i }))
+
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalledWith('/api/admin/social-content/social-1/engagement/comments', expect.objectContaining({
+        method: 'POST',
+        body: expect.stringContaining('"action":"reject"'),
+      }))
+    })
+    const rejectCall = vi.mocked(fetch).mock.calls.find(([, init]) => String(init?.body).includes('"action":"reject"'))
+    expect(JSON.parse(String(rejectCall?.[1]?.body))).toMatchObject({
+      action: 'reject',
+      comment_id: 'comment-1',
+      draft_reply: 'Yes, it can help triage intake while keeping a human approval gate.',
+      note: 'Make the reply more specific before approval.',
+    })
+    expect(JSON.stringify(vi.mocked(fetch).mock.calls)).not.toMatch(/slack|gmail|sms/i)
   })
 
   it('locks repeat decisions after reply rejection and exposes revise recovery', async () => {

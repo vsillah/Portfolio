@@ -184,6 +184,7 @@ export default function SocialCommentInboxPage() {
   const [actionLoading, setActionLoading] = useState<string | null>(null)
   const [notice, setNotice] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const [drafts, setDrafts] = useState<Record<string, string>>({})
+  const [revisionNotes, setRevisionNotes] = useState<Record<string, string>>({})
   const [unavailable, setUnavailable] = useState<InboxUnavailableState | null>(null)
   const [alertReliability, setAlertReliability] = useState<AlertReliabilityStatus | null>(null)
 
@@ -240,6 +241,13 @@ export default function SocialCommentInboxPage() {
         nextDrafts[comment.id] = comment.draftReply ?? ''
       }
       setDrafts(nextDrafts)
+      setRevisionNotes((current) => {
+        const next = { ...current }
+        for (const comment of data.items ?? []) {
+          if (next[comment.id] === undefined) next[comment.id] = ''
+        }
+        return next
+      })
     } catch (error) {
       setNotice({ type: 'error', text: error instanceof Error ? error.message : 'Failed to load comment inbox' })
     } finally {
@@ -309,6 +317,9 @@ export default function SocialCommentInboxPage() {
           action,
           comment_id: comment.id,
           draft_reply: drafts[comment.id] ?? '',
+          note: action === 'reject'
+            ? revisionNotes[comment.id]?.trim() || 'Rejected from Portfolio reply review.'
+            : undefined,
         }),
       })
       const data = await response.json()
@@ -321,6 +332,9 @@ export default function SocialCommentInboxPage() {
       })
       if (action === 'draft_response' && response.ok) {
         setFocusedCommentId(comment.id)
+      }
+      if (action === 'reject' && response.ok) {
+        setRevisionNotes((current) => ({ ...current, [comment.id]: '' }))
       }
       await fetchComments()
     } catch (error) {
@@ -713,52 +727,64 @@ export default function SocialCommentInboxPage() {
                         </div>
                       </div>
                     ) : (
-                      <div className="flex flex-wrap gap-2">
-                        <button
-                          type="button"
-                          onClick={() => runAction(comment, 'draft_response')}
-                          disabled={actionLoading === actionKey('draft_response')}
-                          className="inline-flex min-h-9 items-center justify-center gap-2 rounded-lg border border-blue-500/40 bg-blue-500/10 px-3 py-2 text-xs font-semibold text-blue-100 hover:bg-blue-500/20 disabled:opacity-60"
-                        >
-                          {actionLoading === actionKey('draft_response') ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <MessageSquare className="h-3.5 w-3.5" />}
-                          Draft Response
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => runAction(comment, 'approve')}
-                          disabled={actionLoading === actionKey('approve') || !draftText}
-                          className="inline-flex min-h-9 items-center justify-center gap-2 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-xs font-semibold text-emerald-100 hover:bg-emerald-500/20 disabled:opacity-60"
-                        >
-                          <CheckCircle2 className="h-3.5 w-3.5" />
-                          Approve
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => runAction(comment, 'reject')}
-                          disabled={actionLoading === actionKey('reject')}
-                          className="inline-flex min-h-9 items-center justify-center gap-2 rounded-lg border border-red-500/40 bg-red-500/10 px-3 py-2 text-xs font-semibold text-red-100 hover:bg-red-500/20 disabled:opacity-60"
-                        >
-                          <XCircle className="h-3.5 w-3.5" />
-                          Reject
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => runAction(comment, 'ignore')}
-                          disabled={actionLoading === actionKey('ignore')}
-                          className="inline-flex min-h-9 items-center justify-center gap-2 rounded-lg border border-gray-600 px-3 py-2 text-xs font-semibold text-muted-foreground hover:bg-muted disabled:opacity-60"
-                        >
-                          Ignore
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => runAction(comment, 'submit')}
-                          disabled={actionLoading === actionKey('submit') || !submitReady}
-                          title={submitReady ? 'Queue guarded provider submission request' : comment.providerCapability.blocker || comment.providerCapability.recoveryPath}
-                          className="inline-flex min-h-9 items-center justify-center gap-2 rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs font-semibold text-amber-100 hover:bg-amber-500/20 disabled:cursor-not-allowed disabled:opacity-55"
-                        >
-                          {actionLoading === actionKey('submit') ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
-                          Submit
-                        </button>
+                      <div className="space-y-3">
+                        <label className="block text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                          Revision note
+                          <textarea
+                            value={revisionNotes[comment.id] ?? ''}
+                            onChange={(event) => setRevisionNotes((current) => ({ ...current, [comment.id]: event.target.value }))}
+                            rows={2}
+                            className="mt-1 w-full resize-y rounded-lg border border-border bg-background px-3 py-2 text-sm normal-case leading-6 tracking-normal text-foreground placeholder:text-muted-foreground"
+                            placeholder="What should change if this reply is rejected or sent back?"
+                          />
+                        </label>
+                        <div className="flex flex-wrap gap-2">
+                          <button
+                            type="button"
+                            onClick={() => runAction(comment, 'draft_response')}
+                            disabled={actionLoading === actionKey('draft_response')}
+                            className="inline-flex min-h-9 items-center justify-center gap-2 rounded-lg border border-blue-500/40 bg-blue-500/10 px-3 py-2 text-xs font-semibold text-blue-100 hover:bg-blue-500/20 disabled:opacity-60"
+                          >
+                            {actionLoading === actionKey('draft_response') ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <MessageSquare className="h-3.5 w-3.5" />}
+                            Draft Response
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => runAction(comment, 'approve')}
+                            disabled={actionLoading === actionKey('approve') || !draftText}
+                            className="inline-flex min-h-9 items-center justify-center gap-2 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-xs font-semibold text-emerald-100 hover:bg-emerald-500/20 disabled:opacity-60"
+                          >
+                            <CheckCircle2 className="h-3.5 w-3.5" />
+                            Approve
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => runAction(comment, 'reject')}
+                            disabled={actionLoading === actionKey('reject')}
+                            className="inline-flex min-h-9 items-center justify-center gap-2 rounded-lg border border-red-500/40 bg-red-500/10 px-3 py-2 text-xs font-semibold text-red-100 hover:bg-red-500/20 disabled:opacity-60"
+                          >
+                            <XCircle className="h-3.5 w-3.5" />
+                            Reject
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => runAction(comment, 'ignore')}
+                            disabled={actionLoading === actionKey('ignore')}
+                            className="inline-flex min-h-9 items-center justify-center gap-2 rounded-lg border border-gray-600 px-3 py-2 text-xs font-semibold text-muted-foreground hover:bg-muted disabled:opacity-60"
+                          >
+                            Ignore
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => runAction(comment, 'submit')}
+                            disabled={actionLoading === actionKey('submit') || !submitReady}
+                            title={submitReady ? 'Queue guarded provider submission request' : comment.providerCapability.blocker || comment.providerCapability.recoveryPath}
+                            className="inline-flex min-h-9 items-center justify-center gap-2 rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs font-semibold text-amber-100 hover:bg-amber-500/20 disabled:cursor-not-allowed disabled:opacity-55"
+                          >
+                            {actionLoading === actionKey('submit') ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
+                            Submit
+                          </button>
+                        </div>
                       </div>
                     )}
                   </div>
