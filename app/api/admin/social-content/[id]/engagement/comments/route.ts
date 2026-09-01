@@ -68,6 +68,7 @@ const ACTIONS = new Set<SocialCommentAction>([
   'draft_response',
   'approve',
   'reject',
+  'return_to_review',
   'ignore',
   'submit',
 ])
@@ -538,6 +539,21 @@ export async function POST(
     })
   }
 
+  if (
+    currentItem.approvalState === 'rejected'
+    && (action === 'approve' || action === 'reject')
+  ) {
+    return responseWithComments({
+      post,
+      contentId: params.id,
+      status: 409,
+      ok: false,
+      blocked: true,
+      message: 'Reply review is rejected. Revise the reply and return it to review before approving or rejecting again.',
+      integrationNote: 'No external comment reply was submitted. Rejected reply review remains locked until the explicit recovery action runs.',
+    })
+  }
+
   if (action === 'draft_response') {
     const generatedDraftReply = draftReply ?? policyDraftReply(comment as SocialCommentPolicyRecord, now)
     patch = {
@@ -567,6 +583,20 @@ export async function POST(
       response_approval_state: 'rejected',
       reply_submission_state: draftReply ? 'draft' : 'not_applicable',
     }
+  }
+
+  if (action === 'return_to_review') {
+    if (!draftReply) {
+      return NextResponse.json({ error: 'Draft reply is required before returning to review' }, { status: 400 })
+    }
+    patch = {
+      ...patch,
+      proposed_reply_text: draftReply,
+      approved_reply_text: null,
+      response_approval_state: 'pending',
+      reply_submission_state: 'draft',
+    }
+    message = 'Revised reply saved and returned to review. Approval is required before any provider submission.'
   }
 
   if (action === 'ignore') {

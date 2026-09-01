@@ -26,6 +26,7 @@ export type SocialCommentAction =
   | 'draft_response'
   | 'approve'
   | 'reject'
+  | 'return_to_review'
   | 'ignore'
   | 'submit'
 

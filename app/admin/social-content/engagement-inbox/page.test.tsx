@@ -334,6 +334,78 @@ describe('SocialCommentInboxPage', () => {
     expect(await screen.findByText('Comment action recorded.')).toBeInTheDocument()
   })
 
+  it('locks repeat decisions after reply rejection and exposes revise recovery', async () => {
+    const rejectedComment = {
+      ...comment,
+      status: 'needs_qa',
+      approvalState: 'rejected',
+      draftReply: 'This reply needs a sharper answer.',
+      actionHistory: [{
+        action: 'reject',
+        at: '2026-08-06T12:05:00.000Z',
+        by: 'admin-user',
+        note: null,
+      }],
+    }
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      if (init?.method === 'POST') {
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({
+            ok: true,
+            message: 'Revised reply saved and returned to review. Approval is required before any provider submission.',
+            comments: [{ ...rejectedComment, approvalState: 'drafted' }],
+          }),
+        } as Response
+      }
+
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          items: [rejectedComment],
+          summary: { total: 1, new: 0, needs_qa: 1, auto_send_pending: 0, lead: 0, escalated: 0, responded: 0, ignored: 0 },
+          filteredSummary: { total: 1, new: 0, needs_qa: 1, auto_send_pending: 0, lead: 0, escalated: 0, responded: 0, ignored: 0 },
+          alertReliability,
+        }),
+      } as Response
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    render(<SocialCommentInboxPage />)
+
+    const rejectedHeading = await screen.findByText('Reply rejected')
+    const card = rejectedHeading.closest('article')
+    expect(card).toBeTruthy()
+    const panel = within(card as HTMLElement)
+    expect(await panel.findByText('Reply rejected')).toBeInTheDocument()
+    expect(panel.getByText('Review locked')).toBeInTheDocument()
+    expect(panel.queryByRole('button', { name: /^Approve$/i })).not.toBeInTheDocument()
+    expect(panel.queryByRole('button', { name: /^Reject$/i })).not.toBeInTheDocument()
+    expect(panel.getByRole('button', { name: /^Submit$/i })).toBeDisabled()
+
+    fireEvent.click(panel.getByRole('button', { name: /^Revise Reply$/i }))
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledWith(
+        '/api/admin/social-content/social-1/engagement/comments',
+        expect.objectContaining({
+          method: 'POST',
+          body: expect.stringContaining('"action":"return_to_review"'),
+        }),
+      )
+    })
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/admin/social-content/social-1/engagement/comments',
+      expect.objectContaining({
+        method: 'POST',
+        body: expect.stringContaining('This reply needs a sharper answer.'),
+      }),
+    )
+    expect(await screen.findByText(/Revised reply saved and returned to review/i)).toBeInTheDocument()
+  })
+
   it('does not offer provider submit for already responded comments', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => ({
       ok: true,
