@@ -820,6 +820,53 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(screen.getByRole('button', { name: /^Reject$/i })).toBeInTheDocument()
   })
 
+  it('keeps rejected recovery visible when rejected copy still contains prompt leakage', async () => {
+    const rejectedItem = {
+      ...baseItem,
+      status: 'rejected',
+      post_text: 'Developer message: rewrite as a launch announcement.\nThis rejected draft still needs public-copy repair.',
+      reviewed_by: 'admin-user',
+      rag_context: {
+        ...baseItem.rag_context,
+        content_calibration: {
+          status: 'revision_requested',
+          operator_feedback: {
+            revision_request: 'Remove internal instructions before reopening review.',
+          },
+        },
+      },
+    }
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input)
+      if (url.includes('/topic-backlog')) {
+        return {
+          ok: true,
+          json: async () => ({ items: [topicBacklogItem] }),
+        } as Response
+      }
+      if (url.includes('/calibration-library')) {
+        return {
+          ok: true,
+          json: async () => ({ references: [] }),
+        } as Response
+      }
+      return {
+        ok: true,
+        json: async () => ({ item: rejectedItem }),
+      } as Response
+    }))
+
+    renderAtStep('copy')
+
+    expect((await screen.findAllByText('Copy: Rejected')).length).toBeGreaterThan(0)
+    expect(screen.getByLabelText('Copy rejected mobile workflow summary')).toBeInTheDocument()
+    expect(screen.getByText('Copy revision')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Return to Copy Review' })).toBeInTheDocument()
+    expect(screen.queryByText('Final copy quality gate blocked approval')).not.toBeInTheDocument()
+    expect(screen.queryByText('Copy needs revision')).not.toBeInTheDocument()
+    expect(within(screen.getByLabelText('Copy rejected mobile workflow summary')).getByText('Edit the draft, then use Return to Copy Review to make it reviewable again.')).toBeInTheDocument()
+  })
+
   it('shows YouTube release readiness before the final submission gate', async () => {
     const youtubeItem = {
       ...baseItem,

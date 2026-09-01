@@ -235,9 +235,11 @@ export async function PUT(
       const projection = deriveSocialContentLifecycleProjection({
         item: candidateItem,
       })
-      const failure = lifecyclePrerequisiteFailure(projection, lifecycleTarget)
-      if (failure) {
-        return NextResponse.json(failure, { status: 409 })
+      if (lifecycleTarget) {
+        const failure = lifecyclePrerequisiteFailure(projection, lifecycleTarget)
+        if (failure) {
+          return NextResponse.json(failure, { status: 409 })
+        }
       }
     }
 

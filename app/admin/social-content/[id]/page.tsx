@@ -2532,10 +2532,14 @@ function SocialContentDetailPage() {
     voiceover_text: voiceoverText || null,
   })
   const copyHasPromptLeakage = copyQualityGate.status === 'blocked'
-  const canApproveCurrentDraft = canApproveAgentPilot && !copyHasBlockingAcronymIssues && !copyHasPromptLeakage
+  const copyGateRejected = item.status === 'rejected'
+    || agentPilotCalibrationStatus === 'revision_requested'
+    || Boolean(asRecord(agentPilotCalibration?.approval_rejection))
+  const copyQualityBlocksReview = copyHasPromptLeakage && !copyGateRejected
+  const canApproveCurrentDraft = canApproveAgentPilot && !copyHasBlockingAcronymIssues && !copyQualityBlocksReview
   const approveBlockedTitle = videoPrivacyBlocked
     ? 'Video privacy review required before publish readiness'
-    : copyHasPromptLeakage
+    : copyQualityBlocksReview
       ? 'Final copy quality gate found internal prompt or meta-instruction leakage'
     : copyHasBlockingAcronymIssues
       ? 'Write out known acronyms before approval'
@@ -2649,10 +2653,7 @@ function SocialContentDetailPage() {
     : scheduledFor
       ? 'Approve & Schedule'
       : 'Approve & Publish'
-  const copyGateRejected = item.status === 'rejected'
-    || agentPilotCalibrationStatus === 'revision_requested'
-    || Boolean(asRecord(agentPilotCalibration?.approval_rejection))
-  const copyGateRawState: GateState = copyHasPromptLeakage && !copyGateRejected
+  const copyGateRawState: GateState = copyQualityBlocksReview
     ? 'blocked'
     : isDurableCopyApprovedStatus(item.status)
       ? 'approved'
@@ -2962,14 +2963,14 @@ function SocialContentDetailPage() {
       waitingOnYou: contextMissingAfterCopyApproval ? 'Yes - context recovery decision' : 'No',
     },
     copy: {
-      title: copyHasPromptLeakage
+      title: copyQualityBlocksReview
         ? 'Copy needs revision'
         : copyGateState === 'approved'
         ? 'Copy approved'
         : copyRejectionResolved
           ? 'Copy rejected'
           : 'Copy review',
-      body: copyHasPromptLeakage
+      body: copyQualityBlocksReview
         ? copyQualityGate.summary
         : copyGateState === 'approved'
         ? 'The post, CTA, hashtags, and acronym clarity have passed editorial review. This does not authorize visual generation, provider handoff, scheduling, or publication.'
@@ -2978,7 +2979,7 @@ function SocialContentDetailPage() {
           : 'Review or revise the public copy before downstream visual and platform work can proceed.',
       owner: 'Vambah / Shaka',
       lastUpdate: item.reviewed_by ? new Date(item.updated_at).toLocaleString() : 'Awaiting editorial decision',
-      nextAction: copyHasPromptLeakage
+      nextAction: copyQualityBlocksReview
         ? copyQualityGate.recoveryAction
         : copyGateState === 'approved'
           ? 'Move to visual strategy and QA.'
@@ -2989,7 +2990,7 @@ function SocialContentDetailPage() {
               : 'Approve the copy or choose Reject to open optional feedback.',
       waitingOnYou: copyGateState === 'approved'
         ? 'No'
-        : copyHasPromptLeakage
+        : copyQualityBlocksReview
           ? 'Yes - revision needed'
           : copyRejectionResolved
             ? 'Yes - copy revision'
@@ -4175,7 +4176,7 @@ function SocialContentDetailPage() {
                   Copy: {GATE_STATE_CONFIG[copyGateState].label}
                 </span>
               </div>
-              {copyHasPromptLeakage && (
+              {copyQualityBlocksReview && (
                 <div className="mb-3 rounded-lg border border-red-500/35 bg-red-500/10 p-3 text-sm leading-6 text-red-50">
                   <p className="font-semibold">Final copy quality gate blocked approval</p>
                   <p className="mt-1 text-red-50/80">{copyQualityGate.recoveryAction}</p>
