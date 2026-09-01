@@ -903,6 +903,60 @@ function SocialContentQueuePage() {
   ]
   const activeWorkflow = workflowViews.find((view) => view.id === activeWorkflowView) ?? workflowViews[0]
   const activeWorkflowHref = `/admin/social-content?workflow=${activeWorkflowView}`
+  const activeStatusLabel = statusFilter === 'all'
+    ? null
+    : STATUS_CONFIG[statusFilter]?.label ?? statusFilter
+  const hasQueueFilters = statusFilter !== 'all' || platformFilter !== 'all' || search.trim().length > 0
+  const statusMetricFilters: Array<{
+    label: string
+    value: number
+    color: string
+    status: ContentStatus | 'all'
+    ariaLabel: string
+  }> = [
+    {
+      label: 'Total',
+      value: stats.total,
+      color: 'text-foreground',
+      status: 'all',
+      ariaLabel: `Show all social content (${stats.total} total)`,
+    },
+    {
+      label: 'Drafts',
+      value: stats.draft,
+      color: 'text-gray-400',
+      status: 'draft',
+      ariaLabel: `Filter social content to drafts (${stats.draft})`,
+    },
+    {
+      label: 'Approved',
+      value: stats.approved,
+      color: 'text-blue-400',
+      status: 'approved',
+      ariaLabel: `Filter social content to approved (${stats.approved})`,
+    },
+    {
+      label: 'Scheduled',
+      value: stats.scheduled,
+      color: 'text-amber-400',
+      status: 'scheduled',
+      ariaLabel: `Filter social content to scheduled (${stats.scheduled})`,
+    },
+    {
+      label: 'Published',
+      value: stats.published,
+      color: 'text-green-400',
+      status: 'published',
+      ariaLabel: `Filter social content to published (${stats.published})`,
+    },
+    {
+      label: 'Rejected',
+      value: stats.rejected,
+      color: 'text-red-400',
+      status: 'rejected',
+      ariaLabel: `Filter social content to rejected (${stats.rejected})`,
+    },
+  ]
 
   return (
     <div className="admin-console-page min-h-screen p-6 text-foreground lg:p-8">
@@ -1807,26 +1861,36 @@ function SocialContentQueuePage() {
       {activeWorkflowView === 'review' && (
       <>
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-6 gap-3 mb-6">
-        {[
-          { label: 'Total', value: stats.total, color: 'text-white' },
-          { label: 'Drafts', value: stats.draft, color: 'text-gray-400' },
-          { label: 'Approved', value: stats.approved, color: 'text-blue-400' },
-          { label: 'Scheduled', value: stats.scheduled, color: 'text-amber-400' },
-          { label: 'Published', value: stats.published, color: 'text-green-400' },
-          { label: 'Rejected', value: stats.rejected, color: 'text-red-400' },
-        ].map((stat) => (
-          <div key={stat.label} className="admin-console-metric rounded-xl border p-3 text-center">
-            <div className={`text-xl font-bold ${stat.color}`}>{stat.value}</div>
-            <div className="text-xs text-gray-500">{stat.label}</div>
-          </div>
-        ))}
+      <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6" aria-label="Social content status filters">
+        {statusMetricFilters.map((stat) => {
+          const isActive = statusFilter === stat.status
+          return (
+            <button
+              key={stat.label}
+              type="button"
+              aria-label={stat.ariaLabel}
+              aria-pressed={isActive}
+              onClick={() => setStatusFilter(stat.status)}
+              className={`admin-console-metric min-h-[76px] rounded-xl border p-3 text-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-radiant-gold/60 ${
+                isActive
+                  ? 'border-radiant-gold/70 bg-radiant-gold/15 shadow-[0_0_0_1px_rgba(226,194,93,0.22)]'
+                  : 'hover:border-radiant-gold/50 hover:bg-radiant-gold/10'
+              }`}
+            >
+              <div className={`text-xl font-bold tabular-nums ${stat.color}`}>{stat.value}</div>
+              <div className={`mt-1 text-xs font-medium ${isActive ? 'text-radiant-gold' : 'text-gray-500'}`}>
+                {stat.label}
+              </div>
+            </button>
+          )
+        })}
       </div>
 
       {/* Filters */}
       <div className="admin-console-card mb-6 flex flex-wrap items-center gap-3 rounded-lg border p-4">
         <Filter className="w-4 h-4 text-gray-500" />
         <select
+          aria-label="Filter social content by status"
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value as ContentStatus | 'all')}
           className="rounded-lg border border-silicon-slate bg-imperial-navy/70 px-3 py-1.5 text-sm text-foreground"
@@ -1837,6 +1901,7 @@ function SocialContentQueuePage() {
           ))}
         </select>
         <select
+          aria-label="Filter social content by platform"
           value={platformFilter}
           onChange={(e) => setPlatformFilter(e.target.value as SocialPlatform | 'all')}
           className="rounded-lg border border-silicon-slate bg-imperial-navy/70 px-3 py-1.5 text-sm text-foreground"
@@ -1848,6 +1913,7 @@ function SocialContentQueuePage() {
         </select>
         <input
           type="text"
+          aria-label="Search social content posts"
           placeholder="Search posts..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -1864,8 +1930,12 @@ function SocialContentQueuePage() {
       ) : items.length === 0 ? (
         <div className="text-center py-20 text-gray-500">
           <FileText className="w-12 h-12 mx-auto mb-3 opacity-50" />
-          <p>No social content yet.</p>
-          <p className="text-sm mt-1">Content will appear here when the extraction workflow runs.</p>
+          <p>{hasQueueFilters ? `No ${activeStatusLabel ? `${activeStatusLabel.toLowerCase()} ` : 'matching '}social content found.` : 'No social content yet.'}</p>
+          <p className="text-sm mt-1">
+            {hasQueueFilters
+              ? 'Adjust or clear filters to return to the full review queue.'
+              : 'Content will appear here when the extraction workflow runs.'}
+          </p>
         </div>
       ) : (
         <div className="space-y-3">
