@@ -166,17 +166,21 @@ async function installRoutes(page) {
   })
 }
 
-async function annotate(page, label) {
-  await page.evaluate((text) => {
+async function annotate(page, label, placement = 'bottom') {
+  await page.evaluate(({ text, placement }) => {
     document.getElementById('calendar-reject-qa-note')?.remove()
     const panel = document.createElement('aside')
     panel.id = 'calendar-reject-qa-note'
     panel.textContent = text
     panel.style.position = 'fixed'
     panel.style.right = '12px'
-    panel.style.bottom = '12px'
+    if (placement === 'top') {
+      panel.style.top = '56px'
+    } else {
+      panel.style.bottom = '12px'
+    }
     panel.style.zIndex = '9999'
-    panel.style.maxWidth = '360px'
+    panel.style.maxWidth = 'min(360px, calc(100vw - 24px))'
     panel.style.padding = '10px 12px'
     panel.style.border = '1px solid rgba(255,255,255,0.24)'
     panel.style.borderRadius = '8px'
@@ -185,7 +189,7 @@ async function annotate(page, label) {
     panel.style.font = '600 12px/1.45 system-ui, -apple-system, BlinkMacSystemFont, sans-serif'
     panel.style.boxShadow = '0 16px 40px rgba(0,0,0,0.35)'
     document.body.appendChild(panel)
-  }, label)
+  }, { text: label, placement })
 }
 
 async function verifyNoHorizontalOverflow(page) {
@@ -194,38 +198,63 @@ async function verifyNoHorizontalOverflow(page) {
 }
 
 const browser = await chromium.launch({ headless: true })
-const context = await browser.newContext({
-  storageState: authStatePath,
-  viewport: { width: 1280, height: 720 },
-  recordVideo: { dir: videoDir, size: { width: 1280, height: 720 } },
-})
-const page = await context.newPage()
-await installRoutes(page)
+const calendarRoute = `${baseUrl}/admin/agents/content-intelligence?section=calendar&calendar_item=${rejectedCalendarItem.id}#content-calendar-gate`
+const campaignRoute = `${baseUrl}/admin/campaigns/${campaign.id}`
 
-await page.goto(`${baseUrl}/admin/agents/content-intelligence?section=calendar&calendar_item=${rejectedCalendarItem.id}#content-calendar-gate`, {
-  waitUntil: 'networkidle',
-})
-await annotate(page, 'Desktop Content Intelligence: rejected calendar row must show locked state, no authorize/reject, and an edit recovery action.')
-const contentRow = page.locator('[aria-label="Focused calendar row Rejected calendar authorization"]')
-await expect(contentRow).toContainText('Calendar authorization rejected')
-await expect(contentRow).toContainText('Decision note: Clarify the evidence source before this can be authorized.')
-await expect(contentRow.getByRole('button', { name: 'Edit and Return to Review' })).toBeVisible()
-await expect(contentRow.getByRole('button', { name: 'Authorize Draft Handoff' })).toHaveCount(0)
-await expect(contentRow.getByRole('button', { name: 'Reject' })).toHaveCount(0)
-await verifyNoHorizontalOverflow(page)
-await page.waitForTimeout(900)
+async function newRecordedPage(viewport) {
+  const context = await browser.newContext({
+    storageState: authStatePath,
+    viewport,
+    recordVideo: { dir: videoDir, size: viewport },
+  })
+  const page = await context.newPage()
+  await installRoutes(page)
+
+  return { context, page }
+}
+
+async function verifyRejectedContentRow(page, row) {
+  await row.scrollIntoViewIfNeeded()
+  await expect(row).toContainText('Calendar authorization rejected')
+  await expect(row).toContainText('Decision note: Clarify the evidence source before this can be authorized.')
+  await expect(row.getByRole('button', { name: 'Edit and Return to Review' })).toBeVisible()
+  await expect(row.getByRole('button', { name: 'Authorize Draft Handoff' })).toHaveCount(0)
+  await expect(row.getByRole('button', { name: 'Reject' })).toHaveCount(0)
+  await verifyNoHorizontalOverflow(page)
+}
+
+async function closeRecordedContext(context, page) {
+  const video = page.video()
+  await context.close()
+  return video.path()
+}
+
+const desktop = await newRecordedPage({ width: 1280, height: 720 })
+
+await desktop.page.goto(calendarRoute, { waitUntil: 'networkidle' })
+await annotate(
+  desktop.page,
+  'Desktop Content Intelligence: rejected calendar row is locked, authorize/reject are removed, and Edit and Return to Review is the recovery action.',
+)
+const contentRow = desktop.page.locator('[aria-label="Focused calendar row Rejected calendar authorization"]')
+await verifyRejectedContentRow(desktop.page, contentRow)
+await desktop.page.waitForTimeout(1200)
 
 await contentRow.getByRole('button', { name: 'Edit and Return to Review' }).click()
-await annotate(page, 'Recovery check: edit form opens; saving changes is the existing path that returns the row to pending review.')
+await annotate(desktop.page, 'Recovery check: edit form opens; saving changes is the existing path that returns the row to pending review.')
 await expect(contentRow.getByRole('button', { name: 'Save Changes' })).toBeVisible()
 await expect(contentRow.getByRole('button', { name: 'Authorize Draft Handoff' })).toHaveCount(0)
 await expect(contentRow.getByRole('button', { name: 'Reject' })).toHaveCount(0)
-await page.waitForTimeout(900)
+await desktop.page.waitForTimeout(1200)
 
-await page.goto(`${baseUrl}/admin/campaigns/${campaign.id}`, { waitUntil: 'networkidle' })
-await page.getByRole('button', { name: /Content Calendar/ }).click()
-await annotate(page, 'Campaign calendar: same rejected state model; recovery links back to the central calendar gate.')
-const campaignRow = page.locator('[aria-label="Campaign calendar row Rejected calendar authorization"]')
+await desktop.page.goto(campaignRoute, { waitUntil: 'networkidle' })
+await desktop.page.getByRole('button', { name: /Content Calendar/ }).click()
+const campaignRow = desktop.page.locator('[aria-label="Campaign calendar row Rejected calendar authorization"]')
+await campaignRow.scrollIntoViewIfNeeded()
+await annotate(
+  desktop.page,
+  'Campaign Content Calendar: the rejected row is visibly locked here too; recovery links back to the central calendar gate.',
+)
 await expect(campaignRow).toContainText('Calendar authorization rejected')
 await expect(campaignRow.getByRole('link', { name: 'Edit and Return to Review' })).toHaveAttribute(
   'href',
@@ -233,30 +262,32 @@ await expect(campaignRow.getByRole('link', { name: 'Edit and Return to Review' }
 )
 await expect(campaignRow.getByRole('button', { name: 'Authorize Draft Handoff' })).toHaveCount(0)
 await expect(campaignRow.getByRole('button', { name: 'Reject' })).toHaveCount(0)
-await verifyNoHorizontalOverflow(page)
-await page.waitForTimeout(900)
+await verifyNoHorizontalOverflow(desktop.page)
+await desktop.page.waitForTimeout(1600)
+const desktopSourceVideo = await closeRecordedContext(desktop.context, desktop.page)
 
-await page.setViewportSize({ width: 390, height: 844 })
-await page.goto(`${baseUrl}/admin/agents/content-intelligence?section=calendar&calendar_item=${rejectedCalendarItem.id}#content-calendar-gate`, {
-  waitUntil: 'networkidle',
-})
-await annotate(page, 'Mobile 390px: locked rejected row remains readable and recovery stays visible without horizontal overflow.')
-const mobileRow = page.locator('[aria-label="Focused calendar row Rejected calendar authorization"]')
-await expect(mobileRow).toContainText('Calendar authorization rejected')
-await expect(mobileRow.getByRole('button', { name: 'Edit and Return to Review' })).toBeVisible()
-await expect(mobileRow.getByRole('button', { name: 'Authorize Draft Handoff' })).toHaveCount(0)
-await expect(mobileRow.getByRole('button', { name: 'Reject' })).toHaveCount(0)
-await verifyNoHorizontalOverflow(page)
-await page.waitForTimeout(1200)
+const mobile = await newRecordedPage({ width: 390, height: 844 })
+await mobile.page.goto(calendarRoute, { waitUntil: 'networkidle' })
+const mobileRow = mobile.page.locator('[aria-label="Focused calendar row Rejected calendar authorization"]')
+await verifyRejectedContentRow(mobile.page, mobileRow)
+await annotate(mobile.page, 'Mobile 390x844: rejected row remains readable, locked, and recoverable without horizontal overflow.')
+await mobile.page.waitForTimeout(1000)
+const mobileRecoveryAction = mobileRow.getByRole('button', { name: 'Edit and Return to Review' })
+await mobileRecoveryAction.scrollIntoViewIfNeeded()
+await annotate(
+  mobile.page,
+  'Mobile recovery check: Edit and Return to Review remains the visible path back to review; authorize/reject stay unavailable.',
+  'top',
+)
+await mobile.page.waitForTimeout(1600)
+const mobileSourceVideo = await closeRecordedContext(mobile.context, mobile.page)
 
-const video = page.video()
-await context.close()
 await browser.close()
 
-const sourceVideo = await video.path()
 console.log(JSON.stringify({
   ok: true,
-  sourceVideo,
-  route: `${baseUrl}/admin/agents/content-intelligence?section=calendar&calendar_item=${rejectedCalendarItem.id}#content-calendar-gate`,
-  campaignRoute: `${baseUrl}/admin/campaigns/${campaign.id}`,
+  desktopSourceVideo,
+  mobileSourceVideo,
+  route: calendarRoute,
+  campaignRoute,
 }))
