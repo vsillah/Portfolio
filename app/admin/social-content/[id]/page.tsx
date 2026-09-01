@@ -552,6 +552,7 @@ function SocialContentDetailPage() {
   const [revisingCalibration, setRevisingCalibration] = useState(false)
   const [requestingCopyRevision, setRequestingCopyRevision] = useState(false)
   const [copyRejecting, setCopyRejecting] = useState(false)
+  const [returningCopyToReview, setReturningCopyToReview] = useState(false)
   const [loadingTopicBacklog, setLoadingTopicBacklog] = useState(false)
   const [topicBacklogItems, setTopicBacklogItems] = useState<TopicBacklogRecord[]>([])
   const [topicBacklogUnavailable, setTopicBacklogUnavailable] = useState(false)
@@ -959,6 +960,74 @@ function SocialContentDetailPage() {
     const saved = await saveForm()
     showMsg(saved ? 'success' : 'error', saved ? 'Saved successfully' : 'Failed to save')
     setSaving(false)
+  }
+
+  const handleReturnCopyToReview = async () => {
+    if (!item) return
+    if (!postText.trim()) {
+      showMsg('error', 'Add revised copy before returning this draft to review')
+      return
+    }
+
+    setReturningCopyToReview(true)
+    try {
+      const session = await getCurrentSession()
+      if (!session) return
+
+      const existingRag = asRecord(item.rag_context) ?? {}
+      const existingCalibration = asRecord(existingRag.content_calibration) ?? {}
+      const reopenHistory = Array.isArray(existingCalibration.copy_review_reopen_history)
+        ? existingCalibration.copy_review_reopen_history
+        : []
+      const reopenedAt = new Date().toISOString()
+      const rag_context = {
+        ...existingRag,
+        content_calibration: {
+          ...existingCalibration,
+          status: 'returned_to_copy_review',
+          copy_review_reopen: {
+            reopened_at: reopenedAt,
+            previous_status: item.status,
+          },
+          copy_review_reopen_history: [
+            ...reopenHistory,
+            {
+              reopened_at: reopenedAt,
+              previous_status: item.status,
+              action: 'return_to_copy_review',
+            },
+          ].slice(-10),
+        },
+      }
+
+      const res = await fetch(`/api/admin/social-content/${id}`, {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...getFormPayload(),
+          status: 'draft',
+          rag_context,
+        }),
+      })
+
+      const data = await res.json()
+      if (!res.ok) {
+        showMsg('error', data.error || 'Failed to return copy to review')
+        return
+      }
+
+      const reopened = data.item as SocialContentItem
+      setItem(prev => prev ? { ...prev, ...reopened } : reopened)
+      setAdminNotes(reopened.admin_notes || adminNotes)
+      showMsg('success', 'Copy returned to review')
+    } catch {
+      showMsg('error', 'Failed to return copy to review')
+    } finally {
+      setReturningCopyToReview(false)
+    }
   }
 
   const handleScheduleRecovery = async (action: 'reschedule_reconfirm' | 'cancel_scheduled_publication') => {
@@ -2463,7 +2532,7 @@ function SocialContentDetailPage() {
       : canApproveAgentPilot
         ? undefined
         : 'Research/context evidence and challenger QA must pass before approval'
-  const canRequestCopyRevision = (isAgentSocialPilot || isDraftOnlyPilot) && (item.status === 'approved' || isEditable)
+  const canRequestCopyRevision = (isAgentSocialPilot || isDraftOnlyPilot) && (item.status === 'approved' || item.status === 'draft')
   const copyRevisionIsApprovalRollback = item.status === 'approved'
   const copyRevisionDetailsOpen = copyRevisionAction !== null
   const copyFeedbackDetailsOpen = item.status !== 'rejected' && (copyRevisionDetailsOpen || copyRejecting)
@@ -2747,6 +2816,7 @@ function SocialContentDetailPage() {
   })
   const copyGateState = lifecycleProjection.steps.copy.state as GateState
   const copyRejectionResolved = copyGateState === 'rejected'
+  const copyReviewCanDecide = isEditable && !copyRejectionResolved
   const effectiveSupportingContextGateState = lifecycleProjection.steps.context.state as GateState
   const effectiveVisualWorkflowGateState = lifecycleProjection.steps.visuals.state as GateState
   const effectiveDraftGateState = lifecycleProjection.steps.draft.state as GateState
@@ -2888,18 +2958,18 @@ function SocialContentDetailPage() {
       body: copyGateState === 'approved'
         ? 'The post, CTA, hashtags, and acronym clarity have passed editorial review. This does not authorize visual generation, provider handoff, scheduling, or publication.'
         : copyRejectionResolved
-          ? 'The copy decision is recorded as rejected. Revise the draft before returning this item to review.'
+          ? 'The last copy review rejected this draft. Revise the public copy, then return it to copy review before downstream visual and platform work can proceed.'
           : 'Review or revise the public copy before downstream visual and platform work can proceed.',
       owner: 'Vambah / Shaka',
       lastUpdate: item.reviewed_by ? new Date(item.updated_at).toLocaleString() : 'Awaiting editorial decision',
       nextAction: copyGateState === 'approved'
         ? 'Move to visual strategy and QA.'
         : copyRejectionResolved
-          ? 'Revise the draft before reopening copy review.'
+          ? 'Edit the draft, then use Return to Copy Review to make it reviewable again.'
           : copyRejecting
             ? 'Complete the copy decision in the gate below.'
-          : 'Approve the copy or choose Reject to open optional feedback.',
-      waitingOnYou: copyGateState === 'approved' || copyRejectionResolved ? 'No' : 'Yes - editorial decision',
+            : 'Approve the copy or choose Reject to open optional feedback.',
+      waitingOnYou: copyGateState === 'approved' ? 'No' : copyRejectionResolved ? 'Yes - copy revision' : 'Yes - editorial decision',
     },
     visuals: {
       title: lifecycleBlockedDetail('visuals') ? 'Visual lifecycle mismatch'
@@ -4203,6 +4273,30 @@ function SocialContentDetailPage() {
                 <span className="text-xs text-gray-500">{postText.length} characters</span>
                 <span className="text-xs text-gray-500">LinkedIn optimal: 150-300 words</span>
               </div>
+              {copyRejectionResolved && (
+                <div className="mt-4 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4">
+                  <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                    <div className="min-w-0">
+                      <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-amber-200">
+                        <RefreshCw className="h-3.5 w-3.5" />
+                        Copy revision
+                      </p>
+                      <p className="mt-1 text-sm leading-6 text-amber-50/85">
+                        Revise the draft above, then return it to copy review. This only reopens editorial review; it does not approve, publish, schedule, or call providers.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleReturnCopyToReview}
+                      disabled={returningCopyToReview || !postText.trim()}
+                      className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-amber-400 px-3 py-2 text-sm font-semibold text-slate-950 transition-colors hover:bg-amber-300 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      {returningCopyToReview ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
+                      Return to Copy Review
+                    </button>
+                  </div>
+                </div>
+              )}
               {copyHasBlockingAcronymIssues && (
                 <div className="mt-4 rounded-lg border border-amber-500/35 bg-amber-500/10 p-4">
                   <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
@@ -5361,14 +5455,16 @@ function SocialContentDetailPage() {
           {/* Action buttons */}
           {isEditable && (
             <div className="flex flex-col gap-2 border-t border-gray-700 pt-4 sm:flex-row sm:items-center sm:justify-end">
-              <button
-                onClick={() => void handleReject()}
-                disabled={saving}
-                className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg border border-red-900/50 px-4 py-2 text-sm text-red-400 transition-colors hover:bg-red-900/30 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
-              >
-                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <XCircle className="w-4 h-4" />}
-                {copyRejectActionLabel}
-              </button>
+              {copyReviewCanDecide && (
+                <button
+                  onClick={() => void handleReject()}
+                  disabled={saving}
+                  className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg border border-red-900/50 px-4 py-2 text-sm text-red-400 transition-colors hover:bg-red-900/30 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+                >
+                  {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <XCircle className="w-4 h-4" />}
+                  {copyRejectActionLabel}
+                </button>
+              )}
               <button
                 onClick={() => {
                   if (!isDraftOnlyPilot && targetPlatforms.length === 0) {
@@ -5377,7 +5473,7 @@ function SocialContentDetailPage() {
                   }
                   setShowConfirmModal(true)
                 }}
-                disabled={approving || !canApproveCurrentDraft || videoPrivacyBlocked}
+                disabled={!copyReviewCanDecide || approving || !canApproveCurrentDraft || videoPrivacyBlocked}
                 title={approveBlockedTitle}
                 className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-green-600 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-green-500 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
               >
