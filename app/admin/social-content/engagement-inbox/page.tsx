@@ -208,28 +208,28 @@ function ReplyLifecyclePanel({
   let tone = 'border-gray-600 bg-gray-900/65 text-gray-100'
   let summary = 'No reply feedback or draft update has been recorded for this comment yet.'
   let ownerStatus = 'No owner or agent update is currently tracked for this reply.'
-  let nextAction = 'Draft a reply, approve an existing draft, or reject with feedback.'
-  let feedbackState = 'No written feedback saved yet.'
-  let revisionState = 'No revision has been returned to review yet.'
-  let reviewState = 'Waiting for a draft or decision.'
+  let nextAction = 'Draft, approve, or reject with feedback.'
+  let feedbackState = 'None saved.'
+  let revisionState = 'No returned revision.'
+  let reviewState = 'Waiting for draft.'
 
   if (comment.submittedReplyLocked) {
     stage = 'Provider evidence locked'
     tone = 'border-red-500/35 bg-red-500/10 text-red-100'
     summary = 'Submitted provider evidence is authoritative. Portfolio is not changing local review state for this reply.'
     ownerStatus = 'No Amina or owner update is tracked because submitted provider evidence is locked.'
-    nextAction = 'Inspect provider evidence or handle any correction outside this local revision workflow.'
-    feedbackState = feedback ? `Saved in history: ${feedback}` : 'No new feedback can be recorded from this locked panel.'
-    revisionState = 'Revision is locked after provider submission evidence.'
-    reviewState = 'Review controls are locked.'
+    nextAction = 'Inspect provider evidence; local revision is blocked.'
+    feedbackState = feedback ? `Saved: ${feedback}` : 'Cannot add new feedback here.'
+    revisionState = 'Locked by submitted evidence.'
+    reviewState = 'Controls locked.'
   } else if (isRevisionSubmitting) {
     stage = 'Revision received'
     tone = 'border-emerald-500/35 bg-emerald-500/10 text-emerald-100'
     summary = 'Portfolio is saving the replacement reply locally and returning it to the review queue.'
     ownerStatus = 'Save in progress. No provider reply is being sent.'
-    nextAction = 'Wait for the save to finish, then review the updated draft.'
-    feedbackState = feedback ? `Saved in history: ${feedback}` : 'Current revision text will be saved as the replacement draft.'
-    revisionState = 'Revision submission is in progress.'
+    nextAction = 'Wait for save, then review the updated draft.'
+    feedbackState = feedback ? `Saved: ${feedback}` : 'Saving replacement draft.'
+    revisionState = 'Submitting now.'
     reviewState = 'Returning to review.'
   } else if (isRevisionMode) {
     stage = 'Revision requested'
@@ -237,27 +237,27 @@ function ReplyLifecyclePanel({
     summary = 'The revision box is open locally. Text entered here is not saved until Submit Revision is clicked.'
     ownerStatus = 'No Amina or owner update is currently tracked from this local edit.'
     nextAction = draftText
-      ? 'Submit the revision to return the edited reply to review.'
-      : 'Enter feedback or replacement reply text before submitting the revision.'
-    feedbackState = feedback ? `Saved in history: ${feedback}` : 'Add revision guidance or replacement reply text in the box below.'
-    revisionState = 'Revision input is open locally.'
-    reviewState = 'Review is paused until the revision is submitted.'
+      ? 'Submit revision to return it to review.'
+      : 'Enter revision text before submitting.'
+    feedbackState = feedback ? `Saved: ${feedback}` : 'Add guidance or replacement text.'
+    revisionState = 'Editor open locally.'
+    reviewState = 'Paused until submitted.'
   } else if (comment.approvalState === 'rejected') {
     stage = 'Revision requested'
     tone = 'border-red-500/35 bg-red-500/10 text-red-100'
     summary = 'This reply is rejected and waiting for an operator revision or replacement reply.'
     ownerStatus = 'No Amina or owner update is currently tracked for this reply.'
-    nextAction = 'Click Revise Reply, enter the revision, then submit it back to review.'
-    feedbackState = feedback ? `Saved in history: ${feedback}` : 'No written feedback was saved with the rejection.'
+    nextAction = 'Click Revise Reply, edit, then submit to review.'
+    feedbackState = feedback ? `Saved: ${feedback}` : 'No feedback saved.'
     revisionState = 'Waiting for revision input.'
-    reviewState = 'Review is locked until a revision is submitted.'
+    reviewState = 'Locked until revision.'
   } else if (isDraftUpdating) {
     stage = 'Updating draft'
     tone = 'border-blue-500/35 bg-blue-500/10 text-blue-100'
     summary = 'Portfolio is updating the local draft reply. This does not submit anything to a provider.'
     ownerStatus = 'Draft update is in progress in this browser action.'
-    nextAction = 'Wait for the draft to appear, then review it before approval.'
-    feedbackState = feedback ? `Saved in history: ${feedback}` : 'No rejection feedback is attached to this draft update.'
+    nextAction = 'Wait for the draft, then review before approval.'
+    feedbackState = feedback ? `Saved: ${feedback}` : 'No rejection feedback.'
     revisionState = draftEvent ? `Previous draft update: ${formatActionTime(draftEvent.at)}` : 'Draft update requested.'
     reviewState = 'Waiting for draft update.'
   } else if (hasPersistedRevision && hasReviewableDraft) {
@@ -265,8 +265,8 @@ function ReplyLifecyclePanel({
     tone = 'border-emerald-500/35 bg-emerald-500/10 text-emerald-100'
     summary = 'Revision was received and saved as the current draft reply.'
     ownerStatus = 'No Amina or owner update is currently tracked. The reply is ready for operator review.'
-    nextAction = 'Review the draft, then approve it, reject it with feedback, or edit it again.'
-    feedbackState = feedback ? `Saved in history: ${feedback}` : 'No written rejection feedback is attached to the latest revision.'
+    nextAction = 'Review, approve, reject with feedback, or edit again.'
+    feedbackState = feedback ? `Saved: ${feedback}` : 'No rejection feedback.'
     revisionState = `Returned to review: ${formatActionTime(revisionEvent!.at)}`
     reviewState = 'Ready for review.'
   } else if (hasReviewableDraft) {
@@ -274,8 +274,8 @@ function ReplyLifecyclePanel({
     tone = 'border-blue-500/35 bg-blue-500/10 text-blue-100'
     summary = 'A local draft reply is available for review.'
     ownerStatus = 'No Amina or owner update is currently tracked for this reply.'
-    nextAction = 'Approve, reject with feedback, edit the draft, or keep waiting if more context is needed.'
-    feedbackState = feedback ? `Saved in history: ${feedback}` : 'No rejection feedback is attached to this draft.'
+    nextAction = 'Approve, reject with feedback, or edit the draft.'
+    feedbackState = feedback ? `Saved: ${feedback}` : 'No rejection feedback.'
     revisionState = 'No returned revision is recorded yet.'
     reviewState = 'Ready for review.'
   } else if (comment.approvalState === 'approved') {
@@ -283,41 +283,46 @@ function ReplyLifecyclePanel({
     tone = 'border-emerald-500/35 bg-emerald-500/10 text-emerald-100'
     summary = 'This reply has local approval. Provider submission still requires the separate provider gate.'
     ownerStatus = 'No Amina or owner update is currently tracked for this reply.'
-    nextAction = 'Use provider submission only if the separate capability gate is satisfied.'
-    feedbackState = feedback ? `Saved in history: ${feedback}` : 'No rejection feedback is attached.'
+    nextAction = 'Submit only after the provider gate is satisfied.'
+    feedbackState = feedback ? `Saved: ${feedback}` : 'No rejection feedback.'
     revisionState = hasPersistedRevision ? `Returned to review: ${formatActionTime(revisionEvent!.at)}` : 'No returned revision is recorded.'
     reviewState = 'Approved locally.'
   }
 
+  const facts = [
+    { label: 'Feedback', value: feedbackState },
+    { label: 'Revision', value: revisionState },
+    { label: 'Review', value: reviewState },
+  ]
+
   return (
-    <div role="region" aria-label={`Reply lifecycle for ${comment.authorDisplayName}`} className={`rounded-lg border p-3 ${tone}`}>
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="text-xs font-semibold uppercase tracking-[0.14em]">Reply lifecycle</p>
-        <span className="rounded-full border border-current/30 px-2 py-0.5 text-[0.7rem] font-semibold uppercase">
+    <div role="region" aria-label={`Reply lifecycle for ${comment.authorDisplayName}`} className={`rounded-lg border p-2.5 ${tone}`}>
+      <div className="flex flex-wrap items-center gap-2">
+        <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em]">Reply lifecycle</p>
+        <span className="rounded-full border border-current/30 px-2 py-0.5 text-[0.68rem] font-semibold uppercase">
           {stage}
         </span>
       </div>
-      <p className="mt-2 text-xs leading-5">{summary}</p>
-      <div className="mt-3 grid gap-2 text-xs leading-5 md:grid-cols-3">
-        <div className="rounded-md border border-current/20 bg-background/50 px-2.5 py-2">
-          <p className="font-semibold">Feedback</p>
-          <p className="mt-1 opacity-85">{feedbackState}</p>
-        </div>
-        <div className="rounded-md border border-current/20 bg-background/50 px-2.5 py-2">
-          <p className="font-semibold">Revision</p>
-          <p className="mt-1 opacity-85">{revisionState}</p>
-        </div>
-        <div className="rounded-md border border-current/20 bg-background/50 px-2.5 py-2">
-          <p className="font-semibold">Review</p>
-          <p className="mt-1 opacity-85">{reviewState}</p>
-        </div>
-      </div>
-      <p className="mt-3 text-xs leading-5">
-        <span className="font-semibold">Owner/agent status:</span> {ownerStatus}
+      <p className="mt-2 text-xs leading-5">
+        <span className="font-semibold">Next:</span> {nextAction}
       </p>
-      <p className="mt-1 text-xs leading-5">
-        <span className="font-semibold">Next action:</span> {nextAction}
-      </p>
+      <dl className="mt-2 divide-y divide-current/15 border-y border-current/15 text-xs leading-5">
+        {facts.map((item) => (
+          <div key={item.label} className="grid gap-1 py-1.5 sm:grid-cols-[5.5rem_minmax(0,1fr)]">
+            <dt className="font-semibold">{item.label}</dt>
+            <dd className="min-w-0 break-words opacity-85" title={item.value}>{item.value}</dd>
+          </div>
+        ))}
+      </dl>
+      <details className="mt-2 text-xs leading-5">
+        <summary className="cursor-pointer font-semibold">Details</summary>
+        <div className="mt-1 space-y-1 opacity-85">
+          <p>{summary}</p>
+          <p>
+            <span className="font-semibold">Owner/agent:</span> {ownerStatus}
+          </p>
+        </div>
+      </details>
     </div>
   )
 }
@@ -918,10 +923,10 @@ export default function SocialCommentInboxPage() {
                             </div>
                             <p className="mt-2 text-xs leading-5 text-red-50/90">
                               {comment.submittedReplyLocked
-                                ? submittedReplyLockReason
+                                ? 'Local revision is blocked by submitted provider evidence.'
                                 : isRevisionMode
-                                  ? 'Edit the reply below, then return it to review. No provider reply is sent from this action.'
-                                  : 'Approve, reject, and provider submit stay unavailable for this rejected reply until the draft is revised and returned to review.'}
+                                  ? 'Local editor is open; provider submit stays blocked.'
+                                  : 'Review actions stay locked until this reply is revised.'}
                             </p>
                           </div>
                           <div className="shrink-0 space-y-2 sm:max-w-[19rem]">
@@ -1038,7 +1043,7 @@ export default function SocialCommentInboxPage() {
                               </span>
                             </div>
                             <p className="mt-2 text-xs leading-5 text-red-50/90">
-                              Submitted provider evidence is authoritative. Local approve, reject, revise, and submit controls are locked for this reply.
+                              Submitted provider evidence is authoritative; local review controls are locked.
                             </p>
                           </div>
                           <div className="shrink-0 space-y-2 sm:max-w-[19rem]">

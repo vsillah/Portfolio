@@ -445,9 +445,9 @@ describe('SocialCommentInboxPage', () => {
     expect(panel.getByText('Revise opens the local editor before any review state changes.')).toBeInTheDocument()
     expect(panel.getByRole('region', { name: /Reply lifecycle/i })).toBeInTheDocument()
     expect(panel.getByText('Revision requested')).toBeInTheDocument()
-    expect(panel.getByText('This reply is rejected and waiting for an operator revision or replacement reply.')).toBeInTheDocument()
-    expect(panel.getByText('No written feedback was saved with the rejection.')).toBeInTheDocument()
-    expect(panel.getByText('Review is locked until a revision is submitted.')).toBeInTheDocument()
+    expect(panel.getByText('Review actions stay locked until this reply is revised.')).toBeInTheDocument()
+    expect(panel.getByText('No feedback saved.')).toBeInTheDocument()
+    expect(panel.getByText('Locked until revision.')).toBeInTheDocument()
     expect(panel.queryByRole('button', { name: /^Approve$/i })).not.toBeInTheDocument()
     expect(panel.queryByRole('button', { name: /^Reject$/i })).not.toBeInTheDocument()
     expect(panel.getByRole('button', { name: /^Submit$/i })).toBeDisabled()
@@ -455,7 +455,8 @@ describe('SocialCommentInboxPage', () => {
     fireEvent.click(panel.getByRole('button', { name: /^Revise Reply$/i }))
 
     expect(await panel.findByText('Revision mode')).toBeInTheDocument()
-    expect(panel.getByText('The revision box is open locally. Text entered here is not saved until Submit Revision is clicked.')).toBeInTheDocument()
+    expect(panel.getByText('Local editor is open; provider submit stays blocked.')).toBeInTheDocument()
+    expect(panel.getByText('Submit revision to return it to review.')).toBeInTheDocument()
     expect(await panel.findByLabelText('Revision feedback or replacement reply')).toHaveValue('This reply needs a sharper answer.')
     expect(panel.getByRole('button', { name: /^Submit Revision$/i })).toBeInTheDocument()
     expect(panel.queryByRole('button', { name: /^Revise Reply$/i })).not.toBeInTheDocument()
@@ -489,10 +490,9 @@ describe('SocialCommentInboxPage', () => {
       }),
     )
     expect(await screen.findByText(/Revised reply saved and returned to review/i)).toBeInTheDocument()
-    expect(await screen.findByText('Revision was received and saved as the current draft reply.')).toBeInTheDocument()
+    expect(await screen.findByText('Ready for review')).toBeInTheDocument()
     expect(screen.getByText(/Returned to review:/i)).toBeInTheDocument()
-    expect(screen.getByText('No Amina or owner update is currently tracked. The reply is ready for operator review.')).toBeInTheDocument()
-    expect(screen.getByText('Review the draft, then approve it, reject it with feedback, or edit it again.')).toBeInTheDocument()
+    expect(screen.getByText('Review, approve, reject with feedback, or edit again.')).toBeInTheDocument()
   })
 
   it('keeps preview QA fixture return-to-review lifecycle visible from the action response', async () => {
@@ -564,7 +564,7 @@ describe('SocialCommentInboxPage', () => {
     })
     fireEvent.click(panel.getByRole('button', { name: /^Submit Revision$/i }))
 
-    expect(await screen.findByText('Revision was received and saved as the current draft reply.')).toBeInTheDocument()
+    expect(await screen.findByText('Ready for review')).toBeInTheDocument()
     expect(screen.getByDisplayValue('Replacement reply that names the approval boundary.')).toBeInTheDocument()
     expect(screen.getByText(/Returned to review:/i)).toBeInTheDocument()
     expect(screen.queryByText('Linked comment not visible')).not.toBeInTheDocument()
@@ -626,8 +626,8 @@ describe('SocialCommentInboxPage', () => {
     const revisionEditor = await panel.findByLabelText('Revision feedback or replacement reply')
     expect(revisionEditor).toHaveValue('')
     expect(panel.queryByRole('button', { name: /^Revise Reply$/i })).not.toBeInTheDocument()
-    expect(panel.getByText('Saved in history: Needs a replacement reply.')).toBeInTheDocument()
-    expect(panel.getByText('Enter feedback or replacement reply text before submitting the revision.')).toBeInTheDocument()
+    expect(panel.getByText('Saved: Needs a replacement reply.')).toBeInTheDocument()
+    expect(panel.getByText('Enter revision text before submitting.')).toBeInTheDocument()
     expect(panel.getByRole('button', { name: /^Submit Revision$/i })).toBeDisabled()
     expect(fetchMock).not.toHaveBeenCalledWith(
       '/api/admin/social-content/social-1/engagement/comments',
@@ -635,7 +635,7 @@ describe('SocialCommentInboxPage', () => {
     )
 
     fireEvent.change(revisionEditor, { target: { value: 'Fresh replacement reply.' } })
-    expect(panel.getByText('Submit the revision to return the edited reply to review.')).toBeInTheDocument()
+    expect(panel.getByText('Submit revision to return it to review.')).toBeInTheDocument()
     fireEvent.click(panel.getByRole('button', { name: /^Submit Revision$/i }))
 
     await waitFor(() => {
@@ -700,9 +700,10 @@ describe('SocialCommentInboxPage', () => {
     const panel = within(card as HTMLElement)
     expect(panel.getAllByText('Provider evidence locked').length).toBeGreaterThanOrEqual(1)
     expect(panel.getAllByText(/Local revision is locked/i).length).toBeGreaterThanOrEqual(1)
-    expect(panel.getByText('Submitted provider evidence is authoritative. Portfolio is not changing local review state for this reply.')).toBeInTheDocument()
-    expect(panel.getByText('Saved in history: Rejected after provider evidence existed.')).toBeInTheDocument()
-    expect(panel.getByText('Review controls are locked.')).toBeInTheDocument()
+    expect(panel.getByText('Local revision is blocked by submitted provider evidence.')).toBeInTheDocument()
+    expect(panel.getByText('Inspect provider evidence; local revision is blocked.')).toBeInTheDocument()
+    expect(panel.getByText('Saved: Rejected after provider evidence existed.')).toBeInTheDocument()
+    expect(panel.getByText('Controls locked.')).toBeInTheDocument()
     expect(panel.queryByRole('button', { name: /^Revise Reply$/i })).not.toBeInTheDocument()
     const lockedButton = panel.getByRole('button', { name: /^Revision Locked$/i })
     expect(lockedButton).toBeDisabled()
@@ -757,7 +758,7 @@ describe('SocialCommentInboxPage', () => {
 
     const lockedButton = await screen.findByRole('button', { name: /^Review Locked$/i })
     expect(lockedButton).toBeDisabled()
-    expect(screen.getByText(/Local approve, reject, revise, and submit controls are locked/i)).toBeInTheDocument()
+    expect(screen.getByText('Submitted provider evidence is authoritative; local review controls are locked.')).toBeInTheDocument()
     expect(screen.queryByLabelText(/Draft reply/i)).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /^Approve$/i })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /^Reject$/i })).not.toBeInTheDocument()
