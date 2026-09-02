@@ -10,29 +10,29 @@ const root = process.cwd()
 loadEnv({ path: path.join(root, '.env.local'), quiet: true })
 
 const outputDir = path.join(root, 'docs', 'warm-outreach-qa')
-const qaDir = path.join(root, 'test-results', 'warm-office-batch-queue-qa')
+const qaDir = path.join(root, 'test-results', 'warm-planning-backlog-qa')
 const sourceDir = path.join(qaDir, 'source')
 const baseUrl = (process.env.QA_BASE_URL || 'http://127.0.0.1:3000').replace(/\/$/, '')
 const qaPath = '/admin/outreach?tab=leads&filter=warm'
 const qaUrl = new URL(qaPath, baseUrl).toString()
-const mp4Path = path.join(outputDir, 'warm-office-batch-queue-qa.mp4')
-const receiptPath = path.join(outputDir, 'warm-office-batch-queue-qa.json')
+const mp4Path = path.join(outputDir, 'warm-planning-backlog-qa.mp4')
+const receiptPath = path.join(outputDir, 'warm-planning-backlog-qa.json')
 
 const screenshots = {
-  mobile360: path.join(outputDir, 'warm-office-batch-queue-mobile-360.png'),
-  mobile390: path.join(outputDir, 'warm-office-batch-queue-mobile-390.png'),
-  mobile430: path.join(outputDir, 'warm-office-batch-queue-mobile-430.png'),
-  desktop1440: path.join(outputDir, 'warm-office-batch-queue-desktop-1440.png'),
+  mobile360: path.join(outputDir, 'warm-planning-backlog-mobile-360.png'),
+  mobile390: path.join(outputDir, 'warm-planning-backlog-mobile-390.png'),
+  mobile430: path.join(outputDir, 'warm-planning-backlog-mobile-430.png'),
+  desktop1440: path.join(outputDir, 'warm-planning-backlog-desktop-1440.png'),
 }
 
 await mkdir(outputDir, { recursive: true })
 await mkdir(sourceDir, { recursive: true })
 
 const user = {
-  id: 'warm-office-batch-queue-qa-admin',
+  id: 'warm-planning-backlog-qa-admin',
   aud: 'authenticated',
   role: 'authenticated',
-  email: 'warm-office-batch-queue-qa@example.test',
+  email: 'warm-planning-backlog-qa@example.test',
   app_metadata: {},
   user_metadata: {},
   created_at: '2026-09-02T00:00:00.000Z',
@@ -97,7 +97,7 @@ const leads = [
     id: 101,
     name: 'Amina Batchready',
     email: 'amina.office@example.test',
-    company: 'Office Batch Studio',
+    company: 'Planning Backlog Studio',
     company_domain: 'batch.example.test',
     job_title: 'Operations Director',
     industry: 'Services',
@@ -110,7 +110,7 @@ const leads = [
     linkedin_url: null,
     ai_readiness_score: null,
     competitive_pressure_score: null,
-    quick_wins: 'Needs a lightweight office-week operations review.',
+    quick_wins: 'Needs a lightweight planning backlog operations review.',
     message: 'Known through a warm referral.',
     full_report: null,
     rep_pain_points: null,
@@ -368,7 +368,7 @@ function batchReviewResponse(contactIds) {
     contactId: lead.id,
     contactName: lead.name,
     company: lead.company,
-    relationshipBasis: 'Synthetic office-week warm relationship context is available for review.',
+    relationshipBasis: 'Synthetic planning backlog warm relationship context is available for review.',
     relationshipSignalCount: lead.evidence_count,
     selectedChannel: 'email',
     selectedTemplate: 'follow_up',
@@ -398,7 +398,7 @@ function batchReviewResponse(contactIds) {
     company: lead.company,
     status: 'ready_for_local_planning',
     statusLabel: 'Plan ready',
-    relationshipBasis: 'Synthetic office-week warm relationship context is available for review.',
+    relationshipBasis: 'Synthetic planning backlog warm relationship context is available for review.',
     relationshipSignalCount: lead.evidence_count,
     readiness: [{ key: 'provider_not_connected', label: 'Provider not connected', state: 'needs_review' }],
     blockers: [],
@@ -431,9 +431,9 @@ function batchReviewResponse(contactIds) {
 
   return {
     mode: 'warm_1_to_many',
-    batchIdempotencyKey: 'warm-outreach:batch-review:v1:qa-office-week',
+    batchIdempotencyKey: 'warm-outreach:batch-review:v1:qa-planning-backlog',
     cohort: {
-      label: `${selected.length} office-week review batch candidates`,
+      label: `${selected.length} planning backlog review batch candidates`,
       recipientCount: selected.length,
       source: 'selected_outreach_leads',
       provenance: `Selected ${selected.length} synthetic /admin/outreach warm leads.`,
@@ -796,23 +796,23 @@ async function openQaPage(browser, viewport, recordVideo = false) {
   }
   const overlay = await page.locator('[data-nextjs-dialog], .vite-error-overlay, #webpack-dev-server-client-overlay').count()
   if (overlay > 0) throw new Error('Framework error overlay is visible on the QA route.')
-  await page.getByLabel('Office-week warm outreach batch queue').waitFor({ timeout: 15_000 })
+  await page.getByLabel('Warm outreach planning backlog').waitFor({ timeout: 15_000 })
   return { context, page, externalRequests, localRequests }
 }
 
-async function assertOfficeQueue(page) {
+async function assertPlanningBacklog(page) {
   const checks = await page.evaluate(() => {
     const text = document.body.innerText
-    const officeQueue = document.querySelector('[aria-label="Office-week warm outreach batch queue"]')
+    const planningBacklog = document.querySelector('[aria-label="Warm outreach planning backlog"]')
     const currentCta = [...document.querySelectorAll('button')]
-      .find((button) => /Prepare review batch/.test(button.textContent || ''))
+      .find((button) => /Plan review batch/.test(button.textContent || ''))
     const visible = (element) => {
       if (!(element instanceof HTMLElement)) return false
       const rect = element.getBoundingClientRect()
       return rect.width > 0 && rect.height > 0 && window.getComputedStyle(element).visibility !== 'hidden'
     }
     return {
-      hasOfficeQueue: visible(officeQueue),
+      hasPlanningBacklog: visible(planningBacklog),
       hasStates:
         /Ready for Gmail draft/i.test(text) &&
         /Ready for manual social/i.test(text) &&
@@ -820,7 +820,7 @@ async function assertOfficeQueue(page) {
         /Waiting on response/i.test(text) &&
         /Suppressed\/blocked/i.test(text) &&
         /SMS parked/i.test(text),
-      hasSafeCta: visible(currentCta) && /Prepare review batch/.test(currentCta?.textContent || ''),
+      hasSafeCta: visible(currentCta) && /Plan review batch/.test(currentCta?.textContent || ''),
       hasBoundary:
         /Gmail drafts: off/i.test(text) &&
         /Sends\/Slack\/social\/SMS: off/i.test(text) &&
@@ -839,9 +839,9 @@ async function assertOfficeQueue(page) {
 
 async function viewportEvidence(browser, name, viewport, screenshotPath) {
   const qa = await openQaPage(browser, viewport)
-  const officeQueue = qa.page.getByLabel('Office-week warm outreach batch queue')
-  await officeQueue.scrollIntoViewIfNeeded()
-  const checks = await assertOfficeQueue(qa.page)
+  const planningBacklog = qa.page.getByLabel('Warm outreach planning backlog')
+  await planningBacklog.scrollIntoViewIfNeeded()
+  const checks = await assertPlanningBacklog(qa.page)
   await qa.page.screenshot({ path: screenshotPath, fullPage: true })
   await qa.context.close()
   return {
@@ -880,12 +880,12 @@ async function addSideText(page) {
     const panel = document.createElement('aside')
     panel.id = 'qa-side-text'
     panel.innerHTML = `
-      <h2>warm-outreach-office-batch-queue QA</h2>
+      <h2>warm-outreach-planning-backlog QA</h2>
       <h3>Scenario</h3>
-      <p>Vambah opens the warm leads tab before a full office week and prepares a reviewable outreach batch.</p>
+      <p>Vambah opens the warm leads tab and prepares a reviewable outreach batch from the existing planning backlog.</p>
       <h3>Expected</h3>
       <ul>
-        <li>Six queue states are visible as compact count filters.</li>
+        <li>Six planning states are visible as compact count filters.</li>
         <li>The single current CTA prepares a review-only batch plan.</li>
         <li>Candidate rows show basis, channel, draft readiness, approval, response, and blockers.</li>
         <li>The manual social workroom still renders for the selected contact.</li>
@@ -897,6 +897,12 @@ async function addSideText(page) {
     `
     document.body.appendChild(panel)
   })
+}
+
+async function activateButton(locator) {
+  await locator.scrollIntoViewIfNeeded()
+  await locator.focus()
+  await locator.press('Enter')
 }
 
 const browser = await chromium.launch()
@@ -912,19 +918,21 @@ for (const [name, viewport, screenshotPath] of [
 
 const desktop = await openQaPage(browser, { width: 1280, height: 720 }, true)
 await addSideText(desktop.page)
-const desktopOfficeQueue = desktop.page.getByLabel('Office-week warm outreach batch queue')
-await desktopOfficeQueue.scrollIntoViewIfNeeded()
+const desktopPlanningBacklog = desktop.page.getByLabel('Warm outreach planning backlog')
+await desktopPlanningBacklog.evaluate((element) => element.scrollIntoView({ block: 'center' }))
 await desktop.page.waitForTimeout(700)
-await desktop.page.getByRole('button', { name: 'Show SMS parked candidates' }).click()
-await desktopOfficeQueue.getByText('Kofi Phoneparked').waitFor({ timeout: 10_000 })
+await activateButton(desktop.page.getByRole('button', { name: 'Show SMS parked candidates' }))
+await desktopPlanningBacklog.getByText('Kofi Phoneparked').waitFor({ timeout: 10_000 })
 await desktop.page.waitForTimeout(700)
-await desktop.page.getByRole('button', { name: 'Show Ready for Gmail draft candidates' }).click()
-await desktopOfficeQueue.getByRole('button', { name: 'Prepare review batch (2)' }).click()
+await desktopPlanningBacklog.evaluate((element) => element.scrollIntoView({ block: 'center' }))
+await activateButton(desktopPlanningBacklog.getByRole('button', { name: 'Show Ready for Gmail draft candidates' }))
+await activateButton(desktopPlanningBacklog.getByRole('button', { name: 'Plan review batch (2)' }))
 await desktop.page.getByLabel('Warm batch review').waitFor({ timeout: 15_000 })
 await desktop.page.getByText('Gmail batch draft plan').waitFor({ timeout: 10_000 })
 await desktop.page.waitForTimeout(800)
-await desktop.page.getByRole('button', { name: 'Show Ready for manual social candidates' }).click()
-await desktop.page.getByRole('button', { name: 'Prepare review batch for Nia Manualsocial' }).click()
+await desktopPlanningBacklog.evaluate((element) => element.scrollIntoView({ block: 'center' }))
+await activateButton(desktop.page.getByRole('button', { name: 'Show Ready for manual social candidates' }))
+await activateButton(desktop.page.getByRole('button', { name: 'Plan review batch for Nia Manualsocial' }))
 const desktopWorkroom = desktop.page.getByRole('region', { name: 'Outreach workroom for Nia Manualsocial' })
 await desktopWorkroom.waitFor({ timeout: 15_000 })
 await desktopWorkroom.getByTestId('warm-manual-social-handoff').first().waitFor({ timeout: 15_000 })
@@ -958,7 +966,7 @@ if (externalRequests.length > 0) {
 }
 
 const failedViewport = viewportRuns.find((run) =>
-  !run.checks.hasOfficeQueue ||
+  !run.checks.hasPlanningBacklog ||
   !run.checks.hasStates ||
   !run.checks.hasSafeCta ||
   !run.checks.hasBoundary ||
@@ -969,16 +977,16 @@ if (failedViewport) {
 }
 
 const receipt = {
-  version: 'warm-outreach-office-batch-queue-qa/v1',
+  version: 'warm-outreach-planning-backlog-qa/v1',
   createdAt: new Date().toISOString(),
   qaUrl,
-  scenario: 'Office-week operator opens warm leads, filters queue states, prepares a review-only batch plan, and opens manual-social workroom state.',
+  scenario: 'Planning backlog operator opens warm leads, filters planning states, prepares a review-only batch plan, and opens manual-social workroom state.',
   expectedBehavior: [
-    'Office-week queue shows Ready for Gmail draft, Ready for manual social, Needs relationship review, Waiting on response, Suppressed/blocked, and SMS parked counts.',
+    'Planning backlog shows Ready for Gmail draft, Ready for manual social, Needs relationship review, Waiting on response, Suppressed/blocked, and SMS parked counts.',
     'Clicking summary counts visibly drills into the matching candidate set.',
     'The single current CTA prepares a review-only batch plan and does not imply external sending.',
     'The selected-contact workroom still renders the manual social handoff panel.',
-    'Mobile widths 360, 390, and 430 show the core queue CTA with no horizontal overflow.',
+    'Mobile widths 360, 390, and 430 show the core planning CTA with no horizontal overflow.',
   ],
   decisionGate: 'Operator review only. Gmail draft creation, Slack dispatch, external sends, SMS/Telnyx, provider activation, and manual-evidence recording remain separate gates.',
   externalActionBoundary: 'Synthetic/local QA only; no Gmail, Slack, LinkedIn, Facebook, Telnyx/SMS, n8n, scheduling, publishing, provider calls, or production-data mutation.',

@@ -67,7 +67,7 @@ import {
 } from '@/components/admin/outreach/warmSlackSendApprovalQaFixture'
 import WarmBatchReviewPanel from '@/components/admin/outreach/WarmBatchReviewPanel'
 import type { WarmGmailProviderDraftCanaryResult } from '@/components/admin/outreach/WarmBatchReviewPanel'
-import WarmOfficeBatchQueuePanel from '@/components/admin/outreach/WarmOfficeBatchQueuePanel'
+import WarmPlanningBacklogPanel from '@/components/admin/outreach/WarmPlanningBacklogPanel'
 import { OutreachEmailGenerateRow } from '@/components/admin/OutreachEmailGenerateRow'
 import MobileWorkflowSummary from '@/components/admin/MobileWorkflowSummary'
 import { useRealtimeOutreach } from '@/lib/hooks/useRealtimeOutreach'
@@ -75,8 +75,8 @@ import { OUTREACH_MODE_GATING_NOTE, OUTREACH_MODE_POLICIES } from '@/lib/outreac
 import type { WarmBatchReview } from '@/lib/warm-outreach-batch-review'
 import {
   buildWarmOutreachShortlist,
-  type WarmOutreachOfficeBatchQueueCandidate,
-  type WarmOutreachOfficeBatchQueueState,
+  type WarmOutreachPlanningBacklogCandidate,
+  type WarmOutreachPlanningBacklogState,
   type WarmOutreachOfficeDigest,
   type WarmOutreachShortlistItem,
 } from '@/lib/warm-outreach-shortlist'
@@ -337,8 +337,8 @@ function OutreachContent() {
   const [warmBatchReview, setWarmBatchReview] = useState<WarmBatchReview | null>(null)
   const [warmBatchReviewLoading, setWarmBatchReviewLoading] = useState(false)
   const [warmBatchReviewError, setWarmBatchReviewError] = useState<string | null>(null)
-  const [warmOfficeQueueFilter, setWarmOfficeQueueFilter] =
-    useState<WarmOutreachOfficeBatchQueueState | 'all'>('all')
+  const [warmPlanningBacklogFilter, setWarmPlanningBacklogFilter] =
+    useState<WarmOutreachPlanningBacklogState | 'all'>('all')
   const [warmBatchDraftActionLoading, setWarmBatchDraftActionLoading] = useState(false)
   const [warmBatchDraftActionError, setWarmBatchDraftActionError] = useState<string | null>(null)
   const [warmProviderDraftCanaryLoadingQueueId, setWarmProviderDraftCanaryLoadingQueueId] = useState<string | null>(null)
@@ -1207,18 +1207,18 @@ function OutreachContent() {
     [leads],
   )
   const warmOfficeDigest = warmOutreachShortlist.officeDigest
-  const warmOfficeBatchQueue = warmOutreachShortlist.officeBatchQueue
+  const warmPlanningBacklog = warmOutreachShortlist.planningBacklog
   const showWarmOutreachShortlist =
     activeTab === 'leads' && leadsTempFilter === 'warm' && warmOutreachShortlist.items.length > 0
-  const prepareOfficeBatchPlan = useCallback(async () => {
-    const contactIds = warmOfficeBatchQueue.currentCta.contactIds
+  const prepareWarmPlanningBatch = useCallback(async () => {
+    const contactIds = warmPlanningBacklog.currentCta.contactIds
     if (contactIds.length === 0) return
     setSelectedLeadIds(new Set(contactIds))
     await loadWarmBatchReview(
       contactIds,
-      `${contactIds.length} office-week review batch candidate${contactIds.length === 1 ? '' : 's'}`,
+      `${contactIds.length} warm planning backlog candidate${contactIds.length === 1 ? '' : 's'}`,
     )
-  }, [loadWarmBatchReview, warmOfficeBatchQueue.currentCta.contactIds])
+  }, [loadWarmBatchReview, warmPlanningBacklog.currentCta.contactIds])
   const openWarmShortlistItem = useCallback(
     (item: WarmOutreachShortlistItem) => {
       setOutreachWorkroomLeadId(item.contactId)
@@ -1234,8 +1234,8 @@ function OutreachContent() {
     },
     [router, searchParams],
   )
-  const openWarmOfficeCandidate = useCallback(
-    (candidate: WarmOutreachOfficeBatchQueueCandidate) => {
+  const openWarmPlanningCandidate = useCallback(
+    (candidate: WarmOutreachPlanningBacklogCandidate) => {
       setOutreachWorkroomLeadId(candidate.contactId)
       setExpandedLeadId(candidate.contactId)
       setLeadRowMenuOpenId(null)
@@ -1579,14 +1579,14 @@ function OutreachContent() {
 
             {showWarmOutreachShortlist && (
               <>
-              <WarmOfficeBatchQueuePanel
-                queue={warmOfficeBatchQueue}
-                activeState={warmOfficeQueueFilter}
+              <WarmPlanningBacklogPanel
+                backlog={warmPlanningBacklog}
+                activeState={warmPlanningBacklogFilter}
                 loading={warmBatchReviewLoading}
                 error={warmBatchReviewError}
-                onStateChange={setWarmOfficeQueueFilter}
-                onPrepareBatch={prepareOfficeBatchPlan}
-                onOpenCandidate={openWarmOfficeCandidate}
+                onStateChange={setWarmPlanningBacklogFilter}
+                onPrepareBatch={prepareWarmPlanningBatch}
+                onOpenCandidate={openWarmPlanningCandidate}
               />
               <section
                 className="mb-4 rounded-lg border border-silicon-slate/70 bg-silicon-slate/15 p-3 sm:p-4"

@@ -11,12 +11,12 @@ import {
   UserRoundCheck,
 } from 'lucide-react'
 import type {
-  WarmOutreachOfficeBatchQueue,
-  WarmOutreachOfficeBatchQueueCandidate,
-  WarmOutreachOfficeBatchQueueState,
+  WarmOutreachPlanningBacklog,
+  WarmOutreachPlanningBacklogCandidate,
+  WarmOutreachPlanningBacklogState,
 } from '@/lib/warm-outreach-shortlist'
 
-const STATE_ORDER: WarmOutreachOfficeBatchQueueState[] = [
+const STATE_ORDER: WarmOutreachPlanningBacklogState[] = [
   'ready_gmail_draft',
   'ready_manual_social',
   'needs_relationship_review',
@@ -25,17 +25,17 @@ const STATE_ORDER: WarmOutreachOfficeBatchQueueState[] = [
   'sms_parked',
 ]
 
-interface WarmOfficeBatchQueuePanelProps {
-  queue: WarmOutreachOfficeBatchQueue
-  activeState: WarmOutreachOfficeBatchQueueState | 'all'
+interface WarmPlanningBacklogPanelProps {
+  backlog: WarmOutreachPlanningBacklog
+  activeState: WarmOutreachPlanningBacklogState | 'all'
   loading: boolean
   error: string | null
-  onStateChange: (state: WarmOutreachOfficeBatchQueueState | 'all') => void
+  onStateChange: (state: WarmOutreachPlanningBacklogState | 'all') => void
   onPrepareBatch: () => void
-  onOpenCandidate: (candidate: WarmOutreachOfficeBatchQueueCandidate) => void
+  onOpenCandidate: (candidate: WarmOutreachPlanningBacklogCandidate) => void
 }
 
-function channelLabel(channel: WarmOutreachOfficeBatchQueueCandidate['recommendedChannel']) {
+function channelLabel(channel: WarmOutreachPlanningBacklogCandidate['recommendedChannel']) {
   if (channel === 'gmail') return 'Gmail'
   if (channel === 'linkedin') return 'LinkedIn'
   if (channel === 'facebook') return 'Facebook'
@@ -47,7 +47,7 @@ function compactLabel(value: string) {
   return value.replace(/_/g, ' ')
 }
 
-function stateClasses(state: WarmOutreachOfficeBatchQueueState) {
+function stateClasses(state: WarmOutreachPlanningBacklogState) {
   if (state === 'ready_gmail_draft') return 'border-emerald-500/35 bg-emerald-500/10 text-emerald-100'
   if (state === 'ready_manual_social') return 'border-sky-500/35 bg-sky-500/10 text-sky-100'
   if (state === 'waiting_on_response') return 'border-violet-500/35 bg-violet-500/10 text-violet-100'
@@ -55,7 +55,7 @@ function stateClasses(state: WarmOutreachOfficeBatchQueueState) {
   return 'border-amber-500/35 bg-amber-500/10 text-amber-100'
 }
 
-function StateIcon({ state }: { state: WarmOutreachOfficeBatchQueueState }) {
+function StateIcon({ state }: { state: WarmOutreachPlanningBacklogState }) {
   if (state === 'ready_gmail_draft') return <Mail size={14} aria-hidden />
   if (state === 'ready_manual_social') return <UserRoundCheck size={14} aria-hidden />
   if (state === 'waiting_on_response') return <MessageSquare size={14} aria-hidden />
@@ -63,40 +63,40 @@ function StateIcon({ state }: { state: WarmOutreachOfficeBatchQueueState }) {
   return <AlertTriangle size={14} aria-hidden />
 }
 
-function candidatePrimaryState(candidate: WarmOutreachOfficeBatchQueueCandidate) {
+function candidatePrimaryState(candidate: WarmOutreachPlanningBacklogCandidate) {
   return candidate.states.find((state) => state !== 'sms_parked') ?? candidate.states[0] ?? 'needs_relationship_review'
 }
 
-export default function WarmOfficeBatchQueuePanel({
-  queue,
+export default function WarmPlanningBacklogPanel({
+  backlog,
   activeState,
   loading,
   error,
   onStateChange,
   onPrepareBatch,
   onOpenCandidate,
-}: WarmOfficeBatchQueuePanelProps) {
+}: WarmPlanningBacklogPanelProps) {
   const visibleCandidates =
     activeState === 'all'
-      ? queue.candidates
-      : queue.candidates.filter((candidate) => candidate.states.includes(activeState))
+      ? backlog.candidates
+      : backlog.candidates.filter((candidate) => candidate.states.includes(activeState))
 
   return (
     <section
       className="mb-4 rounded-lg border border-radiant-gold/30 bg-radiant-gold/5 p-3 sm:p-4"
-      aria-label="Office-week warm outreach batch queue"
+      aria-label="Warm outreach planning backlog"
     >
       <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(13rem,auto)] lg:items-start">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <p className="text-xs font-semibold uppercase tracking-wide text-radiant-gold">
-              Office-week queue
+              Warm planning backlog
             </p>
             <span className="rounded-full border border-silicon-slate/70 bg-background/45 px-2 py-0.5 text-xs text-muted-foreground">
-              {queue.weekLabel}
+              {backlog.planningWindowLabel}
             </span>
             <span className="rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2 py-0.5 text-xs text-emerald-100">
-              external requests {queue.executionBoundary.externalRequests.length}
+              external requests {backlog.executionBoundary.externalRequests.length}
             </span>
           </div>
           <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-6">
@@ -113,12 +113,12 @@ export default function WarmOfficeBatchQueuePanel({
                       : 'border-silicon-slate/70 bg-background/40 text-muted-foreground hover:border-radiant-gold/50 hover:text-foreground'
                   }`}
                   aria-pressed={active}
-                  aria-label={`Show ${queue.filterLabels[state]} candidates`}
+                  aria-label={`Show ${backlog.filterLabels[state]} candidates`}
                 >
                   <span className="block truncate text-[10px] font-semibold uppercase tracking-wide">
-                    {queue.filterLabels[state]}
+                    {backlog.filterLabels[state]}
                   </span>
-                  <span className="mt-1 block text-lg font-semibold">{queue.counts[state]}</span>
+                  <span className="mt-1 block text-lg font-semibold">{backlog.counts[state]}</span>
                 </button>
               )
             })}
@@ -127,7 +127,7 @@ export default function WarmOfficeBatchQueuePanel({
         <div className="min-w-0">
           <button
             type="button"
-            disabled={!queue.currentCta.enabled || loading}
+            disabled={!backlog.currentCta.enabled || loading}
             onClick={onPrepareBatch}
             className="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-lg border border-radiant-gold/50 bg-radiant-gold/10 px-3 text-sm font-semibold text-radiant-gold transition-colors hover:bg-radiant-gold/15 disabled:cursor-not-allowed disabled:opacity-50 lg:w-auto"
           >
@@ -136,10 +136,10 @@ export default function WarmOfficeBatchQueuePanel({
             ) : (
               <ClipboardCheck size={15} aria-hidden />
             )}
-            {loading ? 'Preparing plan...' : queue.currentCta.label}
+            {loading ? 'Preparing plan...' : backlog.currentCta.label}
           </button>
           <p className="mt-2 text-xs leading-5 text-muted-foreground">
-            {queue.currentCta.reason}
+            {backlog.currentCta.reason}
           </p>
           {error && (
             <p role="alert" className="mt-2 rounded-md border border-red-500/25 bg-red-500/10 p-2 text-xs leading-5 text-red-100">
@@ -176,7 +176,7 @@ export default function WarmOfficeBatchQueuePanel({
                 <div className="flex flex-wrap items-center gap-2">
                   <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-semibold ${stateClasses(primaryState)}`}>
                     <StateIcon state={primaryState} />
-                    {queue.filterLabels[primaryState]}
+                    {backlog.filterLabels[primaryState]}
                   </span>
                   {candidate.states.includes('sms_parked') && primaryState !== 'sms_parked' && (
                     <span className="rounded-full border border-silicon-slate/80 bg-background/35 px-2 py-0.5 text-[11px] text-muted-foreground">
@@ -229,7 +229,7 @@ export default function WarmOfficeBatchQueuePanel({
         })}
         {visibleCandidates.length === 0 && (
           <div className="rounded-md border border-silicon-slate/70 bg-background/35 p-3 text-sm text-muted-foreground">
-            No candidates match this queue state.
+            No candidates match this planning state.
           </div>
         )}
       </div>

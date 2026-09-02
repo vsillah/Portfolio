@@ -165,7 +165,7 @@ describe('warm outreach shortlist', () => {
     expect(noDraft.blockers.map((blocker) => blocker.key)).toContain('provider_not_connected')
   })
 
-  it('summarizes drafted, approved, sent, blocked, and needs-Vambah counts for the office window', () => {
+  it('summarizes drafted, approved, sent, blocked, and needs-Vambah counts for the planning window', () => {
     const shortlist = buildWarmOutreachShortlist(
       [
         lead({
@@ -233,7 +233,7 @@ describe('warm outreach shortlist', () => {
     )
   })
 
-  it('builds an office-week batch queue with Gmail, manual-social, review, response, blocked, and SMS parked buckets', () => {
+  it('builds a warm planning backlog with Gmail, manual-social, review, response, blocked, and SMS parked buckets', () => {
     const shortlist = buildWarmOutreachShortlist(
       [
         lead({
@@ -303,8 +303,9 @@ describe('warm outreach shortlist', () => {
       { today: '2026-09-02' },
     )
 
-    expect(shortlist.officeBatchQueue).toMatchObject({
-      version: 'warm-outreach-office-batch-queue/v1',
+    expect(shortlist.planningBacklog).toMatchObject({
+      version: 'warm-outreach-planning-backlog/v1',
+      planningWindowLabel: 'Warm outreach backlog for 2026-09-02',
       counts: {
         ready_gmail_draft: 2,
         ready_manual_social: 1,
@@ -314,8 +315,8 @@ describe('warm outreach shortlist', () => {
         sms_parked: 1,
       },
       currentCta: {
-        key: 'prepare_office_review_batch',
-        label: 'Prepare review batch (2)',
+        key: 'prepare_planning_review_batch',
+        label: 'Plan review batch (2)',
         contactIds: [10, 15],
         state: 'ready_gmail_draft',
       },
@@ -331,12 +332,12 @@ describe('warm outreach shortlist', () => {
         externalRequests: [],
       },
     })
-    expect(shortlist.officeBatchQueue.candidates.find((candidate) => candidate.contactId === 11)).toMatchObject({
+    expect(shortlist.planningBacklog.candidates.find((candidate) => candidate.contactId === 11)).toMatchObject({
       recommendedChannel: 'linkedin',
       draftReadiness: 'ready_for_review_batch',
       states: ['ready_manual_social'],
       batchEligible: true,
     })
-    expect(shortlist.officeBatchQueue.candidates.find((candidate) => candidate.contactId === 15)?.states).toContain('sms_parked')
+    expect(shortlist.planningBacklog.candidates.find((candidate) => candidate.contactId === 15)?.states).toContain('sms_parked')
   })
 })

@@ -826,13 +826,14 @@ describe('OutreachAdminPage deep links', () => {
 
     render(<OutreachAdminPage />)
 
-    const officeQueue = await screen.findByLabelText('Office-week warm outreach batch queue')
-    expect(within(officeQueue).getByText('Office-week queue')).toBeInTheDocument()
-    expect(within(officeQueue).getByRole('button', { name: 'Show Ready for Gmail draft candidates' })).toBeInTheDocument()
-    expect(within(officeQueue).getByRole('button', { name: 'Prepare review batch (1)' })).toBeInTheDocument()
-    expect(within(officeQueue).getByText('Gmail drafts: off')).toBeInTheDocument()
-    expect(within(officeQueue).getByText('Sends/Slack/social/SMS: off')).toBeInTheDocument()
-    expect(within(officeQueue).getAllByText('SMS parked').length).toBeGreaterThan(0)
+    const planningBacklog = await screen.findByLabelText('Warm outreach planning backlog')
+    expect(within(planningBacklog).getByText('Warm planning backlog')).toBeInTheDocument()
+    expect(within(planningBacklog).getByText(/Warm outreach backlog for/)).toBeInTheDocument()
+    expect(within(planningBacklog).getByRole('button', { name: 'Show Ready for Gmail draft candidates' })).toBeInTheDocument()
+    expect(within(planningBacklog).getByRole('button', { name: 'Plan review batch (1)' })).toBeInTheDocument()
+    expect(within(planningBacklog).getByText('Gmail drafts: off')).toBeInTheDocument()
+    expect(within(planningBacklog).getByText('Sends/Slack/social/SMS: off')).toBeInTheDocument()
+    expect(within(planningBacklog).getAllByText('SMS parked').length).toBeGreaterThan(0)
 
     const digest = await screen.findByLabelText('Warm response digest')
     expect(within(digest).getByText('Warm response digest')).toBeInTheDocument()
@@ -855,7 +856,7 @@ describe('OutreachAdminPage deep links', () => {
     expect(within(shortlist).getByRole('button', { name: 'Generate draft for Ada Operator' })).toBeInTheDocument()
   })
 
-  it('filters the office-week queue from summary counts and keeps SMS parked separate', async () => {
+  it('filters the warm planning backlog from summary counts and keeps SMS parked separate', async () => {
     window.history.replaceState({}, '', '/admin/outreach?tab=leads&filter=warm')
     const phoneLead = {
       ...lead,
@@ -887,23 +888,23 @@ describe('OutreachAdminPage deep links', () => {
 
     render(<OutreachAdminPage />)
 
-    const officeQueue = await screen.findByLabelText('Office-week warm outreach batch queue')
-    expect(within(officeQueue).getByText('Phone Operator')).toBeInTheDocument()
-    fireEvent.click(within(officeQueue).getByRole('button', { name: 'Show SMS parked candidates' }))
+    const planningBacklog = await screen.findByLabelText('Warm outreach planning backlog')
+    expect(within(planningBacklog).getByText('Phone Operator')).toBeInTheDocument()
+    fireEvent.click(within(planningBacklog).getByRole('button', { name: 'Show SMS parked candidates' }))
 
-    expect(within(officeQueue).queryByText('Ada Operator')).not.toBeInTheDocument()
-    expect(within(officeQueue).getByText('Phone Operator')).toBeInTheDocument()
-    expect(within(officeQueue).getAllByText('SMS parked').length).toBeGreaterThan(0)
+    expect(within(planningBacklog).queryByText('Ada Operator')).not.toBeInTheDocument()
+    expect(within(planningBacklog).getByText('Phone Operator')).toBeInTheDocument()
+    expect(within(planningBacklog).getAllByText('SMS parked').length).toBeGreaterThan(0)
   })
 
-  it('prepares a review-only office batch plan without external requests or create actions', async () => {
+  it('prepares a review-only warm planning backlog batch without external requests or create actions', async () => {
     window.history.replaceState({}, '', '/admin/outreach?tab=leads&filter=warm')
     const fetchMock = vi.mocked(fetch)
 
     render(<OutreachAdminPage />)
 
-    const officeQueue = await screen.findByLabelText('Office-week warm outreach batch queue')
-    fireEvent.click(within(officeQueue).getByRole('button', { name: 'Prepare review batch (1)' }))
+    const planningBacklog = await screen.findByLabelText('Warm outreach planning backlog')
+    fireEvent.click(within(planningBacklog).getByRole('button', { name: 'Plan review batch (1)' }))
 
     await screen.findByLabelText('Warm batch review')
     await waitFor(() => {
@@ -911,7 +912,7 @@ describe('OutreachAdminPage deep links', () => {
         '/api/admin/outreach/batch-review',
         expect.objectContaining({
           method: 'POST',
-          body: expect.stringContaining('office-week review batch candidate'),
+          body: expect.stringContaining('warm planning backlog candidate'),
         }),
       )
     })

@@ -118,7 +118,7 @@ export type WarmOutreachOfficeDigest = {
   }
 }
 
-export type WarmOutreachOfficeBatchQueueState =
+export type WarmOutreachPlanningBacklogState =
   | 'ready_gmail_draft'
   | 'ready_manual_social'
   | 'needs_relationship_review'
@@ -126,7 +126,7 @@ export type WarmOutreachOfficeBatchQueueState =
   | 'suppressed_blocked'
   | 'sms_parked'
 
-export type WarmOutreachOfficeBatchQueueCandidate = {
+export type WarmOutreachPlanningBacklogCandidate = {
   contactId: number
   contactName: string
   company: string | null
@@ -147,27 +147,27 @@ export type WarmOutreachOfficeBatchQueueCandidate = {
     | 'submitted_evidence_recorded'
     | 'blocked'
   responseStatus: 'no_response' | 'waiting' | 'reply_detected' | 'blocked'
-  states: WarmOutreachOfficeBatchQueueState[]
+  states: WarmOutreachPlanningBacklogState[]
   blockers: string[]
   batchEligible: boolean
   nextActionLabel: string
   ctaHref: string
 }
 
-export type WarmOutreachOfficeBatchQueue = {
-  version: 'warm-outreach-office-batch-queue/v1'
-  weekLabel: string
-  filterLabels: Record<WarmOutreachOfficeBatchQueueState, string>
-  counts: Record<WarmOutreachOfficeBatchQueueState, number>
+export type WarmOutreachPlanningBacklog = {
+  version: 'warm-outreach-planning-backlog/v1'
+  planningWindowLabel: string
+  filterLabels: Record<WarmOutreachPlanningBacklogState, string>
+  counts: Record<WarmOutreachPlanningBacklogState, number>
   currentCta: {
-    key: 'prepare_office_review_batch' | 'review_relationship_blockers' | 'review_waiting_responses' | 'none'
+    key: 'prepare_planning_review_batch' | 'review_relationship_blockers' | 'review_waiting_responses' | 'none'
     label: string
     enabled: boolean
     reason: string
     contactIds: number[]
-    state: WarmOutreachOfficeBatchQueueState | null
+    state: WarmOutreachPlanningBacklogState | null
   }
-  candidates: WarmOutreachOfficeBatchQueueCandidate[]
+  candidates: WarmOutreachPlanningBacklogCandidate[]
   executionBoundary: {
     localPortfolioPlanOnly: true
     providerCallsEnabled: false
@@ -191,7 +191,7 @@ export type WarmOutreachShortlist = {
     submittedCount: number
   }
   officeDigest: WarmOutreachOfficeDigest
-  officeBatchQueue: WarmOutreachOfficeBatchQueue
+  planningBacklog: WarmOutreachPlanningBacklog
 }
 
 const BLOCKER_LABELS: Record<WarmOutreachShortlistBlockerKey, string> = {
@@ -209,7 +209,7 @@ const APPROVED_STATUSES = new Set(['approved', 'send_authorized', 'authorized'])
 const APPROVAL_PENDING_STATUSES = new Set(['approval_requested', 'pending_approval'])
 const DRAFT_STATUSES = new Set(['draft', 'queued'])
 
-const OFFICE_BATCH_FILTER_LABELS: Record<WarmOutreachOfficeBatchQueueState, string> = {
+const PLANNING_BACKLOG_FILTER_LABELS: Record<WarmOutreachPlanningBacklogState, string> = {
   ready_gmail_draft: 'Ready for Gmail draft',
   ready_manual_social: 'Ready for manual social',
   needs_relationship_review: 'Needs relationship review',
@@ -475,7 +475,7 @@ function buildOfficeDigest(args: {
 
   return {
     version: 'warm-response-digest/v1',
-    operatingWindowLabel: `Warm outreach office window for ${args.generatedFor}`,
+    operatingWindowLabel: `Warm outreach planning window for ${args.generatedFor}`,
     counts: {
       drafted: args.warmLeads.filter((lead) => {
         const draftStatus = text(latestDraft(lead)?.status)?.toLowerCase()
@@ -531,10 +531,10 @@ function buildOfficeDigest(args: {
   }
 }
 
-function officeBatchCandidateFor(
+function planningBacklogCandidateFor(
   lead: WarmOutreachShortlistLead,
   item: Omit<WarmOutreachShortlistItem, 'priorityRank'>,
-): WarmOutreachOfficeBatchQueueCandidate {
+): WarmOutreachPlanningBacklogCandidate {
   const status = text(lead.outreach_status)?.toLowerCase()
   const draftStatus = text(latestDraft(lead)?.status)?.toLowerCase()
   const suppressed =
@@ -569,7 +569,7 @@ function officeBatchCandidateFor(
     !replyDetected &&
     Boolean(lead.linkedin_url || lead.lead_source?.includes('facebook') || lead.phone_number)
   const smsParked = Boolean(lead.phone_number)
-  const states = new Set<WarmOutreachOfficeBatchQueueState>()
+  const states = new Set<WarmOutreachPlanningBacklogState>()
 
   if (suppressed || missingEmail && !manualSocialReady) states.add('suppressed_blocked')
   if (replyDetected || submitted) states.add('waiting_on_response')
@@ -579,7 +579,7 @@ function officeBatchCandidateFor(
   if (smsParked) states.add('sms_parked')
   if (states.size === 0) states.add('needs_relationship_review')
 
-  const recommendedChannel: WarmOutreachOfficeBatchQueueCandidate['recommendedChannel'] =
+  const recommendedChannel: WarmOutreachPlanningBacklogCandidate['recommendedChannel'] =
     gmailReady || text(lead.email)
       ? 'gmail'
       : lead.linkedin_url
@@ -589,7 +589,7 @@ function officeBatchCandidateFor(
           : lead.phone_number
             ? 'phone_contact'
             : 'sms'
-  const draftReadiness: WarmOutreachOfficeBatchQueueCandidate['draftReadiness'] =
+  const draftReadiness: WarmOutreachPlanningBacklogCandidate['draftReadiness'] =
     suppressed
       ? 'blocked'
       : replyDetected || submitted
@@ -603,7 +603,7 @@ function officeBatchCandidateFor(
               : smsParked && !gmailReady && !manualSocialReady
                 ? 'sms_parked'
                 : 'ready_for_review_batch'
-  const approvalState: WarmOutreachOfficeBatchQueueCandidate['approvalState'] =
+  const approvalState: WarmOutreachPlanningBacklogCandidate['approvalState'] =
     suppressed || weakBasis
       ? 'blocked'
       : submitted
@@ -613,7 +613,7 @@ function officeBatchCandidateFor(
           : approvalNeeded || existingDraft
             ? 'needs_approval'
             : 'not_requested'
-  const responseStatus: WarmOutreachOfficeBatchQueueCandidate['responseStatus'] =
+  const responseStatus: WarmOutreachPlanningBacklogCandidate['responseStatus'] =
     suppressed
       ? 'blocked'
       : replyDetected
@@ -643,7 +643,7 @@ function officeBatchCandidateFor(
     blockers,
     batchEligible,
     nextActionLabel: batchEligible
-      ? 'Prepare review batch'
+      ? 'Plan review batch'
       : states.has('suppressed_blocked')
         ? 'Review suppression state'
         : responseStatus !== 'no_response'
@@ -655,20 +655,20 @@ function officeBatchCandidateFor(
   }
 }
 
-function buildOfficeBatchQueue(args: {
+function buildPlanningBacklog(args: {
   generatedFor: string
   items: Array<Omit<WarmOutreachShortlistItem, 'priorityRank'>>
   warmLeads: WarmOutreachShortlistLead[]
-}): WarmOutreachOfficeBatchQueue {
+}): WarmOutreachPlanningBacklog {
   const candidates = args.items.map((item) => {
     const lead = args.warmLeads.find((candidate) => candidate.id === item.contactId)
-    return lead ? officeBatchCandidateFor(lead, item) : null
-  }).filter(Boolean) as WarmOutreachOfficeBatchQueueCandidate[]
-  const counts = Object.keys(OFFICE_BATCH_FILTER_LABELS).reduce((acc, key) => {
-    const state = key as WarmOutreachOfficeBatchQueueState
+    return lead ? planningBacklogCandidateFor(lead, item) : null
+  }).filter(Boolean) as WarmOutreachPlanningBacklogCandidate[]
+  const counts = Object.keys(PLANNING_BACKLOG_FILTER_LABELS).reduce((acc, key) => {
+    const state = key as WarmOutreachPlanningBacklogState
     acc[state] = candidates.filter((candidate) => candidate.states.includes(state)).length
     return acc
-  }, {} as Record<WarmOutreachOfficeBatchQueueState, number>)
+  }, {} as Record<WarmOutreachPlanningBacklogState, number>)
   const readyGmail = candidates.filter((candidate) => candidate.states.includes('ready_gmail_draft') && candidate.batchEligible)
   const readyManual = candidates.filter((candidate) => candidate.states.includes('ready_manual_social') && candidate.batchEligible)
   const waiting = candidates.filter((candidate) => candidate.states.includes('waiting_on_response'))
@@ -689,16 +689,16 @@ function buildOfficeBatchQueue(args: {
     .map((candidate) => candidate.contactId) ?? []
 
   return {
-    version: 'warm-outreach-office-batch-queue/v1',
-    weekLabel: `Office-week queue for ${args.generatedFor}`,
-    filterLabels: OFFICE_BATCH_FILTER_LABELS,
+    version: 'warm-outreach-planning-backlog/v1',
+    planningWindowLabel: `Warm outreach backlog for ${args.generatedFor}`,
+    filterLabels: PLANNING_BACKLOG_FILTER_LABELS,
     counts,
     currentCta: selected && batchContactIds.length > 0
       ? {
-          key: 'prepare_office_review_batch',
-          label: `Prepare review batch (${batchContactIds.length})`,
+          key: 'prepare_planning_review_batch',
+          label: `Plan review batch (${batchContactIds.length})`,
           enabled: true,
-          reason: `Review-only plan for ${OFFICE_BATCH_FILTER_LABELS[selected.state].toLowerCase()} contacts.`,
+          reason: `Internal review plan for ${PLANNING_BACKLOG_FILTER_LABELS[selected.state].toLowerCase()} contacts; no drafts or sends are created.`,
           contactIds: batchContactIds,
           state: selected.state,
         }
@@ -707,7 +707,7 @@ function buildOfficeBatchQueue(args: {
             key: 'review_waiting_responses',
             label: 'Review waiting responses',
             enabled: false,
-            reason: 'Responses need per-contact review before another batch is prepared.',
+            reason: 'Responses need per-contact review before another batch is planned.',
             contactIds: [],
             state: selected.state,
           }
@@ -716,7 +716,7 @@ function buildOfficeBatchQueue(args: {
               key: 'review_relationship_blockers',
               label: 'Review relationship blockers',
               enabled: false,
-              reason: 'No visible contact is ready for a review-only batch plan.',
+              reason: 'No visible contact is ready for an internal review batch plan.',
               contactIds: [],
               state: selected.state,
             }
@@ -774,7 +774,7 @@ export function buildWarmOutreachShortlist(
   const items = allItems
     .slice(0, options.limit ?? 15)
     .map((item, index) => ({ ...item, priorityRank: index + 1 }))
-  const officeBatchQueue = buildOfficeBatchQueue({
+  const planningBacklog = buildPlanningBacklog({
     generatedFor,
     warmLeads,
     items: allItems,
@@ -790,6 +790,6 @@ export function buildWarmOutreachShortlist(
       submittedCount: allItems.filter((item) => item.status === 'submitted').length,
     },
     officeDigest: buildOfficeDigest({ generatedFor, warmLeads, items: allItems }),
-    officeBatchQueue,
+    planningBacklog,
   }
 }
