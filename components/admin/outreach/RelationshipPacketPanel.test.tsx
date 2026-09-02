@@ -725,6 +725,46 @@ const packetResponse: RelationshipPacketApiResponse = {
       requiresHumanApproval: true,
       idempotencyKey: 'warm-outreach:monitoring-follow-up:v1:followup42',
     },
+    responseDigest: {
+      version: 'warm-outreach-response-digest/v1',
+      state: 'empty_no_response',
+      label: 'No response yet',
+      classification: {
+        responseClass: null,
+        label: 'No response',
+        confidence: null,
+        sourceId: null,
+      },
+      nextBestAction: {
+        label: 'Review stale no-response follow-up',
+        description: 'Review relationship evidence before proposing another touch.',
+        priority: 'medium',
+        ctaLabel: 'Capture response',
+      },
+      followUpDraft: {
+        state: 'not_available',
+        subject: null,
+        approvalState: 'not_available',
+        sourceId: null,
+        idempotencyKey: null,
+        detail: 'No response evidence is recorded yet, so no reply draft is available.',
+      },
+      suppressionProposal: {
+        state: 'not_applicable',
+        actionLabel: 'No suppression proposal',
+        reason: 'No hold, not-now, do-not-contact, or sensitive handling proposal is implied by the current evidence.',
+        idempotencyKey: null,
+        requiresHumanApproval: true,
+        mutatesSuppression: false,
+      },
+      readiness: {
+        manualCaptureEnabled: true,
+        localReplyDraftReady: false,
+        providerMonitoringEnabled: false,
+        externalSendEnabled: false,
+        slackDispatchEnabled: false,
+      },
+    },
     providerCaptureReadiness: {
       version: 'warm-outreach-provider-response-capture-readiness/v1',
       state: 'provider_assisted_readiness',
@@ -1009,6 +1049,14 @@ describe('RelationshipPacketPanel', () => {
     expect(screen.getByText('External send: off')).toBeInTheDocument()
     expect(screen.getByText('Provider monitoring: off')).toBeInTheDocument()
     expect(screen.getAllByText('Response monitoring')).not.toHaveLength(0)
+    expect(screen.getByLabelText('Warm response digest for selected contact')).toBeInTheDocument()
+    expect(screen.getByText('Response digest')).toBeInTheDocument()
+    expect(screen.getByText('No response yet')).toBeInTheDocument()
+    expect(screen.getByText('Classification: No response')).toBeInTheDocument()
+    expect(screen.getByText('Follow-up draft: not available')).toBeInTheDocument()
+    expect(screen.getByText('Priority: medium')).toBeInTheDocument()
+    expect(screen.getByText('Follow-up draft readiness')).toBeInTheDocument()
+    expect(screen.getAllByText('Suppression proposal').length).toBeGreaterThan(0)
     expect(screen.getByText('Review stale no-response follow-up')).toBeInTheDocument()
     expect(screen.getByText('stale no response')).toBeInTheDocument()
     expect(screen.getByText('Response capture readiness')).toBeInTheDocument()
@@ -1055,9 +1103,9 @@ describe('RelationshipPacketPanel', () => {
     expect(screen.getByText('Negative / sensitive')).toBeInTheDocument()
     expect(screen.getByText('Slack alert metadata only')).toBeInTheDocument()
     expect(screen.getByText(/this surface does not post Slack messages/i)).toBeInTheDocument()
-    expect(screen.getByText('Capture response')).toBeInTheDocument()
+    expect(screen.getAllByText('Capture response').length).toBeGreaterThan(0)
     expect(screen.getByText('Review reply draft')).toBeInTheDocument()
-    expect(screen.getByText('Suppression proposal')).toBeInTheDocument()
+    expect(screen.getAllByText('Suppression proposal').length).toBeGreaterThan(0)
     expect(screen.getByText('Interested task path')).toBeInTheDocument()
     expect(screen.getByText(/does not mutate suppression directly/i)).toBeInTheDocument()
     expect(screen.getByText(/Capture key: warm-outreach:response-capture:v1:/)).toBeInTheDocument()

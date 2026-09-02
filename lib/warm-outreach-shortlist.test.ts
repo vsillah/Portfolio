@@ -60,6 +60,31 @@ describe('warm outreach shortlist', () => {
     )
 
     expect(shortlist.summary.totalWarmLeads).toBe(2)
+    expect(shortlist.officeDigest).toMatchObject({
+      version: 'warm-response-digest/v1',
+      counts: {
+        drafted: 0,
+        approved: 0,
+        sent: 1,
+        replied: 1,
+        blocked: 0,
+        needsVambah: 2,
+      },
+      currentCta: {
+        key: 'handle_response',
+        contactId: 2,
+        label: 'Handle response',
+      },
+      executionBoundary: {
+        localRowsOnly: true,
+        providerMonitoringEnabled: false,
+        providerCallsEnabled: false,
+        externalSendEnabled: false,
+        gmailDraftCreationEnabled: false,
+        slackDispatchEnabled: false,
+        externalRequests: [],
+      },
+    })
     expect(shortlist.items.map((item) => item.contactName)).toEqual([
       'Reply Waiting',
       'Ready Draft',
@@ -106,6 +131,11 @@ describe('warm outreach shortlist', () => {
       'approval_needed',
     ])
     expect(item.cta).toMatchObject({ key: 'resolve_blocker', label: 'Resolve blocker' })
+    expect(shortlist.officeDigest.responseStates[0]).toMatchObject({
+      classification: 'blocked',
+      followUpDraftReadiness: 'blocked',
+      suppressionProposalVisible: true,
+    })
   })
 
   it('selects a single current CTA from draft state without enabling live SMS or external sends', () => {
@@ -133,5 +163,73 @@ describe('warm outreach shortlist', () => {
     })
     expect(noDraft.cta).toMatchObject({ key: 'generate_draft', label: 'Generate draft' })
     expect(noDraft.blockers.map((blocker) => blocker.key)).toContain('provider_not_connected')
+  })
+
+  it('summarizes drafted, approved, sent, blocked, and needs-Vambah counts for the office window', () => {
+    const shortlist = buildWarmOutreachShortlist(
+      [
+        lead({
+          id: 1,
+          name: 'Draft Waiting',
+          recent_email_drafts: [
+            {
+              id: 'queue-draft',
+              subject: 'Warm draft',
+              status: 'draft',
+              created_at: '2026-09-02T08:00:00.000Z',
+            },
+          ],
+        }),
+        lead({
+          id: 2,
+          name: 'Approved Waiting',
+          recent_email_drafts: [
+            {
+              id: 'queue-approved',
+              subject: 'Warm draft',
+              status: 'approved',
+              created_at: '2026-09-02T09:00:00.000Z',
+            },
+          ],
+        }),
+        lead({
+          id: 3,
+          name: 'Sent Waiting',
+          messages_sent: 1,
+          recent_email_drafts: [
+            {
+              id: 'queue-sent',
+              subject: 'Warm draft',
+              status: 'sent',
+              created_at: '2026-09-02T10:00:00.000Z',
+            },
+          ],
+        }),
+        lead({
+          id: 4,
+          name: 'Suppressed Waiting',
+          do_not_contact: true,
+        }),
+      ],
+      { today: '2026-09-02' },
+    )
+
+    expect(shortlist.officeDigest.counts).toEqual({
+      drafted: 1,
+      approved: 1,
+      sent: 1,
+      replied: 0,
+      blocked: 1,
+      needsVambah: 4,
+    })
+    expect(shortlist.officeDigest.currentCta).toMatchObject({
+      key: 'handle_response',
+      label: 'Handle response',
+      contactName: 'Sent Waiting',
+      enabled: true,
+    })
+    expect(shortlist.officeDigest.responseStates.map((row) => row.followUpDraftReadiness)).toEqual(
+      expect.arrayContaining(['approval_needed', 'approved', 'blocked']),
+    )
   })
 })

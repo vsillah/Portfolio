@@ -128,6 +128,7 @@ interface RelationshipPacketPanelProps {
   smsTelnyxCanaryResult?: SmsTelnyxNoSendCanaryResult | null
   onSmsTelnyxNoSendCanary?: () => void
   inertSlackApprovalRequest?: boolean
+  responseDigestAnchorId?: string
 }
 
 const CHANNEL_LABELS: Record<WarmOutreachChannel, string> = {
@@ -183,6 +184,15 @@ function monitoringClasses(status?: WarmOutreachResponseMonitoring['status']) {
   }
   if (status === 'stale_no_response') return 'border-amber-500/30 bg-amber-500/10 text-amber-100'
   if (status === 'blocked') return 'border-red-500/30 bg-red-500/10 text-red-100'
+  return 'border-sky-500/25 bg-sky-500/10 text-sky-100'
+}
+
+function responseDigestStateClasses(state: WarmOutreachResponseMonitoring['responseDigest']['state']) {
+  if (state === 'follow_up_draft_ready' || state === 'reply_detected') {
+    return 'border-emerald-500/30 bg-emerald-500/10 text-emerald-100'
+  }
+  if (state === 'suppression_proposal') return 'border-amber-500/30 bg-amber-500/10 text-amber-100'
+  if (state === 'blocked') return 'border-red-500/30 bg-red-500/10 text-red-100'
   return 'border-sky-500/25 bg-sky-500/10 text-sky-100'
 }
 
@@ -3016,6 +3026,7 @@ export default function RelationshipPacketPanel({
   data,
   authToken,
   inertSlackApprovalRequest,
+  responseDigestAnchorId,
   onGmailDraftCanary,
   onSmsTelnyxNoSendCanary,
 }: RelationshipPacketPanelProps) {
@@ -3023,6 +3034,7 @@ export default function RelationshipPacketPanel({
   const packet = data?.packet
   const smsReadiness = data?.smsReadiness
   const responseMonitoring = data?.responseMonitoring
+  const responseDigest = responseMonitoring?.responseDigest
   const sourceInventory = packet?.sourceInventory
   const hasInventoryEvidence =
     Boolean(sourceInventory) &&
@@ -3212,6 +3224,78 @@ export default function RelationshipPacketPanel({
                 <CountPill label="Evidence" count={responseMonitoring.evidence.length} />
                 <CountPill label="Blocked" count={responseMonitoring.blockedReasons.length} />
               </div>
+              {responseDigest && (
+              <div
+                id={responseDigestAnchorId}
+                className={`mt-3 rounded-md border p-3 ${responseDigestStateClasses(responseDigest.state)}`}
+                aria-label="Warm response digest for selected contact"
+              >
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="min-w-0">
+                    <p className="text-[11px] font-semibold uppercase tracking-wide opacity-80">
+                      Response digest
+                    </p>
+                    <p className="mt-1 text-sm font-semibold">{responseDigest.label}</p>
+                    <p className="mt-1 text-xs leading-5 opacity-85">
+                      {responseDigest.nextBestAction.description}
+                    </p>
+                  </div>
+                  <a
+                    href={
+                      responseDigest.suppressionProposal.state !== 'not_applicable'
+                        ? '#warm-response-suppression-proposal'
+                        : '#warm-response-follow-up-draft'
+                    }
+                    className="inline-flex min-h-10 w-full shrink-0 items-center justify-center gap-2 rounded-md border border-current/25 bg-background/20 px-3 text-xs font-semibold transition-colors hover:bg-background/30 sm:w-auto"
+                  >
+                    {responseDigest.nextBestAction.ctaLabel}
+                  </a>
+                </div>
+                <div className="mt-3 grid gap-2 sm:grid-cols-3">
+                  <ValuePill
+                    label="Classification"
+                    value={responseDigest.classification.label}
+                  />
+                  <ValuePill
+                    label="Follow-up draft"
+                    value={responseDigest.followUpDraft.state.replace(/_/g, ' ')}
+                  />
+                  <ValuePill
+                    label="Priority"
+                    value={responseDigest.nextBestAction.priority}
+                  />
+                </div>
+                <div className="mt-2 grid gap-2 lg:grid-cols-2">
+                  <div
+                    id="warm-response-follow-up-draft"
+                    className="rounded-md border border-current/20 bg-background/20 p-2 text-[10px] leading-4"
+                  >
+                    <p className="font-semibold uppercase tracking-wide">Follow-up draft readiness</p>
+                    <p className="mt-1">
+                      {responseDigest.followUpDraft.detail}
+                    </p>
+                    {responseDigest.followUpDraft.subject && (
+                      <p className="mt-1 truncate">
+                        Subject: {responseDigest.followUpDraft.subject}
+                      </p>
+                    )}
+                  </div>
+                  <div
+                    id="warm-response-suppression-proposal"
+                    className="rounded-md border border-current/20 bg-background/20 p-2 text-[10px] leading-4"
+                  >
+                    <p className="font-semibold uppercase tracking-wide">Suppression proposal</p>
+                    <p className="mt-1">{responseDigest.suppressionProposal.reason}</p>
+                    <p className="mt-1">
+                      State: {responseDigest.suppressionProposal.state.replace(/_/g, ' ')} / mutation off
+                    </p>
+                  </div>
+                </div>
+                <p className="mt-2 text-[10px] leading-4 opacity-75">
+                  Provider monitoring off. Gmail drafts off. External send off. Slack dispatch off.
+                </p>
+              </div>
+              )}
               <div className="mt-3">
                 <p className="mb-2 text-[11px] font-medium uppercase tracking-wide text-muted-foreground/80">
                   Send authority review

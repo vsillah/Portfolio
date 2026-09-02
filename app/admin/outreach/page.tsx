@@ -74,6 +74,7 @@ import { OUTREACH_MODE_GATING_NOTE, OUTREACH_MODE_POLICIES } from '@/lib/outreac
 import type { WarmBatchReview } from '@/lib/warm-outreach-batch-review'
 import {
   buildWarmOutreachShortlist,
+  type WarmOutreachOfficeDigest,
   type WarmOutreachShortlistItem,
 } from '@/lib/warm-outreach-shortlist'
 import Link from 'next/link'
@@ -195,11 +196,31 @@ function channelReadinessClasses(state: WarmOutreachShortlistItem['channelReadin
   return 'border-silicon-slate/70 bg-background/45 text-muted-foreground'
 }
 
+function responseDigestClasses(classification: WarmOutreachOfficeDigest['responseStates'][number]['classification']) {
+  if (classification === 'reply_detected') return 'border-emerald-500/25 bg-emerald-500/10 text-emerald-100'
+  if (classification === 'sent_waiting' || classification === 'draft_ready') {
+    return 'border-sky-500/25 bg-sky-500/10 text-sky-100'
+  }
+  if (classification === 'blocked') return 'border-red-500/25 bg-red-500/10 text-red-100'
+  return 'border-silicon-slate/70 bg-background/45 text-muted-foreground'
+}
+
 function shortlistStatusLabel(status: WarmOutreachShortlistItem['status']) {
   if (status === 'ready') return 'Ready'
   if (status === 'submitted') return 'Submitted'
   if (status === 'blocked') return 'Blocked'
   return 'Needs review'
+}
+
+function DigestPill({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="min-w-0 rounded-md border border-silicon-slate/70 bg-background/40 px-2.5 py-2">
+      <p className="truncate text-[10px] font-semibold uppercase tracking-wide text-muted-foreground/80">
+        {label}
+      </p>
+      <p className="mt-1 truncate text-sm font-semibold text-foreground">{value}</p>
+    </div>
+  )
 }
 
 
@@ -1174,6 +1195,7 @@ function OutreachContent() {
     () => buildWarmOutreachShortlist(leads, { limit: 15 }),
     [leads],
   )
+  const warmOfficeDigest = warmOutreachShortlist.officeDigest
   const showWarmOutreachShortlist =
     activeTab === 'leads' && leadsTempFilter === 'warm' && warmOutreachShortlist.items.length > 0
   const openWarmShortlistItem = useCallback(
@@ -1191,6 +1213,27 @@ function OutreachContent() {
     },
     [router, searchParams],
   )
+  const openWarmDigestCurrentAction = useCallback(() => {
+    const contactId = warmOfficeDigest.currentCta.contactId
+    if (!warmOfficeDigest.currentCta.enabled || contactId == null) return
+
+    const item = warmOutreachShortlist.items.find((candidate) => candidate.contactId === contactId)
+    if (item) {
+      openWarmShortlistItem(item)
+      return
+    }
+
+    setOutreachWorkroomLeadId(contactId)
+    setExpandedLeadId(contactId)
+    setLeadRowMenuOpenId(null)
+    const params = new URLSearchParams(searchParams?.toString() || '')
+    params.set('tab', 'leads')
+    params.set('filter', 'warm')
+    params.set('id', String(contactId))
+    params.set('contactId', String(contactId))
+    const hash = warmOfficeDigest.currentCta.key === 'handle_response' ? '#warm-response-lifecycle' : ''
+    router.replace(`/admin/outreach?${params.toString()}${hash}`, { scroll: false })
+  }, [openWarmShortlistItem, router, searchParams, warmOfficeDigest, warmOutreachShortlist.items])
   const expandedLead = expandedLeadId ? leads.find((lead) => lead.id === expandedLeadId) ?? null : null
   const outreachWorkroomLead = outreachWorkroomLeadId
     ? leads.find((lead) => lead.id === outreachWorkroomLeadId) ?? null
@@ -1499,6 +1542,68 @@ function OutreachContent() {
             </AnimatePresence>
 
             {showWarmOutreachShortlist && (
+              <>
+              <section
+                className="mb-4 rounded-lg border border-silicon-slate/70 bg-silicon-slate/15 p-3 sm:p-4"
+                aria-label="Warm response digest"
+              >
+                <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(15rem,auto)] lg:items-center">
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-radiant-gold">
+                        Warm response digest
+                      </p>
+                      <span className="rounded-full border border-silicon-slate/70 bg-background/45 px-2 py-0.5 text-xs text-muted-foreground">
+                        {warmOfficeDigest.operatingWindowLabel}
+                      </span>
+                      <span className="rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2 py-0.5 text-xs text-emerald-100">
+                        external requests {warmOfficeDigest.executionBoundary.externalRequests.length}
+                      </span>
+                    </div>
+                    <div className="mt-3 grid grid-cols-2 gap-2 text-xs sm:grid-cols-3 lg:grid-cols-6">
+                      <DigestPill label="Drafted" value={String(warmOfficeDigest.counts.drafted)} />
+                      <DigestPill label="Approved" value={String(warmOfficeDigest.counts.approved)} />
+                      <DigestPill label="Sent" value={String(warmOfficeDigest.counts.sent)} />
+                      <DigestPill label="Replied" value={String(warmOfficeDigest.counts.replied)} />
+                      <DigestPill label="Blocked" value={String(warmOfficeDigest.counts.blocked)} />
+                      <DigestPill label="Needs Vambah" value={String(warmOfficeDigest.counts.needsVambah)} />
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    disabled={!warmOfficeDigest.currentCta.enabled || warmOfficeDigest.currentCta.contactId == null}
+                    onClick={openWarmDigestCurrentAction}
+                    className="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-lg border border-radiant-gold/50 bg-radiant-gold/10 px-3 text-sm font-semibold text-radiant-gold transition-colors hover:bg-radiant-gold/15 disabled:cursor-not-allowed disabled:opacity-50 lg:w-auto"
+                    aria-label={`Warm digest current action: ${warmOfficeDigest.currentCta.label}${warmOfficeDigest.currentCta.contactName ? ` for ${warmOfficeDigest.currentCta.contactName}` : ''}`}
+                  >
+                    <MessageSquare size={15} aria-hidden />
+                    {warmOfficeDigest.currentCta.label}
+                  </button>
+                </div>
+                <div className="mt-3 grid gap-2 md:grid-cols-2 xl:grid-cols-3">
+                  {warmOfficeDigest.responseStates.slice(0, 3).map((row) => (
+                    <div
+                      key={row.contactId}
+                      className={`rounded-md border p-2 ${responseDigestClasses(row.classification)}`}
+                    >
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <p className="truncate text-xs font-semibold">{row.contactName}</p>
+                        <span className="rounded-full border border-current/20 px-2 py-0.5 text-[10px] font-semibold">
+                          {row.classification.replace(/_/g, ' ')}
+                        </span>
+                      </div>
+                      <p className="mt-1 text-[11px] leading-4 opacity-85">{row.nextBestAction}</p>
+                      <p className="mt-1 text-[10px] leading-4 opacity-75">
+                        Follow-up: {row.followUpDraftReadiness.replace(/_/g, ' ')}
+                        {row.suppressionProposalVisible ? ' / suppression review visible' : ''}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+                <p className="mt-3 text-[11px] leading-5 text-muted-foreground">
+                  Provider monitoring, Gmail/SMS sends, Slack dispatch, social actions, and n8n dispatch remain off.
+                </p>
+              </section>
               <section
                 className="mb-6 rounded-lg border border-silicon-slate/70 bg-silicon-slate/15 p-3 sm:p-4"
                 aria-label="Daily warm outreach shortlist"
@@ -1615,6 +1720,7 @@ function OutreachContent() {
                   ))}
                 </div>
               </section>
+              </>
             )}
 
             {outreachWorkroomLead && (
@@ -1701,6 +1807,7 @@ function OutreachContent() {
                     loading={relationshipPacketLeadId === outreachWorkroomLead.id && relationshipPacketLoading}
                     error={relationshipPacketLeadId === outreachWorkroomLead.id ? relationshipPacketError : null}
                     data={relationshipPacketLeadId === outreachWorkroomLead.id ? relationshipPacketData : null}
+                    responseDigestAnchorId="warm-response-lifecycle"
                     inertSlackApprovalRequest={warmSlackSendApprovalQaMode}
                     gmailDraftCanaryLoading={gmailDraftCanaryLoadingLeadId === outreachWorkroomLead.id}
                     gmailDraftCanaryError={gmailDraftCanaryErrors[outreachWorkroomLead.id] ?? null}
