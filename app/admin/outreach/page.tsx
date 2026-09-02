@@ -312,6 +312,8 @@ function OutreachContent() {
   const [warmBatchReview, setWarmBatchReview] = useState<WarmBatchReview | null>(null)
   const [warmBatchReviewLoading, setWarmBatchReviewLoading] = useState(false)
   const [warmBatchReviewError, setWarmBatchReviewError] = useState<string | null>(null)
+  const [warmBatchDraftActionLoading, setWarmBatchDraftActionLoading] = useState(false)
+  const [warmBatchDraftActionError, setWarmBatchDraftActionError] = useState<string | null>(null)
   const [showEnrichModal, setShowEnrichModal] = useState(false)
   const [enrichModalLeadIds, setEnrichModalLeadIds] = useState<number[]>([])
   const [pushLoading, setPushLoading] = useState(false)
@@ -996,6 +998,7 @@ function OutreachContent() {
 
     setWarmBatchReviewLoading(true)
     setWarmBatchReviewError(null)
+    setWarmBatchDraftActionError(null)
     try {
       const session = await getCurrentSession()
       if (!session?.access_token) {
@@ -1031,6 +1034,50 @@ function OutreachContent() {
       )
     } finally {
       setWarmBatchReviewLoading(false)
+    }
+  }, [selectedLeadIds])
+
+  const createWarmBatchGmailDraftRecords = useCallback(async () => {
+    const contactIds = [...selectedLeadIds]
+    if (contactIds.length === 0) return
+
+    setWarmBatchDraftActionLoading(true)
+    setWarmBatchDraftActionError(null)
+    try {
+      const session = await getCurrentSession()
+      if (!session?.access_token) {
+        setWarmBatchDraftActionError('Admin session is required to create draft-only Gmail records.')
+        return
+      }
+
+      const res = await fetch('/api/admin/outreach/batch-review', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          action: 'create_gmail_draft_records',
+          contact_ids: contactIds,
+          cohort_label: `${contactIds.length} selected Gmail draft candidate${contactIds.length === 1 ? '' : 's'}`,
+          preferred_channel: 'email',
+        }),
+      })
+      const body = await res.json().catch(() => null)
+      if (!res.ok) {
+        throw new Error(
+          typeof body?.error === 'string'
+            ? body.error
+            : 'Gmail draft records could not be created.',
+        )
+      }
+      setWarmBatchReview(body as WarmBatchReview)
+    } catch (error) {
+      setWarmBatchDraftActionError(
+        error instanceof Error ? error.message : 'Gmail draft records could not be created.',
+      )
+    } finally {
+      setWarmBatchDraftActionLoading(false)
     }
   }, [selectedLeadIds])
 
@@ -1677,6 +1724,7 @@ function OutreachContent() {
                           setSelectedLeadIds(new Set())
                           setWarmBatchReview(null)
                           setWarmBatchReviewError(null)
+                          setWarmBatchDraftActionError(null)
                         }}
                         className="inline-flex min-h-10 w-full items-center justify-center rounded-lg border border-silicon-slate/80 px-3 text-sm text-muted-foreground hover:text-foreground sm:w-auto sm:border-transparent"
                       >
@@ -1690,8 +1738,11 @@ function OutreachContent() {
                     data={warmBatchReview}
                     loading={warmBatchReviewLoading}
                     error={warmBatchReviewError}
+                    draftActionLoading={warmBatchDraftActionLoading}
+                    draftActionError={warmBatchDraftActionError}
                     selectedCount={selectedLeadIds.size}
                     onReview={reviewWarmBatch}
+                    onCreateGmailDraftRecords={createWarmBatchGmailDraftRecords}
                   />
                 )}
                 <div className="flex items-center gap-2 mb-3">

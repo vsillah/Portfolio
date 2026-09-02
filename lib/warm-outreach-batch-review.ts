@@ -44,13 +44,37 @@ export type WarmGmailBatchDraftPlanRowStatus =
 
 export type WarmGmailBatchDraftPlanCtaKey =
   | 'prepare_local_draft_plan'
+  | 'create_gmail_draft_records'
+  | 'draft_records_created'
   | 'review_approval_requests'
   | 'resolve_blocked_rows'
+
+export type WarmGmailBatchDraftCreationStatus =
+  | 'eligible'
+  | 'blocked'
+  | 'excluded'
+  | 'draft_already_exists'
+  | 'provider_not_connected'
+  | 'approval_required'
+  | 'draft_created'
 
 export type WarmGmailBatchDraftPlanReadinessItem = {
   key: WarmGmailBatchDraftPlanReadinessKey
   label: string
   state: 'clear' | 'needs_review' | 'blocked' | 'unavailable'
+}
+
+export type WarmGmailBatchDraftCreationState = {
+  status: WarmGmailBatchDraftCreationStatus
+  statusLabel: string
+  actionEnabled: boolean
+  blocker: string | null
+  draftOnly: true
+  draftRecordKey: string
+  localDraftRecordId: string | null
+  providerDraftId: null
+  createdAt: string | null
+  externalRequests: []
 }
 
 export type WarmGmailBatchDraftPlanRow = {
@@ -66,6 +90,7 @@ export type WarmGmailBatchDraftPlanRow = {
   nextAction: 'local_draft_planning' | 'approval_request' | 'blocked_review' | 'excluded_review'
   nextActionLabel: string
   existingQueueId: string | null
+  draftCreation: WarmGmailBatchDraftCreationState
   draftIntent: {
     channel: 'gmail'
     templateFamily: WarmOutreachTemplateFamily
@@ -80,7 +105,12 @@ export type WarmGmailBatchDraftPlanRow = {
 
 export type WarmGmailBatchDraftPlan = {
   version: 'warm-outreach-gmail-batch-draft-plan/v1'
-  status: 'ready_for_local_planning' | 'approval_review_needed' | 'blocked_review'
+  status:
+    | 'ready_for_local_planning'
+    | 'draft_creation_ready'
+    | 'draft_records_created'
+    | 'approval_review_needed'
+    | 'blocked_review'
   currentCta: {
     key: WarmGmailBatchDraftPlanCtaKey
     label: string
@@ -95,8 +125,17 @@ export type WarmGmailBatchDraftPlan = {
     excludedSubmittedCount: number
     providerNotConnectedCount: number
     smsUnavailableCount: number
+    draftCreationEligibleCount: number
+    draftAlreadyExistsCount: number
+    draftCreatedCount: number
   }
   rows: WarmGmailBatchDraftPlanRow[]
+  executionReceipt: {
+    action: 'create_gmail_draft_records'
+    createdAt: string
+    createdCount: number
+    externalRequests: []
+  } | null
   executionBoundary: {
     localPortfolioPlanOnly: true
     createsOutreachQueueRows: false
@@ -385,10 +424,22 @@ function gmailDraftPlanStatusLabel(status: WarmGmailBatchDraftPlanRowStatus): st
   return 'Blocked'
 }
 
+function gmailDraftCreationStatusLabel(status: WarmGmailBatchDraftCreationStatus): string {
+  if (status === 'eligible') return 'Eligible'
+  if (status === 'provider_not_connected') return 'Provider not connected'
+  if (status === 'approval_required') return 'Approval required'
+  if (status === 'draft_already_exists') return 'Draft already exists'
+  if (status === 'draft_created') return 'Draft created'
+  if (status === 'excluded') return 'Excluded'
+  return 'Blocked'
+}
+
 function buildGmailDraftPlanRow(args: {
   recipient: Omit<WarmBatchReviewRecipient, 'gmailDraftPlan'>
   contact: PortfolioRow
   rows: WarmOutreachSourceInventoryRows
+  batchIdempotencyKey: string
+  draftCreationReceiptAt?: string | null
 }): WarmGmailBatchDraftPlanRow {
   const email = text(args.contact.email)
   const phone = text(args.contact.phone_number)
@@ -423,6 +474,38 @@ function buildGmailDraftPlanRow(args: {
         : status === 'excluded_submitted'
           ? 'excluded_review'
           : 'blocked_review'
+  const draftRecordKey = `warm-outreach:gmail-draft-record:v1:${stableHash({
+    batchIdempotencyKey: args.batchIdempotencyKey,
+    draftIdempotencyKey: args.recipient.draftIdempotencyKey,
+    contactId: args.recipient.contactId,
+    promptTemplateKey: args.recipient.promptTemplateKey,
+  })}`
+  const draftCreationStatus: WarmGmailBatchDraftCreationStatus = args.draftCreationReceiptAt &&
+    status === 'ready_for_local_planning'
+      ? 'draft_created'
+      : args.recipient.existingQueueId
+        ? 'draft_already_exists'
+        : status === 'excluded_submitted'
+          ? 'excluded'
+          : hardBlockers.length > 0
+            ? 'blocked'
+            : approvalNeeded
+              ? 'approval_required'
+              : providerConnected
+                ? 'eligible'
+                : 'provider_not_connected'
+  const draftCreationBlocker =
+    draftCreationStatus === 'provider_not_connected'
+      ? 'Connect and verify Gmail before creating provider drafts. Local records remain draft-only.'
+      : draftCreationStatus === 'approval_required'
+        ? 'Existing local draft state requires approval review before another Gmail draft record.'
+        : draftCreationStatus === 'draft_already_exists'
+          ? 'A local email draft already exists for this recipient and template.'
+          : draftCreationStatus === 'excluded'
+            ? 'Submitted email evidence already exists; this recipient is excluded from batch drafting.'
+            : draftCreationStatus === 'blocked'
+              ? hardBlockers[0] ?? 'Resolve recipient blockers before Gmail draft creation.'
+              : null
 
   return {
     contactId: args.recipient.contactId,
@@ -444,14 +527,30 @@ function buildGmailDraftPlanRow(args: {
     blockers: hardBlockers,
     nextAction,
     nextActionLabel:
-      nextAction === 'local_draft_planning'
-        ? 'Prepare local draft plan'
-        : nextAction === 'approval_request'
+      draftCreationStatus === 'draft_created'
+        ? 'Draft record created'
+        : draftCreationStatus === 'draft_already_exists'
+          ? 'Open existing draft'
+          : nextAction === 'local_draft_planning'
+            ? 'Create Gmail draft record'
+            : nextAction === 'approval_request'
           ? 'Review approval request'
           : nextAction === 'excluded_review'
             ? 'Review submitted evidence'
             : 'Resolve blocker',
     existingQueueId: args.recipient.existingQueueId,
+    draftCreation: {
+      status: draftCreationStatus,
+      statusLabel: gmailDraftCreationStatusLabel(draftCreationStatus),
+      actionEnabled: draftCreationStatus === 'eligible' || draftCreationStatus === 'provider_not_connected',
+      blocker: draftCreationBlocker,
+      draftOnly: true,
+      draftRecordKey,
+      localDraftRecordId: draftCreationStatus === 'draft_created' ? draftRecordKey : null,
+      providerDraftId: null,
+      createdAt: draftCreationStatus === 'draft_created' ? args.draftCreationReceiptAt ?? null : null,
+      externalRequests: [],
+    },
     draftIntent: {
       channel: 'gmail',
       templateFamily: args.recipient.selectedTemplate,
@@ -465,7 +564,10 @@ function buildGmailDraftPlanRow(args: {
   }
 }
 
-function buildGmailDraftPlan(rows: WarmGmailBatchDraftPlanRow[]): WarmGmailBatchDraftPlan {
+function buildGmailDraftPlan(
+  rows: WarmGmailBatchDraftPlanRow[],
+  draftCreationReceiptAt?: string | null,
+): WarmGmailBatchDraftPlan {
   const readyForLocalPlanningCount = rows.filter((row) => row.status === 'ready_for_local_planning').length
   const approvalRequiredCount = rows.filter((row) => row.status === 'approval_required').length
   const blockedReviewCount = rows.filter((row) => row.status === 'blocked_review').length
@@ -476,19 +578,31 @@ function buildGmailDraftPlan(rows: WarmGmailBatchDraftPlanRow[]): WarmGmailBatch
   const smsUnavailableCount = rows.filter((row) =>
     row.readiness.some((item) => item.key === 'sms_unavailable' && item.state === 'unavailable'),
   ).length
+  const draftCreationEligibleCount = rows.filter((row) =>
+    row.draftCreation.status === 'eligible' || row.draftCreation.status === 'provider_not_connected',
+  ).length
+  const draftAlreadyExistsCount = rows.filter((row) => row.draftCreation.status === 'draft_already_exists').length
+  const draftCreatedCount = rows.filter((row) => row.draftCreation.status === 'draft_created').length
 
   const currentCta: WarmGmailBatchDraftPlan['currentCta'] =
-    readyForLocalPlanningCount > 0
+    draftCreatedCount > 0 && draftCreationEligibleCount === 0
       ? {
-          key: 'prepare_local_draft_plan',
-          label: 'Prepare local draft plan',
+          key: 'draft_records_created',
+          label: 'Gmail draft records created',
+          enabled: false,
+          blocker: null,
+        }
+      : draftCreationEligibleCount > 0
+      ? {
+          key: 'create_gmail_draft_records',
+          label: `Create Gmail draft records (${draftCreationEligibleCount})`,
           enabled: true,
           blocker: null,
         }
       : approvalRequiredCount > 0
-        ? {
-            key: 'review_approval_requests',
-            label: 'Review approval requests',
+      ? {
+          key: 'review_approval_requests',
+          label: 'Review approval requests',
             enabled: true,
             blocker: null,
           }
@@ -504,8 +618,12 @@ function buildGmailDraftPlan(rows: WarmGmailBatchDraftPlanRow[]): WarmGmailBatch
   return {
     version: 'warm-outreach-gmail-batch-draft-plan/v1',
     status:
-      readyForLocalPlanningCount > 0
-        ? 'ready_for_local_planning'
+      draftCreatedCount > 0 && draftCreationEligibleCount === 0
+        ? 'draft_records_created'
+        : draftCreationEligibleCount > 0
+          ? 'draft_creation_ready'
+          : readyForLocalPlanningCount > 0
+            ? 'ready_for_local_planning'
         : approvalRequiredCount > 0
           ? 'approval_review_needed'
           : 'blocked_review',
@@ -518,8 +636,19 @@ function buildGmailDraftPlan(rows: WarmGmailBatchDraftPlanRow[]): WarmGmailBatch
       excludedSubmittedCount,
       providerNotConnectedCount,
       smsUnavailableCount,
+      draftCreationEligibleCount,
+      draftAlreadyExistsCount,
+      draftCreatedCount,
     },
     rows,
+    executionReceipt: draftCreationReceiptAt && draftCreatedCount > 0
+      ? {
+          action: 'create_gmail_draft_records',
+          createdAt: draftCreationReceiptAt,
+          createdCount: draftCreatedCount,
+          externalRequests: [],
+        }
+      : null,
     executionBoundary: {
       localPortfolioPlanOnly: true,
       createsOutreachQueueRows: false,
@@ -540,6 +669,7 @@ export function buildWarmBatchReview(args: {
   objective: string
   cohortLabel?: string | null
   preferredChannel?: WarmOutreachChannel
+  draftCreationReceiptAt?: string | null
 }): WarmBatchReview {
   const sortedContactIds = args.contacts
     .map((entry) => Number(entry.contact.id))
@@ -650,9 +780,14 @@ export function buildWarmBatchReview(args: {
       recipient,
       contact: args.contacts[index].contact,
       rows: args.contacts[index].rows,
+      batchIdempotencyKey,
+      draftCreationReceiptAt: args.draftCreationReceiptAt,
     }),
   }))
-  const gmailDraftPlan = buildGmailDraftPlan(recipients.map((recipient) => recipient.gmailDraftPlan))
+  const gmailDraftPlan = buildGmailDraftPlan(
+    recipients.map((recipient) => recipient.gmailDraftPlan),
+    args.draftCreationReceiptAt,
+  )
   const readyRecipients = recipients.filter((recipient) => recipient.status === 'ready_for_review')
   const existingDraftRecipients = recipients.filter((recipient) => recipient.status === 'existing_draft')
   const blockedRecipients = recipients.filter((recipient) => recipient.status === 'blocked')

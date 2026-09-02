@@ -311,10 +311,10 @@ const warmBatchReviewResponse = {
   ],
   gmailDraftPlan: {
     version: 'warm-outreach-gmail-batch-draft-plan/v1',
-    status: 'ready_for_local_planning',
+    status: 'draft_creation_ready',
     currentCta: {
-      key: 'prepare_local_draft_plan',
-      label: 'Prepare local draft plan',
+      key: 'create_gmail_draft_records',
+      label: 'Create Gmail draft records (1)',
       enabled: true,
       blocker: null,
     },
@@ -326,6 +326,9 @@ const warmBatchReviewResponse = {
       excludedSubmittedCount: 0,
       providerNotConnectedCount: 1,
       smsUnavailableCount: 0,
+      draftCreationEligibleCount: 1,
+      draftAlreadyExistsCount: 0,
+      draftCreatedCount: 0,
     },
     rows: [
       {
@@ -341,8 +344,20 @@ const warmBatchReviewResponse = {
         ],
         blockers: [],
         nextAction: 'local_draft_planning',
-        nextActionLabel: 'Prepare local draft plan',
+        nextActionLabel: 'Create Gmail draft record',
         existingQueueId: null,
+        draftCreation: {
+          status: 'provider_not_connected',
+          statusLabel: 'Provider not connected',
+          actionEnabled: true,
+          blocker: 'Connect and verify Gmail before creating provider drafts. Local records remain draft-only.',
+          draftOnly: true,
+          draftRecordKey: 'warm-outreach:gmail-draft-record:v1:test-recipient',
+          localDraftRecordId: null,
+          providerDraftId: null,
+          createdAt: null,
+          externalRequests: [],
+        },
         draftIntent: {
           channel: 'gmail',
           templateFamily: 'follow_up',
@@ -355,6 +370,7 @@ const warmBatchReviewResponse = {
         },
       },
     ],
+    executionReceipt: null,
     executionBoundary: {
       localPortfolioPlanOnly: true,
       createsOutreachQueueRows: false,
@@ -385,15 +401,56 @@ const warmBatchReviewResponse = {
   },
 }
 
+const warmBatchCreatedResponse = {
+  ...warmBatchReviewResponse,
+  gmailDraftPlan: {
+    ...warmBatchReviewResponse.gmailDraftPlan,
+    status: 'draft_records_created',
+    currentCta: {
+      key: 'draft_records_created',
+      label: 'Gmail draft records created',
+      enabled: false,
+      blocker: null,
+    },
+    summary: {
+      ...warmBatchReviewResponse.gmailDraftPlan.summary,
+      draftCreationEligibleCount: 0,
+      draftCreatedCount: 1,
+    },
+    rows: warmBatchReviewResponse.gmailDraftPlan.rows.map((row) => ({
+      ...row,
+      nextActionLabel: 'Draft record created',
+      draftCreation: {
+        ...row.draftCreation,
+        status: 'draft_created',
+        statusLabel: 'Draft created',
+        actionEnabled: false,
+        localDraftRecordId: row.draftCreation.draftRecordKey,
+        createdAt: '2026-09-02T12:00:00.000Z',
+        externalRequests: [],
+      },
+    })),
+    executionReceipt: {
+      action: 'create_gmail_draft_records',
+      createdAt: '2026-09-02T12:00:00.000Z',
+      createdCount: 1,
+      externalRequests: [],
+    },
+  },
+}
+
 describe('OutreachAdminPage deep links', () => {
   beforeEach(() => {
     window.history.replaceState({}, '', '/admin/outreach?tab=leads&id=42')
-    vi.stubGlobal('fetch', vi.fn(async (url: string) => {
+    vi.stubGlobal('fetch', vi.fn(async (url: string, init?: RequestInit) => {
       if (url.startsWith('/api/admin/outreach/leads/42/relationship-packet')) {
         return Response.json(relationshipPacketResponse)
       }
       if (url.startsWith('/api/admin/outreach/batch-review')) {
-        return Response.json(warmBatchReviewResponse)
+        const body = init?.body ? JSON.parse(String(init.body)) : {}
+        return Response.json(body.action === 'create_gmail_draft_records'
+          ? warmBatchCreatedResponse
+          : warmBatchReviewResponse)
       }
       if (url.startsWith('/api/admin/outreach/leads')) {
         return Response.json({ leads: [lead], total: 1, page: 1 })
@@ -838,17 +895,19 @@ describe('OutreachAdminPage deep links', () => {
     expect(within(batchReview).getByText('Cohort provenance')).toBeInTheDocument()
     expect(within(batchReview).getByText('Sample individualized preview')).toBeInTheDocument()
     expect(within(batchReview).getByLabelText('Gmail batch draft plan')).toBeInTheDocument()
-    expect(within(batchReview).getByRole('button', { name: 'Prepare local draft plan' })).toBeEnabled()
+    expect(within(batchReview).getByRole('button', { name: 'Create Gmail draft records (1)' })).toBeEnabled()
     expect(within(batchReview).getByText('1 plan-ready')).toBeInTheDocument()
     expect(within(batchReview).getByText('Provider not connected')).toBeInTheDocument()
     expect(within(batchReview).getByText('outreach_queue writes: off')).toBeInTheDocument()
-    expect(within(batchReview).getByText('Gmail drafts: off')).toBeInTheDocument()
+    expect(within(batchReview).getByText('Provider Gmail drafts: off')).toBeInTheDocument()
     expect(within(batchReview).getByText('Provider calls: off')).toBeInTheDocument()
     expect(within(batchReview).getByText('External send: off')).toBeInTheDocument()
     expect(within(batchReview).getByText('Full recipient list (1)')).toBeInTheDocument()
     expect(within(batchReview).getByText('Hi Ada, The warm basis is prior meeting context.')).toBeInTheDocument()
-    fireEvent.click(within(batchReview).getByRole('button', { name: 'Prepare local draft plan' }))
-    expect(await within(batchReview).findByText(/No outreach_queue row, Gmail draft, Slack message, SMS, n8n run, or provider request was created/)).toBeInTheDocument()
+    fireEvent.click(within(batchReview).getByRole('button', { name: 'Create Gmail draft records (1)' }))
+    expect(await within(batchReview).findByText(/Draft-only Gmail records created for 1 contact/)).toBeInTheDocument()
+    expect(within(batchReview).getByRole('button', { name: 'Gmail draft records created' })).toBeDisabled()
+    expect(within(batchReview).getByText('Record: Draft created')).toBeInTheDocument()
 
     await waitFor(() => {
       expect(fetchMock).toHaveBeenCalledWith(
@@ -862,8 +921,15 @@ describe('OutreachAdminPage deep links', () => {
         }),
       )
     })
-    const batchCall = fetchMock.mock.calls.find(([url]) => url === '/api/admin/outreach/batch-review')
-    expect(JSON.parse(String(batchCall?.[1]?.body))).toMatchObject({
+    const batchCalls = fetchMock.mock.calls.filter(([url]) => url === '/api/admin/outreach/batch-review')
+    expect(batchCalls).toHaveLength(2)
+    expect(JSON.parse(String(batchCalls[0]?.[1]?.body))).toMatchObject({
+      contact_ids: [42],
+      cohort_label: '1 selected Gmail draft candidate',
+      preferred_channel: 'email',
+    })
+    expect(JSON.parse(String(batchCalls[1]?.[1]?.body))).toMatchObject({
+      action: 'create_gmail_draft_records',
       contact_ids: [42],
       cohort_label: '1 selected Gmail draft candidate',
       preferred_channel: 'email',

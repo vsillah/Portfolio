@@ -80,10 +80,10 @@ describe('warm outreach batch review', () => {
       },
       gmailDraftPlan: {
         version: 'warm-outreach-gmail-batch-draft-plan/v1',
-        status: 'ready_for_local_planning',
+        status: 'draft_creation_ready',
         currentCta: {
-          key: 'prepare_local_draft_plan',
-          label: 'Prepare local draft plan',
+          key: 'create_gmail_draft_records',
+          label: 'Create Gmail draft records (1)',
           enabled: true,
           blocker: null,
         },
@@ -95,6 +95,9 @@ describe('warm outreach batch review', () => {
           excludedSubmittedCount: 0,
           providerNotConnectedCount: 1,
           smsUnavailableCount: 0,
+          draftCreationEligibleCount: 1,
+          draftAlreadyExistsCount: 0,
+          draftCreatedCount: 0,
         },
         executionBoundary: {
           localPortfolioPlanOnly: true,
@@ -192,6 +195,16 @@ describe('warm outreach batch review', () => {
       contactId: 42,
       status: 'ready_for_local_planning',
       nextAction: 'local_draft_planning',
+      nextActionLabel: 'Create Gmail draft record',
+      draftCreation: {
+        status: 'provider_not_connected',
+        statusLabel: 'Provider not connected',
+        actionEnabled: true,
+        localDraftRecordId: null,
+        providerDraftId: null,
+        createdAt: null,
+        externalRequests: [],
+      },
       draftIntent: {
         channel: 'gmail',
         promptTemplateKey: 'email_follow_up',
@@ -361,13 +374,56 @@ describe('warm outreach batch review', () => {
       summary: {
         readyForLocalPlanningCount: 0,
         approvalRequiredCount: 1,
+        draftAlreadyExistsCount: 1,
       },
     })
     expect(first.recipients[0].gmailDraftPlan).toMatchObject({
       status: 'approval_required',
       nextAction: 'approval_request',
+      nextActionLabel: 'Open existing draft',
       existingQueueId: 'queue-existing',
+      draftCreation: {
+        status: 'draft_already_exists',
+        actionEnabled: false,
+        blocker: 'A local email draft already exists for this recipient and template.',
+      },
     })
+  })
+
+  it('records explicit draft-only Gmail draft creation receipts without egress', () => {
+    const review = reviewFor({
+      draftCreationReceiptAt: '2026-09-02T12:00:00.000Z',
+    })
+
+    expect(review.gmailDraftPlan).toMatchObject({
+      status: 'draft_records_created',
+      currentCta: {
+        key: 'draft_records_created',
+        label: 'Gmail draft records created',
+        enabled: false,
+      },
+      summary: {
+        draftCreationEligibleCount: 0,
+        draftCreatedCount: 1,
+      },
+      executionReceipt: {
+        action: 'create_gmail_draft_records',
+        createdAt: '2026-09-02T12:00:00.000Z',
+        createdCount: 1,
+        externalRequests: [],
+      },
+    })
+    expect(review.recipients[0].gmailDraftPlan.draftCreation).toMatchObject({
+      status: 'draft_created',
+      statusLabel: 'Draft created',
+      actionEnabled: false,
+      providerDraftId: null,
+      createdAt: '2026-09-02T12:00:00.000Z',
+      externalRequests: [],
+    })
+    expect(review.recipients[0].gmailDraftPlan.draftCreation.localDraftRecordId).toMatch(
+      /^warm-outreach:gmail-draft-record:v1:/,
+    )
   })
 
   it('excludes recipients with submitted email evidence from batch drafting', () => {

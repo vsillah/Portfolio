@@ -295,7 +295,29 @@ function recipient({
   nextActionLabel,
   existingQueueId = null,
   relationshipBasis = 'Prior Portfolio relationship context is available.',
+  draftCreated = false,
 }) {
+  const draftCreationStatus = draftCreated
+    ? 'draft_created'
+    : existingQueueId
+      ? 'draft_already_exists'
+      : status === 'approval_required'
+        ? 'approval_required'
+        : status === 'excluded_submitted'
+          ? 'excluded'
+          : status === 'blocked_review'
+            ? 'blocked'
+            : 'provider_not_connected'
+  const draftCreationLabels = {
+    eligible: 'Eligible',
+    blocked: 'Blocked',
+    excluded: 'Excluded',
+    draft_already_exists: 'Draft already exists',
+    provider_not_connected: 'Provider not connected',
+    approval_required: 'Approval required',
+    draft_created: 'Draft created',
+  }
+  const draftRecordKey = `warm-outreach:gmail-draft-record:v1:qa-${contactId}`
   return {
     contactId,
     contactName,
@@ -331,8 +353,24 @@ function recipient({
       readiness,
       blockers,
       nextAction,
-      nextActionLabel,
+      nextActionLabel: draftCreated ? 'Draft record created' : nextActionLabel,
       existingQueueId,
+      draftCreation: {
+        status: draftCreationStatus,
+        statusLabel: draftCreationLabels[draftCreationStatus],
+        actionEnabled: draftCreationStatus === 'provider_not_connected',
+        blocker: draftCreationStatus === 'provider_not_connected'
+          ? 'Connect and verify Gmail before creating provider drafts. Local records remain draft-only.'
+          : draftCreationStatus === 'draft_already_exists'
+            ? 'A local email draft already exists for this recipient and template.'
+            : blockers[0] ?? null,
+        draftOnly: true,
+        draftRecordKey,
+        localDraftRecordId: draftCreated ? draftRecordKey : null,
+        providerDraftId: null,
+        createdAt: draftCreated ? timestamp : null,
+        externalRequests: [],
+      },
       draftIntent: {
         channel: 'gmail',
         templateFamily: 'follow_up',
@@ -362,7 +400,7 @@ const reviewRows = [
     ],
     blockers: [],
     nextAction: 'local_draft_planning',
-    nextActionLabel: 'Prepare local draft plan',
+    nextActionLabel: 'Create Gmail draft record',
   }),
   recipient({
     contactId: 102,
@@ -432,10 +470,10 @@ const batchReview = {
   recipients: reviewRows,
   gmailDraftPlan: {
     version: 'warm-outreach-gmail-batch-draft-plan/v1',
-    status: 'ready_for_local_planning',
+    status: 'draft_creation_ready',
     currentCta: {
-      key: 'prepare_local_draft_plan',
-      label: 'Prepare local draft plan',
+      key: 'create_gmail_draft_records',
+      label: 'Create Gmail draft records (1)',
       enabled: true,
       blocker: null,
     },
@@ -447,8 +485,12 @@ const batchReview = {
       excludedSubmittedCount: 1,
       providerNotConnectedCount: 3,
       smsUnavailableCount: 1,
+      draftCreationEligibleCount: 1,
+      draftAlreadyExistsCount: 1,
+      draftCreatedCount: 0,
     },
     rows: reviewRows.map((row) => row.gmailDraftPlan),
+    executionReceipt: null,
     executionBoundary: {
       localPortfolioPlanOnly: true,
       createsOutreachQueueRows: false,
@@ -479,6 +521,52 @@ const batchReview = {
   },
 }
 
+const createdRows = reviewRows.map((row) => (
+  row.contactId === 101
+    ? recipient({
+        contactId: 101,
+        contactName: 'Amina Planready',
+        company: 'Batch QA Studio',
+        status: 'ready_for_local_planning',
+        statusLabel: 'Plan ready',
+        readiness: [
+          { key: 'provider_not_connected', label: 'Provider not connected', state: 'needs_review' },
+        ],
+        blockers: [],
+        nextAction: 'local_draft_planning',
+        nextActionLabel: 'Create Gmail draft record',
+        draftCreated: true,
+      })
+    : row
+))
+
+const batchReviewCreated = {
+  ...batchReview,
+  recipients: createdRows,
+  gmailDraftPlan: {
+    ...batchReview.gmailDraftPlan,
+    status: 'draft_records_created',
+    currentCta: {
+      key: 'draft_records_created',
+      label: 'Gmail draft records created',
+      enabled: false,
+      blocker: null,
+    },
+    summary: {
+      ...batchReview.gmailDraftPlan.summary,
+      draftCreationEligibleCount: 0,
+      draftCreatedCount: 1,
+    },
+    rows: createdRows.map((row) => row.gmailDraftPlan),
+    executionReceipt: {
+      action: 'create_gmail_draft_records',
+      createdAt: timestamp,
+      createdCount: 1,
+      externalRequests: [],
+    },
+  },
+}
+
 async function seedSession(page) {
   await page.addInitScript(({ keys, storedSession }) => {
     for (const key of keys) window.localStorage.setItem(key, JSON.stringify(storedSession))
@@ -496,11 +584,14 @@ async function installSafeRoutes(page) {
     contentType: 'application/json',
     body: JSON.stringify(user),
   }))
-  await page.route('**/api/admin/outreach/batch-review**', (route) => route.fulfill({
-    status: 200,
-    contentType: 'application/json',
-    body: JSON.stringify(batchReview),
-  }))
+  await page.route('**/api/admin/outreach/batch-review**', async (route, request) => {
+    const body = request.postDataJSON?.() ?? {}
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(body.action === 'create_gmail_draft_records' ? batchReviewCreated : batchReview),
+    })
+  })
   await page.route('**/api/admin/outreach/leads**', (route) => route.fulfill({
     status: 200,
     contentType: 'application/json',
@@ -577,8 +668,8 @@ async function captureMainScenario(browser, name, viewport) {
   const planPath = path.join(sourceDir, `${name}-02-plan.png`)
   await qa.page.screenshot({ path: planPath, fullPage: true })
 
-  await panel.getByRole('button', { name: 'Prepare local draft plan' }).click()
-  await panel.getByText(/No outreach_queue row, Gmail draft, Slack message, SMS, n8n run, or provider request was created/).waitFor({ timeout: 10_000 })
+  await panel.getByRole('button', { name: 'Create Gmail draft records (1)' }).click()
+  await panel.getByText(/Draft-only Gmail records created for 1 contact/).waitFor({ timeout: 10_000 })
   const noticePath = path.join(sourceDir, `${name}-03-notice.png`)
   await qa.page.screenshot({ path: noticePath, fullPage: true })
 
@@ -615,17 +706,17 @@ const frames = [
     source: mobile.screenshots.planPath,
     title: 'Review draft readiness',
     scenario: 'The batch preview shows one plan-ready row, one approval review row, one blocked row, and one submitted row.',
-    expected: 'Each row shows basis, template intent, blocker chips, and Gmail draft off.',
+    expected: 'Each row shows basis, template intent, blocker chips, and Gmail draft-record state.',
     changed: 'Batch preview, per-row readiness chips, current CTA, and collapsed Email gates details.',
-    boundary: 'The CTA prepares a local plan; it does not create outreach_queue rows or Gmail drafts.',
+    boundary: 'The CTA creates draft-only local records; it does not create provider Gmail drafts or sends.',
   },
   {
     source: desktop.screenshots.noticePath,
-    title: 'Prepare local plan',
+    title: 'Create draft records',
     scenario: 'The operator clicks the one current batch CTA after reviewing the rows.',
     expected: 'A local confirmation appears and states exactly which external actions did not happen.',
-    changed: 'Local planning confirmation, no-egress receipt, and desktop review state.',
-    boundary: 'Gmail, Slack, SMS, n8n, provider requests, and production writes remain off.',
+    changed: 'Draft-record receipt, repeat-action disabled state, and desktop review state.',
+    boundary: 'Gmail send, provider drafts, Slack, SMS, n8n, provider requests, and production writes remain off.',
   },
 ]
 
@@ -724,15 +815,16 @@ const receipt = {
   expectedBehavior: [
     'Existing /admin/outreach warm leads route exposes draft-only Gmail batch planning.',
     'Batch preview shows selected contacts, readiness, relationship basis, template intent, and blocked/excluded rows.',
-    'Preparing the plan only changes local UI state and does not create provider drafts or queue rows.',
+    'Creating draft records changes local UI receipt state, prevents repeat action, and does not create provider drafts or queue rows.',
   ],
   changedAreas: [
     'Warm outreach shortlist selection and Plan Gmail drafts affordance.',
     'Gmail batch draft plan preview with compact status chips and per-row blockers.',
     'Collapsed Email gates disclosure replacing the legacy amber explanatory block.',
-    'Local-only planning confirmation and no-provider/no-egress boundary receipt.',
+    'Draft-only record confirmation and no-provider/no-egress boundary receipt.',
   ],
-  executionBoundary: batchReview.gmailDraftPlan.executionBoundary,
+  executionBoundary: batchReviewCreated.gmailDraftPlan.executionBoundary,
+  draftCreationReceipt: batchReviewCreated.gmailDraftPlan.executionReceipt,
 }
 
 await writeFile(receiptPath, `${JSON.stringify(receipt, null, 2)}\n`, 'utf8')
