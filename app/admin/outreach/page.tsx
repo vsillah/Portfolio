@@ -1026,6 +1026,7 @@ function OutreachContent() {
   const loadWarmBatchReview = useCallback(async (
     contactIds: number[],
     cohortLabel?: string,
+    preferredChannel: 'email' | 'linkedin' | 'facebook' | 'phone_contact' = 'email',
   ) => {
     if (contactIds.length === 0) return
 
@@ -1050,7 +1051,7 @@ function OutreachContent() {
         body: JSON.stringify({
           contact_ids: contactIds,
           cohort_label: cohortLabel ?? `${contactIds.length} selected Gmail draft candidate${contactIds.length === 1 ? '' : 's'}`,
-          preferred_channel: 'email',
+          preferred_channel: preferredChannel,
         }),
       })
       const body = await res.json().catch(() => null)
@@ -1213,12 +1214,29 @@ function OutreachContent() {
   const prepareWarmPlanningBatch = useCallback(async () => {
     const contactIds = warmPlanningBacklog.currentCta.contactIds
     if (contactIds.length === 0) return
+    const firstCandidate = warmPlanningBacklog.candidates.find((candidate) =>
+      contactIds.includes(candidate.contactId),
+    )
+    const preferredChannel =
+      warmPlanningBacklog.currentCta.state === 'ready_manual_social'
+        ? firstCandidate?.recommendedChannel === 'linkedin' ||
+          firstCandidate?.recommendedChannel === 'facebook' ||
+          firstCandidate?.recommendedChannel === 'phone_contact'
+          ? firstCandidate.recommendedChannel
+          : 'linkedin'
+        : 'email'
     setSelectedLeadIds(new Set(contactIds))
     await loadWarmBatchReview(
       contactIds,
       `${contactIds.length} warm planning backlog candidate${contactIds.length === 1 ? '' : 's'}`,
+      preferredChannel,
     )
-  }, [loadWarmBatchReview, warmPlanningBacklog.currentCta.contactIds])
+  }, [
+    loadWarmBatchReview,
+    warmPlanningBacklog.candidates,
+    warmPlanningBacklog.currentCta.contactIds,
+    warmPlanningBacklog.currentCta.state,
+  ])
   const openWarmShortlistItem = useCallback(
     (item: WarmOutreachShortlistItem) => {
       setOutreachWorkroomLeadId(item.contactId)
