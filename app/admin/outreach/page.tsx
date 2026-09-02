@@ -1011,7 +1011,8 @@ function OutreachContent() {
         },
         body: JSON.stringify({
           contact_ids: contactIds,
-          cohort_label: `${contactIds.length} selected outreach lead${contactIds.length === 1 ? '' : 's'}`,
+          cohort_label: `${contactIds.length} selected Gmail draft candidate${contactIds.length === 1 ? '' : 's'}`,
+          preferred_channel: 'email',
         }),
       })
       const body = await res.json().catch(() => null)
@@ -1645,7 +1646,7 @@ function OutreachContent() {
                         {selectedLeadIds.size} lead(s) selected
                       </span>
                       <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                        Review warm batches or enrich selected leads from this existing outreach list.
+                        Plan draft-only Gmail outreach or enrich selected leads from this existing outreach list.
                       </p>
                     </div>
                     <div className="grid w-full grid-cols-1 gap-2 sm:w-auto sm:grid-cols-none sm:flex sm:flex-wrap sm:items-center">
@@ -1660,7 +1661,7 @@ function OutreachContent() {
                         ) : (
                           <Users size={15} aria-hidden />
                         )}
-                        Warm batch review
+                        Plan Gmail drafts
                       </button>
                       <button
                         type="button"

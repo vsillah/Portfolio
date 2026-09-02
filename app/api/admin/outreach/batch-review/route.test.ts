@@ -141,6 +141,31 @@ describe('POST /api/admin/outreach/batch-review', () => {
         slackAction: false,
         responseMonitoring: false,
       },
+      gmailDraftPlan: {
+        version: 'warm-outreach-gmail-batch-draft-plan/v1',
+        status: 'ready_for_local_planning',
+        currentCta: {
+          key: 'prepare_local_draft_plan',
+          enabled: true,
+        },
+        summary: {
+          selectedCount: 1,
+          readyForLocalPlanningCount: 1,
+          providerNotConnectedCount: 1,
+        },
+        executionBoundary: {
+          localPortfolioPlanOnly: true,
+          createsOutreachQueueRows: false,
+          createsGmailDrafts: false,
+          gmailProviderCalls: false,
+          gmailSend: false,
+          slackDispatch: false,
+          smsDelivery: false,
+          n8nDispatch: false,
+          productionDataMutation: false,
+          genericApprovalAuthorizesSend: false,
+        },
+      },
     })
     expect(json.recipients[0]).toMatchObject({
       contactId: 42,
@@ -168,6 +193,18 @@ describe('POST /api/admin/outreach/batch-review', () => {
       outcomeTrackingEnabled: false,
     })
     expect(json.recipients[0].individualizedDraftPreview).toContain('Amina')
+    expect(json.recipients[0].gmailDraftPlan).toMatchObject({
+      status: 'ready_for_local_planning',
+      nextAction: 'local_draft_planning',
+      draftIntent: {
+        channel: 'gmail',
+        promptTemplateKey: 'email_follow_up',
+        createsOutreachQueueRow: false,
+        createsGmailDraft: false,
+        callsProvider: false,
+        externalSend: false,
+      },
+    })
   })
 
   it('surfaces suppression and weak-basis blockers before any draft path', async () => {
@@ -206,6 +243,16 @@ describe('POST /api/admin/outreach/batch-review', () => {
     expect(json.recipients.find((row: { contactId: number }) => row.contactId === 43)).toMatchObject({
       status: 'blocked',
       weakBasis: true,
+    })
+    expect(json.gmailDraftPlan).toMatchObject({
+      status: 'blocked_review',
+      currentCta: {
+        key: 'resolve_blocked_rows',
+        enabled: false,
+      },
+      summary: {
+        blockedReviewCount: 2,
+      },
     })
   })
 
@@ -253,6 +300,20 @@ describe('POST /api/admin/outreach/batch-review', () => {
       existingQueueId: 'queue-existing',
     })
     expect(json.recipients[0].draftIdempotencyKey).toMatch(/^warm-outreach:batch-draft:v1:/)
+    expect(json.gmailDraftPlan).toMatchObject({
+      status: 'approval_review_needed',
+      currentCta: {
+        key: 'review_approval_requests',
+        enabled: true,
+      },
+      summary: {
+        approvalRequiredCount: 1,
+      },
+    })
+    expect(json.recipients[0].gmailDraftPlan).toMatchObject({
+      status: 'approval_required',
+      existingQueueId: 'queue-existing',
+    })
   })
 
   it('does not call writes, rpc, or provider-style operations', async () => {

@@ -78,6 +78,37 @@ describe('warm outreach batch review', () => {
         slackAction: false,
         responseMonitoring: false,
       },
+      gmailDraftPlan: {
+        version: 'warm-outreach-gmail-batch-draft-plan/v1',
+        status: 'ready_for_local_planning',
+        currentCta: {
+          key: 'prepare_local_draft_plan',
+          label: 'Prepare local draft plan',
+          enabled: true,
+          blocker: null,
+        },
+        summary: {
+          selectedCount: 1,
+          readyForLocalPlanningCount: 1,
+          approvalRequiredCount: 0,
+          blockedReviewCount: 0,
+          excludedSubmittedCount: 0,
+          providerNotConnectedCount: 1,
+          smsUnavailableCount: 0,
+        },
+        executionBoundary: {
+          localPortfolioPlanOnly: true,
+          createsOutreachQueueRows: false,
+          createsGmailDrafts: false,
+          gmailProviderCalls: false,
+          gmailSend: false,
+          slackDispatch: false,
+          smsDelivery: false,
+          n8nDispatch: false,
+          productionDataMutation: false,
+          genericApprovalAuthorizesSend: false,
+        },
+      },
     })
     expect(review.batchIdempotencyKey).toMatch(/^warm-outreach:batch-review:v1:/)
     expect(review.samplePreview?.individualizedDraftPreview).toContain('Amina')
@@ -157,20 +188,41 @@ describe('warm outreach batch review', () => {
     expect(review.recipients[0].sendReadiness.perRecipientIdempotencyKey).toMatch(
       /^warm-outreach:recipient:v1:/,
     )
+    expect(review.recipients[0].gmailDraftPlan).toMatchObject({
+      contactId: 42,
+      status: 'ready_for_local_planning',
+      nextAction: 'local_draft_planning',
+      draftIntent: {
+        channel: 'gmail',
+        promptTemplateKey: 'email_follow_up',
+        queueIntent: 'draft_only_planned',
+        createsOutreachQueueRow: false,
+        createsGmailDraft: false,
+        callsProvider: false,
+        externalSend: false,
+      },
+    })
+    expect(review.recipients[0].gmailDraftPlan.readiness).toContainEqual({
+      key: 'provider_not_connected',
+      label: 'Provider not connected',
+      state: 'needs_review',
+    })
   })
 
-  it('blocks suppressed recipients before draft generation authority', () => {
+  it('blocks suppressed and missing-email recipients before draft planning authority', () => {
     const review = reviewFor({
       contacts: [
         {
           contact: {
             ...baseContact,
+            email: null,
             do_not_contact: true,
             suppression_reason: 'Manual DNC review is active.',
           },
           rows: {
             contactSubmission: {
               ...baseContact,
+              email: null,
               do_not_contact: true,
               suppression_reason: 'Manual DNC review is active.',
             },
@@ -190,6 +242,25 @@ describe('warm outreach batch review', () => {
     })
     expect(review.recipients[0].suppressionReasons).toContain('Manual DNC review is active.')
     expect(review.recipients[0].individualizedDraftPreview).toContain('Blocked')
+    expect(review.gmailDraftPlan).toMatchObject({
+      status: 'blocked_review',
+      currentCta: {
+        key: 'resolve_blocked_rows',
+        enabled: false,
+        blocker: 'Missing email address for Gmail draft planning.',
+      },
+      summary: {
+        blockedReviewCount: 1,
+      },
+    })
+    expect(review.recipients[0].gmailDraftPlan).toMatchObject({
+      status: 'blocked_review',
+      nextAction: 'blocked_review',
+    })
+    expect(review.recipients[0].gmailDraftPlan.blockers).toContain(
+      'Missing email address for Gmail draft planning.',
+    )
+    expect(review.recipients[0].gmailDraftPlan.blockers).toContain('Manual DNC review is active.')
   })
 
   it('blocks weak relationship basis rows in batch review', () => {
@@ -220,9 +291,13 @@ describe('warm outreach batch review', () => {
     expect(review.recipients[0].blockers).toContain(
       'Relationship basis is too weak for batch draft generation.',
     )
+    expect(review.recipients[0].gmailDraftPlan).toMatchObject({
+      status: 'blocked_review',
+      nextActionLabel: 'Resolve blocker',
+    })
   })
 
-  it('uses deterministic idempotency and returns existing draft rows', () => {
+  it('uses deterministic idempotency and returns existing draft rows for approval review', () => {
     const first = reviewFor({
       contacts: [
         {
@@ -275,6 +350,59 @@ describe('warm outreach batch review', () => {
       readyCount: 0,
       existingDraftCount: 1,
       blockedCount: 0,
+    })
+    expect(first.gmailDraftPlan).toMatchObject({
+      status: 'approval_review_needed',
+      currentCta: {
+        key: 'review_approval_requests',
+        label: 'Review approval requests',
+        enabled: true,
+      },
+      summary: {
+        readyForLocalPlanningCount: 0,
+        approvalRequiredCount: 1,
+      },
+    })
+    expect(first.recipients[0].gmailDraftPlan).toMatchObject({
+      status: 'approval_required',
+      nextAction: 'approval_request',
+      existingQueueId: 'queue-existing',
+    })
+  })
+
+  it('excludes recipients with submitted email evidence from batch drafting', () => {
+    const review = reviewFor({
+      contacts: [
+        {
+          contact: baseContact,
+          rows: {
+            contactSubmission: baseContact,
+            meetingSummaries: meetingRows,
+            outreachQueue: [
+              {
+                id: 'queue-sent',
+                contact_submission_id: 42,
+                channel: 'email',
+                status: 'sent',
+                sent_at: '2026-08-22T00:00:00Z',
+              },
+            ],
+          },
+        },
+      ],
+    })
+
+    expect(review.gmailDraftPlan).toMatchObject({
+      status: 'blocked_review',
+      summary: {
+        excludedSubmittedCount: 1,
+        readyForLocalPlanningCount: 0,
+      },
+    })
+    expect(review.recipients[0].gmailDraftPlan).toMatchObject({
+      status: 'excluded_submitted',
+      nextAction: 'excluded_review',
+      blockers: ['Submitted email evidence already exists; exclude this recipient from batch drafting.'],
     })
   })
 
