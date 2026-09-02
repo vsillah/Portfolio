@@ -324,6 +324,112 @@ Operational model:
 - Generic instructions such as `proceed`, `continue`, `approved`, or `looks good` are not live Gmail send authorization. Execution requires the exact `execute_warm_gmail_send_for_authorized_recipient` value plus the one-recipient request scope.
 - Live execution remains one recipient, one queue row, one message version, and one submitted-evidence key unless a later phase explicitly expands the scope.
 
+## Office-Week Outreach Ramp Backlog
+
+Purpose: get warm outreach moving before Vambah returns to full-time office cadence while SMS remains parked behind Telnyx 10DLC approval.
+
+Current working assumptions:
+
+- Gmail is the first active external channel because the draft, approval, send, submitted-evidence, and response-monitoring boundaries already exist.
+- Slack should remain the approval notification layer, with every approval/reject/revise action writing back to Portfolio.
+- LinkedIn, Facebook, and phone-contact outreach should start as manual handoff channels with generated copy, copy-to-clipboard support, and operator-recorded send evidence.
+- SMS remains candidate-only until Telnyx brand/campaign approval, sender/profile verification, no-send QA, and a separately approved one-recipient canary are complete.
+- The UX should be action-led: one current CTA, compact status, progressive details, and minimal static explanation.
+
+### P0: Start Outreach This Week
+
+1. Warm lead shortlist
+   - Create a daily shortlist of 10-15 contacts from existing Portfolio contacts.
+   - Rank by relationship basis, last touch, channel readiness, and next useful ask.
+   - Show blocked reasons inline: missing email, weak relationship basis, suppression risk, provider not connected, or SMS unavailable.
+
+2. Gmail draft batch
+   - Generate Gmail drafts for the top reviewed contacts only.
+   - Store each draft in `outreach_queue` with contact id, template key, relationship packet version, and provider/draft evidence.
+   - Keep send execution separate from draft creation.
+
+3. Slack approval loop
+   - Send one concise Slack approval notification per reviewed draft batch or priority contact.
+   - Deep-link to the exact Portfolio review gate.
+   - After approve/reject/revise, confirm the Portfolio state changes without requiring the operator to infer status from Slack.
+
+4. One-recipient Gmail send execution
+   - Execute sends only after exact per-recipient authorization.
+   - Require matching contact id, queue id, message version, draft id, sender identity, and submitted-evidence key.
+   - Block duplicate sends when submitted evidence or secondary-log repair state exists.
+
+5. Response triage
+   - Ingest or manually capture replies into the contact timeline.
+   - Classify the response and create a follow-up draft or suppression proposal.
+   - Keep reply sending behind the same human review gate.
+
+6. Daily office-mode digest
+   - Show outreach moved today: drafted, approved, sent, replied, blocked, and needs Vambah.
+   - Include the next best action for the next office-day window.
+
+### P1: First Full Office Week
+
+1. Morning review queue
+   - Surface the highest-priority warm contacts with one CTA each: draft, review, request approval, send approved draft, or handle response.
+
+2. Lunch or afternoon send window
+   - Group approved Gmail sends into a controlled operator window.
+   - Keep execution one row at a time until batch-send authority is explicitly designed and approved.
+
+3. LinkedIn manual handoff
+   - Generate LinkedIn-ready copy and a manual-send checklist.
+   - Record operator-confirmed manual send evidence back to Portfolio.
+   - Do not automate LinkedIn sending unless a later provider capability and policy gate are approved.
+
+4. Facebook/manual social handoff
+   - Generate short conversational copy where the relationship basis supports it.
+   - Keep send evidence manual and audited.
+
+5. Template library hardening
+   - Add concise warm templates for reconnect, meeting follow-up, referral path, community bridge, value-first note, and response follow-up.
+   - Keep template selection tied to relationship evidence, not just channel.
+
+6. Relationship research sweep
+   - Backfill relationship packets for the initial target contacts.
+   - Mark uncertain records as research-needed instead of producing high-confidence copy.
+
+### P2: After Telnyx 10DLC Clears
+
+1. Telnyx brand/campaign completion
+   - Confirm brand approval, campaign approval, sender/profile assignment, and provider status in Telnyx.
+   - Store only references and non-secret status in Portfolio.
+
+2. SMS no-send canary
+   - Verify Portfolio can prepare the exact provider payload without calling Telnyx.
+   - Confirm suppression, consent, sender, recipient, and audit state.
+
+3. One-recipient SMS live canary
+   - Temporarily enable SMS execution only for the approved queue row.
+   - Send exactly one SMS, verify provider evidence, then disable execution again.
+
+4. Cross-channel response orchestration
+   - Route Gmail, manual LinkedIn/Facebook, and future SMS replies into one response lifecycle.
+   - Preserve per-channel audit state and avoid duplicate pressure on the same contact.
+
+### Backlog Acceptance Criteria
+
+- The operator can open `/admin/outreach?filter=warm`, select a warm contact, review relationship context, generate a Gmail draft, request approval, record approval, execute an approved one-recipient send, and see response/follow-up state.
+- Every external action has a clear current CTA, status, blocker, and recovery path.
+- Slack approval links land on the exact Portfolio gate and Portfolio remains the source of truth.
+- Manual channels can generate copy and record operator evidence without pretending provider automation exists.
+- SMS remains visibly parked until Telnyx 10DLC approval and explicit provider activation gates clear.
+- Mobile review avoids long static prose, nested cards, hidden CTAs, and repeated action buttons after a decision is recorded.
+- Evidence records include contact id, queue id, channel, template key, approval source, provider reference when present, and idempotency key without raw secrets.
+
+### Next Implementation Slices
+
+1. `warm-outreach-shortlist`: daily prioritized warm-contact queue with blocked reasons and one current action.
+2. `warm-gmail-batch-draft`: controlled multi-contact Gmail draft creation with per-row approval state and no send execution.
+3. `warm-slack-approval-followthrough`: Slack approval notification state that reliably writes back to Portfolio and deep-links to the exact gate.
+4. `warm-response-digest`: response-monitoring summary with follow-up drafts, suppression proposals, and office-mode daily digest.
+5. `warm-manual-social-handoff`: LinkedIn/Facebook/phone manual copy handoff plus operator-recorded evidence.
+6. `warm-sms-post-10dlc`: Telnyx completion, no-send canary, and one-recipient live SMS canary after brand/campaign approval.
+
 ## Safest Next Development Slice
 
 The first code slice should be `relationship-intelligence contract + warm template selection`.
