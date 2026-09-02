@@ -309,6 +309,65 @@ const warmBatchReviewResponse = {
       contextSummary: relationshipPacketResponse.contextSummary,
     },
   ],
+  gmailDraftPlan: {
+    version: 'warm-outreach-gmail-batch-draft-plan/v1',
+    status: 'ready_for_local_planning',
+    currentCta: {
+      key: 'prepare_local_draft_plan',
+      label: 'Prepare local draft plan',
+      enabled: true,
+      blocker: null,
+    },
+    summary: {
+      selectedCount: 1,
+      readyForLocalPlanningCount: 1,
+      approvalRequiredCount: 0,
+      blockedReviewCount: 0,
+      excludedSubmittedCount: 0,
+      providerNotConnectedCount: 1,
+      smsUnavailableCount: 0,
+    },
+    rows: [
+      {
+        contactId: 42,
+        contactName: 'Ada Operator',
+        company: 'Ops Lab',
+        status: 'ready_for_local_planning',
+        statusLabel: 'Plan ready',
+        relationshipBasis: 'Portfolio shows prior meeting context for this contact.',
+        relationshipSignalCount: 1,
+        readiness: [
+          { key: 'provider_not_connected', label: 'Provider not connected', state: 'needs_review' },
+        ],
+        blockers: [],
+        nextAction: 'local_draft_planning',
+        nextActionLabel: 'Prepare local draft plan',
+        existingQueueId: null,
+        draftIntent: {
+          channel: 'gmail',
+          templateFamily: 'follow_up',
+          promptTemplateKey: 'email_follow_up',
+          queueIntent: 'draft_only_planned',
+          createsOutreachQueueRow: false,
+          createsGmailDraft: false,
+          callsProvider: false,
+          externalSend: false,
+        },
+      },
+    ],
+    executionBoundary: {
+      localPortfolioPlanOnly: true,
+      createsOutreachQueueRows: false,
+      createsGmailDrafts: false,
+      gmailProviderCalls: false,
+      gmailSend: false,
+      slackDispatch: false,
+      smsDelivery: false,
+      n8nDispatch: false,
+      productionDataMutation: false,
+      genericApprovalAuthorizesSend: false,
+    },
+  },
   executionBoundary: {
     source: 'local_portfolio_rows',
     readOnly: true,
@@ -773,15 +832,23 @@ describe('OutreachAdminPage deep links', () => {
 
     await screen.findByText('Ada Operator')
     fireEvent.click(screen.getByLabelText('Select all on this page'))
-    fireEvent.click(screen.getByRole('button', { name: /Review 1 selected/i }))
+    fireEvent.click(screen.getByRole('button', { name: 'Plan Gmail drafts' }))
 
     const batchReview = await screen.findByLabelText('Warm batch review')
     expect(within(batchReview).getByText('Cohort provenance')).toBeInTheDocument()
     expect(within(batchReview).getByText('Sample individualized preview')).toBeInTheDocument()
+    expect(within(batchReview).getByLabelText('Gmail batch draft plan')).toBeInTheDocument()
+    expect(within(batchReview).getByRole('button', { name: 'Prepare local draft plan' })).toBeEnabled()
+    expect(within(batchReview).getByText('1 plan-ready')).toBeInTheDocument()
+    expect(within(batchReview).getByText('Provider not connected')).toBeInTheDocument()
+    expect(within(batchReview).getByText('outreach_queue writes: off')).toBeInTheDocument()
+    expect(within(batchReview).getByText('Gmail drafts: off')).toBeInTheDocument()
     expect(within(batchReview).getByText('Provider calls: off')).toBeInTheDocument()
     expect(within(batchReview).getByText('External send: off')).toBeInTheDocument()
     expect(within(batchReview).getByText('Full recipient list (1)')).toBeInTheDocument()
     expect(within(batchReview).getByText('Hi Ada, The warm basis is prior meeting context.')).toBeInTheDocument()
+    fireEvent.click(within(batchReview).getByRole('button', { name: 'Prepare local draft plan' }))
+    expect(await within(batchReview).findByText(/No outreach_queue row, Gmail draft, Slack message, SMS, n8n run, or provider request was created/)).toBeInTheDocument()
 
     await waitFor(() => {
       expect(fetchMock).toHaveBeenCalledWith(
@@ -794,6 +861,12 @@ describe('OutreachAdminPage deep links', () => {
           },
         }),
       )
+    })
+    const batchCall = fetchMock.mock.calls.find(([url]) => url === '/api/admin/outreach/batch-review')
+    expect(JSON.parse(String(batchCall?.[1]?.body))).toMatchObject({
+      contact_ids: [42],
+      cohort_label: '1 selected Gmail draft candidate',
+      preferred_channel: 'email',
     })
   })
 })

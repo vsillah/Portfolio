@@ -13,6 +13,7 @@ import {
 } from 'lucide-react'
 import type {
   WarmBatchReview,
+  WarmGmailBatchDraftPlanRow,
   WarmBatchReviewRecipient,
 } from '@/lib/warm-outreach-batch-review'
 
@@ -34,6 +35,20 @@ function statusClasses(status: WarmBatchReviewRecipient['status']) {
   if (status === 'ready_for_review') return 'border-emerald-500/35 bg-emerald-500/10 text-emerald-100'
   if (status === 'existing_draft') return 'border-sky-500/35 bg-sky-500/10 text-sky-100'
   return 'border-red-500/35 bg-red-500/10 text-red-100'
+}
+
+function draftPlanStatusClasses(status: WarmGmailBatchDraftPlanRow['status']) {
+  if (status === 'ready_for_local_planning') return 'border-emerald-500/35 bg-emerald-500/10 text-emerald-100'
+  if (status === 'approval_required') return 'border-sky-500/35 bg-sky-500/10 text-sky-100'
+  if (status === 'excluded_submitted') return 'border-silicon-slate/80 bg-silicon-slate/35 text-muted-foreground'
+  return 'border-red-500/35 bg-red-500/10 text-red-100'
+}
+
+function readinessClasses(state: WarmGmailBatchDraftPlanRow['readiness'][number]['state']) {
+  if (state === 'clear') return 'border-emerald-500/25 bg-emerald-500/10 text-emerald-100'
+  if (state === 'needs_review') return 'border-amber-500/25 bg-amber-500/10 text-amber-100'
+  if (state === 'unavailable') return 'border-silicon-slate/80 bg-background/35 text-muted-foreground'
+  return 'border-red-500/30 bg-red-500/10 text-red-100'
 }
 
 function monitoringLabel(status: WarmBatchReviewRecipient['responseMonitoring']['status']) {
@@ -100,6 +115,153 @@ function LocalEvidenceFlag() {
     <span className="inline-flex min-h-7 items-center rounded-md border border-sky-500/25 bg-sky-500/10 px-2 py-1 text-xs text-sky-100">
       Local response evidence: visible
     </span>
+  )
+}
+
+function GmailDraftPlanSection({ data }: { data: WarmBatchReview }) {
+  const [planNotice, setPlanNotice] = useState<string | null>(null)
+  const plan = data.gmailDraftPlan
+  const blocker = plan.currentCta.blocker
+
+  return (
+    <div className="rounded-lg border border-sky-500/25 bg-background/45 p-3" aria-label="Gmail batch draft plan">
+      <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(12rem,auto)] lg:items-start">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="text-sm font-semibold text-sky-100">Gmail batch draft plan</p>
+            <span className="rounded-full border border-sky-500/25 bg-sky-500/10 px-2 py-0.5 text-[11px] font-medium text-sky-100">
+              Draft-only
+            </span>
+            <span className="rounded-full border border-silicon-slate/70 bg-background/50 px-2 py-0.5 text-[11px] text-muted-foreground">
+              {plan.summary.selectedCount} selected
+            </span>
+          </div>
+          <div className="mt-2 flex flex-wrap gap-1.5 text-[11px]">
+            <span className="rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2 py-0.5 text-emerald-100">
+              {plan.summary.readyForLocalPlanningCount} plan-ready
+            </span>
+            <span className="rounded-full border border-sky-500/25 bg-sky-500/10 px-2 py-0.5 text-sky-100">
+              {plan.summary.approvalRequiredCount} approval review
+            </span>
+            <span className="rounded-full border border-red-500/25 bg-red-500/10 px-2 py-0.5 text-red-100">
+              {plan.summary.blockedReviewCount} blocked
+            </span>
+            <span className="rounded-full border border-silicon-slate/70 bg-background/35 px-2 py-0.5 text-muted-foreground">
+              {plan.summary.excludedSubmittedCount} submitted
+            </span>
+            <span className="rounded-full border border-amber-500/25 bg-amber-500/10 px-2 py-0.5 text-amber-100">
+              {plan.summary.providerNotConnectedCount} provider not connected
+            </span>
+            <span className="rounded-full border border-silicon-slate/70 bg-background/35 px-2 py-0.5 text-muted-foreground">
+              {plan.summary.smsUnavailableCount} SMS unavailable
+            </span>
+          </div>
+        </div>
+        <div className="min-w-0">
+          <button
+            type="button"
+            disabled={!plan.currentCta.enabled}
+            onClick={() => {
+              if (!plan.currentCta.enabled) return
+              setPlanNotice(
+                plan.currentCta.key === 'prepare_local_draft_plan'
+                  ? `Local Gmail draft plan prepared for ${plan.summary.readyForLocalPlanningCount} contact(s). No outreach_queue row, Gmail draft, Slack message, SMS, n8n run, or provider request was created.`
+                  : `Approval review queued for ${plan.summary.approvalRequiredCount} existing draft contact(s). No provider action was taken.`,
+              )
+            }}
+            className="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-lg border border-sky-500/35 bg-sky-500/10 px-3 text-sm font-semibold text-sky-100 transition-colors hover:bg-sky-500/20 disabled:cursor-not-allowed disabled:opacity-50 lg:w-auto"
+          >
+            <FileText size={15} aria-hidden />
+            {plan.currentCta.label}
+          </button>
+          {blocker && (
+            <p className="mt-2 rounded-md border border-red-500/25 bg-red-500/10 p-2 text-xs leading-5 text-red-100">
+              {blocker}
+            </p>
+          )}
+        </div>
+      </div>
+
+      {planNotice && (
+        <p role="status" className="mt-3 rounded-md border border-emerald-500/25 bg-emerald-500/10 p-2 text-xs leading-5 text-emerald-100">
+          {planNotice}
+        </p>
+      )}
+
+      <div className="mt-3 overflow-x-auto">
+        <table className="w-full min-w-[760px] text-left text-xs">
+          <thead className="border-b border-silicon-slate/70 text-muted-foreground">
+            <tr>
+              <th className="py-2 pr-3 font-medium">Contact</th>
+              <th className="py-2 pr-3 font-medium">Readiness</th>
+              <th className="py-2 pr-3 font-medium">Basis</th>
+              <th className="py-2 pr-3 font-medium">Draft intent</th>
+              <th className="py-2 font-medium">Next</th>
+            </tr>
+          </thead>
+          <tbody>
+            {plan.rows.map((row) => (
+              <tr key={row.contactId} className="border-b border-silicon-slate/60 last:border-b-0">
+                <td className="max-w-[13rem] py-2 pr-3 align-top">
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <span className="truncate font-medium text-foreground">{row.contactName}</span>
+                    <span className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${draftPlanStatusClasses(row.status)}`}>
+                      {row.statusLabel}
+                    </span>
+                  </div>
+                  <p className="mt-1 truncate text-muted-foreground">{row.company ?? 'No company'}</p>
+                </td>
+                <td className="max-w-[16rem] py-2 pr-3 align-top">
+                  <div className="flex flex-wrap gap-1">
+                    {row.readiness
+                      .filter((item) => item.state !== 'clear')
+                      .map((item) => (
+                        <span
+                          key={`${row.contactId}-${item.key}`}
+                          title={item.state.replace(/_/g, ' ')}
+                          className={`rounded-full border px-2 py-0.5 text-[10px] ${readinessClasses(item.state)}`}
+                        >
+                          {item.label}
+                        </span>
+                      ))}
+                    {row.readiness.every((item) => item.state === 'clear') && (
+                      <span className="rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2 py-0.5 text-[10px] text-emerald-100">
+                        Clear
+                      </span>
+                    )}
+                  </div>
+                  {row.blockers[0] && (
+                    <p className="mt-1 text-red-100">{row.blockers[0]}</p>
+                  )}
+                </td>
+                <td className="max-w-[15rem] py-2 pr-3 align-top text-muted-foreground">
+                  <p className="line-clamp-2">{row.relationshipBasis}</p>
+                  <p className="mt-1">{row.relationshipSignalCount} signal{row.relationshipSignalCount === 1 ? '' : 's'}</p>
+                </td>
+                <td className="max-w-[13rem] py-2 pr-3 align-top text-muted-foreground">
+                  <p>{row.draftIntent.promptTemplateKey ?? 'No template'}</p>
+                  <p className="mt-1">outreach_queue intent only</p>
+                  <p>Gmail draft: off</p>
+                </td>
+                <td className="max-w-[10rem] py-2 align-top text-foreground">
+                  {row.nextActionLabel}
+                  {row.existingQueueId && <p className="mt-1 truncate text-muted-foreground">Queue: {row.existingQueueId}</p>}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="mt-3 flex flex-wrap gap-2">
+        <BoundaryFlag label="outreach_queue writes" active={plan.executionBoundary.createsOutreachQueueRows} />
+        <BoundaryFlag label="Gmail provider" active={plan.executionBoundary.gmailProviderCalls} />
+        <BoundaryFlag label="Gmail drafts" active={plan.executionBoundary.createsGmailDrafts} />
+        <BoundaryFlag label="Gmail send" active={plan.executionBoundary.gmailSend} />
+        <BoundaryFlag label="Slack" active={plan.executionBoundary.slackDispatch} />
+        <BoundaryFlag label="SMS" active={plan.executionBoundary.smsDelivery} />
+      </div>
+    </div>
   )
 }
 
@@ -203,7 +365,6 @@ export default function WarmBatchReviewPanel({
   selectedCount,
   onReview,
 }: WarmBatchReviewPanelProps) {
-  const [batchSendNotice, setBatchSendNotice] = useState<string | null>(null)
   const sample = data?.samplePreview
   const hasSelection = selectedCount > 0
   const batchAuthorities =
@@ -267,10 +428,10 @@ export default function WarmBatchReviewPanel({
         <div className="min-w-0">
           <p className="flex items-center gap-2 text-sm font-semibold text-sky-100">
             <Users size={16} className="text-radiant-gold" aria-hidden />
-            Warm batch review
+            Warm Gmail batch planning
           </p>
           <p className="mt-1 max-w-3xl text-sm leading-6 text-muted-foreground">
-            Review selected warm leads as individualized recipients before any draft or send authority.
+            Review selected warm leads as individualized Gmail draft-plan candidates before any queue write, provider draft, or send authority.
           </p>
         </div>
         <button
@@ -280,7 +441,7 @@ export default function WarmBatchReviewPanel({
           className="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-lg border border-sky-500/35 bg-sky-500/10 px-3 text-sm font-semibold text-sky-100 transition-colors hover:bg-sky-500/20 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
         >
           {loading ? <RefreshCw size={15} className="animate-spin" aria-hidden /> : <FileText size={15} aria-hidden />}
-          {loading ? 'Reviewing...' : `Review ${selectedCount} selected`}
+          {loading ? 'Planning...' : data ? 'Refresh draft plan' : `Plan ${selectedCount} selected`}
         </button>
       </div>
 
@@ -356,52 +517,31 @@ export default function WarmBatchReviewPanel({
             <BoundaryFlag label="Slack" active={data.executionBoundary.slackAction} />
           </div>
 
-          <div className="rounded-lg border border-amber-500/25 bg-amber-500/10 p-3 text-sm text-amber-50">
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wide">Email first candidate</p>
-                <p className="mt-1 text-xs leading-5 text-amber-100/90">
-                  {emailLifecycleSummary.candidates} recipient email path{emailLifecycleSummary.candidates === 1 ? '' : 's'} modeled. Batch send remains blocked until every recipient has individual readiness and future explicit authority.
-                </p>
-              </div>
-              <span className="w-fit rounded-full border border-current/25 px-2 py-0.5 text-[10px] font-semibold">
-                Provider/send off
+          <GmailDraftPlanSection data={data} />
+
+          <details className="rounded-lg border border-amber-500/25 bg-amber-500/10 p-3 text-sm text-amber-50">
+            <summary className="flex cursor-pointer list-none flex-wrap items-center justify-between gap-2">
+              <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wide">
+                <ShieldAlert size={14} aria-hidden />
+                Email gates
               </span>
+              <span className="rounded-full border border-current/25 px-2 py-0.5 text-[10px] font-semibold">
+                {emailLifecycleSummary.candidates} modeled / provider-send off
+              </span>
+            </summary>
+            <div className="mt-3 grid gap-2 text-xs leading-5 text-amber-100/85 sm:grid-cols-2">
+              <p>Duplicate blocked: {emailLifecycleSummary.duplicateBlocked}</p>
+              <p>Internal handoffs ready: {emailLifecycleSummary.handoffReady}</p>
+              <p>Provider not activated: {emailLifecycleSummary.providerNotConfigured}</p>
+              <p>Provider smoke ready/passed: {emailLifecycleSummary.providerSmokeReady}</p>
+              <p>Draft creation ready but disabled: {emailLifecycleSummary.draftCreationReady}</p>
+              <p>Tracked Gmail drafts: {emailLifecycleSummary.trackedDrafts}</p>
+              <p>Recipient approvals required: {emailLifecycleSummary.recipientApprovalRequired}</p>
+              <p>Sender not verified: {emailLifecycleSummary.senderNotVerified}</p>
+              <p>External send blocked: {emailLifecycleSummary.externalSendBlocked}</p>
+              <p>No-send canaries stay on the individual relationship packet.</p>
             </div>
-            <p className="mt-2 text-xs leading-5 text-amber-100/85">
-              Duplicate-blocked recipients: {emailLifecycleSummary.duplicateBlocked}. Gmail drafts, scheduling, and sends are disabled.
-            </p>
-            <p className="mt-1 text-xs leading-5 text-amber-100/85">
-              Internal draft handoffs ready: {emailLifecycleSummary.handoffReady}. Gmail provider not activated: {emailLifecycleSummary.providerNotConfigured}. Batch draft creation remains unavailable.
-            </p>
-            <p className="mt-1 text-xs leading-5 text-amber-100/85">
-              Provider smoke ready or passed: {emailLifecycleSummary.providerSmokeReady}. Gmail draft creation ready but disabled: {emailLifecycleSummary.draftCreationReady}. External send remains a separate future gate.
-            </p>
-            <p className="mt-1 text-xs leading-5 text-amber-100/85">
-              Tracked Gmail drafts: {emailLifecycleSummary.trackedDrafts}. Recipient send approvals required: {emailLifecycleSummary.recipientApprovalRequired}. Sender not verified for send: {emailLifecycleSummary.senderNotVerified}. External send blocked: {emailLifecycleSummary.externalSendBlocked}.
-            </p>
-            <p className="mt-1 text-xs leading-5 text-amber-100/85">
-              No-send Gmail draft canaries run from the individual contact relationship packet only, using contact/message-version idempotency keys. This batch panel does not create Gmail drafts or call Gmail.
-            </p>
-            <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-xs leading-5 text-amber-100/90">
-                A batch send click is blocked here; each recipient needs explicit sender, copy, suppression, draft-evidence, and external-send authority.
-              </p>
-              <button
-                type="button"
-                onClick={() => setBatchSendNotice('Batch Gmail send is disabled. Open each recipient relationship packet, verify sender identity, confirm suppression and final copy, then request explicit per-recipient external-send authority from the Integration Captain.')}
-                className="inline-flex min-h-9 w-full items-center justify-center gap-2 rounded-md border border-red-500/35 bg-red-500/10 px-3 text-xs font-semibold text-red-100 transition-colors hover:bg-red-500/20 sm:w-auto"
-              >
-                <ShieldAlert size={13} aria-hidden />
-                Check batch send authority
-              </button>
-            </div>
-            {batchSendNotice && (
-              <p role="status" className="mt-2 rounded-md border border-red-500/30 bg-red-500/10 p-2 text-xs leading-5 text-red-100">
-                {batchSendNotice}
-              </p>
-            )}
-          </div>
+          </details>
 
           <div className="grid gap-2 sm:grid-cols-3">
             <div className="rounded-lg border border-emerald-500/25 bg-emerald-500/10 p-3 text-sm text-emerald-100">
