@@ -168,6 +168,37 @@ describe('POST /api/admin/outreach/batch-review', () => {
           genericApprovalAuthorizesSend: false,
         },
       },
+      plannedDraftActions: {
+        version: 'warm-planned-draft-actions/v1',
+        currentCta: {
+          key: 'open_draft_gate',
+          label: 'Open draft gate',
+          enabled: true,
+          href: '#gmail-batch-draft-plan',
+        },
+        summary: {
+          selectedCount: 1,
+          gmailDraftPlanCount: 1,
+          manualSocialHandoffCount: 0,
+          relationshipReviewBlockerCount: 0,
+          responseFollowUpCount: 0,
+          parkedSmsCount: 0,
+        },
+        executionBoundary: {
+          localPortfolioPlanOnly: true,
+          reviewOnlyDraftActionPackets: true,
+          createsOutreachQueueRows: false,
+          createsGmailDrafts: false,
+          gmailProviderCalls: false,
+          socialProviderCalls: false,
+          gmailSend: false,
+          slackDispatch: false,
+          smsDelivery: false,
+          n8nDispatch: false,
+          productionDataMutation: false,
+          externalRequests: [],
+        },
+      },
     })
     expect(json.recipients[0]).toMatchObject({
       contactId: 42,
@@ -211,6 +242,20 @@ describe('POST /api/admin/outreach/batch-review', () => {
         createsGmailDraft: false,
         callsProvider: false,
         externalSend: false,
+      },
+    })
+    expect(json.recipients[0].plannedDraftAction).toMatchObject({
+      kind: 'gmail_draft_plan',
+      recommendedChannel: 'gmail',
+      cta: {
+        key: 'open_draft_gate',
+        label: 'Open draft gate',
+      },
+      draftActionPacket: {
+        reviewOnly: true,
+        createsGmailDraft: false,
+        callsProvider: false,
+        externalRequests: [],
       },
     })
   })

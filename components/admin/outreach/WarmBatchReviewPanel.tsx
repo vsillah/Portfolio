@@ -4,16 +4,22 @@ import {
   AlertTriangle,
   CheckCircle2,
   ChevronDown,
+  ClipboardCheck,
+  ExternalLink,
   FileText,
   LockKeyhole,
   Mail,
+  MessageSquare,
   RefreshCw,
   ShieldAlert,
+  Smartphone,
+  UserRoundCheck,
   Users,
 } from 'lucide-react'
 import type {
   WarmBatchReview,
   WarmGmailBatchDraftPlanRow,
+  WarmPlannedDraftActionRow,
   WarmBatchReviewRecipient,
 } from '@/lib/warm-outreach-batch-review'
 
@@ -89,6 +95,30 @@ function readinessClasses(state: WarmGmailBatchDraftPlanRow['readiness'][number]
   return 'border-red-500/30 bg-red-500/10 text-red-100'
 }
 
+function plannedActionClasses(state: WarmPlannedDraftActionRow['state']) {
+  if (state === 'ready') return 'border-emerald-500/35 bg-emerald-500/10 text-emerald-100'
+  if (state === 'manual') return 'border-sky-500/35 bg-sky-500/10 text-sky-100'
+  if (state === 'follow_up') return 'border-violet-500/35 bg-violet-500/10 text-violet-100'
+  if (state === 'parked') return 'border-silicon-slate/80 bg-background/40 text-muted-foreground'
+  return 'border-amber-500/35 bg-amber-500/10 text-amber-100'
+}
+
+function PlannedActionIcon({ kind }: { kind: WarmPlannedDraftActionRow['kind'] }) {
+  if (kind === 'gmail_draft_plan') return <Mail size={14} aria-hidden />
+  if (kind === 'manual_social_handoff') return <UserRoundCheck size={14} aria-hidden />
+  if (kind === 'response_follow_up') return <MessageSquare size={14} aria-hidden />
+  if (kind === 'parked_sms') return <Smartphone size={14} aria-hidden />
+  return <ShieldAlert size={14} aria-hidden />
+}
+
+function plannedChannelLabel(channel: WarmPlannedDraftActionRow['recommendedChannel']) {
+  if (channel === 'gmail') return 'Gmail'
+  if (channel === 'linkedin') return 'LinkedIn'
+  if (channel === 'facebook') return 'Facebook'
+  if (channel === 'phone_contact') return 'Phone'
+  return 'SMS parked'
+}
+
 function monitoringLabel(status: WarmBatchReviewRecipient['responseMonitoring']['status']) {
   return status.replace(/_/g, ' ')
 }
@@ -156,6 +186,125 @@ function LocalEvidenceFlag() {
   )
 }
 
+function PlannedDraftActionsSection({ data }: { data: WarmBatchReview }) {
+  const actions = data.plannedDraftActions
+  if (!actions) return null
+  const primaryHref = actions.currentCta.href
+
+  return (
+    <div className="rounded-lg border border-radiant-gold/30 bg-radiant-gold/5 p-3" aria-label="Warm planned draft actions">
+      <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(13rem,auto)] lg:items-start">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="text-xs font-semibold uppercase tracking-wide text-radiant-gold">
+              Planned draft actions
+            </p>
+            <span className="rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2 py-0.5 text-xs text-emerald-100">
+              external requests {actions.executionBoundary.externalRequests.length}
+            </span>
+            <span className="rounded-full border border-silicon-slate/70 bg-background/45 px-2 py-0.5 text-xs text-muted-foreground">
+              review-only packets
+            </span>
+          </div>
+          <div className="mt-3 flex flex-wrap gap-1.5 text-[11px]">
+            <span className="rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2 py-0.5 text-emerald-100">
+              {actions.summary.gmailDraftPlanCount} Gmail draft plan
+            </span>
+            <span className="rounded-full border border-sky-500/25 bg-sky-500/10 px-2 py-0.5 text-sky-100">
+              {actions.summary.manualSocialHandoffCount} manual handoff
+            </span>
+            <span className="rounded-full border border-violet-500/25 bg-violet-500/10 px-2 py-0.5 text-violet-100">
+              {actions.summary.responseFollowUpCount} response follow-up
+            </span>
+            <span className="rounded-full border border-amber-500/25 bg-amber-500/10 px-2 py-0.5 text-amber-100">
+              {actions.summary.relationshipReviewBlockerCount} relationship review
+            </span>
+            <span className="rounded-full border border-silicon-slate/70 bg-background/35 px-2 py-0.5 text-muted-foreground">
+              {actions.summary.parkedSmsCount} SMS parked
+            </span>
+          </div>
+        </div>
+        {primaryHref ? (
+          <a
+            href={primaryHref}
+            className="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-lg border border-radiant-gold/50 bg-radiant-gold/10 px-3 text-sm font-semibold text-radiant-gold transition-colors hover:bg-radiant-gold/15 lg:w-auto"
+          >
+            <ClipboardCheck size={15} aria-hidden />
+            {actions.currentCta.label}
+          </a>
+        ) : (
+          <button
+            type="button"
+            disabled
+            className="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-lg border border-silicon-slate/70 bg-background/35 px-3 text-sm font-semibold text-muted-foreground lg:w-auto"
+          >
+            <LockKeyhole size={15} aria-hidden />
+            {actions.currentCta.label}
+          </button>
+        )}
+      </div>
+
+      <div className="mt-3 grid gap-2 lg:grid-cols-2">
+        {actions.rows.slice(0, 6).map((row) => (
+          <article
+            key={row.contactId}
+            className="grid gap-3 rounded-md border border-silicon-slate/70 bg-background/45 p-3 sm:grid-cols-[minmax(0,1fr)_minmax(9rem,auto)] sm:items-start"
+          >
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-semibold ${plannedActionClasses(row.state)}`}>
+                  <PlannedActionIcon kind={row.kind} />
+                  {row.kindLabel}
+                </span>
+                <span className="rounded-full border border-silicon-slate/70 bg-background/35 px-2 py-0.5 text-[11px] text-muted-foreground">
+                  {plannedChannelLabel(row.recommendedChannel)}
+                </span>
+                <p className="min-w-0 truncate text-sm font-semibold text-foreground">{row.contactName}</p>
+              </div>
+              <p className="mt-2 line-clamp-2 text-xs leading-5 text-muted-foreground">
+                {row.reason}
+              </p>
+              <details className="mt-2 text-xs text-muted-foreground">
+                <summary className="cursor-pointer text-[10px] font-semibold uppercase tracking-wide">
+                  Details
+                </summary>
+                <p className="mt-1 leading-5">{row.detail}</p>
+                {row.blockers[0] && (
+                  <p className="mt-1 truncate text-amber-100" title={row.blockers.join(' / ')}>
+                    {row.blockers[0]}
+                  </p>
+                )}
+              </details>
+            </div>
+            {row.cta.enabled ? (
+              <a
+                href={row.cta.href}
+                className="inline-flex min-h-9 w-full items-center justify-center gap-2 rounded-md border border-silicon-slate/80 bg-silicon-slate/35 px-3 text-xs font-semibold text-foreground transition-colors hover:bg-silicon-slate/55 sm:w-auto"
+              >
+                <ExternalLink size={13} aria-hidden />
+                {row.cta.label}
+              </a>
+            ) : (
+              <span className="inline-flex min-h-9 w-full items-center justify-center gap-2 rounded-md border border-silicon-slate/70 bg-background/35 px-3 text-xs font-semibold text-muted-foreground sm:w-auto">
+                <LockKeyhole size={13} aria-hidden />
+                {row.cta.label}
+              </span>
+            )}
+          </article>
+        ))}
+      </div>
+
+      <div className="mt-3 flex flex-wrap gap-2">
+        <BoundaryFlag label="Gmail drafts" active={actions.executionBoundary.createsGmailDrafts} />
+        <BoundaryFlag label="Gmail provider" active={actions.executionBoundary.gmailProviderCalls} />
+        <BoundaryFlag label="Social providers" active={actions.executionBoundary.socialProviderCalls} />
+        <BoundaryFlag label="SMS" active={actions.executionBoundary.smsDelivery} />
+        <BoundaryFlag label="n8n" active={actions.executionBoundary.n8nDispatch} />
+      </div>
+    </div>
+  )
+}
+
 function GmailDraftPlanSection({
   data,
   draftActionLoading,
@@ -190,7 +339,11 @@ function GmailDraftPlanSection({
     'ready_for_explicit_provider_draft_approval'
 
   return (
-    <div className="rounded-lg border border-sky-500/25 bg-background/45 p-3" aria-label="Gmail batch draft plan">
+    <div
+      id="gmail-batch-draft-plan"
+      className="rounded-lg border border-sky-500/25 bg-background/45 p-3"
+      aria-label="Gmail batch draft plan"
+    >
       <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(12rem,auto)] lg:items-start">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
@@ -632,6 +785,8 @@ export default function WarmBatchReviewPanel({
 
       {data && (
         <div className="mt-4 space-y-4">
+          <PlannedDraftActionsSection data={data} />
+
           <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(14rem,0.55fr)]">
             <div className="rounded-lg border border-silicon-slate/70 bg-background/45 p-3">
               <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground/80">

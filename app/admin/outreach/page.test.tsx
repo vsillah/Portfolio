@@ -384,6 +384,73 @@ const warmBatchReviewResponse = {
       genericApprovalAuthorizesSend: false,
     },
   },
+  plannedDraftActions: {
+    version: 'warm-planned-draft-actions/v1',
+    status: 'ready',
+    currentCta: {
+      key: 'open_draft_gate',
+      label: 'Open draft gate',
+      enabled: true,
+      href: '#gmail-batch-draft-plan',
+      reason: 'Open the existing Gmail draft gate for this planned batch.',
+    },
+    summary: {
+      selectedCount: 1,
+      gmailDraftPlanCount: 1,
+      manualSocialHandoffCount: 0,
+      relationshipReviewBlockerCount: 0,
+      responseFollowUpCount: 0,
+      parkedSmsCount: 0,
+    },
+    rows: [
+      {
+        contactId: 42,
+        contactName: 'Ada Operator',
+        company: 'Ops Lab',
+        kind: 'gmail_draft_plan',
+        kindLabel: 'Gmail draft plan',
+        recommendedChannel: 'gmail',
+        recommendationLabel: 'Gmail draft plan',
+        state: 'ready',
+        reason: 'Open draft gate',
+        detail: 'Prepare the review-only Gmail draft action packet. Gmail draft creation remains a separate explicit gate.',
+        blockers: [],
+        cta: {
+          key: 'open_draft_gate',
+          label: 'Open draft gate',
+          href: '#gmail-batch-draft-plan',
+          enabled: true,
+        },
+        draftActionPacket: {
+          version: 'warm-planned-draft-action-packet/v1',
+          reviewOnly: true,
+          createsGmailDraft: false,
+          createsOutreachQueueRow: false,
+          callsProvider: false,
+          externalSend: false,
+          slackDispatch: false,
+          smsDelivery: false,
+          n8nDispatch: false,
+          productionDataMutation: false,
+          externalRequests: [],
+        },
+      },
+    ],
+    executionBoundary: {
+      localPortfolioPlanOnly: true,
+      reviewOnlyDraftActionPackets: true,
+      createsOutreachQueueRows: false,
+      createsGmailDrafts: false,
+      gmailProviderCalls: false,
+      socialProviderCalls: false,
+      gmailSend: false,
+      slackDispatch: false,
+      smsDelivery: false,
+      n8nDispatch: false,
+      productionDataMutation: false,
+      externalRequests: [],
+    },
+  },
   executionBoundary: {
     source: 'local_portfolio_rows',
     readOnly: true,
@@ -906,7 +973,12 @@ describe('OutreachAdminPage deep links', () => {
     const planningBacklog = await screen.findByLabelText('Warm outreach planning backlog')
     fireEvent.click(within(planningBacklog).getByRole('button', { name: 'Plan review batch (1)' }))
 
-    await screen.findByLabelText('Warm batch review')
+    const batchReview = await screen.findByLabelText('Warm batch review')
+    expect(within(batchReview).getByLabelText('Warm planned draft actions')).toBeInTheDocument()
+    expect(within(batchReview).getAllByRole('link', { name: 'Open draft gate' })[0]).toHaveAttribute(
+      'href',
+      '#gmail-batch-draft-plan',
+    )
     await waitFor(() => {
       expect(fetchMock).toHaveBeenCalledWith(
         '/api/admin/outreach/batch-review',
@@ -1078,6 +1150,8 @@ describe('OutreachAdminPage deep links', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Plan Gmail drafts' }))
 
     const batchReview = await screen.findByLabelText('Warm batch review')
+    expect(within(batchReview).getByLabelText('Warm planned draft actions')).toBeInTheDocument()
+    expect(within(batchReview).getByText('1 Gmail draft plan')).toBeInTheDocument()
     expect(within(batchReview).getByText('Cohort provenance')).toBeInTheDocument()
     expect(within(batchReview).getByText('Sample individualized preview')).toBeInTheDocument()
     expect(within(batchReview).getByLabelText('Gmail batch draft plan')).toBeInTheDocument()

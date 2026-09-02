@@ -162,6 +162,13 @@ describe('WarmBatchReviewPanel', () => {
     expect(screen.getByText('Sender not verified: 1')).toBeInTheDocument()
     expect(screen.getByText('External send blocked: 1')).toBeInTheDocument()
     expect(screen.getByText('No-send canaries stay on the individual relationship packet.')).toBeInTheDocument()
+    expect(screen.getByLabelText('Warm planned draft actions')).toBeInTheDocument()
+    expect(screen.getAllByRole('link', { name: 'Open response follow-up' })[0]).toHaveAttribute(
+      'href',
+      '/admin/outreach?tab=leads&filter=warm&id=42&contactId=42#warm-response-lifecycle',
+    )
+    expect(screen.getByText('1 response follow-up')).toBeInTheDocument()
+    expect(screen.getByText('Social providers: off')).toBeInTheDocument()
     expect(screen.getByLabelText('Gmail batch draft plan')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Resolve blocked rows' })).toBeDisabled()
     expect(screen.getByText('1 submitted')).toBeInTheDocument()
@@ -200,6 +207,13 @@ describe('WarmBatchReviewPanel', () => {
     )
 
     expect(screen.getByLabelText('Gmail batch draft plan')).toBeInTheDocument()
+    expect(screen.getByLabelText('Warm planned draft actions')).toBeInTheDocument()
+    expect(screen.getAllByRole('link', { name: 'Open draft gate' })[0]).toHaveAttribute(
+      'href',
+      '#gmail-batch-draft-plan',
+    )
+    expect(screen.getByText('1 Gmail draft plan')).toBeInTheDocument()
+    expect(screen.getByText('0 SMS parked')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Create Gmail draft records (1)' })).toBeEnabled()
     expect(screen.getByText('1 provider not connected')).toBeInTheDocument()
     expect(screen.getByText('Record: Provider not connected')).toBeInTheDocument()
