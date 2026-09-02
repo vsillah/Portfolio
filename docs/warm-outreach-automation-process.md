@@ -309,9 +309,10 @@ Acceptance:
 - the handoff appears inside the canonical `/admin/outreach` selected-contact workroom,
 - LinkedIn, Facebook, and phone-contact copy previews are generated from local warm relationship context,
 - the operator sees one current CTA: copy/prepared text first, then record minimal manual evidence,
-- manual evidence records only timestamp, channel, and a non-sensitive operator note,
-- repeated evidence recording is hidden after the local evidence state is recorded,
+- manual evidence records only timestamp, channel, message-version/evidence keys, and a non-sensitive operator note in a redacted `contact_communications` manual row,
+- repeated evidence recording is hidden after Portfolio returns durable evidence for that contact/channel/message version,
 - stable contact/channel/message-version keys are visible for audit and duplicate prevention,
+- raw private message bodies, phone numbers, screenshots, provider identifiers, and external thread IDs are not stored in manual evidence,
 - LinkedIn API, Facebook API, phone access, Gmail drafts/sends, Slack dispatch, SMS delivery, n8n dispatch, scheduling, provider polling, and production mutation remain disabled,
 - `externalRequests` remains empty.
 
@@ -393,7 +394,7 @@ Current working assumptions:
 
 3. LinkedIn/Facebook/phone manual handoff
    - Generate channel-ready copy and a manual-send checklist.
-   - Record operator-confirmed manual evidence state in the Portfolio workroom.
+   - Record operator-confirmed manual evidence state in a redacted Portfolio `contact_communications` manual row.
    - Do not automate LinkedIn, Facebook, phone, or SMS sending unless a later provider capability and policy gate are approved.
 
 5. Template library hardening

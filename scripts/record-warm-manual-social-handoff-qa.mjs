@@ -98,11 +98,86 @@ async function seedSession(page) {
   }, { keys: authStorageKeys(), storedSession: session })
 }
 
-async function installSafeRoutes(page, externalRequests) {
+async function installSafeRoutes(page, externalRequests, manualEvidenceApiResponses) {
   const localOrigin = new URL(baseUrl).origin
   await page.route('**/*', async (route) => {
     const request = route.request()
     const url = new URL(request.url())
+    if (/\/api\/admin\/outreach\/leads\/[^/]+\/manual-social-handoff\b/i.test(url.pathname)) {
+      const body = request.postDataJSON()
+      const recordedAt = new Date().toISOString()
+      const evidence = {
+        version: 'warm-outreach-manual-social-evidence/v1',
+        status: 'manual_sent_recorded',
+        contactId: '42',
+        channel: body.channel,
+        messageVersionKey: body.messageVersionKey,
+        manualHandoffKey: body.manualHandoffKey,
+        manualEvidenceKey: body.manualEvidenceKey,
+        recordedAt,
+        operatorNote: body.operatorNote,
+        source: {
+          table: 'contact_communications',
+          id: 'qa-manual-communication-1',
+          sourceSystem: 'manual',
+          sourceId: body.manualEvidenceKey,
+        },
+        privacyBoundary: {
+          storesRawMessageBody: false,
+          storesRawContactDetails: false,
+          storesScreenshot: false,
+          storesProviderIdentifiers: false,
+        },
+        executionBoundary: {
+          providerCallsEnabled: false,
+          externalSendEnabled: false,
+          linkedinApiEnabled: false,
+          facebookApiEnabled: false,
+          phoneAccessEnabled: false,
+          smsDeliveryEnabled: false,
+          gmailDraftCreationEnabled: false,
+          slackDispatchEnabled: false,
+          n8nDispatchEnabled: false,
+          externalRequests: [],
+        },
+      }
+      const response = {
+        outcome: 'recorded',
+        duplicatePrevented: false,
+        evidence,
+        executionBoundary: {
+          providerCallsEnabled: false,
+          externalSendEnabled: false,
+          linkedinApiCalled: false,
+          facebookApiCalled: false,
+          phoneAccessCalled: false,
+          smsDeliveryEnabled: false,
+          gmailDraftCreated: false,
+          slackDispatchEnabled: false,
+          n8nDispatchEnabled: false,
+          externalRequests: [],
+        },
+      }
+      manualEvidenceApiResponses.push({
+        method: request.method(),
+        url: request.url(),
+        requestBody: {
+          channel: body.channel,
+          messageVersionKey: body.messageVersionKey,
+          manualHandoffKey: body.manualHandoffKey,
+          manualEvidenceKey: body.manualEvidenceKey,
+          operatorNote: body.operatorNote,
+        },
+        response,
+      })
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify(response),
+      })
+      return
+    }
+
     const localProviderPath =
       /\/api\/admin\/outreach\/[^/]+\/(?:slack-send-approval|gmail-user-draft|gmail-user-send|gmail-draft-canary)\b/i.test(url.pathname) ||
       /\/api\/admin\/outreach\/gmail-response-import\b/i.test(url.pathname) ||
@@ -170,6 +245,7 @@ async function installSafeRoutes(page, externalRequests) {
 
 async function openQaPage(browser, viewport, recordVideo = false) {
   const externalRequests = []
+  const manualEvidenceApiResponses = []
   const context = await browser.newContext({
     viewport,
     deviceScaleFactor: 1,
@@ -178,7 +254,7 @@ async function openQaPage(browser, viewport, recordVideo = false) {
   })
   const page = await context.newPage()
   await seedSession(page)
-  await installSafeRoutes(page, externalRequests)
+  await installSafeRoutes(page, externalRequests, manualEvidenceApiResponses)
   const response = await page.goto(qaUrl, { waitUntil: 'networkidle' })
   if (response && response.status() >= 400) {
     throw new Error(`QA route returned HTTP ${response.status()}: ${qaUrl}`)
@@ -186,7 +262,7 @@ async function openQaPage(browser, viewport, recordVideo = false) {
   const overlay = await page.locator('[data-nextjs-dialog], .vite-error-overlay, #webpack-dev-server-client-overlay').count()
   if (overlay > 0) throw new Error('Framework error overlay is visible on the QA route.')
   await page.locator('#warm-manual-social-handoff').waitFor({ timeout: 15_000 })
-  return { context, page, externalRequests }
+  return { context, page, externalRequests, manualEvidenceApiResponses }
 }
 
 async function verifyManualHandoff(page) {
@@ -300,7 +376,8 @@ async function recordWalkthrough(browser) {
     const handoff = document.querySelector('#warm-manual-social-handoff')
     return {
       clipboardWrites: writes.length,
-      evidenceRecorded: /Local evidence recorded/i.test(text),
+      evidenceRecorded: /Portfolio evidence recorded/i.test(text),
+      apiBackedEvidenceResponse: /Portfolio recorded this manual evidence/i.test(text),
       repeatEvidenceButtonVisible: [...(handoff?.querySelectorAll('button') || [])].some((button) =>
         (button.textContent || '').trim() === 'Record manual evidence',
       ),
@@ -330,6 +407,7 @@ async function recordWalkthrough(browser) {
     mp4Path,
     afterRecord,
     externalRequests: qa.externalRequests,
+    manualEvidenceApiResponses: qa.manualEvidenceApiResponses,
   }
 }
 
@@ -368,6 +446,15 @@ try {
       video.afterRecord.evidenceRecorded &&
       !video.afterRecord.repeatEvidenceButtonVisible &&
       video.afterRecord.externalRequestsVisible,
+    apiBackedEvidenceResponse:
+      video.afterRecord.apiBackedEvidenceResponse &&
+      video.manualEvidenceApiResponses.length === 1 &&
+      video.manualEvidenceApiResponses.every((item) =>
+        item.response.evidence?.status === 'manual_sent_recorded' &&
+        item.response.evidence?.privacyBoundary?.storesRawMessageBody === false &&
+        item.response.evidence?.privacyBoundary?.storesRawContactDetails === false &&
+        item.response.executionBoundary?.externalRequests?.length === 0
+      ),
   }
   const receipt = {
     version: 'warm-manual-social-handoff-qa/v1',
@@ -379,7 +466,7 @@ try {
       'Manual social handoff appears on the canonical selected-contact relationship packet surface.',
       'LinkedIn, Facebook, and phone-contact previews are visibly manual and no-egress.',
       'Primary CTA moves from copy text to record manual evidence to recorded state.',
-      'After local evidence is recorded, the repeat evidence action is no longer presented.',
+      'After the API-backed evidence response returns, the repeat evidence action is no longer presented.',
     ],
     decisionGate:
       'Captain QA and Vambah human QA only. Provider automation and external sending require separate explicit future gates.',
@@ -396,7 +483,7 @@ try {
 
   await writeFile(receiptPath, `${JSON.stringify(receipt, null, 2)}\n`)
 
-  if (!pass.allViewportsRendered || !pass.noHorizontalOverflow || !pass.localEvidenceRecorded) {
+  if (!pass.allViewportsRendered || !pass.noHorizontalOverflow || !pass.localEvidenceRecorded || !pass.apiBackedEvidenceResponse) {
     throw new Error(`Manual social handoff QA failed: ${JSON.stringify(pass, null, 2)}`)
   }
   if (externalRequests.length > 0) {

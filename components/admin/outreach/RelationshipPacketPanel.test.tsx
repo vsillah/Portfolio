@@ -1182,7 +1182,7 @@ describe('RelationshipPacketPanel', () => {
     expect(screen.getByText('Local response evidence: visible')).toBeInTheDocument()
   })
 
-  it('renders manual social handoff copy and records local evidence without provider calls', async () => {
+  it('renders manual social handoff copy and records server evidence without provider calls', async () => {
     const writeText = vi.fn().mockResolvedValue(undefined)
     const previousFetch = globalThis.fetch
     const fetchMock = vi.fn()
@@ -1204,8 +1204,63 @@ describe('RelationshipPacketPanel', () => {
         },
       }),
     }
+    const linkedin = manualData.manualSocialHandoff!.channels.find((channel) => channel.channel === 'linkedin')!
+    fetchMock.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        outcome: 'recorded',
+        duplicatePrevented: false,
+        evidence: {
+          version: 'warm-outreach-manual-social-evidence/v1',
+          status: 'manual_sent_recorded',
+          contactId: '42',
+          channel: 'linkedin',
+          messageVersionKey: linkedin.idempotency.messageVersionKey,
+          manualHandoffKey: linkedin.idempotency.manualHandoffKey,
+          manualEvidenceKey: linkedin.idempotency.manualEvidenceKey,
+          recordedAt: '2026-09-02T13:00:00.000Z',
+          operatorNote: 'Copied into LinkedIn manually after reviewing relationship basis.',
+          source: {
+            table: 'contact_communications',
+            id: 'manual-communication-1',
+            sourceSystem: 'manual',
+            sourceId: linkedin.idempotency.manualEvidenceKey,
+          },
+          privacyBoundary: {
+            storesRawMessageBody: false,
+            storesRawContactDetails: false,
+            storesScreenshot: false,
+            storesProviderIdentifiers: false,
+          },
+          executionBoundary: {
+            providerCallsEnabled: false,
+            externalSendEnabled: false,
+            linkedinApiEnabled: false,
+            facebookApiEnabled: false,
+            phoneAccessEnabled: false,
+            smsDeliveryEnabled: false,
+            gmailDraftCreationEnabled: false,
+            slackDispatchEnabled: false,
+            n8nDispatchEnabled: false,
+            externalRequests: [],
+          },
+        },
+        executionBoundary: {
+          providerCallsEnabled: false,
+          externalSendEnabled: false,
+          linkedinApiCalled: false,
+          facebookApiCalled: false,
+          phoneAccessCalled: false,
+          smsDeliveryEnabled: false,
+          gmailDraftCreated: false,
+          slackDispatchEnabled: false,
+          n8nDispatchEnabled: false,
+          externalRequests: [],
+        },
+      }),
+    })
 
-    render(<RelationshipPacketPanel loading={false} error={null} data={manualData} />)
+    render(<RelationshipPacketPanel authToken="admin-token" loading={false} error={null} data={manualData} />)
 
     const handoff = screen.getByTestId('warm-manual-social-handoff')
     expect(within(handoff).getByText('Manual social handoff')).toBeInTheDocument()
@@ -1224,10 +1279,31 @@ describe('RelationshipPacketPanel', () => {
     })
     fireEvent.click(within(handoff).getByRole('button', { name: 'Record manual evidence' }))
 
-    expect(within(handoff).getByRole('button', { name: 'Evidence recorded' })).toBeDisabled()
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1))
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/admin/outreach/leads/42/manual-social-handoff',
+      expect.objectContaining({
+        method: 'POST',
+        headers: expect.objectContaining({
+          Authorization: 'Bearer admin-token',
+          'content-type': 'application/json',
+        }),
+        body: expect.any(String),
+      }),
+    )
+    expect(fetchMock.mock.calls[0]?.[0]).not.toContain('linkedin.com')
+    const requestBody = JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body))
+    expect(requestBody).toEqual({
+      channel: 'linkedin',
+      messageVersionKey: linkedin.idempotency.messageVersionKey,
+      manualHandoffKey: linkedin.idempotency.manualHandoffKey,
+      manualEvidenceKey: linkedin.idempotency.manualEvidenceKey,
+      operatorNote: 'Copied into LinkedIn manually after reviewing relationship basis.',
+    })
+    await waitFor(() => expect(within(handoff).getByRole('button', { name: 'Evidence recorded' })).toBeDisabled())
     expect(within(handoff).queryByRole('button', { name: 'Record manual evidence' })).not.toBeInTheDocument()
+    expect(within(handoff).getByText(/Portfolio recorded this manual evidence/i)).toBeInTheDocument()
     expect(within(handoff).getByText(/repeat evidence action is locked/i)).toBeInTheDocument()
-    expect(fetchMock).not.toHaveBeenCalled()
     vi.stubGlobal('fetch', previousFetch)
   })
 

@@ -258,6 +258,7 @@ export async function GET(
     const manualSocialHandoff = buildWarmManualSocialHandoff({
       packet,
       readiness,
+      evidenceRows: contactCommunications,
     })
 
     return NextResponse.json({

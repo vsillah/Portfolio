@@ -17,8 +17,55 @@ export type WarmManualSocialHandoffChannel =
 
 export type WarmManualSocialHandoffChannelState =
   | 'ready_for_manual_copy'
+  | 'manual_sent_recorded'
   | 'blocked'
   | 'unavailable'
+
+export type WarmManualSocialHandoffEvidenceRecord = {
+  version: 'warm-outreach-manual-social-evidence/v1'
+  status: 'manual_sent_recorded'
+  contactId: string
+  channel: WarmManualSocialHandoffChannel
+  messageVersionKey: string
+  manualHandoffKey: string
+  manualEvidenceKey: string
+  recordedAt: string
+  operatorNote: string
+  source: {
+    table: 'contact_communications'
+    id: string | null
+    sourceSystem: 'manual'
+    sourceId: string
+  }
+  privacyBoundary: {
+    storesRawMessageBody: false
+    storesRawContactDetails: false
+    storesScreenshot: false
+    storesProviderIdentifiers: false
+  }
+  executionBoundary: {
+    providerCallsEnabled: false
+    externalSendEnabled: false
+    linkedinApiEnabled: false
+    facebookApiEnabled: false
+    phoneAccessEnabled: false
+    smsDeliveryEnabled: false
+    gmailDraftCreationEnabled: false
+    slackDispatchEnabled: false
+    n8nDispatchEnabled: false
+    externalRequests: []
+  }
+}
+
+export type WarmManualSocialHandoffEvidenceRow = {
+  id?: string | number | null
+  contact_submission_id?: string | number | null
+  source_system?: string | null
+  source_id?: string | null
+  status?: string | null
+  sent_at?: string | null
+  metadata?: unknown
+}
 
 export type WarmManualSocialHandoffChannelPacket = {
   channel: WarmManualSocialHandoffChannel
@@ -42,6 +89,11 @@ export type WarmManualSocialHandoffChannelPacket = {
     manualHandoffKey: string
     manualEvidenceKey: string
     duplicateScope: 'contact_channel_message_version'
+  }
+  durableEvidence: WarmManualSocialHandoffEvidenceRecord | null
+  evidenceLock: {
+    locked: boolean
+    reason: string | null
   }
   executionBoundary: {
     manualOnly: true
@@ -120,6 +172,25 @@ function stableHash(value: unknown): string {
 function compact(value: string | null | undefined, fallback: string): string {
   const trimmed = value?.replace(/\s+/g, ' ').trim()
   return trimmed ? trimmed : fallback
+}
+
+function record(value: unknown): Record<string, unknown> {
+  return value && typeof value === 'object' && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : {}
+}
+
+function stringValue(value: unknown): string | null {
+  if (typeof value === 'string') {
+    const text = value.trim()
+    return text || null
+  }
+  if (typeof value === 'number' && Number.isFinite(value)) return String(value)
+  return null
+}
+
+function boolFalse(value: unknown) {
+  return value === false
 }
 
 function truncate(value: string, max: number): string {
@@ -219,6 +290,7 @@ function buildChannelPacket(args: {
   channel: WarmManualSocialHandoffChannel
   packet: WarmOutreachRelationshipPacket
   readiness: WarmOutreachReadiness
+  evidenceRows: WarmManualSocialHandoffEvidenceRow[]
 }): WarmManualSocialHandoffChannelPacket {
   const blocker = channelBlocker(args.channel, args.packet, args.readiness)
   const unavailable = !args.packet.channelCapabilities[args.channel]?.available
@@ -233,22 +305,38 @@ function buildChannelPacket(args: {
     basis: args.packet.relationshipBasis,
   })
   const messageVersionKey = `warm-outreach:manual-message-version:v1:${hash}`
+  const idempotency = {
+    messageVersionKey,
+    manualHandoffKey: `warm-outreach:manual-handoff:v1:${hash}`,
+    manualEvidenceKey: `warm-outreach:manual-evidence:v1:${hash}`,
+    duplicateScope: 'contact_channel_message_version' as const,
+  }
+  const durableEvidence = findManualSocialEvidence(args.evidenceRows, {
+    contactId: String(args.packet.contactId),
+    channel: args.channel,
+    messageVersionKey: idempotency.messageVersionKey,
+    manualHandoffKey: idempotency.manualHandoffKey,
+    manualEvidenceKey: idempotency.manualEvidenceKey,
+  })
+  const finalState = durableEvidence ? 'manual_sent_recorded' : state
 
   return {
     channel: args.channel,
     label: CHANNEL_LABELS[args.channel],
-    state,
+    state: finalState,
     blocker,
     preview: state === 'ready_for_manual_copy'
       ? previewFor(args.channel, args.packet)
       : '',
     maxRecommendedCharacters: MAX_CHARS[args.channel],
     checklist: checklistFor(Boolean(blocker)),
-    idempotency: {
-      messageVersionKey,
-      manualHandoffKey: `warm-outreach:manual-handoff:v1:${hash}`,
-      manualEvidenceKey: `warm-outreach:manual-evidence:v1:${hash}`,
-      duplicateScope: 'contact_channel_message_version',
+    idempotency,
+    durableEvidence,
+    evidenceLock: {
+      locked: Boolean(durableEvidence),
+      reason: durableEvidence
+        ? 'Manual evidence is recorded in Portfolio for this contact, channel, and message version. Create or edit a new message version before recording another evidence item.'
+        : null,
     },
     executionBoundary: {
       manualOnly: true,
@@ -278,12 +366,14 @@ function buildChannelPacket(args: {
 export function buildWarmManualSocialHandoff(args: {
   packet: WarmOutreachRelationshipPacket
   readiness: WarmOutreachReadiness
+  evidenceRows?: WarmManualSocialHandoffEvidenceRow[]
 }): WarmManualSocialHandoff {
   const channels = warmManualSocialHandoffChannels.map((channel) =>
     buildChannelPacket({
       channel,
       packet: args.packet,
       readiness: args.readiness,
+      evidenceRows: args.evidenceRows ?? [],
     }),
   )
   const firstReady = channels.find((channel) => channel.state === 'ready_for_manual_copy')
@@ -329,4 +419,98 @@ export function buildWarmManualSocialHandoff(args: {
       externalRequests: [],
     },
   }
+}
+
+export function findManualSocialEvidence(
+  rows: WarmManualSocialHandoffEvidenceRow[],
+  expected: {
+    contactId: string
+    channel: WarmManualSocialHandoffChannel
+    messageVersionKey: string
+    manualHandoffKey: string
+    manualEvidenceKey: string
+  },
+): WarmManualSocialHandoffEvidenceRecord | null {
+  for (const row of rows) {
+    const metadata = record(row.metadata)
+    const nested = record(metadata.warm_manual_social_handoff_evidence)
+    const evidence = Object.keys(nested).length > 0 ? nested : metadata
+    const status = stringValue(evidence.status)
+    const channel = stringValue(evidence.channel ?? evidence.manual_channel)
+    const messageVersionKey = stringValue(evidence.message_version_key)
+    const manualHandoffKey = stringValue(evidence.manual_handoff_key)
+    const manualEvidenceKey = stringValue(evidence.manual_evidence_key)
+    const contactId = stringValue(evidence.contact_submission_id ?? row.contact_submission_id)
+    const sourceSystem = stringValue(row.source_system)
+    const sourceId = stringValue(row.source_id)
+
+    if (
+      status !== 'manual_sent_recorded' ||
+      channel !== expected.channel ||
+      messageVersionKey !== expected.messageVersionKey ||
+      manualHandoffKey !== expected.manualHandoffKey ||
+      manualEvidenceKey !== expected.manualEvidenceKey ||
+      contactId !== expected.contactId ||
+      sourceSystem !== 'manual' ||
+      sourceId !== expected.manualEvidenceKey
+    ) {
+      continue
+    }
+
+    if (
+      !boolFalse(evidence.provider_calls_enabled) ||
+      !boolFalse(evidence.external_send_enabled) ||
+      !boolFalse(evidence.linkedin_api_called) ||
+      !boolFalse(evidence.facebook_api_called) ||
+      !boolFalse(evidence.phone_access_called) ||
+      !boolFalse(evidence.sms_delivery_enabled) ||
+      !boolFalse(evidence.gmail_draft_created) ||
+      !boolFalse(evidence.slack_dispatch_enabled) ||
+      !boolFalse(evidence.n8n_dispatch_enabled) ||
+      !boolFalse(evidence.raw_message_body_stored) ||
+      !boolFalse(evidence.raw_contact_details_stored) ||
+      !boolFalse(evidence.screenshot_stored) ||
+      !boolFalse(evidence.provider_identifiers_stored)
+    ) {
+      continue
+    }
+
+    return {
+      version: 'warm-outreach-manual-social-evidence/v1',
+      status: 'manual_sent_recorded',
+      contactId,
+      channel: expected.channel,
+      messageVersionKey,
+      manualHandoffKey,
+      manualEvidenceKey,
+      recordedAt: stringValue(evidence.recorded_at ?? row.sent_at) ?? '',
+      operatorNote: stringValue(evidence.operator_note) ?? '',
+      source: {
+        table: 'contact_communications',
+        id: stringValue(row.id),
+        sourceSystem: 'manual',
+        sourceId,
+      },
+      privacyBoundary: {
+        storesRawMessageBody: false,
+        storesRawContactDetails: false,
+        storesScreenshot: false,
+        storesProviderIdentifiers: false,
+      },
+      executionBoundary: {
+        providerCallsEnabled: false,
+        externalSendEnabled: false,
+        linkedinApiEnabled: false,
+        facebookApiEnabled: false,
+        phoneAccessEnabled: false,
+        smsDeliveryEnabled: false,
+        gmailDraftCreationEnabled: false,
+        slackDispatchEnabled: false,
+        n8nDispatchEnabled: false,
+        externalRequests: [],
+      },
+    }
+  }
+
+  return null
 }

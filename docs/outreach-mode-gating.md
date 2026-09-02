@@ -9,7 +9,7 @@ Portfolio recognizes four outreach modes for internal review and model policy on
 
 All four modes stay on the canonical `/admin/outreach` workroom. They may support lead review, evidence enrichment, draft preparation, batch recipient review, individualized draft planning, and human approval packets. They do not enable external sends, scheduling, provider calls, publication, or Slack/provider side effects.
 
-Manual LinkedIn, Facebook, and phone-contact handoff is copy-and-record only on the same workroom. It can show channel-specific text, a manual-send checklist, stable contact/channel/message-version keys, and operator-recorded timestamp/channel/note evidence. It does not call LinkedIn, Facebook, phone, SMS, Gmail, Slack, n8n, scheduling, polling, or provider APIs.
+Manual LinkedIn, Facebook, and phone-contact handoff is copy-and-record only on the same workroom. It can show channel-specific text, a manual-send checklist, stable contact/channel/message-version keys, and operator-recorded timestamp/channel/note evidence. Durable manual evidence is stored as a redacted `contact_communications` manual row keyed by contact, manual channel, message version, handoff key, and evidence key. It does not store the raw private message body, phone number, screenshot, provider identifier, or external thread ID, and it does not call LinkedIn, Facebook, phone, SMS, Gmail, Slack, n8n, scheduling, polling, or provider APIs.
 
 Required gates:
 

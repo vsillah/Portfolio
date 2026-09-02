@@ -30,6 +30,7 @@ import type {
   WarmManualSocialHandoff,
   WarmManualSocialHandoffChannel,
   WarmManualSocialHandoffChannelPacket,
+  WarmManualSocialHandoffEvidenceRecord,
 } from '@/lib/warm-outreach-manual-social-handoff'
 import type {
   WarmOutreachGmailProviderExecutionReadiness,
@@ -277,6 +278,7 @@ function sendAuthorityStateLabel(state: SendReadinessItem['sendAuthority']['stat
 }
 
 function manualHandoffStateClasses(state: WarmManualSocialHandoffChannelPacket['state']) {
+  if (state === 'manual_sent_recorded') return 'border-emerald-500/30 bg-emerald-500/10 text-emerald-100'
   if (state === 'ready_for_manual_copy') return 'border-sky-500/30 bg-sky-500/10 text-sky-100'
   if (state === 'blocked') return 'border-amber-500/30 bg-amber-500/10 text-amber-100'
   return 'border-silicon-slate/70 bg-background/35 text-muted-foreground'
@@ -1477,9 +1479,14 @@ function smsLiveExecutionGateClasses(status: 'passed' | 'available' | 'required'
 
 type ManualHandoffEvidence = Partial<Record<
   WarmManualSocialHandoffChannel,
+  WarmManualSocialHandoffEvidenceRecord
+>>
+
+type ManualHandoffActionState = Partial<Record<
+  WarmManualSocialHandoffChannel,
   {
-    recordedAt: string
-    operatorNote: string
+    status: 'idle' | 'saving' | 'success' | 'error'
+    message: string | null
   }
 >>
 
@@ -1498,8 +1505,10 @@ function initialManualDrafts(handoff: WarmManualSocialHandoff) {
 }
 
 function ManualSocialHandoffCard({
+  authToken,
   handoff,
 }: {
+  authToken?: string | null
   handoff?: WarmManualSocialHandoff | null
 }) {
   const [selectedChannel, setSelectedChannel] = useState<WarmManualSocialHandoffChannel>(
@@ -1514,6 +1523,7 @@ function ManualSocialHandoffCard({
   )
   const [prepared, setPrepared] = useState<Partial<Record<WarmManualSocialHandoffChannel, boolean>>>({})
   const [evidence, setEvidence] = useState<ManualHandoffEvidence>({})
+  const [actionState, setActionState] = useState<ManualHandoffActionState>({})
   const [operatorNote, setOperatorNote] = useState('')
   const [copyStatus, setCopyStatus] = useState<'idle' | 'copied' | 'fallback'>('idle')
 
@@ -1522,7 +1532,11 @@ function ManualSocialHandoffCard({
     setSelectedChannel(handoff.currentCta.channel ?? handoff.channels[0]?.channel ?? 'linkedin')
     setDrafts(initialManualDrafts(handoff))
     setPrepared({})
-    setEvidence({})
+    setEvidence(handoff.channels.reduce((records, channel) => ({
+      ...records,
+      [channel.channel]: channel.durableEvidence ?? undefined,
+    }), {} as ManualHandoffEvidence))
+    setActionState({})
     setOperatorNote('')
     setCopyStatus('idle')
   }, [handoff])
@@ -1535,15 +1549,22 @@ function ManualSocialHandoffCard({
   if (!selected) return null
 
   const selectedDraft = drafts[selected.channel] ?? selected.preview
-  const evidenceRecord = evidence[selected.channel]
-  const isPrepared = prepared[selected.channel] === true
+  const evidenceRecord = evidence[selected.channel] ?? selected.durableEvidence ?? undefined
+  const action = actionState[selected.channel] ?? { status: 'idle' as const, message: null }
+  const isPrepared = prepared[selected.channel] === true || Boolean(evidenceRecord)
   const blocked = selected.state !== 'ready_for_manual_copy'
   const canRecordEvidence =
-    isPrepared && !evidenceRecord && !blocked && operatorNote.trim().length > 0
+    isPrepared &&
+    !evidenceRecord &&
+    selected.state === 'ready_for_manual_copy' &&
+    operatorNote.trim().length > 0 &&
+    action.status !== 'saving'
   const primaryLabel = evidenceRecord
     ? 'Evidence recorded'
     : blocked
       ? 'Review blocker'
+      : action.status === 'saving'
+        ? 'Saving evidence'
       : isPrepared
         ? 'Record manual evidence'
         : `Copy ${selected.label} text`
@@ -1564,21 +1585,63 @@ function ManualSocialHandoffCard({
     }
   }
 
-  function recordEvidence() {
+  async function recordEvidence() {
     if (!canRecordEvidence) return
-    setEvidence((current) => ({
+    setActionState((current) => ({
       ...current,
-      [selected.channel]: {
-        recordedAt: new Date().toISOString(),
-        operatorNote: operatorNote.trim(),
-      },
+      [selected.channel]: { status: 'saving', message: 'Recording local Portfolio evidence...' },
     }))
+    try {
+      const response = await fetch(`/api/admin/outreach/leads/${encodeURIComponent(handoff.contactId)}/manual-social-handoff`, {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+        },
+        body: JSON.stringify({
+          channel: selected.channel,
+          messageVersionKey: selected.idempotency.messageVersionKey,
+          manualHandoffKey: selected.idempotency.manualHandoffKey,
+          manualEvidenceKey: selected.idempotency.manualEvidenceKey,
+          operatorNote: operatorNote.trim(),
+        }),
+      })
+      const body = await response.json().catch(() => ({})) as {
+        error?: string
+        duplicatePrevented?: boolean
+        evidence?: WarmManualSocialHandoffEvidenceRecord | null
+      }
+      if (!response.ok || !body.evidence) {
+        throw new Error(body.error ?? 'Manual evidence could not be recorded.')
+      }
+      setEvidence((current) => ({
+        ...current,
+        [selected.channel]: body.evidence ?? undefined,
+      }))
+      setActionState((current) => ({
+        ...current,
+        [selected.channel]: {
+          status: 'success',
+          message: body.duplicatePrevented
+            ? 'Portfolio already had this manual evidence. Repeat action remains locked.'
+            : 'Portfolio recorded this manual evidence. Repeat action is locked for this message version.',
+        },
+      }))
+    } catch (error) {
+      setActionState((current) => ({
+        ...current,
+        [selected.channel]: {
+          status: 'error',
+          message: error instanceof Error ? error.message : 'Manual evidence could not be recorded.',
+        },
+      }))
+    }
   }
 
   function handlePrimaryAction() {
     if (evidenceRecord || blocked) return
     if (isPrepared) {
-      recordEvidence()
+      void recordEvidence()
       return
     }
     void copyManualText()
@@ -1629,7 +1692,7 @@ function ManualSocialHandoffCard({
                 : 'border-current/20 bg-background/15 text-current/80 hover:bg-background/25'
             }`}
           >
-            {channel.label}: {channel.state === 'ready_for_manual_copy' ? 'manual ready' : channel.state.replace(/_/g, ' ')}
+            {channel.label}: {channel.state === 'manual_sent_recorded' ? 'recorded' : channel.state === 'ready_for_manual_copy' ? 'manual ready' : channel.state.replace(/_/g, ' ')}
           </button>
         ))}
       </div>
@@ -1664,6 +1727,10 @@ function ManualSocialHandoffCard({
                 setEvidence((current) => ({
                   ...current,
                   [selected.channel]: undefined,
+                }))
+                setActionState((current) => ({
+                  ...current,
+                  [selected.channel]: { status: 'idle', message: null },
                 }))
                 setCopyStatus('idle')
               }}
@@ -1719,9 +1786,23 @@ function ManualSocialHandoffCard({
           <p className="mt-2 text-[10px] leading-4 opacity-80">
             Evidence key: <span className="break-all">{selected.idempotency.manualEvidenceKey}</span>
           </p>
+          {action.message && (
+            <p
+              role={action.status === 'error' ? 'alert' : 'status'}
+              className={`mt-2 rounded-md border p-2 text-[11px] leading-4 ${
+                action.status === 'error'
+                  ? 'border-red-500/25 bg-red-500/10 text-red-100'
+                  : action.status === 'saving'
+                    ? 'border-sky-500/25 bg-sky-500/10 text-sky-100'
+                    : 'border-emerald-500/25 bg-emerald-500/10 text-emerald-100'
+              }`}
+            >
+              {action.message}
+            </p>
+          )}
           {evidenceRecord && (
             <p role="status" className="mt-2 rounded-md border border-emerald-500/25 bg-emerald-500/10 p-2 text-[11px] leading-4 text-emerald-100">
-              Local evidence recorded at {evidenceRecord.recordedAt}. The repeat evidence action is locked for this channel state.
+              Portfolio evidence recorded at {evidenceRecord.recordedAt}. The repeat evidence action is locked for this contact, channel, and message version.
             </p>
           )}
         </div>
@@ -1752,6 +1833,11 @@ function ManualSocialHandoffCard({
           <p className="rounded-md border border-current/20 bg-background/20 p-2">
             LinkedIn API off / Facebook API off / Phone access off
           </p>
+          {selected.evidenceLock?.locked && (
+            <p className="rounded-md border border-emerald-500/25 bg-emerald-500/10 p-2 text-emerald-100">
+              {selected.evidenceLock.reason}
+            </p>
+          )}
         </div>
         <p className="mt-2 text-[10px] leading-4 opacity-80">{selected.evidencePolicy.detail}</p>
       </details>
@@ -3482,7 +3568,7 @@ export default function RelationshipPacketPanel({
             </div>
           )}
 
-          <ManualSocialHandoffCard handoff={manualSocialHandoff} />
+          <ManualSocialHandoffCard authToken={authToken} handoff={manualSocialHandoff} />
 
           <SmsManualOutreachCard
             authToken={authToken}

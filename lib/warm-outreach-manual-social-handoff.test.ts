@@ -165,4 +165,126 @@ describe('warm manual social handoff', () => {
       preview: '',
     })
   })
+
+  it('locks a channel when durable manual evidence is read back from Portfolio rows', () => {
+    const readiness = evaluateWarmOutreachReadiness(packet)
+    const initial = buildWarmManualSocialHandoff({ packet, readiness })
+    const linkedin = initial.channels.find((channel) => channel.channel === 'linkedin')!
+    const evidenceRow = {
+      id: 'manual-communication-1',
+      contact_submission_id: 42,
+      source_system: 'manual',
+      source_id: linkedin.idempotency.manualEvidenceKey,
+      status: 'sent',
+      sent_at: '2026-09-02T13:00:00.000Z',
+      metadata: {
+        version: 'warm-outreach-manual-social-evidence/v1',
+        status: 'manual_sent_recorded',
+        contact_submission_id: 42,
+        channel: 'linkedin',
+        manual_channel: 'linkedin',
+        message_version_key: linkedin.idempotency.messageVersionKey,
+        manual_handoff_key: linkedin.idempotency.manualHandoffKey,
+        manual_evidence_key: linkedin.idempotency.manualEvidenceKey,
+        operator_note: 'Copied manually after relationship review.',
+        recorded_at: '2026-09-02T13:00:00.000Z',
+        provider_calls_enabled: false,
+        external_send_enabled: false,
+        linkedin_api_called: false,
+        facebook_api_called: false,
+        phone_access_called: false,
+        sms_delivery_enabled: false,
+        gmail_draft_created: false,
+        slack_dispatch_enabled: false,
+        n8n_dispatch_enabled: false,
+        raw_message_body_stored: false,
+        raw_contact_details_stored: false,
+        screenshot_stored: false,
+        provider_identifiers_stored: false,
+        external_requests: [],
+      },
+    }
+    const reloaded = buildWarmManualSocialHandoff({
+      packet,
+      readiness,
+      evidenceRows: [evidenceRow],
+    })
+
+    expect(reloaded.channels.find((channel) => channel.channel === 'linkedin')).toMatchObject({
+      state: 'manual_sent_recorded',
+      durableEvidence: {
+        status: 'manual_sent_recorded',
+        contactId: '42',
+        channel: 'linkedin',
+        messageVersionKey: linkedin.idempotency.messageVersionKey,
+        manualEvidenceKey: linkedin.idempotency.manualEvidenceKey,
+        operatorNote: 'Copied manually after relationship review.',
+        privacyBoundary: {
+          storesRawMessageBody: false,
+          storesRawContactDetails: false,
+          storesScreenshot: false,
+          storesProviderIdentifiers: false,
+        },
+        executionBoundary: {
+          providerCallsEnabled: false,
+          externalSendEnabled: false,
+          linkedinApiEnabled: false,
+          externalRequests: [],
+        },
+      },
+      evidenceLock: {
+        locked: true,
+      },
+    })
+    expect(reloaded.currentCta.channel).toBe('facebook')
+  })
+
+  it('ignores evidence rows that fail privacy or provider boundary checks', () => {
+    const readiness = evaluateWarmOutreachReadiness(packet)
+    const initial = buildWarmManualSocialHandoff({ packet, readiness })
+    const linkedin = initial.channels.find((channel) => channel.channel === 'linkedin')!
+    const reloaded = buildWarmManualSocialHandoff({
+      packet,
+      readiness,
+      evidenceRows: [{
+        id: 'unsafe-communication-1',
+        contact_submission_id: 42,
+        source_system: 'manual',
+        source_id: linkedin.idempotency.manualEvidenceKey,
+        status: 'sent',
+        sent_at: '2026-09-02T13:00:00.000Z',
+        metadata: {
+          version: 'warm-outreach-manual-social-evidence/v1',
+          status: 'manual_sent_recorded',
+          contact_submission_id: 42,
+          channel: 'linkedin',
+          message_version_key: linkedin.idempotency.messageVersionKey,
+          manual_handoff_key: linkedin.idempotency.manualHandoffKey,
+          manual_evidence_key: linkedin.idempotency.manualEvidenceKey,
+          provider_calls_enabled: true,
+          external_send_enabled: false,
+          linkedin_api_called: false,
+          facebook_api_called: false,
+          phone_access_called: false,
+          sms_delivery_enabled: false,
+          gmail_draft_created: false,
+          slack_dispatch_enabled: false,
+          n8n_dispatch_enabled: false,
+          raw_message_body_stored: false,
+          raw_contact_details_stored: false,
+          screenshot_stored: false,
+          provider_identifiers_stored: false,
+          external_requests: [],
+        },
+      }],
+    })
+
+    expect(reloaded.channels.find((channel) => channel.channel === 'linkedin')).toMatchObject({
+      state: 'ready_for_manual_copy',
+      durableEvidence: null,
+      evidenceLock: {
+        locked: false,
+      },
+    })
+  })
 })
