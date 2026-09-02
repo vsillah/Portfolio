@@ -327,7 +327,7 @@ function GmailDraftPlanSection({
                 </summary>
                 <div className="mt-2 grid gap-1.5 text-[10px] leading-4 sm:grid-cols-2">
                   <p className="break-all">Queue: {providerDraftCanaryResult.queueId ?? providerCanaryCandidate.existingQueueId}</p>
-                  <p className="break-all">Recipient: {providerDraftCanaryResult.to ?? providerDraftCanaryCandidate.contactName}</p>
+                  <p className="break-all">Recipient: {providerDraftCanaryResult.to ?? providerCanaryCandidate.contactName}</p>
                   <p className="break-all">Sender: {providerDraftCanaryResult.connectedAs ?? 'verified by route'}</p>
                   <p className="break-all">Authorization: {providerDraftCanaryResult.expectedAuthorization?.draftAuthorization ?? 'create_gmail_draft_for_recipient'}</p>
                   <p className="break-all sm:col-span-2">Idempotency: {providerDraftCanaryResult.expectedAuthorization?.idempotencyKey ?? 'route supplied'}</p>
