@@ -519,37 +519,29 @@ export default function WarmBatchReviewPanel({
 
           <GmailDraftPlanSection data={data} />
 
-          <div className="rounded-lg border border-amber-500/25 bg-amber-500/10 p-3 text-sm text-amber-50">
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wide">Email first candidate</p>
-                <p className="mt-1 text-xs leading-5 text-amber-100/90">
-                  {emailLifecycleSummary.candidates} recipient email path{emailLifecycleSummary.candidates === 1 ? '' : 's'} modeled. Batch send remains blocked until every recipient has individual readiness and future explicit authority.
-                </p>
-              </div>
-              <span className="w-fit rounded-full border border-current/25 px-2 py-0.5 text-[10px] font-semibold">
-                Provider/send off
+          <details className="rounded-lg border border-amber-500/25 bg-amber-500/10 p-3 text-sm text-amber-50">
+            <summary className="flex cursor-pointer list-none flex-wrap items-center justify-between gap-2">
+              <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wide">
+                <ShieldAlert size={14} aria-hidden />
+                Email gates
               </span>
+              <span className="rounded-full border border-current/25 px-2 py-0.5 text-[10px] font-semibold">
+                {emailLifecycleSummary.candidates} modeled / provider-send off
+              </span>
+            </summary>
+            <div className="mt-3 grid gap-2 text-xs leading-5 text-amber-100/85 sm:grid-cols-2">
+              <p>Duplicate blocked: {emailLifecycleSummary.duplicateBlocked}</p>
+              <p>Internal handoffs ready: {emailLifecycleSummary.handoffReady}</p>
+              <p>Provider not activated: {emailLifecycleSummary.providerNotConfigured}</p>
+              <p>Provider smoke ready/passed: {emailLifecycleSummary.providerSmokeReady}</p>
+              <p>Draft creation ready but disabled: {emailLifecycleSummary.draftCreationReady}</p>
+              <p>Tracked Gmail drafts: {emailLifecycleSummary.trackedDrafts}</p>
+              <p>Recipient approvals required: {emailLifecycleSummary.recipientApprovalRequired}</p>
+              <p>Sender not verified: {emailLifecycleSummary.senderNotVerified}</p>
+              <p>External send blocked: {emailLifecycleSummary.externalSendBlocked}</p>
+              <p>No-send canaries stay on the individual relationship packet.</p>
             </div>
-            <p className="mt-2 text-xs leading-5 text-amber-100/85">
-              Duplicate-blocked recipients: {emailLifecycleSummary.duplicateBlocked}. Gmail drafts, scheduling, and sends are disabled.
-            </p>
-            <p className="mt-1 text-xs leading-5 text-amber-100/85">
-              Internal draft handoffs ready: {emailLifecycleSummary.handoffReady}. Gmail provider not activated: {emailLifecycleSummary.providerNotConfigured}. Batch draft creation remains unavailable.
-            </p>
-            <p className="mt-1 text-xs leading-5 text-amber-100/85">
-              Provider smoke ready or passed: {emailLifecycleSummary.providerSmokeReady}. Gmail draft creation ready but disabled: {emailLifecycleSummary.draftCreationReady}. External send remains a separate future gate.
-            </p>
-            <p className="mt-1 text-xs leading-5 text-amber-100/85">
-              Tracked Gmail drafts: {emailLifecycleSummary.trackedDrafts}. Recipient send approvals required: {emailLifecycleSummary.recipientApprovalRequired}. Sender not verified for send: {emailLifecycleSummary.senderNotVerified}. External send blocked: {emailLifecycleSummary.externalSendBlocked}.
-            </p>
-            <p className="mt-1 text-xs leading-5 text-amber-100/85">
-              No-send Gmail draft canaries run from the individual contact relationship packet only, using contact/message-version idempotency keys. This batch panel does not create Gmail drafts or call Gmail.
-            </p>
-            <p className="mt-2 text-xs leading-5 text-amber-100/90">
-              Batch Gmail send is disabled. Each recipient still needs exact sender, copy, suppression, draft-evidence, and external-send authority.
-            </p>
-          </div>
+          </details>
 
           <div className="grid gap-2 sm:grid-cols-3">
             <div className="rounded-lg border border-emerald-500/25 bg-emerald-500/10 p-3 text-sm text-emerald-100">

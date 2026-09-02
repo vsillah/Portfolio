@@ -2,7 +2,7 @@
   "scenario": "warm-gmail-batch-draft",
   "route": "http://127.0.0.1:3066/admin/outreach?tab=leads&filter=warm&qa=warm-gmail-batch-draft",
   "mp4Path": "/Users/vambahsillah/.codex/worktrees/fcec/Portfolio/docs/warm-outreach-qa/warm-gmail-batch-draft-plan.mp4",
-  "timestamp": "2026-09-02T09:56:42.275Z",
+  "timestamp": "2026-09-02T10:12:40.372Z",
   "viewports": [
     {
       "name": "mobile-390",
@@ -44,6 +44,12 @@
     "Existing /admin/outreach warm leads route exposes draft-only Gmail batch planning.",
     "Batch preview shows selected contacts, readiness, relationship basis, template intent, and blocked/excluded rows.",
     "Preparing the plan only changes local UI state and does not create provider drafts or queue rows."
+  ],
+  "changedAreas": [
+    "Warm outreach shortlist selection and Plan Gmail drafts affordance.",
+    "Gmail batch draft plan preview with compact status chips and per-row blockers.",
+    "Collapsed Email gates disclosure replacing the legacy amber explanatory block.",
+    "Local-only planning confirmation and no-provider/no-egress boundary receipt."
   ],
   "executionBoundary": {
     "localPortfolioPlanOnly": true,

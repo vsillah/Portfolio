@@ -329,11 +329,11 @@ function existingDraftFor(args: {
 }
 
 function rowStatus(row: PortfolioRow): string | null {
-  return text(row.status)?.toLowerCase()
+  return text(row.status)?.toLowerCase() ?? null
 }
 
 function rowChannel(row: PortfolioRow): string | null {
-  return text(row.channel)?.toLowerCase() ?? text(row.email_kind)?.toLowerCase()
+  return text(row.channel)?.toLowerCase() ?? text(row.email_kind)?.toLowerCase() ?? null
 }
 
 function isEmailRow(row: PortfolioRow): boolean {

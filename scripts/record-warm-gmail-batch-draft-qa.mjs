@@ -608,6 +608,7 @@ const frames = [
     title: 'Select warm contacts',
     scenario: 'The operator starts on the existing warm outreach shortlist and selects a small batch.',
     expected: 'The page exposes a Gmail planning CTA from the current /admin/outreach leads workroom.',
+    changed: 'Warm shortlist selection, batch planning affordance, and selected-contact state.',
     boundary: 'No provider calls. The selection step only changes local UI state.',
   },
   {
@@ -615,6 +616,7 @@ const frames = [
     title: 'Review draft readiness',
     scenario: 'The batch preview shows one plan-ready row, one approval review row, one blocked row, and one submitted row.',
     expected: 'Each row shows basis, template intent, blocker chips, and Gmail draft off.',
+    changed: 'Batch preview, per-row readiness chips, current CTA, and collapsed Email gates details.',
     boundary: 'The CTA prepares a local plan; it does not create outreach_queue rows or Gmail drafts.',
   },
   {
@@ -622,6 +624,7 @@ const frames = [
     title: 'Prepare local plan',
     scenario: 'The operator clicks the one current batch CTA after reviewing the rows.',
     expected: 'A local confirmation appears and states exactly which external actions did not happen.',
+    changed: 'Local planning confirmation, no-egress receipt, and desktop review state.',
     boundary: 'Gmail, Slack, SMS, n8n, provider requests, and production writes remain off.',
   },
 ]
@@ -658,6 +661,7 @@ function frameHtml(frame) {
       <h1>${escapeHtml(frame.title)}</h1>
       <div><div class="label">Scenario</div><p>${escapeHtml(frame.scenario)}</p></div>
       <div><div class="label">Expected behavior</div><p>${escapeHtml(frame.expected)}</p></div>
+      <div><div class="label">Changed areas</div><p>${escapeHtml(frame.changed)}</p></div>
       <div class="gate">${escapeHtml(frame.boundary)}</div>
       <div class="flags"><span class="flag">Synthetic contacts</span><span class="flag">Gmail off</span><span class="flag">Slack off</span><span class="flag">SMS off</span></div>
     </aside>
@@ -721,6 +725,12 @@ const receipt = {
     'Existing /admin/outreach warm leads route exposes draft-only Gmail batch planning.',
     'Batch preview shows selected contacts, readiness, relationship basis, template intent, and blocked/excluded rows.',
     'Preparing the plan only changes local UI state and does not create provider drafts or queue rows.',
+  ],
+  changedAreas: [
+    'Warm outreach shortlist selection and Plan Gmail drafts affordance.',
+    'Gmail batch draft plan preview with compact status chips and per-row blockers.',
+    'Collapsed Email gates disclosure replacing the legacy amber explanatory block.',
+    'Local-only planning confirmation and no-provider/no-egress boundary receipt.',
   ],
   executionBoundary: batchReview.gmailDraftPlan.executionBoundary,
 }
