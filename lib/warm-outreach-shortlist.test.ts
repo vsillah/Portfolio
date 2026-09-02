@@ -232,4 +232,111 @@ describe('warm outreach shortlist', () => {
       expect.arrayContaining(['approval_needed', 'approved', 'blocked']),
     )
   })
+
+  it('builds an office-week batch queue with Gmail, manual-social, review, response, blocked, and SMS parked buckets', () => {
+    const shortlist = buildWarmOutreachShortlist(
+      [
+        lead({
+          id: 10,
+          name: 'Gmail Ready',
+          email: 'gmail-ready@example.com',
+          phone_number: null,
+          has_sales_conversation: true,
+          recent_email_drafts: [],
+        }),
+        lead({
+          id: 11,
+          name: 'Manual Social Ready',
+          email: null,
+          linkedin_url: 'https://linkedin.example/manual',
+          phone_number: null,
+          evidence_count: 1,
+          has_sales_conversation: false,
+          message: 'Known through a Portfolio referral.',
+          recent_email_drafts: [],
+        }),
+        lead({
+          id: 12,
+          name: 'Relationship Review',
+          email: 'review@example.com',
+          phone_number: null,
+          lead_score: 20,
+          has_sales_conversation: false,
+          evidence_count: 0,
+          message: null,
+          quick_wins: null,
+          full_report: null,
+          rep_pain_points: null,
+          recent_email_drafts: [],
+        }),
+        lead({
+          id: 13,
+          name: 'Waiting Response',
+          email: 'waiting@example.com',
+          phone_number: null,
+          messages_sent: 1,
+          recent_email_drafts: [
+            {
+              id: 'queue-sent',
+              subject: 'Warm draft',
+              status: 'sent',
+              created_at: '2026-09-02T10:00:00.000Z',
+            },
+          ],
+        }),
+        lead({
+          id: 14,
+          name: 'Suppressed Contact',
+          email: 'suppressed@example.com',
+          phone_number: null,
+          do_not_contact: true,
+        }),
+        lead({
+          id: 15,
+          name: 'Phone Parked',
+          email: 'phone@example.com',
+          phone_number: '555-0199',
+          has_sales_conversation: true,
+          recent_email_drafts: [],
+        }),
+      ],
+      { today: '2026-09-02' },
+    )
+
+    expect(shortlist.officeBatchQueue).toMatchObject({
+      version: 'warm-outreach-office-batch-queue/v1',
+      counts: {
+        ready_gmail_draft: 2,
+        ready_manual_social: 1,
+        needs_relationship_review: 1,
+        waiting_on_response: 1,
+        suppressed_blocked: 1,
+        sms_parked: 1,
+      },
+      currentCta: {
+        key: 'prepare_office_review_batch',
+        label: 'Prepare review batch (2)',
+        contactIds: [10, 15],
+        state: 'ready_gmail_draft',
+      },
+      executionBoundary: {
+        localPortfolioPlanOnly: true,
+        providerCallsEnabled: false,
+        createsGmailDrafts: false,
+        externalSendEnabled: false,
+        slackDispatchEnabled: false,
+        smsDeliveryEnabled: false,
+        n8nDispatchEnabled: false,
+        productionDataMutation: false,
+        externalRequests: [],
+      },
+    })
+    expect(shortlist.officeBatchQueue.candidates.find((candidate) => candidate.contactId === 11)).toMatchObject({
+      recommendedChannel: 'linkedin',
+      draftReadiness: 'ready_for_review_batch',
+      states: ['ready_manual_social'],
+      batchEligible: true,
+    })
+    expect(shortlist.officeBatchQueue.candidates.find((candidate) => candidate.contactId === 15)?.states).toContain('sms_parked')
+  })
 })

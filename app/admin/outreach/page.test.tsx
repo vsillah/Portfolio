@@ -826,6 +826,14 @@ describe('OutreachAdminPage deep links', () => {
 
     render(<OutreachAdminPage />)
 
+    const officeQueue = await screen.findByLabelText('Office-week warm outreach batch queue')
+    expect(within(officeQueue).getByText('Office-week queue')).toBeInTheDocument()
+    expect(within(officeQueue).getByRole('button', { name: 'Show Ready for Gmail draft candidates' })).toBeInTheDocument()
+    expect(within(officeQueue).getByRole('button', { name: 'Prepare review batch (1)' })).toBeInTheDocument()
+    expect(within(officeQueue).getByText('Gmail drafts: off')).toBeInTheDocument()
+    expect(within(officeQueue).getByText('Sends/Slack/social/SMS: off')).toBeInTheDocument()
+    expect(within(officeQueue).getAllByText('SMS parked').length).toBeGreaterThan(0)
+
     const digest = await screen.findByLabelText('Warm response digest')
     expect(within(digest).getByText('Warm response digest')).toBeInTheDocument()
     expect(within(digest).getByText('Drafted')).toBeInTheDocument()
@@ -845,6 +853,77 @@ describe('OutreachAdminPage deep links', () => {
     expect(within(shortlist).getByText('Phone missing')).toBeInTheDocument()
     expect(within(shortlist).getByText('Prepare an approval-gated draft')).toBeInTheDocument()
     expect(within(shortlist).getByRole('button', { name: 'Generate draft for Ada Operator' })).toBeInTheDocument()
+  })
+
+  it('filters the office-week queue from summary counts and keeps SMS parked separate', async () => {
+    window.history.replaceState({}, '', '/admin/outreach?tab=leads&filter=warm')
+    const phoneLead = {
+      ...lead,
+      id: 43,
+      name: 'Phone Operator',
+      email: 'phone@example.com',
+      phone_number: '555-0143',
+      lead_score: 84,
+      has_sales_conversation: true,
+    }
+    vi.stubGlobal('fetch', vi.fn(async (url: string) => {
+      if (url.startsWith('/api/admin/outreach/leads')) {
+        return Response.json({ leads: [lead, phoneLead], total: 2, page: 1 })
+      }
+      if (url.startsWith('/api/admin/value-evidence/workflow-status')) {
+        return Response.json({})
+      }
+      if (url.startsWith('/api/admin/chat-escalations')) {
+        return Response.json({ escalations: [], total: 0 })
+      }
+      if (url.startsWith('/api/admin/sales/contact-meetings')) {
+        return Response.json({ meetings: [] })
+      }
+      if (url.startsWith('/api/meeting-action-tasks')) {
+        return Response.json({ tasks: [] })
+      }
+      return Response.json({})
+    }))
+
+    render(<OutreachAdminPage />)
+
+    const officeQueue = await screen.findByLabelText('Office-week warm outreach batch queue')
+    expect(within(officeQueue).getByText('Phone Operator')).toBeInTheDocument()
+    fireEvent.click(within(officeQueue).getByRole('button', { name: 'Show SMS parked candidates' }))
+
+    expect(within(officeQueue).queryByText('Ada Operator')).not.toBeInTheDocument()
+    expect(within(officeQueue).getByText('Phone Operator')).toBeInTheDocument()
+    expect(within(officeQueue).getAllByText('SMS parked').length).toBeGreaterThan(0)
+  })
+
+  it('prepares a review-only office batch plan without external requests or create actions', async () => {
+    window.history.replaceState({}, '', '/admin/outreach?tab=leads&filter=warm')
+    const fetchMock = vi.mocked(fetch)
+
+    render(<OutreachAdminPage />)
+
+    const officeQueue = await screen.findByLabelText('Office-week warm outreach batch queue')
+    fireEvent.click(within(officeQueue).getByRole('button', { name: 'Prepare review batch (1)' }))
+
+    await screen.findByLabelText('Warm batch review')
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledWith(
+        '/api/admin/outreach/batch-review',
+        expect.objectContaining({
+          method: 'POST',
+          body: expect.stringContaining('office-week review batch candidate'),
+        }),
+      )
+    })
+    const batchCall = fetchMock.mock.calls.find(([url]) => url === '/api/admin/outreach/batch-review')
+    const body = JSON.parse(String(batchCall?.[1]?.body ?? '{}'))
+    expect(body).toMatchObject({
+      contact_ids: [42],
+      preferred_channel: 'email',
+    })
+    expect(body.action).toBeUndefined()
+    expect(fetchMock.mock.calls.some(([url]) => /telnyx\.com|slack\.com|gmail\.com|googleapis\.com|n8n/i.test(String(url)))).toBe(false)
+    expect(screen.getByText('1 lead(s) selected')).toBeInTheDocument()
   })
 
   it('routes shortlist CTAs into the existing workroom without provider calls', async () => {

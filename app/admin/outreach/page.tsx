@@ -67,6 +67,7 @@ import {
 } from '@/components/admin/outreach/warmSlackSendApprovalQaFixture'
 import WarmBatchReviewPanel from '@/components/admin/outreach/WarmBatchReviewPanel'
 import type { WarmGmailProviderDraftCanaryResult } from '@/components/admin/outreach/WarmBatchReviewPanel'
+import WarmOfficeBatchQueuePanel from '@/components/admin/outreach/WarmOfficeBatchQueuePanel'
 import { OutreachEmailGenerateRow } from '@/components/admin/OutreachEmailGenerateRow'
 import MobileWorkflowSummary from '@/components/admin/MobileWorkflowSummary'
 import { useRealtimeOutreach } from '@/lib/hooks/useRealtimeOutreach'
@@ -74,6 +75,8 @@ import { OUTREACH_MODE_GATING_NOTE, OUTREACH_MODE_POLICIES } from '@/lib/outreac
 import type { WarmBatchReview } from '@/lib/warm-outreach-batch-review'
 import {
   buildWarmOutreachShortlist,
+  type WarmOutreachOfficeBatchQueueCandidate,
+  type WarmOutreachOfficeBatchQueueState,
   type WarmOutreachOfficeDigest,
   type WarmOutreachShortlistItem,
 } from '@/lib/warm-outreach-shortlist'
@@ -334,6 +337,8 @@ function OutreachContent() {
   const [warmBatchReview, setWarmBatchReview] = useState<WarmBatchReview | null>(null)
   const [warmBatchReviewLoading, setWarmBatchReviewLoading] = useState(false)
   const [warmBatchReviewError, setWarmBatchReviewError] = useState<string | null>(null)
+  const [warmOfficeQueueFilter, setWarmOfficeQueueFilter] =
+    useState<WarmOutreachOfficeBatchQueueState | 'all'>('all')
   const [warmBatchDraftActionLoading, setWarmBatchDraftActionLoading] = useState(false)
   const [warmBatchDraftActionError, setWarmBatchDraftActionError] = useState<string | null>(null)
   const [warmProviderDraftCanaryLoadingQueueId, setWarmProviderDraftCanaryLoadingQueueId] = useState<string | null>(null)
@@ -1018,8 +1023,10 @@ function OutreachContent() {
     setShowEnrichModal(true)
   }, [])
 
-  const reviewWarmBatch = useCallback(async () => {
-    const contactIds = [...selectedLeadIds]
+  const loadWarmBatchReview = useCallback(async (
+    contactIds: number[],
+    cohortLabel?: string,
+  ) => {
     if (contactIds.length === 0) return
 
     setWarmBatchReviewLoading(true)
@@ -1042,7 +1049,7 @@ function OutreachContent() {
         },
         body: JSON.stringify({
           contact_ids: contactIds,
-          cohort_label: `${contactIds.length} selected Gmail draft candidate${contactIds.length === 1 ? '' : 's'}`,
+          cohort_label: cohortLabel ?? `${contactIds.length} selected Gmail draft candidate${contactIds.length === 1 ? '' : 's'}`,
           preferred_channel: 'email',
         }),
       })
@@ -1063,7 +1070,11 @@ function OutreachContent() {
     } finally {
       setWarmBatchReviewLoading(false)
     }
-  }, [selectedLeadIds])
+  }, [])
+
+  const reviewWarmBatch = useCallback(async () => {
+    await loadWarmBatchReview([...selectedLeadIds])
+  }, [loadWarmBatchReview, selectedLeadIds])
 
   const createWarmBatchGmailDraftRecords = useCallback(async () => {
     const contactIds = [...selectedLeadIds]
@@ -1196,8 +1207,18 @@ function OutreachContent() {
     [leads],
   )
   const warmOfficeDigest = warmOutreachShortlist.officeDigest
+  const warmOfficeBatchQueue = warmOutreachShortlist.officeBatchQueue
   const showWarmOutreachShortlist =
     activeTab === 'leads' && leadsTempFilter === 'warm' && warmOutreachShortlist.items.length > 0
+  const prepareOfficeBatchPlan = useCallback(async () => {
+    const contactIds = warmOfficeBatchQueue.currentCta.contactIds
+    if (contactIds.length === 0) return
+    setSelectedLeadIds(new Set(contactIds))
+    await loadWarmBatchReview(
+      contactIds,
+      `${contactIds.length} office-week review batch candidate${contactIds.length === 1 ? '' : 's'}`,
+    )
+  }, [loadWarmBatchReview, warmOfficeBatchQueue.currentCta.contactIds])
   const openWarmShortlistItem = useCallback(
     (item: WarmOutreachShortlistItem) => {
       setOutreachWorkroomLeadId(item.contactId)
@@ -1209,6 +1230,21 @@ function OutreachContent() {
       params.set('id', String(item.contactId))
       params.set('contactId', String(item.contactId))
       const hash = item.cta.key === 'handle_response' ? '#warm-response-lifecycle' : ''
+      router.replace(`/admin/outreach?${params.toString()}${hash}`, { scroll: false })
+    },
+    [router, searchParams],
+  )
+  const openWarmOfficeCandidate = useCallback(
+    (candidate: WarmOutreachOfficeBatchQueueCandidate) => {
+      setOutreachWorkroomLeadId(candidate.contactId)
+      setExpandedLeadId(candidate.contactId)
+      setLeadRowMenuOpenId(null)
+      const params = new URLSearchParams(searchParams?.toString() || '')
+      params.set('tab', 'leads')
+      params.set('filter', 'warm')
+      params.set('id', String(candidate.contactId))
+      params.set('contactId', String(candidate.contactId))
+      const hash = candidate.responseStatus === 'reply_detected' ? '#warm-response-lifecycle' : ''
       router.replace(`/admin/outreach?${params.toString()}${hash}`, { scroll: false })
     },
     [router, searchParams],
@@ -1543,6 +1579,15 @@ function OutreachContent() {
 
             {showWarmOutreachShortlist && (
               <>
+              <WarmOfficeBatchQueuePanel
+                queue={warmOfficeBatchQueue}
+                activeState={warmOfficeQueueFilter}
+                loading={warmBatchReviewLoading}
+                error={warmBatchReviewError}
+                onStateChange={setWarmOfficeQueueFilter}
+                onPrepareBatch={prepareOfficeBatchPlan}
+                onOpenCandidate={openWarmOfficeCandidate}
+              />
               <section
                 className="mb-4 rounded-lg border border-silicon-slate/70 bg-silicon-slate/15 p-3 sm:p-4"
                 aria-label="Warm response digest"
