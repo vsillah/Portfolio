@@ -65,6 +65,19 @@ function asRows(rows: PortfolioRow[] | undefined): PortfolioRow[] {
   return Array.isArray(rows) ? rows : []
 }
 
+function record(value: RowValue): Record<string, unknown> {
+  return value && typeof value === 'object' && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : {}
+}
+
+function isManualSocialEvidenceRow(row: PortfolioRow): boolean {
+  const metadata = record(row.metadata)
+  const nested = record(metadata.warm_manual_social_handoff_evidence as RowValue)
+  const evidence = Object.keys(nested).length > 0 ? nested : metadata
+  return evidence.version === 'warm-outreach-manual-social-evidence/v1'
+}
+
 function rowId(row: PortfolioRow, fallback: string): string {
   return text(row.id) ?? text(row.source_id) ?? fallback
 }
@@ -319,10 +332,12 @@ export function buildWarmOutreachSourceInventoryPacket(
 ): WarmOutreachRelationshipPacket {
   const contactId = String(args.contactId)
   const contact = args.rows.contactSubmission ?? null
+  const contactCommunications = asRows(args.rows.contactCommunications)
+    .filter((row) => !isManualSocialEvidenceRow(row))
   const refs: InventorySourceRef[] = []
 
   if (contact) refs.push(summarizeContact(contact, contactId))
-  refs.push(...asRows(args.rows.contactCommunications).map(summarizeCommunication))
+  refs.push(...contactCommunications.map(summarizeCommunication))
   refs.push(...asRows(args.rows.outreachQueue).map(summarizeOutreachQueue))
   refs.push(...asRows(args.rows.emailMessages).map(summarizeCommunication))
   refs.push(...asRows(args.rows.meetingSummaries).map(summarizeMeeting))
@@ -350,11 +365,11 @@ export function buildWarmOutreachSourceInventoryPacket(
     meeting_action_task: asRows(args.rows.actionTasks),
     prior_outreach: [
       ...asRows(args.rows.outreachQueue),
-      ...asRows(args.rows.contactCommunications).filter((row) => text(row.direction) !== 'inbound'),
+      ...contactCommunications.filter((row) => text(row.direction) !== 'inbound'),
     ],
     imported_reply: [
       ...asRows(args.rows.emailMessages),
-      ...asRows(args.rows.contactCommunications).filter((row) => text(row.direction) === 'inbound'),
+      ...contactCommunications.filter((row) => text(row.direction) === 'inbound'),
     ],
   }
   const suppression = suppressionFromContact(contact)

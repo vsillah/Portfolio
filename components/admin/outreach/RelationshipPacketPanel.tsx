@@ -27,6 +27,12 @@ import type {
   WarmOutreachRelationshipPacket,
 } from '@/lib/warm-outreach-relationship-intelligence'
 import type {
+  WarmManualSocialHandoff,
+  WarmManualSocialHandoffChannel,
+  WarmManualSocialHandoffChannelPacket,
+  WarmManualSocialHandoffEvidenceRecord,
+} from '@/lib/warm-outreach-manual-social-handoff'
+import type {
   WarmOutreachGmailProviderExecutionReadiness,
   WarmOutreachGmailProviderActivationReadiness,
   WarmOutreachRealRecipientGmailRolloutReadiness,
@@ -64,6 +70,7 @@ export interface RelationshipPacketApiResponse {
   packet: WarmOutreachRelationshipPacket
   readiness: WarmOutreachReadiness
   contextSummary: WarmOutreachContextSummary
+  manualSocialHandoff?: WarmManualSocialHandoff
   smsReadiness?: WarmSmsReadiness
   executionBoundary: {
     source: string
@@ -268,6 +275,19 @@ function sendAuthorityStateLabel(state: SendReadinessItem['sendAuthority']['stat
   if (state === 'eligible_for_future_activation') return 'Future eligible'
   if (state === 'manual_only') return 'Manual only'
   return 'Blocked'
+}
+
+function manualHandoffStateClasses(state: WarmManualSocialHandoffChannelPacket['state']) {
+  if (state === 'manual_sent_recorded') return 'border-emerald-500/30 bg-emerald-500/10 text-emerald-100'
+  if (state === 'ready_for_manual_copy') return 'border-sky-500/30 bg-sky-500/10 text-sky-100'
+  if (state === 'blocked') return 'border-amber-500/30 bg-amber-500/10 text-amber-100'
+  return 'border-silicon-slate/70 bg-background/35 text-muted-foreground'
+}
+
+function manualChecklistClasses(status: WarmManualSocialHandoffChannelPacket['checklist'][number]['status']) {
+  if (status === 'ready') return 'border-emerald-500/25 bg-emerald-500/10 text-emerald-100'
+  if (status === 'manual_required') return 'border-sky-500/25 bg-sky-500/10 text-sky-100'
+  return 'border-red-500/25 bg-red-500/10 text-red-100'
 }
 
 function emailLifecycleStateLabel(state: NonNullable<SendReadinessItem['emailSendLifecycle']>['state']) {
@@ -1455,6 +1475,382 @@ function smsLiveExecutionGateClasses(status: 'passed' | 'available' | 'required'
   }
   if (status === 'required') return 'border-sky-500/25 bg-sky-500/10 text-sky-100'
   return 'border-red-500/25 bg-red-500/10 text-red-100'
+}
+
+type ManualHandoffEvidence = Partial<Record<
+  WarmManualSocialHandoffChannel,
+  WarmManualSocialHandoffEvidenceRecord
+>>
+
+type ManualHandoffActionState = Partial<Record<
+  WarmManualSocialHandoffChannel,
+  {
+    status: 'idle' | 'saving' | 'success' | 'error'
+    message: string | null
+  }
+>>
+
+function initialManualDrafts(handoff: WarmManualSocialHandoff) {
+  return handoff.channels.reduce(
+    (drafts, channel) => ({
+      ...drafts,
+      [channel.channel]: channel.preview,
+    }),
+    {
+      linkedin: '',
+      facebook: '',
+      phone_contact: '',
+    } as Record<WarmManualSocialHandoffChannel, string>,
+  )
+}
+
+function ManualSocialHandoffCard({
+  authToken,
+  handoff,
+}: {
+  authToken?: string | null
+  handoff?: WarmManualSocialHandoff | null
+}) {
+  const [selectedChannel, setSelectedChannel] = useState<WarmManualSocialHandoffChannel>(
+    handoff?.currentCta.channel ?? handoff?.channels[0]?.channel ?? 'linkedin',
+  )
+  const [drafts, setDrafts] = useState<Record<WarmManualSocialHandoffChannel, string>>(
+    () => handoff ? initialManualDrafts(handoff) : {
+      linkedin: '',
+      facebook: '',
+      phone_contact: '',
+    },
+  )
+  const [prepared, setPrepared] = useState<Partial<Record<WarmManualSocialHandoffChannel, boolean>>>({})
+  const [evidence, setEvidence] = useState<ManualHandoffEvidence>({})
+  const [actionState, setActionState] = useState<ManualHandoffActionState>({})
+  const [operatorNote, setOperatorNote] = useState('')
+  const [copyStatus, setCopyStatus] = useState<'idle' | 'copied' | 'fallback'>('idle')
+
+  useEffect(() => {
+    if (!handoff) return
+    setSelectedChannel(handoff.currentCta.channel ?? handoff.channels[0]?.channel ?? 'linkedin')
+    setDrafts(initialManualDrafts(handoff))
+    setPrepared({})
+    setEvidence(handoff.channels.reduce((records, channel) => ({
+      ...records,
+      [channel.channel]: channel.durableEvidence ?? undefined,
+    }), {} as ManualHandoffEvidence))
+    setActionState({})
+    setOperatorNote('')
+    setCopyStatus('idle')
+  }, [handoff])
+
+  if (!handoff) return null
+
+  const selected =
+    handoff.channels.find((channel) => channel.channel === selectedChannel) ??
+    handoff.channels[0]
+  if (!selected) return null
+
+  const selectedDraft = drafts[selected.channel] ?? selected.preview
+  const evidenceRecord = evidence[selected.channel] ?? selected.durableEvidence ?? undefined
+  const action = actionState[selected.channel] ?? { status: 'idle' as const, message: null }
+  const contactId = handoff.contactId
+  const isPrepared = prepared[selected.channel] === true || Boolean(evidenceRecord)
+  const blocked = selected.state !== 'ready_for_manual_copy'
+  const canRecordEvidence =
+    isPrepared &&
+    !evidenceRecord &&
+    selected.state === 'ready_for_manual_copy' &&
+    operatorNote.trim().length > 0 &&
+    action.status !== 'saving'
+  const primaryLabel = evidenceRecord
+    ? 'Evidence recorded'
+    : blocked
+      ? 'Review blocker'
+      : action.status === 'saving'
+        ? 'Saving evidence'
+      : isPrepared
+        ? 'Record manual evidence'
+        : `Copy ${selected.label} text`
+
+  async function copyManualText() {
+    if (blocked || evidenceRecord) return
+    try {
+      if (!navigator.clipboard?.writeText) throw new Error('Clipboard unavailable')
+      await navigator.clipboard.writeText(selectedDraft)
+      setCopyStatus('copied')
+    } catch {
+      setCopyStatus('fallback')
+    } finally {
+      setPrepared((current) => ({
+        ...current,
+        [selected.channel]: true,
+      }))
+    }
+  }
+
+  async function recordEvidence() {
+    if (!canRecordEvidence) return
+    setActionState((current) => ({
+      ...current,
+      [selected.channel]: { status: 'saving', message: 'Saving Portfolio evidence...' },
+    }))
+    try {
+      const response = await fetch(`/api/admin/outreach/leads/${encodeURIComponent(contactId)}/manual-social-handoff`, {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+        },
+        body: JSON.stringify({
+          channel: selected.channel,
+          messageVersionKey: selected.idempotency.messageVersionKey,
+          manualHandoffKey: selected.idempotency.manualHandoffKey,
+          manualEvidenceKey: selected.idempotency.manualEvidenceKey,
+          operatorNote: operatorNote.trim(),
+        }),
+      })
+      const body = await response.json().catch(() => ({})) as {
+        error?: string
+        duplicatePrevented?: boolean
+        evidence?: WarmManualSocialHandoffEvidenceRecord | null
+      }
+      if (!response.ok || !body.evidence) {
+        throw new Error(body.error ?? 'Manual evidence could not be recorded.')
+      }
+      setEvidence((current) => ({
+        ...current,
+        [selected.channel]: body.evidence ?? undefined,
+      }))
+      setActionState((current) => ({
+        ...current,
+        [selected.channel]: {
+          status: 'success',
+          message: body.duplicatePrevented
+            ? 'Already recorded in Portfolio. Repeat locked.'
+            : 'Saved in Portfolio. Repeat locked for this version.',
+        },
+      }))
+    } catch (error) {
+      setActionState((current) => ({
+        ...current,
+        [selected.channel]: {
+          status: 'error',
+          message: error instanceof Error ? error.message : 'Manual evidence could not be recorded.',
+        },
+      }))
+    }
+  }
+
+  function handlePrimaryAction() {
+    if (evidenceRecord || blocked) return
+    if (isPrepared) {
+      void recordEvidence()
+      return
+    }
+    void copyManualText()
+  }
+
+  return (
+    <div
+      id="warm-manual-social-handoff"
+      data-testid="warm-manual-social-handoff"
+      className="rounded-md border border-sky-500/30 bg-sky-500/10 p-3 text-sky-50"
+    >
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide">
+            <ClipboardCopy size={14} aria-hidden />
+            Manual social handoff
+          </p>
+          <p className="mt-1 text-sm font-semibold">{handoff.label}</p>
+          <div className="mt-2 flex flex-wrap gap-1.5 text-[10px] font-semibold uppercase tracking-wide">
+            <span className="inline-flex min-h-6 items-center rounded-full border border-current/20 bg-background/25 px-2">
+              Manual only
+            </span>
+            <span className="inline-flex min-h-6 items-center rounded-full border border-current/20 bg-background/25 px-2">
+              Provider off
+            </span>
+            <span className="inline-flex min-h-6 items-center rounded-full border border-current/20 bg-background/25 px-2">
+              Portfolio record
+            </span>
+          </div>
+        </div>
+        <button
+          type="button"
+          disabled={blocked || Boolean(evidenceRecord) || (isPrepared && !canRecordEvidence)}
+          onClick={handlePrimaryAction}
+          className="inline-flex min-h-10 w-full shrink-0 items-center justify-center gap-2 rounded-md border border-sky-300/40 bg-sky-300/10 px-3 text-xs font-semibold text-sky-50 transition-colors hover:bg-sky-300/20 disabled:cursor-not-allowed disabled:border-silicon-slate disabled:bg-silicon-slate/20 disabled:text-muted-foreground sm:w-auto"
+        >
+          {evidenceRecord ? <ClipboardCheck size={14} aria-hidden /> : isPrepared ? <CheckCircle2 size={14} aria-hidden /> : <ClipboardCopy size={14} aria-hidden />}
+          {primaryLabel}
+        </button>
+      </div>
+
+      <div className="mt-3 grid grid-cols-1 gap-1.5 sm:grid-cols-3">
+        {handoff.channels.map((channel) => (
+          <button
+            type="button"
+            key={channel.channel}
+            aria-pressed={selected.channel === channel.channel}
+            onClick={() => {
+              setSelectedChannel(channel.channel)
+              setOperatorNote('')
+              setCopyStatus('idle')
+            }}
+            className={`min-h-9 rounded-md border px-2 text-left text-[11px] font-semibold transition-colors ${
+              selected.channel === channel.channel
+                ? 'border-sky-200/50 bg-background/35 text-sky-50'
+                : 'border-current/20 bg-background/15 text-current/80 hover:bg-background/25'
+            }`}
+          >
+            {channel.label}: {channel.state === 'manual_sent_recorded' ? 'recorded' : channel.state === 'ready_for_manual_copy' ? 'ready' : channel.state.replace(/_/g, ' ')}
+          </button>
+        ))}
+      </div>
+
+      <div className="mt-3 grid gap-2 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+        <div className={`rounded-md border p-2.5 ${manualHandoffStateClasses(selected.state)}`}>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0">
+              <p className="text-[10px] font-semibold uppercase tracking-wide">{selected.label} copy preview</p>
+              <p className="mt-1 text-[11px] leading-4 opacity-85">
+                {selected.blocker ?? 'Copy text manually. No provider send.'}
+              </p>
+            </div>
+            <span className="inline-flex min-h-7 w-fit shrink-0 items-center gap-1.5 rounded-full border border-current/25 bg-background/25 px-2 py-0.5 text-[10px] font-semibold">
+              <LockKeyhole size={12} aria-hidden />
+              No egress
+            </span>
+          </div>
+          <label className="mt-2 block">
+            <span className="sr-only">{selected.label} manual handoff text</span>
+            <textarea
+              value={selectedDraft}
+              onChange={(event) => {
+                setDrafts((current) => ({
+                  ...current,
+                  [selected.channel]: event.target.value,
+                }))
+                setPrepared((current) => ({
+                  ...current,
+                  [selected.channel]: false,
+                }))
+                setEvidence((current) => ({
+                  ...current,
+                  [selected.channel]: undefined,
+                }))
+                setActionState((current) => ({
+                  ...current,
+                  [selected.channel]: { status: 'idle', message: null },
+                }))
+                setCopyStatus('idle')
+              }}
+              disabled={blocked || Boolean(evidenceRecord)}
+              rows={4}
+              className="mt-1 min-h-[104px] w-full resize-y rounded-md border border-silicon-slate/70 bg-imperial-navy/90 p-2 text-xs leading-5 text-platinum-white caret-radiant-gold outline-none transition-colors [color-scheme:dark] placeholder:text-muted-foreground focus:border-radiant-gold/70 focus:ring-2 focus:ring-radiant-gold/25 disabled:cursor-not-allowed disabled:border-silicon-slate/60 disabled:bg-silicon-slate/20 disabled:text-muted-foreground/70 disabled:opacity-70"
+            />
+          </label>
+          <div className="mt-2 flex flex-wrap gap-1.5 text-[10px] leading-4">
+            <span className="inline-flex min-h-7 items-center rounded-full border border-current/20 bg-background/25 px-2 py-1 font-semibold">
+              {selectedDraft.length}/{selected.maxRecommendedCharacters}
+            </span>
+            <span className="inline-flex min-h-7 items-center rounded-full border border-current/20 bg-background/25 px-2 py-1 font-semibold">
+              External requests: {selected.executionBoundary.externalRequests.length}
+            </span>
+            <span className="inline-flex min-h-7 items-center rounded-full border border-current/20 bg-background/25 px-2 py-1 font-semibold">
+              Provider calls: off
+            </span>
+          </div>
+          {copyStatus !== 'idle' && !evidenceRecord && (
+            <p role="status" className="mt-2 rounded-md border border-current/20 bg-background/25 p-2 text-[11px] leading-4">
+              {copyStatus === 'copied'
+                ? `${selected.label} text copied. Send manually, then record evidence.`
+                : 'Clipboard unavailable. Select the text manually; Portfolio still will not send or call a provider.'}
+            </p>
+          )}
+        </div>
+
+        <div className="rounded-md border border-current/20 bg-background/20 p-2.5">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0">
+              <p className="text-[10px] font-semibold uppercase tracking-wide">Manual evidence</p>
+              <p className="mt-1 text-[11px] leading-4">
+                Stores only timestamp, channel, note, and evidence key.
+              </p>
+            </div>
+            <span className="inline-flex min-h-7 w-fit shrink-0 items-center gap-1.5 rounded-full border border-current/25 bg-background/25 px-2 py-0.5 text-[10px] font-semibold">
+              <ClipboardCheck size={12} aria-hidden />
+              {evidenceRecord ? 'Recorded' : isPrepared ? 'Ready' : 'Waiting'}
+            </span>
+          </div>
+          <label className="mt-2 block">
+            <span className="text-[10px] font-semibold uppercase tracking-wide">Operator note</span>
+            <textarea
+              value={evidenceRecord?.operatorNote ?? operatorNote}
+              onChange={(event) => setOperatorNote(event.target.value)}
+              placeholder="Short note, no private details."
+              disabled={!isPrepared || blocked || Boolean(evidenceRecord)}
+              rows={3}
+              className="mt-1 min-h-[78px] w-full resize-y rounded-md border border-silicon-slate/70 bg-imperial-navy/90 p-2 text-xs leading-5 text-platinum-white caret-radiant-gold outline-none transition-colors [color-scheme:dark] placeholder:text-muted-foreground focus:border-radiant-gold/70 focus:ring-2 focus:ring-radiant-gold/25 disabled:cursor-not-allowed disabled:border-silicon-slate/60 disabled:bg-silicon-slate/20 disabled:text-muted-foreground/70 disabled:opacity-70"
+            />
+          </label>
+          <p className="mt-2 text-[10px] leading-4 opacity-80">
+            Evidence key: <span className="break-all">{selected.idempotency.manualEvidenceKey}</span>
+          </p>
+          {action.message && (
+            <p
+              role={action.status === 'error' ? 'alert' : 'status'}
+              className={`mt-2 rounded-md border p-2 text-[11px] leading-4 ${
+                action.status === 'error'
+                  ? 'border-red-500/25 bg-red-500/10 text-red-100'
+                  : action.status === 'saving'
+                    ? 'border-sky-500/25 bg-sky-500/10 text-sky-100'
+                    : 'border-emerald-500/25 bg-emerald-500/10 text-emerald-100'
+              }`}
+            >
+              {action.message}
+            </p>
+          )}
+          {evidenceRecord && (
+            <p role="status" className="mt-2 rounded-md border border-emerald-500/25 bg-emerald-500/10 p-2 text-[11px] leading-4 text-emerald-100">
+              Recorded at {evidenceRecord.recordedAt}. Repeat locked for this contact, channel, and version.
+            </p>
+          )}
+        </div>
+      </div>
+
+      <details className="mt-2 rounded-md border border-current/20 bg-background/20 p-2">
+        <summary className="cursor-pointer text-[10px] font-semibold uppercase tracking-wide">
+          Audit details
+        </summary>
+        <div className="mt-2 flex flex-wrap gap-1.5">
+          {selected.checklist.map((item) => (
+            <span key={item.key} className={`inline-flex min-h-7 items-center gap-1 rounded-full border px-2 text-[10px] font-semibold ${manualChecklistClasses(item.status)}`}>
+              {item.label}: {item.status.replace(/_/g, ' ')}
+            </span>
+          ))}
+        </div>
+        <div className="mt-2 grid gap-1.5 text-[10px] leading-4 sm:grid-cols-2">
+          <p className="break-all rounded-md border border-current/20 bg-background/20 p-2">
+            Message version: {selected.idempotency.messageVersionKey}
+          </p>
+          <p className="break-all rounded-md border border-current/20 bg-background/20 p-2">
+            Handoff: {selected.idempotency.manualHandoffKey}
+          </p>
+          <p className="rounded-md border border-current/20 bg-background/20 p-2">
+            Duplicate scope: {selected.idempotency.duplicateScope.replace(/_/g, ' ')}
+          </p>
+          <p className="rounded-md border border-current/20 bg-background/20 p-2">
+            LinkedIn API off / Facebook API off / Phone access off
+          </p>
+          {selected.evidenceLock?.locked && (
+            <p className="rounded-md border border-emerald-500/25 bg-emerald-500/10 p-2 text-emerald-100">
+              {selected.evidenceLock.reason}
+            </p>
+          )}
+        </div>
+        <p className="mt-2 text-[10px] leading-4 opacity-80">{selected.evidencePolicy.detail}</p>
+      </details>
+    </div>
+  )
 }
 
 function SmsManualOutreachCard({
@@ -3032,6 +3428,7 @@ export default function RelationshipPacketPanel({
 }: RelationshipPacketPanelProps) {
   const readiness = data?.readiness
   const packet = data?.packet
+  const manualSocialHandoff = data?.manualSocialHandoff
   const smsReadiness = data?.smsReadiness
   const responseMonitoring = data?.responseMonitoring
   const responseDigest = responseMonitoring?.responseDigest
@@ -3178,6 +3575,8 @@ export default function RelationshipPacketPanel({
               <ListBlock title="Review warnings" items={readiness.warnings} />
             </div>
           )}
+
+          <ManualSocialHandoffCard authToken={authToken} handoff={manualSocialHandoff} />
 
           <SmsManualOutreachCard
             authToken={authToken}

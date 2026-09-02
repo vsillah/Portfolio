@@ -205,6 +205,64 @@ describe('GET /api/admin/outreach/leads/[id]/relationship-packet', () => {
       humanReviewRequired: true,
       approvalBoundary: 'draft_only_no_external_send',
     })
+    expect(json.manualSocialHandoff).toMatchObject({
+      version: 'warm-outreach-manual-social-handoff/v1',
+      contactId: '42',
+      state: 'ready',
+      currentCta: {
+        key: 'copy_manual_text',
+        enabled: true,
+      },
+      auditState: {
+        recordsManualEvidenceOnly: true,
+        durableDocsExcludeRawSecretsAndContactDetails: true,
+        providerAutomationBlocked: true,
+      },
+      executionBoundary: {
+        manualCopyOnly: true,
+        providerCallsEnabled: false,
+        externalSendEnabled: false,
+        gmailDraftCreationEnabled: false,
+        slackDispatchEnabled: false,
+        smsDeliveryEnabled: false,
+        n8nDispatchEnabled: false,
+        productionDataMutation: false,
+        externalRequests: [],
+      },
+    })
+    expect(json.manualSocialHandoff.channels).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          channel: 'linkedin',
+          state: 'ready_for_manual_copy',
+          executionBoundary: expect.objectContaining({
+            linkedinApiEnabled: false,
+            externalRequests: [],
+          }),
+        }),
+        expect.objectContaining({
+          channel: 'facebook',
+          state: 'ready_for_manual_copy',
+          executionBoundary: expect.objectContaining({
+            facebookApiEnabled: false,
+            externalRequests: [],
+          }),
+        }),
+        expect.objectContaining({
+          channel: 'phone_contact',
+          state: 'ready_for_manual_copy',
+          executionBoundary: expect.objectContaining({
+            phoneAccessEnabled: false,
+            smsDeliveryEnabled: false,
+          }),
+          evidencePolicy: expect.objectContaining({
+            storesRawMessageBody: false,
+            storesRawContactDetails: false,
+            requiresScreenshot: false,
+          }),
+        }),
+      ]),
+    )
     expect(json.smsReadiness).toMatchObject({
       version: 'warm-outreach-sms-readiness/v1',
       contactId: '42',

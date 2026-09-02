@@ -11,6 +11,7 @@ import {
   warmOutreachChannels,
   type WarmOutreachChannel,
 } from '@/lib/warm-outreach-relationship-intelligence'
+import { buildWarmManualSocialHandoff } from '@/lib/warm-outreach-manual-social-handoff'
 import { buildWarmOutreachResponseMonitoring } from '@/lib/warm-outreach-response-monitoring'
 import { buildWarmSmsReadiness } from '@/lib/warm-outreach-sms-readiness'
 import type { WarmSmsCandidateQueueRow } from '@/lib/warm-outreach-sms-candidate'
@@ -254,11 +255,17 @@ export async function GET(
       readiness,
       queueRows: smsCandidateQueueRows(outreachQueue),
     })
+    const manualSocialHandoff = buildWarmManualSocialHandoff({
+      packet,
+      readiness,
+      evidenceRows: contactCommunications,
+    })
 
     return NextResponse.json({
       packet,
       readiness,
       contextSummary,
+      manualSocialHandoff,
       responseMonitoring,
       smsReadiness,
       sendReadiness: responseMonitoring.sendReadiness,
