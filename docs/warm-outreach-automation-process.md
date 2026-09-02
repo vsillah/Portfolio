@@ -300,6 +300,21 @@ Acceptance:
 - provider capability rows are shown as blocked, manual, or metadata-readiness state only,
 - Slack alert behavior is represented only as safe metadata/deep-link readiness; no Slack message is sent.
 
+### Phase 5a: Manual Social Handoff
+
+Prepare LinkedIn, Facebook, and phone-contact outreach from the existing relationship packet without adding a provider integration or parallel dashboard.
+
+Acceptance:
+
+- the handoff appears inside the canonical `/admin/outreach` selected-contact workroom,
+- LinkedIn, Facebook, and phone-contact copy previews are generated from local warm relationship context,
+- the operator sees one current CTA: copy/prepared text first, then record minimal manual evidence,
+- manual evidence records only timestamp, channel, and a non-sensitive operator note,
+- repeated evidence recording is hidden after the local evidence state is recorded,
+- stable contact/channel/message-version keys are visible for audit and duplicate prevention,
+- LinkedIn API, Facebook API, phone access, Gmail drafts/sends, Slack dispatch, SMS delivery, n8n dispatch, scheduling, provider polling, and production mutation remain disabled,
+- `externalRequests` remains empty.
+
 ### Phase 6: Provider Activation
 
 Enable each channel only after capability proof.
@@ -376,14 +391,10 @@ Current working assumptions:
    - Group approved Gmail sends into a controlled operator window.
    - Keep execution one row at a time until batch-send authority is explicitly designed and approved.
 
-3. LinkedIn manual handoff
-   - Generate LinkedIn-ready copy and a manual-send checklist.
-   - Record operator-confirmed manual send evidence back to Portfolio.
-   - Do not automate LinkedIn sending unless a later provider capability and policy gate are approved.
-
-4. Facebook/manual social handoff
-   - Generate short conversational copy where the relationship basis supports it.
-   - Keep send evidence manual and audited.
+3. LinkedIn/Facebook/phone manual handoff
+   - Generate channel-ready copy and a manual-send checklist.
+   - Record operator-confirmed manual evidence state in the Portfolio workroom.
+   - Do not automate LinkedIn, Facebook, phone, or SMS sending unless a later provider capability and policy gate are approved.
 
 5. Template library hardening
    - Add concise warm templates for reconnect, meeting follow-up, referral path, community bridge, value-first note, and response follow-up.

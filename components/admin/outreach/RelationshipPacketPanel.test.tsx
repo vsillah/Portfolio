@@ -18,6 +18,7 @@ import {
   buildWarmOutreachGmailResponseImportActivationReadiness,
   buildWarmOutreachGmailResponseImportCanaryReadiness,
 } from '@/lib/warm-outreach-gmail-response-import'
+import { buildWarmManualSocialHandoff } from '@/lib/warm-outreach-manual-social-handoff'
 import { buildWarmSmsReadiness } from '@/lib/warm-outreach-sms-readiness'
 import {
   buildWarmSmsCandidateReview,
@@ -1179,6 +1180,55 @@ describe('RelationshipPacketPanel', () => {
     expect(screen.getAllByText(/Manual-only channel: prepare an operator review packet/)).toHaveLength(4)
     expect(screen.getByText('External monitoring: off')).toBeInTheDocument()
     expect(screen.getByText('Local response evidence: visible')).toBeInTheDocument()
+  })
+
+  it('renders manual social handoff copy and records local evidence without provider calls', async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined)
+    const previousFetch = globalThis.fetch
+    const fetchMock = vi.fn()
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: { writeText },
+    })
+    vi.stubGlobal('fetch', fetchMock)
+    const manualData: RelationshipPacketApiResponse = {
+      ...packetResponse,
+      manualSocialHandoff: buildWarmManualSocialHandoff({
+        packet: {
+          ...packetResponse.packet,
+          preferredChannel: 'linkedin',
+        },
+        readiness: {
+          ...packetResponse.readiness,
+          selectedChannel: 'linkedin',
+        },
+      }),
+    }
+
+    render(<RelationshipPacketPanel loading={false} error={null} data={manualData} />)
+
+    const handoff = screen.getByTestId('warm-manual-social-handoff')
+    expect(within(handoff).getByText('Manual social handoff')).toBeInTheDocument()
+    expect(within(handoff).getByRole('button', { name: /Facebook: manual ready/i })).toBeInTheDocument()
+    expect(within(handoff).getByRole('button', { name: /Phone contact: manual ready/i })).toBeInTheDocument()
+    expect(within(handoff).getByText('External requests: 0')).toBeInTheDocument()
+    expect(within(handoff).getByText('Provider calls: off')).toBeInTheDocument()
+
+    fireEvent.click(within(handoff).getByRole('button', { name: 'Copy LinkedIn text' }))
+    await waitFor(() => expect(writeText).toHaveBeenCalledTimes(1))
+    expect(writeText.mock.calls[0]?.[0]).toContain('Hi Ada')
+    expect(within(handoff).getByText(/text copied/i)).toBeInTheDocument()
+
+    fireEvent.change(within(handoff).getByRole('textbox', { name: 'Operator note' }), {
+      target: { value: 'Copied into LinkedIn manually after reviewing relationship basis.' },
+    })
+    fireEvent.click(within(handoff).getByRole('button', { name: 'Record manual evidence' }))
+
+    expect(within(handoff).getByRole('button', { name: 'Evidence recorded' })).toBeDisabled()
+    expect(within(handoff).queryByRole('button', { name: 'Record manual evidence' })).not.toBeInTheDocument()
+    expect(within(handoff).getByText(/repeat evidence action is locked/i)).toBeInTheDocument()
+    expect(fetchMock).not.toHaveBeenCalled()
+    vi.stubGlobal('fetch', previousFetch)
   })
 
   it('shows suppressed contacts as blocked readiness', () => {
