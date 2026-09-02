@@ -802,7 +802,7 @@ function ContactDetailPage() {
             loading={relationshipPacketLoading}
             error={relationshipPacketError}
             data={relationshipPacketData}
-            responseDigestAnchorId="warm-response-lifecycle"
+            responseDigestAnchorId="warm-response-digest-summary"
             gmailDraftCanaryLoading={gmailDraftCanaryLoading}
             gmailDraftCanaryError={gmailDraftCanaryError}
             gmailDraftCanaryResult={gmailDraftCanaryResult}
