@@ -56,6 +56,49 @@ function buildGmailDraftIdempotencyKey(input: {
   ].join(':')
 }
 
+function providerDraftCanaryReadiness(input: {
+  queueId: string
+  contactSubmissionId: number | string
+  recipientEmail: string
+  channel: string
+  requiredSender: string
+  connectedAs: string
+}) {
+  const expectedAuthorization = {
+    createGmailDraft: true,
+    draftAuthorization: GMAIL_DRAFT_AUTHORIZATION,
+    contactSubmissionId: input.contactSubmissionId,
+    recipientEmail: input.recipientEmail,
+    channel: input.channel,
+    idempotencyKey: buildGmailDraftIdempotencyKey({
+      queueId: input.queueId,
+      contactSubmissionId: input.contactSubmissionId,
+      channel: input.channel,
+    }),
+  }
+
+  return {
+    version: 'warm-outreach-provider-gmail-draft-canary-readiness/v1',
+    state: 'ready_for_explicit_provider_draft_approval',
+    label: 'Provider draft canary ready',
+    queueId: input.queueId,
+    contactSubmissionId: input.contactSubmissionId,
+    recipientEmail: input.recipientEmail,
+    requiredSender: input.requiredSender,
+    connectedAs: input.connectedAs,
+    expectedAuthorization,
+    exactApprovalSentence:
+      `Create one Gmail provider draft for outreach queue ${input.queueId} and contact ${input.contactSubmissionId} using authorization ${GMAIL_DRAFT_AUTHORIZATION}. Do not send email.`,
+    executionBoundary: {
+      providerCallsEnabled: false,
+      gmailDraftCreated: false,
+      trackingPersisted: false,
+      externalSendEnabled: false,
+      liveProviderCallRequiresSeparateApproval: true,
+    },
+  }
+}
+
 function hasSuppressedStatus(row: unknown): boolean {
   const record = metadataRecord(row)
   const metadata = metadataRecord(record.metadata)
@@ -414,6 +457,15 @@ export async function POST(
     }
 
     if (noSendSmoke) {
+      const readiness = providerDraftCanaryReadiness({
+        queueId: item.id,
+        contactSubmissionId: item.contact_submission_id,
+        recipientEmail: to,
+        channel: item.channel,
+        requiredSender,
+        connectedAs: creds.google_email,
+      })
+
       return NextResponse.json({
         message:
           'No-send Gmail draft smoke passed. No Gmail draft was created and no email was sent.',
@@ -425,18 +477,8 @@ export async function POST(
         bodyChars: bodyText.length,
         requiredSender,
         connectedAs: creds.google_email,
-        expectedAuthorization: {
-          createGmailDraft: true,
-          draftAuthorization: GMAIL_DRAFT_AUTHORIZATION,
-          contactSubmissionId: item.contact_submission_id,
-          recipientEmail: to,
-          channel: item.channel,
-          idempotencyKey: buildGmailDraftIdempotencyKey({
-            queueId: item.id,
-            contactSubmissionId: item.contact_submission_id,
-            channel: item.channel,
-          }),
-        },
+        expectedAuthorization: readiness.expectedAuthorization,
+        providerDraftCanaryReadiness: readiness,
         externalSendBlocked: true,
       })
     }

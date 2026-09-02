@@ -439,6 +439,93 @@ const warmBatchCreatedResponse = {
   },
 }
 
+const warmBatchExistingDraftResponse = {
+  ...warmBatchReviewResponse,
+  summary: {
+    ...warmBatchReviewResponse.summary,
+    readyCount: 0,
+    existingDraftCount: 1,
+  },
+  samplePreview: {
+    ...warmBatchReviewResponse.samplePreview,
+    status: 'existing_draft',
+    existingQueueId: 'queue-existing',
+  },
+  recipients: warmBatchReviewResponse.recipients.map((recipient) => ({
+    ...recipient,
+    status: 'existing_draft',
+    existingQueueId: 'queue-existing',
+  })),
+  gmailDraftPlan: {
+    ...warmBatchReviewResponse.gmailDraftPlan,
+    status: 'approval_review_needed',
+    currentCta: {
+      key: 'review_approval_requests',
+      label: 'Review approval requests',
+      enabled: true,
+      blocker: null,
+    },
+    summary: {
+      ...warmBatchReviewResponse.gmailDraftPlan.summary,
+      readyForLocalPlanningCount: 0,
+      approvalRequiredCount: 1,
+      providerNotConnectedCount: 0,
+      draftCreationEligibleCount: 0,
+      draftAlreadyExistsCount: 1,
+    },
+    rows: warmBatchReviewResponse.gmailDraftPlan.rows.map((row) => ({
+      ...row,
+      status: 'approval_required',
+      statusLabel: 'Approval review',
+      readiness: [
+        { key: 'approval_needed', label: 'Approval needed', state: 'needs_review' },
+      ],
+      nextAction: 'approval_request',
+      nextActionLabel: 'Open existing draft',
+      existingQueueId: 'queue-existing',
+      draftCreation: {
+        ...row.draftCreation,
+        status: 'draft_already_exists',
+        statusLabel: 'Draft already exists',
+        actionEnabled: false,
+        blocker: 'A local email draft already exists for this recipient and template.',
+      },
+    })),
+  },
+}
+
+const providerDraftCanaryResponse = {
+  message: 'No-send Gmail draft smoke passed. No Gmail draft was created and no email was sent.',
+  noSendSmoke: true,
+  queueId: 'queue-existing',
+  to: 'ada@example.com',
+  requiredSender: 'vambah@amadutown.com',
+  connectedAs: 'vambah@amadutown.com',
+  expectedAuthorization: {
+    createGmailDraft: true,
+    draftAuthorization: 'create_gmail_draft_for_recipient',
+    contactSubmissionId: 42,
+    recipientEmail: 'ada@example.com',
+    channel: 'email',
+    idempotencyKey: 'warm-outreach:gmail-draft:v1:queue-existing:42:email',
+  },
+  providerDraftCanaryReadiness: {
+    version: 'warm-outreach-provider-gmail-draft-canary-readiness/v1',
+    state: 'ready_for_explicit_provider_draft_approval',
+    label: 'Provider draft canary ready',
+    exactApprovalSentence:
+      'Create one Gmail provider draft for outreach queue queue-existing and contact 42 using authorization create_gmail_draft_for_recipient. Do not send email.',
+    executionBoundary: {
+      providerCallsEnabled: false,
+      gmailDraftCreated: false,
+      trackingPersisted: false,
+      externalSendEnabled: false,
+      liveProviderCallRequiresSeparateApproval: true,
+    },
+  },
+  externalSendBlocked: true,
+}
+
 describe('OutreachAdminPage deep links', () => {
   beforeEach(() => {
     window.history.replaceState({}, '', '/admin/outreach?tab=leads&id=42')
@@ -451,6 +538,9 @@ describe('OutreachAdminPage deep links', () => {
         return Response.json(body.action === 'create_gmail_draft_records'
           ? warmBatchCreatedResponse
           : warmBatchReviewResponse)
+      }
+      if (url.startsWith('/api/admin/outreach/queue-existing/gmail-user-draft')) {
+        return Response.json(providerDraftCanaryResponse)
       }
       if (url.startsWith('/api/admin/outreach/leads')) {
         return Response.json({ leads: [lead], total: 1, page: 1 })
@@ -934,5 +1024,66 @@ describe('OutreachAdminPage deep links', () => {
       cohort_label: '1 selected Gmail draft candidate',
       preferred_channel: 'email',
     })
+  })
+
+  it('prepares the provider Gmail draft canary without calling Gmail from the batch workroom', async () => {
+    window.history.replaceState({}, '', '/admin/outreach?tab=leads')
+    const fetchMock = vi.fn(async (url: string, init?: RequestInit) => {
+      if (url.startsWith('/api/admin/outreach/batch-review')) {
+        return Response.json(warmBatchExistingDraftResponse)
+      }
+      if (url.startsWith('/api/admin/outreach/queue-existing/gmail-user-draft')) {
+        return Response.json(providerDraftCanaryResponse)
+      }
+      if (url.startsWith('/api/admin/outreach/leads/42/relationship-packet')) {
+        return Response.json(relationshipPacketResponse)
+      }
+      if (url.startsWith('/api/admin/outreach/leads')) {
+        return Response.json({ leads: [lead], total: 1, page: 1 })
+      }
+      if (url.startsWith('/api/admin/value-evidence/workflow-status')) {
+        return Response.json({})
+      }
+      if (url.startsWith('/api/admin/chat-escalations')) {
+        return Response.json({ escalations: [], total: 0 })
+      }
+      if (url.startsWith('/api/admin/sales/contact-meetings')) {
+        return Response.json({ meetings: [] })
+      }
+      if (url.startsWith('/api/meeting-action-tasks')) {
+        return Response.json({ tasks: [] })
+      }
+      return Response.json({})
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    render(<OutreachAdminPage />)
+
+    await screen.findByText('Ada Operator')
+    fireEvent.click(screen.getByLabelText('Select all on this page'))
+    fireEvent.click(screen.getByRole('button', { name: 'Plan Gmail drafts' }))
+
+    const batchReview = await screen.findByLabelText('Warm batch review')
+    expect(within(batchReview).getByLabelText('Provider Gmail draft canary readiness')).toBeInTheDocument()
+    fireEvent.click(within(batchReview).getByRole('button', { name: 'Prepare provider canary' }))
+
+    expect(await within(batchReview).findByText(/Live Gmail draft creation remains locked/)).toBeInTheDocument()
+    expect(within(batchReview).getByRole('button', { name: 'Provider canary prepared' })).toBeDisabled()
+    expect(within(batchReview).getByText(/Create one Gmail provider draft for outreach queue queue-existing/)).toBeInTheDocument()
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledWith(
+        '/api/admin/outreach/queue-existing/gmail-user-draft',
+        expect.objectContaining({
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer admin-token',
+          },
+          body: JSON.stringify({ noSendSmoke: true }),
+        }),
+      )
+    })
+    expect(fetchMock.mock.calls.some(([url]) => /googleapis\.com|mail\.google\.com|gmail\.com/i.test(String(url)))).toBe(false)
   })
 })

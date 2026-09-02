@@ -1,0 +1,126 @@
+{
+  "scenario": "warm-gmail-batch-draft",
+  "route": "http://127.0.0.1:3065/admin/outreach?tab=leads&filter=warm&qa=warm-gmail-batch-draft",
+  "mp4Path": "/Users/vambahsillah/.codex/worktrees/83cc/Portfolio/docs/warm-outreach-qa/warm-gmail-provider-draft-canary-readiness.mp4",
+  "timestamp": "2026-09-02T12:06:32.388Z",
+  "viewports": [
+    {
+      "name": "mobile-390",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "horizontalOverflow": false,
+      "overflow": {
+        "clientWidth": 390,
+        "scrollWidth": 390
+      },
+      "screenshots": {
+        "selectedPath": "/Users/vambahsillah/.codex/worktrees/83cc/Portfolio/test-results/warm-gmail-batch-draft-qa/source/mobile-390-01-selected.png",
+        "planPath": "/Users/vambahsillah/.codex/worktrees/83cc/Portfolio/test-results/warm-gmail-batch-draft-qa/source/mobile-390-02-plan.png",
+        "noticePath": "/Users/vambahsillah/.codex/worktrees/83cc/Portfolio/test-results/warm-gmail-batch-draft-qa/source/mobile-390-03-notice.png"
+      }
+    },
+    {
+      "name": "desktop-1440",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "horizontalOverflow": false,
+      "overflow": {
+        "clientWidth": 1440,
+        "scrollWidth": 1440
+      },
+      "screenshots": {
+        "selectedPath": "/Users/vambahsillah/.codex/worktrees/83cc/Portfolio/test-results/warm-gmail-batch-draft-qa/source/desktop-1440-01-selected.png",
+        "planPath": "/Users/vambahsillah/.codex/worktrees/83cc/Portfolio/test-results/warm-gmail-batch-draft-qa/source/desktop-1440-02-plan.png",
+        "noticePath": "/Users/vambahsillah/.codex/worktrees/83cc/Portfolio/test-results/warm-gmail-batch-draft-qa/source/desktop-1440-03-notice.png"
+      }
+    },
+    {
+      "name": "provider-mobile-390",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "horizontalOverflow": false,
+      "overflow": {
+        "clientWidth": 390,
+        "scrollWidth": 390
+      },
+      "screenshots": {
+        "readyPath": "/Users/vambahsillah/.codex/worktrees/83cc/Portfolio/test-results/warm-gmail-batch-draft-qa/source/provider-mobile-390-01-provider-ready.png",
+        "preparedPath": "/Users/vambahsillah/.codex/worktrees/83cc/Portfolio/test-results/warm-gmail-batch-draft-qa/source/provider-mobile-390-02-provider-prepared.png"
+      }
+    }
+  ],
+  "providerCanaryRequests": [
+    {
+      "url": "http://127.0.0.1:3065/api/admin/outreach/queue-existing-102/gmail-user-draft",
+      "method": "POST",
+      "postData": {
+        "noSendSmoke": true
+      }
+    }
+  ],
+  "externalRequests": [],
+  "expectedBehavior": [
+    "Existing /admin/outreach warm leads route exposes draft-only Gmail batch planning.",
+    "Batch preview shows selected contacts, readiness, relationship basis, template intent, and blocked/excluded rows.",
+    "Creating draft records changes local UI receipt state, prevents repeat action, and does not create provider drafts or queue rows.",
+    "Provider draft canary preparation appears only for exactly one selected saved Gmail draft record and calls only the no-send smoke route.",
+    "Prepared provider canary state displays the exact approval sentence for a later live Gmail draft provider call."
+  ],
+  "changedAreas": [
+    "Warm outreach shortlist selection and Plan Gmail drafts affordance.",
+    "Gmail batch draft plan preview with compact status chips and per-row blockers.",
+    "Collapsed Email gates disclosure replacing the legacy amber explanatory block.",
+    "Draft-only record confirmation and no-provider/no-egress boundary receipt.",
+    "Single-record provider draft canary readiness, locked prepared state, and exact authorization payload disclosure."
+  ],
+  "executionBoundary": {
+    "localPortfolioPlanOnly": true,
+    "createsOutreachQueueRows": false,
+    "createsGmailDrafts": false,
+    "gmailProviderCalls": false,
+    "gmailSend": false,
+    "slackDispatch": false,
+    "smsDelivery": false,
+    "n8nDispatch": false,
+    "productionDataMutation": false,
+    "genericApprovalAuthorizesSend": false
+  },
+  "draftCreationReceipt": {
+    "action": "create_gmail_draft_records",
+    "createdAt": "2026-09-02T12:00:00.000Z",
+    "createdCount": 1,
+    "externalRequests": []
+  },
+  "providerDraftCanaryReadiness": {
+    "version": "warm-outreach-provider-gmail-draft-canary-readiness/v1",
+    "state": "ready_for_explicit_provider_draft_approval",
+    "label": "Provider draft canary ready",
+    "queueId": "queue-existing-102",
+    "contactSubmissionId": 102,
+    "recipientEmail": "kofi.batch@example.test",
+    "requiredSender": "vambah@amadutown.com",
+    "connectedAs": "vambah@amadutown.com",
+    "expectedAuthorization": {
+      "createGmailDraft": true,
+      "draftAuthorization": "create_gmail_draft_for_recipient",
+      "contactSubmissionId": 102,
+      "recipientEmail": "kofi.batch@example.test",
+      "channel": "email",
+      "idempotencyKey": "warm-outreach:gmail-draft:v1:queue-existing-102:102:email"
+    },
+    "exactApprovalSentence": "Create one Gmail provider draft for outreach queue queue-existing-102 and contact 102 using authorization create_gmail_draft_for_recipient. Do not send email.",
+    "executionBoundary": {
+      "providerCallsEnabled": false,
+      "gmailDraftCreated": false,
+      "trackingPersisted": false,
+      "externalSendEnabled": false,
+      "liveProviderCallRequiresSeparateApproval": true
+    }
+  }
+}

@@ -76,6 +76,42 @@ function draftReadyReview() {
   })
 }
 
+function existingDraftReview() {
+  return buildWarmBatchReview({
+    objective: 'Reconnect around the Agentified pilot.',
+    cohortLabel: 'August warm follow-up',
+    contacts: [
+      {
+        contact,
+        rows: {
+          contactSubmission: contact,
+          meetingSummaries: [
+            {
+              id: 'meeting-1',
+              contact_submission_id: 42,
+              meeting_type: 'discovery',
+              meeting_date: '2026-08-20T00:00:00Z',
+              structured_notes: { summary: 'Discussed operations bottlenecks.' },
+              created_at: '2026-08-20T00:00:00Z',
+            },
+          ],
+          outreachQueue: [
+            {
+              id: 'queue-existing',
+              contact_submission_id: 42,
+              channel: 'email',
+              status: 'draft',
+              subject: 'Existing follow-up',
+              generation_inputs: { template_key: 'email_follow_up' },
+              created_at: '2026-08-22T00:00:00Z',
+            },
+          ],
+        },
+      },
+    ],
+  })
+}
+
 describe('WarmBatchReviewPanel', () => {
   it('renders per-recipient response monitoring and send-disabled boundaries', () => {
     const textContent = (expected: string) => (_content: string, element: Element | null) =>
@@ -215,5 +251,76 @@ describe('WarmBatchReviewPanel', () => {
     expect(screen.getByRole('status')).toHaveTextContent('Draft-only Gmail records created for 1 contact(s).')
     expect(screen.getByText('Record: Draft created')).toBeInTheDocument()
     expect(screen.getByText(/^warm-outreach:gmail-draft-record:v1:/)).toBeInTheDocument()
+  })
+
+  it('prepares a provider draft canary only for one saved Gmail draft record', () => {
+    const prepareProviderCanary = vi.fn()
+    const { rerender } = render(
+      <WarmBatchReviewPanel
+        data={existingDraftReview()}
+        loading={false}
+        error={null}
+        draftActionLoading={false}
+        draftActionError={null}
+        selectedCount={1}
+        onReview={vi.fn()}
+        onCreateGmailDraftRecords={vi.fn()}
+        onPrepareProviderDraftCanary={prepareProviderCanary}
+      />,
+    )
+
+    expect(screen.getByLabelText('Provider Gmail draft canary readiness')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Prepare provider canary' })).toBeEnabled()
+    fireEvent.click(screen.getByRole('button', { name: 'Prepare provider canary' }))
+    expect(prepareProviderCanary).toHaveBeenCalledWith('queue-existing')
+
+    rerender(
+      <WarmBatchReviewPanel
+        data={existingDraftReview()}
+        loading={false}
+        error={null}
+        draftActionLoading={false}
+        draftActionError={null}
+        providerDraftCanaryResult={{
+          message: 'No-send Gmail draft smoke passed. No Gmail draft was created and no email was sent.',
+          noSendSmoke: true,
+          queueId: 'queue-existing',
+          to: 'amina@example.com',
+          connectedAs: 'vambah@amadutown.com',
+          expectedAuthorization: {
+            createGmailDraft: true,
+            draftAuthorization: 'create_gmail_draft_for_recipient',
+            contactSubmissionId: 42,
+            recipientEmail: 'amina@example.com',
+            channel: 'email',
+            idempotencyKey: 'warm-outreach:gmail-draft:v1:queue-existing:42:email',
+          },
+          providerDraftCanaryReadiness: {
+            version: 'warm-outreach-provider-gmail-draft-canary-readiness/v1',
+            state: 'ready_for_explicit_provider_draft_approval',
+            label: 'Provider draft canary ready',
+            exactApprovalSentence:
+              'Create one Gmail provider draft for outreach queue queue-existing and contact 42 using authorization create_gmail_draft_for_recipient. Do not send email.',
+            executionBoundary: {
+              providerCallsEnabled: false,
+              gmailDraftCreated: false,
+              trackingPersisted: false,
+              externalSendEnabled: false,
+              liveProviderCallRequiresSeparateApproval: true,
+            },
+          },
+          externalSendBlocked: true,
+        }}
+        selectedCount={1}
+        onReview={vi.fn()}
+        onCreateGmailDraftRecords={vi.fn()}
+        onPrepareProviderDraftCanary={prepareProviderCanary}
+      />,
+    )
+
+    expect(screen.getByRole('button', { name: 'Provider canary prepared' })).toBeDisabled()
+    expect(screen.getByText(/Live Gmail draft creation remains locked/)).toBeInTheDocument()
+    expect(screen.getByText(/Create one Gmail provider draft for outreach queue queue-existing/)).toBeInTheDocument()
+    expect(screen.getByText(/Idempotency: warm-outreach:gmail-draft:v1:queue-existing:42:email/)).toBeInTheDocument()
   })
 })

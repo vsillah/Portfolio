@@ -6,6 +6,7 @@ import {
   ChevronDown,
   FileText,
   LockKeyhole,
+  Mail,
   RefreshCw,
   ShieldAlert,
   Users,
@@ -22,9 +23,44 @@ interface WarmBatchReviewPanelProps {
   error: string | null
   draftActionLoading: boolean
   draftActionError: string | null
+  providerDraftCanaryLoading?: boolean
+  providerDraftCanaryError?: string | null
+  providerDraftCanaryResult?: WarmGmailProviderDraftCanaryResult | null
   selectedCount: number
   onReview: () => void
   onCreateGmailDraftRecords: () => void
+  onPrepareProviderDraftCanary?: (queueId: string) => void
+}
+
+export type WarmGmailProviderDraftCanaryResult = {
+  message?: string
+  noSendSmoke?: boolean
+  queueId?: string
+  to?: string
+  requiredSender?: string
+  connectedAs?: string
+  expectedAuthorization?: {
+    createGmailDraft: true
+    draftAuthorization: 'create_gmail_draft_for_recipient'
+    contactSubmissionId: number | string
+    recipientEmail: string
+    channel: string
+    idempotencyKey: string
+  }
+  providerDraftCanaryReadiness?: {
+    version: 'warm-outreach-provider-gmail-draft-canary-readiness/v1'
+    state: 'ready_for_explicit_provider_draft_approval'
+    label: string
+    exactApprovalSentence: string
+    executionBoundary: {
+      providerCallsEnabled: false
+      gmailDraftCreated: false
+      trackingPersisted: false
+      externalSendEnabled: false
+      liveProviderCallRequiresSeparateApproval: true
+    }
+  }
+  externalSendBlocked?: boolean
 }
 
 function statusLabel(status: WarmBatchReviewRecipient['status']) {
@@ -124,13 +160,21 @@ function GmailDraftPlanSection({
   data,
   draftActionLoading,
   draftActionError,
+  providerDraftCanaryLoading = false,
+  providerDraftCanaryError = null,
+  providerDraftCanaryResult = null,
   onCreateGmailDraftRecords,
+  onPrepareProviderDraftCanary,
   onReview,
 }: {
   data: WarmBatchReview
   draftActionLoading: boolean
   draftActionError: string | null
+  providerDraftCanaryLoading?: boolean
+  providerDraftCanaryError?: string | null
+  providerDraftCanaryResult?: WarmGmailProviderDraftCanaryResult | null
   onCreateGmailDraftRecords: () => void
+  onPrepareProviderDraftCanary?: (queueId: string) => void
   onReview: () => void
 }) {
   const plan = data.gmailDraftPlan
@@ -140,6 +184,10 @@ function GmailDraftPlanSection({
   const createdNotice = plan.executionReceipt
     ? `Draft-only Gmail records created for ${plan.executionReceipt.createdCount} contact(s). No Gmail provider draft, send, Slack message, SMS, n8n run, or production mutation was performed.`
     : null
+  const providerCanaryCandidate = selectedProviderCanaryCandidate(plan.rows)
+  const providerCanaryPrepared =
+    providerDraftCanaryResult?.providerDraftCanaryReadiness?.state ===
+    'ready_for_explicit_provider_draft_approval'
 
   return (
     <div className="rounded-lg border border-sky-500/25 bg-background/45 p-3" aria-label="Gmail batch draft plan">
@@ -213,6 +261,81 @@ function GmailDraftPlanSection({
         <p role="status" className="mt-3 rounded-md border border-emerald-500/25 bg-emerald-500/10 p-2 text-xs leading-5 text-emerald-100">
           {createdNotice}
         </p>
+      )}
+
+      {providerCanaryCandidate && (
+        <div
+          className="mt-3 rounded-md border border-sky-500/25 bg-sky-500/10 p-3"
+          aria-label="Provider Gmail draft canary readiness"
+        >
+          <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(13rem,auto)] md:items-start">
+            <div className="min-w-0">
+              <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-sky-100">
+                <Mail size={14} aria-hidden />
+                Provider draft canary
+              </p>
+              <p className="mt-1 text-sm font-semibold text-sky-50">
+                {providerCanaryPrepared ? 'Preparation complete' : 'One saved Gmail draft record is selected'}
+              </p>
+              <p className="mt-1 text-xs leading-5 text-sky-100/85">
+                Prepare the provider-backed draft canary payload without calling Gmail.
+              </p>
+            </div>
+            <button
+              type="button"
+              disabled={
+                !onPrepareProviderDraftCanary ||
+                providerDraftCanaryLoading ||
+                providerCanaryPrepared
+              }
+              onClick={() => onPrepareProviderDraftCanary?.(providerCanaryCandidate.existingQueueId!)}
+              className="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-md border border-sky-500/35 bg-sky-500/10 px-3 text-xs font-semibold text-sky-100 transition-colors hover:bg-sky-500/20 disabled:cursor-not-allowed disabled:opacity-55 md:w-auto"
+            >
+              {providerDraftCanaryLoading ? (
+                <RefreshCw size={13} className="animate-spin" aria-hidden />
+              ) : providerCanaryPrepared ? (
+                <LockKeyhole size={13} aria-hidden />
+              ) : (
+                <Mail size={13} aria-hidden />
+              )}
+              {providerDraftCanaryLoading
+                ? 'Preparing canary'
+                : providerCanaryPrepared
+                  ? 'Provider canary prepared'
+                  : 'Prepare provider canary'}
+            </button>
+          </div>
+          {providerDraftCanaryError && (
+            <p role="alert" className="mt-2 rounded-md border border-red-500/25 bg-red-500/10 p-2 text-xs leading-5 text-red-100">
+              {providerDraftCanaryError}
+            </p>
+          )}
+          {providerCanaryPrepared && providerDraftCanaryResult?.providerDraftCanaryReadiness && (
+            <div className="mt-2 rounded-md border border-emerald-500/25 bg-emerald-500/10 p-2 text-xs leading-5 text-emerald-100">
+              <p className="font-semibold">
+                {providerDraftCanaryResult.message ?? 'No-send provider draft canary preparation passed.'}
+              </p>
+              <p className="mt-1">
+                Live Gmail draft creation remains locked until this exact approval is given.
+              </p>
+              <p className="mt-1 rounded-md border border-current/20 bg-background/25 p-2">
+                {providerDraftCanaryResult.providerDraftCanaryReadiness.exactApprovalSentence}
+              </p>
+              <details className="mt-2 rounded-md border border-current/20 bg-background/20 p-2">
+                <summary className="cursor-pointer text-[10px] font-semibold uppercase tracking-wide">
+                  Canary payload
+                </summary>
+                <div className="mt-2 grid gap-1.5 text-[10px] leading-4 sm:grid-cols-2">
+                  <p className="break-all">Queue: {providerDraftCanaryResult.queueId ?? providerCanaryCandidate.existingQueueId}</p>
+                  <p className="break-all">Recipient: {providerDraftCanaryResult.to ?? providerCanaryCandidate.contactName}</p>
+                  <p className="break-all">Sender: {providerDraftCanaryResult.connectedAs ?? 'verified by route'}</p>
+                  <p className="break-all">Authorization: {providerDraftCanaryResult.expectedAuthorization?.draftAuthorization ?? 'create_gmail_draft_for_recipient'}</p>
+                  <p className="break-all sm:col-span-2">Idempotency: {providerDraftCanaryResult.expectedAuthorization?.idempotencyKey ?? 'route supplied'}</p>
+                </div>
+              </details>
+            </div>
+          )}
+        </div>
       )}
 
       <div className="mt-3 overflow-x-auto">
@@ -295,6 +418,17 @@ function GmailDraftPlanSection({
       </div>
     </div>
   )
+}
+
+function selectedProviderCanaryCandidate(rows: WarmGmailBatchDraftPlanRow[]) {
+  const candidates = rows.filter((row) =>
+    row.existingQueueId &&
+    row.draftCreation.status === 'draft_already_exists' &&
+    row.draftIntent.channel === 'gmail' &&
+    row.draftIntent.createsGmailDraft === false &&
+    row.draftIntent.callsProvider === false,
+  )
+  return candidates.length === 1 && rows.length === 1 ? candidates[0] : null
 }
 
 function RecipientRow({ recipient }: { recipient: WarmBatchReviewRecipient }) {
@@ -396,9 +530,13 @@ export default function WarmBatchReviewPanel({
   error,
   draftActionLoading,
   draftActionError,
+  providerDraftCanaryLoading = false,
+  providerDraftCanaryError = null,
+  providerDraftCanaryResult = null,
   selectedCount,
   onReview,
   onCreateGmailDraftRecords,
+  onPrepareProviderDraftCanary,
 }: WarmBatchReviewPanelProps) {
   const sample = data?.samplePreview
   const hasSelection = selectedCount > 0
@@ -556,7 +694,11 @@ export default function WarmBatchReviewPanel({
             data={data}
             draftActionLoading={draftActionLoading}
             draftActionError={draftActionError}
+            providerDraftCanaryLoading={providerDraftCanaryLoading}
+            providerDraftCanaryError={providerDraftCanaryError}
+            providerDraftCanaryResult={providerDraftCanaryResult}
             onCreateGmailDraftRecords={onCreateGmailDraftRecords}
+            onPrepareProviderDraftCanary={onPrepareProviderDraftCanary}
             onReview={onReview}
           />
 

@@ -1,5 +1,6 @@
 import { chromium } from '@playwright/test'
 import { execFile } from 'node:child_process'
+import { existsSync, readFileSync } from 'node:fs'
 import { mkdir, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
@@ -13,8 +14,10 @@ const sourceDir = path.join(qaDir, 'source')
 const compositeDir = path.join(qaDir, 'composite')
 const baseUrl = (process.env.QA_BASE_URL || 'http://127.0.0.1:3065').replace(/\/$/, '')
 const outreachUrl = new URL('/admin/outreach?tab=leads&filter=warm&qa=warm-gmail-batch-draft', baseUrl).toString()
-const mp4Path = path.join(outputDir, 'warm-gmail-batch-draft-plan.mp4')
-const receiptPath = path.join(outputDir, 'warm-gmail-batch-draft-plan-qa.json')
+const mp4Path = path.join(outputDir, 'warm-gmail-provider-draft-canary-readiness.mp4')
+const receiptPath = path.join(outputDir, 'warm-gmail-provider-draft-canary-readiness-qa.json')
+const authStatePath = process.env.PLAYWRIGHT_AUTH_STATE ||
+  '/Users/vambahsillah/Projects/Portfolio/.auth/portfolio-admin-storage-state.json'
 
 await mkdir(outputDir, { recursive: true })
 await mkdir(sourceDir, { recursive: true })
@@ -53,6 +56,27 @@ const session = {
   expires_in: 3600,
   expires_at: now + 3600,
   user,
+}
+
+function sessionFromAuthState() {
+  if (!authStatePath || !existsSync(authStatePath)) return null
+  try {
+    const parsed = JSON.parse(readFileSync(authStatePath, 'utf8'))
+    const minExpiresAt = Math.floor(Date.now() / 1000) + 120
+    for (const origin of parsed.origins ?? []) {
+      for (const item of origin.localStorage ?? []) {
+        if (!String(item.name).includes('-auth-token')) continue
+        const value = JSON.parse(String(item.value))
+        const candidate = value.currentSession ?? value
+        if (Number(candidate?.expires_at ?? value.expiresAt ?? 0) > minExpiresAt) {
+          return candidate
+        }
+      }
+    }
+  } catch {
+    return null
+  }
+  return null
 }
 
 function authStorageKeys() {
@@ -567,13 +591,110 @@ const batchReviewCreated = {
   },
 }
 
-async function seedSession(page) {
-  await page.addInitScript(({ keys, storedSession }) => {
-    for (const key of keys) window.localStorage.setItem(key, JSON.stringify(storedSession))
-  }, { keys: authStorageKeys(), storedSession: session })
+const existingDraftRow = reviewRows.find((row) => row.contactId === 102)
+const batchReviewProviderCanary = {
+  ...batchReview,
+  cohort: {
+    ...batchReview.cohort,
+    label: '1 selected Gmail draft candidate',
+    recipientCount: 1,
+    provenance: 'Selected 1 synthetic /admin/outreach warm lead with a saved local Gmail draft record.',
+  },
+  summary: {
+    readyCount: 0,
+    existingDraftCount: 1,
+    blockedCount: 0,
+    weakBasisCount: 0,
+    suppressionBlockedCount: 0,
+  },
+  samplePreview: existingDraftRow,
+  recipients: [existingDraftRow],
+  gmailDraftPlan: {
+    ...batchReview.gmailDraftPlan,
+    status: 'approval_review_needed',
+    currentCta: {
+      key: 'review_approval_requests',
+      label: 'Review approval requests',
+      enabled: true,
+      blocker: null,
+    },
+    summary: {
+      selectedCount: 1,
+      readyForLocalPlanningCount: 0,
+      approvalRequiredCount: 1,
+      blockedReviewCount: 0,
+      excludedSubmittedCount: 0,
+      providerNotConnectedCount: 1,
+      smsUnavailableCount: 0,
+      draftCreationEligibleCount: 0,
+      draftAlreadyExistsCount: 1,
+      draftCreatedCount: 0,
+    },
+    rows: [existingDraftRow.gmailDraftPlan],
+    executionReceipt: null,
+  },
 }
 
-async function installSafeRoutes(page) {
+const providerDraftCanaryResponse = {
+  message: 'No-send Gmail draft smoke passed. No Gmail draft was created and no email was sent.',
+  noSendSmoke: true,
+  wouldCreateDraft: true,
+  queueId: 'queue-existing-102',
+  to: 'kofi.batch@example.test',
+  subject: 'Warm follow-up',
+  bodyChars: 418,
+  requiredSender: 'vambah@amadutown.com',
+  connectedAs: 'vambah@amadutown.com',
+  expectedAuthorization: {
+    createGmailDraft: true,
+    draftAuthorization: 'create_gmail_draft_for_recipient',
+    contactSubmissionId: 102,
+    recipientEmail: 'kofi.batch@example.test',
+    channel: 'email',
+    idempotencyKey: 'warm-outreach:gmail-draft:v1:queue-existing-102:102:email',
+  },
+  providerDraftCanaryReadiness: {
+    version: 'warm-outreach-provider-gmail-draft-canary-readiness/v1',
+    state: 'ready_for_explicit_provider_draft_approval',
+    label: 'Provider draft canary ready',
+    queueId: 'queue-existing-102',
+    contactSubmissionId: 102,
+    recipientEmail: 'kofi.batch@example.test',
+    requiredSender: 'vambah@amadutown.com',
+    connectedAs: 'vambah@amadutown.com',
+    expectedAuthorization: {
+      createGmailDraft: true,
+      draftAuthorization: 'create_gmail_draft_for_recipient',
+      contactSubmissionId: 102,
+      recipientEmail: 'kofi.batch@example.test',
+      channel: 'email',
+      idempotencyKey: 'warm-outreach:gmail-draft:v1:queue-existing-102:102:email',
+    },
+    exactApprovalSentence:
+      'Create one Gmail provider draft for outreach queue queue-existing-102 and contact 102 using authorization create_gmail_draft_for_recipient. Do not send email.',
+    executionBoundary: {
+      providerCallsEnabled: false,
+      gmailDraftCreated: false,
+      trackingPersisted: false,
+      externalSendEnabled: false,
+      liveProviderCallRequiresSeparateApproval: true,
+    },
+  },
+  externalSendBlocked: true,
+}
+
+async function seedSession(page) {
+  await page.addInitScript(({ keys, storedSession }) => {
+    for (const key of keys) {
+      window.localStorage.setItem(key, JSON.stringify(storedSession))
+      window.localStorage.setItem(`${key}-code-verifier`, 'qa-code-verifier')
+    }
+    window.localStorage.setItem('sb-example-auth-token', JSON.stringify(storedSession))
+    window.localStorage.setItem('sb-127-auth-token', JSON.stringify(storedSession))
+  }, { keys: authStorageKeys(), storedSession: sessionFromAuthState() ?? session })
+}
+
+async function installSafeRoutes(page, canaryRequests) {
   await page.route('**/api/user/profile**', (route) => route.fulfill({
     status: 200,
     contentType: 'application/json',
@@ -584,12 +705,36 @@ async function installSafeRoutes(page) {
     contentType: 'application/json',
     body: JSON.stringify(user),
   }))
+  await page.route(/https:\/\/[^/]+\.supabase\.co\/auth\/v1\/token.*/i, (route) => route.fulfill({
+    status: 200,
+    contentType: 'application/json',
+    body: JSON.stringify(session),
+  }))
   await page.route('**/api/admin/outreach/batch-review**', async (route, request) => {
     const body = request.postDataJSON?.() ?? {}
+    const contactIds = Array.isArray(body.contact_ids) ? body.contact_ids.map(Number) : []
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
-      body: JSON.stringify(body.action === 'create_gmail_draft_records' ? batchReviewCreated : batchReview),
+      body: JSON.stringify(
+        contactIds.length === 1 && contactIds[0] === 102
+          ? batchReviewProviderCanary
+          : body.action === 'create_gmail_draft_records'
+            ? batchReviewCreated
+            : batchReview,
+      ),
+    })
+  })
+  await page.route('**/api/admin/outreach/queue-existing-102/gmail-user-draft**', async (route, request) => {
+    canaryRequests.push({
+      url: request.url(),
+      method: request.method(),
+      postData: request.postDataJSON?.() ?? null,
+    })
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(providerDraftCanaryResponse),
     })
   })
   await page.route('**/api/admin/outreach/leads**', (route) => route.fulfill({
@@ -624,7 +769,7 @@ function collectUnexpectedRequests(page) {
   page.on('request', (request) => {
     const url = new URL(request.url())
     if (
-      /\/api\/admin\/outreach\/[^/]+\/(?:slack-send-approval|gmail-user-draft|gmail-user-send)\b/i.test(url.pathname) ||
+      /\/api\/admin\/outreach\/[^/]+\/(?:slack-send-approval|gmail-user-send)\b/i.test(url.pathname) ||
       /\/api\/admin\/outreach\/leads\/[^/]+\/(?:sms-candidate|sms-telnyx|gmail-draft-canary)\b/i.test(url.pathname) ||
       /slack\.com|gmail\.com|googleapis\.com|n8n|telnyx/i.test(url.hostname)
     ) {
@@ -637,14 +782,38 @@ function collectUnexpectedRequests(page) {
 async function openQaPage(browser, viewport) {
   const context = await browser.newContext({ viewport, deviceScaleFactor: 1 })
   const page = await context.newPage()
+  if (process.env.QA_DEBUG_AUTH === '1') {
+    page.on('request', (request) => {
+      const url = request.url()
+      if (url.includes('auth/v1') || url.includes('/api/user/profile') || url.includes('/auth/login')) {
+        console.log(`[qa-auth] request ${request.method()} ${url}`)
+      }
+    })
+    page.on('response', (response) => {
+      const url = response.url()
+      if (url.includes('auth/v1') || url.includes('/api/user/profile') || url.includes('/auth/login')) {
+        console.log(`[qa-auth] response ${response.status()} ${url}`)
+      }
+    })
+  }
   await seedSession(page)
-  await installSafeRoutes(page)
+  const canaryRequests = []
+  await installSafeRoutes(page, canaryRequests)
   const unexpectedRequests = collectUnexpectedRequests(page)
   const response = await page.goto(outreachUrl, { waitUntil: 'networkidle' })
+  if (process.env.QA_DEBUG_AUTH === '1') {
+    const localAuthKeys = await page.evaluate(() =>
+      Object.keys(window.localStorage)
+        .filter((key) => key.includes('auth-token'))
+        .map((key) => ({ key, valueLength: window.localStorage.getItem(key)?.length ?? 0 })),
+    )
+    console.log(`[qa-auth] url ${page.url()}`)
+    console.log(`[qa-auth] local keys ${JSON.stringify(localAuthKeys)}`)
+  }
   if (response && response.status() >= 400) {
     throw new Error(`QA route returned HTTP ${response.status()}: ${outreachUrl}`)
   }
-  return { context, page, unexpectedRequests }
+  return { context, page, unexpectedRequests, canaryRequests }
 }
 
 async function captureMainScenario(browser, name, viewport) {
@@ -685,12 +854,58 @@ async function captureMainScenario(browser, name, viewport) {
     overflow,
     horizontalOverflow: overflow.scrollWidth > overflow.clientWidth,
     unexpectedRequests: qa.unexpectedRequests,
+    canaryRequests: qa.canaryRequests,
+  }
+}
+
+async function captureProviderCanaryScenario(browser, name, viewport) {
+  const qa = await openQaPage(browser, viewport)
+  try {
+    await qa.page
+      .getByLabel('Daily warm outreach shortlist')
+      .getByRole('heading', { name: 'Kofi Existingdraft' })
+      .waitFor({ timeout: 15_000 })
+  } catch (error) {
+    const debugPath = path.join(sourceDir, `${name}-debug.png`)
+    await qa.page.screenshot({ path: debugPath, fullPage: true })
+    const bodyText = await qa.page.locator('body').innerText({ timeout: 1000 }).catch(() => '')
+    throw new Error(`Warm Gmail provider canary QA lead did not render at ${qa.page.url()}. Debug screenshot: ${debugPath}. Body: ${bodyText.slice(0, 500)}`, { cause: error })
+  }
+  const leadCard = qa.page.locator('.admin-console-card').filter({ hasText: 'Kofi Existingdraft' }).first()
+  await leadCard.locator('input[type="checkbox"]').check()
+  await qa.page.getByRole('button', { name: 'Plan Gmail drafts' }).click()
+  const panel = qa.page.getByLabel('Gmail batch draft plan')
+  await panel.waitFor({ timeout: 15_000 })
+  await panel.getByLabel('Provider Gmail draft canary readiness').waitFor({ timeout: 10_000 })
+  await panel.scrollIntoViewIfNeeded()
+  const readyPath = path.join(sourceDir, `${name}-01-provider-ready.png`)
+  await qa.page.screenshot({ path: readyPath, fullPage: true })
+
+  await panel.getByRole('button', { name: 'Prepare provider canary' }).click()
+  await panel.getByText(/Live Gmail draft creation remains locked/).waitFor({ timeout: 10_000 })
+  const preparedPath = path.join(sourceDir, `${name}-02-provider-prepared.png`)
+  await qa.page.screenshot({ path: preparedPath, fullPage: true })
+
+  const overflow = await qa.page.evaluate(() => ({
+    clientWidth: document.documentElement.clientWidth,
+    scrollWidth: document.documentElement.scrollWidth,
+  }))
+  await qa.context.close()
+  return {
+    name,
+    viewport,
+    screenshots: { readyPath, preparedPath },
+    overflow,
+    horizontalOverflow: overflow.scrollWidth > overflow.clientWidth,
+    unexpectedRequests: qa.unexpectedRequests,
+    canaryRequests: qa.canaryRequests,
   }
 }
 
 const browser = await chromium.launch()
 const mobile = await captureMainScenario(browser, 'mobile-390', { width: 390, height: 844 })
 const desktop = await captureMainScenario(browser, 'desktop-1440', { width: 1440, height: 1000 })
+const providerMobile = await captureProviderCanaryScenario(browser, 'provider-mobile-390', { width: 390, height: 844 })
 await browser.close()
 
 const frames = [
@@ -717,6 +932,22 @@ const frames = [
     expected: 'A local confirmation appears and states exactly which external actions did not happen.',
     changed: 'Draft-record receipt, repeat-action disabled state, and desktop review state.',
     boundary: 'Gmail send, provider drafts, Slack, SMS, n8n, provider requests, and production writes remain off.',
+  },
+  {
+    source: providerMobile.screenshots.readyPath,
+    title: 'Select one saved draft',
+    scenario: 'The operator selects exactly one warm Gmail row that already has a saved local draft record.',
+    expected: 'The provider draft canary CTA appears only for this single saved-draft state.',
+    changed: 'Provider canary readiness is attached to the canonical batch plan, not a parallel dashboard.',
+    boundary: 'The CTA prepares only a no-send smoke against the local queue route.',
+  },
+  {
+    source: providerMobile.screenshots.preparedPath,
+    title: 'Provider canary prepared',
+    scenario: 'The operator prepares the provider-backed draft canary without running the live provider action.',
+    expected: 'The button locks, the exact approval sentence appears, and the canary payload is visible in details.',
+    changed: 'Prepared/locked state, exact per-recipient draft authorization, and directly attached help text.',
+    boundary: 'Default QA made no Gmail provider call and no Gmail draft. Live draft creation requires the displayed exact approval sentence.',
   },
 ]
 
@@ -810,21 +1041,33 @@ const receipt = {
       overflow: desktop.overflow,
       screenshots: desktop.screenshots,
     },
+    {
+      name: providerMobile.name,
+      viewport: providerMobile.viewport,
+      horizontalOverflow: providerMobile.horizontalOverflow,
+      overflow: providerMobile.overflow,
+      screenshots: providerMobile.screenshots,
+    },
   ],
-  externalRequests: [...mobile.unexpectedRequests, ...desktop.unexpectedRequests],
+  providerCanaryRequests: [...providerMobile.canaryRequests],
+  externalRequests: [...mobile.unexpectedRequests, ...desktop.unexpectedRequests, ...providerMobile.unexpectedRequests],
   expectedBehavior: [
     'Existing /admin/outreach warm leads route exposes draft-only Gmail batch planning.',
     'Batch preview shows selected contacts, readiness, relationship basis, template intent, and blocked/excluded rows.',
     'Creating draft records changes local UI receipt state, prevents repeat action, and does not create provider drafts or queue rows.',
+    'Provider draft canary preparation appears only for exactly one selected saved Gmail draft record and calls only the no-send smoke route.',
+    'Prepared provider canary state displays the exact approval sentence for a later live Gmail draft provider call.',
   ],
   changedAreas: [
     'Warm outreach shortlist selection and Plan Gmail drafts affordance.',
     'Gmail batch draft plan preview with compact status chips and per-row blockers.',
     'Collapsed Email gates disclosure replacing the legacy amber explanatory block.',
     'Draft-only record confirmation and no-provider/no-egress boundary receipt.',
+    'Single-record provider draft canary readiness, locked prepared state, and exact authorization payload disclosure.',
   ],
   executionBoundary: batchReviewCreated.gmailDraftPlan.executionBoundary,
   draftCreationReceipt: batchReviewCreated.gmailDraftPlan.executionReceipt,
+  providerDraftCanaryReadiness: providerDraftCanaryResponse.providerDraftCanaryReadiness,
 }
 
 await writeFile(receiptPath, `${JSON.stringify(receipt, null, 2)}\n`, 'utf8')
