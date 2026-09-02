@@ -1,6 +1,6 @@
 {
   "version": "warm-manual-social-handoff-qa/v1",
-  "createdAt": "2026-09-02T17:36:10.676Z",
+  "createdAt": "2026-09-02T18:52:52.400Z",
   "route": "http://127.0.0.1:3068/admin/outreach?tab=leads&filter=warm&id=42&contactId=42&qa=warm-slack-send-approval#warm-manual-social-handoff",
   "scenario": "Operator opens /admin/outreach warm selected-contact workroom and prepares manual LinkedIn/Facebook/phone-contact handoff from synthetic warm relationship context.",
   "expectedBehavior": [
@@ -18,7 +18,7 @@
     "desktop1440": "/Users/vambahsillah/.codex/worktrees/6971/Portfolio/docs/warm-outreach-qa/warm-manual-social-handoff-desktop-1440.png"
   },
   "mp4Path": "/Users/vambahsillah/.codex/worktrees/6971/Portfolio/docs/warm-outreach-qa/warm-manual-social-handoff-qa.mp4",
-  "rawVideoPath": "/Users/vambahsillah/.codex/worktrees/6971/Portfolio/test-results/warm-manual-social-handoff-qa/source/4c693e989b61a33dc6cee5565f11a134.webm",
+  "rawVideoPath": "/Users/vambahsillah/.codex/worktrees/6971/Portfolio/test-results/warm-manual-social-handoff-qa/source/b748af230bee57347fc1e94e27fa5414.webm",
   "viewportResults": [
     {
       "name": "mobile360",
@@ -110,7 +110,7 @@
     }
   ],
   "video": {
-    "rawVideoPath": "/Users/vambahsillah/.codex/worktrees/6971/Portfolio/test-results/warm-manual-social-handoff-qa/source/4c693e989b61a33dc6cee5565f11a134.webm",
+    "rawVideoPath": "/Users/vambahsillah/.codex/worktrees/6971/Portfolio/test-results/warm-manual-social-handoff-qa/source/b748af230bee57347fc1e94e27fa5414.webm",
     "mp4Path": "/Users/vambahsillah/.codex/worktrees/6971/Portfolio/docs/warm-outreach-qa/warm-manual-social-handoff-qa.mp4",
     "afterRecord": {
       "clipboardWrites": 1,
@@ -142,7 +142,7 @@
             "messageVersionKey": "warm-outreach:manual-message-version:v1:qa-linkedin-42",
             "manualHandoffKey": "warm-outreach:manual-handoff:v1:qa-linkedin-42",
             "manualEvidenceKey": "warm-outreach:manual-evidence:v1:qa-linkedin-42",
-            "recordedAt": "2026-09-02T17:36:09.227Z",
+            "recordedAt": "2026-09-02T18:52:50.877Z",
             "operatorNote": "Copied into LinkedIn manually after reviewing the relationship basis.",
             "source": {
               "table": "contact_communications",

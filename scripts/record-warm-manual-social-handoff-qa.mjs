@@ -279,12 +279,12 @@ async function verifyManualHandoff(page) {
     return {
       hasHandoff: visible(handoff),
       hasRoute: /Manual social handoff/i.test(text),
-      hasChannels: /LinkedIn: manual ready/i.test(text) &&
-        /Facebook: manual ready/i.test(text) &&
-        /Phone contact: manual ready/i.test(text),
+      hasChannels: /LinkedIn: ready/i.test(text) &&
+        /Facebook: ready/i.test(text) &&
+        /Phone contact: ready/i.test(text),
       hasCurrentCta: /Copy LinkedIn text/i.test(text),
       hasNoEgress: /External requests: 0/i.test(text) && /Provider calls: off/i.test(text),
-      hasEvidenceBoundary: /No raw message body, phone number, screenshots, provider send, or private reply content/i.test(text),
+      hasEvidenceBoundary: /Stores only timestamp, channel, note, and evidence key/i.test(text),
       hasAuditKeys: /warm-outreach:manual-evidence:v1:qa-linkedin-42/i.test(text),
       hasCanonicalSurface: /Relationship packet/i.test(text) && /Manual social handoff/i.test(text),
       clientWidth: document.documentElement.clientWidth,
@@ -343,9 +343,9 @@ async function addSideText(page) {
       <p>Operator opens the warm selected-contact workroom and prepares a manual LinkedIn handoff.</p>
       <h3>Expected</h3>
       <ul>
-        <li>LinkedIn, Facebook, and phone-contact copy previews are visibly manual.</li>
+        <li>Compact manual chips keep LinkedIn, Facebook, and phone-contact visibly no-egress.</li>
         <li>The current CTA moves from copy to record evidence to recorded.</li>
-        <li>The repeated evidence action disappears after local evidence is recorded.</li>
+        <li>Server-backed evidence locks the repeat action after refresh-ready readback.</li>
       </ul>
       <h3>Decision Gate</h3>
       <p>Captain review and Vambah human QA decide whether this copy-and-record workflow is ready.</p>
@@ -376,8 +376,8 @@ async function recordWalkthrough(browser) {
     const handoff = document.querySelector('#warm-manual-social-handoff')
     return {
       clipboardWrites: writes.length,
-      evidenceRecorded: /Portfolio evidence recorded/i.test(text),
-      apiBackedEvidenceResponse: /Portfolio recorded this manual evidence/i.test(text),
+      evidenceRecorded: /Recorded at/i.test(text),
+      apiBackedEvidenceResponse: /Saved in Portfolio/i.test(text),
       repeatEvidenceButtonVisible: [...(handoff?.querySelectorAll('button') || [])].some((button) =>
         (button.textContent || '').trim() === 'Record manual evidence',
       ),

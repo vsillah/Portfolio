@@ -1264,8 +1264,8 @@ describe('RelationshipPacketPanel', () => {
 
     const handoff = screen.getByTestId('warm-manual-social-handoff')
     expect(within(handoff).getByText('Manual social handoff')).toBeInTheDocument()
-    expect(within(handoff).getByRole('button', { name: /Facebook: manual ready/i })).toBeInTheDocument()
-    expect(within(handoff).getByRole('button', { name: /Phone contact: manual ready/i })).toBeInTheDocument()
+    expect(within(handoff).getByRole('button', { name: /Facebook: ready/i })).toBeInTheDocument()
+    expect(within(handoff).getByRole('button', { name: /Phone contact: ready/i })).toBeInTheDocument()
     expect(within(handoff).getByText('External requests: 0')).toBeInTheDocument()
     expect(within(handoff).getByText('Provider calls: off')).toBeInTheDocument()
 
@@ -1302,8 +1302,8 @@ describe('RelationshipPacketPanel', () => {
     })
     await waitFor(() => expect(within(handoff).getByRole('button', { name: 'Evidence recorded' })).toBeDisabled())
     expect(within(handoff).queryByRole('button', { name: 'Record manual evidence' })).not.toBeInTheDocument()
-    expect(within(handoff).getByText(/Portfolio recorded this manual evidence/i)).toBeInTheDocument()
-    expect(within(handoff).getByText(/repeat evidence action is locked/i)).toBeInTheDocument()
+    expect(within(handoff).getByText(/Saved in Portfolio/i)).toBeInTheDocument()
+    expect(within(handoff).getAllByText(/Repeat locked/i).length).toBeGreaterThan(0)
     vi.stubGlobal('fetch', previousFetch)
   })
 

@@ -1590,7 +1590,7 @@ function ManualSocialHandoffCard({
     if (!canRecordEvidence) return
     setActionState((current) => ({
       ...current,
-      [selected.channel]: { status: 'saving', message: 'Recording local Portfolio evidence...' },
+      [selected.channel]: { status: 'saving', message: 'Saving Portfolio evidence...' },
     }))
     try {
       const response = await fetch(`/api/admin/outreach/leads/${encodeURIComponent(contactId)}/manual-social-handoff`, {
@@ -1624,8 +1624,8 @@ function ManualSocialHandoffCard({
         [selected.channel]: {
           status: 'success',
           message: body.duplicatePrevented
-            ? 'Portfolio already had this manual evidence. Repeat action remains locked.'
-            : 'Portfolio recorded this manual evidence. Repeat action is locked for this message version.',
+            ? 'Already recorded in Portfolio. Repeat locked.'
+            : 'Saved in Portfolio. Repeat locked for this version.',
         },
       }))
     } catch (error) {
@@ -1661,9 +1661,17 @@ function ManualSocialHandoffCard({
             Manual social handoff
           </p>
           <p className="mt-1 text-sm font-semibold">{handoff.label}</p>
-          <p className="mt-1 text-[11px] leading-4 opacity-85">
-            Copy into LinkedIn, Facebook, or phone contacts manually; record only minimal local evidence here.
-          </p>
+          <div className="mt-2 flex flex-wrap gap-1.5 text-[10px] font-semibold uppercase tracking-wide">
+            <span className="inline-flex min-h-6 items-center rounded-full border border-current/20 bg-background/25 px-2">
+              Manual only
+            </span>
+            <span className="inline-flex min-h-6 items-center rounded-full border border-current/20 bg-background/25 px-2">
+              Provider off
+            </span>
+            <span className="inline-flex min-h-6 items-center rounded-full border border-current/20 bg-background/25 px-2">
+              Portfolio record
+            </span>
+          </div>
         </div>
         <button
           type="button"
@@ -1693,7 +1701,7 @@ function ManualSocialHandoffCard({
                 : 'border-current/20 bg-background/15 text-current/80 hover:bg-background/25'
             }`}
           >
-            {channel.label}: {channel.state === 'manual_sent_recorded' ? 'recorded' : channel.state === 'ready_for_manual_copy' ? 'manual ready' : channel.state.replace(/_/g, ' ')}
+            {channel.label}: {channel.state === 'manual_sent_recorded' ? 'recorded' : channel.state === 'ready_for_manual_copy' ? 'ready' : channel.state.replace(/_/g, ' ')}
           </button>
         ))}
       </div>
@@ -1704,7 +1712,7 @@ function ManualSocialHandoffCard({
             <div className="min-w-0">
               <p className="text-[10px] font-semibold uppercase tracking-wide">{selected.label} copy preview</p>
               <p className="mt-1 text-[11px] leading-4 opacity-85">
-                {selected.blocker ?? 'Manual copy only. Provider/API sends stay disabled.'}
+                {selected.blocker ?? 'Copy text manually. No provider send.'}
               </p>
             </div>
             <span className="inline-flex min-h-7 w-fit shrink-0 items-center gap-1.5 rounded-full border border-current/25 bg-background/25 px-2 py-0.5 text-[10px] font-semibold">
@@ -1754,7 +1762,7 @@ function ManualSocialHandoffCard({
           {copyStatus !== 'idle' && !evidenceRecord && (
             <p role="status" className="mt-2 rounded-md border border-current/20 bg-background/25 p-2 text-[11px] leading-4">
               {copyStatus === 'copied'
-                ? `${selected.label} text copied. Complete the manual outside-channel step, then record evidence.`
+                ? `${selected.label} text copied. Send manually, then record evidence.`
                 : 'Clipboard unavailable. Select the text manually; Portfolio still will not send or call a provider.'}
             </p>
           )}
@@ -1765,7 +1773,7 @@ function ManualSocialHandoffCard({
             <div className="min-w-0">
               <p className="text-[10px] font-semibold uppercase tracking-wide">Manual evidence</p>
               <p className="mt-1 text-[11px] leading-4">
-                Timestamp, channel, and operator note only. No raw message body, phone number, screenshots, provider send, or private reply content.
+                Stores only timestamp, channel, note, and evidence key.
               </p>
             </div>
             <span className="inline-flex min-h-7 w-fit shrink-0 items-center gap-1.5 rounded-full border border-current/25 bg-background/25 px-2 py-0.5 text-[10px] font-semibold">
@@ -1778,7 +1786,7 @@ function ManualSocialHandoffCard({
             <textarea
               value={evidenceRecord?.operatorNote ?? operatorNote}
               onChange={(event) => setOperatorNote(event.target.value)}
-              placeholder="Example: Copied into LinkedIn manually after reviewing relationship basis."
+              placeholder="Short note, no private details."
               disabled={!isPrepared || blocked || Boolean(evidenceRecord)}
               rows={3}
               className="mt-1 min-h-[78px] w-full resize-y rounded-md border border-silicon-slate/70 bg-imperial-navy/90 p-2 text-xs leading-5 text-platinum-white caret-radiant-gold outline-none transition-colors [color-scheme:dark] placeholder:text-muted-foreground focus:border-radiant-gold/70 focus:ring-2 focus:ring-radiant-gold/25 disabled:cursor-not-allowed disabled:border-silicon-slate/60 disabled:bg-silicon-slate/20 disabled:text-muted-foreground/70 disabled:opacity-70"
@@ -1803,7 +1811,7 @@ function ManualSocialHandoffCard({
           )}
           {evidenceRecord && (
             <p role="status" className="mt-2 rounded-md border border-emerald-500/25 bg-emerald-500/10 p-2 text-[11px] leading-4 text-emerald-100">
-              Portfolio evidence recorded at {evidenceRecord.recordedAt}. The repeat evidence action is locked for this contact, channel, and message version.
+              Recorded at {evidenceRecord.recordedAt}. Repeat locked for this contact, channel, and version.
             </p>
           )}
         </div>
@@ -1811,14 +1819,13 @@ function ManualSocialHandoffCard({
 
       <details className="mt-2 rounded-md border border-current/20 bg-background/20 p-2">
         <summary className="cursor-pointer text-[10px] font-semibold uppercase tracking-wide">
-          Checklist and audit keys
+          Audit details
         </summary>
-        <div className="mt-2 grid gap-1.5 sm:grid-cols-2 xl:grid-cols-5">
+        <div className="mt-2 flex flex-wrap gap-1.5">
           {selected.checklist.map((item) => (
-            <div key={item.key} className={`rounded-md border p-2 ${manualChecklistClasses(item.status)}`}>
-              <p className="text-[10px] font-semibold uppercase tracking-wide">{item.label}</p>
-              <p className="mt-1 text-[10px] leading-4">{item.status.replace(/_/g, ' ')}</p>
-            </div>
+            <span key={item.key} className={`inline-flex min-h-7 items-center gap-1 rounded-full border px-2 text-[10px] font-semibold ${manualChecklistClasses(item.status)}`}>
+              {item.label}: {item.status.replace(/_/g, ' ')}
+            </span>
           ))}
         </div>
         <div className="mt-2 grid gap-1.5 text-[10px] leading-4 sm:grid-cols-2">
