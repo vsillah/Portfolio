@@ -1,8 +1,8 @@
 {
   "scenario": "warm-gmail-batch-draft",
-  "route": "http://127.0.0.1:3066/admin/outreach?tab=leads&filter=warm&qa=warm-gmail-batch-draft",
-  "mp4Path": "/Users/vambahsillah/.codex/worktrees/fcec/Portfolio/docs/warm-outreach-qa/warm-gmail-batch-draft-plan.mp4",
-  "timestamp": "2026-09-02T10:12:40.372Z",
+  "route": "http://127.0.0.1:3065/admin/outreach?tab=leads&filter=warm&qa=warm-gmail-batch-draft",
+  "mp4Path": "/Users/vambahsillah/.codex/worktrees/8d39/Portfolio/docs/warm-outreach-qa/warm-gmail-batch-draft-plan.mp4",
+  "timestamp": "2026-09-02T11:11:14.818Z",
   "viewports": [
     {
       "name": "mobile-390",
@@ -16,9 +16,9 @@
         "scrollWidth": 390
       },
       "screenshots": {
-        "selectedPath": "/Users/vambahsillah/.codex/worktrees/fcec/Portfolio/test-results/warm-gmail-batch-draft-qa/source/mobile-390-01-selected.png",
-        "planPath": "/Users/vambahsillah/.codex/worktrees/fcec/Portfolio/test-results/warm-gmail-batch-draft-qa/source/mobile-390-02-plan.png",
-        "noticePath": "/Users/vambahsillah/.codex/worktrees/fcec/Portfolio/test-results/warm-gmail-batch-draft-qa/source/mobile-390-03-notice.png"
+        "selectedPath": "/Users/vambahsillah/.codex/worktrees/8d39/Portfolio/test-results/warm-gmail-batch-draft-qa/source/mobile-390-01-selected.png",
+        "planPath": "/Users/vambahsillah/.codex/worktrees/8d39/Portfolio/test-results/warm-gmail-batch-draft-qa/source/mobile-390-02-plan.png",
+        "noticePath": "/Users/vambahsillah/.codex/worktrees/8d39/Portfolio/test-results/warm-gmail-batch-draft-qa/source/mobile-390-03-notice.png"
       }
     },
     {
@@ -33,9 +33,9 @@
         "scrollWidth": 1440
       },
       "screenshots": {
-        "selectedPath": "/Users/vambahsillah/.codex/worktrees/fcec/Portfolio/test-results/warm-gmail-batch-draft-qa/source/desktop-1440-01-selected.png",
-        "planPath": "/Users/vambahsillah/.codex/worktrees/fcec/Portfolio/test-results/warm-gmail-batch-draft-qa/source/desktop-1440-02-plan.png",
-        "noticePath": "/Users/vambahsillah/.codex/worktrees/fcec/Portfolio/test-results/warm-gmail-batch-draft-qa/source/desktop-1440-03-notice.png"
+        "selectedPath": "/Users/vambahsillah/.codex/worktrees/8d39/Portfolio/test-results/warm-gmail-batch-draft-qa/source/desktop-1440-01-selected.png",
+        "planPath": "/Users/vambahsillah/.codex/worktrees/8d39/Portfolio/test-results/warm-gmail-batch-draft-qa/source/desktop-1440-02-plan.png",
+        "noticePath": "/Users/vambahsillah/.codex/worktrees/8d39/Portfolio/test-results/warm-gmail-batch-draft-qa/source/desktop-1440-03-notice.png"
       }
     }
   ],
@@ -43,13 +43,13 @@
   "expectedBehavior": [
     "Existing /admin/outreach warm leads route exposes draft-only Gmail batch planning.",
     "Batch preview shows selected contacts, readiness, relationship basis, template intent, and blocked/excluded rows.",
-    "Preparing the plan only changes local UI state and does not create provider drafts or queue rows."
+    "Creating draft records changes local UI receipt state, prevents repeat action, and does not create provider drafts or queue rows."
   ],
   "changedAreas": [
     "Warm outreach shortlist selection and Plan Gmail drafts affordance.",
     "Gmail batch draft plan preview with compact status chips and per-row blockers.",
     "Collapsed Email gates disclosure replacing the legacy amber explanatory block.",
-    "Local-only planning confirmation and no-provider/no-egress boundary receipt."
+    "Draft-only record confirmation and no-provider/no-egress boundary receipt."
   ],
   "executionBoundary": {
     "localPortfolioPlanOnly": true,
@@ -62,5 +62,11 @@
     "n8nDispatch": false,
     "productionDataMutation": false,
     "genericApprovalAuthorizesSend": false
+  },
+  "draftCreationReceipt": {
+    "action": "create_gmail_draft_records",
+    "createdAt": "2026-09-02T12:00:00.000Z",
+    "createdCount": 1,
+    "externalRequests": []
   }
 }

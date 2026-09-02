@@ -77,6 +77,7 @@ export async function POST(request: NextRequest) {
       objective?: unknown
       cohort_label?: unknown
       preferred_channel?: unknown
+      action?: unknown
     } = {}
     try {
       body = await request.json()
@@ -107,6 +108,16 @@ export async function POST(request: NextRequest) {
         ? body.cohort_label.trim()
         : null
     const preferredChannel = parsePreferredChannel(body.preferred_channel)
+    const action =
+      typeof body.action === 'string' && body.action.trim()
+        ? body.action.trim()
+        : 'review'
+    if (action !== 'review' && action !== 'create_gmail_draft_records') {
+      return NextResponse.json(
+        { error: 'Unsupported warm batch review action.' },
+        { status: 400 },
+      )
+    }
 
     const [
       contactsRes,
@@ -235,6 +246,10 @@ export async function POST(request: NextRequest) {
       objective,
       cohortLabel,
       preferredChannel,
+      draftCreationReceiptAt:
+        action === 'create_gmail_draft_records'
+          ? new Date().toISOString()
+          : null,
     })
 
     return NextResponse.json(review)

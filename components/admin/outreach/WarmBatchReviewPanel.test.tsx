@@ -50,6 +50,32 @@ function review() {
   })
 }
 
+function draftReadyReview() {
+  return buildWarmBatchReview({
+    objective: 'Reconnect around the Agentified pilot.',
+    cohortLabel: 'August warm follow-up',
+    contacts: [
+      {
+        contact,
+        rows: {
+          contactSubmission: contact,
+          meetingSummaries: [
+            {
+              id: 'meeting-1',
+              contact_submission_id: 42,
+              meeting_type: 'discovery',
+              meeting_date: '2026-08-20T00:00:00Z',
+              structured_notes: { summary: 'Discussed operations bottlenecks.' },
+              created_at: '2026-08-20T00:00:00Z',
+            },
+          ],
+          outreachQueue: [],
+        },
+      },
+    ],
+  })
+}
+
 describe('WarmBatchReviewPanel', () => {
   it('renders per-recipient response monitoring and send-disabled boundaries', () => {
     const textContent = (expected: string) => (_content: string, element: Element | null) =>
@@ -60,8 +86,11 @@ describe('WarmBatchReviewPanel', () => {
         data={review()}
         loading={false}
         error={null}
+        draftActionLoading={false}
+        draftActionError={null}
         selectedCount={1}
         onReview={vi.fn()}
+        onCreateGmailDraftRecords={vi.fn()}
       />,
     )
 
@@ -101,8 +130,9 @@ describe('WarmBatchReviewPanel', () => {
     expect(screen.getByRole('button', { name: 'Resolve blocked rows' })).toBeDisabled()
     expect(screen.getByText('1 submitted')).toBeInTheDocument()
     expect(screen.getAllByText('Submitted email evidence already exists; exclude this recipient from batch drafting.').length).toBeGreaterThan(0)
-    expect(screen.getAllByText('Gmail draft: off').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Provider draft: off').length).toBeGreaterThan(0)
     expect(screen.getByText('outreach_queue writes: off')).toBeInTheDocument()
+    expect(screen.getByText('Provider Gmail drafts: off')).toBeInTheDocument()
     expect(screen.getByText(textContent('Email path: per-recipient gate required'))).toBeInTheDocument()
     expect(screen.getByText(textContent('Draft: ready for review / Provider: blocked'))).toBeInTheDocument()
     expect(screen.getByText(textContent('Handoff: per-recipient handoff / Smoke: blocked'))).toBeInTheDocument()
@@ -115,5 +145,75 @@ describe('WarmBatchReviewPanel', () => {
     expect(screen.getByText('Blocked gates')).toBeInTheDocument()
     expect(screen.getByText('Send authority: blocked')).toBeInTheDocument()
     expect(screen.getByText('Future eligible: 0 / Manual: 0 / Blocked: 4')).toBeInTheDocument()
+  })
+
+  it('exposes one draft-only Gmail record CTA and calls the creation action', () => {
+    const createRecords = vi.fn()
+
+    render(
+      <WarmBatchReviewPanel
+        data={draftReadyReview()}
+        loading={false}
+        error={null}
+        draftActionLoading={false}
+        draftActionError={null}
+        selectedCount={1}
+        onReview={vi.fn()}
+        onCreateGmailDraftRecords={createRecords}
+      />,
+    )
+
+    expect(screen.getByLabelText('Gmail batch draft plan')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Create Gmail draft records (1)' })).toBeEnabled()
+    expect(screen.getByText('1 provider not connected')).toBeInTheDocument()
+    expect(screen.getByText('Record: Provider not connected')).toBeInTheDocument()
+    expect(screen.getByText('Provider draft: off')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Create Gmail draft records (1)' }))
+
+    expect(createRecords).toHaveBeenCalledTimes(1)
+  })
+
+  it('shows a disabled success state after draft-only records are created', () => {
+    render(
+      <WarmBatchReviewPanel
+        data={buildWarmBatchReview({
+          objective: 'Reconnect around the Agentified pilot.',
+          cohortLabel: 'August warm follow-up',
+          draftCreationReceiptAt: '2026-09-02T12:00:00.000Z',
+          contacts: [
+            {
+              contact,
+              rows: {
+                contactSubmission: contact,
+                meetingSummaries: [
+                  {
+                    id: 'meeting-1',
+                    contact_submission_id: 42,
+                    meeting_type: 'discovery',
+                    meeting_date: '2026-08-20T00:00:00Z',
+                    structured_notes: { summary: 'Discussed operations bottlenecks.' },
+                    created_at: '2026-08-20T00:00:00Z',
+                  },
+                ],
+                outreachQueue: [],
+              },
+            },
+          ],
+        })}
+        loading={false}
+        error={null}
+        draftActionLoading={false}
+        draftActionError={null}
+        selectedCount={1}
+        onReview={vi.fn()}
+        onCreateGmailDraftRecords={vi.fn()}
+      />,
+    )
+
+    expect(screen.getByRole('button', { name: 'Gmail draft records created' })).toBeDisabled()
+    expect(screen.getByRole('status')).toHaveTextContent('Draft-only Gmail records created for 1 contact(s).')
+    expect(screen.getByText('Record: Draft created')).toBeInTheDocument()
+    expect(screen.getByText(/^warm-outreach:gmail-draft-record:v1:/)).toBeInTheDocument()
   })
 })

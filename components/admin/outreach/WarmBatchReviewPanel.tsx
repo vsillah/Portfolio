@@ -1,6 +1,5 @@
 'use client'
 
-import { useState } from 'react'
 import {
   AlertTriangle,
   CheckCircle2,
@@ -21,8 +20,11 @@ interface WarmBatchReviewPanelProps {
   data: WarmBatchReview | null
   loading: boolean
   error: string | null
+  draftActionLoading: boolean
+  draftActionError: string | null
   selectedCount: number
   onReview: () => void
+  onCreateGmailDraftRecords: () => void
 }
 
 function statusLabel(status: WarmBatchReviewRecipient['status']) {
@@ -118,10 +120,26 @@ function LocalEvidenceFlag() {
   )
 }
 
-function GmailDraftPlanSection({ data }: { data: WarmBatchReview }) {
-  const [planNotice, setPlanNotice] = useState<string | null>(null)
+function GmailDraftPlanSection({
+  data,
+  draftActionLoading,
+  draftActionError,
+  onCreateGmailDraftRecords,
+  onReview,
+}: {
+  data: WarmBatchReview
+  draftActionLoading: boolean
+  draftActionError: string | null
+  onCreateGmailDraftRecords: () => void
+  onReview: () => void
+}) {
   const plan = data.gmailDraftPlan
   const blocker = plan.currentCta.blocker
+  const ctaIsDraftCreation = plan.currentCta.key === 'create_gmail_draft_records'
+  const ctaLoading = ctaIsDraftCreation && draftActionLoading
+  const createdNotice = plan.executionReceipt
+    ? `Draft-only Gmail records created for ${plan.executionReceipt.createdCount} contact(s). No Gmail provider draft, send, Slack message, SMS, n8n run, or production mutation was performed.`
+    : null
 
   return (
     <div className="rounded-lg border border-sky-500/25 bg-background/45 p-3" aria-label="Gmail batch draft plan">
@@ -160,19 +178,22 @@ function GmailDraftPlanSection({ data }: { data: WarmBatchReview }) {
         <div className="min-w-0">
           <button
             type="button"
-            disabled={!plan.currentCta.enabled}
+            disabled={!plan.currentCta.enabled || ctaLoading}
             onClick={() => {
-              if (!plan.currentCta.enabled) return
-              setPlanNotice(
-                plan.currentCta.key === 'prepare_local_draft_plan'
-                  ? `Local Gmail draft plan prepared for ${plan.summary.readyForLocalPlanningCount} contact(s). No outreach_queue row, Gmail draft, Slack message, SMS, n8n run, or provider request was created.`
-                  : `Approval review queued for ${plan.summary.approvalRequiredCount} existing draft contact(s). No provider action was taken.`,
-              )
+              if (ctaIsDraftCreation) {
+                onCreateGmailDraftRecords()
+                return
+              }
+              onReview()
             }}
             className="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-lg border border-sky-500/35 bg-sky-500/10 px-3 text-sm font-semibold text-sky-100 transition-colors hover:bg-sky-500/20 disabled:cursor-not-allowed disabled:opacity-50 lg:w-auto"
           >
-            <FileText size={15} aria-hidden />
-            {plan.currentCta.label}
+            {ctaLoading ? (
+              <RefreshCw size={15} className="animate-spin" aria-hidden />
+            ) : (
+              <FileText size={15} aria-hidden />
+            )}
+            {ctaLoading ? 'Creating records...' : plan.currentCta.label}
           </button>
           {blocker && (
             <p className="mt-2 rounded-md border border-red-500/25 bg-red-500/10 p-2 text-xs leading-5 text-red-100">
@@ -182,9 +203,15 @@ function GmailDraftPlanSection({ data }: { data: WarmBatchReview }) {
         </div>
       </div>
 
-      {planNotice && (
+      {draftActionError && (
+        <p role="alert" className="mt-3 rounded-md border border-red-500/25 bg-red-500/10 p-2 text-xs leading-5 text-red-100">
+          {draftActionError}
+        </p>
+      )}
+
+      {createdNotice && (
         <p role="status" className="mt-3 rounded-md border border-emerald-500/25 bg-emerald-500/10 p-2 text-xs leading-5 text-emerald-100">
-          {planNotice}
+          {createdNotice}
         </p>
       )}
 
@@ -240,8 +267,13 @@ function GmailDraftPlanSection({ data }: { data: WarmBatchReview }) {
                 </td>
                 <td className="max-w-[13rem] py-2 pr-3 align-top text-muted-foreground">
                   <p>{row.draftIntent.promptTemplateKey ?? 'No template'}</p>
-                  <p className="mt-1">outreach_queue intent only</p>
-                  <p>Gmail draft: off</p>
+                  <p className="mt-1">Record: {row.draftCreation?.statusLabel ?? 'Not recorded'}</p>
+                  <p>Provider draft: off</p>
+                  {row.draftCreation?.localDraftRecordId && (
+                    <p className="truncate" title={row.draftCreation.localDraftRecordId}>
+                      {row.draftCreation.localDraftRecordId}
+                    </p>
+                  )}
                 </td>
                 <td className="max-w-[10rem] py-2 align-top text-foreground">
                   {row.nextActionLabel}
@@ -256,7 +288,7 @@ function GmailDraftPlanSection({ data }: { data: WarmBatchReview }) {
       <div className="mt-3 flex flex-wrap gap-2">
         <BoundaryFlag label="outreach_queue writes" active={plan.executionBoundary.createsOutreachQueueRows} />
         <BoundaryFlag label="Gmail provider" active={plan.executionBoundary.gmailProviderCalls} />
-        <BoundaryFlag label="Gmail drafts" active={plan.executionBoundary.createsGmailDrafts} />
+        <BoundaryFlag label="Provider Gmail drafts" active={plan.executionBoundary.createsGmailDrafts} />
         <BoundaryFlag label="Gmail send" active={plan.executionBoundary.gmailSend} />
         <BoundaryFlag label="Slack" active={plan.executionBoundary.slackDispatch} />
         <BoundaryFlag label="SMS" active={plan.executionBoundary.smsDelivery} />
@@ -362,8 +394,11 @@ export default function WarmBatchReviewPanel({
   data,
   loading,
   error,
+  draftActionLoading,
+  draftActionError,
   selectedCount,
   onReview,
+  onCreateGmailDraftRecords,
 }: WarmBatchReviewPanelProps) {
   const sample = data?.samplePreview
   const hasSelection = selectedCount > 0
@@ -517,7 +552,13 @@ export default function WarmBatchReviewPanel({
             <BoundaryFlag label="Slack" active={data.executionBoundary.slackAction} />
           </div>
 
-          <GmailDraftPlanSection data={data} />
+          <GmailDraftPlanSection
+            data={data}
+            draftActionLoading={draftActionLoading}
+            draftActionError={draftActionError}
+            onCreateGmailDraftRecords={onCreateGmailDraftRecords}
+            onReview={onReview}
+          />
 
           <details className="rounded-lg border border-amber-500/25 bg-amber-500/10 p-3 text-sm text-amber-50">
             <summary className="flex cursor-pointer list-none flex-wrap items-center justify-between gap-2">

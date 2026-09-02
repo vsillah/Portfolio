@@ -143,15 +143,17 @@ describe('POST /api/admin/outreach/batch-review', () => {
       },
       gmailDraftPlan: {
         version: 'warm-outreach-gmail-batch-draft-plan/v1',
-        status: 'ready_for_local_planning',
+        status: 'draft_creation_ready',
         currentCta: {
-          key: 'prepare_local_draft_plan',
+          key: 'create_gmail_draft_records',
           enabled: true,
         },
         summary: {
           selectedCount: 1,
           readyForLocalPlanningCount: 1,
           providerNotConnectedCount: 1,
+          draftCreationEligibleCount: 1,
+          draftCreatedCount: 0,
         },
         executionBoundary: {
           localPortfolioPlanOnly: true,
@@ -196,6 +198,12 @@ describe('POST /api/admin/outreach/batch-review', () => {
     expect(json.recipients[0].gmailDraftPlan).toMatchObject({
       status: 'ready_for_local_planning',
       nextAction: 'local_draft_planning',
+      draftCreation: {
+        status: 'provider_not_connected',
+        actionEnabled: true,
+        providerDraftId: null,
+        externalRequests: [],
+      },
       draftIntent: {
         channel: 'gmail',
         promptTemplateKey: 'email_follow_up',
@@ -308,11 +316,87 @@ describe('POST /api/admin/outreach/batch-review', () => {
       },
       summary: {
         approvalRequiredCount: 1,
+        draftAlreadyExistsCount: 1,
       },
     })
     expect(json.recipients[0].gmailDraftPlan).toMatchObject({
       status: 'approval_required',
       existingQueueId: 'queue-existing',
+      draftCreation: {
+        status: 'draft_already_exists',
+        actionEnabled: false,
+      },
+    })
+  })
+
+  it('records a draft-only creation receipt without writes or provider calls', async () => {
+    setupRows({
+      contact_submissions: [warmLead],
+      contact_communications: [],
+      outreach_queue: [],
+      email_messages: [],
+      meeting_records: [
+        {
+          id: 'meeting-1',
+          contact_submission_id: 42,
+          meeting_type: 'discovery',
+          meeting_date: '2026-08-19T00:00:00Z',
+          structured_notes: { summary: 'Discussed operations.' },
+          key_decisions: [],
+          created_at: '2026-08-19T00:00:00Z',
+        },
+      ],
+      meeting_action_tasks: [],
+    })
+
+    const response = await POST(request({
+      action: 'create_gmail_draft_records',
+      contact_ids: [42],
+      preferred_channel: 'email',
+    }))
+
+    expect(response.status).toBe(200)
+    const json = await response.json()
+    expect(json.gmailDraftPlan).toMatchObject({
+      status: 'draft_records_created',
+      currentCta: {
+        key: 'draft_records_created',
+        enabled: false,
+      },
+      summary: {
+        draftCreationEligibleCount: 0,
+        draftCreatedCount: 1,
+      },
+      executionReceipt: {
+        action: 'create_gmail_draft_records',
+        createdCount: 1,
+        externalRequests: [],
+      },
+      executionBoundary: {
+        createsOutreachQueueRows: false,
+        createsGmailDrafts: false,
+        gmailProviderCalls: false,
+        gmailSend: false,
+        slackDispatch: false,
+        smsDelivery: false,
+        n8nDispatch: false,
+        productionDataMutation: false,
+      },
+    })
+    expect(json.recipients[0].gmailDraftPlan.draftCreation).toMatchObject({
+      status: 'draft_created',
+      actionEnabled: false,
+      providerDraftId: null,
+      externalRequests: [],
+    })
+  })
+
+  it('rejects unsupported batch actions before draft state changes', async () => {
+    const response = await POST(request({ action: 'send_gmail_batch', contact_ids: [42] }))
+
+    expect(response.status).toBe(400)
+    await expect(response.json()).resolves.toEqual({
+      error: 'Unsupported warm batch review action.',
     })
   })
 
