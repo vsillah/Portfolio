@@ -7,6 +7,7 @@ import {
   Mail,
   Linkedin,
   CheckCircle,
+  ClipboardCheck,
   XCircle,
   Edit3,
   Search,
@@ -22,6 +23,7 @@ import {
   MessageSquare,
   Eye,
   AlertTriangle,
+  Send,
   BarChart3,
   Users,
   Flame,
@@ -32,6 +34,7 @@ import {
   Globe,
   Briefcase,
   ShieldOff,
+  ShieldCheck,
   Trash2,
   RotateCcw,
   Cpu,
@@ -68,6 +71,10 @@ import MobileWorkflowSummary from '@/components/admin/MobileWorkflowSummary'
 import { useRealtimeOutreach } from '@/lib/hooks/useRealtimeOutreach'
 import { OUTREACH_MODE_GATING_NOTE, OUTREACH_MODE_POLICIES } from '@/lib/outreach-mode-gating'
 import type { WarmBatchReview } from '@/lib/warm-outreach-batch-review'
+import {
+  buildWarmOutreachShortlist,
+  type WarmOutreachShortlistItem,
+} from '@/lib/warm-outreach-shortlist'
 import Link from 'next/link'
 import { useSearchParams, useRouter } from 'next/navigation'
 
@@ -171,6 +178,27 @@ interface ChatEscalationRow {
   created_at: string
   updated_at: string
   contact_submissions: { name: string | null; email: string | null } | null
+}
+
+function shortlistStatusClasses(status: WarmOutreachShortlistItem['status']) {
+  if (status === 'ready') return 'border-emerald-500/35 bg-emerald-500/10 text-emerald-100'
+  if (status === 'submitted') return 'border-sky-500/35 bg-sky-500/10 text-sky-100'
+  if (status === 'blocked') return 'border-red-500/35 bg-red-500/10 text-red-100'
+  return 'border-amber-500/35 bg-amber-500/10 text-amber-100'
+}
+
+function channelReadinessClasses(state: WarmOutreachShortlistItem['channelReadiness'][number]['state']) {
+  if (state === 'ready') return 'border-emerald-500/25 bg-emerald-500/10 text-emerald-100'
+  if (state === 'manual') return 'border-sky-500/25 bg-sky-500/10 text-sky-100'
+  if (state === 'gated') return 'border-amber-500/25 bg-amber-500/10 text-amber-100'
+  return 'border-silicon-slate/70 bg-background/45 text-muted-foreground'
+}
+
+function shortlistStatusLabel(status: WarmOutreachShortlistItem['status']) {
+  if (status === 'ready') return 'Ready'
+  if (status === 'submitted') return 'Submitted'
+  if (status === 'blocked') return 'Blocked'
+  return 'Needs review'
 }
 
 
@@ -1048,6 +1076,27 @@ function OutreachContent() {
     if (score >= 40) return 'bg-yellow-900/50 text-yellow-400 border border-yellow-700'
     return 'bg-red-900/50 text-red-400 border border-red-700'
   }
+  const warmOutreachShortlist = useMemo(
+    () => buildWarmOutreachShortlist(leads, { limit: 15 }),
+    [leads],
+  )
+  const showWarmOutreachShortlist =
+    activeTab === 'leads' && leadsTempFilter === 'warm' && warmOutreachShortlist.items.length > 0
+  const openWarmShortlistItem = useCallback(
+    (item: WarmOutreachShortlistItem) => {
+      setOutreachWorkroomLeadId(item.contactId)
+      setExpandedLeadId(item.contactId)
+      setLeadRowMenuOpenId(null)
+      const params = new URLSearchParams(searchParams?.toString() || '')
+      params.set('tab', 'leads')
+      params.set('filter', 'warm')
+      params.set('id', String(item.contactId))
+      params.set('contactId', String(item.contactId))
+      const hash = item.cta.key === 'handle_response' ? '#warm-response-lifecycle' : ''
+      router.replace(`/admin/outreach?${params.toString()}${hash}`, { scroll: false })
+    },
+    [router, searchParams],
+  )
   const expandedLead = expandedLeadId ? leads.find((lead) => lead.id === expandedLeadId) ?? null : null
   const outreachWorkroomLead = outreachWorkroomLeadId
     ? leads.find((lead) => lead.id === outreachWorkroomLeadId) ?? null
@@ -1354,6 +1403,125 @@ function OutreachContent() {
                 </motion.div>
               )}
             </AnimatePresence>
+
+            {showWarmOutreachShortlist && (
+              <section
+                className="mb-6 rounded-lg border border-silicon-slate/70 bg-silicon-slate/15 p-3 sm:p-4"
+                aria-label="Daily warm outreach shortlist"
+              >
+                <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-radiant-gold">
+                        Daily warm shortlist
+                      </p>
+                      <span className="rounded-full border border-silicon-slate/70 bg-background/45 px-2 py-0.5 text-xs text-muted-foreground">
+                        {warmOutreachShortlist.items.length} shown
+                      </span>
+                      <span className="rounded-full border border-silicon-slate/70 bg-background/45 px-2 py-0.5 text-xs text-muted-foreground">
+                        SMS unavailable
+                      </span>
+                    </div>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      Prioritized from the current warm filter. CTAs open Portfolio review gates only.
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+                    <span className="rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2.5 py-1 text-emerald-100">
+                      {warmOutreachShortlist.summary.readyCount} ready
+                    </span>
+                    <span className="rounded-full border border-amber-500/25 bg-amber-500/10 px-2.5 py-1 text-amber-100">
+                      {warmOutreachShortlist.summary.blockedCount} blocked
+                    </span>
+                    <span className="rounded-full border border-sky-500/25 bg-sky-500/10 px-2.5 py-1 text-sky-100">
+                      {warmOutreachShortlist.summary.submittedCount} submitted
+                    </span>
+                  </div>
+                </div>
+                <div className="grid gap-2">
+                  {warmOutreachShortlist.items.map((item) => (
+                    <article
+                      key={item.contactId}
+                      className="grid gap-3 rounded-lg border border-silicon-slate/70 bg-background/45 p-3 lg:grid-cols-[minmax(0,1.05fr)_minmax(18rem,0.95fr)_minmax(11rem,auto)] lg:items-center"
+                    >
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="rounded-full border border-radiant-gold/30 bg-radiant-gold/10 px-2 py-0.5 text-xs font-semibold text-radiant-gold">
+                            #{item.priorityRank}
+                          </span>
+                          <span className={`rounded-full border px-2 py-0.5 text-xs font-medium ${shortlistStatusClasses(item.status)}`}>
+                            {shortlistStatusLabel(item.status)}
+                          </span>
+                          <h3 className="min-w-0 truncate text-sm font-semibold text-foreground">
+                            {item.contactName}
+                          </h3>
+                          {item.company && (
+                            <span className="truncate text-xs text-muted-foreground">
+                              {item.company}
+                            </span>
+                          )}
+                        </div>
+                        <div className="mt-2 flex flex-wrap gap-2 text-xs text-muted-foreground">
+                          <span title="Relationship basis" className="inline-flex items-center gap-1">
+                            <ShieldCheck size={12} aria-hidden />
+                            {item.relationshipBasis}
+                          </span>
+                          <span title={item.lastTouch.iso ?? 'No dated touch available'} className="inline-flex items-center gap-1">
+                            <Clock size={12} aria-hidden />
+                            {item.lastTouch.label}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-xs font-medium text-muted-foreground">
+                          {item.recommendedNextAction}
+                        </p>
+                        <div className="mt-2 flex flex-wrap gap-1.5">
+                          {item.channelReadiness.map((channel) => (
+                            <span
+                              key={`${item.contactId}-${channel.channel}`}
+                              title={channel.label}
+                              className={`rounded-full border px-2 py-0.5 text-[11px] ${channelReadinessClasses(channel.state)}`}
+                            >
+                              {channel.label}
+                            </span>
+                          ))}
+                        </div>
+                        {item.blockers.length > 0 && (
+                          <div className="mt-2 flex flex-wrap gap-1.5" aria-label={`${item.contactName} shortlist blockers`}>
+                            {item.blockers.slice(0, 4).map((blocker) => (
+                              <span
+                                key={`${item.contactId}-${blocker.key}`}
+                                className="rounded-full border border-amber-500/25 bg-amber-500/10 px-2 py-0.5 text-[11px] text-amber-100"
+                              >
+                                {blocker.label}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => openWarmShortlistItem(item)}
+                        className="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-lg border border-radiant-gold/50 bg-radiant-gold/10 px-3 text-sm font-semibold text-radiant-gold transition-colors hover:bg-radiant-gold/15 lg:w-auto"
+                        aria-label={`${item.cta.label} for ${item.contactName}`}
+                      >
+                        {item.cta.key === 'handle_response' ? (
+                          <MessageSquare size={15} aria-hidden />
+                        ) : item.cta.key === 'send_approved_gmail_draft' ? (
+                          <Send size={15} aria-hidden />
+                        ) : item.cta.key === 'resolve_blocker' ? (
+                          <AlertTriangle size={15} aria-hidden />
+                        ) : (
+                          <ClipboardCheck size={15} aria-hidden />
+                        )}
+                        {item.cta.label}
+                      </button>
+                    </article>
+                  ))}
+                </div>
+              </section>
+            )}
 
             {outreachWorkroomLead && (
               <section

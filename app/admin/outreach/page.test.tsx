@@ -615,6 +615,85 @@ describe('OutreachAdminPage deep links', () => {
     expect(screen.getByRole('button', { name: /Workroom open/i })).toBeInTheDocument()
   })
 
+  it('shows a compact daily warm shortlist on the warm outreach route', async () => {
+    window.history.replaceState({}, '', '/admin/outreach?tab=leads&filter=warm')
+
+    render(<OutreachAdminPage />)
+
+    const shortlist = await screen.findByLabelText('Daily warm outreach shortlist')
+    expect(within(shortlist).getByText('Daily warm shortlist')).toBeInTheDocument()
+    expect(within(shortlist).getByText('Referral')).toBeInTheDocument()
+    expect(within(shortlist).getByText('Gmail gated')).toBeInTheDocument()
+    expect(within(shortlist).getByText('Phone missing')).toBeInTheDocument()
+    expect(within(shortlist).getByText('Prepare an approval-gated draft')).toBeInTheDocument()
+    expect(within(shortlist).getByRole('button', { name: 'Generate draft for Ada Operator' })).toBeInTheDocument()
+  })
+
+  it('routes shortlist CTAs into the existing workroom without provider calls', async () => {
+    window.history.replaceState({}, '', '/admin/outreach?tab=leads&filter=warm')
+    const fetchMock = vi.mocked(fetch)
+
+    render(<OutreachAdminPage />)
+
+    const shortlist = await screen.findByLabelText('Daily warm outreach shortlist')
+    fireEvent.click(within(shortlist).getByRole('button', { name: 'Generate draft for Ada Operator' }))
+
+    const workroom = await screen.findByLabelText('Outreach workroom for Ada Operator')
+    expect(within(workroom).getByText('Selected outreach workroom')).toBeInTheDocument()
+    expect(within(workroom).getByTestId('outreach-generator')).toHaveAttribute(
+      'data-presentation',
+      'workroom',
+    )
+    expect(fetchMock.mock.calls.some(([url]) => /telnyx\.com|slack\.com|gmail\.com|googleapis\.com|n8n/i.test(String(url)))).toBe(false)
+  })
+
+  it('shows explicit shortlist blockers and one resolve CTA for blocked warm contacts', async () => {
+    window.history.replaceState({}, '', '/admin/outreach?tab=leads&filter=warm')
+    const blockedLead = {
+      ...lead,
+      email: null,
+      phone_number: '555-0100',
+      lead_score: 20,
+      has_sales_conversation: false,
+      evidence_count: 0,
+      has_extractable_text: false,
+      message: null,
+      do_not_contact: true,
+      recent_email_drafts: [],
+    }
+    vi.stubGlobal('fetch', vi.fn(async (url: string) => {
+      if (url.startsWith('/api/admin/outreach/leads/42/relationship-packet')) {
+        return Response.json(relationshipPacketResponse)
+      }
+      if (url.startsWith('/api/admin/outreach/leads')) {
+        return Response.json({ leads: [blockedLead], total: 1, page: 1 })
+      }
+      if (url.startsWith('/api/admin/value-evidence/workflow-status')) {
+        return Response.json({})
+      }
+      if (url.startsWith('/api/admin/chat-escalations')) {
+        return Response.json({ escalations: [], total: 0 })
+      }
+      if (url.startsWith('/api/admin/sales/contact-meetings')) {
+        return Response.json({ meetings: [] })
+      }
+      if (url.startsWith('/api/meeting-action-tasks')) {
+        return Response.json({ tasks: [] })
+      }
+      return Response.json({})
+    }))
+
+    render(<OutreachAdminPage />)
+
+    const shortlist = await screen.findByLabelText('Daily warm outreach shortlist')
+    const blockers = within(shortlist).getByLabelText('Ada Operator shortlist blockers')
+    expect(within(blockers).getByText('Suppression risk')).toBeInTheDocument()
+    expect(within(blockers).getByText('Missing email')).toBeInTheDocument()
+    expect(within(blockers).getByText('Weak relationship basis')).toBeInTheDocument()
+    expect(within(blockers).getByText('SMS unavailable')).toBeInTheDocument()
+    expect(within(shortlist).getByRole('button', { name: 'Resolve blocker for Ada Operator' })).toBeInTheDocument()
+  })
+
   it('keeps the selected workroom read-only when a lead is do not contact', async () => {
     window.history.replaceState({}, '', '/admin/outreach?tab=leads&visibility=all')
     const blockedLead = { ...lead, do_not_contact: true }
