@@ -1551,6 +1551,7 @@ function ManualSocialHandoffCard({
   const selectedDraft = drafts[selected.channel] ?? selected.preview
   const evidenceRecord = evidence[selected.channel] ?? selected.durableEvidence ?? undefined
   const action = actionState[selected.channel] ?? { status: 'idle' as const, message: null }
+  const contactId = handoff.contactId
   const isPrepared = prepared[selected.channel] === true || Boolean(evidenceRecord)
   const blocked = selected.state !== 'ready_for_manual_copy'
   const canRecordEvidence =
@@ -1592,7 +1593,7 @@ function ManualSocialHandoffCard({
       [selected.channel]: { status: 'saving', message: 'Recording local Portfolio evidence...' },
     }))
     try {
-      const response = await fetch(`/api/admin/outreach/leads/${encodeURIComponent(handoff.contactId)}/manual-social-handoff`, {
+      const response = await fetch(`/api/admin/outreach/leads/${encodeURIComponent(contactId)}/manual-social-handoff`, {
         method: 'POST',
         headers: {
           'content-type': 'application/json',
