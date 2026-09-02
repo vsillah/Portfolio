@@ -896,7 +896,13 @@ describe('OutreachAdminPage deep links', () => {
     const planningBacklog = await screen.findByLabelText('Warm outreach planning backlog')
     expect(within(planningBacklog).getByText('Warm planning backlog')).toBeInTheDocument()
     expect(within(planningBacklog).getByText(/Warm outreach backlog for/)).toBeInTheDocument()
-    expect(within(planningBacklog).getByRole('button', { name: 'Show Ready for Gmail draft candidates' })).toBeInTheDocument()
+    const stateFilters = within(planningBacklog).getByRole('group', {
+      name: 'Warm planning state filters',
+    })
+    expect(within(stateFilters).getByRole('button', { name: /Show all warm planning candidates/ })).toHaveTextContent('All')
+    expect(within(stateFilters).getByRole('button', { name: /Show Ready for Gmail draft candidates/ })).toHaveTextContent('Ready Gmail')
+    expect(within(stateFilters).getByRole('button', { name: /Show Ready for manual social candidates/ })).toHaveTextContent('Manual')
+    expect(within(stateFilters).getByRole('button', { name: /Show SMS parked candidates/ })).toHaveTextContent('SMS parked')
     expect(within(planningBacklog).getByRole('button', { name: 'Plan review batch (1)' })).toBeInTheDocument()
     expect(within(planningBacklog).getByText('Gmail drafts: off')).toBeInTheDocument()
     expect(within(planningBacklog).getByText('Sends/Slack/social/SMS: off')).toBeInTheDocument()
@@ -957,7 +963,7 @@ describe('OutreachAdminPage deep links', () => {
 
     const planningBacklog = await screen.findByLabelText('Warm outreach planning backlog')
     expect(within(planningBacklog).getByText('Phone Operator')).toBeInTheDocument()
-    fireEvent.click(within(planningBacklog).getByRole('button', { name: 'Show SMS parked candidates' }))
+    fireEvent.click(within(planningBacklog).getByRole('button', { name: /Show SMS parked candidates/ }))
 
     expect(within(planningBacklog).queryByText('Ada Operator')).not.toBeInTheDocument()
     expect(within(planningBacklog).getByText('Phone Operator')).toBeInTheDocument()

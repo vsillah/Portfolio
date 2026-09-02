@@ -873,6 +873,8 @@ async function assertPlanningBacklog(page) {
   const checks = await page.evaluate(() => {
     const text = document.body.innerText
     const planningBacklog = document.querySelector('[aria-label="Warm outreach planning backlog"]')
+    const filterGroup = document.querySelector('[aria-label="Warm planning state filters"]')
+    const filterButtons = filterGroup ? [...filterGroup.querySelectorAll('button')] : []
     const currentCta = [...document.querySelectorAll('button')]
       .find((button) => /Plan review batch/.test(button.textContent || ''))
     const visible = (element) => {
@@ -880,15 +882,51 @@ async function assertPlanningBacklog(page) {
       const rect = element.getBoundingClientRect()
       return rect.width > 0 && rect.height > 0 && window.getComputedStyle(element).visibility !== 'hidden'
     }
+    const overlappingFilterControls = []
+    for (let i = 0; i < filterButtons.length; i += 1) {
+      const first = filterButtons[i].getBoundingClientRect()
+      for (let j = i + 1; j < filterButtons.length; j += 1) {
+        const second = filterButtons[j].getBoundingClientRect()
+        const overlaps = !(
+          first.right <= second.left ||
+          second.right <= first.left ||
+          first.bottom <= second.top ||
+          second.bottom <= first.top
+        )
+        if (overlaps) overlappingFilterControls.push(`${i}:${j}`)
+      }
+    }
+    const filterTextOverflow = filterButtons
+      .filter((button) => button instanceof HTMLElement)
+      .some((button) => button.scrollWidth > button.clientWidth + 1 || button.scrollHeight > button.clientHeight + 1)
+    const filterLabelCountOverlap = filterButtons.some((button) => {
+      const label = button.querySelector('[data-planning-filter-label]')
+      const count = button.querySelector('[data-planning-filter-count]')
+      if (!(label instanceof HTMLElement) || !(count instanceof HTMLElement)) return false
+      const labelRect = label.getBoundingClientRect()
+      const countRect = count.getBoundingClientRect()
+      return !(
+        labelRect.right <= countRect.left ||
+        countRect.right <= labelRect.left ||
+        labelRect.bottom <= countRect.top ||
+        countRect.bottom <= labelRect.top
+      )
+    })
     return {
       hasPlanningBacklog: visible(planningBacklog),
-      hasStates:
-        /Ready for Gmail draft/i.test(text) &&
-        /Ready for manual social/i.test(text) &&
-        /Needs relationship review/i.test(text) &&
-        /Waiting on response/i.test(text) &&
-        /Suppressed\/blocked/i.test(text) &&
-        /SMS parked/i.test(text),
+      hasCompactFilterControls:
+        visible(filterGroup) &&
+        filterButtons.length === 7 &&
+        /All/i.test(filterGroup?.textContent || '') &&
+        /Ready Gmail/i.test(filterGroup?.textContent || '') &&
+        /Manual/i.test(filterGroup?.textContent || '') &&
+        /Relationship/i.test(filterGroup?.textContent || '') &&
+        /Responses/i.test(filterGroup?.textContent || '') &&
+        /Blocked/i.test(filterGroup?.textContent || '') &&
+        /SMS parked/i.test(filterGroup?.textContent || ''),
+      overlappingFilterControls,
+      filterTextOverflow,
+      filterLabelCountOverlap,
       hasSafeCta: visible(currentCta) && /Plan review batch/.test(currentCta?.textContent || ''),
       hasBoundary:
         /Gmail drafts: off/i.test(text) &&
@@ -1039,11 +1077,11 @@ await addSideText(desktop.page)
 const desktopPlanningBacklog = desktop.page.getByLabel('Warm outreach planning backlog')
 await desktopPlanningBacklog.evaluate((element) => element.scrollIntoView({ block: 'center' }))
 await desktop.page.waitForTimeout(700)
-await activateButton(desktop.page.getByRole('button', { name: 'Show SMS parked candidates' }))
+await activateButton(desktop.page.getByRole('button', { name: /Show SMS parked candidates/ }))
 await desktopPlanningBacklog.getByText('Kofi Phoneparked').waitFor({ timeout: 10_000 })
 await desktop.page.waitForTimeout(700)
 await desktopPlanningBacklog.evaluate((element) => element.scrollIntoView({ block: 'center' }))
-await activateButton(desktopPlanningBacklog.getByRole('button', { name: 'Show Ready for Gmail draft candidates' }))
+await activateButton(desktopPlanningBacklog.getByRole('button', { name: /Show Ready for Gmail draft candidates/ }))
 await activateButton(desktopPlanningBacklog.getByRole('button', { name: 'Plan review batch (2)' }))
 await desktop.page.getByLabel('Warm batch review').waitFor({ timeout: 15_000 })
 await desktop.page.getByLabel('Warm planned draft actions').waitFor({ timeout: 15_000 })
@@ -1061,7 +1099,7 @@ if (
 await desktop.page.getByText('Gmail batch draft plan').waitFor({ timeout: 10_000 })
 await desktop.page.waitForTimeout(800)
 await desktopPlanningBacklog.evaluate((element) => element.scrollIntoView({ block: 'center' }))
-await activateButton(desktop.page.getByRole('button', { name: 'Show Ready for manual social candidates' }))
+await activateButton(desktop.page.getByRole('button', { name: /Show Ready for manual social candidates/ }))
 await activateButton(desktop.page.getByRole('button', { name: 'Plan review batch for Nia Manualsocial' }))
 const desktopWorkroom = desktop.page.getByRole('region', { name: 'Outreach workroom for Nia Manualsocial' })
 await desktopWorkroom.waitFor({ timeout: 15_000 })
@@ -1097,7 +1135,10 @@ if (externalRequests.length > 0) {
 
 const failedViewport = viewportRuns.find((run) =>
   !run.checks.hasPlanningBacklog ||
-  !run.checks.hasStates ||
+  !run.checks.hasCompactFilterControls ||
+  run.checks.overlappingFilterControls.length > 0 ||
+  run.checks.filterTextOverflow ||
+  run.checks.filterLabelCountOverlap ||
   !run.checks.hasSafeCta ||
   !run.checks.hasBoundary ||
   !run.actionChecks.hasActionTray ||
@@ -1118,8 +1159,9 @@ const receipt = {
   qaUrl,
   scenario: 'Planning backlog operator opens warm leads, filters planning states, prepares review-only draft action packets, and opens manual-social workroom state.',
   expectedBehavior: [
-    'Planning backlog shows Ready for Gmail draft, Ready for manual social, Needs relationship review, Waiting on response, Suppressed/blocked, and SMS parked counts.',
-    'Clicking summary counts visibly drills into the matching candidate set.',
+    'Planning backlog shows All, Ready Gmail, Manual, Relationship, Responses, Blocked, and SMS parked as compact count filters without standalone number tiles.',
+    'Clicking filter chips visibly drills into the matching candidate set.',
+    'Compact filter labels and counts do not overlap at mobile widths 360, 390, and 430.',
     'The primary CTA prepares a review-only batch and the planned draft action tray appears above the long review context.',
     'The action tray shows Gmail draft plan, manual handoff, response follow-up, relationship review, and parked SMS counts.',
     'Action CTAs point to existing Portfolio surfaces; no standalone queue, calendar, or dashboard is created.',

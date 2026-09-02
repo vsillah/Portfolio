@@ -43,8 +43,38 @@ function channelLabel(channel: WarmOutreachPlanningBacklogCandidate['recommended
   return 'SMS'
 }
 
-function compactLabel(value: string) {
-  return value.replace(/_/g, ' ')
+function planningFilterLabel(state: WarmOutreachPlanningBacklogState) {
+  if (state === 'ready_gmail_draft') return 'Ready Gmail'
+  if (state === 'ready_manual_social') return 'Manual'
+  if (state === 'needs_relationship_review') return 'Relationship'
+  if (state === 'waiting_on_response') return 'Responses'
+  if (state === 'suppressed_blocked') return 'Blocked'
+  return 'SMS parked'
+}
+
+function draftReadinessLabel(value: WarmOutreachPlanningBacklogCandidate['draftReadiness']) {
+  if (value === 'ready_for_review_batch') return 'Draft ready'
+  if (value === 'existing_draft') return 'Draft exists'
+  if (value === 'approval_needed') return 'Approval needed'
+  if (value === 'response_waiting') return 'Response follow-up'
+  if (value === 'relationship_review_needed') return 'Relationship review'
+  if (value === 'blocked') return 'Blocked'
+  return 'Parked'
+}
+
+function approvalStateLabel(value: WarmOutreachPlanningBacklogCandidate['approvalState']) {
+  if (value === 'needs_approval') return 'Needs approval'
+  if (value === 'approved') return 'Approved'
+  if (value === 'submitted_evidence_recorded') return 'Evidence recorded'
+  if (value === 'blocked') return 'Blocked'
+  return 'No approval request'
+}
+
+function responseStatusLabel(value: WarmOutreachPlanningBacklogCandidate['responseStatus']) {
+  if (value === 'reply_detected') return 'Reply detected'
+  if (value === 'waiting') return 'Waiting response'
+  if (value === 'blocked') return 'Blocked'
+  return 'No response'
 }
 
 function stateClasses(state: WarmOutreachPlanningBacklogState) {
@@ -80,6 +110,7 @@ export default function WarmPlanningBacklogPanel({
     activeState === 'all'
       ? backlog.candidates
       : backlog.candidates.filter((candidate) => candidate.states.includes(activeState))
+  const totalCandidates = backlog.candidates.length
 
   return (
     <section
@@ -99,7 +130,32 @@ export default function WarmPlanningBacklogPanel({
               external requests {backlog.executionBoundary.externalRequests.length}
             </span>
           </div>
-          <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-6">
+          <div
+            className="mt-3 flex max-w-full flex-wrap gap-1.5"
+            role="group"
+            aria-label="Warm planning state filters"
+          >
+            <button
+              type="button"
+              onClick={() => onStateChange('all')}
+              className={`inline-flex min-h-8 max-w-full items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors ${
+                activeState === 'all'
+                  ? 'border-radiant-gold bg-radiant-gold/15 text-radiant-gold'
+                  : 'border-silicon-slate/70 bg-background/40 text-muted-foreground hover:border-radiant-gold/50 hover:text-foreground'
+              }`}
+              aria-pressed={activeState === 'all'}
+              aria-label={`Show all warm planning candidates (${totalCandidates})`}
+            >
+              <span data-planning-filter-label className="whitespace-nowrap">
+                All
+              </span>
+              <span
+                data-planning-filter-count
+                className="inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full border border-current/25 bg-background/30 px-1.5 text-[10px] font-semibold tabular-nums"
+              >
+                {totalCandidates}
+              </span>
+            </button>
             {STATE_ORDER.map((state) => {
               const active = activeState === state
               return (
@@ -107,18 +163,26 @@ export default function WarmPlanningBacklogPanel({
                   key={state}
                   type="button"
                   onClick={() => onStateChange(active ? 'all' : state)}
-                  className={`min-w-0 rounded-md border px-2.5 py-2 text-left transition-colors ${
+                  className={`inline-flex min-h-8 max-w-full items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors ${
                     active
                       ? 'border-radiant-gold bg-radiant-gold/15 text-radiant-gold'
                       : 'border-silicon-slate/70 bg-background/40 text-muted-foreground hover:border-radiant-gold/50 hover:text-foreground'
                   }`}
                   aria-pressed={active}
-                  aria-label={`Show ${backlog.filterLabels[state]} candidates`}
+                  aria-label={`Show ${backlog.filterLabels[state]} candidates (${backlog.counts[state]})`}
                 >
-                  <span className="block truncate text-[10px] font-semibold uppercase tracking-wide">
-                    {backlog.filterLabels[state]}
+                  <span className="shrink-0">
+                    <StateIcon state={state} />
                   </span>
-                  <span className="mt-1 block text-lg font-semibold">{backlog.counts[state]}</span>
+                  <span data-planning-filter-label className="whitespace-nowrap">
+                    {planningFilterLabel(state)}
+                  </span>
+                  <span
+                    data-planning-filter-count
+                    className="inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full border border-current/25 bg-background/30 px-1.5 text-[10px] font-semibold tabular-nums"
+                  >
+                    {backlog.counts[state]}
+                  </span>
                 </button>
               )
             })}
@@ -200,13 +264,13 @@ export default function WarmPlanningBacklogPanel({
                     {channelLabel(candidate.recommendedChannel)}
                   </span>
                   <span className="rounded-full border border-silicon-slate/70 bg-background/35 px-2 py-0.5">
-                    Draft: {compactLabel(candidate.draftReadiness)}
+                    {draftReadinessLabel(candidate.draftReadiness)}
                   </span>
                   <span className="rounded-full border border-silicon-slate/70 bg-background/35 px-2 py-0.5">
-                    Approval: {compactLabel(candidate.approvalState)}
+                    {approvalStateLabel(candidate.approvalState)}
                   </span>
                   <span className="rounded-full border border-silicon-slate/70 bg-background/35 px-2 py-0.5">
-                    Response: {compactLabel(candidate.responseStatus)}
+                    {responseStatusLabel(candidate.responseStatus)}
                   </span>
                 </div>
                 {candidate.blockers.length > 0 && (
