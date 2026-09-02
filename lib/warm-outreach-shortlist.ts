@@ -118,6 +118,69 @@ export type WarmOutreachOfficeDigest = {
   }
 }
 
+export type WarmOutreachPlanningBacklogState =
+  | 'ready_gmail_draft'
+  | 'ready_manual_social'
+  | 'needs_relationship_review'
+  | 'waiting_on_response'
+  | 'suppressed_blocked'
+  | 'sms_parked'
+
+export type WarmOutreachPlanningBacklogCandidate = {
+  contactId: number
+  contactName: string
+  company: string | null
+  relationshipBasis: string
+  recommendedChannel: 'gmail' | 'linkedin' | 'facebook' | 'phone_contact' | 'sms'
+  draftReadiness:
+    | 'ready_for_review_batch'
+    | 'existing_draft'
+    | 'approval_needed'
+    | 'response_waiting'
+    | 'relationship_review_needed'
+    | 'blocked'
+    | 'sms_parked'
+  approvalState:
+    | 'not_requested'
+    | 'needs_approval'
+    | 'approved'
+    | 'submitted_evidence_recorded'
+    | 'blocked'
+  responseStatus: 'no_response' | 'waiting' | 'reply_detected' | 'blocked'
+  states: WarmOutreachPlanningBacklogState[]
+  blockers: string[]
+  batchEligible: boolean
+  nextActionLabel: string
+  ctaHref: string
+}
+
+export type WarmOutreachPlanningBacklog = {
+  version: 'warm-outreach-planning-backlog/v1'
+  planningWindowLabel: string
+  filterLabels: Record<WarmOutreachPlanningBacklogState, string>
+  counts: Record<WarmOutreachPlanningBacklogState, number>
+  currentCta: {
+    key: 'prepare_planning_review_batch' | 'review_relationship_blockers' | 'review_waiting_responses' | 'none'
+    label: string
+    enabled: boolean
+    reason: string
+    contactIds: number[]
+    state: WarmOutreachPlanningBacklogState | null
+  }
+  candidates: WarmOutreachPlanningBacklogCandidate[]
+  executionBoundary: {
+    localPortfolioPlanOnly: true
+    providerCallsEnabled: false
+    createsGmailDrafts: false
+    externalSendEnabled: false
+    slackDispatchEnabled: false
+    smsDeliveryEnabled: false
+    n8nDispatchEnabled: false
+    productionDataMutation: false
+    externalRequests: []
+  }
+}
+
 export type WarmOutreachShortlist = {
   generatedFor: string
   items: WarmOutreachShortlistItem[]
@@ -128,6 +191,7 @@ export type WarmOutreachShortlist = {
     submittedCount: number
   }
   officeDigest: WarmOutreachOfficeDigest
+  planningBacklog: WarmOutreachPlanningBacklog
 }
 
 const BLOCKER_LABELS: Record<WarmOutreachShortlistBlockerKey, string> = {
@@ -144,6 +208,15 @@ const SUBMITTED_STATUSES = new Set(['sent', 'submitted', 'delivered'])
 const APPROVED_STATUSES = new Set(['approved', 'send_authorized', 'authorized'])
 const APPROVAL_PENDING_STATUSES = new Set(['approval_requested', 'pending_approval'])
 const DRAFT_STATUSES = new Set(['draft', 'queued'])
+
+const PLANNING_BACKLOG_FILTER_LABELS: Record<WarmOutreachPlanningBacklogState, string> = {
+  ready_gmail_draft: 'Ready for Gmail draft',
+  ready_manual_social: 'Ready for manual social',
+  needs_relationship_review: 'Needs relationship review',
+  waiting_on_response: 'Waiting on response',
+  suppressed_blocked: 'Suppressed/blocked',
+  sms_parked: 'SMS parked',
+}
 
 function text(value: string | null | undefined): string | null {
   const trimmed = value?.trim()
@@ -402,7 +475,7 @@ function buildOfficeDigest(args: {
 
   return {
     version: 'warm-response-digest/v1',
-    operatingWindowLabel: `Warm outreach office window for ${args.generatedFor}`,
+    operatingWindowLabel: `Warm outreach planning window for ${args.generatedFor}`,
     counts: {
       drafted: args.warmLeads.filter((lead) => {
         const draftStatus = text(latestDraft(lead)?.status)?.toLowerCase()
@@ -458,6 +531,218 @@ function buildOfficeDigest(args: {
   }
 }
 
+function planningBacklogCandidateFor(
+  lead: WarmOutreachShortlistLead,
+  item: Omit<WarmOutreachShortlistItem, 'priorityRank'>,
+): WarmOutreachPlanningBacklogCandidate {
+  const status = text(lead.outreach_status)?.toLowerCase()
+  const draftStatus = text(latestDraft(lead)?.status)?.toLowerCase()
+  const suppressed =
+    lead.do_not_contact ||
+    Boolean(lead.removed_at) ||
+    status === 'opted_out' ||
+    status === 'unsubscribed'
+  const missingEmail = !text(lead.email)
+  const weakBasis = item.blockers.some((blocker) => blocker.key === 'weak_relationship_basis')
+  const submitted =
+    lead.messages_sent > 0 ||
+    Boolean(draftStatus && SUBMITTED_STATUSES.has(draftStatus)) ||
+    item.blockers.some((blocker) => blocker.key === 'submitted_evidence_exists')
+  const replyDetected = lead.has_reply || status === 'replied'
+  const existingDraft = Boolean(draftStatus && DRAFT_STATUSES.has(draftStatus))
+  const approvalNeeded = Boolean(draftStatus && APPROVAL_PENDING_STATUSES.has(draftStatus))
+  const approved = Boolean(draftStatus && APPROVED_STATUSES.has(draftStatus))
+  const gmailReady =
+    Boolean(text(lead.email)) &&
+    !suppressed &&
+    !weakBasis &&
+    !submitted &&
+    !replyDetected &&
+    !existingDraft &&
+    !approvalNeeded &&
+    !approved
+  const manualSocialReady =
+    !gmailReady &&
+    !suppressed &&
+    !weakBasis &&
+    !submitted &&
+    !replyDetected &&
+    Boolean(lead.linkedin_url || lead.lead_source?.includes('facebook') || lead.phone_number)
+  const smsParked = Boolean(lead.phone_number)
+  const states = new Set<WarmOutreachPlanningBacklogState>()
+
+  if (suppressed || missingEmail && !manualSocialReady) states.add('suppressed_blocked')
+  if (replyDetected || submitted) states.add('waiting_on_response')
+  if (weakBasis) states.add('needs_relationship_review')
+  if (gmailReady) states.add('ready_gmail_draft')
+  if (manualSocialReady) states.add('ready_manual_social')
+  if (smsParked) states.add('sms_parked')
+  if (states.size === 0) states.add('needs_relationship_review')
+
+  const recommendedChannel: WarmOutreachPlanningBacklogCandidate['recommendedChannel'] =
+    gmailReady || text(lead.email)
+      ? 'gmail'
+      : lead.linkedin_url
+        ? 'linkedin'
+        : lead.lead_source?.includes('facebook')
+          ? 'facebook'
+          : lead.phone_number
+            ? 'phone_contact'
+            : 'sms'
+  const draftReadiness: WarmOutreachPlanningBacklogCandidate['draftReadiness'] =
+    suppressed
+      ? 'blocked'
+      : replyDetected || submitted
+        ? 'response_waiting'
+        : weakBasis || missingEmail && !manualSocialReady
+          ? 'relationship_review_needed'
+          : approvalNeeded || approved
+            ? 'approval_needed'
+            : existingDraft
+              ? 'existing_draft'
+              : smsParked && !gmailReady && !manualSocialReady
+                ? 'sms_parked'
+                : 'ready_for_review_batch'
+  const approvalState: WarmOutreachPlanningBacklogCandidate['approvalState'] =
+    suppressed || weakBasis
+      ? 'blocked'
+      : submitted
+        ? 'submitted_evidence_recorded'
+        : approved
+          ? 'approved'
+          : approvalNeeded || existingDraft
+            ? 'needs_approval'
+            : 'not_requested'
+  const responseStatus: WarmOutreachPlanningBacklogCandidate['responseStatus'] =
+    suppressed
+      ? 'blocked'
+      : replyDetected
+        ? 'reply_detected'
+        : submitted
+          ? 'waiting'
+          : 'no_response'
+  const blockers = [
+    ...item.blockers
+      .filter((blocker) => blocker.key !== 'provider_not_connected')
+      .map((blocker) => blocker.label),
+    ...(text(lead.email) ? [] : ['No Gmail address']),
+    ...(smsParked ? ['SMS parked until Telnyx readiness clears'] : []),
+  ]
+  const batchEligible = gmailReady || manualSocialReady
+
+  return {
+    contactId: item.contactId,
+    contactName: item.contactName,
+    company: item.company,
+    relationshipBasis: item.relationshipBasis,
+    recommendedChannel,
+    draftReadiness,
+    approvalState,
+    responseStatus,
+    states: Array.from(states),
+    blockers,
+    batchEligible,
+    nextActionLabel: batchEligible
+      ? 'Plan review batch'
+      : states.has('suppressed_blocked')
+        ? 'Review suppression state'
+        : responseStatus !== 'no_response'
+        ? 'Review response state'
+        : draftReadiness === 'relationship_review_needed'
+          ? 'Review relationship basis'
+          : 'Open contact review',
+    ctaHref: item.cta.href,
+  }
+}
+
+function buildPlanningBacklog(args: {
+  generatedFor: string
+  items: Array<Omit<WarmOutreachShortlistItem, 'priorityRank'>>
+  warmLeads: WarmOutreachShortlistLead[]
+}): WarmOutreachPlanningBacklog {
+  const candidates = args.items.map((item) => {
+    const lead = args.warmLeads.find((candidate) => candidate.id === item.contactId)
+    return lead ? planningBacklogCandidateFor(lead, item) : null
+  }).filter(Boolean) as WarmOutreachPlanningBacklogCandidate[]
+  const counts = Object.keys(PLANNING_BACKLOG_FILTER_LABELS).reduce((acc, key) => {
+    const state = key as WarmOutreachPlanningBacklogState
+    acc[state] = candidates.filter((candidate) => candidate.states.includes(state)).length
+    return acc
+  }, {} as Record<WarmOutreachPlanningBacklogState, number>)
+  const readyGmail = candidates.filter((candidate) => candidate.states.includes('ready_gmail_draft') && candidate.batchEligible)
+  const readyManual = candidates.filter((candidate) => candidate.states.includes('ready_manual_social') && candidate.batchEligible)
+  const waiting = candidates.filter((candidate) => candidate.states.includes('waiting_on_response'))
+  const blockers = candidates.filter((candidate) => candidate.states.includes('needs_relationship_review') || candidate.states.includes('suppressed_blocked'))
+  const selected =
+    readyGmail.length > 0
+      ? { state: 'ready_gmail_draft' as const, rows: readyGmail }
+      : readyManual.length > 0
+        ? { state: 'ready_manual_social' as const, rows: readyManual }
+        : waiting.length > 0
+          ? { state: 'waiting_on_response' as const, rows: waiting }
+          : blockers.length > 0
+            ? { state: 'needs_relationship_review' as const, rows: blockers }
+            : null
+  const batchContactIds = selected?.rows
+    .filter((candidate) => candidate.batchEligible)
+    .slice(0, 8)
+    .map((candidate) => candidate.contactId) ?? []
+
+  return {
+    version: 'warm-outreach-planning-backlog/v1',
+    planningWindowLabel: `Warm outreach backlog for ${args.generatedFor}`,
+    filterLabels: PLANNING_BACKLOG_FILTER_LABELS,
+    counts,
+    currentCta: selected && batchContactIds.length > 0
+      ? {
+          key: 'prepare_planning_review_batch',
+          label: `Plan review batch (${batchContactIds.length})`,
+          enabled: true,
+          reason: `Internal review plan for ${PLANNING_BACKLOG_FILTER_LABELS[selected.state].toLowerCase()} contacts; no drafts or sends are created.`,
+          contactIds: batchContactIds,
+          state: selected.state,
+        }
+      : selected?.state === 'waiting_on_response'
+        ? {
+            key: 'review_waiting_responses',
+            label: 'Review waiting responses',
+            enabled: false,
+            reason: 'Responses need per-contact review before another batch is planned.',
+            contactIds: [],
+            state: selected.state,
+          }
+        : selected
+          ? {
+              key: 'review_relationship_blockers',
+              label: 'Review relationship blockers',
+              enabled: false,
+              reason: 'No visible contact is ready for an internal review batch plan.',
+              contactIds: [],
+              state: selected.state,
+            }
+          : {
+              key: 'none',
+              label: 'No batch action',
+              enabled: false,
+              reason: 'No warm contacts are visible in the current filter.',
+              contactIds: [],
+              state: null,
+            },
+    candidates,
+    executionBoundary: {
+      localPortfolioPlanOnly: true,
+      providerCallsEnabled: false,
+      createsGmailDrafts: false,
+      externalSendEnabled: false,
+      slackDispatchEnabled: false,
+      smsDeliveryEnabled: false,
+      n8nDispatchEnabled: false,
+      productionDataMutation: false,
+      externalRequests: [],
+    },
+  }
+}
+
 export function buildWarmOutreachShortlist(
   leads: WarmOutreachShortlistLead[],
   options: { limit?: number; today?: string } = {},
@@ -489,6 +774,11 @@ export function buildWarmOutreachShortlist(
   const items = allItems
     .slice(0, options.limit ?? 15)
     .map((item, index) => ({ ...item, priorityRank: index + 1 }))
+  const planningBacklog = buildPlanningBacklog({
+    generatedFor,
+    warmLeads,
+    items: allItems,
+  })
 
   return {
     generatedFor,
@@ -500,5 +790,6 @@ export function buildWarmOutreachShortlist(
       submittedCount: allItems.filter((item) => item.status === 'submitted').length,
     },
     officeDigest: buildOfficeDigest({ generatedFor, warmLeads, items: allItems }),
+    planningBacklog,
   }
 }
