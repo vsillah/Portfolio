@@ -139,6 +139,23 @@ describe('warm outreach response monitoring', () => {
         n8nDispatchEnabled: false,
       },
     })
+    expect(monitoring.responseDigest).toMatchObject({
+      version: 'warm-outreach-response-digest/v1',
+      state: 'reply_detected',
+      label: 'Reply detected',
+      classification: {
+        responseClass: null,
+        label: 'Reply detected',
+      },
+      nextBestAction: {
+        ctaLabel: 'Classify response',
+      },
+      readiness: {
+        providerMonitoringEnabled: false,
+        externalSendEnabled: false,
+        slackDispatchEnabled: false,
+      },
+    })
     expect(monitoring.evidence).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -332,6 +349,21 @@ describe('warm outreach response monitoring', () => {
       state: 'stale_follow_up_review',
       requiresHumanApproval: true,
     })
+    expect(monitoring.responseDigest).toMatchObject({
+      state: 'empty_no_response',
+      label: 'No response yet',
+      classification: {
+        responseClass: null,
+        label: 'No response',
+      },
+      followUpDraft: {
+        state: 'not_available',
+      },
+      suppressionProposal: {
+        state: 'not_applicable',
+        mutatesSuppression: false,
+      },
+    })
   })
 
   it('fails closed for suppressed contacts before send-readiness state', () => {
@@ -359,6 +391,20 @@ describe('warm outreach response monitoring', () => {
       },
     })
     expect(monitoring.blockedReasons).toContain('Manual DNC review is active.')
+    expect(monitoring.responseDigest).toMatchObject({
+      state: 'blocked',
+      label: 'Response follow-up blocked',
+      nextBestAction: {
+        ctaLabel: 'Resolve blocker',
+      },
+      suppressionProposal: {
+        state: 'blocked_contact_state',
+        mutatesSuppression: false,
+      },
+      followUpDraft: {
+        state: 'blocked',
+      },
+    })
     expect(monitoring.providerCaptureReadiness).toMatchObject({
       state: 'blocked',
       label: 'Response capture blocked by contact readiness',
@@ -386,6 +432,154 @@ describe('warm outreach response monitoring', () => {
       expect(channel.externalSendEnabled).toBe(false)
       expect(channel.providerExecutionEnabled).toBe(false)
     }
+  })
+
+  it('surfaces follow-up draft readiness from local reply-draft evidence', () => {
+    const inputPacket = packet()
+    const monitoring = buildWarmOutreachResponseMonitoring({
+      contactId: 42,
+      packet: inputPacket,
+      readiness: evaluateWarmOutreachReadiness(inputPacket),
+      rows: {
+        contactCommunications: [
+          {
+            id: 'comm-response',
+            channel: 'email',
+            direction: 'inbound',
+            message_type: 'reply',
+            subject: 'Re: hello',
+            status: 'replied',
+            sent_at: '2026-08-24T12:00:00.000Z',
+            source_system: 'manual',
+            source_id: 'warm-outreach:reply:manual:abc123',
+            metadata: {
+              lifecycle: 'warm_outreach_response',
+              response_class: 'interested',
+              response_class_label: 'Interested',
+              classification_confidence: 0.9,
+              recommended_next_action: {
+                label: 'Offer a quick call',
+                description: 'Review the interested reply and approve the local response draft.',
+                priority: 'high',
+              },
+            },
+          },
+          {
+            id: 'comm-draft',
+            channel: 'email',
+            direction: 'outbound',
+            message_type: 'follow_up',
+            subject: 'Draft reply: Interested',
+            status: 'draft',
+            created_at: '2026-08-24T12:01:00.000Z',
+            source_system: 'manual',
+            source_id: 'warm-outreach:reply-draft:def456',
+            metadata: {
+              lifecycle: 'warm_outreach_reply_draft',
+              approval_state: 'pending_human_qa',
+            },
+          },
+        ],
+      },
+      now: new Date('2026-08-26T12:00:00.000Z'),
+    })
+
+    expect(monitoring.responseDigest).toMatchObject({
+      state: 'follow_up_draft_ready',
+      label: 'Follow-up draft ready',
+      classification: {
+        responseClass: 'interested',
+        label: 'Interested',
+        confidence: 0.9,
+        sourceId: 'comm-response',
+      },
+      nextBestAction: {
+        label: 'Offer a quick call',
+        priority: 'high',
+        ctaLabel: 'Review reply draft',
+      },
+      followUpDraft: {
+        state: 'ready_for_review',
+        subject: 'Draft reply: Interested',
+        sourceId: 'comm-draft',
+        idempotencyKey: 'warm-outreach:reply-draft:def456',
+      },
+      readiness: {
+        localReplyDraftReady: true,
+        providerMonitoringEnabled: false,
+      },
+    })
+  })
+
+  it('surfaces suppression proposal visibility for hold and sensitive reply classifications', () => {
+    const inputPacket = packet()
+    const hold = buildWarmOutreachResponseMonitoring({
+      contactId: 42,
+      packet: inputPacket,
+      readiness: evaluateWarmOutreachReadiness(inputPacket),
+      rows: {
+        contactCommunications: [
+          {
+            id: 'comm-hold',
+            channel: 'email',
+            direction: 'inbound',
+            message_type: 'reply',
+            subject: 'Re: hello',
+            status: 'replied',
+            sent_at: '2026-08-24T12:00:00.000Z',
+            source_system: 'manual',
+            source_id: 'warm-outreach:reply:manual:not-now',
+            metadata: {
+              lifecycle: 'warm_outreach_response',
+              response_class: 'not_now',
+              response_class_label: 'Not now',
+            },
+          },
+        ],
+      },
+    })
+    const sensitive = buildWarmOutreachResponseMonitoring({
+      contactId: 42,
+      packet: inputPacket,
+      readiness: evaluateWarmOutreachReadiness(inputPacket),
+      rows: {
+        contactCommunications: [
+          {
+            id: 'comm-sensitive',
+            channel: 'email',
+            direction: 'inbound',
+            message_type: 'reply',
+            subject: 'Re: hello',
+            status: 'replied',
+            sent_at: '2026-08-24T12:00:00.000Z',
+            source_system: 'manual',
+            source_id: 'warm-outreach:reply:manual:sensitive',
+            metadata: {
+              lifecycle: 'warm_outreach_response',
+              response_class: 'negative_sensitive',
+              response_class_label: 'Negative / sensitive',
+            },
+          },
+        ],
+      },
+    })
+
+    expect(hold.responseDigest).toMatchObject({
+      state: 'suppression_proposal',
+      suppressionProposal: {
+        state: 'recommended_hold_review',
+        actionLabel: 'Review hold / not-now timing',
+        mutatesSuppression: false,
+      },
+    })
+    expect(sensitive.responseDigest).toMatchObject({
+      state: 'suppression_proposal',
+      suppressionProposal: {
+        state: 'sensitive_handling_review',
+        actionLabel: 'Review sensitive handling',
+        mutatesSuppression: false,
+      },
+    })
   })
 
   it('keeps per-recipient idempotency stable and distinct for warm 1:many recipients', () => {

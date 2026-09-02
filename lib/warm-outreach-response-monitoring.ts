@@ -15,6 +15,10 @@ import {
   buildWarmGmailOperatingLoop,
   type WarmGmailOperatingLoop,
 } from './warm-outreach-gmail-operating-loop'
+import {
+  WARM_OUTREACH_RESPONSE_CLASSES,
+  type WarmOutreachResponseClass,
+} from './warm-outreach-response-lifecycle'
 
 type PortfolioRow = Record<string, unknown>
 
@@ -639,6 +643,7 @@ export type WarmOutreachResponseMonitoring = {
     requiresHumanApproval: true
     idempotencyKey: string
   }
+  responseDigest: WarmOutreachResponseDigest
   providerCaptureReadiness: {
     version: 'warm-outreach-provider-response-capture-readiness/v1'
     state: 'manual_capture_ready' | 'provider_assisted_readiness' | 'blocked'
@@ -711,6 +716,57 @@ export type WarmOutreachResponseMonitoring = {
     phoneActionEnabled: false
     slackActionEnabled: false
     n8nDispatchEnabled: false
+  }
+}
+
+export type WarmOutreachResponseDigest = {
+  version: 'warm-outreach-response-digest/v1'
+  state:
+    | 'empty_no_response'
+    | 'reply_detected'
+    | 'follow_up_draft_ready'
+    | 'blocked'
+    | 'suppression_proposal'
+  label: string
+  classification: {
+    responseClass: WarmOutreachResponseClass | null
+    label: string
+    confidence: number | null
+    sourceId: string | null
+  }
+  nextBestAction: {
+    label: string
+    description: string
+    priority: 'low' | 'medium' | 'high' | 'urgent'
+    ctaLabel: string
+  }
+  followUpDraft: {
+    state: 'not_available' | 'ready_for_review' | 'blocked'
+    subject: string | null
+    approvalState: 'pending_human_qa' | 'not_available'
+    sourceId: string | null
+    idempotencyKey: string | null
+    detail: string
+  }
+  suppressionProposal: {
+    state:
+      | 'not_applicable'
+      | 'recommended_hold_review'
+      | 'pending_do_not_contact_review'
+      | 'sensitive_handling_review'
+      | 'blocked_contact_state'
+    actionLabel: string
+    reason: string
+    idempotencyKey: string | null
+    requiresHumanApproval: true
+    mutatesSuppression: false
+  }
+  readiness: {
+    manualCaptureEnabled: boolean
+    localReplyDraftReady: boolean
+    providerMonitoringEnabled: false
+    externalSendEnabled: false
+    slackDispatchEnabled: false
   }
 }
 
@@ -855,6 +911,225 @@ function taskEvidence(row: PortfolioRow) {
     status,
     summary: `${title} (${status}).`,
     evidenceType: 'local_follow_up' as const,
+  }
+}
+
+const RESPONSE_CLASS_SET = new Set<string>(WARM_OUTREACH_RESPONSE_CLASSES)
+
+function responseClassFromRow(row: PortfolioRow | null): WarmOutreachResponseClass | null {
+  if (!row) return null
+  const rowMetadata = metadata(row)
+  const candidate = text(rowMetadata.response_class) ?? text(row.response_class)
+  return candidate && RESPONSE_CLASS_SET.has(candidate) ? candidate as WarmOutreachResponseClass : null
+}
+
+function classificationLabelFor(row: PortfolioRow | null, responseClass: WarmOutreachResponseClass | null): string {
+  if (!row) return 'No response'
+  const rowMetadata = metadata(row)
+  const label = text(rowMetadata.response_class_label)
+  if (label) return label
+  if (!responseClass) return 'Reply detected'
+  return responseClass
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, (char) => char.toUpperCase())
+}
+
+function numberValue(value: unknown): number | null {
+  if (typeof value === 'number' && Number.isFinite(value)) return value
+  if (typeof value === 'string') {
+    const parsed = Number(value)
+    return Number.isFinite(parsed) ? parsed : null
+  }
+  return null
+}
+
+function isReplyDraftEvidence(row: PortfolioRow): boolean {
+  const rowMetadata = metadata(row)
+  const source = text(row.source_id)?.toLowerCase()
+  const lifecycle = text(rowMetadata.lifecycle)
+  const messageType = text(row.message_type)?.toLowerCase()
+  const direction = text(row.direction)?.toLowerCase()
+  const status = text(row.status)?.toLowerCase()
+  return (
+    lifecycle === 'warm_outreach_reply_draft' ||
+    Boolean(source?.startsWith('warm-outreach:reply-draft:')) ||
+    (messageType === 'follow_up' && direction === 'outbound' && status === 'draft')
+  )
+}
+
+function recommendedActionFromResponse(row: PortfolioRow | null) {
+  const action = record(metadata(row ?? {}).recommended_next_action)
+  return {
+    label: text(action.label),
+    description: text(action.description),
+    priority: text(action.priority),
+  }
+}
+
+function suppressionProposalFor(args: {
+  blockedReasons: string[]
+  latestResponse: PortfolioRow | null
+  responseClass: WarmOutreachResponseClass | null
+}): WarmOutreachResponseDigest['suppressionProposal'] {
+  if (args.blockedReasons.length > 0) {
+    return {
+      state: 'blocked_contact_state',
+      actionLabel: 'Resolve suppression blocker',
+      reason: args.blockedReasons[0] ?? 'Contact suppression state blocks response follow-up.',
+      idempotencyKey: null,
+      requiresHumanApproval: true,
+      mutatesSuppression: false,
+    }
+  }
+
+  const proposal = record(metadata(args.latestResponse ?? {}).suppression_proposal)
+  const proposalKey = text(proposal.idempotencyKey) ?? text(proposal.idempotency_key)
+  if (args.responseClass === 'unsubscribe_do_not_contact') {
+    return {
+      state: 'pending_do_not_contact_review',
+      actionLabel: 'Review do-not-contact proposal',
+      reason:
+        text(proposal.reason) ??
+        'The captured reply asks for unsubscribe, removal, or no further contact.',
+      idempotencyKey: proposalKey,
+      requiresHumanApproval: true,
+      mutatesSuppression: false,
+    }
+  }
+
+  if (args.responseClass === 'not_now') {
+    return {
+      state: 'recommended_hold_review',
+      actionLabel: 'Review hold / not-now timing',
+      reason: 'The reply indicates a hold or not-now state; next-touch timing needs human review.',
+      idempotencyKey: null,
+      requiresHumanApproval: true,
+      mutatesSuppression: false,
+    }
+  }
+
+  if (args.responseClass === 'negative_sensitive') {
+    return {
+      state: 'sensitive_handling_review',
+      actionLabel: 'Review sensitive handling',
+      reason: 'The reply is negative or sensitive; human review must decide whether to hold, suppress, or respond.',
+      idempotencyKey: null,
+      requiresHumanApproval: true,
+      mutatesSuppression: false,
+    }
+  }
+
+  return {
+    state: 'not_applicable',
+    actionLabel: 'No suppression proposal',
+    reason: 'No hold, not-now, do-not-contact, or sensitive handling proposal is implied by the current evidence.',
+    idempotencyKey: null,
+    requiresHumanApproval: true,
+    mutatesSuppression: false,
+  }
+}
+
+function buildWarmOutreachResponseDigest(args: {
+  status: WarmOutreachResponseMonitoringStatus
+  blockedReasons: string[]
+  latestResponse: PortfolioRow | null
+  latestReplyDraft: PortfolioRow | null
+  proposedFollowUp: WarmOutreachResponseMonitoring['proposedFollowUp']
+  providerCaptureReadiness: WarmOutreachResponseMonitoring['providerCaptureReadiness']
+}): WarmOutreachResponseDigest {
+  const responseClass = responseClassFromRow(args.latestResponse)
+  const responseMetadata = metadata(args.latestResponse ?? {})
+  const recommendedAction = recommendedActionFromResponse(args.latestResponse)
+  const latestDraft = args.latestReplyDraft
+  const draftMetadata = metadata(latestDraft ?? {})
+  const suppressionProposal = suppressionProposalFor({
+    blockedReasons: args.blockedReasons,
+    latestResponse: args.latestResponse,
+    responseClass,
+  })
+  const followUpDraftReady = Boolean(latestDraft) && args.blockedReasons.length === 0
+  const state: WarmOutreachResponseDigest['state'] =
+    args.blockedReasons.length > 0
+      ? 'blocked'
+      : suppressionProposal.state !== 'not_applicable'
+        ? 'suppression_proposal'
+        : followUpDraftReady
+          ? 'follow_up_draft_ready'
+          : args.latestResponse
+            ? 'reply_detected'
+            : 'empty_no_response'
+
+  return {
+    version: 'warm-outreach-response-digest/v1',
+    state,
+    label:
+      state === 'blocked'
+        ? 'Response follow-up blocked'
+        : state === 'suppression_proposal'
+          ? suppressionProposal.actionLabel
+          : state === 'follow_up_draft_ready'
+            ? 'Follow-up draft ready'
+            : state === 'reply_detected'
+              ? 'Reply detected'
+              : 'No response yet',
+    classification: {
+      responseClass,
+      label: classificationLabelFor(args.latestResponse, responseClass),
+      confidence: numberValue(responseMetadata.classification_confidence),
+      sourceId: args.latestResponse ? sourceId(args.latestResponse, 'response-evidence') : null,
+    },
+    nextBestAction: {
+      label: recommendedAction.label ?? args.proposedFollowUp.label,
+      description: recommendedAction.description ?? args.proposedFollowUp.description,
+      priority:
+        recommendedAction.priority === 'urgent' ||
+        recommendedAction.priority === 'high' ||
+        recommendedAction.priority === 'medium' ||
+        recommendedAction.priority === 'low'
+          ? recommendedAction.priority
+          : args.status === 'blocked'
+            ? 'urgent'
+            : args.latestResponse
+              ? 'high'
+              : 'medium',
+      ctaLabel:
+        state === 'blocked'
+          ? 'Resolve blocker'
+          : state === 'suppression_proposal'
+            ? suppressionProposal.actionLabel
+            : state === 'follow_up_draft_ready'
+              ? 'Review reply draft'
+              : state === 'reply_detected'
+                ? 'Classify response'
+                : 'Capture response',
+    },
+    followUpDraft: {
+      state: args.blockedReasons.length > 0
+        ? 'blocked'
+        : followUpDraftReady
+          ? 'ready_for_review'
+          : 'not_available',
+      subject: latestDraft ? text(latestDraft.subject) : null,
+      approvalState: latestDraft ? 'pending_human_qa' : 'not_available',
+      sourceId: latestDraft ? sourceId(latestDraft, 'reply-draft') : null,
+      idempotencyKey: text(latestDraft?.source_id) ?? text(draftMetadata.replyDraftKey) ?? null,
+      detail:
+        args.blockedReasons.length > 0
+          ? args.blockedReasons[0] ?? 'Resolve blockers before reviewing a follow-up draft.'
+          : followUpDraftReady
+            ? 'A local reply draft is available for human QA. It is not a Gmail draft and cannot send externally.'
+            : args.latestResponse
+              ? 'Reply evidence exists, but no local follow-up draft row is attached yet.'
+              : 'No response evidence is recorded yet, so no reply draft is available.',
+    },
+    suppressionProposal,
+    readiness: {
+      manualCaptureEnabled: args.providerCaptureReadiness.providers.some((provider) => provider.manualCaptureEnabled),
+      localReplyDraftReady: followUpDraftReady,
+      providerMonitoringEnabled: false,
+      externalSendEnabled: false,
+      slackDispatchEnabled: false,
+    },
   }
 }
 
@@ -3144,10 +3419,12 @@ export function buildWarmOutreachResponseMonitoring(args: {
 }): WarmOutreachResponseMonitoring {
   const staleAfterDays = args.staleAfterDays ?? 7
   const now = args.now ?? new Date()
-  const inboundCommunicationRows = asRows(args.rows.contactCommunications).filter(isInboundResponse)
+  const communicationRows = asRows(args.rows.contactCommunications)
+  const inboundCommunicationRows = communicationRows.filter(isInboundResponse)
   const inboundEmailRows = asRows(args.rows.emailMessages).filter(isInboundResponse)
   const responseRows = [...inboundCommunicationRows, ...inboundEmailRows]
   const latestResponse = newestRow(responseRows)
+  const latestReplyDraft = newestRow(communicationRows.filter(isReplyDraftEvidence))
   const latestOutbound = newestRow(asRows(args.rows.outreachQueue))
   const latestOutboundAt = latestOutbound ? rowTimestamp(latestOutbound) : null
   const latestResponseAt = latestResponse ? rowTimestamp(latestResponse) : null
@@ -3236,6 +3513,14 @@ export function buildWarmOutreachResponseMonitoring(args: {
     latestResponse,
     latestOutbound,
   })
+  const responseDigest = buildWarmOutreachResponseDigest({
+    status,
+    blockedReasons,
+    latestResponse,
+    latestReplyDraft,
+    proposedFollowUp,
+    providerCaptureReadiness,
+  })
 
   return {
     version: 'warm-outreach-response-monitoring/v1',
@@ -3254,6 +3539,7 @@ export function buildWarmOutreachResponseMonitoring(args: {
     })}`,
     evidence,
     proposedFollowUp,
+    responseDigest,
     providerCaptureReadiness,
     operatorDecisionPaths,
     blockedReasons,

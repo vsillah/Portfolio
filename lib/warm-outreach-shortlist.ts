@@ -78,6 +78,46 @@ export type WarmOutreachShortlistItem = {
   }
 }
 
+export type WarmOutreachOfficeDigest = {
+  version: 'warm-response-digest/v1'
+  operatingWindowLabel: string
+  counts: {
+    drafted: number
+    approved: number
+    sent: number
+    replied: number
+    blocked: number
+    needsVambah: number
+  }
+  currentCta: {
+    key: WarmOutreachShortlistCtaKey | 'none'
+    label: string
+    contactId: number | null
+    contactName: string | null
+    enabled: boolean
+    reason: string
+    href: string | null
+  }
+  responseStates: Array<{
+    contactId: number
+    contactName: string
+    status: WarmOutreachShortlistItem['status']
+    classification: 'no_response' | 'reply_detected' | 'sent_waiting' | 'blocked' | 'draft_ready'
+    nextBestAction: string
+    followUpDraftReadiness: 'not_started' | 'draft_ready' | 'approval_needed' | 'approved' | 'blocked'
+    suppressionProposalVisible: boolean
+  }>
+  executionBoundary: {
+    localRowsOnly: true
+    providerMonitoringEnabled: false
+    providerCallsEnabled: false
+    externalSendEnabled: false
+    gmailDraftCreationEnabled: false
+    slackDispatchEnabled: false
+    externalRequests: []
+  }
+}
+
 export type WarmOutreachShortlist = {
   generatedFor: string
   items: WarmOutreachShortlistItem[]
@@ -87,6 +127,7 @@ export type WarmOutreachShortlist = {
     blockedCount: number
     submittedCount: number
   }
+  officeDigest: WarmOutreachOfficeDigest
 }
 
 const BLOCKER_LABELS: Record<WarmOutreachShortlistBlockerKey, string> = {
@@ -301,12 +342,129 @@ function recommendedNextAction(
   return 'Review relationship packet'
 }
 
+function responseStateFor(
+  lead: WarmOutreachShortlistLead,
+  item: Omit<WarmOutreachShortlistItem, 'priorityRank'>,
+): WarmOutreachOfficeDigest['responseStates'][number] {
+  const draftStatus = text(latestDraft(lead)?.status)?.toLowerCase()
+  const hasSuppressionProposal =
+    item.blockers.some((blocker) => blocker.key === 'suppression_risk') ||
+    lead.outreach_status?.toLowerCase() === 'opted_out'
+  const classification: WarmOutreachOfficeDigest['responseStates'][number]['classification'] =
+    item.status === 'blocked'
+      ? 'blocked'
+      : lead.has_reply
+        ? 'reply_detected'
+        : (draftStatus && SUBMITTED_STATUSES.has(draftStatus)) || lead.messages_sent > 0
+          ? 'sent_waiting'
+          : draftStatus
+            ? 'draft_ready'
+            : 'no_response'
+  const followUpDraftReadiness: WarmOutreachOfficeDigest['responseStates'][number]['followUpDraftReadiness'] =
+    item.status === 'blocked'
+      ? 'blocked'
+      : lead.has_reply
+        ? 'draft_ready'
+        : draftStatus && APPROVED_STATUSES.has(draftStatus)
+          ? 'approved'
+          : draftStatus
+            ? 'approval_needed'
+            : 'not_started'
+
+  return {
+    contactId: item.contactId,
+    contactName: item.contactName,
+    status: item.status,
+    classification,
+    nextBestAction: item.recommendedNextAction,
+    followUpDraftReadiness,
+    suppressionProposalVisible: hasSuppressionProposal,
+  }
+}
+
+function buildOfficeDigest(args: {
+  generatedFor: string
+  warmLeads: WarmOutreachShortlistLead[]
+  items: Array<Omit<WarmOutreachShortlistItem, 'priorityRank'>>
+}): WarmOutreachOfficeDigest {
+  const rows = args.items.map((item) => {
+    const lead = args.warmLeads.find((candidate) => candidate.id === item.contactId)
+    return lead ? responseStateFor(lead, item) : null
+  }).filter(Boolean) as WarmOutreachOfficeDigest['responseStates']
+  const ctaItem =
+    args.items.find((item) => item.cta.key === 'handle_response') ??
+    args.items.find((item) => item.cta.key === 'request_approval') ??
+    args.items.find((item) => item.cta.key === 'resolve_blocker') ??
+    args.items.find((item) => item.cta.key === 'send_approved_gmail_draft') ??
+    args.items.find((item) => item.cta.key === 'generate_draft') ??
+    args.items[0] ??
+    null
+
+  return {
+    version: 'warm-response-digest/v1',
+    operatingWindowLabel: `Warm outreach office window for ${args.generatedFor}`,
+    counts: {
+      drafted: args.warmLeads.filter((lead) => {
+        const draftStatus = text(latestDraft(lead)?.status)?.toLowerCase()
+        return Boolean(draftStatus && (DRAFT_STATUSES.has(draftStatus) || APPROVAL_PENDING_STATUSES.has(draftStatus)))
+      }).length,
+      approved: args.warmLeads.filter((lead) => {
+        const draftStatus = text(latestDraft(lead)?.status)?.toLowerCase()
+        return Boolean(draftStatus && APPROVED_STATUSES.has(draftStatus))
+      }).length,
+      sent: args.warmLeads.filter((lead) => {
+        const draftStatus = text(latestDraft(lead)?.status)?.toLowerCase()
+        return lead.messages_sent > 0 || Boolean(draftStatus && SUBMITTED_STATUSES.has(draftStatus))
+      }).length,
+      replied: args.warmLeads.filter((lead) => lead.has_reply).length,
+      blocked: rows.filter((row) => row.status === 'blocked').length,
+      needsVambah: rows.filter((row) => (
+        row.status === 'blocked' ||
+        row.status === 'needs_review' ||
+        row.classification === 'reply_detected' ||
+        row.followUpDraftReadiness === 'draft_ready' ||
+        row.followUpDraftReadiness === 'approval_needed'
+      )).length,
+    },
+    currentCta: ctaItem
+      ? {
+          key: ctaItem.cta.key,
+          label: ctaItem.cta.label,
+          contactId: ctaItem.contactId,
+          contactName: ctaItem.contactName,
+          enabled: true,
+          reason: ctaItem.recommendedNextAction,
+          href: ctaItem.cta.href,
+        }
+      : {
+          key: 'none',
+          label: 'No warm outreach action',
+          contactId: null,
+          contactName: null,
+          enabled: false,
+          reason: 'No warm contacts are visible in the current operating window.',
+          href: null,
+        },
+    responseStates: rows,
+    executionBoundary: {
+      localRowsOnly: true,
+      providerMonitoringEnabled: false,
+      providerCallsEnabled: false,
+      externalSendEnabled: false,
+      gmailDraftCreationEnabled: false,
+      slackDispatchEnabled: false,
+      externalRequests: [],
+    },
+  }
+}
+
 export function buildWarmOutreachShortlist(
   leads: WarmOutreachShortlistLead[],
   options: { limit?: number; today?: string } = {},
 ): WarmOutreachShortlist {
   const warmLeads = leads.filter((lead) => isWarmLeadSource(lead.lead_source))
-  const items = warmLeads
+  const generatedFor = options.today ?? new Date().toISOString().slice(0, 10)
+  const allItems = warmLeads
     .map((lead) => {
       const blockers = buildBlockers(lead)
       const cta = ctaFor(lead, blockers)
@@ -328,17 +486,19 @@ export function buildWarmOutreachShortlist(
       } satisfies Omit<WarmOutreachShortlistItem, 'priorityRank'>
     })
     .sort((a, b) => b.priorityScore - a.priorityScore || a.contactName.localeCompare(b.contactName))
+  const items = allItems
     .slice(0, options.limit ?? 15)
     .map((item, index) => ({ ...item, priorityRank: index + 1 }))
 
   return {
-    generatedFor: options.today ?? new Date().toISOString().slice(0, 10),
+    generatedFor,
     items,
     summary: {
       totalWarmLeads: warmLeads.length,
-      readyCount: items.filter((item) => item.status === 'ready').length,
-      blockedCount: items.filter((item) => item.status === 'blocked').length,
-      submittedCount: items.filter((item) => item.status === 'submitted').length,
+      readyCount: allItems.filter((item) => item.status === 'ready').length,
+      blockedCount: allItems.filter((item) => item.status === 'blocked').length,
+      submittedCount: allItems.filter((item) => item.status === 'submitted').length,
     },
+    officeDigest: buildOfficeDigest({ generatedFor, warmLeads, items: allItems }),
   }
 }

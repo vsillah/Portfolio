@@ -826,6 +826,18 @@ describe('OutreachAdminPage deep links', () => {
 
     render(<OutreachAdminPage />)
 
+    const digest = await screen.findByLabelText('Warm response digest')
+    expect(within(digest).getByText('Warm response digest')).toBeInTheDocument()
+    expect(within(digest).getByText('Drafted')).toBeInTheDocument()
+    expect(within(digest).getByText('Approved')).toBeInTheDocument()
+    expect(within(digest).getByText('Sent')).toBeInTheDocument()
+    expect(within(digest).getByText('Replied')).toBeInTheDocument()
+    expect(within(digest).getByText('Blocked')).toBeInTheDocument()
+    expect(within(digest).getByText('Needs Vambah')).toBeInTheDocument()
+    expect(within(digest).getByText('external requests 0')).toBeInTheDocument()
+    expect(within(digest).getByText(/Provider monitoring, Gmail\/SMS sends, Slack dispatch/)).toBeInTheDocument()
+    expect(within(digest).getByRole('button', { name: 'Warm digest current action: Generate draft for Ada Operator' })).toBeInTheDocument()
+
     const shortlist = await screen.findByLabelText('Daily warm outreach shortlist')
     expect(within(shortlist).getByText('Daily warm shortlist')).toBeInTheDocument()
     expect(within(shortlist).getByText('Referral')).toBeInTheDocument()
@@ -840,6 +852,10 @@ describe('OutreachAdminPage deep links', () => {
     const fetchMock = vi.mocked(fetch)
 
     render(<OutreachAdminPage />)
+
+    const digest = await screen.findByLabelText('Warm response digest')
+    fireEvent.click(within(digest).getByRole('button', { name: 'Warm digest current action: Generate draft for Ada Operator' }))
+    expect(await screen.findByLabelText('Outreach workroom for Ada Operator')).toBeInTheDocument()
 
     const shortlist = await screen.findByLabelText('Daily warm outreach shortlist')
     fireEvent.click(within(shortlist).getByRole('button', { name: 'Generate draft for Ada Operator' }))
