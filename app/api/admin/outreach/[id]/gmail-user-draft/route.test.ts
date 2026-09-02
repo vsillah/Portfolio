@@ -490,6 +490,33 @@ describe('POST /api/admin/outreach/[id]/gmail-user-draft', () => {
         channel: 'email',
         idempotencyKey: expectedIdempotencyKey(),
       },
+      providerDraftCanaryReadiness: {
+        version: 'warm-outreach-provider-gmail-draft-canary-readiness/v1',
+        state: 'ready_for_explicit_provider_draft_approval',
+        label: 'Provider draft canary ready',
+        queueId: 'queue-1',
+        contactSubmissionId: 123,
+        recipientEmail: 'alice@example.com',
+        requiredSender: 'vambah@amadutown.com',
+        connectedAs: 'vambah@amadutown.com',
+        expectedAuthorization: {
+          createGmailDraft: true,
+          draftAuthorization: 'create_gmail_draft_for_recipient',
+          contactSubmissionId: 123,
+          recipientEmail: 'alice@example.com',
+          channel: 'email',
+          idempotencyKey: expectedIdempotencyKey(),
+        },
+        exactApprovalSentence:
+          'Create one Gmail provider draft for outreach queue queue-1 and contact 123 using authorization create_gmail_draft_for_recipient. Do not send email.',
+        executionBoundary: {
+          providerCallsEnabled: false,
+          gmailDraftCreated: false,
+          trackingPersisted: false,
+          externalSendEnabled: false,
+          liveProviderCallRequiresSeparateApproval: true,
+        },
+      },
       externalSendBlocked: true,
     })
     expect(mocks.decryptRefreshToken).not.toHaveBeenCalled()

@@ -66,6 +66,7 @@ import {
   warmSlackSendApprovalQaRelationshipPacket,
 } from '@/components/admin/outreach/warmSlackSendApprovalQaFixture'
 import WarmBatchReviewPanel from '@/components/admin/outreach/WarmBatchReviewPanel'
+import type { WarmGmailProviderDraftCanaryResult } from '@/components/admin/outreach/WarmBatchReviewPanel'
 import { OutreachEmailGenerateRow } from '@/components/admin/OutreachEmailGenerateRow'
 import MobileWorkflowSummary from '@/components/admin/MobileWorkflowSummary'
 import { useRealtimeOutreach } from '@/lib/hooks/useRealtimeOutreach'
@@ -314,6 +315,10 @@ function OutreachContent() {
   const [warmBatchReviewError, setWarmBatchReviewError] = useState<string | null>(null)
   const [warmBatchDraftActionLoading, setWarmBatchDraftActionLoading] = useState(false)
   const [warmBatchDraftActionError, setWarmBatchDraftActionError] = useState<string | null>(null)
+  const [warmProviderDraftCanaryLoadingQueueId, setWarmProviderDraftCanaryLoadingQueueId] = useState<string | null>(null)
+  const [warmProviderDraftCanaryError, setWarmProviderDraftCanaryError] = useState<string | null>(null)
+  const [warmProviderDraftCanaryResult, setWarmProviderDraftCanaryResult] =
+    useState<WarmGmailProviderDraftCanaryResult | null>(null)
   const [showEnrichModal, setShowEnrichModal] = useState(false)
   const [enrichModalLeadIds, setEnrichModalLeadIds] = useState<number[]>([])
   const [pushLoading, setPushLoading] = useState(false)
@@ -999,6 +1004,8 @@ function OutreachContent() {
     setWarmBatchReviewLoading(true)
     setWarmBatchReviewError(null)
     setWarmBatchDraftActionError(null)
+    setWarmProviderDraftCanaryError(null)
+    setWarmProviderDraftCanaryResult(null)
     try {
       const session = await getCurrentSession()
       if (!session?.access_token) {
@@ -1043,6 +1050,8 @@ function OutreachContent() {
 
     setWarmBatchDraftActionLoading(true)
     setWarmBatchDraftActionError(null)
+    setWarmProviderDraftCanaryError(null)
+    setWarmProviderDraftCanaryResult(null)
     try {
       const session = await getCurrentSession()
       if (!session?.access_token) {
@@ -1080,6 +1089,43 @@ function OutreachContent() {
       setWarmBatchDraftActionLoading(false)
     }
   }, [selectedLeadIds])
+
+  const prepareWarmProviderDraftCanary = useCallback(async (queueId: string) => {
+    if (warmProviderDraftCanaryLoadingQueueId) return
+
+    setWarmProviderDraftCanaryLoadingQueueId(queueId)
+    setWarmProviderDraftCanaryError(null)
+    setWarmProviderDraftCanaryResult(null)
+    try {
+      const session = await getCurrentSession()
+      if (!session?.access_token) {
+        setWarmProviderDraftCanaryError('Admin session is required to prepare the provider draft canary.')
+        return
+      }
+
+      const res = await fetch(`/api/admin/outreach/${encodeURIComponent(queueId)}/gmail-user-draft`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ noSendSmoke: true }),
+      })
+      const body = (await res.json().catch(() => ({}))) as WarmGmailProviderDraftCanaryResult & { error?: string }
+      if (!res.ok) {
+        setWarmProviderDraftCanaryError(body.error || 'Provider draft canary preparation failed.')
+        return
+      }
+
+      setWarmProviderDraftCanaryResult(body)
+      setGenerateOutreachToast(body.message || 'Provider draft canary prepared. Gmail draft creation remains locked.')
+      setTimeout(() => setGenerateOutreachToast(null), 7000)
+    } catch {
+      setWarmProviderDraftCanaryError('Provider draft canary preparation failed.')
+    } finally {
+      setWarmProviderDraftCanaryLoadingQueueId(null)
+    }
+  }, [warmProviderDraftCanaryLoadingQueueId])
 
   const setExpandedLeadFromControl = useCallback((leadId: number | null) => {
     setExpandedLeadId(leadId)
@@ -1725,6 +1771,8 @@ function OutreachContent() {
                           setWarmBatchReview(null)
                           setWarmBatchReviewError(null)
                           setWarmBatchDraftActionError(null)
+                          setWarmProviderDraftCanaryError(null)
+                          setWarmProviderDraftCanaryResult(null)
                         }}
                         className="inline-flex min-h-10 w-full items-center justify-center rounded-lg border border-silicon-slate/80 px-3 text-sm text-muted-foreground hover:text-foreground sm:w-auto sm:border-transparent"
                       >
@@ -1740,9 +1788,13 @@ function OutreachContent() {
                     error={warmBatchReviewError}
                     draftActionLoading={warmBatchDraftActionLoading}
                     draftActionError={warmBatchDraftActionError}
+                    providerDraftCanaryLoading={warmProviderDraftCanaryLoadingQueueId != null}
+                    providerDraftCanaryError={warmProviderDraftCanaryError}
+                    providerDraftCanaryResult={warmProviderDraftCanaryResult}
                     selectedCount={selectedLeadIds.size}
                     onReview={reviewWarmBatch}
                     onCreateGmailDraftRecords={createWarmBatchGmailDraftRecords}
+                    onPrepareProviderDraftCanary={prepareWarmProviderDraftCanary}
                   />
                 )}
                 <div className="flex items-center gap-2 mb-3">
