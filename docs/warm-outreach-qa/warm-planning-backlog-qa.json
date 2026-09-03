@@ -1,7 +1,7 @@
 {
   "version": "warm-outreach-planning-backlog-qa/v1",
-  "createdAt": "2026-09-03T17:51:28.382Z",
-  "qaUrl": "http://127.0.0.1:3001/admin/outreach?tab=leads&filter=warm",
+  "createdAt": "2026-09-03T19:03:24.806Z",
+  "qaUrl": "http://127.0.0.1:3065/admin/outreach?tab=leads&filter=warm",
   "scenario": "Planning backlog operator opens warm leads, filters planning states, prepares a review-only batch plan, and opens manual-social workroom state.",
   "expectedBehavior": [
     "Planning backlog shows Today / This Week campaign alignment from the existing whisper_to_shout social content calendar template.",
@@ -15,10 +15,10 @@
   "decisionGate": "Operator review only. Gmail draft creation, Slack dispatch, external sends, SMS/Telnyx, provider activation, and manual-evidence recording remain separate gates.",
   "externalActionBoundary": "Synthetic/local QA only; no Gmail, Slack, LinkedIn, Facebook, Telnyx/SMS, n8n, scheduling, publishing, provider calls, or production-data mutation.",
   "screenshots": {
-    "mobile360": "/Users/vambahsillah/.codex/worktrees/2e7e/Portfolio/docs/warm-outreach-qa/warm-planning-backlog-mobile-360.png",
-    "mobile390": "/Users/vambahsillah/.codex/worktrees/2e7e/Portfolio/docs/warm-outreach-qa/warm-planning-backlog-mobile-390.png",
-    "mobile430": "/Users/vambahsillah/.codex/worktrees/2e7e/Portfolio/docs/warm-outreach-qa/warm-planning-backlog-mobile-430.png",
-    "desktop1440": "/Users/vambahsillah/.codex/worktrees/2e7e/Portfolio/docs/warm-outreach-qa/warm-planning-backlog-desktop-1440.png"
+    "mobile360": "/Users/vambahsillah/Projects/Portfolio/.codex-worktrees/warm-outreach-today-week-backlog-fix/docs/warm-outreach-qa/warm-planning-backlog-mobile-360.png",
+    "mobile390": "/Users/vambahsillah/Projects/Portfolio/.codex-worktrees/warm-outreach-today-week-backlog-fix/docs/warm-outreach-qa/warm-planning-backlog-mobile-390.png",
+    "mobile430": "/Users/vambahsillah/Projects/Portfolio/.codex-worktrees/warm-outreach-today-week-backlog-fix/docs/warm-outreach-qa/warm-planning-backlog-mobile-430.png",
+    "desktop1440": "/Users/vambahsillah/Projects/Portfolio/.codex-worktrees/warm-outreach-today-week-backlog-fix/docs/warm-outreach-qa/warm-planning-backlog-desktop-1440.png"
   },
   "viewportRuns": [
     {
@@ -27,7 +27,7 @@
         "width": 360,
         "height": 844
       },
-      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/2e7e/Portfolio/docs/warm-outreach-qa/warm-planning-backlog-mobile-360.png",
+      "screenshotPath": "/Users/vambahsillah/Projects/Portfolio/.codex-worktrees/warm-outreach-today-week-backlog-fix/docs/warm-outreach-qa/warm-planning-backlog-mobile-360.png",
       "checks": {
         "hasPlanningBacklog": true,
         "hasStates": true,
@@ -48,7 +48,7 @@
         "width": 390,
         "height": 844
       },
-      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/2e7e/Portfolio/docs/warm-outreach-qa/warm-planning-backlog-mobile-390.png",
+      "screenshotPath": "/Users/vambahsillah/Projects/Portfolio/.codex-worktrees/warm-outreach-today-week-backlog-fix/docs/warm-outreach-qa/warm-planning-backlog-mobile-390.png",
       "checks": {
         "hasPlanningBacklog": true,
         "hasStates": true,
@@ -69,7 +69,7 @@
         "width": 430,
         "height": 844
       },
-      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/2e7e/Portfolio/docs/warm-outreach-qa/warm-planning-backlog-mobile-430.png",
+      "screenshotPath": "/Users/vambahsillah/Projects/Portfolio/.codex-worktrees/warm-outreach-today-week-backlog-fix/docs/warm-outreach-qa/warm-planning-backlog-mobile-430.png",
       "checks": {
         "hasPlanningBacklog": true,
         "hasStates": true,
@@ -90,7 +90,7 @@
         "width": 1440,
         "height": 900
       },
-      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/2e7e/Portfolio/docs/warm-outreach-qa/warm-planning-backlog-desktop-1440.png",
+      "screenshotPath": "/Users/vambahsillah/Projects/Portfolio/.codex-worktrees/warm-outreach-today-week-backlog-fix/docs/warm-outreach-qa/warm-planning-backlog-desktop-1440.png",
       "checks": {
         "hasPlanningBacklog": true,
         "hasStates": true,
@@ -106,8 +106,8 @@
       "externalRequests": []
     }
   ],
-  "mp4Path": "/Users/vambahsillah/.codex/worktrees/2e7e/Portfolio/docs/warm-outreach-qa/warm-planning-backlog-qa.mp4",
-  "rawVideoPath": "/Users/vambahsillah/.codex/worktrees/2e7e/Portfolio/test-results/warm-planning-backlog-qa/source/2870e27afb9ee59ab672f75dc75f861b.webm",
+  "mp4Path": "/Users/vambahsillah/Projects/Portfolio/.codex-worktrees/warm-outreach-today-week-backlog-fix/docs/warm-outreach-qa/warm-planning-backlog-qa.mp4",
+  "rawVideoPath": "/Users/vambahsillah/Projects/Portfolio/.codex-worktrees/warm-outreach-today-week-backlog-fix/test-results/warm-planning-backlog-qa/source/5bf77077ffa4773df0c64c4a402b6c30.webm",
   "externalRequests": [],
   "localRequests": [
     {

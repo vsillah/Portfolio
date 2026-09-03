@@ -128,29 +128,37 @@ export default function WarmPlanningBacklogPanel({
     >
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(13rem,auto)] lg:items-start">
         <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-x-2 gap-y-2">
+          <div>
             <p className="text-xs font-semibold uppercase leading-5 tracking-wide text-radiant-gold">
               Warm planning backlog
             </p>
-            <span className="inline-flex min-w-fit shrink-0 items-center whitespace-nowrap rounded-full border border-silicon-slate/70 bg-background/45 px-2.5 py-0.5 text-xs leading-5 text-muted-foreground">
-              {backlog.planningWindowLabel}
-            </span>
-            <span className="inline-flex min-w-fit shrink-0 items-center whitespace-nowrap rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2.5 py-0.5 text-xs leading-5 text-emerald-100">
-              external requests {backlog.executionBoundary.externalRequests.length}
-            </span>
+            <div className="mt-2 flex max-w-full flex-wrap items-center gap-x-2 gap-y-2">
+              <span className="inline-flex max-w-full items-center rounded-full border border-silicon-slate/70 bg-background/45 px-2.5 py-0.5 text-left text-xs leading-5 text-muted-foreground">
+                {backlog.planningWindowLabel}
+              </span>
+              <span className="inline-flex min-w-fit shrink-0 items-center whitespace-nowrap rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2.5 py-0.5 text-xs leading-5 text-emerald-100">
+                external requests {backlog.executionBoundary.externalRequests.length}
+              </span>
+            </div>
           </div>
-          <div className="mt-3 grid gap-2 md:grid-cols-[minmax(0,1fr)_minmax(11rem,auto)]">
+          <div className="mt-3 grid gap-2">
             <div className="min-w-0 rounded-md border border-radiant-gold/25 bg-background/35 p-3">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="inline-flex min-h-7 shrink-0 items-center gap-1.5 rounded-md border border-radiant-gold/30 bg-radiant-gold/10 px-2 text-[11px] font-semibold uppercase leading-5 tracking-wide text-radiant-gold">
                   <CalendarDays size={12} aria-hidden />
                   Today / This week
                 </span>
-                <span className="inline-flex min-h-7 shrink-0 items-center rounded-md border border-silicon-slate/70 bg-background/45 px-2 text-[11px] leading-5 text-muted-foreground">
+                <span className="inline-flex min-h-7 shrink-0 items-center whitespace-nowrap rounded-md border border-silicon-slate/70 bg-background/45 px-2 text-[11px] leading-5 text-muted-foreground">
                   {backlog.campaignAlignment.plannedWindowLabel}
                 </span>
-                <span className="inline-flex min-h-7 shrink-0 items-center rounded-md border border-silicon-slate/70 bg-background/45 px-2 text-[11px] leading-5 text-muted-foreground">
+                <span className="inline-flex min-h-7 shrink-0 items-center whitespace-nowrap rounded-md border border-silicon-slate/70 bg-background/45 px-2 text-[11px] leading-5 text-muted-foreground">
                   {stateSummaryLabel(backlog)}
+                </span>
+                <span className="inline-flex min-h-7 shrink-0 items-center whitespace-nowrap rounded-md border border-silicon-slate/70 bg-background/45 px-2 text-[11px] leading-5 text-muted-foreground">
+                  Today {backlog.operatingWindow.todayLabel}
+                </span>
+                <span className="inline-flex min-h-7 shrink-0 items-center whitespace-nowrap rounded-md border border-silicon-slate/70 bg-background/45 px-2 text-[11px] leading-5 text-muted-foreground">
+                  Week {backlog.operatingWindow.weekLabel}
                 </span>
               </div>
               <p className="mt-2 text-[11px] font-semibold uppercase leading-5 tracking-wide text-muted-foreground/80">
@@ -166,16 +174,6 @@ export default function WarmPlanningBacklogPanel({
                 <summary className="cursor-pointer text-radiant-gold/90">Campaign source</summary>
                 <p className="mt-1">{backlog.campaignAlignment.drillIn}</p>
               </details>
-            </div>
-            <div className="grid grid-cols-2 gap-2 text-xs md:grid-cols-1">
-              <div className="rounded-md border border-silicon-slate/70 bg-background/35 p-2">
-                <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground/80">Today</p>
-                <p className="mt-1 font-semibold text-foreground">{backlog.operatingWindow.todayLabel}</p>
-              </div>
-              <div className="rounded-md border border-silicon-slate/70 bg-background/35 p-2">
-                <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground/80">Week</p>
-                <p className="mt-1 font-semibold text-foreground">{backlog.operatingWindow.weekLabel}</p>
-              </div>
             </div>
           </div>
           <div
@@ -285,7 +283,15 @@ export default function WarmPlanningBacklogPanel({
               className="grid gap-3.5 rounded-md border border-silicon-slate/70 bg-background/45 p-3 lg:grid-cols-[minmax(0,1.1fr)_minmax(16rem,0.9fr)_minmax(10rem,auto)] lg:items-center"
             >
               <div className="min-w-0">
-                <div className="flex flex-wrap items-center gap-x-2 gap-y-2">
+                <div className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-1">
+                  <h3 className="min-w-0 text-sm font-semibold leading-5 text-foreground">
+                    {candidate.contactName}
+                  </h3>
+                  {candidate.company && (
+                    <span className="min-w-0 text-xs leading-5 text-muted-foreground">{candidate.company}</span>
+                  )}
+                </div>
+                <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-2">
                   <span className={`inline-flex min-w-fit shrink-0 items-center gap-1 whitespace-nowrap rounded-full border px-2.5 py-0.5 text-[11px] font-semibold leading-5 ${stateClasses(primaryState)}`}>
                     <StateIcon state={primaryState} />
                     {backlog.filterLabels[primaryState]}
@@ -294,12 +300,6 @@ export default function WarmPlanningBacklogPanel({
                     <span className="inline-flex min-w-fit shrink-0 items-center whitespace-nowrap rounded-full border border-silicon-slate/80 bg-background/35 px-2.5 py-0.5 text-[11px] leading-5 text-muted-foreground">
                       SMS parked
                     </span>
-                  )}
-                  <h3 className="mt-0.5 min-w-0 truncate text-sm font-semibold leading-5 text-foreground">
-                    {candidate.contactName}
-                  </h3>
-                  {candidate.company && (
-                    <span className="mt-0.5 truncate text-xs leading-5 text-muted-foreground">{candidate.company}</span>
                   )}
                 </div>
                 <p className="mt-2 line-clamp-2 text-xs leading-5 text-muted-foreground">
