@@ -245,7 +245,9 @@ const PLANNING_BACKLOG_FILTER_LABELS: Record<WarmOutreachPlanningBacklogState, s
   sms_parked: 'SMS parked',
 }
 
-const WARM_OUTREACH_CAMPAIGN_TEMPLATE = SOCIAL_CONTENT_CALENDAR_TEMPLATES.whisper_to_shout
+const WARM_OUTREACH_CAMPAIGN_TEMPLATE_KEY = 'whisper_to_shout' as const
+const WARM_OUTREACH_CAMPAIGN_TEMPLATE =
+  SOCIAL_CONTENT_CALENDAR_TEMPLATES[WARM_OUTREACH_CAMPAIGN_TEMPLATE_KEY]
 
 function displayDateLabel(value: string): string {
   const [year, month, day] = value.split('-').map(Number)
@@ -288,7 +290,7 @@ function buildCampaignAlignment(generatedFor: string): WarmOutreachPlanningBackl
 
   return {
     source: 'social_content_calendar_template',
-    templateKey: WARM_OUTREACH_CAMPAIGN_TEMPLATE.key,
+    templateKey: WARM_OUTREACH_CAMPAIGN_TEMPLATE_KEY,
     campaignTheme: WARM_OUTREACH_CAMPAIGN_TEMPLATE.label,
     currentPhase: current.campaign_phase,
     currentPhaseLabel: CAMPAIGN_PHASE_LABELS[current.campaign_phase],
