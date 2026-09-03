@@ -67,6 +67,9 @@ import {
 } from '@/components/admin/outreach/warmSlackSendApprovalQaFixture'
 import WarmBatchReviewPanel from '@/components/admin/outreach/WarmBatchReviewPanel'
 import type { WarmGmailProviderDraftCanaryResult } from '@/components/admin/outreach/WarmBatchReviewPanel'
+import WarmGmailDraftReviewPanel, {
+  type WarmGmailDraftReviewData,
+} from '@/components/admin/outreach/WarmGmailDraftReviewPanel'
 import WarmPlanningBacklogPanel from '@/components/admin/outreach/WarmPlanningBacklogPanel'
 import { OutreachEmailGenerateRow } from '@/components/admin/OutreachEmailGenerateRow'
 import MobileWorkflowSummary from '@/components/admin/MobileWorkflowSummary'
@@ -146,6 +149,7 @@ type WarmLeadInternalAction = {
   record_id: string
   created_at: string | null
   href: string
+  email_message_id?: string | null
   enabled: boolean
 }
 
@@ -262,6 +266,7 @@ function OutreachContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const warmSlackSendApprovalQaMode = searchParams?.get('qa') === 'warm-slack-send-approval'
+  const warmGmailDraftReviewParam = searchParams?.get('draftReview')?.trim() || null
 
   // Tab management (default: All Leads)
   const [activeTab, setActiveTab] = useState<TabType>(() => {
@@ -344,6 +349,15 @@ function OutreachContent() {
   const [relationshipPacketLeadId, setRelationshipPacketLeadId] = useState<number | null>(null)
   const [relationshipPacketLoading, setRelationshipPacketLoading] = useState(false)
   const [relationshipPacketError, setRelationshipPacketError] = useState<string | null>(null)
+  const [warmGmailDraftReviewData, setWarmGmailDraftReviewData] =
+    useState<WarmGmailDraftReviewData | null>(null)
+  const [warmGmailDraftReviewQueueId, setWarmGmailDraftReviewQueueId] = useState<string | null>(null)
+  const [warmGmailDraftReviewLoading, setWarmGmailDraftReviewLoading] = useState(false)
+  const [warmGmailDraftReviewError, setWarmGmailDraftReviewError] = useState<string | null>(null)
+  const [warmGmailDraftCopyMessage, setWarmGmailDraftCopyMessage] = useState<string | null>(null)
+  const [warmGmailApprovalRequestQueueId, setWarmGmailApprovalRequestQueueId] = useState<string | null>(null)
+  const [warmGmailApprovalRequestMessage, setWarmGmailApprovalRequestMessage] = useState<string | null>(null)
+  const [warmGmailApprovalRequestError, setWarmGmailApprovalRequestError] = useState<string | null>(null)
   const [gmailDraftCanaryLoadingLeadId, setGmailDraftCanaryLoadingLeadId] = useState<number | null>(null)
   const [gmailDraftCanaryErrors, setGmailDraftCanaryErrors] = useState<Record<number, string | null>>({})
   const [gmailDraftCanaryResults, setGmailDraftCanaryResults] = useState<Record<number, GmailDraftCanaryResult | null>>({})
@@ -932,6 +946,117 @@ function OutreachContent() {
     return () => { cancelled = true }
   }, [activeTab, outreachWorkroomLeadId, warmSlackSendApprovalQaMode])
 
+  useEffect(() => {
+    const queueId = warmGmailDraftReviewParam
+    if (activeTab !== 'leads' || !outreachWorkroomLeadId || !queueId) {
+      setWarmGmailDraftReviewData(null)
+      setWarmGmailDraftReviewQueueId(null)
+      setWarmGmailDraftReviewError(null)
+      setWarmGmailDraftReviewLoading(false)
+      setWarmGmailDraftCopyMessage(null)
+      setWarmGmailApprovalRequestMessage(null)
+      setWarmGmailApprovalRequestError(null)
+      return
+    }
+
+    let cancelled = false
+    setWarmGmailDraftReviewQueueId(queueId)
+    setWarmGmailDraftReviewData(null)
+    setWarmGmailDraftReviewError(null)
+    setWarmGmailDraftCopyMessage(null)
+    setWarmGmailApprovalRequestMessage(null)
+    setWarmGmailApprovalRequestError(null)
+    setWarmGmailDraftReviewLoading(true)
+
+    getCurrentSession().then((session) => {
+      if (cancelled) return
+      if (!session?.access_token) {
+        setWarmGmailDraftReviewError('Admin session is required to load the draft review.')
+        setWarmGmailDraftReviewLoading(false)
+        return
+      }
+      fetch(`/api/admin/outreach/drafts/${encodeURIComponent(queueId)}/inputs`, {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+        .then(async (res) => {
+          const body = await res.json().catch(() => null)
+          if (!res.ok) {
+            throw new Error(
+              typeof body?.error === 'string'
+                ? body.error
+                : 'Draft review could not be loaded.',
+            )
+          }
+          return body as WarmGmailDraftReviewData
+        })
+        .then((data) => {
+          if (!cancelled) setWarmGmailDraftReviewData(data)
+        })
+        .catch((error: unknown) => {
+          if (!cancelled) {
+            setWarmGmailDraftReviewData(null)
+            setWarmGmailDraftReviewError(
+              error instanceof Error
+                ? error.message
+                : 'Draft review could not be loaded.',
+            )
+          }
+        })
+        .finally(() => {
+          if (!cancelled) setWarmGmailDraftReviewLoading(false)
+        })
+    })
+
+    return () => { cancelled = true }
+  }, [activeTab, outreachWorkroomLeadId, warmGmailDraftReviewParam])
+
+  const copyWarmGmailDraft = useCallback(async (body: string) => {
+    try {
+      if (!navigator.clipboard?.writeText) {
+        setWarmGmailDraftCopyMessage('Draft body is visible for manual copy.')
+        return
+      }
+      await navigator.clipboard.writeText(body)
+      setWarmGmailDraftCopyMessage('Draft copied for review.')
+    } catch {
+      setWarmGmailDraftCopyMessage('Draft body is visible for manual copy.')
+    }
+  }, [])
+
+  const requestWarmGmailApproval = useCallback(async (queueId: string) => {
+    if (warmGmailApprovalRequestQueueId) return
+    setWarmGmailApprovalRequestQueueId(queueId)
+    setWarmGmailApprovalRequestMessage(null)
+    setWarmGmailApprovalRequestError(null)
+    try {
+      const session = await getCurrentSession()
+      if (!session?.access_token) {
+        throw new Error('Admin session is required to request send approval.')
+      }
+      const response = await fetch(`/api/admin/outreach/${encodeURIComponent(queueId)}/slack-send-approval`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({}),
+      })
+      const body = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(body.error ?? 'Could not prepare the send approval request.')
+      setWarmGmailApprovalRequestMessage(
+        body.approvalRecovery?.nextAction ??
+          'Approval request recorded in Portfolio. Slack dispatch off. Gmail send off.',
+      )
+      void fetchLeads({ silent: true, force: true })
+    } catch (error) {
+      setWarmGmailApprovalRequestError(
+        error instanceof Error ? error.message : 'Could not prepare the send approval request.',
+      )
+    } finally {
+      setWarmGmailApprovalRequestQueueId(null)
+    }
+  }, [fetchLeads, warmGmailApprovalRequestQueueId])
+
   const runGmailDraftCanary = useCallback(async (leadId: number) => {
     if (gmailDraftCanaryLoadingLeadId != null) return
     setGmailDraftCanaryLoadingLeadId(leadId)
@@ -1303,10 +1428,15 @@ function OutreachContent() {
       params.set('filter', 'warm')
       params.set('id', String(lead.id))
       params.set('contactId', String(lead.id))
+      if (action.kind === 'gmail_draft_record') {
+        params.set('draftReview', action.record_id)
+      } else {
+        params.delete('draftReview')
+      }
       const hash =
         action.kind === 'manual_social_handoff_task'
           ? '#warm-manual-social-handoff'
-          : '#warm-internal-action'
+          : '#warm-gmail-draft-review'
       router.replace(`/admin/outreach?${params.toString()}${hash}`, { scroll: false })
     },
     [router, searchParams],
@@ -1356,6 +1486,13 @@ function OutreachContent() {
     : outreachWorkroomLead?.removed_at
       ? 'This lead is removed from the active list.'
       : null
+  const activeWarmGmailDraftAction =
+    outreachWorkroomLead?.next_internal_action?.kind === 'gmail_draft_record'
+      ? outreachWorkroomLead.next_internal_action
+      : null
+  const activeWarmGmailDraftReviewSelected =
+    Boolean(activeWarmGmailDraftAction) &&
+    warmGmailDraftReviewQueueId === activeWarmGmailDraftAction?.record_id
 
   return (
     <div className="admin-console-page min-h-screen px-4 py-6 text-foreground sm:px-6 lg:px-8">
@@ -1884,6 +2021,10 @@ function OutreachContent() {
                       {outreachWorkroomLead.next_internal_action.kind === 'gmail_draft_record' ? (
                         <Link
                           href={outreachWorkroomLead.next_internal_action.href}
+                          onClick={(event) => {
+                            event.preventDefault()
+                            openWarmInternalAction(outreachWorkroomLead)
+                          }}
                           className="inline-flex min-h-10 w-full min-w-0 max-w-full items-center justify-center gap-2 rounded-lg border border-current/35 bg-background/35 px-3 text-sm font-semibold transition-colors hover:bg-background/50 2xl:w-auto"
                           aria-label={`Open draft-only review for ${outreachWorkroomLead.name}`}
                         >
@@ -1902,6 +2043,25 @@ function OutreachContent() {
                         </button>
                       )}
                     </div>
+                  )}
+                  {activeWarmGmailDraftAction && activeWarmGmailDraftReviewSelected && !outreachBlocker && (
+                    <WarmGmailDraftReviewPanel
+                      leadName={outreachWorkroomLead.name}
+                      leadEmail={outreachWorkroomLead.email}
+                      queueId={warmGmailDraftReviewQueueId ?? activeWarmGmailDraftAction.record_id}
+                      linkedEmailMessageId={activeWarmGmailDraftAction.email_message_id ?? null}
+                      data={warmGmailDraftReviewData}
+                      loading={warmGmailDraftReviewLoading}
+                      error={warmGmailDraftReviewError}
+                      relationshipPacketData={
+                        relationshipPacketLeadId === outreachWorkroomLead.id ? relationshipPacketData : null
+                      }
+                      requestApprovalLoading={warmGmailApprovalRequestQueueId != null}
+                      requestApprovalMessage={warmGmailApprovalRequestMessage ?? warmGmailDraftCopyMessage}
+                      requestApprovalError={warmGmailApprovalRequestError}
+                      onCopyDraft={copyWarmGmailDraft}
+                      onRequestApproval={requestWarmGmailApproval}
+                    />
                   )}
                   {outreachBlocker ? (
                     <div
@@ -2308,6 +2468,10 @@ function OutreachContent() {
                                 {lead.next_internal_action.kind === 'gmail_draft_record' ? (
                                   <Link
                                     href={lead.next_internal_action.href}
+                                    onClick={(event) => {
+                                      event.preventDefault()
+                                      openWarmInternalAction(lead)
+                                    }}
                                     className="inline-flex min-h-9 w-full min-w-0 max-w-full items-center justify-center gap-1.5 rounded-md border border-current/35 bg-background/35 px-2.5 font-semibold transition-colors hover:bg-background/50 2xl:w-auto"
                                     aria-label={`Review draft-only internal Gmail record for ${lead.name}`}
                                   >

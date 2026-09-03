@@ -725,9 +725,11 @@ export async function GET(request: NextRequest) {
                 record_table: 'outreach_queue',
                 record_id: plannedGmailDraft.id,
                 created_at: plannedGmailDraft.created_at,
-                href: emailMessageIdByQueueId[plannedGmailDraft.id]
-                  ? `/admin/email-messages/${emailMessageIdByQueueId[plannedGmailDraft.id]}`
-                  : `/admin/email-center?contact=${contact.id}`,
+                href:
+                  `/admin/outreach?tab=leads&filter=warm&id=${contact.id}` +
+                  `&contactId=${contact.id}&draftReview=${encodeURIComponent(plannedGmailDraft.id)}` +
+                  '#warm-gmail-draft-review',
+                email_message_id: emailMessageIdByQueueId[plannedGmailDraft.id] ?? null,
                 enabled: true,
               }
             : null

@@ -58,6 +58,7 @@ describe('GET /api/admin/outreach/drafts/[queueId]/inputs', () => {
         status: 'draft',
         sequence_step: 1,
         subject: 'Hello',
+        body: 'Hi Ada,\n\nHere is the warm follow-up.',
         created_at: '2026-04-27T10:00:00Z',
         generation_model: 'gpt-4o-mini',
         generation_prompt_summary: 'in_app:email_cold_outreach',
@@ -71,6 +72,7 @@ describe('GET /api/admin/outreach/drafts/[queueId]/inputs', () => {
     expect(body.id).toBe(VALID_UUID)
     expect(body.contactSubmissionId).toBe(99)
     expect(body.channel).toBe('email')
+    expect(body.body).toBe('Hi Ada,\n\nHere is the warm follow-up.')
     expect(body.generationModel).toBe('gpt-4o-mini')
     expect(body.generationPromptSummary).toBe('in_app:email_cold_outreach')
     expect(body.generationInputs).toEqual({
@@ -88,6 +90,7 @@ describe('GET /api/admin/outreach/drafts/[queueId]/inputs', () => {
         status: 'draft',
         sequence_step: 1,
         subject: null,
+        body: null,
         created_at: '2026-04-27T10:00:00Z',
         generation_model: null,
         generation_prompt_summary: null,

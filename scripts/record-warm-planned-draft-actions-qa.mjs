@@ -144,7 +144,8 @@ const leads = [
       record_table: 'outreach_queue',
       record_id: 'qa-outreach-queue-existing-101',
       created_at: timestamp,
-      href: '/admin/email-messages/qa-email-message-101',
+      href: '/admin/outreach?tab=leads&filter=warm&id=101&contactId=101&draftReview=qa-outreach-queue-existing-101#warm-gmail-draft-review',
+      email_message_id: null,
       enabled: true,
     },
   },
@@ -1017,6 +1018,35 @@ async function installSafeRoutes(page, externalRequests, localRequests) {
       return
     }
 
+    if (/\/api\/admin\/outreach\/drafts\/[^/]+\/inputs\b/i.test(url.pathname)) {
+      localRequests.push({ method: request.method(), pathname: url.pathname })
+      const queueId = decodeURIComponent(url.pathname.match(/\/drafts\/([^/]+)\/inputs/i)?.[1] ?? '')
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          id: queueId,
+          contactSubmissionId: 101,
+          channel: 'email',
+          status: 'draft',
+          sequenceStep: 1,
+          subject: 'Warm follow-up: Amina Batchready',
+          body:
+            'Hi Amina,\n\nFollowing up from the warm referral and planning backlog context. I can share a lightweight way to turn repeat follow-up into a reviewable operating path.',
+          createdAt: timestamp,
+          generationModel: 'portfolio-local-planner',
+          generationPromptSummary: 'planned_warm_gmail_draft_intent:no_provider',
+          generationInputs: {
+            version: 'warm-planned-draft-execution/v1',
+            queue_intent: 'draft_only_planned',
+            approval_boundary: 'draft_only_no_external_send',
+            external_requests: [],
+          },
+        }),
+      })
+      return
+    }
+
     if (/\/api\/admin\/outreach\/leads\b/i.test(url.pathname)) {
       localRequests.push({ method: request.method(), pathname: url.pathname })
       await route.fulfill({
@@ -1196,6 +1226,38 @@ async function assertCreatedInternalActions(page) {
   }
 }
 
+async function assertGmailDraftReview(page) {
+  const checks = await page.evaluate(() => {
+    const panel = document.querySelector('[aria-label="Gmail draft review for Amina Batchready"]')
+    const visible = (element) => {
+      if (!(element instanceof HTMLElement)) return false
+      const rect = element.getBoundingClientRect()
+      return rect.width > 0 && rect.height > 0 && window.getComputedStyle(element).visibility !== 'hidden'
+    }
+    const text = panel?.textContent ?? ''
+    const buttons = panel ? [...panel.querySelectorAll('button')] : []
+    const primaryCtas = buttons.filter((button) => /Copy draft|Request send approval|View gate keys|Review decision/.test(button.textContent || ''))
+    return {
+      visible: visible(panel),
+      hasDraftOnlyState: /Draft-only/i.test(text),
+      hasSavedBody: /Following up from the warm referral and planning backlog context/i.test(text),
+      hasRecipientContext: /amina\.office@example\.test/i.test(text) && /qa-outreach-queue-existing-101/i.test(text),
+      hasRelationshipBasis: /Synthetic LinkedIn relationship context is ready for operator review/i.test(text),
+      hasMissingMessageRecovery: /Message link missing/i.test(text) && /Review uses the saved queue body/i.test(text),
+      hasBoundary: /external send off/i.test(text) && /Draft creation, approval, Slack dispatch, and live send stay separate/i.test(text),
+      primaryCtaCount: primaryCtas.length,
+      viewport: {
+        clientWidth: document.documentElement.clientWidth,
+        scrollWidth: document.documentElement.scrollWidth,
+      },
+    }
+  })
+  return {
+    ...checks,
+    horizontalOverflow: checks.viewport.scrollWidth > checks.viewport.clientWidth,
+  }
+}
+
 async function assertNoCollapsedActionText(page) {
   return page.evaluate(() => {
     const interestingText =
@@ -1312,6 +1374,11 @@ async function viewportEvidence(browser, name, viewport, screenshotPath) {
   const checks = await assertPlanningBacklog(qa.page)
   const internalActionChecks = await assertCreatedInternalActions(qa.page)
   const collapsedTextChecks = await assertNoCollapsedActionText(qa.page)
+  await activateButton(qa.page.getByRole('link', { name: /Review draft-only internal Gmail record for Amina Batchready/ }).first())
+  await qa.page.getByLabel('Gmail draft review for Amina Batchready').waitFor({ timeout: 15_000 })
+  await qa.page.getByText(/Following up from the warm referral and planning backlog context/).waitFor({ timeout: 15_000 })
+  await qa.page.getByText('Message link missing').waitFor({ timeout: 15_000 })
+  const gmailDraftReviewChecks = await assertGmailDraftReview(qa.page)
   await qa.page.getByLabel('Select all on this page').check()
   await activateButton(qa.page.getByRole('button', { name: 'Plan draft work' }))
   await qa.page.getByLabel('Warm planned draft actions').waitFor({ timeout: 15_000 })
@@ -1327,6 +1394,7 @@ async function viewportEvidence(browser, name, viewport, screenshotPath) {
     checks,
     internalActionChecks,
     collapsedTextChecks,
+    gmailDraftReviewChecks,
     actionChecks,
     externalRequests: qa.externalRequests,
   }
@@ -1365,6 +1433,8 @@ async function addSideText(page) {
       <h3>Expected</h3>
       <ul>
         <li>Created Gmail draft records show a compact Review draft CTA.</li>
+        <li>Review draft opens the existing workroom with body, recipient, relationship basis, and one primary Copy draft CTA.</li>
+        <li>If the email-message link is missing, the saved queue body is reviewed in context.</li>
         <li>Created manual-social handoff tasks show a compact Record evidence CTA.</li>
         <li>Seven planning states are visible as compact count filters.</li>
         <li>The primary CTA opens a review batch above long context.</li>
@@ -1408,6 +1478,25 @@ await desktopPlanningBacklog.getByText('Kofi Phoneparked').waitFor({ timeout: 10
 await desktop.page.waitForTimeout(700)
 await desktopPlanningBacklog.evaluate((element) => element.scrollIntoView({ block: 'center' }))
 await activateButton(desktopPlanningBacklog.getByRole('button', { name: /Show Ready for Gmail draft candidates/ }))
+await activateButton(desktop.page.getByRole('link', { name: /Review draft-only internal Gmail record for Amina Batchready/ }).first())
+await desktop.page.getByLabel('Gmail draft review for Amina Batchready').waitFor({ timeout: 15_000 })
+await desktop.page.getByText(/Following up from the warm referral and planning backlog context/).waitFor({ timeout: 15_000 })
+await desktop.page.getByText('Message link missing').waitFor({ timeout: 15_000 })
+const desktopGmailDraftReviewChecks = await assertGmailDraftReview(desktop.page)
+if (
+  !desktopGmailDraftReviewChecks.visible ||
+  !desktopGmailDraftReviewChecks.hasDraftOnlyState ||
+  !desktopGmailDraftReviewChecks.hasSavedBody ||
+  !desktopGmailDraftReviewChecks.hasRecipientContext ||
+  !desktopGmailDraftReviewChecks.hasRelationshipBasis ||
+  !desktopGmailDraftReviewChecks.hasMissingMessageRecovery ||
+  !desktopGmailDraftReviewChecks.hasBoundary ||
+  desktopGmailDraftReviewChecks.primaryCtaCount !== 1 ||
+  desktopGmailDraftReviewChecks.horizontalOverflow
+) {
+  throw new Error(`Desktop Gmail draft review QA failed: ${JSON.stringify(desktopGmailDraftReviewChecks, null, 2)}`)
+}
+await desktop.page.waitForTimeout(1000)
 await desktop.page.getByLabel('Select all on this page').check()
 await activateButton(desktop.page.getByRole('button', { name: 'Plan draft work' }))
 await desktop.page.getByLabel('Warm batch review').waitFor({ timeout: 15_000 })
@@ -1486,6 +1575,15 @@ const failedViewport = viewportRuns.find((run) =>
   !run.internalActionChecks.hasGmailAction ||
   !run.internalActionChecks.hasManualAction ||
   run.internalActionChecks.horizontalOverflow ||
+  !run.gmailDraftReviewChecks.visible ||
+  !run.gmailDraftReviewChecks.hasDraftOnlyState ||
+  !run.gmailDraftReviewChecks.hasSavedBody ||
+  !run.gmailDraftReviewChecks.hasRecipientContext ||
+  !run.gmailDraftReviewChecks.hasRelationshipBasis ||
+  !run.gmailDraftReviewChecks.hasMissingMessageRecovery ||
+  !run.gmailDraftReviewChecks.hasBoundary ||
+  run.gmailDraftReviewChecks.primaryCtaCount !== 1 ||
+  run.gmailDraftReviewChecks.horizontalOverflow ||
   run.collapsedTextChecks.collapsed.length > 0 ||
   !run.actionChecks.hasActionTray ||
   !run.actionChecks.hasCompactRecommendations ||
@@ -1510,6 +1608,8 @@ const receipt = {
     'Planning backlog shows All, Ready Gmail, Manual, Relationship, Responses, Blocked, and SMS parked as compact count filters without standalone number tiles.',
     'Clicking filter chips visibly drills into the matching candidate set.',
     'Created Gmail draft records surface as compact Review draft actions in the warm lead list.',
+    'Review draft opens the existing outreach workroom, shows the saved queue body, recipient context, relationship basis, and one primary Copy draft CTA.',
+    'Missing linked email-message state stays recoverable in context by reviewing the saved queue body instead of routing to Email Center.',
     'Created manual-social handoff tasks surface as compact Record evidence actions in the warm lead list and selected workroom.',
     'Compact filter labels and counts do not overlap at mobile widths 360, 390, and 430.',
     'The primary CTA prepares a review-only batch and the planned draft action tray appears above the long review context.',
@@ -1523,6 +1623,7 @@ const receipt = {
   externalActionBoundary: 'Synthetic/local QA only; no Gmail, Slack, LinkedIn, Facebook, Telnyx/SMS, n8n, scheduling, publishing, provider calls, or production-data mutation.',
   screenshots,
   viewportRuns,
+  desktopGmailDraftReviewChecks,
   desktopInternalActionChecks,
   desktopCollapsedTextChecks,
   mp4Path,
