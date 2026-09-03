@@ -158,6 +158,12 @@ export function relationshipReadinessLabel(status: WarmOutreachReadiness['status
   return 'Blocked'
 }
 
+function relationshipReadinessCompactLabel(status: WarmOutreachReadiness['status']) {
+  if (status === 'draft_ready') return 'Draft review'
+  if (status === 'needs_review') return 'Human review'
+  return 'Blocked'
+}
+
 export function describeChannelCapability(capability?: ChannelCapability) {
   if (!capability?.available) return 'Not recorded'
   if (capability.manualOnly) return 'Manual review only'
@@ -507,7 +513,7 @@ function GmailOperatingLoopCard({
             One recipient, one queue row, one message version, one next action.
           </p>
         </div>
-        <span className="w-fit shrink-0 rounded-full border border-current/25 px-2 py-0.5 text-[10px] font-semibold">
+        <span className="inline-flex min-h-7 w-fit shrink-0 items-center justify-center whitespace-nowrap rounded-full border border-current/25 px-2 py-0.5 text-center text-[10px] font-semibold">
           {loop.duplicateSendBlocked
             ? 'Duplicate send locked'
             : loop.blocked
@@ -542,7 +548,7 @@ function GmailOperatingLoopCard({
               {gate.blockedReason ?? gate.safeNextStep}
             </p>
           </div>
-          <span className="inline-flex min-h-7 w-fit shrink-0 items-center gap-1.5 rounded-full border border-current/25 bg-background/25 px-2 py-0.5 text-[10px] font-semibold">
+          <span className="inline-flex min-h-7 w-fit shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-full border border-current/25 bg-background/25 px-2 py-0.5 text-center text-[10px] font-semibold">
             <LockKeyhole size={12} aria-hidden />
             {gate.liveSendEligible ? 'Exact gate eligible' : 'Exact gate locked'}
           </span>
@@ -611,7 +617,7 @@ function GmailOperatingLoopCard({
               {requestLoading ? 'Requesting approval' : 'Request send approval'}
             </button>
           ) : (
-            <span className="inline-flex min-h-8 w-fit shrink-0 items-center gap-1.5 rounded-full border border-current/25 px-2 py-1 text-[10px] font-semibold">
+            <span className="inline-flex min-h-8 w-fit shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-full border border-current/25 px-2 py-1 text-center text-[10px] font-semibold">
               <LockKeyhole size={12} aria-hidden />
               {loop.executionBoundary.gmailSendEnabledOnThisSurface ? 'Available' : 'No live execution'}
             </span>
@@ -3458,7 +3464,11 @@ export default function RelationshipPacketPanel({
           </p>
         </div>
         {readiness && (
-          <span className={`inline-flex w-fit items-center rounded-full border px-2.5 py-1 text-xs font-semibold ${statusClasses(readiness.status)}`}>
+          <span
+            title={relationshipReadinessLabel(readiness.status)}
+            aria-label={`Relationship readiness: ${relationshipReadinessLabel(readiness.status)}`}
+            className={`inline-flex min-h-8 w-full max-w-full items-center justify-center whitespace-nowrap rounded-full border px-2.5 py-1 text-center text-xs font-semibold sm:w-fit ${statusClasses(readiness.status)}`}
+          >
             {relationshipReadinessLabel(readiness.status)}
           </span>
         )}
@@ -3487,7 +3497,7 @@ export default function RelationshipPacketPanel({
         <div className="mt-3 space-y-3">
           {actionSummary && (
             <div className={`rounded-lg border p-3 ${operatorActionClasses(actionSummary.tone)}`}>
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(9rem,auto)] md:items-center">
                 <div className="min-w-0">
                   <p className="text-[11px] font-semibold uppercase tracking-wide opacity-80">
                     Current operator action
@@ -3497,26 +3507,30 @@ export default function RelationshipPacketPanel({
                 </div>
                 <a
                   href={smsReadiness ? '#warm-sms-readiness' : '#warm-source-provenance'}
-                  className="inline-flex min-h-10 w-full shrink-0 items-center justify-center gap-2 rounded-md border border-current/25 bg-background/20 px-3 text-xs font-semibold transition-colors hover:bg-background/30 sm:w-auto"
+                  className="inline-flex min-h-10 w-full shrink-0 items-center justify-center gap-2 rounded-md border border-current/25 bg-background/20 px-3 text-center text-xs font-semibold transition-colors hover:bg-background/30 md:w-auto"
                 >
                   Go to action
                 </a>
               </div>
-              <div className="mt-2 flex flex-wrap gap-1.5">
-                <span className="inline-flex min-h-7 items-center rounded-full border border-current/20 bg-background/20 px-2 py-1 text-[10px] font-semibold">
-                  Readiness: {relationshipReadinessLabel(readiness.status)}
+              <div className="mt-2 grid grid-cols-1 gap-1.5 min-[380px]:grid-cols-2 lg:grid-cols-4">
+                <span
+                  title={`Readiness: ${relationshipReadinessLabel(readiness.status)}`}
+                  aria-label={`Readiness: ${relationshipReadinessLabel(readiness.status)}`}
+                  className="inline-flex min-h-7 max-w-full items-center justify-center whitespace-nowrap rounded-full border border-current/20 bg-background/20 px-2 py-1 text-center text-[10px] font-semibold"
+                >
+                  Readiness: {relationshipReadinessCompactLabel(readiness.status)}
                 </span>
                 {readiness.selectedChannel && (
-                  <span className="inline-flex min-h-7 items-center rounded-full border border-current/20 bg-background/20 px-2 py-1 text-[10px] font-semibold">
+                  <span className="inline-flex min-h-7 max-w-full items-center justify-center whitespace-nowrap rounded-full border border-current/20 bg-background/20 px-2 py-1 text-center text-[10px] font-semibold">
                     Channel: {CHANNEL_LABELS[readiness.selectedChannel]}
                   </span>
                 )}
                 {smsReadiness && (
-                  <span className="inline-flex min-h-7 items-center rounded-full border border-current/20 bg-background/20 px-2 py-1 text-[10px] font-semibold">
+                  <span className="inline-flex min-h-7 max-w-full items-center justify-center whitespace-nowrap rounded-full border border-current/20 bg-background/20 px-2 py-1 text-center text-[10px] font-semibold">
                     SMS: {smsReadiness.state.replaceAll('_', ' ')}
                   </span>
                 )}
-                <span className="inline-flex min-h-7 items-center rounded-full border border-current/20 bg-background/20 px-2 py-1 text-[10px] font-semibold">
+                <span className="inline-flex min-h-7 max-w-full items-center justify-center whitespace-nowrap rounded-full border border-current/20 bg-background/20 px-2 py-1 text-center text-[10px] font-semibold">
                   External send locked
                 </span>
               </div>

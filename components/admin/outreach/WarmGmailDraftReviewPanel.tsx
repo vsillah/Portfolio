@@ -1,6 +1,6 @@
 'use client'
 
-import { AlertTriangle, CheckCircle, Clipboard, Loader2, Mail, Send, ShieldCheck } from 'lucide-react'
+import { AlertTriangle, CheckCircle, Clipboard, Info, Loader2, Mail, Send, ShieldCheck } from 'lucide-react'
 import type { RelationshipPacketApiResponse } from './RelationshipPacketPanel'
 
 export type WarmGmailDraftReviewData = {
@@ -104,6 +104,7 @@ function primaryCta(stage: ReviewStage, hasBody: boolean) {
   if (stage === 'approval_pending') return { label: 'Review decision', icon: ShieldCheck }
   if (stage === 'approved' || stage === 'live_send') return { label: 'View gate keys', icon: ShieldCheck }
   if (stage === 'submitted') return { label: 'Review sent evidence', icon: CheckCircle }
+  if (stage === 'blocked') return { label: 'Blocked', icon: AlertTriangle }
   return { label: hasBody ? 'Copy draft' : 'Draft body missing', icon: Clipboard }
 }
 
@@ -122,27 +123,49 @@ export default function WarmGmailDraftReviewPanel({
   onCopyDraft,
   onRequestApproval,
 }: WarmGmailDraftReviewPanelProps) {
-  const stage = warmGmailDraftReviewStage(relationshipPacketData)
   const loop = emailLifecycle(relationshipPacketData)?.gmailOperatingLoop ?? null
   const gate = loop?.executionGate ?? null
-  const cta = primaryCta(stage, Boolean(data?.body?.trim()))
+  const stage = warmGmailDraftReviewStage(relationshipPacketData)
+  const displayStage =
+    stage === 'request_approval' && requestApprovalMessage && !requestApprovalError
+      ? 'approval_pending'
+      : stage
+  const cta = primaryCta(displayStage, Boolean(data?.body?.trim()))
   const CtaIcon = cta.icon
   const body = data?.body?.trim() ?? ''
   const relationshipBasis = relationshipPacketData?.packet.relationshipBasis ?? 'Relationship packet loading.'
   const safeToMention = relationshipPacketData?.packet.sourceInventory?.safeToMention ?? []
   const missingLinkedMessage = linkedEmailMessageId === null || linkedEmailMessageId === undefined
   const ctaLinksToOperatingLoop =
-    stage === 'approval_pending' ||
-    stage === 'approved' ||
-    stage === 'live_send' ||
-    stage === 'submitted'
+    displayStage === 'approval_pending' ||
+    displayStage === 'approved' ||
+    displayStage === 'live_send' ||
+    displayStage === 'submitted'
+  const localApprovalRequestRecorded = stage === 'request_approval' && displayStage === 'approval_pending'
+  const currentAction = loop?.nextAction
+  const nextActionLabel = localApprovalRequestRecorded
+    ? 'Review decision'
+    : currentAction?.label ?? cta.label
+  const nextActionDetail =
+    localApprovalRequestRecorded
+      ? requestApprovalMessage ?? 'Approval request recorded locally. Record approve, reject, or revise before any execution gate.'
+      : currentAction?.detail ??
+    (displayStage === 'draft_only'
+      ? 'Review the saved body, then copy it for manual revision or continue from the existing queue row.'
+      : gate?.safeNextStep ?? 'Continue from the existing warm Gmail operating loop.')
+  const gateLabel = localApprovalRequestRecorded
+    ? 'Authorization decision required'
+    : gate?.label ?? stageLabel(displayStage)
+  const gateDetail = localApprovalRequestRecorded
+    ? nextActionDetail
+    : gate?.blockedReason ?? gate?.safeNextStep ?? nextActionDetail
 
   const runPrimary = () => {
-    if (stage === 'request_approval' && queueId) {
+    if (displayStage === 'request_approval' && queueId) {
       onRequestApproval?.(queueId)
       return
     }
-    if ((stage === 'draft_only' || stage === 'blocked') && body) {
+    if (displayStage === 'draft_only' && body) {
       onCopyDraft?.(body)
     }
   }
@@ -150,9 +173,10 @@ export default function WarmGmailDraftReviewPanel({
   const ctaDisabled =
     loading ||
     requestApprovalLoading ||
-    (stage === 'request_approval'
+    displayStage === 'blocked' ||
+    (displayStage === 'request_approval'
       ? !queueId || !onRequestApproval
-      : (stage === 'draft_only' || stage === 'blocked') && (!body || !onCopyDraft))
+      : displayStage === 'draft_only' && (!body || !onCopyDraft))
 
   return (
     <section
@@ -165,7 +189,7 @@ export default function WarmGmailDraftReviewPanel({
           <div className="flex flex-wrap items-center gap-2">
             <span className={`inline-flex max-w-full items-center gap-1.5 rounded-full border px-2 py-0.5 text-[11px] font-semibold ${stageTone(stage)}`}>
               <Mail size={13} className="shrink-0" aria-hidden />
-              <span className="truncate">{stageLabel(stage)}</span>
+              <span className="truncate">{stageLabel(displayStage)}</span>
             </span>
             <span className="rounded-full border border-silicon-slate/70 bg-background/40 px-2 py-0.5 text-[11px] text-muted-foreground">
               {data?.status ?? 'loading'}
@@ -173,11 +197,9 @@ export default function WarmGmailDraftReviewPanel({
             <span className="rounded-full border border-silicon-slate/70 bg-background/40 px-2 py-0.5 text-[11px] text-muted-foreground">
               external send off
             </span>
-            {gate?.label && (
-              <span className="rounded-full border border-silicon-slate/70 bg-background/40 px-2 py-0.5 text-[11px] text-muted-foreground">
-                {gate.label}
-              </span>
-            )}
+            <span className="rounded-full border border-silicon-slate/70 bg-background/40 px-2 py-0.5 text-[11px] text-muted-foreground">
+              {gateLabel}
+            </span>
           </div>
           <h3 className="mt-2 truncate text-base font-semibold text-foreground">
             {data?.subject || `Warm draft review: ${leadName}`}
@@ -197,7 +219,15 @@ export default function WarmGmailDraftReviewPanel({
             </p>
           </div>
         </div>
-        {ctaLinksToOperatingLoop ? (
+        {displayStage === 'blocked' ? (
+          <div
+            role="status"
+            className="inline-flex min-h-10 w-full min-w-0 items-center justify-center gap-2 rounded-lg border border-red-500/35 bg-red-500/10 px-3 text-sm font-semibold text-red-100 lg:w-auto"
+          >
+            <CtaIcon size={15} aria-hidden />
+            <span className="truncate">{nextActionLabel}</span>
+          </div>
+        ) : ctaLinksToOperatingLoop ? (
           <a
             href="#warm-gmail-operating-loop"
             className="inline-flex min-h-10 w-full min-w-0 items-center justify-center gap-2 rounded-lg border border-radiant-gold/50 bg-radiant-gold/10 px-3 text-sm font-semibold text-radiant-gold transition-colors hover:bg-radiant-gold/15 lg:w-auto"
@@ -218,14 +248,27 @@ export default function WarmGmailDraftReviewPanel({
         )}
       </div>
 
-      <div className="mt-3 grid gap-2 sm:grid-cols-4">
+      <div className="mt-3 grid gap-2 sm:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
+        <div className={`rounded-md border px-3 py-2 text-sm ${stageTone(displayStage)}`}>
+          <p className="text-[10px] font-semibold uppercase tracking-wide opacity-75">Current gate</p>
+          <p className="mt-1 font-semibold">{gateLabel}</p>
+          <p className="mt-1 text-xs leading-5 opacity-85">{gateDetail}</p>
+        </div>
+        <div className="rounded-md border border-silicon-slate/70 bg-background/35 px-3 py-2 text-sm">
+          <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Next safe action</p>
+          <p className="mt-1 font-semibold text-foreground">{nextActionLabel}</p>
+          <p className="mt-1 text-xs leading-5 text-muted-foreground">{nextActionDetail}</p>
+        </div>
+      </div>
+
+      <div className="mt-2 grid gap-2 sm:grid-cols-4">
         {([
           ['draft_only', 'Draft-only'],
           ['request_approval', 'Approval request'],
           ['approved', 'Approved'],
           ['live_send', 'Live gate'],
         ] as const).map(([key, label]) => {
-          const status = stepStatus(stage, key)
+          const status = stepStatus(displayStage, key)
           return (
             <div key={key} className={`rounded-md border px-2 py-1.5 text-xs ${stepClasses(status)}`}>
               <p className="font-semibold">{label}</p>
@@ -270,22 +313,36 @@ export default function WarmGmailDraftReviewPanel({
                 </p>
               </div>
             )}
-            <div className="rounded-md border border-silicon-slate/70 bg-background/35 p-2">
-              <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Relationship basis</p>
-              <p className="mt-1 line-clamp-4 text-sm leading-5 text-foreground">{relationshipBasis}</p>
-            </div>
-            <div className="rounded-md border border-silicon-slate/70 bg-background/35 p-2">
-              <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Safe to mention</p>
-              <p className="mt-1 truncate text-sm text-foreground">
-                {safeToMention.slice(0, 2).join(' / ') || 'Use relationship packet.'}
-              </p>
-            </div>
-            <div className="rounded-md border border-silicon-slate/70 bg-background/35 p-2">
-              <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Next gate</p>
-              <p className="mt-1 text-sm leading-5 text-foreground">
-                {gate?.safeNextStep ?? 'Copy/edit the internal draft. Draft creation, approval, Slack dispatch, and live send stay separate.'}
-              </p>
-            </div>
+            <details className="rounded-md border border-silicon-slate/70 bg-background/35 p-2">
+              <summary className="flex cursor-pointer list-none items-center gap-2 text-sm font-semibold text-foreground">
+                <Info size={14} className="shrink-0 text-muted-foreground" aria-hidden />
+                Review details
+              </summary>
+              <div className="mt-2 space-y-2">
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Relationship basis</p>
+                  <p className="mt-1 line-clamp-4 text-sm leading-5 text-foreground">{relationshipBasis}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Safe to mention</p>
+                  <p className="mt-1 truncate text-sm text-foreground">
+                    {safeToMention.slice(0, 2).join(' / ') || 'Use relationship packet.'}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Evidence keys</p>
+                  <p className="mt-1 break-all text-xs leading-5 text-muted-foreground">
+                    {loop?.audit.messageVersionKey ?? 'Message key pending'}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Boundary</p>
+                  <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                    Draft creation, approval, Slack dispatch, and live send stay separate.
+                  </p>
+                </div>
+              </div>
+            </details>
           </div>
         </div>
       )}

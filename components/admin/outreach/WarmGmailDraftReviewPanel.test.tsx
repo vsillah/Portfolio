@@ -22,7 +22,9 @@ const draftData = {
   },
 }
 
-function relationship(stage: 'draft_only' | 'request_approval' | 'approved' | 'live_send'): RelationshipPacketApiResponse {
+function relationship(
+  stage: 'draft_only' | 'request_approval' | 'approval_pending' | 'approved' | 'live_send' | 'submitted' | 'blocked',
+): RelationshipPacketApiResponse {
   if (stage === 'draft_only') {
     return {
       packet: {
@@ -39,7 +41,7 @@ function relationship(stage: 'draft_only' | 'request_approval' | 'approved' | 'l
     recipientEmail: 'ada@example.com',
     gmailDraftId: 'gmail-draft-1',
     gmailThreadId: 'gmail-thread-1',
-    approvalDecisionKey: stage === 'request_approval' ? null : 'warm-approval-1',
+    approvalDecisionKey: stage === 'request_approval' || stage === 'approval_pending' ? null : 'warm-approval-1',
     messageVersionKey: 'warm-message-version-1',
     sendQueueIdempotencyKey: 'warm-send-key-1',
     submittedEvidenceKey: 'warm-submitted-key-1',
@@ -47,18 +49,27 @@ function relationship(stage: 'draft_only' | 'request_approval' | 'approved' | 'l
     draftTracked: true,
     providerConfigured: true,
     senderMatched: true,
-    approvalRequestStatus: 'not_sent',
-    authorizationStatus: stage === 'request_approval' ? 'missing' : 'approved',
+    approvalRequestStatus: stage === 'approval_pending' ? 'pending' : 'not_sent',
+    authorizationStatus:
+      stage === 'request_approval' || stage === 'approval_pending' || stage === 'blocked'
+        ? 'missing'
+        : 'approved',
     executionState:
-      stage === 'request_approval'
+      stage === 'approval_pending'
+        ? 'approval_requested'
+        : stage === 'request_approval'
         ? 'approval_needed'
+        : stage === 'submitted'
+          ? 'sent'
+          : stage === 'blocked'
+            ? 'blocked'
         : stage === 'live_send'
           ? 'eligible_for_execution'
           : 'approved_for_send',
-    submittedEvidenceRecorded: false,
+    submittedEvidenceRecorded: stage === 'submitted',
     secondaryLogRepairRequired: false,
-    responseMonitoringAttached: false,
-    hardBlockers: [],
+    responseMonitoringAttached: stage === 'submitted',
+    hardBlockers: stage === 'blocked' ? ['The tracked draft message version does not match this queue row.'] : [],
   })
 
   return {
@@ -111,7 +122,7 @@ describe('WarmGmailDraftReviewPanel', () => {
     renderPanel({ linkedEmailMessageId: null })
 
     const review = screen.getByLabelText('Gmail draft review for Ada Operator')
-    expect(within(review).getAllByText('Draft-only')).toHaveLength(2)
+    expect(within(review).getAllByText('Draft-only').length).toBeGreaterThanOrEqual(2)
     expect(within(review).getByText('Message link missing')).toBeInTheDocument()
     expect(within(review).getByText(/Following up from our prior conversation/)).toBeInTheDocument()
     expect(within(review).getByRole('button', { name: /Copy draft/i })).toBeEnabled()
@@ -153,7 +164,7 @@ describe('WarmGmailDraftReviewPanel', () => {
       />,
     )
     expect(screen.getAllByText('Approved')).toHaveLength(2)
-    expect(screen.getByText('Live execution disabled')).toBeInTheDocument()
+    expect(screen.getAllByText('Live execution disabled').length).toBeGreaterThan(0)
 
     rerender(
       <WarmGmailDraftReviewPanel
@@ -170,6 +181,60 @@ describe('WarmGmailDraftReviewPanel', () => {
       />,
     )
     expect(screen.getByText('Live send gate')).toBeInTheDocument()
-    expect(screen.getByText('Live execution eligible')).toBeInTheDocument()
+    expect(screen.getAllByText('Live execution eligible').length).toBeGreaterThan(0)
+  })
+
+  it('promotes a successful local request receipt into the pending decision state', () => {
+    render(
+      <WarmGmailDraftReviewPanel
+        leadName="Ada Operator"
+        leadEmail="ada@example.com"
+        queueId="queue-1"
+        linkedEmailMessageId="email-message-1"
+        data={draftData}
+        loading={false}
+        error={null}
+        relationshipPacketData={relationship('request_approval')}
+        requestApprovalMessage="Approval request recorded in Portfolio. Slack dispatch off. Gmail send off."
+        onCopyDraft={vi.fn()}
+        onRequestApproval={vi.fn()}
+      />,
+    )
+
+    const review = screen.getByLabelText('Gmail draft review for Ada Operator')
+    expect(within(review).getByText('Decision pending')).toBeInTheDocument()
+    expect(within(review).getByRole('link', { name: /Review decision/i })).toHaveAttribute(
+      'href',
+      '#warm-gmail-operating-loop',
+    )
+    expect(within(review).getAllByText('Review decision').length).toBeGreaterThan(1)
+    expect(within(review).getAllByText('Authorization decision required').length).toBeGreaterThan(0)
+    expect(within(review).queryByText('Request send approval')).not.toBeInTheDocument()
+    expect(
+      within(review).getAllByText('Approval request recorded in Portfolio. Slack dispatch off. Gmail send off.').length,
+    ).toBeGreaterThan(0)
+  })
+
+  it('shows submitted evidence as review-only and keeps details collapsed', () => {
+    renderPanel({ packet: relationship('submitted') })
+
+    const review = screen.getByLabelText('Gmail draft review for Ada Operator')
+    expect(within(review).getByText('Sent evidence')).toBeInTheDocument()
+    expect(within(review).getAllByText('Response monitoring active').length).toBeGreaterThan(0)
+    expect(within(review).getByRole('link', { name: /Review sent evidence/i })).toHaveAttribute(
+      'href',
+      '#warm-gmail-operating-loop',
+    )
+    expect(within(review).getByText('Review details')).toBeInTheDocument()
+  })
+
+  it('surfaces blockers without offering copy or approval as the primary action', () => {
+    renderPanel({ packet: relationship('blocked') })
+
+    const review = screen.getByLabelText('Gmail draft review for Ada Operator')
+    expect(within(review).getByText('Blocked')).toBeInTheDocument()
+    expect(within(review).getByRole('status')).toHaveTextContent('Resolve workflow blocker')
+    expect(within(review).queryByRole('button', { name: /Copy draft/i })).not.toBeInTheDocument()
+    expect(within(review).queryByRole('button', { name: /Request send approval/i })).not.toBeInTheDocument()
   })
 })
