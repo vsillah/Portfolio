@@ -862,24 +862,24 @@ async function viewportEvidence(browser, name, viewport, screenshotPath) {
 async function addSideText(page) {
   await page.addStyleTag({
     content: `
-      body { padding-right: 360px !important; }
+      body { padding-right: 288px !important; }
       #qa-side-text {
         position: fixed;
         inset: 0 0 0 auto;
         z-index: 2147483647;
-        width: 336px;
+        width: 272px;
         box-sizing: border-box;
-        padding: 22px 20px;
+        padding: 18px 16px;
         background: #07111f;
         color: #e5eef9;
         border-left: 1px solid rgba(148, 163, 184, .35);
-        font: 14px/1.45 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        font: 12px/1.4 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       }
-      #qa-side-text h2 { margin: 0 0 12px; font-size: 18px; line-height: 1.2; }
-      #qa-side-text h3 { margin: 16px 0 6px; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: #f7d56b; }
+      #qa-side-text h2 { margin: 0 0 10px; font-size: 15px; line-height: 1.2; }
+      #qa-side-text h3 { margin: 12px 0 5px; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: #f7d56b; }
       #qa-side-text p { margin: 0; color: #cbd5e1; }
-      #qa-side-text ul { margin: 6px 0 0; padding-left: 18px; color: #cbd5e1; }
-      #qa-side-text li { margin: 5px 0; }
+      #qa-side-text ul { margin: 5px 0 0; padding-left: 16px; color: #cbd5e1; }
+      #qa-side-text li { margin: 4px 0; }
     `,
   })
   await page.evaluate(() => {

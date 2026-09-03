@@ -1,7 +1,7 @@
 {
   "version": "warm-outreach-planning-backlog-qa/v1",
-  "createdAt": "2026-09-03T19:03:24.806Z",
-  "qaUrl": "http://127.0.0.1:3065/admin/outreach?tab=leads&filter=warm",
+  "createdAt": "2026-09-03T19:41:00.984Z",
+  "qaUrl": "http://127.0.0.1:3066/admin/outreach?tab=leads&filter=warm",
   "scenario": "Planning backlog operator opens warm leads, filters planning states, prepares a review-only batch plan, and opens manual-social workroom state.",
   "expectedBehavior": [
     "Planning backlog shows Today / This Week campaign alignment from the existing whisper_to_shout social content calendar template.",
@@ -107,7 +107,7 @@
     }
   ],
   "mp4Path": "/Users/vambahsillah/Projects/Portfolio/.codex-worktrees/warm-outreach-today-week-backlog-fix/docs/warm-outreach-qa/warm-planning-backlog-qa.mp4",
-  "rawVideoPath": "/Users/vambahsillah/Projects/Portfolio/.codex-worktrees/warm-outreach-today-week-backlog-fix/test-results/warm-planning-backlog-qa/source/5bf77077ffa4773df0c64c4a402b6c30.webm",
+  "rawVideoPath": "/Users/vambahsillah/Projects/Portfolio/.codex-worktrees/warm-outreach-today-week-backlog-fix/test-results/warm-planning-backlog-qa/source/165c1706847adcabb763c709d0885a82.webm",
   "externalRequests": [],
   "localRequests": [
     {

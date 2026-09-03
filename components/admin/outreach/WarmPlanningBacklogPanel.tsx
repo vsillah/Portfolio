@@ -126,7 +126,7 @@ export default function WarmPlanningBacklogPanel({
       className="mb-4 rounded-lg border border-radiant-gold/30 bg-radiant-gold/5 p-3 sm:p-4"
       aria-label="Warm outreach planning backlog"
     >
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(13rem,auto)] lg:items-start">
+      <div className="grid gap-4 2xl:grid-cols-[minmax(0,1fr)_minmax(13rem,auto)] 2xl:items-start">
         <div className="min-w-0">
           <div>
             <p className="text-xs font-semibold uppercase leading-5 tracking-wide text-radiant-gold">
@@ -239,7 +239,7 @@ export default function WarmPlanningBacklogPanel({
             type="button"
             disabled={!backlog.currentCta.enabled || loading}
             onClick={onPrepareBatch}
-            className="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-lg border border-radiant-gold/50 bg-radiant-gold/10 px-3 text-sm font-semibold text-radiant-gold transition-colors hover:bg-radiant-gold/15 disabled:cursor-not-allowed disabled:opacity-50 lg:w-auto"
+            className="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-lg border border-radiant-gold/50 bg-radiant-gold/10 px-3 text-sm font-semibold text-radiant-gold transition-colors hover:bg-radiant-gold/15 disabled:cursor-not-allowed disabled:opacity-50 2xl:w-auto"
           >
             {loading ? (
               <RefreshCw size={15} className="animate-spin" aria-hidden />
@@ -280,7 +280,7 @@ export default function WarmPlanningBacklogPanel({
           return (
             <article
               key={candidate.contactId}
-              className="grid gap-3.5 rounded-md border border-silicon-slate/70 bg-background/45 p-3 lg:grid-cols-[minmax(0,1.1fr)_minmax(16rem,0.9fr)_minmax(10rem,auto)] lg:items-center"
+              className="grid gap-3.5 rounded-md border border-silicon-slate/70 bg-background/45 p-3 2xl:grid-cols-[minmax(0,1.1fr)_minmax(16rem,0.9fr)_minmax(10rem,auto)] 2xl:items-center"
             >
               <div className="min-w-0">
                 <div className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-1">
@@ -336,7 +336,7 @@ export default function WarmPlanningBacklogPanel({
               <button
                 type="button"
                 onClick={() => onOpenCandidate(candidate)}
-                className="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-md border border-silicon-slate/80 bg-silicon-slate/35 px-3 text-sm font-medium text-foreground transition-colors hover:bg-silicon-slate/55 lg:w-auto"
+                className="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-md border border-silicon-slate/80 bg-silicon-slate/35 px-3 text-sm font-medium text-foreground transition-colors hover:bg-silicon-slate/55 2xl:w-auto"
                 aria-label={`${candidate.nextActionLabel} for ${candidate.contactName}`}
               >
                 <MessageSquare size={15} aria-hidden />
