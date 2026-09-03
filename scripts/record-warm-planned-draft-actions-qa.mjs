@@ -15,14 +15,14 @@ const sourceDir = path.join(qaDir, 'source')
 const baseUrl = (process.env.QA_BASE_URL || 'http://127.0.0.1:3000').replace(/\/$/, '')
 const qaPath = '/admin/outreach?tab=leads&filter=warm&qa=warm-planning-backlog'
 const qaUrl = new URL(qaPath, baseUrl).toString()
-const mp4Path = path.join(outputDir, 'warm-planned-draft-actions-qa.mp4')
-const receiptPath = path.join(outputDir, 'warm-planned-draft-actions-qa.json')
+const mp4Path = path.join(outputDir, 'warm-created-internal-actions-qa.mp4')
+const receiptPath = path.join(outputDir, 'warm-created-internal-actions-qa.json')
 
 const screenshots = {
-  mobile360: path.join(outputDir, 'warm-planned-draft-actions-mobile-360.png'),
-  mobile390: path.join(outputDir, 'warm-planned-draft-actions-mobile-390.png'),
-  mobile430: path.join(outputDir, 'warm-planned-draft-actions-mobile-430.png'),
-  desktop1440: path.join(outputDir, 'warm-planned-draft-actions-desktop-1440.png'),
+  mobile360: path.join(outputDir, 'warm-created-internal-actions-mobile-360.png'),
+  mobile390: path.join(outputDir, 'warm-created-internal-actions-mobile-390.png'),
+  mobile430: path.join(outputDir, 'warm-created-internal-actions-mobile-430.png'),
+  desktop1440: path.join(outputDir, 'warm-created-internal-actions-desktop-1440.png'),
 }
 
 await mkdir(outputDir, { recursive: true })
@@ -127,7 +127,26 @@ const leads = [
     last_n8n_outreach_status: null,
     last_n8n_outreach_template_key: null,
     has_extractable_text: true,
-    recent_email_drafts: [],
+    recent_email_drafts: [
+      {
+        id: 'qa-outreach-queue-existing-101',
+        subject: 'Warm follow-up: Amina Batchready',
+        status: 'draft',
+        created_at: timestamp,
+        email_message_id: 'qa-email-message-101',
+      },
+    ],
+    next_internal_action: {
+      kind: 'gmail_draft_record',
+      label: 'Review draft',
+      status_label: 'Draft-only record',
+      detail: 'Warm follow-up: Amina Batchready',
+      record_table: 'outreach_queue',
+      record_id: 'qa-outreach-queue-existing-101',
+      created_at: timestamp,
+      href: '/admin/email-messages/qa-email-message-101',
+      enabled: true,
+    },
   },
   {
     id: 102,
@@ -200,6 +219,17 @@ const leads = [
     last_n8n_outreach_template_key: null,
     has_extractable_text: true,
     recent_email_drafts: [],
+    next_internal_action: {
+      kind: 'manual_social_handoff_task',
+      label: 'Record handoff evidence',
+      status_label: 'Pending handoff',
+      detail: 'Manual linkedin handoff: Nia Manualsocial',
+      record_table: 'meeting_action_tasks',
+      record_id: 'qa-meeting-action-task-existing-103',
+      created_at: timestamp,
+      href: '/admin/outreach?tab=leads&filter=warm&id=103&contactId=103#warm-manual-social-handoff',
+      enabled: true,
+    },
   },
   {
     id: 104,
@@ -1133,6 +1163,92 @@ async function assertPlanningBacklog(page) {
   }
 }
 
+async function assertCreatedInternalActions(page) {
+  const checks = await page.evaluate(() => {
+    const text = document.body.innerText
+    const actions = [...document.querySelectorAll('[aria-label^="Internal action for "]')]
+    const workroomAction = document.querySelector('[aria-label="Created internal action for Nia Manualsocial"]')
+    const visible = (element) => {
+      if (!(element instanceof HTMLElement)) return false
+      const rect = element.getBoundingClientRect()
+      return rect.width > 0 && rect.height > 0 && window.getComputedStyle(element).visibility !== 'hidden'
+    }
+    return {
+      actionCount: actions.length,
+      hasGmailAction:
+        /Draft-only record/i.test(text) &&
+        /Warm follow-up: Amina Batchready/i.test(text) &&
+        /Review draft/i.test(text),
+      hasManualAction:
+        /Pending handoff/i.test(text) &&
+        /Manual linkedin handoff: Nia Manualsocial/i.test(text) &&
+        /Record evidence/i.test(text),
+      hasWorkroomAction: visible(workroomAction),
+      viewport: {
+        clientWidth: document.documentElement.clientWidth,
+        scrollWidth: document.documentElement.scrollWidth,
+      },
+    }
+  })
+  return {
+    ...checks,
+    horizontalOverflow: checks.viewport.scrollWidth > checks.viewport.clientWidth,
+  }
+}
+
+async function assertNoCollapsedActionText(page) {
+  return page.evaluate(() => {
+    const interestingText =
+      /(Draft-only record|Pending handoff|Warm follow-up|Manual linkedin handoff|Review draft|Record evidence|Open Outreach|Workroom open|messages? \(|sent\)|Evidence:|No evidence|Extracting|Push failed|Stalled|Score:|Referral|LinkedIn|Google Contacts|Phone Parked)/i
+    const visible = (element) => {
+      if (!(element instanceof HTMLElement)) return false
+      const rect = element.getBoundingClientRect()
+      const style = window.getComputedStyle(element)
+      return (
+        rect.width > 0 &&
+        rect.height > 0 &&
+        style.visibility !== 'hidden' &&
+        style.display !== 'none' &&
+        rect.bottom >= 0 &&
+        rect.right >= 0 &&
+        rect.top <= window.innerHeight &&
+        rect.left <= window.innerWidth
+      )
+    }
+    const candidates = [...document.querySelectorAll('span, p, a, button, [aria-label^="Internal action for "], [aria-label^="Created internal action for "]')]
+      .filter((element) => visible(element))
+      .map((element) => {
+        const text = (element.textContent || '').replace(/\s+/g, ' ').trim()
+        const rect = element.getBoundingClientRect()
+        return {
+          tag: element.tagName.toLowerCase(),
+          label: element.getAttribute('aria-label') || '',
+          text,
+          width: Math.round(rect.width * 10) / 10,
+          height: Math.round(rect.height * 10) / 10,
+          top: Math.round(rect.top),
+          left: Math.round(rect.left),
+        }
+      })
+      .filter((item) => item.text.length >= 7 && interestingText.test(`${item.label} ${item.text}`))
+
+    const collapsed = candidates.filter((item) => {
+      const tallStrip = item.width < 64 && item.height > 38 && item.height / Math.max(item.width, 1) > 0.9
+      const unreadableControl = /(Review draft|Record evidence|Open Outreach|Workroom open)/i.test(`${item.label} ${item.text}`) && item.width < 96
+      return tallStrip || unreadableControl
+    })
+
+    return {
+      collapsed,
+      checkedCount: candidates.length,
+      viewport: {
+        width: document.documentElement.clientWidth,
+        height: document.documentElement.clientHeight,
+      },
+    }
+  })
+}
+
 async function assertPlannedDraftActions(page) {
   const checks = await page.evaluate(() => {
     const text = document.body.innerText
@@ -1194,6 +1310,8 @@ async function viewportEvidence(browser, name, viewport, screenshotPath) {
   const planningBacklog = qa.page.getByLabel('Warm outreach planning backlog')
   await planningBacklog.scrollIntoViewIfNeeded()
   const checks = await assertPlanningBacklog(qa.page)
+  const internalActionChecks = await assertCreatedInternalActions(qa.page)
+  const collapsedTextChecks = await assertNoCollapsedActionText(qa.page)
   await qa.page.getByLabel('Select all on this page').check()
   await activateButton(qa.page.getByRole('button', { name: 'Plan draft work' }))
   await qa.page.getByLabel('Warm planned draft actions').waitFor({ timeout: 15_000 })
@@ -1207,6 +1325,8 @@ async function viewportEvidence(browser, name, viewport, screenshotPath) {
     viewport,
     screenshotPath,
     checks,
+    internalActionChecks,
+    collapsedTextChecks,
     actionChecks,
     externalRequests: qa.externalRequests,
   }
@@ -1241,9 +1361,11 @@ async function addSideText(page) {
     panel.innerHTML = `
       <h2>warm-planned-draft-actions QA</h2>
       <h3>Scenario</h3>
-      <p>Vambah opens the warm planning backlog and moves planned candidates into review-only draft action packets.</p>
+      <p>Vambah opens the warm outreach list and sees created internal draft and handoff records as actionable items in the existing workroom.</p>
       <h3>Expected</h3>
       <ul>
+        <li>Created Gmail draft records show a compact Review draft CTA.</li>
+        <li>Created manual-social handoff tasks show a compact Record evidence CTA.</li>
         <li>Seven planning states are visible as compact count filters.</li>
         <li>The primary CTA opens a review batch above long context.</li>
         <li>The selected batch creates only internal Portfolio records.</li>
@@ -1309,10 +1431,21 @@ await desktop.page.getByText('Gmail batch draft plan').waitFor({ timeout: 10_000
 await desktop.page.waitForTimeout(800)
 await desktopPlanningBacklog.evaluate((element) => element.scrollIntoView({ block: 'center' }))
 await activateButton(desktop.page.getByRole('button', { name: /Show Ready for manual social candidates/ }))
-await activateButton(desktop.page.getByRole('button', { name: 'Plan review batch for Nia Manualsocial' }))
+await activateButton(desktop.page.getByRole('button', { name: /Record manual handoff evidence for Nia Manualsocial/ }))
 const desktopWorkroom = desktop.page.getByRole('region', { name: 'Outreach workroom for Nia Manualsocial' })
 await desktopWorkroom.waitFor({ timeout: 15_000 })
 await desktopWorkroom.getByTestId('warm-manual-social-handoff').first().waitFor({ timeout: 15_000 })
+const desktopInternalActionChecks = await assertCreatedInternalActions(desktop.page)
+const desktopCollapsedTextChecks = await assertNoCollapsedActionText(desktop.page)
+if (
+  !desktopInternalActionChecks.hasGmailAction ||
+  !desktopInternalActionChecks.hasManualAction ||
+  !desktopInternalActionChecks.hasWorkroomAction ||
+  desktopInternalActionChecks.horizontalOverflow ||
+  desktopCollapsedTextChecks.collapsed.length > 0
+) {
+  throw new Error(`Desktop internal action QA failed: ${JSON.stringify({ desktopInternalActionChecks, desktopCollapsedTextChecks }, null, 2)}`)
+}
 await desktop.page.waitForTimeout(1200)
 const video = desktop.page.video()
 await desktop.context.close()
@@ -1350,6 +1483,10 @@ const failedViewport = viewportRuns.find((run) =>
   run.checks.filterLabelCountOverlap ||
   !run.checks.hasSafeCta ||
   !run.checks.hasBoundary ||
+  !run.internalActionChecks.hasGmailAction ||
+  !run.internalActionChecks.hasManualAction ||
+  run.internalActionChecks.horizontalOverflow ||
+  run.collapsedTextChecks.collapsed.length > 0 ||
   !run.actionChecks.hasActionTray ||
   !run.actionChecks.hasCompactRecommendations ||
   !run.actionChecks.hasMixedChannels ||
@@ -1365,13 +1502,15 @@ if (failedViewport) {
 }
 
 const receipt = {
-  version: 'warm-planned-draft-actions-qa/v1',
+  version: 'warm-created-internal-actions-qa/v1',
   createdAt: new Date().toISOString(),
   qaUrl,
-  scenario: 'Planning backlog operator opens warm leads, filters planning states, creates internal planned draft/handoff records, and opens manual-social workroom state.',
+  scenario: 'Warm outreach operator sees created internal Gmail draft records and manual-social handoff tasks in the existing list/workroom, then verifies planned-record creation still stays internal.',
   expectedBehavior: [
     'Planning backlog shows All, Ready Gmail, Manual, Relationship, Responses, Blocked, and SMS parked as compact count filters without standalone number tiles.',
     'Clicking filter chips visibly drills into the matching candidate set.',
+    'Created Gmail draft records surface as compact Review draft actions in the warm lead list.',
+    'Created manual-social handoff tasks surface as compact Record evidence actions in the warm lead list and selected workroom.',
     'Compact filter labels and counts do not overlap at mobile widths 360, 390, and 430.',
     'The primary CTA prepares a review-only batch and the planned draft action tray appears above the long review context.',
     'The selected batch can create internal Portfolio Gmail draft and manual-social handoff records from the existing workroom.',
@@ -1384,6 +1523,8 @@ const receipt = {
   externalActionBoundary: 'Synthetic/local QA only; no Gmail, Slack, LinkedIn, Facebook, Telnyx/SMS, n8n, scheduling, publishing, provider calls, or production-data mutation.',
   screenshots,
   viewportRuns,
+  desktopInternalActionChecks,
+  desktopCollapsedTextChecks,
   mp4Path,
   rawVideoPath,
   externalRequests,

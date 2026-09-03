@@ -496,7 +496,7 @@ export async function GET(request: NextRequest) {
     // Batch: all outreach_queue rows for this page of contacts (avoids N+1 per lead).
     const { data: allQueueRows } = await supabaseAdmin
       .from('outreach_queue')
-      .select('id, contact_submission_id, status, subject, created_at, channel')
+      .select('id, contact_submission_id, status, subject, created_at, channel, generation_inputs')
       .in('contact_submission_id', contactIds)
 
     type QueueRow = {
@@ -506,6 +506,7 @@ export async function GET(request: NextRequest) {
       subject: string | null
       created_at: string
       channel: string
+      generation_inputs?: Record<string, unknown> | null
     }
     const messagesByContact: Record<number, QueueRow[]> = {}
     for (const row of (allQueueRows || []) as QueueRow[]) {
@@ -517,6 +518,45 @@ export async function GET(request: NextRequest) {
       const arr = messagesByContact[cid] || []
       arr.sort(
         (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+      )
+    }
+
+    const { data: actionTaskRows } = await supabaseAdmin
+      .from('meeting_action_tasks')
+      .select('id, contact_submission_id, title, description, status, due_date, task_category, external_id, created_at')
+      .in('contact_submission_id', contactIds)
+
+    type ActionTaskRow = {
+      id: string
+      contact_submission_id: number | null
+      title: string | null
+      description: string | null
+      status: string | null
+      due_date: string | null
+      task_category: string | null
+      external_id: string | null
+      created_at: string | null
+    }
+    const manualHandoffTasksByContact: Record<number, ActionTaskRow[]> = {}
+    for (const row of (actionTaskRows || []) as ActionTaskRow[]) {
+      const cid = row.contact_submission_id
+      if (!cid) continue
+      const externalId = row.external_id ?? ''
+      const statusValue = row.status ?? ''
+      if (
+        row.task_category !== 'outreach' ||
+        !externalId.startsWith('warm-outreach:manual-handoff-task:v1:') ||
+        (statusValue !== 'pending' && statusValue !== 'in_progress')
+      ) {
+        continue
+      }
+      if (!manualHandoffTasksByContact[cid]) manualHandoffTasksByContact[cid] = []
+      manualHandoffTasksByContact[cid].push(row)
+    }
+    for (const cid of contactIds) {
+      const arr = manualHandoffTasksByContact[cid] || []
+      arr.sort(
+        (a, b) => new Date(b.created_at ?? 0).getTime() - new Date(a.created_at ?? 0).getTime(),
       )
     }
 
@@ -649,6 +689,48 @@ export async function GET(request: NextRequest) {
             created_at: m.created_at,
             email_message_id: emailMessageIdByQueueId[m.id] ?? null,
           }))
+        const plannedGmailDraft = emailChrono.find((m) => {
+          const inputs = m.generation_inputs && typeof m.generation_inputs === 'object'
+            ? m.generation_inputs
+            : {}
+          const recordKey = typeof inputs.record_key === 'string' ? inputs.record_key : ''
+          return (
+            m.status === 'draft' &&
+            (
+              inputs.version === 'warm-planned-draft-execution/v1' ||
+              inputs.queue_intent === 'draft_only_planned' ||
+              recordKey.startsWith('warm-outreach:gmail-draft-record:v1:')
+            )
+          )
+        })
+        const manualHandoffTask = (manualHandoffTasksByContact[contact.id] || [])[0]
+        const next_internal_action = manualHandoffTask
+          ? {
+              kind: 'manual_social_handoff_task',
+              label: 'Record handoff evidence',
+              status_label: manualHandoffTask.status === 'in_progress' ? 'In progress' : 'Pending handoff',
+              detail: manualHandoffTask.title ?? 'Manual social handoff task',
+              record_table: 'meeting_action_tasks',
+              record_id: manualHandoffTask.id,
+              created_at: manualHandoffTask.created_at,
+              href: `/admin/outreach?tab=leads&filter=warm&id=${contact.id}&contactId=${contact.id}#warm-manual-social-handoff`,
+              enabled: true,
+            }
+          : plannedGmailDraft
+            ? {
+                kind: 'gmail_draft_record',
+                label: 'Review draft',
+                status_label: 'Draft-only record',
+                detail: plannedGmailDraft.subject ?? 'Warm Gmail draft record',
+                record_table: 'outreach_queue',
+                record_id: plannedGmailDraft.id,
+                created_at: plannedGmailDraft.created_at,
+                href: emailMessageIdByQueueId[plannedGmailDraft.id]
+                  ? `/admin/email-messages/${emailMessageIdByQueueId[plannedGmailDraft.id]}`
+                  : `/admin/email-center?contact=${contact.id}`,
+                enabled: true,
+              }
+            : null
 
         const leadSessions = sessionsByContact[contact.id] || []
         const has_sales_conversation = contactWithAudit.has(contact.id) || leadSessions.length > 0
@@ -684,6 +766,7 @@ export async function GET(request: NextRequest) {
           last_n8n_outreach_template_key: contact.last_n8n_outreach_template_key ?? null,
           has_extractable_text,
           recent_email_drafts,
+          next_internal_action,
         }
       },
     )
