@@ -820,6 +820,12 @@ async function assertPlanningBacklog(page) {
         /Waiting on response/i.test(text) &&
         /Suppressed\/blocked/i.test(text) &&
         /SMS parked/i.test(text),
+      hasCampaignAlignment:
+        /Today \/ This week/i.test(text) &&
+        /Whisper-to-shout launch/i.test(text) &&
+        /The backlog turns the current campaign phase/i.test(text) &&
+        /Campaign source/i.test(text) &&
+        /Why next:/i.test(text),
       hasSafeCta: visible(currentCta) && /Plan review batch/.test(currentCta?.textContent || ''),
       hasBoundary:
         /Gmail drafts: off/i.test(text) &&
@@ -856,24 +862,24 @@ async function viewportEvidence(browser, name, viewport, screenshotPath) {
 async function addSideText(page) {
   await page.addStyleTag({
     content: `
-      body { padding-right: 360px !important; }
+      body { padding-right: 288px !important; }
       #qa-side-text {
         position: fixed;
         inset: 0 0 0 auto;
         z-index: 2147483647;
-        width: 336px;
+        width: 272px;
         box-sizing: border-box;
-        padding: 22px 20px;
+        padding: 18px 16px;
         background: #07111f;
         color: #e5eef9;
         border-left: 1px solid rgba(148, 163, 184, .35);
-        font: 14px/1.45 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        font: 12px/1.4 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       }
-      #qa-side-text h2 { margin: 0 0 12px; font-size: 18px; line-height: 1.2; }
-      #qa-side-text h3 { margin: 16px 0 6px; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: #f7d56b; }
+      #qa-side-text h2 { margin: 0 0 10px; font-size: 15px; line-height: 1.2; }
+      #qa-side-text h3 { margin: 12px 0 5px; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: #f7d56b; }
       #qa-side-text p { margin: 0; color: #cbd5e1; }
-      #qa-side-text ul { margin: 6px 0 0; padding-left: 18px; color: #cbd5e1; }
-      #qa-side-text li { margin: 5px 0; }
+      #qa-side-text ul { margin: 5px 0 0; padding-left: 16px; color: #cbd5e1; }
+      #qa-side-text li { margin: 4px 0; }
     `,
   })
   await page.evaluate(() => {
@@ -885,8 +891,10 @@ async function addSideText(page) {
       <p>Vambah opens the warm leads tab and prepares a reviewable outreach batch from the existing planning backlog.</p>
       <h3>Expected</h3>
       <ul>
+        <li>Today / This week shows the current campaign phase and calendar-template source.</li>
         <li>Six planning states are visible as compact count filters.</li>
         <li>The single current CTA prepares a review-only batch plan.</li>
+        <li>Candidate rows explain why each outreach action maps to the campaign plan.</li>
         <li>Candidate rows show basis, channel, draft readiness, approval, response, and blockers.</li>
         <li>The manual social workroom still renders for the selected contact.</li>
       </ul>
@@ -968,6 +976,7 @@ if (externalRequests.length > 0) {
 const failedViewport = viewportRuns.find((run) =>
   !run.checks.hasPlanningBacklog ||
   !run.checks.hasStates ||
+  !run.checks.hasCampaignAlignment ||
   !run.checks.hasSafeCta ||
   !run.checks.hasBoundary ||
   run.checks.horizontalOverflow
@@ -982,8 +991,10 @@ const receipt = {
   qaUrl,
   scenario: 'Planning backlog operator opens warm leads, filters planning states, prepares a review-only batch plan, and opens manual-social workroom state.',
   expectedBehavior: [
+    'Planning backlog shows Today / This Week campaign alignment from the existing whisper_to_shout social content calendar template.',
     'Planning backlog shows Ready for Gmail draft, Ready for manual social, Needs relationship review, Waiting on response, Suppressed/blocked, and SMS parked counts.',
     'Clicking summary counts visibly drills into the matching candidate set.',
+    'Candidate rows show why each outreach action is next for the current campaign phase without duplicating a calendar.',
     'The single current CTA prepares a review-only batch plan and does not imply external sending.',
     'The selected-contact workroom still renders the manual social handoff panel.',
     'Mobile widths 360, 390, and 430 show the core planning CTA with no horizontal overflow.',

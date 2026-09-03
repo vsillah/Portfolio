@@ -942,6 +942,10 @@ describe('OutreachAdminPage deep links', () => {
     const planningBacklog = await screen.findByLabelText('Warm outreach planning backlog')
     expect(within(planningBacklog).getByText('Warm planning backlog')).toBeInTheDocument()
     expect(within(planningBacklog).getByText(/Warm outreach backlog for/)).toHaveClass('leading-5')
+    expect(within(planningBacklog).getByText('Today / This week')).toBeInTheDocument()
+    expect(within(planningBacklog).getByText(/Whisper-to-shout launch/)).toBeInTheDocument()
+    expect(within(planningBacklog).getByText(/The backlog turns the current campaign phase/)).toBeInTheDocument()
+    expect(within(planningBacklog).getByText('Campaign source')).toBeInTheDocument()
     expect(within(planningBacklog).getByText(/Internal review plan for/)).toHaveClass(
       'mt-2.5',
       'leading-6',
@@ -964,6 +968,8 @@ describe('OutreachAdminPage deep links', () => {
       'whitespace-nowrap',
     )
     expect(within(planningBacklog).getAllByText('SMS parked').length).toBeGreaterThan(0)
+    expect(within(planningBacklog).getByText('Why next:')).toBeInTheDocument()
+    expect(within(planningBacklog).getByText(/campaign proof maps to a reviewed Gmail draft candidate/)).toBeInTheDocument()
 
     const digest = await screen.findByLabelText('Warm response digest')
     expect(within(digest).getByText('Warm response digest')).toBeInTheDocument()

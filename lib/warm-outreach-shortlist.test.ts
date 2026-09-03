@@ -306,6 +306,22 @@ describe('warm outreach shortlist', () => {
     expect(shortlist.planningBacklog).toMatchObject({
       version: 'warm-outreach-planning-backlog/v1',
       planningWindowLabel: 'Warm outreach backlog for 2026-09-02',
+      operatingWindow: {
+        todayLabel: 'Sep 2',
+        weekLabel: 'Sep 2-Sep 8',
+      },
+      campaignAlignment: {
+        source: 'social_content_calendar_template',
+        templateKey: 'whisper_to_shout',
+        campaignTheme: 'Whisper-to-shout launch',
+        currentPhase: 'tease',
+        currentPhaseLabel: 'Tease',
+        plannedWindowLabel: 'Sep 2-Sep 8',
+        currentMilestoneTitle:
+          'Open with a small tension, observation, or question that makes the campaign problem visible.',
+        nextMilestoneTitle:
+          'Give the audience a useful framework or operating lesson connected to the campaign promise.',
+      },
       counts: {
         ready_gmail_draft: 2,
         ready_manual_social: 1,
@@ -337,6 +353,12 @@ describe('warm outreach shortlist', () => {
       draftReadiness: 'ready_for_review_batch',
       states: ['ready_manual_social'],
       batchEligible: true,
+      campaignAlignment: {
+        phase: 'tease',
+        theme: 'Open with a small tension, observation, or question that makes the campaign problem visible.',
+        plannedWindowLabel: 'Sep 2-Sep 8',
+        whyNext: 'Tease campaign angle is ready for a manual social handoff.',
+      },
     })
     expect(shortlist.planningBacklog.candidates.find((candidate) => candidate.contactId === 15)?.states).toContain('sms_parked')
   })

@@ -1,4 +1,9 @@
 import { isWarmLeadSource } from './constants/lead-source'
+import {
+  CAMPAIGN_PHASE_LABELS,
+  SOCIAL_CONTENT_CALENDAR_TEMPLATES,
+  type SocialContentCampaignPhase,
+} from './social-content-calendar'
 
 export type WarmOutreachShortlistBlockerKey =
   | 'missing_email'
@@ -152,11 +157,33 @@ export type WarmOutreachPlanningBacklogCandidate = {
   batchEligible: boolean
   nextActionLabel: string
   ctaHref: string
+  campaignAlignment: {
+    phase: SocialContentCampaignPhase
+    theme: string
+    plannedWindowLabel: string
+    whyNext: string
+  }
 }
 
 export type WarmOutreachPlanningBacklog = {
   version: 'warm-outreach-planning-backlog/v1'
   planningWindowLabel: string
+  operatingWindow: {
+    todayLabel: string
+    weekLabel: string
+  }
+  campaignAlignment: {
+    source: 'social_content_calendar_template'
+    templateKey: 'whisper_to_shout'
+    campaignTheme: string
+    currentPhase: SocialContentCampaignPhase
+    currentPhaseLabel: string
+    plannedWindowLabel: string
+    currentMilestoneTitle: string
+    nextMilestoneTitle: string | null
+    whyThisBacklogIsNext: string
+    drillIn: string
+  }
   filterLabels: Record<WarmOutreachPlanningBacklogState, string>
   counts: Record<WarmOutreachPlanningBacklogState, number>
   currentCta: {
@@ -216,6 +243,87 @@ const PLANNING_BACKLOG_FILTER_LABELS: Record<WarmOutreachPlanningBacklogState, s
   waiting_on_response: 'Waiting on response',
   suppressed_blocked: 'Suppressed/blocked',
   sms_parked: 'SMS parked',
+}
+
+const WARM_OUTREACH_CAMPAIGN_TEMPLATE_KEY = 'whisper_to_shout' as const
+const WARM_OUTREACH_CAMPAIGN_TEMPLATE =
+  SOCIAL_CONTENT_CALENDAR_TEMPLATES[WARM_OUTREACH_CAMPAIGN_TEMPLATE_KEY]
+
+function displayDateLabel(value: string): string {
+  const [year, month, day] = value.split('-').map(Number)
+  if (!year || !month || !day) return value
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    day: 'numeric',
+    timeZone: 'UTC',
+  }).format(new Date(Date.UTC(year, month - 1, day)))
+}
+
+function addDaysLabel(value: string, days: number): string {
+  const [year, month, day] = value.split('-').map(Number)
+  if (!year || !month || !day) return value
+  const date = new Date(Date.UTC(year, month - 1, day + days))
+  return date.toISOString().slice(0, 10)
+}
+
+function campaignMilestoneFor(generatedFor: string) {
+  const day = Number(generatedFor.slice(-2))
+  const campaignDay = Number.isFinite(day) ? ((day - 1) % 14) + 1 : 1
+  const milestones = WARM_OUTREACH_CAMPAIGN_TEMPLATE.milestones
+  const current =
+    milestones
+      .filter((milestone) => milestone.fallback_day_offset + 1 <= campaignDay)
+      .at(-1) ?? milestones[0]
+  const next =
+    milestones.find((milestone) => milestone.fallback_day_offset + 1 > campaignDay) ?? null
+
+  return {
+    current,
+    next,
+    campaignDay,
+  }
+}
+
+function buildCampaignAlignment(generatedFor: string): WarmOutreachPlanningBacklog['campaignAlignment'] {
+  const { current, next } = campaignMilestoneFor(generatedFor)
+  const weekEnd = addDaysLabel(generatedFor, 6)
+
+  return {
+    source: 'social_content_calendar_template',
+    templateKey: WARM_OUTREACH_CAMPAIGN_TEMPLATE_KEY,
+    campaignTheme: WARM_OUTREACH_CAMPAIGN_TEMPLATE.label,
+    currentPhase: current.campaign_phase,
+    currentPhaseLabel: CAMPAIGN_PHASE_LABELS[current.campaign_phase],
+    plannedWindowLabel: `${displayDateLabel(generatedFor)}-${displayDateLabel(weekEnd)}`,
+    currentMilestoneTitle: current.planned_angle,
+    nextMilestoneTitle: next?.planned_angle ?? null,
+    whyThisBacklogIsNext:
+      'The backlog turns the current campaign phase into relationship-specific Gmail draft candidates and manual social handoffs.',
+    drillIn:
+      `${WARM_OUTREACH_CAMPAIGN_TEMPLATE.description} Source: existing social content calendar template; outreach actions stay local and review-gated.`,
+  }
+}
+
+function whyThisCandidateIsNext(
+  candidateState: WarmOutreachPlanningBacklogState,
+  phaseLabel: string,
+): string {
+  if (candidateState === 'ready_gmail_draft') {
+    return `${phaseLabel} campaign proof maps to a reviewed Gmail draft candidate.`
+  }
+  if (candidateState === 'ready_manual_social') {
+    return `${phaseLabel} campaign angle is ready for a manual social handoff.`
+  }
+  if (candidateState === 'waiting_on_response') {
+    return 'Prior outreach is waiting, so response review comes before new touchpoints.'
+  }
+  if (candidateState === 'sms_parked') {
+    return 'SMS stays visible but parked until Telnyx approval and a separate send gate.'
+  }
+  if (candidateState === 'suppressed_blocked') {
+    return 'Suppression or missing contact state must be resolved before outreach.'
+  }
+  return 'Relationship context needs review before this campaign angle becomes actionable.'
 }
 
 function text(value: string | null | undefined): string | null {
@@ -534,6 +642,7 @@ function buildOfficeDigest(args: {
 function planningBacklogCandidateFor(
   lead: WarmOutreachShortlistLead,
   item: Omit<WarmOutreachShortlistItem, 'priorityRank'>,
+  campaignAlignment: WarmOutreachPlanningBacklog['campaignAlignment'],
 ): WarmOutreachPlanningBacklogCandidate {
   const status = text(lead.outreach_status)?.toLowerCase()
   const draftStatus = text(latestDraft(lead)?.status)?.toLowerCase()
@@ -578,6 +687,17 @@ function planningBacklogCandidateFor(
   if (manualSocialReady) states.add('ready_manual_social')
   if (smsParked) states.add('sms_parked')
   if (states.size === 0) states.add('needs_relationship_review')
+  const primaryState = states.has('ready_gmail_draft')
+    ? 'ready_gmail_draft'
+    : states.has('ready_manual_social')
+      ? 'ready_manual_social'
+      : states.has('waiting_on_response')
+        ? 'waiting_on_response'
+        : states.has('needs_relationship_review')
+          ? 'needs_relationship_review'
+          : states.has('suppressed_blocked')
+            ? 'suppressed_blocked'
+            : 'sms_parked'
 
   const recommendedChannel: WarmOutreachPlanningBacklogCandidate['recommendedChannel'] =
     gmailReady || text(lead.email)
@@ -652,6 +772,12 @@ function planningBacklogCandidateFor(
           ? 'Review relationship basis'
           : 'Open contact review',
     ctaHref: item.cta.href,
+    campaignAlignment: {
+      phase: campaignAlignment.currentPhase,
+      theme: campaignAlignment.currentMilestoneTitle,
+      plannedWindowLabel: campaignAlignment.plannedWindowLabel,
+      whyNext: whyThisCandidateIsNext(primaryState, campaignAlignment.currentPhaseLabel),
+    },
   }
 }
 
@@ -660,9 +786,10 @@ function buildPlanningBacklog(args: {
   items: Array<Omit<WarmOutreachShortlistItem, 'priorityRank'>>
   warmLeads: WarmOutreachShortlistLead[]
 }): WarmOutreachPlanningBacklog {
+  const campaignAlignment = buildCampaignAlignment(args.generatedFor)
   const candidates = args.items.map((item) => {
     const lead = args.warmLeads.find((candidate) => candidate.id === item.contactId)
-    return lead ? planningBacklogCandidateFor(lead, item) : null
+    return lead ? planningBacklogCandidateFor(lead, item, campaignAlignment) : null
   }).filter(Boolean) as WarmOutreachPlanningBacklogCandidate[]
   const counts = Object.keys(PLANNING_BACKLOG_FILTER_LABELS).reduce((acc, key) => {
     const state = key as WarmOutreachPlanningBacklogState
@@ -691,6 +818,11 @@ function buildPlanningBacklog(args: {
   return {
     version: 'warm-outreach-planning-backlog/v1',
     planningWindowLabel: `Warm outreach backlog for ${args.generatedFor}`,
+    operatingWindow: {
+      todayLabel: displayDateLabel(args.generatedFor),
+      weekLabel: `${displayDateLabel(args.generatedFor)}-${displayDateLabel(addDaysLabel(args.generatedFor, 6))}`,
+    },
+    campaignAlignment,
     filterLabels: PLANNING_BACKLOG_FILTER_LABELS,
     counts,
     currentCta: selected && batchContactIds.length > 0
