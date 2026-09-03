@@ -947,11 +947,18 @@ describe('OutreachAdminPage deep links', () => {
     })
     expect(within(stateFilters).getByRole('button', { name: /Show all warm planning candidates/ })).toHaveTextContent('All')
     expect(within(stateFilters).getByRole('button', { name: /Show Ready for Gmail draft candidates/ })).toHaveTextContent('Ready Gmail')
-    expect(within(stateFilters).getByRole('button', { name: /Show Ready for manual social candidates/ })).toHaveTextContent('Manual')
+    const manualFilter = within(stateFilters).getByRole('button', { name: /Show Ready for manual social candidates/ })
+    expect(manualFilter).toHaveTextContent('Manual')
+    expect(manualFilter).toHaveClass('min-w-fit', 'shrink-0', 'whitespace-nowrap')
     expect(within(stateFilters).getByRole('button', { name: /Show SMS parked candidates/ })).toHaveTextContent('SMS parked')
     expect(within(planningBacklog).getByRole('button', { name: 'Plan review batch (1)' })).toBeInTheDocument()
     expect(within(planningBacklog).getByText('Gmail drafts: off')).toBeInTheDocument()
     expect(within(planningBacklog).getByText('Sends/Slack/social/SMS: off')).toBeInTheDocument()
+    expect(within(planningBacklog).getByText('external requests 0')).toHaveClass(
+      'min-w-fit',
+      'shrink-0',
+      'whitespace-nowrap',
+    )
     expect(within(planningBacklog).getAllByText('SMS parked').length).toBeGreaterThan(0)
 
     const digest = await screen.findByLabelText('Warm response digest')
@@ -1204,6 +1211,16 @@ describe('OutreachAdminPage deep links', () => {
     const batchReview = await screen.findByLabelText('Warm batch review')
     expect(within(batchReview).getByLabelText('Warm planned draft actions')).toBeInTheDocument()
     expect(within(batchReview).getByText('1 Gmail draft plan')).toBeInTheDocument()
+    expect(within(batchReview).getByText('0 manual handoff')).toHaveClass(
+      'min-w-fit',
+      'shrink-0',
+      'whitespace-nowrap',
+    )
+    expect(within(batchReview).getByText('external requests 0')).toHaveClass(
+      'min-w-fit',
+      'shrink-0',
+      'whitespace-nowrap',
+    )
     expect(within(batchReview).getByText('Cohort provenance')).toBeInTheDocument()
     expect(within(batchReview).getByText('Sample individualized preview')).toBeInTheDocument()
     expect(within(batchReview).getByLabelText('Gmail batch draft plan')).toBeInTheDocument()

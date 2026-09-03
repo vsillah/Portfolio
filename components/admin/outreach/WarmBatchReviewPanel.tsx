@@ -194,7 +194,7 @@ function BoundaryFlag({
 }) {
   return (
     <span
-      className={`inline-flex min-h-7 items-center rounded-md border px-2 py-1 text-xs ${
+      className={`inline-flex min-h-7 min-w-fit shrink-0 items-center whitespace-nowrap rounded-md border px-2.5 py-1 text-xs leading-5 ${
         active
           ? activeTone === 'safe'
             ? 'border-emerald-500/25 bg-emerald-500/10 text-emerald-100'
@@ -241,29 +241,29 @@ function PlannedDraftActionsSection({
             <p className="text-xs font-semibold uppercase tracking-wide text-radiant-gold">
               Planned draft actions
             </p>
-            <span className="rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2 py-0.5 text-xs text-emerald-100">
+            <span className="inline-flex min-w-fit shrink-0 items-center whitespace-nowrap rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2.5 py-0.5 text-xs leading-5 text-emerald-100">
               external requests {actions.executionBoundary.externalRequests.length}
             </span>
-            <span className="rounded-full border border-silicon-slate/70 bg-background/45 px-2 py-0.5 text-xs text-muted-foreground">
+            <span className="inline-flex min-w-fit shrink-0 items-center whitespace-nowrap rounded-full border border-silicon-slate/70 bg-background/45 px-2.5 py-0.5 text-xs leading-5 text-muted-foreground">
               {actions.executionBoundary.internalPortfolioRecordsCreated
                 ? 'internal records only'
                 : 'pre-record/no-write'}
             </span>
           </div>
           <div className="mt-3 flex flex-wrap gap-1.5 text-[11px]">
-            <span className="rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2 py-0.5 text-emerald-100">
+            <span className="inline-flex min-w-fit shrink-0 items-center whitespace-nowrap rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2.5 py-0.5 leading-5 text-emerald-100">
               {actions.summary.gmailDraftPlanCount} Gmail draft plan
             </span>
-            <span className="rounded-full border border-sky-500/25 bg-sky-500/10 px-2 py-0.5 text-sky-100">
+            <span className="inline-flex min-w-fit shrink-0 items-center whitespace-nowrap rounded-full border border-sky-500/25 bg-sky-500/10 px-2.5 py-0.5 leading-5 text-sky-100">
               {actions.summary.manualSocialHandoffCount} manual handoff
             </span>
-            <span className="rounded-full border border-violet-500/25 bg-violet-500/10 px-2 py-0.5 text-violet-100">
+            <span className="inline-flex min-w-fit shrink-0 items-center whitespace-nowrap rounded-full border border-violet-500/25 bg-violet-500/10 px-2.5 py-0.5 leading-5 text-violet-100">
               {actions.summary.responseFollowUpCount} response follow-up
             </span>
-            <span className="rounded-full border border-amber-500/25 bg-amber-500/10 px-2 py-0.5 text-amber-100">
+            <span className="inline-flex min-w-fit shrink-0 items-center whitespace-nowrap rounded-full border border-amber-500/25 bg-amber-500/10 px-2.5 py-0.5 leading-5 text-amber-100">
               {actions.summary.relationshipReviewBlockerCount} relationship review
             </span>
-            <span className="rounded-full border border-silicon-slate/70 bg-background/35 px-2 py-0.5 text-muted-foreground">
+            <span className="inline-flex min-w-fit shrink-0 items-center whitespace-nowrap rounded-full border border-silicon-slate/70 bg-background/35 px-2.5 py-0.5 leading-5 text-muted-foreground">
               {actions.summary.parkedSmsCount} SMS parked
             </span>
           </div>
@@ -328,14 +328,14 @@ function PlannedDraftActionsSection({
           >
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
-                <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-semibold ${plannedActionClasses(row.state)}`}>
+                <span className={`inline-flex min-w-fit shrink-0 items-center gap-1 whitespace-nowrap rounded-full border px-2.5 py-0.5 text-[11px] font-semibold leading-5 ${plannedActionClasses(row.state)}`}>
                   <PlannedActionIcon kind={row.kind} />
                   {row.kindLabel}
                 </span>
-                <span className="rounded-full border border-silicon-slate/70 bg-background/35 px-2 py-0.5 text-[11px] text-muted-foreground">
+                <span className="inline-flex min-w-fit shrink-0 items-center whitespace-nowrap rounded-full border border-silicon-slate/70 bg-background/35 px-2.5 py-0.5 text-[11px] leading-5 text-muted-foreground">
                   {plannedChannelLabel(row.recommendedChannel)}
                 </span>
-                <span className={`rounded-full border px-2 py-0.5 text-[11px] ${recordStateClasses(row.recordState)}`}>
+                <span className={`inline-flex min-w-fit shrink-0 items-center whitespace-nowrap rounded-full border px-2.5 py-0.5 text-[11px] leading-5 ${recordStateClasses(row.recordState)}`}>
                   {recordStateLabel(row.recordState)}
                 </span>
                 <p className="min-w-0 truncate text-sm font-semibold text-foreground">{row.contactName}</p>
