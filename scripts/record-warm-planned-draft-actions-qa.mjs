@@ -364,6 +364,105 @@ function makeSendReadiness(contactId) {
 
 function batchReviewResponse(contactIds) {
   const selected = leads.filter((lead) => contactIds.includes(lead.id))
+  const plannedKindFor = (lead) => {
+    if (lead.do_not_contact || lead.outreach_status === 'opted_out') {
+      return {
+        kind: 'relationship_review_blocker',
+        kindLabel: 'Blocked',
+        recommendedChannel: 'review',
+        recommendationLabel: 'Suppression review',
+        state: 'blocked',
+        reason: 'Do-not-contact or suppression status blocks this candidate.',
+        detail: 'Resolve suppression status before any draft or handoff record can be created.',
+        cta: {
+          key: 'open_relationship_review',
+          label: 'Review blocker',
+          href: `/admin/outreach?tab=leads&filter=warm&id=${lead.id}&contactId=${lead.id}`,
+          enabled: true,
+        },
+        recordKey: `warm-outreach:blocked:v1:qa-${lead.id}`,
+        recordTable: null,
+        recordState: 'blocked',
+      }
+    }
+    if (lead.outreach_status === 'sent') {
+      return {
+        kind: 'response_follow_up',
+        kindLabel: 'Response follow-up',
+        recommendedChannel: 'review',
+        recommendationLabel: 'Response follow-up',
+        state: 'follow_up',
+        reason: 'Existing outreach is waiting on response evidence.',
+        detail: 'Review the existing response lifecycle before creating a new draft or handoff record.',
+        cta: {
+          key: 'open_response_state',
+          label: 'Review response',
+          href: `/admin/outreach?tab=leads&filter=warm&id=${lead.id}&contactId=${lead.id}#warm-response-lifecycle`,
+          enabled: true,
+        },
+        recordKey: `warm-outreach:response-follow-up:v1:qa-${lead.id}`,
+        recordTable: null,
+        recordState: 'blocked',
+      }
+    }
+    if (lead.lead_score < 40 || lead.evidence_count < 1) {
+      return {
+        kind: 'relationship_review_blocker',
+        kindLabel: 'Relationship review',
+        recommendedChannel: 'review',
+        recommendationLabel: 'Relationship review',
+        state: 'blocked',
+        reason: 'Weak relationship basis needs review before draft execution.',
+        detail: 'Open the relationship packet and add a stronger basis before creating records.',
+        cta: {
+          key: 'open_relationship_review',
+          label: 'Review basis',
+          href: `/admin/outreach?tab=leads&filter=warm&id=${lead.id}&contactId=${lead.id}`,
+          enabled: true,
+        },
+        recordKey: `warm-outreach:relationship-review:v1:qa-${lead.id}`,
+        recordTable: null,
+        recordState: 'blocked',
+      }
+    }
+    return lead.linkedin_url && !lead.email
+      ? {
+        kind: 'manual_social_handoff',
+        kindLabel: 'Manual-social handoff',
+        recommendedChannel: 'linkedin',
+        recommendationLabel: 'Manual-social handoff',
+        state: 'manual',
+        reason: 'Manual LinkedIn review only.',
+        detail: 'Open the existing relationship packet workroom and use the manual handoff controls.',
+        cta: {
+          key: 'open_manual_handoff',
+          label: 'Open manual handoff',
+          href: `/admin/outreach?tab=leads&filter=warm&id=${lead.id}&contactId=${lead.id}#warm-manual-social-handoff`,
+          enabled: true,
+        },
+        recordKey: `warm-outreach:manual-handoff-task:v1:qa-linkedin-${lead.id}`,
+        recordTable: 'meeting_action_tasks',
+        recordState: 'ready_to_create',
+      }
+      : {
+        kind: 'gmail_draft_plan',
+        kindLabel: 'Gmail draft plan',
+        recommendedChannel: 'gmail',
+        recommendationLabel: 'Gmail draft plan',
+        state: 'ready',
+        reason: 'Open draft gate',
+        detail: 'Prepare the review-only Gmail draft action packet. Gmail draft creation remains a separate explicit gate.',
+        cta: {
+          key: 'open_draft_gate',
+          label: 'Open draft gate',
+          href: '#gmail-batch-draft-plan',
+          enabled: true,
+        },
+        recordKey: `warm-outreach:gmail-draft-record:v1:qa-${lead.id}`,
+        recordTable: 'outreach_queue',
+        recordState: 'ready_to_create',
+      }
+  }
   const recipients = selected.map((lead) => ({
     contactId: lead.id,
     contactName: lead.name,
@@ -432,20 +531,9 @@ function batchReviewResponse(contactIds) {
     contactId: lead.id,
     contactName: lead.name,
     company: lead.company,
-    kind: 'gmail_draft_plan',
-    kindLabel: 'Gmail draft plan',
-    recommendedChannel: 'gmail',
-    recommendationLabel: 'Gmail draft plan',
-    state: 'ready',
-    reason: 'Open draft gate',
-    detail: 'Prepare the review-only Gmail draft action packet. Gmail draft creation remains a separate explicit gate.',
+    ...plannedKindFor(lead),
     blockers: lead.phone_number ? ['SMS parked until Telnyx readiness clears'] : [],
-    cta: {
-      key: 'open_draft_gate',
-      label: 'Open draft gate',
-      href: '#gmail-batch-draft-plan',
-      enabled: true,
-    },
+    localRecordId: null,
     draftActionPacket: {
       version: 'warm-planned-draft-action-packet/v1',
       reviewOnly: true,
@@ -530,8 +618,8 @@ function batchReviewResponse(contactIds) {
       },
       summary: {
         selectedCount: selected.length,
-        gmailDraftPlanCount: selected.length,
-        manualSocialHandoffCount: 0,
+        gmailDraftPlanCount: plannedRows.filter((row) => row.kind === 'gmail_draft_plan').length,
+        manualSocialHandoffCount: plannedRows.filter((row) => row.kind === 'manual_social_handoff').length,
         relationshipReviewBlockerCount: 0,
         responseFollowUpCount: 0,
         parkedSmsCount: selected.filter((lead) => Boolean(lead.phone_number)).length,
@@ -566,6 +654,87 @@ function batchReviewResponse(contactIds) {
       n8nDispatch: false,
       slackAction: false,
       responseMonitoring: false,
+    },
+  }
+}
+
+function executedBatchReviewResponse(contactIds) {
+  const review = batchReviewResponse(contactIds)
+  const createdAt = new Date().toISOString()
+  const createdRows = review.plannedDraftActions.rows.filter((row) => row.recordState === 'ready_to_create')
+  const rows = review.plannedDraftActions.rows.map((row) => {
+    const createdIndex = createdRows.findIndex((candidate) => candidate.recordKey === row.recordKey)
+    return createdIndex >= 0
+      ? {
+          ...row,
+          recordState: 'record_created',
+          localRecordId: row.recordTable === 'meeting_action_tasks'
+            ? `qa-meeting-action-task-${createdIndex + 1}`
+            : `qa-outreach-queue-${createdIndex + 1}`,
+        }
+      : row
+  })
+  const gmailCreatedKeys = new Set(rows
+    .filter((row) => row.kind === 'gmail_draft_plan')
+    .map((row) => row.recordKey))
+
+  return {
+    ...review,
+    gmailDraftPlan: {
+      ...review.gmailDraftPlan,
+      status: 'draft_records_created',
+      currentCta: {
+        key: 'draft_records_created',
+        label: 'Gmail draft records created',
+        enabled: false,
+        blocker: null,
+      },
+      summary: {
+        ...review.gmailDraftPlan.summary,
+        draftCreationEligibleCount: Math.max(0, review.gmailDraftPlan.summary.draftCreationEligibleCount - gmailCreatedKeys.size),
+        draftCreatedCount: gmailCreatedKeys.size,
+      },
+      rows: review.gmailDraftPlan.rows.map((row) => gmailCreatedKeys.has(row.draftCreation.draftRecordKey)
+        ? {
+            ...row,
+            nextActionLabel: 'Draft record created',
+            draftCreation: {
+              ...row.draftCreation,
+              status: 'draft_created',
+              statusLabel: 'Draft created',
+              actionEnabled: false,
+              localDraftRecordId: row.draftCreation.draftRecordKey,
+              createdAt,
+              externalRequests: [],
+            },
+          }
+        : row),
+      executionReceipt: {
+        action: 'create_gmail_draft_records',
+        createdAt,
+        createdCount: gmailCreatedKeys.size,
+        externalRequests: [],
+      },
+    },
+    plannedDraftActions: {
+      ...review.plannedDraftActions,
+      currentCta: {
+        key: 'records_created',
+        label: 'Records created',
+        enabled: false,
+        href: null,
+        reason: 'Internal draft and handoff records were created.',
+      },
+      rows,
+      executionReceipt: {
+        action: 'create_planned_draft_handoff_records',
+        createdAt,
+        createdCount: createdRows.length,
+        existingCount: 0,
+        gmailDraftRecordCount: rows.filter((row) => row.kind === 'gmail_draft_plan').length,
+        manualSocialHandoffTaskCount: rows.filter((row) => row.kind === 'manual_social_handoff').length,
+        externalRequests: [],
+      },
     },
   }
 }
@@ -790,10 +959,13 @@ async function installSafeRoutes(page, externalRequests, localRequests) {
     if (/\/api\/admin\/outreach\/batch-review\b/i.test(url.pathname)) {
       localRequests.push({ method: request.method(), pathname: url.pathname })
       const body = request.postDataJSON()
+      const responseBody = body.action === 'create_planned_draft_handoff_records'
+        ? executedBatchReviewResponse(body.contact_ids ?? [])
+        : batchReviewResponse(body.contact_ids ?? [])
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
-        body: JSON.stringify(batchReviewResponse(body.contact_ids ?? [])),
+        body: JSON.stringify(responseBody),
       })
       return
     }
@@ -949,8 +1121,8 @@ async function assertPlannedDraftActions(page) {
     const text = document.body.innerText
     const tray = document.querySelector('[aria-label="Warm planned draft actions"]')
     const gmailPlan = document.querySelector('[aria-label="Gmail batch draft plan"]')
-    const primaryCta = [...document.querySelectorAll('a')]
-      .find((link) => /^Open draft gate$/.test(link.textContent?.trim() || ''))
+    const primaryCta = [...document.querySelectorAll('button, a')]
+      .find((control) => /^(Create records|Records created|Open draft gate)/.test(control.textContent?.trim() || ''))
     const visible = (element) => {
       if (!(element instanceof HTMLElement)) return false
       const rect = element.getBoundingClientRect()
@@ -964,8 +1136,14 @@ async function assertPlannedDraftActions(page) {
       hasCompactRecommendations:
         /Planned draft actions/i.test(text) &&
         /Gmail draft plan/i.test(text) &&
-        /Open draft gate/i.test(text) &&
+        /(Create records|Records created|Open draft gate)/i.test(text) &&
         /SMS parked/i.test(text),
+      hasMixedChannels:
+        /Gmail draft plan/i.test(text) &&
+        /manual handoff/i.test(text),
+      hasExecutionReceipt:
+        /Created \d+ internal records?; reused 0/i.test(text) &&
+        /Gmail provider drafts, sends, Slack, social posting, SMS, and n8n stayed off/i.test(text),
       primaryCtaAboveGmailPlan:
         Boolean(trayRect && gmailRect && trayRect.top <= gmailRect.top),
       hasNoEgressBoundary:
@@ -975,7 +1153,7 @@ async function assertPlannedDraftActions(page) {
         /SMS: off/i.test(text) &&
         /n8n: off/i.test(text) &&
         /external requests 0/i.test(text),
-      primaryHref: primaryCta instanceof HTMLAnchorElement ? primaryCta.getAttribute('href') : null,
+      primaryControlText: primaryCta?.textContent?.trim() ?? null,
       viewport: {
         clientWidth: document.documentElement.clientWidth,
         scrollWidth: document.documentElement.scrollWidth,
@@ -993,8 +1171,11 @@ async function viewportEvidence(browser, name, viewport, screenshotPath) {
   const planningBacklog = qa.page.getByLabel('Warm outreach planning backlog')
   await planningBacklog.scrollIntoViewIfNeeded()
   const checks = await assertPlanningBacklog(qa.page)
-  await activateButton(planningBacklog.getByRole('button', { name: 'Plan review batch (2)' }))
+  await qa.page.getByLabel('Select all on this page').check()
+  await activateButton(qa.page.getByRole('button', { name: 'Plan draft work' }))
   await qa.page.getByLabel('Warm planned draft actions').waitFor({ timeout: 15_000 })
+  await activateButton(qa.page.getByRole('button', { name: 'Create records (3)' }))
+  await qa.page.getByText(/Created 3 internal records; reused 0/).waitFor({ timeout: 15_000 })
   const actionChecks = await assertPlannedDraftActions(qa.page)
   await qa.page.screenshot({ path: screenshotPath, fullPage: true })
   await qa.context.close()
@@ -1040,14 +1221,14 @@ async function addSideText(page) {
       <p>Vambah opens the warm planning backlog and moves planned candidates into review-only draft action packets.</p>
       <h3>Expected</h3>
       <ul>
-        <li>Six planning states are visible as compact count filters.</li>
+        <li>Seven planning states are visible as compact count filters.</li>
         <li>The primary CTA opens a review batch above long context.</li>
-        <li>The planned action tray shows Gmail draft plan, manual handoff, response follow-up, relationship review, and parked SMS counts.</li>
-        <li>Action CTAs open existing draft gate, manual handoff, relationship packet, or response surfaces.</li>
+        <li>The selected batch creates only internal Portfolio records.</li>
+        <li>The planned action tray shows created Gmail draft records and manual-social handoff tasks.</li>
         <li>The manual social workroom still renders for the selected contact.</li>
       </ul>
       <h3>Decision Gate</h3>
-      <p>This stops at review. Creating Gmail drafts, sending messages, recording manual evidence, or enabling SMS remains separately approved.</p>
+      <p>This stops at internal draft and handoff records. Gmail provider drafts, sending messages, recording manual evidence, or enabling SMS remains separately approved.</p>
       <h3>External Boundary</h3>
       <p>No Gmail, Slack, LinkedIn, Facebook, Telnyx/SMS, n8n, scheduling, publishing, or production-data mutation.</p>
     `
@@ -1082,16 +1263,20 @@ await desktopPlanningBacklog.getByText('Kofi Phoneparked').waitFor({ timeout: 10
 await desktop.page.waitForTimeout(700)
 await desktopPlanningBacklog.evaluate((element) => element.scrollIntoView({ block: 'center' }))
 await activateButton(desktopPlanningBacklog.getByRole('button', { name: /Show Ready for Gmail draft candidates/ }))
-await activateButton(desktopPlanningBacklog.getByRole('button', { name: 'Plan review batch (2)' }))
+await desktop.page.getByLabel('Select all on this page').check()
+await activateButton(desktop.page.getByRole('button', { name: 'Plan draft work' }))
 await desktop.page.getByLabel('Warm batch review').waitFor({ timeout: 15_000 })
 await desktop.page.getByLabel('Warm planned draft actions').waitFor({ timeout: 15_000 })
+await activateButton(desktop.page.getByRole('button', { name: 'Create records (3)' }))
+await desktop.page.getByText(/Created 3 internal records; reused 0/).waitFor({ timeout: 15_000 })
 const desktopActionChecks = await assertPlannedDraftActions(desktop.page)
 if (
   !desktopActionChecks.hasActionTray ||
   !desktopActionChecks.hasCompactRecommendations ||
+  !desktopActionChecks.hasMixedChannels ||
+  !desktopActionChecks.hasExecutionReceipt ||
   !desktopActionChecks.primaryCtaAboveGmailPlan ||
   !desktopActionChecks.hasNoEgressBoundary ||
-  desktopActionChecks.primaryHref !== '#gmail-batch-draft-plan' ||
   desktopActionChecks.horizontalOverflow
 ) {
   throw new Error(`Desktop planned draft action QA failed: ${JSON.stringify(desktopActionChecks, null, 2)}`)
@@ -1143,9 +1328,10 @@ const failedViewport = viewportRuns.find((run) =>
   !run.checks.hasBoundary ||
   !run.actionChecks.hasActionTray ||
   !run.actionChecks.hasCompactRecommendations ||
+  !run.actionChecks.hasMixedChannels ||
+  !run.actionChecks.hasExecutionReceipt ||
   !run.actionChecks.primaryCtaAboveGmailPlan ||
   !run.actionChecks.hasNoEgressBoundary ||
-  run.actionChecks.primaryHref !== '#gmail-batch-draft-plan' ||
   run.actionChecks.horizontalOverflow ||
   run.checks.horizontalOverflow
 )
@@ -1157,18 +1343,19 @@ const receipt = {
   version: 'warm-planned-draft-actions-qa/v1',
   createdAt: new Date().toISOString(),
   qaUrl,
-  scenario: 'Planning backlog operator opens warm leads, filters planning states, prepares review-only draft action packets, and opens manual-social workroom state.',
+  scenario: 'Planning backlog operator opens warm leads, filters planning states, creates internal planned draft/handoff records, and opens manual-social workroom state.',
   expectedBehavior: [
     'Planning backlog shows All, Ready Gmail, Manual, Relationship, Responses, Blocked, and SMS parked as compact count filters without standalone number tiles.',
     'Clicking filter chips visibly drills into the matching candidate set.',
     'Compact filter labels and counts do not overlap at mobile widths 360, 390, and 430.',
     'The primary CTA prepares a review-only batch and the planned draft action tray appears above the long review context.',
-    'The action tray shows Gmail draft plan, manual handoff, response follow-up, relationship review, and parked SMS counts.',
-    'Action CTAs point to existing Portfolio surfaces; no standalone queue, calendar, or dashboard is created.',
+    'The selected batch can create internal Portfolio Gmail draft and manual-social handoff records from the existing workroom.',
+    'The action tray shows record-created state and keeps no-provider/no-send boundary text visible.',
+    'The internal record path stays inside existing Portfolio surfaces; no standalone queue, calendar, or dashboard is created.',
     'The selected-contact workroom still renders the manual social handoff panel.',
     'Mobile widths 360, 390, and 430 show the planning CTA and planned action tray with no horizontal overflow.',
   ],
-  decisionGate: 'Operator review only. Gmail draft creation, Slack dispatch, external sends, SMS/Telnyx, provider activation, and manual-evidence recording remain separate gates.',
+  decisionGate: 'Internal Portfolio records only. Gmail provider draft creation, Slack dispatch, external sends, SMS/Telnyx, provider activation, and manual-evidence recording remain separate gates.',
   externalActionBoundary: 'Synthetic/local QA only; no Gmail, Slack, LinkedIn, Facebook, Telnyx/SMS, n8n, scheduling, publishing, provider calls, or production-data mutation.',
   screenshots,
   viewportRuns,

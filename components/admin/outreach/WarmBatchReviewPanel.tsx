@@ -35,6 +35,7 @@ interface WarmBatchReviewPanelProps {
   selectedCount: number
   onReview: () => void
   onCreateGmailDraftRecords: () => void
+  onCreatePlannedDraftRecords?: () => void
   onPrepareProviderDraftCanary?: (queueId: string) => void
 }
 
@@ -101,6 +102,20 @@ function plannedActionClasses(state: WarmPlannedDraftActionRow['state']) {
   if (state === 'follow_up') return 'border-violet-500/35 bg-violet-500/10 text-violet-100'
   if (state === 'parked') return 'border-silicon-slate/80 bg-background/40 text-muted-foreground'
   return 'border-amber-500/35 bg-amber-500/10 text-amber-100'
+}
+
+function recordStateLabel(state: WarmPlannedDraftActionRow['recordState']) {
+  if (state === 'record_created') return 'Record created'
+  if (state === 'existing_record') return 'Existing record'
+  if (state === 'blocked') return 'Blocked'
+  return 'Ready to create'
+}
+
+function recordStateClasses(state: WarmPlannedDraftActionRow['recordState']) {
+  if (state === 'record_created') return 'border-emerald-500/35 bg-emerald-500/10 text-emerald-100'
+  if (state === 'existing_record') return 'border-sky-500/35 bg-sky-500/10 text-sky-100'
+  if (state === 'blocked') return 'border-amber-500/35 bg-amber-500/10 text-amber-100'
+  return 'border-radiant-gold/35 bg-radiant-gold/10 text-radiant-gold'
 }
 
 function PlannedActionIcon({ kind }: { kind: WarmPlannedDraftActionRow['kind'] }) {
@@ -186,10 +201,23 @@ function LocalEvidenceFlag() {
   )
 }
 
-function PlannedDraftActionsSection({ data }: { data: WarmBatchReview }) {
+function PlannedDraftActionsSection({
+  data,
+  loading,
+  error,
+  onCreatePlannedDraftRecords,
+}: {
+  data: WarmBatchReview
+  loading: boolean
+  error: string | null
+  onCreatePlannedDraftRecords?: () => void
+}) {
   const actions = data.plannedDraftActions
   if (!actions) return null
   const primaryHref = actions.currentCta.href
+  const executableCount = actions.rows.filter((row) => row.recordState === 'ready_to_create').length
+  const canCreateRecords = executableCount > 0 && Boolean(onCreatePlannedDraftRecords)
+  const receipt = actions.executionReceipt
 
   return (
     <div className="rounded-lg border border-radiant-gold/30 bg-radiant-gold/5 p-3" aria-label="Warm planned draft actions">
@@ -224,7 +252,27 @@ function PlannedDraftActionsSection({ data }: { data: WarmBatchReview }) {
             </span>
           </div>
         </div>
-        {primaryHref ? (
+        {canCreateRecords || receipt ? (
+          <button
+            type="button"
+            disabled={!canCreateRecords || loading || Boolean(receipt)}
+            onClick={onCreatePlannedDraftRecords}
+            className="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-lg border border-radiant-gold/50 bg-radiant-gold/10 px-3 text-sm font-semibold text-radiant-gold transition-colors hover:bg-radiant-gold/15 disabled:cursor-not-allowed disabled:opacity-55 lg:w-auto"
+          >
+            {loading ? (
+              <RefreshCw size={15} className="animate-spin" aria-hidden />
+            ) : receipt ? (
+              <CheckCircle2 size={15} aria-hidden />
+            ) : (
+              <ClipboardCheck size={15} aria-hidden />
+            )}
+            {loading
+              ? 'Creating records...'
+              : receipt
+                ? 'Records created'
+                : `Create records (${executableCount})`}
+          </button>
+        ) : primaryHref ? (
           <a
             href={primaryHref}
             className="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-lg border border-radiant-gold/50 bg-radiant-gold/10 px-3 text-sm font-semibold text-radiant-gold transition-colors hover:bg-radiant-gold/15 lg:w-auto"
@@ -244,6 +292,18 @@ function PlannedDraftActionsSection({ data }: { data: WarmBatchReview }) {
         )}
       </div>
 
+      {error && (
+        <p role="alert" className="mt-3 rounded-md border border-red-500/25 bg-red-500/10 p-2 text-xs leading-5 text-red-100">
+          {error}
+        </p>
+      )}
+
+      {receipt && (
+        <p role="status" className="mt-3 rounded-md border border-emerald-500/25 bg-emerald-500/10 p-2 text-xs leading-5 text-emerald-100">
+          Created {receipt.createdCount} internal record{receipt.createdCount === 1 ? '' : 's'}; reused {receipt.existingCount}. Gmail provider drafts, sends, Slack, social posting, SMS, and n8n stayed off.
+        </p>
+      )}
+
       <div className="mt-3 grid gap-2 lg:grid-cols-2">
         {actions.rows.slice(0, 6).map((row) => (
           <article
@@ -259,6 +319,9 @@ function PlannedDraftActionsSection({ data }: { data: WarmBatchReview }) {
                 <span className="rounded-full border border-silicon-slate/70 bg-background/35 px-2 py-0.5 text-[11px] text-muted-foreground">
                   {plannedChannelLabel(row.recommendedChannel)}
                 </span>
+                <span className={`rounded-full border px-2 py-0.5 text-[11px] ${recordStateClasses(row.recordState)}`}>
+                  {recordStateLabel(row.recordState)}
+                </span>
                 <p className="min-w-0 truncate text-sm font-semibold text-foreground">{row.contactName}</p>
               </div>
               <p className="mt-2 line-clamp-2 text-xs leading-5 text-muted-foreground">
@@ -272,6 +335,11 @@ function PlannedDraftActionsSection({ data }: { data: WarmBatchReview }) {
                 {row.blockers[0] && (
                   <p className="mt-1 truncate text-amber-100" title={row.blockers.join(' / ')}>
                     {row.blockers[0]}
+                  </p>
+                )}
+                {row.localRecordId && (
+                  <p className="mt-1 truncate" title={row.localRecordId}>
+                    {row.recordTable}: {row.localRecordId}
                   </p>
                 )}
               </details>
@@ -689,6 +757,7 @@ export default function WarmBatchReviewPanel({
   selectedCount,
   onReview,
   onCreateGmailDraftRecords,
+  onCreatePlannedDraftRecords,
   onPrepareProviderDraftCanary,
 }: WarmBatchReviewPanelProps) {
   const sample = data?.samplePreview
@@ -754,10 +823,10 @@ export default function WarmBatchReviewPanel({
         <div className="min-w-0">
           <p className="flex items-center gap-2 text-sm font-semibold text-sky-100">
             <Users size={16} className="text-radiant-gold" aria-hidden />
-            Warm Gmail batch planning
+            Warm draft execution planning
           </p>
           <p className="mt-1 max-w-3xl text-sm leading-6 text-muted-foreground">
-            Review selected warm leads as individualized Gmail draft-plan candidates before any queue write, provider draft, or send authority.
+            Review selected warm leads as individualized Gmail/manual handoff candidates before creating internal records. Provider drafts and sends remain gated.
           </p>
         </div>
         <button
@@ -785,7 +854,12 @@ export default function WarmBatchReviewPanel({
 
       {data && (
         <div className="mt-4 space-y-4">
-          <PlannedDraftActionsSection data={data} />
+          <PlannedDraftActionsSection
+            data={data}
+            loading={draftActionLoading}
+            error={draftActionError}
+            onCreatePlannedDraftRecords={onCreatePlannedDraftRecords}
+          />
 
           <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(14rem,0.55fr)]">
             <div className="rounded-lg border border-silicon-slate/70 bg-background/45 p-3">

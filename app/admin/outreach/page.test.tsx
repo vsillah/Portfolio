@@ -434,6 +434,10 @@ const warmBatchReviewResponse = {
           productionDataMutation: false,
           externalRequests: [],
         },
+        recordState: 'ready_to_create',
+        recordKey: 'warm-outreach:gmail-draft-record:v1:test-recipient',
+        recordTable: 'outreach_queue',
+        localRecordId: null,
       },
     ],
     executionBoundary: {
@@ -501,6 +505,31 @@ const warmBatchCreatedResponse = {
       action: 'create_gmail_draft_records',
       createdAt: '2026-09-02T12:00:00.000Z',
       createdCount: 1,
+      externalRequests: [],
+    },
+  },
+  plannedDraftActions: {
+    ...warmBatchReviewResponse.plannedDraftActions,
+    currentCta: {
+      key: 'records_created',
+      label: 'Records created',
+      enabled: false,
+      reason: 'Internal draft and handoff records were created.',
+    },
+    rows: warmBatchReviewResponse.plannedDraftActions.rows.map((row) => ({
+      ...row,
+      recordState: 'record_created',
+      recordKey: 'warm-outreach:gmail-draft-record:v1:test-recipient',
+      recordTable: 'outreach_queue',
+      localRecordId: 'queue-created-1',
+    })),
+    executionReceipt: {
+      action: 'create_planned_draft_handoff_records',
+      createdAt: '2026-09-02T12:00:00.000Z',
+      createdCount: 1,
+      gmailDraftRecordCount: 1,
+      manualSocialHandoffTaskCount: 0,
+      existingCount: 0,
       externalRequests: [],
     },
   },
@@ -602,7 +631,7 @@ describe('OutreachAdminPage deep links', () => {
       }
       if (url.startsWith('/api/admin/outreach/batch-review')) {
         const body = init?.body ? JSON.parse(String(init.body)) : {}
-        return Response.json(body.action === 'create_gmail_draft_records'
+        return Response.json(body.action === 'create_planned_draft_handoff_records'
           ? warmBatchCreatedResponse
           : warmBatchReviewResponse)
       }
@@ -1153,7 +1182,7 @@ describe('OutreachAdminPage deep links', () => {
 
     await screen.findByText('Ada Operator')
     fireEvent.click(screen.getByLabelText('Select all on this page'))
-    fireEvent.click(screen.getByRole('button', { name: 'Plan Gmail drafts' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Plan draft work' }))
 
     const batchReview = await screen.findByLabelText('Warm batch review')
     expect(within(batchReview).getByLabelText('Warm planned draft actions')).toBeInTheDocument()
@@ -1170,7 +1199,10 @@ describe('OutreachAdminPage deep links', () => {
     expect(within(batchReview).getByText('External send: off')).toBeInTheDocument()
     expect(within(batchReview).getByText('Full recipient list (1)')).toBeInTheDocument()
     expect(within(batchReview).getByText('Hi Ada, The warm basis is prior meeting context.')).toBeInTheDocument()
-    fireEvent.click(within(batchReview).getByRole('button', { name: 'Create Gmail draft records (1)' }))
+    fireEvent.click(within(batchReview).getByRole('button', { name: 'Create records (1)' }))
+    expect(await within(batchReview).findByText(/Created 1 internal record; reused 0/)).toBeInTheDocument()
+    expect(within(batchReview).getByRole('button', { name: 'Records created' })).toBeDisabled()
+    expect(within(batchReview).getByText('Record created')).toBeInTheDocument()
     expect(await within(batchReview).findByText(/Draft-only Gmail records created for 1 contact/)).toBeInTheDocument()
     expect(within(batchReview).getByRole('button', { name: 'Gmail draft records created' })).toBeDisabled()
     expect(within(batchReview).getByText('Record: Draft created')).toBeInTheDocument()
@@ -1191,13 +1223,13 @@ describe('OutreachAdminPage deep links', () => {
     expect(batchCalls).toHaveLength(2)
     expect(JSON.parse(String(batchCalls[0]?.[1]?.body))).toMatchObject({
       contact_ids: [42],
-      cohort_label: '1 selected Gmail draft candidate',
+      cohort_label: '1 selected warm draft/handoff candidate',
       preferred_channel: 'email',
     })
     expect(JSON.parse(String(batchCalls[1]?.[1]?.body))).toMatchObject({
-      action: 'create_gmail_draft_records',
+      action: 'create_planned_draft_handoff_records',
       contact_ids: [42],
-      cohort_label: '1 selected Gmail draft candidate',
+      cohort_label: '1 selected warm draft/handoff candidate',
       preferred_channel: 'email',
     })
   })
@@ -1237,7 +1269,7 @@ describe('OutreachAdminPage deep links', () => {
 
     await screen.findByText('Ada Operator')
     fireEvent.click(screen.getByLabelText('Select all on this page'))
-    fireEvent.click(screen.getByRole('button', { name: 'Plan Gmail drafts' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Plan draft work' }))
 
     const batchReview = await screen.findByLabelText('Warm batch review')
     expect(within(batchReview).getByLabelText('Provider Gmail draft canary readiness')).toBeInTheDocument()

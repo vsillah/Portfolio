@@ -7,6 +7,11 @@ import {
   hasSuppressedWarmBatchStatus,
   parseWarmBatchContactIds,
   rowContactId,
+  type WarmBatchReview,
+  type WarmBatchReviewContactInput,
+  type WarmBatchReviewRecipient,
+  type WarmPlannedDraftActionRow,
+  type WarmPlannedDraftExecutionRecord,
 } from '@/lib/warm-outreach-batch-review'
 import type { WarmOutreachSourceInventoryRows } from '@/lib/warm-outreach-source-inventory'
 import { warmOutreachChannels, type WarmOutreachChannel } from '@/lib/warm-outreach-relationship-intelligence'
@@ -17,6 +22,8 @@ const MAX_BATCH_RECIPIENTS = 50
 const DEFAULT_OBJECTIVE =
   'Review selected warm outreach recipients before any individualized draft generation.'
 const CHANNELS = new Set<string>(warmOutreachChannels)
+const EXECUTE_PLANNED_ACTION = 'create_planned_draft_handoff_records'
+const CREATE_GMAIL_RECORDS_ACTION = 'create_gmail_draft_records'
 
 type PortfolioRow = NonNullable<WarmOutreachSourceInventoryRows['contactSubmission']>
 
@@ -53,13 +60,251 @@ function withSuppressionFromRelatedRows(contact: PortfolioRow, relatedRows: Port
   }
 }
 
+function recordValue(value: unknown): Record<string, unknown> {
+  return value && typeof value === 'object' && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : {}
+}
+
+function rowText(row: PortfolioRow, key: string): string | null {
+  const value = (row as Record<string, unknown>)[key]
+  if (typeof value === 'string') {
+    const trimmed = value.trim()
+    return trimmed || null
+  }
+  if (typeof value === 'number' && Number.isFinite(value)) return String(value)
+  return null
+}
+
+function appendRowsToContactInputs(
+  contactInputs: WarmBatchReviewContactInput[],
+  appended: {
+    outreachQueue: PortfolioRow[]
+    actionTasks: PortfolioRow[]
+  },
+): WarmBatchReviewContactInput[] {
+  const outreachByContact = groupByContactId(appended.outreachQueue)
+  const tasksByContact = groupByContactId(appended.actionTasks)
+
+  return contactInputs.map((input) => {
+    const contactId = Number(input.contact.id)
+    const outreachRows = [
+      ...(input.rows.outreachQueue ?? []),
+      ...rowsFor(outreachByContact, contactId),
+    ]
+    const actionTasks = [
+      ...(input.rows.actionTasks ?? []),
+      ...rowsFor(tasksByContact, contactId),
+    ]
+
+    return {
+      ...input,
+      rows: {
+        ...input.rows,
+        outreachQueue: outreachRows,
+        actionTasks,
+      },
+      existingOutreachRows: [
+        ...(input.existingOutreachRows ?? []),
+        ...rowsFor(outreachByContact, contactId),
+      ],
+    }
+  })
+}
+
+function recipientFor(review: WarmBatchReview, row: WarmPlannedDraftActionRow): WarmBatchReviewRecipient | null {
+  return review.recipients.find((recipient) => recipient.contactId === row.contactId) ?? null
+}
+
+function existingManualTask(
+  contactInputs: WarmBatchReviewContactInput[],
+  row: WarmPlannedDraftActionRow,
+): PortfolioRow | null {
+  const input = contactInputs.find((entry) => Number(entry.contact.id) === row.contactId)
+  const match = (input?.rows.actionTasks ?? []).find((task) =>
+    rowText(task, 'external_id') === row.recordKey &&
+    rowText(task, 'status') !== 'cancelled',
+  )
+  return match ?? null
+}
+
+function gmailDraftInsertFor(
+  row: WarmPlannedDraftActionRow,
+  recipient: WarmBatchReviewRecipient,
+  batchIdempotencyKey: string,
+) {
+  return {
+    contact_submission_id: row.contactId,
+    channel: 'email',
+    subject: `Warm follow-up: ${row.contactName}`,
+    body: recipient.individualizedDraftPreview,
+    sequence_step: 1,
+    status: 'draft',
+    generation_model: 'portfolio-local-planner',
+    generation_prompt_summary: 'planned_warm_gmail_draft_intent:no_provider',
+    generation_inputs: {
+      version: 'warm-planned-draft-execution/v1',
+      record_key: row.recordKey,
+      batch_idempotency_key: batchIdempotencyKey,
+      recipient_draft_idempotency_key: recipient.draftIdempotencyKey,
+      template_key: recipient.promptTemplateKey,
+      channel: 'email',
+      queue_intent: 'draft_only_planned',
+      warm_relationship: recipient.contextSummary,
+      draft_action_packet: row.draftActionPacket,
+      approval_boundary: 'draft_only_no_external_send',
+      provider_calls_enabled: false,
+      gmail_provider_draft_created: false,
+      gmail_send_enabled: false,
+      slack_dispatch_enabled: false,
+      sms_delivery_enabled: false,
+      social_provider_calls_enabled: false,
+      n8n_dispatch_enabled: false,
+      external_requests: [],
+    },
+  }
+}
+
+function manualTaskInsertFor(row: WarmPlannedDraftActionRow) {
+  const channel = row.recommendedChannel === 'phone_contact'
+    ? 'phone contact'
+    : row.recommendedChannel
+  return {
+    meeting_record_id: null,
+    contact_submission_id: row.contactId,
+    task_category: 'outreach',
+    title: `Manual ${channel} handoff: ${row.contactName}`,
+    description:
+      `${row.reason} Use the existing outreach workroom manual handoff controls. ` +
+      'Record timestamp, channel, and a non-sensitive note only; do not post or call providers.',
+    owner: 'Vambah',
+    due_date: null,
+    status: 'pending',
+    display_order: 0,
+    external_id: row.recordKey,
+  }
+}
+
+async function createPlannedDraftHandoffRecords(args: {
+  review: WarmBatchReview
+  contactInputs: WarmBatchReviewContactInput[]
+  action: string
+}): Promise<{
+  records: WarmPlannedDraftExecutionRecord[]
+  outreachQueue: PortfolioRow[]
+  actionTasks: PortfolioRow[]
+}> {
+  if (!supabaseAdmin) {
+    throw new Error('Database not available')
+  }
+
+  const now = new Date().toISOString()
+  const rows = args.review.plannedDraftActions.rows.filter((row) =>
+    row.recordState === 'ready_to_create' &&
+    (row.kind === 'gmail_draft_plan' || row.kind === 'manual_social_handoff') &&
+    row.recordTable,
+  )
+  const targetRows = args.action === CREATE_GMAIL_RECORDS_ACTION
+    ? rows.filter((row) => row.kind === 'gmail_draft_plan')
+    : rows
+
+  const records: WarmPlannedDraftExecutionRecord[] = []
+  const existingManualRows: PortfolioRow[] = []
+  for (const row of targetRows.filter((item) => item.kind === 'manual_social_handoff')) {
+    const existing = existingManualTask(args.contactInputs, row)
+    if (!existing) continue
+    existingManualRows.push(existing)
+    records.push({
+      key: row.recordKey,
+      kind: 'manual_social_handoff_task',
+      contactId: row.contactId,
+      channel: row.recommendedChannel as WarmPlannedDraftExecutionRecord['channel'],
+      recordTable: 'meeting_action_tasks',
+      recordId: rowText(existing, 'id') ?? row.recordKey,
+      state: 'existing',
+      createdAt: rowText(existing, 'created_at') ?? now,
+      externalRequests: [],
+    })
+  }
+
+  const gmailRows = targetRows
+    .filter((row) => row.kind === 'gmail_draft_plan')
+    .map((row) => {
+      const recipient = recipientFor(args.review, row)
+      return recipient ? gmailDraftInsertFor(row, recipient, args.review.batchIdempotencyKey) : null
+    })
+    .filter(Boolean) as ReturnType<typeof gmailDraftInsertFor>[]
+  const manualRows = targetRows
+    .filter((row) => row.kind === 'manual_social_handoff' && !existingManualTask(args.contactInputs, row))
+    .map(manualTaskInsertFor)
+
+  let insertedOutreachRows: PortfolioRow[] = []
+  let insertedTaskRows: PortfolioRow[] = []
+
+  if (gmailRows.length > 0) {
+    const { data, error } = await supabaseAdmin
+      .from('outreach_queue')
+      .insert(gmailRows)
+      .select('id, contact_submission_id, channel, subject, sequence_step, status, thread_id, message_id, sent_at, replied_at, generation_inputs, created_at')
+    if (error) throw new Error('Unable to create internal Gmail draft records.')
+    insertedOutreachRows = Array.isArray(data) ? data as PortfolioRow[] : []
+    for (const inserted of insertedOutreachRows) {
+      const generationInputs = recordValue(inserted.generation_inputs)
+      records.push({
+        key: rowText(inserted, 'id') && typeof generationInputs.record_key === 'string'
+          ? generationInputs.record_key
+          : rowText(inserted, 'id') ?? '',
+        kind: 'gmail_draft_record',
+        contactId: Number(inserted.contact_submission_id),
+        channel: 'gmail',
+        recordTable: 'outreach_queue',
+        recordId: rowText(inserted, 'id') ?? '',
+        state: 'created',
+        createdAt: rowText(inserted, 'created_at') ?? now,
+        externalRequests: [],
+      })
+    }
+  }
+
+  if (manualRows.length > 0) {
+    const { data, error } = await supabaseAdmin
+      .from('meeting_action_tasks')
+      .insert(manualRows)
+      .select('id, contact_submission_id, title, description, task_category, status, due_date, outreach_queue_id, external_id, created_at')
+    if (error) throw new Error('Unable to create manual-social handoff tasks.')
+    insertedTaskRows = Array.isArray(data) ? data as PortfolioRow[] : []
+    for (const inserted of insertedTaskRows) {
+      const key = rowText(inserted, 'external_id') ?? rowText(inserted, 'id') ?? ''
+      const source = targetRows.find((row) => row.recordKey === key)
+      records.push({
+        key,
+        kind: 'manual_social_handoff_task',
+        contactId: Number(inserted.contact_submission_id),
+        channel: (source?.recommendedChannel ?? 'linkedin') as WarmPlannedDraftExecutionRecord['channel'],
+        recordTable: 'meeting_action_tasks',
+        recordId: rowText(inserted, 'id') ?? key,
+        state: 'created',
+        createdAt: rowText(inserted, 'created_at') ?? now,
+        externalRequests: [],
+      })
+    }
+  }
+
+  return {
+    records: records.filter((record) => record.key && record.recordId),
+    outreachQueue: insertedOutreachRows,
+    actionTasks: [...existingManualRows, ...insertedTaskRows],
+  }
+}
+
 /**
  * POST /api/admin/outreach/batch-review
  *
  * Builds a one-to-many warm outreach review packet from existing /admin/outreach
- * lead selections. This endpoint is read-only and does not generate drafts,
- * call LLM/provider APIs, create Gmail drafts, dispatch n8n, notify Slack, or
- * enable send/scheduling authority.
+ * lead selections. Review mode is read-only. The planned execution action only
+ * creates internal Portfolio draft/handoff rows; it does not call LLM/provider
+ * APIs, create Gmail provider drafts, dispatch n8n, notify Slack, or enable
+ * send/scheduling authority.
  */
 export async function POST(request: NextRequest) {
   try {
@@ -112,7 +357,11 @@ export async function POST(request: NextRequest) {
       typeof body.action === 'string' && body.action.trim()
         ? body.action.trim()
         : 'review'
-    if (action !== 'review' && action !== 'create_gmail_draft_records') {
+    if (
+      action !== 'review' &&
+      action !== CREATE_GMAIL_RECORDS_ACTION &&
+      action !== EXECUTE_PLANNED_ACTION
+    ) {
       return NextResponse.json(
         { error: 'Unsupported warm batch review action.' },
         { status: 400 },
@@ -168,7 +417,7 @@ export async function POST(request: NextRequest) {
       supabaseAdmin
         .from('meeting_action_tasks')
         .select(
-          'id, contact_submission_id, meeting_record_id, title, status, due_date, task_category, outreach_queue_id, created_at',
+          'id, contact_submission_id, meeting_record_id, title, description, status, due_date, task_category, outreach_queue_id, external_id, created_at',
         )
         .in('contact_submission_id', contactIds)
         .order('created_at', { ascending: false })
@@ -247,12 +496,33 @@ export async function POST(request: NextRequest) {
       cohortLabel,
       preferredChannel,
       draftCreationReceiptAt:
-        action === 'create_gmail_draft_records'
+        action === CREATE_GMAIL_RECORDS_ACTION
           ? new Date().toISOString()
           : null,
     })
 
-    return NextResponse.json(review)
+    if (action === 'review') {
+      return NextResponse.json(review)
+    }
+
+    const plannedRecords = await createPlannedDraftHandoffRecords({
+      review,
+      contactInputs,
+      action,
+    })
+    const contactInputsWithRecords = appendRowsToContactInputs(contactInputs, {
+      outreachQueue: plannedRecords.outreachQueue,
+      actionTasks: plannedRecords.actionTasks,
+    })
+    const executedReview = buildWarmBatchReview({
+      contacts: contactInputsWithRecords,
+      objective,
+      cohortLabel,
+      preferredChannel,
+      plannedDraftExecutionRecords: plannedRecords.records,
+    })
+
+    return NextResponse.json(executedReview)
   } catch (error) {
     console.error('Error in POST /api/admin/outreach/batch-review:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

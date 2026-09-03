@@ -1050,7 +1050,7 @@ function OutreachContent() {
         },
         body: JSON.stringify({
           contact_ids: contactIds,
-          cohort_label: cohortLabel ?? `${contactIds.length} selected Gmail draft candidate${contactIds.length === 1 ? '' : 's'}`,
+          cohort_label: cohortLabel ?? `${contactIds.length} selected warm draft/handoff candidate${contactIds.length === 1 ? '' : 's'}`,
           preferred_channel: preferredChannel,
         }),
       })
@@ -1088,7 +1088,7 @@ function OutreachContent() {
     try {
       const session = await getCurrentSession()
       if (!session?.access_token) {
-        setWarmBatchDraftActionError('Admin session is required to create draft-only Gmail records.')
+        setWarmBatchDraftActionError('Admin session is required to create internal draft and handoff records.')
         return
       }
 
@@ -1099,9 +1099,9 @@ function OutreachContent() {
           Authorization: `Bearer ${session.access_token}`,
         },
         body: JSON.stringify({
-          action: 'create_gmail_draft_records',
+          action: 'create_planned_draft_handoff_records',
           contact_ids: contactIds,
-          cohort_label: `${contactIds.length} selected Gmail draft candidate${contactIds.length === 1 ? '' : 's'}`,
+          cohort_label: `${contactIds.length} selected warm draft/handoff candidate${contactIds.length === 1 ? '' : 's'}`,
           preferred_channel: 'email',
         }),
       })
@@ -1110,13 +1110,13 @@ function OutreachContent() {
         throw new Error(
           typeof body?.error === 'string'
             ? body.error
-            : 'Gmail draft records could not be created.',
+            : 'Internal draft and handoff records could not be created.',
         )
       }
       setWarmBatchReview(body as WarmBatchReview)
     } catch (error) {
       setWarmBatchDraftActionError(
-        error instanceof Error ? error.message : 'Gmail draft records could not be created.',
+        error instanceof Error ? error.message : 'Internal draft and handoff records could not be created.',
       )
     } finally {
       setWarmBatchDraftActionLoading(false)
@@ -1909,7 +1909,7 @@ function OutreachContent() {
                         {selectedLeadIds.size} lead(s) selected
                       </span>
                       <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                        Plan draft-only Gmail outreach or enrich selected leads from this existing outreach list.
+                        Plan draft-only Gmail/manual handoff work or enrich selected leads from this existing outreach list.
                       </p>
                     </div>
                     <div className="grid w-full grid-cols-1 gap-2 sm:w-auto sm:grid-cols-none sm:flex sm:flex-wrap sm:items-center">
@@ -1924,7 +1924,7 @@ function OutreachContent() {
                         ) : (
                           <Users size={15} aria-hidden />
                         )}
-                        Plan Gmail drafts
+                        Plan draft work
                       </button>
                       <button
                         type="button"
@@ -1964,6 +1964,7 @@ function OutreachContent() {
                     selectedCount={selectedLeadIds.size}
                     onReview={reviewWarmBatch}
                     onCreateGmailDraftRecords={createWarmBatchGmailDraftRecords}
+                    onCreatePlannedDraftRecords={createWarmBatchGmailDraftRecords}
                     onPrepareProviderDraftCanary={prepareWarmProviderDraftCanary}
                   />
                 )}
