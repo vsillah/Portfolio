@@ -1,12 +1,14 @@
 {
   "version": "warm-created-internal-actions-qa/v1",
-  "createdAt": "2026-09-03T03:17:39.930Z",
+  "createdAt": "2026-09-03T03:54:25.103Z",
   "qaUrl": "http://127.0.0.1:3000/admin/outreach?tab=leads&filter=warm&qa=warm-planning-backlog",
   "scenario": "Warm outreach operator sees created internal Gmail draft records and manual-social handoff tasks in the existing list/workroom, then verifies planned-record creation still stays internal.",
   "expectedBehavior": [
     "Planning backlog shows All, Ready Gmail, Manual, Relationship, Responses, Blocked, and SMS parked as compact count filters without standalone number tiles.",
     "Clicking filter chips visibly drills into the matching candidate set.",
     "Created Gmail draft records surface as compact Review draft actions in the warm lead list.",
+    "Review draft opens the existing outreach workroom, shows the saved queue body, recipient context, relationship basis, and one primary Copy draft CTA.",
+    "Missing linked email-message state stays recoverable in context by reviewing the saved queue body instead of routing to Email Center.",
     "Created manual-social handoff tasks surface as compact Record evidence actions in the warm lead list and selected workroom.",
     "Compact filter labels and counts do not overlap at mobile widths 360, 390, and 430.",
     "The primary CTA prepares a review-only batch and the planned draft action tray appears above the long review context.",
@@ -19,10 +21,10 @@
   "decisionGate": "Internal Portfolio records only. Gmail provider draft creation, Slack dispatch, external sends, SMS/Telnyx, provider activation, and manual-evidence recording remain separate gates.",
   "externalActionBoundary": "Synthetic/local QA only; no Gmail, Slack, LinkedIn, Facebook, Telnyx/SMS, n8n, scheduling, publishing, provider calls, or production-data mutation.",
   "screenshots": {
-    "mobile360": "/Users/vambahsillah/.codex/worktrees/1467/Portfolio/docs/warm-outreach-qa/warm-created-internal-actions-mobile-360.png",
-    "mobile390": "/Users/vambahsillah/.codex/worktrees/1467/Portfolio/docs/warm-outreach-qa/warm-created-internal-actions-mobile-390.png",
-    "mobile430": "/Users/vambahsillah/.codex/worktrees/1467/Portfolio/docs/warm-outreach-qa/warm-created-internal-actions-mobile-430.png",
-    "desktop1440": "/Users/vambahsillah/.codex/worktrees/1467/Portfolio/docs/warm-outreach-qa/warm-created-internal-actions-desktop-1440.png"
+    "mobile360": "/Users/vambahsillah/.codex/worktrees/a54d/Portfolio/docs/warm-outreach-qa/warm-created-internal-actions-mobile-360.png",
+    "mobile390": "/Users/vambahsillah/.codex/worktrees/a54d/Portfolio/docs/warm-outreach-qa/warm-created-internal-actions-mobile-390.png",
+    "mobile430": "/Users/vambahsillah/.codex/worktrees/a54d/Portfolio/docs/warm-outreach-qa/warm-created-internal-actions-mobile-430.png",
+    "desktop1440": "/Users/vambahsillah/.codex/worktrees/a54d/Portfolio/docs/warm-outreach-qa/warm-created-internal-actions-desktop-1440.png"
   },
   "viewportRuns": [
     {
@@ -31,7 +33,7 @@
         "width": 360,
         "height": 844
       },
-      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/1467/Portfolio/docs/warm-outreach-qa/warm-created-internal-actions-mobile-360.png",
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/a54d/Portfolio/docs/warm-outreach-qa/warm-created-internal-actions-mobile-360.png",
       "checks": {
         "hasPlanningBacklog": true,
         "hasCompactFilterControls": true,
@@ -65,6 +67,21 @@
           "height": 844
         }
       },
+      "gmailDraftReviewChecks": {
+        "visible": true,
+        "hasDraftOnlyState": true,
+        "hasSavedBody": true,
+        "hasRecipientContext": true,
+        "hasRelationshipBasis": true,
+        "hasMissingMessageRecovery": true,
+        "hasBoundary": true,
+        "primaryCtaCount": 1,
+        "viewport": {
+          "clientWidth": 360,
+          "scrollWidth": 360
+        },
+        "horizontalOverflow": false
+      },
       "actionChecks": {
         "hasActionTray": true,
         "hasCompactRecommendations": true,
@@ -88,7 +105,7 @@
         "width": 390,
         "height": 844
       },
-      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/1467/Portfolio/docs/warm-outreach-qa/warm-created-internal-actions-mobile-390.png",
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/a54d/Portfolio/docs/warm-outreach-qa/warm-created-internal-actions-mobile-390.png",
       "checks": {
         "hasPlanningBacklog": true,
         "hasCompactFilterControls": true,
@@ -122,6 +139,21 @@
           "height": 844
         }
       },
+      "gmailDraftReviewChecks": {
+        "visible": true,
+        "hasDraftOnlyState": true,
+        "hasSavedBody": true,
+        "hasRecipientContext": true,
+        "hasRelationshipBasis": true,
+        "hasMissingMessageRecovery": true,
+        "hasBoundary": true,
+        "primaryCtaCount": 1,
+        "viewport": {
+          "clientWidth": 390,
+          "scrollWidth": 390
+        },
+        "horizontalOverflow": false
+      },
       "actionChecks": {
         "hasActionTray": true,
         "hasCompactRecommendations": true,
@@ -145,7 +177,7 @@
         "width": 430,
         "height": 844
       },
-      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/1467/Portfolio/docs/warm-outreach-qa/warm-created-internal-actions-mobile-430.png",
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/a54d/Portfolio/docs/warm-outreach-qa/warm-created-internal-actions-mobile-430.png",
       "checks": {
         "hasPlanningBacklog": true,
         "hasCompactFilterControls": true,
@@ -179,6 +211,21 @@
           "height": 844
         }
       },
+      "gmailDraftReviewChecks": {
+        "visible": true,
+        "hasDraftOnlyState": true,
+        "hasSavedBody": true,
+        "hasRecipientContext": true,
+        "hasRelationshipBasis": true,
+        "hasMissingMessageRecovery": true,
+        "hasBoundary": true,
+        "primaryCtaCount": 1,
+        "viewport": {
+          "clientWidth": 430,
+          "scrollWidth": 430
+        },
+        "horizontalOverflow": false
+      },
       "actionChecks": {
         "hasActionTray": true,
         "hasCompactRecommendations": true,
@@ -202,7 +249,7 @@
         "width": 1440,
         "height": 900
       },
-      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/1467/Portfolio/docs/warm-outreach-qa/warm-created-internal-actions-desktop-1440.png",
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/a54d/Portfolio/docs/warm-outreach-qa/warm-created-internal-actions-desktop-1440.png",
       "checks": {
         "hasPlanningBacklog": true,
         "hasCompactFilterControls": true,
@@ -236,6 +283,21 @@
           "height": 900
         }
       },
+      "gmailDraftReviewChecks": {
+        "visible": true,
+        "hasDraftOnlyState": true,
+        "hasSavedBody": true,
+        "hasRecipientContext": true,
+        "hasRelationshipBasis": true,
+        "hasMissingMessageRecovery": true,
+        "hasBoundary": true,
+        "primaryCtaCount": 1,
+        "viewport": {
+          "clientWidth": 1440,
+          "scrollWidth": 1440
+        },
+        "horizontalOverflow": false
+      },
       "actionChecks": {
         "hasActionTray": true,
         "hasCompactRecommendations": true,
@@ -254,6 +316,21 @@
       "externalRequests": []
     }
   ],
+  "desktopGmailDraftReviewChecks": {
+    "visible": true,
+    "hasDraftOnlyState": true,
+    "hasSavedBody": true,
+    "hasRecipientContext": true,
+    "hasRelationshipBasis": true,
+    "hasMissingMessageRecovery": true,
+    "hasBoundary": true,
+    "primaryCtaCount": 1,
+    "viewport": {
+      "clientWidth": 1280,
+      "scrollWidth": 1280
+    },
+    "horizontalOverflow": false
+  },
   "desktopInternalActionChecks": {
     "actionCount": 2,
     "hasGmailAction": true,
@@ -267,14 +344,14 @@
   },
   "desktopCollapsedTextChecks": {
     "collapsed": [],
-    "checkedCount": 27,
+    "checkedCount": 34,
     "viewport": {
       "width": 1280,
       "height": 720
     }
   },
-  "mp4Path": "/Users/vambahsillah/.codex/worktrees/1467/Portfolio/docs/warm-outreach-qa/warm-created-internal-actions-qa.mp4",
-  "rawVideoPath": "/Users/vambahsillah/.codex/worktrees/1467/Portfolio/test-results/warm-planned-draft-actions-qa/source/93a890617470f948d981b6ba044a864f.webm",
+  "mp4Path": "/Users/vambahsillah/.codex/worktrees/a54d/Portfolio/docs/warm-outreach-qa/warm-created-internal-actions-qa.mp4",
+  "rawVideoPath": "/Users/vambahsillah/.codex/worktrees/a54d/Portfolio/test-results/warm-planned-draft-actions-qa/source/4e7890a1d1d96397f7fc8b2864ed3861.webm",
   "externalRequests": [],
   "localRequests": [
     {
@@ -314,14 +391,6 @@
       "pathname": "/api/user/profile"
     },
     {
-      "method": "POST",
-      "pathname": "/api/admin/outreach/batch-review"
-    },
-    {
-      "method": "POST",
-      "pathname": "/api/admin/outreach/batch-review"
-    },
-    {
       "method": "GET",
       "pathname": "/api/admin/meetings"
     },
@@ -347,15 +416,51 @@
     },
     {
       "method": "GET",
+      "pathname": "/api/admin/outreach/leads/101/relationship-packet"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/meetings"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/meetings"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/outreach/drafts/qa-outreach-queue-existing-101/inputs"
+    },
+    {
+      "method": "POST",
+      "pathname": "/api/admin/outreach/batch-review"
+    },
+    {
+      "method": "POST",
+      "pathname": "/api/admin/outreach/batch-review"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/meetings"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/meetings"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/chat-escalations"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/sales/contact-meetings"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/meeting-action-tasks"
+    },
+    {
+      "method": "GET",
       "pathname": "/api/admin/outreach/leads/103/relationship-packet"
-    },
-    {
-      "method": "GET",
-      "pathname": "/api/admin/meetings"
-    },
-    {
-      "method": "GET",
-      "pathname": "/api/admin/meetings"
     }
   ]
 }

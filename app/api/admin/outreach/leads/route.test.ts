@@ -314,7 +314,8 @@ describe('GET /api/admin/outreach/leads', () => {
       status_label: 'Draft-only record',
       record_table: 'outreach_queue',
       record_id: 'queue-planned-1',
-      href: '/admin/email-messages/email-message-1',
+      href: '/admin/outreach?tab=leads&filter=warm&id=101&contactId=101&draftReview=queue-planned-1#warm-gmail-draft-review',
+      email_message_id: 'email-message-1',
       enabled: true,
     })
     expect(body.leads[1].next_internal_action).toMatchObject({

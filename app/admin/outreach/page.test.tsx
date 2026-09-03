@@ -1372,7 +1372,8 @@ describe('OutreachAdminPage deep links', () => {
         record_table: 'outreach_queue',
         record_id: 'queue-created-1',
         created_at: '2026-09-02T12:00:00.000Z',
-        href: '/admin/email-messages/email-message-1',
+        href: '/admin/outreach?tab=leads&filter=warm&id=42&contactId=42&draftReview=queue-created-1#warm-gmail-draft-review',
+        email_message_id: null,
         enabled: true,
       },
     }
@@ -1415,6 +1416,25 @@ describe('OutreachAdminPage deep links', () => {
       if (url.startsWith('/api/admin/outreach/leads/42/relationship-packet')) {
         return Response.json(relationshipPacketResponse)
       }
+      if (url.startsWith('/api/admin/outreach/drafts/queue-created-1/inputs')) {
+        return Response.json({
+          id: 'queue-created-1',
+          contactSubmissionId: 42,
+          channel: 'email',
+          status: 'draft',
+          sequenceStep: 1,
+          subject: 'Warm follow-up: Ada Operator',
+          body: 'Hi Ada,\n\nFollowing up from the prior Portfolio conversation.',
+          createdAt: '2026-09-02T12:00:00.000Z',
+          generationModel: 'portfolio-local-planner',
+          generationPromptSummary: 'planned_warm_gmail_draft_intent:no_provider',
+          generationInputs: {
+            version: 'warm-planned-draft-execution/v1',
+            queue_intent: 'draft_only_planned',
+            external_requests: [],
+          },
+        })
+      }
       if (url.startsWith('/api/admin/outreach/leads')) {
         return Response.json({ leads: [gmailLead, manualLead], total: 2, page: 1 })
       }
@@ -1440,8 +1460,16 @@ describe('OutreachAdminPage deep links', () => {
     expect(within(gmailAction).getByText('Draft-only record')).toBeInTheDocument()
     expect(within(gmailAction).getByRole('link', { name: /Review draft/i })).toHaveAttribute(
       'href',
-      '/admin/email-messages/email-message-1',
+      '/admin/outreach?tab=leads&filter=warm&id=42&contactId=42&draftReview=queue-created-1#warm-gmail-draft-review',
     )
+    fireEvent.click(within(gmailAction).getByRole('link', { name: /Review draft/i }))
+
+    const gmailWorkroom = await screen.findByLabelText('Outreach workroom for Ada Operator')
+    const draftReview = await within(gmailWorkroom).findByLabelText('Gmail draft review for Ada Operator')
+    expect(within(draftReview).getAllByText('Draft-only')).toHaveLength(2)
+    expect(within(draftReview).getByText('Message link missing')).toBeInTheDocument()
+    expect(within(draftReview).getByText(/Following up from the prior Portfolio conversation/)).toBeInTheDocument()
+    expect(within(draftReview).getByRole('button', { name: /Copy draft/i })).toBeEnabled()
 
     const manualAction = await screen.findByLabelText('Internal action for Mariam Manual')
     expect(within(manualAction).getByText('Pending handoff')).toBeInTheDocument()
