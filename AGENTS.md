@@ -120,7 +120,9 @@ When developing Portfolio admin, agent-ops, content, outreach, review, or approv
 - A review surface should answer five questions quickly: what is this, what changed, what is blocked, what can I do now, and what happens after I act.
 - On mobile, reduce vertical scan burden first. Prefer summary rows with drill-ins over repeated full-detail blocks.
 - If a metric tile, status chip, or control looks interactive, it should either perform the expected interaction or clearly present itself as non-interactive.
-- During captain review, treat excessive static copy, unclear call-to-action placement, hidden recovery paths, repeated explanatory cards, or non-actionable pseudo-controls as UX defects.
+- Design chips, pills, badges, and compact filters as resilient wrapping rows with intrinsic sizing, clear spacing, and stable line height. Long labels should truncate with a tooltip, move to secondary text, or wrap as a full row; they must not clip, overlap, bleed through neighboring labels, or compress adjacent text into narrow columns.
+- Validate responsive layout against the real content lane width, not only the browser viewport. Admin sidebars, drawers, QA evidence panels, and video side text reduce usable width and can expose layout defects that viewport-only checks miss.
+- During captain review, treat excessive static copy, unclear call-to-action placement, hidden recovery paths, repeated explanatory cards, non-actionable pseudo-controls, clipped pills, label bleed-through, line-height collisions, or evidence-recorder layout artifacts as UX defects that must be resolved before Human QA.
 
 ## Human QA Video Evidence Rule
 
