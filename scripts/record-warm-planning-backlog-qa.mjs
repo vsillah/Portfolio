@@ -820,6 +820,12 @@ async function assertPlanningBacklog(page) {
         /Waiting on response/i.test(text) &&
         /Suppressed\/blocked/i.test(text) &&
         /SMS parked/i.test(text),
+      hasCampaignAlignment:
+        /Today \/ This week/i.test(text) &&
+        /Whisper-to-shout launch/i.test(text) &&
+        /The backlog turns the current campaign phase/i.test(text) &&
+        /Campaign source/i.test(text) &&
+        /Why next:/i.test(text),
       hasSafeCta: visible(currentCta) && /Plan review batch/.test(currentCta?.textContent || ''),
       hasBoundary:
         /Gmail drafts: off/i.test(text) &&
@@ -885,8 +891,10 @@ async function addSideText(page) {
       <p>Vambah opens the warm leads tab and prepares a reviewable outreach batch from the existing planning backlog.</p>
       <h3>Expected</h3>
       <ul>
+        <li>Today / This week shows the current campaign phase and calendar-template source.</li>
         <li>Six planning states are visible as compact count filters.</li>
         <li>The single current CTA prepares a review-only batch plan.</li>
+        <li>Candidate rows explain why each outreach action maps to the campaign plan.</li>
         <li>Candidate rows show basis, channel, draft readiness, approval, response, and blockers.</li>
         <li>The manual social workroom still renders for the selected contact.</li>
       </ul>
@@ -968,6 +976,7 @@ if (externalRequests.length > 0) {
 const failedViewport = viewportRuns.find((run) =>
   !run.checks.hasPlanningBacklog ||
   !run.checks.hasStates ||
+  !run.checks.hasCampaignAlignment ||
   !run.checks.hasSafeCta ||
   !run.checks.hasBoundary ||
   run.checks.horizontalOverflow
@@ -982,8 +991,10 @@ const receipt = {
   qaUrl,
   scenario: 'Planning backlog operator opens warm leads, filters planning states, prepares a review-only batch plan, and opens manual-social workroom state.',
   expectedBehavior: [
+    'Planning backlog shows Today / This Week campaign alignment from the existing whisper_to_shout social content calendar template.',
     'Planning backlog shows Ready for Gmail draft, Ready for manual social, Needs relationship review, Waiting on response, Suppressed/blocked, and SMS parked counts.',
     'Clicking summary counts visibly drills into the matching candidate set.',
+    'Candidate rows show why each outreach action is next for the current campaign phase without duplicating a calendar.',
     'The single current CTA prepares a review-only batch plan and does not imply external sending.',
     'The selected-contact workroom still renders the manual social handoff panel.',
     'Mobile widths 360, 390, and 430 show the core planning CTA with no horizontal overflow.',

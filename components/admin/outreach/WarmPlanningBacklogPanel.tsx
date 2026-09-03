@@ -3,6 +3,7 @@
 import {
   AlertTriangle,
   ClipboardCheck,
+  CalendarDays,
   LockKeyhole,
   Mail,
   MessageSquare,
@@ -97,6 +98,14 @@ function candidatePrimaryState(candidate: WarmOutreachPlanningBacklogCandidate) 
   return candidate.states.find((state) => state !== 'sms_parked') ?? candidate.states[0] ?? 'needs_relationship_review'
 }
 
+function stateSummaryLabel(backlog: WarmOutreachPlanningBacklog) {
+  const ready = backlog.counts.ready_gmail_draft + backlog.counts.ready_manual_social
+  if (ready > 0) return `${ready} action-ready`
+  if (backlog.counts.waiting_on_response > 0) return `${backlog.counts.waiting_on_response} waiting`
+  if (backlog.counts.needs_relationship_review > 0) return `${backlog.counts.needs_relationship_review} context review`
+  return `${backlog.counts.sms_parked} SMS parked`
+}
+
 export default function WarmPlanningBacklogPanel({
   backlog,
   activeState,
@@ -129,6 +138,45 @@ export default function WarmPlanningBacklogPanel({
             <span className="inline-flex min-w-fit shrink-0 items-center whitespace-nowrap rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2.5 py-0.5 text-xs leading-5 text-emerald-100">
               external requests {backlog.executionBoundary.externalRequests.length}
             </span>
+          </div>
+          <div className="mt-3 grid gap-2 md:grid-cols-[minmax(0,1fr)_minmax(11rem,auto)]">
+            <div className="min-w-0 rounded-md border border-radiant-gold/25 bg-background/35 p-3">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="inline-flex min-h-7 shrink-0 items-center gap-1.5 rounded-md border border-radiant-gold/30 bg-radiant-gold/10 px-2 text-[11px] font-semibold uppercase leading-5 tracking-wide text-radiant-gold">
+                  <CalendarDays size={12} aria-hidden />
+                  Today / This week
+                </span>
+                <span className="inline-flex min-h-7 shrink-0 items-center rounded-md border border-silicon-slate/70 bg-background/45 px-2 text-[11px] leading-5 text-muted-foreground">
+                  {backlog.campaignAlignment.plannedWindowLabel}
+                </span>
+                <span className="inline-flex min-h-7 shrink-0 items-center rounded-md border border-silicon-slate/70 bg-background/45 px-2 text-[11px] leading-5 text-muted-foreground">
+                  {stateSummaryLabel(backlog)}
+                </span>
+              </div>
+              <p className="mt-2 text-[11px] font-semibold uppercase leading-5 tracking-wide text-muted-foreground/80">
+                {backlog.campaignAlignment.campaignTheme}
+              </p>
+              <p className="text-sm font-semibold leading-5 text-foreground">
+                {backlog.campaignAlignment.currentPhaseLabel}: {backlog.campaignAlignment.currentMilestoneTitle}
+              </p>
+              <p className="mt-1 line-clamp-2 text-xs leading-5 text-muted-foreground">
+                {backlog.campaignAlignment.whyThisBacklogIsNext}
+              </p>
+              <details className="mt-2 text-xs leading-5 text-muted-foreground">
+                <summary className="cursor-pointer text-radiant-gold/90">Campaign source</summary>
+                <p className="mt-1">{backlog.campaignAlignment.drillIn}</p>
+              </details>
+            </div>
+            <div className="grid grid-cols-2 gap-2 text-xs md:grid-cols-1">
+              <div className="rounded-md border border-silicon-slate/70 bg-background/35 p-2">
+                <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground/80">Today</p>
+                <p className="mt-1 font-semibold text-foreground">{backlog.operatingWindow.todayLabel}</p>
+              </div>
+              <div className="rounded-md border border-silicon-slate/70 bg-background/35 p-2">
+                <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground/80">Week</p>
+                <p className="mt-1 font-semibold text-foreground">{backlog.operatingWindow.weekLabel}</p>
+              </div>
+            </div>
           </div>
           <div
             className="mt-3 flex max-w-full flex-wrap gap-1.5"
@@ -257,9 +305,15 @@ export default function WarmPlanningBacklogPanel({
                 <p className="mt-2 line-clamp-2 text-xs leading-5 text-muted-foreground">
                   {candidate.relationshipBasis}
                 </p>
+                <p className="mt-1 line-clamp-2 text-xs leading-5 text-muted-foreground">
+                  <span className="font-medium text-foreground">Why next:</span> {candidate.campaignAlignment.whyNext}
+                </p>
               </div>
               <div className="min-w-0 text-xs leading-5 text-muted-foreground">
                 <div className="flex flex-wrap gap-x-1.5 gap-y-2">
+                  <span className="inline-flex min-w-fit shrink-0 items-center whitespace-nowrap rounded-full border border-radiant-gold/25 bg-radiant-gold/10 px-2.5 py-0.5 leading-5 text-radiant-gold">
+                    {candidate.campaignAlignment.phase}
+                  </span>
                   <span className="inline-flex min-w-fit shrink-0 items-center whitespace-nowrap rounded-full border border-sky-500/25 bg-sky-500/10 px-2.5 py-0.5 leading-5 text-sky-100">
                     {channelLabel(candidate.recommendedChannel)}
                   </span>
