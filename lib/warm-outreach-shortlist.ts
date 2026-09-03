@@ -210,8 +210,8 @@ const APPROVAL_PENDING_STATUSES = new Set(['approval_requested', 'pending_approv
 const DRAFT_STATUSES = new Set(['draft', 'queued'])
 
 const PLANNING_BACKLOG_FILTER_LABELS: Record<WarmOutreachPlanningBacklogState, string> = {
-  ready_gmail_draft: 'Ready for Gmail draft',
-  ready_manual_social: 'Ready for manual social',
+  ready_gmail_draft: 'Ready for Gmail draft review',
+  ready_manual_social: 'Ready for manual social handoff',
   needs_relationship_review: 'Needs relationship review',
   waiting_on_response: 'Waiting on response',
   suppressed_blocked: 'Suppressed/blocked',
@@ -643,7 +643,9 @@ function planningBacklogCandidateFor(
     blockers,
     batchEligible,
     nextActionLabel: batchEligible
-      ? 'Plan review batch'
+      ? gmailReady
+        ? 'Review Gmail draft'
+        : 'Open manual handoff'
       : states.has('suppressed_blocked')
         ? 'Review suppression state'
         : responseStatus !== 'no_response'
@@ -687,44 +689,64 @@ function buildPlanningBacklog(args: {
     .filter((candidate) => candidate.batchEligible)
     .slice(0, 8)
     .map((candidate) => candidate.contactId) ?? []
+  const actionLabel =
+    selected?.state === 'ready_gmail_draft'
+      ? `Review Gmail draft candidates (${batchContactIds.length})`
+      : selected?.state === 'ready_manual_social'
+        ? `Open manual social handoffs (${batchContactIds.length})`
+        : selected?.state === 'waiting_on_response'
+          ? 'Review waiting responses'
+          : selected?.state === 'needs_relationship_review'
+            ? 'Resolve relationship context'
+            : 'No batch action'
+  const actionReason =
+    selected?.state === 'ready_gmail_draft'
+      ? 'Creates only an internal review plan for Gmail draft candidates; provider drafts and sends stay locked.'
+      : selected?.state === 'ready_manual_social'
+        ? 'Creates only an internal review plan for manual LinkedIn/Facebook/phone handoffs; social providers stay off.'
+        : selected?.state === 'waiting_on_response'
+          ? 'Responses need per-contact review before another batch is planned.'
+          : selected
+            ? 'No visible contact is ready until relationship or suppression blockers are resolved.'
+            : 'No warm contacts are visible in the current filter.'
 
   return {
     version: 'warm-outreach-planning-backlog/v1',
-    planningWindowLabel: `Warm outreach backlog for ${args.generatedFor}`,
+    planningWindowLabel: `Today / This Week for ${args.generatedFor}`,
     filterLabels: PLANNING_BACKLOG_FILTER_LABELS,
     counts,
     currentCta: selected && batchContactIds.length > 0
       ? {
           key: 'prepare_planning_review_batch',
-          label: `Plan review batch (${batchContactIds.length})`,
+          label: actionLabel,
           enabled: true,
-          reason: `Internal review plan for ${PLANNING_BACKLOG_FILTER_LABELS[selected.state].toLowerCase()} contacts; no drafts or sends are created.`,
+          reason: actionReason,
           contactIds: batchContactIds,
           state: selected.state,
         }
       : selected?.state === 'waiting_on_response'
         ? {
             key: 'review_waiting_responses',
-            label: 'Review waiting responses',
+            label: actionLabel,
             enabled: false,
-            reason: 'Responses need per-contact review before another batch is planned.',
+            reason: actionReason,
             contactIds: [],
             state: selected.state,
           }
         : selected
           ? {
               key: 'review_relationship_blockers',
-              label: 'Review relationship blockers',
+              label: actionLabel,
               enabled: false,
-              reason: 'No visible contact is ready for an internal review batch plan.',
+              reason: actionReason,
               contactIds: [],
               state: selected.state,
             }
           : {
               key: 'none',
-              label: 'No batch action',
+              label: actionLabel,
               enabled: false,
-              reason: 'No warm contacts are visible in the current filter.',
+              reason: actionReason,
               contactIds: [],
               state: null,
             },

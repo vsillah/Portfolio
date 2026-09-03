@@ -796,16 +796,16 @@ async function openQaPage(browser, viewport, recordVideo = false) {
   }
   const overlay = await page.locator('[data-nextjs-dialog], .vite-error-overlay, #webpack-dev-server-client-overlay').count()
   if (overlay > 0) throw new Error('Framework error overlay is visible on the QA route.')
-  await page.getByLabel('Warm outreach planning backlog').waitFor({ timeout: 15_000 })
+  await page.getByLabel('Today and this week warm outreach backlog').waitFor({ timeout: 15_000 })
   return { context, page, externalRequests, localRequests }
 }
 
 async function assertPlanningBacklog(page) {
   const checks = await page.evaluate(() => {
     const text = document.body.innerText
-    const planningBacklog = document.querySelector('[aria-label="Warm outreach planning backlog"]')
+    const planningBacklog = document.querySelector('[aria-label="Today and this week warm outreach backlog"]')
     const currentCta = [...document.querySelectorAll('button')]
-      .find((button) => /Plan review batch/.test(button.textContent || ''))
+      .find((button) => /Review Gmail draft candidates|Open manual social handoffs/.test(button.textContent || ''))
     const visible = (element) => {
       if (!(element instanceof HTMLElement)) return false
       const rect = element.getBoundingClientRect()
@@ -814,15 +814,15 @@ async function assertPlanningBacklog(page) {
     return {
       hasPlanningBacklog: visible(planningBacklog),
       hasStates:
-        /Ready for Gmail draft/i.test(text) &&
-        /Ready for manual social/i.test(text) &&
+        /Ready for Gmail draft review/i.test(text) &&
+        /Ready for manual social handoff/i.test(text) &&
         /Needs relationship review/i.test(text) &&
         /Waiting on response/i.test(text) &&
         /Suppressed\/blocked/i.test(text) &&
         /SMS parked/i.test(text),
-      hasSafeCta: visible(currentCta) && /Plan review batch/.test(currentCta?.textContent || ''),
+      hasSafeCta: visible(currentCta) && /Review Gmail draft candidates|Open manual social handoffs/.test(currentCta?.textContent || ''),
       hasBoundary:
-        /Gmail drafts: off/i.test(text) &&
+        /Provider Gmail drafts: off/i.test(text) &&
         /Sends\/Slack\/social\/SMS: off/i.test(text) &&
         /external requests 0/i.test(text),
       viewport: {
@@ -839,7 +839,7 @@ async function assertPlanningBacklog(page) {
 
 async function viewportEvidence(browser, name, viewport, screenshotPath) {
   const qa = await openQaPage(browser, viewport)
-  const planningBacklog = qa.page.getByLabel('Warm outreach planning backlog')
+  const planningBacklog = qa.page.getByLabel('Today and this week warm outreach backlog')
   await planningBacklog.scrollIntoViewIfNeeded()
   const checks = await assertPlanningBacklog(qa.page)
   await qa.page.screenshot({ path: screenshotPath, fullPage: true })
@@ -880,13 +880,13 @@ async function addSideText(page) {
     const panel = document.createElement('aside')
     panel.id = 'qa-side-text'
     panel.innerHTML = `
-      <h2>warm-outreach-planning-backlog QA</h2>
+      <h2>warm-outreach-daily-backlog QA</h2>
       <h3>Scenario</h3>
-      <p>Vambah opens the warm leads tab and prepares a reviewable outreach batch from the existing planning backlog.</p>
+      <p>Vambah opens the warm leads tab and works the Today / This Week backlog from the existing Lead Pipeline.</p>
       <h3>Expected</h3>
       <ul>
-        <li>Six planning states are visible as compact count filters.</li>
-        <li>The single current CTA prepares a review-only batch plan.</li>
+        <li>Gmail, manual social, response, context, blocked, and SMS parked states are visible as compact filters.</li>
+        <li>The single current CTA points to Gmail draft candidates or manual social handoffs.</li>
         <li>Candidate rows show basis, channel, draft readiness, approval, response, and blockers.</li>
         <li>The manual social workroom still renders for the selected contact.</li>
       </ul>
@@ -918,21 +918,21 @@ for (const [name, viewport, screenshotPath] of [
 
 const desktop = await openQaPage(browser, { width: 1280, height: 720 }, true)
 await addSideText(desktop.page)
-const desktopPlanningBacklog = desktop.page.getByLabel('Warm outreach planning backlog')
+const desktopPlanningBacklog = desktop.page.getByLabel('Today and this week warm outreach backlog')
 await desktopPlanningBacklog.evaluate((element) => element.scrollIntoView({ block: 'center' }))
 await desktop.page.waitForTimeout(700)
 await activateButton(desktop.page.getByRole('button', { name: 'Show SMS parked candidates' }))
 await desktopPlanningBacklog.getByText('Kofi Phoneparked').waitFor({ timeout: 10_000 })
 await desktop.page.waitForTimeout(700)
 await desktopPlanningBacklog.evaluate((element) => element.scrollIntoView({ block: 'center' }))
-await activateButton(desktopPlanningBacklog.getByRole('button', { name: 'Show Ready for Gmail draft candidates' }))
-await activateButton(desktopPlanningBacklog.getByRole('button', { name: 'Plan review batch (2)' }))
+await activateButton(desktopPlanningBacklog.getByRole('button', { name: 'Show Ready for Gmail draft review candidates' }))
+await activateButton(desktopPlanningBacklog.getByRole('button', { name: 'Review Gmail draft candidates (2)' }))
 await desktop.page.getByLabel('Warm batch review').waitFor({ timeout: 15_000 })
 await desktop.page.getByText('Gmail batch draft plan').waitFor({ timeout: 10_000 })
 await desktop.page.waitForTimeout(800)
 await desktopPlanningBacklog.evaluate((element) => element.scrollIntoView({ block: 'center' }))
-await activateButton(desktop.page.getByRole('button', { name: 'Show Ready for manual social candidates' }))
-await activateButton(desktop.page.getByRole('button', { name: 'Plan review batch for Nia Manualsocial' }))
+await activateButton(desktop.page.getByRole('button', { name: 'Show Ready for manual social handoff candidates' }))
+await activateButton(desktop.page.getByRole('button', { name: 'Open manual handoff for Nia Manualsocial' }))
 const desktopWorkroom = desktop.page.getByRole('region', { name: 'Outreach workroom for Nia Manualsocial' })
 await desktopWorkroom.waitFor({ timeout: 15_000 })
 await desktopWorkroom.getByTestId('warm-manual-social-handoff').first().waitFor({ timeout: 15_000 })
@@ -980,11 +980,11 @@ const receipt = {
   version: 'warm-outreach-planning-backlog-qa/v1',
   createdAt: new Date().toISOString(),
   qaUrl,
-  scenario: 'Planning backlog operator opens warm leads, filters planning states, prepares a review-only batch plan, and opens manual-social workroom state.',
+  scenario: 'Operator opens warm leads, filters the Today / This Week backlog, prepares a review-only Gmail candidate plan, and opens manual-social workroom state.',
   expectedBehavior: [
-    'Planning backlog shows Ready for Gmail draft, Ready for manual social, Needs relationship review, Waiting on response, Suppressed/blocked, and SMS parked counts.',
+    'Backlog shows Ready for Gmail draft review, Ready for manual social handoff, Needs relationship review, Waiting on response, Suppressed/blocked, and SMS parked counts.',
     'Clicking summary counts visibly drills into the matching candidate set.',
-    'The single current CTA prepares a review-only batch plan and does not imply external sending.',
+    'The single current CTA points to Gmail draft candidates or manual social handoffs and does not imply external sending.',
     'The selected-contact workroom still renders the manual social handoff panel.',
     'Mobile widths 360, 390, and 430 show the core planning CTA with no horizontal overflow.',
   ],

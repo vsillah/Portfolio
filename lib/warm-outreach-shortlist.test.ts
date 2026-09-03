@@ -305,7 +305,7 @@ describe('warm outreach shortlist', () => {
 
     expect(shortlist.planningBacklog).toMatchObject({
       version: 'warm-outreach-planning-backlog/v1',
-      planningWindowLabel: 'Warm outreach backlog for 2026-09-02',
+      planningWindowLabel: 'Today / This Week for 2026-09-02',
       counts: {
         ready_gmail_draft: 2,
         ready_manual_social: 1,
@@ -316,7 +316,7 @@ describe('warm outreach shortlist', () => {
       },
       currentCta: {
         key: 'prepare_planning_review_batch',
-        label: 'Plan review batch (2)',
+        label: 'Review Gmail draft candidates (2)',
         contactIds: [10, 15],
         state: 'ready_gmail_draft',
       },

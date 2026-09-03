@@ -939,24 +939,27 @@ describe('OutreachAdminPage deep links', () => {
 
     render(<OutreachAdminPage />)
 
-    const planningBacklog = await screen.findByLabelText('Warm outreach planning backlog')
-    expect(within(planningBacklog).getByText('Warm planning backlog')).toBeInTheDocument()
-    expect(within(planningBacklog).getByText(/Warm outreach backlog for/)).toHaveClass('leading-5')
-    expect(within(planningBacklog).getByText(/Internal review plan for/)).toHaveClass(
+    const planningBacklog = await screen.findByLabelText('Today and this week warm outreach backlog')
+    expect(within(planningBacklog).getByText('Today / This Week warm backlog')).toBeInTheDocument()
+    expect(within(planningBacklog).getByText(/Today \/ This Week for/)).toHaveClass('leading-5')
+    expect(within(planningBacklog).getByText('Today')).toBeInTheDocument()
+    expect(within(planningBacklog).getByText('This week')).toBeInTheDocument()
+    expect(within(planningBacklog).getByText('Parked')).toBeInTheDocument()
+    expect(within(planningBacklog).getByText(/Creates only an internal review plan for Gmail draft candidates/)).toHaveClass(
       'mt-2.5',
       'leading-6',
     )
     const stateFilters = within(planningBacklog).getByRole('group', {
-      name: 'Warm planning state filters',
+      name: 'Warm backlog state filters',
     })
     expect(within(stateFilters).getByRole('button', { name: /Show all warm planning candidates/ })).toHaveTextContent('All')
-    expect(within(stateFilters).getByRole('button', { name: /Show Ready for Gmail draft candidates/ })).toHaveTextContent('Ready Gmail')
-    const manualFilter = within(stateFilters).getByRole('button', { name: /Show Ready for manual social candidates/ })
-    expect(manualFilter).toHaveTextContent('Manual')
+    expect(within(stateFilters).getByRole('button', { name: /Show Ready for Gmail draft review candidates/ })).toHaveTextContent('Gmail drafts')
+    const manualFilter = within(stateFilters).getByRole('button', { name: /Show Ready for manual social handoff candidates/ })
+    expect(manualFilter).toHaveTextContent('Manual social')
     expect(manualFilter).toHaveClass('min-w-fit', 'shrink-0', 'whitespace-nowrap')
     expect(within(stateFilters).getByRole('button', { name: /Show SMS parked candidates/ })).toHaveTextContent('SMS parked')
-    expect(within(planningBacklog).getByRole('button', { name: 'Plan review batch (1)' })).toBeInTheDocument()
-    expect(within(planningBacklog).getByText('Gmail drafts: off')).toBeInTheDocument()
+    expect(within(planningBacklog).getByRole('button', { name: 'Review Gmail draft candidates (1)' })).toBeInTheDocument()
+    expect(within(planningBacklog).getByText('Provider Gmail drafts: off')).toBeInTheDocument()
     expect(within(planningBacklog).getByText('Sends/Slack/social/SMS: off')).toBeInTheDocument()
     expect(within(planningBacklog).getByText('external requests 0')).toHaveClass(
       'min-w-fit',
@@ -1029,13 +1032,13 @@ describe('OutreachAdminPage deep links', () => {
 
     render(<OutreachAdminPage />)
 
-    const planningBacklog = await screen.findByLabelText('Warm outreach planning backlog')
+    const planningBacklog = await screen.findByLabelText('Today and this week warm outreach backlog')
     expect(within(planningBacklog).getByText('Phone Operator')).toBeInTheDocument()
-    fireEvent.click(within(planningBacklog).getByRole('button', { name: /Show Ready for manual social candidates/ }))
+    fireEvent.click(within(planningBacklog).getByRole('button', { name: /Show Ready for manual social handoff candidates/ }))
 
     expect(within(planningBacklog).queryByText('Ada Operator')).not.toBeInTheDocument()
     expect(within(planningBacklog).getByText('Manual Operator')).toBeInTheDocument()
-    const manualStatePill = within(planningBacklog).getByText('Ready for manual social')
+    const manualStatePill = within(planningBacklog).getByText('Ready for manual social handoff')
     expect(manualStatePill.parentElement).toHaveClass('gap-y-2')
     expect(within(planningBacklog).getByText('LinkedIn').parentElement).toHaveClass('gap-y-2')
 
@@ -1052,8 +1055,8 @@ describe('OutreachAdminPage deep links', () => {
 
     render(<OutreachAdminPage />)
 
-    const planningBacklog = await screen.findByLabelText('Warm outreach planning backlog')
-    fireEvent.click(within(planningBacklog).getByRole('button', { name: 'Plan review batch (1)' }))
+    const planningBacklog = await screen.findByLabelText('Today and this week warm outreach backlog')
+    fireEvent.click(within(planningBacklog).getByRole('button', { name: 'Review Gmail draft candidates (1)' }))
 
     const batchReview = await screen.findByLabelText('Warm batch review')
     expect(within(batchReview).getByLabelText('Warm planned draft actions')).toBeInTheDocument()

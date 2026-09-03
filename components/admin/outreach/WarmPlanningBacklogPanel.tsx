@@ -44,10 +44,10 @@ function channelLabel(channel: WarmOutreachPlanningBacklogCandidate['recommended
 }
 
 function planningFilterLabel(state: WarmOutreachPlanningBacklogState) {
-  if (state === 'ready_gmail_draft') return 'Ready Gmail'
-  if (state === 'ready_manual_social') return 'Manual'
-  if (state === 'needs_relationship_review') return 'Relationship'
-  if (state === 'waiting_on_response') return 'Responses'
+  if (state === 'ready_gmail_draft') return 'Gmail drafts'
+  if (state === 'ready_manual_social') return 'Manual social'
+  if (state === 'needs_relationship_review') return 'Context'
+  if (state === 'waiting_on_response') return 'Waiting'
   if (state === 'suppressed_blocked') return 'Blocked'
   return 'SMS parked'
 }
@@ -111,17 +111,22 @@ export default function WarmPlanningBacklogPanel({
       ? backlog.candidates
       : backlog.candidates.filter((candidate) => candidate.states.includes(activeState))
   const totalCandidates = backlog.candidates.length
+  const todayReadyCount = backlog.counts.ready_gmail_draft + backlog.counts.ready_manual_social
+  const thisWeekHoldCount =
+    backlog.counts.waiting_on_response +
+    backlog.counts.needs_relationship_review +
+    backlog.counts.suppressed_blocked
 
   return (
     <section
       className="mb-4 rounded-lg border border-radiant-gold/30 bg-radiant-gold/5 p-3 sm:p-4"
-      aria-label="Warm outreach planning backlog"
+      aria-label="Today and this week warm outreach backlog"
     >
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(13rem,auto)] lg:items-start">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-x-2 gap-y-2">
             <p className="text-xs font-semibold uppercase leading-5 tracking-wide text-radiant-gold">
-              Warm planning backlog
+              Today / This Week warm backlog
             </p>
             <span className="inline-flex min-w-fit shrink-0 items-center whitespace-nowrap rounded-full border border-silicon-slate/70 bg-background/45 px-2.5 py-0.5 text-xs leading-5 text-muted-foreground">
               {backlog.planningWindowLabel}
@@ -130,10 +135,24 @@ export default function WarmPlanningBacklogPanel({
               external requests {backlog.executionBoundary.externalRequests.length}
             </span>
           </div>
+          <div className="mt-3 grid gap-2 text-xs sm:grid-cols-3">
+            <div className="rounded-md border border-emerald-500/25 bg-emerald-500/10 px-3 py-2 text-emerald-100">
+              <p className="font-semibold">Today</p>
+              <p className="mt-1 text-emerald-100/85">{todayReadyCount} Gmail/manual action{todayReadyCount === 1 ? '' : 's'}</p>
+            </div>
+            <div className="rounded-md border border-amber-500/25 bg-amber-500/10 px-3 py-2 text-amber-100">
+              <p className="font-semibold">This week</p>
+              <p className="mt-1 text-amber-100/85">{thisWeekHoldCount} response/context hold{thisWeekHoldCount === 1 ? '' : 's'}</p>
+            </div>
+            <div className="rounded-md border border-silicon-slate/70 bg-background/35 px-3 py-2 text-muted-foreground">
+              <p className="font-semibold text-foreground/85">Parked</p>
+              <p className="mt-1">{backlog.counts.sms_parked} SMS until Telnyx approval</p>
+            </div>
+          </div>
           <div
             className="mt-3 flex max-w-full flex-wrap gap-1.5"
             role="group"
-            aria-label="Warm planning state filters"
+            aria-label="Warm backlog state filters"
           >
             <button
               type="button"
@@ -216,7 +235,7 @@ export default function WarmPlanningBacklogPanel({
       <div className="mt-3 flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
         <span className="inline-flex min-h-7 items-center gap-1 rounded-md border border-silicon-slate/70 bg-background/35 px-2">
           <LockKeyhole size={12} aria-hidden />
-          Gmail drafts: off
+          Provider Gmail drafts: off
         </span>
         <span className="inline-flex min-h-7 items-center gap-1 rounded-md border border-silicon-slate/70 bg-background/35 px-2">
           <LockKeyhole size={12} aria-hidden />
