@@ -1864,14 +1864,14 @@ function OutreachContent() {
                   {outreachWorkroomLead.next_internal_action && !outreachBlocker && (
                     <div
                       id="warm-internal-action"
-                      className={`grid min-w-0 gap-2 overflow-hidden rounded-lg border p-3 lg:grid-cols-[minmax(0,1fr)_minmax(8rem,auto)] lg:items-center ${internalActionClasses(outreachWorkroomLead.next_internal_action.kind)}`}
+                      className={`grid min-w-0 w-full max-w-full gap-2 overflow-hidden rounded-lg border p-3 2xl:grid-cols-[minmax(0,1fr)_minmax(8rem,auto)] 2xl:items-center ${internalActionClasses(outreachWorkroomLead.next_internal_action.kind)}`}
                       aria-label={`Created internal action for ${outreachWorkroomLead.name}`}
                     >
                       <div className="min-w-0">
-                        <div className="flex min-w-0 flex-wrap items-center gap-2">
-                          <span className="inline-flex min-w-fit shrink-0 items-center gap-1 whitespace-nowrap rounded-full border border-current/25 px-2 py-0.5 text-[11px] font-semibold leading-5">
+                        <div className="grid min-w-0 max-w-full gap-1.5">
+                          <span className="inline-flex w-fit max-w-full items-center gap-1 rounded-full border border-current/25 px-2 py-0.5 text-[11px] font-semibold leading-5">
                             <InternalActionIcon kind={outreachWorkroomLead.next_internal_action.kind} />
-                            {outreachWorkroomLead.next_internal_action.status_label}
+                            <span className="min-w-0 truncate">{outreachWorkroomLead.next_internal_action.status_label}</span>
                           </span>
                           <p className="min-w-0 truncate text-sm font-semibold text-foreground">
                             {outreachWorkroomLead.next_internal_action.detail}
@@ -1884,21 +1884,21 @@ function OutreachContent() {
                       {outreachWorkroomLead.next_internal_action.kind === 'gmail_draft_record' ? (
                         <Link
                           href={outreachWorkroomLead.next_internal_action.href}
-                          className="inline-flex min-h-10 w-full min-w-0 items-center justify-center gap-2 rounded-lg border border-current/35 bg-background/35 px-3 text-sm font-semibold transition-colors hover:bg-background/50 lg:w-auto"
+                          className="inline-flex min-h-10 w-full min-w-0 max-w-full items-center justify-center gap-2 rounded-lg border border-current/35 bg-background/35 px-3 text-sm font-semibold transition-colors hover:bg-background/50 2xl:w-auto"
                           aria-label={`Open draft-only review for ${outreachWorkroomLead.name}`}
                         >
                           <Mail size={15} aria-hidden />
-                          Open draft review
+                          <span className="min-w-0 truncate">Open draft review</span>
                         </Link>
                       ) : (
                         <button
                           type="button"
                           onClick={() => openWarmInternalAction(outreachWorkroomLead)}
-                          className="inline-flex min-h-10 w-full min-w-0 items-center justify-center gap-2 rounded-lg border border-current/35 bg-background/35 px-3 text-sm font-semibold transition-colors hover:bg-background/50 lg:w-auto"
+                          className="inline-flex min-h-10 w-full min-w-0 max-w-full items-center justify-center gap-2 rounded-lg border border-current/35 bg-background/35 px-3 text-sm font-semibold transition-colors hover:bg-background/50 2xl:w-auto"
                           aria-label={`Open manual handoff evidence for ${outreachWorkroomLead.name}`}
                         >
                           <ClipboardCheck size={15} aria-hidden />
-                          Record evidence
+                          <span className="min-w-0 truncate">Record evidence</span>
                         </button>
                       )}
                     </div>
@@ -2086,7 +2086,7 @@ function OutreachContent() {
                         }`}
                       >
                         {/* Lead Card Header */}
-                        <div className="grid gap-4 p-4 xl:grid-cols-[minmax(0,1fr)_minmax(18rem,auto)] xl:items-start">
+                        <div className="grid gap-4 p-4 2xl:grid-cols-[minmax(0,1fr)_minmax(18rem,auto)] 2xl:items-start">
                           <div className="flex min-w-0 items-start gap-3">
                           <label className="flex-shrink-0 pt-0.5 cursor-pointer">
                             <input
@@ -2123,23 +2123,23 @@ function OutreachContent() {
 
                           {/* Lead Info */}
                           <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <h3 className="font-semibold text-foreground">
+                            <div className="flex min-w-0 max-w-full flex-wrap items-center gap-2">
+                              <h3 className="min-w-0 max-w-full font-semibold text-foreground">
                                 <Link
                                   href={`/admin/contacts/${lead.id}`}
-                                  className="inline-flex items-center gap-1.5 text-foreground hover:text-teal-300 transition-colors underline decoration-dotted decoration-teal-400/70 underline-offset-4 hover:decoration-teal-300"
+                                  className="inline-flex min-w-0 max-w-full items-center gap-1.5 text-foreground hover:text-teal-300 transition-colors underline decoration-dotted decoration-teal-400/70 underline-offset-4 hover:decoration-teal-300"
                                   title="Open contact record"
                                 >
-                                  <span>{lead.name}</span>
+                                  <span className="min-w-0 truncate">{lead.name}</span>
                                   <ExternalLink size={13} className="shrink-0 opacity-70 text-teal-400/90" aria-hidden />
                                 </Link>
                               </h3>
                               {lead.lead_score !== null && (
-                                <span className={`px-2 py-0.5 rounded text-xs ${getScoreBadgeColor(lead.lead_score)}`}>
+                                <span className={`max-w-full truncate px-2 py-0.5 rounded text-xs ${getScoreBadgeColor(lead.lead_score)}`}>
                                   Score: {lead.lead_score}
                                 </span>
                               )}
-                              <span className="rounded border border-white/10 bg-silicon-slate/50 px-2 py-0.5 text-xs text-foreground">
+                              <span className="max-w-full truncate rounded border border-white/10 bg-silicon-slate/50 px-2 py-0.5 text-xs text-foreground">
                                 {lead.lead_source
                                   ?.replace(/^(warm|cold)_/i, '') // Remove warm_ or cold_ prefix
                                   .replace(/_/g, ' ') // Replace all underscores with spaces
@@ -2147,41 +2147,41 @@ function OutreachContent() {
                                 }
                               </span>
                               {lead.do_not_contact && (
-                                <span className="px-2 py-0.5 bg-amber-900/50 text-amber-300 rounded text-xs">Do not contact</span>
+                                <span className="max-w-full truncate px-2 py-0.5 bg-amber-900/50 text-amber-300 rounded text-xs">Do not contact</span>
                               )}
                               {lead.removed_at && (
-                                <span className="px-2 py-0.5 bg-red-900/50 text-red-300 rounded text-xs">Removed</span>
+                                <span className="max-w-full truncate px-2 py-0.5 bg-red-900/50 text-red-300 rounded text-xs">Removed</span>
                               )}
                             </div>
-                            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-sm text-muted-foreground">
+                            <div className="flex min-w-0 max-w-full flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-sm text-muted-foreground">
                               {lead.job_title && (
-                                <span className="flex items-center gap-1">
-                                  <User size={12} />
-                                  {lead.job_title}
+                                <span className="flex min-w-0 max-w-full items-center gap-1">
+                                  <User size={12} className="shrink-0" aria-hidden />
+                                  <span className="min-w-0 truncate">{lead.job_title}</span>
                                 </span>
                               )}
                               {lead.company && (
-                                <span className="flex items-center gap-1">
-                                  <Building2 size={12} />
-                                  {lead.company}
+                                <span className="flex min-w-0 max-w-full items-center gap-1">
+                                  <Building2 size={12} className="shrink-0" aria-hidden />
+                                  <span className="min-w-0 truncate">{lead.company}</span>
                                 </span>
                               )}
                               <Link
                                 href={`/admin/email-center?contact=${lead.id}`}
-                                className="inline-flex items-center gap-1 text-muted-foreground hover:text-sky-300 transition-colors underline decoration-dotted decoration-sky-400/50 underline-offset-2 hover:decoration-sky-300"
+                                className="inline-flex min-w-0 max-w-full items-center gap-1 text-muted-foreground hover:text-sky-300 transition-colors underline decoration-dotted decoration-sky-400/50 underline-offset-2 hover:decoration-sky-300"
                                 title={`Open Email center for this lead (${lead.messages_count} messages, ${lead.messages_sent} sent)`}
                                 aria-label={`Open Email center for ${lead.name}`}
                               >
                                 <Mail size={12} className="shrink-0" aria-hidden />
-                                <span>
+                                <span className="min-w-0 truncate">
                                   {lead.messages_count} messages ({lead.messages_sent} sent)
                                 </span>
                                 <ExternalLink size={11} className="shrink-0 opacity-60" aria-hidden />
                               </Link>
                               {lead.has_reply && (
-                                <span className="flex items-center gap-1 text-green-400">
-                                  <CheckCircle size={12} />
-                                  Replied
+                                <span className="flex min-w-0 max-w-full items-center gap-1 text-green-400">
+                                  <CheckCircle size={12} className="shrink-0" aria-hidden />
+                                  <span className="min-w-0 truncate">Replied</span>
                                 </span>
                               )}
                             </div>
@@ -2190,9 +2190,9 @@ function OutreachContent() {
                                 No notes, diagnostic, or report data to extract. Add insights before pushing.
                               </p>
                             )}
-                            <div className="flex items-center gap-2 mt-2 flex-wrap">
+                            <div className="flex min-w-0 max-w-full flex-wrap items-center gap-2 mt-2">
                               {lead.evidence_count > 0 && (
-                                <span className="inline-flex items-stretch rounded text-xs font-medium bg-green-900/50 text-green-400 border border-green-700 overflow-hidden">
+                                <span className="inline-flex max-w-full items-stretch overflow-hidden rounded text-xs font-medium bg-green-900/50 text-green-400 border border-green-700">
                                   <button
                                     type="button"
                                     onClick={async () => {
@@ -2212,10 +2212,10 @@ function OutreachContent() {
                                         setEvidenceDrawerLoading(false)
                                       }
                                     }}
-                                    className="px-2 py-1 hover:bg-green-800/50 focus:outline-none focus:ring-2 focus:ring-green-500/40"
+                                    className="min-w-0 px-2 py-1 hover:bg-green-800/50 focus:outline-none focus:ring-2 focus:ring-green-500/40"
                                     aria-label={`View ${lead.evidence_count} evidence items for ${lead.name}`}
                                   >
-                                    Evidence: {lead.evidence_count}
+                                    <span className="block min-w-0 truncate">Evidence: {lead.evidence_count}</span>
                                   </button>
                                   <Link
                                     href={`/admin/value-evidence?tab=dashboard&contactId=${lead.id}`}
@@ -2244,9 +2244,9 @@ function OutreachContent() {
 
                                 if (isVepFreshPending) {
                                   return (
-                                    <span className="px-2 py-1 rounded text-xs font-medium bg-amber-900/50 text-amber-400 border border-amber-700 flex items-center gap-1">
+                                    <span className="flex max-w-full items-center gap-1 rounded border border-amber-700 bg-amber-900/50 px-2 py-1 text-xs font-medium text-amber-400">
                                       <RefreshCw size={12} className="animate-spin" aria-hidden />
-                                      Extracting…
+                                      <span className="min-w-0 truncate">Extracting…</span>
                                     </span>
                                   )
                                 }
@@ -2273,7 +2273,7 @@ function OutreachContent() {
                                     onClick={() => openReviewEnrichModal([lead.id])}
                                     title={pushTitle}
                                     aria-label={pushTitle}
-                                    className={`group inline-flex items-center gap-1 rounded border px-2 py-1 text-xs font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-radiant-gold/40 ${
+                                    className={`group inline-flex max-w-full items-center gap-1 rounded border px-2 py-1 text-xs font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-radiant-gold/40 ${
                                       failed
                                         ? 'bg-red-900/35 text-red-200 border-red-700/60 enabled:hover:bg-radiant-gold/20 enabled:hover:text-radiant-gold enabled:hover:border-radiant-gold/50'
                                         : isVepStalePending
@@ -2281,7 +2281,7 @@ function OutreachContent() {
                                           : 'bg-silicon-slate/80 text-foreground/85 border-white/10 enabled:hover:bg-radiant-gold/20 enabled:hover:text-radiant-gold enabled:hover:border-radiant-gold/50'
                                     } disabled:opacity-55 disabled:cursor-not-allowed`}
                                   >
-                                    <span>{chipLabel}</span>
+                                    <span className="min-w-0 truncate">{chipLabel}</span>
                                     {canPush && (
                                       <Cpu size={12} className="opacity-0 group-hover:opacity-100 transition-opacity shrink-0" aria-hidden />
                                     )}
@@ -2291,14 +2291,14 @@ function OutreachContent() {
                             </div>
                             {lead.next_internal_action && (
                               <div
-                                className={`mt-2 grid min-w-0 max-w-2xl gap-2 overflow-hidden rounded-lg border p-2 text-xs lg:grid-cols-[minmax(0,1fr)_minmax(7rem,auto)] lg:items-center ${internalActionClasses(lead.next_internal_action.kind)}`}
+                                className={`mt-2 grid min-w-0 w-full max-w-2xl gap-2 overflow-hidden rounded-lg border p-2 text-xs 2xl:grid-cols-[minmax(0,1fr)_minmax(7rem,auto)] 2xl:items-center ${internalActionClasses(lead.next_internal_action.kind)}`}
                                 aria-label={`Internal action for ${lead.name}`}
                               >
                                 <div className="min-w-0">
-                                  <div className="flex min-w-0 flex-wrap items-center gap-1.5">
-                                    <span className="inline-flex min-w-fit shrink-0 items-center gap-1 whitespace-nowrap rounded-full border border-current/25 px-2 py-0.5 font-semibold leading-5">
+                                  <div className="grid min-w-0 max-w-full gap-1.5">
+                                    <span className="inline-flex w-fit max-w-full items-center gap-1 rounded-full border border-current/25 px-2 py-0.5 font-semibold leading-5">
                                       <InternalActionIcon kind={lead.next_internal_action.kind} />
-                                      {lead.next_internal_action.status_label}
+                                      <span className="min-w-0 truncate">{lead.next_internal_action.status_label}</span>
                                     </span>
                                     <span className="min-w-0 truncate font-medium text-foreground">
                                       {lead.next_internal_action.detail}
@@ -2308,21 +2308,21 @@ function OutreachContent() {
                                 {lead.next_internal_action.kind === 'gmail_draft_record' ? (
                                   <Link
                                     href={lead.next_internal_action.href}
-                                    className="inline-flex min-h-9 w-full min-w-0 items-center justify-center gap-1.5 rounded-md border border-current/35 bg-background/35 px-2.5 font-semibold transition-colors hover:bg-background/50 lg:w-auto"
+                                    className="inline-flex min-h-9 w-full min-w-0 max-w-full items-center justify-center gap-1.5 rounded-md border border-current/35 bg-background/35 px-2.5 font-semibold transition-colors hover:bg-background/50 2xl:w-auto"
                                     aria-label={`Review draft-only internal Gmail record for ${lead.name}`}
                                   >
                                     <Mail size={13} aria-hidden />
-                                    Review draft
+                                    <span className="min-w-0 truncate">Review draft</span>
                                   </Link>
                                 ) : (
                                   <button
                                     type="button"
                                     onClick={() => openWarmInternalAction(lead)}
-                                    className="inline-flex min-h-9 w-full min-w-0 items-center justify-center gap-1.5 rounded-md border border-current/35 bg-background/35 px-2.5 font-semibold transition-colors hover:bg-background/50 lg:w-auto"
+                                    className="inline-flex min-h-9 w-full min-w-0 max-w-full items-center justify-center gap-1.5 rounded-md border border-current/35 bg-background/35 px-2.5 font-semibold transition-colors hover:bg-background/50 2xl:w-auto"
                                     aria-label={`Record manual handoff evidence for ${lead.name}`}
                                   >
                                     <ClipboardCheck size={13} aria-hidden />
-                                    Record evidence
+                                    <span className="min-w-0 truncate">Record evidence</span>
                                   </button>
                                 )}
                               </div>
@@ -2331,14 +2331,14 @@ function OutreachContent() {
                           </div>
 
                           {/* Actions — primary CTA + progressive fallback + More + expand */}
-                          <div className="flex w-full min-w-0 flex-wrap items-start justify-end gap-2 sm:flex-nowrap xl:w-[min(36rem,42vw)]">
+                          <div className="flex w-full min-w-0 max-w-full flex-wrap items-start justify-start gap-2 2xl:w-[min(36rem,42vw)] 2xl:flex-nowrap 2xl:justify-end">
                             <button
                               type="button"
                               onClick={() => {
                                 setOutreachWorkroomLeadId(lead.id)
                                 setLeadRowMenuOpenId(null)
                               }}
-                              className={`inline-flex min-h-11 w-full min-w-0 items-center justify-center gap-2 rounded-lg border px-3 text-sm font-semibold transition-colors sm:w-auto sm:min-w-[10rem] ${
+                              className={`inline-flex min-h-11 w-full min-w-0 max-w-full items-center justify-center gap-2 rounded-lg border px-3 text-sm font-semibold transition-colors 2xl:w-auto 2xl:min-w-[10rem] ${
                                 outreachWorkroomLeadId === lead.id
                                   ? 'border-emerald-400/60 bg-emerald-500/20 text-emerald-100'
                                   : 'border-emerald-500/35 bg-emerald-500/10 text-emerald-100 hover:bg-emerald-500/20'

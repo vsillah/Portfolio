@@ -1196,6 +1196,59 @@ async function assertCreatedInternalActions(page) {
   }
 }
 
+async function assertNoCollapsedActionText(page) {
+  return page.evaluate(() => {
+    const interestingText =
+      /(Draft-only record|Pending handoff|Warm follow-up|Manual linkedin handoff|Review draft|Record evidence|Open Outreach|Workroom open|messages? \(|sent\)|Evidence:|No evidence|Extracting|Push failed|Stalled|Score:|Referral|LinkedIn|Google Contacts|Phone Parked)/i
+    const visible = (element) => {
+      if (!(element instanceof HTMLElement)) return false
+      const rect = element.getBoundingClientRect()
+      const style = window.getComputedStyle(element)
+      return (
+        rect.width > 0 &&
+        rect.height > 0 &&
+        style.visibility !== 'hidden' &&
+        style.display !== 'none' &&
+        rect.bottom >= 0 &&
+        rect.right >= 0 &&
+        rect.top <= window.innerHeight &&
+        rect.left <= window.innerWidth
+      )
+    }
+    const candidates = [...document.querySelectorAll('span, p, a, button, [aria-label^="Internal action for "], [aria-label^="Created internal action for "]')]
+      .filter((element) => visible(element))
+      .map((element) => {
+        const text = (element.textContent || '').replace(/\s+/g, ' ').trim()
+        const rect = element.getBoundingClientRect()
+        return {
+          tag: element.tagName.toLowerCase(),
+          label: element.getAttribute('aria-label') || '',
+          text,
+          width: Math.round(rect.width * 10) / 10,
+          height: Math.round(rect.height * 10) / 10,
+          top: Math.round(rect.top),
+          left: Math.round(rect.left),
+        }
+      })
+      .filter((item) => item.text.length >= 7 && interestingText.test(`${item.label} ${item.text}`))
+
+    const collapsed = candidates.filter((item) => {
+      const tallStrip = item.width < 64 && item.height > 38 && item.height / Math.max(item.width, 1) > 0.9
+      const unreadableControl = /(Review draft|Record evidence|Open Outreach|Workroom open)/i.test(`${item.label} ${item.text}`) && item.width < 96
+      return tallStrip || unreadableControl
+    })
+
+    return {
+      collapsed,
+      checkedCount: candidates.length,
+      viewport: {
+        width: document.documentElement.clientWidth,
+        height: document.documentElement.clientHeight,
+      },
+    }
+  })
+}
+
 async function assertPlannedDraftActions(page) {
   const checks = await page.evaluate(() => {
     const text = document.body.innerText
@@ -1258,6 +1311,7 @@ async function viewportEvidence(browser, name, viewport, screenshotPath) {
   await planningBacklog.scrollIntoViewIfNeeded()
   const checks = await assertPlanningBacklog(qa.page)
   const internalActionChecks = await assertCreatedInternalActions(qa.page)
+  const collapsedTextChecks = await assertNoCollapsedActionText(qa.page)
   await qa.page.getByLabel('Select all on this page').check()
   await activateButton(qa.page.getByRole('button', { name: 'Plan draft work' }))
   await qa.page.getByLabel('Warm planned draft actions').waitFor({ timeout: 15_000 })
@@ -1272,6 +1326,7 @@ async function viewportEvidence(browser, name, viewport, screenshotPath) {
     screenshotPath,
     checks,
     internalActionChecks,
+    collapsedTextChecks,
     actionChecks,
     externalRequests: qa.externalRequests,
   }
@@ -1381,13 +1436,15 @@ const desktopWorkroom = desktop.page.getByRole('region', { name: 'Outreach workr
 await desktopWorkroom.waitFor({ timeout: 15_000 })
 await desktopWorkroom.getByTestId('warm-manual-social-handoff').first().waitFor({ timeout: 15_000 })
 const desktopInternalActionChecks = await assertCreatedInternalActions(desktop.page)
+const desktopCollapsedTextChecks = await assertNoCollapsedActionText(desktop.page)
 if (
   !desktopInternalActionChecks.hasGmailAction ||
   !desktopInternalActionChecks.hasManualAction ||
   !desktopInternalActionChecks.hasWorkroomAction ||
-  desktopInternalActionChecks.horizontalOverflow
+  desktopInternalActionChecks.horizontalOverflow ||
+  desktopCollapsedTextChecks.collapsed.length > 0
 ) {
-  throw new Error(`Desktop internal action QA failed: ${JSON.stringify(desktopInternalActionChecks, null, 2)}`)
+  throw new Error(`Desktop internal action QA failed: ${JSON.stringify({ desktopInternalActionChecks, desktopCollapsedTextChecks }, null, 2)}`)
 }
 await desktop.page.waitForTimeout(1200)
 const video = desktop.page.video()
@@ -1429,6 +1486,7 @@ const failedViewport = viewportRuns.find((run) =>
   !run.internalActionChecks.hasGmailAction ||
   !run.internalActionChecks.hasManualAction ||
   run.internalActionChecks.horizontalOverflow ||
+  run.collapsedTextChecks.collapsed.length > 0 ||
   !run.actionChecks.hasActionTray ||
   !run.actionChecks.hasCompactRecommendations ||
   !run.actionChecks.hasMixedChannels ||
@@ -1466,6 +1524,7 @@ const receipt = {
   screenshots,
   viewportRuns,
   desktopInternalActionChecks,
+  desktopCollapsedTextChecks,
   mp4Path,
   rawVideoPath,
   externalRequests,

@@ -1,6 +1,6 @@
 {
   "version": "warm-created-internal-actions-qa/v1",
-  "createdAt": "2026-09-03T03:01:59.595Z",
+  "createdAt": "2026-09-03T03:17:39.930Z",
   "qaUrl": "http://127.0.0.1:3000/admin/outreach?tab=leads&filter=warm&qa=warm-planning-backlog",
   "scenario": "Warm outreach operator sees created internal Gmail draft records and manual-social handoff tasks in the existing list/workroom, then verifies planned-record creation still stays internal.",
   "expectedBehavior": [
@@ -57,6 +57,14 @@
         },
         "horizontalOverflow": false
       },
+      "collapsedTextChecks": {
+        "collapsed": [],
+        "checkedCount": 2,
+        "viewport": {
+          "width": 360,
+          "height": 844
+        }
+      },
       "actionChecks": {
         "hasActionTray": true,
         "hasCompactRecommendations": true,
@@ -105,6 +113,14 @@
           "scrollWidth": 390
         },
         "horizontalOverflow": false
+      },
+      "collapsedTextChecks": {
+        "collapsed": [],
+        "checkedCount": 2,
+        "viewport": {
+          "width": 390,
+          "height": 844
+        }
       },
       "actionChecks": {
         "hasActionTray": true,
@@ -155,6 +171,14 @@
         },
         "horizontalOverflow": false
       },
+      "collapsedTextChecks": {
+        "collapsed": [],
+        "checkedCount": 2,
+        "viewport": {
+          "width": 430,
+          "height": 844
+        }
+      },
       "actionChecks": {
         "hasActionTray": true,
         "hasCompactRecommendations": true,
@@ -204,6 +228,14 @@
         },
         "horizontalOverflow": false
       },
+      "collapsedTextChecks": {
+        "collapsed": [],
+        "checkedCount": 3,
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        }
+      },
       "actionChecks": {
         "hasActionTray": true,
         "hasCompactRecommendations": true,
@@ -233,8 +265,16 @@
     },
     "horizontalOverflow": false
   },
+  "desktopCollapsedTextChecks": {
+    "collapsed": [],
+    "checkedCount": 27,
+    "viewport": {
+      "width": 1280,
+      "height": 720
+    }
+  },
   "mp4Path": "/Users/vambahsillah/.codex/worktrees/1467/Portfolio/docs/warm-outreach-qa/warm-created-internal-actions-qa.mp4",
-  "rawVideoPath": "/Users/vambahsillah/.codex/worktrees/1467/Portfolio/test-results/warm-planned-draft-actions-qa/source/3dd3b1184fe13b998fec5997aaddf74e.webm",
+  "rawVideoPath": "/Users/vambahsillah/.codex/worktrees/1467/Portfolio/test-results/warm-planned-draft-actions-qa/source/93a890617470f948d981b6ba044a864f.webm",
   "externalRequests": [],
   "localRequests": [
     {
