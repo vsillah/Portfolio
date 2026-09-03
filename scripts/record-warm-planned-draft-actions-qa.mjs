@@ -1258,6 +1258,45 @@ async function assertGmailDraftReview(page) {
   }
 }
 
+async function assertWarmActionClusterPolish(page) {
+  const checks = await page.evaluate(() => {
+    const chip = document.querySelector('[aria-label="Readiness: Needs human review"]')
+    const cta = [...document.querySelectorAll('a, button')]
+      .find((element) => (element.textContent || '').replace(/\s+/g, ' ').trim() === 'Go to action')
+    const visible = (element) => {
+      if (!(element instanceof HTMLElement)) return false
+      const rect = element.getBoundingClientRect()
+      const style = window.getComputedStyle(element)
+      return rect.width > 0 && rect.height > 0 && style.visibility !== 'hidden' && style.display !== 'none'
+    }
+    const chipRect = chip instanceof HTMLElement ? chip.getBoundingClientRect() : null
+    const ctaRect = cta instanceof HTMLElement ? cta.getBoundingClientRect() : null
+    return {
+      chipVisible: visible(chip),
+      chipText: chip?.textContent?.replace(/\s+/g, ' ').trim() ?? null,
+      chipTitle: chip?.getAttribute('title') ?? null,
+      chipWidth: chipRect ? Math.round(chipRect.width * 10) / 10 : null,
+      chipHeight: chipRect ? Math.round(chipRect.height * 10) / 10 : null,
+      chipCentered:
+        chip instanceof HTMLElement &&
+        window.getComputedStyle(chip).justifyContent === 'center' &&
+        window.getComputedStyle(chip).textAlign === 'center',
+      ctaVisible: visible(cta),
+      ctaWidth: ctaRect ? Math.round(ctaRect.width * 10) / 10 : null,
+      ctaHeight: ctaRect ? Math.round(ctaRect.height * 10) / 10 : null,
+      viewport: {
+        clientWidth: document.documentElement.clientWidth,
+        scrollWidth: document.documentElement.scrollWidth,
+      },
+    }
+  })
+  return {
+    ...checks,
+    humanReviewChipSingleLine: typeof checks.chipHeight === 'number' && checks.chipHeight <= 34,
+    horizontalOverflow: checks.viewport.scrollWidth > checks.viewport.clientWidth,
+  }
+}
+
 async function assertNoCollapsedActionText(page) {
   return page.evaluate(() => {
     const interestingText =
@@ -1378,6 +1417,7 @@ async function viewportEvidence(browser, name, viewport, screenshotPath) {
   await qa.page.getByLabel('Gmail draft review for Amina Batchready').waitFor({ timeout: 15_000 })
   await qa.page.getByText(/Following up from the warm referral and planning backlog context/).waitFor({ timeout: 15_000 })
   await qa.page.getByText('Message link missing').waitFor({ timeout: 15_000 })
+  const warmActionClusterPolish = await assertWarmActionClusterPolish(qa.page)
   const gmailDraftReviewChecks = await assertGmailDraftReview(qa.page)
   await qa.page.getByLabel('Select all on this page').check()
   await activateButton(qa.page.getByRole('button', { name: 'Plan draft work' }))
@@ -1394,6 +1434,7 @@ async function viewportEvidence(browser, name, viewport, screenshotPath) {
     checks,
     internalActionChecks,
     collapsedTextChecks,
+    warmActionClusterPolish,
     gmailDraftReviewChecks,
     actionChecks,
     externalRequests: qa.externalRequests,
@@ -1526,14 +1567,20 @@ await desktopWorkroom.waitFor({ timeout: 15_000 })
 await desktopWorkroom.getByTestId('warm-manual-social-handoff').first().waitFor({ timeout: 15_000 })
 const desktopInternalActionChecks = await assertCreatedInternalActions(desktop.page)
 const desktopCollapsedTextChecks = await assertNoCollapsedActionText(desktop.page)
+const desktopWarmActionClusterPolish = await assertWarmActionClusterPolish(desktop.page)
 if (
   !desktopInternalActionChecks.hasGmailAction ||
   !desktopInternalActionChecks.hasManualAction ||
   !desktopInternalActionChecks.hasWorkroomAction ||
   desktopInternalActionChecks.horizontalOverflow ||
-  desktopCollapsedTextChecks.collapsed.length > 0
+  desktopCollapsedTextChecks.collapsed.length > 0 ||
+  !desktopWarmActionClusterPolish.chipVisible ||
+  !desktopWarmActionClusterPolish.chipCentered ||
+  !desktopWarmActionClusterPolish.humanReviewChipSingleLine ||
+  !desktopWarmActionClusterPolish.ctaVisible ||
+  desktopWarmActionClusterPolish.horizontalOverflow
 ) {
-  throw new Error(`Desktop internal action QA failed: ${JSON.stringify({ desktopInternalActionChecks, desktopCollapsedTextChecks }, null, 2)}`)
+  throw new Error(`Desktop internal action QA failed: ${JSON.stringify({ desktopInternalActionChecks, desktopCollapsedTextChecks, desktopWarmActionClusterPolish }, null, 2)}`)
 }
 await desktop.page.waitForTimeout(1200)
 const video = desktop.page.video()
@@ -1575,6 +1622,11 @@ const failedViewport = viewportRuns.find((run) =>
   !run.internalActionChecks.hasGmailAction ||
   !run.internalActionChecks.hasManualAction ||
   run.internalActionChecks.horizontalOverflow ||
+  !run.warmActionClusterPolish.chipVisible ||
+  !run.warmActionClusterPolish.chipCentered ||
+  !run.warmActionClusterPolish.humanReviewChipSingleLine ||
+  !run.warmActionClusterPolish.ctaVisible ||
+  run.warmActionClusterPolish.horizontalOverflow ||
   !run.gmailDraftReviewChecks.visible ||
   !run.gmailDraftReviewChecks.hasDraftOnlyState ||
   !run.gmailDraftReviewChecks.hasSavedBody ||
@@ -1608,6 +1660,7 @@ const receipt = {
     'Planning backlog shows All, Ready Gmail, Manual, Relationship, Responses, Blocked, and SMS parked as compact count filters without standalone number tiles.',
     'Clicking filter chips visibly drills into the matching candidate set.',
     'Created Gmail draft records surface as compact Review draft actions in the warm lead list.',
+    'Warm action status pills keep the human-review state centered and single-line next to a usable Go to action CTA at 360, 390, 430, and 1440 widths.',
     'Review draft opens the existing outreach workroom, shows the saved queue body, recipient context, relationship basis, and one primary Copy draft CTA.',
     'Missing linked email-message state stays recoverable in context by reviewing the saved queue body instead of routing to Email Center.',
     'Created manual-social handoff tasks surface as compact Record evidence actions in the warm lead list and selected workroom.',
@@ -1626,6 +1679,7 @@ const receipt = {
   desktopGmailDraftReviewChecks,
   desktopInternalActionChecks,
   desktopCollapsedTextChecks,
+  desktopWarmActionClusterPolish,
   mp4Path,
   rawVideoPath,
   externalRequests,

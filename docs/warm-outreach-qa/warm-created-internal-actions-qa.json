@@ -1,12 +1,13 @@
 {
   "version": "warm-created-internal-actions-qa/v1",
-  "createdAt": "2026-09-03T09:36:40.266Z",
+  "createdAt": "2026-09-03T10:15:31.187Z",
   "qaUrl": "http://127.0.0.1:3064/admin/outreach?tab=leads&filter=warm&qa=warm-planning-backlog",
   "scenario": "Warm outreach operator sees created internal Gmail draft records and manual-social handoff tasks in the existing list/workroom, then verifies planned-record creation still stays internal.",
   "expectedBehavior": [
     "Planning backlog shows All, Ready Gmail, Manual, Relationship, Responses, Blocked, and SMS parked as compact count filters without standalone number tiles.",
     "Clicking filter chips visibly drills into the matching candidate set.",
     "Created Gmail draft records surface as compact Review draft actions in the warm lead list.",
+    "Warm action status pills keep the human-review state centered and single-line next to a usable Go to action CTA at 360, 390, 430, and 1440 widths.",
     "Review draft opens the existing outreach workroom, shows the saved queue body, recipient context, relationship basis, and one primary Copy draft CTA.",
     "Missing linked email-message state stays recoverable in context by reviewing the saved queue body instead of routing to Email Center.",
     "Created manual-social handoff tasks surface as compact Record evidence actions in the warm lead list and selected workroom.",
@@ -66,6 +67,23 @@
           "width": 360,
           "height": 844
         }
+      },
+      "warmActionClusterPolish": {
+        "chipVisible": true,
+        "chipText": "Readiness: Human review",
+        "chipTitle": "Readiness: Needs human review",
+        "chipWidth": 242,
+        "chipHeight": 28,
+        "chipCentered": true,
+        "ctaVisible": true,
+        "ctaWidth": 242,
+        "ctaHeight": 40,
+        "viewport": {
+          "clientWidth": 360,
+          "scrollWidth": 360
+        },
+        "humanReviewChipSingleLine": true,
+        "horizontalOverflow": false
       },
       "gmailDraftReviewChecks": {
         "visible": true,
@@ -139,6 +157,23 @@
           "height": 844
         }
       },
+      "warmActionClusterPolish": {
+        "chipVisible": true,
+        "chipText": "Readiness: Human review",
+        "chipTitle": "Readiness: Needs human review",
+        "chipWidth": 133,
+        "chipHeight": 28,
+        "chipCentered": true,
+        "ctaVisible": true,
+        "ctaWidth": 272,
+        "ctaHeight": 40,
+        "viewport": {
+          "clientWidth": 390,
+          "scrollWidth": 390
+        },
+        "humanReviewChipSingleLine": true,
+        "horizontalOverflow": false
+      },
       "gmailDraftReviewChecks": {
         "visible": true,
         "hasDraftOnlyState": true,
@@ -210,6 +245,23 @@
           "width": 430,
           "height": 844
         }
+      },
+      "warmActionClusterPolish": {
+        "chipVisible": true,
+        "chipText": "Readiness: Human review",
+        "chipTitle": "Readiness: Needs human review",
+        "chipWidth": 153,
+        "chipHeight": 28,
+        "chipCentered": true,
+        "ctaVisible": true,
+        "ctaWidth": 312,
+        "ctaHeight": 40,
+        "viewport": {
+          "clientWidth": 430,
+          "scrollWidth": 430
+        },
+        "humanReviewChipSingleLine": true,
+        "horizontalOverflow": false
       },
       "gmailDraftReviewChecks": {
         "visible": true,
@@ -283,6 +335,23 @@
           "height": 900
         }
       },
+      "warmActionClusterPolish": {
+        "chipVisible": true,
+        "chipText": "Readiness: Human review",
+        "chipTitle": "Readiness: Needs human review",
+        "chipWidth": 250,
+        "chipHeight": 28,
+        "chipCentered": true,
+        "ctaVisible": true,
+        "ctaWidth": 144,
+        "ctaHeight": 40,
+        "viewport": {
+          "clientWidth": 1440,
+          "scrollWidth": 1440
+        },
+        "humanReviewChipSingleLine": true,
+        "horizontalOverflow": false
+      },
       "gmailDraftReviewChecks": {
         "visible": true,
         "hasDraftOnlyState": true,
@@ -350,8 +419,25 @@
       "height": 720
     }
   },
+  "desktopWarmActionClusterPolish": {
+    "chipVisible": true,
+    "chipText": "Readiness: Human review",
+    "chipTitle": "Readiness: Needs human review",
+    "chipWidth": 120,
+    "chipHeight": 28,
+    "chipCentered": true,
+    "ctaVisible": true,
+    "ctaWidth": 144,
+    "ctaHeight": 40,
+    "viewport": {
+      "clientWidth": 1280,
+      "scrollWidth": 1280
+    },
+    "humanReviewChipSingleLine": true,
+    "horizontalOverflow": false
+  },
   "mp4Path": "/Users/vambahsillah/.codex/worktrees/8c02/Portfolio/docs/warm-outreach-qa/warm-created-internal-actions-qa.mp4",
-  "rawVideoPath": "/Users/vambahsillah/.codex/worktrees/8c02/Portfolio/test-results/warm-planned-draft-actions-qa/source/19a76d6e833d4c08ae56f113ec37bfd8.webm",
+  "rawVideoPath": "/Users/vambahsillah/.codex/worktrees/8c02/Portfolio/test-results/warm-planned-draft-actions-qa/source/8e2a9057d1765972c958423c4f608452.webm",
   "externalRequests": [],
   "localRequests": [
     {

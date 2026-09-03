@@ -1027,6 +1027,10 @@ describe('RelationshipPacketPanel', () => {
 
     expect(screen.getByText('Relationship packet')).toBeInTheDocument()
     expect(screen.getAllByText('Needs human review')).toHaveLength(2)
+    const compactReadiness = screen.getByLabelText('Readiness: Needs human review')
+    expect(compactReadiness).toHaveTextContent('Readiness: Human review')
+    expect(compactReadiness).toHaveAttribute('title', 'Readiness: Needs human review')
+    expect(screen.getByRole('link', { name: 'Go to action' })).toBeInTheDocument()
     expect(screen.getByText('Met through a Portfolio meeting and has prior email replies.')).toBeInTheDocument()
     expect(screen.getByText('Sources: 2')).toBeInTheDocument()
     expect(screen.getByText('Safe to mention: 1')).toBeInTheDocument()
