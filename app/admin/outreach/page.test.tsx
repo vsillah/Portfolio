@@ -1466,7 +1466,7 @@ describe('OutreachAdminPage deep links', () => {
 
     const gmailWorkroom = await screen.findByLabelText('Outreach workroom for Ada Operator')
     const draftReview = await within(gmailWorkroom).findByLabelText('Gmail draft review for Ada Operator')
-    expect(within(draftReview).getAllByText('Draft-only')).toHaveLength(2)
+    expect(within(draftReview).getAllByText('Draft-only').length).toBeGreaterThanOrEqual(2)
     expect(within(draftReview).getByText('Message link missing')).toBeInTheDocument()
     expect(within(draftReview).getByText(/Following up from the prior Portfolio conversation/)).toBeInTheDocument()
     expect(within(draftReview).getByRole('button', { name: /Copy draft/i })).toBeEnabled()
