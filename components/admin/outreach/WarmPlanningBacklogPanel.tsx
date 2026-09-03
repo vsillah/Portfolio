@@ -117,10 +117,10 @@ export default function WarmPlanningBacklogPanel({
       className="mb-4 rounded-lg border border-radiant-gold/30 bg-radiant-gold/5 p-3 sm:p-4"
       aria-label="Warm outreach planning backlog"
     >
-      <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(13rem,auto)] lg:items-start">
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(13rem,auto)] lg:items-start">
         <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-2">
-            <p className="text-xs font-semibold uppercase tracking-wide text-radiant-gold">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-2">
+            <p className="text-xs font-semibold uppercase leading-5 tracking-wide text-radiant-gold">
               Warm planning backlog
             </p>
             <span className="inline-flex min-w-fit shrink-0 items-center whitespace-nowrap rounded-full border border-silicon-slate/70 bg-background/45 px-2.5 py-0.5 text-xs leading-5 text-muted-foreground">
@@ -202,7 +202,7 @@ export default function WarmPlanningBacklogPanel({
             )}
             {loading ? 'Preparing plan...' : backlog.currentCta.label}
           </button>
-          <p className="mt-2 text-xs leading-5 text-muted-foreground">
+          <p className="mt-2.5 text-xs leading-6 text-muted-foreground">
             {backlog.currentCta.reason}
           </p>
           {error && (
@@ -234,10 +234,10 @@ export default function WarmPlanningBacklogPanel({
           return (
             <article
               key={candidate.contactId}
-              className="grid gap-3 rounded-md border border-silicon-slate/70 bg-background/45 p-3 lg:grid-cols-[minmax(0,1.1fr)_minmax(16rem,0.9fr)_minmax(10rem,auto)] lg:items-center"
+              className="grid gap-3.5 rounded-md border border-silicon-slate/70 bg-background/45 p-3 lg:grid-cols-[minmax(0,1.1fr)_minmax(16rem,0.9fr)_minmax(10rem,auto)] lg:items-center"
             >
               <div className="min-w-0">
-                <div className="flex flex-wrap items-center gap-2">
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-2">
                   <span className={`inline-flex min-w-fit shrink-0 items-center gap-1 whitespace-nowrap rounded-full border px-2.5 py-0.5 text-[11px] font-semibold leading-5 ${stateClasses(primaryState)}`}>
                     <StateIcon state={primaryState} />
                     {backlog.filterLabels[primaryState]}
@@ -247,11 +247,11 @@ export default function WarmPlanningBacklogPanel({
                       SMS parked
                     </span>
                   )}
-                  <h3 className="min-w-0 truncate text-sm font-semibold text-foreground">
+                  <h3 className="mt-0.5 min-w-0 truncate text-sm font-semibold leading-5 text-foreground">
                     {candidate.contactName}
                   </h3>
                   {candidate.company && (
-                    <span className="truncate text-xs text-muted-foreground">{candidate.company}</span>
+                    <span className="mt-0.5 truncate text-xs leading-5 text-muted-foreground">{candidate.company}</span>
                   )}
                 </div>
                 <p className="mt-2 line-clamp-2 text-xs leading-5 text-muted-foreground">
@@ -259,7 +259,7 @@ export default function WarmPlanningBacklogPanel({
                 </p>
               </div>
               <div className="min-w-0 text-xs leading-5 text-muted-foreground">
-                <div className="flex flex-wrap gap-1.5">
+                <div className="flex flex-wrap gap-x-1.5 gap-y-2">
                   <span className="inline-flex min-w-fit shrink-0 items-center whitespace-nowrap rounded-full border border-sky-500/25 bg-sky-500/10 px-2.5 py-0.5 leading-5 text-sky-100">
                     {channelLabel(candidate.recommendedChannel)}
                   </span>

@@ -1,6 +1,6 @@
 {
   "version": "warm-planned-draft-actions-qa/v1",
-  "createdAt": "2026-09-03T01:23:23.785Z",
+  "createdAt": "2026-09-03T01:36:51.803Z",
   "qaUrl": "http://127.0.0.1:3000/admin/outreach?tab=leads&filter=warm&qa=warm-planning-backlog",
   "scenario": "Planning backlog operator opens warm leads, filters planning states, creates internal planned draft/handoff records, and opens manual-social workroom state.",
   "expectedBehavior": [
@@ -177,7 +177,7 @@
     }
   ],
   "mp4Path": "/Users/vambahsillah/.codex/worktrees/3325/Portfolio/docs/warm-outreach-qa/warm-planned-draft-actions-qa.mp4",
-  "rawVideoPath": "/Users/vambahsillah/.codex/worktrees/3325/Portfolio/test-results/warm-planned-draft-actions-qa/source/bdad4fc01fe2a509c4df0235ea1d5bc0.webm",
+  "rawVideoPath": "/Users/vambahsillah/.codex/worktrees/3325/Portfolio/test-results/warm-planned-draft-actions-qa/source/85798bca11c9a37631fc41747124182b.webm",
   "externalRequests": [],
   "localRequests": [
     {

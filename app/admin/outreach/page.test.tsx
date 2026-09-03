@@ -941,7 +941,11 @@ describe('OutreachAdminPage deep links', () => {
 
     const planningBacklog = await screen.findByLabelText('Warm outreach planning backlog')
     expect(within(planningBacklog).getByText('Warm planning backlog')).toBeInTheDocument()
-    expect(within(planningBacklog).getByText(/Warm outreach backlog for/)).toBeInTheDocument()
+    expect(within(planningBacklog).getByText(/Warm outreach backlog for/)).toHaveClass('leading-5')
+    expect(within(planningBacklog).getByText(/Internal review plan for/)).toHaveClass(
+      'mt-2.5',
+      'leading-6',
+    )
     const stateFilters = within(planningBacklog).getByRole('group', {
       name: 'Warm planning state filters',
     })
@@ -993,9 +997,20 @@ describe('OutreachAdminPage deep links', () => {
       lead_score: 84,
       has_sales_conversation: true,
     }
+    const manualLead = {
+      ...lead,
+      id: 44,
+      name: 'Manual Operator',
+      email: null,
+      lead_source: 'warm_linkedin',
+      lead_score: 81,
+      linkedin_url: 'https://linkedin.example/manual-operator',
+      messages_count: 0,
+      has_sales_conversation: true,
+    }
     vi.stubGlobal('fetch', vi.fn(async (url: string) => {
       if (url.startsWith('/api/admin/outreach/leads')) {
-        return Response.json({ leads: [lead, phoneLead], total: 2, page: 1 })
+        return Response.json({ leads: [lead, phoneLead, manualLead], total: 3, page: 1 })
       }
       if (url.startsWith('/api/admin/value-evidence/workflow-status')) {
         return Response.json({})
@@ -1016,6 +1031,14 @@ describe('OutreachAdminPage deep links', () => {
 
     const planningBacklog = await screen.findByLabelText('Warm outreach planning backlog')
     expect(within(planningBacklog).getByText('Phone Operator')).toBeInTheDocument()
+    fireEvent.click(within(planningBacklog).getByRole('button', { name: /Show Ready for manual social candidates/ }))
+
+    expect(within(planningBacklog).queryByText('Ada Operator')).not.toBeInTheDocument()
+    expect(within(planningBacklog).getByText('Manual Operator')).toBeInTheDocument()
+    const manualStatePill = within(planningBacklog).getByText('Ready for manual social')
+    expect(manualStatePill.parentElement).toHaveClass('gap-y-2')
+    expect(within(planningBacklog).getByText('LinkedIn').parentElement).toHaveClass('gap-y-2')
+
     fireEvent.click(within(planningBacklog).getByRole('button', { name: /Show SMS parked candidates/ }))
 
     expect(within(planningBacklog).queryByText('Ada Operator')).not.toBeInTheDocument()
