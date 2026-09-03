@@ -35,6 +35,7 @@ interface WarmBatchReviewPanelProps {
   selectedCount: number
   onReview: () => void
   onCreateGmailDraftRecords: () => void
+  onCreatePlannedDraftRecords?: () => void
   onPrepareProviderDraftCanary?: (queueId: string) => void
 }
 
@@ -103,6 +104,20 @@ function plannedActionClasses(state: WarmPlannedDraftActionRow['state']) {
   return 'border-amber-500/35 bg-amber-500/10 text-amber-100'
 }
 
+function recordStateLabel(state: WarmPlannedDraftActionRow['recordState']) {
+  if (state === 'record_created') return 'Record created'
+  if (state === 'existing_record') return 'Existing record'
+  if (state === 'blocked') return 'Blocked'
+  return 'Ready to create'
+}
+
+function recordStateClasses(state: WarmPlannedDraftActionRow['recordState']) {
+  if (state === 'record_created') return 'border-emerald-500/35 bg-emerald-500/10 text-emerald-100'
+  if (state === 'existing_record') return 'border-sky-500/35 bg-sky-500/10 text-sky-100'
+  if (state === 'blocked') return 'border-amber-500/35 bg-amber-500/10 text-amber-100'
+  return 'border-radiant-gold/35 bg-radiant-gold/10 text-radiant-gold'
+}
+
 function PlannedActionIcon({ kind }: { kind: WarmPlannedDraftActionRow['kind'] }) {
   if (kind === 'gmail_draft_plan') return <Mail size={14} aria-hidden />
   if (kind === 'manual_social_handoff') return <UserRoundCheck size={14} aria-hidden />
@@ -164,16 +179,30 @@ function draftCreationGateLabel(
   return 'blocked'
 }
 
-function BoundaryFlag({ label, active }: { label: string; active: boolean }) {
+function BoundaryFlag({
+  label,
+  active,
+  activeLabel = 'enabled',
+  inactiveLabel = 'off',
+  activeTone = 'risk',
+}: {
+  label: string
+  active: boolean
+  activeLabel?: string
+  inactiveLabel?: string
+  activeTone?: 'risk' | 'safe'
+}) {
   return (
     <span
-      className={`inline-flex min-h-7 items-center rounded-md border px-2 py-1 text-xs ${
+      className={`inline-flex min-h-7 min-w-fit shrink-0 items-center whitespace-nowrap rounded-md border px-2.5 py-1 text-xs leading-5 ${
         active
-          ? 'border-red-500/30 bg-red-500/10 text-red-100'
+          ? activeTone === 'safe'
+            ? 'border-emerald-500/25 bg-emerald-500/10 text-emerald-100'
+            : 'border-red-500/30 bg-red-500/10 text-red-100'
           : 'border-emerald-500/25 bg-emerald-500/10 text-emerald-100'
       }`}
     >
-      {label}: {active ? 'enabled' : 'off'}
+      {label}: {active ? activeLabel : inactiveLabel}
     </span>
   )
 }
@@ -186,10 +215,23 @@ function LocalEvidenceFlag() {
   )
 }
 
-function PlannedDraftActionsSection({ data }: { data: WarmBatchReview }) {
+function PlannedDraftActionsSection({
+  data,
+  loading,
+  error,
+  onCreatePlannedDraftRecords,
+}: {
+  data: WarmBatchReview
+  loading: boolean
+  error: string | null
+  onCreatePlannedDraftRecords?: () => void
+}) {
   const actions = data.plannedDraftActions
   if (!actions) return null
   const primaryHref = actions.currentCta.href
+  const executableCount = actions.rows.filter((row) => row.recordState === 'ready_to_create').length
+  const canCreateRecords = executableCount > 0 && Boolean(onCreatePlannedDraftRecords)
+  const receipt = actions.executionReceipt
 
   return (
     <div className="rounded-lg border border-radiant-gold/30 bg-radiant-gold/5 p-3" aria-label="Warm planned draft actions">
@@ -199,32 +241,54 @@ function PlannedDraftActionsSection({ data }: { data: WarmBatchReview }) {
             <p className="text-xs font-semibold uppercase tracking-wide text-radiant-gold">
               Planned draft actions
             </p>
-            <span className="rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2 py-0.5 text-xs text-emerald-100">
+            <span className="inline-flex min-w-fit shrink-0 items-center whitespace-nowrap rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2.5 py-0.5 text-xs leading-5 text-emerald-100">
               external requests {actions.executionBoundary.externalRequests.length}
             </span>
-            <span className="rounded-full border border-silicon-slate/70 bg-background/45 px-2 py-0.5 text-xs text-muted-foreground">
-              review-only packets
+            <span className="inline-flex min-w-fit shrink-0 items-center whitespace-nowrap rounded-full border border-silicon-slate/70 bg-background/45 px-2.5 py-0.5 text-xs leading-5 text-muted-foreground">
+              {actions.executionBoundary.internalPortfolioRecordsCreated
+                ? 'internal records only'
+                : 'pre-record/no-write'}
             </span>
           </div>
           <div className="mt-3 flex flex-wrap gap-1.5 text-[11px]">
-            <span className="rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2 py-0.5 text-emerald-100">
+            <span className="inline-flex min-w-fit shrink-0 items-center whitespace-nowrap rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2.5 py-0.5 leading-5 text-emerald-100">
               {actions.summary.gmailDraftPlanCount} Gmail draft plan
             </span>
-            <span className="rounded-full border border-sky-500/25 bg-sky-500/10 px-2 py-0.5 text-sky-100">
+            <span className="inline-flex min-w-fit shrink-0 items-center whitespace-nowrap rounded-full border border-sky-500/25 bg-sky-500/10 px-2.5 py-0.5 leading-5 text-sky-100">
               {actions.summary.manualSocialHandoffCount} manual handoff
             </span>
-            <span className="rounded-full border border-violet-500/25 bg-violet-500/10 px-2 py-0.5 text-violet-100">
+            <span className="inline-flex min-w-fit shrink-0 items-center whitespace-nowrap rounded-full border border-violet-500/25 bg-violet-500/10 px-2.5 py-0.5 leading-5 text-violet-100">
               {actions.summary.responseFollowUpCount} response follow-up
             </span>
-            <span className="rounded-full border border-amber-500/25 bg-amber-500/10 px-2 py-0.5 text-amber-100">
+            <span className="inline-flex min-w-fit shrink-0 items-center whitespace-nowrap rounded-full border border-amber-500/25 bg-amber-500/10 px-2.5 py-0.5 leading-5 text-amber-100">
               {actions.summary.relationshipReviewBlockerCount} relationship review
             </span>
-            <span className="rounded-full border border-silicon-slate/70 bg-background/35 px-2 py-0.5 text-muted-foreground">
+            <span className="inline-flex min-w-fit shrink-0 items-center whitespace-nowrap rounded-full border border-silicon-slate/70 bg-background/35 px-2.5 py-0.5 leading-5 text-muted-foreground">
               {actions.summary.parkedSmsCount} SMS parked
             </span>
           </div>
         </div>
-        {primaryHref ? (
+        {canCreateRecords || receipt ? (
+          <button
+            type="button"
+            disabled={!canCreateRecords || loading || Boolean(receipt)}
+            onClick={onCreatePlannedDraftRecords}
+            className="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-lg border border-radiant-gold/50 bg-radiant-gold/10 px-3 text-sm font-semibold text-radiant-gold transition-colors hover:bg-radiant-gold/15 disabled:cursor-not-allowed disabled:opacity-55 lg:w-auto"
+          >
+            {loading ? (
+              <RefreshCw size={15} className="animate-spin" aria-hidden />
+            ) : receipt ? (
+              <CheckCircle2 size={15} aria-hidden />
+            ) : (
+              <ClipboardCheck size={15} aria-hidden />
+            )}
+            {loading
+              ? 'Creating records...'
+              : receipt
+                ? 'Records created'
+                : `Create records (${executableCount})`}
+          </button>
+        ) : primaryHref ? (
           <a
             href={primaryHref}
             className="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-lg border border-radiant-gold/50 bg-radiant-gold/10 px-3 text-sm font-semibold text-radiant-gold transition-colors hover:bg-radiant-gold/15 lg:w-auto"
@@ -244,6 +308,18 @@ function PlannedDraftActionsSection({ data }: { data: WarmBatchReview }) {
         )}
       </div>
 
+      {error && (
+        <p role="alert" className="mt-3 rounded-md border border-red-500/25 bg-red-500/10 p-2 text-xs leading-5 text-red-100">
+          {error}
+        </p>
+      )}
+
+      {receipt && (
+        <p role="status" className="mt-3 rounded-md border border-emerald-500/25 bg-emerald-500/10 p-2 text-xs leading-5 text-emerald-100">
+          Created {receipt.createdCount} internal record{receipt.createdCount === 1 ? '' : 's'}; reused {receipt.existingCount}. Gmail provider drafts, sends, Slack, social posting, SMS, and n8n stayed off.
+        </p>
+      )}
+
       <div className="mt-3 grid gap-2 lg:grid-cols-2">
         {actions.rows.slice(0, 6).map((row) => (
           <article
@@ -252,12 +328,15 @@ function PlannedDraftActionsSection({ data }: { data: WarmBatchReview }) {
           >
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
-                <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-semibold ${plannedActionClasses(row.state)}`}>
+                <span className={`inline-flex min-w-fit shrink-0 items-center gap-1 whitespace-nowrap rounded-full border px-2.5 py-0.5 text-[11px] font-semibold leading-5 ${plannedActionClasses(row.state)}`}>
                   <PlannedActionIcon kind={row.kind} />
                   {row.kindLabel}
                 </span>
-                <span className="rounded-full border border-silicon-slate/70 bg-background/35 px-2 py-0.5 text-[11px] text-muted-foreground">
+                <span className="inline-flex min-w-fit shrink-0 items-center whitespace-nowrap rounded-full border border-silicon-slate/70 bg-background/35 px-2.5 py-0.5 text-[11px] leading-5 text-muted-foreground">
                   {plannedChannelLabel(row.recommendedChannel)}
+                </span>
+                <span className={`inline-flex min-w-fit shrink-0 items-center whitespace-nowrap rounded-full border px-2.5 py-0.5 text-[11px] leading-5 ${recordStateClasses(row.recordState)}`}>
+                  {recordStateLabel(row.recordState)}
                 </span>
                 <p className="min-w-0 truncate text-sm font-semibold text-foreground">{row.contactName}</p>
               </div>
@@ -272,6 +351,11 @@ function PlannedDraftActionsSection({ data }: { data: WarmBatchReview }) {
                 {row.blockers[0] && (
                   <p className="mt-1 truncate text-amber-100" title={row.blockers.join(' / ')}>
                     {row.blockers[0]}
+                  </p>
+                )}
+                {row.localRecordId && (
+                  <p className="mt-1 truncate" title={row.localRecordId}>
+                    {row.recordTable}: {row.localRecordId}
                   </p>
                 )}
               </details>
@@ -295,6 +379,18 @@ function PlannedDraftActionsSection({ data }: { data: WarmBatchReview }) {
       </div>
 
       <div className="mt-3 flex flex-wrap gap-2">
+        <BoundaryFlag
+          label="outreach_queue records"
+          active={actions.executionBoundary.createsOutreachQueueRows}
+          activeLabel="created"
+          activeTone="safe"
+        />
+        <BoundaryFlag
+          label="handoff task records"
+          active={actions.executionBoundary.createsMeetingActionTaskRows}
+          activeLabel="created"
+          activeTone="safe"
+        />
         <BoundaryFlag label="Gmail drafts" active={actions.executionBoundary.createsGmailDrafts} />
         <BoundaryFlag label="Gmail provider" active={actions.executionBoundary.gmailProviderCalls} />
         <BoundaryFlag label="Social providers" active={actions.executionBoundary.socialProviderCalls} />
@@ -562,7 +658,12 @@ function GmailDraftPlanSection({
       </div>
 
       <div className="mt-3 flex flex-wrap gap-2">
-        <BoundaryFlag label="outreach_queue writes" active={plan.executionBoundary.createsOutreachQueueRows} />
+        <BoundaryFlag
+          label="outreach_queue writes"
+          active={plan.executionBoundary.createsOutreachQueueRows}
+          activeLabel="created"
+          activeTone="safe"
+        />
         <BoundaryFlag label="Gmail provider" active={plan.executionBoundary.gmailProviderCalls} />
         <BoundaryFlag label="Provider Gmail drafts" active={plan.executionBoundary.createsGmailDrafts} />
         <BoundaryFlag label="Gmail send" active={plan.executionBoundary.gmailSend} />
@@ -689,6 +790,7 @@ export default function WarmBatchReviewPanel({
   selectedCount,
   onReview,
   onCreateGmailDraftRecords,
+  onCreatePlannedDraftRecords,
   onPrepareProviderDraftCanary,
 }: WarmBatchReviewPanelProps) {
   const sample = data?.samplePreview
@@ -754,10 +856,10 @@ export default function WarmBatchReviewPanel({
         <div className="min-w-0">
           <p className="flex items-center gap-2 text-sm font-semibold text-sky-100">
             <Users size={16} className="text-radiant-gold" aria-hidden />
-            Warm Gmail batch planning
+            Warm draft execution planning
           </p>
           <p className="mt-1 max-w-3xl text-sm leading-6 text-muted-foreground">
-            Review selected warm leads as individualized Gmail draft-plan candidates before any queue write, provider draft, or send authority.
+            Review selected warm leads as individualized Gmail/manual handoff candidates before creating internal records. Provider drafts and sends remain gated.
           </p>
         </div>
         <button
@@ -785,7 +887,12 @@ export default function WarmBatchReviewPanel({
 
       {data && (
         <div className="mt-4 space-y-4">
-          <PlannedDraftActionsSection data={data} />
+          <PlannedDraftActionsSection
+            data={data}
+            loading={draftActionLoading}
+            error={draftActionError}
+            onCreatePlannedDraftRecords={onCreatePlannedDraftRecords}
+          />
 
           <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(14rem,0.55fr)]">
             <div className="rounded-lg border border-silicon-slate/70 bg-background/45 p-3">

@@ -1,25 +1,26 @@
 {
   "version": "warm-planned-draft-actions-qa/v1",
-  "createdAt": "2026-09-02T23:07:58.863Z",
-  "qaUrl": "http://127.0.0.1:3068/admin/outreach?tab=leads&filter=warm&qa=warm-planning-backlog",
-  "scenario": "Planning backlog operator opens warm leads, filters planning states, prepares review-only draft action packets, and opens manual-social workroom state.",
+  "createdAt": "2026-09-03T01:36:51.803Z",
+  "qaUrl": "http://127.0.0.1:3000/admin/outreach?tab=leads&filter=warm&qa=warm-planning-backlog",
+  "scenario": "Planning backlog operator opens warm leads, filters planning states, creates internal planned draft/handoff records, and opens manual-social workroom state.",
   "expectedBehavior": [
     "Planning backlog shows All, Ready Gmail, Manual, Relationship, Responses, Blocked, and SMS parked as compact count filters without standalone number tiles.",
     "Clicking filter chips visibly drills into the matching candidate set.",
     "Compact filter labels and counts do not overlap at mobile widths 360, 390, and 430.",
     "The primary CTA prepares a review-only batch and the planned draft action tray appears above the long review context.",
-    "The action tray shows Gmail draft plan, manual handoff, response follow-up, relationship review, and parked SMS counts.",
-    "Action CTAs point to existing Portfolio surfaces; no standalone queue, calendar, or dashboard is created.",
+    "The selected batch can create internal Portfolio Gmail draft and manual-social handoff records from the existing workroom.",
+    "The action tray shows record-created state and keeps no-provider/no-send boundary text visible.",
+    "The internal record path stays inside existing Portfolio surfaces; no standalone queue, calendar, or dashboard is created.",
     "The selected-contact workroom still renders the manual social handoff panel.",
     "Mobile widths 360, 390, and 430 show the planning CTA and planned action tray with no horizontal overflow."
   ],
-  "decisionGate": "Operator review only. Gmail draft creation, Slack dispatch, external sends, SMS/Telnyx, provider activation, and manual-evidence recording remain separate gates.",
+  "decisionGate": "Internal Portfolio records only. Gmail provider draft creation, Slack dispatch, external sends, SMS/Telnyx, provider activation, and manual-evidence recording remain separate gates.",
   "externalActionBoundary": "Synthetic/local QA only; no Gmail, Slack, LinkedIn, Facebook, Telnyx/SMS, n8n, scheduling, publishing, provider calls, or production-data mutation.",
   "screenshots": {
-    "mobile360": "/Users/vambahsillah/.codex/worktrees/b1e8/Portfolio/docs/warm-outreach-qa/warm-planned-draft-actions-mobile-360.png",
-    "mobile390": "/Users/vambahsillah/.codex/worktrees/b1e8/Portfolio/docs/warm-outreach-qa/warm-planned-draft-actions-mobile-390.png",
-    "mobile430": "/Users/vambahsillah/.codex/worktrees/b1e8/Portfolio/docs/warm-outreach-qa/warm-planned-draft-actions-mobile-430.png",
-    "desktop1440": "/Users/vambahsillah/.codex/worktrees/b1e8/Portfolio/docs/warm-outreach-qa/warm-planned-draft-actions-desktop-1440.png"
+    "mobile360": "/Users/vambahsillah/.codex/worktrees/3325/Portfolio/docs/warm-outreach-qa/warm-planned-draft-actions-mobile-360.png",
+    "mobile390": "/Users/vambahsillah/.codex/worktrees/3325/Portfolio/docs/warm-outreach-qa/warm-planned-draft-actions-mobile-390.png",
+    "mobile430": "/Users/vambahsillah/.codex/worktrees/3325/Portfolio/docs/warm-outreach-qa/warm-planned-draft-actions-mobile-430.png",
+    "desktop1440": "/Users/vambahsillah/.codex/worktrees/3325/Portfolio/docs/warm-outreach-qa/warm-planned-draft-actions-desktop-1440.png"
   },
   "viewportRuns": [
     {
@@ -28,7 +29,7 @@
         "width": 360,
         "height": 844
       },
-      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/b1e8/Portfolio/docs/warm-outreach-qa/warm-planned-draft-actions-mobile-360.png",
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/3325/Portfolio/docs/warm-outreach-qa/warm-planned-draft-actions-mobile-360.png",
       "checks": {
         "hasPlanningBacklog": true,
         "hasCompactFilterControls": true,
@@ -46,9 +47,12 @@
       "actionChecks": {
         "hasActionTray": true,
         "hasCompactRecommendations": true,
+        "hasMixedChannels": true,
+        "hasExecutionReceipt": true,
+        "hasInternalRecordBoundary": true,
         "primaryCtaAboveGmailPlan": true,
         "hasNoEgressBoundary": true,
-        "primaryHref": "#gmail-batch-draft-plan",
+        "primaryControlText": "Records created",
         "viewport": {
           "clientWidth": 360,
           "scrollWidth": 360
@@ -63,7 +67,7 @@
         "width": 390,
         "height": 844
       },
-      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/b1e8/Portfolio/docs/warm-outreach-qa/warm-planned-draft-actions-mobile-390.png",
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/3325/Portfolio/docs/warm-outreach-qa/warm-planned-draft-actions-mobile-390.png",
       "checks": {
         "hasPlanningBacklog": true,
         "hasCompactFilterControls": true,
@@ -81,9 +85,12 @@
       "actionChecks": {
         "hasActionTray": true,
         "hasCompactRecommendations": true,
+        "hasMixedChannels": true,
+        "hasExecutionReceipt": true,
+        "hasInternalRecordBoundary": true,
         "primaryCtaAboveGmailPlan": true,
         "hasNoEgressBoundary": true,
-        "primaryHref": "#gmail-batch-draft-plan",
+        "primaryControlText": "Records created",
         "viewport": {
           "clientWidth": 390,
           "scrollWidth": 390
@@ -98,7 +105,7 @@
         "width": 430,
         "height": 844
       },
-      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/b1e8/Portfolio/docs/warm-outreach-qa/warm-planned-draft-actions-mobile-430.png",
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/3325/Portfolio/docs/warm-outreach-qa/warm-planned-draft-actions-mobile-430.png",
       "checks": {
         "hasPlanningBacklog": true,
         "hasCompactFilterControls": true,
@@ -116,9 +123,12 @@
       "actionChecks": {
         "hasActionTray": true,
         "hasCompactRecommendations": true,
+        "hasMixedChannels": true,
+        "hasExecutionReceipt": true,
+        "hasInternalRecordBoundary": true,
         "primaryCtaAboveGmailPlan": true,
         "hasNoEgressBoundary": true,
-        "primaryHref": "#gmail-batch-draft-plan",
+        "primaryControlText": "Records created",
         "viewport": {
           "clientWidth": 430,
           "scrollWidth": 430
@@ -133,7 +143,7 @@
         "width": 1440,
         "height": 900
       },
-      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/b1e8/Portfolio/docs/warm-outreach-qa/warm-planned-draft-actions-desktop-1440.png",
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/3325/Portfolio/docs/warm-outreach-qa/warm-planned-draft-actions-desktop-1440.png",
       "checks": {
         "hasPlanningBacklog": true,
         "hasCompactFilterControls": true,
@@ -151,9 +161,12 @@
       "actionChecks": {
         "hasActionTray": true,
         "hasCompactRecommendations": true,
+        "hasMixedChannels": true,
+        "hasExecutionReceipt": true,
+        "hasInternalRecordBoundary": true,
         "primaryCtaAboveGmailPlan": true,
         "hasNoEgressBoundary": true,
-        "primaryHref": "#gmail-batch-draft-plan",
+        "primaryControlText": "Records created",
         "viewport": {
           "clientWidth": 1440,
           "scrollWidth": 1440
@@ -163,8 +176,8 @@
       "externalRequests": []
     }
   ],
-  "mp4Path": "/Users/vambahsillah/.codex/worktrees/b1e8/Portfolio/docs/warm-outreach-qa/warm-planned-draft-actions-qa.mp4",
-  "rawVideoPath": "/Users/vambahsillah/.codex/worktrees/b1e8/Portfolio/test-results/warm-planned-draft-actions-qa/source/9d27158501b3c6d44d590b2d8d5dd307.webm",
+  "mp4Path": "/Users/vambahsillah/.codex/worktrees/3325/Portfolio/docs/warm-outreach-qa/warm-planned-draft-actions-qa.mp4",
+  "rawVideoPath": "/Users/vambahsillah/.codex/worktrees/3325/Portfolio/test-results/warm-planned-draft-actions-qa/source/85798bca11c9a37631fc41747124182b.webm",
   "externalRequests": [],
   "localRequests": [
     {
@@ -202,6 +215,10 @@
     {
       "method": "GET",
       "pathname": "/api/user/profile"
+    },
+    {
+      "method": "POST",
+      "pathname": "/api/admin/outreach/batch-review"
     },
     {
       "method": "POST",

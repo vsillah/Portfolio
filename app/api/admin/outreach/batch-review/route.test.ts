@@ -25,6 +25,11 @@ type TableRows = Record<
   unknown[] | { data: unknown[]; error: { message: string } | null }
 >
 
+type InsertMock = {
+  insert: ReturnType<typeof vi.fn>
+  inserted: unknown[]
+}
+
 function request(body: Record<string, unknown>) {
   return new NextRequest('http://localhost/api/admin/outreach/batch-review', {
     method: 'POST',
@@ -32,20 +37,37 @@ function request(body: Record<string, unknown>) {
   })
 }
 
-function listQuery(data: unknown[], error: { message: string } | null = null) {
+function listQuery(
+  table: string,
+  data: unknown[],
+  error: { message: string } | null = null,
+  insertMocks: Record<string, InsertMock> = {},
+) {
   const limit = vi.fn(() => Promise.resolve({ data, error }))
   const order = vi.fn(() => ({ limit }))
   const inFilter = vi.fn(() => ({ data, error, order, limit }))
   const select = vi.fn(() => ({ in: inFilter }))
-  return { select, in: inFilter, order, limit }
+  const insert = vi.fn((payload: unknown[] | unknown) => {
+    const payloadRows = Array.isArray(payload) ? payload : [payload]
+    const inserted = payloadRows.map((row, index) => ({
+      id: `${table}-created-${index + 1}`,
+      ...(row as Record<string, unknown>),
+      created_at: '2026-09-02T12:00:00.000Z',
+    }))
+    insertMocks[table] = { insert, inserted }
+    return {
+      select: vi.fn(() => Promise.resolve({ data: inserted, error: null })),
+    }
+  })
+  return { select, in: inFilter, order, limit, insert }
 }
 
-function setupRows(rows: TableRows) {
+function setupRows(rows: TableRows, insertMocks: Record<string, InsertMock> = {}) {
   mocks.from.mockImplementation((table: string) => {
     if (table in rows) {
       const result = rows[table]
-      if (Array.isArray(result)) return listQuery(result)
-      return listQuery(result.data, result.error)
+      if (Array.isArray(result)) return listQuery(table, result, null, insertMocks)
+      return listQuery(table, result.data, result.error, insertMocks)
     }
     throw new Error(`Unexpected table: ${table}`)
   })
@@ -374,7 +396,8 @@ describe('POST /api/admin/outreach/batch-review', () => {
     })
   })
 
-  it('records a draft-only creation receipt without writes or provider calls', async () => {
+  it('creates internal Gmail draft records without provider calls or sends', async () => {
+    const insertMocks: Record<string, InsertMock> = {}
     setupRows({
       contact_submissions: [warmLead],
       contact_communications: [],
@@ -392,7 +415,7 @@ describe('POST /api/admin/outreach/batch-review', () => {
         },
       ],
       meeting_action_tasks: [],
-    })
+    }, insertMocks)
 
     const response = await POST(request({
       action: 'create_gmail_draft_records',
@@ -402,6 +425,28 @@ describe('POST /api/admin/outreach/batch-review', () => {
 
     expect(response.status).toBe(200)
     const json = await response.json()
+    expect(insertMocks.outreach_queue.insert).toHaveBeenCalledTimes(1)
+    expect(insertMocks.outreach_queue.insert.mock.calls[0][0]).toEqual([
+      expect.objectContaining({
+        contact_submission_id: 42,
+        channel: 'email',
+        status: 'draft',
+        generation_model: 'portfolio-local-planner',
+        generation_prompt_summary: 'planned_warm_gmail_draft_intent:no_provider',
+        generation_inputs: expect.objectContaining({
+          version: 'warm-planned-draft-execution/v1',
+          template_key: 'email_follow_up',
+          provider_calls_enabled: false,
+          gmail_provider_draft_created: false,
+          gmail_send_enabled: false,
+          slack_dispatch_enabled: false,
+          sms_delivery_enabled: false,
+          social_provider_calls_enabled: false,
+          n8n_dispatch_enabled: false,
+          external_requests: [],
+        }),
+      }),
+    ])
     expect(json.gmailDraftPlan).toMatchObject({
       status: 'draft_records_created',
       currentCta: {
@@ -413,12 +458,12 @@ describe('POST /api/admin/outreach/batch-review', () => {
         draftCreatedCount: 1,
       },
       executionReceipt: {
-        action: 'create_gmail_draft_records',
         createdCount: 1,
         externalRequests: [],
       },
       executionBoundary: {
-        createsOutreachQueueRows: false,
+        localPortfolioPlanOnly: false,
+        createsOutreachQueueRows: true,
         createsGmailDrafts: false,
         gmailProviderCalls: false,
         gmailSend: false,
@@ -431,8 +476,122 @@ describe('POST /api/admin/outreach/batch-review', () => {
     expect(json.recipients[0].gmailDraftPlan.draftCreation).toMatchObject({
       status: 'draft_created',
       actionEnabled: false,
+      localDraftRecordId: 'outreach_queue-created-1',
       providerDraftId: null,
       externalRequests: [],
+    })
+    expect(json.plannedDraftActions.executionReceipt).toMatchObject({
+      action: 'create_planned_draft_handoff_records',
+      createdCount: 1,
+      gmailDraftRecordCount: 1,
+      manualSocialHandoffTaskCount: 0,
+      externalRequests: [],
+    })
+    expect(json.plannedDraftActions.executionBoundary).toMatchObject({
+      localPortfolioPlanOnly: false,
+      preRecordNoWrite: false,
+      reviewOnlyDraftActionPackets: false,
+      internalPortfolioRecordsCreated: true,
+      createsOutreachQueueRows: true,
+      createsMeetingActionTaskRows: false,
+      createsGmailDrafts: false,
+      gmailProviderCalls: false,
+      socialProviderCalls: false,
+      gmailSend: false,
+      slackDispatch: false,
+      smsDelivery: false,
+      n8nDispatch: false,
+      externalRequests: [],
+    })
+    expect(json.plannedDraftActions.rows[0]).toMatchObject({
+      recordState: 'record_created',
+      recordTable: 'outreach_queue',
+      localRecordId: 'outreach_queue-created-1',
+    })
+  })
+
+  it('creates manual-social handoff tasks without social provider actions', async () => {
+    const insertMocks: Record<string, InsertMock> = {}
+    setupRows({
+      contact_submissions: [{
+        ...warmLead,
+        id: 44,
+        name: 'Mariam Manual',
+        email: null,
+        linkedin_url: 'https://linkedin.example/mariam',
+      }],
+      contact_communications: [],
+      outreach_queue: [],
+      email_messages: [],
+      meeting_records: [
+        {
+          id: 'meeting-44',
+          contact_submission_id: 44,
+          meeting_type: 'discovery',
+          meeting_date: '2026-08-19T00:00:00Z',
+          structured_notes: { summary: 'Discussed manual partner outreach.' },
+          created_at: '2026-08-19T00:00:00Z',
+        },
+      ],
+      meeting_action_tasks: [],
+    }, insertMocks)
+
+    const response = await POST(request({
+      action: 'create_planned_draft_handoff_records',
+      contact_ids: [44],
+      preferred_channel: 'linkedin',
+    }))
+
+    expect(response.status).toBe(200)
+    const json = await response.json()
+    expect(insertMocks.meeting_action_tasks.insert).toHaveBeenCalledTimes(1)
+    expect(insertMocks.meeting_action_tasks.insert.mock.calls[0][0]).toEqual([
+      expect.objectContaining({
+        contact_submission_id: 44,
+        task_category: 'outreach',
+        status: 'pending',
+        title: 'Manual linkedin handoff: Mariam Manual',
+        external_id: expect.stringMatching(/^warm-outreach:manual-handoff-task:v1:/),
+      }),
+    ])
+    expect(insertMocks.outreach_queue).toBeUndefined()
+    expect(json.plannedDraftActions.executionReceipt).toMatchObject({
+      createdCount: 1,
+      gmailDraftRecordCount: 0,
+      manualSocialHandoffTaskCount: 1,
+      externalRequests: [],
+    })
+    expect(json.plannedDraftActions.executionBoundary).toMatchObject({
+      localPortfolioPlanOnly: false,
+      preRecordNoWrite: false,
+      reviewOnlyDraftActionPackets: false,
+      internalPortfolioRecordsCreated: true,
+      createsOutreachQueueRows: false,
+      createsMeetingActionTaskRows: true,
+      createsGmailDrafts: false,
+      gmailProviderCalls: false,
+      socialProviderCalls: false,
+      gmailSend: false,
+      slackDispatch: false,
+      smsDelivery: false,
+      n8nDispatch: false,
+      externalRequests: [],
+    })
+    expect(json.plannedDraftActions.rows[0]).toMatchObject({
+      kind: 'manual_social_handoff',
+      recommendedChannel: 'linkedin',
+      recordState: 'record_created',
+      recordTable: 'meeting_action_tasks',
+      localRecordId: 'meeting_action_tasks-created-1',
+      draftActionPacket: {
+        createsGmailDraft: false,
+        callsProvider: false,
+        externalSend: false,
+        slackDispatch: false,
+        smsDelivery: false,
+        n8nDispatch: false,
+        externalRequests: [],
+      },
     })
   })
 
@@ -445,14 +604,8 @@ describe('POST /api/admin/outreach/batch-review', () => {
     })
   })
 
-  it('does not call writes, rpc, or provider-style operations', async () => {
-    const writes = {
-      insert: vi.fn(),
-      update: vi.fn(),
-      upsert: vi.fn(),
-      delete: vi.fn(),
-      rpc: vi.fn(),
-    }
+  it('keeps review mode read-only', async () => {
+    const insertMocks: Record<string, InsertMock> = {}
     setupRows({
       contact_submissions: [warmLead],
       contact_communications: [],
@@ -460,15 +613,11 @@ describe('POST /api/admin/outreach/batch-review', () => {
       email_messages: [],
       meeting_records: [],
       meeting_action_tasks: [],
-    })
+    }, insertMocks)
 
     await POST(request({ contact_ids: [42] }))
 
-    expect(writes.insert).not.toHaveBeenCalled()
-    expect(writes.update).not.toHaveBeenCalled()
-    expect(writes.upsert).not.toHaveBeenCalled()
-    expect(writes.delete).not.toHaveBeenCalled()
-    expect(writes.rpc).not.toHaveBeenCalled()
+    expect(insertMocks).toEqual({})
     expect(mocks.from).toHaveBeenCalledWith('contact_submissions')
     expect(mocks.from).toHaveBeenCalledWith('contact_communications')
     expect(mocks.from).toHaveBeenCalledWith('outreach_queue')

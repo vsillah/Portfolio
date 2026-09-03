@@ -137,8 +137,8 @@ export type WarmGmailBatchDraftPlan = {
     externalRequests: []
   } | null
   executionBoundary: {
-    localPortfolioPlanOnly: true
-    createsOutreachQueueRows: false
+    localPortfolioPlanOnly: boolean
+    createsOutreachQueueRows: boolean
     createsGmailDrafts: false
     gmailProviderCalls: false
     gmailSend: false
@@ -164,6 +164,18 @@ export type WarmPlannedDraftActionCtaKey =
   | 'open_response_follow_up'
   | 'parked_sms'
 
+export type WarmPlannedDraftExecutionRecord = {
+  key: string
+  kind: 'gmail_draft_record' | 'manual_social_handoff_task'
+  contactId: number
+  channel: 'gmail' | 'linkedin' | 'facebook' | 'phone_contact'
+  recordTable: 'outreach_queue' | 'meeting_action_tasks'
+  recordId: string
+  state: 'created' | 'existing'
+  createdAt: string
+  externalRequests: []
+}
+
 export type WarmPlannedDraftActionRow = {
   contactId: number
   contactName: string
@@ -176,6 +188,10 @@ export type WarmPlannedDraftActionRow = {
   reason: string
   detail: string
   blockers: string[]
+  recordState: 'ready_to_create' | 'record_created' | 'existing_record' | 'blocked'
+  recordKey: string
+  recordTable: 'outreach_queue' | 'meeting_action_tasks' | null
+  localRecordId: string | null
   cta: {
     key: WarmPlannedDraftActionCtaKey
     label: string
@@ -217,9 +233,12 @@ export type WarmPlannedDraftActions = {
   }
   rows: WarmPlannedDraftActionRow[]
   executionBoundary: {
-    localPortfolioPlanOnly: true
-    reviewOnlyDraftActionPackets: true
-    createsOutreachQueueRows: false
+    localPortfolioPlanOnly: boolean
+    preRecordNoWrite: boolean
+    reviewOnlyDraftActionPackets: boolean
+    internalPortfolioRecordsCreated: boolean
+    createsOutreachQueueRows: boolean
+    createsMeetingActionTaskRows: boolean
     createsGmailDrafts: false
     gmailProviderCalls: false
     socialProviderCalls: false
@@ -230,6 +249,15 @@ export type WarmPlannedDraftActions = {
     productionDataMutation: false
     externalRequests: []
   }
+  executionReceipt: {
+    action: 'create_planned_draft_handoff_records'
+    createdAt: string
+    createdCount: number
+    existingCount: number
+    gmailDraftRecordCount: number
+    manualSocialHandoffTaskCount: number
+    externalRequests: []
+  } | null
 }
 
 export type WarmBatchReviewRecipient = {
@@ -281,7 +309,10 @@ export type WarmBatchReview = {
   plannedDraftActions: WarmPlannedDraftActions
   executionBoundary: {
     source: 'local_portfolio_rows'
-    readOnly: true
+    readOnly: boolean
+    internalPortfolioRecordsCreated: boolean
+    createsOutreachQueueRows: boolean
+    createsMeetingActionTaskRows: boolean
     providerCalls: false
     createsDraft: false
     externalSend: false
@@ -524,6 +555,7 @@ function buildGmailDraftPlanRow(args: {
   rows: WarmOutreachSourceInventoryRows
   batchIdempotencyKey: string
   draftCreationReceiptAt?: string | null
+  plannedDraftExecutionRecords?: WarmPlannedDraftExecutionRecord[]
 }): WarmGmailBatchDraftPlanRow {
   const email = text(args.contact.email)
   const phone = text(args.contact.phone_number)
@@ -564,8 +596,13 @@ function buildGmailDraftPlanRow(args: {
     contactId: args.recipient.contactId,
     promptTemplateKey: args.recipient.promptTemplateKey,
   })}`
-  const draftCreationStatus: WarmGmailBatchDraftCreationStatus = args.draftCreationReceiptAt &&
-    status === 'ready_for_local_planning'
+  const executionRecord = executionFor(
+    args.plannedDraftExecutionRecords ?? [],
+    draftRecordKey,
+  )
+  const draftCreationStatus: WarmGmailBatchDraftCreationStatus = executionRecord
+      ? 'draft_created'
+      : args.draftCreationReceiptAt && status === 'ready_for_local_planning'
       ? 'draft_created'
       : args.recipient.existingQueueId
         ? 'draft_already_exists'
@@ -622,7 +659,7 @@ function buildGmailDraftPlanRow(args: {
           : nextAction === 'excluded_review'
             ? 'Review submitted evidence'
             : 'Resolve blocker',
-    existingQueueId: args.recipient.existingQueueId,
+    existingQueueId: executionRecord?.recordId ?? args.recipient.existingQueueId,
     draftCreation: {
       status: draftCreationStatus,
       statusLabel: gmailDraftCreationStatusLabel(draftCreationStatus),
@@ -630,9 +667,13 @@ function buildGmailDraftPlanRow(args: {
       blocker: draftCreationBlocker,
       draftOnly: true,
       draftRecordKey,
-      localDraftRecordId: draftCreationStatus === 'draft_created' ? draftRecordKey : null,
+      localDraftRecordId: draftCreationStatus === 'draft_created'
+        ? executionRecord?.recordId ?? draftRecordKey
+        : null,
       providerDraftId: null,
-      createdAt: draftCreationStatus === 'draft_created' ? args.draftCreationReceiptAt ?? null : null,
+      createdAt: draftCreationStatus === 'draft_created'
+        ? executionRecord?.createdAt ?? args.draftCreationReceiptAt ?? null
+        : null,
       externalRequests: [],
     },
     draftIntent: {
@@ -651,6 +692,7 @@ function buildGmailDraftPlanRow(args: {
 function buildGmailDraftPlan(
   rows: WarmGmailBatchDraftPlanRow[],
   draftCreationReceiptAt?: string | null,
+  executionRecords: WarmPlannedDraftExecutionRecord[] = [],
 ): WarmGmailBatchDraftPlan {
   const readyForLocalPlanningCount = rows.filter((row) => row.status === 'ready_for_local_planning').length
   const approvalRequiredCount = rows.filter((row) => row.status === 'approval_required').length
@@ -667,6 +709,10 @@ function buildGmailDraftPlan(
   ).length
   const draftAlreadyExistsCount = rows.filter((row) => row.draftCreation.status === 'draft_already_exists').length
   const draftCreatedCount = rows.filter((row) => row.draftCreation.status === 'draft_created').length
+  const gmailExecutionRecords = executionRecords.filter((record) => record.kind === 'gmail_draft_record')
+  const createsOutreachQueueRows =
+    gmailExecutionRecords.some((record) => record.state === 'created') ||
+    Boolean(draftCreationReceiptAt && draftCreatedCount > 0)
 
   const currentCta: WarmGmailBatchDraftPlan['currentCta'] =
     draftCreatedCount > 0 && draftCreationEligibleCount === 0
@@ -725,17 +771,17 @@ function buildGmailDraftPlan(
       draftCreatedCount,
     },
     rows,
-    executionReceipt: draftCreationReceiptAt && draftCreatedCount > 0
+    executionReceipt: (gmailExecutionRecords.length > 0 || draftCreationReceiptAt) && draftCreatedCount > 0
       ? {
           action: 'create_gmail_draft_records',
-          createdAt: draftCreationReceiptAt,
-          createdCount: draftCreatedCount,
+          createdAt: gmailExecutionRecords[0]?.createdAt ?? draftCreationReceiptAt ?? '',
+          createdCount: gmailExecutionRecords.filter((record) => record.state === 'created').length || draftCreatedCount,
           externalRequests: [],
         }
       : null,
     executionBoundary: {
-      localPortfolioPlanOnly: true,
-      createsOutreachQueueRows: false,
+      localPortfolioPlanOnly: !createsOutreachQueueRows,
+      createsOutreachQueueRows,
       createsGmailDrafts: false,
       gmailProviderCalls: false,
       gmailSend: false,
@@ -768,8 +814,25 @@ function contactReviewHref(contactId: number, hash = '') {
   return `/admin/outreach?tab=leads&filter=warm&id=${contactId}&contactId=${contactId}${hash}`
 }
 
+function plannedManualHandoffTaskKey(recipient: Omit<WarmBatchReviewRecipient, 'plannedDraftAction'>) {
+  return `warm-outreach:manual-handoff-task:v1:${stableHash({
+    draftIdempotencyKey: recipient.draftIdempotencyKey,
+    contactId: recipient.contactId,
+    channel: recipient.selectedChannel,
+    template: recipient.selectedTemplate,
+  })}`
+}
+
+function executionFor(
+  records: WarmPlannedDraftExecutionRecord[],
+  key: string,
+): WarmPlannedDraftExecutionRecord | null {
+  return records.find((record) => record.key === key) ?? null
+}
+
 function buildPlannedDraftActionRow(
   recipient: Omit<WarmBatchReviewRecipient, 'plannedDraftAction'>,
+  executionRecords: WarmPlannedDraftExecutionRecord[] = [],
 ): WarmPlannedDraftActionRow {
   const channel = recipient.selectedChannel
   const hasOnlyPhoneChannel =
@@ -798,6 +861,8 @@ function buildPlannedDraftActionRow(
   let reason: string
   let detail: string
   let cta: WarmPlannedDraftActionRow['cta']
+  let recordKey = recipient.gmailDraftPlan.draftCreation.draftRecordKey
+  let recordTable: WarmPlannedDraftActionRow['recordTable'] = null
 
   if (hasResponseFollowUp) {
     kind = 'response_follow_up'
@@ -848,6 +913,8 @@ function buildPlannedDraftActionRow(
   } else if (channel === 'linkedin' || channel === 'facebook' || channel === 'phone_contact') {
     kind = 'manual_social_handoff'
     recommendedChannel = channel
+    recordKey = plannedManualHandoffTaskKey(recipient)
+    recordTable = 'meeting_action_tasks'
     kindLabel = 'Manual handoff'
     recommendationLabel =
       channel === 'linkedin'
@@ -867,6 +934,7 @@ function buildPlannedDraftActionRow(
   } else {
     kind = 'gmail_draft_plan'
     recommendedChannel = 'gmail'
+    recordTable = 'outreach_queue'
     kindLabel = 'Gmail draft plan'
     recommendationLabel = 'Gmail draft plan'
     state = 'ready'
@@ -880,6 +948,16 @@ function buildPlannedDraftActionRow(
       enabled: true,
     }
   }
+
+  const executionRecord = executionFor(executionRecords, recordKey)
+  const blocked = state === 'blocked' || state === 'follow_up' || state === 'parked' || !cta.enabled
+  const recordState: WarmPlannedDraftActionRow['recordState'] = executionRecord
+    ? executionRecord.state === 'created'
+      ? 'record_created'
+      : 'existing_record'
+    : blocked
+      ? 'blocked'
+      : 'ready_to_create'
 
   return {
     contactId: recipient.contactId,
@@ -897,17 +975,29 @@ function buildPlannedDraftActionRow(
       ...recipient.gmailDraftPlan.blockers,
       ...(recipient.packet.channelCapabilities.phone_contact?.available ? ['SMS parked until Telnyx readiness clears'] : []),
     ].filter((value, index, list) => list.indexOf(value) === index),
+    recordState,
+    recordKey,
+    recordTable,
+    localRecordId: executionRecord?.recordId ?? null,
     cta,
     draftActionPacket: draftActionPacket(),
   }
 }
 
-function buildPlannedDraftActions(rows: WarmPlannedDraftActionRow[]): WarmPlannedDraftActions {
+function buildPlannedDraftActions(
+  rows: WarmPlannedDraftActionRow[],
+  executionRecords: WarmPlannedDraftExecutionRecord[] = [],
+): WarmPlannedDraftActions {
   const gmailDraftPlanCount = rows.filter((row) => row.kind === 'gmail_draft_plan').length
   const manualSocialHandoffCount = rows.filter((row) => row.kind === 'manual_social_handoff').length
   const relationshipReviewBlockerCount = rows.filter((row) => row.kind === 'relationship_review_blocker').length
   const responseFollowUpCount = rows.filter((row) => row.kind === 'response_follow_up').length
   const parkedSmsCount = rows.filter((row) => row.kind === 'parked_sms' || row.recommendedChannel === 'sms').length
+  const createdRecords = executionRecords.filter((record) => record.state === 'created')
+  const existingRecords = executionRecords.filter((record) => record.state === 'existing')
+  const createsOutreachQueueRows = createdRecords.some((record) => record.kind === 'gmail_draft_record')
+  const createsMeetingActionTaskRows = createdRecords.some((record) => record.kind === 'manual_social_handoff_task')
+  const internalPortfolioRecordsCreated = createsOutreachQueueRows || createsMeetingActionTaskRows
   const primary =
     rows.find((row) => row.kind === 'response_follow_up' && row.cta.enabled) ??
     rows.find((row) => row.kind === 'gmail_draft_plan' && row.cta.enabled) ??
@@ -951,9 +1041,12 @@ function buildPlannedDraftActions(rows: WarmPlannedDraftActionRow[]): WarmPlanne
     },
     rows,
     executionBoundary: {
-      localPortfolioPlanOnly: true,
-      reviewOnlyDraftActionPackets: true,
-      createsOutreachQueueRows: false,
+      localPortfolioPlanOnly: !internalPortfolioRecordsCreated,
+      preRecordNoWrite: !internalPortfolioRecordsCreated,
+      reviewOnlyDraftActionPackets: !internalPortfolioRecordsCreated,
+      internalPortfolioRecordsCreated,
+      createsOutreachQueueRows,
+      createsMeetingActionTaskRows,
       createsGmailDrafts: false,
       gmailProviderCalls: false,
       socialProviderCalls: false,
@@ -964,6 +1057,17 @@ function buildPlannedDraftActions(rows: WarmPlannedDraftActionRow[]): WarmPlanne
       productionDataMutation: false,
       externalRequests: [],
     },
+    executionReceipt: executionRecords.length > 0
+      ? {
+          action: 'create_planned_draft_handoff_records',
+          createdAt: executionRecords[0].createdAt,
+          createdCount: createdRecords.length,
+          existingCount: existingRecords.length,
+          gmailDraftRecordCount: executionRecords.filter((record) => record.kind === 'gmail_draft_record').length,
+          manualSocialHandoffTaskCount: executionRecords.filter((record) => record.kind === 'manual_social_handoff_task').length,
+          externalRequests: [],
+        }
+      : null,
   }
 }
 
@@ -973,6 +1077,7 @@ export function buildWarmBatchReview(args: {
   cohortLabel?: string | null
   preferredChannel?: WarmOutreachChannel
   draftCreationReceiptAt?: string | null
+  plannedDraftExecutionRecords?: WarmPlannedDraftExecutionRecord[]
 }): WarmBatchReview {
   const sortedContactIds = args.contacts
     .map((entry) => Number(entry.contact.id))
@@ -1085,19 +1190,26 @@ export function buildWarmBatchReview(args: {
       rows: args.contacts[index].rows,
       batchIdempotencyKey,
       draftCreationReceiptAt: args.draftCreationReceiptAt,
+      plannedDraftExecutionRecords: args.plannedDraftExecutionRecords ?? [],
     }),
   }))
   const recipients: WarmBatchReviewRecipient[] = recipientsWithGmailPlan.map((recipient) => ({
     ...recipient,
-    plannedDraftAction: buildPlannedDraftActionRow(recipient),
+    plannedDraftAction: buildPlannedDraftActionRow(
+      recipient,
+      args.plannedDraftExecutionRecords ?? [],
+    ),
   }))
   const gmailDraftPlan = buildGmailDraftPlan(
     recipients.map((recipient) => recipient.gmailDraftPlan),
     args.draftCreationReceiptAt,
+    args.plannedDraftExecutionRecords ?? [],
   )
   const plannedDraftActions = buildPlannedDraftActions(
     recipients.map((recipient) => recipient.plannedDraftAction),
+    args.plannedDraftExecutionRecords ?? [],
   )
+  const plannedBoundary = plannedDraftActions.executionBoundary
   const readyRecipients = recipients.filter((recipient) => recipient.status === 'ready_for_review')
   const existingDraftRecipients = recipients.filter((recipient) => recipient.status === 'existing_draft')
   const blockedRecipients = recipients.filter((recipient) => recipient.status === 'blocked')
@@ -1126,7 +1238,10 @@ export function buildWarmBatchReview(args: {
     plannedDraftActions,
     executionBoundary: {
       source: 'local_portfolio_rows',
-      readOnly: true,
+      readOnly: !plannedBoundary.internalPortfolioRecordsCreated,
+      internalPortfolioRecordsCreated: plannedBoundary.internalPortfolioRecordsCreated,
+      createsOutreachQueueRows: plannedBoundary.createsOutreachQueueRows,
+      createsMeetingActionTaskRows: plannedBoundary.createsMeetingActionTaskRows,
       providerCalls: false,
       createsDraft: false,
       externalSend: false,

@@ -117,16 +117,16 @@ export default function WarmPlanningBacklogPanel({
       className="mb-4 rounded-lg border border-radiant-gold/30 bg-radiant-gold/5 p-3 sm:p-4"
       aria-label="Warm outreach planning backlog"
     >
-      <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(13rem,auto)] lg:items-start">
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(13rem,auto)] lg:items-start">
         <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-2">
-            <p className="text-xs font-semibold uppercase tracking-wide text-radiant-gold">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-2">
+            <p className="text-xs font-semibold uppercase leading-5 tracking-wide text-radiant-gold">
               Warm planning backlog
             </p>
-            <span className="rounded-full border border-silicon-slate/70 bg-background/45 px-2 py-0.5 text-xs text-muted-foreground">
+            <span className="inline-flex min-w-fit shrink-0 items-center whitespace-nowrap rounded-full border border-silicon-slate/70 bg-background/45 px-2.5 py-0.5 text-xs leading-5 text-muted-foreground">
               {backlog.planningWindowLabel}
             </span>
-            <span className="rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2 py-0.5 text-xs text-emerald-100">
+            <span className="inline-flex min-w-fit shrink-0 items-center whitespace-nowrap rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2.5 py-0.5 text-xs leading-5 text-emerald-100">
               external requests {backlog.executionBoundary.externalRequests.length}
             </span>
           </div>
@@ -138,7 +138,7 @@ export default function WarmPlanningBacklogPanel({
             <button
               type="button"
               onClick={() => onStateChange('all')}
-              className={`inline-flex min-h-8 max-w-full items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors ${
+              className={`inline-flex min-h-8 max-w-full min-w-fit shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1 text-xs font-medium leading-5 transition-colors ${
                 activeState === 'all'
                   ? 'border-radiant-gold bg-radiant-gold/15 text-radiant-gold'
                   : 'border-silicon-slate/70 bg-background/40 text-muted-foreground hover:border-radiant-gold/50 hover:text-foreground'
@@ -151,7 +151,7 @@ export default function WarmPlanningBacklogPanel({
               </span>
               <span
                 data-planning-filter-count
-                className="inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full border border-current/25 bg-background/30 px-1.5 text-[10px] font-semibold tabular-nums"
+                className="inline-flex h-5 min-w-5 shrink-0 items-center justify-center whitespace-nowrap rounded-full border border-current/25 bg-background/30 px-1.5 text-[10px] font-semibold leading-none tabular-nums"
               >
                 {totalCandidates}
               </span>
@@ -163,7 +163,7 @@ export default function WarmPlanningBacklogPanel({
                   key={state}
                   type="button"
                   onClick={() => onStateChange(active ? 'all' : state)}
-                  className={`inline-flex min-h-8 max-w-full items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors ${
+                  className={`inline-flex min-h-8 max-w-full min-w-fit shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1 text-xs font-medium leading-5 transition-colors ${
                     active
                       ? 'border-radiant-gold bg-radiant-gold/15 text-radiant-gold'
                       : 'border-silicon-slate/70 bg-background/40 text-muted-foreground hover:border-radiant-gold/50 hover:text-foreground'
@@ -174,12 +174,12 @@ export default function WarmPlanningBacklogPanel({
                   <span className="shrink-0">
                     <StateIcon state={state} />
                   </span>
-                  <span data-planning-filter-label className="whitespace-nowrap">
+                  <span data-planning-filter-label className="shrink-0 whitespace-nowrap">
                     {planningFilterLabel(state)}
                   </span>
                   <span
                     data-planning-filter-count
-                    className="inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full border border-current/25 bg-background/30 px-1.5 text-[10px] font-semibold tabular-nums"
+                    className="inline-flex h-5 min-w-5 shrink-0 items-center justify-center whitespace-nowrap rounded-full border border-current/25 bg-background/30 px-1.5 text-[10px] font-semibold leading-none tabular-nums"
                   >
                     {backlog.counts[state]}
                   </span>
@@ -202,7 +202,7 @@ export default function WarmPlanningBacklogPanel({
             )}
             {loading ? 'Preparing plan...' : backlog.currentCta.label}
           </button>
-          <p className="mt-2 text-xs leading-5 text-muted-foreground">
+          <p className="mt-2.5 text-xs leading-6 text-muted-foreground">
             {backlog.currentCta.reason}
           </p>
           {error && (
@@ -234,24 +234,24 @@ export default function WarmPlanningBacklogPanel({
           return (
             <article
               key={candidate.contactId}
-              className="grid gap-3 rounded-md border border-silicon-slate/70 bg-background/45 p-3 lg:grid-cols-[minmax(0,1.1fr)_minmax(16rem,0.9fr)_minmax(10rem,auto)] lg:items-center"
+              className="grid gap-3.5 rounded-md border border-silicon-slate/70 bg-background/45 p-3 lg:grid-cols-[minmax(0,1.1fr)_minmax(16rem,0.9fr)_minmax(10rem,auto)] lg:items-center"
             >
               <div className="min-w-0">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-semibold ${stateClasses(primaryState)}`}>
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-2">
+                  <span className={`inline-flex min-w-fit shrink-0 items-center gap-1 whitespace-nowrap rounded-full border px-2.5 py-0.5 text-[11px] font-semibold leading-5 ${stateClasses(primaryState)}`}>
                     <StateIcon state={primaryState} />
                     {backlog.filterLabels[primaryState]}
                   </span>
                   {candidate.states.includes('sms_parked') && primaryState !== 'sms_parked' && (
-                    <span className="rounded-full border border-silicon-slate/80 bg-background/35 px-2 py-0.5 text-[11px] text-muted-foreground">
+                    <span className="inline-flex min-w-fit shrink-0 items-center whitespace-nowrap rounded-full border border-silicon-slate/80 bg-background/35 px-2.5 py-0.5 text-[11px] leading-5 text-muted-foreground">
                       SMS parked
                     </span>
                   )}
-                  <h3 className="min-w-0 truncate text-sm font-semibold text-foreground">
+                  <h3 className="mt-0.5 min-w-0 truncate text-sm font-semibold leading-5 text-foreground">
                     {candidate.contactName}
                   </h3>
                   {candidate.company && (
-                    <span className="truncate text-xs text-muted-foreground">{candidate.company}</span>
+                    <span className="mt-0.5 truncate text-xs leading-5 text-muted-foreground">{candidate.company}</span>
                   )}
                 </div>
                 <p className="mt-2 line-clamp-2 text-xs leading-5 text-muted-foreground">
@@ -259,17 +259,17 @@ export default function WarmPlanningBacklogPanel({
                 </p>
               </div>
               <div className="min-w-0 text-xs leading-5 text-muted-foreground">
-                <div className="flex flex-wrap gap-1.5">
-                  <span className="rounded-full border border-sky-500/25 bg-sky-500/10 px-2 py-0.5 text-sky-100">
+                <div className="flex flex-wrap gap-x-1.5 gap-y-2">
+                  <span className="inline-flex min-w-fit shrink-0 items-center whitespace-nowrap rounded-full border border-sky-500/25 bg-sky-500/10 px-2.5 py-0.5 leading-5 text-sky-100">
                     {channelLabel(candidate.recommendedChannel)}
                   </span>
-                  <span className="rounded-full border border-silicon-slate/70 bg-background/35 px-2 py-0.5">
+                  <span className="inline-flex min-w-fit shrink-0 items-center whitespace-nowrap rounded-full border border-silicon-slate/70 bg-background/35 px-2.5 py-0.5 leading-5">
                     {draftReadinessLabel(candidate.draftReadiness)}
                   </span>
-                  <span className="rounded-full border border-silicon-slate/70 bg-background/35 px-2 py-0.5">
+                  <span className="inline-flex min-w-fit shrink-0 items-center whitespace-nowrap rounded-full border border-silicon-slate/70 bg-background/35 px-2.5 py-0.5 leading-5">
                     {approvalStateLabel(candidate.approvalState)}
                   </span>
-                  <span className="rounded-full border border-silicon-slate/70 bg-background/35 px-2 py-0.5">
+                  <span className="inline-flex min-w-fit shrink-0 items-center whitespace-nowrap rounded-full border border-silicon-slate/70 bg-background/35 px-2.5 py-0.5 leading-5">
                     {responseStatusLabel(candidate.responseStatus)}
                   </span>
                 </div>
