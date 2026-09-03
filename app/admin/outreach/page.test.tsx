@@ -1359,4 +1359,98 @@ describe('OutreachAdminPage deep links', () => {
     })
     expect(fetchMock.mock.calls.some(([url]) => /googleapis\.com|mail\.google\.com|gmail\.com/i.test(String(url)))).toBe(false)
   })
+
+  it('surfaces created internal draft and manual handoff records as compact row and workroom actions', async () => {
+    window.history.replaceState({}, '', '/admin/outreach?tab=leads&filter=warm')
+    const gmailLead = {
+      ...lead,
+      next_internal_action: {
+        kind: 'gmail_draft_record',
+        label: 'Review draft',
+        status_label: 'Draft-only record',
+        detail: 'Warm follow-up: Ada Operator',
+        record_table: 'outreach_queue',
+        record_id: 'queue-created-1',
+        created_at: '2026-09-02T12:00:00.000Z',
+        href: '/admin/email-messages/email-message-1',
+        enabled: true,
+      },
+    }
+    const manualLead = {
+      ...lead,
+      id: 51,
+      name: 'Mariam Manual',
+      email: null,
+      company: 'Manual Co',
+      lead_source: 'warm_facebook',
+      messages_count: 0,
+      next_internal_action: {
+        kind: 'manual_social_handoff_task',
+        label: 'Record handoff evidence',
+        status_label: 'Pending handoff',
+        detail: 'Manual facebook handoff: Mariam Manual',
+        record_table: 'meeting_action_tasks',
+        record_id: 'task-created-1',
+        created_at: '2026-09-02T13:00:00.000Z',
+        href: '/admin/outreach?tab=leads&filter=warm&id=51&contactId=51#warm-manual-social-handoff',
+        enabled: true,
+      },
+    }
+    const fetchMock = vi.fn(async (url: string) => {
+      if (url.startsWith('/api/admin/outreach/leads/51/relationship-packet')) {
+        return Response.json({
+          ...relationshipPacketResponse,
+          packet: {
+            ...relationshipPacketResponse.packet,
+            contactId: 51,
+            contactName: 'Mariam Manual',
+            preferredChannel: 'facebook',
+          },
+          readiness: {
+            ...relationshipPacketResponse.readiness,
+            selectedChannel: 'facebook',
+          },
+        })
+      }
+      if (url.startsWith('/api/admin/outreach/leads/42/relationship-packet')) {
+        return Response.json(relationshipPacketResponse)
+      }
+      if (url.startsWith('/api/admin/outreach/leads')) {
+        return Response.json({ leads: [gmailLead, manualLead], total: 2, page: 1 })
+      }
+      if (url.startsWith('/api/admin/value-evidence/workflow-status')) {
+        return Response.json({})
+      }
+      if (url.startsWith('/api/admin/chat-escalations')) {
+        return Response.json({ escalations: [], total: 0 })
+      }
+      if (url.startsWith('/api/admin/sales/contact-meetings')) {
+        return Response.json({ meetings: [] })
+      }
+      if (url.startsWith('/api/meeting-action-tasks')) {
+        return Response.json({ tasks: [] })
+      }
+      return Response.json({})
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    render(<OutreachAdminPage />)
+
+    const gmailAction = await screen.findByLabelText('Internal action for Ada Operator')
+    expect(within(gmailAction).getByText('Draft-only record')).toBeInTheDocument()
+    expect(within(gmailAction).getByRole('link', { name: /Review draft/i })).toHaveAttribute(
+      'href',
+      '/admin/email-messages/email-message-1',
+    )
+
+    const manualAction = await screen.findByLabelText('Internal action for Mariam Manual')
+    expect(within(manualAction).getByText('Pending handoff')).toBeInTheDocument()
+    fireEvent.click(within(manualAction).getByRole('button', { name: /Record manual handoff evidence/ }))
+
+    const workroom = await screen.findByLabelText('Outreach workroom for Mariam Manual')
+    const workroomAction = within(workroom).getByLabelText('Created internal action for Mariam Manual')
+    expect(within(workroomAction).getByText('Manual facebook handoff: Mariam Manual')).toBeInTheDocument()
+    expect(within(workroomAction).getByRole('button', { name: /Open manual handoff evidence/ })).toBeInTheDocument()
+    expect(fetchMock.mock.calls.some(([url]) => /telnyx\.com|slack\.com|gmail\.com|googleapis\.com|n8n/i.test(String(url)))).toBe(false)
+  })
 })

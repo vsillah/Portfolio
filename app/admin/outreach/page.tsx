@@ -128,12 +128,25 @@ interface Lead {
     created_at: string
     email_message_id?: string | null
   }[]
+  next_internal_action?: WarmLeadInternalAction | null
 }
 
 interface LeadsResponse {
   leads: Lead[]
   total: number
   page: number
+}
+
+type WarmLeadInternalAction = {
+  kind: 'gmail_draft_record' | 'manual_social_handoff_task'
+  label: string
+  status_label: string
+  detail: string
+  record_table: 'outreach_queue' | 'meeting_action_tasks'
+  record_id: string
+  created_at: string | null
+  href: string
+  enabled: boolean
 }
 
 /** Deduplicate silent /api/admin/outreach/leads refetches (Realtime, poll) */
@@ -213,6 +226,16 @@ function shortlistStatusLabel(status: WarmOutreachShortlistItem['status']) {
   if (status === 'submitted') return 'Submitted'
   if (status === 'blocked') return 'Blocked'
   return 'Needs review'
+}
+
+function internalActionClasses(kind: WarmLeadInternalAction['kind']) {
+  if (kind === 'manual_social_handoff_task') return 'border-sky-500/35 bg-sky-500/10 text-sky-100'
+  return 'border-emerald-500/35 bg-emerald-500/10 text-emerald-100'
+}
+
+function InternalActionIcon({ kind }: { kind: WarmLeadInternalAction['kind'] }) {
+  if (kind === 'manual_social_handoff_task') return <Linkedin size={14} className="shrink-0" aria-hidden />
+  return <Mail size={14} className="shrink-0" aria-hidden />
 }
 
 function DigestPill({ label, value }: { label: string; value: string }) {
@@ -1267,6 +1290,27 @@ function OutreachContent() {
     },
     [router, searchParams],
   )
+  const openWarmInternalAction = useCallback(
+    (lead: Lead) => {
+      const action = lead.next_internal_action
+      if (!action?.enabled) return
+
+      setOutreachWorkroomLeadId(lead.id)
+      setExpandedLeadId(lead.id)
+      setLeadRowMenuOpenId(null)
+      const params = new URLSearchParams(searchParams?.toString() || '')
+      params.set('tab', 'leads')
+      params.set('filter', 'warm')
+      params.set('id', String(lead.id))
+      params.set('contactId', String(lead.id))
+      const hash =
+        action.kind === 'manual_social_handoff_task'
+          ? '#warm-manual-social-handoff'
+          : '#warm-internal-action'
+      router.replace(`/admin/outreach?${params.toString()}${hash}`, { scroll: false })
+    },
+    [router, searchParams],
+  )
   const openWarmDigestCurrentAction = useCallback(() => {
     const contactId = warmOfficeDigest.currentCta.contactId
     if (!warmOfficeDigest.currentCta.enabled || contactId == null) return
@@ -1301,6 +1345,8 @@ function OutreachContent() {
   const outreachNextAction = outreachWorkroomLead
     ? outreachWorkroomLead.do_not_contact || outreachWorkroomLead.removed_at
       ? 'Resolve contact status before any draft or evidence work continues.'
+      : outreachWorkroomLead.next_internal_action
+        ? outreachWorkroomLead.next_internal_action.label
       : 'Review evidence, recent drafts, meetings, and contact status before preparing internal outreach.'
     : selectedLeadIds.size
       ? `Review or enrich ${selectedLeadIds.size} selected lead(s).`
@@ -1815,6 +1861,48 @@ function OutreachContent() {
                   </button>
                 </div>
                 <div className="space-y-3">
+                  {outreachWorkroomLead.next_internal_action && !outreachBlocker && (
+                    <div
+                      id="warm-internal-action"
+                      className={`grid min-w-0 gap-2 overflow-hidden rounded-lg border p-3 lg:grid-cols-[minmax(0,1fr)_minmax(8rem,auto)] lg:items-center ${internalActionClasses(outreachWorkroomLead.next_internal_action.kind)}`}
+                      aria-label={`Created internal action for ${outreachWorkroomLead.name}`}
+                    >
+                      <div className="min-w-0">
+                        <div className="flex min-w-0 flex-wrap items-center gap-2">
+                          <span className="inline-flex min-w-fit shrink-0 items-center gap-1 whitespace-nowrap rounded-full border border-current/25 px-2 py-0.5 text-[11px] font-semibold leading-5">
+                            <InternalActionIcon kind={outreachWorkroomLead.next_internal_action.kind} />
+                            {outreachWorkroomLead.next_internal_action.status_label}
+                          </span>
+                          <p className="min-w-0 truncate text-sm font-semibold text-foreground">
+                            {outreachWorkroomLead.next_internal_action.detail}
+                          </p>
+                        </div>
+                        <p className="mt-1 truncate text-xs opacity-85" title={outreachWorkroomLead.next_internal_action.record_id}>
+                          {outreachWorkroomLead.next_internal_action.record_table}: {outreachWorkroomLead.next_internal_action.record_id}
+                        </p>
+                      </div>
+                      {outreachWorkroomLead.next_internal_action.kind === 'gmail_draft_record' ? (
+                        <Link
+                          href={outreachWorkroomLead.next_internal_action.href}
+                          className="inline-flex min-h-10 w-full min-w-0 items-center justify-center gap-2 rounded-lg border border-current/35 bg-background/35 px-3 text-sm font-semibold transition-colors hover:bg-background/50 lg:w-auto"
+                          aria-label={`Open draft-only review for ${outreachWorkroomLead.name}`}
+                        >
+                          <Mail size={15} aria-hidden />
+                          Open draft review
+                        </Link>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => openWarmInternalAction(outreachWorkroomLead)}
+                          className="inline-flex min-h-10 w-full min-w-0 items-center justify-center gap-2 rounded-lg border border-current/35 bg-background/35 px-3 text-sm font-semibold transition-colors hover:bg-background/50 lg:w-auto"
+                          aria-label={`Open manual handoff evidence for ${outreachWorkroomLead.name}`}
+                        >
+                          <ClipboardCheck size={15} aria-hidden />
+                          Record evidence
+                        </button>
+                      )}
+                    </div>
+                  )}
                   {outreachBlocker ? (
                     <div
                       role="alert"
@@ -2201,6 +2289,44 @@ function OutreachContent() {
                                 )
                               })()}
                             </div>
+                            {lead.next_internal_action && (
+                              <div
+                                className={`mt-2 grid min-w-0 max-w-2xl gap-2 overflow-hidden rounded-lg border p-2 text-xs lg:grid-cols-[minmax(0,1fr)_minmax(7rem,auto)] lg:items-center ${internalActionClasses(lead.next_internal_action.kind)}`}
+                                aria-label={`Internal action for ${lead.name}`}
+                              >
+                                <div className="min-w-0">
+                                  <div className="flex min-w-0 flex-wrap items-center gap-1.5">
+                                    <span className="inline-flex min-w-fit shrink-0 items-center gap-1 whitespace-nowrap rounded-full border border-current/25 px-2 py-0.5 font-semibold leading-5">
+                                      <InternalActionIcon kind={lead.next_internal_action.kind} />
+                                      {lead.next_internal_action.status_label}
+                                    </span>
+                                    <span className="min-w-0 truncate font-medium text-foreground">
+                                      {lead.next_internal_action.detail}
+                                    </span>
+                                  </div>
+                                </div>
+                                {lead.next_internal_action.kind === 'gmail_draft_record' ? (
+                                  <Link
+                                    href={lead.next_internal_action.href}
+                                    className="inline-flex min-h-9 w-full min-w-0 items-center justify-center gap-1.5 rounded-md border border-current/35 bg-background/35 px-2.5 font-semibold transition-colors hover:bg-background/50 lg:w-auto"
+                                    aria-label={`Review draft-only internal Gmail record for ${lead.name}`}
+                                  >
+                                    <Mail size={13} aria-hidden />
+                                    Review draft
+                                  </Link>
+                                ) : (
+                                  <button
+                                    type="button"
+                                    onClick={() => openWarmInternalAction(lead)}
+                                    className="inline-flex min-h-9 w-full min-w-0 items-center justify-center gap-1.5 rounded-md border border-current/35 bg-background/35 px-2.5 font-semibold transition-colors hover:bg-background/50 lg:w-auto"
+                                    aria-label={`Record manual handoff evidence for ${lead.name}`}
+                                  >
+                                    <ClipboardCheck size={13} aria-hidden />
+                                    Record evidence
+                                  </button>
+                                )}
+                              </div>
+                            )}
                           </div>
                           </div>
 

@@ -54,7 +54,14 @@ type QueryCalls = {
   like: Array<[string, unknown]>
 }
 
-function mockLeadsListQuery(contacts: Record<string, unknown>[]) {
+function mockLeadsListQuery(
+  contacts: Record<string, unknown>[],
+  options?: {
+    queueRows?: Record<string, unknown>[]
+    emailMessageRows?: Record<string, unknown>[]
+    actionTaskRows?: Record<string, unknown>[]
+  },
+) {
   const queryCalls: QueryCalls = { eq: [], is: [], not: [], like: [] }
 
   const listChain: {
@@ -135,14 +142,17 @@ function mockLeadsListQuery(contacts: Record<string, unknown>[]) {
       }
     }
     if (table === 'outreach_queue') {
-      return { select: () => ({ in: () => Promise.resolve({ data: [] }) }) }
+      return { select: () => ({ in: () => Promise.resolve({ data: options?.queueRows ?? [] }) }) }
     }
     if (table === 'email_messages') {
       return {
         select: () => ({
-          eq: () => ({ in: () => Promise.resolve({ data: [] }) }),
+          eq: () => ({ in: () => Promise.resolve({ data: options?.emailMessageRows ?? [] }) }),
         }),
       }
+    }
+    if (table === 'meeting_action_tasks') {
+      return { select: () => ({ in: () => Promise.resolve({ data: options?.actionTaskRows ?? [] }) }) }
     }
     throw new Error(`Unexpected table ${table}`)
   })
@@ -246,6 +256,76 @@ describe('GET /api/admin/outreach/leads', () => {
     expect(queryCalls.like).toEqual([['lead_source', 'warm_%']])
     expect(queryCalls.eq).toContainEqual(['do_not_contact', false])
     expect(queryCalls.is).toContainEqual(['removed_at', null])
+  })
+
+  it('projects created planned Gmail records and manual-social handoff tasks into next internal actions', async () => {
+    const manualLead = {
+      ...websiteFormLead,
+      id: 102,
+      name: 'Manual Lead',
+      email: null,
+      lead_source: 'warm_facebook',
+    }
+    mockLeadsListQuery([websiteFormLead, manualLead], {
+      queueRows: [
+        {
+          id: 'queue-planned-1',
+          contact_submission_id: 101,
+          status: 'draft',
+          subject: 'Warm follow-up: Form Lead',
+          created_at: '2026-09-02T12:00:00Z',
+          channel: 'email',
+          generation_inputs: {
+            version: 'warm-planned-draft-execution/v1',
+            record_key: 'warm-outreach:gmail-draft-record:v1:abc123',
+            queue_intent: 'draft_only_planned',
+            external_requests: [],
+          },
+        },
+      ],
+      emailMessageRows: [
+        {
+          id: 'email-message-1',
+          source_id: 'queue-planned-1',
+        },
+      ],
+      actionTaskRows: [
+        {
+          id: 'task-1',
+          contact_submission_id: 102,
+          title: 'Manual facebook handoff: Manual Lead',
+          description: 'Record timestamp and evidence only.',
+          status: 'pending',
+          due_date: null,
+          task_category: 'outreach',
+          external_id: 'warm-outreach:manual-handoff-task:v1:def456',
+          created_at: '2026-09-02T13:00:00Z',
+        },
+      ],
+    })
+
+    const response = await GET(makeGetRequest('?filter=warm&visibility=all'))
+
+    expect(response.status).toBe(200)
+    const body = await response.json()
+    expect(body.leads[0].next_internal_action).toMatchObject({
+      kind: 'gmail_draft_record',
+      label: 'Review draft',
+      status_label: 'Draft-only record',
+      record_table: 'outreach_queue',
+      record_id: 'queue-planned-1',
+      href: '/admin/email-messages/email-message-1',
+      enabled: true,
+    })
+    expect(body.leads[1].next_internal_action).toMatchObject({
+      kind: 'manual_social_handoff_task',
+      label: 'Record handoff evidence',
+      status_label: 'Pending handoff',
+      record_table: 'meeting_action_tasks',
+      record_id: 'task-1',
+      href: '/admin/outreach?tab=leads&filter=warm&id=102&contactId=102#warm-manual-social-handoff',
+      enabled: true,
+    })
   })
 })
 
