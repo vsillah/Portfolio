@@ -431,6 +431,13 @@ describe('warm outreach batch review', () => {
     expect(review.recipients[0].gmailDraftPlan.draftCreation.localDraftRecordId).toMatch(
       /^warm-outreach:gmail-draft-record:v1:/,
     )
+    expect(review.gmailDraftPlan.executionBoundary).toMatchObject({
+      localPortfolioPlanOnly: false,
+      createsOutreachQueueRows: true,
+      createsGmailDrafts: false,
+      gmailProviderCalls: false,
+      gmailSend: false,
+    })
   })
 
   it('excludes recipients with submitted email evidence from batch drafting', () => {
@@ -541,8 +548,11 @@ describe('warm outreach batch review', () => {
       },
       executionBoundary: {
         localPortfolioPlanOnly: true,
+        preRecordNoWrite: true,
         reviewOnlyDraftActionPackets: true,
+        internalPortfolioRecordsCreated: false,
         createsOutreachQueueRows: false,
+        createsMeetingActionTaskRows: false,
         createsGmailDrafts: false,
         gmailProviderCalls: false,
         socialProviderCalls: false,

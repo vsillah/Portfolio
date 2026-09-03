@@ -462,7 +462,8 @@ describe('POST /api/admin/outreach/batch-review', () => {
         externalRequests: [],
       },
       executionBoundary: {
-        createsOutreachQueueRows: false,
+        localPortfolioPlanOnly: false,
+        createsOutreachQueueRows: true,
         createsGmailDrafts: false,
         gmailProviderCalls: false,
         gmailSend: false,
@@ -484,6 +485,22 @@ describe('POST /api/admin/outreach/batch-review', () => {
       createdCount: 1,
       gmailDraftRecordCount: 1,
       manualSocialHandoffTaskCount: 0,
+      externalRequests: [],
+    })
+    expect(json.plannedDraftActions.executionBoundary).toMatchObject({
+      localPortfolioPlanOnly: false,
+      preRecordNoWrite: false,
+      reviewOnlyDraftActionPackets: false,
+      internalPortfolioRecordsCreated: true,
+      createsOutreachQueueRows: true,
+      createsMeetingActionTaskRows: false,
+      createsGmailDrafts: false,
+      gmailProviderCalls: false,
+      socialProviderCalls: false,
+      gmailSend: false,
+      slackDispatch: false,
+      smsDelivery: false,
+      n8nDispatch: false,
       externalRequests: [],
     })
     expect(json.plannedDraftActions.rows[0]).toMatchObject({
@@ -542,6 +559,22 @@ describe('POST /api/admin/outreach/batch-review', () => {
       createdCount: 1,
       gmailDraftRecordCount: 0,
       manualSocialHandoffTaskCount: 1,
+      externalRequests: [],
+    })
+    expect(json.plannedDraftActions.executionBoundary).toMatchObject({
+      localPortfolioPlanOnly: false,
+      preRecordNoWrite: false,
+      reviewOnlyDraftActionPackets: false,
+      internalPortfolioRecordsCreated: true,
+      createsOutreachQueueRows: false,
+      createsMeetingActionTaskRows: true,
+      createsGmailDrafts: false,
+      gmailProviderCalls: false,
+      socialProviderCalls: false,
+      gmailSend: false,
+      slackDispatch: false,
+      smsDelivery: false,
+      n8nDispatch: false,
       externalRequests: [],
     })
     expect(json.plannedDraftActions.rows[0]).toMatchObject({

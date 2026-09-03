@@ -627,8 +627,11 @@ function batchReviewResponse(contactIds) {
       rows: plannedRows,
       executionBoundary: {
         localPortfolioPlanOnly: true,
+        preRecordNoWrite: true,
         reviewOnlyDraftActionPackets: true,
+        internalPortfolioRecordsCreated: false,
         createsOutreachQueueRows: false,
+        createsMeetingActionTaskRows: false,
         createsGmailDrafts: false,
         gmailProviderCalls: false,
         socialProviderCalls: false,
@@ -715,6 +718,11 @@ function executedBatchReviewResponse(contactIds) {
         createdCount: gmailCreatedKeys.size,
         externalRequests: [],
       },
+      executionBoundary: {
+        ...review.gmailDraftPlan.executionBoundary,
+        localPortfolioPlanOnly: false,
+        createsOutreachQueueRows: gmailCreatedKeys.size > 0,
+      },
     },
     plannedDraftActions: {
       ...review.plannedDraftActions,
@@ -734,6 +742,15 @@ function executedBatchReviewResponse(contactIds) {
         gmailDraftRecordCount: rows.filter((row) => row.kind === 'gmail_draft_plan').length,
         manualSocialHandoffTaskCount: rows.filter((row) => row.kind === 'manual_social_handoff').length,
         externalRequests: [],
+      },
+      executionBoundary: {
+        ...review.plannedDraftActions.executionBoundary,
+        localPortfolioPlanOnly: false,
+        preRecordNoWrite: false,
+        reviewOnlyDraftActionPackets: false,
+        internalPortfolioRecordsCreated: createdRows.length > 0,
+        createsOutreachQueueRows: rows.some((row) => row.kind === 'gmail_draft_plan' && row.recordState === 'record_created'),
+        createsMeetingActionTaskRows: rows.some((row) => row.kind === 'manual_social_handoff' && row.recordState === 'record_created'),
       },
     },
   }
@@ -1144,6 +1161,12 @@ async function assertPlannedDraftActions(page) {
       hasExecutionReceipt:
         /Created \d+ internal records?; reused 0/i.test(text) &&
         /Gmail provider drafts, sends, Slack, social posting, SMS, and n8n stayed off/i.test(text),
+      hasInternalRecordBoundary:
+        /internal records only/i.test(text) &&
+        /outreach_queue records: created/i.test(text) &&
+        /handoff task records: created/i.test(text) &&
+        /outreach_queue writes: created/i.test(text) &&
+        !/review-only packets/i.test(text),
       primaryCtaAboveGmailPlan:
         Boolean(trayRect && gmailRect && trayRect.top <= gmailRect.top),
       hasNoEgressBoundary:
@@ -1275,6 +1298,7 @@ if (
   !desktopActionChecks.hasCompactRecommendations ||
   !desktopActionChecks.hasMixedChannels ||
   !desktopActionChecks.hasExecutionReceipt ||
+  !desktopActionChecks.hasInternalRecordBoundary ||
   !desktopActionChecks.primaryCtaAboveGmailPlan ||
   !desktopActionChecks.hasNoEgressBoundary ||
   desktopActionChecks.horizontalOverflow
@@ -1330,6 +1354,7 @@ const failedViewport = viewportRuns.find((run) =>
   !run.actionChecks.hasCompactRecommendations ||
   !run.actionChecks.hasMixedChannels ||
   !run.actionChecks.hasExecutionReceipt ||
+  !run.actionChecks.hasInternalRecordBoundary ||
   !run.actionChecks.primaryCtaAboveGmailPlan ||
   !run.actionChecks.hasNoEgressBoundary ||
   run.actionChecks.horizontalOverflow ||

@@ -442,8 +442,11 @@ const warmBatchReviewResponse = {
     ],
     executionBoundary: {
       localPortfolioPlanOnly: true,
+      preRecordNoWrite: true,
       reviewOnlyDraftActionPackets: true,
+      internalPortfolioRecordsCreated: false,
       createsOutreachQueueRows: false,
+      createsMeetingActionTaskRows: false,
       createsGmailDrafts: false,
       gmailProviderCalls: false,
       socialProviderCalls: false,
@@ -507,6 +510,11 @@ const warmBatchCreatedResponse = {
       createdCount: 1,
       externalRequests: [],
     },
+    executionBoundary: {
+      ...warmBatchReviewResponse.gmailDraftPlan.executionBoundary,
+      localPortfolioPlanOnly: false,
+      createsOutreachQueueRows: true,
+    },
   },
   plannedDraftActions: {
     ...warmBatchReviewResponse.plannedDraftActions,
@@ -531,6 +539,15 @@ const warmBatchCreatedResponse = {
       manualSocialHandoffTaskCount: 0,
       existingCount: 0,
       externalRequests: [],
+    },
+    executionBoundary: {
+      ...warmBatchReviewResponse.plannedDraftActions.executionBoundary,
+      localPortfolioPlanOnly: false,
+      preRecordNoWrite: false,
+      reviewOnlyDraftActionPackets: false,
+      internalPortfolioRecordsCreated: true,
+      createsOutreachQueueRows: true,
+      createsMeetingActionTaskRows: false,
     },
   },
 }
@@ -1193,6 +1210,9 @@ describe('OutreachAdminPage deep links', () => {
     expect(within(batchReview).getByRole('button', { name: 'Create Gmail draft records (1)' })).toBeEnabled()
     expect(within(batchReview).getByText('1 plan-ready')).toBeInTheDocument()
     expect(within(batchReview).getByText('Provider not connected')).toBeInTheDocument()
+    expect(within(batchReview).getByText('pre-record/no-write')).toBeInTheDocument()
+    expect(within(batchReview).getByText('outreach_queue records: off')).toBeInTheDocument()
+    expect(within(batchReview).getByText('handoff task records: off')).toBeInTheDocument()
     expect(within(batchReview).getByText('outreach_queue writes: off')).toBeInTheDocument()
     expect(within(batchReview).getByText('Provider Gmail drafts: off')).toBeInTheDocument()
     expect(within(batchReview).getByText('Provider calls: off')).toBeInTheDocument()
@@ -1202,6 +1222,11 @@ describe('OutreachAdminPage deep links', () => {
     fireEvent.click(within(batchReview).getByRole('button', { name: 'Create records (1)' }))
     expect(await within(batchReview).findByText(/Created 1 internal record; reused 0/)).toBeInTheDocument()
     expect(within(batchReview).getByRole('button', { name: 'Records created' })).toBeDisabled()
+    expect(within(batchReview).getByText('internal records only')).toBeInTheDocument()
+    expect(within(batchReview).getByText('outreach_queue records: created')).toBeInTheDocument()
+    expect(within(batchReview).getByText('handoff task records: off')).toBeInTheDocument()
+    expect(within(batchReview).getByText('outreach_queue writes: created')).toBeInTheDocument()
+    expect(within(batchReview).queryByText('review-only packets')).not.toBeInTheDocument()
     expect(within(batchReview).getByText('Record created')).toBeInTheDocument()
     expect(await within(batchReview).findByText(/Draft-only Gmail records created for 1 contact/)).toBeInTheDocument()
     expect(within(batchReview).getByRole('button', { name: 'Gmail draft records created' })).toBeDisabled()

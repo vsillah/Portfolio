@@ -179,16 +179,30 @@ function draftCreationGateLabel(
   return 'blocked'
 }
 
-function BoundaryFlag({ label, active }: { label: string; active: boolean }) {
+function BoundaryFlag({
+  label,
+  active,
+  activeLabel = 'enabled',
+  inactiveLabel = 'off',
+  activeTone = 'risk',
+}: {
+  label: string
+  active: boolean
+  activeLabel?: string
+  inactiveLabel?: string
+  activeTone?: 'risk' | 'safe'
+}) {
   return (
     <span
       className={`inline-flex min-h-7 items-center rounded-md border px-2 py-1 text-xs ${
         active
-          ? 'border-red-500/30 bg-red-500/10 text-red-100'
+          ? activeTone === 'safe'
+            ? 'border-emerald-500/25 bg-emerald-500/10 text-emerald-100'
+            : 'border-red-500/30 bg-red-500/10 text-red-100'
           : 'border-emerald-500/25 bg-emerald-500/10 text-emerald-100'
       }`}
     >
-      {label}: {active ? 'enabled' : 'off'}
+      {label}: {active ? activeLabel : inactiveLabel}
     </span>
   )
 }
@@ -231,7 +245,9 @@ function PlannedDraftActionsSection({
               external requests {actions.executionBoundary.externalRequests.length}
             </span>
             <span className="rounded-full border border-silicon-slate/70 bg-background/45 px-2 py-0.5 text-xs text-muted-foreground">
-              review-only packets
+              {actions.executionBoundary.internalPortfolioRecordsCreated
+                ? 'internal records only'
+                : 'pre-record/no-write'}
             </span>
           </div>
           <div className="mt-3 flex flex-wrap gap-1.5 text-[11px]">
@@ -363,6 +379,18 @@ function PlannedDraftActionsSection({
       </div>
 
       <div className="mt-3 flex flex-wrap gap-2">
+        <BoundaryFlag
+          label="outreach_queue records"
+          active={actions.executionBoundary.createsOutreachQueueRows}
+          activeLabel="created"
+          activeTone="safe"
+        />
+        <BoundaryFlag
+          label="handoff task records"
+          active={actions.executionBoundary.createsMeetingActionTaskRows}
+          activeLabel="created"
+          activeTone="safe"
+        />
         <BoundaryFlag label="Gmail drafts" active={actions.executionBoundary.createsGmailDrafts} />
         <BoundaryFlag label="Gmail provider" active={actions.executionBoundary.gmailProviderCalls} />
         <BoundaryFlag label="Social providers" active={actions.executionBoundary.socialProviderCalls} />
@@ -630,7 +658,12 @@ function GmailDraftPlanSection({
       </div>
 
       <div className="mt-3 flex flex-wrap gap-2">
-        <BoundaryFlag label="outreach_queue writes" active={plan.executionBoundary.createsOutreachQueueRows} />
+        <BoundaryFlag
+          label="outreach_queue writes"
+          active={plan.executionBoundary.createsOutreachQueueRows}
+          activeLabel="created"
+          activeTone="safe"
+        />
         <BoundaryFlag label="Gmail provider" active={plan.executionBoundary.gmailProviderCalls} />
         <BoundaryFlag label="Provider Gmail drafts" active={plan.executionBoundary.createsGmailDrafts} />
         <BoundaryFlag label="Gmail send" active={plan.executionBoundary.gmailSend} />
