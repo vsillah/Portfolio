@@ -165,6 +165,73 @@ export type WarmOutreachPlanningBacklogCandidate = {
   }
 }
 
+export type WarmOutreachDailyActionKind =
+  | 'gmail_draft_review'
+  | 'manual_social_handoff'
+  | 'reply_follow_up'
+  | 'relationship_recovery'
+  | 'blocked_suppressed'
+  | 'sms_parked'
+
+export type WarmOutreachDailyActionRow = {
+  key: string
+  kind: WarmOutreachDailyActionKind
+  priorityRank: number
+  priorityScore: number
+  contactId: number
+  contactName: string
+  company: string | null
+  label: string
+  stateLabel: string
+  channelLabel: string
+  campaignSignal: string
+  reason: string
+  afterAction: string
+  ctaLabel: string
+  ctaHref: string
+  enabled: boolean
+  smsParked: boolean
+  blockers: string[]
+}
+
+export type WarmOutreachDailyActions = {
+  version: 'warm-outreach-daily-actions/v1'
+  operatingDateLabel: string
+  campaignPhaseLabel: string
+  campaignMilestoneTitle: string
+  currentSafestAction: {
+    key: 'start_gmail_review_loop' | 'start_manual_social_loop' | 'open_daily_action' | 'none'
+    label: string
+    enabled: boolean
+    reason: string
+    contactIds: number[]
+    href: string | null
+  }
+  summary: {
+    gmailDraftReviewCount: number
+    manualSocialHandoffCount: number
+    replyFollowUpCount: number
+    relationshipRecoveryCount: number
+    blockedSuppressedCount: number
+    smsParkedCount: number
+  }
+  rows: WarmOutreachDailyActionRow[]
+  executionBoundary: {
+    existingLeadPipelineSurface: true
+    campaignCalendarInformed: true
+    localPortfolioPlanOnly: true
+    createsGmailDrafts: false
+    gmailProviderCalls: false
+    socialProviderCalls: false
+    externalSendEnabled: false
+    slackDispatchEnabled: false
+    smsDeliveryEnabled: false
+    n8nDispatchEnabled: false
+    productionDataMutation: false
+    externalRequests: []
+  }
+}
+
 export type WarmOutreachPlanningBacklog = {
   version: 'warm-outreach-planning-backlog/v1'
   planningWindowLabel: string
@@ -215,6 +282,7 @@ export type WarmOutreachPlanningBacklog = {
       state: 'active' | 'next' | 'parked'
     }>
   }
+  dailyActions: WarmOutreachDailyActions
   candidates: WarmOutreachPlanningBacklogCandidate[]
   executionBoundary: {
     localPortfolioPlanOnly: true
@@ -466,6 +534,222 @@ function channelReadinessFor(lead: WarmOutreachShortlistLead): WarmOutreachShort
       state: 'unavailable',
     },
   ]
+}
+
+function dailyActionKindFor(candidate: WarmOutreachPlanningBacklogCandidate): WarmOutreachDailyActionKind {
+  if (candidate.states.includes('ready_gmail_draft')) return 'gmail_draft_review'
+  if (candidate.states.includes('ready_manual_social')) return 'manual_social_handoff'
+  if (candidate.states.includes('waiting_on_response')) return 'reply_follow_up'
+  if (candidate.states.includes('needs_relationship_review')) return 'relationship_recovery'
+  if (candidate.states.includes('suppressed_blocked')) return 'blocked_suppressed'
+  return 'sms_parked'
+}
+
+function dailyActionLabels(kind: WarmOutreachDailyActionKind) {
+  if (kind === 'gmail_draft_review') {
+    return {
+      label: 'Gmail draft review',
+      stateLabel: 'Ready Gmail',
+      channelLabel: 'Gmail',
+      ctaLabel: 'Open Gmail review',
+      afterAction: 'Prepare the review batch; draft creation and sending stay separate.',
+    }
+  }
+  if (kind === 'manual_social_handoff') {
+    return {
+      label: 'Manual social handoff',
+      stateLabel: 'Manual handoff',
+      channelLabel: 'Manual social',
+      ctaLabel: 'Open manual handoff',
+      afterAction: 'Use the existing workroom and record only approved local evidence later.',
+    }
+  }
+  if (kind === 'reply_follow_up') {
+    return {
+      label: 'Reply follow-up',
+      stateLabel: 'Response review',
+      channelLabel: 'Gmail',
+      ctaLabel: 'Review response',
+      afterAction: 'Review the response lifecycle before any new touchpoint.',
+    }
+  }
+  if (kind === 'relationship_recovery') {
+    return {
+      label: 'Relationship recovery',
+      stateLabel: 'Needs basis',
+      channelLabel: 'Review',
+      ctaLabel: 'Review basis',
+      afterAction: 'Add or verify relationship context before drafting.',
+    }
+  }
+  if (kind === 'blocked_suppressed') {
+    return {
+      label: 'Blocked or suppressed',
+      stateLabel: 'Blocked',
+      channelLabel: 'Review',
+      ctaLabel: 'Review blocker',
+      afterAction: 'Resolve suppression or missing contact state before outreach.',
+    }
+  }
+  return {
+    label: 'SMS parked',
+    stateLabel: 'Parked',
+    channelLabel: 'SMS',
+    ctaLabel: 'Review parked item',
+    afterAction: 'Keep SMS visible but parked until Telnyx and 10DLC clear.',
+  }
+}
+
+function campaignActionWeight(
+  kind: WarmOutreachDailyActionKind,
+  phase: SocialContentCampaignPhase,
+): number {
+  const weights: Record<SocialContentCampaignPhase, Record<WarmOutreachDailyActionKind, number>> = {
+    tease: {
+      gmail_draft_review: 95,
+      manual_social_handoff: 86,
+      relationship_recovery: 72,
+      reply_follow_up: 68,
+      blocked_suppressed: 28,
+      sms_parked: 8,
+    },
+    teach: {
+      gmail_draft_review: 92,
+      relationship_recovery: 84,
+      manual_social_handoff: 80,
+      reply_follow_up: 76,
+      blocked_suppressed: 28,
+      sms_parked: 8,
+    },
+    proof: {
+      reply_follow_up: 170,
+      gmail_draft_review: 90,
+      manual_social_handoff: 84,
+      relationship_recovery: 72,
+      blocked_suppressed: 28,
+      sms_parked: 8,
+    },
+    offer: {
+      reply_follow_up: 170,
+      gmail_draft_review: 94,
+      manual_social_handoff: 88,
+      relationship_recovery: 68,
+      blocked_suppressed: 28,
+      sms_parked: 8,
+    },
+  }
+  return weights[phase][kind]
+}
+
+function buildDailyActions(args: {
+  generatedFor: string
+  campaignAlignment: WarmOutreachPlanningBacklog['campaignAlignment']
+  candidates: WarmOutreachPlanningBacklogCandidate[]
+  readyGmail: WarmOutreachPlanningBacklogCandidate[]
+  readyManual: WarmOutreachPlanningBacklogCandidate[]
+}): WarmOutreachDailyActions {
+  const rows = args.candidates
+    .map((candidate) => {
+      const kind = dailyActionKindFor(candidate)
+      const labels = dailyActionLabels(kind)
+      const campaignWeight = campaignActionWeight(kind, args.campaignAlignment.currentPhase)
+      const readinessBonus = candidate.batchEligible ? 20 : 0
+      const blockerPenalty = Math.min(candidate.blockers.length, 4) * 6
+      const priorityScore = campaignWeight + readinessBonus - blockerPenalty
+
+      return {
+        key: `warm-daily-action:${kind}:${candidate.contactId}`,
+        kind,
+        priorityScore,
+        contactId: candidate.contactId,
+        contactName: candidate.contactName,
+        company: candidate.company,
+        label: labels.label,
+        stateLabel: labels.stateLabel,
+        channelLabel: labels.channelLabel,
+        campaignSignal: `${args.campaignAlignment.currentPhaseLabel}: ${args.campaignAlignment.currentMilestoneTitle}`,
+        reason: candidate.campaignAlignment.whyNext,
+        afterAction: labels.afterAction,
+        ctaLabel: labels.ctaLabel,
+        ctaHref: candidate.ctaHref,
+        enabled: kind !== 'sms_parked',
+        smsParked: candidate.states.includes('sms_parked'),
+        blockers: candidate.blockers,
+      } satisfies Omit<WarmOutreachDailyActionRow, 'priorityRank'>
+    })
+    .sort((a, b) => b.priorityScore - a.priorityScore || a.contactName.localeCompare(b.contactName))
+    .map((row, index) => ({ ...row, priorityRank: index + 1 }))
+
+  const primaryRow = rows.find((row) => row.enabled) ?? null
+  const gmailContactIds = args.readyGmail.slice(0, 8).map((candidate) => candidate.contactId)
+  const manualContactIds = args.readyManual.slice(0, 8).map((candidate) => candidate.contactId)
+  const currentSafestAction: WarmOutreachDailyActions['currentSafestAction'] =
+    primaryRow?.kind === 'gmail_draft_review' && gmailContactIds.length > 0
+      ? {
+          key: 'start_gmail_review_loop',
+          label: `Start today's Gmail review loop (${gmailContactIds.length})`,
+          enabled: true,
+          reason: `${args.campaignAlignment.currentPhaseLabel} campaign timing makes reviewed Gmail draft work the safest first action.`,
+          contactIds: gmailContactIds,
+          href: null,
+        }
+      : primaryRow?.kind === 'manual_social_handoff' && manualContactIds.length > 0
+        ? {
+            key: 'start_manual_social_loop',
+            label: `Start today's manual-social loop (${manualContactIds.length})`,
+            enabled: true,
+            reason: `${args.campaignAlignment.currentPhaseLabel} campaign timing favors manual social review while provider actions stay off.`,
+            contactIds: manualContactIds,
+            href: null,
+          }
+        : primaryRow
+          ? {
+              key: 'open_daily_action',
+              label: `${primaryRow.ctaLabel} for ${primaryRow.contactName}`,
+              enabled: true,
+              reason: primaryRow.reason,
+              contactIds: [primaryRow.contactId],
+              href: primaryRow.ctaHref,
+            }
+          : {
+              key: 'none',
+              label: 'No daily warm action',
+              enabled: false,
+              reason: 'No warm contacts are visible in this operating window.',
+              contactIds: [],
+              href: null,
+            }
+
+  return {
+    version: 'warm-outreach-daily-actions/v1',
+    operatingDateLabel: displayDateLabel(args.generatedFor),
+    campaignPhaseLabel: args.campaignAlignment.currentPhaseLabel,
+    campaignMilestoneTitle: args.campaignAlignment.currentMilestoneTitle,
+    currentSafestAction,
+    summary: {
+      gmailDraftReviewCount: rows.filter((row) => row.kind === 'gmail_draft_review').length,
+      manualSocialHandoffCount: rows.filter((row) => row.kind === 'manual_social_handoff').length,
+      replyFollowUpCount: rows.filter((row) => row.kind === 'reply_follow_up').length,
+      relationshipRecoveryCount: rows.filter((row) => row.kind === 'relationship_recovery').length,
+      blockedSuppressedCount: rows.filter((row) => row.kind === 'blocked_suppressed').length,
+      smsParkedCount: args.candidates.filter((candidate) => candidate.states.includes('sms_parked')).length,
+    },
+    rows,
+    executionBoundary: {
+      existingLeadPipelineSurface: true,
+      campaignCalendarInformed: true,
+      localPortfolioPlanOnly: true,
+      createsGmailDrafts: false,
+      gmailProviderCalls: false,
+      socialProviderCalls: false,
+      externalSendEnabled: false,
+      slackDispatchEnabled: false,
+      smsDeliveryEnabled: false,
+      n8nDispatchEnabled: false,
+      productionDataMutation: false,
+      externalRequests: [],
+    },
+  }
 }
 
 function ctaFor(
@@ -855,9 +1139,16 @@ function buildPlanningBacklog(args: {
         ? `${campaignAlignment.currentPhaseLabel} campaign readiness favors manual social handoff review before any provider action.`
         : waiting.length > 0
           ? 'Waiting responses need per-contact recovery before a new outreach batch.'
-          : blockers.length > 0
-            ? 'Relationship or suppression blockers need operator review before the campaign touchpoint is ready.'
-            : 'No warm contacts are visible in this office window.'
+        : blockers.length > 0
+          ? 'Relationship or suppression blockers need operator review before the campaign touchpoint is ready.'
+          : 'No warm contacts are visible in this office window.'
+  const dailyActions = buildDailyActions({
+    generatedFor: args.generatedFor,
+    campaignAlignment,
+    candidates,
+    readyGmail,
+    readyManual,
+  })
 
   return {
     version: 'warm-outreach-planning-backlog/v1',
@@ -951,6 +1242,7 @@ function buildPlanningBacklog(args: {
         },
       ],
     },
+    dailyActions,
     candidates,
     executionBoundary: {
       localPortfolioPlanOnly: true,

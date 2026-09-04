@@ -362,6 +362,54 @@ describe('warm outreach shortlist', () => {
         externalRequests: [],
       },
     })
+    expect(shortlist.planningBacklog.dailyActions).toMatchObject({
+      version: 'warm-outreach-daily-actions/v1',
+      operatingDateLabel: 'Sep 2',
+      campaignPhaseLabel: 'Tease',
+      campaignMilestoneTitle:
+        'Open with a small tension, observation, or question that makes the campaign problem visible.',
+      currentSafestAction: {
+        key: 'start_gmail_review_loop',
+        label: "Start today's Gmail review loop (2)",
+        enabled: true,
+        contactIds: [10, 15],
+      },
+      summary: {
+        gmailDraftReviewCount: 2,
+        manualSocialHandoffCount: 1,
+        replyFollowUpCount: 1,
+        relationshipRecoveryCount: 1,
+        blockedSuppressedCount: 1,
+        smsParkedCount: 1,
+      },
+      executionBoundary: {
+        existingLeadPipelineSurface: true,
+        campaignCalendarInformed: true,
+        localPortfolioPlanOnly: true,
+        createsGmailDrafts: false,
+        gmailProviderCalls: false,
+        socialProviderCalls: false,
+        externalSendEnabled: false,
+        slackDispatchEnabled: false,
+        smsDeliveryEnabled: false,
+        n8nDispatchEnabled: false,
+        productionDataMutation: false,
+        externalRequests: [],
+      },
+    })
+    expect(shortlist.planningBacklog.dailyActions.rows.map((row) => row.label).slice(0, 3)).toEqual([
+      'Gmail draft review',
+      'Gmail draft review',
+      'Manual social handoff',
+    ])
+    expect(shortlist.planningBacklog.dailyActions.rows[0]).toMatchObject({
+      priorityRank: 1,
+      contactName: 'Gmail Ready',
+      campaignSignal:
+        'Tease: Open with a small tension, observation, or question that makes the campaign problem visible.',
+      ctaLabel: 'Open Gmail review',
+      enabled: true,
+    })
     expect(shortlist.planningBacklog.executionLoop.primaryActionReason).toMatch(
       /campaign readiness favors Gmail draft review first/,
     )
@@ -383,5 +431,83 @@ describe('warm outreach shortlist', () => {
       },
     })
     expect(shortlist.planningBacklog.candidates.find((candidate) => candidate.contactId === 15)?.states).toContain('sms_parked')
+  })
+
+  it('orders daily actions from campaign phase signals while keeping provider execution off', () => {
+    const shortlist = buildWarmOutreachShortlist(
+      [
+        lead({
+          id: 20,
+          name: 'Gmail Ready',
+          email: 'gmail-ready@example.com',
+          phone_number: null,
+          has_sales_conversation: true,
+          recent_email_drafts: [],
+        }),
+        lead({
+          id: 21,
+          name: 'Manual Social Ready',
+          email: null,
+          linkedin_url: 'https://linkedin.example/manual',
+          phone_number: null,
+          evidence_count: 2,
+          has_sales_conversation: false,
+          message: 'Known through a Portfolio referral.',
+          recent_email_drafts: [],
+        }),
+        lead({
+          id: 22,
+          name: 'Proof Reply',
+          email: 'reply@example.com',
+          messages_sent: 1,
+          recent_email_drafts: [
+            {
+              id: 'queue-sent-proof',
+              subject: 'Warm draft',
+              status: 'sent',
+              created_at: '2026-09-08T10:00:00.000Z',
+            },
+          ],
+        }),
+        lead({
+          id: 23,
+          name: 'Basis Recovery',
+          email: 'basis@example.com',
+          lead_score: 20,
+          has_sales_conversation: false,
+          evidence_count: 0,
+          message: null,
+          quick_wins: null,
+          full_report: null,
+          rep_pain_points: null,
+          recent_email_drafts: [],
+        }),
+      ],
+      { today: '2026-09-08' },
+    )
+
+    expect(shortlist.planningBacklog.dailyActions.campaignPhaseLabel).toBe('Proof')
+    expect(shortlist.planningBacklog.dailyActions.rows.map((row) => row.contactName)).toEqual([
+      'Proof Reply',
+      'Gmail Ready',
+      'Manual Social Ready',
+      'Basis Recovery',
+    ])
+    expect(shortlist.planningBacklog.dailyActions.rows[0]).toMatchObject({
+      kind: 'reply_follow_up',
+      contactName: 'Proof Reply',
+      ctaLabel: 'Review response',
+      campaignSignal:
+        'Proof: Show evidence, a shipped example, client-safe result, or lived project insight that earns trust.',
+    })
+    expect(shortlist.planningBacklog.dailyActions.currentSafestAction).toMatchObject({
+      key: 'open_daily_action',
+      label: 'Review response for Proof Reply',
+      contactIds: [22],
+    })
+    expect(shortlist.planningBacklog.dailyActions.executionBoundary.externalRequests).toEqual([])
+    expect(shortlist.planningBacklog.dailyActions.executionBoundary.gmailProviderCalls).toBe(false)
+    expect(shortlist.planningBacklog.dailyActions.executionBoundary.socialProviderCalls).toBe(false)
+    expect(shortlist.planningBacklog.dailyActions.executionBoundary.smsDeliveryEnabled).toBe(false)
   })
 })

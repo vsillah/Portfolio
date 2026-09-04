@@ -805,7 +805,7 @@ async function assertPlanningBacklog(page) {
     const text = document.body.innerText
     const planningBacklog = document.querySelector('[aria-label="Warm outreach planning backlog"]')
     const currentCta = [...document.querySelectorAll('button')]
-      .find((button) => /Start Gmail review loop|Start manual-social loop/.test(button.textContent || ''))
+      .find((button) => /Start today's Gmail review loop|Start today's manual-social loop/.test(button.textContent || ''))
     const visible = (element) => {
       if (!(element instanceof HTMLElement)) return false
       const rect = element.getBoundingClientRect()
@@ -826,6 +826,12 @@ async function assertPlanningBacklog(page) {
         /The backlog turns the current campaign phase/i.test(text) &&
         /Campaign source/i.test(text) &&
         /Why next:/i.test(text),
+      hasDailyActions:
+        /Today's actions/i.test(text) &&
+        /Start today's Gmail review loop/i.test(text) &&
+        /campaign timing makes reviewed Gmail draft work/i.test(text) &&
+        /Replies/i.test(text) &&
+        /After: Prepare the review batch/i.test(text),
       hasExecutionLoop:
         /Office loop/i.test(text) &&
         /Next office window:/i.test(text) &&
@@ -834,7 +840,7 @@ async function assertPlanningBacklog(page) {
         /Recovery 3/i.test(text) &&
         /SMS parked 2/i.test(text) &&
         /Work the Lead Pipeline/i.test(text),
-      hasSafeCta: visible(currentCta) && /Start Gmail review loop|Start manual-social loop/.test(currentCta?.textContent || ''),
+      hasSafeCta: visible(currentCta) && /Start today's Gmail review loop|Start today's manual-social loop/.test(currentCta?.textContent || ''),
       hasBoundary:
         /Gmail drafts: off/i.test(text) &&
         /Sends\/Slack\/social\/SMS: off/i.test(text) &&
@@ -900,6 +906,7 @@ async function addSideText(page) {
       <h3>Expected</h3>
       <ul>
         <li>Today / This week shows the current campaign phase and calendar-template source.</li>
+        <li>Today's actions rank Gmail, manual social, response, recovery, blocked, and SMS parked rows from the campaign phase.</li>
         <li>Six planning states are visible as compact count filters.</li>
         <li>The office loop shows one primary review CTA and keeps recovery details secondary.</li>
         <li>Candidate rows explain why each outreach action maps to the campaign plan.</li>
@@ -935,20 +942,21 @@ for (const [name, viewport, screenshotPath] of [
 const desktop = await openQaPage(browser, { width: 1280, height: 720 }, true)
 await addSideText(desktop.page)
 const desktopPlanningBacklog = desktop.page.getByLabel('Warm outreach planning backlog')
+const desktopPlanningCandidates = desktop.page.getByLabel('Warm planning candidates')
 await desktopPlanningBacklog.evaluate((element) => element.scrollIntoView({ block: 'center' }))
 await desktop.page.waitForTimeout(700)
 await activateButton(desktop.page.getByRole('button', { name: 'Show SMS parked candidates' }))
-await desktopPlanningBacklog.getByText('Kofi Phoneparked').waitFor({ timeout: 10_000 })
+await desktopPlanningCandidates.getByText('Kofi Phoneparked').waitFor({ timeout: 10_000 })
 await desktop.page.waitForTimeout(700)
 await desktopPlanningBacklog.evaluate((element) => element.scrollIntoView({ block: 'center' }))
 await activateButton(desktopPlanningBacklog.getByRole('button', { name: 'Show Ready for Gmail draft candidates' }))
-await activateButton(desktopPlanningBacklog.getByRole('button', { name: 'Start Gmail review loop (2)' }))
+await activateButton(desktopPlanningBacklog.getByRole('button', { name: "Start today's Gmail review loop (2)" }))
 await desktop.page.getByLabel('Warm batch review').waitFor({ timeout: 15_000 })
 await desktop.page.getByText('Gmail batch draft plan').waitFor({ timeout: 10_000 })
 await desktop.page.waitForTimeout(800)
 await desktopPlanningBacklog.evaluate((element) => element.scrollIntoView({ block: 'center' }))
 await activateButton(desktop.page.getByRole('button', { name: 'Show Ready for manual social candidates' }))
-await activateButton(desktop.page.getByRole('button', { name: 'Plan manual handoff for Nia Manualsocial' }))
+await activateButton(desktopPlanningCandidates.getByRole('button', { name: 'Plan manual handoff for Nia Manualsocial' }))
 const desktopWorkroom = desktop.page.getByRole('region', { name: 'Outreach workroom for Nia Manualsocial' })
 await desktopWorkroom.waitFor({ timeout: 15_000 })
 await desktopWorkroom.getByTestId('warm-manual-social-handoff').first().waitFor({ timeout: 15_000 })
@@ -985,6 +993,7 @@ const failedViewport = viewportRuns.find((run) =>
   !run.checks.hasPlanningBacklog ||
   !run.checks.hasStates ||
   !run.checks.hasCampaignAlignment ||
+  !run.checks.hasDailyActions ||
   !run.checks.hasExecutionLoop ||
   !run.checks.hasSafeCta ||
   !run.checks.hasBoundary ||
@@ -1001,6 +1010,7 @@ const receipt = {
   scenario: 'Planning backlog operator opens warm leads, filters planning states, prepares a review-only batch plan, and opens manual-social workroom state.',
   expectedBehavior: [
     'Planning backlog shows Today / This Week campaign alignment from the existing whisper_to_shout social content calendar template.',
+    'Daily operating actions rank Gmail reviews, manual-social handoffs, reply follow-ups, recovery, blocked/suppressed rows, and SMS parked rows from the campaign phase.',
     'Office execution loop prioritizes ready Gmail contacts first, shows manual-social handoffs next, and keeps response/blocker recovery separate.',
     'Planning backlog shows Ready for Gmail draft, Ready for manual social, Needs relationship review, Waiting on response, Suppressed/blocked, and SMS parked counts.',
     'Clicking summary counts visibly drills into the matching candidate set.',
