@@ -1,6 +1,6 @@
 {
   "version": "warm-outreach-planning-backlog-qa/v1",
-  "createdAt": "2026-09-04T00:46:06.447Z",
+  "createdAt": "2026-09-04T10:06:45.220Z",
   "qaUrl": "http://127.0.0.1:3000/admin/outreach?tab=leads&filter=warm&qa=warm-planning-backlog",
   "scenario": "Planning backlog operator opens warm leads, filters planning states, prepares a review-only batch plan, and opens manual-social workroom state.",
   "expectedBehavior": [
@@ -112,7 +112,7 @@
     }
   ],
   "mp4Path": "/Users/vambahsillah/.codex/worktrees/6bb7/Portfolio/docs/warm-outreach-qa/warm-planning-backlog-qa.mp4",
-  "rawVideoPath": "/Users/vambahsillah/.codex/worktrees/6bb7/Portfolio/test-results/warm-planning-backlog-qa/source/a8e1d03445a4ad8a99611d27c957a601.webm",
+  "rawVideoPath": "/Users/vambahsillah/.codex/worktrees/6bb7/Portfolio/test-results/warm-planning-backlog-qa/source/74bd85d8d8ca956f54003806b8058e84.webm",
   "externalRequests": [],
   "localRequests": [
     {
@@ -129,23 +129,23 @@
     },
     {
       "method": "GET",
-      "pathname": "/api/admin/value-evidence/workflow-status"
-    },
-    {
-      "method": "GET",
-      "pathname": "/api/admin/outreach/leads"
-    },
-    {
-      "method": "GET",
-      "pathname": "/api/admin/value-evidence/workflow-status"
-    },
-    {
-      "method": "GET",
-      "pathname": "/api/admin/outreach/leads"
-    },
-    {
-      "method": "GET",
       "pathname": "/auth/v1/user"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/value-evidence/workflow-status"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/outreach/leads"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/value-evidence/workflow-status"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/outreach/leads"
     },
     {
       "method": "GET",
