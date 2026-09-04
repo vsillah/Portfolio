@@ -805,7 +805,7 @@ async function assertPlanningBacklog(page) {
     const text = document.body.innerText
     const planningBacklog = document.querySelector('[aria-label="Warm outreach planning backlog"]')
     const currentCta = [...document.querySelectorAll('button')]
-      .find((button) => /Plan review batch/.test(button.textContent || ''))
+      .find((button) => /Prepare Gmail review plan/.test(button.textContent || ''))
     const visible = (element) => {
       if (!(element instanceof HTMLElement)) return false
       const rect = element.getBoundingClientRect()
@@ -824,9 +824,13 @@ async function assertPlanningBacklog(page) {
         /Today \/ This week/i.test(text) &&
         /Whisper-to-shout launch/i.test(text) &&
         /The backlog turns the current campaign phase/i.test(text) &&
+        /Next safe action/i.test(text) &&
+        /Gmail draft review is next/i.test(text) &&
+        /(small tension|teaching frame|proof signal|clear offer|x conversation starter)/i.test(text) &&
+        /cannot send Gmail/i.test(text) &&
         /Campaign source/i.test(text) &&
         /Why next:/i.test(text),
-      hasSafeCta: visible(currentCta) && /Plan review batch/.test(currentCta?.textContent || ''),
+      hasSafeCta: visible(currentCta) && /Prepare Gmail review plan/.test(currentCta?.textContent || ''),
       hasBoundary:
         /Gmail drafts: off/i.test(text) &&
         /Sends\/Slack\/social\/SMS: off/i.test(text) &&
@@ -893,7 +897,7 @@ async function addSideText(page) {
       <ul>
         <li>Today / This week shows the current campaign phase and calendar-template source.</li>
         <li>Six planning states are visible as compact count filters.</li>
-        <li>The single current CTA prepares a review-only batch plan.</li>
+        <li>The single current CTA prepares a Gmail review plan, not a send.</li>
         <li>Candidate rows explain why each outreach action maps to the campaign plan.</li>
         <li>Candidate rows show basis, channel, draft readiness, approval, response, and blockers.</li>
         <li>The manual social workroom still renders for the selected contact.</li>
@@ -934,13 +938,13 @@ await desktopPlanningBacklog.getByText('Kofi Phoneparked').waitFor({ timeout: 10
 await desktop.page.waitForTimeout(700)
 await desktopPlanningBacklog.evaluate((element) => element.scrollIntoView({ block: 'center' }))
 await activateButton(desktopPlanningBacklog.getByRole('button', { name: 'Show Ready for Gmail draft candidates' }))
-await activateButton(desktopPlanningBacklog.getByRole('button', { name: 'Plan review batch (2)' }))
+await activateButton(desktopPlanningBacklog.getByRole('button', { name: 'Prepare Gmail review plan' }))
 await desktop.page.getByLabel('Warm batch review').waitFor({ timeout: 15_000 })
 await desktop.page.getByText('Gmail batch draft plan').waitFor({ timeout: 10_000 })
 await desktop.page.waitForTimeout(800)
 await desktopPlanningBacklog.evaluate((element) => element.scrollIntoView({ block: 'center' }))
 await activateButton(desktop.page.getByRole('button', { name: 'Show Ready for manual social candidates' }))
-await activateButton(desktop.page.getByRole('button', { name: 'Plan review batch for Nia Manualsocial' }))
+await activateButton(desktop.page.getByRole('button', { name: 'Open manual handoff for Nia Manualsocial' }))
 const desktopWorkroom = desktop.page.getByRole('region', { name: 'Outreach workroom for Nia Manualsocial' })
 await desktopWorkroom.waitFor({ timeout: 15_000 })
 await desktopWorkroom.getByTestId('warm-manual-social-handoff').first().waitFor({ timeout: 15_000 })
@@ -995,7 +999,7 @@ const receipt = {
     'Planning backlog shows Ready for Gmail draft, Ready for manual social, Needs relationship review, Waiting on response, Suppressed/blocked, and SMS parked counts.',
     'Clicking summary counts visibly drills into the matching candidate set.',
     'Candidate rows show why each outreach action is next for the current campaign phase without duplicating a calendar.',
-    'The single current CTA prepares a review-only batch plan and does not imply external sending.',
+    'The single current CTA prepares a Gmail review plan and does not imply external sending.',
     'The selected-contact workroom still renders the manual social handoff panel.',
     'Mobile widths 360, 390, and 430 show the core planning CTA with no horizontal overflow.',
   ],

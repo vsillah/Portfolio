@@ -115,6 +115,7 @@ export default function WarmPlanningBacklogPanel({
   onPrepareBatch,
   onOpenCandidate,
 }: WarmPlanningBacklogPanelProps) {
+  const executionFocus = backlog.executionFocus
   const visibleCandidates =
     activeState === 'all'
       ? backlog.candidates
@@ -170,6 +171,35 @@ export default function WarmPlanningBacklogPanel({
               <p className="mt-1 line-clamp-2 text-xs leading-5 text-muted-foreground">
                 {backlog.campaignAlignment.whyThisBacklogIsNext}
               </p>
+              {executionFocus && (
+                <div className="mt-3 grid gap-2 border-t border-silicon-slate/60 pt-3 md:grid-cols-[minmax(0,1fr)_minmax(12rem,auto)] md:items-center">
+                  <div className="min-w-0">
+                    <p className="text-[11px] font-semibold uppercase leading-5 tracking-wide text-muted-foreground/80">
+                      Next safe action
+                    </p>
+                    <p className="text-sm font-semibold leading-5 text-foreground">
+                      {executionFocus.label}: {executionFocus.contactName}
+                    </p>
+                    <p className="mt-1 line-clamp-2 text-xs leading-5 text-muted-foreground">
+                      {executionFocus.reason}
+                    </p>
+                  </div>
+                  <div className="flex min-w-0 flex-wrap gap-1.5 text-[11px] leading-5 text-muted-foreground">
+                    <span className="inline-flex min-w-fit shrink-0 items-center whitespace-nowrap rounded-full border border-silicon-slate/70 bg-background/35 px-2.5 py-0.5">
+                      {channelLabel(executionFocus.recommendedChannel)}
+                    </span>
+                    <span className="inline-flex min-w-fit shrink-0 items-center whitespace-nowrap rounded-full border border-silicon-slate/70 bg-background/35 px-2.5 py-0.5">
+                      {executionFocus.source.milestoneKey.replace(/_/g, ' ')}
+                    </span>
+                    <span className="inline-flex min-w-fit shrink-0 items-center whitespace-nowrap rounded-full border border-silicon-slate/70 bg-background/35 px-2.5 py-0.5">
+                      {executionFocus.source.approvalGates.length} gate{executionFocus.source.approvalGates.length === 1 ? '' : 's'}
+                    </span>
+                  </div>
+                  <p className="text-xs leading-5 text-muted-foreground md:col-span-2">
+                    {executionFocus.safeOutcome}
+                  </p>
+                </div>
+              )}
               <details className="mt-2 text-xs leading-5 text-muted-foreground">
                 <summary className="cursor-pointer text-radiant-gold/90">Campaign source</summary>
                 <p className="mt-1">{backlog.campaignAlignment.drillIn}</p>

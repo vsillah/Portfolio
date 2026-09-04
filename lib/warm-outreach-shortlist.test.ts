@@ -317,10 +317,33 @@ describe('warm outreach shortlist', () => {
         currentPhase: 'tease',
         currentPhaseLabel: 'Tease',
         plannedWindowLabel: 'Sep 2-Sep 8',
+        currentMilestoneKey: 'small_tension',
+        currentMilestoneChannel: 'linkedin',
         currentMilestoneTitle:
           'Open with a small tension, observation, or question that makes the campaign problem visible.',
         nextMilestoneTitle:
           'Give the audience a useful framework or operating lesson connected to the campaign promise.',
+        approvalGates: ['copy_review'],
+      },
+      executionFocus: {
+        state: 'ready_gmail_draft',
+        contactId: 10,
+        contactName: 'Gmail Ready',
+        recommendedChannel: 'gmail',
+        label: 'Gmail draft review is next',
+        actionLabel: 'Prepare Gmail review plan',
+        safeOutcome:
+          'Opens a review-only Gmail planning batch. Later draft-record creation is local and still cannot send Gmail.',
+        enabled: true,
+        batchContactIds: [10, 15],
+        source: {
+          templateKey: 'whisper_to_shout',
+          milestoneKey: 'small_tension',
+          campaignPhase: 'tease',
+          campaignChannel: 'linkedin',
+          plannedWindowLabel: 'Sep 2-Sep 8',
+          approvalGates: ['copy_review'],
+        },
       },
       counts: {
         ready_gmail_draft: 2,
@@ -332,7 +355,7 @@ describe('warm outreach shortlist', () => {
       },
       currentCta: {
         key: 'prepare_planning_review_batch',
-        label: 'Plan review batch (2)',
+        label: 'Prepare Gmail review plan',
         contactIds: [10, 15],
         state: 'ready_gmail_draft',
       },
@@ -358,6 +381,15 @@ describe('warm outreach shortlist', () => {
         theme: 'Open with a small tension, observation, or question that makes the campaign problem visible.',
         plannedWindowLabel: 'Sep 2-Sep 8',
         whyNext: 'Tease campaign angle is ready for a manual social handoff.',
+      },
+      executionPath: {
+        source: 'social_content_calendar_template',
+        templateKey: 'whisper_to_shout',
+        milestoneKey: 'small_tension',
+        campaignChannel: 'linkedin',
+        approvalGates: ['copy_review'],
+        safeOutcome:
+          'Opens manual handoff review in the existing workroom. No LinkedIn, Facebook, phone, or provider action runs.',
       },
     })
     expect(shortlist.planningBacklog.candidates.find((candidate) => candidate.contactId === 15)?.states).toContain('sms_parked')

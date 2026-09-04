@@ -946,7 +946,16 @@ describe('OutreachAdminPage deep links', () => {
     expect(within(planningBacklog).getByText(/Whisper-to-shout launch/)).toBeInTheDocument()
     expect(within(planningBacklog).getByText(/The backlog turns the current campaign phase/)).toBeInTheDocument()
     expect(within(planningBacklog).getByText('Campaign source')).toBeInTheDocument()
-    expect(within(planningBacklog).getByText(/Internal review plan for/)).toHaveClass(
+    expect(within(planningBacklog).getByText('Next safe action')).toBeInTheDocument()
+    expect(within(planningBacklog).getByText(/Gmail draft review is next: Ada Operator/)).toBeInTheDocument()
+    expect(within(planningBacklog).getByText(/small tension|teaching frame|proof signal|clear offer|x conversation starter/)).toHaveClass(
+      'min-w-fit',
+      'shrink-0',
+      'whitespace-nowrap',
+    )
+    expect(within(planningBacklog).getByText(/\d gate/)).toBeInTheDocument()
+    expect(within(planningBacklog).getAllByText(/Later draft-record creation is local and still cannot send Gmail/).length).toBeGreaterThan(0)
+    expect(within(planningBacklog).getByText(/1 ready for gmail draft contact ready/)).toHaveClass(
       'mt-2.5',
       'leading-6',
     )
@@ -959,7 +968,7 @@ describe('OutreachAdminPage deep links', () => {
     expect(manualFilter).toHaveTextContent('Manual')
     expect(manualFilter).toHaveClass('min-w-fit', 'shrink-0', 'whitespace-nowrap')
     expect(within(stateFilters).getByRole('button', { name: /Show SMS parked candidates/ })).toHaveTextContent('SMS parked')
-    expect(within(planningBacklog).getByRole('button', { name: 'Plan review batch (1)' })).toBeInTheDocument()
+    expect(within(planningBacklog).getByRole('button', { name: 'Prepare Gmail review plan' })).toBeInTheDocument()
     expect(within(planningBacklog).getByText('Gmail drafts: off')).toBeInTheDocument()
     expect(within(planningBacklog).getByText('Sends/Slack/social/SMS: off')).toBeInTheDocument()
     expect(within(planningBacklog).getByText('external requests 0')).toHaveClass(
@@ -969,7 +978,8 @@ describe('OutreachAdminPage deep links', () => {
     )
     expect(within(planningBacklog).getAllByText('SMS parked').length).toBeGreaterThan(0)
     expect(within(planningBacklog).getByText('Why next:')).toBeInTheDocument()
-    expect(within(planningBacklog).getByText(/campaign proof maps to a reviewed Gmail draft candidate/)).toBeInTheDocument()
+    expect(within(planningBacklog).getAllByText(/campaign phase maps to a reviewed Gmail draft candidate/).length).toBeGreaterThan(0)
+    expect(within(planningBacklog).getByRole('button', { name: 'Open Gmail review path for Ada Operator' })).toBeInTheDocument()
 
     const digest = await screen.findByLabelText('Warm response digest')
     expect(within(digest).getByText('Warm response digest')).toBeInTheDocument()
@@ -1041,6 +1051,7 @@ describe('OutreachAdminPage deep links', () => {
 
     expect(within(planningBacklog).queryByText('Ada Operator')).not.toBeInTheDocument()
     expect(within(planningBacklog).getByText('Manual Operator')).toBeInTheDocument()
+    expect(within(planningBacklog).getByRole('button', { name: 'Open manual handoff for Manual Operator' })).toBeInTheDocument()
     const manualStatePill = within(planningBacklog).getByText('Ready for manual social')
     expect(manualStatePill.parentElement).toHaveClass('gap-y-2')
     expect(within(planningBacklog).getByText('LinkedIn').parentElement).toHaveClass('gap-y-2')
@@ -1059,7 +1070,7 @@ describe('OutreachAdminPage deep links', () => {
     render(<OutreachAdminPage />)
 
     const planningBacklog = await screen.findByLabelText('Warm outreach planning backlog')
-    fireEvent.click(within(planningBacklog).getByRole('button', { name: 'Plan review batch (1)' }))
+    fireEvent.click(within(planningBacklog).getByRole('button', { name: 'Prepare Gmail review plan' }))
 
     const batchReview = await screen.findByLabelText('Warm batch review')
     expect(within(batchReview).getByLabelText('Warm planned draft actions')).toBeInTheDocument()

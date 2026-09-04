@@ -2,6 +2,7 @@ import { isWarmLeadSource } from './constants/lead-source'
 import {
   CAMPAIGN_PHASE_LABELS,
   SOCIAL_CONTENT_CALENDAR_TEMPLATES,
+  type SocialContentCalendarChannel,
   type SocialContentCampaignPhase,
 } from './social-content-calendar'
 
@@ -163,6 +164,14 @@ export type WarmOutreachPlanningBacklogCandidate = {
     plannedWindowLabel: string
     whyNext: string
   }
+  executionPath: {
+    source: 'social_content_calendar_template'
+    templateKey: 'whisper_to_shout'
+    milestoneKey: string
+    campaignChannel: SocialContentCalendarChannel
+    approvalGates: string[]
+    safeOutcome: string
+  }
 }
 
 export type WarmOutreachPlanningBacklog = {
@@ -179,11 +188,35 @@ export type WarmOutreachPlanningBacklog = {
     currentPhase: SocialContentCampaignPhase
     currentPhaseLabel: string
     plannedWindowLabel: string
+    currentMilestoneKey: string
+    currentMilestoneChannel: SocialContentCalendarChannel
     currentMilestoneTitle: string
     nextMilestoneTitle: string | null
+    approvalGates: string[]
     whyThisBacklogIsNext: string
     drillIn: string
   }
+  executionFocus: {
+    state: WarmOutreachPlanningBacklogState
+    contactId: number
+    contactName: string
+    recommendedChannel: WarmOutreachPlanningBacklogCandidate['recommendedChannel']
+    label: string
+    actionLabel: string
+    reason: string
+    safeOutcome: string
+    href: string
+    enabled: boolean
+    batchContactIds: number[]
+    source: {
+      templateKey: 'whisper_to_shout'
+      milestoneKey: string
+      campaignPhase: SocialContentCampaignPhase
+      campaignChannel: SocialContentCalendarChannel
+      plannedWindowLabel: string
+      approvalGates: string[]
+    }
+  } | null
   filterLabels: Record<WarmOutreachPlanningBacklogState, string>
   counts: Record<WarmOutreachPlanningBacklogState, number>
   currentCta: {
@@ -295,8 +328,11 @@ function buildCampaignAlignment(generatedFor: string): WarmOutreachPlanningBackl
     currentPhase: current.campaign_phase,
     currentPhaseLabel: CAMPAIGN_PHASE_LABELS[current.campaign_phase],
     plannedWindowLabel: `${displayDateLabel(generatedFor)}-${displayDateLabel(weekEnd)}`,
+    currentMilestoneKey: current.key,
+    currentMilestoneChannel: current.channel,
     currentMilestoneTitle: current.planned_angle,
     nextMilestoneTitle: next?.planned_angle ?? null,
+    approvalGates: current.approval_gates,
     whyThisBacklogIsNext:
       'The backlog turns the current campaign phase into relationship-specific Gmail draft candidates and manual social handoffs.',
     drillIn:
@@ -304,12 +340,50 @@ function buildCampaignAlignment(generatedFor: string): WarmOutreachPlanningBackl
   }
 }
 
+function safeOutcomeFor(state: WarmOutreachPlanningBacklogState): string {
+  if (state === 'ready_gmail_draft') {
+    return 'Opens a review-only Gmail planning batch. Later draft-record creation is local and still cannot send Gmail.'
+  }
+  if (state === 'ready_manual_social') {
+    return 'Opens manual handoff review in the existing workroom. No LinkedIn, Facebook, phone, or provider action runs.'
+  }
+  if (state === 'waiting_on_response') {
+    return 'Keeps the contact in response review before any new outreach touchpoint is planned.'
+  }
+  if (state === 'sms_parked') {
+    return 'Keeps SMS visible as parked until Telnyx/10DLC clears and a separate per-recipient gate exists.'
+  }
+  if (state === 'suppressed_blocked') {
+    return 'Keeps the contact blocked until suppression or contact status is resolved.'
+  }
+  return 'Keeps the contact in relationship review before a draft or manual handoff is prepared.'
+}
+
+function executionFocusLabelFor(state: WarmOutreachPlanningBacklogState): string {
+  if (state === 'ready_gmail_draft') return 'Gmail draft review is next'
+  if (state === 'ready_manual_social') return 'Manual social handoff is next'
+  if (state === 'waiting_on_response') return 'Response review is next'
+  if (state === 'sms_parked') return 'SMS remains parked'
+  if (state === 'suppressed_blocked') return 'Suppression review is next'
+  return 'Relationship review is next'
+}
+
+function actionLabelFor(state: WarmOutreachPlanningBacklogState, enabled: boolean): string {
+  if (!enabled) {
+    if (state === 'waiting_on_response') return 'Review response state'
+    if (state === 'sms_parked') return 'SMS parked'
+    return 'Review blockers'
+  }
+  if (state === 'ready_manual_social') return 'Prepare manual handoff review'
+  return 'Prepare Gmail review plan'
+}
+
 function whyThisCandidateIsNext(
   candidateState: WarmOutreachPlanningBacklogState,
   phaseLabel: string,
 ): string {
   if (candidateState === 'ready_gmail_draft') {
-    return `${phaseLabel} campaign proof maps to a reviewed Gmail draft candidate.`
+    return `${phaseLabel} campaign phase maps to a reviewed Gmail draft candidate.`
   }
   if (candidateState === 'ready_manual_social') {
     return `${phaseLabel} campaign angle is ready for a manual social handoff.`
@@ -763,7 +837,9 @@ function planningBacklogCandidateFor(
     blockers,
     batchEligible,
     nextActionLabel: batchEligible
-      ? 'Plan review batch'
+      ? primaryState === 'ready_manual_social'
+        ? 'Open manual handoff'
+        : 'Open Gmail review path'
       : states.has('suppressed_blocked')
         ? 'Review suppression state'
         : responseStatus !== 'no_response'
@@ -777,6 +853,46 @@ function planningBacklogCandidateFor(
       theme: campaignAlignment.currentMilestoneTitle,
       plannedWindowLabel: campaignAlignment.plannedWindowLabel,
       whyNext: whyThisCandidateIsNext(primaryState, campaignAlignment.currentPhaseLabel),
+    },
+    executionPath: {
+      source: 'social_content_calendar_template',
+      templateKey: WARM_OUTREACH_CAMPAIGN_TEMPLATE_KEY,
+      milestoneKey: campaignAlignment.currentMilestoneKey,
+      campaignChannel: campaignAlignment.currentMilestoneChannel,
+      approvalGates: campaignAlignment.approvalGates,
+      safeOutcome: safeOutcomeFor(primaryState),
+    },
+  }
+}
+
+function buildExecutionFocus(args: {
+  selected: { state: WarmOutreachPlanningBacklogState; rows: WarmOutreachPlanningBacklogCandidate[] } | null
+  batchContactIds: number[]
+  campaignAlignment: WarmOutreachPlanningBacklog['campaignAlignment']
+}): WarmOutreachPlanningBacklog['executionFocus'] {
+  const focus = args.selected?.rows[0] ?? null
+  if (!args.selected || !focus) return null
+
+  const enabled = args.batchContactIds.length > 0
+  return {
+    state: args.selected.state,
+    contactId: focus.contactId,
+    contactName: focus.contactName,
+    recommendedChannel: focus.recommendedChannel,
+    label: executionFocusLabelFor(args.selected.state),
+    actionLabel: actionLabelFor(args.selected.state, enabled),
+    reason: focus.campaignAlignment.whyNext,
+    safeOutcome: safeOutcomeFor(args.selected.state),
+    href: focus.ctaHref,
+    enabled,
+    batchContactIds: args.batchContactIds,
+    source: {
+      templateKey: WARM_OUTREACH_CAMPAIGN_TEMPLATE_KEY,
+      milestoneKey: args.campaignAlignment.currentMilestoneKey,
+      campaignPhase: args.campaignAlignment.currentPhase,
+      campaignChannel: args.campaignAlignment.currentMilestoneChannel,
+      plannedWindowLabel: args.campaignAlignment.plannedWindowLabel,
+      approvalGates: args.campaignAlignment.approvalGates,
     },
   }
 }
@@ -814,6 +930,11 @@ function buildPlanningBacklog(args: {
     .filter((candidate) => candidate.batchEligible)
     .slice(0, 8)
     .map((candidate) => candidate.contactId) ?? []
+  const executionFocus = buildExecutionFocus({
+    selected,
+    batchContactIds,
+    campaignAlignment,
+  })
 
   return {
     version: 'warm-outreach-planning-backlog/v1',
@@ -823,14 +944,15 @@ function buildPlanningBacklog(args: {
       weekLabel: `${displayDateLabel(args.generatedFor)}-${displayDateLabel(addDaysLabel(args.generatedFor, 6))}`,
     },
     campaignAlignment,
+    executionFocus,
     filterLabels: PLANNING_BACKLOG_FILTER_LABELS,
     counts,
     currentCta: selected && batchContactIds.length > 0
       ? {
           key: 'prepare_planning_review_batch',
-          label: `Plan review batch (${batchContactIds.length})`,
+          label: executionFocus?.actionLabel ?? `Plan review batch (${batchContactIds.length})`,
           enabled: true,
-          reason: `Internal review plan for ${PLANNING_BACKLOG_FILTER_LABELS[selected.state].toLowerCase()} contacts; no drafts or sends are created.`,
+          reason: `${batchContactIds.length} ${PLANNING_BACKLOG_FILTER_LABELS[selected.state].toLowerCase()} contact${batchContactIds.length === 1 ? '' : 's'} ready. ${safeOutcomeFor(selected.state)}`,
           contactIds: batchContactIds,
           state: selected.state,
         }
