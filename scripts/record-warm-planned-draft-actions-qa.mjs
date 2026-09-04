@@ -988,6 +988,12 @@ async function installSafeRoutes(page, externalRequests, localRequests) {
       return
     }
 
+    if (/\/auth\/v1\/token\b/i.test(url.pathname)) {
+      localRequests.push({ method: request.method(), pathname: url.pathname })
+      await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(session) })
+      return
+    }
+
     if (/\/auth\/v1\/user\b/i.test(url.pathname)) {
       localRequests.push({ method: request.method(), pathname: url.pathname })
       await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(user) })

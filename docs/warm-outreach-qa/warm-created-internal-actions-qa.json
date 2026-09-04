@@ -1,8 +1,8 @@
 {
   "version": "warm-created-internal-actions-qa/v1",
-  "createdAt": "2026-09-04T22:46:42.166Z",
-  "qaUrl": "http://127.0.0.1:3000/admin/outreach?tab=leads&filter=warm&qa=warm-planning-backlog",
-  "normalListUrl": "http://127.0.0.1:3000/admin/outreach?tab=leads&filter=warm",
+  "createdAt": "2026-09-04T22:53:27.339Z",
+  "qaUrl": "http://127.0.0.1:3068/admin/outreach?tab=leads&filter=warm&qa=warm-planning-backlog",
+  "normalListUrl": "http://127.0.0.1:3068/admin/outreach?tab=leads&filter=warm",
   "scenario": "Warm outreach operator opens Planning, selects a candidate, uses the in-place action drawer, and verifies internal Gmail draft/manual-social records still stay inside existing Portfolio surfaces.",
   "expectedBehavior": [
     "The normal warm lead list remains separate and does not show the planning drawer.",
@@ -473,7 +473,7 @@
   },
   "desktopCollapsedTextChecks": {
     "collapsed": [],
-    "checkedCount": 16,
+    "checkedCount": 15,
     "viewport": {
       "width": 1280,
       "height": 720
@@ -497,7 +497,7 @@
     "horizontalOverflow": false
   },
   "mp4Path": "/Users/vambahsillah/.codex/worktrees/f1c6/Portfolio/docs/warm-outreach-qa/warm-created-internal-actions-qa.mp4",
-  "rawVideoPath": "/Users/vambahsillah/.codex/worktrees/f1c6/Portfolio/test-results/warm-planned-draft-actions-qa/source/925e056b52b11facf5105528847a7bd4.webm",
+  "rawVideoPath": "/Users/vambahsillah/.codex/worktrees/f1c6/Portfolio/test-results/warm-planned-draft-actions-qa/source/e51bda0dde7980b54adf121d73502cd9.webm",
   "externalRequests": [],
   "localRequests": [
     {
@@ -670,23 +670,23 @@
     },
     {
       "method": "GET",
+      "pathname": "/api/admin/value-evidence/workflow-status"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/outreach/leads"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/value-evidence/workflow-status"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/outreach/leads"
+    },
+    {
+      "method": "GET",
       "pathname": "/auth/v1/user"
-    },
-    {
-      "method": "GET",
-      "pathname": "/api/admin/value-evidence/workflow-status"
-    },
-    {
-      "method": "GET",
-      "pathname": "/api/admin/outreach/leads"
-    },
-    {
-      "method": "GET",
-      "pathname": "/api/admin/value-evidence/workflow-status"
-    },
-    {
-      "method": "GET",
-      "pathname": "/api/admin/outreach/leads"
     },
     {
       "method": "GET",
