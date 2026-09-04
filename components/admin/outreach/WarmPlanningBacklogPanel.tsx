@@ -4,6 +4,7 @@ import {
   AlertTriangle,
   ClipboardCheck,
   CalendarDays,
+  CheckCircle2,
   LockKeyhole,
   Mail,
   MessageSquare,
@@ -106,6 +107,12 @@ function stateSummaryLabel(backlog: WarmOutreachPlanningBacklog) {
   return `${backlog.counts.sms_parked} SMS parked`
 }
 
+function loopStepClasses(state: WarmOutreachPlanningBacklog['executionLoop']['steps'][number]['state']) {
+  if (state === 'active') return 'border-radiant-gold/35 bg-radiant-gold/10 text-radiant-gold'
+  if (state === 'parked') return 'border-silicon-slate/80 bg-background/35 text-muted-foreground'
+  return 'border-sky-500/25 bg-sky-500/10 text-sky-100'
+}
+
 export default function WarmPlanningBacklogPanel({
   backlog,
   activeState,
@@ -173,6 +180,59 @@ export default function WarmPlanningBacklogPanel({
               <details className="mt-2 text-xs leading-5 text-muted-foreground">
                 <summary className="cursor-pointer text-radiant-gold/90">Campaign source</summary>
                 <p className="mt-1">{backlog.campaignAlignment.drillIn}</p>
+              </details>
+            </div>
+            <div
+              className="min-w-0 rounded-md border border-silicon-slate/70 bg-background/35 p-3"
+              aria-label="Warm office execution loop"
+            >
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="inline-flex min-h-7 shrink-0 items-center gap-1.5 rounded-md border border-radiant-gold/30 bg-radiant-gold/10 px-2 text-[11px] font-semibold uppercase leading-5 tracking-wide text-radiant-gold">
+                  <CheckCircle2 size={12} aria-hidden />
+                  Office loop
+                </span>
+                <span className="inline-flex min-h-7 min-w-fit shrink-0 items-center whitespace-nowrap rounded-md border border-silicon-slate/70 bg-background/45 px-2 text-[11px] leading-5 text-muted-foreground">
+                  {backlog.executionLoop.officeWindowLabel}
+                </span>
+                <span className="inline-flex min-h-7 min-w-fit shrink-0 items-center whitespace-nowrap rounded-md border border-silicon-slate/70 bg-background/45 px-2 text-[11px] leading-5 text-muted-foreground">
+                  {backlog.executionLoop.focusLabel}
+                </span>
+              </div>
+              <div className="mt-2 flex flex-wrap gap-1.5 text-[11px] leading-5 text-muted-foreground">
+                <span className="inline-flex min-w-fit shrink-0 items-center whitespace-nowrap rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2.5 py-0.5 text-emerald-100">
+                  Gmail {backlog.executionLoop.gmailReadyCount}
+                </span>
+                <span className="inline-flex min-w-fit shrink-0 items-center whitespace-nowrap rounded-full border border-sky-500/25 bg-sky-500/10 px-2.5 py-0.5 text-sky-100">
+                  Manual {backlog.executionLoop.manualSocialReadyCount}
+                </span>
+                <span className="inline-flex min-w-fit shrink-0 items-center whitespace-nowrap rounded-full border border-violet-500/25 bg-violet-500/10 px-2.5 py-0.5 text-violet-100">
+                  Recovery {backlog.executionLoop.responseRecoveryCount + backlog.executionLoop.blockerRecoveryCount}
+                </span>
+                <span className="inline-flex min-w-fit shrink-0 items-center whitespace-nowrap rounded-full border border-silicon-slate/80 bg-background/35 px-2.5 py-0.5">
+                  SMS parked {backlog.executionLoop.smsParkedCount}
+                </span>
+              </div>
+              <ol className="mt-3 grid gap-2 md:grid-cols-3">
+                {backlog.executionLoop.steps.map((step, index) => (
+                  <li
+                    key={step.key}
+                    className={`min-w-0 rounded-md border p-2.5 ${loopStepClasses(step.state)}`}
+                  >
+                    <div className="flex min-w-0 items-center gap-2">
+                      <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-current/25 bg-background/25 text-[11px] font-semibold tabular-nums">
+                        {index + 1}
+                      </span>
+                      <p className="min-w-0 truncate text-xs font-semibold leading-5">{step.label}</p>
+                    </div>
+                    <p className="mt-1 line-clamp-2 text-[11px] leading-5 opacity-85">{step.detail}</p>
+                  </li>
+                ))}
+              </ol>
+              <details className="mt-2 text-xs leading-5 text-muted-foreground">
+                <summary className="cursor-pointer text-radiant-gold/90">Recovery paths</summary>
+                <p className="mt-1">
+                  {backlog.executionLoop.responseRecoveryCount} waiting response, {backlog.executionLoop.blockerRecoveryCount} relationship or suppression blocker, {backlog.executionLoop.smsParkedCount} SMS parked.
+                </p>
               </details>
             </div>
           </div>

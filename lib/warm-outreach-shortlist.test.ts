@@ -332,9 +332,23 @@ describe('warm outreach shortlist', () => {
       },
       currentCta: {
         key: 'prepare_planning_review_batch',
-        label: 'Plan review batch (2)',
+        label: 'Start Gmail review loop (2)',
         contactIds: [10, 15],
         state: 'ready_gmail_draft',
+      },
+      executionLoop: {
+        version: 'warm-outreach-office-execution-loop/v1',
+        officeWindowLabel: 'Next office window: Sep 2',
+        focusLabel: '3 ready contacts',
+        campaignPhaseLabel: 'Tease',
+        campaignMilestoneTitle:
+          'Open with a small tension, observation, or question that makes the campaign problem visible.',
+        primaryActionLabel: 'Start Gmail review loop (2)',
+        gmailReadyCount: 2,
+        manualSocialReadyCount: 1,
+        responseRecoveryCount: 1,
+        blockerRecoveryCount: 2,
+        smsParkedCount: 1,
       },
       executionBoundary: {
         localPortfolioPlanOnly: true,
@@ -348,6 +362,14 @@ describe('warm outreach shortlist', () => {
         externalRequests: [],
       },
     })
+    expect(shortlist.planningBacklog.executionLoop.primaryActionReason).toMatch(
+      /campaign readiness favors Gmail draft review first/,
+    )
+    expect(shortlist.planningBacklog.executionLoop.steps.map((step) => step.key)).toEqual([
+      'plan_review_batch',
+      'work_existing_workroom',
+      'record_local_result',
+    ])
     expect(shortlist.planningBacklog.candidates.find((candidate) => candidate.contactId === 11)).toMatchObject({
       recommendedChannel: 'linkedin',
       draftReadiness: 'ready_for_review_batch',

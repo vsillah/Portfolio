@@ -1789,8 +1789,12 @@ function OutreachContent() {
                 onPrepareBatch={prepareWarmPlanningBatch}
                 onOpenCandidate={openWarmPlanningCandidate}
               />
+              <details className="mb-4 rounded-lg border border-silicon-slate/70 bg-silicon-slate/15 p-3 sm:p-4">
+                <summary className="cursor-pointer text-xs font-semibold uppercase tracking-wide text-radiant-gold">
+                  Warm response recovery
+                </summary>
               <section
-                className="mb-4 rounded-lg border border-silicon-slate/70 bg-silicon-slate/15 p-3 sm:p-4"
+                className="mt-3"
                 aria-label="Warm response digest"
               >
                 <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(15rem,auto)] lg:items-center">
@@ -1850,15 +1854,20 @@ function OutreachContent() {
                   Provider monitoring, Gmail/SMS sends, Slack dispatch, social actions, and n8n dispatch remain off.
                 </p>
               </section>
+              </details>
+              <details className="mb-6 rounded-lg border border-silicon-slate/70 bg-silicon-slate/15 p-3 sm:p-4">
+                <summary className="cursor-pointer text-xs font-semibold uppercase tracking-wide text-radiant-gold">
+                  Daily warm shortlist
+                </summary>
               <section
-                className="mb-6 rounded-lg border border-silicon-slate/70 bg-silicon-slate/15 p-3 sm:p-4"
+                className="mt-3"
                 aria-label="Daily warm outreach shortlist"
               >
                 <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
                       <p className="text-xs font-semibold uppercase tracking-wide text-radiant-gold">
-                        Daily warm shortlist
+                        Shortlist detail
                       </p>
                       <span className="rounded-full border border-silicon-slate/70 bg-background/45 px-2 py-0.5 text-xs text-muted-foreground">
                         {warmOutreachShortlist.items.length} shown
@@ -1966,6 +1975,7 @@ function OutreachContent() {
                   ))}
                 </div>
               </section>
+              </details>
               </>
             )}
 
