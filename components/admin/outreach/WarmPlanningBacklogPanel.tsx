@@ -13,6 +13,7 @@ import {
   UserRoundCheck,
 } from 'lucide-react'
 import type {
+  WarmOutreachDailyActionKind,
   WarmOutreachPlanningBacklog,
   WarmOutreachPlanningBacklogCandidate,
   WarmOutreachPlanningBacklogState,
@@ -113,6 +114,22 @@ function loopStepClasses(state: WarmOutreachPlanningBacklog['executionLoop']['st
   return 'border-sky-500/25 bg-sky-500/10 text-sky-100'
 }
 
+function dailyActionClasses(kind: WarmOutreachDailyActionKind) {
+  if (kind === 'gmail_draft_review') return 'border-emerald-500/25 bg-emerald-500/10 text-emerald-100'
+  if (kind === 'manual_social_handoff') return 'border-sky-500/25 bg-sky-500/10 text-sky-100'
+  if (kind === 'reply_follow_up') return 'border-violet-500/25 bg-violet-500/10 text-violet-100'
+  if (kind === 'sms_parked') return 'border-silicon-slate/80 bg-background/35 text-muted-foreground'
+  return 'border-amber-500/25 bg-amber-500/10 text-amber-100'
+}
+
+function DailyActionIcon({ kind }: { kind: WarmOutreachDailyActionKind }) {
+  if (kind === 'gmail_draft_review') return <Mail size={14} aria-hidden />
+  if (kind === 'manual_social_handoff') return <UserRoundCheck size={14} aria-hidden />
+  if (kind === 'reply_follow_up') return <MessageSquare size={14} aria-hidden />
+  if (kind === 'sms_parked') return <Smartphone size={14} aria-hidden />
+  return <AlertTriangle size={14} aria-hidden />
+}
+
 export default function WarmPlanningBacklogPanel({
   backlog,
   activeState,
@@ -127,6 +144,20 @@ export default function WarmPlanningBacklogPanel({
       ? backlog.candidates
       : backlog.candidates.filter((candidate) => candidate.states.includes(activeState))
   const totalCandidates = backlog.candidates.length
+  const primaryDailyAction = backlog.dailyActions.currentSafestAction
+  const primaryDailyCandidate = primaryDailyAction.key === 'open_daily_action'
+    ? backlog.candidates.find((candidate) => candidate.contactId === primaryDailyAction.contactIds[0])
+    : null
+  const primaryActionEnabled = primaryDailyAction.key === 'open_daily_action'
+    ? primaryDailyAction.enabled && Boolean(primaryDailyCandidate)
+    : backlog.currentCta.enabled
+  const handlePrimaryAction = () => {
+    if (primaryDailyCandidate) {
+      onOpenCandidate(primaryDailyCandidate)
+      return
+    }
+    onPrepareBatch()
+  }
 
   return (
     <section
@@ -181,6 +212,104 @@ export default function WarmPlanningBacklogPanel({
                 <summary className="cursor-pointer text-radiant-gold/90">Campaign source</summary>
                 <p className="mt-1">{backlog.campaignAlignment.drillIn}</p>
               </details>
+            </div>
+            <div
+              className="min-w-0 rounded-md border border-emerald-500/25 bg-emerald-500/5 p-3"
+              aria-label="Warm daily operating actions"
+            >
+              <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(14rem,auto)] xl:items-start">
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="inline-flex min-h-7 shrink-0 items-center gap-1.5 rounded-md border border-emerald-500/30 bg-emerald-500/10 px-2 text-[11px] font-semibold uppercase leading-5 tracking-wide text-emerald-100">
+                      <ClipboardCheck size={12} aria-hidden />
+                      Today&apos;s actions
+                    </span>
+                    <span className="inline-flex min-h-7 max-w-full items-center rounded-md border border-silicon-slate/70 bg-background/45 px-2 text-[11px] leading-5 text-muted-foreground">
+                      {backlog.dailyActions.campaignPhaseLabel}
+                    </span>
+                    <span className="inline-flex min-h-7 min-w-fit shrink-0 items-center whitespace-nowrap rounded-md border border-silicon-slate/70 bg-background/45 px-2 text-[11px] leading-5 text-muted-foreground">
+                      {backlog.dailyActions.operatingDateLabel}
+                    </span>
+                  </div>
+                  <p className="mt-2 text-sm font-semibold leading-5 text-foreground">
+                    {backlog.dailyActions.currentSafestAction.label}
+                  </p>
+                  <p className="mt-1 line-clamp-2 text-xs leading-5 text-muted-foreground">
+                    {backlog.dailyActions.currentSafestAction.reason}
+                  </p>
+                  <p className="mt-1 line-clamp-2 text-[11px] leading-5 text-muted-foreground">
+                    {backlog.dailyActions.campaignMilestoneTitle}
+                  </p>
+                </div>
+                <div className="grid min-w-0 grid-cols-2 gap-1.5 text-[11px] leading-5 text-muted-foreground sm:grid-cols-3 xl:grid-cols-2">
+                  <span className="inline-flex min-w-fit shrink-0 items-center justify-between gap-2 whitespace-nowrap rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2.5 py-0.5 text-emerald-100">
+                    Gmail <b className="tabular-nums">{backlog.dailyActions.summary.gmailDraftReviewCount}</b>
+                  </span>
+                  <span className="inline-flex min-w-fit shrink-0 items-center justify-between gap-2 whitespace-nowrap rounded-full border border-sky-500/25 bg-sky-500/10 px-2.5 py-0.5 text-sky-100">
+                    Manual <b className="tabular-nums">{backlog.dailyActions.summary.manualSocialHandoffCount}</b>
+                  </span>
+                  <span className="inline-flex min-w-fit shrink-0 items-center justify-between gap-2 whitespace-nowrap rounded-full border border-violet-500/25 bg-violet-500/10 px-2.5 py-0.5 text-violet-100">
+                    Replies <b className="tabular-nums">{backlog.dailyActions.summary.replyFollowUpCount}</b>
+                  </span>
+                  <span className="inline-flex min-w-fit shrink-0 items-center justify-between gap-2 whitespace-nowrap rounded-full border border-amber-500/25 bg-amber-500/10 px-2.5 py-0.5 text-amber-100">
+                    Recovery <b className="tabular-nums">{backlog.dailyActions.summary.relationshipRecoveryCount}</b>
+                  </span>
+                  <span className="inline-flex min-w-fit shrink-0 items-center justify-between gap-2 whitespace-nowrap rounded-full border border-red-500/25 bg-red-500/10 px-2.5 py-0.5 text-red-100">
+                    Blocked <b className="tabular-nums">{backlog.dailyActions.summary.blockedSuppressedCount}</b>
+                  </span>
+                  <span className="inline-flex min-w-fit shrink-0 items-center justify-between gap-2 whitespace-nowrap rounded-full border border-silicon-slate/80 bg-background/35 px-2.5 py-0.5">
+                    SMS parked <b className="tabular-nums">{backlog.dailyActions.summary.smsParkedCount}</b>
+                  </span>
+                </div>
+              </div>
+              <div className="mt-3 grid gap-2 xl:grid-cols-2">
+                {backlog.dailyActions.rows.slice(0, 4).map((action) => {
+                  const candidate = backlog.candidates.find((row) => row.contactId === action.contactId)
+                  return (
+                    <article
+                      key={action.key}
+                      className="grid min-w-0 gap-2 rounded-md border border-silicon-slate/70 bg-background/40 p-2.5"
+                      aria-label={`Daily warm action for ${action.contactName}`}
+                    >
+                      <div className="flex min-w-0 flex-wrap items-center gap-1.5">
+                        <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-current/25 bg-background/25 text-[11px] font-semibold tabular-nums">
+                          {action.priorityRank}
+                        </span>
+                        <span className={`inline-flex min-w-fit shrink-0 items-center gap-1 whitespace-nowrap rounded-full border px-2 py-0.5 text-[11px] font-semibold leading-5 ${dailyActionClasses(action.kind)}`}>
+                          <DailyActionIcon kind={action.kind} />
+                          {action.stateLabel}
+                        </span>
+                        {action.smsParked && action.kind !== 'sms_parked' && (
+                          <span className="inline-flex min-w-fit shrink-0 items-center whitespace-nowrap rounded-full border border-silicon-slate/80 bg-background/35 px-2 py-0.5 text-[11px] leading-5 text-muted-foreground">
+                            SMS parked
+                          </span>
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-semibold leading-5 text-foreground">
+                          {action.contactName}
+                        </p>
+                        <p className="line-clamp-2 text-xs leading-5 text-muted-foreground">
+                          {action.label}: {action.reason}
+                        </p>
+                        <p className="line-clamp-2 text-[11px] leading-5 text-muted-foreground">
+                          After: {action.afterAction}
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        disabled={!action.enabled || !candidate}
+                        onClick={() => candidate && onOpenCandidate(candidate)}
+                        className="inline-flex min-h-9 w-full items-center justify-center gap-2 rounded-md border border-silicon-slate/80 bg-silicon-slate/35 px-3 text-xs font-medium leading-5 text-foreground transition-colors hover:bg-silicon-slate/55 disabled:cursor-not-allowed disabled:opacity-50"
+                        aria-label={`${action.ctaLabel} for ${action.contactName}`}
+                      >
+                        <MessageSquare size={14} aria-hidden />
+                        {action.ctaLabel}
+                      </button>
+                    </article>
+                  )
+                })}
+              </div>
             </div>
             <div
               className="min-w-0 rounded-md border border-silicon-slate/70 bg-background/35 p-3"
@@ -297,8 +426,8 @@ export default function WarmPlanningBacklogPanel({
         <div className="min-w-0">
           <button
             type="button"
-            disabled={!backlog.currentCta.enabled || loading}
-            onClick={onPrepareBatch}
+            disabled={!primaryActionEnabled || loading}
+            onClick={handlePrimaryAction}
             className="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-lg border border-radiant-gold/50 bg-radiant-gold/10 px-3 text-sm font-semibold text-radiant-gold transition-colors hover:bg-radiant-gold/15 disabled:cursor-not-allowed disabled:opacity-50 2xl:w-auto"
           >
             {loading ? (
@@ -306,10 +435,10 @@ export default function WarmPlanningBacklogPanel({
             ) : (
               <ClipboardCheck size={15} aria-hidden />
             )}
-            {loading ? 'Preparing plan...' : backlog.currentCta.label}
+            {loading ? 'Preparing plan...' : primaryDailyAction.label}
           </button>
           <p className="mt-2.5 text-xs leading-6 text-muted-foreground">
-            {backlog.currentCta.reason}
+            {primaryDailyAction.reason}
           </p>
           {error && (
             <p role="alert" className="mt-2 rounded-md border border-red-500/25 bg-red-500/10 p-2 text-xs leading-5 text-red-100">
@@ -334,7 +463,7 @@ export default function WarmPlanningBacklogPanel({
         </span>
       </div>
 
-      <div className="mt-3 grid gap-2">
+      <div className="mt-3 grid gap-2" aria-label="Warm planning candidates">
         {visibleCandidates.slice(0, 8).map((candidate) => {
           const primaryState = candidatePrimaryState(candidate)
           return (

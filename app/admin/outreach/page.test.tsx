@@ -946,6 +946,13 @@ describe('OutreachAdminPage deep links', () => {
     expect(within(planningBacklog).getByText(/Whisper-to-shout launch/)).toBeInTheDocument()
     expect(within(planningBacklog).getByText(/The backlog turns the current campaign phase/)).toBeInTheDocument()
     expect(within(planningBacklog).getByText('Campaign source')).toBeInTheDocument()
+    expect(within(planningBacklog).getByLabelText('Warm daily operating actions')).toBeInTheDocument()
+    expect(within(planningBacklog).getByText("Today's actions")).toBeInTheDocument()
+    expect(within(planningBacklog).getAllByText("Start today's Gmail review loop (1)").length).toBeGreaterThan(0)
+    expect(within(planningBacklog).getAllByText(/campaign timing makes reviewed Gmail draft work/).length).toBeGreaterThan(0)
+    expect(within(planningBacklog).getByText('Replies')).toBeInTheDocument()
+    expect(within(planningBacklog).getByLabelText('Daily warm action for Ada Operator')).toBeInTheDocument()
+    expect(within(planningBacklog).getByRole('button', { name: 'Open Gmail review for Ada Operator' })).toBeInTheDocument()
     expect(within(planningBacklog).getByLabelText('Warm office execution loop')).toBeInTheDocument()
     expect(within(planningBacklog).getByText('Office loop')).toBeInTheDocument()
     expect(within(planningBacklog).getByText(/Next office window:/)).toBeInTheDocument()
@@ -955,7 +962,7 @@ describe('OutreachAdminPage deep links', () => {
     expect(within(planningBacklog).getAllByText('Plan Gmail review').length).toBeGreaterThan(0)
     expect(within(planningBacklog).getByText('Work the Lead Pipeline')).toBeInTheDocument()
     expect(within(planningBacklog).getByText('Record local result')).toBeInTheDocument()
-    expect(within(planningBacklog).getByText(/campaign readiness favors Gmail draft review first/)).toHaveClass(
+    expect(within(planningBacklog).getAllByText(/campaign timing makes reviewed Gmail draft work/).at(-1)).toHaveClass(
       'mt-2.5',
       'leading-6',
     )
@@ -968,7 +975,7 @@ describe('OutreachAdminPage deep links', () => {
     expect(manualFilter).toHaveTextContent('Manual')
     expect(manualFilter).toHaveClass('min-w-fit', 'shrink-0', 'whitespace-nowrap')
     expect(within(stateFilters).getByRole('button', { name: /Show SMS parked candidates/ })).toHaveTextContent('SMS parked')
-    expect(within(planningBacklog).getByRole('button', { name: 'Start Gmail review loop (1)' })).toBeInTheDocument()
+    expect(within(planningBacklog).getByRole('button', { name: "Start today's Gmail review loop (1)" })).toBeInTheDocument()
     expect(within(planningBacklog).getByText('Gmail drafts: off')).toBeInTheDocument()
     expect(within(planningBacklog).getByText('Sends/Slack/social/SMS: off')).toBeInTheDocument()
     expect(within(planningBacklog).getByText('external requests 0')).toHaveClass(
@@ -978,7 +985,7 @@ describe('OutreachAdminPage deep links', () => {
     )
     expect(within(planningBacklog).getAllByText('SMS parked').length).toBeGreaterThan(0)
     expect(within(planningBacklog).getByText('Why next:')).toBeInTheDocument()
-    expect(within(planningBacklog).getByText(/campaign proof maps to a reviewed Gmail draft candidate/)).toBeInTheDocument()
+    expect(within(planningBacklog).getAllByText(/campaign proof maps to a reviewed Gmail draft candidate/).length).toBeGreaterThan(0)
 
     fireEvent.click(screen.getByText('Warm response recovery'))
     const digest = await screen.findByLabelText('Warm response digest')
@@ -1047,20 +1054,21 @@ describe('OutreachAdminPage deep links', () => {
     render(<OutreachAdminPage />)
 
     const planningBacklog = await screen.findByLabelText('Warm outreach planning backlog')
-    expect(within(planningBacklog).getByText('Phone Operator')).toBeInTheDocument()
+    const candidates = within(planningBacklog).getByLabelText('Warm planning candidates')
+    expect(within(candidates).getByText('Phone Operator')).toBeInTheDocument()
     fireEvent.click(within(planningBacklog).getByRole('button', { name: /Show Ready for manual social candidates/ }))
 
-    expect(within(planningBacklog).queryByText('Ada Operator')).not.toBeInTheDocument()
-    expect(within(planningBacklog).getByText('Manual Operator')).toBeInTheDocument()
-    const manualStatePill = within(planningBacklog).getByText('Ready for manual social')
+    expect(within(candidates).queryByText('Ada Operator')).not.toBeInTheDocument()
+    expect(within(candidates).getByText('Manual Operator')).toBeInTheDocument()
+    const manualStatePill = within(candidates).getByText('Ready for manual social')
     expect(manualStatePill.parentElement).toHaveClass('gap-y-2')
-    expect(within(planningBacklog).getByText('LinkedIn').parentElement).toHaveClass('gap-y-2')
+    expect(within(candidates).getByText('LinkedIn').parentElement).toHaveClass('gap-y-2')
 
     fireEvent.click(within(planningBacklog).getByRole('button', { name: /Show SMS parked candidates/ }))
 
-    expect(within(planningBacklog).queryByText('Ada Operator')).not.toBeInTheDocument()
-    expect(within(planningBacklog).getByText('Phone Operator')).toBeInTheDocument()
-    expect(within(planningBacklog).getAllByText('SMS parked').length).toBeGreaterThan(0)
+    expect(within(candidates).queryByText('Ada Operator')).not.toBeInTheDocument()
+    expect(within(candidates).getByText('Phone Operator')).toBeInTheDocument()
+    expect(within(candidates).getAllByText('SMS parked').length).toBeGreaterThan(0)
   })
 
   it('prepares a review-only warm planning backlog batch without external requests or create actions', async () => {
@@ -1070,7 +1078,7 @@ describe('OutreachAdminPage deep links', () => {
     render(<OutreachAdminPage />)
 
     const planningBacklog = await screen.findByLabelText('Warm outreach planning backlog')
-    fireEvent.click(within(planningBacklog).getByRole('button', { name: 'Start Gmail review loop (1)' }))
+    fireEvent.click(within(planningBacklog).getByRole('button', { name: "Start today's Gmail review loop (1)" }))
 
     const batchReview = await screen.findByLabelText('Warm batch review')
     expect(within(batchReview).getByLabelText('Warm planned draft actions')).toBeInTheDocument()
