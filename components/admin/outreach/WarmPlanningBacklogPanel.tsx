@@ -35,6 +35,7 @@ interface WarmPlanningBacklogPanelProps {
   error: string | null
   onStateChange: (state: WarmOutreachPlanningBacklogState | 'all') => void
   onPrepareBatch: () => void
+  onPrepareCandidateReview: (candidate: WarmOutreachPlanningBacklogCandidate) => void
   onOpenCandidate: (candidate: WarmOutreachPlanningBacklogCandidate) => void
 }
 
@@ -130,6 +131,10 @@ function DailyActionIcon({ kind }: { kind: WarmOutreachDailyActionKind }) {
   return <AlertTriangle size={14} aria-hidden />
 }
 
+function preparesReviewBatch(action: WarmOutreachPlanningBacklogCandidate['reviewLoopAction']) {
+  return action.key === 'start_gmail_review_batch' || action.key === 'start_manual_social_batch'
+}
+
 export default function WarmPlanningBacklogPanel({
   backlog,
   activeState,
@@ -137,6 +142,7 @@ export default function WarmPlanningBacklogPanel({
   error,
   onStateChange,
   onPrepareBatch,
+  onPrepareCandidateReview,
   onOpenCandidate,
 }: WarmPlanningBacklogPanelProps) {
   const visibleCandidates =
@@ -161,6 +167,7 @@ export default function WarmPlanningBacklogPanel({
 
   return (
     <section
+      id="warm-planning-backlog"
       className="mb-4 rounded-lg border border-radiant-gold/30 bg-radiant-gold/5 p-3 sm:p-4"
       aria-label="Warm outreach planning backlog"
     >
@@ -241,23 +248,23 @@ export default function WarmPlanningBacklogPanel({
                     {backlog.dailyActions.campaignMilestoneTitle}
                   </p>
                 </div>
-                <div className="grid min-w-0 grid-cols-2 gap-1.5 text-[11px] leading-5 text-muted-foreground sm:grid-cols-3 xl:grid-cols-2">
-                  <span className="inline-flex min-w-fit shrink-0 items-center justify-between gap-2 whitespace-nowrap rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2.5 py-0.5 text-emerald-100">
+                <div className="grid min-w-0 grid-cols-[repeat(2,minmax(0,1fr))] gap-1.5 text-[11px] leading-5 text-muted-foreground sm:grid-cols-[repeat(3,minmax(0,1fr))] xl:grid-cols-[repeat(2,minmax(0,1fr))]">
+                  <span className="inline-flex min-w-0 items-center justify-between gap-2 rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2.5 py-0.5 text-emerald-100">
                     Gmail <b className="tabular-nums">{backlog.dailyActions.summary.gmailDraftReviewCount}</b>
                   </span>
-                  <span className="inline-flex min-w-fit shrink-0 items-center justify-between gap-2 whitespace-nowrap rounded-full border border-sky-500/25 bg-sky-500/10 px-2.5 py-0.5 text-sky-100">
+                  <span className="inline-flex min-w-0 items-center justify-between gap-2 rounded-full border border-sky-500/25 bg-sky-500/10 px-2.5 py-0.5 text-sky-100">
                     Manual <b className="tabular-nums">{backlog.dailyActions.summary.manualSocialHandoffCount}</b>
                   </span>
-                  <span className="inline-flex min-w-fit shrink-0 items-center justify-between gap-2 whitespace-nowrap rounded-full border border-violet-500/25 bg-violet-500/10 px-2.5 py-0.5 text-violet-100">
+                  <span className="inline-flex min-w-0 items-center justify-between gap-2 rounded-full border border-violet-500/25 bg-violet-500/10 px-2.5 py-0.5 text-violet-100">
                     Replies <b className="tabular-nums">{backlog.dailyActions.summary.replyFollowUpCount}</b>
                   </span>
-                  <span className="inline-flex min-w-fit shrink-0 items-center justify-between gap-2 whitespace-nowrap rounded-full border border-amber-500/25 bg-amber-500/10 px-2.5 py-0.5 text-amber-100">
+                  <span className="inline-flex min-w-0 items-center justify-between gap-2 rounded-full border border-amber-500/25 bg-amber-500/10 px-2.5 py-0.5 text-amber-100">
                     Recovery <b className="tabular-nums">{backlog.dailyActions.summary.relationshipRecoveryCount}</b>
                   </span>
-                  <span className="inline-flex min-w-fit shrink-0 items-center justify-between gap-2 whitespace-nowrap rounded-full border border-red-500/25 bg-red-500/10 px-2.5 py-0.5 text-red-100">
+                  <span className="inline-flex min-w-0 items-center justify-between gap-2 rounded-full border border-red-500/25 bg-red-500/10 px-2.5 py-0.5 text-red-100">
                     Blocked <b className="tabular-nums">{backlog.dailyActions.summary.blockedSuppressedCount}</b>
                   </span>
-                  <span className="inline-flex min-w-fit shrink-0 items-center justify-between gap-2 whitespace-nowrap rounded-full border border-silicon-slate/80 bg-background/35 px-2.5 py-0.5">
+                  <span className="inline-flex min-w-0 items-center justify-between gap-2 rounded-full border border-silicon-slate/80 bg-background/35 px-2.5 py-0.5">
                     SMS parked <b className="tabular-nums">{backlog.dailyActions.summary.smsParkedCount}</b>
                   </span>
                 </div>
@@ -265,6 +272,7 @@ export default function WarmPlanningBacklogPanel({
               <div className="mt-3 grid gap-2 xl:grid-cols-2">
                 {backlog.dailyActions.rows.slice(0, 4).map((action) => {
                   const candidate = backlog.candidates.find((row) => row.contactId === action.contactId)
+                  const loopAction = action.reviewLoopAction
                   return (
                     <article
                       key={action.key}
@@ -280,10 +288,13 @@ export default function WarmPlanningBacklogPanel({
                           {action.stateLabel}
                         </span>
                         {action.smsParked && action.kind !== 'sms_parked' && (
-                          <span className="inline-flex min-w-fit shrink-0 items-center whitespace-nowrap rounded-full border border-silicon-slate/80 bg-background/35 px-2 py-0.5 text-[11px] leading-5 text-muted-foreground">
+                          <span className="inline-flex max-w-full items-center rounded-full border border-silicon-slate/80 bg-background/35 px-2 py-0.5 text-[11px] leading-5 text-muted-foreground">
                             SMS parked
                           </span>
                         )}
+                        <span className="inline-flex max-w-full items-center rounded-full border border-silicon-slate/70 bg-background/35 px-2 py-0.5 text-[11px] leading-5 text-muted-foreground">
+                          {loopAction.statusLabel}
+                        </span>
                       </div>
                       <div className="min-w-0">
                         <p className="truncate text-sm font-semibold leading-5 text-foreground">
@@ -293,17 +304,29 @@ export default function WarmPlanningBacklogPanel({
                           {action.label}: {action.reason}
                         </p>
                         <p className="line-clamp-2 text-[11px] leading-5 text-muted-foreground">
-                          After: {action.afterAction}
+                          Click: {loopAction.afterClick}
                         </p>
+                        {loopAction.blockerReason && (
+                          <p className="mt-1 line-clamp-2 text-[11px] leading-5 text-amber-100">
+                            Blocked: {loopAction.blockerReason}
+                          </p>
+                        )}
                       </div>
                       <button
                         type="button"
                         disabled={!action.enabled || !candidate}
-                        onClick={() => candidate && onOpenCandidate(candidate)}
+                        onClick={() => {
+                          if (!candidate) return
+                          if (preparesReviewBatch(loopAction)) {
+                            onPrepareCandidateReview(candidate)
+                            return
+                          }
+                          onOpenCandidate(candidate)
+                        }}
                         className="inline-flex min-h-9 w-full items-center justify-center gap-2 rounded-md border border-silicon-slate/80 bg-silicon-slate/35 px-3 text-xs font-medium leading-5 text-foreground transition-colors hover:bg-silicon-slate/55 disabled:cursor-not-allowed disabled:opacity-50"
                         aria-label={`${action.ctaLabel} for ${action.contactName}`}
                       >
-                        <MessageSquare size={14} aria-hidden />
+                        <DailyActionIcon kind={action.kind} />
                         {action.ctaLabel}
                       </button>
                     </article>
@@ -526,7 +549,7 @@ export default function WarmPlanningBacklogPanel({
                 type="button"
                 onClick={() => onOpenCandidate(candidate)}
                 className="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-md border border-silicon-slate/80 bg-silicon-slate/35 px-3 text-sm font-medium text-foreground transition-colors hover:bg-silicon-slate/55 2xl:w-auto"
-                aria-label={`${candidate.nextActionLabel} for ${candidate.contactName}`}
+                aria-label={`Open candidate review: ${candidate.nextActionLabel} for ${candidate.contactName}`}
               >
                 <MessageSquare size={15} aria-hidden />
                 {candidate.nextActionLabel}

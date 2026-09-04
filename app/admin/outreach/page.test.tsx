@@ -952,7 +952,9 @@ describe('OutreachAdminPage deep links', () => {
     expect(within(planningBacklog).getAllByText(/campaign timing makes reviewed Gmail draft work/).length).toBeGreaterThan(0)
     expect(within(planningBacklog).getByText('Replies')).toBeInTheDocument()
     expect(within(planningBacklog).getByLabelText('Daily warm action for Ada Operator')).toBeInTheDocument()
-    expect(within(planningBacklog).getByRole('button', { name: 'Open Gmail review for Ada Operator' })).toBeInTheDocument()
+    expect(within(planningBacklog).getByText('Review batch ready')).toBeInTheDocument()
+    expect(within(planningBacklog).getByText(/Loads the warm batch review/)).toBeInTheDocument()
+    expect(within(planningBacklog).getByRole('button', { name: 'Prepare Gmail review for Ada Operator' })).toBeInTheDocument()
     expect(within(planningBacklog).getByLabelText('Warm office execution loop')).toBeInTheDocument()
     expect(within(planningBacklog).getByText('Office loop')).toBeInTheDocument()
     expect(within(planningBacklog).getByText(/Next office window:/)).toBeInTheDocument()
@@ -1078,7 +1080,7 @@ describe('OutreachAdminPage deep links', () => {
     render(<OutreachAdminPage />)
 
     const planningBacklog = await screen.findByLabelText('Warm outreach planning backlog')
-    fireEvent.click(within(planningBacklog).getByRole('button', { name: "Start today's Gmail review loop (1)" }))
+    fireEvent.click(within(planningBacklog).getByRole('button', { name: 'Prepare Gmail review for Ada Operator' }))
 
     const batchReview = await screen.findByLabelText('Warm batch review')
     expect(within(batchReview).getByLabelText('Warm planned draft actions')).toBeInTheDocument()
@@ -1091,7 +1093,7 @@ describe('OutreachAdminPage deep links', () => {
         '/api/admin/outreach/batch-review',
         expect.objectContaining({
           method: 'POST',
-          body: expect.stringContaining('warm planning backlog candidate'),
+          body: expect.stringContaining('warm planning backlog'),
         }),
       )
     })
@@ -1482,6 +1484,16 @@ describe('OutreachAdminPage deep links', () => {
     vi.stubGlobal('fetch', fetchMock)
 
     render(<OutreachAdminPage />)
+
+    const planningBacklog = await screen.findByLabelText('Warm outreach planning backlog')
+    expect(within(planningBacklog).getByText('Draft-only record')).toBeInTheDocument()
+    expect(within(planningBacklog).getByText('Pending handoff')).toBeInTheDocument()
+    expect(within(planningBacklog).getByText(/Opens the saved Gmail draft review/)).toBeInTheDocument()
+    expect(within(planningBacklog).getByText(/Opens the manual handoff panel/)).toBeInTheDocument()
+    fireEvent.click(within(planningBacklog).getByRole('button', { name: 'Review draft for Ada Operator' }))
+
+    const planningGmailWorkroom = await screen.findByLabelText('Outreach workroom for Ada Operator')
+    expect(await within(planningGmailWorkroom).findByLabelText('Gmail draft review for Ada Operator')).toBeInTheDocument()
 
     const gmailAction = await screen.findByLabelText('Internal action for Ada Operator')
     expect(within(gmailAction).getByText('Draft-only record')).toBeInTheDocument()

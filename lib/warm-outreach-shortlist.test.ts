@@ -407,8 +407,13 @@ describe('warm outreach shortlist', () => {
       contactName: 'Gmail Ready',
       campaignSignal:
         'Tease: Open with a small tension, observation, or question that makes the campaign problem visible.',
-      ctaLabel: 'Open Gmail review',
+      ctaLabel: 'Prepare Gmail review',
       enabled: true,
+      reviewLoopAction: {
+        key: 'start_gmail_review_batch',
+        statusLabel: 'Review batch ready',
+        blockerReason: null,
+      },
     })
     expect(shortlist.planningBacklog.executionLoop.primaryActionReason).toMatch(
       /campaign readiness favors Gmail draft review first/,
@@ -423,6 +428,11 @@ describe('warm outreach shortlist', () => {
       draftReadiness: 'ready_for_review_batch',
       states: ['ready_manual_social'],
       batchEligible: true,
+      nextActionLabel: 'Prepare LinkedIn handoff',
+      reviewLoopAction: {
+        key: 'start_manual_social_batch',
+        statusLabel: 'Manual review ready',
+      },
       campaignAlignment: {
         phase: 'tease',
         theme: 'Open with a small tension, observation, or question that makes the campaign problem visible.',
@@ -497,6 +507,10 @@ describe('warm outreach shortlist', () => {
       kind: 'reply_follow_up',
       contactName: 'Proof Reply',
       ctaLabel: 'Review response',
+      reviewLoopAction: {
+        key: 'open_response_review',
+        statusLabel: 'Response review',
+      },
       campaignSignal:
         'Proof: Show evidence, a shipped example, client-safe result, or lived project insight that earns trust.',
     })

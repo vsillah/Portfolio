@@ -1385,6 +1385,22 @@ function OutreachContent() {
     warmPlanningBacklog.currentCta.contactIds,
     warmPlanningBacklog.currentCta.state,
   ])
+  const prepareWarmPlanningCandidateReview = useCallback(async (candidate: WarmOutreachPlanningBacklogCandidate) => {
+    const preferredChannel =
+      candidate.reviewLoopAction.key === 'start_manual_social_batch'
+        ? candidate.recommendedChannel === 'linkedin' ||
+          candidate.recommendedChannel === 'facebook' ||
+          candidate.recommendedChannel === 'phone_contact'
+          ? candidate.recommendedChannel
+          : 'linkedin'
+        : 'email'
+    setSelectedLeadIds(new Set([candidate.contactId]))
+    await loadWarmBatchReview(
+      [candidate.contactId],
+      `1 warm planning backlog ${candidate.reviewLoopAction.statusLabel.toLowerCase()} candidate`,
+      preferredChannel,
+    )
+  }, [loadWarmBatchReview])
   const openWarmShortlistItem = useCallback(
     (item: WarmOutreachShortlistItem) => {
       setOutreachWorkroomLeadId(item.contactId)
@@ -1410,7 +1426,22 @@ function OutreachContent() {
       params.set('filter', 'warm')
       params.set('id', String(candidate.contactId))
       params.set('contactId', String(candidate.contactId))
-      const hash = candidate.responseStatus === 'reply_detected' ? '#warm-response-lifecycle' : ''
+      params.delete('draftReview')
+      if (
+        candidate.reviewLoopAction.key === 'open_gmail_draft_review' &&
+        candidate.reviewLoopAction.recordTable === 'outreach_queue' &&
+        candidate.reviewLoopAction.recordId
+      ) {
+        params.set('draftReview', candidate.reviewLoopAction.recordId)
+      }
+      const hash =
+        candidate.reviewLoopAction.key === 'open_gmail_draft_review'
+          ? '#warm-gmail-draft-review'
+          : candidate.reviewLoopAction.key === 'open_manual_social_handoff'
+            ? '#warm-manual-social-handoff'
+            : candidate.reviewLoopAction.key === 'open_response_review' || candidate.responseStatus === 'reply_detected'
+              ? '#warm-response-lifecycle'
+              : ''
       router.replace(`/admin/outreach?${params.toString()}${hash}`, { scroll: false })
     },
     [router, searchParams],
@@ -1787,6 +1818,7 @@ function OutreachContent() {
                 error={warmBatchReviewError}
                 onStateChange={setWarmPlanningBacklogFilter}
                 onPrepareBatch={prepareWarmPlanningBatch}
+                onPrepareCandidateReview={prepareWarmPlanningCandidateReview}
                 onOpenCandidate={openWarmPlanningCandidate}
               />
               <details className="mb-4 rounded-lg border border-silicon-slate/70 bg-silicon-slate/15 p-3 sm:p-4">
