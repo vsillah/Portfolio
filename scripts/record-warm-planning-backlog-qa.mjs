@@ -276,43 +276,6 @@ const leads = [
       { id: 'queue-sent-105', subject: 'Warm follow-up', status: 'sent', created_at: timestamp },
     ],
   },
-  {
-    id: 106,
-    name: 'Sade Suppressed',
-    email: 'sade.office@example.test',
-    company: 'Suppressed Contact Co',
-    company_domain: 'suppressed.example.test',
-    job_title: 'Advisor',
-    industry: 'Services',
-    phone_number: '555-0106',
-    lead_source: 'warm_referral',
-    lead_score: 88,
-    outreach_status: 'opted_out',
-    qualification_status: 'blocked',
-    created_at: timestamp,
-    linkedin_url: null,
-    ai_readiness_score: null,
-    competitive_pressure_score: null,
-    quick_wins: 'Suppression fixture.',
-    message: 'Suppression fixture.',
-    full_report: null,
-    rep_pain_points: null,
-    messages_count: 0,
-    messages_sent: 0,
-    has_reply: false,
-    has_sales_conversation: true,
-    latest_session_id: null,
-    session_count: 0,
-    evidence_count: 1,
-    last_vep_triggered_at: null,
-    last_vep_status: null,
-    last_n8n_outreach_triggered_at: null,
-    last_n8n_outreach_status: null,
-    last_n8n_outreach_template_key: null,
-    has_extractable_text: true,
-    do_not_contact: true,
-    recent_email_drafts: [],
-  },
 ]
 
 function makeSendReadiness(contactId) {
@@ -816,11 +779,11 @@ async function assertPlanningBacklog(page) {
     return {
       hasPlanningBacklog: visible(planningBacklog),
       hasStates:
-        /Ready for Gmail draft/i.test(text) &&
-        /Ready for manual social/i.test(text) &&
-        /Needs relationship review/i.test(text) &&
-        /Waiting on response/i.test(text) &&
-        /Suppressed\/blocked/i.test(text) &&
+        /Ready Gmail/i.test(text) &&
+        /Manual/i.test(text) &&
+        /Relationship/i.test(text) &&
+        /Responses/i.test(text) &&
+        /Blocked/i.test(text) &&
         /SMS parked/i.test(text),
       hasCampaignAlignment:
         /Today \/ This week/i.test(text) &&
@@ -836,6 +799,12 @@ async function assertPlanningBacklog(page) {
         /Why next:/i.test(text),
       hasDailyActions:
         /Today's actions/i.test(text) &&
+        /Gmail\s+2/i.test(text) &&
+        /Manual\s+1/i.test(text) &&
+        /Replies\s+1/i.test(text) &&
+        /Recovery\s+1/i.test(text) &&
+        /Blocked\s+0/i.test(text) &&
+        /SMS parked\s+1/i.test(text) &&
         /Start today's Gmail review loop/i.test(text) &&
         /campaign timing makes reviewed Gmail draft work/i.test(text) &&
         /Replies/i.test(text) &&
@@ -848,13 +817,20 @@ async function assertPlanningBacklog(page) {
         /Calendar (Tease|Teach|Proof|Offer)/i.test(text) &&
         /Cadence: Campaign day/i.test(text) &&
         /Gate: copy review/i.test(text),
+      hasDailyActionFilters:
+        /Gmail\s+2/i.test(text) &&
+        /Manual\s+1/i.test(text) &&
+        /Replies\s+1/i.test(text) &&
+        /Recovery\s+1/i.test(text) &&
+        /Blocked\s+0/i.test(text) &&
+        /SMS parked\s+1/i.test(text),
       hasExecutionLoop:
         /Campaign cadence/i.test(text) &&
         /Lead Pipeline window:/i.test(text) &&
         /Gmail 2/i.test(text) &&
         /Manual 1/i.test(text) &&
-        /Recovery 3/i.test(text) &&
-        /SMS parked 2/i.test(text) &&
+        /Recovery 2/i.test(text) &&
+        /SMS parked 1/i.test(text) &&
         /Work the Lead Pipeline/i.test(text),
       hasSafeCta: visible(currentCta) && /Start today's Gmail review loop|Start today's manual-social loop/.test(currentCta?.textContent || ''),
       hasBoundary:
@@ -931,6 +907,7 @@ async function addSideText(page) {
       <ul>
         <li>Today / This week shows the current campaign phase, calendar channel, cadence, source template, proof point, and approval gate.</li>
         <li>Today's actions rank Gmail, manual social, response, recovery, blocked, and SMS parked rows from the campaign phase.</li>
+        <li>Daily action count pills filter the visible action and candidate rows, then clear back to the full daily plan.</li>
         <li>Daily action rows show calendar basis, cadence, source, proof, gate, and the one safe next action before the button.</li>
         <li>Six planning states are visible as compact count filters.</li>
         <li>The campaign cadence panel shows one primary review CTA and keeps recovery details secondary.</li>
@@ -971,6 +948,18 @@ const desktopPlanningBacklog = desktop.page.getByLabel('Warm outreach planning b
 const desktopPlanningCandidates = desktop.page.getByLabel('Warm planning candidates')
 await desktopPlanningBacklog.evaluate((element) => element.scrollIntoView({ block: 'center' }))
 await desktop.page.waitForTimeout(700)
+const dailyActionFilters = desktop.page.getByRole('group', { name: 'Warm daily action filters' })
+await activateButton(dailyActionFilters.getByRole('button', { name: 'Show Gmail draft review actions (2)' }))
+await desktopPlanningCandidates.getByText('Amina Batchready').waitFor({ timeout: 10_000 })
+await desktop.page.waitForTimeout(700)
+await activateButton(dailyActionFilters.getByRole('button', { name: 'Show manual social handoff actions (1)' }))
+await desktopPlanningCandidates.getByText('Nia Manualsocial').waitFor({ timeout: 10_000 })
+await desktop.page.waitForTimeout(700)
+await activateButton(dailyActionFilters.getByRole('button', { name: 'Show blocked or suppressed actions (0)' }))
+await desktopPlanningBacklog.getByText('No blocked actions today.').first().waitFor({ timeout: 10_000 })
+await desktop.page.waitForTimeout(700)
+await activateButton(desktopPlanningBacklog.getByRole('button', { name: 'Clear daily action filter' }))
+await desktop.page.waitForTimeout(500)
 await activateButton(desktop.page.getByRole('button', { name: 'Show SMS parked candidates' }))
 await desktopPlanningCandidates.getByText('Kofi Phoneparked').waitFor({ timeout: 10_000 })
 await desktop.page.waitForTimeout(700)
@@ -1048,6 +1037,7 @@ const failedViewport = viewportRuns.find((run) =>
   !run.checks.hasStates ||
   !run.checks.hasCampaignAlignment ||
   !run.checks.hasDailyActions ||
+  !run.checks.hasDailyActionFilters ||
   !run.checks.hasExecutionLoop ||
   !run.checks.hasSafeCta ||
   !run.checks.hasBoundary ||
@@ -1066,6 +1056,7 @@ const receipt = {
   expectedBehavior: [
     'Planning backlog shows Today / This Week campaign alignment from the existing whisper_to_shout social content calendar template, including calendar channel, cadence, source, proof point, and gate.',
     'Daily operating actions rank Gmail reviews, manual-social handoffs, reply follow-ups, recovery, blocked/suppressed rows, and SMS parked rows from the campaign phase.',
+    'Daily action count pills filter the visible daily action and candidate rows for Gmail, manual social, blocked/suppressed, and clear back to the full action plan while keeping counts anchored to the full summary.',
     'Daily action rows show ready, review-needed, recorded/waiting, blocked, and parked loop states with non-repeatable recorded actions disabled.',
     'The daily operating actions panel spans the warm planning backlog width instead of sitting in a capped left column beside an empty CTA rail.',
     'Campaign cadence panel prioritizes ready Gmail contacts first, shows manual-social handoffs next, and keeps response/blocker recovery separate.',

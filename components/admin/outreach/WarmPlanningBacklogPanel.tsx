@@ -14,6 +14,7 @@ import {
   UserRoundCheck,
 } from 'lucide-react'
 import type {
+  WarmOutreachDailyActionRow,
   WarmOutreachDailyActionKind,
   WarmOutreachDailyLoopStatus,
   WarmOutreachPlanningBacklog,
@@ -123,6 +124,59 @@ function dailyActionClasses(kind: WarmOutreachDailyActionKind) {
   if (kind === 'reply_follow_up') return 'border-violet-500/25 bg-violet-500/10 text-violet-100'
   if (kind === 'sms_parked') return 'border-silicon-slate/80 bg-background/35 text-muted-foreground'
   return 'border-amber-500/25 bg-amber-500/10 text-amber-100'
+}
+
+const DAILY_ACTION_FILTERS: WarmOutreachDailyActionKind[] = [
+  'gmail_draft_review',
+  'manual_social_handoff',
+  'reply_follow_up',
+  'relationship_recovery',
+  'blocked_suppressed',
+  'sms_parked',
+]
+
+function dailyActionFilterLabel(kind: WarmOutreachDailyActionKind) {
+  if (kind === 'gmail_draft_review') return 'Gmail'
+  if (kind === 'manual_social_handoff') return 'Manual'
+  if (kind === 'reply_follow_up') return 'Replies'
+  if (kind === 'relationship_recovery') return 'Recovery'
+  if (kind === 'blocked_suppressed') return 'Blocked'
+  return 'SMS parked'
+}
+
+function dailyActionFilterAriaLabel(kind: WarmOutreachDailyActionKind) {
+  if (kind === 'gmail_draft_review') return 'Show Gmail draft review actions'
+  if (kind === 'manual_social_handoff') return 'Show manual social handoff actions'
+  if (kind === 'reply_follow_up') return 'Show reply follow-up actions'
+  if (kind === 'relationship_recovery') return 'Show relationship recovery actions'
+  if (kind === 'blocked_suppressed') return 'Show blocked or suppressed actions'
+  return 'Show SMS parked actions'
+}
+
+function dailyActionFilterCount(
+  summary: WarmOutreachPlanningBacklog['dailyActions']['summary'],
+  kind: WarmOutreachDailyActionKind,
+) {
+  if (kind === 'gmail_draft_review') return summary.gmailDraftReviewCount
+  if (kind === 'manual_social_handoff') return summary.manualSocialHandoffCount
+  if (kind === 'reply_follow_up') return summary.replyFollowUpCount
+  if (kind === 'relationship_recovery') return summary.relationshipRecoveryCount
+  if (kind === 'blocked_suppressed') return summary.blockedSuppressedCount
+  return summary.smsParkedCount
+}
+
+function dailyActionFilterEmptyLabel(kind: WarmOutreachDailyActionKind) {
+  if (kind === 'gmail_draft_review') return 'No Gmail draft reviews today.'
+  if (kind === 'manual_social_handoff') return 'No manual handoffs today.'
+  if (kind === 'reply_follow_up') return 'No replies today.'
+  if (kind === 'relationship_recovery') return 'No recovery actions today.'
+  if (kind === 'blocked_suppressed') return 'No blocked actions today.'
+  return 'No SMS parked actions today.'
+}
+
+function dailyActionMatchesFilter(row: WarmOutreachDailyActionRow, kind: WarmOutreachDailyActionKind) {
+  if (kind === 'sms_parked') return row.smsParked
+  return row.kind === kind
 }
 
 function loopStatusClasses(status: WarmOutreachDailyLoopStatus) {
@@ -285,10 +339,17 @@ export default function WarmPlanningBacklogPanel({
   const [openedDailyActionKey, setOpenedDailyActionKey] = useState<string | null>(null)
   const [pendingDailyActionKey, setPendingDailyActionKey] = useState<string | null>(null)
   const [reviewLoopProgress, setReviewLoopProgress] = useState<WarmReviewLoopProgress | null>(null)
-  const visibleCandidates =
-    activeState === 'all'
-      ? backlog.candidates
-      : backlog.candidates.filter((candidate) => candidate.states.includes(activeState))
+  const [activeDailyActionFilter, setActiveDailyActionFilter] = useState<WarmOutreachDailyActionKind | 'all'>('all')
+  const filteredDailyActionRows =
+    activeDailyActionFilter === 'all'
+      ? backlog.dailyActions.rows
+      : backlog.dailyActions.rows.filter((row) => dailyActionMatchesFilter(row, activeDailyActionFilter))
+  const filteredDailyActionContactIds = new Set(filteredDailyActionRows.map((row) => row.contactId))
+  const visibleCandidates = backlog.candidates.filter((candidate) => {
+    const stateMatches = activeState === 'all' || candidate.states.includes(activeState)
+    const dailyActionMatches = activeDailyActionFilter === 'all' || filteredDailyActionContactIds.has(candidate.contactId)
+    return stateMatches && dailyActionMatches
+  })
   const totalCandidates = backlog.candidates.length
   const primaryDailyAction = backlog.dailyActions.currentSafestAction
   const primaryDailyCandidate = primaryDailyAction.key === 'open_daily_action'
@@ -299,7 +360,9 @@ export default function WarmPlanningBacklogPanel({
   const primaryActionEnabled = primaryDailyAction.key === 'open_daily_action'
     ? primaryDailyAction.enabled && Boolean(primaryDailyCandidate) && !primaryActionPending && !primaryActionOpened
     : backlog.currentCta.enabled && !primaryActionPending && !primaryActionOpened
-  const visibleDailyActions = backlog.dailyActions.rows.slice(0, 6)
+  const visibleDailyActions = filteredDailyActionRows.slice(0, 6)
+  const activeDailyActionFilterLabel =
+    activeDailyActionFilter === 'all' ? null : dailyActionFilterLabel(activeDailyActionFilter)
   const handlePrimaryAction = async () => {
     if (!primaryActionEnabled || loading) return
     setPendingDailyActionKey(primaryDailyAction.key)
@@ -531,27 +594,50 @@ export default function WarmPlanningBacklogPanel({
                     {backlog.dailyActions.campaignMilestoneTitle}
                   </p>
                 </div>
-                <div className="grid min-w-0 grid-cols-[repeat(2,minmax(0,1fr))] gap-1.5 text-[11px] leading-5 text-muted-foreground sm:grid-cols-[repeat(3,minmax(0,1fr))] xl:grid-cols-[repeat(2,minmax(0,1fr))]">
-                  <span className="inline-flex min-w-0 items-center justify-between gap-2 rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2.5 py-0.5 text-emerald-100">
-                    Gmail <b className="tabular-nums">{backlog.dailyActions.summary.gmailDraftReviewCount}</b>
-                  </span>
-                  <span className="inline-flex min-w-0 items-center justify-between gap-2 rounded-full border border-sky-500/25 bg-sky-500/10 px-2.5 py-0.5 text-sky-100">
-                    Manual <b className="tabular-nums">{backlog.dailyActions.summary.manualSocialHandoffCount}</b>
-                  </span>
-                  <span className="inline-flex min-w-0 items-center justify-between gap-2 rounded-full border border-violet-500/25 bg-violet-500/10 px-2.5 py-0.5 text-violet-100">
-                    Replies <b className="tabular-nums">{backlog.dailyActions.summary.replyFollowUpCount}</b>
-                  </span>
-                  <span className="inline-flex min-w-0 items-center justify-between gap-2 rounded-full border border-amber-500/25 bg-amber-500/10 px-2.5 py-0.5 text-amber-100">
-                    Recovery <b className="tabular-nums">{backlog.dailyActions.summary.relationshipRecoveryCount}</b>
-                  </span>
-                  <span className="inline-flex min-w-0 items-center justify-between gap-2 rounded-full border border-red-500/25 bg-red-500/10 px-2.5 py-0.5 text-red-100">
-                    Blocked <b className="tabular-nums">{backlog.dailyActions.summary.blockedSuppressedCount}</b>
-                  </span>
-                  <span className="inline-flex min-w-0 items-center justify-between gap-2 rounded-full border border-silicon-slate/80 bg-background/35 px-2.5 py-0.5">
-                    SMS parked <b className="tabular-nums">{backlog.dailyActions.summary.smsParkedCount}</b>
-                  </span>
+                <div
+                  className="grid min-w-0 grid-cols-[repeat(auto-fit,minmax(7.25rem,1fr))] gap-1.5 text-[11px] leading-5 text-muted-foreground"
+                  role="group"
+                  aria-label="Warm daily action filters"
+                >
+                  {DAILY_ACTION_FILTERS.map((kind) => {
+                    const active = activeDailyActionFilter === kind
+                    const count = dailyActionFilterCount(backlog.dailyActions.summary, kind)
+                    return (
+                      <button
+                        key={kind}
+                        type="button"
+                        onClick={() => setActiveDailyActionFilter(active ? 'all' : kind)}
+                        className={`inline-flex min-h-8 min-w-0 items-center justify-between gap-2 rounded-full border px-2.5 py-0.5 text-left font-medium leading-5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-radiant-gold/70 ${
+                          active
+                            ? 'border-radiant-gold bg-radiant-gold/15 text-radiant-gold shadow-[0_0_0_1px_rgba(247,213,107,0.25)]'
+                            : `${dailyActionClasses(kind)} hover:border-radiant-gold/50 hover:text-foreground`
+                        }`}
+                        aria-pressed={active}
+                        aria-label={`${dailyActionFilterAriaLabel(kind)} (${count})`}
+                      >
+                        <span className="min-w-0 whitespace-nowrap">{dailyActionFilterLabel(kind)}</span>
+                        {' '}
+                        <b className="shrink-0 tabular-nums">{count}</b>
+                      </button>
+                    )
+                  })}
                 </div>
               </div>
+              {activeDailyActionFilterLabel && (
+                <div className="mt-2 flex min-w-0 flex-wrap items-center gap-2 text-[11px] leading-5 text-muted-foreground">
+                  <span className="inline-flex min-h-7 min-w-0 max-w-full items-center rounded-md border border-radiant-gold/25 bg-radiant-gold/10 px-2 text-radiant-gold">
+                    <span className="truncate">Filtering actions: {activeDailyActionFilterLabel}</span>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setActiveDailyActionFilter('all')}
+                    className="inline-flex min-h-7 shrink-0 items-center rounded-md border border-silicon-slate/70 bg-background/45 px-2 font-medium text-muted-foreground transition-colors hover:border-radiant-gold/50 hover:text-foreground"
+                    aria-label="Clear daily action filter"
+                  >
+                    Clear
+                  </button>
+                </div>
+              )}
               <div className="mt-3 grid gap-2 xl:grid-cols-2">
                 {visibleDailyActions.map((action) => {
                   const candidate = backlog.candidates.find((row) => row.contactId === action.contactId)
@@ -679,10 +765,15 @@ export default function WarmPlanningBacklogPanel({
                     </article>
                   )
                 })}
+                {visibleDailyActions.length === 0 && activeDailyActionFilter !== 'all' && (
+                  <div className="rounded-md border border-silicon-slate/70 bg-background/35 p-3 text-sm text-muted-foreground">
+                    {dailyActionFilterEmptyLabel(activeDailyActionFilter)}
+                  </div>
+                )}
               </div>
-              {backlog.dailyActions.rows.length > visibleDailyActions.length && (
+              {filteredDailyActionRows.length > visibleDailyActions.length && (
                 <p className="mt-2 text-[11px] leading-5 text-muted-foreground">
-                  {backlog.dailyActions.rows.length - visibleDailyActions.length} more warm action{backlog.dailyActions.rows.length - visibleDailyActions.length === 1 ? '' : 's'} stay in the filtered candidate list below.
+                  {filteredDailyActionRows.length - visibleDailyActions.length} more warm action{filteredDailyActionRows.length - visibleDailyActions.length === 1 ? '' : 's'} stay in the filtered candidate list below.
                 </p>
               )}
             </div>
@@ -913,7 +1004,9 @@ export default function WarmPlanningBacklogPanel({
         })}
         {visibleCandidates.length === 0 && (
           <div className="rounded-md border border-silicon-slate/70 bg-background/35 p-3 text-sm text-muted-foreground">
-            No candidates match this planning state.
+            {activeDailyActionFilter === 'all'
+              ? 'No candidates match this planning state.'
+              : dailyActionFilterEmptyLabel(activeDailyActionFilter)}
           </div>
         )}
       </div>

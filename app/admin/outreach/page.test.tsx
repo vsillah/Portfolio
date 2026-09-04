@@ -964,6 +964,17 @@ describe('OutreachAdminPage deep links', () => {
     expect(within(planningBacklog).getByText("Today's actions")).toBeInTheDocument()
     expect(within(planningBacklog).getAllByText("Start today's Gmail review loop (1)").length).toBeGreaterThan(0)
     expect(within(planningBacklog).getAllByText(/campaign timing makes reviewed Gmail draft work/).length).toBeGreaterThan(0)
+    const dailyActionFilters = within(planningBacklog).getByRole('group', {
+      name: 'Warm daily action filters',
+    })
+    expect(within(dailyActionFilters).getByRole('button', { name: 'Show Gmail draft review actions (1)' })).toHaveTextContent('Gmail')
+    expect(within(dailyActionFilters).getByRole('button', { name: 'Show manual social handoff actions (0)' })).toHaveTextContent('Manual')
+    expect(within(dailyActionFilters).getByRole('button', { name: 'Show reply follow-up actions (0)' })).toHaveTextContent('Replies')
+    expect(within(dailyActionFilters).getByRole('button', { name: 'Show relationship recovery actions (0)' })).toHaveTextContent('Recovery')
+    expect(within(dailyActionFilters).getByRole('button', { name: 'Show blocked or suppressed actions (0)' })).toHaveTextContent('Blocked')
+    const smsParkedFilter = within(dailyActionFilters).getByRole('button', { name: 'Show SMS parked actions (0)' })
+    expect(smsParkedFilter).toHaveTextContent('SMS parked')
+    expect(smsParkedFilter).toHaveClass('min-w-0')
     expect(within(planningBacklog).getByText('Replies')).toBeInTheDocument()
     expect(within(planningBacklog).getByLabelText('Daily warm action for Ada Operator')).toBeInTheDocument()
     expect(within(planningBacklog).getByText('Ready to plan')).toBeInTheDocument()
@@ -1120,7 +1131,29 @@ describe('OutreachAdminPage deep links', () => {
 
     const planningBacklog = await screen.findByLabelText('Warm outreach planning backlog')
     const candidates = within(planningBacklog).getByLabelText('Warm planning candidates')
+    const actionFilters = within(planningBacklog).getByRole('group', {
+      name: 'Warm daily action filters',
+    })
+    expect(within(actionFilters).getByRole('button', { name: 'Show Gmail draft review actions (2)' })).toHaveTextContent('Gmail 2')
+    expect(within(actionFilters).getByRole('button', { name: 'Show manual social handoff actions (1)' })).toHaveTextContent('Manual 1')
+    expect(within(actionFilters).getByRole('button', { name: 'Show SMS parked actions (1)' })).toHaveTextContent('SMS parked 1')
+
     expect(within(candidates).getByText('Phone Operator')).toBeInTheDocument()
+    fireEvent.click(within(actionFilters).getByRole('button', { name: 'Show blocked or suppressed actions (0)' }))
+
+    expect(within(planningBacklog).getAllByText('No blocked actions today.').length).toBeGreaterThan(0)
+    expect(within(candidates).queryByText('Ada Operator')).not.toBeInTheDocument()
+    expect(within(actionFilters).getByRole('button', { name: 'Show Gmail draft review actions (2)' })).toHaveTextContent('Gmail 2')
+    fireEvent.click(within(planningBacklog).getByRole('button', { name: 'Clear daily action filter' }))
+
+    expect(within(candidates).getByText('Ada Operator')).toBeInTheDocument()
+    fireEvent.click(within(actionFilters).getByRole('button', { name: 'Show Gmail draft review actions (2)' }))
+
+    expect(within(candidates).getByText('Ada Operator')).toBeInTheDocument()
+    expect(within(candidates).getByText('Phone Operator')).toBeInTheDocument()
+    expect(within(candidates).queryByText('Manual Operator')).not.toBeInTheDocument()
+    fireEvent.click(within(actionFilters).getByRole('button', { name: 'Show Gmail draft review actions (2)' }))
+
     fireEvent.click(within(planningBacklog).getByRole('button', { name: /Show Ready for manual social candidates/ }))
 
     expect(within(candidates).queryByText('Ada Operator')).not.toBeInTheDocument()
@@ -1134,6 +1167,126 @@ describe('OutreachAdminPage deep links', () => {
     expect(within(candidates).queryByText('Ada Operator')).not.toBeInTheDocument()
     expect(within(candidates).getByText('Phone Operator')).toBeInTheDocument()
     expect(within(candidates).getAllByText('SMS parked').length).toBeGreaterThan(0)
+  })
+
+  it('filters daily action pills across Gmail, manual, replies, recovery, blocked, and SMS without shrinking counts', async () => {
+    window.history.replaceState({}, '', '/admin/outreach?tab=leads&filter=warm')
+    const gmailLead = {
+      ...lead,
+      id: 142,
+      name: 'Gmail Filter',
+      email: 'gmail-filter@example.com',
+      lead_score: 86,
+      messages_count: 1,
+    }
+    const manualLead = {
+      ...lead,
+      id: 143,
+      name: 'Manual Filter',
+      email: null,
+      lead_source: 'warm_linkedin',
+      lead_score: 84,
+      linkedin_url: 'https://linkedin.example/manual-filter',
+      messages_count: 0,
+      has_sales_conversation: true,
+    }
+    const replyLead = {
+      ...lead,
+      id: 144,
+      name: 'Reply Filter',
+      email: 'reply-filter@example.com',
+      has_reply: true,
+      outreach_status: 'replied',
+    }
+    const recoveryLead = {
+      ...lead,
+      id: 145,
+      name: 'Recovery Filter',
+      email: 'recovery-filter@example.com',
+      lead_score: 35,
+      messages_count: 0,
+      message: null,
+      quick_wins: null,
+      full_report: null,
+      rep_pain_points: null,
+      has_sales_conversation: false,
+    }
+    const blockedLead = {
+      ...lead,
+      id: 146,
+      name: 'Blocked Filter',
+      email: 'blocked-filter@example.com',
+      do_not_contact: true,
+      outreach_status: 'opted_out',
+    }
+    const smsLead = {
+      ...lead,
+      id: 147,
+      name: 'Sms Parked Filter',
+      email: null,
+      phone_number: '555-0147',
+      lead_score: 90,
+      do_not_contact: true,
+      outreach_status: 'opted_out',
+      has_sales_conversation: true,
+    }
+    vi.stubGlobal('fetch', vi.fn(async (url: string) => {
+      if (url.startsWith('/api/admin/outreach/leads')) {
+        return Response.json({ leads: [gmailLead, manualLead, replyLead, recoveryLead, blockedLead, smsLead], total: 6, page: 1 })
+      }
+      if (url.startsWith('/api/admin/value-evidence/workflow-status')) {
+        return Response.json({})
+      }
+      if (url.startsWith('/api/admin/chat-escalations')) {
+        return Response.json({ escalations: [], total: 0 })
+      }
+      if (url.startsWith('/api/admin/sales/contact-meetings')) {
+        return Response.json({ meetings: [] })
+      }
+      if (url.startsWith('/api/meeting-action-tasks')) {
+        return Response.json({ tasks: [] })
+      }
+      return Response.json({})
+    }))
+
+    render(<OutreachAdminPage />)
+
+    const planningBacklog = await screen.findByLabelText('Warm outreach planning backlog')
+    const actionFilters = within(planningBacklog).getByRole('group', {
+      name: 'Warm daily action filters',
+    })
+    const candidates = within(planningBacklog).getByLabelText('Warm planning candidates')
+    const dailyActions = within(planningBacklog).getByLabelText('Warm daily operating actions')
+
+    const expectFilteredAction = (
+      buttonName: string,
+      visibleName: string,
+      hiddenName = 'Gmail Filter',
+    ) => {
+      fireEvent.click(within(actionFilters).getByRole('button', { name: buttonName }))
+
+      expect(within(candidates).getByText(visibleName)).toBeInTheDocument()
+      expect(within(dailyActions).getByLabelText(`Daily warm action for ${visibleName}`)).toBeInTheDocument()
+      if (hiddenName !== visibleName) {
+        expect(within(candidates).queryByText(hiddenName)).not.toBeInTheDocument()
+        expect(within(dailyActions).queryByLabelText(`Daily warm action for ${hiddenName}`)).not.toBeInTheDocument()
+      }
+      expect(within(actionFilters).getByRole('button', { name: 'Show Gmail draft review actions (1)' })).toHaveTextContent('Gmail 1')
+      expect(within(actionFilters).getByRole('button', { name: 'Show manual social handoff actions (1)' })).toHaveTextContent('Manual 1')
+      expect(within(actionFilters).getByRole('button', { name: 'Show reply follow-up actions (1)' })).toHaveTextContent('Replies 1')
+      expect(within(actionFilters).getByRole('button', { name: 'Show relationship recovery actions (1)' })).toHaveTextContent('Recovery 1')
+      expect(within(actionFilters).getByRole('button', { name: 'Show blocked or suppressed actions (2)' })).toHaveTextContent('Blocked 2')
+      expect(within(actionFilters).getByRole('button', { name: 'Show SMS parked actions (1)' })).toHaveTextContent('SMS parked 1')
+
+      fireEvent.click(within(planningBacklog).getByRole('button', { name: 'Clear daily action filter' }))
+    }
+
+    expectFilteredAction('Show Gmail draft review actions (1)', 'Gmail Filter', 'Manual Filter')
+    expectFilteredAction('Show manual social handoff actions (1)', 'Manual Filter')
+    expectFilteredAction('Show reply follow-up actions (1)', 'Reply Filter')
+    expectFilteredAction('Show relationship recovery actions (1)', 'Recovery Filter')
+    expectFilteredAction('Show blocked or suppressed actions (2)', 'Blocked Filter')
+    expectFilteredAction('Show SMS parked actions (1)', 'Sms Parked Filter')
   })
 
   it('prepares a review-only warm planning backlog batch without external requests or create actions', async () => {
