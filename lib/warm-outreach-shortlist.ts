@@ -194,6 +194,27 @@ export type WarmOutreachPlanningBacklog = {
     contactIds: number[]
     state: WarmOutreachPlanningBacklogState | null
   }
+  executionLoop: {
+    version: 'warm-outreach-office-execution-loop/v1'
+    officeWindowLabel: string
+    focusLabel: string
+    campaignPhaseLabel: string
+    campaignMilestoneTitle: string
+    primaryActionLabel: string
+    primaryActionReason: string
+    gmailReadyCount: number
+    manualSocialReadyCount: number
+    responseRecoveryCount: number
+    blockerRecoveryCount: number
+    smsParkedCount: number
+    steps: Array<{
+      key: 'plan_review_batch' | 'work_existing_workroom' | 'record_local_result'
+      label: string
+      detail: string
+      count: number
+      state: 'active' | 'next' | 'parked'
+    }>
+  }
   candidates: WarmOutreachPlanningBacklogCandidate[]
   executionBoundary: {
     localPortfolioPlanOnly: true
@@ -763,7 +784,9 @@ function planningBacklogCandidateFor(
     blockers,
     batchEligible,
     nextActionLabel: batchEligible
-      ? 'Plan review batch'
+      ? primaryState === 'ready_manual_social'
+        ? 'Plan manual handoff'
+        : 'Plan Gmail review'
       : states.has('suppressed_blocked')
         ? 'Review suppression state'
         : responseStatus !== 'no_response'
@@ -814,6 +837,27 @@ function buildPlanningBacklog(args: {
     .filter((candidate) => candidate.batchEligible)
     .slice(0, 8)
     .map((candidate) => candidate.contactId) ?? []
+  const executionReadyCount = readyGmail.length + readyManual.length
+  const executionPrimaryLabel =
+    readyGmail.length > 0
+      ? `Start Gmail review loop (${Math.min(readyGmail.length, 8)})`
+      : readyManual.length > 0
+        ? `Start manual-social loop (${Math.min(readyManual.length, 8)})`
+        : waiting.length > 0
+          ? 'Review response recovery'
+          : blockers.length > 0
+            ? 'Review blocker recovery'
+            : 'No office loop action'
+  const executionPrimaryReason =
+    readyGmail.length > 0
+      ? `${campaignAlignment.currentPhaseLabel} campaign readiness favors Gmail draft review first; manual-social handoffs stay next in the same workroom.`
+      : readyManual.length > 0
+        ? `${campaignAlignment.currentPhaseLabel} campaign readiness favors manual social handoff review before any provider action.`
+        : waiting.length > 0
+          ? 'Waiting responses need per-contact recovery before a new outreach batch.'
+          : blockers.length > 0
+            ? 'Relationship or suppression blockers need operator review before the campaign touchpoint is ready.'
+            : 'No warm contacts are visible in this office window.'
 
   return {
     version: 'warm-outreach-planning-backlog/v1',
@@ -828,9 +872,9 @@ function buildPlanningBacklog(args: {
     currentCta: selected && batchContactIds.length > 0
       ? {
           key: 'prepare_planning_review_batch',
-          label: `Plan review batch (${batchContactIds.length})`,
+          label: executionPrimaryLabel,
           enabled: true,
-          reason: `Internal review plan for ${PLANNING_BACKLOG_FILTER_LABELS[selected.state].toLowerCase()} contacts; no drafts or sends are created.`,
+          reason: executionPrimaryReason,
           contactIds: batchContactIds,
           state: selected.state,
         }
@@ -860,6 +904,53 @@ function buildPlanningBacklog(args: {
               contactIds: [],
               state: null,
             },
+    executionLoop: {
+      version: 'warm-outreach-office-execution-loop/v1',
+      officeWindowLabel: `Next office window: ${displayDateLabel(args.generatedFor)}`,
+      focusLabel: executionReadyCount > 0
+        ? `${executionReadyCount} ready contact${executionReadyCount === 1 ? '' : 's'}`
+        : waiting.length > 0
+          ? `${waiting.length} response recover${waiting.length === 1 ? 'y' : 'ies'}`
+          : blockers.length > 0
+            ? `${blockers.length} blocker review${blockers.length === 1 ? '' : 's'}`
+            : 'No visible warm action',
+      campaignPhaseLabel: campaignAlignment.currentPhaseLabel,
+      campaignMilestoneTitle: campaignAlignment.currentMilestoneTitle,
+      primaryActionLabel: executionPrimaryLabel,
+      primaryActionReason: executionPrimaryReason,
+      gmailReadyCount: readyGmail.length,
+      manualSocialReadyCount: readyManual.length,
+      responseRecoveryCount: waiting.length,
+      blockerRecoveryCount: blockers.length,
+      smsParkedCount: counts.sms_parked,
+      steps: [
+        {
+          key: 'plan_review_batch',
+          label: readyGmail.length > 0 ? 'Plan Gmail review' : readyManual.length > 0 ? 'Plan social handoff' : 'Open recovery',
+          detail: readyGmail.length > 0
+            ? 'Create a review plan for ready Gmail candidates without creating Gmail drafts.'
+            : readyManual.length > 0
+              ? 'Create a review plan for manual LinkedIn, Facebook, or phone handoffs.'
+              : 'Open the contact state that blocks the next campaign touchpoint.',
+          count: batchContactIds.length,
+          state: batchContactIds.length > 0 ? 'active' : 'next',
+        },
+        {
+          key: 'work_existing_workroom',
+          label: 'Work the Lead Pipeline',
+          detail: 'Use the selected outreach workroom for relationship context, draft review, handoff notes, and recovery.',
+          count: executionReadyCount + waiting.length + blockers.length,
+          state: executionReadyCount > 0 ? 'next' : 'active',
+        },
+        {
+          key: 'record_local_result',
+          label: 'Record local result',
+          detail: 'Keep Gmail send, Slack dispatch, social publishing, n8n, and SMS delivery outside this loop.',
+          count: counts.sms_parked,
+          state: counts.sms_parked > 0 ? 'parked' : 'next',
+        },
+      ],
+    },
     candidates,
     executionBoundary: {
       localPortfolioPlanOnly: true,
