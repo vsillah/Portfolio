@@ -1,8 +1,11 @@
 import { isWarmLeadSource } from './constants/lead-source'
 import {
   CAMPAIGN_PHASE_LABELS,
+  CALENDAR_CHANNEL_LABELS,
+  SOCIAL_CONTENT_CALENDAR_SOURCE_LABELS,
   SOCIAL_CONTENT_CALENDAR_TEMPLATES,
   type SocialContentCampaignPhase,
+  type SocialContentCalendarTemplateMilestone,
 } from './social-content-calendar'
 
 export type WarmOutreachShortlistBlockerKey =
@@ -172,7 +175,12 @@ export type WarmOutreachPlanningBacklogCandidate = {
   reviewLoopAction: WarmOutreachReviewLoopAction
   campaignAlignment: {
     phase: SocialContentCampaignPhase
+    phaseLabel: string
     theme: string
+    calendarSignal: string
+    sourceLabel: string
+    contentProofPoint: string
+    safeNextAction: string
     plannedWindowLabel: string
     whyNext: string
   }
@@ -219,6 +227,8 @@ export type WarmOutreachDailyActionRow = {
   stateLabel: string
   channelLabel: string
   campaignSignal: string
+  sourceSignal: string
+  contentProofPoint: string
   reason: string
   afterAction: string
   ctaLabel: string
@@ -280,6 +290,11 @@ export type WarmOutreachPlanningBacklog = {
     campaignTheme: string
     currentPhase: SocialContentCampaignPhase
     currentPhaseLabel: string
+    currentMilestoneKey: string
+    currentCalendarChannelLabel: string
+    currentSourceLabel: string
+    currentProofPoint: string
+    currentApprovalGateLabel: string
     plannedWindowLabel: string
     currentMilestoneTitle: string
     nextMilestoneTitle: string | null
@@ -373,6 +388,29 @@ const WARM_OUTREACH_CAMPAIGN_TEMPLATE_KEY = 'whisper_to_shout' as const
 const WARM_OUTREACH_CAMPAIGN_TEMPLATE =
   SOCIAL_CONTENT_CALENDAR_TEMPLATES[WARM_OUTREACH_CAMPAIGN_TEMPLATE_KEY]
 
+const CAMPAIGN_ASSET_LABELS: Record<string, string> = {
+  triggering_event: 'triggering event',
+  campaign_problem: 'campaign problem',
+  audience: 'audience fit',
+  framework: 'teaching frame',
+  claim_boundaries: 'claim boundary',
+  proof_asset: 'proof asset',
+  privacy_review: 'privacy review',
+  offer: 'offer',
+  cta_url: 'CTA path',
+  publishing_gate: 'publishing gate',
+  approved_copy: 'approved copy',
+  manual_handoff_gate: 'manual handoff gate',
+}
+
+const CAMPAIGN_GATE_LABELS: Record<string, string> = {
+  copy_review: 'copy review',
+  source_review: 'source review',
+  privacy_review: 'privacy review',
+  authorization_gate: 'authorization gate',
+  manual_platform_handoff: 'manual platform handoff',
+}
+
 function displayDateLabel(value: string): string {
   const [year, month, day] = value.split('-').map(Number)
   if (!year || !month || !day) return value
@@ -408,9 +446,40 @@ function campaignMilestoneFor(generatedFor: string) {
   }
 }
 
+function compactList(values: string[], fallback: string, max = 2): string {
+  const labels = values.filter(Boolean)
+  if (labels.length === 0) return fallback
+  const shown = labels.slice(0, max)
+  return labels.length > max ? `${shown.join(' + ')} +${labels.length - max}` : shown.join(' + ')
+}
+
+function milestoneSourceLabel(milestone: SocialContentCalendarTemplateMilestone): string {
+  return compactList(
+    milestone.source_urls.map((url) => SOCIAL_CONTENT_CALENDAR_SOURCE_LABELS[url] ?? url),
+    'Calendar template source',
+  )
+}
+
+function milestoneProofPoint(milestone: SocialContentCalendarTemplateMilestone): string {
+  return compactList(
+    milestone.required_assets.map((asset) => CAMPAIGN_ASSET_LABELS[asset] ?? asset.replace(/_/g, ' ')),
+    'Campaign proof point',
+    3,
+  )
+}
+
+function milestoneApprovalGateLabel(milestone: SocialContentCalendarTemplateMilestone): string {
+  return compactList(
+    milestone.approval_gates.map((gate) => CAMPAIGN_GATE_LABELS[gate] ?? gate.replace(/_/g, ' ')),
+    'review gate',
+  )
+}
+
 function buildCampaignAlignment(generatedFor: string): WarmOutreachPlanningBacklog['campaignAlignment'] {
   const { current, next } = campaignMilestoneFor(generatedFor)
   const weekEnd = addDaysLabel(generatedFor, 6)
+  const proofPoint = milestoneProofPoint(current)
+  const sourceLabel = milestoneSourceLabel(current)
 
   return {
     source: 'social_content_calendar_template',
@@ -418,13 +487,18 @@ function buildCampaignAlignment(generatedFor: string): WarmOutreachPlanningBackl
     campaignTheme: WARM_OUTREACH_CAMPAIGN_TEMPLATE.label,
     currentPhase: current.campaign_phase,
     currentPhaseLabel: CAMPAIGN_PHASE_LABELS[current.campaign_phase],
+    currentMilestoneKey: current.key,
+    currentCalendarChannelLabel: CALENDAR_CHANNEL_LABELS[current.channel],
+    currentSourceLabel: sourceLabel,
+    currentProofPoint: proofPoint,
+    currentApprovalGateLabel: milestoneApprovalGateLabel(current),
     plannedWindowLabel: `${displayDateLabel(generatedFor)}-${displayDateLabel(weekEnd)}`,
     currentMilestoneTitle: current.planned_angle,
     nextMilestoneTitle: next?.planned_angle ?? null,
     whyThisBacklogIsNext:
-      'The backlog turns the current campaign phase into relationship-specific Gmail draft candidates and manual social handoffs.',
+      `The backlog turns the ${CAMPAIGN_PHASE_LABELS[current.campaign_phase]} campaign signal into relationship-specific Gmail draft candidates and manual social handoffs.`,
     drillIn:
-      `${WARM_OUTREACH_CAMPAIGN_TEMPLATE.description} Source: existing social content calendar template; outreach actions stay local and review-gated.`,
+      `${WARM_OUTREACH_CAMPAIGN_TEMPLATE.description} Source: ${sourceLabel}. Proof point: ${proofPoint}. Outreach actions stay local and review-gated.`,
   }
 }
 
@@ -448,6 +522,36 @@ function whyThisCandidateIsNext(
     return 'Suppression or missing contact state must be resolved before outreach.'
   }
   return 'Relationship context needs review before this campaign angle becomes actionable.'
+}
+
+function candidateContentProofPoint(lead: WarmOutreachShortlistLead, campaignAlignment: WarmOutreachPlanningBacklog['campaignAlignment']): string {
+  const relationshipSignal =
+    lead.evidence_count > 0
+      ? `${lead.evidence_count} relationship evidence signal${lead.evidence_count === 1 ? '' : 's'}`
+      : lead.has_sales_conversation
+        ? 'sales or meeting context'
+        : hasRelationshipText(lead)
+          ? 'Portfolio notes'
+          : sourceLabel(lead.lead_source)
+  return `${campaignAlignment.currentProofPoint}; ${relationshipSignal}`
+}
+
+function candidateSafeNextAction(
+  reviewLoopAction: WarmOutreachReviewLoopAction,
+  primaryState: WarmOutreachPlanningBacklogState,
+): string {
+  if (!reviewLoopAction.enabled || primaryState === 'sms_parked') {
+    return 'Park until the separate approval gate clears'
+  }
+  if (reviewLoopAction.key === 'start_gmail_review_batch' || reviewLoopAction.key === 'open_gmail_draft_review') {
+    return 'Review Gmail draft plan only'
+  }
+  if (reviewLoopAction.key === 'start_manual_social_batch' || reviewLoopAction.key === 'open_manual_social_handoff') {
+    return 'Review manual handoff only'
+  }
+  if (reviewLoopAction.key === 'open_response_review') return 'Review response state'
+  if (reviewLoopAction.key === 'resolve_blocker') return 'Inspect blocker'
+  return 'Review relationship basis'
 }
 
 function text(value: string | null | undefined): string | null {
@@ -817,6 +921,8 @@ function buildDailyActions(args: {
         stateLabel: labels.stateLabel,
         channelLabel: labels.channelLabel,
         campaignSignal: `${args.campaignAlignment.currentPhaseLabel}: ${args.campaignAlignment.currentMilestoneTitle}`,
+        sourceSignal: candidate.campaignAlignment.sourceLabel,
+        contentProofPoint: candidate.campaignAlignment.contentProofPoint,
         reason: candidate.campaignAlignment.whyNext,
         afterAction: labels.afterAction,
         ctaLabel: candidate.reviewLoopAction.label,
@@ -1231,7 +1337,12 @@ function planningBacklogCandidateFor(
     reviewLoopAction,
     campaignAlignment: {
       phase: campaignAlignment.currentPhase,
+      phaseLabel: campaignAlignment.currentPhaseLabel,
       theme: campaignAlignment.currentMilestoneTitle,
+      calendarSignal: `${campaignAlignment.currentPhaseLabel} ${campaignAlignment.currentCalendarChannelLabel}: ${campaignAlignment.currentMilestoneTitle}`,
+      sourceLabel: campaignAlignment.currentSourceLabel,
+      contentProofPoint: candidateContentProofPoint(lead, campaignAlignment),
+      safeNextAction: candidateSafeNextAction(reviewLoopAction, primaryState),
       plannedWindowLabel: campaignAlignment.plannedWindowLabel,
       whyNext: whyThisCandidateIsNext(primaryState, campaignAlignment.currentPhaseLabel),
     },
