@@ -942,11 +942,13 @@ describe('OutreachAdminPage deep links', () => {
     expect(screen.getByRole('button', { name: /Workroom open/i })).toBeInTheDocument()
   })
 
-  it('shows a compact daily warm shortlist on the warm outreach route', async () => {
-    window.history.replaceState({}, '', '/admin/outreach?tab=leads&filter=warm')
+  it('shows a compact warm planning backlog on the planning view route', async () => {
+    window.history.replaceState({}, '', '/admin/outreach?tab=leads&filter=warm&view=planning')
 
     render(<OutreachAdminPage />)
 
+    expect(screen.getByRole('button', { name: 'Lead list' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Show warm planning backlog view' })).toHaveTextContent('Planning')
     const planningBacklog = await screen.findByLabelText('Warm outreach planning backlog')
     expect(within(planningBacklog).getByText('Warm planning backlog')).toBeInTheDocument()
     expect(within(planningBacklog).getByText(/Warm outreach backlog for/)).toHaveClass('leading-5')
@@ -1016,32 +1018,34 @@ describe('OutreachAdminPage deep links', () => {
     expect(within(planningBacklog).getAllByText('Cadence:').length).toBeGreaterThan(0)
     expect(within(planningBacklog).getAllByText('Gate:').length).toBeGreaterThan(0)
     expect(within(planningBacklog).getAllByText('Safe next:').length).toBeGreaterThan(0)
+  })
 
-    fireEvent.click(screen.getByText('Warm response recovery'))
-    const digest = await screen.findByLabelText('Warm response digest')
-    expect(within(digest).getByText('Warm response digest')).toBeInTheDocument()
-    expect(within(digest).getByText('Drafted')).toBeInTheDocument()
-    expect(within(digest).getByText('Approved')).toBeInTheDocument()
-    expect(within(digest).getByText('Sent')).toBeInTheDocument()
-    expect(within(digest).getByText('Replied')).toBeInTheDocument()
-    expect(within(digest).getByText('Blocked')).toBeInTheDocument()
-    expect(within(digest).getByText('Needs Vambah')).toBeInTheDocument()
-    expect(within(digest).getByText('external requests 0')).toBeInTheDocument()
-    expect(within(digest).getByText(/Provider monitoring, Gmail\/SMS sends, Slack dispatch/)).toBeInTheDocument()
-    expect(within(digest).getByRole('button', { name: 'Warm digest current action: Generate draft for Ada Operator' })).toBeInTheDocument()
+  it('keeps the warm lead filter as the normal lead list by default', async () => {
+    window.history.replaceState({}, '', '/admin/outreach?tab=leads&filter=warm')
 
-    fireEvent.click(screen.getByText('Daily warm shortlist'))
-    const shortlist = await screen.findByLabelText('Daily warm outreach shortlist')
-    expect(within(shortlist).getByText('Shortlist detail')).toBeInTheDocument()
-    expect(within(shortlist).getByText('Referral')).toBeInTheDocument()
-    expect(within(shortlist).getByText('Gmail gated')).toBeInTheDocument()
-    expect(within(shortlist).getByText('Phone missing')).toBeInTheDocument()
-    expect(within(shortlist).getByText('Prepare an approval-gated draft')).toBeInTheDocument()
-    expect(within(shortlist).getByRole('button', { name: 'Generate draft for Ada Operator' })).toBeInTheDocument()
+    render(<OutreachAdminPage />)
+
+    expect(await screen.findByText('Ada Operator')).toBeInTheDocument()
+    expect(screen.queryByLabelText('Warm outreach planning backlog')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Show warm planning backlog view' })).toBeInTheDocument()
+  })
+
+  it('lands legacy warm planning QA links on the planning view', async () => {
+    window.history.replaceState(
+      {},
+      '',
+      '/admin/outreach?tab=leads&filter=warm&qa=warm-planning-backlog#warm-planning-backlog',
+    )
+
+    render(<OutreachAdminPage />)
+
+    const summary = await screen.findByLabelText('Outreach workroom mobile workflow summary')
+    expect(within(summary).getByText('Warm planning backlog')).toBeInTheDocument()
+    expect(await screen.findByLabelText('Warm outreach planning backlog')).toBeInTheDocument()
   })
 
   it('marks submitted warm daily actions as recorded and non-repeatable', async () => {
-    window.history.replaceState({}, '', '/admin/outreach?tab=leads&filter=warm')
+    window.history.replaceState({}, '', '/admin/outreach?tab=leads&filter=warm&view=planning')
     const sentLead = {
       ...lead,
       id: 45,
@@ -1087,7 +1091,7 @@ describe('OutreachAdminPage deep links', () => {
   })
 
   it('filters the warm planning backlog from summary counts and keeps SMS parked separate', async () => {
-    window.history.replaceState({}, '', '/admin/outreach?tab=leads&filter=warm')
+    window.history.replaceState({}, '', '/admin/outreach?tab=leads&filter=warm&view=planning')
     const phoneLead = {
       ...lead,
       id: 43,
@@ -1170,7 +1174,7 @@ describe('OutreachAdminPage deep links', () => {
   })
 
   it('filters daily action pills across Gmail, manual, replies, recovery, blocked, and SMS without shrinking counts', async () => {
-    window.history.replaceState({}, '', '/admin/outreach?tab=leads&filter=warm')
+    window.history.replaceState({}, '', '/admin/outreach?tab=leads&filter=warm&view=planning')
     const gmailLead = {
       ...lead,
       id: 142,
@@ -1290,7 +1294,7 @@ describe('OutreachAdminPage deep links', () => {
   })
 
   it('prepares a review-only warm planning backlog batch without external requests or create actions', async () => {
-    window.history.replaceState({}, '', '/admin/outreach?tab=leads&filter=warm')
+    window.history.replaceState({}, '', '/admin/outreach?tab=leads&filter=warm&view=planning')
     const fetchMock = vi.mocked(fetch)
 
     render(<OutreachAdminPage />)
@@ -1341,11 +1345,11 @@ describe('OutreachAdminPage deep links', () => {
     })
     expect(body.action).toBeUndefined()
     expect(fetchMock.mock.calls.some(([url]) => /telnyx\.com|slack\.com|gmail\.com|googleapis\.com|n8n/i.test(String(url)))).toBe(false)
-    expect(screen.getByText('1 lead(s) selected')).toBeInTheDocument()
+    expect(within(batchReview).getByText('Warm draft execution planning')).toBeInTheDocument()
   })
 
   it('marks the primary warm Gmail review loop as selected and non-repeatable', async () => {
-    window.history.replaceState({}, '', '/admin/outreach?tab=leads&filter=warm')
+    window.history.replaceState({}, '', '/admin/outreach?tab=leads&filter=warm&view=planning')
     const fetchMock = vi.mocked(fetch)
 
     render(<OutreachAdminPage />)
@@ -1377,20 +1381,16 @@ describe('OutreachAdminPage deep links', () => {
     expect(fetchMock.mock.calls.some(([url]) => /telnyx\.com|slack\.com|gmail\.com|googleapis\.com|n8n/i.test(String(url)))).toBe(false)
   })
 
-  it('routes shortlist CTAs into the existing workroom without provider calls', async () => {
-    window.history.replaceState({}, '', '/admin/outreach?tab=leads&filter=warm')
+  it('routes planning candidate CTAs into the existing workroom without provider calls', async () => {
+    window.history.replaceState({}, '', '/admin/outreach?tab=leads&filter=warm&view=planning')
     const fetchMock = vi.mocked(fetch)
 
     render(<OutreachAdminPage />)
 
-    fireEvent.click(await screen.findByText('Warm response recovery'))
-    const digest = await screen.findByLabelText('Warm response digest')
-    fireEvent.click(within(digest).getByRole('button', { name: 'Warm digest current action: Generate draft for Ada Operator' }))
-    expect(await screen.findByLabelText('Outreach workroom for Ada Operator')).toBeInTheDocument()
-
-    fireEvent.click(screen.getByText('Daily warm shortlist'))
-    const shortlist = await screen.findByLabelText('Daily warm outreach shortlist')
-    fireEvent.click(within(shortlist).getByRole('button', { name: 'Generate draft for Ada Operator' }))
+    const planningBacklog = await screen.findByLabelText('Warm outreach planning backlog')
+    fireEvent.click(within(planningBacklog).getByRole('button', {
+      name: /Open candidate review: .* for Ada Operator/,
+    }))
 
     const workroom = await screen.findByLabelText('Outreach workroom for Ada Operator')
     expect(within(workroom).getByText('Selected outreach workroom')).toBeInTheDocument()
@@ -1401,8 +1401,8 @@ describe('OutreachAdminPage deep links', () => {
     expect(fetchMock.mock.calls.some(([url]) => /telnyx\.com|slack\.com|gmail\.com|googleapis\.com|n8n/i.test(String(url)))).toBe(false)
   })
 
-  it('shows explicit shortlist blockers and one resolve CTA for blocked warm contacts', async () => {
-    window.history.replaceState({}, '', '/admin/outreach?tab=leads&filter=warm')
+  it('shows explicit planning blockers and one resolve CTA for blocked warm contacts', async () => {
+    window.history.replaceState({}, '', '/admin/outreach?tab=leads&filter=warm&view=planning')
     const blockedLead = {
       ...lead,
       email: null,
@@ -1439,13 +1439,13 @@ describe('OutreachAdminPage deep links', () => {
 
     render(<OutreachAdminPage />)
 
-    const shortlist = await screen.findByLabelText('Daily warm outreach shortlist')
-    const blockers = within(shortlist).getByLabelText('Ada Operator shortlist blockers')
-    expect(within(blockers).getByText('Suppression risk')).toBeInTheDocument()
-    expect(within(blockers).getByText('Missing email')).toBeInTheDocument()
-    expect(within(blockers).getByText('Weak relationship basis')).toBeInTheDocument()
-    expect(within(blockers).getByText('SMS unavailable')).toBeInTheDocument()
-    expect(within(shortlist).getByRole('button', { name: 'Resolve blocker for Ada Operator' })).toBeInTheDocument()
+    const planningBacklog = await screen.findByLabelText('Warm outreach planning backlog')
+    const candidates = within(planningBacklog).getByLabelText('Warm planning candidates')
+    expect(within(candidates).getByText('Suppression risk')).toBeInTheDocument()
+    expect(within(candidates).getByText('SMS parked')).toBeInTheDocument()
+    expect(within(planningBacklog).getByRole('button', {
+      name: /Open candidate review: .* for Ada Operator/,
+    })).toBeInTheDocument()
   })
 
   it('keeps the selected workroom read-only when a lead is do not contact', async () => {
@@ -1659,7 +1659,7 @@ describe('OutreachAdminPage deep links', () => {
   })
 
   it('surfaces created internal draft and manual handoff records as compact row and workroom actions', async () => {
-    window.history.replaceState({}, '', '/admin/outreach?tab=leads&filter=warm')
+    window.history.replaceState({}, '', '/admin/outreach?tab=leads&filter=warm&view=planning')
     const gmailLead = {
       ...lead,
       next_internal_action: {

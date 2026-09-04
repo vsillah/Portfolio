@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { isWarmLeadSource } from '@/lib/constants/lead-source'
 import {
   Mail,
+  CalendarDays,
   Linkedin,
   CheckCircle,
   ClipboardCheck,
@@ -180,6 +181,12 @@ function selectedLeadIdFromParams(searchParams: { get(name: string): string | nu
 }
 
 type TabType = 'leads' | 'escalations'
+type LeadViewType = 'list' | 'planning'
+
+function isWarmPlanningBacklogRoute(searchParams: { get(name: string): string | null } | null) {
+  const view = searchParams?.get('view')
+  return view === 'planning' || view === 'warm-planning-backlog' || searchParams?.get('qa') === 'warm-planning-backlog'
+}
 
 function initialLeadStatusFilter(searchParams: { get(name: string): string | null } | null) {
   const status = searchParams?.get('status') || 'all'
@@ -279,8 +286,12 @@ function OutreachContent() {
   const [leadsLoading, setLeadsLoading] = useState(false)
   const [leadsTotal, setLeadsTotal] = useState(0)
   const [leadsTempFilter, setLeadsTempFilter] = useState<'all' | 'warm' | 'cold'>(() => {
+    if (isWarmPlanningBacklogRoute(searchParams)) return 'warm'
     const filter = searchParams?.get('filter')
     return (filter === 'warm' || filter === 'cold') ? filter : 'all'
+  })
+  const [leadView, setLeadView] = useState<LeadViewType>(() => {
+    return isWarmPlanningBacklogRoute(searchParams) ? 'planning' : 'list'
   })
   const [leadsStatusFilter, setLeadsStatusFilter] = useState<string>(() => {
     return initialLeadStatusFilter(searchParams)
@@ -1160,8 +1171,28 @@ function OutreachContent() {
   // Handle tab changes with URL updates
   const handleTabChange = (tab: TabType) => {
     setActiveTab(tab)
+    if (tab !== 'leads') setLeadView('list')
     const params = new URLSearchParams(searchParams?.toString() || '')
     params.set('tab', tab)
+    if (tab !== 'leads') params.delete('view')
+    router.push(`/admin/outreach?${params.toString()}`)
+  }
+
+  const handleLeadViewChange = (view: LeadViewType) => {
+    setActiveTab('leads')
+    setLeadView(view)
+    setLeadRowMenuOpenId(null)
+    const params = new URLSearchParams(searchParams?.toString() || '')
+    params.set('tab', 'leads')
+    if (view === 'planning') {
+      params.set('view', 'planning')
+      params.set('filter', 'warm')
+      setLeadsTempFilter('warm')
+      setLeadsPage(1)
+    } else {
+      params.delete('view')
+      if (params.get('qa') === 'warm-planning-backlog') params.delete('qa')
+    }
     router.push(`/admin/outreach?${params.toString()}`)
   }
 
@@ -1358,7 +1389,7 @@ function OutreachContent() {
   const warmOfficeDigest = warmOutreachShortlist.officeDigest
   const warmPlanningBacklog = warmOutreachShortlist.planningBacklog
   const showWarmOutreachShortlist =
-    activeTab === 'leads' && leadsTempFilter === 'warm' && warmOutreachShortlist.items.length > 0
+    activeTab === 'leads' && leadView === 'planning' && warmOutreachShortlist.items.length > 0
   const prepareWarmPlanningBatch = useCallback(async () => {
     const contactIds = warmPlanningBacklog.currentCta.contactIds
     if (contactIds.length === 0) return
@@ -1409,8 +1440,11 @@ function OutreachContent() {
       const params = new URLSearchParams(searchParams?.toString() || '')
       params.set('tab', 'leads')
       params.set('filter', 'warm')
+      params.delete('view')
+      if (params.get('qa') === 'warm-planning-backlog') params.delete('qa')
       params.set('id', String(item.contactId))
       params.set('contactId', String(item.contactId))
+      setLeadView('list')
       const hash = item.cta.key === 'handle_response' ? '#warm-response-lifecycle' : ''
       router.replace(`/admin/outreach?${params.toString()}${hash}`, { scroll: false })
     },
@@ -1424,9 +1458,12 @@ function OutreachContent() {
       const params = new URLSearchParams(searchParams?.toString() || '')
       params.set('tab', 'leads')
       params.set('filter', 'warm')
+      params.delete('view')
+      if (params.get('qa') === 'warm-planning-backlog') params.delete('qa')
       params.set('id', String(candidate.contactId))
       params.set('contactId', String(candidate.contactId))
       params.delete('draftReview')
+      setLeadView('list')
       if (
         candidate.reviewLoopAction.key === 'open_gmail_draft_review' &&
         candidate.reviewLoopAction.recordTable === 'outreach_queue' &&
@@ -1457,8 +1494,10 @@ function OutreachContent() {
       const params = new URLSearchParams(searchParams?.toString() || '')
       params.set('tab', 'leads')
       params.set('filter', 'warm')
+      params.delete('view')
       params.set('id', String(lead.id))
       params.set('contactId', String(lead.id))
+      setLeadView('list')
       if (action.kind === 'gmail_draft_record') {
         params.set('draftReview', action.record_id)
       } else {
@@ -1488,8 +1527,11 @@ function OutreachContent() {
     const params = new URLSearchParams(searchParams?.toString() || '')
     params.set('tab', 'leads')
     params.set('filter', 'warm')
+    params.delete('view')
+    if (params.get('qa') === 'warm-planning-backlog') params.delete('qa')
     params.set('id', String(contactId))
     params.set('contactId', String(contactId))
+    setLeadView('list')
     const hash = warmOfficeDigest.currentCta.key === 'handle_response' ? '#warm-response-lifecycle' : ''
     router.replace(`/admin/outreach?${params.toString()}${hash}`, { scroll: false })
   }, [openWarmShortlistItem, router, searchParams, warmOfficeDigest, warmOutreachShortlist.items])
@@ -1502,6 +1544,8 @@ function OutreachContent() {
     ? `${isWarmLeadSource(outreachWorkroomLead.lead_source) ? 'Warm' : 'Cold'} 1:1`
     : activeTab === 'escalations'
       ? 'Warm 1:1 review'
+      : leadView === 'planning'
+        ? 'Warm planning backlog'
       : `${leadsTempFilter === 'all' ? 'Cold/warm' : leadsTempFilter === 'warm' ? 'Warm' : 'Cold'} lead review`
   const outreachNextAction = outreachWorkroomLead
     ? outreachWorkroomLead.do_not_contact || outreachWorkroomLead.removed_at
@@ -1509,6 +1553,8 @@ function OutreachContent() {
       : outreachWorkroomLead.next_internal_action
         ? outreachWorkroomLead.next_internal_action.label
       : 'Review evidence, recent drafts, meetings, and contact status before preparing internal outreach.'
+    : leadView === 'planning'
+      ? warmPlanningBacklog.dailyActions.currentSafestAction.label
     : selectedLeadIds.size
       ? `Review or enrich ${selectedLeadIds.size} selected lead(s).`
       : 'Select a lead to inspect the canonical outreach workroom.'
@@ -1524,6 +1570,23 @@ function OutreachContent() {
   const activeWarmGmailDraftReviewSelected =
     Boolean(activeWarmGmailDraftAction) &&
     warmGmailDraftReviewQueueId === activeWarmGmailDraftAction?.record_id
+  const warmBatchReviewPanel = (selectedLeadIds.size > 0 || warmBatchReview || warmBatchReviewError) ? (
+    <WarmBatchReviewPanel
+      data={warmBatchReview}
+      loading={warmBatchReviewLoading}
+      error={warmBatchReviewError}
+      draftActionLoading={warmBatchDraftActionLoading}
+      draftActionError={warmBatchDraftActionError}
+      providerDraftCanaryLoading={warmProviderDraftCanaryLoadingQueueId != null}
+      providerDraftCanaryError={warmProviderDraftCanaryError}
+      providerDraftCanaryResult={warmProviderDraftCanaryResult}
+      selectedCount={selectedLeadIds.size}
+      onReview={reviewWarmBatch}
+      onCreateGmailDraftRecords={createWarmBatchGmailDraftRecords}
+      onCreatePlannedDraftRecords={createWarmBatchGmailDraftRecords}
+      onPrepareProviderDraftCanary={prepareWarmProviderDraftCanary}
+    />
+  ) : null
 
   return (
     <div className="admin-console-page min-h-screen px-4 py-6 text-foreground sm:px-6 lg:px-8">
@@ -1568,7 +1631,7 @@ function OutreachContent() {
             </div>
           )}
           <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:justify-end" aria-label="Outreach workroom actions">
-            {activeTab === 'leads' && (
+            {activeTab === 'leads' && leadView === 'list' && (
               <button
                 type="button"
                 onClick={() => setShowAddLeadModal(true)}
@@ -1610,8 +1673,14 @@ function OutreachContent() {
           nextAction={outreachNextAction}
           waitingOnYou={outreachWorkroomLead || selectedLeadIds.size ? 'Yes - review before action' : 'No'}
           blocker={outreachBlocker}
-          canonicalHref={outreachWorkroomLead ? `/admin/outreach?tab=leads&id=${outreachWorkroomLead.id}` : '/admin/outreach?tab=leads'}
-          canonicalLabel={outreachWorkroomLead ? 'Open selected lead' : 'Open lead workroom'}
+          canonicalHref={
+            outreachWorkroomLead
+              ? `/admin/outreach?tab=leads&id=${outreachWorkroomLead.id}`
+              : leadView === 'planning'
+                ? '/admin/outreach?tab=leads&filter=warm&view=planning'
+                : '/admin/outreach?tab=leads'
+          }
+          canonicalLabel={outreachWorkroomLead ? 'Open selected lead' : leadView === 'planning' ? 'Open planning backlog' : 'Open lead workroom'}
           tone={outreachBlocker ? 'red' : outreachWorkroomLead || selectedLeadIds.size ? 'yellow' : 'blue'}
         />
 
@@ -1630,18 +1699,35 @@ function OutreachContent() {
         {/* Tabs */}
         <div className="flex items-center gap-2 mb-8 border-b border-silicon-slate">
           <button
-            onClick={() => handleTabChange('leads')}
+            onClick={() => handleLeadViewChange('list')}
             className={`flex items-center gap-2 px-4 py-3 border-b-2 transition-all ${
-              activeTab === 'leads'
+              activeTab === 'leads' && leadView === 'list'
                 ? 'border-radiant-gold text-foreground'
                 : 'border-transparent text-muted-foreground hover:text-foreground'
             }`}
           >
             <Users size={18} />
-            <span className="font-medium">All Leads</span>
+            <span className="font-medium">Lead list</span>
             {leadsTotal > 0 && (
               <span className="px-2 py-0.5 bg-radiant-gold text-imperial-navy text-xs font-semibold rounded-full">
                 {leadsTotal}
+              </span>
+            )}
+          </button>
+          <button
+            onClick={() => handleLeadViewChange('planning')}
+            className={`flex items-center gap-2 px-4 py-3 border-b-2 transition-all ${
+              activeTab === 'leads' && leadView === 'planning'
+                ? 'border-radiant-gold text-foreground'
+                : 'border-transparent text-muted-foreground hover:text-foreground'
+            }`}
+            aria-label="Show warm planning backlog view"
+          >
+            <CalendarDays size={18} />
+            <span className="font-medium">Planning</span>
+            {warmPlanningBacklog.candidates.length > 0 && (
+              <span className="rounded-full border border-radiant-gold/50 bg-radiant-gold/20 px-2 py-0.5 text-xs font-semibold text-radiant-gold">
+                {warmPlanningBacklog.candidates.length}
               </span>
             )}
           </button>
@@ -1663,8 +1749,33 @@ function OutreachContent() {
           </button>
         </div>
 
+        {/* Warm Planning View Content */}
+        {activeTab === 'leads' && leadView === 'planning' && (
+          <>
+            {showWarmOutreachShortlist ? (
+              <>
+                <WarmPlanningBacklogPanel
+                  backlog={warmPlanningBacklog}
+                  activeState={warmPlanningBacklogFilter}
+                  loading={warmBatchReviewLoading}
+                  error={warmBatchReviewError}
+                  onStateChange={setWarmPlanningBacklogFilter}
+                  onPrepareBatch={prepareWarmPlanningBatch}
+                  onPrepareCandidateReview={prepareWarmPlanningCandidateReview}
+                  onOpenCandidate={openWarmPlanningCandidate}
+                />
+                {warmBatchReviewPanel}
+              </>
+            ) : (
+              <div className="mb-6 rounded-lg border border-silicon-slate/70 bg-silicon-slate/15 p-4 text-sm text-muted-foreground">
+                Warm planning uses the warm lead filter. Refresh when warm leads are available.
+              </div>
+            )}
+          </>
+        )}
+
         {/* Leads Tab Content */}
-        {activeTab === 'leads' && (
+        {activeTab === 'leads' && leadView === 'list' && (
           <>
             {/* Filters */}
             <div className="flex flex-wrap items-center gap-3 mb-6">
@@ -2241,23 +2352,7 @@ function OutreachContent() {
                     </div>
                   </div>
                 )}
-                {(selectedLeadIds.size > 0 || warmBatchReview || warmBatchReviewError) && (
-                  <WarmBatchReviewPanel
-                    data={warmBatchReview}
-                    loading={warmBatchReviewLoading}
-                    error={warmBatchReviewError}
-                    draftActionLoading={warmBatchDraftActionLoading}
-                    draftActionError={warmBatchDraftActionError}
-                    providerDraftCanaryLoading={warmProviderDraftCanaryLoadingQueueId != null}
-                    providerDraftCanaryError={warmProviderDraftCanaryError}
-                    providerDraftCanaryResult={warmProviderDraftCanaryResult}
-                    selectedCount={selectedLeadIds.size}
-                    onReview={reviewWarmBatch}
-                    onCreateGmailDraftRecords={createWarmBatchGmailDraftRecords}
-                    onCreatePlannedDraftRecords={createWarmBatchGmailDraftRecords}
-                    onPrepareProviderDraftCanary={prepareWarmProviderDraftCanary}
-                  />
-                )}
+                {warmBatchReviewPanel}
                 <div className="flex items-center gap-2 mb-3">
                   <label className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer">
                     <input
