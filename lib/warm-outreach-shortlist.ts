@@ -857,6 +857,19 @@ function reviewLoopActionFor(
       blockerReason: null,
     }
   }
+  if (candidate.states.includes('suppressed_blocked')) {
+    const blockerReason = candidate.blockers[0] ?? 'Suppression or contact state blocks outreach.'
+    return {
+      key: 'resolve_blocker',
+      label: 'Resolve blocker',
+      statusLabel: 'Blocked',
+      detail: blockerReason,
+      afterClick: 'Opens the contact workroom to inspect the blocker before any outreach.',
+      href: candidate.ctaHref,
+      enabled: true,
+      blockerReason,
+    }
+  }
   if (candidate.responseStatus !== 'no_response') {
     return {
       key: 'open_response_review',
@@ -879,19 +892,6 @@ function reviewLoopActionFor(
       href: candidate.ctaHref,
       enabled: true,
       blockerReason: null,
-    }
-  }
-  if (candidate.states.includes('suppressed_blocked')) {
-    const blockerReason = candidate.blockers[0] ?? 'Suppression or contact state blocks outreach.'
-    return {
-      key: 'resolve_blocker',
-      label: 'Resolve blocker',
-      statusLabel: 'Blocked',
-      detail: blockerReason,
-      afterClick: 'Opens the contact workroom to inspect the blocker before any outreach.',
-      href: candidate.ctaHref,
-      enabled: true,
-      blockerReason,
     }
   }
   return {

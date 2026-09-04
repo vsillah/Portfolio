@@ -1,9 +1,14 @@
 {
   "version": "warm-created-internal-actions-qa/v1",
-  "createdAt": "2026-09-03T10:15:31.187Z",
-  "qaUrl": "http://127.0.0.1:3064/admin/outreach?tab=leads&filter=warm&qa=warm-planning-backlog",
-  "scenario": "Warm outreach operator sees created internal Gmail draft records and manual-social handoff tasks in the existing list/workroom, then verifies planned-record creation still stays internal.",
+  "createdAt": "2026-09-04T22:46:42.166Z",
+  "qaUrl": "http://127.0.0.1:3000/admin/outreach?tab=leads&filter=warm&qa=warm-planning-backlog",
+  "normalListUrl": "http://127.0.0.1:3000/admin/outreach?tab=leads&filter=warm",
+  "scenario": "Warm outreach operator opens Planning, selects a candidate, uses the in-place action drawer, and verifies internal Gmail draft/manual-social records still stay inside existing Portfolio surfaces.",
   "expectedBehavior": [
+    "The normal warm lead list remains separate and does not show the planning drawer.",
+    "Selecting a Planning candidate opens an in-place action drawer before the operator is routed back into the workroom.",
+    "The action drawer shows selected candidate, why it is in the backlog, current safest action, blockers, action path, and one primary next action.",
+    "The drawer primary action visibly routes to the existing Gmail draft review or workroom path, or presents the disabled/blocked reason.",
     "Planning backlog shows All, Ready Gmail, Manual, Relationship, Responses, Blocked, and SMS parked as compact count filters without standalone number tiles.",
     "Clicking filter chips visibly drills into the matching candidate set.",
     "Created Gmail draft records surface as compact Review draft actions in the warm lead list.",
@@ -22,10 +27,10 @@
   "decisionGate": "Internal Portfolio records only. Gmail provider draft creation, Slack dispatch, external sends, SMS/Telnyx, provider activation, and manual-evidence recording remain separate gates.",
   "externalActionBoundary": "Synthetic/local QA only; no Gmail, Slack, LinkedIn, Facebook, Telnyx/SMS, n8n, scheduling, publishing, provider calls, or production-data mutation.",
   "screenshots": {
-    "mobile360": "/Users/vambahsillah/.codex/worktrees/8c02/Portfolio/docs/warm-outreach-qa/warm-created-internal-actions-mobile-360.png",
-    "mobile390": "/Users/vambahsillah/.codex/worktrees/8c02/Portfolio/docs/warm-outreach-qa/warm-created-internal-actions-mobile-390.png",
-    "mobile430": "/Users/vambahsillah/.codex/worktrees/8c02/Portfolio/docs/warm-outreach-qa/warm-created-internal-actions-mobile-430.png",
-    "desktop1440": "/Users/vambahsillah/.codex/worktrees/8c02/Portfolio/docs/warm-outreach-qa/warm-created-internal-actions-desktop-1440.png"
+    "mobile360": "/Users/vambahsillah/.codex/worktrees/f1c6/Portfolio/docs/warm-outreach-qa/warm-created-internal-actions-mobile-360.png",
+    "mobile390": "/Users/vambahsillah/.codex/worktrees/f1c6/Portfolio/docs/warm-outreach-qa/warm-created-internal-actions-mobile-390.png",
+    "mobile430": "/Users/vambahsillah/.codex/worktrees/f1c6/Portfolio/docs/warm-outreach-qa/warm-created-internal-actions-mobile-430.png",
+    "desktop1440": "/Users/vambahsillah/.codex/worktrees/f1c6/Portfolio/docs/warm-outreach-qa/warm-created-internal-actions-desktop-1440.png"
   },
   "viewportRuns": [
     {
@@ -34,7 +39,7 @@
         "width": 360,
         "height": 844
       },
-      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/8c02/Portfolio/docs/warm-outreach-qa/warm-created-internal-actions-mobile-360.png",
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/f1c6/Portfolio/docs/warm-outreach-qa/warm-created-internal-actions-mobile-360.png",
       "checks": {
         "hasPlanningBacklog": true,
         "hasCompactFilterControls": true,
@@ -49,10 +54,19 @@
         },
         "horizontalOverflow": false
       },
+      "drawerChecks": {
+        "visible": true,
+        "hasWhy": true,
+        "hasSafestAction": true,
+        "hasBlockers": true,
+        "hasActionPath": true,
+        "primaryActionVisible": true,
+        "primaryActionLabel": "Review draft for Amina Batchready"
+      },
       "internalActionChecks": {
-        "actionCount": 2,
+        "actionCount": 0,
         "hasGmailAction": true,
-        "hasManualAction": true,
+        "hasManualAction": false,
         "hasWorkroomAction": false,
         "viewport": {
           "clientWidth": 360,
@@ -123,7 +137,7 @@
         "width": 390,
         "height": 844
       },
-      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/8c02/Portfolio/docs/warm-outreach-qa/warm-created-internal-actions-mobile-390.png",
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/f1c6/Portfolio/docs/warm-outreach-qa/warm-created-internal-actions-mobile-390.png",
       "checks": {
         "hasPlanningBacklog": true,
         "hasCompactFilterControls": true,
@@ -138,10 +152,19 @@
         },
         "horizontalOverflow": false
       },
+      "drawerChecks": {
+        "visible": true,
+        "hasWhy": true,
+        "hasSafestAction": true,
+        "hasBlockers": true,
+        "hasActionPath": true,
+        "primaryActionVisible": true,
+        "primaryActionLabel": "Review draft for Amina Batchready"
+      },
       "internalActionChecks": {
-        "actionCount": 2,
+        "actionCount": 0,
         "hasGmailAction": true,
-        "hasManualAction": true,
+        "hasManualAction": false,
         "hasWorkroomAction": false,
         "viewport": {
           "clientWidth": 390,
@@ -212,7 +235,7 @@
         "width": 430,
         "height": 844
       },
-      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/8c02/Portfolio/docs/warm-outreach-qa/warm-created-internal-actions-mobile-430.png",
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/f1c6/Portfolio/docs/warm-outreach-qa/warm-created-internal-actions-mobile-430.png",
       "checks": {
         "hasPlanningBacklog": true,
         "hasCompactFilterControls": true,
@@ -227,10 +250,19 @@
         },
         "horizontalOverflow": false
       },
+      "drawerChecks": {
+        "visible": true,
+        "hasWhy": true,
+        "hasSafestAction": true,
+        "hasBlockers": true,
+        "hasActionPath": true,
+        "primaryActionVisible": true,
+        "primaryActionLabel": "Review draft for Amina Batchready"
+      },
       "internalActionChecks": {
-        "actionCount": 2,
+        "actionCount": 0,
         "hasGmailAction": true,
-        "hasManualAction": true,
+        "hasManualAction": false,
         "hasWorkroomAction": false,
         "viewport": {
           "clientWidth": 430,
@@ -301,7 +333,7 @@
         "width": 1440,
         "height": 900
       },
-      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/8c02/Portfolio/docs/warm-outreach-qa/warm-created-internal-actions-desktop-1440.png",
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/f1c6/Portfolio/docs/warm-outreach-qa/warm-created-internal-actions-desktop-1440.png",
       "checks": {
         "hasPlanningBacklog": true,
         "hasCompactFilterControls": true,
@@ -316,10 +348,19 @@
         },
         "horizontalOverflow": false
       },
+      "drawerChecks": {
+        "visible": true,
+        "hasWhy": true,
+        "hasSafestAction": true,
+        "hasBlockers": true,
+        "hasActionPath": true,
+        "primaryActionVisible": true,
+        "primaryActionLabel": "Review draft for Amina Batchready"
+      },
       "internalActionChecks": {
-        "actionCount": 2,
+        "actionCount": 0,
         "hasGmailAction": true,
-        "hasManualAction": true,
+        "hasManualAction": false,
         "hasWorkroomAction": false,
         "viewport": {
           "clientWidth": 1440,
@@ -329,7 +370,7 @@
       },
       "collapsedTextChecks": {
         "collapsed": [],
-        "checkedCount": 3,
+        "checkedCount": 5,
         "viewport": {
           "width": 1440,
           "height": 900
@@ -385,6 +426,25 @@
       "externalRequests": []
     }
   ],
+  "normalListChecks": {
+    "planningBacklogVisible": false,
+    "planningDrawerVisible": false,
+    "planningTabVisible": true,
+    "viewport": {
+      "clientWidth": 1280,
+      "scrollWidth": 1280
+    },
+    "horizontalOverflow": false
+  },
+  "desktopDrawerChecks": {
+    "visible": true,
+    "hasWhy": true,
+    "hasSafestAction": true,
+    "hasBlockers": true,
+    "hasActionPath": true,
+    "primaryActionVisible": true,
+    "primaryActionLabel": "Review draft for Amina Batchready"
+  },
   "desktopGmailDraftReviewChecks": {
     "visible": true,
     "hasDraftOnlyState": true,
@@ -413,7 +473,7 @@
   },
   "desktopCollapsedTextChecks": {
     "collapsed": [],
-    "checkedCount": 35,
+    "checkedCount": 16,
     "viewport": {
       "width": 1280,
       "height": 720
@@ -423,7 +483,7 @@
     "chipVisible": true,
     "chipText": "Readiness: Human review",
     "chipTitle": "Readiness: Needs human review",
-    "chipWidth": 120,
+    "chipWidth": 210,
     "chipHeight": 28,
     "chipCentered": true,
     "ctaVisible": true,
@@ -436,8 +496,8 @@
     "humanReviewChipSingleLine": true,
     "horizontalOverflow": false
   },
-  "mp4Path": "/Users/vambahsillah/.codex/worktrees/8c02/Portfolio/docs/warm-outreach-qa/warm-created-internal-actions-qa.mp4",
-  "rawVideoPath": "/Users/vambahsillah/.codex/worktrees/8c02/Portfolio/test-results/warm-planned-draft-actions-qa/source/8e2a9057d1765972c958423c4f608452.webm",
+  "mp4Path": "/Users/vambahsillah/.codex/worktrees/f1c6/Portfolio/docs/warm-outreach-qa/warm-created-internal-actions-qa.mp4",
+  "rawVideoPath": "/Users/vambahsillah/.codex/worktrees/f1c6/Portfolio/test-results/warm-planned-draft-actions-qa/source/925e056b52b11facf5105528847a7bd4.webm",
   "externalRequests": [],
   "localRequests": [
     {
@@ -454,11 +514,7 @@
     },
     {
       "method": "GET",
-      "pathname": "/api/admin/value-evidence/workflow-status"
-    },
-    {
-      "method": "GET",
-      "pathname": "/api/admin/outreach/leads"
+      "pathname": "/auth/v1/user"
     },
     {
       "method": "GET",
@@ -467,10 +523,86 @@
     {
       "method": "GET",
       "pathname": "/api/admin/outreach/leads"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/value-evidence/workflow-status"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/outreach/leads"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/user/profile"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/user/profile"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/user/profile"
     },
     {
       "method": "GET",
       "pathname": "/auth/v1/user"
+    },
+    {
+      "method": "GET",
+      "pathname": "/auth/v1/user"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/value-evidence/workflow-status"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/outreach/leads"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/value-evidence/workflow-status"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/outreach/leads"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/user/profile"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/user/profile"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/user/profile"
+    },
+    {
+      "method": "GET",
+      "pathname": "/auth/v1/user"
+    },
+    {
+      "method": "GET",
+      "pathname": "/auth/v1/user"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/value-evidence/workflow-status"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/outreach/leads"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/value-evidence/workflow-status"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/outreach/leads"
     },
     {
       "method": "GET",
@@ -526,11 +658,51 @@
     },
     {
       "method": "GET",
+      "pathname": "/api/user/profile"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/user/profile"
+    },
+    {
+      "method": "GET",
+      "pathname": "/auth/v1/user"
+    },
+    {
+      "method": "GET",
+      "pathname": "/auth/v1/user"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/value-evidence/workflow-status"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/outreach/leads"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/value-evidence/workflow-status"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/outreach/leads"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/user/profile"
+    },
+    {
+      "method": "GET",
       "pathname": "/api/admin/meetings"
     },
     {
       "method": "GET",
       "pathname": "/api/admin/meetings"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/outreach/leads"
     },
     {
       "method": "GET",
@@ -547,6 +719,14 @@
     {
       "method": "GET",
       "pathname": "/api/admin/outreach/leads/103/relationship-packet"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/meetings"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/meetings"
     }
   ]
 }

@@ -15,6 +15,7 @@ const sourceDir = path.join(qaDir, 'source')
 const baseUrl = (process.env.QA_BASE_URL || 'http://127.0.0.1:3000').replace(/\/$/, '')
 const qaPath = '/admin/outreach?tab=leads&filter=warm&qa=warm-planning-backlog'
 const qaUrl = new URL(qaPath, baseUrl).toString()
+const normalListUrl = new URL('/admin/outreach?tab=leads&filter=warm', baseUrl).toString()
 const mp4Path = path.join(outputDir, 'warm-created-internal-actions-qa.mp4')
 const receiptPath = path.join(outputDir, 'warm-created-internal-actions-qa.json')
 
@@ -1125,7 +1126,7 @@ async function assertPlanningBacklog(page) {
     const filterGroup = document.querySelector('[aria-label="Warm planning state filters"]')
     const filterButtons = filterGroup ? [...filterGroup.querySelectorAll('button')] : []
     const currentCta = [...document.querySelectorAll('button')]
-      .find((button) => /Plan review batch/.test(button.textContent || ''))
+      .find((button) => /(Plan review batch|Start today's|Review draft|Prepare Gmail review|Prepare .* handoff)/.test(button.textContent || ''))
     const visible = (element) => {
       if (!(element instanceof HTMLElement)) return false
       const rect = element.getBoundingClientRect()
@@ -1176,7 +1177,7 @@ async function assertPlanningBacklog(page) {
       overlappingFilterControls,
       filterTextOverflow,
       filterLabelCountOverlap,
-      hasSafeCta: visible(currentCta) && /Plan review batch/.test(currentCta?.textContent || ''),
+      hasSafeCta: visible(currentCta),
       hasBoundary:
         /Gmail drafts: off/i.test(text) &&
         /Sends\/Slack\/social\/SMS: off/i.test(text) &&
@@ -1191,6 +1192,71 @@ async function assertPlanningBacklog(page) {
     ...checks,
     horizontalOverflow: checks.viewport.scrollWidth > checks.viewport.clientWidth,
   }
+}
+
+async function assertNormalLeadListSeparation(page) {
+  await page.goto(normalListUrl, { waitUntil: 'networkidle' })
+  await page.getByRole('link', { name: 'Amina Batchready', exact: true }).waitFor({ timeout: 15_000 })
+  const checks = await page.evaluate(() => {
+    const planningBacklog = document.querySelector('[aria-label="Warm outreach planning backlog"]')
+    const planningDrawer = document.querySelector('[aria-label^="Warm planning action drawer for "]')
+    const planningTab = [...document.querySelectorAll('button')]
+      .find((button) => button.getAttribute('aria-label') === 'Show warm planning backlog view')
+    const visible = (element) => {
+      if (!(element instanceof HTMLElement)) return false
+      const rect = element.getBoundingClientRect()
+      return rect.width > 0 && rect.height > 0 && window.getComputedStyle(element).visibility !== 'hidden'
+    }
+    return {
+      planningBacklogVisible: visible(planningBacklog),
+      planningDrawerVisible: visible(planningDrawer),
+      planningTabVisible: visible(planningTab),
+      viewport: {
+        clientWidth: document.documentElement.clientWidth,
+        scrollWidth: document.documentElement.scrollWidth,
+      },
+    }
+  })
+  await page.goto(qaUrl, { waitUntil: 'networkidle' })
+  await page.getByLabel('Warm outreach planning backlog').waitFor({ timeout: 15_000 })
+  return {
+    ...checks,
+    horizontalOverflow: checks.viewport.scrollWidth > checks.viewport.clientWidth,
+  }
+}
+
+async function openCandidateActionDrawer(page, contactName) {
+  const planningBacklog = page.getByLabel('Warm outreach planning backlog')
+  await activateButton(planningBacklog.getByRole('button', {
+    name: new RegExp(`Open action drawer: .* for ${contactName}`),
+  }).first())
+  const drawer = planningBacklog.getByLabel(`Warm planning action drawer for ${contactName}`)
+  await drawer.waitFor({ timeout: 15_000 })
+  return drawer
+}
+
+async function assertCandidateActionDrawer(page, contactName) {
+  const drawer = await openCandidateActionDrawer(page, contactName)
+  const checks = await drawer.evaluate((element) => {
+    const text = element.textContent ?? ''
+    const primaryButton = [...element.querySelectorAll('button[aria-label]')]
+      .find((button) => button.getAttribute('aria-label') !== 'Close warm planning action drawer')
+    const visible = (target) => {
+      if (!(target instanceof HTMLElement)) return false
+      const rect = target.getBoundingClientRect()
+      return rect.width > 0 && rect.height > 0 && window.getComputedStyle(target).visibility !== 'hidden'
+    }
+    return {
+      visible: visible(element),
+      hasWhy: /Why in backlog:/i.test(text),
+      hasSafestAction: /Current safest action/i.test(text),
+      hasBlockers: /Blockers/i.test(text),
+      hasActionPath: /Action path/i.test(text),
+      primaryActionVisible: visible(primaryButton),
+      primaryActionLabel: primaryButton?.getAttribute('aria-label') ?? null,
+    }
+  })
+  return checks
 }
 
 async function assertCreatedInternalActions(page) {
@@ -1411,9 +1477,10 @@ async function viewportEvidence(browser, name, viewport, screenshotPath) {
   const planningBacklog = qa.page.getByLabel('Warm outreach planning backlog')
   await planningBacklog.scrollIntoViewIfNeeded()
   const checks = await assertPlanningBacklog(qa.page)
+  const drawerChecks = await assertCandidateActionDrawer(qa.page, 'Amina Batchready')
   const internalActionChecks = await assertCreatedInternalActions(qa.page)
   const collapsedTextChecks = await assertNoCollapsedActionText(qa.page)
-  await activateButton(qa.page.getByRole('link', { name: /Review draft-only internal Gmail record for Amina Batchready/ }).first())
+  await activateButton(qa.page.getByLabel('Warm planning action drawer for Amina Batchready').getByRole('button', { name: /Review draft for Amina Batchready/ }))
   await qa.page.getByLabel('Gmail draft review for Amina Batchready').waitFor({ timeout: 15_000 })
   await qa.page.getByText(/Following up from the warm referral and planning backlog context/).waitFor({ timeout: 15_000 })
   await qa.page.getByText('Message link missing').waitFor({ timeout: 15_000 })
@@ -1432,6 +1499,7 @@ async function viewportEvidence(browser, name, viewport, screenshotPath) {
     viewport,
     screenshotPath,
     checks,
+    drawerChecks,
     internalActionChecks,
     collapsedTextChecks,
     warmActionClusterPolish,
@@ -1470,9 +1538,12 @@ async function addSideText(page) {
     panel.innerHTML = `
       <h2>warm-planned-draft-actions QA</h2>
       <h3>Scenario</h3>
-      <p>Vambah opens the warm outreach list and sees created internal draft and handoff records as actionable items in the existing workroom.</p>
+      <p>Vambah opens the warm planning backlog, selects a candidate, and uses the in-place action drawer to route into the existing workroom.</p>
       <h3>Expected</h3>
       <ul>
+        <li>The normal warm lead list stays clean; the drawer appears only in Planning.</li>
+        <li>Selecting a candidate opens an in-place action drawer with why, blockers, safest action, and one primary CTA.</li>
+        <li>The drawer CTA routes to the existing draft review or workroom path.</li>
         <li>Created Gmail draft records show a compact Review draft CTA.</li>
         <li>Review draft opens the existing workroom with body, recipient, relationship basis, and one primary Copy draft CTA.</li>
         <li>If the email-message link is missing, the saved queue body is reviewed in context.</li>
@@ -1511,15 +1582,37 @@ for (const [name, viewport, screenshotPath] of [
 
 const desktop = await openQaPage(browser, { width: 1280, height: 720 }, true)
 await addSideText(desktop.page)
+const normalListChecks = await assertNormalLeadListSeparation(desktop.page)
+if (
+  normalListChecks.planningBacklogVisible ||
+  normalListChecks.planningDrawerVisible ||
+  !normalListChecks.planningTabVisible ||
+  normalListChecks.horizontalOverflow
+) {
+  throw new Error(`Normal lead-list separation QA failed: ${JSON.stringify(normalListChecks, null, 2)}`)
+}
 const desktopPlanningBacklog = desktop.page.getByLabel('Warm outreach planning backlog')
 await desktopPlanningBacklog.evaluate((element) => element.scrollIntoView({ block: 'center' }))
 await desktop.page.waitForTimeout(700)
 await activateButton(desktop.page.getByRole('button', { name: /Show SMS parked candidates/ }))
-await desktopPlanningBacklog.getByText('Kofi Phoneparked').waitFor({ timeout: 10_000 })
+await desktopPlanningBacklog.getByRole('heading', { name: 'Kofi Phoneparked' }).waitFor({ timeout: 10_000 })
 await desktop.page.waitForTimeout(700)
 await desktopPlanningBacklog.evaluate((element) => element.scrollIntoView({ block: 'center' }))
-await activateButton(desktopPlanningBacklog.getByRole('button', { name: /Show Ready for Gmail draft candidates/ }))
-await activateButton(desktop.page.getByRole('link', { name: /Review draft-only internal Gmail record for Amina Batchready/ }).first())
+await activateButton(desktopPlanningBacklog.getByRole('button', { name: /Show all warm planning candidates/ }))
+const desktopDrawerChecks = await assertCandidateActionDrawer(desktop.page, 'Amina Batchready')
+if (
+  !desktopDrawerChecks.visible ||
+  !desktopDrawerChecks.hasWhy ||
+  !desktopDrawerChecks.hasSafestAction ||
+  !desktopDrawerChecks.hasBlockers ||
+  !desktopDrawerChecks.hasActionPath ||
+  !desktopDrawerChecks.primaryActionVisible ||
+  !/Review draft for Amina Batchready/i.test(desktopDrawerChecks.primaryActionLabel ?? '')
+) {
+  throw new Error(`Desktop candidate drawer QA failed: ${JSON.stringify(desktopDrawerChecks, null, 2)}`)
+}
+await desktop.page.waitForTimeout(900)
+await activateButton(desktop.page.getByLabel('Warm planning action drawer for Amina Batchready').getByRole('button', { name: /Review draft for Amina Batchready/ }))
 await desktop.page.getByLabel('Gmail draft review for Amina Batchready').waitFor({ timeout: 15_000 })
 await desktop.page.getByText(/Following up from the warm referral and planning backlog context/).waitFor({ timeout: 15_000 })
 await desktop.page.getByText('Message link missing').waitFor({ timeout: 15_000 })
@@ -1559,9 +1652,13 @@ if (
 }
 await desktop.page.getByText('Gmail batch draft plan').waitFor({ timeout: 10_000 })
 await desktop.page.waitForTimeout(800)
+await desktop.page.goto(qaUrl, { waitUntil: 'networkidle' })
+await desktop.page.getByLabel('Warm outreach planning backlog').waitFor({ timeout: 15_000 })
 await desktopPlanningBacklog.evaluate((element) => element.scrollIntoView({ block: 'center' }))
 await activateButton(desktop.page.getByRole('button', { name: /Show Ready for manual social candidates/ }))
-await activateButton(desktop.page.getByRole('button', { name: /Record manual handoff evidence for Nia Manualsocial/ }))
+await assertCandidateActionDrawer(desktop.page, 'Nia Manualsocial')
+await desktop.page.waitForTimeout(700)
+await activateButton(desktop.page.getByLabel('Warm planning action drawer for Nia Manualsocial').getByRole('button', { name: /Record handoff evidence for Nia Manualsocial/ }))
 const desktopWorkroom = desktop.page.getByRole('region', { name: 'Outreach workroom for Nia Manualsocial' })
 await desktopWorkroom.waitFor({ timeout: 15_000 })
 await desktopWorkroom.getByTestId('warm-manual-social-handoff').first().waitFor({ timeout: 15_000 })
@@ -1619,8 +1716,12 @@ const failedViewport = viewportRuns.find((run) =>
   run.checks.filterLabelCountOverlap ||
   !run.checks.hasSafeCta ||
   !run.checks.hasBoundary ||
-  !run.internalActionChecks.hasGmailAction ||
-  !run.internalActionChecks.hasManualAction ||
+  !run.drawerChecks.visible ||
+  !run.drawerChecks.hasWhy ||
+  !run.drawerChecks.hasSafestAction ||
+  !run.drawerChecks.hasBlockers ||
+  !run.drawerChecks.hasActionPath ||
+  !run.drawerChecks.primaryActionVisible ||
   run.internalActionChecks.horizontalOverflow ||
   !run.warmActionClusterPolish.chipVisible ||
   !run.warmActionClusterPolish.chipCentered ||
@@ -1648,15 +1749,20 @@ const failedViewport = viewportRuns.find((run) =>
   run.checks.horizontalOverflow
 )
 if (failedViewport) {
-  throw new Error(`Viewport QA failed: ${failedViewport.name} ${JSON.stringify(failedViewport.checks, null, 2)}`)
+  throw new Error(`Viewport QA failed: ${failedViewport.name} ${JSON.stringify(failedViewport, null, 2)}`)
 }
 
 const receipt = {
   version: 'warm-created-internal-actions-qa/v1',
   createdAt: new Date().toISOString(),
   qaUrl,
-  scenario: 'Warm outreach operator sees created internal Gmail draft records and manual-social handoff tasks in the existing list/workroom, then verifies planned-record creation still stays internal.',
+  normalListUrl,
+  scenario: 'Warm outreach operator opens Planning, selects a candidate, uses the in-place action drawer, and verifies internal Gmail draft/manual-social records still stay inside existing Portfolio surfaces.',
   expectedBehavior: [
+    'The normal warm lead list remains separate and does not show the planning drawer.',
+    'Selecting a Planning candidate opens an in-place action drawer before the operator is routed back into the workroom.',
+    'The action drawer shows selected candidate, why it is in the backlog, current safest action, blockers, action path, and one primary next action.',
+    'The drawer primary action visibly routes to the existing Gmail draft review or workroom path, or presents the disabled/blocked reason.',
     'Planning backlog shows All, Ready Gmail, Manual, Relationship, Responses, Blocked, and SMS parked as compact count filters without standalone number tiles.',
     'Clicking filter chips visibly drills into the matching candidate set.',
     'Created Gmail draft records surface as compact Review draft actions in the warm lead list.',
@@ -1676,6 +1782,8 @@ const receipt = {
   externalActionBoundary: 'Synthetic/local QA only; no Gmail, Slack, LinkedIn, Facebook, Telnyx/SMS, n8n, scheduling, publishing, provider calls, or production-data mutation.',
   screenshots,
   viewportRuns,
+  normalListChecks,
+  desktopDrawerChecks,
   desktopGmailDraftReviewChecks,
   desktopInternalActionChecks,
   desktopCollapsedTextChecks,

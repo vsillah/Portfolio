@@ -12,6 +12,7 @@ import {
   RefreshCw,
   Smartphone,
   UserRoundCheck,
+  X,
 } from 'lucide-react'
 import type {
   WarmOutreachDailyActionRow,
@@ -310,6 +311,25 @@ function focusActionDestination(action: WarmOutreachPlanningBacklogCandidate['re
   focusDestinationSelector(selector)
 }
 
+function actionDrawerLabel(action: WarmOutreachPlanningBacklogCandidate['reviewLoopAction']) {
+  if (action.key === 'start_gmail_review_batch' || action.key === 'open_gmail_draft_review') {
+    return 'Gmail draft review'
+  }
+  if (action.key === 'start_manual_social_batch' || action.key === 'open_manual_social_handoff') {
+    return 'Manual social handoff'
+  }
+  if (action.key === 'open_response_review') return 'Response review'
+  if (action.key === 'open_relationship_review') return 'Relationship recovery'
+  if (action.key === 'resolve_blocker') return 'Suppression review'
+  return 'SMS parked'
+}
+
+function actionDrawerHelper(action: WarmOutreachPlanningBacklogCandidate['reviewLoopAction']) {
+  if (action.key === 'parked_sms') return action.blockerReason ?? 'SMS remains parked behind a separate gate.'
+  if (!action.enabled) return action.blockerReason ?? 'This candidate is blocked.'
+  return action.afterClick
+}
+
 function focusDestinationSelector(selector: string) {
   const tryFocus = (attempt = 0) => {
     const element = document.querySelector(selector)
@@ -340,6 +360,9 @@ export default function WarmPlanningBacklogPanel({
   const [pendingDailyActionKey, setPendingDailyActionKey] = useState<string | null>(null)
   const [reviewLoopProgress, setReviewLoopProgress] = useState<WarmReviewLoopProgress | null>(null)
   const [activeDailyActionFilter, setActiveDailyActionFilter] = useState<WarmOutreachDailyActionKind | 'all'>('all')
+  const [selectedCandidateId, setSelectedCandidateId] = useState<number | null>(null)
+  const [pendingCandidateActionId, setPendingCandidateActionId] = useState<number | null>(null)
+  const [openedCandidateActionId, setOpenedCandidateActionId] = useState<number | null>(null)
   const filteredDailyActionRows =
     activeDailyActionFilter === 'all'
       ? backlog.dailyActions.rows
@@ -350,6 +373,10 @@ export default function WarmPlanningBacklogPanel({
     const dailyActionMatches = activeDailyActionFilter === 'all' || filteredDailyActionContactIds.has(candidate.contactId)
     return stateMatches && dailyActionMatches
   })
+  const selectedCandidate =
+    selectedCandidateId == null
+      ? null
+      : visibleCandidates.find((candidate) => candidate.contactId === selectedCandidateId) ?? null
   const totalCandidates = backlog.candidates.length
   const primaryDailyAction = backlog.dailyActions.currentSafestAction
   const primaryDailyCandidate = primaryDailyAction.key === 'open_daily_action'
@@ -383,6 +410,39 @@ export default function WarmPlanningBacklogPanel({
       setPendingDailyActionKey(null)
     }
   }
+  const handleCandidateAction = async (candidate: WarmOutreachPlanningBacklogCandidate) => {
+    const action = candidate.reviewLoopAction
+    if (!action.enabled || loading || pendingCandidateActionId === candidate.contactId || openedCandidateActionId === candidate.contactId) {
+      return
+    }
+    setPendingCandidateActionId(candidate.contactId)
+    try {
+      if (preparesReviewBatch(action)) {
+        setReviewLoopProgress(reviewLoopProgressForCandidate(backlog, `candidate-drawer:${candidate.contactId}`, candidate, 'opening'))
+        await onPrepareCandidateReview(candidate)
+        setReviewLoopProgress(reviewLoopProgressForCandidate(backlog, `candidate-drawer:${candidate.contactId}`, candidate, 'opened'))
+        setOpenedCandidateActionId(candidate.contactId)
+        focusActionDestination(action)
+        return
+      }
+      await onOpenCandidate(candidate)
+      setOpenedCandidateActionId(candidate.contactId)
+      focusActionDestination(action)
+    } finally {
+      setPendingCandidateActionId(null)
+    }
+  }
+  const selectedAction = selectedCandidate?.reviewLoopAction ?? null
+  const selectedPrimaryState = selectedCandidate ? candidatePrimaryState(selectedCandidate) : null
+  const selectedCandidatePending = selectedCandidate ? pendingCandidateActionId === selectedCandidate.contactId : false
+  const selectedCandidateOpened = selectedCandidate ? openedCandidateActionId === selectedCandidate.contactId : false
+  const selectedCandidateActionEnabled = Boolean(
+    selectedCandidate &&
+      selectedAction?.enabled &&
+      !selectedCandidatePending &&
+      !selectedCandidateOpened &&
+      !loading,
+  )
 
   return (
     <section
@@ -606,7 +666,10 @@ export default function WarmPlanningBacklogPanel({
                       <button
                         key={kind}
                         type="button"
-                        onClick={() => setActiveDailyActionFilter(active ? 'all' : kind)}
+                        onClick={() => {
+                          setSelectedCandidateId(null)
+                          setActiveDailyActionFilter(active ? 'all' : kind)
+                        }}
                         className={`inline-flex min-h-8 min-w-0 items-center justify-between gap-2 rounded-full border px-2.5 py-0.5 text-left font-medium leading-5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-radiant-gold/70 ${
                           active
                             ? 'border-radiant-gold bg-radiant-gold/15 text-radiant-gold shadow-[0_0_0_1px_rgba(247,213,107,0.25)]'
@@ -630,7 +693,10 @@ export default function WarmPlanningBacklogPanel({
                   </span>
                   <button
                     type="button"
-                    onClick={() => setActiveDailyActionFilter('all')}
+                    onClick={() => {
+                      setSelectedCandidateId(null)
+                      setActiveDailyActionFilter('all')
+                    }}
                     className="inline-flex min-h-7 shrink-0 items-center rounded-md border border-silicon-slate/70 bg-background/45 px-2 font-medium text-muted-foreground transition-colors hover:border-radiant-gold/50 hover:text-foreground"
                     aria-label="Clear daily action filter"
                   >
@@ -838,7 +904,10 @@ export default function WarmPlanningBacklogPanel({
           >
             <button
               type="button"
-              onClick={() => onStateChange('all')}
+              onClick={() => {
+                setSelectedCandidateId(null)
+                onStateChange('all')
+              }}
               className={`inline-flex min-h-8 max-w-full min-w-fit shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1 text-xs font-medium leading-5 transition-colors ${
                 activeState === 'all'
                   ? 'border-radiant-gold bg-radiant-gold/15 text-radiant-gold'
@@ -863,7 +932,10 @@ export default function WarmPlanningBacklogPanel({
                 <button
                   key={state}
                   type="button"
-                  onClick={() => onStateChange(active ? 'all' : state)}
+                  onClick={() => {
+                    setSelectedCandidateId(null)
+                    onStateChange(active ? 'all' : state)
+                  }}
                   className={`inline-flex min-h-8 max-w-full min-w-fit shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1 text-xs font-medium leading-5 transition-colors ${
                     active
                       ? 'border-radiant-gold bg-radiant-gold/15 text-radiant-gold'
@@ -887,7 +959,110 @@ export default function WarmPlanningBacklogPanel({
                 </button>
               )
             })}
+      </div>
+
+      {selectedCandidate && selectedAction && selectedPrimaryState && (
+        <aside
+          className="mt-3 rounded-md border border-radiant-gold/30 bg-background/55 p-3 shadow-[0_0_0_1px_rgba(247,213,107,0.08)]"
+          aria-label={`Warm planning action drawer for ${selectedCandidate.contactName}`}
+        >
+          <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(14rem,auto)] lg:items-start">
+            <div className="min-w-0">
+              <div className="flex min-w-0 flex-wrap items-center gap-1.5">
+                <span className={`inline-flex min-w-fit shrink-0 items-center gap-1 whitespace-nowrap rounded-full border px-2.5 py-0.5 text-[11px] font-semibold leading-5 ${stateClasses(selectedPrimaryState)}`}>
+                  <StateIcon state={selectedPrimaryState} />
+                  {actionDrawerLabel(selectedAction)}
+                </span>
+                <span className="inline-flex min-w-fit shrink-0 items-center whitespace-nowrap rounded-full border border-silicon-slate/70 bg-background/35 px-2.5 py-0.5 text-[11px] leading-5 text-muted-foreground">
+                  {channelLabel(selectedCandidate.recommendedChannel)}
+                </span>
+                <span className="inline-flex min-w-fit shrink-0 items-center whitespace-nowrap rounded-full border border-silicon-slate/70 bg-background/35 px-2.5 py-0.5 text-[11px] leading-5 text-muted-foreground">
+                  {selectedAction.statusLabel}
+                </span>
+                {selectedCandidate.states.includes('sms_parked') && (
+                  <span className="inline-flex min-w-fit shrink-0 items-center whitespace-nowrap rounded-full border border-silicon-slate/80 bg-background/35 px-2.5 py-0.5 text-[11px] leading-5 text-muted-foreground">
+                    SMS parked
+                  </span>
+                )}
+              </div>
+              <div className="mt-2 flex min-w-0 items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-semibold leading-5 text-foreground">
+                    {selectedCandidate.contactName}
+                    {selectedCandidate.company ? ` · ${selectedCandidate.company}` : ''}
+                  </p>
+                  <p className="mt-1 line-clamp-2 text-xs leading-5 text-muted-foreground">
+                    <span className="font-medium text-foreground">Why in backlog:</span> {selectedCandidate.campaignAlignment.whyNext}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setSelectedCandidateId(null)}
+                  className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-silicon-slate/70 bg-background/35 text-muted-foreground transition-colors hover:border-radiant-gold/50 hover:text-foreground"
+                  aria-label="Close warm planning action drawer"
+                >
+                  <X size={14} aria-hidden />
+                </button>
+              </div>
+              <div className="mt-3 grid gap-2 text-xs leading-5 text-muted-foreground md:grid-cols-3">
+                <div className="min-w-0 rounded-md border border-silicon-slate/70 bg-background/35 p-2">
+                  <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground/80">Current safest action</p>
+                  <p className="mt-1 line-clamp-2 font-medium text-foreground">{selectedCandidate.campaignAlignment.safeNextAction}</p>
+                </div>
+                <div className="min-w-0 rounded-md border border-silicon-slate/70 bg-background/35 p-2">
+                  <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground/80">Action path</p>
+                  <p className="mt-1 line-clamp-2 font-medium text-foreground">{selectedAction.detail}</p>
+                </div>
+                <div className="min-w-0 rounded-md border border-silicon-slate/70 bg-background/35 p-2">
+                  <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground/80">Blockers</p>
+                  <p className={`mt-1 line-clamp-2 font-medium ${selectedCandidate.blockers.length > 0 ? 'text-amber-100' : 'text-foreground'}`}>
+                    {selectedCandidate.blockers.length > 0 ? selectedCandidate.blockers.join(' / ') : 'None blocking local review'}
+                  </p>
+                </div>
+              </div>
+              <p className="mt-2 line-clamp-2 text-xs leading-5 text-muted-foreground">
+                {actionDrawerHelper(selectedAction)}
+              </p>
+            </div>
+            <div className="min-w-0">
+              <button
+                type="button"
+                disabled={!selectedCandidateActionEnabled}
+                onClick={() => handleCandidateAction(selectedCandidate)}
+                className={`inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-md border px-3 text-sm font-semibold leading-5 transition-colors disabled:cursor-not-allowed ${
+                  selectedCandidateOpened
+                    ? 'border-emerald-500/35 bg-emerald-500/10 text-emerald-100'
+                    : selectedCandidatePending
+                      ? 'border-radiant-gold/35 bg-radiant-gold/10 text-radiant-gold'
+                      : 'border-radiant-gold/50 bg-radiant-gold/10 text-radiant-gold hover:bg-radiant-gold/15 disabled:opacity-50'
+                }`}
+                aria-label={`${selectedAction.label} for ${selectedCandidate.contactName}`}
+              >
+                {selectedCandidatePending ? (
+                  <RefreshCw size={15} className="animate-spin" aria-hidden />
+                ) : selectedCandidateOpened ? (
+                  <CheckCircle2 size={15} aria-hidden />
+                ) : selectedAction.key === 'parked_sms' ? (
+                  <LockKeyhole size={15} aria-hidden />
+                ) : (
+                  <ClipboardCheck size={15} aria-hidden />
+                )}
+                {selectedCandidatePending ? 'Opening review...' : selectedCandidateOpened ? openedActionLabel(selectedAction) : selectedAction.label}
+              </button>
+              {!selectedAction.enabled && (
+                <p className="mt-2 rounded-md border border-amber-500/25 bg-amber-500/10 p-2 text-xs leading-5 text-amber-100">
+                  {selectedAction.blockerReason ?? 'This planning action is disabled.'}
+                </p>
+              )}
+              {selectedAction.href && (
+                <p className="mt-2 truncate text-[11px] leading-5 text-muted-foreground" title={selectedAction.href}>
+                  Deep link: {selectedAction.href}
+                </p>
+              )}
+            </div>
           </div>
+        </aside>
+      )}
 
       <div className="mt-3 flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
         <span className="inline-flex min-h-7 items-center gap-1 rounded-md border border-silicon-slate/70 bg-background/35 px-2">
@@ -992,9 +1167,14 @@ export default function WarmPlanningBacklogPanel({
               </div>
               <button
                 type="button"
-                onClick={() => onOpenCandidate(candidate)}
-                className="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-md border border-silicon-slate/80 bg-silicon-slate/35 px-3 text-sm font-medium text-foreground transition-colors hover:bg-silicon-slate/55 2xl:w-auto"
-                aria-label={`Open candidate review: ${candidate.nextActionLabel} for ${candidate.contactName}`}
+                onClick={() => setSelectedCandidateId(candidate.contactId)}
+                className={`inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-md border px-3 text-sm font-medium transition-colors 2xl:w-auto ${
+                  selectedCandidateId === candidate.contactId
+                    ? 'border-radiant-gold/60 bg-radiant-gold/10 text-radiant-gold'
+                    : 'border-silicon-slate/80 bg-silicon-slate/35 text-foreground hover:bg-silicon-slate/55'
+                }`}
+                aria-expanded={selectedCandidateId === candidate.contactId}
+                aria-label={`Open action drawer: ${candidate.nextActionLabel} for ${candidate.contactName}`}
               >
                 <MessageSquare size={15} aria-hidden />
                 {candidate.nextActionLabel}
