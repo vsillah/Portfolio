@@ -823,7 +823,10 @@ async function assertPlanningBacklog(page) {
       hasCampaignAlignment:
         /Today \/ This week/i.test(text) &&
         /Whisper-to-shout launch/i.test(text) &&
-        /The backlog turns the current campaign phase/i.test(text) &&
+        /The backlog turns the (Tease|Teach|Proof|Offer) campaign signal/i.test(text) &&
+        /Calendar LinkedIn/i.test(text) &&
+        /Proof (triggering event|teaching frame|proof asset|offer)/i.test(text) &&
+        /Source HubSpot social calendar template/i.test(text) &&
         /Campaign source/i.test(text) &&
         /Why next:/i.test(text),
       hasDailyActions:
@@ -832,7 +835,8 @@ async function assertPlanningBacklog(page) {
         /campaign timing makes reviewed Gmail draft work/i.test(text) &&
         /Replies/i.test(text) &&
         /Review batch ready/i.test(text) &&
-        /Click: Loads the warm batch review/i.test(text),
+        /Safe next: Prepare the review batch/i.test(text) &&
+        /Calendar signal/i.test(text),
       hasExecutionLoop:
         /Office loop/i.test(text) &&
         /Next office window:/i.test(text) &&
@@ -906,12 +910,12 @@ async function addSideText(page) {
       <p>Vambah opens the warm leads tab and prepares a reviewable outreach batch from the existing planning backlog.</p>
       <h3>Expected</h3>
       <ul>
-        <li>Today / This week shows the current campaign phase and calendar-template source.</li>
+        <li>Today / This week shows the current campaign phase, calendar channel, content proof point, and source template.</li>
         <li>Today's actions rank Gmail, manual social, response, recovery, blocked, and SMS parked rows from the campaign phase.</li>
-        <li>Daily action buttons explain whether they prepare a review-only batch, open a saved record, or stay parked.</li>
+        <li>Daily action rows show source, proof, and the one safe next action before the button.</li>
         <li>Six planning states are visible as compact count filters.</li>
         <li>The office loop shows one primary review CTA and keeps recovery details secondary.</li>
-        <li>Candidate rows explain why each outreach action maps to the campaign plan.</li>
+        <li>Candidate rows explain why each outreach action maps to the campaign plan and content proof point.</li>
         <li>Candidate rows show basis, channel, draft readiness, approval, response, and blockers.</li>
         <li>The manual social workroom still renders for the selected contact.</li>
       </ul>
@@ -1011,13 +1015,13 @@ const receipt = {
   qaUrl,
   scenario: 'Planning backlog operator opens warm leads, filters planning states, uses a daily action CTA to prepare a review-only Gmail batch plan, and opens manual-social workroom state.',
   expectedBehavior: [
-    'Planning backlog shows Today / This Week campaign alignment from the existing whisper_to_shout social content calendar template.',
+    'Planning backlog shows Today / This Week campaign alignment from the existing whisper_to_shout social content calendar template, including calendar channel, source, proof point, and gate.',
     'Daily operating actions rank Gmail reviews, manual-social handoffs, reply follow-ups, recovery, blocked/suppressed rows, and SMS parked rows from the campaign phase.',
-    'Daily action rows show the review-loop status, click result, and blocked or parked reason where applicable.',
+    'Daily action rows show the review-loop status, source, proof point, one safe next action, and blocked or parked reason where applicable.',
     'Office execution loop prioritizes ready Gmail contacts first, shows manual-social handoffs next, and keeps response/blocker recovery separate.',
     'Planning backlog shows Ready for Gmail draft, Ready for manual social, Needs relationship review, Waiting on response, Suppressed/blocked, and SMS parked counts.',
     'Clicking summary counts visibly drills into the matching candidate set.',
-    'Candidate rows show why each outreach action is next for the current campaign phase without duplicating a calendar.',
+    'Candidate rows show why each outreach action is next for the current campaign phase without duplicating a calendar, plus source/proof/safe-action provenance.',
     'A daily Gmail action CTA prepares a review-only batch plan and does not imply external sending.',
     'The selected-contact workroom still renders the manual social handoff panel.',
     'Mobile widths 360, 390, and 430 show the core planning CTA with no horizontal overflow.',
