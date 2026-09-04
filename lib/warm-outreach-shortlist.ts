@@ -217,9 +217,18 @@ export type WarmOutreachDailyActionKind =
   | 'blocked_suppressed'
   | 'sms_parked'
 
+export type WarmOutreachDailyLoopStatus =
+  | 'ready'
+  | 'review_needed'
+  | 'completed'
+  | 'blocked'
+  | 'parked'
+
 export type WarmOutreachDailyActionRow = {
   key: string
   kind: WarmOutreachDailyActionKind
+  loopStatus: WarmOutreachDailyLoopStatus
+  loopStatusLabel: string
   priorityRank: number
   priorityScore: number
   contactId: number
@@ -753,6 +762,36 @@ function dailyActionLabels(kind: WarmOutreachDailyActionKind) {
   }
 }
 
+function dailyLoopStatusFor(
+  candidate: WarmOutreachPlanningBacklogCandidate,
+  kind: WarmOutreachDailyActionKind,
+): WarmOutreachDailyLoopStatus {
+  if (kind === 'sms_parked' || candidate.reviewLoopAction.key === 'parked_sms') return 'parked'
+  if (candidate.responseStatus === 'reply_detected') return 'review_needed'
+  if (candidate.approvalState === 'submitted_evidence_recorded') return 'completed'
+  if (!candidate.reviewLoopAction.enabled) return 'blocked'
+  if (kind === 'blocked_suppressed' || candidate.reviewLoopAction.key === 'resolve_blocker') return 'blocked'
+  if (
+    kind === 'reply_follow_up' ||
+    kind === 'relationship_recovery' ||
+    candidate.reviewLoopAction.key === 'open_gmail_draft_review' ||
+    candidate.reviewLoopAction.key === 'open_manual_social_handoff' ||
+    candidate.reviewLoopAction.key === 'open_response_review' ||
+    candidate.reviewLoopAction.key === 'open_relationship_review'
+  ) {
+    return 'review_needed'
+  }
+  return 'ready'
+}
+
+function dailyLoopStatusLabel(status: WarmOutreachDailyLoopStatus): string {
+  if (status === 'ready') return 'Ready to plan'
+  if (status === 'review_needed') return 'Review needed'
+  if (status === 'completed') return 'Recorded / waiting'
+  if (status === 'blocked') return 'Blocked'
+  return 'Parked'
+}
+
 function reviewLoopActionFor(
   lead: WarmOutreachShortlistLead,
   candidate: Pick<
@@ -919,14 +958,29 @@ function buildDailyActions(args: {
     .map((candidate) => {
       const kind = dailyActionKindFor(candidate)
       const labels = dailyActionLabels(kind)
+      const loopStatus = dailyLoopStatusFor(candidate, kind)
       const campaignWeight = campaignActionWeight(kind, args.campaignAlignment.currentPhase)
-      const readinessBonus = candidate.batchEligible ? 20 : 0
+      const readinessBonus = loopStatus === 'ready' && candidate.batchEligible
+        ? 20
+        : loopStatus === 'review_needed'
+          ? 12
+          : 0
       const blockerPenalty = Math.min(candidate.blockers.length, 4) * 6
-      const priorityScore = campaignWeight + readinessBonus - blockerPenalty
+      const loopStatusPenalty =
+        loopStatus === 'completed'
+          ? 140
+          : loopStatus === 'parked'
+            ? 110
+            : loopStatus === 'blocked'
+              ? 24
+              : 0
+      const priorityScore = campaignWeight + readinessBonus - blockerPenalty - loopStatusPenalty
 
       return {
         key: `warm-daily-action:${kind}:${candidate.contactId}`,
         kind,
+        loopStatus,
+        loopStatusLabel: dailyLoopStatusLabel(loopStatus),
         priorityScore,
         contactId: candidate.contactId,
         contactName: candidate.contactName,
@@ -940,10 +994,14 @@ function buildDailyActions(args: {
         contentProofPoint: candidate.campaignAlignment.contentProofPoint,
         approvalGateSignal: candidate.campaignAlignment.approvalGateLabel,
         reason: candidate.campaignAlignment.whyNext,
-        afterAction: labels.afterAction,
-        ctaLabel: candidate.reviewLoopAction.label,
+        afterAction: loopStatus === 'completed'
+          ? 'Submitted evidence is recorded; wait for a reply before planning another touchpoint.'
+          : labels.afterAction,
+        ctaLabel: loopStatus === 'completed' ? 'Evidence recorded' : candidate.reviewLoopAction.label,
         ctaHref: candidate.ctaHref,
-        enabled: candidate.reviewLoopAction.enabled,
+        enabled: loopStatus === 'completed' || loopStatus === 'parked'
+          ? false
+          : candidate.reviewLoopAction.enabled,
         smsParked: candidate.states.includes('sms_parked'),
         blockers: candidate.blockers,
         reviewLoopAction: candidate.reviewLoopAction,
@@ -952,7 +1010,7 @@ function buildDailyActions(args: {
     .sort((a, b) => b.priorityScore - a.priorityScore || a.contactName.localeCompare(b.contactName))
     .map((row, index) => ({ ...row, priorityRank: index + 1 }))
 
-  const primaryRow = rows.find((row) => row.enabled) ?? null
+  const primaryRow = rows.find((row) => row.enabled && row.loopStatus !== 'completed') ?? null
   const gmailContactIds = args.readyGmail.slice(0, 8).map((candidate) => candidate.contactId)
   const manualContactIds = args.readyManual.slice(0, 8).map((candidate) => candidate.contactId)
   const currentSafestAction: WarmOutreachDailyActions['currentSafestAction'] =

@@ -14,6 +14,7 @@ import {
 } from 'lucide-react'
 import type {
   WarmOutreachDailyActionKind,
+  WarmOutreachDailyLoopStatus,
   WarmOutreachPlanningBacklog,
   WarmOutreachPlanningBacklogCandidate,
   WarmOutreachPlanningBacklogState,
@@ -123,6 +124,29 @@ function dailyActionClasses(kind: WarmOutreachDailyActionKind) {
   return 'border-amber-500/25 bg-amber-500/10 text-amber-100'
 }
 
+function loopStatusClasses(status: WarmOutreachDailyLoopStatus) {
+  if (status === 'ready') return 'border-emerald-500/25 bg-emerald-500/10 text-emerald-100'
+  if (status === 'review_needed') return 'border-radiant-gold/25 bg-radiant-gold/10 text-radiant-gold'
+  if (status === 'completed') return 'border-sky-500/25 bg-sky-500/10 text-sky-100'
+  if (status === 'blocked') return 'border-amber-500/25 bg-amber-500/10 text-amber-100'
+  return 'border-silicon-slate/80 bg-background/35 text-muted-foreground'
+}
+
+function dailyActionCardClasses(status: WarmOutreachDailyLoopStatus) {
+  if (status === 'ready') return 'border-emerald-500/25 bg-emerald-500/5'
+  if (status === 'review_needed') return 'border-radiant-gold/25 bg-radiant-gold/5'
+  if (status === 'completed') return 'border-sky-500/20 bg-sky-500/5'
+  if (status === 'blocked') return 'border-amber-500/25 bg-amber-500/5'
+  return 'border-silicon-slate/70 bg-background/35'
+}
+
+function LoopStatusIcon({ status }: { status: WarmOutreachDailyLoopStatus }) {
+  if (status === 'completed') return <CheckCircle2 size={14} aria-hidden />
+  if (status === 'blocked') return <AlertTriangle size={14} aria-hidden />
+  if (status === 'parked') return <LockKeyhole size={14} aria-hidden />
+  return <ClipboardCheck size={14} aria-hidden />
+}
+
 function DailyActionIcon({ kind }: { kind: WarmOutreachDailyActionKind }) {
   if (kind === 'gmail_draft_review') return <Mail size={14} aria-hidden />
   if (kind === 'manual_social_handoff') return <UserRoundCheck size={14} aria-hidden />
@@ -157,6 +181,7 @@ export default function WarmPlanningBacklogPanel({
   const primaryActionEnabled = primaryDailyAction.key === 'open_daily_action'
     ? primaryDailyAction.enabled && Boolean(primaryDailyCandidate)
     : backlog.currentCta.enabled
+  const visibleDailyActions = backlog.dailyActions.rows.slice(0, 6)
   const handlePrimaryAction = () => {
     if (primaryDailyCandidate) {
       onOpenCandidate(primaryDailyCandidate)
@@ -312,13 +337,13 @@ export default function WarmPlanningBacklogPanel({
                 </div>
               </div>
               <div className="mt-3 grid gap-2 xl:grid-cols-2">
-                {backlog.dailyActions.rows.slice(0, 4).map((action) => {
+                {visibleDailyActions.map((action) => {
                   const candidate = backlog.candidates.find((row) => row.contactId === action.contactId)
                   const loopAction = action.reviewLoopAction
                   return (
                     <article
                       key={action.key}
-                      className="grid min-w-0 gap-2 rounded-md border border-silicon-slate/70 bg-background/40 p-2.5"
+                      className={`grid min-w-0 gap-2 rounded-md border p-2.5 ${dailyActionCardClasses(action.loopStatus)}`}
                       aria-label={`Daily warm action for ${action.contactName}`}
                     >
                       <div className="flex min-w-0 flex-wrap items-center gap-1.5">
@@ -328,6 +353,10 @@ export default function WarmPlanningBacklogPanel({
                         <span className={`inline-flex min-w-fit shrink-0 items-center gap-1 whitespace-nowrap rounded-full border px-2 py-0.5 text-[11px] font-semibold leading-5 ${dailyActionClasses(action.kind)}`}>
                           <DailyActionIcon kind={action.kind} />
                           {action.stateLabel}
+                        </span>
+                        <span className={`inline-flex min-w-fit shrink-0 items-center gap-1 whitespace-nowrap rounded-full border px-2 py-0.5 text-[11px] font-semibold leading-5 ${loopStatusClasses(action.loopStatus)}`}>
+                          <LoopStatusIcon status={action.loopStatus} />
+                          {action.loopStatusLabel}
                         </span>
                         {action.smsParked && action.kind !== 'sms_parked' && (
                           <span className="inline-flex max-w-full items-center rounded-full border border-silicon-slate/80 bg-background/35 px-2 py-0.5 text-[11px] leading-5 text-muted-foreground">
@@ -400,13 +429,22 @@ export default function WarmPlanningBacklogPanel({
                         className="inline-flex min-h-9 w-full items-center justify-center gap-2 rounded-md border border-silicon-slate/80 bg-silicon-slate/35 px-3 text-xs font-medium leading-5 text-foreground transition-colors hover:bg-silicon-slate/55 disabled:cursor-not-allowed disabled:opacity-50"
                         aria-label={`${action.ctaLabel} for ${action.contactName}`}
                       >
-                        <DailyActionIcon kind={action.kind} />
+                        {action.loopStatus === 'completed' || action.loopStatus === 'parked' ? (
+                          <LoopStatusIcon status={action.loopStatus} />
+                        ) : (
+                          <DailyActionIcon kind={action.kind} />
+                        )}
                         {action.ctaLabel}
                       </button>
                     </article>
                   )
                 })}
               </div>
+              {backlog.dailyActions.rows.length > visibleDailyActions.length && (
+                <p className="mt-2 text-[11px] leading-5 text-muted-foreground">
+                  {backlog.dailyActions.rows.length - visibleDailyActions.length} more warm action{backlog.dailyActions.rows.length - visibleDailyActions.length === 1 ? '' : 's'} stay in the filtered candidate list below.
+                </p>
+              )}
             </div>
             <div
               className="min-w-0 rounded-md border border-silicon-slate/70 bg-background/35 p-3"
