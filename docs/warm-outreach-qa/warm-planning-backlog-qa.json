@@ -1,11 +1,13 @@
 {
   "version": "warm-outreach-planning-backlog-qa/v1",
-  "createdAt": "2026-09-04T13:35:43.236Z",
-  "qaUrl": "http://127.0.0.1:3000/admin/outreach?tab=leads&filter=warm&qa=warm-planning-backlog#warm-planning-backlog",
+  "createdAt": "2026-09-04T14:38:24.868Z",
+  "qaUrl": "http://127.0.0.1:3001/admin/outreach?tab=leads&filter=warm&qa=warm-planning-backlog#warm-planning-backlog",
   "scenario": "Planning backlog operator opens warm leads, filters planning states, uses a daily action CTA to prepare a review-only Gmail batch plan, and opens manual-social workroom state.",
   "expectedBehavior": [
     "Planning backlog shows Today / This Week campaign alignment from the existing whisper_to_shout social content calendar template, including calendar channel, cadence, source, proof point, and gate.",
     "Daily operating actions rank Gmail reviews, manual-social handoffs, reply follow-ups, recovery, blocked/suppressed rows, and SMS parked rows from the campaign phase.",
+    "Daily operator loop status shows open, done, blocked, parked, and the one current next action before the longer candidate context.",
+    "Completed sent/waiting rows are visually done and do not expose a repeatable daily action.",
     "Daily action rows show the review-loop status, calendar basis, cadence, source, proof point, gate, one safe next action, and blocked or parked reason where applicable.",
     "Campaign cadence panel prioritizes ready Gmail contacts first, shows manual-social handoffs next, and keeps response/blocker recovery separate.",
     "Planning backlog shows Ready for Gmail draft, Ready for manual social, Needs relationship review, Waiting on response, Suppressed/blocked, and SMS parked counts.",
@@ -13,15 +15,16 @@
     "Candidate rows show why each outreach action is next for the current campaign phase without duplicating a calendar, plus source/cadence/proof/gate/safe-action provenance.",
     "A daily Gmail action CTA prepares a review-only batch plan and does not imply external sending.",
     "The selected-contact workroom still renders the manual social handoff panel.",
-    "Mobile widths 360, 390, and 430 show the core planning CTA with no horizontal overflow."
+    "Mobile widths 360, 390, and 430 plus constrained 768 and desktop 1440 show the core planning CTA with no horizontal overflow."
   ],
   "decisionGate": "Operator review only. Gmail draft creation, Slack dispatch, external sends, SMS/Telnyx, provider activation, and manual-evidence recording remain separate gates.",
   "externalActionBoundary": "Synthetic/local QA only; no Gmail, Slack, LinkedIn, Facebook, Telnyx/SMS, n8n, scheduling, publishing, provider calls, or production-data mutation.",
   "screenshots": {
-    "mobile360": "/Users/vambahsillah/.codex/worktrees/bc86/Portfolio/docs/warm-outreach-qa/warm-planning-backlog-mobile-360.png",
-    "mobile390": "/Users/vambahsillah/.codex/worktrees/bc86/Portfolio/docs/warm-outreach-qa/warm-planning-backlog-mobile-390.png",
-    "mobile430": "/Users/vambahsillah/.codex/worktrees/bc86/Portfolio/docs/warm-outreach-qa/warm-planning-backlog-mobile-430.png",
-    "desktop1440": "/Users/vambahsillah/.codex/worktrees/bc86/Portfolio/docs/warm-outreach-qa/warm-planning-backlog-desktop-1440.png"
+    "mobile360": "/Users/vambahsillah/.codex/worktrees/c847/Portfolio/docs/warm-outreach-qa/warm-planning-backlog-mobile-360.png",
+    "mobile390": "/Users/vambahsillah/.codex/worktrees/c847/Portfolio/docs/warm-outreach-qa/warm-planning-backlog-mobile-390.png",
+    "mobile430": "/Users/vambahsillah/.codex/worktrees/c847/Portfolio/docs/warm-outreach-qa/warm-planning-backlog-mobile-430.png",
+    "tablet768": "/Users/vambahsillah/.codex/worktrees/c847/Portfolio/docs/warm-outreach-qa/warm-planning-backlog-tablet-768.png",
+    "desktop1440": "/Users/vambahsillah/.codex/worktrees/c847/Portfolio/docs/warm-outreach-qa/warm-planning-backlog-desktop-1440.png"
   },
   "viewportRuns": [
     {
@@ -30,12 +33,13 @@
         "width": 360,
         "height": 844
       },
-      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/bc86/Portfolio/docs/warm-outreach-qa/warm-planning-backlog-mobile-360.png",
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/c847/Portfolio/docs/warm-outreach-qa/warm-planning-backlog-mobile-360.png",
       "checks": {
         "hasPlanningBacklog": true,
         "hasStates": true,
         "hasCampaignAlignment": true,
         "hasDailyActions": true,
+        "hasOperatorLoop": true,
         "hasExecutionLoop": true,
         "hasSafeCta": true,
         "hasBoundary": true,
@@ -53,12 +57,13 @@
         "width": 390,
         "height": 844
       },
-      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/bc86/Portfolio/docs/warm-outreach-qa/warm-planning-backlog-mobile-390.png",
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/c847/Portfolio/docs/warm-outreach-qa/warm-planning-backlog-mobile-390.png",
       "checks": {
         "hasPlanningBacklog": true,
         "hasStates": true,
         "hasCampaignAlignment": true,
         "hasDailyActions": true,
+        "hasOperatorLoop": true,
         "hasExecutionLoop": true,
         "hasSafeCta": true,
         "hasBoundary": true,
@@ -76,12 +81,13 @@
         "width": 430,
         "height": 844
       },
-      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/bc86/Portfolio/docs/warm-outreach-qa/warm-planning-backlog-mobile-430.png",
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/c847/Portfolio/docs/warm-outreach-qa/warm-planning-backlog-mobile-430.png",
       "checks": {
         "hasPlanningBacklog": true,
         "hasStates": true,
         "hasCampaignAlignment": true,
         "hasDailyActions": true,
+        "hasOperatorLoop": true,
         "hasExecutionLoop": true,
         "hasSafeCta": true,
         "hasBoundary": true,
@@ -94,17 +100,42 @@
       "externalRequests": []
     },
     {
-      "name": "desktop1440",
+      "name": "tablet768",
       "viewport": {
-        "width": 1440,
+        "width": 768,
         "height": 900
       },
-      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/bc86/Portfolio/docs/warm-outreach-qa/warm-planning-backlog-desktop-1440.png",
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/c847/Portfolio/docs/warm-outreach-qa/warm-planning-backlog-tablet-768.png",
       "checks": {
         "hasPlanningBacklog": true,
         "hasStates": true,
         "hasCampaignAlignment": true,
         "hasDailyActions": true,
+        "hasOperatorLoop": true,
+        "hasExecutionLoop": true,
+        "hasSafeCta": true,
+        "hasBoundary": true,
+        "viewport": {
+          "clientWidth": 768,
+          "scrollWidth": 768
+        },
+        "horizontalOverflow": false
+      },
+      "externalRequests": []
+    },
+    {
+      "name": "desktop1440",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/c847/Portfolio/docs/warm-outreach-qa/warm-planning-backlog-desktop-1440.png",
+      "checks": {
+        "hasPlanningBacklog": true,
+        "hasStates": true,
+        "hasCampaignAlignment": true,
+        "hasDailyActions": true,
+        "hasOperatorLoop": true,
         "hasExecutionLoop": true,
         "hasSafeCta": true,
         "hasBoundary": true,
@@ -117,8 +148,8 @@
       "externalRequests": []
     }
   ],
-  "mp4Path": "/Users/vambahsillah/.codex/worktrees/bc86/Portfolio/docs/warm-outreach-qa/warm-planning-backlog-qa.mp4",
-  "rawVideoPath": "/Users/vambahsillah/.codex/worktrees/bc86/Portfolio/test-results/warm-planning-backlog-qa/source/11bdf4328c07ac4d8d715e21d370a187.webm",
+  "mp4Path": "/Users/vambahsillah/.codex/worktrees/c847/Portfolio/docs/warm-outreach-qa/warm-planning-backlog-qa.mp4",
+  "rawVideoPath": "/Users/vambahsillah/.codex/worktrees/c847/Portfolio/test-results/warm-planning-backlog-qa/source/fe02c928224c4298ac8d6364691aad72.webm",
   "externalRequests": [],
   "localRequests": [
     {
@@ -135,23 +166,23 @@
     },
     {
       "method": "GET",
-      "pathname": "/api/admin/value-evidence/workflow-status"
-    },
-    {
-      "method": "GET",
-      "pathname": "/api/admin/outreach/leads"
-    },
-    {
-      "method": "GET",
-      "pathname": "/api/admin/value-evidence/workflow-status"
-    },
-    {
-      "method": "GET",
-      "pathname": "/api/admin/outreach/leads"
-    },
-    {
-      "method": "GET",
       "pathname": "/auth/v1/user"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/value-evidence/workflow-status"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/outreach/leads"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/value-evidence/workflow-status"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/outreach/leads"
     },
     {
       "method": "GET",

@@ -14,6 +14,7 @@ import {
 } from 'lucide-react'
 import type {
   WarmOutreachDailyActionKind,
+  WarmOutreachDailyOperatorState,
   WarmOutreachPlanningBacklog,
   WarmOutreachPlanningBacklogCandidate,
   WarmOutreachPlanningBacklogState,
@@ -121,6 +122,14 @@ function dailyActionClasses(kind: WarmOutreachDailyActionKind) {
   if (kind === 'reply_follow_up') return 'border-violet-500/25 bg-violet-500/10 text-violet-100'
   if (kind === 'sms_parked') return 'border-silicon-slate/80 bg-background/35 text-muted-foreground'
   return 'border-amber-500/25 bg-amber-500/10 text-amber-100'
+}
+
+function dailyOperatorStateClasses(state: WarmOutreachDailyOperatorState) {
+  if (state === 'available') return 'border-emerald-500/30 bg-emerald-500/10 text-emerald-100'
+  if (state === 'review_needed') return 'border-sky-500/30 bg-sky-500/10 text-sky-100'
+  if (state === 'completed') return 'border-radiant-gold/30 bg-radiant-gold/10 text-radiant-gold'
+  if (state === 'blocked') return 'border-amber-500/30 bg-amber-500/10 text-amber-100'
+  return 'border-silicon-slate/80 bg-background/35 text-muted-foreground'
 }
 
 function DailyActionIcon({ kind }: { kind: WarmOutreachDailyActionKind }) {
@@ -289,6 +298,17 @@ export default function WarmPlanningBacklogPanel({
                   <p className="mt-1 line-clamp-2 text-[11px] leading-5 text-muted-foreground">
                     {backlog.dailyActions.campaignMilestoneTitle}
                   </p>
+                  <div
+                    className="mt-2 flex min-w-0 flex-wrap items-center gap-1.5 text-[11px] leading-5 text-muted-foreground"
+                    aria-label="Warm daily operator loop status"
+                  >
+                    <span className="inline-flex min-w-0 max-w-full items-center rounded-full border border-silicon-slate/70 bg-background/45 px-2.5 py-0.5">
+                      <span className="truncate">{backlog.dailyActions.operatorLoop.queueLabel}</span>
+                    </span>
+                    <span className="inline-flex min-w-0 max-w-full items-center rounded-full border border-radiant-gold/25 bg-radiant-gold/10 px-2.5 py-0.5 text-radiant-gold">
+                      <span className="truncate">Next {backlog.dailyActions.operatorLoop.nextActionLabel}</span>
+                    </span>
+                  </div>
                 </div>
                 <div className="grid min-w-0 grid-cols-[repeat(2,minmax(0,1fr))] gap-1.5 text-[11px] leading-5 text-muted-foreground sm:grid-cols-[repeat(3,minmax(0,1fr))] xl:grid-cols-[repeat(2,minmax(0,1fr))]">
                   <span className="inline-flex min-w-0 items-center justify-between gap-2 rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2.5 py-0.5 text-emerald-100">
@@ -309,6 +329,9 @@ export default function WarmPlanningBacklogPanel({
                   <span className="inline-flex min-w-0 items-center justify-between gap-2 rounded-full border border-silicon-slate/80 bg-background/35 px-2.5 py-0.5">
                     SMS parked <b className="tabular-nums">{backlog.dailyActions.summary.smsParkedCount}</b>
                   </span>
+                  <span className="inline-flex min-w-0 items-center justify-between gap-2 rounded-full border border-radiant-gold/25 bg-radiant-gold/10 px-2.5 py-0.5 text-radiant-gold">
+                    Done <b className="tabular-nums">{backlog.dailyActions.operatorLoop.counts.completed}</b>
+                  </span>
                 </div>
               </div>
               <div className="mt-3 grid gap-2 xl:grid-cols-2">
@@ -328,6 +351,9 @@ export default function WarmPlanningBacklogPanel({
                         <span className={`inline-flex min-w-fit shrink-0 items-center gap-1 whitespace-nowrap rounded-full border px-2 py-0.5 text-[11px] font-semibold leading-5 ${dailyActionClasses(action.kind)}`}>
                           <DailyActionIcon kind={action.kind} />
                           {action.stateLabel}
+                        </span>
+                        <span className={`inline-flex min-w-fit shrink-0 items-center whitespace-nowrap rounded-full border px-2 py-0.5 text-[11px] font-semibold leading-5 ${dailyOperatorStateClasses(action.operatorState)}`}>
+                          {action.operatorStateLabel}
                         </span>
                         {action.smsParked && action.kind !== 'sms_parked' && (
                           <span className="inline-flex max-w-full items-center rounded-full border border-silicon-slate/80 bg-background/35 px-2 py-0.5 text-[11px] leading-5 text-muted-foreground">

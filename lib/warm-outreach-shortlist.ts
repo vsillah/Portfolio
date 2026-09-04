@@ -217,9 +217,18 @@ export type WarmOutreachDailyActionKind =
   | 'blocked_suppressed'
   | 'sms_parked'
 
+export type WarmOutreachDailyOperatorState =
+  | 'available'
+  | 'review_needed'
+  | 'completed'
+  | 'blocked'
+  | 'parked'
+
 export type WarmOutreachDailyActionRow = {
   key: string
   kind: WarmOutreachDailyActionKind
+  operatorState: WarmOutreachDailyOperatorState
+  operatorStateLabel: string
   priorityRank: number
   priorityScore: number
   contactId: number
@@ -255,6 +264,12 @@ export type WarmOutreachDailyActions = {
     reason: string
     contactIds: number[]
     href: string | null
+  }
+  operatorLoop: {
+    version: 'warm-outreach-daily-operator-loop/v1'
+    queueLabel: string
+    nextActionLabel: string
+    counts: Record<WarmOutreachDailyOperatorState, number>
   }
   summary: {
     gmailDraftReviewCount: number
@@ -753,6 +768,62 @@ function dailyActionLabels(kind: WarmOutreachDailyActionKind) {
   }
 }
 
+function operatorStateFor(
+  candidate: WarmOutreachPlanningBacklogCandidate,
+  kind: WarmOutreachDailyActionKind,
+): {
+  state: WarmOutreachDailyOperatorState
+  label: string
+  enabled: boolean
+  afterAction: string | null
+} {
+  if (kind === 'sms_parked') {
+    return {
+      state: 'parked',
+      label: 'Parked',
+      enabled: false,
+      afterAction: 'SMS remains parked; no daily action is available from this loop.',
+    }
+  }
+  if (candidate.approvalState === 'submitted_evidence_recorded' && candidate.responseStatus === 'waiting') {
+    return {
+      state: 'completed',
+      label: 'Done',
+      enabled: false,
+      afterAction: 'Outreach evidence is recorded; wait for a reply before another touch.',
+    }
+  }
+  if (!candidate.reviewLoopAction.enabled || kind === 'blocked_suppressed') {
+    return {
+      state: 'blocked',
+      label: 'Blocked',
+      enabled: candidate.reviewLoopAction.enabled,
+      afterAction: null,
+    }
+  }
+  if (
+    kind === 'reply_follow_up' ||
+    kind === 'relationship_recovery' ||
+    candidate.reviewLoopAction.key === 'open_gmail_draft_review' ||
+    candidate.reviewLoopAction.key === 'open_manual_social_handoff' ||
+    candidate.reviewLoopAction.key === 'open_response_review' ||
+    candidate.reviewLoopAction.key === 'open_relationship_review'
+  ) {
+    return {
+      state: 'review_needed',
+      label: 'Review',
+      enabled: true,
+      afterAction: null,
+    }
+  }
+  return {
+    state: 'available',
+    label: 'Ready',
+    enabled: true,
+    afterAction: null,
+  }
+}
+
 function reviewLoopActionFor(
   lead: WarmOutreachShortlistLead,
   candidate: Pick<
@@ -818,7 +889,7 @@ function reviewLoopActionFor(
       blockerReason: null,
     }
   }
-  if (candidate.responseStatus !== 'no_response') {
+  if (candidate.responseStatus === 'reply_detected') {
     return {
       key: 'open_response_review',
       label: 'Review response',
@@ -828,6 +899,18 @@ function reviewLoopActionFor(
       href: `${candidate.ctaHref}#warm-response-lifecycle`,
       enabled: true,
       blockerReason: null,
+    }
+  }
+  if (candidate.responseStatus === 'waiting') {
+    return {
+      key: 'open_response_review',
+      label: 'Waiting on response',
+      statusLabel: 'Evidence recorded',
+      detail: 'Outreach evidence is recorded; wait for a reply before another touchpoint.',
+      afterClick: 'Keeps the row in waiting state and does not create another touchpoint.',
+      href: `${candidate.ctaHref}#warm-response-lifecycle`,
+      enabled: false,
+      blockerReason: 'Submitted evidence is already recorded.',
     }
   }
   if (candidate.states.includes('needs_relationship_review')) {
@@ -919,6 +1002,7 @@ function buildDailyActions(args: {
     .map((candidate) => {
       const kind = dailyActionKindFor(candidate)
       const labels = dailyActionLabels(kind)
+      const operatorState = operatorStateFor(candidate, kind)
       const campaignWeight = campaignActionWeight(kind, args.campaignAlignment.currentPhase)
       const readinessBonus = candidate.batchEligible ? 20 : 0
       const blockerPenalty = Math.min(candidate.blockers.length, 4) * 6
@@ -927,6 +1011,8 @@ function buildDailyActions(args: {
       return {
         key: `warm-daily-action:${kind}:${candidate.contactId}`,
         kind,
+        operatorState: operatorState.state,
+        operatorStateLabel: operatorState.label,
         priorityScore,
         contactId: candidate.contactId,
         contactName: candidate.contactName,
@@ -940,10 +1026,10 @@ function buildDailyActions(args: {
         contentProofPoint: candidate.campaignAlignment.contentProofPoint,
         approvalGateSignal: candidate.campaignAlignment.approvalGateLabel,
         reason: candidate.campaignAlignment.whyNext,
-        afterAction: labels.afterAction,
-        ctaLabel: candidate.reviewLoopAction.label,
+        afterAction: operatorState.afterAction ?? labels.afterAction,
+        ctaLabel: operatorState.state === 'completed' ? 'Waiting on response' : candidate.reviewLoopAction.label,
         ctaHref: candidate.ctaHref,
-        enabled: candidate.reviewLoopAction.enabled,
+        enabled: candidate.reviewLoopAction.enabled && operatorState.enabled,
         smsParked: candidate.states.includes('sms_parked'),
         blockers: candidate.blockers,
         reviewLoopAction: candidate.reviewLoopAction,
@@ -992,12 +1078,28 @@ function buildDailyActions(args: {
               href: null,
             }
 
+  const operatorCounts: WarmOutreachDailyActions['operatorLoop']['counts'] = {
+    available: rows.filter((row) => row.operatorState === 'available').length,
+    review_needed: rows.filter((row) => row.operatorState === 'review_needed').length,
+    completed: rows.filter((row) => row.operatorState === 'completed').length,
+    blocked: rows.filter((row) => row.operatorState === 'blocked').length,
+    parked: rows.filter((row) => row.operatorState === 'parked').length,
+  }
+  const openCount = operatorCounts.available + operatorCounts.review_needed
+
   return {
     version: 'warm-outreach-daily-actions/v1',
     operatingDateLabel: displayDateLabel(args.generatedFor),
     campaignPhaseLabel: args.campaignAlignment.currentPhaseLabel,
     campaignMilestoneTitle: args.campaignAlignment.currentMilestoneTitle,
     currentSafestAction,
+    operatorLoop: {
+      version: 'warm-outreach-daily-operator-loop/v1',
+      queueLabel:
+        `${openCount} open / ${operatorCounts.completed} done / ${operatorCounts.blocked} blocked / ${operatorCounts.parked} parked`,
+      nextActionLabel: currentSafestAction.label,
+      counts: operatorCounts,
+    },
     summary: {
       gmailDraftReviewCount: rows.filter((row) => row.kind === 'gmail_draft_review').length,
       manualSocialHandoffCount: rows.filter((row) => row.kind === 'manual_social_handoff').length,

@@ -383,6 +383,18 @@ describe('warm outreach shortlist', () => {
         enabled: true,
         contactIds: [10, 15],
       },
+      operatorLoop: {
+        version: 'warm-outreach-daily-operator-loop/v1',
+        queueLabel: '4 open / 1 done / 1 blocked / 0 parked',
+        nextActionLabel: "Start today's Gmail review loop (2)",
+        counts: {
+          available: 3,
+          review_needed: 1,
+          completed: 1,
+          blocked: 1,
+          parked: 0,
+        },
+      },
       summary: {
         gmailDraftReviewCount: 2,
         manualSocialHandoffCount: 1,
@@ -429,6 +441,16 @@ describe('warm outreach shortlist', () => {
         statusLabel: 'Review batch ready',
         blockerReason: null,
       },
+      operatorState: 'available',
+      operatorStateLabel: 'Ready',
+    })
+    expect(shortlist.planningBacklog.dailyActions.rows.find((row) => row.contactName === 'Waiting Response')).toMatchObject({
+      kind: 'reply_follow_up',
+      operatorState: 'completed',
+      operatorStateLabel: 'Done',
+      ctaLabel: 'Waiting on response',
+      enabled: false,
+      afterAction: 'Outreach evidence is recorded; wait for a reply before another touch.',
     })
     expect(shortlist.planningBacklog.executionLoop.primaryActionReason).toMatch(
       /content-calendar cadence favors Gmail draft review first/,
@@ -492,6 +514,7 @@ describe('warm outreach shortlist', () => {
           id: 22,
           name: 'Proof Reply',
           email: 'reply@example.com',
+          has_reply: true,
           messages_sent: 1,
           recent_email_drafts: [
             {

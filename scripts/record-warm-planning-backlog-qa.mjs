@@ -22,6 +22,7 @@ const screenshots = {
   mobile360: path.join(outputDir, 'warm-planning-backlog-mobile-360.png'),
   mobile390: path.join(outputDir, 'warm-planning-backlog-mobile-390.png'),
   mobile430: path.join(outputDir, 'warm-planning-backlog-mobile-430.png'),
+  tablet768: path.join(outputDir, 'warm-planning-backlog-tablet-768.png'),
   desktop1440: path.join(outputDir, 'warm-planning-backlog-desktop-1440.png'),
 }
 
@@ -804,6 +805,7 @@ async function assertPlanningBacklog(page) {
   const checks = await page.evaluate(() => {
     const text = document.body.innerText
     const planningBacklog = document.querySelector('[aria-label="Warm outreach planning backlog"]')
+    const operatorLoop = document.querySelector('[aria-label="Warm daily operator loop status"]')
     const currentCta = [...document.querySelectorAll('button')]
       .find((button) => /Start today's Gmail review loop|Start today's manual-social loop/.test(button.textContent || ''))
     const visible = (element) => {
@@ -837,11 +839,19 @@ async function assertPlanningBacklog(page) {
         /Start today's Gmail review loop/i.test(text) &&
         /campaign timing makes reviewed Gmail draft work/i.test(text) &&
         /Replies/i.test(text) &&
+        /Done\s+\d+/i.test(text) &&
         /Review batch ready/i.test(text) &&
         /Safe next: Prepare the review batch/i.test(text) &&
         /Calendar (Tease|Teach|Proof|Offer)/i.test(text) &&
         /Cadence: Campaign day/i.test(text) &&
         /Gate: copy review/i.test(text),
+      hasOperatorLoop:
+        visible(operatorLoop) &&
+        /\d+ open \/ \d+ done \/ \d+ blocked \/ \d+ parked/i.test(operatorLoop?.textContent || '') &&
+        /Next Start today's Gmail review loop/i.test(operatorLoop?.textContent || '') &&
+        /Ready/i.test(text) &&
+        /Done/i.test(text) &&
+        /Blocked/i.test(text),
       hasExecutionLoop:
         /Campaign cadence/i.test(text) &&
         /Lead Pipeline window:/i.test(text) &&
@@ -918,6 +928,7 @@ async function addSideText(page) {
       <ul>
         <li>Today / This week shows the current campaign phase, calendar channel, cadence, source template, proof point, and approval gate.</li>
         <li>Today's actions rank Gmail, manual social, response, recovery, blocked, and SMS parked rows from the campaign phase.</li>
+        <li>The daily operator loop shows open, done, blocked, and parked counts plus the one current next action.</li>
         <li>Daily action rows show calendar basis, cadence, source, proof, gate, and the one safe next action before the button.</li>
         <li>Six planning states are visible as compact count filters.</li>
         <li>The campaign cadence panel shows one primary review CTA and keeps recovery details secondary.</li>
@@ -946,6 +957,7 @@ for (const [name, viewport, screenshotPath] of [
   ['mobile360', { width: 360, height: 844 }, screenshots.mobile360],
   ['mobile390', { width: 390, height: 844 }, screenshots.mobile390],
   ['mobile430', { width: 430, height: 844 }, screenshots.mobile430],
+  ['tablet768', { width: 768, height: 900 }, screenshots.tablet768],
   ['desktop1440', { width: 1440, height: 900 }, screenshots.desktop1440],
 ]) {
   viewportRuns.push(await viewportEvidence(browser, name, viewport, screenshotPath))
@@ -1006,6 +1018,7 @@ const failedViewport = viewportRuns.find((run) =>
   !run.checks.hasStates ||
   !run.checks.hasCampaignAlignment ||
   !run.checks.hasDailyActions ||
+  !run.checks.hasOperatorLoop ||
   !run.checks.hasExecutionLoop ||
   !run.checks.hasSafeCta ||
   !run.checks.hasBoundary ||
@@ -1023,6 +1036,8 @@ const receipt = {
   expectedBehavior: [
     'Planning backlog shows Today / This Week campaign alignment from the existing whisper_to_shout social content calendar template, including calendar channel, cadence, source, proof point, and gate.',
     'Daily operating actions rank Gmail reviews, manual-social handoffs, reply follow-ups, recovery, blocked/suppressed rows, and SMS parked rows from the campaign phase.',
+    'Daily operator loop status shows open, done, blocked, parked, and the one current next action before the longer candidate context.',
+    'Completed sent/waiting rows are visually done and do not expose a repeatable daily action.',
     'Daily action rows show the review-loop status, calendar basis, cadence, source, proof point, gate, one safe next action, and blocked or parked reason where applicable.',
     'Campaign cadence panel prioritizes ready Gmail contacts first, shows manual-social handoffs next, and keeps response/blocker recovery separate.',
     'Planning backlog shows Ready for Gmail draft, Ready for manual social, Needs relationship review, Waiting on response, Suppressed/blocked, and SMS parked counts.',
@@ -1030,7 +1045,7 @@ const receipt = {
     'Candidate rows show why each outreach action is next for the current campaign phase without duplicating a calendar, plus source/cadence/proof/gate/safe-action provenance.',
     'A daily Gmail action CTA prepares a review-only batch plan and does not imply external sending.',
     'The selected-contact workroom still renders the manual social handoff panel.',
-    'Mobile widths 360, 390, and 430 show the core planning CTA with no horizontal overflow.',
+    'Mobile widths 360, 390, and 430 plus constrained 768 and desktop 1440 show the core planning CTA with no horizontal overflow.',
   ],
   decisionGate: 'Operator review only. Gmail draft creation, Slack dispatch, external sends, SMS/Telnyx, provider activation, and manual-evidence recording remain separate gates.',
   externalActionBoundary: 'Synthetic/local QA only; no Gmail, Slack, LinkedIn, Facebook, Telnyx/SMS, n8n, scheduling, publishing, provider calls, or production-data mutation.',

@@ -955,9 +955,17 @@ describe('OutreachAdminPage deep links', () => {
     expect(within(planningBacklog).getByLabelText('Warm daily operating actions')).toBeInTheDocument()
     expect(within(planningBacklog).getByText("Today's actions")).toBeInTheDocument()
     expect(within(planningBacklog).getAllByText("Start today's Gmail review loop (1)").length).toBeGreaterThan(0)
+    expect(within(planningBacklog).getByLabelText('Warm daily operator loop status')).toHaveTextContent(
+      "1 open / 0 done / 0 blocked / 0 parked",
+    )
+    expect(within(planningBacklog).getByLabelText('Warm daily operator loop status')).toHaveTextContent(
+      "Next Start today's Gmail review loop (1)",
+    )
     expect(within(planningBacklog).getAllByText(/campaign timing makes reviewed Gmail draft work/).length).toBeGreaterThan(0)
     expect(within(planningBacklog).getByText('Replies')).toBeInTheDocument()
+    expect(within(planningBacklog).getByText('Done')).toBeInTheDocument()
     expect(within(planningBacklog).getByLabelText('Daily warm action for Ada Operator')).toBeInTheDocument()
+    expect(within(planningBacklog).getByText('Ready')).toBeInTheDocument()
     expect(within(planningBacklog).getByText('Review batch ready')).toBeInTheDocument()
     expect(within(planningBacklog).getByText(/Safe next: Prepare the review batch/)).toBeInTheDocument()
     expect(within(planningBacklog).getByRole('button', { name: 'Prepare Gmail review for Ada Operator' })).toBeInTheDocument()
