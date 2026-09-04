@@ -178,8 +178,10 @@ export type WarmOutreachPlanningBacklogCandidate = {
     phaseLabel: string
     theme: string
     calendarSignal: string
+    cadenceSignal: string
     sourceLabel: string
     contentProofPoint: string
+    approvalGateLabel: string
     safeNextAction: string
     plannedWindowLabel: string
     whyNext: string
@@ -227,8 +229,10 @@ export type WarmOutreachDailyActionRow = {
   stateLabel: string
   channelLabel: string
   campaignSignal: string
+  cadenceSignal: string
   sourceSignal: string
   contentProofPoint: string
+  approvalGateSignal: string
   reason: string
   afterAction: string
   ctaLabel: string
@@ -264,6 +268,8 @@ export type WarmOutreachDailyActions = {
   executionBoundary: {
     existingLeadPipelineSurface: true
     campaignCalendarInformed: true
+    contentCalendarSourceOfTruth: true
+    separateOfficeWeekQueue: false
     localPortfolioPlanOnly: true
     createsGmailDrafts: false
     gmailProviderCalls: false
@@ -295,6 +301,8 @@ export type WarmOutreachPlanningBacklog = {
     currentSourceLabel: string
     currentProofPoint: string
     currentApprovalGateLabel: string
+    currentCadenceLabel: string
+    sourceContextLabel: string
     plannedWindowLabel: string
     currentMilestoneTitle: string
     nextMilestoneTitle: string | null
@@ -336,6 +344,8 @@ export type WarmOutreachPlanningBacklog = {
   candidates: WarmOutreachPlanningBacklogCandidate[]
   executionBoundary: {
     localPortfolioPlanOnly: true
+    contentCalendarSourceOfTruth: true
+    separateOfficeWeekQueue: false
     providerCallsEnabled: false
     createsGmailDrafts: false
     externalSendEnabled: false
@@ -476,10 +486,11 @@ function milestoneApprovalGateLabel(milestone: SocialContentCalendarTemplateMile
 }
 
 function buildCampaignAlignment(generatedFor: string): WarmOutreachPlanningBacklog['campaignAlignment'] {
-  const { current, next } = campaignMilestoneFor(generatedFor)
+  const { current, next, campaignDay } = campaignMilestoneFor(generatedFor)
   const weekEnd = addDaysLabel(generatedFor, 6)
   const proofPoint = milestoneProofPoint(current)
   const sourceLabel = milestoneSourceLabel(current)
+  const gateLabel = milestoneApprovalGateLabel(current)
 
   return {
     source: 'social_content_calendar_template',
@@ -491,14 +502,17 @@ function buildCampaignAlignment(generatedFor: string): WarmOutreachPlanningBackl
     currentCalendarChannelLabel: CALENDAR_CHANNEL_LABELS[current.channel],
     currentSourceLabel: sourceLabel,
     currentProofPoint: proofPoint,
-    currentApprovalGateLabel: milestoneApprovalGateLabel(current),
+    currentApprovalGateLabel: gateLabel,
+    currentCadenceLabel:
+      `Campaign day ${campaignDay}; ${current.recommended_lead_time_days}-day content lead time`,
+    sourceContextLabel: `${WARM_OUTREACH_CAMPAIGN_TEMPLATE.label} content calendar template`,
     plannedWindowLabel: `${displayDateLabel(generatedFor)}-${displayDateLabel(weekEnd)}`,
     currentMilestoneTitle: current.planned_angle,
     nextMilestoneTitle: next?.planned_angle ?? null,
     whyThisBacklogIsNext:
-      `The backlog turns the ${CAMPAIGN_PHASE_LABELS[current.campaign_phase]} campaign signal into relationship-specific Gmail draft candidates and manual social handoffs.`,
+      `The backlog uses the existing ${CAMPAIGN_PHASE_LABELS[current.campaign_phase]} content-calendar milestone to choose relationship-specific Gmail draft candidates and manual social handoffs.`,
     drillIn:
-      `${WARM_OUTREACH_CAMPAIGN_TEMPLATE.description} Source: ${sourceLabel}. Proof point: ${proofPoint}. Outreach actions stay local and review-gated.`,
+      `${WARM_OUTREACH_CAMPAIGN_TEMPLATE.description} Source: ${sourceLabel}. Cadence: campaign day ${campaignDay}, ${current.recommended_lead_time_days}-day lead time. Gate: ${gateLabel}. Outreach actions stay in the existing Lead Pipeline and remain review-gated.`,
   }
 }
 
@@ -921,8 +935,10 @@ function buildDailyActions(args: {
         stateLabel: labels.stateLabel,
         channelLabel: labels.channelLabel,
         campaignSignal: `${args.campaignAlignment.currentPhaseLabel}: ${args.campaignAlignment.currentMilestoneTitle}`,
+        cadenceSignal: args.campaignAlignment.currentCadenceLabel,
         sourceSignal: candidate.campaignAlignment.sourceLabel,
         contentProofPoint: candidate.campaignAlignment.contentProofPoint,
+        approvalGateSignal: candidate.campaignAlignment.approvalGateLabel,
         reason: candidate.campaignAlignment.whyNext,
         afterAction: labels.afterAction,
         ctaLabel: candidate.reviewLoopAction.label,
@@ -994,6 +1010,8 @@ function buildDailyActions(args: {
     executionBoundary: {
       existingLeadPipelineSurface: true,
       campaignCalendarInformed: true,
+      contentCalendarSourceOfTruth: true,
+      separateOfficeWeekQueue: false,
       localPortfolioPlanOnly: true,
       createsGmailDrafts: false,
       gmailProviderCalls: false,
@@ -1340,8 +1358,10 @@ function planningBacklogCandidateFor(
       phaseLabel: campaignAlignment.currentPhaseLabel,
       theme: campaignAlignment.currentMilestoneTitle,
       calendarSignal: `${campaignAlignment.currentPhaseLabel} ${campaignAlignment.currentCalendarChannelLabel}: ${campaignAlignment.currentMilestoneTitle}`,
+      cadenceSignal: campaignAlignment.currentCadenceLabel,
       sourceLabel: campaignAlignment.currentSourceLabel,
       contentProofPoint: candidateContentProofPoint(lead, campaignAlignment),
+      approvalGateLabel: campaignAlignment.currentApprovalGateLabel,
       safeNextAction: candidateSafeNextAction(reviewLoopAction, primaryState),
       plannedWindowLabel: campaignAlignment.plannedWindowLabel,
       whyNext: whyThisCandidateIsNext(primaryState, campaignAlignment.currentPhaseLabel),
@@ -1392,17 +1412,17 @@ function buildPlanningBacklog(args: {
           ? 'Review response recovery'
           : blockers.length > 0
             ? 'Review blocker recovery'
-            : 'No office loop action'
+            : 'No Lead Pipeline action'
   const executionPrimaryReason =
     readyGmail.length > 0
-      ? `${campaignAlignment.currentPhaseLabel} campaign readiness favors Gmail draft review first; manual-social handoffs stay next in the same workroom.`
+      ? `${campaignAlignment.currentPhaseLabel} content-calendar cadence favors Gmail draft review first; manual-social handoffs stay next in the same Lead Pipeline workroom.`
       : readyManual.length > 0
-        ? `${campaignAlignment.currentPhaseLabel} campaign readiness favors manual social handoff review before any provider action.`
+        ? `${campaignAlignment.currentPhaseLabel} content-calendar cadence favors manual social handoff review before any provider action.`
         : waiting.length > 0
           ? 'Waiting responses need per-contact recovery before a new outreach batch.'
         : blockers.length > 0
           ? 'Relationship or suppression blockers need operator review before the campaign touchpoint is ready.'
-          : 'No warm contacts are visible in this office window.'
+          : 'No warm contacts are visible in this Lead Pipeline window.'
   const dailyActions = buildDailyActions({
     generatedFor: args.generatedFor,
     campaignAlignment,
@@ -1458,7 +1478,7 @@ function buildPlanningBacklog(args: {
             },
     executionLoop: {
       version: 'warm-outreach-office-execution-loop/v1',
-      officeWindowLabel: `Next office window: ${displayDateLabel(args.generatedFor)}`,
+      officeWindowLabel: `Lead Pipeline window: ${displayDateLabel(args.generatedFor)}`,
       focusLabel: executionReadyCount > 0
         ? `${executionReadyCount} ready contact${executionReadyCount === 1 ? '' : 's'}`
         : waiting.length > 0
@@ -1490,7 +1510,7 @@ function buildPlanningBacklog(args: {
         {
           key: 'work_existing_workroom',
           label: 'Work the Lead Pipeline',
-          detail: 'Use the selected outreach workroom for relationship context, draft review, handoff notes, and recovery.',
+          detail: 'Use the selected outreach workroom; the content calendar is source context, not a second queue.',
           count: executionReadyCount + waiting.length + blockers.length,
           state: executionReadyCount > 0 ? 'next' : 'active',
         },
@@ -1507,6 +1527,8 @@ function buildPlanningBacklog(args: {
     candidates,
     executionBoundary: {
       localPortfolioPlanOnly: true,
+      contentCalendarSourceOfTruth: true,
+      separateOfficeWeekQueue: false,
       providerCallsEnabled: false,
       createsGmailDrafts: false,
       externalSendEnabled: false,

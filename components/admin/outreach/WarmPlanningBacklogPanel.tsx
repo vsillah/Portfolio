@@ -223,6 +223,18 @@ export default function WarmPlanningBacklogPanel({
                 >
                   <span className="truncate">Source {backlog.campaignAlignment.currentSourceLabel}</span>
                 </span>
+                <span
+                  className="inline-flex min-h-7 min-w-0 max-w-full items-center rounded-md border border-radiant-gold/25 bg-radiant-gold/10 px-2 text-[11px] leading-5 text-radiant-gold"
+                  title={backlog.campaignAlignment.currentCadenceLabel}
+                >
+                  <span className="truncate">Cadence {backlog.campaignAlignment.currentCadenceLabel}</span>
+                </span>
+                <span
+                  className="inline-flex min-h-7 min-w-0 max-w-full items-center rounded-md border border-amber-500/25 bg-amber-500/10 px-2 text-[11px] leading-5 text-amber-100"
+                  title={backlog.campaignAlignment.currentApprovalGateLabel}
+                >
+                  <span className="truncate">Gate {backlog.campaignAlignment.currentApprovalGateLabel}</span>
+                </span>
               </div>
               <p className="mt-2 text-[11px] font-semibold uppercase leading-5 tracking-wide text-muted-foreground/80">
                 {backlog.campaignAlignment.campaignTheme}
@@ -254,6 +266,18 @@ export default function WarmPlanningBacklogPanel({
                     </span>
                     <span className="inline-flex min-h-7 min-w-fit shrink-0 items-center whitespace-nowrap rounded-md border border-silicon-slate/70 bg-background/45 px-2 text-[11px] leading-5 text-muted-foreground">
                       {backlog.dailyActions.operatingDateLabel}
+                    </span>
+                    <span
+                      className="inline-flex min-h-7 min-w-0 max-w-full items-center rounded-md border border-radiant-gold/25 bg-radiant-gold/10 px-2 text-[11px] leading-5 text-radiant-gold"
+                      title={backlog.campaignAlignment.sourceContextLabel}
+                    >
+                      <span className="truncate">Source {backlog.campaignAlignment.sourceContextLabel}</span>
+                    </span>
+                    <span
+                      className="inline-flex min-h-7 min-w-0 max-w-full items-center rounded-md border border-silicon-slate/70 bg-background/45 px-2 text-[11px] leading-5 text-muted-foreground"
+                      title={backlog.campaignAlignment.currentCadenceLabel}
+                    >
+                      <span className="truncate">{backlog.campaignAlignment.currentCadenceLabel}</span>
                     </span>
                   </div>
                   <p className="mt-2 text-sm font-semibold leading-5 text-foreground">
@@ -324,6 +348,18 @@ export default function WarmPlanningBacklogPanel({
                         <div className="mt-1 flex min-w-0 flex-wrap gap-1.5 text-[11px] leading-5 text-muted-foreground">
                           <span
                             className="inline-flex min-w-0 max-w-full items-center rounded-full border border-sky-500/25 bg-sky-500/10 px-2 text-sky-100"
+                            title={action.campaignSignal}
+                          >
+                            <span className="truncate">Calendar {backlog.campaignAlignment.currentPhaseLabel}</span>
+                          </span>
+                          <span
+                            className="inline-flex min-w-0 max-w-full items-center rounded-full border border-radiant-gold/25 bg-radiant-gold/10 px-2 text-radiant-gold"
+                            title={action.cadenceSignal}
+                          >
+                            <span className="truncate">Cadence {action.cadenceSignal}</span>
+                          </span>
+                          <span
+                            className="inline-flex min-w-0 max-w-full items-center rounded-full border border-sky-500/25 bg-sky-500/10 px-2 text-sky-100"
                             title={action.sourceSignal}
                           >
                             <span className="truncate">Source {action.sourceSignal}</span>
@@ -333,6 +369,12 @@ export default function WarmPlanningBacklogPanel({
                             title={action.contentProofPoint}
                           >
                             <span className="truncate">Proof {action.contentProofPoint}</span>
+                          </span>
+                          <span
+                            className="inline-flex min-w-0 max-w-full items-center rounded-full border border-amber-500/25 bg-amber-500/10 px-2 text-amber-100"
+                            title={action.approvalGateSignal}
+                          >
+                            <span className="truncate">Gate {action.approvalGateSignal}</span>
                           </span>
                         </div>
                         <p className="mt-1 line-clamp-2 text-[11px] leading-5 text-muted-foreground">
@@ -373,7 +415,7 @@ export default function WarmPlanningBacklogPanel({
               <div className="flex flex-wrap items-center gap-2">
                 <span className="inline-flex min-h-7 shrink-0 items-center gap-1.5 rounded-md border border-radiant-gold/30 bg-radiant-gold/10 px-2 text-[11px] font-semibold uppercase leading-5 tracking-wide text-radiant-gold">
                   <CheckCircle2 size={12} aria-hidden />
-                  Office loop
+                  Campaign cadence
                 </span>
                 <span className="inline-flex min-h-7 min-w-fit shrink-0 items-center whitespace-nowrap rounded-md border border-silicon-slate/70 bg-background/45 px-2 text-[11px] leading-5 text-muted-foreground">
                   {backlog.executionLoop.officeWindowLabel}
@@ -516,6 +558,10 @@ export default function WarmPlanningBacklogPanel({
           <Smartphone size={12} aria-hidden />
           SMS parked
         </span>
+        <span className="inline-flex min-h-7 items-center gap-1 rounded-md border border-silicon-slate/70 bg-background/35 px-2">
+          <CalendarDays size={12} aria-hidden />
+          Existing Lead Pipeline only
+        </span>
       </div>
 
       <div className="mt-3 grid gap-2" aria-label="Warm planning candidates">
@@ -562,7 +608,7 @@ export default function WarmPlanningBacklogPanel({
                     className="inline-flex min-w-0 max-w-full items-center rounded-full border border-sky-500/25 bg-sky-500/10 px-2.5 py-0.5 leading-5 text-sky-100"
                     title={candidate.campaignAlignment.calendarSignal}
                   >
-                    <span className="truncate">Calendar signal</span>
+                    <span className="truncate">Calendar {candidate.campaignAlignment.phaseLabel}</span>
                   </span>
                   <span className="inline-flex min-w-fit shrink-0 items-center whitespace-nowrap rounded-full border border-sky-500/25 bg-sky-500/10 px-2.5 py-0.5 leading-5 text-sky-100">
                     {channelLabel(candidate.recommendedChannel)}
@@ -581,8 +627,14 @@ export default function WarmPlanningBacklogPanel({
                   <p className="truncate" title={candidate.campaignAlignment.sourceLabel}>
                     <span className="font-medium text-foreground">Source:</span> {candidate.campaignAlignment.sourceLabel}
                   </p>
+                  <p className="truncate" title={candidate.campaignAlignment.cadenceSignal}>
+                    <span className="font-medium text-foreground">Cadence:</span> {candidate.campaignAlignment.cadenceSignal}
+                  </p>
                   <p className="truncate" title={candidate.campaignAlignment.contentProofPoint}>
                     <span className="font-medium text-foreground">Proof:</span> {candidate.campaignAlignment.contentProofPoint}
+                  </p>
+                  <p className="truncate" title={candidate.campaignAlignment.approvalGateLabel}>
+                    <span className="font-medium text-foreground">Gate:</span> {candidate.campaignAlignment.approvalGateLabel}
                   </p>
                   <p className="truncate" title={candidate.campaignAlignment.safeNextAction}>
                     <span className="font-medium text-foreground">Safe next:</span> {candidate.campaignAlignment.safeNextAction}

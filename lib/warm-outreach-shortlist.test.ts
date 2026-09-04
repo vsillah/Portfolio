@@ -321,6 +321,8 @@ describe('warm outreach shortlist', () => {
         currentSourceLabel: 'HubSpot social calendar template + Asana social media calendar template',
         currentProofPoint: 'triggering event + campaign problem + audience fit',
         currentApprovalGateLabel: 'copy review',
+        currentCadenceLabel: 'Campaign day 2; 14-day content lead time',
+        sourceContextLabel: 'Whisper-to-shout launch content calendar template',
         plannedWindowLabel: 'Sep 2-Sep 8',
         currentMilestoneTitle:
           'Open with a small tension, observation, or question that makes the campaign problem visible.',
@@ -343,7 +345,7 @@ describe('warm outreach shortlist', () => {
       },
       executionLoop: {
         version: 'warm-outreach-office-execution-loop/v1',
-        officeWindowLabel: 'Next office window: Sep 2',
+        officeWindowLabel: 'Lead Pipeline window: Sep 2',
         focusLabel: '3 ready contacts',
         campaignPhaseLabel: 'Tease',
         campaignMilestoneTitle:
@@ -357,6 +359,8 @@ describe('warm outreach shortlist', () => {
       },
       executionBoundary: {
         localPortfolioPlanOnly: true,
+        contentCalendarSourceOfTruth: true,
+        separateOfficeWeekQueue: false,
         providerCallsEnabled: false,
         createsGmailDrafts: false,
         externalSendEnabled: false,
@@ -390,6 +394,8 @@ describe('warm outreach shortlist', () => {
       executionBoundary: {
         existingLeadPipelineSurface: true,
         campaignCalendarInformed: true,
+        contentCalendarSourceOfTruth: true,
+        separateOfficeWeekQueue: false,
         localPortfolioPlanOnly: true,
         createsGmailDrafts: false,
         gmailProviderCalls: false,
@@ -413,7 +419,9 @@ describe('warm outreach shortlist', () => {
       campaignSignal:
         'Tease: Open with a small tension, observation, or question that makes the campaign problem visible.',
       sourceSignal: 'HubSpot social calendar template + Asana social media calendar template',
+      cadenceSignal: 'Campaign day 2; 14-day content lead time',
       contentProofPoint: 'triggering event + campaign problem + audience fit; 2 relationship evidence signals',
+      approvalGateSignal: 'copy review',
       ctaLabel: 'Prepare Gmail review',
       enabled: true,
       reviewLoopAction: {
@@ -423,7 +431,7 @@ describe('warm outreach shortlist', () => {
       },
     })
     expect(shortlist.planningBacklog.executionLoop.primaryActionReason).toMatch(
-      /campaign readiness favors Gmail draft review first/,
+      /content-calendar cadence favors Gmail draft review first/,
     )
     expect(shortlist.planningBacklog.executionLoop.steps.map((step) => step.key)).toEqual([
       'plan_review_batch',
@@ -446,8 +454,10 @@ describe('warm outreach shortlist', () => {
         theme: 'Open with a small tension, observation, or question that makes the campaign problem visible.',
         calendarSignal:
           'Tease LinkedIn: Open with a small tension, observation, or question that makes the campaign problem visible.',
+        cadenceSignal: 'Campaign day 2; 14-day content lead time',
         sourceLabel: 'HubSpot social calendar template + Asana social media calendar template',
         contentProofPoint: 'triggering event + campaign problem + audience fit; 1 relationship evidence signal',
+        approvalGateLabel: 'copy review',
         safeNextAction: 'Review manual handoff only',
         plannedWindowLabel: 'Sep 2-Sep 8',
         whyNext: 'Tease campaign angle is ready for a manual social handoff.',
@@ -526,8 +536,10 @@ describe('warm outreach shortlist', () => {
       },
       campaignSignal:
         'Proof: Show evidence, a shipped example, client-safe result, or lived project insight that earns trust.',
+      cadenceSignal: 'Campaign day 8; 7-day content lead time',
       sourceSignal: 'Asana social media calendar template',
       contentProofPoint: 'proof asset + privacy review; 2 relationship evidence signals',
+      approvalGateSignal: 'copy review + privacy review',
     })
     expect(shortlist.planningBacklog.dailyActions.currentSafestAction).toMatchObject({
       key: 'open_daily_action',
@@ -535,6 +547,8 @@ describe('warm outreach shortlist', () => {
       contactIds: [22],
     })
     expect(shortlist.planningBacklog.dailyActions.executionBoundary.externalRequests).toEqual([])
+    expect(shortlist.planningBacklog.dailyActions.executionBoundary.contentCalendarSourceOfTruth).toBe(true)
+    expect(shortlist.planningBacklog.dailyActions.executionBoundary.separateOfficeWeekQueue).toBe(false)
     expect(shortlist.planningBacklog.dailyActions.executionBoundary.gmailProviderCalls).toBe(false)
     expect(shortlist.planningBacklog.dailyActions.executionBoundary.socialProviderCalls).toBe(false)
     expect(shortlist.planningBacklog.dailyActions.executionBoundary.smsDeliveryEnabled).toBe(false)
