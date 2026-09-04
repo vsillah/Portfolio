@@ -196,6 +196,12 @@ export default function WarmPlanningBacklogPanel({
                 <span className="inline-flex min-h-7 shrink-0 items-center whitespace-nowrap rounded-md border border-silicon-slate/70 bg-background/45 px-2 text-[11px] leading-5 text-muted-foreground">
                   {backlog.campaignAlignment.plannedWindowLabel}
                 </span>
+                <span
+                  className="inline-flex min-h-7 min-w-0 max-w-full items-center rounded-md border border-radiant-gold/25 bg-radiant-gold/10 px-2 text-[11px] leading-5 text-radiant-gold"
+                  title={backlog.campaignAlignment.scheduleBasis}
+                >
+                  <span className="truncate">{backlog.campaignAlignment.cadenceLabel}</span>
+                </span>
                 <span className="inline-flex min-h-7 shrink-0 items-center whitespace-nowrap rounded-md border border-silicon-slate/70 bg-background/45 px-2 text-[11px] leading-5 text-muted-foreground">
                   {stateSummaryLabel(backlog)}
                 </span>
@@ -233,9 +239,13 @@ export default function WarmPlanningBacklogPanel({
               <p className="mt-1 line-clamp-2 text-xs leading-5 text-muted-foreground">
                 {backlog.campaignAlignment.whyThisBacklogIsNext}
               </p>
+              <p className="mt-1 line-clamp-2 text-xs leading-5 text-muted-foreground">
+                {backlog.campaignAlignment.dailyRecommendationBasis}
+              </p>
               <details className="mt-2 text-xs leading-5 text-muted-foreground">
-                <summary className="cursor-pointer text-radiant-gold/90">Campaign source</summary>
+                <summary className="cursor-pointer text-radiant-gold/90">Calendar basis</summary>
                 <p className="mt-1">{backlog.campaignAlignment.drillIn}</p>
+                <p className="mt-1">{backlog.campaignAlignment.scheduleBasis}</p>
               </details>
             </div>
             <div
@@ -251,6 +261,12 @@ export default function WarmPlanningBacklogPanel({
                     </span>
                     <span className="inline-flex min-h-7 max-w-full items-center rounded-md border border-silicon-slate/70 bg-background/45 px-2 text-[11px] leading-5 text-muted-foreground">
                       {backlog.dailyActions.campaignPhaseLabel}
+                    </span>
+                    <span
+                      className="inline-flex min-h-7 min-w-0 max-w-full items-center rounded-md border border-radiant-gold/25 bg-radiant-gold/10 px-2 text-[11px] leading-5 text-radiant-gold"
+                      title={backlog.campaignAlignment.scheduleBasis}
+                    >
+                      <span className="truncate">{backlog.campaignAlignment.cadenceLabel}</span>
                     </span>
                     <span className="inline-flex min-h-7 min-w-fit shrink-0 items-center whitespace-nowrap rounded-md border border-silicon-slate/70 bg-background/45 px-2 text-[11px] leading-5 text-muted-foreground">
                       {backlog.dailyActions.operatingDateLabel}
@@ -337,6 +353,9 @@ export default function WarmPlanningBacklogPanel({
                         </div>
                         <p className="mt-1 line-clamp-2 text-[11px] leading-5 text-muted-foreground">
                           Safe next: {action.afterAction}
+                        </p>
+                        <p className="mt-1 line-clamp-2 text-[11px] leading-5 text-radiant-gold/90">
+                          Calendar basis: {action.scheduleBasis}
                         </p>
                         {loopAction.blockerReason && (
                           <p className="mt-1 line-clamp-2 text-[11px] leading-5 text-amber-100">
@@ -562,7 +581,7 @@ export default function WarmPlanningBacklogPanel({
                     className="inline-flex min-w-0 max-w-full items-center rounded-full border border-sky-500/25 bg-sky-500/10 px-2.5 py-0.5 leading-5 text-sky-100"
                     title={candidate.campaignAlignment.calendarSignal}
                   >
-                    <span className="truncate">Calendar signal</span>
+                    <span className="truncate">{candidate.campaignAlignment.cadenceLabel}</span>
                   </span>
                   <span className="inline-flex min-w-fit shrink-0 items-center whitespace-nowrap rounded-full border border-sky-500/25 bg-sky-500/10 px-2.5 py-0.5 leading-5 text-sky-100">
                     {channelLabel(candidate.recommendedChannel)}
@@ -580,6 +599,9 @@ export default function WarmPlanningBacklogPanel({
                 <div className="mt-1 grid min-w-0 gap-1 text-[11px] leading-5">
                   <p className="truncate" title={candidate.campaignAlignment.sourceLabel}>
                     <span className="font-medium text-foreground">Source:</span> {candidate.campaignAlignment.sourceLabel}
+                  </p>
+                  <p className="truncate" title={candidate.campaignAlignment.scheduleBasis}>
+                    <span className="font-medium text-foreground">Basis:</span> {candidate.campaignAlignment.scheduleBasis}
                   </p>
                   <p className="truncate" title={candidate.campaignAlignment.contentProofPoint}>
                     <span className="font-medium text-foreground">Proof:</span> {candidate.campaignAlignment.contentProofPoint}

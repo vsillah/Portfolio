@@ -22,6 +22,7 @@ const screenshots = {
   mobile360: path.join(outputDir, 'warm-planning-backlog-mobile-360.png'),
   mobile390: path.join(outputDir, 'warm-planning-backlog-mobile-390.png'),
   mobile430: path.join(outputDir, 'warm-planning-backlog-mobile-430.png'),
+  sidePanel672: path.join(outputDir, 'warm-planning-backlog-side-panel-672.png'),
   desktop1440: path.join(outputDir, 'warm-planning-backlog-desktop-1440.png'),
 }
 
@@ -827,7 +828,9 @@ async function assertPlanningBacklog(page) {
         /Calendar LinkedIn/i.test(text) &&
         /Proof (triggering event|teaching frame|proof asset|offer)/i.test(text) &&
         /Source HubSpot social calendar template/i.test(text) &&
-        /Campaign source/i.test(text) &&
+        /Daily from (Tease|Teach|Proof|Offer) calendar/i.test(text) &&
+        /Daily recommendations rank existing Lead Pipeline rows/i.test(text) &&
+        /Calendar basis/i.test(text) &&
         /Why next:/i.test(text),
       hasDailyActions:
         /Today's actions/i.test(text) &&
@@ -836,7 +839,7 @@ async function assertPlanningBacklog(page) {
         /Replies/i.test(text) &&
         /Review batch ready/i.test(text) &&
         /Safe next: Prepare the review batch/i.test(text) &&
-        /Calendar signal/i.test(text),
+        /Calendar basis: (Tease|Teach|Proof|Offer)/i.test(text),
       hasExecutionLoop:
         /Office loop/i.test(text) &&
         /Next office window:/i.test(text) &&
@@ -911,6 +914,7 @@ async function addSideText(page) {
       <h3>Expected</h3>
       <ul>
         <li>Today / This week shows the current campaign phase, calendar channel, content proof point, and source template.</li>
+        <li>The daily cadence names the content-calendar basis behind the Lead Pipeline recommendation.</li>
         <li>Today's actions rank Gmail, manual social, response, recovery, blocked, and SMS parked rows from the campaign phase.</li>
         <li>Daily action rows show source, proof, and the one safe next action before the button.</li>
         <li>Six planning states are visible as compact count filters.</li>
@@ -940,12 +944,13 @@ for (const [name, viewport, screenshotPath] of [
   ['mobile360', { width: 360, height: 844 }, screenshots.mobile360],
   ['mobile390', { width: 390, height: 844 }, screenshots.mobile390],
   ['mobile430', { width: 430, height: 844 }, screenshots.mobile430],
+  ['sidePanel672', { width: 672, height: 900 }, screenshots.sidePanel672],
   ['desktop1440', { width: 1440, height: 900 }, screenshots.desktop1440],
 ]) {
   viewportRuns.push(await viewportEvidence(browser, name, viewport, screenshotPath))
 }
 
-const desktop = await openQaPage(browser, { width: 1280, height: 720 }, true)
+const desktop = await openQaPage(browser, { width: 960, height: 720 }, true)
 await addSideText(desktop.page)
 const desktopPlanningBacklog = desktop.page.getByLabel('Warm outreach planning backlog')
 const desktopPlanningCandidates = desktop.page.getByLabel('Warm planning candidates')
@@ -1016,6 +1021,7 @@ const receipt = {
   scenario: 'Planning backlog operator opens warm leads, filters planning states, uses a daily action CTA to prepare a review-only Gmail batch plan, and opens manual-social workroom state.',
   expectedBehavior: [
     'Planning backlog shows Today / This Week campaign alignment from the existing whisper_to_shout social content calendar template, including calendar channel, source, proof point, and gate.',
+    'The daily cadence names the content-calendar basis behind the Lead Pipeline recommendation.',
     'Daily operating actions rank Gmail reviews, manual-social handoffs, reply follow-ups, recovery, blocked/suppressed rows, and SMS parked rows from the campaign phase.',
     'Daily action rows show the review-loop status, source, proof point, one safe next action, and blocked or parked reason where applicable.',
     'Office execution loop prioritizes ready Gmail contacts first, shows manual-social handoffs next, and keeps response/blocker recovery separate.',

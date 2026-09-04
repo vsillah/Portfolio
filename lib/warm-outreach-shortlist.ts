@@ -178,6 +178,8 @@ export type WarmOutreachPlanningBacklogCandidate = {
     phaseLabel: string
     theme: string
     calendarSignal: string
+    cadenceLabel: string
+    scheduleBasis: string
     sourceLabel: string
     contentProofPoint: string
     safeNextAction: string
@@ -227,6 +229,7 @@ export type WarmOutreachDailyActionRow = {
   stateLabel: string
   channelLabel: string
   campaignSignal: string
+  scheduleBasis: string
   sourceSignal: string
   contentProofPoint: string
   reason: string
@@ -298,6 +301,9 @@ export type WarmOutreachPlanningBacklog = {
     plannedWindowLabel: string
     currentMilestoneTitle: string
     nextMilestoneTitle: string | null
+    cadenceLabel: string
+    scheduleBasis: string
+    dailyRecommendationBasis: string
     whyThisBacklogIsNext: string
     drillIn: string
   }
@@ -480,25 +486,35 @@ function buildCampaignAlignment(generatedFor: string): WarmOutreachPlanningBackl
   const weekEnd = addDaysLabel(generatedFor, 6)
   const proofPoint = milestoneProofPoint(current)
   const sourceLabel = milestoneSourceLabel(current)
+  const currentPhaseLabel = CAMPAIGN_PHASE_LABELS[current.campaign_phase]
+  const currentChannelLabel = CALENDAR_CHANNEL_LABELS[current.channel]
+  const cadenceLabel = `Daily from ${currentPhaseLabel} calendar`
+  const scheduleBasis =
+    `${currentPhaseLabel} ${currentChannelLabel} milestone, ${milestoneApprovalGateLabel(current)} gate, ${sourceLabel}`
+  const dailyRecommendationBasis =
+    `Daily recommendations rank existing Lead Pipeline rows against the ${currentPhaseLabel} content-calendar milestone, then keep Gmail/manual-social behind review.`
 
   return {
     source: 'social_content_calendar_template',
     templateKey: WARM_OUTREACH_CAMPAIGN_TEMPLATE_KEY,
     campaignTheme: WARM_OUTREACH_CAMPAIGN_TEMPLATE.label,
     currentPhase: current.campaign_phase,
-    currentPhaseLabel: CAMPAIGN_PHASE_LABELS[current.campaign_phase],
+    currentPhaseLabel,
     currentMilestoneKey: current.key,
-    currentCalendarChannelLabel: CALENDAR_CHANNEL_LABELS[current.channel],
+    currentCalendarChannelLabel: currentChannelLabel,
     currentSourceLabel: sourceLabel,
     currentProofPoint: proofPoint,
     currentApprovalGateLabel: milestoneApprovalGateLabel(current),
     plannedWindowLabel: `${displayDateLabel(generatedFor)}-${displayDateLabel(weekEnd)}`,
     currentMilestoneTitle: current.planned_angle,
     nextMilestoneTitle: next?.planned_angle ?? null,
+    cadenceLabel,
+    scheduleBasis,
+    dailyRecommendationBasis,
     whyThisBacklogIsNext:
-      `The backlog turns the ${CAMPAIGN_PHASE_LABELS[current.campaign_phase]} campaign signal into relationship-specific Gmail draft candidates and manual social handoffs.`,
+      `The backlog turns the ${currentPhaseLabel} campaign signal into relationship-specific Gmail draft candidates and manual social handoffs.`,
     drillIn:
-      `${WARM_OUTREACH_CAMPAIGN_TEMPLATE.description} Source: ${sourceLabel}. Proof point: ${proofPoint}. Outreach actions stay local and review-gated.`,
+      `${WARM_OUTREACH_CAMPAIGN_TEMPLATE.description} Daily cadence: ${scheduleBasis}. Proof point: ${proofPoint}. Outreach actions stay local and review-gated.`,
   }
 }
 
@@ -921,6 +937,7 @@ function buildDailyActions(args: {
         stateLabel: labels.stateLabel,
         channelLabel: labels.channelLabel,
         campaignSignal: `${args.campaignAlignment.currentPhaseLabel}: ${args.campaignAlignment.currentMilestoneTitle}`,
+        scheduleBasis: args.campaignAlignment.scheduleBasis,
         sourceSignal: candidate.campaignAlignment.sourceLabel,
         contentProofPoint: candidate.campaignAlignment.contentProofPoint,
         reason: candidate.campaignAlignment.whyNext,
@@ -1340,6 +1357,8 @@ function planningBacklogCandidateFor(
       phaseLabel: campaignAlignment.currentPhaseLabel,
       theme: campaignAlignment.currentMilestoneTitle,
       calendarSignal: `${campaignAlignment.currentPhaseLabel} ${campaignAlignment.currentCalendarChannelLabel}: ${campaignAlignment.currentMilestoneTitle}`,
+      cadenceLabel: campaignAlignment.cadenceLabel,
+      scheduleBasis: campaignAlignment.scheduleBasis,
       sourceLabel: campaignAlignment.currentSourceLabel,
       contentProofPoint: candidateContentProofPoint(lead, campaignAlignment),
       safeNextAction: candidateSafeNextAction(reviewLoopAction, primaryState),

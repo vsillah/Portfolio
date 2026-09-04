@@ -326,6 +326,11 @@ describe('warm outreach shortlist', () => {
           'Open with a small tension, observation, or question that makes the campaign problem visible.',
         nextMilestoneTitle:
           'Give the audience a useful framework or operating lesson connected to the campaign promise.',
+        cadenceLabel: 'Daily from Tease calendar',
+        scheduleBasis:
+          'Tease LinkedIn milestone, copy review gate, HubSpot social calendar template + Asana social media calendar template',
+        dailyRecommendationBasis:
+          'Daily recommendations rank existing Lead Pipeline rows against the Tease content-calendar milestone, then keep Gmail/manual-social behind review.',
       },
       counts: {
         ready_gmail_draft: 2,
@@ -412,6 +417,8 @@ describe('warm outreach shortlist', () => {
       contactName: 'Gmail Ready',
       campaignSignal:
         'Tease: Open with a small tension, observation, or question that makes the campaign problem visible.',
+      scheduleBasis:
+        'Tease LinkedIn milestone, copy review gate, HubSpot social calendar template + Asana social media calendar template',
       sourceSignal: 'HubSpot social calendar template + Asana social media calendar template',
       contentProofPoint: 'triggering event + campaign problem + audience fit; 2 relationship evidence signals',
       ctaLabel: 'Prepare Gmail review',
@@ -446,6 +453,9 @@ describe('warm outreach shortlist', () => {
         theme: 'Open with a small tension, observation, or question that makes the campaign problem visible.',
         calendarSignal:
           'Tease LinkedIn: Open with a small tension, observation, or question that makes the campaign problem visible.',
+        cadenceLabel: 'Daily from Tease calendar',
+        scheduleBasis:
+          'Tease LinkedIn milestone, copy review gate, HubSpot social calendar template + Asana social media calendar template',
         sourceLabel: 'HubSpot social calendar template + Asana social media calendar template',
         contentProofPoint: 'triggering event + campaign problem + audience fit; 1 relationship evidence signal',
         safeNextAction: 'Review manual handoff only',
@@ -527,6 +537,7 @@ describe('warm outreach shortlist', () => {
       campaignSignal:
         'Proof: Show evidence, a shipped example, client-safe result, or lived project insight that earns trust.',
       sourceSignal: 'Asana social media calendar template',
+      scheduleBasis: 'Proof LinkedIn milestone, copy review + privacy review gate, Asana social media calendar template',
       contentProofPoint: 'proof asset + privacy review; 2 relationship evidence signals',
     })
     expect(shortlist.planningBacklog.dailyActions.currentSafestAction).toMatchObject({
