@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import {
   AlertTriangle,
   ClipboardCheck,
@@ -35,9 +36,9 @@ interface WarmPlanningBacklogPanelProps {
   loading: boolean
   error: string | null
   onStateChange: (state: WarmOutreachPlanningBacklogState | 'all') => void
-  onPrepareBatch: () => void
-  onPrepareCandidateReview: (candidate: WarmOutreachPlanningBacklogCandidate) => void
-  onOpenCandidate: (candidate: WarmOutreachPlanningBacklogCandidate) => void
+  onPrepareBatch: () => void | Promise<void>
+  onPrepareCandidateReview: (candidate: WarmOutreachPlanningBacklogCandidate) => void | Promise<void>
+  onOpenCandidate: (candidate: WarmOutreachPlanningBacklogCandidate) => void | Promise<void>
 }
 
 function channelLabel(channel: WarmOutreachPlanningBacklogCandidate['recommendedChannel']) {
@@ -159,6 +160,39 @@ function preparesReviewBatch(action: WarmOutreachPlanningBacklogCandidate['revie
   return action.key === 'start_gmail_review_batch' || action.key === 'start_manual_social_batch'
 }
 
+function openedActionLabel(action: WarmOutreachPlanningBacklogCandidate['reviewLoopAction']) {
+  if (preparesReviewBatch(action)) return 'Review opened'
+  if (action.key === 'open_manual_social_handoff') return 'Workroom opened'
+  if (action.key === 'open_response_review') return 'Response opened'
+  if (action.key === 'open_gmail_draft_review') return 'Draft opened'
+  return 'Selected'
+}
+
+function destinationSelector(action: WarmOutreachPlanningBacklogCandidate['reviewLoopAction']) {
+  if (preparesReviewBatch(action)) return '#gmail-batch-draft-plan, [aria-label="Warm batch review"]'
+  if (action.key === 'open_manual_social_handoff') return '#warm-manual-social-handoff'
+  if (action.key === 'open_response_review') return '#warm-response-lifecycle'
+  if (action.key === 'open_gmail_draft_review') return '#warm-gmail-draft-review'
+  return '[data-testid="outreach-generator"]'
+}
+
+function focusActionDestination(action: WarmOutreachPlanningBacklogCandidate['reviewLoopAction']) {
+  const selector = destinationSelector(action)
+  const tryFocus = (attempt = 0) => {
+    const element = document.querySelector(selector)
+    if (element instanceof HTMLElement) {
+      if (!element.hasAttribute('tabindex')) element.setAttribute('tabindex', '-1')
+      element.scrollIntoView({ block: 'start', behavior: 'smooth' })
+      element.focus({ preventScroll: true })
+      return
+    }
+    if (attempt < 8) {
+      window.setTimeout(() => tryFocus(attempt + 1), 100)
+    }
+  }
+  window.setTimeout(() => tryFocus(), 0)
+}
+
 export default function WarmPlanningBacklogPanel({
   backlog,
   activeState,
@@ -169,6 +203,7 @@ export default function WarmPlanningBacklogPanel({
   onPrepareCandidateReview,
   onOpenCandidate,
 }: WarmPlanningBacklogPanelProps) {
+  const [openedDailyActionKey, setOpenedDailyActionKey] = useState<string | null>(null)
   const visibleCandidates =
     activeState === 'all'
       ? backlog.candidates
@@ -196,7 +231,7 @@ export default function WarmPlanningBacklogPanel({
       className="mb-4 rounded-lg border border-radiant-gold/30 bg-radiant-gold/5 p-3 sm:p-4"
       aria-label="Warm outreach planning backlog"
     >
-      <div className="grid gap-4 2xl:grid-cols-[minmax(0,1fr)_minmax(13rem,auto)] 2xl:items-start">
+      <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,auto)] lg:items-start">
         <div className="min-w-0">
           <div>
             <p className="text-xs font-semibold uppercase leading-5 tracking-wide text-radiant-gold">
@@ -211,7 +246,33 @@ export default function WarmPlanningBacklogPanel({
               </span>
             </div>
           </div>
-          <div className="mt-3 grid gap-2">
+        </div>
+        <div className="min-w-0">
+          <button
+            type="button"
+            disabled={!primaryActionEnabled || loading}
+            onClick={handlePrimaryAction}
+            className="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-lg border border-radiant-gold/50 bg-radiant-gold/10 px-3 text-sm font-semibold text-radiant-gold transition-colors hover:bg-radiant-gold/15 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {loading ? (
+              <RefreshCw size={15} className="animate-spin" aria-hidden />
+            ) : (
+              <ClipboardCheck size={15} aria-hidden />
+            )}
+            {loading ? 'Preparing plan...' : primaryDailyAction.label}
+          </button>
+          <p className="mt-2 text-xs leading-5 text-muted-foreground">
+            {primaryDailyAction.reason}
+          </p>
+          {error && (
+            <p role="alert" className="mt-2 rounded-md border border-red-500/25 bg-red-500/10 p-2 text-xs leading-5 text-red-100">
+              {error}
+            </p>
+          )}
+        </div>
+      </div>
+
+      <div className="mt-3 grid gap-2">
             <div className="min-w-0 rounded-md border border-radiant-gold/25 bg-background/35 p-3">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="inline-flex min-h-7 shrink-0 items-center gap-1.5 rounded-md border border-radiant-gold/30 bg-radiant-gold/10 px-2 text-[11px] font-semibold uppercase leading-5 tracking-wide text-radiant-gold">
@@ -340,6 +401,8 @@ export default function WarmPlanningBacklogPanel({
                 {visibleDailyActions.map((action) => {
                   const candidate = backlog.candidates.find((row) => row.contactId === action.contactId)
                   const loopAction = action.reviewLoopAction
+                  const actionOpened = openedDailyActionKey === action.key
+                  const actionDisabled = !action.enabled || !candidate || actionOpened
                   return (
                     <article
                       key={action.key}
@@ -417,24 +480,34 @@ export default function WarmPlanningBacklogPanel({
                       </div>
                       <button
                         type="button"
-                        disabled={!action.enabled || !candidate}
-                        onClick={() => {
+                        disabled={actionDisabled}
+                        onClick={async () => {
                           if (!candidate) return
                           if (preparesReviewBatch(loopAction)) {
-                            onPrepareCandidateReview(candidate)
+                            await onPrepareCandidateReview(candidate)
+                            setOpenedDailyActionKey(action.key)
+                            focusActionDestination(loopAction)
                             return
                           }
-                          onOpenCandidate(candidate)
+                          await onOpenCandidate(candidate)
+                          setOpenedDailyActionKey(action.key)
+                          focusActionDestination(loopAction)
                         }}
-                        className="inline-flex min-h-9 w-full items-center justify-center gap-2 rounded-md border border-silicon-slate/80 bg-silicon-slate/35 px-3 text-xs font-medium leading-5 text-foreground transition-colors hover:bg-silicon-slate/55 disabled:cursor-not-allowed disabled:opacity-50"
+                        className={`inline-flex min-h-9 w-full items-center justify-center gap-2 rounded-md border px-3 text-xs font-medium leading-5 transition-colors disabled:cursor-not-allowed ${
+                          actionOpened
+                            ? 'border-emerald-500/35 bg-emerald-500/10 text-emerald-100'
+                            : 'border-silicon-slate/80 bg-silicon-slate/35 text-foreground hover:bg-silicon-slate/55 disabled:opacity-50'
+                        }`}
                         aria-label={`${action.ctaLabel} for ${action.contactName}`}
                       >
-                        {action.loopStatus === 'completed' || action.loopStatus === 'parked' ? (
+                        {actionOpened ? (
+                          <CheckCircle2 size={14} aria-hidden />
+                        ) : action.loopStatus === 'completed' || action.loopStatus === 'parked' ? (
                           <LoopStatusIcon status={action.loopStatus} />
                         ) : (
                           <DailyActionIcon kind={action.kind} />
                         )}
-                        {action.ctaLabel}
+                        {actionOpened ? openedActionLabel(loopAction) : action.ctaLabel}
                       </button>
                     </article>
                   )
@@ -557,31 +630,6 @@ export default function WarmPlanningBacklogPanel({
               )
             })}
           </div>
-        </div>
-        <div className="min-w-0">
-          <button
-            type="button"
-            disabled={!primaryActionEnabled || loading}
-            onClick={handlePrimaryAction}
-            className="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-lg border border-radiant-gold/50 bg-radiant-gold/10 px-3 text-sm font-semibold text-radiant-gold transition-colors hover:bg-radiant-gold/15 disabled:cursor-not-allowed disabled:opacity-50 2xl:w-auto"
-          >
-            {loading ? (
-              <RefreshCw size={15} className="animate-spin" aria-hidden />
-            ) : (
-              <ClipboardCheck size={15} aria-hidden />
-            )}
-            {loading ? 'Preparing plan...' : primaryDailyAction.label}
-          </button>
-          <p className="mt-2.5 text-xs leading-6 text-muted-foreground">
-            {primaryDailyAction.reason}
-          </p>
-          {error && (
-            <p role="alert" className="mt-2 rounded-md border border-red-500/25 bg-red-500/10 p-2 text-xs leading-5 text-red-100">
-              {error}
-            </p>
-          )}
-        </div>
-      </div>
 
       <div className="mt-3 flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
         <span className="inline-flex min-h-7 items-center gap-1 rounded-md border border-silicon-slate/70 bg-background/35 px-2">

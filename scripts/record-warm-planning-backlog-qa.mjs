@@ -805,6 +805,7 @@ async function assertPlanningBacklog(page) {
   const checks = await page.evaluate(() => {
     const text = document.body.innerText
     const planningBacklog = document.querySelector('[aria-label="Warm outreach planning backlog"]')
+    const dailyActions = document.querySelector('[aria-label="Warm daily operating actions"]')
     const currentCta = [...document.querySelectorAll('button')]
       .find((button) => /Start today's Gmail review loop|Start today's manual-social loop/.test(button.textContent || ''))
     const visible = (element) => {
@@ -865,11 +866,18 @@ async function assertPlanningBacklog(page) {
         clientWidth: document.documentElement.clientWidth,
         scrollWidth: document.documentElement.scrollWidth,
       },
+      layout: {
+        planningBacklogWidth: planningBacklog instanceof HTMLElement ? planningBacklog.getBoundingClientRect().width : 0,
+        dailyActionsWidth: dailyActions instanceof HTMLElement ? dailyActions.getBoundingClientRect().width : 0,
+      },
     }
   })
   return {
     ...checks,
     horizontalOverflow: checks.viewport.scrollWidth > checks.viewport.clientWidth,
+    dailyActionsUseBacklogWidth:
+      checks.layout.planningBacklogWidth > 0 &&
+      checks.layout.dailyActionsWidth / checks.layout.planningBacklogWidth >= 0.92,
   }
 }
 
@@ -968,9 +976,24 @@ await desktopPlanningCandidates.getByText('Kofi Phoneparked').waitFor({ timeout:
 await desktop.page.waitForTimeout(700)
 await desktopPlanningBacklog.evaluate((element) => element.scrollIntoView({ block: 'center' }))
 await activateButton(desktopPlanningBacklog.getByRole('button', { name: 'Show Ready for Gmail draft candidates' }))
-await activateButton(desktopPlanningBacklog.getByRole('button', { name: 'Prepare Gmail review for Amina Batchready', exact: true }))
+const dailyGmailAction = desktopPlanningBacklog.getByRole('button', { name: 'Prepare Gmail review for Amina Batchready', exact: true })
+await activateButton(dailyGmailAction)
 await desktop.page.getByLabel('Warm batch review').waitFor({ timeout: 15_000 })
 await desktop.page.getByText('Gmail batch draft plan').waitFor({ timeout: 10_000 })
+await desktop.page.waitForFunction(() => {
+  const focused = document.activeElement
+  return (
+    focused instanceof HTMLElement &&
+    (focused.id === 'gmail-batch-draft-plan' || Boolean(focused.closest('[aria-label="Warm batch review"]')))
+  )
+})
+const dailyGmailActionState = await dailyGmailAction.evaluate((button) => ({
+  text: button.textContent?.replace(/\s+/g, ' ').trim() ?? '',
+  disabled: button instanceof HTMLButtonElement ? button.disabled : button.getAttribute('aria-disabled') === 'true',
+}))
+if (dailyGmailActionState.text !== 'Review opened' || !dailyGmailActionState.disabled) {
+  throw new Error(`Daily Gmail action did not expose opened state: ${JSON.stringify(dailyGmailActionState)}`)
+}
 await desktop.page.waitForTimeout(800)
 await desktopPlanningBacklog.evaluate((element) => element.scrollIntoView({ block: 'center' }))
 await activateButton(desktop.page.getByRole('button', { name: 'Show Ready for manual social candidates' }))
@@ -1015,6 +1038,7 @@ const failedViewport = viewportRuns.find((run) =>
   !run.checks.hasExecutionLoop ||
   !run.checks.hasSafeCta ||
   !run.checks.hasBoundary ||
+  !run.checks.dailyActionsUseBacklogWidth ||
   run.checks.horizontalOverflow
 )
 if (failedViewport) {
@@ -1030,11 +1054,12 @@ const receipt = {
     'Planning backlog shows Today / This Week campaign alignment from the existing whisper_to_shout social content calendar template, including calendar channel, cadence, source, proof point, and gate.',
     'Daily operating actions rank Gmail reviews, manual-social handoffs, reply follow-ups, recovery, blocked/suppressed rows, and SMS parked rows from the campaign phase.',
     'Daily action rows show ready, review-needed, recorded/waiting, blocked, and parked loop states with non-repeatable recorded actions disabled.',
+    'The daily operating actions panel spans the warm planning backlog width instead of sitting in a capped left column beside an empty CTA rail.',
     'Campaign cadence panel prioritizes ready Gmail contacts first, shows manual-social handoffs next, and keeps response/blocker recovery separate.',
     'Planning backlog shows Ready for Gmail draft, Ready for manual social, Needs relationship review, Waiting on response, Suppressed/blocked, and SMS parked counts.',
     'Clicking summary counts visibly drills into the matching candidate set.',
     'Candidate rows show why each outreach action is next for the current campaign phase without duplicating a calendar, plus source/cadence/proof/gate/safe-action provenance.',
-    'A daily Gmail action CTA prepares a review-only batch plan and does not imply external sending.',
+    'A daily Gmail action CTA changes to a non-repeatable opened state and moves focus to the review-only batch plan without adding explanatory copy.',
     'The selected-contact workroom still renders the manual social handoff panel.',
     'Mobile widths 360, 390, 430, constrained 768, and desktop 1440 show the core planning CTA with no horizontal overflow.',
   ],

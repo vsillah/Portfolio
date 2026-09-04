@@ -642,6 +642,14 @@ const providerDraftCanaryResponse = {
 describe('OutreachAdminPage deep links', () => {
   beforeEach(() => {
     window.history.replaceState({}, '', '/admin/outreach?tab=leads&id=42')
+    Object.defineProperty(window.HTMLElement.prototype, 'scrollIntoView', {
+      configurable: true,
+      value: vi.fn(),
+    })
+    Object.defineProperty(window.HTMLElement.prototype, 'focus', {
+      configurable: true,
+      value: vi.fn(),
+    })
     vi.stubGlobal('fetch', vi.fn(async (url: string, init?: RequestInit) => {
       if (url.startsWith('/api/admin/outreach/leads/42/relationship-packet')) {
         return Response.json(relationshipPacketResponse)
@@ -971,10 +979,7 @@ describe('OutreachAdminPage deep links', () => {
     expect(within(planningBacklog).getAllByText('Plan Gmail review').length).toBeGreaterThan(0)
     expect(within(planningBacklog).getByText('Work the Lead Pipeline')).toBeInTheDocument()
     expect(within(planningBacklog).getByText('Record local result')).toBeInTheDocument()
-    expect(within(planningBacklog).getAllByText(/campaign timing makes reviewed Gmail draft work/).at(-1)).toHaveClass(
-      'mt-2.5',
-      'leading-6',
-    )
+    expect(within(planningBacklog).getAllByText(/campaign timing makes reviewed Gmail draft work/).at(-1)).toHaveClass('leading-5')
     const stateFilters = within(planningBacklog).getByRole('group', {
       name: 'Warm planning state filters',
     })
@@ -1138,10 +1143,19 @@ describe('OutreachAdminPage deep links', () => {
     render(<OutreachAdminPage />)
 
     const planningBacklog = await screen.findByLabelText('Warm outreach planning backlog')
-    fireEvent.click(within(planningBacklog).getByRole('button', { name: 'Prepare Gmail review for Ada Operator' }))
+    const dailyAction = within(planningBacklog).getByLabelText('Daily warm action for Ada Operator')
+    const actionButton = within(dailyAction).getByRole('button', { name: 'Prepare Gmail review for Ada Operator' })
+    fireEvent.click(actionButton)
 
     const batchReview = await screen.findByLabelText('Warm batch review')
     expect(within(batchReview).getByLabelText('Warm planned draft actions')).toBeInTheDocument()
+    await waitFor(() => {
+      expect(actionButton).toHaveTextContent('Review opened')
+      expect(actionButton).toBeDisabled()
+      expect(window.HTMLElement.prototype.scrollIntoView).toHaveBeenCalledWith({ block: 'start', behavior: 'smooth' })
+      expect(window.HTMLElement.prototype.focus).toHaveBeenCalledWith({ preventScroll: true })
+    })
+    expect(within(dailyAction).queryByText('Review batch opened below.')).not.toBeInTheDocument()
     expect(within(batchReview).getAllByRole('link', { name: 'Open draft gate' })[0]).toHaveAttribute(
       'href',
       '#gmail-batch-draft-plan',
