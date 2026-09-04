@@ -13,8 +13,9 @@ const outputDir = path.join(root, 'docs', 'warm-outreach-qa')
 const qaDir = path.join(root, 'test-results', 'warm-planning-backlog-qa')
 const sourceDir = path.join(qaDir, 'source')
 const baseUrl = (process.env.QA_BASE_URL || 'http://127.0.0.1:3000').replace(/\/$/, '')
-const qaPath = '/admin/outreach?tab=leads&filter=warm&qa=warm-planning-backlog#warm-planning-backlog'
+const qaPath = '/admin/outreach?tab=leads&filter=warm&view=planning&qa=warm-planning-backlog#warm-planning-backlog'
 const qaUrl = new URL(qaPath, baseUrl).toString()
+const leadListUrl = new URL('/admin/outreach?tab=leads&filter=warm', baseUrl).toString()
 const mp4Path = path.join(outputDir, 'warm-planning-backlog-qa.mp4')
 const receiptPath = path.join(outputDir, 'warm-planning-backlog-qa.json')
 
@@ -944,6 +945,20 @@ for (const [name, viewport, screenshotPath] of [
 
 const desktop = await openQaPage(browser, { width: 1280, height: 720 }, true)
 await addSideText(desktop.page)
+await activateButton(desktop.page.getByRole('button', { name: 'Lead list' }))
+await desktop.page.getByText('Amina Batchready').waitFor({ timeout: 10_000 })
+if (await desktop.page.getByLabel('Warm outreach planning backlog').count() !== 0) {
+  throw new Error('Warm planning backlog rendered inside the default lead list view.')
+}
+await desktop.page.waitForTimeout(700)
+await activateButton(desktop.page.getByRole('button', { name: 'Show warm planning backlog view' }))
+await desktop.page.getByLabel('Warm outreach planning backlog').waitFor({ timeout: 10_000 })
+await desktop.page.waitForTimeout(700)
+await desktop.page.goto(qaUrl)
+await seedSession(desktop.page)
+await addSideText(desktop.page)
+await desktop.page.getByLabel('Warm outreach planning backlog').waitFor({ timeout: 10_000 })
+await desktop.page.waitForTimeout(700)
 const desktopPlanningBacklog = desktop.page.getByLabel('Warm outreach planning backlog')
 const desktopPlanningCandidates = desktop.page.getByLabel('Warm planning candidates')
 await desktopPlanningBacklog.evaluate((element) => element.scrollIntoView({ block: 'center' }))
@@ -1052,8 +1067,12 @@ const receipt = {
   version: 'warm-outreach-planning-backlog-qa/v1',
   createdAt: new Date().toISOString(),
   qaUrl,
-  scenario: 'Planning backlog operator opens warm leads, filters planning states, uses a daily action CTA to prepare a review-only Gmail batch plan, and opens manual-social workroom state.',
+  leadListUrl,
+  scenario: 'Planning backlog operator switches between the normal warm lead list and the dedicated Planning view, verifies the direct backlog link, filters planning states, uses a daily action CTA to prepare a review-only Gmail batch plan, and opens manual-social workroom state.',
   expectedBehavior: [
+    'The ordinary warm lead list renders without the warm planning backlog panel.',
+    'The Planning control opens the dedicated warm backlog view under the existing Lead Pipeline navigation.',
+    'The direct warm planning backlog route lands on the backlog view without requiring operator inference.',
     'Planning backlog shows Today / This Week campaign alignment from the existing whisper_to_shout social content calendar template, including calendar channel, cadence, source, proof point, and gate.',
     'Daily operating actions rank Gmail reviews, manual-social handoffs, reply follow-ups, recovery, blocked/suppressed rows, and SMS parked rows from the campaign phase.',
     'Daily action count pills filter the visible daily action and candidate rows for Gmail, manual social, blocked/suppressed, and clear back to the full action plan while keeping counts anchored to the full summary.',
