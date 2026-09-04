@@ -22,6 +22,7 @@ const screenshots = {
   mobile360: path.join(outputDir, 'warm-planning-backlog-mobile-360.png'),
   mobile390: path.join(outputDir, 'warm-planning-backlog-mobile-390.png'),
   mobile430: path.join(outputDir, 'warm-planning-backlog-mobile-430.png'),
+  sidePanel768: path.join(outputDir, 'warm-planning-backlog-sidepanel-768.png'),
   desktop1440: path.join(outputDir, 'warm-planning-backlog-desktop-1440.png'),
 }
 
@@ -837,8 +838,12 @@ async function assertPlanningBacklog(page) {
         /Start today's Gmail review loop/i.test(text) &&
         /campaign timing makes reviewed Gmail draft work/i.test(text) &&
         /Replies/i.test(text) &&
+        /Ready to plan/i.test(text) &&
+        /Recorded \/ waiting/i.test(text) &&
         /Review batch ready/i.test(text) &&
+        /Evidence recorded/i.test(text) &&
         /Safe next: Prepare the review batch/i.test(text) &&
+        /Submitted evidence is recorded/i.test(text) &&
         /Calendar (Tease|Teach|Proof|Offer)/i.test(text) &&
         /Cadence: Campaign day/i.test(text) &&
         /Gate: copy review/i.test(text),
@@ -946,6 +951,7 @@ for (const [name, viewport, screenshotPath] of [
   ['mobile360', { width: 360, height: 844 }, screenshots.mobile360],
   ['mobile390', { width: 390, height: 844 }, screenshots.mobile390],
   ['mobile430', { width: 430, height: 844 }, screenshots.mobile430],
+  ['sidePanel768', { width: 768, height: 900 }, screenshots.sidePanel768],
   ['desktop1440', { width: 1440, height: 900 }, screenshots.desktop1440],
 ]) {
   viewportRuns.push(await viewportEvidence(browser, name, viewport, screenshotPath))
@@ -1023,14 +1029,14 @@ const receipt = {
   expectedBehavior: [
     'Planning backlog shows Today / This Week campaign alignment from the existing whisper_to_shout social content calendar template, including calendar channel, cadence, source, proof point, and gate.',
     'Daily operating actions rank Gmail reviews, manual-social handoffs, reply follow-ups, recovery, blocked/suppressed rows, and SMS parked rows from the campaign phase.',
-    'Daily action rows show the review-loop status, calendar basis, cadence, source, proof point, gate, one safe next action, and blocked or parked reason where applicable.',
+    'Daily action rows show ready, review-needed, recorded/waiting, blocked, and parked loop states with non-repeatable recorded actions disabled.',
     'Campaign cadence panel prioritizes ready Gmail contacts first, shows manual-social handoffs next, and keeps response/blocker recovery separate.',
     'Planning backlog shows Ready for Gmail draft, Ready for manual social, Needs relationship review, Waiting on response, Suppressed/blocked, and SMS parked counts.',
     'Clicking summary counts visibly drills into the matching candidate set.',
     'Candidate rows show why each outreach action is next for the current campaign phase without duplicating a calendar, plus source/cadence/proof/gate/safe-action provenance.',
     'A daily Gmail action CTA prepares a review-only batch plan and does not imply external sending.',
     'The selected-contact workroom still renders the manual social handoff panel.',
-    'Mobile widths 360, 390, and 430 show the core planning CTA with no horizontal overflow.',
+    'Mobile widths 360, 390, 430, constrained 768, and desktop 1440 show the core planning CTA with no horizontal overflow.',
   ],
   decisionGate: 'Operator review only. Gmail draft creation, Slack dispatch, external sends, SMS/Telnyx, provider activation, and manual-evidence recording remain separate gates.',
   externalActionBoundary: 'Synthetic/local QA only; no Gmail, Slack, LinkedIn, Facebook, Telnyx/SMS, n8n, scheduling, publishing, provider calls, or production-data mutation.',

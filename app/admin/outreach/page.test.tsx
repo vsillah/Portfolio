@@ -958,6 +958,7 @@ describe('OutreachAdminPage deep links', () => {
     expect(within(planningBacklog).getAllByText(/campaign timing makes reviewed Gmail draft work/).length).toBeGreaterThan(0)
     expect(within(planningBacklog).getByText('Replies')).toBeInTheDocument()
     expect(within(planningBacklog).getByLabelText('Daily warm action for Ada Operator')).toBeInTheDocument()
+    expect(within(planningBacklog).getByText('Ready to plan')).toBeInTheDocument()
     expect(within(planningBacklog).getByText('Review batch ready')).toBeInTheDocument()
     expect(within(planningBacklog).getByText(/Safe next: Prepare the review batch/)).toBeInTheDocument()
     expect(within(planningBacklog).getByRole('button', { name: 'Prepare Gmail review for Ada Operator' })).toBeInTheDocument()
@@ -1021,6 +1022,52 @@ describe('OutreachAdminPage deep links', () => {
     expect(within(shortlist).getByText('Phone missing')).toBeInTheDocument()
     expect(within(shortlist).getByText('Prepare an approval-gated draft')).toBeInTheDocument()
     expect(within(shortlist).getByRole('button', { name: 'Generate draft for Ada Operator' })).toBeInTheDocument()
+  })
+
+  it('marks submitted warm daily actions as recorded and non-repeatable', async () => {
+    window.history.replaceState({}, '', '/admin/outreach?tab=leads&filter=warm')
+    const sentLead = {
+      ...lead,
+      id: 45,
+      name: 'Sent Operator',
+      messages_sent: 1,
+      recent_email_drafts: [
+        {
+          id: 'queue-sent-45',
+          subject: 'Warm draft',
+          status: 'sent',
+          created_at: '2026-09-02T10:00:00.000Z',
+        },
+      ],
+    }
+    vi.stubGlobal('fetch', vi.fn(async (url: string) => {
+      if (url.startsWith('/api/admin/outreach/leads')) {
+        return Response.json({ leads: [lead, sentLead], total: 2, page: 1 })
+      }
+      if (url.startsWith('/api/admin/value-evidence/workflow-status')) {
+        return Response.json({})
+      }
+      if (url.startsWith('/api/admin/chat-escalations')) {
+        return Response.json({ escalations: [], total: 0 })
+      }
+      if (url.startsWith('/api/admin/sales/contact-meetings')) {
+        return Response.json({ meetings: [] })
+      }
+      if (url.startsWith('/api/meeting-action-tasks')) {
+        return Response.json({ tasks: [] })
+      }
+      return Response.json({})
+    }))
+
+    render(<OutreachAdminPage />)
+
+    const planningBacklog = await screen.findByLabelText('Warm outreach planning backlog')
+    const sentAction = within(planningBacklog).getByLabelText('Daily warm action for Sent Operator')
+
+    expect(within(sentAction).getByText('Recorded / waiting')).toBeInTheDocument()
+    expect(within(sentAction).getByText(/Submitted evidence is recorded/)).toBeInTheDocument()
+    expect(within(sentAction).getByRole('button', { name: 'Evidence recorded for Sent Operator' })).toBeDisabled()
+    expect(within(planningBacklog).getByRole('button', { name: "Start today's Gmail review loop (1)" })).toBeInTheDocument()
   })
 
   it('filters the warm planning backlog from summary counts and keeps SMS parked separate', async () => {

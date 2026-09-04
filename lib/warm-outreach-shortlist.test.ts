@@ -416,6 +416,8 @@ describe('warm outreach shortlist', () => {
     expect(shortlist.planningBacklog.dailyActions.rows[0]).toMatchObject({
       priorityRank: 1,
       contactName: 'Gmail Ready',
+      loopStatus: 'ready',
+      loopStatusLabel: 'Ready to plan',
       campaignSignal:
         'Tease: Open with a small tension, observation, or question that makes the campaign problem visible.',
       sourceSignal: 'HubSpot social calendar template + Asana social media calendar template',
@@ -429,6 +431,14 @@ describe('warm outreach shortlist', () => {
         statusLabel: 'Review batch ready',
         blockerReason: null,
       },
+    })
+    expect(shortlist.planningBacklog.dailyActions.rows.find((row) => row.contactName === 'Waiting Response')).toMatchObject({
+      kind: 'reply_follow_up',
+      loopStatus: 'completed',
+      loopStatusLabel: 'Recorded / waiting',
+      ctaLabel: 'Evidence recorded',
+      enabled: false,
+      afterAction: 'Submitted evidence is recorded; wait for a reply before planning another touchpoint.',
     })
     expect(shortlist.planningBacklog.executionLoop.primaryActionReason).toMatch(
       /content-calendar cadence favors Gmail draft review first/,
@@ -492,6 +502,7 @@ describe('warm outreach shortlist', () => {
           id: 22,
           name: 'Proof Reply',
           email: 'reply@example.com',
+          has_reply: true,
           messages_sent: 1,
           recent_email_drafts: [
             {
@@ -528,6 +539,8 @@ describe('warm outreach shortlist', () => {
     ])
     expect(shortlist.planningBacklog.dailyActions.rows[0]).toMatchObject({
       kind: 'reply_follow_up',
+      loopStatus: 'review_needed',
+      loopStatusLabel: 'Review needed',
       contactName: 'Proof Reply',
       ctaLabel: 'Review response',
       reviewLoopAction: {
