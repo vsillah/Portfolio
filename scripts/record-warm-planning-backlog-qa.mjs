@@ -980,6 +980,13 @@ const dailyGmailAction = desktopPlanningBacklog.getByRole('button', { name: 'Pre
 await activateButton(dailyGmailAction)
 await desktop.page.getByLabel('Warm batch review').waitFor({ timeout: 15_000 })
 await desktop.page.getByText('Gmail batch draft plan').waitFor({ timeout: 10_000 })
+const reviewProgress = desktopPlanningBacklog.getByLabel('Warm review loop progress')
+await reviewProgress.waitFor({ timeout: 10_000 })
+for (const text of ['Review batch selected', '1 in batch', '0 reviewed', '1 remaining']) {
+  await reviewProgress.getByText(text).waitFor({ timeout: 10_000 })
+}
+await reviewProgress.getByText(/Backlog ready \d+/).waitFor({ timeout: 10_000 })
+await reviewProgress.getByText(/Review batch ready: Amina Batchready\. Next candidate:/).waitFor({ timeout: 10_000 })
 await desktop.page.waitForFunction(() => {
   const focused = document.activeElement
   return (
@@ -987,6 +994,10 @@ await desktop.page.waitForFunction(() => {
     (focused.id === 'gmail-batch-draft-plan' || Boolean(focused.closest('[aria-label="Warm batch review"]')))
   )
 })
+await reviewProgress.evaluate((element) => element.scrollIntoView({ block: 'center' }))
+await desktop.page.waitForTimeout(800)
+await desktop.page.getByLabel('Gmail batch draft plan').evaluate((element) => element.scrollIntoView({ block: 'center' }))
+await desktop.page.waitForTimeout(800)
 const dailyGmailActionState = await dailyGmailAction.evaluate((button) => ({
   text: button.textContent?.replace(/\s+/g, ' ').trim() ?? '',
   disabled: button instanceof HTMLButtonElement ? button.disabled : button.getAttribute('aria-disabled') === 'true',
@@ -994,6 +1005,8 @@ const dailyGmailActionState = await dailyGmailAction.evaluate((button) => ({
 if (dailyGmailActionState.text !== 'Review opened' || !dailyGmailActionState.disabled) {
   throw new Error(`Daily Gmail action did not expose opened state: ${JSON.stringify(dailyGmailActionState)}`)
 }
+await reviewProgress.evaluate((element) => element.scrollIntoView({ block: 'center' }))
+await desktop.page.waitForTimeout(1200)
 await desktop.page.waitForTimeout(800)
 await desktopPlanningBacklog.evaluate((element) => element.scrollIntoView({ block: 'center' }))
 await activateButton(desktop.page.getByRole('button', { name: 'Show Ready for manual social candidates' }))
@@ -1059,7 +1072,7 @@ const receipt = {
     'Planning backlog shows Ready for Gmail draft, Ready for manual social, Needs relationship review, Waiting on response, Suppressed/blocked, and SMS parked counts.',
     'Clicking summary counts visibly drills into the matching candidate set.',
     'Candidate rows show why each outreach action is next for the current campaign phase without duplicating a calendar, plus source/cadence/proof/gate/safe-action provenance.',
-    'A daily Gmail action CTA changes to a non-repeatable opened state and moves focus to the review-only batch plan without adding explanatory copy.',
+    'A daily Gmail action CTA changes to a non-repeatable opened state, shows review-loop progress with selected/reviewed/remaining counts, and moves focus to the review-only batch plan without adding explanatory copy.',
     'The selected-contact workroom still renders the manual social handoff panel.',
     'Mobile widths 360, 390, 430, constrained 768, and desktop 1440 show the core planning CTA with no horizontal overflow.',
   ],

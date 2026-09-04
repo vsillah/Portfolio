@@ -1155,6 +1155,14 @@ describe('OutreachAdminPage deep links', () => {
       expect(window.HTMLElement.prototype.scrollIntoView).toHaveBeenCalledWith({ block: 'start', behavior: 'smooth' })
       expect(window.HTMLElement.prototype.focus).toHaveBeenCalledWith({ preventScroll: true })
     })
+    const progress = await within(planningBacklog).findByLabelText('Warm review loop progress')
+    expect(within(progress).getByText('Review batch selected')).toBeInTheDocument()
+    expect(within(progress).getByText('Gmail')).toBeInTheDocument()
+    expect(within(progress).getByText('1 in batch')).toBeInTheDocument()
+    expect(within(progress).getByText('0 reviewed')).toBeInTheDocument()
+    expect(within(progress).getByText('1 remaining')).toBeInTheDocument()
+    expect(within(progress).getByText('Backlog ready 1')).toBeInTheDocument()
+    expect(within(progress).getByText(/Review batch ready: Ada Operator. Next candidate: none in this view./)).toBeInTheDocument()
     expect(within(dailyAction).queryByText('Review batch opened below.')).not.toBeInTheDocument()
     expect(within(batchReview).getAllByRole('link', { name: 'Open draft gate' })[0]).toHaveAttribute(
       'href',
@@ -1169,6 +1177,9 @@ describe('OutreachAdminPage deep links', () => {
         }),
       )
     })
+    const batchReviewCallCount = fetchMock.mock.calls.filter(([url]) => url === '/api/admin/outreach/batch-review').length
+    fireEvent.click(actionButton)
+    expect(fetchMock.mock.calls.filter(([url]) => url === '/api/admin/outreach/batch-review')).toHaveLength(batchReviewCallCount)
     const batchCall = fetchMock.mock.calls.find(([url]) => url === '/api/admin/outreach/batch-review')
     const body = JSON.parse(String(batchCall?.[1]?.body ?? '{}'))
     expect(body).toMatchObject({
@@ -1178,6 +1189,39 @@ describe('OutreachAdminPage deep links', () => {
     expect(body.action).toBeUndefined()
     expect(fetchMock.mock.calls.some(([url]) => /telnyx\.com|slack\.com|gmail\.com|googleapis\.com|n8n/i.test(String(url)))).toBe(false)
     expect(screen.getByText('1 lead(s) selected')).toBeInTheDocument()
+  })
+
+  it('marks the primary warm Gmail review loop as selected and non-repeatable', async () => {
+    window.history.replaceState({}, '', '/admin/outreach?tab=leads&filter=warm')
+    const fetchMock = vi.mocked(fetch)
+
+    render(<OutreachAdminPage />)
+
+    const planningBacklog = await screen.findByLabelText('Warm outreach planning backlog')
+    const primaryReviewButton = within(planningBacklog).getByRole('button', {
+      name: "Start today's Gmail review loop (1)",
+    })
+
+    fireEvent.click(primaryReviewButton)
+
+    await screen.findByLabelText('Warm batch review')
+    await waitFor(() => {
+      expect(primaryReviewButton).toHaveTextContent('Review batch selected')
+      expect(primaryReviewButton).toBeDisabled()
+    })
+    const progress = await within(planningBacklog).findByLabelText('Warm review loop progress')
+    expect(within(progress).getByText('Review batch selected')).toBeInTheDocument()
+    expect(within(progress).getByText('Gmail')).toBeInTheDocument()
+    expect(within(progress).getByText('1 in batch')).toBeInTheDocument()
+    expect(within(progress).getByText('0 reviewed')).toBeInTheDocument()
+    expect(within(progress).getByText('1 remaining')).toBeInTheDocument()
+    expect(within(progress).getByText('Backlog ready 1')).toBeInTheDocument()
+    expect(within(progress).getByText(/Review batch selected: Ada Operator. Next candidate: none in this view./)).toBeInTheDocument()
+
+    const batchReviewCallCount = fetchMock.mock.calls.filter(([url]) => url === '/api/admin/outreach/batch-review').length
+    fireEvent.click(primaryReviewButton)
+    expect(fetchMock.mock.calls.filter(([url]) => url === '/api/admin/outreach/batch-review')).toHaveLength(batchReviewCallCount)
+    expect(fetchMock.mock.calls.some(([url]) => /telnyx\.com|slack\.com|gmail\.com|googleapis\.com|n8n/i.test(String(url)))).toBe(false)
   })
 
   it('routes shortlist CTAs into the existing workroom without provider calls', async () => {

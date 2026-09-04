@@ -160,6 +160,81 @@ function preparesReviewBatch(action: WarmOutreachPlanningBacklogCandidate['revie
   return action.key === 'start_gmail_review_batch' || action.key === 'start_manual_social_batch'
 }
 
+type WarmReviewLoopProgress = {
+  actionKey: string
+  state: 'opening' | 'opened'
+  channelLabel: string
+  contactName: string
+  selectedCount: number
+  reviewedCount: number
+  remainingInBatchCount: number
+  readyBacklogCount: number
+  nextCandidateName: string | null
+  statusLabel: string
+}
+
+function reviewLoopProgressForCandidate(
+  backlog: WarmOutreachPlanningBacklog,
+  actionKey: string,
+  candidate: WarmOutreachPlanningBacklogCandidate,
+  state: WarmReviewLoopProgress['state'],
+): WarmReviewLoopProgress {
+  const isManualBatch = candidate.reviewLoopAction.key === 'start_manual_social_batch'
+  const readyBacklogCount = isManualBatch
+    ? backlog.dailyActions.summary.manualSocialHandoffCount
+    : backlog.dailyActions.summary.gmailDraftReviewCount
+  const nextCandidate = backlog.dailyActions.rows.find((row) =>
+    row.key !== actionKey &&
+    row.enabled &&
+    (isManualBatch ? row.kind === 'manual_social_handoff' : row.kind === 'gmail_draft_review')
+  )
+  return {
+    actionKey,
+    state,
+    channelLabel: isManualBatch ? 'Manual social' : 'Gmail',
+    contactName: candidate.contactName,
+    selectedCount: 1,
+    reviewedCount: 0,
+    remainingInBatchCount: 1,
+    readyBacklogCount,
+    nextCandidateName: nextCandidate?.contactName ?? null,
+    statusLabel: candidate.reviewLoopAction.statusLabel,
+  }
+}
+
+function reviewLoopProgressForBatch(
+  backlog: WarmOutreachPlanningBacklog,
+  state: WarmReviewLoopProgress['state'],
+): WarmReviewLoopProgress | null {
+  const contactIds = backlog.dailyActions.currentSafestAction.contactIds
+  if (contactIds.length === 0) return null
+  const startsManual = backlog.dailyActions.currentSafestAction.key === 'start_manual_social_loop'
+  const selectedNames = backlog.candidates
+    .filter((candidate) => contactIds.includes(candidate.contactId))
+    .map((candidate) => candidate.contactName)
+  const selectedName = selectedNames[0] ?? 'Selected lead'
+  const readyBacklogCount = startsManual
+    ? backlog.dailyActions.summary.manualSocialHandoffCount
+    : backlog.dailyActions.summary.gmailDraftReviewCount
+  const nextCandidate = backlog.dailyActions.rows.find((row) =>
+    !contactIds.includes(row.contactId) &&
+    row.enabled &&
+    (startsManual ? row.kind === 'manual_social_handoff' : row.kind === 'gmail_draft_review')
+  )
+  return {
+    actionKey: backlog.dailyActions.currentSafestAction.key,
+    state,
+    channelLabel: startsManual ? 'Manual social' : 'Gmail',
+    contactName: contactIds.length === 1 ? selectedName : `${selectedName} +${contactIds.length - 1}`,
+    selectedCount: contactIds.length,
+    reviewedCount: 0,
+    remainingInBatchCount: contactIds.length,
+    readyBacklogCount,
+    nextCandidateName: nextCandidate?.contactName ?? null,
+    statusLabel: 'Review batch selected',
+  }
+}
+
 function openedActionLabel(action: WarmOutreachPlanningBacklogCandidate['reviewLoopAction']) {
   if (preparesReviewBatch(action)) return 'Review opened'
   if (action.key === 'open_manual_social_handoff') return 'Workroom opened'
@@ -178,6 +253,10 @@ function destinationSelector(action: WarmOutreachPlanningBacklogCandidate['revie
 
 function focusActionDestination(action: WarmOutreachPlanningBacklogCandidate['reviewLoopAction']) {
   const selector = destinationSelector(action)
+  focusDestinationSelector(selector)
+}
+
+function focusDestinationSelector(selector: string) {
   const tryFocus = (attempt = 0) => {
     const element = document.querySelector(selector)
     if (element instanceof HTMLElement) {
@@ -204,6 +283,8 @@ export default function WarmPlanningBacklogPanel({
   onOpenCandidate,
 }: WarmPlanningBacklogPanelProps) {
   const [openedDailyActionKey, setOpenedDailyActionKey] = useState<string | null>(null)
+  const [pendingDailyActionKey, setPendingDailyActionKey] = useState<string | null>(null)
+  const [reviewLoopProgress, setReviewLoopProgress] = useState<WarmReviewLoopProgress | null>(null)
   const visibleCandidates =
     activeState === 'all'
       ? backlog.candidates
@@ -213,16 +294,31 @@ export default function WarmPlanningBacklogPanel({
   const primaryDailyCandidate = primaryDailyAction.key === 'open_daily_action'
     ? backlog.candidates.find((candidate) => candidate.contactId === primaryDailyAction.contactIds[0])
     : null
+  const primaryActionPending = pendingDailyActionKey === primaryDailyAction.key
+  const primaryActionOpened = openedDailyActionKey === primaryDailyAction.key
   const primaryActionEnabled = primaryDailyAction.key === 'open_daily_action'
-    ? primaryDailyAction.enabled && Boolean(primaryDailyCandidate)
-    : backlog.currentCta.enabled
+    ? primaryDailyAction.enabled && Boolean(primaryDailyCandidate) && !primaryActionPending && !primaryActionOpened
+    : backlog.currentCta.enabled && !primaryActionPending && !primaryActionOpened
   const visibleDailyActions = backlog.dailyActions.rows.slice(0, 6)
-  const handlePrimaryAction = () => {
-    if (primaryDailyCandidate) {
-      onOpenCandidate(primaryDailyCandidate)
-      return
+  const handlePrimaryAction = async () => {
+    if (!primaryActionEnabled || loading) return
+    setPendingDailyActionKey(primaryDailyAction.key)
+    try {
+      if (primaryDailyCandidate) {
+        await onOpenCandidate(primaryDailyCandidate)
+        setOpenedDailyActionKey(primaryDailyAction.key)
+        return
+      }
+      const openingProgress = reviewLoopProgressForBatch(backlog, 'opening')
+      if (openingProgress) setReviewLoopProgress(openingProgress)
+      await onPrepareBatch()
+      const openedProgress = reviewLoopProgressForBatch(backlog, 'opened')
+      if (openedProgress) setReviewLoopProgress(openedProgress)
+      setOpenedDailyActionKey(primaryDailyAction.key)
+      focusDestinationSelector('#gmail-batch-draft-plan, [aria-label="Warm batch review"]')
+    } finally {
+      setPendingDailyActionKey(null)
     }
-    onPrepareBatch()
   }
 
   return (
@@ -252,14 +348,28 @@ export default function WarmPlanningBacklogPanel({
             type="button"
             disabled={!primaryActionEnabled || loading}
             onClick={handlePrimaryAction}
-            className="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-lg border border-radiant-gold/50 bg-radiant-gold/10 px-3 text-sm font-semibold text-radiant-gold transition-colors hover:bg-radiant-gold/15 disabled:cursor-not-allowed disabled:opacity-50"
+            className={`inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-lg border px-3 text-sm font-semibold transition-colors disabled:cursor-not-allowed ${
+              primaryActionOpened
+                ? 'border-emerald-500/35 bg-emerald-500/10 text-emerald-100'
+                : primaryActionPending
+                  ? 'border-radiant-gold/50 bg-radiant-gold/10 text-radiant-gold'
+                  : 'border-radiant-gold/50 bg-radiant-gold/10 text-radiant-gold hover:bg-radiant-gold/15 disabled:opacity-50'
+            }`}
           >
-            {loading ? (
+            {loading || primaryActionPending ? (
               <RefreshCw size={15} className="animate-spin" aria-hidden />
+            ) : primaryActionOpened ? (
+              <CheckCircle2 size={15} aria-hidden />
             ) : (
               <ClipboardCheck size={15} aria-hidden />
             )}
-            {loading ? 'Preparing plan...' : primaryDailyAction.label}
+            {loading
+              ? 'Preparing plan...'
+              : primaryActionPending
+                ? 'Opening review...'
+                : primaryActionOpened
+                  ? 'Review batch selected'
+                  : primaryDailyAction.label}
           </button>
           <p className="mt-2 text-xs leading-5 text-muted-foreground">
             {primaryDailyAction.reason}
@@ -271,6 +381,51 @@ export default function WarmPlanningBacklogPanel({
           )}
         </div>
       </div>
+
+      {reviewLoopProgress && (
+        <div
+          className={`mt-3 rounded-md border p-3 ${
+            reviewLoopProgress.state === 'opened'
+              ? 'border-emerald-500/25 bg-emerald-500/5'
+              : 'border-radiant-gold/25 bg-radiant-gold/5'
+          }`}
+          role="status"
+          aria-label="Warm review loop progress"
+        >
+          <div className="flex min-w-0 flex-wrap items-center gap-1.5 text-[11px] leading-5">
+            <span className={`inline-flex min-h-7 shrink-0 items-center gap-1.5 rounded-md border px-2 font-semibold uppercase tracking-wide ${
+              reviewLoopProgress.state === 'opened'
+                ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-100'
+                : 'border-radiant-gold/30 bg-radiant-gold/10 text-radiant-gold'
+            }`}>
+              {reviewLoopProgress.state === 'opened' ? (
+                <CheckCircle2 size={12} aria-hidden />
+              ) : (
+                <RefreshCw size={12} className="animate-spin" aria-hidden />
+              )}
+              {reviewLoopProgress.state === 'opened' ? 'Review batch selected' : 'Opening review batch'}
+            </span>
+            <span className="inline-flex min-h-7 shrink-0 items-center whitespace-nowrap rounded-md border border-silicon-slate/70 bg-background/45 px-2 text-muted-foreground">
+              {reviewLoopProgress.channelLabel}
+            </span>
+            <span className="inline-flex min-h-7 shrink-0 items-center whitespace-nowrap rounded-md border border-silicon-slate/70 bg-background/45 px-2 text-muted-foreground">
+              {reviewLoopProgress.selectedCount} in batch
+            </span>
+            <span className="inline-flex min-h-7 shrink-0 items-center whitespace-nowrap rounded-md border border-silicon-slate/70 bg-background/45 px-2 text-muted-foreground">
+              {reviewLoopProgress.reviewedCount} reviewed
+            </span>
+            <span className="inline-flex min-h-7 shrink-0 items-center whitespace-nowrap rounded-md border border-silicon-slate/70 bg-background/45 px-2 text-muted-foreground">
+              {reviewLoopProgress.remainingInBatchCount} remaining
+            </span>
+            <span className="inline-flex min-h-7 min-w-0 max-w-full items-center rounded-md border border-sky-500/25 bg-sky-500/10 px-2 text-sky-100">
+              <span className="truncate">Backlog ready {reviewLoopProgress.readyBacklogCount}</span>
+            </span>
+          </div>
+          <p className="mt-2 line-clamp-2 text-xs leading-5 text-muted-foreground">
+            {reviewLoopProgress.statusLabel}: {reviewLoopProgress.contactName}. Next candidate: {reviewLoopProgress.nextCandidateName ?? 'none in this view'}.
+          </p>
+        </div>
+      )}
 
       <div className="mt-3 grid gap-2">
             <div className="min-w-0 rounded-md border border-radiant-gold/25 bg-background/35 p-3">
@@ -402,7 +557,8 @@ export default function WarmPlanningBacklogPanel({
                   const candidate = backlog.candidates.find((row) => row.contactId === action.contactId)
                   const loopAction = action.reviewLoopAction
                   const actionOpened = openedDailyActionKey === action.key
-                  const actionDisabled = !action.enabled || !candidate || actionOpened
+                  const actionPending = pendingDailyActionKey === action.key
+                  const actionDisabled = !action.enabled || !candidate || actionOpened || actionPending
                   return (
                     <article
                       key={action.key}
@@ -483,31 +639,42 @@ export default function WarmPlanningBacklogPanel({
                         disabled={actionDisabled}
                         onClick={async () => {
                           if (!candidate) return
-                          if (preparesReviewBatch(loopAction)) {
-                            await onPrepareCandidateReview(candidate)
+                          setPendingDailyActionKey(action.key)
+                          try {
+                            if (preparesReviewBatch(loopAction)) {
+                              setReviewLoopProgress(reviewLoopProgressForCandidate(backlog, action.key, candidate, 'opening'))
+                              await onPrepareCandidateReview(candidate)
+                              setOpenedDailyActionKey(action.key)
+                              setReviewLoopProgress(reviewLoopProgressForCandidate(backlog, action.key, candidate, 'opened'))
+                              focusActionDestination(loopAction)
+                              return
+                            }
+                            await onOpenCandidate(candidate)
                             setOpenedDailyActionKey(action.key)
                             focusActionDestination(loopAction)
-                            return
+                          } finally {
+                            setPendingDailyActionKey(null)
                           }
-                          await onOpenCandidate(candidate)
-                          setOpenedDailyActionKey(action.key)
-                          focusActionDestination(loopAction)
                         }}
                         className={`inline-flex min-h-9 w-full items-center justify-center gap-2 rounded-md border px-3 text-xs font-medium leading-5 transition-colors disabled:cursor-not-allowed ${
                           actionOpened
                             ? 'border-emerald-500/35 bg-emerald-500/10 text-emerald-100'
+                            : actionPending
+                              ? 'border-radiant-gold/35 bg-radiant-gold/10 text-radiant-gold'
                             : 'border-silicon-slate/80 bg-silicon-slate/35 text-foreground hover:bg-silicon-slate/55 disabled:opacity-50'
                         }`}
                         aria-label={`${action.ctaLabel} for ${action.contactName}`}
                       >
-                        {actionOpened ? (
+                        {actionPending ? (
+                          <RefreshCw size={14} className="animate-spin" aria-hidden />
+                        ) : actionOpened ? (
                           <CheckCircle2 size={14} aria-hidden />
                         ) : action.loopStatus === 'completed' || action.loopStatus === 'parked' ? (
                           <LoopStatusIcon status={action.loopStatus} />
                         ) : (
                           <DailyActionIcon kind={action.kind} />
                         )}
-                        {actionOpened ? openedActionLabel(loopAction) : action.ctaLabel}
+                        {actionPending ? 'Opening review...' : actionOpened ? openedActionLabel(loopAction) : action.ctaLabel}
                       </button>
                     </article>
                   )
