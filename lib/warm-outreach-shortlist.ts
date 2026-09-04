@@ -52,6 +52,18 @@ export type WarmOutreachShortlistLead = {
     created_at: string
     email_message_id?: string | null
   }>
+  next_internal_action?: {
+    kind: 'gmail_draft_record' | 'manual_social_handoff_task'
+    label: string
+    status_label: string
+    detail: string
+    record_table: 'outreach_queue' | 'meeting_action_tasks'
+    record_id: string
+    created_at: string | null
+    href: string
+    email_message_id?: string | null
+    enabled: boolean
+  } | null
 }
 
 export type WarmOutreachShortlistItem = {
@@ -157,12 +169,34 @@ export type WarmOutreachPlanningBacklogCandidate = {
   batchEligible: boolean
   nextActionLabel: string
   ctaHref: string
+  reviewLoopAction: WarmOutreachReviewLoopAction
   campaignAlignment: {
     phase: SocialContentCampaignPhase
     theme: string
     plannedWindowLabel: string
     whyNext: string
   }
+}
+
+export type WarmOutreachReviewLoopAction = {
+  key:
+    | 'start_gmail_review_batch'
+    | 'start_manual_social_batch'
+    | 'open_gmail_draft_review'
+    | 'open_manual_social_handoff'
+    | 'open_response_review'
+    | 'open_relationship_review'
+    | 'resolve_blocker'
+    | 'parked_sms'
+  label: string
+  statusLabel: string
+  detail: string
+  afterClick: string
+  href: string | null
+  enabled: boolean
+  blockerReason: string | null
+  recordTable?: 'outreach_queue' | 'meeting_action_tasks'
+  recordId?: string
 }
 
 export type WarmOutreachDailyActionKind =
@@ -192,6 +226,7 @@ export type WarmOutreachDailyActionRow = {
   enabled: boolean
   smsParked: boolean
   blockers: string[]
+  reviewLoopAction: WarmOutreachReviewLoopAction
 }
 
 export type WarmOutreachDailyActions = {
@@ -600,6 +635,120 @@ function dailyActionLabels(kind: WarmOutreachDailyActionKind) {
   }
 }
 
+function reviewLoopActionFor(
+  lead: WarmOutreachShortlistLead,
+  candidate: Pick<
+    WarmOutreachPlanningBacklogCandidate,
+    'states' | 'responseStatus' | 'batchEligible' | 'blockers' | 'recommendedChannel' | 'ctaHref'
+  >,
+): WarmOutreachReviewLoopAction {
+  const internalAction = lead.next_internal_action
+  if (internalAction?.enabled && internalAction.kind === 'gmail_draft_record') {
+    return {
+      key: 'open_gmail_draft_review',
+      label: internalAction.label || 'Review draft',
+      statusLabel: internalAction.status_label || 'Draft-only record',
+      detail: internalAction.detail,
+      afterClick: 'Opens the saved Gmail draft review. Copy, approval, and send gates stay separate.',
+      href: internalAction.href,
+      enabled: true,
+      blockerReason: null,
+      recordTable: internalAction.record_table,
+      recordId: internalAction.record_id,
+    }
+  }
+  if (internalAction?.enabled && internalAction.kind === 'manual_social_handoff_task') {
+    return {
+      key: 'open_manual_social_handoff',
+      label: internalAction.label || 'Record handoff evidence',
+      statusLabel: internalAction.status_label || 'Pending handoff',
+      detail: internalAction.detail,
+      afterClick: 'Opens the manual handoff panel. It records local evidence only after operator review.',
+      href: internalAction.href,
+      enabled: true,
+      blockerReason: null,
+      recordTable: internalAction.record_table,
+      recordId: internalAction.record_id,
+    }
+  }
+  if (candidate.states.includes('ready_gmail_draft') && candidate.batchEligible) {
+    return {
+      key: 'start_gmail_review_batch',
+      label: 'Prepare Gmail review',
+      statusLabel: 'Review batch ready',
+      detail: 'Starts the review-only Gmail batch from existing Lead Pipeline rows.',
+      afterClick: 'Loads the warm batch review. It does not create Gmail drafts or send email.',
+      href: null,
+      enabled: true,
+      blockerReason: null,
+    }
+  }
+  if (candidate.states.includes('ready_manual_social') && candidate.batchEligible) {
+    const channel = candidate.recommendedChannel === 'facebook'
+      ? 'Facebook'
+      : candidate.recommendedChannel === 'phone_contact'
+        ? 'phone'
+        : 'LinkedIn'
+    return {
+      key: 'start_manual_social_batch',
+      label: `Prepare ${channel} handoff`,
+      statusLabel: 'Manual review ready',
+      detail: `Starts the review-only ${channel} handoff from the existing Lead Pipeline.`,
+      afterClick: 'Loads the manual handoff review. Provider calls, DMs, phone, and SMS stay off.',
+      href: null,
+      enabled: true,
+      blockerReason: null,
+    }
+  }
+  if (candidate.responseStatus !== 'no_response') {
+    return {
+      key: 'open_response_review',
+      label: 'Review response',
+      statusLabel: 'Response review',
+      detail: 'Opens the existing response lifecycle for follow-up or suppression review.',
+      afterClick: 'Uses the current workroom response panel before any new touchpoint.',
+      href: `${candidate.ctaHref}#warm-response-lifecycle`,
+      enabled: true,
+      blockerReason: null,
+    }
+  }
+  if (candidate.states.includes('needs_relationship_review')) {
+    return {
+      key: 'open_relationship_review',
+      label: 'Review basis',
+      statusLabel: 'Needs context',
+      detail: 'Opens the relationship packet so the operator can confirm the basis.',
+      afterClick: 'Keeps the lead in review until relationship context is strong enough.',
+      href: candidate.ctaHref,
+      enabled: true,
+      blockerReason: null,
+    }
+  }
+  if (candidate.states.includes('suppressed_blocked')) {
+    const blockerReason = candidate.blockers[0] ?? 'Suppression or contact state blocks outreach.'
+    return {
+      key: 'resolve_blocker',
+      label: 'Resolve blocker',
+      statusLabel: 'Blocked',
+      detail: blockerReason,
+      afterClick: 'Opens the contact workroom to inspect the blocker before any outreach.',
+      href: candidate.ctaHref,
+      enabled: true,
+      blockerReason,
+    }
+  }
+  return {
+    key: 'parked_sms',
+    label: 'SMS parked',
+    statusLabel: 'Parked',
+    detail: 'SMS stays visible for planning but cannot execute from this surface.',
+    afterClick: 'Wait for Telnyx/10DLC readiness and a separate SMS approval gate.',
+    href: candidate.ctaHref,
+    enabled: false,
+    blockerReason: 'SMS/Telnyx remains parked.',
+  }
+}
+
 function campaignActionWeight(
   kind: WarmOutreachDailyActionKind,
   phase: SocialContentCampaignPhase,
@@ -670,11 +819,12 @@ function buildDailyActions(args: {
         campaignSignal: `${args.campaignAlignment.currentPhaseLabel}: ${args.campaignAlignment.currentMilestoneTitle}`,
         reason: candidate.campaignAlignment.whyNext,
         afterAction: labels.afterAction,
-        ctaLabel: labels.ctaLabel,
+        ctaLabel: candidate.reviewLoopAction.label,
         ctaHref: candidate.ctaHref,
-        enabled: kind !== 'sms_parked',
+        enabled: candidate.reviewLoopAction.enabled,
         smsParked: candidate.states.includes('sms_parked'),
         blockers: candidate.blockers,
+        reviewLoopAction: candidate.reviewLoopAction,
       } satisfies Omit<WarmOutreachDailyActionRow, 'priorityRank'>
     })
     .sort((a, b) => b.priorityScore - a.priorityScore || a.contactName.localeCompare(b.contactName))
@@ -1054,6 +1204,15 @@ function planningBacklogCandidateFor(
     ...(smsParked ? ['SMS parked until Telnyx readiness clears'] : []),
   ]
   const batchEligible = gmailReady || manualSocialReady
+  const candidateCore = {
+    states: Array.from(states),
+    responseStatus,
+    batchEligible,
+    blockers,
+    recommendedChannel,
+    ctaHref: item.cta.href,
+  }
+  const reviewLoopAction = reviewLoopActionFor(lead, candidateCore)
 
   return {
     contactId: item.contactId,
@@ -1064,21 +1223,12 @@ function planningBacklogCandidateFor(
     draftReadiness,
     approvalState,
     responseStatus,
-    states: Array.from(states),
+    states: candidateCore.states,
     blockers,
     batchEligible,
-    nextActionLabel: batchEligible
-      ? primaryState === 'ready_manual_social'
-        ? 'Plan manual handoff'
-        : 'Plan Gmail review'
-      : states.has('suppressed_blocked')
-        ? 'Review suppression state'
-        : responseStatus !== 'no_response'
-        ? 'Review response state'
-        : draftReadiness === 'relationship_review_needed'
-          ? 'Review relationship basis'
-          : 'Open contact review',
+    nextActionLabel: reviewLoopAction.label,
     ctaHref: item.cta.href,
+    reviewLoopAction,
     campaignAlignment: {
       phase: campaignAlignment.currentPhase,
       theme: campaignAlignment.currentMilestoneTitle,

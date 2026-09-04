@@ -13,7 +13,7 @@ const outputDir = path.join(root, 'docs', 'warm-outreach-qa')
 const qaDir = path.join(root, 'test-results', 'warm-planning-backlog-qa')
 const sourceDir = path.join(qaDir, 'source')
 const baseUrl = (process.env.QA_BASE_URL || 'http://127.0.0.1:3000').replace(/\/$/, '')
-const qaPath = '/admin/outreach?tab=leads&filter=warm&qa=warm-planning-backlog'
+const qaPath = '/admin/outreach?tab=leads&filter=warm&qa=warm-planning-backlog#warm-planning-backlog'
 const qaUrl = new URL(qaPath, baseUrl).toString()
 const mp4Path = path.join(outputDir, 'warm-planning-backlog-qa.mp4')
 const receiptPath = path.join(outputDir, 'warm-planning-backlog-qa.json')
@@ -831,7 +831,8 @@ async function assertPlanningBacklog(page) {
         /Start today's Gmail review loop/i.test(text) &&
         /campaign timing makes reviewed Gmail draft work/i.test(text) &&
         /Replies/i.test(text) &&
-        /After: Prepare the review batch/i.test(text),
+        /Review batch ready/i.test(text) &&
+        /Click: Loads the warm batch review/i.test(text),
       hasExecutionLoop:
         /Office loop/i.test(text) &&
         /Next office window:/i.test(text) &&
@@ -907,6 +908,7 @@ async function addSideText(page) {
       <ul>
         <li>Today / This week shows the current campaign phase and calendar-template source.</li>
         <li>Today's actions rank Gmail, manual social, response, recovery, blocked, and SMS parked rows from the campaign phase.</li>
+        <li>Daily action buttons explain whether they prepare a review-only batch, open a saved record, or stay parked.</li>
         <li>Six planning states are visible as compact count filters.</li>
         <li>The office loop shows one primary review CTA and keeps recovery details secondary.</li>
         <li>Candidate rows explain why each outreach action maps to the campaign plan.</li>
@@ -950,13 +952,13 @@ await desktopPlanningCandidates.getByText('Kofi Phoneparked').waitFor({ timeout:
 await desktop.page.waitForTimeout(700)
 await desktopPlanningBacklog.evaluate((element) => element.scrollIntoView({ block: 'center' }))
 await activateButton(desktopPlanningBacklog.getByRole('button', { name: 'Show Ready for Gmail draft candidates' }))
-await activateButton(desktopPlanningBacklog.getByRole('button', { name: "Start today's Gmail review loop (2)" }))
+await activateButton(desktopPlanningBacklog.getByRole('button', { name: 'Prepare Gmail review for Amina Batchready', exact: true }))
 await desktop.page.getByLabel('Warm batch review').waitFor({ timeout: 15_000 })
 await desktop.page.getByText('Gmail batch draft plan').waitFor({ timeout: 10_000 })
 await desktop.page.waitForTimeout(800)
 await desktopPlanningBacklog.evaluate((element) => element.scrollIntoView({ block: 'center' }))
 await activateButton(desktop.page.getByRole('button', { name: 'Show Ready for manual social candidates' }))
-await activateButton(desktopPlanningCandidates.getByRole('button', { name: 'Plan manual handoff for Nia Manualsocial' }))
+await activateButton(desktopPlanningCandidates.getByRole('button', { name: 'Open candidate review: Prepare LinkedIn handoff for Nia Manualsocial' }))
 const desktopWorkroom = desktop.page.getByRole('region', { name: 'Outreach workroom for Nia Manualsocial' })
 await desktopWorkroom.waitFor({ timeout: 15_000 })
 await desktopWorkroom.getByTestId('warm-manual-social-handoff').first().waitFor({ timeout: 15_000 })
@@ -1007,15 +1009,16 @@ const receipt = {
   version: 'warm-outreach-planning-backlog-qa/v1',
   createdAt: new Date().toISOString(),
   qaUrl,
-  scenario: 'Planning backlog operator opens warm leads, filters planning states, prepares a review-only batch plan, and opens manual-social workroom state.',
+  scenario: 'Planning backlog operator opens warm leads, filters planning states, uses a daily action CTA to prepare a review-only Gmail batch plan, and opens manual-social workroom state.',
   expectedBehavior: [
     'Planning backlog shows Today / This Week campaign alignment from the existing whisper_to_shout social content calendar template.',
     'Daily operating actions rank Gmail reviews, manual-social handoffs, reply follow-ups, recovery, blocked/suppressed rows, and SMS parked rows from the campaign phase.',
+    'Daily action rows show the review-loop status, click result, and blocked or parked reason where applicable.',
     'Office execution loop prioritizes ready Gmail contacts first, shows manual-social handoffs next, and keeps response/blocker recovery separate.',
     'Planning backlog shows Ready for Gmail draft, Ready for manual social, Needs relationship review, Waiting on response, Suppressed/blocked, and SMS parked counts.',
     'Clicking summary counts visibly drills into the matching candidate set.',
     'Candidate rows show why each outreach action is next for the current campaign phase without duplicating a calendar.',
-    'The single current CTA prepares a review-only batch plan and does not imply external sending.',
+    'A daily Gmail action CTA prepares a review-only batch plan and does not imply external sending.',
     'The selected-contact workroom still renders the manual social handoff panel.',
     'Mobile widths 360, 390, and 430 show the core planning CTA with no horizontal overflow.',
   ],
