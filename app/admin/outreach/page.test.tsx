@@ -1262,6 +1262,14 @@ describe('OutreachAdminPage deep links', () => {
     const candidates = within(planningBacklog).getByLabelText('Warm planning candidates')
     const dailyActions = within(planningBacklog).getByLabelText('Warm daily operating actions')
 
+    fireEvent.click(within(planningBacklog).getByRole('button', {
+      name: /Open action drawer: .* for Gmail Filter/,
+    }))
+    expect(await within(planningBacklog).findByLabelText('Warm planning action drawer for Gmail Filter')).toBeInTheDocument()
+    fireEvent.click(within(actionFilters).getByRole('button', { name: 'Show Gmail draft review actions (1)' }))
+    expect(within(planningBacklog).queryByLabelText('Warm planning action drawer for Gmail Filter')).not.toBeInTheDocument()
+    fireEvent.click(within(planningBacklog).getByRole('button', { name: 'Clear daily action filter' }))
+
     const expectFilteredAction = (
       buttonName: string,
       visibleName: string,
@@ -1291,6 +1299,16 @@ describe('OutreachAdminPage deep links', () => {
     expectFilteredAction('Show relationship recovery actions (1)', 'Recovery Filter')
     expectFilteredAction('Show blocked or suppressed actions (2)', 'Blocked Filter')
     expectFilteredAction('Show SMS parked actions (1)', 'Sms Parked Filter')
+  })
+
+  it('keeps the normal warm lead list separate from planning drawers', async () => {
+    window.history.replaceState({}, '', '/admin/outreach?tab=leads&filter=warm')
+
+    render(<OutreachAdminPage />)
+
+    expect(await screen.findByText('Ada Operator')).toBeInTheDocument()
+    expect(screen.queryByLabelText('Warm outreach planning backlog')).not.toBeInTheDocument()
+    expect(screen.queryByLabelText(/Warm planning action drawer for/i)).not.toBeInTheDocument()
   })
 
   it('prepares a review-only warm planning backlog batch without external requests or create actions', async () => {
@@ -1381,7 +1399,7 @@ describe('OutreachAdminPage deep links', () => {
     expect(fetchMock.mock.calls.some(([url]) => /telnyx\.com|slack\.com|gmail\.com|googleapis\.com|n8n/i.test(String(url)))).toBe(false)
   })
 
-  it('routes planning candidate CTAs into the existing workroom without provider calls', async () => {
+  it('opens a planning candidate drawer before routing the CTA without provider calls', async () => {
     window.history.replaceState({}, '', '/admin/outreach?tab=leads&filter=warm&view=planning')
     const fetchMock = vi.mocked(fetch)
 
@@ -1389,15 +1407,23 @@ describe('OutreachAdminPage deep links', () => {
 
     const planningBacklog = await screen.findByLabelText('Warm outreach planning backlog')
     fireEvent.click(within(planningBacklog).getByRole('button', {
-      name: /Open candidate review: .* for Ada Operator/,
+      name: /Open action drawer: .* for Ada Operator/,
     }))
 
-    const workroom = await screen.findByLabelText('Outreach workroom for Ada Operator')
-    expect(within(workroom).getByText('Selected outreach workroom')).toBeInTheDocument()
-    expect(within(workroom).getByTestId('outreach-generator')).toHaveAttribute(
-      'data-presentation',
-      'workroom',
-    )
+    const drawer = await within(planningBacklog).findByLabelText('Warm planning action drawer for Ada Operator')
+    expect(within(drawer).getByText('Gmail draft review')).toBeInTheDocument()
+    expect(within(drawer).getByText('Current safest action')).toBeInTheDocument()
+    expect(within(drawer).getByText('Review Gmail draft plan only')).toBeInTheDocument()
+    expect(within(drawer).getByText('Blockers')).toBeInTheDocument()
+    expect(screen.queryByLabelText('Outreach workroom for Ada Operator')).not.toBeInTheDocument()
+
+    fireEvent.click(within(drawer).getByRole('button', { name: 'Prepare Gmail review for Ada Operator' }))
+
+    const batchReview = await screen.findByLabelText('Warm batch review')
+    expect(within(batchReview).getByLabelText('Warm planned draft actions')).toBeInTheDocument()
+    await waitFor(() => {
+      expect(within(drawer).getByRole('button', { name: 'Prepare Gmail review for Ada Operator' })).toHaveTextContent('Review opened')
+    })
     expect(fetchMock.mock.calls.some(([url]) => /telnyx\.com|slack\.com|gmail\.com|googleapis\.com|n8n/i.test(String(url)))).toBe(false)
   })
 
@@ -1444,8 +1470,15 @@ describe('OutreachAdminPage deep links', () => {
     expect(within(candidates).getByText('Suppression risk')).toBeInTheDocument()
     expect(within(candidates).getByText('SMS parked')).toBeInTheDocument()
     expect(within(planningBacklog).getByRole('button', {
-      name: /Open candidate review: .* for Ada Operator/,
+      name: /Open action drawer: .* for Ada Operator/,
     })).toBeInTheDocument()
+    fireEvent.click(within(planningBacklog).getByRole('button', {
+      name: /Open action drawer: .* for Ada Operator/,
+    }))
+    const drawer = await within(planningBacklog).findByLabelText('Warm planning action drawer for Ada Operator')
+    expect(within(drawer).getByText('Suppression review')).toBeInTheDocument()
+    expect(within(drawer).getByText('Blockers')).toBeInTheDocument()
+    expect(within(drawer).getByRole('button', { name: 'Resolve blocker for Ada Operator' })).toBeEnabled()
   })
 
   it('keeps the selected workroom read-only when a lead is do not contact', async () => {
