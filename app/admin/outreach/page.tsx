@@ -80,6 +80,7 @@ import type { WarmBatchReview } from '@/lib/warm-outreach-batch-review'
 import {
   buildWarmOutreachShortlist,
   type WarmOutreachPlanningBacklogCandidate,
+  type WarmOutreachReviewLoopAction,
   type WarmOutreachPlanningBacklogState,
   type WarmOutreachOfficeDigest,
   type WarmOutreachShortlistItem,
@@ -182,10 +183,91 @@ function selectedLeadIdFromParams(searchParams: { get(name: string): string | nu
 
 type TabType = 'leads' | 'escalations'
 type LeadViewType = 'list' | 'planning'
+type WarmPlanningDestinationIntent =
+  | 'gmail_draft_review'
+  | 'manual_social_handoff'
+  | 'response_review'
+  | 'relationship_review'
+  | 'blocker_review'
+
+const WARM_PLANNING_STATES: WarmOutreachPlanningBacklogState[] = [
+  'ready_gmail_draft',
+  'ready_manual_social',
+  'needs_relationship_review',
+  'waiting_on_response',
+  'suppressed_blocked',
+  'sms_parked',
+]
+
+function warmPlanningStateFromParams(
+  searchParams: { get(name: string): string | null } | null,
+): WarmOutreachPlanningBacklogState | null {
+  const state = searchParams?.get('planningState')
+  return WARM_PLANNING_STATES.includes(state as WarmOutreachPlanningBacklogState)
+    ? state as WarmOutreachPlanningBacklogState
+    : null
+}
+
+function warmPlanningContactIdFromParams(searchParams: { get(name: string): string | null } | null): number | null {
+  const value = searchParams?.get('planningContactId')
+  if (!value) return null
+  const parsed = Number.parseInt(value, 10)
+  return Number.isFinite(parsed) ? parsed : null
+}
 
 function isWarmPlanningBacklogRoute(searchParams: { get(name: string): string | null } | null) {
   const view = searchParams?.get('view')
   return view === 'planning' || view === 'warm-planning-backlog' || searchParams?.get('qa') === 'warm-planning-backlog'
+}
+
+function primaryPlanningStateForCandidate(
+  candidate: WarmOutreachPlanningBacklogCandidate,
+): WarmOutreachPlanningBacklogState {
+  return (
+    WARM_PLANNING_STATES.find((state) => candidate.states.includes(state)) ??
+    'needs_relationship_review'
+  )
+}
+
+function warmPlanningDestinationForAction(
+  action: WarmOutreachReviewLoopAction,
+): WarmPlanningDestinationIntent {
+  if (action.key === 'open_gmail_draft_review') return 'gmail_draft_review'
+  if (action.key === 'open_manual_social_handoff') return 'manual_social_handoff'
+  if (action.key === 'open_response_review') return 'response_review'
+  if (action.key === 'resolve_blocker') return 'blocker_review'
+  return 'relationship_review'
+}
+
+function warmPlanningDestinationLabel(intent: WarmPlanningDestinationIntent | null) {
+  if (intent === 'gmail_draft_review') return 'Gmail draft review'
+  if (intent === 'manual_social_handoff') return 'Manual social handoff'
+  if (intent === 'response_review') return 'Response lifecycle'
+  if (intent === 'blocker_review') return 'Suppression/blocker review'
+  return 'Relationship review'
+}
+
+function warmPlanningDestinationFromParams(
+  searchParams: { get(name: string): string | null } | null,
+): WarmPlanningDestinationIntent | null {
+  const value = searchParams?.get('planningDestination')
+  if (
+    value === 'gmail_draft_review' ||
+    value === 'manual_social_handoff' ||
+    value === 'response_review' ||
+    value === 'relationship_review' ||
+    value === 'blocker_review'
+  ) {
+    return value
+  }
+  return null
+}
+
+function warmPlanningHashForDestination(intent: WarmPlanningDestinationIntent | null) {
+  if (intent === 'gmail_draft_review') return '#warm-gmail-draft-review'
+  if (intent === 'manual_social_handoff') return '#warm-manual-social-handoff'
+  if (intent === 'response_review') return '#warm-response-lifecycle'
+  return '#warm-outreach-approval-gate'
 }
 
 function initialLeadStatusFilter(searchParams: { get(name: string): string | null } | null) {
@@ -386,7 +468,12 @@ function OutreachContent() {
   const [warmBatchReviewLoading, setWarmBatchReviewLoading] = useState(false)
   const [warmBatchReviewError, setWarmBatchReviewError] = useState<string | null>(null)
   const [warmPlanningBacklogFilter, setWarmPlanningBacklogFilter] =
-    useState<WarmOutreachPlanningBacklogState | 'all'>('all')
+    useState<WarmOutreachPlanningBacklogState | 'all'>(() => {
+      return warmPlanningStateFromParams(searchParams) ?? 'all'
+    })
+  const [warmPlanningSelectedContactId, setWarmPlanningSelectedContactId] = useState<number | null>(() => {
+    return isWarmPlanningBacklogRoute(searchParams) ? warmPlanningContactIdFromParams(searchParams) : null
+  })
   const [warmBatchDraftActionLoading, setWarmBatchDraftActionLoading] = useState(false)
   const [warmBatchDraftActionError, setWarmBatchDraftActionError] = useState<string | null>(null)
   const [warmProviderDraftCanaryLoadingQueueId, setWarmProviderDraftCanaryLoadingQueueId] = useState<string | null>(null)
@@ -1191,10 +1278,61 @@ function OutreachContent() {
       setLeadsPage(1)
     } else {
       params.delete('view')
+      params.delete('planningContactId')
+      params.delete('planningAction')
+      params.delete('planningDestination')
+      params.delete('planningActionStatus')
       if (params.get('qa') === 'warm-planning-backlog') params.delete('qa')
     }
     router.push(`/admin/outreach?${params.toString()}`)
   }
+
+  const updateWarmPlanningRoute = useCallback((
+    next: {
+      state?: WarmOutreachPlanningBacklogState | 'all'
+      contactId?: number | null
+      action?: string | null
+      destination?: WarmPlanningDestinationIntent | null
+      status?: 'opened' | null
+    },
+    options?: { hash?: string },
+  ) => {
+    const params = new URLSearchParams(searchParams?.toString() || '')
+    params.set('tab', 'leads')
+    params.set('filter', 'warm')
+    params.set('view', 'planning')
+    if (next.state && next.state !== 'all') params.set('planningState', next.state)
+    if (next.state === 'all') params.delete('planningState')
+    if (next.contactId == null) {
+      params.delete('planningContactId')
+    } else {
+      params.set('planningContactId', String(next.contactId))
+    }
+    if (next.action === null) params.delete('planningAction')
+    if (next.action) params.set('planningAction', next.action)
+    if (next.destination === null) params.delete('planningDestination')
+    if (next.destination) params.set('planningDestination', next.destination)
+    if (next.status === null) params.delete('planningActionStatus')
+    if (next.status) params.set('planningActionStatus', next.status)
+    const hash = options?.hash ?? ''
+    router.replace(`/admin/outreach?${params.toString()}${hash}`, { scroll: false })
+  }, [router, searchParams])
+
+  const handleWarmPlanningStateChange = useCallback((state: WarmOutreachPlanningBacklogState | 'all') => {
+    setWarmPlanningBacklogFilter(state)
+    updateWarmPlanningRoute({ state, contactId: null, action: null, destination: null, status: null })
+  }, [updateWarmPlanningRoute])
+
+  const handleWarmPlanningSelectedContactChange = useCallback((contactId: number | null) => {
+    setWarmPlanningSelectedContactId(contactId)
+    updateWarmPlanningRoute({
+      state: warmPlanningBacklogFilter,
+      contactId,
+      action: null,
+      destination: null,
+      status: null,
+    })
+  }, [updateWarmPlanningRoute, warmPlanningBacklogFilter])
 
   const openReviewEnrichModal = useCallback((contactSubmissionIds: number[]) => {
     if (contactSubmissionIds.length === 0) return
@@ -1455,13 +1593,22 @@ function OutreachContent() {
       setOutreachWorkroomLeadId(candidate.contactId)
       setExpandedLeadId(candidate.contactId)
       setLeadRowMenuOpenId(null)
+      setWarmPlanningSelectedContactId(candidate.contactId)
       const params = new URLSearchParams(searchParams?.toString() || '')
+      const planningState = primaryPlanningStateForCandidate(candidate)
+      const planningDestination = warmPlanningDestinationForAction(candidate.reviewLoopAction)
       params.set('tab', 'leads')
       params.set('filter', 'warm')
       params.delete('view')
       if (params.get('qa') === 'warm-planning-backlog') params.delete('qa')
       params.set('id', String(candidate.contactId))
       params.set('contactId', String(candidate.contactId))
+      params.set('fromPlanning', '1')
+      params.set('planningContactId', String(candidate.contactId))
+      params.set('planningState', planningState)
+      params.set('planningAction', candidate.reviewLoopAction.key)
+      params.set('planningDestination', planningDestination)
+      params.set('planningActionStatus', 'opened')
       params.delete('draftReview')
       setLeadView('list')
       if (
@@ -1471,14 +1618,7 @@ function OutreachContent() {
       ) {
         params.set('draftReview', candidate.reviewLoopAction.recordId)
       }
-      const hash =
-        candidate.reviewLoopAction.key === 'open_gmail_draft_review'
-          ? '#warm-gmail-draft-review'
-          : candidate.reviewLoopAction.key === 'open_manual_social_handoff'
-            ? '#warm-manual-social-handoff'
-            : candidate.reviewLoopAction.key === 'open_response_review' || candidate.responseStatus === 'reply_detected'
-              ? '#warm-response-lifecycle'
-              : ''
+      const hash = warmPlanningHashForDestination(planningDestination)
       router.replace(`/admin/outreach?${params.toString()}${hash}`, { scroll: false })
     },
     [router, searchParams],
@@ -1535,6 +1675,68 @@ function OutreachContent() {
     const hash = warmOfficeDigest.currentCta.key === 'handle_response' ? '#warm-response-lifecycle' : ''
     router.replace(`/admin/outreach?${params.toString()}${hash}`, { scroll: false })
   }, [openWarmShortlistItem, router, searchParams, warmOfficeDigest, warmOutreachShortlist.items])
+  const warmPlanningDestination = warmPlanningDestinationFromParams(searchParams)
+  const warmPlanningReturnContactId = warmPlanningContactIdFromParams(searchParams)
+  const warmPlanningReturnState = warmPlanningStateFromParams(searchParams)
+  const warmPlanningOpenedContactId =
+    searchParams?.get('planningActionStatus') === 'opened'
+      ? warmPlanningReturnContactId
+      : null
+  const planningDestinationActive =
+    searchParams?.get('fromPlanning') === '1' &&
+    Boolean(outreachWorkroomLeadId) &&
+    warmPlanningReturnContactId === outreachWorkroomLeadId
+  const warmPlanningReturnHref = (() => {
+    const params = new URLSearchParams()
+    params.set('tab', 'leads')
+    params.set('filter', 'warm')
+    params.set('view', 'planning')
+    if (warmPlanningReturnState) params.set('planningState', warmPlanningReturnState)
+    if (warmPlanningReturnContactId != null) params.set('planningContactId', String(warmPlanningReturnContactId))
+    const action = searchParams?.get('planningAction')
+    if (action) params.set('planningAction', action)
+    if (warmPlanningDestination) params.set('planningDestination', warmPlanningDestination)
+    if (searchParams?.get('planningActionStatus') === 'opened') params.set('planningActionStatus', 'opened')
+    return `/admin/outreach?${params.toString()}#warm-planning-backlog`
+  })()
+  const returnToWarmPlanning = useCallback(() => {
+    setActiveTab('leads')
+    setLeadView('planning')
+    setLeadsTempFilter('warm')
+    setWarmPlanningBacklogFilter(warmPlanningReturnState ?? 'all')
+    setWarmPlanningSelectedContactId(warmPlanningReturnContactId)
+    router.replace(warmPlanningReturnHref, { scroll: false })
+  }, [router, warmPlanningReturnContactId, warmPlanningReturnHref, warmPlanningReturnState])
+
+  useEffect(() => {
+    if (!isWarmPlanningBacklogRoute(searchParams)) return
+    setWarmPlanningBacklogFilter(warmPlanningStateFromParams(searchParams) ?? 'all')
+    setWarmPlanningSelectedContactId(warmPlanningContactIdFromParams(searchParams))
+  }, [searchParams])
+
+  useEffect(() => {
+    if (activeTab !== 'leads' || leadView !== 'list') return
+    const hash = window.location.hash
+    if (!hash) return
+    const selector = hash.replace(/"/g, '\\"')
+    const focusTarget = () => {
+      const element = document.querySelector(selector)
+      if (element instanceof HTMLElement) {
+        if (!element.hasAttribute('tabindex')) element.setAttribute('tabindex', '-1')
+        element.scrollIntoView({ block: 'start', behavior: 'smooth' })
+        element.focus({ preventScroll: true })
+      }
+    }
+    window.setTimeout(focusTarget, 0)
+  }, [
+    activeTab,
+    leadView,
+    outreachWorkroomLeadId,
+    relationshipPacketData,
+    relationshipPacketLoading,
+    warmGmailDraftReviewData,
+    warmGmailDraftReviewLoading,
+  ])
   const expandedLead = expandedLeadId ? leads.find((lead) => lead.id === expandedLeadId) ?? null : null
   const outreachWorkroomLead = outreachWorkroomLeadId
     ? leads.find((lead) => lead.id === outreachWorkroomLeadId) ?? null
@@ -1674,13 +1876,15 @@ function OutreachContent() {
           waitingOnYou={outreachWorkroomLead || selectedLeadIds.size ? 'Yes - review before action' : 'No'}
           blocker={outreachBlocker}
           canonicalHref={
-            outreachWorkroomLead
+            planningDestinationActive
+              ? warmPlanningReturnHref
+              : outreachWorkroomLead
               ? `/admin/outreach?tab=leads&id=${outreachWorkroomLead.id}`
               : leadView === 'planning'
                 ? '/admin/outreach?tab=leads&filter=warm&view=planning'
                 : '/admin/outreach?tab=leads'
           }
-          canonicalLabel={outreachWorkroomLead ? 'Open selected lead' : leadView === 'planning' ? 'Open planning backlog' : 'Open lead workroom'}
+          canonicalLabel={planningDestinationActive ? 'Return to planning' : outreachWorkroomLead ? 'Open selected lead' : leadView === 'planning' ? 'Open planning backlog' : 'Open lead workroom'}
           tone={outreachBlocker ? 'red' : outreachWorkroomLead || selectedLeadIds.size ? 'yellow' : 'blue'}
         />
 
@@ -1759,7 +1963,10 @@ function OutreachContent() {
                   activeState={warmPlanningBacklogFilter}
                   loading={warmBatchReviewLoading}
                   error={warmBatchReviewError}
-                  onStateChange={setWarmPlanningBacklogFilter}
+                  selectedContactId={warmPlanningSelectedContactId}
+                  openedContactId={warmPlanningOpenedContactId}
+                  onStateChange={handleWarmPlanningStateChange}
+                  onSelectedContactChange={handleWarmPlanningSelectedContactChange}
                   onPrepareBatch={prepareWarmPlanningBatch}
                   onPrepareCandidateReview={prepareWarmPlanningCandidateReview}
                   onOpenCandidate={openWarmPlanningCandidate}
@@ -1927,7 +2134,10 @@ function OutreachContent() {
                 activeState={warmPlanningBacklogFilter}
                 loading={warmBatchReviewLoading}
                 error={warmBatchReviewError}
-                onStateChange={setWarmPlanningBacklogFilter}
+                selectedContactId={warmPlanningSelectedContactId}
+                openedContactId={warmPlanningOpenedContactId}
+                onStateChange={handleWarmPlanningStateChange}
+                onSelectedContactChange={handleWarmPlanningSelectedContactChange}
                 onPrepareBatch={prepareWarmPlanningBatch}
                 onPrepareCandidateReview={prepareWarmPlanningCandidateReview}
                 onOpenCandidate={openWarmPlanningCandidate}
@@ -2151,6 +2361,38 @@ function OutreachContent() {
                   </button>
                 </div>
                 <div className="space-y-3">
+                  {planningDestinationActive && (
+                    <div
+                      className="grid gap-3 rounded-lg border border-radiant-gold/30 bg-radiant-gold/10 p-3 md:grid-cols-[minmax(0,1fr)_minmax(12rem,auto)] md:items-center"
+                      aria-label={`Planning action destination for ${outreachWorkroomLead.name}`}
+                    >
+                      <div className="min-w-0">
+                        <div className="flex min-w-0 flex-wrap items-center gap-1.5">
+                          <span className="inline-flex min-h-7 max-w-full items-center gap-1.5 rounded-full border border-radiant-gold/35 bg-background/30 px-2.5 py-0.5 text-[11px] font-semibold leading-5 text-radiant-gold">
+                            <ClipboardCheck size={13} aria-hidden />
+                            <span className="truncate">Opened from Planning</span>
+                          </span>
+                          <span className="inline-flex min-h-7 max-w-full items-center rounded-full border border-silicon-slate/70 bg-background/35 px-2.5 py-0.5 text-[11px] leading-5 text-muted-foreground">
+                            <span className="truncate">{warmPlanningDestinationLabel(warmPlanningDestination)}</span>
+                          </span>
+                        </div>
+                        <p className="mt-2 truncate text-sm font-semibold text-foreground">
+                          {outreachWorkroomLead.name}
+                        </p>
+                        <p className="mt-1 line-clamp-2 text-xs leading-5 text-muted-foreground">
+                          Next operator action: {warmPlanningDestinationLabel(warmPlanningDestination)}. Provider drafts, sends, Slack, social providers, n8n, and SMS stay off.
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={returnToWarmPlanning}
+                        className="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-lg border border-radiant-gold/50 bg-background/35 px-3 text-sm font-semibold text-radiant-gold transition-colors hover:bg-radiant-gold/15 md:w-auto"
+                      >
+                        <CalendarDays size={15} aria-hidden />
+                        Back to Planning
+                      </button>
+                    </div>
+                  )}
                   {outreachWorkroomLead.next_internal_action && !outreachBlocker && (
                     <div
                       id="warm-internal-action"

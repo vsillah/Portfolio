@@ -102,4 +102,27 @@ describe('WarmPlanningBacklogPanel', () => {
     expect(within(drawer).getByRole('button', { name: 'SMS parked for Sade Parked' })).toBeDisabled()
     expect(openCandidate).not.toHaveBeenCalled()
   })
+
+  it('restores a selected and opened candidate from route state', () => {
+    render(
+      <WarmPlanningBacklogPanel
+        backlog={smsParkedBacklog()}
+        activeState="all"
+        loading={false}
+        error={null}
+        selectedContactId={42}
+        openedContactId={42}
+        onStateChange={vi.fn()}
+        onSelectedContactChange={vi.fn()}
+        onPrepareBatch={vi.fn()}
+        onPrepareCandidateReview={vi.fn()}
+        onOpenCandidate={vi.fn()}
+      />,
+    )
+
+    const drawer = screen.getByLabelText('Warm planning action drawer for Sade Parked')
+    expect(within(drawer).getByRole('button', { name: 'SMS parked for Sade Parked' })).toBeDisabled()
+    expect(screen.getByText('In review')).toBeInTheDocument()
+    expect(within(drawer).getByText('Recovery path: wait for the separate Telnyx and per-recipient SMS gate.')).toBeInTheDocument()
+  })
 })
