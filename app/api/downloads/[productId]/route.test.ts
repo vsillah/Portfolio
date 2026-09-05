@@ -137,6 +137,76 @@ describe('GET /api/downloads/[productId]', () => {
     await expect(response.json()).resolves.toEqual({ error: 'Unauthorized' })
   })
 
+  it('returns a signed URL for a guest who omits x-guest-email', async () => {
+    mocks.getCurrentUser.mockResolvedValue(null)
+    mockTables({
+      orders: {
+        data: {
+          id: 99,
+          user_id: 'someone-else',
+          guest_email: 'buyer@example.com',
+          status: 'completed',
+        },
+        error: null,
+      },
+      order_items: { data: { id: 'item-1' }, error: null },
+      products: { data: { file_path: 'docs/guide.pdf', title: 'Guide.pdf' }, error: null },
+    })
+
+    const response = await GET(makeRequest({ orderId: '99' }), params())
+
+    expect(response.status).toBe(200)
+    await expect(response.json()).resolves.toEqual({
+      downloadUrl: 'https://signed.example/file.pdf',
+      fileName: 'Guide.pdf',
+    })
+    expect(mocks.getSignedUrl).toHaveBeenCalledWith('products', 'docs/guide.pdf', 3600)
+  })
+
+  it('returns a signed URL when a guest email matches the order', async () => {
+    mocks.getCurrentUser.mockResolvedValue(null)
+    mockTables({
+      orders: {
+        data: {
+          id: 99,
+          user_id: null,
+          guest_email: 'buyer@example.com',
+          status: 'completed',
+        },
+        error: null,
+      },
+      order_items: { data: { id: 'item-1' }, error: null },
+      products: { data: { file_path: 'docs/guide.pdf', title: 'Guide.pdf' }, error: null },
+    })
+
+    const response = await GET(
+      makeRequest({ orderId: '99', guestEmail: 'buyer@example.com' }),
+      params(),
+    )
+
+    expect(response.status).toBe(200)
+    await expect(response.json()).resolves.toEqual({
+      downloadUrl: 'https://signed.example/file.pdf',
+      fileName: 'Guide.pdf',
+    })
+  })
+
+  it('returns 404 when the product is not on the order', async () => {
+    mockTables({
+      orders: {
+        data: { id: 99, user_id: 'user-1', guest_email: null, status: 'completed' },
+        error: null,
+      },
+      order_items: { data: null, error: { message: 'not found' } },
+    })
+
+    const response = await GET(makeRequest({ orderId: '99' }), params())
+
+    expect(response.status).toBe(404)
+    await expect(response.json()).resolves.toEqual({ error: 'Product not found in order' })
+    expect(mocks.getSignedUrl).not.toHaveBeenCalled()
+  })
+
   it('returns a signed URL when the owner purchased the product', async () => {
     mockTables({
       orders: {
