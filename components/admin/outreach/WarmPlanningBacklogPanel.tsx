@@ -577,13 +577,6 @@ export default function WarmPlanningBacklogPanel({
       <div className="mt-3 grid gap-2">
             <div className="min-w-0 rounded-md border border-radiant-gold/25 bg-background/35 p-3">
               <div className="flex min-w-0 flex-wrap items-center gap-2" aria-label="Warm planning campaign context">
-                <span
-                  className="inline-flex min-h-7 min-w-0 max-w-full items-center gap-1.5 rounded-md border border-radiant-gold/30 bg-radiant-gold/10 px-2 text-[11px] font-semibold leading-5 text-radiant-gold"
-                  title={`This week ${backlog.campaignAlignment.plannedWindowLabel}`}
-                >
-                  <CalendarDays size={12} aria-hidden />
-                  <span className="truncate">This week {backlog.campaignAlignment.plannedWindowLabel}</span>
-                </span>
                 <span className="inline-flex min-h-7 shrink-0 items-center whitespace-nowrap rounded-md border border-silicon-slate/70 bg-background/45 px-2 text-[11px] leading-5 text-muted-foreground">
                   {stateSummaryLabel(backlog)}
                 </span>
@@ -645,9 +638,6 @@ export default function WarmPlanningBacklogPanel({
                     </span>
                     <span className="inline-flex min-h-7 max-w-full items-center rounded-md border border-silicon-slate/70 bg-background/45 px-2 text-[11px] leading-5 text-muted-foreground">
                       {backlog.dailyActions.campaignPhaseLabel}
-                    </span>
-                    <span className="inline-flex min-h-7 min-w-fit shrink-0 items-center whitespace-nowrap rounded-md border border-silicon-slate/70 bg-background/45 px-2 text-[11px] leading-5 text-muted-foreground">
-                      {backlog.dailyActions.operatingDateLabel}
                     </span>
                     <span
                       className="inline-flex min-h-7 min-w-0 max-w-full items-center rounded-md border border-radiant-gold/25 bg-radiant-gold/10 px-2 text-[11px] leading-5 text-radiant-gold"

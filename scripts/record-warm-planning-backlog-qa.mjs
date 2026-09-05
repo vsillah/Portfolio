@@ -839,7 +839,6 @@ async function assertPlanningBacklog(page) {
         /Blocked/i.test(text) &&
         /SMS parked/i.test(text),
       hasCampaignAlignment:
-        /This week\s+Sep/i.test(text) &&
         /Whisper-to-shout launch/i.test(text) &&
         /The backlog uses the existing (Tease|Teach|Proof|Offer) content-calendar milestone/i.test(text) &&
         /Calendar LinkedIn/i.test(text) &&
@@ -851,7 +850,8 @@ async function assertPlanningBacklog(page) {
         /Campaign source/i.test(text) &&
         /Why next:/i.test(text),
       hasCompactTemporalContext:
-        campaignContextChips.some((label) => /^This week\s+Sep/i.test(label)) &&
+        !campaignContextChips.some((label) => /^This week\s+Sep/i.test(label)) &&
+        !campaignContextChips.some((label) => /^Sep\s+\d+/i.test(label)) &&
         !campaignContextChips.some((label) => /^Today \/ This week$/i.test(label)) &&
         !campaignContextChips.some((label) => /^Today\s+Sep\s+\d+/i.test(label)) &&
         !campaignContextChips.some((label) => /^Week\s+Sep\s+\d+/i.test(label)),
@@ -1160,7 +1160,7 @@ const receipt = {
     'The ordinary warm lead list renders without the warm planning backlog panel.',
     'The Planning control opens the dedicated warm backlog view under the existing Lead Pipeline navigation.',
     'The direct warm planning backlog route lands on the backlog view without requiring operator inference.',
-    'Planning backlog shows one compact week anchor for the current whisper_to_shout campaign window, including calendar channel, cadence, source, proof point, and gate without redundant date/date-range pills.',
+    'Planning backlog keeps the week anchor in the header while the campaign context row stays compact with calendar channel, cadence, source, proof point, and gate without redundant date/date-range pills.',
     'Daily operating actions rank Gmail reviews, manual-social handoffs, reply follow-ups, recovery, blocked/suppressed rows, and SMS parked rows from the campaign phase.',
     'Daily action count pills filter the visible daily action and candidate rows for Gmail, manual social, blocked/suppressed, and clear back to the full action plan while keeping counts anchored to the full summary.',
     'Daily action rows show ready, review-needed, recorded/waiting, blocked, and parked loop states with non-repeatable recorded actions disabled.',
