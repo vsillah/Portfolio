@@ -130,6 +130,17 @@ const leads = [
     last_n8n_outreach_template_key: null,
     has_extractable_text: true,
     recent_email_drafts: [],
+    next_internal_action: {
+      kind: 'manual_social_handoff_task',
+      label: 'Record handoff evidence',
+      status_label: 'Pending handoff',
+      detail: 'Manual linkedin handoff: Nia Manualsocial',
+      record_table: 'meeting_action_tasks',
+      record_id: 'qa-meeting-action-task-existing-103',
+      created_at: timestamp,
+      href: '/admin/outreach?tab=leads&filter=warm&id=103&contactId=103#warm-manual-social-handoff',
+      enabled: true,
+    },
   },
   {
     id: 102,
@@ -276,6 +287,43 @@ const leads = [
     recent_email_drafts: [
       { id: 'queue-sent-105', subject: 'Warm follow-up', status: 'sent', created_at: timestamp },
     ],
+  },
+  {
+    id: 106,
+    name: 'Sade Suppressed',
+    email: 'sade.office@example.test',
+    company: 'Suppressed Contact Co',
+    company_domain: 'suppressed.example.test',
+    job_title: 'Advisor',
+    industry: 'Services',
+    phone_number: null,
+    lead_source: 'warm_referral',
+    lead_score: 88,
+    outreach_status: 'opted_out',
+    qualification_status: 'blocked',
+    created_at: timestamp,
+    linkedin_url: null,
+    ai_readiness_score: null,
+    competitive_pressure_score: null,
+    quick_wins: 'Suppression fixture.',
+    message: 'Suppression fixture.',
+    full_report: null,
+    rep_pain_points: null,
+    messages_count: 0,
+    messages_sent: 0,
+    has_reply: false,
+    has_sales_conversation: true,
+    latest_session_id: null,
+    session_count: 0,
+    evidence_count: 1,
+    last_vep_triggered_at: null,
+    last_vep_status: null,
+    last_n8n_outreach_triggered_at: null,
+    last_n8n_outreach_status: null,
+    last_n8n_outreach_template_key: null,
+    has_extractable_text: true,
+    do_not_contact: true,
+    recent_email_drafts: [],
   },
 ]
 
@@ -770,6 +818,10 @@ async function assertPlanningBacklog(page) {
     const text = document.body.innerText
     const planningBacklog = document.querySelector('[aria-label="Warm outreach planning backlog"]')
     const dailyActions = document.querySelector('[aria-label="Warm daily operating actions"]')
+    const campaignContext = document.querySelector('[aria-label="Warm planning campaign context"]')
+    const campaignContextChips = [...(campaignContext?.children || [])]
+      .map((element) => element.textContent?.replace(/\s+/g, ' ').trim() || '')
+      .filter(Boolean)
     const currentCta = [...document.querySelectorAll('button')]
       .find((button) => /Start today's Gmail review loop|Start today's manual-social loop/.test(button.textContent || ''))
     const visible = (element) => {
@@ -787,7 +839,7 @@ async function assertPlanningBacklog(page) {
         /Blocked/i.test(text) &&
         /SMS parked/i.test(text),
       hasCampaignAlignment:
-        /Today \/ This week/i.test(text) &&
+        /This week\s+Sep/i.test(text) &&
         /Whisper-to-shout launch/i.test(text) &&
         /The backlog uses the existing (Tease|Teach|Proof|Offer) content-calendar milestone/i.test(text) &&
         /Calendar LinkedIn/i.test(text) &&
@@ -798,13 +850,19 @@ async function assertPlanningBacklog(page) {
         /Source Whisper-to-shout launch content calendar template/i.test(text) &&
         /Campaign source/i.test(text) &&
         /Why next:/i.test(text),
+      hasCompactTemporalContext:
+        campaignContextChips.some((label) => /^This week\s+Sep/i.test(label)) &&
+        !campaignContextChips.some((label) => /^Today \/ This week$/i.test(label)) &&
+        !campaignContextChips.some((label) => /^Today\s+Sep\s+\d+/i.test(label)) &&
+        !campaignContextChips.some((label) => /^Week\s+Sep\s+\d+/i.test(label)),
+      campaignContextChips,
       hasDailyActions:
         /Today's actions/i.test(text) &&
         /Gmail\s+2/i.test(text) &&
         /Manual\s+1/i.test(text) &&
         /Replies\s+1/i.test(text) &&
         /Recovery\s+1/i.test(text) &&
-        /Blocked\s+0/i.test(text) &&
+        /Blocked\s+1/i.test(text) &&
         /SMS parked\s+1/i.test(text) &&
         /Start today's Gmail review loop/i.test(text) &&
         /campaign timing makes reviewed Gmail draft work/i.test(text) &&
@@ -823,14 +881,14 @@ async function assertPlanningBacklog(page) {
         /Manual\s+1/i.test(text) &&
         /Replies\s+1/i.test(text) &&
         /Recovery\s+1/i.test(text) &&
-        /Blocked\s+0/i.test(text) &&
+        /Blocked\s+1/i.test(text) &&
         /SMS parked\s+1/i.test(text),
       hasExecutionLoop:
         /Campaign cadence/i.test(text) &&
         /Lead Pipeline window:/i.test(text) &&
         /Gmail 2/i.test(text) &&
         /Manual 1/i.test(text) &&
-        /Recovery 2/i.test(text) &&
+        /Recovery 3/i.test(text) &&
         /SMS parked 1/i.test(text) &&
         /Work the Lead Pipeline/i.test(text),
       hasSafeCta: visible(currentCta) && /Start today's Gmail review loop|Start today's manual-social loop/.test(currentCta?.textContent || ''),
@@ -906,7 +964,7 @@ async function addSideText(page) {
       <p>Vambah opens the warm leads tab and prepares a reviewable outreach batch from the existing planning backlog.</p>
       <h3>Expected</h3>
       <ul>
-        <li>Today / This week shows the current campaign phase, calendar channel, cadence, source template, proof point, and approval gate.</li>
+        <li>One compact week anchor shows the current campaign phase, while calendar channel, cadence, source template, proof point, and approval gate stay as non-redundant context.</li>
         <li>Today's actions rank Gmail, manual social, response, recovery, blocked, and SMS parked rows from the campaign phase.</li>
         <li>Daily action count pills filter the visible action and candidate rows, then clear back to the full daily plan.</li>
         <li>Daily action rows show calendar basis, cadence, source, proof, gate, and the one safe next action before the button.</li>
@@ -970,8 +1028,8 @@ await desktop.page.waitForTimeout(700)
 await activateButton(dailyActionFilters.getByRole('button', { name: 'Show manual social handoff actions (1)' }))
 await desktopPlanningCandidates.getByText('Nia Manualsocial').waitFor({ timeout: 10_000 })
 await desktop.page.waitForTimeout(700)
-await activateButton(dailyActionFilters.getByRole('button', { name: 'Show blocked or suppressed actions (0)' }))
-await desktopPlanningBacklog.getByText('No blocked actions today.').first().waitFor({ timeout: 10_000 })
+await activateButton(dailyActionFilters.getByRole('button', { name: 'Show blocked or suppressed actions (1)' }))
+await desktopPlanningCandidates.getByText('Sade Suppressed').waitFor({ timeout: 10_000 })
 await desktop.page.waitForTimeout(700)
 await activateButton(desktopPlanningBacklog.getByRole('button', { name: 'Clear daily action filter' }))
 await desktop.page.waitForTimeout(500)
@@ -980,17 +1038,17 @@ await desktopPlanningCandidates.getByText('Kofi Phoneparked').waitFor({ timeout:
 await desktop.page.waitForTimeout(700)
 await desktopPlanningBacklog.evaluate((element) => element.scrollIntoView({ block: 'center' }))
 await activateButton(desktopPlanningBacklog.getByRole('button', { name: 'Show Ready for Gmail draft candidates' }))
-const dailyGmailAction = desktopPlanningBacklog.getByRole('button', { name: 'Prepare Gmail review for Amina Batchready', exact: true })
-await activateButton(dailyGmailAction)
+const primaryGmailAction = desktopPlanningBacklog.getByRole('button', { name: "Start today's Gmail review loop (2)" })
+await activateButton(primaryGmailAction)
 await desktop.page.getByLabel('Warm batch review').waitFor({ timeout: 15_000 })
 await desktop.page.getByText('Gmail batch draft plan').waitFor({ timeout: 10_000 })
 const reviewProgress = desktopPlanningBacklog.getByLabel('Warm review loop progress')
 await reviewProgress.waitFor({ timeout: 10_000 })
-for (const text of ['Review batch selected', '1 in batch', '0 reviewed', '1 remaining']) {
-  await reviewProgress.getByText(text).waitFor({ timeout: 10_000 })
+for (const text of ['Review batch selected', '2 in batch', '0 reviewed', '2 remaining']) {
+  await reviewProgress.getByText(text, { exact: true }).first().waitFor({ timeout: 10_000 })
 }
 await reviewProgress.getByText(/Backlog ready \d+/).waitFor({ timeout: 10_000 })
-await reviewProgress.getByText(/Review batch ready: Amina Batchready\. Next candidate:/).waitFor({ timeout: 10_000 })
+await reviewProgress.getByText(/Review batch selected: .*Next candidate:/).waitFor({ timeout: 10_000 })
 await desktop.page.waitForFunction(() => {
   const focused = document.activeElement
   return (
@@ -1002,23 +1060,51 @@ await reviewProgress.evaluate((element) => element.scrollIntoView({ block: 'cent
 await desktop.page.waitForTimeout(800)
 await desktop.page.getByLabel('Gmail batch draft plan').evaluate((element) => element.scrollIntoView({ block: 'center' }))
 await desktop.page.waitForTimeout(800)
-const dailyGmailActionState = await dailyGmailAction.evaluate((button) => ({
+const openedPrimaryGmailAction = desktopPlanningBacklog.getByRole('button', { name: 'Review batch selected' }).first()
+const primaryGmailActionState = await openedPrimaryGmailAction.evaluate((button) => ({
   text: button.textContent?.replace(/\s+/g, ' ').trim() ?? '',
   disabled: button instanceof HTMLButtonElement ? button.disabled : button.getAttribute('aria-disabled') === 'true',
 }))
-if (dailyGmailActionState.text !== 'Review opened' || !dailyGmailActionState.disabled) {
-  throw new Error(`Daily Gmail action did not expose opened state: ${JSON.stringify(dailyGmailActionState)}`)
+if (primaryGmailActionState.text !== 'Review batch selected' || !primaryGmailActionState.disabled) {
+  throw new Error(`Primary Gmail action did not expose opened state: ${JSON.stringify(primaryGmailActionState)}`)
 }
 await reviewProgress.evaluate((element) => element.scrollIntoView({ block: 'center' }))
 await desktop.page.waitForTimeout(1200)
 await desktop.page.waitForTimeout(800)
-await desktopPlanningBacklog.evaluate((element) => element.scrollIntoView({ block: 'center' }))
-await activateButton(desktop.page.getByRole('button', { name: 'Show Ready for manual social candidates' }))
-await activateButton(desktopPlanningCandidates.getByRole('button', { name: 'Open candidate review: Prepare LinkedIn handoff for Nia Manualsocial' }))
+await desktop.page.goto(
+  new URL(
+    '/admin/outreach?tab=leads&filter=warm&id=103&contactId=103&fromPlanning=1&planningContactId=103&planningState=ready_manual_social&planningAction=open_manual_social_handoff&planningDestination=manual_social_handoff&planningActionStatus=opened#warm-manual-social-handoff',
+    baseUrl,
+  ).toString(),
+  { waitUntil: 'networkidle' },
+)
+await addSideText(desktop.page)
 const desktopWorkroom = desktop.page.getByRole('region', { name: 'Outreach workroom for Nia Manualsocial' })
 await desktopWorkroom.waitFor({ timeout: 15_000 })
+const manualDestination = desktopWorkroom.getByLabel('Planning action destination for Nia Manualsocial')
+await manualDestination.waitFor({ timeout: 10_000 })
+await manualDestination.getByText('Manual social handoff', { exact: true }).first().waitFor({ timeout: 10_000 })
 await desktopWorkroom.getByTestId('warm-manual-social-handoff').first().waitFor({ timeout: 15_000 })
 await desktop.page.waitForTimeout(1200)
+await activateButton(manualDestination.getByRole('button', { name: 'Back to Planning' }))
+await desktop.page.getByLabel('Warm outreach planning backlog').waitFor({ timeout: 10_000 })
+await desktop.page.getByLabel('Warm planning action drawer for Nia Manualsocial').waitFor({ timeout: 10_000 })
+await desktop.page.getByText('In review', { exact: true }).first().waitFor({ timeout: 10_000 })
+await desktop.page.waitForTimeout(900)
+await activateButton(desktopPlanningBacklog.getByRole('button', { name: /Show all warm planning candidates/ }))
+await desktop.page.waitForTimeout(400)
+await activateButton(desktop.page.getByRole('button', { name: 'Show blocked or suppressed actions (1)' }))
+await desktopPlanningCandidates.getByText('Sade Suppressed').waitFor({ timeout: 10_000 })
+await activateButton(desktopPlanningCandidates.getByRole('button', { name: 'Open action drawer: Resolve blocker for Sade Suppressed' }))
+const blockedDrawer = desktopPlanningBacklog.getByLabel('Warm planning action drawer for Sade Suppressed')
+await blockedDrawer.waitFor({ timeout: 10_000 })
+await blockedDrawer.getByText(/Recovery path: open the contact workroom/).waitFor({ timeout: 10_000 })
+await activateButton(blockedDrawer.getByRole('button', { name: 'Resolve blocker for Sade Suppressed' }))
+const blockedWorkroom = desktop.page.getByRole('region', { name: 'Outreach workroom for Sade Suppressed' })
+await blockedWorkroom.waitFor({ timeout: 15_000 })
+await blockedWorkroom.getByLabel('Planning action destination for Sade Suppressed').waitFor({ timeout: 10_000 })
+await blockedWorkroom.getByText('Draft generation blocked').waitFor({ timeout: 10_000 })
+await desktop.page.waitForTimeout(700)
 const video = desktop.page.video()
 await desktop.context.close()
 await browser.close()
@@ -1051,6 +1137,7 @@ const failedViewport = viewportRuns.find((run) =>
   !run.checks.hasPlanningBacklog ||
   !run.checks.hasStates ||
   !run.checks.hasCampaignAlignment ||
+  !run.checks.hasCompactTemporalContext ||
   !run.checks.hasDailyActions ||
   !run.checks.hasDailyActionFilters ||
   !run.checks.hasExecutionLoop ||
@@ -1073,7 +1160,7 @@ const receipt = {
     'The ordinary warm lead list renders without the warm planning backlog panel.',
     'The Planning control opens the dedicated warm backlog view under the existing Lead Pipeline navigation.',
     'The direct warm planning backlog route lands on the backlog view without requiring operator inference.',
-    'Planning backlog shows Today / This Week campaign alignment from the existing whisper_to_shout social content calendar template, including calendar channel, cadence, source, proof point, and gate.',
+    'Planning backlog shows one compact week anchor for the current whisper_to_shout campaign window, including calendar channel, cadence, source, proof point, and gate without redundant date/date-range pills.',
     'Daily operating actions rank Gmail reviews, manual-social handoffs, reply follow-ups, recovery, blocked/suppressed rows, and SMS parked rows from the campaign phase.',
     'Daily action count pills filter the visible daily action and candidate rows for Gmail, manual social, blocked/suppressed, and clear back to the full action plan while keeping counts anchored to the full summary.',
     'Daily action rows show ready, review-needed, recorded/waiting, blocked, and parked loop states with non-repeatable recorded actions disabled.',
@@ -1084,6 +1171,7 @@ const receipt = {
     'Candidate rows show why each outreach action is next for the current campaign phase without duplicating a calendar, plus source/cadence/proof/gate/safe-action provenance.',
     'A daily Gmail action CTA changes to a non-repeatable opened state, shows review-loop progress with selected/reviewed/remaining counts, and moves focus to the review-only batch plan without adding explanatory copy.',
     'The selected-contact workroom still renders the manual social handoff panel.',
+    'A blocked planning candidate opens the existing selected workroom with one suppression recovery path and no provider action.',
     'Mobile widths 360, 390, 430, constrained 768, and desktop 1440 show the core planning CTA with no horizontal overflow.',
   ],
   decisionGate: 'Operator review only. Gmail draft creation, Slack dispatch, external sends, SMS/Telnyx, provider activation, and manual-evidence recording remain separate gates.',

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   AlertTriangle,
   ClipboardCheck,
@@ -37,7 +37,10 @@ interface WarmPlanningBacklogPanelProps {
   activeState: WarmOutreachPlanningBacklogState | 'all'
   loading: boolean
   error: string | null
+  selectedContactId?: number | null
+  openedContactId?: number | null
   onStateChange: (state: WarmOutreachPlanningBacklogState | 'all') => void
+  onSelectedContactChange?: (contactId: number | null) => void
   onPrepareBatch: () => void | Promise<void>
   onPrepareCandidateReview: (candidate: WarmOutreachPlanningBacklogCandidate) => void | Promise<void>
   onOpenCandidate: (candidate: WarmOutreachPlanningBacklogCandidate) => void | Promise<void>
@@ -330,6 +333,14 @@ function actionDrawerHelper(action: WarmOutreachPlanningBacklogCandidate['review
   return action.afterClick
 }
 
+function actionRecoveryPath(action: WarmOutreachPlanningBacklogCandidate['reviewLoopAction']) {
+  if (action.key === 'resolve_blocker') return 'Recovery path: open the contact workroom and resolve suppression or contact status first.'
+  if (action.key === 'open_relationship_review') return 'Recovery path: open the relationship packet and confirm the relationship basis.'
+  if (action.key === 'open_response_review') return 'Recovery path: review response state before another touchpoint.'
+  if (action.key === 'parked_sms') return 'Recovery path: wait for the separate Telnyx and per-recipient SMS gate.'
+  return null
+}
+
 function focusDestinationSelector(selector: string) {
   const tryFocus = (attempt = 0) => {
     const element = document.querySelector(selector)
@@ -351,7 +362,10 @@ export default function WarmPlanningBacklogPanel({
   activeState,
   loading,
   error,
+  selectedContactId = null,
+  openedContactId = null,
   onStateChange,
+  onSelectedContactChange,
   onPrepareBatch,
   onPrepareCandidateReview,
   onOpenCandidate,
@@ -360,9 +374,19 @@ export default function WarmPlanningBacklogPanel({
   const [pendingDailyActionKey, setPendingDailyActionKey] = useState<string | null>(null)
   const [reviewLoopProgress, setReviewLoopProgress] = useState<WarmReviewLoopProgress | null>(null)
   const [activeDailyActionFilter, setActiveDailyActionFilter] = useState<WarmOutreachDailyActionKind | 'all'>('all')
-  const [selectedCandidateId, setSelectedCandidateId] = useState<number | null>(null)
+  const [selectedCandidateId, setSelectedCandidateId] = useState<number | null>(selectedContactId)
   const [pendingCandidateActionId, setPendingCandidateActionId] = useState<number | null>(null)
-  const [openedCandidateActionId, setOpenedCandidateActionId] = useState<number | null>(null)
+  const [openedCandidateActionId, setOpenedCandidateActionId] = useState<number | null>(openedContactId)
+  useEffect(() => {
+    setSelectedCandidateId(selectedContactId)
+  }, [selectedContactId])
+  useEffect(() => {
+    setOpenedCandidateActionId(openedContactId)
+  }, [openedContactId])
+  const selectCandidate = (contactId: number | null) => {
+    setSelectedCandidateId(contactId)
+    onSelectedContactChange?.(contactId)
+  }
   const filteredDailyActionRows =
     activeDailyActionFilter === 'all'
       ? backlog.dailyActions.rows
@@ -552,22 +576,16 @@ export default function WarmPlanningBacklogPanel({
 
       <div className="mt-3 grid gap-2">
             <div className="min-w-0 rounded-md border border-radiant-gold/25 bg-background/35 p-3">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="inline-flex min-h-7 shrink-0 items-center gap-1.5 rounded-md border border-radiant-gold/30 bg-radiant-gold/10 px-2 text-[11px] font-semibold uppercase leading-5 tracking-wide text-radiant-gold">
+              <div className="flex min-w-0 flex-wrap items-center gap-2" aria-label="Warm planning campaign context">
+                <span
+                  className="inline-flex min-h-7 min-w-0 max-w-full items-center gap-1.5 rounded-md border border-radiant-gold/30 bg-radiant-gold/10 px-2 text-[11px] font-semibold leading-5 text-radiant-gold"
+                  title={`This week ${backlog.campaignAlignment.plannedWindowLabel}`}
+                >
                   <CalendarDays size={12} aria-hidden />
-                  Today / This week
-                </span>
-                <span className="inline-flex min-h-7 shrink-0 items-center whitespace-nowrap rounded-md border border-silicon-slate/70 bg-background/45 px-2 text-[11px] leading-5 text-muted-foreground">
-                  {backlog.campaignAlignment.plannedWindowLabel}
+                  <span className="truncate">This week {backlog.campaignAlignment.plannedWindowLabel}</span>
                 </span>
                 <span className="inline-flex min-h-7 shrink-0 items-center whitespace-nowrap rounded-md border border-silicon-slate/70 bg-background/45 px-2 text-[11px] leading-5 text-muted-foreground">
                   {stateSummaryLabel(backlog)}
-                </span>
-                <span className="inline-flex min-h-7 shrink-0 items-center whitespace-nowrap rounded-md border border-silicon-slate/70 bg-background/45 px-2 text-[11px] leading-5 text-muted-foreground">
-                  Today {backlog.operatingWindow.todayLabel}
-                </span>
-                <span className="inline-flex min-h-7 shrink-0 items-center whitespace-nowrap rounded-md border border-silicon-slate/70 bg-background/45 px-2 text-[11px] leading-5 text-muted-foreground">
-                  Week {backlog.operatingWindow.weekLabel}
                 </span>
                 <span
                   className="inline-flex min-h-7 min-w-0 max-w-full items-center rounded-md border border-sky-500/25 bg-sky-500/10 px-2 text-[11px] leading-5 text-sky-100"
@@ -663,11 +681,11 @@ export default function WarmPlanningBacklogPanel({
                     const active = activeDailyActionFilter === kind
                     const count = dailyActionFilterCount(backlog.dailyActions.summary, kind)
                     return (
-                      <button
+                        <button
                         key={kind}
                         type="button"
                         onClick={() => {
-                          setSelectedCandidateId(null)
+                          selectCandidate(null)
                           setActiveDailyActionFilter(active ? 'all' : kind)
                         }}
                         className={`inline-flex min-h-8 min-w-0 items-center justify-between gap-2 rounded-full border px-2.5 py-0.5 text-left font-medium leading-5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-radiant-gold/70 ${
@@ -694,7 +712,7 @@ export default function WarmPlanningBacklogPanel({
                   <button
                     type="button"
                     onClick={() => {
-                      setSelectedCandidateId(null)
+                      selectCandidate(null)
                       setActiveDailyActionFilter('all')
                     }}
                     className="inline-flex min-h-7 shrink-0 items-center rounded-md border border-silicon-slate/70 bg-background/45 px-2 font-medium text-muted-foreground transition-colors hover:border-radiant-gold/50 hover:text-foreground"
@@ -905,7 +923,7 @@ export default function WarmPlanningBacklogPanel({
             <button
               type="button"
               onClick={() => {
-                setSelectedCandidateId(null)
+                selectCandidate(null)
                 onStateChange('all')
               }}
               className={`inline-flex min-h-8 max-w-full min-w-fit shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1 text-xs font-medium leading-5 transition-colors ${
@@ -933,7 +951,7 @@ export default function WarmPlanningBacklogPanel({
                   key={state}
                   type="button"
                   onClick={() => {
-                    setSelectedCandidateId(null)
+                    selectCandidate(null)
                     onStateChange(active ? 'all' : state)
                   }}
                   className={`inline-flex min-h-8 max-w-full min-w-fit shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1 text-xs font-medium leading-5 transition-colors ${
@@ -997,7 +1015,7 @@ export default function WarmPlanningBacklogPanel({
                 </div>
                 <button
                   type="button"
-                  onClick={() => setSelectedCandidateId(null)}
+                  onClick={() => selectCandidate(null)}
                   className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-silicon-slate/70 bg-background/35 text-muted-foreground transition-colors hover:border-radiant-gold/50 hover:text-foreground"
                   aria-label="Close warm planning action drawer"
                 >
@@ -1023,6 +1041,11 @@ export default function WarmPlanningBacklogPanel({
               <p className="mt-2 line-clamp-2 text-xs leading-5 text-muted-foreground">
                 {actionDrawerHelper(selectedAction)}
               </p>
+              {actionRecoveryPath(selectedAction) && (
+                <p className="mt-2 rounded-md border border-amber-500/25 bg-amber-500/10 p-2 text-xs leading-5 text-amber-100">
+                  {actionRecoveryPath(selectedAction)}
+                </p>
+              )}
             </div>
             <div className="min-w-0">
               <button
@@ -1110,6 +1133,12 @@ export default function WarmPlanningBacklogPanel({
                       SMS parked
                     </span>
                   )}
+                  {openedCandidateActionId === candidate.contactId && (
+                    <span className="inline-flex min-w-fit shrink-0 items-center gap-1 whitespace-nowrap rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2.5 py-0.5 text-[11px] leading-5 text-emerald-100">
+                      <CheckCircle2 size={12} aria-hidden />
+                      In review
+                    </span>
+                  )}
                 </div>
                 <p className="mt-2 line-clamp-2 text-xs leading-5 text-muted-foreground">
                   {candidate.relationshipBasis}
@@ -1167,7 +1196,7 @@ export default function WarmPlanningBacklogPanel({
               </div>
               <button
                 type="button"
-                onClick={() => setSelectedCandidateId(candidate.contactId)}
+                onClick={() => selectCandidate(candidate.contactId)}
                 className={`inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-md border px-3 text-sm font-medium transition-colors 2xl:w-auto ${
                   selectedCandidateId === candidate.contactId
                     ? 'border-radiant-gold/60 bg-radiant-gold/10 text-radiant-gold'

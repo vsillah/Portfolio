@@ -1,6 +1,6 @@
 {
   "version": "warm-outreach-planning-backlog-qa/v1",
-  "createdAt": "2026-09-04T21:27:21.891Z",
+  "createdAt": "2026-09-05T03:47:43.641Z",
   "qaUrl": "http://127.0.0.1:3000/admin/outreach?tab=leads&filter=warm&view=planning&qa=warm-planning-backlog#warm-planning-backlog",
   "leadListUrl": "http://127.0.0.1:3000/admin/outreach?tab=leads&filter=warm",
   "scenario": "Planning backlog operator switches between the normal warm lead list and the dedicated Planning view, verifies the direct backlog link, filters planning states, uses a daily action CTA to prepare a review-only Gmail batch plan, and opens manual-social workroom state.",
@@ -8,7 +8,7 @@
     "The ordinary warm lead list renders without the warm planning backlog panel.",
     "The Planning control opens the dedicated warm backlog view under the existing Lead Pipeline navigation.",
     "The direct warm planning backlog route lands on the backlog view without requiring operator inference.",
-    "Planning backlog shows Today / This Week campaign alignment from the existing whisper_to_shout social content calendar template, including calendar channel, cadence, source, proof point, and gate.",
+    "Planning backlog shows one compact week anchor for the current whisper_to_shout campaign window, including calendar channel, cadence, source, proof point, and gate without redundant date/date-range pills.",
     "Daily operating actions rank Gmail reviews, manual-social handoffs, reply follow-ups, recovery, blocked/suppressed rows, and SMS parked rows from the campaign phase.",
     "Daily action count pills filter the visible daily action and candidate rows for Gmail, manual social, blocked/suppressed, and clear back to the full action plan while keeping counts anchored to the full summary.",
     "Daily action rows show ready, review-needed, recorded/waiting, blocked, and parked loop states with non-repeatable recorded actions disabled.",
@@ -19,16 +19,17 @@
     "Candidate rows show why each outreach action is next for the current campaign phase without duplicating a calendar, plus source/cadence/proof/gate/safe-action provenance.",
     "A daily Gmail action CTA changes to a non-repeatable opened state, shows review-loop progress with selected/reviewed/remaining counts, and moves focus to the review-only batch plan without adding explanatory copy.",
     "The selected-contact workroom still renders the manual social handoff panel.",
+    "A blocked planning candidate opens the existing selected workroom with one suppression recovery path and no provider action.",
     "Mobile widths 360, 390, 430, constrained 768, and desktop 1440 show the core planning CTA with no horizontal overflow."
   ],
   "decisionGate": "Operator review only. Gmail draft creation, Slack dispatch, external sends, SMS/Telnyx, provider activation, and manual-evidence recording remain separate gates.",
   "externalActionBoundary": "Synthetic/local QA only; no Gmail, Slack, LinkedIn, Facebook, Telnyx/SMS, n8n, scheduling, publishing, provider calls, or production-data mutation.",
   "screenshots": {
-    "mobile360": "/Users/vambahsillah/.codex/worktrees/0766/Portfolio/docs/warm-outreach-qa/warm-planning-backlog-mobile-360.png",
-    "mobile390": "/Users/vambahsillah/.codex/worktrees/0766/Portfolio/docs/warm-outreach-qa/warm-planning-backlog-mobile-390.png",
-    "mobile430": "/Users/vambahsillah/.codex/worktrees/0766/Portfolio/docs/warm-outreach-qa/warm-planning-backlog-mobile-430.png",
-    "sidePanel768": "/Users/vambahsillah/.codex/worktrees/0766/Portfolio/docs/warm-outreach-qa/warm-planning-backlog-sidepanel-768.png",
-    "desktop1440": "/Users/vambahsillah/.codex/worktrees/0766/Portfolio/docs/warm-outreach-qa/warm-planning-backlog-desktop-1440.png"
+    "mobile360": "/Users/vambahsillah/.codex/worktrees/2209/Portfolio/docs/warm-outreach-qa/warm-planning-backlog-mobile-360.png",
+    "mobile390": "/Users/vambahsillah/.codex/worktrees/2209/Portfolio/docs/warm-outreach-qa/warm-planning-backlog-mobile-390.png",
+    "mobile430": "/Users/vambahsillah/.codex/worktrees/2209/Portfolio/docs/warm-outreach-qa/warm-planning-backlog-mobile-430.png",
+    "sidePanel768": "/Users/vambahsillah/.codex/worktrees/2209/Portfolio/docs/warm-outreach-qa/warm-planning-backlog-sidepanel-768.png",
+    "desktop1440": "/Users/vambahsillah/.codex/worktrees/2209/Portfolio/docs/warm-outreach-qa/warm-planning-backlog-desktop-1440.png"
   },
   "viewportRuns": [
     {
@@ -37,11 +38,21 @@
         "width": 360,
         "height": 844
       },
-      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/0766/Portfolio/docs/warm-outreach-qa/warm-planning-backlog-mobile-360.png",
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/2209/Portfolio/docs/warm-outreach-qa/warm-planning-backlog-mobile-360.png",
       "checks": {
         "hasPlanningBacklog": true,
         "hasStates": true,
         "hasCampaignAlignment": true,
+        "hasCompactTemporalContext": true,
+        "campaignContextChips": [
+          "This week Sep 5-Sep 11",
+          "3 action-ready",
+          "Calendar LinkedIn",
+          "Proof teaching frame + claim boundary",
+          "Source HubSpot social calendar template",
+          "Cadence Campaign day 5; 10-day content lead time",
+          "Gate copy review + source review"
+        ],
         "hasDailyActions": true,
         "hasDailyActionFilters": true,
         "hasExecutionLoop": true,
@@ -66,11 +77,21 @@
         "width": 390,
         "height": 844
       },
-      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/0766/Portfolio/docs/warm-outreach-qa/warm-planning-backlog-mobile-390.png",
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/2209/Portfolio/docs/warm-outreach-qa/warm-planning-backlog-mobile-390.png",
       "checks": {
         "hasPlanningBacklog": true,
         "hasStates": true,
         "hasCampaignAlignment": true,
+        "hasCompactTemporalContext": true,
+        "campaignContextChips": [
+          "This week Sep 5-Sep 11",
+          "3 action-ready",
+          "Calendar LinkedIn",
+          "Proof teaching frame + claim boundary",
+          "Source HubSpot social calendar template",
+          "Cadence Campaign day 5; 10-day content lead time",
+          "Gate copy review + source review"
+        ],
         "hasDailyActions": true,
         "hasDailyActionFilters": true,
         "hasExecutionLoop": true,
@@ -95,11 +116,21 @@
         "width": 430,
         "height": 844
       },
-      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/0766/Portfolio/docs/warm-outreach-qa/warm-planning-backlog-mobile-430.png",
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/2209/Portfolio/docs/warm-outreach-qa/warm-planning-backlog-mobile-430.png",
       "checks": {
         "hasPlanningBacklog": true,
         "hasStates": true,
         "hasCampaignAlignment": true,
+        "hasCompactTemporalContext": true,
+        "campaignContextChips": [
+          "This week Sep 5-Sep 11",
+          "3 action-ready",
+          "Calendar LinkedIn",
+          "Proof teaching frame + claim boundary",
+          "Source HubSpot social calendar template",
+          "Cadence Campaign day 5; 10-day content lead time",
+          "Gate copy review + source review"
+        ],
         "hasDailyActions": true,
         "hasDailyActionFilters": true,
         "hasExecutionLoop": true,
@@ -124,11 +155,21 @@
         "width": 768,
         "height": 900
       },
-      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/0766/Portfolio/docs/warm-outreach-qa/warm-planning-backlog-sidepanel-768.png",
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/2209/Portfolio/docs/warm-outreach-qa/warm-planning-backlog-sidepanel-768.png",
       "checks": {
         "hasPlanningBacklog": true,
         "hasStates": true,
         "hasCampaignAlignment": true,
+        "hasCompactTemporalContext": true,
+        "campaignContextChips": [
+          "This week Sep 5-Sep 11",
+          "3 action-ready",
+          "Calendar LinkedIn",
+          "Proof teaching frame + claim boundary",
+          "Source HubSpot social calendar template",
+          "Cadence Campaign day 5; 10-day content lead time",
+          "Gate copy review + source review"
+        ],
         "hasDailyActions": true,
         "hasDailyActionFilters": true,
         "hasExecutionLoop": true,
@@ -153,11 +194,21 @@
         "width": 1440,
         "height": 900
       },
-      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/0766/Portfolio/docs/warm-outreach-qa/warm-planning-backlog-desktop-1440.png",
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/2209/Portfolio/docs/warm-outreach-qa/warm-planning-backlog-desktop-1440.png",
       "checks": {
         "hasPlanningBacklog": true,
         "hasStates": true,
         "hasCampaignAlignment": true,
+        "hasCompactTemporalContext": true,
+        "campaignContextChips": [
+          "This week Sep 5-Sep 11",
+          "3 action-ready",
+          "Calendar LinkedIn",
+          "Proof teaching frame + claim boundary",
+          "Source HubSpot social calendar template",
+          "Cadence Campaign day 5; 10-day content lead time",
+          "Gate copy review + source review"
+        ],
         "hasDailyActions": true,
         "hasDailyActionFilters": true,
         "hasExecutionLoop": true,
@@ -177,8 +228,8 @@
       "externalRequests": []
     }
   ],
-  "mp4Path": "/Users/vambahsillah/.codex/worktrees/0766/Portfolio/docs/warm-outreach-qa/warm-planning-backlog-qa.mp4",
-  "rawVideoPath": "/Users/vambahsillah/.codex/worktrees/0766/Portfolio/test-results/warm-planning-backlog-qa/source/b20fe972f1f15e406cb762c3d8dfbdab.webm",
+  "mp4Path": "/Users/vambahsillah/.codex/worktrees/2209/Portfolio/docs/warm-outreach-qa/warm-planning-backlog-qa.mp4",
+  "rawVideoPath": "/Users/vambahsillah/.codex/worktrees/2209/Portfolio/test-results/warm-planning-backlog-qa/source/0bd6118413feed80b6e0b332a54fd2e8.webm",
   "externalRequests": [],
   "localRequests": [
     {
@@ -195,23 +246,23 @@
     },
     {
       "method": "GET",
-      "pathname": "/api/admin/value-evidence/workflow-status"
-    },
-    {
-      "method": "GET",
-      "pathname": "/api/admin/outreach/leads"
-    },
-    {
-      "method": "GET",
-      "pathname": "/api/admin/value-evidence/workflow-status"
-    },
-    {
-      "method": "GET",
-      "pathname": "/api/admin/outreach/leads"
-    },
-    {
-      "method": "GET",
       "pathname": "/auth/v1/user"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/value-evidence/workflow-status"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/outreach/leads"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/value-evidence/workflow-status"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/outreach/leads"
     },
     {
       "method": "GET",
@@ -259,11 +310,31 @@
     },
     {
       "method": "GET",
-      "pathname": "/api/admin/meetings"
+      "pathname": "/api/user/profile"
     },
     {
       "method": "GET",
-      "pathname": "/api/admin/meetings"
+      "pathname": "/api/user/profile"
+    },
+    {
+      "method": "GET",
+      "pathname": "/auth/v1/user"
+    },
+    {
+      "method": "GET",
+      "pathname": "/auth/v1/user"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/value-evidence/workflow-status"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/outreach/leads"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/value-evidence/workflow-status"
     },
     {
       "method": "GET",
@@ -292,6 +363,38 @@
     {
       "method": "GET",
       "pathname": "/api/admin/meetings"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/outreach/leads"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/meetings"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/meetings"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/user/profile"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/chat-escalations"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/sales/contact-meetings"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/meeting-action-tasks"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/outreach/leads/106/relationship-packet"
     }
   ]
 }
