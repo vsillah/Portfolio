@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { triggerLeadQualificationWebhook } from '@/lib/n8n'
+import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 
 export const dynamic = 'force-dynamic'
 
@@ -190,10 +191,13 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// Optional: GET endpoint to retrieve submissions (protect this with authentication)
+// Public submission remains separate from the admin-only PII listing.
 export async function GET(request: NextRequest) {
   try {
-    // In production, add authentication here
+    const auth = await verifyAdmin(request)
+    if (isAuthError(auth)) {
+      return NextResponse.json({ error: auth.error }, { status: auth.status })
+    }
     const { data, error } = await supabaseAdmin
       .from('contact_submissions')
       .select('*')

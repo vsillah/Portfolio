@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { stripe } from '@/lib/stripe'
 import { supabaseAdmin } from '@/lib/supabase'
-import { getCurrentUser } from '@/lib/auth'
+import { verifyOrderCaller, canAccessOrder } from '@/lib/order-access'
 import { formatAmountForStripe } from '@/lib/stripe'
 
 if (!stripe) {
@@ -23,12 +23,20 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const user = await getCurrentUser()
+    if (!Number.isSafeInteger(orderId) || orderId <= 0) {
+      return NextResponse.json({ error: 'Invalid order ID' }, { status: 400 })
+    }
+
+    const caller = await verifyOrderCaller(request)
+    if ('error' in caller) {
+      return NextResponse.json({ error: caller.error }, { status: caller.status })
+    }
+    const { user } = caller
 
     // Fetch order
     const { data: order, error: orderError } = await supabaseAdmin
       .from('orders')
-      .select('*, order_items(*, products(*))')
+      .select('id, user_id, guest_email, status, final_amount')
       .eq('id', orderId)
       .single()
 
@@ -40,7 +48,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify order belongs to user
-    if (user && order.user_id !== user.id) {
+    if (!canAccessOrder(caller, order)) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 403 }
@@ -108,10 +116,10 @@ export async function POST(request: NextRequest) {
       paymentIntentId: paymentIntent.id,
       keyMode,
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error creating payment intent:', error)
     return NextResponse.json(
-      { error: error.message || 'Failed to create payment intent' },
+      { error: 'Failed to create payment intent' },
       { status: 500 }
     )
   }

@@ -183,4 +183,117 @@ describe('POST /api/admin/sales/bundles', () => {
     expect(inserted).not.toHaveProperty('pricing_tier_slug')
     expect(inserted).not.toHaveProperty('tagline')
   })
+
+  it('sums content_offer_roles prices when items have no override', async () => {
+    const created = { id: 'bundle-3', name: 'Roles', bundle_type: 'standard' }
+    const insertSingle = vi.fn().mockResolvedValue({ data: created, error: null })
+    const insert = vi.fn().mockReturnValue({
+      select: vi.fn().mockReturnValue({ single: insertSingle }),
+    })
+    const roleSingle = vi.fn().mockResolvedValue({
+      data: { retail_price: 200, perceived_value: 400 },
+      error: null,
+    })
+    const roleIdEq = vi.fn().mockReturnValue({ single: roleSingle })
+    const roleTypeEq = vi.fn().mockReturnValue({ eq: roleIdEq })
+    const roleSelect = vi.fn().mockReturnValue({ eq: roleTypeEq })
+    mocks.from.mockImplementation((table: string) => {
+      if (table === 'content_offer_roles') return { select: roleSelect }
+      if (table === 'offer_bundles') return { insert }
+      throw new Error(`Unexpected table ${table}`)
+    })
+
+    const response = await POST(jsonRequest('http://localhost/api/admin/sales/bundles', {
+      name: 'Roles',
+      bundle_items: [{ content_type: 'service', content_id: 'svc-9' }],
+    }))
+
+    expect(response.status).toBe(201)
+    expect(insert).toHaveBeenCalledWith(expect.objectContaining({
+      total_retail_value: 200,
+      total_perceived_value: 400,
+      bundle_price: 200,
+    }))
+    expect(roleSelect).toHaveBeenCalledWith('retail_price, perceived_value')
+    expect(roleTypeEq).toHaveBeenCalledWith('content_type', 'service')
+    expect(roleIdEq).toHaveBeenCalledWith('content_id', 'svc-9')
+  })
+
+  it('treats a missing offer role as zero value', async () => {
+    const created = { id: 'bundle-4', name: 'Empty roles', bundle_type: 'standard' }
+    const insert = vi.fn().mockReturnValue({
+      select: vi.fn().mockReturnValue({
+        single: vi.fn().mockResolvedValue({ data: created, error: null }),
+      }),
+    })
+    mocks.from.mockImplementation((table: string) => {
+      if (table === 'content_offer_roles') {
+        return {
+          select: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              eq: vi.fn().mockReturnValue({
+                single: vi.fn().mockResolvedValue({ data: null, error: { code: 'PGRST116' } }),
+              }),
+            }),
+          }),
+        }
+      }
+      if (table === 'offer_bundles') return { insert }
+      throw new Error(`Unexpected table ${table}`)
+    })
+
+    const response = await POST(jsonRequest('http://localhost/api/admin/sales/bundles', {
+      name: 'Empty roles',
+      bundle_items: [{ content_type: 'product', content_id: 'prod-missing' }],
+    }))
+
+    expect(response.status).toBe(201)
+    expect(insert).toHaveBeenCalledWith(expect.objectContaining({
+      total_retail_value: 0,
+      total_perceived_value: 0,
+      bundle_price: 0,
+    }))
+  })
+
+  it('mixes override prices with role lookups', async () => {
+    const created = { id: 'bundle-5', name: 'Mixed', bundle_type: 'standard' }
+    const insert = vi.fn().mockReturnValue({
+      select: vi.fn().mockReturnValue({
+        single: vi.fn().mockResolvedValue({ data: created, error: null }),
+      }),
+    })
+    const roleSingle = vi.fn().mockResolvedValue({
+      data: { retail_price: 80, perceived_value: null },
+      error: null,
+    })
+    mocks.from.mockImplementation((table: string) => {
+      if (table === 'content_offer_roles') {
+        return {
+          select: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              eq: vi.fn().mockReturnValue({ single: roleSingle }),
+            }),
+          }),
+        }
+      }
+      if (table === 'offer_bundles') return { insert }
+      throw new Error(`Unexpected table ${table}`)
+    })
+
+    const response = await POST(jsonRequest('http://localhost/api/admin/sales/bundles', {
+      name: 'Mixed',
+      bundle_items: [
+        { content_type: 'service', content_id: 'svc-1', override_price: 25 },
+        { content_type: 'product', content_id: 'prod-2' },
+      ],
+    }))
+
+    expect(response.status).toBe(201)
+    expect(insert).toHaveBeenCalledWith(expect.objectContaining({
+      total_retail_value: 105,
+      total_perceived_value: 105,
+      bundle_price: 105,
+    }))
+    expect(roleSingle).toHaveBeenCalledTimes(1)
+  })
 })
