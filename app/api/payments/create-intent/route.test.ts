@@ -110,4 +110,49 @@ describe('POST /api/payments/create-intent', () => {
     expect(await zero.json()).toEqual({ error: 'Order total must be greater than zero' })
     expect(mocks.createPaymentIntent).not.toHaveBeenCalled()
   })
+
+  it('creates a payment intent when the caller is unauthenticated', async () => {
+    mocks.getCurrentUser.mockResolvedValue(null)
+    mocks.createPaymentIntent.mockResolvedValue({
+      id: 'pi_guest',
+      client_secret: 'secret_guest',
+    })
+    const updateEq = vi.fn().mockResolvedValue({ error: null })
+    const update = vi.fn().mockReturnValue({ eq: updateEq })
+    const lookup = orderLookup({
+      id: 12,
+      user_id: 'someone-else',
+      status: 'pending',
+      final_amount: 150,
+      guest_email: 'buyer@example.com',
+    })
+    mocks.from.mockReturnValue({
+      ...lookup,
+      update,
+    })
+
+    const response = await POST(request({ orderId: 12 }))
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(body).toEqual({
+      clientSecret: 'secret_guest',
+      paymentIntentId: 'pi_guest',
+      keyMode: 'unknown',
+    })
+    expect(mocks.createPaymentIntent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        amount: 15000,
+        currency: 'usd',
+        receipt_email: 'buyer@example.com',
+        metadata: {
+          orderId: '12',
+          userId: 'guest',
+          guestEmail: 'buyer@example.com',
+        },
+      }),
+    )
+    expect(update).toHaveBeenCalledWith({ stripe_payment_intent_id: 'pi_guest' })
+    expect(updateEq).toHaveBeenCalledWith('id', 12)
+  })
 })

@@ -109,6 +109,69 @@ describe('POST /api/chat/send-email', () => {
     expect(mocks.notifyChatTranscript).not.toHaveBeenCalled()
   })
 
+  it('sends to an arbitrary recipient when the session has no visitor or user email', async () => {
+    const sessionSingle = vi.fn().mockResolvedValue({
+      data: { id: '1', visitor_email: null, user_id: null },
+      error: null,
+    })
+    const sessionEq = vi.fn().mockReturnValue({ single: sessionSingle })
+    const sessionSelect = vi.fn().mockReturnValue({ eq: sessionEq })
+    mocks.from.mockReturnValue({ select: sessionSelect })
+
+    const response = await POST(
+      makeRequest({
+        ...validBody,
+        to: 'stranger@example.com',
+      }),
+    )
+
+    expect(response.status).toBe(200)
+    await expect(response.json()).resolves.toEqual({ success: true })
+    expect(mocks.notifyMeetingBooked).toHaveBeenCalledWith(
+      expect.objectContaining({ clientEmail: 'stranger@example.com' }),
+    )
+  })
+
+  it('sends to an arbitrary recipient when a linked profile has no email', async () => {
+    mocks.from.mockImplementation((table: string) => {
+      if (table === 'chat_sessions') {
+        return {
+          select: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              single: vi.fn().mockResolvedValue({
+                data: { id: '1', visitor_email: null, user_id: 'user-9' },
+                error: null,
+              }),
+            }),
+          }),
+        }
+      }
+      if (table === 'user_profiles') {
+        return {
+          select: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              single: vi.fn().mockResolvedValue({ data: { email: null }, error: null }),
+            }),
+          }),
+        }
+      }
+      throw new Error(`Unexpected table ${table}`)
+    })
+
+    const response = await POST(
+      makeRequest({
+        ...validBody,
+        to: 'stranger@example.com',
+      }),
+    )
+
+    expect(response.status).toBe(200)
+    expect(mocks.notifyMeetingBooked).toHaveBeenCalledWith(
+      expect.objectContaining({ clientEmail: 'stranger@example.com' }),
+    )
+    expect(mocks.from).toHaveBeenCalledWith('user_profiles')
+  })
+
   it('sends a meeting confirmation to the session visitor', async () => {
     const sessionSingle = vi.fn().mockResolvedValue({
       data: { id: '1', visitor_email: 'ada@example.com', user_id: null },

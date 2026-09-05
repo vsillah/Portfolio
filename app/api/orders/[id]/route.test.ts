@@ -78,4 +78,30 @@ describe('GET /api/orders/[id]', () => {
     expect(await response.json()).toEqual({ order })
     expect(lookup.eq).toHaveBeenCalledWith('id', 42)
   })
+
+  it('returns the full order payload when the caller is unauthenticated', async () => {
+    mocks.getCurrentUser.mockResolvedValue(null)
+    const order = {
+      id: 42,
+      user_id: 'someone-else',
+      guest_email: 'buyer@example.com',
+      order_items: [
+        {
+          id: 1,
+          products: {
+            id: 9,
+            file_path: 'private/curriculum.pdf',
+            asset_url: 'https://private.example/asset.zip',
+            instructions_file_path: 'private/instructions.pdf',
+          },
+        },
+      ],
+    }
+    mockOrderLookup({ data: order, error: null })
+
+    const response = await GET(request('42'), { params: { id: '42' } })
+
+    expect(response.status).toBe(200)
+    expect(await response.json()).toEqual({ order })
+  })
 })
