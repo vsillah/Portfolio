@@ -360,6 +360,36 @@ describe('thread message feedback', () => {
     expect(currentBlocks).toHaveLength(1)
     expect(mocks.execute).toHaveBeenCalledTimes(1)
   })
+  it.each([false,true])('stops retries for a definitively replaced card (thread=%s)',async threaded=>{
+    const {store,rows} = memoryStore()
+    const input = {...payload,...(threaded ? {message:{ts:'123.456',thread_ts:threadTs}} : {})}
+    const row = (await acceptSlackAction(input as never,store)).receipt!
+    const replaced = [{type:'section',text:{type:'plain_text',text:'Another card'}},
+      {type:'actions',elements:[{type:'button',action_id:'other_action',value:'{}'}]}]
+    const snapshot = structuredClone(replaced)
+    const fetcher = vi.fn().mockResolvedValue(ok({messages:[{ts:'123.456',...(threaded ? {thread_ts:threadTs} : {}),blocks:replaced}]}))
+    vi.stubGlobal('fetch',fetcher)
+    await processSlackReceipt(row.idempotency_key,store,mocks.execute,deliver(store))
+    const saved = rows.get(row.idempotency_key)!
+    expect(saved.metadata.state).toBe('delivery_blocked')
+    expect(saved.outcome.canonical).toEqual(canonical)
+    expect(saved.outcome.deliveryError).toContain('no longer on this Slack card')
+    expect(await store.pending('staging')).toEqual([])
+    await processSlackReceipt(row.idempotency_key,store,mocks.execute,deliver(store))
+    expect(mocks.execute).toHaveBeenCalledTimes(1)
+    expect(fetcher).toHaveBeenCalledTimes(1)
+    expect(fetcher.mock.calls[0][0]).toBe(`https://slack.com/api/conversations.${threaded ? 'replies' : 'history'}`)
+    expect(replaced).toEqual(snapshot)
+  })
+  it.each([undefined,null,{},[null],[{type:'actions'}],[{type:'actions',elements:[null]}]])('does not infer a replaced action from malformed blocks %j',async malformed=>{
+    const {store,row,rows} = await receipt()
+    vi.stubGlobal('fetch',vi.fn().mockResolvedValue(ok({messages:[{ts:'123.456',thread_ts:threadTs,blocks:malformed}]})))
+    await processSlackReceipt(row.idempotency_key,store,mocks.execute,deliver(store))
+    expect(rows.get(row.idempotency_key)!.metadata.state).toBe('outcome')
+    expect(rows.get(row.idempotency_key)!.outcome.delivery).toBe('failed')
+    expect(rows.get(row.idempotency_key)!.outcome.canonical).toEqual(canonical)
+    expect(fetch).toHaveBeenCalledTimes(1)
+  })
   it('blocks changed source origin and workspace before any Slack call',async()=>{
     const {store,row,rows} = await receipt()
     rows.get(row.idempotency_key)!.metadata.envelope.value.sourceOrigin = 'https://other.example.com'

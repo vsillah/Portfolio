@@ -264,7 +264,7 @@ export function patchActionBlocks(blocks: Block[], row: Receipt): Block[] {
   }
   const index = blocks.findIndex(block => block.type === 'actions' && block.elements?.some(button => matches(button)))
   const existing = blocks.findIndex(block => block.block_id === marker)
-  if (index < 0 && existing < 0) throw new Error('Affected Slack action not found')
+  if (index < 0 && existing < 0) throw new SlackFeedbackBlocked('The saved action or receipt marker is no longer on this Slack card. Open the current Portfolio review and reconcile this receipt; do not repeat the decision.')
   const feedback: Block = { type: 'context', block_id: marker, elements: [{ type: 'plain_text', text:
     result.actionStatus ? `Action ${result.actionStatus.replace('_', ' ')}. ${result.text}`.slice(0, 2000)
       : `Action response (completion unconfirmed): ${result.text}`.slice(0, 2000) }] }
@@ -335,7 +335,14 @@ async function readReceiptMessage(e: Envelope): Promise<SlackSourceMessage> {
   // Older receipts have no parent identity. Slack documents replies.ts as either a
   // parent or a message in the thread. Only accept the exact saved target, never its parent.
   if (!message && e.threadTs === undefined) message = await read(true)
-  if (!message || !Array.isArray(message.blocks)) throw new SlackFeedbackBlocked('The exact saved Slack card is unavailable. Open a fresh Portfolio review card and reconcile this receipt; do not repeat the decision.')
+  if (!message) throw new SlackFeedbackBlocked('The exact saved Slack card is unavailable. Open a fresh Portfolio review card and reconcile this receipt; do not repeat the decision.')
+  // A successful lookup with incomplete block data is not proof the action vanished.
+  if (!Array.isArray(message.blocks) || message.blocks.some(block => !block || typeof block !== 'object' ||
+    typeof block.type !== 'string' || !block.type ||
+    (['actions', 'context'].includes(block.type) && (!Array.isArray(block.elements) ||
+      block.elements.some(element => !element || typeof element !== 'object'))))) {
+    throw new Error('Slack message block response incomplete')
+  }
   if ((message.channel !== undefined && message.channel !== e.channel) || (message.team !== undefined && message.team !== e.team) ||
     (message.thread_ts !== undefined && !validThread(message.thread_ts, e.ts)) ||
     (reply && message.thread_ts !== e.threadTs) ||
