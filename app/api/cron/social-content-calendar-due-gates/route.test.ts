@@ -49,6 +49,7 @@ describe('/api/cron/social-content-calendar-due-gates', () => {
 
   afterEach(() => {
     vi.useRealTimers()
+    vi.unstubAllEnvs()
   })
 
   it('rejects unauthenticated cron requests', async () => {
@@ -134,7 +135,7 @@ describe('/api/cron/social-content-calendar-due-gates', () => {
       .mockReturnValueOnce({ select: vi.fn(() => selectQuery) })
       .mockReturnValue({ update })
     mocks.createAgentWorkItem.mockResolvedValue({ id: 'work-due-gate' })
-    mocks.runAgentSlackNotificationSweep.mockResolvedValue({ sentCount: 1 })
+    mocks.runAgentSlackNotificationSweep.mockResolvedValue({ sentCount: 1, results: [{ sent: true, deliveredCalendarItemIds: ['calendar-1'], slackChannel: 'CSTAGING', slackMessageTs: '1770000000.000001' }] })
 
     const response = await POST(request('http://localhost/api/cron/social-content-calendar-due-gates', 'POST') as never)
 
@@ -154,7 +155,7 @@ describe('/api/cron/social-content-calendar-due-gates', () => {
         blocker_owner: 'Shaka / Vambah',
         side_effects: expect.objectContaining({ publish: false, external_post: false }),
       }),
-      idempotencyKey: expect.stringContaining('social-content-calendar-due:calendar-1:2h:scheduled_for='),
+      idempotencyKey: 'social-content-calendar-due:calendar-1:platform_draft_handoff:unlinked',
     }))
     expect(update).toHaveBeenCalledWith(expect.objectContaining({
       metadata: expect.objectContaining({
@@ -221,7 +222,7 @@ describe('/api/cron/social-content-calendar-due-gates', () => {
       .mockReturnValueOnce({ select: vi.fn(() => selectQuery) })
       .mockReturnValue({ update })
     mocks.createAgentWorkItem.mockResolvedValue({ id: 'work-instagram-preparation' })
-    mocks.runAgentSlackNotificationSweep.mockResolvedValue({ sentCount: 1 })
+    mocks.runAgentSlackNotificationSweep.mockResolvedValue({ sentCount: 1, results: [{ sent: true, deliveredCalendarItemIds: ['calendar-1'], slackChannel: 'CSTAGING', slackMessageTs: '1770000000.000001' }] })
 
     const response = await POST(request('http://localhost/api/cron/social-content-calendar-due-gates', 'POST') as never)
 
@@ -350,7 +351,7 @@ describe('/api/cron/social-content-calendar-due-gates', () => {
       .mockReturnValueOnce({ select: vi.fn(() => recalibrationQuery) })
       .mockReturnValue({ update })
     mocks.createAgentWorkItem.mockResolvedValue({ id: 'work-recalibration' })
-    mocks.runAgentSlackNotificationSweep.mockResolvedValue({ sentCount: 1 })
+    mocks.runAgentSlackNotificationSweep.mockResolvedValue({ sentCount: 1, results: [{ sent: true, deliveredCalendarItemIds: ['calendar-1'], slackChannel: 'CSTAGING', slackMessageTs: '1770000000.000001' }] })
 
     const response = await POST(request('http://localhost/api/cron/social-content-calendar-due-gates', 'POST') as never)
 
@@ -611,7 +612,7 @@ describe('/api/cron/social-content-calendar-due-gates', () => {
       .mockReturnValueOnce({ select: vi.fn(() => secondPage) })
       .mockReturnValue({ update })
     mocks.createAgentWorkItem.mockResolvedValue({ id: 'work-actionable-newer' })
-    mocks.runAgentSlackNotificationSweep.mockResolvedValue({ sentCount: 1 })
+    mocks.runAgentSlackNotificationSweep.mockResolvedValue({ sentCount: 1, results: [{ sent: true, deliveredCalendarItemIds: ['calendar-1'], slackChannel: 'CSTAGING', slackMessageTs: '1770000000.000001' }] })
 
     const response = await POST(request('http://localhost/api/cron/social-content-calendar-due-gates', 'POST') as never)
 
@@ -634,4 +635,39 @@ describe('/api/cron/social-content-calendar-due-gates', () => {
       side_effects: { publish: false, external_post: false },
     })
   })
+  it.each(['partial', 'failed', 'unlinked', 'deduped'])('records only actual rendered and linked receipts for %s delivery', async (mode) => {
+    const items = Array.from({ length: 8 }, (_, index) => ({
+      id: `calendar-${index}`, title: `Gate ${index}`, channel: 'linkedin', campaign_id: 'campaign-1',
+      scheduled_for: new Date(Date.now() + 3600000).toISOString(), authorization_status: 'pending', metadata: {},
+    }))
+    const query = mockDueGateQuery(items)
+    const updateEq = vi.fn(async () => ({ data: null, error: null }))
+    const update = vi.fn(() => ({ eq: updateEq }))
+    mocks.from.mockReturnValue({ select: vi.fn(() => query), update })
+    mocks.createAgentWorkItem.mockResolvedValue({ id: 'work-1' })
+    const delivered = mode === 'partial' || mode === 'deduped'
+    mocks.runAgentSlackNotificationSweep.mockResolvedValue({
+      ok: delivered, sentCount: mode === 'partial' ? 1 : 0,
+      results: [{ sent: mode === 'partial' || mode === 'unlinked', deduped: mode === 'deduped',
+        deliveredCalendarItemIds: ['calendar-0', 'calendar-1', 'calendar-2', 'calendar-3', 'calendar-4', 'foreign-id'],
+        slackChannel: mode === 'unlinked' ? null : 'CSTAGING', slackMessageTs: mode === 'unlinked' ? null : '1770000000.000001' }],
+    })
+    const response = await POST(request('http://localhost/api/cron/social-content-calendar-due-gates', 'POST') as never)
+    expect(response.status).toBe(200)
+    expect(update).toHaveBeenCalledTimes(delivered ? 5 : 0)
+    expect(updateEq.mock.calls.map((call) => (call as unknown[])[1])).toEqual(delivered ? items.slice(0, 5).map((item) => item.id) : [])
+    expect(mocks.runAgentSlackNotificationSweep).toHaveBeenCalledWith(expect.objectContaining({ calendarItemIds: items.map((item) => item.id) }))
+    expect(await response.json()).toMatchObject({ pinged_count: delivered ? 5 : 0, work_item_count: 8, notification_incomplete: true })
+  })
+
+  it('rejects ambiguous hosted provenance before calendar reads or writes', async () => {
+    vi.stubEnv('VERCEL', '1')
+    vi.stubEnv('NEXT_PUBLIC_APP_ENV', '')
+    vi.stubEnv('APP_ENV', '')
+    const response = await GET(request('http://localhost/api/cron/social-content-calendar-due-gates') as never)
+    expect(response.status).toBe(500)
+    expect(mocks.from).not.toHaveBeenCalled()
+    expect(mocks.createAgentWorkItem).not.toHaveBeenCalled()
+  })
+
 })
