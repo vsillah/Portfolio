@@ -1,9 +1,7 @@
 import { getSlackAgentSource } from '@/lib/slack-agent-environment'
 import { runChiefOfStaffChat } from '@/lib/chief-of-staff-chat'
-import { handleSlackAgentAction } from '@/lib/agent-slack-actions'
-import { decodeSlackActionValue, type SlackAgentActionValue } from '@/lib/agent-slack-blocks'
 import { supabaseAdmin } from '@/lib/supabase'
-import { requireAuthorizedSlackActor } from '@/lib/slack-agent-access'
+import { requireAuthorizedSlackActor, requireAuthorizedSlackChannel } from '@/lib/slack-agent-access'
 
 export type SlackAgentEvent = {
   type?: string
@@ -38,7 +36,6 @@ type HandleableSlackAgentEvent = SlackAgentEvent & {
 
 type SlackThreadContext = {
   runId: string
-  actions: SlackAgentActionValue[]
 }
 
 type RevenueReplyApprovalCommand =
@@ -46,17 +43,12 @@ type RevenueReplyApprovalCommand =
   | { action: 'hold'; note?: string }
   | { action: 'modify'; note: string }
 
-type RevenueReplyApprovalContext = {
-  appDraftId: string
-  gmailDraftId: string
-}
-
 export function shouldHandleSlackAgentEvent(event: SlackAgentEvent | undefined): event is HandleableSlackAgentEvent {
   if (!event) return false
   if (event.bot_id || event.subtype) return false
   if (!event.user || !event.channel) return false
   if (event.type === 'app_mention') return true
-  if (event.type === 'message' && event.thread_ts && parseRevenueReplyApprovalCommand(normalizeSlackAgentMessage(event))) {
+  if (event.type === 'message' && event.thread_ts && isSlackTextDecision(normalizeSlackAgentMessage(event))) {
     return true
   }
   return event.type === 'message' && event.channel_type === 'im'
@@ -86,29 +78,6 @@ export function formatChiefOfStaffSlackReply(result: Awaited<ReturnType<typeof r
   return parts.filter(Boolean).join('\n\n')
 }
 
-function uniqueActionKey(value: SlackAgentActionValue) {
-  return [value.action, value.approvalId, value.workItemId, value.runId, value.agentKey].filter(Boolean).join(':')
-}
-
-function extractSlackActionValues(blocks: unknown) {
-  if (!Array.isArray(blocks)) return []
-  const values: SlackAgentActionValue[] = []
-  const seen = new Set<string>()
-  for (const block of blocks) {
-    if (!block || typeof block !== 'object' || !('elements' in block) || !Array.isArray(block.elements)) continue
-    for (const element of block.elements) {
-      if (!element || typeof element !== 'object' || !('value' in element) || typeof element.value !== 'string') continue
-      const decoded = decodeSlackActionValue(element.value)
-      if (!decoded) continue
-      const key = uniqueActionKey(decoded)
-      if (seen.has(key)) continue
-      seen.add(key)
-      values.push(decoded)
-    }
-  }
-  return values
-}
-
 async function findSlackThreadContext(channel: string, threadTs: string): Promise<SlackThreadContext | null> {
   if (!supabaseAdmin) return null
 
@@ -124,23 +93,7 @@ async function findSlackThreadContext(channel: string, threadTs: string): Promis
 
   if (error || !run?.id) return null
 
-  const { data: event } = await supabaseAdmin
-    .from('agent_run_events')
-    .select('metadata')
-    .eq('run_id', run.id)
-    .eq('event_type', 'slack_mobile_notification_sent')
-    .order('occurred_at', { ascending: false })
-    .limit(1)
-    .maybeSingle()
-
-  const metadata = event?.metadata && typeof event.metadata === 'object'
-    ? event.metadata as { blocks?: unknown }
-    : null
-
-  return {
-    runId: run.id as string,
-    actions: extractSlackActionValues(metadata?.blocks),
-  }
+  return { runId: run.id as string }
 }
 
 function noteFromReply(message: string, fallback: string) {
@@ -152,19 +105,8 @@ function noteFromReply(message: string, fallback: string) {
   return message.trim() || fallback
 }
 
-function singleTargetAction(actions: SlackAgentActionValue[], predicate: (value: SlackAgentActionValue) => boolean) {
-  const candidates = actions.filter(predicate)
-  const targetKeys = new Set(candidates.map((value) => value.approvalId || value.workItemId || value.runId).filter(Boolean))
-  return targetKeys.size === 1 ? candidates[0] : null
-}
-
 function stripSlackConnectorProvenance(message: string) {
   return message.replace(/\s*\*?Sent using\*?\s+ChatGPT\s*$/i, '').trim()
-}
-
-function singleWorkItemId(actions: SlackAgentActionValue[]) {
-  const workItemIds = new Set(actions.map((value) => value.workItemId).filter((value): value is string => Boolean(value)))
-  return workItemIds.size === 1 ? [...workItemIds][0] : null
 }
 
 export function parseRevenueReplyApprovalCommand(message: string): RevenueReplyApprovalCommand | null {
@@ -177,105 +119,10 @@ export function parseRevenueReplyApprovalCommand(message: string): RevenueReplyA
   return null
 }
 
-function parseRevenueReplyApprovalContext(text: string): RevenueReplyApprovalContext | null {
-  if (!/Revenue reply ready for approval/i.test(text)) return null
-
-  const appDraftId = text.match(/\*?App draft ID:\*?\s*`?([0-9a-f-]{36})`?/i)?.[1]
-  const gmailDraftId = text.match(/\*?Gmail draft ID:\*?\s*`?([A-Za-z0-9_-]+)`?/i)?.[1]
-  if (!appDraftId || !gmailDraftId) return null
-  return { appDraftId, gmailDraftId }
-}
-
-async function findRevenueReplyApprovalContext(channel: string, threadTs: string): Promise<RevenueReplyApprovalContext | null> {
-  const token = slackBotToken()
-  if (!token) return null
-
-  const url = new URL('https://slack.com/api/conversations.replies')
-  url.searchParams.set('channel', channel)
-  url.searchParams.set('ts', threadTs)
-  url.searchParams.set('limit', '20')
-  url.searchParams.set('inclusive', 'true')
-
-  const response = await fetch(url, {
-    headers: { Authorization: `Bearer ${token}` },
-  })
-  const body = await response.json().catch(() => null)
-  if (!response.ok || body?.ok === false || !Array.isArray(body?.messages)) {
-    console.warn('[agent-slack-events] Slack thread fetch failed:', response.status, body)
-    return null
-  }
-
-  const parent = body.messages.find((message: { ts?: string }) => message.ts === threadTs) ?? body.messages[0]
-  const text = typeof parent?.text === 'string' ? parent.text : ''
-  return parseRevenueReplyApprovalContext(text)
-}
-
-function handleRevenueReplyApprovalCommand(_command: RevenueReplyApprovalCommand, context: RevenueReplyApprovalContext | null) {
-  return [
-    'Free-text Slack replies cannot authorize Gmail sends. No send, hold, or revision was recorded.',
-    context ? `Review app draft ${context.appDraftId} in Portfolio: ${baseUrl()}/admin/meeting-tasks` : `Open the current Portfolio draft review: ${baseUrl()}/admin/meeting-tasks`,
-    'Verify the current recipient and draft in its review gate before authorizing any external action.',
-  ].join('\n')
-}
-
-function replyActionFromMessage(message: string, context: SlackThreadContext): SlackAgentActionValue | null {
-  const normalized = message.trim().toLowerCase()
-  const assignMatch = normalized.match(/^assign\s+([a-z0-9_-]+)/)
-  if (assignMatch) {
-    const workItemId = singleWorkItemId(context.actions)
-    return workItemId ? { ...context.actions.find((value) => value.workItemId === workItemId), action: 'work.assign', workItemId, agentKey: assignMatch[1] } : null
-  }
-
-  const handoffMatch = normalized.match(/^handoff(?:\s+to)?\s+([a-z0-9_-]+)/)
-  if (handoffMatch) {
-    const workItemId = singleWorkItemId(context.actions)
-    return workItemId
-      ? {
-          ...context.actions.find((value) => value.workItemId === workItemId),
-          action: 'work.handoff',
-          workItemId,
-          agentKey: handoffMatch[1],
-          note: noteFromReply(message, 'Handoff requested from Slack thread reply.'),
-        }
-      : null
-  }
-
-  if (/^(ack|acknowledge|seen|got it)\b/.test(normalized)) {
-    const target = singleTargetAction(context.actions, (value) => value.action === 'work.acknowledge' || Boolean(value.workItemId))
-    return target?.workItemId
-      ? { ...target, action: 'work.acknowledge', workItemId: target.workItemId, note: noteFromReply(message, 'Blocker acknowledged from Slack thread reply.') }
-      : null
-  }
-
-  if (/^(ready|mark ready|mark it ready|ready for review)\b/.test(normalized)) {
-    const target = singleTargetAction(context.actions, (value) => value.action === 'work.ready' || Boolean(value.workItemId))
-    return target?.workItemId
-      ? { ...target, action: 'work.ready', workItemId: target.workItemId, note: noteFromReply(message, 'Marked ready from Slack thread reply.') }
-      : null
-  }
-
-  if (/^(request revision|revise|needs revision|changes requested)\b/.test(normalized)) {
-    const target = singleTargetAction(context.actions, (value) => value.action === 'work.revision' || Boolean(value.workItemId))
-    return target?.workItemId
-      ? { ...target, action: 'work.revision', workItemId: target.workItemId, note: noteFromReply(message, 'Revision requested from Slack thread reply.') }
-      : null
-  }
-
-  if (/^approve\b/.test(normalized)) {
-    const target = singleTargetAction(context.actions, (value) => value.action === 'approval.approve')
-    return target?.approvalId
-      ? { ...target, action: 'approval.approve', approvalId: target.approvalId, runId: target.runId, note: noteFromReply(message, 'Approved from Slack thread reply.') }
-      : null
-  }
-
-  if (/^(reject|decline)\b/.test(normalized)) {
-    const target = singleTargetAction(context.actions, (value) => Boolean(value.approvalId))
-    return target?.approvalId
-      ? { ...target, action: 'approval.reject', approvalId: target.approvalId, runId: target.runId, note: noteFromReply(message, 'Rejected from Slack thread reply.') }
-      : null
-  }
-
-  return null
+function isSlackTextDecision(message: string) {
+  const normalized = stripSlackConnectorProvenance(message).trim().toLowerCase()
+  return Boolean(parseRevenueReplyApprovalCommand(normalized)) ||
+    /^(approve|reject|decline|assign|claim|handoff|ack|acknowledge|seen|got it|ready|mark ready|mark it ready|request revision|revise|needs revision|changes requested|hold|modify|safe\s+to\s+send)\b/.test(normalized)
 }
 
 export async function handleSlackAgentEvent(payload: SlackAgentEventPayload) {
@@ -286,6 +133,8 @@ export async function handleSlackAgentEvent(payload: SlackAgentEventPayload) {
 
   const authorization = requireAuthorizedSlackActor({ userId: event.user, teamId: payload.team_id })
   if (!authorization.ok) return { handled: false as const, reason: 'unauthorized', text: authorization.text }
+  const channelAuthorization = requireAuthorizedSlackChannel(event.channel)
+  if (!channelAuthorization.ok) return { handled: false as const, reason: 'unauthorized_channel', text: channelAuthorization.text }
 
   try {
     baseUrl()
@@ -307,41 +156,18 @@ export async function handleSlackAgentEvent(payload: SlackAgentEventPayload) {
     return { handled: true as const, reason: 'empty_message', ...deliveryFailure(delivery) }
   }
 
-  const threadContext = event.thread_ts
-    ? await findSlackThreadContext(channel, event.thread_ts)
-    : null
-  const revenueReplyCommand = event.thread_ts ? parseRevenueReplyApprovalCommand(message) : null
-  if (revenueReplyCommand) {
-    const revenueReplyContext = await findRevenueReplyApprovalContext(channel, event.thread_ts as string)
-    const text = handleRevenueReplyApprovalCommand(revenueReplyCommand, revenueReplyContext)
-    const delivery = await postSlackAgentMessage({
-      channel,
-      threadTs: event.thread_ts || event.ts,
-      text,
-    })
-    return { handled: true as const, reason: 'revenue_reply_approval_action', ...deliveryFailure(delivery) }
+  // Free text is not a bound receipt envelope. Do not read draft context, invoke
+  // a model, or mutate canonical work while suggesting a fresh review path.
+  if (isSlackTextDecision(message)) {
+    const revenue = parseRevenueReplyApprovalCommand(message)
+    const text = revenue
+      ? `Free-text Slack replies cannot authorize Gmail sends. No send, hold, or revision was recorded. Open the current Portfolio draft review: ${baseUrl()}/admin/meeting-tasks`
+      : `No decision was recorded from this text. Use the buttons on the current review card, or review in Portfolio: ${baseUrl()}/admin/agents`
+    const delivery = await postSlackAgentMessage({ channel, threadTs: event.thread_ts || event.ts, text })
+    return { handled: true as const, reason: 'text_decision_requires_review', ...deliveryFailure(delivery) }
   }
 
-  const replyAction = threadContext ? replyActionFromMessage(message, threadContext) : null
-  if (replyAction) {
-    const actionResult = await handleSlackAgentAction({
-      type: 'block_actions',
-      team: { id: payload.team_id },
-      channel: { id: channel },
-      user: { id: user },
-      action_ts: event.ts,
-      container: { message_ts: event.thread_ts, channel_id: channel },
-      actions: [{ value: JSON.stringify(replyAction) }],
-    })
-
-    const delivery = await postSlackAgentMessage({
-      channel,
-      threadTs: event.thread_ts || event.ts,
-      text: actionResult.text,
-    })
-
-    return { handled: true as const, reason: 'thread_reply_action', ...deliveryFailure(delivery) }
-  }
+  const threadContext = event.thread_ts ? await findSlackThreadContext(channel, event.thread_ts) : null
 
   if (event.type === 'message' && event.channel_type !== 'im') {
     return { handled: false as const, reason: 'unsupported_channel_thread_reply' }

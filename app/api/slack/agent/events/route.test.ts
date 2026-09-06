@@ -52,7 +52,7 @@ function signedRequest(body: unknown, secret = 'test-slack-secret', extraHeaders
 describe('POST /api/slack/agent/events', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    process.env = { ...ORIGINAL_ENV, SLACK_SIGNING_SECRET: 'test-slack-secret' }
+    process.env = { ...ORIGINAL_ENV, NODE_ENV: 'test', APP_ENV: 'local', NEXT_PUBLIC_APP_ENV: 'local', VERCEL: '', VERCEL_ENV: '', SLACK_SIGNING_SECRET: 'test-slack-secret' }
     mocks.handleSlackAgentEvent.mockResolvedValue({ handled: true, runId: 'run-123' })
   })
 
@@ -141,6 +141,14 @@ describe('POST /api/slack/agent/events', () => {
     process.env.SLACK_AGENT_OPS_ALLOWED_USER_IDS = 'U123'
     process.env.SLACK_AGENT_OPS_TEAM_ID = 'T_ALLOWED'
     const response = await POST(signedRequest({ type: 'event_callback', team_id: user === 'U123' ? 'T_OTHER' : 'T_ALLOWED', event: { type: 'app_mention', user, channel: 'C1', text: 'status' } }) as never)
+    expect(response.status).toBe(403)
+    expect(mocks.handleSlackAgentEvent).not.toHaveBeenCalled()
+    expect(mocks.waitUntil).not.toHaveBeenCalled()
+  })
+
+  it.each(['COTHER', undefined])('rejects hosted event channel %s before background dispatch', async (channel) => {
+    process.env = { ...process.env, NODE_ENV: 'production', APP_ENV: 'staging', NEXT_PUBLIC_APP_ENV: 'staging', SLACK_AGENT_OPS_STAGING_CHANNEL_ID: 'CREVIEW', SLACK_AGENT_OPS_TEAM_ID: 'T1', SLACK_AGENT_OPS_ALLOWED_USER_IDS: 'U123' }
+    const response = await POST(signedRequest({ type: 'event_callback', team_id: 'T1', event: { type: 'app_mention', user: 'U123', channel, text: 'approve' } }) as never)
     expect(response.status).toBe(403)
     expect(mocks.handleSlackAgentEvent).not.toHaveBeenCalled()
     expect(mocks.waitUntil).not.toHaveBeenCalled()

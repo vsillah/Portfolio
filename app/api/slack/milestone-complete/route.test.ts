@@ -84,7 +84,7 @@ describe('POST /api/slack/milestone-complete', () => {
     vi.clearAllMocks()
     vi.spyOn(console, 'error').mockImplementation(() => {})
     vi.spyOn(console, 'warn').mockImplementation(() => {})
-    process.env = { ...ORIGINAL_ENV, SLACK_SIGNING_SECRET: SECRET }
+    process.env = { ...ORIGINAL_ENV, NODE_ENV: 'test', APP_ENV: 'local', NEXT_PUBLIC_APP_ENV: 'local', VERCEL: '', VERCEL_ENV: '', SLACK_SIGNING_SECRET: SECRET }
     mocks.triggerProgressUpdate.mockResolvedValue({ channel: 'email' })
   })
 
@@ -210,6 +210,14 @@ describe('POST /api/slack/milestone-complete', () => {
     const body = await response.json()
     expect(body.text).toContain('milestone completion was saved')
     expect(body.text).not.toContain('sent via')
+  })
+
+  it.each(['COTHER', undefined])('rejects hosted milestone channel %s before database or progress work', async (channel) => {
+    process.env = { ...process.env, NODE_ENV: 'production', APP_ENV: 'staging', NEXT_PUBLIC_APP_ENV: 'staging', SLACK_AGENT_OPS_STAGING_CHANNEL_ID: 'CREVIEW', SLACK_AGENT_OPS_TEAM_ID: 'T1', SLACK_AGENT_OPS_ALLOWED_USER_IDS: 'U123' }
+    const response = await POST(signedRequest({ team_id: 'T1', text: 'client-1 1', ...(channel ? { channel_id: channel } : {}) }))
+    expect(response.status).toBe(403)
+    expect(mocks.from).not.toHaveBeenCalled()
+    expect(mocks.triggerProgressUpdate).not.toHaveBeenCalled()
   })
 
 })

@@ -1,3 +1,5 @@
+import { getSlackAgentEnvironment } from '@/lib/slack-agent-environment'
+
 export type SlackAgentActor = {
   userId?: string | null
   userName?: string | null
@@ -43,4 +45,33 @@ export function requireAuthorizedSlackActor(actor: SlackAgentActor) {
     teamId: actor.teamId ?? null,
     actorLabel: typeof actor.userName === 'string' && actor.userName.trim() ? actor.userName : actor.userId,
   }
+}
+
+/** Shared inbound boundary. Additional channels/DMs must be explicitly source-scoped. */
+export function requireAuthorizedSlackChannel(channelId: string | null | undefined):
+  { ok: true; channelId: string | null } | { ok: false; text: string } {
+  const channel = typeof channelId === 'string' ? channelId.trim() : ''
+  const deny = (reason: string) => ({ ok: false as const, text: `Slack action rejected: ${reason}` })
+  if (isLocalSlackDevelopment()) return { ok: true, channelId: channel || null }
+  let environment
+  try { environment = getSlackAgentEnvironment() } catch {
+    return deny('source environment is missing or conflicting; configure it before using Slack.')
+  }
+  const prefix = `SLACK_AGENT_OPS_${environment.toUpperCase()}`
+  const primary = process.env[`${prefix}_CHANNEL_ID`] ||
+    (environment === 'production' ? process.env.SLACK_AGENT_OPS_CHANNEL_ID : undefined)
+  const additional = process.env[`${prefix}_ALLOWED_CHANNEL_IDS`] || ''
+  const allowed = new Set([primary || '', ...additional.split(',')].map((value) => value.trim()).filter(Boolean))
+  if (!allowed.size) return deny(`configure ${prefix}_CHANNEL_ID or ${prefix}_ALLOWED_CHANNEL_IDS before using Slack.`)
+  if (environment !== 'production') {
+    const production = new Set([
+      process.env.SLACK_AGENT_OPS_PRODUCTION_CHANNEL_ID,
+      process.env.SLACK_AGENT_OPS_CHANNEL_ID,
+      process.env.SLACK_AGENT_OPS_CHANNEL,
+      ...(process.env.SLACK_AGENT_OPS_PRODUCTION_ALLOWED_CHANNEL_IDS || '').split(','),
+    ].map((value) => value?.trim()).filter(Boolean))
+    if ([...allowed].some((value) => production.has(value))) return deny('nonproduction inbound channels cannot reuse production destinations.')
+  }
+  if (!channel || !allowed.has(channel)) return deny('this source channel is not configured for Agent Ops. Use the current environment review channel.')
+  return { ok: true, channelId: channel }
 }

@@ -58,37 +58,6 @@ function queryResult(result: unknown) {
   return query
 }
 
-function dispatchedAction() {
-  expect(mocks.handleSlackAgentAction).toHaveBeenCalledOnce()
-  const [actual] = mocks.handleSlackAgentAction.mock.calls[0]
-  return {
-    ...actual,
-    actions: actual.actions.map((action: { value: string }) => ({
-      ...action,
-      value: JSON.parse(action.value),
-    })),
-  }
-}
-
-function slackNotificationEvent(actions: Array<Record<string, unknown>>) {
-  return queryResult({
-    data: {
-      metadata: {
-        blocks: [
-          {
-            type: 'actions',
-            elements: actions.map((action) => ({
-              type: 'button',
-              value: JSON.stringify(action),
-            })),
-          },
-        ],
-      },
-    },
-    error: null,
-  })
-}
-
 describe('agent Slack events', () => {
   beforeEach(() => {
     vi.resetAllMocks()
@@ -101,6 +70,7 @@ describe('agent Slack events', () => {
     )
     process.env = {
       ...ORIGINAL_ENV,
+      NODE_ENV: 'test', APP_ENV: 'local', NEXT_PUBLIC_APP_ENV: 'local', VERCEL: '', VERCEL_ENV: '',
       NEXT_PUBLIC_APP_URL: 'https://amadutown.test',
       SLACK_AGENT_OPS_LOCAL_BASE_URL: 'https://amadutown.test',
       SLACK_BOT_TOKEN: 'xoxb-production-fixture',
@@ -267,440 +237,22 @@ describe('agent Slack events', () => {
     })
   })
 
-  it('turns simple thread replies into governed Slack work-item actions', async () => {
-    mocks.from
-      .mockReturnValueOnce(queryResult({ data: { id: 'notification-run' }, error: null }))
-      .mockReturnValueOnce(slackNotificationEvent([
-        {
-          action: 'work.acknowledge',
-          workItemId: 'work-1',
-          runId: 'run-1',
-        },
-      ]))
-
-    const result = await handleSlackAgentEvent({
-      type: 'event_callback',
-      event_id: 'Ev789',
-      event: {
-        type: 'app_mention',
-        user: 'U123',
-        channel: 'C123',
-        text: '<@UAGENT> acknowledge: I saw this blocker',
-        ts: '1700000000.000003',
-        thread_ts: '1700000000.000001',
-      },
-    })
-
-    expect(result).toEqual({ handled: true, reason: 'thread_reply_action' })
-    expect(dispatchedAction()).toEqual({
-      type: 'block_actions',
-      team: { id: undefined },
-      channel: { id: 'C123' },
-      user: { id: 'U123' },
-      action_ts: '1700000000.000003',
-      container: { message_ts: '1700000000.000001', channel_id: 'C123' },
-      actions: [
-        {
-          value: {
-            sourceEnvironment: 'local',
-            sourceOrigin: 'https://amadutown.test',
-            action: 'work.acknowledge',
-            workItemId: 'work-1',
-            runId: 'run-1',
-            note: 'I saw this blocker',
-          },
-        },
-      ],
-    })
-    expect(mocks.runChiefOfStaffChat).not.toHaveBeenCalled()
-    expect((fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.at(-1)?.[1]?.body).toContain('Blocker acknowledged')
-  })
-
-  it('turns approval thread replies into governed approve actions with notes', async () => {
-    mocks.from
-      .mockReturnValueOnce(queryResult({ data: { id: 'notification-run' }, error: null }))
-      .mockReturnValueOnce(slackNotificationEvent([
-        {
-          action: 'approval.approve',
-          approvalId: 'approval-1',
-          runId: 'run-1',
-        },
-        {
-          action: 'approval.reject',
-          approvalId: 'approval-1',
-          runId: 'run-1',
-        },
-      ]))
-
-    const result = await handleSlackAgentEvent({
-      type: 'event_callback',
-      event_id: 'EvApprove',
-      event: {
-        type: 'app_mention',
-        user: 'U123',
-        channel: 'C123',
-        text: '<@UAGENT> approve: looks good',
-        ts: '1700000000.000004',
-        thread_ts: '1700000000.000001',
-      },
-    })
-
-    expect(result).toEqual({ handled: true, reason: 'thread_reply_action' })
-    expect(dispatchedAction()).toEqual({
-      type: 'block_actions',
-      team: { id: undefined },
-      channel: { id: 'C123' },
-      user: { id: 'U123' },
-      action_ts: '1700000000.000004',
-      container: { message_ts: '1700000000.000001', channel_id: 'C123' },
-      actions: [
-        {
-          value: {
-            sourceEnvironment: 'local',
-            sourceOrigin: 'https://amadutown.test',
-            action: 'approval.approve',
-            approvalId: 'approval-1',
-            runId: 'run-1',
-            note: 'looks good',
-          },
-        },
-      ],
-    })
-    expect(mocks.runChiefOfStaffChat).not.toHaveBeenCalled()
-  })
-
-  it('blocks free-text Gmail send even when a parent message names a draft', async () => {
-    const appDraftId = '9abee71a-930d-49e9-a2b5-d929021ec9cb'
-    const gmailDraftId = 'r5747226337828186444'
-    mocks.from
-      .mockReturnValueOnce(queryResult({ data: null, error: null }))
-      .mockReturnValueOnce(queryResult({
-        data: {
-          id: appDraftId,
-          status: 'draft',
-          subject: 'Re: controlled smoke',
-          client_email: 'lead@example.com',
-        },
-        error: null,
-      }))
-      .mockReturnValueOnce(queryResult({
-        data: {
-          google_email: 'vambah@amadutown.com',
-          refresh_token_cipher: 'cipher',
-          refresh_token_iv: 'iv',
-          refresh_token_tag: 'tag',
-        },
-        error: null,
-      }))
-      .mockReturnValueOnce(queryResult({ data: { id: appDraftId }, error: null }))
-
-    vi.mocked(fetch)
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
-          ok: true,
-          messages: [
-            {
-              ts: '1700000000.000001',
-              text: [
-                ':incoming_envelope: *Revenue reply ready for approval*',
-                `*App draft ID:* ${appDraftId}`,
-                `*Gmail draft ID:* ${gmailDraftId}`,
-                'Reply in Codex or Slack with: `safe to send`, `modify: ...`, or `hold`.',
-              ].join('\n'),
-            },
-          ],
-        }),
-      } as never)
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ ok: true, ts: '1700000000.000010' }),
-      } as never)
-
-    const result = await handleSlackAgentEvent({
-      type: 'event_callback',
-      event_id: 'EvRevenueSend',
-      event: {
-        type: 'message',
-        channel_type: 'channel',
-        user: 'U123',
-        channel: 'C123',
-        text: 'safe to send *Sent using* ChatGPT',
-        ts: '1700000000.000009',
-        thread_ts: '1700000000.000001',
-      },
-    })
-
-    expect(result).toEqual({ handled: true, reason: 'revenue_reply_approval_action' })
-    expect(mocks.decryptRefreshToken).not.toHaveBeenCalled()
-    expect(mocks.sendUserGmailDraft).not.toHaveBeenCalled()
-    expect(mocks.runChiefOfStaffChat).not.toHaveBeenCalled()
-    expect((fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.at(-1)?.[1]?.body).toContain('No send, hold, or revision was recorded')
-  })
-
-  it('does not reach Gmail credentials or sender from revenue text', async () => {
-    const appDraftId = '9abee71a-930d-49e9-a2b5-d929021ec9cb'
-    const gmailDraftId = 'r5747226337828186444'
-    mocks.sendUserGmailDraft.mockRejectedValueOnce(new Error('Recipient address required'))
-    mocks.from
-      .mockReturnValueOnce(queryResult({ data: null, error: null }))
-      .mockReturnValueOnce(queryResult({
-        data: {
-          id: appDraftId,
-          status: 'draft',
-          subject: 'Re: controlled smoke',
-          client_email: 'lead@example.com',
-        },
-        error: null,
-      }))
-      .mockReturnValueOnce(queryResult({
-        data: {
-          google_email: 'vambah@amadutown.com',
-          refresh_token_cipher: 'cipher',
-          refresh_token_iv: 'iv',
-          refresh_token_tag: 'tag',
-        },
-        error: null,
-      }))
-
-    vi.mocked(fetch)
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
-          ok: true,
-          messages: [
-            {
-              ts: '1700000000.000001',
-              text: [
-                ':incoming_envelope: *Revenue reply ready for approval*',
-                `*App draft ID:* ${appDraftId}`,
-                `*Gmail draft ID:* ${gmailDraftId}`,
-              ].join('\n'),
-            },
-          ],
-        }),
-      } as never)
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ ok: true, ts: '1700000000.000010' }),
-      } as never)
-
-    const result = await handleSlackAgentEvent({
-      type: 'event_callback',
-      event_id: 'EvRevenueSendFailure',
-      event: {
-        type: 'message',
-        channel_type: 'channel',
-        user: 'U123',
-        channel: 'C123',
-        text: 'safe to send *Sent using* ChatGPT',
-        ts: '1700000000.000009',
-        thread_ts: '1700000000.000001',
-      },
-    })
-
-    expect(result).toEqual({ handled: true, reason: 'revenue_reply_approval_action' })
-    expect(mocks.sendUserGmailDraft).not.toHaveBeenCalled()
-    expect(mocks.from).toHaveBeenCalledTimes(1)
-    expect((fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.at(-1)?.[1]?.body).toContain('No send, hold, or revision was recorded')
-    expect((fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.at(-1)?.[1]?.body).toContain('No send, hold, or revision was recorded')
-  })
-
-  it('does not claim a revenue hold was persisted', async () => {
-    const appDraftId = '9abee71a-930d-49e9-a2b5-d929021ec9cb'
-    const gmailDraftId = 'r5747226337828186444'
-    mocks.from
-      .mockReturnValueOnce(queryResult({ data: null, error: null }))
-      .mockReturnValueOnce(queryResult({
-        data: {
-          id: appDraftId,
-          status: 'draft',
-          subject: 'Re: controlled smoke',
-          client_email: 'lead@example.com',
-        },
-        error: null,
-      }))
-
-    vi.mocked(fetch)
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
-          ok: true,
-          messages: [
-            {
-              ts: '1700000000.000001',
-              text: `*Revenue reply ready for approval*\n*App draft ID:* ${appDraftId}\n*Gmail draft ID:* ${gmailDraftId}`,
-            },
-          ],
-        }),
-      } as never)
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ ok: true, ts: '1700000000.000010' }),
-      } as never)
-
-    const result = await handleSlackAgentEvent({
-      type: 'event_callback',
-      event_id: 'EvRevenueHold',
-      event: {
-        type: 'message',
-        channel_type: 'channel',
-        user: 'U123',
-        channel: 'C123',
-        text: 'hold',
-        ts: '1700000000.000009',
-        thread_ts: '1700000000.000001',
-      },
-    })
-
-    expect(result).toEqual({ handled: true, reason: 'revenue_reply_approval_action' })
-    expect(mocks.sendUserGmailDraft).not.toHaveBeenCalled()
-    expect((fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.at(-1)?.[1]?.body).toContain('No send, hold, or revision was recorded')
-  })
-
-  it('turns rejection thread replies into governed approval rejection actions', async () => {
-    mocks.from
-      .mockReturnValueOnce(queryResult({ data: { id: 'notification-run' }, error: null }))
-      .mockReturnValueOnce(slackNotificationEvent([
-        {
-          action: 'approval.approve',
-          approvalId: 'approval-1',
-          runId: 'run-1',
-        },
-        {
-          action: 'approval.reject',
-          approvalId: 'approval-1',
-          runId: 'run-1',
-        },
-      ]))
-
-    const result = await handleSlackAgentEvent({
-      type: 'event_callback',
-      event_id: 'EvReject',
-      event: {
-        type: 'app_mention',
-        user: 'U123',
-        channel: 'C123',
-        text: '<@UAGENT> reject: needs changes',
-        ts: '1700000000.000005',
-        thread_ts: '1700000000.000001',
-      },
-    })
-
-    expect(result).toEqual({ handled: true, reason: 'thread_reply_action' })
-    expect(dispatchedAction()).toEqual({
-      type: 'block_actions',
-      team: { id: undefined },
-      channel: { id: 'C123' },
-      user: { id: 'U123' },
-      action_ts: '1700000000.000005',
-      container: { message_ts: '1700000000.000001', channel_id: 'C123' },
-      actions: [
-        {
-          value: {
-            sourceEnvironment: 'local',
-            sourceOrigin: 'https://amadutown.test',
-            action: 'approval.reject',
-            approvalId: 'approval-1',
-            runId: 'run-1',
-            note: 'needs changes',
-          },
-        },
-      ],
-    })
-    expect(mocks.runChiefOfStaffChat).not.toHaveBeenCalled()
-  })
-
-  it('turns assignment thread replies into governed work assignment actions', async () => {
-    mocks.from
-      .mockReturnValueOnce(queryResult({ data: { id: 'notification-run' }, error: null }))
-      .mockReturnValueOnce(slackNotificationEvent([
-        {
-          action: 'work.acknowledge',
-          workItemId: 'work-1',
-          runId: 'run-1',
-        },
-        {
-          action: 'work.ready',
-          workItemId: 'work-1',
-          runId: 'run-1',
-        },
-      ]))
-
-    const result = await handleSlackAgentEvent({
-      type: 'event_callback',
-      event_id: 'EvAssign',
-      event: {
-        type: 'app_mention',
-        user: 'U123',
-        channel: 'C123',
-        text: '<@UAGENT> assign shaka',
-        ts: '1700000000.000005',
-        thread_ts: '1700000000.000001',
-      },
-    })
-
-    expect(result).toEqual({ handled: true, reason: 'thread_reply_action' })
-    expect(dispatchedAction()).toEqual({
-      type: 'block_actions',
-      team: { id: undefined },
-      channel: { id: 'C123' },
-      user: { id: 'U123' },
-      action_ts: '1700000000.000005',
-      container: { message_ts: '1700000000.000001', channel_id: 'C123' },
-      actions: [
-        {
-          value: {
-            sourceEnvironment: 'local',
-            sourceOrigin: 'https://amadutown.test',
-            action: 'work.assign',
-            workItemId: 'work-1',
-            runId: 'run-1',
-            agentKey: 'shaka',
-          },
-        },
-      ],
-    })
-    expect(mocks.runChiefOfStaffChat).not.toHaveBeenCalled()
-  })
-
-  it('falls back to Chief of Staff chat when a thread reply targets multiple work items', async () => {
-    mocks.from
-      .mockReturnValueOnce(queryResult({ data: { id: 'notification-run' }, error: null }))
-      .mockReturnValueOnce(slackNotificationEvent([
-        {
-          action: 'work.acknowledge',
-          workItemId: 'work-1',
-          runId: 'run-1',
-        },
-        {
-          action: 'work.acknowledge',
-          workItemId: 'work-2',
-          runId: 'run-1',
-        },
-      ]))
-
-    const result = await handleSlackAgentEvent({
-      type: 'event_callback',
-      event_id: 'EvAmbiguous',
-      event: {
-        type: 'app_mention',
-        user: 'U123',
-        channel: 'C123',
-        text: '<@UAGENT> acknowledge',
-        ts: '1700000000.000006',
-        thread_ts: '1700000000.000001',
-      },
-    })
-
-    expect(result).toEqual({ handled: true, runId: 'run-123' })
+  it.each(['acknowledge: seen', 'approve: ready', 'reject: revise', 'assign research-source-register', 'handoff to chief-of-staff', 'ready for review', 'request revision: update copy', 'safe to send', 'hold: review first', 'modify: revised copy'])('redirects free-text decision %s without canonical reads, mutations, models, or business providers', async (text) => {
+    process.env.SLACK_ACTION_RECEIPTS_ENABLED = 'false'
+    const result = await handleSlackAgentEvent({ type: 'event_callback', event: {
+      type: 'app_mention', user: 'U123', channel: 'C123', text, ts: '1700000000.000002', thread_ts: '1700000000.000001',
+    } })
+    expect(result).toEqual({ handled: true, reason: 'text_decision_requires_review' })
+    expect(mocks.from).not.toHaveBeenCalled()
     expect(mocks.handleSlackAgentAction).not.toHaveBeenCalled()
-    expect(mocks.runChiefOfStaffChat).toHaveBeenCalledWith({
-      message: 'acknowledge',
-      userId: 'slack:U123',
-      triggerSource: 'slack_agent_thread_reply',
-      contextRef: { type: 'run', id: 'notification-run' },
-    })
+    expect(mocks.runChiefOfStaffChat).not.toHaveBeenCalled()
+    expect(mocks.sendUserGmailDraft).not.toHaveBeenCalled()
+    expect(mocks.decryptRefreshToken).not.toHaveBeenCalled()
+    expect(mocks.resolveBusinessEmailConfig).not.toHaveBeenCalled()
+    // The sole network operation is the requested Slack review-path response.
+    expect(fetch).toHaveBeenCalledTimes(1)
+    expect(vi.mocked(fetch).mock.calls[0][0]).toBe('https://slack.com/api/chat.postMessage')
+    expect(JSON.parse(String(vi.mocked(fetch).mock.calls[0][1]?.body)).text).toMatch(/No decision was recorded|No send, hold, or revision was recorded/)
   })
 
   it('formats Chief of Staff replies with trace links', () => {
@@ -757,14 +309,14 @@ describe('agent Slack events', () => {
 
   it('blocks modify text even when no trustworthy draft context is available', async () => {
     const result = await handleSlackAgentEvent({ event: { type: 'message', user: 'U123', channel: 'C1', text: 'modify: change the greeting', thread_ts: '1.0' } })
-    expect(result).toMatchObject({ handled: true, reason: 'revenue_reply_approval_action' })
+    expect(result).toMatchObject({ handled: true, reason: 'text_decision_requires_review' })
     expect(mocks.runChiefOfStaffChat).not.toHaveBeenCalled()
     expect(mocks.sendUserGmailDraft).not.toHaveBeenCalled()
     expect(vi.mocked(fetch).mock.calls.at(-1)?.[1]?.body).toContain('No send, hold, or revision was recorded')
   })
 
   it('uses the staging source origin for event trace links despite generic production URLs', async () => {
-    process.env = { ...process.env, NODE_ENV: 'production', VERCEL_ENV: 'production', APP_ENV: 'staging', NEXT_PUBLIC_APP_ENV: 'staging', NEXT_PUBLIC_BASE_URL: 'https://amadutown.com', NEXT_PUBLIC_APP_URL: 'https://amadutown.com', SLACK_AGENT_OPS_STAGING_BASE_URL: 'https://staging.example.test', SLACK_AGENT_OPS_STAGING_BOT_TOKEN: 'xoxb-staging-fixture', SLACK_AGENT_OPS_TEAM_ID: 'T1', SLACK_AGENT_OPS_ALLOWED_USER_IDS: 'U123' }
+    process.env = { ...process.env, NODE_ENV: 'production', VERCEL_ENV: 'production', APP_ENV: 'staging', NEXT_PUBLIC_APP_ENV: 'staging', NEXT_PUBLIC_BASE_URL: 'https://amadutown.com', NEXT_PUBLIC_APP_URL: 'https://amadutown.com', SLACK_AGENT_OPS_STAGING_BASE_URL: 'https://staging.example.test', SLACK_AGENT_OPS_STAGING_BOT_TOKEN: 'xoxb-staging-fixture', SLACK_AGENT_OPS_STAGING_CHANNEL_ID: 'C1', SLACK_AGENT_OPS_TEAM_ID: 'T1', SLACK_AGENT_OPS_ALLOWED_USER_IDS: 'U123' }
     const result = await handleSlackAgentEvent({ team_id: 'T1', event: { type: 'app_mention', user: 'U123', channel: 'C1', text: 'status' } })
     expect(result).toMatchObject({ handled: true, runId: 'run-123' })
     const reply = vi.mocked(fetch).mock.calls.at(-1)?.[1]?.body
@@ -773,18 +325,18 @@ describe('agent Slack events', () => {
   })
 
   it('rejects event processing with a missing staging origin before reads or delivery', async () => {
-    process.env = { ...process.env, NODE_ENV: 'production', APP_ENV: 'staging', NEXT_PUBLIC_APP_ENV: 'staging', NEXT_PUBLIC_BASE_URL: 'https://amadutown.com', SLACK_AGENT_OPS_STAGING_BASE_URL: '', VERCEL_URL: '', SLACK_AGENT_OPS_TEAM_ID: 'T1', SLACK_AGENT_OPS_ALLOWED_USER_IDS: 'U123' }
+    process.env = { ...process.env, NODE_ENV: 'production', APP_ENV: 'staging', NEXT_PUBLIC_APP_ENV: 'staging', NEXT_PUBLIC_BASE_URL: 'https://amadutown.com', SLACK_AGENT_OPS_STAGING_BASE_URL: '', VERCEL_URL: '', SLACK_AGENT_OPS_STAGING_CHANNEL_ID: 'C1', SLACK_AGENT_OPS_TEAM_ID: 'T1', SLACK_AGENT_OPS_ALLOWED_USER_IDS: 'U123' }
     expect(await handleSlackAgentEvent({ team_id: 'T1', event: { type: 'app_mention', user: 'U123', channel: 'C1', text: 'status' } })).toMatchObject({ handled: false, reason: 'invalid_source_configuration' })
     expect(mocks.from).not.toHaveBeenCalled()
     expect(mocks.runChiefOfStaffChat).not.toHaveBeenCalled()
     expect(fetch).not.toHaveBeenCalled()
   })
 
-  it('uses only the scoped staging token for both thread reads and replies', async () => {
-    process.env = { ...process.env, NODE_ENV: 'production', VERCEL_ENV: 'production', APP_ENV: 'staging', NEXT_PUBLIC_APP_ENV: 'staging', NEXT_PUBLIC_BASE_URL: 'https://amadutown.com', SLACK_BOT_TOKEN: 'xoxb-production-fixture', SLACK_AGENT_OPS_STAGING_BASE_URL: 'https://staging.example.test', SLACK_AGENT_OPS_STAGING_BOT_TOKEN: 'xoxb-staging-fixture', SLACK_AGENT_OPS_TEAM_ID: 'T1', SLACK_AGENT_OPS_ALLOWED_USER_IDS: 'U123' }
+  it('uses only the scoped staging token for review guidance without thread lookups', async () => {
+    process.env = { ...process.env, NODE_ENV: 'production', VERCEL_ENV: 'production', APP_ENV: 'staging', NEXT_PUBLIC_APP_ENV: 'staging', NEXT_PUBLIC_BASE_URL: 'https://amadutown.com', SLACK_BOT_TOKEN: 'xoxb-production-fixture', SLACK_AGENT_OPS_STAGING_BASE_URL: 'https://staging.example.test', SLACK_AGENT_OPS_STAGING_BOT_TOKEN: 'xoxb-staging-fixture', SLACK_AGENT_OPS_STAGING_CHANNEL_ID: 'C1', SLACK_AGENT_OPS_TEAM_ID: 'T1', SLACK_AGENT_OPS_ALLOWED_USER_IDS: 'U123' }
     const result = await handleSlackAgentEvent({ team_id: 'T1', event: { type: 'message', user: 'U123', channel: 'C1', text: 'safe to send', thread_ts: '1.0' } })
-    expect(result).toMatchObject({ handled: true, reason: 'revenue_reply_approval_action' })
-    expect(vi.mocked(fetch).mock.calls).toHaveLength(2)
+    expect(result).toMatchObject({ handled: true, reason: 'text_decision_requires_review' })
+    expect(vi.mocked(fetch).mock.calls).toHaveLength(1)
     for (const [, init] of vi.mocked(fetch).mock.calls) {
       expect(init?.headers).toMatchObject({ Authorization: 'Bearer xoxb-staging-fixture' })
       expect(JSON.stringify(init)).not.toContain('xoxb-production-fixture')
@@ -792,12 +344,31 @@ describe('agent Slack events', () => {
   })
 
   it('rejects staging with only a generic production bot token before any work', async () => {
-    process.env = { ...process.env, NODE_ENV: 'production', APP_ENV: 'staging', NEXT_PUBLIC_APP_ENV: 'staging', NEXT_PUBLIC_BASE_URL: 'https://amadutown.com', SLACK_BOT_TOKEN: 'xoxb-production-fixture', SLACK_AGENT_OPS_STAGING_BASE_URL: 'https://staging.example.test', SLACK_AGENT_OPS_STAGING_BOT_TOKEN: '', SLACK_AGENT_OPS_TEAM_ID: 'T1', SLACK_AGENT_OPS_ALLOWED_USER_IDS: 'U123' }
+    process.env = { ...process.env, NODE_ENV: 'production', APP_ENV: 'staging', NEXT_PUBLIC_APP_ENV: 'staging', NEXT_PUBLIC_BASE_URL: 'https://amadutown.com', SLACK_BOT_TOKEN: 'xoxb-production-fixture', SLACK_AGENT_OPS_STAGING_BASE_URL: 'https://staging.example.test', SLACK_AGENT_OPS_STAGING_BOT_TOKEN: '', SLACK_AGENT_OPS_STAGING_CHANNEL_ID: 'C1', SLACK_AGENT_OPS_TEAM_ID: 'T1', SLACK_AGENT_OPS_ALLOWED_USER_IDS: 'U123' }
     const result = await handleSlackAgentEvent({ team_id: 'T1', event: { type: 'app_mention', user: 'U123', channel: 'C1', text: 'status' } })
     expect(result).toEqual({ handled: false, reason: 'missing_source_bot_token' })
     expect(mocks.from).not.toHaveBeenCalled()
     expect(mocks.runChiefOfStaffChat).not.toHaveBeenCalled()
     expect(fetch).not.toHaveBeenCalled()
+  })
+
+  it.each(['COTHER', undefined])('rejects wrong/missing hosted channel %s before all work', async (channel) => {
+    process.env = { ...process.env, NODE_ENV: 'production', APP_ENV: 'staging', NEXT_PUBLIC_APP_ENV: 'staging', SLACK_AGENT_OPS_STAGING_CHANNEL_ID: 'CREVIEW', SLACK_AGENT_OPS_TEAM_ID: 'T1', SLACK_AGENT_OPS_ALLOWED_USER_IDS: 'U123' }
+    const result = await handleSlackAgentEvent({ team_id: 'T1', event: { type: 'app_mention', user: 'U123', channel, text: 'approve', thread_ts: '1.0' } })
+    expect(result.handled).toBe(false)
+    expect(mocks.from).not.toHaveBeenCalled()
+    expect(mocks.handleSlackAgentAction).not.toHaveBeenCalled()
+    expect(mocks.runChiefOfStaffChat).not.toHaveBeenCalled()
+    expect(mocks.sendUserGmailDraft).not.toHaveBeenCalled()
+    expect(fetch).not.toHaveBeenCalled()
+  })
+
+  it('retains read-only chat in an explicitly authorized hosted DM', async () => {
+    process.env = { ...process.env, NODE_ENV: 'production', APP_ENV: 'staging', NEXT_PUBLIC_APP_ENV: 'staging', SLACK_AGENT_OPS_STAGING_CHANNEL_ID: 'CREVIEW', SLACK_AGENT_OPS_STAGING_ALLOWED_CHANNEL_IDS: 'DREVIEW', SLACK_AGENT_OPS_STAGING_BASE_URL: 'https://staging.example.test', SLACK_AGENT_OPS_STAGING_BOT_TOKEN: 'xoxb-staging-fixture', SLACK_AGENT_OPS_TEAM_ID: 'T1', SLACK_AGENT_OPS_ALLOWED_USER_IDS: 'U123' }
+    const result = await handleSlackAgentEvent({ team_id: 'T1', event: { type: 'message', channel_type: 'im', user: 'U123', channel: 'DREVIEW', text: 'What needs attention?' } })
+    expect(result).toMatchObject({ handled: true, runId: 'run-123' })
+    expect(mocks.runChiefOfStaffChat).toHaveBeenCalledOnce()
+    expect(mocks.handleSlackAgentAction).not.toHaveBeenCalled()
   })
 
 })

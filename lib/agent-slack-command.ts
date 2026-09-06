@@ -1,6 +1,6 @@
 import { getSlackAgentSource } from '@/lib/slack-agent-environment'
 import { runAgentOpsMorningReview } from '@/lib/agent-ops-morning-review'
-import { requireAuthorizedSlackActor } from '@/lib/slack-agent-access'
+import { requireAuthorizedSlackActor, requireAuthorizedSlackChannel } from '@/lib/slack-agent-access'
 import { createAgentEngagementRun } from '@/lib/agent-engagement'
 import { routeAgentInboxItem } from '@/lib/agent-inbox-routing'
 import { buildAgentMissionControlSnapshot } from '@/lib/agent-mission-control'
@@ -60,6 +60,7 @@ export type AgentSlackCommandInput = {
   userId?: string | null
   userName?: string | null
   teamId?: string | null
+  channelId?: string | null
 }
 
 export type AgentSlackCommandResult = {
@@ -1321,6 +1322,8 @@ export async function runWarRoomDiscussSlackText(input: AgentSlackCommandInput) 
 export async function handleAgentSlackCommand(input: AgentSlackCommandInput): Promise<AgentSlackCommandResult> {
   const authorization = requireAuthorizedSlackActor(input)
   if (!authorization.ok) return { responseType: 'ephemeral', text: authorization.text }
+  const channelAuthorization = requireAuthorizedSlackChannel(input.channelId)
+  if (!channelAuthorization.ok) return { responseType: 'ephemeral', text: channelAuthorization.text }
   try {
     baseUrl()
   } catch {

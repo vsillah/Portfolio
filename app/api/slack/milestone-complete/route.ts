@@ -3,7 +3,7 @@ import { supabaseAdmin } from '@/lib/supabase'
 import { triggerProgressUpdate } from '@/lib/progress-update-templates'
 import type { Milestone } from '@/lib/onboarding-templates'
 import { verifySlackSignature } from '@/lib/slack-signature'
-import { requireAuthorizedSlackActor } from '@/lib/slack-agent-access'
+import { requireAuthorizedSlackActor, requireAuthorizedSlackChannel } from '@/lib/slack-agent-access'
 
 export const dynamic = 'force-dynamic'
 
@@ -40,6 +40,8 @@ export async function POST(request: NextRequest) {
     if (!authorization.ok) {
       return NextResponse.json({ response_type: 'ephemeral', text: authorization.text }, { status: 403 })
     }
+    const channelAuthorization = requireAuthorizedSlackChannel(formData.get('channel_id'))
+    if (!channelAuthorization.ok) return NextResponse.json({ response_type: 'ephemeral', text: channelAuthorization.text }, { status: 403 })
     const text = (formData.get('text') as string) || ''
     const userName = (formData.get('user_name') as string) || 'Unknown'
 

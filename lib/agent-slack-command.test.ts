@@ -8,6 +8,15 @@ vi.mock('@/lib/agent-ops-morning-review', () => ({
   runAgentOpsMorningReview: vi.fn(),
 }))
 
+beforeEach(() => {
+  vi.stubEnv('NODE_ENV', 'test')
+  vi.stubEnv('APP_ENV', 'local')
+  vi.stubEnv('NEXT_PUBLIC_APP_ENV', 'local')
+  vi.stubEnv('VERCEL', '')
+  vi.stubEnv('VERCEL_ENV', '')
+})
+afterEach(() => vi.unstubAllEnvs())
+
 const agentRunMocks = vi.hoisted(() => ({
   startAgentRun: vi.fn(),
   recordAgentEvent: vi.fn(),
@@ -706,6 +715,7 @@ describe('command source links', () => {
     vi.stubEnv('NEXT_PUBLIC_APP_ENV', 'staging')
     vi.stubEnv('NEXT_PUBLIC_BASE_URL', 'https://amadutown.com')
     vi.stubEnv('SLACK_AGENT_OPS_STAGING_BASE_URL', 'https://staging.example.test')
+    vi.stubEnv('SLACK_AGENT_OPS_STAGING_CHANNEL_ID', 'C1')
     vi.stubEnv('SLACK_AGENT_OPS_TEAM_ID', 'T1')
     vi.stubEnv('SLACK_AGENT_OPS_ALLOWED_USER_IDS', 'U123')
   }
@@ -713,7 +723,7 @@ describe('command source links', () => {
   it('uses staging for command review links when Vercel deployment is production', async () => {
     staging()
     workItemMocks.listAgentWorkItems.mockResolvedValue([])
-    const result = await handleAgentSlackCommand({ text: 'work', userId: 'U123', teamId: 'T1' })
+    const result = await handleAgentSlackCommand({ text: 'work', userId: 'U123', teamId: 'T1', channelId: 'C1' })
     expect(JSON.stringify(result)).toContain('https://staging.example.test/admin/agents')
     expect(JSON.stringify(result)).not.toContain('https://amadutown.com')
   })
@@ -723,9 +733,17 @@ describe('command source links', () => {
     vi.stubEnv('SLACK_AGENT_OPS_STAGING_BASE_URL', '')
     vi.stubEnv('VERCEL_URL', '')
     vi.clearAllMocks()
-    const result = await handleAgentSlackCommand({ text: 'work', userId: 'U123', teamId: 'T1' })
+    const result = await handleAgentSlackCommand({ text: 'work', userId: 'U123', teamId: 'T1', channelId: 'C1' })
     expect(result.text).toContain('source environment and origin')
     expect(result.text).not.toContain('https://amadutown.com')
     expect(workItemMocks.listAgentWorkItems).not.toHaveBeenCalled()
   })
+  it.each(['COTHER', undefined])('denies direct hosted command dispatch for channel %s', async (channelId) => {
+    staging()
+    vi.clearAllMocks()
+    const result = await handleAgentSlackCommand({ text: 'work', userId: 'U123', teamId: 'T1', channelId })
+    expect(result.text).toContain('source channel')
+    expect(workItemMocks.listAgentWorkItems).not.toHaveBeenCalled()
+  })
+
 })

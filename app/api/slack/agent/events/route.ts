@@ -6,7 +6,7 @@ import {
   type SlackAgentEventPayload,
 } from '@/lib/agent-slack-events'
 import { verifySlackSignature } from '@/lib/slack-signature'
-import { requireAuthorizedSlackActor } from '@/lib/slack-agent-access'
+import { requireAuthorizedSlackActor, requireAuthorizedSlackChannel } from '@/lib/slack-agent-access'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 60
@@ -41,6 +41,9 @@ export async function POST(request: NextRequest) {
     if (!authorization.ok) {
       return NextResponse.json({ ok: false, error: authorization.text }, { status: 403 })
     }
+
+    const channelAuthorization = requireAuthorizedSlackChannel(payload.event?.channel)
+    if (!channelAuthorization.ok) return NextResponse.json({ ok: false, error: channelAuthorization.text }, { status: 403 })
 
     if (request.headers.get('x-slack-retry-num')) {
       return NextResponse.json({ ok: true, skipped: 'slack_retry' })

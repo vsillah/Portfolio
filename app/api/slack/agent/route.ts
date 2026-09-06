@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { waitUntil } from '@vercel/functions'
 import { verifySlackSignature } from '@/lib/slack-signature'
-import { requireAuthorizedSlackActor } from '@/lib/slack-agent-access'
-import type { AgentSlackCommandResult } from '@/lib/agent-slack-command'
+import { requireAuthorizedSlackActor, requireAuthorizedSlackChannel } from '@/lib/slack-agent-access'
+import type { AgentSlackCommandInput, AgentSlackCommandResult } from '@/lib/agent-slack-command'
 
 export const dynamic = 'force-dynamic'
 
@@ -25,11 +25,14 @@ export async function POST(request: NextRequest) {
       userId: formData.get('user_id'),
       userName: formData.get('user_name'),
       teamId: formData.get('team_id'),
+      channelId: formData.get('channel_id'),
     }
     const authorization = requireAuthorizedSlackActor(input)
     if (!authorization.ok) {
       return NextResponse.json({ response_type: 'ephemeral', text: authorization.text })
     }
+    const channelAuthorization = requireAuthorizedSlackChannel(input.channelId)
+    if (!channelAuthorization.ok) return NextResponse.json({ response_type: 'ephemeral', text: channelAuthorization.text }, { status: 403 })
     const responseUrl = formData.get('response_url')
     const commandResult = runAgentCommand(input)
 
@@ -88,7 +91,7 @@ function logInvalidSlackCommandSignature(request: NextRequest, rawBody: string) 
 }
 
 async function runAgentCommand(
-  input: { text: string; userId?: string | null; userName?: string | null; teamId?: string | null },
+  input: AgentSlackCommandInput,
 ) {
   const { handleAgentSlackCommand } = await import('@/lib/agent-slack-command')
   return handleAgentSlackCommand(input)
