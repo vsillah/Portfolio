@@ -791,15 +791,18 @@ describe('Agent Ops Slack actions', () => {
     expect(run.update.mock.calls[0][0]).not.toHaveProperty('status')
   })
 
-  it.each(['returned', 'thrown'])('reports a saved decision when downstream synchronization fails (%s)', async (mode) => {
+  it.each(['returned', 'thrown'])('keeps the recorded decision terminal while warning about downstream synchronization (%s)', async (mode) => {
     mocks.from
       .mockReturnValueOnce(queryResult({ data: { id: 'approval-1', run_id: 'run-1', approval_type: 'vercel_deployment_research_proposal', status: 'pending' }, error: null }))
       .mockReturnValueOnce(queryResult({ data: { id: 'approval-1', status: 'approved' }, error: null }))
     if (mode === 'thrown') mocks.from.mockImplementationOnce(() => { throw new Error('offline') })
     else mocks.from.mockReturnValueOnce(queryResult({ error: { message: 'offline' } })).mockReturnValueOnce(queryResult({ error: null }))
     const result = await handleSlackAgentAction(payload({ action: 'approval.approve', approvalId: 'approval-1' }))
-    expect(result.actionStatus).toBe('failed')
+    expect(result.actionStatus).toBe('completed')
     expect(result.text).toContain('Decision saved, but synchronization failed')
+    expect(result.text).toContain('The decision is final')
+    expect(result.text).toContain('without repeating the decision')
+    expect(result.text).toContain('No execution was started')
   })
 
   it('reports uncertainty after work was assigned but trace recording failed', async () => {

@@ -285,9 +285,9 @@ async function decideApprovalFromSlack(input: {
 
   return actionResult([
     `Approval ${input.status} from Slack. No execution was started.`,
-    failures.length ? `Decision saved, but synchronization failed for ${failures.join(', ')}. Review the trace before retrying.` : null,
+    failures.length ? `Decision saved, but synchronization failed for ${failures.join(', ')}. The decision is final; repair the related trace or summary without repeating the decision.` : null,
     `Trace: ${agentRunsUrl(row.run_id)}`,
-  ].filter(Boolean).join('\n'), failures.length ? 'failed' : 'completed')
+  ].filter(Boolean).join('\n'), 'completed')
 }
 
 async function runIdForWorkItem(workItemId: string) {
