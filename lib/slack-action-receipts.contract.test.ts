@@ -25,7 +25,7 @@ const packets = [
   ...['warm_gmail_send.approve','warm_gmail_send.revise','warm_gmail_send.reject'].map(action=>({...provenance,action,contactId:42,outreachQueueId:'queue-1',messageVersionKey:'version-1',sendQueueIdempotencyKey:'send-1'})),
   {...provenance,action:'insight.ask_shaka',contentId:'content-1',note:'Review the public source https://example.com/research'},
 ]
-it.each(packets)('preserves real validated $action schema through receipt execution',async value=>{
+it.each(packets.flatMap(value => [{value,threadTs:undefined},{value,threadTs:'120.001'}]))('preserves real validated $value.action schema and thread $threadTs through receipt execution',async ({value,threadTs})=>{
   let saved: Receipt | null = null
   const store: ReceiptStore = {
     insert:vi.fn(async row=>{saved=structuredClone(row);return structuredClone(row)}),
@@ -33,12 +33,13 @@ it.each(packets)('preserves real validated $action schema through receipt execut
     cas:vi.fn(async(row,next)=>{expect(saved?.metadata.fence).toBe(row.metadata.fence);saved=structuredClone(next);return structuredClone(next)}),
     pending:vi.fn(async()=>[]),
   }
-  const payload = {type:'block_actions',team:{id:'T123'},channel:{id:'C123'},container:{message_ts:'123.456',channel_id:'C123'},user:{id:'U123'},actions:[{action_id:'decision',value:JSON.stringify(value)}]}
+  const payload = {type:'block_actions',team:{id:'T123'},channel:{id:'C123'},container:{message_ts:'123.456',channel_id:'C123'},user:{id:'U123'},message:{ts:'123.456',...(threadTs ? {thread_ts:threadTs} : {})},actions:[{action_id:'decision',value:JSON.stringify(value)}]}
   const original = prepareSlackAgentAction(payload)
   expect(original.ok).toBe(true)
   const accepted = await acceptSlackAction(payload,store)
   expect(accepted.receipt?.metadata.envelope.value).toEqual(value)
   const execute = vi.fn(async reconstructed=>{
+    expect(reconstructed.message?.thread_ts).toBe(threadTs)
     const prepared = prepareSlackAgentAction(reconstructed)
     expect(prepared).toEqual(original)
     return {responseType:'ephemeral' as const,text:'Decision recorded',actionStatus:'completed' as const}

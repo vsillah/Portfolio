@@ -18,13 +18,13 @@ function memoryStore() {
       if (!old || old.updated_at !== row.updated_at || old.metadata.fence !== row.metadata.fence || old.metadata.state !== row.metadata.state) return null
       rows.set(row.idempotency_key, clone(next)); return clone(next)
     }),
-    pending: vi.fn(async env => [...rows.values()].filter(r => r.metadata.envelope.environment === env && !['delivered','reconciliation_required','message_lock'].includes(r.metadata.state) && Date.parse(r.metadata.leaseUntil) <= Date.now()).map(clone)),
+    pending: vi.fn(async env => [...rows.values()].filter(r => r.metadata.envelope.environment === env && !['delivered','reconciliation_required','message_lock','delivery_blocked'].includes(r.metadata.state) && Date.parse(r.metadata.leaseUntil) <= Date.now()).map(clone)),
   }
   return { rows, store }
 }
 beforeEach(() => {
   vi.resetAllMocks()
-  vi.stubEnv('SLACK_ACTION_RECEIPTS_ENABLED', 'true'); vi.stubEnv('SLACK_ACTION_RECEIPTS_ENVIRONMENT', 'staging')
+  vi.stubEnv('SLACK_AGENT_OPS_TEAM_ID', 'T123'); vi.stubEnv('SLACK_ACTION_RECEIPTS_ENABLED', 'true'); vi.stubEnv('SLACK_ACTION_RECEIPTS_ENVIRONMENT', 'staging')
   vi.stubEnv('VERCEL_ENV', 'production'); vi.stubEnv('APP_ENV', 'staging'); vi.stubEnv('NEXT_PUBLIC_APP_ENV', 'staging')
   vi.stubEnv('SLACK_AGENT_OPS_STAGING_BASE_URL', 'https://staging.example.com')
   vi.stubEnv('SLACK_AGENT_OPS_STAGING_BOT_TOKEN', 'fixture-token')
@@ -78,7 +78,7 @@ describe('receipt acceptance', () => {
     const { store } = memoryStore()
     vi.stubEnv('SLACK_ACTION_RECEIPTS_ENABLED', '')
     expect((await acceptSlackAction(payload, store)).result.actionStatus).toBe('blocked')
-    vi.stubEnv('SLACK_ACTION_RECEIPTS_ENABLED', 'true'); vi.stubEnv('SLACK_ACTION_RECEIPTS_ENVIRONMENT', 'production')
+    vi.stubEnv('SLACK_AGENT_OPS_TEAM_ID', 'T123'); vi.stubEnv('SLACK_ACTION_RECEIPTS_ENABLED', 'true'); vi.stubEnv('SLACK_ACTION_RECEIPTS_ENVIRONMENT', 'production')
     expect(receiptEnvironment()).toBeNull(); expect(store.insert).not.toHaveBeenCalled()
   })
 })
@@ -180,7 +180,7 @@ describe('ownership and recovery', () => {
 })
 
 describe('Slack feedback', () => {
-  async function row() { const { store } = memoryStore(); const r = (await acceptSlackAction(payload, store)).receipt!; r.outcome.canonical = canonical; return r }
+  async function row() { const { store } = memoryStore(); const r = (await acceptSlackAction(payload, store)).receipt!; r.outcome.canonical = { ...canonical }; return r }
   const clicked = { type: 'button', action_id: 'work_ready', value: JSON.stringify(value) }
   const other = { type: 'button', action_id: 'other', value: '{}' }
   it('preserves unrelated cards/buttons and inserts state under affected controls', async () => {
@@ -223,6 +223,149 @@ describe('Slack feedback', () => {
     expect([...rows.values()][0].outcome.delivery).toBe('failed')
     expect([...rows.values()][0].outcome.canonical).toEqual(canonical)
     expect(fetcher.mock.calls.every(c => String(c[0]).startsWith('https://slack.com/api/'))).toBe(true)
+  })
+})
+
+describe('thread message feedback', () => {
+  const threadTs = '120.001'
+  const blocks = [{ type: 'actions', elements: [{ type: 'button', action_id: 'work_ready', value: JSON.stringify(value) }] }]
+  const ok = (data: unknown) => ({ ok: true, json: async () => ({ ok: true, ...(data as object) }) })
+  async function receipt(thread: unknown = threadTs) {
+    const context = memoryStore()
+    const input = { ...payload, message: { ts: '123.456', ...(thread !== undefined ? { thread_ts: thread } : {}) } }
+    const accepted = await acceptSlackAction(input as never, context.store)
+    return { ...context, row: accepted.receipt! }
+  }
+  const deliver = (store: ReceiptStore) => (row: Receipt) => deliverSlackReceipt(row, store)
+  it.each([
+    {container:{...payload.container,is_ephemeral:true}},
+    {message:{ts:'123.456',thread_ts:threadTs,is_ephemeral:true}},
+    {message:{ts:'123.456',type:'ephemeral'}},
+  ])('blocks explicit ephemeral cards before receipt writes or canonical work %j',async extra=>{
+    const {store} = memoryStore()
+    const accepted = await acceptSlackAction({...payload,...extra,response_url:'https://untrusted.example.com',message_url:'https://untrusted.example.com'} as never,store)
+    expect(accepted.result.actionStatus).toBe('blocked')
+    expect(accepted.result.text).toContain('https://staging.example.com/admin/agents')
+    expect(accepted.result.text).not.toContain('untrusted')
+    expect(store.insert).not.toHaveBeenCalled();expect(mocks.execute).not.toHaveBeenCalled();expect(fetch).not.toHaveBeenCalled()
+  })
+  it('persists only the signed parent and reconstructs it, without changing duplicate identity', async () => {
+    const { store, row } = await receipt()
+    expect(row.metadata.envelope.threadTs).toBe(threadTs)
+    const execute = vi.fn(async input => { expect(input.message).toEqual({ts:'123.456',thread_ts:threadTs}); return canonical })
+    await processSlackReceipt(row.idempotency_key,store,execute,async()=>{})
+    const duplicate = await acceptSlackAction({...payload,message:{ts:'123.456',thread_ts:threadTs,blocks:[{secret:'raw'}]},response_url:'https://hooks.slack.com/raw',thread_ts:'999.000'} as never,store)
+    expect(duplicate.receipt!.id).toBe(row.id)
+    expect(duplicate.result).toEqual(canonical)
+    expect(JSON.stringify(row)).not.toMatch(/hooks|secret|999.000/)
+  })
+  it.each(['https://example.com/thread', '', '124.000', 120.001, null, {}, '120', '120.12345678901'])('rejects malformed or later parent %j before persistence',async parent=>{
+    const {store} = memoryStore()
+    await expect(acceptSlackAction({...payload,message:{ts:'123.456',thread_ts:parent}} as never,store)).rejects.toThrow('identity')
+    expect(store.insert).not.toHaveBeenCalled()
+  })
+  it('rejects conflicting signed source timestamps before persistence',async()=>{
+    const {store} = memoryStore()
+    await expect(acceptSlackAction({...payload,message:{ts:'124.000',thread_ts:threadTs}} as never,store)).rejects.toThrow('identity')
+    expect(store.insert).not.toHaveBeenCalled()
+  })
+  it('reads an exact reply using the verified parent, never updating the parent or adjacent cards',async()=>{
+    const {store,row,rows} = await receipt()
+    const fetcher = vi.fn().mockResolvedValueOnce(ok({messages:[{ts:threadTs,thread_ts:threadTs,blocks:[{type:'divider'}]}, {ts:'123.456',thread_ts:threadTs,channel:'C123',team:'T123',blocks}, {ts:'125.000',thread_ts:threadTs,blocks}]}))
+      .mockResolvedValueOnce(ok({channel:'C123',ts:'123.456'}))
+    vi.stubGlobal('fetch',fetcher)
+    await processSlackReceipt(row.idempotency_key,store,mocks.execute,deliver(store))
+    expect(fetcher.mock.calls[0][0]).toBe('https://slack.com/api/conversations.replies')
+    expect(JSON.parse(fetcher.mock.calls[0][1].body)).toEqual({channel:'C123',ts:threadTs,oldest:'123.456',latest:'123.456',inclusive:true,limit:15})
+    expect(JSON.parse(fetcher.mock.calls[1][1].body)).toMatchObject({channel:'C123',ts:'123.456'})
+    expect(rows.get(row.idempotency_key)!.outcome.delivery).toBe('delivered')
+  })
+  it('keeps old root envelopes working with exact history bounds',async()=>{
+    const {store} = memoryStore();const row = (await acceptSlackAction(payload,store)).receipt!
+    expect(row.metadata.envelope).not.toHaveProperty('threadTs')
+    const fetcher = vi.fn().mockResolvedValueOnce(ok({messages:[{ts:'123.456',blocks}]})).mockResolvedValueOnce(ok({channel:'C123',ts:'123.456'}))
+    vi.stubGlobal('fetch',fetcher)
+    await processSlackReceipt(row.idempotency_key,store,mocks.execute,deliver(store))
+    expect(fetcher.mock.calls[0][0]).toBe('https://slack.com/api/conversations.history')
+    expect(JSON.parse(fetcher.mock.calls[0][1].body)).toEqual({channel:'C123',oldest:'123.456',latest:'123.456',inclusive:true,limit:1})
+  })
+  it('can recover an old reply envelope via exact-target replies, never guessed parent IDs',async()=>{
+    const {store} = memoryStore();const row = (await acceptSlackAction(payload,store)).receipt!
+    const fetcher = vi.fn().mockResolvedValueOnce(ok({messages:[]})).mockResolvedValueOnce(ok({messages:[{ts:'123.456',thread_ts:threadTs,blocks}]}))
+      .mockResolvedValueOnce(ok({channel:'C123',ts:'123.456'}))
+    vi.stubGlobal('fetch',fetcher)
+    await processSlackReceipt(row.idempotency_key,store,mocks.execute,deliver(store))
+    expect(fetcher).toHaveBeenCalledTimes(3)
+    expect(JSON.parse(fetcher.mock.calls[1][1].body).ts).toBe('123.456')
+    expect(JSON.parse(fetcher.mock.calls[2][1].body).ts).toBe('123.456')
+  })
+  it.each([
+    {messages:[{ts:'123.456',thread_ts:'119.000',blocks}]},
+    {messages:[{ts:'123.456',blocks}]},
+    {messages:[{ts:threadTs,thread_ts:threadTs,blocks}]},
+    {messages:[{ts:'123.456',thread_ts:threadTs,channel:'C999',blocks}]},
+    {messages:[{ts:'123.456',thread_ts:threadTs,team:'T999',blocks}]},
+    {channel:'C999',messages:[{ts:'123.456',thread_ts:threadTs,blocks}]},
+    {messages:[],has_more:true,response_metadata:{next_cursor:'untrusted-cursor'}},
+  ])('blocks wrong/missing thread or source identity without falling back %j',async data=>{
+    const {store,row,rows} = await receipt();vi.stubGlobal('fetch',vi.fn().mockResolvedValue(ok(data)))
+    await processSlackReceipt(row.idempotency_key,store,mocks.execute,deliver(store))
+    expect(fetch).toHaveBeenCalledTimes(1)
+    expect(rows.get(row.idempotency_key)!.metadata.state).toBe('delivery_blocked')
+    expect(rows.get(row.idempotency_key)!.outcome.canonical).toEqual(canonical)
+    expect((await store.pending('staging')).map(r=>r.id)).not.toContain(row.id)
+    await processSlackReceipt(row.idempotency_key,store,mocks.execute,deliver(store))
+    expect(mocks.execute).toHaveBeenCalledTimes(1)
+  })
+  it.each(['missing_scope','not_allowed_token_type','no_permission','thread_not_found','token_revoked'])('persists actionable %s and returns it on duplicate without automatic retry',async error=>{
+    const {store,row,rows} = await receipt()
+    vi.stubGlobal('fetch',vi.fn().mockResolvedValue({ok:true,json:async()=>({ok:false,error,detail:'xoxb-never-persist-provider-data'})}))
+    await processSlackReceipt(row.idempotency_key,store,mocks.execute,deliver(store))
+    const persisted = rows.get(row.idempotency_key)!
+    expect(persisted.metadata.state).toBe('delivery_blocked')
+    expect(persisted.outcome.deliveryError).toContain('Portfolio')
+    expect(JSON.stringify(persisted)).not.toContain('xoxb-')
+    const duplicate = await acceptSlackAction({...payload,message:{ts:'123.456',thread_ts:threadTs}} as never,store)
+    expect(duplicate.result.text).toContain(canonical.text)
+    expect(duplicate.result.text).toContain('Slack card update blocked')
+    await processSlackReceipt(row.idempotency_key,store,mocks.execute,deliver(store))
+    expect(fetch).toHaveBeenCalledTimes(1);expect(mocks.execute).toHaveBeenCalledTimes(1)
+  })
+  it('retries a transient thread lookup failure as feedback only',async()=>{
+    const {store,row,rows} = await receipt()
+    const fetcher = vi.fn().mockResolvedValueOnce({ok:false,status:503}).mockResolvedValueOnce(ok({messages:[{ts:'123.456',thread_ts:threadTs,blocks}]})).mockResolvedValueOnce(ok({channel:'C123',ts:'123.456'}))
+    vi.stubGlobal('fetch',fetcher)
+    await processSlackReceipt(row.idempotency_key,store,mocks.execute,deliver(store))
+    expect(rows.get(row.idempotency_key)!.metadata.state).toBe('outcome')
+    rows.get(row.idempotency_key)!.metadata.leaseUntil = new Date(0).toISOString()
+    await processSlackReceipt(row.idempotency_key,store,mocks.execute,deliver(store))
+    expect(rows.get(row.idempotency_key)!.outcome.delivery).toBe('delivered')
+    expect(mocks.execute).toHaveBeenCalledTimes(1)
+  })
+  it('reconciles ambiguous chat.update against the exact reply marker without replaying the action',async()=>{
+    const {store,row,rows} = await receipt()
+    let currentBlocks = blocks as unknown[]
+    let writes = 0
+    vi.stubGlobal('fetch',vi.fn(async(url,init)=>{
+      if (String(url).endsWith('conversations.replies')) return ok({messages:[{ts:'123.456',thread_ts:threadTs,blocks:currentBlocks}]})
+      writes++
+      currentBlocks = JSON.parse(init.body).blocks
+      if (writes === 1) throw new Error('Reply changed but response lost')
+      return ok({channel:'C123',ts:'123.456'})
+    }))
+    await processSlackReceipt(row.idempotency_key,store,mocks.execute,deliver(store))
+    rows.get(row.idempotency_key)!.metadata.leaseUntil = new Date(0).toISOString()
+    await processSlackReceipt(row.idempotency_key,store,mocks.execute,deliver(store))
+    expect(rows.get(row.idempotency_key)!.outcome.delivery).toBe('delivered')
+    expect(currentBlocks).toHaveLength(1)
+    expect(mocks.execute).toHaveBeenCalledTimes(1)
+  })
+  it('blocks changed source origin and workspace before any Slack call',async()=>{
+    const {store,row,rows} = await receipt()
+    rows.get(row.idempotency_key)!.metadata.envelope.value.sourceOrigin = 'https://other.example.com'
+    await processSlackReceipt(row.idempotency_key,store,mocks.execute,deliver(store))
+    expect(fetch).not.toHaveBeenCalled()
+    expect(rows.get(row.idempotency_key)!.metadata.state).toBe('delivery_blocked')
   })
 })
 

@@ -9,8 +9,8 @@ const LEASE_MS = 120_000
 const DB_MS = 1_200
 export type ActionOutcome = { responseType: 'ephemeral' | 'in_channel'; text: string; actionStatus?: 'completed' | 'already_recorded' | 'blocked' | 'failed' }
 type ReceiptActionValue = SlackAgentActionValue & { sourceEnvironment?: string; sourceOrigin?: string }
-type Envelope = { environment: string; team: string; channel: string; user: string; ts: string; actionId: string; value: ReceiptActionValue }
-type State = 'queued' | 'claimed' | 'executing' | 'outcome' | 'delivering' | 'delivered' | 'reconciliation_required' | 'message_lock'
+type Envelope = { environment: string; team: string; channel: string; user: string; ts: string; threadTs?: string; actionId: string; value: ReceiptActionValue }
+type State = 'queued' | 'claimed' | 'executing' | 'outcome' | 'delivering' | 'delivered' | 'reconciliation_required' | 'message_lock' | 'delivery_blocked'
 export type Receipt = {
   id: string; idempotency_key: string; updated_at: string; status: string
   metadata: { envelope: Envelope; state: State; fence: string; leaseUntil: string; attempts: number }
@@ -88,19 +88,35 @@ export const receiptStore: ReceiptStore = {
   },
 }
 
+type ReceiptPayload = SlackInteractivePayload & {
+  message?: { ts?: string; thread_ts?: string; is_ephemeral?: boolean; type?: string; subtype?: string }
+  container?: { is_ephemeral?: boolean; type?: string }
+}
+const slackTimestamp = (value: unknown): value is string => typeof value === 'string' && /^\d{1,20}\.\d{1,10}$/.test(value)
+function timestampValue(value: string) {
+  const [seconds, fraction] = value.split('.')
+  return BigInt(seconds) * BigInt(10_000_000_000) + BigInt(fraction.padEnd(10, '0'))
+}
+function validThread(thread: unknown, ts: string): thread is string {
+  return slackTimestamp(thread) && timestampValue(thread) <= timestampValue(ts)
+}
+
 function payloadFor(e: Envelope): SlackInteractivePayload {
   return { type: 'block_actions', team: { id: e.team }, channel: { id: e.channel }, user: { id: e.user },
-    container: { channel_id: e.channel, message_ts: e.ts }, message: { ts: e.ts },
+    container: { channel_id: e.channel, message_ts: e.ts }, message: { ts: e.ts, ...(e.threadTs ? { thread_ts: e.threadTs } : {}) },
     actions: [{ action_id: e.actionId, value: JSON.stringify(e.value) }] } as SlackInteractivePayload
 }
 function envelopeFor(payload: SlackInteractivePayload, value: ReceiptActionValue, environment: string): Envelope {
-  const p = payload as SlackInteractivePayload & { team?: { id?: string }; channel?: { id?: string }; container?: { channel_id?: string } }
+  const p = payload as ReceiptPayload & { team?: { id?: string }; channel?: { id?: string }; container?: { channel_id?: string } }
   const team = p.team?.id, channel = p.channel?.id || p.container?.channel_id, user = p.user?.id
   const ts = p.container?.message_ts || p.message?.ts, actionId = p.actions?.[0]?.action_id
   if (p.type !== 'block_actions' || p.actions?.length !== 1 || !team || !channel || !user || !ts || !actionId ||
     !/^[A-Z0-9]{2,32}$/.test(team) || !/^[A-Z0-9]{2,32}$/.test(channel) || !/^[A-Z0-9]{2,32}$/.test(user) ||
     !/^\d{1,20}\.\d{1,10}$/.test(ts) || !/^[\w.:-]{1,255}$/.test(actionId) ||
     (p.channel?.id && p.container?.channel_id && p.channel.id !== p.container.channel_id)) throw new Error('Invalid receipt envelope')
+  const threadTs = p.message?.thread_ts
+  if ((p.message?.ts && p.container?.message_ts && p.message.ts !== p.container.message_ts) ||
+    (threadTs !== undefined && !validThread(threadTs, ts))) throw new Error('Invalid receipt message identity')
   const source = getSlackAgentSource()
   if (value.sourceEnvironment !== source.sourceEnvironment || value.sourceOrigin !== source.sourceOrigin) throw new Error('Receipt source mismatch')
   const minimal: ReceiptActionValue = { action: value.action, sourceEnvironment: value.sourceEnvironment, sourceOrigin: value.sourceOrigin }
@@ -115,7 +131,7 @@ function envelopeFor(payload: SlackInteractivePayload, value: ReceiptActionValue
     if (!Number.isSafeInteger(value.contactId) || value.contactId <= 0) throw new Error('Invalid receipt contact')
     minimal.contactId = value.contactId
   }
-  return { environment, team, channel, user, ts, actionId, value: minimal }
+  return { environment, team, channel, user, ts, ...(threadTs !== undefined ? { threadTs } : {}), actionId, value: minimal }
 }
 
 export async function acceptSlackAction(payload: SlackInteractivePayload, store = receiptStore) {
@@ -124,6 +140,12 @@ export async function acceptSlackAction(payload: SlackInteractivePayload, store 
   if (!prepared.ok) return { result: prepared.result as ActionOutcome }
   const environment = receiptEnvironment()
   if (!environment) return { result: { responseType: 'ephemeral', text: 'Slack action processing is disabled. Open Portfolio to continue.', actionStatus: 'blocked' } as ActionOutcome }
+  const card = payload as ReceiptPayload
+  if (card.message?.is_ephemeral === true || card.container?.is_ephemeral === true ||
+    card.message?.type === 'ephemeral' || card.message?.subtype === 'ephemeral' || card.container?.type === 'ephemeral') {
+    return { result: { responseType: 'ephemeral', actionStatus: 'blocked',
+      text: `This Slack card is ephemeral and cannot be updated. Review the decision in Portfolio: ${getSlackAgentSource().sourceOrigin}/admin/agents` } as ActionOutcome }
+  }
   const envelope = envelopeFor(payload, prepared.value, environment)
   const reconstructed = prepareSlackAgentAction(payloadFor(envelope))
   if (!reconstructed.ok || reconstructed.key !== prepared.key) throw new Error('Receipt authorization contract mismatch')
@@ -134,7 +156,9 @@ export async function acceptSlackAction(payload: SlackInteractivePayload, store 
   return { receipt: row, result: receiptAcknowledgement(row) }
 }
 export function receiptAcknowledgement(row: Receipt): ActionOutcome {
-  if (row.outcome.canonical) return row.outcome.canonical
+  if (row.outcome.canonical) return row.metadata.state === 'delivery_blocked'
+    ? { ...row.outcome.canonical, text: `${row.outcome.canonical.text} Slack card update blocked: ${row.outcome.deliveryError}` }
+    : row.outcome.canonical
   const text = row.metadata.state === 'reconciliation_required'
     ? 'Action outcome is uncertain. Review in Portfolio before trying again.'
     : row.metadata.state === 'executing' ? 'Saved action is executing; completion is not yet confirmed.'
@@ -155,7 +179,7 @@ export async function processSlackReceipt(key: string, store = receiptStore,
   if (!row || row.metadata.envelope.environment !== environment) return
   const now = Date.now()
   const state = row.metadata.state
-  if (state === 'delivered' || state === 'reconciliation_required' || state === 'message_lock') return
+  if (state === 'delivered' || state === 'reconciliation_required' || state === 'message_lock' || state === 'delivery_blocked') return
   if (state !== 'queued' && Date.parse(row.metadata.leaseUntil) > now) return
   if (state === 'executing') {
     await store.cas(row, transition(row, 'reconciliation_required', now, { status: 'waiting_for_approval' }))
@@ -190,7 +214,11 @@ export async function processSlackReceipt(key: string, store = receiptStore,
   if (!row) return
   try {
     await deliver(row)
-  } catch {
+  } catch (error) {
+    if (error instanceof SlackFeedbackBlocked) {
+      await store.cas(row, transition(row, 'delivery_blocked', Date.now(), { outcome: { ...row.outcome, delivery: 'failed', deliveryError: error.message } }))
+      return { deliveryBlocked: true }
+    }
     const failed = transition(row, 'outcome', Date.now(), { outcome: { ...row.outcome, delivery: 'failed', deliveryError: 'Slack feedback unconfirmed' } })
     failed.metadata.leaseUntil = new Date(Date.now() + Math.min(3600_000, LEASE_MS * 2 ** Math.min(row.metadata.attempts, 5))).toISOString()
     await store.cas(row, failed)
@@ -252,17 +280,22 @@ export function patchActionBlocks(blocks: Block[], row: Receipt): Block[] {
   if (output.length > 50) throw new Error('Slack block limit')
   return output
 }
-async function slack(method: string, body: Record<string, unknown>) {
+class SlackFeedbackBlocked extends Error {}
+const accessErrors = new Set(['missing_scope', 'not_allowed_token_type', 'no_permission', 'not_in_channel', 'channel_not_found', 'access_denied', 'team_access_not_granted', 'invalid_auth', 'not_authed', 'token_revoked', 'token_expired', 'account_inactive', 'method_not_supported_for_channel_type', 'cant_update_message'])
+async function slack(method: 'conversations.history' | 'conversations.replies' | 'chat.update', body: Record<string, unknown>) {
   const environment = receiptEnvironment()
   if (!environment) throw new Error('Receipt delivery disabled')
   const token = process.env[`SLACK_AGENT_OPS_${environment.toUpperCase()}_BOT_TOKEN`] ||
     (environment === 'production' ? process.env.SLACK_BOT_TOKEN : undefined)
-  if (!token) throw new Error('Slack token unavailable')
+  if (!token) throw new SlackFeedbackBlocked('Configure the source-environment Slack bot token, verify access, then reconcile this receipt in Portfolio.')
   const response = await fetch(`https://slack.com/api/${method}`, { method: 'POST',
     headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
     body: JSON.stringify(body), signal: AbortSignal.timeout(10_000) })
+  if (response.status === 401 || response.status === 403) throw new SlackFeedbackBlocked('Verify the source-environment Slack app token, history scopes and conversation membership, then reconcile this receipt in Portfolio.')
   if (!response.ok) throw new Error('Slack HTTP failure')
   const data = await response.json()
+  if (accessErrors.has(data?.error)) throw new SlackFeedbackBlocked('Verify the source-environment Slack app token supports this conversation, has the required history scopes and membership, and can update its own message; then reconcile this receipt in Portfolio.')
+  if (data?.error === 'thread_not_found' || data?.error === 'message_not_found') throw new SlackFeedbackBlocked('Slack could not find the saved message or thread. Open a fresh Portfolio review card and reconcile this receipt; do not repeat the decision.')
   if (data?.ok !== true) throw new Error('Slack API failure')
   return data
 }
@@ -281,17 +314,50 @@ export async function withSlackMessageLease(row: Receipt, store: ReceiptStore, w
     await store.cas(owned, released)
   }
 }
+type SlackSourceMessage = { ts?: string; thread_ts?: string; channel?: string; team?: string; blocks?: Block[] }
+async function readReceiptMessage(e: Envelope): Promise<SlackSourceMessage> {
+  const reply = e.threadTs !== undefined && e.threadTs !== e.ts
+  const read = async (thread: boolean) => {
+    // One exact time window, at most 15 results; never crawl unrelated messages or URLs.
+    const data = await slack(thread ? 'conversations.replies' : 'conversations.history', {
+      channel: e.channel, ...(thread ? { ts: e.threadTs ?? e.ts } : {}),
+      oldest: e.ts, latest: e.ts, inclusive: true, limit: thread ? 15 : 1,
+    })
+    if ((data.channel !== undefined && data.channel !== e.channel) || (data.team !== undefined && data.team !== e.team)) {
+      throw new SlackFeedbackBlocked('Slack returned a different conversation. Verify source-environment app configuration and reconcile this receipt in Portfolio.')
+    }
+    if (!Array.isArray(data.messages)) throw new Error('Slack message lookup response incomplete')
+    const matches = data.messages.filter((item: SlackSourceMessage) => item?.ts === e.ts)
+    if (matches.length > 1) throw new SlackFeedbackBlocked('Slack returned ambiguous message identity. Reconcile this receipt in Portfolio.')
+    return matches[0] as SlackSourceMessage | undefined
+  }
+  let message = await read(reply)
+  // Older receipts have no parent identity. Slack documents replies.ts as either a
+  // parent or a message in the thread. Only accept the exact saved target, never its parent.
+  if (!message && e.threadTs === undefined) message = await read(true)
+  if (!message || !Array.isArray(message.blocks)) throw new SlackFeedbackBlocked('The exact saved Slack card is unavailable. Open a fresh Portfolio review card and reconcile this receipt; do not repeat the decision.')
+  if ((message.channel !== undefined && message.channel !== e.channel) || (message.team !== undefined && message.team !== e.team) ||
+    (message.thread_ts !== undefined && !validThread(message.thread_ts, e.ts)) ||
+    (reply && message.thread_ts !== e.threadTs) ||
+    (e.threadTs === e.ts && message.thread_ts !== undefined && message.thread_ts !== e.ts)) {
+    throw new SlackFeedbackBlocked('Slack message/thread identity does not match the saved receipt. Reconcile in Portfolio before updating any card.')
+  }
+  return message
+}
 export async function deliverSlackReceipt(row: Receipt, store = receiptStore) {
-  const { channel, ts, environment, value } = row.metadata.envelope
+  const e = row.metadata.envelope
   const source = getSlackAgentSource()
-  if (receiptEnvironment() !== environment || source.sourceOrigin !== value.sourceOrigin) throw new Error('Receipt delivery source mismatch')
+  if (receiptEnvironment() !== e.environment || source.sourceEnvironment !== e.value.sourceEnvironment || source.sourceOrigin !== e.value.sourceOrigin ||
+    e.team !== process.env.SLACK_AGENT_OPS_TEAM_ID?.trim() ||
+    !/^[A-Z0-9]{2,32}$/.test(e.team) || !/^[A-Z0-9]{2,32}$/.test(e.channel) || !slackTimestamp(e.ts) ||
+    (e.threadTs !== undefined && !validThread(e.threadTs, e.ts))) {
+    throw new SlackFeedbackBlocked('Receipt identity or source configuration changed. Verify the source environment and Slack workspace, then reconcile this receipt in Portfolio.')
+  }
   await withSlackMessageLease(row, store, async () => {
-    const current = await slack('conversations.history', { channel, latest: ts, inclusive: true, limit: 1 })
-    const message = current.messages?.find((item: { ts?: string }) => item.ts === ts)
-    if (!message || !Array.isArray(message.blocks)) throw new Error('Slack message unavailable')
-    const blocks = patchActionBlocks(message.blocks, row)
-    const updated = await slack('chat.update', { channel, ts, blocks })
-    if (updated.channel !== channel || updated.ts !== ts) throw new Error('Slack update receipt missing')
+    const message = await readReceiptMessage(e)
+    const blocks = patchActionBlocks(message.blocks!, row)
+    const updated = await slack('chat.update', { channel: e.channel, ts: e.ts, blocks })
+    if (updated.channel !== e.channel || updated.ts !== e.ts) throw new Error('Slack update receipt missing')
   })
 }
 export async function recoverSlackReceipts(store = receiptStore) {
@@ -299,6 +365,6 @@ export async function recoverSlackReceipts(store = receiptStore) {
   if (!environment) return { enabled: false, checked: 0, failed: 0 }
   const rows = await store.pending(environment)
   let failed = 0
-  await Promise.all(rows.map(row => processSlackReceipt(row.idempotency_key, store).catch(() => { failed++ })))
+  await Promise.all(rows.map(row => processSlackReceipt(row.idempotency_key, store).then(result => { if (result?.deliveryBlocked) failed++ }).catch(() => { failed++ })))
   return { enabled: true, checked: rows.length, failed }
 }
