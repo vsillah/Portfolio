@@ -6,12 +6,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+import { getTestingSupabaseClient } from '@/lib/testing/database'
 
 /**
  * POST /api/testing/cleanup
@@ -19,6 +14,11 @@ const supabase = createClient(
  */
 export async function POST(request: NextRequest) {
   try {
+    const supabase = getTestingSupabaseClient()
+    if (!supabase) {
+      return NextResponse.json({ error: 'Testing database is not configured' }, { status: 503 })
+    }
+
     const body = await request.json()
     const { daysOld = 7 } = body
     
@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
     if (error) {
       console.error('[API] Cleanup function error:', error)
       // Fall back to manual cleanup
-      return await manualCleanup(daysOld)
+      return await manualCleanup(supabase, daysOld)
     }
     
     return NextResponse.json({
@@ -54,6 +54,11 @@ export async function POST(request: NextRequest) {
  */
 export async function DELETE(request: NextRequest) {
   try {
+    const supabase = getTestingSupabaseClient()
+    if (!supabase) {
+      return NextResponse.json({ error: 'Testing database is not configured' }, { status: 503 })
+    }
+
     const { searchParams } = new URL(request.url)
     const runId = searchParams.get('runId')
     
@@ -189,7 +194,7 @@ export async function DELETE(request: NextRequest) {
 /**
  * Manual cleanup fallback
  */
-async function manualCleanup(daysOld: number): Promise<NextResponse> {
+async function manualCleanup(supabase: NonNullable<ReturnType<typeof getTestingSupabaseClient>>, daysOld: number): Promise<NextResponse> {
   const cutoffDate = new Date()
   cutoffDate.setDate(cutoffDate.getDate() - daysOld)
   

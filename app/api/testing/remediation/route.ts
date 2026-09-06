@@ -6,14 +6,9 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { getTestingSupabaseClient } from '@/lib/testing/database'
 import { getRemediationEngine } from '@/lib/testing'
 import type { RemediationOptions, TestErrorContext } from '@/lib/testing'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
 
 /**
  * POST /api/testing/remediation
@@ -21,6 +16,11 @@ const supabase = createClient(
  */
 export async function POST(request: NextRequest) {
   try {
+    const supabase = getTestingSupabaseClient()
+    if (!supabase) {
+      return NextResponse.json({ error: 'Testing database is not configured' }, { status: 503 })
+    }
+
     const body = await request.json()
     
     const {
@@ -104,6 +104,11 @@ export async function POST(request: NextRequest) {
  */
 export async function GET(request: NextRequest) {
   try {
+    const supabase = getTestingSupabaseClient()
+    if (!supabase) {
+      return NextResponse.json({ error: 'Testing database is not configured' }, { status: 503 })
+    }
+
     const { searchParams } = new URL(request.url)
     const status = searchParams.get('status')
     const limit = parseInt(searchParams.get('limit') || '20')

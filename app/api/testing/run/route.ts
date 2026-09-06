@@ -6,7 +6,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { getTestingSupabaseClient, isTestingDatabaseConfigured } from '@/lib/testing/database'
 import { 
   createOrchestrator, 
   ALL_SCENARIOS, 
@@ -20,11 +20,6 @@ import {
 } from '@/lib/testing'
 import type { OrchestratorConfig, TestScenario, TestPersona } from '@/lib/testing'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
-
 // Store active orchestrators (in production, use Redis or similar)
 const activeOrchestrators = new Map<string, ReturnType<typeof createOrchestrator>>()
 
@@ -34,6 +29,10 @@ const activeOrchestrators = new Map<string, ReturnType<typeof createOrchestrator
  */
 export async function POST(request: NextRequest) {
   try {
+    if (!isTestingDatabaseConfigured()) {
+      return NextResponse.json({ error: 'Testing database is not configured' }, { status: 503 })
+    }
+
     const body = await request.json()
 
     const {
@@ -185,6 +184,11 @@ export async function POST(request: NextRequest) {
  */
 export async function GET(request: NextRequest) {
   try {
+    const supabase = getTestingSupabaseClient()
+    if (!supabase) {
+      return NextResponse.json({ error: 'Testing database is not configured' }, { status: 503 })
+    }
+
     const { searchParams } = new URL(request.url)
     const limit = parseInt(searchParams.get('limit') || '10')
     const status = searchParams.get('status')
@@ -237,6 +241,10 @@ export async function GET(request: NextRequest) {
  */
 export async function DELETE(request: NextRequest) {
   try {
+    if (!isTestingDatabaseConfigured()) {
+      return NextResponse.json({ error: 'Testing database is not configured' }, { status: 503 })
+    }
+
     const { searchParams } = new URL(request.url)
     const runId = searchParams.get('runId')
     

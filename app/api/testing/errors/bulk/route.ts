@@ -5,12 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+import { getTestingSupabaseClient } from '@/lib/testing/database'
 
 const VALID_REMEDIATION_STATUSES = ['pending', 'in_progress', 'fixed', 'ignored', 'wont_fix'] as const
 type RemediationStatus = typeof VALID_REMEDIATION_STATUSES[number]
@@ -26,6 +21,11 @@ type RemediationStatus = typeof VALID_REMEDIATION_STATUSES[number]
  */
 export async function PATCH(request: NextRequest) {
   try {
+    const supabase = getTestingSupabaseClient()
+    if (!supabase) {
+      return NextResponse.json({ error: 'Testing database is not configured' }, { status: 503 })
+    }
+
     const body = await request.json()
     const { error_ids, remediation_request_id, remediation_status } = body
     
