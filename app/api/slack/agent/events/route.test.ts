@@ -125,7 +125,7 @@ describe('POST /api/slack/agent/events', () => {
 
   it('dedupes Slack retries before scheduling event work', async () => {
     const request = signedRequest(
-      { type: 'event_callback', event_id: 'Ev123' },
+      { type: 'event_callback', event_id: 'Ev123', event: { user: 'U123' } },
       'test-slack-secret',
       { 'x-slack-retry-num': '1' },
     )
@@ -137,4 +137,13 @@ describe('POST /api/slack/agent/events', () => {
     expect(mocks.handleSlackAgentEvent).not.toHaveBeenCalled()
     expect(mocks.waitUntil).not.toHaveBeenCalled()
   })
+  it.each(['U_OTHER', 'U123'])('rejects unauthorized hosted events before async scheduling (%s)', async (user) => {
+    process.env.SLACK_AGENT_OPS_ALLOWED_USER_IDS = 'U123'
+    process.env.SLACK_AGENT_OPS_TEAM_ID = 'T_ALLOWED'
+    const response = await POST(signedRequest({ type: 'event_callback', team_id: user === 'U123' ? 'T_OTHER' : 'T_ALLOWED', event: { type: 'app_mention', user, channel: 'C1', text: 'status' } }) as never)
+    expect(response.status).toBe(403)
+    expect(mocks.handleSlackAgentEvent).not.toHaveBeenCalled()
+    expect(mocks.waitUntil).not.toHaveBeenCalled()
+  })
+
 })

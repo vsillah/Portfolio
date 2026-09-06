@@ -6,6 +6,7 @@ import {
   type SlackAgentEventPayload,
 } from '@/lib/agent-slack-events'
 import { verifySlackSignature } from '@/lib/slack-signature'
+import { requireAuthorizedSlackActor } from '@/lib/slack-agent-access'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 60
@@ -34,6 +35,11 @@ export async function POST(request: NextRequest) {
 
     if (payload.type === 'url_verification') {
       return NextResponse.json({ challenge: payload.challenge ?? '' })
+    }
+
+    const authorization = requireAuthorizedSlackActor({ userId: payload.event?.user, teamId: payload.team_id })
+    if (!authorization.ok) {
+      return NextResponse.json({ ok: false, error: authorization.text }, { status: 403 })
     }
 
     if (request.headers.get('x-slack-retry-num')) {

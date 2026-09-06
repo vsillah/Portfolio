@@ -2,9 +2,7 @@ import { runChiefOfStaffChat } from '@/lib/chief-of-staff-chat'
 import { handleSlackAgentAction } from '@/lib/agent-slack-actions'
 import { decodeSlackActionValue, type SlackAgentActionValue } from '@/lib/agent-slack-blocks'
 import { supabaseAdmin } from '@/lib/supabase'
-import { resolveBusinessEmailConfig } from '@/lib/business-email-config'
-import { sendUserGmailDraft } from '@/lib/gmail-user-api'
-import { decryptRefreshToken } from '@/lib/gmail-user-oauth-crypto'
+import { requireAuthorizedSlackActor } from '@/lib/slack-agent-access'
 
 export type SlackAgentEvent = {
   type?: string
@@ -20,6 +18,7 @@ export type SlackAgentEvent = {
 
 export type SlackAgentEventPayload = {
   type?: string
+  team_id?: string
   challenge?: string
   event_id?: string
   event?: SlackAgentEvent
@@ -210,82 +209,12 @@ async function findRevenueReplyApprovalContext(channel: string, threadTs: string
   return parseRevenueReplyApprovalContext(text)
 }
 
-async function handleRevenueReplyApprovalCommand(command: RevenueReplyApprovalCommand, context: RevenueReplyApprovalContext) {
-  if (!supabaseAdmin) {
-    return 'Revenue reply approval could not run because the database is not available. No email was sent.'
-  }
-
-  const { data: draft, error: draftError } = await supabaseAdmin
-    .from('client_update_drafts')
-    .select('id, status, subject, client_email')
-    .eq('id', context.appDraftId)
-    .single()
-
-  if (draftError || !draft?.id) {
-    console.warn('[agent-slack-events] Revenue reply draft lookup failed:', draftError)
-    return `I could not find app draft ${context.appDraftId}. No email was sent.`
-  }
-
-  if (command.action === 'hold') {
-    return `Held. App draft ${context.appDraftId} remains unsent.`
-  }
-
-  if (command.action === 'modify') {
-    return [
-      `Modification request captured for app draft ${context.appDraftId}.`,
-      `Requested change: ${command.note}`,
-      'No email was sent. Continue iterating in Codex or update the draft, then reply `safe to send` when approved.',
-    ].join('\n')
-  }
-
-  if (draft.status === 'sent') {
-    return `App draft ${context.appDraftId} is already marked sent. No duplicate email was sent.`
-  }
-
-  const requiredSender = resolveBusinessEmailConfig().fromEmail.toLowerCase()
-  const { data: credential, error: credentialError } = await supabaseAdmin
-    .from('admin_gmail_user_credentials')
-    .select('google_email, refresh_token_cipher, refresh_token_iv, refresh_token_tag')
-    .ilike('google_email', requiredSender)
-    .limit(1)
-    .maybeSingle()
-
-  if (credentialError || !credential?.refresh_token_cipher || !credential?.refresh_token_iv || !credential?.refresh_token_tag) {
-    console.warn('[agent-slack-events] Revenue reply Gmail credential lookup failed:', credentialError)
-    return `No connected Gmail credential was found for ${requiredSender}. No email was sent.`
-  }
-
-  const refreshToken = decryptRefreshToken(
-    credential.refresh_token_cipher as string,
-    credential.refresh_token_iv as string,
-    credential.refresh_token_tag as string,
-  )
-  try {
-    await sendUserGmailDraft(refreshToken, context.gmailDraftId)
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown Gmail API error'
-    console.warn('[agent-slack-events] Revenue reply Gmail draft send failed:', error)
-    return `Gmail draft ${context.gmailDraftId} could not be sent: ${message}. App draft ${context.appDraftId} remains unsent.`
-  }
-
-  const { error: updateError } = await supabaseAdmin
-    .from('client_update_drafts')
-    .update({
-      status: 'sent',
-      sent_at: new Date().toISOString(),
-      sent_via: 'email',
-    })
-    .eq('id', context.appDraftId)
-    .eq('status', 'draft')
-    .select('id')
-    .single()
-
-  if (updateError) {
-    console.warn('[agent-slack-events] Revenue reply sent but draft status update failed:', updateError)
-    return `Sent Gmail draft ${context.gmailDraftId}, but Portfolio could not mark app draft ${context.appDraftId} as sent.`
-  }
-
-  return `Sent Gmail draft ${context.gmailDraftId} from ${requiredSender} and marked app draft ${context.appDraftId} as sent.`
+function handleRevenueReplyApprovalCommand(_command: RevenueReplyApprovalCommand, context: RevenueReplyApprovalContext | null) {
+  return [
+    'Free-text Slack replies cannot authorize Gmail sends. No send, hold, or revision was recorded.',
+    context ? `Review app draft ${context.appDraftId} in Portfolio: ${baseUrl()}/admin/meeting-tasks` : `Open the current Portfolio draft review: ${baseUrl()}/admin/meeting-tasks`,
+    'Verify the current recipient and draft in its review gate before authorizing any external action.',
+  ].join('\n')
 }
 
 function replyActionFromMessage(message: string, context: SlackThreadContext): SlackAgentActionValue | null {
@@ -293,7 +222,7 @@ function replyActionFromMessage(message: string, context: SlackThreadContext): S
   const assignMatch = normalized.match(/^assign\s+([a-z0-9_-]+)/)
   if (assignMatch) {
     const workItemId = singleWorkItemId(context.actions)
-    return workItemId ? { action: 'work.assign', workItemId, agentKey: assignMatch[1] } : null
+    return workItemId ? { ...context.actions.find((value) => value.workItemId === workItemId), action: 'work.assign', workItemId, agentKey: assignMatch[1] } : null
   }
 
   const handoffMatch = normalized.match(/^handoff(?:\s+to)?\s+([a-z0-9_-]+)/)
@@ -301,6 +230,7 @@ function replyActionFromMessage(message: string, context: SlackThreadContext): S
     const workItemId = singleWorkItemId(context.actions)
     return workItemId
       ? {
+          ...context.actions.find((value) => value.workItemId === workItemId),
           action: 'work.handoff',
           workItemId,
           agentKey: handoffMatch[1],
@@ -312,35 +242,35 @@ function replyActionFromMessage(message: string, context: SlackThreadContext): S
   if (/^(ack|acknowledge|seen|got it)\b/.test(normalized)) {
     const target = singleTargetAction(context.actions, (value) => value.action === 'work.acknowledge' || Boolean(value.workItemId))
     return target?.workItemId
-      ? { action: 'work.acknowledge', workItemId: target.workItemId, note: noteFromReply(message, 'Blocker acknowledged from Slack thread reply.') }
+      ? { ...target, action: 'work.acknowledge', workItemId: target.workItemId, note: noteFromReply(message, 'Blocker acknowledged from Slack thread reply.') }
       : null
   }
 
   if (/^(ready|mark ready|mark it ready|ready for review)\b/.test(normalized)) {
     const target = singleTargetAction(context.actions, (value) => value.action === 'work.ready' || Boolean(value.workItemId))
     return target?.workItemId
-      ? { action: 'work.ready', workItemId: target.workItemId, note: noteFromReply(message, 'Marked ready from Slack thread reply.') }
+      ? { ...target, action: 'work.ready', workItemId: target.workItemId, note: noteFromReply(message, 'Marked ready from Slack thread reply.') }
       : null
   }
 
   if (/^(request revision|revise|needs revision|changes requested)\b/.test(normalized)) {
     const target = singleTargetAction(context.actions, (value) => value.action === 'work.revision' || Boolean(value.workItemId))
     return target?.workItemId
-      ? { action: 'work.revision', workItemId: target.workItemId, note: noteFromReply(message, 'Revision requested from Slack thread reply.') }
+      ? { ...target, action: 'work.revision', workItemId: target.workItemId, note: noteFromReply(message, 'Revision requested from Slack thread reply.') }
       : null
   }
 
   if (/^approve\b/.test(normalized)) {
     const target = singleTargetAction(context.actions, (value) => value.action === 'approval.approve')
     return target?.approvalId
-      ? { action: 'approval.approve', approvalId: target.approvalId, runId: target.runId, note: noteFromReply(message, 'Approved from Slack thread reply.') }
+      ? { ...target, action: 'approval.approve', approvalId: target.approvalId, runId: target.runId, note: noteFromReply(message, 'Approved from Slack thread reply.') }
       : null
   }
 
   if (/^(reject|decline)\b/.test(normalized)) {
     const target = singleTargetAction(context.actions, (value) => Boolean(value.approvalId))
     return target?.approvalId
-      ? { action: 'approval.reject', approvalId: target.approvalId, runId: target.runId, note: noteFromReply(message, 'Rejected from Slack thread reply.') }
+      ? { ...target, action: 'approval.reject', approvalId: target.approvalId, runId: target.runId, note: noteFromReply(message, 'Rejected from Slack thread reply.') }
       : null
   }
 
@@ -353,16 +283,19 @@ export async function handleSlackAgentEvent(payload: SlackAgentEventPayload) {
     return { handled: false as const, reason: 'unsupported_event' }
   }
 
+  const authorization = requireAuthorizedSlackActor({ userId: event.user, teamId: payload.team_id })
+  if (!authorization.ok) return { handled: false as const, reason: 'unauthorized', text: authorization.text }
+
   const channel = event.channel
   const user = event.user
   const message = normalizeSlackAgentMessage(event)
   if (!message) {
-    await postSlackAgentMessage({
+    const delivery = await postSlackAgentMessage({
       channel,
       threadTs: event.thread_ts || event.ts,
       text: 'Ask me a question or tell me what Agent Ops should inspect. For deterministic controls, use `/agent help`.',
     })
-    return { handled: true as const, reason: 'empty_message' }
+    return { handled: true as const, reason: 'empty_message', ...deliveryFailure(delivery) }
   }
 
   const threadContext = event.thread_ts
@@ -371,34 +304,34 @@ export async function handleSlackAgentEvent(payload: SlackAgentEventPayload) {
   const revenueReplyCommand = event.thread_ts ? parseRevenueReplyApprovalCommand(message) : null
   if (revenueReplyCommand) {
     const revenueReplyContext = await findRevenueReplyApprovalContext(channel, event.thread_ts as string)
-    if (revenueReplyContext) {
-      const text = await handleRevenueReplyApprovalCommand(revenueReplyCommand, revenueReplyContext)
-      await postSlackAgentMessage({
-        channel,
-        threadTs: event.thread_ts || event.ts,
-        text,
-      })
-      return { handled: true as const, reason: 'revenue_reply_approval_action' }
-    }
+    const text = handleRevenueReplyApprovalCommand(revenueReplyCommand, revenueReplyContext)
+    const delivery = await postSlackAgentMessage({
+      channel,
+      threadTs: event.thread_ts || event.ts,
+      text,
+    })
+    return { handled: true as const, reason: 'revenue_reply_approval_action', ...deliveryFailure(delivery) }
   }
 
   const replyAction = threadContext ? replyActionFromMessage(message, threadContext) : null
   if (replyAction) {
     const actionResult = await handleSlackAgentAction({
       type: 'block_actions',
+      team: { id: payload.team_id },
+      channel: { id: channel },
       user: { id: user },
       action_ts: event.ts,
-      container: { message_ts: event.thread_ts },
+      container: { message_ts: event.thread_ts, channel_id: channel },
       actions: [{ value: JSON.stringify(replyAction) }],
     })
 
-    await postSlackAgentMessage({
+    const delivery = await postSlackAgentMessage({
       channel,
       threadTs: event.thread_ts || event.ts,
       text: actionResult.text,
     })
 
-    return { handled: true as const, reason: 'thread_reply_action' }
+    return { handled: true as const, reason: 'thread_reply_action', ...deliveryFailure(delivery) }
   }
 
   if (event.type === 'message' && event.channel_type !== 'im') {
@@ -413,13 +346,17 @@ export async function handleSlackAgentEvent(payload: SlackAgentEventPayload) {
     ...(contextRef ? { contextRef } : {}),
   })
 
-  await postSlackAgentMessage({
+  const delivery = await postSlackAgentMessage({
     channel,
     threadTs: event.thread_ts || event.ts,
     text: formatChiefOfStaffSlackReply(result),
   })
 
-  return { handled: true as const, runId: result.runId }
+  return { handled: true as const, runId: result.runId, ...deliveryFailure(delivery) }
+}
+
+function deliveryFailure(delivery: { ok?: boolean } | null) {
+  return delivery?.ok === true ? {} : { deliveryStatus: 'failed' as const }
 }
 
 export async function postSlackAgentMessage(input: SlackPostMessageInput) {
@@ -442,11 +379,13 @@ export async function postSlackAgentMessage(input: SlackPostMessageInput) {
       unfurl_links: false,
       unfurl_media: false,
     }),
-  })
+  }).catch(() => null)
+  if (!response) return { ok: false, error: 'slack_reply_failed' }
 
   const body = await response.json().catch(() => null)
-  if (!response.ok || body?.ok === false) {
-    console.warn('[agent-slack-events] Slack reply failed:', response.status, body)
+  if (!response.ok || body?.ok !== true) {
+    console.warn('[agent-slack-events] Slack reply failed:', response.status)
+    return { ok: false, error: 'slack_reply_failed' }
   }
 
   return body

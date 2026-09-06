@@ -23,7 +23,7 @@ const ORIGINAL_ENV = process.env
 const SECRET = 'test-slack-secret'
 
 function signedRequest(fields: Record<string, string>, secret = SECRET) {
-  const rawBody = new URLSearchParams(fields).toString()
+  const rawBody = new URLSearchParams({ user_id: 'U123', ...fields }).toString()
   const timestamp = Math.floor(Date.now() / 1000).toString()
   const signature = `v0=${createHmac('sha256', secret).update(`v0:${timestamp}:${rawBody}`).digest('hex')}`
 
@@ -187,4 +187,29 @@ describe('POST /api/slack/milestone-complete', () => {
       triggeredBy: 'slack_cmd',
     })
   })
+  it('rejects missing hosted signing configuration before database access', async () => {
+    process.env = { ...process.env, NODE_ENV: 'production', SLACK_SIGNING_SECRET: '' }
+    const response = await POST(signedRequest({ text: 'client-1 1' }))
+    expect(response.status).toBe(401)
+    expect(mocks.from).not.toHaveBeenCalled()
+    expect(mocks.triggerProgressUpdate).not.toHaveBeenCalled()
+  })
+
+  it('rejects a signed but unauthorized milestone operator before mutation', async () => {
+    process.env.SLACK_AGENT_OPS_ALLOWED_USER_IDS = 'U_ALLOWED'
+    const response = await POST(signedRequest({ text: 'client-1 1', user_id: 'U_OTHER' }))
+    expect(response.status).toBe(403)
+    expect(mocks.from).not.toHaveBeenCalled()
+    expect(mocks.triggerProgressUpdate).not.toHaveBeenCalled()
+  })
+
+  it('reports saved milestone completion when progress preparation throws', async () => {
+    mockProjectAndPlan({ id: 'project-1', client_name: 'Fixture' }, { id: 'plan-1', milestones: [{ title: 'Review', status: 'pending' }] })
+    mocks.triggerProgressUpdate.mockRejectedValueOnce(new Error('offline'))
+    const response = await POST(signedRequest({ text: 'client-1 1' }))
+    const body = await response.json()
+    expect(body.text).toContain('milestone completion was saved')
+    expect(body.text).not.toContain('sent via')
+  })
+
 })

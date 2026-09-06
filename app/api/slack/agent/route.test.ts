@@ -143,6 +143,7 @@ describe('POST /api/slack/agent', () => {
       text: 'status',
       userId: 'U123',
       userName: 'vambah',
+      teamId: null,
     })
   })
 
@@ -191,6 +192,7 @@ describe('POST /api/slack/agent', () => {
       text: 'status',
       userId: 'U123',
       userName: 'vambah',
+      teamId: null,
     })
     expect(fetch).not.toHaveBeenCalled()
     expect(mocks.waitUntil).not.toHaveBeenCalled()
@@ -242,4 +244,11 @@ describe('POST /api/slack/agent', () => {
       }),
     )
   })
+  it('rejects a signed command from an unlisted operator before dispatch', async () => {
+    process.env.SLACK_AGENT_OPS_ALLOWED_USER_IDS = 'U_ALLOWED'
+    const response = await POST(signedRequest(new URLSearchParams({ text: 'work assign 1 shaka', user_id: 'U_OTHER' })) as never)
+    expect((await response.json()).text).toContain('not configured')
+    expect(mocks.handleAgentSlackCommand).not.toHaveBeenCalled()
+  })
+
 })

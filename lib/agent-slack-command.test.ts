@@ -359,7 +359,7 @@ describe('agent Slack command parsing', () => {
       ],
     })
 
-    const result = await handleAgentSlackCommand({ text: 'insights' })
+    const result = await handleAgentSlackCommand({ text: 'insights', userId: 'U123' })
     const blocks = JSON.stringify(result.blocks)
 
     expect(result.text).toContain('High-signal AI insights')
@@ -496,7 +496,7 @@ describe('agent Slack command parsing', () => {
       },
     ])
 
-    const result = await handleAgentSlackCommand({ text: 'work' })
+    const result = await handleAgentSlackCommand({ text: 'work', userId: 'U123' })
 
     expect(result.text).toContain('Agent coordination work')
     expect(result.blocks).toEqual(expect.arrayContaining([
@@ -681,5 +681,16 @@ describe('agent Slack command parsing', () => {
     await expect(buildAgentBlockersSlackText()).resolves.toContain('Blocked agent coordination work')
     await expect(buildAgentPrsSlackText()).resolves.toContain('Coordination PR queue')
     await expect(buildCaptainQueueSlackText()).resolves.toContain('Integration Captain queue')
+  })
+})
+
+
+describe('command actor gate', () => {
+  it('rejects missing actor before creating work or invoking a run', async () => {
+    vi.clearAllMocks()
+    const result = await handleAgentSlackCommand({ text: 'engage shaka inspect blockers' })
+    expect(result.text).toContain('missing Slack user id')
+    expect(agentRunMocks.startAgentRun).not.toHaveBeenCalled()
+    expect(workItemMocks.claimAgentWorkItem).not.toHaveBeenCalled()
   })
 })

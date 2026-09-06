@@ -79,7 +79,7 @@ function slackNotificationEvent(actions: Array<Record<string, unknown>>) {
 
 describe('agent Slack events', () => {
   beforeEach(() => {
-    vi.clearAllMocks()
+    vi.resetAllMocks()
     vi.stubGlobal(
       'fetch',
       vi.fn().mockResolvedValue({
@@ -280,14 +280,17 @@ describe('agent Slack events', () => {
     expect(result).toEqual({ handled: true, reason: 'thread_reply_action' })
     expect(mocks.handleSlackAgentAction).toHaveBeenCalledWith({
       type: 'block_actions',
+      team: { id: undefined },
+      channel: { id: 'C123' },
       user: { id: 'U123' },
       action_ts: '1700000000.000003',
-      container: { message_ts: '1700000000.000001' },
+      container: { message_ts: '1700000000.000001', channel_id: 'C123' },
       actions: [
         {
           value: JSON.stringify({
             action: 'work.acknowledge',
             workItemId: 'work-1',
+            runId: 'run-1',
             note: 'I saw this blocker',
           }),
         },
@@ -329,9 +332,11 @@ describe('agent Slack events', () => {
     expect(result).toEqual({ handled: true, reason: 'thread_reply_action' })
     expect(mocks.handleSlackAgentAction).toHaveBeenCalledWith({
       type: 'block_actions',
+      team: { id: undefined },
+      channel: { id: 'C123' },
       user: { id: 'U123' },
       action_ts: '1700000000.000004',
-      container: { message_ts: '1700000000.000001' },
+      container: { message_ts: '1700000000.000001', channel_id: 'C123' },
       actions: [
         {
           value: JSON.stringify({
@@ -346,7 +351,7 @@ describe('agent Slack events', () => {
     expect(mocks.runChiefOfStaffChat).not.toHaveBeenCalled()
   })
 
-  it('sends a revenue reply Gmail draft from a guarded Slack safe-to-send thread reply', async () => {
+  it('blocks free-text Gmail send even when a parent message names a draft', async () => {
     const appDraftId = '9abee71a-930d-49e9-a2b5-d929021ec9cb'
     const gmailDraftId = 'r5747226337828186444'
     mocks.from
@@ -409,13 +414,13 @@ describe('agent Slack events', () => {
     })
 
     expect(result).toEqual({ handled: true, reason: 'revenue_reply_approval_action' })
-    expect(mocks.decryptRefreshToken).toHaveBeenCalledWith('cipher', 'iv', 'tag')
-    expect(mocks.sendUserGmailDraft).toHaveBeenCalledWith('refresh-token', gmailDraftId)
+    expect(mocks.decryptRefreshToken).not.toHaveBeenCalled()
+    expect(mocks.sendUserGmailDraft).not.toHaveBeenCalled()
     expect(mocks.runChiefOfStaffChat).not.toHaveBeenCalled()
-    expect((fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.at(-1)?.[1]?.body).toContain('marked app draft')
+    expect((fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.at(-1)?.[1]?.body).toContain('No send, hold, or revision was recorded')
   })
 
-  it('keeps the app draft unsent and posts a Slack failure when Gmail rejects send', async () => {
+  it('does not reach Gmail credentials or sender from revenue text', async () => {
     const appDraftId = '9abee71a-930d-49e9-a2b5-d929021ec9cb'
     const gmailDraftId = 'r5747226337828186444'
     mocks.sendUserGmailDraft.mockRejectedValueOnce(new Error('Recipient address required'))
@@ -477,13 +482,13 @@ describe('agent Slack events', () => {
     })
 
     expect(result).toEqual({ handled: true, reason: 'revenue_reply_approval_action' })
-    expect(mocks.sendUserGmailDraft).toHaveBeenCalledWith('refresh-token', gmailDraftId)
-    expect(mocks.from).toHaveBeenCalledTimes(3)
-    expect((fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.at(-1)?.[1]?.body).toContain('Recipient address required')
-    expect((fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.at(-1)?.[1]?.body).toContain('remains unsent')
+    expect(mocks.sendUserGmailDraft).not.toHaveBeenCalled()
+    expect(mocks.from).toHaveBeenCalledTimes(1)
+    expect((fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.at(-1)?.[1]?.body).toContain('No send, hold, or revision was recorded')
+    expect((fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.at(-1)?.[1]?.body).toContain('No send, hold, or revision was recorded')
   })
 
-  it('holds revenue reply drafts without sending email', async () => {
+  it('does not claim a revenue hold was persisted', async () => {
     const appDraftId = '9abee71a-930d-49e9-a2b5-d929021ec9cb'
     const gmailDraftId = 'r5747226337828186444'
     mocks.from
@@ -532,7 +537,7 @@ describe('agent Slack events', () => {
 
     expect(result).toEqual({ handled: true, reason: 'revenue_reply_approval_action' })
     expect(mocks.sendUserGmailDraft).not.toHaveBeenCalled()
-    expect((fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.at(-1)?.[1]?.body).toContain('remains unsent')
+    expect((fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.at(-1)?.[1]?.body).toContain('No send, hold, or revision was recorded')
   })
 
   it('turns rejection thread replies into governed approval rejection actions', async () => {
@@ -567,9 +572,11 @@ describe('agent Slack events', () => {
     expect(result).toEqual({ handled: true, reason: 'thread_reply_action' })
     expect(mocks.handleSlackAgentAction).toHaveBeenCalledWith({
       type: 'block_actions',
+      team: { id: undefined },
+      channel: { id: 'C123' },
       user: { id: 'U123' },
       action_ts: '1700000000.000005',
-      container: { message_ts: '1700000000.000001' },
+      container: { message_ts: '1700000000.000001', channel_id: 'C123' },
       actions: [
         {
           value: JSON.stringify({
@@ -616,14 +623,17 @@ describe('agent Slack events', () => {
     expect(result).toEqual({ handled: true, reason: 'thread_reply_action' })
     expect(mocks.handleSlackAgentAction).toHaveBeenCalledWith({
       type: 'block_actions',
+      team: { id: undefined },
+      channel: { id: 'C123' },
       user: { id: 'U123' },
       action_ts: '1700000000.000005',
-      container: { message_ts: '1700000000.000001' },
+      container: { message_ts: '1700000000.000001', channel_id: 'C123' },
       actions: [
         {
           value: JSON.stringify({
             action: 'work.assign',
             workItemId: 'work-1',
+            runId: 'run-1',
             agentKey: 'shaka',
           }),
         },
@@ -692,4 +702,43 @@ describe('agent Slack events', () => {
     expect(text).toContain('`automation-systems` -')
     expect(text).toContain('https://amadutown.test/admin/agents/runs/run-123')
   })
+  it.each(['app_mention', 'dm', 'thread'])('rejects an unlisted %s actor before DB, model, or Slack access', async (kind) => {
+    process.env.SLACK_AGENT_OPS_ALLOWED_USER_IDS = 'U_ALLOWED'
+    const result = await handleSlackAgentEvent({ event: {
+      type: kind === 'app_mention' ? 'app_mention' : 'message',
+      user: 'U_OTHER', channel: 'C1', channel_type: 'im',
+      text: kind === 'thread' ? 'safe to send' : 'status',
+      ...(kind === 'thread' ? { thread_ts: '1.0' } : {}),
+    } })
+    expect(result).toMatchObject({ handled: false, reason: 'unauthorized' })
+    expect(mocks.from).not.toHaveBeenCalled()
+    expect(mocks.runChiefOfStaffChat).not.toHaveBeenCalled()
+    expect(fetch).not.toHaveBeenCalled()
+    expect(mocks.sendUserGmailDraft).not.toHaveBeenCalled()
+  })
+
+  it('rejects a valid operator from a different workspace before reads', async () => {
+    process.env.SLACK_AGENT_OPS_TEAM_ID = 'T_ALLOWED'
+    const result = await handleSlackAgentEvent({ team_id: 'T_OTHER', event: { type: 'app_mention', user: 'U123', channel: 'C1', text: 'status' } })
+    expect(result).toMatchObject({ handled: false, reason: 'unauthorized' })
+    expect(mocks.from).not.toHaveBeenCalled()
+    expect(fetch).not.toHaveBeenCalled()
+  })
+
+  it.each(['http', 'transport'])('reports failed Slack delivery after a successful chat result (%s)', async (failure) => {
+    if (failure === 'http') vi.mocked(fetch).mockResolvedValueOnce({ ok: false, status: 503, json: async () => ({ ok: false }) } as never)
+    else vi.mocked(fetch).mockRejectedValueOnce(new Error('offline'))
+    const result = await handleSlackAgentEvent({ event: { type: 'app_mention', user: 'U123', channel: 'C1', text: 'status' } })
+    expect(result).toMatchObject({ handled: true, runId: 'run-123', deliveryStatus: 'failed' })
+    expect(mocks.runChiefOfStaffChat).toHaveBeenCalledOnce()
+  })
+
+  it('blocks modify text even when no trustworthy draft context is available', async () => {
+    const result = await handleSlackAgentEvent({ event: { type: 'message', user: 'U123', channel: 'C1', text: 'modify: change the greeting', thread_ts: '1.0' } })
+    expect(result).toMatchObject({ handled: true, reason: 'revenue_reply_approval_action' })
+    expect(mocks.runChiefOfStaffChat).not.toHaveBeenCalled()
+    expect(mocks.sendUserGmailDraft).not.toHaveBeenCalled()
+    expect(vi.mocked(fetch).mock.calls.at(-1)?.[1]?.body).toContain('No send, hold, or revision was recorded')
+  })
+
 })
