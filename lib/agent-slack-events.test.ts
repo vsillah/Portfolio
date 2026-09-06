@@ -58,6 +58,18 @@ function queryResult(result: unknown) {
   return query
 }
 
+function dispatchedAction() {
+  expect(mocks.handleSlackAgentAction).toHaveBeenCalledOnce()
+  const [actual] = mocks.handleSlackAgentAction.mock.calls[0]
+  return {
+    ...actual,
+    actions: actual.actions.map((action: { value: string }) => ({
+      ...action,
+      value: JSON.parse(action.value),
+    })),
+  }
+}
+
 function slackNotificationEvent(actions: Array<Record<string, unknown>>) {
   return queryResult({
     data: {
@@ -280,7 +292,7 @@ describe('agent Slack events', () => {
     })
 
     expect(result).toEqual({ handled: true, reason: 'thread_reply_action' })
-    expect(mocks.handleSlackAgentAction).toHaveBeenCalledWith({
+    expect(dispatchedAction()).toEqual({
       type: 'block_actions',
       team: { id: undefined },
       channel: { id: 'C123' },
@@ -289,12 +301,14 @@ describe('agent Slack events', () => {
       container: { message_ts: '1700000000.000001', channel_id: 'C123' },
       actions: [
         {
-          value: JSON.stringify({
+          value: {
+            sourceEnvironment: 'local',
+            sourceOrigin: 'https://amadutown.test',
             action: 'work.acknowledge',
             workItemId: 'work-1',
             runId: 'run-1',
             note: 'I saw this blocker',
-          }),
+          },
         },
       ],
     })
@@ -332,7 +346,7 @@ describe('agent Slack events', () => {
     })
 
     expect(result).toEqual({ handled: true, reason: 'thread_reply_action' })
-    expect(mocks.handleSlackAgentAction).toHaveBeenCalledWith({
+    expect(dispatchedAction()).toEqual({
       type: 'block_actions',
       team: { id: undefined },
       channel: { id: 'C123' },
@@ -341,12 +355,14 @@ describe('agent Slack events', () => {
       container: { message_ts: '1700000000.000001', channel_id: 'C123' },
       actions: [
         {
-          value: JSON.stringify({
+          value: {
+            sourceEnvironment: 'local',
+            sourceOrigin: 'https://amadutown.test',
             action: 'approval.approve',
             approvalId: 'approval-1',
             runId: 'run-1',
             note: 'looks good',
-          }),
+          },
         },
       ],
     })
@@ -572,7 +588,7 @@ describe('agent Slack events', () => {
     })
 
     expect(result).toEqual({ handled: true, reason: 'thread_reply_action' })
-    expect(mocks.handleSlackAgentAction).toHaveBeenCalledWith({
+    expect(dispatchedAction()).toEqual({
       type: 'block_actions',
       team: { id: undefined },
       channel: { id: 'C123' },
@@ -581,12 +597,14 @@ describe('agent Slack events', () => {
       container: { message_ts: '1700000000.000001', channel_id: 'C123' },
       actions: [
         {
-          value: JSON.stringify({
+          value: {
+            sourceEnvironment: 'local',
+            sourceOrigin: 'https://amadutown.test',
             action: 'approval.reject',
             approvalId: 'approval-1',
             runId: 'run-1',
             note: 'needs changes',
-          }),
+          },
         },
       ],
     })
@@ -623,7 +641,7 @@ describe('agent Slack events', () => {
     })
 
     expect(result).toEqual({ handled: true, reason: 'thread_reply_action' })
-    expect(mocks.handleSlackAgentAction).toHaveBeenCalledWith({
+    expect(dispatchedAction()).toEqual({
       type: 'block_actions',
       team: { id: undefined },
       channel: { id: 'C123' },
@@ -632,12 +650,14 @@ describe('agent Slack events', () => {
       container: { message_ts: '1700000000.000001', channel_id: 'C123' },
       actions: [
         {
-          value: JSON.stringify({
+          value: {
+            sourceEnvironment: 'local',
+            sourceOrigin: 'https://amadutown.test',
             action: 'work.assign',
             workItemId: 'work-1',
             runId: 'run-1',
             agentKey: 'shaka',
-          }),
+          },
         },
       ],
     })

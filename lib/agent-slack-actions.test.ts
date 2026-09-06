@@ -88,7 +88,7 @@ describe('Agent Ops Slack actions', () => {
     process.env = {
       ...ORIGINAL_ENV,
       SLACK_AGENT_OPS_ALLOWED_USER_IDS: 'U123',
-      SLACK_AGENT_OPS_LOCAL_BASE_URL: 'https://amadutown.com',
+      SLACK_AGENT_OPS_LOCAL_BASE_URL: 'https://amadutown.test',
     }
   })
 
@@ -220,14 +220,14 @@ describe('Agent Ops Slack actions', () => {
       action_ts: '1716400000.000',
       actions: [{
         action_id: 'open_social_calendar_approval_gate',
-        url: 'https://amadutown.com/admin/agents/content-intelligence?section=calendar&calendar_item=calendar-1',
+        url: 'https://amadutown.test/admin/agents/content-intelligence?section=calendar&calendar_item=calendar-1',
       }],
     })
 
     expect(result).toEqual({
       responseType: 'ephemeral',
       actionStatus: 'blocked',
-      text: 'Complete this decision in the current Portfolio review gate: https://amadutown.com/admin/agents/content-intelligence?section=calendar&calendar_item=calendar-1',
+      text: 'Complete this decision in the current Portfolio review gate: https://amadutown.test/admin/agents/content-intelligence?section=calendar&calendar_item=calendar-1',
     })
     expect(mocks.from).not.toHaveBeenCalled()
   })
