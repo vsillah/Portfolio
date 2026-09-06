@@ -187,7 +187,7 @@ function parseRevenueReplyApprovalContext(text: string): RevenueReplyApprovalCon
 }
 
 async function findRevenueReplyApprovalContext(channel: string, threadTs: string): Promise<RevenueReplyApprovalContext | null> {
-  const token = process.env.SLACK_BOT_TOKEN
+  const token = slackBotToken()
   if (!token) return null
 
   const url = new URL('https://slack.com/api/conversations.replies')
@@ -293,6 +293,8 @@ export async function handleSlackAgentEvent(payload: SlackAgentEventPayload) {
     return { handled: false as const, reason: 'invalid_source_configuration' }
   }
 
+  if (!slackBotToken()) return { handled: false as const, reason: 'missing_source_bot_token' }
+
   const channel = event.channel
   const user = event.user
   const message = normalizeSlackAgentMessage(event)
@@ -367,10 +369,10 @@ function deliveryFailure(delivery: { ok?: boolean } | null) {
 }
 
 export async function postSlackAgentMessage(input: SlackPostMessageInput) {
-  const token = process.env.SLACK_BOT_TOKEN
+  const token = slackBotToken()
   if (!token) {
-    console.warn('[agent-slack-events] SLACK_BOT_TOKEN not configured; skipping Slack reply')
-    return { ok: false, skipped: true, error: 'missing_slack_bot_token' }
+    console.warn('[agent-slack-events] Source-specific Slack bot token not configured; skipping reply')
+    return { ok: false, skipped: true, error: 'missing_source_bot_token' }
   }
 
   const response = await fetch('https://slack.com/api/chat.postMessage', {
@@ -396,6 +398,16 @@ export async function postSlackAgentMessage(input: SlackPostMessageInput) {
   }
 
   return body
+}
+
+function slackBotToken() {
+  try {
+    const { sourceEnvironment } = getSlackAgentSource()
+    const scoped = process.env[`SLACK_AGENT_OPS_${sourceEnvironment.toUpperCase()}_BOT_TOKEN`]
+    return scoped || (sourceEnvironment === 'production' ? process.env.SLACK_BOT_TOKEN : undefined)
+  } catch {
+    return undefined
+  }
 }
 
 function baseUrl() {

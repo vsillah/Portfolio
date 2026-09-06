@@ -91,7 +91,8 @@ describe('agent Slack events', () => {
       ...ORIGINAL_ENV,
       NEXT_PUBLIC_APP_URL: 'https://amadutown.test',
       SLACK_AGENT_OPS_LOCAL_BASE_URL: 'https://amadutown.test',
-      SLACK_BOT_TOKEN: 'xoxb-test',
+      SLACK_BOT_TOKEN: 'xoxb-production-fixture',
+      SLACK_AGENT_OPS_LOCAL_BOT_TOKEN: 'xoxb-test',
     }
     mocks.from.mockReturnValue(queryResult({ data: null, error: null }))
     mocks.handleSlackAgentAction.mockResolvedValue({
@@ -743,7 +744,7 @@ describe('agent Slack events', () => {
   })
 
   it('uses the staging source origin for event trace links despite generic production URLs', async () => {
-    process.env = { ...process.env, NODE_ENV: 'production', VERCEL_ENV: 'production', APP_ENV: 'staging', NEXT_PUBLIC_APP_ENV: 'staging', NEXT_PUBLIC_BASE_URL: 'https://amadutown.com', NEXT_PUBLIC_APP_URL: 'https://amadutown.com', SLACK_AGENT_OPS_STAGING_BASE_URL: 'https://staging.example.test', SLACK_AGENT_OPS_TEAM_ID: 'T1', SLACK_AGENT_OPS_ALLOWED_USER_IDS: 'U123' }
+    process.env = { ...process.env, NODE_ENV: 'production', VERCEL_ENV: 'production', APP_ENV: 'staging', NEXT_PUBLIC_APP_ENV: 'staging', NEXT_PUBLIC_BASE_URL: 'https://amadutown.com', NEXT_PUBLIC_APP_URL: 'https://amadutown.com', SLACK_AGENT_OPS_STAGING_BASE_URL: 'https://staging.example.test', SLACK_AGENT_OPS_STAGING_BOT_TOKEN: 'xoxb-staging-fixture', SLACK_AGENT_OPS_TEAM_ID: 'T1', SLACK_AGENT_OPS_ALLOWED_USER_IDS: 'U123' }
     const result = await handleSlackAgentEvent({ team_id: 'T1', event: { type: 'app_mention', user: 'U123', channel: 'C1', text: 'status' } })
     expect(result).toMatchObject({ handled: true, runId: 'run-123' })
     const reply = vi.mocked(fetch).mock.calls.at(-1)?.[1]?.body
@@ -754,6 +755,26 @@ describe('agent Slack events', () => {
   it('rejects event processing with a missing staging origin before reads or delivery', async () => {
     process.env = { ...process.env, NODE_ENV: 'production', APP_ENV: 'staging', NEXT_PUBLIC_APP_ENV: 'staging', NEXT_PUBLIC_BASE_URL: 'https://amadutown.com', SLACK_AGENT_OPS_STAGING_BASE_URL: '', VERCEL_URL: '', SLACK_AGENT_OPS_TEAM_ID: 'T1', SLACK_AGENT_OPS_ALLOWED_USER_IDS: 'U123' }
     expect(await handleSlackAgentEvent({ team_id: 'T1', event: { type: 'app_mention', user: 'U123', channel: 'C1', text: 'status' } })).toMatchObject({ handled: false, reason: 'invalid_source_configuration' })
+    expect(mocks.from).not.toHaveBeenCalled()
+    expect(mocks.runChiefOfStaffChat).not.toHaveBeenCalled()
+    expect(fetch).not.toHaveBeenCalled()
+  })
+
+  it('uses only the scoped staging token for both thread reads and replies', async () => {
+    process.env = { ...process.env, NODE_ENV: 'production', VERCEL_ENV: 'production', APP_ENV: 'staging', NEXT_PUBLIC_APP_ENV: 'staging', NEXT_PUBLIC_BASE_URL: 'https://amadutown.com', SLACK_BOT_TOKEN: 'xoxb-production-fixture', SLACK_AGENT_OPS_STAGING_BASE_URL: 'https://staging.example.test', SLACK_AGENT_OPS_STAGING_BOT_TOKEN: 'xoxb-staging-fixture', SLACK_AGENT_OPS_TEAM_ID: 'T1', SLACK_AGENT_OPS_ALLOWED_USER_IDS: 'U123' }
+    const result = await handleSlackAgentEvent({ team_id: 'T1', event: { type: 'message', user: 'U123', channel: 'C1', text: 'safe to send', thread_ts: '1.0' } })
+    expect(result).toMatchObject({ handled: true, reason: 'revenue_reply_approval_action' })
+    expect(vi.mocked(fetch).mock.calls).toHaveLength(2)
+    for (const [, init] of vi.mocked(fetch).mock.calls) {
+      expect(init?.headers).toMatchObject({ Authorization: 'Bearer xoxb-staging-fixture' })
+      expect(JSON.stringify(init)).not.toContain('xoxb-production-fixture')
+    }
+  })
+
+  it('rejects staging with only a generic production bot token before any work', async () => {
+    process.env = { ...process.env, NODE_ENV: 'production', APP_ENV: 'staging', NEXT_PUBLIC_APP_ENV: 'staging', NEXT_PUBLIC_BASE_URL: 'https://amadutown.com', SLACK_BOT_TOKEN: 'xoxb-production-fixture', SLACK_AGENT_OPS_STAGING_BASE_URL: 'https://staging.example.test', SLACK_AGENT_OPS_STAGING_BOT_TOKEN: '', SLACK_AGENT_OPS_TEAM_ID: 'T1', SLACK_AGENT_OPS_ALLOWED_USER_IDS: 'U123' }
+    const result = await handleSlackAgentEvent({ team_id: 'T1', event: { type: 'app_mention', user: 'U123', channel: 'C1', text: 'status' } })
+    expect(result).toEqual({ handled: false, reason: 'missing_source_bot_token' })
     expect(mocks.from).not.toHaveBeenCalled()
     expect(mocks.runChiefOfStaffChat).not.toHaveBeenCalled()
     expect(fetch).not.toHaveBeenCalled()
