@@ -161,6 +161,10 @@ For Telnyx QA/setup, use the existing 1Password `Telnyx - AmaduTown` item and re
 
 Merge and deployment success are not always the end of the lane. Keep implementation, review-helper, or smoke-test task threads visible when Vambah still needs to complete human QA or visible approval.
 
+When Vambah explicitly requests dedicated sidebar tasks or worktask lanes, use visible Codex tasks attached to Portfolio, with isolated worktrees for implementation. Internal subagents are not a substitute for that requested visibility. Confirm the resolved task IDs and titles, preserve any implementation checkpoint during handoff, and stop or archive superseded workers so only one lane owns each write scope. Keep the captain task responsible for active polling and integration.
+
+When the Integration Captain creates, resumes, or depends on a Codex worktree task, actively poll until the task is readable, completed, blocked, or clearly failed to materialize. Do not leave queued or running tasks untracked. Before replacing a stalled task, inspect existing tasks to avoid duplicate workers and stop or archive the superseded lane when it resolves.
+
 After code merges or captain sweep merges complete:
 
 - Inventory visible/recent Codex task threads and local Codex thread registry entries whose `cwd` belongs to Portfolio or a Portfolio worktree.
