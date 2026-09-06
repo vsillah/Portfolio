@@ -16,7 +16,18 @@ const routes = [
   { path: 'status', load: () => import('./status/route'), methods: ['GET'] },
 ]
 
+let expectedAuthLookups = 0
+
+function configureAdmin(database: unknown) {
+  expectedAuthLookups = 1
+  createClient.mockImplementation((_url, key) => key === 'synthetic-public-key'
+    ? { auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: 'operator' } }, error: null }) } }
+    : database)
+  vi.mocked(fetch).mockResolvedValue(new Response(JSON.stringify([{ role: 'admin' }])))
+}
+
 beforeEach(() => {
+  expectedAuthLookups = 0
   vi.resetModules()
   createClient.mockReset().mockImplementation(() => { throw new Error('Unexpected client creation') })
   vi.stubGlobal('fetch', vi.fn(() => { throw new Error('Unexpected network request') }))
@@ -26,7 +37,7 @@ beforeEach(() => {
 })
 
 afterEach(() => {
-  expect(globalThis.fetch).not.toHaveBeenCalled()
+  expect(globalThis.fetch).toHaveBeenCalledTimes(expectedAuthLookups)
   vi.unstubAllGlobals()
   vi.unstubAllEnvs()
 })
@@ -66,23 +77,23 @@ describe('testing route import and fail-closed configuration', () => {
 
   it('preserves the configured cleanup RPC and rechecks configuration for later requests', async () => {
     const rpc = vi.fn().mockResolvedValue({ data: { removed: 2 }, error: null })
-    createClient.mockReturnValue({ rpc })
+    configureAdmin({ rpc })
     vi.stubEnv('NEXT_PUBLIC_SUPABASE_URL', 'https://synthetic.invalid')
     vi.stubEnv('SUPABASE_SERVICE_ROLE_KEY', 'mock-service-key')
     const { POST } = await import('./cleanup/route')
     expect(createClient).not.toHaveBeenCalled()
     const request = () => new NextRequest('http://localhost/api/testing/cleanup', {
-      method: 'POST', body: JSON.stringify({ daysOld: 14 }),
+      method: 'POST', headers: { Authorization: 'Bearer synthetic-token' }, body: JSON.stringify({ daysOld: 14 }),
     })
     const response = await POST(request())
     expect(response.status).toBe(200)
     expect(await response.json()).toMatchObject({ success: true, result: { removed: 2 } })
-    expect(createClient).toHaveBeenCalledExactlyOnceWith('https://synthetic.invalid', 'mock-service-key')
+    expect(createClient).toHaveBeenNthCalledWith(2, 'https://synthetic.invalid', 'mock-service-key')
     expect(rpc).toHaveBeenCalledExactlyOnceWith('cleanup_old_test_data', { days_old: 14 })
 
     vi.stubEnv('SUPABASE_SERVICE_ROLE_KEY', '')
     expect((await POST(request())).status).toBe(503)
-    expect(createClient).toHaveBeenCalledTimes(1)
+    expect(createClient).toHaveBeenCalledTimes(2)
     expect(rpc).toHaveBeenCalledTimes(1)
   })
 
@@ -90,17 +101,17 @@ describe('testing route import and fail-closed configuration', () => {
     const lt = vi.fn().mockResolvedValue({ data: [], error: null })
     const select = vi.fn().mockReturnValue({ lt })
     const from = vi.fn().mockReturnValue({ select })
-    createClient.mockReturnValue({ rpc: vi.fn().mockResolvedValue({ error: { message: 'mock RPC unavailable' } }), from })
+    configureAdmin({ rpc: vi.fn().mockResolvedValue({ error: { message: 'mock RPC unavailable' } }), from })
     vi.stubEnv('NEXT_PUBLIC_SUPABASE_URL', 'https://synthetic.invalid')
     vi.stubEnv('SUPABASE_SERVICE_ROLE_KEY', 'mock-service-key')
     const { POST } = await import('./cleanup/route')
     const response = await POST(new NextRequest('http://localhost/api/testing/cleanup', {
-      method: 'POST', body: '{}',
+      method: 'POST', headers: { Authorization: 'Bearer synthetic-token' }, body: '{}',
     }))
     expect(response.status).toBe(200)
     expect(await response.json()).toMatchObject({ success: true, result: { testRuns: 0, testSessions: 0, testErrors: 0 } })
     expect(from).toHaveBeenCalledWith('test_runs')
     expect(lt).toHaveBeenCalledWith('started_at', expect.any(String))
-    expect(createClient).toHaveBeenCalledTimes(1)
+    expect(createClient).toHaveBeenCalledTimes(2)
   })
 })

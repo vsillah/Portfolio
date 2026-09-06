@@ -6,6 +6,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
+import { requireTestingAdmin } from '@/lib/testing/access'
 import { getTestingSupabaseClient } from '@/lib/testing/database'
 
 const VALID_REMEDIATION_STATUSES = ['pending', 'in_progress', 'fixed', 'ignored', 'wont_fix'] as const
@@ -20,6 +21,9 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const denied = await requireTestingAdmin(request)
+    if (denied) return denied
+
     const supabase = getTestingSupabaseClient()
     if (!supabase) {
       return NextResponse.json({ error: 'Testing database is not configured' }, { status: 503 })
@@ -60,6 +64,9 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const denied = await requireTestingAdmin(request)
+    if (denied) return denied
+
     const supabase = getTestingSupabaseClient()
     if (!supabase) {
       return NextResponse.json({ error: 'Testing database is not configured' }, { status: 503 })

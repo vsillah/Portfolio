@@ -6,6 +6,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
+import { requireTestingAdmin } from '@/lib/testing/access'
 import { getTestingSupabaseClient } from '@/lib/testing/database'
 
 /**
@@ -14,6 +15,9 @@ import { getTestingSupabaseClient } from '@/lib/testing/database'
  */
 export async function POST(request: NextRequest) {
   try {
+    const denied = await requireTestingAdmin(request)
+    if (denied) return denied
+
     const supabase = getTestingSupabaseClient()
     if (!supabase) {
       return NextResponse.json({ error: 'Testing database is not configured' }, { status: 503 })
@@ -54,6 +58,9 @@ export async function POST(request: NextRequest) {
  */
 export async function DELETE(request: NextRequest) {
   try {
+    const denied = await requireTestingAdmin(request)
+    if (denied) return denied
+
     const supabase = getTestingSupabaseClient()
     if (!supabase) {
       return NextResponse.json({ error: 'Testing database is not configured' }, { status: 503 })

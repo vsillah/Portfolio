@@ -6,7 +6,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { getTestingSupabaseClient, isTestingDatabaseConfigured } from '@/lib/testing/database'
+import { requireTestingAdmin } from '@/lib/testing/access'
+import { getTestingSupabaseClient } from '@/lib/testing/database'
 import { 
   createOrchestrator, 
   ALL_SCENARIOS, 
@@ -29,9 +30,8 @@ const activeOrchestrators = new Map<string, ReturnType<typeof createOrchestrator
  */
 export async function POST(request: NextRequest) {
   try {
-    if (!isTestingDatabaseConfigured()) {
-      return NextResponse.json({ error: 'Testing database is not configured' }, { status: 503 })
-    }
+    const denied = await requireTestingAdmin(request)
+    if (denied) return denied
 
     const body = await request.json()
 
@@ -184,6 +184,9 @@ export async function POST(request: NextRequest) {
  */
 export async function GET(request: NextRequest) {
   try {
+    const denied = await requireTestingAdmin(request)
+    if (denied) return denied
+
     const supabase = getTestingSupabaseClient()
     if (!supabase) {
       return NextResponse.json({ error: 'Testing database is not configured' }, { status: 503 })
@@ -241,9 +244,8 @@ export async function GET(request: NextRequest) {
  */
 export async function DELETE(request: NextRequest) {
   try {
-    if (!isTestingDatabaseConfigured()) {
-      return NextResponse.json({ error: 'Testing database is not configured' }, { status: 503 })
-    }
+    const denied = await requireTestingAdmin(request)
+    if (denied) return denied
 
     const { searchParams } = new URL(request.url)
     const runId = searchParams.get('runId')
