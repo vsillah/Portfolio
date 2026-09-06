@@ -15,6 +15,10 @@ beforeEach(() => {
   vi.stubEnv('SLACK_ACTION_RECEIPTS_ENABLED','true');vi.stubEnv('SLACK_ACTION_RECEIPTS_ENVIRONMENT','staging')
   vi.stubEnv('VERCEL_ENV','production');vi.stubEnv('APP_ENV','staging');vi.stubEnv('NEXT_PUBLIC_APP_ENV','staging')
   vi.stubEnv('SLACK_AGENT_OPS_STAGING_BASE_URL','https://staging.example.com')
+  vi.stubEnv('SLACK_AGENT_OPS_STAGING_CHANNEL_ID','C123')
+  vi.stubEnv('SLACK_AGENT_OPS_STAGING_ALLOWED_CHANNEL_IDS','')
+  vi.stubEnv('SLACK_AGENT_OPS_PRODUCTION_CHANNEL_ID','CPROD')
+  vi.stubEnv('SLACK_AGENT_OPS_PRODUCTION_ALLOWED_CHANNEL_IDS','')
   vi.stubEnv('SLACK_AGENT_OPS_TEAM_ID','T123');vi.stubEnv('SLACK_AGENT_OPS_ALLOWED_USER_IDS','U123')
   vi.stubGlobal('fetch',vi.fn(()=>{throw new Error('Egress forbidden')}))
 })
@@ -46,6 +50,15 @@ it.each(packets.flatMap(value => [{value,threadTs:undefined},{value,threadTs:'12
   })
   await processSlackReceipt(accepted.receipt!.idempotency_key,store,execute,async()=>{})
   expect(execute).toHaveBeenCalledOnce()
+  expect(fetch).not.toHaveBeenCalled()
+})
+it('rejects an unapproved channel before recording a receipt', async () => {
+  const store: ReceiptStore = { insert: vi.fn(), get: vi.fn(), cas: vi.fn(), pending: vi.fn() }
+  const payload = { type: 'block_actions', team: { id: 'T123' }, channel: { id: 'COTHER' }, container: { message_ts: '123.456', channel_id: 'COTHER' }, user: { id: 'U123' }, message: { ts: '123.456' }, actions: [{ action_id: 'decision', value: JSON.stringify(packets[0]) }] }
+  const result = await acceptSlackAction(payload, store)
+  expect(result.receipt).toBeUndefined()
+  expect(store.insert).not.toHaveBeenCalled()
+  expect(store.get).not.toHaveBeenCalled()
   expect(fetch).not.toHaveBeenCalled()
 })
 it('preserves a newer Gmail decision version while removing obsolete sibling decisions',async()=>{
