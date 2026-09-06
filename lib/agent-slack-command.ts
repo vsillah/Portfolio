@@ -1,3 +1,4 @@
+import { getSlackAgentSource } from '@/lib/slack-agent-environment'
 import { runAgentOpsMorningReview } from '@/lib/agent-ops-morning-review'
 import { requireAuthorizedSlackActor } from '@/lib/slack-agent-access'
 import { createAgentEngagementRun } from '@/lib/agent-engagement'
@@ -93,12 +94,7 @@ type AgentApprovalRow = {
 }
 
 function baseUrl() {
-  return (
-    process.env.NEXT_PUBLIC_BASE_URL ||
-    process.env.PORTFOLIO_BASE_URL ||
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    'https://amadutown.com'
-  ).replace(/\/$/, '')
+  return getSlackAgentSource().sourceOrigin
 }
 
 function agentRunsUrl(runId?: string) {
@@ -1325,6 +1321,11 @@ export async function runWarRoomDiscussSlackText(input: AgentSlackCommandInput) 
 export async function handleAgentSlackCommand(input: AgentSlackCommandInput): Promise<AgentSlackCommandResult> {
   const authorization = requireAuthorizedSlackActor(input)
   if (!authorization.ok) return { responseType: 'ephemeral', text: authorization.text }
+  try {
+    baseUrl()
+  } catch {
+    return { responseType: 'ephemeral', text: 'Slack command rejected: configure the source environment and origin before using Agent Ops.' }
+  }
   const command = commandFromText(input.text)
   if (command === 'approvals') return buildApprovalsSlackResult()
   if (command === 'work-items') return buildAgentWorkItemsSlackResult(input)

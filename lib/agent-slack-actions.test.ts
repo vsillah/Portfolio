@@ -88,6 +88,7 @@ describe('Agent Ops Slack actions', () => {
     process.env = {
       ...ORIGINAL_ENV,
       SLACK_AGENT_OPS_ALLOWED_USER_IDS: 'U123',
+      SLACK_AGENT_OPS_LOCAL_BASE_URL: 'https://amadutown.com',
     }
   })
 
@@ -809,6 +810,39 @@ describe('Agent Ops Slack actions', () => {
     expect(mocks.claimAgentWorkItem).toHaveBeenCalledOnce()
     expect(result.actionStatus).toBe('failed')
     expect(result.text).toContain('may already be saved')
+  })
+
+  it('keeps staging completion and recovery links off a misleading production base URL', async () => {
+    process.env = { ...process.env, NODE_ENV: 'production', VERCEL_ENV: 'production', APP_ENV: 'staging', NEXT_PUBLIC_APP_ENV: 'staging', NEXT_PUBLIC_BASE_URL: 'https://amadutown.com', SLACK_AGENT_OPS_STAGING_BASE_URL: 'https://staging.example.test', SLACK_AGENT_OPS_TEAM_ID: 'T1' }
+    const card = (value: Record<string, unknown>) => ({ ...payload({ ...value, sourceEnvironment: 'staging', sourceOrigin: 'https://staging.example.test' }), team: { id: 'T1' }, channel: { id: 'C1' } })
+    mocks.from.mockReturnValue(queryResult({ data: null, error: null }))
+    mocks.markAgentWorkItemReadyForKanban.mockResolvedValue({ id: 'work-1', title: 'Fixture', active_run_id: 'run-1' })
+    mocks.recordAgentEvent.mockResolvedValue({ id: 'event-1' })
+    const completed = await handleSlackAgentAction(card({ action: 'work.ready', workItemId: 'work-1' }))
+    expect(completed.actionStatus).toBe('completed')
+    expect(completed.text).toContain('https://staging.example.test/admin/agents/swarm-board')
+    expect(completed.text).not.toContain('https://amadutown.com')
+    const staleLink = prepareSlackAgentAction({ ...card({}), actions: [{ url: 'https://amadutown.com/admin/agents/runs/foreign-run' }] })
+    expect(staleLink.ok).toBe(false)
+    if (!staleLink.ok) {
+      expect(staleLink.result.text).toContain('https://staging.example.test/admin/agents')
+      expect(staleLink.result.text).not.toContain('foreign-run')
+      expect(staleLink.result.text).not.toContain('https://amadutown.com')
+    }
+    mocks.authorizeCalendarDraftHandoff.mockRejectedValueOnce(new Error('Review required'))
+    const blocked = await handleSlackAgentAction(card({ action: 'social_calendar_draft_handoff.approve', calendarItemId: 'calendar-1' }))
+    expect(blocked.actionStatus).toBe('blocked')
+    expect(blocked.text).toContain('https://staging.example.test/admin/agents/content-intelligence')
+    expect(blocked.text).not.toContain('https://amadutown.com')
+  })
+
+  it('rejects missing staging source origin before database access instead of falling back to production', async () => {
+    process.env = { ...process.env, NODE_ENV: 'production', APP_ENV: 'staging', NEXT_PUBLIC_APP_ENV: 'staging', NEXT_PUBLIC_BASE_URL: 'https://amadutown.com', SLACK_AGENT_OPS_STAGING_BASE_URL: '', VERCEL_URL: '', SLACK_AGENT_OPS_TEAM_ID: 'T1' }
+    const result = await handleSlackAgentAction({ ...payload({ action: 'work.ready', workItemId: 'work-1' }), team: { id: 'T1' }, channel: { id: 'C1' } })
+    expect(result.actionStatus).toBe('blocked')
+    expect(result.text).not.toContain('https://amadutown.com')
+    expect(mocks.from).not.toHaveBeenCalled()
+    expect(mocks.markAgentWorkItemReadyForKanban).not.toHaveBeenCalled()
   })
 
 })

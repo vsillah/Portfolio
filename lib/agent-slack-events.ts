@@ -1,3 +1,4 @@
+import { getSlackAgentSource } from '@/lib/slack-agent-environment'
 import { runChiefOfStaffChat } from '@/lib/chief-of-staff-chat'
 import { handleSlackAgentAction } from '@/lib/agent-slack-actions'
 import { decodeSlackActionValue, type SlackAgentActionValue } from '@/lib/agent-slack-blocks'
@@ -286,6 +287,12 @@ export async function handleSlackAgentEvent(payload: SlackAgentEventPayload) {
   const authorization = requireAuthorizedSlackActor({ userId: event.user, teamId: payload.team_id })
   if (!authorization.ok) return { handled: false as const, reason: 'unauthorized', text: authorization.text }
 
+  try {
+    baseUrl()
+  } catch {
+    return { handled: false as const, reason: 'invalid_source_configuration' }
+  }
+
   const channel = event.channel
   const user = event.user
   const message = normalizeSlackAgentMessage(event)
@@ -392,5 +399,5 @@ export async function postSlackAgentMessage(input: SlackPostMessageInput) {
 }
 
 function baseUrl() {
-  return process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_BASE_URL || 'https://amadutown.com'
+  return getSlackAgentSource().sourceOrigin
 }

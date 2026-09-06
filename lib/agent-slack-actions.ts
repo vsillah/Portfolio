@@ -1,3 +1,4 @@
+import { getSlackAgentSource } from '@/lib/slack-agent-environment'
 import { runChiefOfStaffChat } from '@/lib/chief-of-staff-chat'
 import { recordAgentEvent } from '@/lib/agent-run'
 import {
@@ -62,12 +63,7 @@ type ApprovalRow = {
 }
 
 function baseUrl() {
-  return (
-    process.env.NEXT_PUBLIC_BASE_URL ||
-    process.env.PORTFOLIO_BASE_URL ||
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    'https://amadutown.com'
-  ).replace(/\/$/, '')
+  return getSlackAgentSource().sourceOrigin
 }
 
 function agentRunsUrl(runId?: string | null) {
@@ -150,6 +146,17 @@ async function recordSlackActionEvent(input: {
 
 function actionResult(text: string, actionStatus: SlackAgentActionResult['actionStatus']): SlackAgentActionResult {
   return { responseType: 'ephemeral', text, actionStatus }
+}
+
+// Existing decision adapters return canonical Portfolio links in their text.
+// Keep those review paths on the same source as the approved Slack envelope.
+function sourceReviewLinks(text: string) {
+  return text.replace(/https?:\/\/[^\s<>]+/g, (link) => {
+    const url = new URL(link)
+    return url.pathname.startsWith('/admin/')
+      ? `${baseUrl()}${url.pathname}${url.search}${url.hash}`
+      : link
+  })
 }
 
 // These existing adapters return text, not structured outcomes. Unknown responses
@@ -341,6 +348,11 @@ export function prepareSlackAgentAction(payload: SlackInteractivePayload) {
     teamId: payload.team?.id,
   })
   if (!authorization.ok) return reject(authorization.text)
+  try {
+    baseUrl()
+  } catch {
+    return reject('Slack action rejected: source environment or origin is not configured. Request a fresh review card after configuration is corrected.')
+  }
   if (payload.type !== 'block_actions' || !Array.isArray(payload.actions) || payload.actions.length !== 1) {
     return reject('Slack action rejected: expected one block action.')
   }
@@ -350,7 +362,14 @@ export function prepareSlackAgentAction(payload: SlackInteractivePayload) {
     const rawUrl = payload.actions?.[0]?.url
     const url = typeof rawUrl === 'string' ? rawUrl.trim() : ''
     if (url) {
-      return reject(`Complete this decision in the current Portfolio review gate: ${url}`)
+      try {
+        const gate = new URL(url)
+        if (gate.origin !== baseUrl()) return reject(`Open a fresh Portfolio review card for this source: ${baseUrl()}/admin/agents`)
+        if (!gate.pathname.startsWith('/admin/')) return reject('Open a fresh Portfolio review card for this decision.')
+        return reject(`Complete this decision in the current Portfolio review gate: ${baseUrl()}${gate.pathname}${gate.search}${gate.hash}`)
+      } catch {
+        return reject('Open a fresh Portfolio review card for this decision.')
+      }
     }
     return reject('Slack action rejected: missing or invalid action payload.')
   }
@@ -599,7 +618,7 @@ async function executeSlackAgentAction({ authorization, value, key }: Extract<Re
       decisionNotes: value.note || (status === 'approved' ? 'Approved from Slack.' : 'Rejected from Slack.'),
       idempotencyKey: key,
     })
-    return actionResult(text, legacyDecisionStatus(text))
+    return actionResult(sourceReviewLinks(text), legacyDecisionStatus(text))
   }
 
   if (
@@ -677,7 +696,7 @@ async function executeSlackAgentAction({ authorization, value, key }: Extract<Re
       ),
       idempotencyKey: key,
     })
-    return actionResult(text, legacyDecisionStatus(text))
+    return actionResult(sourceReviewLinks(text), legacyDecisionStatus(text))
   }
 
   if (value.action === 'insight.ask_shaka') {

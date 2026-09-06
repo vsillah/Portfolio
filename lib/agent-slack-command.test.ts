@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('@/lib/supabase', () => ({
   supabaseAdmin: null,
@@ -692,5 +692,40 @@ describe('command actor gate', () => {
     expect(result.text).toContain('missing Slack user id')
     expect(agentRunMocks.startAgentRun).not.toHaveBeenCalled()
     expect(workItemMocks.claimAgentWorkItem).not.toHaveBeenCalled()
+  })
+})
+
+
+describe('command source links', () => {
+  afterEach(() => vi.unstubAllEnvs())
+
+  function staging() {
+    vi.stubEnv('NODE_ENV', 'production')
+    vi.stubEnv('VERCEL_ENV', 'production')
+    vi.stubEnv('APP_ENV', 'staging')
+    vi.stubEnv('NEXT_PUBLIC_APP_ENV', 'staging')
+    vi.stubEnv('NEXT_PUBLIC_BASE_URL', 'https://amadutown.com')
+    vi.stubEnv('SLACK_AGENT_OPS_STAGING_BASE_URL', 'https://staging.example.test')
+    vi.stubEnv('SLACK_AGENT_OPS_TEAM_ID', 'T1')
+    vi.stubEnv('SLACK_AGENT_OPS_ALLOWED_USER_IDS', 'U123')
+  }
+
+  it('uses staging for command review links when Vercel deployment is production', async () => {
+    staging()
+    workItemMocks.listAgentWorkItems.mockResolvedValue([])
+    const result = await handleAgentSlackCommand({ text: 'work', userId: 'U123', teamId: 'T1' })
+    expect(JSON.stringify(result)).toContain('https://staging.example.test/admin/agents')
+    expect(JSON.stringify(result)).not.toContain('https://amadutown.com')
+  })
+
+  it('rejects missing staging origins before command dispatch', async () => {
+    staging()
+    vi.stubEnv('SLACK_AGENT_OPS_STAGING_BASE_URL', '')
+    vi.stubEnv('VERCEL_URL', '')
+    vi.clearAllMocks()
+    const result = await handleAgentSlackCommand({ text: 'work', userId: 'U123', teamId: 'T1' })
+    expect(result.text).toContain('source environment and origin')
+    expect(result.text).not.toContain('https://amadutown.com')
+    expect(workItemMocks.listAgentWorkItems).not.toHaveBeenCalled()
   })
 })

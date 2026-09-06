@@ -90,6 +90,7 @@ describe('agent Slack events', () => {
     process.env = {
       ...ORIGINAL_ENV,
       NEXT_PUBLIC_APP_URL: 'https://amadutown.test',
+      SLACK_AGENT_OPS_LOCAL_BASE_URL: 'https://amadutown.test',
       SLACK_BOT_TOKEN: 'xoxb-test',
     }
     mocks.from.mockReturnValue(queryResult({ data: null, error: null }))
@@ -739,6 +740,23 @@ describe('agent Slack events', () => {
     expect(mocks.runChiefOfStaffChat).not.toHaveBeenCalled()
     expect(mocks.sendUserGmailDraft).not.toHaveBeenCalled()
     expect(vi.mocked(fetch).mock.calls.at(-1)?.[1]?.body).toContain('No send, hold, or revision was recorded')
+  })
+
+  it('uses the staging source origin for event trace links despite generic production URLs', async () => {
+    process.env = { ...process.env, NODE_ENV: 'production', VERCEL_ENV: 'production', APP_ENV: 'staging', NEXT_PUBLIC_APP_ENV: 'staging', NEXT_PUBLIC_BASE_URL: 'https://amadutown.com', NEXT_PUBLIC_APP_URL: 'https://amadutown.com', SLACK_AGENT_OPS_STAGING_BASE_URL: 'https://staging.example.test', SLACK_AGENT_OPS_TEAM_ID: 'T1', SLACK_AGENT_OPS_ALLOWED_USER_IDS: 'U123' }
+    const result = await handleSlackAgentEvent({ team_id: 'T1', event: { type: 'app_mention', user: 'U123', channel: 'C1', text: 'status' } })
+    expect(result).toMatchObject({ handled: true, runId: 'run-123' })
+    const reply = vi.mocked(fetch).mock.calls.at(-1)?.[1]?.body
+    expect(reply).toContain('https://staging.example.test/admin/agents/runs/run-123')
+    expect(reply).not.toContain('https://amadutown.com')
+  })
+
+  it('rejects event processing with a missing staging origin before reads or delivery', async () => {
+    process.env = { ...process.env, NODE_ENV: 'production', APP_ENV: 'staging', NEXT_PUBLIC_APP_ENV: 'staging', NEXT_PUBLIC_BASE_URL: 'https://amadutown.com', SLACK_AGENT_OPS_STAGING_BASE_URL: '', VERCEL_URL: '', SLACK_AGENT_OPS_TEAM_ID: 'T1', SLACK_AGENT_OPS_ALLOWED_USER_IDS: 'U123' }
+    expect(await handleSlackAgentEvent({ team_id: 'T1', event: { type: 'app_mention', user: 'U123', channel: 'C1', text: 'status' } })).toMatchObject({ handled: false, reason: 'invalid_source_configuration' })
+    expect(mocks.from).not.toHaveBeenCalled()
+    expect(mocks.runChiefOfStaffChat).not.toHaveBeenCalled()
+    expect(fetch).not.toHaveBeenCalled()
   })
 
 })
