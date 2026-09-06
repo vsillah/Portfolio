@@ -18,7 +18,7 @@ import {
   rejectCalendarDraftHandoff,
 } from '@/lib/social-content-calendar-handoff'
 import { decideWarmGmailSendAuthorizationFromSlack } from '@/lib/warm-outreach-slack-send-approval'
-import { allowedSlackUserIds, isLocalSlackDevelopment, requireAuthorizedSlackActor } from '@/lib/slack-agent-access'
+import { allowedSlackUserIds, isLocalSlackDevelopment, requireAuthorizedSlackActor, requireAuthorizedSlackChannel } from '@/lib/slack-agent-access'
 
 export type SlackInteractivePayload = {
   type?: string
@@ -333,7 +333,8 @@ async function decideSocialCalendarDraftHandoffFromSlack(input: {
     result.alreadyRejected
       ? 'Content calendar draft handoff was already rejected.'
       : 'Content calendar draft handoff rejected from Slack.',
-    result.revisionWorkItemId ? `Revision work item: ${result.revisionWorkItemId}` : null,
+    'Manual revision required. Automatic revision is not connected.',
+    result.calendarItem?.social_content_id ? `Edit copy: ${socialContentUrl(result.calendarItem.social_content_id)}?step=copy#social-copy-gate` : null,
     `Calendar: ${socialCalendarUrl(input.calendarItemId)}`,
     'No external action was taken.',
   ].filter(Boolean).join('\n'), result.alreadyRejected ? 'already_recorded' : 'completed')
@@ -379,6 +380,8 @@ export function prepareSlackAgentAction(payload: SlackInteractivePayload) {
   if (payload.channel?.id && payload.container?.channel_id && payload.channel.id !== payload.container.channel_id) {
     return reject('Slack action rejected: conflicting channel identity.')
   }
+  const channelAuthorization = requireAuthorizedSlackChannel(payload.channel?.id || payload.container?.channel_id)
+  if (!channelAuthorization.ok) return reject(channelAuthorization.text)
   if (!isLocalSlackDevelopment() && !(payload.channel?.id || payload.container?.channel_id)) {
     return reject('Slack action rejected: missing source channel identity.')
   }

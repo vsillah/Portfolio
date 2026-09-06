@@ -1,3 +1,4 @@
+import { isCalendarSocialCopy, prepareManualCopyUpdate, withSocialCopyRevision } from '@/lib/social-copy-revision'
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
@@ -151,7 +152,7 @@ export async function GET(
 
     return NextResponse.json({
       item: {
-        ...data,
+        ...withSocialCopyRevision(data),
         meeting_record: meetingRecord,
         publishes: publishes || [],
         social_video_production: socialVideoProduction,
@@ -204,11 +205,12 @@ export async function PUT(
     }
 
     const updatesFinalCopy = Object.keys(sanitized).some((key) => FINAL_COPY_FIELDS.has(key))
-    const lifecycleTarget = sanitized.status === 'approved'
+    let lifecycleTarget: 'copy' | 'visuals' | 'draft' | null = sanitized.status === 'approved'
       ? 'copy'
       : sectionGateApprovalTarget(sanitized.rag_context)
 
-    if (lifecycleTarget || updatesFinalCopy) {
+    let currentForUpdate: Record<string, unknown> | null = null
+    {
       const { data: currentItem, error: currentError } = await supabaseAdmin
         .from('social_content_queue')
         .select('*')
@@ -219,6 +221,17 @@ export async function PUT(
         return NextResponse.json({ error: 'Content not found' }, { status: 404 })
       }
 
+      currentForUpdate = currentItem
+      if (isCalendarSocialCopy(currentItem)) {
+        if (typeof currentItem.updated_at !== 'string') return NextResponse.json({ error: 'Current copy version is unavailable. Reload before saving.' }, { status: 409 })
+        try {
+          const prepared = prepareManualCopyUpdate({ current: currentItem, patch: sanitized, expectedVersion: body.expected_copy_version, actor: authResult.user.id, now: new Date().toISOString() })
+          Object.assign(sanitized, prepared)
+          lifecycleTarget = sanitized.status === 'approved' ? 'copy' : sectionGateApprovalTarget(sanitized.rag_context)
+        } catch (error) {
+          return NextResponse.json({ error: error instanceof Error ? error.message : 'Copy revision blocked' }, { status: 409 })
+        }
+      }
       const candidateItem = {
         ...currentItem,
         ...sanitized,
@@ -243,19 +256,21 @@ export async function PUT(
       }
     }
 
-    const { data, error } = await supabaseAdmin
-      .from('social_content_queue')
-      .update(sanitized)
-      .eq('id', id)
-      .select('*')
-      .single()
+    let update = supabaseAdmin.from('social_content_queue').update(sanitized).eq('id', id)
+    if (currentForUpdate && isCalendarSocialCopy(currentForUpdate)) {
+      update = update.eq('updated_at', currentForUpdate.updated_at)
+    }
+    const { data, error } = await update.select('*').single()
+    if (error?.code === 'PGRST116' && currentForUpdate && isCalendarSocialCopy(currentForUpdate)) {
+      return NextResponse.json({ error: 'Copy changed during this update. Reload before retrying.' }, { status: 409 })
+    }
 
     if (error) {
       console.error('Error updating social content:', error)
       return NextResponse.json({ error: 'Failed to update content' }, { status: 500 })
     }
 
-    return NextResponse.json({ item: data })
+    return NextResponse.json({ item: withSocialCopyRevision(data) })
   } catch (error) {
     console.error('Error in PUT /api/admin/social-content/[id]:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

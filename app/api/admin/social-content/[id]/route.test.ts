@@ -23,6 +23,7 @@ vi.mock('@/lib/supabase', () => ({
 }))
 
 import { PUT } from './route'
+import { socialCopyVersion, withSocialCopyRevision } from '@/lib/social-copy-revision'
 
 function request(body: unknown) {
   return new NextRequest('http://localhost/api/admin/social-content/social-1', {
@@ -237,5 +238,73 @@ describe('PUT /api/admin/social-content/[id]', () => {
     expect(response.status).toBe(404)
     expect(await response.json()).toEqual({ error: 'Content not found' })
     expect(mocks.update).not.toHaveBeenCalled()
+  })
+})
+
+
+describe('calendar copy revision producer and manual consumer', () => {
+  const seed = { id: 'social-1', status: 'draft', post_text: 'A concrete first draft.', updated_at: '2026-09-06T12:00:00.000Z', rag_context: { source: 'social_content_calendar_authorization', pass_to_human: true, goal_id: 'fixture-goal' } }
+  function repository() {
+    let row: Record<string, unknown> = structuredClone(seed)
+    let failWrite = false
+    let raceWrite = false
+    mocks.verifyAdmin.mockResolvedValue({ user: { id: 'admin-1' } })
+    mocks.isAuthError.mockReturnValue(false)
+    mocks.from.mockImplementation(() => {
+      let patch: Record<string, unknown> | undefined
+      const filters: Array<[string, unknown]> = []
+      const query = {
+        select: () => query,
+        eq: (key: string, value: unknown) => { filters.push([key, value]); return query },
+        update: (value: Record<string, unknown>) => { patch = value; return query },
+        single: async () => {
+          if (!patch) return { data: structuredClone(row), error: null }
+          if (failWrite) return { data: null, error: { message: 'mock write failed' } }
+          if (raceWrite) row = { ...row, updated_at: '2026-09-06T20:00:00.000Z' }
+          if (filters.some(([key, value]) => row[key] !== value)) return { data: null, error: { code: 'PGRST116' } }
+          row = { ...row, ...patch }
+          return { data: structuredClone(row), error: null }
+        },
+      }
+      return query
+    })
+    return {
+      reload: () => withSocialCopyRevision(structuredClone(row) as typeof seed),
+      fail: () => { failWrite = true },
+      race: () => { raceWrite = true },
+    }
+  }
+  const put = (body: unknown) => PUT(request(body), { params: { id: 'social-1' } })
+
+  it('persists optional feedback, reloads blocked, dedupes rejection and returns a new manual review version', async () => {
+    const repo = repository()
+    const version = socialCopyVersion(seed)
+    const rejection = { status: 'rejected', expected_copy_version: version, rag_context: { content_calibration: { operator_feedback: { revision_request: 'Name the concrete handoff.' } } } }
+    expect((await put(rejection)).status).toBe(200)
+    const received = repo.reload()
+    expect(received).toMatchObject({ status: 'rejected', copy_revision: { state: 'blocked', worker: 'not_configured', feedback: 'Name the concrete handoff.' } })
+    expect((await put(rejection)).status).toBe(200)
+    expect(repo.reload().rag_context).toEqual(received.rag_context)
+    const response = await put({ status: 'draft', post_text: 'At the meeting, the owner recorded the next handoff.', expected_copy_version: version })
+    expect(response.status).toBe(200)
+    expect(await response.json()).toMatchObject({ item: { status: 'draft', copy_revision: { state: 'ready', worker: 'not_configured' } } })
+    expect(repo.reload()).toMatchObject({ copy_revision: { state: 'ready' } })
+    expect((await put({ status: 'rejected', expected_copy_version: version })).status).toBe(409)
+  })
+
+  it('keeps the persisted rejection blocked after a failed revision save', async () => {
+    const repo = repository()
+    await put({ status: 'rejected', expected_copy_version: socialCopyVersion(seed) })
+    repo.fail()
+    expect((await put({ status: 'draft', post_text: 'A changed version that cannot be saved.', expected_copy_version: socialCopyVersion(seed) })).status).toBe(500)
+    expect(repo.reload()).toMatchObject({ post_text: seed.post_text, copy_revision: { state: 'blocked' } })
+  })
+
+  it('rejects concurrent overwrite of the current row instead of claiming the revision was saved', async () => {
+    const repo = repository()
+    await put({ status: 'rejected', expected_copy_version: socialCopyVersion(seed) })
+    repo.race()
+    expect((await put({ status: 'draft', post_text: 'A racing revision.', expected_copy_version: socialCopyVersion(seed) })).status).toBe(409)
+    expect(repo.reload()).toMatchObject({ post_text: seed.post_text, status: 'rejected' })
   })
 })

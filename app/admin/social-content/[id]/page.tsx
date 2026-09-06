@@ -76,7 +76,7 @@ import {
   type PublicationProjectionTone,
 } from '@/lib/social-publication-status'
 import type {
-  SocialContentItem,
+  SocialContentItem as BaseSocialContentItem,
   SocialContentPublish,
   SocialContentConfig,
   ContentStatus,
@@ -106,6 +106,8 @@ const PLATFORM_COLORS: Record<string, { active: string; inactive: string }> = {
 }
 
 const FINAL_GATE_ONLY_PLATFORMS = new Set<SocialPlatform>(['youtube', 'instagram'])
+
+type SocialContentItem = BaseSocialContentItem & { copy_revision?: { current_version: string; state: 'needs_review' | 'blocked' | 'ready'; feedback: string | null; worker: 'not_configured' } }
 
 type GateState = 'approved' | 'in_review' | 'pending' | 'blocked' | 'rejected'
 type SectionGateKey = 'visual_assets' | 'asset_packet' | 'privacy' | 'linkedin_draft'
@@ -930,6 +932,7 @@ function SocialContentDetailPage() {
   }, [fetchItem, getRejectedSectionGateKeys, item])
 
   const getFormPayload = () => ({
+    expected_copy_version: item?.copy_revision?.current_version,
     post_text: postText,
     cta_text: ctaText || null,
     cta_url: ctaUrl || null,
@@ -1225,7 +1228,7 @@ function SocialContentDetailPage() {
           Authorization: `Bearer ${session.access_token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ rag_context }),
+        body: JSON.stringify({ rag_context, expected_copy_version: item.copy_revision?.current_version }),
       })
 
       if (res.ok) {
@@ -1273,7 +1276,7 @@ function SocialContentDetailPage() {
           Authorization: `Bearer ${session.access_token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ rag_context }),
+        body: JSON.stringify({ rag_context, expected_copy_version: item.copy_revision?.current_version }),
       })
 
       if (res.ok) {
@@ -1393,6 +1396,7 @@ function SocialContentDetailPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          expected_copy_version: item.copy_revision?.current_version,
           status: 'rejected',
           rag_context,
           admin_notes: nextAdminNotes,
@@ -1412,6 +1416,12 @@ function SocialContentDetailPage() {
         ...current,
         revision_request: revisionRequest,
       }))
+
+      if (reopened.copy_revision?.worker === 'not_configured') {
+        setCopyRevisionAction(null)
+        showMsg('success', 'Revision received. Manual edit needed; no revision worker is connected.')
+        return
+      }
 
       const revisionRes = await fetch(`/api/admin/social-content/${id}/calibration-revision`, {
         method: 'POST',
@@ -1501,7 +1511,7 @@ function SocialContentDetailPage() {
           Authorization: `Bearer ${session.access_token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ rag_context }),
+        body: JSON.stringify({ rag_context, expected_copy_version: item.copy_revision?.current_version }),
       })
       const data = await res.json()
       if (!res.ok) {
@@ -1654,6 +1664,7 @@ function SocialContentDetailPage() {
           ].filter(Boolean).join('\n\n')
         : adminNotes
       const body: Record<string, unknown> = {
+        expected_copy_version: item?.copy_revision?.current_version,
         status: 'rejected',
         admin_notes: nextAdminNotes,
       }
@@ -4343,8 +4354,11 @@ function SocialContentDetailPage() {
                         Copy revision
                       </p>
                       <p className="mt-1 text-sm leading-6 text-amber-50/85">
-                        Revise the draft above, then return it to copy review. This only reopens editorial review; it does not approve, publish, schedule, or call providers.
+                        {item.copy_revision?.worker === 'not_configured'
+                          ? 'Manual edit needed. No revision worker is connected. Edit the copy above, then return it to review.'
+                          : 'Revise the draft above, then return it to copy review. This only reopens editorial review; it does not approve, publish, schedule, or call providers.'}
                       </p>
+                      {item.copy_revision?.feedback && <p className="mt-1 text-sm text-amber-100">Feedback: {item.copy_revision.feedback}</p>}
                     </div>
                     <button
                       type="button"
