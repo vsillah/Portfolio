@@ -9,6 +9,8 @@
  * - Token expiry checking and refresh
  */
 
+import { socialReleaseGate } from '@/lib/social-release-safety'
+import { socialReleaseFingerprint } from '@/lib/social-release-evidence'
 import { supabaseAdmin } from '@/lib/supabase'
 import type { SocialPlatform, PublishStatus } from '@/lib/social-content'
 
@@ -18,6 +20,8 @@ import type { SocialPlatform, PublishStatus } from '@/lib/social-content'
 
 export interface PublishPayload {
   contentId: string
+  /** Issued only by the queue dispatcher after its durable CAS claim. */
+  releaseClaimId?: string
   postText: string
   ctaText?: string | null
   ctaUrl?: string | null
@@ -28,6 +32,7 @@ export interface PublishPayload {
 
 export interface PublishResult {
   success: boolean
+  reconciliationRequired?: boolean
   platformPostId?: string
   platformPostUrl?: string
   error?: string
@@ -359,12 +364,13 @@ async function updatePublishStatus(
   contentId: string,
   platform: SocialPlatform,
   status: PublishStatus,
-  extra?: { platform_post_id?: string; platform_post_url?: string; error_message?: string }
+  extra: { platform_post_id?: string; platform_post_url?: string; error_message?: string } | undefined,
+  expectedVersion: string,
 ) {
   const admin = supabaseAdmin
-  if (!admin) return
+  if (!admin) throw new Error('Publish persistence unavailable')
 
-  await admin
+  const { data, error } = await admin
     .from('social_content_publishes')
     .update({
       status,
@@ -374,6 +380,11 @@ async function updatePublishStatus(
     })
     .eq('content_id', contentId)
     .eq('platform', platform)
+    .eq('status', 'publishing')
+    .eq('updated_at', expectedVersion)
+    .select('id')
+    .maybeSingle()
+  if (error || !data) throw new Error('Publish outcome persistence unconfirmed')
 }
 
 // ---------------------------------------------------------------------------
@@ -383,40 +394,51 @@ async function updatePublishStatus(
 export async function publishToLinkedIn(payload: PublishPayload): Promise<PublishResult> {
   const { contentId, postText, ctaText, ctaUrl, hashtags, imageUrl, carouselSlideUrls } = payload
 
-  // 1. Load credentials
-  const config = await getLinkedInConfig()
-  if (!config) {
-    const error = 'LinkedIn is not connected or inactive'
-    await updatePublishStatus(contentId, 'linkedin', 'failed', { error_message: error })
-    return { success: false, error }
+  const admin = supabaseAdmin
+  if (!admin || !payload.releaseClaimId) return { success: false, error: 'A current dispatcher release claim is required.' }
+  const { data: queue, error: queueError } = await admin.from('social_content_queue').select('*')
+    .eq('id', contentId).single()
+  const gate = socialReleaseGate(queue?.rag_context)
+  if (queueError || !queue || gate.status !== 'submitting' || gate.release_id !== payload.releaseClaimId ||
+    gate.approved_fingerprint !== socialReleaseFingerprint(queue) ||
+    !Array.isArray(gate.release_platforms) || !gate.release_platforms.includes('linkedin')) {
+    return { success: false, error: 'Release claim does not match current approved content.' }
+  }
+  const fields = { post_text: postText, cta_text: ctaText, cta_url: ctaUrl,
+    hashtags, image_url: imageUrl, carousel_slide_urls: carouselSlideUrls }
+  if (Object.entries(fields).some(([key, value]) => JSON.stringify(value ?? null) !== JSON.stringify(queue[key] ?? null))) {
+    return { success: false, error: 'Adapter payload differs from the approved release.' }
   }
 
+  const config = await getLinkedInConfig()
+  if (!config || !config.credentials?.access_token || !(config.settings?.author_urn || config.credentials?.person_urn)) {
+    return { success: false, error: 'LinkedIn is inactive or credentials are incomplete.' }
+  }
+  // One atomic per-platform claim also prevents a direct repeated adapter invocation.
+  const { data: publishClaim, error: claimError } = await admin.from('social_content_publishes')
+    .update({ status: 'publishing', error_message: null })
+    .eq('content_id', contentId).eq('platform', 'linkedin').in('status', ['pending', 'failed'])
+    .select('id,updated_at').maybeSingle()
+  if (claimError || !publishClaim || typeof publishClaim.updated_at !== 'string') {
+    return { success: false, reconciliationRequired: true, error: 'LinkedIn dispatch claim unconfirmed or already used. Reconcile before retrying.' }
+  }
+  const save = (status: PublishStatus, extra?: { platform_post_id?: string; platform_post_url?: string; error_message?: string }) =>
+    updatePublishStatus(contentId, 'linkedin', status, extra, publishClaim.updated_at)
+  let postAttempted = false
   let { credentials } = config
   const { settings } = config
-
-  // 2. Check token expiry
-  if (isTokenExpired(credentials)) {
-    const refreshResult = await refreshLinkedInToken(credentials)
-    if (!refreshResult.success) {
-      await updatePublishStatus(contentId, 'linkedin', 'failed', { error_message: refreshResult.error })
-      return { success: false, error: refreshResult.error }
-    }
-    credentials = { ...credentials, access_token: refreshResult.newToken! }
-  }
-
-  const accessToken = credentials.access_token
-  const authorUrn = settings.author_urn || credentials.person_urn
-
-  if (!accessToken || !authorUrn) {
-    const error = 'LinkedIn credentials incomplete — missing access token or author URN'
-    await updatePublishStatus(contentId, 'linkedin', 'failed', { error_message: error })
-    return { success: false, error }
-  }
-
-  // 3. Mark as publishing
-  await updatePublishStatus(contentId, 'linkedin', 'publishing')
-
   try {
+    if (isTokenExpired(credentials)) {
+      const refreshed = await refreshLinkedInToken(credentials)
+      if (!refreshed.success) {
+        await save('failed', { error_message: refreshed.error })
+        return { success: false, error: refreshed.error }
+      }
+      credentials = { ...credentials, access_token: refreshed.newToken! }
+    }
+    const accessToken = credentials.access_token
+    const authorUrn = settings.author_urn || credentials.person_urn
+
     // 4. Build full post text
     const parts = [postText]
     if (ctaText) parts.push(`\n${ctaText}`)
@@ -441,12 +463,13 @@ export async function publishToLinkedIn(payload: PublishPayload): Promise<Publis
         )
         if (!imageUrn) {
           const error = `LinkedIn multi-image upload failed on slide ${index + 1}`
-          await updatePublishStatus(contentId, 'linkedin', 'failed', { error_message: error })
+          await save('failed', { error_message: error })
           return { success: false, error }
         }
         imageUrns.push(imageUrn)
       }
 
+      postAttempted = true
       const postRes = await fetch('https://api.linkedin.com/rest/posts', {
         method: 'POST',
         headers: {
@@ -462,14 +485,14 @@ export async function publishToLinkedIn(payload: PublishPayload): Promise<Publis
         const errBody = await postRes.text()
         console.error('[LinkedIn] REST multi-image post creation failed:', postRes.status, errBody)
         const error = `LinkedIn API error (${postRes.status})`
-        await updatePublishStatus(contentId, 'linkedin', 'failed', { error_message: error })
-        return { success: false, error }
+        throw new Error(error)
       }
 
       const platformPostId = postRes.headers.get('x-restli-id') || undefined
+      if (!platformPostId) throw new Error('LinkedIn returned no post identity')
       const platformPostUrl = platformPostId ? linkedInPostUrl(platformPostId) : undefined
 
-      await updatePublishStatus(contentId, 'linkedin', 'published', {
+      await save('published', {
         platform_post_id: platformPostId,
         platform_post_url: platformPostUrl,
       })
@@ -486,13 +509,16 @@ export async function publishToLinkedIn(payload: PublishPayload): Promise<Publis
         if (uploaded) {
           imageAsset = registration.asset
         } else {
-          console.warn('[LinkedIn] Image upload failed, proceeding with text-only post')
+          throw new Error('LinkedIn image upload failed; approved media must not be dropped')
         }
+      } else {
+        throw new Error('LinkedIn image registration failed; approved media must not be dropped')
       }
     }
 
     // 6. Create the UGC post
     const ugcBody = buildUgcPost(authorUrn, fullText, settings.post_visibility, imageAsset)
+    postAttempted = true
     const postRes = await fetch('https://api.linkedin.com/v2/ugcPosts', {
       method: 'POST',
       headers: {
@@ -507,16 +533,16 @@ export async function publishToLinkedIn(payload: PublishPayload): Promise<Publis
       const errBody = await postRes.text()
       console.error('[LinkedIn] UGC post creation failed:', postRes.status, errBody)
       const error = `LinkedIn API error (${postRes.status})`
-      await updatePublishStatus(contentId, 'linkedin', 'failed', { error_message: error })
-      return { success: false, error }
+      throw new Error(error)
     }
 
     const postData = await postRes.json()
     const platformPostId = postData.id
+    if (typeof platformPostId !== 'string' || !platformPostId.trim()) throw new Error('LinkedIn returned no post identity')
     const platformPostUrl = platformPostId ? linkedInPostUrl(platformPostId) : undefined
 
     // 7. Mark as published
-    await updatePublishStatus(contentId, 'linkedin', 'published', {
+    await save('published', {
       platform_post_id: platformPostId,
       platform_post_url: platformPostUrl,
     })
@@ -526,10 +552,14 @@ export async function publishToLinkedIn(payload: PublishPayload): Promise<Publis
       platformPostId,
       platformPostUrl,
     }
-  } catch (err) {
-    const error = err instanceof Error ? err.message : 'Unknown error during LinkedIn publish'
-    console.error('[LinkedIn] Publish error:', err)
-    await updatePublishStatus(contentId, 'linkedin', 'failed', { error_message: error })
-    return { success: false, error }
+  } catch {
+    const error = postAttempted
+      ? 'LinkedIn outcome is uncertain. Reconcile the existing release; do not retry.'
+      : 'LinkedIn preparation failed. Review the release before retrying.'
+    try {
+      // Keep publishing after a possible remote effect, including success with a failed local save.
+      await save(postAttempted ? 'publishing' : 'failed', { error_message: error })
+    } catch { /* The initial publishing claim survives; never make it retryable after uncertainty. */ }
+    return { success: false, reconciliationRequired: true, error }
   }
 }

@@ -1,3 +1,5 @@
+import { buildWarmGmailActionRequest } from '@/lib/warm-gmail-action-request'
+import { warmFinalCopyFingerprint } from '@/lib/warm-outreach-copy-fingerprint'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { NextRequest, NextResponse } from 'next/server'
 
@@ -54,6 +56,7 @@ const SUBMITTED_EVIDENCE_KEY = 'warm-outreach:email-submitted-evidence:v1:abc'
 const DRAFT_ID = 'gmail-draft-1'
 
 type OutreachQueueRow = {
+  updated_at: string
   id: string
   contact_submission_id: number
   status: string
@@ -103,6 +106,8 @@ function params(id = 'queue-1') {
 
 function executionPayload(row = outreachRow(), overrides: Record<string, unknown> = {}) {
   return {
+    expectedUpdatedAt: row.updated_at,
+    finalCopyFingerprint: warmFinalCopyFingerprint(row),
     executeGmailSend: true,
     sendAuthorization: 'execute_warm_gmail_send_for_authorized_recipient',
     idempotencyKey: SEND_QUEUE_KEY,
@@ -118,6 +123,7 @@ function executionPayload(row = outreachRow(), overrides: Record<string, unknown
 
 function authorization(overrides: Record<string, unknown> = {}) {
   return {
+    final_copy_fingerprint: warmFinalCopyFingerprint({ id: 'queue-1', contact_submission_id: 123, subject: 'Hello', body: 'Body text', contact_submissions: { email: 'alice@example.com' } }),
     version: 'warm-outreach-slack-gmail-send-authorization/v1',
     decision_key: 'warm-outreach:slack-gmail-send-decision:v1:abc',
     status: 'approved',
@@ -139,6 +145,7 @@ function authorization(overrides: Record<string, unknown> = {}) {
 
 function draftEvidence(overrides: Record<string, unknown> = {}) {
   return {
+    final_copy_fingerprint: authorization().final_copy_fingerprint,
     provider: 'gmail_user_oauth',
     provider_action: 'drafts.create',
     draft_id: DRAFT_ID,
@@ -155,6 +162,7 @@ function draftEvidence(overrides: Record<string, unknown> = {}) {
 
 function outreachRow(overrides: Partial<OutreachQueueRow> = {}): OutreachQueueRow {
   return {
+    updated_at: '2026-09-08T12:00:00.000Z',
     id: 'queue-1',
     contact_submission_id: 123,
     status: 'approved',
@@ -233,13 +241,14 @@ function updateQuery(result: { data: Record<string, unknown> | null; error: { me
   const single = vi.fn().mockResolvedValue(result)
   const select = vi.fn().mockReturnValue({ single })
   const query = {
-    eq: vi.fn(() => query),
+    eq: vi.fn((key: string, value: unknown) => { void key; void value; return query }),
     select,
   }
   return query
 }
 
 function mockSupabase({
+  atomicClaims = false,
   outreachItem = outreachRow(),
   contactCommunications = [],
   emailMessages = [],
@@ -249,9 +258,10 @@ function mockSupabase({
     refresh_token_tag: 'tag',
     google_email: 'vambah@amadutown.com',
   },
-  claimResult = { data: { id: 'queue-1' }, error: null },
+  claimResult = { data: { id: 'queue-1', updated_at: '2026-09-08T12:00:01.123456Z' }, error: null },
   finalResult = { data: { id: 'queue-1' }, error: null },
 }: {
+  atomicClaims?: boolean
   outreachItem?: OutreachQueueRow | null
   contactCommunications?: EvidenceRow[]
   emailMessages?: EvidenceRow[]
@@ -261,6 +271,7 @@ function mockSupabase({
 } = {}) {
   const updatePayloads: Record<string, unknown>[] = []
   let updateCall = 0
+  let claimed = false
   const outreachSingle = vi.fn().mockResolvedValue({
     data: outreachItem,
     error: outreachItem ? null : { message: 'missing item' },
@@ -271,6 +282,11 @@ function mockSupabase({
   const outreachUpdate = vi.fn((payload: Record<string, unknown>) => {
     updatePayloads.push(payload)
     updateCall += 1
+    if (atomicClaims && payload.status === 'queued' && (payload.generation_inputs as Record<string, Record<string, unknown>>)?.warm_gmail_send_execution?.status === 'sending') {
+      const result = claimed ? { data: null, error: null } : claimResult
+      claimed = true
+      return updateQuery(result)
+    }
     return updateQuery(updateCall === 1 ? claimResult : finalResult)
   })
   const credentialsMaybeSingle = vi.fn().mockResolvedValue({
@@ -314,7 +330,7 @@ describe('POST /api/admin/outreach/[id]/gmail-user-send', () => {
     delete process.env.ENABLE_WARM_GMAIL_SEND_EXECUTION
     mocks.verifyAdmin.mockResolvedValue({ user: { id: 'admin-user-1' } })
     mocks.isAuthError.mockReturnValue(false)
-    mocks.getRelationshipPacket.mockResolvedValue(NextResponse.json(relationshipBody()))
+    mocks.getRelationshipPacket.mockImplementation(async () => NextResponse.json(relationshipBody()))
     mocks.isGmailUserOAuthClientConfigured.mockReturnValue(true)
     mocks.isGmailUserOauthSecretConfigured.mockReturnValue(true)
     mocks.decryptRefreshToken.mockReturnValue('refresh-token')
@@ -324,6 +340,137 @@ describe('POST /api/admin/outreach/[id]/gmail-user-send', () => {
       labelIds: ['SENT'],
     })
     mocks.logCommunication.mockResolvedValue({ id: 'comm-sent-1' })
+  })
+
+  it.each([{ body: 'Changed copy' }, { subject: 'Changed subject' }, { contact_submissions: { ...outreachRow().contact_submissions!, email: 'other@example.com' } }])('blocks exact-copy drift before Gmail: %j', async change => {
+    mockSupabase({ outreachItem: outreachRow(change) })
+    const response = await POST(makeRequest(), params())
+    expect(response.status).toBe(403)
+    expect(mocks.sendUserGmailDraft).not.toHaveBeenCalled()
+  })
+
+  it('uses the real read-only readiness packet for an exact explicit UI send', async () => {
+    process.env.ENABLE_WARM_GMAIL_SEND_EXECUTION = 'true'
+    const row = outreachRow()
+    const { updatePayloads } = mockSupabase({ outreachItem: row })
+    const prepared = await POST(makeRequest({ prepareOnly: true }), params())
+    const readiness = await prepared.json()
+    expect(readiness.readyForConfirmation).toBe(true)
+    expect(updatePayloads).toHaveLength(0)
+    expect(mocks.sendUserGmailDraft).not.toHaveBeenCalled()
+    const payload = buildWarmGmailActionRequest('send', readiness, { ...row, updatedAt: row.updated_at! })
+    const response = await POST(makeRequest(payload), params())
+    expect(response.status).toBe(200)
+    expect(mocks.sendUserGmailDraft).toHaveBeenCalledTimes(1)
+  })
+
+  it('returns an inline setup blocker without writes when send preparation is disabled', async () => {
+    const { updatePayloads } = mockSupabase()
+    const response = await POST(makeRequest({ prepareOnly: true }), params())
+    const readiness = await response.json()
+    expect(readiness.status).toBe('execution_disabled')
+    expect(readiness.readyForConfirmation).toBe(false)
+    expect(updatePayloads).toHaveLength(0)
+    expect(mocks.sendUserGmailDraft).not.toHaveBeenCalled()
+  })
+
+  it('keeps a network exception after the request uncertain and blocks its retry', async () => {
+    process.env.ENABLE_WARM_GMAIL_SEND_EXECUTION = 'true'
+    const { updatePayloads } = mockSupabase()
+    mocks.sendUserGmailDraft.mockRejectedValue(new Error('Connection lost after request write'))
+    expect((await POST(makeRequest(executionPayload()), params())).status).toBe(502)
+    expect(updatePayloads.at(-1)).toMatchObject({ status: 'queued', generation_inputs: { warm_gmail_send_execution: { status: 'provider_outcome_unknown' } } })
+    const row = outreachRow({ status: 'queued', generation_inputs: updatePayloads.at(-1)?.generation_inputs as Record<string, unknown> })
+    mockSupabase({ outreachItem: row })
+    expect((await POST(makeRequest(executionPayload(row)), params())).status).toBe(409)
+    expect(mocks.sendUserGmailDraft).toHaveBeenCalledTimes(1)
+  })
+
+  it('allows only the winning concurrent approved-to-queued claim to call Gmail', async () => {
+    process.env.ENABLE_WARM_GMAIL_SEND_EXECUTION = 'true'
+    mockSupabase({ atomicClaims: true })
+    const responses = await Promise.all([POST(makeRequest(executionPayload()), params()), POST(makeRequest(executionPayload()), params())])
+    const results = await Promise.all(responses.map(response => response.json()))
+    expect(results.some(result => result.actionOutcome === 'rejected_before_external_action')).toBe(true)
+    expect(mocks.sendUserGmailDraft).toHaveBeenCalledTimes(1)
+  })
+
+  it('blocks a legacy ambiguous provider failure before another call', async () => {
+    const row = outreachRow()
+    row.generation_inputs = { ...row.generation_inputs, warm_gmail_send_execution: { status: 'failed_provider_call' } }
+    mockSupabase({ outreachItem: row })
+    const response = await POST(makeRequest(executionPayload(row)), params())
+    expect(response.status).toBe(409)
+    expect((await response.json()).actionOutcome).toBeUndefined()
+    expect(mocks.sendUserGmailDraft).not.toHaveBeenCalled()
+  })
+
+  it('keeps an uncertain provider outcome queued for reconciliation', async () => {
+    process.env.ENABLE_WARM_GMAIL_SEND_EXECUTION = 'true'
+    const { updatePayloads } = mockSupabase()
+    mocks.sendUserGmailDraft.mockResolvedValue({})
+    const response = await POST(makeRequest(executionPayload()), params())
+    expect(response.status).toBe(502)
+    expect(updatePayloads[0]).toMatchObject({ status: 'queued' })
+    expect(updatePayloads[1]).toMatchObject({ status: 'queued', generation_inputs: { warm_gmail_send_execution: { status: 'provider_outcome_unknown', gmail_send_called: true } } })
+    expect(mocks.logCommunication).not.toHaveBeenCalled()
+  })
+
+  it.each(['success', 'unknown', 'rollback'] as const)('preserves an interleaved row against late %s persistence using the returned claim version', async outcome => {
+    process.env.ENABLE_WARM_GMAIL_SEND_EXECUTION = 'true'
+    const row = outreachRow()
+    let stored: Record<string, unknown> = structuredClone(row)
+    const claimVersion = '2026-09-08T12:00:01.123456Z'
+    const newerVersion = '2026-09-08T12:00:02.654321Z'
+    const writes: Array<Record<string, unknown>> = []
+    const { outreachUpdate } = mockSupabase({ outreachItem: row })
+    outreachUpdate.mockImplementation((payload: Record<string, unknown>) => {
+      const filters: Record<string, unknown> = {}
+      const query = {
+        eq: vi.fn((key: string, value: unknown) => { filters[key] = value; return query }),
+        select: vi.fn(() => ({ single: async () => {
+          writes.push({ ...filters })
+          if (Object.entries(filters).some(([key, value]) => stored[key] !== value)) return { data: null, error: null }
+          stored = { ...stored, ...payload, updated_at: claimVersion }
+          return { data: { id: row.id, updated_at: claimVersion }, error: null }
+        } })),
+      }
+      return query
+    })
+    const interleave = () => { stored = { ...stored, updated_at: newerVersion, generation_inputs: { reconciliation: 'newer operator evidence' } } }
+    if (outcome === 'rollback') mocks.decryptRefreshToken.mockImplementationOnce(() => { interleave(); throw new Error('Decrypt failed') })
+    else mocks.sendUserGmailDraft.mockImplementationOnce(async () => {
+      interleave()
+      if (outcome === 'unknown') throw new Error('Provider outcome unknown')
+      return { id: 'sent-message-1', threadId: 'gmail-thread-1' }
+    })
+    const response = await POST(makeRequest(executionPayload(row)), params())
+    const result = await response.json()
+    expect(writes).toEqual([
+      { id: row.id, status: 'approved', updated_at: row.updated_at },
+      { id: row.id, status: 'queued', updated_at: claimVersion },
+    ])
+    expect(stored).toMatchObject({ status: 'queued', updated_at: newerVersion, generation_inputs: { reconciliation: 'newer operator evidence' } })
+    expect(result.actionOutcome).toBeUndefined()
+    expect(response.status).toBe(outcome === 'rollback' ? 500 : 502)
+    if (outcome === 'success') expect(result.status).toBe('tracking_failed_after_send')
+    if (outcome === 'unknown') expect(result).toMatchObject({ status: 'provider_outcome_unknown', trackingRecorded: false })
+    expect(mocks.logCommunication).not.toHaveBeenCalled()
+    expect(mocks.sendUserGmailDraft).toHaveBeenCalledTimes(outcome === 'rollback' ? 0 : 1)
+    // A subsequent request observes the queued state and cannot send again.
+    mockSupabase({ outreachItem: stored as OutreachQueueRow })
+    const retry = await (await POST(makeRequest(executionPayload(row)), params())).json()
+    expect(retry.duplicatePrevented).toBe(true)
+    expect(retry.actionOutcome).toBeUndefined()
+    expect(mocks.sendUserGmailDraft).toHaveBeenCalledTimes(outcome === 'rollback' ? 0 : 1)
+  })
+
+  it('does not call Gmail when the claim returns no authoritative version', async () => {
+    process.env.ENABLE_WARM_GMAIL_SEND_EXECUTION = 'true'
+    mockSupabase({ claimResult: { data: { id: 'queue-1' }, error: null } })
+    const result = await (await POST(makeRequest(executionPayload()), params())).json()
+    expect(result.actionOutcome).toBeUndefined()
+    expect(mocks.sendUserGmailDraft).not.toHaveBeenCalled()
   })
 
   it('records an eligible execution state by default without calling Gmail', async () => {
@@ -434,7 +581,7 @@ describe('POST /api/admin/outreach/[id]/gmail-user-send', () => {
       },
     })
     expect(mocks.decryptRefreshToken).toHaveBeenCalledWith('cipher', 'iv', 'tag')
-    expect(mocks.sendUserGmailDraft).toHaveBeenCalledWith('refresh-token', DRAFT_ID)
+    expect(mocks.sendUserGmailDraft).toHaveBeenCalledWith('refresh-token', DRAFT_ID, { to: 'alice@example.com', subject: 'Hello', body: 'Body text' })
     expect(updatePayloads[1]).toMatchObject({
       status: 'sent',
       sent_at: expect.any(String),
@@ -741,15 +888,10 @@ describe('POST /api/admin/outreach/[id]/gmail-user-send', () => {
 
     const response = await POST(makeRequest(executionPayload()), params())
 
-    expect(response.status).toBe(200)
-    await expect(response.json()).resolves.toMatchObject({
-      status: 'eligible_for_execution',
-      gmailSendCalled: false,
-      externalSendPerformed: false,
-    })
-    expect(mocks.decryptRefreshToken).not.toHaveBeenCalled()
+    expect(response.status).toBe(409)
+    await expect(response.json()).resolves.toMatchObject({ actionOutcome: 'rejected_before_external_action', status: 'blocked_no_send' })
     expect(mocks.sendUserGmailDraft).not.toHaveBeenCalled()
-    expect(outreachUpdate).toHaveBeenCalledTimes(1)
+    expect(outreachUpdate).not.toHaveBeenCalled()
   })
 
   it('prevents duplicate replay when submitted send evidence already exists', async () => {
@@ -805,7 +947,7 @@ describe('POST /api/admin/outreach/[id]/gmail-user-send', () => {
     })
     const { outreachUpdate } = mockSupabase({ outreachItem: row })
 
-    const response = await POST(makeRequest(executionPayload(row)), params())
+    const response = await POST(makeRequest({ ...executionPayload(row), dryRun: true }), params())
 
     expect(response.status).toBe(200)
     await expect(response.json()).resolves.toMatchObject({

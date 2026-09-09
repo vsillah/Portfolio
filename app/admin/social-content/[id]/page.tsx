@@ -50,6 +50,8 @@ import {
   FRAMEWORK_VISUAL_TYPES,
   getFullPostText,
 } from '@/lib/social-content'
+import { SocialGateDeepLinkLanding } from '@/lib/social-gate-deep-link'
+import { socialReleaseReview } from '@/lib/social-release-review-ui'
 import { buildVideoRenderApproval } from '@/lib/video-render-approval'
 import {
   getProductionAssets,
@@ -107,7 +109,7 @@ const PLATFORM_COLORS: Record<string, { active: string; inactive: string }> = {
 
 const FINAL_GATE_ONLY_PLATFORMS = new Set<SocialPlatform>(['youtube', 'instagram'])
 
-type SocialContentItem = BaseSocialContentItem & { copy_revision?: { current_version: string; state: 'needs_review' | 'blocked' | 'ready'; feedback: string | null; worker: 'not_configured' } }
+type SocialContentItem = BaseSocialContentItem & { copy_revision?: { current_version: string; state: 'needs_review' | 'blocked' | 'ready'; feedback: string | null; worker: 'not_configured'; release_locked?: boolean; has_saved_revision?: boolean } }
 
 type GateState = 'approved' | 'in_review' | 'pending' | 'blocked' | 'rejected'
 type SectionGateKey = 'visual_assets' | 'asset_packet' | 'privacy' | 'linkedin_draft'
@@ -520,6 +522,7 @@ function SocialContentDetailLoadingState({ canonicalHref }: { canonicalHref?: st
 }
 
 function SocialContentDetailPage() {
+  const completedGateLandings = useRef(new Set<string>())
   const { id } = useParams<{ id: string }>()
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -544,6 +547,10 @@ function SocialContentDetailPage() {
   const [reviewingRedactionId, setReviewingRedactionId] = useState<string | null>(null)
   const [selectedSlide, setSelectedSlide] = useState(0)
   const [publishing, setPublishing] = useState(false)
+  const [releaseEvidenceUnavailable, setReleaseEvidenceUnavailable] = useState(false)
+  const [releaseNotice, setReleaseNotice] = useState<string | null>(null)
+  const releaseRequestActive = useRef(false)
+  const [releaseConfirmation, setReleaseConfirmation] = useState<{ platforms: SocialPlatform[]; mode: 'approve' | 'publish'; submit: boolean; reviewed: SocialContentItem } | null>(null)
   const [connectingYouTube, setConnectingYouTube] = useState(false)
   const [connectingX, setConnectingX] = useState(false)
   const [refreshingEngagement, setRefreshingEngagement] = useState(false)
@@ -577,6 +584,11 @@ function SocialContentDetailPage() {
   const commentRefreshInFlightRef = useRef(false)
 
   const [postText, setPostText] = useState('')
+  const [existingImageUrl, setExistingImageUrl] = useState('')
+  const [imageSourceNote, setImageSourceNote] = useState('')
+  const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null)
+  const [attachingImage, setAttachingImage] = useState(false)
+  const [imageAttachmentError, setImageAttachmentError] = useState<string | null>(null)
   const [ctaText, setCtaText] = useState('')
   const [ctaUrl, setCtaUrl] = useState('')
   const [hashtags, setHashtags] = useState('')
@@ -765,6 +777,7 @@ function SocialContentDetailPage() {
       }
 
       const res = await fetch(`/api/admin/social-content/${id}`, {
+        cache: 'no-store',
         headers: { Authorization: `Bearer ${session.access_token}` },
       })
       const data = await res.json().catch(() => ({}))
@@ -817,6 +830,7 @@ function SocialContentDetailPage() {
       setCopyRevisionRequest(asString(operatorFeedback?.revision_request))
       void fetchReviewQueue(i)
       void fetchCommentInboxItems()
+      return i
     } catch (err) {
       console.error('Failed to fetch item:', err)
       setLoadError(err instanceof Error ? err.message : 'Social content detail failed to load.')
@@ -945,7 +959,7 @@ function SocialContentDetailPage() {
     target_platforms: targetPlatforms,
   })
 
-  const saveForm = async (): Promise<boolean> => {
+  const saveForm = async (onSaved?: (saved: SocialContentItem) => void): Promise<boolean> => {
     try {
       const session = await getCurrentSession()
       if (!session) return false
@@ -962,6 +976,7 @@ function SocialContentDetailPage() {
       if (res.ok) {
         const data = await res.json()
         setItem(prev => prev ? { ...prev, ...data.item } : prev)
+        onSaved?.(data.item)
         return true
       }
       return false
@@ -975,6 +990,28 @@ function SocialContentDetailPage() {
     const saved = await saveForm()
     showMsg(saved ? 'success' : 'error', saved ? 'Saved successfully' : 'Failed to save')
     setSaving(false)
+  }
+
+  const handleAttachExistingImage = async () => {
+    if (!item?.copy_revision || item.copy_revision.release_locked || attachingImage) return
+    setImageAttachmentError(null)
+    setAttachingImage(true)
+    try {
+      const session=await getCurrentSession()
+      if(!session)throw new Error('Sign in before attaching an image.')
+      let url=existingImageUrl.trim()
+      if(selectedImageFile){
+        const form=new FormData();form.set('file',selectedImageFile);form.set('bucket','social-content');form.set('folder',`manual/${id}`)
+        const upload=await fetch('/api/upload',{method:'POST',headers:{Authorization:`Bearer ${session.access_token}`},body:form})
+        const uploaded=await upload.json();if(!upload.ok)throw new Error(uploaded.error||'Image upload failed.')
+        url=uploaded.publicUrl
+        setExistingImageUrl(url);setSelectedImageFile(null)
+      }
+      const response=await fetch(`/api/admin/social-content/${id}`,{method:'PUT',headers:{Authorization:`Bearer ${session.access_token}`,'Content-Type':'application/json'},body:JSON.stringify({attach_existing_image:true,image_url:url,image_source_note:imageSourceNote,expected_copy_version:item.copy_revision.current_version})})
+      const result=await response.json();if(!response.ok)throw new Error(result.error||'Could not attach the image. The stored URL above can be retried.')
+      setItem(prev=>prev?{...prev,...result.item}:prev)
+      setExistingImageUrl('');setImageSourceNote('')
+    } catch(error){setImageAttachmentError(error instanceof Error?error.message:'Image attachment failed.')} finally {setAttachingImage(false)}
   }
 
   const handleReturnCopyToReview = async () => {
@@ -1591,7 +1628,8 @@ function SocialContentDetailPage() {
     setShowConfirmModal(false)
     try {
       // Save form state first so DB has latest platforms + schedule
-      const saved = await saveForm()
+      let approvedVersion = item?.copy_revision?.current_version
+      const saved = await saveForm(savedItem => { approvedVersion = savedItem.copy_revision?.current_version })
       if (!saved) {
         showMsg('error', 'Failed to save changes before approving')
         setApproving(false)
@@ -1603,14 +1641,17 @@ function SocialContentDetailPage() {
 
       const res = await fetch(`/api/admin/social-content/${id}/approve`, {
         method: 'POST',
-        headers: { Authorization: `Bearer ${session.access_token}` },
+        headers: { Authorization: `Bearer ${session.access_token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ expected_copy_version: approvedVersion }),
       })
 
       if (res.ok) {
         const data = await res.json()
         setItem(prev => prev ? { ...prev, ...data.item, publishes: data.publishes } : prev)
 
-        if (data.reference_work_item) {
+        if (item?.copy_revision) {
+          showMsg('success', 'Copy approved. Review assets and the platform release gate next.')
+        } else if (data.reference_work_item) {
           showMsg('success', 'Draft approved and reference handoff queued.')
         } else if (scheduledFor) {
           showMsg('success', 'Approved and scheduled!')
@@ -1636,6 +1677,7 @@ function SocialContentDetailPage() {
   }
 
   const handleReject = async (options: { withCopyFeedback?: boolean } = {}) => {
+    if (item?.copy_revision?.release_locked) return
     const isCopyReject = activeApprovalStep === 'copy'
     const revisionRequest = copyRevisionRequest.trim()
     if (isCopyReject && !copyRejecting) {
@@ -1718,85 +1760,72 @@ function SocialContentDetailPage() {
     }
   }
 
-  const handleRetryPublish = async (platforms?: SocialPlatform[]) => {
-    if (videoPrivacyBlocked) {
-      showMsg('error', redactionGate.message || 'Video privacy review required before publishing')
+  const refreshReleaseEvidence = async () => {
+    const fresh = await fetchItem({ silent: true })
+    if (!fresh) setReleaseEvidenceUnavailable(true)
+    else if (socialReleaseReview(fresh).locked) setReleaseEvidenceUnavailable(false)
+    return fresh
+  }
+
+  const requestReleaseConfirmation = (mode: 'approve' | 'publish', platforms?: SocialPlatform[], submit = true) => {
+    const selected = platforms ?? platformSubmissionTargets
+    if (!item || publishing || releaseRequestActive.current || releaseEvidenceUnavailable || selected.some(platform => socialReleaseReview(item, platform).locked)) return
+    setReleaseConfirmation({ mode, platforms: selected, submit, reviewed: item })
+  }
+
+  const executeConfirmedRelease = async () => {
+    const review = releaseConfirmation
+    if (!review || !item || releaseRequestActive.current) return
+    if (review.reviewed.updated_at !== item.updated_at || review.platforms.some(platform => socialReleaseReview(item, platform).locked) || releaseEvidenceUnavailable) {
+      setReleaseConfirmation(null)
+      setReleaseNotice('Evidence changed. Review the current receipts before continuing.')
       return
     }
+    if (videoPrivacyBlocked) { setReleaseNotice(redactionGate.message || 'Privacy review required.'); return }
+    releaseRequestActive.current = true
     setPublishing(true)
+    setReleaseConfirmation(null)
+    setReleaseNotice('Submission pending · refreshing evidence')
     try {
       const session = await getCurrentSession()
-      if (!session) return
-
-      const res = await fetch(`/api/admin/social-content/${id}/publish`, {
+      if (!session) { setReleaseNotice('Sign in to refresh release evidence.'); return }
+      const res = await fetch(`/api/admin/social-content/${id}/${review.mode === 'approve' ? 'platform-submission' : 'publish'}`, {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(platforms ? { platforms } : {}),
+        headers: { Authorization: `Bearer ${session.access_token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ platforms: review.platforms, expected_updated_at: review.reviewed.updated_at, ...(review.mode === 'approve' ? { submit_after_approval: review.submit } : {}) }),
       })
-
-      if (res.ok) {
-        const data = await res.json()
-        if (data.publishes) {
-          setItem(prev => prev ? { ...prev, publishes: data.publishes } : prev)
-        }
-        showMsg(data.published ? 'success' : 'error',
-          data.published ? 'Published successfully!' : 'No platforms published — check status below')
-        fetchItem()
-      } else {
-        const data = await res.json().catch(() => null)
-        showMsg('error', data?.error || 'Publish request failed')
-      }
+      const data = await res.json().catch(() => ({}))
+      const response = asRecord(data.publish_response) ?? data
+      const current = asRecord(data.item)
+      const receipts = Array.isArray(data.publishes) ? data.publishes : Array.isArray(response.publishes) ? response.publishes : undefined
+      if (current || receipts) setItem(previous => previous ? { ...previous, ...(current ?? {}), ...(receipts ? { publishes: receipts } : {}) } as SocialContentItem : previous)
+      const reconcile = data.reconciliation_required === true || response.reconciliation_required === true
+      const returnedItem = { ...item, ...(current ?? {}), ...(receipts ? { publishes: receipts } : {}) } as SocialContentItem
+      const returnedLocked = socialReleaseReview(returnedItem).locked
+      setReleaseEvidenceUnavailable(reconcile || (review.submit && res.ok && !returnedLocked && response.selected_published !== true && response.published !== true))
+      setReleaseNotice(reconcile ? 'Outcome uncertain · reconcile receipts'
+        : response.selected_published === true && response.published !== true ? 'Selected platforms confirmed · review remaining platforms'
+          : response.published === true ? 'Post confirmed'
+            : !res.ok ? (data.final_approval_recorded ? 'Final approval recorded · review submission receipts' : 'Submission blocked · review current evidence')
+              : review.submit ? 'Submission pending · refresh evidence' : 'Final approval recorded')
+      const fresh = await fetchItem({ silent: true })
+      if (!fresh) setReleaseEvidenceUnavailable(true)
+      else if (returnedLocked && !socialReleaseReview(fresh).locked) {
+        setItem(returnedItem)
+        setReleaseEvidenceUnavailable(true)
+      } else if (socialReleaseReview(fresh).locked) setReleaseEvidenceUnavailable(false)
     } catch {
-      showMsg('error', 'Failed to trigger publish')
+      setReleaseEvidenceUnavailable(true)
+      setReleaseNotice('Outcome unavailable · reconcile receipts before another attempt')
+      await refreshReleaseEvidence()
     } finally {
+      releaseRequestActive.current = false
       setPublishing(false)
     }
   }
 
-  const handleApprovePlatformSubmission = async (
-    platforms?: SocialPlatform[],
-    submitAfterApproval?: boolean,
-  ) => {
-    if (videoPrivacyBlocked) {
-      showMsg('error', redactionGate.message || 'Video privacy review required before platform submission')
-      return
-    }
-    setPublishing(true)
-    try {
-      const session = await getCurrentSession()
-      if (!session) return
-
-      const res = await fetch(`/api/admin/social-content/${id}/platform-submission`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(platforms
-          ? { platforms, submit_after_approval: submitAfterApproval ?? !platforms.includes('youtube') }
-          : { submit_after_approval: submitAfterApproval ?? !platformSubmissionTargets.includes('youtube') }),
-      })
-
-      const data = await res.json()
-      if (res.ok) {
-        if (data.item) setItem(data.item)
-        showMsg('success',
-          data.submit_triggered
-            ? 'Final gate approved. Platform submission started.'
-            : 'Final gate approved. Manual or separately guarded platform handoff remains queued.')
-        fetchItem()
-      } else {
-        showMsg('error', data.error || 'Platform submission approval failed')
-      }
-    } catch {
-      showMsg('error', 'Failed to approve platform submission')
-    } finally {
-      setPublishing(false)
-    }
-  }
+  const handleRetryPublish = (platforms?: SocialPlatform[]) => requestReleaseConfirmation('publish', platforms)
+  const handleApprovePlatformSubmission = (platforms?: SocialPlatform[], submitAfterApproval?: boolean) => requestReleaseConfirmation('approve', platforms, submitAfterApproval ?? !platformSubmissionTargets.includes('youtube'))
 
   const handleConnectYouTube = async () => {
     setConnectingYouTube(true)
@@ -2425,7 +2454,9 @@ function SocialContentDetailPage() {
   }
 
   const statusCfg = STATUS_CONFIG[item.status] || STATUS_CONFIG.draft
-  const isEditable = item.status === 'draft' || item.status === 'rejected'
+  const hasUnsavedCopyChanges = postText !== (item.post_text || '') || ctaText !== (item.cta_text || '') || ctaUrl !== (item.cta_url || '') || hashtags !== (item.hashtags?.join(', ') || '') || imagePrompt !== (item.image_prompt || '') || voiceoverText !== (item.voiceover_text || '')
+  const canReturnCopyToReview = Boolean(item.copy_revision?.has_saved_revision || hasUnsavedCopyChanges)
+  const isEditable = (item.status === 'draft' || item.status === 'rejected') && !item.copy_revision?.release_locked
   const enabledPlatformLabels = targetPlatforms
     .map(p => PLATFORMS.find(pl => pl.value === p)?.label || p)
     .join(', ')
@@ -2570,7 +2601,7 @@ function SocialContentDetailPage() {
     || agentPilotCalibrationStatus === 'revision_requested'
     || Boolean(asRecord(agentPilotCalibration?.approval_rejection))
   const copyQualityBlocksReview = copyHasPromptLeakage && !copyGateRejected
-  const canApproveCurrentDraft = canApproveAgentPilot && !copyHasBlockingAcronymIssues && !copyQualityBlocksReview
+  const canApproveCurrentDraft = !item.copy_revision?.release_locked && canApproveAgentPilot && !copyHasBlockingAcronymIssues && !copyQualityBlocksReview
   const approveBlockedTitle = videoPrivacyBlocked
     ? 'Video privacy review required before publish readiness'
     : copyQualityBlocksReview
@@ -2580,7 +2611,7 @@ function SocialContentDetailPage() {
       : canApproveAgentPilot
         ? undefined
         : 'Research/context evidence and challenger QA must pass before approval'
-  const canRequestCopyRevision = (isAgentSocialPilot || isDraftOnlyPilot) && (item.status === 'approved' || item.status === 'draft')
+  const canRequestCopyRevision = !item.copy_revision?.release_locked && (isAgentSocialPilot || isDraftOnlyPilot) && (item.status === 'approved' || item.status === 'draft')
   const copyRevisionIsApprovalRollback = item.status === 'approved'
   const copyRevisionDetailsOpen = copyRevisionAction !== null
   const copyFeedbackDetailsOpen = item.status !== 'rejected' && (copyRevisionDetailsOpen || copyRejecting)
@@ -2876,9 +2907,18 @@ function SocialContentDetailPage() {
       lifecycle: lifecycleProjection,
     })
   ))
-  const publicationSummary = publicationProjections.length
+  const basePublicationSummary = publicationProjections.length
     ? summarizePublicationProjections(publicationProjections)
     : null
+  const releaseSummary = socialReleaseReview(item)
+  const modernReleaseEvidence = (releaseSummary.phase === 'Reconcile' && (item.publishes ?? []).some(pub => !['scheduled','publishing'].includes(String(pub.status)))) || ['claimed','submitting','publishing','submitted','uncertain','ambiguous','partially_submitted'].includes(String(asRecord(asRecord(item.rag_context)?.platform_submission_gate)?.status))
+  const publicationSummary = basePublicationSummary && (modernReleaseEvidence || releaseEvidenceUnavailable) ? {
+    ...basePublicationSummary,
+    headline: releaseSummary.label || releaseNotice || basePublicationSummary.headline,
+    stateLabel: releaseSummary.phase || 'Reconcile',
+    explanation: releaseSummary.phase === 'Confirmed' ? 'The provider confirmed this post.' : 'Review the current provider receipts.',
+    nextAction: releaseSummary.phase === 'Confirmed' ? 'View the confirmed post.' : 'Refresh evidence and reconcile the remaining result.',
+  } : basePublicationSummary
   const canonicalKanbanHref = `/admin/agents/swarm-board?source_type=social_content_approval&source_id=${encodeURIComponent(item.id)}&social_content_id=${encodeURIComponent(item.id)}`
   const reviewGateSummary: Array<{ label: string; state: GateState; step: ApprovalStep }> = [
     {
@@ -3165,7 +3205,11 @@ function SocialContentDetailPage() {
   const copyReviewBoundaryCopy = isDraftOnlyPilot
     ? 'Draft-level approval is the legitimate copy gate for this calendar path. It records copy approval and queues only internal reference and visual-review work.'
     : 'This records copy approval and prepares internal publication rows. Provider submission, scheduling, uploads, and public publishing remain behind later gates.'
-  const copyGateHeading = copyRejectionResolved
+  const copyGateHeading = copyQualityBlocksReview
+    ? 'Copy needs revision'
+    : copyGateState === 'approved'
+    ? 'Copy approved'
+    : copyRejectionResolved
     ? 'Copy decision recorded'
     : copyRejecting
       ? 'Reject or request revision'
@@ -3174,7 +3218,7 @@ function SocialContentDetailPage() {
     ? 'Copy rejection is recorded. Revise the draft before returning it to review.'
     : copyRejecting
       ? null
-      : copyReviewBoundaryCopy
+      : null
   const renderSectionGateControls = (
     gateKey: SectionGateKey,
     label: string,
@@ -3310,7 +3354,7 @@ function SocialContentDetailPage() {
       </AnimatePresence>
 
       {/* Sticky Header — slim, Save Draft only */}
-      <div className="sticky top-0 z-40 border-b border-gray-800 bg-background/80 px-4 py-3 backdrop-blur-md sm:px-6 lg:px-8">
+      <div data-social-detail-header className="sticky top-0 z-40 border-b border-gray-800 bg-background/80 px-4 py-3 backdrop-blur-md sm:px-6 lg:px-8">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex min-w-0 flex-wrap items-center gap-2 sm:gap-3">
             <button
@@ -3344,6 +3388,7 @@ function SocialContentDetailPage() {
       </div>
 
       <div className="mx-auto w-full max-w-[90rem] space-y-6 px-4 py-6 sm:px-6 lg:px-8">
+        <SocialGateDeepLinkLanding routeId={id} itemId={item.id} gateId={APPROVAL_STEP_SECTION_IDS[activeApprovalStep]} completed={completedGateLandings} />
         <MobileWorkflowSummary
           title={activeApprovalStepDetail.title}
           currentState={mobileSummaryState}
@@ -3387,6 +3432,7 @@ function SocialContentDetailPage() {
                     </button>
                   ) : (
                     <>
+                      {copyQualityBlocksReview && isEditable && <button type="button" onClick={() => { const input=document.getElementById('social-final-post-text'); input?.scrollIntoView({block:'center'}); input?.focus() }} className="rounded-lg bg-amber-400 px-4 py-2 text-sm font-semibold text-slate-950">Edit final copy</button>}
                       <button
                         type="button"
                         onClick={() => {
@@ -3423,14 +3469,16 @@ function SocialContentDetailPage() {
                     {copyGateActionHint}
                   </p>
                 )}
-                <p className="text-xs leading-5 text-emerald-50/65 sm:max-w-[32rem] sm:text-right">
-                  This does not publish, schedule, upload media, call platform providers, send Gmail, send SMS, or trigger external outreach.
-                </p>
+                <details className="text-xs leading-5 text-emerald-50/65 sm:max-w-[32rem]">
+                  <summary className="cursor-pointer sm:text-right">About copy approval</summary>
+                  <p className="mt-2">{copyReviewBoundaryCopy}</p>
+                  <p className="mt-2">This does not publish, schedule, upload media, call platform providers, send Gmail, send SMS, or trigger external outreach.</p>
+                </details>
               </div>
             </div>
 	            {!copyRejectionResolved && copyApprovalDisabledReason && (
 	              <p className="mt-2 rounded-md border border-amber-500/25 bg-gray-950/45 px-3 py-2 text-xs leading-5 text-amber-100">
-	                {copyApprovalDisabledReason}
+	                {copyQualityBlocksReview ? 'Remove internal draft instructions before approval.' : copyApprovalDisabledReason}
 	              </p>
 	            )}
 	            {copyRevisionFeedbackFields}
@@ -4333,8 +4381,9 @@ function SocialContentDetailPage() {
                   )}
                 </div>
               )}
-              <label className="mb-2 block text-sm font-medium text-gray-400">Post Text</label>
+              <label htmlFor="social-final-post-text" className="mb-2 block text-sm font-medium text-gray-400">Post Text</label>
               <textarea
+                id="social-final-post-text"
                 value={postText}
                 onChange={(e) => setPostText(e.target.value)}
                 disabled={!isEditable}
@@ -4345,6 +4394,11 @@ function SocialContentDetailPage() {
                 <span className="text-xs text-gray-500">{postText.length} characters</span>
                 <span className="text-xs text-gray-500">LinkedIn optimal: 150-300 words</span>
               </div>
+              {item.copy_revision && (item.copy_revision.release_locked || item.status === 'approved') && (
+                <button type="button" onClick={() => handleReviewGateJump('submit')} className="mt-3 rounded-lg border border-amber-400/40 px-3 py-2 text-sm text-amber-100">
+                  {item.copy_revision.release_locked ? 'Copy locked · Review platform gate' : 'Copy approved · Review platform gate'}
+                </button>
+              )}
               {copyRejectionResolved && (
                 <div className="mt-4 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4">
                   <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
@@ -4354,7 +4408,9 @@ function SocialContentDetailPage() {
                         Copy revision
                       </p>
                       <p className="mt-1 text-sm leading-6 text-amber-50/85">
-                        {item.copy_revision?.worker === 'not_configured'
+                        {item.copy_revision?.release_locked
+                          ? 'Release evidence locks this copy. Open the platform gate to review its status.'
+                          : item.copy_revision?.worker === 'not_configured'
                           ? 'Manual edit needed. No revision worker is connected. Edit the copy above, then return it to review.'
                           : 'Revise the draft above, then return it to copy review. This only reopens editorial review; it does not approve, publish, schedule, or call providers.'}
                       </p>
@@ -4363,12 +4419,13 @@ function SocialContentDetailPage() {
                     <button
                       type="button"
                       onClick={handleReturnCopyToReview}
-                      disabled={returningCopyToReview || !postText.trim()}
+                      disabled={returningCopyToReview || !postText.trim() || item.copy_revision?.release_locked || (Boolean(item.copy_revision) && !canReturnCopyToReview)}
                       className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-amber-400 px-3 py-2 text-sm font-semibold text-slate-950 transition-colors hover:bg-amber-300 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       {returningCopyToReview ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
                       Return to Copy Review
                     </button>
+                    {item.copy_revision && !canReturnCopyToReview && !item.copy_revision.release_locked && <p className="text-xs text-amber-100">Change the copy before returning it to review.</p>}
                   </div>
                 </div>
               )}
@@ -4460,6 +4517,19 @@ function SocialContentDetailPage() {
 	            {activeApprovalStep === 'visuals' && (
 	            <>
 	            <div id="social-visual-assets-gate" className="scroll-mt-28 rounded-xl border border-gray-800 bg-gray-900 p-4">
+              {item.copy_revision && !item.copy_revision.release_locked && (
+                <details className="mb-4 rounded-lg border border-amber-500/30 p-3">
+                  <summary className="cursor-pointer text-sm font-semibold text-amber-100">Attach an existing image</summary>
+                  <div className="mt-3 space-y-3">
+                    <p className="text-xs text-gray-400">Use the approved graphic. Attachment keeps copy approval; visual and privacy review remain pending.</p>
+                    <label className="block text-sm">Image file<input aria-label="Existing image file" type="file" accept="image/png,image/jpeg,image/webp,image/gif" disabled={attachingImage} onChange={event=>setSelectedImageFile(event.target.files?.[0]??null)} className="mt-1 block w-full min-w-0 text-xs" /></label>
+                    <label className="block text-sm">Or stored image URL<input aria-label="Stored image URL" type="url" value={existingImageUrl} disabled={attachingImage||Boolean(selectedImageFile)} onChange={event=>setExistingImageUrl(event.target.value)} placeholder="Existing social-content storage URL" className="mt-1 w-full min-w-0 rounded border border-gray-700 bg-gray-800 p-2 text-sm" /></label>
+                    <label className="block text-sm">Source or approval reference<input aria-label="Image source or approval reference" value={imageSourceNote} onChange={event=>setImageSourceNote(event.target.value)} disabled={attachingImage} className="mt-1 w-full min-w-0 rounded border border-gray-700 bg-gray-800 p-2 text-sm" /></label>
+                    {imageAttachmentError && <p role="alert" className="text-sm text-red-300">{imageAttachmentError}</p>}
+                    <button type="button" onClick={()=>void handleAttachExistingImage()} disabled={attachingImage||!imageSourceNote.trim()||(!selectedImageFile&&!existingImageUrl.trim())} className="w-full rounded-lg bg-amber-400 px-3 py-2 text-sm font-semibold text-slate-950 disabled:opacity-50">{attachingImage?'Attaching…':selectedImageFile?'Upload and attach image':'Attach stored image'}</button>
+                  </div>
+                </details>
+              )}
               {canEditVisualProduction && (
                 <div className="mb-4 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4">
                   <div className="flex flex-col gap-2">
@@ -5603,13 +5673,24 @@ function SocialContentDetailPage() {
             ) : null}
           </div>
 
+          <div aria-label="Release evidence" className="mt-3 flex flex-wrap items-center gap-3 text-xs">
+            <span role="status" className="text-amber-100">{socialReleaseReview(item).label || releaseNotice || 'Review the selected platform before release.'}</span>
+            <button type="button" onClick={() => setApprovalStep('status')} disabled={!item.publishes?.length} className="text-blue-200 underline disabled:opacity-50">View receipts</button>
+            <button type="button" onClick={() => void refreshReleaseEvidence()} disabled={publishing} className="text-blue-200 underline disabled:opacity-50">Refresh evidence</button>
+          </div>
+
           <div className="mt-4 grid gap-3 lg:grid-cols-2">
             {platformSubmissionPlan.platforms.map((platformPlan) => {
                   const automaticStage = platformPlan.stages.find((stage) => stage.key === 'automatic_submission')
                   const configurationStage = platformPlan.stages.find((stage) => stage.key === 'platform_configuration')
                   const finalGateStage = platformPlan.stages.find((stage) => stage.key === 'final_submission_gate')
-                  const canSubmitPlatform = automaticStage?.state === 'available'
-                  const canApproveFinalSubmission = finalGateStage?.state === 'pending'
+                  const firstIncomplete = platformPlan.stages.find(stage => stage.state !== 'complete')
+                  const recoveryStep: ApprovalStep | null = firstIncomplete?.key === 'human_approval' ? 'copy' : firstIncomplete?.key === 'asset_readiness' ? 'visuals' : firstIncomplete?.key === 'platform_draft_handoff' ? 'draft' : null
+                  const releaseState = socialReleaseReview(item, platformPlan.platform)
+                  const releaseLocked = publishing || releaseEvidenceUnavailable || releaseState.locked
+                  const canSubmitPlatform = !releaseLocked && !releaseState.continuation && automaticStage?.state === 'available'
+                  const continuationReady = releaseState.continuation && platformPlan.stages.filter(stage => !['final_submission_gate','automatic_submission'].includes(stage.key)).every(stage => stage.state === 'complete')
+                  const canApproveFinalSubmission = !releaseLocked && (continuationReady || (!releaseState.continuation && finalGateStage?.state === 'pending'))
                   const shouldAutoSubmit = platformPlan.automaticSubmissionSupported && !FINAL_GATE_ONLY_PLATFORMS.has(platformPlan.platform)
                   const approveSubmissionLabel = shouldAutoSubmit
                     ? 'Approve & submit'
@@ -5626,7 +5707,7 @@ function SocialContentDetailPage() {
                       <div>
                         <p className="text-sm font-semibold text-gray-100">{platformPlan.label}</p>
                         <p className="text-xs text-gray-500">
-                          {platformPlan.automaticSubmissionSupported ? 'Automatic submit connected' : 'Automatic submit not connected'}
+                          {platformPlan.automaticSubmissionSupported ? 'Automatic submission supported' : 'Manual submission required'}
                         </p>
                       </div>
                     </div>
@@ -5637,6 +5718,11 @@ function SocialContentDetailPage() {
                     ) : null}
                   </div>
 
+                  {recoveryStep && (
+                    <button type="button" onClick={() => handleReviewGateJump(recoveryStep)} className="mt-3 w-full rounded-lg bg-amber-400 px-3 py-2 text-sm font-semibold text-slate-950">
+                      {recoveryStep === 'visuals' ? 'Review assets and privacy' : recoveryStep === 'draft' ? 'Review platform draft' : 'Review current copy'}
+                    </button>
+                  )}
                   <div className="mt-3 space-y-2">
                     {platformPlan.stages.map((stage) => (
                       <div key={stage.key} className={`rounded-md border px-3 py-2 ${platformStageClass(stage.state)}`}>
@@ -5649,7 +5735,12 @@ function SocialContentDetailPage() {
                             {stage.state}
                           </span>
                         </div>
-                        <p className="mt-1 text-[0.68rem] leading-5 opacity-80">{stage.detail}</p>
+                        <p className="mt-1 text-[0.68rem] leading-5 opacity-80">{stage.key === 'asset_readiness' && isDraftOnlyPilot && stage.state !== 'complete'
+                          ? !visualAssetReady ? 'No linked visual asset. Attach the approved image or video, then review assets and privacy.'
+                            : !assetPacketReady ? 'Asset packet is missing. Prepare it from the linked asset, then review privacy and rights.'
+                            : !visualPrivacyReady ? (productionAssets ? redactionGate.message : 'Privacy and rights review is not recorded for this asset.')
+                            : 'Asset, packet, or privacy approval is pending. Review the visual gate.'
+                          : stage.detail}</p>
                       </div>
                     ))}
                   </div>
@@ -5758,7 +5849,7 @@ function SocialContentDetailPage() {
                   ) : null}
 
                   <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                    <p className="text-xs leading-5 text-gray-400">{platformPlan.nextAction}</p>
+                    <p className="text-xs leading-5 text-gray-400">{releaseLocked ? releaseState.label || releaseNotice || 'Refresh release evidence before continuing.' : platformPlan.nextAction}</p>
                     {canApproveFinalSubmission ? (
                       <button
                         type="button"
@@ -6236,7 +6327,8 @@ function SocialContentDetailPage() {
             initial="hidden"
             animate="visible"
             variants={{ visible: { transition: { staggerChildren: 0.1 } } }}
-            className="space-y-3"
+            id="social-release-receipts"
+            className="space-y-3 scroll-mt-24"
           >
             <h2 className="text-lg font-semibold text-gray-200 flex items-center gap-2">
               <CheckCircle2 className="w-5 h-5 text-blue-400" />
@@ -6246,6 +6338,8 @@ function SocialContentDetailPage() {
             {item.publishes.map((pub: SocialContentPublish, index) => {
               const statusProjection = publicationProjections[index]
               const platformLabel = PLATFORMS.find(p => p.value === pub.platform)?.label || pub.platform
+              const receiptState = socialReleaseReview(item, pub.platform)
+              const receiptOverride = (receiptState.phase === 'Reconcile' && !['scheduled','publishing'].includes(String(pub.status))) || releaseEvidenceUnavailable || ['claimed','submitting','publishing','submitted','uncertain','ambiguous','partially_submitted'].includes(String(asRecord(asRecord(item.rag_context)?.platform_submission_gate)?.status)) || ['uncertain','ambiguous'].includes(String(pub.status)) || (pub.status === 'failed' && Boolean(pub.platform_post_id || pub.platform_post_url))
               return (
                 <motion.article
                   key={pub.id}
@@ -6265,30 +6359,32 @@ function SocialContentDetailPage() {
                         <div className="min-w-0">
                           <p className="text-xs font-semibold uppercase tracking-[0.12em] text-gray-500">{platformLabel}</p>
                           <h3 className="mt-1 break-words text-base font-semibold leading-6 text-gray-100">
-                            {statusProjection.headline}
+                            {receiptOverride ? receiptState.label || releaseNotice || 'Refresh release evidence' : statusProjection.headline}
                           </h3>
                         </div>
                         <span
                           role="status"
                           className={`shrink-0 rounded-full border px-2.5 py-1 text-xs font-semibold ${PUBLICATION_TONE_CLASSES[statusProjection.tone]}`}
                         >
-                          {statusProjection.stateLabel}
+                          {receiptOverride ? receiptState.phase || 'Reconcile' : statusProjection.stateLabel}
                         </span>
                       </div>
                       <p className="mt-2 break-words text-sm leading-6 text-gray-300">
-                        {statusProjection.explanation}
+                        {receiptOverride ? 'Review the recorded result before another release action.' : statusProjection.explanation}
                       </p>
                     </div>
                   </div>
 
-                  <dl className="mt-4 grid gap-x-6 gap-y-3 border-t border-gray-800 pt-4 text-sm sm:grid-cols-2 xl:grid-cols-4">
+                  <details className="mt-3 text-xs text-gray-400">
+                    <summary className="cursor-pointer">Receipt details</summary>
+                  <dl className="mt-3 grid gap-x-6 gap-y-3 text-sm sm:grid-cols-2 xl:grid-cols-4">
                     <div className="min-w-0">
                       <dt className="text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-500">Owner</dt>
                       <dd className="mt-1 break-words text-gray-200">{statusProjection.owner}</dd>
                     </div>
                     <div className="min-w-0 sm:col-span-2 xl:col-span-1">
                       <dt className="text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-500">Next action</dt>
-                      <dd className="mt-1 break-words leading-6 text-gray-200">{statusProjection.nextAction}</dd>
+                      <dd className="mt-1 break-words leading-6 text-gray-200">{receiptOverride ? 'Refresh evidence and review the provider receipt.' : statusProjection.nextAction}</dd>
                     </div>
                     <div className="min-w-0">
                       <dt className="text-[10px] font-semibold uppercase tracking-[0.12em] text-gray-500">Waiting on you?</dt>
@@ -6299,8 +6395,10 @@ function SocialContentDetailPage() {
                       <dd className="mt-1 break-words text-gray-400">{statusProjection.rawStatus}</dd>
                     </div>
                   </dl>
+                  </details>
 
-                  <div className="mt-4 flex flex-wrap items-center gap-3">
+                  <div className="mt-3 flex flex-wrap items-center gap-3">
+                    {(receiptState.locked || releaseEvidenceUnavailable) && <button type="button" onClick={() => void refreshReleaseEvidence()} disabled={publishing} className="text-xs text-blue-200 underline">Refresh evidence</button>}
                     {statusProjection.permalink && (
                       <a
                         href={statusProjection.permalink}
@@ -6311,7 +6409,7 @@ function SocialContentDetailPage() {
                         View post <ExternalLink className="w-3 h-3" />
                       </a>
                     )}
-                    {pub.status === 'failed' && (
+                    {pub.status === 'failed' && !socialReleaseReview(item, pub.platform).locked && !socialReleaseReview(item, pub.platform).continuation && !releaseEvidenceUnavailable && (
                       <button
                         onClick={() => handleRetryPublish([pub.platform as SocialPlatform])}
                         disabled={publishing || videoPrivacyBlocked}
@@ -6343,6 +6441,26 @@ function SocialContentDetailPage() {
       {/* ================================================================ */}
       {/* Confirmation Modal                                                */}
       {/* ================================================================ */}
+      {releaseConfirmation && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-3">
+          <section role="dialog" aria-modal="true" aria-labelledby="release-confirm-title" className="flex max-h-[90dvh] w-full max-w-xl flex-col rounded-xl border border-amber-500/50 bg-gray-900 p-4 shadow-2xl">
+            <h2 id="release-confirm-title" className="text-lg font-semibold text-gray-100">{releaseConfirmation.submit ? 'Confirm public submission' : 'Confirm final platform approval'}</h2>
+            <p className="mt-2 text-sm text-amber-100">{releaseConfirmation.platforms.map(platform => PLATFORMS.find(option => option.value === platform)?.label ?? platform).join(', ')}{releaseConfirmation.submit ? ' · Publishes publicly now' : ' · Records approval only'}</p>
+            <div className="my-3 min-h-0 overflow-y-auto space-y-3 text-sm text-gray-200">
+              <p className="whitespace-pre-wrap break-words">{getFullPostText(releaseConfirmation.reviewed)}</p>
+              {releaseConfirmation.reviewed.video_url ? <video controls preload="metadata" src={releaseConfirmation.reviewed.video_url} className="max-h-52 w-full" /> : releaseConfirmation.reviewed.image_url ? <Image src={releaseConfirmation.reviewed.image_url} alt="Reviewed release asset" width={640} height={360} className="max-h-52 w-full object-contain" /> : !releaseConfirmation.reviewed.carousel_slide_urls?.length && !releaseConfirmation.reviewed.carousel_pdf_url ? <p className="text-gray-400">Text only · no attached asset</p> : null}
+              {releaseConfirmation.platforms.includes('youtube') && <div><p>{releaseConfirmation.reviewed.youtube_title}</p><p className="whitespace-pre-wrap break-words">{releaseConfirmation.reviewed.youtube_description}</p></div>}
+              {releaseConfirmation.reviewed.carousel_pdf_url && <a href={releaseConfirmation.reviewed.carousel_pdf_url} target="_blank" rel="noreferrer" className="block text-blue-200 underline">Reviewed carousel PDF</a>}
+              {releaseConfirmation.reviewed.carousel_slide_urls?.map((url, index) => url ? <Image key={index} src={url} alt={`Reviewed slide ${index + 1}`} width={640} height={360} className="max-h-52 w-full object-contain" /> : null)}
+            </div>
+            <div className="flex shrink-0 flex-wrap justify-end gap-2 border-t border-gray-700 pt-3">
+              <button type="button" onClick={() => setReleaseConfirmation(null)} className="rounded-lg border border-gray-600 px-4 py-2 text-sm text-gray-200">Cancel</button>
+              <button type="button" onClick={() => void executeConfirmedRelease()} disabled={publishing} className="rounded-lg bg-amber-400 px-4 py-2 text-sm font-semibold text-slate-950 disabled:opacity-50">{releaseConfirmation.submit ? 'Confirm and publish' : 'Confirm final approval'}</button>
+            </div>
+          </section>
+        </div>
+      )}
+
       <AnimatePresence>
         {showConfirmModal && (
           <motion.div

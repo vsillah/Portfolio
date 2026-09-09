@@ -51,6 +51,7 @@ const ORIGINAL_ENV = process.env
 
 type QueryMock = {
   select: ReturnType<typeof vi.fn>
+  is: ReturnType<typeof vi.fn>
   eq: ReturnType<typeof vi.fn>
   maybeSingle: ReturnType<typeof vi.fn>
   update: ReturnType<typeof vi.fn>
@@ -63,6 +64,7 @@ function queryResult(result: unknown): QueryMock {
   const query = {} as QueryMock
   query.select = vi.fn(() => query)
   query.eq = vi.fn(() => query)
+  query.is = vi.fn(() => query)
   query.maybeSingle = vi.fn(() => Promise.resolve(result))
   query.update = vi.fn(() => query)
   query.insert = vi.fn(() => Promise.resolve(result))
@@ -73,6 +75,7 @@ function queryResult(result: unknown): QueryMock {
 }
 
 function payload(value: Record<string, unknown>, userId = 'U123') {
+  if (String(value.action).startsWith('social_comment_reply.')) value = { expectedUpdatedAt: 'reply-v1', expectedReplyText: 'Thanks for asking.', ...value }
   return {
     type: 'block_actions',
     user: { id: userId, username: 'vambah' },
@@ -165,7 +168,7 @@ describe('Agent Ops Slack actions', () => {
     expect(result.text).toContain('Already handled this Slack action')
     expect(recordedActionQuery.eq).toHaveBeenCalledWith(
       'idempotency_key',
-      'slack-agent-action:local-team:local-channel:U123:1716400000.000:social_comment_reply.approve:comment-1',
+      'slack-agent-action:local-team:local-channel:U123:1716400000.000:social_comment_reply.approve:comment-1:reply-v1',
     )
   })
 
@@ -394,12 +397,12 @@ describe('Agent Ops Slack actions', () => {
   })
 
   it('approves prepared low-risk comment replies into a 15-minute hold without provider submission', async () => {
-    const commentUpdate = queryResult({ error: null })
+    const commentUpdate = queryResult({ data: { id: 'comment-1' }, error: null })
     mocks.from
       .mockReturnValueOnce(queryResult({ data: null, error: null }))
       .mockReturnValueOnce(queryResult({
         data: {
-          id: 'comment-1',
+          id: 'comment-1', updated_at: 'reply-v1',
           content_id: 'social-post-1',
           publish_id: 'publish-1',
           platform: 'linkedin',
@@ -429,6 +432,7 @@ describe('Agent Ops Slack actions', () => {
       commentId: 'comment-1',
       contentId: 'social-post-1',
       note: 'Looks safe from mobile.',
+      expectedReplyText: 'Thanks for asking. The intake map is the best first step.',
     }))
 
     expect(result.text).toContain('Reply approved from Slack')
@@ -456,12 +460,12 @@ describe('Agent Ops Slack actions', () => {
   })
 
   it('treats duplicate Slack comment reply approvals as already handled from comment metadata', async () => {
-    const idempotencyKey = 'slack-agent-action:local-team:local-channel:U123:1716400000.000:social_comment_reply.approve:comment-1'
+    const idempotencyKey = 'slack-agent-action:local-team:local-channel:U123:1716400000.000:social_comment_reply.approve:comment-1:reply-v1'
     mocks.from
       .mockReturnValueOnce(queryResult({ data: null, error: null }))
       .mockReturnValueOnce(queryResult({
         data: {
-          id: 'comment-1',
+          id: 'comment-1', updated_at: 'reply-v1',
           content_id: 'social-post-1',
           publish_id: 'publish-1',
           platform: 'youtube',
@@ -499,12 +503,12 @@ describe('Agent Ops Slack actions', () => {
   })
 
   it('preserves submitted provider evidence when stale Slack reply buttons are clicked', async () => {
-    const commentUpdate = queryResult({ error: null })
+    const commentUpdate = queryResult({ data: { id: 'comment-1' }, error: null })
     mocks.from
       .mockReturnValueOnce(queryResult({ data: null, error: null }))
       .mockReturnValueOnce(queryResult({
         data: {
-          id: 'comment-1',
+          id: 'comment-1', updated_at: 'reply-v1',
           content_id: 'social-post-1',
           publish_id: 'publish-1',
           platform: 'youtube',
@@ -539,27 +543,8 @@ describe('Agent Ops Slack actions', () => {
       note: 'Approved from stale Slack alert.',
     }))
 
-    expect(result.text).toContain('submitted provider evidence')
-    expect(commentUpdate.update).toHaveBeenCalledWith(expect.objectContaining({
-      metadata: expect.objectContaining({
-        ui_action_history: [
-          expect.objectContaining({
-            action: 'approve',
-            by: 'slack:U123',
-            note: expect.stringContaining('Existing provider reply evidence remained authoritative.'),
-          }),
-        ],
-        slack_reply_decision: expect.objectContaining({
-          status: 'approved',
-          existing_submission_preserved: true,
-          external_submission_performed: false,
-        }),
-      }),
-    }))
-    expect(commentUpdate.update.mock.calls[0][0]).not.toHaveProperty('response_approval_state')
-    expect(commentUpdate.update.mock.calls[0][0]).not.toHaveProperty('reply_submission_state')
-    expect(commentUpdate.update.mock.calls[0][0]).not.toHaveProperty('reply_provider_comment_id')
-    expect(commentUpdate.update.mock.calls[0][0]).not.toHaveProperty('reply_submitted_at')
+    expect(result.text).toContain('submitted or uncertain evidence')
+    expect(commentUpdate.update).not.toHaveBeenCalled()
   })
 
   it('blocks Slack approval for unverified comment providers', async () => {
@@ -567,7 +552,7 @@ describe('Agent Ops Slack actions', () => {
       .mockReturnValueOnce(queryResult({ data: null, error: null }))
       .mockReturnValueOnce(queryResult({
         data: {
-          id: 'comment-2',
+          id: 'comment-2', updated_at: 'reply-v1',
           content_id: 'social-post-2',
           publish_id: 'publish-2',
           platform: 'instagram',
@@ -593,7 +578,7 @@ describe('Agent Ops Slack actions', () => {
 
     const result = await handleSlackAgentAction(payload({
       action: 'social_comment_reply.approve',
-      commentId: 'comment-2',
+      commentId: 'comment-2', expectedReplyText: 'Use the link in bio.',
       contentId: 'social-post-2',
     }))
 

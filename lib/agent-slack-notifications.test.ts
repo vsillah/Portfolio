@@ -777,7 +777,7 @@ describe('Agent Ops Slack notifications', () => {
     mocks.from.mockReturnValueOnce(queryResult({
       data: [
         {
-          id: 'comment-1',
+          id: 'comment-1', updated_at: '2026-09-08T00:00:00Z',
           content_id: 'social-post-1',
           publish_id: 'publish-1',
           platform: 'linkedin',

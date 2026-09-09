@@ -1,3 +1,4 @@
+import { assertSocialQueueWritable, assertSocialQueuePublicationClear, updateSocialQueueWithVersion, SocialQueueWriteConflict } from '@/lib/social-queue-write'
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
@@ -44,13 +45,16 @@ export async function POST(
 
     const { data: row, error: fetchErr } = await supabaseAdmin
       .from('social_content_queue')
-      .select('post_text, topic_extracted, hormozi_framework, hashtags')
+      .select('*')
       .eq('id', id)
       .single()
 
     if (fetchErr || !row) {
       return NextResponse.json({ error: 'Content not found' }, { status: 404 })
     }
+
+    assertSocialQueueWritable(row)
+    await assertSocialQueuePublicationClear(supabaseAdmin, row.id)
 
     const agentRun = await startAgentRun({
       agentKey: 'manual-admin',
@@ -170,15 +174,10 @@ Hashtags: ${(row.hashtags || []).join(', ')}`
       throw new SocialCarouselGenerationError('AI generated too few slides', 'invalid_response')
     }
 
-    await supabaseAdmin
-      .from('social_content_queue')
-      .update({ carousel_slides: slides })
-      .eq('id', id)
-
     const { pngBuffers, pdfBuffer } = await renderCarousel(slides)
 
     const slideUrls: string[] = []
-    const storageBase = `carousels/${id}`
+    const storageBase = `carousels/${id}/${crypto.randomUUID()}`
 
     for (let i = 0; i < pngBuffers.length; i++) {
       const fileName = `${storageBase}/slide_${String(i + 1).padStart(2, '0')}.png`
@@ -216,14 +215,12 @@ Hashtags: ${(row.hashtags || []).join(', ')}`
       pdfUrl = publicUrl.publicUrl
     }
 
-    await supabaseAdmin
-      .from('social_content_queue')
-      .update({
+    await updateSocialQueueWithVersion(supabaseAdmin, row, {
+        carousel_slides: slides,
         content_format: 'carousel',
         carousel_slide_urls: slideUrls,
         carousel_pdf_url: pdfUrl,
       })
-      .eq('id', id)
 
     await endAgentRun({
       runId: agentRunId,
@@ -263,6 +260,8 @@ Hashtags: ${(row.hashtags || []).join(', ')}`
         social_content_id: params.id,
       }).catch((runErr) => console.warn('[convert-to-carousel] mark agent run failed:', runErr))
     }
+
+    if (error instanceof SocialQueueWriteConflict) return NextResponse.json({ error: error.message }, { status: 409 })
 
     if (error instanceof SocialCarouselGenerationError) {
       return NextResponse.json(

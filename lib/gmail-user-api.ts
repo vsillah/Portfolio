@@ -1,3 +1,5 @@
+import { buildPlaintextRfc2822, rfc2822ToGmailRaw } from '@/lib/gmail-message-copy'
+export { buildPlaintextRfc2822, rfc2822ToGmailRaw } from '@/lib/gmail-message-copy'
 import { google } from 'googleapis'
 import { signOAuthState } from '@/lib/gmail-user-oauth-state'
 
@@ -33,36 +35,6 @@ export function buildGmailUserAuthorizeUrl(userId: string): string {
     scope: [...GMAIL_USER_OAUTH_SCOPES],
     state,
   })
-}
-
-function mimeEncodedSubject(subject: string): string {
-  const line = subject.replace(/\r?\n/g, ' ').trim().slice(0, 200)
-  const b = Buffer.from(line, 'utf8').toString('base64')
-  return `=?UTF-8?B?${b}?=`
-}
-
-/** RFC 2822–style message; will be base64url-wrapped for Gmail API `raw`. */
-export function buildPlaintextRfc2822(to: string, subject: string, body: string): string {
-  const normalizedBody = body.replace(/\r?\n/g, '\n')
-  const bodyB64 = Buffer.from(normalizedBody, 'utf8').toString('base64')
-  const wrapped = bodyB64.match(/.{1,76}/g)?.join('\r\n') ?? bodyB64
-  return [
-    `To: ${to}`,
-    `Subject: ${mimeEncodedSubject(subject)}`,
-    'MIME-Version: 1.0',
-    'Content-Type: text/plain; charset=UTF-8',
-    'Content-Transfer-Encoding: base64',
-    '',
-    wrapped,
-  ].join('\r\n')
-}
-
-export function rfc2822ToGmailRaw(rfc: string): string {
-  return Buffer.from(rfc, 'utf8')
-    .toString('base64')
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=+$/, '')
 }
 
 export async function exchangeCodeForTokens(code: string) {
@@ -110,16 +82,34 @@ export async function createUserGmailDraft(
   return { id, messageId, threadId }
 }
 
+export async function updateUserGmailDraft(
+  refreshToken: string,
+  draftId: string,
+  reviewedCopy: { to: string; subject: string; body: string },
+): Promise<{ id: string; messageId?: string; threadId?: string }> {
+  const raw = rfc2822ToGmailRaw(buildPlaintextRfc2822(reviewedCopy.to, reviewedCopy.subject, reviewedCopy.body))
+  const oauth2Client = getGmailUserOAuth2Client()
+  oauth2Client.setCredentials({ refresh_token: refreshToken })
+  const gmail = google.gmail({ version: 'v1', auth: oauth2Client })
+  const result = await gmail.users.drafts.update({ userId: 'me', id: draftId, requestBody: { id: draftId, message: { raw } } })
+  if (result.data.id !== draftId) throw new Error('Gmail draft update identity is unconfirmed. Reconcile the mailbox before retrying.')
+  return { id: result.data.id, messageId: result.data.message?.id ?? undefined, threadId: result.data.message?.threadId ?? undefined }
+}
+
 export async function sendUserGmailDraft(
   refreshToken: string,
-  draftId: string
+  draftId: string,
+  reviewedCopy?: { to: string; subject: string; body: string }
 ): Promise<{ id?: string; threadId?: string; labelIds?: string[] }> {
   const oauth2Client = getGmailUserOAuth2Client()
   oauth2Client.setCredentials({ refresh_token: refreshToken })
   const gmail = google.gmail({ version: 'v1', auth: oauth2Client })
+  if (!reviewedCopy) throw new Error('Exact reviewed message is required. Open the Portfolio Gmail review before sending.')
+  const raw = rfc2822ToGmailRaw(buildPlaintextRfc2822(reviewedCopy.to, reviewedCopy.subject, reviewedCopy.body))
+  // Gmail replaces and sends the draft in one request: https://developers.google.com/workspace/gmail/api/guides/drafts#send_drafts
   const res = await gmail.users.drafts.send({
     userId: 'me',
-    requestBody: { id: draftId },
+    requestBody: { id: draftId, message: { raw } },
   })
   return {
     id: res.data.id ?? undefined,

@@ -1,5 +1,8 @@
 'use client'
 
+import { useState } from 'react'
+import WarmGmailExecutionActions from './WarmGmailExecutionActions'
+import { warmCopyBlocker, warmCopyEvidenceBlocker } from '@/lib/warm-outreach-copy-quality'
 import { AlertTriangle, CheckCircle, Clipboard, Info, Loader2, Mail, Send, ShieldCheck } from 'lucide-react'
 import type { RelationshipPacketApiResponse } from './RelationshipPacketPanel'
 
@@ -11,6 +14,7 @@ export type WarmGmailDraftReviewData = {
   sequenceStep: number | null
   subject: string | null
   body: string | null
+  updatedAt?: string
   createdAt: string
   generationModel: string | null
   generationPromptSummary: string | null
@@ -38,6 +42,9 @@ type WarmGmailDraftReviewPanelProps = {
   requestApprovalLoading?: boolean
   requestApprovalMessage?: string | null
   requestApprovalError?: string | null
+  onReviewDecision?: (action: 'approve' | 'reject', feedback?: string) => Promise<void>
+  onSaveCopy?: (subject: string, body: string) => Promise<void>
+  onRefresh?: () => Promise<void>
   onCopyDraft?: (body: string) => void
   onRequestApproval?: (queueId: string) => void
 }
@@ -100,7 +107,7 @@ function stepClasses(status: 'complete' | 'current' | 'upcoming' | 'blocked') {
 }
 
 function primaryCta(stage: ReviewStage, hasBody: boolean) {
-  if (stage === 'request_approval') return { label: 'Request send approval', icon: Send }
+  if (stage === 'request_approval') return { label: 'Prepare review request', icon: Send }
   if (stage === 'approval_pending') return { label: 'Review decision', icon: ShieldCheck }
   if (stage === 'approved' || stage === 'live_send') return { label: 'View gate keys', icon: ShieldCheck }
   if (stage === 'submitted') return { label: 'Review sent evidence', icon: CheckCircle }
@@ -120,12 +127,49 @@ export default function WarmGmailDraftReviewPanel({
   requestApprovalLoading = false,
   requestApprovalMessage = null,
   requestApprovalError = null,
+  onReviewDecision,
+  onSaveCopy,
+  onRefresh,
   onCopyDraft,
   onRequestApproval,
 }: WarmGmailDraftReviewPanelProps) {
+  const [saveResult, setSaveResult] = useState<string | null>(null)
+  const [feedback, setFeedback] = useState('')
+  const [reviewing, setReviewing] = useState(false)
+  const [reviewResult, setReviewResult] = useState<string | null>(null)
+  const decide = async (action: 'approve' | 'reject') => {
+    setReviewing(true)
+    setSaveResult(null)
+    try { await onReviewDecision?.(action, feedback); setReviewResult(action === 'approve' ? 'Final copy approved. Mailbox draft and send require their separate gates.' : 'Draft rejected. Edit the copy to return to review.') }
+    catch (error) { setReviewResult(error instanceof Error ? error.message : 'Review could not be saved.') }
+    finally { setReviewing(false) }
+  }
+  const [editing, setEditing] = useState(false)
+  const [subjectEdit, setSubjectEdit] = useState('')
+  const [bodyEdit, setBodyEdit] = useState('')
+  const [saving, setSaving] = useState(false)
+  const [saveError, setSaveError] = useState<string | null>(null)
+  const evidenceBlocker = warmCopyEvidenceBlocker(data?.generationInputs)
+  const qualityBlocker = warmCopyBlocker(data?.body)
+  const visibleQualityBlocker = editing ? warmCopyBlocker(bodyEdit) : qualityBlocker
+  const startEditing = () => {
+    setSubjectEdit(data?.subject ?? '')
+    setBodyEdit(qualityBlocker ? '' : data?.body ?? '')
+    setSaveError(null)
+    setEditing(true)
+  }
+  const save = async () => {
+    const blocker = warmCopyBlocker(bodyEdit)
+    if (blocker) { setSaveError(blocker); return }
+    setSaving(true)
+    setReviewResult(null)
+    try { await onSaveCopy?.(subjectEdit, bodyEdit); setEditing(false); setSaveResult('Copy saved. Review required again.') }
+    catch (error) { setSaveError(error instanceof Error ? error.message : 'Copy could not be saved.') }
+    finally { setSaving(false) }
+  }
   const loop = emailLifecycle(relationshipPacketData)?.gmailOperatingLoop ?? null
   const gate = loop?.executionGate ?? null
-  const stage = warmGmailDraftReviewStage(relationshipPacketData)
+  const stage = data?.status === 'sent' ? 'submitted' : evidenceBlocker ? 'blocked' : warmGmailDraftReviewStage(relationshipPacketData)
   const displayStage =
     stage === 'request_approval' && requestApprovalMessage && !requestApprovalError
       ? 'approval_pending'
@@ -143,7 +187,7 @@ export default function WarmGmailDraftReviewPanel({
     displayStage === 'submitted'
   const localApprovalRequestRecorded = stage === 'request_approval' && displayStage === 'approval_pending'
   const currentAction = loop?.nextAction
-  const nextActionLabel = localApprovalRequestRecorded
+  const nextActionLabel = qualityBlocker ? 'Write final copy' : localApprovalRequestRecorded
     ? 'Review decision'
     : currentAction?.label ?? cta.label
   const nextActionDetail =
@@ -151,7 +195,7 @@ export default function WarmGmailDraftReviewPanel({
       ? requestApprovalMessage ?? 'Approval request recorded locally. Record approve, reject, or revise before any execution gate.'
       : currentAction?.detail ??
     (displayStage === 'draft_only'
-      ? 'Review the saved body, then copy it for manual revision or continue from the existing queue row.'
+      ? 'Review the final copy before the separate mailbox draft and send gates.'
       : gate?.safeNextStep ?? 'Continue from the existing warm Gmail operating loop.')
   const gateLabel = localApprovalRequestRecorded
     ? 'Authorization decision required'
@@ -161,19 +205,21 @@ export default function WarmGmailDraftReviewPanel({
     : gate?.blockedReason ?? gate?.safeNextStep ?? nextActionDetail
 
   const runPrimary = () => {
+    if (data?.status === 'draft' && onReviewDecision && !qualityBlocker) { void decide('approve'); return }
     if (displayStage === 'request_approval' && queueId) {
       onRequestApproval?.(queueId)
       return
     }
-    if (displayStage === 'draft_only' && body) {
+    if (displayStage === 'draft_only' && body && !qualityBlocker) {
       onCopyDraft?.(body)
     }
   }
 
   const ctaDisabled =
     loading ||
-    requestApprovalLoading ||
-    displayStage === 'blocked' ||
+    requestApprovalLoading || reviewing ||
+    Boolean(qualityBlocker) ||
+    (displayStage === 'blocked' && !(data?.status === 'draft' && onReviewDecision)) ||
     (displayStage === 'request_approval'
       ? !queueId || !onRequestApproval
       : displayStage === 'draft_only' && (!body || !onCopyDraft))
@@ -181,7 +227,7 @@ export default function WarmGmailDraftReviewPanel({
   return (
     <section
       id="warm-gmail-draft-review"
-      className="rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-3 sm:p-4"
+      className="scroll-mt-24 rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-3 sm:p-4"
       aria-label={`Gmail draft review for ${leadName}`}
     >
       <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(11rem,auto)] lg:items-start">
@@ -189,37 +235,15 @@ export default function WarmGmailDraftReviewPanel({
           <div className="flex flex-wrap items-center gap-2">
             <span className={`inline-flex max-w-full items-center gap-1.5 rounded-full border px-2 py-0.5 text-[11px] font-semibold ${stageTone(stage)}`}>
               <Mail size={13} className="shrink-0" aria-hidden />
-              <span className="truncate">{stageLabel(displayStage)}</span>
-            </span>
-            <span className="rounded-full border border-silicon-slate/70 bg-background/40 px-2 py-0.5 text-[11px] text-muted-foreground">
-              {data?.status ?? 'loading'}
-            </span>
-            <span className="rounded-full border border-silicon-slate/70 bg-background/40 px-2 py-0.5 text-[11px] text-muted-foreground">
-              external send off
-            </span>
-            <span className="rounded-full border border-silicon-slate/70 bg-background/40 px-2 py-0.5 text-[11px] text-muted-foreground">
-              {gateLabel}
+              <span className="truncate">{displayStage === 'draft_only' && data?.status === 'rejected' ? 'Rejected' : data?.status === 'approved' && displayStage === 'draft_only' ? 'Copy approved' : stageLabel(displayStage)}</span>
             </span>
           </div>
           <h3 className="mt-2 truncate text-base font-semibold text-foreground">
             {data?.subject || `Warm draft review: ${leadName}`}
           </h3>
-          <div className="mt-2 grid gap-2 text-xs sm:grid-cols-3">
-            <p className="min-w-0 rounded-md border border-silicon-slate/70 bg-background/35 px-2 py-1.5">
-              <span className="block text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">To</span>
-              <span className="block truncate text-foreground">{leadEmail || data?.contactSubmissionId || 'Missing'}</span>
-            </p>
-            <p className="min-w-0 rounded-md border border-silicon-slate/70 bg-background/35 px-2 py-1.5">
-              <span className="block text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Queue</span>
-              <span className="block truncate text-foreground">{queueId ?? data?.id ?? 'Missing'}</span>
-            </p>
-            <p className="min-w-0 rounded-md border border-silicon-slate/70 bg-background/35 px-2 py-1.5">
-              <span className="block text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Linked message</span>
-              <span className="block truncate text-foreground">{linkedEmailMessageId ?? 'Recovered here'}</span>
-            </p>
-          </div>
+          <p className="mt-1 break-words text-sm text-muted-foreground">To {leadEmail || leadName}</p>
         </div>
-        {displayStage === 'blocked' ? (
+        {editing || (onRefresh && data?.status !== 'draft') || (qualityBlocker && onSaveCopy) ? null : displayStage === 'blocked' && !(data?.status === 'draft' && onReviewDecision) ? (
           <div
             role="status"
             className="inline-flex min-h-10 w-full min-w-0 items-center justify-center gap-2 rounded-lg border border-red-500/35 bg-red-500/10 px-3 text-sm font-semibold text-red-100 lg:w-auto"
@@ -227,9 +251,16 @@ export default function WarmGmailDraftReviewPanel({
             <CtaIcon size={15} aria-hidden />
             <span className="truncate">{nextActionLabel}</span>
           </div>
-        ) : ctaLinksToOperatingLoop ? (
+        ) : ctaLinksToOperatingLoop && !(data?.status === 'draft' && onReviewDecision) ? (
           <a
             href="#warm-gmail-operating-loop"
+            onClick={() => {
+              const target = document.getElementById('warm-gmail-operating-loop')
+              target?.closest('details')?.setAttribute('open', '')
+              target?.setAttribute('tabindex', '-1')
+              target?.focus()
+              target?.scrollIntoView({ block: 'center' })
+            }}
             className="inline-flex min-h-10 w-full min-w-0 items-center justify-center gap-2 rounded-lg border border-radiant-gold/50 bg-radiant-gold/10 px-3 text-sm font-semibold text-radiant-gold transition-colors hover:bg-radiant-gold/15 lg:w-auto"
           >
             <CtaIcon size={15} aria-hidden />
@@ -243,10 +274,43 @@ export default function WarmGmailDraftReviewPanel({
             className="inline-flex min-h-10 w-full min-w-0 items-center justify-center gap-2 rounded-lg border border-radiant-gold/50 bg-radiant-gold/10 px-3 text-sm font-semibold text-radiant-gold transition-colors hover:bg-radiant-gold/15 disabled:cursor-not-allowed disabled:opacity-50 lg:w-auto"
           >
             {requestApprovalLoading ? <Loader2 size={15} className="animate-spin" aria-hidden /> : <CtaIcon size={15} aria-hidden />}
-            <span className="truncate">{requestApprovalLoading ? 'Preparing' : cta.label}</span>
+            <span className="truncate">{reviewing ? 'Saving review…' : data?.status === 'draft' && onReviewDecision ? 'Approve final copy' : cta.label}</span>
           </button>
         )}
       </div>
+
+      {reviewResult && <p role="status" className="mt-2 text-sm">{reviewResult}</p>}
+      {onSaveCopy && !evidenceBlocker && data && ['draft', 'approved', 'rejected'].includes(data.status) && (
+        <div className="mt-3 space-y-2">
+          {visibleQualityBlocker && <p role="status" className="text-sm text-amber-100">{visibleQualityBlocker}</p>}
+          {editing ? (
+            <div className="space-y-2">
+              <label className="block text-sm">Subject<input className="mt-1 w-full rounded border border-silicon-slate bg-background p-2" value={subjectEdit} onChange={(event) => setSubjectEdit(event.target.value)} /></label>
+              <label className="block text-sm">Final message<textarea autoFocus rows={7} className="mt-1 w-full rounded border border-silicon-slate bg-background p-2" value={bodyEdit} onChange={(event) => { setBodyEdit(event.target.value); setSaveError(null) }} /></label>
+              <div className="grid grid-cols-2 gap-2">
+                <button type="button" disabled={saving} onClick={save} className="min-h-10 min-w-0 rounded bg-radiant-gold px-3 py-2 text-sm font-semibold text-black">{saving ? 'Saving…' : 'Save and return to review'}</button>
+                <button type="button" disabled={saving} onClick={() => setEditing(false)} className="min-h-10 min-w-0 rounded border px-3 py-2 text-sm">Cancel</button>
+              </div>
+              {saveError && <p role="alert" className="text-sm text-red-200">{saveError}</p>}
+            </div>
+          ) : <button type="button" onClick={startEditing} className="rounded border border-radiant-gold/50 px-3 py-2 text-sm text-radiant-gold">{qualityBlocker ? 'Write final copy' : data.status === 'rejected' ? 'Revise rejected draft' : 'Edit final copy'}</button>}
+          {saveResult && <p role="status" className="text-sm">{saveResult}</p>}
+        </div>
+      )}
+      {onReviewDecision && data?.status === 'draft' && !editing && (
+        <details className="mt-2 text-sm"><summary className="cursor-pointer text-red-200">Reject draft</summary>
+          <label className="mt-2 block">Feedback (optional)<textarea rows={2} maxLength={2000} className="mt-1 w-full rounded border border-silicon-slate bg-background p-2" value={feedback} onChange={(event) => setFeedback(event.target.value)} /></label>
+          <button type="button" disabled={reviewing} onClick={() => void decide('reject')} className="mt-2 rounded border border-red-400/50 px-3 py-2 text-red-200">Confirm rejection</button>
+        </details>
+      )}
+      <details className="mt-3 rounded border border-silicon-slate/70 p-2"><summary className="cursor-pointer text-sm">Gate details</summary>
+      <dl className="mt-2 space-y-1 text-xs text-muted-foreground">
+        <div><dt className="inline font-semibold">Queue: </dt><dd className="inline break-all">{queueId ?? data?.id ?? 'Missing'}</dd></div>
+        <div><dt className="inline font-semibold">Linked message: </dt><dd className="inline break-all">{linkedEmailMessageId ?? 'Not linked'}</dd></div>
+        <div><dt className="inline font-semibold">Generation: </dt><dd className="inline break-words">{data?.generationPromptSummary ?? 'Not recorded'}</dd></div>
+        <div><dt className="inline font-semibold">Execution: </dt><dd className="inline">{data?.status === 'sent' ? 'Sent evidence recorded' : 'Checked separately at confirmation'}</dd></div>
+      </dl>
+      {qualityBlocker && body && <div className="mt-2 rounded border border-silicon-slate/70 bg-background/35 p-3 text-sm text-muted-foreground"><p className="mb-1 font-semibold">Planning context</p><p className="whitespace-pre-wrap break-words">{body}</p></div>}
 
       <div className="mt-3 grid gap-2 sm:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
         <div className={`rounded-md border px-3 py-2 text-sm ${stageTone(displayStage)}`}>
@@ -278,6 +342,8 @@ export default function WarmGmailDraftReviewPanel({
         })}
       </div>
 
+      </details>
+
       {error ? (
         <p className="mt-3 rounded-md border border-red-500/35 bg-red-500/10 px-3 py-2 text-sm text-red-100">
           {error}
@@ -288,10 +354,9 @@ export default function WarmGmailDraftReviewPanel({
         </p>
       ) : (
         <div className="mt-3 grid gap-3 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
-          <div className="min-w-0 rounded-md border border-silicon-slate/70 bg-white p-3 text-gray-900">
-            <div className="mb-2 flex flex-wrap items-center justify-between gap-2 border-b border-gray-200 pb-2 text-xs text-gray-500">
-              <span>Saved queue body</span>
-              <span>{data?.generationPromptSummary ?? 'draft-only planned'}</span>
+          {!editing && !qualityBlocker && <div className="min-w-0 rounded-md border border-silicon-slate/70 bg-background/35 p-3 text-foreground">
+            <div className="mb-2 border-b border-silicon-slate/70 pb-2 text-xs text-muted-foreground">
+              <span>{qualityBlocker ? 'Planning context' : 'Saved queue body'}</span>
             </div>
             {body ? (
               <div className="max-h-72 overflow-auto whitespace-pre-wrap break-words text-sm leading-6">
@@ -300,9 +365,9 @@ export default function WarmGmailDraftReviewPanel({
             ) : (
               <p className="text-sm text-gray-500">No body was saved on this queue row.</p>
             )}
-          </div>
+          </div>}
           <div className="min-w-0 space-y-2 text-sm">
-            {missingLinkedMessage && (
+            {missingLinkedMessage && !onSaveCopy && (
               <div className="rounded-md border border-amber-500/35 bg-amber-500/10 p-2 text-amber-100">
                 <p className="flex items-center gap-2 font-semibold">
                   <AlertTriangle size={14} className="shrink-0" aria-hidden />
@@ -346,6 +411,8 @@ export default function WarmGmailDraftReviewPanel({
           </div>
         </div>
       )}
+
+      {data && onRefresh && !editing && <WarmGmailExecutionActions data={data} onRefresh={onRefresh} />}
 
       {(requestApprovalMessage || requestApprovalError) && (
         <p className={`mt-3 rounded-md border px-3 py-2 text-sm ${

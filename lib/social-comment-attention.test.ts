@@ -16,6 +16,7 @@ import {
 function row(overrides: Partial<SocialCommentAttentionRow> = {}): SocialCommentAttentionRow {
   return {
     id: 'comment-1',
+    updated_at: '2026-09-08T00:00:00Z',
     content_id: 'social-post-1',
     platform: 'linkedin',
     body: 'Can this help a small nonprofit?',

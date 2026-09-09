@@ -1,3 +1,4 @@
+import { warmFinalCopyFingerprint } from '@/lib/warm-outreach-copy-fingerprint'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const mocks = vi.hoisted(() => ({
@@ -14,7 +15,11 @@ import {
   buildWarmGmailSendApprovalSlackPayload,
   decideWarmGmailSendAuthorizationFromSlack,
   warmGmailSendAuthorizationDecisionKey,
+  warmGmailReviewMessageVersionKey,
 } from '@/lib/warm-outreach-slack-send-approval'
+
+const COPY = { subject: 'Hello', body: 'Body text', updated_at: '2026-09-08T00:00:00.000Z', contact_submissions: { email: 'amina@example.com' } }
+const FP = warmFinalCopyFingerprint({ ...COPY, id: 'queue-1', contact_submission_id: 42 })
 
 function queryResult(result: unknown) {
   const query: Record<string, unknown> = {
@@ -130,7 +135,11 @@ function slackApprovalRequest(overrides: Record<string, unknown> = {}) {
     request_key: 'warm-outreach:slack-gmail-send-card:v1:message-1',
     contact_submission_id: 42,
     outreach_queue_id: 'queue-1',
-    message_version_key: 'warm-outreach:email-message-version:v1:message-1',
+    message_version_key: FP,
+    final_copy_fingerprint: FP,
+    lifecycle_message_version_key: 'warm-outreach:email-message-version:v1:message-1',
+    gmail_draft_id: 'r123',
+    submitted_evidence_key: 'warm-outreach:email-submitted-evidence:v1:message-1',
     send_queue_idempotency_key: 'warm-outreach:email-send-queue:v1:message-1',
     records_authorization_intent_only: true,
     gmail_send_called: false,
@@ -185,7 +194,7 @@ describe('warm Gmail send Slack approval', () => {
       sendQueueIdempotencyKey: 'warm-outreach:email-send-queue:v1:message-1',
     })
     expect(button(payload.blocks, 'warm_gmail_send.approve').confirm?.text.text).toContain(
-      'Gmail send execution remains disabled',
+      'Gmail sending requires a separate explicit action',
     )
   })
 
@@ -221,17 +230,41 @@ describe('warm Gmail send Slack approval', () => {
     expect(nextVersion.dedupeKey).not.toBe(first.dedupeKey)
   })
 
+  it.each([{ body: 'Changed final copy' }, { subject: 'Changed subject' }, { contact_submissions: { email: 'another@example.com' } }, { status: 'draft' }])('rejects a stale card before mutation: %j', async (change) => {
+    mocks.from.mockReturnValueOnce(queryResult({ data: { id: 'queue-1', contact_submission_id: 42, channel: 'email', status: 'approved', ...COPY, ...change, generation_inputs: {} }, error: null }))
+    await expect(decideWarmGmailSendAuthorizationFromSlack({ contactId: 42, outreachQueueId: 'queue-1', messageVersionKey: FP, sendQueueIdempotencyKey: 'key', status: 'approved', actorLabel: 'Reviewer', slackUserId: 'U123', decisionNotes: '', idempotencyKey: 'decision' })).rejects.toThrow('Stale Slack card')
+    expect(mocks.from).toHaveBeenCalledTimes(1)
+  })
+
+  it('cannot restore authorization when an edit wins the decision CAS', async () => {
+    const mutation = queryResult({ data: [], error: null })
+    mocks.from.mockReturnValueOnce(queryResult({ data: { id: 'queue-1', contact_submission_id: 42, channel: 'email', status: 'approved', ...COPY, generation_inputs: { gmail_draft_creation: { draft_id: 'r123', final_copy_fingerprint: FP }, warm_gmail_send_slack_approval_request: slackApprovalRequest() } }, error: null })).mockReturnValueOnce(mutation)
+    await expect(decideWarmGmailSendAuthorizationFromSlack({ contactId: 42, outreachQueueId: 'queue-1', messageVersionKey: FP, sendQueueIdempotencyKey: 'warm-outreach:email-send-queue:v1:message-1', status: 'approved', actorLabel: 'Reviewer', slackUserId: 'U123', decisionNotes: '', idempotencyKey: 'decision' })).rejects.toThrow('No authorization was restored')
+    expect(mutation.eq).toHaveBeenCalledWith('status', 'approved')
+    expect(mutation.eq).toHaveBeenCalledWith('updated_at', COPY.updated_at)
+  })
+
+  it('rejects an old card after restoring the same wording in a later revision', async () => {
+    const copy_revision_at = '2026-09-09T00:00:00.000Z'
+    const version = warmGmailReviewMessageVersionKey(FP, { copy_revision_at })
+    expect(version).not.toBe(FP)
+    mocks.from.mockReturnValueOnce(queryResult({ data: { id: 'queue-1', contact_submission_id: 42, channel: 'email', status: 'approved', ...COPY, generation_inputs: { copy_revision_at, gmail_draft_creation: { draft_id: 'r123', final_copy_fingerprint: FP }, warm_gmail_send_slack_approval_request: slackApprovalRequest({ message_version_key: version }) } }, error: null }))
+    await expect(decideWarmGmailSendAuthorizationFromSlack({ contactId: 42, outreachQueueId: 'queue-1', messageVersionKey: FP, sendQueueIdempotencyKey: 'warm-outreach:email-send-queue:v1:message-1', status: 'approved', actorLabel: 'Reviewer', slackUserId: 'U123', decisionNotes: '', idempotencyKey: 'old-card' })).rejects.toThrow('message version is stale')
+    expect(mocks.from).toHaveBeenCalledTimes(1)
+  })
+
   it('records Slack approval intent in Portfolio without calling Gmail send', async () => {
-    const updateQuery = queryResult({ error: null })
+    const updateQuery = queryResult({ data: [{ id: 'queue-1' }], error: null })
     mocks.from
       .mockReturnValueOnce(queryResult({
         data: {
           id: 'queue-1',
           contact_submission_id: 42,
           channel: 'email',
-          status: 'draft',
+          status: 'approved', ...COPY,
           generation_inputs: {
             gmail_draft_creation: {
+              final_copy_fingerprint: FP,
               draft_id: 'r123',
               external_send_blocked: true,
             },
@@ -247,7 +280,7 @@ describe('warm Gmail send Slack approval', () => {
     const result = await decideWarmGmailSendAuthorizationFromSlack({
       contactId: 42,
       outreachQueueId: 'queue-1',
-      messageVersionKey: 'warm-outreach:email-message-version:v1:message-1',
+      messageVersionKey: FP,
       sendQueueIdempotencyKey: 'warm-outreach:email-send-queue:v1:message-1',
       status: 'approved',
       actorLabel: 'vambah',
@@ -291,15 +324,16 @@ describe('warm Gmail send Slack approval', () => {
     ['rejected', 'rejected'],
     ['revision_requested', 'revision requested'],
   ] as const)('records Slack %s decisions without approval intent', async (status, label) => {
-    const updateQuery = queryResult({ error: null })
+    const updateQuery = queryResult({ data: [{ id: 'queue-1' }], error: null })
     mocks.from
       .mockReturnValueOnce(queryResult({
         data: {
           id: 'queue-1',
           contact_submission_id: 42,
           channel: 'email',
-          status: 'draft',
+          status: 'approved', ...COPY,
           generation_inputs: {
+            gmail_draft_creation: { draft_id: 'r123', final_copy_fingerprint: FP },
             warm_gmail_send_slack_approval_request: slackApprovalRequest(),
           },
         },
@@ -310,7 +344,7 @@ describe('warm Gmail send Slack approval', () => {
     const result = await decideWarmGmailSendAuthorizationFromSlack({
       contactId: 42,
       outreachQueueId: 'queue-1',
-      messageVersionKey: 'warm-outreach:email-message-version:v1:message-1',
+      messageVersionKey: FP,
       sendQueueIdempotencyKey: 'warm-outreach:email-send-queue:v1:message-1',
       status,
       actorLabel: 'vambah',
@@ -341,17 +375,20 @@ describe('warm Gmail send Slack approval', () => {
   it('does not rewrite duplicate approval decisions for the same recipient and message version', async () => {
     const decisionKey = warmGmailSendAuthorizationDecisionKey({
       contactId: 42,
-      messageVersionKey: 'warm-outreach:email-message-version:v1:message-1',
+      messageVersionKey: FP,
     })
     mocks.from.mockReturnValueOnce(queryResult({
       data: {
         id: 'queue-1',
         contact_submission_id: 42,
         channel: 'email',
-        status: 'draft',
+        status: 'approved', ...COPY,
         generation_inputs: {
+            gmail_draft_creation: { draft_id: 'r123', final_copy_fingerprint: FP },
+          warm_gmail_send_slack_approval_request: slackApprovalRequest(),
           warm_gmail_send_authorization: {
             decision_key: decisionKey,
+            final_copy_fingerprint: FP,
             status: 'approved',
             gmail_send_called: false,
           },
@@ -363,7 +400,7 @@ describe('warm Gmail send Slack approval', () => {
     const result = await decideWarmGmailSendAuthorizationFromSlack({
       contactId: 42,
       outreachQueueId: 'queue-1',
-      messageVersionKey: 'warm-outreach:email-message-version:v1:message-1',
+      messageVersionKey: FP,
       sendQueueIdempotencyKey: 'warm-outreach:email-send-queue:v1:message-1',
       status: 'approved',
       actorLabel: 'vambah',
@@ -382,8 +419,9 @@ describe('warm Gmail send Slack approval', () => {
         id: 'queue-1',
         contact_submission_id: 42,
         channel: 'email',
-        status: 'draft',
+        status: 'approved', ...COPY,
         generation_inputs: {
+            gmail_draft_creation: { draft_id: 'r123', final_copy_fingerprint: FP },
           warm_gmail_send_slack_approval_request: slackApprovalRequest({
             message_version_key: 'warm-outreach:email-message-version:v1:old-message',
           }),
@@ -395,7 +433,7 @@ describe('warm Gmail send Slack approval', () => {
     await expect(decideWarmGmailSendAuthorizationFromSlack({
       contactId: 42,
       outreachQueueId: 'queue-1',
-      messageVersionKey: 'warm-outreach:email-message-version:v1:message-1',
+      messageVersionKey: FP,
       sendQueueIdempotencyKey: 'warm-outreach:email-send-queue:v1:message-1',
       status: 'approved',
       actorLabel: 'vambah',
@@ -412,8 +450,9 @@ describe('warm Gmail send Slack approval', () => {
         id: 'queue-1',
         contact_submission_id: 99,
         channel: 'email',
-        status: 'draft',
+        status: 'approved', ...COPY,
         generation_inputs: {
+            gmail_draft_creation: { draft_id: 'r123', final_copy_fingerprint: FP },
           warm_gmail_send_slack_approval_request: slackApprovalRequest(),
         },
       },
@@ -423,7 +462,7 @@ describe('warm Gmail send Slack approval', () => {
     await expect(decideWarmGmailSendAuthorizationFromSlack({
       contactId: 42,
       outreachQueueId: 'queue-1',
-      messageVersionKey: 'warm-outreach:email-message-version:v1:message-1',
+      messageVersionKey: FP,
       sendQueueIdempotencyKey: 'warm-outreach:email-send-queue:v1:message-1',
       status: 'approved',
       actorLabel: 'vambah',

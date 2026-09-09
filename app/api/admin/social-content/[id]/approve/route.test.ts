@@ -1,3 +1,4 @@
+import { socialCopyVersion } from '@/lib/social-copy-revision'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { NextRequest } from 'next/server'
 
@@ -38,12 +39,15 @@ vi.mock('@/lib/social-content-calendar-linkage', () => ({
   syncCampaignCalendarForSocialContent: mocks.syncCampaignCalendarForSocialContent,
 }))
 
-import { POST } from './route'
+import { POST as routePost } from './route'
+import { withVersionedQueueMock } from '@/lib/social-queue-write.test-fixtures'
+const POST: typeof routePost = (...args) => withVersionedQueueMock(mocks.from, () => routePost(...args))
 
-function request() {
+function request(expectedCopyVersion?: string) {
   return new NextRequest('http://localhost/api/admin/social-content/social-1/approve', {
     method: 'POST',
     headers: { authorization: 'Bearer admin-token' },
+    body: JSON.stringify({expected_copy_version:expectedCopyVersion}),
   })
 }
 
@@ -59,7 +63,7 @@ const agentOpsRagContext = {
 
 describe('POST /api/admin/social-content/[id]/approve', () => {
   beforeEach(() => {
-    vi.clearAllMocks()
+    vi.resetAllMocks()
     mocks.verifyAdmin.mockResolvedValue({ user: { id: 'admin-1' }, isAdmin: true })
     mocks.isAuthError.mockReturnValue(false)
     mocks.syncCampaignCalendarForSocialContent.mockResolvedValue({
@@ -97,7 +101,7 @@ describe('POST /api/admin/social-content/[id]/approve', () => {
     mocks.queueEq.mockReturnValue({ single: mocks.queueSingle })
     mocks.queueSelect.mockReturnValue({ eq: mocks.queueEq })
     mocks.queueUpdateSelect.mockReturnValue({ single: mocks.queueUpdateSingle })
-    mocks.queueUpdateEq.mockReturnValue({ select: mocks.queueUpdateSelect })
+    mocks.queueUpdateEq.mockImplementation(() => ({ eq: mocks.queueUpdateEq, select: mocks.queueUpdateSelect }))
     mocks.queueUpdate.mockReturnValue({ eq: mocks.queueUpdateEq })
     mocks.publishesEq.mockResolvedValue({ data: [], error: null })
     mocks.publishesSelect.mockReturnValue({ eq: mocks.publishesEq })
@@ -176,6 +180,15 @@ describe('POST /api/admin/social-content/[id]/approve', () => {
     expect(mocks.publishesUpsert).not.toHaveBeenCalled()
   })
 
+  it('blocks a calendar instruction seed at the API before approval or handoff', async () => {
+    const row={id:'social-1',status:'draft',updated_at:'2026-09-08T00:00:00Z',post_text:'AutoResearch draft seed: Handoffs need owners. Content agents must convert this into channel copy before approval.',cta_text:'Conversation CTA should ask where the review failed.',rag_context:{source:'social_content_calendar_authorization',calendar_item_id:'synthetic-calendar',campaign_id:'synthetic-campaign',publish_gate:'draft_only'}}
+    mocks.queueSingle.mockResolvedValue({data:row,error:null})
+    const response=await POST(request(socialCopyVersion(row)),{params:{id:'social-1'}})
+    expect(response.status).toBe(409)
+    expect(await response.json()).toMatchObject({current_gate:'final_copy_quality'})
+    expect(mocks.queueUpdate).not.toHaveBeenCalled()
+    expect(mocks.createAgentWorkItem).not.toHaveBeenCalled()
+  })
   it('approves cleared draft-only Agent Ops content by queuing production handoffs without publishing', async () => {
     const fetchSpy = vi.spyOn(globalThis, 'fetch')
 
@@ -205,6 +218,7 @@ describe('POST /api/admin/social-content/[id]/approve', () => {
       }),
     ])
     expect(mocks.queueUpdate).toHaveBeenCalledWith({
+      rag_context: expect.any(Object),
       status: 'approved',
       reviewed_by: 'admin-1',
     })
@@ -249,6 +263,17 @@ describe('POST /api/admin/social-content/[id]/approve', () => {
     fetchSpy.mockRestore()
   })
 
+  it.each(['missing-version', 'stale-version', 'rejected', 'approved', 'scheduled', 'provider', 'source', 'concurrent'])('blocks calendar approval for %s without handoff', async mode => {
+    const row = {id:'social-1',status:mode==='rejected'||mode==='approved'||mode==='scheduled'?mode:'draft',post_text:'A concrete public post.',updated_at:'2026-09-08T00:00:00Z',rag_context:{source:'social_content_calendar_authorization',calendar_item_id:mode==='source'?null:'calendar-fixture',campaign_id:'campaign-fixture',publish_gate:'draft_only'},publishes:mode==='provider'?[{platform_post_id:'evidence'}]:[]}
+    mocks.queueSingle.mockResolvedValue({data:row,error:null})
+    if(mode==='concurrent')mocks.queueUpdateSingle.mockResolvedValue({data:null,error:{code:'PGRST116'}})
+    const response=await POST(request(mode==='missing-version'?undefined:mode==='stale-version'?'stale':socialCopyVersion(row)),{params:{id:'social-1'}})
+    expect(response.status).toBe(409)
+    expect(mocks.createAgentWorkItem).not.toHaveBeenCalled()
+    expect(mocks.publishesUpsert).not.toHaveBeenCalled()
+    if(mode!=='concurrent')expect(mocks.queueUpdate).not.toHaveBeenCalled()
+  })
+
   it('approves calendar-authorized draft-only content without creating publish rows', async () => {
     const calendarRagContext = {
       source: 'social_content_calendar_authorization',
@@ -263,6 +288,7 @@ describe('POST /api/admin/social-content/[id]/approve', () => {
       data: {
         id: 'social-1',
         status: 'draft',
+        updated_at: '2026-09-08T00:00:00Z',
         scheduled_for: null,
         target_platforms: ['linkedin'],
         rag_context: calendarRagContext,
@@ -280,7 +306,7 @@ describe('POST /api/admin/social-content/[id]/approve', () => {
       error: null,
     })
 
-    const response = await POST(request(), { params: { id: 'social-1' } })
+    const response = await POST(request(socialCopyVersion({id:'social-1',target_platforms:['linkedin']})), { params: { id: 'social-1' } })
 
     expect(response.status).toBe(200)
     const json = await response.json()
@@ -353,13 +379,13 @@ describe('POST /api/admin/social-content/[id]/approve', () => {
     expect(mocks.publishesUpsert).toHaveBeenCalledWith([
       { content_id: 'social-1', platform: 'linkedin', status: 'pending' },
       { content_id: 'social-1', platform: 'instagram', status: 'pending' },
-    ], { onConflict: 'content_id,platform' })
+    ], { onConflict: 'content_id,platform', ignoreDuplicates: true })
     expect(fetchSpy).not.toHaveBeenCalled()
     expect(mocks.createAgentWorkItem).not.toHaveBeenCalled()
     fetchSpy.mockRestore()
   })
 
-  it('uses linkedin as the default publish platform and does not trigger scheduled content immediately', async () => {
+  it('does not reapprove legacy scheduled evidence or reset publish records', async () => {
     mocks.queueSingle.mockResolvedValueOnce({
       data: {
         id: 'social-1',
@@ -392,12 +418,9 @@ describe('POST /api/admin/social-content/[id]/approve', () => {
 
     const response = await POST(request(), { params: { id: 'social-1' } })
 
-    expect(response.status).toBe(200)
-    expect(mocks.publishesUpsert).toHaveBeenCalledWith([
-      { content_id: 'social-1', platform: 'linkedin', status: 'pending' },
-    ], { onConflict: 'content_id,platform' })
-    expect(fetchSpy).not.toHaveBeenCalled()
-    expect(mocks.createAgentWorkItem).not.toHaveBeenCalled()
-    fetchSpy.mockRestore()
+    expect(response.status).toBe(409)
+    expect(mocks.publishesUpsert).not.toHaveBeenCalled()
+    expect(mocks.queueUpdate).not.toHaveBeenCalled()
   })
+
 })

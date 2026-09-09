@@ -23,6 +23,8 @@ import type {
   WarmOutreachPlanningBacklogState,
 } from '@/lib/warm-outreach-shortlist'
 
+import type { SocialContentCalendarItem } from '@/lib/social-content-calendar'
+
 const STATE_ORDER: WarmOutreachPlanningBacklogState[] = [
   'ready_gmail_draft',
   'ready_manual_social',
@@ -33,6 +35,9 @@ const STATE_ORDER: WarmOutreachPlanningBacklogState[] = [
 ]
 
 interface WarmPlanningBacklogPanelProps {
+  calendarItems?: SocialContentCalendarItem[]
+  selectedCalendarId?: string
+  onCalendarChange?: (id: string) => void
   backlog: WarmOutreachPlanningBacklog
   activeState: WarmOutreachPlanningBacklogState | 'all'
   loading: boolean
@@ -358,6 +363,7 @@ function focusDestinationSelector(selector: string) {
 }
 
 export default function WarmPlanningBacklogPanel({
+  calendarItems = [], selectedCalendarId = '', onCalendarChange,
   backlog,
   activeState,
   loading,
@@ -576,6 +582,16 @@ export default function WarmPlanningBacklogPanel({
 
       <div className="mt-3 grid gap-2">
             <div className="min-w-0 rounded-md border border-radiant-gold/25 bg-background/35 p-3">
+              <div className="mb-2 flex flex-wrap items-center gap-2">
+                <a href={backlog.campaignAlignment.sourceHref} className="text-sm font-semibold text-radiant-gold">{backlog.campaignAlignment.source === 'missing' ? 'Calendar source needed' : 'Open calendar source'}</a>
+                {onCalendarChange && <label className="min-w-0 flex-1 text-xs">Campaign milestone
+                  <select aria-label="Campaign milestone" value={selectedCalendarId} onChange={(event) => onCalendarChange(event.target.value)} className="mt-1 w-full min-w-0 rounded border border-silicon-slate bg-background p-2 text-sm">
+                    <option value="">Select calendar source</option>
+                    {calendarItems.map((item) => <option key={item.id} value={item.id}>{item.title} — {item.scheduled_for}</option>)}
+                  </select>
+                </label>}
+              </div>
+              {backlog.campaignAlignment.source === 'missing' ? <p className="text-xs text-muted-foreground">Campaign timing is unlinked. Contact review remains available.</p> : <>
               <div className="flex min-w-0 flex-wrap items-center gap-2" aria-label="Warm planning campaign context">
                 <span className="inline-flex min-h-7 shrink-0 items-center whitespace-nowrap rounded-md border border-silicon-slate/70 bg-background/45 px-2 text-[11px] leading-5 text-muted-foreground">
                   {stateSummaryLabel(backlog)}
@@ -624,6 +640,7 @@ export default function WarmPlanningBacklogPanel({
                 <summary className="cursor-pointer text-radiant-gold/90">Campaign source</summary>
                 <p className="mt-1">{backlog.campaignAlignment.drillIn}</p>
               </details>
+              </>}
             </div>
             <div
               className="min-w-0 rounded-md border border-emerald-500/25 bg-emerald-500/5 p-3"

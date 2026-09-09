@@ -1,3 +1,4 @@
+import { warmFinalCopyFingerprint } from '@/lib/warm-outreach-copy-fingerprint'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { NextRequest, NextResponse } from 'next/server'
 
@@ -24,14 +25,17 @@ vi.mock('@/lib/supabase', () => ({
 }))
 
 import { POST } from './route'
-import { warmGmailSendApprovalDedupeKey } from '@/lib/warm-outreach-slack-send-approval'
+import { decideWarmGmailSendAuthorizationFromSlack, warmGmailSendApprovalDedupeKey } from '@/lib/warm-outreach-slack-send-approval'
 
+const VERSION = '2026-09-08T00:00:00.000Z'
+const FP = warmFinalCopyFingerprint({ id: 'queue-1', contact_submission_id: 42, subject: 'Warm follow-up', body: 'Following up on the operations conversation.', contact_submissions: { email: 'amina@example.com' } })
 const MESSAGE_VERSION_KEY = 'warm-outreach:email-message-version:v1:message-1'
 const SEND_QUEUE_KEY = 'warm-outreach:email-send-queue:v1:message-1'
 
 function makeRequest() {
   return new NextRequest('http://localhost/api/admin/outreach/queue-1/slack-send-approval', {
     method: 'POST',
+    body: JSON.stringify({ expectedUpdatedAt: VERSION }),
   })
 }
 
@@ -44,7 +48,8 @@ function outreachRow(overrides: Record<string, unknown> = {}) {
     id: 'queue-1',
     contact_submission_id: 42,
     channel: 'email',
-    status: 'draft',
+    status: 'approved',
+    updated_at: VERSION,
     subject: 'Warm follow-up',
     body: 'Following up on the operations conversation.',
     thread_id: 'gmail-thread-1',
@@ -52,6 +57,7 @@ function outreachRow(overrides: Record<string, unknown> = {}) {
     sent_at: null,
     generation_inputs: {
       gmail_draft_creation: {
+          final_copy_fingerprint: FP,
         draft_id: 'gmail-draft-1',
         message_id: 'gmail-message-1',
         thread_id: 'gmail-thread-1',
@@ -119,7 +125,7 @@ function relationshipBody(lifecycleOverrides: Record<string, unknown> = {}) {
   }
 }
 
-function mockSupabase(row = outreachRow(), updateError: { message: string } | null = null) {
+function mockSupabase(row = outreachRow(), updateError: { message: string } | null = null, matched = true) {
   const updatePayloads: Record<string, unknown>[] = []
   const maybeSingle = vi.fn().mockResolvedValue({ data: row, error: null })
   const select = vi.fn().mockReturnValue({
@@ -127,9 +133,8 @@ function mockSupabase(row = outreachRow(), updateError: { message: string } | nu
   })
   const update = vi.fn((payload: Record<string, unknown>) => {
     updatePayloads.push(payload)
-    return {
-      eq: vi.fn().mockResolvedValue({ error: updateError }),
-    }
+    const query = { eq: vi.fn(() => query), select: vi.fn().mockResolvedValue({ data: matched ? [{ id: row.id, updated_at: VERSION }] : [], error: updateError }) }
+    return query
   })
   mocks.from.mockReturnValue({ select, update })
   return { update, updatePayloads }
@@ -141,6 +146,47 @@ describe('POST /api/admin/outreach/[id]/slack-send-approval', () => {
     mocks.verifyAdmin.mockResolvedValue({ user: { id: 'admin-user-1' } })
     mocks.isAuthError.mockReturnValue(false)
     mocks.getRelationshipPacket.mockResolvedValue(NextResponse.json(relationshipBody()))
+  })
+
+  it('preserves sent delivery evidence instead of rebuilding a request', async () => {
+    const row = outreachRow()
+    const { update } = mockSupabase(outreachRow({ generation_inputs: { ...row.generation_inputs, warm_gmail_review_slack_delivery: { state: 'sent', slack_channel: 'CTEST', slack_message_ts: '123.456' } } }))
+    expect((await POST(makeRequest(), params())).status).toBe(409)
+    expect(update).not.toHaveBeenCalled()
+  })
+
+  it('does not save stale metadata when an edit wins the request CAS', async () => {
+    const { update } = mockSupabase(outreachRow(), null, false)
+    const response = await POST(makeRequest(), params())
+    expect(response.status).toBe(409)
+    expect(update).toHaveBeenCalledTimes(1)
+  })
+
+  it('rejects a stale displayed version before writing', async () => {
+    const { update } = mockSupabase(outreachRow({ updated_at: '2026-09-09T00:00:00.000Z' }))
+    expect((await POST(makeRequest(), params())).status).toBe(409)
+    expect(update).not.toHaveBeenCalled()
+  })
+
+  it('feeds the real request writer output into the Slack decision contract', async () => {
+    const { updatePayloads } = mockSupabase(outreachRow({ generation_inputs: { ...outreachRow().generation_inputs, copy_revision_at: '2026-09-09T00:00:00.000Z' } }))
+    const response = await POST(makeRequest(), params())
+    const payload = await response.json()
+    const written = { ...outreachRow(), generation_inputs: updatePayloads[0].generation_inputs }
+    let decision: Record<string, unknown> = {}
+    const query = {
+      select: vi.fn(() => query), eq: vi.fn(() => query),
+      maybeSingle: vi.fn().mockResolvedValue({ data: written, error: null }),
+      update: vi.fn((value: Record<string, unknown>) => { decision = value; return query }),
+      then: (resolve: (value: unknown) => unknown) => Promise.resolve({ data: [{ id: 'queue-1' }], error: null }).then(resolve),
+    }
+    mocks.from.mockReturnValue(query)
+    await decideWarmGmailSendAuthorizationFromSlack({ ...payload.card.actionScope, status: 'approved', actorLabel: 'Reviewer', slackUserId: 'U123', decisionNotes: 'Reviewed', idempotencyKey: 'synthetic-decision' })
+    expect(decision).toMatchObject({ generation_inputs: { warm_gmail_send_authorization: {
+      final_copy_fingerprint: FP, message_version_key: MESSAGE_VERSION_KEY,
+      recipient_email: 'amina@example.com', channel: 'email', gmail_draft_id: 'gmail-draft-1',
+      send_queue_idempotency_key: SEND_QUEUE_KEY,
+    } } })
   })
 
   it('builds the real-recipient Slack approval payload and records a pending local request only', async () => {
@@ -156,7 +202,7 @@ describe('POST /api/admin/outreach/[id]/slack-send-approval', () => {
         actionScope: {
           contactId: 42,
           outreachQueueId: 'queue-1',
-          messageVersionKey: MESSAGE_VERSION_KEY,
+          messageVersionKey: FP,
           sendQueueIdempotencyKey: SEND_QUEUE_KEY,
         },
         executionBoundary: {
@@ -170,7 +216,7 @@ describe('POST /api/admin/outreach/[id]/slack-send-approval', () => {
         status: 'pending',
         contact_submission_id: 42,
         outreach_queue_id: 'queue-1',
-        message_version_key: MESSAGE_VERSION_KEY,
+        message_version_key: FP,
         send_queue_idempotency_key: SEND_QUEUE_KEY,
         slack_dispatch_enabled: false,
         slack_dispatch_status: 'not_sent',
@@ -215,7 +261,7 @@ describe('POST /api/admin/outreach/[id]/slack-send-approval', () => {
             contactId: 42,
             outreachQueueId: 'queue-1',
             channel: 'email',
-            messageVersionKey: MESSAGE_VERSION_KEY,
+            messageVersionKey: FP,
           }),
           status: 'pending',
           gmail_send_called: false,
@@ -231,7 +277,7 @@ describe('POST /api/admin/outreach/[id]/slack-send-approval', () => {
       contactId: 42,
       outreachQueueId: 'queue-1',
       channel: 'email',
-      messageVersionKey: MESSAGE_VERSION_KEY,
+      messageVersionKey: FP,
     })
     const existingRequest = {
       status: 'pending',
@@ -242,6 +288,7 @@ describe('POST /api/admin/outreach/[id]/slack-send-approval', () => {
     const { updatePayloads } = mockSupabase(outreachRow({
       generation_inputs: {
         gmail_draft_creation: {
+          final_copy_fingerprint: FP,
           draft_id: 'gmail-draft-1',
           message_id: 'gmail-message-1',
           thread_id: 'gmail-thread-1',
@@ -277,7 +324,7 @@ describe('POST /api/admin/outreach/[id]/slack-send-approval', () => {
       contactId: 42,
       outreachQueueId: 'queue-1',
       channel: 'email',
-      messageVersionKey: MESSAGE_VERSION_KEY,
+      messageVersionKey: FP,
     })
     const existingRequest = {
       status: 'pending',
@@ -287,7 +334,9 @@ describe('POST /api/admin/outreach/[id]/slack-send-approval', () => {
     }
     const { updatePayloads } = mockSupabase(outreachRow({
       generation_inputs: {
-        gmailDraftCreation: {
+        gmail_draft_creation: {
+          final_copy_fingerprint: FP,
+          draft_id: 'gmail-draft-1',
           draftId: 'gmail-draft-1',
           messageId: 'gmail-message-1',
           threadId: 'gmail-thread-1',
@@ -406,6 +455,7 @@ describe('POST /api/admin/outreach/[id]/slack-send-approval', () => {
       status: 'sent',
       generation_inputs: {
         gmail_draft_creation: {
+          final_copy_fingerprint: FP,
           draft_id: 'gmail-draft-1',
           message_id: 'gmail-message-1',
           thread_id: 'gmail-thread-1',
@@ -425,12 +475,7 @@ describe('POST /api/admin/outreach/[id]/slack-send-approval', () => {
 
     expect(response.status).toBe(409)
     await expect(response.json()).resolves.toMatchObject({
-      error: 'Warm Gmail send approval request is blocked because submitted/send evidence already exists (sent). Do not request or send a duplicate.',
-      executionBoundary: {
-        gmailSendCalled: false,
-        externalSendEnabled: false,
-        providerExecutionEnabled: false,
-      },
+      error: 'Reload and review the current approved copy before requesting send approval.',
     })
     expect(update).not.toHaveBeenCalled()
   })
@@ -440,6 +485,7 @@ describe('POST /api/admin/outreach/[id]/slack-send-approval', () => {
       sent_at: '2026-08-28T12:00:00.000Z',
       generation_inputs: {
         gmail_draft_creation: {
+          final_copy_fingerprint: FP,
           draft_id: 'gmail-draft-1',
           message_id: 'gmail-message-1',
           thread_id: 'gmail-thread-1',
@@ -468,6 +514,7 @@ describe('POST /api/admin/outreach/[id]/slack-send-approval', () => {
     const { update } = mockSupabase(outreachRow({
       generation_inputs: {
         gmail_draft_creation: {
+          final_copy_fingerprint: FP,
           draft_id: 'gmail-draft-1',
           message_id: 'gmail-message-1',
           thread_id: 'gmail-thread-1',
@@ -502,7 +549,9 @@ describe('POST /api/admin/outreach/[id]/slack-send-approval', () => {
   it('blocks camelCase send authorization evidence before recording a duplicate request', async () => {
     const { update } = mockSupabase(outreachRow({
       generation_inputs: {
-        gmailDraftCreation: {
+        gmail_draft_creation: {
+          final_copy_fingerprint: FP,
+          draft_id: 'gmail-draft-1',
           draftId: 'gmail-draft-1',
           messageId: 'gmail-message-1',
           threadId: 'gmail-thread-1',

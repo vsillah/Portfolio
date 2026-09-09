@@ -1,3 +1,5 @@
+import { isQualifiedWarmCalendarItem } from '@/lib/warm-outreach-shortlist'
+import type { SocialContentCalendarItem } from '@/lib/social-content-calendar'
 import { NextRequest, NextResponse } from 'next/server'
 
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
@@ -132,12 +134,13 @@ function gmailDraftInsertFor(
   row: WarmPlannedDraftActionRow,
   recipient: WarmBatchReviewRecipient,
   batchIdempotencyKey: string,
+  calendarSource: Record<string, unknown> | null = null,
 ) {
   return {
     contact_submission_id: row.contactId,
     channel: 'email',
     subject: `Warm follow-up: ${row.contactName}`,
-    body: recipient.individualizedDraftPreview,
+    body: '',
     sequence_step: 1,
     status: 'draft',
     generation_model: 'portfolio-local-planner',
@@ -150,6 +153,8 @@ function gmailDraftInsertFor(
       template_key: recipient.promptTemplateKey,
       channel: 'email',
       queue_intent: 'draft_only_planned',
+      planning_instructions: recipient.individualizedDraftPreview,
+      calendar_source: calendarSource,
       warm_relationship: recipient.contextSummary,
       draft_action_packet: row.draftActionPacket,
       approval_boundary: 'draft_only_no_external_send',
@@ -186,6 +191,7 @@ function manualTaskInsertFor(row: WarmPlannedDraftActionRow) {
 }
 
 async function createPlannedDraftHandoffRecords(args: {
+  calendarSource?: Record<string, unknown> | null
   review: WarmBatchReview
   contactInputs: WarmBatchReviewContactInput[]
   action: string
@@ -231,7 +237,7 @@ async function createPlannedDraftHandoffRecords(args: {
     .filter((row) => row.kind === 'gmail_draft_plan')
     .map((row) => {
       const recipient = recipientFor(args.review, row)
-      return recipient ? gmailDraftInsertFor(row, recipient, args.review.batchIdempotencyKey) : null
+      return recipient ? gmailDraftInsertFor(row, recipient, args.review.batchIdempotencyKey, args.calendarSource) : null
     })
     .filter(Boolean) as ReturnType<typeof gmailDraftInsertFor>[]
   const manualRows = targetRows
@@ -321,6 +327,7 @@ export async function POST(request: NextRequest) {
       contact_ids?: unknown
       objective?: unknown
       cohort_label?: unknown
+      calendar_source_id?: unknown
       preferred_channel?: unknown
       action?: unknown
     } = {}
@@ -328,6 +335,17 @@ export async function POST(request: NextRequest) {
       body = await request.json()
     } catch {
       body = {}
+    }
+
+    let calendarSource: Record<string, unknown> | null = null
+    if (typeof body.calendar_source_id === 'string' && body.calendar_source_id) {
+      const result = await supabaseAdmin.from('social_content_calendar_items')
+        .select('*, attraction_campaigns (id, name, status)').in('id', [body.calendar_source_id])
+      const item = result.data?.[0] as SocialContentCalendarItem | undefined
+      if (result.error || !isQualifiedWarmCalendarItem(item)) {
+        return NextResponse.json({ error: 'Calendar source needed. Select a valid milestone from a draft or active campaign.' }, { status: 409 })
+      }
+      calendarSource = { id: item.id, campaign_id: item.campaign_id, campaign_phase: item.campaign_phase, scheduled_for: item.scheduled_for, title: item.title }
     }
 
     const contactIds = parseWarmBatchContactIds(body.contact_ids)
@@ -379,7 +397,7 @@ export async function POST(request: NextRequest) {
       supabaseAdmin
         .from('contact_submissions')
         .select(
-          'id, name, email, company, industry, lead_source, outreach_status, do_not_contact, removed_at, phone_number, linkedin_url, facebook_profile_url, relationship_strength, warm_source_detail, created_at',
+          'id, name, email, company, industry, is_test_data, lead_source, outreach_status, do_not_contact, removed_at, phone_number, linkedin_url, facebook_profile_url, relationship_strength, warm_source_detail, created_at',
         )
         .in('id', contactIds),
       supabaseAdmin
@@ -449,7 +467,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const contacts = Array.isArray(contactsRes.data) ? contactsRes.data as PortfolioRow[] : []
+    const contacts = Array.isArray(contactsRes.data) ? (contactsRes.data as PortfolioRow[]).filter((contact) => contact.is_test_data !== true) : []
     const foundIds = new Set(contacts.map((contact) => Number(contact.id)))
     const missingIds = contactIds.filter((id) => !foundIds.has(id))
     if (missingIds.length > 0) {
@@ -509,6 +527,7 @@ export async function POST(request: NextRequest) {
       review,
       contactInputs,
       action,
+      calendarSource,
     })
     const contactInputsWithRecords = appendRowsToContactInputs(contactInputs, {
       outreachQueue: plannedRecords.outreachQueue,

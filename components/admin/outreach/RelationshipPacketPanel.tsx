@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { warmCopyBlocker } from '@/lib/warm-outreach-copy-quality'
 import {
   AlertTriangle,
   CheckCircle2,
@@ -478,21 +479,8 @@ function GmailOperatingLoopCard({
         return
       }
 
-      const response = await fetch(`/api/admin/outreach/${encodeURIComponent(queueId)}/slack-send-approval`, {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-      })
-      const body = await response.json().catch(() => ({})) as {
-        error?: string
-        approvalRequest?: { status?: string }
-        approvalRecovery?: { nextAction?: string }
-      }
-      if (!response.ok) throw new Error(body.error ?? 'Could not build Slack approval payload.')
-      setLocalApprovalRequested(body.approvalRequest?.status === 'pending')
-      setRequestReceipt(
-        body.approvalRecovery?.nextAction ??
-        'Local send approval request recorded in Portfolio. Slack dispatch off. Gmail send off.',
-      )
+      window.location.assign(`/admin/outreach?tab=leads&filter=warm&id=${loop.contactId}&contactId=${loop.contactId}&draftReview=${encodeURIComponent(queueId)}#warm-gmail-draft-review`)
+
     } catch (error) {
       setRequestError(error instanceof Error ? error.message : 'Could not build Slack approval payload.')
     } finally {
@@ -614,7 +602,7 @@ function GmailOperatingLoopCard({
               className="inline-flex min-h-10 w-full shrink-0 items-center justify-center gap-2 rounded-md border border-sky-400/40 bg-sky-400/10 px-3 text-xs font-semibold text-sky-50 transition-colors hover:bg-sky-400/20 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
             >
               {requestLoading ? <RefreshCw size={13} className="animate-spin" aria-hidden /> : <MessageSquare size={13} aria-hidden />}
-              {requestLoading ? 'Requesting approval' : 'Request send approval'}
+              {requestLoading ? 'Preparing review' : inertSlackApprovalRequest ? 'Prepare review request' : 'Open Gmail review'}
             </button>
           ) : (
             <span className="inline-flex min-h-8 w-fit shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-full border border-current/25 px-2 py-1 text-center text-[10px] font-semibold">
@@ -1555,6 +1543,7 @@ function ManualSocialHandoffCard({
   if (!selected) return null
 
   const selectedDraft = drafts[selected.channel] ?? selected.preview
+  const copyQualityBlocker = warmCopyBlocker(selectedDraft)
   const evidenceRecord = evidence[selected.channel] ?? selected.durableEvidence ?? undefined
   const action = actionState[selected.channel] ?? { status: 'idle' as const, message: null }
   const contactId = handoff.contactId
@@ -1577,7 +1566,7 @@ function ManualSocialHandoffCard({
         : `Copy ${selected.label} text`
 
   async function copyManualText() {
-    if (blocked || evidenceRecord) return
+    if (blocked || evidenceRecord || copyQualityBlocker) return
     try {
       if (!navigator.clipboard?.writeText) throw new Error('Clipboard unavailable')
       await navigator.clipboard.writeText(selectedDraft)
@@ -1658,7 +1647,7 @@ function ManualSocialHandoffCard({
     <div
       id="warm-manual-social-handoff"
       data-testid="warm-manual-social-handoff"
-      className="rounded-md border border-sky-500/30 bg-sky-500/10 p-3 text-sky-50"
+      className="scroll-mt-24 rounded-md border border-sky-500/30 bg-sky-500/10 p-3 text-sky-50"
     >
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
@@ -1681,7 +1670,7 @@ function ManualSocialHandoffCard({
         </div>
         <button
           type="button"
-          disabled={blocked || Boolean(evidenceRecord) || (isPrepared && !canRecordEvidence)}
+          disabled={blocked || Boolean(copyQualityBlocker) || Boolean(evidenceRecord) || (isPrepared && !canRecordEvidence)}
           onClick={handlePrimaryAction}
           className="inline-flex min-h-10 w-full shrink-0 items-center justify-center gap-2 rounded-md border border-sky-300/40 bg-sky-300/10 px-3 text-xs font-semibold text-sky-50 transition-colors hover:bg-sky-300/20 disabled:cursor-not-allowed disabled:border-silicon-slate disabled:bg-silicon-slate/20 disabled:text-muted-foreground sm:w-auto"
         >
@@ -1689,6 +1678,8 @@ function ManualSocialHandoffCard({
           {primaryLabel}
         </button>
       </div>
+
+      {copyQualityBlocker && <p role="status" className="mt-2 text-xs text-amber-100">{copyQualityBlocker}</p>}
 
       <div className="mt-3 grid grid-cols-1 gap-1.5 sm:grid-cols-3">
         {handoff.channels.map((channel) => (

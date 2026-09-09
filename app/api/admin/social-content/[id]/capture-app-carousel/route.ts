@@ -1,3 +1,4 @@
+import { assertSocialQueueWritable, assertSocialQueuePublicationClear, updateSocialQueueWithVersion, SocialQueueWriteConflict } from '@/lib/social-queue-write'
 import { promises as fs } from 'fs'
 import os from 'os'
 import path from 'path'
@@ -210,7 +211,7 @@ export async function POST(
 
   const { data: row, error: fetchErr } = await supabaseAdmin
     .from('social_content_queue')
-    .select('post_text, cta_text, hashtags, rag_context')
+    .select('*')
     .eq('id', id)
     .single()
 
@@ -218,11 +219,19 @@ export async function POST(
     return NextResponse.json({ error: 'Content not found' }, { status: 404 })
   }
 
+  try {
+    assertSocialQueueWritable(row)
+    await assertSocialQueuePublicationClear(supabaseAdmin, row.id)
+  } catch (error) {
+    return NextResponse.json({ error: error instanceof Error ? error.message : 'Content changed' }, { status: 409 })
+  }
+
   const ragContext = asRecord(row.rag_context)
   const routes = requestedRoutes?.length ? requestedRoutes : defaultRoutes(id, ragContext)
   const outputDir = path.join(os.tmpdir(), 'portfolio-social-content-app-screenshots', id, String(Date.now()))
   const baseUrl = new URL(request.url).origin
   const capturedAt = new Date().toISOString()
+  const assetVersion = crypto.randomUUID()
 
   try {
     const captureResult = await captureBroll({
@@ -240,7 +249,7 @@ export async function POST(
     const assets: ScreenshotAsset[] = []
     for (let i = 0; i < routes.length; i += 1) {
       const fileBuffer = await fs.readFile(captureResult.screenshots[i])
-      const fileName = `app-screenshots/${id}/${String(i + 1).padStart(2, '0')}-${slug(routes[i].label)}.png`
+      const fileName = `app-screenshots/${id}/${assetVersion}/${String(i + 1).padStart(2, '0')}-${slug(routes[i].label)}.png`
       const url = await uploadBuffer({
         bucket: 'social-content',
         fileName,
@@ -264,7 +273,7 @@ export async function POST(
 
     const { pngBuffers, pdfBuffer } = await renderCarousel(slides)
     const slideUrls: string[] = []
-    const storageBase = `carousels/${id}`
+    const storageBase = `carousels/${id}/${assetVersion}`
 
     for (let i = 0; i < pngBuffers.length; i += 1) {
       const fileName = `${storageBase}/slide_${String(i + 1).padStart(2, '0')}.png`
@@ -311,16 +320,13 @@ export async function POST(
       ...(nextProductionAssets ? { production_assets: nextProductionAssets } : {}),
     }
 
-    const { error: updateErr } = await supabaseAdmin
-      .from('social_content_queue')
-      .update({
+    const { data: savedQueue, error: updateErr } = await updateSocialQueueWithVersion(supabaseAdmin, row, {
         content_format: 'carousel',
         carousel_slides: slides,
         carousel_slide_urls: slideUrls,
         carousel_pdf_url: pdfUrl,
         rag_context: nextRagContext,
       })
-      .eq('id', id)
 
     if (updateErr) {
       throw new Error(`Failed to update social content: ${updateErr.message || String(updateErr)}`)
@@ -333,10 +339,11 @@ export async function POST(
       carousel_slide_urls: slideUrls,
       carousel_pdf_url: pdfUrl,
       app_screenshot_assets: assets,
-      rag_context: nextRagContext,
+      rag_context: savedQueue.rag_context,
       slide_count: slides.length,
     })
   } catch (error) {
+    if (error instanceof SocialQueueWriteConflict) return NextResponse.json({ error: error.message }, { status: 409 })
     console.error('Error in capture-app-carousel:', error)
     return NextResponse.json({
       error: error instanceof Error ? error.message : 'Failed to build app screenshot carousel',

@@ -379,7 +379,7 @@ function sendReadiness(
               detail:
                 'Slack dispatch is disabled. The relationship packet can still record a local one-recipient approval request without posting to Slack or calling Gmail.',
               nextAction:
-                'Use Request send approval in this contact workroom, then record approve, reject, or revise before any separate Gmail send execution gate.',
+                'Use Prepare review request in this contact workroom, then record approve, reject, or revise before any separate Gmail send execution gate.',
             },
           },
           executionBoundary: {
@@ -1137,7 +1137,7 @@ describe('RelationshipPacketPanel', () => {
     expect(screen.getByText('Approval records intent only. Gmail send: off.')).toBeInTheDocument()
     expect(screen.getByText('Portfolio recovery path')).toBeInTheDocument()
     expect(screen.getByText(/Slack dispatch is disabled/i)).toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: 'Request send approval' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Prepare review request' })).not.toBeInTheDocument()
     expect(screen.getByText('Resolve draft blocker')).toBeInTheDocument()
     expect(screen.getByText('Draft packet: ready for review')).toBeInTheDocument()
     expect(screen.getByText('Provider capability smoke: blocked')).toBeInTheDocument()
@@ -1184,6 +1184,23 @@ describe('RelationshipPacketPanel', () => {
     expect(screen.getAllByText(/Manual-only channel: prepare an operator review packet/)).toHaveLength(4)
     expect(screen.getByText('External monitoring: off')).toBeInTheDocument()
     expect(screen.getByText('Local response evidence: visible')).toBeInTheDocument()
+  })
+
+  it.each(['linkedin', 'facebook'] as const)('blocks instruction-contaminated %s copy until edited', async (channel) => {
+    const writeText = vi.fn().mockResolvedValue(undefined)
+    Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } })
+    const handoff = buildWarmManualSocialHandoff({ packet: { ...packetResponse.packet, preferredChannel: channel }, readiness: { ...packetResponse.readiness, selectedChannel: channel } })
+    handoff.channels.forEach(item => { item.preview = 'Draft direction: follow up. Safe mention: workshop.' })
+    render(<RelationshipPacketPanel authToken="admin-token" loading={false} error={null} data={{ ...packetResponse, manualSocialHandoff: handoff }} />)
+    const panel = screen.getByTestId('warm-manual-social-handoff')
+    const label = channel === 'linkedin' ? 'LinkedIn' : 'Facebook'
+    fireEvent.click(within(panel).getByRole('button', { name: new RegExp(`${label}: ready`, 'i') }))
+    expect(within(panel).getByRole('button', { name: `Copy ${label} text` })).toBeDisabled()
+    expect(within(panel).getByText('Replace planning instructions with recipient-ready copy.')).toBeInTheDocument()
+    expect(writeText).not.toHaveBeenCalled()
+    fireEvent.change(within(panel).getByLabelText(`${label} manual handoff text`), { target: { value: 'Hi Ada, would Tuesday suit our workshop follow-up?' } })
+    fireEvent.click(within(panel).getByRole('button', { name: `Copy ${label} text` }))
+    await waitFor(() => expect(writeText).toHaveBeenCalledWith('Hi Ada, would Tuesday suit our workshop follow-up?'))
   })
 
   it('renders manual social handoff copy and records server evidence without provider calls', async () => {
@@ -2289,7 +2306,7 @@ describe('RelationshipPacketPanel', () => {
       />,
     )
 
-    const button = screen.getByRole('button', { name: 'Request send approval' })
+    const button = screen.getByRole('button', { name: 'Prepare review request' })
     expect(button).toBeEnabled()
 
     fireEvent.click(button)

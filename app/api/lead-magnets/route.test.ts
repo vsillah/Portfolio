@@ -22,11 +22,11 @@ import { GET, POST } from './route'
 const USER = { id: 'user-1', email: 'member@example.com' }
 const ADMIN = { id: 'admin-1', email: 'admin@example.com' }
 
-function request(url: string, init: RequestInit = {}) {
+function request(url: string, init: ConstructorParameters<typeof NextRequest>[1] = {}) {
   return new NextRequest(url, init)
 }
 
-function authRequest(url: string, token = 'valid-token', init: RequestInit = {}) {
+function authRequest(url: string, token = 'valid-token', init: ConstructorParameters<typeof NextRequest>[1] = {}) {
   return request(url, {
     ...init,
     headers: {

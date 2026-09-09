@@ -1,3 +1,6 @@
+import { warmGmailReviewMessageVersionKey } from '@/lib/warm-outreach-slack-send-approval'
+import { warmFinalCopyFingerprint } from '@/lib/warm-outreach-copy-fingerprint'
+import { warmCopyBlocker, warmCopyEvidenceBlocker } from '@/lib/warm-outreach-copy-quality'
 import { NextRequest, NextResponse } from 'next/server'
 
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
@@ -11,6 +14,7 @@ import type { WarmOutreachResponseMonitoring } from '@/lib/warm-outreach-respons
 export const dynamic = 'force-dynamic'
 
 type QueueRow = {
+  updated_at: string
   id: string
   contact_submission_id: number
   channel: string | null
@@ -186,6 +190,7 @@ export async function POST(
     return NextResponse.json({ error: 'Database not available' }, { status: 500 })
   }
 
+  const requestBody = await request.json().catch(() => ({}))
   const { id } = await params
   const { data, error } = await supabaseAdmin
     .from('outreach_queue')
@@ -200,6 +205,7 @@ export async function POST(
       thread_id,
       message_id,
       sent_at,
+      updated_at,
       generation_inputs,
       contact_submissions (
         id,
@@ -216,6 +222,16 @@ export async function POST(
   }
 
   const item = data as QueueRow
+  if (item.status !== 'approved' || !item.updated_at || requestBody.expectedUpdatedAt !== item.updated_at) {
+    return NextResponse.json({ error: 'Reload and review the current approved copy before requesting send approval.' }, { status: 409 })
+  }
+  const copyBlocker = warmCopyBlocker(item.body) ?? warmCopyEvidenceBlocker(item.generation_inputs)
+  if (copyBlocker) return NextResponse.json({ error: copyBlocker }, { status: 409 })
+  const fingerprint = warmFinalCopyFingerprint(item)
+  const trackedDraft = record(item.generation_inputs?.gmail_draft_creation)
+  if (trackedDraft.final_copy_fingerprint !== fingerprint || item.generation_inputs?.copy_revision_requires_provider_reconciliation === true) {
+    return NextResponse.json({ error: 'Mailbox draft does not match the current copy. Reconcile it before requesting approval.' }, { status: 409 })
+  }
   if (item.channel !== 'email') {
     return NextResponse.json(
       { error: 'Slack send approval cards are only available for warm Gmail queue rows.' },
@@ -269,6 +285,7 @@ export async function POST(
   }
 
   const generationInputs = record(item.generation_inputs)
+  if (generationInputs.warm_gmail_review_slack_delivery) return NextResponse.json({ error: 'A Slack review delivery already exists. Reconcile its receipt before rebuilding the request.' }, { status: 409 })
   const authorizationStatus = existingAuthorization(generationInputs)
   if (authorizationStatus) {
     return NextResponse.json(
@@ -293,6 +310,7 @@ export async function POST(
 
   const contact = item.contact_submissions
   const portfolioUrl = `${baseUrl()}/admin/outreach?tab=leads&filter=warm&id=${item.contact_submission_id}&contactId=${item.contact_submission_id}&queueId=${encodeURIComponent(item.id)}#warm-gmail-operating-loop`
+  const reviewMessageVersionKey = warmGmailReviewMessageVersionKey(fingerprint, generationInputs)
   const card = buildWarmGmailSendApprovalSlackPayload({
     contactId: item.contact_submission_id,
     outreachQueueId: item.id,
@@ -305,9 +323,9 @@ export async function POST(
     proposedMessage: item.body,
     portfolioUrl,
     gmailDraftUrl: gmailDraftUrl(generationInputs),
-    lifecycle,
+    lifecycle: { ...lifecycle, messageVersionKey: reviewMessageVersionKey },
   })
-  const now = new Date().toISOString()
+  const now = new Date(Math.max(Date.now(), Date.parse(item.updated_at) + 1)).toISOString()
   const existingRequest = existingApprovalRequest(generationInputs)
   const requestAlreadyRecorded = requestDedupeKey(existingRequest) === card.dedupeKey
   const existingRequestedAt = requestTimestamp(existingRequest)
@@ -320,7 +338,14 @@ export async function POST(
     payload_dedupe_key: card.dedupeKey,
     contact_submission_id: item.contact_submission_id,
     outreach_queue_id: item.id,
-    message_version_key: lifecycle.messageVersionKey,
+    message_version_key: reviewMessageVersionKey,
+    final_copy_fingerprint: fingerprint,
+    lifecycle_message_version_key: lifecycle.messageVersionKey,
+    reviewed_updated_at: item.updated_at,
+    recipient_email: contact.email?.trim().toLowerCase(),
+    channel: 'email',
+    gmail_draft_id: trackedDraft.draft_id,
+    submitted_evidence_key: lifecycle.submittedEvidenceKey,
     send_queue_idempotency_key: lifecycle.sendQueueIdempotencyKey,
     route: `/api/admin/outreach/${encodeURIComponent(item.id)}/slack-send-approval`,
     action_ids: ['warm_gmail_send.approve', 'warm_gmail_send.reject', 'warm_gmail_send.revise'],
@@ -337,7 +362,7 @@ export async function POST(
     operating_loop_state: 'send_approval_requested',
   }
   const requestHistory = approvalRequestHistory(generationInputs)
-  const { error: requestError } = await supabaseAdmin
+  const { data: changed, error: requestError } = await supabaseAdmin
     .from('outreach_queue')
     .update({
       generation_inputs: {
@@ -349,8 +374,9 @@ export async function POST(
       },
       updated_at: now,
     })
-    .eq('id', item.id)
+    .eq('id', item.id).eq('status', 'approved').eq('updated_at', item.updated_at).select('id, updated_at')
 
+  if (!requestError && !changed?.length) return NextResponse.json({ error: 'Copy changed while requesting approval. Reload; the stale request was not saved.' }, { status: 409 })
   if (requestError) {
     return NextResponse.json(
       { error: `Could not record warm Gmail Slack approval request: ${requestError.message}` },
@@ -361,6 +387,7 @@ export async function POST(
   return NextResponse.json({
     card,
     approvalRequest,
+    updatedAt: changed?.[0]?.updated_at ?? now,
     operatingLoopTransition: {
       state: 'send_approval_requested',
       nextState: 'send_authorized',

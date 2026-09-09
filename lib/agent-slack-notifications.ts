@@ -1,3 +1,4 @@
+import { socialCommentReplyText } from '@/lib/social-comment-reply-safety'
 import { getSlackAgentSource, getSlackAgentDeliveryConfig } from '@/lib/slack-agent-environment'
 import { createHash, randomUUID } from 'crypto'
 import { recordAgentEvent, startAgentRun } from '@/lib/agent-run'
@@ -808,9 +809,10 @@ async function buildSocialCommentAttentionPayload() {
   }
 
   for (const row of read.rows.slice(0, 5)) {
-    const canDecide = canSlackDecideCommentReply(row)
+    const exactReply = socialCommentReplyText(row as unknown as Record<string, unknown>)
+    const canDecide = canSlackDecideCommentReply(row) && JSON.stringify(exactReply).length < 1400
     const comment = truncateSlack(row.body, 220)
-    const draft = truncateSlack(row.approved_reply_text || row.proposed_reply_text, 180)
+    const draft = canDecide ? exactReply : truncateSlack(exactReply, 180)
     blocks.push({
       type: 'section',
       text: mrkdwn([
@@ -834,6 +836,8 @@ async function buildSocialCommentAttentionPayload() {
               value: {
                 action: 'social_comment_reply.approve',
                 commentId: row.id,
+                expectedUpdatedAt: row.updated_at!,
+                expectedReplyText: exactReply,
                 contentId: row.content_id ?? undefined,
                 note: 'Approved from Slack. Start the 15-minute hold before any provider-send eligibility check.',
               },
@@ -846,6 +850,8 @@ async function buildSocialCommentAttentionPayload() {
               value: {
                 action: 'social_comment_reply.reject',
                 commentId: row.id,
+                expectedUpdatedAt: row.updated_at!,
+                expectedReplyText: exactReply,
                 contentId: row.content_id ?? undefined,
                 note: 'Rejected from Slack.',
               },

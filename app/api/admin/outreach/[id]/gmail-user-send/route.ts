@@ -1,3 +1,7 @@
+import { CONFIRMED_PREFLIGHT_REJECTION } from '@/lib/warm-outreach-action-outcome'
+import { validateGmailMessageHeaders } from '@/lib/gmail-message-copy'
+import { warmFinalCopyFingerprint } from '@/lib/warm-outreach-copy-fingerprint'
+import { warmCopyBlocker, warmCopyEvidenceBlocker } from '@/lib/warm-outreach-copy-quality'
 import { NextRequest, NextResponse } from 'next/server'
 
 import { GET as getRelationshipPacket } from '@/app/api/admin/outreach/leads/[id]/relationship-packet/route'
@@ -22,6 +26,9 @@ const GMAIL_SEND_AUTHORIZATION =
   'execute_warm_gmail_send_for_authorized_recipient'
 
 type RequestBody = {
+  prepareOnly?: boolean
+  expectedUpdatedAt?: string
+  finalCopyFingerprint?: string
   executeGmailSend?: boolean
   dryRun?: boolean
   sendAuthorization?: string
@@ -37,6 +44,7 @@ type RequestBody = {
 type MetadataRecord = Record<string, unknown>
 
 type QueueRow = {
+  updated_at: string | null
   id: string
   contact_submission_id: number
   status: string | null
@@ -91,6 +99,9 @@ function parseBody(raw: unknown): RequestBody {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return {}
   const value = raw as Record<string, unknown>
   return {
+    prepareOnly: value.prepareOnly === true,
+    expectedUpdatedAt: typeof value.expectedUpdatedAt === 'string' ? value.expectedUpdatedAt : undefined,
+    finalCopyFingerprint: typeof value.finalCopyFingerprint === 'string' ? value.finalCopyFingerprint : undefined,
     executeGmailSend: value.executeGmailSend === true,
     dryRun: value.dryRun === true,
     sendAuthorization:
@@ -230,6 +241,7 @@ function existingSubmittedEvidenceFromRows(rows: MetadataRecord[], input: {
 }
 
 function blockedResponse(input: {
+  confirmedPreflight?: boolean
   message: string
   blockers: string[]
   status?: number
@@ -238,6 +250,7 @@ function blockedResponse(input: {
 }) {
   return NextResponse.json(
     {
+      ...(input.confirmedPreflight ? { actionOutcome: CONFIRMED_PREFLIGHT_REJECTION } : {}),
       version: 'warm-outreach-gmail-send-execution/v1',
       status: 'blocked_no_send',
       message: input.message,
@@ -330,6 +343,8 @@ function expectedAuthorization(input: {
   gmailDraftId: string | null
 }) {
   return {
+    expectedUpdatedAt: input.item.updated_at,
+    finalCopyFingerprint: warmFinalCopyFingerprint(input.item),
     executeGmailSend: true,
     sendAuthorization: GMAIL_SEND_AUTHORIZATION,
     idempotencyKey: input.lifecycle.sendQueueIdempotencyKey,
@@ -351,6 +366,8 @@ function requestAuthorizationErrors(input: {
 }) {
   const body = input.body
   return [
+    body.expectedUpdatedAt === input.item.updated_at ? null : 'Reviewed row version is stale. Reload the confirmation.',
+    body.finalCopyFingerprint === warmFinalCopyFingerprint(input.item) ? null : 'Reviewed final copy is stale. Reload the confirmation.',
     body.executeGmailSend === true ? null : 'executeGmailSend must be true.',
     body.dryRun === true ? 'dryRun must be false or omitted for live execution.' : null,
     body.sendAuthorization === GMAIL_SEND_AUTHORIZATION
@@ -409,16 +426,21 @@ export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  let confirmedPreflight = true
+  const json = (body: Record<string, unknown>, init?: { status?: number }) => NextResponse.json({ ...body,
+    ...(confirmedPreflight && (init?.status ?? 200) >= 400 ? { actionOutcome: CONFIRMED_PREFLIGHT_REJECTION } : {}),
+  }, init)
+  const reject = (input: Parameters<typeof blockedResponse>[0]) => blockedResponse({ confirmedPreflight, ...input })
   try {
     const authResult = await verifyAdmin(request)
     if (isAuthError(authResult)) {
-      return NextResponse.json(
+      return json(
         { error: authResult.error },
         { status: authResult.status },
       )
     }
     if (!supabaseAdmin) {
-      return NextResponse.json({ error: 'Database not available' }, { status: 500 })
+      return json({ error: 'Database not available' }, { status: 500 })
     }
 
     let bodyInput: RequestBody = {}
@@ -442,6 +464,7 @@ export async function POST(
         thread_id,
         message_id,
         sent_at,
+        updated_at,
         generation_inputs,
         contact_submissions (
           id,
@@ -458,12 +481,14 @@ export async function POST(
       .single()
 
     if (error || !data?.id) {
-      return NextResponse.json({ error: 'Outreach item not found.' }, { status: 404 })
+      return json({ error: 'Outreach item not found.' }, { status: 404 })
     }
 
     const item = data as QueueRow
+    if (item.sent_at || ['queued', 'sent'].includes(String(item.status)) || warmCopyEvidenceBlocker(item.generation_inputs)) confirmedPreflight = false
+    if (!item.updated_at) return json({ error: 'Current draft version is unavailable. Reload before continuing.' }, { status: 409 })
     if (item.channel !== 'email') {
-      return blockedResponse({
+      return reject({
         message: 'Warm Gmail send execution is only available for email outreach rows.',
         blockers: ['channel must be email'],
         status: 400,
@@ -471,7 +496,7 @@ export async function POST(
     }
     const recipientEmail = item.contact_submissions?.email?.trim() ?? ''
     if (!recipientEmail.includes('@')) {
-      return blockedResponse({
+      return reject({
         message: 'Warm Gmail send execution blocked. The contact has no usable recipient email.',
         blockers: ['recipient email is missing'],
         status: 400,
@@ -480,10 +505,10 @@ export async function POST(
 
     const lifecycleResult = await loadLifecycle(request, item.contact_submission_id)
     if (lifecycleResult.error || !lifecycleResult.lifecycle) {
-      return blockedResponse({
+      return reject({
         message: lifecycleResult.error ?? 'No warm Gmail send lifecycle is available for this recipient.',
         blockers: [lifecycleResult.error ?? 'email lifecycle missing'],
-        status: lifecycleResult.status,
+        status: lifecycleResult.status >= 400 ? lifecycleResult.status : 503,
       })
     }
     const lifecycle = lifecycleResult.lifecycle
@@ -517,12 +542,19 @@ export async function POST(
     ])
 
     if (contactCommunicationsRes.error || emailMessagesRes.error) {
-      return blockedResponse({
+      return reject({
         message: 'Warm Gmail send execution blocked. Portfolio could not verify submitted send evidence.',
         blockers: ['submitted sent evidence lookup failed'],
         status: 503,
         lifecycle,
         expectedAuthorization: expected,
+      })
+    }
+
+    if (['failed_provider_call', 'provider_outcome_unknown'].includes(String(executionEvidence.status))) {
+      return reject({
+        message: 'The previous Gmail attempt has an uncertain outcome. Reconcile provider evidence before retrying.',
+        blockers: ['provider outcome requires reconciliation'], status: 409, lifecycle, expectedAuthorization: expected,
       })
     }
 
@@ -574,7 +606,9 @@ export async function POST(
       }
     }
 
+    const fingerprint = warmFinalCopyFingerprint(item)
     const authorizationBlockers = [
+      authorization.final_copy_fingerprint === fingerprint ? null : 'Authorization does not match exact current copy.',
       authorization.status === 'approved'
         ? null
         : 'Portfolio warm Gmail send authorization is missing or not approved.',
@@ -607,6 +641,7 @@ export async function POST(
     ].filter(Boolean) as string[]
 
     const draftBlockers = [
+      draftEvidence.final_copy_fingerprint === fingerprint ? null : 'Mailbox draft does not match exact current copy.',
       gmailDraftId ? null : 'Tracked Gmail draft evidence is missing.',
       stringValue(draftEvidence.thread_id) || item.thread_id
         ? null
@@ -636,6 +671,14 @@ export async function POST(
         ? 'Contact has been removed.'
         : null,
     ].filter(Boolean) as string[]
+
+    if (item.generation_inputs?.copy_revision_requires_provider_reconciliation === true) {
+      return json({ error: 'Copy changed after the mailbox draft was created. Reconcile or replace that draft before continuing.' }, { status: 409 })
+    }
+    try { validateGmailMessageHeaders(recipientEmail, item.subject ?? '') }
+    catch (error) { return json({ error: error instanceof Error ? error.message : 'Invalid reviewed headers.' }, { status: 409 }) }
+    const copyBlocker = warmCopyBlocker(item.body)
+    if (copyBlocker) return json({ error: copyBlocker }, { status: 409 })
 
     const statusBlockers = item.status === 'approved'
       ? []
@@ -667,7 +710,7 @@ export async function POST(
 
     const enabled = executionEnabled()
     if (blockers.length > 0) {
-      return blockedResponse({
+      return reject({
         message: `Warm Gmail send execution blocked. ${blockers[0]}`,
         blockers,
         status: authorizationBlockers.length > 0 ? 403 : 409,
@@ -675,6 +718,19 @@ export async function POST(
         expectedAuthorization: expected,
       })
     }
+
+    if (bodyInput.prepareOnly === true) {
+      return json({
+        status: enabled ? 'ready_for_confirmation' : 'execution_disabled',
+        readyForConfirmation: enabled,
+        message: enabled ? 'Review the exact Gmail draft before confirming send.' : 'Live Gmail sending is disabled. Ask the operator responsible for Gmail setup to enable the approved execution gate, then refresh readiness.',
+        expectedAuthorization: expected,
+        reviewedCopy: { queueId: item.id, recipientEmail, subject: item.subject ?? '', body: item.body ?? '', sender: requiredSender, updatedAt: item.updated_at },
+        gmailSendCalled: false, externalSendPerformed: false,
+      })
+    }
+
+    if (!enabled && bodyInput.executeGmailSend === true && bodyInput.dryRun !== true) return reject({ message: 'Live Gmail sending is disabled. Resolve setup, then refresh readiness.', blockers: ['execution disabled'], status: 409 })
 
     if (!enabled || bodyInput.dryRun === true || bodyInput.executeGmailSend !== true) {
       const alreadyPrepared =
@@ -722,6 +778,7 @@ export async function POST(
       const history = Array.isArray(generationInputs.warm_gmail_send_execution_history)
         ? generationInputs.warm_gmail_send_execution_history
         : []
+      confirmedPreflight = false
       const prepareRes = await supabaseAdmin
         .from('outreach_queue')
         .update({
@@ -734,11 +791,12 @@ export async function POST(
         })
         .eq('id', item.id)
         .eq('status', 'approved')
+        .eq('updated_at', item.updated_at)
         .select('id')
         .single()
 
       if (prepareRes.error || !prepareRes.data?.id) {
-        return blockedResponse({
+        return reject({
           message: `Warm Gmail send execution gates passed, but Portfolio could not record eligible execution state. ${prepareRes.error?.message ?? 'The approved outreach row was not claimed.'}`,
           blockers: ['eligible send execution evidence write failed'],
           status: 503,
@@ -766,7 +824,7 @@ export async function POST(
       gmailDraftId: gmailDraftId!,
     })
     if (requestErrors.length > 0) {
-      return blockedResponse({
+      return reject({
         message: `Explicit per-recipient Gmail send execution authorization is required. ${requestErrors[0]}`,
         blockers: requestErrors,
         status: 403,
@@ -803,9 +861,11 @@ export async function POST(
       ? generationInputs.warm_gmail_send_execution_history
       : []
 
+    confirmedPreflight = false
     const claimRes = await supabaseAdmin
       .from('outreach_queue')
       .update({
+        status: 'queued',
         generation_inputs: {
           ...generationInputs,
           warm_gmail_send_execution: claim,
@@ -815,16 +875,20 @@ export async function POST(
       })
       .eq('id', item.id)
       .eq('status', 'approved')
-      .select('id')
+      .eq('updated_at', item.updated_at)
+      .select('id, updated_at')
       .single()
 
-    if (claimRes.error || !claimRes.data?.id) {
+    if ((!claimRes.error || claimRes.error.code === 'PGRST116') && !claimRes.data?.id) return reject({ message: 'The approved row changed before sending. Refresh and review it again.', blockers: ['row version changed'], status: 409, confirmedPreflight: true })
+    if (claimRes.error || !claimRes.data?.id || !claimRes.data.updated_at) {
       return duplicateResponse({
         message: 'Warm Gmail send execution could not claim the approved row. No duplicate email was sent.',
         lifecycle,
         evidence: claim,
       })
     }
+
+    const claimVersion = claimRes.data.updated_at
 
     let refreshToken: string
     try {
@@ -835,7 +899,7 @@ export async function POST(
       )
     } catch (error) {
       console.error('[Warm Gmail send] decrypt failed:', error)
-      await supabaseAdmin
+      const rollbackRes = await supabaseAdmin
         .from('outreach_queue')
         .update({
           status: 'approved',
@@ -851,8 +915,15 @@ export async function POST(
           updated_at: new Date().toISOString(),
         })
         .eq('id', item.id)
-      return blockedResponse({
-        message: 'Warm Gmail send execution blocked. Reconnect Gmail and try again.',
+        .eq('status', 'queued')
+        .eq('updated_at', claimVersion)
+        .select('id')
+        .single()
+      const rollbackConfirmed = !rollbackRes.error && Boolean(rollbackRes.data?.id)
+      return reject({
+        message: rollbackConfirmed
+          ? 'Warm Gmail send execution blocked. Reconnect Gmail and try again.'
+          : 'No Gmail call was made, but the claimed row could not be restored. Refresh and reconcile current execution evidence before retrying.',
         blockers: ['Gmail refresh token could not be decrypted.'],
         status: 500,
         lifecycle,
@@ -862,19 +933,21 @@ export async function POST(
 
     let sentMessage: { id?: string; threadId?: string; labelIds?: string[] }
     try {
-      sentMessage = await sendUserGmailDraft(refreshToken, gmailDraftId!)
+      sentMessage = await sendUserGmailDraft(refreshToken, gmailDraftId!, { to: recipientEmail, subject: item.subject ?? '', body: item.body ?? '' })
+      if (!sentMessage.id) throw new Error('Gmail returned no sent message id; delivery outcome is unknown.')
     } catch (error) {
       const detail = error instanceof Error ? error.message : 'Unknown Gmail API error'
       console.error('[Warm Gmail send] Gmail API error:', error)
-      await supabaseAdmin
+      const unknownRes = await supabaseAdmin
         .from('outreach_queue')
         .update({
-          status: 'approved',
+          status: 'queued',
           generation_inputs: {
             ...generationInputs,
             warm_gmail_send_execution: {
               ...claim,
-              status: 'failed_provider_call',
+              status: 'provider_outcome_unknown',
+              gmail_send_called: true,
               failed_at: new Date().toISOString(),
               failure_reason: detail,
             },
@@ -882,13 +955,16 @@ export async function POST(
           updated_at: new Date().toISOString(),
         })
         .eq('id', item.id)
-      return blockedResponse({
-        message: `Gmail could not send the authorized draft. ${detail}`,
-        blockers: [detail],
-        status: 502,
-        lifecycle,
-        expectedAuthorization: expected,
-      })
+        .eq('status', 'queued')
+        .eq('updated_at', claimVersion)
+        .select('id')
+        .single()
+      return json({
+        status: 'provider_outcome_unknown',
+        trackingRecorded: !unknownRes.error && Boolean(unknownRes.data?.id),
+        message: 'Gmail delivery outcome is uncertain. Reconcile provider evidence before retrying.',
+        gmailSendCalled: true, externalSendPerformed: null, requiresReconciliation: true,
+      }, { status: 502 })
     }
 
     const sentAt = new Date().toISOString()
@@ -922,11 +998,13 @@ export async function POST(
         updated_at: sentAt,
       })
       .eq('id', item.id)
+      .eq('status', 'queued')
+      .eq('updated_at', claimVersion)
       .select('id')
       .single()
 
     if (finalRes.error || !finalRes.data?.id) {
-      return NextResponse.json(
+      return json(
         {
           version: 'warm-outreach-gmail-send-execution/v1',
           status: 'tracking_failed_after_send',
@@ -1004,7 +1082,7 @@ export async function POST(
       }
     }
 
-    return NextResponse.json({
+    return json({
       version: 'warm-outreach-gmail-send-execution/v1',
       status: communicationLog.status === 'recorded'
         ? 'sent'
@@ -1041,7 +1119,7 @@ export async function POST(
     })
   } catch (error) {
     console.error('POST /api/admin/outreach/[id]/gmail-user-send:', error)
-    return NextResponse.json(
+    return json(
       { error: 'Something went wrong. Please try again.' },
       { status: 500 },
     )

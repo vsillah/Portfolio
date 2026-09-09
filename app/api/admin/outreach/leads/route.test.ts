@@ -254,6 +254,7 @@ describe('GET /api/admin/outreach/leads', () => {
 
     expect(response.status).toBe(200)
     expect(queryCalls.like).toEqual([['lead_source', 'warm_%']])
+    expect(queryCalls.eq).toContainEqual(['is_test_data', false])
     expect(queryCalls.eq).toContainEqual(['do_not_contact', false])
     expect(queryCalls.is).toContainEqual(['removed_at', null])
   })

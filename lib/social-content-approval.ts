@@ -1,13 +1,24 @@
+import { assertSocialQueueWritable, assertSocialQueuePublicationClear, updateSocialQueueWithVersion, SocialQueueWriteConflict } from './social-queue-write'
+import { isSocialReleaseLocked } from './social-release-safety'
+import { isCalendarSocialCopy, socialCopyVersion } from './social-copy-revision'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { SocialPlatform } from '@/lib/social-content'
 import { createAgentWorkItem } from '@/lib/agent-work-items'
 import { syncCampaignCalendarForSocialContent } from '@/lib/social-content-calendar-linkage'
 import {
   deriveSocialContentLifecycleProjection,
+  hasSubmissionOrPublishEvidence,
   lifecyclePrerequisiteFailure,
   socialContentFinalCopyQualityFailure,
   validateSocialContentFinalCopyQuality,
 } from '@/lib/social-content-lifecycle'
+
+// Same release evidence boundary used by the coordinated manual-copy lane, also applied to non-calendar approvals.
+function hasSocialCopyReleaseEvidence(item: Record<string, any>): boolean {
+  const inFlight = ['scheduled', 'claimed', 'submitting', 'publishing', 'submitted', 'uncertain', 'ambiguous']
+  return isSocialReleaseLocked(item.rag_context) || hasSubmissionOrPublishEvidence(item) || Boolean(item.scheduled_for) ||
+    inFlight.includes(item.status) || (Array.isArray(item.publishes) && item.publishes.some((row: Record<string, unknown>) => inFlight.includes(String(row.status))))
+}
 
 type SocialContentApprovalPayload = Record<string, unknown>
 
@@ -101,19 +112,39 @@ export async function approveSocialContentItem({
   admin,
   id,
   reviewedByUserId,
+  expectedCopyVersion,
 }: {
   admin: SupabaseClient
   id: string
   reviewedByUserId: string
+  expectedCopyVersion?: unknown
 }) {
   const { data: item, error: fetchError } = await admin
     .from('social_content_queue')
-    .select('*')
+    .select('*, publishes:social_content_publishes(*)')
     .eq('id', id)
     .single()
 
   if (fetchError || !item) {
     throw new SocialContentApprovalError(404, { error: 'Content not found' })
+  }
+
+  if (item.status !== 'draft' || hasSocialCopyReleaseEvidence(item)) {
+    throw new SocialContentApprovalError(409, { error: 'Copy is already decided or has release evidence. Review its current gate before acting again.' })
+  }
+  try {
+    assertSocialQueueWritable(item)
+    await assertSocialQueuePublicationClear(admin, item.id)
+  } catch {
+    throw new SocialContentApprovalError(409, { error: 'Current copy version is unavailable or release is locked. Reload before approving.' })
+  }
+  const calendarCopy = isCalendarSocialCopy(item)
+  if (calendarCopy) {
+    if (typeof expectedCopyVersion !== 'string' || expectedCopyVersion !== socialCopyVersion(item)) throw new SocialContentApprovalError(409, { error: 'Copy changed or version is missing. Reload and approve the current copy.' })
+    if (item.status !== 'draft' || hasSocialCopyReleaseEvidence(item)) throw new SocialContentApprovalError(409, { error: 'Copy is already decided or has release evidence. Review its current gate before acting again.' })
+    if (typeof item.updated_at !== 'string') throw new SocialContentApprovalError(409, { error: 'Current copy version is unavailable. Reload before approving.' })
+    const source = recordValue(item.rag_context)
+    if (!source?.calendar_item_id || !source?.campaign_id) throw new SocialContentApprovalError(409, { error: 'Canonical calendar and campaign source are missing. Resolve the calendar link before approval.' })
   }
 
   if (item.status === 'published') {
@@ -151,19 +182,13 @@ export async function approveSocialContentItem({
     })
   }
 
-  const { data: updated, error: updateError } = await admin
-    .from('social_content_queue')
-    .update({
-      status: 'approved',
-      reviewed_by: reviewedByUserId,
-    })
-    .eq('id', id)
-    .select('*')
-    .single()
-
-  if (updateError) {
-    console.error('Error approving content:', updateError)
-    throw new SocialContentApprovalError(500, { error: 'Failed to approve content' })
+  let updated: Record<string, any>
+  try {
+    const saved = await updateSocialQueueWithVersion(admin, item, { status: 'approved', reviewed_by: reviewedByUserId })
+    updated = saved.data
+  } catch (error) {
+    if (error instanceof SocialQueueWriteConflict) throw new SocialContentApprovalError(409, { error: error.message })
+    throw error
   }
 
   const calendarLinkage = await syncCampaignCalendarForSocialContent({
@@ -227,7 +252,7 @@ export async function approveSocialContentItem({
 
   const { error: insertError } = await admin
     .from('social_content_publishes')
-    .upsert(publishRows, { onConflict: 'content_id,platform' })
+    .upsert(publishRows, { onConflict: 'content_id,platform', ignoreDuplicates: true })
 
   if (insertError) {
     console.error('Error creating publish records:', insertError)

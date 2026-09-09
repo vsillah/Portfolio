@@ -43,7 +43,7 @@ export async function GET(
     .from('outreach_queue')
     .select(
       'id, channel, status, sequence_step, contact_submission_id, ' +
-        'subject, body, created_at, ' +
+        'subject, body, created_at, updated_at, ' +
         'generation_model, generation_prompt_summary, generation_inputs',
     )
     .eq('id', queueId)
@@ -66,6 +66,7 @@ export async function GET(
     subject: data.subject ?? null,
     body: data.body ?? null,
     createdAt: data.created_at,
+    updatedAt: data.updated_at,
     generationModel: data.generation_model ?? null,
     generationPromptSummary: data.generation_prompt_summary ?? null,
     generationInputs: data.generation_inputs ?? null,

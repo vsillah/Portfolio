@@ -1499,9 +1499,6 @@ export async function triggerSocialListening(options?: SocialListeningOptions): 
 const N8N_SOC001_WEBHOOK_URL =
   process.env.N8N_SOC001_WEBHOOK_URL || n8nWebhookUrl('social-content-extract')
 
-const N8N_SOC002_WEBHOOK_URL =
-  process.env.N8N_SOC002_WEBHOOK_URL || n8nWebhookUrl('social-content-publish')
-
 /**
  * Trigger WF-SOC-001: Extract social content from recent meetings.
  * When called with prompts, sends them in the webhook body so n8n uses the
@@ -1567,7 +1564,7 @@ export async function triggerSocialContentExtraction(options?: {
 /**
  * Trigger WF-SOC-002: Publish approved social content
  */
-export async function triggerSocialContentPublish(payload: {
+export async function triggerSocialContentPublish(_payload: {
   content_id: string
   platform: string
   post_text: string
@@ -1577,36 +1574,7 @@ export async function triggerSocialContentPublish(payload: {
   image_url?: string | null
   voiceover_url?: string | null
 }): Promise<{ triggered: boolean; message: string }> {
-  if (isN8nOutboundDisabled()) {
-    logDisabledOutbound('triggerSocialContentPublish', N8N_SOC002_WEBHOOK_URL, payload)
-    return { triggered: false, message: 'N8N_DISABLE_OUTBOUND is true' }
-  }
-
-  if (isMockN8nEnabled()) {
-    logDisabledOutbound('[MOCK_N8N] triggerSocialContentPublish', N8N_SOC002_WEBHOOK_URL, payload)
-    return { triggered: true, message: '[MOCK] SOC-002 publish logged (not sent)' }
-  }
-
-  try {
-    const response = await fetchN8nWebhookWithRetry('social content publish webhook', N8N_SOC002_WEBHOOK_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        ...payload,
-        triggered_at: new Date().toISOString(),
-        workflow: 'WF-SOC-002',
-      }),
-    })
-
-    if (!response.ok) {
-      const errorText = await response.text()
-      console.error('SOC-002 webhook error:', response.status, errorText)
-      return { triggered: false, message: `Webhook returned ${response.status}` }
-    }
-
-    return { triggered: true, message: 'Social content publish triggered' }
-  } catch (error) {
-    console.error('SOC-002 webhook failed:', error)
-    return { triggered: false, message: 'Webhook call failed' }
-  }
+  // Legacy SOC-002 bypasses the current-version final gate and atomic dispatch claim.
+  // Do not restore dispatch through an environment override or a mock success response.
+  return { triggered: false, message: 'Legacy social publishing is unavailable. Review the final platform gate in Portfolio and use the native claimed publisher.' }
 }

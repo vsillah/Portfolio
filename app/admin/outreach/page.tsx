@@ -79,12 +79,14 @@ import { OUTREACH_MODE_GATING_NOTE, OUTREACH_MODE_POLICIES } from '@/lib/outreac
 import type { WarmBatchReview } from '@/lib/warm-outreach-batch-review'
 import {
   buildWarmOutreachShortlist,
+  isQualifiedWarmCalendarItem,
   type WarmOutreachPlanningBacklogCandidate,
   type WarmOutreachReviewLoopAction,
   type WarmOutreachPlanningBacklogState,
   type WarmOutreachOfficeDigest,
   type WarmOutreachShortlistItem,
 } from '@/lib/warm-outreach-shortlist'
+import type { SocialContentCalendarItem } from '@/lib/social-content-calendar'
 import Link from 'next/link'
 import { useSearchParams, useRouter } from 'next/navigation'
 
@@ -354,6 +356,8 @@ export default function OutreachAdminPage() {
 function OutreachContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
+  const [warmCalendarItems, setWarmCalendarItems] = useState<SocialContentCalendarItem[]>([])
+  const [warmCalendarId, setWarmCalendarId] = useState(searchParams?.get('calendarItemId') ?? '')
   const warmSlackSendApprovalQaMode = searchParams?.get('qa') === 'warm-slack-send-approval'
   const warmGmailDraftReviewParam = searchParams?.get('draftReview')?.trim() || null
 
@@ -1137,10 +1141,11 @@ function OutreachContent() {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${session.access_token}`,
         },
-        body: JSON.stringify({}),
+        body: JSON.stringify({ expectedUpdatedAt: warmGmailDraftReviewData?.id === queueId ? warmGmailDraftReviewData.updatedAt : null }),
       })
       const body = await response.json().catch(() => ({}))
       if (!response.ok) throw new Error(body.error ?? 'Could not prepare the send approval request.')
+      setWarmGmailDraftReviewData(current => current?.id === queueId && body.updatedAt ? { ...current, updatedAt: body.updatedAt } : current)
       setWarmGmailApprovalRequestMessage(
         body.approvalRecovery?.nextAction ??
           'Approval request recorded in Portfolio. Slack dispatch off. Gmail send off.',
@@ -1153,7 +1158,7 @@ function OutreachContent() {
     } finally {
       setWarmGmailApprovalRequestQueueId(null)
     }
-  }, [fetchLeads, warmGmailApprovalRequestQueueId])
+  }, [warmGmailDraftReviewData, fetchLeads, warmGmailApprovalRequestQueueId])
 
   const runGmailDraftCanary = useCallback(async (leadId: number) => {
     if (gmailDraftCanaryLoadingLeadId != null) return
@@ -1367,6 +1372,7 @@ function OutreachContent() {
         },
         body: JSON.stringify({
           contact_ids: contactIds,
+          calendar_source_id: warmCalendarId || null,
           cohort_label: cohortLabel ?? `${contactIds.length} selected warm draft/handoff candidate${contactIds.length === 1 ? '' : 's'}`,
           preferred_channel: preferredChannel,
         }),
@@ -1388,7 +1394,7 @@ function OutreachContent() {
     } finally {
       setWarmBatchReviewLoading(false)
     }
-  }, [])
+  }, [warmCalendarId])
 
   const reviewWarmBatch = useCallback(async () => {
     await loadWarmBatchReview([...selectedLeadIds])
@@ -1418,6 +1424,7 @@ function OutreachContent() {
         body: JSON.stringify({
           action: 'create_planned_draft_handoff_records',
           contact_ids: contactIds,
+          calendar_source_id: warmCalendarId || null,
           cohort_label: `${contactIds.length} selected warm draft/handoff candidate${contactIds.length === 1 ? '' : 's'}`,
           preferred_channel: 'email',
         }),
@@ -1438,7 +1445,7 @@ function OutreachContent() {
     } finally {
       setWarmBatchDraftActionLoading(false)
     }
-  }, [selectedLeadIds])
+  }, [selectedLeadIds, warmCalendarId])
 
   const prepareWarmProviderDraftCanary = useCallback(async (queueId: string) => {
     if (warmProviderDraftCanaryLoadingQueueId) return
@@ -1520,9 +1527,30 @@ function OutreachContent() {
     if (score >= 40) return 'bg-yellow-900/50 text-yellow-400 border border-yellow-700'
     return 'bg-red-900/50 text-red-400 border border-red-700'
   }
+  useEffect(() => {
+    if (leadView !== 'planning') return
+    let cancelled = false
+    getCurrentSession().then(async (session) => {
+      if (!session?.access_token) return
+      const response = await fetch('/api/admin/social-content/calendar?limit=100', {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+      if (!response.ok) throw new Error('Calendar unavailable')
+      const result = await response.json()
+      if (!cancelled) setWarmCalendarItems((result.items ?? []).filter(isQualifiedWarmCalendarItem))
+    }).catch(() => { if (!cancelled) setWarmCalendarItems([]) })
+    return () => { cancelled = true }
+  }, [leadView])
+  const selectWarmCalendar = (id: string) => {
+    setWarmCalendarId(id)
+    const url = new URL(window.location.href)
+    if (id) url.searchParams.set('calendarItemId', id)
+    else url.searchParams.delete('calendarItemId')
+    window.history.replaceState(null, '', url.toString())
+  }
   const warmOutreachShortlist = useMemo(
-    () => buildWarmOutreachShortlist(leads, { limit: 15 }),
-    [leads],
+    () => buildWarmOutreachShortlist(leads, { limit: 15, calendarItem: warmCalendarItems.find((item) => item.id === warmCalendarId) }),
+    [leads, warmCalendarItems, warmCalendarId],
   )
   const warmOfficeDigest = warmOutreachShortlist.officeDigest
   const warmPlanningBacklog = warmOutreachShortlist.planningBacklog
@@ -1959,6 +1987,9 @@ function OutreachContent() {
             {showWarmOutreachShortlist ? (
               <>
                 <WarmPlanningBacklogPanel
+                  calendarItems={warmCalendarItems}
+                  selectedCalendarId={warmCalendarId}
+                  onCalendarChange={selectWarmCalendar}
                   backlog={warmPlanningBacklog}
                   activeState={warmPlanningBacklogFilter}
                   loading={warmBatchReviewLoading}
@@ -2130,6 +2161,9 @@ function OutreachContent() {
             {showWarmOutreachShortlist && (
               <>
               <WarmPlanningBacklogPanel
+                  calendarItems={warmCalendarItems}
+                  selectedCalendarId={warmCalendarId}
+                  onCalendarChange={selectWarmCalendar}
                 backlog={warmPlanningBacklog}
                 activeState={warmPlanningBacklogFilter}
                 loading={warmBatchReviewLoading}
@@ -2441,6 +2475,7 @@ function OutreachContent() {
                   )}
                   {activeWarmGmailDraftAction && activeWarmGmailDraftReviewSelected && !outreachBlocker && (
                     <WarmGmailDraftReviewPanel
+                      key={warmGmailDraftReviewQueueId ?? activeWarmGmailDraftAction.record_id}
                       leadName={outreachWorkroomLead.name}
                       leadEmail={outreachWorkroomLead.email}
                       queueId={warmGmailDraftReviewQueueId ?? activeWarmGmailDraftAction.record_id}
@@ -2454,6 +2489,49 @@ function OutreachContent() {
                       requestApprovalLoading={warmGmailApprovalRequestQueueId != null}
                       requestApprovalMessage={warmGmailApprovalRequestMessage ?? warmGmailDraftCopyMessage}
                       requestApprovalError={warmGmailApprovalRequestError}
+                      onReviewDecision={async (action, feedback) => {
+                        const session = await getCurrentSession()
+                        if (!session?.access_token || !warmGmailDraftReviewData) throw new Error('Reload the draft with an active admin session.')
+                        const response = await fetch('/api/admin/outreach', {
+                          method: 'PATCH',
+                          headers: { Authorization: `Bearer ${session.access_token}`, 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ action, ids: [warmGmailDraftReviewData.id], expectedVersions: { [warmGmailDraftReviewData.id]: warmGmailDraftReviewData.updatedAt }, updates: { feedback } }),
+                        })
+                        const result = await response.json()
+                        if (!response.ok) throw new Error(result.error ?? 'Review could not be saved.')
+                        setWarmGmailDraftReviewData((current) => current?.id === warmGmailDraftReviewData.id ? { ...current, status: action === 'approve' ? 'approved' : 'rejected', updatedAt: result.versions[current.id] } : current)
+                        setWarmGmailDraftCopyMessage(null)
+                        setWarmGmailApprovalRequestMessage(null)
+                      }}
+                      onSaveCopy={async (subject, body) => {
+                        const session = await getCurrentSession()
+                        if (!session?.access_token || !warmGmailDraftReviewData) throw new Error('Reload the draft with an active admin session.')
+                        const response = await fetch('/api/admin/outreach', {
+                          method: 'PATCH',
+                          headers: { Authorization: `Bearer ${session.access_token}`, 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ action: 'edit', ids: [warmGmailDraftReviewData.id], expectedVersions: { [warmGmailDraftReviewData.id]: warmGmailDraftReviewData.updatedAt }, updates: { subject, body } }),
+                        })
+                        const result = await response.json()
+                        if (!response.ok) throw new Error(result.error ?? 'Copy could not be saved.')
+                        setWarmGmailDraftReviewData((current) => current?.id === warmGmailDraftReviewData.id ? { ...current, subject, body, status: 'draft', updatedAt: result.versions[current.id], generationInputs: result.generationInputsById?.[current.id] ?? { ...current.generationInputs, warm_gmail_send_authorization: null, warm_gmail_send_slack_approval_request: null, copy_revision_requires_provider_reconciliation: Boolean(current.generationInputs?.gmail_draft_creation) || current.generationInputs?.copy_revision_requires_provider_reconciliation === true } } : current)
+                        setRelationshipPacketData(null)
+                        setWarmGmailApprovalRequestMessage(null)
+                        setWarmGmailDraftCopyMessage(null)
+                      }}
+                      onRefresh={async () => {
+                        const queueId = warmGmailDraftReviewData?.id
+                        const session = await getCurrentSession()
+                        if (!queueId || !session?.access_token) throw new Error('Reload this review with an active admin session.')
+                        const headers = { Authorization: `Bearer ${session.access_token}` }
+                        const [reviewResponse, packetResponse] = await Promise.all([
+                          fetch(`/api/admin/outreach/drafts/${encodeURIComponent(queueId)}/inputs`, { headers }),
+                          fetch(`/api/admin/outreach/leads/${outreachWorkroomLead.id}/relationship-packet`, { headers }),
+                        ])
+                        if (!reviewResponse.ok) throw new Error('The action may have completed. Reload the recorded outcome before retrying.')
+                        const currentReview = await reviewResponse.json()
+                        setWarmGmailDraftReviewData(current => current?.id === queueId ? currentReview : current)
+                        if (packetResponse.ok) setRelationshipPacketData(await packetResponse.json())
+                      }}
                       onCopyDraft={copyWarmGmailDraft}
                       onRequestApproval={requestWarmGmailApproval}
                     />

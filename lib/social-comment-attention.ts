@@ -1,3 +1,5 @@
+import { validateSocialContentFinalCopyQuality, socialContentFinalCopyQualityFailure } from '@/lib/social-content-lifecycle'
+import { isSocialCommentReplyLocked, matchesSocialCommentReplyReview, socialCommentReplyText } from '@/lib/social-comment-reply-safety'
 import { supabaseAdmin } from '@/lib/supabase'
 import type { SocialPlatform } from '@/lib/social-content'
 
@@ -349,9 +351,7 @@ function replyText(row: SocialCommentAttentionRow) {
 }
 
 function hasSubmittedReplyEvidence(row: SocialCommentAttentionRow) {
-  return normalized(row.reply_submission_state) === 'submitted'
-    || Boolean(row.reply_provider_comment_id?.trim())
-    || Boolean(row.reply_submitted_at?.trim())
+  return isSocialCommentReplyLocked(row as unknown as Record<string, unknown>)
 }
 
 export function needsCommentAttention(row: SocialCommentAttentionRow) {
@@ -368,7 +368,7 @@ export function canSlackDecideCommentReply(row: SocialCommentAttentionRow) {
   const replyPrepared = Boolean(replyText(row))
     && row.response_approval_state === 'pending'
     && row.reply_submission_state === 'draft'
-  return replyPrepared
+  return replyPrepared && Boolean(row.updated_at) && !hasSubmittedReplyEvidence(row)
     && isPolicyLowRisk(row)
     && providerReplySupported(row)
     && providerExternalSubmissionEnabled(row)
@@ -454,7 +454,7 @@ export async function listSocialCommentAttentionRows(limit = 10): Promise<Social
 
   const { data, error } = await supabaseAdmin
     .from('social_content_comments')
-    .select('id, publish_id, content_id, platform, provider, provider_comment_id, comment_url, author_display_name, body, classification_status, classification_reason, sentiment, priority, status, response_approval_state, reply_submission_state, proposed_reply_text, approved_reply_text, provider_capability, captured_at, updated_at, metadata')
+    .select('id, publish_id, content_id, platform, provider, provider_comment_id, comment_url, author_display_name, body, classification_status, classification_reason, sentiment, priority, status, response_approval_state, reply_submission_state, proposed_reply_text, approved_reply_text, reply_provider_comment_id, reply_submitted_at, provider_capability, captured_at, updated_at, metadata')
     .in('classification_status', ['unreviewed', 'needs_response', 'blocked'])
     .order('captured_at', { ascending: false })
     .limit(limit)
@@ -481,7 +481,7 @@ async function listApprovedHoldRows(limit = 25): Promise<SocialCommentAttentionR
 
   const { data, error } = await supabaseAdmin
     .from('social_content_comments')
-    .select('id, publish_id, content_id, platform, provider, provider_comment_id, response_approval_state, reply_submission_state, proposed_reply_text, approved_reply_text, provider_capability, metadata')
+    .select('id, updated_at, publish_id, content_id, platform, provider, provider_comment_id, response_approval_state, reply_submission_state, proposed_reply_text, approved_reply_text, reply_provider_comment_id, reply_submitted_at, provider_capability, metadata')
     .eq('response_approval_state', 'approved')
     .eq('reply_submission_state', 'approved')
     .order('updated_at', { ascending: true })
@@ -502,6 +502,7 @@ async function listApprovedHoldRows(limit = 25): Promise<SocialCommentAttentionR
 }
 
 async function updateCommentHoldEvaluation(row: SocialCommentAttentionRow, evaluation: CommentReplyHoldEvaluation) {
+  if (!row.updated_at || hasSubmittedReplyEvidence(row)) return
   if (!supabaseAdmin || evaluation.state === 'waiting_hold' || evaluation.state === 'not_ready') return
   const metadata = record(row.metadata) ?? {}
   const replyStatus = evaluation.state === 'ready_for_provider_send'
@@ -524,6 +525,10 @@ async function updateCommentHoldEvaluation(row: SocialCommentAttentionRow, evalu
       updated_at: new Date().toISOString(),
     })
     .eq('id', row.id)
+    .eq('updated_at', row.updated_at)
+    .eq('reply_submission_state', row.reply_submission_state)
+    .is('reply_provider_comment_id', null)
+    .is('reply_submitted_at', null)
 }
 
 export async function evaluateSocialCommentReplyHolds(limit = 25, now = new Date()): Promise<SocialCommentAttentionCronResult> {
@@ -566,6 +571,8 @@ export async function evaluateSocialCommentReplyHolds(limit = 25, now = new Date
 
 export async function decideSocialCommentReplyFromSlack(input: {
   commentId: string
+  expectedUpdatedAt?: string
+  expectedReplyText?: string
   status: 'approved' | 'rejected'
   actorLabel: string
   slackUserId: string
@@ -576,7 +583,7 @@ export async function decideSocialCommentReplyFromSlack(input: {
 
   const { data, error } = await supabaseAdmin
     .from('social_content_comments')
-    .select('id, publish_id, content_id, platform, provider, provider_comment_id, response_approval_state, reply_submission_state, proposed_reply_text, approved_reply_text, reply_provider_comment_id, reply_submitted_at, provider_capability, metadata')
+    .select('id, updated_at, publish_id, content_id, platform, provider, provider_comment_id, response_approval_state, reply_submission_state, proposed_reply_text, approved_reply_text, reply_provider_comment_id, reply_submitted_at, provider_capability, metadata')
     .eq('id', input.commentId)
     .maybeSingle()
 
@@ -587,40 +594,14 @@ export async function decideSocialCommentReplyFromSlack(input: {
   if (existingSlackDecision?.idempotency_key === input.idempotencyKey) {
     return `Already handled this Slack comment reply action. Portfolio: ${socialCommentDeepLink(row)}`
   }
+  if (!matchesSocialCommentReplyReview(row as unknown as Record<string, unknown>, input.expectedUpdatedAt, input.expectedReplyText)) {
+    return `Reply changed or Slack card is missing the reviewed version. Refresh Portfolio before deciding. Portfolio: ${socialCommentDeepLink(row)}`
+  }
   if (hasSubmittedReplyEvidence(row)) {
-    const decidedAt = new Date().toISOString()
-    const { error: submittedUpdateError } = await supabaseAdmin
-      .from('social_content_comments')
-      .update({
-        metadata: {
-          ...metadata,
-          ui_action_history: [
-            {
-              action: input.status === 'approved' ? 'approve' : 'reject',
-              at: decidedAt,
-              by: `slack:${input.slackUserId}`,
-              note: `${input.decisionNotes} Existing provider reply evidence remained authoritative.`,
-            },
-            ...(Array.isArray(metadata.ui_action_history) ? metadata.ui_action_history : []),
-          ].slice(0, 25),
-          slack_reply_decision: {
-            status: input.status,
-            decision_notes: input.decisionNotes,
-            decided_by_slack_user_id: input.slackUserId,
-            decided_by_label: input.actorLabel,
-            decided_at: decidedAt,
-            idempotency_key: input.idempotencyKey,
-            existing_submission_preserved: true,
-            external_submission_performed: false,
-          },
-        },
-        updated_at: decidedAt,
-      })
-      .eq('id', row.id)
-    if (submittedUpdateError) {
-      throw new Error(`Failed to record submitted comment reply Slack decision: ${submittedUpdateError.message}`)
-    }
-    return `Reply already has submitted provider evidence. Slack action was recorded without changing submitted state. Portfolio: ${socialCommentDeepLink(row)}`
+    return `Reply has submitted or uncertain evidence. Decision blocked; review receipts. Portfolio: ${socialCommentDeepLink(row)}`
+  }
+  if (input.status === 'approved' && socialContentFinalCopyQualityFailure(validateSocialContentFinalCopyQuality({ post_text: socialCommentReplyText(row as unknown as Record<string, unknown>) }))) {
+    return `Reply approval blocked by final copy quality. Remove prompt or instruction leakage in Portfolio before approving. Portfolio: ${socialCommentDeepLink(row)}`
   }
   if (!canSlackDecideCommentReply(row)) {
     return `Portfolio review required for this comment reply. Open: ${socialCommentDeepLink(row)}`
@@ -628,7 +609,7 @@ export async function decideSocialCommentReplyFromSlack(input: {
 
   const decidedAt = new Date().toISOString()
   const holdUntil = input.status === 'approved' ? commentReplyHoldUntil(new Date(decidedAt)) : null
-  const reply = replyText(row)
+  const reply = socialCommentReplyText(row as unknown as Record<string, unknown>)
   const update = input.status === 'approved'
     ? {
         response_approval_state: 'approved',
@@ -640,7 +621,7 @@ export async function decideSocialCommentReplyFromSlack(input: {
         reply_submission_state: reply ? 'draft' : 'not_applicable',
       }
 
-  const { error: updateError } = await supabaseAdmin
+  const { data: updated, error: updateError } = await supabaseAdmin
     .from('social_content_comments')
     .update({
       ...update,
@@ -670,7 +651,13 @@ export async function decideSocialCommentReplyFromSlack(input: {
       updated_at: decidedAt,
     })
     .eq('id', row.id)
+    .eq('updated_at', row.updated_at)
+    .eq('reply_submission_state', row.reply_submission_state)
+    .is('reply_provider_comment_id', null)
+    .is('reply_submitted_at', null)
+    .select('id').maybeSingle()
 
+  if (!updated && !updateError) return `Reply changed during Slack review. Decision blocked; refresh Portfolio: ${socialCommentDeepLink(row)}`
   if (updateError) throw new Error(`Failed to update comment reply decision: ${updateError.message}`)
 
   return input.status === 'approved'

@@ -45,7 +45,11 @@ function item(overrides: Partial<SocialCommentInboxItem> = {}): SocialCommentInb
     status: 'new',
     classification: { label: 'unreviewed', priority: 'medium', reason: null },
     draftReply: '',
+    submittedReplyLocked: false,
+    submittedReplyLockReason: null,
     approvalState: 'not_started',
+    submittedReplyLocked: false,
+    submittedReplyLockReason: null,
     providerCapability: {
       provider: 'linkedin_organization',
       automaticReply: false,
@@ -66,6 +70,28 @@ function item(overrides: Partial<SocialCommentInboxItem> = {}): SocialCommentInb
 }
 
 describe('getSocialCommentInboxItem', () => {
+  it.each([
+    { classification_status: 'answered' },
+    { reply_submission_state: 'submitted' },
+    { reply_provider_comment_id: 'receipt-only' },
+    { reply_submitted_at: '2026-09-08T12:00:00Z' },
+    { reply_provider_comment_id: ' ', reply_submitted_at: '2026-09-08T12:00:00Z' },
+  ])('does not infer provider confirmation from incomplete evidence: %j', patch => {
+    const projected = getSocialCommentInboxItem(row(patch))
+    expect(projected.replyProviderConfirmed).toBe(false)
+    expect(projected.replyReleaseStatus).toBeNull()
+  })
+  it('confirms only a provider ID and submission timestamp, with submitted fallback', () => {
+    const projected = getSocialCommentInboxItem(row({ reply_provider_comment_id: 'receipt', reply_submitted_at: '2026-09-08T12:00:00Z' }))
+    expect(projected.replyProviderConfirmed).toBe(true)
+    expect(projected.replyReleaseStatus).toBe('submitted')
+  })
+  it.each(['submitting', 'uncertain'])('exposes %s release metadata without claiming provider confirmation', status => {
+    const projected = getSocialCommentInboxItem(row({ metadata: { reply_release: { status } } }))
+    expect(projected.replyProviderConfirmed).toBe(false)
+    expect(projected.replyReleaseStatus).toBe(status)
+    expect(projected.submittedReplyLocked).toBe(true)
+  })
   it('falls back to safe defaults for unknown enums, blank authors, and unsupported platforms', () => {
     const projected = getSocialCommentInboxItem({
       id: '',
@@ -173,7 +199,7 @@ describe('getSocialCommentInboxItem', () => {
     expect(getSocialCommentInboxItem(row({ reply_submission_state: 'draft' })).approvalState).toBe('drafted')
   })
 
-  it('prefers policy classification labels and proposed reply text', () => {
+  it('prefers policy classification labels and exact approved reply text', () => {
     const projected = getSocialCommentInboxItem(row({
       proposed_reply_text: ' Draft reply. ',
       approved_reply_text: 'Approved reply',
@@ -181,7 +207,7 @@ describe('getSocialCommentInboxItem', () => {
     }))
 
     expect(projected.classification.label).toBe('buying lead intent')
-    expect(projected.draftReply).toBe('Draft reply.')
+    expect(projected.draftReply).toBe('Approved reply')
   })
 
   it('only enables automatic reply when the provider is verified and the human gate is satisfied', () => {

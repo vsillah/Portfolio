@@ -1,12 +1,5 @@
 import { isWarmLeadSource } from './constants/lead-source'
-import {
-  CAMPAIGN_PHASE_LABELS,
-  CALENDAR_CHANNEL_LABELS,
-  SOCIAL_CONTENT_CALENDAR_SOURCE_LABELS,
-  SOCIAL_CONTENT_CALENDAR_TEMPLATES,
-  type SocialContentCampaignPhase,
-  type SocialContentCalendarTemplateMilestone,
-} from './social-content-calendar'
+import { CAMPAIGN_PHASE_LABELS, CALENDAR_CHANNEL_LABELS, type SocialContentCampaignPhase, type SocialContentCalendarItem } from './social-content-calendar'
 
 export type WarmOutreachShortlistBlockerKey =
   | 'missing_email'
@@ -27,6 +20,7 @@ export type WarmOutreachShortlistCtaKey =
 
 export type WarmOutreachShortlistLead = {
   id: number
+  is_test_data?: boolean | null
   name: string
   email: string | null
   company: string | null
@@ -174,7 +168,7 @@ export type WarmOutreachPlanningBacklogCandidate = {
   ctaHref: string
   reviewLoopAction: WarmOutreachReviewLoopAction
   campaignAlignment: {
-    phase: SocialContentCampaignPhase
+    phase: SocialContentCampaignPhase | null
     phaseLabel: string
     theme: string
     calendarSignal: string
@@ -300,10 +294,11 @@ export type WarmOutreachPlanningBacklog = {
     weekLabel: string
   }
   campaignAlignment: {
-    source: 'social_content_calendar_template'
-    templateKey: 'whisper_to_shout'
+    source: 'social_content_calendar_item' | 'missing'
+    sourceHref: string
+    templateKey: string | null
     campaignTheme: string
-    currentPhase: SocialContentCampaignPhase
+    currentPhase: SocialContentCampaignPhase | null
     currentPhaseLabel: string
     currentMilestoneKey: string
     currentCalendarChannelLabel: string
@@ -403,33 +398,6 @@ const PLANNING_BACKLOG_FILTER_LABELS: Record<WarmOutreachPlanningBacklogState, s
   sms_parked: 'SMS parked',
 }
 
-const WARM_OUTREACH_CAMPAIGN_TEMPLATE_KEY = 'whisper_to_shout' as const
-const WARM_OUTREACH_CAMPAIGN_TEMPLATE =
-  SOCIAL_CONTENT_CALENDAR_TEMPLATES[WARM_OUTREACH_CAMPAIGN_TEMPLATE_KEY]
-
-const CAMPAIGN_ASSET_LABELS: Record<string, string> = {
-  triggering_event: 'triggering event',
-  campaign_problem: 'campaign problem',
-  audience: 'audience fit',
-  framework: 'teaching frame',
-  claim_boundaries: 'claim boundary',
-  proof_asset: 'proof asset',
-  privacy_review: 'privacy review',
-  offer: 'offer',
-  cta_url: 'CTA path',
-  publishing_gate: 'publishing gate',
-  approved_copy: 'approved copy',
-  manual_handoff_gate: 'manual handoff gate',
-}
-
-const CAMPAIGN_GATE_LABELS: Record<string, string> = {
-  copy_review: 'copy review',
-  source_review: 'source review',
-  privacy_review: 'privacy review',
-  authorization_gate: 'authorization gate',
-  manual_platform_handoff: 'manual platform handoff',
-}
-
 function displayDateLabel(value: string): string {
   const [year, month, day] = value.split('-').map(Number)
   if (!year || !month || !day) return value
@@ -447,81 +415,35 @@ function addDaysLabel(value: string, days: number): string {
   return date.toISOString().slice(0, 10)
 }
 
-function campaignMilestoneFor(generatedFor: string) {
-  const day = Number(generatedFor.slice(-2))
-  const campaignDay = Number.isFinite(day) ? ((day - 1) % 14) + 1 : 1
-  const milestones = WARM_OUTREACH_CAMPAIGN_TEMPLATE.milestones
-  const current =
-    milestones
-      .filter((milestone) => milestone.fallback_day_offset + 1 <= campaignDay)
-      .at(-1) ?? milestones[0]
-  const next =
-    milestones.find((milestone) => milestone.fallback_day_offset + 1 > campaignDay) ?? null
+export const WARM_CALENDAR_SOURCE_HREF = '/admin/agents/content-intelligence?section=calendar'
 
-  return {
-    current,
-    next,
-    campaignDay,
+export function isQualifiedWarmCalendarItem(item: SocialContentCalendarItem | null | undefined): item is SocialContentCalendarItem {
+  return Boolean(item?.id && item.campaign_id && ['active', 'draft'].includes(item.attraction_campaigns?.status ?? '') &&
+    !['rejected', 'expired'].includes(item.authorization_status) && !['completed', 'cancelled'].includes(item.due_status) &&
+    Number.isFinite(Date.parse(item.scheduled_for)) && item.campaign_phase in CAMPAIGN_PHASE_LABELS)
+}
+
+function buildCampaignAlignment(item?: SocialContentCalendarItem | null): WarmOutreachPlanningBacklog['campaignAlignment'] {
+  if (!isQualifiedWarmCalendarItem(item)) return {
+    source: 'missing', sourceHref: WARM_CALENDAR_SOURCE_HREF, templateKey: null,
+    campaignTheme: 'Calendar source needed', currentPhase: null, currentPhaseLabel: 'Unscheduled',
+    currentMilestoneKey: '', currentCalendarChannelLabel: 'Unlinked', currentSourceLabel: 'Canonical calendar',
+    currentProofPoint: 'Select a campaign milestone', currentApprovalGateLabel: 'Calendar source needed',
+    currentCadenceLabel: 'Unscheduled', sourceContextLabel: 'Calendar source needed', plannedWindowLabel: 'Unscheduled',
+    currentMilestoneTitle: 'Select a milestone from a draft or active campaign.', nextMilestoneTitle: null,
+    whyThisBacklogIsNext: 'Contact review can continue. Campaign timing requires a linked calendar milestone.',
+    drillIn: 'Open the existing content calendar, then select a campaign milestone here.',
   }
-}
-
-function compactList(values: string[], fallback: string, max = 2): string {
-  const labels = values.filter(Boolean)
-  if (labels.length === 0) return fallback
-  const shown = labels.slice(0, max)
-  return labels.length > max ? `${shown.join(' + ')} +${labels.length - max}` : shown.join(' + ')
-}
-
-function milestoneSourceLabel(milestone: SocialContentCalendarTemplateMilestone): string {
-  return compactList(
-    milestone.source_urls.map((url) => SOCIAL_CONTENT_CALENDAR_SOURCE_LABELS[url] ?? url),
-    'Calendar template source',
-  )
-}
-
-function milestoneProofPoint(milestone: SocialContentCalendarTemplateMilestone): string {
-  return compactList(
-    milestone.required_assets.map((asset) => CAMPAIGN_ASSET_LABELS[asset] ?? asset.replace(/_/g, ' ')),
-    'Campaign proof point',
-    3,
-  )
-}
-
-function milestoneApprovalGateLabel(milestone: SocialContentCalendarTemplateMilestone): string {
-  return compactList(
-    milestone.approval_gates.map((gate) => CAMPAIGN_GATE_LABELS[gate] ?? gate.replace(/_/g, ' ')),
-    'review gate',
-  )
-}
-
-function buildCampaignAlignment(generatedFor: string): WarmOutreachPlanningBacklog['campaignAlignment'] {
-  const { current, next, campaignDay } = campaignMilestoneFor(generatedFor)
-  const weekEnd = addDaysLabel(generatedFor, 6)
-  const proofPoint = milestoneProofPoint(current)
-  const sourceLabel = milestoneSourceLabel(current)
-  const gateLabel = milestoneApprovalGateLabel(current)
-
   return {
-    source: 'social_content_calendar_template',
-    templateKey: WARM_OUTREACH_CAMPAIGN_TEMPLATE_KEY,
-    campaignTheme: WARM_OUTREACH_CAMPAIGN_TEMPLATE.label,
-    currentPhase: current.campaign_phase,
-    currentPhaseLabel: CAMPAIGN_PHASE_LABELS[current.campaign_phase],
-    currentMilestoneKey: current.key,
-    currentCalendarChannelLabel: CALENDAR_CHANNEL_LABELS[current.channel],
-    currentSourceLabel: sourceLabel,
-    currentProofPoint: proofPoint,
-    currentApprovalGateLabel: gateLabel,
-    currentCadenceLabel:
-      `Campaign day ${campaignDay}; ${current.recommended_lead_time_days}-day content lead time`,
-    sourceContextLabel: `${WARM_OUTREACH_CAMPAIGN_TEMPLATE.label} content calendar template`,
-    plannedWindowLabel: `${displayDateLabel(generatedFor)}-${displayDateLabel(weekEnd)}`,
-    currentMilestoneTitle: current.planned_angle,
-    nextMilestoneTitle: next?.planned_angle ?? null,
-    whyThisBacklogIsNext:
-      `The backlog uses the existing ${CAMPAIGN_PHASE_LABELS[current.campaign_phase]} content-calendar milestone to choose relationship-specific Gmail draft candidates and manual social handoffs.`,
-    drillIn:
-      `${WARM_OUTREACH_CAMPAIGN_TEMPLATE.description} Source: ${sourceLabel}. Cadence: campaign day ${campaignDay}, ${current.recommended_lead_time_days}-day lead time. Gate: ${gateLabel}. Outreach actions stay in the existing Lead Pipeline and remain review-gated.`,
+    source: 'social_content_calendar_item', sourceHref: `${WARM_CALENDAR_SOURCE_HREF}&calendar_item=${encodeURIComponent(item.id)}`,
+    templateKey: null, campaignTheme: item.attraction_campaigns?.name ?? 'Campaign',
+    currentPhase: item.campaign_phase, currentPhaseLabel: CAMPAIGN_PHASE_LABELS[item.campaign_phase],
+    currentMilestoneKey: item.id, currentCalendarChannelLabel: CALENDAR_CHANNEL_LABELS[item.channel],
+    currentSourceLabel: item.title, currentProofPoint: item.planned_angle ?? item.title,
+    currentApprovalGateLabel: item.attraction_campaigns?.status === 'draft' ? 'Campaign draft; outreach review required' : 'Outreach review required', currentCadenceLabel: item.scheduled_for,
+    sourceContextLabel: item.title, plannedWindowLabel: item.scheduled_for, currentMilestoneTitle: item.title,
+    nextMilestoneTitle: null, whyThisBacklogIsNext: 'Timing comes from the selected canonical campaign milestone.',
+    drillIn: 'Calendar authorization does not authorize this outreach message or external send.',
   }
 }
 
@@ -908,8 +830,9 @@ function reviewLoopActionFor(
 
 function campaignActionWeight(
   kind: WarmOutreachDailyActionKind,
-  phase: SocialContentCampaignPhase,
+  phase: SocialContentCampaignPhase | null,
 ): number {
+  if (!phase) return 0
   const weights: Record<SocialContentCampaignPhase, Record<WarmOutreachDailyActionKind, number>> = {
     tease: {
       gmail_draft_review: 95,
@@ -1019,7 +942,7 @@ function buildDailyActions(args: {
           key: 'start_gmail_review_loop',
           label: `Start today's Gmail review loop (${gmailContactIds.length})`,
           enabled: true,
-          reason: `${args.campaignAlignment.currentPhaseLabel} campaign timing makes reviewed Gmail draft work the safest first action.`,
+          reason: 'Review existing Gmail draft work; outreach timing comes only from a selected calendar source.',
           contactIds: gmailContactIds,
           href: null,
         }
@@ -1028,7 +951,7 @@ function buildDailyActions(args: {
             key: 'start_manual_social_loop',
             label: `Start today's manual-social loop (${manualContactIds.length})`,
             enabled: true,
-            reason: `${args.campaignAlignment.currentPhaseLabel} campaign timing favors manual social review while provider actions stay off.`,
+            reason: 'Review manual social copy; outreach timing comes only from a selected calendar source.',
             contactIds: manualContactIds,
             href: null,
           }
@@ -1422,17 +1345,18 @@ function planningBacklogCandidateFor(
       approvalGateLabel: campaignAlignment.currentApprovalGateLabel,
       safeNextAction: candidateSafeNextAction(reviewLoopAction, primaryState),
       plannedWindowLabel: campaignAlignment.plannedWindowLabel,
-      whyNext: whyThisCandidateIsNext(primaryState, campaignAlignment.currentPhaseLabel),
+      whyNext: campaignAlignment.source === 'missing' ? 'Review contact context; campaign timing is unlinked.' : whyThisCandidateIsNext(primaryState, campaignAlignment.currentPhaseLabel),
     },
   }
 }
 
 function buildPlanningBacklog(args: {
+  calendarItem?: SocialContentCalendarItem | null
   generatedFor: string
   items: Array<Omit<WarmOutreachShortlistItem, 'priorityRank'>>
   warmLeads: WarmOutreachShortlistLead[]
 }): WarmOutreachPlanningBacklog {
-  const campaignAlignment = buildCampaignAlignment(args.generatedFor)
+  const campaignAlignment = buildCampaignAlignment(args.calendarItem)
   const candidates = args.items.map((item) => {
     const lead = args.warmLeads.find((candidate) => candidate.id === item.contactId)
     return lead ? planningBacklogCandidateFor(lead, item, campaignAlignment) : null
@@ -1473,9 +1397,9 @@ function buildPlanningBacklog(args: {
             : 'No Lead Pipeline action'
   const executionPrimaryReason =
     readyGmail.length > 0
-      ? `${campaignAlignment.currentPhaseLabel} content-calendar cadence favors Gmail draft review first; manual-social handoffs stay next in the same Lead Pipeline workroom.`
+      ? 'Review existing Gmail copy and contact evidence; no outreach schedule is created.'
       : readyManual.length > 0
-        ? `${campaignAlignment.currentPhaseLabel} content-calendar cadence favors manual social handoff review before any provider action.`
+        ? 'Review manual handoff copy and contact evidence; no outreach schedule is created.'
         : waiting.length > 0
           ? 'Waiting responses need per-contact recovery before a new outreach batch.'
         : blockers.length > 0
@@ -1601,9 +1525,9 @@ function buildPlanningBacklog(args: {
 
 export function buildWarmOutreachShortlist(
   leads: WarmOutreachShortlistLead[],
-  options: { limit?: number; today?: string } = {},
+  options: { limit?: number; today?: string; calendarItem?: SocialContentCalendarItem | null } = {},
 ): WarmOutreachShortlist {
-  const warmLeads = leads.filter((lead) => isWarmLeadSource(lead.lead_source))
+  const warmLeads = leads.filter((lead) => lead.is_test_data !== true && isWarmLeadSource(lead.lead_source))
   const generatedFor = options.today ?? new Date().toISOString().slice(0, 10)
   const allItems = warmLeads
     .map((lead) => {
@@ -1632,6 +1556,7 @@ export function buildWarmOutreachShortlist(
     .map((item, index) => ({ ...item, priorityRank: index + 1 }))
   const planningBacklog = buildPlanningBacklog({
     generatedFor,
+    calendarItem: options.calendarItem,
     warmLeads,
     items: allItems,
   })

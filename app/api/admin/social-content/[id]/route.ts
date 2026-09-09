@@ -1,4 +1,4 @@
-import { isCalendarSocialCopy, prepareManualCopyUpdate, withSocialCopyRevision } from '@/lib/social-copy-revision'
+import { isCalendarSocialCopy, prepareSocialImageAttachment, prepareManualCopyUpdate, withSocialCopyRevision } from '@/lib/social-copy-revision'
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
@@ -200,10 +200,11 @@ export async function PUT(
       sanitized.reviewed_by = authResult.user.id
     }
 
-    if (Object.keys(sanitized).length === 0) {
+    if (Object.keys(sanitized).length === 0 && body.attach_existing_image !== true) {
       return NextResponse.json({ error: 'No valid fields to update' }, { status: 400 })
     }
 
+    if (body.attach_existing_image === true && Object.keys(sanitized).length) return NextResponse.json({error:'Attach the image separately from copy or approval changes.'},{status:400})
     const updatesFinalCopy = Object.keys(sanitized).some((key) => FINAL_COPY_FIELDS.has(key))
     let lifecycleTarget: 'copy' | 'visuals' | 'draft' | null = sanitized.status === 'approved'
       ? 'copy'
@@ -213,7 +214,7 @@ export async function PUT(
     {
       const { data: currentItem, error: currentError } = await supabaseAdmin
         .from('social_content_queue')
-        .select('*')
+        .select('*, publishes:social_content_publishes(*)')
         .eq('id', id)
         .single()
 
@@ -221,11 +222,14 @@ export async function PUT(
         return NextResponse.json({ error: 'Content not found' }, { status: 404 })
       }
 
+      if (body.attach_existing_image === true && !isCalendarSocialCopy(currentItem)) return NextResponse.json({error:'Existing-image attachment requires a calendar draft.'},{status:400})
       currentForUpdate = currentItem
-      if (isCalendarSocialCopy(currentItem)) {
+      {
         if (typeof currentItem.updated_at !== 'string') return NextResponse.json({ error: 'Current copy version is unavailable. Reload before saving.' }, { status: 409 })
         try {
-          const prepared = prepareManualCopyUpdate({ current: currentItem, patch: sanitized, expectedVersion: body.expected_copy_version, actor: authResult.user.id, now: new Date().toISOString() })
+          const prepared = body.attach_existing_image === true
+            ? prepareSocialImageAttachment({current:currentItem,url:body.image_url,sourceNote:body.image_source_note,expectedVersion:body.expected_copy_version,actor:authResult.user.id,now:new Date().toISOString(),storageOrigin:process.env.NEXT_PUBLIC_SUPABASE_URL || ''})
+            : prepareManualCopyUpdate({ current: currentItem, patch: sanitized, expectedVersion: body.expected_copy_version, actor: authResult.user.id, now: new Date().toISOString() })
           Object.assign(sanitized, prepared)
           lifecycleTarget = sanitized.status === 'approved' ? 'copy' : sectionGateApprovalTarget(sanitized.rag_context)
         } catch (error) {
@@ -257,11 +261,11 @@ export async function PUT(
     }
 
     let update = supabaseAdmin.from('social_content_queue').update(sanitized).eq('id', id)
-    if (currentForUpdate && isCalendarSocialCopy(currentForUpdate)) {
+    if (currentForUpdate) {
       update = update.eq('updated_at', currentForUpdate.updated_at)
     }
     const { data, error } = await update.select('*').single()
-    if (error?.code === 'PGRST116' && currentForUpdate && isCalendarSocialCopy(currentForUpdate)) {
+    if (error?.code === 'PGRST116' && currentForUpdate) {
       return NextResponse.json({ error: 'Copy changed during this update. Reload before retrying.' }, { status: 409 })
     }
 

@@ -24,6 +24,7 @@ vi.mock('@/lib/social-content-calendar-linkage', () => ({
 }))
 
 import { POST } from './route'
+import { releaseStore, releaseVersion, releaseFixture } from '@/lib/social-release-safety.test-fixtures'
 
 function request(body?: unknown) {
   return new NextRequest('http://localhost/api/admin/social-content/social-1/platform-submission', {
@@ -32,7 +33,7 @@ function request(body?: unknown) {
       authorization: 'Bearer admin-token',
       'content-type': 'application/json',
     },
-    body: body === undefined ? undefined : JSON.stringify(body),
+    body: body === undefined ? undefined : JSON.stringify({ expected_updated_at: releaseVersion, ...(body as object) }),
   })
 }
 
@@ -47,42 +48,24 @@ function installSupabase({
   configs: Array<Record<string, unknown>>
   fetchError?: { code: string; message: string } | null
 }) {
-  const itemRecord = item ?? {}
-  const queueSingle = vi.fn().mockResolvedValue({ data: item, error: fetchError })
-  const queueSelectEq = vi.fn(() => ({ single: queueSingle }))
-  const queueSelect = vi.fn(() => ({ eq: queueSelectEq }))
-
-  const queueUpdateSingle = vi.fn().mockResolvedValue({
-    data: {
-      ...itemRecord,
-      rag_context: {
-        ...((itemRecord.rag_context as Record<string, unknown> | null) ?? {}),
-        platform_submission_gate: {
-          status: 'approved',
-          approved_by: 'admin-1',
-        },
-      },
-    },
-    error: null,
-  })
-  const queueUpdateSelect = vi.fn(() => ({ single: queueUpdateSingle }))
-  const queueUpdateEq = vi.fn(() => ({ select: queueUpdateSelect }))
-  const queueUpdate = vi.fn(() => ({ eq: queueUpdateEq }))
-
-  const publishUpsert = vi.fn().mockResolvedValue({ data: null, error: null })
-  const publishSelectEq = vi.fn().mockResolvedValue({ data: publishes, error: null })
-  const publishSelect = vi.fn(() => ({ eq: publishSelectEq }))
-
-  const configSelect = vi.fn().mockResolvedValue({ data: configs, error: null })
-
+  const store = releaseStore({ updated_at: releaseVersion, ...item })
+  if (!item) store.tables.social_content_queue = []
+  store.tables.social_content_publishes = structuredClone(publishes).map(row => ({ content_id: item?.id, ...row }))
+  store.tables.social_content_config = structuredClone(configs)
+  const queueUpdate = vi.fn()
+  const queueUpdateSingle = vi.fn()
+  const publishUpsert = vi.fn()
   mocks.from.mockImplementation((table: string) => {
-    if (table === 'social_content_queue') return { select: queueSelect, update: queueUpdate }
-    if (table === 'social_content_publishes') return { upsert: publishUpsert, select: publishSelect }
-    if (table === 'social_content_config') return { select: configSelect }
-    return {}
+    const query = store.admin.from(table)
+    const update = query.update, upsert = query.upsert, single = query.single
+    let updating = false
+    query.update = (patch: Record<string, unknown>) => { updating = true; queueUpdate(patch); return update(patch) }
+    query.upsert = (...args: any[]) => { publishUpsert(...args); return upsert(...args) }
+    query.single = () => { if (updating) queueUpdateSingle(); return fetchError ? Promise.resolve({ data: null, error: fetchError }) : single() }
+    return query
   })
+  return { publishUpsert, queueUpdate, queueUpdateSingle, store }
 
-  return { publishUpsert, queueUpdate, queueUpdateSingle }
 }
 
 const lifecycleReadyRagContext = {
@@ -262,6 +245,7 @@ describe('POST /api/admin/social-content/[id]/platform-submission', () => {
       { content_id: 'social-1', platform: 'tiktok', status: 'pending' },
     ], { onConflict: 'content_id,platform', ignoreDuplicates: true })
     expect(queueUpdate).toHaveBeenCalledWith({
+      updated_at: expect.any(String),
       rag_context: expect.objectContaining({
         platform_submission_gate: expect.objectContaining({
           status: 'approved',
@@ -284,7 +268,7 @@ describe('POST /api/admin/social-content/[id]/platform-submission', () => {
       'http://localhost/api/admin/social-content/social-1/publish',
       expect.objectContaining({
         method: 'POST',
-        body: JSON.stringify({ platforms: ['linkedin', 'tiktok'] }),
+        body: JSON.stringify({ platforms: ['linkedin', 'tiktok'], expected_updated_at: '2026-09-08T00:00:10.001Z' }),
       }),
     )
   })
@@ -412,7 +396,7 @@ describe('POST /api/admin/social-content/[id]/platform-submission', () => {
         image_url: null,
         video_url: null,
         carousel_slide_urls: null,
-        rag_context: lifecycleReadyRagContext,
+        rag_context: { ...lifecycleReadyRagContext, x_batch_approval: { status: 'approved', approved_scope: ['copy', 'source_distance_review', 'privacy_review'] }, privacy_review: { status: 'approved' }, source_distance_review: { status: 'approved' } },
       },
       publishes: [
         { platform: 'x', status: 'pending', platform_post_url: null },
@@ -431,6 +415,7 @@ describe('POST /api/admin/social-content/[id]/platform-submission', () => {
     )
 
     const response = await POST(request({ platforms: ['x'], submit_after_approval: true }), { params: { id: 'social-1' } })
+    expect(await response.clone().json()).not.toHaveProperty('error')
 
     expect(response.status).toBe(200)
     const body = await response.json()
@@ -453,7 +438,7 @@ describe('POST /api/admin/social-content/[id]/platform-submission', () => {
       'http://localhost/api/admin/social-content/social-1/publish',
       expect.objectContaining({
         method: 'POST',
-        body: JSON.stringify({ platforms: ['x'] }),
+        body: JSON.stringify({ platforms: ['x'], expected_updated_at: '2026-09-08T00:00:10.001Z' }),
       }),
     )
   })
@@ -651,5 +636,45 @@ describe('POST /api/admin/social-content/[id]/platform-submission', () => {
     })
     expect(queueUpdateSingle).not.toHaveBeenCalled()
     expect(fetchSpy).not.toHaveBeenCalled()
+  })
+})
+
+
+describe('current-version final approval CAS', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mocks.verifyAdmin.mockResolvedValue({ user: { id: 'admin-1' } })
+    mocks.isAuthError.mockReturnValue(false)
+    mocks.syncCampaignCalendarForSocialContent.mockResolvedValue({})
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response('{}')))
+  })
+  afterEach(() => vi.unstubAllGlobals())
+  function ready() {
+    const fixture = releaseStore()
+    return installSupabase({ item: releaseFixture(), publishes: fixture.tables.social_content_publishes, configs: fixture.tables.social_content_config })
+  }
+  it.each(['stale', null])('rejects %s displayed version without writes or dispatch', async version => {
+    const { store } = ready()
+    const result = await POST(request({ expected_updated_at: version }), { params: { id: 'social-1' } })
+    expect(result.status).toBe(409); expect(store.writes).toHaveLength(0); expect(fetch).not.toHaveBeenCalled()
+  })
+  it.each(['submitting', 'uncertain', 'submitted'])('does not overwrite a %s release', async status => {
+    const { store } = ready(); store.item().rag_context.platform_submission_gate.status = status
+    expect((await POST(request({}), { params: { id: 'social-1' } })).status).toBe(409)
+    expect(store.writes).toHaveLength(0); expect(fetch).not.toHaveBeenCalled()
+  })
+  it('reports downstream uncertainty instead of claiming successful submission', async () => {
+    const { store } = ready()
+    vi.mocked(fetch).mockResolvedValueOnce(new Response(JSON.stringify({ error: 'Reconcile release', reconciliation_required: true }), { status: 409 }))
+    const result = await POST(request({}), { params: { id: 'social-1' } })
+    expect(result.status).toBe(409)
+    expect(await result.json()).toMatchObject({ success: false, final_approval_recorded: true, submit_triggered: false, reconciliation_required: true })
+    expect(store.item().rag_context.platform_submission_gate.approved_fingerprint).toEqual(expect.any(String))
+  })
+  it('a concurrent edit invalidates the approval CAS before publish-row writes', async () => {
+    const { store, publishUpsert } = ready()
+    store.controls.beforeWrite = () => { store.item().updated_at = 'concurrent edit' }
+    expect((await POST(request({}), { params: { id: 'social-1' } })).status).toBe(409)
+    expect(store.writes).toHaveLength(0); expect(publishUpsert).not.toHaveBeenCalled(); expect(fetch).not.toHaveBeenCalled()
   })
 })

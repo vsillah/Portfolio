@@ -93,7 +93,7 @@ function idempotencyKey(payload: SlackInteractivePayload, value: SlackAgentActio
     value.workItemId ??
     value.runId ??
     value.calendarItemId ??
-    value.commentId ??
+    (value.commentId ? `${value.commentId}:${value.expectedUpdatedAt ?? 'missing-version'}` : null) ??
     value.contentId ??
     value.sendQueueIdempotencyKey ??
     value.messageVersionKey ??
@@ -162,7 +162,7 @@ function sourceReviewLinks(text: string) {
 // These existing adapters return text, not structured outcomes. Unknown responses
 // must never be promoted to successful receipts.
 function legacyDecisionStatus(text: string): NonNullable<SlackAgentActionResult['actionStatus']> {
-  if (text.startsWith('Portfolio review required')) return 'blocked'
+  if (text.startsWith('Portfolio review required') || (text.startsWith('Reply ') && /blocked|changed|missing/.test(text))) return 'blocked'
   if (text.startsWith('Already handled') || text.includes('was already recorded') || text.startsWith('Reply already has submitted')) return 'already_recorded'
   if (/^(Reply (approved|rejected) from Slack|Warm Gmail send (approved|rejected|revision requested) in Portfolio)/.test(text)) return 'completed'
   return 'failed'
@@ -385,7 +385,7 @@ export function prepareSlackAgentAction(payload: SlackInteractivePayload) {
   if (!isLocalSlackDevelopment() && !(payload.channel?.id || payload.container?.channel_id)) {
     return reject('Slack action rejected: missing source channel identity.')
   }
-  const stringFields = ['approvalId', 'workItemId', 'runId', 'agentKey', 'contentId', 'calendarItemId', 'commentId', 'outreachQueueId', 'messageVersionKey', 'sendQueueIdempotencyKey', 'note'] as const
+  const stringFields = ['approvalId', 'workItemId', 'runId', 'agentKey', 'contentId', 'calendarItemId', 'commentId', 'expectedUpdatedAt', 'expectedReplyText', 'outreachQueueId', 'messageVersionKey', 'sendQueueIdempotencyKey', 'note'] as const
   if (stringFields.some((field) => value[field] !== undefined && (typeof value[field] !== 'string' || !(value[field] as string).trim()))) {
     return reject('Slack action rejected: invalid action fields.')
   }
@@ -404,7 +404,7 @@ export function prepareSlackAgentAction(payload: SlackInteractivePayload) {
       break
     case 'inbox.ask_shaka': break
     case 'social_comment_reply.approve': case 'social_comment_reply.reject':
-      if (!value.commentId) return reject('Missing comment id.')
+      if (!value.commentId || !value.expectedUpdatedAt || !value.expectedReplyText) return reject('Missing comment review version. Refresh the Slack card from Portfolio.')
       break
     case 'social_calendar_draft_handoff.approve': case 'social_calendar_draft_handoff.reject':
     case 'social_calendar.approve': case 'social_calendar.reject':
@@ -615,6 +615,8 @@ async function executeSlackAgentAction({ authorization, value, key }: Extract<Re
     const status = value.action === 'social_comment_reply.approve' ? 'approved' : 'rejected'
     const text = await decideSocialCommentReplyFromSlack({
       commentId: value.commentId,
+      expectedUpdatedAt: value.expectedUpdatedAt,
+      expectedReplyText: value.expectedReplyText,
       status,
       actorLabel: authorization.actorLabel,
       slackUserId: authorization.userId,

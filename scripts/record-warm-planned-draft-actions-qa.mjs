@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url'
 import { chromium } from '@playwright/test'
 import { execFile } from 'node:child_process'
 import { mkdir, writeFile } from 'node:fs/promises'
@@ -82,7 +83,7 @@ function authStorageKeys() {
   ]
 }
 
-async function seedSession(page) {
+export async function seedSession(page) {
   await page.addInitScript(({ keys, storedSession }) => {
     for (const key of keys) window.localStorage.setItem(key, JSON.stringify(storedSession))
     Object.defineProperty(window.navigator, 'clipboard', {
@@ -954,7 +955,7 @@ function manualSocialPacket(contactId) {
   }
 }
 
-async function installSafeRoutes(page, externalRequests, localRequests) {
+export async function installSafeRoutes(page, externalRequests, localRequests) {
   const localOrigin = new URL(baseUrl).origin
   await page.route('**/*', async (route) => {
     const request = route.request()
@@ -1575,6 +1576,7 @@ async function activateButton(locator) {
   await locator.press('Enter')
 }
 
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
 const browser = await chromium.launch()
 const viewportRuns = []
 for (const [name, viewport, screenshotPath] of [
@@ -1802,3 +1804,5 @@ const receipt = {
 
 await writeFile(receiptPath, `${JSON.stringify(receipt, null, 2)}\n`)
 console.log(JSON.stringify({ receiptPath, mp4Path, externalRequests }, null, 2))
+
+}

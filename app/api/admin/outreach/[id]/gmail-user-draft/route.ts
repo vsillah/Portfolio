@@ -1,9 +1,14 @@
+import { CONFIRMED_PREFLIGHT_REJECTION } from '@/lib/warm-outreach-action-outcome'
+import { validateGmailMessageHeaders } from '@/lib/gmail-message-copy'
+import { warmFinalCopyFingerprint } from '@/lib/warm-outreach-copy-fingerprint'
+import { warmCopyBlocker, warmCopyEvidenceBlocker } from '@/lib/warm-outreach-copy-quality'
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { decryptRefreshToken } from '@/lib/gmail-user-oauth-crypto'
 import {
   createUserGmailDraft,
+  updateUserGmailDraft,
   isGmailUserOAuthClientConfigured,
 } from '@/lib/gmail-user-api'
 import { isGmailUserOauthSecretConfigured } from '@/lib/gmail-user-oauth-secret'
@@ -16,6 +21,11 @@ const MAX_BODY_CHARS = 500_000
 const GMAIL_DRAFT_AUTHORIZATION = 'create_gmail_draft_for_recipient'
 
 type RequestBody = {
+  prepareDraftUpdate?: boolean
+  updateGmailDraft?: boolean
+  gmailDraftId?: string
+  expectedUpdatedAt?: string
+  finalCopyFingerprint?: string
   subject?: string
   body?: string
   noSendSmoke?: boolean
@@ -63,8 +73,12 @@ function providerDraftCanaryReadiness(input: {
   channel: string
   requiredSender: string
   connectedAs: string
+  expectedUpdatedAt: string
+  finalCopyFingerprint: string
 }) {
   const expectedAuthorization = {
+    expectedUpdatedAt: input.expectedUpdatedAt,
+    finalCopyFingerprint: input.finalCopyFingerprint,
     createGmailDraft: true,
     draftAuthorization: GMAIL_DRAFT_AUTHORIZATION,
     contactSubmissionId: input.contactSubmissionId,
@@ -208,6 +222,11 @@ function parseBody(raw: unknown): RequestBody {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return {}
   const o = raw as Record<string, unknown>
   return {
+    prepareDraftUpdate: o.prepareDraftUpdate === true,
+    updateGmailDraft: o.updateGmailDraft === true,
+    gmailDraftId: typeof o.gmailDraftId === 'string' ? o.gmailDraftId : undefined,
+    expectedUpdatedAt: typeof o.expectedUpdatedAt === 'string' ? o.expectedUpdatedAt : undefined,
+    finalCopyFingerprint: typeof o.finalCopyFingerprint === 'string' ? o.finalCopyFingerprint : undefined,
     subject: typeof o.subject === 'string' ? o.subject : undefined,
     body: typeof o.body === 'string' ? o.body : undefined,
     noSendSmoke: o.noSendSmoke === true,
@@ -236,10 +255,14 @@ export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  let confirmedPreflight = true
+  const json = (body: Record<string, unknown>, init?: { status?: number }) => NextResponse.json({ ...body,
+    ...(confirmedPreflight && (init?.status ?? 200) >= 400 ? { actionOutcome: CONFIRMED_PREFLIGHT_REJECTION } : {}),
+  }, init)
   try {
     const authResult = await verifyAdmin(request)
     if (isAuthError(authResult)) {
-      return NextResponse.json(
+      return json(
         { error: authResult.error },
         { status: authResult.status }
       )
@@ -249,14 +272,14 @@ export async function POST(
       !isGmailUserOAuthClientConfigured() ||
       !isGmailUserOauthSecretConfigured()
     ) {
-      return NextResponse.json(
+      return json(
         { error: 'Gmail account connection is not configured for this site.' },
         { status: 503 }
       )
     }
 
     if (!supabaseAdmin) {
-      return NextResponse.json(
+      return json(
         { error: 'Something went wrong. Please try again.' },
         { status: 500 }
       )
@@ -285,7 +308,7 @@ export async function POST(
       .maybeSingle()
 
     if (credsError || !creds) {
-      return NextResponse.json(
+      return json(
         {
           error:
             'Connect your Gmail account first (admin: Google sign-in for Gmail drafts).',
@@ -297,7 +320,7 @@ export async function POST(
     const requiredSender = resolveBusinessEmailConfig().fromEmail.toLowerCase()
     const connectedEmail = String(creds.google_email ?? '').trim().toLowerCase()
     if (connectedEmail !== requiredSender) {
-      return NextResponse.json(
+      return json(
         {
           error: `Customer-facing Gmail drafts must be created from ${requiredSender}. Reconnect Gmail with that account before saving this draft.`,
         },
@@ -328,21 +351,22 @@ export async function POST(
       .single()
 
     if (fetchError || !item) {
-      return NextResponse.json(
+      return json(
         { error: 'Outreach item not found.' },
         { status: 404 }
       )
     }
 
-    if (item.status !== 'draft' && item.status !== 'approved') {
-      return NextResponse.json(
-        { error: 'Only draft or approved items can be saved to Gmail.' },
+    if (item.sent_at || ['queued', 'sent'].includes(item.status) || warmCopyEvidenceBlocker(item.generation_inputs)) confirmedPreflight = false
+    if (item.status !== 'approved') {
+      return json(
+        { error: 'Approve final copy before creating a Gmail draft.' },
         { status: 400 }
       )
     }
 
     if (item.channel !== 'email') {
-      return NextResponse.json(
+      return json(
         { error: 'Only email channel drafts can be saved to Gmail as mail drafts.' },
         { status: 400 }
       )
@@ -364,7 +388,7 @@ export async function POST(
       | null
     const to = contact?.email?.trim()
     if (!to?.includes('@')) {
-      return NextResponse.json(
+      return json(
         { error: 'This lead has no email address.' },
         { status: 400 }
       )
@@ -401,7 +425,7 @@ export async function POST(
       ? (emailMessagesRes.data as MetadataRecord[])
       : []
     if (contactCommunicationsRes.error || emailMessagesRes.error) {
-      return NextResponse.json(
+      return json(
         { error: 'Could not verify relationship and suppression state.' },
         { status: 503 },
       )
@@ -414,7 +438,7 @@ export async function POST(
       contactCommunications.some(hasSuppressedStatus) ||
       emailMessages.some(hasSuppressedStatus)
     ) {
-      return NextResponse.json(
+      return json(
         { error: 'This contact is suppressed or blocked from outreach.' },
         { status: 409 },
       )
@@ -428,7 +452,7 @@ export async function POST(
         emailMessages,
       })
     ) {
-      return NextResponse.json(
+      return json(
         {
           error:
             'Relationship evidence is required before creating a Gmail draft for this warm outreach item.',
@@ -437,17 +461,28 @@ export async function POST(
       )
     }
 
-    const queueSubject = (item.subject as string | null)?.trim() ?? ''
-    const queueBody = String(item.body ?? '')
-    const subject =
-      noSendSmoke && bodyInput.subject !== undefined
-        ? bodyInput.subject.trim() || '(no subject)'
-        : queueSubject || '(no subject)'
-    const bodyText =
-      noSendSmoke && bodyInput.body !== undefined ? bodyInput.body : queueBody
+    const revising = bodyInput.prepareDraftUpdate === true || bodyInput.updateGmailDraft === true
+    const previousDraft = metadataRecord(item.generation_inputs?.gmail_draft_creation)
+    if (revising && (!previousDraft.draft_id || !previousDraft.thread_id || item.sent_at || item.generation_inputs?.copy_revision_requires_provider_reconciliation !== true)) return json({ error: 'Only a known tracked unsent mailbox draft with approved revised copy can be updated.' }, { status: 409 })
+    if (item.generation_inputs?.copy_revision_requires_provider_reconciliation === true && !revising) {
+      return json({ error: 'Copy changed after the mailbox draft was created. Reconcile or replace that draft before continuing.' }, { status: 409 })
+    }
+    try { validateGmailMessageHeaders(to, item.subject ?? '') }
+    catch (error) { return json({ error: error instanceof Error ? error.message : 'Invalid reviewed headers.' }, { status: 409 }) }
+    const copyBlocker = warmCopyBlocker(item.body) ?? warmCopyEvidenceBlocker(item.generation_inputs)
+    if (copyBlocker) return json({ error: copyBlocker }, { status: 409 })
+
+    const fingerprint = warmFinalCopyFingerprint(item)
+    if (!item.updated_at) return json({ error: 'Reload a versioned message before creating a mailbox draft.' }, { status: 409 })
+    if ((bodyInput.subject !== undefined && bodyInput.subject !== (item.subject ?? '')) ||
+      (bodyInput.body !== undefined && bodyInput.body !== (item.body ?? ''))) {
+      return json({ error: 'Save and review copy changes before preparing a mailbox draft.' }, { status: 409 })
+    }
+    const subject = (item.subject as string | null) ?? ''
+    const bodyText = String(item.body ?? '')
 
     if (bodyText.length > MAX_BODY_CHARS) {
-      return NextResponse.json(
+      return json(
         {
           error:
             'Message is too long. Shorten it or save a smaller copy from the preview.',
@@ -464,13 +499,22 @@ export async function POST(
         channel: item.channel,
         requiredSender,
         connectedAs: creds.google_email,
+        expectedUpdatedAt: item.updated_at,
+        finalCopyFingerprint: fingerprint,
       })
 
-      return NextResponse.json({
+      if (revising) {
+        readiness.label = 'Mailbox draft update ready'
+        readiness.exactApprovalSentence = 'Update this known Gmail draft with the approved revised copy. Do not send email.'
+        Object.assign(readiness.expectedAuthorization, { createGmailDraft: false, updateGmailDraft: true, gmailDraftId: previousDraft.draft_id, draftAuthorization: 'update_gmail_draft_for_recipient' })
+      }
+      return json({
         message:
           'No-send Gmail draft smoke passed. No Gmail draft was created and no email was sent.',
+        reviewedCopy: { queueId: item.id, recipientEmail: to, subject, body: bodyText, sender: requiredSender, updatedAt: item.updated_at },
         noSendSmoke: true,
-        wouldCreateDraft: true,
+        wouldCreateDraft: !revising,
+        ...(revising ? { wouldUpdateDraft: true } : {}),
         queueId: item.id,
         to,
         subject,
@@ -489,8 +533,10 @@ export async function POST(
       channel: item.channel,
     })
     const authorizationErrors = [
-      bodyInput.createGmailDraft === true ? null : 'createGmailDraft must be true.',
-      bodyInput.draftAuthorization === GMAIL_DRAFT_AUTHORIZATION
+      bodyInput.expectedUpdatedAt === item.updated_at ? null : 'Reviewed row version is stale.',
+      bodyInput.finalCopyFingerprint === fingerprint ? null : 'Reviewed final copy is stale.',
+      (revising ? bodyInput.updateGmailDraft === true && bodyInput.gmailDraftId === previousDraft.draft_id : bodyInput.createGmailDraft === true) ? null : 'Explicit mailbox action and tracked draft identity are required.',
+      bodyInput.draftAuthorization === (revising ? 'update_gmail_draft_for_recipient' : GMAIL_DRAFT_AUTHORIZATION)
         ? null
         : `draftAuthorization must be ${GMAIL_DRAFT_AUTHORIZATION}.`,
       bodyInput.idempotencyKey === expectedIdempotencyKey
@@ -505,7 +551,7 @@ export async function POST(
       bodyInput.channel === item.channel ? null : 'channel does not match this outreach item.',
     ].filter(Boolean) as string[]
     if (authorizationErrors.length > 0) {
-      return NextResponse.json(
+      return json(
         {
           error:
             'Explicit per-recipient Gmail draft authorization is required before creating a provider draft.',
@@ -517,7 +563,7 @@ export async function POST(
     }
 
     if (existingDraftsRes.error) {
-      return NextResponse.json(
+      return json(
         { error: 'Could not verify existing Gmail draft state.' },
         { status: 503 },
       )
@@ -530,8 +576,11 @@ export async function POST(
       existingDraftRows,
       expectedIdempotencyKey,
     )
-    if (existing || item.thread_id || item.message_id) {
-      return NextResponse.json({
+    if (!revising && (existing || item.thread_id || item.message_id || item.generation_inputs?.gmail_draft_creation)) {
+      if (item.generation_inputs?.gmail_draft_creation?.final_copy_fingerprint !== fingerprint) {
+        return json({ error: 'Existing mailbox draft is not bound to this exact copy. Reconcile it before continuing.' }, { status: 409 })
+      }
+      return json({
         message:
           'Gmail draft already exists for this recipient and message. No new draft was created.',
         existingDraft: true,
@@ -561,50 +610,70 @@ export async function POST(
       )
     } catch (e) {
       console.error('[Gmail user draft] decrypt failed:', e)
-      return NextResponse.json(
+      return json(
         { error: 'Something went wrong. Reconnect Gmail and try again.' },
         { status: 500 },
       )
     }
 
+    const generationInputs = metadataRecord(item.generation_inputs)
+    const claimedAt = new Date(Math.max(Date.now(), Date.parse(item.updated_at) + 1)).toISOString()
+    const attempt = { status: revising ? 'updating' : 'creating', action: revising ? 'update' : 'create', draft_id: revising ? previousDraft.draft_id : null, final_copy_fingerprint: fingerprint, started_at: claimedAt, authorized_by: authResult.user.id }
+    confirmedPreflight = false
+    const { data: claimed, error: claimError } = await supabaseAdmin.from('outreach_queue')
+      .update({ generation_inputs: { ...generationInputs, warm_gmail_draft_creation_attempt: attempt }, updated_at: claimedAt })
+      .eq('id', item.id).eq('status', item.status).eq('updated_at', item.updated_at).select('id, updated_at')
+    if (!claimError && !claimed?.length) return NextResponse.json({ error: 'The draft changed before the mailbox action. Refresh and review it again.', actionOutcome: CONFIRMED_PREFLIGHT_REJECTION }, { status: 409 })
+    if (claimError || !claimed?.[0]?.updated_at) return json({ error: 'Mailbox draft claim was not confirmed. Reload and reconcile before retrying.' }, { status: 409 })
+    const claimVersion = claimed[0].updated_at
+    const markUnknown = async () => {
+      try {
+        await supabaseAdmin!.from('outreach_queue')
+        .update({ generation_inputs: { ...generationInputs, warm_gmail_draft_creation_attempt: { ...attempt, status: 'outcome_unknown' } }, updated_at: new Date(Math.max(Date.now(), Date.parse(claimVersion) + 1)).toISOString() })
+        .eq('id', item.id).eq('status', item.status).eq('updated_at', claimVersion).select('id')
+      } catch {
+        // The durable creating claim still prevents retry when the uncertainty update fails.
+        console.error('[Gmail user draft] uncertainty tracking unavailable; claim retained')
+      }
+    }
     let draft: { id: string; messageId?: string; threadId?: string }
     try {
-      draft = await createUserGmailDraft(refreshToken, {
-        to,
-        subject,
-        body: bodyText,
-      })
+      draft = revising
+        ? await updateUserGmailDraft(refreshToken, String(previousDraft.draft_id), { to, subject, body: bodyText })
+        : await createUserGmailDraft(refreshToken, { to, subject, body: bodyText })
     } catch (e) {
       console.error('[Gmail user draft] API error:', e)
-      return NextResponse.json(
+      await markUnknown()
+      return json(
         {
           error:
-            'Gmail could not create the draft. Try reconnecting your Gmail account.',
+            'Gmail draft outcome is unknown. Reconcile the mailbox before retrying; another draft will not be created automatically.',
         },
         { status: 502 }
       )
     }
 
-    if (!draft.threadId) {
+    if (!draft?.id || !draft.threadId) {
+      await markUnknown()
       console.error('[Gmail user draft] Gmail API returned no thread id:', {
         outreach_queue_id: item.id,
-        gmail_user_draft_id: draft.id,
-        gmail_user_message_id: draft.messageId,
+        gmail_user_draft_id: draft?.id,
+        gmail_user_message_id: draft?.messageId,
       })
-      return NextResponse.json(
+      return json(
         {
           error:
-            'Gmail created the draft, but did not return a thread id. Reply tracking is not safe for this draft.',
+            'Gmail returned incomplete draft evidence. Reconcile the mailbox before retrying; creation outcome is unknown.',
         },
         { status: 502 }
       )
     }
 
-    const now = new Date().toISOString()
-    const generationInputs = metadataRecord(item.generation_inputs)
+    const now = new Date(Math.max(Date.now(), Date.parse(claimVersion) + 1)).toISOString()
     const gmailDraftCreation = {
+      final_copy_fingerprint: fingerprint,
       provider: 'gmail_user_oauth',
-      provider_action: 'drafts.create',
+      provider_action: revising ? 'drafts.update' : 'drafts.create',
       draft_id: draft.id,
       message_id: draft.messageId ?? null,
       thread_id: draft.threadId,
@@ -612,27 +681,45 @@ export async function POST(
       required_sender: requiredSender,
       recipient_email: to,
       idempotency_key: expectedIdempotencyKey,
-      authorization: GMAIL_DRAFT_AUTHORIZATION,
+      authorization: revising ? 'update_gmail_draft_for_recipient' : GMAIL_DRAFT_AUTHORIZATION,
       authorized_by: authResult.user.id,
       created_at: now,
       external_send_blocked: true,
     }
-    const { error: trackingError } = await supabaseAdmin
+    const revisionReset = revising ? {
+      copy_revision_requires_provider_reconciliation: false,
+      warm_gmail_send_authorization: null,
+      warm_gmail_send_slack_approval_request: null,
+      warm_gmail_review_slack_delivery: null,
+      warm_gmail_send_execution: null,
+      warm_gmail_mailbox_revision_history: [{
+        previous_draft: previousDraft,
+        copy_revision_history: generationInputs.warm_gmail_copy_revision_history ?? [],
+        authorization: generationInputs.warm_gmail_send_authorization ?? null,
+        approval_request: generationInputs.warm_gmail_send_slack_approval_request ?? null,
+        slack_delivery: generationInputs.warm_gmail_review_slack_delivery ?? null,
+        send_execution: generationInputs.warm_gmail_send_execution ?? null,
+        updated_at: now,
+      }, ...(Array.isArray(generationInputs.warm_gmail_mailbox_revision_history) ? generationInputs.warm_gmail_mailbox_revision_history : [])].slice(0, 25),
+    } : {}
+    const { data: tracked, error: trackingError } = await supabaseAdmin
       .from('outreach_queue')
       .update({
         thread_id: draft.threadId,
         message_id: draft.messageId ?? null,
         generation_inputs: {
           ...generationInputs,
+          ...revisionReset,
           gmail_draft_creation: gmailDraftCreation,
+          warm_gmail_draft_creation_attempt: { ...attempt, status: 'tracked' },
         },
         updated_at: now,
       })
-      .eq('id', item.id)
+      .eq('id', item.id).eq('status', item.status).eq('updated_at', claimVersion).select('id, updated_at')
 
-    if (trackingError) {
+    if (trackingError || !tracked?.length) {
       console.error('[Gmail user draft] failed to persist tracking:', trackingError)
-      return NextResponse.json(
+      return json(
         {
           error:
             'Gmail created the draft, but Portfolio could not save thread tracking. Do not send this draft from Gmail until tracking is repaired.',
@@ -656,14 +743,15 @@ export async function POST(
       recipientEmail: to,
       metadata: {
         outreach_queue_id: item.id,
-        gmail_user_draft_id: draft.id,
-        gmail_user_message_id: draft.messageId,
+        gmail_user_draft_id: draft?.id,
+        gmail_user_message_id: draft?.messageId,
         gmail_user_thread_id: draft.threadId,
         gmail_connected_as: creds.google_email,
         gmail_draft_idempotency_key: expectedIdempotencyKey,
         warm_outreach_gmail_draft_authorization: {
+          final_copy_fingerprint: fingerprint,
           idempotency_key: expectedIdempotencyKey,
-          authorization: GMAIL_DRAFT_AUTHORIZATION,
+          authorization: revising ? 'update_gmail_draft_for_recipient' : GMAIL_DRAFT_AUTHORIZATION,
           contact_submission_id: item.contact_submission_id,
           recipient_email: to,
           channel: item.channel,
@@ -675,15 +763,15 @@ export async function POST(
       },
     })
 
-    return NextResponse.json({
-      message:
-        'Draft saved in Gmail for review. No email was sent; sending remains blocked.',
+    return json({
+      message: revising ? 'Gmail draft updated with approved revised copy. Previous authorization is invalidated; prepare a fresh review request.' : 'Draft saved in Gmail for review. No email was sent; sending remains blocked.',
       draftId: draft.id,
       messageId: draft.messageId ?? null,
       threadId: draft.threadId,
       openGmailUrl: 'https://mail.google.com/mail/#drafts',
       idempotencyKey: expectedIdempotencyKey,
-      gmailDraftCreated: true,
+      gmailDraftCreated: !revising,
+      gmailDraftUpdated: revising,
       ...duplicateDraftResponse({
         draftId: draft.id,
         messageId: draft.messageId ?? null,
@@ -695,7 +783,7 @@ export async function POST(
     })
   } catch (error) {
     console.error('POST /api/admin/outreach/[id]/gmail-user-draft:', error)
-    return NextResponse.json(
+    return json(
       { error: 'Something went wrong. Please try again.' },
       { status: 500 }
     )

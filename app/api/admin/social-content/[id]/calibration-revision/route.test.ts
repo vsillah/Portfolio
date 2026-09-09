@@ -35,7 +35,9 @@ vi.mock('@/lib/supabase', () => ({
   },
 }))
 
-import { POST } from './route'
+import { POST as routePost } from './route'
+import { withVersionedQueueMock, queueWriteScenario } from '@/lib/social-queue-write.test-fixtures'
+const POST: typeof routePost = (...args) => withVersionedQueueMock(mocks.from, () => routePost(...args))
 
 function request(body: unknown = {}) {
   return new NextRequest('http://localhost/api/admin/social-content/social-1/calibration-revision', {
@@ -139,9 +141,11 @@ describe('POST /api/admin/social-content/[id]/calibration-revision', () => {
     expect(mocks.generateJsonCompletion).not.toHaveBeenCalled()
   })
 
-  it('generates a calibrated draft revision and keeps the item draft-only', async () => {
+  it.each(['normal', 'locked', 'race'] as const)('generates a calibrated draft revision and keeps the item draft-only (%s)', async mode => {
+    queueWriteScenario.mode = mode
     const response = await POST(request(), { params: { id: 'social-1' } })
 
+    if (mode !== 'normal') { expect(response.status).toBe(409); return }
     expect(response.status).toBe(200)
     const json = await response.json()
     expect(json.item.id).toBe('social-1')

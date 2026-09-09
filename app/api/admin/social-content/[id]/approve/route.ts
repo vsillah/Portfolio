@@ -24,10 +24,12 @@ export async function POST(
       return NextResponse.json({ error: 'Server configuration error' }, { status: 500 })
     }
 
+    const body = await request.json().catch(() => ({}))
     const result = await approveSocialContentItem({
       admin,
       id: params.id,
       reviewedByUserId: authResult.user.id,
+      expectedCopyVersion: body.expected_copy_version,
     })
 
     return NextResponse.json(result)
