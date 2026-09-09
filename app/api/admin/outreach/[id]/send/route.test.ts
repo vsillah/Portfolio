@@ -156,96 +156,24 @@ describe('POST /api/admin/outreach/[id]/send', () => {
     expect(mocks.fetch).not.toHaveBeenCalled()
   })
 
-  it('blocks draft items from triggering a customer-facing send', async () => {
-    mockOutreachItem(outreachRow({ status: 'draft' }))
-
+  it.each([
+    ['draft', 'email', false], ['approved', 'email', false],
+    ['approved', 'email', true], ['approved', 'linkedin', false],
+    ['approved', 'facebook', false],
+  ])('blocks legacy dispatch for %s %s with outbound disabled=%s', async (status, channel, disabled) => {
+    mockOutreachItem(outreachRow({ status, channel }))
+    mocks.isN8nOutboundDisabled.mockReturnValue(disabled)
     const response = await POST(makeRequest(), params())
-
-    expect(response.status).toBe(400)
-    await expect(response.json()).resolves.toEqual({
-      error: 'Item must be approved before sending. Current status: draft',
+    expect(response.status).toBe(409)
+    await expect(response.json()).resolves.toMatchObject({
+      code: 'legacy_outreach_dispatch_blocked', dispatched: false,
+      communicationQueued: false, externalSendPerformed: false,
+      recovery: {
+        gmailReviewedExecutionRoute: '/api/admin/outreach/queue-1/gmail-user-send',
+        manualHandoffUrl: '/admin/outreach?tab=leads&filter=warm&id=123&contactId=123&queueId=queue-1#warm-manual-social-handoff',
+      },
     })
     expect(mocks.fetch).not.toHaveBeenCalled()
     expect(mocks.logCommunication).not.toHaveBeenCalled()
-  })
-
-  it('skips the webhook when n8n outbound is disabled', async () => {
-    mockOutreachItem(outreachRow())
-    mocks.isN8nOutboundDisabled.mockReturnValue(true)
-
-    const response = await POST(makeRequest(), params())
-
-    expect(response.status).toBe(200)
-    await expect(response.json()).resolves.toEqual({
-      message: 'Send workflow skipped (N8N_DISABLE_OUTBOUND)',
-      outreach_id: 'queue-1',
-      channel: 'email',
-    })
-    expect(mocks.fetch).not.toHaveBeenCalled()
-    expect(mocks.logCommunication).not.toHaveBeenCalled()
-  })
-
-  it('returns 502 when the send webhook responds with an error status', async () => {
-    mockOutreachItem(outreachRow())
-    mocks.fetch.mockResolvedValue({
-      ok: false,
-      status: 502,
-      text: async () => 'upstream failed',
-    })
-
-    const response = await POST(makeRequest(), params())
-
-    expect(response.status).toBe(502)
-    await expect(response.json()).resolves.toEqual({
-      error: 'Failed to trigger send workflow',
-    })
-    expect(mocks.logCommunication).not.toHaveBeenCalled()
-  })
-
-  it('triggers the webhook and logs a queued communication for approved items', async () => {
-    process.env.N8N_CLG003_WEBHOOK_URL = 'https://n8n.example/webhook/custom-clg003'
-    const item = outreachRow()
-    mockOutreachItem(item)
-
-    const response = await POST(makeRequest(), params())
-
-    expect(response.status).toBe(200)
-    await expect(response.json()).resolves.toEqual({
-      message: 'Send workflow triggered',
-      outreach_id: 'queue-1',
-      channel: 'email',
-    })
-    expect(mocks.fetch).toHaveBeenCalledWith(
-      'https://n8n.example/webhook/custom-clg003',
-      expect.objectContaining({
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          outreach_id: item.id,
-          contact_submission_id: item.contact_submission_id,
-          channel: item.channel,
-          subject: item.subject,
-          body: item.body,
-          sequence_step: item.sequence_step,
-          contact: item.contact_submissions,
-        }),
-      }),
-    )
-    expect(mocks.logCommunication).toHaveBeenCalledWith(
-      expect.objectContaining({
-        contactSubmissionId: 123,
-        channel: 'email',
-        direction: 'outbound',
-        messageType: 'cold_outreach',
-        status: 'queued',
-        sentBy: 'admin-user-1',
-        recipientEmail: 'alice@example.com',
-        emailTransport: 'n8n',
-        metadata: expect.objectContaining({
-          sequence_step: 1,
-          outreach_queue_id: 'queue-1',
-        }),
-      }),
-    )
   })
 })

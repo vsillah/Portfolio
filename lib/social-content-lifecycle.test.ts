@@ -247,3 +247,14 @@ describe('social content lifecycle projection', () => {
     expect(qualityGate.findings).toEqual([])
   })
 })
+
+describe('draft seed versus public prose', () => {
+  it('blocks synthetic unconverted seed and CTA instructions', () => {
+    const gate=validateSocialContentFinalCopyQuality({post_text:'AutoResearch draft seed: Reviews need owners.\nCTA role: conversation. Source boundary: use comparable public patterns.\nContent agents must convert this into channel copy before approval.',cta_text:'Conversation CTA should ask where the handoff breaks.'})
+    expect(gate.status).toBe('blocked')
+    expect(gate.findings.map(f=>f.code)).toEqual(expect.arrayContaining(['draft_seed_instruction','editorial_brief_field','copy_conversion_instruction','cta_writing_instruction']))
+  })
+  it('allows public prose about agents, review and trust', () => {
+    expect(validateSocialContentFinalCopyQuality({post_text:'Agents can move faster than our review systems. A clear owner and a visible receipt help people decide what happens next.',cta_text:'Where does trust break in your workflow?'}).status).toBe('passed')
+  })
+})

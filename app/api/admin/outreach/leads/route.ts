@@ -380,6 +380,7 @@ export async function GET(request: NextRequest) {
         last_n8n_outreach_template_key,
         do_not_contact,
         removed_at,
+        is_test_data,
         website_tech_stack,
         website_tech_stack_fetched_at
       `, { count: 'exact' })
@@ -396,7 +397,7 @@ export async function GET(request: NextRequest) {
 
     // Filter by temperature (warm/cold). "all" = no lead_source filter so every lead is shown.
     if (filter === 'warm') {
-      query = query.like('lead_source', 'warm_%')
+      query = query.like('lead_source', 'warm_%').eq('is_test_data', false)
     } else if (filter === 'cold') {
       query = query.like('lead_source', 'cold_%')
     }

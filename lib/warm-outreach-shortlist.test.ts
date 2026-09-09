@@ -1,9 +1,16 @@
+import type { SocialContentCalendarItem } from './social-content-calendar'
 import { describe, expect, it } from 'vitest'
 
 import {
   buildWarmOutreachShortlist,
   type WarmOutreachShortlistLead,
 } from './warm-outreach-shortlist'
+
+const canonicalMilestone = {
+  id: 'calendar-real-fixture', campaign_id: 'campaign-fixture', title: 'Workshop proof', planned_angle: 'Workshop results',
+  scheduled_for: '2026-10-15T14:00:00.000Z', campaign_phase: 'proof', channel: 'linkedin',
+  authorization_status: 'authorized', due_status: 'planned', attraction_campaigns: { status: 'active', name: 'Workshop campaign' },
+} as SocialContentCalendarItem
 
 const baseLead: WarmOutreachShortlistLead = {
   id: 42,
@@ -310,25 +317,7 @@ describe('warm outreach shortlist', () => {
         todayLabel: 'Sep 2',
         weekLabel: 'Sep 2-Sep 8',
       },
-      campaignAlignment: {
-        source: 'social_content_calendar_template',
-        templateKey: 'whisper_to_shout',
-        campaignTheme: 'Whisper-to-shout launch',
-        currentPhase: 'tease',
-        currentPhaseLabel: 'Tease',
-        currentMilestoneKey: 'small_tension',
-        currentCalendarChannelLabel: 'LinkedIn',
-        currentSourceLabel: 'HubSpot social calendar template + Asana social media calendar template',
-        currentProofPoint: 'triggering event + campaign problem + audience fit',
-        currentApprovalGateLabel: 'copy review',
-        currentCadenceLabel: 'Campaign day 2; 14-day content lead time',
-        sourceContextLabel: 'Whisper-to-shout launch content calendar template',
-        plannedWindowLabel: 'Sep 2-Sep 8',
-        currentMilestoneTitle:
-          'Open with a small tension, observation, or question that makes the campaign problem visible.',
-        nextMilestoneTitle:
-          'Give the audience a useful framework or operating lesson connected to the campaign promise.',
-      },
+      campaignAlignment: { source: 'missing', templateKey: null, currentPhase: null, currentCadenceLabel: 'Unscheduled', plannedWindowLabel: 'Unscheduled' },
       counts: {
         ready_gmail_draft: 2,
         ready_manual_social: 1,
@@ -347,9 +336,9 @@ describe('warm outreach shortlist', () => {
         version: 'warm-outreach-office-execution-loop/v1',
         officeWindowLabel: 'Lead Pipeline window: Sep 2',
         focusLabel: '3 ready contacts',
-        campaignPhaseLabel: 'Tease',
+        campaignPhaseLabel: 'Unscheduled',
         campaignMilestoneTitle:
-          'Open with a small tension, observation, or question that makes the campaign problem visible.',
+          'Select a milestone from a draft or active campaign.',
         primaryActionLabel: 'Start Gmail review loop (2)',
         gmailReadyCount: 2,
         manualSocialReadyCount: 1,
@@ -374,9 +363,9 @@ describe('warm outreach shortlist', () => {
     expect(shortlist.planningBacklog.dailyActions).toMatchObject({
       version: 'warm-outreach-daily-actions/v1',
       operatingDateLabel: 'Sep 2',
-      campaignPhaseLabel: 'Tease',
+      campaignPhaseLabel: 'Unscheduled',
       campaignMilestoneTitle:
-        'Open with a small tension, observation, or question that makes the campaign problem visible.',
+        'Select a milestone from a draft or active campaign.',
       currentSafestAction: {
         key: 'start_gmail_review_loop',
         label: "Start today's Gmail review loop (2)",
@@ -410,8 +399,8 @@ describe('warm outreach shortlist', () => {
     })
     expect(shortlist.planningBacklog.dailyActions.rows.map((row) => row.label).slice(0, 3)).toEqual([
       'Gmail draft review',
-      'Gmail draft review',
       'Manual social handoff',
+      'Gmail draft review',
     ])
     expect(shortlist.planningBacklog.dailyActions.rows[0]).toMatchObject({
       priorityRank: 1,
@@ -419,11 +408,11 @@ describe('warm outreach shortlist', () => {
       loopStatus: 'ready',
       loopStatusLabel: 'Ready to plan',
       campaignSignal:
-        'Tease: Open with a small tension, observation, or question that makes the campaign problem visible.',
-      sourceSignal: 'HubSpot social calendar template + Asana social media calendar template',
-      cadenceSignal: 'Campaign day 2; 14-day content lead time',
-      contentProofPoint: 'triggering event + campaign problem + audience fit; 2 relationship evidence signals',
-      approvalGateSignal: 'copy review',
+        'Unscheduled: Select a milestone from a draft or active campaign.',
+      sourceSignal: 'Canonical calendar',
+      cadenceSignal: 'Unscheduled',
+      contentProofPoint: 'Select a campaign milestone; 2 relationship evidence signals',
+      approvalGateSignal: 'Calendar source needed',
       ctaLabel: 'Prepare Gmail review',
       enabled: true,
       reviewLoopAction: {
@@ -441,7 +430,7 @@ describe('warm outreach shortlist', () => {
       afterAction: 'Submitted evidence is recorded; wait for a reply before planning another touchpoint.',
     })
     expect(shortlist.planningBacklog.executionLoop.primaryActionReason).toMatch(
-      /content-calendar cadence favors Gmail draft review first/,
+      /Review existing Gmail copy/,
     )
     expect(shortlist.planningBacklog.executionLoop.steps.map((step) => step.key)).toEqual([
       'plan_review_batch',
@@ -458,20 +447,7 @@ describe('warm outreach shortlist', () => {
         key: 'start_manual_social_batch',
         statusLabel: 'Manual review ready',
       },
-      campaignAlignment: {
-        phase: 'tease',
-        phaseLabel: 'Tease',
-        theme: 'Open with a small tension, observation, or question that makes the campaign problem visible.',
-        calendarSignal:
-          'Tease LinkedIn: Open with a small tension, observation, or question that makes the campaign problem visible.',
-        cadenceSignal: 'Campaign day 2; 14-day content lead time',
-        sourceLabel: 'HubSpot social calendar template + Asana social media calendar template',
-        contentProofPoint: 'triggering event + campaign problem + audience fit; 1 relationship evidence signal',
-        approvalGateLabel: 'copy review',
-        safeNextAction: 'Review manual handoff only',
-        plannedWindowLabel: 'Sep 2-Sep 8',
-        whyNext: 'Tease campaign angle is ready for a manual social handoff.',
-      },
+      campaignAlignment: { phase: null, phaseLabel: 'Unscheduled', cadenceSignal: 'Unscheduled', plannedWindowLabel: 'Unscheduled' },
     })
     expect(shortlist.planningBacklog.candidates.find((candidate) => candidate.contactId === 15)?.states).toContain('sms_parked')
   })
@@ -527,7 +503,7 @@ describe('warm outreach shortlist', () => {
           recent_email_drafts: [],
         }),
       ],
-      { today: '2026-09-08' },
+      { today: '2026-09-08', calendarItem: canonicalMilestone },
     )
 
     expect(shortlist.planningBacklog.dailyActions.campaignPhaseLabel).toBe('Proof')
@@ -548,11 +524,11 @@ describe('warm outreach shortlist', () => {
         statusLabel: 'Response review',
       },
       campaignSignal:
-        'Proof: Show evidence, a shipped example, client-safe result, or lived project insight that earns trust.',
-      cadenceSignal: 'Campaign day 8; 7-day content lead time',
-      sourceSignal: 'Asana social media calendar template',
-      contentProofPoint: 'proof asset + privacy review; 2 relationship evidence signals',
-      approvalGateSignal: 'copy review + privacy review',
+        'Proof: Workshop proof',
+      cadenceSignal: '2026-10-15T14:00:00.000Z',
+      sourceSignal: 'Workshop proof',
+      contentProofPoint: 'Workshop results; 2 relationship evidence signals',
+      approvalGateSignal: 'Outreach review required',
     })
     expect(shortlist.planningBacklog.dailyActions.currentSafestAction).toMatchObject({
       key: 'open_daily_action',
@@ -566,4 +542,27 @@ describe('warm outreach shortlist', () => {
     expect(shortlist.planningBacklog.dailyActions.executionBoundary.socialProviderCalls).toBe(false)
     expect(shortlist.planningBacklog.dailyActions.executionBoundary.smsDeliveryEnabled).toBe(false)
   })
+})
+
+it('excludes a test contact even when its queue record appears approved', () => {
+  const result = buildWarmOutreachShortlist([lead({ is_test_data: true, recent_email_drafts: [{ id: 'queue-test', status: 'approved', subject: 'Test', created_at: baseLead.created_at }] })])
+  expect(result.items).toEqual([])
+  expect(result.summary.totalWarmLeads).toBe(0)
+})
+
+it('uses only canonical timing, independent of today, and fails closed for rejected or inactive sources', () => {
+  for (const today of ['2026-09-01', '2026-09-08', '2026-09-29']) {
+    const result = buildWarmOutreachShortlist([baseLead], { today, calendarItem: canonicalMilestone })
+    expect(result.planningBacklog.campaignAlignment).toMatchObject({ currentPhase: 'proof', plannedWindowLabel: canonicalMilestone.scheduled_for, sourceHref: '/admin/agents/content-intelligence?section=calendar&calendar_item=calendar-real-fixture' })
+  }
+  for (const item of [{ ...canonicalMilestone, authorization_status: 'rejected' }, { ...canonicalMilestone, attraction_campaigns: { status: 'paused' } }]) {
+    const result = buildWarmOutreachShortlist([baseLead], { calendarItem: item as SocialContentCalendarItem })
+    expect(result.planningBacklog.campaignAlignment).toMatchObject({ source: 'missing', currentPhase: null, currentCadenceLabel: 'Unscheduled' })
+  }
+})
+
+ it('accepts draft campaign planning without treating it as send authority', () => {
+  const result = buildWarmOutreachShortlist([baseLead], { calendarItem: { ...canonicalMilestone, authorization_status: 'pending', attraction_campaigns: { ...canonicalMilestone.attraction_campaigns!, status: 'draft' } } })
+  expect(result.planningBacklog.campaignAlignment).toMatchObject({ source: 'social_content_calendar_item', currentApprovalGateLabel: 'Campaign draft; outreach review required' })
+  expect(result.planningBacklog.dailyActions.executionBoundary.gmailProviderCalls).toBe(false)
 })

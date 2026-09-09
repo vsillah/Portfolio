@@ -1,3 +1,4 @@
+import { assertSocialQueueWritable, assertSocialQueuePublicationClear, updateSocialQueueWithVersion, SocialQueueWriteConflict } from '@/lib/social-queue-write'
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { supabaseAdmin } from '@/lib/supabase'
@@ -73,13 +74,16 @@ export async function POST(
     const { id } = params
     const { data: item, error: fetchError } = await supabaseAdmin
       .from('social_content_queue')
-      .select('rag_context')
+      .select('*')
       .eq('id', id)
       .single()
 
     if (fetchError || !item) {
       return NextResponse.json({ error: 'Content not found' }, { status: 404 })
     }
+
+    assertSocialQueueWritable(item)
+    await assertSocialQueuePublicationClear(supabaseAdmin, item.id)
 
     const ragContext = asRecord(item.rag_context)
     const productionAssets = getProductionAssets(ragContext)
@@ -118,10 +122,7 @@ export async function POST(
       production_assets: nextProductionAssets,
     }
 
-    const { error: updateError } = await supabaseAdmin
-      .from('social_content_queue')
-      .update({ rag_context: nextRagContext })
-      .eq('id', id)
+    const { data: savedQueue, error: updateError } = await updateSocialQueueWithVersion(supabaseAdmin, item, { rag_context: nextRagContext })
 
     if (updateError) {
       console.error('[review-video-redaction] update failed:', updateError)
@@ -131,10 +132,11 @@ export async function POST(
     return NextResponse.json({
       success: true,
       production_assets: nextProductionAssets,
-      rag_context: nextRagContext,
+      rag_context: savedQueue.rag_context,
       redaction_gate: gate,
     })
   } catch (error) {
+    if (error instanceof SocialQueueWriteConflict) return NextResponse.json({ error: error.message }, { status: 409 })
     console.error('[review-video-redaction] error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }

@@ -1,3 +1,5 @@
+import { buildWarmGmailActionRequest } from '@/lib/warm-gmail-action-request'
+import { warmFinalCopyFingerprint } from '@/lib/warm-outreach-copy-fingerprint'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { NextRequest } from 'next/server'
 
@@ -7,6 +9,7 @@ const mocks = vi.hoisted(() => ({
   from: vi.fn(),
   decryptRefreshToken: vi.fn(),
   createUserGmailDraft: vi.fn(),
+  updateUserGmailDraft: vi.fn(),
   isGmailUserOAuthClientConfigured: vi.fn(),
   isGmailUserOauthSecretConfigured: vi.fn(),
   logCommunication: vi.fn(),
@@ -29,6 +32,7 @@ vi.mock('@/lib/gmail-user-oauth-crypto', () => ({
 
 vi.mock('@/lib/gmail-user-api', () => ({
   createUserGmailDraft: mocks.createUserGmailDraft,
+  updateUserGmailDraft: mocks.updateUserGmailDraft,
   isGmailUserOAuthClientConfigured: mocks.isGmailUserOAuthClientConfigured,
 }))
 
@@ -50,6 +54,7 @@ type CredentialsRow = {
 }
 
 type OutreachQueueRow = {
+  updated_at: string
   id: string
   contact_submission_id: number
   status: string
@@ -106,6 +111,8 @@ function expectedIdempotencyKey(row = outreachRow()) {
 
 function authorizedPayload(row = outreachRow(), overrides: Record<string, unknown> = {}) {
   return {
+    expectedUpdatedAt: row.updated_at,
+    finalCopyFingerprint: warmFinalCopyFingerprint(row),
     createGmailDraft: true,
     draftAuthorization: 'create_gmail_draft_for_recipient',
     idempotencyKey: expectedIdempotencyKey(row),
@@ -124,6 +131,8 @@ function mockSupabase({
   credentials,
   outreachItem,
   trackingError = null,
+  unmatchedUpdate = 0,
+  atomicClaims = false,
   contactCommunications = [
     {
       id: 'comm-relationship-1',
@@ -141,6 +150,8 @@ function mockSupabase({
   credentials: CredentialsRow | null
   outreachItem?: OutreachQueueRow | null
   trackingError?: { message: string } | null
+  unmatchedUpdate?: number
+  atomicClaims?: boolean
   contactCommunications?: CommunicationRow[]
   emailMessages?: CommunicationRow[]
   existingDrafts?: CommunicationRow[]
@@ -169,12 +180,21 @@ function mockSupabase({
   const outreachSelect = vi.fn().mockReturnValue({
     eq: outreachEq,
   })
-  const outreachUpdateEq = vi.fn().mockResolvedValue({
-    data: null,
-    error: trackingError,
-  })
-  const outreachUpdate = vi.fn().mockReturnValue({
-    eq: outreachUpdateEq,
+  let updateCount = 0
+  let persistedVersion = outreachItem?.updated_at
+  const outreachUpdateEq = vi.fn()
+  const outreachUpdate = vi.fn((payload: Record<string, unknown>) => {
+    const call = ++updateCount
+    let expectedVersion: unknown
+    const mutation = {
+      eq: vi.fn((key: string, value: unknown) => { outreachUpdateEq(key, value); if (key === 'updated_at') expectedVersion = value; return mutation }),
+      select: vi.fn(() => {
+        const matches = unmatchedUpdate !== call && (!atomicClaims || persistedVersion === expectedVersion)
+        if (matches) persistedVersion = String(payload.updated_at)
+        return Promise.resolve({ data: matches ? [{ id: outreachItem?.id, updated_at: payload.updated_at }] : [], error: call > 1 ? trackingError : null })
+      }),
+    }
+    return mutation
   })
 
   let contactCommunicationsCall = 0
@@ -237,7 +257,8 @@ function outreachRow(overrides: Partial<OutreachQueueRow> = {}): OutreachQueueRo
   return {
     id: 'queue-1',
     contact_submission_id: 123,
-    status: 'draft',
+    updated_at: '2026-09-08T00:00:00.000Z',
+    status: 'approved',
     channel: 'email',
     subject: 'Queue subject',
     body: 'Queue body',
@@ -275,7 +296,117 @@ describe('POST /api/admin/outreach/[id]/gmail-user-draft', () => {
       messageId: 'gmail-message-1',
       threadId: 'gmail-thread-1',
     })
+    mocks.updateUserGmailDraft.mockResolvedValue({ id: 'gmail-draft-1', messageId: 'updated-message-1', threadId: 'gmail-thread-1' })
     mocks.logCommunication.mockResolvedValue(undefined)
+  })
+
+  it('updates the same known draft after revised copy approval, archives prior authority and allows fresh review', async () => {
+    const row = outreachRow({ body: 'Approved revised copy', generation_inputs: {
+      copy_revision_requires_provider_reconciliation: true,
+      gmail_draft_creation: { draft_id: 'gmail-draft-1', thread_id: 'gmail-thread-1', final_copy_fingerprint: 'old-fingerprint' },
+      warm_gmail_send_authorization: { status: 'approved', final_copy_fingerprint: 'old-fingerprint' },
+      warm_gmail_send_slack_approval_request: { status: 'pending', final_copy_fingerprint: 'old-fingerprint' },
+      warm_gmail_review_slack_delivery: { state: 'sent', slack_message_ts: '123.456' },
+    } })
+    const { outreachUpdate } = mockSupabase({ credentials: credentialsRow('vambah@amadutown.com'), outreachItem: row })
+    const preparation = await POST(makeRequest({ noSendSmoke: true, prepareDraftUpdate: true }), params())
+    const readiness = await preparation.json()
+    expect(preparation.status).toBe(200)
+    expect(outreachUpdate).not.toHaveBeenCalled()
+    const payload = buildWarmGmailActionRequest('update', readiness, { ...row, updatedAt: row.updated_at })
+    const response = await POST(makeRequest(payload), params())
+    expect(response.status).toBe(200)
+    expect(mocks.createUserGmailDraft).not.toHaveBeenCalled()
+    expect(mocks.updateUserGmailDraft).toHaveBeenCalledWith('refresh-token', 'gmail-draft-1', { to: 'alice@example.com', subject: 'Queue subject', body: 'Approved revised copy' })
+    expect(outreachUpdate).toHaveBeenLastCalledWith(expect.objectContaining({ generation_inputs: expect.objectContaining({
+      copy_revision_requires_provider_reconciliation: false, warm_gmail_send_authorization: null, warm_gmail_send_slack_approval_request: null, warm_gmail_review_slack_delivery: null,
+      gmail_draft_creation: expect.objectContaining({ draft_id: 'gmail-draft-1', message_id: 'updated-message-1', final_copy_fingerprint: warmFinalCopyFingerprint(row) }),
+      warm_gmail_mailbox_revision_history: [expect.objectContaining({ authorization: expect.objectContaining({ final_copy_fingerprint: 'old-fingerprint' }) })],
+    }) }))
+  })
+
+  it('allows only one concurrent update of a known revised draft', async () => {
+    const row = outreachRow({ generation_inputs: { copy_revision_requires_provider_reconciliation: true, gmail_draft_creation: { draft_id: 'gmail-draft-1', thread_id: 'gmail-thread-1' } } })
+    mockSupabase({ credentials: credentialsRow('vambah@amadutown.com'), outreachItem: row, atomicClaims: true })
+    const readiness = await (await POST(makeRequest({ noSendSmoke: true, prepareDraftUpdate: true }), params())).json()
+    const payload = buildWarmGmailActionRequest('update', readiness, { ...row, updatedAt: row.updated_at })
+    const responses = await Promise.all([POST(makeRequest(payload), params()), POST(makeRequest(payload), params())])
+    expect(responses.map(response => response.status).sort()).toEqual([200, 409])
+    expect(mocks.updateUserGmailDraft).toHaveBeenCalledTimes(1)
+    expect(mocks.createUserGmailDraft).not.toHaveBeenCalled()
+  })
+
+  it('locks an uncertain update and never creates a replacement draft', async () => {
+    const row = outreachRow({ generation_inputs: { copy_revision_requires_provider_reconciliation: true, gmail_draft_creation: { draft_id: 'gmail-draft-1', thread_id: 'gmail-thread-1' } } })
+    const { outreachUpdate } = mockSupabase({ credentials: credentialsRow('vambah@amadutown.com'), outreachItem: row })
+    mocks.updateUserGmailDraft.mockRejectedValue(new Error('timeout after update'))
+    const readiness = await (await POST(makeRequest({ noSendSmoke: true, prepareDraftUpdate: true }), params())).json()
+    expect((await POST(makeRequest(buildWarmGmailActionRequest('update', readiness, { ...row, updatedAt: row.updated_at })), params())).status).toBe(502)
+    expect(mocks.createUserGmailDraft).not.toHaveBeenCalled()
+    expect(outreachUpdate).toHaveBeenLastCalledWith(expect.objectContaining({ generation_inputs: expect.objectContaining({ copy_revision_requires_provider_reconciliation: true, warm_gmail_draft_creation_attempt: expect.objectContaining({ status: 'outcome_unknown', action: 'update' }) }) }))
+  })
+
+  it('uses the real no-send readiness packet for explicit UI mailbox creation', async () => {
+    const row = outreachRow()
+    const { outreachUpdate } = mockSupabase({ credentials: credentialsRow('vambah@amadutown.com'), outreachItem: row })
+    const prepared = await POST(makeRequest({ noSendSmoke: true }), params())
+    const readiness = await prepared.json()
+    expect(outreachUpdate).not.toHaveBeenCalled()
+    expect(mocks.createUserGmailDraft).not.toHaveBeenCalled()
+    const payload = buildWarmGmailActionRequest('draft', readiness, { ...row, updatedAt: row.updated_at })
+    const response = await POST(makeRequest(payload), params())
+    expect(response.status).toBe(200)
+    expect(mocks.createUserGmailDraft).toHaveBeenCalledTimes(1)
+  })
+
+  it('does not prepare approval for unsaved smoke copy', async () => {
+    mockSupabase({ credentials: credentialsRow('vambah@amadutown.com'), outreachItem: outreachRow() })
+    expect((await POST(makeRequest({ noSendSmoke: true, body: 'Unsaved different copy' }), params())).status).toBe(409)
+    expect(mocks.createUserGmailDraft).not.toHaveBeenCalled()
+  })
+
+  it('lets only one concurrent claim create a mailbox draft', async () => {
+    const row = outreachRow()
+    mockSupabase({ credentials: credentialsRow('vambah@amadutown.com'), outreachItem: row, atomicClaims: true })
+    const responses = await Promise.all([POST(makeRequest(authorizedPayload(row)), params()), POST(makeRequest(authorizedPayload(row)), params())])
+    expect(responses.map(r => r.status).sort()).toEqual([200, 409])
+    expect(mocks.createUserGmailDraft).toHaveBeenCalledTimes(1)
+  })
+
+  it.each([1, 2])('fails closed when mutation %s loses its row version', async (unmatchedUpdate) => {
+    const row = outreachRow()
+    const { outreachUpdateEq } = mockSupabase({ credentials: credentialsRow('vambah@amadutown.com'), outreachItem: row, unmatchedUpdate })
+    const response = await POST(makeRequest(authorizedPayload(row)), params())
+    expect(response.status).toBe(unmatchedUpdate === 1 ? 409 : 502)
+    const result = await response.json()
+    expect(result.actionOutcome).toBe(unmatchedUpdate === 1 ? 'rejected_before_external_action' : undefined)
+    expect(mocks.createUserGmailDraft).toHaveBeenCalledTimes(unmatchedUpdate === 1 ? 0 : 1)
+    expect(outreachUpdateEq).toHaveBeenCalledWith('updated_at', row.updated_at)
+    expect(outreachUpdateEq).toHaveBeenCalledWith('status', row.status)
+    expect(mocks.logCommunication).not.toHaveBeenCalled()
+  })
+
+  it.each(['creating', 'outcome_unknown'])('blocks retry of %s mailbox attempts before provider calls', async status => {
+    const row = outreachRow({ generation_inputs: { warm_gmail_draft_creation_attempt: { status } } })
+    const { outreachUpdate } = mockSupabase({ credentials: credentialsRow('vambah@amadutown.com'), outreachItem: row })
+    expect((await POST(makeRequest(authorizedPayload(row)), params())).status).toBe(409)
+    expect(outreachUpdate).not.toHaveBeenCalled()
+    expect(mocks.createUserGmailDraft).not.toHaveBeenCalled()
+  })
+
+  it.each([{ expectedUpdatedAt: 'stale' }, { finalCopyFingerprint: 'stale' }])('rejects stale reviewed copy authorization: %j', async change => {
+    const row = outreachRow()
+    const { outreachUpdate } = mockSupabase({ credentials: credentialsRow('vambah@amadutown.com'), outreachItem: row })
+    expect((await POST(makeRequest(authorizedPayload(row, change)), params())).status).toBe(403)
+    expect(outreachUpdate).not.toHaveBeenCalled()
+    expect(mocks.createUserGmailDraft).not.toHaveBeenCalled()
+  })
+
+  it('requires reconciliation of an old mailbox draft without exact-copy evidence', async () => {
+    const row = outreachRow({ thread_id: 'old-thread' })
+    mockSupabase({ credentials: credentialsRow('vambah@amadutown.com'), outreachItem: row })
+    expect((await POST(makeRequest(authorizedPayload(row)), params())).status).toBe(409)
+    expect(mocks.createUserGmailDraft).not.toHaveBeenCalled()
   })
 
   it('rejects unauthenticated requests before checking credentials or Gmail', async () => {
@@ -285,7 +416,7 @@ describe('POST /api/admin/outreach/[id]/gmail-user-draft', () => {
     const response = await POST(makeRequest(), params())
 
     expect(response.status).toBe(401)
-    await expect(response.json()).resolves.toEqual({ error: 'Unauthorized' })
+    await expect(response.json()).resolves.toMatchObject({ error: 'Unauthorized' })
     expect(mocks.from).not.toHaveBeenCalled()
     expect(mocks.createUserGmailDraft).not.toHaveBeenCalled()
   })
@@ -296,7 +427,7 @@ describe('POST /api/admin/outreach/[id]/gmail-user-draft', () => {
     const response = await POST(makeRequest(), params())
 
     expect(response.status).toBe(503)
-    await expect(response.json()).resolves.toEqual({
+    await expect(response.json()).resolves.toMatchObject({
       error: 'Gmail account connection is not configured for this site.',
     })
     expect(mocks.from).not.toHaveBeenCalled()
@@ -312,7 +443,7 @@ describe('POST /api/admin/outreach/[id]/gmail-user-draft', () => {
     const response = await POST(makeRequest(), params())
 
     expect(response.status).toBe(400)
-    await expect(response.json()).resolves.toEqual({
+    await expect(response.json()).resolves.toMatchObject({
       error:
         'Connect your Gmail account first (admin: Google sign-in for Gmail drafts).',
     })
@@ -328,7 +459,7 @@ describe('POST /api/admin/outreach/[id]/gmail-user-draft', () => {
     const response = await POST(makeRequest(), params())
 
     expect(response.status).toBe(400)
-    await expect(response.json()).resolves.toEqual({
+    await expect(response.json()).resolves.toMatchObject({
       error:
         'Customer-facing Gmail drafts must be created from vambah@amadutown.com. Reconnect Gmail with that account before saving this draft.',
     })
@@ -471,9 +602,10 @@ describe('POST /api/admin/outreach/[id]/gmail-user-draft', () => {
     const response = await POST(makeRequest({ noSendSmoke: true }), params())
 
     expect(response.status).toBe(200)
-    await expect(response.json()).resolves.toEqual({
+    await expect(response.json()).resolves.toMatchObject({
       message:
         'No-send Gmail draft smoke passed. No Gmail draft was created and no email was sent.',
+      reviewedCopy: { queueId: 'queue-1', recipientEmail: 'alice@example.com', subject: 'Queue subject', body: 'Queue body', sender: 'vambah@amadutown.com', updatedAt: outreachRow().updated_at },
       noSendSmoke: true,
       wouldCreateDraft: true,
       queueId: 'queue-1',
@@ -483,6 +615,8 @@ describe('POST /api/admin/outreach/[id]/gmail-user-draft', () => {
       requiredSender: 'vambah@amadutown.com',
       connectedAs: 'vambah@amadutown.com',
       expectedAuthorization: {
+        expectedUpdatedAt: outreachRow().updated_at,
+        finalCopyFingerprint: warmFinalCopyFingerprint(outreachRow()),
         createGmailDraft: true,
         draftAuthorization: 'create_gmail_draft_for_recipient',
         contactSubmissionId: 123,
@@ -500,7 +634,9 @@ describe('POST /api/admin/outreach/[id]/gmail-user-draft', () => {
         requiredSender: 'vambah@amadutown.com',
         connectedAs: 'vambah@amadutown.com',
         expectedAuthorization: {
-          createGmailDraft: true,
+          expectedUpdatedAt: outreachRow().updated_at,
+        finalCopyFingerprint: warmFinalCopyFingerprint(outreachRow()),
+        createGmailDraft: true,
           draftAuthorization: 'create_gmail_draft_for_recipient',
           contactSubmissionId: 123,
           recipientEmail: 'alice@example.com',
@@ -534,7 +670,7 @@ describe('POST /api/admin/outreach/[id]/gmail-user-draft', () => {
     const response = await POST(makeRequest({ noSendSmoke: true }), params())
 
     expect(response.status).toBe(400)
-    await expect(response.json()).resolves.toEqual({
+    await expect(response.json()).resolves.toMatchObject({
       error:
         'Customer-facing Gmail drafts must be created from vambah@amadutown.com. Reconnect Gmail with that account before saving this draft.',
     })
@@ -557,9 +693,9 @@ describe('POST /api/admin/outreach/[id]/gmail-user-draft', () => {
     const response = await POST(makeRequest(authorizedPayload(row)), params())
 
     expect(response.status).toBe(502)
-    await expect(response.json()).resolves.toEqual({
+    await expect(response.json()).resolves.toMatchObject({
       error:
-        'Gmail created the draft, but did not return a thread id. Reply tracking is not safe for this draft.',
+        'Gmail returned incomplete draft evidence. Reconcile the mailbox before retrying; creation outcome is unknown.',
     })
     expect(mocks.logCommunication).not.toHaveBeenCalled()
   })
@@ -575,7 +711,7 @@ describe('POST /api/admin/outreach/[id]/gmail-user-draft', () => {
     const response = await POST(makeRequest(authorizedPayload(row)), params())
 
     expect(response.status).toBe(502)
-    await expect(response.json()).resolves.toEqual({
+    await expect(response.json()).resolves.toMatchObject({
       error:
         'Gmail created the draft, but Portfolio could not save thread tracking. Do not send this draft from Gmail until tracking is repaired.',
     })
@@ -583,7 +719,7 @@ describe('POST /api/admin/outreach/[id]/gmail-user-draft', () => {
   })
 
   it('returns existing draft evidence instead of creating a duplicate Gmail draft', async () => {
-    const row = outreachRow({ thread_id: 'gmail-thread-1', message_id: 'gmail-message-1' })
+    const row = outreachRow({ thread_id: 'gmail-thread-1', message_id: 'gmail-message-1', generation_inputs: { gmail_draft_creation: { final_copy_fingerprint: warmFinalCopyFingerprint(outreachRow()) } } })
     const { outreachUpdate } = mockSupabase({
       credentials: credentialsRow('vambah@amadutown.com'),
       outreachItem: row,
@@ -643,7 +779,7 @@ describe('POST /api/admin/outreach/[id]/gmail-user-draft', () => {
     const response = await POST(makeRequest(authorizedPayload(row)), params())
 
     expect(response.status).toBe(409)
-    await expect(response.json()).resolves.toEqual({
+    await expect(response.json()).resolves.toMatchObject({
       error: 'This contact is suppressed or blocked from outreach.',
     })
     expect(mocks.createUserGmailDraft).not.toHaveBeenCalled()
@@ -667,7 +803,7 @@ describe('POST /api/admin/outreach/[id]/gmail-user-draft', () => {
     const response = await POST(makeRequest(authorizedPayload(row)), params())
 
     expect(response.status).toBe(409)
-    await expect(response.json()).resolves.toEqual({
+    await expect(response.json()).resolves.toMatchObject({
       error:
         'Relationship evidence is required before creating a Gmail draft for this warm outreach item.',
     })
@@ -685,11 +821,11 @@ describe('POST /api/admin/outreach/[id]/gmail-user-draft', () => {
     const response = await POST(makeRequest(authorizedPayload(row)), params())
 
     expect(response.status).toBe(502)
-    await expect(response.json()).resolves.toEqual({
+    await expect(response.json()).resolves.toMatchObject({
       error:
-        'Gmail could not create the draft. Try reconnecting your Gmail account.',
+        'Gmail draft outcome is unknown. Reconcile the mailbox before retrying; another draft will not be created automatically.',
     })
-    expect(outreachUpdate).not.toHaveBeenCalled()
+    expect(outreachUpdate).toHaveBeenCalledWith(expect.objectContaining({ generation_inputs: expect.objectContaining({ warm_gmail_draft_creation_attempt: expect.objectContaining({ status: 'outcome_unknown' }) }) }))
     expect(mocks.logCommunication).not.toHaveBeenCalled()
   })
 })

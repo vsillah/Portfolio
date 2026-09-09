@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor, within } from '@testing-library/rea
 import type { ReactNode } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import SocialCommentInboxPage from './page'
+import { getCurrentSession } from '@/lib/auth'
 
 vi.mock('@/components/ProtectedRoute', () => ({
   default: ({ children }: { children: ReactNode }) => <>{children}</>,
@@ -649,126 +650,140 @@ describe('SocialCommentInboxPage', () => {
     })
   })
 
-  it('locks rejected responded replies with submitted provider evidence inline and avoids no-op posts', async () => {
-    const lockedComment = {
-      ...comment,
-      platform: 'youtube',
-      providerPermalink: 'https://youtube.example/comment/1',
-      status: 'responded',
-      approvalState: 'rejected',
-      draftReply: 'This rejected reply was already submitted.',
-      submittedReplyLocked: true,
-      submittedReplyLockReason: 'Reply already has submitted provider evidence. Local revision is locked so Portfolio does not rewrite or obscure the canonical provider record.',
-      providerCapability: {
-        provider: 'youtube_data_api',
-        automaticReply: true,
-        verified: true,
-        humanGateSatisfied: false,
-        blocker: 'Submitted provider evidence is authoritative.',
-        recoveryPath: 'Review provider evidence before making any local correction.',
-      },
-      actionHistory: [{
-        action: 'reject',
-        at: '2026-08-06T12:05:00.000Z',
-        by: 'admin-user',
-        note: 'Rejected after provider evidence existed.',
-      }],
-    }
-    const fetchMock = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
-      if (init?.method === 'POST') {
-        throw new Error('Submitted-evidence locked replies must not post local no-op actions.')
-      }
-
-      return {
-        ok: true,
-        status: 200,
-        json: async () => ({
-          items: [lockedComment],
-          summary: { total: 1, new: 0, needs_qa: 0, auto_send_pending: 0, lead: 0, escalated: 0, responded: 1, ignored: 0 },
-          filteredSummary: { total: 1, new: 0, needs_qa: 0, auto_send_pending: 0, lead: 0, escalated: 0, responded: 1, ignored: 0 },
-          alertReliability,
-        }),
-      } as Response
-    })
-    vi.stubGlobal('fetch', fetchMock)
-
+  it.each(['rejected','approved'])('shows a normal sent state for responded replies with %s review history',async approvalState=>{
+    const sent={...comment,status:'responded',approvalState,replyProviderConfirmed:true,submittedReplyLocked:true,submittedReplyLockReason:'Provider confirmed the reply.'}
+    const fetchMock=vi.fn(async()=>({ok:true,json:async()=>({items:[sent]})}))
+    vi.stubGlobal('fetch',fetchMock)
     render(<SocialCommentInboxPage />)
-
-    const rejectedHeading = await screen.findByText('Reply rejected')
-    const card = rejectedHeading.closest('article')
-    expect(card).toBeTruthy()
-    const panel = within(card as HTMLElement)
-    expect(panel.getAllByText('Provider evidence locked').length).toBeGreaterThanOrEqual(1)
-    expect(panel.getAllByText(/Local revision is locked/i).length).toBeGreaterThanOrEqual(1)
-    expect(panel.getByText('Local revision is blocked by submitted provider evidence.')).toBeInTheDocument()
-    expect(panel.getByText('Inspect provider evidence; local revision is blocked.')).toBeInTheDocument()
-    expect(panel.getByText('Saved: Rejected after provider evidence existed.')).toBeInTheDocument()
-    expect(panel.getByText('Controls locked.')).toBeInTheDocument()
-    expect(panel.queryByRole('button', { name: /^Revise Reply$/i })).not.toBeInTheDocument()
-    const lockedButton = panel.getByRole('button', { name: /^Revision Locked$/i })
-    expect(lockedButton).toBeDisabled()
-    const lockReasonId = lockedButton.getAttribute('aria-describedby')
-    expect(lockReasonId).toBeTruthy()
-    expect(document.getElementById(lockReasonId as string)).toHaveTextContent(/submitted provider evidence/i)
-
-    fireEvent.click(lockedButton)
-    fireEvent.click(lockedButton)
-
-    expect(fetchMock).not.toHaveBeenCalledWith(
-      '/api/admin/social-content/social-1/engagement/comments',
-      expect.objectContaining({ method: 'POST' }),
-    )
-    expect(screen.queryByText(/local action was recorded without changing submitted state/i)).not.toBeInTheDocument()
-  })
-
-  it('locks review controls for already responded comments with submitted provider evidence', async () => {
-    const fetchMock = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
-      if (init?.method === 'POST') {
-        throw new Error('Submitted-evidence rows must not post repeated local review actions.')
-      }
-
-      return {
-        ok: true,
-        status: 200,
-        json: async () => ({
-          items: [{
-            ...comment,
-            status: 'responded',
-            approvalState: 'approved',
-            providerCapability: {
-              provider: 'youtube_data_api',
-              automaticReply: true,
-              verified: true,
-              humanGateSatisfied: true,
-              blocker: null,
-              recoveryPath: 'YouTube reply capability verified.',
-            },
-            submittedReplyLocked: true,
-            submittedReplyLockReason: 'Reply already has submitted provider evidence. Local revision is locked so Portfolio does not rewrite or obscure the canonical provider record.',
-          }],
-          summary: { total: 1, new: 0, needs_qa: 0, auto_send_pending: 0, lead: 0, escalated: 0, responded: 1, ignored: 0 },
-          filteredSummary: { total: 1, new: 0, needs_qa: 0, auto_send_pending: 0, lead: 0, escalated: 0, responded: 1, ignored: 0 },
-          alertReliability,
-        }),
-      } as Response
-    })
-    vi.stubGlobal('fetch', fetchMock)
-
-    render(<SocialCommentInboxPage />)
-
-    const lockedButton = await screen.findByRole('button', { name: /^Review Locked$/i })
-    expect(lockedButton).toBeDisabled()
-    expect(screen.getByText('Submitted provider evidence is authoritative; local review controls are locked.')).toBeInTheDocument()
+    const heading=await screen.findByText('Reply sent')
+    expect(heading.parentElement).toHaveClass('border-emerald-500/35')
+    expect(screen.getByText('The provider confirmed this reply.')).toBeInTheDocument()
+    expect(screen.getByRole('link',{name:'View provider thread'})).toHaveAttribute('href',comment.providerPermalink)
+    expect(screen.queryByText('Reply rejected')).not.toBeInTheDocument()
+    expect(screen.queryByText(/while provider evidence is reconciled/i)).not.toBeInTheDocument()
+    expect(screen.queryByRole('button',{name:'Submit'})).not.toBeInTheDocument()
+    expect(screen.queryByRole('button',{name:'Review Locked'})).not.toBeInTheDocument()
+    expect(screen.queryByRole('button',{name:'Revise Reply'})).not.toBeInTheDocument()
     expect(screen.queryByLabelText(/Draft reply/i)).not.toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: /^Approve$/i })).not.toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: /^Reject$/i })).not.toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: /^Ignore$/i })).not.toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /^Submit$/i })).toBeDisabled()
-    fireEvent.click(lockedButton)
-    expect(fetchMock).not.toHaveBeenCalledWith(
-      '/api/admin/social-content/social-1/engagement/comments',
-      expect.objectContaining({ method: 'POST' }),
-    )
-    expect(screen.queryByText(/local action was recorded without changing submitted state/i)).not.toBeInTheDocument()
   })
+
+  it('sends the displayed snapshot for an edited approval and shows fresh text after a stale decision',async()=>{
+    let current={...comment,expectedReplyText:'Canonical previous reply',submittedReplyLocked:false}
+    const posts:Record<string,unknown>[]=[]
+    vi.stubGlobal('fetch',vi.fn(async(_input:RequestInfo|URL,init?:RequestInit)=>{
+      if(init?.method==='POST'){
+        posts.push(JSON.parse(String(init.body)))
+        current={...current,updatedAt:'2026-09-08T12:00:00Z',draftReply:'A newer reply needs your review.',expectedReplyText:'A newer reply needs your review.'}
+        return {ok:false,status:409,json:async()=>({error:'Reply changed. Review the latest reply.',comments:[current]})}
+      }
+      return {ok:true,json:async()=>({items:[current]})}
+    }))
+    render(<SocialCommentInboxPage />)
+    fireEvent.change(await screen.findByLabelText(/Draft reply/i),{target:{value:'The edited reply I reviewed.'}})
+    fireEvent.click(screen.getByRole('button',{name:'Approve'}))
+    expect(await screen.findByDisplayValue('A newer reply needs your review.')).toBeInTheDocument()
+    expect(posts).toEqual([{action:'approve',comment_id:comment.id,expected_updated_at:comment.updatedAt,expected_reply_text:'Canonical previous reply',draft_reply:'The edited reply I reviewed.'}])
+    expect(screen.getByText('Reply changed. Review the latest reply.')).toBeInTheDocument()
+  })
+
+  it('confirms the exact approved reply and locks duplicate actions after an uncertain response',async()=>{
+    let current={...comment,approvalState:'approved',expectedReplyText:comment.draftReply,submittedReplyLocked:false,submittedReplyLockReason:null as string|null,replyReleaseStatus:null as string|null,providerCapability:{...comment.providerCapability,automaticReply:true,verified:true,humanGateSatisfied:true}}
+    const posts:Record<string,unknown>[]=[]
+    vi.stubGlobal('fetch',vi.fn(async(_input:RequestInfo|URL,init?:RequestInit)=>{
+      if(init?.method==='POST'){
+        posts.push(JSON.parse(String(init.body)))
+        current={...current,updatedAt:'2026-09-08T12:01:00Z',submittedReplyLocked:true,replyReleaseStatus:'uncertain',submittedReplyLockReason:'Provider outcome uncertain. Reconcile the reply.'}
+        return {ok:false,status:409,json:async()=>({message:'Provider outcome uncertain. Reconcile the reply.',comments:[current]})}
+      }
+      return {ok:true,json:async()=>({items:[current]})}
+    }))
+    render(<SocialCommentInboxPage />)
+    const editor=await screen.findByLabelText(/Draft reply/i)
+    fireEvent.change(editor,{target:{value:'Unapproved edited text'}})
+    expect(screen.getByRole('button',{name:'Submit'})).toBeDisabled()
+    fireEvent.change(editor,{target:{value:comment.draftReply}})
+    fireEvent.click(screen.getByRole('button',{name:'Submit'}))
+    const dialog=await screen.findByRole('dialog',{name:'Confirm public reply'})
+    expect(dialog).toHaveTextContent(comment.draftReply)
+    expect(dialog).toHaveTextContent(comment.body)
+    expect(dialog).toHaveTextContent('LinkedIn')
+    expect(posts).toHaveLength(0)
+    const send=within(dialog).getByRole('button',{name:'Confirm and send reply'})
+    fireEvent.click(send);fireEvent.click(send)
+    await waitFor(()=>expect(screen.queryByRole('button',{name:'Submit'})).not.toBeInTheDocument())
+    expect(await screen.findByText('Reply outcome uncertain')).toBeInTheDocument()
+    expect(posts).toHaveLength(1)
+    expect(posts[0]).toMatchObject({action:'submit',expected_updated_at:comment.updatedAt,expected_reply_text:comment.draftReply,draft_reply:comment.draftReply})
+    expect(screen.getByRole('button',{name:'Refresh evidence'})).toBeEnabled()
+  })
+
+  it('keeps a lost reply outcome locked when refresh still returns the old row',async()=>{
+    const current={...comment,approvalState:'approved',expectedReplyText:comment.draftReply,submittedReplyLocked:false,providerCapability:{...comment.providerCapability,automaticReply:true,verified:true,humanGateSatisfied:true}}
+    let posts=0
+    vi.stubGlobal('fetch',vi.fn(async(_input:RequestInfo|URL,init?:RequestInit)=>{
+      if(init?.method==='POST'){posts++;throw new Error('Connection ended before provider result')}
+      return {ok:true,json:async()=>({items:[current]})}
+    }))
+    render(<SocialCommentInboxPage />)
+    fireEvent.click(await screen.findByRole('button',{name:'Submit'}))
+    fireEvent.click(await screen.findByRole('button',{name:'Confirm and send reply'}))
+    expect(await screen.findByText('Reply outcome uncertain')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button',{name:'Refresh evidence'}))
+    await waitFor(()=>expect(screen.queryByRole('button',{name:'Submit'})).not.toBeInTheDocument())
+    expect(posts).toBe(1)
+  })
+
+  it('refreshes a stale pre-dispatch submission without inventing an unknown provider outcome',async()=>{
+    let current={...comment,approvalState:'approved',expectedReplyText:comment.draftReply,submittedReplyLocked:false,providerCapability:{...comment.providerCapability,automaticReply:true,verified:true,humanGateSatisfied:true}}
+    let posts=0
+    vi.stubGlobal('fetch',vi.fn(async(_input:RequestInfo|URL,init?:RequestInit)=>{
+      if(init?.method==='POST'){
+        posts++;current={...current,updatedAt:'2026-09-08T12:01:00Z',approvalState:'drafted',draftReply:'Fresh unseen revision.',expectedReplyText:'Fresh unseen revision.'}
+        return {ok:false,status:409,json:async()=>({error:'Review the new reply.',pre_dispatch:true,stale_snapshot:true,reconciliation_required:false,comments:[current]})}
+      }
+      return {ok:true,json:async()=>({items:[current]})}
+    }))
+    render(<SocialCommentInboxPage />)
+    fireEvent.click(await screen.findByRole('button',{name:'Submit'}))
+    fireEvent.click(await screen.findByRole('button',{name:'Confirm and send reply'}))
+    expect(await screen.findByDisplayValue('Fresh unseen revision.')).toBeInTheDocument()
+    expect(screen.getByRole('button',{name:'Approve'})).toBeEnabled()
+    expect(screen.getByRole('button',{name:'Submit'})).toBeDisabled()
+    expect(screen.queryByRole('button',{name:'Review Locked'})).not.toBeInTheDocument()
+    expect(posts).toBe(1)
+  })
+
+  it('shows inline session recovery instead of silently abandoning a review action',async()=>{
+    render(<SocialCommentInboxPage />)
+    const approve=await screen.findByRole('button',{name:'Approve'})
+    vi.mocked(getCurrentSession).mockResolvedValueOnce(null)
+    fireEvent.click(approve)
+    expect(await screen.findByText('Sign in again, then refresh evidence before retrying.')).toBeInTheDocument()
+    expect(screen.getByRole('button',{name:'Refresh evidence'})).toBeEnabled()
+    expect(vi.mocked(fetch).mock.calls.filter(([,init])=>init?.method==='POST')).toHaveLength(0)
+  })
+
+  it.each(['submitting','uncertain'])('keeps %s reply recovery compact',async replyReleaseStatus=>{
+    const locked={...comment,submittedReplyLocked:true,replyReleaseStatus,submittedReplyLockReason:'Refresh provider evidence before another action.'}
+    vi.stubGlobal('fetch',vi.fn(async()=>({ok:true,json:async()=>({items:[locked]})})))
+    render(<SocialCommentInboxPage />)
+    expect(await screen.findByText(replyReleaseStatus==='submitting'?'Reply submitting':'Reply outcome uncertain')).toBeInTheDocument()
+    expect(screen.getAllByText('Refresh provider evidence before another action.')).toHaveLength(1)
+    expect(screen.queryByRole('region',{name:/Reply lifecycle/})).not.toBeInTheDocument()
+    expect(screen.queryByRole('button',{name:'Submit'})).not.toBeInTheDocument()
+    expect(screen.getByRole('button',{name:'Refresh evidence'})).toBeEnabled()
+  })
+
+  it.each([null,'submitted'])('does not infer provider confirmation from responded classification or release status %s',async replyReleaseStatus=>{
+    const recorded={...comment,status:'responded',replyReleaseStatus,submittedReplyLocked:true}
+    vi.stubGlobal('fetch',vi.fn(async()=>({ok:true,json:async()=>({items:[recorded]})})))
+    render(<SocialCommentInboxPage />)
+    const state=await screen.findByText('Response recorded')
+    expect(state.parentElement).toHaveClass('border-border')
+    expect(screen.getByText('Verify the reply on the provider; confirmation is not recorded here.')).toBeInTheDocument()
+    expect(screen.queryByText('Reply sent')).not.toBeInTheDocument()
+    expect(screen.queryByText('The provider confirmed this reply.')).not.toBeInTheDocument()
+    expect(screen.queryByRole('button',{name:'Submit'})).not.toBeInTheDocument()
+  })
+
 })

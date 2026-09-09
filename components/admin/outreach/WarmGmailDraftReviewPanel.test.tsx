@@ -1,4 +1,5 @@
-import { fireEvent, render, screen, within } from '@testing-library/react'
+vi.mock('@/lib/auth', () => ({ getCurrentSession: vi.fn() }))
+import { fireEvent, render, screen, within, waitFor } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import WarmGmailDraftReviewPanel from './WarmGmailDraftReviewPanel'
 import type { RelationshipPacketApiResponse } from './RelationshipPacketPanel'
@@ -146,7 +147,7 @@ describe('WarmGmailDraftReviewPanel', () => {
     )
 
     expect(screen.getByText('Request approval')).toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: /Request send approval/i }))
+    fireEvent.click(screen.getByRole('button', { name: /Prepare review request/i }))
     expect(requestApproval).toHaveBeenCalledWith('queue-1')
 
     rerender(
@@ -209,7 +210,7 @@ describe('WarmGmailDraftReviewPanel', () => {
     )
     expect(within(review).getAllByText('Review decision').length).toBeGreaterThan(1)
     expect(within(review).getAllByText('Authorization decision required').length).toBeGreaterThan(0)
-    expect(within(review).queryByText('Request send approval')).not.toBeInTheDocument()
+    expect(within(review).queryByText('Prepare review request')).not.toBeInTheDocument()
     expect(
       within(review).getAllByText('Approval request recorded in Portfolio. Slack dispatch off. Gmail send off.').length,
     ).toBeGreaterThan(0)
@@ -235,6 +236,21 @@ describe('WarmGmailDraftReviewPanel', () => {
     expect(within(review).getByText('Blocked')).toBeInTheDocument()
     expect(within(review).getByRole('status')).toHaveTextContent('Resolve workflow blocker')
     expect(within(review).queryByRole('button', { name: /Copy draft/i })).not.toBeInTheDocument()
-    expect(within(review).queryByRole('button', { name: /Request send approval/i })).not.toBeInTheDocument()
+    expect(within(review).queryByRole('button', { name: /Prepare review request/i })).not.toBeInTheDocument()
   })
+})
+
+it('replaces rejected planner text through the connected final-copy editor', async () => {
+  const onSaveCopy = vi.fn().mockResolvedValue(undefined)
+  render(<WarmGmailDraftReviewPanel leadName="Ada Operator" leadEmail="ada@example.test" queueId="queue-1" data={{ ...draftData, status: 'rejected', body: 'Draft direction: follow up' }} loading={false} error={null} relationshipPacketData={relationship('draft_only')} onSaveCopy={onSaveCopy} onCopyDraft={vi.fn()} />)
+  expect(screen.queryByRole('button', { name: 'Copy draft' })).not.toBeInTheDocument()
+  expect(screen.getByText('queue-1').closest('details')).not.toHaveAttribute('open')
+  fireEvent.click(screen.getByRole('button', { name: 'Write final copy' }))
+  expect(screen.getByLabelText('Final message')).toHaveValue('')
+  fireEvent.change(screen.getByLabelText('Final message'), { target: { value: 'Draft direction: revise this' } })
+  expect(screen.getByText('Replace planning instructions with recipient-ready copy.')).toBeInTheDocument()
+  fireEvent.change(screen.getByLabelText('Final message'), { target: { value: 'Hi Ada, would Tuesday suit our follow-up?' } })
+  expect(screen.queryByText('Replace planning instructions with recipient-ready copy.')).not.toBeInTheDocument()
+  fireEvent.click(screen.getByRole('button', { name: 'Save and return to review' }))
+  await waitFor(() => expect(onSaveCopy).toHaveBeenCalledWith(draftData.subject, 'Hi Ada, would Tuesday suit our follow-up?'))
 })

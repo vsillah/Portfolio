@@ -23,7 +23,7 @@ const MAGNET_ID = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'
 const USER = { id: 'user-1', email: 'member@example.com' }
 const ADMIN = { id: 'admin-1', email: 'admin@example.com' }
 
-function authRequest(url: string, token = 'valid-token', init: RequestInit = {}) {
+function authRequest(url: string, token = 'valid-token', init: ConstructorParameters<typeof NextRequest>[1] = {}) {
   return new NextRequest(url, {
     ...init,
     headers: {

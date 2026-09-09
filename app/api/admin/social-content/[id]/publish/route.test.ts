@@ -57,12 +57,14 @@ vi.mock('@/lib/social-content-calendar-linkage', () => ({
 }))
 
 import { POST } from './route'
+import { releaseStore, releaseVersion } from '@/lib/social-release-safety.test-fixtures'
+import { socialReleaseFingerprint } from '@/lib/social-release-evidence'
 
 function request(body?: unknown) {
   return new NextRequest('http://localhost/api/admin/social-content/social-1/publish', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
-    body: body === undefined ? undefined : JSON.stringify(body),
+    body: JSON.stringify({ expected_updated_at: releaseVersion, ...(body as object ?? {}) }),
   })
 }
 
@@ -81,6 +83,7 @@ describe('POST /api/admin/social-content/[id]/publish redaction gate', () => {
     mocks.single.mockResolvedValue({
       data: {
         id: 'social-1',
+        updated_at: releaseVersion,
         status: 'approved',
         rag_context: {
           production_assets: {
@@ -115,6 +118,12 @@ describe('POST /api/admin/social-content/[id]/publish redaction gate', () => {
     vi.restoreAllMocks()
   })
 
+  it.each(['stale', '', null])('rejects %s confirmation version before any dispatch', async version => {
+    const response = await POST(request({ platforms: ['linkedin'], expected_updated_at: version }), { params: { id: 'social-1' } })
+    expect(response.status).toBe(409)
+    expect(mocks.publishToLinkedIn).not.toHaveBeenCalled()
+  })
+
   it('blocks publishing while video redaction items are unresolved', async () => {
     const response = await POST(request({ platforms: ['linkedin'] }), { params: { id: 'social-1' } })
 
@@ -127,6 +136,16 @@ describe('POST /api/admin/social-content/[id]/publish redaction gate', () => {
   })
 })
 
+let activePublishStore: ReturnType<typeof releaseStore>
+function mockAdapterResult(mock: ReturnType<typeof vi.fn>, platform: string, result: Record<string, any>) {
+  mock.mockImplementation(async () => {
+    if (result.success) Object.assign(activePublishStore.tables.social_content_publishes.find(row => row.platform === platform)!, {
+      status: result.status ?? 'published', platform_post_id: result.platformPostId ?? 'fixture-id', platform_post_url: result.platformPostUrl,
+    })
+    return result
+  })
+}
+
 function installPublishRouteSupabase({
   item,
   publishes,
@@ -136,27 +155,21 @@ function installPublishRouteSupabase({
   publishes: Array<Record<string, unknown>>
   configs?: Array<Record<string, unknown>>
 }) {
-  const queueSingle = vi.fn().mockResolvedValue({ data: item, error: null })
-  const queueSelectEq = vi.fn(() => ({ single: queueSingle }))
-  const queueSelect = vi.fn(() => ({ eq: queueSelectEq }))
-  const queueUpdateEq = vi.fn().mockResolvedValue({ data: null, error: null })
-  const queueUpdate = vi.fn(() => ({ eq: queueUpdateEq }))
-
-  const publishSelectEq = vi.fn().mockResolvedValue({ data: publishes, error: null })
-  const publishSelect = vi.fn(() => ({ eq: publishSelectEq }))
-  const publishUpdateSecondEq = vi.fn().mockResolvedValue({ data: null, error: null })
-  const publishUpdateFirstEq = vi.fn(() => ({ eq: publishUpdateSecondEq }))
-  const publishUpdate = vi.fn(() => ({ eq: publishUpdateFirstEq }))
-  const configSelect = vi.fn().mockResolvedValue({ data: configs ?? platformConfigsFor(publishes), error: null })
-
+  const current: Record<string, any> = { ...item, updated_at: releaseVersion }
+  const rag = current.rag_context as Record<string, any>
+  if (rag?.platform_submission_gate) rag.platform_submission_gate.approved_fingerprint = socialReleaseFingerprint(current)
+  const store = releaseStore(current)
+  activePublishStore = store
+  store.tables.social_content_publishes = structuredClone(publishes).map((row, i) => ({ id: `pub-${i}`, content_id: item.id, ...row }))
+  store.tables.social_content_config = configs ?? platformConfigsFor(publishes)
+  const queueUpdate = vi.fn()
   mocks.from.mockImplementation((table: string) => {
-    if (table === 'social_content_queue') return { select: queueSelect, update: queueUpdate }
-    if (table === 'social_content_publishes') return { select: publishSelect, update: publishUpdate }
-    if (table === 'social_content_config') return { select: configSelect }
-    return {}
+    const query = store.admin.from(table), update = query.update
+    query.update = (patch: Record<string, unknown>) => { if (table === 'social_content_queue') queueUpdate(patch); return update(patch) }
+    return query
   })
-
   return { queueUpdate }
+
 }
 
 function platformConfigsFor(publishes: Array<Record<string, unknown>>) {
@@ -348,12 +361,12 @@ describe('POST /api/admin/social-content/[id]/publish platform dispatch', () => 
         { platform: 'tiktok', status: 'pending' },
       ],
     })
-    mocks.publishToInstagram.mockResolvedValue({
+    mockAdapterResult(mocks.publishToInstagram, 'instagram', {
       success: true,
       status: 'published',
       platformPostId: 'ig-post-1',
     })
-    mocks.publishToTikTok.mockResolvedValue({
+    mockAdapterResult(mocks.publishToTikTok, 'tiktok', {
       success: true,
       status: 'publishing',
       platformPostId: 'tt-publish-1',
@@ -361,9 +374,9 @@ describe('POST /api/admin/social-content/[id]/publish platform dispatch', () => 
 
     const response = await POST(request({ platforms: ['instagram', 'tiktok'] }), { params: { id: 'social-1' } })
 
-    expect(response.status).toBe(200)
+    expect(response.status).toBe(409)
     const body = await response.json()
-    expect(body.published).toBe(true)
+    expect(body.published).toBe(false)
     expect(mocks.publishToInstagram).toHaveBeenCalledWith(expect.objectContaining({
       contentId: 'social-1',
       imageUrl: 'https://cdn.example.com/image.png',
@@ -373,17 +386,9 @@ describe('POST /api/admin/social-content/[id]/publish platform dispatch', () => 
       contentId: 'social-1',
       videoUrl: 'https://cdn.example.com/video.mp4',
     }))
-    expect(queueUpdate).toHaveBeenCalledWith(expect.objectContaining({
-      status: 'published',
-    }))
-    expect(mocks.syncCampaignCalendarForSocialContent).toHaveBeenCalledWith({
-      admin: { from: mocks.from },
-      socialContentId: 'social-1',
-      event: expect.objectContaining({
-        type: 'published',
-        platforms: ['instagram'],
-      }),
-    })
+    expect(queueUpdate).not.toHaveBeenCalledWith(expect.objectContaining({ status: 'published' }))
+    expect(body.reconciliation_required).toBe(true)
+    expect(mocks.syncCampaignCalendarForSocialContent).not.toHaveBeenCalled()
   })
 
   it('dispatches YouTube publishing with final video metadata', async () => {
@@ -406,7 +411,7 @@ describe('POST /api/admin/social-content/[id]/publish platform dispatch', () => 
         { platform: 'youtube', status: 'pending' },
       ],
     })
-    mocks.publishToYouTube.mockResolvedValue({
+    mockAdapterResult(mocks.publishToYouTube, 'youtube', {
       success: true,
       status: 'published',
       platformPostId: 'youtube-video-1',
@@ -574,7 +579,7 @@ describe('POST /api/admin/social-content/[id]/publish platform dispatch', () => 
         { platform: 'facebook', status: 'pending' },
       ],
     })
-    mocks.publishToFacebook.mockResolvedValue({
+    mockAdapterResult(mocks.publishToFacebook, 'facebook', {
       success: true,
       status: 'published',
       platformPostId: 'facebook-post-1',
@@ -618,7 +623,7 @@ describe('POST /api/admin/social-content/[id]/publish platform dispatch', () => 
         { platform: 'linkedin', status: 'pending' },
       ],
     })
-    mocks.publishToLinkedIn.mockResolvedValue({
+    mockAdapterResult(mocks.publishToLinkedIn, 'linkedin', {
       success: true,
       platformPostId: 'urn:li:share:linkedin-post-1',
       platformPostUrl: 'https://www.linkedin.com/feed/update/urn:li:share:linkedin-post-1/',
@@ -660,7 +665,7 @@ describe('POST /api/admin/social-content/[id]/publish platform dispatch', () => 
         { platform: 'tiktok', status: 'pending' },
       ],
     })
-    mocks.publishToTikTok.mockResolvedValue({
+    mockAdapterResult(mocks.publishToTikTok, 'tiktok', {
       success: true,
       status: 'publishing',
       platformPostId: 'tt-publish-1',
@@ -668,10 +673,11 @@ describe('POST /api/admin/social-content/[id]/publish platform dispatch', () => 
 
     const response = await POST(request({ platforms: ['tiktok'] }), { params: { id: 'social-1' } })
 
-    expect(response.status).toBe(200)
+    expect(response.status).toBe(409)
     const body = await response.json()
     expect(body.published).toBe(false)
-    expect(queueUpdate).not.toHaveBeenCalled()
+    expect(queueUpdate).not.toHaveBeenCalledWith(expect.objectContaining({ status: 'published' }))
+    expect(body.reconciliation_required).toBe(true)
   })
 
   it('dispatches X publishing with approved thread context', async () => {
@@ -697,7 +703,7 @@ describe('POST /api/admin/social-content/[id]/publish platform dispatch', () => 
         { platform: 'x', status: 'pending' },
       ],
     })
-    mocks.publishToX.mockResolvedValue({
+    mockAdapterResult(mocks.publishToX, 'x', {
       success: true,
       platformPostId: 'x-post-1',
       platformPostUrl: 'https://x.com/amadutown/status/x-post-1',

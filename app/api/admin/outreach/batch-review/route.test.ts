@@ -431,10 +431,12 @@ describe('POST /api/admin/outreach/batch-review', () => {
         contact_submission_id: 42,
         channel: 'email',
         status: 'draft',
+        body: '',
         generation_model: 'portfolio-local-planner',
         generation_prompt_summary: 'planned_warm_gmail_draft_intent:no_provider',
         generation_inputs: expect.objectContaining({
           version: 'warm-planned-draft-execution/v1',
+          planning_instructions: expect.stringContaining('Draft direction:'),
           template_key: 'email_follow_up',
           provider_calls_enabled: false,
           gmail_provider_draft_created: false,

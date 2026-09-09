@@ -120,10 +120,10 @@ function envelopeFor(payload: SlackInteractivePayload, value: ReceiptActionValue
   const source = getSlackAgentSource()
   if (value.sourceEnvironment !== source.sourceEnvironment || value.sourceOrigin !== source.sourceOrigin) throw new Error('Receipt source mismatch')
   const minimal: ReceiptActionValue = { action: value.action, sourceEnvironment: value.sourceEnvironment, sourceOrigin: value.sourceOrigin }
-  for (const key of ['schemaVersion', 'approvalId', 'runId', 'workItemId', 'agentKey', 'contentId', 'calendarItemId', 'commentId', 'outreachQueueId', 'messageVersionKey', 'sendQueueIdempotencyKey', 'note'] as const) {
+  for (const key of ['schemaVersion', 'approvalId', 'runId', 'workItemId', 'agentKey', 'contentId', 'calendarItemId', 'commentId', 'expectedUpdatedAt', 'expectedReplyText', 'outreachQueueId', 'messageVersionKey', 'sendQueueIdempotencyKey', 'note'] as const) {
     const item = value[key]
     if (item !== undefined) {
-      if (typeof item !== 'string' || item.length > (key === 'note' ? 3000 : 500) || /xox[baprs]-|hooks\.slack\.com\/|-----BEGIN .*PRIVATE KEY-----/i.test(item)) throw new Error('Unsafe receipt field')
+      if (typeof item !== 'string' || item.length > (key === 'note' ? 3000 : key === 'expectedReplyText' ? 1500 : 500) || /xox[baprs]-|hooks\.slack\.com\/|-----BEGIN .*PRIVATE KEY-----/i.test(item)) throw new Error('Unsafe receipt field')
       minimal[key] = item
     }
   }
@@ -244,7 +244,7 @@ export function patchActionBlocks(blocks: Block[], row: Receipt): Block[] {
       return ['approval.approve', 'approval.reject', 'approval.revision'].includes(String(action)) && candidate.approvalId === target.approvalId
     }
     if (target.action.startsWith('social_comment_reply.')) {
-      return ['social_comment_reply.approve', 'social_comment_reply.reject'].includes(String(action)) && candidate.commentId === target.commentId
+      return ['social_comment_reply.approve', 'social_comment_reply.reject'].includes(String(action)) && candidate.commentId === target.commentId && candidate.expectedUpdatedAt === target.expectedUpdatedAt && candidate.expectedReplyText === target.expectedReplyText
     }
     if (['social_calendar.approve', 'social_calendar.reject', 'social_calendar_draft_handoff.approve', 'social_calendar_draft_handoff.reject'].includes(target.action)) {
       return String(action).split('.')[0] === target.action.split('.')[0] && ['approve', 'reject'].includes(String(action).split('.')[1]) && candidate.calendarItemId === target.calendarItemId

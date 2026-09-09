@@ -39,13 +39,29 @@ describe('PUT /api/admin/social-content/[id]', () => {
     mocks.verifyAdmin.mockResolvedValue({ user: { id: 'admin-1' }, isAdmin: true })
     mocks.isAuthError.mockReturnValue(false)
     mocks.single.mockResolvedValue({
-      data: { id: 'social-1', rag_context: { source: 'agent_ops_social_outreach_goal' } },
+      data: { updated_at: '2026-09-08T12:00:00.000Z', id: 'social-1', rag_context: { source: 'agent_ops_social_outreach_goal' } },
       error: null,
     })
     mocks.select.mockReturnValue({ eq: mocks.eq, single: mocks.single })
-    mocks.eq.mockReturnValue({ select: mocks.select, single: mocks.single })
+    mocks.eq.mockReturnValue({ eq: mocks.eq, select: mocks.select, single: mocks.single })
     mocks.update.mockReturnValue({ eq: mocks.eq })
     mocks.from.mockReturnValue({ update: mocks.update, select: mocks.select })
+  })
+
+  it('blocks non-calendar release metadata erasure before any update', async () => {
+    mocks.single.mockResolvedValueOnce({data:{id:'social-1',updated_at:'2026-09-08T12:00:00.000Z',rag_context:{source:'manual',platform_submission_gate:{status:'submitting'}}},error:null})
+    const response=await PUT(request({rag_context:{platform_submission_gate:null}}) as never,{params:{id:'social-1'}})
+    expect(response.status).toBe(409)
+    expect(mocks.update).not.toHaveBeenCalled()
+  })
+
+  it('preserves non-calendar release authority and uses version CAS', async () => {
+    const gate={status:'approved',approved_fingerprint:'server'}
+    mocks.single.mockResolvedValueOnce({data:{id:'social-1',updated_at:'2026-09-08T12:00:00.000Z',rag_context:{source:'manual',platform_submission_gate:gate}},error:null})
+    const response=await PUT(request({rag_context:{platform_submission_gate:{status:'approved',approved_fingerprint:'forged'}}}) as never,{params:{id:'social-1'}})
+    expect(response.status).toBe(200)
+    expect(mocks.update).toHaveBeenCalledWith({rag_context:{source:'manual',platform_submission_gate:gate}})
+    expect(mocks.eq).toHaveBeenCalledWith('updated_at','2026-09-08T12:00:00.000Z')
   })
 
   it('allows Agent Ops calibration feedback to be saved in rag_context', async () => {
@@ -79,7 +95,7 @@ describe('PUT /api/admin/social-content/[id]', () => {
 
     expect(response.status).toBe(200)
     expect(await response.json()).toEqual({
-      item: { id: 'social-1', rag_context: { source: 'agent_ops_social_outreach_goal' } },
+      item: { updated_at: '2026-09-08T12:00:00.000Z', id: 'social-1', rag_context: { source: 'agent_ops_social_outreach_goal' } },
     })
     expect(mocks.from).toHaveBeenCalledWith('social_content_queue')
     expect(mocks.update).toHaveBeenCalledWith({ rag_context: ragContext })
@@ -98,7 +114,7 @@ describe('PUT /api/admin/social-content/[id]', () => {
 
   it('blocks copy approval when Context is not approved', async () => {
     mocks.single.mockResolvedValueOnce({
-      data: { id: 'social-1', status: 'draft', rag_context: null },
+      data: { updated_at: '2026-09-08T12:00:00.000Z', id: 'social-1', status: 'draft', rag_context: null },
       error: null,
     })
 
@@ -118,6 +134,7 @@ describe('PUT /api/admin/social-content/[id]', () => {
   it('blocks prompt leakage when approving copy through the review gate', async () => {
     mocks.single.mockResolvedValueOnce({
       data: {
+        updated_at: '2026-09-08T12:00:00.000Z',
         id: 'social-1',
         status: 'draft',
         post_text: 'Clean draft before edit.',
@@ -149,6 +166,7 @@ describe('PUT /api/admin/social-content/[id]', () => {
   it('blocks leaked final copy from replacing an already approved item', async () => {
     mocks.single.mockResolvedValueOnce({
       data: {
+        updated_at: '2026-09-08T12:00:00.000Z',
         id: 'social-1',
         status: 'approved',
         post_text: 'Approved clean copy.',
@@ -178,7 +196,7 @@ describe('PUT /api/admin/social-content/[id]', () => {
 
   it('blocks section-gate visual approval when Context is not approved', async () => {
     mocks.single.mockResolvedValueOnce({
-      data: { id: 'social-1', status: 'draft', rag_context: {} },
+      data: { updated_at: '2026-09-08T12:00:00.000Z', id: 'social-1', status: 'draft', rag_context: {} },
       error: null,
     })
 
@@ -203,6 +221,7 @@ describe('PUT /api/admin/social-content/[id]', () => {
 
   it('allows copy approval after Context evidence is present', async () => {
     const currentItem = {
+      updated_at: '2026-09-08T12:00:00.000Z',
       id: 'social-1',
       status: 'draft',
       rag_context: {

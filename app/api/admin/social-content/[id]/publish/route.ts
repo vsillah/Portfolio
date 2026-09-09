@@ -30,17 +30,22 @@ export async function POST(
     const { id } = params
 
     // Optional: allow targeting specific platforms from the request body
+    let expectedUpdatedAt: string
     let targetPlatforms: SocialPlatform[] | undefined
     try {
       const body = await request.json()
+      if (typeof body.expected_updated_at !== 'string' || !body.expected_updated_at) {
+        return NextResponse.json({ error: 'Displayed version is required. Refresh and confirm before submitting.' }, { status: 409 })
+      }
+      expectedUpdatedAt = body.expected_updated_at
       if (body.platforms && Array.isArray(body.platforms)) {
         targetPlatforms = body.platforms
       }
     } catch {
-      // No body or invalid JSON — publish all pending
+      return NextResponse.json({ error: 'Displayed version is required. Refresh and confirm before submitting.' }, { status: 409 })
     }
 
-    const result = await publishSocialContentItem({ admin, id, targetPlatforms })
+    const result = await publishSocialContentItem({ admin, id, targetPlatforms, expectedUpdatedAt })
     return NextResponse.json(result.body, { status: result.status })
   } catch (error) {
     console.error('Error in POST /api/admin/social-content/[id]/publish:', error)

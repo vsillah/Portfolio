@@ -95,6 +95,22 @@ const PROMPT_LEAKAGE_PATTERNS: Array<{
   pattern: RegExp
 }> = [
   {
+    code: 'draft_seed_instruction', label: 'Unconverted draft seed', severity: 'high',
+    pattern: /(?:^|\n)\s*(?:AutoResearch\s+)?draft\s+seed\s*:/i,
+  },
+  {
+    code: 'editorial_brief_field', label: 'Editorial brief field in public copy', severity: 'high',
+    pattern: /\b(?:CTA role|Source boundary)\s*:/i,
+  },
+  {
+    code: 'copy_conversion_instruction', label: 'Agent copy-conversion instruction', severity: 'high',
+    pattern: /\b(?:shaka\/content agents|content agents|agents)\s+must\s+(?:convert|rewrite|turn)\b[^.!?\n]{0,120}\b(?:channel|public|final)\s+copy\b/i,
+  },
+  {
+    code: 'cta_writing_instruction', label: 'CTA writing instruction in final copy', severity: 'high',
+    pattern: /\b(?:conversation\s+)?CTA\s+(?:should|must)\s+(?:ask|invite|encourage|direct)\b/i,
+  },
+  {
     code: 'role_prompt_fragment',
     label: 'Embedded system/developer/user prompt fragment',
     severity: 'high',

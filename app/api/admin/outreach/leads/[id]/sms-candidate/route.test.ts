@@ -71,14 +71,14 @@ function readiness(input: {
       rawPhoneReturned: false,
     },
     relationshipRationale: {
-      status: 'present',
+      status: 'present' as const,
       basis: 'Existing relationship evidence supports review.',
       sourceCount: 2,
       signalCount: 2,
       detail: 'Local relationship evidence supports manual SMS review.',
     },
     consentAndSuppression: {
-      status: state === 'blocked' ? 'blocked' : 'clear_for_manual_review',
+      status: state === 'blocked' ? 'blocked' as const : 'clear_for_manual_review' as const,
       rationale: state === 'blocked'
         ? 'SMS outreach is blocked by suppression state.'
         : 'No suppression blocker is recorded; operator must still confirm appropriateness.',

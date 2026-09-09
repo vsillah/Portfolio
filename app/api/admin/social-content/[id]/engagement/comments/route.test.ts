@@ -143,6 +143,7 @@ const submittedYouTubeCommentRow = {
 
 type TestCommentRow = Record<string, unknown> & { id: string; content_id: string }
 
+let displayedComment: TestCommentRow = commentRow
 function request(body?: Record<string, unknown>) {
   return new Request('http://localhost/api/admin/social-content/social-1/engagement/comments', {
     method: body ? 'POST' : 'GET',
@@ -150,7 +151,7 @@ function request(body?: Record<string, unknown>) {
       authorization: 'Bearer token',
       'content-type': 'application/json',
     },
-    body: body ? JSON.stringify(body) : undefined,
+    body: body ? JSON.stringify({ expected_updated_at: displayedComment.updated_at, expected_reply_text: displayedComment.approved_reply_text || displayedComment.proposed_reply_text || '', ...body }) : undefined,
   })
 }
 
@@ -165,6 +166,7 @@ function installDbMocks(options: {
   canonicalCapability?: Record<string, unknown> | null
 } = {}) {
   const selectedComment = options.comment ?? commentRow
+  displayedComment = selectedComment
   const selectedPost = options.post ?? postRow
   const postSingle = vi.fn().mockResolvedValue({ data: selectedPost, error: null })
   const postEq = vi.fn().mockReturnValue({ single: postSingle })
@@ -187,7 +189,7 @@ function installDbMocks(options: {
       })
     }
     return Promise.resolve({
-      data: options.claimData === undefined ? { id: selectedComment.id } : options.claimData,
+      data: options.claimData === null ? null : { id: selectedComment.id, updated_at: 'claimed-version', ...options.claimData },
       error: null,
     })
   })

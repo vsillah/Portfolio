@@ -311,9 +311,9 @@ describe('SocialContentDetailRoute visual production review', () => {
           updated_at: '2026-08-13T20:01:00.000Z',
         }],
       },
-      headline: 'X submission failed',
-      stateLabel: 'Failed',
-      explanation: /Provider token expired/i,
+      headline: 'Outcome uncertain · reconcile receipts',
+      stateLabel: 'Reconcile',
+      explanation: /Review the recorded result/i,
       waiting: 'Yes - review the failure and recovery action',
       rawStatus: 'failed',
     },
@@ -357,9 +357,9 @@ describe('SocialContentDetailRoute visual production review', () => {
           updated_at: '2026-08-13T20:01:00.000Z',
         }],
       },
-      headline: 'X publication cancelled',
-      stateLabel: 'Cancelled',
-      explanation: /cancelled before provider submission/i,
+      headline: 'Outcome uncertain · reconcile receipts',
+      stateLabel: 'Reconcile',
+      explanation: /Review the recorded result/i,
       waiting: 'No',
       rawStatus: 'skipped',
     },
@@ -2788,11 +2788,157 @@ describe('SocialContentDetailRoute visual production review', () => {
     renderAtStep('copy')
     expect(await screen.findByText('Manual edit needed. No revision worker is connected. Edit the copy above, then return it to review.')).toBeInTheDocument()
     expect(screen.getByText('Feedback: Name the handoff.')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Return to Copy Review' })).toBeDisabled()
+    expect(screen.getByText('Change the copy before returning it to review.')).toBeInTheDocument()
     fireEvent.change(screen.getByDisplayValue('An old hook.'), { target: { value: 'The revised concrete hook.' } })
     fireEvent.click(screen.getByRole('button', { name: 'Return to Copy Review' }))
     await waitFor(() => expect(fetchMock.mock.calls.some(([, init]) => init?.method === 'PUT')).toBe(true))
     const [, init] = fetchMock.mock.calls.find(([, init]) => init?.method === 'PUT')!
     expect(JSON.parse(String(init?.body))).toMatchObject({ expected_copy_version: 'fixture-version', status: 'draft', post_text: 'The revised concrete hook.' })
+  })
+
+  it('locks provider-evidenced calendar copy and links to its platform gate', async () => {
+    const current={...baseItem,status:'draft',copy_revision:{worker:'not_configured',state:'needs_review',current_version:'fixture',release_locked:true}}
+    vi.stubGlobal('fetch',vi.fn(async (input:RequestInfo|URL)=>({ok:true,json:async()=>String(input)==='/api/admin/social-content/social-1'?{item:current}:{items:[],configs:[],references:[]}})))
+    renderAtStep('copy')
+    expect(await screen.findByRole('button',{name:'Copy locked · Review platform gate'})).toBeInTheDocument()
+    expect(screen.queryByRole('button',{name:'Reject'})).not.toBeInTheDocument()
+    expect(screen.getByRole('button',{name:'Approve Copy'})).toBeDisabled()
+    fireEvent.click(screen.getByRole('button',{name:'Copy locked · Review platform gate'}))
+  })
+
+  it('approves the version returned by saving the currently reviewed form', async () => {
+    let current={...baseItem,status:'draft',rag_context:{...baseItem.rag_context,source:'social_content_calendar_authorization',publish_gate:'draft_only'},copy_revision:{worker:'not_configured',state:'needs_review',current_version:'old-version'}}
+    const fetchMock=vi.fn(async(input:RequestInfo|URL,init?:RequestInit)=>{
+      const url=String(input)
+      if(url.endsWith('/approve')){
+        expect(JSON.parse(String(init?.body))).toEqual({expected_copy_version:'saved-version'})
+        current={...current,status:'approved'}
+        return {ok:true,json:async()=>({item:current,publishes:[],publish_triggered:false})}
+      }
+      if(url==='/api/admin/social-content/social-1'){
+        if(init?.method==='PUT')current={...current,copy_revision:{...current.copy_revision,current_version:'saved-version'}}
+        return {ok:true,json:async()=>({item:current})}
+      }
+      return {ok:true,json:async()=>({items:[],configs:[],references:[]})}
+    })
+    vi.stubGlobal('fetch',fetchMock)
+    renderAtStep('copy')
+    fireEvent.click(await screen.findByRole('button',{name:'Approve Copy'}))
+    expect(await screen.findByRole('button',{name:'Copy approved · Review platform gate'})).toBeInTheDocument()
+    expect(fetchMock.mock.calls.filter(([url])=>String(url).endsWith('/approve'))).toHaveLength(1)
+  })
+
+  it('names the missing calendar asset and offers visual recovery on the release gate', async () => {
+    const current={...baseItem,status:'approved',image_url:null,video_url:null,rag_context:{source:'social_content_calendar_authorization',publish_gate:'draft_only',calendar_item_id:'calendar-fixture',campaign_id:'campaign-fixture'},copy_revision:{worker:'not_configured',state:'needs_review',current_version:'fixture'}}
+    vi.stubGlobal('fetch',vi.fn(async (input:RequestInfo|URL)=>({ok:true,json:async()=>String(input)==='/api/admin/social-content/social-1'?{item:current}:{items:[],configs:[],references:[]}})))
+    renderAtStep('submit')
+    expect(await screen.findByText('No linked visual asset. Attach the approved image or video, then review assets and privacy.')).toBeInTheDocument()
+    expect(screen.getByRole('button',{name:'Review assets and privacy'})).toBeEnabled()
+    expect(screen.queryByText('Automatic submit connected')).not.toBeInTheDocument()
+  })
+
+  it('blocks a synthetic instruction seed and offers final-copy editing', async () => {
+    const current={...baseItem,status:'draft',post_text:'AutoResearch draft seed: Review systems need clear ownership.\nCTA role: conversation.\nContent agents must convert this into public copy before approval.',cta_text:'Conversation CTA should ask about the next handoff.',rag_context:{source:'social_content_calendar_authorization',publish_gate:'draft_only',calendar_item_id:'fixture-calendar',campaign_id:'fixture-campaign'},copy_revision:{worker:'not_configured',state:'needs_review',current_version:'fixture'}}
+    vi.stubGlobal('fetch',vi.fn(async(input:RequestInfo|URL)=>({ok:true,json:async()=>String(input)==='/api/admin/social-content/social-1'?{item:current}:{items:[],configs:[],references:[]}})))
+    renderAtStep('copy')
+    expect(await screen.findByRole('button',{name:'Edit final copy'})).toBeInTheDocument()
+    expect(screen.getByRole('button',{name:'Approve Copy'})).toBeDisabled()
+    expect(screen.getByRole('region',{name:'Copy review decision gate'})).toHaveTextContent('Copy needs revision')
+    expect(screen.getByText('Remove internal draft instructions before approval.')).toBeInTheDocument()
+    const disclosure=screen.getByText('About copy approval').closest('details')
+    expect(disclosure).not.toHaveAttribute('open')
+    expect(disclosure).toHaveTextContent('Draft-level approval is')
+    expect(disclosure).toHaveTextContent('This does not publish')
+  })
+
+  it.each(['platform-submission','publish'])('refreshes %s partial-error receipts and removes repeat actions', async endpoint => {
+    let current={...baseItem,updated_at:'2026-09-08T12:00:00Z',rag_context:{source:'manual',...(endpoint==='publish'?{platform_submission_gate:{status:'approved',platforms:['linkedin']}}:{})},publishes:[{id:'receipt',platform:'linkedin',status:'pending',platform_post_url:null as string|null,platform_post_id:null as string|null}],image_url:'https://cdn.example.com/reviewed.png'}
+    let writes=0
+    const fetchMock=vi.fn(async(input:RequestInfo|URL,init?:RequestInit)=>{
+      const url=String(input)
+      if(init?.method==='POST') {
+        writes++
+        expect(JSON.parse(String(init.body))).toMatchObject({platforms:['linkedin'],expected_updated_at:'2026-09-08T12:00:00Z'})
+        current={...current,updated_at:'2026-09-08T12:01:00Z',rag_context:{source:'manual',platform_submission_gate:{status:'uncertain',platforms:['linkedin']}},publishes:[{id:'receipt',platform:'linkedin',status:'failed',platform_post_url:'https://example.com/confirmed',platform_post_id:'confirmed-result'}]}
+        return {ok:false,json:async()=>({error:'Partial provider result',item:current,publishes:current.publishes,reconciliation_required:true,final_approval_recorded:true})}
+      }
+      if(url.endsWith('/config'))return {ok:true,json:async()=>({configs:[{platform:'linkedin',is_active:true,credentials:{access_token:'fixture',author_urn:'fixture'},settings:{}}]})}
+      return {ok:true,json:async()=>url==='/api/admin/social-content/social-1'?{item:current}:{items:[]}}
+    })
+    vi.stubGlobal('fetch',fetchMock)
+    renderAtStep('submit')
+    const action=await screen.findByRole('button',{name:endpoint==='publish'?'Submit to LinkedIn':'Approve & submit'})
+    fireEvent.click(action)
+    const dialog=await screen.findByRole('dialog',{name:'Confirm public submission'})
+    expect(dialog).toHaveTextContent(baseItem.post_text)
+    expect(within(dialog).getByRole('img',{name:'Reviewed release asset'})).toHaveAttribute('src',expect.stringContaining('reviewed.png'))
+    expect(writes).toBe(0)
+    fireEvent.click(within(dialog).getByRole('button',{name:'Confirm and publish'}))
+    await waitFor(()=>expect(screen.queryByRole('button',{name:'Retry'})).not.toBeInTheDocument())
+    await waitFor(()=>expect(screen.queryByRole('button',{name:'Approve & submit'})).not.toBeInTheDocument())
+    expect(await screen.findByRole('link',{name:/View post/i})).toHaveAttribute('href','https://example.com/confirmed')
+    expect(writes).toBe(1)
+    expect(fetchMock.mock.calls.filter(([url,init])=>String(url)==='/api/admin/social-content/social-1'&&!init?.method).length).toBeGreaterThan(1)
+  })
+
+  it('shows confirmed receipts on reload without retrying',async()=>{
+    const current={...baseItem,status:'published',rag_context:{source:'manual',platform_submission_gate:{status:'submitted'}},publishes:[{id:'confirmed',platform:'linkedin',status:'published',platform_post_url:'https://example.com/post',platform_post_id:'confirmed'}]}
+    vi.stubGlobal('fetch',vi.fn(async(input:RequestInfo|URL)=>({ok:true,json:async()=>String(input)==='/api/admin/social-content/social-1'?{item:current}:{items:[],configs:[]}})))
+    renderAtStep('submit')
+    expect(await screen.findByRole('link',{name:/View post/i})).toBeInTheDocument()
+    expect(screen.queryByRole('button',{name:'Retry'})).not.toBeInTheDocument()
+    expect(screen.queryByRole('button',{name:'Approve & submit'})).not.toBeInTheDocument()
+    expect(screen.getAllByText('Post confirmed').length).toBeGreaterThan(0)
+  })
+
+  it.each([true,false])('requires current readiness for remaining-platform approval (configured=%s)',async configured=>{
+    const current={...baseItem,updated_at:'2026-09-08T14:00:00Z',target_platforms:['linkedin','facebook'],rag_context:{source:'manual',platform_submission_gate:{status:'partially_submitted',confirmed_platforms:{linkedin:'confirmed'},platforms:['linkedin']}},publishes:[{id:'li',platform:'linkedin',status:'published',platform_post_id:'confirmed'},{id:'fb',platform:'facebook',status:'pending'}]}
+    vi.stubGlobal('fetch',vi.fn(async(input:RequestInfo|URL)=>({ok:true,json:async()=>String(input).endsWith('/config')?{configs:configured?[{platform:'facebook',is_active:true,credentials:{page_access_token:'fixture',page_id:'fixture'},settings:{}}]:[]}:String(input)==='/api/admin/social-content/social-1'?{item:current}:{items:[]}})))
+    renderAtStep('submit')
+    await screen.findByText('Platform Submission Path')
+    const action=screen.queryByRole('button',{name:'Approve & submit'})
+    if(configured){
+      expect(action).toBeEnabled()
+      fireEvent.click(action!)
+      const dialog=await screen.findByRole('dialog',{name:'Confirm public submission'})
+      expect(dialog).toHaveTextContent('Facebook · Publishes publicly now')
+      expect(dialog).not.toHaveTextContent('LinkedIn · Publishes publicly now')
+    }else expect(action).not.toBeInTheDocument()
+    expect(screen.queryByRole('button',{name:'Submit to Facebook'})).not.toBeInTheDocument()
+    expect(screen.queryByRole('button',{name:'Retry'})).not.toBeInTheDocument()
+  })
+
+  it('keeps an unavailable provider outcome locked even when refresh returns the old row',async()=>{
+    const current={...baseItem,updated_at:'2026-09-08T12:00:00Z',rag_context:{source:'manual',platform_submission_gate:{status:'approved',platforms:['linkedin']}},publishes:[{id:'receipt',platform:'linkedin',status:'pending',platform_post_id:null,platform_post_url:null}]}
+    let writes=0
+    vi.stubGlobal('fetch',vi.fn(async(input:RequestInfo|URL,init?:RequestInit)=>{
+      if(init?.method==='POST'){writes++;throw new Error('Connection ended before outcome')}
+      if(String(input).endsWith('/config'))return {ok:true,json:async()=>({configs:[{platform:'linkedin',is_active:true,credentials:{access_token:'fixture',author_urn:'fixture'},settings:{}}]})}
+      return {ok:true,json:async()=>String(input)==='/api/admin/social-content/social-1'?{item:current}:{items:[],configs:[]}}
+    }))
+    renderAtStep('submit')
+    fireEvent.click(await screen.findByRole('button',{name:'Submit to LinkedIn'}))
+    fireEvent.click(await screen.findByRole('button',{name:'Confirm and publish'}))
+    await waitFor(()=>expect(screen.queryByRole('button',{name:'Submit to LinkedIn'})).not.toBeInTheDocument())
+    expect(await screen.findByRole('button',{name:'Refresh evidence'})).toBeEnabled()
+    expect(screen.getAllByText('Outcome unavailable · reconcile receipts before another attempt').length).toBeGreaterThan(0)
+    expect(writes).toBe(1)
+  })
+
+  it.each(['failed','published','queued','unknown'])('reconciles %s receipts without provider IDs on reload',async status=>{
+    const current={...baseItem,rag_context:{source:'manual'},publishes:[{id:'receipt',platform:'linkedin',status,platform_post_id:null,platform_post_url:null}]}
+    vi.stubGlobal('fetch',vi.fn(async(input:RequestInfo|URL)=>({ok:true,json:async()=>String(input)==='/api/admin/social-content/social-1'?{item:current}:{items:[],configs:[]}})))
+    renderAtStep('status')
+    const card=await screen.findByLabelText('LinkedIn publication status')
+    expect(within(card).getByRole('heading',{name:'Outcome uncertain · reconcile receipts'})).toBeInTheDocument()
+    expect(within(card).queryByText('Post confirmed')).not.toBeInTheDocument()
+    expect(within(card).queryByRole('button',{name:'Retry'})).not.toBeInTheDocument()
+    expect(within(card).getByRole('button',{name:'Refresh evidence'})).toBeEnabled()
+    const details=within(card).getByText('Receipt details').closest('details')
+    expect(details).not.toHaveAttribute('open')
+    expect(details).toHaveTextContent('Owner')
+    expect(details).toHaveTextContent('Waiting on you?')
   })
 
 })

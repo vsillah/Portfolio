@@ -1,3 +1,5 @@
+import { warmFinalCopyFingerprint } from '@/lib/warm-outreach-copy-fingerprint'
+import { warmCopyBlocker, warmCopyEvidenceBlocker } from '@/lib/warm-outreach-copy-quality'
 import { createHash } from 'crypto'
 
 import { mrkdwn, slackButton, truncateSlack, type SlackBlock } from '@/lib/agent-slack-blocks'
@@ -47,11 +49,21 @@ export type WarmGmailSendApprovalSlackPayload = {
 }
 
 type OutreachQueueDecisionRow = {
+  updated_at: string
+  subject: string | null
+  body: string | null
+  contact_submissions: { email: string | null } | null
   id: string
   contact_submission_id: number
   channel: string | null
   status: string | null
   generation_inputs: JsonRecord | null
+}
+
+/** A fresh copy revision needs a fresh card, even when an operator restores earlier wording. */
+export function warmGmailReviewMessageVersionKey(fingerprint: string, generationInputs: Record<string, unknown>) {
+  const revision = stringValue(generationInputs.copy_revision_at)
+  return revision ? `${fingerprint}:review:${stableHash(revision)}` : fingerprint
 }
 
 function stableHash(value: unknown) {
@@ -147,7 +159,7 @@ export function buildWarmGmailSendApprovalSlackPayload(
     sendQueueIdempotencyKey: input.lifecycle.sendQueueIdempotencyKey,
   }
   const warning =
-    'Review the recipient, message, and context, then approve, reject, or request revision. Portfolio records the decision for this recipient and message version; Gmail send execution remains disabled in this phase.'
+    'Review the recipient, message, and context, then approve, reject, or request revision. Portfolio records the decision for this recipient and message version; Gmail sending requires a separate explicit action in Portfolio.'
   const text = `Warm Gmail send approval needed: ${input.recipientLabel}`
   const fields = [
     `*Recipient:*\n${input.recipientLabel}${input.recipientEmail ? ` <${input.recipientEmail}>` : ''}`,
@@ -167,6 +179,7 @@ export function buildWarmGmailSendApprovalSlackPayload(
       type: 'section',
       fields: fields.map((field) => mrkdwn(field)),
     },
+    { type: 'section', text: mrkdwn(`*Reviewed subject:* ${truncateSlack(input.proposedSubject || '(no subject)', 180)}\n*Reviewed copy:*\n${truncateSlack(input.proposedMessage || '', 2200)}\nOpen Portfolio for the complete saved copy.`) },
     {
       type: 'context',
       elements: [
@@ -254,7 +267,7 @@ export async function decideWarmGmailSendAuthorizationFromSlack(input: {
 
   const { data, error } = await supabaseAdmin
     .from('outreach_queue')
-    .select('id, contact_submission_id, channel, status, generation_inputs')
+    .select('id, contact_submission_id, channel, status, subject, body, updated_at, generation_inputs, contact_submissions(email)')
     .eq('id', input.outreachQueueId)
     .maybeSingle()
 
@@ -268,20 +281,21 @@ export async function decideWarmGmailSendAuthorizationFromSlack(input: {
   }
 
   const generationInputs = record(row.generation_inputs)
+  const fingerprint = warmFinalCopyFingerprint(row)
+  const copyBlocker = warmCopyBlocker(row.body) ?? warmCopyEvidenceBlocker(generationInputs)
+  if (row.status !== 'approved' || !row.updated_at || fingerprint !== record(generationInputs.warm_gmail_send_slack_approval_request).final_copy_fingerprint || copyBlocker || generationInputs.copy_revision_requires_provider_reconciliation === true) {
+    throw new Error('Stale Slack card: current approved copy no longer matches. Open Portfolio and request a new review.')
+  }
   const decisionKey = warmGmailSendAuthorizationDecisionKey({
     contactId: input.contactId,
     messageVersionKey: input.messageVersionKey,
   })
   const existing = record(generationInputs.warm_gmail_send_authorization)
-  if (existing.decision_key === decisionKey && typeof existing.status === 'string') {
-    return `Warm Gmail send ${existing.status} was already recorded for this recipient and message version. No Gmail send was called.`
-  }
-  if (stringValue(existing.decision_key) || stringValue(existing.status)) {
-    throw new Error('Existing warm Gmail send authorization is for a different recipient or message version. Open Portfolio and rebuild the Slack approval request.')
-  }
 
   const slackRequest = record(generationInputs.warm_gmail_send_slack_approval_request)
   const requestErrors = [
+    slackRequest.gmail_draft_id === record(generationInputs.gmail_draft_creation).draft_id && stringValue(slackRequest.gmail_draft_id) ? null : 'Mailbox draft identity changed.',
+    slackRequest.final_copy_fingerprint === fingerprint && record(generationInputs.gmail_draft_creation).final_copy_fingerprint === fingerprint ? null : 'Slack request or mailbox draft copy is stale.',
     stringValue(slackRequest.request_key)
       ? null
       : 'Slack send approval request is not recorded for this outreach row.',
@@ -308,7 +322,14 @@ export async function decideWarmGmailSendAuthorizationFromSlack(input: {
     throw new Error(requestErrors[0])
   }
 
-  const decidedAt = new Date().toISOString()
+  if (existing.decision_key === decisionKey && existing.final_copy_fingerprint === fingerprint && typeof existing.status === 'string') {
+    return `Warm Gmail send ${existing.status} was already recorded for this recipient and message version. No Gmail send was called.`
+  }
+  if (stringValue(existing.decision_key) || stringValue(existing.status)) {
+    throw new Error('Existing warm Gmail send authorization is for a different recipient or message version. Open Portfolio and rebuild the Slack approval request.')
+  }
+
+  const decidedAt = new Date(Math.max(Date.now(), Date.parse(row.updated_at) + 1)).toISOString()
   const decision = {
     version: 'warm-outreach-slack-gmail-send-authorization/v1',
     decision_key: decisionKey,
@@ -316,7 +337,12 @@ export async function decideWarmGmailSendAuthorizationFromSlack(input: {
     decision_notes: input.decisionNotes,
     contact_submission_id: input.contactId,
     outreach_queue_id: input.outreachQueueId,
-    message_version_key: input.messageVersionKey,
+    message_version_key: slackRequest.lifecycle_message_version_key,
+    final_copy_fingerprint: fingerprint,
+    recipient_email: row.contact_submissions?.email?.trim().toLowerCase(),
+    channel: 'email',
+    gmail_draft_id: slackRequest.gmail_draft_id,
+    submitted_evidence_key: slackRequest.submitted_evidence_key,
     send_queue_idempotency_key: input.sendQueueIdempotencyKey,
     decided_by_slack_user_id: input.slackUserId,
     decided_by_label: input.actorLabel,
@@ -340,7 +366,7 @@ export async function decideWarmGmailSendAuthorizationFromSlack(input: {
     ? generationInputs.warm_gmail_send_authorization_history
     : []
 
-  const { error: updateError } = await supabaseAdmin
+  const { data: changed, error: updateError } = await supabaseAdmin
     .from('outreach_queue')
     .update({
       generation_inputs: {
@@ -361,8 +387,9 @@ export async function decideWarmGmailSendAuthorizationFromSlack(input: {
       },
       updated_at: decidedAt,
     })
-    .eq('id', row.id)
+    .eq('id', row.id).eq('status', 'approved').eq('updated_at', row.updated_at).select('id')
 
+  if (!updateError && !changed?.length) throw new Error('Stale Slack card: copy changed while recording the decision. No authorization was restored.')
   if (updateError) {
     throw new Error(`Failed to record warm Gmail send authorization: ${updateError.message}`)
   }

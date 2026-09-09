@@ -1,3 +1,4 @@
+import { assertSocialQueueWritable, assertSocialQueuePublicationClear, updateSocialQueueWithVersion, SocialQueueWriteConflict } from '@/lib/social-queue-write'
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { createAgentWorkItem } from '@/lib/agent-work-items'
@@ -81,6 +82,9 @@ export async function POST(
     if (fetchError || !item) {
       return NextResponse.json({ error: 'Content not found' }, { status: 404 })
     }
+
+    assertSocialQueueWritable(item)
+    await assertSocialQueuePublicationClear(admin, item.id)
 
     const itemRecord = asRecord(item)
     const ragContext = asRecord(itemRecord.rag_context)
@@ -187,12 +191,7 @@ export async function POST(
       linkedin_draft_handoff: linkedinDraftHandoff,
     }
 
-    const { data: updated, error: updateError } = await admin
-      .from('social_content_queue')
-      .update({ rag_context: updatedRagContext })
-      .eq('id', id)
-      .select('*')
-      .single()
+    const { data: updated, error: updateError } = await updateSocialQueueWithVersion(admin, item, { rag_context: updatedRagContext })
 
     if (updateError) {
       return NextResponse.json({ error: 'Failed to save LinkedIn draft handoff' }, { status: 500 })
@@ -204,6 +203,7 @@ export async function POST(
       linkedin_draft_handoff: linkedinDraftHandoff,
     })
   } catch (error) {
+    if (error instanceof SocialQueueWriteConflict) return NextResponse.json({ error: error.message }, { status: 409 })
     console.error('Error in POST /api/admin/social-content/[id]/create-linkedin-draft:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
