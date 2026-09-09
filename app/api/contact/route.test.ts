@@ -14,7 +14,7 @@ vi.mock('@/lib/n8n', () => ({
   triggerLeadQualificationWebhook: mocks.triggerLeadQualificationWebhook,
 }))
 
-import { POST } from './route'
+import { GET, POST } from './route'
 
 function makeRequest(body: Record<string, unknown>) {
   return new NextRequest('http://localhost/api/contact', {
@@ -168,5 +168,58 @@ describe('POST /api/contact', () => {
     expect(mocks.triggerLeadQualificationWebhook).toHaveBeenCalledWith(
       expect.objectContaining({ submissionId: '88' }),
     )
+  })
+})
+
+describe('GET /api/contact', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    vi.spyOn(console, 'error').mockImplementation(() => {})
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  function submissionsQuery(result: { data: unknown; error: unknown }) {
+    const limit = vi.fn().mockResolvedValue(result)
+    const order = vi.fn().mockReturnValue({ limit })
+    const select = vi.fn().mockReturnValue({ order })
+    mocks.from.mockReturnValue({ select })
+    return { select, order, limit }
+  }
+
+  it('lists recent submissions without requiring authentication', async () => {
+    const submissions = [
+      { id: 1, email: 'ada@example.com', name: 'Ada', message: 'Need a diagnostic' },
+    ]
+    const query = submissionsQuery({ data: submissions, error: null })
+
+    const response = await GET(new NextRequest('http://localhost/api/contact'))
+
+    expect(response.status).toBe(200)
+    await expect(response.json()).resolves.toEqual({ submissions })
+    expect(mocks.from).toHaveBeenCalledWith('contact_submissions')
+    expect(query.select).toHaveBeenCalledWith('*')
+    expect(query.order).toHaveBeenCalledWith('created_at', { ascending: false })
+    expect(query.limit).toHaveBeenCalledWith(50)
+  })
+
+  it('returns an empty list when there are no submissions', async () => {
+    submissionsQuery({ data: [], error: null })
+
+    const response = await GET(new NextRequest('http://localhost/api/contact'))
+
+    expect(response.status).toBe(200)
+    await expect(response.json()).resolves.toEqual({ submissions: [] })
+  })
+
+  it('returns a generic 500 when the lookup fails', async () => {
+    submissionsQuery({ data: null, error: { message: 'relation missing' } })
+
+    const response = await GET(new NextRequest('http://localhost/api/contact'))
+
+    expect(response.status).toBe(500)
+    await expect(response.json()).resolves.toEqual({ error: 'Failed to fetch submissions' })
   })
 })
