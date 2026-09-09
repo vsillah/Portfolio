@@ -3,6 +3,9 @@ import { supabaseAdmin } from '@/lib/supabase'
 import { triggerLeadQualificationWebhook } from '@/lib/n8n'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 
+import { normalizeSmsPhone, SMS_DISCLOSURE_VERSION, SMS_PHONE_ERROR } from '@/lib/contact-sms-consent'
+import { buildContactSmsEvidence } from '@/lib/contact-sms-evidence'
+
 export const dynamic = 'force-dynamic'
 
 // Map interest area codes to human-readable labels
@@ -55,6 +58,19 @@ export async function POST(request: NextRequest) {
         { error: 'Invalid email address' },
         { status: 400 }
       )
+    }
+
+    if (body.smsConsent !== undefined && typeof body.smsConsent !== 'boolean') {
+      return NextResponse.json({ error: 'SMS consent must be an explicit selection' }, { status: 400 })
+    }
+    const smsSelected = body.smsConsent === true
+    const smsPhone = smsSelected ? normalizeSmsPhone(body.mobilePhone) : null
+    if (smsSelected && !smsPhone) {
+      return NextResponse.json({ error: SMS_PHONE_ERROR, field: 'mobilePhone' }, { status: 400 })
+    }
+    // A stale/tampered browser must review the current disclosure. Never store its version.
+    if (smsSelected && body.smsDisclosureVersion !== SMS_DISCLOSURE_VERSION) {
+      return NextResponse.json({ error: 'Please reload the form and review the current SMS disclosure before selecting consent.' }, { status: 400 })
     }
 
     // Generate interest summary from selected interest areas
@@ -157,6 +173,18 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    if (smsSelected && smsPhone) {
+      const { error: consentError } = await supabaseAdmin
+        .from('contact_sms_consent_evidence')
+        .upsert(buildContactSmsEvidence({
+          email: normalizedEmail, phone: smsPhone, submittedPhone: body.mobilePhone, inquiryId: data.id,
+        }), { onConflict: 'evidence_key', ignoreDuplicates: true })
+      if (consentError) {
+        // Do not log database errors: details can contain phone numbers or consent text.
+        return NextResponse.json({ error: 'Your inquiry was saved, but SMS consent could not be recorded. Please retry, or uncheck SMS consent and submit your inquiry.' }, { status: 503 })
+      }
+    }
+
     // Fire lead qualification webhook asynchronously (don't await)
     // This triggers the n8n workflow for lead enrichment and scoring
     triggerLeadQualificationWebhook({
@@ -183,7 +211,7 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     )
   } catch (error) {
-    console.error('Contact form error:', error)
+    console.error('Contact form processing failed')
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

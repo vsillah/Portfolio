@@ -1,0 +1,21 @@
+{
+  "baseCommit": "f09024bba05a6f9646ddf5937d7c80d5eb68675c",
+  "candidateMatchesExactBaseErrors": true,
+  "errors": [
+    "app/api/admin/outreach/leads/[id]/sms-candidate/route.test.ts(139,7): error TS2322: Type '{ version: string; contactId: string; contactName: string; channel: string; state: \"blocked\" | \"manual_review_required\" | \"manual_ready\"; phoneReadiness: { present: boolean; source: string; provenance: string; rawPhoneReturned: boolean; }; ... 8 more ...; executionBoundary: { ...; }; }' is not assignable to type 'WarmSmsCandidateReadinessInput'.",
+    "  The types of 'relationshipRationale.status' are incompatible between these types.",
+    "    Type 'string' is not assignable to type '\"missing\" | \"present\"'.",
+    "app/api/lead-magnets/[id]/route.test.ts(27,31): error TS2345: Argument of type '{ headers: { append(name: string, value: string): void; delete(name: string): void; get(name: string): string | null; getSetCookie(): string[]; has(name: string): boolean; ... 6 more ...; authorization: string; } | { ...; } | { ...; }; ... 13 more ...; next?: NextFetchRequestConfig | undefined; }' is not assignable to parameter of type 'RequestInit'.",
+    "  Types of property 'signal' are incompatible.",
+    "    Type 'AbortSignal | null | undefined' is not assignable to type 'AbortSignal | undefined'.",
+    "      Type 'null' is not assignable to type 'AbortSignal | undefined'.",
+    "app/api/lead-magnets/route.test.ts(26,31): error TS2345: Argument of type 'RequestInit' is not assignable to parameter of type 'import(\"/Users/vambahsillah/Projects/Portfolio/node_modules/next/dist/server/web/spec-extension/request\").RequestInit'.",
+    "  Types of property 'signal' are incompatible.",
+    "    Type 'AbortSignal | null | undefined' is not assignable to type 'AbortSignal | undefined'.",
+    "      Type 'null' is not assignable to type 'AbortSignal | undefined'.",
+    "lib/social-comment-inbox-ui.test.ts(37,3): error TS2322: Type '{ id: string; socialContentId: string; platform: SocialPlatform; providerCommentId: string | null; providerPermalink: string | null; authorDisplayName: string; ... 14 more ...; postExcerpt: string; }' is not assignable to type 'SocialCommentInboxItem'.",
+    "  Types of property 'submittedReplyLocked' are incompatible.",
+    "    Type 'boolean | undefined' is not assignable to type 'boolean'.",
+    "      Type 'undefined' is not assignable to type 'boolean'."
+  ]
+}

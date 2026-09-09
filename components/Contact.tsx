@@ -1,9 +1,10 @@
 'use client'
 
+import { normalizeSmsPhone, SMS_DISCLOSURE, SMS_DISCLOSURE_VERSION, SMS_PHONE_ERROR } from '@/lib/contact-sms-consent'
 import Image from 'next/image'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Mail, Github, Linkedin, Send, Music, BookOpen, ArrowRight, MessageCircle, FileText } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { analytics } from '@/lib/analytics'
 import { MagneticButton } from './ui/MagneticButton'
 import { Chat } from './chat'
@@ -68,10 +69,18 @@ export default function Contact() {
     interestAreas: [] as string[],
     isDecisionMaker: false,
     message: '',
+    mobilePhone: '',
+    smsConsent: false,
   })
+  const [phoneError, setPhoneError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle')
   const [statusMessage, setStatusMessage] = useState('')
+  const statusRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (statusMessage) statusRef.current?.focus()
+  }, [statusMessage])
 
   useEffect(() => {
     analytics.contactFormView()
@@ -79,13 +88,21 @@ export default function Contact() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setIsSubmitting(true)
     setSubmitStatus('idle')
     setStatusMessage('')
+    setPhoneError('')
+    if (formData.smsConsent && !normalizeSmsPhone(formData.mobilePhone)) {
+      setPhoneError(SMS_PHONE_ERROR)
+      document.getElementById('contact-mobile-phone')?.focus()
+      return
+    }
+    setIsSubmitting(true)
 
     // Normalize URLs before submission
     const normalizedData = {
       ...formData,
+      mobilePhone: formData.smsConsent ? formData.mobilePhone : undefined,
+      smsDisclosureVersion: formData.smsConsent ? SMS_DISCLOSURE_VERSION : undefined,
       companyDomain: formData.companyDomain ? normalizeUrl(formData.companyDomain) : '',
       linkedinUrl: formData.linkedinUrl ? normalizeUrl(formData.linkedinUrl) : '',
     }
@@ -102,31 +119,28 @@ export default function Contact() {
       const result = await response.json()
 
       if (!response.ok) {
+        if (result.field === 'mobilePhone') {
+          setPhoneError(result.error)
+          document.getElementById('contact-mobile-phone')?.focus()
+        }
         throw new Error(result.error || 'Failed to send message')
       }
 
       setSubmitStatus('success')
-      setStatusMessage('Message sent successfully! I\'ll get back to you soon.')
+      setStatusMessage(formData.smsConsent
+        ? 'Inquiry received. Your SMS consent was recorded for review. This does not start text messages or change an existing opt-out.'
+        : 'Message sent successfully! I\'ll get back to you soon.')
       analytics.contactFormSubmit()
-      setFormData({ name: '', email: '', company: '', companyDomain: '', linkedinUrl: '', annualRevenue: '', interestAreas: [], isDecisionMaker: false, message: '' })
-      
-      setTimeout(() => {
-        setSubmitStatus('idle')
-        setStatusMessage('')
-      }, 5000)
+      setFormData({ name: '', email: '', company: '', companyDomain: '', linkedinUrl: '', annualRevenue: '', interestAreas: [], isDecisionMaker: false, message: '', mobilePhone: '', smsConsent: false })
+
     } catch (error) {
-      console.error('Error submitting form:', error)
       setSubmitStatus('error')
       setStatusMessage(
-        error instanceof Error 
-          ? error.message 
+        error instanceof Error
+          ? error.message
           : 'Failed to send message. Please try again or email me directly at vambah@amadutown.com'
       )
-      
-      setTimeout(() => {
-        setSubmitStatus('idle')
-        setStatusMessage('')
-      }, 5000)
+
     } finally {
       setIsSubmitting(false)
     }
@@ -149,7 +163,7 @@ export default function Contact() {
             <span className="italic text-radiant-gold">Contact</span>
           </h2>
           <p className="font-body text-muted-foreground/90 text-lg max-w-2xl mx-auto leading-relaxed">
-            Whether you have a specific inquiry or just want to explore possibilities, 
+            Whether you have a specific inquiry or just want to explore possibilities,
             I&apos;m here to bridge the gap between your vision and reality.
           </p>
         </div>
@@ -172,7 +186,7 @@ export default function Contact() {
                 />
               </div>
               {/* Subtle glow behind photo */}
-              <div 
+              <div
                 className="absolute inset-0 -z-10 blur-2xl opacity-30"
                 style={{ background: 'radial-gradient(circle, rgba(212,175,55,0.4) 0%, transparent 70%)' }}
               />
@@ -246,7 +260,7 @@ export default function Contact() {
                   exit={{ opacity: 0, y: -10 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <Chat 
+                  <Chat
                     visitorEmail={formData.email || undefined}
                     visitorName={formData.name || undefined}
                   />
@@ -259,26 +273,14 @@ export default function Contact() {
                   exit={{ opacity: 0, y: -10 }}
                   transition={{ duration: 0.2 }}
                   onSubmit={handleSubmit}
-                  className="glass-card p-10 border-radiant-gold/10 space-y-8"
+                  className="glass-card p-5 sm:p-8 lg:p-10 border-radiant-gold/10 space-y-8"
                 >
-                  {/* Status Message */}
-                  {statusMessage && (
-                    <div
-                      className={`p-4 rounded-lg text-sm font-body animate-fade-in ${
-                        submitStatus === 'success' 
-                          ? 'bg-radiant-gold/10 border border-radiant-gold/20 text-radiant-gold' 
-                          : 'bg-red-500/10 border border-red-500/20 text-red-400'
-                      }`}
-                    >
-                      {statusMessage}
-                    </div>
-                  )}
-
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
                     <div className="space-y-2">
-                      <label className="text-[10px] font-heading tracking-widest text-muted-foreground/80 uppercase">Name</label>
+                      <label htmlFor="contact-name" className="text-[10px] font-heading tracking-widest text-muted-foreground/80 uppercase">Name</label>
                       <input
                         type="text"
+                        id="contact-name"
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                         required
@@ -287,9 +289,10 @@ export default function Contact() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-[10px] font-heading tracking-widest text-muted-foreground/80 uppercase">Email</label>
+                      <label htmlFor="contact-email" className="text-[10px] font-heading tracking-widest text-muted-foreground/80 uppercase">Email</label>
                       <input
                         type="email"
+                        id="contact-email"
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                         required
@@ -301,9 +304,10 @@ export default function Contact() {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
                     <div className="space-y-2">
-                      <label className="text-[10px] font-heading tracking-widest text-muted-foreground/80 uppercase">Company / Organization</label>
+                      <label htmlFor="contact-company" className="text-[10px] font-heading tracking-widest text-muted-foreground/80 uppercase">Company / Organization</label>
                       <input
                         type="text"
+                        id="contact-company"
                         value={formData.company}
                         onChange={(e) => setFormData({ ...formData, company: e.target.value })}
                         className="w-full bg-transparent border-b border-foreground/10 py-2 font-body text-foreground focus:outline-none focus:border-radiant-gold transition-colors placeholder:text-muted-foreground/40"
@@ -311,9 +315,10 @@ export default function Contact() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-[10px] font-heading tracking-widest text-muted-foreground/80 uppercase">Company Domain</label>
+                      <label htmlFor="contact-companyDomain" className="text-[10px] font-heading tracking-widest text-muted-foreground/80 uppercase">Company Domain</label>
                       <input
                         type="text"
+                        id="contact-companyDomain"
                         value={formData.companyDomain}
                         onChange={(e) => setFormData({ ...formData, companyDomain: e.target.value })}
                         onBlur={(e) => {
@@ -329,9 +334,10 @@ export default function Contact() {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
                     <div className="space-y-2">
-                      <label className="text-[10px] font-heading tracking-widest text-muted-foreground/80 uppercase">LinkedIn Profile URL</label>
+                      <label htmlFor="contact-linkedinUrl" className="text-[10px] font-heading tracking-widest text-muted-foreground/80 uppercase">LinkedIn Profile URL</label>
                       <input
                         type="url"
+                        id="contact-linkedinUrl"
                         value={formData.linkedinUrl}
                         onChange={(e) => setFormData({ ...formData, linkedinUrl: e.target.value })}
                         onBlur={(e) => {
@@ -344,8 +350,9 @@ export default function Contact() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-[10px] font-heading tracking-widest text-muted-foreground/80 uppercase">Annual Revenue</label>
+                      <label htmlFor="contact-annualRevenue" className="text-[10px] font-heading tracking-widest text-muted-foreground/80 uppercase">Annual Revenue</label>
                       <select
+                        id="contact-annualRevenue"
                         value={formData.annualRevenue}
                         onChange={(e) => setFormData({ ...formData, annualRevenue: e.target.value })}
                         className="w-full bg-transparent border-b border-foreground/10 py-2 font-body text-foreground focus:outline-none focus:border-radiant-gold transition-colors [&>option]:bg-background [&>option]:text-foreground"
@@ -400,7 +407,7 @@ export default function Contact() {
                         </svg>
                       )}
                     </button>
-                    <label 
+                    <label
                       onClick={() => setFormData({ ...formData, isDecisionMaker: !formData.isDecisionMaker })}
                       className="text-[10px] font-heading tracking-widest text-muted-foreground uppercase cursor-pointer"
                     >
@@ -409,8 +416,9 @@ export default function Contact() {
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-[10px] font-heading tracking-widest text-muted-foreground/80 uppercase">Message</label>
+                    <label htmlFor="contact-message" className="text-[10px] font-heading tracking-widest text-muted-foreground/80 uppercase">Message</label>
                     <textarea
+                      id="contact-message"
                       value={formData.message}
                       onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                       required
@@ -419,6 +427,52 @@ export default function Contact() {
                       placeholder="What are you envisioning?"
                     />
                   </div>
+
+                  <fieldset className="min-w-0 space-y-4 rounded-xl border border-foreground/15 p-4 sm:p-5">
+                    <legend className="px-2 text-base font-semibold">Optional SMS updates</legend>
+                    <p id="contact-phone-help" className="text-sm leading-6 text-muted-foreground">
+                      You can send your inquiry without a phone number or SMS consent. Use a number you control.
+                      Numbers entered here are saved only when you select SMS consent.
+                    </p>
+                    <div className="space-y-2">
+                      <label htmlFor="contact-mobile-phone" className="block text-sm font-medium">Mobile phone (optional)</label>
+                      <input id="contact-mobile-phone" type="tel" autoComplete="tel" inputMode="tel" maxLength={40}
+                        value={formData.mobilePhone}
+                        onChange={(e) => { setFormData({ ...formData, mobilePhone: e.target.value }); setPhoneError('') }}
+                        aria-invalid={Boolean(phoneError)} aria-describedby={`contact-phone-help${phoneError ? ' contact-phone-error' : ''}`}
+                        className="w-full min-w-0 rounded-md border border-foreground/25 bg-transparent px-3 py-3 text-base focus:outline-none focus:ring-2 focus:ring-radiant-gold"
+                        placeholder="+1 202 555 0123" />
+                      {phoneError && <p id="contact-phone-error" role="alert" className="text-sm leading-6 text-red-700 dark:text-red-400">{phoneError}</p>}
+                    </div>
+                    <label className="flex items-start gap-3 cursor-pointer">
+                      <input type="checkbox" checked={formData.smsConsent}
+                        onChange={(e) => { setFormData({ ...formData, smsConsent: e.target.checked }); setPhoneError('') }}
+                        className="mt-1 h-5 w-5 shrink-0 accent-radiant-gold focus:ring-2 focus:ring-radiant-gold" />
+                      <span className="text-sm leading-6 text-foreground">{SMS_DISCLOSURE}</span>
+                    </label>
+                    <p className="flex flex-wrap gap-x-4 gap-y-2 text-sm">
+                      <a href="/legal/privacy" className="underline underline-offset-4">Privacy Policy</a>
+                      <a href="/legal/terms#sms" className="underline underline-offset-4">SMS Terms</a>
+                    </p>
+                    <p className="text-sm leading-6 text-muted-foreground">SMS updates are not active yet. Submitting consent does not start messages or reverse an earlier opt-out.</p>
+                  </fieldset>
+
+                  {/* Status Message */}
+                  {statusMessage && (
+                    <div
+                      ref={statusRef}
+                      tabIndex={-1}
+                      role="status"
+                      aria-live="polite"
+                      className={`p-4 rounded-lg text-sm font-body animate-fade-in ${
+                        submitStatus === 'success'
+                          ? 'bg-radiant-gold/10 border border-radiant-gold/20 text-[#755315] dark:text-radiant-gold'
+                          : 'bg-red-500/10 border border-red-500/20 text-red-700 dark:text-red-400'
+                      }`}
+                    >
+                      {statusMessage}
+                    </div>
+                  )}
 
                   <button
                     type="submit"

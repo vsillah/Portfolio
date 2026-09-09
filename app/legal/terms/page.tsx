@@ -4,10 +4,18 @@ import Navigation from '@/components/Navigation'
 
 export const metadata: Metadata = {
   title: 'Terms of Service | AmaduTown',
-  description: 'Terms for using AmaduTown Portfolio social publishing workflows.',
+  description: 'Terms for using AmaduTown Portfolio social publishing workflows and optional SMS communications.',
 }
 
 const terms = [
+  {
+    title: 'AmaduTown SMS program',
+    body: 'AmaduTown Advisory Solutions LLC offers optional low-volume marketing and customer-care texts about business and technology consulting and AI automation services, including automated messages. Participation is not required to buy a product or service. Message frequency varies, and your carrier’s message and data rates may apply. Only opt into this program using a number you control.',
+  },
+  {
+    title: 'SMS availability and your choices',
+    body: 'SMS updates are not active yet. This form records your consent for review; it does not start messages, confirm phone ownership, or reverse an earlier opt-out. Once messaging is available, reply STOP to unsubscribe or HELP for assistance. You may also contact vambah@amadutown.com for help or to withdraw your request. Carriers are not responsible for delayed or undelivered messages.',
+  },
   {
     title: 'Use of Portfolio',
     body: 'Portfolio is used to plan, review, approve, schedule, publish, and audit AmaduTown content. Users are responsible for ensuring that content, media, permissions, and connected accounts are approved before external publishing.',
@@ -39,23 +47,23 @@ export default function TermsPage() {
           <Link href="/" className="text-sm font-semibold uppercase tracking-[0.2em] text-radiant-gold">
             AmaduTown
           </Link>
-          <h1 className="mt-6 text-4xl font-bold tracking-normal text-white">Terms of Service</h1>
+          <h1 className="mt-6 text-4xl font-bold tracking-normal text-foreground">Terms of Service</h1>
           <p className="mt-4 text-lg leading-8 text-muted-foreground">
-            These terms apply to AmaduTown Portfolio social publishing and content operations.
+            These terms apply to AmaduTown Portfolio social publishing, content operations, and optional SMS communications.
           </p>
-          <p className="mt-3 text-sm text-muted-foreground">Last updated: August 6, 2026</p>
+          <p className="mt-3 text-sm text-muted-foreground">Last updated: September 9, 2026</p>
 
           <div className="mt-10 space-y-8 rounded-2xl border border-radiant-gold/15 bg-silicon-slate/25 p-6 sm:p-8">
             {terms.map((term) => (
-              <section key={term.title}>
-                <h2 className="text-xl font-semibold text-white">{term.title}</h2>
+              <section key={term.title} id={term.title === 'AmaduTown SMS program' ? 'sms' : undefined} className="scroll-mt-28">
+                <h2 className="text-xl font-semibold text-foreground">{term.title}</h2>
                 <p className="mt-3 leading-7 text-muted-foreground">{term.body}</p>
               </section>
             ))}
           </div>
 
           <p className="mt-8 text-sm text-muted-foreground">
-            Questions can be sent to{' '}
+            Our <Link href="/legal/privacy" className="underline underline-offset-4">Privacy Policy</Link> explains how we handle mobile information and consent records. Questions can be sent to{' '}
             <a className="text-radiant-gold underline-offset-4 hover:underline" href="mailto:vambah@amadutown.com">
               vambah@amadutown.com
             </a>
