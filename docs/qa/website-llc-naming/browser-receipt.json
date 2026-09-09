@@ -1,0 +1,697 @@
+{
+  "approvedParent": "10885ad25723127bf52db800519a00544cf6a0fa",
+  "disclosureVersion": "amadutown-sms-2026-09-09-v2",
+  "base": "http://127.0.0.1:3199",
+  "source": "/#contact > Send Message",
+  "persistence": "real Next contact API against loopback-only synthetic PostgREST mock; unchanged migration already isolated-validated in ../sms-consent-policy/migration-receipt.json",
+  "checks": [
+    {
+      "surface": "Contact > Send Message",
+      "width": 1440,
+      "noHorizontalOverflow": true
+    },
+    {
+      "width": 1440,
+      "flows": [
+        "unchecked/no phone",
+        "phone without consent discarded",
+        "checked/no phone inline error",
+        "malformed phone error",
+        "keyboard checkbox",
+        "persistence failure/retry",
+        "checked success pending only",
+        "repeated submission deduplicated",
+        "unchecked does not revoke"
+      ]
+    },
+    {
+      "surface": "/legal/privacy",
+      "width": 1440,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/legal/terms#sms",
+      "width": 1440,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/legal/data-deletion",
+      "width": 1440,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/auth/login",
+      "width": 1440,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/auth/signup",
+      "width": 1440,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/help",
+      "width": 1440,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/store",
+      "width": 1440,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/checkout",
+      "width": 1440,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/purchases",
+      "width": 1440,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/pricing",
+      "width": 1440,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/pricing / Mid-Market (50-500)",
+      "width": 1440,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/pricing / Nonprofit / Education",
+      "width": 1440,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/pricing / Small Business (1-50)",
+      "width": 1440,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/pricing",
+      "width": 1440,
+      "allThreeSegmentsInteractive": true
+    },
+    {
+      "surface": "/pricing/methodology",
+      "width": 1440,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/client/dashboard/synthetic-missing",
+      "width": 1440,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/checkout",
+      "width": 1440,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/admin/social-content/naming-qa?step=copy",
+      "width": 1440,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "Contact > Send Message",
+      "width": 390,
+      "noHorizontalOverflow": true
+    },
+    {
+      "width": 390,
+      "flows": [
+        "unchecked/no phone",
+        "phone without consent discarded",
+        "checked/no phone inline error",
+        "malformed phone error",
+        "keyboard checkbox",
+        "persistence failure/retry",
+        "checked success pending only",
+        "repeated submission deduplicated",
+        "unchecked does not revoke"
+      ]
+    },
+    {
+      "surface": "/legal/privacy",
+      "width": 390,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/legal/terms#sms",
+      "width": 390,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/legal/data-deletion",
+      "width": 390,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/auth/login",
+      "width": 390,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/auth/signup",
+      "width": 390,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/help",
+      "width": 390,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/store",
+      "width": 390,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/checkout",
+      "width": 390,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/purchases",
+      "width": 390,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/pricing",
+      "width": 390,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/pricing / Mid-Market (50-500)",
+      "width": 390,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/pricing / Nonprofit / Education",
+      "width": 390,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/pricing / Small Business (1-50)",
+      "width": 390,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/pricing",
+      "width": 390,
+      "allThreeSegmentsInteractive": true
+    },
+    {
+      "surface": "/pricing/methodology",
+      "width": 390,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/client/dashboard/synthetic-missing",
+      "width": 390,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/checkout",
+      "width": 390,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/admin/social-content/naming-qa?step=copy",
+      "width": 390,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "Contact > Send Message",
+      "width": 360,
+      "noHorizontalOverflow": true
+    },
+    {
+      "width": 360,
+      "flows": [
+        "unchecked/no phone",
+        "phone without consent discarded",
+        "checked/no phone inline error",
+        "malformed phone error",
+        "keyboard checkbox",
+        "persistence failure/retry",
+        "checked success pending only",
+        "repeated submission deduplicated",
+        "unchecked does not revoke"
+      ]
+    },
+    {
+      "surface": "/legal/privacy",
+      "width": 360,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/legal/terms#sms",
+      "width": 360,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/legal/data-deletion",
+      "width": 360,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/auth/login",
+      "width": 360,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/auth/signup",
+      "width": 360,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/help",
+      "width": 360,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/store",
+      "width": 360,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/checkout",
+      "width": 360,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/purchases",
+      "width": 360,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/pricing",
+      "width": 360,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/pricing / Mid-Market (50-500)",
+      "width": 360,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/pricing / Nonprofit / Education",
+      "width": 360,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/pricing / Small Business (1-50)",
+      "width": 360,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/pricing",
+      "width": 360,
+      "allThreeSegmentsInteractive": true
+    },
+    {
+      "surface": "/pricing/methodology",
+      "width": 360,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/client/dashboard/synthetic-missing",
+      "width": 360,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/checkout",
+      "width": 360,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/admin/social-content/naming-qa?step=copy",
+      "width": 360,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "Contact > Send Message",
+      "width": 768,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/legal/privacy",
+      "width": 768,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/legal/terms#sms",
+      "width": 768,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/legal/data-deletion",
+      "width": 768,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/auth/login",
+      "width": 768,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/auth/signup",
+      "width": 768,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/help",
+      "width": 768,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/store",
+      "width": 768,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/checkout",
+      "width": 768,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/purchases",
+      "width": 768,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/pricing",
+      "width": 768,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/pricing / Mid-Market (50-500)",
+      "width": 768,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/pricing / Nonprofit / Education",
+      "width": 768,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/pricing / Small Business (1-50)",
+      "width": 768,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/pricing",
+      "width": 768,
+      "allThreeSegmentsInteractive": true
+    },
+    {
+      "surface": "/pricing/methodology",
+      "width": 768,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/client/dashboard/synthetic-missing",
+      "width": 768,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/checkout",
+      "width": 768,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/admin/social-content/naming-qa?step=copy",
+      "width": 768,
+      "noHorizontalOverflow": true
+    }
+  ],
+  "inquiryWrites": 15,
+  "evidenceAttempts": 9,
+  "retainedEvidenceCount": 1,
+  "allEvidencePending": true,
+  "browserPageErrors": [],
+  "blockedExternalAttempts": [
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    }
+  ],
+  "serverBlockedAttempts": [],
+  "externalRequests": [],
+  "boundaries": "No live database, inquiry, credentials, provider or outbound messaging. Receipt covers this controlled recording run."
+}

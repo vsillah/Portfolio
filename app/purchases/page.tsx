@@ -25,7 +25,7 @@ const FULFILLMENT_LABELS: Record<string, string> = {
   cancelled: 'Cancelled',
 }
 
-const VENDOR_NAME = 'Amadutown'
+const VENDOR_NAME = 'AmaduTown, LLC'
 
 /** Shipping address stored on order (e.g. for merchandise) */
 interface ShippingAddress {

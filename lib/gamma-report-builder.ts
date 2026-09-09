@@ -1198,7 +1198,7 @@ function buildValueQuantificationPrompt(
 # WHY THIS ANALYSIS MATTERS
 ## Every Recommendation Has a Measurable Financial Impact
 
-This analysis quantifies the opportunity using Amadutown's standardized value calculation engine — the same methodology used across all client engagements, ensuring consistency, auditability, and apples-to-apples comparison.
+This analysis quantifies the opportunity using AmaduTown, LLC's standardized value calculation engine — the same methodology used across all client engagements, ensuring consistency, auditability, and apples-to-apples comparison.
 
 **What We Calculated:** ${statements.length} pain points from the audit and site analysis, each mapped to one of ATAS's five evidence-based calculation methods.
 
@@ -1699,7 +1699,7 @@ Social media activation, donor/engagement automation, merch store launch, partne
 
   // --- Slide 18: Why ATAS ---
   sections.push(`
-# Why Amadutown Advisory Solutions
+# Why AmaduTown Advisory Solutions, LLC
 
 ATAS was built for exactly this kind of engagement — serving mission-driven nonprofits and minority-owned businesses with AI consulting, automation, and strategic systems that create lasting impact.
 
@@ -2033,7 +2033,7 @@ function buildCoverSlide(title: string, orgName: string, subtitle?: string): str
     '',
   ]
   if (subtitle) lines.push(subtitle, '')
-  lines.push(`Prepared by: Amadutown Advisory Solutions`, `Date: ${date}`)
+  lines.push(`Prepared by: AmaduTown Advisory Solutions, LLC`, `Date: ${date}`)
   return lines.join('\n')
 }
 
@@ -2057,7 +2057,7 @@ function buildLetsTalkSlide(
     '',
     pressureTestQuestion,
     '',
-    `AmaduTown Advisory Solutions helps nonprofits and minority-owned businesses put AI to work — with **honest strategy**, **automation we actually ship**, and **tools built to run without us**.`,
+    `AmaduTown Advisory Solutions, LLC helps nonprofits and minority-owned businesses put AI to work — with **honest strategy**, **automation we actually ship**, and **tools built to run without us**.`,
     '',
     `📅 **Book a ${calendlyEvent.label}**`,
     `${calendlyEvent.duration}. ${calendlyEvent.blurb}`,
@@ -2580,7 +2580,7 @@ function buildOfferPresentationPrompt(
   ) + `\n\n${formatPresenterNote(openingNotes)}`)
 
   // --- Slide 2: About ATAS (opening) ---
-  sections.push(`# About Amadutown Advisory Solutions
+  sections.push(`# About AmaduTown Advisory Solutions, LLC
 
 **Mission:** Technology as the great equalizer for minority-owned businesses and nonprofits.
 

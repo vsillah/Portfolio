@@ -701,7 +701,7 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(screen.getByLabelText('Revision feedback for Shaka')).not.toBeDisabled()
     expect(screen.getByRole('button', { name: /Add Feedback/i })).toBeDisabled()
     expect(screen.getByDisplayValue('The draft copy is approved and should stay locked.')).toBeDisabled()
-    expect(screen.getByText('AmaduTown')).toBeInTheDocument()
+    expect(screen.getByText('AmaduTown, LLC')).toBeInTheDocument()
     expect(screen.queryByText('Amadou Town')).not.toBeInTheDocument()
     const copyEditor = screen.getByText('Post Text').closest('#social-copy-editor')
     expect(copyEditor).toBeTruthy()

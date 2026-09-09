@@ -2152,7 +2152,7 @@ function buildRealRecipientGmailRolloutReadiness(args: {
         : 'Reconnect or verify Gmail provider readiness before asking for real-recipient approval.',
       senderDetail:
         senderState === 'matched'
-          ? 'Tracked draft sender matches the required AmaduTown sender.'
+          ? 'Tracked draft sender matches the required AmaduTown, LLC sender.'
           : senderState === 'missing'
             ? 'Sender identity must be recorded on the tracked Gmail draft evidence.'
             : 'Tracked draft sender does not match the required sender.',
@@ -2218,7 +2218,7 @@ function buildRealRecipientGmailRolloutReadiness(args: {
         connectedAs: draft.connectedAs,
         detail:
           senderState === 'matched'
-            ? 'Tracked draft sender matches the required AmaduTown sender.'
+            ? 'Tracked draft sender matches the required AmaduTown, LLC sender.'
             : senderState === 'missing'
               ? 'Sender identity must be recorded on the tracked Gmail draft evidence.'
               : 'Tracked draft sender does not match the required sender.',

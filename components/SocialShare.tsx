@@ -51,7 +51,7 @@ export default function SocialShare({
     productTitles && productTitles.length > 0
       ? productTitles.join(' and ')
       : productTitle ?? 'some great stuff'
-  const shareText = `I just bought ${merchandiseText} from Amadutown! Get yours today with this link and save ${programmeDiscount}.`
+  const shareText = `I just bought ${merchandiseText} from AmaduTown, LLC! Get yours today with this link and save ${programmeDiscount}.`
   const shareUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/store?ref=${orderId}`
 
   const handleShare = async (platform: string) => {

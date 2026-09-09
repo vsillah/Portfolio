@@ -29,7 +29,7 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: 'Vambah Sillah | Director of Product Strategy at a Fortune 500 Company, AI Automations specialist, Author, Hip Hop Artist, and Co-Founder of AmaduTown Advisory Solutions',
+  title: 'Vambah Sillah | Director of Product Strategy at a Fortune 500 Company, AI Automations specialist, Author, Hip Hop Artist, and Co-Founder of AmaduTown Advisory Solutions, LLC',
   description: 'IT Product Manager with a proven track record of applying agile methodology to continuously evolve products to delight customers',
 }
 
@@ -60,4 +60,3 @@ export default function RootLayout({
     </html>
   )
 }
-

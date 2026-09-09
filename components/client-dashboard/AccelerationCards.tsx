@@ -259,7 +259,7 @@ export default function AccelerationCards({
         </h3>
       </div>
       <p className="text-xs text-platinum-white/55 mb-4">
-        Tailored acceleration paths that connect the assessment gaps, task list, and available AmaduTown packages.
+        Tailored acceleration paths that connect the assessment gaps, task list, and available AmaduTown, LLC packages.
       </p>
 
       <div className="space-y-4">

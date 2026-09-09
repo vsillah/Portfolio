@@ -181,12 +181,12 @@ export default function ClientDashboardPage() {
             <div className="flex items-center gap-3">
               <img
                 src="/amadutown-logo-upscaled.png"
-                alt="AmaduTown Advisory Solutions"
+                alt="AmaduTown Advisory Solutions, LLC"
                 className="h-11 w-auto"
               />
               <div>
                 <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-radiant-gold">
-                  AmaduTown Client Portal
+                  AmaduTown, LLC Client Portal
                 </p>
                 <h1 className="text-lg font-bold text-platinum-white">Your Assessment Dashboard</h1>
                 <p className="text-xs text-platinum-white/55">Lead view - complete your engagement to unlock full dashboard</p>
@@ -277,12 +277,12 @@ export default function ClientDashboardPage() {
           <div className="flex items-center gap-3 min-w-0">
             <img
               src="/amadutown-logo-upscaled.png"
-              alt="AmaduTown Advisory Solutions"
+              alt="AmaduTown Advisory Solutions, LLC"
               className="h-11 w-auto shrink-0"
             />
             <div className="min-w-0">
               <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-radiant-gold">
-                AmaduTown Client Portal
+                AmaduTown, LLC Client Portal
               </p>
               <h1 className="text-lg font-bold text-platinum-white">Client Dashboard</h1>
               <p className="truncate text-xs text-platinum-white/55">{project.project_name}</p>

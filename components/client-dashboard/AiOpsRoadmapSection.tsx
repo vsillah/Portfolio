@@ -2,6 +2,7 @@
 
 import { Activity, AlertTriangle, CheckCircle2, ClipboardList, DollarSign, ShieldCheck } from 'lucide-react'
 import type { RoadmapClientView } from '@/lib/client-ai-ops-roadmap'
+import { WEBSITE_BRAND_NAME } from '@/lib/website-brand'
 
 interface Props {
   roadmap: RoadmapClientView
@@ -297,7 +298,7 @@ export default function AiOpsRoadmapSection({ roadmap }: Props) {
             {roadmap.nextActions.map((action, index) => (
               <li key={`${action.title}-${index}`} className="flex items-center justify-between gap-3 text-sm">
                 <span className="text-foreground">{action.title}</span>
-                <span className="text-muted-foreground capitalize">{action.ownerType}</span>
+                <span className="text-muted-foreground capitalize">{action.ownerType === 'amadutown' ? WEBSITE_BRAND_NAME : action.ownerType}</span>
               </li>
             ))}
           </ul>

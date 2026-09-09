@@ -1,5 +1,7 @@
 'use client'
 
+import { WEBSITE_BRAND_NAME } from '@/lib/website-brand'
+
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -100,7 +102,7 @@ export default function Navigation() {
           >
             <Image
               src="/amadutown-logo-upscaled.png"
-              alt="AmaduTown"
+              alt={WEBSITE_BRAND_NAME}
               width={44}
               height={55}
               priority

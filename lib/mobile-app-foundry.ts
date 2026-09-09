@@ -110,7 +110,7 @@ export const mobileFoundryScoreFactors: MobileFoundryScoreFactor[] = [
   {
     label: 'Builder fit',
     weight: 20,
-    evidence: ['matches prior app themes', 'fits AmaduTown offer ladder', 'can reuse known implementation patterns'],
+    evidence: ['matches prior app themes', 'fits AmaduTown, LLC offer ladder', 'can reuse known implementation patterns'],
   },
   {
     label: 'Build velocity',
