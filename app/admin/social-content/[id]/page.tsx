@@ -50,6 +50,7 @@ import {
   FRAMEWORK_VISUAL_TYPES,
   getFullPostText,
 } from '@/lib/social-content'
+import { SocialGateDeepLinkLanding } from '@/lib/social-gate-deep-link'
 import { socialReleaseReview } from '@/lib/social-release-review-ui'
 import { buildVideoRenderApproval } from '@/lib/video-render-approval'
 import {
@@ -521,6 +522,7 @@ function SocialContentDetailLoadingState({ canonicalHref }: { canonicalHref?: st
 }
 
 function SocialContentDetailPage() {
+  const completedGateLandings = useRef(new Set<string>())
   const { id } = useParams<{ id: string }>()
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -3352,7 +3354,7 @@ function SocialContentDetailPage() {
       </AnimatePresence>
 
       {/* Sticky Header — slim, Save Draft only */}
-      <div className="sticky top-0 z-40 border-b border-gray-800 bg-background/80 px-4 py-3 backdrop-blur-md sm:px-6 lg:px-8">
+      <div data-social-detail-header className="sticky top-0 z-40 border-b border-gray-800 bg-background/80 px-4 py-3 backdrop-blur-md sm:px-6 lg:px-8">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex min-w-0 flex-wrap items-center gap-2 sm:gap-3">
             <button
@@ -3386,6 +3388,7 @@ function SocialContentDetailPage() {
       </div>
 
       <div className="mx-auto w-full max-w-[90rem] space-y-6 px-4 py-6 sm:px-6 lg:px-8">
+        <SocialGateDeepLinkLanding routeId={id} itemId={item.id} gateId={APPROVAL_STEP_SECTION_IDS[activeApprovalStep]} completed={completedGateLandings} />
         <MobileWorkflowSummary
           title={activeApprovalStepDetail.title}
           currentState={mobileSummaryState}

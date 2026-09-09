@@ -2941,4 +2941,26 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(details).toHaveTextContent('Waiting on you?')
   })
 
+  it('lands on the selected copy gate when the real page receives delayed item data',async()=>{
+    window.history.replaceState({},'', '/admin/social-content/social-1?step=copy#social-copy-gate')
+    mocks.search='step=copy'
+    const originalScroll=HTMLElement.prototype.scrollIntoView
+    const scroll=vi.fn()
+    HTMLElement.prototype.scrollIntoView=scroll
+    let resolveItem!: (value: unknown) => void
+    const delayed=new Promise(resolve=>{resolveItem=resolve})
+    vi.stubGlobal('fetch',vi.fn(async(input:RequestInfo|URL)=>({ok:true,json:async()=>String(input)==='/api/admin/social-content/social-1'?await delayed:{items:[],configs:[]}})))
+    try{
+      render(<SocialContentDetailRoute />)
+      expect(scroll).not.toHaveBeenCalled()
+      resolveItem({item:{...baseItem,status:'draft'}})
+      await screen.findByRole('region',{name:'Copy review decision gate'})
+      await waitFor(()=>expect(scroll).toHaveBeenCalledWith({behavior:'instant',block:'start'}))
+      expect(document.activeElement?.id).toBe('social-copy-gate')
+    }finally{
+      HTMLElement.prototype.scrollIntoView=originalScroll
+      window.history.replaceState({},'', '/')
+    }
+  })
+
 })
