@@ -127,7 +127,7 @@ function buildScreenshotSlides(params: {
       eyebrow: 'Agent Ops Proof',
       headline: 'The operating layer behind the post',
       subhead: hookLine || 'Screenshots from the Portfolio workflow that produced and reviewed this draft.',
-      byline: 'AmaduTown Advisory Solutions',
+      byline: 'AmaduTown Advisory Solutions, LLC',
       ghost_text: 'PROOF',
     },
     {

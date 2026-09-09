@@ -698,7 +698,7 @@ export default function CheckoutPage() {
               </Link>
             </div>
           </div>
-          <p className="agent-ops-eyebrow">AmaduTown checkout</p>
+          <p className="agent-ops-eyebrow">AmaduTown, LLC checkout</p>
           <div className="mt-3 grid gap-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
             <div>
               <h1 className="text-3xl font-bold sm:text-4xl">Review order and payment path</h1>

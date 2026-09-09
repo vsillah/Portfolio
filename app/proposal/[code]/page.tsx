@@ -29,6 +29,7 @@ import {
 } from 'lucide-react';
 import InstallmentOption from '@/components/checkout/InstallmentOption';
 import SiteThemeCorner from '@/components/SiteThemeCorner';
+import { WEBSITE_BRAND_NAME } from '@/lib/website-brand';
 
 interface LineItem {
   content_type: string;
@@ -1087,7 +1088,7 @@ function ImplementationRoadmapSection({ snapshot }: { snapshot: ImplementationRo
               {clientTasks.slice(0, 6).map((task, index) => (
                 <li key={`${task.title}-${index}`} className="flex items-center justify-between gap-3">
                   <span>{task.title}</span>
-                  <span className="text-xs text-gray-500 capitalize">{task.ownerType}</span>
+                  <span className="text-xs text-gray-500 capitalize">{task.ownerType === 'amadutown' ? WEBSITE_BRAND_NAME : task.ownerType}</span>
                 </li>
               ))}
             </ul>

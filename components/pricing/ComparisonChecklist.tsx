@@ -22,7 +22,7 @@ export function ComparisonChecklist({ className = '' }: ComparisonChecklistProps
             <th className="px-4 py-3 font-semibold text-gray-500 dark:text-gray-400">Typical Agency</th>
             <th className="px-4 py-3 font-semibold text-gray-500 dark:text-gray-400">Ottley / Morningside</th>
             <th className="px-4 py-3 font-semibold text-gray-500 dark:text-gray-400">Saraev / LeftClick</th>
-            <th className="px-4 py-3 font-semibold text-blue-600 dark:text-blue-400">Amadutown</th>
+            <th className="px-4 py-3 font-semibold text-blue-600 dark:text-blue-400">AmaduTown, LLC</th>
           </tr>
         </thead>
         <tbody>

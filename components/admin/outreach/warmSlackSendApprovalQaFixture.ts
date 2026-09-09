@@ -131,7 +131,7 @@ const realRecipientRolloutReadiness = {
       state: 'matched',
       requiredSender: 'hello@amadutown.com',
       connectedAs: 'hello@amadutown.com',
-      detail: 'Tracked draft sender matches the required AmaduTown sender.',
+      detail: 'Tracked draft sender matches the required AmaduTown, LLC sender.',
     },
     suppression: {
       state: 'clear',
@@ -200,7 +200,7 @@ const realRecipientRolloutReadiness = {
     gmailCapability: {
       providerState: 'configured',
       providerDetail: 'Gmail provider configuration is present for readiness review; this contract still does not call Gmail.',
-      senderDetail: 'Tracked draft sender matches the required AmaduTown sender.',
+      senderDetail: 'Tracked draft sender matches the required AmaduTown, LLC sender.',
     },
     finalSendAuthority: {
       state: 'awaiting_authorization',

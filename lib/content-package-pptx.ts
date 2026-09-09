@@ -29,8 +29,8 @@ const COLORS = {
 export async function buildContentPackagePptxBuffer(input: ContentPackagePptxInput): Promise<Buffer> {
   const pptx = new PptxGenJS()
   pptx.layout = 'LAYOUT_WIDE'
-  pptx.author = 'AmaduTown Advisory'
-  pptx.company = 'AmaduTown Advisory'
+  pptx.author = 'AmaduTown Advisory Solutions, LLC'
+  pptx.company = 'AmaduTown Advisory Solutions, LLC'
   pptx.subject = 'Voice-note content package'
   pptx.title = input.title
   pptx.theme = {
@@ -126,7 +126,7 @@ function addFrameworkSlide(pptx: PptxGenJS, input: ContentPackagePptxInput) {
   const routes = asRecordArray(input.researchPacket.amadutown_proof_routes)
   addSectionCard(slide, 0.8, 1.2, 5.45, 4.85, 'Framework influence', frameworks.length
     ? frameworks.map((item) => `${item.creator_name ?? 'Framework'}: ${item.display_name ?? item.summary ?? ''}`).join('\n')
-    : 'Vambah voice system and AmaduTown operating proof.')
+    : 'Vambah voice system and AmaduTown, LLC operating proof.')
   addSectionCard(slide, 6.65, 1.2, 5.45, 4.85, 'Portfolio proof routes', routes.length
     ? routes.map((item) => `${item.label ?? 'Route'} - ${item.route ?? ''}`).join('\n')
     : 'Agent Ops, Social Content Queue, Presentation Generator, and Video Generation surfaces.')
@@ -196,7 +196,7 @@ function addAppendixSlide(pptx: PptxGenJS, input: ContentPackagePptxInput) {
 function paintHeader(slide: PptxGenJS.Slide, eyebrow: string) {
   slide.background = { color: COLORS.navy }
   slide.addShape('rect', { x: 0, y: 0, w: 13.33, h: 0.32, fill: { color: COLORS.gold }, line: { color: COLORS.gold } })
-  slide.addText('AMADUTOWN ADVISORY', { x: 0.75, y: 0.5, w: 3.2, h: 0.28, fontSize: 8.5, bold: true, color: COLORS.gold })
+  slide.addText('AMADUTOWN ADVISORY SOLUTIONS, LLC', { x: 0.75, y: 0.5, w: 3.2, h: 0.28, fontSize: 8.5, bold: true, color: COLORS.gold })
   slide.addText(eyebrow.toUpperCase(), { x: 8.5, y: 0.5, w: 4.1, h: 0.28, fontSize: 8.5, color: COLORS.cream, align: 'right' })
 }
 

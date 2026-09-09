@@ -1,0 +1,506 @@
+[
+  {
+    "file": "app/admin/agents/social-insights/[id]/page.tsx",
+    "tokens": [
+      "'@/components/ProtectedRoute'",
+      "'@/components/admin/Breadcrumbs'",
+      "'@/lib/auth'",
+      "'@/lib/agent-work-items'",
+      "'@/lib/social-content-intelligence'",
+      "'/admin'",
+      "'/admin/agents'",
+      "'/admin/agents/content-intelligence'",
+      "\"/admin/agents/coordination\""
+    ]
+  },
+  {
+    "file": "app/admin/social-content/[id]/page.tsx",
+    "tokens": [
+      "'@/lib/admin-return-context'",
+      "'@/components/ProtectedRoute'",
+      "'@/components/admin/Breadcrumbs'",
+      "'@/components/admin/MobileWorkflowSummary'",
+      "'@/lib/auth'",
+      "'@/lib/social-content'",
+      "'@/lib/video-render-approval'",
+      "'@/lib/social-production-assets'",
+      "'@/lib/agentified-visual-strategy-qa'",
+      "'@/lib/social-platform-orchestration'",
+      "'@/lib/social-content-lifecycle'",
+      "'@/lib/social-publication-status'",
+      "'@/lib/social-comment-inbox-ui'",
+      "'@/lib/social-content-calibration-library'",
+      "'/admin/social-content'",
+      "'/api/admin/social-content/topic-backlog?status=available&social_channel=linkedin&limit=6'",
+      "'/api/admin/social-content/calibration-library?platform=linkedin'",
+      "'/api/admin/social-content/config'",
+      "'/api/admin/social-content?status=all&limit=100'",
+      "'/api/admin/social-content/topic-backlog'",
+      "'/api/auth/youtube'",
+      "'/api/auth/x'",
+      "'/api/admin/social-content/engagement/refresh'",
+      "'/api/admin/social-content/render-carousel'",
+      "'/admin'",
+      "\"/admin/agents/swarm-board\"",
+      "\"/admin/agents/open-brain\"",
+      "https://amadutown.com/...",
+      "amadutown",
+      "\"/admin/social-content/engagement-inbox\""
+    ]
+  },
+  {
+    "file": "app/admin/value-evidence/reports/[id]/page.tsx",
+    "tokens": [
+      "'@/lib/admin-return-context'",
+      "'@/components/ProtectedRoute'",
+      "'@/components/admin/Breadcrumbs'",
+      "'@/lib/auth'",
+      "'/admin/value-evidence'",
+      "'/admin'",
+      "\"/pricing/methodology\""
+    ]
+  },
+  {
+    "file": "app/api/admin/gamma-reports/themes/route.ts",
+    "tokens": [
+      "'@/lib/auth-server'",
+      "'@/lib/gamma-theme-config'"
+    ]
+  },
+  {
+    "file": "app/api/admin/outreach/leads/[id]/gmail-draft-canary/route.ts",
+    "tokens": [
+      "'@/lib/auth-server'",
+      "'@/lib/supabase'",
+      "'@/lib/gmail-user-api'",
+      "'@/lib/gmail-user-oauth-secret'",
+      "'@/lib/business-email-config'",
+      "'@/lib/warm-outreach-response-monitoring'"
+    ]
+  },
+  {
+    "file": "app/api/admin/social-content/[id]/capture-app-carousel/route.ts",
+    "tokens": [
+      "'@/lib/auth-server'",
+      "'@/lib/carousel'",
+      "'@/lib/playtest-broll'",
+      "'@/lib/social-production-assets'",
+      "'@/lib/supabase'",
+      "'@/lib/social-content'",
+      "'/admin/social-content'",
+      "'/admin/agents'",
+      "'//'",
+      "http://portfolio.local",
+      "'/admin/agents/swarm-board'",
+      "'/admin/agents/standup'",
+      "'/admin/agents/open-brain'"
+    ]
+  },
+  {
+    "file": "app/checkout/page.tsx",
+    "tokens": [
+      "'@/components/AuthProvider'",
+      "'@/lib/cart'",
+      "'@/components/checkout/DiscountCodeForm'",
+      "'@/components/checkout/AddressAutocomplete'",
+      "'@/components/checkout/CampaignEnrollmentBanner'",
+      "'@/components/checkout/InstallmentOption'",
+      "'@/components/checkout/OrderSummary'",
+      "'@/hooks/useCampaignEligibility'",
+      "'@/components/ExitIntentPopup'",
+      "'@/components/ScrollOffer'",
+      "'@/components/TimeBasedPopup'",
+      "'@/lib/auth'",
+      "'@/components/ThemeToggle'",
+      "'/store'",
+      "'/api/products?active=true'",
+      "'/api/services?active=true'",
+      "'/api/user/profile'",
+      "'/api/checkout/shipping'",
+      "'/api/discount-codes/validate'",
+      "'/api/address/validate'",
+      "'/auth/login?redirect=/checkout'",
+      "'/api/checkout'",
+      "'/api/installments/create'",
+      "\"/auth/login?redirect=/checkout\"",
+      "\"/auth/signup?redirect=/checkout\"",
+      "\"/help\""
+    ]
+  },
+  {
+    "file": "app/client/dashboard/[token]/page.tsx",
+    "tokens": [
+      "'@/components/client-dashboard/DashboardStatCards'",
+      "'@/components/client-dashboard/ExecutiveSummary'",
+      "'@/components/client-dashboard/ScoreRadarChart'",
+      "'@/components/client-dashboard/AssessmentScoreBreakdown'",
+      "'@/components/client-dashboard/ConfidenceRadar'",
+      "'@/components/client-dashboard/StrengthenConfidenceBlock'",
+      "'@/components/client-dashboard/TrajectoryChart'",
+      "'@/components/client-dashboard/GapAnalysisPanel'",
+      "'@/components/client-dashboard/TaskChecklist'",
+      "'@/components/client-dashboard/MilestoneTimeline'",
+      "'@/components/client-dashboard/AssessmentDetails'",
+      "'@/components/client-dashboard/AccelerationCards'",
+      "'@/components/client-dashboard/CampaignProgressSection'",
+      "'@/components/client-dashboard/DocumentsSection'",
+      "'@/components/client-dashboard/ReportsSection'",
+      "'@/components/client-dashboard/AccountSummarySection'",
+      "'@/components/client-dashboard/MeetingHistory'",
+      "'@/components/client-dashboard/AiOpsRoadmapSection'",
+      "'@/components/client-dashboard/BuildEvidenceInvestmentSection'",
+      "'@/lib/client-dashboard'",
+      "'@/lib/acceleration-engine'",
+      "'@/components/SiteThemeCorner'",
+      "\"/amadutown-logo-upscaled.png\"",
+      "\"/tools/audit\""
+    ]
+  },
+  {
+    "file": "app/layout.tsx",
+    "tokens": [
+      "'@/components/AuthProvider'",
+      "'@/components/ThemeProvider'",
+      "'@/components/ui/FlowingMesh'",
+      "'@/components/DevBanner'",
+      "'@/lib/env-check'",
+      "Vambah Sillah"
+    ]
+  },
+  {
+    "file": "app/legal/data-deletion/page.tsx",
+    "tokens": [
+      "'@/components/Navigation'",
+      "mailto:vambah@amadutown.com",
+      "amadutown"
+    ]
+  },
+  {
+    "file": "app/legal/privacy/page.tsx",
+    "tokens": [
+      "'@/components/Navigation'",
+      "amadutown",
+      "mailto:vambah@amadutown.com"
+    ]
+  },
+  {
+    "file": "app/legal/terms/page.tsx",
+    "tokens": [
+      "'@/components/Navigation'",
+      "amadutown",
+      "\"/legal/privacy\"",
+      "mailto:vambah@amadutown.com"
+    ]
+  },
+  {
+    "file": "app/pricing/methodology/page.tsx",
+    "tokens": [
+      "'@/components/Navigation'",
+      "'@/components/Breadcrumbs'",
+      "https://www.bls.gov",
+      "https://www.glassdoor.com/Salaries",
+      "https://www.hubspot.com",
+      "https://www.mckinsey.com",
+      "https://www.gartner.com",
+      "'/pricing'",
+      "\"/pricing\""
+    ]
+  },
+  {
+    "file": "app/pricing/page.tsx",
+    "tokens": [
+      "'@/components/Navigation'",
+      "'@/components/Breadcrumbs'",
+      "'@/components/pricing/PricingCard'",
+      "'@/components/pricing/ROICalculator'",
+      "'@/components/pricing/ComparisonChecklist'",
+      "'@/components/pricing/ContinuityPlans'",
+      "'@/components/pricing/CommunityImpactComparison'",
+      "'@/lib/pricing-model'",
+      "'@/hooks/useCampaignEligibility'",
+      "\"/services\"",
+      "\"/store\""
+    ]
+  },
+  {
+    "file": "app/prototypes/portfolio-pipeline-hero/page.tsx",
+    "tokens": [
+      "'/prototypes/portfolio-pipeline-hero/higgsfield-light-mode-hero-poster-20260628.webp'",
+      "'/prototypes/portfolio-pipeline-hero/higgsfield-light-mode-hero-loop-web-20260628.mp4'",
+      "\"/services\"",
+      "\"/work\"",
+      "\"/contact\""
+    ]
+  },
+  {
+    "file": "app/purchases/page.tsx",
+    "tokens": [
+      "'@/components/AuthProvider'",
+      "'@/lib/auth'",
+      "'@/lib/pricing-model'",
+      "'@/components/Navigation'",
+      "'@/components/Breadcrumbs'",
+      "'@/components/DownloadManager'",
+      "'@/components/SocialShare'",
+      "'@/components/ReferralProgram'",
+      "'@/components/audit/AuditEmailPdfButton'",
+      "'/api/orders'",
+      "'/api/user/audit'",
+      "'@/lib/invoice-pdf'",
+      "amadutown-logo-upscaled",
+      "'/store'",
+      "'/auth/login'",
+      "'/purchases'",
+      "\"/help\""
+    ]
+  },
+  {
+    "file": "app/store/page.tsx",
+    "tokens": [
+      "'@/components/ProductCard'",
+      "'@/components/ServiceCard'",
+      "'@/components/AuthProvider'",
+      "'@/lib/cart'",
+      "'@/components/ThemeToggle'",
+      "'@/lib/types/store'",
+      "'/api/products?active=true'",
+      "'/api/services?active=true'",
+      "'/checkout'",
+      "\"/help\""
+    ]
+  },
+  {
+    "file": "components/Hero.tsx",
+    "tokens": [
+      "'/prototypes/portfolio-pipeline-hero/higgsfield-light-mode-hero-poster-20260628.webp'",
+      "'/prototypes/portfolio-pipeline-hero/higgsfield-light-mode-hero-loop-web-20260628.mp4'",
+      "'/prototypes/portfolio-pipeline-hero/amadutown-storefront-pipeline-hero-approved-20260617.png'",
+      "'/prototypes/portfolio-pipeline-hero/higgsfield-gold-pipeline-loop-desktop-only-360-starburst-web-20260617.mp4'",
+      "\"/work\""
+    ]
+  },
+  {
+    "file": "components/Navigation.tsx",
+    "tokens": [
+      "'@/lib/analytics'",
+      "'@/components/AuthProvider'",
+      "'@/lib/auth'",
+      "'@/components/ThemeToggle'",
+      "'/store'",
+      "'/pricing'",
+      "\"/amadutown-logo-upscaled.png\"",
+      "\"/resources\"",
+      "\"/purchases\"",
+      "\"/admin\"",
+      "\"/auth/login\"",
+      "\"/help\""
+    ]
+  },
+  {
+    "file": "components/SocialShare.tsx",
+    "tokens": [
+      "'@/lib/auth'",
+      "'/api/store-settings'",
+      "https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}",
+      "https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}",
+      "https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}",
+      "'/api/social-share'"
+    ]
+  },
+  {
+    "file": "components/SystemStory.tsx",
+    "tokens": [
+      "'/prototypes/portfolio-pipeline-hero'"
+    ]
+  },
+  {
+    "file": "components/auth/AuthShell.tsx",
+    "tokens": [
+      "'@/components/SiteThemeCorner'"
+    ]
+  },
+  {
+    "file": "components/client-dashboard/AccelerationCards.tsx",
+    "tokens": [
+      "'@/lib/acceleration-engine'"
+    ]
+  },
+  {
+    "file": "components/pricing/ComparisonChecklist.tsx",
+    "tokens": [
+      "'@/lib/pricing-model'",
+      "amadutown"
+    ]
+  },
+  {
+    "file": "components/ui/animated-scroll.tsx",
+    "tokens": [
+      "'/vs-autumn.jpg'",
+      "Vambah Sillah",
+      "amadutown",
+      "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=900&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=900&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1553877615-30c7309dc584?w=900&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1531403009284-440f080d1e12?w=900&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=900&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=900&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1552664730-d307ca884978?w=600&auto=format&fit=crop&q=60",
+      "\"/vs-autumn.jpg\"",
+      "https://images.unsplash.com/photo-1557683316-973673baf926?w=600&auto=format&fit=crop&q=60",
+      "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&auto=format&fit=crop&q=60",
+      "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&auto=format&fit=crop&q=60",
+      "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=800&auto=format&fit=crop&q=60",
+      "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&auto=format&fit=crop&q=60",
+      "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&auto=format&fit=crop&q=60",
+      "https://images.unsplash.com/photo-1611974765270-ca1258634369?w=800&auto=format&fit=crop&q=60",
+      "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop&q=60",
+      "https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&auto=format&fit=crop&q=60",
+      "https://images.unsplash.com/photo-1586717791821-3f44a5638d48?w=800&auto=format&fit=crop&q=60",
+      "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=800&auto=format&fit=crop&q=60",
+      "https://images.unsplash.com/photo-1531403009284-440f080d1e12?w=800&auto=format&fit=crop&q=60",
+      "https://images.unsplash.com/photo-1517976487492-5750f3195933?w=800&auto=format&fit=crop&q=60",
+      "https://images.unsplash.com/photo-1533750349088-cd8773a98e4e?w=800&auto=format&fit=crop&q=60",
+      "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=800&auto=format&fit=crop&q=60",
+      "https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=800&auto=format&fit=crop&q=60",
+      "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&auto=format&fit=crop&q=60",
+      "https://images.unsplash.com/photo-1557683316-973673baf926?w=900&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1497215728101-856f4ea42174?w=900&auto=format&fit=crop&q=80"
+    ]
+  },
+  {
+    "file": "components/visual-assets/PortfolioVisualMockup.tsx",
+    "tokens": []
+  },
+  {
+    "file": "lib/agent-avatars.ts",
+    "tokens": [
+      "'@/lib/agent-organization'",
+      "amadutown-brand",
+      "https://amadutown.com",
+      "'/agent-avatars/unknown.svg'"
+    ]
+  },
+  {
+    "file": "lib/agent-organization.ts",
+    "tokens": [
+      "'/admin/agents plus the Agent Ops morning review schedule.'",
+      "'/admin/value-evidence, the knowledge source manifest, RAG audit reports, and lead research workflows.'",
+      "'/api/admin/rag-health, knowledge source manifest, RAG ingest/query workflows, and Portfolio knowledge surfaces.'",
+      "'/admin/social-content and Codex content workflow.'",
+      "'/admin/social-content and content generation workflows.'",
+      "amadutown-brand",
+      "'/admin/content/visual-assets, visual-assets package scripts, and Agent Ops weekly homepage audit work items.'",
+      "'/admin/social-content and publishing workflows.'",
+      "'/admin/outreach, email center, Gmail draft, and nurture workflows.'",
+      "'/admin/outreach warm-lead triggers, WRM n8n workflows, and Agent Ops trace callbacks.'",
+      "'/admin/meetings, Slack intake, Calendly router, agenda, and follow-up scheduler workflows.'"
+    ]
+  },
+  {
+    "file": "lib/audit-report-pdf.tsx",
+    "tokens": [
+      "'@/lib/diagnostic'",
+      "'@/lib/constants/industry'",
+      "amadutown"
+    ]
+  },
+  {
+    "file": "lib/carousel/templates.ts",
+    "tokens": [
+      "'@/lib/social-content'",
+      "Vambah Sillah",
+      "https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&display=swap"
+    ]
+  },
+  {
+    "file": "lib/client-ai-ops-roadmap-db.ts",
+    "tokens": [
+      "amadutown_actions"
+    ]
+  },
+  {
+    "file": "lib/contact-sms-consent.ts",
+    "tokens": []
+  },
+  {
+    "file": "lib/content-package-pptx.ts",
+    "tokens": [
+      "amadutown_proof_routes"
+    ]
+  },
+  {
+    "file": "lib/gamma-report-builder.ts",
+    "tokens": [
+      "https://${raw}",
+      "https://amadutown.com",
+      "http://localhost:3000/...",
+      "https://developers.gamma.app/guides/image-url-best-practices",
+      "amadutown-logo-upscaled",
+      "amadutown"
+    ]
+  },
+  {
+    "file": "lib/invoice-pdf.tsx",
+    "tokens": [
+      "amadutown-logo-upscaled",
+      "'/amadutown-logo-upscaled.png'"
+    ]
+  },
+  {
+    "file": "lib/mobile-app-foundry.ts",
+    "tokens": [
+      "https://youtu.be/yBa3BKOrVPA?si=QfNu_KvZ_1e9Wu3y",
+      "https://i.ytimg.com/vi/yBa3BKOrVPA/hqdefault.jpg"
+    ]
+  },
+  {
+    "file": "lib/pdf-brand-styles.ts",
+    "tokens": [
+      "amadutown-color-palette-audit"
+    ]
+  },
+  {
+    "file": "lib/presentation-bakeoff.ts",
+    "tokens": [
+      "amadutown"
+    ]
+  },
+  {
+    "file": "lib/pricing-model.ts",
+    "tokens": [
+      "amadutown"
+    ]
+  },
+  {
+    "file": "lib/technology-bakeoff.ts",
+    "tokens": [
+      "'/admin/content/video-generation, social content, Gamma reports, media uploads'",
+      "'/admin/presentations, /admin/reports/gamma, course and deck packages'",
+      "'/api/chat, /admin/chat-eval, /tools/audit, /api/chat/diagnostic'",
+      "'/api/knowledge, lib/rag-query.ts, local RAG shadow mode, chatbot knowledge build'",
+      "'/admin/social-content, n8n social workflows, LinkedIn review queue'",
+      "'/admin/agents, Hermes bridge, OpenCode/OpenClaw evaluation'",
+      "'/admin/email-center, Gmail helpers, Resend webhook, proposal/email drafts'",
+      "'/admin/sales, /admin/cost-revenue, /pricing, ROI tools'",
+      "'/admin/testing, Playwright, API route tests, regression docs'",
+      "'/admin/analytics, funnel analytics, cost events, campaign pages'",
+      "amadutown"
+    ]
+  },
+  {
+    "file": "lib/warm-outreach-response-monitoring.ts",
+    "tokens": [
+      "'/api/admin/outreach/[id]/gmail-user-send'",
+      "'/admin/contacts/[id]'"
+    ]
+  },
+  {
+    "file": "lib/youtube-publication-reconciliation-preview.ts",
+    "tokens": [
+      "https://www.googleapis.com/youtube/v3/videos",
+      "https://www.googleapis.com/auth/youtube.readonly",
+      "https://www.googleapis.com/auth/youtube.force-ssl",
+      "https://www.youtube.com/watch?v=${encodeURIComponent(videoId)}"
+    ]
+  }
+]

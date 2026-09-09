@@ -72,5 +72,5 @@ export const PDF_BRAND = {
   },
 } as const
 
-export const COMPANY_DISPLAY_NAME = 'AmaduTown Advisory Solutions'
+export { WEBSITE_COMPANY_NAME as COMPANY_DISPLAY_NAME } from './website-brand'
 export const COMPANY_SHORT_NAME = 'ATAS'

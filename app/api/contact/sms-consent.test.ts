@@ -49,7 +49,7 @@ describe('public SMS evidence capture', () => {
     expect((await POST(request({ ...selected, smsConsent }))).status).toBe(400)
     expect(mocks.from).not.toHaveBeenCalled()
   })
-  it.each([undefined, 'old', 'attacker-version'])('rejects stale/tampered disclosure %j', async (smsDisclosureVersion) => {
+  it.each([undefined, 'old', 'attacker-version', 'amadutown-sms-2026-09-09-v1'])('rejects stale/tampered disclosure %j', async (smsDisclosureVersion) => {
     expect((await POST(request({ ...selected, smsDisclosureVersion }))).status).toBe(400)
     expect(mocks.from).not.toHaveBeenCalled()
   })

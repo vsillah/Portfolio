@@ -104,7 +104,7 @@ const AGENT_AVATAR_SEEDS: Record<string, Omit<AgentAvatarDefinition, 'imagePath'
   },
   'amadutown-brand': {
     agentKey: 'amadutown-brand',
-    label: 'Illustrated avatar for Taharqa, AmaduTown Brand',
+    label: 'Illustrated avatar for Taharqa, AmaduTown, LLC Brand',
     initials: 'TK',
     motif: 'sun',
     tone: 'gold',

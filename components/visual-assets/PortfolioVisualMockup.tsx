@@ -66,7 +66,7 @@ export default function PortfolioVisualMockup({
         <aside className="flex min-h-0 flex-col border-r border-border bg-card/80 p-3">
           <div className="mb-3 flex items-center gap-2">
             <span className="h-2.5 w-2.5 rounded-full bg-radiant-gold" />
-            <span className="text-[9px] font-bold uppercase text-muted-foreground">AmaduTown</span>
+            <span className="text-[9px] font-bold uppercase text-muted-foreground">AmaduTown, LLC</span>
           </div>
           <div className="space-y-2">
             {signalLabels.map((label, index) => (

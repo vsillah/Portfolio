@@ -3,15 +3,15 @@ import Link from 'next/link'
 import Navigation from '@/components/Navigation'
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy | AmaduTown',
-  description: 'Privacy policy for AmaduTown social publishing and optional SMS communications.',
+  title: 'Privacy Policy | AmaduTown, LLC',
+  description: 'Privacy policy for AmaduTown, LLC social publishing and optional SMS communications.',
 }
 
 const sections = [
   {
     title: 'SMS communications',
     body: [
-      'When you select SMS consent on our contact form, AmaduTown Advisory Solutions LLC records your submitted mobile number, normalized number, affirmative choice, the disclosure you accepted, and when and where you submitted it. The record is linked to your inquiry for reference; it does not verify your identity or ownership of the number. A number entered without SMS consent is not saved by this form.',
+      'When you select SMS consent on our contact form, AmaduTown Advisory Solutions, LLC records your submitted mobile number, normalized number, affirmative choice, the disclosure you accepted, and when and where you submitted it. The record is linked to your inquiry for reference; it does not verify your identity or ownership of the number. A number entered without SMS consent is not saved by this form.',
       'We use these records to review your request and honor your choices. SMS updates are not active yet. Sending requires separate program and sender approval and confirmation safeguards. Consent submitted here does not reverse an existing opt-out or suppression record.',
       'We do not sell or share mobile information, SMS subscription records, or consent data for marketing or promotion by third parties, including affiliates. Messaging data may be disclosed to service providers and carriers only as needed to operate and support the program. Other sharing provisions in this policy do not authorize unrelated use of SMS consent data.',
       'When messaging is available, messaging and opt-out history will be used to honor your choices and investigate delivery issues. For questions or deletion requests, contact vambah@amadutown.com; necessary suppression and compliance records may be retained.',
@@ -20,21 +20,21 @@ const sections = [
   {
     title: 'What we collect',
     body: [
-      'AmaduTown may collect account identifiers, profile names, page or channel names, permission scopes, content metadata, post status, and provider response IDs when you connect social publishing tools to Portfolio.',
-      'We do not ask providers for more access than is needed to prepare, review, schedule, publish, and audit approved AmaduTown content.',
+      'AmaduTown, LLC may collect account identifiers, profile names, page or channel names, permission scopes, content metadata, post status, and provider response IDs when you connect social publishing tools to Portfolio.',
+      'We do not ask providers for more access than is needed to prepare, review, schedule, publish, and audit approved AmaduTown, LLC content.',
     ],
   },
   {
     title: 'How we use it',
     body: [
-      'Provider data is used to connect approved AmaduTown channels, show publishing readiness, submit approved content, record audit trails, and troubleshoot failed provider actions.',
+      'Provider data is used to connect approved AmaduTown, LLC channels, show publishing readiness, submit approved content, record audit trails, and troubleshoot failed provider actions.',
       'Portfolio keeps human approval gates around content review, asset rights, privacy review, scheduling, and final publishing decisions.',
     ],
   },
   {
     title: 'What we do not sell',
     body: [
-      'AmaduTown does not sell social account data, provider tokens, customer data, or private operational records.',
+      'AmaduTown, LLC does not sell social account data, provider tokens, customer data, or private operational records.',
       'Provider credentials and tokens are treated as security-sensitive operational data and are not exposed in public content.',
     ],
   },
@@ -54,11 +54,11 @@ export default function PrivacyPage() {
       <section className="px-6 pt-28 pb-20 sm:px-10 lg:px-12">
         <div className="mx-auto max-w-3xl">
           <Link href="/" className="text-sm font-semibold uppercase tracking-[0.2em] text-radiant-gold">
-            AmaduTown
+            AmaduTown, LLC
           </Link>
           <h1 className="mt-6 text-4xl font-bold tracking-normal text-foreground">Privacy Policy</h1>
           <p className="mt-4 text-lg leading-8 text-muted-foreground">
-            This policy explains how AmaduTown handles data used by Portfolio social publishing workflows and optional SMS communications.
+            This policy explains how AmaduTown, LLC handles data used by Portfolio social publishing workflows and optional SMS communications.
           </p>
           <p className="mt-3 text-sm text-muted-foreground">Last updated: September 9, 2026</p>
 

@@ -263,7 +263,7 @@ function StoreContent() {
           <section className="agent-ops-surface-header rounded-xl border p-5 sm:p-6">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
               <div className="min-w-0">
-                <p className="agent-ops-eyebrow">AmaduTown store</p>
+                <p className="agent-ops-eyebrow">AmaduTown, LLC store</p>
                 <h1 className="mt-2 text-3xl font-bold sm:text-4xl">Products and services</h1>
                 <p className="mt-2 max-w-2xl text-muted-foreground">
                   Browse digital products, implementation resources, merchandise, and advisory services.

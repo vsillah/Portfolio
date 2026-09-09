@@ -169,7 +169,7 @@ export const TECHNOLOGY_BAKEOFF_PROFILES: Record<TechnologyBakeoffSurface, Surfa
     ],
     scoring: [
       scoreSeed('Clarity and narrative arc', 0.18, 'Audience can understand the argument and decision path.'),
-      scoreSeed('Voice and brand fit', 0.18, 'The output sounds like Vambah and preserves AmaduTown visual rules.'),
+      scoreSeed('Voice and brand fit', 0.18, 'The output sounds like Vambah and preserves AmaduTown, LLC visual rules.'),
       scoreSeed('Proof and source quality', 0.18, 'Screenshots, demos, and source anchors remain visible and reviewable.'),
       scoreSeed('Editability and export quality', 0.16, 'The final artifact can be revised and exported without rebuilding from scratch.'),
       scoreSeed('Presentation readiness', 0.16, 'Notes, timing, density, contrast, and backup assets are ready.'),

@@ -280,7 +280,7 @@ function buildCommentRefreshSuccessCopy(input: {
   const ownerExcluded = asFiniteNumber(input.cursor?.ownerExcludedCount)
   const rootExcluded = asFiniteNumber(input.cursor?.rootExcludedCount)
   const reason = input.platform === 'x' && ownerExcluded && ownerExcluded > 0
-    ? ` ${ownerExcluded} owner-authored X thread post${ownerExcluded === 1 ? '' : 's'} ${ownerExcluded === 1 ? 'was' : 'were'} intentionally excluded so Portfolio does not treat AmaduTown's own thread or test replies as inbound engagement.`
+    ? ` ${ownerExcluded} owner-authored X thread post${ownerExcluded === 1 ? '' : 's'} ${ownerExcluded === 1 ? 'was' : 'were'} intentionally excluded so Portfolio does not treat AmaduTown, LLC's own thread or test replies as inbound engagement.`
     : rootExcluded && rootExcluded > 0
       ? ` ${rootExcluded} root provider post${rootExcluded === 1 ? '' : 's'} ${rootExcluded === 1 ? 'was' : 'were'} intentionally excluded before comment projection.`
       : ' Skipped items can include owner-authored posts, root provider posts, duplicates, hidden or deleted comments, or rows outside the bounded import rules.'
@@ -5399,7 +5399,7 @@ function SocialContentDetailPage() {
                     AT
                   </div>
                   <div>
-                    <div className="font-semibold text-sm text-gray-100">AmaduTown</div>
+                    <div className="font-semibold text-sm text-gray-100">AmaduTown, LLC</div>
                     <div className="text-xs text-gray-500">Just now</div>
                   </div>
                 </div>

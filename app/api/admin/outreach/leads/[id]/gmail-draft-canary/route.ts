@@ -143,7 +143,7 @@ export async function POST(
         label: 'Connected Gmail sender missing',
         requiredSender,
         connectedAs,
-        recoveryAction: 'Open Admin Credentials and connect the AmaduTown Gmail profile before live draft canary review.',
+        recoveryAction: 'Open Admin Credentials and connect the AmaduTown, LLC Gmail profile before live draft canary review.',
       }
     } else if (connectedAs !== requiredSender) {
       connectedSender = {
