@@ -37,6 +37,7 @@ export type AgentSlackNotificationSweepInput = {
   dryRun?: boolean
   force?: boolean
   actorLabel?: string | null
+  calendarItemIds?: string[]
   triggerSource?: string | null
 }
 
@@ -51,6 +52,9 @@ export type AgentSlackNotificationSweepRuleResult = {
   mode: ProactiveSlackNotificationMode
   priority: ProactiveSlackNotificationRule['priority']
   triggerModes: ProactiveSlackNotificationRule['triggerModes']
+  deliveredCalendarItemIds?: string[]
+  slackChannel?: string | null
+  slackMessageTs?: string | null
   runId?: string
   text: string
   reason?: string
@@ -172,6 +176,10 @@ function sweepResultFromNotification(
     runId: notification.runId,
     text: notification.text,
     reason: notification.reason,
+    error: notification.ok ? undefined : notification.reason || 'Slack notification was not delivered.',
+    deliveredCalendarItemIds: notification.deliveredCalendarItemIds,
+    slackChannel: notification.slackChannel,
+    slackMessageTs: notification.slackMessageTs,
   }
 }
 
@@ -184,7 +192,10 @@ export async function runAgentSlackNotificationSweep(input: AgentSlackNotificati
       const payload = await buildAgentSlackNotificationPayload({
         kind: rule.kind,
         goalId: input.goalId ?? null,
+        calendarItemIds: input.calendarItemIds,
       })
+
+      if (payload.visibilityError) throw new Error(payload.visibilityError)
 
       if (payload.itemCount < rule.minimumItemCount) {
         results.push({
@@ -226,6 +237,7 @@ export async function runAgentSlackNotificationSweep(input: AgentSlackNotificati
       const notification = await sendAgentSlackNotification({
         kind: rule.kind,
         goalId: input.goalId ?? null,
+        calendarItemIds: input.calendarItemIds,
         force: input.force,
         actorLabel: input.actorLabel ?? 'Agent Ops notification sweep',
         triggerSource: input.triggerSource ?? 'cron_agent_ops_slack_notifications',

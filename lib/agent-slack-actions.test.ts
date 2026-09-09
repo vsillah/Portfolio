@@ -45,7 +45,7 @@ vi.mock('@/lib/social-content-calendar-handoff', () => ({
   rejectCalendarDraftHandoff: mocks.rejectCalendarDraftHandoff,
 }))
 
-import { handleSlackAgentAction } from '@/lib/agent-slack-actions'
+import { handleSlackAgentAction, prepareSlackAgentAction } from '@/lib/agent-slack-actions'
 
 const ORIGINAL_ENV = process.env
 
@@ -84,10 +84,11 @@ function payload(value: Record<string, unknown>, userId = 'U123') {
 
 describe('Agent Ops Slack actions', () => {
   beforeEach(() => {
-    vi.clearAllMocks()
+    vi.resetAllMocks()
     process.env = {
       ...ORIGINAL_ENV,
       SLACK_AGENT_OPS_ALLOWED_USER_IDS: 'U123',
+      SLACK_AGENT_OPS_LOCAL_BASE_URL: 'https://amadutown.test',
     }
   })
 
@@ -120,7 +121,7 @@ describe('Agent Ops Slack actions', () => {
     expect(recordedActionQuery.select).toHaveBeenCalledWith('id')
     expect(recordedActionQuery.eq).toHaveBeenCalledWith(
       'idempotency_key',
-      'slack-agent-action:U123:1716400000.000:work.assign:work-1',
+      'slack-agent-action:local-team:local-channel:U123:1716400000.000:work.assign:work-1:integration-captain',
     )
     expect(recordedActionQuery.maybeSingle).toHaveBeenCalled()
     expect(mocks.claimAgentWorkItem).not.toHaveBeenCalled()
@@ -143,7 +144,7 @@ describe('Agent Ops Slack actions', () => {
     expect(result.text).toContain('Already handled this Slack action')
     expect(recordedActionQuery.eq).toHaveBeenCalledWith(
       'idempotency_key',
-      'slack-agent-action:U123:1716400000.000:insight.draft_autoresearch:content-1',
+      'slack-agent-action:local-team:local-channel:U123:1716400000.000:insight.draft_autoresearch:content-1',
     )
     expect(mocks.createAgentWorkItem).not.toHaveBeenCalled()
   })
@@ -164,7 +165,7 @@ describe('Agent Ops Slack actions', () => {
     expect(result.text).toContain('Already handled this Slack action')
     expect(recordedActionQuery.eq).toHaveBeenCalledWith(
       'idempotency_key',
-      'slack-agent-action:U123:1716400000.000:social_comment_reply.approve:comment-1',
+      'slack-agent-action:local-team:local-channel:U123:1716400000.000:social_comment_reply.approve:comment-1',
     )
   })
 
@@ -185,7 +186,7 @@ describe('Agent Ops Slack actions', () => {
     expect(result.text).toContain('Already handled this Slack action')
     expect(recordedActionQuery.eq).toHaveBeenCalledWith(
       'idempotency_key',
-      'slack-agent-action:U123:1716400000.000:social_calendar_draft_handoff.approve:calendar-1',
+      'slack-agent-action:local-team:local-channel:U123:1716400000.000:social_calendar_draft_handoff.approve:calendar-1',
     )
     expect(mocks.authorizeCalendarDraftHandoff).not.toHaveBeenCalled()
   })
@@ -208,7 +209,7 @@ describe('Agent Ops Slack actions', () => {
     expect(result.text).toContain('Already handled this Slack action')
     expect(recordedActionQuery.eq).toHaveBeenCalledWith(
       'idempotency_key',
-      'slack-agent-action:U123:1716400000.000:warm_gmail_send.approve:warm-outreach:email-send-queue:v1:message-1',
+      'slack-agent-action:local-team:local-channel:U123:1716400000.000:warm_gmail_send.approve:warm-outreach:email-send-queue:v1:message-1',
     )
   })
 
@@ -219,20 +220,20 @@ describe('Agent Ops Slack actions', () => {
       action_ts: '1716400000.000',
       actions: [{
         action_id: 'open_social_calendar_approval_gate',
-        url: 'https://amadutown.com/admin/agents/content-intelligence?section=calendar&calendar_item=calendar-1',
+        url: 'https://amadutown.test/admin/agents/content-intelligence?section=calendar&calendar_item=calendar-1',
       }],
     })
 
     expect(result).toEqual({
       responseType: 'ephemeral',
-      text: 'Opening Portfolio review gate. Complete the decision in Portfolio: https://amadutown.com/admin/agents/content-intelligence?section=calendar&calendar_item=calendar-1',
+      actionStatus: 'blocked',
+      text: 'Complete this decision in the current Portfolio review gate: https://amadutown.test/admin/agents/content-intelligence?section=calendar&calendar_item=calendar-1',
     })
     expect(mocks.from).not.toHaveBeenCalled()
   })
 
   it('requires Portfolio review for high-risk approvals', async () => {
     mocks.from
-      .mockReturnValueOnce(queryResult({ data: null, error: null }))
       .mockReturnValueOnce(queryResult({
         data: {
           id: 'approval-1',
@@ -255,12 +256,11 @@ describe('Agent Ops Slack actions', () => {
   })
 
   it('approves low-risk proposal approvals and records a Slack trace event', async () => {
-    const approvalUpdate = queryResult({ error: null })
-    const workItemUpdate = queryResult({ error: null })
+    const approvalUpdate = queryResult({ data: { id: 'approval-1', status: 'approved' }, error: null })
+    const workItemUpdate = queryResult({ data: { id: 'work-1' }, error: null })
     const runUpdate = queryResult({ error: null })
 
     mocks.from
-      .mockReturnValueOnce(queryResult({ data: null, error: null }))
       .mockReturnValueOnce(queryResult({
         data: {
           id: 'approval-1',
@@ -274,7 +274,6 @@ describe('Agent Ops Slack actions', () => {
       .mockReturnValueOnce(approvalUpdate)
       .mockReturnValueOnce(queryResult({ error: null }))
       .mockReturnValueOnce(workItemUpdate)
-      .mockReturnValueOnce(queryResult({ data: [], error: null }))
       .mockReturnValueOnce(runUpdate)
 
     const result = await handleSlackAgentAction(payload({
@@ -290,12 +289,10 @@ describe('Agent Ops Slack actions', () => {
       decision_notes: 'Looks good from mobile.',
     }))
     expect(workItemUpdate.update).toHaveBeenCalledWith(expect.objectContaining({
-      status: 'assigned',
-      blocker_summary: null,
+      validation_summary: 'Slack approval recorded. Execution has not been started by this decision.',
     }))
     expect(runUpdate.update).toHaveBeenCalledWith(expect.objectContaining({
-      status: 'running',
-      current_step: 'Approval granted from Slack',
+      current_step: 'Approval recorded; governed continuation not started',
     }))
   })
 
@@ -459,7 +456,7 @@ describe('Agent Ops Slack actions', () => {
   })
 
   it('treats duplicate Slack comment reply approvals as already handled from comment metadata', async () => {
-    const idempotencyKey = 'slack-agent-action:U123:1716400000.000:social_comment_reply.approve:comment-1'
+    const idempotencyKey = 'slack-agent-action:local-team:local-channel:U123:1716400000.000:social_comment_reply.approve:comment-1'
     mocks.from
       .mockReturnValueOnce(queryResult({ data: null, error: null }))
       .mockReturnValueOnce(queryResult({
@@ -733,4 +730,130 @@ describe('Agent Ops Slack actions', () => {
     expect(result.text).toContain('Drafted proposed AutoResearch work item')
     expect(result.text).toContain('/admin/agents/swarm-board?work_item=work-insight-1')
   })
+  it('prepares synchronously without database access and separates persisted identities', () => {
+    const value = { action: 'work.assign', workItemId: 'work-1', agentKey: 'shaka' }
+    const original = { ...payload(value), team: { id: 'T1' }, channel: { id: 'C1' } }
+    const a = prepareSlackAgentAction(original)
+    const retry = prepareSlackAgentAction({ ...original, action_ts: 'later' })
+    expect(a.ok).toBe(true)
+    expect(retry).toEqual(a)
+    for (const changed of [
+      { ...original, team: { id: 'T2' } },
+      { ...original, channel: { id: 'C2' } },
+      { ...original, actions: [{ value: JSON.stringify({ ...value, agentKey: 'moremi' }) }] },
+    ]) {
+      const next = prepareSlackAgentAction(changed)
+      expect(next.ok && a.ok && next.key !== a.key).toBe(true)
+    }
+    expect(mocks.from).not.toHaveBeenCalled()
+  })
+
+  it.each([
+    { action: 'work.assign', workItemId: 'work-1' },
+    { action: 'work.ready', workItemId: 42 },
+    { action: 'unknown', workItemId: 'work-1' },
+    { action: 'warm_gmail_send.approve', contactId: -1 },
+  ])('blocks malformed actions before database access: %j', async (value) => {
+    expect((await handleSlackAgentAction(payload(value))).actionStatus).toBe('blocked')
+    expect(mocks.from).not.toHaveBeenCalled()
+  })
+
+  it('blocks missing persisted message identity and conflicting channel identity', () => {
+    const original = payload({ action: 'work.ready', workItemId: 'work-1' })
+    expect(prepareSlackAgentAction({ ...original, container: undefined }).ok).toBe(false)
+    expect(prepareSlackAgentAction({ ...original, channel: { id: 'C1' }, container: { ...original.container, channel_id: 'C2' } }).ok).toBe(false)
+    expect(mocks.from).not.toHaveBeenCalled()
+  })
+
+  it('preserves a competing winning decision without any downstream mutation', async () => {
+    const update = queryResult({ data: null, error: null })
+    mocks.from
+      .mockReturnValueOnce(queryResult({ data: { id: 'approval-1', run_id: 'run-1', approval_type: 'vercel_deployment_research_proposal', status: 'pending' }, error: null }))
+      .mockReturnValueOnce(update)
+      .mockReturnValueOnce(queryResult({ data: { status: 'rejected' }, error: null }))
+    const result = await handleSlackAgentAction(payload({ action: 'approval.approve', approvalId: 'approval-1' }))
+    expect(result.actionStatus).toBe('already_recorded')
+    expect(result.text).toContain('already rejected')
+    expect(update.eq).toHaveBeenCalledWith('status', 'pending')
+    expect(mocks.from.mock.calls.map(([table]) => table)).toEqual(['agent_approvals', 'agent_approvals', 'agent_approvals'])
+  })
+
+  it.each(['approved', 'rejected'])('records %s without marking the run running or technically failed', async (status) => {
+    const run = queryResult({ error: null })
+    mocks.from
+      .mockReturnValueOnce(queryResult({ data: { id: 'approval-1', run_id: 'run-1', approval_type: 'vercel_deployment_research_proposal', status: 'pending' }, error: null }))
+      .mockReturnValueOnce(queryResult({ data: { id: 'approval-1', status }, error: null }))
+      .mockReturnValueOnce(queryResult({ error: null }))
+      .mockReturnValueOnce(run)
+    const result = await handleSlackAgentAction(payload({ action: status === 'approved' ? 'approval.approve' : 'approval.reject', approvalId: 'approval-1' }))
+    expect(result.actionStatus).toBe('completed')
+    expect(result.text).toContain('No execution was started')
+    expect(run.update.mock.calls[0][0]).not.toHaveProperty('status')
+  })
+
+  it.each(['returned', 'thrown'])('keeps the recorded decision terminal while warning about downstream synchronization (%s)', async (mode) => {
+    mocks.from
+      .mockReturnValueOnce(queryResult({ data: { id: 'approval-1', run_id: 'run-1', approval_type: 'vercel_deployment_research_proposal', status: 'pending' }, error: null }))
+      .mockReturnValueOnce(queryResult({ data: { id: 'approval-1', status: 'approved' }, error: null }))
+    if (mode === 'thrown') mocks.from.mockImplementationOnce(() => { throw new Error('offline') })
+    else mocks.from.mockReturnValueOnce(queryResult({ error: { message: 'offline' } })).mockReturnValueOnce(queryResult({ error: null }))
+    const result = await handleSlackAgentAction(payload({ action: 'approval.approve', approvalId: 'approval-1' }))
+    expect(result.actionStatus).toBe('completed')
+    expect(result.text).toContain('Decision saved, but synchronization failed')
+    expect(result.text).toContain('The decision is final')
+    expect(result.text).toContain('without repeating the decision')
+    expect(result.text).toContain('No execution was started')
+  })
+
+  it('reports uncertainty after work was assigned but trace recording failed', async () => {
+    mocks.from.mockReturnValueOnce(queryResult({ data: null, error: null }))
+    mocks.claimAgentWorkItem.mockResolvedValue({ id: 'work-1', title: 'Work', active_run_id: 'run-1' })
+    mocks.recordAgentEvent.mockRejectedValue(new Error('offline'))
+    const result = await handleSlackAgentAction(payload({ action: 'work.assign', workItemId: 'work-1', agentKey: 'shaka' }))
+    expect(mocks.claimAgentWorkItem).toHaveBeenCalledOnce()
+    expect(result.actionStatus).toBe('failed')
+    expect(result.text).toContain('may already be saved')
+  })
+
+  it('keeps staging completion and recovery links off a misleading production base URL', async () => {
+    process.env = { ...process.env, NODE_ENV: 'production', VERCEL_ENV: 'production', APP_ENV: 'staging', NEXT_PUBLIC_APP_ENV: 'staging', NEXT_PUBLIC_BASE_URL: 'https://amadutown.com', SLACK_AGENT_OPS_STAGING_BASE_URL: 'https://staging.example.test', SLACK_AGENT_OPS_TEAM_ID: 'T1', SLACK_AGENT_OPS_STAGING_CHANNEL_ID: 'C1' }
+    const card = (value: Record<string, unknown>) => ({ ...payload({ ...value, sourceEnvironment: 'staging', sourceOrigin: 'https://staging.example.test' }), team: { id: 'T1' }, channel: { id: 'C1' } })
+    mocks.from.mockReturnValue(queryResult({ data: null, error: null }))
+    mocks.markAgentWorkItemReadyForKanban.mockResolvedValue({ id: 'work-1', title: 'Fixture', active_run_id: 'run-1' })
+    mocks.recordAgentEvent.mockResolvedValue({ id: 'event-1' })
+    const completed = await handleSlackAgentAction(card({ action: 'work.ready', workItemId: 'work-1' }))
+    expect(completed.actionStatus).toBe('completed')
+    expect(completed.text).toContain('https://staging.example.test/admin/agents/swarm-board')
+    expect(completed.text).not.toContain('https://amadutown.com')
+    const staleLink = prepareSlackAgentAction({ ...card({}), actions: [{ url: 'https://amadutown.com/admin/agents/runs/foreign-run' }] })
+    expect(staleLink.ok).toBe(false)
+    if (!staleLink.ok) {
+      expect(staleLink.result.text).toContain('https://staging.example.test/admin/agents')
+      expect(staleLink.result.text).not.toContain('foreign-run')
+      expect(staleLink.result.text).not.toContain('https://amadutown.com')
+    }
+    mocks.authorizeCalendarDraftHandoff.mockRejectedValueOnce(new Error('Review required'))
+    const blocked = await handleSlackAgentAction(card({ action: 'social_calendar_draft_handoff.approve', calendarItemId: 'calendar-1' }))
+    expect(blocked.actionStatus).toBe('blocked')
+    expect(blocked.text).toContain('https://staging.example.test/admin/agents/content-intelligence')
+    expect(blocked.text).not.toContain('https://amadutown.com')
+  })
+
+  it('rejects missing staging source origin before database access instead of falling back to production', async () => {
+    process.env = { ...process.env, NODE_ENV: 'production', APP_ENV: 'staging', NEXT_PUBLIC_APP_ENV: 'staging', NEXT_PUBLIC_BASE_URL: 'https://amadutown.com', SLACK_AGENT_OPS_STAGING_BASE_URL: '', VERCEL_URL: '', SLACK_AGENT_OPS_TEAM_ID: 'T1', SLACK_AGENT_OPS_STAGING_CHANNEL_ID: 'C1' }
+    const result = await handleSlackAgentAction({ ...payload({ action: 'work.ready', workItemId: 'work-1' }), team: { id: 'T1' }, channel: { id: 'C1' } })
+    expect(result.actionStatus).toBe('blocked')
+    expect(result.text).not.toContain('https://amadutown.com')
+    expect(mocks.from).not.toHaveBeenCalled()
+    expect(mocks.markAgentWorkItemReadyForKanban).not.toHaveBeenCalled()
+  })
+
+  it('blocks hosted action preparation outside the source-scoped channel before reads', () => {
+    process.env = { ...process.env, NODE_ENV: 'production', APP_ENV: 'staging', NEXT_PUBLIC_APP_ENV: 'staging', NEXT_PUBLIC_BASE_URL: 'https://amadutown.com', SLACK_AGENT_OPS_STAGING_BASE_URL: 'https://staging.example.test', SLACK_AGENT_OPS_TEAM_ID: 'T1', SLACK_AGENT_OPS_STAGING_CHANNEL_ID: 'C1' }
+    const result = prepareSlackAgentAction({ ...payload({ action: 'work.ready', workItemId: 'work-1', sourceEnvironment: 'staging', sourceOrigin: 'https://staging.example.test' }), team: { id: 'T1' }, channel: { id: 'C_OTHER' } })
+    expect(result.ok).toBe(false)
+    if (!result.ok) expect(result.result.actionStatus).toBe('blocked')
+    expect(mocks.from).not.toHaveBeenCalled()
+  })
+
 })

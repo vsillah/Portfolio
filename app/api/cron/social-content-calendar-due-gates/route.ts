@@ -11,6 +11,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
+import { getSlackAgentSource } from '@/lib/slack-agent-environment'
 import { createAgentWorkItem } from '@/lib/agent-work-items'
 import { runAgentSlackNotificationSweep } from '@/lib/agent-slack-notification-sweep'
 import { supabaseAdmin } from '@/lib/supabase'
@@ -305,6 +306,7 @@ async function runDueGateSweep(request: NextRequest) {
   }
 
   try {
+    getSlackAgentSource()
     const body = await bodyOrEmpty(request)
     const dryRun = isDryRun(request, body)
     const now = new Date()
@@ -322,15 +324,17 @@ async function runDueGateSweep(request: NextRequest) {
     if (error) {
       if (error.code === '42P01' || error.code === 'PGRST205') {
         return NextResponse.json({
-          ok: true,
+          ok: false,
+          error: 'Calendar visibility is unavailable.',
           dry_run: dryRun,
           candidate_count: 0,
           scanned_count: scannedCount,
+          scan_limited: scannedCount >= CALENDAR_MAX_SCAN_ROWS,
           pinged_count: 0,
           recalibrated_count: 0,
           candidates: [],
           side_effects: CALENDAR_SIDE_EFFECTS,
-        })
+        }, { status: 503 })
       }
       throw error
     }
@@ -353,6 +357,7 @@ async function runDueGateSweep(request: NextRequest) {
         dry_run: true,
         candidate_count: candidates.length + preparationCandidates.length + recalibrationCandidates.length,
         scanned_count: scannedCount,
+        scan_limited: scannedCount >= CALENDAR_MAX_SCAN_ROWS,
         pinged_count: 0,
         preparation_count: 0,
         recalibrated_count: 0,
@@ -411,8 +416,8 @@ async function runDueGateSweep(request: NextRequest) {
 
     for (const { item, window } of candidates) {
       const scheduleKey = calendarDueGateScheduleKey(item)
-      const idempotencyKey = `social-content-calendar-due:${item.id}:${window}:${scheduleKey}`
       const gate = calendarApprovalGateSummary(item)
+      const idempotencyKey = `social-content-calendar-due:${item.id}:${gate.kind}:${item.social_content_queue?.id ?? item.social_content_id ?? 'unlinked'}`
       const workItem = await createAgentWorkItem({
         title: `Authorize content calendar item: ${item.title}`,
         objective: [
@@ -479,7 +484,6 @@ async function runDueGateSweep(request: NextRequest) {
         .from('social_content_calendar_items')
         .update({
           due_status: deriveDueStatus(item.scheduled_for, now),
-          last_pinged_at: now.toISOString(),
           metadata: {
             ...metadata,
             publish_preparation: {
@@ -529,7 +533,6 @@ async function runDueGateSweep(request: NextRequest) {
             scheduled_for: update.scheduled_for,
             authorization_due_at: update.authorization_due_at,
             due_status: update.due_status,
-            last_pinged_at: now.toISOString(),
             metadata: {
               ...update.metadata,
               calendar_recalibration: {
@@ -562,6 +565,7 @@ async function runDueGateSweep(request: NextRequest) {
           mode: 'immediate',
           kinds: ['social_calendar_approval_due'],
           goalId: 'social-content-calendar',
+          calendarItemIds: [...new Set([...pinged.map((row) => row.calendar_item_id), ...prepared.map((row) => row.calendar_item_id), ...recalibrated.flatMap((row) => row.updates.map((update) => update.calendar_item_id))])],
           actorLabel: request.method === 'GET' ? 'Calendar due-gate cron' : 'Manual calendar due-gate sweep',
           triggerSource,
         }).catch((notificationError) => ({
@@ -569,7 +573,13 @@ async function runDueGateSweep(request: NextRequest) {
         }))
       : null
 
-    for (const update of dueGatePingUpdates) {
+    const receipts = slackResult && 'results' in slackResult ? slackResult.results.filter((result) =>
+      (result.sent || result.deduped) && result.slackChannel && result.slackMessageTs,
+    ) : []
+    const deliveredIds = new Set(receipts.flatMap((result) => result.deliveredCalendarItemIds ?? []))
+    for (const update of dueGatePingUpdates.filter((update) => deliveredIds.has(update.item.id))) {
+      const receipt = receipts.find((result) => result.deliveredCalendarItemIds?.includes(update.item.id))!
+
       const metadata = parseMetadata(update.item.metadata)
       const dueGatePings = parseMetadata(metadata.due_gate_pings)
       const updateResult = await supabaseAdmin
@@ -583,6 +593,8 @@ async function runDueGateSweep(request: NextRequest) {
               ...dueGatePings,
               [update.window]: {
                 pinged_at: now.toISOString(),
+                slack_channel: receipt.slackChannel,
+                slack_message_ts: receipt.slackMessageTs,
                 work_item_id: update.workItemId,
                 schedule_key: update.scheduleKey,
                 scheduled_for: update.item.scheduled_for,
@@ -602,10 +614,13 @@ async function runDueGateSweep(request: NextRequest) {
       dry_run: false,
       candidate_count: candidates.length + preparationCandidates.length + recalibrationCandidates.length,
       scanned_count: scannedCount,
-      pinged_count: pinged.length,
+      scan_limited: scannedCount >= CALENDAR_MAX_SCAN_ROWS,
+      pinged_count: pinged.filter((row) => deliveredIds.has(row.calendar_item_id)).length,
+      work_item_count: pinged.length,
+      notification_incomplete: pinged.some((row) => !deliveredIds.has(row.calendar_item_id)),
       preparation_count: prepared.length,
       recalibrated_count: recalibrated.length,
-      pinged,
+      pinged: pinged.filter((row) => deliveredIds.has(row.calendar_item_id)),
       prepared,
       recalibrated,
       slack_notification_result: slackResult,

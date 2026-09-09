@@ -122,4 +122,13 @@ describe('/api/cron/agent-ops-slack-notifications', () => {
     expect(response.status).toBe(500)
     expect(await response.json()).toMatchObject({ ok: false, errorCount: 1 })
   })
+  it('fails closed before a sweep when hosted provenance is missing', async () => {
+    process.env.VERCEL = '1'
+    delete process.env.NEXT_PUBLIC_APP_ENV
+    delete process.env.APP_ENV
+    const response = await GET(request('GET', 'cron-secret'))
+    expect(response.status).toBe(503)
+    expect(mocks.runAgentSlackNotificationSweep).not.toHaveBeenCalled()
+  })
+
 })

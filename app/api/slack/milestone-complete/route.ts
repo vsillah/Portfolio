@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { triggerProgressUpdate } from '@/lib/progress-update-templates'
 import type { Milestone } from '@/lib/onboarding-templates'
-import crypto from 'crypto'
+import { verifySlackSignature } from '@/lib/slack-signature'
+import { requireAuthorizedSlackActor, requireAuthorizedSlackChannel } from '@/lib/slack-agent-access'
 
 export const dynamic = 'force-dynamic'
 
@@ -20,7 +21,8 @@ export const dynamic = 'force-dynamic'
 export async function POST(request: NextRequest) {
   try {
     // Verify Slack request signature
-    const isValid = await verifySlackSignature(request)
+    const rawBody = await request.text()
+    const isValid = verifySlackSignature(request, rawBody)
     if (!isValid) {
       return NextResponse.json(
         { error: 'Invalid Slack signature' },
@@ -29,7 +31,17 @@ export async function POST(request: NextRequest) {
     }
 
     // Parse form-encoded body
-    const formData = await request.formData()
+    const formData = new URLSearchParams(rawBody)
+    const authorization = requireAuthorizedSlackActor({
+      userId: formData.get('user_id'),
+      userName: formData.get('user_name'),
+      teamId: formData.get('team_id'),
+    })
+    if (!authorization.ok) {
+      return NextResponse.json({ response_type: 'ephemeral', text: authorization.text }, { status: 403 })
+    }
+    const channelAuthorization = requireAuthorizedSlackChannel(formData.get('channel_id'))
+    if (!channelAuthorization.ok) return NextResponse.json({ response_type: 'ephemeral', text: channelAuthorization.text }, { status: 403 })
     const text = (formData.get('text') as string) || ''
     const userName = (formData.get('user_name') as string) || 'Unknown'
 
@@ -121,13 +133,13 @@ export async function POST(request: NextRequest) {
       newStatus: 'complete',
       senderName: userName,
       triggeredBy: 'slack_cmd',
-    })
+    }).catch(() => null)
 
     const channelLabel = result?.channel || 'unknown'
 
     return NextResponse.json({
       response_type: 'ephemeral',
-      text: `Marked milestone ${milestoneNumber} ("${milestoneName}") as complete for *${project.client_name}*.\nProgress update sent via *${channelLabel}*.\n\n_Tip: Use the admin dashboard to attach screenshots to progress updates._`,
+      text: `Marked milestone ${milestoneNumber} ("${milestoneName}") as complete for *${project.client_name}*.\n${result ? `Progress update prepared for *${channelLabel}*; delivery is not confirmed.` : 'Progress update preparation failed; milestone completion was saved.'}\n\n_Tip: Use the admin dashboard to attach screenshots to progress updates._`,
     })
   } catch (error) {
     console.error('Error in Slack milestone-complete:', error)
@@ -136,43 +148,4 @@ export async function POST(request: NextRequest) {
       text: 'An error occurred processing your request. Please try again.',
     })
   }
-}
-
-/**
- * Verify the Slack request signature using the signing secret.
- */
-async function verifySlackSignature(request: NextRequest): Promise<boolean> {
-  const signingSecret = process.env.SLACK_SIGNING_SECRET
-  if (!signingSecret) {
-    console.warn('SLACK_SIGNING_SECRET not configured -- skipping verification')
-    return true // Allow in development
-  }
-
-  const timestamp = request.headers.get('x-slack-request-timestamp')
-  const signature = request.headers.get('x-slack-signature')
-
-  if (!timestamp || !signature) {
-    return false
-  }
-
-  // Prevent replay attacks (5 minute window)
-  const now = Math.floor(Date.now() / 1000)
-  if (Math.abs(now - parseInt(timestamp, 10)) > 300) {
-    return false
-  }
-
-  // Clone and read the body for verification
-  const body = await request.clone().text()
-  const sigBasestring = `v0:${timestamp}:${body}`
-  const mySignature =
-    'v0=' +
-    crypto
-      .createHmac('sha256', signingSecret)
-      .update(sigBasestring)
-      .digest('hex')
-
-  return crypto.timingSafeEqual(
-    Buffer.from(mySignature),
-    Buffer.from(signature)
-  )
 }

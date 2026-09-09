@@ -21,10 +21,11 @@ export type StaleSweepResult = {
 }
 
 export function isAgentRunStale(
-  run: Pick<StaleAgentRunCandidate, 'status' | 'started_at' | 'stale_after'>,
+  run: Pick<StaleAgentRunCandidate, 'status' | 'started_at' | 'stale_after'> & { kind?: string },
   now = new Date(),
   defaultStaleAfterMs = DEFAULT_AGENT_RUN_STALE_AFTER_MS,
 ) {
+  if (run.kind === 'slack_action_receipt' || run.kind === 'slack_mobile_notification') return false
   if (run.status !== 'queued' && run.status !== 'running') return false
 
   const nowMs = now.getTime()
@@ -68,6 +69,8 @@ export async function sweepStaleAgentRuns(now = new Date()): Promise<StaleSweepR
   const { data, error } = await db()
     .from('agent_runs')
     .select('id, runtime, kind, status, started_at, stale_after, current_step')
+    .neq('kind', 'slack_action_receipt')
+    .neq('kind', 'slack_mobile_notification')
     .in('status', ['queued', 'running'])
     .order('started_at', { ascending: true })
     .limit(250)
@@ -99,6 +102,8 @@ export async function sweepStaleAgentRuns(now = new Date()): Promise<StaleSweepR
         updated_at: completedAt,
       })
       .eq('id', run.id)
+      .neq('kind', 'slack_action_receipt')
+      .neq('kind', 'slack_mobile_notification')
       .in('status', ['queued', 'running'])
 
     if (updateError) {

@@ -1,3 +1,4 @@
+import { createClient } from '@supabase/supabase-js'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const mocks = vi.hoisted(() => ({
@@ -7,6 +8,7 @@ const mocks = vi.hoisted(() => ({
   startAgentRun: vi.fn(),
   recordAgentEvent: vi.fn(),
   endAgentRun: vi.fn(),
+  update: vi.fn(),
 }))
 
 vi.mock('@/lib/supabase', () => ({
@@ -45,11 +47,50 @@ function queryResult(result: unknown, promiseMethods: Array<'select' | 'in' | 'l
   return query
 }
 
+type DeliveryRow = { id: string; status: string; metadata: Record<string, unknown>; outcome: Record<string, unknown>; idempotency_key?: string }
+function statefulDelivery(initial: Partial<DeliveryRow> | null = null, failReceipt = false) {
+  let row: DeliveryRow | null = initial ? { id: 'run-1', status: 'queued', metadata: {}, outcome: {}, ...initial } : null
+  mocks.startAgentRun.mockImplementation(async (input) => {
+    row ??= { id: 'run-1', status: input.status, metadata: input.metadata, outcome: {}, idempotency_key: input.idempotencyKey }
+    return { id: row.id }
+  })
+  mocks.from.mockImplementation(() => {
+    let patch: Partial<DeliveryRow> | null = null
+    const predicates: Array<(row: DeliveryRow) => boolean> = []
+    const query = {
+      select: () => query,
+      update: (value: Partial<DeliveryRow>) => { patch = value; return query },
+      eq: (key: string, value: unknown) => {
+        if (key === 'idempotency_key') predicates.push((r) => !r.idempotency_key || r.idempotency_key === value)
+        if (key === 'status') predicates.push((r) => r.status === value)
+        if (key === 'metadata->>delivery_claim_token') predicates.push((r) => r.metadata.delivery_claim_token === value)
+        return query
+      },
+      in: (_key: string, values: string[]) => { predicates.push((r) => values.includes(r.status)); return query },
+      or: (expression: string) => {
+        expect(expression).toBe('and(or(outcome->>sent.is.null,outcome->>sent.eq.false),or(outcome->>uncertain.is.null,outcome->>uncertain.eq.false))')
+        predicates.push((r) => r.outcome.uncertain !== true && r.outcome.sent !== true)
+        return query
+      },
+      maybeSingle: async () => {
+        if (!row || !predicates.every((predicate) => predicate(row!))) return { data: null, error: null }
+        if (patch?.outcome?.sent === true && failReceipt) return { data: null, error: { message: 'receipt write failed' } }
+        if (patch) row = { ...row, ...patch }
+        return { data: structuredClone(row), error: null }
+      },
+    }
+    return query
+  })
+  return { row: () => row }
+}
+
 describe('Agent Ops Slack notifications', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    process.env = { ...ORIGINAL_ENV }
-    mocks.from.mockReturnValue(queryResult({ data: null, error: null }))
+    process.env = { ...ORIGINAL_ENV, NEXT_PUBLIC_APP_ENV: 'production', APP_ENV: 'production', VERCEL_ENV: 'production', NEXT_PUBLIC_BASE_URL: 'https://amadutown.com', SLACK_AGENT_OPS_NOTIFICATIONS_ENABLED: 'true', SLACK_BOT_TOKEN: 'xoxb-test', SLACK_AGENT_OPS_CHANNEL_ID: 'CAGENTOPS' }
+    const deliveryQuery: Record<string, unknown> = { select: vi.fn(() => deliveryQuery), eq: vi.fn(() => deliveryQuery), in: vi.fn(() => deliveryQuery), or: vi.fn(() => deliveryQuery), maybeSingle: vi.fn(async () => ({ data: { id: 'run-1' }, error: null })) }
+    mocks.update.mockReturnValue(deliveryQuery)
+    mocks.from.mockReturnValue({ ...queryResult({ data: null, error: null }), update: mocks.update })
     mocks.startAgentRun.mockResolvedValue({ id: 'run-1' })
     mocks.recordAgentEvent.mockResolvedValue({ id: 'event-1' })
     mocks.endAgentRun.mockResolvedValue(undefined)
@@ -80,23 +121,11 @@ describe('Agent Ops Slack notifications', () => {
     vi.unstubAllGlobals()
   })
 
-  it('builds a trace and skips delivery when the Slack webhook is not configured', async () => {
-    const result = await sendAgentSlackNotification({ kind: 'blockers', actorLabel: 'admin' })
-
-    expect(result).toMatchObject({
-      ok: true,
-      sent: false,
-      skipped: true,
-      deduped: false,
-      itemCount: 1,
-    })
-    expect(mocks.startAgentRun).toHaveBeenCalledWith(expect.objectContaining({
-      kind: 'slack_mobile_notification',
-      metadata: expect.objectContaining({ notification_kind: 'blockers', item_count: 1 }),
-    }))
-    expect(mocks.recordAgentEvent).toHaveBeenCalledWith(expect.objectContaining({
-      eventType: 'slack_mobile_notification_skipped',
-    }))
+  it('fails closed before DB mutation when delivery is not enabled', async () => {
+    delete process.env.SLACK_AGENT_OPS_NOTIFICATIONS_ENABLED
+    await expect(sendAgentSlackNotification({ kind: 'blockers' })).rejects.toThrow('disabled')
+    expect(mocks.startAgentRun).not.toHaveBeenCalled()
+    expect(mocks.from).not.toHaveBeenCalled()
   })
 
   it('dedupes repeated mobile notification packets in the same window', async () => {
@@ -104,6 +133,7 @@ describe('Agent Ops Slack notifications', () => {
       data: {
         id: 'existing-run',
         status: 'completed',
+        outcome: { sent: true, slack_channel: 'CAGENTOPS', slack_message_ts: '1770000000.000001' },
         metadata: { item_count: 2, text: 'Existing Slack packet' },
       },
       error: null,
@@ -118,26 +148,26 @@ describe('Agent Ops Slack notifications', () => {
       itemCount: 2,
       text: 'Existing Slack packet',
     })
-    expect(mocks.listAgentWorkItems).not.toHaveBeenCalled()
+    expect(mocks.listAgentWorkItems).toHaveBeenCalled()
     expect(mocks.startAgentRun).not.toHaveBeenCalled()
   })
 
-  it('posts Block Kit payloads when the Slack webhook is configured', async () => {
+  it('posts linked Block Kit payloads through the bot', async () => {
     process.env.SLACK_AGENT_OPS_WEBHOOK_URL = 'https://hooks.slack.test/agent'
-    const fetchMock = vi.fn().mockResolvedValue({ ok: true })
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ ok: true, channel: 'CAGENTOPS', ts: '1770000000.000001' }) })
     vi.stubGlobal('fetch', fetchMock)
 
     const result = await sendAgentSlackNotification({ kind: 'standup_blockers', targetAgentKeys: [] })
 
     expect(result.sent).toBe(true)
     expect(fetchMock).toHaveBeenCalledWith(
-      'https://hooks.slack.test/agent',
+      'https://slack.com/api/chat.postMessage',
       expect.objectContaining({
         method: 'POST',
         body: expect.stringContaining("Today's standup blockers"),
       }),
     )
-    expect(mocks.endAgentRun).toHaveBeenCalledWith(expect.objectContaining({
+    expect(mocks.update).toHaveBeenCalledWith(expect.objectContaining({
       status: 'completed',
     }))
   })
@@ -228,7 +258,7 @@ describe('Agent Ops Slack notifications', () => {
         slack_thread_ts: '1770000000.000001',
       }),
     }))
-    expect(mocks.endAgentRun).toHaveBeenCalledWith(expect.objectContaining({
+    expect(mocks.update).toHaveBeenCalledWith(expect.objectContaining({
       outcome: expect.objectContaining({
         delivery_mode: 'bot',
         slack_channel: 'CAGENTOPS',
@@ -239,7 +269,7 @@ describe('Agent Ops Slack notifications', () => {
 
   it('limits work item notification cards to one primary action and one context action', async () => {
     process.env.SLACK_AGENT_OPS_WEBHOOK_URL = 'https://hooks.slack.test/agent'
-    const fetchMock = vi.fn().mockResolvedValue({ ok: true })
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ ok: true, channel: 'CAGENTOPS', ts: '1770000000.000001' }) })
     vi.stubGlobal('fetch', fetchMock)
 
     await sendAgentSlackNotification({ kind: 'blockers' })
@@ -253,10 +283,9 @@ describe('Agent Ops Slack notifications', () => {
 
   it('builds stale-run Slack cards with mobile triage and trace links', async () => {
     process.env.SLACK_AGENT_OPS_WEBHOOK_URL = 'https://hooks.slack.test/agent'
-    const fetchMock = vi.fn().mockResolvedValue({ ok: true })
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ ok: true, channel: 'CAGENTOPS', ts: '1770000000.000001' }) })
     vi.stubGlobal('fetch', fetchMock)
     mocks.from
-      .mockReturnValueOnce(queryResult({ data: null, error: null }))
       .mockReturnValueOnce(queryResult({
         data: [
           {
@@ -271,6 +300,7 @@ describe('Agent Ops Slack notifications', () => {
         ],
         error: null,
       }))
+      .mockReturnValueOnce(queryResult({ data: null, error: null }))
 
     const result = await sendAgentSlackNotification({ kind: 'stale_runs', actorLabel: 'admin' })
 
@@ -358,7 +388,7 @@ describe('Agent Ops Slack notifications', () => {
     expect(blocks).not.toContain('approval.approve')
   })
 
-  it('builds Content Intelligence calendar approval due packets with Slack handoff decisions and exact gate links', async () => {
+  it('keeps governed calendar media gates link-only with exact gate links', async () => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date('2026-08-15T12:00:00.000Z'))
     process.env.NEXT_PUBLIC_BASE_URL = 'https://amadutown.com'
@@ -393,7 +423,7 @@ describe('Agent Ops Slack notifications', () => {
 
     expect(payload).toMatchObject({
       itemCount: 1,
-      text: '1 Content Intelligence calendar approval(s) are stale or due soon.',
+      text: '1 Content Intelligence calendar approval(s) shown.',
       dedupeKey: expect.stringMatching(/^social_calendar_approval_due:[a-f0-9]{16}$/),
     })
     const blocks = JSON.stringify(payload.blocks)
@@ -402,12 +432,12 @@ describe('Agent Ops Slack notifications', () => {
     expect(blocks).toContain('Visual/media readiness')
     expect(blocks).toContain('Integration Captain / Vambah')
     expect(blocks).toContain('Provider/manual path is visible and fail-closed.')
-    expect(blocks).toContain('social_calendar_draft_handoff.approve')
-    expect(blocks).toContain('social-calendar-approval/v1')
-    expect(blocks).toContain('calendar-approval-1')
-    expect(blocks).toContain('Authorize handoff')
-    expect(blocks).toContain('Reject')
-    expect(blocks).toContain('do not publish, schedule externally, upload, or call providers')
+    expect(blocks).not.toContain('social_calendar_draft_handoff.approve')
+    expect(blocks).not.toContain('social-calendar-approval/v1')
+    expect(payload.renderedCalendarItemIds).toEqual(['calendar-approval-1'])
+    expect(blocks).not.toContain('Authorize handoff')
+    expect(blocks).not.toContain('Reject')
+    expect(blocks).not.toContain('do not publish, schedule externally, upload, or call providers')
     expect(blocks).toContain('/admin/social-content/social-1?step=visuals#social-visual-assets-gate')
     expect(blocks).not.toContain('approval.approve')
     expect(blocks).not.toContain('agent_approval_approve')
@@ -904,7 +934,7 @@ describe('Agent Ops Slack notifications', () => {
 
   it('sends selected-agent standup questions even when no work cards match', async () => {
     process.env.SLACK_AGENT_OPS_WEBHOOK_URL = 'https://hooks.slack.test/agent'
-    const fetchMock = vi.fn().mockResolvedValue({ ok: true })
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ ok: true, channel: 'CAGENTOPS', ts: '1770000000.000001' }) })
     vi.stubGlobal('fetch', fetchMock)
     mocks.listAgentWorkItems.mockResolvedValue([])
 
@@ -929,7 +959,7 @@ describe('Agent Ops Slack notifications', () => {
 
   it('sends high-signal insight packets with mobile-safe research actions', async () => {
     process.env.SLACK_AGENT_OPS_WEBHOOK_URL = 'https://hooks.slack.test/agent'
-    const fetchMock = vi.fn().mockResolvedValue({ ok: true })
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ ok: true, channel: 'CAGENTOPS', ts: '1770000000.000001' }) })
     vi.stubGlobal('fetch', fetchMock)
     mocks.buildAgentMissionControlSnapshot.mockResolvedValueOnce({
       high_signal_ai_insights: [
@@ -973,4 +1003,119 @@ describe('Agent Ops Slack notifications', () => {
     expect(blocks).toContain('Ask Shaka')
     expect(blocks).toContain('/admin/social-content/content-1')
   })
+  it.each(['failed', 'cancelled'])('retries a %s record after a definite rejection', async (status) => {
+    const db = statefulDelivery({ status, outcome: { sent: false } })
+    const fetchMock = vi.fn().mockResolvedValueOnce({ ok: true, json: async () => ({ ok: false, error: 'channel_not_found' }) })
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ ok: true, channel: 'CAGENTOPS', ts: '1770000000.000001' }) })
+    vi.stubGlobal('fetch', fetchMock)
+    const first = await sendAgentSlackNotification({ kind: 'blockers' })
+    expect(first).toMatchObject({ ok: false, sent: false, deduped: false, uncertain: false })
+    expect(db.row()?.status).toBe('failed')
+    expect(await sendAgentSlackNotification({ kind: 'blockers' })).toMatchObject({ ok: true, sent: true })
+    expect(fetchMock).toHaveBeenCalledTimes(2)
+    expect(db.row()?.outcome.slack_message_ts).toBe('1770000000.000001')
+  })
+
+  it.each(['timeout', 'malformed', 'missing_ts', 'missing_channel', 'wrong_channel', 'missing_ok', 'http_error', 'internal_error'])('fences uncertain %s without webhook fallback or force retry', async (failure) => {
+    const db = statefulDelivery()
+    process.env.SLACK_AGENT_OPS_WEBHOOK_URL = 'https://hooks.slack.test/fallback'
+    const bodies: Record<string, unknown> = {
+      malformed: null, missing_ts: { ok: true, channel: 'CAGENTOPS' }, missing_channel: { ok: true, ts: '1770000000.000001' },
+      wrong_channel: { ok: true, channel: 'CWRONG', ts: '1770000000.000001' }, missing_ok: {}, http_error: null, internal_error: { ok: false, error: 'internal_error' },
+    }
+    const fetchMock = failure === 'timeout' ? vi.fn().mockRejectedValue(new Error('timeout')) : vi.fn().mockResolvedValue({ ok: failure !== 'http_error', json: async () => bodies[failure] })
+    vi.stubGlobal('fetch', fetchMock)
+    expect(await sendAgentSlackNotification({ kind: 'blockers' })).toMatchObject({ ok: false, sent: false, uncertain: true })
+    expect(db.row()?.outcome.uncertain).toBe(true)
+    expect(await sendAgentSlackNotification({ kind: 'blockers', force: true })).toMatchObject({ sent: false, uncertain: true, deduped: false })
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+  })
+
+  it('allows only one concurrent delivery claim', async () => {
+    statefulDelivery()
+    let resolveFetch!: (value: unknown) => void
+    const fetchMock = vi.fn(() => new Promise((resolve) => { resolveFetch = resolve }))
+    vi.stubGlobal('fetch', fetchMock)
+    const first = sendAgentSlackNotification({ kind: 'blockers' })
+    const secondRequest = sendAgentSlackNotification({ kind: 'blockers', force: true })
+    await vi.waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1))
+    const second = await secondRequest
+    expect(second.reason).toContain('Another caller owns')
+    expect(second).toMatchObject({ sent: false, deduped: false, uncertain: true })
+    resolveFetch({ ok: true, json: async () => ({ ok: true, channel: 'CAGENTOPS', ts: '1770000000.000001' }) })
+    expect(await first).toMatchObject({ sent: true })
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+  })
+
+  it('requires a linked bot transport even when a webhook exists', async () => {
+    delete process.env.SLACK_BOT_TOKEN
+    process.env.SLACK_AGENT_OPS_WEBHOOK_URL = 'https://hooks.slack.test/agent'
+    const fetchMock = vi.fn()
+    vi.stubGlobal('fetch', fetchMock)
+    await expect(sendAgentSlackNotification({ kind: 'blockers' })).rejects.toThrow('webhook')
+    expect(fetchMock).not.toHaveBeenCalled()
+    expect(mocks.from).not.toHaveBeenCalled()
+  })
+
+  it('renders only five selected calendar IDs and exposes copy review separately from handoff', async () => {
+    const rows = Array.from({ length: 10 }, (_, index) => ({
+      id: `calendar-${index}`, title: `Review ${index}`, channel: 'linkedin', scheduled_for: new Date(Date.now() + 3600000).toISOString(),
+      authorization_status: 'pending', due_status: 'due_now', metadata: {}, social_content_id: index === 0 ? null : `social-${index}`,
+      social_content_queue: index === 0 ? null : { id: `social-${index}`, status: 'draft', social_content_publishes: [] },
+    }))
+    mocks.from.mockReturnValueOnce(queryResult({ data: rows, error: null }))
+    const payload = await buildAgentSlackNotificationPayload({ kind: 'social_calendar_approval_due' })
+    expect(payload.renderedCalendarItemIds).toEqual(rows.slice(0, 5).map((row) => row.id))
+    expect(payload.itemCount).toBe(5)
+    expect(payload.text).toContain('More may need review')
+    const blocks = JSON.stringify(payload.blocks)
+    expect(blocks).toContain('Review copy')
+    expect(blocks).toContain('/admin/social-content/social-1?step=copy#social-copy-gate')
+    expect(blocks).toContain('social_calendar_draft_handoff.approve')
+    const approveValues = payload.blocks.flatMap((block) => block.type === 'actions' ? block.elements.filter((element) => element.action_id === 'social_calendar_draft_handoff_approve').map((element) => JSON.parse(element.value!)) : [])
+    expect(approveValues).toEqual([expect.objectContaining({ calendarItemId: 'calendar-0', sourceEnvironment: 'production' })])
+    expect(blocks).not.toContain('social-5')
+  })
+
+  it('keeps uncertain identity across hourly rollover, changed prose, and deployment origin', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-09-06T12:00:00Z'))
+    statefulDelivery()
+    const fetchMock = vi.fn().mockRejectedValue(new Error('uncertain'))
+    vi.stubGlobal('fetch', fetchMock)
+    await sendAgentSlackNotification({ kind: 'blockers' })
+    vi.setSystemTime(new Date('2026-09-07T12:00:00Z'))
+    process.env.NEXT_PUBLIC_BASE_URL = 'https://new-deployment.example.test'
+    const items = await mocks.listAgentWorkItems()
+    mocks.listAgentWorkItems.mockResolvedValue(items.map((item: Record<string, unknown>) => ({ ...item, title: 'Updated display title', blocker_summary: 'New explanation of same gate' })))
+    expect(await sendAgentSlackNotification({ kind: 'blockers', force: true })).toMatchObject({ sent: false, uncertain: true })
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+  })
+
+  it('serializes both atomic receipt guards into one PostgREST filter', async () => {
+    const urls: URL[] = []
+    const databaseFetch = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = new URL(String(input))
+      urls.push(url)
+      return new Response(JSON.stringify(init?.method === 'PATCH' ? { id: 'run-1' } : null), { status: 200, headers: { 'Content-Type': 'application/json' } })
+    })
+    const client = createClient('https://mock-db.example.test', 'mock-key', { global: { fetch: databaseFetch }, auth: { persistSession: false, autoRefreshToken: false } })
+    mocks.from.mockImplementation((table) => client.from(table))
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => ({ ok: true, channel: 'CAGENTOPS', ts: '1770000000.000001' }) }))
+    expect(await sendAgentSlackNotification({ kind: 'blockers' })).toMatchObject({ sent: true })
+    const claim = urls.find((url) => url.searchParams.has('or'))!
+    expect(claim.searchParams.getAll('or')).toEqual(['(and(or(outcome->>sent.is.null,outcome->>sent.eq.false),or(outcome->>uncertain.is.null,outcome->>uncertain.eq.false)))'])
+    expect(claim.searchParams.get('status')).toBe('in.(queued,failed,cancelled)')
+  })
+
+  it('never resends after Slack accepts but receipt persistence fails', async () => {
+    const db = statefulDelivery(null, true)
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ ok: true, channel: 'CAGENTOPS', ts: '1770000000.000001' }) })
+    vi.stubGlobal('fetch', fetchMock)
+    await expect(sendAgentSlackNotification({ kind: 'blockers' })).rejects.toThrow('receipt persistence')
+    expect(db.row()?.status).toBe('running')
+    expect(await sendAgentSlackNotification({ kind: 'blockers', force: true })).toMatchObject({ sent: false, uncertain: true })
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+  })
+
 })

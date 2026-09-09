@@ -1,4 +1,6 @@
+import { getSlackAgentSource } from '@/lib/slack-agent-environment'
 import { runAgentOpsMorningReview } from '@/lib/agent-ops-morning-review'
+import { requireAuthorizedSlackActor, requireAuthorizedSlackChannel } from '@/lib/slack-agent-access'
 import { createAgentEngagementRun } from '@/lib/agent-engagement'
 import { routeAgentInboxItem } from '@/lib/agent-inbox-routing'
 import { buildAgentMissionControlSnapshot } from '@/lib/agent-mission-control'
@@ -57,6 +59,8 @@ export type AgentSlackCommandInput = {
   text: string
   userId?: string | null
   userName?: string | null
+  teamId?: string | null
+  channelId?: string | null
 }
 
 export type AgentSlackCommandResult = {
@@ -91,12 +95,7 @@ type AgentApprovalRow = {
 }
 
 function baseUrl() {
-  return (
-    process.env.NEXT_PUBLIC_BASE_URL ||
-    process.env.PORTFOLIO_BASE_URL ||
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    'https://amadutown.com'
-  ).replace(/\/$/, '')
+  return getSlackAgentSource().sourceOrigin
 }
 
 function agentRunsUrl(runId?: string) {
@@ -1321,6 +1320,15 @@ export async function runWarRoomDiscussSlackText(input: AgentSlackCommandInput) 
 }
 
 export async function handleAgentSlackCommand(input: AgentSlackCommandInput): Promise<AgentSlackCommandResult> {
+  const authorization = requireAuthorizedSlackActor(input)
+  if (!authorization.ok) return { responseType: 'ephemeral', text: authorization.text }
+  const channelAuthorization = requireAuthorizedSlackChannel(input.channelId)
+  if (!channelAuthorization.ok) return { responseType: 'ephemeral', text: channelAuthorization.text }
+  try {
+    baseUrl()
+  } catch {
+    return { responseType: 'ephemeral', text: 'Slack command rejected: configure the source environment and origin before using Agent Ops.' }
+  }
   const command = commandFromText(input.text)
   if (command === 'approvals') return buildApprovalsSlackResult()
   if (command === 'work-items') return buildAgentWorkItemsSlackResult(input)

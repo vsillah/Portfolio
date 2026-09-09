@@ -39,6 +39,7 @@ import {
 import Link from 'next/link'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import { getCurrentSession } from '@/lib/auth'
+import { testingAdminRequest, TestingRequestError } from '@/lib/testing/admin-request'
 import type { JourneyStage, TestStatus } from '@/lib/testing/types'
 import { effectiveTestRunStatus, scenarioIncludesDiagnosticStep } from '@/lib/testing'
 import { ALL_JOURNEY_SCRIPTS, JOURNEY_STAGES, getScriptsByStage, JOURNEY_SCRIPTS_BY_ID } from '@/lib/testing/journey-scripts'
@@ -821,6 +822,8 @@ export default function TestingDashboard() {
   const [loading, setLoading] = useState(true)
   const [errorsModalRunId, setErrorsModalRunId] = useState<string | null>(null)
   const [errorsModalLoading, setErrorsModalLoading] = useState(false)
+  const [errorsLoadError, setErrorsLoadError] = useState<string | null>(null)
+  const errorsRequestRef = useRef(0)
   const [runsPage, setRunsPage] = useState(0)
   
   // Config state
@@ -909,59 +912,81 @@ export default function TestingDashboard() {
     setTimeout(() => setToastMessage(null), 4000)
   }, [])
 
+  const [testingDataError, setTestingDataError] = useState<string | null>(null)
+  const [testingActionError, setTestingActionError] = useState<{ path: string; message: string } | null>(null)
+  const testingError = testingDataError ?? testingActionError?.message
+  const requestTesting = useCallback(async (path: string, init?: RequestInit, scope: 'data' | 'action' = 'action') => {
+    try {
+      const response = await testingAdminRequest(path, init)
+      if (scope === 'action') setTestingActionError(current => current?.path === path ? null : current)
+      return response
+    } catch (error) {
+      const message = error instanceof TestingRequestError ? error.message : 'Testing request failed. Try again.'
+      if (scope === 'data') setTestingDataError(message)
+      else setTestingActionError({ path, message })
+      throw error
+    }
+  }, [])
+
   // Fetch data
   const fetchData = useCallback(async () => {
     try {
       // Fetch test runs
-      const runsRes = await fetch('/api/testing/run?limit=10')
+      const runsRes = await requestTesting('/api/testing/run?limit=10', undefined, 'data')
       const runsData = await runsRes.json()
       setTestRuns(runsData.runs || [])
       setActiveRuns(runsData.activeRuns || [])
       
       // Fetch remediations
-      const remRes = await fetch('/api/testing/remediation?limit=10')
+      const remRes = await requestTesting('/api/testing/remediation?limit=10', undefined, 'data')
       const remData = await remRes.json()
       setRemediations(remData.requests || [])
+      setTestingDataError(null)
       
     } catch (error) {
       console.error('Failed to fetch data:', error)
+      setTestRuns([])
+      setActiveRuns([])
+      setRemediations([])
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [requestTesting])
   
-  // Fetch errors for a run (used by both inline selection and modal)
+  // Ignore responses from a log dialog that has since closed or changed runs.
   const fetchErrors = useCallback(async (runId: string) => {
+    const requestId = ++errorsRequestRef.current
+    setErrorsModalLoading(true)
     try {
-      const res = await fetch(`/api/testing/status?runId=${runId}`)
+      const res = await requestTesting(`/api/testing/status?runId=${runId}`)
       const data = await res.json()
+      if (requestId !== errorsRequestRef.current) return
       setErrors(data.recentErrors || [])
+      setErrorsLoadError(null)
     } catch (error) {
+      if (requestId !== errorsRequestRef.current) return
       console.error('Failed to fetch errors:', error)
+      setErrorsLoadError(error instanceof TestingRequestError ? error.message : 'Failed to load test errors.')
+    } finally {
+      if (requestId === errorsRequestRef.current) setErrorsModalLoading(false)
     }
-  }, [])
+  }, [requestTesting])
 
-  // Open the errors modal for a specific run
-  const openErrorsModal = useCallback(async (runId: string) => {
+  const openErrorsModal = useCallback((runId: string) => {
+    ++errorsRequestRef.current
     setErrorsModalRunId(runId)
     setErrorsModalLoading(true)
+    setErrors([])
+    setErrorsLoadError(null)
     setSelectedErrors([])
-    try {
-      const res = await fetch(`/api/testing/status?runId=${runId}`)
-      const data = await res.json()
-      setErrors(data.recentErrors || [])
-    } catch (error) {
-      console.error('Failed to fetch errors:', error)
-    } finally {
-      setErrorsModalLoading(false)
-    }
   }, [])
 
   const closeErrorsModal = useCallback(() => {
+    ++errorsRequestRef.current
     setErrorsModalRunId(null)
     setSelectedErrors([])
   }, [])
-  
+
   useEffect(() => {
     fetchData()
   }, [fetchData])
@@ -1007,7 +1032,8 @@ export default function TestingDashboard() {
     }
     let cancelled = false
     setRunDetailLoading(true)
-    fetch(`/api/testing/status?runId=${encodeURIComponent(runDetailRunId)}`)
+    setRunDetailData(null)
+    requestTesting(`/api/testing/status?runId=${encodeURIComponent(runDetailRunId)}`)
       .then(async res => {
         const data = (await res.json()) as Record<string, unknown>
         if (!res.ok) {
@@ -1018,8 +1044,8 @@ export default function TestingDashboard() {
       .then(data => {
         if (!cancelled) setRunDetailData(data)
       })
-      .catch(() => {
-        if (!cancelled) setRunDetailData({ error: 'Failed to load run' })
+      .catch(error => {
+        if (!cancelled) setRunDetailData({ error: error instanceof TestingRequestError ? error.message : 'Failed to load run' })
       })
       .finally(() => {
         if (!cancelled) setRunDetailLoading(false)
@@ -1027,7 +1053,7 @@ export default function TestingDashboard() {
     return () => {
       cancelled = true
     }
-  }, [runDetailRunId])
+  }, [runDetailRunId, requestTesting])
 
   const runDetailOutcome = useMemo((): TestStatus | null => {
     if (!runDetailData || typeof runDetailData.error === 'string') return null
@@ -1450,7 +1476,7 @@ export default function TestingDashboard() {
         body.scenarioPreset = 'all'
       }
 
-      const res = await fetch('/api/testing/run', {
+      const res = await requestTesting('/api/testing/run', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
@@ -1589,7 +1615,7 @@ export default function TestingDashboard() {
   // Stop a test run
   const stopTestRun = async (runId: string) => {
     try {
-      const res = await fetch(`/api/testing/run?runId=${runId}`, {
+      const res = await requestTesting(`/api/testing/run?runId=${runId}`, {
         method: 'DELETE'
       })
       
@@ -1617,7 +1643,7 @@ export default function TestingDashboard() {
     }
     
     try {
-      const res = await fetch(`/api/testing/cleanup?runId=${runId}`, {
+      const res = await requestTesting(`/api/testing/cleanup?runId=${runId}`, {
         method: 'DELETE'
       })
       
@@ -1734,7 +1760,7 @@ export default function TestingDashboard() {
     showToast('info', `Creating ${output === 'cursor_task' ? 'Cursor task' : output === 'github_pr' ? 'GitHub PR' : 'n8n workflow'}...`)
     
     try {
-      const res = await fetch('/api/testing/remediation', {
+      const res = await requestTesting('/api/testing/remediation', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -1760,7 +1786,7 @@ export default function TestingDashboard() {
           const pollForPrompt = async () => {
             attempts++
             try {
-              const promptRes = await fetch(`/api/testing/remediation/${data.requestId}`)
+              const promptRes = await requestTesting(`/api/testing/remediation/${data.requestId}`)
               const promptData = await promptRes.json()
               const status = promptData.request?.status
               
@@ -1797,6 +1823,10 @@ export default function TestingDashboard() {
               }
             } catch (pollError) {
               console.error('Polling error:', pollError)
+              if (pollError instanceof TestingRequestError) {
+                setRemediationLoading(false)
+                return
+              }
               if (attempts < maxAttempts) {
                 setTimeout(pollForPrompt, 1000)
               } else {
@@ -1863,7 +1893,7 @@ export default function TestingDashboard() {
     try {
       showToast('info', `Marking errors as ${status === 'fixed' ? 'fixed' : "won't fix"}...`)
       
-      const res = await fetch('/api/testing/errors/bulk', {
+      const res = await requestTesting('/api/testing/errors/bulk', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -2043,6 +2073,18 @@ export default function TestingDashboard() {
   return (
     <div className="min-h-screen bg-imperial-navy text-platinum-white p-6 md:p-8">
       <div className="max-w-7xl mx-auto">
+        {testingError && (
+          <div role="alert" className="mb-4 flex flex-wrap items-center gap-3 rounded-lg border border-red-400/30 bg-red-400/10 p-3 text-sm text-red-200">
+            <span className="basis-full min-w-0 sm:basis-auto sm:flex-1">{testingError}</span>
+            <Link href="/auth/login?redirect=/admin/testing" className="underline">Sign in</Link>
+            {testingDataError ? (
+              <button type="button" onClick={() => void fetchData()} className="underline">Retry testing data</button>
+            ) : (
+              <button type="button" onClick={() => setTestingActionError(null)} className="underline">Dismiss error</button>
+            )}
+          </div>
+        )}
+
         {/* Breadcrumb Navigation */}
         <Breadcrumbs items={[
           { label: 'Admin Dashboard', href: '/admin' },
@@ -2418,7 +2460,7 @@ export default function TestingDashboard() {
           </div>
           
           {testRuns.length === 0 ? (
-            <p className="text-platinum-white/50 text-sm">No test runs yet</p>
+            <p className="text-platinum-white/50 text-sm">{testingDataError ? 'Testing data unavailable' : 'No test runs yet'}</p>
           ) : (
             <>
               <div className="overflow-x-auto -mx-1">
@@ -3317,6 +3359,8 @@ export default function TestingDashboard() {
                   <div className="flex items-center justify-center py-12">
                     <RefreshCw className="w-6 h-6 animate-spin text-radiant-gold" />
                   </div>
+                ) : errorsLoadError ? (
+                  <p role="alert" className="py-6 text-red-300">{errorsLoadError}</p>
                 ) : errors.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-12 text-platinum-white/55">
                     <CheckCircle className="w-8 h-8 text-emerald-400 mb-3" />
@@ -3484,10 +3528,12 @@ export default function TestingDashboard() {
                       <button
                         type="button"
                         onClick={async () => {
-                          const res = await fetch(`/api/testing/remediation/${rem.id}`)
-                          const data = await res.json()
-                          if (data.cursorTaskPrompt) {
-                            setCursorPrompt(data.cursorTaskPrompt)
+                          try {
+                            const res = await requestTesting(`/api/testing/remediation/${rem.id}`)
+                            const data = await res.json()
+                            if (data.cursorTaskPrompt) setCursorPrompt(data.cursorTaskPrompt)
+                          } catch {
+                            // The shared request handler displays the access/retry state.
                           }
                         }}
                         className="p-2 rounded-lg border border-radiant-gold/25 text-platinum-white/80 hover:bg-radiant-gold/10 focus:outline-none focus:ring-2 focus:ring-radiant-gold/50"

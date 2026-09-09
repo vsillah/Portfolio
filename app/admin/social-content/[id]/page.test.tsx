@@ -2776,4 +2776,23 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(screen.getByText(/migration 20260806163011/i)).toBeInTheDocument()
     expect(screen.queryByText('No comment projection is attached to this post yet.')).not.toBeInTheDocument()
   })
+  it('shows manual recovery and feedback and submits the rendered version token', async () => {
+    const rejected = { ...baseItem, status: 'rejected', post_text: 'An old hook.', rag_context: { ...baseItem.rag_context, source: 'social_content_calendar_authorization' }, copy_revision: { state: 'blocked', worker: 'not_configured', current_version: 'fixture-version', feedback: 'Name the handoff.' } }
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input)
+      if (url === '/api/admin/social-content/social-1' && init?.method === 'PUT') return { ok: true, json: async () => ({ item: { ...rejected, status: 'draft', post_text: 'The revised concrete hook.', copy_revision: { ...rejected.copy_revision, state: 'ready' } } }) }
+      if (url === '/api/admin/social-content/social-1') return { ok: true, json: async () => ({ item: rejected }) }
+      return { ok: true, json: async () => ({ items: [], configs: [], references: [] }) }
+    })
+    vi.stubGlobal('fetch', fetchMock)
+    renderAtStep('copy')
+    expect(await screen.findByText('Manual edit needed. No revision worker is connected. Edit the copy above, then return it to review.')).toBeInTheDocument()
+    expect(screen.getByText('Feedback: Name the handoff.')).toBeInTheDocument()
+    fireEvent.change(screen.getByDisplayValue('An old hook.'), { target: { value: 'The revised concrete hook.' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Return to Copy Review' }))
+    await waitFor(() => expect(fetchMock.mock.calls.some(([, init]) => init?.method === 'PUT')).toBe(true))
+    const [, init] = fetchMock.mock.calls.find(([, init]) => init?.method === 'PUT')!
+    expect(JSON.parse(String(init?.body))).toMatchObject({ expected_copy_version: 'fixture-version', status: 'draft', post_text: 'The revised concrete hook.' })
+  })
+
 })
