@@ -109,6 +109,49 @@ describe('GET /api/products/[id]', () => {
     expect(body.variants).toEqual([])
   })
 
+  it('loads print-on-demand variants after sanitizing public fields', async () => {
+    const merch = { ...paidProduct, is_print_on_demand: true }
+    const variants = [{ id: 'v1', size: 'M', color: 'black' }]
+    const productSingle = vi.fn().mockResolvedValue({ data: merch, error: null })
+    const variantOrderColor = vi.fn().mockResolvedValue({ data: variants, error: null })
+    const variantOrderSize = vi.fn().mockReturnValue({ order: variantOrderColor })
+    const variantEq = vi.fn().mockReturnValue({ order: variantOrderSize })
+    mocks.from.mockImplementation((table: string) => {
+      if (table === 'products') {
+        return {
+          select: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({ single: productSingle }),
+          }),
+        }
+      }
+      if (table === 'product_variants') {
+        return {
+          select: vi.fn().mockReturnValue({ eq: variantEq }),
+        }
+      }
+      throw new Error(`Unexpected table ${table}`)
+    })
+    mocks.verifyAdmin.mockResolvedValue({ error: 'Unauthorized', status: 401 })
+    mocks.isAuthError.mockReturnValue(true)
+
+    const response = await GET(makeGetRequest(), params())
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(body.product).toEqual({
+      id: 'prod-1',
+      title: 'Curriculum',
+      type: 'training',
+      is_print_on_demand: true,
+      asset_url: null,
+      instructions_file_path: null,
+    })
+    expect(body.variants).toEqual(variants)
+    expect(variantEq).toHaveBeenCalledWith('product_id', 'prod-1')
+    expect(variantOrderSize).toHaveBeenCalledWith('size', { ascending: true })
+    expect(variantOrderColor).toHaveBeenCalledWith('color', { ascending: true })
+  })
+
   it('returns paid-asset fields to admins', async () => {
     mockProductRead({ data: paidProduct, error: null })
     mocks.verifyAdmin.mockResolvedValue({ user: { id: 'admin-user' } })

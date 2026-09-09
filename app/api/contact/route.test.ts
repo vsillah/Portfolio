@@ -3,6 +3,7 @@ import { NextRequest } from 'next/server'
 
 const mocks = vi.hoisted(() => ({
   from: vi.fn(),
+  verifyAdmin: vi.fn(),
   triggerLeadQualificationWebhook: vi.fn(),
 }))
 
@@ -10,11 +11,16 @@ vi.mock('@/lib/supabase', () => ({
   supabaseAdmin: { from: mocks.from },
 }))
 
+vi.mock('@/lib/auth-server', () => ({
+  verifyAdmin: mocks.verifyAdmin,
+  isAuthError: (result: object) => 'error' in result,
+}))
+
 vi.mock('@/lib/n8n', () => ({
   triggerLeadQualificationWebhook: mocks.triggerLeadQualificationWebhook,
 }))
 
-import { POST } from './route'
+import { GET, POST } from './route'
 
 function makeRequest(body: Record<string, unknown>) {
   return new NextRequest('http://localhost/api/contact', {
@@ -52,11 +58,14 @@ function lookupChain(existing: { id: number } | null) {
 describe('POST /api/contact', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    vi.stubGlobal('fetch', vi.fn(() => { throw new Error('Unexpected network request in API test') }))
+    mocks.verifyAdmin.mockResolvedValue({ user: { id: 'admin-1' }, isAdmin: true })
     mocks.triggerLeadQualificationWebhook.mockResolvedValue({ triggered: true })
     vi.spyOn(console, 'error').mockImplementation(() => {})
   })
 
   afterEach(() => {
+    vi.unstubAllGlobals()
     vi.restoreAllMocks()
   })
 
@@ -168,5 +177,71 @@ describe('POST /api/contact', () => {
     expect(mocks.triggerLeadQualificationWebhook).toHaveBeenCalledWith(
       expect.objectContaining({ submissionId: '88' }),
     )
+  })
+})
+
+describe('GET /api/contact', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    vi.stubGlobal('fetch', vi.fn(() => { throw new Error('Unexpected network request in API test') }))
+    mocks.verifyAdmin.mockResolvedValue({ user: { id: 'admin-1' }, isAdmin: true })
+    vi.spyOn(console, 'error').mockImplementation(() => {})
+  })
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
+    vi.restoreAllMocks()
+  })
+
+  function submissionsQuery(result: { data: unknown; error: unknown }) {
+    const limit = vi.fn().mockResolvedValue(result)
+    const order = vi.fn().mockReturnValue({ limit })
+    const select = vi.fn().mockReturnValue({ order })
+    mocks.from.mockReturnValue({ select })
+    return { select, order, limit }
+  }
+
+  it.each([401, 403])('blocks a non-admin caller with %s before reading PII', async (status) => {
+    mocks.verifyAdmin.mockResolvedValue({ error: 'Access denied', status })
+    const request = new NextRequest('http://localhost/api/contact')
+    const response = await GET(request)
+    expect(response.status).toBe(status)
+    expect(await response.json()).toEqual({ error: 'Access denied' })
+    expect(mocks.verifyAdmin).toHaveBeenCalledWith(request)
+    expect(mocks.from).not.toHaveBeenCalled()
+  })
+
+  it('lists recent submissions for a verified admin', async () => {
+    const submissions = [
+      { id: 1, email: 'ada@example.com', name: 'Ada', message: 'Need a diagnostic' },
+    ]
+    const query = submissionsQuery({ data: submissions, error: null })
+
+    const response = await GET(new NextRequest('http://localhost/api/contact'))
+
+    expect(response.status).toBe(200)
+    await expect(response.json()).resolves.toEqual({ submissions })
+    expect(mocks.from).toHaveBeenCalledWith('contact_submissions')
+    expect(query.select).toHaveBeenCalledWith('*')
+    expect(query.order).toHaveBeenCalledWith('created_at', { ascending: false })
+    expect(query.limit).toHaveBeenCalledWith(50)
+  })
+
+  it('returns an empty list when there are no submissions', async () => {
+    submissionsQuery({ data: [], error: null })
+
+    const response = await GET(new NextRequest('http://localhost/api/contact'))
+
+    expect(response.status).toBe(200)
+    await expect(response.json()).resolves.toEqual({ submissions: [] })
+  })
+
+  it('returns a generic 500 when the lookup fails', async () => {
+    submissionsQuery({ data: null, error: { message: 'relation missing' } })
+
+    const response = await GET(new NextRequest('http://localhost/api/contact'))
+
+    expect(response.status).toBe(500)
+    await expect(response.json()).resolves.toEqual({ error: 'Failed to fetch submissions' })
   })
 })
