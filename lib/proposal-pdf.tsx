@@ -858,7 +858,7 @@ function renderTerms(source: string) {
   const render = (block: ProposalTermBlock, key: number) => {
     if (block.kind === 'heading') {
       return <Text key={key} style={[styles.sectionTitle, {
-        marginTop: 9, marginBottom: 5, textTransform: 'none', color: PDF_BRAND.colors.bronze,
+        marginTop: 9, marginBottom: 5, letterSpacing: 0, textTransform: 'none', color: PDF_BRAND.colors.bronze,
       }]}>{block.text}</Text>;
     }
     if (block.kind === 'payment') {
