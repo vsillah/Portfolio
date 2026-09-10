@@ -20,9 +20,11 @@ export async function GET(
 
   const { data: project } = await supabaseAdmin
     .from('client_projects')
-    .select('id')
+    .select('id, proposals(*)')
     .eq('proposal_id', proposalId)
     .maybeSingle()
+
+    if ((project?.proposals as unknown as { staged_package?: boolean })?.staged_package) return NextResponse.json({ error: 'Use scoped package access.' }, { status: 403 })
 
   if (!project) {
     return NextResponse.json({ dashboard_url: null })

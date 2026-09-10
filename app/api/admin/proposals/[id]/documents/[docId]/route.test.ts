@@ -74,6 +74,7 @@ describe('DELETE /api/admin/proposals/[id]/documents/[docId]', () => {
 
   it('returns 404 when the document is missing or outside the proposal scope', async () => {
     mocks.from.mockImplementation((table: string) => {
+        if (table === 'proposals') return chain({ data: { id: 'proposal-1' }, error: null })
       if (table === 'proposal_documents') {
         return chain({ data: null, error: { message: 'not found' } })
       }
@@ -90,6 +91,7 @@ describe('DELETE /api/admin/proposals/[id]/documents/[docId]', () => {
   it('deletes the row and removes the storage object when present', async () => {
     let phase = 0
     mocks.from.mockImplementation((table: string) => {
+        if (table === 'proposals') return chain({ data: { id: 'proposal-1' }, error: null })
       if (table !== 'proposal_documents') throw new Error(`Unexpected table: ${table}`)
       phase += 1
       if (phase === 1) {
@@ -114,6 +116,7 @@ describe('DELETE /api/admin/proposals/[id]/documents/[docId]', () => {
   it('skips storage removal when the document has no file_path', async () => {
     let phase = 0
     mocks.from.mockImplementation((table: string) => {
+        if (table === 'proposals') return chain({ data: { id: 'proposal-1' }, error: null })
       if (table !== 'proposal_documents') throw new Error(`Unexpected table: ${table}`)
       phase += 1
       if (phase === 1) {

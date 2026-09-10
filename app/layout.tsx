@@ -3,7 +3,7 @@ import { Orbitron, Inter, Cormorant_Garamond } from 'next/font/google'
 import './globals.css'
 import { AuthProvider } from '@/components/AuthProvider'
 import { ThemeProvider } from '@/components/ThemeProvider'
-import { SpeedInsights } from '@vercel/speed-insights/next'
+import RouteSpeedInsights from '@/components/RouteSpeedInsights'
 import FlowingMesh from '@/components/ui/FlowingMesh'
 import DevBanner from '@/components/DevBanner'
 import '@/lib/env-check'
@@ -55,7 +55,7 @@ export default function RootLayout({
             <AuthProvider>{children}</AuthProvider>
           </div>
         </ThemeProvider>
-        <SpeedInsights />
+        <RouteSpeedInsights />
       </body>
     </html>
   )

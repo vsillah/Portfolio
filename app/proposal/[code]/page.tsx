@@ -27,6 +27,7 @@ import {
   ArrowRight,
   ClipboardList,
 } from 'lucide-react';
+import StagedProposal from '@/components/proposals/StagedProposal';
 import InstallmentOption from '@/components/checkout/InstallmentOption';
 import SiteThemeCorner from '@/components/SiteThemeCorner';
 import { WEBSITE_BRAND_NAME } from '@/lib/website-brand';
@@ -61,6 +62,7 @@ interface ValueAssessment {
 }
 
 interface Proposal {
+  staged_package?: boolean;
   id: string;
   client_name: string;
   client_email: string;
@@ -384,6 +386,8 @@ function ProposalByCodeContent() {
       day: 'numeric',
     });
   };
+
+  if (proposal?.staged_package) return <StagedProposal id={proposal.id} credential={String(code).toUpperCase()} />;
 
   if (isLoading) {
     return (

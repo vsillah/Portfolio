@@ -258,6 +258,7 @@ describe('/api/admin/proposals/[id]/documents', () => {
   describe('PATCH', () => {
     it('rejects reorder payloads that do not match the current document set exactly', async () => {
       mocks.from.mockImplementation((table: string) => {
+        if (table === 'proposals') return chain({ data: { id: 'proposal-1' }, error: null })
         if (table === 'proposal_documents') {
           return chain({ data: [{ id: 'doc-1' }, { id: 'doc-2' }], error: null })
         }
@@ -284,6 +285,7 @@ describe('/api/admin/proposals/[id]/documents', () => {
       ]
 
       mocks.from.mockImplementation((table: string) => {
+        if (table === 'proposals') return chain({ data: { id: 'proposal-1' }, error: null })
         if (table !== 'proposal_documents') throw new Error(`Unexpected table: ${table}`)
         call += 1
 

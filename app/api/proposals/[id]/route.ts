@@ -22,6 +22,8 @@ export async function GET(
       .eq('id', id)
       .single();
 
+    if (proposal?.staged_package) return NextResponse.json({ error: 'Use the scoped staged package workflow.' }, { status: 403 });
+
     if (error || !proposal) {
       return NextResponse.json({ error: 'Proposal not found' }, { status: 404 });
     }
@@ -88,6 +90,11 @@ export async function PATCH(
     const { id } = await params;
     const body = await request.json();
     const { action } = body;
+    const adminResult = action === 'mark_viewed' ? null : await verifyAdmin(request);
+    if (adminResult && isAuthError(adminResult)) return NextResponse.json({ error: adminResult.error }, { status: adminResult.status });
+    const { data: existing, error: lookupError } = await supabaseAdmin.from('proposals').select('*').eq('id', id).single();
+    if (lookupError) return NextResponse.json({ error: 'Proposal unavailable' }, { status: 404 });
+    if (existing?.staged_package) return NextResponse.json({ error: 'Staged package content is immutable. Use a reviewed revision.' }, { status: 403 });
 
     // Handle public actions (no auth required)
     if (action === 'mark_viewed') {
@@ -109,11 +116,6 @@ export async function PATCH(
     }
 
     // Admin actions require authentication
-    const adminResult = await verifyAdmin(request);
-    if (isAuthError(adminResult)) {
-      return NextResponse.json({ error: adminResult.error }, { status: adminResult.status });
-    }
-
     // Handle admin actions
     if (action === 'mark_sent') {
       const { error } = await supabaseAdmin

@@ -1,3 +1,4 @@
+import { recordStagedReceipt } from '@/lib/proposal-staged-receipt'
 import { NextRequest, NextResponse } from 'next/server'
 import { stripe } from '@/lib/stripe'
 import { supabaseAdmin } from '@/lib/supabase'
@@ -337,6 +338,13 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    if (['checkout.session.completed', 'checkout.session.async_payment_succeeded'].includes(event.type)) {
+      const stagedSession = event.data.object as Stripe.Checkout.Session
+      if (stagedSession.metadata?.stagedProposalId) {
+        if (stagedSession.payment_status === 'paid') await recordStagedReceipt(stagedSession, event.id)
+        return NextResponse.json({ received: true })
+      }
+    }
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session;
@@ -388,6 +396,7 @@ export async function POST(request: NextRequest) {
             .eq('id', proposalId)
             .single();
           
+          if (proposal?.staged_package) throw new Error('Staged proposal requires a matching stage receipt')
           if (proposal) {
             // Create order record
             const { data: order, error: orderError } = await supabaseAdmin

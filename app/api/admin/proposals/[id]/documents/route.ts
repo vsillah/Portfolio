@@ -31,9 +31,11 @@ export async function GET(
 
   const { data: proposal } = await supabaseAdmin
     .from('proposals')
-    .select('id')
+    .select('*')
     .eq('id', proposalId)
     .single();
+
+  if (proposal?.staged_package) return NextResponse.json({ error: 'Staged package is frozen. Use reviewed package actions.' }, { status: 403 });
 
   if (!proposal) {
     return NextResponse.json({ error: 'Proposal not found' }, { status: 404 });
@@ -69,9 +71,11 @@ export async function POST(
 
   const { data: proposal } = await supabaseAdmin
     .from('proposals')
-    .select('id')
+    .select('*')
     .eq('id', proposalId)
     .single();
+
+  if (proposal?.staged_package) return NextResponse.json({ error: 'Staged package is frozen. Use reviewed package actions.' }, { status: 403 });
 
   if (!proposal) {
     return NextResponse.json({ error: 'Proposal not found' }, { status: 404 });
@@ -162,6 +166,8 @@ export async function PATCH(
   }
 
   const { id: proposalId } = await params;
+  const { data: packageProposal } = await supabaseAdmin.from('proposals').select('*').eq('id', proposalId).single();
+  if (packageProposal?.staged_package) return NextResponse.json({ error: 'Staged package is frozen.' }, { status: 403 });
   if (!proposalId) {
     return NextResponse.json({ error: 'Proposal ID required' }, { status: 400 });
   }
@@ -180,7 +186,7 @@ export async function PATCH(
 
   const { data: existing } = await supabaseAdmin
     .from('proposal_documents')
-    .select('id')
+    .select('*')
     .eq('proposal_id', proposalId);
 
   const existingIds = new Set((existing ?? []).map((r: { id: string }) => r.id));

@@ -22,9 +22,11 @@ export async function POST(
 
     const { data: proposal, error: fetchError } = await supabaseAdmin
       .from('proposals')
-      .select('id')
+      .select('*')
       .eq('id', id)
       .single();
+
+    if (proposal?.staged_package) return NextResponse.json({ error: 'Staged package is frozen. Use reviewed package actions.' }, { status: 403 });
 
     if (fetchError || !proposal) {
       return NextResponse.json({ error: 'Proposal not found' }, { status: 404 });
