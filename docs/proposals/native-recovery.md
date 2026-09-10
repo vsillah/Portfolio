@@ -4,7 +4,7 @@ Existing Sales conversation and audit screens load the latest proposal for their
 
 ProposalModal opens the saved exact items, amount, terms and expiry. Existing conversation document controls remain available. Reopening does not generate another proposal. Intentional Create another proposal returns to the existing form, with a return-to-review action and no generation when no offer items are selected. Issued client links use https://amadutown.com; missing codes never fall back to public UUID URLs in this admin recovery path. This UI behavior is not a new server security boundary for legacy public endpoints.
 
-No schema, dashboard, payment, agreement-generation or deployment changes are included. Existing payment and project-provisioning behavior remains outside this fix.
+No schema, dashboard, payment or agreement-generation changes are included. Existing payment and project-provisioning behavior remains outside this fix. The proposal route explicitly includes its local shield asset in the production file trace.
 
 Validation:
 
@@ -23,3 +23,12 @@ Captain verifies hosted behavior and both Vercel contexts before integration. No
 The existing review drawer and proposal PDF now share conservative text structure: known headings, literal paragraphs, numbered/bullet lists and a grouped payment row. Stored text is not HTML and is never injected as markup. The AmaduTown shield retains its portrait ratio; legal naming uses website-brand. PDF styling draws from PDF_BRAND and existing invoice/audit templates, with full item descriptions, kept headings and page numbering. Contract terms remain unchanged.
 
 Formatting verification: 18 tests across the prior recovery suite plus lib/proposal-terms.test.ts, components/admin/sales/ProposalTerms.test.tsx and lib/proposal-pdf-format.test.ts. Tests cover ordinary multiline legacy text, explicit lists, literal unsafe HTML, long text and exact amounts/full descriptions through real PDF generation/extraction. The private candidate retained every approved source line and rendered as two visually checked pages. Final responsive bounds sweeps and paced local synthetic MP4s passed at 360/390/768/1440. No hosted/customer writes or uploads.
+
+## Production asset smoke
+
+Next 14.2.35 uses experimental.outputFileTracingIncludes. The /api/proposals entry explicitly includes ./public/amadutown-logo-upscaled.png; the PDF renderer and approved presentation are unchanged.
+
+- `node node_modules/next/dist/bin/next build --experimental-build-mode compile` passed. The initial sandbox attempt failed to fetch existing Google Fonts; the network-enabled retry passed. Compile mode verifies production compilation and tracing, but is not a full typecheck/static-generation build.
+- Actual generated `.next/server/app/api/proposals/route.js.nft.json` contains `../../../../../public/amadutown-logo-upscaled.png`. Resolved file exists, 2,223,578 bytes, SHA-256 `42ea112b3079301524e102696a6d7db0d8700323fe924b6725ad8badee32a165`.
+- `node local-private/native-formatting/browser-blob-smoke.cjs` passed in Chromium using synthetic data and a localhost-only server. The standalone harness mirrors Next's Buffer polyfill and webpack dirname shim. It directly bundles the existing generateProposalPDFBlob function; it is not a hosted route test. Result: application/pdf, 5,170,176 bytes, two image objects, local shield request observed, literal terms and company name preserved, no console/page errors, no external requests. Harness, PDF and JSON receipt remain ignored local QA artifacts.
+- `npx eslint next.config.js` and `git diff --check` passed. No live proposal POST, uploads, hosted writes, remote logo fetch or debug endpoint was used. Captain still owns deployed-bundle verification.
