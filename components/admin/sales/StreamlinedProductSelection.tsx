@@ -56,6 +56,8 @@ export interface StreamlinedProductSelectionProps {
   allCatalogContent?: (ctx: AllCatalogRenderContext) => ReactNode;
   /** Offer stack, evidence pricing, save bundle — shown only when the offer panel is expanded */
   offerFooterDetails?: ReactNode;
+  savedProposalAvailable?: boolean;
+  proposalRecoveryBlocked?: boolean;
   currentProposal?: {
     status: string;
     proposalLink: string;
@@ -76,6 +78,8 @@ export function StreamlinedProductSelection({
   allCatalogContent,
   offerFooterDetails,
   currentProposal,
+  savedProposalAvailable,
+  proposalRecoveryBlocked,
 }: StreamlinedProductSelectionProps) {
   const [viewMode, setViewMode] = useState<'suggested' | 'all'>('suggested');
   const [searchQuery, setSearchQuery] = useState('');
@@ -324,7 +328,7 @@ export function StreamlinedProductSelection({
               >
                 {currentProposal.status}
               </span>
-              <div className="flex items-center gap-1 mt-1">
+              {currentProposal.proposalLink && <div className="flex items-center gap-1 mt-1">
                 <input
                   type="text"
                   value={currentProposal.proposalLink}
@@ -348,7 +352,7 @@ export function StreamlinedProductSelection({
                 >
                   <ExternalLink className="w-3.5 h-3.5" />
                 </a>
-              </div>
+              </div>}
               <button
                 type="button"
                 onClick={onConvertToProposal}
@@ -361,9 +365,9 @@ export function StreamlinedProductSelection({
             <button
               type="button"
               onClick={onConvertToProposal}
-              disabled={products.length === 0}
+              disabled={proposalRecoveryBlocked || (products.length === 0 && !savedProposalAvailable)}
               className={`w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-white transition-colors ${
-                products.length === 0
+                proposalRecoveryBlocked || (products.length === 0 && !savedProposalAvailable)
                   ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
                   : 'bg-blue-600 hover:bg-blue-700'
               }`}

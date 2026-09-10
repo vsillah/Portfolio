@@ -35,6 +35,7 @@ import { OfferStack, ContentOfferCard } from '@/components/admin/sales/OfferCard
 import { DynamicScriptFlow } from '@/components/admin/sales/DynamicScriptFlow';
 import { ValueEvidencePanel } from '@/components/admin/sales/ValueEvidencePanel';
 import { ValueEvidenceCallPanel } from '@/components/admin/sales/ValueEvidenceCallPanel';
+import { useSavedProposal } from '@/hooks/useSavedProposal';
 import { ProposalModal } from '@/components/admin/sales/ProposalModal';
 import { ViewDiagnosticLink } from '@/components/admin/ViewDiagnosticLink';
 import { useAdminReturnPath } from '@/lib/hooks/useAdminReturnPath';
@@ -147,9 +148,15 @@ export default function ConversationPage() {
   const [showSaveAsBundle, setShowSaveAsBundle] = useState(false);
   const [showProposalDrawer, setShowProposalDrawer] = useState(false);
   const [valueReportId, setValueReportId] = useState<string | null>(null);
+  const saved = useSavedProposal(sessionId);
   const [currentProposal, setCurrentProposal] = useState<{
     id: string; status: string; proposalLink: string; accessCode?: string;
   } | null>(null);
+  useEffect(() => {
+    const p = saved.proposal;
+    if (p) setCurrentProposal({id:p.id,status:p.status,proposalLink:p.access_code ? `https://amadutown.com/proposal/${encodeURIComponent(p.access_code)}` : '',accessCode:p.access_code || undefined});
+    else setCurrentProposal(null);
+  }, [saved.proposal]);
   const [proposalEmailDraft, setProposalEmailDraft] = useState<ProposalEmailDraft | null>(null);
   const [proposalDocuments, setProposalDocuments] = useState<Array<{ id: string; document_type: string; title: string; display_order: number; created_at: string }>>([]);
   const [showAttachDocumentModal, setShowAttachDocumentModal] = useState(false);
@@ -1087,7 +1094,11 @@ export default function ConversationPage() {
 
           {/* ---- Col 3: Offer panel (Suggested/All + bundles, catalog, stack) ---- */}
           <div className="min-h-[280px] min-w-0 flex flex-col xl:min-h-0">
+            {saved.error && <p role="alert" className="p-3 text-sm text-amber-300">{saved.error} <button onClick={saved.refresh} className="underline ml-2">Retry</button></p>}
+            {saved.loading && <p role="status" className="p-2 text-sm text-gray-400">Loading saved proposal…</p>}
             <StreamlinedProductSelection
+              savedProposalAvailable={!!saved.proposal}
+              proposalRecoveryBlocked={saved.loading || !!saved.error}
               products={selectedAsProducts}
               totalPrice={grandSlamOffer.offerPrice}
               totalValue={grandSlamOffer.totalPerceivedValue}
@@ -1307,6 +1318,8 @@ export default function ConversationPage() {
 
       {showProposalDrawer && (
         <ProposalModal
+          savedProposal={saved.proposal}
+          generationDisabled={selectedContent.length === 0 || saved.loading || !!saved.error}
           presentation="drawer"
           heading="Proposal & documents"
           reviewSection={
@@ -1342,6 +1355,7 @@ export default function ConversationPage() {
             return { title: c.title, description: c.description || undefined, content_type: c.content_type, offer_role: c.offer_role || undefined, price: ov?.retail_price ?? c.role_retail_price ?? c.price ?? 0 };
           })}
           onGenerate={async data => {
+            if (saved.loading || saved.error) return;
             if (!authSession?.access_token) return;
             const lineItems = selectedContentDetails.map(c => {
               const k = `${c.content_type}:${c.content_id}`;
@@ -1374,6 +1388,7 @@ export default function ConversationPage() {
             });
             if (response.ok) {
               const result = await response.json();
+              saved.refresh();
               setCurrentProposal({ id: result.proposal.id, status: result.proposal.status, proposalLink: result.proposalLink, accessCode: result.accessCode });
               setProposalEmailDraft(generateProposalEmailDraft({
                 clientName: data.clientName,
@@ -1467,16 +1482,13 @@ function ConversationProposalReviewSection({
   }
   return (
     <div className="space-y-3">
-      <p className="text-xs text-gray-500">
-        Adjust line items in the offer column on the left anytime. Scroll down to generate or regenerate a proposal.
-      </p>
       <div className="bg-gray-800/50 rounded-lg p-3 border border-gray-700">
         <span className={`inline-block px-2 py-0.5 text-xs rounded ${currentProposal.status === 'paid' ? 'bg-green-900/50 text-green-300' : currentProposal.status === 'accepted' ? 'bg-blue-900/50 text-blue-300' : 'bg-gray-700 text-gray-300'}`}>{currentProposal.status}</span>
-        <div className="flex items-center gap-2 mt-2">
+        {currentProposal.proposalLink && <div className="flex items-center gap-2 mt-2">
           <input type="text" value={currentProposal.proposalLink} readOnly className="flex-1 min-w-0 px-2 py-1.5 bg-gray-900 border border-gray-700 rounded-lg text-xs text-gray-300" />
           <button type="button" onClick={() => navigator.clipboard.writeText(currentProposal.proposalLink)} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg shrink-0" title="Copy"><Copy className="w-4 h-4" /></button>
           <a href={currentProposal.proposalLink} target="_blank" rel="noopener noreferrer" className="p-2 bg-blue-600 hover:bg-blue-700 rounded-lg shrink-0" title="Open client view"><ExternalLink className="w-4 h-4" /></a>
-        </div>
+        </div>}
         <div className="mt-3 pt-3 border-t border-gray-700">
           <h5 className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-2">Reports &amp; documents</h5>
           {proposalDocuments.length > 0 ? (
