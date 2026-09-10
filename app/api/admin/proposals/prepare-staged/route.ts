@@ -6,7 +6,7 @@ import { generateProposalPDF } from '@/lib/proposal-pdf'
 import { COMPANY_DISPLAY_NAME } from '@/lib/pdf-brand-styles'
 import { generateContractPDF } from '@/lib/contract-pdf'
 import { requireStagedFlow, loadStagedPackage, requirePrivateProposalBucket } from '@/lib/proposal-staged-server'
-import { validateStagedPolicy } from '@/lib/proposal-staged-policy'
+import { validateStagedPolicy, canonicalStagedContent } from '@/lib/proposal-staged-policy'
 
 export async function POST(request: NextRequest) {
   const auth = await verifyAdmin(request)
@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
     const payload = { contact_id: b.contact_id, client_name: b.client_name, client_email: b.client_email.trim().toLowerCase(),
       client_company: b.client_company || null, title: b.title, terms_text: b.terms_text, agreement_text: b.agreement_text,
       line_items: b.line_items, policy, valid_until: b.valid_until }
-    const digest = createHash('sha256').update(JSON.stringify(payload)).digest('hex')
+    const digest = createHash('sha256').update(canonicalStagedContent(payload)).digest('hex')
     const { data: id, error } = await supabaseAdmin.rpc('prepare_staged_proposal', { p_key: b.preparation_key, p_digest: digest, p_payload: payload, p_actor: auth.user.id })
     if (error || !id) throw new Error('Preparation failed. Confirm migrations, contact matching and preparation key.')
     const pkg = await loadStagedPackage(id)
@@ -45,4 +45,15 @@ export async function POST(request: NextRequest) {
     }
     return NextResponse.json({ proposalId: id, projectId: pkg.client_project_id, ready: true, released: !!pkg.released_at, contentDigest: digest })
   } catch (e) { return NextResponse.json({ error: e instanceof Error ? e.message : 'Preparation failed.' }, { status: 400 }) }
+}
+
+export async function GET(request: NextRequest) {
+  const auth = await verifyAdmin(request)
+  if (isAuthError(auth)) return NextResponse.json({ error: auth.error }, { status: auth.status })
+  const key = request.nextUrl.searchParams.get('preparationKey')
+  let query = supabaseAdmin.from('proposal_staged_packages').select('proposal_id,created_at,proposals(client_name,bundle_name,status)').order('created_at', { ascending: false }).limit(50)
+  if (key) query = query.eq('preparation_key', key)
+  const { data, error } = await query
+  if (error) return NextResponse.json({ error: 'Staged proposal records are unavailable. Confirm the migration is installed.' }, { status: 503 })
+  return NextResponse.json({ packages: data || [] }, { headers: { 'Cache-Control': 'no-store' } })
 }

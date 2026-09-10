@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { paymentEligibility, validateReceipt, validateStagedPolicy, type StagedEvidence } from './proposal-staged-policy'
+import { canonicalStagedContent, paymentEligibility, validateReceipt, validateStagedPolicy, type StagedEvidence } from './proposal-staged-policy'
 const policy = { version: 1 as const, currency: 'usd' as const, totalCents: 99700, depositCents: 49850, balanceCents: 49850, acceptanceCriteria: ['Reviewer can update fictional cases.'] }
 const ready: StagedEvidence = { proposalSigned: true, agreementSigned: true, depositPaid: true, delivered: true, deliveryAccepted: true, balancePaid: false }
 describe('staged proposal payment boundaries', () => {
@@ -23,3 +23,5 @@ describe('staged proposal payment boundaries', () => {
     expect(() => validateStagedPolicy({ ...policy, ...override })).toThrow()
   })
 })
+
+it('keeps retry digest input stable across JSONB key ordering', () => { expect(canonicalStagedContent({ policy: { total: 997, deposit: 498.5 }, title: 'Test' })).toBe(canonicalStagedContent({ title: 'Test', policy: { deposit: 498.5, total: 997 } })) })

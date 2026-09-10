@@ -61,3 +61,11 @@ Privacy-safe MP4s and screenshots remain local ignored artifacts. No client term
 - Uncertain checkout attempts beyond provider idempotency retention and revoked-access reissue intentionally require explicit reconciliation; this release has no automatic reset/reissue button.
 
 Rollback: disable initiation; preserve receipt handling and all signature/receipt evidence. Expire/reconcile outstanding sessions under captain authority before removal. Do not drop populated tables or revert signed packages. Only remove an unused bucket/schema after proving no dependent objects or records. No retrospective migration of legacy clients.
+
+## Operator recovery
+
+Sales lists saved staged proposals with durable `/admin/sales/proposals/prepare?proposalId=...` links. Authenticated GET endpoints restore frozen scope, exact agreement, explicit expiry, price stages, signatures, release/revocation, deposit and delivery state even when initiation is disabled. Creation fields disappear after preparation; release and delivery controls reflect saved eligibility and report action errors in place.
+
+A per-admin localStorage preparation key survives interrupted requests. Draft fields stay in sessionStorage until successful preparation/recovery, then both are cleared. The unapplied migration now stores the exact normalized preparation payload in the service-only package table so incomplete PDF preparation can resume from another session. Canonical content hashing tolerates JSONB object-key ordering without changing arrays or values. No new recipient, package or key is silently created on recovery.
+
+The synthetic walkthrough verifies a lost preparation response, reload after preparation and release, reopening from the saved list after deposit, and reload after delivery. Local sequential SQL validation remains separate from the hosted multi-session concurrency gate.

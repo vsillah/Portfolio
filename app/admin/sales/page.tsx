@@ -1,4 +1,5 @@
 'use client';
+import StagedProposalList from '@/components/proposals/StagedProposalList';
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
@@ -334,6 +335,7 @@ export default function SalesDashboardPage() {
           ]} 
         />
 
+        <StagedProposalList />
         {/* Header */}
         <div className="admin-console-surface-header mb-6 flex flex-col gap-4 rounded-xl border p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
           <div>

@@ -29,3 +29,28 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     throw new Error('Unsupported action.')
   } catch (e) { return NextResponse.json({ error: e instanceof Error ? e.message : 'Action failed.' }, { status: 400 }) }
 }
+
+/** Read-only operator recovery, independent of the initiation flag. */
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const auth = await verifyAdmin(request)
+  if (isAuthError(auth)) return NextResponse.json({ error: auth.error }, { status: auth.status })
+  try {
+    const { id } = await params
+    const pkg = await loadStagedPackage(id)
+    const [{ data: proposal, error }, { data: stages, error: stageError }, { data: access }] = await Promise.all([
+      supabaseAdmin.from('proposals').select('id,client_name,client_company,bundle_name,status,terms_text,valid_until,total_amount').eq('id', id).single(),
+      supabaseAdmin.from('proposal_payment_stages').select('stage,amount_cents,paid_at').eq('proposal_id', id),
+      supabaseAdmin.from('client_dashboard_access').select('access_token,is_active').eq('client_project_id', pkg.client_project_id).single(),
+    ])
+    if (error || !proposal || stageError) throw new Error('Package state unavailable.')
+    return NextResponse.json({ proposalId: id, contentDigest: pkg.content_digest, ready: pkg.ready,
+      retryPayload: pkg.ready ? null : { ...pkg.preparation_payload, preparation_key: pkg.preparation_key },
+      proposal, policy: pkg.policy, agreement: pkg.agreement_text, released: !!pkg.released_at, accessActive: !!access?.is_active,
+      proposalSigned: !!pkg.proposal_signed_at, agreementSigned: !!pkg.agreement_signed_at,
+      depositPaid: !!stages?.some((s: { stage: string; paid_at: string | null }) => s.stage === 'deposit' && s.paid_at),
+      delivered: !!pkg.delivered_at, deliveryAccepted: !!pkg.delivery_accepted_at, deliveryNote: pkg.delivery_note,
+      actionsEnabled: process.env.PROPOSAL_STAGED_PAYMENTS_ENABLED === 'true',
+      links: pkg.released_at && access?.is_active ? { proposalPath: `/proposal/${access.access_token}`, dashboardPath: `/client/dashboard/${access.access_token}` } : null,
+    }, { headers: { 'Cache-Control': 'no-store' } })
+  } catch { return NextResponse.json({ error: 'Package unavailable. Return to Sales to select an existing proposal.' }, { status: 404 }) }
+}

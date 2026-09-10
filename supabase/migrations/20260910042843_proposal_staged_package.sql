@@ -17,6 +17,7 @@ CREATE TABLE public.proposal_staged_packages (
  proposal_id uuid PRIMARY KEY REFERENCES public.proposals(id),
  preparation_key uuid UNIQUE NOT NULL,
  content_digest text NOT NULL,
+ preparation_payload jsonb NOT NULL,
  client_project_id uuid UNIQUE REFERENCES public.client_projects(id),
  policy jsonb NOT NULL,
  agreement_text text NOT NULL,
@@ -104,8 +105,8 @@ BEGIN
  VALUES(p_payload->>'title','Proposal awaiting client decision',p_payload->>'client_name',p_payload->>'client_email',p_payload->>'client_company',
  (p_payload->>'contact_id')::bigint,proposal_uuid,gen_random_uuid(),'pending',1,(p_payload->'policy'->>'totalCents')::numeric/100,0,'USD',true) RETURNING id INTO project_uuid;
  INSERT INTO public.client_dashboard_access(client_project_id,client_email,access_token,is_active,staged_package) VALUES(project_uuid,p_payload->>'client_email',token,false,true);
- INSERT INTO public.proposal_staged_packages(proposal_id,preparation_key,content_digest,client_project_id,policy,agreement_text)
- VALUES(proposal_uuid,p_key,p_digest,project_uuid,p_payload->'policy',p_payload->>'agreement_text');
+ INSERT INTO public.proposal_staged_packages(proposal_id,preparation_key,content_digest,preparation_payload,client_project_id,policy,agreement_text)
+ VALUES(proposal_uuid,p_key,p_digest,p_payload,project_uuid,p_payload->'policy',p_payload->>'agreement_text');
  INSERT INTO public.proposal_payment_stages(proposal_id,stage,amount_cents) VALUES
  (proposal_uuid,'deposit',(p_payload->'policy'->>'depositCents')::bigint),(proposal_uuid,'balance',(p_payload->'policy'->>'balanceCents')::bigint);
  RETURN proposal_uuid;
