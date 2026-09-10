@@ -1,11 +1,15 @@
 // Proposal PDF Generator
 // Uses @react-pdf/renderer to generate professional proposal documents
-// 
+//
 // NOTE: Install the package: npm install @react-pdf/renderer
 
 import React from 'react';
+import { WEBSITE_COMPANY_NAME } from './website-brand';
+import { PDF_BRAND } from './pdf-brand-styles';
+import { parseProposalTerms, type ProposalTermBlock } from './proposal-terms';
 import {
   Document,
+  Image as PdfImage,
   Page,
   Text,
   View,
@@ -24,27 +28,35 @@ import {
 const styles = StyleSheet.create({
   page: {
     padding: 40,
-    fontSize: 11,
+    paddingBottom: 62,
+    fontSize: 10,
     fontFamily: 'Helvetica',
     color: '#1a1a1a',
   },
   header: {
-    marginBottom: 30,
+    marginBottom: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+    backgroundColor: PDF_BRAND.colors.imperialNavy,
+    padding: 16,
+    borderBottomWidth: 3,
+    borderBottomColor: PDF_BRAND.colors.radiantGold,
   },
   companyName: {
-    fontSize: 24,
+    fontSize: 19,
     fontWeight: 'bold',
-    color: '#2563eb',
+    color: PDF_BRAND.colors.platinumWhite,
     marginBottom: 4,
   },
   proposalTitle: {
     fontSize: 14,
-    color: '#6b7280',
+    color: PDF_BRAND.colors.radiantGold,
     marginTop: 8,
   },
   proposalNumber: {
-    fontSize: 10,
-    color: '#9ca3af',
+    fontSize: 9,
+    color: PDF_BRAND.colors.platinumWhite,
     marginTop: 4,
   },
   divider: {
@@ -170,17 +182,14 @@ const styles = StyleSheet.create({
   grandTotal: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: '#2563eb',
+    color: PDF_BRAND.colors.imperialNavy,
   },
   savings: {
     fontSize: 10,
     color: '#10b981',
   },
   termsSection: {
-    marginTop: 30,
-    padding: 15,
-    backgroundColor: '#f9fafb',
-    borderRadius: 4,
+    marginTop: 18,
   },
   termsText: {
     fontSize: 9,
@@ -203,8 +212,8 @@ const styles = StyleSheet.create({
     color: '#9ca3af',
   },
   acceptSection: {
-    marginTop: 40,
-    padding: 20,
+    marginTop: 12,
+    padding: 12,
     borderWidth: 1,
     borderColor: '#e5e7eb',
     borderRadius: 4,
@@ -215,7 +224,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   signatureLine: {
-    marginTop: 30,
+    marginTop: 22,
     borderBottomWidth: 1,
     borderBottomColor: '#1a1a1a',
     width: 200,
@@ -701,17 +710,18 @@ export const ProposalDocument: React.FC<{ data: ProposalData }> = ({ data }) => 
       <Page size="A4" style={styles.page}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.companyName}>{data.company_name || 'Your Company'}</Text>
+          <PdfImage src={typeof window === 'undefined' ? `${process.cwd()}/public/amadutown-logo-upscaled.png` : '/amadutown-logo-upscaled.png'} style={{width:44,height:55}} />
+          <View style={{flex:1}}><Text style={styles.companyName}>{data.company_name || WEBSITE_COMPANY_NAME}</Text>
           <Text style={styles.proposalTitle}>Service Proposal</Text>
           <Text style={styles.proposalNumber}>
             {data.proposalNumber || `#${data.id.slice(0, 8).toUpperCase()}`}
           </Text>
           <Text style={styles.proposalNumber}>
             Created: {formatDate(data.created_at)}
-          </Text>
+          </Text></View>
         </View>
 
-        <View style={styles.divider} />
+
 
         {/* Client Information */}
         <View style={styles.section}>
@@ -756,9 +766,7 @@ export const ProposalDocument: React.FC<{ data: ProposalData }> = ({ data }) => 
                   <Text style={styles.itemTitle}>{item.title}</Text>
                   {item.description && (
                     <Text style={styles.itemDescription}>
-                      {item.description.length > 60
-                        ? item.description.substring(0, 60) + '...'
-                        : item.description}
+                      {item.description}
                     </Text>
                   )}
                 </View>
@@ -816,19 +824,19 @@ export const ProposalDocument: React.FC<{ data: ProposalData }> = ({ data }) => 
         {data.terms_text && (
           <View style={styles.termsSection}>
             <Text style={styles.sectionTitle}>Terms & Conditions</Text>
-            <Text style={styles.termsText}>{data.terms_text}</Text>
+            {renderTerms(data.terms_text)}
           </View>
         )}
 
         {/* Validity */}
-        {data.valid_until && (
+        {!!data.valid_until && (
           <Text style={styles.validityNote}>
             This proposal is valid until {formatDate(data.valid_until)}.
           </Text>
         )}
 
         {/* Acceptance Section */}
-        <View style={styles.acceptSection}>
+        <View style={styles.acceptSection} wrap={false}>
           <Text style={styles.acceptTitle}>Acceptance</Text>
           <Text style={styles.termsText}>
             By accepting this proposal, you agree to the terms and pricing outlined above.
@@ -839,13 +847,61 @@ export const ProposalDocument: React.FC<{ data: ProposalData }> = ({ data }) => 
         </View>
 
         {/* Footer */}
-        <Text style={styles.footer}>
-          Questions? Contact us at your convenience.
-        </Text>
+        <Text fixed style={[styles.footer,{borderTopWidth:1,borderTopColor:PDF_BRAND.colors.radiantGold,paddingTop:8,color:PDF_BRAND.colors.siliconSlate}]} render={({pageNumber,totalPages})=>`${WEBSITE_COMPANY_NAME} · ${pageNumber} / ${totalPages}`} />
       </Page>
     </Document>
   );
 };
+
+function renderTerms(source: string) {
+  const blocks = parseProposalTerms(source);
+  const render = (block: ProposalTermBlock, key: number) => {
+    if (block.kind === 'heading') {
+      return <Text key={key} style={[styles.sectionTitle, {
+        marginTop: 9, marginBottom: 5, letterSpacing: 0, textTransform: 'none', color: PDF_BRAND.colors.bronze,
+      }]}>{block.text}</Text>;
+    }
+    if (block.kind === 'payment') {
+      return <View key={key} style={{
+        flexDirection: 'row', borderTopWidth: 1, borderBottomWidth: 1,
+        borderColor: PDF_BRAND.colors.radiantGold, paddingVertical: 10, marginBottom: 10,
+      }}>
+        <Text style={{ width: 60, fontSize: 10, fontWeight: 'bold', color: PDF_BRAND.colors.imperialNavy }}>Payment</Text>
+        <Text style={{ flex: 1, fontSize: 9.5, lineHeight: 1.4 }}>{block.text}</Text>
+      </View>;
+    }
+    const listItem = block.kind === 'bullet' || block.kind === 'ordered';
+    const colon = listItem ? block.text.indexOf(':') : -1;
+    const implicitBullet = block.kind === 'bullet' && !/^\s*[-*•]\s+/.test(block.text);
+    return <Text key={key} orphans={3} widows={3} style={{
+      fontSize: 9.5, lineHeight: 1.4, color: PDF_BRAND.colors.imperialNavy,
+      marginBottom: 6, paddingLeft: listItem ? 12 : 0,
+    }}>
+      {implicitBullet ? '• ' : null}
+      {colon > 0 && colon < 100
+        ? <><Text style={{ fontWeight: 'bold' }}>{block.text.slice(0, colon + 1)}</Text>{block.text.slice(colon + 1)}</>
+        : block.text}
+    </Text>;
+  };
+  const output = [];
+  for (let i = 0; i < blocks.length; i++) {
+    if (blocks[i].kind === 'heading') {
+      const group = [render(blocks[i], i)];
+      while (i + 1 < blocks.length && blocks[i + 1].kind === 'heading') {
+        i++;
+        group.push(render(blocks[i], i));
+      }
+      if (i + 1 < blocks.length && blocks[i + 1].text.length < 1500) {
+        i++;
+        group.push(render(blocks[i], i));
+      }
+      output.push(<View key={i} wrap={false}>{group}</View>);
+    } else {
+      output.push(render(blocks[i], i));
+    }
+  }
+  return output;
+}
 
 // Generate PDF Buffer
 export async function generateProposalPDF(data: ProposalData): Promise<Buffer> {

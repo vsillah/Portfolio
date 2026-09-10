@@ -1,4 +1,8 @@
 'use client';
+import Image from 'next/image';
+import { WEBSITE_COMPANY_NAME } from '@/lib/website-brand';
+import { ProposalTerms } from './ProposalTerms';
+import type { SavedProposal } from '@/hooks/useSavedProposal';
 
 import { useState, useEffect, useCallback, type ReactNode } from 'react';
 import { FileText, XCircle, Loader2, AlertTriangle, CheckSquare, Square, ChevronDown, ChevronUp, Sparkles, Trash2, ExternalLink } from 'lucide-react';
@@ -21,6 +25,8 @@ interface GammaReport {
 }
 
 export interface ProposalModalProps {
+  generationDisabled?: boolean;
+  savedProposal?: SavedProposal | null;
   onClose: () => void;
   onGenerate: (data: {
     clientName: string;
@@ -73,6 +79,8 @@ const REPORT_TYPE_LABELS: Record<string, string> = {
 };
 
 export function ProposalModal({
+  savedProposal,
+  generationDisabled = false,
   onClose,
   onGenerate,
   defaultClientName,
@@ -93,6 +101,8 @@ export function ProposalModal({
   reviewSection,
   heading,
 }: ProposalModalProps) {
+  const [creatingAnother, setCreatingAnother] = useState(false);
+  useEffect(() => { setCreatingAnother(false); }, [savedProposal?.id]);
   const [clientName, setClientName] = useState(defaultClientName);
   const [clientEmail, setClientEmail] = useState(defaultClientEmail);
   const [clientCompany, setClientCompany] = useState(defaultClientCompany);
@@ -118,7 +128,7 @@ export function ProposalModal({
 
   // Fetch value reports
   useEffect(() => {
-    if (!contactId) {
+    if (savedProposal || !contactId) {
       setReports([]);
       setValueReportId(defaultValueReportId);
       return;
@@ -142,7 +152,7 @@ export function ProposalModal({
         });
     });
     return () => { cancelled = true; };
-  }, [contactId, defaultValueReportId]);
+  }, [contactId, defaultValueReportId, savedProposal]);
 
   useEffect(() => {
     if (defaultValueReportId) setValueReportId(defaultValueReportId);
@@ -150,7 +160,7 @@ export function ProposalModal({
 
   // Fetch gamma reports for this contact
   useEffect(() => {
-    if (!contactSubmissionId) return;
+    if (savedProposal || !contactSubmissionId) return;
     let cancelled = false;
     setGammaReportsLoading(true);
     getCurrentSession().then((session) => {
@@ -169,7 +179,7 @@ export function ProposalModal({
         });
     });
     return () => { cancelled = true; };
-  }, [contactSubmissionId]);
+  }, [contactSubmissionId, savedProposal]);
 
   const generateOnboardingPreview = useCallback(async () => {
     if (!lineItems || lineItems.length === 0) return;
@@ -269,7 +279,7 @@ export function ProposalModal({
 
   const finalAmount = totalAmount - (discountAmount || 0);
 
-  const headerTitle = heading ?? 'Generate Proposal';
+  const headerTitle = heading ?? (savedProposal ? 'Review saved proposal' : 'Generate Proposal');
 
   const header = (
     <div className="flex items-center justify-between gap-2 p-4 border-b border-gray-800 shrink-0">
@@ -292,6 +302,18 @@ export function ProposalModal({
     </div>
   );
 
+  const savedReview = savedProposal ? <div className="flex-1 overflow-y-auto p-6 space-y-4 min-h-0">
+    <div className="flex items-center gap-4 border-b border-radiant-gold/30 pb-4"><Image unoptimized src="/amadutown-logo-upscaled.png" alt="AmaduTown" width={40} height={50} className="h-auto w-10 shrink-0" /><p className="text-sm font-semibold tracking-wide text-radiant-gold">{WEBSITE_COMPANY_NAME}</p></div>
+    <p className="text-sm text-gray-400">{savedProposal.status} · {savedProposal.client_name}</p>
+    <h4 className="text-lg font-semibold">{savedProposal.bundle_name}</h4>
+    <p className="font-semibold">${Number(savedProposal.total_amount).toFixed(2)} USD</p>
+    {!savedProposal.access_code && savedProposal.status === 'draft' && <p className="text-sm text-amber-300">Unissued draft. Client sharing is unavailable.</p>}
+    {reviewSection}
+    <ul className="space-y-3">{savedProposal.line_items.map((item,index) => <li key={index} className="rounded-lg border border-gray-700 p-3"><p className="font-medium">{item.title || item.name}</p><p className="text-sm whitespace-pre-wrap break-words text-gray-300">{item.description}</p><p className="mt-2 text-sm">${Number(item.price).toFixed(2)}</p></li>)}</ul>
+    <section aria-label="Saved terms"><ProposalTerms text={savedProposal.terms_text || 'No terms saved.'} /></section>
+    <p className="text-sm text-gray-400">Expiry: {savedProposal.valid_until ? new Date(savedProposal.valid_until).toLocaleDateString() : 'No expiry'}</p>
+    {savedProposal.access_code && <a className="text-blue-400 underline" href={`https://amadutown.com/proposal/${encodeURIComponent(savedProposal.access_code)}`} target="_blank" rel="noreferrer">Open issued client proposal</a>}
+  </div> : null;
   const body = (
     <div className="flex-1 overflow-y-auto p-6 space-y-4 min-h-0">
       {reviewSection ? (
@@ -605,7 +627,7 @@ export function ProposalModal({
           <button
             type="button"
             onClick={handleGenerate}
-            disabled={isGenerating || !clientName.trim() || !clientEmail.trim()}
+            disabled={generationDisabled || isGenerating || !clientName.trim() || !clientEmail.trim()}
             className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 disabled:cursor-not-allowed rounded-lg transition-colors"
           >
             {isGenerating ? (
@@ -629,8 +651,10 @@ export function ProposalModal({
         {headerTitle}
       </div>
       {header}
-      {body}
-      {footer}
+      {savedProposal && !creatingAnother ? savedReview : body}
+      {savedProposal && creatingAnother && <div className="px-4 pt-3"><button type="button" onClick={() => setCreatingAnother(false)} className="text-sm text-blue-400">Return to saved proposal</button></div>}
+      {creatingAnother && generationDisabled && <p className="px-4 pt-2 text-sm text-gray-400">Select offer items before generating another proposal.</p>}
+      {savedProposal && !creatingAnother ? <div className="p-4 border-t border-gray-800"><button type="button" onClick={() => setCreatingAnother(true)} className="text-sm text-gray-400 hover:text-white">Create another proposal</button></div> : footer}
     </div>
   );
 

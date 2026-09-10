@@ -47,7 +47,7 @@ vi.mock('@/lib/feasibility-snapshot', () => ({
   buildFeasibilitySnapshot: vi.fn(),
 }))
 
-import { POST } from './route'
+import { GET, POST } from './route'
 
 function makeRequest(body: Record<string, unknown>) {
   return new NextRequest('http://localhost/api/proposals', {
@@ -126,5 +126,32 @@ describe('POST /api/proposals', () => {
 
     expect(response.status).toBe(500)
     expect(mocks.from).toHaveBeenCalled()
+  })
+})
+
+
+describe('GET saved proposal recovery', () => {
+  const id = '11111111-1111-4111-8111-111111111111'
+  beforeEach(() => {vi.clearAllMocks();mocks.verifyAdmin.mockResolvedValue({user:{id:'admin'}});mocks.isAuthError.mockImplementation(a => !!a.error)})
+  it('requires admin authentication before reading records', async () => {
+    mocks.verifyAdmin.mockResolvedValue({error:'Unauthorized',status:401})
+    expect((await GET(new NextRequest(`http://localhost/api/proposals?sales_session_id=${id}`))).status).toBe(401)
+    expect(mocks.from).not.toHaveBeenCalled()
+  })
+  it('rejects missing session to prevent a global latest-proposal fallback', async () => {
+    expect((await GET(new NextRequest('http://localhost/api/proposals'))).status).toBe(400)
+    expect(mocks.from).not.toHaveBeenCalled()
+  })
+  it('reads latest proposal for only the requested session without mutations', async () => {
+    const q:any={};for(const name of ['select','eq','order','limit'])q[name]=vi.fn(()=>q)
+    q.maybeSingle=vi.fn().mockResolvedValue({data:{id:'saved',status:'draft'},error:null})
+    mocks.from.mockReturnValue(q)
+    const r=await GET(new NextRequest(`http://localhost/api/proposals?sales_session_id=${id}`))
+    expect(q.eq).toHaveBeenCalledWith('sales_session_id',id)
+    expect(q.order).toHaveBeenNthCalledWith(1,'created_at',{ascending:false})
+    expect(q.order).toHaveBeenNthCalledWith(2,'id',{ascending:false})
+    expect(q.limit).toHaveBeenCalledWith(1)
+    expect(await r.json()).toEqual({proposal:{id:'saved',status:'draft'}})
+    expect(r.headers.get('cache-control')).toBe('no-store')
   })
 })
