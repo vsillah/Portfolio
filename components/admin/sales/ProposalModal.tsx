@@ -1,4 +1,7 @@
 'use client';
+import Image from 'next/image';
+import { WEBSITE_COMPANY_NAME } from '@/lib/website-brand';
+import { ProposalTerms } from './ProposalTerms';
 import type { SavedProposal } from '@/hooks/useSavedProposal';
 
 import { useState, useEffect, useCallback, type ReactNode } from 'react';
@@ -300,13 +303,14 @@ export function ProposalModal({
   );
 
   const savedReview = savedProposal ? <div className="flex-1 overflow-y-auto p-6 space-y-4 min-h-0">
+    <div className="flex items-center gap-4 border-b border-radiant-gold/30 pb-4"><Image unoptimized src="/amadutown-logo-upscaled.png" alt="AmaduTown" width={40} height={50} className="h-auto w-10 shrink-0" /><p className="text-sm font-semibold tracking-wide text-radiant-gold">{WEBSITE_COMPANY_NAME}</p></div>
     <p className="text-sm text-gray-400">{savedProposal.status} · {savedProposal.client_name}</p>
     <h4 className="text-lg font-semibold">{savedProposal.bundle_name}</h4>
     <p className="font-semibold">${Number(savedProposal.total_amount).toFixed(2)} USD</p>
     {!savedProposal.access_code && savedProposal.status === 'draft' && <p className="text-sm text-amber-300">Unissued draft. Client sharing is unavailable.</p>}
     {reviewSection}
     <ul className="space-y-3">{savedProposal.line_items.map((item,index) => <li key={index} className="rounded-lg border border-gray-700 p-3"><p className="font-medium">{item.title || item.name}</p><p className="text-sm whitespace-pre-wrap break-words text-gray-300">{item.description}</p><p className="mt-2 text-sm">${Number(item.price).toFixed(2)}</p></li>)}</ul>
-    <details open><summary className="cursor-pointer text-sm font-medium">Saved terms</summary><p className="mt-3 whitespace-pre-wrap break-words text-sm text-gray-300">{savedProposal.terms_text || 'No terms saved.'}</p></details>
+    <section aria-label="Saved terms"><ProposalTerms text={savedProposal.terms_text || 'No terms saved.'} /></section>
     <p className="text-sm text-gray-400">Expiry: {savedProposal.valid_until ? new Date(savedProposal.valid_until).toLocaleDateString() : 'No expiry'}</p>
     {savedProposal.access_code && <a className="text-blue-400 underline" href={`https://amadutown.com/proposal/${encodeURIComponent(savedProposal.access_code)}`} target="_blank" rel="noreferrer">Open issued client proposal</a>}
   </div> : null;

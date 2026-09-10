@@ -17,3 +17,9 @@ Validation:
 - Typecheck encounters baseline duplicate keys in lib/social-comment-inbox-ui.test.ts and a preserved ignored renderer from the held implementation branch. No new product type errors; full build not asserted green.
 
 Captain verifies hosted behavior and both Vercel contexts before integration. No live client/provider smoke was run by this lane.
+
+## Branded formatting
+
+The existing review drawer and proposal PDF now share conservative text structure: known headings, literal paragraphs, numbered/bullet lists and a grouped payment row. Stored text is not HTML and is never injected as markup. The AmaduTown shield retains its portrait ratio; legal naming uses website-brand. PDF styling draws from PDF_BRAND and existing invoice/audit templates, with full item descriptions, kept headings and page numbering. Contract terms remain unchanged.
+
+Formatting verification: 18 tests across the prior recovery suite plus lib/proposal-terms.test.ts, components/admin/sales/ProposalTerms.test.tsx and lib/proposal-pdf-format.test.ts. Tests cover ordinary multiline legacy text, explicit lists, literal unsafe HTML, long text and exact amounts/full descriptions through real PDF generation/extraction. The private candidate retained every approved source line and rendered as two visually checked pages. Final responsive bounds sweeps and paced local synthetic MP4s passed at 360/390/768/1440. No hosted/customer writes or uploads.
