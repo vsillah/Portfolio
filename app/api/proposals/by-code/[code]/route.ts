@@ -30,6 +30,8 @@ export async function GET(
       return NextResponse.json({ error: 'Proposal not found' }, { status: 404 });
     }
 
+    if (proposal.staged_package) return NextResponse.json({ proposal: { id: proposal.id, staged_package: true } }, { headers: { 'Cache-Control': 'no-store' } });
+
     // Mark as viewed if first time
     if (!proposal.viewed_at) {
       await supabaseAdmin

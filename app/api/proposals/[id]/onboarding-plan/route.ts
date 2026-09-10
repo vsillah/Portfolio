@@ -19,9 +19,11 @@ export async function GET(
     // Find client_project linked to this proposal
     const { data: project, error } = await supabaseAdmin
       .from('client_projects')
-      .select('id, onboarding_plan_id')
+      .select('id, onboarding_plan_id, proposals(*)')
       .eq('proposal_id', proposalId)
       .single()
+
+    if ((project?.proposals as unknown as { staged_package?: boolean })?.staged_package) return NextResponse.json({ error: 'Use scoped package access.' }, { status: 403 })
 
     if (error || !project) {
       return NextResponse.json({

@@ -28,6 +28,7 @@ import AiOpsRoadmapSection from '@/components/client-dashboard/AiOpsRoadmapSecti
 import BuildEvidenceInvestmentSection from '@/components/client-dashboard/BuildEvidenceInvestmentSection'
 import type { DashboardData, LeadDashboardData, DashboardTask } from '@/lib/client-dashboard'
 import type { AccelerationRecommendation } from '@/lib/acceleration-engine'
+import StagedProposal from '@/components/proposals/StagedProposal'
 import SiteThemeCorner from '@/components/SiteThemeCorner'
 
 export type DashboardStage = 'lead' | 'client'
@@ -37,6 +38,7 @@ export default function ClientDashboardPage() {
   const token = params.token as string
 
   const [dashboard, setDashboard] = useState<DashboardData | LeadDashboardData | null>(null)
+  const [stagedId, setStagedId] = useState<string | null>(null)
   const [stage, setStage] = useState<DashboardStage>('client')
   const [recommendations, setRecommendations] = useState<AccelerationRecommendation[]>([])
   const [loading, setLoading] = useState(true)
@@ -52,17 +54,17 @@ export default function ClientDashboardPage() {
       setLoading(true)
       setError(null)
       try {
-        const [dashRes, accelRes] = await Promise.all([
-          fetch(`/api/client/dashboard/${token}`),
-          fetch(`/api/client/dashboard/${token}/accelerators`),
-        ])
+        const dashRes = await fetch(`/api/client/dashboard/${token}`)
 
         if (!dashRes.ok) {
           const err = await dashRes.json()
           throw new Error(err.error || 'Failed to load dashboard')
         }
 
-        const { data: dashData, stage: resStage } = await dashRes.json()
+        const payload = await dashRes.json()
+        if (payload.stagedProposalId) { setStagedId(payload.stagedProposalId); return }
+        const { data: dashData, stage: resStage } = payload
+        const accelRes = await fetch(`/api/client/dashboard/${token}/accelerators`)
         setDashboard(dashData)
         setStage(resStage === 'lead' ? 'lead' : 'client')
 
@@ -137,6 +139,8 @@ export default function ClientDashboardPage() {
   }, [])
 
   // Loading state
+  if (stagedId) return <StagedProposal id={stagedId} credential={token} dashboard />
+
   if (loading) {
     return (
       <>

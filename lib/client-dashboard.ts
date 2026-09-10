@@ -328,7 +328,7 @@ export async function validateDashboardToken(
     .eq('is_active', true)
     .single()
 
-  if (error || !data) {
+  if (error || !data || data.staged_package) {
     return {
       projectId: null,
       access: null,

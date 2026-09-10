@@ -18,6 +18,8 @@ export async function DELETE(
   }
 
   const { id: proposalId, docId } = await params;
+  const { data: packageProposal } = await supabaseAdmin.from('proposals').select('*').eq('id', proposalId).single();
+  if (packageProposal?.staged_package) return NextResponse.json({ error: 'Staged package is frozen.' }, { status: 403 });
   if (!proposalId || !docId) {
     return NextResponse.json({ error: 'Proposal ID and document ID required' }, { status: 400 });
   }

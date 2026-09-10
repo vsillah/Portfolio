@@ -477,6 +477,7 @@ export interface ProposalData {
   valid_until?: string;
   created_at: string;
   company_name?: string;
+  electronic_signature_only?: boolean;
   value_assessment?: ProposalValueAssessment;
 }
 
@@ -814,7 +815,13 @@ export const ProposalDocument: React.FC<{ data: ProposalData }> = ({ data }) => 
 
         {/* Terms */}
         {data.terms_text && (
-          <View style={styles.termsSection}>
+          data.electronic_signature_only ? <View style={{ marginTop: 18 }}>
+            <Text style={styles.sectionTitle} minPresenceAhead={35}>Scope and terms</Text>
+            {data.terms_text.split('\n').filter(Boolean).map((paragraph, index) => {
+              const heading = paragraph.length < 65 && !/[.!?:]$/.test(paragraph);
+              return <Text key={index} minPresenceAhead={heading ? 24 : 0} style={{ fontSize: 10.5, lineHeight: 1.4, color: '#1e293b', marginTop: heading ? 8 : 0, marginBottom: 6, fontWeight: heading ? 'bold' : 'normal' }}>{paragraph}</Text>;
+            })}
+          </View> : <View style={styles.termsSection}>
             <Text style={styles.sectionTitle}>Terms & Conditions</Text>
             <Text style={styles.termsText}>{data.terms_text}</Text>
           </View>
@@ -828,20 +835,16 @@ export const ProposalDocument: React.FC<{ data: ProposalData }> = ({ data }) => 
         )}
 
         {/* Acceptance Section */}
-        <View style={styles.acceptSection}>
+        <View style={styles.acceptSection} wrap={false}>
           <Text style={styles.acceptTitle}>Acceptance</Text>
           <Text style={styles.termsText}>
-            By accepting this proposal, you agree to the terms and pricing outlined above.
-            Please accept online using the link provided or sign below.
+            {data.electronic_signature_only ? 'Review and sign the proposal and customer agreement in your client portal. Payments follow the agreed schedule.' : 'By accepting this proposal, you agree to the terms and pricing outlined above. Please accept online using the link provided or sign below.'}
           </Text>
-          <View style={styles.signatureLine} />
-          <Text style={styles.signatureLabel}>Signature & Date</Text>
+          {!data.electronic_signature_only && <><View style={styles.signatureLine} /><Text style={styles.signatureLabel}>Signature & Date</Text></>}
         </View>
 
         {/* Footer */}
-        <Text style={styles.footer}>
-          Questions? Contact us at your convenience.
-        </Text>
+        {!data.electronic_signature_only && <Text style={styles.footer}>Questions? Contact us at your convenience.</Text>}
       </Page>
     </Document>
   );

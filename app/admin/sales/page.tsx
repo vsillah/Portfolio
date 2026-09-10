@@ -348,6 +348,7 @@ export default function SalesDashboardPage() {
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
+            <Link href="/admin/sales/proposals/prepare" className="admin-console-button-muted">Proposal with deposit</Link>
             <Link
               href="/admin/sales/products"
               className="admin-console-button-muted"

@@ -38,6 +38,8 @@ export async function POST(request: NextRequest) {
       .eq('id', proposal_id)
       .single()
 
+    if (proposal?.staged_package) return NextResponse.json({ error: 'Use the scoped staged package workflow.' }, { status: 403 });
+
     if (proposalError || !proposal) {
       return NextResponse.json(
         { error: 'Proposal not found' },

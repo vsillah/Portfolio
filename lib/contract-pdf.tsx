@@ -18,6 +18,8 @@ export interface ContractPDFData {
   total_amount: number;
   bundle_name?: string;
   valid_until?: string;
+  /** Exact reviewed custom agreement; never combined with default boilerplate. */
+  reviewed_text?: string;
 }
 
 const styles = StyleSheet.create({
@@ -71,6 +73,21 @@ const ContractDocument: React.FC<{ data: ContractPDFData }> = ({ data }) => {
     ? `Software advisory and implementation services as described in the accompanying proposal (${data.bundle_name}), including any deliverables, access, and support specified therein.`
     : 'Software advisory and implementation services as described in the accompanying proposal, including any deliverables, access, and support specified therein.';
 
+  if (data.reviewed_text) return (
+    <Document title={`Customer Agreement — ${clientLabel}`}>
+      <Page size="A4" style={styles.page}>
+        <View style={styles.header}>
+          <Text style={styles.companyName}>{COMPANY_DISPLAY_NAME}</Text>
+          <Text style={styles.documentTitle}>Customer Agreement</Text>
+          <Text style={styles.documentSubtitle}>{clientLabel}</Text>
+        </View>
+        {data.reviewed_text.split('\n').filter(Boolean).map((paragraph, i) => (
+          <Text key={i} style={[styles.bodyText, styles.paragraph]}>{paragraph}</Text>
+        ))}
+        <Text style={styles.signatureLabel}>Signature is recorded electronically against this exact agreement.</Text>
+      </Page>
+    </Document>
+  );
   return (
     <Document title={`Software Agreement — ${clientLabel}`}>
       <Page size="A4" style={styles.page}>
@@ -177,11 +194,15 @@ export async function generateContractPDF(data: ContractPDFData): Promise<Buffer
   const result = await pdf(doc).toBuffer();
   if (Buffer.isBuffer(result)) return result;
   const chunks: Uint8Array[] = [];
-  const reader = (result as unknown as ReadableStream<Uint8Array>).getReader();
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    if (value) chunks.push(value);
+  if (typeof (result as unknown as ReadableStream<Uint8Array>).getReader === 'function') {
+    const reader = (result as unknown as ReadableStream<Uint8Array>).getReader();
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      if (value) chunks.push(value);
+    }
+  } else {
+    for await (const chunk of result as AsyncIterable<Uint8Array | Buffer | string>) chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
   }
   return Buffer.concat(chunks);
 }
