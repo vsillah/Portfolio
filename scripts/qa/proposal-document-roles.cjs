@@ -33,6 +33,17 @@ const sid = "11111111-1111-4111-8111-111111111111";
   let docs = [],
     eligible = true,
     failNext = false;
+  let staleDelete = false;
+  const readDocs = () =>
+    docs.map((d) => ({
+      ...d,
+      can_delete: eligible && d.binding_role === "supporting",
+      delete_disabled_reason: !eligible
+        ? "Removal locked after issuance, viewing or signing."
+        : d.binding_role !== "supporting"
+          ? "Primary and agreement history is retained."
+          : null,
+    }));
   const identity = {
     revision: "44444444-4444-4444-8444-444444444444",
     pdf_url: null,
@@ -119,10 +130,16 @@ const sid = "11111111-1111-4111-8111-111111111111";
     if (p.match(/^\/api\/admin\/proposals\/[^/]+\/documents$/)) {
       if (r.request().method() === "GET")
         return json({
-          documents: docs,
+          documents: readDocs(),
           document_identity: identity,
           binding_eligible: eligible,
         });
+      if (r.request().method() === "PATCH") {
+        const ids = r.request().postDataJSON().documentIds;
+        docs = ids.map((id) => docs.find((d) => d.id === id));
+        writes.push({ method: "PATCH", path: p, mocked: true });
+        return json({ documents: readDocs() });
+      }
       if (r.request().method() === "POST") {
         const body = r.request().postDataBuffer().toString();
         const field = (name) =>
@@ -167,6 +184,18 @@ const sid = "11111111-1111-4111-8111-111111111111";
       p.match(/^\/api\/admin\/proposals\/[^/]+\/documents\/[^/]+$/) &&
       r.request().method() === "DELETE"
     ) {
+      if (staleDelete) {
+        staleDelete = false;
+        eligible = false;
+        writes.push({ method: "DELETE", path: p, mocked: true, status: 409 });
+        return r.fulfill({
+          status: 409,
+          contentType: "application/json",
+          body: JSON.stringify({
+            error: "Synthetic stale state: removal is now locked.",
+          }),
+        });
+      }
       const id = p.split("/").pop();
       docs = docs.filter((d) => d.id !== id);
       writes.push({ method: "DELETE", path: p, mocked: true });
@@ -259,12 +288,13 @@ const sid = "11111111-1111-4111-8111-111111111111";
     if (issues.outside || issues.overflow) throw Error(JSON.stringify(issues));
   }
   for (const width of sweep ? widths : [mobile ? 390 : 1440]) {
+    docs=[];eligible=true;staleDelete=false;
     await page.setViewportSize({ width, height: 1000 });
     await page.goto(base.origin + `/admin/sales/conversation/${sid}`);
     await page.getByRole("button", { name: /Open proposal panel/ }).click();
     await page.getByText("Expiry: No expiry", { exact: true }).waitFor();
     await hold("Native proposal and documents drawer");
-    for (const role of ["supporting", "primary", "agreement"]) {
+    for (const role of ["supporting", "supporting", "primary", "agreement"]) {
       await attach();
       await dialog()
         .getByLabel("Title", { exact: true })
@@ -304,24 +334,68 @@ const sid = "11111111-1111-4111-8111-111111111111";
       await dialog().getByRole("button", { name: "Done", exact: true }).click();
     }
     await page.getByText("Reviewed agreement", { exact: true }).waitFor();
+    const primary = page
+      .locator("li")
+      .filter({
+        has: page.getByRole("link", { name: /Synthetic primary document/ }),
+      });
+    for (const action of ["Move up", "Move down"]) {
+      await Promise.all([
+        page.waitForResponse((r) => r.request().method() === "PATCH"),
+        primary.getByTitle(action, { exact: true }).click(),
+      ]);
+      await primary.getByText("Primary proposal", { exact: true }).waitFor();
+      if (
+        !(await primary.getByRole("link").count()) ||
+        (await primary
+          .getByRole("button", { name: "Remove document", exact: true })
+          .isEnabled())
+      )
+        throw Error("Reorder lost enriched document metadata");
+      await hold(action + " preserves role, link and removal lock");
+    }
     await page.screenshot({ path: out + `/drawer-${width}.png` });
     await hold("Bound roles and retained history");
     // Every changed action: read document link, supporting removal, locked role + reload + cancel.
     const link = page
       .getByRole("link", { name: /Synthetic supporting document/ })
       .first();
-    const [tab,response] = await Promise.all([
+    const [tab, response] = await Promise.all([
       context.waitForEvent("page"),
-      context.waitForEvent("response", {predicate:r=>r.url()===base.origin+"/__synthetic_document.pdf"}),
+      context.waitForEvent("response", {
+        predicate: (r) => r.url() === base.origin + "/__synthetic_document.pdf",
+      }),
       link.click(),
     ]);
-    if(response.status()!==200 || !response.headers()["content-type"].includes("application/pdf"))throw Error("Document read failed");
+    if (
+      response.status() !== 200 ||
+      !response.headers()["content-type"].includes("application/pdf")
+    )
+      throw Error("Document read failed");
     await tab.close();
     await page
       .getByRole("button", { name: "Remove document", exact: true })
       .first()
       .click();
-    eligible = false;
+    staleDelete = true;
+    await page
+      .locator('button[aria-label="Remove document"]:not(:disabled)')
+      .first()
+      .click();
+    await page.getByRole("alert", {name:"Document action error"}).waitFor();
+    await hold("Stale deletion conflict remains inline");
+    await page
+      .getByRole("button", { name: "Reload documents", exact: true })
+      .click();
+    await page.getByRole("alert", {name:"Document action error"}).waitFor({ state: "hidden" });
+    if (
+      await page
+        .locator('button[aria-label="Remove document"]:not(:disabled)')
+        .count()
+    )
+      throw Error("Locked supporting deletion still enabled");
+    await page.screenshot({ path: out + `/locked-list-${width}.png` });
+    await hold("Supporting removal disabled after authoritative reload");
     await attach();
     await dialog()
       .getByText(/locked after issuance/)

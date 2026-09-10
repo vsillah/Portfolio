@@ -159,7 +159,7 @@ export default function ConversationPage() {
     else setCurrentProposal(null);
   }, [saved.proposal]);
   const [proposalEmailDraft, setProposalEmailDraft] = useState<ProposalEmailDraft | null>(null);
-  const [proposalDocuments, setProposalDocuments] = useState<Array<{ id: string; document_type: string; title: string; display_order: number; created_at: string; binding_role?: string; current_role?: string | null; signedUrl?: string | null }>>([]);
+  const [proposalDocuments, setProposalDocuments] = useState<Array<{ id: string; document_type: string; title: string; display_order: number; created_at: string; binding_role?: string; current_role?: string | null; signedUrl?: string | null; can_delete?: boolean; delete_disabled_reason?: string | null }>>([]);
   const [showAttachDocumentModal, setShowAttachDocumentModal] = useState(false);
   const [collapsedContentGroups, setCollapsedContentGroups] = useState<Set<string>>(new Set());
   const [presentationUrl, setPresentationUrl] = useState<string | null>(null);
@@ -1432,7 +1432,7 @@ export default function ConversationPage() {
   );
 }
 
-type ProposalDocRow = { id: string; document_type: string; title: string; display_order: number; created_at: string; binding_role?: string; current_role?: string | null; signedUrl?: string | null };
+type ProposalDocRow = { id: string; document_type: string; title: string; display_order: number; created_at: string; binding_role?: string; current_role?: string | null; signedUrl?: string | null; can_delete?: boolean; delete_disabled_reason?: string | null };
 
 function ConversationProposalReviewSection({
   currentProposal,
@@ -1509,7 +1509,7 @@ function ConversationProposalReviewSection({
                           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}` },
                           body: JSON.stringify({ documentIds: newOrder.map(d => d.id) }),
                         });
-                        if (res.ok) { const data = await res.json(); setProposalDocuments(data.documents ?? newOrder); }
+                        if (res.ok) { const data = await res.json(); setProposalDocuments(data.documents ?? []); } else { setDocumentError('Could not refresh document order. Reload documents to retry.'); }
                       }}
                       disabled={index === 0}
                       className="p-1 text-gray-400 hover:text-white disabled:opacity-30 rounded"
@@ -1528,7 +1528,7 @@ function ConversationProposalReviewSection({
                           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}` },
                           body: JSON.stringify({ documentIds: newOrder.map(d => d.id) }),
                         });
-                        if (res.ok) { const data = await res.json(); setProposalDocuments(data.documents ?? newOrder); }
+                        if (res.ok) { const data = await res.json(); setProposalDocuments(data.documents ?? []); } else { setDocumentError('Could not refresh document order. Reload documents to retry.'); }
                       }}
                       disabled={index >= proposalDocuments.length - 1}
                       className="p-1 text-gray-400 hover:text-white disabled:opacity-30 rounded"
@@ -1544,13 +1544,14 @@ function ConversationProposalReviewSection({
                   <button
                     type="button"
                     onClick={async () => {
-                      if (!accessToken) return;
+                      if (!accessToken || doc.can_delete !== true) return;
                       const res = await fetch(`/api/admin/proposals/${currentProposal.id}/documents/${doc.id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${accessToken}` } });
                       if (res.ok) setProposalDocuments(prev => prev.filter(d => d.id !== doc.id)); else { const data=await res.json(); setDocumentError(data.error || 'Document could not be removed. Reload to retry.'); }
                     }}
                     className="p-1.5 text-gray-400 hover:text-red-400 rounded"
-                    disabled={!!doc.binding_role && doc.binding_role !== 'supporting'}
-                    title={doc.binding_role && doc.binding_role !== 'supporting' ? 'Retained document history' : 'Remove document'}
+                    disabled={doc.can_delete !== true}
+                    aria-label="Remove document"
+                    title={doc.can_delete === true ? 'Remove document' : doc.delete_disabled_reason || 'Reload document review to check removal eligibility'}
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
@@ -1560,7 +1561,11 @@ function ConversationProposalReviewSection({
           ) : (
             <p className="text-xs text-gray-500 mb-2">No reports or documents attached yet.</p>
           )}
-          {documentError && <p role="alert" className="text-sm text-red-300">{documentError}</p>}
+          {documentError && <div role="alert" aria-label="Document action error" className="text-sm text-red-300">{documentError}<button type="button" className="block underline" onClick={async () => {
+            if (!accessToken) return;
+            const res=await fetch(`/api/admin/proposals/${currentProposal.id}/documents`,{headers:{Authorization:`Bearer ${accessToken}`}});
+            if(res.ok){const data=await res.json();setProposalDocuments(data.documents ?? []);setDocumentError(null);}
+          }}>Reload documents</button></div>}
           <button type="button" onClick={onOpenAttachModal} className="flex items-center gap-1.5 text-sm text-blue-400 hover:text-blue-300">
             <Upload className="w-3.5 h-3.5" /> Attach report or document (PDF)
           </button>

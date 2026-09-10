@@ -14,6 +14,7 @@ import {
   validDocumentIdentity,
   documentIdentity,
   documentRpcStatus,
+  documentDeletionReason,
 } from "@/lib/proposal-document-binding";
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
@@ -47,6 +48,10 @@ export async function GET(
     );
   }
 
+  return readDocuments(proposalId);
+}
+
+async function readDocuments(proposalId: string) {
   const { data: proposal } = await supabaseAdmin
     .from("proposals")
     .select(
@@ -89,6 +94,8 @@ export async function GET(
         const ref = "storage:documents/" + doc.file_path;
         return {
           ...doc,
+          can_delete: documentDeletionReason(proposal, doc) === null,
+          delete_disabled_reason: documentDeletionReason(proposal, doc),
           signedUrl: data?.signedUrl ?? null,
           current_role:
             proposal.pdf_url === ref
@@ -401,13 +408,5 @@ export async function PATCH(
     return NextResponse.json({ error: "Failed to reorder" }, { status: 500 });
   }
 
-  const { data: docs } = await supabaseAdmin
-    .from("proposal_documents")
-    .select(
-      "id, proposal_id, document_type, title, file_path, display_order, source, created_at, binding_role",
-    )
-    .eq("proposal_id", proposalId)
-    .order("display_order", { ascending: true });
-
-  return NextResponse.json({ documents: docs ?? [] });
+  return readDocuments(proposalId);
 }

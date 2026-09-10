@@ -136,11 +136,12 @@ describe('/api/admin/proposals/[id]/documents', () => {
       const updatePayloads: Array<{ id: string; display_order: number; proposalId: string }> = []
       let call = 0
       const ordered = [
-        { id: 'doc-2', display_order: 0 },
-        { id: 'doc-1', display_order: 1 },
+        { id: 'doc-2', display_order: 0, binding_role: 'primary', file_path: 'primary.pdf' },
+        { id: 'doc-1', display_order: 1, binding_role: 'supporting', file_path: 'support.pdf' },
       ]
 
       mocks.from.mockImplementation((table: string) => {
+        if (table === 'proposals') return chain({ data: { id: 'proposal-1', status: 'draft', pdf_url: 'storage:documents/primary.pdf' }, error: null })
         if (table !== 'proposal_documents') throw new Error(`Unexpected table: ${table}`)
         call += 1
 
@@ -185,7 +186,11 @@ describe('/api/admin/proposals/[id]/documents', () => {
       )
 
       expect(response.status).toBe(200)
-      await expect(response.json()).resolves.toEqual({ documents: ordered })
+      const data = await response.json()
+      expect(data.documents).toEqual([
+        expect.objectContaining({ ...ordered[0], current_role: 'primary', can_delete: false, signedUrl: 'https://synthetic.invalid/pdf' }),
+        expect.objectContaining({ ...ordered[1], can_delete: true, signedUrl: 'https://synthetic.invalid/pdf' }),
+      ])
       expect(updatePayloads).toEqual([
         { id: 'doc-2', proposalId: 'proposal-1', display_order: 0 },
         { id: 'doc-1', proposalId: 'proposal-1', display_order: 1 },

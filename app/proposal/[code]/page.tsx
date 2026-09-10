@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, Suspense } from 'react';
+import { useState, useEffect, useCallback, useRef, Suspense } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import {
   FileText,
@@ -192,6 +192,9 @@ function ProposalByCodeContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [isAccepting, setIsAccepting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [signatureError,setSignatureError]=useState<{kind:'proposal'|'contract';message:string}|null>(null);
+  const signatureFeedbackRef=useRef<HTMLDivElement>(null);
+  useEffect(()=>{if(signatureError){signatureFeedbackRef.current?.focus({preventScroll:true});signatureFeedbackRef.current?.scrollIntoView({block:'nearest',behavior:'instant'});}},[signatureError]);
   const [onboardingPlanId, setOnboardingPlanId] = useState<string | null>(null);
   const [dashboardUrl, setDashboardUrl] = useState<string | null>(null);
   const [showSignForm, setShowSignForm] = useState(false);
@@ -261,10 +264,21 @@ function ProposalByCodeContent() {
     fetchProposal();
   }, [fetchProposal]);
 
+  const signatureFeedback=(kind:'proposal'|'contract')=>signatureError?.kind===kind ? (
+    <div ref={signatureFeedbackRef} role="alert" aria-label={kind==='proposal'?'Proposal signature error':'Agreement signature error'} tabIndex={-1} className="text-sm text-red-300 break-words rounded-lg p-2 border border-red-800">
+      {signatureError.message}
+      <button type="button" className="block underline mt-2" onClick={async()=>{
+        setShowSignForm(false);setShowContractSignForm(false);
+        await fetchProposal();setSignName('');setContractSignName('');setSignatureError(null);
+      }}>Reload documents</button>
+    </div>
+  ) : null;
+
   const handleSignAndAccept = async () => {
     if (!proposalId) return;
     setIsAccepting(true);
     setError(null);
+    setSignatureError(null);
     try {
       const signRes = await fetch(`/api/proposals/${proposalId}/sign`, {
         method: 'POST',
@@ -303,7 +317,7 @@ function ProposalByCodeContent() {
         window.location.href = data.checkoutUrl;
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong');
+      setSignatureError({kind:'proposal',message:err instanceof Error ? err.message : 'Signature failed. Reload to review.'});
       setIsAccepting(false);
     }
   };
@@ -312,6 +326,7 @@ function ProposalByCodeContent() {
     if (!proposalId) return;
     setIsAccepting(true);
     setError(null);
+    setSignatureError(null);
     try {
       const res = await fetch(`/api/proposals/${proposalId}/sign-contract`, {
         method: 'POST',
@@ -334,7 +349,7 @@ function ProposalByCodeContent() {
       );
       setShowContractSignForm(false);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to sign contract');
+      setSignatureError({kind:'contract',message:err instanceof Error ? err.message : 'Signature failed. Reload to review.'});
     } finally {
       setIsAccepting(false);
     }
@@ -540,7 +555,7 @@ function ProposalByCodeContent() {
           <div className="mb-6 p-4 rounded-lg border bg-red-900/20 border-red-800">
             <div className="flex items-center gap-3">
               <AlertCircle className="w-5 h-5 text-red-500" />
-              <p className="text-red-200">{error}</p><button type="button" onClick={() => { setShowSignForm(false); setShowContractSignForm(false); setSignName(''); setContractSignName(''); void fetchProposal(); }} className="shrink-0 underline">Reload documents</button>
+              <p className="text-red-200">{error}</p>
             </div>
           </div>
         )}
@@ -852,6 +867,7 @@ function ProposalByCodeContent() {
                         Sign & Accept
                       </button>
                     </div>
+                    {signatureFeedback('proposal')}
                   </div>
                 )}
               </div>
@@ -909,6 +925,7 @@ function ProposalByCodeContent() {
                         Sign Contract
                       </button>
                     </div>
+                    {signatureFeedback('contract')}
                   </div>
                 )}
               </div>

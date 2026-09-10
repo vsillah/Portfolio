@@ -87,3 +87,38 @@ export function isUnissuedBoundProposal(p: {
     )
   );
 }
+
+/** Mirrors delete_proposal_supporting_document; SQL remains authoritative on mutation. */
+export function documentDeletionReason(
+  proposal: {
+    status?: string | null;
+    pdf_url?: string | null;
+    contract_pdf_url?: string | null;
+    [key: string]: unknown;
+  },
+  doc: { binding_role?: string; file_path: string },
+): string | null {
+  if (
+    proposal.status !== "draft" ||
+    [
+      "access_code",
+      "sent_at",
+      "viewed_at",
+      "accepted_at",
+      "paid_at",
+      "signed_at",
+      "contract_signed_at",
+    ].some((key) => proposal[key] != null)
+  )
+    return "Removal locked after issuance, viewing or signing.";
+  if (doc.binding_role !== "supporting")
+    return "Primary and agreement history is retained.";
+  const referenced = [proposal.pdf_url, proposal.contract_pdf_url].some(
+    (url) =>
+      url === "storage:documents/" + doc.file_path ||
+      url?.split("?")[0].endsWith("/documents/" + doc.file_path),
+  );
+  return referenced
+    ? "Referenced proposal and agreement PDFs are retained."
+    : null;
+}

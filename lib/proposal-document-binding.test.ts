@@ -7,7 +7,10 @@ const signed = vi.hoisted(() =>
 vi.mock("@/lib/supabase", () => ({
   supabaseAdmin: { storage: { from: () => ({ createSignedUrl: signed }) } },
 }));
-import { proposalDocumentReadback } from "./proposal-document-binding";
+import {
+  proposalDocumentReadback,
+  documentDeletionReason,
+} from "./proposal-document-binding";
 it("keeps stable reviewed identity distinct from expiring private read URL", async () => {
   const raw =
     "storage:documents/proposal-docs/11111111-1111-4111-8111-111111111111/22222222-2222-4222-8222-222222222222.pdf";
@@ -43,4 +46,42 @@ it("rejects cross-proposal stored reference", async () => {
       pdf_url: "storage:documents/proposal-docs/two/file.pdf",
     }),
   ).rejects.toThrow();
+});
+
+it.each([
+  "access_code",
+  "sent_at",
+  "viewed_at",
+  "accepted_at",
+  "paid_at",
+  "signed_at",
+  "contract_signed_at",
+])("supporting deletion is disabled for %s", (key) => {
+  expect(
+    documentDeletionReason(
+      { status: "draft", [key]: "set" },
+      { binding_role: "supporting", file_path: "ordinary.pdf" },
+    ),
+  ).toMatch(/locked/);
+});
+it("only unreferenced supporting draft documents can be deleted", () => {
+  const doc = { binding_role: "supporting", file_path: "folder/old.pdf" };
+  expect(documentDeletionReason({ status: "draft" }, doc)).toBeNull();
+  expect(documentDeletionReason({ status: null }, doc)).toMatch(/locked/);
+  expect(
+    documentDeletionReason(
+      {
+        status: "draft",
+        pdf_url:
+          "https://example.invalid/storage/v1/object/public/documents/folder/old.pdf",
+      },
+      doc,
+    ),
+  ).toMatch(/retained/);
+  expect(
+    documentDeletionReason(
+      { status: "draft" },
+      { ...doc, binding_role: "primary" },
+    ),
+  ).toMatch(/retained/);
 });
