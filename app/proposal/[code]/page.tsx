@@ -74,6 +74,7 @@ interface Proposal {
   terms_text?: string;
   valid_until?: string;
   status: string;
+  document_identity?: {revision:string;pdf_url:string|null;contract_pdf_url:string|null};
   pdf_url?: string;
   contract_pdf_url?: string | null;
   accepted_at?: string;
@@ -268,7 +269,7 @@ function ProposalByCodeContent() {
       const signRes = await fetch(`/api/proposals/${proposalId}/sign`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ signed_by_name: signName.trim() }),
+        body: JSON.stringify({ signed_by_name: signName.trim(), document_identity: proposal?.document_identity }),
       });
       if (!signRes.ok) {
         const data = await signRes.json();
@@ -276,7 +277,7 @@ function ProposalByCodeContent() {
       }
       // If there is a contract, do not proceed to checkout yet — show Sign Contract step
       if (proposal?.contract_pdf_url) {
-        setProposal((p) => (p ? { ...p, signed_at: new Date().toISOString(), signed_by_name: signName.trim() } : null));
+        setProposal((p) => (p ? { ...p, signed_at: new Date().toISOString(), signed_by_name: signName.trim(), document_identity: proposal?.document_identity } : null));
         setShowSignForm(false);
         setContractSignName(signName.trim());
         setIsAccepting(false);
@@ -315,7 +316,7 @@ function ProposalByCodeContent() {
       const res = await fetch(`/api/proposals/${proposalId}/sign-contract`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ signed_by_name: contractSignName.trim() }),
+        body: JSON.stringify({ signed_by_name: contractSignName.trim(), document_identity: proposal?.document_identity }),
       });
       if (!res.ok) {
         const data = await res.json();
@@ -327,7 +328,7 @@ function ProposalByCodeContent() {
           ? {
               ...p,
               contract_signed_at: new Date().toISOString(),
-              contract_signed_by_name: contractSignName.trim(),
+              contract_signed_by_name: contractSignName.trim(), document_identity: proposal?.document_identity,
             }
           : null
       );
@@ -539,7 +540,7 @@ function ProposalByCodeContent() {
           <div className="mb-6 p-4 rounded-lg border bg-red-900/20 border-red-800">
             <div className="flex items-center gap-3">
               <AlertCircle className="w-5 h-5 text-red-500" />
-              <p className="text-red-200">{error}</p>
+              <p className="text-red-200">{error}</p><button type="button" onClick={() => { setShowSignForm(false); setShowContractSignForm(false); setSignName(''); setContractSignName(''); void fetchProposal(); }} className="shrink-0 underline">Reload documents</button>
             </div>
           </div>
         )}

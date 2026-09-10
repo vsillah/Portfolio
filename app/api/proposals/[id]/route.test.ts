@@ -186,3 +186,10 @@ describe('PATCH /api/proposals/[id]', () => {
     expect(update).toHaveBeenCalledWith({ client_name: 'Ada' })
   })
 })
+
+it('keeps new unissued private bindings out of public UUID readback without marking viewed', async () => {
+  const {update}=mockProposalGet({proposal:{id:'prop-1',status:'draft',access_code:null,pdf_url:'storage:documents/proposal-docs/prop-1/file.pdf'}})
+  const response=await GET(makeGetRequest(),params())
+  expect(response.status).toBe(404)
+  expect(update).not.toHaveBeenCalled()
+})
