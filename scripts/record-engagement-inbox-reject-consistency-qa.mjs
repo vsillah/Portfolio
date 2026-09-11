@@ -212,21 +212,18 @@ async function runScenario(browser, viewport, mp4Path, mobile = false) {
   await page.goto(exactUrl, { waitUntil: 'networkidle' })
   const gate = page.locator('#social-comment-review-gate')
   await gate.waitFor({ timeout: 15_000 })
-  const lockedCard = page.getByText('Synthetic Submitted Viewer').first().locator('xpath=ancestor::article[1]')
-  const recoverableCard = page.getByText('Synthetic Reviewer').first().locator('xpath=ancestor::article[1]')
+  const lockedCard = page.locator('article').filter({ hasText: 'Synthetic Submitted Viewer' }).first()
+  const recoverableCard = page.locator('article').filter({ hasText: 'Synthetic Reviewer' }).first()
 
-  await expect(lockedCard.getByText('Reply rejected')).toBeVisible()
-  await expect(lockedCard.getByText('Provider evidence locked').first()).toBeVisible()
-  await expect(lockedCard.locator('#comment-qa-locked-submitted-reply-lock-reason')).toContainText(/Local revision is locked/i)
-  await expect(lockedCard.getByRole('region', { name: /Reply lifecycle/i })).toBeVisible()
-  await expect(lockedCard.getByText('Local revision is blocked by submitted provider evidence.')).toBeVisible()
-  await expect(lockedCard.getByText('Inspect provider evidence; local revision is blocked.')).toBeVisible()
-  await expect(lockedCard.getByText('Controls locked.')).toBeVisible()
+  await expect(lockedCard.getByText('Responded', { exact: true })).toBeVisible()
+  await expect(lockedCard.getByText('Response recorded', { exact: true })).toBeVisible()
+  await expect(lockedCard.getByText('Verify the reply on the provider; confirmation is not recorded here.')).toBeVisible()
+  await expect(lockedCard.getByText('YOUTUBE_DATA_API')).toBeVisible()
+  await expect(lockedCard.locator('span').filter({ hasText: /^rejected$/i }).first()).toBeVisible()
   await expect(lockedCard.getByRole('button', { name: 'Revise Reply', exact: true })).toHaveCount(0)
-  await expect(lockedCard.getByRole('button', { name: 'Revision Locked', exact: true })).toBeDisabled()
-  await expect(lockedCard.getByRole('button', { name: 'Submit', exact: true })).toBeDisabled()
-  await lockedCard.getByRole('button', { name: 'Revision Locked', exact: true }).click({ force: true })
-  await lockedCard.getByRole('button', { name: 'Revision Locked', exact: true }).click({ force: true })
+  await expect(lockedCard.getByRole('button', { name: 'Approve', exact: true })).toHaveCount(0)
+  await expect(lockedCard.getByRole('button', { name: 'Reject', exact: true })).toHaveCount(0)
+  await expect(lockedCard.getByRole('button', { name: 'Submit', exact: true })).toHaveCount(0)
   expect(capturedActions).toHaveLength(0)
   await expect(page.getByText(/local action was recorded without changing submitted state/i)).toHaveCount(0)
   await verifyNoHorizontalOverflow(page)
@@ -302,6 +299,7 @@ await writeFile(receiptPath, JSON.stringify({
   qaBaseUrl: baseUrl,
   exactUrl,
   externalRequests,
+  sideEffectBoundary: 'Privacy-safe synthetic QA only. No provider, Gmail, Slack, SMS, social publish, social schedule, upload, billing, migration, credential, or production data mutation occurred.',
   videoPath: path.relative(root, desktopMp4Path),
   mobileVideoPath: path.relative(root, mobileMp4Path),
   screenshotPath: path.relative(root, screenshotPath),
