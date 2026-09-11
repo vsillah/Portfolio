@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo, useRef, type Dispatch, type SetStateAction } from 'react';
 import Link from 'next/link';
+import MilestonePayments from '@/components/proposals/MilestonePayments';
 import AttachProposalDocumentModal from '@/components/admin/sales/AttachProposalDocumentModal';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { getBackUrl } from '@/lib/admin-return-context';
@@ -1484,6 +1485,7 @@ function ConversationProposalReviewSection({
   }
   return (
     <div className="space-y-3">
+      {accessToken && <MilestonePayments proposalId={currentProposal.id} adminToken={accessToken} />}
       <div className="bg-gray-800/50 rounded-lg p-3 border border-gray-700">
         <span className={`inline-block px-2 py-0.5 text-xs rounded ${currentProposal.status === 'paid' ? 'bg-green-900/50 text-green-300' : currentProposal.status === 'accepted' ? 'bg-blue-900/50 text-blue-300' : 'bg-gray-700 text-gray-300'}`}>{currentProposal.status}</span>
         {currentProposal.proposalLink && <div className="flex items-center gap-2 mt-2">

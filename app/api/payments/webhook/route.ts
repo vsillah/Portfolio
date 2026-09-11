@@ -1,3 +1,4 @@
+import { handleMilestoneEvent } from '@/lib/proposal-milestones'
 import { NextRequest, NextResponse } from 'next/server'
 import { stripe } from '@/lib/stripe'
 import { supabaseAdmin } from '@/lib/supabase'
@@ -337,6 +338,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    if (await handleMilestoneEvent(event)) return NextResponse.json({ received: true });
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session;

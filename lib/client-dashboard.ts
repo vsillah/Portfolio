@@ -591,7 +591,7 @@ export async function getDashboardByToken(
     project.proposal_id
       ? supabaseAdmin
           .from('proposals')
-          .select('id, bundle_name, pdf_url, contract_pdf_url, status, created_at')
+          .select('id, bundle_name, pdf_url, contract_pdf_url, status, created_at, payment_schedule')
           .eq('id', project.proposal_id)
           .single()
       : Promise.resolve({ data: null, error: null }),
@@ -658,7 +658,7 @@ export async function getDashboardByToken(
 
   // Assemble documents list with signed URLs (from single proposal + proposal_documents + single onboarding plan)
   const documents: DashboardDocument[] = []
-  const proposal = proposalDocsResult.data as { id: string; bundle_name: string; pdf_url: string | null; contract_pdf_url: string | null; status: string; created_at: string } | null
+  const proposal = proposalDocsResult.data as { payment_schedule?: string; id: string; bundle_name: string; pdf_url: string | null; contract_pdf_url: string | null; status: string; created_at: string } | null
   const onboardingPlan = onboardingDocsResult.data as { id: string; pdf_url: string | null; status: string; created_at: string; onboarding_plan_templates: { name: string } | null } | null
 
   const getSignedUrlForPdf = async (pdfUrl: string | null, bucket: string): Promise<string | null> => {
@@ -844,7 +844,8 @@ export async function getDashboardByToken(
 
   const valueReports = (allValueReportsResult.data || []) as ClientValueReport[]
   const gammaReports = (allGammaReportsResult.data || []) as ClientGammaReport[]
-  const accountSummary = buildAccountSummary(allClientProposalsResult.data || [], timeTracking)
+  // Milestone receipts are shown by the payment panel; legacy summary assumes full payment.
+  const accountSummary = proposal?.payment_schedule === 'milestones' ? null : buildAccountSummary(allClientProposalsResult.data || [], timeTracking)
   const aiOpsRoadmap = await getRoadmapBundleForProject(projectId).then((bundle) => bundle?.clientView ?? null).catch(() => null)
   const buildEvidence = buildEvidenceResult ?? null
 

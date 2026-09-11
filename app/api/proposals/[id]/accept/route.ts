@@ -1,3 +1,4 @@
+import { milestoneCheckout } from '@/lib/proposal-milestones';
 // API Route: Accept Proposal
 // POST - Accept proposal and create Stripe Checkout Session (one-time or installment)
 
@@ -35,6 +36,8 @@ export async function POST(
     if (fetchError || !proposal) {
       return NextResponse.json({ error: 'Proposal not found' }, { status: 404 });
     }
+
+    if (proposal.payment_schedule === 'milestones') return milestoneCheckout(request, proposal, body);
 
     const isExpired = proposal.valid_until && new Date(proposal.valid_until) < new Date();
     if (isExpired) {

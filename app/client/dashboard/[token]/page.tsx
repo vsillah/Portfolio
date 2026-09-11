@@ -1,4 +1,5 @@
 'use client'
+import MilestonePayments from '@/components/proposals/MilestonePayments'
 
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { useParams } from 'next/navigation'
@@ -177,7 +178,7 @@ export default function ClientDashboardPage() {
         <SiteThemeCorner />
       <div className="min-h-screen bg-imperial-navy text-platinum-white">
         <header className="sticky top-0 z-10 border-b border-radiant-gold/20 bg-imperial-navy/90 backdrop-blur-md">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 pr-16 sm:pr-20 flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               <img
                 src="/amadutown-logo-upscaled.png"
@@ -273,7 +274,7 @@ export default function ClientDashboardPage() {
     <div className="min-h-screen bg-imperial-navy text-platinum-white">
       {/* Header */}
       <header className="sticky top-0 z-10 border-b border-radiant-gold/20 bg-imperial-navy/90 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 pr-16 sm:pr-20 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0">
             <img
               src="/amadutown-logo-upscaled.png"
@@ -312,6 +313,7 @@ export default function ClientDashboardPage() {
 
       {/* Main Content */}
       <main className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+        <MilestonePayments token={token} />
         {/* Row 1: Stat Cards */}
         <DashboardStatCards
           overallScore={scores.overallScore}

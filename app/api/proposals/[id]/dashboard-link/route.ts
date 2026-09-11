@@ -1,3 +1,4 @@
+import { milestoneAccess } from '@/lib/proposal-milestones'
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 
@@ -14,9 +15,13 @@ export async function GET(
 ) {
   const { id: proposalId } = await params
 
+
   if (!proposalId) {
     return NextResponse.json({ error: 'Missing proposal ID' }, { status: 400 })
   }
+
+  const {data: accessProposal,error: accessError}=await supabaseAdmin.from('proposals').select('payment_schedule,access_code').eq('id',proposalId).single();
+  if(accessError || !accessProposal || !milestoneAccess(request,accessProposal)) return NextResponse.json({error:'Proposal not found'},{status:404});
 
   const { data: project } = await supabaseAdmin
     .from('client_projects')
