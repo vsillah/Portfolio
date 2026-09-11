@@ -1,4 +1,4 @@
-const { chromium } = require("@playwright/test");
+const { chromium, expect } = require("@playwright/test");
 const fs = require("node:fs");
 const { execFileSync } = require("node:child_process");
 const assert = require("node:assert/strict");
@@ -23,6 +23,12 @@ const id = "11111111-1111-4111-8111-111111111111",
       recordVideo: { dir: out, size: { width, height: 900 } },
     });
     const page = await ctx.newPage();
+    const marks = [];
+    const started = Date.now();
+    const hold = async (label) => {
+      marks.push({ label, seconds: (Date.now() - started) / 1000 });
+      await page.waitForTimeout(3000);
+    };
     const errors = [],
       blocked = [];
     page.on("pageerror", (e) => errors.push(e.message));
@@ -107,7 +113,8 @@ const id = "11111111-1111-4111-8111-111111111111",
         const b = r.request().postDataJSON();
         if (b.action === "reject") {
           delivery = "changes_requested";
-          feedback = b.note || "Correction requested";
+          assert.equal(b.note, "");
+          feedback = b.note;
           return json({ success: true });
         }
         if (b.action === "accept") {
@@ -165,6 +172,10 @@ const id = "11111111-1111-4111-8111-111111111111",
       return json({ recommendations: [], data: [], tasks: [], milestones: [] });
     });
     await page.goto(base.origin + "/proposal/" + code + "?payment=success");
+    await expect(
+      page.getByRole("button", { name: "Sign proposal and agreement first" }),
+    ).toBeDisabled();
+    await hold("Unsigned documents; initial payment locked");
     await page
       .getByRole("button", { name: "Sign & Accept Proposal", exact: true })
       .click();
@@ -172,6 +183,10 @@ const id = "11111111-1111-4111-8111-111111111111",
     await page
       .getByRole("button", { name: "Sign & Accept", exact: true })
       .click();
+    await expect(
+      page.getByRole("button", { name: "Reload documents" }),
+    ).toBeVisible();
+    await hold("Stale document rejected");
     await page.getByRole("button", { name: "Reload documents" }).click();
     await page
       .getByRole("button", { name: "Sign & Accept Proposal", exact: true })
@@ -184,6 +199,9 @@ const id = "11111111-1111-4111-8111-111111111111",
     await page
       .getByRole("button", { name: "Sign & Accept", exact: true })
       .click();
+    await expect(page.getByPlaceholder("Your full name")).toBeHidden();
+    assert.equal(proposalSigned, true);
+    await hold("Proposal signature recorded");
     await page
       .getByRole("button", { name: "Sign Contract", exact: true })
       .click();
@@ -197,41 +215,97 @@ const id = "11111111-1111-4111-8111-111111111111",
       .waitFor();
     await panel.scrollIntoViewIfNeeded();
     await page.screenshot({ path: `${out}/proposal-${width}.png` });
-    await page.waitForTimeout(1200);
+    await expect(
+      page.getByRole("button", { name: "Pay initial $498.50", exact: true }),
+    ).toBeEnabled();
+    assert.equal(contractSigned, true);
+    await hold("Both signatures recorded; initial payment available");
     await page
       .getByRole("button", { name: "Pay initial $498.50", exact: true })
       .click();
+    await expect(
+      panel.getByText("Initial $498.50 · Received", { exact: true }),
+    ).toBeVisible();
+    assert.equal(paid, 1);
+    await hold("Initial receipt recorded");
     await page
       .getByRole("link", { name: "Open your client dashboard" })
       .click();
     const dp = page.getByRole("region", { name: "Milestone payments" });
     await dp.scrollIntoViewIfNeeded();
+    await expect(
+      dp.getByText("Delivery awaiting client review", { exact: true }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("button", {
+        name: "Final payment locked until delivery acceptance",
+      }),
+    ).toBeDisabled();
+    await hold("Dashboard delivery review; final payment locked");
     await page
       .getByRole("button", { name: "Request corrections", exact: true })
       .click();
+    await expect(page.getByLabel("Feedback (optional)")).toHaveValue("");
+    await hold("Correction request with optional empty feedback");
     await page
       .getByRole("button", { name: "Submit correction request" })
       .click();
-    assert.equal(
-      await page
-        .getByRole("button", { name: "Request corrections", exact: true })
-        .count(),
-      0,
-    );
+    await expect(
+      dp.getByText("Corrections requested", { exact: true }),
+    ).toBeVisible();
+    assert.equal(delivery, "changes_requested");
+    assert.equal(feedback, "");
+    await expect(page.getByLabel("Feedback (optional)")).toHaveCount(0);
+    for (const name of [
+      "Request corrections",
+      "Submit correction request",
+      "Cancel",
+      "Delivery meets the agreed criteria",
+    ])
+      await expect(dp.getByRole("button", { name, exact: true })).toHaveCount(
+        0,
+      );
     await page.screenshot({ path: `${out}/corrections-${width}.png` });
-    await page.waitForTimeout(1000);
+    await hold("Correction recorded; feedback and decision actions closed");
     // Mock provider/delivery state only, no HTTP writes outside intercepted synthetic APIs.
     delivery = "review";
     feedback = "";
     await page.getByRole("button", { name: "Refresh payment status" }).click();
+    await expect(
+      dp.getByText("Delivery awaiting client review", { exact: true }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("button", {
+        name: "Final payment locked until delivery acceptance",
+      }),
+    ).toBeDisabled();
+    await hold("Corrected delivery resubmitted; final still locked");
     await page
       .getByRole("button", { name: "Delivery meets the agreed criteria" })
       .click();
+    await expect(
+      dp.getByText("Delivery accepted", { exact: true }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "Pay final $498.50", exact: true }),
+    ).toBeEnabled();
+    assert.equal(delivery, "accepted");
+    await hold("Delivery accepted; final payment available");
     await page
       .getByRole("button", { name: "Pay final $498.50", exact: true })
       .click();
+    await expect(
+      dp.getByText("Initial $498.50 · Received", { exact: true }),
+    ).toBeVisible();
+    await expect(
+      dp.getByText("Final $498.50 · Received", { exact: true }),
+    ).toBeVisible();
+    await expect(
+      dp.getByRole("button", { name: /Pay final|Final payment locked/ }),
+    ).toHaveCount(0);
+    assert.equal(paid, 2);
     await page.screenshot({ path: `${out}/completed-${width}.png` });
-    await page.waitForTimeout(1500);
+    await hold("Both receipts confirmed; no final payment action");
     assert.equal(
       await dp.evaluate((el) => el.scrollWidth > el.clientWidth),
       false,
@@ -247,6 +321,8 @@ const id = "11111111-1111-4111-8111-111111111111",
         video,
         "-c:v",
         "libx264",
+        "-crf",
+        "16",
         "-pix_fmt",
         "yuv420p",
         "-movflags",
@@ -264,6 +340,10 @@ const id = "11111111-1111-4111-8111-111111111111",
         blockedExternal: blocked,
         errors,
         width,
+        marks,
+        finalState: state(),
+        correctionRecorded: true,
+        completionAsserted: true,
       }),
     );
     console.log("PASS", width);
