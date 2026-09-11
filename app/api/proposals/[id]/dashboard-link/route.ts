@@ -20,8 +20,15 @@ export async function GET(
     return NextResponse.json({ error: 'Missing proposal ID' }, { status: 400 })
   }
 
-  const {data: accessProposal,error: accessError}=await supabaseAdmin.from('proposals').select('payment_schedule,access_code').eq('id',proposalId).single();
+  const {data: accessProposal,error: accessError}=await supabaseAdmin.from('proposals').select('payment_schedule,access_code,milestone_settlement,signed_at,contract_signed_at').eq('id',proposalId).single();
   if(accessError || !accessProposal || !milestoneAccess(request,accessProposal)) return NextResponse.json({error:'Proposal not found'},{status:404});
+
+  if (accessProposal.milestone_settlement === 'manual_invoice') {
+    if (!accessProposal.signed_at || !accessProposal.contract_signed_at) return NextResponse.json({ dashboard_url: null });
+    const { data: plan, error } = await supabaseAdmin.from('installment_plans').select('installments_paid').eq('proposal_id', proposalId).eq('billing_kind', 'milestones').maybeSingle();
+    if (error) return NextResponse.json({ error: 'Payment status unavailable' }, { status: 503 });
+    if (!plan || plan.installments_paid < 1) return NextResponse.json({ dashboard_url: null });
+  }
 
   const { data: project } = await supabaseAdmin
     .from('client_projects')

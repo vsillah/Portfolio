@@ -2,7 +2,8 @@
 const { execFileSync } = require("node:child_process");
 const fs = require("node:fs");
 const assert = require("node:assert/strict");
-const name = "codex-proposal-sql-01a0896e";
+const name = process.env.PROPOSAL_SQL_CONTAINER || "codex-proposal-sql-01a0896e";
+assert.ok(["codex-proposal-sql-01a0896e", "codex-proposal-invoice-01a0896e"].includes(name));
 assert.equal(
   execFileSync(
     "docker",

@@ -1,11 +1,14 @@
 "use client";
+import { invoiceMilestoneNextStep } from "@/lib/proposal-invoice-milestones";
 import { RefreshCw, X, Check } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 type Review = {
   enabled: boolean;
+  settlement_mode?: "stripe_checkout" | "manual_invoice";
+  can_configure?: boolean;
   amount: number;
   signed: boolean;
-  document_identity: unknown;
+  document_identity: { revision: string };
   plan: null | {
     installments_paid: number;
     delivery_status: string;
@@ -26,6 +29,8 @@ export default function MilestonePayments({
   adminToken?: string;
 }) {
   const [rejecting, setRejecting] = useState(false);
+  const [receiptReference, setReceiptReference] = useState("");
+  const [receiptAmount, setReceiptAmount] = useState("");
   const [data, setData] = useState<Review | null>(null),
     [error, setError] = useState(""),
     [busy, setBusy] = useState(false),
@@ -53,7 +58,10 @@ export default function MilestonePayments({
   useEffect(() => {
     load().catch((e) => setError(e.message));
   }, [load]);
-  async function act(action: string) {
+  async function act(
+    action: string,
+    settlement?: "stripe_checkout" | "manual_invoice",
+  ) {
     setBusy(true);
     setError("");
     try {
@@ -68,7 +76,17 @@ export default function MilestonePayments({
               ? token
                 ? { action, document_identity: data?.document_identity }
                 : { milestone: 1, document_identity: data?.document_identity }
-              : { action, note, revision: data?.plan?.delivery_revision },
+              : action === "configure"
+                ? { action, settlement_mode: settlement || "stripe_checkout" }
+                : action === "record_receipt"
+                  ? {
+                      action,
+                      milestone: (data?.plan?.installments_paid || 0) + 1,
+                      amount: Number(receiptAmount),
+                      reference: receiptReference,
+                      revision: data?.document_identity.revision,
+                    }
+                  : { action, note, revision: data?.plan?.delivery_revision },
           ),
         },
       );
@@ -79,6 +97,8 @@ export default function MilestonePayments({
         return;
       }
       setNote("");
+      setReceiptReference("");
+      setReceiptAmount("");
       setRejecting(false);
       await load();
     } catch (e) {
@@ -100,6 +120,7 @@ export default function MilestonePayments({
   if (!data?.enabled && !adminToken)
     return error ? <p role="alert">{error}</p> : null;
   const count = data?.plan?.installments_paid || 0;
+  const invoiceManaged = data?.settlement_mode === "manual_invoice";
   const amount = new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
@@ -113,13 +134,22 @@ export default function MilestonePayments({
     >
       <h2 className="font-semibold">Project payments</h2>
       {!data?.enabled ? (
-        <button
-          className={button}
-          disabled={busy}
-          onClick={() => act("configure")}
-        >
-          Use two equal milestone payments
-        </button>
+        <div className="flex flex-wrap gap-3">
+          <button
+            className={button}
+            disabled={busy}
+            onClick={() => act("configure")}
+          >
+            Use two equal milestone payments
+          </button>
+          <button
+            className={button}
+            disabled={busy}
+            onClick={() => act("configure", "manual_invoice")}
+          >
+            Use invoice-managed milestones
+          </button>
+        </div>
       ) : (
         <>
           <p>
@@ -135,7 +165,76 @@ export default function MilestonePayments({
           <p className="text-sm">
             No recurring fee. Kickoff is agreed separately.
           </p>
-          {count === 0 && !adminToken && (
+          {adminToken && data.can_configure && (
+            <button
+              className={button}
+              disabled={busy}
+              onClick={() =>
+                act(
+                  "configure",
+                  invoiceManaged ? "stripe_checkout" : "manual_invoice",
+                )
+              }
+            >
+              {invoiceManaged
+                ? "Switch to milestone checkout"
+                : "Use invoice-managed milestones"}
+            </button>
+          )}
+          {invoiceManaged && (
+            <p role="status">
+              {invoiceMilestoneNextStep(
+                data.signed,
+                count,
+                data.plan?.delivery_status === "accepted",
+                amount,
+              )}
+            </p>
+          )}
+          {invoiceManaged &&
+            adminToken &&
+            data.signed &&
+            (count === 0 ||
+              (count === 1 && data.plan?.delivery_status === "accepted")) && (
+              <div className="space-y-3 border-t border-radiant-gold/25 pt-3">
+                <p className="text-sm">
+                  Record only a verified invoice payment. This does not create
+                  or send an invoice.
+                </p>
+                <label className="block">
+                  Receipt reference
+                  <input
+                    className="block w-full bg-transparent border rounded p-2"
+                    value={receiptReference}
+                    onChange={(e) => setReceiptReference(e.target.value)}
+                    maxLength={200}
+                  />
+                </label>
+                <label className="block">
+                  Amount received (USD)
+                  <input
+                    type="number"
+                    min="0.01"
+                    step="0.01"
+                    className="block w-full bg-transparent border rounded p-2"
+                    value={receiptAmount}
+                    onChange={(e) => setReceiptAmount(e.target.value)}
+                  />
+                </label>
+                <button
+                  className={button + " bg-radiant-gold text-imperial-navy"}
+                  disabled={
+                    busy ||
+                    receiptReference.trim().length < 3 ||
+                    Number(receiptAmount) !== data.amount
+                  }
+                  onClick={() => act("record_receipt")}
+                >
+                  Record {count === 0 ? "initial" : "final"} receipt {amount}
+                </button>
+              </div>
+            )}
+          {count === 0 && !adminToken && !invoiceManaged && (
             <button
               className={button}
               disabled={busy || !data.signed}
@@ -253,7 +352,7 @@ export default function MilestonePayments({
                 </button>
               </div>
             ))}
-          {token && count === 1 && (
+          {token && count === 1 && !invoiceManaged && (
             <button
               className={button}
               disabled={busy || data.plan?.delivery_status !== "accepted"}

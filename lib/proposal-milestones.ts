@@ -27,6 +27,15 @@ export async function milestoneCheckout(
 ) {
   if (!milestoneAccess(request, p))
     return NextResponse.json({ error: "Proposal not found" }, { status: 404 });
+  if (p.milestone_settlement === "manual_invoice")
+    return NextResponse.json(
+      {
+        error:
+          "This proposal uses separate milestone invoices. Review the invoice instructions after signing both documents.",
+        settlement_mode: "manual_invoice",
+      },
+      { status: 409 },
+    );
   if (
     Object.keys(body).some(
       (k) => !["milestone", "document_identity"].includes(k),
@@ -215,7 +224,7 @@ export async function handleMilestoneEvent(
   if (!s.metadata?.proposalId && s.metadata?.milestone !== "true") return false;
   const { data: p, error } = await supabaseAdmin
     .from("proposals")
-    .select("payment_schedule")
+    .select("payment_schedule,milestone_settlement")
     .eq("id", s.metadata?.proposalId || "")
     .maybeSingle();
   if (error) throw new Error("Cannot classify proposal payment");
@@ -224,6 +233,10 @@ export async function handleMilestoneEvent(
       throw new Error("Unknown milestone proposal");
     return false;
   }
+  if (p.milestone_settlement === "manual_invoice")
+    throw new Error(
+      "Invoice-managed milestone cannot be settled by a checkout event",
+    );
   if (s.metadata?.milestone !== "true")
     throw new Error("Legacy payment cannot settle milestone proposal");
   if (

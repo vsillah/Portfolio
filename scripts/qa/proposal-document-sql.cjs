@@ -4,7 +4,7 @@ const fs = require("node:fs");
 const assert = require("node:assert/strict");
 const container =
   process.env.PROPOSAL_SQL_CONTAINER || "codex-proposal-sql-01a0896e";
-if (container !== 'codex-proposal-sql-01a0896e') throw new Error('Refusing any container other than the dedicated synthetic fixture');
+if (!['codex-proposal-sql-01a0896e','codex-proposal-invoice-01a0896e'].includes(container)) throw new Error('Refusing any container other than the dedicated synthetic fixture');
 const isolation=execFileSync('docker',['inspect','--format','{{.HostConfig.NetworkMode}}',container],{encoding:'utf8'}).trim();
 if(isolation !== 'none') throw new Error('Synthetic database must have networking disabled');
 const args = [

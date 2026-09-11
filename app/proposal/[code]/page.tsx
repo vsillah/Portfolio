@@ -84,6 +84,7 @@ interface Proposal {
   created_at: string;
   value_assessment?: ValueAssessment;
   payment_schedule?: string;
+  milestone_settlement?: string;
   signed_at?: string;
   signed_by_name?: string;
   contract_signed_at?: string | null;
@@ -293,7 +294,7 @@ function ProposalByCodeContent() {
         throw new Error(data.error || 'Failed to sign proposal');
       }
       // If there is a contract, do not proceed to checkout yet — show Sign Contract step
-      if (proposal?.contract_pdf_url) {
+      if (proposal?.contract_pdf_url || proposal?.payment_schedule === 'milestones') {
         setProposal((p) => (p ? { ...p, signed_at: new Date().toISOString(), signed_by_name: signName.trim(), document_identity: proposal?.document_identity } : null));
         setShowSignForm(false);
         setContractSignName(signName.trim());
@@ -442,6 +443,11 @@ function ProposalByCodeContent() {
   const savings = totalPerceivedValue - proposal.total_amount;
 
   const getStatusDisplay = () => {
+    if (proposal.milestone_settlement === 'manual_invoice' && proposal.signed_at && proposal.contract_signed_at) return {
+      icon: CheckCircle, color: 'text-blue-500', bgColor: 'bg-blue-900/20 border-blue-800',
+      title: 'Agreement signed',
+      message: 'Review your invoice milestones and recorded payment status below.',
+    };
     if(proposal.payment_schedule === 'milestones' && ['accepted','paid'].includes(proposal.status)) return {
       icon: CheckCircle, color:'text-green-500', bgColor:'bg-green-900/20 border-green-800',
       title:proposal.status==='paid'?'Project payments complete':'Agreement signed',
