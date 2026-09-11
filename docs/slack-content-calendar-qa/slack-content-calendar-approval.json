@@ -1,0 +1,20 @@
+{
+  "qaUrl": "http://127.0.0.1:3108/admin/agents/content-intelligence?section=calendar&calendar_item=calendar-slack-approval",
+  "qaPath": "/admin/agents/content-intelligence?section=calendar&calendar_item=calendar-slack-approval",
+  "routesCovered": [
+    "/admin/agents/content-intelligence?section=calendar&calendar_item=calendar-slack-approval"
+  ],
+  "linkedContentPath": "/admin/social-content/social-slack-calendar?step=copy#social-copy-gate",
+  "videoPath": "docs/slack-content-calendar-qa/slack-content-calendar-approval.mp4",
+  "screenshots": {
+    "pending": "docs/slack-content-calendar-qa/product/01-content-calendar-pending.png",
+    "authorized": "docs/slack-content-calendar-qa/product/02-content-calendar-authorized.png",
+    "duplicate": "docs/slack-content-calendar-qa/product/03-content-calendar-duplicate-idempotent.png",
+    "mobile": "docs/slack-content-calendar-qa/product/04-content-calendar-mobile-authorized.png"
+  },
+  "portfolioAuthorizeCount": 1,
+  "slackNativeReplayCount": 1,
+  "finalAuthorizationStatus": "authorized",
+  "externalRequests": [],
+  "sideEffectBoundary": "Privacy-safe synthetic QA only. No provider, Gmail, Slack send, SMS, social publish, social schedule, upload, billing, migration, credential, or production data mutation occurred."
+}

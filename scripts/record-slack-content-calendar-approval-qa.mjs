@@ -16,6 +16,7 @@ const summaryPath = path.join(outputDir, 'slack-content-calendar-approval.json')
 const baseUrl = (process.env.QA_BASE_URL || 'http://127.0.0.1:3064').replace(/\/$/, '')
 const qaPath = '/admin/agents/content-intelligence?section=calendar&calendar_item=calendar-slack-approval'
 const qaUrl = new URL(qaPath, baseUrl).toString()
+const linkedContentPath = '/admin/social-content/social-slack-calendar?step=copy#social-copy-gate'
 
 await mkdir(frameDir, { recursive: true })
 await mkdir(productDir, { recursive: true })
@@ -286,6 +287,14 @@ function collectUnexpectedRequests(page) {
   return () => requests
 }
 
+async function waitForAuthorizedCalendarRow(page) {
+  const row = page.getByLabel('Focused calendar row Slack approval callback QA')
+  await row.waitFor({ state: 'visible', timeout: 20_000 })
+  await row.getByText('authorized', { exact: true }).first().waitFor({ state: 'visible', timeout: 10_000 })
+  await page.locator(`a[href="${linkedContentPath}"]`).first().waitFor({ state: 'attached', timeout: 10_000 })
+  return row
+}
+
 function escapeXml(value) {
   return String(value)
     .replaceAll('&', '&amp;')
@@ -415,8 +424,7 @@ await page.waitForFunction(() => document.body.innerText.includes('Draft handoff
 const authorizedCalendarTitle = page.getByText('Slack approval callback QA', { exact: true }).last()
 await authorizedCalendarTitle.waitFor({ state: 'attached', timeout: 20_000 })
 await authorizedCalendarTitle.scrollIntoViewIfNeeded()
-await page.waitForFunction(() => document.body.innerText.includes('authorized'), null, { timeout: 10_000 })
-await page.locator('a[href="/admin/social-content/social-slack-calendar"]').first().waitFor({ state: 'attached', timeout: 10_000 })
+await waitForAuthorizedCalendarRow(page)
 const authorizedScreenshot = path.join(productDir, '02-content-calendar-authorized.png')
 await page.screenshot({ path: authorizedScreenshot, fullPage: false })
 
@@ -441,9 +449,8 @@ await page.evaluate(async () => {
   })
 })
 await page.reload()
-await page.waitForFunction(() => document.body.innerText.includes('authorized'), null, { timeout: 10_000 })
-await page.locator('a[href="/admin/social-content/social-slack-calendar"]').first().waitFor({ state: 'attached', timeout: 10_000 })
-await page.getByText('Slack approval callback QA', { exact: true }).last().scrollIntoViewIfNeeded()
+const duplicateRow = await waitForAuthorizedCalendarRow(page)
+await duplicateRow.scrollIntoViewIfNeeded()
 const duplicateScreenshot = path.join(productDir, '03-content-calendar-duplicate-idempotent.png')
 await page.screenshot({ path: duplicateScreenshot, fullPage: false })
 
@@ -459,8 +466,8 @@ if (!mobileResponse || mobileResponse.status() >= 400) {
   throw new Error(`Content Intelligence mobile QA route failed: ${mobileResponse?.status()}`)
 }
 await mobilePage.getByText('Slack approval callback QA', { exact: true }).last().waitFor({ state: 'attached', timeout: 20_000 })
-await mobilePage.getByText('Slack approval callback QA', { exact: true }).last().scrollIntoViewIfNeeded()
-await mobilePage.waitForFunction(() => document.body.innerText.includes('authorized'), null, { timeout: 10_000 })
+const mobileRow = await waitForAuthorizedCalendarRow(mobilePage)
+await mobileRow.scrollIntoViewIfNeeded()
 const mobileScreenshot = path.join(productDir, '04-content-calendar-mobile-authorized.png')
 await mobilePage.screenshot({ path: mobileScreenshot, fullPage: false })
 await mobileContext.close()
@@ -504,20 +511,25 @@ const frames = [
 await createMp4(frames)
 
 const externalRequests = unexpectedRequestGetters.flatMap((getter) => getter())
+const relative = (artifactPath) => path.relative(root, artifactPath)
+
 const summary = {
   qaUrl,
   qaPath,
-  videoPath: mp4Path,
+  routesCovered: [qaPath],
+  linkedContentPath,
+  videoPath: relative(mp4Path),
   screenshots: {
-    pending: pendingScreenshot,
-    authorized: authorizedScreenshot,
-    duplicate: duplicateScreenshot,
-    mobile: mobileScreenshot,
+    pending: relative(pendingScreenshot),
+    authorized: relative(authorizedScreenshot),
+    duplicate: relative(duplicateScreenshot),
+    mobile: relative(mobileScreenshot),
   },
   portfolioAuthorizeCount,
   slackNativeReplayCount,
   finalAuthorizationStatus: calendarAuthorizationStatus,
   externalRequests,
+  sideEffectBoundary: 'Privacy-safe synthetic QA only. No provider, Gmail, Slack send, SMS, social publish, social schedule, upload, billing, migration, credential, or production data mutation occurred.',
 }
 
 if (summary.externalRequests.length > 0) {

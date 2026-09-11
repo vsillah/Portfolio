@@ -1,11 +1,12 @@
 {
-  "generatedAt": "2026-09-01T19:53:58.175Z",
+  "generatedAt": "2026-09-11T20:46:34.544Z",
   "routesCovered": [
     "/admin/social-content/engagement-inbox?comment=comment-qa-locked&post=social-qa-locked&review=reply&source=slack#social-comment-review-gate"
   ],
   "qaBaseUrl": "http://127.0.0.1:3108",
   "exactUrl": "http://127.0.0.1:3108/admin/social-content/engagement-inbox?comment=comment-qa-locked&post=social-qa-locked&review=reply&source=slack#social-comment-review-gate",
   "externalRequests": [],
+  "sideEffectBoundary": "Privacy-safe synthetic QA only. No provider, Gmail, Slack, SMS, social publish, social schedule, upload, billing, migration, credential, or production data mutation occurred.",
   "videoPath": "docs/qa/slack-approval-lifecycle/engagement-inbox-rejected-reply-recovery-qa-2026-09-01.mp4",
   "mobileVideoPath": "docs/qa/slack-approval-lifecycle/engagement-inbox-rejected-reply-mobile-qa-2026-09-01.mp4",
   "screenshotPath": "docs/qa/slack-approval-lifecycle/engagement-inbox-rejected-reply-locked-state-2026-09-01.png",
