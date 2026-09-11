@@ -2,9 +2,9 @@ const { chromium, expect } = require("@playwright/test");
 const fs = require("node:fs");
 const { execFileSync } = require("node:child_process");
 const assert = require("node:assert/strict");
-const base = new URL(process.env.QA_BASE_URL || "http://127.0.0.1:3187");
+const base = new URL(process.env.QA_BASE_URL || "http://127.0.0.1:3188");
 assert.ok(["127.0.0.1", "localhost"].includes(base.hostname));
-const out = require("node:path").resolve("local-private/milestone-qa");
+const out = require("node:path").resolve("local-private/invoice-milestone-qa");
 fs.mkdirSync(out, { recursive: true });
 const id = "11111111-1111-4111-8111-111111111111",
   code = "A".repeat(48),
@@ -29,6 +29,7 @@ const id = "11111111-1111-4111-8111-111111111111",
       marks.push({ label, seconds: (Date.now() - started) / 1000 });
       await page.waitForTimeout(3000);
     };
+    const checkoutRequests = [];
     const errors = [],
       blocked = [];
     page.on("pageerror", (e) => errors.push(e.message));
@@ -39,6 +40,7 @@ const id = "11111111-1111-4111-8111-111111111111",
     };
     const state = () => ({
       enabled: true,
+      settlement_mode: "manual_invoice",
       amount: 498.5,
       signed: proposalSigned && contractSigned,
       document_identity: identity,
@@ -76,6 +78,7 @@ const id = "11111111-1111-4111-8111-111111111111",
             bundle_name: "Follow-up workflow prototype",
             status: paid === 2 ? "paid" : "sent",
             payment_schedule: "milestones",
+            milestone_settlement: "manual_invoice",
             line_items: [
               { title: "One fictional referral workflow", price: 997 },
             ],
@@ -126,9 +129,13 @@ const id = "11111111-1111-4111-8111-111111111111",
           return json({ paid: true });
         }
       }
-      if (p.endsWith("/accept")) {
-        paid = 1;
-        return json({ paid: true });
+      if (
+        p.endsWith("/accept") ||
+        p.includes("/installments/") ||
+        p.includes("/payments/")
+      ) {
+        checkoutRequests.push(p);
+        return json({ error: "Invoice-managed checkout blocked" }, 409);
       }
       if (p.endsWith("/dashboard-link"))
         return json({
@@ -172,9 +179,7 @@ const id = "11111111-1111-4111-8111-111111111111",
       return json({ recommendations: [], data: [], tasks: [], milestones: [] });
     });
     await page.goto(base.origin + "/proposal/" + code + "?payment=success");
-    await expect(
-      page.getByRole("button", { name: "Sign proposal and agreement first" }),
-    ).toBeDisabled();
+    await expect(page.getByRole("status")).toContainText("Review and sign");
     await hold("Unsigned documents; initial payment locked");
     await page
       .getByRole("button", { name: "Sign & Accept Proposal", exact: true })
@@ -210,93 +215,78 @@ const id = "11111111-1111-4111-8111-111111111111",
       .getByRole("button", { name: "Sign Contract", exact: true })
       .click();
     const panel = page.getByRole("region", { name: "Milestone payments" });
-    await page
-      .getByRole("button", { name: "Pay initial $498.50", exact: true })
-      .waitFor();
+    await expect(panel.getByRole("status")).toContainText(
+      "Both documents are signed",
+    );
     await panel.scrollIntoViewIfNeeded();
-    await page.screenshot({ path: `${out}/proposal-${width}.png` });
+    const noCheckout = async () => {
+      await expect(
+        page.getByRole("button", {
+          name: /Pay initial|Pay final|Proceed to payment|Pay in Full|monthly/i,
+        }),
+      ).toHaveCount(0);
+      await expect(
+        page.getByText(/per month|monthly installments/i),
+      ).toHaveCount(0);
+      assert.deepEqual(checkoutRequests, []);
+    };
+    await noCheckout();
+    await expect(panel.getByRole("status")).toContainText(
+      "No deposit has been recorded",
+    );
     await expect(
-      page.getByRole("button", { name: "Pay initial $498.50", exact: true }),
-    ).toBeEnabled();
-    assert.equal(contractSigned, true);
-    await hold("Both signatures recorded; initial payment available");
-    await page
-      .getByRole("button", { name: "Pay initial $498.50", exact: true })
-      .click();
+      page.getByRole("link", { name: "Open your client dashboard" }),
+    ).toHaveCount(0);
+    await page.screenshot({ path: `${out}/signed-unpaid-${width}.png` });
+    await hold(
+      "Both signatures; separate $498.50 invoice next step; no deposit or checkout",
+    );
+    await page.getByRole("button", { name: "Refresh payment status" }).click();
+    await expect(panel.getByRole("status")).toContainText(
+      "No deposit has been recorded",
+    );
+    await hold(
+      "Refresh preserves truthful signed/unpaid state despite payment=success query",
+    );
+    // Later receipt states are synthetic API fixtures, independently tested against real local SQL.
+    paid = 1;
+    await page.getByRole("button", { name: "Refresh payment status" }).click();
     await expect(
       panel.getByRole("group", {
         name: "Initial $498.50 · Received",
         exact: true,
       }),
     ).toBeVisible();
-    assert.equal(paid, 1);
-    await hold("Initial receipt recorded");
+    await hold(
+      "Recorded initial receipt; existing dashboard becomes available",
+    );
     await page
       .getByRole("link", { name: "Open your client dashboard" })
       .click();
     const dp = page.getByRole("region", { name: "Milestone payments" });
     await dp.scrollIntoViewIfNeeded();
-    await expect(
-      dp.getByText("Delivery awaiting client review", { exact: true }),
-    ).toBeVisible();
-    await expect(
-      page.getByRole("button", {
-        name: "Final payment locked until delivery acceptance",
-      }),
-    ).toBeDisabled();
-    await hold("Dashboard delivery review; final payment locked");
-    await page
-      .getByRole("button", { name: "Request corrections", exact: true })
-      .click();
-    await expect(page.getByLabel("Feedback (optional)")).toHaveValue("");
-    await hold("Correction request with optional empty feedback");
-    await page
-      .getByRole("button", { name: "Submit correction request" })
-      .click();
-    await expect(
-      dp.getByText("Corrections requested", { exact: true }),
-    ).toBeVisible();
-    assert.equal(delivery, "changes_requested");
-    assert.equal(feedback, "");
-    await expect(page.getByLabel("Feedback (optional)")).toHaveCount(0);
-    for (const name of [
-      "Request corrections",
-      "Submit correction request",
-      "Cancel",
-      "Delivery meets the agreed criteria",
-    ])
-      await expect(dp.getByRole("button", { name, exact: true })).toHaveCount(
-        0,
-      );
-    await page.screenshot({ path: `${out}/corrections-${width}.png` });
-    await hold("Correction recorded; feedback and decision actions closed");
-    // Mock provider/delivery state only, no HTTP writes outside intercepted synthetic APIs.
-    delivery = "review";
-    feedback = "";
-    await page.getByRole("button", { name: "Refresh payment status" }).click();
-    await expect(
-      dp.getByText("Delivery awaiting client review", { exact: true }),
-    ).toBeVisible();
-    await expect(
-      page.getByRole("button", {
-        name: "Final payment locked until delivery acceptance",
-      }),
-    ).toBeDisabled();
-    await hold("Corrected delivery resubmitted; final still locked");
+    await expect(dp.getByRole("status")).toContainText(
+      "due only after you accept delivery",
+    );
+    await noCheckout();
+    await hold(
+      "Existing dashboard; final invoice waits for delivery acceptance",
+    );
     await page
       .getByRole("button", { name: "Delivery meets the agreed criteria" })
       .click();
-    await expect(
-      dp.getByText("Delivery accepted", { exact: true }),
-    ).toBeVisible();
-    await expect(
-      page.getByRole("button", { name: "Pay final $498.50", exact: true }),
-    ).toBeEnabled();
-    assert.equal(delivery, "accepted");
-    await hold("Delivery accepted; final payment available");
-    await page
-      .getByRole("button", { name: "Pay final $498.50", exact: true })
-      .click();
+    await expect(dp.getByRole("status")).toContainText(
+      "Final payment has not been recorded",
+    );
+    await noCheckout();
+    await page.screenshot({
+      path: `${out}/accepted-final-unpaid-${width}.png`,
+    });
+    await hold(
+      "Accepted delivery; separate final $498.50 invoice; still unpaid",
+    );
+    paid = 2;
+    await page.getByRole("button", { name: "Refresh payment status" }).click();
     await expect(
       dp.getByRole("group", {
         name: "Initial $498.50 · Received",
@@ -306,12 +296,12 @@ const id = "11111111-1111-4111-8111-111111111111",
     await expect(
       dp.getByRole("group", { name: "Final $498.50 · Received", exact: true }),
     ).toBeVisible();
-    await expect(
-      dp.getByRole("button", { name: /Pay final|Final payment locked/ }),
-    ).toHaveCount(0);
-    assert.equal(paid, 2);
+    await expect(dp.getByRole("status")).toContainText(
+      "No further payment is due",
+    );
+    await noCheckout();
     await page.screenshot({ path: `${out}/completed-${width}.png` });
-    await hold("Both receipts confirmed; no final payment action");
+    await hold("Both manual receipts recorded; no further amount due");
     assert.equal(
       await dp.evaluate((el) => el.scrollWidth > el.clientWidth),
       false,
@@ -333,7 +323,7 @@ const id = "11111111-1111-4111-8111-111111111111",
         "yuv420p",
         "-movflags",
         "+faststart",
-        `${out}/milestones-${width}.mp4`,
+        `${out}/invoice-milestones-${width}.mp4`,
       ],
       { stdio: "ignore" },
     );
@@ -348,7 +338,8 @@ const id = "11111111-1111-4111-8111-111111111111",
         width,
         marks,
         finalState: state(),
-        correctionRecorded: true,
+        checkoutRequests,
+        signedUnpaidAsserted: true,
         completionAsserted: true,
       }),
     );

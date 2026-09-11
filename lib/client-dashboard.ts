@@ -591,7 +591,7 @@ export async function getDashboardByToken(
     project.proposal_id
       ? supabaseAdmin
           .from('proposals')
-          .select('id, bundle_name, pdf_url, contract_pdf_url, status, created_at, payment_schedule')
+          .select('id, bundle_name, pdf_url, contract_pdf_url, status, created_at, payment_schedule, milestone_settlement, signed_at, contract_signed_at')
           .eq('id', project.proposal_id)
           .single()
       : Promise.resolve({ data: null, error: null }),
@@ -658,7 +658,12 @@ export async function getDashboardByToken(
 
   // Assemble documents list with signed URLs (from single proposal + proposal_documents + single onboarding plan)
   const documents: DashboardDocument[] = []
-  const proposal = proposalDocsResult.data as { payment_schedule?: string; id: string; bundle_name: string; pdf_url: string | null; contract_pdf_url: string | null; status: string; created_at: string } | null
+  const proposal = proposalDocsResult.data as { payment_schedule?: string; milestone_settlement?: string; signed_at?: string; contract_signed_at?: string; id: string; bundle_name: string; pdf_url: string | null; contract_pdf_url: string | null; status: string; created_at: string } | null
+  if (proposal?.milestone_settlement === 'manual_invoice') {
+    if (!proposal.signed_at || !proposal.contract_signed_at) return { data: null, stage: 'client', error: 'Complete the agreement before accessing the project dashboard.' };
+    const { data: paidPlan, error: paidError } = await supabaseAdmin.from('installment_plans').select('installments_paid').eq('proposal_id', proposal.id).eq('billing_kind', 'milestones').maybeSingle();
+    if (paidError || !paidPlan || paidPlan.installments_paid < 1) return { data: null, stage: 'client', error: 'The project dashboard becomes available after the initial invoice payment is recorded.' };
+  }
   const onboardingPlan = onboardingDocsResult.data as { id: string; pdf_url: string | null; status: string; created_at: string; onboarding_plan_templates: { name: string } | null } | null
 
   const getSignedUrlForPdf = async (pdfUrl: string | null, bucket: string): Promise<string | null> => {
