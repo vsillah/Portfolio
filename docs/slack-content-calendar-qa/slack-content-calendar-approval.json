@@ -1,5 +1,5 @@
 {
-  "qaUrl": "http://127.0.0.1:3108/admin/agents/content-intelligence?section=calendar&calendar_item=calendar-slack-approval",
+  "qaUrl": "http://127.0.0.1:3120/admin/agents/content-intelligence?section=calendar&calendar_item=calendar-slack-approval",
   "qaPath": "/admin/agents/content-intelligence?section=calendar&calendar_item=calendar-slack-approval",
   "routesCovered": [
     "/admin/agents/content-intelligence?section=calendar&calendar_item=calendar-slack-approval"
