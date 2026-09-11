@@ -1,3 +1,4 @@
+import { milestoneAccess } from '@/lib/proposal-milestones';
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
 import {
@@ -34,6 +35,8 @@ export async function signProposalDocument(
       },
       { status: 409 },
     );
+  const {data: proposal,error: accessError}=await supabaseAdmin.from('proposals').select('payment_schedule,access_code').eq('id',id).single();
+  if(accessError || !proposal || !milestoneAccess(request,proposal)) return NextResponse.json({error:'Proposal not found'},{status:404});
   const { data, error } = await supabaseAdmin.rpc("sign_proposal_document", {
     p_proposal: id,
     p_contract: contract,

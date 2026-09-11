@@ -136,7 +136,7 @@ describe('PATCH /api/proposals/[id]', () => {
     const inFilter = vi.fn().mockResolvedValue({ error: null })
     const eq = vi.fn().mockReturnValue({ in: inFilter })
     const update = vi.fn().mockReturnValue({ eq })
-    mocks.from.mockReturnValue({ update })
+    mocks.from.mockReturnValue({ update, select:()=>({eq:()=>({single:async()=>({data:{payment_schedule:'legacy'}})})}) })
 
     const response = await PATCH(makePatchRequest({ action: 'mark_viewed' }), params())
 

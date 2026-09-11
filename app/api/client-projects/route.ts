@@ -45,6 +45,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    if (proposal.payment_schedule === 'milestones') return NextResponse.json({error:'Milestone projects are created only from verified payment evidence'}, {status:403})
+
     // Check if a client_project already exists for this proposal
     const { data: existingProject } = await supabaseAdmin
       .from('client_projects')

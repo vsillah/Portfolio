@@ -1,7 +1,7 @@
 import { beforeEach, it, expect, vi } from "vitest";
 import { NextRequest } from "next/server";
 const rpc = vi.hoisted(() => vi.fn());
-vi.mock("@/lib/supabase", () => ({ supabaseAdmin: { rpc } }));
+vi.mock("@/lib/supabase", () => ({ supabaseAdmin: { rpc, from: () => ({select:()=>({eq:()=>({single:async()=>({data:{payment_schedule:'legacy'}})})})}) } }));
 import { signProposalDocument } from "./sign-proposal-document";
 const run = (body: unknown, contract = false) =>
   signProposalDocument(

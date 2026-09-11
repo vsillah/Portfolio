@@ -7,7 +7,7 @@ const mocks = vi.hoisted(() => ({
 
 vi.mock('@/lib/supabase', () => ({
   supabaseAdmin: {
-    from: mocks.from,
+    from: (table:string) => table==='proposals' ? {select:()=>({eq:()=>({single:async()=>({data:{payment_schedule:'legacy'}})})})} : mocks.from(table),
   },
 }))
 
