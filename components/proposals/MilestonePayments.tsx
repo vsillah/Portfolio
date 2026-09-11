@@ -1,6 +1,13 @@
 "use client";
 import { invoiceMilestoneNextStep } from "@/lib/proposal-invoice-milestones";
-import { RefreshCw, X, Check } from "lucide-react";
+import {
+  RefreshCw,
+  X,
+  Check,
+  Receipt,
+  CheckCircle2,
+  ArrowUpRight,
+} from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 type Review = {
   enabled: boolean;
@@ -126,13 +133,40 @@ export default function MilestonePayments({
     currency: "USD",
   }).format(data?.amount || 0);
   const button =
-    "rounded-lg border border-radiant-gold/25 px-4 py-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed";
+    "inline-flex max-w-full items-center justify-center gap-2 rounded-lg border border-radiant-gold/20 px-4 py-2.5 text-sm font-medium leading-snug transition-colors hover:bg-radiant-gold/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-radiant-gold/60 focus-visible:ring-offset-2 focus-visible:ring-offset-imperial-navy disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent";
+  const field =
+    "mt-2 block w-full min-w-0 rounded-lg border border-platinum-white/15 bg-imperial-navy/70 px-3 py-2.5 text-base font-normal leading-relaxed text-platinum-white shadow-inner outline-none transition-colors placeholder:text-platinum-white/30 focus:border-radiant-gold/60 focus:ring-2 focus:ring-radiant-gold/10";
+  const refresh = (
+    <button
+      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-platinum-white/10 text-platinum-white/50 transition-colors hover:border-radiant-gold/30 hover:bg-radiant-gold/5 hover:text-radiant-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-radiant-gold/60 disabled:opacity-40"
+      disabled={busy}
+      onClick={() =>
+        load()
+          .then(() => setError(""))
+          .catch((e) => setError(e.message))
+      }
+      title="Refresh payment status"
+      aria-label="Refresh payment status"
+    >
+      <RefreshCw size={15} aria-hidden="true" />
+    </button>
+  );
   return (
     <section
       aria-label="Milestone payments"
-      className="my-6 rounded-xl border border-radiant-gold/25 bg-silicon-slate/60 text-platinum-white p-4 space-y-3 min-w-0 break-words"
+      className="my-6 min-w-0 space-y-5 break-words rounded-2xl border border-radiant-gold/15 bg-gradient-to-br from-silicon-slate/60 to-imperial-navy/80 p-5 text-platinum-white shadow-sm sm:p-6"
     >
-      <h2 className="font-semibold">Project payments</h2>
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex min-w-0 items-center gap-3">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-radiant-gold/15 bg-radiant-gold/10 text-radiant-gold">
+            <Receipt size={19} aria-hidden="true" />
+          </span>
+          <h2 className="text-base font-semibold tracking-wide">
+            Project payments
+          </h2>
+        </div>
+        {refresh}
+      </div>
       {!data?.enabled ? (
         <div className="flex flex-wrap gap-3">
           <button
@@ -152,17 +186,48 @@ export default function MilestonePayments({
         </div>
       ) : (
         <>
-          <p>
-            Initial {amount} ·{" "}
-            {count > 0
-              ? "Received"
-              : "After both signatures, before agreed kickoff"}
-          </p>
-          <p>
-            Final {amount} ·{" "}
-            {count === 2 ? "Received" : "Due only after you accept delivery"}
-          </p>
-          <p className="text-sm">
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,12rem),1fr))] gap-3">
+            {[
+              {
+                label: "Initial",
+                received: count > 0,
+                pending: "After both signatures, before agreed kickoff",
+              },
+              {
+                label: "Final",
+                received: count === 2,
+                pending: "Due only after you accept delivery",
+              },
+            ].map(({ label, received, pending }) => (
+              <div
+                key={label}
+                role="group"
+                aria-label={`${label} ${amount} · ${received ? "Received" : pending}`}
+                className="min-w-0 rounded-xl border border-platinum-white/10 bg-imperial-navy/35 p-4"
+              >
+                <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+                  <p className="text-xs font-medium uppercase tracking-[0.12em] text-platinum-white/55">
+                    {label}
+                  </p>
+                  {received && (
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-400/10 px-2 py-1 text-xs font-medium leading-none text-emerald-200">
+                      <CheckCircle2 size={12} aria-hidden="true" />
+                      Received
+                    </span>
+                  )}
+                </div>
+                <p className="mt-2 text-2xl font-semibold tabular-nums tracking-tight text-platinum-white">
+                  {amount}
+                </p>
+                {!received && (
+                  <p className="mt-2 max-w-xs text-xs leading-relaxed text-platinum-white/60">
+                    {pending}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+          <p className="text-xs leading-relaxed text-platinum-white/45">
             No recurring fee. Kickoff is agreed separately.
           </p>
           {adminToken && data.can_configure && (
@@ -182,7 +247,10 @@ export default function MilestonePayments({
             </button>
           )}
           {invoiceManaged && (
-            <p role="status">
+            <p
+              role="status"
+              className="max-w-3xl border-l-2 border-radiant-gold/40 pl-4 text-sm leading-relaxed text-platinum-white/80"
+            >
               {invoiceMilestoneNextStep(
                 data.signed,
                 count,
@@ -196,27 +264,38 @@ export default function MilestonePayments({
             data.signed &&
             (count === 0 ||
               (count === 1 && data.plan?.delivery_status === "accepted")) && (
-              <div className="space-y-3 border-t border-radiant-gold/25 pt-3">
-                <p className="text-sm">
+              <div className="space-y-4 rounded-xl border border-platinum-white/10 bg-imperial-navy/30 p-4">
+                <h3 className="flex items-center gap-2 text-sm font-semibold">
+                  <Receipt
+                    size={15}
+                    className="text-radiant-gold/80"
+                    aria-hidden="true"
+                  />
+                  Record a receipt
+                </h3>
+                <p className="text-xs leading-relaxed text-platinum-white/50">
                   Record only a verified invoice payment. This does not create
                   or send an invoice.
                 </p>
-                <label className="block">
+                <label className="block text-xs font-medium text-platinum-white/65">
                   Receipt reference
                   <input
-                    className="block w-full bg-transparent border rounded p-2"
+                    className={field}
                     value={receiptReference}
                     onChange={(e) => setReceiptReference(e.target.value)}
                     maxLength={200}
                   />
                 </label>
-                <label className="block">
+                <label className="block text-xs font-medium text-platinum-white/65">
                   Amount received (USD)
                   <input
                     type="number"
                     min="0.01"
                     step="0.01"
-                    className="block w-full bg-transparent border rounded p-2"
+                    className={
+                      field +
+                      " [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                    }
                     value={receiptAmount}
                     onChange={(e) => setReceiptAmount(e.target.value)}
                   />
@@ -246,12 +325,16 @@ export default function MilestonePayments({
             </button>
           )}
           {dashboard && (
-            <a className="block underline" href={dashboard}>
-              Open your client dashboard
+            <a
+              className="inline-flex items-center gap-2 rounded-lg border border-radiant-gold/20 bg-radiant-gold/10 px-4 py-2.5 text-sm font-medium text-gold-light transition-colors hover:bg-radiant-gold/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-radiant-gold/60"
+              href={dashboard}
+            >
+              Open your client dashboard{" "}
+              <ArrowUpRight size={16} aria-hidden="true" />
             </a>
           )}
           {data.plan && (
-            <p className="text-sm font-medium">
+            <p className="border-t border-platinum-white/10 pt-4 text-xs font-medium uppercase tracking-wide text-gold-light/75">
               {
                 (
                   {
@@ -264,10 +347,16 @@ export default function MilestonePayments({
               }
             </p>
           )}
-          {data.plan?.delivery_summary && <p>{data.plan.delivery_summary}</p>}
+          {data.plan?.delivery_summary && (
+            <p className="max-w-3xl text-sm leading-relaxed text-platinum-white/65">
+              {data.plan.delivery_summary}
+            </p>
+          )}
           {data.plan?.delivery_status === "changes_requested" &&
             data.plan?.delivery_feedback && (
-              <p>Corrections requested: {data.plan.delivery_feedback}</p>
+              <p className="rounded-lg border border-rose-300/15 bg-rose-300/5 p-3 text-sm leading-relaxed text-rose-100/80">
+                Corrections requested: {data.plan.delivery_feedback}
+              </p>
             )}
           {adminToken &&
             count === 1 &&
@@ -275,10 +364,10 @@ export default function MilestonePayments({
               data.plan?.delivery_status || "",
             ) && (
               <>
-                <label className="block">
+                <label className="block text-xs font-medium text-platinum-white/65">
                   Delivery evidence and acceptance criteria
                   <textarea
-                    className="block w-full bg-transparent border rounded p-2"
+                    className={field}
                     value={note}
                     onChange={(e) => setNote(e.target.value)}
                     maxLength={3000}
@@ -297,10 +386,10 @@ export default function MilestonePayments({
             data.plan?.delivery_status === "review" &&
             (rejecting ? (
               <div className="space-y-3">
-                <label className="block">
+                <label className="block text-xs font-medium text-platinum-white/65">
                   Feedback (optional)
                   <textarea
-                    className="block w-full bg-transparent border rounded p-2"
+                    className={field}
                     value={note}
                     onChange={(e) => setNote(e.target.value)}
                     maxLength={3000}
@@ -366,25 +455,13 @@ export default function MilestonePayments({
         </>
       )}
       {error && (
-        <p role="alert" className="text-red-400">
+        <p
+          role="alert"
+          className="rounded-lg border border-red-400/20 bg-red-400/5 p-3 text-sm leading-relaxed text-red-300"
+        >
           {error}
         </p>
       )}
-      <div className="flex flex-wrap gap-3 pt-2">
-        <button
-          className={button}
-          disabled={busy}
-          onClick={() =>
-            load()
-              .then(() => setError(""))
-              .catch((e) => setError(e.message))
-          }
-          title="Refresh payment status"
-          aria-label="Refresh payment status"
-        >
-          <RefreshCw size={16} />
-        </button>
-      </div>
     </section>
   );
 }

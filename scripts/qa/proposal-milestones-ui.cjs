@@ -224,7 +224,10 @@ const id = "11111111-1111-4111-8111-111111111111",
       .getByRole("button", { name: "Pay initial $498.50", exact: true })
       .click();
     await expect(
-      panel.getByText("Initial $498.50 · Received", { exact: true }),
+      panel.getByRole("group", {
+        name: "Initial $498.50 · Received",
+        exact: true,
+      }),
     ).toBeVisible();
     assert.equal(paid, 1);
     await hold("Initial receipt recorded");
@@ -295,10 +298,13 @@ const id = "11111111-1111-4111-8111-111111111111",
       .getByRole("button", { name: "Pay final $498.50", exact: true })
       .click();
     await expect(
-      dp.getByText("Initial $498.50 · Received", { exact: true }),
+      dp.getByRole("group", {
+        name: "Initial $498.50 · Received",
+        exact: true,
+      }),
     ).toBeVisible();
     await expect(
-      dp.getByText("Final $498.50 · Received", { exact: true }),
+      dp.getByRole("group", { name: "Final $498.50 · Received", exact: true }),
     ).toBeVisible();
     await expect(
       dp.getByRole("button", { name: /Pay final|Final payment locked/ }),

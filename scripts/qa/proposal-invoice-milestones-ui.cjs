@@ -252,7 +252,10 @@ const id = "11111111-1111-4111-8111-111111111111",
     paid = 1;
     await page.getByRole("button", { name: "Refresh payment status" }).click();
     await expect(
-      panel.getByText("Initial $498.50 · Received", { exact: true }),
+      panel.getByRole("group", {
+        name: "Initial $498.50 · Received",
+        exact: true,
+      }),
     ).toBeVisible();
     await hold(
       "Recorded initial receipt; existing dashboard becomes available",
@@ -285,10 +288,13 @@ const id = "11111111-1111-4111-8111-111111111111",
     paid = 2;
     await page.getByRole("button", { name: "Refresh payment status" }).click();
     await expect(
-      dp.getByText("Initial $498.50 · Received", { exact: true }),
+      dp.getByRole("group", {
+        name: "Initial $498.50 · Received",
+        exact: true,
+      }),
     ).toBeVisible();
     await expect(
-      dp.getByText("Final $498.50 · Received", { exact: true }),
+      dp.getByRole("group", { name: "Final $498.50 · Received", exact: true }),
     ).toBeVisible();
     await expect(dp.getByRole("status")).toContainText(
       "No further payment is due",
