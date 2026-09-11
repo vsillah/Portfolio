@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, Suspense } from 'react';
+import { useState, useEffect, useCallback, useRef, Suspense } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import {
   FileText,
@@ -74,6 +74,7 @@ interface Proposal {
   terms_text?: string;
   valid_until?: string;
   status: string;
+  document_identity?: {revision:string;pdf_url:string|null;contract_pdf_url:string|null};
   pdf_url?: string;
   contract_pdf_url?: string | null;
   accepted_at?: string;
@@ -191,6 +192,9 @@ function ProposalByCodeContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [isAccepting, setIsAccepting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [signatureError,setSignatureError]=useState<{kind:'proposal'|'contract';message:string}|null>(null);
+  const signatureFeedbackRef=useRef<HTMLDivElement>(null);
+  useEffect(()=>{if(signatureError){signatureFeedbackRef.current?.focus({preventScroll:true});signatureFeedbackRef.current?.scrollIntoView({block:'nearest',behavior:'instant'});}},[signatureError]);
   const [onboardingPlanId, setOnboardingPlanId] = useState<string | null>(null);
   const [dashboardUrl, setDashboardUrl] = useState<string | null>(null);
   const [showSignForm, setShowSignForm] = useState(false);
@@ -260,15 +264,26 @@ function ProposalByCodeContent() {
     fetchProposal();
   }, [fetchProposal]);
 
+  const signatureFeedback=(kind:'proposal'|'contract')=>signatureError?.kind===kind ? (
+    <div ref={signatureFeedbackRef} role="alert" aria-label={kind==='proposal'?'Proposal signature error':'Agreement signature error'} tabIndex={-1} className="text-sm text-red-300 break-words rounded-lg p-2 border border-red-800">
+      {signatureError.message}
+      <button type="button" className="block underline mt-2" onClick={async()=>{
+        setShowSignForm(false);setShowContractSignForm(false);
+        await fetchProposal();setSignName('');setContractSignName('');setSignatureError(null);
+      }}>Reload documents</button>
+    </div>
+  ) : null;
+
   const handleSignAndAccept = async () => {
     if (!proposalId) return;
     setIsAccepting(true);
     setError(null);
+    setSignatureError(null);
     try {
       const signRes = await fetch(`/api/proposals/${proposalId}/sign`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ signed_by_name: signName.trim() }),
+        body: JSON.stringify({ signed_by_name: signName.trim(), document_identity: proposal?.document_identity }),
       });
       if (!signRes.ok) {
         const data = await signRes.json();
@@ -276,7 +291,7 @@ function ProposalByCodeContent() {
       }
       // If there is a contract, do not proceed to checkout yet — show Sign Contract step
       if (proposal?.contract_pdf_url) {
-        setProposal((p) => (p ? { ...p, signed_at: new Date().toISOString(), signed_by_name: signName.trim() } : null));
+        setProposal((p) => (p ? { ...p, signed_at: new Date().toISOString(), signed_by_name: signName.trim(), document_identity: proposal?.document_identity } : null));
         setShowSignForm(false);
         setContractSignName(signName.trim());
         setIsAccepting(false);
@@ -302,7 +317,7 @@ function ProposalByCodeContent() {
         window.location.href = data.checkoutUrl;
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong');
+      setSignatureError({kind:'proposal',message:err instanceof Error ? err.message : 'Signature failed. Reload to review.'});
       setIsAccepting(false);
     }
   };
@@ -311,11 +326,12 @@ function ProposalByCodeContent() {
     if (!proposalId) return;
     setIsAccepting(true);
     setError(null);
+    setSignatureError(null);
     try {
       const res = await fetch(`/api/proposals/${proposalId}/sign-contract`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ signed_by_name: contractSignName.trim() }),
+        body: JSON.stringify({ signed_by_name: contractSignName.trim(), document_identity: proposal?.document_identity }),
       });
       if (!res.ok) {
         const data = await res.json();
@@ -327,13 +343,13 @@ function ProposalByCodeContent() {
           ? {
               ...p,
               contract_signed_at: new Date().toISOString(),
-              contract_signed_by_name: contractSignName.trim(),
+              contract_signed_by_name: contractSignName.trim(), document_identity: proposal?.document_identity,
             }
           : null
       );
       setShowContractSignForm(false);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to sign contract');
+      setSignatureError({kind:'contract',message:err instanceof Error ? err.message : 'Signature failed. Reload to review.'});
     } finally {
       setIsAccepting(false);
     }
@@ -851,6 +867,7 @@ function ProposalByCodeContent() {
                         Sign & Accept
                       </button>
                     </div>
+                    {signatureFeedback('proposal')}
                   </div>
                 )}
               </div>
@@ -908,6 +925,7 @@ function ProposalByCodeContent() {
                         Sign Contract
                       </button>
                     </div>
+                    {signatureFeedback('contract')}
                   </div>
                 )}
               </div>
