@@ -17,6 +17,11 @@ export function slackReceiptStatus(run: Record<string, unknown>) {
         : canonical.actionStatus === 'failed' ? `${topic} failed`
           : metadata.state === 'executing' ? `Processing ${topic.toLowerCase()}`
             : ['queued', 'claimed'].includes(String(metadata.state)) ? `${topic} queued` : 'Outcome unconfirmed'
+  if (metadata.state === 'receipt_only' && value.action === 'canary.receipt') {
+    return { topic: 'Canary', decision: confirmed ? 'Receipt verified' : 'Canary blocked',
+      delivery: 'Slack update intentionally skipped', next: 'Receipt-only check complete. No real work or provider action was performed.',
+      reviewHref: '/admin/agents/runs', text: typeof canonical.text === 'string' ? canonical.text : null, deliveryError: null }
+  }
   const delivery = metadata.state === 'delivered' && outcome.delivery === 'delivered' ? 'Slack card updated'
     : metadata.state === 'delivery_blocked' ? 'Slack update blocked'
       : outcome.delivery === 'failed' ? 'Slack update pending retry'

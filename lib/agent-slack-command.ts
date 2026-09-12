@@ -1,3 +1,4 @@
+import { buildSlackReceiptCanary } from '@/lib/slack-receipt-canary'
 import { getSlackAgentSource } from '@/lib/slack-agent-environment'
 import { runAgentOpsMorningReview } from '@/lib/agent-ops-morning-review'
 import { requireAuthorizedSlackActor, requireAuthorizedSlackChannel } from '@/lib/slack-agent-access'
@@ -57,6 +58,7 @@ type SlackCommandName =
 
 export type AgentSlackCommandInput = {
   text: string
+  appId?: string | null
   userId?: string | null
   userName?: string | null
   teamId?: string | null
@@ -148,6 +150,7 @@ function commandArgs(text: string) {
 function formatHelp() {
   return [
     '*Agent Ops commands*',
+    '`/agent canary` - verify a receipt-only callback without changing real work.',
     '`/agent status` - active runs, recent failures, pending approvals, and cost events.',
     '`/agent failed` - latest failed or stale runs.',
     '`/agent approvals` - pending approval checkpoints.',
@@ -1329,6 +1332,7 @@ export async function handleAgentSlackCommand(input: AgentSlackCommandInput): Pr
   } catch {
     return { responseType: 'ephemeral', text: 'Slack command rejected: configure the source environment and origin before using Agent Ops.' }
   }
+  if (input.text.trim().toLowerCase() === 'canary') return buildSlackReceiptCanary(input.appId)
   const command = commandFromText(input.text)
   if (command === 'approvals') return buildApprovalsSlackResult()
   if (command === 'work-items') return buildAgentWorkItemsSlackResult(input)

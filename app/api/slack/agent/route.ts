@@ -1,3 +1,4 @@
+import { buildSlackReceiptCanary } from '@/lib/slack-receipt-canary'
 import { NextRequest, NextResponse } from 'next/server'
 import { waitUntil } from '@vercel/functions'
 import { verifySlackSignature } from '@/lib/slack-signature'
@@ -33,6 +34,11 @@ export async function POST(request: NextRequest) {
     }
     const channelAuthorization = requireAuthorizedSlackChannel(input.channelId)
     if (!channelAuthorization.ok) return NextResponse.json({ response_type: 'ephemeral', text: channelAuthorization.text }, { status: 403 })
+    // Respond inline: the canary never posts to response_url, including on a cold start.
+    if (input.text.trim().toLowerCase() === 'canary') {
+      const result = buildSlackReceiptCanary(formData.get('api_app_id'))
+      return NextResponse.json({ response_type: result.responseType, text: result.text, ...(result.blocks ? { blocks: result.blocks } : {}) })
+    }
     const responseUrl = formData.get('response_url')
     const commandResult = runAgentCommand(input)
 
