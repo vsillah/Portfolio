@@ -3,6 +3,7 @@ import { supabaseAdmin } from '@/lib/supabase'
 import { prepareSlackAgentAction, handleSlackAgentAction, type SlackInteractivePayload } from '@/lib/agent-slack-actions'
 import { getSlackAgentSource } from '@/lib/slack-agent-environment'
 import type { SlackAgentActionValue } from '@/lib/agent-slack-blocks'
+import { slackReceiptStatus } from '@/lib/slack-receipt-status'
 
 export const SLACK_RECEIPT_KIND = 'slack_action_receipt'
 const LEASE_MS = 120_000
@@ -156,6 +157,12 @@ export async function acceptSlackAction(payload: SlackInteractivePayload, store 
   return { receipt: row, result: receiptAcknowledgement(row) }
 }
 export function receiptAcknowledgement(row: Receipt): ActionOutcome {
+  const result = receiptActionAcknowledgement(row)
+  const status = slackReceiptStatus({ ...row, kind: SLACK_RECEIPT_KIND })!
+  const trace = `${getSlackAgentSource().sourceOrigin}/admin/agents/runs/${encodeURIComponent(row.id)}`
+  return { ...result, text: `${result.text}\n${status.delivery}. Receipt: ${trace}` }
+}
+function receiptActionAcknowledgement(row: Receipt): ActionOutcome {
   if (row.outcome.canonical) return row.metadata.state === 'delivery_blocked'
     ? { ...row.outcome.canonical, text: `${row.outcome.canonical.text} Slack card update blocked: ${row.outcome.deliveryError}` }
     : row.outcome.canonical

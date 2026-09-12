@@ -7,6 +7,7 @@ import { AlertTriangle, ArrowLeft, Bot, CheckCircle2, Clock3, DollarSign, FileTe
 import ProtectedRoute from '@/components/ProtectedRoute'
 import AgentAvatar from '@/components/admin/AgentAvatar'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
+import SlackReceiptStatus from '@/components/admin/SlackReceiptStatus'
 import { getCurrentSession } from '@/lib/auth'
 
 type AnyRow = Record<string, unknown>
@@ -306,6 +307,8 @@ function AgentRunDetailContent({ runId }: { runId: string }) {
                 </button>
               </div>
             </header>
+
+            <SlackReceiptStatus run={data.run} />
 
             {shakaReply ? (
               <ShakaContextResponse
