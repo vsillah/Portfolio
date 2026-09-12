@@ -17,6 +17,9 @@ export async function POST(request: NextRequest) {
   try { payload = JSON.parse(raw) } catch {
     return NextResponse.json({ error: 'Invalid Slack payload' }, { status: 400 })
   }
+  if (!payload || typeof payload !== 'object' || Array.isArray(payload)) {
+    return NextResponse.json({ error: 'Invalid Slack payload' }, { status: 400 })
+  }
   try {
     const accepted = await acceptSlackAction(payload)
     if (accepted.receipt) {
