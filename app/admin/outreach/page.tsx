@@ -5,8 +5,10 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { isWarmLeadSource } from '@/lib/constants/lead-source'
 import {
   Mail,
+  CalendarDays,
   Linkedin,
   CheckCircle,
+  ClipboardCheck,
   XCircle,
   Edit3,
   Search,
@@ -22,6 +24,7 @@ import {
   MessageSquare,
   Eye,
   AlertTriangle,
+  Send,
   BarChart3,
   Users,
   Flame,
@@ -32,6 +35,7 @@ import {
   Globe,
   Briefcase,
   ShieldOff,
+  ShieldCheck,
   Trash2,
   RotateCcw,
   Cpu,
@@ -53,14 +57,36 @@ import SocialIntelModal from '@/components/admin/outreach/SocialIntelModal'
 import EvidenceDrawer from '@/components/admin/outreach/EvidenceDrawer'
 import AddLeadModal from '@/components/admin/outreach/AddLeadModal'
 import RelationshipPacketPanel, {
+  type GmailDraftCanaryResult,
   type RelationshipPacketApiResponse,
+  type SmsTelnyxNoSendCanaryResult,
 } from '@/components/admin/outreach/RelationshipPacketPanel'
+import {
+  WARM_SLACK_SEND_APPROVAL_QA_CONTACT_ID,
+  warmSlackSendApprovalQaLead,
+  warmSlackSendApprovalQaRelationshipPacket,
+} from '@/components/admin/outreach/warmSlackSendApprovalQaFixture'
 import WarmBatchReviewPanel from '@/components/admin/outreach/WarmBatchReviewPanel'
+import type { WarmGmailProviderDraftCanaryResult } from '@/components/admin/outreach/WarmBatchReviewPanel'
+import WarmGmailDraftReviewPanel, {
+  type WarmGmailDraftReviewData,
+} from '@/components/admin/outreach/WarmGmailDraftReviewPanel'
+import WarmPlanningBacklogPanel from '@/components/admin/outreach/WarmPlanningBacklogPanel'
 import { OutreachEmailGenerateRow } from '@/components/admin/OutreachEmailGenerateRow'
 import MobileWorkflowSummary from '@/components/admin/MobileWorkflowSummary'
 import { useRealtimeOutreach } from '@/lib/hooks/useRealtimeOutreach'
 import { OUTREACH_MODE_GATING_NOTE, OUTREACH_MODE_POLICIES } from '@/lib/outreach-mode-gating'
 import type { WarmBatchReview } from '@/lib/warm-outreach-batch-review'
+import {
+  buildWarmOutreachShortlist,
+  isQualifiedWarmCalendarItem,
+  type WarmOutreachPlanningBacklogCandidate,
+  type WarmOutreachReviewLoopAction,
+  type WarmOutreachPlanningBacklogState,
+  type WarmOutreachOfficeDigest,
+  type WarmOutreachShortlistItem,
+} from '@/lib/warm-outreach-shortlist'
+import type { SocialContentCalendarItem } from '@/lib/social-content-calendar'
 import Link from 'next/link'
 import { useSearchParams, useRouter } from 'next/navigation'
 
@@ -109,12 +135,26 @@ interface Lead {
     created_at: string
     email_message_id?: string | null
   }[]
+  next_internal_action?: WarmLeadInternalAction | null
 }
 
 interface LeadsResponse {
   leads: Lead[]
   total: number
   page: number
+}
+
+type WarmLeadInternalAction = {
+  kind: 'gmail_draft_record' | 'manual_social_handoff_task'
+  label: string
+  status_label: string
+  detail: string
+  record_table: 'outreach_queue' | 'meeting_action_tasks'
+  record_id: string
+  created_at: string | null
+  href: string
+  email_message_id?: string | null
+  enabled: boolean
 }
 
 /** Deduplicate silent /api/admin/outreach/leads refetches (Realtime, poll) */
@@ -133,7 +173,109 @@ const OUTREACH_REALTIME_DEBOUNCE_MS = 1500
 const ACTIVE_N8N_PENDING_MS = 20 * 60 * 1000
 const ACTIVE_VEP_PENDING_MS = 10 * 60 * 1000
 
+function selectedLeadIdFromParams(searchParams: { get(name: string): string | null } | null): number | null {
+  const id =
+    searchParams?.get('id') ??
+    searchParams?.get('contactId') ??
+    searchParams?.get('contact')
+  if (!id) return null
+  const parsed = parseInt(id, 10)
+  return Number.isFinite(parsed) ? parsed : null
+}
+
 type TabType = 'leads' | 'escalations'
+type LeadViewType = 'list' | 'planning'
+type WarmPlanningDestinationIntent =
+  | 'gmail_draft_review'
+  | 'manual_social_handoff'
+  | 'response_review'
+  | 'relationship_review'
+  | 'blocker_review'
+
+const WARM_PLANNING_STATES: WarmOutreachPlanningBacklogState[] = [
+  'ready_gmail_draft',
+  'ready_manual_social',
+  'needs_relationship_review',
+  'waiting_on_response',
+  'suppressed_blocked',
+  'sms_parked',
+]
+
+function warmPlanningStateFromParams(
+  searchParams: { get(name: string): string | null } | null,
+): WarmOutreachPlanningBacklogState | null {
+  const state = searchParams?.get('planningState')
+  return WARM_PLANNING_STATES.includes(state as WarmOutreachPlanningBacklogState)
+    ? state as WarmOutreachPlanningBacklogState
+    : null
+}
+
+function warmPlanningContactIdFromParams(searchParams: { get(name: string): string | null } | null): number | null {
+  const value = searchParams?.get('planningContactId')
+  if (!value) return null
+  const parsed = Number.parseInt(value, 10)
+  return Number.isFinite(parsed) ? parsed : null
+}
+
+function isWarmPlanningBacklogRoute(searchParams: { get(name: string): string | null } | null) {
+  const view = searchParams?.get('view')
+  return view === 'planning' || view === 'warm-planning-backlog' || searchParams?.get('qa') === 'warm-planning-backlog'
+}
+
+function primaryPlanningStateForCandidate(
+  candidate: WarmOutreachPlanningBacklogCandidate,
+): WarmOutreachPlanningBacklogState {
+  return (
+    WARM_PLANNING_STATES.find((state) => candidate.states.includes(state)) ??
+    'needs_relationship_review'
+  )
+}
+
+function warmPlanningDestinationForAction(
+  action: WarmOutreachReviewLoopAction,
+): WarmPlanningDestinationIntent {
+  if (action.key === 'open_gmail_draft_review') return 'gmail_draft_review'
+  if (action.key === 'open_manual_social_handoff') return 'manual_social_handoff'
+  if (action.key === 'open_response_review') return 'response_review'
+  if (action.key === 'resolve_blocker') return 'blocker_review'
+  return 'relationship_review'
+}
+
+function warmPlanningDestinationLabel(intent: WarmPlanningDestinationIntent | null) {
+  if (intent === 'gmail_draft_review') return 'Gmail draft review'
+  if (intent === 'manual_social_handoff') return 'Manual social handoff'
+  if (intent === 'response_review') return 'Response lifecycle'
+  if (intent === 'blocker_review') return 'Suppression/blocker review'
+  return 'Relationship review'
+}
+
+function warmPlanningDestinationFromParams(
+  searchParams: { get(name: string): string | null } | null,
+): WarmPlanningDestinationIntent | null {
+  const value = searchParams?.get('planningDestination')
+  if (
+    value === 'gmail_draft_review' ||
+    value === 'manual_social_handoff' ||
+    value === 'response_review' ||
+    value === 'relationship_review' ||
+    value === 'blocker_review'
+  ) {
+    return value
+  }
+  return null
+}
+
+function warmPlanningHashForDestination(intent: WarmPlanningDestinationIntent | null) {
+  if (intent === 'gmail_draft_review') return '#warm-gmail-draft-review'
+  if (intent === 'manual_social_handoff') return '#warm-manual-social-handoff'
+  if (intent === 'response_review') return '#warm-response-lifecycle'
+  return '#warm-outreach-approval-gate'
+}
+
+function initialLeadStatusFilter(searchParams: { get(name: string): string | null } | null) {
+  const status = searchParams?.get('status') || 'all'
+  return status === 'contacted' ? 'sequence_active' : status
+}
 
 interface ChatEscalationRow {
   id: number
@@ -151,6 +293,57 @@ interface ChatEscalationRow {
   contact_submissions: { name: string | null; email: string | null } | null
 }
 
+function shortlistStatusClasses(status: WarmOutreachShortlistItem['status']) {
+  if (status === 'ready') return 'border-emerald-500/35 bg-emerald-500/10 text-emerald-100'
+  if (status === 'submitted') return 'border-sky-500/35 bg-sky-500/10 text-sky-100'
+  if (status === 'blocked') return 'border-red-500/35 bg-red-500/10 text-red-100'
+  return 'border-amber-500/35 bg-amber-500/10 text-amber-100'
+}
+
+function channelReadinessClasses(state: WarmOutreachShortlistItem['channelReadiness'][number]['state']) {
+  if (state === 'ready') return 'border-emerald-500/25 bg-emerald-500/10 text-emerald-100'
+  if (state === 'manual') return 'border-sky-500/25 bg-sky-500/10 text-sky-100'
+  if (state === 'gated') return 'border-amber-500/25 bg-amber-500/10 text-amber-100'
+  return 'border-silicon-slate/70 bg-background/45 text-muted-foreground'
+}
+
+function responseDigestClasses(classification: WarmOutreachOfficeDigest['responseStates'][number]['classification']) {
+  if (classification === 'reply_detected') return 'border-emerald-500/25 bg-emerald-500/10 text-emerald-100'
+  if (classification === 'sent_waiting' || classification === 'draft_ready') {
+    return 'border-sky-500/25 bg-sky-500/10 text-sky-100'
+  }
+  if (classification === 'blocked') return 'border-red-500/25 bg-red-500/10 text-red-100'
+  return 'border-silicon-slate/70 bg-background/45 text-muted-foreground'
+}
+
+function shortlistStatusLabel(status: WarmOutreachShortlistItem['status']) {
+  if (status === 'ready') return 'Ready'
+  if (status === 'submitted') return 'Submitted'
+  if (status === 'blocked') return 'Blocked'
+  return 'Needs review'
+}
+
+function internalActionClasses(kind: WarmLeadInternalAction['kind']) {
+  if (kind === 'manual_social_handoff_task') return 'border-sky-500/35 bg-sky-500/10 text-sky-100'
+  return 'border-emerald-500/35 bg-emerald-500/10 text-emerald-100'
+}
+
+function InternalActionIcon({ kind }: { kind: WarmLeadInternalAction['kind'] }) {
+  if (kind === 'manual_social_handoff_task') return <Linkedin size={14} className="shrink-0" aria-hidden />
+  return <Mail size={14} className="shrink-0" aria-hidden />
+}
+
+function DigestPill({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="min-w-0 rounded-md border border-silicon-slate/70 bg-background/40 px-2.5 py-2">
+      <p className="truncate text-[10px] font-semibold uppercase tracking-wide text-muted-foreground/80">
+        {label}
+      </p>
+      <p className="mt-1 truncate text-sm font-semibold text-foreground">{value}</p>
+    </div>
+  )
+}
+
 
 export default function OutreachAdminPage() {
   return (
@@ -163,6 +356,10 @@ export default function OutreachAdminPage() {
 function OutreachContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
+  const [warmCalendarItems, setWarmCalendarItems] = useState<SocialContentCalendarItem[]>([])
+  const [warmCalendarId, setWarmCalendarId] = useState(searchParams?.get('calendarItemId') ?? '')
+  const warmSlackSendApprovalQaMode = searchParams?.get('qa') === 'warm-slack-send-approval'
+  const warmGmailDraftReviewParam = searchParams?.get('draftReview')?.trim() || null
 
   // Tab management (default: All Leads)
   const [activeTab, setActiveTab] = useState<TabType>(() => {
@@ -175,11 +372,15 @@ function OutreachContent() {
   const [leadsLoading, setLeadsLoading] = useState(false)
   const [leadsTotal, setLeadsTotal] = useState(0)
   const [leadsTempFilter, setLeadsTempFilter] = useState<'all' | 'warm' | 'cold'>(() => {
+    if (isWarmPlanningBacklogRoute(searchParams)) return 'warm'
     const filter = searchParams?.get('filter')
     return (filter === 'warm' || filter === 'cold') ? filter : 'all'
   })
+  const [leadView, setLeadView] = useState<LeadViewType>(() => {
+    return isWarmPlanningBacklogRoute(searchParams) ? 'planning' : 'list'
+  })
   const [leadsStatusFilter, setLeadsStatusFilter] = useState<string>(() => {
-    return searchParams?.get('status') || 'all'
+    return initialLeadStatusFilter(searchParams)
   })
   const [leadsSourceFilter, setLeadsSourceFilter] = useState<string>(() => {
     return searchParams?.get('source') || 'all'
@@ -190,12 +391,11 @@ function OutreachContent() {
   })
   const [leadsSearch, setLeadsSearch] = useState('')
   const [expandedLeadId, setExpandedLeadId] = useState<number | null>(() => {
-    const id = searchParams?.get('id') ?? searchParams?.get('contact')
-    return id ? parseInt(id) : null
+    if (warmSlackSendApprovalQaMode) return null
+    return selectedLeadIdFromParams(searchParams)
   })
   const [outreachWorkroomLeadId, setOutreachWorkroomLeadId] = useState<number | null>(() => {
-    const id = searchParams?.get('id') ?? searchParams?.get('contact')
-    return id ? parseInt(id) : null
+    return selectedLeadIdFromParams(searchParams)
   })
   const [leadsPage, setLeadsPage] = useState(1)
   const leadsPerPage = 50
@@ -246,6 +446,22 @@ function OutreachContent() {
   const [relationshipPacketLeadId, setRelationshipPacketLeadId] = useState<number | null>(null)
   const [relationshipPacketLoading, setRelationshipPacketLoading] = useState(false)
   const [relationshipPacketError, setRelationshipPacketError] = useState<string | null>(null)
+  const [warmGmailDraftReviewData, setWarmGmailDraftReviewData] =
+    useState<WarmGmailDraftReviewData | null>(null)
+  const [warmGmailDraftReviewQueueId, setWarmGmailDraftReviewQueueId] = useState<string | null>(null)
+  const [warmGmailDraftReviewLoading, setWarmGmailDraftReviewLoading] = useState(false)
+  const [warmGmailDraftReviewError, setWarmGmailDraftReviewError] = useState<string | null>(null)
+  const [warmGmailDraftCopyMessage, setWarmGmailDraftCopyMessage] = useState<string | null>(null)
+  const [warmGmailApprovalRequestQueueId, setWarmGmailApprovalRequestQueueId] = useState<string | null>(null)
+  const [warmGmailApprovalRequestMessage, setWarmGmailApprovalRequestMessage] = useState<string | null>(null)
+  const [warmGmailApprovalRequestError, setWarmGmailApprovalRequestError] = useState<string | null>(null)
+  const [gmailDraftCanaryLoadingLeadId, setGmailDraftCanaryLoadingLeadId] = useState<number | null>(null)
+  const [gmailDraftCanaryErrors, setGmailDraftCanaryErrors] = useState<Record<number, string | null>>({})
+  const [gmailDraftCanaryResults, setGmailDraftCanaryResults] = useState<Record<number, GmailDraftCanaryResult | null>>({})
+  const [smsTelnyxCanaryLoadingLeadId, setSmsTelnyxCanaryLoadingLeadId] = useState<number | null>(null)
+  const [smsTelnyxCanaryErrors, setSmsTelnyxCanaryErrors] = useState<Record<number, string | null>>({})
+  const [smsTelnyxCanaryResults, setSmsTelnyxCanaryResults] = useState<Record<number, SmsTelnyxNoSendCanaryResult | null>>({})
+  const [authToken, setAuthToken] = useState<string | null>(null)
 
   // Add lead modal
   const [showAddLeadModal, setShowAddLeadModal] = useState(false)
@@ -255,6 +471,19 @@ function OutreachContent() {
   const [warmBatchReview, setWarmBatchReview] = useState<WarmBatchReview | null>(null)
   const [warmBatchReviewLoading, setWarmBatchReviewLoading] = useState(false)
   const [warmBatchReviewError, setWarmBatchReviewError] = useState<string | null>(null)
+  const [warmPlanningBacklogFilter, setWarmPlanningBacklogFilter] =
+    useState<WarmOutreachPlanningBacklogState | 'all'>(() => {
+      return warmPlanningStateFromParams(searchParams) ?? 'all'
+    })
+  const [warmPlanningSelectedContactId, setWarmPlanningSelectedContactId] = useState<number | null>(() => {
+    return isWarmPlanningBacklogRoute(searchParams) ? warmPlanningContactIdFromParams(searchParams) : null
+  })
+  const [warmBatchDraftActionLoading, setWarmBatchDraftActionLoading] = useState(false)
+  const [warmBatchDraftActionError, setWarmBatchDraftActionError] = useState<string | null>(null)
+  const [warmProviderDraftCanaryLoadingQueueId, setWarmProviderDraftCanaryLoadingQueueId] = useState<string | null>(null)
+  const [warmProviderDraftCanaryError, setWarmProviderDraftCanaryError] = useState<string | null>(null)
+  const [warmProviderDraftCanaryResult, setWarmProviderDraftCanaryResult] =
+    useState<WarmGmailProviderDraftCanaryResult | null>(null)
   const [showEnrichModal, setShowEnrichModal] = useState(false)
   const [enrichModalLeadIds, setEnrichModalLeadIds] = useState<number[]>([])
   const [pushLoading, setPushLoading] = useState(false)
@@ -342,6 +571,20 @@ function OutreachContent() {
       if (!silent) setLeadsLoading(true)
       leadsListFetchInFlightRef.current = true
       try {
+        if (warmSlackSendApprovalQaMode) {
+          const data: LeadsResponse = {
+            leads: [warmSlackSendApprovalQaLead as Lead],
+            total: 1,
+            page: 1,
+          }
+          setLeads(data.leads)
+          setLeadsTotal(data.total)
+          if (silent) {
+            lastSilentLeadsListFetchAtRef.current = Date.now()
+          }
+          return data
+        }
+
         const session = await getCurrentSession()
         if (!session) return null
 
@@ -377,7 +620,16 @@ function OutreachContent() {
         if (!silent) setLeadsLoading(false)
       }
     },
-    [leadsTempFilter, leadsStatusFilter, leadsSourceFilter, leadsVisibilityFilter, leadsSearch, leadsPage, leadsPerPage],
+    [
+      leadsTempFilter,
+      leadsStatusFilter,
+      leadsSourceFilter,
+      leadsVisibilityFilter,
+      leadsSearch,
+      leadsPage,
+      leadsPerPage,
+      warmSlackSendApprovalQaMode,
+    ],
   )
 
   /**
@@ -584,10 +836,27 @@ function OutreachContent() {
     router.replace(`/admin/outreach?${qs}`)
   }, [searchParams, router])
 
+  useEffect(() => {
+    let cancelled = false
+    getCurrentSession()
+      .then((currentSession) => {
+        if (!cancelled) setAuthToken(currentSession?.access_token ?? null)
+      })
+      .catch(() => {
+        if (!cancelled) setAuthToken(null)
+      })
+    return () => { cancelled = true }
+  }, [])
+
   // Fetch escalations for the expanded lead (for "Chat escalations for this contact")
   useEffect(() => {
     if (activeTab !== 'leads' || !expandedLeadId) {
       setLeadEscalations([])
+      return
+    }
+    if (warmSlackSendApprovalQaMode && expandedLeadId === WARM_SLACK_SEND_APPROVAL_QA_CONTACT_ID) {
+      setLeadEscalations([])
+      setLeadEscalationsLoading(false)
       return
     }
     let cancelled = false
@@ -605,13 +874,19 @@ function OutreachContent() {
         .finally(() => { if (!cancelled) setLeadEscalationsLoading(false) })
     })
     return () => { cancelled = true }
-  }, [activeTab, expandedLeadId])
+  }, [activeTab, expandedLeadId, warmSlackSendApprovalQaMode])
 
   // Fetch related meetings for the expanded lead
   useEffect(() => {
     if (activeTab !== 'leads' || !expandedLeadId) {
       setLeadMeetings([])
       setLeadMeetingsContactId(null)
+      return
+    }
+    if (warmSlackSendApprovalQaMode && expandedLeadId === WARM_SLACK_SEND_APPROVAL_QA_CONTACT_ID) {
+      setLeadMeetings([])
+      setLeadMeetingsContactId(expandedLeadId)
+      setLeadMeetingsLoading(false)
       return
     }
     let cancelled = false
@@ -657,12 +932,17 @@ function OutreachContent() {
         .finally(() => { if (!cancelled) setLeadMeetingsLoading(false) })
     })
     return () => { cancelled = true }
-  }, [activeTab, expandedLeadId])
+  }, [activeTab, expandedLeadId, warmSlackSendApprovalQaMode])
 
   // Fetch meeting action tasks attributed to this contact (via contact_submission_id)
   useEffect(() => {
     if (activeTab !== 'leads' || !expandedLeadId) {
       setLeadActionTasks([])
+      return
+    }
+    if (warmSlackSendApprovalQaMode && expandedLeadId === WARM_SLACK_SEND_APPROVAL_QA_CONTACT_ID) {
+      setLeadActionTasks([])
+      setLeadActionTasksLoading(false)
       return
     }
     let cancelled = false
@@ -698,7 +978,7 @@ function OutreachContent() {
         .finally(() => { if (!cancelled) setLeadActionTasksLoading(false) })
     })
     return () => { cancelled = true }
-  }, [activeTab, expandedLeadId])
+  }, [activeTab, expandedLeadId, warmSlackSendApprovalQaMode])
 
   useEffect(() => {
     if (activeTab !== 'leads' || !outreachWorkroomLeadId) {
@@ -714,7 +994,17 @@ function OutreachContent() {
     setRelationshipPacketLeadId(leadId)
     setRelationshipPacketData(null)
     setRelationshipPacketError(null)
+    setGmailDraftCanaryErrors((prev) => ({ ...prev, [leadId]: null }))
+    setGmailDraftCanaryResults((prev) => ({ ...prev, [leadId]: null }))
+    setSmsTelnyxCanaryErrors((prev) => ({ ...prev, [leadId]: null }))
+    setSmsTelnyxCanaryResults((prev) => ({ ...prev, [leadId]: null }))
     setRelationshipPacketLoading(true)
+
+    if (warmSlackSendApprovalQaMode && leadId === WARM_SLACK_SEND_APPROVAL_QA_CONTACT_ID) {
+      setRelationshipPacketData(warmSlackSendApprovalQaRelationshipPacket)
+      setRelationshipPacketLoading(false)
+      return () => { cancelled = true }
+    }
 
     getCurrentSession().then((session) => {
       if (cancelled) return
@@ -756,7 +1046,197 @@ function OutreachContent() {
     })
 
     return () => { cancelled = true }
-  }, [activeTab, outreachWorkroomLeadId])
+  }, [activeTab, outreachWorkroomLeadId, warmSlackSendApprovalQaMode])
+
+  useEffect(() => {
+    const queueId = warmGmailDraftReviewParam
+    if (activeTab !== 'leads' || !outreachWorkroomLeadId || !queueId) {
+      setWarmGmailDraftReviewData(null)
+      setWarmGmailDraftReviewQueueId(null)
+      setWarmGmailDraftReviewError(null)
+      setWarmGmailDraftReviewLoading(false)
+      setWarmGmailDraftCopyMessage(null)
+      setWarmGmailApprovalRequestMessage(null)
+      setWarmGmailApprovalRequestError(null)
+      return
+    }
+
+    let cancelled = false
+    setWarmGmailDraftReviewQueueId(queueId)
+    setWarmGmailDraftReviewData(null)
+    setWarmGmailDraftReviewError(null)
+    setWarmGmailDraftCopyMessage(null)
+    setWarmGmailApprovalRequestMessage(null)
+    setWarmGmailApprovalRequestError(null)
+    setWarmGmailDraftReviewLoading(true)
+
+    getCurrentSession().then((session) => {
+      if (cancelled) return
+      if (!session?.access_token) {
+        setWarmGmailDraftReviewError('Admin session is required to load the draft review.')
+        setWarmGmailDraftReviewLoading(false)
+        return
+      }
+      fetch(`/api/admin/outreach/drafts/${encodeURIComponent(queueId)}/inputs`, {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+        .then(async (res) => {
+          const body = await res.json().catch(() => null)
+          if (!res.ok) {
+            throw new Error(
+              typeof body?.error === 'string'
+                ? body.error
+                : 'Draft review could not be loaded.',
+            )
+          }
+          return body as WarmGmailDraftReviewData
+        })
+        .then((data) => {
+          if (!cancelled) setWarmGmailDraftReviewData(data)
+        })
+        .catch((error: unknown) => {
+          if (!cancelled) {
+            setWarmGmailDraftReviewData(null)
+            setWarmGmailDraftReviewError(
+              error instanceof Error
+                ? error.message
+                : 'Draft review could not be loaded.',
+            )
+          }
+        })
+        .finally(() => {
+          if (!cancelled) setWarmGmailDraftReviewLoading(false)
+        })
+    })
+
+    return () => { cancelled = true }
+  }, [activeTab, outreachWorkroomLeadId, warmGmailDraftReviewParam])
+
+  const copyWarmGmailDraft = useCallback(async (body: string) => {
+    try {
+      if (!navigator.clipboard?.writeText) {
+        setWarmGmailDraftCopyMessage('Draft body is visible for manual copy.')
+        return
+      }
+      await navigator.clipboard.writeText(body)
+      setWarmGmailDraftCopyMessage('Draft copied for review.')
+    } catch {
+      setWarmGmailDraftCopyMessage('Draft body is visible for manual copy.')
+    }
+  }, [])
+
+  const requestWarmGmailApproval = useCallback(async (queueId: string) => {
+    if (warmGmailApprovalRequestQueueId) return
+    setWarmGmailApprovalRequestQueueId(queueId)
+    setWarmGmailApprovalRequestMessage(null)
+    setWarmGmailApprovalRequestError(null)
+    try {
+      const session = await getCurrentSession()
+      if (!session?.access_token) {
+        throw new Error('Admin session is required to request send approval.')
+      }
+      const response = await fetch(`/api/admin/outreach/${encodeURIComponent(queueId)}/slack-send-approval`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ expectedUpdatedAt: warmGmailDraftReviewData?.id === queueId ? warmGmailDraftReviewData.updatedAt : null }),
+      })
+      const body = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(body.error ?? 'Could not prepare the send approval request.')
+      setWarmGmailDraftReviewData(current => current?.id === queueId && body.updatedAt ? { ...current, updatedAt: body.updatedAt } : current)
+      setWarmGmailApprovalRequestMessage(
+        body.approvalRecovery?.nextAction ??
+          'Approval request recorded in Portfolio. Slack dispatch off. Gmail send off.',
+      )
+      void fetchLeads({ silent: true, force: true })
+    } catch (error) {
+      setWarmGmailApprovalRequestError(
+        error instanceof Error ? error.message : 'Could not prepare the send approval request.',
+      )
+    } finally {
+      setWarmGmailApprovalRequestQueueId(null)
+    }
+  }, [warmGmailDraftReviewData, fetchLeads, warmGmailApprovalRequestQueueId])
+
+  const runGmailDraftCanary = useCallback(async (leadId: number) => {
+    if (gmailDraftCanaryLoadingLeadId != null) return
+    setGmailDraftCanaryLoadingLeadId(leadId)
+    setGmailDraftCanaryErrors((prev) => ({ ...prev, [leadId]: null }))
+    setGmailDraftCanaryResults((prev) => ({ ...prev, [leadId]: null }))
+    try {
+      const session = await getCurrentSession()
+      if (!session?.access_token) {
+        setGmailDraftCanaryErrors((prev) => ({
+          ...prev,
+          [leadId]: 'Admin session is required to run the no-send Gmail draft canary.',
+        }))
+        return
+      }
+      const res = await fetch(`/api/admin/outreach/leads/${leadId}/gmail-draft-canary`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+      const body = (await res.json().catch(() => ({}))) as GmailDraftCanaryResult & { error?: string }
+      if (!res.ok) {
+        setGmailDraftCanaryErrors((prev) => ({
+          ...prev,
+          [leadId]: body.error || 'No-send Gmail draft canary failed.',
+        }))
+        return
+      }
+      setGmailDraftCanaryResults((prev) => ({ ...prev, [leadId]: body }))
+      setGenerateOutreachToast(body.message || 'No-send Gmail draft canary passed.')
+      setTimeout(() => setGenerateOutreachToast(null), 7000)
+    } catch {
+      setGmailDraftCanaryErrors((prev) => ({
+        ...prev,
+        [leadId]: 'No-send Gmail draft canary failed.',
+      }))
+    } finally {
+      setGmailDraftCanaryLoadingLeadId(null)
+    }
+  }, [gmailDraftCanaryLoadingLeadId])
+
+  const runSmsTelnyxNoSendCanary = useCallback(async (leadId: number) => {
+    if (smsTelnyxCanaryLoadingLeadId != null) return
+    setSmsTelnyxCanaryLoadingLeadId(leadId)
+    setSmsTelnyxCanaryErrors((prev) => ({ ...prev, [leadId]: null }))
+    setSmsTelnyxCanaryResults((prev) => ({ ...prev, [leadId]: null }))
+    try {
+      const session = await getCurrentSession()
+      if (!session?.access_token) {
+        setSmsTelnyxCanaryErrors((prev) => ({
+          ...prev,
+          [leadId]: 'Admin session is required to run the SMS no-send canary.',
+        }))
+        return
+      }
+      const res = await fetch(`/api/admin/outreach/leads/${leadId}/sms-telnyx-no-send-canary`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+      const body = (await res.json().catch(() => ({}))) as SmsTelnyxNoSendCanaryResult & { error?: string }
+      if (!res.ok) {
+        setSmsTelnyxCanaryErrors((prev) => ({
+          ...prev,
+          [leadId]: body.error || 'SMS no-send canary failed.',
+        }))
+        return
+      }
+      setSmsTelnyxCanaryResults((prev) => ({ ...prev, [leadId]: body }))
+      setGenerateOutreachToast(body.message || 'SMS no-send canary completed.')
+      setTimeout(() => setGenerateOutreachToast(null), 7000)
+    } catch {
+      setSmsTelnyxCanaryErrors((prev) => ({
+        ...prev,
+        [leadId]: 'SMS no-send canary failed.',
+      }))
+    } finally {
+      setSmsTelnyxCanaryLoadingLeadId(null)
+    }
+  }, [smsTelnyxCanaryLoadingLeadId])
 
   useEffect(() => {
     if (leadRowMenuOpenId == null) return
@@ -783,10 +1263,81 @@ function OutreachContent() {
   // Handle tab changes with URL updates
   const handleTabChange = (tab: TabType) => {
     setActiveTab(tab)
+    if (tab !== 'leads') setLeadView('list')
     const params = new URLSearchParams(searchParams?.toString() || '')
     params.set('tab', tab)
+    if (tab !== 'leads') params.delete('view')
     router.push(`/admin/outreach?${params.toString()}`)
   }
+
+  const handleLeadViewChange = (view: LeadViewType) => {
+    setActiveTab('leads')
+    setLeadView(view)
+    setLeadRowMenuOpenId(null)
+    const params = new URLSearchParams(searchParams?.toString() || '')
+    params.set('tab', 'leads')
+    if (view === 'planning') {
+      params.set('view', 'planning')
+      params.set('filter', 'warm')
+      setLeadsTempFilter('warm')
+      setLeadsPage(1)
+    } else {
+      params.delete('view')
+      params.delete('planningContactId')
+      params.delete('planningAction')
+      params.delete('planningDestination')
+      params.delete('planningActionStatus')
+      if (params.get('qa') === 'warm-planning-backlog') params.delete('qa')
+    }
+    router.push(`/admin/outreach?${params.toString()}`)
+  }
+
+  const updateWarmPlanningRoute = useCallback((
+    next: {
+      state?: WarmOutreachPlanningBacklogState | 'all'
+      contactId?: number | null
+      action?: string | null
+      destination?: WarmPlanningDestinationIntent | null
+      status?: 'opened' | null
+    },
+    options?: { hash?: string },
+  ) => {
+    const params = new URLSearchParams(searchParams?.toString() || '')
+    params.set('tab', 'leads')
+    params.set('filter', 'warm')
+    params.set('view', 'planning')
+    if (next.state && next.state !== 'all') params.set('planningState', next.state)
+    if (next.state === 'all') params.delete('planningState')
+    if (next.contactId == null) {
+      params.delete('planningContactId')
+    } else {
+      params.set('planningContactId', String(next.contactId))
+    }
+    if (next.action === null) params.delete('planningAction')
+    if (next.action) params.set('planningAction', next.action)
+    if (next.destination === null) params.delete('planningDestination')
+    if (next.destination) params.set('planningDestination', next.destination)
+    if (next.status === null) params.delete('planningActionStatus')
+    if (next.status) params.set('planningActionStatus', next.status)
+    const hash = options?.hash ?? ''
+    router.replace(`/admin/outreach?${params.toString()}${hash}`, { scroll: false })
+  }, [router, searchParams])
+
+  const handleWarmPlanningStateChange = useCallback((state: WarmOutreachPlanningBacklogState | 'all') => {
+    setWarmPlanningBacklogFilter(state)
+    updateWarmPlanningRoute({ state, contactId: null, action: null, destination: null, status: null })
+  }, [updateWarmPlanningRoute])
+
+  const handleWarmPlanningSelectedContactChange = useCallback((contactId: number | null) => {
+    setWarmPlanningSelectedContactId(contactId)
+    updateWarmPlanningRoute({
+      state: warmPlanningBacklogFilter,
+      contactId,
+      action: null,
+      destination: null,
+      status: null,
+    })
+  }, [updateWarmPlanningRoute, warmPlanningBacklogFilter])
 
   const openReviewEnrichModal = useCallback((contactSubmissionIds: number[]) => {
     if (contactSubmissionIds.length === 0) return
@@ -794,12 +1345,18 @@ function OutreachContent() {
     setShowEnrichModal(true)
   }, [])
 
-  const reviewWarmBatch = useCallback(async () => {
-    const contactIds = [...selectedLeadIds]
+  const loadWarmBatchReview = useCallback(async (
+    contactIds: number[],
+    cohortLabel?: string,
+    preferredChannel: 'email' | 'linkedin' | 'facebook' | 'phone_contact' = 'email',
+  ) => {
     if (contactIds.length === 0) return
 
     setWarmBatchReviewLoading(true)
     setWarmBatchReviewError(null)
+    setWarmBatchDraftActionError(null)
+    setWarmProviderDraftCanaryError(null)
+    setWarmProviderDraftCanaryResult(null)
     try {
       const session = await getCurrentSession()
       if (!session?.access_token) {
@@ -815,7 +1372,9 @@ function OutreachContent() {
         },
         body: JSON.stringify({
           contact_ids: contactIds,
-          cohort_label: `${contactIds.length} selected outreach lead${contactIds.length === 1 ? '' : 's'}`,
+          calendar_source_id: warmCalendarId || null,
+          cohort_label: cohortLabel ?? `${contactIds.length} selected warm draft/handoff candidate${contactIds.length === 1 ? '' : 's'}`,
+          preferred_channel: preferredChannel,
         }),
       })
       const body = await res.json().catch(() => null)
@@ -835,7 +1394,95 @@ function OutreachContent() {
     } finally {
       setWarmBatchReviewLoading(false)
     }
-  }, [selectedLeadIds])
+  }, [warmCalendarId])
+
+  const reviewWarmBatch = useCallback(async () => {
+    await loadWarmBatchReview([...selectedLeadIds])
+  }, [loadWarmBatchReview, selectedLeadIds])
+
+  const createWarmBatchGmailDraftRecords = useCallback(async () => {
+    const contactIds = [...selectedLeadIds]
+    if (contactIds.length === 0) return
+
+    setWarmBatchDraftActionLoading(true)
+    setWarmBatchDraftActionError(null)
+    setWarmProviderDraftCanaryError(null)
+    setWarmProviderDraftCanaryResult(null)
+    try {
+      const session = await getCurrentSession()
+      if (!session?.access_token) {
+        setWarmBatchDraftActionError('Admin session is required to create internal draft and handoff records.')
+        return
+      }
+
+      const res = await fetch('/api/admin/outreach/batch-review', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          action: 'create_planned_draft_handoff_records',
+          contact_ids: contactIds,
+          calendar_source_id: warmCalendarId || null,
+          cohort_label: `${contactIds.length} selected warm draft/handoff candidate${contactIds.length === 1 ? '' : 's'}`,
+          preferred_channel: 'email',
+        }),
+      })
+      const body = await res.json().catch(() => null)
+      if (!res.ok) {
+        throw new Error(
+          typeof body?.error === 'string'
+            ? body.error
+            : 'Internal draft and handoff records could not be created.',
+        )
+      }
+      setWarmBatchReview(body as WarmBatchReview)
+    } catch (error) {
+      setWarmBatchDraftActionError(
+        error instanceof Error ? error.message : 'Internal draft and handoff records could not be created.',
+      )
+    } finally {
+      setWarmBatchDraftActionLoading(false)
+    }
+  }, [selectedLeadIds, warmCalendarId])
+
+  const prepareWarmProviderDraftCanary = useCallback(async (queueId: string) => {
+    if (warmProviderDraftCanaryLoadingQueueId) return
+
+    setWarmProviderDraftCanaryLoadingQueueId(queueId)
+    setWarmProviderDraftCanaryError(null)
+    setWarmProviderDraftCanaryResult(null)
+    try {
+      const session = await getCurrentSession()
+      if (!session?.access_token) {
+        setWarmProviderDraftCanaryError('Admin session is required to prepare the provider draft canary.')
+        return
+      }
+
+      const res = await fetch(`/api/admin/outreach/${encodeURIComponent(queueId)}/gmail-user-draft`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ noSendSmoke: true }),
+      })
+      const body = (await res.json().catch(() => ({}))) as WarmGmailProviderDraftCanaryResult & { error?: string }
+      if (!res.ok) {
+        setWarmProviderDraftCanaryError(body.error || 'Provider draft canary preparation failed.')
+        return
+      }
+
+      setWarmProviderDraftCanaryResult(body)
+      setGenerateOutreachToast(body.message || 'Provider draft canary prepared. Gmail draft creation remains locked.')
+      setTimeout(() => setGenerateOutreachToast(null), 7000)
+    } catch {
+      setWarmProviderDraftCanaryError('Provider draft canary preparation failed.')
+    } finally {
+      setWarmProviderDraftCanaryLoadingQueueId(null)
+    }
+  }, [warmProviderDraftCanaryLoadingQueueId])
 
   const setExpandedLeadFromControl = useCallback((leadId: number | null) => {
     setExpandedLeadId(leadId)
@@ -880,6 +1527,244 @@ function OutreachContent() {
     if (score >= 40) return 'bg-yellow-900/50 text-yellow-400 border border-yellow-700'
     return 'bg-red-900/50 text-red-400 border border-red-700'
   }
+  useEffect(() => {
+    if (leadView !== 'planning') return
+    let cancelled = false
+    getCurrentSession().then(async (session) => {
+      if (!session?.access_token) return
+      const response = await fetch('/api/admin/social-content/calendar?limit=100', {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+      if (!response.ok) throw new Error('Calendar unavailable')
+      const result = await response.json()
+      if (!cancelled) setWarmCalendarItems((result.items ?? []).filter(isQualifiedWarmCalendarItem))
+    }).catch(() => { if (!cancelled) setWarmCalendarItems([]) })
+    return () => { cancelled = true }
+  }, [leadView])
+  const selectWarmCalendar = (id: string) => {
+    setWarmCalendarId(id)
+    const url = new URL(window.location.href)
+    if (id) url.searchParams.set('calendarItemId', id)
+    else url.searchParams.delete('calendarItemId')
+    window.history.replaceState(null, '', url.toString())
+  }
+  const warmOutreachShortlist = useMemo(
+    () => buildWarmOutreachShortlist(leads, { limit: 15, calendarItem: warmCalendarItems.find((item) => item.id === warmCalendarId) }),
+    [leads, warmCalendarItems, warmCalendarId],
+  )
+  const warmOfficeDigest = warmOutreachShortlist.officeDigest
+  const warmPlanningBacklog = warmOutreachShortlist.planningBacklog
+  const showWarmOutreachShortlist =
+    activeTab === 'leads' && leadView === 'planning' && warmOutreachShortlist.items.length > 0
+  const prepareWarmPlanningBatch = useCallback(async () => {
+    const contactIds = warmPlanningBacklog.currentCta.contactIds
+    if (contactIds.length === 0) return
+    const firstCandidate = warmPlanningBacklog.candidates.find((candidate) =>
+      contactIds.includes(candidate.contactId),
+    )
+    const preferredChannel =
+      warmPlanningBacklog.currentCta.state === 'ready_manual_social'
+        ? firstCandidate?.recommendedChannel === 'linkedin' ||
+          firstCandidate?.recommendedChannel === 'facebook' ||
+          firstCandidate?.recommendedChannel === 'phone_contact'
+          ? firstCandidate.recommendedChannel
+          : 'linkedin'
+        : 'email'
+    setSelectedLeadIds(new Set(contactIds))
+    await loadWarmBatchReview(
+      contactIds,
+      `${contactIds.length} warm planning backlog candidate${contactIds.length === 1 ? '' : 's'}`,
+      preferredChannel,
+    )
+  }, [
+    loadWarmBatchReview,
+    warmPlanningBacklog.candidates,
+    warmPlanningBacklog.currentCta.contactIds,
+    warmPlanningBacklog.currentCta.state,
+  ])
+  const prepareWarmPlanningCandidateReview = useCallback(async (candidate: WarmOutreachPlanningBacklogCandidate) => {
+    const preferredChannel =
+      candidate.reviewLoopAction.key === 'start_manual_social_batch'
+        ? candidate.recommendedChannel === 'linkedin' ||
+          candidate.recommendedChannel === 'facebook' ||
+          candidate.recommendedChannel === 'phone_contact'
+          ? candidate.recommendedChannel
+          : 'linkedin'
+        : 'email'
+    setSelectedLeadIds(new Set([candidate.contactId]))
+    await loadWarmBatchReview(
+      [candidate.contactId],
+      `1 warm planning backlog ${candidate.reviewLoopAction.statusLabel.toLowerCase()} candidate`,
+      preferredChannel,
+    )
+  }, [loadWarmBatchReview])
+  const openWarmShortlistItem = useCallback(
+    (item: WarmOutreachShortlistItem) => {
+      setOutreachWorkroomLeadId(item.contactId)
+      setExpandedLeadId(item.contactId)
+      setLeadRowMenuOpenId(null)
+      const params = new URLSearchParams(searchParams?.toString() || '')
+      params.set('tab', 'leads')
+      params.set('filter', 'warm')
+      params.delete('view')
+      if (params.get('qa') === 'warm-planning-backlog') params.delete('qa')
+      params.set('id', String(item.contactId))
+      params.set('contactId', String(item.contactId))
+      setLeadView('list')
+      const hash = item.cta.key === 'handle_response' ? '#warm-response-lifecycle' : ''
+      router.replace(`/admin/outreach?${params.toString()}${hash}`, { scroll: false })
+    },
+    [router, searchParams],
+  )
+  const openWarmPlanningCandidate = useCallback(
+    (candidate: WarmOutreachPlanningBacklogCandidate) => {
+      setOutreachWorkroomLeadId(candidate.contactId)
+      setExpandedLeadId(candidate.contactId)
+      setLeadRowMenuOpenId(null)
+      setWarmPlanningSelectedContactId(candidate.contactId)
+      const params = new URLSearchParams(searchParams?.toString() || '')
+      const planningState = primaryPlanningStateForCandidate(candidate)
+      const planningDestination = warmPlanningDestinationForAction(candidate.reviewLoopAction)
+      params.set('tab', 'leads')
+      params.set('filter', 'warm')
+      params.delete('view')
+      if (params.get('qa') === 'warm-planning-backlog') params.delete('qa')
+      params.set('id', String(candidate.contactId))
+      params.set('contactId', String(candidate.contactId))
+      params.set('fromPlanning', '1')
+      params.set('planningContactId', String(candidate.contactId))
+      params.set('planningState', planningState)
+      params.set('planningAction', candidate.reviewLoopAction.key)
+      params.set('planningDestination', planningDestination)
+      params.set('planningActionStatus', 'opened')
+      params.delete('draftReview')
+      setLeadView('list')
+      if (
+        candidate.reviewLoopAction.key === 'open_gmail_draft_review' &&
+        candidate.reviewLoopAction.recordTable === 'outreach_queue' &&
+        candidate.reviewLoopAction.recordId
+      ) {
+        params.set('draftReview', candidate.reviewLoopAction.recordId)
+      }
+      const hash = warmPlanningHashForDestination(planningDestination)
+      router.replace(`/admin/outreach?${params.toString()}${hash}`, { scroll: false })
+    },
+    [router, searchParams],
+  )
+  const openWarmInternalAction = useCallback(
+    (lead: Lead) => {
+      const action = lead.next_internal_action
+      if (!action?.enabled) return
+
+      setOutreachWorkroomLeadId(lead.id)
+      setExpandedLeadId(lead.id)
+      setLeadRowMenuOpenId(null)
+      const params = new URLSearchParams(searchParams?.toString() || '')
+      params.set('tab', 'leads')
+      params.set('filter', 'warm')
+      params.delete('view')
+      params.set('id', String(lead.id))
+      params.set('contactId', String(lead.id))
+      setLeadView('list')
+      if (action.kind === 'gmail_draft_record') {
+        params.set('draftReview', action.record_id)
+      } else {
+        params.delete('draftReview')
+      }
+      const hash =
+        action.kind === 'manual_social_handoff_task'
+          ? '#warm-manual-social-handoff'
+          : '#warm-gmail-draft-review'
+      router.replace(`/admin/outreach?${params.toString()}${hash}`, { scroll: false })
+    },
+    [router, searchParams],
+  )
+  const openWarmDigestCurrentAction = useCallback(() => {
+    const contactId = warmOfficeDigest.currentCta.contactId
+    if (!warmOfficeDigest.currentCta.enabled || contactId == null) return
+
+    const item = warmOutreachShortlist.items.find((candidate) => candidate.contactId === contactId)
+    if (item) {
+      openWarmShortlistItem(item)
+      return
+    }
+
+    setOutreachWorkroomLeadId(contactId)
+    setExpandedLeadId(contactId)
+    setLeadRowMenuOpenId(null)
+    const params = new URLSearchParams(searchParams?.toString() || '')
+    params.set('tab', 'leads')
+    params.set('filter', 'warm')
+    params.delete('view')
+    if (params.get('qa') === 'warm-planning-backlog') params.delete('qa')
+    params.set('id', String(contactId))
+    params.set('contactId', String(contactId))
+    setLeadView('list')
+    const hash = warmOfficeDigest.currentCta.key === 'handle_response' ? '#warm-response-lifecycle' : ''
+    router.replace(`/admin/outreach?${params.toString()}${hash}`, { scroll: false })
+  }, [openWarmShortlistItem, router, searchParams, warmOfficeDigest, warmOutreachShortlist.items])
+  const warmPlanningDestination = warmPlanningDestinationFromParams(searchParams)
+  const warmPlanningReturnContactId = warmPlanningContactIdFromParams(searchParams)
+  const warmPlanningReturnState = warmPlanningStateFromParams(searchParams)
+  const warmPlanningOpenedContactId =
+    searchParams?.get('planningActionStatus') === 'opened'
+      ? warmPlanningReturnContactId
+      : null
+  const planningDestinationActive =
+    searchParams?.get('fromPlanning') === '1' &&
+    Boolean(outreachWorkroomLeadId) &&
+    warmPlanningReturnContactId === outreachWorkroomLeadId
+  const warmPlanningReturnHref = (() => {
+    const params = new URLSearchParams()
+    params.set('tab', 'leads')
+    params.set('filter', 'warm')
+    params.set('view', 'planning')
+    if (warmPlanningReturnState) params.set('planningState', warmPlanningReturnState)
+    if (warmPlanningReturnContactId != null) params.set('planningContactId', String(warmPlanningReturnContactId))
+    const action = searchParams?.get('planningAction')
+    if (action) params.set('planningAction', action)
+    if (warmPlanningDestination) params.set('planningDestination', warmPlanningDestination)
+    if (searchParams?.get('planningActionStatus') === 'opened') params.set('planningActionStatus', 'opened')
+    return `/admin/outreach?${params.toString()}#warm-planning-backlog`
+  })()
+  const returnToWarmPlanning = useCallback(() => {
+    setActiveTab('leads')
+    setLeadView('planning')
+    setLeadsTempFilter('warm')
+    setWarmPlanningBacklogFilter(warmPlanningReturnState ?? 'all')
+    setWarmPlanningSelectedContactId(warmPlanningReturnContactId)
+    router.replace(warmPlanningReturnHref, { scroll: false })
+  }, [router, warmPlanningReturnContactId, warmPlanningReturnHref, warmPlanningReturnState])
+
+  useEffect(() => {
+    if (!isWarmPlanningBacklogRoute(searchParams)) return
+    setWarmPlanningBacklogFilter(warmPlanningStateFromParams(searchParams) ?? 'all')
+    setWarmPlanningSelectedContactId(warmPlanningContactIdFromParams(searchParams))
+  }, [searchParams])
+
+  useEffect(() => {
+    if (activeTab !== 'leads' || leadView !== 'list') return
+    const hash = window.location.hash
+    if (!hash) return
+    const selector = hash.replace(/"/g, '\\"')
+    const focusTarget = () => {
+      const element = document.querySelector(selector)
+      if (element instanceof HTMLElement) {
+        if (!element.hasAttribute('tabindex')) element.setAttribute('tabindex', '-1')
+        element.scrollIntoView({ block: 'start', behavior: 'smooth' })
+        element.focus({ preventScroll: true })
+      }
+    }
+    window.setTimeout(focusTarget, 0)
+  }, [
+    activeTab,
+    leadView,
+    outreachWorkroomLeadId,
+    relationshipPacketData,
+    relationshipPacketLoading,
+    warmGmailDraftReviewData,
+    warmGmailDraftReviewLoading,
+  ])
   const expandedLead = expandedLeadId ? leads.find((lead) => lead.id === expandedLeadId) ?? null : null
   const outreachWorkroomLead = outreachWorkroomLeadId
     ? leads.find((lead) => lead.id === outreachWorkroomLeadId) ?? null
@@ -889,11 +1774,17 @@ function OutreachContent() {
     ? `${isWarmLeadSource(outreachWorkroomLead.lead_source) ? 'Warm' : 'Cold'} 1:1`
     : activeTab === 'escalations'
       ? 'Warm 1:1 review'
+      : leadView === 'planning'
+        ? 'Warm planning backlog'
       : `${leadsTempFilter === 'all' ? 'Cold/warm' : leadsTempFilter === 'warm' ? 'Warm' : 'Cold'} lead review`
   const outreachNextAction = outreachWorkroomLead
     ? outreachWorkroomLead.do_not_contact || outreachWorkroomLead.removed_at
       ? 'Resolve contact status before any draft or evidence work continues.'
+      : outreachWorkroomLead.next_internal_action
+        ? outreachWorkroomLead.next_internal_action.label
       : 'Review evidence, recent drafts, meetings, and contact status before preparing internal outreach.'
+    : leadView === 'planning'
+      ? warmPlanningBacklog.dailyActions.currentSafestAction.label
     : selectedLeadIds.size
       ? `Review or enrich ${selectedLeadIds.size} selected lead(s).`
       : 'Select a lead to inspect the canonical outreach workroom.'
@@ -902,6 +1793,30 @@ function OutreachContent() {
     : outreachWorkroomLead?.removed_at
       ? 'This lead is removed from the active list.'
       : null
+  const activeWarmGmailDraftAction =
+    outreachWorkroomLead?.next_internal_action?.kind === 'gmail_draft_record'
+      ? outreachWorkroomLead.next_internal_action
+      : null
+  const activeWarmGmailDraftReviewSelected =
+    Boolean(activeWarmGmailDraftAction) &&
+    warmGmailDraftReviewQueueId === activeWarmGmailDraftAction?.record_id
+  const warmBatchReviewPanel = (selectedLeadIds.size > 0 || warmBatchReview || warmBatchReviewError) ? (
+    <WarmBatchReviewPanel
+      data={warmBatchReview}
+      loading={warmBatchReviewLoading}
+      error={warmBatchReviewError}
+      draftActionLoading={warmBatchDraftActionLoading}
+      draftActionError={warmBatchDraftActionError}
+      providerDraftCanaryLoading={warmProviderDraftCanaryLoadingQueueId != null}
+      providerDraftCanaryError={warmProviderDraftCanaryError}
+      providerDraftCanaryResult={warmProviderDraftCanaryResult}
+      selectedCount={selectedLeadIds.size}
+      onReview={reviewWarmBatch}
+      onCreateGmailDraftRecords={createWarmBatchGmailDraftRecords}
+      onCreatePlannedDraftRecords={createWarmBatchGmailDraftRecords}
+      onPrepareProviderDraftCanary={prepareWarmProviderDraftCanary}
+    />
+  ) : null
 
   return (
     <div className="admin-console-page min-h-screen px-4 py-6 text-foreground sm:px-6 lg:px-8">
@@ -946,7 +1861,7 @@ function OutreachContent() {
             </div>
           )}
           <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:justify-end" aria-label="Outreach workroom actions">
-            {activeTab === 'leads' && (
+            {activeTab === 'leads' && leadView === 'list' && (
               <button
                 type="button"
                 onClick={() => setShowAddLeadModal(true)}
@@ -988,8 +1903,16 @@ function OutreachContent() {
           nextAction={outreachNextAction}
           waitingOnYou={outreachWorkroomLead || selectedLeadIds.size ? 'Yes - review before action' : 'No'}
           blocker={outreachBlocker}
-          canonicalHref={outreachWorkroomLead ? `/admin/outreach?tab=leads&id=${outreachWorkroomLead.id}` : '/admin/outreach?tab=leads'}
-          canonicalLabel={outreachWorkroomLead ? 'Open selected lead' : 'Open lead workroom'}
+          canonicalHref={
+            planningDestinationActive
+              ? warmPlanningReturnHref
+              : outreachWorkroomLead
+              ? `/admin/outreach?tab=leads&id=${outreachWorkroomLead.id}`
+              : leadView === 'planning'
+                ? '/admin/outreach?tab=leads&filter=warm&view=planning'
+                : '/admin/outreach?tab=leads'
+          }
+          canonicalLabel={planningDestinationActive ? 'Return to planning' : outreachWorkroomLead ? 'Open selected lead' : leadView === 'planning' ? 'Open planning backlog' : 'Open lead workroom'}
           tone={outreachBlocker ? 'red' : outreachWorkroomLead || selectedLeadIds.size ? 'yellow' : 'blue'}
         />
 
@@ -1008,18 +1931,35 @@ function OutreachContent() {
         {/* Tabs */}
         <div className="flex items-center gap-2 mb-8 border-b border-silicon-slate">
           <button
-            onClick={() => handleTabChange('leads')}
+            onClick={() => handleLeadViewChange('list')}
             className={`flex items-center gap-2 px-4 py-3 border-b-2 transition-all ${
-              activeTab === 'leads'
+              activeTab === 'leads' && leadView === 'list'
                 ? 'border-radiant-gold text-foreground'
                 : 'border-transparent text-muted-foreground hover:text-foreground'
             }`}
           >
             <Users size={18} />
-            <span className="font-medium">All Leads</span>
+            <span className="font-medium">Lead list</span>
             {leadsTotal > 0 && (
               <span className="px-2 py-0.5 bg-radiant-gold text-imperial-navy text-xs font-semibold rounded-full">
                 {leadsTotal}
+              </span>
+            )}
+          </button>
+          <button
+            onClick={() => handleLeadViewChange('planning')}
+            className={`flex items-center gap-2 px-4 py-3 border-b-2 transition-all ${
+              activeTab === 'leads' && leadView === 'planning'
+                ? 'border-radiant-gold text-foreground'
+                : 'border-transparent text-muted-foreground hover:text-foreground'
+            }`}
+            aria-label="Show warm planning backlog view"
+          >
+            <CalendarDays size={18} />
+            <span className="font-medium">Planning</span>
+            {warmPlanningBacklog.candidates.length > 0 && (
+              <span className="rounded-full border border-radiant-gold/50 bg-radiant-gold/20 px-2 py-0.5 text-xs font-semibold text-radiant-gold">
+                {warmPlanningBacklog.candidates.length}
               </span>
             )}
           </button>
@@ -1041,8 +1981,39 @@ function OutreachContent() {
           </button>
         </div>
 
+        {/* Warm Planning View Content */}
+        {activeTab === 'leads' && leadView === 'planning' && (
+          <>
+            {showWarmOutreachShortlist ? (
+              <>
+                <WarmPlanningBacklogPanel
+                  calendarItems={warmCalendarItems}
+                  selectedCalendarId={warmCalendarId}
+                  onCalendarChange={selectWarmCalendar}
+                  backlog={warmPlanningBacklog}
+                  activeState={warmPlanningBacklogFilter}
+                  loading={warmBatchReviewLoading}
+                  error={warmBatchReviewError}
+                  selectedContactId={warmPlanningSelectedContactId}
+                  openedContactId={warmPlanningOpenedContactId}
+                  onStateChange={handleWarmPlanningStateChange}
+                  onSelectedContactChange={handleWarmPlanningSelectedContactChange}
+                  onPrepareBatch={prepareWarmPlanningBatch}
+                  onPrepareCandidateReview={prepareWarmPlanningCandidateReview}
+                  onOpenCandidate={openWarmPlanningCandidate}
+                />
+                {warmBatchReviewPanel}
+              </>
+            ) : (
+              <div className="mb-6 rounded-lg border border-silicon-slate/70 bg-silicon-slate/15 p-4 text-sm text-muted-foreground">
+                Warm planning uses the warm lead filter. Refresh when warm leads are available.
+              </div>
+            )}
+          </>
+        )}
+
         {/* Leads Tab Content */}
-        {activeTab === 'leads' && (
+        {activeTab === 'leads' && leadView === 'list' && (
           <>
             {/* Filters */}
             <div className="flex flex-wrap items-center gap-3 mb-6">
@@ -1063,7 +2034,7 @@ function OutreachContent() {
               >
                 <option value="all">All Status</option>
                 <option value="new">New</option>
-                <option value="contacted">Contacted</option>
+                <option value="sequence_active">Contacted</option>
                 <option value="replied">Replied</option>
                 <option value="booked">Booked</option>
                 <option value="opted_out">Opted Out</option>
@@ -1187,8 +2158,217 @@ function OutreachContent() {
               )}
             </AnimatePresence>
 
+            {showWarmOutreachShortlist && (
+              <>
+              <WarmPlanningBacklogPanel
+                  calendarItems={warmCalendarItems}
+                  selectedCalendarId={warmCalendarId}
+                  onCalendarChange={selectWarmCalendar}
+                backlog={warmPlanningBacklog}
+                activeState={warmPlanningBacklogFilter}
+                loading={warmBatchReviewLoading}
+                error={warmBatchReviewError}
+                selectedContactId={warmPlanningSelectedContactId}
+                openedContactId={warmPlanningOpenedContactId}
+                onStateChange={handleWarmPlanningStateChange}
+                onSelectedContactChange={handleWarmPlanningSelectedContactChange}
+                onPrepareBatch={prepareWarmPlanningBatch}
+                onPrepareCandidateReview={prepareWarmPlanningCandidateReview}
+                onOpenCandidate={openWarmPlanningCandidate}
+              />
+              <details className="mb-4 rounded-lg border border-silicon-slate/70 bg-silicon-slate/15 p-3 sm:p-4">
+                <summary className="cursor-pointer text-xs font-semibold uppercase tracking-wide text-radiant-gold">
+                  Warm response recovery
+                </summary>
+              <section
+                className="mt-3"
+                aria-label="Warm response digest"
+              >
+                <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(15rem,auto)] lg:items-center">
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-radiant-gold">
+                        Warm response digest
+                      </p>
+                      <span className="rounded-full border border-silicon-slate/70 bg-background/45 px-2 py-0.5 text-xs text-muted-foreground">
+                        {warmOfficeDigest.operatingWindowLabel}
+                      </span>
+                      <span className="rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2 py-0.5 text-xs text-emerald-100">
+                        external requests {warmOfficeDigest.executionBoundary.externalRequests.length}
+                      </span>
+                    </div>
+                    <div className="mt-3 grid grid-cols-2 gap-2 text-xs sm:grid-cols-3 lg:grid-cols-6">
+                      <DigestPill label="Drafted" value={String(warmOfficeDigest.counts.drafted)} />
+                      <DigestPill label="Approved" value={String(warmOfficeDigest.counts.approved)} />
+                      <DigestPill label="Sent" value={String(warmOfficeDigest.counts.sent)} />
+                      <DigestPill label="Replied" value={String(warmOfficeDigest.counts.replied)} />
+                      <DigestPill label="Blocked" value={String(warmOfficeDigest.counts.blocked)} />
+                      <DigestPill label="Needs Vambah" value={String(warmOfficeDigest.counts.needsVambah)} />
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    disabled={!warmOfficeDigest.currentCta.enabled || warmOfficeDigest.currentCta.contactId == null}
+                    onClick={openWarmDigestCurrentAction}
+                    className="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-lg border border-radiant-gold/50 bg-radiant-gold/10 px-3 text-sm font-semibold text-radiant-gold transition-colors hover:bg-radiant-gold/15 disabled:cursor-not-allowed disabled:opacity-50 lg:w-auto"
+                    aria-label={`Warm digest current action: ${warmOfficeDigest.currentCta.label}${warmOfficeDigest.currentCta.contactName ? ` for ${warmOfficeDigest.currentCta.contactName}` : ''}`}
+                  >
+                    <MessageSquare size={15} aria-hidden />
+                    {warmOfficeDigest.currentCta.label}
+                  </button>
+                </div>
+                <div className="mt-3 grid gap-2 md:grid-cols-2 xl:grid-cols-3">
+                  {warmOfficeDigest.responseStates.slice(0, 3).map((row) => (
+                    <div
+                      key={row.contactId}
+                      className={`rounded-md border p-2 ${responseDigestClasses(row.classification)}`}
+                    >
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <p className="truncate text-xs font-semibold">{row.contactName}</p>
+                        <span className="rounded-full border border-current/20 px-2 py-0.5 text-[10px] font-semibold">
+                          {row.classification.replace(/_/g, ' ')}
+                        </span>
+                      </div>
+                      <p className="mt-1 text-[11px] leading-4 opacity-85">{row.nextBestAction}</p>
+                      <p className="mt-1 text-[10px] leading-4 opacity-75">
+                        Follow-up: {row.followUpDraftReadiness.replace(/_/g, ' ')}
+                        {row.suppressionProposalVisible ? ' / suppression review visible' : ''}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+                <p className="mt-3 text-[11px] leading-5 text-muted-foreground">
+                  Provider monitoring, Gmail/SMS sends, Slack dispatch, social actions, and n8n dispatch remain off.
+                </p>
+              </section>
+              </details>
+              <details className="mb-6 rounded-lg border border-silicon-slate/70 bg-silicon-slate/15 p-3 sm:p-4">
+                <summary className="cursor-pointer text-xs font-semibold uppercase tracking-wide text-radiant-gold">
+                  Daily warm shortlist
+                </summary>
+              <section
+                className="mt-3"
+                aria-label="Daily warm outreach shortlist"
+              >
+                <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-radiant-gold">
+                        Shortlist detail
+                      </p>
+                      <span className="rounded-full border border-silicon-slate/70 bg-background/45 px-2 py-0.5 text-xs text-muted-foreground">
+                        {warmOutreachShortlist.items.length} shown
+                      </span>
+                      <span className="rounded-full border border-silicon-slate/70 bg-background/45 px-2 py-0.5 text-xs text-muted-foreground">
+                        SMS unavailable
+                      </span>
+                    </div>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      Prioritized from the current warm filter. CTAs open Portfolio review gates only.
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+                    <span className="rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2.5 py-1 text-emerald-100">
+                      {warmOutreachShortlist.summary.readyCount} ready
+                    </span>
+                    <span className="rounded-full border border-amber-500/25 bg-amber-500/10 px-2.5 py-1 text-amber-100">
+                      {warmOutreachShortlist.summary.blockedCount} blocked
+                    </span>
+                    <span className="rounded-full border border-sky-500/25 bg-sky-500/10 px-2.5 py-1 text-sky-100">
+                      {warmOutreachShortlist.summary.submittedCount} submitted
+                    </span>
+                  </div>
+                </div>
+                <div className="grid gap-2">
+                  {warmOutreachShortlist.items.map((item) => (
+                    <article
+                      key={item.contactId}
+                      className="grid gap-3 rounded-lg border border-silicon-slate/70 bg-background/45 p-3 lg:grid-cols-[minmax(0,1.05fr)_minmax(18rem,0.95fr)_minmax(11rem,auto)] lg:items-center"
+                    >
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="rounded-full border border-radiant-gold/30 bg-radiant-gold/10 px-2 py-0.5 text-xs font-semibold text-radiant-gold">
+                            #{item.priorityRank}
+                          </span>
+                          <span className={`rounded-full border px-2 py-0.5 text-xs font-medium ${shortlistStatusClasses(item.status)}`}>
+                            {shortlistStatusLabel(item.status)}
+                          </span>
+                          <h3 className="min-w-0 truncate text-sm font-semibold text-foreground">
+                            {item.contactName}
+                          </h3>
+                          {item.company && (
+                            <span className="truncate text-xs text-muted-foreground">
+                              {item.company}
+                            </span>
+                          )}
+                        </div>
+                        <div className="mt-2 flex flex-wrap gap-2 text-xs text-muted-foreground">
+                          <span title="Relationship basis" className="inline-flex items-center gap-1">
+                            <ShieldCheck size={12} aria-hidden />
+                            {item.relationshipBasis}
+                          </span>
+                          <span title={item.lastTouch.iso ?? 'No dated touch available'} className="inline-flex items-center gap-1">
+                            <Clock size={12} aria-hidden />
+                            {item.lastTouch.label}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-xs font-medium text-muted-foreground">
+                          {item.recommendedNextAction}
+                        </p>
+                        <div className="mt-2 flex flex-wrap gap-1.5">
+                          {item.channelReadiness.map((channel) => (
+                            <span
+                              key={`${item.contactId}-${channel.channel}`}
+                              title={channel.label}
+                              className={`rounded-full border px-2 py-0.5 text-[11px] ${channelReadinessClasses(channel.state)}`}
+                            >
+                              {channel.label}
+                            </span>
+                          ))}
+                        </div>
+                        {item.blockers.length > 0 && (
+                          <div className="mt-2 flex flex-wrap gap-1.5" aria-label={`${item.contactName} shortlist blockers`}>
+                            {item.blockers.slice(0, 4).map((blocker) => (
+                              <span
+                                key={`${item.contactId}-${blocker.key}`}
+                                className="rounded-full border border-amber-500/25 bg-amber-500/10 px-2 py-0.5 text-[11px] text-amber-100"
+                              >
+                                {blocker.label}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => openWarmShortlistItem(item)}
+                        className="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-lg border border-radiant-gold/50 bg-radiant-gold/10 px-3 text-sm font-semibold text-radiant-gold transition-colors hover:bg-radiant-gold/15 lg:w-auto"
+                        aria-label={`${item.cta.label} for ${item.contactName}`}
+                      >
+                        {item.cta.key === 'handle_response' ? (
+                          <MessageSquare size={15} aria-hidden />
+                        ) : item.cta.key === 'send_approved_gmail_draft' ? (
+                          <Send size={15} aria-hidden />
+                        ) : item.cta.key === 'resolve_blocker' ? (
+                          <AlertTriangle size={15} aria-hidden />
+                        ) : (
+                          <ClipboardCheck size={15} aria-hidden />
+                        )}
+                        {item.cta.label}
+                      </button>
+                    </article>
+                  ))}
+                </div>
+              </section>
+              </details>
+              </>
+            )}
+
             {outreachWorkroomLead && (
               <section
+                id="warm-outreach-approval-gate"
                 className="mb-6 rounded-xl border border-emerald-500/30 bg-emerald-950/10 p-3 shadow-[0_18px_60px_rgba(0,0,0,0.22)] sm:p-4"
                 aria-label={`Outreach workroom for ${outreachWorkroomLead.name}`}
               >
@@ -1215,6 +2395,147 @@ function OutreachContent() {
                   </button>
                 </div>
                 <div className="space-y-3">
+                  {planningDestinationActive && (
+                    <div
+                      className="grid gap-3 rounded-lg border border-radiant-gold/30 bg-radiant-gold/10 p-3 md:grid-cols-[minmax(0,1fr)_minmax(12rem,auto)] md:items-center"
+                      aria-label={`Planning action destination for ${outreachWorkroomLead.name}`}
+                    >
+                      <div className="min-w-0">
+                        <div className="flex min-w-0 flex-wrap items-center gap-1.5">
+                          <span className="inline-flex min-h-7 max-w-full items-center gap-1.5 rounded-full border border-radiant-gold/35 bg-background/30 px-2.5 py-0.5 text-[11px] font-semibold leading-5 text-radiant-gold">
+                            <ClipboardCheck size={13} aria-hidden />
+                            <span className="truncate">Opened from Planning</span>
+                          </span>
+                          <span className="inline-flex min-h-7 max-w-full items-center rounded-full border border-silicon-slate/70 bg-background/35 px-2.5 py-0.5 text-[11px] leading-5 text-muted-foreground">
+                            <span className="truncate">{warmPlanningDestinationLabel(warmPlanningDestination)}</span>
+                          </span>
+                        </div>
+                        <p className="mt-2 truncate text-sm font-semibold text-foreground">
+                          {outreachWorkroomLead.name}
+                        </p>
+                        <p className="mt-1 line-clamp-2 text-xs leading-5 text-muted-foreground">
+                          Next operator action: {warmPlanningDestinationLabel(warmPlanningDestination)}. Provider drafts, sends, Slack, social providers, n8n, and SMS stay off.
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={returnToWarmPlanning}
+                        className="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-lg border border-radiant-gold/50 bg-background/35 px-3 text-sm font-semibold text-radiant-gold transition-colors hover:bg-radiant-gold/15 md:w-auto"
+                      >
+                        <CalendarDays size={15} aria-hidden />
+                        Back to Planning
+                      </button>
+                    </div>
+                  )}
+                  {outreachWorkroomLead.next_internal_action && !outreachBlocker && (
+                    <div
+                      id="warm-internal-action"
+                      className={`grid min-w-0 w-full max-w-full gap-2 overflow-hidden rounded-lg border p-3 2xl:grid-cols-[minmax(0,1fr)_minmax(8rem,auto)] 2xl:items-center ${internalActionClasses(outreachWorkroomLead.next_internal_action.kind)}`}
+                      aria-label={`Created internal action for ${outreachWorkroomLead.name}`}
+                    >
+                      <div className="min-w-0">
+                        <div className="grid min-w-0 max-w-full gap-1.5">
+                          <span className="inline-flex w-fit max-w-full items-center gap-1 rounded-full border border-current/25 px-2 py-0.5 text-[11px] font-semibold leading-5">
+                            <InternalActionIcon kind={outreachWorkroomLead.next_internal_action.kind} />
+                            <span className="min-w-0 truncate">{outreachWorkroomLead.next_internal_action.status_label}</span>
+                          </span>
+                          <p className="min-w-0 truncate text-sm font-semibold text-foreground">
+                            {outreachWorkroomLead.next_internal_action.detail}
+                          </p>
+                        </div>
+                        <p className="mt-1 truncate text-xs opacity-85" title={outreachWorkroomLead.next_internal_action.record_id}>
+                          {outreachWorkroomLead.next_internal_action.record_table}: {outreachWorkroomLead.next_internal_action.record_id}
+                        </p>
+                      </div>
+                      {outreachWorkroomLead.next_internal_action.kind === 'gmail_draft_record' ? (
+                        <Link
+                          href={outreachWorkroomLead.next_internal_action.href}
+                          onClick={(event) => {
+                            event.preventDefault()
+                            openWarmInternalAction(outreachWorkroomLead)
+                          }}
+                          className="inline-flex min-h-10 w-full min-w-0 max-w-full items-center justify-center gap-2 rounded-lg border border-current/35 bg-background/35 px-3 text-sm font-semibold transition-colors hover:bg-background/50 2xl:w-auto"
+                          aria-label={`Open draft-only review for ${outreachWorkroomLead.name}`}
+                        >
+                          <Mail size={15} aria-hidden />
+                          <span className="min-w-0 truncate">Open draft review</span>
+                        </Link>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => openWarmInternalAction(outreachWorkroomLead)}
+                          className="inline-flex min-h-10 w-full min-w-0 max-w-full items-center justify-center gap-2 rounded-lg border border-current/35 bg-background/35 px-3 text-sm font-semibold transition-colors hover:bg-background/50 2xl:w-auto"
+                          aria-label={`Open manual handoff evidence for ${outreachWorkroomLead.name}`}
+                        >
+                          <ClipboardCheck size={15} aria-hidden />
+                          <span className="min-w-0 truncate">Record evidence</span>
+                        </button>
+                      )}
+                    </div>
+                  )}
+                  {activeWarmGmailDraftAction && activeWarmGmailDraftReviewSelected && !outreachBlocker && (
+                    <WarmGmailDraftReviewPanel
+                      key={warmGmailDraftReviewQueueId ?? activeWarmGmailDraftAction.record_id}
+                      leadName={outreachWorkroomLead.name}
+                      leadEmail={outreachWorkroomLead.email}
+                      queueId={warmGmailDraftReviewQueueId ?? activeWarmGmailDraftAction.record_id}
+                      linkedEmailMessageId={activeWarmGmailDraftAction.email_message_id ?? null}
+                      data={warmGmailDraftReviewData}
+                      loading={warmGmailDraftReviewLoading}
+                      error={warmGmailDraftReviewError}
+                      relationshipPacketData={
+                        relationshipPacketLeadId === outreachWorkroomLead.id ? relationshipPacketData : null
+                      }
+                      requestApprovalLoading={warmGmailApprovalRequestQueueId != null}
+                      requestApprovalMessage={warmGmailApprovalRequestMessage ?? warmGmailDraftCopyMessage}
+                      requestApprovalError={warmGmailApprovalRequestError}
+                      onReviewDecision={async (action, feedback) => {
+                        const session = await getCurrentSession()
+                        if (!session?.access_token || !warmGmailDraftReviewData) throw new Error('Reload the draft with an active admin session.')
+                        const response = await fetch('/api/admin/outreach', {
+                          method: 'PATCH',
+                          headers: { Authorization: `Bearer ${session.access_token}`, 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ action, ids: [warmGmailDraftReviewData.id], expectedVersions: { [warmGmailDraftReviewData.id]: warmGmailDraftReviewData.updatedAt }, updates: { feedback } }),
+                        })
+                        const result = await response.json()
+                        if (!response.ok) throw new Error(result.error ?? 'Review could not be saved.')
+                        setWarmGmailDraftReviewData((current) => current?.id === warmGmailDraftReviewData.id ? { ...current, status: action === 'approve' ? 'approved' : 'rejected', updatedAt: result.versions[current.id] } : current)
+                        setWarmGmailDraftCopyMessage(null)
+                        setWarmGmailApprovalRequestMessage(null)
+                      }}
+                      onSaveCopy={async (subject, body) => {
+                        const session = await getCurrentSession()
+                        if (!session?.access_token || !warmGmailDraftReviewData) throw new Error('Reload the draft with an active admin session.')
+                        const response = await fetch('/api/admin/outreach', {
+                          method: 'PATCH',
+                          headers: { Authorization: `Bearer ${session.access_token}`, 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ action: 'edit', ids: [warmGmailDraftReviewData.id], expectedVersions: { [warmGmailDraftReviewData.id]: warmGmailDraftReviewData.updatedAt }, updates: { subject, body } }),
+                        })
+                        const result = await response.json()
+                        if (!response.ok) throw new Error(result.error ?? 'Copy could not be saved.')
+                        setWarmGmailDraftReviewData((current) => current?.id === warmGmailDraftReviewData.id ? { ...current, subject, body, status: 'draft', updatedAt: result.versions[current.id], generationInputs: result.generationInputsById?.[current.id] ?? { ...current.generationInputs, warm_gmail_send_authorization: null, warm_gmail_send_slack_approval_request: null, copy_revision_requires_provider_reconciliation: Boolean(current.generationInputs?.gmail_draft_creation) || current.generationInputs?.copy_revision_requires_provider_reconciliation === true } } : current)
+                        setRelationshipPacketData(null)
+                        setWarmGmailApprovalRequestMessage(null)
+                        setWarmGmailDraftCopyMessage(null)
+                      }}
+                      onRefresh={async () => {
+                        const queueId = warmGmailDraftReviewData?.id
+                        const session = await getCurrentSession()
+                        if (!queueId || !session?.access_token) throw new Error('Reload this review with an active admin session.')
+                        const headers = { Authorization: `Bearer ${session.access_token}` }
+                        const [reviewResponse, packetResponse] = await Promise.all([
+                          fetch(`/api/admin/outreach/drafts/${encodeURIComponent(queueId)}/inputs`, { headers }),
+                          fetch(`/api/admin/outreach/leads/${outreachWorkroomLead.id}/relationship-packet`, { headers }),
+                        ])
+                        if (!reviewResponse.ok) throw new Error('The action may have completed. Reload the recorded outcome before retrying.')
+                        const currentReview = await reviewResponse.json()
+                        setWarmGmailDraftReviewData(current => current?.id === queueId ? currentReview : current)
+                        if (packetResponse.ok) setRelationshipPacketData(await packetResponse.json())
+                      }}
+                      onCopyDraft={copyWarmGmailDraft}
+                      onRequestApproval={requestWarmGmailApproval}
+                    />
+                  )}
                   {outreachBlocker ? (
                     <div
                       role="alert"
@@ -1266,9 +2587,20 @@ function OutreachContent() {
                     />
                   )}
                   <RelationshipPacketPanel
+                    authToken={authToken}
                     loading={relationshipPacketLeadId === outreachWorkroomLead.id && relationshipPacketLoading}
                     error={relationshipPacketLeadId === outreachWorkroomLead.id ? relationshipPacketError : null}
                     data={relationshipPacketLeadId === outreachWorkroomLead.id ? relationshipPacketData : null}
+                    responseDigestAnchorId="warm-response-lifecycle"
+                    inertSlackApprovalRequest={warmSlackSendApprovalQaMode}
+                    gmailDraftCanaryLoading={gmailDraftCanaryLoadingLeadId === outreachWorkroomLead.id}
+                    gmailDraftCanaryError={gmailDraftCanaryErrors[outreachWorkroomLead.id] ?? null}
+                    gmailDraftCanaryResult={gmailDraftCanaryResults[outreachWorkroomLead.id] ?? null}
+                    onGmailDraftCanary={() => { void runGmailDraftCanary(outreachWorkroomLead.id) }}
+                    smsTelnyxCanaryLoading={smsTelnyxCanaryLoadingLeadId === outreachWorkroomLead.id}
+                    smsTelnyxCanaryError={smsTelnyxCanaryErrors[outreachWorkroomLead.id] ?? null}
+                    smsTelnyxCanaryResult={smsTelnyxCanaryResults[outreachWorkroomLead.id] ?? null}
+                    onSmsTelnyxNoSendCanary={() => { void runSmsTelnyxNoSendCanary(outreachWorkroomLead.id) }}
                   />
                 </div>
               </section>
@@ -1298,7 +2630,7 @@ function OutreachContent() {
                         {selectedLeadIds.size} lead(s) selected
                       </span>
                       <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                        Review warm batches or enrich selected leads from this existing outreach list.
+                        Plan draft-only Gmail/manual handoff work or enrich selected leads from this existing outreach list.
                       </p>
                     </div>
                     <div className="grid w-full grid-cols-1 gap-2 sm:w-auto sm:grid-cols-none sm:flex sm:flex-wrap sm:items-center">
@@ -1313,7 +2645,7 @@ function OutreachContent() {
                         ) : (
                           <Users size={15} aria-hidden />
                         )}
-                        Warm batch review
+                        Plan draft work
                       </button>
                       <button
                         type="button"
@@ -1329,6 +2661,9 @@ function OutreachContent() {
                           setSelectedLeadIds(new Set())
                           setWarmBatchReview(null)
                           setWarmBatchReviewError(null)
+                          setWarmBatchDraftActionError(null)
+                          setWarmProviderDraftCanaryError(null)
+                          setWarmProviderDraftCanaryResult(null)
                         }}
                         className="inline-flex min-h-10 w-full items-center justify-center rounded-lg border border-silicon-slate/80 px-3 text-sm text-muted-foreground hover:text-foreground sm:w-auto sm:border-transparent"
                       >
@@ -1337,15 +2672,7 @@ function OutreachContent() {
                     </div>
                   </div>
                 )}
-                {(selectedLeadIds.size > 0 || warmBatchReview || warmBatchReviewError) && (
-                  <WarmBatchReviewPanel
-                    data={warmBatchReview}
-                    loading={warmBatchReviewLoading}
-                    error={warmBatchReviewError}
-                    selectedCount={selectedLeadIds.size}
-                    onReview={reviewWarmBatch}
-                  />
-                )}
+                {warmBatchReviewPanel}
                 <div className="flex items-center gap-2 mb-3">
                   <label className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer">
                     <input
@@ -1376,7 +2703,7 @@ function OutreachContent() {
                         }`}
                       >
                         {/* Lead Card Header */}
-                        <div className="grid gap-4 p-4 xl:grid-cols-[minmax(0,1fr)_minmax(18rem,auto)] xl:items-start">
+                        <div className="grid gap-4 p-4 2xl:grid-cols-[minmax(0,1fr)_minmax(18rem,auto)] 2xl:items-start">
                           <div className="flex min-w-0 items-start gap-3">
                           <label className="flex-shrink-0 pt-0.5 cursor-pointer">
                             <input
@@ -1413,23 +2740,23 @@ function OutreachContent() {
 
                           {/* Lead Info */}
                           <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <h3 className="font-semibold text-foreground">
+                            <div className="flex min-w-0 max-w-full flex-wrap items-center gap-2">
+                              <h3 className="min-w-0 max-w-full font-semibold text-foreground">
                                 <Link
                                   href={`/admin/contacts/${lead.id}`}
-                                  className="inline-flex items-center gap-1.5 text-foreground hover:text-teal-300 transition-colors underline decoration-dotted decoration-teal-400/70 underline-offset-4 hover:decoration-teal-300"
+                                  className="inline-flex min-w-0 max-w-full items-center gap-1.5 text-foreground hover:text-teal-300 transition-colors underline decoration-dotted decoration-teal-400/70 underline-offset-4 hover:decoration-teal-300"
                                   title="Open contact record"
                                 >
-                                  <span>{lead.name}</span>
+                                  <span className="min-w-0 truncate">{lead.name}</span>
                                   <ExternalLink size={13} className="shrink-0 opacity-70 text-teal-400/90" aria-hidden />
                                 </Link>
                               </h3>
                               {lead.lead_score !== null && (
-                                <span className={`px-2 py-0.5 rounded text-xs ${getScoreBadgeColor(lead.lead_score)}`}>
+                                <span className={`max-w-full truncate px-2 py-0.5 rounded text-xs ${getScoreBadgeColor(lead.lead_score)}`}>
                                   Score: {lead.lead_score}
                                 </span>
                               )}
-                              <span className="rounded border border-white/10 bg-silicon-slate/50 px-2 py-0.5 text-xs text-foreground">
+                              <span className="max-w-full truncate rounded border border-white/10 bg-silicon-slate/50 px-2 py-0.5 text-xs text-foreground">
                                 {lead.lead_source
                                   ?.replace(/^(warm|cold)_/i, '') // Remove warm_ or cold_ prefix
                                   .replace(/_/g, ' ') // Replace all underscores with spaces
@@ -1437,41 +2764,41 @@ function OutreachContent() {
                                 }
                               </span>
                               {lead.do_not_contact && (
-                                <span className="px-2 py-0.5 bg-amber-900/50 text-amber-300 rounded text-xs">Do not contact</span>
+                                <span className="max-w-full truncate px-2 py-0.5 bg-amber-900/50 text-amber-300 rounded text-xs">Do not contact</span>
                               )}
                               {lead.removed_at && (
-                                <span className="px-2 py-0.5 bg-red-900/50 text-red-300 rounded text-xs">Removed</span>
+                                <span className="max-w-full truncate px-2 py-0.5 bg-red-900/50 text-red-300 rounded text-xs">Removed</span>
                               )}
                             </div>
-                            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-sm text-muted-foreground">
+                            <div className="flex min-w-0 max-w-full flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-sm text-muted-foreground">
                               {lead.job_title && (
-                                <span className="flex items-center gap-1">
-                                  <User size={12} />
-                                  {lead.job_title}
+                                <span className="flex min-w-0 max-w-full items-center gap-1">
+                                  <User size={12} className="shrink-0" aria-hidden />
+                                  <span className="min-w-0 truncate">{lead.job_title}</span>
                                 </span>
                               )}
                               {lead.company && (
-                                <span className="flex items-center gap-1">
-                                  <Building2 size={12} />
-                                  {lead.company}
+                                <span className="flex min-w-0 max-w-full items-center gap-1">
+                                  <Building2 size={12} className="shrink-0" aria-hidden />
+                                  <span className="min-w-0 truncate">{lead.company}</span>
                                 </span>
                               )}
                               <Link
                                 href={`/admin/email-center?contact=${lead.id}`}
-                                className="inline-flex items-center gap-1 text-muted-foreground hover:text-sky-300 transition-colors underline decoration-dotted decoration-sky-400/50 underline-offset-2 hover:decoration-sky-300"
+                                className="inline-flex min-w-0 max-w-full items-center gap-1 text-muted-foreground hover:text-sky-300 transition-colors underline decoration-dotted decoration-sky-400/50 underline-offset-2 hover:decoration-sky-300"
                                 title={`Open Email center for this lead (${lead.messages_count} messages, ${lead.messages_sent} sent)`}
                                 aria-label={`Open Email center for ${lead.name}`}
                               >
                                 <Mail size={12} className="shrink-0" aria-hidden />
-                                <span>
+                                <span className="min-w-0 truncate">
                                   {lead.messages_count} messages ({lead.messages_sent} sent)
                                 </span>
                                 <ExternalLink size={11} className="shrink-0 opacity-60" aria-hidden />
                               </Link>
                               {lead.has_reply && (
-                                <span className="flex items-center gap-1 text-green-400">
-                                  <CheckCircle size={12} />
-                                  Replied
+                                <span className="flex min-w-0 max-w-full items-center gap-1 text-green-400">
+                                  <CheckCircle size={12} className="shrink-0" aria-hidden />
+                                  <span className="min-w-0 truncate">Replied</span>
                                 </span>
                               )}
                             </div>
@@ -1480,9 +2807,9 @@ function OutreachContent() {
                                 No notes, diagnostic, or report data to extract. Add insights before pushing.
                               </p>
                             )}
-                            <div className="flex items-center gap-2 mt-2 flex-wrap">
+                            <div className="flex min-w-0 max-w-full flex-wrap items-center gap-2 mt-2">
                               {lead.evidence_count > 0 && (
-                                <span className="inline-flex items-stretch rounded text-xs font-medium bg-green-900/50 text-green-400 border border-green-700 overflow-hidden">
+                                <span className="inline-flex max-w-full items-stretch overflow-hidden rounded text-xs font-medium bg-green-900/50 text-green-400 border border-green-700">
                                   <button
                                     type="button"
                                     onClick={async () => {
@@ -1502,10 +2829,10 @@ function OutreachContent() {
                                         setEvidenceDrawerLoading(false)
                                       }
                                     }}
-                                    className="px-2 py-1 hover:bg-green-800/50 focus:outline-none focus:ring-2 focus:ring-green-500/40"
+                                    className="min-w-0 px-2 py-1 hover:bg-green-800/50 focus:outline-none focus:ring-2 focus:ring-green-500/40"
                                     aria-label={`View ${lead.evidence_count} evidence items for ${lead.name}`}
                                   >
-                                    Evidence: {lead.evidence_count}
+                                    <span className="block min-w-0 truncate">Evidence: {lead.evidence_count}</span>
                                   </button>
                                   <Link
                                     href={`/admin/value-evidence?tab=dashboard&contactId=${lead.id}`}
@@ -1534,9 +2861,9 @@ function OutreachContent() {
 
                                 if (isVepFreshPending) {
                                   return (
-                                    <span className="px-2 py-1 rounded text-xs font-medium bg-amber-900/50 text-amber-400 border border-amber-700 flex items-center gap-1">
+                                    <span className="flex max-w-full items-center gap-1 rounded border border-amber-700 bg-amber-900/50 px-2 py-1 text-xs font-medium text-amber-400">
                                       <RefreshCw size={12} className="animate-spin" aria-hidden />
-                                      Extracting…
+                                      <span className="min-w-0 truncate">Extracting…</span>
                                     </span>
                                   )
                                 }
@@ -1563,7 +2890,7 @@ function OutreachContent() {
                                     onClick={() => openReviewEnrichModal([lead.id])}
                                     title={pushTitle}
                                     aria-label={pushTitle}
-                                    className={`group inline-flex items-center gap-1 rounded border px-2 py-1 text-xs font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-radiant-gold/40 ${
+                                    className={`group inline-flex max-w-full items-center gap-1 rounded border px-2 py-1 text-xs font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-radiant-gold/40 ${
                                       failed
                                         ? 'bg-red-900/35 text-red-200 border-red-700/60 enabled:hover:bg-radiant-gold/20 enabled:hover:text-radiant-gold enabled:hover:border-radiant-gold/50'
                                         : isVepStalePending
@@ -1571,7 +2898,7 @@ function OutreachContent() {
                                           : 'bg-silicon-slate/80 text-foreground/85 border-white/10 enabled:hover:bg-radiant-gold/20 enabled:hover:text-radiant-gold enabled:hover:border-radiant-gold/50'
                                     } disabled:opacity-55 disabled:cursor-not-allowed`}
                                   >
-                                    <span>{chipLabel}</span>
+                                    <span className="min-w-0 truncate">{chipLabel}</span>
                                     {canPush && (
                                       <Cpu size={12} className="opacity-0 group-hover:opacity-100 transition-opacity shrink-0" aria-hidden />
                                     )}
@@ -1579,18 +2906,60 @@ function OutreachContent() {
                                 )
                               })()}
                             </div>
+                            {lead.next_internal_action && (
+                              <div
+                                className={`mt-2 grid min-w-0 w-full max-w-2xl gap-2 overflow-hidden rounded-lg border p-2 text-xs 2xl:grid-cols-[minmax(0,1fr)_minmax(7rem,auto)] 2xl:items-center ${internalActionClasses(lead.next_internal_action.kind)}`}
+                                aria-label={`Internal action for ${lead.name}`}
+                              >
+                                <div className="min-w-0">
+                                  <div className="grid min-w-0 max-w-full gap-1.5">
+                                    <span className="inline-flex w-fit max-w-full items-center gap-1 rounded-full border border-current/25 px-2 py-0.5 font-semibold leading-5">
+                                      <InternalActionIcon kind={lead.next_internal_action.kind} />
+                                      <span className="min-w-0 truncate">{lead.next_internal_action.status_label}</span>
+                                    </span>
+                                    <span className="min-w-0 truncate font-medium text-foreground">
+                                      {lead.next_internal_action.detail}
+                                    </span>
+                                  </div>
+                                </div>
+                                {lead.next_internal_action.kind === 'gmail_draft_record' ? (
+                                  <Link
+                                    href={lead.next_internal_action.href}
+                                    onClick={(event) => {
+                                      event.preventDefault()
+                                      openWarmInternalAction(lead)
+                                    }}
+                                    className="inline-flex min-h-9 w-full min-w-0 max-w-full items-center justify-center gap-1.5 rounded-md border border-current/35 bg-background/35 px-2.5 font-semibold transition-colors hover:bg-background/50 2xl:w-auto"
+                                    aria-label={`Review draft-only internal Gmail record for ${lead.name}`}
+                                  >
+                                    <Mail size={13} aria-hidden />
+                                    <span className="min-w-0 truncate">Review draft</span>
+                                  </Link>
+                                ) : (
+                                  <button
+                                    type="button"
+                                    onClick={() => openWarmInternalAction(lead)}
+                                    className="inline-flex min-h-9 w-full min-w-0 max-w-full items-center justify-center gap-1.5 rounded-md border border-current/35 bg-background/35 px-2.5 font-semibold transition-colors hover:bg-background/50 2xl:w-auto"
+                                    aria-label={`Record manual handoff evidence for ${lead.name}`}
+                                  >
+                                    <ClipboardCheck size={13} aria-hidden />
+                                    <span className="min-w-0 truncate">Record evidence</span>
+                                  </button>
+                                )}
+                              </div>
+                            )}
                           </div>
                           </div>
 
                           {/* Actions — primary CTA + progressive fallback + More + expand */}
-                          <div className="flex w-full min-w-0 flex-wrap items-start justify-end gap-2 sm:flex-nowrap xl:w-[min(36rem,42vw)]">
+                          <div className="flex w-full min-w-0 max-w-full flex-wrap items-start justify-start gap-2 2xl:w-[min(36rem,42vw)] 2xl:flex-nowrap 2xl:justify-end">
                             <button
                               type="button"
                               onClick={() => {
                                 setOutreachWorkroomLeadId(lead.id)
                                 setLeadRowMenuOpenId(null)
                               }}
-                              className={`inline-flex min-h-11 w-full min-w-0 items-center justify-center gap-2 rounded-lg border px-3 text-sm font-semibold transition-colors sm:w-auto sm:min-w-[10rem] ${
+                              className={`inline-flex min-h-11 w-full min-w-0 max-w-full items-center justify-center gap-2 rounded-lg border px-3 text-sm font-semibold transition-colors 2xl:w-auto 2xl:min-w-[10rem] ${
                                 outreachWorkroomLeadId === lead.id
                                   ? 'border-emerald-400/60 bg-emerald-500/20 text-emerald-100'
                                   : 'border-emerald-500/35 bg-emerald-500/10 text-emerald-100 hover:bg-emerald-500/20'
@@ -1881,9 +3250,19 @@ function OutreachContent() {
                             >
                               <div className="p-4 grid grid-cols-1 lg:grid-cols-2 gap-6">
                                 <RelationshipPacketPanel
+                                  authToken={authToken}
                                   loading={relationshipPacketLeadId === lead.id && relationshipPacketLoading}
                                   error={relationshipPacketLeadId === lead.id ? relationshipPacketError : null}
                                   data={relationshipPacketLeadId === lead.id ? relationshipPacketData : null}
+                                  inertSlackApprovalRequest={warmSlackSendApprovalQaMode}
+                                  gmailDraftCanaryLoading={gmailDraftCanaryLoadingLeadId === lead.id}
+                                  gmailDraftCanaryError={gmailDraftCanaryErrors[lead.id] ?? null}
+                                  gmailDraftCanaryResult={gmailDraftCanaryResults[lead.id] ?? null}
+                                  onGmailDraftCanary={() => { void runGmailDraftCanary(lead.id) }}
+                                  smsTelnyxCanaryLoading={smsTelnyxCanaryLoadingLeadId === lead.id}
+                                  smsTelnyxCanaryError={smsTelnyxCanaryErrors[lead.id] ?? null}
+                                  smsTelnyxCanaryResult={smsTelnyxCanaryResults[lead.id] ?? null}
+                                  onSmsTelnyxNoSendCanary={() => { void runSmsTelnyxNoSendCanary(lead.id) }}
                                 />
 
                                 {/* Contact Info */}

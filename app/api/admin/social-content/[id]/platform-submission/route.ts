@@ -13,6 +13,9 @@ import {
   lifecyclePrerequisiteFailure,
 } from '@/lib/social-content-lifecycle'
 
+import { hasIntactSocialReleaseReceipts, socialReleaseFingerprint } from '@/lib/social-release-evidence'
+import { confirmedSocialPlatforms, hasAmbiguousSocialPublishRows, socialReleaseGate, isSocialReleaseLocked, nextSocialReleaseVersion } from '@/lib/social-release-safety'
+
 export const dynamic = 'force-dynamic'
 
 const PLATFORM_LABELS: Record<SocialPlatform, string> = {
@@ -94,6 +97,14 @@ export async function POST(
     }
 
     const itemRecord = asRecord(item)
+    const previousGate = socialReleaseGate(itemRecord.rag_context)
+    const continuation = previousGate.status === 'partially_submitted'
+    if (isSocialReleaseLocked(itemRecord.rag_context) && !continuation) {
+      return NextResponse.json({ error: 'Release is submitting or requires reconciliation. Reload the current release evidence.' }, { status: 409 })
+    }
+    if (typeof body.expected_updated_at !== 'string' || body.expected_updated_at !== itemRecord.updated_at) {
+      return NextResponse.json({ error: 'Content changed or displayed version is missing. Reload and review before final approval.' }, { status: 409 })
+    }
     if (itemRecord.status !== 'approved' && itemRecord.status !== 'scheduled') {
       return NextResponse.json(
         { error: 'Content must be approved before platform submission.' },
@@ -118,10 +129,21 @@ export async function POST(
       )
     }
 
-    const { data: existingPublishes } = await admin
+    const { data: existingPublishes, error: publishReadError } = await admin
       .from('social_content_publishes')
       .select('*')
       .eq('content_id', id)
+
+    if (publishReadError || !existingPublishes || hasAmbiguousSocialPublishRows(existingPublishes)
+      || (continuation ? !hasIntactSocialReleaseReceipts(itemRecord, existingPublishes)
+        : existingPublishes.some((row: Record<string, unknown>) => row.status === 'published'))) {
+      return NextResponse.json({ error: 'Existing provider release evidence requires reconciliation before a new final approval.' }, { status: 409 })
+    }
+
+    if (continuation && (!requestedPlatforms.length || targetPlatforms.some(platform =>
+      !existingPublishes.some((row: Record<string, unknown>) => row.platform === platform && row.status === 'pending')))) {
+      return NextResponse.json({ error: 'Approve only explicitly selected remaining pending targets.' }, { status: 409 })
+    }
 
     const lifecycleFailure = lifecyclePrerequisiteFailure(
       deriveSocialContentLifecycleProjection({
@@ -136,23 +158,7 @@ export async function POST(
       return NextResponse.json(lifecycleFailure, { status: 409 })
     }
 
-    const publishRows = targetPlatforms.map((platform) => ({
-      content_id: id,
-      platform,
-      status: 'pending' as const,
-    }))
-    const { error: upsertError } = await admin
-      .from('social_content_publishes')
-      .upsert(publishRows, { onConflict: 'content_id,platform', ignoreDuplicates: true })
-
-    if (upsertError) {
-      return NextResponse.json({ error: 'Failed to prepare platform publish rows.' }, { status: 500 })
-    }
-
-    const { data: publishes } = await admin
-      .from('social_content_publishes')
-      .select('*')
-      .eq('content_id', id)
+    const publishes = existingPublishes ?? []
 
     const { data: platformConfigs } = await admin
       .from('social_content_config')
@@ -181,11 +187,15 @@ export async function POST(
       )
     }
 
-    const approvedAt = new Date().toISOString()
+    const approvedAt = nextSocialReleaseVersion(itemRecord.updated_at)
     const updatedRagContext = {
       ...asRecord(itemRecord.rag_context),
       platform_submission_gate: {
+        ...previousGate,
+        confirmed_platforms: confirmedSocialPlatforms(itemRecord.rag_context),
         status: 'approved',
+        approved_version: itemRecord.updated_at,
+        approved_fingerprint: socialReleaseFingerprint(itemRecord),
         approved_at: approvedAt,
         approved_by: authResult.user.id,
         platforms: targetPlatforms,
@@ -200,13 +210,22 @@ export async function POST(
 
     const { data: updatedItem, error: updateError } = await admin
       .from('social_content_queue')
-      .update({ rag_context: updatedRagContext })
+      .update({ rag_context: updatedRagContext, updated_at: approvedAt })
       .eq('id', id)
+      .eq('updated_at', body.expected_updated_at)
+      .eq('status', String(itemRecord.status))
       .select('*')
       .single()
 
-    if (updateError) {
-      return NextResponse.json({ error: 'Failed to record platform submission gate.' }, { status: 500 })
+    if (updateError || !updatedItem) {
+      return NextResponse.json({ error: 'Final approval was not confirmed. Reload the current content before retrying.' }, { status: 409 })
+    }
+
+    const { error: upsertError } = await admin.from('social_content_publishes')
+      .upsert(targetPlatforms.map(platform => ({ content_id: id, platform, status: 'pending' as const })),
+        { onConflict: 'content_id,platform', ignoreDuplicates: true })
+    if (upsertError) {
+      return NextResponse.json({ error: 'Approval saved but publish rows could not be prepared. No submission started.' }, { status: 500 })
     }
 
     const calendarLinkage = await syncCampaignCalendarForSocialContent({
@@ -223,6 +242,8 @@ export async function POST(
 
     let publishResponse: unknown = null
     let submitTriggered = false
+    let submissionStatus = 200
+    let responseItem = updatedItem
     if (submitAfterApproval) {
       const origin = new URL(request.url).origin
       const response = await fetch(`${origin}/api/admin/social-content/${id}/publish`, {
@@ -231,23 +252,32 @@ export async function POST(
           Authorization: request.headers.get('authorization') || '',
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ platforms: targetPlatforms }),
+        body: JSON.stringify({ platforms: targetPlatforms, expected_updated_at: updatedItem.updated_at }),
       })
       submitTriggered = response.ok
+      submissionStatus = response.status
       publishResponse = await response.json().catch(() => null)
+      const readback = await admin.from('social_content_queue').select('*').eq('id', id).single()
+      if (!readback.error && readback.data) responseItem = readback.data
     }
 
     return NextResponse.json({
-      success: true,
+      success: !submitAfterApproval || submitTriggered,
+      final_approval_recorded: true,
+      selected_published: asRecord(publishResponse).selected_published === true,
+      published: asRecord(publishResponse).published === true,
+      remaining_platforms: asRecord(publishResponse).remaining_platforms ?? [],
+      reconciliation_required: asRecord(publishResponse).reconciliation_required === true,
+      ...(!submitTriggered && submitAfterApproval ? { error: asRecord(publishResponse).error || 'Submission was not confirmed. Reload the saved release evidence.' } : {}),
       submit_triggered: submitTriggered,
-      item: updatedItem,
-      publishes: publishes ?? [],
-      platform_submission_gate: updatedRagContext.platform_submission_gate,
+      item: responseItem,
+      publishes: asRecord(publishResponse).publishes ?? publishes ?? [],
+      platform_submission_gate: asRecord(responseItem?.rag_context).platform_submission_gate,
       platform_submission_orchestration: readinessPlan,
       calendar_linkage: calendarLinkage,
       publish_response: publishResponse,
       auto_submit_blocked_platforms: autoSubmitBlockedPlatforms,
-    })
+    }, { status: submitAfterApproval && !submitTriggered ? (submissionStatus >= 400 ? submissionStatus : 409) : 200 })
   } catch (error) {
     console.error('Error in POST /api/admin/social-content/[id]/platform-submission:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

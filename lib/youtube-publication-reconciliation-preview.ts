@@ -680,9 +680,9 @@ export async function previewYouTubePublicationReconciliation(
       channelMatch,
       blockers: [{
         code: 'wrong_channel',
-        message: 'The selected YouTube video belongs to a different channel than the configured AmaduTown channel.',
+        message: 'The selected YouTube video belongs to a different channel than the configured AmaduTown, LLC channel.',
       }],
-      recoveryAction: 'Confirm the AmaduTown channel video URL before requesting reconciliation.',
+      recoveryAction: 'Confirm the AmaduTown, LLC channel video URL before requesting reconciliation.',
     })
   }
 

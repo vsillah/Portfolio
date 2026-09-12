@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import {
   ArrowLeft, Plus, Trash2, Target, Users, Package, CheckCircle2,
-  Clock, Loader2, X, ChevronRight, AlertCircle, UserPlus, Calendar,
+  Clock, Loader2, X, ChevronRight, AlertCircle, UserPlus, Calendar, Pencil,
 } from 'lucide-react';
 import Breadcrumbs from '@/components/admin/Breadcrumbs';
 import { getCurrentSession } from '@/lib/auth';
@@ -823,7 +823,7 @@ export default function CampaignDetailPage() {
                   </div>
                   <div className="space-y-3">
                     {items.length ? items.map((item) => (
-                      <div key={item.id} className="rounded-lg border border-white/10 bg-silicon-slate/40 p-3">
+                      <div key={item.id} aria-label={`Campaign calendar row ${item.title}`} className="rounded-lg border border-white/10 bg-silicon-slate/40 p-3">
                         <div className="flex items-start justify-between gap-3">
                           <div className="min-w-0">
                             <p className="break-words text-sm font-semibold">{item.title}</p>
@@ -913,7 +913,7 @@ export default function CampaignDetailPage() {
                             </Link>
                           )}
                         </div>
-                        {(rejectingCalendarItemId === item.id || item.authorization_status === 'rejected') && (
+                        {rejectingCalendarItemId === item.id && item.authorization_status === 'pending' && (
                           <label className="mt-3 block text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground">
                             Decision note
                             <textarea
@@ -926,7 +926,32 @@ export default function CampaignDetailPage() {
                             />
                           </label>
                         )}
-                        {(item.authorization_status === 'pending' || item.authorization_status === 'rejected') && (
+                        {item.authorization_status === 'rejected' && (
+                          <div className="mt-3 rounded-md border border-red-500/30 bg-red-500/10 p-3">
+                            <div className="flex flex-wrap items-center justify-between gap-2">
+                              <p className="text-xs font-semibold text-red-100">Calendar authorization rejected</p>
+                              <span className="rounded-full border border-red-300/30 px-2 py-0.5 text-[0.68rem] font-semibold text-red-100">
+                                Rejected
+                              </span>
+                            </div>
+                            {typeof metadataRecord(item.metadata).authorization_decision_note === 'string' && (
+                              <p className="mt-2 text-[0.68rem] leading-5 text-red-100/85">
+                                Decision note: {String(metadataRecord(item.metadata).authorization_decision_note)}
+                              </p>
+                            )}
+                            <p className="mt-2 text-[0.68rem] leading-5 text-red-100/85">
+                              Authorize and repeat reject are locked until this item is revised and returned to pending review.
+                            </p>
+                            <Link
+                              href={`/admin/agents/content-intelligence?section=calendar&calendar_item=${item.id}#content-calendar-gate`}
+                              className="mt-3 inline-flex min-h-9 w-full items-center justify-center gap-2 rounded-md border border-blue-500/40 bg-blue-500/10 px-3 py-2 text-xs font-semibold text-blue-100 transition hover:bg-blue-500/20"
+                            >
+                              <Pencil size={14} />
+                              Edit and Return to Review
+                            </Link>
+                          </div>
+                        )}
+                        {item.authorization_status === 'pending' && (
                           <div className="mt-3 flex flex-col gap-2">
                             <button
                               type="button"
@@ -939,13 +964,13 @@ export default function CampaignDetailPage() {
                             </button>
                             <button
                               type="button"
-                              onClick={() => (rejectingCalendarItemId === item.id || item.authorization_status === 'rejected')
+                              onClick={() => rejectingCalendarItemId === item.id
                                 ? handleRejectCalendarItem(item)
                                 : setRejectingCalendarItemId(item.id)}
-                              disabled={calendarActionItemId === item.id || item.authorization_status === 'rejected'}
+                              disabled={calendarActionItemId === item.id}
                               className="inline-flex min-h-9 items-center justify-center gap-2 rounded-md border border-red-500/40 bg-red-500/10 px-3 py-2 text-xs font-semibold text-red-100 transition hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-60"
                             >
-                              {item.authorization_status === 'rejected' ? 'Rejected' : rejectingCalendarItemId === item.id ? 'Submit Rejection' : 'Reject'}
+                              {rejectingCalendarItemId === item.id ? 'Submit Rejection' : 'Reject'}
                             </button>
                           </div>
                         )}

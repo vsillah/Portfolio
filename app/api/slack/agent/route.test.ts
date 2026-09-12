@@ -43,7 +43,7 @@ describe('POST /api/slack/agent', () => {
         ok: true,
       }),
     )
-    process.env = { ...ORIGINAL_ENV, SLACK_SIGNING_SECRET: 'test-slack-secret' }
+    process.env = { ...ORIGINAL_ENV, NODE_ENV: 'test', APP_ENV: 'local', NEXT_PUBLIC_APP_ENV: 'local', VERCEL: '', VERCEL_ENV: '', SLACK_SIGNING_SECRET: 'test-slack-secret' }
     mocks.handleAgentSlackCommand.mockResolvedValue({
       responseType: 'ephemeral',
       text: 'Agent Ops status',
@@ -108,7 +108,7 @@ describe('POST /api/slack/agent', () => {
   })
 
   it('rejects unsigned production requests when the signing secret is missing', async () => {
-    process.env = { ...ORIGINAL_ENV, NODE_ENV: 'production', VERCEL: '1', SLACK_SIGNING_SECRET: '' }
+    process.env = { ...ORIGINAL_ENV, NODE_ENV: 'production', APP_ENV: 'production', NEXT_PUBLIC_APP_ENV: 'production', VERCEL: '1', VERCEL_ENV: 'production', SLACK_SIGNING_SECRET: '' }
 
     const response = await POST(
       new Request('http://localhost/api/slack/agent', {
@@ -143,6 +143,8 @@ describe('POST /api/slack/agent', () => {
       text: 'status',
       userId: 'U123',
       userName: 'vambah',
+      teamId: null,
+      channelId: null,
     })
   })
 
@@ -191,6 +193,8 @@ describe('POST /api/slack/agent', () => {
       text: 'status',
       userId: 'U123',
       userName: 'vambah',
+      teamId: null,
+      channelId: null,
     })
     expect(fetch).not.toHaveBeenCalled()
     expect(mocks.waitUntil).not.toHaveBeenCalled()
@@ -242,4 +246,26 @@ describe('POST /api/slack/agent', () => {
       }),
     )
   })
+  it('rejects a signed command from an unlisted operator before dispatch', async () => {
+    process.env.SLACK_AGENT_OPS_ALLOWED_USER_IDS = 'U_ALLOWED'
+    const response = await POST(signedRequest(new URLSearchParams({ text: 'work assign 1 shaka', user_id: 'U_OTHER' })) as never)
+    expect((await response.json()).text).toContain('not configured')
+    expect(mocks.handleAgentSlackCommand).not.toHaveBeenCalled()
+  })
+
+  it.each(['COTHER', undefined])('rejects hosted channel %s before command dispatch', async (channel) => {
+    process.env = { ...process.env, NODE_ENV: 'production', APP_ENV: 'staging', NEXT_PUBLIC_APP_ENV: 'staging', SLACK_AGENT_OPS_STAGING_CHANNEL_ID: 'CREVIEW', SLACK_AGENT_OPS_TEAM_ID: 'T1', SLACK_AGENT_OPS_ALLOWED_USER_IDS: 'U123' }
+    const fields = new URLSearchParams({ user_id: 'U123', team_id: 'T1', text: 'claim work-1', ...(channel ? { channel_id: channel } : {}) })
+    expect((await POST(signedRequest(fields) as never)).status).toBe(403)
+    expect(mocks.handleAgentSlackCommand).not.toHaveBeenCalled()
+    expect(mocks.waitUntil).not.toHaveBeenCalled()
+    expect(fetch).not.toHaveBeenCalled()
+  })
+  it('passes the authorized hosted channel to command dispatch', async () => {
+    process.env = { ...process.env, NODE_ENV: 'production', APP_ENV: 'staging', NEXT_PUBLIC_APP_ENV: 'staging', SLACK_AGENT_OPS_STAGING_CHANNEL_ID: 'CREVIEW', SLACK_AGENT_OPS_TEAM_ID: 'T1', SLACK_AGENT_OPS_ALLOWED_USER_IDS: 'U123' }
+    const fields = new URLSearchParams({ user_id: 'U123', team_id: 'T1', channel_id: 'CREVIEW', text: 'status' })
+    expect((await POST(signedRequest(fields) as never)).status).toBe(200)
+    expect(mocks.handleAgentSlackCommand).toHaveBeenCalledWith(expect.objectContaining({ channelId: 'CREVIEW' }))
+  })
+
 })

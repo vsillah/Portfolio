@@ -248,7 +248,7 @@ describe('SocialContentDetailRoute visual production review', () => {
       name: 'scheduled hosted automation',
       item: {
         status: 'scheduled',
-        scheduled_for: '2026-08-15T13:00:00.000Z',
+        scheduled_for: '2099-08-15T13:00:00.000Z',
         target_platforms: ['x'],
         rag_context: completeTextOnlyXRagContext,
         publishes: [{
@@ -297,7 +297,7 @@ describe('SocialContentDetailRoute visual production review', () => {
       name: 'provider failure',
       item: {
         status: 'scheduled',
-        scheduled_for: '2026-08-15T13:00:00.000Z',
+        scheduled_for: '2026-09-15T13:00:00.000Z',
         publishes: [{
           id: 'publish-x-3',
           content_id: 'social-1',
@@ -311,9 +311,9 @@ describe('SocialContentDetailRoute visual production review', () => {
           updated_at: '2026-08-13T20:01:00.000Z',
         }],
       },
-      headline: 'X submission failed',
-      stateLabel: 'Failed',
-      explanation: /Provider token expired/i,
+      headline: 'Outcome uncertain · reconcile receipts',
+      stateLabel: 'Reconcile',
+      explanation: /Review the recorded result/i,
       waiting: 'Yes - review the failure and recovery action',
       rawStatus: 'failed',
     },
@@ -357,9 +357,9 @@ describe('SocialContentDetailRoute visual production review', () => {
           updated_at: '2026-08-13T20:01:00.000Z',
         }],
       },
-      headline: 'X publication cancelled',
-      stateLabel: 'Cancelled',
-      explanation: /cancelled before provider submission/i,
+      headline: 'Outcome uncertain · reconcile receipts',
+      stateLabel: 'Reconcile',
+      explanation: /Review the recorded result/i,
       waiting: 'No',
       rawStatus: 'skipped',
     },
@@ -695,19 +695,19 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(screen.queryByLabelText('Triggering event or recent proof')).not.toBeInTheDocument()
     expect(screen.queryByLabelText('Revision feedback for Shaka')).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /Reject with Feedback/i })).not.toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /Reopen and Generate Revision/i })).not.toBeDisabled()
-    fireEvent.click(screen.getByRole('button', { name: /Reopen and Generate Revision/i }))
+    expect(screen.getByRole('button', { name: /Request Revision/i })).not.toBeDisabled()
+    fireEvent.click(screen.getByRole('button', { name: /Request Revision/i }))
     expect(screen.getByLabelText('Triggering event or recent proof')).not.toBeDisabled()
     expect(screen.getByLabelText('Revision feedback for Shaka')).not.toBeDisabled()
-    expect(screen.getByRole('button', { name: /Add Feedback to Generate/i })).toBeDisabled()
+    expect(screen.getByRole('button', { name: /Add Feedback/i })).toBeDisabled()
     expect(screen.getByDisplayValue('The draft copy is approved and should stay locked.')).toBeDisabled()
-    expect(screen.getByText('AmaduTown')).toBeInTheDocument()
+    expect(screen.getByText('AmaduTown, LLC')).toBeInTheDocument()
     expect(screen.queryByText('Amadou Town')).not.toBeInTheDocument()
-    const copyGate = screen.getByText('Post Text').closest('#social-copy-gate')
-    expect(copyGate).toBeTruthy()
-    expect(within(copyGate as HTMLElement).getByText('CTA Text')).toBeInTheDocument()
-    expect(within(copyGate as HTMLElement).getByText('CTA URL')).toBeInTheDocument()
-    expect(within(copyGate as HTMLElement).getByText('Hashtags (comma-separated)')).toBeInTheDocument()
+    const copyEditor = screen.getByText('Post Text').closest('#social-copy-editor')
+    expect(copyEditor).toBeTruthy()
+    expect(within(copyEditor as HTMLElement).getByText('CTA Text')).toBeInTheDocument()
+    expect(within(copyEditor as HTMLElement).getByText('CTA URL')).toBeInTheDocument()
+    expect(within(copyEditor as HTMLElement).getByText('Hashtags (comma-separated)')).toBeInTheDocument()
 
     mocks.search = 'step=visuals'
     view.rerender(<SocialContentDetailRoute />)
@@ -737,6 +737,134 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(screen.getByRole('button', { name: /Create LinkedIn Draft/i })).toBeDisabled()
     expect(screen.getAllByText('LinkedIn draft: Pending').length).toBeGreaterThan(1)
     expect(screen.queryByText('Publish immediately after approval')).not.toBeInTheDocument()
+  })
+
+  it('lets rejected copy return to review after the operator edits the draft', async () => {
+    const rejectedItem = {
+      ...baseItem,
+      status: 'rejected',
+      post_text: 'This opener still feels too abstract.',
+      reviewed_by: 'admin-user',
+      rag_context: {
+        ...baseItem.rag_context,
+        content_calibration: {
+          status: 'revision_generation_requested',
+          operator_feedback: {
+            revision_request: 'Make the opening more concrete before approval.',
+          },
+        },
+      },
+    }
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input)
+      if (url.includes('/topic-backlog')) {
+        return {
+          ok: true,
+          json: async () => ({ items: [topicBacklogItem] }),
+        } as Response
+      }
+      if (url.includes('/calibration-library')) {
+        return {
+          ok: true,
+          json: async () => ({ references: [] }),
+        } as Response
+      }
+      if (init?.method === 'PUT') {
+        const body = JSON.parse(String(init.body))
+        return {
+          ok: true,
+          json: async () => ({
+            item: {
+              ...rejectedItem,
+              ...body,
+              status: 'draft',
+              updated_at: '2026-06-12T10:10:00.000Z',
+            },
+          }),
+        } as Response
+      }
+      return {
+        ok: true,
+        json: async () => ({ item: rejectedItem }),
+      } as Response
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    renderAtStep('copy')
+
+    expect((await screen.findAllByText('Copy: Rejected')).length).toBeGreaterThan(0)
+    expect(screen.getByText('Copy revision')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Return to Copy Review' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /Reject and Generate Revision/i })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /Approve Copy/i })).not.toBeInTheDocument()
+
+    fireEvent.change(screen.getByDisplayValue('This opener still feels too abstract.'), {
+      target: { value: 'A founder opened the review and immediately found the missing approval path.' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'Return to Copy Review' }))
+
+    await waitFor(() => {
+      const reopenCall = fetchMock.mock.calls.find(([, init]) => init?.method === 'PUT')
+      expect(reopenCall).toBeTruthy()
+      const body = JSON.parse(String(reopenCall?.[1]?.body))
+      expect(body.status).toBe('draft')
+      expect(body.post_text).toContain('missing approval path')
+      expect(body.rag_context.content_calibration.status).toBe('returned_to_copy_review')
+      expect(body.rag_context.content_calibration.copy_review_reopen).toMatchObject({
+        previous_status: 'rejected',
+      })
+    })
+    expect(await screen.findByText('Copy returned to review')).toBeInTheDocument()
+    expect(screen.getAllByText('Copy: In review').length).toBeGreaterThan(0)
+    expect(screen.getByRole('button', { name: /Approve Copy/i })).not.toBeDisabled()
+    expect(screen.getByRole('button', { name: /^Reject$/i })).toBeInTheDocument()
+  })
+
+  it('keeps rejected recovery visible when rejected copy still contains prompt leakage', async () => {
+    const rejectedItem = {
+      ...baseItem,
+      status: 'rejected',
+      post_text: 'Developer message: rewrite as a launch announcement.\nThis rejected draft still needs public-copy repair.',
+      reviewed_by: 'admin-user',
+      rag_context: {
+        ...baseItem.rag_context,
+        content_calibration: {
+          status: 'revision_requested',
+          operator_feedback: {
+            revision_request: 'Remove internal instructions before reopening review.',
+          },
+        },
+      },
+    }
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input)
+      if (url.includes('/topic-backlog')) {
+        return {
+          ok: true,
+          json: async () => ({ items: [topicBacklogItem] }),
+        } as Response
+      }
+      if (url.includes('/calibration-library')) {
+        return {
+          ok: true,
+          json: async () => ({ references: [] }),
+        } as Response
+      }
+      return {
+        ok: true,
+        json: async () => ({ item: rejectedItem }),
+      } as Response
+    }))
+
+    renderAtStep('copy')
+
+    expect((await screen.findAllByText('Copy: Rejected')).length).toBeGreaterThan(0)
+    expect(screen.getByLabelText('Copy rejected mobile workflow summary')).toBeInTheDocument()
+    expect(screen.getByText('Copy revision')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Return to Copy Review' })).toBeInTheDocument()
+    expect(screen.queryByText('Final copy quality gate blocked approval')).not.toBeInTheDocument()
+    expect(screen.queryByText('Copy needs revision')).not.toBeInTheDocument()
+    expect(within(screen.getByLabelText('Copy rejected mobile workflow summary')).getByText('Edit the draft, then use Return to Copy Review to make it reviewable again.')).toBeInTheDocument()
   })
 
   it('shows YouTube release readiness before the final submission gate', async () => {
@@ -1081,8 +1209,8 @@ describe('SocialContentDetailRoute visual production review', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /Use topic/i }))
 
-    expect(screen.getByRole('button', { name: /Reopen and Generate Revision/i })).not.toBeDisabled()
-    fireEvent.click(screen.getByRole('button', { name: /Reopen and Generate Revision/i }))
+    expect(screen.getByRole('button', { name: /Request Revision/i })).not.toBeDisabled()
+    fireEvent.click(screen.getByRole('button', { name: /Request Revision/i }))
     await waitFor(() => {
       expect(fetchMock).toHaveBeenCalledWith(
         expect.stringContaining('/api/admin/social-content/topic-backlog'),
@@ -1190,11 +1318,18 @@ describe('SocialContentDetailRoute visual production review', () => {
 
     const decisionGate = screen.getByText('Copy Review Decision').closest('section')
     expect(decisionGate).not.toBeNull()
-    expect(within(decisionGate as HTMLElement).getByRole('button', { name: /Approve Draft & Next/i })).not.toBeDisabled()
+    const copyGate = document.getElementById('social-copy-gate')
+    expect(copyGate).not.toBeNull()
+    expect(copyGate?.contains(decisionGate as HTMLElement)).toBe(true)
+    expect((decisionGate as HTMLElement).compareDocumentPosition(screen.getByText('Post Text'))).toBe(Node.DOCUMENT_POSITION_FOLLOWING)
+    expect(within(decisionGate as HTMLElement).getByRole('button', { name: /Approve Copy & Next/i })).not.toBeDisabled()
+    expect(within(decisionGate as HTMLElement).getByRole('button', { name: /^Reject$/i })).toBeInTheDocument()
     expect(within(decisionGate as HTMLElement).queryByRole('button', { name: /Reject with Feedback/i })).not.toBeInTheDocument()
-    expect(within(decisionGate as HTMLElement).getByRole('button', { name: /Reject and Generate Revision/i })).toBeInTheDocument()
+    expect(within(decisionGate as HTMLElement).queryByRole('button', { name: /Request Revision/i })).not.toBeInTheDocument()
+    expect(within(decisionGate as HTMLElement).getByText(/Draft-level approval is the legitimate copy gate/i)).toBeInTheDocument()
+    expect(within(decisionGate as HTMLElement).getByText(/does not publish, schedule, upload media, call platform providers, send Gmail, send SMS/i)).toBeInTheDocument()
 
-    fireEvent.click(screen.getByRole('button', { name: /Approve Draft & Next/i }))
+    fireEvent.click(screen.getByRole('button', { name: /Approve Copy & Next/i }))
 
     await waitFor(() => {
       expect(fetchMock).toHaveBeenCalledWith(
@@ -1246,6 +1381,7 @@ describe('SocialContentDetailRoute visual production review', () => {
       } as Response
     })
     vi.stubGlobal('fetch', fetchMock)
+    vi.stubGlobal('confirm', vi.fn(() => true))
 
     renderAtStep('copy')
 
@@ -1253,25 +1389,32 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(screen.getByText('Signals, Alignment, Momentum (SAM) · Accelerated product discipline')).toBeInTheDocument()
     expect(screen.getByText('Align, Map, Instrument, Negotiate, and Audit (AMINA) · Agentified trust loop')).toBeInTheDocument()
     expect(screen.getAllByText('Needs expansion').length).toBe(2)
-    expect(screen.getByRole('button', { name: /Approve Draft/i })).toBeDisabled()
+    expect(screen.getByRole('button', { name: /Approve Copy/i })).toBeDisabled()
 
     fireEvent.click(screen.getByRole('button', { name: /Write out known acronyms/i }))
 
     expect(screen.getByDisplayValue('Signals, Alignment, Momentum (SAM) moves the work. Align, Map, Instrument, Negotiate, and Audit (AMINA) governs the work.')).toBeInTheDocument()
     expect(screen.queryByText('Copy readiness')).not.toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /Approve Draft/i })).not.toBeDisabled()
+    expect(screen.getByRole('button', { name: /Approve Copy/i })).not.toBeDisabled()
 
     expect(screen.queryByLabelText('Revision feedback for Shaka')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /^Reject$/i })).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /Reject with Feedback/i })).not.toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: /Reject and Generate Revision/i }))
+    expect(screen.queryByRole('button', { name: /Request Revision/i })).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: /^Reject$/i }))
     expect(screen.getByRole('button', { name: /Cancel feedback/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Request Revision/i })).toBeDisabled()
+    expect(within(screen.getByText('Copy Review Decision').closest('section') as HTMLElement).getByText(/Add feedback and choose Request Revision for Shaka, or choose Reject again to reject without comments/i)).toBeInTheDocument()
+    expect(within(screen.getByLabelText('Copy review mobile workflow summary')).queryByText(/Add feedback and choose Request Revision for Shaka/i)).not.toBeInTheDocument()
+    expect(within(screen.getByLabelText('Copy review mobile workflow summary')).getByText('Complete the copy decision in the gate below.')).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: /Cancel feedback/i }))
     expect(screen.queryByLabelText('Revision feedback for Shaka')).not.toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: /Reject and Generate Revision/i }))
+    fireEvent.click(screen.getByRole('button', { name: /^Reject$/i }))
     fireEvent.change(screen.getByLabelText('Revision feedback for Shaka'), {
       target: { value: 'The framework reference is clear now, but the opening still needs a more concrete scene.' },
     })
-    fireEvent.click(screen.getByRole('button', { name: /Reject and Generate Revision/i }))
+    expect(screen.getByRole('button', { name: /Request Revision/i })).not.toBeDisabled()
+    fireEvent.click(screen.getByRole('button', { name: /Request Revision/i }))
 
     await waitFor(() => {
       expect(fetchMock).toHaveBeenCalledWith(
@@ -1282,13 +1425,188 @@ describe('SocialContentDetailRoute visual production review', () => {
     const rejectCall = fetchMock.mock.calls.find(([, init]) => init?.method === 'PUT')
     const body = JSON.parse(String(rejectCall?.[1]?.body))
     expect(body.status).toBe('rejected')
-    expect(body.rag_context.content_calibration.status).toBe('revision_generation_requested')
+    expect(body.rag_context.content_calibration.status).toBe('revision_requested')
     expect(body.rag_context.content_calibration.operator_feedback.revision_request).toContain('concrete scene')
     expect(body.rag_context.content_calibration.revision_requests[0]).toMatchObject({
       previous_status: 'draft',
-      action: 'reject_and_generate_revision',
+      action: 'reject_with_feedback',
     })
-    expect(body.admin_notes).toContain('Copy revision requested')
+    expect(body.admin_notes).toContain('Copy rejected')
+    expect(fetchMock.mock.calls.some(([url]) => String(url).includes('/calibration-revision'))).toBe(false)
+  })
+
+  it('allows copy rejection without optional feedback or calibration metadata', async () => {
+    const calendarItem = {
+      ...baseItem,
+      status: 'draft',
+      reviewed_by: null,
+      post_text: 'This draft needs a clearer reason to exist.',
+      cta_text: 'Review the operating loop.',
+      rag_context: {
+        source: 'social_content_calendar_authorization',
+        source_type: 'social_content_calendar_item',
+        calendar_item_id: 'calendar-1',
+        campaign_id: 'campaign-1',
+        campaign_name: 'Agentified launch',
+        publish_gate: 'draft_only',
+        external_execution_enabled: false,
+      },
+    }
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input)
+      if (url.includes('/api/admin/social-content?status=all')) {
+        return {
+          ok: true,
+          json: async () => ({ items: [calendarItem] }),
+        } as Response
+      }
+      if (init?.method === 'PUT') {
+        const body = JSON.parse(String(init.body))
+        return {
+          ok: true,
+          json: async () => ({ item: { ...calendarItem, ...body } }),
+        } as Response
+      }
+      return {
+        ok: true,
+        json: async () => ({ item: calendarItem }),
+      } as Response
+    })
+    vi.stubGlobal('fetch', fetchMock)
+    vi.stubGlobal('confirm', vi.fn(() => true))
+
+    renderAtStep('copy')
+
+    const decisionGate = await screen.findByText('Copy Review Decision')
+    const gateSection = decisionGate.closest('section')
+    expect(gateSection).not.toBeNull()
+    expect(within(gateSection as HTMLElement).getByRole('button', { name: /^Reject$/i })).toBeInTheDocument()
+    expect(within(gateSection as HTMLElement).queryByRole('button', { name: /Reject with Feedback/i })).not.toBeInTheDocument()
+    expect(within(gateSection as HTMLElement).queryByRole('button', { name: /Request Revision/i })).not.toBeInTheDocument()
+    fireEvent.click(within(gateSection as HTMLElement).getByRole('button', { name: /^Reject$/i }))
+    expect(screen.getByLabelText('Revision feedback for Shaka')).toBeInTheDocument()
+    expect(within(gateSection as HTMLElement).getByRole('button', { name: /Request Revision/i })).toBeDisabled()
+    expect(within(gateSection as HTMLElement).getByText(/Add feedback and choose Request Revision for Shaka/i)).toBeInTheDocument()
+    expect(within(screen.getByLabelText('Copy review mobile workflow summary')).queryByText(/Add feedback and choose Request Revision for Shaka/i)).not.toBeInTheDocument()
+    expect(within(screen.getByLabelText('Copy review mobile workflow summary')).getByText('Complete the copy decision in the gate below.')).toBeInTheDocument()
+
+    fireEvent.click(within(gateSection as HTMLElement).getByRole('button', { name: /^Reject$/i }))
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledWith(
+        expect.stringContaining('/api/admin/social-content/social-1'),
+        expect.objectContaining({ method: 'PUT' }),
+      )
+    })
+    const rejectCall = fetchMock.mock.calls.find(([, init]) => init?.method === 'PUT')
+    const body = JSON.parse(String(rejectCall?.[1]?.body))
+    expect(body.status).toBe('rejected')
+    expect(body.rag_context).toBeUndefined()
+    expect(body.admin_notes).toContain('Copy rejected')
+    expect(screen.queryByText('Add revision feedback before rejecting copy.')).not.toBeInTheDocument()
+    await waitFor(() => {
+      expect(within(gateSection as HTMLElement).getByText('Copy: Rejected')).toBeInTheDocument()
+    })
+    expect(within(gateSection as HTMLElement).queryByText('Copy: In review')).not.toBeInTheDocument()
+    expect(within(gateSection as HTMLElement).getByRole('button', { name: 'Rejected' })).toBeDisabled()
+    expect(within(gateSection as HTMLElement).queryByRole('button', { name: /^Reject$/i })).not.toBeInTheDocument()
+    expect(within(gateSection as HTMLElement).queryByRole('button', { name: /Request Revision/i })).not.toBeInTheDocument()
+    expect(within(gateSection as HTMLElement).queryByRole('button', { name: /Approve Copy/i })).not.toBeInTheDocument()
+    expect(within(gateSection as HTMLElement).getByText(/Copy rejection is recorded/i)).toBeInTheDocument()
+    expect(within(screen.getByLabelText('Copy rejected mobile workflow summary')).queryByText(/The copy decision is recorded as rejected/i)).not.toBeInTheDocument()
+    expect(within(screen.getByLabelText('Copy rejected mobile workflow summary')).getByText('Edit the draft, then use Return to Copy Review to make it reviewable again.')).toBeInTheDocument()
+    expect(fetchMock.mock.calls.some(([url]) => String(url).includes('/calibration-revision'))).toBe(false)
+  })
+
+  it('saves optional copy rejection feedback for Shaka without generating a revision', async () => {
+    const calendarItem = {
+      ...baseItem,
+      status: 'draft',
+      reviewed_by: null,
+      post_text: 'This draft needs a clearer reason to exist.',
+      cta_text: 'Review the operating loop.',
+      rag_context: {
+        source: 'social_content_calendar_authorization',
+        source_type: 'social_content_calendar_item',
+        calendar_item_id: 'calendar-1',
+        campaign_id: 'campaign-1',
+        campaign_name: 'Agentified launch',
+        publish_gate: 'draft_only',
+        external_execution_enabled: false,
+      },
+    }
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input)
+      if (url.includes('/api/admin/social-content?status=all')) {
+        return {
+          ok: true,
+          json: async () => ({ items: [calendarItem] }),
+        } as Response
+      }
+      if (init?.method === 'PUT') {
+        const body = JSON.parse(String(init.body))
+        return {
+          ok: true,
+          json: async () => ({ item: { ...calendarItem, ...body } }),
+        } as Response
+      }
+      return {
+        ok: true,
+        json: async () => ({ item: calendarItem }),
+      } as Response
+    })
+    vi.stubGlobal('fetch', fetchMock)
+    vi.stubGlobal('confirm', vi.fn(() => true))
+
+    renderAtStep('copy')
+
+    const decisionGate = await screen.findByText('Copy Review Decision')
+    const gateSection = decisionGate.closest('section')
+    expect(gateSection).not.toBeNull()
+    expect(within(gateSection as HTMLElement).queryByRole('button', { name: /Request Revision/i })).not.toBeInTheDocument()
+    fireEvent.click(within(gateSection as HTMLElement).getByRole('button', { name: /^Reject$/i }))
+    expect(screen.getByLabelText('Revision feedback for Shaka')).toBeInTheDocument()
+    expect(within(gateSection as HTMLElement).getByRole('button', { name: /Request Revision/i })).toBeDisabled()
+    expect(within(screen.getByLabelText('Copy review mobile workflow summary')).queryByText(/Add feedback and choose Request Revision for Shaka/i)).not.toBeInTheDocument()
+    expect(within(screen.getByLabelText('Copy review mobile workflow summary')).getByText('Complete the copy decision in the gate below.')).toBeInTheDocument()
+
+    const feedback = 'Keep the topic, but add the Slack canary context and name the revision path Shaka should take next.'
+    fireEvent.change(screen.getByLabelText('Revision feedback for Shaka'), {
+      target: { value: feedback },
+    })
+    expect(within(gateSection as HTMLElement).getByRole('button', { name: /Request Revision/i })).not.toBeDisabled()
+    fireEvent.click(within(gateSection as HTMLElement).getByRole('button', { name: /Request Revision/i }))
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledWith(
+        expect.stringContaining('/api/admin/social-content/social-1'),
+        expect.objectContaining({ method: 'PUT' }),
+      )
+    })
+    const rejectCall = fetchMock.mock.calls.find(([, init]) => init?.method === 'PUT')
+    const body = JSON.parse(String(rejectCall?.[1]?.body))
+    expect(body.status).toBe('rejected')
+    expect(body.rag_context.content_calibration.status).toBe('revision_requested')
+    expect(body.rag_context.content_calibration.operator_feedback.revision_request).toBe(feedback)
+    expect(body.rag_context.content_calibration.approval_rejection.reason).toBe(feedback)
+    expect(body.rag_context.content_calibration.revision_requests[0]).toMatchObject({
+      previous_status: 'draft',
+      request: feedback,
+      action: 'reject_with_feedback',
+    })
+    expect(body.admin_notes).toContain('Copy rejected')
+    await waitFor(() => {
+      expect(within(gateSection as HTMLElement).getByText('Copy: Rejected')).toBeInTheDocument()
+    })
+    expect(within(gateSection as HTMLElement).queryByText('Copy: In review')).not.toBeInTheDocument()
+    expect(within(gateSection as HTMLElement).getByRole('button', { name: 'Rejected' })).toBeDisabled()
+    expect(within(gateSection as HTMLElement).queryByRole('button', { name: /^Reject$/i })).not.toBeInTheDocument()
+    expect(within(gateSection as HTMLElement).queryByRole('button', { name: /Request Revision/i })).not.toBeInTheDocument()
+    expect(within(gateSection as HTMLElement).queryByRole('button', { name: /Approve Copy/i })).not.toBeInTheDocument()
+    expect(within(gateSection as HTMLElement).getByText(/Copy rejection is recorded/i)).toBeInTheDocument()
+    expect(within(screen.getByLabelText('Copy rejected mobile workflow summary')).queryByText(/The copy decision is recorded as rejected/i)).not.toBeInTheDocument()
+    expect(within(screen.getByLabelText('Copy rejected mobile workflow summary')).getByText('Edit the draft, then use Return to Copy Review to make it reviewable again.')).toBeInTheDocument()
+    expect(screen.queryByText('Copy rejected with revision feedback.')).not.toBeInTheDocument()
+    expect(fetchMock.mock.calls.some(([url]) => String(url).includes('/calibration-revision'))).toBe(false)
   })
 
   it('lets the operator add a reusable calibration reference to the feedback packet', async () => {
@@ -1786,7 +2104,7 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(await screen.findByText('Post Text')).toBeInTheDocument()
     expect(screen.queryByText('Request copy revision')).not.toBeInTheDocument()
     expect(screen.queryByLabelText('Triggering event or recent proof')).not.toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: /Reopen and Generate Revision/i }))
+    fireEvent.click(screen.getByRole('button', { name: /Request Revision/i }))
     const triggeringEventInput = screen.getByLabelText('Triggering event or recent proof')
     expect(triggeringEventInput).toBeTruthy()
     fireEvent.change(triggeringEventInput as HTMLTextAreaElement, {
@@ -1795,7 +2113,7 @@ describe('SocialContentDetailRoute visual production review', () => {
     fireEvent.change(screen.getByLabelText('Revision feedback for Shaka'), {
       target: { value: feedback },
     })
-    fireEvent.click(screen.getByRole('button', { name: /Reopen and Generate Revision/i }))
+    fireEvent.click(screen.getByRole('button', { name: /Request Revision/i }))
 
     await waitFor(() => {
       expect(fetchMock).toHaveBeenCalledWith(
@@ -2458,4 +2776,191 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(screen.getByText(/migration 20260806163011/i)).toBeInTheDocument()
     expect(screen.queryByText('No comment projection is attached to this post yet.')).not.toBeInTheDocument()
   })
+  it('shows manual recovery and feedback and submits the rendered version token', async () => {
+    const rejected = { ...baseItem, status: 'rejected', post_text: 'An old hook.', rag_context: { ...baseItem.rag_context, source: 'social_content_calendar_authorization' }, copy_revision: { state: 'blocked', worker: 'not_configured', current_version: 'fixture-version', feedback: 'Name the handoff.' } }
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input)
+      if (url === '/api/admin/social-content/social-1' && init?.method === 'PUT') return { ok: true, json: async () => ({ item: { ...rejected, status: 'draft', post_text: 'The revised concrete hook.', copy_revision: { ...rejected.copy_revision, state: 'ready' } } }) }
+      if (url === '/api/admin/social-content/social-1') return { ok: true, json: async () => ({ item: rejected }) }
+      return { ok: true, json: async () => ({ items: [], configs: [], references: [] }) }
+    })
+    vi.stubGlobal('fetch', fetchMock)
+    renderAtStep('copy')
+    expect(await screen.findByText('Manual edit needed. No revision worker is connected. Edit the copy above, then return it to review.')).toBeInTheDocument()
+    expect(screen.getByText('Feedback: Name the handoff.')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Return to Copy Review' })).toBeDisabled()
+    expect(screen.getByText('Change the copy before returning it to review.')).toBeInTheDocument()
+    fireEvent.change(screen.getByDisplayValue('An old hook.'), { target: { value: 'The revised concrete hook.' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Return to Copy Review' }))
+    await waitFor(() => expect(fetchMock.mock.calls.some(([, init]) => init?.method === 'PUT')).toBe(true))
+    const [, init] = fetchMock.mock.calls.find(([, init]) => init?.method === 'PUT')!
+    expect(JSON.parse(String(init?.body))).toMatchObject({ expected_copy_version: 'fixture-version', status: 'draft', post_text: 'The revised concrete hook.' })
+  })
+
+  it('locks provider-evidenced calendar copy and links to its platform gate', async () => {
+    const current={...baseItem,status:'draft',copy_revision:{worker:'not_configured',state:'needs_review',current_version:'fixture',release_locked:true}}
+    vi.stubGlobal('fetch',vi.fn(async (input:RequestInfo|URL)=>({ok:true,json:async()=>String(input)==='/api/admin/social-content/social-1'?{item:current}:{items:[],configs:[],references:[]}})))
+    renderAtStep('copy')
+    expect(await screen.findByRole('button',{name:'Copy locked · Review platform gate'})).toBeInTheDocument()
+    expect(screen.queryByRole('button',{name:'Reject'})).not.toBeInTheDocument()
+    expect(screen.getByRole('button',{name:'Approve Copy'})).toBeDisabled()
+    fireEvent.click(screen.getByRole('button',{name:'Copy locked · Review platform gate'}))
+  })
+
+  it('approves the version returned by saving the currently reviewed form', async () => {
+    let current={...baseItem,status:'draft',rag_context:{...baseItem.rag_context,source:'social_content_calendar_authorization',publish_gate:'draft_only'},copy_revision:{worker:'not_configured',state:'needs_review',current_version:'old-version'}}
+    const fetchMock=vi.fn(async(input:RequestInfo|URL,init?:RequestInit)=>{
+      const url=String(input)
+      if(url.endsWith('/approve')){
+        expect(JSON.parse(String(init?.body))).toEqual({expected_copy_version:'saved-version'})
+        current={...current,status:'approved'}
+        return {ok:true,json:async()=>({item:current,publishes:[],publish_triggered:false})}
+      }
+      if(url==='/api/admin/social-content/social-1'){
+        if(init?.method==='PUT')current={...current,copy_revision:{...current.copy_revision,current_version:'saved-version'}}
+        return {ok:true,json:async()=>({item:current})}
+      }
+      return {ok:true,json:async()=>({items:[],configs:[],references:[]})}
+    })
+    vi.stubGlobal('fetch',fetchMock)
+    renderAtStep('copy')
+    fireEvent.click(await screen.findByRole('button',{name:'Approve Copy'}))
+    expect(await screen.findByRole('button',{name:'Copy approved · Review platform gate'})).toBeInTheDocument()
+    expect(fetchMock.mock.calls.filter(([url])=>String(url).endsWith('/approve'))).toHaveLength(1)
+  })
+
+  it('names the missing calendar asset and offers visual recovery on the release gate', async () => {
+    const current={...baseItem,status:'approved',image_url:null,video_url:null,rag_context:{source:'social_content_calendar_authorization',publish_gate:'draft_only',calendar_item_id:'calendar-fixture',campaign_id:'campaign-fixture'},copy_revision:{worker:'not_configured',state:'needs_review',current_version:'fixture'}}
+    vi.stubGlobal('fetch',vi.fn(async (input:RequestInfo|URL)=>({ok:true,json:async()=>String(input)==='/api/admin/social-content/social-1'?{item:current}:{items:[],configs:[],references:[]}})))
+    renderAtStep('submit')
+    expect(await screen.findByText('No linked visual asset. Attach the approved image or video, then review assets and privacy.')).toBeInTheDocument()
+    expect(screen.getByRole('button',{name:'Review assets and privacy'})).toBeEnabled()
+    expect(screen.queryByText('Automatic submit connected')).not.toBeInTheDocument()
+  })
+
+  it('blocks a synthetic instruction seed and offers final-copy editing', async () => {
+    const current={...baseItem,status:'draft',post_text:'AutoResearch draft seed: Review systems need clear ownership.\nCTA role: conversation.\nContent agents must convert this into public copy before approval.',cta_text:'Conversation CTA should ask about the next handoff.',rag_context:{source:'social_content_calendar_authorization',publish_gate:'draft_only',calendar_item_id:'fixture-calendar',campaign_id:'fixture-campaign'},copy_revision:{worker:'not_configured',state:'needs_review',current_version:'fixture'}}
+    vi.stubGlobal('fetch',vi.fn(async(input:RequestInfo|URL)=>({ok:true,json:async()=>String(input)==='/api/admin/social-content/social-1'?{item:current}:{items:[],configs:[],references:[]}})))
+    renderAtStep('copy')
+    expect(await screen.findByRole('button',{name:'Edit final copy'})).toBeInTheDocument()
+    expect(screen.getByRole('button',{name:'Approve Copy'})).toBeDisabled()
+    expect(screen.getByRole('region',{name:'Copy review decision gate'})).toHaveTextContent('Copy needs revision')
+    expect(screen.getByText('Remove internal draft instructions before approval.')).toBeInTheDocument()
+    const disclosure=screen.getByText('About copy approval').closest('details')
+    expect(disclosure).not.toHaveAttribute('open')
+    expect(disclosure).toHaveTextContent('Draft-level approval is')
+    expect(disclosure).toHaveTextContent('This does not publish')
+  })
+
+  it.each(['platform-submission','publish'])('refreshes %s partial-error receipts and removes repeat actions', async endpoint => {
+    let current={...baseItem,updated_at:'2026-09-08T12:00:00Z',rag_context:{source:'manual',...(endpoint==='publish'?{platform_submission_gate:{status:'approved',platforms:['linkedin']}}:{})},publishes:[{id:'receipt',platform:'linkedin',status:'pending',platform_post_url:null as string|null,platform_post_id:null as string|null}],image_url:'https://cdn.example.com/reviewed.png'}
+    let writes=0
+    const fetchMock=vi.fn(async(input:RequestInfo|URL,init?:RequestInit)=>{
+      const url=String(input)
+      if(init?.method==='POST') {
+        writes++
+        expect(JSON.parse(String(init.body))).toMatchObject({platforms:['linkedin'],expected_updated_at:'2026-09-08T12:00:00Z'})
+        current={...current,updated_at:'2026-09-08T12:01:00Z',rag_context:{source:'manual',platform_submission_gate:{status:'uncertain',platforms:['linkedin']}},publishes:[{id:'receipt',platform:'linkedin',status:'failed',platform_post_url:'https://example.com/confirmed',platform_post_id:'confirmed-result'}]}
+        return {ok:false,json:async()=>({error:'Partial provider result',item:current,publishes:current.publishes,reconciliation_required:true,final_approval_recorded:true})}
+      }
+      if(url.endsWith('/config'))return {ok:true,json:async()=>({configs:[{platform:'linkedin',is_active:true,credentials:{access_token:'fixture',author_urn:'fixture'},settings:{}}]})}
+      return {ok:true,json:async()=>url==='/api/admin/social-content/social-1'?{item:current}:{items:[]}}
+    })
+    vi.stubGlobal('fetch',fetchMock)
+    renderAtStep('submit')
+    const action=await screen.findByRole('button',{name:endpoint==='publish'?'Submit to LinkedIn':'Approve & submit'})
+    fireEvent.click(action)
+    const dialog=await screen.findByRole('dialog',{name:'Confirm public submission'})
+    expect(dialog).toHaveTextContent(baseItem.post_text)
+    expect(within(dialog).getByRole('img',{name:'Reviewed release asset'})).toHaveAttribute('src',expect.stringContaining('reviewed.png'))
+    expect(writes).toBe(0)
+    fireEvent.click(within(dialog).getByRole('button',{name:'Confirm and publish'}))
+    await waitFor(()=>expect(screen.queryByRole('button',{name:'Retry'})).not.toBeInTheDocument())
+    await waitFor(()=>expect(screen.queryByRole('button',{name:'Approve & submit'})).not.toBeInTheDocument())
+    expect(await screen.findByRole('link',{name:/View post/i})).toHaveAttribute('href','https://example.com/confirmed')
+    expect(writes).toBe(1)
+    expect(fetchMock.mock.calls.filter(([url,init])=>String(url)==='/api/admin/social-content/social-1'&&!init?.method).length).toBeGreaterThan(1)
+  })
+
+  it('shows confirmed receipts on reload without retrying',async()=>{
+    const current={...baseItem,status:'published',rag_context:{source:'manual',platform_submission_gate:{status:'submitted'}},publishes:[{id:'confirmed',platform:'linkedin',status:'published',platform_post_url:'https://example.com/post',platform_post_id:'confirmed'}]}
+    vi.stubGlobal('fetch',vi.fn(async(input:RequestInfo|URL)=>({ok:true,json:async()=>String(input)==='/api/admin/social-content/social-1'?{item:current}:{items:[],configs:[]}})))
+    renderAtStep('submit')
+    expect(await screen.findByRole('link',{name:/View post/i})).toBeInTheDocument()
+    expect(screen.queryByRole('button',{name:'Retry'})).not.toBeInTheDocument()
+    expect(screen.queryByRole('button',{name:'Approve & submit'})).not.toBeInTheDocument()
+    expect(screen.getAllByText('Post confirmed').length).toBeGreaterThan(0)
+  })
+
+  it.each([true,false])('requires current readiness for remaining-platform approval (configured=%s)',async configured=>{
+    const current={...baseItem,updated_at:'2026-09-08T14:00:00Z',target_platforms:['linkedin','facebook'],rag_context:{source:'manual',platform_submission_gate:{status:'partially_submitted',confirmed_platforms:{linkedin:'confirmed'},platforms:['linkedin']}},publishes:[{id:'li',platform:'linkedin',status:'published',platform_post_id:'confirmed'},{id:'fb',platform:'facebook',status:'pending'}]}
+    vi.stubGlobal('fetch',vi.fn(async(input:RequestInfo|URL)=>({ok:true,json:async()=>String(input).endsWith('/config')?{configs:configured?[{platform:'facebook',is_active:true,credentials:{page_access_token:'fixture',page_id:'fixture'},settings:{}}]:[]}:String(input)==='/api/admin/social-content/social-1'?{item:current}:{items:[]}})))
+    renderAtStep('submit')
+    await screen.findByText('Platform Submission Path')
+    const action=screen.queryByRole('button',{name:'Approve & submit'})
+    if(configured){
+      expect(action).toBeEnabled()
+      fireEvent.click(action!)
+      const dialog=await screen.findByRole('dialog',{name:'Confirm public submission'})
+      expect(dialog).toHaveTextContent('Facebook · Publishes publicly now')
+      expect(dialog).not.toHaveTextContent('LinkedIn · Publishes publicly now')
+    }else expect(action).not.toBeInTheDocument()
+    expect(screen.queryByRole('button',{name:'Submit to Facebook'})).not.toBeInTheDocument()
+    expect(screen.queryByRole('button',{name:'Retry'})).not.toBeInTheDocument()
+  })
+
+  it('keeps an unavailable provider outcome locked even when refresh returns the old row',async()=>{
+    const current={...baseItem,updated_at:'2026-09-08T12:00:00Z',rag_context:{source:'manual',platform_submission_gate:{status:'approved',platforms:['linkedin']}},publishes:[{id:'receipt',platform:'linkedin',status:'pending',platform_post_id:null,platform_post_url:null}]}
+    let writes=0
+    vi.stubGlobal('fetch',vi.fn(async(input:RequestInfo|URL,init?:RequestInit)=>{
+      if(init?.method==='POST'){writes++;throw new Error('Connection ended before outcome')}
+      if(String(input).endsWith('/config'))return {ok:true,json:async()=>({configs:[{platform:'linkedin',is_active:true,credentials:{access_token:'fixture',author_urn:'fixture'},settings:{}}]})}
+      return {ok:true,json:async()=>String(input)==='/api/admin/social-content/social-1'?{item:current}:{items:[],configs:[]}}
+    }))
+    renderAtStep('submit')
+    fireEvent.click(await screen.findByRole('button',{name:'Submit to LinkedIn'}))
+    fireEvent.click(await screen.findByRole('button',{name:'Confirm and publish'}))
+    await waitFor(()=>expect(screen.queryByRole('button',{name:'Submit to LinkedIn'})).not.toBeInTheDocument())
+    expect(await screen.findByRole('button',{name:'Refresh evidence'})).toBeEnabled()
+    expect(screen.getAllByText('Outcome unavailable · reconcile receipts before another attempt').length).toBeGreaterThan(0)
+    expect(writes).toBe(1)
+  })
+
+  it.each(['failed','published','queued','unknown'])('reconciles %s receipts without provider IDs on reload',async status=>{
+    const current={...baseItem,rag_context:{source:'manual'},publishes:[{id:'receipt',platform:'linkedin',status,platform_post_id:null,platform_post_url:null}]}
+    vi.stubGlobal('fetch',vi.fn(async(input:RequestInfo|URL)=>({ok:true,json:async()=>String(input)==='/api/admin/social-content/social-1'?{item:current}:{items:[],configs:[]}})))
+    renderAtStep('status')
+    const card=await screen.findByLabelText('LinkedIn publication status')
+    expect(within(card).getByRole('heading',{name:'Outcome uncertain · reconcile receipts'})).toBeInTheDocument()
+    expect(within(card).queryByText('Post confirmed')).not.toBeInTheDocument()
+    expect(within(card).queryByRole('button',{name:'Retry'})).not.toBeInTheDocument()
+    expect(within(card).getByRole('button',{name:'Refresh evidence'})).toBeEnabled()
+    const details=within(card).getByText('Receipt details').closest('details')
+    expect(details).not.toHaveAttribute('open')
+    expect(details).toHaveTextContent('Owner')
+    expect(details).toHaveTextContent('Waiting on you?')
+  })
+
+  it('lands on the selected copy gate when the real page receives delayed item data',async()=>{
+    window.history.replaceState({},'', '/admin/social-content/social-1?step=copy#social-copy-gate')
+    mocks.search='step=copy'
+    const originalScroll=HTMLElement.prototype.scrollIntoView
+    const scroll=vi.fn()
+    HTMLElement.prototype.scrollIntoView=scroll
+    let resolveItem!: (value: unknown) => void
+    const delayed=new Promise(resolve=>{resolveItem=resolve})
+    vi.stubGlobal('fetch',vi.fn(async(input:RequestInfo|URL)=>({ok:true,json:async()=>String(input)==='/api/admin/social-content/social-1'?await delayed:{items:[],configs:[]}})))
+    try{
+      render(<SocialContentDetailRoute />)
+      expect(scroll).not.toHaveBeenCalled()
+      resolveItem({item:{...baseItem,status:'draft'}})
+      await screen.findByRole('region',{name:'Copy review decision gate'})
+      await waitFor(()=>expect(scroll).toHaveBeenCalledWith({behavior:'instant',block:'start'}))
+      expect(document.activeElement?.id).toBe('social-copy-gate')
+    }finally{
+      HTMLElement.prototype.scrollIntoView=originalScroll
+      window.history.replaceState({},'', '/')
+    }
+  })
+
 })

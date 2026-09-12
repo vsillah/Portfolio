@@ -9,6 +9,12 @@ import { buildStaleSweepResult, isAgentRunStale } from './agent-stale-runs'
 const now = new Date('2026-04-30T12:00:00.000Z')
 
 describe('isAgentRunStale', () => {
+  it('preserves uncertain notification outcomes for reconciliation', () => {
+    expect(isAgentRunStale({ kind: 'slack_mobile_notification', status: 'running', started_at: '2026-04-30T10:00:00.000Z', stale_after: null }, now)).toBe(false)
+  })
+  it('leaves receipt outcomes to fenced recovery', () => {
+    expect(isAgentRunStale({ kind: 'slack_action_receipt', status: 'running', started_at: '2026-04-30T10:00:00.000Z', stale_after: null }, now)).toBe(false)
+  })
   it('marks queued and running runs stale after the default threshold', () => {
     expect(isAgentRunStale({
       status: 'running',

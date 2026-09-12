@@ -308,11 +308,11 @@ function DashboardContent() {
   })
 
   const funnelSteps = [
-    { label: 'Sourced', value: activeFunnel.total, icon: Search, color: 'text-radiant-gold' },
+    { label: 'Sourced', value: activeFunnel.total, icon: Search, color: 'text-radiant-gold', status: 'all' },
     { label: 'Enriched', value: activeFunnel.enriched, icon: Zap, color: 'text-radiant-gold' },
-    { label: 'Contacted', value: activeFunnel.contacted, icon: Mail, color: 'text-yellow-400' },
-    { label: 'Replied', value: activeFunnel.replied, icon: MessageSquare, color: 'text-green-400' },
-    { label: 'Booked', value: activeFunnel.booked, icon: Calendar, color: 'text-emerald-400' },
+    { label: 'Contacted', value: activeFunnel.contacted, icon: Mail, color: 'text-yellow-400', status: 'sequence_active' },
+    { label: 'Replied', value: activeFunnel.replied, icon: MessageSquare, color: 'text-green-400', status: 'replied' },
+    { label: 'Booked', value: activeFunnel.booked, icon: Calendar, color: 'text-emerald-400', status: 'booked' },
   ]
 
   return (
@@ -651,35 +651,43 @@ function DashboardContent() {
           </h2>
           <div className="flex items-center gap-2">
             {funnelSteps.map((step, index) => {
-              const statusMap: Record<string, string> = {
-                'Sourced': 'all',
-                'Enriched': 'all', // enriched is determined by lead_score not null
-                'Contacted': 'sequence_active',
-                'Replied': 'replied',
-                'Booked': 'booked'
-              }
-              const statusFilter = statusMap[step.label] || 'all'
               const filterParam = tempFilter !== 'all' ? `&filter=${tempFilter}` : ''
+              const href = step.status
+                ? `/admin/outreach?tab=leads${filterParam}${step.status !== 'all' ? `&status=${step.status}` : ''}`
+                : null
+              const stepCard = (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  className={`flex-1 rounded-lg border p-4 text-center transition-colors ${
+                    href
+                      ? 'admin-console-card admin-console-interactive cursor-pointer hover:bg-silicon-slate hover:border-radiant-gold/50'
+                      : 'admin-console-metric'
+                  }`}
+                >
+                  <step.icon size={24} className={`mx-auto mb-2 ${step.color}`} />
+                  <div className="text-2xl font-bold">{step.value}</div>
+                  <div className="mt-1 text-xs text-muted-foreground">{step.label}</div>
+                  {index > 0 && step.value > 0 && funnelSteps[index - 1].value > 0 && (
+                    <div className="mt-1 text-xs text-muted-foreground">
+                      {Math.round((step.value / funnelSteps[index - 1].value) * 100)}%
+                    </div>
+                  )}
+                </motion.div>
+              )
               
               return (
                 <div key={step.label} className="flex items-center flex-1">
-                  <Link href={`/admin/outreach?tab=leads${filterParam}${statusFilter !== 'all' ? `&status=${statusFilter}` : ''}`} className="flex-1">
-                    <motion.div
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                      className="flex-1 admin-console-card rounded-lg border p-4 text-center cursor-pointer hover:bg-silicon-slate hover:border-radiant-gold/50 transition-all"
-                    >
-                      <step.icon size={24} className={`mx-auto mb-2 ${step.color}`} />
-                      <div className="text-2xl font-bold">{step.value}</div>
-                      <div className="text-xs text-muted-foreground mt-1">{step.label}</div>
-                      {index > 0 && step.value > 0 && funnelSteps[index - 1].value > 0 && (
-                        <div className="text-xs text-muted-foreground mt-1">
-                          {Math.round((step.value / funnelSteps[index - 1].value) * 100)}%
-                        </div>
-                      )}
-                    </motion.div>
-                  </Link>
+                  {href ? (
+                    <Link href={href} className="flex-1" aria-label={`Open ${step.label.toLowerCase()} leads`}>
+                      {stepCard}
+                    </Link>
+                  ) : (
+                    <div className="flex-1" aria-label={`${step.label} leads metric`}>
+                      {stepCard}
+                    </div>
+                  )}
                   {index < funnelSteps.length - 1 && (
                     <ArrowRight size={16} className="text-muted-foreground mx-1 flex-shrink-0" />
                   )}

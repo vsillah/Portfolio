@@ -80,6 +80,30 @@ const REASON_LABELS: Record<SuggestedReason, string> = {
 /** Shown on hover of the run cancel (X) control only. */
 const CANCEL_BUTTON_HELP =
   'Stops this screen from waiting. The model may still finish in the background and the draft can show up in the queue.'
+const GMAIL_DRAFT_AUTHORIZATION = 'create_gmail_draft_for_recipient'
+const GMAIL_DRAFT_CHANNEL = 'email'
+
+export function buildGmailDraftAuthorizationPayload(input: {
+  leadId: number
+  recipientEmail?: string | null
+  draftId: string
+}) {
+  return {
+    createGmailDraft: true,
+    draftAuthorization: GMAIL_DRAFT_AUTHORIZATION,
+    idempotencyKey: [
+      'warm-outreach',
+      'gmail-draft',
+      'v1',
+      input.draftId,
+      String(input.leadId),
+      GMAIL_DRAFT_CHANNEL,
+    ].join(':'),
+    contactSubmissionId: input.leadId,
+    recipientEmail: input.recipientEmail,
+    channel: GMAIL_DRAFT_CHANNEL,
+  }
+}
 
 function timeAgo(date: string): string {
   const ms = Date.now() - new Date(date).getTime()
@@ -589,11 +613,29 @@ export function OutreachEmailGenerateRow({
           onToast?.('Please sign in to save this Gmail draft.')
           return
         }
+        if (!lead.email?.trim()) {
+          onToast?.('This contact has no email address for a Gmail draft.')
+          return
+        }
+        const confirmed = window.confirm(
+          `Create a Gmail draft for ${lead.email}? This creates a draft only; it does not send email.`,
+        )
+        if (!confirmed) {
+          return
+        }
         const res = await fetch(`/api/admin/outreach/${draft.id}/gmail-user-draft`, {
           method: 'POST',
           headers: {
             Authorization: `Bearer ${session.access_token}`,
+            'Content-Type': 'application/json',
           },
+          body: JSON.stringify(
+            buildGmailDraftAuthorizationPayload({
+              leadId: lead.id,
+              recipientEmail: lead.email,
+              draftId: draft.id,
+            }),
+          ),
         })
         const data = (await res.json().catch(() => ({}))) as {
           error?: string
@@ -611,7 +653,7 @@ export function OutreachEmailGenerateRow({
         setGmailDraftSavingId(null)
       }
     },
-    [gmailDraftSavingId, onSettled, onToast],
+    [gmailDraftSavingId, lead.email, lead.id, onSettled, onToast],
   )
 
   const runGmailDraftSmoke = useCallback(
@@ -1426,8 +1468,8 @@ export function OutreachEmailGenerateRow({
                                       void saveToGmailDraft(r)
                                     }}
                                     disabled={gmailDraftSavingId != null || gmailDraftSmokeId != null}
-                                    title="Save this email as a draft in the connected Gmail account. This does not send."
-                                    aria-label={`Save ${r.subject ?? 'this draft'} to connected Gmail drafts`}
+                                    title="Create a per-recipient Gmail draft in the connected account. This does not send."
+                                    aria-label={`Create per-recipient Gmail draft for ${r.subject ?? 'this draft'}`}
                                     className="mt-1 shrink-0 rounded p-1 text-muted-foreground transition-colors hover:bg-silicon-slate/40 hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50"
                                   >
                                     {gmailDraftSavingId === r.id ? (

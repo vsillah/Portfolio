@@ -1,0 +1,732 @@
+{
+  "version": "warm-created-internal-actions-qa/v1",
+  "createdAt": "2026-09-04T22:53:27.339Z",
+  "qaUrl": "http://127.0.0.1:3068/admin/outreach?tab=leads&filter=warm&qa=warm-planning-backlog",
+  "normalListUrl": "http://127.0.0.1:3068/admin/outreach?tab=leads&filter=warm",
+  "scenario": "Warm outreach operator opens Planning, selects a candidate, uses the in-place action drawer, and verifies internal Gmail draft/manual-social records still stay inside existing Portfolio surfaces.",
+  "expectedBehavior": [
+    "The normal warm lead list remains separate and does not show the planning drawer.",
+    "Selecting a Planning candidate opens an in-place action drawer before the operator is routed back into the workroom.",
+    "The action drawer shows selected candidate, why it is in the backlog, current safest action, blockers, action path, and one primary next action.",
+    "The drawer primary action visibly routes to the existing Gmail draft review or workroom path, or presents the disabled/blocked reason.",
+    "Planning backlog shows All, Ready Gmail, Manual, Relationship, Responses, Blocked, and SMS parked as compact count filters without standalone number tiles.",
+    "Clicking filter chips visibly drills into the matching candidate set.",
+    "Created Gmail draft records surface as compact Review draft actions in the warm lead list.",
+    "Warm action status pills keep the human-review state centered and single-line next to a usable Go to action CTA at 360, 390, 430, and 1440 widths.",
+    "Review draft opens the existing outreach workroom, shows the saved queue body, recipient context, relationship basis, and one primary Copy draft CTA.",
+    "Missing linked email-message state stays recoverable in context by reviewing the saved queue body instead of routing to Email Center.",
+    "Created manual-social handoff tasks surface as compact Record evidence actions in the warm lead list and selected workroom.",
+    "Compact filter labels and counts do not overlap at mobile widths 360, 390, and 430.",
+    "The primary CTA prepares a review-only batch and the planned draft action tray appears above the long review context.",
+    "The selected batch can create internal Portfolio Gmail draft and manual-social handoff records from the existing workroom.",
+    "The action tray shows record-created state and keeps no-provider/no-send boundary text visible.",
+    "The internal record path stays inside existing Portfolio surfaces; no standalone queue, calendar, or dashboard is created.",
+    "The selected-contact workroom still renders the manual social handoff panel.",
+    "Mobile widths 360, 390, and 430 show the planning CTA and planned action tray with no horizontal overflow."
+  ],
+  "decisionGate": "Internal Portfolio records only. Gmail provider draft creation, Slack dispatch, external sends, SMS/Telnyx, provider activation, and manual-evidence recording remain separate gates.",
+  "externalActionBoundary": "Synthetic/local QA only; no Gmail, Slack, LinkedIn, Facebook, Telnyx/SMS, n8n, scheduling, publishing, provider calls, or production-data mutation.",
+  "screenshots": {
+    "mobile360": "/Users/vambahsillah/.codex/worktrees/f1c6/Portfolio/docs/warm-outreach-qa/warm-created-internal-actions-mobile-360.png",
+    "mobile390": "/Users/vambahsillah/.codex/worktrees/f1c6/Portfolio/docs/warm-outreach-qa/warm-created-internal-actions-mobile-390.png",
+    "mobile430": "/Users/vambahsillah/.codex/worktrees/f1c6/Portfolio/docs/warm-outreach-qa/warm-created-internal-actions-mobile-430.png",
+    "desktop1440": "/Users/vambahsillah/.codex/worktrees/f1c6/Portfolio/docs/warm-outreach-qa/warm-created-internal-actions-desktop-1440.png"
+  },
+  "viewportRuns": [
+    {
+      "name": "mobile360",
+      "viewport": {
+        "width": 360,
+        "height": 844
+      },
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/f1c6/Portfolio/docs/warm-outreach-qa/warm-created-internal-actions-mobile-360.png",
+      "checks": {
+        "hasPlanningBacklog": true,
+        "hasCompactFilterControls": true,
+        "overlappingFilterControls": [],
+        "filterTextOverflow": false,
+        "filterLabelCountOverlap": false,
+        "hasSafeCta": true,
+        "hasBoundary": true,
+        "viewport": {
+          "clientWidth": 360,
+          "scrollWidth": 360
+        },
+        "horizontalOverflow": false
+      },
+      "drawerChecks": {
+        "visible": true,
+        "hasWhy": true,
+        "hasSafestAction": true,
+        "hasBlockers": true,
+        "hasActionPath": true,
+        "primaryActionVisible": true,
+        "primaryActionLabel": "Review draft for Amina Batchready"
+      },
+      "internalActionChecks": {
+        "actionCount": 0,
+        "hasGmailAction": true,
+        "hasManualAction": false,
+        "hasWorkroomAction": false,
+        "viewport": {
+          "clientWidth": 360,
+          "scrollWidth": 360
+        },
+        "horizontalOverflow": false
+      },
+      "collapsedTextChecks": {
+        "collapsed": [],
+        "checkedCount": 2,
+        "viewport": {
+          "width": 360,
+          "height": 844
+        }
+      },
+      "warmActionClusterPolish": {
+        "chipVisible": true,
+        "chipText": "Readiness: Human review",
+        "chipTitle": "Readiness: Needs human review",
+        "chipWidth": 242,
+        "chipHeight": 28,
+        "chipCentered": true,
+        "ctaVisible": true,
+        "ctaWidth": 242,
+        "ctaHeight": 40,
+        "viewport": {
+          "clientWidth": 360,
+          "scrollWidth": 360
+        },
+        "humanReviewChipSingleLine": true,
+        "horizontalOverflow": false
+      },
+      "gmailDraftReviewChecks": {
+        "visible": true,
+        "hasDraftOnlyState": true,
+        "hasSavedBody": true,
+        "hasRecipientContext": true,
+        "hasRelationshipBasis": true,
+        "hasMissingMessageRecovery": true,
+        "hasBoundary": true,
+        "primaryCtaCount": 1,
+        "viewport": {
+          "clientWidth": 360,
+          "scrollWidth": 360
+        },
+        "horizontalOverflow": false
+      },
+      "actionChecks": {
+        "hasActionTray": true,
+        "hasCompactRecommendations": true,
+        "hasMixedChannels": true,
+        "hasExecutionReceipt": true,
+        "hasInternalRecordBoundary": true,
+        "primaryCtaAboveGmailPlan": true,
+        "hasNoEgressBoundary": true,
+        "primaryControlText": "Records created",
+        "viewport": {
+          "clientWidth": 360,
+          "scrollWidth": 360
+        },
+        "horizontalOverflow": false
+      },
+      "externalRequests": []
+    },
+    {
+      "name": "mobile390",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/f1c6/Portfolio/docs/warm-outreach-qa/warm-created-internal-actions-mobile-390.png",
+      "checks": {
+        "hasPlanningBacklog": true,
+        "hasCompactFilterControls": true,
+        "overlappingFilterControls": [],
+        "filterTextOverflow": false,
+        "filterLabelCountOverlap": false,
+        "hasSafeCta": true,
+        "hasBoundary": true,
+        "viewport": {
+          "clientWidth": 390,
+          "scrollWidth": 390
+        },
+        "horizontalOverflow": false
+      },
+      "drawerChecks": {
+        "visible": true,
+        "hasWhy": true,
+        "hasSafestAction": true,
+        "hasBlockers": true,
+        "hasActionPath": true,
+        "primaryActionVisible": true,
+        "primaryActionLabel": "Review draft for Amina Batchready"
+      },
+      "internalActionChecks": {
+        "actionCount": 0,
+        "hasGmailAction": true,
+        "hasManualAction": false,
+        "hasWorkroomAction": false,
+        "viewport": {
+          "clientWidth": 390,
+          "scrollWidth": 390
+        },
+        "horizontalOverflow": false
+      },
+      "collapsedTextChecks": {
+        "collapsed": [],
+        "checkedCount": 2,
+        "viewport": {
+          "width": 390,
+          "height": 844
+        }
+      },
+      "warmActionClusterPolish": {
+        "chipVisible": true,
+        "chipText": "Readiness: Human review",
+        "chipTitle": "Readiness: Needs human review",
+        "chipWidth": 133,
+        "chipHeight": 28,
+        "chipCentered": true,
+        "ctaVisible": true,
+        "ctaWidth": 272,
+        "ctaHeight": 40,
+        "viewport": {
+          "clientWidth": 390,
+          "scrollWidth": 390
+        },
+        "humanReviewChipSingleLine": true,
+        "horizontalOverflow": false
+      },
+      "gmailDraftReviewChecks": {
+        "visible": true,
+        "hasDraftOnlyState": true,
+        "hasSavedBody": true,
+        "hasRecipientContext": true,
+        "hasRelationshipBasis": true,
+        "hasMissingMessageRecovery": true,
+        "hasBoundary": true,
+        "primaryCtaCount": 1,
+        "viewport": {
+          "clientWidth": 390,
+          "scrollWidth": 390
+        },
+        "horizontalOverflow": false
+      },
+      "actionChecks": {
+        "hasActionTray": true,
+        "hasCompactRecommendations": true,
+        "hasMixedChannels": true,
+        "hasExecutionReceipt": true,
+        "hasInternalRecordBoundary": true,
+        "primaryCtaAboveGmailPlan": true,
+        "hasNoEgressBoundary": true,
+        "primaryControlText": "Records created",
+        "viewport": {
+          "clientWidth": 390,
+          "scrollWidth": 390
+        },
+        "horizontalOverflow": false
+      },
+      "externalRequests": []
+    },
+    {
+      "name": "mobile430",
+      "viewport": {
+        "width": 430,
+        "height": 844
+      },
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/f1c6/Portfolio/docs/warm-outreach-qa/warm-created-internal-actions-mobile-430.png",
+      "checks": {
+        "hasPlanningBacklog": true,
+        "hasCompactFilterControls": true,
+        "overlappingFilterControls": [],
+        "filterTextOverflow": false,
+        "filterLabelCountOverlap": false,
+        "hasSafeCta": true,
+        "hasBoundary": true,
+        "viewport": {
+          "clientWidth": 430,
+          "scrollWidth": 430
+        },
+        "horizontalOverflow": false
+      },
+      "drawerChecks": {
+        "visible": true,
+        "hasWhy": true,
+        "hasSafestAction": true,
+        "hasBlockers": true,
+        "hasActionPath": true,
+        "primaryActionVisible": true,
+        "primaryActionLabel": "Review draft for Amina Batchready"
+      },
+      "internalActionChecks": {
+        "actionCount": 0,
+        "hasGmailAction": true,
+        "hasManualAction": false,
+        "hasWorkroomAction": false,
+        "viewport": {
+          "clientWidth": 430,
+          "scrollWidth": 430
+        },
+        "horizontalOverflow": false
+      },
+      "collapsedTextChecks": {
+        "collapsed": [],
+        "checkedCount": 2,
+        "viewport": {
+          "width": 430,
+          "height": 844
+        }
+      },
+      "warmActionClusterPolish": {
+        "chipVisible": true,
+        "chipText": "Readiness: Human review",
+        "chipTitle": "Readiness: Needs human review",
+        "chipWidth": 153,
+        "chipHeight": 28,
+        "chipCentered": true,
+        "ctaVisible": true,
+        "ctaWidth": 312,
+        "ctaHeight": 40,
+        "viewport": {
+          "clientWidth": 430,
+          "scrollWidth": 430
+        },
+        "humanReviewChipSingleLine": true,
+        "horizontalOverflow": false
+      },
+      "gmailDraftReviewChecks": {
+        "visible": true,
+        "hasDraftOnlyState": true,
+        "hasSavedBody": true,
+        "hasRecipientContext": true,
+        "hasRelationshipBasis": true,
+        "hasMissingMessageRecovery": true,
+        "hasBoundary": true,
+        "primaryCtaCount": 1,
+        "viewport": {
+          "clientWidth": 430,
+          "scrollWidth": 430
+        },
+        "horizontalOverflow": false
+      },
+      "actionChecks": {
+        "hasActionTray": true,
+        "hasCompactRecommendations": true,
+        "hasMixedChannels": true,
+        "hasExecutionReceipt": true,
+        "hasInternalRecordBoundary": true,
+        "primaryCtaAboveGmailPlan": true,
+        "hasNoEgressBoundary": true,
+        "primaryControlText": "Records created",
+        "viewport": {
+          "clientWidth": 430,
+          "scrollWidth": 430
+        },
+        "horizontalOverflow": false
+      },
+      "externalRequests": []
+    },
+    {
+      "name": "desktop1440",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/f1c6/Portfolio/docs/warm-outreach-qa/warm-created-internal-actions-desktop-1440.png",
+      "checks": {
+        "hasPlanningBacklog": true,
+        "hasCompactFilterControls": true,
+        "overlappingFilterControls": [],
+        "filterTextOverflow": false,
+        "filterLabelCountOverlap": false,
+        "hasSafeCta": true,
+        "hasBoundary": true,
+        "viewport": {
+          "clientWidth": 1440,
+          "scrollWidth": 1440
+        },
+        "horizontalOverflow": false
+      },
+      "drawerChecks": {
+        "visible": true,
+        "hasWhy": true,
+        "hasSafestAction": true,
+        "hasBlockers": true,
+        "hasActionPath": true,
+        "primaryActionVisible": true,
+        "primaryActionLabel": "Review draft for Amina Batchready"
+      },
+      "internalActionChecks": {
+        "actionCount": 0,
+        "hasGmailAction": true,
+        "hasManualAction": false,
+        "hasWorkroomAction": false,
+        "viewport": {
+          "clientWidth": 1440,
+          "scrollWidth": 1440
+        },
+        "horizontalOverflow": false
+      },
+      "collapsedTextChecks": {
+        "collapsed": [],
+        "checkedCount": 5,
+        "viewport": {
+          "width": 1440,
+          "height": 900
+        }
+      },
+      "warmActionClusterPolish": {
+        "chipVisible": true,
+        "chipText": "Readiness: Human review",
+        "chipTitle": "Readiness: Needs human review",
+        "chipWidth": 250,
+        "chipHeight": 28,
+        "chipCentered": true,
+        "ctaVisible": true,
+        "ctaWidth": 144,
+        "ctaHeight": 40,
+        "viewport": {
+          "clientWidth": 1440,
+          "scrollWidth": 1440
+        },
+        "humanReviewChipSingleLine": true,
+        "horizontalOverflow": false
+      },
+      "gmailDraftReviewChecks": {
+        "visible": true,
+        "hasDraftOnlyState": true,
+        "hasSavedBody": true,
+        "hasRecipientContext": true,
+        "hasRelationshipBasis": true,
+        "hasMissingMessageRecovery": true,
+        "hasBoundary": true,
+        "primaryCtaCount": 1,
+        "viewport": {
+          "clientWidth": 1440,
+          "scrollWidth": 1440
+        },
+        "horizontalOverflow": false
+      },
+      "actionChecks": {
+        "hasActionTray": true,
+        "hasCompactRecommendations": true,
+        "hasMixedChannels": true,
+        "hasExecutionReceipt": true,
+        "hasInternalRecordBoundary": true,
+        "primaryCtaAboveGmailPlan": true,
+        "hasNoEgressBoundary": true,
+        "primaryControlText": "Records created",
+        "viewport": {
+          "clientWidth": 1440,
+          "scrollWidth": 1440
+        },
+        "horizontalOverflow": false
+      },
+      "externalRequests": []
+    }
+  ],
+  "normalListChecks": {
+    "planningBacklogVisible": false,
+    "planningDrawerVisible": false,
+    "planningTabVisible": true,
+    "viewport": {
+      "clientWidth": 1280,
+      "scrollWidth": 1280
+    },
+    "horizontalOverflow": false
+  },
+  "desktopDrawerChecks": {
+    "visible": true,
+    "hasWhy": true,
+    "hasSafestAction": true,
+    "hasBlockers": true,
+    "hasActionPath": true,
+    "primaryActionVisible": true,
+    "primaryActionLabel": "Review draft for Amina Batchready"
+  },
+  "desktopGmailDraftReviewChecks": {
+    "visible": true,
+    "hasDraftOnlyState": true,
+    "hasSavedBody": true,
+    "hasRecipientContext": true,
+    "hasRelationshipBasis": true,
+    "hasMissingMessageRecovery": true,
+    "hasBoundary": true,
+    "primaryCtaCount": 1,
+    "viewport": {
+      "clientWidth": 1280,
+      "scrollWidth": 1280
+    },
+    "horizontalOverflow": false
+  },
+  "desktopInternalActionChecks": {
+    "actionCount": 2,
+    "hasGmailAction": true,
+    "hasManualAction": true,
+    "hasWorkroomAction": true,
+    "viewport": {
+      "clientWidth": 1280,
+      "scrollWidth": 1280
+    },
+    "horizontalOverflow": false
+  },
+  "desktopCollapsedTextChecks": {
+    "collapsed": [],
+    "checkedCount": 15,
+    "viewport": {
+      "width": 1280,
+      "height": 720
+    }
+  },
+  "desktopWarmActionClusterPolish": {
+    "chipVisible": true,
+    "chipText": "Readiness: Human review",
+    "chipTitle": "Readiness: Needs human review",
+    "chipWidth": 210,
+    "chipHeight": 28,
+    "chipCentered": true,
+    "ctaVisible": true,
+    "ctaWidth": 144,
+    "ctaHeight": 40,
+    "viewport": {
+      "clientWidth": 1280,
+      "scrollWidth": 1280
+    },
+    "humanReviewChipSingleLine": true,
+    "horizontalOverflow": false
+  },
+  "mp4Path": "/Users/vambahsillah/.codex/worktrees/f1c6/Portfolio/docs/warm-outreach-qa/warm-created-internal-actions-qa.mp4",
+  "rawVideoPath": "/Users/vambahsillah/.codex/worktrees/f1c6/Portfolio/test-results/warm-planned-draft-actions-qa/source/e51bda0dde7980b54adf121d73502cd9.webm",
+  "externalRequests": [],
+  "localRequests": [
+    {
+      "method": "GET",
+      "pathname": "/api/user/profile"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/user/profile"
+    },
+    {
+      "method": "GET",
+      "pathname": "/auth/v1/user"
+    },
+    {
+      "method": "GET",
+      "pathname": "/auth/v1/user"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/value-evidence/workflow-status"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/outreach/leads"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/value-evidence/workflow-status"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/outreach/leads"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/user/profile"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/user/profile"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/user/profile"
+    },
+    {
+      "method": "GET",
+      "pathname": "/auth/v1/user"
+    },
+    {
+      "method": "GET",
+      "pathname": "/auth/v1/user"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/value-evidence/workflow-status"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/outreach/leads"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/value-evidence/workflow-status"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/outreach/leads"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/user/profile"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/user/profile"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/user/profile"
+    },
+    {
+      "method": "GET",
+      "pathname": "/auth/v1/user"
+    },
+    {
+      "method": "GET",
+      "pathname": "/auth/v1/user"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/value-evidence/workflow-status"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/outreach/leads"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/value-evidence/workflow-status"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/outreach/leads"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/user/profile"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/meetings"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/meetings"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/outreach/leads"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/chat-escalations"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/sales/contact-meetings"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/meeting-action-tasks"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/outreach/leads/101/relationship-packet"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/meetings"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/meetings"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/outreach/drafts/qa-outreach-queue-existing-101/inputs"
+    },
+    {
+      "method": "POST",
+      "pathname": "/api/admin/outreach/batch-review"
+    },
+    {
+      "method": "POST",
+      "pathname": "/api/admin/outreach/batch-review"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/user/profile"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/user/profile"
+    },
+    {
+      "method": "GET",
+      "pathname": "/auth/v1/user"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/value-evidence/workflow-status"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/outreach/leads"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/value-evidence/workflow-status"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/outreach/leads"
+    },
+    {
+      "method": "GET",
+      "pathname": "/auth/v1/user"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/user/profile"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/meetings"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/meetings"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/outreach/leads"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/chat-escalations"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/sales/contact-meetings"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/meeting-action-tasks"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/outreach/leads/103/relationship-packet"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/meetings"
+    },
+    {
+      "method": "GET",
+      "pathname": "/api/admin/meetings"
+    }
+  ]
+}

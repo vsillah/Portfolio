@@ -103,6 +103,14 @@ function roadmapWith(overrides: RoadmapOverrides): RoadmapClientView {
 }
 
 describe('AiOpsRoadmapSection', () => {
+  it('labels the company owner without changing the stored enum or customer text', () => {
+    const namedRoadmap = roadmapWith({ nextActions: [{ title: 'Customer supplied AmaduTown wording', ownerType: 'amadutown', priority: 'high', dueDate: null }] })
+    render(<AiOpsRoadmapSection roadmap={namedRoadmap} />)
+    expect(screen.getByText('AmaduTown, LLC')).toBeInTheDocument()
+    expect(screen.getByText('Customer supplied AmaduTown wording')).toBeInTheDocument()
+    expect(namedRoadmap.nextActions[0].ownerType).toBe('amadutown')
+  })
+
   it('surfaces the read-only roadmap projection status', () => {
     render(<AiOpsRoadmapSection roadmap={roadmap} />)
 

@@ -31,7 +31,9 @@ vi.mock('@/lib/heygen-config', () => ({
   getHeyGenConfigByType: mocks.getHeyGenConfigByType,
 }))
 
-import { POST } from './route'
+import { POST as routePost } from './route'
+import { withVersionedQueueMock, queueWriteScenario } from '@/lib/social-queue-write.test-fixtures'
+const POST: typeof routePost = (...args) => withVersionedQueueMock(mocks.from, () => routePost(...args))
 
 function request(body: Record<string, unknown>) {
   return new NextRequest('http://localhost/api/admin/social-content/social-1/prepare-avatar-video', {
@@ -322,7 +324,8 @@ describe('POST /api/admin/social-content/[id]/prepare-avatar-video', () => {
     expect(jobBuilder.insert).not.toHaveBeenCalled()
   })
 
-  it('creates one HeyGen job and stores a Social Content projection link', async () => {
+  it.each(['normal', 'locked', 'race'] as const)('creates one HeyGen job and stores a Social Content projection link (%s)', async mode => {
+    queueWriteScenario.mode = mode
     const queueBuilder = queueFetchBuilder(socialItem())
     const jobBuilder = jobInsertBuilder()
     mocks.from.mockImplementation((table: string) => {
@@ -334,6 +337,7 @@ describe('POST /api/admin/social-content/[id]/prepare-avatar-video', () => {
     const response = await POST(request({ renderApproval: buildVideoRenderApproval(true) }), { params: { id: 'social-1' } })
     const body = await response.json()
 
+    if (mode !== 'normal') { expect(response.status).toBe(409); return }
     expect(response.status).toBe(200)
     expect(body).toMatchObject({
       success: true,

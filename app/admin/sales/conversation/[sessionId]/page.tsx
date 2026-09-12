@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useCallback, useMemo, useRef, type Dispatch, type SetStateAction } from 'react';
 import Link from 'next/link';
+import MilestonePayments from '@/components/proposals/MilestonePayments';
+import AttachProposalDocumentModal from '@/components/admin/sales/AttachProposalDocumentModal';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { getBackUrl } from '@/lib/admin-return-context';
 import { useAuth } from '@/components/AuthProvider';
@@ -35,6 +37,7 @@ import { OfferStack, ContentOfferCard } from '@/components/admin/sales/OfferCard
 import { DynamicScriptFlow } from '@/components/admin/sales/DynamicScriptFlow';
 import { ValueEvidencePanel } from '@/components/admin/sales/ValueEvidencePanel';
 import { ValueEvidenceCallPanel } from '@/components/admin/sales/ValueEvidenceCallPanel';
+import { useSavedProposal } from '@/hooks/useSavedProposal';
 import { ProposalModal } from '@/components/admin/sales/ProposalModal';
 import { ViewDiagnosticLink } from '@/components/admin/ViewDiagnosticLink';
 import { useAdminReturnPath } from '@/lib/hooks/useAdminReturnPath';
@@ -147,11 +150,17 @@ export default function ConversationPage() {
   const [showSaveAsBundle, setShowSaveAsBundle] = useState(false);
   const [showProposalDrawer, setShowProposalDrawer] = useState(false);
   const [valueReportId, setValueReportId] = useState<string | null>(null);
+  const saved = useSavedProposal(sessionId);
   const [currentProposal, setCurrentProposal] = useState<{
     id: string; status: string; proposalLink: string; accessCode?: string;
   } | null>(null);
+  useEffect(() => {
+    const p = saved.proposal;
+    if (p) setCurrentProposal({id:p.id,status:p.status,proposalLink:p.access_code ? `https://amadutown.com/proposal/${encodeURIComponent(p.access_code)}` : '',accessCode:p.access_code || undefined});
+    else setCurrentProposal(null);
+  }, [saved.proposal]);
   const [proposalEmailDraft, setProposalEmailDraft] = useState<ProposalEmailDraft | null>(null);
-  const [proposalDocuments, setProposalDocuments] = useState<Array<{ id: string; document_type: string; title: string; display_order: number; created_at: string }>>([]);
+  const [proposalDocuments, setProposalDocuments] = useState<Array<{ id: string; document_type: string; title: string; display_order: number; created_at: string; binding_role?: string; current_role?: string | null; signedUrl?: string | null; can_delete?: boolean; delete_disabled_reason?: string | null }>>([]);
   const [showAttachDocumentModal, setShowAttachDocumentModal] = useState(false);
   const [collapsedContentGroups, setCollapsedContentGroups] = useState<Set<string>>(new Set());
   const [presentationUrl, setPresentationUrl] = useState<string | null>(null);
@@ -1087,7 +1096,11 @@ export default function ConversationPage() {
 
           {/* ---- Col 3: Offer panel (Suggested/All + bundles, catalog, stack) ---- */}
           <div className="min-h-[280px] min-w-0 flex flex-col xl:min-h-0">
+            {saved.error && <p role="alert" className="p-3 text-sm text-amber-300">{saved.error} <button onClick={saved.refresh} className="underline ml-2">Retry</button></p>}
+            {saved.loading && <p role="status" className="p-2 text-sm text-gray-400">Loading saved proposal…</p>}
             <StreamlinedProductSelection
+              savedProposalAvailable={!!saved.proposal}
+              proposalRecoveryBlocked={saved.loading || !!saved.error}
               products={selectedAsProducts}
               totalPrice={grandSlamOffer.offerPrice}
               totalValue={grandSlamOffer.totalPerceivedValue}
@@ -1307,6 +1320,8 @@ export default function ConversationPage() {
 
       {showProposalDrawer && (
         <ProposalModal
+          savedProposal={saved.proposal}
+          generationDisabled={selectedContent.length === 0 || saved.loading || !!saved.error}
           presentation="drawer"
           heading="Proposal & documents"
           reviewSection={
@@ -1342,6 +1357,7 @@ export default function ConversationPage() {
             return { title: c.title, description: c.description || undefined, content_type: c.content_type, offer_role: c.offer_role || undefined, price: ov?.retail_price ?? c.role_retail_price ?? c.price ?? 0 };
           })}
           onGenerate={async data => {
+            if (saved.loading || saved.error) return;
             if (!authSession?.access_token) return;
             const lineItems = selectedContentDetails.map(c => {
               const k = `${c.content_type}:${c.content_id}`;
@@ -1374,6 +1390,7 @@ export default function ConversationPage() {
             });
             if (response.ok) {
               const result = await response.json();
+              saved.refresh();
               setCurrentProposal({ id: result.proposal.id, status: result.proposal.status, proposalLink: result.proposalLink, accessCode: result.accessCode });
               setProposalEmailDraft(generateProposalEmailDraft({
                 clientName: data.clientName,
@@ -1416,7 +1433,7 @@ export default function ConversationPage() {
   );
 }
 
-type ProposalDocRow = { id: string; document_type: string; title: string; display_order: number; created_at: string };
+type ProposalDocRow = { id: string; document_type: string; title: string; display_order: number; created_at: string; binding_role?: string; current_role?: string | null; signedUrl?: string | null; can_delete?: boolean; delete_disabled_reason?: string | null };
 
 function ConversationProposalReviewSection({
   currentProposal,
@@ -1435,6 +1452,7 @@ function ConversationProposalReviewSection({
   onOpenAttachModal: () => void;
   contactSubmissionId: number | null;
 }) {
+  const [documentError,setDocumentError]=useState<string|null>(null);
   const [proposalLogged, setProposalLogged] = useState(false)
   const [loggingProposal, setLoggingProposal] = useState(false)
 
@@ -1467,22 +1485,20 @@ function ConversationProposalReviewSection({
   }
   return (
     <div className="space-y-3">
-      <p className="text-xs text-gray-500">
-        Adjust line items in the offer column on the left anytime. Scroll down to generate or regenerate a proposal.
-      </p>
+      {accessToken && <MilestonePayments proposalId={currentProposal.id} adminToken={accessToken} />}
       <div className="bg-gray-800/50 rounded-lg p-3 border border-gray-700">
         <span className={`inline-block px-2 py-0.5 text-xs rounded ${currentProposal.status === 'paid' ? 'bg-green-900/50 text-green-300' : currentProposal.status === 'accepted' ? 'bg-blue-900/50 text-blue-300' : 'bg-gray-700 text-gray-300'}`}>{currentProposal.status}</span>
-        <div className="flex items-center gap-2 mt-2">
+        {currentProposal.proposalLink && <div className="flex items-center gap-2 mt-2">
           <input type="text" value={currentProposal.proposalLink} readOnly className="flex-1 min-w-0 px-2 py-1.5 bg-gray-900 border border-gray-700 rounded-lg text-xs text-gray-300" />
           <button type="button" onClick={() => navigator.clipboard.writeText(currentProposal.proposalLink)} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg shrink-0" title="Copy"><Copy className="w-4 h-4" /></button>
           <a href={currentProposal.proposalLink} target="_blank" rel="noopener noreferrer" className="p-2 bg-blue-600 hover:bg-blue-700 rounded-lg shrink-0" title="Open client view"><ExternalLink className="w-4 h-4" /></a>
-        </div>
+        </div>}
         <div className="mt-3 pt-3 border-t border-gray-700">
           <h5 className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-2">Reports &amp; documents</h5>
           {proposalDocuments.length > 0 ? (
             <ul className="space-y-2 mb-2">
               {proposalDocuments.map((doc, index) => (
-                <li key={doc.id} className="flex items-center justify-between gap-2 py-1.5 px-2 rounded bg-gray-900/50">
+                <li key={doc.id} className="flex flex-wrap items-center justify-between gap-2 py-2 px-2 rounded bg-gray-900/50">
                   <div className="flex items-center gap-1 shrink-0">
                     <button
                       type="button"
@@ -1495,7 +1511,7 @@ function ConversationProposalReviewSection({
                           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}` },
                           body: JSON.stringify({ documentIds: newOrder.map(d => d.id) }),
                         });
-                        if (res.ok) { const data = await res.json(); setProposalDocuments(data.documents ?? newOrder); }
+                        if (res.ok) { const data = await res.json(); setProposalDocuments(data.documents ?? []); } else { setDocumentError('Could not refresh document order. Reload documents to retry.'); }
                       }}
                       disabled={index === 0}
                       className="p-1 text-gray-400 hover:text-white disabled:opacity-30 rounded"
@@ -1514,7 +1530,7 @@ function ConversationProposalReviewSection({
                           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}` },
                           body: JSON.stringify({ documentIds: newOrder.map(d => d.id) }),
                         });
-                        if (res.ok) { const data = await res.json(); setProposalDocuments(data.documents ?? newOrder); }
+                        if (res.ok) { const data = await res.json(); setProposalDocuments(data.documents ?? []); } else { setDocumentError('Could not refresh document order. Reload documents to retry.'); }
                       }}
                       disabled={index >= proposalDocuments.length - 1}
                       className="p-1 text-gray-400 hover:text-white disabled:opacity-30 rounded"
@@ -1523,19 +1539,21 @@ function ConversationProposalReviewSection({
                       <ChevronDown className="w-3.5 h-3.5" />
                     </button>
                   </div>
-                  <span className="text-sm text-gray-200 truncate flex-1">{doc.title}</span>
+                  <span className="text-sm text-gray-200 min-w-0 basis-full order-first break-words">{doc.signedUrl ? <a href={doc.signedUrl} target="_blank" rel="noopener noreferrer" className="underline">{doc.title}</a> : doc.title}{doc.binding_role && doc.binding_role !== 'supporting' && <span className="block text-xs text-gray-400">{doc.current_role === 'primary' ? 'Primary proposal' : doc.current_role === 'agreement' ? 'Reviewed agreement' : 'Retained history'}</span>}</span>
                   <span className="text-xs text-gray-500 shrink-0">
                     {doc.document_type === 'strategy_report' ? 'Strategy' : doc.document_type === 'opportunity_quantification' ? 'Opportunity' : doc.document_type === 'proposal_package' ? 'Package' : 'Document'}
                   </span>
                   <button
                     type="button"
                     onClick={async () => {
-                      if (!accessToken) return;
+                      if (!accessToken || doc.can_delete !== true) return;
                       const res = await fetch(`/api/admin/proposals/${currentProposal.id}/documents/${doc.id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${accessToken}` } });
-                      if (res.ok) setProposalDocuments(prev => prev.filter(d => d.id !== doc.id));
+                      if (res.ok) setProposalDocuments(prev => prev.filter(d => d.id !== doc.id)); else { const data=await res.json(); setDocumentError(data.error || 'Document could not be removed. Reload to retry.'); }
                     }}
                     className="p-1.5 text-gray-400 hover:text-red-400 rounded"
-                    title="Remove document"
+                    disabled={doc.can_delete !== true}
+                    aria-label="Remove document"
+                    title={doc.can_delete === true ? 'Remove document' : doc.delete_disabled_reason || 'Reload document review to check removal eligibility'}
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
@@ -1545,6 +1563,11 @@ function ConversationProposalReviewSection({
           ) : (
             <p className="text-xs text-gray-500 mb-2">No reports or documents attached yet.</p>
           )}
+          {documentError && <div role="alert" aria-label="Document action error" className="text-sm text-red-300">{documentError}<button type="button" className="block underline" onClick={async () => {
+            if (!accessToken) return;
+            const res=await fetch(`/api/admin/proposals/${currentProposal.id}/documents`,{headers:{Authorization:`Bearer ${accessToken}`}});
+            if(res.ok){const data=await res.json();setProposalDocuments(data.documents ?? []);setDocumentError(null);}
+          }}>Reload documents</button></div>}
           <button type="button" onClick={onOpenAttachModal} className="flex items-center gap-1.5 text-sm text-blue-400 hover:text-blue-300">
             <Upload className="w-3.5 h-3.5" /> Attach report or document (PDF)
           </button>
@@ -1613,115 +1636,6 @@ function ConversationProposalReviewSection({
 /* ------------------------------------------------------------------ */
 /* Attach Proposal Document Modal                                      */
 /* ------------------------------------------------------------------ */
-
-function AttachProposalDocumentModal({
-  proposalId,
-  accessToken,
-  onClose,
-  onSuccess,
-}: {
-  proposalId: string;
-  accessToken: string | null;
-  onClose: () => void;
-  onSuccess: () => void;
-}) {
-  const [title, setTitle] = useState('');
-  const [documentType, setDocumentType] = useState<string>('strategy_report');
-  const [file, setFile] = useState<File | null>(null);
-  const [uploading, setUploading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!file || !title.trim()) {
-      setError('Please provide a title and select a PDF file.');
-      return;
-    }
-    if (file.type !== 'application/pdf') {
-      setError('File must be a PDF.');
-      return;
-    }
-    if (!accessToken) {
-      setError('Not authenticated.');
-      return;
-    }
-    setError(null);
-    setUploading(true);
-    try {
-      const formData = new FormData();
-      formData.set('file', file);
-      formData.set('title', title.trim());
-      formData.set('document_type', documentType);
-      const res = await fetch(`/api/admin/proposals/${proposalId}/documents`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${accessToken}` },
-        body: formData,
-      });
-      if (!res.ok) {
-        const data = await res.json();
-        setError(data.error || 'Upload failed.');
-        return;
-      }
-      onSuccess();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Upload failed.');
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  return (
-    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
-      <div className="bg-gray-900 rounded-xl border border-gray-800 w-full max-w-md p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold flex items-center gap-2"><FileText className="w-5 h-5 text-blue-400" /> Attach report or document</h3>
-          <button type="button" onClick={onClose} className="text-gray-400 hover:text-white"><XCircle className="w-5 h-5" /></button>
-        </div>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">Title *</label>
-            <input
-              type="text"
-              value={title}
-              onChange={e => setTitle(e.target.value)}
-              placeholder="e.g. KMB Implementation Strategy"
-              className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">Type</label>
-            <select
-              value={documentType}
-              onChange={e => setDocumentType(e.target.value)}
-              className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-blue-500"
-            >
-              <option value="strategy_report">Strategy Report</option>
-              <option value="opportunity_quantification">Opportunity Quantification</option>
-              <option value="proposal_package">Proposal Package</option>
-              <option value="other">Other</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">PDF file *</label>
-            <input
-              type="file"
-              accept=".pdf,application/pdf"
-              onChange={e => setFile(e.target.files?.[0] ?? null)}
-              className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-300 file:mr-2 file:py-1 file:px-3 file:rounded file:border-0 file:bg-gray-700 file:text-gray-200"
-            />
-          </div>
-          {error && <p className="text-sm text-red-400">{error}</p>}
-          <div className="flex gap-3 pt-2">
-            <button type="button" onClick={onClose} className="flex-1 px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg">Cancel</button>
-            <button type="submit" disabled={uploading || !title.trim() || !file} className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 rounded-lg">
-              {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />} Upload
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-}
 
 /* ------------------------------------------------------------------ */
 /* Save As Bundle Modal (inline)                                       */

@@ -9,7 +9,7 @@ function readRepoFile(path: string) {
 }
 
 function latestAuditSection(audit: string) {
-  const match = audit.match(/## 2026-06-03 Daily Monitor Run[\s\S]*?(?=\n## \d{4}-\d{2}-\d{2} |\n*$)/)
+  const match = audit.match(/## 2026-09-02 Daily Monitor Run[\s\S]*?(?=\n## \d{4}-\d{2}-\d{2} |\n*$)/)
   return match?.[0] ?? ''
 }
 
@@ -19,7 +19,7 @@ describe('subscription monitor artifact contract', () => {
     const section = latestAuditSection(audit)
 
     expect(section).toContain('Detailed run artifact:')
-    expect(section).toContain('subscription-monitor-runs/2026-06-03.md')
+    expect(section).toContain('subscription-monitor-runs/2026-09-02.md')
     expect(section).toContain('Summary:')
     expect(section).not.toContain('Raw Findings')
     expect(section).not.toContain('Discovered Subscription Inventory')
@@ -27,11 +27,11 @@ describe('subscription monitor artifact contract', () => {
   })
 
   it('preserves the detailed latest run in the dated artifact directory', () => {
-    const artifactPath = 'docs/subscription-monitor-runs/2026-06-03.md'
+    const artifactPath = 'docs/subscription-monitor-runs/2026-09-02.md'
     const artifact = readRepoFile(artifactPath)
 
     expect(existsSync(join(repoRoot, artifactPath))).toBe(true)
-    expect(artifact).toContain('# 2026-06-03 Subscription Monitor Run')
+    expect(artifact).toContain('# 2026-09-02 Subscription Monitor Run')
     expect(artifact).toContain('Raw Findings')
     expect(artifact).toContain('Discovered Subscription Inventory')
     expect(artifact).toContain('Candidate Cancellations')

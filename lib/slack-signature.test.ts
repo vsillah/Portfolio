@@ -107,4 +107,13 @@ describe('verifySlackSignature', () => {
 
     expect(verifySlackSignature(buildRequest({ signature: null, timestamp: '' }) as never, 'token=legacy')).toBe(true)
   })
+  it.each(['staging', 'preview', 'production'])('rejects missing signing configuration for APP_ENV %s', (appEnv) => {
+    process.env = { ...process.env, NODE_ENV: 'test', VERCEL: '', VERCEL_ENV: '', NEXT_PUBLIC_APP_ENV: '', APP_ENV: appEnv, SLACK_SIGNING_SECRET: '' }
+    expect(verifySlackSignature(buildRequest({ signature: null }) as never, 'text=status')).toBe(false)
+  })
+
+  it('rejects malformed signature lengths without throwing', () => {
+    expect(verifySlackSignature(buildRequest({ signature: 'v0=short' }) as never, 'text=status')).toBe(false)
+  })
+
 })

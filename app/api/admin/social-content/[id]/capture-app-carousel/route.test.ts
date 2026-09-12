@@ -41,7 +41,9 @@ vi.mock('@/lib/supabase', () => ({
   },
 }))
 
-import { POST } from './route'
+import { POST as routePost } from './route'
+import { withVersionedQueueMock, queueWriteScenario } from '@/lib/social-queue-write.test-fixtures'
+const POST: typeof routePost = (...args) => withVersionedQueueMock(mocks.from, () => routePost(...args))
 
 function request(body?: unknown) {
   return new NextRequest('http://localhost:3016/api/admin/social-content/social-1/capture-app-carousel', {
@@ -196,21 +198,23 @@ describe('POST /api/admin/social-content/[id]/capture-app-carousel', () => {
     ])
   })
 
-  it('uploads screenshots, renders carousel assets, and records screenshot assets', async () => {
+  it.each(['normal', 'locked', 'race'] as const)('uploads screenshots, renders carousel assets, and records screenshot assets (%s)', async mode => {
+    queueWriteScenario.mode = mode
     const response = await POST(request(), { params: { id: 'social-1' } })
 
+    if (mode !== 'normal') { expect(response.status).toBe(409); return }
     expect(response.status).toBe(200)
     const body = await response.json()
     expect(body.success).toBe(true)
     expect(body.content_format).toBe('carousel')
     expect(body.app_screenshot_assets).toHaveLength(4)
     expect(body.carousel_slide_urls).toHaveLength(8)
-    expect(body.carousel_pdf_url).toBe('https://cdn.example.com/carousels/social-1/carousel.pdf')
+    expect(body.carousel_pdf_url).toEqual(expect.stringMatching(/^https:\/\/cdn\.example\.com\/carousels\/social-1\/[0-9a-f-]+\/carousel\.pdf$/))
     expect(mocks.renderCarousel).toHaveBeenCalledWith(expect.arrayContaining([
-      expect.objectContaining({ type: 'screenshot', screenshot_url: 'https://cdn.example.com/app-screenshots/social-1/01-social-content-review.png' }),
+      expect.objectContaining({ type: 'screenshot', screenshot_url: expect.stringMatching(/^https:\/\/cdn\.example\.com\/app-screenshots\/social-1\/[0-9a-f-]+\/01\-social\-content\-review\.png$/) }),
     ]))
     expect(mocks.upload).toHaveBeenCalledWith(
-      'app-screenshots/social-1/01-social-content-review.png',
+      expect.stringMatching(/^app-screenshots\/social-1\/[0-9a-f-]+\/01-social-content-review\.png$/),
       expect.any(Buffer),
       expect.objectContaining({ contentType: 'image/png', upsert: true }),
     )
@@ -218,7 +222,7 @@ describe('POST /api/admin/social-content/[id]/capture-app-carousel', () => {
       content_format: 'carousel',
       carousel_slides: expect.any(Array),
       carousel_slide_urls: expect.any(Array),
-      carousel_pdf_url: 'https://cdn.example.com/carousels/social-1/carousel.pdf',
+      carousel_pdf_url: expect.stringMatching(/^https:\/\/cdn\.example\.com\/carousels\/social-1\/[0-9a-f-]+\/carousel\.pdf$/),
       rag_context: expect.objectContaining({
         app_screenshot_assets: expect.any(Array),
         app_screenshot_carousel: expect.objectContaining({
@@ -236,7 +240,7 @@ describe('POST /api/admin/social-content/[id]/capture-app-carousel', () => {
               { route: '/admin/agents/open-brain', label: 'Open Brain references' },
             ],
             existing_asset_count: 4,
-            carousel_pdf_url: 'https://cdn.example.com/carousels/social-1/carousel.pdf',
+            carousel_pdf_url: expect.stringMatching(/^https:\/\/cdn\.example\.com\/carousels\/social-1\/[0-9a-f-]+\/carousel\.pdf$/),
             carousel_slide_urls: expect.any(Array),
           }),
         }),

@@ -686,7 +686,7 @@ function defaultInputs(channel: SocialContentIntelligenceChannel) {
   if (channel === 'x') {
     return ['post text', 'thread option', 'CTA', 'CTA URL', 'hashtags', 'manual handoff gate', 'references']
   }
-  return ['source thumbnail reference', 'pattern explanation', 'AmaduTown adaptation direction', 'short thumbnail text', 'face/photo/avatar choice', 'brand colors/style', '2-3 variants', 'approval state']
+  return ['source thumbnail reference', 'pattern explanation', 'AmaduTown, LLC adaptation direction', 'short thumbnail text', 'face/photo/avatar choice', 'brand colors/style', '2-3 variants', 'approval state']
 }
 
 function suggestedValue(input: string, insight: Record<string, unknown>) {
@@ -694,6 +694,6 @@ function suggestedValue(input: string, insight: Record<string, unknown>) {
   if (lower.includes('hook')) return asString(insight.suggested_hook)
   if (lower.includes('caption') || lower.includes('post text') || lower.includes('script')) return asString(insight.content_angle)
   if (lower.includes('references')) return asString(insight.evidence_summary)
-  if (lower.includes('thumbnail') || lower.includes('pattern')) return 'Use approved public research patterns only; adapt into AmaduTown style.'
+  if (lower.includes('thumbnail') || lower.includes('pattern')) return 'Use approved public research patterns only; adapt into AmaduTown, LLC style.'
   return ''
 }

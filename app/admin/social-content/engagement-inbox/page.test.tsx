@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor, within } from '@testing-library/rea
 import type { ReactNode } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import SocialCommentInboxPage from './page'
+import { getCurrentSession } from '@/lib/auth'
 
 vi.mock('@/components/ProtectedRoute', () => ({
   default: ({ children }: { children: ReactNode }) => <>{children}</>,
@@ -133,6 +134,7 @@ describe('SocialCommentInboxPage', () => {
 
     const article = screen.getAllByText('Potential Client')[0].closest('article')
     expect(article).toBeTruthy()
+    expect(article).not.toHaveAttribute('id', 'social-comment-review-gate')
     const panel = within(article as HTMLElement)
     expect(panel.getByText('Original post')).toBeInTheDocument()
     expect(panel.getByText('Inbound comment')).toBeInTheDocument()
@@ -223,8 +225,28 @@ describe('SocialCommentInboxPage', () => {
     expect(screen.getByText(/Unsupported providers will appear here once their comments are imported/i)).toBeInTheDocument()
   })
 
+  it('marks status metric filters active and exposes the clear action', async () => {
+    render(<SocialCommentInboxPage />)
+
+    await waitFor(() => {
+      expect(screen.getAllByText('Potential Client').length).toBeGreaterThanOrEqual(1)
+    })
+
+    fireEvent.click(screen.getByRole('button', { name: 'Filter comments to Lead (1)' }))
+
+    const activeMetric = await screen.findByRole('button', { name: 'Clear Lead comment filter (1)' })
+    expect(activeMetric).toHaveAttribute('aria-pressed', 'true')
+    expect(activeMetric).toHaveAttribute('title', 'Click to clear this status filter')
+    expect(screen.getByLabelText(/Status/i)).toHaveValue('lead')
+
+    fireEvent.click(activeMetric)
+
+    await waitFor(() => expect(screen.getByLabelText(/Status/i)).toHaveValue('all'))
+    expect(screen.getByRole('button', { name: 'Filter comments to Lead (1)' })).toHaveAttribute('aria-pressed', 'false')
+  })
+
   it('hydrates the initial post filter from the deep-link query', async () => {
-    window.history.replaceState({}, '', '/admin/social-content/engagement-inbox?comment=comment-1&post=social-1')
+    window.history.replaceState({}, '', '/admin/social-content/engagement-inbox?comment=comment-1&post=social-1&review=reply&source=slack#social-comment-review-gate')
 
     render(<SocialCommentInboxPage />)
 
@@ -240,14 +262,23 @@ describe('SocialCommentInboxPage', () => {
     })
     expect(window.location.search).toContain('comment=comment-1')
     expect(window.location.search).toContain('post=social-1')
+    expect(window.location.search).toContain('review=reply')
+    expect(window.location.search).toContain('source=slack')
+    expect(window.location.hash).toBe('#social-comment-review-gate')
+    const article = screen.getAllByText('Potential Client')[0].closest('article')
+    expect(article).toHaveAttribute('id', 'social-comment-review-gate')
+    const gate = within(article as HTMLElement)
+    expect(gate.getByRole('button', { name: /^Approve$/i })).toBeInTheDocument()
+    expect(gate.getByRole('button', { name: /^Reject$/i })).toBeInTheDocument()
   })
 
   it('focuses and highlights the linked comment after comments load', async () => {
-    window.history.replaceState({}, '', '/admin/social-content/engagement-inbox?comment=comment-1&post=social-1')
+    window.history.replaceState({}, '', '/admin/social-content/engagement-inbox?comment=comment-1&post=social-1#social-comment-review-gate')
 
     render(<SocialCommentInboxPage />)
 
     const focusedCard = await screen.findByLabelText('Focused comment from Potential Client')
+    expect(focusedCard).toHaveAttribute('id', 'social-comment-review-gate')
     expect(focusedCard).toHaveClass('ring-2')
     await waitFor(() => {
       expect(window.HTMLElement.prototype.scrollIntoView).toHaveBeenCalled()
@@ -326,32 +357,433 @@ describe('SocialCommentInboxPage', () => {
     expect(await screen.findByText('Comment action recorded.')).toBeInTheDocument()
   })
 
-  it('does not offer provider submit for already responded comments', async () => {
-    vi.stubGlobal('fetch', vi.fn(async () => ({
-      ok: true,
-      status: 200,
-      json: async () => ({
-        items: [{
-          ...comment,
-          status: 'responded',
-          approvalState: 'approved',
-          providerCapability: {
-            provider: 'youtube_data_api',
-            automaticReply: true,
-            verified: true,
-            humanGateSatisfied: true,
-            blocker: null,
-            recoveryPath: 'YouTube reply capability verified.',
-          },
-        }],
-        summary: { total: 1, new: 0, needs_qa: 0, auto_send_pending: 0, lead: 0, escalated: 0, responded: 1, ignored: 0 },
-        filteredSummary: { total: 1, new: 0, needs_qa: 0, auto_send_pending: 0, lead: 0, escalated: 0, responded: 1, ignored: 0 },
-        alertReliability,
-      }),
-    } as Response)))
+  it('records reject revision notes without submitting externally', async () => {
+    render(<SocialCommentInboxPage />)
+
+    await waitFor(() => {
+      expect(screen.getAllByText('Potential Client').length).toBeGreaterThanOrEqual(1)
+    })
+    fireEvent.change(screen.getByLabelText('Revision note'), {
+      target: { value: 'Make the reply more specific before approval.' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: /^Reject$/i }))
+
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalledWith('/api/admin/social-content/social-1/engagement/comments', expect.objectContaining({
+        method: 'POST',
+        body: expect.stringContaining('"action":"reject"'),
+      }))
+    })
+    const rejectCall = vi.mocked(fetch).mock.calls.find(([, init]) => String(init?.body).includes('"action":"reject"'))
+    expect(JSON.parse(String(rejectCall?.[1]?.body))).toMatchObject({
+      action: 'reject',
+      comment_id: 'comment-1',
+      draft_reply: 'Yes, it can help triage intake while keeping a human approval gate.',
+      note: 'Make the reply more specific before approval.',
+    })
+    expect(JSON.stringify(vi.mocked(fetch).mock.calls)).not.toMatch(/slack|gmail|sms/i)
+  })
+
+  it('locks repeat decisions after reply rejection and exposes revise recovery', async () => {
+    const rejectedComment = {
+      ...comment,
+      status: 'needs_qa',
+      approvalState: 'rejected',
+      draftReply: 'This reply needs a sharper answer.',
+      actionHistory: [{
+        action: 'reject',
+        at: '2026-08-06T12:05:00.000Z',
+        by: 'admin-user',
+        note: null,
+      }],
+    }
+    const returnedToReviewComment = {
+      ...rejectedComment,
+      approvalState: 'drafted',
+      draftReply: 'Revised reply with a clearer answer.',
+      actionHistory: [{
+        action: 'return_to_review',
+        at: '2026-08-06T12:08:00.000Z',
+        by: 'admin-user',
+        note: null,
+      }, ...rejectedComment.actionHistory],
+    }
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      if (init?.method === 'POST') {
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({
+            ok: true,
+            message: 'Revised reply saved and returned to review. Approval is required before any provider submission.',
+            comments: [{ ...rejectedComment, approvalState: 'drafted' }],
+          }),
+        } as Response
+      }
+
+      const isAfterPostRefresh = fetchMock.mock.calls.some(([, requestInit]) => requestInit?.method === 'POST')
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          items: [isAfterPostRefresh ? returnedToReviewComment : rejectedComment],
+          summary: { total: 1, new: 0, needs_qa: 1, auto_send_pending: 0, lead: 0, escalated: 0, responded: 0, ignored: 0 },
+          filteredSummary: { total: 1, new: 0, needs_qa: 1, auto_send_pending: 0, lead: 0, escalated: 0, responded: 0, ignored: 0 },
+          alertReliability,
+        }),
+      } as Response
+    })
+    vi.stubGlobal('fetch', fetchMock)
 
     render(<SocialCommentInboxPage />)
 
-    expect(await screen.findByRole('button', { name: /^Submit$/i })).toBeDisabled()
+    const rejectedHeading = await screen.findByText('Reply rejected')
+    const card = rejectedHeading.closest('article')
+    expect(card).toBeTruthy()
+    const panel = within(card as HTMLElement)
+    expect(await panel.findByText('Reply rejected')).toBeInTheDocument()
+    expect(panel.getByText('Review locked')).toBeInTheDocument()
+    expect(panel.getByText('Revise opens the local editor before any review state changes.')).toBeInTheDocument()
+    expect(panel.getByRole('region', { name: /Reply lifecycle/i })).toBeInTheDocument()
+    expect(panel.getByText('Revision requested')).toBeInTheDocument()
+    expect(panel.getByText('Review actions stay locked until this reply is revised.')).toBeInTheDocument()
+    expect(panel.getByText('No feedback saved.')).toBeInTheDocument()
+    expect(panel.getByText('Locked until revision.')).toBeInTheDocument()
+    expect(panel.queryByRole('button', { name: /^Approve$/i })).not.toBeInTheDocument()
+    expect(panel.queryByRole('button', { name: /^Reject$/i })).not.toBeInTheDocument()
+    expect(panel.getByRole('button', { name: /^Submit$/i })).toBeDisabled()
+
+    fireEvent.click(panel.getByRole('button', { name: /^Revise Reply$/i }))
+
+    expect(await panel.findByText('Revision mode')).toBeInTheDocument()
+    expect(panel.getByText('Local editor is open; provider submit stays blocked.')).toBeInTheDocument()
+    expect(panel.getByText('Submit revision to return it to review.')).toBeInTheDocument()
+    expect(await panel.findByLabelText('Revision feedback or replacement reply')).toHaveValue('This reply needs a sharper answer.')
+    expect(panel.getByRole('button', { name: /^Submit Revision$/i })).toBeInTheDocument()
+    expect(panel.queryByRole('button', { name: /^Revise Reply$/i })).not.toBeInTheDocument()
+    expect(fetchMock).not.toHaveBeenCalledWith(
+      '/api/admin/social-content/social-1/engagement/comments',
+      expect.objectContaining({
+        method: 'POST',
+        body: expect.stringContaining('"action":"return_to_review"'),
+      }),
+    )
+
+    fireEvent.change(panel.getByLabelText('Revision feedback or replacement reply'), {
+      target: { value: 'Revised reply with a clearer answer.' },
+    })
+    fireEvent.click(panel.getByRole('button', { name: /^Submit Revision$/i }))
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledWith(
+        '/api/admin/social-content/social-1/engagement/comments',
+        expect.objectContaining({
+          method: 'POST',
+          body: expect.stringContaining('"action":"return_to_review"'),
+        }),
+      )
+    })
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/admin/social-content/social-1/engagement/comments',
+      expect.objectContaining({
+        method: 'POST',
+        body: expect.stringContaining('Revised reply with a clearer answer.'),
+      }),
+    )
+    expect(await screen.findByText(/Revised reply saved and returned to review/i)).toBeInTheDocument()
+    expect(await screen.findByText('Ready for review')).toBeInTheDocument()
+    expect(screen.getByText(/Returned to review:/i)).toBeInTheDocument()
+    expect(screen.getByText('Review, approve, reject with feedback, or edit again.')).toBeInTheDocument()
   })
+
+  it('keeps preview QA fixture return-to-review lifecycle visible from the action response', async () => {
+    window.history.replaceState({}, '', '/admin/social-content/engagement-inbox?comment=comment-qa-recoverable&post=social-qa-locked&review=reply&source=slack#social-comment-review-gate')
+    const rejectedComment = {
+      ...comment,
+      id: 'comment-qa-recoverable',
+      socialContentId: 'social-qa-locked',
+      providerCommentId: 'youtube-comment-qa-recoverable',
+      authorDisplayName: 'Synthetic Reviewer',
+      status: 'needs_qa',
+      approvalState: 'rejected',
+      draftReply: 'Original rejected reply: yes, this workflow can help.',
+      actionHistory: [{
+        action: 'reject',
+        at: '2026-09-01T12:00:00.000Z',
+        by: 'qa-admin-user',
+        note: 'Synthetic QA feedback: make the approval boundary explicit before review.',
+      }],
+    }
+    const returnedToReviewComment = {
+      ...rejectedComment,
+      approvalState: 'drafted',
+      draftReply: 'Replacement reply that names the approval boundary.',
+      actionHistory: [{
+        action: 'return_to_review',
+        at: '2026-09-01T12:08:00.000Z',
+        by: 'qa-admin-user',
+        note: 'Synthetic QA local return-to-review state.',
+      }, ...rejectedComment.actionHistory],
+    }
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
+      if (init?.method === 'POST') {
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({
+            fixture: true,
+            ok: true,
+            message: 'Revised reply saved and returned to review. Approval is required before any provider submission.',
+            comments: [returnedToReviewComment],
+            summary: { total: 1, new: 0, needs_qa: 1, auto_send_pending: 0, lead: 0, escalated: 0, responded: 0, ignored: 0 },
+            filteredSummary: { total: 1, new: 0, needs_qa: 1, auto_send_pending: 0, lead: 0, escalated: 0, responded: 0, ignored: 0 },
+          }),
+        } as Response
+      }
+
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          fixture: true,
+          items: [rejectedComment],
+          summary: { total: 1, new: 0, needs_qa: 1, auto_send_pending: 0, lead: 0, escalated: 0, responded: 0, ignored: 0 },
+          filteredSummary: { total: 1, new: 0, needs_qa: 1, auto_send_pending: 0, lead: 0, escalated: 0, responded: 0, ignored: 0 },
+          alertReliability,
+        }),
+      } as Response
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    render(<SocialCommentInboxPage />)
+
+    const focusedCard = await screen.findByLabelText('Focused comment from Synthetic Reviewer')
+    const panel = within(focusedCard)
+    fireEvent.click(panel.getByRole('button', { name: /^Revise Reply$/i }))
+    fireEvent.change(await panel.findByLabelText('Revision feedback or replacement reply'), {
+      target: { value: 'Replacement reply that names the approval boundary.' },
+    })
+    fireEvent.click(panel.getByRole('button', { name: /^Submit Revision$/i }))
+
+    expect(await screen.findByText('Ready for review')).toBeInTheDocument()
+    expect(screen.getByDisplayValue('Replacement reply that names the approval boundary.')).toBeInTheDocument()
+    expect(screen.getByText(/Returned to review:/i)).toBeInTheDocument()
+    expect(screen.queryByText('Linked comment not visible')).not.toBeInTheDocument()
+    const postCalls = fetchMock.mock.calls.filter(([, init]) => init?.method === 'POST')
+    const getCalls = fetchMock.mock.calls.filter(([, init]) => init?.method !== 'POST')
+    expect(postCalls).toHaveLength(1)
+    expect(getCalls).toHaveLength(1)
+  })
+
+  it('opens revision mode for rejected replies without an existing draft and waits for new text', async () => {
+    const rejectedComment = {
+      ...comment,
+      status: 'needs_qa',
+      approvalState: 'rejected',
+      draftReply: '',
+      actionHistory: [{
+        action: 'reject',
+        at: '2026-08-06T12:05:00.000Z',
+        by: 'admin-user',
+        note: 'Needs a replacement reply.',
+      }],
+    }
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
+      if (init?.method === 'POST') {
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({
+            ok: true,
+            message: 'Revised reply saved and returned to review. Approval is required before any provider submission.',
+          }),
+        } as Response
+      }
+
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          items: [rejectedComment],
+          summary: { total: 1, new: 0, needs_qa: 1, auto_send_pending: 0, lead: 0, escalated: 0, responded: 0, ignored: 0 },
+          filteredSummary: { total: 1, new: 0, needs_qa: 1, auto_send_pending: 0, lead: 0, escalated: 0, responded: 0, ignored: 0 },
+          alertReliability,
+        }),
+      } as Response
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    render(<SocialCommentInboxPage />)
+
+    const rejectedHeading = await screen.findByText('Reply rejected')
+    const card = rejectedHeading.closest('article')
+    expect(card).toBeTruthy()
+    const panel = within(card as HTMLElement)
+    const revise = panel.getByRole('button', { name: /^Revise Reply$/i })
+    expect(revise).not.toBeDisabled()
+
+    fireEvent.click(revise)
+
+    const revisionEditor = await panel.findByLabelText('Revision feedback or replacement reply')
+    expect(revisionEditor).toHaveValue('')
+    expect(panel.queryByRole('button', { name: /^Revise Reply$/i })).not.toBeInTheDocument()
+    expect(panel.getByText('Saved: Needs a replacement reply.')).toBeInTheDocument()
+    expect(panel.getByText('Enter revision text before submitting.')).toBeInTheDocument()
+    expect(panel.getByRole('button', { name: /^Submit Revision$/i })).toBeDisabled()
+    expect(fetchMock).not.toHaveBeenCalledWith(
+      '/api/admin/social-content/social-1/engagement/comments',
+      expect.objectContaining({ method: 'POST' }),
+    )
+
+    fireEvent.change(revisionEditor, { target: { value: 'Fresh replacement reply.' } })
+    expect(panel.getByText('Submit revision to return it to review.')).toBeInTheDocument()
+    fireEvent.click(panel.getByRole('button', { name: /^Submit Revision$/i }))
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledWith(
+        '/api/admin/social-content/social-1/engagement/comments',
+        expect.objectContaining({
+          method: 'POST',
+          body: expect.stringContaining('Fresh replacement reply.'),
+        }),
+      )
+    })
+  })
+
+  it.each(['rejected','approved'])('shows a normal sent state for responded replies with %s review history',async approvalState=>{
+    const sent={...comment,status:'responded',approvalState,replyProviderConfirmed:true,submittedReplyLocked:true,submittedReplyLockReason:'Provider confirmed the reply.'}
+    const fetchMock=vi.fn(async()=>({ok:true,json:async()=>({items:[sent]})}))
+    vi.stubGlobal('fetch',fetchMock)
+    render(<SocialCommentInboxPage />)
+    const heading=await screen.findByText('Reply sent')
+    expect(heading.parentElement).toHaveClass('border-emerald-500/35')
+    expect(screen.getByText('The provider confirmed this reply.')).toBeInTheDocument()
+    expect(screen.getByRole('link',{name:'View provider thread'})).toHaveAttribute('href',comment.providerPermalink)
+    expect(screen.queryByText('Reply rejected')).not.toBeInTheDocument()
+    expect(screen.queryByText(/while provider evidence is reconciled/i)).not.toBeInTheDocument()
+    expect(screen.queryByRole('button',{name:'Submit'})).not.toBeInTheDocument()
+    expect(screen.queryByRole('button',{name:'Review Locked'})).not.toBeInTheDocument()
+    expect(screen.queryByRole('button',{name:'Revise Reply'})).not.toBeInTheDocument()
+    expect(screen.queryByLabelText(/Draft reply/i)).not.toBeInTheDocument()
+  })
+
+  it('sends the displayed snapshot for an edited approval and shows fresh text after a stale decision',async()=>{
+    let current={...comment,expectedReplyText:'Canonical previous reply',submittedReplyLocked:false}
+    const posts:Record<string,unknown>[]=[]
+    vi.stubGlobal('fetch',vi.fn(async(_input:RequestInfo|URL,init?:RequestInit)=>{
+      if(init?.method==='POST'){
+        posts.push(JSON.parse(String(init.body)))
+        current={...current,updatedAt:'2026-09-08T12:00:00Z',draftReply:'A newer reply needs your review.',expectedReplyText:'A newer reply needs your review.'}
+        return {ok:false,status:409,json:async()=>({error:'Reply changed. Review the latest reply.',comments:[current]})}
+      }
+      return {ok:true,json:async()=>({items:[current]})}
+    }))
+    render(<SocialCommentInboxPage />)
+    fireEvent.change(await screen.findByLabelText(/Draft reply/i),{target:{value:'The edited reply I reviewed.'}})
+    fireEvent.click(screen.getByRole('button',{name:'Approve'}))
+    expect(await screen.findByDisplayValue('A newer reply needs your review.')).toBeInTheDocument()
+    expect(posts).toEqual([{action:'approve',comment_id:comment.id,expected_updated_at:comment.updatedAt,expected_reply_text:'Canonical previous reply',draft_reply:'The edited reply I reviewed.'}])
+    expect(screen.getByText('Reply changed. Review the latest reply.')).toBeInTheDocument()
+  })
+
+  it('confirms the exact approved reply and locks duplicate actions after an uncertain response',async()=>{
+    let current={...comment,approvalState:'approved',expectedReplyText:comment.draftReply,submittedReplyLocked:false,submittedReplyLockReason:null as string|null,replyReleaseStatus:null as string|null,providerCapability:{...comment.providerCapability,automaticReply:true,verified:true,humanGateSatisfied:true}}
+    const posts:Record<string,unknown>[]=[]
+    vi.stubGlobal('fetch',vi.fn(async(_input:RequestInfo|URL,init?:RequestInit)=>{
+      if(init?.method==='POST'){
+        posts.push(JSON.parse(String(init.body)))
+        current={...current,updatedAt:'2026-09-08T12:01:00Z',submittedReplyLocked:true,replyReleaseStatus:'uncertain',submittedReplyLockReason:'Provider outcome uncertain. Reconcile the reply.'}
+        return {ok:false,status:409,json:async()=>({message:'Provider outcome uncertain. Reconcile the reply.',comments:[current]})}
+      }
+      return {ok:true,json:async()=>({items:[current]})}
+    }))
+    render(<SocialCommentInboxPage />)
+    const editor=await screen.findByLabelText(/Draft reply/i)
+    fireEvent.change(editor,{target:{value:'Unapproved edited text'}})
+    expect(screen.getByRole('button',{name:'Submit'})).toBeDisabled()
+    fireEvent.change(editor,{target:{value:comment.draftReply}})
+    fireEvent.click(screen.getByRole('button',{name:'Submit'}))
+    const dialog=await screen.findByRole('dialog',{name:'Confirm public reply'})
+    expect(dialog).toHaveTextContent(comment.draftReply)
+    expect(dialog).toHaveTextContent(comment.body)
+    expect(dialog).toHaveTextContent('LinkedIn')
+    expect(posts).toHaveLength(0)
+    const send=within(dialog).getByRole('button',{name:'Confirm and send reply'})
+    fireEvent.click(send);fireEvent.click(send)
+    await waitFor(()=>expect(screen.queryByRole('button',{name:'Submit'})).not.toBeInTheDocument())
+    expect(await screen.findByText('Reply outcome uncertain')).toBeInTheDocument()
+    expect(posts).toHaveLength(1)
+    expect(posts[0]).toMatchObject({action:'submit',expected_updated_at:comment.updatedAt,expected_reply_text:comment.draftReply,draft_reply:comment.draftReply})
+    expect(screen.getByRole('button',{name:'Refresh evidence'})).toBeEnabled()
+  })
+
+  it('keeps a lost reply outcome locked when refresh still returns the old row',async()=>{
+    const current={...comment,approvalState:'approved',expectedReplyText:comment.draftReply,submittedReplyLocked:false,providerCapability:{...comment.providerCapability,automaticReply:true,verified:true,humanGateSatisfied:true}}
+    let posts=0
+    vi.stubGlobal('fetch',vi.fn(async(_input:RequestInfo|URL,init?:RequestInit)=>{
+      if(init?.method==='POST'){posts++;throw new Error('Connection ended before provider result')}
+      return {ok:true,json:async()=>({items:[current]})}
+    }))
+    render(<SocialCommentInboxPage />)
+    fireEvent.click(await screen.findByRole('button',{name:'Submit'}))
+    fireEvent.click(await screen.findByRole('button',{name:'Confirm and send reply'}))
+    expect(await screen.findByText('Reply outcome uncertain')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button',{name:'Refresh evidence'}))
+    await waitFor(()=>expect(screen.queryByRole('button',{name:'Submit'})).not.toBeInTheDocument())
+    expect(posts).toBe(1)
+  })
+
+  it('refreshes a stale pre-dispatch submission without inventing an unknown provider outcome',async()=>{
+    let current={...comment,approvalState:'approved',expectedReplyText:comment.draftReply,submittedReplyLocked:false,providerCapability:{...comment.providerCapability,automaticReply:true,verified:true,humanGateSatisfied:true}}
+    let posts=0
+    vi.stubGlobal('fetch',vi.fn(async(_input:RequestInfo|URL,init?:RequestInit)=>{
+      if(init?.method==='POST'){
+        posts++;current={...current,updatedAt:'2026-09-08T12:01:00Z',approvalState:'drafted',draftReply:'Fresh unseen revision.',expectedReplyText:'Fresh unseen revision.'}
+        return {ok:false,status:409,json:async()=>({error:'Review the new reply.',pre_dispatch:true,stale_snapshot:true,reconciliation_required:false,comments:[current]})}
+      }
+      return {ok:true,json:async()=>({items:[current]})}
+    }))
+    render(<SocialCommentInboxPage />)
+    fireEvent.click(await screen.findByRole('button',{name:'Submit'}))
+    fireEvent.click(await screen.findByRole('button',{name:'Confirm and send reply'}))
+    expect(await screen.findByDisplayValue('Fresh unseen revision.')).toBeInTheDocument()
+    expect(screen.getByRole('button',{name:'Approve'})).toBeEnabled()
+    expect(screen.getByRole('button',{name:'Submit'})).toBeDisabled()
+    expect(screen.queryByRole('button',{name:'Review Locked'})).not.toBeInTheDocument()
+    expect(posts).toBe(1)
+  })
+
+  it('shows inline session recovery instead of silently abandoning a review action',async()=>{
+    render(<SocialCommentInboxPage />)
+    const approve=await screen.findByRole('button',{name:'Approve'})
+    vi.mocked(getCurrentSession).mockResolvedValueOnce(null)
+    fireEvent.click(approve)
+    expect(await screen.findByText('Sign in again, then refresh evidence before retrying.')).toBeInTheDocument()
+    expect(screen.getByRole('button',{name:'Refresh evidence'})).toBeEnabled()
+    expect(vi.mocked(fetch).mock.calls.filter(([,init])=>init?.method==='POST')).toHaveLength(0)
+  })
+
+  it.each(['submitting','uncertain'])('keeps %s reply recovery compact',async replyReleaseStatus=>{
+    const locked={...comment,submittedReplyLocked:true,replyReleaseStatus,submittedReplyLockReason:'Refresh provider evidence before another action.'}
+    vi.stubGlobal('fetch',vi.fn(async()=>({ok:true,json:async()=>({items:[locked]})})))
+    render(<SocialCommentInboxPage />)
+    expect(await screen.findByText(replyReleaseStatus==='submitting'?'Reply submitting':'Reply outcome uncertain')).toBeInTheDocument()
+    expect(screen.getAllByText('Refresh provider evidence before another action.')).toHaveLength(1)
+    expect(screen.queryByRole('region',{name:/Reply lifecycle/})).not.toBeInTheDocument()
+    expect(screen.queryByRole('button',{name:'Submit'})).not.toBeInTheDocument()
+    expect(screen.getByRole('button',{name:'Refresh evidence'})).toBeEnabled()
+  })
+
+  it.each([null,'submitted'])('does not infer provider confirmation from responded classification or release status %s',async replyReleaseStatus=>{
+    const recorded={...comment,status:'responded',replyReleaseStatus,submittedReplyLocked:true}
+    vi.stubGlobal('fetch',vi.fn(async()=>({ok:true,json:async()=>({items:[recorded]})})))
+    render(<SocialCommentInboxPage />)
+    const state=await screen.findByText('Response recorded')
+    expect(state.parentElement).toHaveClass('border-border')
+    expect(screen.getByText('Verify the reply on the provider; confirmation is not recorded here.')).toBeInTheDocument()
+    expect(screen.queryByText('Reply sent')).not.toBeInTheDocument()
+    expect(screen.queryByText('The provider confirmed this reply.')).not.toBeInTheDocument()
+    expect(screen.queryByRole('button',{name:'Submit'})).not.toBeInTheDocument()
+  })
+
 })

@@ -383,7 +383,7 @@ function PricingPageContent() {
       {/* Segment Selector */}
       <section className="relative z-20 -mt-8 mx-auto max-w-7xl px-4">
         <div className="flex justify-center">
-          <div className="inline-flex rounded-xl border border-gray-200 bg-white p-1.5 shadow-lg dark:border-gray-800 dark:bg-gray-900/90 dark:backdrop-blur-md">
+          <div className="inline-flex max-w-full flex-wrap justify-center rounded-xl border border-gray-200 bg-white p-1.5 shadow-lg dark:border-gray-800 dark:bg-gray-900/90 dark:backdrop-blur-md">
             <button
               onClick={() => handleSegmentChange('smb')}
               className={`rounded-lg px-6 py-2.5 text-sm font-heading tracking-wide transition-all duration-300 ${
@@ -600,7 +600,7 @@ function PricingPageContent() {
               How We Compare
             </h2>
             <p className="text-lg text-gray-600 dark:text-gray-400">
-              Amadutown covers the full business lifecycle with deployed AI tools and outcome guarantees.
+              AmaduTown, LLC covers the full business lifecycle with deployed AI tools and outcome guarantees.
               Most agencies specialize in one area — we provide comprehensive coverage.
             </p>
           </div>

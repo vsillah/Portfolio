@@ -1,0 +1,196 @@
+{
+  "version": "warm-manual-social-handoff-qa/v1",
+  "createdAt": "2026-09-02T18:52:52.400Z",
+  "route": "http://127.0.0.1:3068/admin/outreach?tab=leads&filter=warm&id=42&contactId=42&qa=warm-slack-send-approval#warm-manual-social-handoff",
+  "scenario": "Operator opens /admin/outreach warm selected-contact workroom and prepares manual LinkedIn/Facebook/phone-contact handoff from synthetic warm relationship context.",
+  "expectedBehavior": [
+    "Manual social handoff appears on the canonical selected-contact relationship packet surface.",
+    "LinkedIn, Facebook, and phone-contact previews are visibly manual and no-egress.",
+    "Primary CTA moves from copy text to record manual evidence to recorded state.",
+    "After the API-backed evidence response returns, the repeat evidence action is no longer presented."
+  ],
+  "decisionGate": "Captain QA and Vambah human QA only. Provider automation and external sending require separate explicit future gates.",
+  "externalActionBoundary": "No LinkedIn, Facebook, phone, SMS, Gmail, Slack, n8n, scheduling, polling, provider API, or production-data mutation was authorized or executed.",
+  "screenshots": {
+    "mobile360": "/Users/vambahsillah/.codex/worktrees/6971/Portfolio/docs/warm-outreach-qa/warm-manual-social-handoff-mobile-360.png",
+    "mobile390": "/Users/vambahsillah/.codex/worktrees/6971/Portfolio/docs/warm-outreach-qa/warm-manual-social-handoff-mobile-390.png",
+    "mobile430": "/Users/vambahsillah/.codex/worktrees/6971/Portfolio/docs/warm-outreach-qa/warm-manual-social-handoff-mobile-430.png",
+    "desktop1440": "/Users/vambahsillah/.codex/worktrees/6971/Portfolio/docs/warm-outreach-qa/warm-manual-social-handoff-desktop-1440.png"
+  },
+  "mp4Path": "/Users/vambahsillah/.codex/worktrees/6971/Portfolio/docs/warm-outreach-qa/warm-manual-social-handoff-qa.mp4",
+  "rawVideoPath": "/Users/vambahsillah/.codex/worktrees/6971/Portfolio/test-results/warm-manual-social-handoff-qa/source/b748af230bee57347fc1e94e27fa5414.webm",
+  "viewportResults": [
+    {
+      "name": "mobile360",
+      "viewport": {
+        "width": 360,
+        "height": 844
+      },
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/6971/Portfolio/docs/warm-outreach-qa/warm-manual-social-handoff-mobile-360.png",
+      "checks": {
+        "hasHandoff": true,
+        "hasRoute": true,
+        "hasChannels": true,
+        "hasCurrentCta": true,
+        "hasNoEgress": true,
+        "hasEvidenceBoundary": true,
+        "hasAuditKeys": true,
+        "hasCanonicalSurface": true,
+        "clientWidth": 360,
+        "scrollWidth": 360,
+        "horizontalOverflow": false
+      },
+      "externalRequests": []
+    },
+    {
+      "name": "mobile390",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/6971/Portfolio/docs/warm-outreach-qa/warm-manual-social-handoff-mobile-390.png",
+      "checks": {
+        "hasHandoff": true,
+        "hasRoute": true,
+        "hasChannels": true,
+        "hasCurrentCta": true,
+        "hasNoEgress": true,
+        "hasEvidenceBoundary": true,
+        "hasAuditKeys": true,
+        "hasCanonicalSurface": true,
+        "clientWidth": 390,
+        "scrollWidth": 390,
+        "horizontalOverflow": false
+      },
+      "externalRequests": []
+    },
+    {
+      "name": "mobile430",
+      "viewport": {
+        "width": 430,
+        "height": 932
+      },
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/6971/Portfolio/docs/warm-outreach-qa/warm-manual-social-handoff-mobile-430.png",
+      "checks": {
+        "hasHandoff": true,
+        "hasRoute": true,
+        "hasChannels": true,
+        "hasCurrentCta": true,
+        "hasNoEgress": true,
+        "hasEvidenceBoundary": true,
+        "hasAuditKeys": true,
+        "hasCanonicalSurface": true,
+        "clientWidth": 430,
+        "scrollWidth": 430,
+        "horizontalOverflow": false
+      },
+      "externalRequests": []
+    },
+    {
+      "name": "desktop1440",
+      "viewport": {
+        "width": 1440,
+        "height": 960
+      },
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/6971/Portfolio/docs/warm-outreach-qa/warm-manual-social-handoff-desktop-1440.png",
+      "checks": {
+        "hasHandoff": true,
+        "hasRoute": true,
+        "hasChannels": true,
+        "hasCurrentCta": true,
+        "hasNoEgress": true,
+        "hasEvidenceBoundary": true,
+        "hasAuditKeys": true,
+        "hasCanonicalSurface": true,
+        "clientWidth": 1440,
+        "scrollWidth": 1440,
+        "horizontalOverflow": false
+      },
+      "externalRequests": []
+    }
+  ],
+  "video": {
+    "rawVideoPath": "/Users/vambahsillah/.codex/worktrees/6971/Portfolio/test-results/warm-manual-social-handoff-qa/source/b748af230bee57347fc1e94e27fa5414.webm",
+    "mp4Path": "/Users/vambahsillah/.codex/worktrees/6971/Portfolio/docs/warm-outreach-qa/warm-manual-social-handoff-qa.mp4",
+    "afterRecord": {
+      "clipboardWrites": 1,
+      "evidenceRecorded": true,
+      "apiBackedEvidenceResponse": true,
+      "repeatEvidenceButtonVisible": false,
+      "externalRequestsVisible": true
+    },
+    "externalRequests": [],
+    "manualEvidenceApiResponses": [
+      {
+        "method": "POST",
+        "url": "http://127.0.0.1:3068/api/admin/outreach/leads/42/manual-social-handoff",
+        "requestBody": {
+          "channel": "linkedin",
+          "messageVersionKey": "warm-outreach:manual-message-version:v1:qa-linkedin-42",
+          "manualHandoffKey": "warm-outreach:manual-handoff:v1:qa-linkedin-42",
+          "manualEvidenceKey": "warm-outreach:manual-evidence:v1:qa-linkedin-42",
+          "operatorNote": "Copied into LinkedIn manually after reviewing the relationship basis."
+        },
+        "response": {
+          "outcome": "recorded",
+          "duplicatePrevented": false,
+          "evidence": {
+            "version": "warm-outreach-manual-social-evidence/v1",
+            "status": "manual_sent_recorded",
+            "contactId": "42",
+            "channel": "linkedin",
+            "messageVersionKey": "warm-outreach:manual-message-version:v1:qa-linkedin-42",
+            "manualHandoffKey": "warm-outreach:manual-handoff:v1:qa-linkedin-42",
+            "manualEvidenceKey": "warm-outreach:manual-evidence:v1:qa-linkedin-42",
+            "recordedAt": "2026-09-02T18:52:50.877Z",
+            "operatorNote": "Copied into LinkedIn manually after reviewing the relationship basis.",
+            "source": {
+              "table": "contact_communications",
+              "id": "qa-manual-communication-1",
+              "sourceSystem": "manual",
+              "sourceId": "warm-outreach:manual-evidence:v1:qa-linkedin-42"
+            },
+            "privacyBoundary": {
+              "storesRawMessageBody": false,
+              "storesRawContactDetails": false,
+              "storesScreenshot": false,
+              "storesProviderIdentifiers": false
+            },
+            "executionBoundary": {
+              "providerCallsEnabled": false,
+              "externalSendEnabled": false,
+              "linkedinApiEnabled": false,
+              "facebookApiEnabled": false,
+              "phoneAccessEnabled": false,
+              "smsDeliveryEnabled": false,
+              "gmailDraftCreationEnabled": false,
+              "slackDispatchEnabled": false,
+              "n8nDispatchEnabled": false,
+              "externalRequests": []
+            }
+          },
+          "executionBoundary": {
+            "providerCallsEnabled": false,
+            "externalSendEnabled": false,
+            "linkedinApiCalled": false,
+            "facebookApiCalled": false,
+            "phoneAccessCalled": false,
+            "smsDeliveryEnabled": false,
+            "gmailDraftCreated": false,
+            "slackDispatchEnabled": false,
+            "n8nDispatchEnabled": false,
+            "externalRequests": []
+          }
+        }
+      }
+    ]
+  },
+  "pass": {
+    "allViewportsRendered": true,
+    "noHorizontalOverflow": true,
+    "noExternalRequests": true,
+    "localEvidenceRecorded": true,
+    "apiBackedEvidenceResponse": true
+  },
+  "externalRequests": []
+}

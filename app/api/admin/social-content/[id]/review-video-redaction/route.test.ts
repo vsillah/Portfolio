@@ -23,7 +23,9 @@ vi.mock('@/lib/supabase', () => ({
   },
 }))
 
-import { POST } from './route'
+import { POST as routePost } from './route'
+import { withVersionedQueueMock, queueWriteScenario } from '@/lib/social-queue-write.test-fixtures'
+const POST: typeof routePost = (...args) => withVersionedQueueMock(mocks.from, () => routePost(...args))
 
 function request(body: unknown) {
   return new NextRequest('http://localhost/api/admin/social-content/social-1/review-video-redaction', {
@@ -108,12 +110,14 @@ describe('POST /api/admin/social-content/[id]/review-video-redaction', () => {
     vi.restoreAllMocks()
   })
 
-  it('approves a redaction item and clears the publish blocker', async () => {
+  it.each(['normal', 'locked', 'race'] as const)('approves a redaction item and clears the publish blocker (%s)', async mode => {
+    queueWriteScenario.mode = mode
     const response = await POST(request({
       item_id: 'item-1',
       decision: 'approve_redaction',
     }), { params: { id: 'social-1' } })
 
+    if (mode !== 'normal') { expect(response.status).toBe(409); return }
     expect(response.status).toBe(200)
     const body = await response.json()
     expect(body.redaction_gate.ready).toBe(true)

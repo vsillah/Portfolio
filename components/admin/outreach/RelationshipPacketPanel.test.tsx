@@ -1,17 +1,35 @@
-import { render, screen, within } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
+import { describe, expect, it, vi } from 'vitest'
 import RelationshipPacketPanel, {
   describeChannelCapability,
   relationshipReadinessLabel,
   type RelationshipPacketApiResponse,
+  type SmsTelnyxNoSendCanaryResult,
 } from './RelationshipPacketPanel'
 import type { WarmOutreachChannel } from '@/lib/warm-outreach-relationship-intelligence'
+import { buildWarmGmailOperatingLoop } from '@/lib/warm-outreach-gmail-operating-loop'
 import type {
   WarmOutreachChannelSendReadiness,
   WarmOutreachEmailSendLifecycle,
   WarmOutreachSendAuthority,
   WarmOutreachSendMode,
 } from '@/lib/warm-outreach-response-monitoring'
+import {
+  buildWarmOutreachGmailResponseImportActivationReadiness,
+  buildWarmOutreachGmailResponseImportCanaryReadiness,
+} from '@/lib/warm-outreach-gmail-response-import'
+import { buildWarmManualSocialHandoff } from '@/lib/warm-outreach-manual-social-handoff'
+import { buildWarmSmsReadiness } from '@/lib/warm-outreach-sms-readiness'
+import {
+  buildWarmSmsCandidateReview,
+  warmSmsCandidateMetadata,
+  warmSmsMessageVersionKey,
+  type WarmSmsCandidateQueueRow,
+} from '@/lib/warm-outreach-sms-candidate'
+import {
+  WARM_SLACK_SEND_APPROVAL_QA_QUEUE_ID,
+  warmSlackSendApprovalQaRelationshipPacket,
+} from './warmSlackSendApprovalQaFixture'
 
 const gateKeys = [
   'target_source_provenance',
@@ -93,13 +111,351 @@ function sendReadiness(
         messageVersionKey: `warm-outreach:email-message-version:v1:${mode}`,
         sendQueueIdempotencyKey: `warm-outreach:email-send-queue:v1:${mode}`,
         providerCapabilitySmokeKey: `warm-outreach:gmail-capability-smoke:v1:${mode}`,
+        gmailDraftCreationGateKey: `warm-outreach:gmail-draft-creation-gate:v1:${mode}`,
         submittedEvidenceKey: `warm-outreach:email-submitted-evidence:v1:${mode}`,
+        gmailDraftHandoffPacket: {
+          version: 'warm-outreach-gmail-draft-handoff/v1',
+          state: mode === 'warm_1_to_many' ? 'per_recipient_gate_required' : 'ready_for_internal_handoff',
+          label: mode === 'warm_1_to_many'
+            ? 'Internal draft handoff is per-recipient only'
+            : 'Internal Gmail draft handoff ready',
+          internalHandoffReady: true,
+          channel: 'email',
+          contactReference: {
+            contactId: 42,
+            contactName: 'Ada Operator',
+            reference: 'contact_submission:42:Ada Operator',
+          },
+          messageVersionKey: `warm-outreach:email-message-version:v1:${mode}`,
+          templateDraftBasis: {
+            recommendedTemplate: 'follow_up',
+            selectedChannel: 'email',
+            relationshipEventId: null,
+            detail: 'Use follow up as the internal draft basis for the current message version.',
+          },
+          provenanceSummary: {
+            relationshipSourceCount: 2,
+            relationshipSignalCount: 2,
+            safeToMentionCount: 1,
+            summarizeOnlyCount: 1,
+            commonalityCount: 2,
+            detail: 'Portfolio-local relationship provenance is summarized for the handoff packet.',
+          },
+          suppressionStatus: 'clear',
+          suppressionReasons: [],
+          idempotencyKey: `warm-outreach:gmail-draft-handoff:v1:${mode}`,
+          futureApprovalGates: [
+            'human_reply_or_draft_approval',
+            'provider_capability_smoke',
+            'gmail_draft_creation_authority',
+            'external_send_authority',
+            'send_scheduling',
+            'submitted_sent_evidence',
+          ],
+          gmailProviderActivated: false,
+          gmailDraftCreationEnabled: false,
+          providerCallsEnabled: false,
+          externalSendBlocked: true,
+          detail: mode === 'warm_1_to_many'
+            ? 'Batch review can prepare handoff evidence only one recipient at a time; no batch Gmail drafts can be created.'
+            : 'Operator can review the internal Gmail draft handoff packet; Gmail draft creation and send stay blocked.',
+        },
+        providerCapabilitySmoke: {
+          version: 'warm-outreach-gmail-provider-smoke/v1',
+          provider: 'gmail',
+          status: 'not_configured',
+          label: 'Gmail provider not activated',
+          smokeKey: `warm-outreach:gmail-capability-smoke:v1:${mode}`,
+          oauthConfigured: false,
+          connectedProfileAvailable: false,
+          providerConfigured: false,
+          readOnlySmokeReady: false,
+          readOnlySmokeEnabled: false,
+          providerCallsEnabled: false,
+          externalSendEnabled: false,
+          gmailDraftCreationEnabled: false,
+          requiredConfig: [
+            'Gmail OAuth configuration',
+            'Connected Gmail profile',
+            'Future explicit read-only smoke authority',
+          ],
+          blockedReasons: [],
+          lastSmokeAt: null,
+          lastSmokeError: null,
+          futureActivationGate: 'A later captain-lane approval must authorize any Gmail provider smoke; this scaffold records readiness only.',
+          notes: [
+            'This model does not call Gmail.',
+            'Read-only smoke readiness is separate from Gmail draft creation and external send authority.',
+            'Gmail draft creation, send, scheduling, Slack action, and provider calls remain disabled.',
+          ],
+        },
+        gmailDraftCreationGate: {
+          version: 'warm-outreach-gmail-draft-creation-gate/v1',
+          status: 'provider_smoke_required',
+          label: 'Gmail provider smoke required before draft creation',
+          draftCreationKey: `warm-outreach:gmail-draft-creation-gate:v1:${mode}`,
+          internalHandoffReady: true,
+          providerSmokeStatus: 'not_configured',
+          providerSmokePassed: false,
+          draftCreationAuthority: false,
+          gmailDraftCreationEnabled: false,
+          providerCallsEnabled: false,
+          externalSendEnabled: false,
+          externalSendBlocked: true,
+          blockedReasons: [],
+          requiredGates: [
+            'internal_gmail_draft_handoff',
+            'read_only_gmail_provider_smoke',
+            'gmail_draft_creation_authority',
+            'duplicate_prevention',
+            'external_send_authority_separate_future_gate',
+          ],
+          notes: [
+            'This gate does not create Gmail drafts.',
+            'Draft creation stays disabled even when readiness evidence is complete.',
+            'External send authority remains a separate future gate.',
+          ],
+        },
+        gmailProviderActivationReadiness: {
+          version: 'warm-outreach-gmail-provider-activation-readiness/v1',
+          localDraftReadiness: {
+            state: 'ready',
+            label: 'Local draft handoff ready',
+            detail: 'Operator can review the internal Gmail draft handoff packet; Gmail draft creation and send stay blocked.',
+            idempotencyKey: `warm-outreach:gmail-draft-handoff:v1:${mode}`,
+          },
+          connectedSenderReadiness: {
+            state: 'requires_no_send_canary',
+            label: 'Connected sender not checked in relationship packet',
+            requiredSender: null,
+            connectedAs: null,
+            recoveryAction: 'Run the no-send canary or open Admin Credentials to verify the connected Gmail sender before any live draft canary request.',
+          },
+          liveDraftCanaryReadiness: {
+            state: 'ready_for_no_send_canary',
+            label: 'Ready for no-send canary',
+            detail: 'The operator may run the no-send canary. It verifies local readiness and connected sender gates without calling Gmail.',
+            providerCallsEnabled: false,
+            gmailDraftCreated: false,
+            trackingPersisted: false,
+            externalSendEnabled: false,
+          },
+          duplicateDraftEvidence: {
+            createdOnce: false,
+            duplicatePrevented: false,
+            draftId: null,
+            threadId: null,
+            messageId: null,
+            sourceIds: [],
+            noSendStatus: 'no_send',
+            detail: 'No prior Gmail draft metadata was found in local Portfolio rows for this contact/channel/message path.',
+          },
+          externalSendBoundary: {
+            blocked: true,
+            label: 'External send blocked',
+            detail: 'Gmail draft creation and Gmail send authority are separate gates. A draft, smoke, or canary never authorizes sending.',
+          },
+          remainingHumanGates: [
+            'review_local_draft_handoff_packet',
+            'verify_connected_sender_identity',
+            'captain_authorize_specific_live_draft_canary',
+            'explicit_per_recipient_gmail_draft_authorization',
+            'separate_external_send_authority',
+          ],
+        },
+        externalSendReadiness: {
+          version: 'warm-outreach-external-send-readiness/v1',
+          state: 'blocked_pending_authority',
+          label: 'External Gmail send authority blocked',
+          senderIdentity: {
+            state: 'not_verified',
+            requiredSender: null,
+            connectedAs: null,
+            detail: 'Sender identity must be verified before external send authority.',
+          },
+          recipientApproval: {
+            state: 'required',
+            contactId: 42,
+            approved: false,
+            detail: 'No per-recipient external-send approval is recorded.',
+          },
+          draftEvidence: {
+            state: 'missing',
+            gmailDraftExists: false,
+            draftId: null,
+            threadId: null,
+            messageId: null,
+            sourceIds: [],
+            detail: 'No tracked Gmail draft evidence is recorded.',
+          },
+          suppressionConsent: {
+            state: 'clear',
+            reasons: [],
+            detail: 'No suppression blocker is recorded.',
+          },
+          idempotency: {
+            messageVersionKey: `warm-outreach:email-message-version:v1:${mode}`,
+            sendQueueIdempotencyKey: `warm-outreach:email-send-queue:v1:${mode}`,
+            submittedEvidenceKey: `warm-outreach:email-submitted-evidence:v1:${mode}`,
+            duplicateDetected: false,
+            detail: 'Future external-send review must reuse stable keys.',
+          },
+          externalSend: {
+            enabled: false,
+            approved: false,
+            blocked: true,
+            detail: 'Portfolio cannot send this Gmail message from this state.',
+            nextStep: 'Ask the Integration Captain for explicit per-recipient external-send authority after readiness review.',
+          },
+        },
+        realRecipientRolloutReadiness: {
+          version: 'warm-outreach-real-gmail-rollout-readiness/v1',
+          state: 'blocked',
+          label: 'Real Gmail send request blocked',
+          eligibleForSendApprovalRequest: false,
+          canBuildSlackApprovalPayload: false,
+          exactNextAction: 'resolve_blocker',
+          actionLabel: 'Resolve blocker',
+          requirements: {
+            draftEvidence: {
+              state: 'missing',
+              draftId: null,
+              threadId: null,
+              messageId: null,
+              sourceIds: [],
+              detail: 'Create and track the per-recipient Gmail draft before requesting real-recipient send approval.',
+            },
+            senderMatch: {
+              state: 'missing',
+              requiredSender: null,
+              connectedAs: null,
+              detail: 'Sender identity must be recorded on the tracked Gmail draft evidence.',
+            },
+            suppression: {
+              state: 'clear',
+              reasons: [],
+              detail: 'No suppression blocker is recorded.',
+            },
+            provider: {
+              state: 'missing',
+              detail: 'Reconnect or verify Gmail provider readiness before asking for real-recipient approval.',
+            },
+            authorization: {
+              state: 'missing',
+              decisionKey: null,
+              detail: 'No Portfolio or Slack send authorization decision is recorded yet.',
+            },
+            submittedEvidence: {
+              state: 'missing',
+              sourceIds: [],
+              detail: 'No submitted send evidence is recorded for this contact, channel, and message version.',
+            },
+            execution: {
+              state: 'blocked',
+              sourceIds: [],
+              detail: 'Resolve blockers before execution eligibility.',
+            },
+          },
+          blockers: [
+            'Tracked Gmail draft evidence is required before a real-recipient send request.',
+            'Gmail provider configuration or connected profile evidence is missing.',
+            'Tracked Gmail draft sender evidence is missing.',
+          ],
+          slackApprovalContract: {
+            route: '/api/admin/outreach/[id]/slack-send-approval',
+            method: 'POST',
+            dispatchEnabled: false,
+            actionIds: ['warm_gmail_send.approve', 'warm_gmail_send.reject', 'warm_gmail_send.revise'],
+            payloadDedupeKey: `warm-outreach:slack-gmail-send-card:v1:${mode}`,
+            status: 'not_sent',
+            requestKey: null,
+            slackDispatchStatus: 'not_sent',
+            recordsAuthorizationIntentOnly: true,
+            gmailSendCalled: false,
+            providerExecutionEnabled: false,
+            approvalRequestRecovery: {
+              status: 'portfolio_request_available_slack_dispatch_disabled',
+              label: 'Portfolio recovery path',
+              detail:
+                'Slack dispatch is disabled. The relationship packet can still record a local one-recipient approval request without posting to Slack or calling Gmail.',
+              nextAction:
+                'Use Prepare review request in this contact workroom, then record approve, reject, or revise before any separate Gmail send execution gate.',
+            },
+          },
+          executionBoundary: {
+            slackDispatch: false,
+            gmailSend: false,
+            providerCalls: false,
+            productionEnvChange: false,
+            perRecipientExecutionAuthorizationRequired: true,
+            captainFlagRequiredForExecution: true,
+          },
+        },
+        gmailProviderExecutionReadiness: {
+          version: 'warm-outreach-gmail-provider-execution-readiness/v1',
+          state: 'blocked',
+          label: 'Execution blocked',
+          liveExecutionEnabled: false,
+          providerCallsEnabled: false,
+          externalSendEnabled: false,
+          adminActivationGate: {
+            key: 'ENABLE_WARM_GMAIL_SEND_EXECUTION',
+            state: 'disabled',
+            detail:
+              'The relationship packet and workroom never enable Gmail execution.',
+          },
+          operatorDecision: {
+            status: 'not_sent',
+            nextAction: 'Review the recipient, context, and draft before any approval.',
+            approvalRoute: '/api/admin/outreach/[id]/slack-send-approval',
+            recordsAuthorizationIntentOnly: true,
+          },
+          exactExecutionGate: {
+            route: '/api/admin/outreach/[id]/gmail-user-send',
+            method: 'POST',
+            enabledOnThisSurface: false,
+            sendAuthorization: 'execute_warm_gmail_send_for_authorized_recipient',
+            messageVersionKey: `warm-outreach:email-message-version:v1:${mode}`,
+            sendQueueIdempotencyKey: `warm-outreach:email-send-queue:v1:${mode}`,
+            submittedEvidenceKey: `warm-outreach:email-submitted-evidence:v1:${mode}`,
+            detail: 'Exact execution remains separately gated.',
+          },
+          canaryTrace: {
+            queueId: null,
+            status: 'blocked',
+            sentEvidenceRecorded: false,
+            gmailMessageId: null,
+            gmailThreadId: null,
+            detail: 'No Gmail execution evidence is recorded.',
+          },
+        },
+        gmailOperatingLoop: buildWarmGmailOperatingLoop({
+          contactId: 42,
+          queueId: null,
+          messageVersionKey: `warm-outreach:email-message-version:v1:${mode}`,
+          sendQueueIdempotencyKey: `warm-outreach:email-send-queue:v1:${mode}`,
+          submittedEvidenceKey: `warm-outreach:email-submitted-evidence:v1:${mode}`,
+          internalDraftReady: true,
+          draftTracked: false,
+          providerConfigured: false,
+          senderMatched: false,
+          approvalRequestStatus: 'not_sent',
+          authorizationStatus: 'missing',
+          executionState: 'blocked',
+          submittedEvidenceRecorded: false,
+          secondaryLogRepairRequired: false,
+          responseMonitoringAttached: false,
+          hardBlockers: mode === 'warm_1_to_many'
+            ? ['Batch Gmail actions remain per-recipient only. Open one warm contact before continuing.']
+            : [],
+        }),
         duplicatePrevention: {
           scope: 'contact_channel_message_version',
           duplicateDetected: false,
           existingEvidenceIds: [],
           requiredUniqueKeys: [
             `warm-outreach:email-message-version:v1:${mode}`,
+            `warm-outreach:gmail-draft-creation-gate:v1:${mode}`,
             `warm-outreach:email-send-queue:v1:${mode}`,
             `warm-outreach:gmail-capability-smoke:v1:${mode}`,
             `warm-outreach:email-submitted-evidence:v1:${mode}`,
@@ -370,6 +726,262 @@ const packetResponse: RelationshipPacketApiResponse = {
       requiresHumanApproval: true,
       idempotencyKey: 'warm-outreach:monitoring-follow-up:v1:followup42',
     },
+    responseDigest: {
+      version: 'warm-outreach-response-digest/v1',
+      state: 'empty_no_response',
+      label: 'No response yet',
+      classification: {
+        responseClass: null,
+        label: 'No response',
+        confidence: null,
+        sourceId: null,
+      },
+      nextBestAction: {
+        label: 'Review stale no-response follow-up',
+        description: 'Review relationship evidence before proposing another touch.',
+        priority: 'medium',
+        ctaLabel: 'Capture response',
+      },
+      followUpDraft: {
+        state: 'not_available',
+        subject: null,
+        approvalState: 'not_available',
+        sourceId: null,
+        idempotencyKey: null,
+        detail: 'No response evidence is recorded yet, so no reply draft is available.',
+      },
+      suppressionProposal: {
+        state: 'not_applicable',
+        actionLabel: 'No suppression proposal',
+        reason: 'No hold, not-now, do-not-contact, or sensitive handling proposal is implied by the current evidence.',
+        idempotencyKey: null,
+        requiresHumanApproval: true,
+        mutatesSuppression: false,
+      },
+      readiness: {
+        manualCaptureEnabled: true,
+        localReplyDraftReady: false,
+        providerMonitoringEnabled: false,
+        externalSendEnabled: false,
+        slackDispatchEnabled: false,
+      },
+    },
+    providerCaptureReadiness: {
+      version: 'warm-outreach-provider-response-capture-readiness/v1',
+      state: 'provider_assisted_readiness',
+      label: 'Provider-assisted metadata ready; polling disabled',
+      responseCaptureKey: 'warm-outreach:response-capture:v1:response42',
+      supportedClassifications: [
+        { key: 'interested', label: 'Interested', humanReviewRequired: true },
+        { key: 'question', label: 'Question', humanReviewRequired: true },
+        { key: 'referral', label: 'Referral', humanReviewRequired: true },
+        { key: 'objection', label: 'Objection', humanReviewRequired: true },
+        { key: 'not_now', label: 'Not now', humanReviewRequired: true },
+        { key: 'unsubscribe_do_not_contact', label: 'Unsubscribe / do not contact', humanReviewRequired: true },
+        { key: 'negative_sensitive', label: 'Negative / sensitive', humanReviewRequired: true },
+        { key: 'ambiguous', label: 'Ambiguous', humanReviewRequired: true },
+      ],
+      providers: [
+        {
+          provider: 'gmail',
+          channel: 'email',
+          state: 'readiness_metadata_only',
+          label: 'Gmail / email metadata ready',
+          detail: 'Provider identifiers may be stored on a manually reviewed capture, but provider polling and import jobs remain disabled.',
+          manualCaptureEnabled: true,
+          providerIngestionEnabled: false,
+          providerPollingEnabled: false,
+          externalMonitoringEnabled: false,
+          externalActionEnabled: false,
+        },
+        {
+          provider: 'linkedin',
+          channel: 'linkedin',
+          state: 'blocked_provider_gate',
+          label: 'LinkedIn provider gate blocked',
+          detail: 'A provider capability gate must clear before provider-assisted response capture can be represented.',
+          manualCaptureEnabled: true,
+          providerIngestionEnabled: false,
+          providerPollingEnabled: false,
+          externalMonitoringEnabled: false,
+          externalActionEnabled: false,
+        },
+        {
+          provider: 'facebook',
+          channel: 'facebook',
+          state: 'manual_capture_only',
+          label: 'Facebook manual capture only',
+          detail: 'Capture the response manually in Portfolio and link it to the contact or outreach queue row.',
+          manualCaptureEnabled: true,
+          providerIngestionEnabled: false,
+          providerPollingEnabled: false,
+          externalMonitoringEnabled: false,
+          externalActionEnabled: false,
+        },
+        {
+          provider: 'phone_contact',
+          channel: 'phone_contact',
+          state: 'manual_capture_only',
+          label: 'Phone manual capture only',
+          detail: 'Capture the response manually in Portfolio and link it to the contact or outreach queue row.',
+          manualCaptureEnabled: true,
+          providerIngestionEnabled: false,
+          providerPollingEnabled: false,
+          externalMonitoringEnabled: false,
+          externalActionEnabled: false,
+        },
+      ],
+      slackAlertReadiness: {
+        state: 'metadata_deeplink_only',
+        label: 'Slack alert metadata only',
+        deepLinkReady: true,
+        dispatchEnabled: false,
+        slackActionEnabled: false,
+        route: '/admin/contacts/[id]',
+        detail: 'Response alerts may store a Portfolio contact deep link for later review, but this surface does not post Slack messages.',
+      },
+    },
+    gmailResponseImportReadiness: {
+      version: 'warm-outreach-gmail-response-import-readiness/v1',
+      state: 'dry_run_ready',
+      label: 'Mock Gmail response import ready',
+      provider: 'gmail',
+      dryRunImportEnabled: true,
+      liveProviderImportEnabled: false,
+      providerPollingEnabled: false,
+      gmailApiCalled: false,
+      externalActionsEnabled: false,
+      gmailDraftCreationEnabled: false,
+      slackDispatchEnabled: false,
+      n8nDispatchEnabled: false,
+      activationReadiness: buildWarmOutreachGmailResponseImportActivationReadiness(),
+      matchBasis: [
+        {
+          key: 'gmail_thread_id',
+          label: 'Gmail thread',
+          available: true,
+          detail: 'gmail-thread-42',
+        },
+        {
+          key: 'gmail_message_id',
+          label: 'Gmail message',
+          available: false,
+          detail: 'No Gmail message id is recorded on local response or queue evidence.',
+        },
+        {
+          key: 'queue_id',
+          label: 'Queue row',
+          available: true,
+          detail: 'queue-1',
+        },
+        {
+          key: 'contact_id',
+          label: 'Contact',
+          available: true,
+          detail: 'contact_submission:42',
+        },
+        {
+          key: 'normalized_recipient',
+          label: 'Recipient identity',
+          available: true,
+          detail: 'The dry-run importer also compares mocked reply sender against the Portfolio contact email.',
+        },
+        {
+          key: 'subject_fingerprint',
+          label: 'Subject fingerprint',
+          available: true,
+          detail: 'subject-key',
+        },
+      ],
+      latestCandidate: {
+        status: 'ready_for_mock_import',
+        confidence: 'high',
+        providerThreadId: 'gmail-thread-42',
+        providerMessageId: null,
+        matchedOutreachQueueId: 'queue-1',
+        matchedContactId: 42,
+        provenanceSourceId: null,
+        nextAction:
+          'Run the dry-run admin test path with mocked Gmail payloads, then import through the existing response lifecycle after human review.',
+        recoveryPath:
+          'POST mocked payloads to the dry-run route; ready candidates still create only local response evidence through the existing lifecycle.',
+      },
+      dedupe: {
+        provider: 'gmail',
+        keys: ['gmail_thread:gmail-thread-42', 'queue:queue-1', 'contact:42', 'subject:subject-key'],
+        duplicateReplayBlocked: true,
+        detail:
+          'Replay checks use provider, Gmail thread/message id, queue id, contact id, normalized recipient, subject fingerprint, and existing warm response source ids.',
+      },
+      canaryReadiness: buildWarmOutreachGmailResponseImportCanaryReadiness({
+        contactId: 42,
+        queueId: 'queue-1',
+        gmailThreadId: 'gmail-thread-42',
+        dedupeKey: 'gmail_thread:gmail-thread-42',
+        observedAt: '2026-08-28T10:00:00.000Z',
+      }),
+      auditNotes: [
+        'This readiness packet is local Portfolio metadata only.',
+        'Live Gmail polling/import remains disabled; mocked dry-run planning is the only import path represented here.',
+        'No Gmail draft, Gmail send, Slack dispatch, n8n dispatch, or provider action is enabled.',
+      ],
+    },
+    operatorDecisionPaths: [
+      {
+        key: 'capture_response',
+        label: 'Capture response',
+        state: 'available',
+        description: 'Record a manual or provider-assisted response as Portfolio contact communication evidence.',
+        requiresHumanApproval: true,
+        externalActionEnabled: false,
+        idempotencyKey: 'warm-outreach:operator-decision:v1:capture-response',
+      },
+      {
+        key: 'review_reply_draft',
+        label: 'Review reply draft',
+        state: 'readiness_only',
+        description: 'A local draft decision becomes available after response evidence is captured.',
+        requiresHumanApproval: true,
+        externalActionEnabled: false,
+        idempotencyKey: 'warm-outreach:operator-decision:v1:review-reply',
+      },
+      {
+        key: 'suppression_proposal',
+        label: 'Suppression proposal',
+        state: 'readiness_only',
+        description: 'Unsubscribe or do-not-contact replies create a human-gated suppression proposal; this path does not mutate suppression directly.',
+        requiresHumanApproval: true,
+        externalActionEnabled: false,
+        idempotencyKey: 'warm-outreach:operator-decision:v1:suppression',
+      },
+      {
+        key: 'interested_task',
+        label: 'Interested task path',
+        state: 'readiness_only',
+        description: 'Interested or sales-intent replies can create a local outreach task for the next decision; no provider execution is enabled.',
+        requiresHumanApproval: true,
+        externalActionEnabled: false,
+        idempotencyKey: 'warm-outreach:operator-decision:v1:interested-task',
+      },
+      {
+        key: 'next_touch_timing',
+        label: 'Next-touch timing',
+        state: 'pending_human_qa',
+        description: 'Review relationship evidence before proposing another touch.',
+        requiresHumanApproval: true,
+        externalActionEnabled: false,
+        idempotencyKey: 'warm-outreach:operator-decision:v1:timing',
+      },
+      {
+        key: 'slack_alert_metadata',
+        label: 'Slack alert metadata',
+        state: 'readiness_only',
+        description: 'A future alert may deep-link to this contact workroom, but Slack dispatch and Slack actions stay disabled.',
+        requiresHumanApproval: true,
+        externalActionEnabled: false,
+        idempotencyKey: 'warm-outreach:operator-decision:v1:slack-alert',
+      },
+    ],
     blockedReasons: [],
     auditNotes: ['Monitoring is derived from local Portfolio rows only.'],
     sendReadiness: {
@@ -415,6 +1027,10 @@ describe('RelationshipPacketPanel', () => {
 
     expect(screen.getByText('Relationship packet')).toBeInTheDocument()
     expect(screen.getAllByText('Needs human review')).toHaveLength(2)
+    const compactReadiness = screen.getByLabelText('Readiness: Needs human review')
+    expect(compactReadiness).toHaveTextContent('Readiness: Human review')
+    expect(compactReadiness).toHaveAttribute('title', 'Readiness: Needs human review')
+    expect(screen.getByRole('link', { name: 'Go to action' })).toBeInTheDocument()
     expect(screen.getByText('Met through a Portfolio meeting and has prior email replies.')).toBeInTheDocument()
     expect(screen.getByText('Sources: 2')).toBeInTheDocument()
     expect(screen.getByText('Safe to mention: 1')).toBeInTheDocument()
@@ -437,16 +1053,129 @@ describe('RelationshipPacketPanel', () => {
     expect(screen.getByText('Draft creation: off')).toBeInTheDocument()
     expect(screen.getByText('External send: off')).toBeInTheDocument()
     expect(screen.getByText('Provider monitoring: off')).toBeInTheDocument()
-    expect(screen.getByText('Response monitoring')).toBeInTheDocument()
+    expect(screen.getAllByText('Response monitoring')).not.toHaveLength(0)
+    expect(screen.getByLabelText('Warm response digest for selected contact')).toBeInTheDocument()
+    expect(screen.getByText('Response digest')).toBeInTheDocument()
+    expect(screen.getByText('No response yet')).toBeInTheDocument()
+    expect(screen.getByText('Classification: No response')).toBeInTheDocument()
+    expect(screen.getByText('Follow-up draft: not available')).toBeInTheDocument()
+    expect(screen.getByText('Priority: medium')).toBeInTheDocument()
+    expect(screen.getByText('Follow-up draft readiness')).toBeInTheDocument()
+    expect(screen.getAllByText('Suppression proposal').length).toBeGreaterThan(0)
     expect(screen.getByText('Review stale no-response follow-up')).toBeInTheDocument()
     expect(screen.getByText('stale no response')).toBeInTheDocument()
+    expect(screen.getByText('Response capture readiness')).toBeInTheDocument()
+    expect(screen.getByText('Provider-assisted metadata ready; polling disabled')).toBeInTheDocument()
+    expect(screen.getByText('Gmail / email metadata ready')).toBeInTheDocument()
+    expect(screen.getByText('Facebook manual capture only')).toBeInTheDocument()
+    expect(screen.getByText('Gmail response import')).toBeInTheDocument()
+    expect(screen.getByText('Mock Gmail response import ready')).toBeInTheDocument()
+    expect(screen.getByText('Live import off')).toBeInTheDocument()
+    expect(screen.getByText('Candidate: ready for mock import / confidence high')).toBeInTheDocument()
+    expect(screen.getByText('Activation readiness: Ready for mock import')).toBeInTheDocument()
+    expect(screen.getByText('Mock: ready / live: disabled')).toBeInTheDocument()
+    expect(screen.getByText('Mock import: ready')).toBeInTheDocument()
+    expect(screen.getByText('Live import: disabled')).toBeInTheDocument()
+    expect(screen.getByText('Provider: not checked')).toBeInTheDocument()
+    expect(screen.getByText('Gmail token: not checked')).toBeInTheDocument()
+    expect(screen.getByText('Gmail scope: not checked')).toBeInTheDocument()
+    expect(screen.getByText('Manual recovery: ready')).toBeInTheDocument()
+    expect(screen.getByText('Queue: queue-1')).toBeInTheDocument()
+    expect(screen.getByText('Thread: gmail-thread-42')).toBeInTheDocument()
+    expect(screen.getByText('Message: missing')).toBeInTheDocument()
+    expect(screen.getByText('Response import canary readiness')).toBeInTheDocument()
+    expect(screen.getByText('Ready for dry-run response import')).toBeInTheDocument()
+    expect(screen.getByText('Live read approval required')).toBeInTheDocument()
+    expect(screen.getByText('Decision: dry run only')).toBeInTheDocument()
+    expect(screen.getByText('Outcome: not checked')).toBeInTheDocument()
+    expect(screen.getByText('Dry-run fixture: ready')).toBeInTheDocument()
+    expect(screen.getByText('One-recipient scope: ready')).toBeInTheDocument()
+    expect(screen.getByText('Live Gmail read approval: required')).toBeInTheDocument()
+    expect(screen.getByText('Reply/send boundary: disabled')).toBeInTheDocument()
+    expect(screen.getByText('Gmail API: not called / DB writes: off / reply draft: not created.')).toBeInTheDocument()
+    expect(screen.getByText('Gmail thread: ready')).toBeInTheDocument()
+    expect(screen.getByText('Gmail message: missing')).toBeInTheDocument()
+    expect(screen.getByText('Recipient identity: ready')).toBeInTheDocument()
+    expect(screen.getByText(/Run the dry-run admin test path/)).toBeInTheDocument()
+    expect(screen.getByText(/ready candidates still create only local response evidence/)).toBeInTheDocument()
+    expect(screen.getByText('Import dedupe keys')).toBeInTheDocument()
+    expect(screen.getByText('gmail_thread:gmail-thread-42')).toBeInTheDocument()
+    expect(screen.getByText('Dry-run import: on / Gmail API: not called / Slack and n8n: off.')).toBeInTheDocument()
+    expect(screen.getAllByText(/Provider import: off/).length).toBeGreaterThan(0)
+    expect(screen.getByText('Supported classifications')).toBeInTheDocument()
+    expect(screen.getByText('Interested')).toBeInTheDocument()
+    expect(screen.getByText('Unsubscribe / do not contact')).toBeInTheDocument()
+    expect(screen.getByText('Negative / sensitive')).toBeInTheDocument()
+    expect(screen.getByText('Slack alert metadata only')).toBeInTheDocument()
+    expect(screen.getByText(/this surface does not post Slack messages/i)).toBeInTheDocument()
+    expect(screen.getAllByText('Capture response').length).toBeGreaterThan(0)
+    expect(screen.getByText('Review reply draft')).toBeInTheDocument()
+    expect(screen.getAllByText('Suppression proposal').length).toBeGreaterThan(0)
+    expect(screen.getByText('Interested task path')).toBeInTheDocument()
+    expect(screen.getByText(/does not mutate suppression directly/i)).toBeInTheDocument()
+    expect(screen.getByText(/Capture key: warm-outreach:response-capture:v1:/)).toBeInTheDocument()
     expect(screen.getByText('Send authority review')).toBeInTheDocument()
     expect(screen.getByText('Email first candidate')).toBeInTheDocument()
     expect(screen.getByText(/Provider\/send activation blocked/)).toBeInTheDocument()
     expect(screen.getByText('Provider/send off')).toBeInTheDocument()
+    expect(screen.getByText('Real-recipient Gmail rollout')).toBeInTheDocument()
+    expect(screen.getByText('Real Gmail send request blocked')).toBeInTheDocument()
+    expect(screen.getByText('Resolve blocker')).toBeInTheDocument()
+    expect(screen.getAllByText('Draft: missing').length).toBeGreaterThan(0)
+    expect(screen.getByText('Sender: missing')).toBeInTheDocument()
+    expect(screen.getAllByText('Provider: missing').length).toBeGreaterThan(0)
+    expect(screen.getByText('Authorization: missing')).toBeInTheDocument()
+    expect(screen.getByText('Submitted evidence: missing')).toBeInTheDocument()
+    expect(screen.getByLabelText('Warm Gmail execution readiness')).toBeInTheDocument()
+    expect(screen.getByText('Execution readiness')).toBeInTheDocument()
+    expect(screen.getAllByText('Execution blocked').length).toBeGreaterThan(0)
+    expect(screen.getByText('Exact gate locked')).toBeInTheDocument()
+    expect(screen.getByText('Safe next step: Open the warm queue row, repair the named readiness gate, then return to this same item.')).toBeInTheDocument()
+    expect(screen.getByText('Exact execution evidence')).toBeInTheDocument()
+    expect(screen.getByText(/Authorization: execute_warm_gmail_send_for_authorized_recipient/)).toBeInTheDocument()
+    expect(screen.getByText('Approval request: not sent. Slack dispatch: not sent.')).toBeInTheDocument()
+    expect(screen.getByText('Approval records intent only. Gmail send: off.')).toBeInTheDocument()
+    expect(screen.getByText('Portfolio recovery path')).toBeInTheDocument()
+    expect(screen.getByText(/Slack dispatch is disabled/i)).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Prepare review request' })).not.toBeInTheDocument()
+    expect(screen.getByText('Resolve draft blocker')).toBeInTheDocument()
     expect(screen.getByText('Draft packet: ready for review')).toBeInTheDocument()
     expect(screen.getByText('Provider capability smoke: blocked')).toBeInTheDocument()
     expect(screen.getByText(/Queue key: warm-outreach:email-send-queue:v1:/)).toBeInTheDocument()
+    expect(screen.getByText('Internal draft handoff')).toBeInTheDocument()
+    expect(screen.getByText('contact_submission:42:Ada Operator / follow up')).toBeInTheDocument()
+    expect(screen.getByText('Suppression: clear. Gmail draft creation off. External send blocked.')).toBeInTheDocument()
+    expect(screen.getByText('Gmail provider smoke')).toBeInTheDocument()
+    expect(screen.getAllByText('not configured')).toHaveLength(1)
+    expect(screen.getByText('Gmail provider not activated. Provider calls off.')).toBeInTheDocument()
+    expect(screen.getByText('OAuth: missing / Profile: missing.')).toBeInTheDocument()
+    expect(screen.getByText('Gmail provider activation readiness')).toBeInTheDocument()
+    expect(screen.getByText('Local draft readiness')).toBeInTheDocument()
+    expect(screen.getByText('Local draft handoff ready')).toBeInTheDocument()
+    expect(screen.getByText('Connected sender readiness')).toBeInTheDocument()
+    expect(screen.getByText('Connected sender not checked in relationship packet')).toBeInTheDocument()
+    expect(screen.getByText('Live draft canary readiness')).toBeInTheDocument()
+    expect(screen.getByText('Ready for no-send canary')).toBeInTheDocument()
+    expect(screen.getByText('No-send canary: provider calls off / creates draft: no')).toBeInTheDocument()
+    expect(screen.getByText('Gmail draft tracking')).toBeInTheDocument()
+    expect(screen.getByText('No tracked Gmail draft')).toBeInTheDocument()
+    expect(screen.getByText('captain authorize specific live draft canary')).toBeInTheDocument()
+    expect(screen.getByText('explicit per recipient gmail draft authorization')).toBeInTheDocument()
+    expect(screen.getByText('separate external send authority')).toBeInTheDocument()
+    expect(screen.getByText('External send authority')).toBeInTheDocument()
+    expect(screen.getByText('External Gmail send authority blocked')).toBeInTheDocument()
+    expect(screen.getByText('Sender: not verified')).toBeInTheDocument()
+    expect(screen.getByText('Recipient approval: required')).toBeInTheDocument()
+    expect(screen.getByText('Draft evidence: missing')).toBeInTheDocument()
+    expect(screen.getByText('External send: blocked')).toBeInTheDocument()
+    expect(screen.getAllByText(/Send key: warm-outreach:email-send-queue:v1:/).length).toBeGreaterThan(0)
+    expect(screen.getByText('Provider execution readiness')).toBeInTheDocument()
+    expect(screen.getByText('Activation gate: ENABLE_WARM_GMAIL_SEND_EXECUTION is disabled.')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Check send authority' }))
+    expect(screen.getByText(/explicit per-recipient external-send authority after readiness review/i)).toBeInTheDocument()
+    expect(screen.getByText('Gmail draft creation availability')).toBeInTheDocument()
+    expect(screen.getByText('provider smoke required')).toBeInTheDocument()
+    expect(screen.getByText('Gmail provider smoke required before draft creation. Draft creation off. External send blocked.')).toBeInTheDocument()
     expect(screen.getByText('Warm one-to-one')).toBeInTheDocument()
     expect(screen.getByText('Warm one-to-many')).toBeInTheDocument()
     expect(screen.getAllByText('Future eligible')).toHaveLength(4)
@@ -455,6 +1184,148 @@ describe('RelationshipPacketPanel', () => {
     expect(screen.getAllByText(/Manual-only channel: prepare an operator review packet/)).toHaveLength(4)
     expect(screen.getByText('External monitoring: off')).toBeInTheDocument()
     expect(screen.getByText('Local response evidence: visible')).toBeInTheDocument()
+  })
+
+  it.each(['linkedin', 'facebook'] as const)('blocks instruction-contaminated %s copy until edited', async (channel) => {
+    const writeText = vi.fn().mockResolvedValue(undefined)
+    Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } })
+    const handoff = buildWarmManualSocialHandoff({ packet: { ...packetResponse.packet, preferredChannel: channel }, readiness: { ...packetResponse.readiness, selectedChannel: channel } })
+    handoff.channels.forEach(item => { item.preview = 'Draft direction: follow up. Safe mention: workshop.' })
+    render(<RelationshipPacketPanel authToken="admin-token" loading={false} error={null} data={{ ...packetResponse, manualSocialHandoff: handoff }} />)
+    const panel = screen.getByTestId('warm-manual-social-handoff')
+    const label = channel === 'linkedin' ? 'LinkedIn' : 'Facebook'
+    fireEvent.click(within(panel).getByRole('button', { name: new RegExp(`${label}: ready`, 'i') }))
+    expect(within(panel).getByRole('button', { name: `Copy ${label} text` })).toBeDisabled()
+    expect(within(panel).getByText('Replace planning instructions with recipient-ready copy.')).toBeInTheDocument()
+    expect(writeText).not.toHaveBeenCalled()
+    fireEvent.change(within(panel).getByLabelText(`${label} manual handoff text`), { target: { value: 'Hi Ada, would Tuesday suit our workshop follow-up?' } })
+    fireEvent.click(within(panel).getByRole('button', { name: `Copy ${label} text` }))
+    await waitFor(() => expect(writeText).toHaveBeenCalledWith('Hi Ada, would Tuesday suit our workshop follow-up?'))
+  })
+
+  it('renders manual social handoff copy and records server evidence without provider calls', async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined)
+    const previousFetch = globalThis.fetch
+    const fetchMock = vi.fn()
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: { writeText },
+    })
+    vi.stubGlobal('fetch', fetchMock)
+    const manualData: RelationshipPacketApiResponse = {
+      ...packetResponse,
+      manualSocialHandoff: buildWarmManualSocialHandoff({
+        packet: {
+          ...packetResponse.packet,
+          preferredChannel: 'linkedin',
+        },
+        readiness: {
+          ...packetResponse.readiness,
+          selectedChannel: 'linkedin',
+        },
+      }),
+    }
+    const linkedin = manualData.manualSocialHandoff!.channels.find((channel) => channel.channel === 'linkedin')!
+    fetchMock.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        outcome: 'recorded',
+        duplicatePrevented: false,
+        evidence: {
+          version: 'warm-outreach-manual-social-evidence/v1',
+          status: 'manual_sent_recorded',
+          contactId: '42',
+          channel: 'linkedin',
+          messageVersionKey: linkedin.idempotency.messageVersionKey,
+          manualHandoffKey: linkedin.idempotency.manualHandoffKey,
+          manualEvidenceKey: linkedin.idempotency.manualEvidenceKey,
+          recordedAt: '2026-09-02T13:00:00.000Z',
+          operatorNote: 'Copied into LinkedIn manually after reviewing relationship basis.',
+          source: {
+            table: 'contact_communications',
+            id: 'manual-communication-1',
+            sourceSystem: 'manual',
+            sourceId: linkedin.idempotency.manualEvidenceKey,
+          },
+          privacyBoundary: {
+            storesRawMessageBody: false,
+            storesRawContactDetails: false,
+            storesScreenshot: false,
+            storesProviderIdentifiers: false,
+          },
+          executionBoundary: {
+            providerCallsEnabled: false,
+            externalSendEnabled: false,
+            linkedinApiEnabled: false,
+            facebookApiEnabled: false,
+            phoneAccessEnabled: false,
+            smsDeliveryEnabled: false,
+            gmailDraftCreationEnabled: false,
+            slackDispatchEnabled: false,
+            n8nDispatchEnabled: false,
+            externalRequests: [],
+          },
+        },
+        executionBoundary: {
+          providerCallsEnabled: false,
+          externalSendEnabled: false,
+          linkedinApiCalled: false,
+          facebookApiCalled: false,
+          phoneAccessCalled: false,
+          smsDeliveryEnabled: false,
+          gmailDraftCreated: false,
+          slackDispatchEnabled: false,
+          n8nDispatchEnabled: false,
+          externalRequests: [],
+        },
+      }),
+    })
+
+    render(<RelationshipPacketPanel authToken="admin-token" loading={false} error={null} data={manualData} />)
+
+    const handoff = screen.getByTestId('warm-manual-social-handoff')
+    expect(within(handoff).getByText('Manual social handoff')).toBeInTheDocument()
+    expect(within(handoff).getByRole('button', { name: /Facebook: ready/i })).toBeInTheDocument()
+    expect(within(handoff).getByRole('button', { name: /Phone contact: ready/i })).toBeInTheDocument()
+    expect(within(handoff).getByText('External requests: 0')).toBeInTheDocument()
+    expect(within(handoff).getByText('Provider calls: off')).toBeInTheDocument()
+
+    fireEvent.click(within(handoff).getByRole('button', { name: 'Copy LinkedIn text' }))
+    await waitFor(() => expect(writeText).toHaveBeenCalledTimes(1))
+    expect(writeText.mock.calls[0]?.[0]).toContain('Hi Ada')
+    expect(within(handoff).getByText(/text copied/i)).toBeInTheDocument()
+
+    fireEvent.change(within(handoff).getByRole('textbox', { name: 'Operator note' }), {
+      target: { value: 'Copied into LinkedIn manually after reviewing relationship basis.' },
+    })
+    fireEvent.click(within(handoff).getByRole('button', { name: 'Record manual evidence' }))
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1))
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/admin/outreach/leads/42/manual-social-handoff',
+      expect.objectContaining({
+        method: 'POST',
+        headers: expect.objectContaining({
+          Authorization: 'Bearer admin-token',
+          'content-type': 'application/json',
+        }),
+        body: expect.any(String),
+      }),
+    )
+    expect(fetchMock.mock.calls[0]?.[0]).not.toContain('linkedin.com')
+    const requestBody = JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body))
+    expect(requestBody).toEqual({
+      channel: 'linkedin',
+      messageVersionKey: linkedin.idempotency.messageVersionKey,
+      manualHandoffKey: linkedin.idempotency.manualHandoffKey,
+      manualEvidenceKey: linkedin.idempotency.manualEvidenceKey,
+      operatorNote: 'Copied into LinkedIn manually after reviewing relationship basis.',
+    })
+    await waitFor(() => expect(within(handoff).getByRole('button', { name: 'Evidence recorded' })).toBeDisabled())
+    expect(within(handoff).queryByRole('button', { name: 'Record manual evidence' })).not.toBeInTheDocument()
+    expect(within(handoff).getByText(/Saved in Portfolio/i)).toBeInTheDocument()
+    expect(within(handoff).getAllByText(/Repeat locked/i).length).toBeGreaterThan(0)
+    vi.stubGlobal('fetch', previousFetch)
   })
 
   it('shows suppressed contacts as blocked readiness', () => {
@@ -483,10 +1354,1262 @@ describe('RelationshipPacketPanel', () => {
     expect(screen.queryByText('Ready means the operator has enough local context to review an internal draft.')).not.toBeInTheDocument()
   })
 
+  it('surfaces provider-missing Gmail import recovery in the existing readiness card', () => {
+    const responseMonitoring = packetResponse.responseMonitoring!
+    const providerMissing: RelationshipPacketApiResponse = {
+      ...packetResponse,
+      responseMonitoring: {
+        ...responseMonitoring,
+        gmailResponseImportReadiness: {
+          ...responseMonitoring.gmailResponseImportReadiness,
+          activationReadiness: buildWarmOutreachGmailResponseImportActivationReadiness({
+            providerConfigured: false,
+          }),
+          canaryReadiness: buildWarmOutreachGmailResponseImportCanaryReadiness({
+            activationReadiness: buildWarmOutreachGmailResponseImportActivationReadiness({
+              providerConfigured: false,
+            }),
+            contactId: 42,
+            queueId: 'queue-1',
+            gmailThreadId: 'gmail-thread-42',
+            dedupeKey: 'gmail_thread:gmail-thread-42',
+          }),
+        },
+      },
+    }
+
+    render(<RelationshipPacketPanel loading={false} error={null} data={providerMissing} />)
+
+    expect(screen.getByText('Activation readiness: Gmail provider missing')).toBeInTheDocument()
+    expect(screen.getByText('Mock: ready / live: disabled')).toBeInTheDocument()
+    expect(screen.getAllByText('Provider: missing').length).toBeGreaterThan(0)
+    expect(screen.getByText('Gate state: Gmail response import provider configuration is missing.')).toBeInTheDocument()
+    expect(screen.getByText('Gmail response import not connected')).toBeInTheDocument()
+  })
+
+  it('renders response-import canary found, no-response, duplicate, and retry states', () => {
+    const responseMonitoring = packetResponse.responseMonitoring!
+    const baseCanary = responseMonitoring.gmailResponseImportReadiness.canaryReadiness
+    const variants = [
+      {
+        state: 'imported_response_found',
+        label: 'Imported response found in dry-run',
+        outcome: 'mock_response_found',
+        retryAvailable: false,
+        decisionState: 'candidate_ready_for_import',
+      },
+      {
+        state: 'no_response_found',
+        label: 'No Gmail response found',
+        outcome: 'no_response_found',
+        retryAvailable: true,
+        decisionState: 'no_response_found',
+      },
+      {
+        state: 'duplicate_deduped',
+        label: 'Duplicate Gmail response deduped',
+        outcome: 'duplicate_deduped',
+        retryAvailable: false,
+        decisionState: 'duplicate_blocked',
+      },
+      {
+        state: 'error_retry',
+        label: 'Gmail response import retry required',
+        outcome: 'error',
+        retryAvailable: true,
+        decisionState: 'error_retry',
+      },
+    ] as const
+
+    for (const variant of variants) {
+      const { unmount } = render(
+        <RelationshipPacketPanel
+          loading={false}
+          error={null}
+          data={{
+            ...packetResponse,
+            responseMonitoring: {
+              ...responseMonitoring,
+              gmailResponseImportReadiness: {
+                ...responseMonitoring.gmailResponseImportReadiness,
+                canaryReadiness: {
+                  ...baseCanary,
+                  state: variant.state,
+                  label: variant.label,
+                  retryAvailable: variant.retryAvailable,
+                  latestOutcome: {
+                    ...baseCanary.latestOutcome,
+                    status: variant.outcome,
+                    detail: variant.label,
+                  },
+                  provenance: {
+                    ...baseCanary.provenance,
+                    decisionState: variant.decisionState,
+                  },
+                },
+              },
+            },
+          }}
+        />,
+      )
+
+      expect(screen.getByText(variant.label)).toBeInTheDocument()
+      expect(screen.getByText(`Decision: ${variant.decisionState.replace(/_/g, ' ')}`)).toBeInTheDocument()
+      expect(screen.getByText(`Outcome: ${variant.outcome.replace(/_/g, ' ')}`)).toBeInTheDocument()
+      expect(screen.getByText(`Retry: ${variant.retryAvailable ? 'available' : 'not needed'}`)).toBeInTheDocument()
+      unmount()
+    }
+  })
+
+  it('surfaces the no-send Gmail draft canary without implying draft creation', () => {
+    const onGmailDraftCanary = vi.fn()
+
+    render(
+      <RelationshipPacketPanel
+        loading={false}
+        error={null}
+        data={packetResponse}
+        onGmailDraftCanary={onGmailDraftCanary}
+        gmailDraftCanaryResult={{
+          status: 'passed_no_send',
+          message:
+            'No-send Gmail draft creation canary passed. No Gmail draft was created, no tracking was written, and no email was sent.',
+          draftCreationEnabled: false,
+          providerCallsEnabled: false,
+          externalSendEnabled: false,
+          gmailDraftCreated: false,
+          trackingPersisted: false,
+        }}
+      />,
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'Run no-send canary' }))
+
+    expect(onGmailDraftCanary).toHaveBeenCalledTimes(1)
+    expect(screen.getByText(/Run a no-send canary to confirm the contact/)).toBeInTheDocument()
+    expect(screen.getByText(/No-send Gmail draft creation canary passed/)).toBeInTheDocument()
+    expect(screen.getByText('Gmail draft: not created / Tracking: not written / External send: blocked.')).toBeInTheDocument()
+    expect(screen.getByText('Draft creation: off')).toBeInTheDocument()
+    expect(screen.getByText('External send: off')).toBeInTheDocument()
+  })
+
+  it('shows tracked Gmail draft evidence without enabling external send authority', () => {
+    const emailItem = packetResponse.responseMonitoring!.sendReadiness.modes.warm_1_to_1
+      .find((item) => item.channel === 'email')!
+    const trackedDraftResponse: RelationshipPacketApiResponse = {
+      ...packetResponse,
+      responseMonitoring: {
+        ...packetResponse.responseMonitoring!,
+        sendReadiness: {
+          ...packetResponse.responseMonitoring!.sendReadiness,
+          modes: {
+            ...packetResponse.responseMonitoring!.sendReadiness.modes,
+            warm_1_to_1: packetResponse.responseMonitoring!.sendReadiness.modes.warm_1_to_1.map((item) => (
+              item.channel === 'email'
+                ? {
+                    ...item,
+                    emailSendLifecycle: {
+                      ...emailItem.emailSendLifecycle!,
+                      gmailProviderActivationReadiness: {
+                        ...emailItem.emailSendLifecycle!.gmailProviderActivationReadiness,
+                        liveDraftCanaryReadiness: {
+                          ...emailItem.emailSendLifecycle!.gmailProviderActivationReadiness.liveDraftCanaryReadiness,
+                          state: 'blocked_no_send',
+                          label: 'No-send canary blocked',
+                          detail: 'Existing Gmail draft metadata is already present; duplicate draft creation remains blocked.',
+                        },
+                        duplicateDraftEvidence: {
+                          createdOnce: true,
+                          duplicatePrevented: true,
+                          draftId: 'r3600377219184694601',
+                          threadId: '1a043d900ee02b0f',
+                          messageId: '1a043d900ee02b0f',
+                          sourceIds: ['outreach_queue:70e2adea-3bfa-4920-8cd9-5531234d8d02'],
+                          noSendStatus: 'no_send',
+                          detail: 'Existing Gmail draft metadata is present.',
+                        },
+                      },
+                      externalSendReadiness: {
+                        ...emailItem.emailSendLifecycle!.externalSendReadiness,
+                        draftEvidence: {
+                          state: 'tracked',
+                          gmailDraftExists: true,
+                          draftId: 'r3600377219184694601',
+                          threadId: '1a043d900ee02b0f',
+                          messageId: '1a043d900ee02b0f',
+                          sourceIds: ['outreach_queue:70e2adea-3bfa-4920-8cd9-5531234d8d02'],
+                          detail: 'A Gmail draft exists as tracking evidence only. It does not grant send authority.',
+                        },
+                        idempotency: {
+                          ...emailItem.emailSendLifecycle!.externalSendReadiness.idempotency,
+                          duplicateDetected: true,
+                        },
+                      },
+                      gmailOperatingLoop: {
+                        ...emailItem.emailSendLifecycle!.gmailOperatingLoop,
+                        operatorContext: {
+                          ...emailItem.emailSendLifecycle!.gmailOperatingLoop.operatorContext,
+                          gmailDraftId: 'r3600377219184694601',
+                          gmailThreadId: '1a043d900ee02b0f',
+                        },
+                        executionGate: {
+                          ...emailItem.emailSendLifecycle!.gmailOperatingLoop.executionGate,
+                          requiredEvidence: {
+                            ...emailItem.emailSendLifecycle!.gmailOperatingLoop.executionGate.requiredEvidence,
+                            gmailDraftId: 'r3600377219184694601',
+                          },
+                        },
+                      },
+                    },
+                  }
+                : item
+            )),
+          },
+        },
+      },
+    }
+
+    render(<RelationshipPacketPanel loading={false} error={null} data={trackedDraftResponse} />)
+
+    expect(screen.getByText('Gmail draft exists and is tracked')).toBeInTheDocument()
+    expect(screen.getByText(/Draft: r3600377219184694601 \/ Thread: 1a043d900ee02b0f \/ Message: 1a043d900ee02b0f/)).toBeInTheDocument()
+    expect(screen.getByText('Draft: r3600377219184694601')).toBeInTheDocument()
+    expect(screen.getByText(/tracking evidence only; external send still needs separate approval/i)).toBeInTheDocument()
+    expect(screen.getByText('External send blocked')).toBeInTheDocument()
+    expect(screen.getByText('separate external send authority')).toBeInTheDocument()
+    expect(screen.getByText('Draft evidence: tracked Gmail draft')).toBeInTheDocument()
+    expect(screen.getByText('Recipient approval: required')).toBeInTheDocument()
+    expect(screen.getByText('External Gmail send authority blocked')).toBeInTheDocument()
+    expect(screen.getByText('Draft creation: off')).toBeInTheDocument()
+    expect(screen.getByText('External send: off')).toBeInTheDocument()
+  })
+
+  it('renders SMS readiness and records only local manual operating-loop state', async () => {
+    const previousFetch = globalThis.fetch
+    const previousNavigator = globalThis.navigator
+    const fetchMock = vi.fn()
+    const writeText = vi.fn().mockResolvedValue(undefined)
+    vi.stubGlobal('fetch', fetchMock)
+    vi.stubGlobal('navigator', {
+      ...previousNavigator,
+      clipboard: { writeText },
+    })
+    const smsReady: RelationshipPacketApiResponse = {
+      ...packetResponse,
+      smsReadiness: buildWarmSmsReadiness({
+        packet: packetResponse.packet,
+        readiness: packetResponse.readiness,
+      }),
+    }
+
+    render(<RelationshipPacketPanel authToken="admin-token" loading={false} error={null} data={smsReady} />)
+
+    expect(screen.getByText('Warm SMS manual readiness')).toBeInTheDocument()
+    expect(screen.getByText('SMS draft needs manual review')).toBeInTheDocument()
+    expect(screen.getByText('No SMS provider')).toBeInTheDocument()
+    expect(screen.getByText('Warm SMS provider readiness')).toBeInTheDocument()
+    expect(screen.getByTitle(/Provider setup, Telnyx planning/i)).toBeInTheDocument()
+    expect(screen.getByText('SMS consent or suppression checks not satisfied')).toBeInTheDocument()
+    expect(screen.getByText('Provider transport contract')).toBeInTheDocument()
+    expect(screen.getByText('SMS transport blocked by recipient or safety gates')).toBeInTheDocument()
+    expect(document.querySelector('[data-sms-transport-readiness]')).toHaveTextContent(
+      /This phase records readiness only\. It does not send SMS, activate a provider, mutate env, or call an external service/i,
+    )
+    expect(document.querySelector('[data-sms-transport-readiness]')).toHaveTextContent(
+      /Selected provider/i,
+    )
+    expect(document.querySelector('[data-sms-transport-readiness]')).toHaveTextContent(
+      /Delivery confirmation/i,
+    )
+    expect(document.querySelector('[data-sms-transport-next-action]')).toHaveTextContent(
+      /Verified phone provenance and a source note are required/i,
+    )
+    expect(screen.getByText('Telnyx no-send canary')).toBeInTheDocument()
+    expect(screen.getByText('No-send canary blocked by readiness gaps')).toBeInTheDocument()
+    expect(document.querySelector('[data-sms-no-send-canary]')).toHaveTextContent(
+      /Readiness gaps block the no-send canary simulation/i,
+    )
+    expect(document.querySelector('[data-sms-provider-activation-checklist]')).toHaveTextContent(
+      /Transport configured/i,
+    )
+    expect(document.querySelector('[data-sms-provider-activation-checklist]')).toHaveTextContent(
+      /Provider enabled/i,
+    )
+    expect(document.querySelector('[data-sms-no-send-canary]')).toHaveTextContent(
+      /Provider calls: off\. SMS delivery: off\. Env changed: no\. External requests: 0/i,
+    )
+    expect(screen.getByText('Live Telnyx one-recipient readiness')).toBeInTheDocument()
+    expect(document.querySelector('[data-sms-live-telnyx-readiness]')).toHaveTextContent(
+      /no-send canary passed, credential\/provider smoke available, explicit per-recipient send approval, then live one-recipient SMS execution/i,
+    )
+    expect(document.querySelector('[data-sms-live-telnyx-readiness]')).toHaveTextContent(
+      /This screen shows readiness only; it does not render a live-send button/i,
+    )
+    expect(document.querySelector('[data-sms-live-sequence]')).toHaveTextContent(
+      /No-send canary passed/i,
+    )
+    expect(document.querySelector('[data-sms-live-sequence]')).toHaveTextContent(
+      /Credential\/provider smoke available/i,
+    )
+    expect(document.querySelector('[data-sms-live-sequence]')).toHaveTextContent(
+      /Explicit per-recipient send approval/i,
+    )
+    expect(document.querySelector('[data-sms-live-sequence]')).toHaveTextContent(
+      /Live one-recipient SMS execution/i,
+    )
+    expect(document.querySelector('[data-sms-live-recovery-states]')).toHaveTextContent(
+      /Missing 1Password credential/i,
+    )
+    expect(document.querySelector('[data-sms-live-recovery-states]')).toHaveTextContent(
+      /Missing sender\/profile/i,
+    )
+    expect(document.querySelector('[data-sms-live-recovery-states]')).toHaveTextContent(
+      /Execution flag disabled/i,
+    )
+    expect(document.querySelector('[data-sms-live-recovery-states]')).toHaveTextContent(
+      /Consent\/suppression failure/i,
+    )
+    expect(document.querySelector('[data-sms-live-recovery-states]')).toHaveTextContent(
+      /Duplicate idempotency key/i,
+    )
+    expect(document.querySelector('[data-sms-live-recovery-states]')).toHaveTextContent(
+      /Absent per-recipient approval/i,
+    )
+    expect(document.querySelector('[data-sms-live-route-contract]')).toHaveTextContent(
+      /POST \/api\/admin\/outreach\/leads\/\[id\]\/sms-telnyx-live-send requires execute_warm_sms_send_for_authorized_recipient; generic proceed is rejected/i,
+    )
+    expect(document.querySelector('[data-sms-live-route-contract]')).toHaveTextContent(
+      /no live SMS from this UI, no secret values returned, no raw phone shown, no raw message body shown, and no provider request during readiness QA/i,
+    )
+    const criticalBoundaries = [...document.querySelectorAll('[data-sms-provider-critical-boundary]')]
+      .map((element) => element.textContent)
+    expect(criticalBoundaries).toEqual(expect.arrayContaining([
+      'Provider calls: off',
+      'Live send: off',
+      'Generic proceed: rejected',
+      'Approval: per-recipient required',
+    ]))
+    const providerDetails = screen.getByTestId('warm-sms-provider-details')
+    expect(providerDetails).not.toHaveAttribute('open')
+    expect(screen.getByTestId('warm-sms-activation-next-step')).toHaveTextContent(
+      /verified phone provenance and a source note are required/i,
+    )
+    expect(document.querySelector('[data-sms-activation-summary]')).toHaveTextContent(
+      /Provider not selected · selection not selected · configuration not reviewed · capabilities 0\/6 verified · idempotency contract only/i,
+    )
+    expect(document.querySelector('[data-sms-provider-setup-summary]')).toHaveTextContent(
+      /No provider path selected \/ not selected/i,
+    )
+    expect(document.querySelector('[data-sms-provider-setup-summary]')).toHaveTextContent(
+      /Credentials read: no · env changed: no/i,
+    )
+    expect(document.querySelector('[data-sms-provider-selection-plan]')).toHaveTextContent(
+      /Provider selection recommendation/i,
+    )
+    expect(document.querySelector('[data-sms-provider-selection-plan]')).toHaveTextContent(
+      /Recommended: Telnyx Messaging/i,
+    )
+    expect(document.querySelector('[data-sms-provider-selection-plan]')).toHaveTextContent(
+      /Next Vambah setup: choose owned provider\/account and redacted sender, callback, signing, and secret-location refs/i,
+    )
+    expect(document.querySelector('[data-sms-provider-selection-plan]')).toHaveTextContent(
+      /Keep disabled: execution flag, provider API, live SMS, production env, contact-data transmission/i,
+    )
+    expect(document.querySelector('[data-sms-telnyx-reference-plan]')).toHaveTextContent(
+      /Telnyx reference and environment plan/i,
+    )
+    expect(document.querySelector('[data-sms-telnyx-reference-plan]')).toHaveTextContent(
+      /SMS_PROVIDER_ADAPTER=telnyx_messaging planned/i,
+    )
+    expect(document.querySelector('[data-sms-telnyx-reference-plan]')).toHaveTextContent(
+      /ENABLE_WARM_SMS_PROVIDER_EXECUTION=false/i,
+    )
+    expect(document.querySelector('[data-sms-telnyx-reference-plan]')).toHaveTextContent(
+      /confirm account, register sender, configure callbacks, store secret references, update Vercel later, run the no-send canary/i,
+    )
+    expect(document.querySelector('[data-sms-telnyx-activation-planning]')).toHaveTextContent(
+      /Telnyx activation planning gate/i,
+    )
+    expect(document.querySelector('[data-sms-telnyx-activation-planning]')).toHaveTextContent(
+      /Reference plan complete; activation planning active; env setup pending; no-send canary pending; provider activation disabled; live SMS unavailable/i,
+    )
+    expect(document.querySelector('[data-sms-telnyx-gate-sequence]')).toHaveTextContent(
+      /Reference plan complete/i,
+    )
+    expect(document.querySelector('[data-sms-telnyx-gate-sequence]')).toHaveTextContent(
+      /Activation planning gate active/i,
+    )
+    expect(document.querySelector('[data-sms-telnyx-gate-sequence]')).toHaveTextContent(
+      /Vercel env update request/i,
+    )
+    const telnyxActivationDetails = document.querySelector('[data-sms-telnyx-activation-drill-in]')
+    expect(telnyxActivationDetails).not.toHaveAttribute('open')
+    expect(telnyxActivationDetails).toHaveTextContent(/TELNYX_ACCOUNT_REFERENCE/i)
+    expect(telnyxActivationDetails).toHaveTextContent(/TELNYX_MESSAGING_PROFILE_REFERENCE/i)
+    expect(telnyxActivationDetails).toHaveTextContent(/TELNYX_WEBHOOK_SIGNING_REFERENCE/i)
+    expect(telnyxActivationDetails).toHaveTextContent(/Vercel env mutation/i)
+    expect(telnyxActivationDetails).toHaveTextContent(/Secret manager update/i)
+    expect(telnyxActivationDetails).toHaveTextContent(/Telnyx provider activation/i)
+    expect(telnyxActivationDetails).toHaveTextContent(/Provider API calls/i)
+    expect(telnyxActivationDetails).toHaveTextContent(/Live SMS canary/i)
+    expect(telnyxActivationDetails).toHaveTextContent(/Per-recipient SMS send/i)
+    expect(telnyxActivationDetails).toHaveTextContent(
+      /No secret manager mutation, Vercel env mutation, Telnyx API call, Slack dispatch, Gmail action, n8n dispatch, migration, or production-data mutation occurred\. External requests 0/i,
+    )
+    expect(document.querySelector('[data-sms-telnyx-env-plan]')).toHaveTextContent(
+      /SMS_PROVIDER_CREDENTIAL_REFERENCE/i,
+    )
+    expect(document.querySelector('[data-sms-telnyx-env-plan]')).toHaveTextContent(
+      /SMS_PROVIDER_SENDER_REFERENCE/i,
+    )
+    expect(document.querySelector('[data-sms-telnyx-env-plan]')).toHaveTextContent(
+      /SMS_PROVIDER_DELIVERY_CALLBACK/i,
+    )
+    expect(document.querySelector('[data-sms-telnyx-env-plan]')).toHaveTextContent(
+      /SMS_PROVIDER_OPT_OUT_CALLBACK/i,
+    )
+    expect(document.querySelector('[data-sms-telnyx-env-plan]')).toHaveTextContent(
+      /WARM_SMS_MESSAGE_VERSION_KEY/i,
+    )
+    expect(document.querySelector('[data-sms-telnyx-env-plan]')).toHaveTextContent(
+      /WARM_SMS_IDEMPOTENCY_NAMESPACE/i,
+    )
+    expect(document.querySelector('[data-sms-telnyx-env-plan]')).toHaveTextContent(
+      /WARM_SMS_AUDIT_KEY/i,
+    )
+    expect(document.querySelector('[data-sms-telnyx-env-plan]')).toHaveTextContent(
+      /WARM_SMS_DELIVERY_CONFIRMATION_STORE/i,
+    )
+    expect(document.querySelector('[data-sms-workflow-separation]')).toHaveTextContent(
+      /Manual SMS/i,
+    )
+    expect(document.querySelector('[data-sms-workflow-separation]')).toHaveTextContent(
+      /Gmail/i,
+    )
+    expect(document.querySelector('[data-sms-workflow-separation]')).toHaveTextContent(
+      /Slack/i,
+    )
+    expect(document.querySelector('[data-sms-workflow-separation]')).toHaveTextContent(
+      /Provider activation/i,
+    )
+    expect(document.querySelector('[data-sms-workflow-separation]')).toHaveTextContent(
+      /External send/i,
+    )
+    expect(document.querySelector('[data-sms-telnyx-reference-plan]')).toHaveTextContent(
+      /provider calls off, SMS delivery off, credentials read no, env changed no, migrations no, production-data mutation no, external requests 0/i,
+    )
+    fireEvent.click(screen.getByText('Activation requirements and audit evidence'))
+    expect(providerDetails).toHaveAttribute('open')
+    fireEvent.click(screen.getByText('Activation requirements and audit evidence'))
+    expect(providerDetails).not.toHaveAttribute('open')
+    expect(document.querySelector('[data-sms-provider-setup-path]')).toHaveTextContent(
+      /Provider setup path/i,
+    )
+    expect(document.querySelector('[data-sms-provider-setup-path]')).toHaveTextContent(
+      /Twilio Messaging/i,
+    )
+    expect(document.querySelector('[data-sms-provider-setup-path]')).toHaveTextContent(
+      /Custom disabled adapter/i,
+    )
+    expect(document.querySelectorAll('[data-sms-provider-setup-candidate]')).toHaveLength(4)
+    expect(document.querySelector('[data-sms-configuration-validation]')).toHaveTextContent(
+      /Environment and config validation/i,
+    )
+    expect(document.querySelector('[data-sms-configuration-validation]')).toHaveTextContent(
+      /ENABLE_WARM_SMS_PROVIDER_EXECUTION · disabled verified/i,
+    )
+    expect(document.querySelector('[data-sms-configuration-validation]')).toHaveTextContent(
+      /Raw value returned: no/i,
+    )
+    expect(document.querySelectorAll('[data-sms-provider-config-item]')).toHaveLength(6)
+    expect(document.querySelector('[data-sms-operator-setup-path]')).toHaveTextContent(
+      /Blocked by setup/i,
+    )
+    expect(document.querySelector('[data-sms-operator-setup-path]')).toHaveTextContent(
+      /Live SMS delivery/i,
+    )
+    expect(document.querySelector('[data-sms-operator-setup-path]')).toHaveTextContent(
+      /Current per-recipient approval matched to contact, SMS channel, message version, and idempotency key/i,
+    )
+    expect(document.querySelector('[data-sms-provider-selection-comparison]')).toHaveTextContent(
+      /Provider comparison/i,
+    )
+    expect(document.querySelector('[data-sms-provider-selection-comparison]')).toHaveTextContent(
+      /Selection status: provider selection and configuration planning only/i,
+    )
+    expect(document.querySelector('[data-sms-provider-selection-comparison]')).toHaveTextContent(
+      /Next approval: explicit sms provider activation approval/i,
+    )
+    expect(document.querySelectorAll('[data-sms-provider-selection-candidate]')).toHaveLength(4)
+    expect(document.querySelector('[data-sms-provider-selection-comparison]')).toHaveTextContent(
+      /Twilio Messaging · fallback/i,
+    )
+    expect(document.querySelector('[data-sms-provider-selection-comparison]')).toHaveTextContent(
+      /Telnyx Messaging · recommended/i,
+    )
+    expect(document.querySelector('[data-sms-provider-selection-comparison]')).toHaveTextContent(
+      /MessageBird \/ Bird · fallback/i,
+    )
+    expect(document.querySelector('[data-sms-provider-selection-comparison]')).toHaveTextContent(
+      /Custom disabled adapter · review only/i,
+    )
+    expect(document.querySelector('[data-sms-provider-selection-comparison]')).toHaveTextContent(
+      /Provider calls: off\. SMS delivery: off\. Raw credentials returned: no/i,
+    )
+    expect(screen.getByText('Permission / consent note')).toBeInTheDocument()
+    expect(screen.getByText('Consent audit timestamp')).toBeInTheDocument()
+    expect(document.querySelectorAll('[data-sms-provider-capability]')).toHaveLength(6)
+    expect(document.querySelector('[data-sms-idempotency-model]')).toHaveTextContent(
+      /return existing attempt evidence without resending/i,
+    )
+    expect(document.querySelector('[data-sms-recovery-path]')).toHaveTextContent(
+      /current per-recipient approval matched to the message version and idempotency key/i,
+    )
+    expect(document.querySelector('[data-sms-transport-config-items]')).toHaveTextContent(
+      /External requests: 0\. Credentials read: no\. Environment variables changed: no/i,
+    )
+    expect(screen.getByText(/Phone: present from contact_submissions.phone_number/)).toBeInTheDocument()
+    expect(screen.getByText('Phone number present')).toBeInTheDocument()
+    expect(screen.getByText('Phone source provenance')).toBeInTheDocument()
+    expect(screen.getByText('Relationship rationale')).toBeInTheDocument()
+    expect(screen.getByText('Opt-out sensitivity')).toBeInTheDocument()
+    expect(screen.getAllByText('Manual only').length).toBeGreaterThan(0)
+    const smsDraftTextarea = screen.getByRole('textbox', { name: 'Warm SMS draft text' }) as HTMLTextAreaElement
+    expect(smsDraftTextarea.value).toMatch(/Hi Ada/)
+    expect(smsDraftTextarea).toHaveClass('bg-imperial-navy/90')
+    expect(smsDraftTextarea).toHaveClass('text-platinum-white')
+    expect(smsDraftTextarea).toHaveClass('placeholder:text-muted-foreground')
+    expect(smsDraftTextarea).toHaveClass('[color-scheme:dark]')
+    expect(screen.getByText('SMS drafting aids and boundary')).toBeInTheDocument()
+    expect(screen.getAllByText('Community relationship').length).toBeGreaterThan(0)
+    expect(screen.getByText('Not reviewed')).toBeInTheDocument()
+    expect(screen.getByText('Manual SMS operating loop')).toBeInTheDocument()
+    expect(screen.getAllByText('Readiness reviewed').length).toBeGreaterThan(0)
+    expect(screen.getByText('Manual-send prepared')).toBeInTheDocument()
+    expect(screen.getByText('Manual-send evidence recorded')).toBeInTheDocument()
+    expect(screen.getByText('Response expected')).toBeInTheDocument()
+    expect(screen.getByText('Response received')).toBeInTheDocument()
+    expect(screen.getByText('Follow-up draft needed')).toBeInTheDocument()
+    expect(screen.getByText('Suppressed / stop')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Copy approved draft' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Prepare manual use' })).toBeDisabled()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Approve' }))
+    expect(screen.getByText('Approved for manual use')).toBeInTheDocument()
+    expect(screen.getByText(/Manual readiness is recorded on this screen only/)).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Copy approved draft' }))
+    await waitFor(() => expect(writeText).toHaveBeenCalledWith(expect.stringMatching(/^Hi Ada/)))
+    expect(screen.getByText(/Approved SMS draft copied/)).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Prepare manual use' }))
+    expect(screen.getAllByText('Manual-send prepared').length).toBeGreaterThan(0)
+    const operatorNoteTextarea = screen.getByLabelText('Operator note') as HTMLTextAreaElement
+    expect(operatorNoteTextarea).toHaveClass('bg-imperial-navy/90')
+    expect(operatorNoteTextarea).toHaveClass('text-platinum-white')
+    expect(operatorNoteTextarea).toHaveClass('caret-radiant-gold')
+    expect(operatorNoteTextarea).toHaveClass('placeholder:text-muted-foreground')
+    expect(operatorNoteTextarea).toHaveClass('[color-scheme:dark]')
+    const outcomeSelect = screen.getByLabelText('Manual SMS response outcome') as HTMLSelectElement
+    expect(outcomeSelect).toHaveClass('bg-imperial-navy/90')
+    expect(outcomeSelect).toHaveClass('text-platinum-white')
+    expect(outcomeSelect).toHaveClass('[color-scheme:dark]')
+    fireEvent.change(screen.getByLabelText('Operator note'), {
+      target: { value: 'Sent manually from phone after reviewing the consent basis.' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'Record manual evidence' }))
+    expect(screen.getAllByText('Response expected').length).toBeGreaterThan(0)
+    expect(screen.getByText(/Evidence: complete at/)).toBeInTheDocument()
+    fireEvent.change(screen.getByLabelText('Manual SMS response outcome'), {
+      target: { value: 'interested' },
+    })
+    expect(screen.getAllByText('Follow-up draft needed').length).toBeGreaterThan(0)
+    expect(screen.getByText('Follow-up draft: needed')).toBeInTheDocument()
+    fireEvent.change(screen.getByLabelText('Manual SMS response outcome'), {
+      target: { value: 'stop_opt_out' },
+    })
+    expect(screen.getAllByText('Suppressed / stop').length).toBeGreaterThan(0)
+    expect(screen.getByText('SMS prompts: suppressed')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Copy approved draft' })).toBeDisabled()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Revise' }))
+    expect(screen.queryByText('Revision requested')).not.toBeInTheDocument()
+    const textarea = screen.getByLabelText('Warm SMS draft text')
+    expect(textarea).toBeDisabled()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Reject' }))
+    expect(screen.getByText('Rejected')).toBeInTheDocument()
+    expect(screen.getByText(/SMS delivery, provider calls, phone import, Slack, Gmail, n8n, and production mutation are off/)).toBeInTheDocument()
+    expect(fetchMock).not.toHaveBeenCalled()
+
+    vi.stubGlobal('fetch', previousFetch)
+    vi.stubGlobal('navigator', previousNavigator)
+  })
+
+  it('shows clipboard fallback without making external or provider calls', async () => {
+    const previousFetch = globalThis.fetch
+    const previousNavigator = globalThis.navigator
+    const fetchMock = vi.fn()
+    vi.stubGlobal('fetch', fetchMock)
+    vi.stubGlobal('navigator', {
+      ...previousNavigator,
+      clipboard: {
+        writeText: vi.fn().mockRejectedValue(new Error('blocked clipboard')),
+      },
+    })
+    const smsReady: RelationshipPacketApiResponse = {
+      ...packetResponse,
+      smsReadiness: buildWarmSmsReadiness({
+        packet: packetResponse.packet,
+        readiness: packetResponse.readiness,
+      }),
+    }
+
+    render(<RelationshipPacketPanel authToken="admin-token" loading={false} error={null} data={smsReady} />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Approve' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Copy approved draft' }))
+    expect(await screen.findByText(/Clipboard unavailable/)).toBeInTheDocument()
+    expect(fetchMock).not.toHaveBeenCalled()
+
+    vi.stubGlobal('fetch', previousFetch)
+    vi.stubGlobal('navigator', previousNavigator)
+  })
+
+  it('keeps revised SMS drafts local and evidence incomplete until minimal fields exist', () => {
+    const smsReady: RelationshipPacketApiResponse = {
+      ...packetResponse,
+      smsReadiness: buildWarmSmsReadiness({
+        packet: packetResponse.packet,
+        readiness: packetResponse.readiness,
+      }),
+    }
+
+    render(<RelationshipPacketPanel loading={false} error={null} data={smsReady} />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Revise' }))
+    expect(screen.getByText('Revision requested')).toBeInTheDocument()
+    const textarea = screen.getByLabelText('Warm SMS draft text')
+    fireEvent.change(textarea, {
+      target: {
+        value: 'Hi Amina, quick check on the Portfolio QA follow-up. Is this worth a short look this week?',
+      },
+    })
+    expect(screen.getByDisplayValue(/Portfolio QA follow-up/)).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Approve' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Prepare manual use' }))
+    expect(screen.getByRole('button', { name: 'Record manual evidence' })).toBeDisabled()
+    expect(screen.getByText(/Evidence: missing timestamp, operator note/)).toBeInTheDocument()
+  })
+
+  it('shows blocked SMS recovery without enabling approval when phone readiness fails', () => {
+    const baseSms = buildWarmSmsReadiness({
+      packet: {
+        ...packetResponse.packet,
+        channelCapabilities: {
+          ...packetResponse.packet.channelCapabilities,
+          phone_contact: {
+            available: false,
+            providerConfigured: false,
+            supportsExternalSend: false,
+            manualOnly: true,
+            reason: 'No phone number is present.',
+          },
+        },
+      },
+      readiness: packetResponse.readiness,
+    })
+    const blockedSms: RelationshipPacketApiResponse = {
+      ...packetResponse,
+      smsReadiness: baseSms,
+    }
+
+    render(<RelationshipPacketPanel loading={false} error={null} data={blockedSms} />)
+
+    expect(screen.getByText('SMS manual outreach blocked')).toBeInTheDocument()
+    expect(screen.getByText(/Phone: missing from missing/)).toBeInTheDocument()
+    expect(screen.getByText('Recovery: No phone number is present in the Portfolio contact record.')).toBeInTheDocument()
+    expect(screen.getByRole('textbox', { name: 'Warm SMS draft text' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Approve' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Revise' })).toBeDisabled()
+    fireEvent.click(screen.getByRole('button', { name: 'Reject' }))
+    expect(screen.getByText('Rejected')).toBeInTheDocument()
+    expect(screen.getByText(/Boundary: manual only yes \/ SMS delivery off \/ provider calls off/)).toBeInTheDocument()
+  })
+
+  it('prepares an SMS candidate queue row without sending or calling a provider', async () => {
+    const previousFetch = globalThis.fetch
+    const messageVersionKey = warmSmsMessageVersionKey(42, 'community_relationship')
+    const candidateRow: WarmSmsCandidateQueueRow = {
+      id: 'sms-candidate-42',
+      contact_submission_id: 42,
+      channel: 'sms',
+      status: 'draft',
+      subject: 'Warm SMS candidate',
+      sequence_step: 1,
+      thread_id: null,
+      message_id: null,
+      sent_at: null,
+      replied_at: null,
+      generation_inputs: warmSmsCandidateMetadata({
+        contactId: 42,
+        contactName: 'Ada Operator',
+        messageVersionKey,
+        smsSendIdempotencyKey: `warm-sms-send:v1:sms-candidate-42:42:${messageVersionKey}`,
+        submittedEvidenceKey: `warm-sms-audit:v1:submitted:sms-candidate-42:42:${messageVersionKey}`,
+        templateFamily: 'community_relationship',
+        templateLabel: 'Community relationship',
+        preparedBy: 'admin-user',
+        preparedAt: '2026-08-30T17:20:00.000Z',
+      }),
+      created_at: '2026-08-30T17:20:00.000Z',
+    }
+    const baseSms = buildWarmSmsReadiness({
+      packet: packetResponse.packet,
+      readiness: packetResponse.readiness,
+    })
+    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({
+      outcome: 'created',
+      message: 'SMS candidate queue row prepared for review. No SMS was sent and no Telnyx call was made.',
+      candidateReview: buildWarmSmsCandidateReview({
+        readiness: baseSms,
+        queueRows: [candidateRow],
+      }),
+      executionBoundary: {
+        createsQueueArtifact: true,
+        providerCallsEnabled: false,
+        smsDeliveryEnabled: false,
+        telnyxApiCalled: false,
+        externalRequests: [],
+      },
+    }), { status: 200 }))
+    vi.stubGlobal('fetch', fetchMock)
+    const smsReady: RelationshipPacketApiResponse = {
+      ...packetResponse,
+      smsReadiness: baseSms,
+    }
+
+    render(<RelationshipPacketPanel authToken="admin-token" loading={false} error={null} data={smsReady} />)
+
+    expect(screen.getByText('SMS candidate row')).toBeInTheDocument()
+    expect(screen.getByText('Ready to prepare SMS candidate')).toBeInTheDocument()
+    expect(screen.getByText('Queue: missing')).toBeInTheDocument()
+    expect(screen.getByText('Status: not prepared')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Prepare candidate' }))
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledWith(
+      '/api/admin/outreach/leads/42/sms-candidate',
+      expect.objectContaining({
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          Authorization: 'Bearer admin-token',
+        },
+      }),
+    ))
+    expect(JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body))).toMatchObject({
+      messageText: expect.stringMatching(/^Hi Ada/),
+    })
+    expect(await screen.findByText(/SMS candidate queue row prepared for review/)).toBeInTheDocument()
+    expect(screen.getByText('SMS candidate row exists')).toBeInTheDocument()
+    expect(screen.getByText('Queue: sms-candidate-42')).toBeInTheDocument()
+    expect(screen.getByText('Status: draft')).toBeInTheDocument()
+    expect(screen.getByText('Approval: missing')).toBeInTheDocument()
+    expect(screen.getByText('Send evidence: none')).toBeInTheDocument()
+    expect(screen.getByText(/provider calls off \/ SMS delivery off \/ Telnyx API no/)).toBeInTheDocument()
+
+    vi.stubGlobal('fetch', previousFetch)
+  })
+
+  it('does not prepare an SMS candidate without an auth token', async () => {
+    const previousFetch = globalThis.fetch
+    const fetchMock = vi.fn()
+    vi.stubGlobal('fetch', fetchMock)
+    const smsReady: RelationshipPacketApiResponse = {
+      ...packetResponse,
+      smsReadiness: buildWarmSmsReadiness({
+        packet: packetResponse.packet,
+        readiness: packetResponse.readiness,
+      }),
+    }
+
+    render(<RelationshipPacketPanel loading={false} error={null} data={smsReady} />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Prepare candidate' }))
+
+    expect(await screen.findByText('Authentication is required before preparing an SMS candidate.')).toBeInTheDocument()
+    expect(fetchMock).not.toHaveBeenCalled()
+
+    vi.stubGlobal('fetch', previousFetch)
+  })
+
+  it('shows an existing SMS candidate row as the next review gate', () => {
+    const messageVersionKey = warmSmsMessageVersionKey(42, 'community_relationship')
+    const candidateRow: WarmSmsCandidateQueueRow = {
+      id: 'sms-candidate-existing',
+      contact_submission_id: 42,
+      channel: 'sms',
+      status: 'draft',
+      subject: 'Warm SMS candidate',
+      sequence_step: 1,
+      generation_inputs: warmSmsCandidateMetadata({
+        contactId: 42,
+        contactName: 'Ada Operator',
+        messageVersionKey,
+        smsSendIdempotencyKey: `warm-sms-send:v1:sms-candidate-existing:42:${messageVersionKey}`,
+        submittedEvidenceKey: `warm-sms-audit:v1:submitted:sms-candidate-existing:42:${messageVersionKey}`,
+        templateFamily: 'community_relationship',
+        templateLabel: 'Community relationship',
+        preparedBy: 'admin-user',
+        preparedAt: '2026-08-30T17:30:00.000Z',
+      }),
+      created_at: '2026-08-30T17:30:00.000Z',
+    }
+    const smsReady: RelationshipPacketApiResponse = {
+      ...packetResponse,
+      smsReadiness: buildWarmSmsReadiness({
+        packet: packetResponse.packet,
+        readiness: packetResponse.readiness,
+        queueRows: [candidateRow],
+      }),
+    }
+
+    render(<RelationshipPacketPanel loading={false} error={null} data={smsReady} />)
+
+    expect(screen.getByText('SMS candidate row exists')).toBeInTheDocument()
+    expect(screen.getByText('Queue: sms-candidate-existing')).toBeInTheDocument()
+    expect(screen.getByText('Status: draft')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Candidate exists' })).toBeDisabled()
+    expect(screen.getByText(/Use the existing queue row for review/)).toBeInTheDocument()
+  })
+
   it('exports stable label helpers for adapter tests', () => {
     expect(relationshipReadinessLabel('draft_ready')).toBe('Ready for draft review')
     expect(relationshipReadinessLabel('needs_review')).toBe('Needs human review')
     expect(describeChannelCapability()).toBe('Not recorded')
     expect(describeChannelCapability(packetResponse.packet.channelCapabilities.facebook)).toBe('Manual review only')
+  })
+
+  it('surfaces Slack approval decision states without implying Gmail was sent', () => {
+    const responseWithSlackStatus = (
+      status: NonNullable<WarmOutreachEmailSendLifecycle['realRecipientRolloutReadiness']>['slackApprovalContract']['status'],
+    ): RelationshipPacketApiResponse => {
+      const emailItem = packetResponse.responseMonitoring!.sendReadiness.modes.warm_1_to_1
+        .find((item) => item.channel === 'email')!
+      const authorizationStatus = status === 'approved'
+        ? 'approved' as const
+        : status === 'rejected'
+          ? 'rejected' as const
+          : status === 'revision_requested'
+            ? 'revision_requested' as const
+            : 'missing' as const
+      const executionState = status === 'approved'
+        ? 'approved_for_send' as const
+        : status === 'pending'
+          ? 'approval_requested' as const
+          : 'approval_needed' as const
+      return {
+        ...packetResponse,
+        responseMonitoring: {
+          ...packetResponse.responseMonitoring!,
+          sendReadiness: {
+            ...packetResponse.responseMonitoring!.sendReadiness,
+            modes: {
+              ...packetResponse.responseMonitoring!.sendReadiness.modes,
+              warm_1_to_1: packetResponse.responseMonitoring!.sendReadiness.modes.warm_1_to_1.map((item) => item.channel === 'email'
+                ? {
+                    ...item,
+                    emailSendLifecycle: {
+                      ...emailItem.emailSendLifecycle!,
+                      gmailOperatingLoop: buildWarmGmailOperatingLoop({
+                        contactId: 42,
+                        queueId: 'queue-ready',
+                        messageVersionKey: emailItem.emailSendLifecycle!.messageVersionKey,
+                        sendQueueIdempotencyKey: emailItem.emailSendLifecycle!.sendQueueIdempotencyKey,
+                        submittedEvidenceKey: emailItem.emailSendLifecycle!.submittedEvidenceKey,
+                        internalDraftReady: true,
+                        draftTracked: true,
+                        providerConfigured: true,
+                        senderMatched: true,
+                        approvalRequestStatus: status,
+                        authorizationStatus,
+                        executionState,
+                        submittedEvidenceRecorded: false,
+                        secondaryLogRepairRequired: false,
+                        responseMonitoringAttached: false,
+                        hardBlockers: [],
+                      }),
+                      realRecipientRolloutReadiness: {
+                        ...emailItem.emailSendLifecycle!.realRecipientRolloutReadiness,
+                        canBuildSlackApprovalPayload: true,
+                        slackApprovalContract: {
+                          ...emailItem.emailSendLifecycle!.realRecipientRolloutReadiness.slackApprovalContract,
+                          status,
+                        },
+                        requirements: {
+                          ...emailItem.emailSendLifecycle!.realRecipientRolloutReadiness.requirements,
+                          draftEvidence: {
+                            ...emailItem.emailSendLifecycle!.realRecipientRolloutReadiness.requirements.draftEvidence,
+                            sourceIds: ['queue-ready'],
+                          },
+                        },
+                      },
+                    },
+                  }
+                : item),
+            },
+          },
+        },
+      }
+    }
+
+    const { rerender } = render(
+      <RelationshipPacketPanel
+        loading={false}
+        error={null}
+        data={responseWithSlackStatus('pending')}
+      />,
+    )
+
+    expect(screen.getByText('Approval request: pending. Slack dispatch: not sent.')).toBeInTheDocument()
+    expect(screen.getAllByText('Approval requested')).not.toHaveLength(0)
+    expect(screen.getAllByText('Approval: requested').length).toBeGreaterThan(0)
+    expect(screen.getByText('Record approval decision')).toBeInTheDocument()
+    expect(screen.getByText(/Slack dispatch: off\. Gmail send: off\. Response polling: off/)).toBeInTheDocument()
+
+    for (const status of ['approved', 'rejected', 'revision_requested'] as const) {
+      rerender(
+          <RelationshipPacketPanel
+            loading={false}
+            error={null}
+            data={responseWithSlackStatus(status)}
+          />,
+      )
+      expect(screen.getByText(
+        `Approval request: ${status === 'revision_requested' ? 'revision requested' : status}. Slack dispatch: not sent.`,
+      )).toBeInTheDocument()
+      expect(screen.getByText('Approval records intent only. Gmail send: off.')).toBeInTheDocument()
+      expect(screen.getByText(/Operator state:/)).toBeInTheDocument()
+    }
+  })
+
+  it('records an inert QA Slack approval request without calling the API', async () => {
+    const previousFetch = globalThis.fetch
+    const fetchMock = vi.fn()
+    vi.stubGlobal('fetch', fetchMock)
+
+    render(
+      <RelationshipPacketPanel
+        loading={false}
+        error={null}
+        data={warmSlackSendApprovalQaRelationshipPacket}
+        inertSlackApprovalRequest
+      />,
+    )
+
+    const button = screen.getByRole('button', { name: 'Prepare review request' })
+    expect(button).toBeEnabled()
+
+    fireEvent.click(button)
+
+    expect(await screen.findByText(
+      `QA local Slack approval request recorded for ${WARM_SLACK_SEND_APPROVAL_QA_QUEUE_ID}. Slack dispatch off. Gmail send off. Provider calls off.`,
+    )).toBeInTheDocument()
+    expect(screen.getByText('Canary proof receipt')).toBeInTheDocument()
+    expect(screen.getByLabelText('Live Gmail send disabled')).toBeInTheDocument()
+    expect(screen.getByText(
+      'Approval intent: not sent. Gmail auth: missing.',
+    )).toBeInTheDocument()
+    expect(screen.getByText('Draft evidence: tracked. Sender: matched.')).toBeInTheDocument()
+    expect(screen.getByText('Send evidence: none. Gmail execution: disabled.')).toBeInTheDocument()
+    expect(screen.getByText('Proof details')).toBeInTheDocument()
+    expect(screen.getByText(`Queue row: ${WARM_SLACK_SEND_APPROVAL_QA_QUEUE_ID}`)).toBeInTheDocument()
+    expect(screen.getByText('Gmail response import')).toBeInTheDocument()
+    expect(screen.getByText('Mock Gmail response import ready')).toBeInTheDocument()
+    expect(screen.getByText('Live import off')).toBeInTheDocument()
+    expect(screen.getByText(`Queue: ${WARM_SLACK_SEND_APPROVAL_QA_QUEUE_ID}`)).toBeInTheDocument()
+    expect(screen.getByText(/Use Request send approval in this contact workroom/)).toBeInTheDocument()
+    expect(screen.getAllByText('Approval requested')).not.toHaveLength(0)
+    expect(screen.getByText('Record approval decision')).toBeInTheDocument()
+    expect(screen.getByText('SMS provider configured but disabled')).toBeInTheDocument()
+    expect(screen.getByText('Provider configured · disabled')).toBeInTheDocument()
+    expect(screen.getByText('Provider: configured / disabled')).toBeInTheDocument()
+    expect(screen.getByText('SMS transport configured-ready; send remains off')).toBeInTheDocument()
+    expect(document.querySelector('[data-sms-transport-readiness]')).toHaveTextContent(
+      /Telnyx Messaging/i,
+    )
+    expect(document.querySelector('[data-sms-transport-readiness]')).toHaveTextContent(
+      /Sender: ready\. Capabilities: 6\/6/i,
+    )
+    expect(document.querySelector('[data-sms-transport-readiness]')).toHaveTextContent(
+      /Provider message ID: placeholder only\. Delivery status: placeholder only/i,
+    )
+    expect(screen.getByText('Telnyx no-send canary')).toBeInTheDocument()
+    expect(screen.getByText('No-send canary can route configuration without SMS delivery')).toBeInTheDocument()
+    expect(document.querySelector('[data-sms-provider-activation-checklist]')).toHaveTextContent(
+      /Transport configured/i,
+    )
+    expect(document.querySelector('[data-sms-provider-activation-checklist]')).toHaveTextContent(
+      /Provider disabled/i,
+    )
+    expect(document.querySelector('[data-sms-provider-activation-checklist]')).toHaveTextContent(
+      /No-send canary eligible/i,
+    )
+    expect(document.querySelector('[data-sms-provider-activation-checklist]')).toHaveTextContent(
+      /Live send eligible/i,
+    )
+    expect(document.querySelector('[data-sms-no-send-canary]')).toHaveTextContent(
+      /would route no send/i,
+    )
+    expect(document.querySelector('[data-sms-no-send-canary]')).toHaveTextContent(
+      /Provider calls: off\. SMS delivery: off\. Env changed: no\. External requests: 0/i,
+    )
+    expect(document.querySelector('[data-sms-provider-selection-plan]')).toHaveTextContent(
+      /Recommended: Telnyx Messaging/i,
+    )
+    expect(document.querySelector('[data-sms-provider-selection-plan]')).toHaveTextContent(
+      /Planning only/i,
+    )
+    expect(document.querySelector('[data-sms-telnyx-reference-plan]')).toHaveTextContent(
+      /Telnyx planning only/i,
+    )
+    expect(document.querySelector('[data-sms-telnyx-reference-plan]')).toHaveTextContent(
+      /Live SMS canary/i,
+    )
+    expect(document.querySelector('[data-sms-telnyx-env-plan]')).toHaveTextContent(
+      /Planned redacted environment references \(10\)/i,
+    )
+    expect(document.querySelector('[data-sms-telnyx-env-plan]')).toHaveTextContent(
+      /ENABLE_WARM_SMS_PROVIDER_EXECUTION/i,
+    )
+    expect(document.querySelector('[data-sms-telnyx-reference-plan]')).toHaveTextContent(
+      /Telnyx activation requires later explicit approval and env work/i,
+    )
+    expect(document.querySelector('[data-sms-telnyx-activation-planning]')).toHaveTextContent(
+      /Telnyx activation planning gate active/i,
+    )
+    expect(document.querySelector('[data-sms-telnyx-activation-planning]')).toHaveTextContent(
+      /env setup pending; no-send canary pending; provider activation disabled; live SMS unavailable/i,
+    )
+    expect(document.querySelector('[data-sms-telnyx-gate-sequence]')).toHaveTextContent(
+      /Secret reference placement/i,
+    )
+    expect(document.querySelector('[data-sms-telnyx-gate-sequence]')).toHaveTextContent(
+      /Disabled provider config verification/i,
+    )
+    const telnyxActivationDetails = document.querySelector('[data-sms-telnyx-activation-drill-in]')
+    expect(telnyxActivationDetails).not.toHaveAttribute('open')
+    expect(telnyxActivationDetails).toHaveTextContent(/TELNYX_ACCOUNT_REFERENCE/i)
+    expect(telnyxActivationDetails).toHaveTextContent(/Requires current Vambah approval\. Enabled now: no/i)
+    expect(telnyxActivationDetails).toHaveTextContent(/Provider API calls/i)
+    expect(telnyxActivationDetails).toHaveTextContent(/Per-recipient SMS send/i)
+    expect(telnyxActivationDetails).toHaveTextContent(
+      /ENABLE_WARM_SMS_PROVIDER_EXECUTION=false; provider calls off; SMS delivery off; Telnyx activation off; live canary off; per-recipient send off/i,
+    )
+    fireEvent.click(screen.getByText('Activation requirements and audit evidence'))
+    expect(document.querySelector('[data-sms-provider-selection-comparison]')).toHaveTextContent(
+      /Telnyx Messaging · recommended/i,
+    )
+    expect(document.querySelector('[data-sms-provider-selection-comparison]')).toHaveTextContent(
+      /Credential\/env refs/i,
+    )
+    expect(document.querySelector('[data-sms-provider-selection-comparison]')).toHaveTextContent(
+      /WARM_SMS_IDEMPOTENCY_NAMESPACE/i,
+    )
+    fireEvent.click(screen.getByText('Activation requirements and audit evidence'))
+    expect(screen.getByText('Generic proceed: rejected')).toBeInTheDocument()
+    expect(screen.getByText('Approval: per-recipient required')).toBeInTheDocument()
+    expect(screen.getByTestId('warm-sms-activation-next-step')).toHaveTextContent(
+      /Ask the Integration Captain to review the activation packet/i,
+    )
+    expect(document.querySelector('[data-sms-activation-summary]')).toHaveTextContent(
+      /Synthetic SMS provider · selection selected · configuration verified disabled · capabilities 6\/6 verified · idempotency contract only/i,
+    )
+    expect(document.querySelectorAll('[data-sms-provider-capability]')).toHaveLength(6)
+    expect(document.querySelector('[data-sms-transport-config-items]')).toHaveTextContent(
+      /External requests: 0\. Credentials read: no\. Environment variables changed: no/i,
+    )
+    expect(screen.getByTestId('warm-sms-provider-details')).not.toHaveAttribute('open')
+    expect(screen.getByText('Manual SMS operating loop')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Approve' })).toBeEnabled()
+    expect(fetchMock).not.toHaveBeenCalled()
+
+    vi.stubGlobal('fetch', previousFetch)
+  })
+
+  it('surfaces the executable Telnyx SMS no-send canary receipt without enabling live SMS', async () => {
+    const onSmsTelnyxNoSendCanary = vi.fn()
+    const result: SmsTelnyxNoSendCanaryResult = {
+      version: 'warm-outreach-sms-telnyx-no-send-canary/v1',
+      status: 'passed_no_send',
+      message:
+        'No-send Telnyx SMS canary passed. No Telnyx API call ran, no SMS was sent, and provider activation remains disabled.',
+      contactId: '42',
+      provider: {
+        expectedProvider: 'telnyx_messaging',
+        selectedProvider: {
+          key: 'telnyx_messaging',
+          label: 'Telnyx Messaging',
+          configured: true,
+          unavailable: false,
+          rawValueReturned: false,
+        },
+        selectedProviderVerified: true,
+        rawAdapterReturned: false,
+      },
+      noSendCanary: true,
+      externalRequests: [],
+      providerCallsEnabled: false,
+      smsDeliveryEnabled: false,
+      providerActivationEnabled: false,
+      featureFlagEnabled: false,
+      smsDeliveryEnabledReason:
+        'No-send canary only; live SMS requires later activation and per-recipient approval.',
+      readiness: {
+        envSetupPresent: true,
+        selectedProviderAdapter: 'passed',
+        disabledExecutionFlag: 'passed',
+        consentSuppressionPrerequisites: 'passed',
+        messageVersion: 'passed',
+        idempotencyNamespace: 'passed',
+        auditKey: 'passed',
+        credentialReference: 'passed',
+        senderReference: 'passed',
+        deliveryCallbackReference: 'passed',
+        optOutCallbackReference: 'passed',
+        deliveryConfirmationStore: 'passed',
+        providerCapabilityEvidence: 'passed',
+        liveSmsUnavailable: true,
+        providerActivationStillDisabled: true,
+        perRecipientSendStillSeparate: true,
+      },
+      redactedReferences: [
+        {
+          key: 'SMS_PROVIDER_ADAPTER',
+          label: 'Provider adapter',
+          status: 'present_redacted',
+          rawValueReturned: false,
+        },
+        {
+          key: 'SMS_PROVIDER_CREDENTIAL_REFERENCE',
+          label: 'Credential reference',
+          status: 'present_redacted',
+          rawValueReturned: false,
+        },
+        {
+          key: 'SMS_PROVIDER_SENDER_REFERENCE',
+          label: 'Sender identity reference',
+          status: 'present_redacted',
+          rawValueReturned: false,
+        },
+        {
+          key: 'SMS_PROVIDER_DELIVERY_CALLBACK',
+          label: 'Delivery callback mapping',
+          status: 'present_redacted',
+          rawValueReturned: false,
+        },
+        {
+          key: 'SMS_PROVIDER_OPT_OUT_CALLBACK',
+          label: 'Opt-out callback mapping',
+          status: 'present_redacted',
+          rawValueReturned: false,
+        },
+        {
+          key: 'WARM_SMS_MESSAGE_VERSION_KEY',
+          label: 'Message version key',
+          status: 'present_redacted',
+          rawValueReturned: false,
+        },
+        {
+          key: 'WARM_SMS_IDEMPOTENCY_NAMESPACE',
+          label: 'Idempotency namespace',
+          status: 'present_redacted',
+          rawValueReturned: false,
+        },
+        {
+          key: 'WARM_SMS_AUDIT_KEY',
+          label: 'Audit key',
+          status: 'present_redacted',
+          rawValueReturned: false,
+        },
+        {
+          key: 'WARM_SMS_DELIVERY_CONFIRMATION_STORE',
+          label: 'Delivery confirmation store',
+          status: 'present_redacted',
+          rawValueReturned: false,
+        },
+        {
+          key: 'ENABLE_WARM_SMS_PROVIDER_EXECUTION',
+          label: 'Execution feature flag',
+          status: 'disabled_verified',
+          rawValueReturned: false,
+        },
+      ],
+      idempotency: {
+        namespace: 'warm-sms-send:v1',
+        messageVersionKey: 'qa-sms-message-v1',
+        auditKey: 'warm-sms-audit:v1:qa',
+        canaryIdempotencyKey: 'warm-sms-send:v1:canary:no-send:abc123',
+        auditEvidenceKey: 'warm-sms-audit:v1:qa:no-send-canary:def456',
+        duplicatePolicy: 'return_existing_no_send_evidence_without_provider_call',
+        stableResult: true,
+      },
+      deliveryConfirmation: {
+        storeMapped: true,
+        status: 'placeholder_only',
+        providerMessageId: null,
+        deliveryStatus: null,
+      },
+      blockedReasons: [],
+      executionBoundary: {
+        localRowsOnly: true,
+        noSendAuditOnly: true,
+        providerCallsEnabled: false,
+        smsDeliveryEnabled: false,
+        providerActivationEnabled: false,
+        featureFlagEnabled: false,
+        telnyxApiCalled: false,
+        rawCredentialsReturned: false,
+        rawPhoneReturned: false,
+        rawMessageBodyReturned: false,
+        credentialsRead: false,
+        secretManagerMutated: false,
+        environmentVariablesChanged: false,
+        databaseWritesEnabled: false,
+        slackDispatchEnabled: false,
+        gmailActionEnabled: false,
+        n8nDispatchEnabled: false,
+        externalRequests: [],
+      },
+    }
+
+    render(
+      <RelationshipPacketPanel
+        loading={false}
+        error={null}
+        data={warmSlackSendApprovalQaRelationshipPacket}
+        smsTelnyxCanaryResult={result}
+        onSmsTelnyxNoSendCanary={onSmsTelnyxNoSendCanary}
+      />,
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'Run SMS no-send canary' }))
+
+    expect(onSmsTelnyxNoSendCanary).toHaveBeenCalledTimes(1)
+    expect(screen.getByText(/No-send Telnyx SMS canary passed/)).toBeInTheDocument()
+    expect(screen.getByText('Env setup: present')).toBeInTheDocument()
+    expect(screen.getByText('Provider activation: disabled')).toBeInTheDocument()
+    expect(screen.getByText('Live SMS: unavailable')).toBeInTheDocument()
+    expect(screen.getByText('Per-recipient send: separate')).toBeInTheDocument()
+    expect(screen.getAllByText('External requests: 0').length).toBeGreaterThan(0)
+    expect(screen.getByText('Canary key: warm-sms-send:v1:canary:no-send:abc123')).toBeInTheDocument()
+    expect(document.querySelector('[data-sms-no-send-canary]')).toHaveTextContent(
+      /Feature flag enabled: no\. Telnyx API called: no\. Raw phone\/message: no/i,
+    )
+    expect(document.querySelector('[data-sms-no-send-canary]')).toHaveTextContent(
+      /SMS_PROVIDER_CREDENTIAL_REFERENCE: present redacted\. Raw value returned: no/i,
+    )
+    expect(document.querySelector('[data-sms-no-send-canary]')).toHaveTextContent(
+      /ENABLE_WARM_SMS_PROVIDER_EXECUTION: disabled verified\. Raw value returned: no/i,
+    )
   })
 })

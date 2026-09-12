@@ -142,7 +142,7 @@ export default function Hero() {
               Turn disconnected work into one operating system.
             </h1>
             <p className="mt-8 max-w-[32rem] font-body text-base leading-8 text-[#243449]/78 dark:text-platinum-white/76 sm:text-lg">
-              AmaduTown designs the automation layer that connects intake, scheduling,
+              AmaduTown, LLC designs the automation layer that connects intake, scheduling,
               communications, service delivery, billing, reporting, and knowledge management.
             </p>
 

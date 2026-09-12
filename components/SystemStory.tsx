@@ -37,7 +37,7 @@ const frames: SystemStoryFrame[] = [
   {
     title: 'We map the operating system.',
     copy:
-      'AmaduTown traces how work enters, where decisions wait, and which handoffs create repeat effort. The map turns scattered activity into a buildable blueprint.',
+      'AmaduTown, LLC traces how work enters, where decisions wait, and which handoffs create repeat effort. The map turns scattered activity into a buildable blueprint.',
     images: {
       light: LIGHT_SYSTEM_STORY_IMAGE,
       dark: `${SYSTEM_STORY_ASSET_PATH}/system-story-blueprint-map-20260617.webp`,

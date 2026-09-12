@@ -38,6 +38,11 @@ export async function POST(request: NextRequest) {
       metadata = {},
     } = body;
 
+    if(metadata.milestone || metadata.installmentPlanId || (proposalId && metadata.proposalId && proposalId!==metadata.proposalId))return NextResponse.json({error:'Reserved payment metadata'},{status:400});
+    const targetId=proposalId || metadata.proposalId;
+    if(targetId){const {data:target,error}=await supabaseAdmin.from('proposals').select('payment_schedule').eq('id',targetId).single();
+      if(error || !target || target.payment_schedule==='milestones')return NextResponse.json({error:'Use the agreed proposal payment flow'},{status:403});}
+
     if (!clientEmail || !baseAmount || !numInstallments || !successUrl || !cancelUrl) {
       return NextResponse.json(
         { error: 'Missing required fields: clientEmail, baseAmount, numInstallments, successUrl, cancelUrl' },

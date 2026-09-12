@@ -1,0 +1,52 @@
+{
+  "generatedAt": "2026-09-01T19:10:00.000Z",
+  "deployment": {
+    "uniquePreviewUrl": "https://portfolio-ysxp13z5r-vsillahs-projects.vercel.app",
+    "branchPreviewAlias": "https://portfolio-git-codex-engagement-reply-r-f363d0-vsillahs-projects.vercel.app",
+    "vercelCheck": "Vercel - portfolio",
+    "status": "passed",
+    "inspectorUrl": "https://vercel.com/vsillahs-projects/portfolio/CT8DSkP3zbwjnAJwTGWsTKKKdNEs"
+  },
+  "exactHumanQaUrl": "https://portfolio-ysxp13z5r-vsillahs-projects.vercel.app/admin/social-content/engagement-inbox?comment=comment-qa-locked&post=social-qa-locked&review=reply&source=slack#social-comment-review-gate",
+  "deployedApiChecks": [
+    {
+      "command": "vercel curl '/api/admin/social-content/engagement/comments?post=social-qa-locked&comment=comment-qa-locked' --deployment https://portfolio-ysxp13z5r-vsillahs-projects.vercel.app --scope vsillahs-projects",
+      "result": {
+        "fixture": true,
+        "items": ["comment-qa-locked", "comment-qa-recoverable"],
+        "lockedState": "comment-qa-locked submittedReplyLocked=true approvalState=rejected status=responded",
+        "recoverableState": "comment-qa-recoverable submittedReplyLocked=false approvalState=rejected status=needs_qa",
+        "integrationNote": "Synthetic engagement reply QA fixture only. No provider, Slack, Gmail, SMS, publish, schedule, upload, or production-row action was attempted."
+      }
+    },
+    {
+      "command": "vercel curl '/api/admin/social-content/social-qa-locked/engagement/comments' --deployment https://portfolio-ysxp13z5r-vsillahs-projects.vercel.app --scope vsillahs-projects -- --request POST --header 'Content-Type: application/json' --data '{\"action\":\"return_to_review\",\"comment_id\":\"comment-qa-recoverable\",\"draft_reply\":\"Replacement reply that names the approval boundary.\"}'",
+      "result": {
+        "fixture": true,
+        "ok": true,
+        "message": "Revised reply saved and returned to review. Approval is required before any provider submission.",
+        "recoverableState": "comment-qa-recoverable approvalState=drafted actionHistory includes return_to_review",
+        "integrationNote": "Synthetic engagement reply QA fixture only. The return-to-review state was recorded in the preview response without provider calls or production-row mutation."
+      }
+    },
+    {
+      "command": "vercel curl '/api/admin/social-content/social-qa-locked/engagement/comments' --deployment https://portfolio-ysxp13z5r-vsillahs-projects.vercel.app --scope vsillahs-projects -- --request POST --header 'Content-Type: application/json' --data '{\"action\":\"return_to_review\",\"comment_id\":\"comment-qa-locked\",\"draft_reply\":\"Trying to change submitted evidence.\"}'",
+      "result": {
+        "fixture": true,
+        "ok": false,
+        "blocked": true,
+        "alreadySubmitted": true,
+        "message": "Reply already has submitted provider evidence. Local review is locked to preserve the canonical provider record.",
+        "integrationNote": "Synthetic QA fixture only. Existing provider reply evidence remains authoritative, and no local no-op review action was recorded."
+      }
+    }
+  ],
+  "browserRecording": {
+    "status": "local_exact_route_recorded",
+    "reason": "The deployed preview is protected by Vercel SSO for headless browser sessions. Direct unauthenticated checks returned 302 to vercel.com/sso-api, and the Vercel connector share-url attempt returned 403.",
+    "desktopMp4Path": "docs/qa/slack-approval-lifecycle/engagement-inbox-rejected-reply-recovery-qa-2026-09-01.mp4",
+    "mobileMp4Path": "docs/qa/slack-approval-lifecycle/engagement-inbox-rejected-reply-mobile-qa-2026-09-01.mp4",
+    "localReceiptPath": "docs/qa/slack-approval-lifecycle/engagement-inbox-rejected-reply-receipt-2026-09-01.json",
+    "externalRequests": []
+  }
+}

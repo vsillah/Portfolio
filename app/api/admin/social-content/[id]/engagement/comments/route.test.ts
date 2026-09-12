@@ -143,6 +143,7 @@ const submittedYouTubeCommentRow = {
 
 type TestCommentRow = Record<string, unknown> & { id: string; content_id: string }
 
+let displayedComment: TestCommentRow = commentRow
 function request(body?: Record<string, unknown>) {
   return new Request('http://localhost/api/admin/social-content/social-1/engagement/comments', {
     method: body ? 'POST' : 'GET',
@@ -150,7 +151,7 @@ function request(body?: Record<string, unknown>) {
       authorization: 'Bearer token',
       'content-type': 'application/json',
     },
-    body: body ? JSON.stringify(body) : undefined,
+    body: body ? JSON.stringify({ expected_updated_at: displayedComment.updated_at, expected_reply_text: displayedComment.approved_reply_text || displayedComment.proposed_reply_text || '', ...body }) : undefined,
   })
 }
 
@@ -165,6 +166,7 @@ function installDbMocks(options: {
   canonicalCapability?: Record<string, unknown> | null
 } = {}) {
   const selectedComment = options.comment ?? commentRow
+  displayedComment = selectedComment
   const selectedPost = options.post ?? postRow
   const postSingle = vi.fn().mockResolvedValue({ data: selectedPost, error: null })
   const postEq = vi.fn().mockReturnValue({ single: postSingle })
@@ -187,7 +189,7 @@ function installDbMocks(options: {
       })
     }
     return Promise.resolve({
-      data: options.claimData === undefined ? { id: selectedComment.id } : options.claimData,
+      data: options.claimData === null ? null : { id: selectedComment.id, updated_at: 'claimed-version', ...options.claimData },
       error: null,
     })
   })
@@ -282,6 +284,87 @@ describe('/api/admin/social-content/[id]/engagement/comments', () => {
         automaticReply: false,
       },
     })
+  })
+
+  it('serves the preview QA engagement reply fixture without database reads', async () => {
+    vi.stubEnv('VERCEL_ENV', 'preview')
+
+    const response = await GET(request() as never, { params: { id: 'social-qa-locked' } })
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(body).toMatchObject({
+      fixture: true,
+      integration_note: expect.stringContaining('Synthetic engagement reply QA fixture only'),
+    })
+    expect(body.comments).toHaveLength(2)
+    expect(body.comments[0]).toMatchObject({
+      id: 'comment-qa-locked',
+      submittedReplyLocked: true,
+      approvalState: 'rejected',
+    })
+    expect(body.comments[1]).toMatchObject({
+      id: 'comment-qa-recoverable',
+      socialContentId: 'social-qa-locked',
+      approvalState: 'rejected',
+    })
+    expect(mocks.from).not.toHaveBeenCalled()
+  })
+
+  it('records the preview QA return-to-review state without provider calls or database mutation', async () => {
+    vi.stubEnv('VERCEL_ENV', 'preview')
+    const fetchMock = vi.fn()
+    vi.stubGlobal('fetch', fetchMock)
+
+    const response = await POST(request({
+      action: 'return_to_review',
+      comment_id: 'comment-qa-recoverable',
+      draft_reply: 'Replacement reply that names the approval boundary.',
+    }) as never, { params: { id: 'social-qa-locked' } })
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(body).toMatchObject({
+      fixture: true,
+      ok: true,
+      blocked: false,
+      message: 'Revised reply saved and returned to review. Approval is required before any provider submission.',
+      integration_note: expect.stringContaining('without provider calls or production-row mutation'),
+    })
+    expect(body.comments[1]).toMatchObject({
+      id: 'comment-qa-recoverable',
+      draftReply: 'Replacement reply that names the approval boundary.',
+      approvalState: 'drafted',
+      actionHistory: expect.arrayContaining([
+        expect.objectContaining({ action: 'return_to_review' }),
+      ]),
+    })
+    expect(fetchMock).not.toHaveBeenCalled()
+    expect(mocks.from).not.toHaveBeenCalled()
+    expect(mocks.update).not.toHaveBeenCalled()
+  })
+
+  it('keeps the preview QA submitted-provider-evidence fixture locked without recording no-op actions', async () => {
+    vi.stubEnv('VERCEL_ENV', 'preview')
+
+    const response = await POST(request({
+      action: 'return_to_review',
+      comment_id: 'comment-qa-locked',
+      draft_reply: 'Trying to change submitted evidence.',
+    }) as never, { params: { id: 'social-qa-locked' } })
+    const body = await response.json()
+
+    expect(response.status).toBe(409)
+    expect(body).toMatchObject({
+      fixture: true,
+      ok: false,
+      blocked: true,
+      already_submitted: true,
+      message: 'Reply already has submitted provider evidence. Local review is locked to preserve the canonical provider record.',
+    })
+    expect(body.integration_note).toContain('no local no-op review action was recorded')
+    expect(mocks.from).not.toHaveBeenCalled()
+    expect(mocks.update).not.toHaveBeenCalled()
   })
 
   it('does not run X refresh without admin auth', async () => {
@@ -702,7 +785,117 @@ describe('/api/admin/social-content/[id]/engagement/comments', () => {
     }))
   })
 
-  it('preserves submitted provider evidence when later review actions are clicked', async () => {
+  it('records reject revision notes and preserves the draft without external submission', async () => {
+    const response = await POST(request({
+      action: 'reject',
+      comment_id: 'comment-1',
+      draft_reply: 'Needs a sharper reply.',
+      note: 'Name the human approval boundary before this can move forward.',
+    }) as never, { params: { id: 'social-1' } })
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(body.integration_note).toContain('No external comment reply was submitted')
+    expect(mocks.update).toHaveBeenCalledWith(expect.objectContaining({
+      proposed_reply_text: 'Needs a sharper reply.',
+      response_approval_state: 'rejected',
+      reply_submission_state: 'draft',
+      metadata: expect.objectContaining({
+        ui_action_history: expect.arrayContaining([
+          expect.objectContaining({
+            action: 'reject',
+            note: 'Name the human approval boundary before this can move forward.',
+          }),
+        ]),
+      }),
+    }))
+    expect(mocks.update.mock.calls.at(-1)?.[0]).not.toHaveProperty('reply_provider_comment_id')
+    expect(mocks.update.mock.calls.at(-1)?.[0]).not.toHaveProperty('reply_submitted_at')
+  })
+
+  it('blocks repeated approve or reject decisions on a rejected reply review', async () => {
+    installDbMocks({
+      comment: {
+        ...commentRow,
+        response_approval_state: 'rejected',
+        reply_submission_state: 'draft',
+        proposed_reply_text: 'Needs revision.',
+        approved_reply_text: null,
+      },
+    })
+
+    const approve = await POST(request({
+      action: 'approve',
+      comment_id: 'comment-1',
+      draft_reply: 'Trying to approve without revision recovery.',
+    }) as never, { params: { id: 'social-1' } })
+    const approveBody = await approve.json()
+
+    expect(approve.status).toBe(409)
+    expect(approveBody).toMatchObject({
+      ok: false,
+      blocked: true,
+      message: 'Reply review is rejected. Revise the reply and return it to review before approving or rejecting again.',
+    })
+    expect(approveBody.integration_note).toContain('No external comment reply was submitted')
+    expect(approveBody.integration_note).toContain('locked until the explicit recovery action runs')
+    expect(mocks.update).not.toHaveBeenCalled()
+
+    const reject = await POST(request({
+      action: 'reject',
+      comment_id: 'comment-1',
+      draft_reply: 'Trying to reject again.',
+    }) as never, { params: { id: 'social-1' } })
+    const rejectBody = await reject.json()
+
+    expect(reject.status).toBe(409)
+    expect(rejectBody).toMatchObject({
+      ok: false,
+      blocked: true,
+      message: 'Reply review is rejected. Revise the reply and return it to review before approving or rejecting again.',
+    })
+    expect(mocks.update).not.toHaveBeenCalled()
+  })
+
+  it('returns a revised rejected reply to pending review without external submission', async () => {
+    installDbMocks({
+      comment: {
+        ...commentRow,
+        response_approval_state: 'rejected',
+        reply_submission_state: 'draft',
+        proposed_reply_text: 'Needs revision.',
+        approved_reply_text: null,
+      },
+    })
+
+    const response = await POST(request({
+      action: 'return_to_review',
+      comment_id: 'comment-1',
+      draft_reply: 'Revised reply for a fresh review.',
+    }) as never, { params: { id: 'social-1' } })
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(body).toMatchObject({
+      ok: true,
+      blocked: false,
+      message: 'Revised reply saved and returned to review. Approval is required before any provider submission.',
+    })
+    expect(body.integration_note).toContain('No external comment reply was submitted')
+    expect(mocks.update).toHaveBeenCalledWith(expect.objectContaining({
+      proposed_reply_text: 'Revised reply for a fresh review.',
+      approved_reply_text: null,
+      response_approval_state: 'pending',
+      reply_submission_state: 'draft',
+      metadata: expect.objectContaining({
+        ui_action_history: expect.arrayContaining([
+          expect.objectContaining({ action: 'return_to_review' }),
+        ]),
+      }),
+    }))
+  })
+
+  it('blocks later review actions on submitted provider evidence without recording a no-op action', async () => {
     installDbMocks({ comment: submittedYouTubeCommentRow })
 
     const response = await POST(request({
@@ -712,30 +905,48 @@ describe('/api/admin/social-content/[id]/engagement/comments', () => {
     }) as never, { params: { id: 'social-1' } })
     const body = await response.json()
 
-    expect(response.status).toBe(200)
+    expect(response.status).toBe(409)
     expect(body).toMatchObject({
-      ok: true,
-      blocked: false,
+      ok: false,
+      blocked: true,
       already_submitted: true,
       message: expect.stringContaining('submitted provider evidence'),
     })
-    expect(mocks.update).toHaveBeenCalledWith(expect.objectContaining({
-      updated_by: 'admin-user',
-      metadata: expect.objectContaining({
-        ui_action_history: expect.arrayContaining([
-          expect.objectContaining({
-            action: 'approve',
-            note: expect.stringContaining('submitted provider evidence'),
-          }),
-        ]),
-      }),
-    }))
-    expect(mocks.update.mock.calls.at(-1)?.[0]).not.toHaveProperty('response_approval_state')
-    expect(mocks.update.mock.calls.at(-1)?.[0]).not.toHaveProperty('reply_submission_state')
-    expect(mocks.update.mock.calls.at(-1)?.[0]).not.toHaveProperty('reply_provider_comment_id')
-    expect(mocks.update.mock.calls.at(-1)?.[0]).not.toHaveProperty('reply_submitted_at')
+    expect(body.integration_note).toContain('no local no-op review action was recorded')
+    expect(mocks.update).not.toHaveBeenCalled()
     expect(body.comments[0]).toMatchObject({
       status: 'responded',
+    })
+  })
+
+  it('blocks return-to-review on submitted provider evidence without recording a no-op action', async () => {
+    installDbMocks({
+      comment: {
+        ...submittedYouTubeCommentRow,
+        response_approval_state: 'rejected',
+      },
+    })
+
+    const response = await POST(request({
+      action: 'return_to_review',
+      comment_id: 'comment-1',
+      draft_reply: 'Trying to revise after provider submission.',
+    }) as never, { params: { id: 'social-1' } })
+    const body = await response.json()
+
+    expect(response.status).toBe(409)
+    expect(body).toMatchObject({
+      ok: false,
+      blocked: true,
+      already_submitted: true,
+      message: 'Reply already has submitted provider evidence. Local review is locked to preserve the canonical provider record.',
+    })
+    expect(body.integration_note).toContain('no local no-op review action was recorded')
+    expect(mocks.update).not.toHaveBeenCalled()
+    expect(body.comments[0]).toMatchObject({
+      status: 'responded',
+      approvalState: 'rejected',
+      submittedReplyLocked: true,
     })
   })
 })

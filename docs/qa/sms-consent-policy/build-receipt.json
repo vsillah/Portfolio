@@ -1,0 +1,12 @@
+{
+  "command": "env -i PATH=\"$PATH\" HOME=\"$HOME\" NODE_OPTIONS=\"--require=$PWD/scripts/contact-sms-qa-fetch-guard.cjs\" NEXT_TELEMETRY_DISABLED=1 NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54991 NEXT_PUBLIC_SUPABASE_ANON_KEY=synthetic-anon-key SUPABASE_SERVICE_ROLE_KEY=synthetic-service-key N8N_DISABLE_OUTBOUND=true npm run build",
+  "exitCode": 0,
+  "compiled": true,
+  "staticPagesGenerated": 122,
+  "deploymentPerformed": false,
+  "notes": [
+    "Existing img-element lint warnings",
+    "Missing optional provider configuration uses existing fallback paths",
+    "Standalone tsc diagnostics equal exact dependency base; see typecheck-receipt.json"
+  ]
+}

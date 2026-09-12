@@ -485,3 +485,16 @@ function getDefaultTerms(): string {
 
 6. Acceptance: This proposal is valid for the period indicated. Acceptance of this proposal indicates agreement to these terms.`;
 }
+
+/** Read-only recovery for native Sales; never calls the public viewed/sign/payment paths. */
+export async function GET(request: NextRequest) {
+  const auth = await verifyAdmin(request);
+  if (isAuthError(auth)) return NextResponse.json({error: auth.error}, {status: auth.status});
+  const sessionId = request.nextUrl.searchParams.get('sales_session_id');
+  if (!sessionId || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(sessionId)) return NextResponse.json({error:'Valid sales session required.'}, {status:400});
+  const {data, error} = await supabaseAdmin.from('proposals')
+    .select('id,status,client_name,client_company,bundle_name,line_items,total_amount,terms_text,valid_until,access_code,pdf_url')
+    .eq('sales_session_id', sessionId).order('created_at', {ascending:false}).order('id', {ascending:false}).limit(1).maybeSingle();
+  if (error) return NextResponse.json({error:'Could not load saved proposal. Refresh to retry.'}, {status:500});
+  return NextResponse.json({proposal:data || null}, {headers:{'Cache-Control':'no-store'}});
+}

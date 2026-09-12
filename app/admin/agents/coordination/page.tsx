@@ -1870,7 +1870,7 @@ function VercelResearchApprovalPanel({
   onAskShaka: (card: VercelResearchApprovalCard) => void
 }) {
   return (
-    <section className="mb-6 rounded-lg border border-yellow-500/30 bg-yellow-500/5 p-4">
+    <section id="vercel-autoresearch-approval-gate" className="scroll-mt-28 mb-6 rounded-lg border border-yellow-500/30 bg-yellow-500/5 p-4">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <BellRing size={18} className="text-yellow-200" />

@@ -21,12 +21,6 @@ export async function POST(
 
     const body = await request.json().catch(() => ({})) as Record<string, unknown>
     const decisionNote = cleanText(body.decision_note)
-    if (!decisionNote) {
-      return NextResponse.json(
-        { error: 'Decision note is required when rejecting a calendar item' },
-        { status: 400 },
-      )
-    }
 
     const result = await rejectCalendarDraftHandoff({
       id: params.id,
@@ -40,7 +34,7 @@ export async function POST(
       revision_work_item_id: result.revisionWorkItemId,
       side_effects: {
         ...CALENDAR_SIDE_EFFECTS,
-        revision_work_item_created: true,
+        revision_work_item_created: false,
       },
     })
   } catch (error) {

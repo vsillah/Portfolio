@@ -17,6 +17,10 @@ const nextConfig = {
     ],
   },
   experimental: {
+    // React PDF reads this local asset at runtime; keep it in the route bundle.
+    outputFileTracingIncludes: {
+      '/api/proposals': ['./public/amadutown-logo-upscaled.png'],
+    },
     serverActions: {
       bodySizeLimit: '50mb',
     },

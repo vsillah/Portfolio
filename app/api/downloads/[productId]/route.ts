@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
-import { getCurrentUser } from '@/lib/auth'
+import { verifyOrderCaller, canAccessOrder } from '@/lib/order-access'
 import { getSignedUrl } from '@/lib/storage'
 
 export const dynamic = 'force-dynamic'
@@ -10,7 +10,6 @@ export async function GET(
   { params }: { params: { productId: string } }
 ) {
   try {
-    const user = await getCurrentUser()
     const { searchParams } = new URL(request.url)
     const orderId = searchParams.get('orderId')
 
@@ -21,13 +20,24 @@ export async function GET(
       )
     }
 
-    const productId = parseInt(params.productId)
+    const productId = Number(params.productId)
+    const parsedOrderId = Number(orderId)
+    if (!Number.isSafeInteger(productId) || productId <= 0 ||
+        !Number.isSafeInteger(parsedOrderId) || parsedOrderId <= 0) {
+      return NextResponse.json({ error: 'Invalid order or product ID' }, { status: 400 })
+    }
+
+    const caller = await verifyOrderCaller(request)
+    if ('error' in caller) {
+      return NextResponse.json({ error: caller.error }, { status: caller.status })
+    }
+    const { user } = caller
 
     // Verify user has access to this order
     const { data: order, error: orderError } = await supabaseAdmin
       .from('orders')
       .select('id, user_id, guest_email, status')
-      .eq('id', parseInt(orderId))
+      .eq('id', parsedOrderId)
       .single()
 
     if (orderError || !order) {
@@ -37,7 +47,11 @@ export async function GET(
       )
     }
 
-    // Check order status
+    if (!canAccessOrder(caller, order)) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
+    }
+
+    // Check order status after ownership to avoid exposing another buyer's state.
     if (order.status !== 'completed') {
       return NextResponse.json(
         { error: 'Order is not completed' },
@@ -45,31 +59,11 @@ export async function GET(
       )
     }
 
-    // Verify user has access
-    if (user) {
-      if (order.user_id !== user.id) {
-        return NextResponse.json(
-          { error: 'Unauthorized' },
-          { status: 403 }
-        )
-      }
-    } else {
-      // For guest users, we'd need to verify email somehow
-      // For now, we'll allow if order exists (in production, add email verification)
-      const guestEmail = request.headers.get('x-guest-email')
-      if (guestEmail && order.guest_email !== guestEmail) {
-        return NextResponse.json(
-          { error: 'Unauthorized' },
-          { status: 403 }
-        )
-      }
-    }
-
     // Verify product is in order
     const { data: orderItem, error: itemError } = await supabaseAdmin
       .from('order_items')
       .select('id')
-      .eq('order_id', parseInt(orderId))
+      .eq('order_id', parsedOrderId)
       .eq('product_id', productId)
       .single()
 
@@ -103,7 +97,7 @@ export async function GET(
         .from('downloads')
         .insert({
           user_id: user.id,
-          order_id: parseInt(orderId),
+          order_id: parsedOrderId,
           product_id: productId,
         })
     }
@@ -111,11 +105,11 @@ export async function GET(
     return NextResponse.json({
       downloadUrl,
       fileName: product.title,
-    })
-  } catch (error: any) {
+    }, { headers: { 'Cache-Control': 'private, no-store' } })
+  } catch (error: unknown) {
     console.error('Error generating download:', error)
     return NextResponse.json(
-      { error: error.message || 'Failed to generate download' },
+      { error: 'Failed to generate download' },
       { status: 500 }
     )
   }

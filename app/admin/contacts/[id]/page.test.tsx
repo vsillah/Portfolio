@@ -1,7 +1,11 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import type { ReactNode } from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import ContactDetailPage from './page'
+import {
+  WARM_SLACK_SEND_APPROVAL_QA_QUEUE_ID,
+  warmSlackSendApprovalQaLead,
+} from '@/components/admin/outreach/warmSlackSendApprovalQaFixture'
 
 vi.mock('@/components/ProtectedRoute', () => ({
   default: ({ children }: { children: ReactNode }) => <>{children}</>,
@@ -166,7 +170,7 @@ const relationshipPacketResponse = {
 describe('ContactDetailPage relationship packet', () => {
   beforeEach(() => {
     window.history.replaceState({}, '', '/admin/contacts/42')
-    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input)
       if (url === '/api/admin/contacts/42') {
         return Response.json(contactResponse)
@@ -175,6 +179,30 @@ describe('ContactDetailPage relationship packet', () => {
         return Response.json(relationshipPacketResponse)
       }
       if (url === '/api/admin/outreach/leads/42/responses') {
+        if (init?.method === 'POST') {
+          return Response.json({
+            outcome: 'created',
+            responseCommunicationId: 'comm-response-created',
+            replyDraftCommunicationId: 'comm-draft-created',
+            replyDraftOutcome: 'created',
+            followUpTask: { outcome: 'created', id: 'task-created' },
+            suppressionProposal: null,
+            decision: {
+              responseClass: 'interested',
+              interpretation: {
+                classificationLabel: 'interested',
+                recommendedNextAction: {
+                  label: 'Review short next-step reply',
+                  requiresNextTouchDecision: true,
+                },
+              },
+              approvalGate: {
+                label: 'Pending: human reply approval',
+                recoveryPath: 'Approve the local draft in the contact workroom.',
+              },
+            },
+          }, { status: 201 })
+        }
         return Response.json({
           responses: [
             {
@@ -189,21 +217,37 @@ describe('ContactDetailPage relationship packet', () => {
               sent_at: '2026-08-26T12:00:00.000Z',
               metadata: {
                 lifecycle: 'warm_outreach_response',
-                response_class: 'interest',
+                source_type: 'manual',
+                source_label: 'Manual entry',
+                source_provenance: {
+                  source_type: 'manual',
+                  source_label: 'Manual entry',
+                  capture_method: 'operator_manual_entry',
+                  source_system: 'manual',
+                  provider: 'manual',
+                  provider_polling_enabled: false,
+                  provider_ingestion_enabled: false,
+                  external_action_enabled: false,
+                },
+                response_class: 'interested',
+                response_class_label: 'interested',
                 recommended_next_action: {
                   label: 'Review short next-step reply',
                   description: 'Prepare a concise next-step reply.',
                   priority: 'high',
+                  requiresNextTouchDecision: true,
                 },
+                next_touch_decision_required: true,
                 approval_gate: {
                   state: 'pending_human_reply_review',
                   label: 'Pending: human reply approval',
                   recoveryPath: 'Approve the local draft in the contact workroom.',
                 },
                 local_draft_recommendation: {
-                  subject: 'Draft reply: interest',
+                  subject: 'Draft reply: interested',
                 },
                 human_qa_required: true,
+                manual_message_key: 'thread-42-message-7',
               },
               created_at: '2026-08-26T12:00:00.000Z',
             },
@@ -228,9 +272,12 @@ describe('ContactDetailPage relationship packet', () => {
     expect(screen.getByRole('button', { name: /Capture response/i })).toBeDisabled()
     expect(await screen.findByText('Recent response sequences')).toBeInTheDocument()
     expect(screen.getByText('Review short next-step reply')).toBeInTheDocument()
-    expect(screen.getByText('Draft reply: interest')).toBeInTheDocument()
+    expect(screen.getByText('Draft reply: interested')).toBeInTheDocument()
     expect(screen.getByText('Pending: human reply approval')).toBeInTheDocument()
     expect(screen.getByText('Human QA')).toBeInTheDocument()
+    expect(screen.getByText('Next touch')).toBeInTheDocument()
+    expect(screen.getAllByText('Manual entry').length).toBeGreaterThan(0)
+    expect(screen.getByText('Manual message key: thread-42-message-7')).toBeInTheDocument()
 
     await waitFor(() => {
       expect(fetch).toHaveBeenCalledWith('/api/admin/outreach/leads/42/relationship-packet', {
@@ -242,5 +289,73 @@ describe('ContactDetailPage relationship packet', () => {
         headers: { Authorization: 'Bearer admin-token' },
       })
     })
+  })
+
+  it('renders Gmail import readiness on the warm Slack approval QA contact route', async () => {
+    window.history.replaceState(
+      {},
+      '',
+      '/admin/contacts/42?qa=warm-slack-send-approval#warm-response-lifecycle',
+    )
+
+    render(<ContactDetailPage />)
+
+    expect(await screen.findByRole('heading', { name: warmSlackSendApprovalQaLead.name })).toBeInTheDocument()
+    expect(await screen.findByText('Gmail response import')).toBeInTheDocument()
+    expect(screen.getByText('Mock Gmail response import ready')).toBeInTheDocument()
+    expect(screen.getByText('Live import off')).toBeInTheDocument()
+    expect(screen.getByText(`Queue: ${WARM_SLACK_SEND_APPROVAL_QA_QUEUE_ID}`)).toBeInTheDocument()
+    expect(screen.getByText('Thread: qa-gmail-thread-42')).toBeInTheDocument()
+    expect(screen.getByText('Message: qa-gmail-message-42')).toBeInTheDocument()
+    expect(screen.getByText('Dry-run import: on / Gmail API: not called / Slack and n8n: off.')).toBeInTheDocument()
+
+    const calledUrls = vi.mocked(fetch).mock.calls.map(([input]) => String(input))
+    expect(calledUrls.some(url => /gmail|slack|n8n|provider/i.test(url))).toBe(false)
+    expect(calledUrls.some(url => url.includes('/relationship-packet'))).toBe(false)
+    expect(calledUrls.some(url => url.includes('/responses'))).toBe(false)
+  })
+
+  it('captures a manual warm response in the existing contact workroom without external provider calls', async () => {
+    render(<ContactDetailPage />)
+
+    expect(await screen.findByRole('heading', { name: /Neil Rhein/i })).toBeInTheDocument()
+
+    fireEvent.change(screen.getByPlaceholderText(/Optional stable source key/i), {
+      target: { value: 'thread-42-message-7' },
+    })
+    fireEvent.change(screen.getByPlaceholderText(/Paste or summarize the response/i), {
+      target: { value: 'Interested. Can we schedule a short call next week?' },
+    })
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /Capture response/i })).toBeEnabled()
+    })
+    fireEvent.click(screen.getByRole('button', { name: /Capture response/i }))
+
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalledWith('/api/admin/outreach/leads/42/responses', expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({
+          channel: 'email',
+          sourceType: 'manual',
+          responseText: 'Interested. Can we schedule a short call next week?',
+          outreachQueueId: undefined,
+          messageKey: 'thread-42-message-7',
+          providerThreadId: undefined,
+          providerMessageId: undefined,
+          sourceUrl: undefined,
+        }),
+      }))
+    })
+    await waitFor(() => {
+      expect(screen.getAllByText((_content, element) => (
+        element?.textContent?.includes('Response captured as interested.') ?? false
+      )).length).toBeGreaterThan(0)
+    })
+    expect(screen.getByText(/Local reply draft created/i)).toBeInTheDocument()
+    expect(screen.getByText(/Next-touch decision requires human QA/i)).toBeInTheDocument()
+
+    const calledUrls = vi.mocked(fetch).mock.calls.map(([input]) => String(input))
+    expect(calledUrls.some(url => /gmail|slack|n8n|provider/i.test(url))).toBe(false)
   })
 })

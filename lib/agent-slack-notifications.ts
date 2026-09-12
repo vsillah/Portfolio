@@ -1,5 +1,7 @@
-import { createHash } from 'crypto'
-import { endAgentRun, recordAgentEvent, startAgentRun } from '@/lib/agent-run'
+import { socialCommentReplyText } from '@/lib/social-comment-reply-safety'
+import { getSlackAgentSource, getSlackAgentDeliveryConfig } from '@/lib/slack-agent-environment'
+import { createHash, randomUUID } from 'crypto'
+import { recordAgentEvent, startAgentRun } from '@/lib/agent-run'
 import { listAgentWorkItems, type AgentWorkItem } from '@/lib/agent-work-items'
 import { AGENT_ORGANIZATION } from '@/lib/agent-organization'
 import { mrkdwn, slackButton, truncateSlack, type SlackBlock } from '@/lib/agent-slack-blocks'
@@ -53,11 +55,16 @@ export type AgentSlackNotificationInput = {
   dedupeWindowHours?: number | null
   actorLabel?: string | null
   triggerSource?: string | null
+  calendarItemIds?: string[]
 }
 
 export type AgentSlackNotificationResult = {
   ok: boolean
   runId: string
+  deliveredCalendarItemIds?: string[]
+  slackChannel?: string | null
+  slackMessageTs?: string | null
+  uncertain?: boolean
   sent: boolean
   skipped: boolean
   deduped: boolean
@@ -87,7 +94,8 @@ type AgentRunSummaryRow = {
 type SlackDeliveryResult = {
   sent: boolean
   reason: string | null
-  mode: 'bot' | 'webhook' | 'none'
+  mode: 'bot' | 'none'
+  uncertain?: boolean
   channel?: string | null
   ts?: string | null
 }
@@ -140,12 +148,7 @@ const DEFAULT_SCHEDULED_PUBLISH_STALE_HOURS = 24
 const MAX_SCHEDULED_PUBLISH_STALE_HOURS = 7 * 24
 
 function baseUrl() {
-  return (
-    process.env.NEXT_PUBLIC_BASE_URL ||
-    process.env.PORTFOLIO_BASE_URL ||
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    'https://amadutown.com'
-  ).replace(/\/$/, '')
+  return getSlackAgentSource().sourceOrigin
 }
 
 function socialContentGateReminderWindowHours() {
@@ -189,32 +192,46 @@ function agentDisplayName(agentKey: string) {
   return AGENT_ORGANIZATION.find((agent) => agent.key === agentKey)?.name ?? agentKey
 }
 
-function dedupeWindowKey(windowHours = 1) {
-  const hours = Number.isFinite(windowHours) && windowHours > 0 ? windowHours : 1
-  const windowMs = hours * 60 * 60 * 1000
-  return new Date(Math.floor(Date.now() / windowMs) * windowMs).toISOString()
-}
-
 function normalizeTargetAgentKeys(keys?: string[]) {
   return [...new Set((keys ?? []).map((key) => key.trim()).filter(Boolean))].sort()
 }
 
-function notificationIdempotencyKey(input: AgentSlackNotificationInput) {
+function notificationIdempotencyKey(input: AgentSlackNotificationInput, payload: Awaited<ReturnType<typeof buildAgentSlackNotificationPayload>>) {
   const targetKey = normalizeTargetAgentKeys(input.targetAgentKeys).join(',') || 'all'
   const goalKey = input.goalId || 'no-goal'
-  const contentKey = input.dedupeKey?.trim() || 'default'
-  return `slack-mobile-notification:${input.kind}:${goalKey}:${targetKey}:${contentKey}:${dedupeWindowKey(input.dedupeWindowHours ?? 1)}`
+  // Use canonical object/action/link identity, never prose, reminder windows,
+  // deployment hostnames, or relative time. Batch membership is still explicit.
+  const identities = payload.blocks.flatMap((block) => {
+    const elements = block.type === 'actions' ? block.elements : block.type === 'section' && block.accessory ? [block.accessory] : []
+    return elements.map((element) => {
+      if (element.value) {
+        const value = JSON.parse(element.value) as Record<string, unknown>
+        const identity = { ...value }
+        delete identity.sourceOrigin
+        delete identity.sourceEnvironment
+        delete identity.note
+        return JSON.stringify(identity, Object.keys(identity).sort())
+      }
+      if (element.url) {
+        const url = new URL(element.url)
+        return `${element.action_id}:${url.pathname}${url.search}${url.hash}`
+      }
+      return element.action_id
+    })
+  }).sort()
+  const contentKey = createHash('sha256').update(JSON.stringify(identities)).digest('hex')
+  return `slack-mobile-notification:${getSlackAgentSource().sourceEnvironment}:${input.kind}:${goalKey}:${targetKey}:${contentKey}`
 }
 
 async function existingNotificationRun(idempotencyKey: string) {
   if (!supabaseAdmin) return null
   const { data, error } = await supabaseAdmin
     .from('agent_runs')
-    .select('id, status, metadata')
+    .select('id, status, metadata, outcome')
     .eq('idempotency_key', idempotencyKey)
     .maybeSingle()
-  if (error) return null
-  return data as { id: string; status?: string | null; metadata?: Record<string, unknown> | null } | null
+  if (error) throw new Error(`Failed to read Slack delivery: ${error.message}`)
+  return data as { id: string; status?: string | null; metadata?: Record<string, unknown> | null; outcome?: Record<string, unknown> | null } | null
 }
 
 async function pendingApprovals(limit = 5) {
@@ -327,8 +344,19 @@ function formatScheduledFor(value: string | null | undefined) {
 function socialCalendarApprovalDeepLink(row: SocialContentCalendarItem) {
   const gate = calendarApprovalGateSummary(row)
   const socialContentId = row.social_content_queue?.id ?? row.social_content_id
-  if (socialContentId) return `/admin/social-content/${socialContentId}?step=${gate.deepLinkStep}`
-  return `/admin/agents/content-intelligence?section=calendar&calendar_item=${encodeURIComponent(row.id)}`
+  if (socialContentId) return socialContentGateDeepLink(socialContentId, gate.deepLinkStep)
+  return `/admin/agents/content-intelligence?section=calendar&calendar_item=${encodeURIComponent(row.id)}#content-calendar-gate`
+}
+
+function socialContentGateDeepLink(id: string, step: 'copy' | 'visuals' | 'draft' | 'submit' | 'status') {
+  const sectionIds = {
+    copy: 'social-copy-gate',
+    visuals: 'social-visual-assets-gate',
+    draft: 'social-draft-approval-gate',
+    submit: 'social-platform-submission-gate',
+    status: 'social-publication-status-gate',
+  }
+  return `/admin/social-content/${id}?step=${step}#${sectionIds[step]}`
 }
 
 function socialCalendarApprovalDedupeKey(items: SocialCalendarApprovalAttentionItem[]) {
@@ -347,13 +375,13 @@ function calendarPingAlreadySent(row: SocialContentCalendarItem, window: '24h' |
   return calendarDueGatePingAlreadySent(row, window)
 }
 
-async function socialCalendarApprovalRows(limit = 10): Promise<SocialCalendarApprovalAttentionItem[]> {
+async function socialCalendarApprovalRows(calendarItemIds?: string[], limit = 50): Promise<SocialCalendarApprovalAttentionItem[]> {
   if (!supabaseAdmin) throw new Error('Database not available')
 
   const now = new Date()
   const startsAt = new Date(now.getTime() - socialCalendarApprovalReminderLookbackHours() * 60 * 60 * 1000)
   const endsAt = new Date(now.getTime() + socialCalendarApprovalReminderWindowHours() * 60 * 60 * 1000)
-  const { data, error } = await supabaseAdmin
+  let query = supabaseAdmin
     .from('social_content_calendar_items')
     .select(`
       *,
@@ -362,11 +390,12 @@ async function socialCalendarApprovalRows(limit = 10): Promise<SocialCalendarApp
         social_content_publishes (id, platform, status)
       )
     `)
-    .eq('authorization_status', 'pending')
+    .in('authorization_status', ['pending', 'authorized'])
     .gte('scheduled_for', startsAt.toISOString())
     .lte('scheduled_for', endsAt.toISOString())
     .order('scheduled_for', { ascending: true })
-    .limit(limit)
+  if (calendarItemIds?.length) query = query.in('id', calendarItemIds)
+  const { data, error } = await query.limit(limit)
 
   if (error) throw new Error(`Failed to read calendar approval gates: ${error.message}`)
   const seenIds = new Set<string>()
@@ -603,8 +632,8 @@ async function buildSocialPublishGateDuePayload() {
             ? 'open_social_content_stale_schedule_recovery'
             : 'open_social_content_submission_gate',
           url: agentUrl(item.staleSchedule
-            ? `/admin/social-content/${item.row.id}`
-            : `/admin/social-content/${item.row.id}?step=submit`),
+            ? socialContentGateDeepLink(item.row.id, 'status')
+            : socialContentGateDeepLink(item.row.id, 'submit')),
           style: 'primary',
         }),
         slackButton({
@@ -623,14 +652,15 @@ async function buildSocialPublishGateDuePayload() {
   }
 }
 
-async function buildSocialCalendarApprovalDuePayload() {
-  const items = await socialCalendarApprovalRows()
+async function buildSocialCalendarApprovalDuePayload(input: AgentSlackNotificationInput) {
+  const candidates = await socialCalendarApprovalRows(input.calendarItemIds)
+  const items = candidates.slice(0, 5)
   const blocks: SlackBlock[] = [
     {
       type: 'section',
       text: mrkdwn([
         '*Content calendar approvals are due*',
-        `These unreleased calendar rows are stale or scheduled within ${socialCalendarApprovalReminderWindowHours()} hours with an outstanding approval gate. Slack is the reminder surface; Portfolio is the canonical decision path.`,
+        `These unreleased calendar rows are stale or scheduled within ${socialCalendarApprovalReminderWindowHours()} hours with an outstanding approval gate. Slack can record internal draft-handoff decisions; Portfolio remains the canonical readiness surface.`,
       ].join('\n')),
     },
   ]
@@ -665,11 +695,37 @@ async function buildSocialCalendarApprovalDuePayload() {
     blocks.push({
       type: 'actions',
       elements: [
+        ...(!item.stale && gate.kind === 'platform_draft_handoff' && !gate.manualOnly && item.row.authorization_status === 'pending' ? [
+          slackButton({
+            label: 'Authorize handoff',
+            actionId: 'social_calendar_draft_handoff_approve',
+            style: 'primary',
+            value: {
+              action: 'social_calendar_draft_handoff.approve',
+              schemaVersion: 'social-calendar-approval/v1',
+              calendarItemId: item.row.id,
+              contentId: item.row.social_content_queue?.id ?? item.row.social_content_id ?? undefined,
+              note: 'Authorize Draft Handoff tapped in Slack. Record internal content-readiness approval only; do not publish, schedule externally, upload, or call providers.',
+            },
+            confirmText: 'Authorize the internal draft handoff for this calendar item? This will not publish, schedule externally, upload, or call providers.',
+          }),
+          slackButton({
+            label: 'Reject',
+            actionId: 'social_calendar_draft_handoff_reject',
+            value: {
+              action: 'social_calendar_draft_handoff.reject',
+              schemaVersion: 'social-calendar-approval/v1',
+              calendarItemId: item.row.id,
+              contentId: item.row.social_content_queue?.id ?? item.row.social_content_id ?? undefined,
+              note: 'Rejected from Slack. Keep content pipeline blocked until the calendar item is revised.',
+            },
+          }),
+        ] : []),
         slackButton({
-          label: item.stale ? 'Review recovery' : 'Open gate',
+          label: item.stale ? 'Review recovery' : gate.kind === 'copy' ? 'Review copy' : 'Open gate',
           actionId: item.stale ? 'open_social_calendar_recalibration' : 'open_social_calendar_approval_gate',
           url: agentUrl(socialCalendarApprovalDeepLink(item.row)),
-          style: 'primary',
+          style: item.stale ? 'primary' : undefined,
         }),
         slackButton({
           label: 'Open calendar',
@@ -681,9 +737,11 @@ async function buildSocialCalendarApprovalDuePayload() {
   }
 
   return {
-    text: `${items.length} Content Intelligence calendar approval(s) are stale or due soon.`,
+    text: `${items.length} Content Intelligence calendar approval(s) shown.${candidates.length > items.length || candidates.length >= 50 ? ' More may need review; open calendar.' : ''}`,
     blocks,
     itemCount: items.length,
+    renderedCalendarItemIds: items.map(({ row }) => row.id),
+    visibilityLimited: candidates.length >= 50 || candidates.length > items.length,
     dedupeKey: socialCalendarApprovalDedupeKey(items),
   }
 }
@@ -731,6 +789,7 @@ async function buildSocialCommentAttentionPayload() {
     })
     return {
       text: 'Social comment attention sweep is waiting on the comment inbox data surface.',
+      visibilityError: read.reason ?? 'Comment inbox visibility is unavailable.',
       blocks,
       itemCount: 0,
     }
@@ -750,9 +809,10 @@ async function buildSocialCommentAttentionPayload() {
   }
 
   for (const row of read.rows.slice(0, 5)) {
-    const canDecide = canSlackDecideCommentReply(row)
+    const exactReply = socialCommentReplyText(row as unknown as Record<string, unknown>)
+    const canDecide = canSlackDecideCommentReply(row) && JSON.stringify(exactReply).length < 1400
     const comment = truncateSlack(row.body, 220)
-    const draft = truncateSlack(row.approved_reply_text || row.proposed_reply_text, 180)
+    const draft = canDecide ? exactReply : truncateSlack(exactReply, 180)
     blocks.push({
       type: 'section',
       text: mrkdwn([
@@ -776,6 +836,8 @@ async function buildSocialCommentAttentionPayload() {
               value: {
                 action: 'social_comment_reply.approve',
                 commentId: row.id,
+                expectedUpdatedAt: row.updated_at!,
+                expectedReplyText: exactReply,
                 contentId: row.content_id ?? undefined,
                 note: 'Approved from Slack. Start the 15-minute hold before any provider-send eligibility check.',
               },
@@ -788,19 +850,21 @@ async function buildSocialCommentAttentionPayload() {
               value: {
                 action: 'social_comment_reply.reject',
                 commentId: row.id,
+                expectedUpdatedAt: row.updated_at!,
+                expectedReplyText: exactReply,
                 contentId: row.content_id ?? undefined,
                 note: 'Rejected from Slack.',
               },
             }),
             slackButton({
-              label: 'Open review',
+              label: 'Open gate',
               actionId: 'open_social_comment_review',
               url: agentUrl(socialCommentDeepLink(row)),
             }),
           ]
         : [
             slackButton({
-              label: 'Open review',
+              label: 'Open gate',
               actionId: 'open_social_comment_review',
               url: agentUrl(socialCommentDeepLink(row)),
               style: 'primary',
@@ -935,9 +999,9 @@ async function buildPendingApprovalPayload() {
               confirmText: `Approve ${run?.title ?? approval.run_id}?`,
             })
           : slackButton({
-              label: 'Open decision',
+              label: 'Open gate',
               actionId: 'open_decision',
-              url: agentUrl(`/admin/agents/coordination?approvalRunId=${approval.run_id}`),
+              url: agentUrl(`/admin/agents/coordination?approvalRunId=${approval.run_id}#vercel-autoresearch-approval-gate`),
             }),
         slackButton({
           label: 'Ask Shaka',
@@ -1067,163 +1131,123 @@ async function buildWorkItemPayload(input: AgentSlackNotificationInput) {
   }
 }
 
-export async function buildAgentSlackNotificationPayload(input: AgentSlackNotificationInput) {
+async function buildNotificationPayload(input: AgentSlackNotificationInput) {
   if (input.kind === 'pending_approvals') return buildPendingApprovalPayload()
   if (input.kind === 'stale_runs') return buildStaleRunsPayload()
   if (input.kind === 'high_signal_insights') return buildHighSignalInsightsPayload()
-  if (input.kind === 'social_calendar_approval_due') return buildSocialCalendarApprovalDuePayload()
+  if (input.kind === 'social_calendar_approval_due') return buildSocialCalendarApprovalDuePayload(input)
   if (input.kind === 'social_publish_gate_due') return buildSocialPublishGateDuePayload()
   if (input.kind === 'social_comment_attention_due') return buildSocialCommentAttentionPayload()
   return buildWorkItemPayload(input)
 }
 
-async function postWithBotToken(text: string, blocks: SlackBlock[]): Promise<SlackDeliveryResult | null> {
-  const token = process.env.SLACK_BOT_TOKEN
-  const channel = process.env.SLACK_AGENT_OPS_CHANNEL_ID || process.env.SLACK_AGENT_OPS_CHANNEL
-  if (!token || !channel) return null
+export async function buildAgentSlackNotificationPayload(input: AgentSlackNotificationInput) {
+  const source = getSlackAgentSource()
+  const payload = await buildNotificationPayload(input)
+  return {
+    ...payload,
+    blocks: [{ type: 'context', elements: [mrkdwn(`\`${source.sourceEnvironment}\` · ${source.sourceOrigin}`)] } as SlackBlock, ...payload.blocks],
+    visibilityError: 'visibilityError' in payload && typeof payload.visibilityError === 'string' ? payload.visibilityError : undefined,
+    renderedCalendarItemIds: 'renderedCalendarItemIds' in payload && Array.isArray(payload.renderedCalendarItemIds) ? payload.renderedCalendarItemIds.filter((id): id is string => typeof id === 'string') : [],
+  }
+}
 
-  const response = await fetch('https://slack.com/api/chat.postMessage', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json; charset=utf-8',
-    },
-    body: JSON.stringify({
-      channel,
-      text,
-      blocks,
-      unfurl_links: false,
-      unfurl_media: false,
-    }),
-  })
-  const body = await response.json().catch(() => null) as { ok?: boolean; error?: string; channel?: string; ts?: string } | null
-  if (!response.ok || body?.ok === false) {
-    return {
-      sent: false,
-      reason: `Slack bot delivery returned ${body?.error ?? `HTTP ${response.status}`}.`,
-      mode: 'bot',
-      channel,
-      ts: null,
+async function postToSlack(text: string, blocks: SlackBlock[], config: ReturnType<typeof getSlackAgentDeliveryConfig>): Promise<SlackDeliveryResult> {
+  try {
+    const response = await fetch('https://slack.com/api/chat.postMessage', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${config.token}`, 'Content-Type': 'application/json; charset=utf-8' },
+      body: JSON.stringify({ channel: config.channel, text, blocks, unfurl_links: false, unfurl_media: false }),
+      signal: AbortSignal.timeout(10_000),
+    })
+    const body = await response.json().catch(() => null) as { ok?: boolean; error?: string; channel?: string; ts?: string } | null
+    if (response.ok && body?.ok === true && body.channel === config.channel && typeof body.ts === 'string' && /^\d+\.\d+$/.test(body.ts)) {
+      return { sent: true, reason: null, mode: 'bot', channel: body.channel, ts: body.ts }
     }
-  }
-  return {
-    sent: true,
-    reason: null,
-    mode: 'bot',
-    channel: body?.channel ?? channel,
-    ts: body?.ts ?? null,
-  }
-}
-
-async function postWithWebhook(text: string, blocks: SlackBlock[]): Promise<SlackDeliveryResult> {
-  const webhookUrl = process.env.SLACK_AGENT_OPS_WEBHOOK_URL
-  if (!webhookUrl || !webhookUrl.startsWith('https://')) {
-    return { sent: false, reason: 'Slack bot channel and webhook are not configured.', mode: 'none' }
-  }
-  const response = await fetch(webhookUrl, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ text, blocks }),
-  })
-  if (!response.ok) {
-    return { sent: false, reason: `Slack webhook returned HTTP ${response.status}.`, mode: 'webhook' }
-  }
-  return { sent: true, reason: null, mode: 'webhook' }
-}
-
-async function postToSlack(text: string, blocks: SlackBlock[]): Promise<SlackDeliveryResult> {
-  const botDelivery = await postWithBotToken(text, blocks)
-  if (botDelivery?.sent) return botDelivery
-
-  const webhookDelivery = await postWithWebhook(text, blocks)
-  if (webhookDelivery.sent || !botDelivery) return webhookDelivery
-
-  return {
-    ...botDelivery,
-    reason: `${botDelivery.reason} Webhook fallback also failed: ${webhookDelivery.reason}`,
+    // Only a definite Slack validation/auth rejection proves no message was accepted. Everything
+    // else needs reconciliation, including malformed success and transport errors.
+    const definiteRejections = new Set(['invalid_auth', 'not_authed', 'account_inactive', 'token_revoked', 'channel_not_found', 'not_in_channel', 'is_archived', 'invalid_arguments', 'no_text', 'msg_too_long', 'invalid_blocks', 'restricted_action', 'missing_scope', 'ratelimited'])
+    const uncertain = body?.ok !== false || !definiteRejections.has(body.error ?? '')
+    return { sent: false, uncertain, reason: uncertain ? 'Slack delivery is uncertain; reconcile the bot receipt before retrying.' : 'Slack rejected the notification; delivery can be retried.', mode: 'bot' }
+  } catch {
+    return { sent: false, uncertain: true, reason: 'Slack delivery is uncertain; reconcile the bot receipt before retrying.', mode: 'bot' }
   }
 }
 
 export async function sendAgentSlackNotification(input: AgentSlackNotificationInput): Promise<AgentSlackNotificationResult> {
-  const idempotencyKey = notificationIdempotencyKey(input)
-  const existing = input.force ? null : await existingNotificationRun(idempotencyKey)
-  if (existing?.id) {
+  // Configuration is checked before any delivery claim or database mutation.
+  const config = getSlackAgentDeliveryConfig()
+  if (!supabaseAdmin) throw new Error('Database not available')
+  const payload = await buildAgentSlackNotificationPayload(input)
+  if (payload.visibilityError) throw new Error(payload.visibilityError)
+  const idempotencyKey = notificationIdempotencyKey(input, payload)
+  const existing = await existingNotificationRun(idempotencyKey)
+  const delivered = existing?.outcome?.sent === true && Boolean(existing.outcome.slack_channel && existing.outcome.slack_message_ts)
+  const blocked = existing && (delivered || !['queued', 'failed', 'cancelled'].includes(existing.status ?? '') || existing.outcome?.uncertain === true)
+  if (blocked) {
     return {
-      ok: true,
-      runId: existing.id,
-      sent: false,
-      skipped: true,
-      deduped: true,
-      reason: 'A matching Slack mobile notification was already prepared in this hourly window.',
-      itemCount: Number(existing.metadata?.item_count ?? 0),
-      text: String(existing.metadata?.text ?? 'Agent Ops Slack notification already prepared.'),
+      ok: Boolean(delivered), runId: existing.id, sent: false, skipped: true, deduped: Boolean(delivered),
+      uncertain: !delivered,
+      reason: delivered ? 'A matching Slack notification was delivered.' : 'Existing delivery is in progress or uncertain; reconcile before retrying.',
+      itemCount: Number(existing.metadata?.item_count ?? 0), text: String(existing.metadata?.text ?? 'Slack notification pending reconciliation.'),
+      deliveredCalendarItemIds: delivered && Array.isArray(existing.outcome?.delivered_calendar_item_ids) ? existing.outcome.delivered_calendar_item_ids.filter((id): id is string => typeof id === 'string') : [],
+      slackChannel: delivered ? String(existing.outcome?.slack_channel) : null,
+      slackMessageTs: delivered ? String(existing.outcome?.slack_message_ts) : null,
     }
   }
-
-  const payload = await buildAgentSlackNotificationPayload(input)
-  const run = await startAgentRun({
-    agentKey: 'chief-of-staff',
-    runtime: 'manual',
-    kind: 'slack_mobile_notification',
+  const metadata = {
+    ...existing?.metadata,
+    notification_kind: input.kind, target_agent_keys: normalizeTargetAgentKeys(input.targetAgentKeys),
+    goal_id: input.goalId ?? null, actor_label: input.actorLabel ?? null,
+    notification_dedupe_key: input.dedupeKey ?? null, dedupe_window_hours: input.dedupeWindowHours ?? 1,
+    item_count: payload.itemCount, text: payload.text,
+    source_environment: config.sourceEnvironment, source_origin: config.sourceOrigin,
+    rendered_calendar_item_ids: payload.renderedCalendarItemIds,
+    delivery_claim_token: randomUUID(),
+  }
+  const run = existing ?? await startAgentRun({
+    agentKey: 'chief-of-staff', runtime: 'manual', kind: 'slack_mobile_notification',
     title: `Send Slack mobile notification: ${input.kind.replace(/_/g, ' ')}`,
-    status: 'running',
-    triggerSource: input.triggerSource ?? 'admin_agent_slack_mobile_bridge',
-    currentStep: 'Preparing Slack payload',
-    metadata: {
-      notification_kind: input.kind,
-      target_agent_keys: normalizeTargetAgentKeys(input.targetAgentKeys),
-      goal_id: input.goalId ?? null,
-      actor_label: input.actorLabel ?? null,
-      notification_dedupe_key: input.dedupeKey ?? null,
-      dedupe_window_hours: input.dedupeWindowHours ?? 1,
-      item_count: payload.itemCount,
-      text: payload.text,
-    },
-    idempotencyKey,
+    status: 'queued', triggerSource: input.triggerSource ?? 'admin_agent_slack_mobile_bridge',
+    currentStep: 'Awaiting Slack delivery claim', metadata, idempotencyKey,
   })
+  // Unique run idempotency plus a conditional state transition is the fence.
+  // force never bypasses an in-flight or completed delivery.
+  const { data: claim, error: claimError } = await supabaseAdmin.from('agent_runs')
+    .update({ status: 'running', metadata, outcome: {}, completed_at: null, current_step: 'Sending Slack notification' })
+    .eq('id', run.id).in('status', ['queued', 'failed', 'cancelled'])
+    .or('and(or(outcome->>sent.is.null,outcome->>sent.eq.false),or(outcome->>uncertain.is.null,outcome->>uncertain.eq.false))')
+    .select('id').maybeSingle()
+  if (claimError) throw new Error(`Failed to claim Slack notification: ${claimError.message}`)
+  if (!claim?.id) return { ok: false, runId: run.id, sent: false, skipped: true, deduped: false, uncertain: true, reason: 'Another caller owns this delivery; reconcile before retrying.', itemCount: payload.itemCount, text: payload.text, deliveredCalendarItemIds: [] }
 
-  const delivery = await postToSlack(payload.text, payload.blocks)
+  const delivery = await postToSlack(payload.text, payload.blocks, config)
+  const deliveredCalendarItemIds = delivery.sent ? payload.renderedCalendarItemIds : []
+  const outcome = {
+    sent: delivery.sent, uncertain: Boolean(delivery.uncertain), reason: delivery.reason,
+    item_count: payload.itemCount, delivery_mode: delivery.mode,
+    slack_channel: delivery.channel ?? null, slack_message_ts: delivery.ts ?? null, slack_thread_ts: delivery.ts ?? null,
+    delivered_calendar_item_ids: deliveredCalendarItemIds,
+    source_environment: config.sourceEnvironment, source_origin: config.sourceOrigin,
+  }
+  // Persist the receipt before event logging. A persistence failure leaves the
+  // running claim fenced, so an accepted message is never automatically resent.
+  const { data: saved, error: saveError } = await supabaseAdmin.from('agent_runs')
+    .update({ status: delivery.sent ? 'completed' : delivery.uncertain ? 'running' : 'failed', outcome,
+      current_step: delivery.sent ? 'Slack notification delivered' : delivery.reason,
+      completed_at: delivery.uncertain ? null : new Date().toISOString(), updated_at: new Date().toISOString() })
+    .eq('id', run.id).eq('status', 'running').eq('metadata->>delivery_claim_token', metadata.delivery_claim_token)
+    .select('id').maybeSingle()
+  if (saveError || !saved?.id) throw new Error('Slack receipt persistence failed; reconcile delivery before retrying.')
   await recordAgentEvent({
-    runId: run.id,
-    eventType: delivery.sent ? 'slack_mobile_notification_sent' : 'slack_mobile_notification_skipped',
-    severity: delivery.sent ? 'info' : 'warning',
-    message: delivery.sent ? payload.text : delivery.reason,
-    metadata: {
-      notification_kind: input.kind,
-      item_count: payload.itemCount,
-      reason: delivery.reason,
-      delivery_mode: delivery.mode,
-      slack_channel: delivery.channel ?? null,
-      slack_message_ts: delivery.ts ?? null,
-      slack_thread_ts: delivery.ts ?? null,
-      blocks: payload.blocks,
-    },
-    idempotencyKey: `${idempotencyKey}:delivery`,
+    runId: run.id, eventType: delivery.sent ? 'slack_mobile_notification_sent' : 'slack_mobile_notification_failed',
+    severity: delivery.sent ? 'info' : 'warning', message: delivery.sent ? payload.text : delivery.reason,
+    metadata: { ...outcome, notification_kind: input.kind, blocks: payload.blocks },
+    idempotencyKey: `${idempotencyKey}:delivery:${metadata.delivery_claim_token}`,
   })
-  await endAgentRun({
-    runId: run.id,
-    status: delivery.sent ? 'completed' : 'cancelled',
-    currentStep: delivery.sent ? 'Slack notification sent' : 'Slack notification skipped',
-    outcome: {
-      sent: delivery.sent,
-      skipped: !delivery.sent,
-      reason: delivery.reason,
-      item_count: payload.itemCount,
-      delivery_mode: delivery.mode,
-      slack_channel: delivery.channel ?? null,
-      slack_message_ts: delivery.ts ?? null,
-      slack_thread_ts: delivery.ts ?? null,
-    },
-  })
-
   return {
-    ok: true,
-    runId: run.id,
-    sent: delivery.sent,
-    skipped: !delivery.sent,
-    deduped: false,
-    reason: delivery.reason ?? undefined,
-    itemCount: payload.itemCount,
-    text: payload.text,
+    ok: delivery.sent, runId: run.id, sent: delivery.sent, skipped: false, deduped: false,
+    uncertain: delivery.uncertain, reason: delivery.reason ?? undefined, itemCount: payload.itemCount, text: payload.text,
+    deliveredCalendarItemIds, slackChannel: delivery.channel, slackMessageTs: delivery.ts,
   }
 }

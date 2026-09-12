@@ -1,0 +1,183 @@
+{
+  "base": "http://127.0.0.1:3199",
+  "source": "/#contact > Send Message",
+  "persistence": "real Next contact API against loopback-only synthetic PostgREST mock; isolated SQL validation in migration-receipt.json",
+  "checks": [
+    {
+      "surface": "Contact > Send Message",
+      "width": 1440,
+      "noHorizontalOverflow": true
+    },
+    {
+      "width": 1440,
+      "flows": [
+        "unchecked/no phone",
+        "phone without consent discarded",
+        "checked/no phone inline error",
+        "malformed phone error",
+        "keyboard checkbox",
+        "persistence failure/retry",
+        "checked success pending only",
+        "repeated submission deduplicated",
+        "unchecked does not revoke"
+      ]
+    },
+    {
+      "surface": "/legal/privacy",
+      "width": 1440,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/legal/terms#sms",
+      "width": 1440,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "Contact > Send Message",
+      "width": 390,
+      "noHorizontalOverflow": true
+    },
+    {
+      "width": 390,
+      "flows": [
+        "unchecked/no phone",
+        "phone without consent discarded",
+        "checked/no phone inline error",
+        "malformed phone error",
+        "keyboard checkbox",
+        "persistence failure/retry",
+        "checked success pending only",
+        "repeated submission deduplicated",
+        "unchecked does not revoke"
+      ]
+    },
+    {
+      "surface": "/legal/privacy",
+      "width": 390,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/legal/terms#sms",
+      "width": 390,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "Contact > Send Message",
+      "width": 360,
+      "noHorizontalOverflow": true
+    },
+    {
+      "width": 360,
+      "flows": [
+        "unchecked/no phone",
+        "phone without consent discarded",
+        "checked/no phone inline error",
+        "malformed phone error",
+        "keyboard checkbox",
+        "persistence failure/retry",
+        "checked success pending only",
+        "repeated submission deduplicated",
+        "unchecked does not revoke"
+      ]
+    },
+    {
+      "surface": "/legal/privacy",
+      "width": 360,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/legal/terms#sms",
+      "width": 360,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "Contact > Send Message",
+      "width": 768,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/legal/privacy",
+      "width": 768,
+      "noHorizontalOverflow": true
+    },
+    {
+      "surface": "/legal/terms#sms",
+      "width": 768,
+      "noHorizontalOverflow": true
+    }
+  ],
+  "inquiryWrites": 15,
+  "evidenceAttempts": 9,
+  "retainedEvidenceCount": 1,
+  "allEvidencePending": true,
+  "browserPageErrors": [],
+  "blockedExternalAttempts": [
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    },
+    {
+      "host": "va.vercel-scripts.com",
+      "blocked": true
+    }
+  ],
+  "serverBlockedAttempts": [],
+  "externalRequests": [],
+  "boundaries": "No live database, inquiry, credentials, provider or outbound messaging. Receipt covers this controlled recording run."
+}

@@ -4,13 +4,14 @@
  */
 
 import React from 'react'
+import { COMPANY_DISPLAY_NAME } from './pdf-brand-styles'
 import { Document, Page, Text, View, StyleSheet, pdf } from '@react-pdf/renderer'
 import type { DiagnosticAuditRecord } from '@/lib/diagnostic'
 import { getIndustryDisplayName } from '@/lib/constants/industry'
 
 const ATAS_DARK_BLUE = '#1a2d4a'
 const ATAS_GOLD = '#C9A227'
-const COMPANY_FULL_NAME = 'Amadutown Advisory Solutions'
+const COMPANY_FULL_NAME = COMPANY_DISPLAY_NAME
 
 export interface AuditReportPDFData {
   id: string

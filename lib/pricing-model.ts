@@ -399,7 +399,7 @@ export const CONTINUITY_PLANS: ContinuityPlan[] = [
     name: 'White-Label License',
     pricePerMonth: 5000,
     billingInterval: 'month',
-    description: 'License Amadutown-built tools under your own brand.',
+    description: 'License tools built by AmaduTown, LLC under your own brand.',
     features: [
       'All tools branded under your company',
       'Custom domain and branding',

@@ -1,3 +1,4 @@
+import { isCalendarSocialCopy, prepareSocialImageAttachment, prepareManualCopyUpdate, withSocialCopyRevision } from '@/lib/social-copy-revision'
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
@@ -10,7 +11,10 @@ import {
 } from '@/lib/social-video-production'
 import {
   deriveSocialContentLifecycleProjection,
+  isDurableCopyApprovedStatus,
   lifecyclePrerequisiteFailure,
+  socialContentFinalCopyQualityFailure,
+  validateSocialContentFinalCopyQuality,
 } from '@/lib/social-content-lifecycle'
 import {
   buildScheduleRecoveryProjection,
@@ -41,6 +45,14 @@ function sectionGateApprovalTarget(bodyRagContext: unknown): 'visuals' | 'draft'
   if (approvedKeys.includes('linkedin_draft')) return 'draft'
   return approvedKeys.length ? 'visuals' : null
 }
+
+const FINAL_COPY_FIELDS = new Set([
+  'post_text',
+  'cta_text',
+  'voiceover_text',
+  'youtube_title',
+  'youtube_description',
+])
 
 function mapVideoGenerationJob(row: Record<string, unknown> | null): SocialVideoGenerationJobProjection | null {
   if (!row) return null
@@ -140,7 +152,7 @@ export async function GET(
 
     return NextResponse.json({
       item: {
-        ...data,
+        ...withSocialCopyRevision(data),
         meeting_record: meetingRecord,
         publishes: publishes || [],
         social_video_production: socialVideoProduction,
@@ -188,18 +200,21 @@ export async function PUT(
       sanitized.reviewed_by = authResult.user.id
     }
 
-    if (Object.keys(sanitized).length === 0) {
+    if (Object.keys(sanitized).length === 0 && body.attach_existing_image !== true) {
       return NextResponse.json({ error: 'No valid fields to update' }, { status: 400 })
     }
 
-    const lifecycleTarget = sanitized.status === 'approved'
+    if (body.attach_existing_image === true && Object.keys(sanitized).length) return NextResponse.json({error:'Attach the image separately from copy or approval changes.'},{status:400})
+    const updatesFinalCopy = Object.keys(sanitized).some((key) => FINAL_COPY_FIELDS.has(key))
+    let lifecycleTarget: 'copy' | 'visuals' | 'draft' | null = sanitized.status === 'approved'
       ? 'copy'
       : sectionGateApprovalTarget(sanitized.rag_context)
 
-    if (lifecycleTarget) {
+    let currentForUpdate: Record<string, unknown> | null = null
+    {
       const { data: currentItem, error: currentError } = await supabaseAdmin
         .from('social_content_queue')
-        .select('*')
+        .select('*, publishes:social_content_publishes(*)')
         .eq('id', id)
         .single()
 
@@ -207,31 +222,59 @@ export async function PUT(
         return NextResponse.json({ error: 'Content not found' }, { status: 404 })
       }
 
+      if (body.attach_existing_image === true && !isCalendarSocialCopy(currentItem)) return NextResponse.json({error:'Existing-image attachment requires a calendar draft.'},{status:400})
+      currentForUpdate = currentItem
+      {
+        if (typeof currentItem.updated_at !== 'string') return NextResponse.json({ error: 'Current copy version is unavailable. Reload before saving.' }, { status: 409 })
+        try {
+          const prepared = body.attach_existing_image === true
+            ? prepareSocialImageAttachment({current:currentItem,url:body.image_url,sourceNote:body.image_source_note,expectedVersion:body.expected_copy_version,actor:authResult.user.id,now:new Date().toISOString(),storageOrigin:process.env.NEXT_PUBLIC_SUPABASE_URL || ''})
+            : prepareManualCopyUpdate({ current: currentItem, patch: sanitized, expectedVersion: body.expected_copy_version, actor: authResult.user.id, now: new Date().toISOString() })
+          Object.assign(sanitized, prepared)
+          lifecycleTarget = sanitized.status === 'approved' ? 'copy' : sectionGateApprovalTarget(sanitized.rag_context)
+        } catch (error) {
+          return NextResponse.json({ error: error instanceof Error ? error.message : 'Copy revision blocked' }, { status: 409 })
+        }
+      }
+      const candidateItem = {
+        ...currentItem,
+        ...sanitized,
+      }
+      if (sanitized.status === 'approved' || (updatesFinalCopy && isDurableCopyApprovedStatus(candidateItem.status))) {
+        const copyQualityFailure = socialContentFinalCopyQualityFailure(
+          validateSocialContentFinalCopyQuality(candidateItem),
+        )
+        if (copyQualityFailure) {
+          return NextResponse.json(copyQualityFailure, { status: 409 })
+        }
+      }
+
       const projection = deriveSocialContentLifecycleProjection({
-        item: {
-          ...currentItem,
-          ...sanitized,
-        },
+        item: candidateItem,
       })
-      const failure = lifecyclePrerequisiteFailure(projection, lifecycleTarget)
-      if (failure) {
-        return NextResponse.json(failure, { status: 409 })
+      if (lifecycleTarget) {
+        const failure = lifecyclePrerequisiteFailure(projection, lifecycleTarget)
+        if (failure) {
+          return NextResponse.json(failure, { status: 409 })
+        }
       }
     }
 
-    const { data, error } = await supabaseAdmin
-      .from('social_content_queue')
-      .update(sanitized)
-      .eq('id', id)
-      .select('*')
-      .single()
+    let update = supabaseAdmin.from('social_content_queue').update(sanitized).eq('id', id)
+    if (currentForUpdate) {
+      update = update.eq('updated_at', currentForUpdate.updated_at)
+    }
+    const { data, error } = await update.select('*').single()
+    if (error?.code === 'PGRST116' && currentForUpdate) {
+      return NextResponse.json({ error: 'Copy changed during this update. Reload before retrying.' }, { status: 409 })
+    }
 
     if (error) {
       console.error('Error updating social content:', error)
       return NextResponse.json({ error: 'Failed to update content' }, { status: 500 })
     }
 
-    return NextResponse.json({ item: data })
+    return NextResponse.json({ item: withSocialCopyRevision(data) })
   } catch (error) {
     console.error('Error in PUT /api/admin/social-content/[id]:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

@@ -309,7 +309,7 @@ export default function ValueReportPage() {
                     Confidential · Value Assessment
                   </p>
                   <h1 className="text-3xl font-bold text-foreground mb-6">
-                    Amadutown Advisory Solutions
+                    AmaduTown Advisory Solutions, LLC
                   </h1>
                   <div className="h-px bg-gradient-to-r from-radiant-gold/50 via-silicon-slate to-transparent mb-6" />
                   <h2 className="text-2xl font-semibold text-foreground mb-4">
@@ -591,7 +591,7 @@ export default function ValueReportPage() {
               {/* Footer */}
               <footer className="px-8 py-6 border-t border-silicon-slate/80 bg-gray-900/40">
                 <p className="text-xs text-muted-foreground text-center">
-                  This report was prepared by Amadutown Advisory Solutions and is intended for the confidential use of the recipient. All estimates are based on industry benchmarks and available evidence at the time of analysis.
+                  This report was prepared by AmaduTown Advisory Solutions, LLC and is intended for the confidential use of the recipient. All estimates are based on industry benchmarks and available evidence at the time of analysis.
                 </p>
               </footer>
             </article>

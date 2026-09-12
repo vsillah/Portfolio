@@ -61,7 +61,9 @@ vi.mock('@/lib/supabase', () => ({
   },
 }))
 
-import { POST } from './route'
+import { POST as routePost } from './route'
+import { withVersionedQueueMock, queueWriteScenario } from '@/lib/social-queue-write.test-fixtures'
+const POST: typeof routePost = (...args) => withVersionedQueueMock(mocks.from, () => routePost(...args))
 import { evaluateSocialCarouselGenerationBudget } from '@/lib/social-carousel-generation'
 
 function makeRequest() {
@@ -148,7 +150,8 @@ describe('POST /api/admin/social-content/[id]/convert-to-carousel', () => {
     expect(mocks.startAgentRun).not.toHaveBeenCalled()
   })
 
-  it('converts to carousel, records budget metadata, links cost, and returns agentRunId', async () => {
+  it.each(['normal', 'locked', 'race'] as const)('converts to carousel, records budget metadata, links cost, and returns agentRunId (%s)', async mode => {
+    queueWriteScenario.mode = mode
     const slides = [
       { slideNumber: 1, heading: 'Reduce burden', body: 'Start with the real workflow.' },
       { slideNumber: 2, heading: 'Find the drag', body: 'Name what costs time.' },
@@ -165,17 +168,18 @@ describe('POST /api/admin/social-content/[id]/convert-to-carousel', () => {
 
     const response = await POST(makeRequest(), { params: { id: 'social-1' } })
 
+    if (mode !== 'normal') { expect(response.status).toBe(409); return }
     expect(response.status).toBe(200)
     await expect(response.json()).resolves.toEqual({
       success: true,
       content_format: 'carousel',
       carousel_slides: slides,
       carousel_slide_urls: [
-        'https://cdn.example.com/carousels/social-1/slide_01.png',
-        'https://cdn.example.com/carousels/social-1/slide_02.png',
-        'https://cdn.example.com/carousels/social-1/slide_03.png',
+        expect.stringMatching(/^https:\/\/cdn\.example\.com\/carousels\/social-1\/[0-9a-f-]+\/slide_01\.png$/),
+        expect.stringMatching(/^https:\/\/cdn\.example\.com\/carousels\/social-1\/[0-9a-f-]+\/slide_02\.png$/),
+        expect.stringMatching(/^https:\/\/cdn\.example\.com\/carousels\/social-1\/[0-9a-f-]+\/slide_03\.png$/),
       ],
-      carousel_pdf_url: 'https://cdn.example.com/carousels/social-1/carousel.pdf',
+      carousel_pdf_url: expect.stringMatching(/^https:\/\/cdn\.example\.com\/carousels\/social-1\/[0-9a-f-]+\/carousel\.pdf$/),
       slide_count: 3,
       agentRunId: 'agent-run-1',
     })

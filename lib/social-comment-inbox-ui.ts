@@ -1,3 +1,4 @@
+import { isSocialCommentReplyLocked, socialCommentReplyText } from './social-comment-reply-safety'
 import type { SocialPlatform } from '@/lib/social-content'
 import {
   getCommentProviderCapability,
@@ -26,6 +27,7 @@ export type SocialCommentAction =
   | 'draft_response'
   | 'approve'
   | 'reject'
+  | 'return_to_review'
   | 'ignore'
   | 'submit'
 
@@ -60,7 +62,12 @@ export interface SocialCommentInboxItem {
     reason: string | null
   }
   draftReply: string
+  expectedReplyText?: string
   approvalState: 'not_started' | 'drafted' | 'approved' | 'rejected'
+  replyProviderConfirmed?: boolean
+  replyReleaseStatus?: string | null
+  submittedReplyLocked: boolean
+  submittedReplyLockReason: string | null
   providerCapability: SocialCommentProviderCapabilityUi
   actionHistory: SocialCommentActionHistoryItem[]
   createdAt: string | null
@@ -326,9 +333,15 @@ export function getSocialCommentInboxItem(
   const socialContentId = asString(row.content_id) || asString(post?.id)
   const postInfo = postProjection(post, socialContentId || 'unknown')
   const hasSubmittedEvidence = Boolean(
-    asString(row.reply_provider_comment_id)
+    replyState === 'submitted'
+    || asString(row.reply_provider_comment_id)
     || asString(row.reply_submitted_at)
   )
+  const replyProviderConfirmed = Boolean(asString(row.reply_provider_comment_id) && asString(row.reply_submitted_at))
+  const replyReleaseStatus = asStringOrNull(asRecord(metadata.reply_release).status) || (replyProviderConfirmed ? 'submitted' : null)
+  const submittedReplyLockReason = hasSubmittedEvidence
+    ? 'Reply already has submitted provider evidence. Local revision is locked so Portfolio does not rewrite or obscure the canonical provider record.'
+    : null
 
   return {
     id: asString(row.id) || asString(row.provider_comment_id) || `${socialContentId || platform}-comment`,
@@ -344,8 +357,13 @@ export function getSocialCommentInboxItem(
       priority: uiPriority(priority),
       reason: asStringOrNull(row.classification_reason),
     },
-    draftReply: asString(row.proposed_reply_text) || asString(row.approved_reply_text),
+    draftReply: socialCommentReplyText(row as unknown as Record<string, unknown>),
+    expectedReplyText: socialCommentReplyText(row as unknown as Record<string, unknown>),
     approvalState: uiApprovalState(approvalState, replyState),
+    replyProviderConfirmed,
+    replyReleaseStatus,
+    submittedReplyLocked: isSocialCommentReplyLocked(row as unknown as Record<string, unknown>),
+    submittedReplyLockReason: submittedReplyLockReason || (isSocialCommentReplyLocked(row as unknown as Record<string, unknown>) ? 'Reply submission is in flight or uncertain. Review provider evidence; editing and resubmission are locked.' : null),
     providerCapability: normalizeCapability(row, platform, approvalState),
     actionHistory: actionHistoryFromMetadata(metadata),
     createdAt: asStringOrNull(row.captured_at),

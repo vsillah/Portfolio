@@ -81,7 +81,7 @@ function mockDraftInsert(id = 'social-draft-1') {
 function mockCalendarUpdate(data: Record<string, unknown>) {
   const single = vi.fn(async () => ({ data, error: null }))
   const select = vi.fn(() => ({ single }))
-  const eq = vi.fn(() => ({ select }))
+  const eq = vi.fn(() => ({ select, eq }))
   const update = vi.fn(() => ({ eq }))
   mocks.from.mockReturnValueOnce({ update })
   return { update, eq, select, single }
@@ -227,6 +227,32 @@ describe('social-content-calendar-handoff', () => {
       metadata: expect.objectContaining({ social_content_id: 'social-existing-1' }),
     }))
     expect(result.socialContentId).toBe('social-existing-1')
+  })
+
+  it('treats already-authorized calendar handoffs as idempotent without new drafts or work items', async () => {
+    const item = baseCalendarItem({
+      authorization_status: 'authorized',
+      social_content_id: 'social-existing-1',
+      metadata: {
+        platform_draft_handoff: {
+          kind: 'linkedin_social_content_draft',
+          work_item_id: 'work-existing-1',
+          social_content_id: 'social-existing-1',
+        },
+      },
+    })
+    mockReadCalendarItem(item)
+
+    const result = await authorizeCalendarDraftHandoff('calendar-1', auth)
+
+    expect(mocks.from).toHaveBeenCalledTimes(1)
+    expect(mocks.createAgentWorkItem).not.toHaveBeenCalled()
+    expect(result).toMatchObject({
+      socialContentId: 'social-existing-1',
+      handoffWorkItemId: 'work-existing-1',
+      handoffKind: 'linkedin_social_content_draft',
+      alreadyAuthorized: true,
+    })
   })
 
   it('authorizes YouTube Shorts calendar items by creating a gated YouTube Social Content draft', async () => {
@@ -460,60 +486,62 @@ describe('social-content-calendar-handoff', () => {
     })
   })
 
-  it('rejects an item with a revision work item and keeps external execution disabled', async () => {
+  it('records optional feedback and manual recovery without inventing revision work', async () => {
     const item = baseCalendarItem({ social_content_id: 'social-draft-1' })
     mockReadCalendarItem(item)
-    const calendarUpdate = mockCalendarUpdate({
-      ...item,
-      authorization_status: 'rejected',
-    })
-
-    const result = await rejectCalendarDraftHandoff({
-      id: 'calendar-1',
-      decisionNote: 'Strengthen the source boundary before drafting.',
-      auth,
-    })
-
-    expect(mocks.createAgentWorkItem).toHaveBeenCalledWith(expect.objectContaining({
-      title: 'Revise content calendar item: Explain approval gates',
-      objective: expect.stringContaining('Strengthen the source boundary before drafting.'),
-      ownerAgentKey: 'chief-of-staff',
-      source: {
-        type: 'social_content_calendar_revision',
-        id: 'calendar-1',
-        label: 'Explain approval gates',
-      },
-      metadata: expect.objectContaining({
-        source: 'social_content_calendar_revision',
-        decision_note: 'Strengthen the source boundary before drafting.',
-        rejected_by: 'admin-user',
-        rejected_at: '2026-06-24T10:00:00.000Z',
-        returned_to_shaka: true,
-        external_execution_enabled: false,
-        side_effects: expect.objectContaining({
-          provider_generation: false,
-          upload: false,
-          external_schedule: false,
-          publish: false,
-          external_post: false,
-        }),
-      }),
-      idempotencyKey: 'social-content-calendar-revision:calendar-1:1782295200000',
-    }))
+    const calendarUpdate = mockCalendarUpdate({ ...item, authorization_status: 'rejected' })
+    const result = await rejectCalendarDraftHandoff({ id: 'calendar-1', decisionNote: 'Strengthen the source boundary.', auth })
+    expect(mocks.createAgentWorkItem).not.toHaveBeenCalled()
     expect(calendarUpdate.update).toHaveBeenCalledWith(expect.objectContaining({
       authorization_status: 'rejected',
       metadata: expect.objectContaining({
-        existing: true,
-        authorization_decision_note: 'Strengthen the source boundary before drafting.',
-        rejected_at: '2026-06-24T10:00:00.000Z',
-        rejected_by: 'admin-user',
-        returned_to_shaka: true,
-        revision_work_item_id: 'work-handoff-1',
-        external_execution_enabled: false,
+        authorization_decision_note: 'Strengthen the source boundary.',
+        returned_to_shaka: false,
+        revision_work_item_id: null,
+        revision_recovery: expect.objectContaining({ state: 'blocked', worker: 'not_configured', review_path: '/admin/social-content/social-draft-1?step=copy#social-copy-gate' }),
       }),
     }))
-    expect(result).toMatchObject({
-      revisionWorkItemId: 'work-handoff-1',
+    expect(calendarUpdate.eq).toHaveBeenCalledWith('authorization_status', 'pending')
+    expect(calendarUpdate.eq).toHaveBeenCalledWith('updated_at', item.updated_at)
+    expect(result.revisionWorkItemId).toBeNull()
+  })
+
+  it('treats already-rejected calendar handoffs as idempotent without duplicate revision work', async () => {
+    const item = baseCalendarItem({
+      authorization_status: 'rejected',
+      metadata: {
+        revision_work_item_id: 'work-revision-existing',
+      },
     })
+    mockReadCalendarItem(item)
+
+    const result = await rejectCalendarDraftHandoff({
+      id: 'calendar-1',
+      decisionNote: 'Still needs revision.',
+      auth,
+    })
+
+    expect(mocks.from).toHaveBeenCalledTimes(1)
+    expect(mocks.createAgentWorkItem).not.toHaveBeenCalled()
+    expect(result).toMatchObject({
+      revisionWorkItemId: 'work-revision-existing',
+      alreadyRejected: true,
+    })
+  })
+
+  it('blocks Slack-style reject attempts after a calendar handoff is already authorized', async () => {
+    const item = baseCalendarItem({
+      authorization_status: 'authorized',
+      social_content_id: 'social-existing-1',
+    })
+    mockReadCalendarItem(item)
+
+    await expect(rejectCalendarDraftHandoff({
+      id: 'calendar-1',
+      decisionNote: 'Reject stale button.',
+      auth,
+    })).rejects.toThrow('Calendar item is already authorized')
+
+    expect(mocks.createAgentWorkItem).not.toHaveBeenCalled()
   })
 })

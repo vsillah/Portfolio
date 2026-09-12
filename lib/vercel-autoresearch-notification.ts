@@ -17,7 +17,7 @@ function baseUrl() {
 }
 
 export function buildVercelResearchApprovalUrl(input: Pick<VercelResearchApprovalNotificationInput, 'runId'>) {
-  return `${baseUrl()}/admin/agents/coordination?approvalRunId=${encodeURIComponent(input.runId)}`
+  return `${baseUrl()}/admin/agents/coordination?approvalRunId=${encodeURIComponent(input.runId)}#vercel-autoresearch-approval-gate`
 }
 
 export function buildVercelResearchApprovalSlackText(input: VercelResearchApprovalNotificationInput) {
@@ -37,8 +37,9 @@ export function buildVercelResearchApprovalSlackText(input: VercelResearchApprov
       `*Expected impact:* ${proposal.expectedImpact}`,
     ]),
     `*Decision needed:* ${proposal.approvalQuestion}`,
+    '*Boundary:* This records the research proposal decision only; it does not merge, deploy, change Vercel settings, or mutate production data.',
     `*Work item:* ${input.workItemId}`,
-    `*Approve / reject:* ${url}`,
+    `*Open gate:* ${url}`,
   ].join('\n')
 }
 

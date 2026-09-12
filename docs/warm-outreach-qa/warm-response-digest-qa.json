@@ -1,0 +1,107 @@
+{
+  "route": "http://127.0.0.1:3064/admin/outreach?tab=leads&filter=warm&id=42&contactId=42&qa=warm-slack-send-approval",
+  "scenario": "Warm outreach operator reviews office-mode response digest, then opens the current contact workroom.",
+  "expectedBehavior": [
+    "Digest reports drafted, approved, sent, replied, blocked, and needs-Vambah counts.",
+    "Current CTA opens the existing contact workroom.",
+    "Selected workroom shows response state, follow-up readiness, suppression proposal state, and disabled external-action boundaries."
+  ],
+  "decisionGate": "Captain QA and Vambah human QA only; provider monitoring, provider drafting, dispatch, and send authority remain separate explicit gates.",
+  "externalActionBoundary": "No Gmail draft, Gmail send, SMS, Slack dispatch, LinkedIn/Facebook call, n8n dispatch, or production mutation was authorized or executed.",
+  "screenshots": {
+    "mobile360": "/Users/vambahsillah/.codex/worktrees/9c8e/Portfolio/docs/warm-outreach-qa/warm-response-digest-mobile-360.png",
+    "mobile390": "/Users/vambahsillah/.codex/worktrees/9c8e/Portfolio/docs/warm-outreach-qa/warm-response-digest-mobile-390.png",
+    "mobile430": "/Users/vambahsillah/.codex/worktrees/9c8e/Portfolio/docs/warm-outreach-qa/warm-response-digest-mobile-430.png",
+    "desktop": "/Users/vambahsillah/.codex/worktrees/9c8e/Portfolio/docs/warm-outreach-qa/warm-response-digest-desktop-1440.png",
+    "workroom": "/Users/vambahsillah/.codex/worktrees/9c8e/Portfolio/docs/warm-outreach-qa/warm-response-digest-workroom-desktop.png"
+  },
+  "videoPath": "/Users/vambahsillah/.codex/worktrees/9c8e/Portfolio/docs/warm-outreach-qa/warm-response-digest-qa.mp4",
+  "rawVideoPath": "/Users/vambahsillah/.codex/worktrees/9c8e/Portfolio/test-results/warm-response-digest-qa/source/e1940c614457269164fa5b12e64e27a8.webm",
+  "viewportResults": [
+    {
+      "name": "mobile360",
+      "viewport": {
+        "width": 360,
+        "height": 800
+      },
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/9c8e/Portfolio/docs/warm-outreach-qa/warm-response-digest-mobile-360.png",
+      "checks": {
+        "hasDigest": true,
+        "hasCounts": true,
+        "hasNoEgressCopy": true,
+        "hasBoundaryCopy": true,
+        "hasResponseState": true,
+        "viewport": {
+          "clientWidth": 360,
+          "scrollWidth": 360
+        },
+        "horizontalOverflow": false
+      },
+      "externalRequests": []
+    },
+    {
+      "name": "mobile390",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/9c8e/Portfolio/docs/warm-outreach-qa/warm-response-digest-mobile-390.png",
+      "checks": {
+        "hasDigest": true,
+        "hasCounts": true,
+        "hasNoEgressCopy": true,
+        "hasBoundaryCopy": true,
+        "hasResponseState": true,
+        "viewport": {
+          "clientWidth": 390,
+          "scrollWidth": 390
+        },
+        "horizontalOverflow": false
+      },
+      "externalRequests": []
+    },
+    {
+      "name": "mobile430",
+      "viewport": {
+        "width": 430,
+        "height": 932
+      },
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/9c8e/Portfolio/docs/warm-outreach-qa/warm-response-digest-mobile-430.png",
+      "checks": {
+        "hasDigest": true,
+        "hasCounts": true,
+        "hasNoEgressCopy": true,
+        "hasBoundaryCopy": true,
+        "hasResponseState": true,
+        "viewport": {
+          "clientWidth": 430,
+          "scrollWidth": 430
+        },
+        "horizontalOverflow": false
+      },
+      "externalRequests": []
+    },
+    {
+      "name": "desktop",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/9c8e/Portfolio/docs/warm-outreach-qa/warm-response-digest-desktop-1440.png",
+      "checks": {
+        "hasDigest": true,
+        "hasCounts": true,
+        "hasNoEgressCopy": true,
+        "hasBoundaryCopy": true,
+        "hasResponseState": true,
+        "viewport": {
+          "clientWidth": 1440,
+          "scrollWidth": 1440
+        },
+        "horizontalOverflow": false
+      },
+      "externalRequests": []
+    }
+  ],
+  "externalRequests": []
+}

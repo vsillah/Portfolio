@@ -30,7 +30,9 @@ vi.mock('@/lib/supabase', () => ({
   },
 }))
 
-import { POST } from './route'
+import { POST as routePost } from './route'
+import { withVersionedQueueMock, queueWriteScenario } from '@/lib/social-queue-write.test-fixtures'
+const POST: typeof routePost = (...args) => withVersionedQueueMock(mocks.from, () => routePost(...args))
 
 function request() {
   return new NextRequest('http://localhost/api/admin/social-content/social-1/create-linkedin-draft', {
@@ -178,9 +180,11 @@ describe('POST /api/admin/social-content/[id]/create-linkedin-draft', () => {
     expect(mocks.queueUpdate).not.toHaveBeenCalled()
   })
 
-  it('creates an internal LinkedIn draft handoff without publishing externally', async () => {
+  it.each(['normal', 'locked', 'race'] as const)('creates an internal LinkedIn draft handoff without publishing externally (%s)', async mode => {
+    queueWriteScenario.mode = mode
     const response = await POST(request(), { params: { id: 'social-1' } })
 
+    if (mode !== 'normal') { expect(response.status).toBe(409); return }
     expect(response.status).toBe(200)
     const json = await response.json()
     expect(json.success).toBe(true)

@@ -27,6 +27,239 @@ export type WarmBatchReviewRecipientStatus =
   | 'existing_draft'
   | 'blocked'
 
+export type WarmGmailBatchDraftPlanReadinessKey =
+  | 'missing_email'
+  | 'weak_relationship_basis'
+  | 'suppression_risk'
+  | 'provider_not_connected'
+  | 'approval_needed'
+  | 'submitted_evidence_exists'
+  | 'sms_unavailable'
+
+export type WarmGmailBatchDraftPlanRowStatus =
+  | 'ready_for_local_planning'
+  | 'approval_required'
+  | 'blocked_review'
+  | 'excluded_submitted'
+
+export type WarmGmailBatchDraftPlanCtaKey =
+  | 'prepare_local_draft_plan'
+  | 'create_gmail_draft_records'
+  | 'draft_records_created'
+  | 'review_approval_requests'
+  | 'resolve_blocked_rows'
+
+export type WarmGmailBatchDraftCreationStatus =
+  | 'eligible'
+  | 'blocked'
+  | 'excluded'
+  | 'draft_already_exists'
+  | 'provider_not_connected'
+  | 'approval_required'
+  | 'draft_created'
+
+export type WarmGmailBatchDraftPlanReadinessItem = {
+  key: WarmGmailBatchDraftPlanReadinessKey
+  label: string
+  state: 'clear' | 'needs_review' | 'blocked' | 'unavailable'
+}
+
+export type WarmGmailBatchDraftCreationState = {
+  status: WarmGmailBatchDraftCreationStatus
+  statusLabel: string
+  actionEnabled: boolean
+  blocker: string | null
+  draftOnly: true
+  draftRecordKey: string
+  localDraftRecordId: string | null
+  providerDraftId: null
+  createdAt: string | null
+  externalRequests: []
+}
+
+export type WarmGmailBatchDraftPlanRow = {
+  contactId: number
+  contactName: string
+  company: string | null
+  status: WarmGmailBatchDraftPlanRowStatus
+  statusLabel: string
+  relationshipBasis: string
+  relationshipSignalCount: number
+  readiness: WarmGmailBatchDraftPlanReadinessItem[]
+  blockers: string[]
+  nextAction: 'local_draft_planning' | 'approval_request' | 'blocked_review' | 'excluded_review'
+  nextActionLabel: string
+  existingQueueId: string | null
+  draftCreation: WarmGmailBatchDraftCreationState
+  draftIntent: {
+    channel: 'gmail'
+    templateFamily: WarmOutreachTemplateFamily
+    promptTemplateKey: string | null
+    queueIntent: 'draft_only_planned'
+    createsOutreachQueueRow: false
+    createsGmailDraft: false
+    callsProvider: false
+    externalSend: false
+  }
+}
+
+export type WarmGmailBatchDraftPlan = {
+  version: 'warm-outreach-gmail-batch-draft-plan/v1'
+  status:
+    | 'ready_for_local_planning'
+    | 'draft_creation_ready'
+    | 'draft_records_created'
+    | 'approval_review_needed'
+    | 'blocked_review'
+  currentCta: {
+    key: WarmGmailBatchDraftPlanCtaKey
+    label: string
+    enabled: boolean
+    blocker: string | null
+  }
+  summary: {
+    selectedCount: number
+    readyForLocalPlanningCount: number
+    approvalRequiredCount: number
+    blockedReviewCount: number
+    excludedSubmittedCount: number
+    providerNotConnectedCount: number
+    smsUnavailableCount: number
+    draftCreationEligibleCount: number
+    draftAlreadyExistsCount: number
+    draftCreatedCount: number
+  }
+  rows: WarmGmailBatchDraftPlanRow[]
+  executionReceipt: {
+    action: 'create_gmail_draft_records'
+    createdAt: string
+    createdCount: number
+    externalRequests: []
+  } | null
+  executionBoundary: {
+    localPortfolioPlanOnly: boolean
+    createsOutreachQueueRows: boolean
+    createsGmailDrafts: false
+    gmailProviderCalls: false
+    gmailSend: false
+    slackDispatch: false
+    smsDelivery: false
+    n8nDispatch: false
+    productionDataMutation: false
+    genericApprovalAuthorizesSend: false
+  }
+}
+
+export type WarmPlannedDraftActionKind =
+  | 'gmail_draft_plan'
+  | 'manual_social_handoff'
+  | 'relationship_review_blocker'
+  | 'response_follow_up'
+  | 'parked_sms'
+
+export type WarmPlannedDraftActionCtaKey =
+  | 'open_draft_gate'
+  | 'open_manual_handoff'
+  | 'open_relationship_packet'
+  | 'open_response_follow_up'
+  | 'parked_sms'
+
+export type WarmPlannedDraftExecutionRecord = {
+  key: string
+  kind: 'gmail_draft_record' | 'manual_social_handoff_task'
+  contactId: number
+  channel: 'gmail' | 'linkedin' | 'facebook' | 'phone_contact'
+  recordTable: 'outreach_queue' | 'meeting_action_tasks'
+  recordId: string
+  state: 'created' | 'existing'
+  createdAt: string
+  externalRequests: []
+}
+
+export type WarmPlannedDraftActionRow = {
+  contactId: number
+  contactName: string
+  company: string | null
+  kind: WarmPlannedDraftActionKind
+  kindLabel: string
+  recommendedChannel: 'gmail' | 'linkedin' | 'facebook' | 'phone_contact' | 'sms'
+  recommendationLabel: string
+  state: 'ready' | 'manual' | 'blocked' | 'follow_up' | 'parked'
+  reason: string
+  detail: string
+  blockers: string[]
+  recordState: 'ready_to_create' | 'record_created' | 'existing_record' | 'blocked'
+  recordKey: string
+  recordTable: 'outreach_queue' | 'meeting_action_tasks' | null
+  localRecordId: string | null
+  cta: {
+    key: WarmPlannedDraftActionCtaKey
+    label: string
+    href: string
+    enabled: boolean
+  }
+  draftActionPacket: {
+    version: 'warm-planned-draft-action-packet/v1'
+    reviewOnly: true
+    createsGmailDraft: false
+    createsOutreachQueueRow: false
+    callsProvider: false
+    externalSend: false
+    slackDispatch: false
+    smsDelivery: false
+    n8nDispatch: false
+    productionDataMutation: false
+    externalRequests: []
+  }
+}
+
+export type WarmPlannedDraftActions = {
+  version: 'warm-planned-draft-actions/v1'
+  status: 'ready' | 'manual_handoff' | 'relationship_review' | 'response_follow_up' | 'parked'
+  currentCta: {
+    key: WarmPlannedDraftActionCtaKey | 'none'
+    label: string
+    enabled: boolean
+    href: string | null
+    reason: string
+  }
+  summary: {
+    selectedCount: number
+    gmailDraftPlanCount: number
+    manualSocialHandoffCount: number
+    relationshipReviewBlockerCount: number
+    responseFollowUpCount: number
+    parkedSmsCount: number
+  }
+  rows: WarmPlannedDraftActionRow[]
+  executionBoundary: {
+    localPortfolioPlanOnly: boolean
+    preRecordNoWrite: boolean
+    reviewOnlyDraftActionPackets: boolean
+    internalPortfolioRecordsCreated: boolean
+    createsOutreachQueueRows: boolean
+    createsMeetingActionTaskRows: boolean
+    createsGmailDrafts: false
+    gmailProviderCalls: false
+    socialProviderCalls: false
+    gmailSend: false
+    slackDispatch: false
+    smsDelivery: false
+    n8nDispatch: false
+    productionDataMutation: false
+    externalRequests: []
+  }
+  executionReceipt: {
+    action: 'create_planned_draft_handoff_records'
+    createdAt: string
+    createdCount: number
+    existingCount: number
+    gmailDraftRecordCount: number
+    manualSocialHandoffTaskCount: number
+    externalRequests: []
+  } | null
+}
+
 export type WarmBatchReviewRecipient = {
   contactId: number
   contactName: string
@@ -47,6 +280,8 @@ export type WarmBatchReviewRecipient = {
   individualizedDraftPreview: string
   responseMonitoring: WarmOutreachResponseMonitoring
   sendReadiness: WarmOutreachSendReadiness
+  gmailDraftPlan: WarmGmailBatchDraftPlanRow
+  plannedDraftAction: WarmPlannedDraftActionRow
   packet: WarmOutreachRelationshipPacket
   readiness: WarmOutreachReadiness
   contextSummary: WarmOutreachContextSummary
@@ -70,9 +305,14 @@ export type WarmBatchReview = {
   }
   samplePreview: WarmBatchReviewRecipient | null
   recipients: WarmBatchReviewRecipient[]
+  gmailDraftPlan: WarmGmailBatchDraftPlan
+  plannedDraftActions: WarmPlannedDraftActions
   executionBoundary: {
     source: 'local_portfolio_rows'
-    readOnly: true
+    readOnly: boolean
+    internalPortfolioRecordsCreated: boolean
+    createsOutreachQueueRows: boolean
+    createsMeetingActionTaskRows: boolean
     providerCalls: false
     createsDraft: false
     externalSend: false
@@ -94,6 +334,26 @@ export type WarmBatchReviewContactInput = {
 }
 
 const MAX_PREVIEW_CHARS = 520
+const SUBMITTED_STATUSES = new Set(['sent', 'submitted', 'delivered'])
+const APPROVAL_REVIEW_STATUSES = new Set([
+  'draft',
+  'queued',
+  'approval_requested',
+  'pending_approval',
+  'approved',
+  'send_authorized',
+  'authorized',
+])
+
+const GMAIL_DRAFT_PLAN_READINESS_LABELS: Record<WarmGmailBatchDraftPlanReadinessKey, string> = {
+  missing_email: 'Missing email',
+  weak_relationship_basis: 'Weak relationship basis',
+  suppression_risk: 'Suppression risk',
+  provider_not_connected: 'Provider not connected',
+  approval_needed: 'Approval needed',
+  submitted_evidence_exists: 'Submitted evidence exists',
+  sms_unavailable: 'SMS unavailable',
+}
 
 function text(value: unknown): string | null {
   if (typeof value === 'string') {
@@ -222,11 +482,602 @@ function existingDraftFor(args: {
   return text(match?.id)
 }
 
+function rowStatus(row: PortfolioRow): string | null {
+  return text(row.status)?.toLowerCase() ?? null
+}
+
+function rowChannel(row: PortfolioRow): string | null {
+  return text(row.channel)?.toLowerCase() ?? text(row.email_kind)?.toLowerCase() ?? null
+}
+
+function isEmailRow(row: PortfolioRow): boolean {
+  const channel = rowChannel(row)
+  return !channel || channel === 'email' || channel === 'gmail'
+}
+
+function hasSubmittedEmailEvidence(rows: WarmOutreachSourceInventoryRows): boolean {
+  const localRows = [
+    ...(rows.outreachQueue ?? []),
+    ...(rows.emailMessages ?? []),
+    ...(rows.contactCommunications ?? []),
+  ]
+
+  return localRows.some((row) => {
+    if (!isEmailRow(row)) return false
+    const status = rowStatus(row)
+    return Boolean(
+      (status && SUBMITTED_STATUSES.has(status)) ||
+        text(row.sent_at) ||
+        text(row.submitted_at),
+    )
+  })
+}
+
+function needsApprovalReview(rows: WarmOutreachSourceInventoryRows): boolean {
+  return (rows.outreachQueue ?? []).some((row) => {
+    if (!isEmailRow(row)) return false
+    const status = rowStatus(row)
+    return Boolean(status && APPROVAL_REVIEW_STATUSES.has(status))
+  })
+}
+
+function readinessItem(
+  key: WarmGmailBatchDraftPlanReadinessKey,
+  state: WarmGmailBatchDraftPlanReadinessItem['state'],
+): WarmGmailBatchDraftPlanReadinessItem {
+  return {
+    key,
+    label: GMAIL_DRAFT_PLAN_READINESS_LABELS[key],
+    state,
+  }
+}
+
+function gmailDraftPlanStatusLabel(status: WarmGmailBatchDraftPlanRowStatus): string {
+  if (status === 'ready_for_local_planning') return 'Plan ready'
+  if (status === 'approval_required') return 'Approval review'
+  if (status === 'excluded_submitted') return 'Submitted'
+  return 'Blocked'
+}
+
+function gmailDraftCreationStatusLabel(status: WarmGmailBatchDraftCreationStatus): string {
+  if (status === 'eligible') return 'Eligible'
+  if (status === 'provider_not_connected') return 'Provider not connected'
+  if (status === 'approval_required') return 'Approval required'
+  if (status === 'draft_already_exists') return 'Draft already exists'
+  if (status === 'draft_created') return 'Draft created'
+  if (status === 'excluded') return 'Excluded'
+  return 'Blocked'
+}
+
+function buildGmailDraftPlanRow(args: {
+  recipient: Omit<WarmBatchReviewRecipient, 'gmailDraftPlan' | 'plannedDraftAction'>
+  contact: PortfolioRow
+  rows: WarmOutreachSourceInventoryRows
+  batchIdempotencyKey: string
+  draftCreationReceiptAt?: string | null
+  plannedDraftExecutionRecords?: WarmPlannedDraftExecutionRecord[]
+}): WarmGmailBatchDraftPlanRow {
+  const email = text(args.contact.email)
+  const phone = text(args.contact.phone_number)
+  const providerConnected = args.recipient.packet.channelCapabilities.email?.providerConfigured === true
+  const submittedEvidenceExists = hasSubmittedEmailEvidence(args.rows)
+  const approvalNeeded = Boolean(args.recipient.existingQueueId) || needsApprovalReview(args.rows)
+  const selectedEmail = args.recipient.selectedChannel === 'email'
+  const hardBlockers = [
+    !email ? 'Missing email address for Gmail draft planning.' : null,
+    args.recipient.weakBasis ? 'Relationship basis is too weak for a batch Gmail draft plan.' : null,
+    args.recipient.suppressionStatus === 'blocked'
+      ? args.recipient.suppressionReasons[0] ?? 'Suppression review is required before planning a Gmail draft.'
+      : null,
+    !selectedEmail ? 'Gmail is not the selected outreach channel for this recipient.' : null,
+    submittedEvidenceExists ? 'Submitted email evidence already exists; exclude this recipient from batch drafting.' : null,
+  ].filter(Boolean) as string[]
+
+  const status: WarmGmailBatchDraftPlanRowStatus =
+    submittedEvidenceExists
+      ? 'excluded_submitted'
+      : hardBlockers.length > 0
+        ? 'blocked_review'
+        : approvalNeeded
+          ? 'approval_required'
+          : 'ready_for_local_planning'
+
+  const nextAction: WarmGmailBatchDraftPlanRow['nextAction'] =
+    status === 'ready_for_local_planning'
+      ? 'local_draft_planning'
+      : status === 'approval_required'
+        ? 'approval_request'
+        : status === 'excluded_submitted'
+          ? 'excluded_review'
+          : 'blocked_review'
+  const draftRecordKey = `warm-outreach:gmail-draft-record:v1:${stableHash({
+    batchIdempotencyKey: args.batchIdempotencyKey,
+    draftIdempotencyKey: args.recipient.draftIdempotencyKey,
+    contactId: args.recipient.contactId,
+    promptTemplateKey: args.recipient.promptTemplateKey,
+  })}`
+  const executionRecord = executionFor(
+    args.plannedDraftExecutionRecords ?? [],
+    draftRecordKey,
+  )
+  const draftCreationStatus: WarmGmailBatchDraftCreationStatus = executionRecord
+      ? 'draft_created'
+      : args.draftCreationReceiptAt && status === 'ready_for_local_planning'
+      ? 'draft_created'
+      : args.recipient.existingQueueId
+        ? 'draft_already_exists'
+        : status === 'excluded_submitted'
+          ? 'excluded'
+          : hardBlockers.length > 0
+            ? 'blocked'
+            : approvalNeeded
+              ? 'approval_required'
+              : providerConnected
+                ? 'eligible'
+                : 'provider_not_connected'
+  const draftCreationBlocker =
+    draftCreationStatus === 'provider_not_connected'
+      ? 'Connect and verify Gmail before creating provider drafts. Local records remain draft-only.'
+      : draftCreationStatus === 'approval_required'
+        ? 'Existing local draft state requires approval review before another Gmail draft record.'
+        : draftCreationStatus === 'draft_already_exists'
+          ? 'A local email draft already exists for this recipient and template.'
+          : draftCreationStatus === 'excluded'
+            ? 'Submitted email evidence already exists; this recipient is excluded from batch drafting.'
+            : draftCreationStatus === 'blocked'
+              ? hardBlockers[0] ?? 'Resolve recipient blockers before Gmail draft creation.'
+              : null
+
+  return {
+    contactId: args.recipient.contactId,
+    contactName: args.recipient.contactName,
+    company: args.recipient.company,
+    status,
+    statusLabel: gmailDraftPlanStatusLabel(status),
+    relationshipBasis: args.recipient.relationshipBasis,
+    relationshipSignalCount: args.recipient.relationshipSignalCount,
+    readiness: [
+      readinessItem('missing_email', email ? 'clear' : 'blocked'),
+      readinessItem('weak_relationship_basis', args.recipient.weakBasis ? 'blocked' : 'clear'),
+      readinessItem('suppression_risk', args.recipient.suppressionStatus === 'blocked' ? 'blocked' : 'clear'),
+      readinessItem('provider_not_connected', providerConnected ? 'clear' : 'needs_review'),
+      readinessItem('approval_needed', approvalNeeded ? 'needs_review' : 'clear'),
+      readinessItem('submitted_evidence_exists', submittedEvidenceExists ? 'blocked' : 'clear'),
+      readinessItem('sms_unavailable', phone ? 'unavailable' : 'clear'),
+    ],
+    blockers: hardBlockers,
+    nextAction,
+    nextActionLabel:
+      draftCreationStatus === 'draft_created'
+        ? 'Draft record created'
+        : draftCreationStatus === 'draft_already_exists'
+          ? 'Open existing draft'
+          : nextAction === 'local_draft_planning'
+            ? 'Create Gmail draft record'
+            : nextAction === 'approval_request'
+          ? 'Review approval request'
+          : nextAction === 'excluded_review'
+            ? 'Review submitted evidence'
+            : 'Resolve blocker',
+    existingQueueId: executionRecord?.recordId ?? args.recipient.existingQueueId,
+    draftCreation: {
+      status: draftCreationStatus,
+      statusLabel: gmailDraftCreationStatusLabel(draftCreationStatus),
+      actionEnabled: draftCreationStatus === 'eligible' || draftCreationStatus === 'provider_not_connected',
+      blocker: draftCreationBlocker,
+      draftOnly: true,
+      draftRecordKey,
+      localDraftRecordId: draftCreationStatus === 'draft_created'
+        ? executionRecord?.recordId ?? draftRecordKey
+        : null,
+      providerDraftId: null,
+      createdAt: draftCreationStatus === 'draft_created'
+        ? executionRecord?.createdAt ?? args.draftCreationReceiptAt ?? null
+        : null,
+      externalRequests: [],
+    },
+    draftIntent: {
+      channel: 'gmail',
+      templateFamily: args.recipient.selectedTemplate,
+      promptTemplateKey: args.recipient.promptTemplateKey,
+      queueIntent: 'draft_only_planned',
+      createsOutreachQueueRow: false,
+      createsGmailDraft: false,
+      callsProvider: false,
+      externalSend: false,
+    },
+  }
+}
+
+function buildGmailDraftPlan(
+  rows: WarmGmailBatchDraftPlanRow[],
+  draftCreationReceiptAt?: string | null,
+  executionRecords: WarmPlannedDraftExecutionRecord[] = [],
+): WarmGmailBatchDraftPlan {
+  const readyForLocalPlanningCount = rows.filter((row) => row.status === 'ready_for_local_planning').length
+  const approvalRequiredCount = rows.filter((row) => row.status === 'approval_required').length
+  const blockedReviewCount = rows.filter((row) => row.status === 'blocked_review').length
+  const excludedSubmittedCount = rows.filter((row) => row.status === 'excluded_submitted').length
+  const providerNotConnectedCount = rows.filter((row) =>
+    row.readiness.some((item) => item.key === 'provider_not_connected' && item.state !== 'clear'),
+  ).length
+  const smsUnavailableCount = rows.filter((row) =>
+    row.readiness.some((item) => item.key === 'sms_unavailable' && item.state === 'unavailable'),
+  ).length
+  const draftCreationEligibleCount = rows.filter((row) =>
+    row.draftCreation.status === 'eligible' || row.draftCreation.status === 'provider_not_connected',
+  ).length
+  const draftAlreadyExistsCount = rows.filter((row) => row.draftCreation.status === 'draft_already_exists').length
+  const draftCreatedCount = rows.filter((row) => row.draftCreation.status === 'draft_created').length
+  const gmailExecutionRecords = executionRecords.filter((record) => record.kind === 'gmail_draft_record')
+  const createsOutreachQueueRows =
+    gmailExecutionRecords.some((record) => record.state === 'created') ||
+    Boolean(draftCreationReceiptAt && draftCreatedCount > 0)
+
+  const currentCta: WarmGmailBatchDraftPlan['currentCta'] =
+    draftCreatedCount > 0 && draftCreationEligibleCount === 0
+      ? {
+          key: 'draft_records_created',
+          label: 'Gmail draft records created',
+          enabled: false,
+          blocker: null,
+        }
+      : draftCreationEligibleCount > 0
+      ? {
+          key: 'create_gmail_draft_records',
+          label: `Create Gmail draft records (${draftCreationEligibleCount})`,
+          enabled: true,
+          blocker: null,
+        }
+      : approvalRequiredCount > 0
+      ? {
+          key: 'review_approval_requests',
+          label: 'Review approval requests',
+            enabled: true,
+            blocker: null,
+          }
+        : {
+            key: 'resolve_blocked_rows',
+            label: 'Resolve blocked rows',
+            enabled: false,
+            blocker:
+              rows[0]?.blockers[0] ??
+              'No selected recipient is ready for local Gmail draft planning.',
+          }
+
+  return {
+    version: 'warm-outreach-gmail-batch-draft-plan/v1',
+    status:
+      draftCreatedCount > 0 && draftCreationEligibleCount === 0
+        ? 'draft_records_created'
+        : draftCreationEligibleCount > 0
+          ? 'draft_creation_ready'
+          : readyForLocalPlanningCount > 0
+            ? 'ready_for_local_planning'
+        : approvalRequiredCount > 0
+          ? 'approval_review_needed'
+          : 'blocked_review',
+    currentCta,
+    summary: {
+      selectedCount: rows.length,
+      readyForLocalPlanningCount,
+      approvalRequiredCount,
+      blockedReviewCount,
+      excludedSubmittedCount,
+      providerNotConnectedCount,
+      smsUnavailableCount,
+      draftCreationEligibleCount,
+      draftAlreadyExistsCount,
+      draftCreatedCount,
+    },
+    rows,
+    executionReceipt: (gmailExecutionRecords.length > 0 || draftCreationReceiptAt) && draftCreatedCount > 0
+      ? {
+          action: 'create_gmail_draft_records',
+          createdAt: gmailExecutionRecords[0]?.createdAt ?? draftCreationReceiptAt ?? '',
+          createdCount: gmailExecutionRecords.filter((record) => record.state === 'created').length || draftCreatedCount,
+          externalRequests: [],
+        }
+      : null,
+    executionBoundary: {
+      localPortfolioPlanOnly: !createsOutreachQueueRows,
+      createsOutreachQueueRows,
+      createsGmailDrafts: false,
+      gmailProviderCalls: false,
+      gmailSend: false,
+      slackDispatch: false,
+      smsDelivery: false,
+      n8nDispatch: false,
+      productionDataMutation: false,
+      genericApprovalAuthorizesSend: false,
+    },
+  }
+}
+
+function draftActionPacket(): WarmPlannedDraftActionRow['draftActionPacket'] {
+  return {
+    version: 'warm-planned-draft-action-packet/v1',
+    reviewOnly: true,
+    createsGmailDraft: false,
+    createsOutreachQueueRow: false,
+    callsProvider: false,
+    externalSend: false,
+    slackDispatch: false,
+    smsDelivery: false,
+    n8nDispatch: false,
+    productionDataMutation: false,
+    externalRequests: [],
+  }
+}
+
+function contactReviewHref(contactId: number, hash = '') {
+  return `/admin/outreach?tab=leads&filter=warm&id=${contactId}&contactId=${contactId}${hash}`
+}
+
+function plannedManualHandoffTaskKey(recipient: Omit<WarmBatchReviewRecipient, 'plannedDraftAction'>) {
+  return `warm-outreach:manual-handoff-task:v1:${stableHash({
+    draftIdempotencyKey: recipient.draftIdempotencyKey,
+    contactId: recipient.contactId,
+    channel: recipient.selectedChannel,
+    template: recipient.selectedTemplate,
+  })}`
+}
+
+function executionFor(
+  records: WarmPlannedDraftExecutionRecord[],
+  key: string,
+): WarmPlannedDraftExecutionRecord | null {
+  return records.find((record) => record.key === key) ?? null
+}
+
+function buildPlannedDraftActionRow(
+  recipient: Omit<WarmBatchReviewRecipient, 'plannedDraftAction'>,
+  executionRecords: WarmPlannedDraftExecutionRecord[] = [],
+): WarmPlannedDraftActionRow {
+  const channel = recipient.selectedChannel
+  const hasOnlyPhoneChannel =
+    channel === 'phone_contact' &&
+    !recipient.packet.channelCapabilities.email?.available &&
+    !recipient.packet.channelCapabilities.linkedin?.available &&
+    !recipient.packet.channelCapabilities.facebook?.available
+  const hasResponseFollowUp =
+    recipient.responseMonitoring.status === 'manual_response_captured' ||
+    recipient.responseMonitoring.status === 'imported_response_captured' ||
+    recipient.responseMonitoring.status === 'stale_no_response' ||
+    recipient.gmailDraftPlan.status === 'excluded_submitted'
+  const primaryBlocker =
+    recipient.suppressionReasons[0] ??
+    recipient.blockers[0] ??
+    null
+  const gmailBlocker = recipient.selectedChannel === 'email'
+    ? recipient.gmailDraftPlan.blockers[0] ?? null
+    : null
+
+  let kind: WarmPlannedDraftActionKind
+  let recommendedChannel: WarmPlannedDraftActionRow['recommendedChannel']
+  let kindLabel: string
+  let recommendationLabel: string
+  let state: WarmPlannedDraftActionRow['state']
+  let reason: string
+  let detail: string
+  let cta: WarmPlannedDraftActionRow['cta']
+  let recordKey = recipient.gmailDraftPlan.draftCreation.draftRecordKey
+  let recordTable: WarmPlannedDraftActionRow['recordTable'] = null
+
+  if (hasResponseFollowUp) {
+    kind = 'response_follow_up'
+    recommendedChannel = channel === 'linkedin' || channel === 'facebook' || channel === 'phone_contact'
+      ? channel
+      : 'gmail'
+    kindLabel = 'Response follow-up'
+    recommendationLabel = 'Response follow-up'
+    state = 'follow_up'
+    reason = recipient.responseMonitoring.proposedFollowUp.label
+    detail = 'Review the response state before another planned draft action.'
+    cta = {
+      key: 'open_response_follow_up',
+      label: 'Open response follow-up',
+      href: contactReviewHref(recipient.contactId, '#warm-response-lifecycle'),
+      enabled: true,
+    }
+  } else if (hasOnlyPhoneChannel) {
+    kind = 'parked_sms'
+    recommendedChannel = 'sms'
+    kindLabel = 'SMS parked'
+    recommendationLabel = 'Parked SMS'
+    state = 'parked'
+    reason = 'SMS is parked until Telnyx/10DLC/legal readiness clears.'
+    detail = 'No Telnyx call, SMS delivery, or provider readiness action is available in this review slice.'
+    cta = {
+      key: 'parked_sms',
+      label: 'SMS parked',
+      href: contactReviewHref(recipient.contactId),
+      enabled: false,
+    }
+  } else if (recipient.status === 'blocked' || primaryBlocker || gmailBlocker) {
+    kind = 'relationship_review_blocker'
+    recommendedChannel = channel === 'linkedin' || channel === 'facebook' || channel === 'phone_contact'
+      ? channel
+      : 'gmail'
+    kindLabel = 'Relationship review'
+    recommendationLabel = 'Relationship-review blocker'
+    state = 'blocked'
+    reason = primaryBlocker ?? gmailBlocker ?? 'Relationship review is required before draft planning.'
+    detail = 'Open the relationship packet and resolve blockers before creating any draft plan.'
+    cta = {
+      key: 'open_relationship_packet',
+      label: 'Open relationship packet',
+      href: contactReviewHref(recipient.contactId),
+      enabled: true,
+    }
+  } else if (channel === 'linkedin' || channel === 'facebook' || channel === 'phone_contact') {
+    kind = 'manual_social_handoff'
+    recommendedChannel = channel
+    recordKey = plannedManualHandoffTaskKey(recipient)
+    recordTable = 'meeting_action_tasks'
+    kindLabel = 'Manual handoff'
+    recommendationLabel =
+      channel === 'linkedin'
+        ? 'Manual-social handoff'
+        : channel === 'facebook'
+          ? 'Manual-social handoff'
+          : 'Manual phone handoff'
+    state = 'manual'
+    reason = recipient.packet.channelCapabilities[channel]?.reason ?? 'Manual handoff is required.'
+    detail = 'Open the existing relationship packet workroom and use the manual handoff controls.'
+    cta = {
+      key: 'open_manual_handoff',
+      label: 'Open manual handoff',
+      href: contactReviewHref(recipient.contactId, '#warm-manual-social-handoff'),
+      enabled: true,
+    }
+  } else {
+    kind = 'gmail_draft_plan'
+    recommendedChannel = 'gmail'
+    recordTable = 'outreach_queue'
+    kindLabel = 'Gmail draft plan'
+    recommendationLabel = 'Gmail draft plan'
+    state = 'ready'
+    reason = recipient.gmailDraftPlan.nextActionLabel
+    detail = recipient.gmailDraftPlan.draftCreation.blocker ??
+      'Prepare the review-only Gmail draft packet. Gmail draft creation remains a separate explicit gate.'
+    cta = {
+      key: 'open_draft_gate',
+      label: 'Open draft gate',
+      href: '#gmail-batch-draft-plan',
+      enabled: true,
+    }
+  }
+
+  const executionRecord = executionFor(executionRecords, recordKey)
+  const blocked = state === 'blocked' || state === 'follow_up' || state === 'parked' || !cta.enabled
+  const recordState: WarmPlannedDraftActionRow['recordState'] = executionRecord
+    ? executionRecord.state === 'created'
+      ? 'record_created'
+      : 'existing_record'
+    : blocked
+      ? 'blocked'
+      : 'ready_to_create'
+
+  return {
+    contactId: recipient.contactId,
+    contactName: recipient.contactName,
+    company: recipient.company,
+    kind,
+    kindLabel,
+    recommendedChannel,
+    recommendationLabel,
+    state,
+    reason,
+    detail,
+    blockers: [
+      ...recipient.blockers,
+      ...recipient.gmailDraftPlan.blockers,
+      ...(recipient.packet.channelCapabilities.phone_contact?.available ? ['SMS parked until Telnyx readiness clears'] : []),
+    ].filter((value, index, list) => list.indexOf(value) === index),
+    recordState,
+    recordKey,
+    recordTable,
+    localRecordId: executionRecord?.recordId ?? null,
+    cta,
+    draftActionPacket: draftActionPacket(),
+  }
+}
+
+function buildPlannedDraftActions(
+  rows: WarmPlannedDraftActionRow[],
+  executionRecords: WarmPlannedDraftExecutionRecord[] = [],
+): WarmPlannedDraftActions {
+  const gmailDraftPlanCount = rows.filter((row) => row.kind === 'gmail_draft_plan').length
+  const manualSocialHandoffCount = rows.filter((row) => row.kind === 'manual_social_handoff').length
+  const relationshipReviewBlockerCount = rows.filter((row) => row.kind === 'relationship_review_blocker').length
+  const responseFollowUpCount = rows.filter((row) => row.kind === 'response_follow_up').length
+  const parkedSmsCount = rows.filter((row) => row.kind === 'parked_sms' || row.recommendedChannel === 'sms').length
+  const createdRecords = executionRecords.filter((record) => record.state === 'created')
+  const existingRecords = executionRecords.filter((record) => record.state === 'existing')
+  const createsOutreachQueueRows = createdRecords.some((record) => record.kind === 'gmail_draft_record')
+  const createsMeetingActionTaskRows = createdRecords.some((record) => record.kind === 'manual_social_handoff_task')
+  const internalPortfolioRecordsCreated = createsOutreachQueueRows || createsMeetingActionTaskRows
+  const primary =
+    rows.find((row) => row.kind === 'response_follow_up' && row.cta.enabled) ??
+    rows.find((row) => row.kind === 'gmail_draft_plan' && row.cta.enabled) ??
+    rows.find((row) => row.kind === 'manual_social_handoff' && row.cta.enabled) ??
+    rows.find((row) => row.kind === 'relationship_review_blocker' && row.cta.enabled) ??
+    null
+
+  return {
+    version: 'warm-planned-draft-actions/v1',
+    status: responseFollowUpCount > 0
+      ? 'response_follow_up'
+      : gmailDraftPlanCount > 0
+        ? 'ready'
+        : manualSocialHandoffCount > 0
+          ? 'manual_handoff'
+          : relationshipReviewBlockerCount > 0
+            ? 'relationship_review'
+            : 'parked',
+    currentCta: primary
+      ? {
+          key: primary.cta.key,
+          label: primary.cta.label,
+          enabled: primary.cta.enabled,
+          href: primary.cta.href,
+          reason: primary.reason,
+        }
+      : {
+          key: 'none',
+          label: 'No draft action',
+          enabled: false,
+          href: null,
+          reason: 'No selected recipient has a reviewable draft action.',
+        },
+    summary: {
+      selectedCount: rows.length,
+      gmailDraftPlanCount,
+      manualSocialHandoffCount,
+      relationshipReviewBlockerCount,
+      responseFollowUpCount,
+      parkedSmsCount,
+    },
+    rows,
+    executionBoundary: {
+      localPortfolioPlanOnly: !internalPortfolioRecordsCreated,
+      preRecordNoWrite: !internalPortfolioRecordsCreated,
+      reviewOnlyDraftActionPackets: !internalPortfolioRecordsCreated,
+      internalPortfolioRecordsCreated,
+      createsOutreachQueueRows,
+      createsMeetingActionTaskRows,
+      createsGmailDrafts: false,
+      gmailProviderCalls: false,
+      socialProviderCalls: false,
+      gmailSend: false,
+      slackDispatch: false,
+      smsDelivery: false,
+      n8nDispatch: false,
+      productionDataMutation: false,
+      externalRequests: [],
+    },
+    executionReceipt: executionRecords.length > 0
+      ? {
+          action: 'create_planned_draft_handoff_records',
+          createdAt: executionRecords[0].createdAt,
+          createdCount: createdRecords.length,
+          existingCount: existingRecords.length,
+          gmailDraftRecordCount: executionRecords.filter((record) => record.kind === 'gmail_draft_record').length,
+          manualSocialHandoffTaskCount: executionRecords.filter((record) => record.kind === 'manual_social_handoff_task').length,
+          externalRequests: [],
+        }
+      : null,
+  }
+}
+
 export function buildWarmBatchReview(args: {
   contacts: WarmBatchReviewContactInput[]
   objective: string
   cohortLabel?: string | null
   preferredChannel?: WarmOutreachChannel
+  draftCreationReceiptAt?: string | null
+  plannedDraftExecutionRecords?: WarmPlannedDraftExecutionRecord[]
 }): WarmBatchReview {
   const sortedContactIds = args.contacts
     .map((entry) => Number(entry.contact.id))
@@ -242,7 +1093,7 @@ export function buildWarmBatchReview(args: {
   })
   const batchIdempotencyKey = `warm-outreach:batch-review:v1:${batchHash}`
 
-  const recipients = args.contacts.map((entry): WarmBatchReviewRecipient => {
+  const recipientsWithoutPlans = args.contacts.map((entry): Omit<WarmBatchReviewRecipient, 'gmailDraftPlan' | 'plannedDraftAction'> => {
     const contactId = Number(entry.contact.id)
     const contactName = text(entry.contact.name) ?? `Contact ${contactId}`
     const company = text(entry.contact.company)
@@ -331,6 +1182,34 @@ export function buildWarmBatchReview(args: {
     }
   })
 
+  const recipientsWithGmailPlan = recipientsWithoutPlans.map((recipient, index): Omit<WarmBatchReviewRecipient, 'plannedDraftAction'> => ({
+    ...recipient,
+    gmailDraftPlan: buildGmailDraftPlanRow({
+      recipient,
+      contact: args.contacts[index].contact,
+      rows: args.contacts[index].rows,
+      batchIdempotencyKey,
+      draftCreationReceiptAt: args.draftCreationReceiptAt,
+      plannedDraftExecutionRecords: args.plannedDraftExecutionRecords ?? [],
+    }),
+  }))
+  const recipients: WarmBatchReviewRecipient[] = recipientsWithGmailPlan.map((recipient) => ({
+    ...recipient,
+    plannedDraftAction: buildPlannedDraftActionRow(
+      recipient,
+      args.plannedDraftExecutionRecords ?? [],
+    ),
+  }))
+  const gmailDraftPlan = buildGmailDraftPlan(
+    recipients.map((recipient) => recipient.gmailDraftPlan),
+    args.draftCreationReceiptAt,
+    args.plannedDraftExecutionRecords ?? [],
+  )
+  const plannedDraftActions = buildPlannedDraftActions(
+    recipients.map((recipient) => recipient.plannedDraftAction),
+    args.plannedDraftExecutionRecords ?? [],
+  )
+  const plannedBoundary = plannedDraftActions.executionBoundary
   const readyRecipients = recipients.filter((recipient) => recipient.status === 'ready_for_review')
   const existingDraftRecipients = recipients.filter((recipient) => recipient.status === 'existing_draft')
   const blockedRecipients = recipients.filter((recipient) => recipient.status === 'blocked')
@@ -355,9 +1234,14 @@ export function buildWarmBatchReview(args: {
     },
     samplePreview: readyRecipients[0] ?? existingDraftRecipients[0] ?? blockedRecipients[0] ?? null,
     recipients,
+    gmailDraftPlan,
+    plannedDraftActions,
     executionBoundary: {
       source: 'local_portfolio_rows',
-      readOnly: true,
+      readOnly: !plannedBoundary.internalPortfolioRecordsCreated,
+      internalPortfolioRecordsCreated: plannedBoundary.internalPortfolioRecordsCreated,
+      createsOutreachQueueRows: plannedBoundary.createsOutreachQueueRows,
+      createsMeetingActionTaskRows: plannedBoundary.createsMeetingActionTaskRows,
       providerCalls: false,
       createsDraft: false,
       externalSend: false,

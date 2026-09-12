@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 
 export const metadata = {
-  title: 'Pricing Methodology | Amadutown',
+  title: 'Pricing Methodology | AmaduTown, LLC',
   description:
     'How we calculate retail values, ROI estimates, and price anchors. Full transparency into our pricing methodology, data sources, and calculation formulas.',
 };

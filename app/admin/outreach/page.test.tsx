@@ -2,6 +2,10 @@ import { fireEvent, render, screen, waitFor, within } from '@testing-library/rea
 import type { HTMLAttributes, ReactNode } from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import OutreachAdminPage from './page'
+import {
+  WARM_SLACK_SEND_APPROVAL_QA_QUEUE_ID,
+  warmSlackSendApprovalQaLead,
+} from '@/components/admin/outreach/warmSlackSendApprovalQaFixture'
 
 vi.mock('framer-motion', () => ({
   motion: {
@@ -183,6 +187,62 @@ const relationshipPacketResponse = {
   },
 }
 
+const warmBatchEmailLifecycle = {
+  state: 'per_recipient_gate_required',
+  stages: [
+    { key: 'draft_packet', status: 'ready_for_review' },
+    { key: 'provider_capability_smoke', status: 'future_gate' },
+  ],
+  gmailDraftHandoffPacket: {
+    state: 'ready_for_internal_handoff',
+    internalHandoffReady: true,
+  },
+  providerCapabilitySmoke: {
+    status: 'waiting_read_only_smoke_authority',
+    providerConfigured: false,
+  },
+  gmailDraftCreationGate: {
+    status: 'draft_creation_authority_required',
+  },
+  duplicatePrevention: {
+    duplicateDetected: false,
+  },
+}
+
+const warmBatchSendReadiness = {
+  version: 'warm-outreach-send-readiness/v1',
+  contactId: 42,
+  perRecipientIdempotencyKey: 'warm-outreach:recipient:v1:test-recipient',
+  modes: {
+    warm_1_to_1: [],
+    warm_1_to_many: [
+      {
+        channel: 'email',
+        sendAuthority: {
+          channel: 'email',
+          state: 'eligible_for_future_activation',
+          futureActivationEligible: true,
+        },
+        emailSendLifecycle: warmBatchEmailLifecycle,
+      },
+    ],
+  },
+  executionBoundary: {
+    providerExecution: false,
+    externalMonitoring: false,
+    gmailDraftCreation: false,
+    outcomeTracking: false,
+  },
+}
+
+const warmBatchResponseMonitoring = {
+  status: 'awaiting_response',
+  mode: 'pending',
+  proposedFollowUp: {
+    label: 'Review warm follow-up',
+  },
+}
+
 const warmBatchReviewResponse = {
   mode: 'warm_1_to_many',
   batchIdempotencyKey: 'warm-outreach:batch-review:v1:test-batch',
@@ -217,6 +277,8 @@ const warmBatchReviewResponse = {
     draftIdempotencyKey: 'warm-outreach:batch-draft:v1:test-recipient',
     existingQueueId: null,
     individualizedDraftPreview: 'Hi Ada, The warm basis is prior meeting context.',
+    responseMonitoring: warmBatchResponseMonitoring,
+    sendReadiness: warmBatchSendReadiness,
     packet: relationshipPacketResponse.packet,
     readiness: relationshipPacketResponse.readiness,
     contextSummary: relationshipPacketResponse.contextSummary,
@@ -240,11 +302,162 @@ const warmBatchReviewResponse = {
       draftIdempotencyKey: 'warm-outreach:batch-draft:v1:test-recipient',
       existingQueueId: null,
       individualizedDraftPreview: 'Hi Ada, The warm basis is prior meeting context.',
+      responseMonitoring: warmBatchResponseMonitoring,
+      sendReadiness: warmBatchSendReadiness,
       packet: relationshipPacketResponse.packet,
       readiness: relationshipPacketResponse.readiness,
       contextSummary: relationshipPacketResponse.contextSummary,
     },
   ],
+  gmailDraftPlan: {
+    version: 'warm-outreach-gmail-batch-draft-plan/v1',
+    status: 'draft_creation_ready',
+    currentCta: {
+      key: 'create_gmail_draft_records',
+      label: 'Create Gmail draft records (1)',
+      enabled: true,
+      blocker: null,
+    },
+    summary: {
+      selectedCount: 1,
+      readyForLocalPlanningCount: 1,
+      approvalRequiredCount: 0,
+      blockedReviewCount: 0,
+      excludedSubmittedCount: 0,
+      providerNotConnectedCount: 1,
+      smsUnavailableCount: 0,
+      draftCreationEligibleCount: 1,
+      draftAlreadyExistsCount: 0,
+      draftCreatedCount: 0,
+    },
+    rows: [
+      {
+        contactId: 42,
+        contactName: 'Ada Operator',
+        company: 'Ops Lab',
+        status: 'ready_for_local_planning',
+        statusLabel: 'Plan ready',
+        relationshipBasis: 'Portfolio shows prior meeting context for this contact.',
+        relationshipSignalCount: 1,
+        readiness: [
+          { key: 'provider_not_connected', label: 'Provider not connected', state: 'needs_review' },
+        ],
+        blockers: [],
+        nextAction: 'local_draft_planning',
+        nextActionLabel: 'Create Gmail draft record',
+        existingQueueId: null,
+        draftCreation: {
+          status: 'provider_not_connected',
+          statusLabel: 'Provider not connected',
+          actionEnabled: true,
+          blocker: 'Connect and verify Gmail before creating provider drafts. Local records remain draft-only.',
+          draftOnly: true,
+          draftRecordKey: 'warm-outreach:gmail-draft-record:v1:test-recipient',
+          localDraftRecordId: null,
+          providerDraftId: null,
+          createdAt: null,
+          externalRequests: [],
+        },
+        draftIntent: {
+          channel: 'gmail',
+          templateFamily: 'follow_up',
+          promptTemplateKey: 'email_follow_up',
+          queueIntent: 'draft_only_planned',
+          createsOutreachQueueRow: false,
+          createsGmailDraft: false,
+          callsProvider: false,
+          externalSend: false,
+        },
+      },
+    ],
+    executionReceipt: null,
+    executionBoundary: {
+      localPortfolioPlanOnly: true,
+      createsOutreachQueueRows: false,
+      createsGmailDrafts: false,
+      gmailProviderCalls: false,
+      gmailSend: false,
+      slackDispatch: false,
+      smsDelivery: false,
+      n8nDispatch: false,
+      productionDataMutation: false,
+      genericApprovalAuthorizesSend: false,
+    },
+  },
+  plannedDraftActions: {
+    version: 'warm-planned-draft-actions/v1',
+    status: 'ready',
+    currentCta: {
+      key: 'open_draft_gate',
+      label: 'Open draft gate',
+      enabled: true,
+      href: '#gmail-batch-draft-plan',
+      reason: 'Open the existing Gmail draft gate for this planned batch.',
+    },
+    summary: {
+      selectedCount: 1,
+      gmailDraftPlanCount: 1,
+      manualSocialHandoffCount: 0,
+      relationshipReviewBlockerCount: 0,
+      responseFollowUpCount: 0,
+      parkedSmsCount: 0,
+    },
+    rows: [
+      {
+        contactId: 42,
+        contactName: 'Ada Operator',
+        company: 'Ops Lab',
+        kind: 'gmail_draft_plan',
+        kindLabel: 'Gmail draft plan',
+        recommendedChannel: 'gmail',
+        recommendationLabel: 'Gmail draft plan',
+        state: 'ready',
+        reason: 'Open draft gate',
+        detail: 'Prepare the review-only Gmail draft action packet. Gmail draft creation remains a separate explicit gate.',
+        blockers: [],
+        cta: {
+          key: 'open_draft_gate',
+          label: 'Open draft gate',
+          href: '#gmail-batch-draft-plan',
+          enabled: true,
+        },
+        draftActionPacket: {
+          version: 'warm-planned-draft-action-packet/v1',
+          reviewOnly: true,
+          createsGmailDraft: false,
+          createsOutreachQueueRow: false,
+          callsProvider: false,
+          externalSend: false,
+          slackDispatch: false,
+          smsDelivery: false,
+          n8nDispatch: false,
+          productionDataMutation: false,
+          externalRequests: [],
+        },
+        recordState: 'ready_to_create',
+        recordKey: 'warm-outreach:gmail-draft-record:v1:test-recipient',
+        recordTable: 'outreach_queue',
+        localRecordId: null,
+      },
+    ],
+    executionBoundary: {
+      localPortfolioPlanOnly: true,
+      preRecordNoWrite: true,
+      reviewOnlyDraftActionPackets: true,
+      internalPortfolioRecordsCreated: false,
+      createsOutreachQueueRows: false,
+      createsMeetingActionTaskRows: false,
+      createsGmailDrafts: false,
+      gmailProviderCalls: false,
+      socialProviderCalls: false,
+      gmailSend: false,
+      slackDispatch: false,
+      smsDelivery: false,
+      n8nDispatch: false,
+      productionDataMutation: false,
+      externalRequests: [],
+    },
+  },
   executionBoundary: {
     source: 'local_portfolio_rows',
     readOnly: true,
@@ -262,15 +475,193 @@ const warmBatchReviewResponse = {
   },
 }
 
+const warmBatchCreatedResponse = {
+  ...warmBatchReviewResponse,
+  gmailDraftPlan: {
+    ...warmBatchReviewResponse.gmailDraftPlan,
+    status: 'draft_records_created',
+    currentCta: {
+      key: 'draft_records_created',
+      label: 'Gmail draft records created',
+      enabled: false,
+      blocker: null,
+    },
+    summary: {
+      ...warmBatchReviewResponse.gmailDraftPlan.summary,
+      draftCreationEligibleCount: 0,
+      draftCreatedCount: 1,
+    },
+    rows: warmBatchReviewResponse.gmailDraftPlan.rows.map((row) => ({
+      ...row,
+      nextActionLabel: 'Draft record created',
+      draftCreation: {
+        ...row.draftCreation,
+        status: 'draft_created',
+        statusLabel: 'Draft created',
+        actionEnabled: false,
+        localDraftRecordId: row.draftCreation.draftRecordKey,
+        createdAt: '2026-09-02T12:00:00.000Z',
+        externalRequests: [],
+      },
+    })),
+    executionReceipt: {
+      action: 'create_gmail_draft_records',
+      createdAt: '2026-09-02T12:00:00.000Z',
+      createdCount: 1,
+      externalRequests: [],
+    },
+    executionBoundary: {
+      ...warmBatchReviewResponse.gmailDraftPlan.executionBoundary,
+      localPortfolioPlanOnly: false,
+      createsOutreachQueueRows: true,
+    },
+  },
+  plannedDraftActions: {
+    ...warmBatchReviewResponse.plannedDraftActions,
+    currentCta: {
+      key: 'records_created',
+      label: 'Records created',
+      enabled: false,
+      reason: 'Internal draft and handoff records were created.',
+    },
+    rows: warmBatchReviewResponse.plannedDraftActions.rows.map((row) => ({
+      ...row,
+      recordState: 'record_created',
+      recordKey: 'warm-outreach:gmail-draft-record:v1:test-recipient',
+      recordTable: 'outreach_queue',
+      localRecordId: 'queue-created-1',
+    })),
+    executionReceipt: {
+      action: 'create_planned_draft_handoff_records',
+      createdAt: '2026-09-02T12:00:00.000Z',
+      createdCount: 1,
+      gmailDraftRecordCount: 1,
+      manualSocialHandoffTaskCount: 0,
+      existingCount: 0,
+      externalRequests: [],
+    },
+    executionBoundary: {
+      ...warmBatchReviewResponse.plannedDraftActions.executionBoundary,
+      localPortfolioPlanOnly: false,
+      preRecordNoWrite: false,
+      reviewOnlyDraftActionPackets: false,
+      internalPortfolioRecordsCreated: true,
+      createsOutreachQueueRows: true,
+      createsMeetingActionTaskRows: false,
+    },
+  },
+}
+
+const warmBatchExistingDraftResponse = {
+  ...warmBatchReviewResponse,
+  summary: {
+    ...warmBatchReviewResponse.summary,
+    readyCount: 0,
+    existingDraftCount: 1,
+  },
+  samplePreview: {
+    ...warmBatchReviewResponse.samplePreview,
+    status: 'existing_draft',
+    existingQueueId: 'queue-existing',
+  },
+  recipients: warmBatchReviewResponse.recipients.map((recipient) => ({
+    ...recipient,
+    status: 'existing_draft',
+    existingQueueId: 'queue-existing',
+  })),
+  gmailDraftPlan: {
+    ...warmBatchReviewResponse.gmailDraftPlan,
+    status: 'approval_review_needed',
+    currentCta: {
+      key: 'review_approval_requests',
+      label: 'Review approval requests',
+      enabled: true,
+      blocker: null,
+    },
+    summary: {
+      ...warmBatchReviewResponse.gmailDraftPlan.summary,
+      readyForLocalPlanningCount: 0,
+      approvalRequiredCount: 1,
+      providerNotConnectedCount: 0,
+      draftCreationEligibleCount: 0,
+      draftAlreadyExistsCount: 1,
+    },
+    rows: warmBatchReviewResponse.gmailDraftPlan.rows.map((row) => ({
+      ...row,
+      status: 'approval_required',
+      statusLabel: 'Approval review',
+      readiness: [
+        { key: 'approval_needed', label: 'Approval needed', state: 'needs_review' },
+      ],
+      nextAction: 'approval_request',
+      nextActionLabel: 'Open existing draft',
+      existingQueueId: 'queue-existing',
+      draftCreation: {
+        ...row.draftCreation,
+        status: 'draft_already_exists',
+        statusLabel: 'Draft already exists',
+        actionEnabled: false,
+        blocker: 'A local email draft already exists for this recipient and template.',
+      },
+    })),
+  },
+}
+
+const providerDraftCanaryResponse = {
+  message: 'No-send Gmail draft smoke passed. No Gmail draft was created and no email was sent.',
+  noSendSmoke: true,
+  queueId: 'queue-existing',
+  to: 'ada@example.com',
+  requiredSender: 'vambah@amadutown.com',
+  connectedAs: 'vambah@amadutown.com',
+  expectedAuthorization: {
+    createGmailDraft: true,
+    draftAuthorization: 'create_gmail_draft_for_recipient',
+    contactSubmissionId: 42,
+    recipientEmail: 'ada@example.com',
+    channel: 'email',
+    idempotencyKey: 'warm-outreach:gmail-draft:v1:queue-existing:42:email',
+  },
+  providerDraftCanaryReadiness: {
+    version: 'warm-outreach-provider-gmail-draft-canary-readiness/v1',
+    state: 'ready_for_explicit_provider_draft_approval',
+    label: 'Provider draft canary ready',
+    exactApprovalSentence:
+      'Create one Gmail provider draft for outreach queue queue-existing and contact 42 using authorization create_gmail_draft_for_recipient. Do not send email.',
+    executionBoundary: {
+      providerCallsEnabled: false,
+      gmailDraftCreated: false,
+      trackingPersisted: false,
+      externalSendEnabled: false,
+      liveProviderCallRequiresSeparateApproval: true,
+    },
+  },
+  externalSendBlocked: true,
+}
+
 describe('OutreachAdminPage deep links', () => {
   beforeEach(() => {
     window.history.replaceState({}, '', '/admin/outreach?tab=leads&id=42')
-    vi.stubGlobal('fetch', vi.fn(async (url: string) => {
+    Object.defineProperty(window.HTMLElement.prototype, 'scrollIntoView', {
+      configurable: true,
+      value: vi.fn(),
+    })
+    Object.defineProperty(window.HTMLElement.prototype, 'focus', {
+      configurable: true,
+      value: vi.fn(),
+    })
+    vi.stubGlobal('fetch', vi.fn(async (url: string, init?: RequestInit) => {
       if (url.startsWith('/api/admin/outreach/leads/42/relationship-packet')) {
         return Response.json(relationshipPacketResponse)
       }
       if (url.startsWith('/api/admin/outreach/batch-review')) {
-        return Response.json(warmBatchReviewResponse)
+        const body = init?.body ? JSON.parse(String(init.body)) : {}
+        return Response.json(body.action === 'create_planned_draft_handoff_records'
+          ? warmBatchCreatedResponse
+          : warmBatchReviewResponse)
+      }
+      if (url.startsWith('/api/admin/outreach/queue-existing/gmail-user-draft')) {
+        return Response.json(providerDraftCanaryResponse)
       }
       if (url.startsWith('/api/admin/outreach/leads')) {
         return Response.json({ leads: [lead], total: 1, page: 1 })
@@ -303,6 +694,37 @@ describe('OutreachAdminPage deep links', () => {
     })
   })
 
+  it('hydrates contacted dashboard drilldowns into the visible status dropdown', async () => {
+    window.history.replaceState({}, '', '/admin/outreach?tab=leads&status=contacted')
+    const fetchMock = vi.mocked(fetch)
+
+    render(<OutreachAdminPage />)
+
+    await screen.findByText('Ada Operator')
+    const statusFilter = screen.getAllByRole('combobox')[1]
+    expect(statusFilter).toHaveValue('sequence_active')
+    expect(screen.getByRole('option', { name: 'Contacted' })).toHaveValue('sequence_active')
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledWith(
+        expect.stringContaining('status=sequence_active'),
+        expect.any(Object),
+      )
+    })
+  })
+
+  it('hydrates the selected workroom from the contactId query alias', async () => {
+    window.history.replaceState({}, '', '/admin/outreach?tab=leads&contactId=42')
+
+    render(<OutreachAdminPage />)
+
+    const workroom = await screen.findByLabelText('Outreach workroom for Ada Operator')
+    expect(within(workroom).getByText('Selected outreach workroom')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Open selected lead' })).toHaveAttribute(
+      'href',
+      '/admin/outreach?tab=leads&id=42',
+    )
+  })
+
   it('fetches and displays the relationship packet for the selected lead', async () => {
     const fetchMock = vi.mocked(fetch)
 
@@ -324,6 +746,182 @@ describe('OutreachAdminPage deep links', () => {
     })
   })
 
+  it('renders the inert warm Slack approval QA workroom with an enabled local request path', async () => {
+    window.history.replaceState(
+      {},
+      '',
+      '/admin/outreach?tab=leads&id=42&contactId=42&qa=warm-slack-send-approval',
+    )
+    const fetchMock = vi.mocked(fetch)
+
+    render(<OutreachAdminPage />)
+
+    const workroom = await screen.findByLabelText(`Outreach workroom for ${warmSlackSendApprovalQaLead.name}`)
+    expect(within(workroom).getByText('Selected outreach workroom')).toBeInTheDocument()
+    expect(await within(workroom).findByText('Ready for one-step send approval request')).toBeInTheDocument()
+    expect(within(workroom).getByText('Gmail response import')).toBeInTheDocument()
+    expect(within(workroom).getByText('Mock Gmail response import ready')).toBeInTheDocument()
+    expect(within(workroom).getByText('Live import off')).toBeInTheDocument()
+    expect(within(workroom).getByText(`Queue: ${WARM_SLACK_SEND_APPROVAL_QA_QUEUE_ID}`)).toBeInTheDocument()
+
+    const button = within(workroom).getByRole('button', { name: 'Prepare review request' })
+    expect(button).toBeEnabled()
+    fireEvent.click(button)
+
+    expect(await within(workroom).findByText(
+      `QA local Slack approval request recorded for ${WARM_SLACK_SEND_APPROVAL_QA_QUEUE_ID}. Slack dispatch off. Gmail send off. Provider calls off.`,
+    )).toBeInTheDocument()
+    expect(within(workroom).getAllByText('Approval requested').length).toBeGreaterThan(0)
+    expect(within(workroom).getByText('Record approval decision')).toBeInTheDocument()
+    expect(fetchMock.mock.calls.some(([url]) => String(url).includes('/slack-send-approval'))).toBe(false)
+    expect(fetchMock.mock.calls.some(([url]) => String(url).includes('/api/admin/outreach/leads/42/relationship-packet'))).toBe(false)
+  })
+
+  it('runs the SMS Telnyx no-send canary from the existing selected workroom', async () => {
+    window.history.replaceState(
+      {},
+      '',
+      '/admin/outreach?tab=leads&id=42&contactId=42&qa=warm-slack-send-approval',
+    )
+    const fetchMock = vi.fn(async (url: string) => {
+      if (url.startsWith('/api/admin/outreach/leads/42/sms-telnyx-no-send-canary')) {
+        return Response.json({
+          version: 'warm-outreach-sms-telnyx-no-send-canary/v1',
+          status: 'passed_no_send',
+          message:
+            'No-send Telnyx SMS canary passed. No Telnyx API call ran, no SMS was sent, and provider activation remains disabled.',
+          contactId: '42',
+          provider: {
+            expectedProvider: 'telnyx_messaging',
+            selectedProvider: {
+              key: 'telnyx_messaging',
+              label: 'Telnyx Messaging',
+              configured: true,
+              unavailable: false,
+              rawValueReturned: false,
+            },
+            selectedProviderVerified: true,
+            rawAdapterReturned: false,
+          },
+          noSendCanary: true,
+          externalRequests: [],
+          providerCallsEnabled: false,
+          smsDeliveryEnabled: false,
+          providerActivationEnabled: false,
+          featureFlagEnabled: false,
+          smsDeliveryEnabledReason:
+            'No-send canary only; live SMS requires later activation and per-recipient approval.',
+          readiness: {
+            envSetupPresent: true,
+            selectedProviderAdapter: 'passed',
+            disabledExecutionFlag: 'passed',
+            consentSuppressionPrerequisites: 'passed',
+            messageVersion: 'passed',
+            idempotencyNamespace: 'passed',
+            auditKey: 'passed',
+            credentialReference: 'passed',
+            senderReference: 'passed',
+            deliveryCallbackReference: 'passed',
+            optOutCallbackReference: 'passed',
+            deliveryConfirmationStore: 'passed',
+            providerCapabilityEvidence: 'passed',
+            liveSmsUnavailable: true,
+            providerActivationStillDisabled: true,
+            perRecipientSendStillSeparate: true,
+          },
+          redactedReferences: [
+            {
+              key: 'SMS_PROVIDER_CREDENTIAL_REFERENCE',
+              label: 'Credential reference',
+              status: 'present_redacted',
+              rawValueReturned: false,
+            },
+            {
+              key: 'ENABLE_WARM_SMS_PROVIDER_EXECUTION',
+              label: 'Execution feature flag',
+              status: 'disabled_verified',
+              rawValueReturned: false,
+            },
+          ],
+          idempotency: {
+            namespace: 'warm-sms-send:v1',
+            messageVersionKey: 'qa-sms-message-v1',
+            auditKey: 'warm-sms-audit:v1:qa',
+            canaryIdempotencyKey: 'warm-sms-send:v1:canary:no-send:abc123',
+            auditEvidenceKey: 'warm-sms-audit:v1:qa:no-send-canary:def456',
+            duplicatePolicy: 'return_existing_no_send_evidence_without_provider_call',
+            stableResult: true,
+          },
+          deliveryConfirmation: {
+            storeMapped: true,
+            status: 'placeholder_only',
+            providerMessageId: null,
+            deliveryStatus: null,
+          },
+          blockedReasons: [],
+          executionBoundary: {
+            localRowsOnly: true,
+            noSendAuditOnly: true,
+            providerCallsEnabled: false,
+            smsDeliveryEnabled: false,
+            providerActivationEnabled: false,
+            featureFlagEnabled: false,
+            telnyxApiCalled: false,
+            rawCredentialsReturned: false,
+            rawPhoneReturned: false,
+            rawMessageBodyReturned: false,
+            credentialsRead: false,
+            secretManagerMutated: false,
+            environmentVariablesChanged: false,
+            databaseWritesEnabled: false,
+            slackDispatchEnabled: false,
+            gmailActionEnabled: false,
+            n8nDispatchEnabled: false,
+            externalRequests: [],
+          },
+        })
+      }
+      if (url.startsWith('/api/admin/outreach/leads')) {
+        return Response.json({ leads: [warmSlackSendApprovalQaLead], total: 1, page: 1 })
+      }
+      if (url.startsWith('/api/admin/value-evidence/workflow-status')) {
+        return Response.json({})
+      }
+      if (url.startsWith('/api/admin/chat-escalations')) {
+        return Response.json({ escalations: [], total: 0 })
+      }
+      if (url.startsWith('/api/admin/sales/contact-meetings')) {
+        return Response.json({ meetings: [] })
+      }
+      if (url.startsWith('/api/meeting-action-tasks')) {
+        return Response.json({ tasks: [] })
+      }
+      return Response.json({})
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    render(<OutreachAdminPage />)
+
+    const workroom = await screen.findByLabelText(`Outreach workroom for ${warmSlackSendApprovalQaLead.name}`)
+    fireEvent.click(within(workroom).getByRole('button', { name: 'Run SMS no-send canary' }))
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledWith(
+        '/api/admin/outreach/leads/42/sms-telnyx-no-send-canary',
+        expect.objectContaining({
+          method: 'POST',
+          headers: { Authorization: 'Bearer admin-token' },
+        }),
+      )
+    })
+    expect(await within(workroom).findByText(/No-send Telnyx SMS canary passed/)).toBeInTheDocument()
+    expect(within(workroom).getByText('Env setup: present')).toBeInTheDocument()
+    expect(within(workroom).getByText('Provider activation: disabled')).toBeInTheDocument()
+    expect(within(workroom).getByText('Live SMS: unavailable')).toBeInTheDocument()
+    expect(within(workroom).getAllByText('External requests: 0').length).toBeGreaterThan(0)
+    expect(fetchMock.mock.calls.some(([url]) => /telnyx\.com|slack\.com|gmail\.com|googleapis\.com|n8n/i.test(String(url)))).toBe(false)
+  })
+
   it('opens outreach in a dedicated selected workroom instead of rendering the generator inside each lead row', async () => {
     window.history.replaceState({}, '', '/admin/outreach?tab=leads')
 
@@ -342,6 +940,556 @@ describe('OutreachAdminPage deep links', () => {
       'workroom',
     )
     expect(screen.getByRole('button', { name: /Workroom open/i })).toBeInTheDocument()
+  })
+
+  it('shows a compact warm planning backlog on the planning view route', async () => {
+    window.history.replaceState({}, '', '/admin/outreach?tab=leads&filter=warm&view=planning')
+
+    render(<OutreachAdminPage />)
+
+    expect(screen.getByRole('button', { name: 'Lead list' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Show warm planning backlog view' })).toHaveTextContent('Planning')
+    const planningBacklog = await screen.findByLabelText('Warm outreach planning backlog')
+    expect(within(planningBacklog).getByText('Warm planning backlog')).toBeInTheDocument()
+    expect(within(planningBacklog).getByText(/Warm outreach backlog for/)).toHaveClass('leading-5')
+    expect(within(planningBacklog).getByRole('link', { name: 'Calendar source needed' })).toHaveAttribute('href', '/admin/agents/content-intelligence?section=calendar')
+    expect(within(planningBacklog).queryByText(/Campaign day/)).not.toBeInTheDocument()
+    expect(within(planningBacklog).getByLabelText('Warm daily operating actions')).toBeInTheDocument()
+    expect(within(planningBacklog).getByText("Today's actions")).toBeInTheDocument()
+    expect(within(planningBacklog).getAllByText("Start today's Gmail review loop (1)").length).toBeGreaterThan(0)
+    expect(within(planningBacklog).getAllByText(/Review existing Gmail draft work/).length).toBeGreaterThan(0)
+    const dailyActionFilters = within(planningBacklog).getByRole('group', {
+      name: 'Warm daily action filters',
+    })
+    expect(within(dailyActionFilters).getByRole('button', { name: 'Show Gmail draft review actions (1)' })).toHaveTextContent('Gmail')
+    expect(within(dailyActionFilters).getByRole('button', { name: 'Show manual social handoff actions (0)' })).toHaveTextContent('Manual')
+    expect(within(dailyActionFilters).getByRole('button', { name: 'Show reply follow-up actions (0)' })).toHaveTextContent('Replies')
+    expect(within(dailyActionFilters).getByRole('button', { name: 'Show relationship recovery actions (0)' })).toHaveTextContent('Recovery')
+    expect(within(dailyActionFilters).getByRole('button', { name: 'Show blocked or suppressed actions (0)' })).toHaveTextContent('Blocked')
+    const smsParkedFilter = within(dailyActionFilters).getByRole('button', { name: 'Show SMS parked actions (0)' })
+    expect(smsParkedFilter).toHaveTextContent('SMS parked')
+    expect(smsParkedFilter).toHaveClass('min-w-0')
+    expect(within(planningBacklog).getByText('Replies')).toBeInTheDocument()
+    expect(within(planningBacklog).getByLabelText('Daily warm action for Ada Operator')).toBeInTheDocument()
+    expect(within(planningBacklog).getByText('Ready to plan')).toBeInTheDocument()
+    expect(within(planningBacklog).getByText('Review batch ready')).toBeInTheDocument()
+    expect(within(planningBacklog).getByText(/Safe next: Prepare the review batch/)).toBeInTheDocument()
+    expect(within(planningBacklog).getByRole('button', { name: 'Prepare Gmail review for Ada Operator' })).toBeInTheDocument()
+    expect(within(planningBacklog).getByLabelText('Warm office execution loop')).toBeInTheDocument()
+    expect(within(planningBacklog).getByText('Campaign cadence')).toBeInTheDocument()
+    expect(within(planningBacklog).getByText(/Lead Pipeline window:/)).toBeInTheDocument()
+    expect(within(planningBacklog).getByText('Gmail 1')).toBeInTheDocument()
+    expect(within(planningBacklog).getByText('Manual 0')).toBeInTheDocument()
+    expect(within(planningBacklog).getByText('Recovery 0')).toBeInTheDocument()
+    expect(within(planningBacklog).getAllByText('Plan Gmail review').length).toBeGreaterThan(0)
+    expect(within(planningBacklog).getByText('Work the Lead Pipeline')).toBeInTheDocument()
+    expect(within(planningBacklog).getByText('Record local result')).toBeInTheDocument()
+    expect(within(planningBacklog).getAllByText(/Review existing Gmail draft work/).at(-1)).toHaveClass('leading-5')
+    const stateFilters = within(planningBacklog).getByRole('group', {
+      name: 'Warm planning state filters',
+    })
+    expect(within(stateFilters).getByRole('button', { name: /Show all warm planning candidates/ })).toHaveTextContent('All')
+    expect(within(stateFilters).getByRole('button', { name: /Show Ready for Gmail draft candidates/ })).toHaveTextContent('Ready Gmail')
+    const manualFilter = within(stateFilters).getByRole('button', { name: /Show Ready for manual social candidates/ })
+    expect(manualFilter).toHaveTextContent('Manual')
+    expect(manualFilter).toHaveClass('min-w-fit', 'shrink-0', 'whitespace-nowrap')
+    expect(within(stateFilters).getByRole('button', { name: /Show SMS parked candidates/ })).toHaveTextContent('SMS parked')
+    expect(within(planningBacklog).getByRole('button', { name: "Start today's Gmail review loop (1)" })).toBeInTheDocument()
+    expect(within(planningBacklog).getByText('Gmail drafts: off')).toBeInTheDocument()
+    expect(within(planningBacklog).getByText('Sends/Slack/social/SMS: off')).toBeInTheDocument()
+    expect(within(planningBacklog).getByText('Existing Lead Pipeline only')).toBeInTheDocument()
+    expect(within(planningBacklog).getByText('external requests 0')).toHaveClass(
+      'min-w-fit',
+      'shrink-0',
+      'whitespace-nowrap',
+    )
+    expect(within(planningBacklog).getAllByText('SMS parked').length).toBeGreaterThan(0)
+    expect(within(planningBacklog).getByText('Why next:')).toBeInTheDocument()
+    expect(within(planningBacklog).getAllByText(/Review contact context; campaign timing is unlinked/).length).toBeGreaterThan(0)
+    expect(within(planningBacklog).getAllByText(/Calendar Unscheduled/).length).toBeGreaterThan(0)
+    expect(within(planningBacklog).getAllByText('Cadence:').length).toBeGreaterThan(0)
+    expect(within(planningBacklog).getAllByText('Gate:').length).toBeGreaterThan(0)
+    expect(within(planningBacklog).getAllByText('Safe next:').length).toBeGreaterThan(0)
+  })
+
+  it('keeps the warm lead filter as the normal lead list by default', async () => {
+    window.history.replaceState({}, '', '/admin/outreach?tab=leads&filter=warm')
+
+    render(<OutreachAdminPage />)
+
+    expect(await screen.findByText('Ada Operator')).toBeInTheDocument()
+    expect(screen.queryByLabelText('Warm outreach planning backlog')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Show warm planning backlog view' })).toBeInTheDocument()
+  })
+
+  it('lands legacy warm planning QA links on the planning view', async () => {
+    window.history.replaceState(
+      {},
+      '',
+      '/admin/outreach?tab=leads&filter=warm&qa=warm-planning-backlog#warm-planning-backlog',
+    )
+
+    render(<OutreachAdminPage />)
+
+    const summary = await screen.findByLabelText('Outreach workroom mobile workflow summary')
+    expect(within(summary).getByText('Warm planning backlog')).toBeInTheDocument()
+    expect(await screen.findByLabelText('Warm outreach planning backlog')).toBeInTheDocument()
+  })
+
+  it('marks submitted warm daily actions as recorded and non-repeatable', async () => {
+    window.history.replaceState({}, '', '/admin/outreach?tab=leads&filter=warm&view=planning')
+    const sentLead = {
+      ...lead,
+      id: 45,
+      name: 'Sent Operator',
+      messages_sent: 1,
+      recent_email_drafts: [
+        {
+          id: 'queue-sent-45',
+          subject: 'Warm draft',
+          status: 'sent',
+          created_at: '2026-09-02T10:00:00.000Z',
+        },
+      ],
+    }
+    vi.stubGlobal('fetch', vi.fn(async (url: string) => {
+      if (url.startsWith('/api/admin/outreach/leads')) {
+        return Response.json({ leads: [lead, sentLead], total: 2, page: 1 })
+      }
+      if (url.startsWith('/api/admin/value-evidence/workflow-status')) {
+        return Response.json({})
+      }
+      if (url.startsWith('/api/admin/chat-escalations')) {
+        return Response.json({ escalations: [], total: 0 })
+      }
+      if (url.startsWith('/api/admin/sales/contact-meetings')) {
+        return Response.json({ meetings: [] })
+      }
+      if (url.startsWith('/api/meeting-action-tasks')) {
+        return Response.json({ tasks: [] })
+      }
+      return Response.json({})
+    }))
+
+    render(<OutreachAdminPage />)
+
+    const planningBacklog = await screen.findByLabelText('Warm outreach planning backlog')
+    const sentAction = within(planningBacklog).getByLabelText('Daily warm action for Sent Operator')
+
+    expect(within(sentAction).getByText('Recorded / waiting')).toBeInTheDocument()
+    expect(within(sentAction).getByText(/Submitted evidence is recorded/)).toBeInTheDocument()
+    expect(within(sentAction).getByRole('button', { name: 'Evidence recorded for Sent Operator' })).toBeDisabled()
+    expect(within(planningBacklog).getByRole('button', { name: "Start today's Gmail review loop (1)" })).toBeInTheDocument()
+  })
+
+  it('filters the warm planning backlog from summary counts and keeps SMS parked separate', async () => {
+    window.history.replaceState({}, '', '/admin/outreach?tab=leads&filter=warm&view=planning')
+    const phoneLead = {
+      ...lead,
+      id: 43,
+      name: 'Phone Operator',
+      email: 'phone@example.com',
+      phone_number: '555-0143',
+      lead_score: 84,
+      has_sales_conversation: true,
+    }
+    const manualLead = {
+      ...lead,
+      id: 44,
+      name: 'Manual Operator',
+      email: null,
+      lead_source: 'warm_linkedin',
+      lead_score: 81,
+      linkedin_url: 'https://linkedin.example/manual-operator',
+      messages_count: 0,
+      has_sales_conversation: true,
+    }
+    vi.stubGlobal('fetch', vi.fn(async (url: string) => {
+      if (url.startsWith('/api/admin/outreach/leads')) {
+        return Response.json({ leads: [lead, phoneLead, manualLead], total: 3, page: 1 })
+      }
+      if (url.startsWith('/api/admin/value-evidence/workflow-status')) {
+        return Response.json({})
+      }
+      if (url.startsWith('/api/admin/chat-escalations')) {
+        return Response.json({ escalations: [], total: 0 })
+      }
+      if (url.startsWith('/api/admin/sales/contact-meetings')) {
+        return Response.json({ meetings: [] })
+      }
+      if (url.startsWith('/api/meeting-action-tasks')) {
+        return Response.json({ tasks: [] })
+      }
+      return Response.json({})
+    }))
+
+    render(<OutreachAdminPage />)
+
+    const planningBacklog = await screen.findByLabelText('Warm outreach planning backlog')
+    const candidates = within(planningBacklog).getByLabelText('Warm planning candidates')
+    const actionFilters = within(planningBacklog).getByRole('group', {
+      name: 'Warm daily action filters',
+    })
+    expect(within(actionFilters).getByRole('button', { name: 'Show Gmail draft review actions (2)' })).toHaveTextContent('Gmail 2')
+    expect(within(actionFilters).getByRole('button', { name: 'Show manual social handoff actions (1)' })).toHaveTextContent('Manual 1')
+    expect(within(actionFilters).getByRole('button', { name: 'Show SMS parked actions (1)' })).toHaveTextContent('SMS parked 1')
+
+    expect(within(candidates).getByText('Phone Operator')).toBeInTheDocument()
+    fireEvent.click(within(actionFilters).getByRole('button', { name: 'Show blocked or suppressed actions (0)' }))
+
+    expect(within(planningBacklog).getAllByText('No blocked actions today.').length).toBeGreaterThan(0)
+    expect(within(candidates).queryByText('Ada Operator')).not.toBeInTheDocument()
+    expect(within(actionFilters).getByRole('button', { name: 'Show Gmail draft review actions (2)' })).toHaveTextContent('Gmail 2')
+    fireEvent.click(within(planningBacklog).getByRole('button', { name: 'Clear daily action filter' }))
+
+    expect(within(candidates).getByText('Ada Operator')).toBeInTheDocument()
+    fireEvent.click(within(actionFilters).getByRole('button', { name: 'Show Gmail draft review actions (2)' }))
+
+    expect(within(candidates).getByText('Ada Operator')).toBeInTheDocument()
+    expect(within(candidates).getByText('Phone Operator')).toBeInTheDocument()
+    expect(within(candidates).queryByText('Manual Operator')).not.toBeInTheDocument()
+    fireEvent.click(within(actionFilters).getByRole('button', { name: 'Show Gmail draft review actions (2)' }))
+
+    fireEvent.click(within(planningBacklog).getByRole('button', { name: /Show Ready for manual social candidates/ }))
+
+    expect(within(candidates).queryByText('Ada Operator')).not.toBeInTheDocument()
+    expect(within(candidates).getByText('Manual Operator')).toBeInTheDocument()
+    const manualStatePill = within(candidates).getByText('Ready for manual social')
+    expect(manualStatePill.parentElement).toHaveClass('gap-y-2')
+    expect(within(candidates).getByText('LinkedIn').parentElement).toHaveClass('gap-y-2')
+
+    fireEvent.click(within(planningBacklog).getByRole('button', { name: /Show SMS parked candidates/ }))
+
+    expect(within(candidates).queryByText('Ada Operator')).not.toBeInTheDocument()
+    expect(within(candidates).getByText('Phone Operator')).toBeInTheDocument()
+    expect(within(candidates).getAllByText('SMS parked').length).toBeGreaterThan(0)
+  })
+
+  it('filters daily action pills across Gmail, manual, replies, recovery, blocked, and SMS without shrinking counts', async () => {
+    window.history.replaceState({}, '', '/admin/outreach?tab=leads&filter=warm&view=planning')
+    const gmailLead = {
+      ...lead,
+      id: 142,
+      name: 'Gmail Filter',
+      email: 'gmail-filter@example.com',
+      lead_score: 86,
+      messages_count: 1,
+    }
+    const manualLead = {
+      ...lead,
+      id: 143,
+      name: 'Manual Filter',
+      email: null,
+      lead_source: 'warm_linkedin',
+      lead_score: 84,
+      linkedin_url: 'https://linkedin.example/manual-filter',
+      messages_count: 0,
+      has_sales_conversation: true,
+    }
+    const replyLead = {
+      ...lead,
+      id: 144,
+      name: 'Reply Filter',
+      email: 'reply-filter@example.com',
+      has_reply: true,
+      outreach_status: 'replied',
+    }
+    const recoveryLead = {
+      ...lead,
+      id: 145,
+      name: 'Recovery Filter',
+      email: 'recovery-filter@example.com',
+      lead_score: 35,
+      messages_count: 0,
+      message: null,
+      quick_wins: null,
+      full_report: null,
+      rep_pain_points: null,
+      has_sales_conversation: false,
+    }
+    const blockedLead = {
+      ...lead,
+      id: 146,
+      name: 'Blocked Filter',
+      email: 'blocked-filter@example.com',
+      do_not_contact: true,
+      outreach_status: 'opted_out',
+    }
+    const smsLead = {
+      ...lead,
+      id: 147,
+      name: 'Sms Parked Filter',
+      email: null,
+      phone_number: '555-0147',
+      lead_score: 90,
+      do_not_contact: true,
+      outreach_status: 'opted_out',
+      has_sales_conversation: true,
+    }
+    vi.stubGlobal('fetch', vi.fn(async (url: string) => {
+      if (url.startsWith('/api/admin/outreach/leads')) {
+        return Response.json({ leads: [gmailLead, manualLead, replyLead, recoveryLead, blockedLead, smsLead], total: 6, page: 1 })
+      }
+      if (url.startsWith('/api/admin/value-evidence/workflow-status')) {
+        return Response.json({})
+      }
+      if (url.startsWith('/api/admin/chat-escalations')) {
+        return Response.json({ escalations: [], total: 0 })
+      }
+      if (url.startsWith('/api/admin/sales/contact-meetings')) {
+        return Response.json({ meetings: [] })
+      }
+      if (url.startsWith('/api/meeting-action-tasks')) {
+        return Response.json({ tasks: [] })
+      }
+      return Response.json({})
+    }))
+
+    render(<OutreachAdminPage />)
+
+    const planningBacklog = await screen.findByLabelText('Warm outreach planning backlog')
+    const actionFilters = within(planningBacklog).getByRole('group', {
+      name: 'Warm daily action filters',
+    })
+    const candidates = within(planningBacklog).getByLabelText('Warm planning candidates')
+    const dailyActions = within(planningBacklog).getByLabelText('Warm daily operating actions')
+
+    fireEvent.click(within(planningBacklog).getByRole('button', {
+      name: /Open action drawer: .* for Gmail Filter/,
+    }))
+    expect(await within(planningBacklog).findByLabelText('Warm planning action drawer for Gmail Filter')).toBeInTheDocument()
+    fireEvent.click(within(actionFilters).getByRole('button', { name: 'Show Gmail draft review actions (1)' }))
+    expect(within(planningBacklog).queryByLabelText('Warm planning action drawer for Gmail Filter')).not.toBeInTheDocument()
+    fireEvent.click(within(planningBacklog).getByRole('button', { name: 'Clear daily action filter' }))
+
+    const expectFilteredAction = (
+      buttonName: string,
+      visibleName: string,
+      hiddenName = 'Gmail Filter',
+    ) => {
+      fireEvent.click(within(actionFilters).getByRole('button', { name: buttonName }))
+
+      expect(within(candidates).getByText(visibleName)).toBeInTheDocument()
+      expect(within(dailyActions).getByLabelText(`Daily warm action for ${visibleName}`)).toBeInTheDocument()
+      if (hiddenName !== visibleName) {
+        expect(within(candidates).queryByText(hiddenName)).not.toBeInTheDocument()
+        expect(within(dailyActions).queryByLabelText(`Daily warm action for ${hiddenName}`)).not.toBeInTheDocument()
+      }
+      expect(within(actionFilters).getByRole('button', { name: 'Show Gmail draft review actions (1)' })).toHaveTextContent('Gmail 1')
+      expect(within(actionFilters).getByRole('button', { name: 'Show manual social handoff actions (1)' })).toHaveTextContent('Manual 1')
+      expect(within(actionFilters).getByRole('button', { name: 'Show reply follow-up actions (1)' })).toHaveTextContent('Replies 1')
+      expect(within(actionFilters).getByRole('button', { name: 'Show relationship recovery actions (1)' })).toHaveTextContent('Recovery 1')
+      expect(within(actionFilters).getByRole('button', { name: 'Show blocked or suppressed actions (2)' })).toHaveTextContent('Blocked 2')
+      expect(within(actionFilters).getByRole('button', { name: 'Show SMS parked actions (1)' })).toHaveTextContent('SMS parked 1')
+
+      fireEvent.click(within(planningBacklog).getByRole('button', { name: 'Clear daily action filter' }))
+    }
+
+    expectFilteredAction('Show Gmail draft review actions (1)', 'Gmail Filter', 'Manual Filter')
+    expectFilteredAction('Show manual social handoff actions (1)', 'Manual Filter')
+    expectFilteredAction('Show reply follow-up actions (1)', 'Reply Filter')
+    expectFilteredAction('Show relationship recovery actions (1)', 'Recovery Filter')
+    expectFilteredAction('Show blocked or suppressed actions (2)', 'Blocked Filter')
+    expectFilteredAction('Show SMS parked actions (1)', 'Sms Parked Filter')
+  })
+
+  it('keeps the normal warm lead list separate from planning drawers', async () => {
+    window.history.replaceState({}, '', '/admin/outreach?tab=leads&filter=warm')
+
+    render(<OutreachAdminPage />)
+
+    expect(await screen.findByText('Ada Operator')).toBeInTheDocument()
+    expect(screen.queryByLabelText('Warm outreach planning backlog')).not.toBeInTheDocument()
+    expect(screen.queryByLabelText(/Warm planning action drawer for/i)).not.toBeInTheDocument()
+  })
+
+  it('prepares a review-only warm planning backlog batch without external requests or create actions', async () => {
+    window.history.replaceState({}, '', '/admin/outreach?tab=leads&filter=warm&view=planning')
+    const fetchMock = vi.mocked(fetch)
+
+    render(<OutreachAdminPage />)
+
+    const planningBacklog = await screen.findByLabelText('Warm outreach planning backlog')
+    const dailyAction = within(planningBacklog).getByLabelText('Daily warm action for Ada Operator')
+    const actionButton = within(dailyAction).getByRole('button', { name: 'Prepare Gmail review for Ada Operator' })
+    fireEvent.click(actionButton)
+
+    const batchReview = await screen.findByLabelText('Warm batch review')
+    expect(within(batchReview).getByLabelText('Warm planned draft actions')).toBeInTheDocument()
+    await waitFor(() => {
+      expect(actionButton).toHaveTextContent('Review opened')
+      expect(actionButton).toBeDisabled()
+      expect(window.HTMLElement.prototype.scrollIntoView).toHaveBeenCalledWith({ block: 'start', behavior: 'smooth' })
+      expect(window.HTMLElement.prototype.focus).toHaveBeenCalledWith({ preventScroll: true })
+    })
+    const progress = await within(planningBacklog).findByLabelText('Warm review loop progress')
+    expect(within(progress).getByText('Review batch selected')).toBeInTheDocument()
+    expect(within(progress).getByText('Gmail')).toBeInTheDocument()
+    expect(within(progress).getByText('1 in batch')).toBeInTheDocument()
+    expect(within(progress).getByText('0 reviewed')).toBeInTheDocument()
+    expect(within(progress).getByText('1 remaining')).toBeInTheDocument()
+    expect(within(progress).getByText('Backlog ready 1')).toBeInTheDocument()
+    expect(within(progress).getByText(/Review batch ready: Ada Operator. Next candidate: none in this view./)).toBeInTheDocument()
+    expect(within(dailyAction).queryByText('Review batch opened below.')).not.toBeInTheDocument()
+    expect(within(batchReview).getAllByRole('link', { name: 'Open draft gate' })[0]).toHaveAttribute(
+      'href',
+      '#gmail-batch-draft-plan',
+    )
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledWith(
+        '/api/admin/outreach/batch-review',
+        expect.objectContaining({
+          method: 'POST',
+          body: expect.stringContaining('warm planning backlog'),
+        }),
+      )
+    })
+    const batchReviewCallCount = fetchMock.mock.calls.filter(([url]) => url === '/api/admin/outreach/batch-review').length
+    fireEvent.click(actionButton)
+    expect(fetchMock.mock.calls.filter(([url]) => url === '/api/admin/outreach/batch-review')).toHaveLength(batchReviewCallCount)
+    const batchCall = fetchMock.mock.calls.find(([url]) => url === '/api/admin/outreach/batch-review')
+    const body = JSON.parse(String(batchCall?.[1]?.body ?? '{}'))
+    expect(body).toMatchObject({
+      contact_ids: [42],
+      preferred_channel: 'email',
+    })
+    expect(body.action).toBeUndefined()
+    expect(fetchMock.mock.calls.some(([url]) => /telnyx\.com|slack\.com|gmail\.com|googleapis\.com|n8n/i.test(String(url)))).toBe(false)
+    expect(within(batchReview).getByText('Warm draft execution planning')).toBeInTheDocument()
+  })
+
+  it('marks the primary warm Gmail review loop as selected and non-repeatable', async () => {
+    window.history.replaceState({}, '', '/admin/outreach?tab=leads&filter=warm&view=planning')
+    const fetchMock = vi.mocked(fetch)
+
+    render(<OutreachAdminPage />)
+
+    const planningBacklog = await screen.findByLabelText('Warm outreach planning backlog')
+    const primaryReviewButton = within(planningBacklog).getByRole('button', {
+      name: "Start today's Gmail review loop (1)",
+    })
+
+    fireEvent.click(primaryReviewButton)
+
+    await screen.findByLabelText('Warm batch review')
+    await waitFor(() => {
+      expect(primaryReviewButton).toHaveTextContent('Review batch selected')
+      expect(primaryReviewButton).toBeDisabled()
+    })
+    const progress = await within(planningBacklog).findByLabelText('Warm review loop progress')
+    expect(within(progress).getByText('Review batch selected')).toBeInTheDocument()
+    expect(within(progress).getByText('Gmail')).toBeInTheDocument()
+    expect(within(progress).getByText('1 in batch')).toBeInTheDocument()
+    expect(within(progress).getByText('0 reviewed')).toBeInTheDocument()
+    expect(within(progress).getByText('1 remaining')).toBeInTheDocument()
+    expect(within(progress).getByText('Backlog ready 1')).toBeInTheDocument()
+    expect(within(progress).getByText(/Review batch selected: Ada Operator. Next candidate: none in this view./)).toBeInTheDocument()
+
+    const batchReviewCallCount = fetchMock.mock.calls.filter(([url]) => url === '/api/admin/outreach/batch-review').length
+    fireEvent.click(primaryReviewButton)
+    expect(fetchMock.mock.calls.filter(([url]) => url === '/api/admin/outreach/batch-review')).toHaveLength(batchReviewCallCount)
+    expect(fetchMock.mock.calls.some(([url]) => /telnyx\.com|slack\.com|gmail\.com|googleapis\.com|n8n/i.test(String(url)))).toBe(false)
+  })
+
+  it('opens a planning candidate drawer before routing the CTA without provider calls', async () => {
+    window.history.replaceState({}, '', '/admin/outreach?tab=leads&filter=warm&view=planning')
+    const fetchMock = vi.mocked(fetch)
+
+    render(<OutreachAdminPage />)
+
+    const planningBacklog = await screen.findByLabelText('Warm outreach planning backlog')
+    fireEvent.click(within(planningBacklog).getByRole('button', {
+      name: /Open action drawer: .* for Ada Operator/,
+    }))
+
+    const drawer = await within(planningBacklog).findByLabelText('Warm planning action drawer for Ada Operator')
+    expect(within(drawer).getByText('Gmail draft review')).toBeInTheDocument()
+    expect(within(drawer).getByText('Current safest action')).toBeInTheDocument()
+    expect(within(drawer).getByText('Review Gmail draft plan only')).toBeInTheDocument()
+    expect(within(drawer).getByText('Blockers')).toBeInTheDocument()
+    expect(screen.queryByLabelText('Outreach workroom for Ada Operator')).not.toBeInTheDocument()
+
+    fireEvent.click(within(drawer).getByRole('button', { name: 'Prepare Gmail review for Ada Operator' }))
+
+    const batchReview = await screen.findByLabelText('Warm batch review')
+    expect(within(batchReview).getByLabelText('Warm planned draft actions')).toBeInTheDocument()
+    await waitFor(() => {
+      expect(within(drawer).getByRole('button', { name: 'Prepare Gmail review for Ada Operator' })).toHaveTextContent('Review opened')
+    })
+    expect(fetchMock.mock.calls.some(([url]) => /telnyx\.com|slack\.com|gmail\.com|googleapis\.com|n8n/i.test(String(url)))).toBe(false)
+  })
+
+  it('shows explicit planning blockers and one resolve CTA for blocked warm contacts', async () => {
+    window.history.replaceState({}, '', '/admin/outreach?tab=leads&filter=warm&view=planning')
+    const blockedLead = {
+      ...lead,
+      email: null,
+      phone_number: '555-0100',
+      lead_score: 20,
+      has_sales_conversation: false,
+      evidence_count: 0,
+      has_extractable_text: false,
+      message: null,
+      do_not_contact: true,
+      recent_email_drafts: [],
+    }
+    vi.stubGlobal('fetch', vi.fn(async (url: string) => {
+      if (url.startsWith('/api/admin/outreach/leads/42/relationship-packet')) {
+        return Response.json(relationshipPacketResponse)
+      }
+      if (url.startsWith('/api/admin/outreach/leads')) {
+        return Response.json({ leads: [blockedLead], total: 1, page: 1 })
+      }
+      if (url.startsWith('/api/admin/value-evidence/workflow-status')) {
+        return Response.json({})
+      }
+      if (url.startsWith('/api/admin/chat-escalations')) {
+        return Response.json({ escalations: [], total: 0 })
+      }
+      if (url.startsWith('/api/admin/sales/contact-meetings')) {
+        return Response.json({ meetings: [] })
+      }
+      if (url.startsWith('/api/meeting-action-tasks')) {
+        return Response.json({ tasks: [] })
+      }
+      return Response.json({})
+    }))
+
+    render(<OutreachAdminPage />)
+
+    const planningBacklog = await screen.findByLabelText('Warm outreach planning backlog')
+    const candidates = within(planningBacklog).getByLabelText('Warm planning candidates')
+    expect(within(candidates).getByText('Suppression risk')).toBeInTheDocument()
+    expect(within(candidates).getByText('SMS parked')).toBeInTheDocument()
+    expect(within(planningBacklog).getByRole('button', {
+      name: /Open action drawer: .* for Ada Operator/,
+    })).toBeInTheDocument()
+    fireEvent.click(within(planningBacklog).getByRole('button', {
+      name: /Open action drawer: .* for Ada Operator/,
+    }))
+    const drawer = await within(planningBacklog).findByLabelText('Warm planning action drawer for Ada Operator')
+    expect(within(drawer).getByText('Suppression review')).toBeInTheDocument()
+    expect(within(drawer).getByText('Blockers')).toBeInTheDocument()
+    expect(within(drawer).getByRole('button', { name: 'Resolve blocker for Ada Operator' })).toBeEnabled()
+    fireEvent.click(within(drawer).getByRole('button', { name: 'Resolve blocker for Ada Operator' }))
+
+    const workroom = await screen.findByLabelText('Outreach workroom for Ada Operator')
+    expect(within(workroom).getByLabelText('Planning action destination for Ada Operator')).toBeInTheDocument()
+    expect(within(workroom).getByText('Suppression/blocker review')).toBeInTheDocument()
+    expect(window.location.search).toContain('fromPlanning=1')
+    expect(window.location.search).toContain('planningContactId=42')
+    expect(window.location.search).toContain('planningAction=resolve_blocker')
+    expect(window.location.search).toContain('planningDestination=blocker_review')
+    expect(window.location.hash).toBe('#warm-outreach-approval-gate')
+    fireEvent.click(within(workroom).getByRole('button', { name: 'Back to Planning' }))
+
+    const returnedPlanning = await screen.findByLabelText('Warm outreach planning backlog')
+    expect(within(returnedPlanning).getByLabelText('Warm planning action drawer for Ada Operator')).toBeInTheDocument()
+    expect(within(returnedPlanning).getByText('In review')).toBeInTheDocument()
+    expect(window.location.search).toContain('view=planning')
+    expect(window.location.search).toContain('planningContactId=42')
+    expect(window.location.search).toContain('planningAction=resolve_blocker')
+    expect(window.location.hash).toBe('#warm-planning-backlog')
   })
 
   it('keeps the selected workroom read-only when a lead is do not contact', async () => {
@@ -423,15 +1571,48 @@ describe('OutreachAdminPage deep links', () => {
 
     await screen.findByText('Ada Operator')
     fireEvent.click(screen.getByLabelText('Select all on this page'))
-    fireEvent.click(screen.getByRole('button', { name: /Review 1 selected/i }))
+    fireEvent.click(screen.getByRole('button', { name: 'Plan draft work' }))
 
     const batchReview = await screen.findByLabelText('Warm batch review')
+    expect(within(batchReview).getByLabelText('Warm planned draft actions')).toBeInTheDocument()
+    expect(within(batchReview).getByText('1 Gmail draft plan')).toBeInTheDocument()
+    expect(within(batchReview).getByText('0 manual handoff')).toHaveClass(
+      'min-w-fit',
+      'shrink-0',
+      'whitespace-nowrap',
+    )
+    expect(within(batchReview).getByText('external requests 0')).toHaveClass(
+      'min-w-fit',
+      'shrink-0',
+      'whitespace-nowrap',
+    )
     expect(within(batchReview).getByText('Cohort provenance')).toBeInTheDocument()
     expect(within(batchReview).getByText('Sample individualized preview')).toBeInTheDocument()
+    expect(within(batchReview).getByLabelText('Gmail batch draft plan')).toBeInTheDocument()
+    expect(within(batchReview).getByRole('button', { name: 'Create Gmail draft records (1)' })).toBeEnabled()
+    expect(within(batchReview).getByText('1 plan-ready')).toBeInTheDocument()
+    expect(within(batchReview).getByText('Provider not connected')).toBeInTheDocument()
+    expect(within(batchReview).getByText('pre-record/no-write')).toBeInTheDocument()
+    expect(within(batchReview).getByText('outreach_queue records: off')).toBeInTheDocument()
+    expect(within(batchReview).getByText('handoff task records: off')).toBeInTheDocument()
+    expect(within(batchReview).getByText('outreach_queue writes: off')).toBeInTheDocument()
+    expect(within(batchReview).getByText('Provider Gmail drafts: off')).toBeInTheDocument()
     expect(within(batchReview).getByText('Provider calls: off')).toBeInTheDocument()
     expect(within(batchReview).getByText('External send: off')).toBeInTheDocument()
     expect(within(batchReview).getByText('Full recipient list (1)')).toBeInTheDocument()
     expect(within(batchReview).getByText('Hi Ada, The warm basis is prior meeting context.')).toBeInTheDocument()
+    fireEvent.click(within(batchReview).getByRole('button', { name: 'Create records (1)' }))
+    expect(await within(batchReview).findByText(/Created 1 internal record; reused 0/)).toBeInTheDocument()
+    expect(within(batchReview).getByRole('button', { name: 'Records created' })).toBeDisabled()
+    expect(within(batchReview).getByText('internal records only')).toBeInTheDocument()
+    expect(within(batchReview).getByText('outreach_queue records: created')).toBeInTheDocument()
+    expect(within(batchReview).getByText('handoff task records: off')).toBeInTheDocument()
+    expect(within(batchReview).getByText('outreach_queue writes: created')).toBeInTheDocument()
+    expect(within(batchReview).queryByText('review-only packets')).not.toBeInTheDocument()
+    expect(within(batchReview).getByText('Record created')).toBeInTheDocument()
+    expect(await within(batchReview).findByText(/Draft-only Gmail records created for 1 contact/)).toBeInTheDocument()
+    expect(within(batchReview).getByRole('button', { name: 'Gmail draft records created' })).toBeDisabled()
+    expect(within(batchReview).getByText('Record: Draft created')).toBeInTheDocument()
 
     await waitFor(() => {
       expect(fetchMock).toHaveBeenCalledWith(
@@ -445,5 +1626,237 @@ describe('OutreachAdminPage deep links', () => {
         }),
       )
     })
+    const batchCalls = fetchMock.mock.calls.filter(([url]) => url === '/api/admin/outreach/batch-review')
+    expect(batchCalls).toHaveLength(2)
+    expect(JSON.parse(String(batchCalls[0]?.[1]?.body))).toMatchObject({
+      contact_ids: [42],
+      cohort_label: '1 selected warm draft/handoff candidate',
+      preferred_channel: 'email',
+    })
+    expect(JSON.parse(String(batchCalls[1]?.[1]?.body))).toMatchObject({
+      action: 'create_planned_draft_handoff_records',
+      contact_ids: [42],
+      cohort_label: '1 selected warm draft/handoff candidate',
+      preferred_channel: 'email',
+    })
+  })
+
+  it('prepares the provider Gmail draft canary without calling Gmail from the batch workroom', async () => {
+    window.history.replaceState({}, '', '/admin/outreach?tab=leads')
+    const fetchMock = vi.fn(async (url: string, init?: RequestInit) => {
+      if (url.startsWith('/api/admin/outreach/batch-review')) {
+        return Response.json(warmBatchExistingDraftResponse)
+      }
+      if (url.startsWith('/api/admin/outreach/queue-existing/gmail-user-draft')) {
+        return Response.json(providerDraftCanaryResponse)
+      }
+      if (url.startsWith('/api/admin/outreach/leads/42/relationship-packet')) {
+        return Response.json(relationshipPacketResponse)
+      }
+      if (url.startsWith('/api/admin/outreach/leads')) {
+        return Response.json({ leads: [lead], total: 1, page: 1 })
+      }
+      if (url.startsWith('/api/admin/value-evidence/workflow-status')) {
+        return Response.json({})
+      }
+      if (url.startsWith('/api/admin/chat-escalations')) {
+        return Response.json({ escalations: [], total: 0 })
+      }
+      if (url.startsWith('/api/admin/sales/contact-meetings')) {
+        return Response.json({ meetings: [] })
+      }
+      if (url.startsWith('/api/meeting-action-tasks')) {
+        return Response.json({ tasks: [] })
+      }
+      return Response.json({})
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    render(<OutreachAdminPage />)
+
+    await screen.findByText('Ada Operator')
+    fireEvent.click(screen.getByLabelText('Select all on this page'))
+    fireEvent.click(screen.getByRole('button', { name: 'Plan draft work' }))
+
+    const batchReview = await screen.findByLabelText('Warm batch review')
+    expect(within(batchReview).getByLabelText('Provider Gmail draft canary readiness')).toBeInTheDocument()
+    fireEvent.click(within(batchReview).getByRole('button', { name: 'Prepare provider canary' }))
+
+    expect(await within(batchReview).findByText(/Live Gmail draft creation remains locked/)).toBeInTheDocument()
+    expect(within(batchReview).getByRole('button', { name: 'Provider canary prepared' })).toBeDisabled()
+    expect(within(batchReview).getByText(/Create one Gmail provider draft for outreach queue queue-existing/)).toBeInTheDocument()
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledWith(
+        '/api/admin/outreach/queue-existing/gmail-user-draft',
+        expect.objectContaining({
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer admin-token',
+          },
+          body: JSON.stringify({ noSendSmoke: true }),
+        }),
+      )
+    })
+    expect(fetchMock.mock.calls.some(([url]) => /googleapis\.com|mail\.google\.com|gmail\.com/i.test(String(url)))).toBe(false)
+  })
+
+  it('surfaces created internal draft and manual handoff records as compact row and workroom actions', async () => {
+    window.history.replaceState({}, '', '/admin/outreach?tab=leads&filter=warm&view=planning')
+    const gmailLead = {
+      ...lead,
+      next_internal_action: {
+        kind: 'gmail_draft_record',
+        label: 'Review draft',
+        status_label: 'Draft-only record',
+        detail: 'Warm follow-up: Ada Operator',
+        record_table: 'outreach_queue',
+        record_id: 'queue-created-1',
+        created_at: '2026-09-02T12:00:00.000Z',
+        href: '/admin/outreach?tab=leads&filter=warm&id=42&contactId=42&draftReview=queue-created-1#warm-gmail-draft-review',
+        email_message_id: null,
+        enabled: true,
+      },
+    }
+    const manualLead = {
+      ...lead,
+      id: 51,
+      name: 'Mariam Manual',
+      email: null,
+      company: 'Manual Co',
+      lead_source: 'warm_facebook',
+      messages_count: 0,
+      next_internal_action: {
+        kind: 'manual_social_handoff_task',
+        label: 'Record handoff evidence',
+        status_label: 'Pending handoff',
+        detail: 'Manual facebook handoff: Mariam Manual',
+        record_table: 'meeting_action_tasks',
+        record_id: 'task-created-1',
+        created_at: '2026-09-02T13:00:00.000Z',
+        href: '/admin/outreach?tab=leads&filter=warm&id=51&contactId=51#warm-manual-social-handoff',
+        enabled: true,
+      },
+    }
+    const fetchMock = vi.fn(async (url: string) => {
+      if (url.startsWith('/api/admin/outreach/leads/51/relationship-packet')) {
+        return Response.json({
+          ...relationshipPacketResponse,
+          packet: {
+            ...relationshipPacketResponse.packet,
+            contactId: 51,
+            contactName: 'Mariam Manual',
+            preferredChannel: 'facebook',
+          },
+          readiness: {
+            ...relationshipPacketResponse.readiness,
+            selectedChannel: 'facebook',
+          },
+        })
+      }
+      if (url.startsWith('/api/admin/outreach/leads/42/relationship-packet')) {
+        return Response.json(relationshipPacketResponse)
+      }
+      if (url.startsWith('/api/admin/outreach/drafts/queue-created-1/inputs')) {
+        return Response.json({
+          id: 'queue-created-1',
+          contactSubmissionId: 42,
+          channel: 'email',
+          status: 'draft',
+          sequenceStep: 1,
+          subject: 'Warm follow-up: Ada Operator',
+          body: 'Hi Ada,\n\nFollowing up from the prior Portfolio conversation.',
+          createdAt: '2026-09-02T12:00:00.000Z',
+          generationModel: 'portfolio-local-planner',
+          generationPromptSummary: 'planned_warm_gmail_draft_intent:no_provider',
+          generationInputs: {
+            version: 'warm-planned-draft-execution/v1',
+            queue_intent: 'draft_only_planned',
+            external_requests: [],
+          },
+        })
+      }
+      if (url.startsWith('/api/admin/outreach/leads')) {
+        return Response.json({ leads: [gmailLead, manualLead], total: 2, page: 1 })
+      }
+      if (url.startsWith('/api/admin/value-evidence/workflow-status')) {
+        return Response.json({})
+      }
+      if (url.startsWith('/api/admin/chat-escalations')) {
+        return Response.json({ escalations: [], total: 0 })
+      }
+      if (url.startsWith('/api/admin/sales/contact-meetings')) {
+        return Response.json({ meetings: [] })
+      }
+      if (url.startsWith('/api/meeting-action-tasks')) {
+        return Response.json({ tasks: [] })
+      }
+      return Response.json({})
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    render(<OutreachAdminPage />)
+
+    const planningBacklog = await screen.findByLabelText('Warm outreach planning backlog')
+    expect(within(planningBacklog).getByText('Draft-only record')).toBeInTheDocument()
+    expect(within(planningBacklog).getByText('Pending handoff')).toBeInTheDocument()
+    expect(within(planningBacklog).getAllByText('Safe next:').length).toBeGreaterThan(0)
+    expect(within(planningBacklog).getByText('Review Gmail draft plan only')).toBeInTheDocument()
+    expect(within(planningBacklog).getByText('Review manual handoff only')).toBeInTheDocument()
+    fireEvent.click(within(planningBacklog).getByRole('button', { name: 'Review draft for Ada Operator' }))
+
+    const planningGmailWorkroom = await screen.findByLabelText('Outreach workroom for Ada Operator')
+    const planningDestination = within(planningGmailWorkroom).getByLabelText('Planning action destination for Ada Operator')
+    expect(within(planningDestination).getByText('Opened from Planning')).toBeInTheDocument()
+    expect(within(planningDestination).getByText('Gmail draft review')).toBeInTheDocument()
+    expect(window.location.search).toContain('fromPlanning=1')
+    expect(window.location.search).toContain('planningContactId=42')
+    expect(window.location.search).toContain('planningState=ready_gmail_draft')
+    expect(window.location.search).toContain('planningAction=open_gmail_draft_review')
+    expect(window.location.search).toContain('planningDestination=gmail_draft_review')
+    expect(window.location.search).toContain('planningActionStatus=opened')
+    expect(window.location.search).toContain('draftReview=queue-created-1')
+    expect(window.location.hash).toBe('#warm-gmail-draft-review')
+    expect(await within(planningGmailWorkroom).findByLabelText('Gmail draft review for Ada Operator')).toBeInTheDocument()
+
+    const gmailAction = await screen.findByLabelText('Internal action for Ada Operator')
+    expect(within(gmailAction).getByText('Draft-only record')).toBeInTheDocument()
+    expect(within(gmailAction).getByRole('link', { name: /Review draft/i })).toHaveAttribute(
+      'href',
+      '/admin/outreach?tab=leads&filter=warm&id=42&contactId=42&draftReview=queue-created-1#warm-gmail-draft-review',
+    )
+    fireEvent.click(within(gmailAction).getByRole('link', { name: /Review draft/i }))
+
+    const gmailWorkroom = await screen.findByLabelText('Outreach workroom for Ada Operator')
+    const draftReview = await within(gmailWorkroom).findByLabelText('Gmail draft review for Ada Operator')
+    expect(within(draftReview).getAllByText('Draft-only').length).toBeGreaterThanOrEqual(2)
+    expect(within(draftReview).getByRole('button', { name: 'Edit final copy' })).toBeInTheDocument()
+    expect(within(draftReview).getByText(/Following up from the prior Portfolio conversation/)).toBeInTheDocument()
+    expect(within(draftReview).getByRole('button', { name: /Approve final copy/i })).toBeEnabled()
+
+    fireEvent.click(within(draftReview).getByText('Reject draft'))
+    fireEvent.change(within(draftReview).getByLabelText('Feedback (optional)'), { target: { value: 'Ada-only feedback' } })
+    fireEvent.click(within(draftReview).getByRole('button', { name: 'Edit final copy' }))
+    fireEvent.change(within(draftReview).getByLabelText('Final message'), { target: { value: 'Unsaved Ada-only copy' } })
+
+    const manualAction = await screen.findByLabelText('Internal action for Mariam Manual')
+    expect(within(manualAction).getByText('Pending handoff')).toBeInTheDocument()
+    fireEvent.click(within(manualAction).getByRole('button', { name: /Record manual handoff evidence/ }))
+
+    const workroom = await screen.findByLabelText('Outreach workroom for Mariam Manual')
+    const workroomAction = within(workroom).getByLabelText('Created internal action for Mariam Manual')
+    expect(within(workroomAction).getByText('Manual facebook handoff: Mariam Manual')).toBeInTheDocument()
+    expect(within(workroomAction).getByRole('button', { name: /Open manual handoff evidence/ })).toBeInTheDocument()
+    expect(within(workroom).queryByLabelText('Planning action destination for Mariam Manual')).not.toBeInTheDocument()
+    expect(screen.queryByDisplayValue('Unsaved Ada-only copy')).not.toBeInTheDocument()
+    fireEvent.click(within(gmailAction).getByRole('link', { name: /Review draft/i }))
+    const reopenedReview = await screen.findByLabelText('Gmail draft review for Ada Operator')
+    expect(within(reopenedReview).queryByLabelText('Final message')).not.toBeInTheDocument()
+    fireEvent.click(within(reopenedReview).getByText('Reject draft'))
+    expect(within(reopenedReview).getByLabelText('Feedback (optional)')).toHaveValue('')
+    fireEvent.click(within(reopenedReview).getByRole('button', { name: 'Edit final copy' }))
+    expect(within(reopenedReview).getByLabelText('Final message')).not.toHaveValue('Unsaved Ada-only copy')
+    expect(fetchMock.mock.calls.some(([url]) => /telnyx\.com|slack\.com|gmail\.com|googleapis\.com|n8n/i.test(String(url)))).toBe(false)
   })
 })

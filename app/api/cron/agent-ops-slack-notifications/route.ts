@@ -6,6 +6,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
+import { getSlackAgentSource } from '@/lib/slack-agent-environment'
 import {
   PROACTIVE_SLACK_NOTIFICATION_RULES,
   runAgentSlackNotificationSweep,
@@ -51,6 +52,12 @@ async function parsePostBody(request: NextRequest) {
 async function runSweep(request: NextRequest, body: Record<string, unknown> = {}) {
   if (!isAuthorizedCronRequest(request)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  try {
+    getSlackAgentSource()
+  } catch {
+    return NextResponse.json({ error: 'Slack source environment or origin is not configured.' }, { status: 503 })
   }
 
   const searchParams = request.nextUrl.searchParams

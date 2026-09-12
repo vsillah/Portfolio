@@ -1,3 +1,4 @@
+import { assertSocialQueueWritable, assertSocialQueuePublicationClear, updateSocialQueueWithVersion, SocialQueueWriteConflict } from '@/lib/social-queue-write'
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { generateJsonCompletion } from '@/lib/llm-dispatch'
@@ -286,13 +287,16 @@ export async function POST(
 
     const { data: row, error: fetchError } = await supabaseAdmin
       .from('social_content_queue')
-      .select('id, status, post_text, cta_text, hashtags, image_prompt, topic_extracted, hormozi_framework, rag_context, admin_notes')
+      .select('*')
       .eq('id', params.id)
       .single()
 
     if (fetchError || !row) {
       return NextResponse.json({ error: 'Content not found' }, { status: 404 })
     }
+
+    assertSocialQueueWritable(row)
+    await assertSocialQueuePublicationClear(supabaseAdmin, row.id)
 
     const content = row as SocialContentRow
     if (content.status !== 'draft' && content.status !== 'rejected') {
@@ -396,9 +400,7 @@ Additional role: You are Shaka, the Agent Ops Chief of Staff. Use the operator f
       ...revision.revision_notes.map((note) => `- ${note}`),
     ].join('\n')
 
-    const { data: updated, error: updateError } = await supabaseAdmin
-      .from('social_content_queue')
-      .update({
+    const { data: updated, error: updateError } = await updateSocialQueueWithVersion(supabaseAdmin, row, {
         post_text: revision.post_text,
         cta_text: revision.cta_text,
         hashtags: revision.hashtags.length ? revision.hashtags : content.hashtags ?? [],
@@ -407,9 +409,6 @@ Additional role: You are Shaka, the Agent Ops Chief of Staff. Use the operator f
         rag_context: nextRagContext,
         admin_notes: [content.admin_notes, notesBlock].filter(Boolean).join('\n\n'),
       })
-      .eq('id', params.id)
-      .select('*')
-      .single()
 
     if (updateError || !updated) {
       console.error('[calibration-revision] update failed:', updateError)
@@ -422,6 +421,7 @@ Additional role: You are Shaka, the Agent Ops Chief of Staff. Use the operator f
       shaka_understanding: revisionUnderstanding,
     })
   } catch (error) {
+    if (error instanceof SocialQueueWriteConflict) return NextResponse.json({ error: error.message }, { status: 409 })
     console.error('[calibration-revision] error:', error)
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Internal server error' },

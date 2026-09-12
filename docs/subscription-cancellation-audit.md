@@ -10,6 +10,24 @@ no meaningful usage signal, or after clear redundancy plus a lower-risk
 replacement path. Production changes require explicit approval in the form
 `Cancel <tool/vendor> for Portfolio`.
 
+## 2026-09-02 Daily Monitor Run
+
+Status: YELLOW
+
+Detailed run artifact: [`docs/subscription-monitor-runs/2026-09-02.md`](subscription-monitor-runs/2026-09-02.md)
+
+Summary:
+
+- No cancellation approvals requested and no cancellation action taken.
+- Repo checkout started detached at `cf2f4fbb` with only untracked `.codex-worktrees/`; today's edits stayed scoped to monitor outputs.
+- The checked-in compact tracker/status files were stale through `2026-08-05`, while automation memory carried continuity through `2026-09-01`; today's dated artifact restores the checked-in daily run chain.
+- Supabase health passed and sampled production tables moved on `2026-09-02`.
+- n8n Cloud remained readable through `N8N_CLOUD_API_KEY` with 85 workflows, 72 active, and 25 sampled executions through `2026-09-02T12:00:52Z`; the drift-check `N8N_API_KEY` still returned 401.
+- Vercel deploy watcher passed both `portfolio` and `portfolio-staging` on `2026-09-02`; the connected Vercel project read still returned `INVALID_ARGUMENT`.
+- OpenAI, Anthropic, Gemini, Gamma, HeyGen voices/avatars, Vapi, Pinecone, OpenRouter, Apify, Hunter, Printful, Slack, and BuiltWith were readable; ElevenLabs returned 400, Stripe account returned 403, and Calendly returned 401.
+- Google Calendar metadata found 0 Calendly, Read AI, or Fireflies matches from `2026-08-01` through `2026-09-02`.
+- BuiltWith remains active/watch during the outreach ramp; Fireflies remains resolved canceled unless new paid-plan evidence appears; Vapi remains the strongest deprecation-review candidate pending billing and voice-scope decision.
+
 ## 2026-08-05 Daily Monitor Run
 
 Status: YELLOW

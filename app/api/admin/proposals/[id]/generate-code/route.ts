@@ -1,3 +1,4 @@
+import { randomBytes } from 'node:crypto';
 // API Route: Generate Proposal Access Code
 // POST - Admin-only: generate 6-char access code for a proposal
 
@@ -22,7 +23,7 @@ export async function POST(
 
     const { data: proposal, error: fetchError } = await supabaseAdmin
       .from('proposals')
-      .select('id')
+      .select('id,payment_schedule')
       .eq('id', id)
       .single();
 
@@ -34,7 +35,7 @@ export async function POST(
     let code: string | null = null;
 
     for (let attempt = 0; attempt < maxRetries; attempt++) {
-      const candidate = generateAccessCode();
+      const candidate = proposal.payment_schedule==='milestones' ? randomBytes(24).toString('hex').toUpperCase() : generateAccessCode();
       const { error: updateError } = await supabaseAdmin
         .from('proposals')
         .update({ access_code: candidate })

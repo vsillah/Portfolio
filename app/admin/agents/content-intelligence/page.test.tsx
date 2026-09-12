@@ -17,6 +17,20 @@ vi.mock('@/lib/auth', () => ({
 
 describe('ContentIntelligencePage', () => {
   beforeEach(() => {
+    vi.clearAllMocks()
+    window.history.replaceState({}, '', '/admin/agents/content-intelligence')
+    vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) => {
+      callback(0)
+      return 0
+    })
+    Object.defineProperty(window.HTMLElement.prototype, 'scrollIntoView', {
+      configurable: true,
+      value: vi.fn(),
+    })
+    Object.defineProperty(window.HTMLElement.prototype, 'focus', {
+      configurable: true,
+      value: vi.fn(),
+    })
     vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input)
       if (url === '/api/admin/social-content/intelligence/research-runs') {
@@ -198,6 +212,29 @@ describe('ContentIntelligencePage', () => {
                 attraction_campaigns: { id: 'campaign-1', name: 'Agent Ops Campaign', slug: 'agentified-trust-scale-2026-07' },
                 agent_work_items: { id: 'work-social-2', title: 'TikTok proof handoff', status: 'proposed' },
                 social_content_queue: { id: 'social-due-now', status: 'draft' },
+              },
+              {
+                id: 'calendar-rejected',
+                campaign_id: 'campaign-1',
+                agent_work_item_id: 'work-social-rejected',
+                social_content_id: null,
+                channel: 'linkedin',
+                campaign_phase: 'teach',
+                title: 'Rejected calendar revision',
+                planned_angle: 'Needs a clearer revision path before draft handoff.',
+                scheduled_for: '2099-08-22T14:00:00.000Z',
+                due_status: 'planned',
+                authorization_status: 'rejected',
+                authorization_due_at: '2099-08-21T14:00:00.000Z',
+                autonomy_eligible: false,
+                metadata: {
+                  authorization_decision_note: 'Clarify the proof point before this can be authorized.',
+                  returned_to_shaka: true,
+                  external_execution_enabled: false,
+                },
+                attraction_campaigns: { id: 'campaign-1', name: 'Agent Ops Campaign', slug: 'agentified-trust-scale-2026-07' },
+                agent_work_items: { id: 'work-social-rejected', title: 'Revise calendar handoff', status: 'proposed' },
+                social_content_queue: null,
               },
               {
                 id: 'calendar-recalibrated',
@@ -1362,6 +1399,44 @@ describe('ContentIntelligencePage', () => {
     expect(JSON.parse(String(authorizeCall?.[1]?.body))).toEqual({})
   })
 
+  it('focuses a calendar approval row from the Slack deep-link query', async () => {
+    window.history.replaceState({}, '', '/admin/agents/content-intelligence?section=calendar&calendar_item=calendar-due-now#content-calendar-gate')
+
+    render(<ContentIntelligencePage />)
+
+    expect(await screen.findByText('Linked calendar row focused')).toBeInTheDocument()
+    expect(screen.getByText(/Opened from a Slack approval reminder for calendar-due-now/)).toBeInTheDocument()
+
+    const focusedRow = await screen.findByLabelText('Focused calendar row Due-now TikTok proof cutdown')
+    expect(focusedRow).toHaveClass('ring-2')
+    expect(within(focusedRow).getByRole('button', { name: 'Authorize Draft Handoff' })).toBeInTheDocument()
+    expect(within(focusedRow).getByRole('button', { name: 'Reject' })).toBeInTheDocument()
+    expect(within(focusedRow).getByRole('link', { name: 'Draft' })).toHaveAttribute(
+      'href',
+      '/admin/social-content/social-due-now?step=visuals#social-visual-assets-gate',
+    )
+
+    await waitFor(() => {
+      expect(window.HTMLElement.prototype.scrollIntoView).toHaveBeenCalled()
+      expect(window.HTMLElement.prototype.focus).toHaveBeenCalledWith({ preventScroll: true })
+    })
+  })
+
+  it('shows a recovery notice when a Slack-linked calendar row is absent', async () => {
+    window.history.replaceState({}, '', '/admin/agents/content-intelligence?section=calendar&calendar_item=missing-calendar-item')
+
+    render(<ContentIntelligencePage />)
+
+    expect(await screen.findByText('Linked calendar row unavailable')).toBeInTheDocument()
+    expect(screen.getByText('Calendar row missing-calendar-item is not present in this environment.')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Clear focus' }))
+
+    await waitFor(() => {
+      expect(screen.queryByText('Linked calendar row unavailable')).not.toBeInTheDocument()
+    })
+  })
+
   it('edits a pending calendar item without authorizing or publishing it', async () => {
     render(<ContentIntelligencePage />)
 
@@ -1416,5 +1491,23 @@ describe('ContentIntelligencePage', () => {
     expect(JSON.parse(String(rejectCall?.[1]?.body))).toEqual({
       decision_note: 'Needs stronger proof before this is due.',
     })
+  })
+
+  it('locks rejected calendar authorization actions until the item is revised', async () => {
+    render(<ContentIntelligencePage />)
+
+    const rejectedRow = await screen.findByLabelText('Calendar row Rejected calendar revision')
+
+    expect(within(rejectedRow).getByText('Rejected rows stay locked until the calendar item is revised.')).toBeInTheDocument()
+    expect(within(rejectedRow).getByRole('button', { name: 'Edit and Return to Review' })).toBeInTheDocument()
+    expect(within(rejectedRow).queryByRole('button', { name: 'Authorize Draft Handoff' })).not.toBeInTheDocument()
+    expect(within(rejectedRow).queryByRole('button', { name: 'Reject' })).not.toBeInTheDocument()
+
+    fireEvent.click(within(rejectedRow).getByRole('button', { name: 'Edit and Return to Review' }))
+
+    const expandedRejectedRow = await screen.findByLabelText('Calendar row Rejected calendar revision')
+    expect(within(expandedRejectedRow).getByRole('button', { name: 'Save Changes' })).toBeInTheDocument()
+    expect(within(expandedRejectedRow).queryByRole('button', { name: 'Authorize Draft Handoff' })).not.toBeInTheDocument()
+    expect(within(expandedRejectedRow).queryByRole('button', { name: 'Reject' })).not.toBeInTheDocument()
   })
 })

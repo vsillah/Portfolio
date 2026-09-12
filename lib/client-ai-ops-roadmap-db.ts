@@ -423,7 +423,7 @@ export async function projectRoadmapTaskToMeetingTask(clientProjectId: string, t
       roadmap_task_id: roadmapTaskId,
       title: task.title,
       description: task.description,
-      owner: task.owner_type === 'client' ? 'Client' : 'AmaduTown',
+      owner: task.owner_type === 'client' ? 'Client' : 'AmaduTown, LLC',
       due_date: task.due_date ?? null,
       status: meetingTaskStatusFromRoadmap(task.status as RoadmapTaskStatus),
       task_category: 'internal',

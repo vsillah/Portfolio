@@ -16,6 +16,7 @@ import {
 function row(overrides: Partial<SocialCommentAttentionRow> = {}): SocialCommentAttentionRow {
   return {
     id: 'comment-1',
+    updated_at: '2026-09-08T00:00:00Z',
     content_id: 'social-post-1',
     platform: 'linkedin',
     body: 'Can this help a small nonprofit?',
@@ -152,7 +153,7 @@ describe('Social comment attention plumbing', () => {
 
   it('links Slack review actions to the Engagement Inbox route', () => {
     expect(socialCommentDeepLink(row())).toBe(
-      '/admin/social-content/engagement-inbox?comment=comment-1&post=social-post-1',
+      '/admin/social-content/engagement-inbox?comment=comment-1&post=social-post-1&review=reply&source=slack#social-comment-review-gate',
     )
   })
 

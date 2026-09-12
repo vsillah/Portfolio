@@ -1,0 +1,32 @@
+{
+  "exactUrl": "http://127.0.0.1:3108/admin/social-content/engagement-inbox?comment=comment-qa-1#social-comment-review-gate",
+  "desktopMp4Path": "/Users/vambahsillah/.codex/worktrees/8cfe/Portfolio/docs/qa/engagement-inbox-reject-consistency-qa-2026-09-01.mp4",
+  "mobileMp4Path": "/Users/vambahsillah/.codex/worktrees/8cfe/Portfolio/docs/qa/engagement-inbox-reject-consistency-mobile-qa-2026-09-01.mp4",
+  "desktop": {
+    "viewport": {
+      "width": 1280,
+      "height": 720
+    },
+    "capturedActions": [
+      {
+        "action": "return_to_review",
+        "comment_id": "comment-qa-1",
+        "draft_reply": "Revised reply: this can help, but Portfolio still requires human approval before any provider submission."
+      }
+    ]
+  },
+  "mobile": {
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "capturedActions": [
+      {
+        "action": "return_to_review",
+        "comment_id": "comment-qa-1",
+        "draft_reply": "Revised reply: this can help, but Portfolio still requires human approval before any provider submission."
+      }
+    ]
+  },
+  "externalRequests": []
+}

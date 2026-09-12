@@ -1,0 +1,112 @@
+{
+  "version": "warm-sms-candidate-review-qa/v1",
+  "generatedAt": "2026-08-30T16:40:38.350Z",
+  "qaUrl": "http://127.0.0.1:3001/admin/outreach?tab=leads&filter=warm&id=42&contactId=42&qa=warm-slack-send-approval#warm-sms-readiness",
+  "routeTested": "/admin/outreach?tab=leads&filter=warm&id=42&contactId=42&qa=warm-slack-send-approval#warm-sms-readiness",
+  "viewports": [
+    {
+      "name": "desktop-1440",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "checks": {
+        "hasCandidateCard": true,
+        "hasReadyState": true,
+        "hasCreatedReceipt": true,
+        "hasQueueId": true,
+        "hasApprovalMissing": true,
+        "hasSendEvidenceNone": true,
+        "hasLiveBoundary": true,
+        "hasNoLiveSendButton": true,
+        "horizontalOverflow": false,
+        "scrollWidth": 1440,
+        "clientWidth": 1440
+      },
+      "candidateRequests": [
+        {
+          "url": "http://127.0.0.1:3001/api/admin/outreach/leads/42/sms-candidate",
+          "method": "POST",
+          "bodyChars": 112,
+          "rawPhonePresent": false
+        }
+      ],
+      "externalRequests": [],
+      "consoleErrors": [],
+      "ignoredConsoleErrors": [
+        "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector",
+        "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+        "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+        "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+        "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+        "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+        "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+      ],
+      "screenshots": {
+        "before": "/Users/vambahsillah/.codex/worktrees/03ef/Portfolio/test-results/warm-sms-candidate-review-qa/source/desktop-1440-before.png",
+        "after": "/Users/vambahsillah/.codex/worktrees/03ef/Portfolio/test-results/warm-sms-candidate-review-qa/source/desktop-1440-after.png"
+      }
+    },
+    {
+      "name": "mobile-390",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "checks": {
+        "hasCandidateCard": true,
+        "hasReadyState": true,
+        "hasCreatedReceipt": true,
+        "hasQueueId": true,
+        "hasApprovalMissing": true,
+        "hasSendEvidenceNone": true,
+        "hasLiveBoundary": true,
+        "hasNoLiveSendButton": true,
+        "horizontalOverflow": false,
+        "scrollWidth": 390,
+        "clientWidth": 390
+      },
+      "candidateRequests": [
+        {
+          "url": "http://127.0.0.1:3001/api/admin/outreach/leads/42/sms-candidate",
+          "method": "POST",
+          "bodyChars": 112,
+          "rawPhonePresent": false
+        }
+      ],
+      "externalRequests": [],
+      "consoleErrors": [],
+      "ignoredConsoleErrors": [
+        "Failed to load resource: net::ERR_BLOCKED_BY_CLIENT.Inspector",
+        "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+        "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+        "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+        "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+        "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+        "Failed to load resource: the server responded with a status of 401 (Unauthorized)"
+      ],
+      "screenshots": {
+        "before": "/Users/vambahsillah/.codex/worktrees/03ef/Portfolio/test-results/warm-sms-candidate-review-qa/source/mobile-390-before.png",
+        "after": "/Users/vambahsillah/.codex/worktrees/03ef/Portfolio/test-results/warm-sms-candidate-review-qa/source/mobile-390-after.png"
+      }
+    }
+  ],
+  "scenario": "Operator prepares a governed warm SMS candidate row from the existing warm outreach workroom.",
+  "expectedBehavior": "Candidate row state is visible, prepare action records/selects a draft queue artifact only, and live SMS remains gated.",
+  "decisionGate": "Specific candidate review and approval are still required before any future send path.",
+  "externalActionBoundary": {
+    "telnyxApiCalled": false,
+    "smsDeliveryEnabled": false,
+    "slackDispatchEnabled": false,
+    "gmailActionEnabled": false,
+    "n8nDispatchEnabled": false,
+    "rawPhoneReturned": false,
+    "rawMessageBodyReturned": false,
+    "externalRequests": []
+  },
+  "artifacts": {
+    "mp4": "/Users/vambahsillah/.codex/worktrees/03ef/Portfolio/docs/warm-outreach-qa/warm-sms-candidate-review-qa.mp4"
+  },
+  "status": "passed",
+  "failures": []
+}

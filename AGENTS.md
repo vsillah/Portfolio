@@ -109,6 +109,21 @@ Formal GitHub approval requires a reviewer account that is different from the PR
 
 When a distinct reviewer identity is not available, the integration captain should instead add a PR comment headed `Captain Review: PASS` or `Captain Review: REJECT` with the exact validation performed, then merge or return the PR based on that review. State in the handoff that no formal GitHub approval was possible because the available reviewer identity matched the author.
 
+## Portfolio UX Architecture Rule
+
+When developing Portfolio admin, agent-ops, content, outreach, review, or approval surfaces, default to compact, action-led UX architecture instead of static explanatory copy.
+
+- Put the primary decision, status, and next action near the top of the surface.
+- Use existing Portfolio table, list, card, stat-tile, filter, pagination, reject/revise/approve, locked-state, and mobile patterns before inventing a new interaction model.
+- Communicate state with concise headings, chips, one-line helper text, inline disabled reasons, and tooltips. Avoid paragraph-heavy panels that read like documentation.
+- Move long context, audit details, guardrails, provenance, examples, and source notes behind progressive disclosure such as details panels, tabs, drawers, pagination, or tooltips.
+- A review surface should answer five questions quickly: what is this, what changed, what is blocked, what can I do now, and what happens after I act.
+- On mobile, reduce vertical scan burden first. Prefer summary rows with drill-ins over repeated full-detail blocks.
+- If a metric tile, status chip, or control looks interactive, it should either perform the expected interaction or clearly present itself as non-interactive.
+- Design chips, pills, badges, and compact filters as resilient wrapping rows with intrinsic sizing, clear spacing, and stable line height. Long labels should truncate with a tooltip, move to secondary text, or wrap as a full row; they must not clip, overlap, bleed through neighboring labels, or compress adjacent text into narrow columns.
+- Validate responsive layout against the real content lane width, not only the browser viewport. Admin sidebars, drawers, QA evidence panels, and video side text reduce usable width and can expose layout defects that viewport-only checks miss.
+- During captain review, treat excessive static copy, unclear call-to-action placement, hidden recovery paths, repeated explanatory cards, non-actionable pseudo-controls, clipped pills, label bleed-through, line-height collisions, or evidence-recorder layout artifacts as UX defects that must be resolved before Human QA.
+
 ## Human QA Video Evidence Rule
 
 Whenever a Portfolio change reaches Vambah's human QA gate for changed product behavior, the captain handoff must include a short video walkthrough or equivalent screen-recorded test artifact showing the exact operator path being reviewed.
@@ -132,9 +147,23 @@ When a Portfolio preview, staging, or production-equivalent QA route redirects t
 - If the password manager, SSO, OTP, CAPTCHA, account checkpoint, or browser permission prompt requires Vambah's action, stop at that exact gate and give step-by-step instructions for completing it.
 - A successful preview login does not grant merge, deployment, provider activation, Gmail draft creation, external send, Slack action, or production-data mutation authority.
 
+## Telnyx QA Login Recovery Rule
+
+For Telnyx QA/setup, use the existing 1Password `Telnyx - AmaduTown` item and return to the exact Telnyx or Portfolio setup route after login.
+
+- This rule applies only to Telnyx setup, provider QA, account configuration, sender/profile verification, and Portfolio warm SMS provider review.
+- Do not store, quote, log, commit, or summarize the Telnyx password, TOTP seed, API key, recovery code, or other raw secret in the repo, memory, docs, PRs, comments, or chat.
+- If Telnyx requires OTP, CAPTCHA, new-device approval, billing confirmation, account upgrade, number purchase, API key creation, permission change, or another external side effect, stop at that gate and ask Vambah for action-time approval with the exact action and destination.
+- Successful Telnyx login does not grant authority to create API keys, change billing, buy numbers, assign recurring charges, enable Vercel execution flags, call Telnyx APIs, or send SMS.
+- After Telnyx login, return to the exact route, tab, profile, messaging settings page, or Portfolio warm SMS review URL that triggered the login.
+
 ## Human And Task-Thread Closeout Rule
 
 Merge and deployment success are not always the end of the lane. Keep implementation, review-helper, or smoke-test task threads visible when Vambah still needs to complete human QA or visible approval.
+
+When Vambah explicitly requests dedicated sidebar tasks or worktask lanes, use visible Codex tasks attached to Portfolio, with isolated worktrees for implementation. Internal subagents are not a substitute for that requested visibility. Confirm the resolved task IDs and titles, preserve any implementation checkpoint during handoff, and stop or archive superseded workers so only one lane owns each write scope. Keep the captain task responsible for active polling and integration.
+
+When the Integration Captain creates, resumes, or depends on a Codex worktree task, actively poll until the task is readable, completed, blocked, or clearly failed to materialize. Do not leave queued or running tasks untracked. Before replacing a stalled task, inspect existing tasks to avoid duplicate workers and stop or archive the superseded lane when it resolves.
 
 After code merges or captain sweep merges complete:
 

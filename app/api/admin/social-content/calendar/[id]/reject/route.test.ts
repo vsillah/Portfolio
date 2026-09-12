@@ -32,23 +32,20 @@ describe('/api/admin/social-content/calendar/[id]/reject', () => {
     mocks.isAuthError.mockReturnValue(false)
     mocks.rejectCalendarDraftHandoff.mockResolvedValue({
       calendarItem: { id: 'calendar-1', authorization_status: 'rejected' },
-      revisionWorkItemId: 'work-revision-1',
+      revisionWorkItemId: null,
     })
   })
 
-  it('requires a decision note', async () => {
+  it('allows rejection without optional feedback', async () => {
     const response = await POST(request({ decision_note: '   ' }) as never, {
       params: { id: 'calendar-1' },
     })
 
-    expect(response.status).toBe(400)
-    expect(await response.json()).toEqual({
-      error: 'Decision note is required when rejecting a calendar item',
-    })
-    expect(mocks.rejectCalendarDraftHandoff).not.toHaveBeenCalled()
+    expect(response.status).toBe(200)
+    expect(mocks.rejectCalendarDraftHandoff).toHaveBeenCalledWith(expect.objectContaining({ decisionNote: '' }))
   })
 
-  it('returns the item to Shaka for revision without external side effects', async () => {
+  it('persists rejection without claiming a revision worker or external side effect', async () => {
     const response = await POST(request({ decision_note: 'Needs stronger campaign proof.' }) as never, {
       params: { id: 'calendar-1' },
     })
@@ -61,9 +58,9 @@ describe('/api/admin/social-content/calendar/[id]/reject', () => {
     })
     expect(await response.json()).toMatchObject({
       ok: true,
-      revision_work_item_id: 'work-revision-1',
+      revision_work_item_id: null,
       side_effects: {
-        revision_work_item_created: true,
+        revision_work_item_created: false,
         publish: false,
         external_post: false,
       },

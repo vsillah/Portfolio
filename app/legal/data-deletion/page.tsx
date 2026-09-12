@@ -3,8 +3,8 @@ import Link from 'next/link'
 import Navigation from '@/components/Navigation'
 
 export const metadata: Metadata = {
-  title: 'Data Deletion | AmaduTown',
-  description: 'How to request deletion of AmaduTown social publishing provider data.',
+  title: 'Data Deletion | AmaduTown, LLC',
+  description: 'How to request deletion of AmaduTown, LLC social publishing provider data.',
 }
 
 export default function DataDeletionPage() {
@@ -14,11 +14,11 @@ export default function DataDeletionPage() {
       <section className="px-6 pt-28 pb-20 sm:px-10 lg:px-12">
         <div className="mx-auto max-w-3xl">
           <Link href="/" className="text-sm font-semibold uppercase tracking-[0.2em] text-radiant-gold">
-            AmaduTown
+            AmaduTown, LLC
           </Link>
           <h1 className="mt-6 text-4xl font-bold tracking-normal text-white">Data Deletion</h1>
           <p className="mt-4 text-lg leading-8 text-muted-foreground">
-            Use this process to request deletion of social-provider data connected to AmaduTown Portfolio workflows.
+            Use this process to request deletion of social-provider data connected to AmaduTown, LLC Portfolio workflows.
           </p>
           <p className="mt-3 text-sm text-muted-foreground">Last updated: August 6, 2026</p>
 

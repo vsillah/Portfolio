@@ -2,6 +2,8 @@ import { describe, it, expect } from 'vitest'
 import {
   PAIN_POINT_DEFAULT_METHODS,
   autoGenerateCalculation,
+  calculateROI,
+  calculateTimeSaved,
   determineConfidence,
   findBestBenchmark,
   normalizeCompanySize,
@@ -116,5 +118,33 @@ describe('value-calculations regression coverage', () => {
     expect(determineConfidence(5, true, true)).toBe('high')
     expect(determineConfidence(3, true, false)).toBe('medium')
     expect(determineConfidence(1, false, false)).toBe('low')
+  })
+
+  it('calculates time-saved annual value and a readable formula', () => {
+    const result = calculateTimeSaved({ hoursPerWeek: 5, hourlyRate: 40 })
+
+    expect(result.annualValue).toBe(10400)
+    expect(result.formulaReadable).toBe('5 hrs/week × $40/hr × 52 weeks')
+    expect(result.formulaInputs).toEqual({
+      hours_per_week: 5,
+      hourly_rate: 40,
+      weeks_per_year: 52,
+    })
+  })
+
+  it('formats ROI and payback from annual value versus offer price', () => {
+    const profitable = calculateROI(12000, 3000)
+    expect(profitable.roi).toBe(300)
+    expect(profitable.roiFormatted).toBe('300%')
+    expect(profitable.paybackMonths).toBe(3)
+    expect(profitable.paybackFormatted).toBe('3.0 months')
+    expect(profitable.netFirstYearValue).toBe(9000)
+
+    const subMonth = calculateROI(12000, 500)
+    expect(subMonth.paybackFormatted).toBe('15 days')
+
+    const zeroPrice = calculateROI(8000, 0)
+    expect(zeroPrice.roi).toBe(0)
+    expect(zeroPrice.netFirstYearValue).toBe(8000)
   })
 })

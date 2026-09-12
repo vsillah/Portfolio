@@ -128,7 +128,7 @@ async function resolveKickoffTemplate(
 // Token Population
 // ============================================================================
 
-function populateTokens(template: string, ctx: KickoffContext): string {
+export function populateKickoffTokens(template: string, ctx: KickoffContext): string {
   const startDate = ctx.project_start_date
     ? new Date(ctx.project_start_date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
     : 'TBD'
@@ -275,12 +275,12 @@ export async function generateKickoffAgenda(
   const agenda = {
     client_project_id: clientProjectId,
     template_id: template.id,
-    intro_script: populateTokens(template.intro_script, ctx),
-    problem_statement: populateTokens(template.problem_statement, ctx),
-    timeline_script: populateTokens(template.timeline_script, ctx),
-    availability_script: populateTokens(template.availability_script, ctx),
-    platform_signup_script: populateTokens(template.platform_signup_script, ctx),
-    wrapup_script: populateTokens(template.wrapup_script, ctx),
+    intro_script: populateKickoffTokens(template.intro_script, ctx),
+    problem_statement: populateKickoffTokens(template.problem_statement, ctx),
+    timeline_script: populateKickoffTokens(template.timeline_script, ctx),
+    availability_script: populateKickoffTokens(template.availability_script, ctx),
+    platform_signup_script: populateKickoffTokens(template.platform_signup_script, ctx),
+    wrapup_script: populateKickoffTokens(template.wrapup_script, ctx),
     estimated_duration_minutes: template.estimated_duration_minutes,
     status: 'draft' as const,
   }

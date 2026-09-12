@@ -1,0 +1,627 @@
+{
+  "route": "http://127.0.0.1:3027/admin/outreach?tab=leads&filter=warm&id=42&contactId=42&qa=warm-slack-send-approval#warm-sms-readiness",
+  "canaryApiRoute": "/api/admin/outreach/leads/42/sms-telnyx-no-send-canary",
+  "screenshots": [
+    {
+      "name": "mobile-360",
+      "viewport": {
+        "width": 360,
+        "height": 800
+      },
+      "colorScheme": "dark",
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/bf29/Portfolio/test-results/warm-sms-telnyx-no-send-canary-qa/source/warm-sms-telnyx-no-send-canary-mobile-360-dark.png",
+      "horizontalOverflow": false,
+      "unexpectedRequests": [],
+      "canaryRequests": [
+        {
+          "url": "http://127.0.0.1:3027/api/admin/outreach/leads/42/sms-telnyx-no-send-canary",
+          "method": "POST",
+          "authorizationPresent": true
+        }
+      ],
+      "hasExistingSurface": true,
+      "hasManualControls": true,
+      "hasCanaryButton": true,
+      "hasPassedResult": true,
+      "hasEnvSetup": true,
+      "hasProviderDisabled": true,
+      "hasLiveSmsUnavailable": true,
+      "hasPerRecipientSeparate": true,
+      "hasExternalRequestsZero": true,
+      "hasCanaryKey": true,
+      "hasDeliveryStoreReference": true,
+      "hasExecutionFlagDisabled": true,
+      "hasBoundary": true,
+      "clientWidth": 360,
+      "scrollWidth": 360,
+      "pageHeight": 17022,
+      "readinessHeight": 7152,
+      "canaryHeight": 1061,
+      "canaryWidth": 220
+    },
+    {
+      "name": "mobile-390",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "colorScheme": "dark",
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/bf29/Portfolio/test-results/warm-sms-telnyx-no-send-canary-qa/source/warm-sms-telnyx-no-send-canary-mobile-390-dark.png",
+      "horizontalOverflow": false,
+      "unexpectedRequests": [],
+      "canaryRequests": [
+        {
+          "url": "http://127.0.0.1:3027/api/admin/outreach/leads/42/sms-telnyx-no-send-canary",
+          "method": "POST",
+          "authorizationPresent": true
+        }
+      ],
+      "hasExistingSurface": true,
+      "hasManualControls": true,
+      "hasCanaryButton": true,
+      "hasPassedResult": true,
+      "hasEnvSetup": true,
+      "hasProviderDisabled": true,
+      "hasLiveSmsUnavailable": true,
+      "hasPerRecipientSeparate": true,
+      "hasExternalRequestsZero": true,
+      "hasCanaryKey": true,
+      "hasDeliveryStoreReference": true,
+      "hasExecutionFlagDisabled": true,
+      "hasBoundary": true,
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "pageHeight": 16030,
+      "readinessHeight": 6756,
+      "canaryHeight": 998,
+      "canaryWidth": 250
+    },
+    {
+      "name": "mobile-430",
+      "viewport": {
+        "width": 430,
+        "height": 932
+      },
+      "colorScheme": "dark",
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/bf29/Portfolio/test-results/warm-sms-telnyx-no-send-canary-qa/source/warm-sms-telnyx-no-send-canary-mobile-430-dark.png",
+      "horizontalOverflow": false,
+      "unexpectedRequests": [],
+      "canaryRequests": [
+        {
+          "url": "http://127.0.0.1:3027/api/admin/outreach/leads/42/sms-telnyx-no-send-canary",
+          "method": "POST",
+          "authorizationPresent": true
+        }
+      ],
+      "hasExistingSurface": true,
+      "hasManualControls": true,
+      "hasCanaryButton": true,
+      "hasPassedResult": true,
+      "hasEnvSetup": true,
+      "hasProviderDisabled": true,
+      "hasLiveSmsUnavailable": true,
+      "hasPerRecipientSeparate": true,
+      "hasExternalRequestsZero": true,
+      "hasCanaryKey": true,
+      "hasDeliveryStoreReference": true,
+      "hasExecutionFlagDisabled": true,
+      "hasBoundary": true,
+      "clientWidth": 430,
+      "scrollWidth": 430,
+      "pageHeight": 15104,
+      "readinessHeight": 6283,
+      "canaryHeight": 915,
+      "canaryWidth": 290
+    },
+    {
+      "name": "tablet-768",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "colorScheme": "dark",
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/bf29/Portfolio/test-results/warm-sms-telnyx-no-send-canary-qa/source/warm-sms-telnyx-no-send-canary-tablet-768-dark.png",
+      "horizontalOverflow": false,
+      "unexpectedRequests": [],
+      "canaryRequests": [
+        {
+          "url": "http://127.0.0.1:3027/api/admin/outreach/leads/42/sms-telnyx-no-send-canary",
+          "method": "POST",
+          "authorizationPresent": true
+        }
+      ],
+      "hasExistingSurface": true,
+      "hasManualControls": true,
+      "hasCanaryButton": true,
+      "hasPassedResult": true,
+      "hasEnvSetup": true,
+      "hasProviderDisabled": true,
+      "hasLiveSmsUnavailable": true,
+      "hasPerRecipientSeparate": true,
+      "hasExternalRequestsZero": true,
+      "hasCanaryKey": true,
+      "hasDeliveryStoreReference": true,
+      "hasExecutionFlagDisabled": true,
+      "hasBoundary": true,
+      "clientWidth": 768,
+      "scrollWidth": 768,
+      "pageHeight": 9743,
+      "readinessHeight": 3730,
+      "canaryHeight": 499,
+      "canaryWidth": 604
+    },
+    {
+      "name": "desktop-1440",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "colorScheme": "dark",
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/bf29/Portfolio/test-results/warm-sms-telnyx-no-send-canary-qa/source/warm-sms-telnyx-no-send-canary-desktop-1440-dark.png",
+      "horizontalOverflow": false,
+      "unexpectedRequests": [],
+      "canaryRequests": [
+        {
+          "url": "http://127.0.0.1:3027/api/admin/outreach/leads/42/sms-telnyx-no-send-canary",
+          "method": "POST",
+          "authorizationPresent": true
+        }
+      ],
+      "hasExistingSurface": true,
+      "hasManualControls": true,
+      "hasCanaryButton": true,
+      "hasPassedResult": true,
+      "hasEnvSetup": true,
+      "hasProviderDisabled": true,
+      "hasLiveSmsUnavailable": true,
+      "hasPerRecipientSeparate": true,
+      "hasExternalRequestsZero": true,
+      "hasCanaryKey": true,
+      "hasDeliveryStoreReference": true,
+      "hasExecutionFlagDisabled": true,
+      "hasBoundary": true,
+      "clientWidth": 1440,
+      "scrollWidth": 1440,
+      "pageHeight": 7236,
+      "readinessHeight": 2647,
+      "canaryHeight": 418,
+      "canaryWidth": 996
+    },
+    {
+      "name": "mobile-360",
+      "viewport": {
+        "width": 360,
+        "height": 800
+      },
+      "colorScheme": "light",
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/bf29/Portfolio/test-results/warm-sms-telnyx-no-send-canary-qa/source/warm-sms-telnyx-no-send-canary-mobile-360-light.png",
+      "horizontalOverflow": false,
+      "unexpectedRequests": [],
+      "canaryRequests": [
+        {
+          "url": "http://127.0.0.1:3027/api/admin/outreach/leads/42/sms-telnyx-no-send-canary",
+          "method": "POST",
+          "authorizationPresent": true
+        }
+      ],
+      "hasExistingSurface": true,
+      "hasManualControls": true,
+      "hasCanaryButton": true,
+      "hasPassedResult": true,
+      "hasEnvSetup": true,
+      "hasProviderDisabled": true,
+      "hasLiveSmsUnavailable": true,
+      "hasPerRecipientSeparate": true,
+      "hasExternalRequestsZero": true,
+      "hasCanaryKey": true,
+      "hasDeliveryStoreReference": true,
+      "hasExecutionFlagDisabled": true,
+      "hasBoundary": true,
+      "clientWidth": 360,
+      "scrollWidth": 360,
+      "pageHeight": 17022,
+      "readinessHeight": 7152,
+      "canaryHeight": 1061,
+      "canaryWidth": 220
+    },
+    {
+      "name": "mobile-390",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "colorScheme": "light",
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/bf29/Portfolio/test-results/warm-sms-telnyx-no-send-canary-qa/source/warm-sms-telnyx-no-send-canary-mobile-390-light.png",
+      "horizontalOverflow": false,
+      "unexpectedRequests": [],
+      "canaryRequests": [
+        {
+          "url": "http://127.0.0.1:3027/api/admin/outreach/leads/42/sms-telnyx-no-send-canary",
+          "method": "POST",
+          "authorizationPresent": true
+        }
+      ],
+      "hasExistingSurface": true,
+      "hasManualControls": true,
+      "hasCanaryButton": true,
+      "hasPassedResult": true,
+      "hasEnvSetup": true,
+      "hasProviderDisabled": true,
+      "hasLiveSmsUnavailable": true,
+      "hasPerRecipientSeparate": true,
+      "hasExternalRequestsZero": true,
+      "hasCanaryKey": true,
+      "hasDeliveryStoreReference": true,
+      "hasExecutionFlagDisabled": true,
+      "hasBoundary": true,
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "pageHeight": 16030,
+      "readinessHeight": 6756,
+      "canaryHeight": 998,
+      "canaryWidth": 250
+    },
+    {
+      "name": "mobile-430",
+      "viewport": {
+        "width": 430,
+        "height": 932
+      },
+      "colorScheme": "light",
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/bf29/Portfolio/test-results/warm-sms-telnyx-no-send-canary-qa/source/warm-sms-telnyx-no-send-canary-mobile-430-light.png",
+      "horizontalOverflow": false,
+      "unexpectedRequests": [],
+      "canaryRequests": [
+        {
+          "url": "http://127.0.0.1:3027/api/admin/outreach/leads/42/sms-telnyx-no-send-canary",
+          "method": "POST",
+          "authorizationPresent": true
+        }
+      ],
+      "hasExistingSurface": true,
+      "hasManualControls": true,
+      "hasCanaryButton": true,
+      "hasPassedResult": true,
+      "hasEnvSetup": true,
+      "hasProviderDisabled": true,
+      "hasLiveSmsUnavailable": true,
+      "hasPerRecipientSeparate": true,
+      "hasExternalRequestsZero": true,
+      "hasCanaryKey": true,
+      "hasDeliveryStoreReference": true,
+      "hasExecutionFlagDisabled": true,
+      "hasBoundary": true,
+      "clientWidth": 430,
+      "scrollWidth": 430,
+      "pageHeight": 15104,
+      "readinessHeight": 6283,
+      "canaryHeight": 915,
+      "canaryWidth": 290
+    },
+    {
+      "name": "tablet-768",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "colorScheme": "light",
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/bf29/Portfolio/test-results/warm-sms-telnyx-no-send-canary-qa/source/warm-sms-telnyx-no-send-canary-tablet-768-light.png",
+      "horizontalOverflow": false,
+      "unexpectedRequests": [],
+      "canaryRequests": [
+        {
+          "url": "http://127.0.0.1:3027/api/admin/outreach/leads/42/sms-telnyx-no-send-canary",
+          "method": "POST",
+          "authorizationPresent": true
+        }
+      ],
+      "hasExistingSurface": true,
+      "hasManualControls": true,
+      "hasCanaryButton": true,
+      "hasPassedResult": true,
+      "hasEnvSetup": true,
+      "hasProviderDisabled": true,
+      "hasLiveSmsUnavailable": true,
+      "hasPerRecipientSeparate": true,
+      "hasExternalRequestsZero": true,
+      "hasCanaryKey": true,
+      "hasDeliveryStoreReference": true,
+      "hasExecutionFlagDisabled": true,
+      "hasBoundary": true,
+      "clientWidth": 768,
+      "scrollWidth": 768,
+      "pageHeight": 9743,
+      "readinessHeight": 3730,
+      "canaryHeight": 499,
+      "canaryWidth": 604
+    },
+    {
+      "name": "desktop-1440",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "colorScheme": "light",
+      "screenshotPath": "/Users/vambahsillah/.codex/worktrees/bf29/Portfolio/test-results/warm-sms-telnyx-no-send-canary-qa/source/warm-sms-telnyx-no-send-canary-desktop-1440-light.png",
+      "horizontalOverflow": false,
+      "unexpectedRequests": [],
+      "canaryRequests": [
+        {
+          "url": "http://127.0.0.1:3027/api/admin/outreach/leads/42/sms-telnyx-no-send-canary",
+          "method": "POST",
+          "authorizationPresent": true
+        }
+      ],
+      "hasExistingSurface": true,
+      "hasManualControls": true,
+      "hasCanaryButton": true,
+      "hasPassedResult": true,
+      "hasEnvSetup": true,
+      "hasProviderDisabled": true,
+      "hasLiveSmsUnavailable": true,
+      "hasPerRecipientSeparate": true,
+      "hasExternalRequestsZero": true,
+      "hasCanaryKey": true,
+      "hasDeliveryStoreReference": true,
+      "hasExecutionFlagDisabled": true,
+      "hasBoundary": true,
+      "clientWidth": 1440,
+      "scrollWidth": 1440,
+      "pageHeight": 7236,
+      "readinessHeight": 2647,
+      "canaryHeight": 418,
+      "canaryWidth": 996
+    }
+  ],
+  "sourceFrames": [
+    "/Users/vambahsillah/.codex/worktrees/bf29/Portfolio/test-results/warm-sms-telnyx-no-send-canary-qa/source/01-existing-surface.png",
+    "/Users/vambahsillah/.codex/worktrees/bf29/Portfolio/test-results/warm-sms-telnyx-no-send-canary-qa/source/02-no-send-result.png",
+    "/Users/vambahsillah/.codex/worktrees/bf29/Portfolio/test-results/warm-sms-telnyx-no-send-canary-qa/source/03-manual-controls-separated.png"
+  ],
+  "compositeFrames": [
+    "/Users/vambahsillah/.codex/worktrees/bf29/Portfolio/test-results/warm-sms-telnyx-no-send-canary-qa/composite/frame-01.png",
+    "/Users/vambahsillah/.codex/worktrees/bf29/Portfolio/test-results/warm-sms-telnyx-no-send-canary-qa/composite/frame-02.png",
+    "/Users/vambahsillah/.codex/worktrees/bf29/Portfolio/test-results/warm-sms-telnyx-no-send-canary-qa/composite/frame-03.png"
+  ],
+  "mp4Path": "/Users/vambahsillah/.codex/worktrees/bf29/Portfolio/docs/warm-outreach-qa/warm-sms-telnyx-no-send-canary-qa.mp4",
+  "externalRequests": [],
+  "canaryRequests": [
+    {
+      "url": "http://127.0.0.1:3027/api/admin/outreach/leads/42/sms-telnyx-no-send-canary",
+      "method": "POST",
+      "authorizationPresent": true
+    },
+    {
+      "url": "http://127.0.0.1:3027/api/admin/outreach/leads/42/sms-telnyx-no-send-canary",
+      "method": "POST",
+      "authorizationPresent": true
+    },
+    {
+      "url": "http://127.0.0.1:3027/api/admin/outreach/leads/42/sms-telnyx-no-send-canary",
+      "method": "POST",
+      "authorizationPresent": true
+    },
+    {
+      "url": "http://127.0.0.1:3027/api/admin/outreach/leads/42/sms-telnyx-no-send-canary",
+      "method": "POST",
+      "authorizationPresent": true
+    },
+    {
+      "url": "http://127.0.0.1:3027/api/admin/outreach/leads/42/sms-telnyx-no-send-canary",
+      "method": "POST",
+      "authorizationPresent": true
+    },
+    {
+      "url": "http://127.0.0.1:3027/api/admin/outreach/leads/42/sms-telnyx-no-send-canary",
+      "method": "POST",
+      "authorizationPresent": true
+    },
+    {
+      "url": "http://127.0.0.1:3027/api/admin/outreach/leads/42/sms-telnyx-no-send-canary",
+      "method": "POST",
+      "authorizationPresent": true
+    },
+    {
+      "url": "http://127.0.0.1:3027/api/admin/outreach/leads/42/sms-telnyx-no-send-canary",
+      "method": "POST",
+      "authorizationPresent": true
+    },
+    {
+      "url": "http://127.0.0.1:3027/api/admin/outreach/leads/42/sms-telnyx-no-send-canary",
+      "method": "POST",
+      "authorizationPresent": true
+    },
+    {
+      "url": "http://127.0.0.1:3027/api/admin/outreach/leads/42/sms-telnyx-no-send-canary",
+      "method": "POST",
+      "authorizationPresent": true
+    },
+    {
+      "url": "http://127.0.0.1:3027/api/admin/outreach/leads/42/sms-telnyx-no-send-canary",
+      "method": "POST",
+      "authorizationPresent": true
+    },
+    {
+      "url": "http://127.0.0.1:3027/api/admin/outreach/leads/42/sms-telnyx-no-send-canary",
+      "method": "POST",
+      "authorizationPresent": true
+    },
+    {
+      "url": "http://127.0.0.1:3027/api/admin/outreach/leads/42/sms-telnyx-no-send-canary",
+      "method": "POST",
+      "authorizationPresent": true
+    }
+  ],
+  "canaryResult": {
+    "version": "warm-outreach-sms-telnyx-no-send-canary/v1",
+    "status": "passed_no_send",
+    "message": "No-send Telnyx SMS canary passed. No Telnyx API call ran, no SMS was sent, and provider activation remains disabled.",
+    "contactId": "42",
+    "provider": {
+      "expectedProvider": "telnyx_messaging",
+      "selectedProvider": {
+        "key": "telnyx_messaging",
+        "label": "Telnyx Messaging",
+        "configured": true,
+        "enabled": false,
+        "rawValueReturned": false
+      },
+      "selectedProviderVerified": true,
+      "rawAdapterReturned": false
+    },
+    "noSendCanary": true,
+    "externalRequests": [],
+    "providerCallsEnabled": false,
+    "smsDeliveryEnabled": false,
+    "providerActivationEnabled": false,
+    "featureFlagEnabled": false,
+    "smsDeliveryEnabledReason": "No-send canary only; live SMS requires later activation and per-recipient approval.",
+    "readiness": {
+      "envSetupPresent": true,
+      "selectedProviderAdapter": "passed",
+      "disabledExecutionFlag": "passed",
+      "consentSuppressionPrerequisites": "passed",
+      "messageVersion": "passed",
+      "idempotencyNamespace": "passed",
+      "auditKey": "passed",
+      "credentialReference": "passed",
+      "senderReference": "passed",
+      "deliveryCallbackReference": "passed",
+      "optOutCallbackReference": "passed",
+      "deliveryConfirmationStore": "passed",
+      "providerCapabilityEvidence": "passed",
+      "liveSmsUnavailable": true,
+      "providerActivationStillDisabled": true,
+      "perRecipientSendStillSeparate": true
+    },
+    "redactedReferences": [
+      {
+        "key": "SMS_PROVIDER_ADAPTER",
+        "label": "SMS provider adapter",
+        "status": "present_redacted",
+        "rawValueReturned": false
+      },
+      {
+        "key": "SMS_PROVIDER_CREDENTIAL_REFERENCE",
+        "label": "Telnyx credential reference",
+        "status": "present_redacted",
+        "rawValueReturned": false
+      },
+      {
+        "key": "SMS_PROVIDER_SENDER_REFERENCE",
+        "label": "Telnyx sender reference",
+        "status": "present_redacted",
+        "rawValueReturned": false
+      },
+      {
+        "key": "SMS_PROVIDER_DELIVERY_CALLBACK",
+        "label": "Delivery callback reference",
+        "status": "present_redacted",
+        "rawValueReturned": false
+      },
+      {
+        "key": "SMS_PROVIDER_OPT_OUT_CALLBACK",
+        "label": "Opt-out callback reference",
+        "status": "present_redacted",
+        "rawValueReturned": false
+      },
+      {
+        "key": "WARM_SMS_MESSAGE_VERSION_KEY",
+        "label": "Message version key",
+        "status": "present_redacted",
+        "rawValueReturned": false
+      },
+      {
+        "key": "WARM_SMS_IDEMPOTENCY_NAMESPACE",
+        "label": "Idempotency namespace",
+        "status": "present_redacted",
+        "rawValueReturned": false
+      },
+      {
+        "key": "WARM_SMS_AUDIT_KEY",
+        "label": "Audit key",
+        "status": "present_redacted",
+        "rawValueReturned": false
+      },
+      {
+        "key": "WARM_SMS_DELIVERY_CONFIRMATION_STORE",
+        "label": "Delivery confirmation store",
+        "status": "present_redacted",
+        "rawValueReturned": false
+      },
+      {
+        "key": "ENABLE_WARM_SMS_PROVIDER_EXECUTION",
+        "label": "Provider execution flag",
+        "status": "disabled_verified",
+        "rawValueReturned": false
+      }
+    ],
+    "idempotency": {
+      "namespace": "warm-sms-send:v1",
+      "messageVersionKey": "warm-sms-message:v1",
+      "auditKey": "warm-sms-audit:v1",
+      "canaryIdempotencyKey": "warm-sms-send:v1:canary:no-send:qa-stable-42",
+      "auditEvidenceKey": "warm-sms-audit:v1:no-send-canary:qa-stable-42",
+      "duplicatePolicy": "return_existing_no_send_evidence_without_provider_call",
+      "stableResult": true
+    },
+    "deliveryConfirmation": {
+      "storeMapped": true,
+      "status": "placeholder_only",
+      "providerMessageId": null,
+      "deliveryStatus": null
+    },
+    "blockedReasons": [],
+    "executionBoundary": {
+      "localRowsOnly": true,
+      "noSendAuditOnly": true,
+      "providerCallsEnabled": false,
+      "smsDeliveryEnabled": false,
+      "providerActivationEnabled": false,
+      "featureFlagEnabled": false,
+      "telnyxApiCalled": false,
+      "rawCredentialsReturned": false,
+      "rawPhoneReturned": false,
+      "rawMessageBodyReturned": false,
+      "credentialsRead": false,
+      "secretManagerMutated": false,
+      "environmentVariablesChanged": false,
+      "databaseWritesEnabled": false,
+      "slackDispatchEnabled": false,
+      "gmailActionEnabled": false,
+      "n8nDispatchEnabled": false,
+      "externalRequests": []
+    }
+  },
+  "networkPolicy": {
+    "allNonLocalRequestsBlockedBeforeDispatch": true,
+    "providerHostsBlocked": [
+      "telnyx.com",
+      "twilio.com",
+      "messagebird.com",
+      "slack.com",
+      "gmail.com",
+      "googleapis.com",
+      "n8n"
+    ],
+    "internalNoSendCanaryResponseOnly": true
+  },
+  "boundaries": {
+    "existingCanonicalSurfaceOnly": true,
+    "providerCallsEnabled": false,
+    "smsDeliveryEnabled": false,
+    "providerActivationEnabled": false,
+    "featureFlagEnabled": false,
+    "telnyxApiCalled": false,
+    "rawCredentialsReturned": false,
+    "rawPhoneReturned": false,
+    "rawMessageBodyReturned": false,
+    "slackDispatchEnabled": false,
+    "gmailActionEnabled": false,
+    "n8nDispatchEnabled": false,
+    "productionDataMutation": false,
+    "enableWarmSmsProviderExecution": false,
+    "liveSmsUnavailable": true,
+    "perRecipientSendStillSeparate": true
+  }
+}

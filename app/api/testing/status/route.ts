@@ -5,16 +5,20 @@
 export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { requireTestingAdmin } from '@/lib/testing/access'
+import { getTestingSupabaseClient } from '@/lib/testing/database'
 import { effectiveTestRunStatus } from '@/lib/testing/effective-run-status'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
 
 export async function GET(request: NextRequest) {
   try {
+    const denied = await requireTestingAdmin(request)
+    if (denied) return denied
+
+    const supabase = getTestingSupabaseClient()
+    if (!supabase) {
+      return NextResponse.json({ error: 'Testing database is not configured' }, { status: 503 })
+    }
+
     const { searchParams } = new URL(request.url)
     const runId = searchParams.get('runId')
     

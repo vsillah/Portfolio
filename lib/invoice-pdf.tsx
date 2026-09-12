@@ -4,6 +4,7 @@
  */
 
 import React from 'react'
+import { WEBSITE_BRAND_NAME, WEBSITE_COMPANY_NAME } from './website-brand'
 import {
   Document,
   Page,
@@ -17,8 +18,8 @@ import {
 // ATAS brand colors (from logo: gold and dark blue)
 const ATAS_DARK_BLUE = '#1a2d4a'
 const ATAS_GOLD = '#C9A227'
-// Non-breaking space (\u00A0) keeps "Solutions" from breaking onto the next line
-const COMPANY_FULL_NAME = 'Amadutown Advisory\u00A0Solutions'
+// Two intentional header lines keep the legal name readable beside the logo.
+const COMPANY_FULL_NAME = WEBSITE_COMPANY_NAME.replace('AmaduTown ', 'AmaduTown\n')
 const TAGLINE = 'We Rise Together'
 
 // ============================================================================
@@ -57,7 +58,7 @@ export interface InvoicePDFData {
   order_items: InvoicePDFOrderItem[]
 }
 
-const VENDOR_NAME = 'Amadutown'
+const VENDOR_NAME = WEBSITE_BRAND_NAME
 
 // ============================================================================
 // Styles

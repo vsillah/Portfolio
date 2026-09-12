@@ -1,0 +1,40 @@
+{
+  "generatedAt": "2026-09-01T14:18:16.120Z",
+  "baseUrl": "http://127.0.0.1:3127",
+  "data": "synthetic Portfolio admin QA fixtures",
+  "routes": [
+    "/admin/social-content?workflow=review",
+    "/admin/outreach/dashboard",
+    "/admin/social-content/engagement-inbox?status=lead"
+  ],
+  "externalRequests": [],
+  "suppressedExternalScripts": [
+    "https://va.vercel-scripts.com/v1/speed-insights/script.debug.js"
+  ],
+  "videos": [
+    {
+      "path": "docs/qa/stat-tile-parity-sweep/social-content-metric-filters-desktop.mp4",
+      "durationSeconds": 2.96
+    },
+    {
+      "path": "docs/qa/stat-tile-parity-sweep/social-content-metric-filters-mobile.mp4",
+      "durationSeconds": 2.28
+    },
+    {
+      "path": "docs/qa/stat-tile-parity-sweep/outreach-dashboard-funnel-parity-desktop.mp4",
+      "durationSeconds": 2.6
+    },
+    {
+      "path": "docs/qa/stat-tile-parity-sweep/outreach-dashboard-funnel-parity-mobile.mp4",
+      "durationSeconds": 2.56
+    },
+    {
+      "path": "docs/qa/stat-tile-parity-sweep/engagement-inbox-status-metric-parity-desktop.mp4",
+      "durationSeconds": 2.56
+    },
+    {
+      "path": "docs/qa/stat-tile-parity-sweep/engagement-inbox-status-metric-parity-mobile.mp4",
+      "durationSeconds": 2.56
+    }
+  ]
+}

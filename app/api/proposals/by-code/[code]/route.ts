@@ -1,6 +1,7 @@
 // API Route: Get Proposal by Access Code
 // GET - Public: resolve access code to proposal (same shape as GET /api/proposals/[id])
 
+import { proposalDocumentReadback, isUnissuedBoundProposal } from '@/lib/proposal-document-binding';
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
 import { projectForClient, type FeasibilityAssessment } from '@/lib/implementation-feasibility';
@@ -29,6 +30,8 @@ export async function GET(
     if (error || !proposal) {
       return NextResponse.json({ error: 'Proposal not found' }, { status: 404 });
     }
+
+    if (isUnissuedBoundProposal(proposal)) return NextResponse.json({error:'Proposal not found'}, {status:404});
 
     // Mark as viewed if first time
     if (!proposal.viewed_at) {
@@ -106,7 +109,7 @@ export async function GET(
     void _stripped;
 
     return NextResponse.json({
-      proposal: { ...proposalForClient, feasibility_view: feasibilityView },
+      proposal: { ...await proposalDocumentReadback(proposalForClient as typeof proposal), feasibility_view: feasibilityView },
       canAccept,
       canPay,
       isExpired,

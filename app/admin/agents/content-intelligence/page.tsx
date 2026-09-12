@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { type FormEvent, type ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
+import { type FormEvent, type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   ArrowUpDown,
   BarChart3,
@@ -361,6 +361,34 @@ const TABLE_PAGE_SIZE = 6
 const TEMPLATE_PAGE_SIZE = 1
 const CALENDAR_PAGE_SIZE = 8
 const AUTORESEARCH_BACKLOG_PAGE_SIZE = 1
+
+function currentUrlSearchParams() {
+  if (typeof window === 'undefined') return new URLSearchParams()
+  return new URLSearchParams(window.location.search)
+}
+
+function initialActiveSection(): IntelligenceSection {
+  const section = currentUrlSearchParams().get('section') as IntelligenceSection | null
+  if (section && SECTION_TABS.some((candidate) => candidate.key === section)) return section
+  if (currentUrlSearchParams().get('calendar_item')) return 'calendar'
+  return 'calendar'
+}
+
+function initialFocusedCalendarItemId() {
+  return currentUrlSearchParams().get('calendar_item') || null
+}
+
+const SOCIAL_CONTENT_APPROVAL_STEP_FRAGMENTS = {
+  copy: 'social-copy-gate',
+  visuals: 'social-visual-assets-gate',
+  draft: 'social-draft-approval-gate',
+  submit: 'social-platform-submission-gate',
+  status: 'social-publication-status-gate',
+} as const
+
+function socialContentGateHref(id: string, step: keyof typeof SOCIAL_CONTENT_APPROVAL_STEP_FRAGMENTS = 'copy') {
+  return `/admin/social-content/${id}?step=${step}#${SOCIAL_CONTENT_APPROVAL_STEP_FRAGMENTS[step]}`
+}
 
 function stringValue(value: unknown) {
   return typeof value === 'string' && value.trim() ? value.trim() : null
@@ -885,6 +913,7 @@ export default function ContentIntelligencePage() {
 }
 
 function ContentIntelligenceContent() {
+  const calendarItemRefs = useRef<Record<string, HTMLElement | null>>({})
   const [packets, setPackets] = useState<ResearchPacket[]>([])
   const [insights, setInsights] = useState<AgentWorkItem[]>([])
   const [calendarItems, setCalendarItems] = useState<CalendarItem[]>([])
@@ -929,7 +958,9 @@ function ContentIntelligenceContent() {
   const [calendarDecisionNotes, setCalendarDecisionNotes] = useState<Record<string, string>>({})
   const [editingCalendarItemId, setEditingCalendarItemId] = useState<string | null>(null)
   const [calendarEditForms, setCalendarEditForms] = useState<Record<string, CalendarForm>>({})
-  const [activeSection, setActiveSection] = useState<IntelligenceSection>('calendar')
+  const [activeSection, setActiveSection] = useState<IntelligenceSection>(() => initialActiveSection())
+  const [focusedCalendarItemId, setFocusedCalendarItemId] = useState<string | null>(() => initialFocusedCalendarItemId())
+  const [calendarFocusRecovery, setCalendarFocusRecovery] = useState<string | null>(null)
   const [expandedPanels, setExpandedPanels] = useState<Record<string, boolean>>({
     templateLibrary: false,
     calendarPlanner: false,
@@ -1140,6 +1171,7 @@ function ContentIntelligenceContent() {
   const filteredCalendarItems = useMemo(() => {
     const search = normalizeSearch(calendarContentSearch)
     return calendarItems.filter((item) => {
+      if (focusedCalendarItemId && item.id === focusedCalendarItemId) return true
       if (calendarCampaignFilter && item.campaign_id !== calendarCampaignFilter) return false
       if (calendarChannelFilter && item.channel !== calendarChannelFilter) return false
       if (calendarPhaseFilter && item.campaign_phase !== calendarPhaseFilter) return false
@@ -1150,6 +1182,8 @@ function ContentIntelligenceContent() {
         const sourceLabels = metadataStringArray(metadata.source_labels)
         const searchableValues = [
           item.title,
+          item.id,
+          item.social_content_id,
           item.planned_angle,
           item.agent_work_items?.title,
           item.social_content_queue?.id,
@@ -1175,6 +1209,7 @@ function ContentIntelligenceContent() {
     calendarChannelFilter,
     calendarItems,
     calendarPhaseFilter,
+    focusedCalendarItemId,
   ])
 
   const pagedCalendarItems = useMemo(() => {
@@ -1183,6 +1218,38 @@ function ContentIntelligenceContent() {
   }, [calendarPage, filteredCalendarItems])
 
   const calendarTotalPages = Math.max(1, Math.ceil(filteredCalendarItems.length / CALENDAR_PAGE_SIZE))
+
+  useEffect(() => {
+    if (!focusedCalendarItemId) {
+      setCalendarFocusRecovery(null)
+      return
+    }
+    if (!calendarItems.length) return
+
+    const focusedIndex = filteredCalendarItems.findIndex((item) => item.id === focusedCalendarItemId)
+    if (focusedIndex === -1) {
+      setCalendarFocusRecovery(`Calendar row ${focusedCalendarItemId} is not present in this environment.`)
+      return
+    }
+
+    setCalendarFocusRecovery(null)
+    setActiveSection('calendar')
+    const page = Math.floor(focusedIndex / CALENDAR_PAGE_SIZE) + 1
+    if (calendarPage !== page) setCalendarPage(page)
+  }, [calendarItems, calendarPage, filteredCalendarItems, focusedCalendarItemId])
+
+  useEffect(() => {
+    if (!focusedCalendarItemId || activeSection !== 'calendar') return
+    if (!pagedCalendarItems.some((item) => item.id === focusedCalendarItemId)) return
+
+    const element = calendarItemRefs.current[focusedCalendarItemId]
+    if (!element) return
+
+    window.requestAnimationFrame(() => {
+      element.scrollIntoView({ block: 'center', behavior: 'smooth' })
+      element.focus({ preventScroll: true })
+    })
+  }, [activeSection, focusedCalendarItemId, pagedCalendarItems])
 
   useEffect(() => {
     setCalendarPage(1)
@@ -2213,7 +2280,36 @@ function ContentIntelligenceContent() {
             />
           </div>
 
-          <div className="overflow-hidden rounded-lg border border-silicon-slate/70 bg-silicon-slate/20">
+          {focusedCalendarItemId ? (
+            <div className={`mb-4 rounded-lg border p-3 text-sm leading-6 ${
+              calendarFocusRecovery
+                ? 'border-amber-500/35 bg-amber-500/10 text-amber-50'
+                : 'border-blue-500/35 bg-blue-500/10 text-blue-50'
+            }`}>
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold uppercase tracking-wide">
+                    {calendarFocusRecovery ? 'Linked calendar row unavailable' : 'Linked calendar row focused'}
+                  </p>
+                  <p className="mt-1 break-words">
+                    {calendarFocusRecovery ?? `Opened from a Slack approval reminder for ${focusedCalendarItemId}. Review the expanded row below and use the visible authorize or reject action.`}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFocusedCalendarItemId(null)
+                    setCalendarFocusRecovery(null)
+                  }}
+                  className="inline-flex min-h-9 shrink-0 items-center justify-center rounded-md border border-current/30 px-3 py-1.5 text-xs font-semibold transition hover:bg-white/10"
+                >
+                  Clear focus
+                </button>
+              </div>
+            </div>
+          ) : null}
+
+          <div id="content-calendar-gate" className="scroll-mt-28 overflow-hidden rounded-lg border border-silicon-slate/70 bg-silicon-slate/20">
             <div className="hidden border-b border-silicon-slate/70 bg-background/35 px-3 py-3 text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground md:grid md:grid-cols-[10rem_minmax(0,1fr)_12rem_9rem_9rem_14rem] md:gap-3">
               <span>Release</span>
               <span>Content</span>
@@ -2232,7 +2328,11 @@ function ContentIntelligenceContent() {
                   decisionNote={calendarDecisionNotes[item.id] ?? ''}
                   editForm={calendarEditForms[item.id] ?? null}
                   isEditing={editingCalendarItemId === item.id}
+                  isFocused={focusedCalendarItemId === item.id}
                   campaigns={campaigns}
+                  registerRowRef={(element) => {
+                    calendarItemRefs.current[item.id] = element
+                  }}
                   onAuthorize={authorizeCalendarItem}
                   onBeginEdit={beginEditCalendarItem}
                   onCancelEdit={cancelEditCalendarItem}
@@ -3973,7 +4073,9 @@ type CalendarItemRowProps = {
   decisionNote: string
   editForm: CalendarForm | null
   isEditing: boolean
+  isFocused: boolean
   campaigns: CampaignOption[]
+  registerRowRef: (element: HTMLElement | null) => void
   onAuthorize: (item: CalendarItem) => void
   onBeginEdit: (item: CalendarItem) => void
   onCancelEdit: (id: string) => void
@@ -3990,6 +4092,8 @@ function CalendarItemQueueRow(props: CalendarItemRowProps) {
     actionItemId,
     rejectingItemId,
     isEditing,
+    isFocused,
+    registerRowRef,
     onAuthorize,
     onBeginEdit,
     onBeginReject,
@@ -4012,20 +4116,35 @@ function CalendarItemQueueRow(props: CalendarItemRowProps) {
   const isPending = item.authorization_status === 'pending'
   const isRejected = item.authorization_status === 'rejected'
   const isBusy = actionItemId === item.id
-  const showExpandedWorkflow = isEditing || rejectingItemId === item.id
+  const showExpandedWorkflow = isEditing || rejectingItemId === item.id || isFocused
   const gateSummary = calendarApprovalGateSummary(item)
   const timing = calendarTimingState(item)
+  const rowLabel = isFocused ? `Focused calendar row ${item.title}` : `Calendar row ${item.title}`
 
   if (showExpandedWorkflow) {
     return (
-      <div className="bg-background/20 px-3 py-3">
+      <div
+        ref={registerRowRef}
+        tabIndex={isFocused ? -1 : undefined}
+        aria-label={rowLabel}
+        className={`bg-background/20 px-3 py-3 outline-none ${
+          isFocused ? 'border-l-4 border-amber-400 ring-2 ring-amber-300/60 ring-inset' : ''
+        }`}
+      >
         <CalendarItemCard {...props} />
       </div>
     )
   }
 
   return (
-    <div className="grid gap-4 px-3 py-4 transition hover:bg-background/30 md:grid-cols-[10rem_minmax(0,1fr)_12rem_9rem_9rem_14rem] md:gap-3">
+    <div
+      ref={registerRowRef}
+      tabIndex={isFocused ? -1 : undefined}
+      aria-label={rowLabel}
+      className={`grid gap-4 px-3 py-4 outline-none transition hover:bg-background/30 md:grid-cols-[10rem_minmax(0,1fr)_12rem_9rem_9rem_14rem] md:gap-3 ${
+        isFocused ? 'border-l-4 border-amber-400 ring-2 ring-amber-300/60 ring-inset' : ''
+      }`}
+    >
       <div>
         <p className="mb-1 text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground md:hidden">Release</p>
         <p className="font-semibold text-foreground">{formatCalendarDate(item.scheduled_for)}</p>
@@ -4094,7 +4213,7 @@ function CalendarItemQueueRow(props: CalendarItemRowProps) {
         <div className="flex flex-col gap-2">
           {socialContentId ? (
             <Link
-              href={`/admin/social-content/${socialContentId}`}
+              href={socialContentGateHref(socialContentId, gateSummary.deepLinkStep)}
               className="inline-flex min-h-8 items-center justify-center rounded-md border border-silicon-slate/70 px-3 py-1.5 text-xs font-semibold text-muted-foreground transition hover:border-white/30 hover:text-foreground"
             >
               Details
@@ -4107,7 +4226,7 @@ function CalendarItemQueueRow(props: CalendarItemRowProps) {
               Handoff
             </Link>
           ) : null}
-          {isPending || isRejected ? (
+          {isPending ? (
             <div className="grid gap-2">
               <button
                 type="button"
@@ -4135,6 +4254,21 @@ function CalendarItemQueueRow(props: CalendarItemRowProps) {
               >
                 <XCircle className="h-3.5 w-3.5" />
                 Reject
+              </button>
+            </div>
+          ) : isRejected ? (
+            <div className="grid gap-2 rounded-md border border-red-500/25 bg-red-500/10 p-2">
+              <p className="text-[0.68rem] leading-5 text-red-100/85">
+                Rejected rows stay locked until the calendar item is revised.
+              </p>
+              <button
+                type="button"
+                onClick={() => onBeginEdit(item)}
+                disabled={isBusy}
+                className="inline-flex min-h-8 items-center justify-center gap-2 rounded-md border border-blue-500/40 bg-blue-500/10 px-3 py-1.5 text-xs font-semibold text-blue-100 transition hover:bg-blue-500/20 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                <Pencil className="h-3.5 w-3.5" />
+                Edit and Return to Review
               </button>
             </div>
           ) : null}
@@ -4182,11 +4316,14 @@ function CalendarItemCard({
     ?? (typeof platformDraftHandoff.social_content_id === 'string' ? platformDraftHandoff.social_content_id : null)
   const isPending = item.authorization_status === 'pending'
   const isRejected = item.authorization_status === 'rejected'
-  const showRejectNote = rejectingItemId === item.id || isRejected
+  const showRejectNote = rejectingItemId === item.id && isPending
   const isBusy = actionItemId === item.id
   const canEdit = isPending || isRejected
   const gateSummary = calendarApprovalGateSummary(item)
   const timing = calendarTimingState(item)
+  const rejectedDecisionNote = typeof metadata.authorization_decision_note === 'string'
+    ? metadata.authorization_decision_note.trim()
+    : ''
   return (
     <div className="rounded-md border border-silicon-slate/60 bg-background/35 p-3">
       {isEditing && editForm ? (
@@ -4388,7 +4525,7 @@ function CalendarItemCard({
           </Link>
         ) : null}
         {item.social_content_id ? (
-          <Link href={`/admin/social-content/${item.social_content_id}`} className="text-blue-200 hover:text-blue-100">
+          <Link href={socialContentGateHref(item.social_content_id, gateSummary.deepLinkStep)} className="text-blue-200 hover:text-blue-100">
             Draft
           </Link>
         ) : null}
@@ -4398,7 +4535,7 @@ function CalendarItemCard({
           </Link>
         ) : null}
         {!item.social_content_id && socialContentId ? (
-          <Link href={`/admin/social-content/${socialContentId}`} className="text-blue-200 hover:text-blue-100">
+          <Link href={socialContentGateHref(socialContentId, gateSummary.deepLinkStep)} className="text-blue-200 hover:text-blue-100">
             Draft
           </Link>
         ) : null}
@@ -4416,6 +4553,24 @@ function CalendarItemCard({
           />
         </label>
       ) : null}
+      {!isEditing && isRejected ? (
+        <div className="mt-3 rounded-md border border-red-500/30 bg-red-500/10 p-3">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <p className="text-xs font-semibold text-red-100">Calendar authorization rejected</p>
+            <span className="rounded-full border border-red-300/30 px-2 py-0.5 text-[0.68rem] font-semibold text-red-100">
+              Rejected
+            </span>
+          </div>
+          {rejectedDecisionNote ? (
+            <p className="mt-2 text-[0.68rem] leading-5 text-red-100/85">
+              Decision note: {rejectedDecisionNote}
+            </p>
+          ) : null}
+          <p className="mt-2 text-[0.68rem] leading-5 text-red-100/85">
+            Authorize and repeat reject are locked until edits are saved and this item returns to pending review.
+          </p>
+        </div>
+      ) : null}
       {isPending || isRejected ? (
         <div className="mt-3 flex flex-col gap-2 sm:flex-row">
           {canEdit && !isEditing ? (
@@ -4426,27 +4581,31 @@ function CalendarItemCard({
               className="inline-flex min-h-9 flex-1 items-center justify-center gap-2 rounded-md border border-blue-500/40 bg-blue-500/10 px-3 py-2 text-xs font-semibold text-blue-100 transition hover:bg-blue-500/20 disabled:cursor-not-allowed disabled:opacity-60"
             >
               <Pencil className="h-3.5 w-3.5" />
-              Edit
+              {isRejected ? 'Edit and Return to Review' : 'Edit'}
             </button>
           ) : null}
-          <button
-            type="button"
-            onClick={() => onAuthorize(item)}
-            disabled={isBusy || isEditing}
-            className="inline-flex min-h-9 flex-1 items-center justify-center gap-2 rounded-md border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-xs font-semibold text-emerald-100 transition hover:bg-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            <CheckCircle2 className="h-3.5 w-3.5" />
-            {isBusy ? 'Authorizing...' : 'Authorize Draft Handoff'}
-          </button>
-          <button
-            type="button"
-            onClick={() => showRejectNote ? onReject(item) : onBeginReject(item.id)}
-            disabled={isBusy || isEditing}
-            className="inline-flex min-h-9 flex-1 items-center justify-center gap-2 rounded-md border border-red-500/40 bg-red-500/10 px-3 py-2 text-xs font-semibold text-red-100 transition hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            <XCircle className="h-3.5 w-3.5" />
-            {isRejected ? 'Rejected' : showRejectNote ? 'Submit Rejection' : 'Reject'}
-          </button>
+          {isPending ? (
+            <>
+              <button
+                type="button"
+                onClick={() => onAuthorize(item)}
+                disabled={isBusy || isEditing}
+                className="inline-flex min-h-9 flex-1 items-center justify-center gap-2 rounded-md border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-xs font-semibold text-emerald-100 transition hover:bg-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                <CheckCircle2 className="h-3.5 w-3.5" />
+                {isBusy ? 'Authorizing...' : 'Authorize Draft Handoff'}
+              </button>
+              <button
+                type="button"
+                onClick={() => showRejectNote ? onReject(item) : onBeginReject(item.id)}
+                disabled={isBusy || isEditing}
+                className="inline-flex min-h-9 flex-1 items-center justify-center gap-2 rounded-md border border-red-500/40 bg-red-500/10 px-3 py-2 text-xs font-semibold text-red-100 transition hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                <XCircle className="h-3.5 w-3.5" />
+                {showRejectNote ? 'Submit Rejection' : 'Reject'}
+              </button>
+            </>
+          ) : null}
         </div>
       ) : null}
     </div>

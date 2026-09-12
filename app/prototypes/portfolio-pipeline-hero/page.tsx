@@ -18,7 +18,7 @@ const proofPoints = [
   {
     Icon: Workflow,
     title: 'Gold operating layer',
-    body: 'AmaduTown becomes the infrastructure that routes data, decisions, approvals, and follow-up through the whole business.',
+    body: 'AmaduTown, LLC becomes the infrastructure that routes data, decisions, approvals, and follow-up through the whole business.',
   },
   {
     Icon: Gauge,
@@ -33,7 +33,7 @@ export default function PortfolioPipelineHeroPrototypePage() {
       <section className="relative min-h-[100svh] overflow-hidden">
         <Image
           src={HERO_IMAGE_DESKTOP}
-          alt="Light-mode AmaduTown operating system hero composition."
+          alt="Light-mode AmaduTown, LLC operating system hero composition."
           fill
           priority
           sizes="(min-width: 640px) 100vw, 0px"
@@ -41,7 +41,7 @@ export default function PortfolioPipelineHeroPrototypePage() {
         />
         <Image
           src={HERO_IMAGE_MOBILE}
-          alt="Light-mode AmaduTown operating system hero composition."
+          alt="Light-mode AmaduTown, LLC operating system hero composition."
           fill
           priority
           sizes="(max-width: 639px) 100vw, 0px"
@@ -73,7 +73,7 @@ export default function PortfolioPipelineHeroPrototypePage() {
 
         <header className="relative z-10 flex items-center justify-between px-5 py-5 sm:px-8 lg:px-12">
           <Link href="/" className="font-heading text-xs tracking-[0.32em] text-[#08101a]/88">
-            AMADUTOWN
+            AMADUTOWN, LLC
           </Link>
           <nav className="hidden items-center gap-8 text-[0.68rem] uppercase tracking-[0.24em] text-[#08101a]/62 md:flex">
             <Link href="/services" className="transition hover:text-radiant-gold">
@@ -97,7 +97,7 @@ export default function PortfolioPipelineHeroPrototypePage() {
               Turn disconnected work into one operating system.
             </h1>
             <p className="mt-8 max-w-[32rem] font-body text-base leading-8 text-[#243449]/78 sm:text-lg">
-              AmaduTown designs the automation layer that connects intake, scheduling, communications,
+              AmaduTown, LLC designs the automation layer that connects intake, scheduling, communications,
               service delivery, billing, reporting, and knowledge management.
             </p>
 

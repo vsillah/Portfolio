@@ -372,4 +372,19 @@ describe('Agent Ops proactive Slack notification sweep', () => {
     expect(result.results[0]).toMatchObject({ kind: 'blockers', error: 'database unavailable' })
     expect(result.results[1]).toMatchObject({ kind: 'review_ready', sent: true })
   })
+  it('reports failed delivery as incomplete instead of a successful skip', async () => {
+    mocks.buildAgentSlackNotificationPayload.mockResolvedValue({ text: 'Calendar gates', blocks: [], itemCount: 5 })
+    mocks.sendAgentSlackNotification.mockResolvedValue({ ok: false, sent: false, skipped: false, deduped: false, reason: 'Receipt missing', itemCount: 5, text: 'Calendar gates', runId: 'run-1', deliveredCalendarItemIds: [] })
+    const result = await runAgentSlackNotificationSweep({ kinds: ['social_calendar_approval_due'], calendarItemIds: ['calendar-1'] })
+    expect(result).toMatchObject({ ok: false, sentCount: 0, errorCount: 1, results: [expect.objectContaining({ error: 'Receipt missing', deliveredCalendarItemIds: [] })] })
+    expect(mocks.sendAgentSlackNotification).toHaveBeenCalledWith(expect.objectContaining({ calendarItemIds: ['calendar-1'] }))
+  })
+
+  it('does not report missing data visibility as an empty healthy queue', async () => {
+    mocks.buildAgentSlackNotificationPayload.mockResolvedValue({ text: 'Waiting on data', blocks: [], itemCount: 0, visibilityError: 'Comment inbox unavailable' })
+    const result = await runAgentSlackNotificationSweep({ kinds: ['social_comment_attention_due'] })
+    expect(result).toMatchObject({ ok: false, errorCount: 1, results: [expect.objectContaining({ error: 'Comment inbox unavailable' })] })
+    expect(mocks.sendAgentSlackNotification).not.toHaveBeenCalled()
+  })
+
 })

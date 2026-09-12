@@ -6,12 +6,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+import { requireTestingAdmin } from '@/lib/testing/access'
+import { getTestingSupabaseClient } from '@/lib/testing/database'
 
 const VALID_REMEDIATION_STATUSES = ['pending', 'in_progress', 'fixed', 'ignored', 'wont_fix'] as const
 type RemediationStatus = typeof VALID_REMEDIATION_STATUSES[number]
@@ -25,6 +21,14 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const denied = await requireTestingAdmin(request)
+    if (denied) return denied
+
+    const supabase = getTestingSupabaseClient()
+    if (!supabase) {
+      return NextResponse.json({ error: 'Testing database is not configured' }, { status: 503 })
+    }
+
     const { id } = await params
     
     const { data: error, error: fetchError } = await supabase
@@ -60,6 +64,14 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const denied = await requireTestingAdmin(request)
+    if (denied) return denied
+
+    const supabase = getTestingSupabaseClient()
+    if (!supabase) {
+      return NextResponse.json({ error: 'Testing database is not configured' }, { status: 503 })
+    }
+
     const { id } = await params
     const body = await request.json()
     const { remediation_status } = body

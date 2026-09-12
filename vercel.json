@@ -1,6 +1,10 @@
 {
   "crons": [
     {
+      "path": "/api/cron/slack-action-receipts",
+      "schedule": "*/5 * * * *"
+    },
+    {
       "path": "/api/cron/client-ai-ops-monitor",
       "schedule": "0 13 * * *"
     },

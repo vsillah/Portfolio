@@ -6,13 +6,9 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { requireTestingAdmin } from '@/lib/testing/access'
+import { getTestingSupabaseClient } from '@/lib/testing/database'
 import { getRemediationEngine } from '@/lib/testing'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
 
 /**
  * GET /api/testing/remediation/[id]
@@ -23,6 +19,14 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const denied = await requireTestingAdmin(request)
+    if (denied) return denied
+
+    const supabase = getTestingSupabaseClient()
+    if (!supabase) {
+      return NextResponse.json({ error: 'Testing database is not configured' }, { status: 503 })
+    }
+
     const { id } = await params
     
     // Fetch the remediation request
@@ -77,6 +81,14 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const denied = await requireTestingAdmin(request)
+    if (denied) return denied
+
+    const supabase = getTestingSupabaseClient()
+    if (!supabase) {
+      return NextResponse.json({ error: 'Testing database is not configured' }, { status: 503 })
+    }
+
     const { id } = await params
     const body = await request.json()
     const { action = 'process' } = body
@@ -167,6 +179,14 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const denied = await requireTestingAdmin(request)
+    if (denied) return denied
+
+    const supabase = getTestingSupabaseClient()
+    if (!supabase) {
+      return NextResponse.json({ error: 'Testing database is not configured' }, { status: 503 })
+    }
+
     const { id } = await params
     
     // Delete associated history first

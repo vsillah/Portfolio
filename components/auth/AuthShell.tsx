@@ -1,6 +1,7 @@
 'use client'
 
 import SiteThemeCorner from '@/components/SiteThemeCorner'
+import { WEBSITE_BRAND_NAME } from '@/lib/website-brand'
 import { Briefcase, ShieldCheck, Sparkles } from 'lucide-react'
 import type { ReactNode } from 'react'
 
@@ -36,7 +37,7 @@ export default function AuthShell({ children }: AuthShellProps) {
             <section className="admin-console-surface-header hidden rounded-xl border p-8 lg:block">
               <div className="admin-console-eyebrow mb-4">
                 <ShieldCheck className="h-4 w-4" />
-                AmaduTown Portfolio
+                {WEBSITE_BRAND_NAME} Portfolio
               </div>
               <h1 className="max-w-xl text-4xl font-bold leading-tight text-foreground">
                 One secure entry point for the operating workspace.

@@ -21,7 +21,7 @@ type CalendarActionAuth = {
 type HandoffResult = {
   calendarItem: SocialContentCalendarItem
   socialContentId: string | null
-  handoffWorkItemId: string
+  handoffWorkItemId: string | null
   handoffKind:
     | 'linkedin_social_content_draft'
     | 'youtube_social_content_draft'
@@ -29,6 +29,7 @@ type HandoffResult = {
     | 'facebook_social_content_draft'
     | 'x_social_content_draft'
     | 'channel_planning_handoff'
+  alreadyAuthorized?: boolean
 }
 
 function calendarSelect() {
@@ -358,6 +359,24 @@ export async function authorizeCalendarDraftHandoff(
 ): Promise<HandoffResult> {
   const item = await readCalendarItem(id)
   const metadata = parseMetadata(item.metadata)
+  const existingPlatformDraftHandoff = parseMetadata(metadata.platform_draft_handoff)
+  const existingSocialContentId = item.social_content_id
+    ?? (typeof existingPlatformDraftHandoff.social_content_id === 'string'
+      ? existingPlatformDraftHandoff.social_content_id
+      : null)
+
+  if (item.authorization_status === 'authorized') {
+    return {
+      calendarItem: item,
+      socialContentId: existingSocialContentId,
+      handoffWorkItemId: typeof existingPlatformDraftHandoff.work_item_id === 'string'
+        ? existingPlatformDraftHandoff.work_item_id
+        : null,
+      handoffKind: handoffKindFor(item, existingSocialContentId),
+      alreadyAuthorized: true,
+    }
+  }
+
   const socialContentId = supportsSocialContentDraft(item)
     ? await createSocialContentDraftForCalendarItem(item, auth)
     : item.social_content_id
@@ -417,41 +436,34 @@ export async function rejectCalendarDraftHandoff(input: {
 }) {
   const item = await readCalendarItem(input.id)
   const metadata = parseMetadata(item.metadata)
+  if (item.authorization_status === 'authorized') {
+    throw new Error('Calendar item is already authorized. Open Portfolio to revise or recover the downstream handoff instead of rejecting from Slack.')
+  }
+
+  if (item.authorization_status === 'rejected') {
+    const revisionWorkItemId = typeof metadata.revision_work_item_id === 'string'
+      ? metadata.revision_work_item_id
+      : null
+    return {
+      calendarItem: item,
+      revisionWorkItemId,
+      alreadyRejected: true,
+    }
+  }
+
   const rejectedAt = new Date().toISOString()
-  const revisionWorkItem = await createAgentWorkItem({
-    title: `Revise content calendar item: ${item.title}`,
-    objective: [
-      `Revise the ${CALENDAR_CHANNEL_LABELS[item.channel]} calendar item before it can be authorized.`,
-      `Decision note: ${input.decisionNote}`,
-      'Return the revised item to pending review. Do not publish, schedule externally, upload, call media providers, or create public content.',
-    ].join(' '),
-    priority: 'high',
-    status: 'queued',
-    ownerAgentKey: 'chief-of-staff',
-    ownerRuntime: 'codex',
-    source: {
-      type: 'social_content_calendar_revision',
-      id: item.id,
-      label: item.title,
-    },
-    overlapGroup: 'social-content-calendar',
-    metadata: {
-      source: 'social_content_calendar_revision',
-      calendar_item_id: item.id,
-      campaign_id: item.campaign_id,
-      agent_work_item_id: item.agent_work_item_id,
-      social_content_id: item.social_content_id,
-      channel: item.channel,
-      campaign_phase: item.campaign_phase,
-      decision_note: input.decisionNote,
-      rejected_by: input.auth.user.id,
-      rejected_at: rejectedAt,
-      returned_to_shaka: true,
-      external_execution_enabled: false,
-      side_effects: CALENDAR_SIDE_EFFECTS,
-    },
-    idempotencyKey: `social-content-calendar-revision:${item.id}:${Date.parse(rejectedAt)}`,
-  })
+  // No consumer exists for calendar-revision work items. Persist the decision
+  // on its canonical object and direct the operator to the existing editor.
+  const revisionRecovery = {
+    state: 'blocked',
+    blocker: 'manual_revision_required',
+    worker: 'not_configured',
+    feedback: input.decisionNote.trim() || null,
+    received_at: rejectedAt,
+    review_path: item.social_content_id
+      ? `/admin/social-content/${encodeURIComponent(item.social_content_id)}?step=copy#social-copy-gate`
+      : `/admin/agents/content-intelligence?section=calendar&calendar_item=${encodeURIComponent(item.id)}`,
+  }
 
   const { data, error } = await supabaseAdmin
     .from('social_content_calendar_items')
@@ -462,12 +474,15 @@ export async function rejectCalendarDraftHandoff(input: {
         authorization_decision_note: input.decisionNote,
         rejected_at: rejectedAt,
         rejected_by: input.auth.user.id,
-        returned_to_shaka: true,
-        revision_work_item_id: revisionWorkItem.id,
+        returned_to_shaka: false,
+        revision_work_item_id: null,
+        revision_recovery: revisionRecovery,
         external_execution_enabled: false,
       },
     })
     .eq('id', input.id)
+    .eq('authorization_status', item.authorization_status)
+    .eq('updated_at', item.updated_at)
     .select(calendarSelect())
     .single()
 
@@ -477,6 +492,7 @@ export async function rejectCalendarDraftHandoff(input: {
 
   return {
     calendarItem: data as SocialContentCalendarItem,
-    revisionWorkItemId: revisionWorkItem.id,
+    revisionWorkItemId: null,
+    alreadyRejected: false,
   }
 }

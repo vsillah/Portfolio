@@ -1,7 +1,9 @@
+import { milestoneAccess } from '@/lib/proposal-milestones'
 // API Route: Get/Update Proposal
 // GET - Fetch proposal details (public access for client viewing)
 // PATCH - Update proposal status
 
+import { proposalDocumentReadback, isUnissuedBoundProposal } from '@/lib/proposal-document-binding';
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
 import { verifyAdmin, isAuthError } from '@/lib/auth-server';
@@ -25,6 +27,10 @@ export async function GET(
     if (error || !proposal) {
       return NextResponse.json({ error: 'Proposal not found' }, { status: 404 });
     }
+
+    if (!milestoneAccess(request,proposal)) return NextResponse.json({error:'Proposal not found'},{status:404});
+
+    if (isUnissuedBoundProposal(proposal)) return NextResponse.json({error:'Proposal not found'}, {status:404});
 
     // Mark as viewed if first time
     if (!proposal.viewed_at) {
@@ -66,7 +72,7 @@ export async function GET(
     void _stripped;
 
     return NextResponse.json({
-      proposal: { ...proposalForClient, feasibility_view: feasibilityView },
+      proposal: { ...await proposalDocumentReadback(proposalForClient as typeof proposal), feasibility_view: feasibilityView },
       canAccept,
       canPay,
       isExpired,
@@ -91,6 +97,9 @@ export async function PATCH(
 
     // Handle public actions (no auth required)
     if (action === 'mark_viewed') {
+    const {data: accessProposal,error: accessError}=await supabaseAdmin.from('proposals').select('payment_schedule,access_code').eq('id',id).single();
+    if(accessError || !accessProposal || !milestoneAccess(request,accessProposal)) return NextResponse.json({error:'Proposal not found'},{status:404});
+
       const { error } = await supabaseAdmin
         .from('proposals')
         .update({ 

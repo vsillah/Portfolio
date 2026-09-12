@@ -1,11 +1,11 @@
 import { createHmac, timingSafeEqual } from 'crypto'
 import { NextRequest } from 'next/server'
+import { isLocalSlackDevelopment } from '@/lib/slack-agent-access'
 
 export function verifySlackSignature(request: NextRequest, rawBody: string) {
   const signingSecret = process.env.SLACK_SIGNING_SECRET
   if (!signingSecret) {
-    const allowUnsignedLocal =
-      process.env.NODE_ENV !== 'production' && !process.env.VERCEL && process.env.NEXT_PUBLIC_APP_ENV !== 'staging'
+    const allowUnsignedLocal = isLocalSlackDevelopment()
     if (allowUnsignedLocal) {
       console.warn('SLACK_SIGNING_SECRET not configured -- skipping verification for local development')
       return true

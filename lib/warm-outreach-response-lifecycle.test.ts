@@ -2,7 +2,9 @@ import { describe, expect, it } from 'vitest'
 import {
   buildWarmOutreachResponseIdempotencyKey,
   buildWarmOutreachResponseLifecycleDecision,
+  channelForWarmResponseSource,
   communicationChannelForWarmResponse,
+  providerForWarmResponseSource,
 } from './warm-outreach-response-lifecycle'
 
 describe('warm outreach response lifecycle policy', () => {
@@ -22,12 +24,13 @@ describe('warm outreach response lifecycle policy', () => {
       },
     })
 
-    expect(decision.responseClass).toBe('interest')
+    expect(decision.responseClass).toBe('interested')
     expect(decision.humanQaRequired).toBe(true)
     expect(decision.humanQaReasons).toContain('buying_or_sales_intent_review')
     expect(decision.interpretation.recommendedNextAction).toMatchObject({
       label: 'Review short next-step reply',
       priority: 'high',
+      requiresNextTouchDecision: true,
     })
     expect(decision.approvalGate).toMatchObject({
       state: 'pending_human_reply_review',
@@ -58,9 +61,11 @@ describe('warm outreach response lifecycle policy', () => {
       responseText: 'Please remove me and do not contact me again.',
     })
 
-    expect(decision.responseClass).toBe('unsubscribe_suppression')
+    expect(decision.responseClass).toBe('unsubscribe_do_not_contact')
+    expect(decision.interpretation.classificationLabel).toBe('unsubscribe / do not contact')
     expect(decision.suppressionProposal).toMatchObject({
       action: 'mark_do_not_contact',
+      state: 'pending_human_approval',
       requiresHumanApproval: true,
     })
     expect(decision.approvalGate).toMatchObject({
@@ -75,8 +80,7 @@ describe('warm outreach response lifecycle policy', () => {
     ['objection', 'We already have a tool and this is too expensive.'],
     ['not_now', 'Can you circle back next quarter?'],
     ['referral', 'You should talk to my partner and I can make an intro.'],
-    ['positive_acknowledgement', 'Thanks, got it and appreciate the note.'],
-    ['negative', 'This feels like spam and is inappropriate.'],
+    ['negative_sensitive', 'This feels like spam and is inappropriate.'],
     ['ambiguous', 'Okay.'],
   ] as const)('classifies %s responses', (expectedClass, responseText) => {
     const decision = buildWarmOutreachResponseLifecycleDecision({
@@ -88,7 +92,9 @@ describe('warm outreach response lifecycle policy', () => {
 
     expect(decision.responseClass).toBe(expectedClass)
     expect(decision.humanQaRequired).toBe(true)
-    expect(decision.interpretation.classificationLabel).toBe(expectedClass.replace(/_/g, ' '))
+    expect(decision.interpretation.classificationLabel).toBe(
+      expectedClass === 'negative_sensitive' ? 'negative / sensitive' : expectedClass.replace(/_/g, ' '),
+    )
   })
 
   it('fails closed for negative and uncertain responses with in-context recovery paths', () => {
@@ -118,7 +124,7 @@ describe('warm outreach response lifecycle policy', () => {
       contactId: 42,
       channel: 'email',
       responseText: 'Thanks',
-      provider: 'gmail',
+      sourceType: 'gmail',
       providerThreadId: 'thread-1',
       providerMessageId: 'message-1',
     })
@@ -131,6 +137,42 @@ describe('warm outreach response lifecycle policy', () => {
 
     expect(providerKey).toBe('warm-outreach:reply:gmail:thread-1:message-1')
     expect(manualKey).toMatch(/^warm-outreach:reply:manual:[a-f0-9]{16}$/)
+  })
+
+  it('maps source provenance placeholders to providers and compatible channels', () => {
+    expect(providerForWarmResponseSource('manual')).toBe('manual')
+    expect(providerForWarmResponseSource('gmail')).toBe('gmail')
+    expect(providerForWarmResponseSource('linkedin')).toBe('linkedin')
+    expect(providerForWarmResponseSource('facebook')).toBe('facebook')
+    expect(providerForWarmResponseSource('contact_phone')).toBe('contact_phone')
+
+    expect(channelForWarmResponseSource('manual')).toBeNull()
+    expect(channelForWarmResponseSource('gmail')).toBe('email')
+    expect(channelForWarmResponseSource('linkedin')).toBe('linkedin')
+    expect(channelForWarmResponseSource('facebook')).toBe('facebook')
+    expect(channelForWarmResponseSource('contact_phone')).toBe('phone_contact')
+  })
+
+  it('uses a stable manual message key when provided instead of timestamp-sensitive capture data', () => {
+    const first = buildWarmOutreachResponseIdempotencyKey({
+      contactId: 42,
+      channel: 'email',
+      outreachQueueId: 'queue-1',
+      responseText: 'Interested in next week.',
+      receivedAt: '2026-08-26T10:00:00.000Z',
+      messageKey: 'inbox-thread-77-message-2',
+    })
+    const second = buildWarmOutreachResponseIdempotencyKey({
+      contactId: 42,
+      channel: 'email',
+      outreachQueueId: 'queue-1',
+      responseText: 'Different whitespace or summary should not matter here.',
+      receivedAt: '2026-08-28T10:00:00.000Z',
+      messageKey: 'inbox-thread-77-message-2',
+    })
+
+    expect(first).toBe(second)
+    expect(first).toMatch(/^warm-outreach:reply:manual:[a-f0-9]{16}$/)
   })
 
   it('maps manual Facebook and phone channels into existing communication channels', () => {

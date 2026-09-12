@@ -207,7 +207,7 @@ export const AGENT_ORGANIZATION: AgentOrganizationNode[] = [
   },
   {
     key: 'amadutown-brand',
-    name: 'Taharqa (Kush) - AmaduTown Brand',
+    name: 'Taharqa (Kush) - AmaduTown, LLC Brand',
     podKey: 'content_production',
     status: 'planned',
     primaryRuntime: 'codex',

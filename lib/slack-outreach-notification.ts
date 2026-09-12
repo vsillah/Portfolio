@@ -31,7 +31,7 @@ function buildReviewUrl(contactId: number): string | null {
     null
   if (!base) return null
   const trimmed = base.replace(/\/$/, '')
-  return `${trimmed}/admin/outreach?contactId=${contactId}`
+  return `${trimmed}/admin/outreach?tab=leads&id=${contactId}#warm-outreach-approval-gate`
 }
 
 export async function notifyOutreachDraftReady(
@@ -52,9 +52,10 @@ export async function notifyOutreachDraftReady(
     `*Contact:* ${name} | ${email} (lead #${params.contactId})`,
     `*Template:* ${params.templateKey ?? 'default'}`,
     `*Queue ID:* ${params.queueId}`,
+    '*Boundary:* Open Portfolio to review and request approval. This Slack notice does not create Gmail drafts, send email, send SMS, or contact a provider.',
   ]
   if (reviewUrl) {
-    lines.push(`*Review:* ${reviewUrl}`)
+    lines.push(`*Open gate:* ${reviewUrl}`)
   }
 
   try {

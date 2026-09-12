@@ -1,0 +1,118 @@
+[
+  {
+    "file": "docs/qa/sms-consent-policy/README.md",
+    "sha256": "57f83b87b05b5ed0b3bd1dd7ada90c7472616044cc95b6d183ca7e40da0e3453"
+  },
+  {
+    "file": "docs/qa/sms-consent-policy/browser-receipt.json",
+    "sha256": "9389f42a9b523ed9e3fb581b66244f5f649fb4535b3cf23dd365e9f72a362a36"
+  },
+  {
+    "file": "docs/qa/sms-consent-policy/build-receipt.json",
+    "sha256": "0270f186a672047cd44b129ed0a0f6b34bf29a09193fe2d1522f928b7ad8e9d0"
+  },
+  {
+    "file": "docs/qa/sms-consent-policy/contact-1440.png",
+    "sha256": "e062dc974aadf417006cd73f86a0a6f74148738fe0b26134661f6a82bee7fb81"
+  },
+  {
+    "file": "docs/qa/sms-consent-policy/contact-360.png",
+    "sha256": "5925d2fbb961ed652a896baf418793e1bf5a5eb8d917193f6c9b6763d07aa159"
+  },
+  {
+    "file": "docs/qa/sms-consent-policy/contact-390.png",
+    "sha256": "1ad04015e5de0b2f184ab4e98c06ba96af8ed2df83083ef2e7b0071324b3bbcb"
+  },
+  {
+    "file": "docs/qa/sms-consent-policy/contact-768.png",
+    "sha256": "11c931171696b37e53adc5757332bcdf838348ab075de838ceb75296023788d6"
+  },
+  {
+    "file": "docs/qa/sms-consent-policy/migration-receipt.json",
+    "sha256": "adf53ed99655b08b6dadbdb639216ae3720b49c96fb32380c85685c1c8886d1d"
+  },
+  {
+    "file": "docs/qa/sms-consent-policy/phone-error-1440.png",
+    "sha256": "16378f50eb434a8d58e9dcfe1172978dd2447aa2ee075e8e8d7c5e96183cefd8"
+  },
+  {
+    "file": "docs/qa/sms-consent-policy/phone-error-360.png",
+    "sha256": "3fcf2b3d84f227fe1e8ede1c046cdead6b9f58150ba723a45c528fbd980e1a81"
+  },
+  {
+    "file": "docs/qa/sms-consent-policy/phone-error-390.png",
+    "sha256": "f5ae0c5e2267366fed537b58a9893f78d1d827482916ef5512bd9c140331ade6"
+  },
+  {
+    "file": "docs/qa/sms-consent-policy/privacy-1440.png",
+    "sha256": "c0531521f9526384016d08aa2e358ab72546793855aec005eee894102280915f"
+  },
+  {
+    "file": "docs/qa/sms-consent-policy/privacy-360.png",
+    "sha256": "fca156915f99d75c054d2bb41142a308df4e3fcf0307e82b1941fadea6a686f5"
+  },
+  {
+    "file": "docs/qa/sms-consent-policy/privacy-390.png",
+    "sha256": "710046f34bc42ee527a4d871f4ffc64ac23fe8d2aad59810b895ce7e05de03f0"
+  },
+  {
+    "file": "docs/qa/sms-consent-policy/privacy-768.png",
+    "sha256": "5ca4b983b4e47ba7c0771c2b8a3b9e7b09d9d5d68fb91d7c82b1cf4e33428fa5"
+  },
+  {
+    "file": "docs/qa/sms-consent-policy/retry-1440.png",
+    "sha256": "2986a20fa36223255061f34b7476cddd141ed3b827f0e81690ec79b37778458e"
+  },
+  {
+    "file": "docs/qa/sms-consent-policy/retry-360.png",
+    "sha256": "29e5a31e28c4065e25f181ace81abacbc975f8e36627037371ef2ab576be4f81"
+  },
+  {
+    "file": "docs/qa/sms-consent-policy/retry-390.png",
+    "sha256": "982991408161014f163c6d02b2d04b0f439247ba194cdb116b774ab17c8257d7"
+  },
+  {
+    "file": "docs/qa/sms-consent-policy/success-1440.png",
+    "sha256": "5ad6f608c8597c7df0fee5e409cd576c38874c20bc6e0e03f00a4ba670ca91e1"
+  },
+  {
+    "file": "docs/qa/sms-consent-policy/success-360.png",
+    "sha256": "97d644dd183183fc1815bae0cef13ba74570a0802b8c066410a977958c24e948"
+  },
+  {
+    "file": "docs/qa/sms-consent-policy/success-390.png",
+    "sha256": "46420473948422a369a59d9af93a4eecb504f1ef3211d30a862a692fb39b5fc9"
+  },
+  {
+    "file": "docs/qa/sms-consent-policy/terms-1440.png",
+    "sha256": "1bd999bb694fb1d8ce6859c17d141504021edf5dc19a0d5f70ae26542cba9eb6"
+  },
+  {
+    "file": "docs/qa/sms-consent-policy/terms-360.png",
+    "sha256": "7855769eedefa6c8e8c6fd180c48e0d17b1cc50a0c517be75efe0b6bf869d993"
+  },
+  {
+    "file": "docs/qa/sms-consent-policy/terms-390.png",
+    "sha256": "df2116ab1e63c5e52ab700ee8c9ce53b0ecb4844e51548f436655f6303cbb575"
+  },
+  {
+    "file": "docs/qa/sms-consent-policy/terms-768.png",
+    "sha256": "b583c576dac8248a280f02239afa10402e2f16279253eb2d3220dc747ea3ccc7"
+  },
+  {
+    "file": "docs/qa/sms-consent-policy/typecheck-receipt.json",
+    "sha256": "71bc93bcc45ca8e3032cd8678403f2695f0570216e708f2d0718adc5d1acb567"
+  },
+  {
+    "file": "docs/qa/sms-consent-policy/walkthrough-1440.mp4",
+    "sha256": "9049ceeb7695c8459fd1079c45f357bcab96db572b91f873b7124ef1b3cef12b"
+  },
+  {
+    "file": "docs/qa/sms-consent-policy/walkthrough-390.mp4",
+    "sha256": "81f3f9ea2142d3469adde6045539d8f393f608d24278a5350a48d7e3eef7f879"
+  },
+  {
+    "file": "supabase/migrations/20260909154521_capture_contact_sms_consent.sql",
+    "sha256": "0fade7b44312df292ef265385715bd75609f6b05c11cbcbfb7307021b0089f98"
+  }
+]

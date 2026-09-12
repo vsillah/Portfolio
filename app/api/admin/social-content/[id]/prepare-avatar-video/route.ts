@@ -1,3 +1,4 @@
+import { assertSocialQueueWritable, assertSocialQueuePublicationClear, updateSocialQueueWithVersion, SocialQueueWriteConflict } from '@/lib/social-queue-write'
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { createVideo } from '@/lib/heygen'
@@ -95,13 +96,16 @@ export async function POST(
 
     const { data: item, error: fetchError } = await supabaseAdmin
       .from('social_content_queue')
-      .select('id, status, platform, target_platforms, post_text, video_url, image_url, youtube_title, rag_context')
+      .select('*')
       .eq('id', params.id)
       .single()
 
     if (fetchError || !item) {
       return NextResponse.json({ error: 'Content not found' }, { status: 404 })
     }
+
+    assertSocialQueueWritable(item)
+    await assertSocialQueuePublicationClear(supabaseAdmin, item.id)
 
     if (!isYouTubeSocialTarget(item)) {
       return NextResponse.json({ error: 'Avatar video preparation is only available for YouTube Social Content drafts.' }, { status: 409 })
@@ -292,13 +296,10 @@ export async function POST(
         social_video_production: storedState,
       }
 
-      const { error: updateError } = await supabaseAdmin
-        .from('social_content_queue')
-        .update({
+      const { data: savedQueue, error: updateError } = await updateSocialQueueWithVersion(supabaseAdmin, item, {
           rag_context: nextRagContext,
           video_generation_method: 'heygen_avatar',
         })
-        .eq('id', params.id)
 
       if (updateError) {
         console.error('[social-content avatar video] existing job relink failed:', updateError)
@@ -307,7 +308,7 @@ export async function POST(
 
       const updatedItem = {
         ...item,
-        rag_context: nextRagContext,
+        rag_context: savedQueue.rag_context,
         video_generation_method: 'heygen_avatar',
       }
 
@@ -316,7 +317,7 @@ export async function POST(
         reused_existing_job: true,
         job_id: reusableJob.id,
         heygen_video_id: reusableJob.heygenVideoId,
-        rag_context: nextRagContext,
+        rag_context: savedQueue.rag_context,
         social_video_production: buildSocialVideoProductionProjection({
           item: updatedItem,
           defaults,
@@ -382,13 +383,10 @@ export async function POST(
       social_video_production: storedState,
     }
 
-    const { error: updateError } = await supabaseAdmin
-      .from('social_content_queue')
-      .update({
+    const { data: savedQueue, error: updateError } = await updateSocialQueueWithVersion(supabaseAdmin, item, {
         rag_context: nextRagContext,
         video_generation_method: 'heygen_avatar',
       })
-      .eq('id', params.id)
 
     if (updateError) {
       console.error('[social-content avatar video] queue update failed:', updateError)
@@ -397,7 +395,7 @@ export async function POST(
 
     const updatedItem = {
       ...item,
-      rag_context: nextRagContext,
+      rag_context: savedQueue.rag_context,
       video_generation_method: 'heygen_avatar',
     }
     const mappedJob = mapJob(job)
@@ -406,7 +404,7 @@ export async function POST(
       success: true,
       job_id: job.id,
       heygen_video_id: job.heygen_video_id,
-      rag_context: nextRagContext,
+      rag_context: savedQueue.rag_context,
       social_video_production: buildSocialVideoProductionProjection({
         item: updatedItem,
         defaults,
@@ -416,6 +414,7 @@ export async function POST(
       }),
     })
   } catch (error) {
+    if (error instanceof SocialQueueWriteConflict) return NextResponse.json({ error: error.message }, { status: 409 })
     console.error('[social-content avatar video] error:', error)
     const message = error instanceof Error ? error.message : String(error)
     return NextResponse.json({ error: message }, { status: 500 })

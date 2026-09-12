@@ -37,14 +37,17 @@ describe('Vercel AutoResearch Slack notifications', () => {
     vi.stubEnv('NEXT_PUBLIC_BASE_URL', 'https://portfolio.example.com/')
 
     expect(buildVercelResearchApprovalUrl({ runId: 'run-1' })).toBe(
-      'https://portfolio.example.com/admin/agents/coordination?approvalRunId=run-1'
+      'https://portfolio.example.com/admin/agents/coordination?approvalRunId=run-1#vercel-autoresearch-approval-gate'
     )
-    expect(buildVercelResearchApprovalSlackText({
+    const text = buildVercelResearchApprovalSlackText({
       approvalId: 'approval-1',
       runId: 'run-1',
       workItemId: 'work-1',
       proposal,
-    })).toContain('*Proposal:* Profile the Next.js build path')
+    })
+    expect(text).toContain('*Proposal:* Profile the Next.js build path')
+    expect(text).toContain('*Open gate:* https://portfolio.example.com/admin/agents/coordination?approvalRunId=run-1#vercel-autoresearch-approval-gate')
+    expect(text).toContain('does not merge, deploy, change Vercel settings, or mutate production data')
   })
 
   it('skips safely when Slack Agent Ops webhook is not configured', async () => {

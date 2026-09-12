@@ -24,7 +24,9 @@ vi.mock('@/lib/supabase', () => ({
   },
 }))
 
-import { POST } from './route'
+import { POST as routePost } from './route'
+import { withVersionedQueueMock, queueWriteScenario } from '@/lib/social-queue-write.test-fixtures'
+const POST: typeof routePost = (...args) => withVersionedQueueMock(mocks.from, () => routePost(...args))
 
 function request(body?: unknown) {
   return new NextRequest('http://localhost/api/admin/social-content/social-1/prepare-asset-packet', {
@@ -116,7 +118,8 @@ describe('POST /api/admin/social-content/[id]/prepare-asset-packet', () => {
     expect(mocks.from).not.toHaveBeenCalled()
   })
 
-  it('creates a review-only production asset packet with redaction items', async () => {
+  it.each(['normal', 'locked', 'race'] as const)('creates a review-only production asset packet with redaction items (%s)', async mode => {
+    queueWriteScenario.mode = mode
     const response = await POST(request({
       chronicle_scope: {
         approved: true,
@@ -125,6 +128,7 @@ describe('POST /api/admin/social-content/[id]/prepare-asset-packet', () => {
       },
     }), { params: { id: 'social-1' } })
 
+    if (mode !== 'normal') { expect(response.status).toBe(409); return }
     expect(response.status).toBe(200)
     const body = await response.json()
     expect(body.success).toBe(true)

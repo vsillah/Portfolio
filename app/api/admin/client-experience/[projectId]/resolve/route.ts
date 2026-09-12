@@ -1,3 +1,4 @@
+import { proposalDocumentReadback } from '@/lib/proposal-document-binding'
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
@@ -46,6 +47,7 @@ export async function GET(
           total_amount,
           terms_text,
           valid_until,
+          document_revision,
           pdf_url,
           contract_pdf_url,
           signed_at,
@@ -63,7 +65,7 @@ export async function GET(
         .limit(1)
         .single()
 
-      proposal = data || null
+      proposal = data ? await proposalDocumentReadback(data) : null
     }
 
     const { data: dashboardAccess } = await supabaseAdmin

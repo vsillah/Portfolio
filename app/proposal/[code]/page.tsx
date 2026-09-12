@@ -1,6 +1,8 @@
 'use client';
 
-import { useState, useEffect, useCallback, Suspense } from 'react';
+import MilestonePayments from '@/components/proposals/MilestonePayments';
+
+import { useState, useEffect, useCallback, useRef, Suspense } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import {
   FileText,
@@ -29,6 +31,7 @@ import {
 } from 'lucide-react';
 import InstallmentOption from '@/components/checkout/InstallmentOption';
 import SiteThemeCorner from '@/components/SiteThemeCorner';
+import { WEBSITE_BRAND_NAME } from '@/lib/website-brand';
 
 interface LineItem {
   content_type: string;
@@ -73,12 +76,15 @@ interface Proposal {
   terms_text?: string;
   valid_until?: string;
   status: string;
+  document_identity?: {revision:string;pdf_url:string|null;contract_pdf_url:string|null};
   pdf_url?: string;
   contract_pdf_url?: string | null;
   accepted_at?: string;
   paid_at?: string;
   created_at: string;
   value_assessment?: ValueAssessment;
+  payment_schedule?: string;
+  milestone_settlement?: string;
   signed_at?: string;
   signed_by_name?: string;
   contract_signed_at?: string | null;
@@ -190,6 +196,9 @@ function ProposalByCodeContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [isAccepting, setIsAccepting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [signatureError,setSignatureError]=useState<{kind:'proposal'|'contract';message:string}|null>(null);
+  const signatureFeedbackRef=useRef<HTMLDivElement>(null);
+  useEffect(()=>{if(signatureError){signatureFeedbackRef.current?.focus({preventScroll:true});signatureFeedbackRef.current?.scrollIntoView({block:'nearest',behavior:'instant'});}},[signatureError]);
   const [onboardingPlanId, setOnboardingPlanId] = useState<string | null>(null);
   const [dashboardUrl, setDashboardUrl] = useState<string | null>(null);
   const [showSignForm, setShowSignForm] = useState(false);
@@ -259,23 +268,34 @@ function ProposalByCodeContent() {
     fetchProposal();
   }, [fetchProposal]);
 
+  const signatureFeedback=(kind:'proposal'|'contract')=>signatureError?.kind===kind ? (
+    <div ref={signatureFeedbackRef} role="alert" aria-label={kind==='proposal'?'Proposal signature error':'Agreement signature error'} tabIndex={-1} className="text-sm text-red-300 break-words rounded-lg p-2 border border-red-800">
+      {signatureError.message}
+      <button type="button" className="block underline mt-2" onClick={async()=>{
+        setShowSignForm(false);setShowContractSignForm(false);
+        await fetchProposal();setSignName('');setContractSignName('');setSignatureError(null);
+      }}>Reload documents</button>
+    </div>
+  ) : null;
+
   const handleSignAndAccept = async () => {
     if (!proposalId) return;
     setIsAccepting(true);
     setError(null);
+    setSignatureError(null);
     try {
       const signRes = await fetch(`/api/proposals/${proposalId}/sign`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ signed_by_name: signName.trim() }),
+        headers: { 'Content-Type': 'application/json', 'x-proposal-access': code },
+        body: JSON.stringify({ signed_by_name: signName.trim(), document_identity: proposal?.document_identity }),
       });
       if (!signRes.ok) {
         const data = await signRes.json();
         throw new Error(data.error || 'Failed to sign proposal');
       }
       // If there is a contract, do not proceed to checkout yet — show Sign Contract step
-      if (proposal?.contract_pdf_url) {
-        setProposal((p) => (p ? { ...p, signed_at: new Date().toISOString(), signed_by_name: signName.trim() } : null));
+      if (proposal?.contract_pdf_url || proposal?.payment_schedule === 'milestones') {
+        setProposal((p) => (p ? { ...p, signed_at: new Date().toISOString(), signed_by_name: signName.trim(), document_identity: proposal?.document_identity } : null));
         setShowSignForm(false);
         setContractSignName(signName.trim());
         setIsAccepting(false);
@@ -289,7 +309,7 @@ function ProposalByCodeContent() {
 
       const acceptRes = await fetch(`/api/proposals/${proposalId}/accept`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'x-proposal-access': code },
         body: JSON.stringify(acceptBody),
       });
       if (!acceptRes.ok) {
@@ -301,7 +321,7 @@ function ProposalByCodeContent() {
         window.location.href = data.checkoutUrl;
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong');
+      setSignatureError({kind:'proposal',message:err instanceof Error ? err.message : 'Signature failed. Reload to review.'});
       setIsAccepting(false);
     }
   };
@@ -310,11 +330,12 @@ function ProposalByCodeContent() {
     if (!proposalId) return;
     setIsAccepting(true);
     setError(null);
+    setSignatureError(null);
     try {
       const res = await fetch(`/api/proposals/${proposalId}/sign-contract`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ signed_by_name: contractSignName.trim() }),
+        headers: { 'Content-Type': 'application/json', 'x-proposal-access': code },
+        body: JSON.stringify({ signed_by_name: contractSignName.trim(), document_identity: proposal?.document_identity }),
       });
       if (!res.ok) {
         const data = await res.json();
@@ -326,13 +347,13 @@ function ProposalByCodeContent() {
           ? {
               ...p,
               contract_signed_at: new Date().toISOString(),
-              contract_signed_by_name: contractSignName.trim(),
+              contract_signed_by_name: contractSignName.trim(), document_identity: proposal?.document_identity,
             }
           : null
       );
       setShowContractSignForm(false);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to sign contract');
+      setSignatureError({kind:'contract',message:err instanceof Error ? err.message : 'Signature failed. Reload to review.'});
     } finally {
       setIsAccepting(false);
     }
@@ -351,7 +372,7 @@ function ProposalByCodeContent() {
 
       const response = await fetch(`/api/proposals/${proposalId}/accept`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'x-proposal-access': code },
         body: JSON.stringify(acceptBody),
       });
       if (!response.ok) {
@@ -422,7 +443,18 @@ function ProposalByCodeContent() {
   const savings = totalPerceivedValue - proposal.total_amount;
 
   const getStatusDisplay = () => {
-    if (paymentStatus === 'success' || proposal.status === 'paid') {
+    if (proposal.milestone_settlement === 'manual_invoice' && proposal.signed_at && proposal.contract_signed_at) return {
+      icon: CheckCircle, color: 'text-blue-500', bgColor: 'bg-blue-900/20 border-blue-800',
+      title: 'Agreement signed',
+      message: 'Review your invoice milestones and recorded payment status below.',
+    };
+    if(proposal.payment_schedule === 'milestones' && ['accepted','paid'].includes(proposal.status)) return {
+      icon: CheckCircle, color:'text-green-500', bgColor:'bg-green-900/20 border-green-800',
+      title:proposal.status==='paid'?'Project payments complete':'Agreement signed',
+      message:proposal.status==='paid'?'Both milestone payments have been received.':'Your current receipts and next payment step are shown below.',
+    };
+
+    if (proposal.status === 'paid') {
       return {
         icon: CheckCircle,
         color: 'text-green-500',
@@ -482,7 +514,7 @@ function ProposalByCodeContent() {
         )}
 
         {/* Post-Payment CTAs */}
-        {(paymentStatus === 'success' || proposal.status === 'paid') && (
+        {(proposal.status === 'paid') && proposal.payment_schedule !== 'milestones' && (
           <div className="mb-6 p-6 rounded-xl border bg-blue-900/20 border-blue-800">
             <div className="text-center mb-5">
               <CheckCircle className="w-10 h-10 text-emerald-400 mx-auto mb-3" />
@@ -772,7 +804,7 @@ function ProposalByCodeContent() {
         </div>
 
         {/* Payment Options */}
-        {proposal.status !== 'paid' && paymentStatus !== 'success' && !isExpired && proposal.total_amount > 0 && (
+        {proposal.payment_schedule !== 'milestones' && proposal.status !== 'paid' && !isExpired && proposal.total_amount > 0 && (
           <div className="bg-gray-900 rounded-xl border border-gray-800 p-6 mb-6">
             <h2 className="font-semibold mb-4">Payment Options</h2>
             <InstallmentOption
@@ -789,6 +821,7 @@ function ProposalByCodeContent() {
           </div>
         )}
 
+        {proposal.payment_schedule === 'milestones' && <MilestonePayments key={`${proposal.signed_at}-${proposal.contract_signed_at}`} proposalId={proposal.id} accessCode={code} />}
         {/* Terms */}
         {proposal.terms_text && (
           <div className="bg-gray-900 rounded-xl border border-gray-800 p-6 mb-6">
@@ -800,7 +833,7 @@ function ProposalByCodeContent() {
         )}
 
         {/* Sign & Accept Section */}
-        {proposal.status !== 'paid' && paymentStatus !== 'success' && (
+        {proposal.status !== 'paid' && (
           <div className="bg-gray-900 rounded-xl border border-gray-800 p-6">
             {canAccept && !proposal.signed_at && (
               <div className="space-y-4">
@@ -850,6 +883,7 @@ function ProposalByCodeContent() {
                         Sign & Accept
                       </button>
                     </div>
+                    {signatureFeedback('proposal')}
                   </div>
                 )}
               </div>
@@ -907,13 +941,14 @@ function ProposalByCodeContent() {
                         Sign Contract
                       </button>
                     </div>
+                    {signatureFeedback('contract')}
                   </div>
                 )}
               </div>
             )}
 
             {/* Proceed to payment: when proposal (and contract if any) are signed */}
-            {proposal.signed_at && (!proposal.contract_pdf_url || proposal.contract_signed_at) && proposal.status !== 'paid' && paymentStatus !== 'success' && (
+            {proposal.payment_schedule !== 'milestones' && proposal.signed_at && (!proposal.contract_pdf_url || proposal.contract_signed_at) && proposal.status !== 'paid' && (
               <button
                 onClick={handleProceedToPayment}
                 disabled={isAccepting}
@@ -1087,7 +1122,7 @@ function ImplementationRoadmapSection({ snapshot }: { snapshot: ImplementationRo
               {clientTasks.slice(0, 6).map((task, index) => (
                 <li key={`${task.title}-${index}`} className="flex items-center justify-between gap-3">
                   <span>{task.title}</span>
-                  <span className="text-xs text-gray-500 capitalize">{task.ownerType}</span>
+                  <span className="text-xs text-gray-500 capitalize">{task.ownerType === 'amadutown' ? WEBSITE_BRAND_NAME : task.ownerType}</span>
                 </li>
               ))}
             </ul>

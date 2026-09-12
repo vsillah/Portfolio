@@ -1,3 +1,4 @@
+import { getSlackAgentSource } from '@/lib/slack-agent-environment'
 import { runChiefOfStaffChat } from '@/lib/chief-of-staff-chat'
 import { recordAgentEvent } from '@/lib/agent-run'
 import {
@@ -12,9 +13,17 @@ import { routeAgentInboxItem } from '@/lib/agent-inbox-routing'
 import { supabaseAdmin } from '@/lib/supabase'
 import { decodeSlackActionValue, type SlackAgentActionValue } from '@/lib/agent-slack-blocks'
 import { decideSocialCommentReplyFromSlack } from '@/lib/social-comment-attention'
+import {
+  authorizeCalendarDraftHandoff,
+  rejectCalendarDraftHandoff,
+} from '@/lib/social-content-calendar-handoff'
+import { decideWarmGmailSendAuthorizationFromSlack } from '@/lib/warm-outreach-slack-send-approval'
+import { allowedSlackUserIds, isLocalSlackDevelopment, requireAuthorizedSlackActor, requireAuthorizedSlackChannel } from '@/lib/slack-agent-access'
 
 export type SlackInteractivePayload = {
   type?: string
+  team?: { id?: string }
+  channel?: { id?: string }
   user?: {
     id?: string
     username?: string
@@ -23,6 +32,7 @@ export type SlackInteractivePayload = {
   actions?: Array<{
     action_id?: string
     value?: string
+    url?: string
   }>
   callback_id?: string
   trigger_id?: string
@@ -33,6 +43,7 @@ export type SlackInteractivePayload = {
   }
   container?: {
     message_ts?: string
+    channel_id?: string
   }
 }
 
@@ -40,6 +51,7 @@ export type SlackAgentActionResult = {
   responseType: 'ephemeral' | 'in_channel'
   text: string
   replaceOriginal?: boolean
+  actionStatus?: 'completed' | 'already_recorded' | 'blocked' | 'failed'
 }
 
 type ApprovalRow = {
@@ -50,18 +62,8 @@ type ApprovalRow = {
   metadata: Record<string, unknown> | null
 }
 
-type RunRow = {
-  id: string
-  status: string
-}
-
 function baseUrl() {
-  return (
-    process.env.NEXT_PUBLIC_BASE_URL ||
-    process.env.PORTFOLIO_BASE_URL ||
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    'https://amadutown.com'
-  ).replace(/\/$/, '')
+  return getSlackAgentSource().sourceOrigin
 }
 
 function agentRunsUrl(runId?: string | null) {
@@ -70,37 +72,6 @@ function agentRunsUrl(runId?: string | null) {
 
 function agentKanbanUrl() {
   return `${baseUrl()}/admin/agents/swarm-board`
-}
-
-function allowedSlackUserIds() {
-  const raw =
-    process.env.SLACK_AGENT_OPS_ALLOWED_USER_IDS ||
-    process.env.SLACK_AGENT_ALLOWED_USER_IDS ||
-    ''
-  return new Set(raw.split(',').map((value) => value.trim()).filter(Boolean))
-}
-
-function requireAuthorizedSlackUser(payload: SlackInteractivePayload) {
-  const userId = payload.user?.id
-  const allowed = allowedSlackUserIds()
-  const localMode =
-    process.env.NODE_ENV !== 'production' &&
-    !process.env.VERCEL &&
-    process.env.NEXT_PUBLIC_APP_ENV !== 'staging'
-
-  if (!userId) {
-    return { ok: false as const, text: 'Slack action rejected: missing Slack user id.' }
-  }
-  if (allowed.size === 0 && localMode) {
-    return { ok: true as const, userId, actorLabel: payload.user?.username || payload.user?.name || userId }
-  }
-  if (allowed.has(userId)) {
-    return { ok: true as const, userId, actorLabel: payload.user?.username || payload.user?.name || userId }
-  }
-  return {
-    ok: false as const,
-    text: 'Slack action rejected: this Slack user is not configured for Agent Ops mobile approvals.',
-  }
 }
 
 function isSlackDecidableApproval(approvalType: string) {
@@ -113,12 +84,31 @@ function actionFromPayload(payload: SlackInteractivePayload): SlackAgentActionVa
 }
 
 function idempotencyKey(payload: SlackInteractivePayload, value: SlackAgentActionValue) {
+  const warmSendTarget = value.action.startsWith('warm_gmail_send.')
+    ? value.sendQueueIdempotencyKey ?? value.messageVersionKey ?? value.outreachQueueId
+    : null
+  const target =
+    warmSendTarget ??
+    value.approvalId ??
+    value.workItemId ??
+    value.runId ??
+    value.calendarItemId ??
+    (value.commentId ? `${value.commentId}:${value.expectedUpdatedAt ?? 'missing-version'}` : null) ??
+    value.contentId ??
+    value.sendQueueIdempotencyKey ??
+    value.messageVersionKey ??
+    value.outreachQueueId ??
+    (typeof value.contactId === 'number' ? `contact-${value.contactId}` : 'unknown-target')
+
   return [
     'slack-agent-action',
+    payload.team?.id ?? 'local-team',
+    payload.channel?.id ?? payload.container?.channel_id ?? 'local-channel',
     payload.user?.id ?? 'unknown-user',
-    payload.container?.message_ts ?? payload.message?.ts ?? payload.action_ts ?? 'unknown-ts',
+    payload.container?.message_ts ?? payload.message?.ts ?? 'unknown-ts',
     value.action,
-    value.approvalId ?? value.workItemId ?? value.runId ?? value.commentId ?? value.contentId ?? 'unknown-target',
+    target,
+    ...(value.agentKey ? [value.agentKey] : []),
   ].join(':')
 }
 
@@ -129,7 +119,7 @@ async function hasRecordedSlackAction(key: string) {
     .select('id')
     .eq('idempotency_key', key)
     .maybeSingle()
-  if (error) return false
+  if (error) throw new Error('Could not verify the previous Slack action. No action was started.')
   return Boolean(data?.id)
 }
 
@@ -140,15 +130,42 @@ async function recordSlackActionEvent(input: {
   message: string
   metadata?: Record<string, unknown>
 }) {
-  if (!input.runId) return
-  await recordAgentEvent({
+  if (!input.runId) throw new Error('No canonical run is available to record this Slack action.')
+  const event = await recordAgentEvent({
     runId: input.runId,
     eventType: input.eventType,
     severity: 'info',
     message: input.message,
     metadata: input.metadata,
     idempotencyKey: input.key,
-  }).catch(() => {})
+  })
+  if (!event && !(await hasRecordedSlackAction(input.key))) {
+    throw new Error('Slack action trace could not be confirmed.')
+  }
+}
+
+function actionResult(text: string, actionStatus: SlackAgentActionResult['actionStatus']): SlackAgentActionResult {
+  return { responseType: 'ephemeral', text, actionStatus }
+}
+
+// Existing decision adapters return canonical Portfolio links in their text.
+// Keep those review paths on the same source as the approved Slack envelope.
+function sourceReviewLinks(text: string) {
+  return text.replace(/https?:\/\/[^\s<>]+/g, (link) => {
+    const url = new URL(link)
+    return url.pathname.startsWith('/admin/')
+      ? `${baseUrl()}${url.pathname}${url.search}${url.hash}`
+      : link
+  })
+}
+
+// These existing adapters return text, not structured outcomes. Unknown responses
+// must never be promoted to successful receipts.
+function legacyDecisionStatus(text: string): NonNullable<SlackAgentActionResult['actionStatus']> {
+  if (text.startsWith('Portfolio review required') || (text.startsWith('Reply ') && /blocked|changed|missing/.test(text))) return 'blocked'
+  if (text.startsWith('Already handled') || text.includes('was already recorded') || text.startsWith('Reply already has submitted')) return 'already_recorded'
+  if (/^(Reply (approved|rejected) from Slack|Warm Gmail send (approved|rejected|revision requested) in Portfolio)/.test(text)) return 'completed'
+  return 'failed'
 }
 
 async function decideApprovalFromSlack(input: {
@@ -170,10 +187,10 @@ async function decideApprovalFromSlack(input: {
   if (error || !approval?.id) throw new Error('Approval not found')
   const row = approval as ApprovalRow
   if (row.status !== 'pending') {
-    return `Approval already ${row.status}. Trace: ${agentRunsUrl(row.run_id)}`
+    return actionResult(`Approval already ${row.status}. No new execution was started. Trace: ${agentRunsUrl(row.run_id)}`, 'already_recorded')
   }
   if (!isSlackDecidableApproval(row.approval_type)) {
-    return `Portfolio review required for \`${row.approval_type}\`. Open trace: ${agentRunsUrl(row.run_id)}`
+    return actionResult(`Portfolio review required for \`${row.approval_type}\`. Open trace: ${agentRunsUrl(row.run_id)}`, 'blocked')
   }
 
   const metadata = row.metadata && typeof row.metadata === 'object' ? row.metadata : {}
@@ -185,7 +202,7 @@ async function decideApprovalFromSlack(input: {
     decided_at: new Date().toISOString(),
   }
 
-  const { error: updateError } = await supabaseAdmin
+  const { data: updated, error: updateError } = await supabaseAdmin
     .from('agent_approvals')
     .update({
       status: input.status,
@@ -198,72 +215,79 @@ async function decideApprovalFromSlack(input: {
     })
     .eq('id', row.id)
     .eq('status', 'pending')
+    .select('id, status')
+    .maybeSingle()
 
   if (updateError) throw new Error(`Failed to update approval: ${updateError.message}`)
-
-  await supabaseAdmin.from('agent_run_events').insert({
-    run_id: row.run_id,
-    event_type: 'slack_approval_decided',
-    severity: input.status === 'rejected' ? 'warning' : 'info',
-    message: `${row.approval_type}: ${input.status} from Slack`,
-    metadata: {
-      approval_id: row.id,
-      approval_type: row.approval_type,
-      slack_user_id: input.slackUserId,
-      actor_label: input.actorLabel,
-      decision_notes: input.decisionNotes,
-    },
-    idempotency_key: input.idempotencyKey,
-  })
-
-  const workItemId = typeof metadata.work_item_id === 'string' ? metadata.work_item_id : null
-  if (workItemId) {
-    await supabaseAdmin
-      .from('agent_work_items')
-      .update({
-        status: input.status === 'approved' ? 'assigned' : 'blocked',
-        blocker_summary: input.status === 'approved' ? null : input.decisionNotes,
-        validation_summary:
-          input.status === 'approved'
-            ? 'Mobile Slack approval recorded. Continue with the next governed Agent Ops action.'
-            : input.decisionNotes,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', workItemId)
+  if (!updated?.id) {
+    const { data: winner, error: winnerError } = await supabaseAdmin
+      .from('agent_approvals')
+      .select('status')
+      .eq('id', row.id)
+      .maybeSingle()
+    if (winnerError || !winner || winner.status === 'pending') {
+      return actionResult(`Decision was not recorded. Reload the current approval: ${agentRunsUrl(row.run_id)}`, 'failed')
+    }
+    return actionResult(`Approval already ${winner.status}. Your decision did not replace it. Trace: ${agentRunsUrl(row.run_id)}`, 'already_recorded')
   }
 
-  if (input.status === 'rejected') {
-    await supabaseAdmin
+  // The approval is authoritative. Related trace failures must not undo it or
+  // imply that a worker started; reconciliation can repair these projections.
+  const failures: string[] = []
+  try {
+    const { error: eventError } = await supabaseAdmin.from('agent_run_events').insert({
+      run_id: row.run_id,
+      event_type: 'slack_approval_decided',
+      severity: input.status === 'rejected' ? 'warning' : 'info',
+      message: `${row.approval_type}: ${input.status} from Slack`,
+      metadata: {
+        approval_id: row.id,
+        approval_type: row.approval_type,
+        slack_user_id: input.slackUserId,
+        actor_label: input.actorLabel,
+        decision_notes: input.decisionNotes,
+      },
+      idempotency_key: input.idempotencyKey,
+    })
+    if (eventError && eventError.code !== '23505') failures.push('decision trace')
+
+    const workItemId = typeof metadata.work_item_id === 'string' ? metadata.work_item_id : null
+    if (workItemId) {
+      const { data: workItem, error: workError } = await supabaseAdmin
+        .from('agent_work_items')
+        .update({
+          validation_summary:
+            input.status === 'approved'
+              ? 'Slack approval recorded. Execution has not been started by this decision.'
+              : `Slack approval rejected: ${input.decisionNotes}`,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', workItemId)
+        .select('id')
+        .maybeSingle()
+      if (workError || !workItem?.id) failures.push('work item summary')
+    }
+
+    const { error: runError } = await supabaseAdmin
       .from('agent_runs')
       .update({
-        status: 'failed',
-        current_step: 'Approval rejected from Slack',
-        error_message: input.decisionNotes,
-        completed_at: new Date().toISOString(),
+        current_step: input.status === 'approved'
+          ? 'Approval recorded; governed continuation not started'
+          : 'Approval rejected; review required',
         updated_at: new Date().toISOString(),
       })
       .eq('id', row.run_id)
-  } else {
-    const { data: pending } = await supabaseAdmin
-      .from('agent_approvals')
-      .select('id')
-      .eq('run_id', row.run_id)
-      .eq('status', 'pending')
-      .limit(1)
-    if (!pending || pending.length === 0) {
-      await supabaseAdmin
-        .from('agent_runs')
-        .update({
-          status: 'running',
-          current_step: 'Approval granted from Slack',
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', row.run_id)
-        .eq('status', 'waiting_for_approval')
-    }
+      .eq('status', 'waiting_for_approval')
+    if (runError) failures.push('run summary')
+  } catch {
+    failures.push('downstream synchronization')
   }
 
-  return `Approval ${input.status} from Slack. Trace: ${agentRunsUrl(row.run_id)}`
+  return actionResult([
+    `Approval ${input.status} from Slack. No execution was started.`,
+    failures.length ? `Decision saved, but synchronization failed for ${failures.join(', ')}. The decision is final; repair the related trace or summary without repeating the decision.` : null,
+    `Trace: ${agentRunsUrl(row.run_id)}`,
+  ].filter(Boolean).join('\n'), 'completed')
 }
 
 async function runIdForWorkItem(workItemId: string) {
@@ -271,32 +295,163 @@ async function runIdForWorkItem(workItemId: string) {
   return item?.active_run_id ?? item?.source_run_id ?? null
 }
 
-export async function handleSlackAgentAction(payload: SlackInteractivePayload): Promise<SlackAgentActionResult> {
-  const authorization = requireAuthorizedSlackUser(payload)
-  if (!authorization.ok) return { responseType: 'ephemeral', text: authorization.text }
+function socialCalendarUrl(calendarItemId: string) {
+  return `${baseUrl()}/admin/agents/content-intelligence?section=calendar&calendar_item=${encodeURIComponent(calendarItemId)}`
+}
+
+function socialContentUrl(contentId?: string | null) {
+  return contentId ? `${baseUrl()}/admin/social-content/${contentId}` : null
+}
+
+async function decideSocialCalendarDraftHandoffFromSlack(input: {
+  calendarItemId: string
+  status: 'authorized' | 'rejected'
+  slackUserId: string
+  decisionNotes: string
+}) {
+  const auth = { user: { id: `slack:${input.slackUserId}` } }
+
+  if (input.status === 'authorized') {
+    const result = await authorizeCalendarDraftHandoff(input.calendarItemId, auth)
+    const contentUrl = socialContentUrl(result.socialContentId)
+    return actionResult([
+      result.alreadyAuthorized
+        ? 'Content calendar draft handoff was already authorized.'
+        : 'Content calendar draft handoff authorized from Slack.',
+      contentUrl ? `Content readiness: ${contentUrl}` : `Calendar: ${socialCalendarUrl(input.calendarItemId)}`,
+      result.handoffWorkItemId ? `Handoff work item: ${result.handoffWorkItemId}` : null,
+      'External publishing, provider calls, uploads, scheduling, Gmail, and SMS remain disabled.',
+    ].filter(Boolean).join('\n'), result.alreadyAuthorized ? 'already_recorded' : 'completed')
+  }
+
+  const result = await rejectCalendarDraftHandoff({
+    id: input.calendarItemId,
+    decisionNote: input.decisionNotes,
+    auth,
+  })
+  return actionResult([
+    result.alreadyRejected
+      ? 'Content calendar draft handoff was already rejected.'
+      : 'Content calendar draft handoff rejected from Slack.',
+    'Manual revision required. Automatic revision is not connected.',
+    result.calendarItem?.social_content_id ? `Edit copy: ${socialContentUrl(result.calendarItem.social_content_id)}?step=copy#social-copy-gate` : null,
+    `Calendar: ${socialCalendarUrl(input.calendarItemId)}`,
+    'No external action was taken.',
+  ].filter(Boolean).join('\n'), result.alreadyRejected ? 'already_recorded' : 'completed')
+}
+
+export function prepareSlackAgentAction(payload: SlackInteractivePayload) {
+  const reject = (text: string) => ({ ok: false as const, result: actionResult(text, 'blocked') })
+  if (!payload || typeof payload !== 'object') return reject('Slack action rejected: invalid payload.')
+  const authorization = requireAuthorizedSlackActor({
+    userId: payload.user?.id,
+    userName: payload.user?.username || payload.user?.name,
+    teamId: payload.team?.id,
+  })
+  if (!authorization.ok) return reject(authorization.text)
+  try {
+    baseUrl()
+  } catch {
+    return reject('Slack action rejected: source environment or origin is not configured. Request a fresh review card after configuration is corrected.')
+  }
+  if (payload.type !== 'block_actions' || !Array.isArray(payload.actions) || payload.actions.length !== 1) {
+    return reject('Slack action rejected: expected one block action.')
+  }
 
   const value = actionFromPayload(payload)
   if (!value) {
-    return { responseType: 'ephemeral', text: 'Slack action rejected: missing or invalid action payload.' }
+    const rawUrl = payload.actions?.[0]?.url
+    const url = typeof rawUrl === 'string' ? rawUrl.trim() : ''
+    if (url) {
+      try {
+        const gate = new URL(url)
+        if (gate.origin !== baseUrl()) return reject(`Open a fresh Portfolio review card for this source: ${baseUrl()}/admin/agents`)
+        if (!gate.pathname.startsWith('/admin/')) return reject('Open a fresh Portfolio review card for this decision.')
+        return reject(`Complete this decision in the current Portfolio review gate: ${baseUrl()}${gate.pathname}${gate.search}${gate.hash}`)
+      } catch {
+        return reject('Open a fresh Portfolio review card for this decision.')
+      }
+    }
+    return reject('Slack action rejected: missing or invalid action payload.')
+  }
+  if (![payload.container?.message_ts, payload.message?.ts].some((ts) => typeof ts === 'string' && ts.trim())) {
+    return reject('Slack action rejected: missing source message identity. Open a fresh Portfolio review card.')
+  }
+  if (payload.channel?.id && payload.container?.channel_id && payload.channel.id !== payload.container.channel_id) {
+    return reject('Slack action rejected: conflicting channel identity.')
+  }
+  const channelAuthorization = requireAuthorizedSlackChannel(payload.channel?.id || payload.container?.channel_id)
+  if (!channelAuthorization.ok) return reject(channelAuthorization.text)
+  if (!isLocalSlackDevelopment() && !(payload.channel?.id || payload.container?.channel_id)) {
+    return reject('Slack action rejected: missing source channel identity.')
+  }
+  const stringFields = ['approvalId', 'workItemId', 'runId', 'agentKey', 'contentId', 'calendarItemId', 'commentId', 'expectedUpdatedAt', 'expectedReplyText', 'outreachQueueId', 'messageVersionKey', 'sendQueueIdempotencyKey', 'note'] as const
+  if (stringFields.some((field) => value[field] !== undefined && (typeof value[field] !== 'string' || !(value[field] as string).trim()))) {
+    return reject('Slack action rejected: invalid action fields.')
+  }
+  switch (value.action) {
+    case 'approval.approve': case 'approval.reject': case 'approval.revision': case 'approval.ask_shaka':
+      if (!value.approvalId) return reject('Missing approval id.')
+      break
+    case 'work.assign': case 'work.handoff':
+      if (!value.workItemId || !value.agentKey) return reject('Missing work item or agent key.')
+      break
+    case 'work.ready': case 'work.revision': case 'work.acknowledge': case 'work.ask_shaka': case 'inbox.route':
+      if (!value.workItemId) return reject('Missing work item id.')
+      break
+    case 'run.ask_shaka':
+      if (!value.runId) return reject('Missing run id.')
+      break
+    case 'inbox.ask_shaka': break
+    case 'social_comment_reply.approve': case 'social_comment_reply.reject':
+      if (!value.commentId || !value.expectedUpdatedAt || !value.expectedReplyText) return reject('Missing comment review version. Refresh the Slack card from Portfolio.')
+      break
+    case 'social_calendar_draft_handoff.approve': case 'social_calendar_draft_handoff.reject':
+    case 'social_calendar.approve': case 'social_calendar.reject':
+      if (!value.calendarItemId) return reject('Missing content calendar item id.')
+      break
+    case 'warm_gmail_send.approve': case 'warm_gmail_send.reject': case 'warm_gmail_send.revise':
+      if (!Number.isSafeInteger(value.contactId) || (value.contactId ?? 0) <= 0 || !value.outreachQueueId || !value.messageVersionKey || !value.sendQueueIdempotencyKey) {
+        return reject('Missing warm Gmail send authorization scope. Open Portfolio and review this recipient there.')
+      }
+      break
+    case 'insight.ask_shaka': case 'insight.draft_autoresearch':
+      if (!value.contentId || !value.note) return reject('Missing insight packet.')
+      break
+    default: return reject('Unsupported Agent Ops Slack action.')
   }
 
   const key = idempotencyKey(payload, value)
-  if (await hasRecordedSlackAction(key)) {
-    return { responseType: 'ephemeral', text: 'Already handled this Slack action.' }
+  return { ok: true as const, authorization, value, key }
+}
+
+export async function handleSlackAgentAction(payload: SlackInteractivePayload): Promise<SlackAgentActionResult> {
+  const prepared = prepareSlackAgentAction(payload)
+  if (!prepared.ok) return prepared.result
+  try {
+    return await executeSlackAgentAction(prepared)
+  } catch {
+    return actionResult('Slack action could not be confirmed. The decision or work item may already be saved. Check the current Portfolio gate before retrying; completion is unconfirmed.', 'failed')
   }
+}
+
+async function executeSlackAgentAction({ authorization, value, key }: Extract<ReturnType<typeof prepareSlackAgentAction>, { ok: true }>): Promise<SlackAgentActionResult> {
 
   if (value.action === 'approval.approve' || value.action === 'approval.reject' || value.action === 'approval.revision') {
     if (!value.approvalId) return { responseType: 'ephemeral', text: 'Missing approval id.' }
     const status = value.action === 'approval.approve' ? 'approved' : 'rejected'
-    const text = await decideApprovalFromSlack({
+    return decideApprovalFromSlack({
       approvalId: value.approvalId,
       status,
       actorLabel: authorization.actorLabel,
       slackUserId: authorization.userId,
-      decisionNotes: value.note || (status === 'approved' ? 'Approved from Slack.' : 'Revision requested from Slack.'),
+      decisionNotes: value.note || (status === 'approved' ? 'Approved from Slack.' : value.action === 'approval.revision' ? 'Revision requested from Slack.' : 'Rejected from Slack.'),
       idempotencyKey: key,
     })
-    return { responseType: 'ephemeral', text }
+  }
+
+  if (await hasRecordedSlackAction(key)) {
+    return actionResult('Already handled this Slack action. No new execution was started.', 'already_recorded')
   }
 
   if (value.action === 'approval.ask_shaka') {
@@ -324,7 +479,7 @@ export async function handleSlackAgentAction(payload: SlackInteractivePayload): 
       message: `${authorization.actorLabel} assigned ${item.title} to ${value.agentKey} from Slack`,
       metadata: { work_item_id: item.id, owner_agent_key: value.agentKey, slack_user_id: authorization.userId },
     })
-    return { responseType: 'ephemeral', text: `Assigned to ${value.agentKey}. Kanban: ${baseUrl()}/admin/agents/swarm-board` }
+    return actionResult(`Assigned to ${value.agentKey}. Kanban: ${baseUrl()}/admin/agents/swarm-board`, 'completed')
   }
 
   if (value.action === 'work.handoff') {
@@ -344,7 +499,7 @@ export async function handleSlackAgentAction(payload: SlackInteractivePayload): 
       message: `${authorization.actorLabel} handed off ${result.workItem.title} to ${value.agentKey} from Slack`,
       metadata: { work_item_id: result.workItem.id, handoff_id: result.handoffId, slack_user_id: authorization.userId },
     })
-    return { responseType: 'ephemeral', text: `Handoff requested for ${value.agentKey}. Kanban: ${baseUrl()}/admin/agents/swarm-board` }
+    return actionResult(`Handoff requested for ${value.agentKey}. Kanban: ${baseUrl()}/admin/agents/swarm-board`, 'completed')
   }
 
   if (value.action === 'work.ready') {
@@ -361,7 +516,7 @@ export async function handleSlackAgentAction(payload: SlackInteractivePayload): 
       message: `${authorization.actorLabel} marked ${item.title} ready from Slack`,
       metadata: { work_item_id: item.id, slack_user_id: authorization.userId },
     })
-    return { responseType: 'ephemeral', text: `Marked ready. Kanban: ${baseUrl()}/admin/agents/swarm-board` }
+    return actionResult(`Marked ready. Kanban: ${baseUrl()}/admin/agents/swarm-board`, 'completed')
   }
 
   if (value.action === 'work.revision') {
@@ -377,7 +532,7 @@ export async function handleSlackAgentAction(payload: SlackInteractivePayload): 
       message: `${authorization.actorLabel} requested revision for ${item.title} from Slack`,
       metadata: { work_item_id: item.id, slack_user_id: authorization.userId },
     })
-    return { responseType: 'ephemeral', text: `Revision requested. Kanban: ${baseUrl()}/admin/agents/swarm-board` }
+    return actionResult(`Revision requested. Kanban: ${baseUrl()}/admin/agents/swarm-board`, 'completed')
   }
 
   if (value.action === 'work.acknowledge') {
@@ -397,6 +552,7 @@ export async function handleSlackAgentAction(payload: SlackInteractivePayload): 
     return {
       responseType: 'ephemeral',
       text: `Blocker acknowledged. Ask Shaka for a next-step recommendation or open Kanban: ${baseUrl()}/admin/agents/swarm-board`,
+      actionStatus: 'completed',
     }
   }
 
@@ -437,6 +593,7 @@ export async function handleSlackAgentAction(payload: SlackInteractivePayload): 
     return {
       responseType: 'ephemeral',
       text: `Routed inbox item: ${result.item.title}. Trace: ${agentRunsUrl(result.runId)}`,
+      actionStatus: 'completed',
     }
   }
 
@@ -458,13 +615,93 @@ export async function handleSlackAgentAction(payload: SlackInteractivePayload): 
     const status = value.action === 'social_comment_reply.approve' ? 'approved' : 'rejected'
     const text = await decideSocialCommentReplyFromSlack({
       commentId: value.commentId,
+      expectedUpdatedAt: value.expectedUpdatedAt,
+      expectedReplyText: value.expectedReplyText,
       status,
       actorLabel: authorization.actorLabel,
       slackUserId: authorization.userId,
       decisionNotes: value.note || (status === 'approved' ? 'Approved from Slack.' : 'Rejected from Slack.'),
       idempotencyKey: key,
     })
-    return { responseType: 'ephemeral', text }
+    return actionResult(sourceReviewLinks(text), legacyDecisionStatus(text))
+  }
+
+  if (
+    value.action === 'social_calendar_draft_handoff.approve' ||
+    value.action === 'social_calendar_draft_handoff.reject' ||
+    value.action === 'social_calendar.approve' ||
+    value.action === 'social_calendar.reject'
+  ) {
+    if (!value.calendarItemId) {
+      return {
+        responseType: 'ephemeral',
+        text: 'Missing content calendar item id. Open Portfolio and use the Content Intelligence calendar decision path.',
+      }
+    }
+    const status = value.action.endsWith('.approve') ? 'authorized' : 'rejected'
+    try {
+      const result = await decideSocialCalendarDraftHandoffFromSlack({
+        calendarItemId: value.calendarItemId,
+        status,
+        slackUserId: authorization.userId,
+        decisionNotes: value.note || (
+          status === 'authorized'
+            ? 'Authorize Draft Handoff tapped in Slack. Record internal content-readiness approval only; do not publish or call providers.'
+            : 'Rejected from Slack. Keep content pipeline blocked until revised.'
+        ),
+      })
+      return result
+    } catch (error) {
+      return {
+        responseType: 'ephemeral',
+        text: [
+          `Content calendar approval blocked: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          `Open Portfolio: ${socialCalendarUrl(value.calendarItemId)}`,
+        ].join('\n'),
+        actionStatus: 'blocked',
+      }
+    }
+  }
+
+  if (
+    value.action === 'warm_gmail_send.approve' ||
+    value.action === 'warm_gmail_send.reject' ||
+    value.action === 'warm_gmail_send.revise'
+  ) {
+    if (
+      typeof value.contactId !== 'number' ||
+      !value.outreachQueueId ||
+      !value.messageVersionKey ||
+      !value.sendQueueIdempotencyKey
+    ) {
+      return {
+        responseType: 'ephemeral',
+        text: 'Missing warm Gmail send authorization scope. Open Portfolio and review this recipient there.',
+      }
+    }
+    const status = value.action === 'warm_gmail_send.approve'
+      ? 'approved'
+      : value.action === 'warm_gmail_send.reject'
+        ? 'rejected'
+        : 'revision_requested'
+    const text = await decideWarmGmailSendAuthorizationFromSlack({
+      contactId: value.contactId,
+      outreachQueueId: value.outreachQueueId,
+      messageVersionKey: value.messageVersionKey,
+      sendQueueIdempotencyKey: value.sendQueueIdempotencyKey,
+      status,
+      actorLabel: authorization.actorLabel,
+      slackUserId: authorization.userId,
+      decisionNotes: value.note || (
+        status === 'approved'
+          ? 'Approve Send tapped in Slack. Record approval intent only; do not call Gmail send.'
+          : status === 'rejected'
+            ? 'Rejected from Slack. Keep Gmail send blocked.'
+            : 'Revision requested from Slack. Keep Gmail send blocked.'
+      ),
+      idempotencyKey: key,
+    })
+    return actionResult(sourceReviewLinks(text), legacyDecisionStatus(text))
   }
 
   if (value.action === 'insight.ask_shaka') {
@@ -515,6 +752,7 @@ export async function handleSlackAgentAction(payload: SlackInteractivePayload): 
     return {
       responseType: 'ephemeral',
       text: `Drafted proposed AutoResearch work item: ${item.title}. Kanban: ${agentKanbanUrl()}?work_item=${encodeURIComponent(item.id)}`,
+      actionStatus: 'completed',
     }
   }
 

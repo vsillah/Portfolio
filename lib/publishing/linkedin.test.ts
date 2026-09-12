@@ -11,6 +11,8 @@ vi.mock('@/lib/supabase', () => ({
 }))
 
 import { publishToLinkedIn } from './linkedin'
+import { releaseStore, releaseFixture } from '@/lib/social-release-safety.test-fixtures'
+import { socialReleaseFingerprint } from '@/lib/social-release-evidence'
 
 const futureToken = {
   access_token: 'linkedin-token',
@@ -19,36 +21,30 @@ const futureToken = {
   person_urn: 'urn:li:person:member-1',
 }
 
-function installSupabase() {
-  const configSingle = vi.fn().mockResolvedValue({
-    data: {
-      is_active: true,
-      credentials: futureToken,
-      settings: {
-        author_urn: 'urn:li:person:member-1',
-        post_visibility: 'PUBLIC',
-      },
-    },
-    error: null,
-  })
-  const configEq = vi.fn(() => ({ single: configSingle }))
-  const configSelect = vi.fn(() => ({ eq: configEq }))
-
-  const publishSecondEq = vi.fn().mockResolvedValue({ data: null, error: null })
-  const publishFirstEq = vi.fn(() => ({ eq: publishSecondEq }))
-  const publishUpdate = vi.fn(() => ({ eq: publishFirstEq }))
-
+let activeStore: ReturnType<typeof releaseStore>
+function installSupabase(payload: Record<string, unknown> = {}) {
+  const item: Record<string, any> = { ...releaseFixture(), post_text: payload.postText ?? 'Post text', cta_text: payload.ctaText,
+    cta_url: payload.ctaUrl, hashtags: payload.hashtags, image_url: payload.imageUrl, carousel_slide_urls: payload.carouselSlideUrls }
+  item.rag_context.platform_submission_gate = { status: 'submitting', release_id: 'release-1', release_platforms: ['linkedin'],
+    approved_fingerprint: socialReleaseFingerprint(item) }
+  const store = releaseStore(item)
+  activeStore = store
+  store.tables.social_content_config[0] = { platform: 'linkedin', is_active: true, credentials: futureToken,
+    settings: { author_urn: 'urn:li:person:member-1', post_visibility: 'PUBLIC' } }
+  const publishUpdate = vi.fn()
   mocks.from.mockImplementation((table: string) => {
-    if (table === 'social_content_config') {
-      return { select: configSelect }
-    }
-    if (table === 'social_content_publishes') {
-      return { update: publishUpdate }
-    }
-    return {}
+    const q = store.admin.from(table), update = q.update
+    q.update = (patch: Record<string, unknown>) => { publishUpdate(patch); return update(patch) }
+    return q
   })
+  return { publishUpdate, store }
+}
 
-  return { publishUpdate }
+async function approvedPublish(payload: Parameters<typeof publishToLinkedIn>[0]) {
+  Object.assign(activeStore.item(), { post_text: payload.postText, cta_text: payload.ctaText, cta_url: payload.ctaUrl,
+    hashtags: payload.hashtags, image_url: payload.imageUrl, carousel_slide_urls: payload.carouselSlideUrls })
+  activeStore.item().rag_context.platform_submission_gate.approved_fingerprint = socialReleaseFingerprint(activeStore.item())
+  return publishToLinkedIn({ ...payload, releaseClaimId: 'release-1' })
 }
 
 function jsonResponse(body: unknown, init?: ResponseInit) {
@@ -140,7 +136,7 @@ describe('publishToLinkedIn', () => {
     vi.stubGlobal('fetch', fetchMock)
     const { publishUpdate } = installSupabase()
 
-    const result = await publishToLinkedIn({
+    const result = await approvedPublish({
       contentId: 'social-1',
       postText: 'Post text',
       ctaUrl: 'https://amadutown.com/agentified',
@@ -193,7 +189,7 @@ describe('publishToLinkedIn', () => {
     })
     vi.stubGlobal('fetch', fetchMock)
 
-    const result = await publishToLinkedIn({
+    const result = await approvedPublish({
       contentId: 'social-1',
       postText: 'Post text',
       carouselSlideUrls: [
@@ -211,5 +207,52 @@ describe('publishToLinkedIn', () => {
       status: 'failed',
       error_message: 'LinkedIn multi-image upload failed on slide 1',
     }))
+  })
+})
+
+
+describe('LinkedIn dispatch and uncertainty fences', () => {
+  beforeEach(() => { vi.clearAllMocks(); installSupabase(); vi.spyOn(console, 'error').mockImplementation(() => {}) })
+  afterEach(() => { vi.unstubAllGlobals(); vi.restoreAllMocks() })
+  it('rejects direct calls without a queue claim before reading credentials or network', async () => {
+    vi.stubGlobal('fetch', vi.fn())
+    expect((await publishToLinkedIn({ contentId: 'social-1', postText: 'Post text' })).success).toBe(false)
+    expect(mocks.from).not.toHaveBeenCalled(); expect(fetch).not.toHaveBeenCalled()
+  })
+  it('allows one of two adapter calls with the same valid queue claim', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ id: 'remote-1' })))
+    const results = await Promise.all([approvedPublish({ contentId: 'social-1', postText: 'Post text' }), approvedPublish({ contentId: 'social-1', postText: 'Post text' })])
+    expect(results.filter(r => r.success)).toHaveLength(1); expect(fetch).toHaveBeenCalledTimes(1)
+  })
+  it.each(['network', 'empty', 'missing-id', 'http-error'])('keeps %s remote outcome non-retryable', async mode => {
+    vi.stubGlobal('fetch', vi.fn(async () => {
+      if (mode === 'network') throw new Error('timeout')
+      if (mode === 'empty') return new Response(null, { status: 201 })
+      if (mode === 'http-error') return new Response(null, { status: 500 })
+      return jsonResponse({})
+    }))
+    const result = await approvedPublish({ contentId: 'social-1', postText: 'Post text' })
+    expect(result.reconciliationRequired).toBe(true)
+    expect(activeStore.publish().status).toBe('publishing')
+    await approvedPublish({ contentId: 'social-1', postText: 'Post text' }); expect(fetch).toHaveBeenCalledTimes(1)
+  })
+  it('never retries a successful remote post after local publish persistence fails', async () => {
+    activeStore.controls.fail = (_table, patch) => patch.status === 'published'
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ id: 'remote-1' })))
+    expect((await approvedPublish({ contentId: 'social-1', postText: 'Post text' })).reconciliationRequired).toBe(true)
+    expect(activeStore.publish().status).toBe('publishing')
+    await approvedPublish({ contentId: 'social-1', postText: 'Post text' }); expect(fetch).toHaveBeenCalledTimes(1)
+  })
+  it.each(['disabled', 'missing'])('blocks %s credentials without network', async mode => {
+    if (mode === 'disabled') activeStore.tables.social_content_config[0].is_active = false
+    else activeStore.tables.social_content_config = []
+    vi.stubGlobal('fetch', vi.fn())
+    expect((await approvedPublish({ contentId: 'social-1', postText: 'Post text' })).success).toBe(false)
+    expect(fetch).not.toHaveBeenCalled(); expect(activeStore.publish().status).toBe('pending')
+  })
+  it('rejects a payload changed after queue approval', async () => {
+    vi.stubGlobal('fetch', vi.fn())
+    expect((await publishToLinkedIn({ contentId: 'social-1', postText: 'unapproved', releaseClaimId: 'release-1' })).success).toBe(false)
+    expect(fetch).not.toHaveBeenCalled()
   })
 })

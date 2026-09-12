@@ -1,14 +1,21 @@
 'use client'
 
+import { useEffect, useState } from 'react'
+import { warmCopyBlocker } from '@/lib/warm-outreach-copy-quality'
 import {
   AlertTriangle,
   CheckCircle2,
+  ClipboardCheck,
+  ClipboardCopy,
   Database,
   FileText,
+  Info,
   LockKeyhole,
   Mail,
   MessageSquare,
   Phone,
+  RefreshCw,
+  Send,
   ShieldAlert,
   ShieldCheck,
   Sparkles,
@@ -20,7 +27,38 @@ import type {
   WarmOutreachReadiness,
   WarmOutreachRelationshipPacket,
 } from '@/lib/warm-outreach-relationship-intelligence'
-import type { WarmOutreachResponseMonitoring } from '@/lib/warm-outreach-response-monitoring'
+import type {
+  WarmManualSocialHandoff,
+  WarmManualSocialHandoffChannel,
+  WarmManualSocialHandoffChannelPacket,
+  WarmManualSocialHandoffEvidenceRecord,
+} from '@/lib/warm-outreach-manual-social-handoff'
+import type {
+  WarmOutreachGmailProviderExecutionReadiness,
+  WarmOutreachGmailProviderActivationReadiness,
+  WarmOutreachRealRecipientGmailRolloutReadiness,
+  WarmOutreachResponseMonitoring,
+} from '@/lib/warm-outreach-response-monitoring'
+import type {
+  WarmGmailOperatingLoop,
+  WarmGmailOperatingLoopState,
+} from '@/lib/warm-outreach-gmail-operating-loop'
+import {
+  buildWarmSmsCandidateReview,
+  type WarmSmsCandidateQueueArtifact,
+  type WarmSmsCandidateReview,
+} from '@/lib/warm-outreach-sms-candidate'
+import type {
+  WarmSmsApprovalState,
+  WarmSmsManualResponseOutcome,
+  WarmSmsReadiness,
+  WarmSmsReadinessState,
+} from '@/lib/warm-outreach-sms-readiness'
+import {
+  evaluateWarmSmsManualLoop,
+  warmSmsManualLoopStages,
+} from '@/lib/warm-outreach-sms-readiness'
+import type { WarmSmsTelnyxNoSendCanaryResult } from '@/lib/warm-outreach-sms-provider-readiness'
 
 type SendReadinessItem =
   WarmOutreachResponseMonitoring['sendReadiness']['modes']['warm_1_to_1'][number]
@@ -33,6 +71,8 @@ export interface RelationshipPacketApiResponse {
   packet: WarmOutreachRelationshipPacket
   readiness: WarmOutreachReadiness
   contextSummary: WarmOutreachContextSummary
+  manualSocialHandoff?: WarmManualSocialHandoff
+  smsReadiness?: WarmSmsReadiness
   executionBoundary: {
     source: string
     readOnly: boolean
@@ -46,10 +86,57 @@ export interface RelationshipPacketApiResponse {
   responseMonitoring?: WarmOutreachResponseMonitoring
 }
 
+export interface GmailDraftCanaryResult {
+  status: string
+  message: string
+  draftCreationEnabled: false
+  providerCallsEnabled: false
+  externalSendEnabled: false
+  gmailDraftCreated: false
+  trackingPersisted: false
+  activationReadiness?: WarmOutreachGmailProviderActivationReadiness
+}
+
+export type SmsTelnyxNoSendCanaryResult = WarmSmsTelnyxNoSendCanaryResult
+
+const WARM_SMS_SEND_AUTHORIZATION = 'execute_warm_sms_send_for_authorized_recipient'
+
+type SmsCandidateRouteResult = {
+  outcome?: 'created' | 'existing' | 'blocked'
+  message?: string
+  candidate?: WarmSmsCandidateQueueArtifact | null
+  candidateReview?: WarmSmsCandidateReview | null
+  blockers?: string[]
+  executionBoundary?: {
+    createsQueueArtifact?: boolean
+    providerCallsEnabled?: boolean
+    smsDeliveryEnabled?: boolean
+    telnyxApiCalled?: boolean
+    externalSendEnabled?: boolean
+    slackDispatchEnabled?: boolean
+    gmailActionEnabled?: boolean
+    n8nDispatchEnabled?: boolean
+    rawPhoneReturned?: boolean
+    rawMessageBodyReturned?: boolean
+    externalRequests?: unknown[]
+  }
+}
+
 interface RelationshipPacketPanelProps {
+  authToken?: string | null
   loading: boolean
   error: string | null
   data: RelationshipPacketApiResponse | null
+  gmailDraftCanaryLoading?: boolean
+  gmailDraftCanaryError?: string | null
+  gmailDraftCanaryResult?: GmailDraftCanaryResult | null
+  onGmailDraftCanary?: () => void
+  smsTelnyxCanaryLoading?: boolean
+  smsTelnyxCanaryError?: string | null
+  smsTelnyxCanaryResult?: SmsTelnyxNoSendCanaryResult | null
+  onSmsTelnyxNoSendCanary?: () => void
+  inertSlackApprovalRequest?: boolean
+  responseDigestAnchorId?: string
 }
 
 const CHANNEL_LABELS: Record<WarmOutreachChannel, string> = {
@@ -69,6 +156,12 @@ const CHANNEL_ICONS: Record<WarmOutreachChannel, typeof Mail> = {
 export function relationshipReadinessLabel(status: WarmOutreachReadiness['status']) {
   if (status === 'draft_ready') return 'Ready for draft review'
   if (status === 'needs_review') return 'Needs human review'
+  return 'Blocked'
+}
+
+function relationshipReadinessCompactLabel(status: WarmOutreachReadiness['status']) {
+  if (status === 'draft_ready') return 'Draft review'
+  if (status === 'needs_review') return 'Human review'
   return 'Blocked'
 }
 
@@ -108,6 +201,69 @@ function monitoringClasses(status?: WarmOutreachResponseMonitoring['status']) {
   return 'border-sky-500/25 bg-sky-500/10 text-sky-100'
 }
 
+function responseDigestStateClasses(state: WarmOutreachResponseMonitoring['responseDigest']['state']) {
+  if (state === 'follow_up_draft_ready' || state === 'reply_detected') {
+    return 'border-emerald-500/30 bg-emerald-500/10 text-emerald-100'
+  }
+  if (state === 'suppression_proposal') return 'border-amber-500/30 bg-amber-500/10 text-amber-100'
+  if (state === 'blocked') return 'border-red-500/30 bg-red-500/10 text-red-100'
+  return 'border-sky-500/25 bg-sky-500/10 text-sky-100'
+}
+
+function providerCaptureClasses(state: WarmOutreachResponseMonitoring['providerCaptureReadiness']['providers'][number]['state']) {
+  if (state === 'readiness_metadata_only') return 'border-sky-500/25 bg-sky-500/10 text-sky-100'
+  if (state === 'manual_capture_only') return 'border-emerald-500/25 bg-emerald-500/10 text-emerald-100'
+  return 'border-amber-500/25 bg-amber-500/10 text-amber-100'
+}
+
+function gmailImportClasses(state: WarmOutreachResponseMonitoring['gmailResponseImportReadiness']['state']) {
+  if (state === 'dry_run_ready' || state === 'response_evidence_ready') {
+    return 'border-emerald-500/25 bg-emerald-500/10 text-emerald-100'
+  }
+  if (state === 'blocked') return 'border-red-500/25 bg-red-500/10 text-red-100'
+  return 'border-amber-500/25 bg-amber-500/10 text-amber-100'
+}
+
+function matchBasisClasses(available: boolean) {
+  return available
+    ? 'border-emerald-500/25 bg-emerald-500/10 text-emerald-100'
+    : 'border-silicon-slate bg-background/30 text-muted-foreground'
+}
+
+function activationGateClasses(state: NonNullable<WarmOutreachResponseMonitoring['gmailResponseImportReadiness']['activationReadiness']>['gateRows'][number]['state']) {
+  if (state === 'ready') return 'border-emerald-500/25 bg-emerald-500/10 text-emerald-100'
+  if (state === 'disabled' || state === 'not_checked') {
+    return 'border-silicon-slate bg-background/30 text-muted-foreground'
+  }
+  if (state === 'missing') return 'border-amber-500/25 bg-amber-500/10 text-amber-100'
+  return 'border-red-500/25 bg-red-500/10 text-red-100'
+}
+
+function canaryStateClasses(state: WarmOutreachResponseMonitoring['gmailResponseImportReadiness']['canaryReadiness']['state']) {
+  if (state === 'imported_response_found' || state === 'ready_for_dry_run') {
+    return 'border-emerald-500/25 bg-emerald-500/10 text-emerald-100'
+  }
+  if (state === 'live_read_approval_required') return 'border-sky-500/25 bg-sky-500/10 text-sky-100'
+  if (state === 'no_response_found' || state === 'duplicate_deduped') {
+    return 'border-amber-500/25 bg-amber-500/10 text-amber-100'
+  }
+  return 'border-red-500/25 bg-red-500/10 text-red-100'
+}
+
+function canaryGateClasses(state: WarmOutreachResponseMonitoring['gmailResponseImportReadiness']['canaryReadiness']['gates'][number]['state']) {
+  if (state === 'ready' || state === 'passed') return 'border-emerald-500/25 bg-emerald-500/10 text-emerald-100'
+  if (state === 'required') return 'border-sky-500/25 bg-sky-500/10 text-sky-100'
+  if (state === 'disabled') return 'border-silicon-slate bg-background/30 text-muted-foreground'
+  return 'border-red-500/25 bg-red-500/10 text-red-100'
+}
+
+function operatorDecisionClasses(state: WarmOutreachResponseMonitoring['operatorDecisionPaths'][number]['state']) {
+  if (state === 'pending_human_qa') return 'border-sky-500/25 bg-sky-500/10 text-sky-100'
+  if (state === 'available') return 'border-emerald-500/25 bg-emerald-500/10 text-emerald-100'
+  if (state === 'blocked') return 'border-red-500/25 bg-red-500/10 text-red-100'
+  return 'border-silicon-slate bg-background/30 text-muted-foreground'
+}
+
 function sendReadinessClasses(state: string) {
   if (state === 'blocked' || state === 'unavailable') {
     return 'border-red-500/25 bg-red-500/10 text-red-100'
@@ -128,6 +284,19 @@ function sendAuthorityStateLabel(state: SendReadinessItem['sendAuthority']['stat
   return 'Blocked'
 }
 
+function manualHandoffStateClasses(state: WarmManualSocialHandoffChannelPacket['state']) {
+  if (state === 'manual_sent_recorded') return 'border-emerald-500/30 bg-emerald-500/10 text-emerald-100'
+  if (state === 'ready_for_manual_copy') return 'border-sky-500/30 bg-sky-500/10 text-sky-100'
+  if (state === 'blocked') return 'border-amber-500/30 bg-amber-500/10 text-amber-100'
+  return 'border-silicon-slate/70 bg-background/35 text-muted-foreground'
+}
+
+function manualChecklistClasses(status: WarmManualSocialHandoffChannelPacket['checklist'][number]['status']) {
+  if (status === 'ready') return 'border-emerald-500/25 bg-emerald-500/10 text-emerald-100'
+  if (status === 'manual_required') return 'border-sky-500/25 bg-sky-500/10 text-sky-100'
+  return 'border-red-500/25 bg-red-500/10 text-red-100'
+}
+
 function emailLifecycleStateLabel(state: NonNullable<SendReadinessItem['emailSendLifecycle']>['state']) {
   if (state === 'per_recipient_gate_required') return 'Per-recipient gate required'
   if (state === 'blocked_before_provider_activation') return 'Provider/send activation blocked'
@@ -142,6 +311,784 @@ function emailLifecycleStageClasses(status: NonNullable<SendReadinessItem['email
   return 'border-amber-500/25 bg-amber-500/10 text-amber-100'
 }
 
+function gmailHandoffClasses(state: NonNullable<SendReadinessItem['emailSendLifecycle']>['gmailDraftHandoffPacket']['state']) {
+  if (state === 'blocked') return 'border-red-500/25 bg-red-500/10 text-red-100'
+  if (state === 'per_recipient_gate_required') return 'border-amber-500/25 bg-amber-500/10 text-amber-100'
+  return 'border-emerald-500/25 bg-emerald-500/10 text-emerald-100'
+}
+
+function providerSmokeClasses(status: NonNullable<SendReadinessItem['emailSendLifecycle']>['providerCapabilitySmoke']['status']) {
+  if (status === 'smoke_passed') return 'border-emerald-500/25 bg-emerald-500/10 text-emerald-100'
+  if (status === 'smoke_failed' || status === 'blocked') return 'border-red-500/25 bg-red-500/10 text-red-100'
+  if (status === 'ready_for_read_only_smoke' || status === 'waiting_read_only_smoke_authority') {
+    return 'border-sky-500/25 bg-sky-500/10 text-sky-100'
+  }
+  return 'border-amber-500/25 bg-amber-500/10 text-amber-100'
+}
+
+function draftCreationGateClasses(status: NonNullable<SendReadinessItem['emailSendLifecycle']>['gmailDraftCreationGate']['status']) {
+  if (status === 'ready_for_disabled_activation') return 'border-emerald-500/25 bg-emerald-500/10 text-emerald-100'
+  if (status === 'blocked' || status === 'handoff_blocked') return 'border-red-500/25 bg-red-500/10 text-red-100'
+  return 'border-amber-500/25 bg-amber-500/10 text-amber-100'
+}
+
+function activationStepClasses(state: string) {
+  if (state === 'ready' || state === 'passed_no_send') {
+    return 'border-emerald-500/25 bg-emerald-500/10 text-emerald-100'
+  }
+  if (state === 'blocked' || state === 'blocked_no_send') {
+    return 'border-red-500/25 bg-red-500/10 text-red-100'
+  }
+  return 'border-amber-500/25 bg-amber-500/10 text-amber-100'
+}
+
+function realRecipientRolloutClasses(state: WarmOutreachRealRecipientGmailRolloutReadiness['state']) {
+  if (state === 'ready_for_send_request' || state === 'eligible_for_execution') {
+    return 'border-emerald-500/30 bg-emerald-500/10 text-emerald-100'
+  }
+  if (state === 'authorization_recorded_execution_blocked') return 'border-sky-500/30 bg-sky-500/10 text-sky-100'
+  if (state === 'already_sent') return 'border-silicon-slate bg-silicon-slate/25 text-muted-foreground'
+  return 'border-red-500/30 bg-red-500/10 text-red-100'
+}
+
+function rolloutRequirementClasses(state: string) {
+  if (
+    state === 'tracked' ||
+    state === 'matched' ||
+    state === 'clear' ||
+    state === 'configured' ||
+    state === 'eligible_for_execution' ||
+    state === 'sent'
+  ) {
+    return 'border-emerald-500/25 bg-emerald-500/10 text-emerald-100'
+  }
+  if (state === 'approved' || state === 'approved_for_send' || state === 'approval_requested') {
+    return 'border-sky-500/25 bg-sky-500/10 text-sky-100'
+  }
+  if (state === 'missing') return 'border-amber-500/25 bg-amber-500/10 text-amber-100'
+  return 'border-red-500/25 bg-red-500/10 text-red-100'
+}
+
+function slackApprovalStatusLabel(status: WarmOutreachRealRecipientGmailRolloutReadiness['slackApprovalContract']['status']) {
+  if (status === 'not_sent') return 'not sent'
+  if (status === 'pending') return 'pending'
+  if (status === 'approved') return 'approved'
+  if (status === 'rejected') return 'rejected'
+  return 'revision requested'
+}
+
+function canaryReceiptClasses(state: NonNullable<WarmOutreachRealRecipientGmailRolloutReadiness['auditReceipt']>['finalSendAuthority']['state']) {
+  if (state === 'eligible_for_exact_execution' || state === 'authorization_recorded_execution_blocked') {
+    return 'border-sky-500/25 bg-sky-500/10 text-sky-50'
+  }
+  if (state === 'sent_do_not_resend' || state === 'repair_required_do_not_resend') {
+    return 'border-amber-500/30 bg-amber-500/10 text-amber-50'
+  }
+  return 'border-red-500/25 bg-red-500/10 text-red-50'
+}
+
+function operatingLoopClasses(loop: WarmGmailOperatingLoop) {
+  if (loop.duplicateSendBlocked) {
+    return 'border-amber-400/35 bg-amber-400/10 text-amber-50'
+  }
+  if (loop.blocked) return 'border-red-500/35 bg-red-500/10 text-red-50'
+  if (loop.state === 'send_authorized') return 'border-sky-400/35 bg-sky-400/10 text-sky-50'
+  if (loop.state === 'response_monitoring') return 'border-emerald-400/35 bg-emerald-400/10 text-emerald-50'
+  return 'border-amber-400/35 bg-amber-400/10 text-amber-50'
+}
+
+function operatingLoopStageClasses(status: WarmGmailOperatingLoop['stages'][number]['status']) {
+  if (status === 'complete') return 'border-emerald-400/30 bg-emerald-400/10 text-emerald-100'
+  if (status === 'current') return 'border-sky-400/35 bg-sky-400/10 text-sky-50'
+  if (status === 'blocked') return 'border-red-400/35 bg-red-400/10 text-red-50'
+  return 'border-silicon-slate bg-background/25 text-muted-foreground'
+}
+
+function operatingLoopGateClasses(state: WarmGmailOperatingLoop['executionGate']['state']) {
+  if (state === 'submitted_evidence_recorded' || state === 'response_monitoring') {
+    return 'border-emerald-400/30 bg-emerald-400/10 text-emerald-50'
+  }
+  if (state === 'live_execution_eligible') return 'border-sky-400/35 bg-sky-400/10 text-sky-50'
+  if (state === 'blocked') return 'border-red-400/35 bg-red-400/10 text-red-50'
+  return 'border-amber-400/35 bg-amber-400/10 text-amber-50'
+}
+
+function localRequestedStages(
+  stages: WarmGmailOperatingLoop['stages'],
+  localState: WarmGmailOperatingLoopState,
+) {
+  const currentIndex = stages.findIndex((stage) => stage.key === localState)
+  return stages.map((stage, index) => ({
+    ...stage,
+    status: index < currentIndex
+      ? 'complete' as const
+      : index === currentIndex
+        ? 'current' as const
+        : 'upcoming' as const,
+  }))
+}
+
+function GmailOperatingLoopCard({
+  inertSlackApprovalRequest = false,
+  loop,
+}: {
+  inertSlackApprovalRequest?: boolean
+  loop: WarmGmailOperatingLoop
+}) {
+  const [requestLoading, setRequestLoading] = useState(false)
+  const [requestError, setRequestError] = useState<string | null>(null)
+  const [requestReceipt, setRequestReceipt] = useState<string | null>(null)
+  const [localApprovalRequested, setLocalApprovalRequested] = useState(false)
+  const queueId = loop.queueId
+  const localState: WarmGmailOperatingLoopState = localApprovalRequested
+    ? 'send_approval_requested'
+    : loop.state
+  const stages = localApprovalRequested
+    ? localRequestedStages(loop.stages, localState)
+    : loop.stages
+  const currentLabel = stages.find((stage) => stage.key === localState)?.label ?? loop.label
+  const gate = loop.executionGate
+  const context = loop.operatorContext
+  const action = localApprovalRequested
+    ? {
+        ...loop.nextAction,
+        key: 'record_send_decision' as const,
+        label: 'Record approval decision',
+        detail: 'The single review request is recorded. Approve, reject, or request revision before any separate Gmail execution gate.',
+        enabledOnThisSurface: false,
+      }
+    : loop.nextAction
+  const authority = localApprovalRequested
+    ? {
+        ...loop.authority,
+        sendApproval: 'requested' as const,
+      }
+    : loop.authority
+
+  async function requestSlackPayload() {
+    if (!queueId) return
+    setRequestLoading(true)
+    setRequestError(null)
+    setRequestReceipt(null)
+    try {
+      if (inertSlackApprovalRequest) {
+        setLocalApprovalRequested(true)
+        setRequestReceipt(
+          `QA local Slack approval request recorded for ${queueId}. Slack dispatch off. Gmail send off. Provider calls off.`,
+        )
+        return
+      }
+
+      window.location.assign(`/admin/outreach?tab=leads&filter=warm&id=${loop.contactId}&contactId=${loop.contactId}&draftReview=${encodeURIComponent(queueId)}#warm-gmail-draft-review`)
+
+    } catch (error) {
+      setRequestError(error instanceof Error ? error.message : 'Could not build Slack approval payload.')
+    } finally {
+      setRequestLoading(false)
+    }
+  }
+
+  return (
+    <div id="warm-gmail-operating-loop" className={`rounded-md border p-3 ${operatingLoopClasses(loop)}`}>
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide">
+            <Mail size={14} aria-hidden />
+            Warm Gmail operating loop
+          </p>
+          <p className="mt-1 text-sm font-semibold">{currentLabel}</p>
+          <p className="mt-1 text-[11px] leading-4 opacity-85">
+            One recipient, one queue row, one message version, one next action.
+          </p>
+        </div>
+        <span className="inline-flex min-h-7 w-fit shrink-0 items-center justify-center whitespace-nowrap rounded-full border border-current/25 px-2 py-0.5 text-center text-[10px] font-semibold">
+          {loop.duplicateSendBlocked
+            ? 'Duplicate send locked'
+            : loop.blocked
+              ? 'Recovery required'
+              : 'Governed'}
+        </span>
+      </div>
+
+      <div className="mt-3 grid grid-cols-2 gap-1.5 sm:grid-cols-3">
+        {stages.map((stage, index) => (
+          <div
+            key={stage.key}
+            className={`min-w-0 rounded-md border px-2 py-1.5 ${operatingLoopStageClasses(stage.status)}`}
+          >
+            <p className="text-[9px] font-semibold uppercase tracking-wide opacity-70">
+              {index + 1} / {stages.length}
+            </p>
+            <p className="mt-0.5 text-[10px] font-semibold leading-4">{stage.label}</p>
+          </div>
+        ))}
+      </div>
+
+      <div
+        aria-label="Warm Gmail execution readiness"
+        className={`mt-3 rounded-md border p-2.5 ${operatingLoopGateClasses(gate.state)}`}
+      >
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0">
+            <p className="text-[10px] font-semibold uppercase tracking-wide">Execution readiness</p>
+            <p className="mt-1 text-sm font-semibold">{gate.label}</p>
+            <p className="mt-1 text-[11px] leading-4 opacity-85">
+              {gate.blockedReason ?? gate.safeNextStep}
+            </p>
+          </div>
+          <span className="inline-flex min-h-7 w-fit shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-full border border-current/25 bg-background/25 px-2 py-0.5 text-center text-[10px] font-semibold">
+            <LockKeyhole size={12} aria-hidden />
+            {gate.liveSendEligible ? 'Exact gate eligible' : 'Exact gate locked'}
+          </span>
+        </div>
+        <div className="mt-2 grid gap-1.5 text-[10px] leading-4 sm:grid-cols-2 xl:grid-cols-4">
+          <p className="rounded-md border border-current/20 bg-background/20 p-2">
+            Recipient: {context.recipientLabel}
+            {context.recipientEmail ? ` / ${context.recipientEmail}` : ''}
+          </p>
+          <p className="break-all rounded-md border border-current/20 bg-background/20 p-2">
+            Draft: {context.gmailDraftId ?? 'missing'}
+          </p>
+          <p className="break-all rounded-md border border-current/20 bg-background/20 p-2">
+            Approval: {context.approvalDecisionKey ?? authority.sendApproval.replace(/_/g, ' ')}
+          </p>
+          <p className="rounded-md border border-current/20 bg-background/20 p-2">
+            Submitted evidence: {loop.audit.submittedEvidenceRecorded ? 'recorded' : 'none'}
+          </p>
+        </div>
+        <p className="mt-2 text-[10px] leading-4 opacity-80">
+          Safe next step: {gate.safeNextStep}
+        </p>
+        <details className="mt-2 rounded-md border border-current/20 bg-background/20 p-2">
+          <summary className="cursor-pointer text-[10px] font-semibold uppercase tracking-wide">
+            Exact execution evidence
+          </summary>
+          <div className="mt-2 grid gap-1.5 text-[10px] leading-4 sm:grid-cols-2">
+            <p className="break-all">Message version: {gate.requiredEvidence.messageVersionKey}</p>
+            <p className="break-all">Send key: {gate.requiredEvidence.sendQueueIdempotencyKey}</p>
+            <p className="break-all">Submitted key: {gate.requiredEvidence.submittedEvidenceKey}</p>
+            <p className="break-all">Authorization: {gate.requiredAuthorization}</p>
+          </div>
+        </details>
+      </div>
+
+      <div className="mt-3 grid gap-1.5 text-[10px] leading-4 sm:grid-cols-4">
+        <p className="rounded-md border border-current/20 bg-background/20 p-2">
+          Draft: {authority.draft}
+        </p>
+        <p className="rounded-md border border-current/20 bg-background/20 p-2">
+          Approval: {authority.sendApproval.replace(/_/g, ' ')}
+        </p>
+        <p className="rounded-md border border-current/20 bg-background/20 p-2">
+          Live send: {authority.liveSendExecution.replace(/_/g, ' ')}
+        </p>
+        <p className="rounded-md border border-current/20 bg-background/20 p-2">
+          Responses: {authority.responseImport.replace(/_/g, ' ')}
+        </p>
+      </div>
+
+      <div className="mt-3 rounded-md border border-current/25 bg-background/25 p-2.5">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0">
+            <p className="text-[10px] font-semibold uppercase tracking-wide">One next action</p>
+            <p className="mt-1 text-sm font-semibold">{requestLoading ? 'Requesting approval' : action.label}</p>
+            <p className="mt-1 text-[11px] leading-4 opacity-85">{action.detail}</p>
+          </div>
+          {action.key === 'request_send_approval' && action.enabledOnThisSurface ? (
+            <button
+              type="button"
+              disabled={requestLoading}
+              onClick={() => { void requestSlackPayload() }}
+              className="inline-flex min-h-10 w-full shrink-0 items-center justify-center gap-2 rounded-md border border-sky-400/40 bg-sky-400/10 px-3 text-xs font-semibold text-sky-50 transition-colors hover:bg-sky-400/20 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+            >
+              {requestLoading ? <RefreshCw size={13} className="animate-spin" aria-hidden /> : <MessageSquare size={13} aria-hidden />}
+              {requestLoading ? 'Preparing review' : inertSlackApprovalRequest ? 'Prepare review request' : 'Open Gmail review'}
+            </button>
+          ) : (
+            <span className="inline-flex min-h-8 w-fit shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-full border border-current/25 px-2 py-1 text-center text-[10px] font-semibold">
+              <LockKeyhole size={12} aria-hidden />
+              {loop.executionBoundary.gmailSendEnabledOnThisSurface ? 'Available' : 'No live execution'}
+            </span>
+          )}
+        </div>
+        <p className="mt-2 text-[10px] leading-4 opacity-80">Recovery: {action.recovery}</p>
+      </div>
+
+      {loop.duplicateSendBlocked && (
+        <p className="mt-2 rounded-md border border-amber-300/35 bg-amber-300/10 p-2 text-[11px] leading-4">
+          Sent evidence already owns this idempotency scope. Review or repair the recorded evidence; never replay the Gmail send.
+        </p>
+      )}
+      {requestError && (
+        <p role="alert" className="mt-2 rounded-md border border-red-500/35 bg-red-500/10 p-2 text-[11px] leading-4 text-red-100">
+          {requestError}
+        </p>
+      )}
+      {requestReceipt && (
+        <p role="status" className="mt-2 rounded-md border border-sky-500/30 bg-sky-500/10 p-2 text-[11px] leading-4 text-sky-100">
+          {requestReceipt}
+        </p>
+      )}
+      <p className="mt-2 text-[10px] leading-4 opacity-75">
+        Slack dispatch: off. Gmail send: off. Response polling: off. “Proceed” is never live-send authority.
+      </p>
+    </div>
+  )
+}
+
+function RealRecipientRolloutCard({
+  readiness,
+}: {
+  readiness?: WarmOutreachRealRecipientGmailRolloutReadiness | null
+}) {
+  if (!readiness) return null
+
+  const slackStatus = readiness.slackApprovalContract.status
+  const receipt = readiness.auditReceipt
+
+  const requirements = [
+    ['Draft', readiness.requirements.draftEvidence.state],
+    ['Sender', readiness.requirements.senderMatch.state],
+    ['Suppression', readiness.requirements.suppression.state],
+    ['Provider', readiness.requirements.provider.state],
+    ['Authorization', readiness.requirements.authorization.state],
+    ['Execution', readiness.requirements.execution.state],
+    ['Submitted evidence', readiness.requirements.submittedEvidence.state],
+  ] as const
+  const recovery = readiness.slackApprovalContract.approvalRequestRecovery
+  const primaryDetail =
+    readiness.blockers[0] ??
+    (readiness.state === 'ready_for_send_request'
+      ? readiness.requirements.authorization.detail
+      : readiness.state === 'eligible_for_execution'
+        ? readiness.requirements.execution.detail
+      : readiness.state === 'authorization_recorded_execution_blocked'
+        ? 'Execution still requires the captain to enable the production flag and call the exact per-recipient send route.'
+        : readiness.requirements.submittedEvidence.detail)
+
+  return (
+    <div className={`mt-2 rounded-md border p-2.5 ${realRecipientRolloutClasses(readiness.state)}`}>
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide">
+            {readiness.state === 'ready_for_send_request' ? (
+              <ShieldCheck size={14} aria-hidden />
+            ) : readiness.state === 'eligible_for_execution' ? (
+              <CheckCircle2 size={14} aria-hidden />
+            ) : (
+              <ShieldAlert size={14} aria-hidden />
+            )}
+            Real-recipient Gmail rollout
+          </p>
+          <p className="mt-1 text-[11px] leading-4">{readiness.label}</p>
+        </div>
+        <span className="w-fit shrink-0 rounded-full border border-current/25 px-2 py-0.5 text-[10px] font-semibold">
+          {readiness.actionLabel}
+        </span>
+      </div>
+      <p className="mt-2 text-[11px] leading-4">{primaryDetail}</p>
+      <div className="mt-2 grid grid-cols-2 gap-1.5 xl:grid-cols-3">
+        {requirements.map(([label, state]) => (
+          <span
+            key={label}
+            className={`rounded-md border px-2 py-1.5 text-[10px] leading-4 ${rolloutRequirementClasses(state)}`}
+          >
+            {label}: {state.replace(/_/g, ' ')}
+          </span>
+        ))}
+      </div>
+      <div className={`mt-2 rounded-md border p-2 ${receipt ? canaryReceiptClasses(receipt.finalSendAuthority.state) : 'border-red-500/25 bg-red-500/10 text-red-50'}`}>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0">
+            <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wide">
+              <FileText size={13} aria-hidden />
+              Canary proof receipt
+            </p>
+            <p className="mt-1 text-[11px] leading-4">
+              {receipt
+                ? receipt.finalSendAuthority.detail
+                : 'No canary proof receipt is available. Keep live Gmail send blocked until readiness evidence is rebuilt.'}
+            </p>
+          </div>
+          <span
+            aria-label="Live Gmail send disabled"
+            className="inline-flex min-h-7 w-fit shrink-0 items-center gap-1.5 rounded-full border border-current/25 bg-background/25 px-2 py-0.5 text-[10px] font-semibold"
+          >
+            <LockKeyhole size={12} aria-hidden />
+            Live send disabled
+          </span>
+        </div>
+        {receipt && (
+          <>
+            <p className="mt-2 text-[11px] leading-4">
+              Next step: {receipt.finalSendAuthority.nextStep}
+            </p>
+            <div className="mt-2 grid gap-1.5 text-[10px] leading-4 sm:grid-cols-3">
+              <p className="rounded-md border border-current/20 bg-background/20 p-2">
+                Approval intent: {slackApprovalStatusLabel(receipt.approvalEvidence.slackApprovalStatus)}. Gmail auth: {receipt.approvalEvidence.portfolioAuthorizationState.replace(/_/g, ' ')}.
+              </p>
+              <p className="rounded-md border border-current/20 bg-background/20 p-2">
+                Draft evidence: {receipt.draftEvidence.state}. Sender: {receipt.recipientIdentity.senderState}.
+              </p>
+              <p className="rounded-md border border-current/20 bg-background/20 p-2">
+                Send evidence: {receipt.suppressionAndIdempotency.submittedEvidenceRecorded ? 'present' : 'none'}. Gmail execution: disabled.
+              </p>
+            </div>
+            {receipt.lastActionEvidence.repairRequired && (
+              <p className="mt-2 rounded-md border border-amber-400/35 bg-amber-400/10 p-2 text-[11px] leading-4">
+                Repair needed: {receipt.lastActionEvidence.detail}
+              </p>
+            )}
+            <details className="mt-2 rounded-md border border-current/20 bg-background/20 p-2">
+              <summary className="cursor-pointer text-[10px] font-semibold uppercase tracking-wide">
+                Proof details
+              </summary>
+              <div className="mt-2 grid gap-1.5 text-[10px] leading-4 sm:grid-cols-2">
+                <p className="break-words">Queue row: {receipt.queueRow.sourceId ?? 'missing'}</p>
+                <p className="break-words">Relationship packet: {receipt.queueRow.relationshipPacketReference}</p>
+                <p className="break-words">
+                  Draft: {receipt.draftEvidence.state}{receipt.draftEvidence.draftId ? ` / ${receipt.draftEvidence.draftId}` : ''}
+                </p>
+                <p className="break-words">
+                  Provider: {receipt.gmailCapability.providerState}. Suppression: {receipt.suppressionAndIdempotency.suppressionState}.
+                </p>
+                <p className="break-words">
+                  Dispatch: {receipt.approvalEvidence.slackDispatchStatus.replace(/_/g, ' ')}. Approval records intent only.
+                </p>
+                <p className="break-words">
+                  Approval route: {readiness.slackApprovalContract.route}.
+                </p>
+                <p className="break-all">
+                  Approval dedupe: {readiness.slackApprovalContract.payloadDedupeKey}
+                </p>
+                <p className="break-words">
+                  Last action: {receipt.lastActionEvidence.status.replace(/_/g, ' ')}.
+                </p>
+                <p className="break-all sm:col-span-2">
+                  Send key: {receipt.queueRow.sendQueueIdempotencyKey} / Submitted evidence: {receipt.queueRow.submittedEvidenceKey}
+                </p>
+              </div>
+            </details>
+          </>
+        )}
+      </div>
+      <div className="mt-2 grid gap-1.5 text-[10px] leading-4 text-current/85 sm:grid-cols-2">
+        <p className="break-words">
+          Approval request: {slackApprovalStatusLabel(slackStatus)}. Slack dispatch: {readiness.slackApprovalContract.slackDispatchStatus.replace(/_/g, ' ')}.
+        </p>
+        <p>
+          Approval records intent only. Gmail send: off.
+        </p>
+        <p>
+          Exact execution still needs per-recipient authorization and captain flag.
+        </p>
+        <p>
+          Operator state: {readiness.requirements.execution.state.replace(/_/g, ' ')}.
+        </p>
+      </div>
+      {recovery && readiness.slackApprovalContract.dispatchEnabled === false && (
+        <div className="mt-2 rounded-md border border-sky-500/25 bg-background/25 p-2 text-[11px] leading-4 text-current/85">
+          <p className="font-semibold">{recovery.label}</p>
+          <p className="mt-1">{recovery.detail}</p>
+          <p className="mt-1">Next action: {recovery.nextAction}</p>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function ActivationReadinessPacket({
+  readiness,
+}: {
+  readiness?: WarmOutreachGmailProviderActivationReadiness | null
+}) {
+  if (!readiness) return null
+  const duplicate = readiness.duplicateDraftEvidence
+  const trackingLabel = duplicate.createdOnce
+    ? 'Gmail draft exists and is tracked'
+    : 'No tracked Gmail draft'
+  const trackingDetail = duplicate.createdOnce
+    ? 'Reuse the saved Gmail draft record. It is tracking evidence only; external send still needs separate approval.'
+    : 'No Gmail draft tracking is recorded for this contact, channel, and message version.'
+
+  return (
+    <div className="mt-2 rounded-md border border-sky-500/25 bg-sky-500/10 p-2 text-sky-50">
+      <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <p className="text-[11px] font-semibold uppercase tracking-wide">Gmail provider activation readiness</p>
+          <p className="mt-1 text-[11px] leading-4 text-sky-100/90">
+            Draft readiness, sender readiness, canary readiness, duplicate evidence, and send authority are separate gates.
+          </p>
+        </div>
+        <span className="w-fit shrink-0 rounded-full border border-red-500/30 bg-red-500/10 px-2 py-0.5 text-[10px] font-semibold text-red-100">
+          {readiness.externalSendBoundary.label}
+        </span>
+      </div>
+      <div className="mt-2 grid gap-1.5 sm:grid-cols-2 xl:grid-cols-4">
+        <div className={`rounded-md border p-2 ${activationStepClasses(readiness.localDraftReadiness.state)}`}>
+          <p className="text-[10px] font-semibold uppercase tracking-wide">Local draft readiness</p>
+          <p className="mt-1 text-[11px] leading-4">{readiness.localDraftReadiness.label}</p>
+        </div>
+        <div className={`rounded-md border p-2 ${activationStepClasses(readiness.connectedSenderReadiness.state)}`}>
+          <p className="text-[10px] font-semibold uppercase tracking-wide">Connected sender readiness</p>
+          <p className="mt-1 text-[11px] leading-4">{readiness.connectedSenderReadiness.label}</p>
+          <p className="mt-1 break-all text-[10px] leading-4 opacity-80">
+            Required: {readiness.connectedSenderReadiness.requiredSender ?? 'check via canary'}
+            {readiness.connectedSenderReadiness.connectedAs ? ` / Connected: ${readiness.connectedSenderReadiness.connectedAs}` : ''}
+          </p>
+        </div>
+        <div className={`rounded-md border p-2 ${activationStepClasses(readiness.liveDraftCanaryReadiness.state)}`}>
+          <p className="text-[10px] font-semibold uppercase tracking-wide">Live draft canary readiness</p>
+          <p className="mt-1 text-[11px] leading-4">{readiness.liveDraftCanaryReadiness.label}</p>
+          <p className="mt-1 text-[10px] leading-4 opacity-80">No-send canary: provider calls off / creates draft: no</p>
+        </div>
+        <div className={`rounded-md border p-2 ${duplicate.createdOnce ? 'border-amber-500/25 bg-amber-500/10 text-amber-100' : 'border-silicon-slate bg-background/25 text-muted-foreground'}`}>
+          <p className="text-[10px] font-semibold uppercase tracking-wide">Gmail draft tracking</p>
+          <p className="mt-1 text-[11px] leading-4">{trackingLabel}</p>
+          <p className="mt-1 break-all text-[10px] leading-4 opacity-80">
+            Draft: {duplicate.draftId ?? 'none'} / Thread: {duplicate.threadId ?? 'none'} / Message: {duplicate.messageId ?? 'none'}
+          </p>
+          <p className="mt-1 text-[10px] leading-4 opacity-80">{trackingDetail}</p>
+        </div>
+      </div>
+      <div className="mt-2 flex flex-wrap gap-1.5">
+        {readiness.remainingHumanGates.map((gate) => (
+          <span
+            key={gate}
+            className="inline-flex min-h-7 items-center rounded-full border border-silicon-slate bg-background/35 px-2 py-1 text-[10px] font-semibold text-muted-foreground"
+          >
+            {gate.replace(/_/g, ' ')}
+          </span>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function ProviderExecutionReadinessPacket({
+  readiness,
+}: {
+  readiness?: WarmOutreachGmailProviderExecutionReadiness | null
+}) {
+  if (!readiness) return null
+  const stateClasses =
+    readiness.state === 'sent_do_not_resend'
+      ? 'border-amber-500/30 bg-amber-500/10 text-amber-50'
+      : readiness.state === 'blocked'
+        ? 'border-red-500/30 bg-red-500/10 text-red-50'
+        : 'border-sky-500/30 bg-sky-500/10 text-sky-50'
+
+  return (
+    <div className={`mt-2 rounded-md border p-2 ${stateClasses}`}>
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wide">
+            <Database size={13} aria-hidden />
+            Provider execution readiness
+          </p>
+          <p className="mt-1 text-[11px] leading-4">{readiness.label}</p>
+        </div>
+        <span className="inline-flex min-h-7 w-fit shrink-0 items-center gap-1.5 rounded-full border border-current/25 bg-background/25 px-2 py-0.5 text-[10px] font-semibold">
+          <LockKeyhole size={12} aria-hidden />
+          Admin gate disabled
+        </span>
+      </div>
+      <div className="mt-2 grid gap-1.5 text-[10px] leading-4 sm:grid-cols-2">
+        <p className="rounded-md border border-current/20 bg-background/20 p-2">
+          Operator decision: {slackApprovalStatusLabel(readiness.operatorDecision.status)}. Records authorization intent only.
+        </p>
+        <p className="rounded-md border border-current/20 bg-background/20 p-2">
+          Activation gate: {readiness.adminActivationGate.key} is {readiness.adminActivationGate.state}.
+        </p>
+        <p className="rounded-md border border-current/20 bg-background/20 p-2">
+          Canary trace: {readiness.canaryTrace.status.replace(/_/g, ' ')}{readiness.canaryTrace.queueId ? ` / ${readiness.canaryTrace.queueId}` : ''}.
+        </p>
+      </div>
+      <p className="mt-2 text-[11px] leading-4">{readiness.operatorDecision.nextAction}</p>
+      <details className="mt-2 rounded-md border border-current/20 bg-background/20 p-2">
+        <summary className="cursor-pointer text-[10px] font-semibold uppercase tracking-wide">
+          Execution gate details
+        </summary>
+        <div className="mt-2 grid gap-1.5 text-[10px] leading-4 sm:grid-cols-2">
+          <p>{readiness.adminActivationGate.detail}</p>
+          <p>{readiness.exactExecutionGate.detail}</p>
+          <p className="break-all">Execution route: {readiness.exactExecutionGate.route}. UI action: disabled.</p>
+          <p className="break-all">Send key: {readiness.exactExecutionGate.sendQueueIdempotencyKey}</p>
+          <p className="break-all">Submitted evidence: {readiness.exactExecutionGate.submittedEvidenceKey}</p>
+          {readiness.canaryTrace.sentEvidenceRecorded && (
+            <p className="break-words sm:col-span-2">
+              Sent evidence exists: Gmail message {readiness.canaryTrace.gmailMessageId ?? 'unknown'} / thread {readiness.canaryTrace.gmailThreadId ?? 'unknown'}.
+            </p>
+          )}
+        </div>
+      </details>
+    </div>
+  )
+}
+
+function GmailResponseImportReadinessCard({
+  readiness,
+}: {
+  readiness?: WarmOutreachResponseMonitoring['gmailResponseImportReadiness'] | null
+}) {
+  if (!readiness) return null
+  const candidate = readiness.latestCandidate
+  const activation = readiness.activationReadiness
+  const canary = readiness.canaryReadiness
+
+  return (
+    <div className={`mt-2 rounded-md border p-2.5 ${gmailImportClasses(readiness.state)}`}>
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wide">
+            <Mail size={13} aria-hidden />
+            Gmail response import
+          </p>
+          <p className="mt-1 text-[11px] leading-4">{readiness.label}</p>
+        </div>
+        <span className="inline-flex min-h-7 w-fit shrink-0 items-center gap-1.5 rounded-full border border-current/25 bg-background/25 px-2 py-0.5 text-[10px] font-semibold">
+          <LockKeyhole size={12} aria-hidden />
+          Live import off
+        </span>
+      </div>
+      <div className="mt-2 grid gap-1.5 text-[10px] leading-4 sm:grid-cols-2 xl:grid-cols-4">
+        <p className="rounded-md border border-current/20 bg-background/20 p-2">
+          Candidate: {candidate.status.replace(/_/g, ' ')} / confidence {candidate.confidence}
+        </p>
+        <p className="rounded-md border border-current/20 bg-background/20 p-2 break-all">
+          Queue: {candidate.matchedOutreachQueueId ?? 'manual match needed'}
+        </p>
+        <p className="rounded-md border border-current/20 bg-background/20 p-2 break-all">
+          Thread: {candidate.providerThreadId ?? 'missing'}
+        </p>
+        <p className="rounded-md border border-current/20 bg-background/20 p-2 break-all">
+          Message: {candidate.providerMessageId ?? 'missing'}
+        </p>
+      </div>
+      <div className="mt-2 flex flex-wrap gap-1.5">
+        {readiness.matchBasis.map((basis) => (
+          <span
+            key={basis.key}
+            title={basis.detail}
+            className={`inline-flex min-h-7 items-center rounded-full border px-2 py-1 text-[10px] font-semibold ${matchBasisClasses(basis.available)}`}
+          >
+            {basis.label}: {basis.available ? 'ready' : 'missing'}
+          </span>
+        ))}
+      </div>
+      <div className="mt-2 grid gap-2 text-[11px] leading-4 sm:grid-cols-2">
+        <p className="rounded-md border border-current/20 bg-background/20 p-2">
+          Next: {candidate.nextAction}
+        </p>
+        <p className="rounded-md border border-current/20 bg-background/20 p-2">
+          Recovery: {candidate.recoveryPath}
+        </p>
+      </div>
+      <div className={`mt-2 rounded-md border p-2 ${canaryStateClasses(canary.state)}`}>
+        <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0">
+            <p className="text-[10px] font-semibold uppercase tracking-wide">Response import canary readiness</p>
+            <p className="mt-1 text-[11px] leading-4">{canary.label}</p>
+          </div>
+          <span className="w-fit shrink-0 rounded-full border border-current/25 px-2 py-0.5 text-[10px] font-semibold">
+            {canary.liveReadApproved ? 'Live read approved' : 'Live read approval required'}
+          </span>
+        </div>
+        <p className="mt-2 text-[11px] leading-4">{canary.detail}</p>
+        <div className="mt-2 grid gap-1.5 text-[10px] leading-4 sm:grid-cols-2 xl:grid-cols-4">
+          <p className="break-all rounded-md border border-current/20 bg-background/20 p-2">
+            Run: {canary.provenance.importRunId}
+          </p>
+          <p className="break-all rounded-md border border-current/20 bg-background/20 p-2">
+            Dedupe: {canary.provenance.dedupeKey}
+          </p>
+          <p className="rounded-md border border-current/20 bg-background/20 p-2">
+            Decision: {canary.provenance.decisionState.replace(/_/g, ' ')}
+          </p>
+          <p className="rounded-md border border-current/20 bg-background/20 p-2">
+            Actor: {canary.provenance.actor}
+          </p>
+          <p className="break-all rounded-md border border-current/20 bg-background/20 p-2">
+            Contact: {canary.provenance.contactId ?? 'missing'} / Queue: {canary.provenance.queueId ?? 'missing'}
+          </p>
+          <p className="break-all rounded-md border border-current/20 bg-background/20 p-2">
+            Gmail: {canary.provenance.gmailThreadId ?? 'missing'} / {canary.provenance.gmailMessageId ?? 'missing'}
+          </p>
+          <p className="rounded-md border border-current/20 bg-background/20 p-2">
+            Outcome: {canary.latestOutcome.status.replace(/_/g, ' ')}
+          </p>
+          <p className="rounded-md border border-current/20 bg-background/20 p-2">
+            Retry: {canary.retryAvailable ? 'available' : 'not needed'}
+          </p>
+        </div>
+        <div className="mt-2 grid gap-1.5 sm:grid-cols-2 xl:grid-cols-3">
+          {canary.gates.map((gate) => (
+            <span
+              key={gate.key}
+              title={gate.detail}
+              className={`rounded-md border px-2 py-1.5 text-[10px] leading-4 ${canaryGateClasses(gate.state)}`}
+            >
+              {gate.label}: {gate.state.replace(/_/g, ' ')}
+            </span>
+          ))}
+        </div>
+        <p className="mt-2 text-[10px] leading-4 opacity-85">
+          Gmail API: {canary.gmailApiCalled ? 'called' : 'not called'} / DB writes: {canary.databaseWritesEnabled ? 'enabled' : 'off'} / reply draft: {canary.responseDraftCreated ? 'created' : 'not created'}.
+        </p>
+      </div>
+      {activation && (
+        <div className="mt-2 rounded-md border border-current/20 bg-background/20 p-2">
+          <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-[10px] font-semibold uppercase tracking-wide">
+              Activation readiness: {activation.label}
+            </p>
+            <p className="text-[10px] opacity-80">
+              Mock: {activation.canRunMockImport ? 'ready' : 'blocked'} / live: disabled
+            </p>
+          </div>
+          <div className="mt-2 grid gap-1.5 sm:grid-cols-2 xl:grid-cols-3">
+            {activation.gateRows.map((row) => (
+              <div
+                key={row.key}
+                className={`rounded-md border p-2 text-[10px] leading-4 ${activationGateClasses(row.state)}`}
+                title={row.detail}
+              >
+                <p className="font-semibold">{row.label}: {row.state.replace(/_/g, ' ')}</p>
+                <p className="mt-0.5 opacity-85">{row.nextAction}</p>
+              </div>
+            ))}
+          </div>
+          {activation.blockedReasons.length > 0 && (
+            <p className="mt-2 rounded-md border border-current/20 bg-background/20 p-2 text-[10px] leading-4">
+              Gate state: {activation.blockedReasons[0]}
+            </p>
+          )}
+        </div>
+      )}
+      <details className="mt-2 rounded-md border border-current/20 bg-background/20 p-2">
+        <summary className="cursor-pointer text-[10px] font-semibold uppercase tracking-wide">
+          Import dedupe keys
+        </summary>
+        <div className="mt-2 grid gap-1.5 text-[10px] leading-4 sm:grid-cols-2">
+          {readiness.dedupe.keys.length > 0 ? (
+            readiness.dedupe.keys.slice(0, 6).map((key) => (
+              <p key={key} className="break-all rounded-md border border-current/20 bg-background/20 p-2">
+                {key}
+              </p>
+            ))
+          ) : (
+            <p>No durable Gmail import dedupe key is available yet.</p>
+          )}
+        </div>
+        <p className="mt-2 text-[10px] leading-4 opacity-80">{readiness.dedupe.detail}</p>
+      </details>
+      <p className="mt-2 text-[10px] leading-4 opacity-85">
+        Dry-run import: {readiness.dryRunImportEnabled ? 'on' : 'off'} / Gmail API: {readiness.gmailApiCalled ? 'called' : 'not called'} / Slack and n8n: off.
+      </p>
+    </div>
+  )
+}
+
 function summarizeAuthority(items: SendReadinessItem[]) {
   return items.reduce(
     (summary, item) => {
@@ -154,12 +1101,43 @@ function summarizeAuthority(items: SendReadinessItem[]) {
   )
 }
 
-function EmailLifecycleCompact({ item }: { item?: SendReadinessItem }) {
+function EmailLifecycleCompact({
+  canaryError,
+  canaryLoading,
+  canaryResult,
+  inertSlackApprovalRequest,
+  item,
+  onRunCanary,
+}: {
+  canaryError?: string | null
+  canaryLoading?: boolean
+  canaryResult?: RelationshipPacketPanelProps['gmailDraftCanaryResult']
+  inertSlackApprovalRequest?: boolean
+  item?: SendReadinessItem
+  onRunCanary?: () => void
+}) {
+  const [sendAuthorityNotice, setSendAuthorityNotice] = useState<string | null>(null)
   const lifecycle = item?.emailSendLifecycle
   if (!lifecycle) return null
+  const handoff = lifecycle.gmailDraftHandoffPacket
+  const smoke = lifecycle.providerCapabilitySmoke
+  const draftGate = lifecycle.gmailDraftCreationGate
+  const externalSend = lifecycle.externalSendReadiness
+  const realRecipientRollout = lifecycle.realRecipientRolloutReadiness
+  const activationReadiness =
+    canaryResult?.activationReadiness ?? lifecycle.gmailProviderActivationReadiness
 
   return (
-    <div className="rounded-md border border-amber-500/25 bg-amber-500/10 p-2.5 text-amber-50">
+    <div className="space-y-2">
+      <GmailOperatingLoopCard
+        inertSlackApprovalRequest={inertSlackApprovalRequest}
+        loop={lifecycle.gmailOperatingLoop}
+      />
+      <details className="rounded-md border border-silicon-slate/70 bg-background/25">
+        <summary className="cursor-pointer px-3 py-2 text-xs font-medium text-muted-foreground">
+          Gmail audit and recovery details
+        </summary>
+        <div className="border-t border-silicon-slate/70 bg-amber-500/10 p-2.5 text-amber-50">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide">
@@ -188,6 +1166,133 @@ function EmailLifecycleCompact({ item }: { item?: SendReadinessItem }) {
       <p className="mt-2 break-all text-[10px] leading-4 text-amber-100/80">
         Queue key: {lifecycle.sendQueueIdempotencyKey}
       </p>
+      <RealRecipientRolloutCard readiness={realRecipientRollout} />
+      <div className="mt-2 grid gap-2 md:grid-cols-2">
+        <div className={`rounded-md border p-2 ${gmailHandoffClasses(handoff.state)}`}>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <p className="text-[11px] font-semibold uppercase tracking-wide">Internal draft handoff</p>
+            <span className="rounded-full border border-current/25 px-2 py-0.5 text-[10px] font-semibold">
+              {handoff.internalHandoffReady ? 'Ready' : 'Blocked'}
+            </span>
+          </div>
+          <p className="mt-1 text-[11px] leading-4">
+            {handoff.contactReference.reference} / {handoff.templateDraftBasis.recommendedTemplate.replace(/_/g, ' ')}
+          </p>
+          <p className="mt-1 text-[11px] leading-4">
+            Suppression: {handoff.suppressionStatus}. Gmail draft creation off. External send blocked.
+          </p>
+          <p className="mt-1 break-all text-[10px] leading-4 opacity-80">{handoff.idempotencyKey}</p>
+        </div>
+        <div className={`rounded-md border p-2 ${providerSmokeClasses(smoke.status)}`}>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <p className="text-[11px] font-semibold uppercase tracking-wide">Gmail provider smoke</p>
+            <span className="rounded-full border border-current/25 px-2 py-0.5 text-[10px] font-semibold">
+              {smoke.status.replace(/_/g, ' ')}
+            </span>
+          </div>
+          <p className="mt-1 text-[11px] leading-4">{smoke.label}. Provider calls off.</p>
+          <p className="mt-1 text-[11px] leading-4">
+            OAuth: {smoke.oauthConfigured ? 'configured' : 'missing'} / Profile: {smoke.connectedProfileAvailable ? 'available' : 'missing'}.
+          </p>
+          <p className="mt-1 text-[11px] leading-4">
+            Draft handoff ready is separate from provider activation and send authority.
+          </p>
+          <p className="mt-1 break-all text-[10px] leading-4 opacity-80">{smoke.smokeKey}</p>
+        </div>
+      </div>
+      <ActivationReadinessPacket readiness={activationReadiness} />
+      <ProviderExecutionReadinessPacket readiness={lifecycle.gmailProviderExecutionReadiness} />
+      <div className="mt-2 rounded-md border border-red-500/25 bg-red-500/10 p-2 text-red-50">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0">
+            <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wide">
+              <LockKeyhole size={13} aria-hidden />
+              External send authority
+            </p>
+            <p className="mt-1 text-[11px] leading-4 text-red-100/90">{externalSend.label}</p>
+          </div>
+          <span className="w-fit shrink-0 rounded-full border border-current/25 px-2 py-0.5 text-[10px] font-semibold">
+            Disabled
+          </span>
+        </div>
+        <div className="mt-2 grid gap-1.5 sm:grid-cols-2 xl:grid-cols-5">
+          <span className="rounded-md border border-current/20 bg-background/20 p-2 text-[10px] leading-4">
+            Sender: {externalSend.senderIdentity.state.replace(/_/g, ' ')}
+          </span>
+          <span className="rounded-md border border-current/20 bg-background/20 p-2 text-[10px] leading-4">
+            Recipient approval: {externalSend.recipientApproval.approved ? 'approved' : 'required'}
+          </span>
+          <span className="rounded-md border border-current/20 bg-background/20 p-2 text-[10px] leading-4">
+            Draft evidence: {externalSend.draftEvidence.gmailDraftExists ? 'tracked Gmail draft' : 'missing'}
+          </span>
+          <span className="rounded-md border border-current/20 bg-background/20 p-2 text-[10px] leading-4">
+            Suppression: {externalSend.suppressionConsent.state}
+          </span>
+          <span className="rounded-md border border-current/20 bg-background/20 p-2 text-[10px] leading-4">
+            External send: {externalSend.externalSend.blocked ? 'blocked' : 'enabled'}
+          </span>
+        </div>
+        <p className="mt-2 break-all text-[10px] leading-4 text-red-100/80">
+          Send key: {externalSend.idempotency.sendQueueIdempotencyKey}
+        </p>
+        <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-[11px] leading-4 text-red-100/90">{externalSend.externalSend.detail}</p>
+          <button
+            type="button"
+            onClick={() => setSendAuthorityNotice(externalSend.externalSend.nextStep)}
+            className="inline-flex min-h-9 w-full items-center justify-center gap-2 rounded-md border border-red-500/40 bg-red-500/10 px-3 text-xs font-semibold text-red-100 transition-colors hover:bg-red-500/20 sm:w-auto"
+          >
+            <ShieldAlert size={13} aria-hidden />
+            Check send authority
+          </button>
+        </div>
+        {sendAuthorityNotice && (
+          <p role="status" className="mt-2 rounded-md border border-red-500/35 bg-background/35 p-2 text-[11px] leading-4 text-red-100">
+            {sendAuthorityNotice}
+          </p>
+        )}
+      </div>
+      <div className={`mt-2 rounded-md border p-2 ${draftCreationGateClasses(draftGate.status)}`}>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <p className="text-[11px] font-semibold uppercase tracking-wide">Gmail draft creation availability</p>
+          <span className="rounded-full border border-current/25 px-2 py-0.5 text-[10px] font-semibold">
+            {draftGate.status.replace(/_/g, ' ')}
+          </span>
+        </div>
+        <p className="mt-1 text-[11px] leading-4">
+          {draftGate.label}. Draft creation off. External send blocked.
+        </p>
+        <p className="mt-1 break-all text-[10px] leading-4 opacity-80">{draftGate.draftCreationKey}</p>
+        <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-[11px] leading-4 opacity-90">
+            Run a no-send canary to confirm the contact, message-version keys, and gates are wired. It does not call Gmail.
+          </p>
+          <button
+            type="button"
+            onClick={onRunCanary}
+            disabled={!onRunCanary || canaryLoading}
+            className="inline-flex min-h-9 w-full items-center justify-center gap-2 rounded-md border border-sky-500/35 bg-sky-500/10 px-3 text-xs font-semibold text-sky-100 transition-colors hover:bg-sky-500/20 disabled:cursor-not-allowed disabled:border-silicon-slate disabled:bg-silicon-slate/20 disabled:text-muted-foreground sm:w-auto"
+          >
+            {canaryLoading ? <RefreshCw size={13} className="animate-spin" aria-hidden /> : <CheckCircle2 size={13} aria-hidden />}
+            {canaryLoading ? 'Checking...' : 'Run no-send canary'}
+          </button>
+        </div>
+        {canaryError && (
+          <p role="alert" className="mt-2 rounded-md border border-red-500/30 bg-red-500/10 p-2 text-[11px] leading-4 text-red-100">
+            {canaryError}
+          </p>
+        )}
+        {canaryResult && (
+          <div className="mt-2 rounded-md border border-emerald-500/25 bg-emerald-500/10 p-2 text-[11px] leading-4 text-emerald-100">
+            <p className="font-semibold">{canaryResult.message}</p>
+            <p className="mt-1">
+              Gmail draft: {canaryResult.gmailDraftCreated ? 'created' : 'not created'} / Tracking: {canaryResult.trackingPersisted ? 'persisted' : 'not written'} / External send: {canaryResult.externalSendEnabled ? 'enabled' : 'blocked'}.
+            </p>
+          </div>
+        )}
+      </div>
+        </div>
+      </details>
     </div>
   )
 }
@@ -273,6 +1378,1929 @@ function BoundaryFlag({
   )
 }
 
+function smsReadinessClasses(state: WarmSmsReadinessState) {
+  if (state === 'manual_ready') return 'border-emerald-500/30 bg-emerald-500/10 text-emerald-100'
+  if (state === 'manual_review_required') return 'border-sky-500/30 bg-sky-500/10 text-sky-100'
+  return 'border-red-500/30 bg-red-500/10 text-red-100'
+}
+
+function smsCheckClasses(status: WarmSmsReadiness['consentAndSuppression']['checks'][number]['status']) {
+  if (status === 'passed') return 'border-emerald-500/25 bg-emerald-500/10 text-emerald-100'
+  if (status === 'blocked') return 'border-red-500/25 bg-red-500/10 text-red-100'
+  return 'border-amber-500/25 bg-amber-500/10 text-amber-100'
+}
+
+function smsDecisionClasses(state: WarmSmsApprovalState) {
+  if (state === 'approved_manual_ready') return 'border-emerald-500/30 bg-emerald-500/10 text-emerald-100'
+  if (state === 'revision_requested') return 'border-amber-500/30 bg-amber-500/10 text-amber-100'
+  if (state === 'rejected') return 'border-red-500/30 bg-red-500/10 text-red-100'
+  return 'border-silicon-slate bg-background/30 text-muted-foreground'
+}
+
+function smsDecisionLabel(state: WarmSmsApprovalState) {
+  if (state === 'approved_manual_ready') return 'Approved for manual use'
+  if (state === 'revision_requested') return 'Revision requested'
+  if (state === 'rejected') return 'Rejected'
+  return 'Not reviewed'
+}
+
+function smsLoopStageClasses(active: boolean, complete: boolean, suppressed: boolean) {
+  if (suppressed) return 'border-red-500/30 bg-red-500/10 text-red-100'
+  if (active) return 'border-sky-500/35 bg-sky-500/10 text-sky-100'
+  if (complete) return 'border-emerald-500/25 bg-emerald-500/10 text-emerald-100'
+  return 'border-current/15 bg-background/20 text-muted-foreground'
+}
+
+function smsProviderReadinessClasses(state: WarmSmsReadiness['providerReadiness']['state']) {
+  if (state === 'eligible_for_future_explicit_send_authorization') {
+    return 'border-emerald-500/30 bg-emerald-500/10 text-emerald-100'
+  }
+  if (state === 'eligible_for_human_approved_draft_creation') {
+    return 'border-sky-500/30 bg-sky-500/10 text-sky-100'
+  }
+  if (state === 'provider_configured_disabled' || state === 'provider_not_configured') {
+    return 'border-amber-500/30 bg-amber-500/10 text-amber-100'
+  }
+  return 'border-red-500/30 bg-red-500/10 text-red-100'
+}
+
+function smsProviderCapabilityClasses(
+  status: WarmSmsReadiness['providerReadiness']['activationReadiness']['capabilitySummary']['requirements'][number]['status'],
+) {
+  if (status === 'verified') return smsCheckClasses('passed')
+  if (status === 'gap') return smsCheckClasses('blocked')
+  return smsCheckClasses('review_required')
+}
+
+function smsSetupValidationClasses(
+  status: WarmSmsReadiness['providerReadiness']['setupReadiness']['configurationValidation']['requiredEnvironment'][number]['status'],
+) {
+  if (status === 'disabled_verified') return smsCheckClasses('passed')
+  if (status === 'missing') return smsCheckClasses('blocked')
+  return smsCheckClasses('review_required')
+}
+
+function smsTransportReadinessClasses(
+  state: WarmSmsReadiness['providerReadiness']['transportReadiness']['state'],
+) {
+  if (state === 'configured_ready') return 'border-emerald-500/30 bg-emerald-500/10 text-emerald-100'
+  if (state === 'configured_disabled' || state === 'not_configured') {
+    return 'border-amber-500/30 bg-amber-500/10 text-amber-100'
+  }
+  return 'border-red-500/30 bg-red-500/10 text-red-100'
+}
+
+function smsTelnyxActivationPlanningStepClasses(
+  status: WarmSmsReadiness['providerReadiness']['telnyxActivationPlanningGate']['steps'][number]['status'],
+) {
+  if (status === 'complete' || status === 'passed_no_send_canary') {
+    return 'border-emerald-500/25 bg-emerald-500/10 text-emerald-100'
+  }
+  if (status === 'active') return 'border-sky-500/25 bg-sky-500/10 text-sky-100'
+  if (status === 'disabled' || status === 'unavailable') {
+    return 'border-red-500/25 bg-red-500/10 text-red-100'
+  }
+  return 'border-amber-500/25 bg-amber-500/10 text-amber-100'
+}
+
+function smsLiveExecutionGateClasses(status: 'passed' | 'available' | 'required' | 'blocked') {
+  if (status === 'passed' || status === 'available') {
+    return 'border-emerald-500/25 bg-emerald-500/10 text-emerald-100'
+  }
+  if (status === 'required') return 'border-sky-500/25 bg-sky-500/10 text-sky-100'
+  return 'border-red-500/25 bg-red-500/10 text-red-100'
+}
+
+type ManualHandoffEvidence = Partial<Record<
+  WarmManualSocialHandoffChannel,
+  WarmManualSocialHandoffEvidenceRecord
+>>
+
+type ManualHandoffActionState = Partial<Record<
+  WarmManualSocialHandoffChannel,
+  {
+    status: 'idle' | 'saving' | 'success' | 'error'
+    message: string | null
+  }
+>>
+
+function initialManualDrafts(handoff: WarmManualSocialHandoff) {
+  return handoff.channels.reduce(
+    (drafts, channel) => ({
+      ...drafts,
+      [channel.channel]: channel.preview,
+    }),
+    {
+      linkedin: '',
+      facebook: '',
+      phone_contact: '',
+    } as Record<WarmManualSocialHandoffChannel, string>,
+  )
+}
+
+function ManualSocialHandoffCard({
+  authToken,
+  handoff,
+}: {
+  authToken?: string | null
+  handoff?: WarmManualSocialHandoff | null
+}) {
+  const [selectedChannel, setSelectedChannel] = useState<WarmManualSocialHandoffChannel>(
+    handoff?.currentCta.channel ?? handoff?.channels[0]?.channel ?? 'linkedin',
+  )
+  const [drafts, setDrafts] = useState<Record<WarmManualSocialHandoffChannel, string>>(
+    () => handoff ? initialManualDrafts(handoff) : {
+      linkedin: '',
+      facebook: '',
+      phone_contact: '',
+    },
+  )
+  const [prepared, setPrepared] = useState<Partial<Record<WarmManualSocialHandoffChannel, boolean>>>({})
+  const [evidence, setEvidence] = useState<ManualHandoffEvidence>({})
+  const [actionState, setActionState] = useState<ManualHandoffActionState>({})
+  const [operatorNote, setOperatorNote] = useState('')
+  const [copyStatus, setCopyStatus] = useState<'idle' | 'copied' | 'fallback'>('idle')
+
+  useEffect(() => {
+    if (!handoff) return
+    setSelectedChannel(handoff.currentCta.channel ?? handoff.channels[0]?.channel ?? 'linkedin')
+    setDrafts(initialManualDrafts(handoff))
+    setPrepared({})
+    setEvidence(handoff.channels.reduce((records, channel) => ({
+      ...records,
+      [channel.channel]: channel.durableEvidence ?? undefined,
+    }), {} as ManualHandoffEvidence))
+    setActionState({})
+    setOperatorNote('')
+    setCopyStatus('idle')
+  }, [handoff])
+
+  if (!handoff) return null
+
+  const selected =
+    handoff.channels.find((channel) => channel.channel === selectedChannel) ??
+    handoff.channels[0]
+  if (!selected) return null
+
+  const selectedDraft = drafts[selected.channel] ?? selected.preview
+  const copyQualityBlocker = warmCopyBlocker(selectedDraft)
+  const evidenceRecord = evidence[selected.channel] ?? selected.durableEvidence ?? undefined
+  const action = actionState[selected.channel] ?? { status: 'idle' as const, message: null }
+  const contactId = handoff.contactId
+  const isPrepared = prepared[selected.channel] === true || Boolean(evidenceRecord)
+  const blocked = selected.state !== 'ready_for_manual_copy'
+  const canRecordEvidence =
+    isPrepared &&
+    !evidenceRecord &&
+    selected.state === 'ready_for_manual_copy' &&
+    operatorNote.trim().length > 0 &&
+    action.status !== 'saving'
+  const primaryLabel = evidenceRecord
+    ? 'Evidence recorded'
+    : blocked
+      ? 'Review blocker'
+      : action.status === 'saving'
+        ? 'Saving evidence'
+      : isPrepared
+        ? 'Record manual evidence'
+        : `Copy ${selected.label} text`
+
+  async function copyManualText() {
+    if (blocked || evidenceRecord || copyQualityBlocker) return
+    try {
+      if (!navigator.clipboard?.writeText) throw new Error('Clipboard unavailable')
+      await navigator.clipboard.writeText(selectedDraft)
+      setCopyStatus('copied')
+    } catch {
+      setCopyStatus('fallback')
+    } finally {
+      setPrepared((current) => ({
+        ...current,
+        [selected.channel]: true,
+      }))
+    }
+  }
+
+  async function recordEvidence() {
+    if (!canRecordEvidence) return
+    setActionState((current) => ({
+      ...current,
+      [selected.channel]: { status: 'saving', message: 'Saving Portfolio evidence...' },
+    }))
+    try {
+      const response = await fetch(`/api/admin/outreach/leads/${encodeURIComponent(contactId)}/manual-social-handoff`, {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+        },
+        body: JSON.stringify({
+          channel: selected.channel,
+          messageVersionKey: selected.idempotency.messageVersionKey,
+          manualHandoffKey: selected.idempotency.manualHandoffKey,
+          manualEvidenceKey: selected.idempotency.manualEvidenceKey,
+          operatorNote: operatorNote.trim(),
+        }),
+      })
+      const body = await response.json().catch(() => ({})) as {
+        error?: string
+        duplicatePrevented?: boolean
+        evidence?: WarmManualSocialHandoffEvidenceRecord | null
+      }
+      if (!response.ok || !body.evidence) {
+        throw new Error(body.error ?? 'Manual evidence could not be recorded.')
+      }
+      setEvidence((current) => ({
+        ...current,
+        [selected.channel]: body.evidence ?? undefined,
+      }))
+      setActionState((current) => ({
+        ...current,
+        [selected.channel]: {
+          status: 'success',
+          message: body.duplicatePrevented
+            ? 'Already recorded in Portfolio. Repeat locked.'
+            : 'Saved in Portfolio. Repeat locked for this version.',
+        },
+      }))
+    } catch (error) {
+      setActionState((current) => ({
+        ...current,
+        [selected.channel]: {
+          status: 'error',
+          message: error instanceof Error ? error.message : 'Manual evidence could not be recorded.',
+        },
+      }))
+    }
+  }
+
+  function handlePrimaryAction() {
+    if (evidenceRecord || blocked) return
+    if (isPrepared) {
+      void recordEvidence()
+      return
+    }
+    void copyManualText()
+  }
+
+  return (
+    <div
+      id="warm-manual-social-handoff"
+      data-testid="warm-manual-social-handoff"
+      className="scroll-mt-24 rounded-md border border-sky-500/30 bg-sky-500/10 p-3 text-sky-50"
+    >
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide">
+            <ClipboardCopy size={14} aria-hidden />
+            Manual social handoff
+          </p>
+          <p className="mt-1 text-sm font-semibold">{handoff.label}</p>
+          <div className="mt-2 flex flex-wrap gap-1.5 text-[10px] font-semibold uppercase tracking-wide">
+            <span className="inline-flex min-h-6 items-center rounded-full border border-current/20 bg-background/25 px-2">
+              Manual only
+            </span>
+            <span className="inline-flex min-h-6 items-center rounded-full border border-current/20 bg-background/25 px-2">
+              Provider off
+            </span>
+            <span className="inline-flex min-h-6 items-center rounded-full border border-current/20 bg-background/25 px-2">
+              Portfolio record
+            </span>
+          </div>
+        </div>
+        <button
+          type="button"
+          disabled={blocked || Boolean(copyQualityBlocker) || Boolean(evidenceRecord) || (isPrepared && !canRecordEvidence)}
+          onClick={handlePrimaryAction}
+          className="inline-flex min-h-10 w-full shrink-0 items-center justify-center gap-2 rounded-md border border-sky-300/40 bg-sky-300/10 px-3 text-xs font-semibold text-sky-50 transition-colors hover:bg-sky-300/20 disabled:cursor-not-allowed disabled:border-silicon-slate disabled:bg-silicon-slate/20 disabled:text-muted-foreground sm:w-auto"
+        >
+          {evidenceRecord ? <ClipboardCheck size={14} aria-hidden /> : isPrepared ? <CheckCircle2 size={14} aria-hidden /> : <ClipboardCopy size={14} aria-hidden />}
+          {primaryLabel}
+        </button>
+      </div>
+
+      {copyQualityBlocker && <p role="status" className="mt-2 text-xs text-amber-100">{copyQualityBlocker}</p>}
+
+      <div className="mt-3 grid grid-cols-1 gap-1.5 sm:grid-cols-3">
+        {handoff.channels.map((channel) => (
+          <button
+            type="button"
+            key={channel.channel}
+            aria-pressed={selected.channel === channel.channel}
+            onClick={() => {
+              setSelectedChannel(channel.channel)
+              setOperatorNote('')
+              setCopyStatus('idle')
+            }}
+            className={`min-h-9 rounded-md border px-2 text-left text-[11px] font-semibold transition-colors ${
+              selected.channel === channel.channel
+                ? 'border-sky-200/50 bg-background/35 text-sky-50'
+                : 'border-current/20 bg-background/15 text-current/80 hover:bg-background/25'
+            }`}
+          >
+            {channel.label}: {channel.state === 'manual_sent_recorded' ? 'recorded' : channel.state === 'ready_for_manual_copy' ? 'ready' : channel.state.replace(/_/g, ' ')}
+          </button>
+        ))}
+      </div>
+
+      <div className="mt-3 grid gap-2 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+        <div className={`rounded-md border p-2.5 ${manualHandoffStateClasses(selected.state)}`}>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0">
+              <p className="text-[10px] font-semibold uppercase tracking-wide">{selected.label} copy preview</p>
+              <p className="mt-1 text-[11px] leading-4 opacity-85">
+                {selected.blocker ?? 'Copy text manually. No provider send.'}
+              </p>
+            </div>
+            <span className="inline-flex min-h-7 w-fit shrink-0 items-center gap-1.5 rounded-full border border-current/25 bg-background/25 px-2 py-0.5 text-[10px] font-semibold">
+              <LockKeyhole size={12} aria-hidden />
+              No egress
+            </span>
+          </div>
+          <label className="mt-2 block">
+            <span className="sr-only">{selected.label} manual handoff text</span>
+            <textarea
+              value={selectedDraft}
+              onChange={(event) => {
+                setDrafts((current) => ({
+                  ...current,
+                  [selected.channel]: event.target.value,
+                }))
+                setPrepared((current) => ({
+                  ...current,
+                  [selected.channel]: false,
+                }))
+                setEvidence((current) => ({
+                  ...current,
+                  [selected.channel]: undefined,
+                }))
+                setActionState((current) => ({
+                  ...current,
+                  [selected.channel]: { status: 'idle', message: null },
+                }))
+                setCopyStatus('idle')
+              }}
+              disabled={blocked || Boolean(evidenceRecord)}
+              rows={4}
+              className="mt-1 min-h-[104px] w-full resize-y rounded-md border border-silicon-slate/70 bg-imperial-navy/90 p-2 text-xs leading-5 text-platinum-white caret-radiant-gold outline-none transition-colors [color-scheme:dark] placeholder:text-muted-foreground focus:border-radiant-gold/70 focus:ring-2 focus:ring-radiant-gold/25 disabled:cursor-not-allowed disabled:border-silicon-slate/60 disabled:bg-silicon-slate/20 disabled:text-muted-foreground/70 disabled:opacity-70"
+            />
+          </label>
+          <div className="mt-2 flex flex-wrap gap-1.5 text-[10px] leading-4">
+            <span className="inline-flex min-h-7 items-center rounded-full border border-current/20 bg-background/25 px-2 py-1 font-semibold">
+              {selectedDraft.length}/{selected.maxRecommendedCharacters}
+            </span>
+            <span className="inline-flex min-h-7 items-center rounded-full border border-current/20 bg-background/25 px-2 py-1 font-semibold">
+              External requests: {selected.executionBoundary.externalRequests.length}
+            </span>
+            <span className="inline-flex min-h-7 items-center rounded-full border border-current/20 bg-background/25 px-2 py-1 font-semibold">
+              Provider calls: off
+            </span>
+          </div>
+          {copyStatus !== 'idle' && !evidenceRecord && (
+            <p role="status" className="mt-2 rounded-md border border-current/20 bg-background/25 p-2 text-[11px] leading-4">
+              {copyStatus === 'copied'
+                ? `${selected.label} text copied. Send manually, then record evidence.`
+                : 'Clipboard unavailable. Select the text manually; Portfolio still will not send or call a provider.'}
+            </p>
+          )}
+        </div>
+
+        <div className="rounded-md border border-current/20 bg-background/20 p-2.5">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0">
+              <p className="text-[10px] font-semibold uppercase tracking-wide">Manual evidence</p>
+              <p className="mt-1 text-[11px] leading-4">
+                Stores only timestamp, channel, note, and evidence key.
+              </p>
+            </div>
+            <span className="inline-flex min-h-7 w-fit shrink-0 items-center gap-1.5 rounded-full border border-current/25 bg-background/25 px-2 py-0.5 text-[10px] font-semibold">
+              <ClipboardCheck size={12} aria-hidden />
+              {evidenceRecord ? 'Recorded' : isPrepared ? 'Ready' : 'Waiting'}
+            </span>
+          </div>
+          <label className="mt-2 block">
+            <span className="text-[10px] font-semibold uppercase tracking-wide">Operator note</span>
+            <textarea
+              value={evidenceRecord?.operatorNote ?? operatorNote}
+              onChange={(event) => setOperatorNote(event.target.value)}
+              placeholder="Short note, no private details."
+              disabled={!isPrepared || blocked || Boolean(evidenceRecord)}
+              rows={3}
+              className="mt-1 min-h-[78px] w-full resize-y rounded-md border border-silicon-slate/70 bg-imperial-navy/90 p-2 text-xs leading-5 text-platinum-white caret-radiant-gold outline-none transition-colors [color-scheme:dark] placeholder:text-muted-foreground focus:border-radiant-gold/70 focus:ring-2 focus:ring-radiant-gold/25 disabled:cursor-not-allowed disabled:border-silicon-slate/60 disabled:bg-silicon-slate/20 disabled:text-muted-foreground/70 disabled:opacity-70"
+            />
+          </label>
+          <p className="mt-2 text-[10px] leading-4 opacity-80">
+            Evidence key: <span className="break-all">{selected.idempotency.manualEvidenceKey}</span>
+          </p>
+          {action.message && (
+            <p
+              role={action.status === 'error' ? 'alert' : 'status'}
+              className={`mt-2 rounded-md border p-2 text-[11px] leading-4 ${
+                action.status === 'error'
+                  ? 'border-red-500/25 bg-red-500/10 text-red-100'
+                  : action.status === 'saving'
+                    ? 'border-sky-500/25 bg-sky-500/10 text-sky-100'
+                    : 'border-emerald-500/25 bg-emerald-500/10 text-emerald-100'
+              }`}
+            >
+              {action.message}
+            </p>
+          )}
+          {evidenceRecord && (
+            <p role="status" className="mt-2 rounded-md border border-emerald-500/25 bg-emerald-500/10 p-2 text-[11px] leading-4 text-emerald-100">
+              Recorded at {evidenceRecord.recordedAt}. Repeat locked for this contact, channel, and version.
+            </p>
+          )}
+        </div>
+      </div>
+
+      <details className="mt-2 rounded-md border border-current/20 bg-background/20 p-2">
+        <summary className="cursor-pointer text-[10px] font-semibold uppercase tracking-wide">
+          Audit details
+        </summary>
+        <div className="mt-2 flex flex-wrap gap-1.5">
+          {selected.checklist.map((item) => (
+            <span key={item.key} className={`inline-flex min-h-7 items-center gap-1 rounded-full border px-2 text-[10px] font-semibold ${manualChecklistClasses(item.status)}`}>
+              {item.label}: {item.status.replace(/_/g, ' ')}
+            </span>
+          ))}
+        </div>
+        <div className="mt-2 grid gap-1.5 text-[10px] leading-4 sm:grid-cols-2">
+          <p className="break-all rounded-md border border-current/20 bg-background/20 p-2">
+            Message version: {selected.idempotency.messageVersionKey}
+          </p>
+          <p className="break-all rounded-md border border-current/20 bg-background/20 p-2">
+            Handoff: {selected.idempotency.manualHandoffKey}
+          </p>
+          <p className="rounded-md border border-current/20 bg-background/20 p-2">
+            Duplicate scope: {selected.idempotency.duplicateScope.replace(/_/g, ' ')}
+          </p>
+          <p className="rounded-md border border-current/20 bg-background/20 p-2">
+            LinkedIn API off / Facebook API off / Phone access off
+          </p>
+          {selected.evidenceLock?.locked && (
+            <p className="rounded-md border border-emerald-500/25 bg-emerald-500/10 p-2 text-emerald-100">
+              {selected.evidenceLock.reason}
+            </p>
+          )}
+        </div>
+        <p className="mt-2 text-[10px] leading-4 opacity-80">{selected.evidencePolicy.detail}</p>
+      </details>
+    </div>
+  )
+}
+
+function SmsManualOutreachCard({
+  authToken,
+  readiness,
+  smsTelnyxCanaryLoading = false,
+  smsTelnyxCanaryError = null,
+  smsTelnyxCanaryResult = null,
+  onSmsTelnyxNoSendCanary,
+}: {
+  authToken?: string | null
+  readiness?: WarmSmsReadiness | null
+  smsTelnyxCanaryLoading?: boolean
+  smsTelnyxCanaryError?: string | null
+  smsTelnyxCanaryResult?: SmsTelnyxNoSendCanaryResult | null
+  onSmsTelnyxNoSendCanary?: () => void
+}) {
+  const [decision, setDecision] = useState<WarmSmsApprovalState>(
+    readiness?.approval.state ?? 'not_reviewed',
+  )
+  const [draftText, setDraftText] = useState(readiness?.draft.preview ?? '')
+  const [draftRevised, setDraftRevised] = useState(false)
+  const [copyStatus, setCopyStatus] = useState<'idle' | 'copied' | 'failed'>('idle')
+  const [manualSendPrepared, setManualSendPrepared] = useState(false)
+  const [evidenceRecorded, setEvidenceRecorded] = useState(false)
+  const [evidenceTimestamp, setEvidenceTimestamp] = useState<string | null>(null)
+  const [operatorNote, setOperatorNote] = useState('')
+  const [responseOutcome, setResponseOutcome] = useState<WarmSmsManualResponseOutcome>('no_response_yet')
+  const [candidateLoading, setCandidateLoading] = useState(false)
+  const [candidateError, setCandidateError] = useState<string | null>(null)
+  const [candidateReceipt, setCandidateReceipt] = useState<string | null>(null)
+  const [localCandidateReview, setLocalCandidateReview] = useState<WarmSmsCandidateReview | null>(null)
+
+  useEffect(() => {
+    setDecision(readiness?.approval.state ?? 'not_reviewed')
+    setDraftText(readiness?.draft.preview ?? '')
+    setDraftRevised(false)
+    setCopyStatus('idle')
+    setManualSendPrepared(false)
+    setEvidenceRecorded(false)
+    setEvidenceTimestamp(null)
+    setOperatorNote('')
+    setResponseOutcome('no_response_yet')
+    setCandidateLoading(false)
+    setCandidateError(null)
+    setCandidateReceipt(null)
+    setLocalCandidateReview(null)
+  }, [readiness?.approval.state, readiness?.contactId, readiness?.draft.preview])
+
+  if (!readiness) return null
+
+  const activeReadiness = readiness
+  const loop = evaluateWarmSmsManualLoop({
+    readinessState: activeReadiness.state,
+    approvalState: decision,
+    draftText,
+    draftRevised,
+    manualSendPrepared,
+    evidenceRecorded,
+    evidence: {
+      sentAt: evidenceTimestamp,
+      channel: 'manual_sms',
+      operatorNote,
+      outcome: responseOutcome,
+    },
+  })
+  const blocked = activeReadiness.state === 'blocked'
+  const suppressed = loop.gates.smsPromptsSuppressed
+  const providerReadiness = readiness.providerReadiness
+  const candidateReview = localCandidateReview ?? readiness.candidateReview ?? buildWarmSmsCandidateReview({
+    readiness,
+  })
+  const candidateArtifact = candidateReview.queueArtifact
+  const activationReadiness = providerReadiness.activationReadiness
+  const setupReadiness = providerReadiness.setupReadiness
+  const providerSelectionPlan = providerReadiness.providerSelectionPlan
+  const telnyxReferencePlan = providerSelectionPlan.telnyxReferencePlan
+  const telnyxActivationPlanningGate = providerReadiness.telnyxActivationPlanningGate
+  const transportReadiness = providerReadiness.transportReadiness
+  const noSendCanary = providerReadiness.noSendCanary
+  const credentialReadiness = transportReadiness.credentialReadiness ?? {
+    status: 'missing' as const,
+    credentialReferenceRecorded: false,
+    runtimeCredentialAvailable: false,
+    rawCredentialsReturned: false,
+    detail: 'Credential readiness must be rechecked by the guarded live route.',
+  }
+  const smsLiveNoSendPassed =
+    smsTelnyxCanaryResult?.status === 'passed_no_send' ||
+    noSendCanary.state === 'ready_no_send_simulation'
+  const smsLiveProviderSmokeAvailable =
+    smsLiveNoSendPassed &&
+    transportReadiness.selectedProvider.key === 'telnyx_messaging' &&
+    credentialReadiness.credentialReferenceRecorded &&
+    transportReadiness.senderReadiness.senderReferenceRecorded &&
+    transportReadiness.capabilityReadiness.status === 'ready'
+  const smsLiveSequence = [
+    {
+      key: 'no_send_canary_passed',
+      label: 'No-send canary passed',
+      status: smsLiveNoSendPassed ? 'passed' as const : 'blocked' as const,
+      detail:
+        'The canary must pass with no Telnyx API call, no SMS delivery, and externalRequests: 0.',
+    },
+    {
+      key: 'credential_provider_smoke',
+      label: 'Credential/provider smoke available',
+      status: smsLiveProviderSmokeAvailable ? 'available' as const : 'blocked' as const,
+      detail:
+        'Telnyx credential reference, runtime secret availability, sender/profile, callbacks, and capability evidence must be verified by the guarded route.',
+    },
+    {
+      key: 'per_recipient_send_approval',
+      label: 'Explicit per-recipient send approval',
+      status: 'required' as const,
+      detail:
+        'Stored approval must match the contact, queue/message row, SMS channel, message version, idempotency key, and submitted evidence key.',
+    },
+    {
+      key: 'live_one_recipient_sms_execution',
+      label: 'Live one-recipient SMS execution',
+      status: 'blocked' as const,
+      detail:
+        'No live-send button is rendered in this phase. The route remains blocked until provider activation and exact recipient authority pass.',
+    },
+  ]
+  const smsLiveRecoveryStates = [
+    {
+      label: 'Missing 1Password credential',
+      blocked: !credentialReadiness.credentialReferenceRecorded,
+      recovery:
+        'Confirm the Telnyx credential through the approved secret path; never paste or expose the raw credential here.',
+    },
+    {
+      label: 'Missing sender/profile',
+      blocked: !transportReadiness.senderReadiness.senderReferenceRecorded,
+      recovery:
+        'Record the approved Telnyx sender or messaging-profile reference before any provider attempt.',
+    },
+    {
+      label: 'Execution flag disabled',
+      blocked: true,
+      recovery:
+        'ENABLE_WARM_SMS_PROVIDER_EXECUTION stays disabled until captain activation approval.',
+    },
+    {
+      label: 'Consent/suppression failure',
+      blocked: providerReadiness.consentAndSuppression.status !== 'clear',
+      recovery:
+        providerReadiness.consentAndSuppression.blockers[0] ??
+        'Resolve recipient safety evidence before live-send readiness.',
+    },
+    {
+      label: 'Duplicate idempotency key',
+      blocked: false,
+      recovery:
+        'The guarded route checks existing submitted evidence and returns existing attempt evidence without resending.',
+    },
+    {
+      label: 'Absent per-recipient approval',
+      blocked: true,
+      recovery:
+        'Approval must be stored for this exact contact, queue row, SMS channel, message version, idempotency key, and submitted evidence key.',
+    },
+  ]
+  const providerChecksPassed = providerReadiness.consentAndSuppression.checks
+    .filter((check) => check.status === 'passed').length
+  const providerChecksTotal = providerReadiness.consentAndSuppression.checks.length
+  const canApprove = !blocked && !suppressed && draftText.trim().length > 0
+  const decisionDetail =
+    decision === 'approved_manual_ready'
+      ? 'Manual readiness is recorded on this screen only. Portfolio still cannot send SMS.'
+      : decision === 'revision_requested'
+        ? 'Revise the text here, then approve manual readiness or reject it.'
+        : decision === 'rejected'
+          ? 'This SMS draft is rejected. Resolve the reason before any manual outreach.'
+          : 'Review the checks and draft before recording a manual-only decision.'
+  const activeStageIndex = warmSmsManualLoopStages.findIndex((stage) => stage.state === loop.state)
+  const setupGateLabel =
+    setupReadiness.state === 'recipient_evidence_required'
+      ? 'recipient evidence'
+      : setupReadiness.state === 'provider_path_required'
+        ? 'provider path'
+        : setupReadiness.state === 'disabled_configuration_review_required'
+          ? 'config review'
+          : setupReadiness.state === 'capability_mapping_required'
+            ? 'capability map'
+            : setupReadiness.state === 'setup_audit_required'
+              ? 'setup audit'
+              : 'reviewed, disabled'
+
+  async function handleCopyApprovedDraft() {
+    if (!loop.gates.canCopyApprovedDraft) return
+    try {
+      if (!navigator.clipboard?.writeText) throw new Error('Clipboard API unavailable')
+      await navigator.clipboard.writeText(draftText)
+      setCopyStatus('copied')
+    } catch {
+      setCopyStatus('failed')
+    }
+  }
+
+  function recordManualEvidence() {
+    setEvidenceTimestamp(new Date().toISOString())
+    setEvidenceRecorded(true)
+  }
+
+  async function prepareSmsCandidate() {
+    if (!candidateReview.prepareAction.enabledOnThisSurface) return
+    if (!authToken) {
+      setCandidateError('Authentication is required before preparing an SMS candidate.')
+      return
+    }
+    setCandidateLoading(true)
+    setCandidateError(null)
+    setCandidateReceipt(null)
+    try {
+      const response = await fetch(`/api/admin/outreach/leads/${encodeURIComponent(activeReadiness.contactId)}/sms-candidate`, {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          Authorization: `Bearer ${authToken}`,
+        },
+        body: JSON.stringify({ messageText: draftText }),
+      })
+      const body = await response.json().catch(() => ({})) as SmsCandidateRouteResult
+      if (!response.ok) {
+        const blocker = body.blockers?.[0] ? ` ${body.blockers[0]}` : ''
+        throw new Error(`${body.message ?? 'Could not prepare SMS candidate.'}${blocker}`)
+      }
+      if (body.candidateReview) setLocalCandidateReview(body.candidateReview)
+      setCandidateReceipt(
+        body.message ??
+        'SMS candidate queue row prepared for review. No SMS was sent and no provider call was made.',
+      )
+    } catch (error) {
+      setCandidateError(error instanceof Error ? error.message : 'Could not prepare SMS candidate.')
+    } finally {
+      setCandidateLoading(false)
+    }
+  }
+
+  return (
+    <div id="warm-sms-readiness" className={`rounded-md border p-3 ${smsReadinessClasses(readiness.state)}`}>
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide">
+            <Phone size={14} aria-hidden />
+            Warm SMS manual readiness
+          </p>
+          <p className="mt-1 text-sm font-semibold">{readiness.label}</p>
+          <p className="mt-1 text-[11px] leading-4 opacity-85">
+            SMS is stricter than email here: phone, source, relationship rationale, suppression, opt-out sensitivity, and manual-only handling must be visible first.
+          </p>
+        </div>
+        <span className="inline-flex min-h-7 w-fit shrink-0 items-center gap-1.5 rounded-full border border-current/25 bg-background/25 px-2 py-0.5 text-[10px] font-semibold">
+          <LockKeyhole size={12} aria-hidden />
+          {providerReadiness.provider.configured
+            ? providerReadiness.provider.enabled
+              ? 'Provider model enabled · send off'
+              : 'Provider configured · disabled'
+            : 'No SMS provider'}
+        </span>
+      </div>
+
+      <div className="mt-3 grid gap-2 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+        <div className="rounded-md border border-current/20 bg-background/20 p-2.5">
+          <p className="text-[10px] font-semibold uppercase tracking-wide">Phone and consent basis</p>
+          <p className="mt-1 text-[11px] leading-4">
+            Phone: {readiness.phoneReadiness.present ? 'present' : 'missing'} from {readiness.phoneReadiness.source}.
+          </p>
+          <p className="mt-1 text-[11px] leading-4 opacity-85">{readiness.phoneReadiness.provenance}</p>
+          <p className="mt-1 text-[11px] leading-4">
+            Relationship: {readiness.relationshipRationale.status} / {readiness.relationshipRationale.sourceCount} source(s), {readiness.relationshipRationale.signalCount} signal(s).
+          </p>
+          <p className="mt-1 text-[11px] leading-4 opacity-85">{readiness.consentAndSuppression.rationale}</p>
+        </div>
+
+        <div className="rounded-md border border-current/20 bg-background/20 p-2.5">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0">
+              <p className="text-[10px] font-semibold uppercase tracking-wide">Draft preview</p>
+              <p className="mt-1 text-[11px] leading-4">
+                {readiness.draft.templateLabel}: {readiness.draft.selectionReason}
+              </p>
+            </div>
+            <span className="w-fit shrink-0 rounded-full border border-current/25 px-2 py-0.5 text-[10px] font-semibold">
+              {draftText.length}/{readiness.draft.maxRecommendedCharacters}
+            </span>
+          </div>
+          <label className="mt-2 block">
+            <span className="sr-only">Warm SMS draft text</span>
+            <textarea
+              value={draftText}
+              onChange={(event) => {
+                setDraftText(event.target.value)
+                setDraftRevised(true)
+                if (decision === 'approved_manual_ready') setDecision('revision_requested')
+                setManualSendPrepared(false)
+                setEvidenceRecorded(false)
+                setEvidenceTimestamp(null)
+                setCopyStatus('idle')
+              }}
+              placeholder="Keep this short, relationship-aware, and manual-send only."
+              autoComplete="off"
+              disabled={blocked || suppressed}
+              rows={3}
+              className="min-h-[82px] w-full resize-y rounded-md border border-silicon-slate/70 bg-imperial-navy/90 p-2 text-xs leading-5 text-platinum-white caret-radiant-gold shadow-inner outline-none transition-colors [color-scheme:dark] placeholder:text-muted-foreground focus:border-radiant-gold/70 focus:ring-2 focus:ring-radiant-gold/25 disabled:cursor-not-allowed disabled:border-silicon-slate/60 disabled:bg-silicon-slate/20 disabled:text-muted-foreground/70 disabled:opacity-70"
+            />
+          </label>
+          <p className="mt-1 text-[10px] leading-4 opacity-80">
+            Draft helper only. Manual send remains outside Portfolio and must stop on any opt-out or uncertainty.
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-2 grid gap-1.5 sm:grid-cols-2 xl:grid-cols-3">
+        {readiness.consentAndSuppression.checks.map((check) => (
+          <div key={check.key} className={`rounded-md border p-2 ${smsCheckClasses(check.status)}`}>
+            <p className="text-[10px] font-semibold uppercase tracking-wide">{check.label}</p>
+            <p className="mt-1 text-[10px] leading-4">{check.detail}</p>
+          </div>
+        ))}
+      </div>
+
+      <div
+        id="warm-sms-candidate-review"
+        className={`mt-2 rounded-md border p-2.5 ${
+          candidateReview.state === 'candidate_exists'
+            ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-100'
+            : candidateReview.state === 'ready_to_prepare'
+              ? 'border-sky-500/30 bg-sky-500/10 text-sky-100'
+              : 'border-amber-500/30 bg-amber-500/10 text-amber-100'
+        }`}
+      >
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0">
+            <p className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wide">
+              <ClipboardCheck size={13} aria-hidden />
+              SMS candidate row
+            </p>
+            <p className="mt-1 text-sm font-semibold">{candidateReview.label}</p>
+            <p className="mt-1 text-[10px] leading-4 opacity-85">{candidateReview.detail}</p>
+          </div>
+          <button
+            type="button"
+            disabled={!candidateReview.prepareAction.enabledOnThisSurface || candidateLoading}
+            onClick={() => { void prepareSmsCandidate() }}
+            className="inline-flex min-h-9 w-full shrink-0 items-center justify-center gap-1.5 rounded-md border border-sky-400/35 bg-sky-400/10 px-2 text-[11px] font-semibold text-sky-50 transition-colors hover:bg-sky-400/20 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+          >
+            {candidateLoading
+              ? <RefreshCw size={13} className="animate-spin" aria-hidden />
+              : <ClipboardCheck size={13} aria-hidden />}
+            {candidateLoading ? 'Preparing' : candidateReview.prepareAction.label}
+          </button>
+        </div>
+        <div className="mt-2 grid gap-1.5 text-[10px] leading-4 sm:grid-cols-2 xl:grid-cols-4">
+          <p className="rounded-md border border-current/20 bg-background/20 p-2">
+            Queue: {candidateArtifact?.id ?? 'missing'}
+          </p>
+          <p className="rounded-md border border-current/20 bg-background/20 p-2">
+            Status: {candidateArtifact?.status ?? 'not prepared'}
+          </p>
+          <p className="rounded-md border border-current/20 bg-background/20 p-2">
+            Approval: {candidateArtifact?.approvalState.replaceAll('_', ' ') ?? 'missing'}
+          </p>
+          <p className="rounded-md border border-current/20 bg-background/20 p-2">
+            Send evidence: {candidateArtifact?.submittedEvidenceRecorded ? 'recorded' : 'none'}
+          </p>
+        </div>
+        <details className="mt-2 rounded-md border border-current/20 bg-background/20 p-2">
+          <summary className="cursor-pointer text-[10px] font-semibold uppercase tracking-wide">
+            Candidate prerequisites and boundary
+          </summary>
+          <div className="mt-2 grid gap-1.5 sm:grid-cols-2 xl:grid-cols-3">
+            {candidateReview.prerequisites.map((item) => (
+              <div key={item.key} className={`rounded-md border p-2 ${smsCheckClasses(item.status === 'missing' ? 'review_required' : item.status)}`}>
+                <p className="text-[10px] font-semibold uppercase tracking-wide">{item.label}</p>
+                <p className="mt-1 text-[10px] leading-4">{item.detail}</p>
+              </div>
+            ))}
+          </div>
+          {candidateArtifact && (
+            <div className="mt-2 grid gap-1.5 text-[10px] leading-4 sm:grid-cols-2">
+              <p className="break-all rounded-md border border-current/20 bg-background/20 p-2">
+                Message version: {candidateArtifact.messageVersionKey}
+              </p>
+              <p className="break-all rounded-md border border-current/20 bg-background/20 p-2">
+                Send key: {candidateArtifact.smsSendIdempotencyKey}
+              </p>
+              <p className="break-all rounded-md border border-current/20 bg-background/20 p-2">
+                Submitted evidence: {candidateArtifact.submittedEvidenceKey}
+              </p>
+              <p className="rounded-md border border-current/20 bg-background/20 p-2">
+                Raw phone/body returned: no
+              </p>
+            </div>
+          )}
+          <p className="mt-2 text-[10px] leading-4 opacity-80">
+            Boundary: queue artifact only {candidateReview.executionBoundary.createsQueueArtifact ? 'available' : 'locked'} / provider calls off / SMS delivery off / Telnyx API no / Slack, Gmail, and n8n off / external requests {candidateReview.executionBoundary.externalRequests.length}.
+          </p>
+        </details>
+        {candidateError && (
+          <p role="alert" className="mt-2 rounded-md border border-red-500/35 bg-red-500/10 p-2 text-[11px] leading-4 text-red-100">
+            {candidateError}
+          </p>
+        )}
+        {candidateReceipt && (
+          <p role="status" className="mt-2 rounded-md border border-emerald-500/30 bg-emerald-500/10 p-2 text-[11px] leading-4 text-emerald-100">
+            {candidateReceipt}
+          </p>
+        )}
+      </div>
+
+      <details
+        id="warm-sms-provider-readiness"
+        className={`mt-2 rounded-md border p-2.5 ${smsProviderReadinessClasses(providerReadiness.state)}`}
+      >
+        <summary className="cursor-pointer list-none">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0">
+              <p className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wide">
+                <ShieldCheck size={13} aria-hidden />
+                Warm SMS provider readiness
+                <span
+                  className="group relative inline-flex items-center"
+                  aria-label="Provider audit context"
+                  title="Provider setup, Telnyx planning, transport checks, no-send canary, and live-send audit details are collapsed to keep the operator path focused."
+                >
+                  <Info size={12} aria-hidden />
+                  <span className="pointer-events-none absolute left-0 top-5 z-20 hidden w-64 rounded-md border border-silicon-slate/70 bg-background px-2 py-1.5 text-[10px] font-medium normal-case leading-4 tracking-normal text-foreground shadow-lg group-hover:block group-focus-within:block">
+                    Provider setup, Telnyx planning, transport checks, no-send canary, and live-send audit details are collapsed to keep the operator path focused.
+                  </span>
+                </span>
+              </p>
+              <p className="mt-1 text-sm font-semibold">Provider audit</p>
+            </div>
+            <span className="inline-flex min-h-7 w-fit shrink-0 items-center rounded-full border border-current/25 bg-background/25 px-2 py-0.5 text-[10px] font-semibold">
+              {providerReadiness.consentAndSuppression.status === 'clear'
+                ? `${providerChecksPassed}/${providerChecksTotal} safety checks clear`
+                : 'Safety review incomplete'}
+            </span>
+          </div>
+          <div className="mt-2 flex flex-wrap gap-1.5" aria-label="Collapsed SMS provider boundary summary">
+            <span className="inline-flex min-h-7 items-center rounded-full border border-current/20 bg-background/25 px-2 py-1 text-[10px] font-semibold">
+              Provider execution locked
+            </span>
+            <span className="inline-flex min-h-7 items-center rounded-full border border-current/20 bg-background/25 px-2 py-1 text-[10px] font-semibold">
+              Review audit
+            </span>
+          </div>
+        </summary>
+
+        <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0">
+            <p className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wide">
+              <ShieldCheck size={13} aria-hidden />
+              Provider readiness details
+            </p>
+            <p className="mt-1 text-sm font-semibold">{providerReadiness.label}</p>
+          </div>
+          <span className="inline-flex min-h-7 w-fit shrink-0 items-center rounded-full border border-current/25 bg-background/25 px-2 py-0.5 text-[10px] font-semibold">
+            {providerReadiness.consentAndSuppression.status === 'clear'
+              ? `${providerChecksPassed}/${providerChecksTotal} safety checks clear`
+              : 'Safety review incomplete'}
+          </span>
+        </div>
+
+        <div className="mt-2 flex flex-wrap gap-1.5" aria-label="Critical SMS provider boundaries">
+          <span data-sms-provider-critical-boundary className="inline-flex min-h-7 items-center rounded-full border border-current/20 bg-background/25 px-2 py-1 text-[10px] font-semibold">
+            Provider: {providerReadiness.provider.configured
+              ? providerReadiness.provider.enabled ? 'configured / modeled on' : 'configured / disabled'
+              : 'not configured'}
+          </span>
+          <span data-sms-provider-critical-boundary className="inline-flex min-h-7 items-center rounded-full border border-current/20 bg-background/25 px-2 py-1 text-[10px] font-semibold">
+            Provider calls: off
+          </span>
+          <span data-sms-provider-critical-boundary className="inline-flex min-h-7 items-center rounded-full border border-current/20 bg-background/25 px-2 py-1 text-[10px] font-semibold">
+            Live send: off
+          </span>
+          <span data-sms-provider-critical-boundary className="inline-flex min-h-7 items-center rounded-full border border-current/20 bg-background/25 px-2 py-1 text-[10px] font-semibold">
+            Generic proceed: rejected
+          </span>
+          <span data-sms-provider-critical-boundary className="inline-flex min-h-7 items-center rounded-full border border-current/20 bg-background/25 px-2 py-1 text-[10px] font-semibold">
+            Approval: per-recipient required
+          </span>
+        </div>
+
+        <div data-sms-provider-setup-summary className="mt-2 flex flex-wrap gap-1.5">
+          <span className="inline-flex min-h-7 items-center rounded-full border border-current/20 bg-background/25 px-2 py-1 text-[10px] font-semibold">
+            Setup path: {setupReadiness.selectedPath.label} / {setupReadiness.selectedPath.selectionStatus.replaceAll('_', ' ')}
+          </span>
+          <span className="inline-flex min-h-7 items-center rounded-full border border-current/20 bg-background/25 px-2 py-1 text-[10px] font-semibold">
+            Config validation: {setupReadiness.configurationValidation.status.replaceAll('_', ' ')}
+          </span>
+          <span className="inline-flex min-h-7 items-center rounded-full border border-current/20 bg-background/25 px-2 py-1 text-[10px] font-semibold">
+            Credentials read: no · env changed: no
+          </span>
+          <span className="inline-flex min-h-7 items-center rounded-full border border-current/20 bg-background/25 px-2 py-1 text-[10px] font-semibold">
+            Setup gate: {setupGateLabel}
+          </span>
+        </div>
+
+        <div
+          data-sms-provider-selection-plan
+          className="mt-2 rounded-md border border-current/20 bg-background/25 p-2 text-[10px] leading-4"
+        >
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0">
+              <p className="text-[10px] font-semibold uppercase tracking-wide">Provider selection recommendation</p>
+              <p className="mt-1 font-semibold">
+                Recommended: {providerSelectionPlan.recommendedProvider.label}. Fits profile, sender, callbacks, opt-out, idempotency, and no-send canary.
+              </p>
+            </div>
+            <span className="inline-flex min-h-7 w-fit shrink-0 items-center rounded-full border border-current/25 bg-background/25 px-2 py-0.5 text-[10px] font-semibold">
+              Planning only
+            </span>
+          </div>
+          <p className="mt-1 opacity-85">
+            Next Vambah setup: choose owned provider/account and redacted sender, callback, signing, and secret-location refs.
+          </p>
+          <p className="mt-1 opacity-85">
+            Keep disabled: execution flag, provider API, live SMS, production env, contact-data transmission.
+          </p>
+        </div>
+
+        <div
+          data-sms-telnyx-reference-plan
+          className="mt-2 rounded-md border border-current/20 bg-background/25 p-2 text-[10px] leading-4"
+        >
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0">
+              <p className="text-[10px] font-semibold uppercase tracking-wide">Telnyx reference and environment plan</p>
+              <p className="mt-1 font-semibold">
+                Adapter: SMS_PROVIDER_ADAPTER={telnyxReferencePlan.plannedAdapterValue} planned. Execution flag: ENABLE_WARM_SMS_PROVIDER_EXECUTION=false.
+              </p>
+              <p className="mt-1 opacity-85">
+                This is a reference plan for Vambah-owned setup only: confirm account, register sender, configure callbacks, store secret references, update Vercel later, run the no-send canary, then hold provider activation and live SMS canary for separate approvals.
+              </p>
+            </div>
+            <span className="inline-flex min-h-7 w-fit shrink-0 items-center rounded-full border border-current/25 bg-background/25 px-2 py-0.5 text-[10px] font-semibold">
+              Telnyx planning only
+            </span>
+          </div>
+
+          <p className="mt-2 text-[10px] leading-4 opacity-90">
+            Setup gates: {telnyxReferencePlan.setupGates.map((gate) => gate.label).join(' / ')}.
+          </p>
+
+          <details
+            data-sms-telnyx-env-plan
+            className="mt-2 rounded-md border border-current/20 bg-background/20 p-2"
+          >
+            <summary className="cursor-pointer text-[10px] font-semibold uppercase tracking-wide">
+              Planned redacted environment references ({telnyxReferencePlan.plannedEnvironment.length})
+            </summary>
+            <div className="mt-2 grid gap-1.5 sm:grid-cols-2 xl:grid-cols-3">
+              {telnyxReferencePlan.plannedEnvironment.map((item) => (
+                <div key={item.key} className="min-w-0 rounded-md border border-current/20 bg-background/25 p-2">
+                  <p className="break-all text-[10px] font-semibold uppercase tracking-wide">{item.key}</p>
+                  <p className="mt-1 break-words text-[10px] leading-4">{item.plannedValue}</p>
+                  <p className="mt-1 text-[10px] leading-4 opacity-80">
+                    {item.detail} Raw value returned: no. Env mutated: no.
+                  </p>
+                </div>
+              ))}
+            </div>
+          </details>
+
+          <div data-sms-workflow-separation className="mt-2 flex flex-wrap gap-1.5">
+            {telnyxReferencePlan.workflowSeparation.map((item) => (
+              <span
+                key={item.channel}
+                title={item.boundary}
+                className="inline-flex min-h-7 items-center rounded-full border border-current/20 bg-background/20 px-2 py-1 text-[10px] font-semibold"
+              >
+                {item.label}
+              </span>
+            ))}
+          </div>
+          <p className="mt-1 text-[10px] leading-4 opacity-80">
+            Manual copy/evidence, Gmail, Slack, Telnyx activation, and live SMS send authority stay separate. Telnyx activation requires later explicit approval and env work.
+          </p>
+          <p className="mt-2 text-[10px] leading-4 opacity-80">
+            Safety boundary: provider calls off, SMS delivery off, credentials read no, env changed no, migrations no, production-data mutation no, external requests {telnyxReferencePlan.executionBoundary.externalRequests.length}.
+          </p>
+        </div>
+
+        <div
+          data-sms-telnyx-activation-planning
+          className="mt-2 rounded-md border border-sky-500/25 bg-sky-500/10 p-2 text-sky-50"
+        >
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0">
+              <p className="text-[10px] font-semibold uppercase tracking-wide">Telnyx activation planning gate</p>
+              <p className="mt-1 text-sm font-semibold">{telnyxActivationPlanningGate.label}</p>
+              <p className="mt-1 text-[10px] leading-4 opacity-85">
+                Reference plan complete; activation planning active; env setup pending; no-send canary {telnyxActivationPlanningGate.noSendCanaryState}; provider activation disabled; live SMS unavailable.
+              </p>
+            </div>
+            <span className="inline-flex min-h-7 w-fit shrink-0 items-center rounded-full border border-current/25 bg-background/25 px-2 py-0.5 text-[10px] font-semibold">
+              {telnyxActivationPlanningGate.currentGate.replaceAll('_', ' ')}
+            </span>
+          </div>
+
+          <div data-sms-telnyx-gate-sequence className="mt-2 grid gap-1.5 sm:grid-cols-2 xl:grid-cols-4">
+            {telnyxActivationPlanningGate.steps.map((step) => (
+              <div
+                key={step.key}
+                title={step.detail}
+                className={`min-w-0 rounded-md border p-2 ${smsTelnyxActivationPlanningStepClasses(step.status)}`}
+              >
+                <p className="text-[10px] font-semibold uppercase tracking-wide">{step.label}</p>
+                <p className="mt-1 text-[10px] leading-3">{step.status.replaceAll('_', ' ')}</p>
+              </div>
+            ))}
+          </div>
+
+          <details
+            data-sms-telnyx-activation-drill-in
+            className="mt-2 rounded-md border border-current/20 bg-background/20 p-2"
+          >
+            <summary className="cursor-pointer text-[10px] font-semibold uppercase tracking-wide">
+              Redacted setup refs and later approval gates
+            </summary>
+            <div className="mt-2 grid gap-1.5 lg:grid-cols-2">
+              <div className="rounded-md border border-current/20 bg-background/25 p-2">
+                <p className="text-[10px] font-semibold uppercase tracking-wide">Redacted Telnyx references</p>
+                <div className="mt-2 grid gap-1.5 sm:grid-cols-2">
+                  {telnyxActivationPlanningGate.redactedReferences.map((item) => (
+                    <div key={item.key} className="min-w-0 rounded-md border border-current/20 bg-background/25 p-2">
+                      <p className="break-all text-[10px] font-semibold uppercase tracking-wide">{item.key}</p>
+                      <p className="mt-1 text-[10px] leading-4 opacity-80">
+                        {item.detail} Raw value returned: no.
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="rounded-md border border-current/20 bg-background/25 p-2">
+                <p className="text-[10px] font-semibold uppercase tracking-wide">Later gates requiring current approval</p>
+                <div className="mt-2 grid gap-1.5 sm:grid-cols-2">
+                  {telnyxActivationPlanningGate.laterApprovalGates.map((gate) => (
+                    <div key={gate.key} className="min-w-0 rounded-md border border-amber-500/25 bg-amber-500/10 p-2 text-amber-50">
+                      <p className="text-[10px] font-semibold uppercase tracking-wide">{gate.label}</p>
+                      <p className="mt-1 text-[10px] leading-4">
+                        Requires current Vambah approval. Enabled now: no.
+                      </p>
+                      <p className="mt-1 text-[10px] leading-4 opacity-80">{gate.detail}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <p className="mt-2 text-[10px] leading-4 opacity-80">
+              Active boundary: {telnyxActivationPlanningGate.activeBoundary.featureFlag}=false; provider calls off; SMS delivery off; Telnyx activation off; live canary off; per-recipient send off.
+            </p>
+            <p className="mt-1 text-[10px] leading-4 opacity-80">
+              No secret manager mutation, Vercel env mutation, Telnyx API call, Slack dispatch, Gmail action, n8n dispatch, migration, or production-data mutation occurred. External requests {telnyxActivationPlanningGate.executionBoundary.externalRequests.length}.
+            </p>
+          </details>
+        </div>
+
+        <div className="mt-2 rounded-md border border-current/20 bg-background/25 p-2 text-[11px] leading-4">
+          <p className="text-[10px] font-semibold uppercase tracking-wide">Exact next gate</p>
+          <p className="mt-1" data-testid="warm-sms-activation-next-step">
+            {activationReadiness.blockedRecovery.nextStep}
+          </p>
+          <p className="mt-1 text-[10px] opacity-80" data-sms-activation-summary>
+            {activationReadiness.providerSummary.name ?? 'Provider not selected'} · selection {activationReadiness.providerSummary.selectionStatus.replaceAll('_', ' ')} · configuration {activationReadiness.providerSummary.configurationStatus.replaceAll('_', ' ')} · capabilities {activationReadiness.capabilitySummary.verified}/{activationReadiness.capabilitySummary.total} verified · idempotency contract only.
+          </p>
+        </div>
+
+        <div
+          data-sms-transport-readiness
+          className={`mt-2 rounded-md border p-2.5 ${smsTransportReadinessClasses(transportReadiness.state)}`}
+        >
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0">
+              <p className="text-[10px] font-semibold uppercase tracking-wide">Provider transport contract</p>
+              <p className="mt-1 text-sm font-semibold">{transportReadiness.label}</p>
+              <p className="mt-1 text-[10px] leading-4 opacity-85">
+                This phase records readiness only. It does not send SMS, activate a provider, mutate env, or call an external service.
+              </p>
+            </div>
+            <span className="inline-flex min-h-7 w-fit shrink-0 items-center rounded-full border border-current/25 bg-background/25 px-2 py-0.5 text-[10px] font-semibold">
+              {transportReadiness.state.replaceAll('_', ' ')}
+            </span>
+          </div>
+          <div className="mt-2 grid grid-cols-2 gap-1.5 xl:grid-cols-4">
+            <div className="rounded-md border border-current/20 bg-background/25 p-1.5">
+              <p className="text-[10px] font-semibold uppercase tracking-wide">Selected provider</p>
+              <p className="mt-1 text-[10px] leading-3">
+                {transportReadiness.selectedProvider.label}
+              </p>
+              <p className="mt-1 text-[9px] leading-3 opacity-80">
+                Configured: {transportReadiness.selectedProvider.configured ? 'yes' : 'no'} · raw value: no
+              </p>
+            </div>
+            <div className="rounded-md border border-current/20 bg-background/25 p-1.5">
+              <p className="text-[10px] font-semibold uppercase tracking-wide">Sender and capability</p>
+              <p className="mt-1 text-[10px] leading-3">
+                Sender: {transportReadiness.senderReadiness.status}. Capabilities: {transportReadiness.capabilityReadiness.verified}/{transportReadiness.capabilityReadiness.total}.
+              </p>
+              <p className="mt-1 text-[9px] leading-3 opacity-80">
+                Sender reference recorded: {transportReadiness.senderReadiness.senderReferenceRecorded ? 'yes' : 'no'}
+              </p>
+            </div>
+            <div className="rounded-md border border-current/20 bg-background/25 p-1.5">
+              <p className="text-[10px] font-semibold uppercase tracking-wide">Audit and idempotency</p>
+              <p className="mt-1 text-[10px] leading-3">
+                {transportReadiness.auditAndIdempotency.idempotencyNamespace}
+              </p>
+              <p className="mt-1 text-[9px] leading-3 opacity-80">
+                Message version: {transportReadiness.auditAndIdempotency.messageVersionKey} · raw phone/body: no
+              </p>
+            </div>
+            <div className="rounded-md border border-current/20 bg-background/25 p-1.5">
+              <p className="text-[10px] font-semibold uppercase tracking-wide">Delivery confirmation</p>
+              <p className="mt-1 text-[10px] leading-3">
+                {transportReadiness.deliveryConfirmation.status.replaceAll('_', ' ')} · mapped {transportReadiness.deliveryConfirmation.deliveryStoreMapped ? 'yes' : 'no'}
+              </p>
+              <p className="mt-1 text-[9px] leading-3 opacity-80">
+                Provider message ID: placeholder only. Delivery status: placeholder only.
+              </p>
+            </div>
+          </div>
+          <p className="mt-2 text-[10px] leading-4 opacity-85" data-sms-transport-next-action>
+            {transportReadiness.nextAction}
+          </p>
+        </div>
+
+        <div
+          data-sms-no-send-canary
+          className={`mt-2 rounded-md border p-2.5 ${
+            noSendCanary.state === 'ready_no_send_simulation'
+              ? 'border-emerald-500/25 bg-emerald-500/10 text-emerald-50'
+              : 'border-amber-500/25 bg-amber-500/10 text-amber-50'
+          }`}
+        >
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0">
+              <p className="text-[10px] font-semibold uppercase tracking-wide">Telnyx no-send canary</p>
+              <p className="mt-1 text-sm font-semibold">{noSendCanary.label}</p>
+              <p className="mt-1 text-[10px] leading-4 opacity-85">{noSendCanary.detail}</p>
+            </div>
+            <div className="flex w-full flex-col gap-1.5 sm:w-auto sm:items-end">
+              <span className="inline-flex min-h-7 w-fit shrink-0 items-center rounded-full border border-current/25 bg-background/25 px-2 py-0.5 text-[10px] font-semibold">
+                {smsTelnyxCanaryResult?.status.replaceAll('_', ' ') ?? noSendCanary.result.status.replaceAll('_', ' ')}
+              </span>
+              {onSmsTelnyxNoSendCanary && (
+                <button
+                  type="button"
+                  disabled={smsTelnyxCanaryLoading}
+                  onClick={onSmsTelnyxNoSendCanary}
+                  className="inline-flex min-h-9 w-full items-center justify-center gap-1.5 rounded-md border border-sky-400/35 bg-sky-400/10 px-2 text-[11px] font-semibold text-sky-50 transition-colors hover:bg-sky-400/20 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+                >
+                  {smsTelnyxCanaryLoading
+                    ? <RefreshCw size={13} className="animate-spin" aria-hidden />
+                    : <ShieldCheck size={13} aria-hidden />}
+                  {smsTelnyxCanaryLoading ? 'Running canary' : 'Run SMS no-send canary'}
+                </button>
+              )}
+            </div>
+          </div>
+          <div data-sms-provider-activation-checklist className="mt-2 grid grid-cols-2 gap-1.5 sm:grid-cols-3">
+            {providerReadiness.activationChecklist.map((item) => (
+              <div
+                key={item.key}
+                title={item.detail}
+                className={`min-h-12 rounded-md border p-1.5 ${smsCheckClasses(item.status)}`}
+              >
+                <p className="text-[10px] font-semibold uppercase tracking-wide">{item.label}</p>
+                <p className="mt-1 text-[10px] leading-3">{item.status.replaceAll('_', ' ')}</p>
+              </div>
+            ))}
+          </div>
+          <details className="mt-2 rounded-md border border-current/20 bg-background/25 p-2 text-[10px] leading-4">
+            <summary className="cursor-pointer font-semibold uppercase tracking-wide">
+              Route plan and no-send boundary
+            </summary>
+            <div className="mt-2">
+              <p>
+                Surface: existing warm outreach contact surface. Provider: {noSendCanary.routePlan.selectedProvider.label}.
+              </p>
+              <p className="mt-1 break-all opacity-80">
+                Key: {noSendCanary.routePlan.idempotencyKeyPreview}
+              </p>
+            </div>
+            <div className="mt-2">
+              <p className="text-[10px] font-semibold uppercase tracking-wide">Canary result boundary</p>
+              <p className="mt-1">{noSendCanary.result.reason}</p>
+              <p className="mt-1 opacity-80">
+                Provider calls: off. SMS delivery: off. Env changed: no. External requests: {noSendCanary.executionBoundary.externalRequests.length}.
+              </p>
+            </div>
+          </details>
+          {(smsTelnyxCanaryResult || smsTelnyxCanaryError) && (
+            <div
+              role={smsTelnyxCanaryError ? 'alert' : 'status'}
+              className={`mt-2 rounded-md border p-2 text-[10px] leading-4 ${
+                smsTelnyxCanaryError || smsTelnyxCanaryResult?.status === 'blocked_no_send'
+                  ? 'border-amber-400/35 bg-amber-400/10 text-amber-50'
+                  : 'border-emerald-400/35 bg-emerald-400/10 text-emerald-50'
+              }`}
+            >
+              <p className="font-semibold">
+                {smsTelnyxCanaryError ?? smsTelnyxCanaryResult?.message}
+              </p>
+              {smsTelnyxCanaryResult && (
+                <>
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    <p className="w-fit rounded-md border border-current/20 bg-background/20 px-2 py-1">
+                      Env setup: {smsTelnyxCanaryResult.readiness.envSetupPresent ? 'present' : 'blocked'}
+                    </p>
+                    <p className="w-fit rounded-md border border-current/20 bg-background/20 px-2 py-1">
+                      Adapter: {smsTelnyxCanaryResult.provider.selectedProvider.label}
+                    </p>
+                    <p className="w-fit max-w-full break-all rounded-md border border-current/20 bg-background/20 px-2 py-1">
+                      Message: {smsTelnyxCanaryResult.idempotency.messageVersionKey}
+                    </p>
+                    <p className="w-fit max-w-full break-all rounded-md border border-current/20 bg-background/20 px-2 py-1">
+                      Canary key: {smsTelnyxCanaryResult.idempotency.canaryIdempotencyKey}
+                    </p>
+                    <p className="w-fit rounded-md border border-current/20 bg-background/20 px-2 py-1">
+                      Provider activation: disabled
+                    </p>
+                    <p className="w-fit rounded-md border border-current/20 bg-background/20 px-2 py-1">
+                      Live SMS: unavailable
+                    </p>
+                    <p className="w-fit rounded-md border border-current/20 bg-background/20 px-2 py-1">
+                      Per-recipient send: separate
+                    </p>
+                    <p className="w-fit rounded-md border border-current/20 bg-background/20 px-2 py-1">
+                      External requests: {smsTelnyxCanaryResult.externalRequests.length}
+                    </p>
+                  </div>
+                  <details className="mt-2 rounded-md border border-current/20 bg-background/20 p-2">
+                    <summary className="cursor-pointer font-semibold">
+                      {smsTelnyxCanaryResult.redactedReferences.length} redacted env/config references verified. Raw values returned: no.
+                    </summary>
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      {smsTelnyxCanaryResult.redactedReferences.map((item) => (
+                        <p key={item.key} className="w-fit max-w-full break-words rounded-md border border-current/20 bg-background/20 px-2 py-1">
+                          {item.key}: {item.status.replaceAll('_', ' ')}. Raw value returned: no.
+                        </p>
+                      ))}
+                    </div>
+                  </details>
+                  {smsTelnyxCanaryResult.blockedReasons.length > 0 && (
+                    <p className="mt-2 rounded-md border border-current/20 bg-background/20 p-2">
+                      Blocker: {smsTelnyxCanaryResult.blockedReasons[0]}
+                    </p>
+                  )}
+                  <p className="mt-2 opacity-80">
+                    Provider calls: off. SMS delivery: off. Provider activation: off. Feature flag enabled: no. Telnyx API called: no. Raw phone/message: no.
+                  </p>
+                </>
+              )}
+            </div>
+          )}
+        </div>
+
+        <div
+          data-sms-live-telnyx-readiness
+          className="mt-2 rounded-md border border-sky-400/25 bg-sky-400/10 p-2.5 text-sky-50"
+        >
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0">
+              <p className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wide">
+                <Send size={13} aria-hidden />
+                Live Telnyx one-recipient readiness
+              </p>
+              <p className="mt-1 text-sm font-semibold">No-send passed before live-send authority</p>
+              <p className="mt-1 text-[10px] leading-4 opacity-85">
+                Sequence: no-send canary passed, credential/provider smoke available, explicit per-recipient send approval, then live one-recipient SMS execution. This screen shows readiness only; it does not render a live-send button.
+              </p>
+            </div>
+            <span className="inline-flex min-h-7 w-fit shrink-0 items-center rounded-full border border-current/25 bg-background/25 px-2 py-0.5 text-[10px] font-semibold">
+              Live SMS blocked
+            </span>
+          </div>
+          <div data-sms-live-sequence className="mt-2 grid gap-1.5 sm:grid-cols-2 xl:grid-cols-4">
+            {smsLiveSequence.map((step) => (
+              <div
+                key={step.key}
+                className={`min-w-0 rounded-md border p-2 ${smsLiveExecutionGateClasses(step.status)}`}
+              >
+                <p className="text-[10px] font-semibold uppercase tracking-wide">{step.label}</p>
+                <p className="mt-1 text-[10px] leading-3">{step.status}</p>
+                <p className="mt-1 text-[10px] leading-4 opacity-85">{step.detail}</p>
+              </div>
+            ))}
+          </div>
+          <div data-sms-live-recovery-states className="mt-2 grid gap-1.5 sm:grid-cols-2 xl:grid-cols-3">
+            {smsLiveRecoveryStates.map((state) => (
+              <div
+                key={state.label}
+                className={`rounded-md border p-2 ${
+                  state.blocked
+                    ? 'border-amber-400/30 bg-amber-400/10 text-amber-50'
+                    : 'border-silicon-slate bg-background/20 text-muted-foreground'
+                }`}
+              >
+                <p className="text-[10px] font-semibold uppercase tracking-wide">{state.label}</p>
+                <p className="mt-1 text-[10px] leading-4">{state.blocked ? 'Blocked now' : 'Checked by route'}</p>
+                <p className="mt-1 text-[10px] leading-4 opacity-85">{state.recovery}</p>
+              </div>
+            ))}
+          </div>
+          <div data-sms-live-route-contract className="mt-2 rounded-md border border-current/20 bg-background/25 p-2 text-[10px] leading-4">
+            <p className="font-semibold uppercase tracking-wide">Guarded route contract</p>
+            <p className="mt-1 break-words">
+              POST /api/admin/outreach/leads/[id]/sms-telnyx-live-send requires {WARM_SMS_SEND_AUTHORIZATION}; generic proceed is rejected.
+            </p>
+            <p className="mt-1 opacity-85">
+              Required match: contact id, queue/message id, channel sms, message version, idempotency key, submitted evidence key, consent/suppression snapshot, Telnyx capability verification, runtime credential, sender/profile, and ENABLE_WARM_SMS_PROVIDER_EXECUTION=true.
+            </p>
+            <p className="mt-1 opacity-85">
+              Boundary: no live SMS from this UI, no secret values returned, no raw phone shown, no raw message body shown, and no provider request during readiness QA.
+            </p>
+          </div>
+        </div>
+
+        <details
+          data-testid="warm-sms-provider-details"
+          className="mt-2 rounded-md border border-current/20 bg-background/20 p-2"
+        >
+          <summary className="flex cursor-pointer items-center justify-between gap-2 text-[10px] font-semibold uppercase tracking-wide">
+            <span>Activation requirements and audit evidence</span>
+            <span className="shrink-0 rounded-full border border-current/20 px-2 py-0.5 normal-case tracking-normal">
+              Provider activation blocked
+            </span>
+          </summary>
+          <div data-sms-provider-configuration className="mt-2 grid gap-1.5 sm:grid-cols-2">
+            <div className="rounded-md border border-current/20 bg-background/25 p-2">
+              <p className="text-[10px] font-semibold uppercase tracking-wide">Provider selection</p>
+              <p className="mt-1 text-[10px] leading-4">
+                {activationReadiness.providerSummary.name ?? 'No provider selected'} · {activationReadiness.providerSummary.selectionStatus.replaceAll('_', ' ')}
+              </p>
+              <p className="mt-1 text-[10px] leading-4 opacity-80">
+                {activationReadiness.providerSummary.selectionNote}
+              </p>
+            </div>
+            <div className="rounded-md border border-current/20 bg-background/25 p-2">
+              <p className="text-[10px] font-semibold uppercase tracking-wide">Disabled configuration</p>
+              <p className="mt-1 text-[10px] leading-4">
+                {activationReadiness.providerSummary.configurationStatus.replaceAll('_', ' ')}
+              </p>
+              <p className="mt-1 text-[10px] leading-4 opacity-80">
+                {activationReadiness.providerSummary.configurationNote} Credentials read: no. Environment changes: no.
+              </p>
+            </div>
+          </div>
+
+          <div data-sms-provider-setup-path className="mt-2 grid gap-1.5 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
+            <div className="rounded-md border border-current/20 bg-background/25 p-2">
+              <p className="text-[10px] font-semibold uppercase tracking-wide">Provider setup path</p>
+              <p className="mt-1 text-[10px] leading-4">
+                {setupReadiness.selectedPath.selectionNote}
+              </p>
+              <div className="mt-2 grid gap-1.5 sm:grid-cols-2">
+                {setupReadiness.selectedPath.availableCandidates.map((candidate) => (
+                  <div
+                    key={candidate.key}
+                    data-sms-provider-setup-candidate
+                    className={`rounded-md border p-2 ${
+                      candidate.key === setupReadiness.selectedPath.candidateKey
+                        ? 'border-sky-500/30 bg-sky-500/10 text-sky-100'
+                        : 'border-current/15 bg-background/20 text-muted-foreground'
+                    }`}
+                  >
+                    <p className="text-[10px] font-semibold uppercase tracking-wide">{candidate.label}</p>
+                    <p className="mt-1 text-[10px] leading-4">
+                      {candidate.capabilityFit.replaceAll('_', ' ')} · calls off
+                    </p>
+                    <p className="mt-1 text-[10px] leading-4 opacity-80">{candidate.setupWork}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div data-sms-configuration-validation className="rounded-md border border-current/20 bg-background/25 p-2">
+              <p className="text-[10px] font-semibold uppercase tracking-wide">Environment and config validation</p>
+              <p className="mt-1 text-[10px] leading-4">
+                {setupReadiness.configurationValidation.label} Provider settings changed: no. Feature flag enabled: no.
+              </p>
+              <div className="mt-2 grid gap-1.5 sm:grid-cols-2">
+                {setupReadiness.configurationValidation.requiredEnvironment.map((item) => (
+                  <div
+                    key={item.key}
+                    data-sms-provider-config-item
+                    className={`rounded-md border p-2 ${smsSetupValidationClasses(item.status)}`}
+                  >
+                    <p className="text-[10px] font-semibold uppercase tracking-wide">{item.label}</p>
+                    <p className="mt-1 text-[10px] leading-4">
+                      {item.key} · {item.status.replaceAll('_', ' ')}
+                    </p>
+                    <p className="mt-1 text-[10px] leading-4 opacity-80">
+                      {item.detail} Raw value returned: no.
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div data-sms-provider-selection-comparison className="mt-2 rounded-md border border-current/20 bg-background/25 p-2">
+            <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
+              <div className="min-w-0">
+                <p className="text-[10px] font-semibold uppercase tracking-wide">Provider comparison</p>
+                <p className="mt-1 text-[10px] leading-4">
+                  Selection status: {providerSelectionPlan.decisionGate.currentDecision.replaceAll('_', ' ')}. Next approval: {providerSelectionPlan.decisionGate.nextRequiredApproval.replaceAll('_', ' ')}.
+                </p>
+              </div>
+              <span className="w-fit shrink-0 rounded-full border border-current/20 px-2 py-0.5 text-[10px] font-semibold">
+                External requests: {providerSelectionPlan.decisionGate.externalRequests.length}
+              </span>
+            </div>
+            <div className="mt-2 grid gap-1.5 lg:grid-cols-2">
+              {providerSelectionPlan.candidates.map((candidate) => (
+                <details
+                  key={candidate.key}
+                  data-sms-provider-selection-candidate
+                  className={`rounded-md border p-2 ${
+                    candidate.recommendation === 'recommended'
+                      ? 'border-sky-500/30 bg-sky-500/10 text-sky-100'
+                      : 'border-current/15 bg-background/20 text-muted-foreground'
+                  }`}
+                >
+                  <summary className="cursor-pointer text-[10px] font-semibold uppercase tracking-wide">
+                    {candidate.label} · {candidate.recommendation.replaceAll('_', ' ')}
+                  </summary>
+                  <dl className="mt-2 grid gap-1.5 text-[10px] leading-4 sm:grid-cols-2">
+                    <div>
+                      <dt className="font-semibold">Capability fit</dt>
+                      <dd className="mt-0.5">{candidate.capabilityFit}</dd>
+                    </div>
+                    <div>
+                      <dt className="font-semibold">Setup work</dt>
+                      <dd className="mt-0.5">{candidate.setupWork}</dd>
+                    </div>
+                    <div>
+                      <dt className="font-semibold">Consent / suppression</dt>
+                      <dd className="mt-0.5">{candidate.consentSuppressionCompatibility}</dd>
+                    </div>
+                    <div>
+                      <dt className="font-semibold">Delivery callbacks</dt>
+                      <dd className="mt-0.5">{candidate.deliveryCallbackRequirements}</dd>
+                    </div>
+                    <div>
+                      <dt className="font-semibold">Opt-out handling</dt>
+                      <dd className="mt-0.5">{candidate.optOutHandling}</dd>
+                    </div>
+                    <div>
+                      <dt className="font-semibold">Idempotency</dt>
+                      <dd className="mt-0.5">{candidate.idempotencySupport}</dd>
+                    </div>
+                    <div>
+                      <dt className="font-semibold">Credential/env refs</dt>
+                      <dd className="mt-0.5 break-words">{candidate.expectedCredentialReferences.join(', ')}</dd>
+                    </div>
+                    <div>
+                      <dt className="font-semibold">No-send validation</dt>
+                      <dd className="mt-0.5">{candidate.noSendValidationRoute}</dd>
+                    </div>
+                  </dl>
+                  <p className="mt-2 text-[10px] leading-4">
+                    Blocker: {candidate.blockers[0]}
+                  </p>
+                  <p className="mt-1 text-[10px] leading-4 opacity-80">
+                    Provider calls: off. SMS delivery: off. Raw credentials returned: no.
+                  </p>
+                </details>
+              ))}
+            </div>
+          </div>
+
+          <p className="mt-2 text-[10px] font-semibold uppercase tracking-wide">
+            Consent and suppression prerequisites
+          </p>
+          <div className="mt-2 grid gap-1.5 sm:grid-cols-2 xl:grid-cols-4">
+            {providerReadiness.consentAndSuppression.checks.map((check) => (
+              <div
+                key={check.key}
+                data-sms-provider-check
+                className={`rounded-md border p-2 ${smsCheckClasses(check.status)}`}
+              >
+                <p className="text-[10px] font-semibold uppercase tracking-wide">{check.label}</p>
+                <p className="mt-1 text-[10px] leading-4">{check.detail}</p>
+              </div>
+            ))}
+          </div>
+
+          <p className="mt-2 text-[10px] font-semibold uppercase tracking-wide">
+            Provider capability requirements
+          </p>
+          <div data-sms-capability-requirements className="mt-2 grid gap-1.5 sm:grid-cols-2 xl:grid-cols-3">
+            {activationReadiness.capabilitySummary.requirements.map((requirement) => (
+              <div
+                key={requirement.key}
+                data-sms-provider-capability
+                className={`rounded-md border p-2 ${smsProviderCapabilityClasses(requirement.status)}`}
+              >
+                <p className="text-[10px] font-semibold uppercase tracking-wide">{requirement.label}</p>
+                <p className="mt-1 text-[10px] leading-4">{requirement.detail}</p>
+                <p className="mt-1 text-[10px] leading-4 opacity-80">
+                  {requirement.status.replaceAll('_', ' ')} · {requirement.evidence}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          <div data-sms-send-contract className="mt-2 grid gap-1.5 sm:grid-cols-2">
+            <div data-sms-idempotency-model className="rounded-md border border-current/20 bg-background/25 p-2">
+              <p className="text-[10px] font-semibold uppercase tracking-wide">Idempotency contract · not implemented</p>
+              <p className="mt-1 text-[10px] leading-4">
+                Namespace: {activationReadiness.idempotencyModel.namespace}. Match contact, SMS channel, message version, and the current per-recipient approval key before any future provider attempt.
+              </p>
+              <p className="mt-1 text-[10px] leading-4 opacity-80">
+                Duplicate policy: return existing attempt evidence without resending. A provider message ID is required after any future attempt.
+              </p>
+            </div>
+            <div className="rounded-md border border-current/20 bg-background/25 p-2">
+              <p className="text-[10px] font-semibold uppercase tracking-wide">Send authority boundary</p>
+              <p className="mt-1 text-[10px] leading-4">
+                Required approval: authorize warm SMS send for specific recipient. Generic proceed is rejected.
+              </p>
+              <p className="mt-1 text-[10px] leading-4 opacity-80">
+                Approval must match contact, SMS channel, message version, and idempotency key. Live send: off.
+              </p>
+            </div>
+          </div>
+
+          <div data-sms-transport-config-items className="mt-2 rounded-md border border-current/20 bg-background/25 p-2">
+            <p className="text-[10px] font-semibold uppercase tracking-wide">Transport config parse · redacted</p>
+            <div className="mt-2 grid gap-1.5 sm:grid-cols-2 xl:grid-cols-3">
+              {transportReadiness.selectedProvider.configured && transportReadiness.blockedReasons.length === 0 ? (
+                <div className="rounded-md border border-emerald-500/25 bg-emerald-500/10 p-2 text-emerald-100">
+                  <p className="text-[10px] font-semibold uppercase tracking-wide">No transport blockers</p>
+                  <p className="mt-1 text-[10px] leading-4">
+                    Provider transport can be reviewed for a future gate. Provider activation and SMS delivery remain off.
+                  </p>
+                </div>
+              ) : (
+                transportReadiness.blockedReasons.slice(0, 6).map((reason) => (
+                  <div key={reason} className="rounded-md border border-amber-500/25 bg-amber-500/10 p-2 text-amber-100">
+                    <p className="text-[10px] font-semibold uppercase tracking-wide">Transport blocker</p>
+                    <p className="mt-1 text-[10px] leading-4">{reason}</p>
+                  </div>
+                ))
+              )}
+            </div>
+            <p className="mt-2 text-[10px] leading-4 opacity-80">
+              External requests: {transportReadiness.executionBoundary.externalRequests.length}. Credentials read: no. Environment variables changed: no.
+            </p>
+          </div>
+
+          <div data-sms-audit-recovery className="mt-2 grid gap-1.5 sm:grid-cols-2">
+            <div className="rounded-md border border-current/20 bg-background/25 p-2">
+              <p className="text-[10px] font-semibold uppercase tracking-wide">Audit evidence contract</p>
+              <p className="mt-1 text-[10px] leading-4">
+                Before activation: provider selection, disabled configuration review, and capability evidence review. Before any future send: consent, suppression, phone provenance, current per-recipient approval, message version, and idempotency key.
+              </p>
+              <p className="mt-1 text-[10px] leading-4 opacity-80">
+                After any future provider attempt: timestamp, provider message ID, delivery status, and result classification. Raw phone and raw message body stay out of this audit packet.
+              </p>
+            </div>
+
+            <div data-sms-recovery-path className="rounded-md border border-current/20 bg-background/25 p-2">
+              <p className="text-[10px] font-semibold uppercase tracking-wide">Blocked recovery path</p>
+              <p className="mt-1 text-[10px] leading-4">{activationReadiness.blockedRecovery.reason}</p>
+              <ol className="mt-1 list-decimal space-y-1 pl-4 text-[10px] leading-4 opacity-90">
+                {activationReadiness.blockedRecovery.steps.map((step) => (
+                  <li key={step}>{step}</li>
+                ))}
+              </ol>
+            </div>
+          </div>
+
+          <div data-sms-operator-setup-path className="mt-2 rounded-md border border-current/20 bg-background/25 p-2">
+            <p className="text-[10px] font-semibold uppercase tracking-wide">Operator setup path</p>
+            <div className="mt-2 grid gap-1.5 sm:grid-cols-3">
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-wide">Review now</p>
+                <ul className="mt-1 space-y-1 text-[10px] leading-4 opacity-90">
+                  {setupReadiness.operatorPath.canReviewNow.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-wide">Blocked by setup</p>
+                <ul className="mt-1 space-y-1 text-[10px] leading-4 opacity-90">
+                  {setupReadiness.operatorPath.blockedByProviderSetup.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-wide">Before live SMS</p>
+                <ul className="mt-1 space-y-1 text-[10px] leading-4 opacity-90">
+                  {setupReadiness.operatorPath.requiredBeforeAnyLiveSend.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <p className="mt-2 text-[10px] leading-4 opacity-80">
+            Consent audit: {providerReadiness.consentAndSuppression.auditedAt ?? 'missing'}.
+            {' '}Only the Telnyx no-send audit route is implemented. Provider activation, live SMS, and per-recipient sends remain unavailable. The manual SMS loop below remains a separate local workflow.
+          </p>
+        </details>
+      </details>
+
+      <div id="warm-sms-manual-decision" className={`mt-2 rounded-md border p-2.5 ${smsDecisionClasses(decision)}`}>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0">
+            <p className="text-[10px] font-semibold uppercase tracking-wide">Manual decision state</p>
+            <p className="mt-1 text-sm font-semibold">{smsDecisionLabel(decision)}</p>
+            <p className="mt-1 text-[11px] leading-4">{decisionDetail}</p>
+          </div>
+          <div className="grid w-full grid-cols-1 gap-1.5 sm:w-auto sm:grid-cols-3">
+            <button
+              type="button"
+              disabled={!canApprove}
+              onClick={() => {
+                setDecision('approved_manual_ready')
+                setCopyStatus('idle')
+              }}
+              className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-md border border-emerald-500/35 bg-emerald-500/10 px-2 text-[11px] font-semibold text-emerald-100 transition-colors hover:bg-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <CheckCircle2 size={13} aria-hidden />
+              Approve
+            </button>
+            <button
+              type="button"
+              disabled={blocked || suppressed}
+              onClick={() => {
+                setDecision('revision_requested')
+                setManualSendPrepared(false)
+                setEvidenceRecorded(false)
+                setEvidenceTimestamp(null)
+              }}
+              className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-md border border-amber-500/35 bg-amber-500/10 px-2 text-[11px] font-semibold text-amber-100 transition-colors hover:bg-amber-500/20 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <RefreshCw size={13} aria-hidden />
+              Revise
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setDecision('rejected')
+                setManualSendPrepared(false)
+                setEvidenceRecorded(false)
+                setEvidenceTimestamp(null)
+              }}
+              className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-md border border-red-500/35 bg-red-500/10 px-2 text-[11px] font-semibold text-red-100 transition-colors hover:bg-red-500/20"
+            >
+              <ShieldAlert size={13} aria-hidden />
+              Reject
+            </button>
+          </div>
+        </div>
+        <p className="mt-2 text-[10px] leading-4 opacity-80">
+          Approval records manual-send readiness only. SMS delivery, provider calls, phone import, Slack, Gmail, n8n, and production mutation are off. Generic “proceed” is ignored for SMS sending.
+        </p>
+      </div>
+
+      <div id="warm-sms-manual-loop" className="mt-2 rounded-md border border-current/20 bg-background/20 p-2.5">
+        <div className="flex flex-col gap-2 lg:flex-row lg:items-start lg:justify-between">
+          <div className="min-w-0">
+            <p className="text-[10px] font-semibold uppercase tracking-wide">Manual SMS operating loop</p>
+            <p className="mt-1 text-sm font-semibold">{loop.label}</p>
+            <p className="mt-1 text-[11px] leading-4">{loop.operatorNextAction}</p>
+            {loop.recoveryStep && (
+              <p className="mt-1 rounded-md border border-current/20 bg-background/25 p-2 text-[11px] leading-4">
+                Recovery: {loop.recoveryStep}
+              </p>
+            )}
+          </div>
+          <div className="grid w-full grid-cols-1 gap-1.5 sm:grid-cols-2 lg:w-auto">
+            <button
+              type="button"
+              disabled={!loop.gates.canCopyApprovedDraft}
+              onClick={handleCopyApprovedDraft}
+              className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-md border border-sky-500/35 bg-sky-500/10 px-2 text-[11px] font-semibold text-sky-100 transition-colors hover:bg-sky-500/20 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <ClipboardCopy size={13} aria-hidden />
+              Copy approved draft
+            </button>
+            <button
+              type="button"
+              disabled={!loop.gates.canPrepareManualSend}
+              onClick={() => setManualSendPrepared(true)}
+              className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-md border border-emerald-500/35 bg-emerald-500/10 px-2 text-[11px] font-semibold text-emerald-100 transition-colors hover:bg-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <Send size={13} aria-hidden />
+              Prepare manual use
+            </button>
+          </div>
+        </div>
+        {copyStatus !== 'idle' && (
+          <p className={`mt-2 rounded-md border p-2 text-[11px] leading-4 ${
+            copyStatus === 'copied'
+              ? 'border-emerald-500/25 bg-emerald-500/10 text-emerald-100'
+              : 'border-amber-500/25 bg-amber-500/10 text-amber-100'
+          }`}>
+            {copyStatus === 'copied'
+              ? 'Approved SMS draft copied. Send manually outside Portfolio, then record minimal evidence here.'
+              : 'Clipboard unavailable. Select the draft text and copy it manually; Portfolio still will not send SMS.'}
+          </p>
+        )}
+        <div className="mt-2 grid gap-1.5 sm:grid-cols-2 xl:grid-cols-4">
+          {warmSmsManualLoopStages.map((stage, index) => (
+            <div
+              key={stage.state}
+              className={`rounded-md border p-2 ${smsLoopStageClasses(
+                stage.state === loop.state,
+                activeStageIndex >= index && loop.state !== 'suppressed_stop',
+                stage.state === 'suppressed_stop' && suppressed,
+              )}`}
+            >
+              <p className="text-[10px] font-semibold uppercase tracking-wide">{stage.label}</p>
+              <p className="mt-1 text-[10px] leading-4">{stage.detail}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-2 grid gap-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+        <div id="warm-sms-manual-evidence" className="rounded-md border border-current/20 bg-background/20 p-2.5">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0">
+              <p className="text-[10px] font-semibold uppercase tracking-wide">Manual send evidence</p>
+              <p className="mt-1 text-[11px] leading-4">
+                Timestamp, channel, and operator note only. No raw SMS body, phone number, screenshot, provider send, or private reply content is required.
+              </p>
+            </div>
+            <span className="inline-flex min-h-7 w-fit shrink-0 items-center gap-1.5 rounded-full border border-current/25 bg-background/25 px-2 py-0.5 text-[10px] font-semibold">
+              <ClipboardCheck size={12} aria-hidden />
+              Channel: manual SMS
+            </span>
+          </div>
+          <label className="mt-2 block">
+            <span className="text-[10px] font-semibold uppercase tracking-wide">Operator note</span>
+            <textarea
+              value={operatorNote}
+              onChange={(event) => {
+                setOperatorNote(event.target.value)
+                if (evidenceRecorded) {
+                  setEvidenceRecorded(false)
+                  setEvidenceTimestamp(null)
+                }
+              }}
+              placeholder="Example: Sent manually from phone after reviewing consent basis."
+              disabled={!manualSendPrepared || suppressed}
+              rows={3}
+              className="mt-1 min-h-[78px] w-full resize-y rounded-md border border-silicon-slate/70 bg-imperial-navy/90 p-2 text-xs leading-5 text-platinum-white caret-radiant-gold outline-none transition-colors [color-scheme:dark] placeholder:text-muted-foreground focus:border-radiant-gold/70 focus:ring-2 focus:ring-radiant-gold/25 disabled:cursor-not-allowed disabled:border-silicon-slate/60 disabled:bg-silicon-slate/20 disabled:text-muted-foreground/70 disabled:opacity-70"
+            />
+          </label>
+          <button
+            type="button"
+            disabled={!loop.gates.canRecordEvidence || operatorNote.trim().length === 0}
+            onClick={recordManualEvidence}
+            className="mt-2 inline-flex min-h-9 w-full items-center justify-center gap-1.5 rounded-md border border-emerald-500/35 bg-emerald-500/10 px-2 text-[11px] font-semibold text-emerald-100 transition-colors hover:bg-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+          >
+            <CheckCircle2 size={13} aria-hidden />
+            Record manual evidence
+          </button>
+          <p className="mt-2 text-[10px] leading-4 opacity-80">
+            Evidence: {loop.evidenceComplete ? `complete at ${evidenceTimestamp}` : loop.missingEvidence.length > 0 ? `missing ${loop.missingEvidence.join(', ')}` : 'ready'}.
+          </p>
+        </div>
+
+        <div id="warm-sms-manual-response" className={`rounded-md border p-2.5 ${
+          suppressed
+            ? 'border-red-500/30 bg-red-500/10 text-red-100'
+            : 'border-current/20 bg-background/20'
+        }`}>
+          <p className="text-[10px] font-semibold uppercase tracking-wide">Manual response outcome</p>
+          <p className="mt-1 text-[11px] leading-4">
+            Classify only the non-sensitive result of the manual SMS thread. Stop or wrong-number outcomes suppress future SMS prompts.
+          </p>
+          <label className="mt-2 block">
+            <span className="sr-only">Manual SMS response outcome</span>
+            <select
+              value={responseOutcome}
+              onChange={(event) => setResponseOutcome(event.target.value as WarmSmsManualResponseOutcome)}
+              disabled={!manualSendPrepared && !evidenceRecorded}
+              className="w-full rounded-md border border-silicon-slate/70 bg-imperial-navy/90 p-2 text-xs text-platinum-white outline-none transition-colors [color-scheme:dark] focus:border-radiant-gold/70 focus:ring-2 focus:ring-radiant-gold/25 disabled:cursor-not-allowed disabled:border-silicon-slate/60 disabled:bg-silicon-slate/20 disabled:text-muted-foreground/70 disabled:opacity-70"
+            >
+              {readiness.operatingLoop.responseOutcomes.map((outcome) => (
+                <option key={outcome.outcome} value={outcome.outcome} className="bg-imperial-navy text-platinum-white">{outcome.label}</option>
+              ))}
+            </select>
+          </label>
+          <p className="mt-2 text-sm font-semibold">{loop.response.label}</p>
+          <p className="mt-1 text-[11px] leading-4">{loop.response.detail}</p>
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            <span className="inline-flex min-h-7 items-center rounded-full border border-current/20 bg-background/25 px-2 py-1 text-[10px] font-semibold">
+              Response: {loop.response.responseReceived ? 'received' : 'expected'}
+            </span>
+            <span className="inline-flex min-h-7 items-center rounded-full border border-current/20 bg-background/25 px-2 py-1 text-[10px] font-semibold">
+              Follow-up draft: {loop.response.followUpDraftNeeded ? 'needed' : 'not needed'}
+            </span>
+            <span className="inline-flex min-h-7 items-center rounded-full border border-current/20 bg-background/25 px-2 py-1 text-[10px] font-semibold">
+              SMS prompts: {suppressed ? 'suppressed' : 'available after review'}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <details className="mt-2 rounded-md border border-current/20 bg-background/20 p-2">
+        <summary className="cursor-pointer text-[10px] font-semibold uppercase tracking-wide">
+          SMS drafting aids and boundary
+        </summary>
+        <div className="mt-2 space-y-2">
+          <div className="flex flex-wrap gap-1.5">
+            {[
+              'Prior collaborator',
+              'Referral / common connection',
+              'Community relationship',
+              'Dormant lead',
+              'Advisor / investor',
+              'Follow-up after prior email',
+            ].map((label) => (
+              <span key={label} className="inline-flex min-h-7 items-center rounded-full border border-current/20 bg-background/25 px-2 py-1 text-[10px] font-semibold">
+                {label}
+              </span>
+            ))}
+          </div>
+          <ul className="space-y-1">
+            {readiness.draft.guidance.map((item) => (
+              <li key={item} className="text-[11px] leading-4">{item}</li>
+            ))}
+          </ul>
+          {readiness.recoveryStep && (
+            <p className="rounded-md border border-current/20 bg-background/25 p-2 text-[11px] leading-4">
+              Recovery: {readiness.recoveryStep}
+            </p>
+          )}
+          <p className="text-[10px] leading-4 opacity-80">
+            Boundary: manual only {readiness.executionBoundary.manualOnly ? 'yes' : 'no'} / SMS delivery {readiness.executionBoundary.smsDelivery ? 'enabled' : 'off'} / provider calls {readiness.executionBoundary.smsProviderCalls ? 'enabled' : 'off'}.
+          </p>
+        </div>
+      </details>
+    </div>
+  )
+}
+
 function LocalEvidenceFlag({ visible }: { visible: boolean }) {
   return (
     <span className="inline-flex min-h-7 items-center rounded-md border border-sky-500/25 bg-sky-500/10 px-2 py-1 text-xs text-sky-100">
@@ -315,14 +3343,92 @@ function ValuePill({ label, value }: { label: string; value: string }) {
   )
 }
 
+function operatorActionSummary({
+  readiness,
+  smsReadiness,
+  responseMonitoring,
+}: {
+  readiness: WarmOutreachReadiness
+  smsReadiness?: WarmSmsReadiness
+  responseMonitoring?: WarmOutreachResponseMonitoring
+}) {
+  if (smsReadiness?.state === 'blocked') {
+    return {
+      label: 'Resolve SMS setup gate',
+      detail: smsReadiness.recoveryStep ?? smsReadiness.label,
+      tone: 'blocked' as const,
+    }
+  }
+  if (smsReadiness?.state === 'manual_ready') {
+    return {
+      label: 'Prepare SMS candidate',
+      detail: 'Review the draft, prepare one local candidate row, then request explicit per-recipient approval before any provider execution.',
+      tone: 'ready' as const,
+    }
+  }
+  if (smsReadiness?.state === 'manual_review_required') {
+    return {
+      label: 'Review SMS draft',
+      detail: 'Confirm relationship basis, suppression state, and draft language before preparing a local candidate row.',
+      tone: 'review' as const,
+    }
+  }
+  if (responseMonitoring?.status === 'manual_response_captured' || responseMonitoring?.status === 'imported_response_captured') {
+    return {
+      label: 'Draft follow-up',
+      detail: responseMonitoring.proposedFollowUp.description,
+      tone: 'ready' as const,
+    }
+  }
+  if (readiness.status === 'blocked') {
+    return {
+      label: 'Resolve readiness blocker',
+      detail: readiness.blockers[0] ?? 'Relationship context is not ready for outreach review.',
+      tone: 'blocked' as const,
+    }
+  }
+  if (readiness.status === 'draft_ready') {
+    return {
+      label: 'Review outreach draft',
+      detail: 'Use the workroom draft controls, then keep approval, provider action, and external send as separate gates.',
+      tone: 'ready' as const,
+    }
+  }
+  return {
+    label: 'Review relationship packet',
+    detail: readiness.warnings[0] ?? 'Confirm local relationship evidence before moving to a draft or provider-specific gate.',
+    tone: 'review' as const,
+  }
+}
+
+function operatorActionClasses(tone: 'ready' | 'review' | 'blocked') {
+  if (tone === 'ready') return 'border-emerald-500/35 bg-emerald-500/10 text-emerald-100'
+  if (tone === 'blocked') return 'border-red-500/35 bg-red-500/10 text-red-100'
+  return 'border-amber-500/35 bg-amber-500/10 text-amber-100'
+}
+
 export default function RelationshipPacketPanel({
+  gmailDraftCanaryError,
+  gmailDraftCanaryLoading,
+  gmailDraftCanaryResult,
+  smsTelnyxCanaryError,
+  smsTelnyxCanaryLoading,
+  smsTelnyxCanaryResult,
   loading,
   error,
   data,
+  authToken,
+  inertSlackApprovalRequest,
+  responseDigestAnchorId,
+  onGmailDraftCanary,
+  onSmsTelnyxNoSendCanary,
 }: RelationshipPacketPanelProps) {
   const readiness = data?.readiness
   const packet = data?.packet
+  const manualSocialHandoff = data?.manualSocialHandoff
+  const smsReadiness = data?.smsReadiness
   const responseMonitoring = data?.responseMonitoring
+  const responseDigest = responseMonitoring?.responseDigest
   const sourceInventory = packet?.sourceInventory
   const hasInventoryEvidence =
     Boolean(sourceInventory) &&
@@ -330,6 +3436,10 @@ export default function RelationshipPacketPanel({
       (sourceInventory?.safeToMention.length ?? 0) > 0 ||
       (sourceInventory?.summarizeOnly.length ?? 0) > 0 ||
       (sourceInventory?.doNotMention.length ?? 0) > 0)
+  const actionSummary =
+    readiness
+      ? operatorActionSummary({ readiness, smsReadiness, responseMonitoring })
+      : null
 
   return (
     <section className="lg:col-span-2 rounded-lg border border-silicon-slate/80 bg-background/60 p-4">
@@ -345,7 +3455,11 @@ export default function RelationshipPacketPanel({
           </p>
         </div>
         {readiness && (
-          <span className={`inline-flex w-fit items-center rounded-full border px-2.5 py-1 text-xs font-semibold ${statusClasses(readiness.status)}`}>
+          <span
+            title={relationshipReadinessLabel(readiness.status)}
+            aria-label={`Relationship readiness: ${relationshipReadinessLabel(readiness.status)}`}
+            className={`inline-flex min-h-8 w-full max-w-full items-center justify-center whitespace-nowrap rounded-full border px-2.5 py-1 text-center text-xs font-semibold sm:w-fit ${statusClasses(readiness.status)}`}
+          >
             {relationshipReadinessLabel(readiness.status)}
           </span>
         )}
@@ -372,6 +3486,48 @@ export default function RelationshipPacketPanel({
 
       {!loading && !error && data && packet && readiness && (
         <div className="mt-3 space-y-3">
+          {actionSummary && (
+            <div className={`rounded-lg border p-3 ${operatorActionClasses(actionSummary.tone)}`}>
+              <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(9rem,auto)] md:items-center">
+                <div className="min-w-0">
+                  <p className="text-[11px] font-semibold uppercase tracking-wide opacity-80">
+                    Current operator action
+                  </p>
+                  <p className="mt-1 text-base font-semibold">{actionSummary.label}</p>
+                  <p className="mt-1 text-xs leading-5 opacity-85">{actionSummary.detail}</p>
+                </div>
+                <a
+                  href={smsReadiness ? '#warm-sms-readiness' : '#warm-source-provenance'}
+                  className="inline-flex min-h-10 w-full shrink-0 items-center justify-center gap-2 rounded-md border border-current/25 bg-background/20 px-3 text-center text-xs font-semibold transition-colors hover:bg-background/30 md:w-auto"
+                >
+                  Go to action
+                </a>
+              </div>
+              <div className="mt-2 grid grid-cols-1 gap-1.5 min-[380px]:grid-cols-2 lg:grid-cols-4">
+                <span
+                  title={`Readiness: ${relationshipReadinessLabel(readiness.status)}`}
+                  aria-label={`Readiness: ${relationshipReadinessLabel(readiness.status)}`}
+                  className="inline-flex min-h-7 max-w-full items-center justify-center whitespace-nowrap rounded-full border border-current/20 bg-background/20 px-2 py-1 text-center text-[10px] font-semibold"
+                >
+                  Readiness: {relationshipReadinessCompactLabel(readiness.status)}
+                </span>
+                {readiness.selectedChannel && (
+                  <span className="inline-flex min-h-7 max-w-full items-center justify-center whitespace-nowrap rounded-full border border-current/20 bg-background/20 px-2 py-1 text-center text-[10px] font-semibold">
+                    Channel: {CHANNEL_LABELS[readiness.selectedChannel]}
+                  </span>
+                )}
+                {smsReadiness && (
+                  <span className="inline-flex min-h-7 max-w-full items-center justify-center whitespace-nowrap rounded-full border border-current/20 bg-background/20 px-2 py-1 text-center text-[10px] font-semibold">
+                    SMS: {smsReadiness.state.replaceAll('_', ' ')}
+                  </span>
+                )}
+                <span className="inline-flex min-h-7 max-w-full items-center justify-center whitespace-nowrap rounded-full border border-current/20 bg-background/20 px-2 py-1 text-center text-[10px] font-semibold">
+                  External send locked
+                </span>
+              </div>
+            </div>
+          )}
+
           <div className="grid gap-3 md:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
             <div className="rounded-md border border-silicon-slate/70 bg-silicon-slate/20 p-3">
               <p className="mb-1 text-[11px] font-medium uppercase tracking-wide text-muted-foreground/80">
@@ -425,7 +3581,18 @@ export default function RelationshipPacketPanel({
             </div>
           )}
 
-          <div className="rounded-md border border-silicon-slate/70 bg-silicon-slate/20 p-3">
+          <ManualSocialHandoffCard authToken={authToken} handoff={manualSocialHandoff} />
+
+          <SmsManualOutreachCard
+            authToken={authToken}
+            readiness={smsReadiness}
+            smsTelnyxCanaryLoading={smsTelnyxCanaryLoading}
+            smsTelnyxCanaryError={smsTelnyxCanaryError}
+            smsTelnyxCanaryResult={smsTelnyxCanaryResult}
+            onSmsTelnyxNoSendCanary={onSmsTelnyxNoSendCanary}
+          />
+
+          <div id="warm-source-provenance" className="rounded-md border border-silicon-slate/70 bg-silicon-slate/20 p-3">
             <p className="mb-2 text-[11px] font-medium uppercase tracking-wide text-muted-foreground/80">
               Source and provenance summary
             </p>
@@ -461,6 +3628,78 @@ export default function RelationshipPacketPanel({
                 <CountPill label="Evidence" count={responseMonitoring.evidence.length} />
                 <CountPill label="Blocked" count={responseMonitoring.blockedReasons.length} />
               </div>
+              {responseDigest && (
+              <div
+                id={responseDigestAnchorId}
+                className={`mt-3 rounded-md border p-3 ${responseDigestStateClasses(responseDigest.state)}`}
+                aria-label="Warm response digest for selected contact"
+              >
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="min-w-0">
+                    <p className="text-[11px] font-semibold uppercase tracking-wide opacity-80">
+                      Response digest
+                    </p>
+                    <p className="mt-1 text-sm font-semibold">{responseDigest.label}</p>
+                    <p className="mt-1 text-xs leading-5 opacity-85">
+                      {responseDigest.nextBestAction.description}
+                    </p>
+                  </div>
+                  <a
+                    href={
+                      responseDigest.suppressionProposal.state !== 'not_applicable'
+                        ? '#warm-response-suppression-proposal'
+                        : '#warm-response-follow-up-draft'
+                    }
+                    className="inline-flex min-h-10 w-full shrink-0 items-center justify-center gap-2 rounded-md border border-current/25 bg-background/20 px-3 text-xs font-semibold transition-colors hover:bg-background/30 sm:w-auto"
+                  >
+                    {responseDigest.nextBestAction.ctaLabel}
+                  </a>
+                </div>
+                <div className="mt-3 grid gap-2 sm:grid-cols-3">
+                  <ValuePill
+                    label="Classification"
+                    value={responseDigest.classification.label}
+                  />
+                  <ValuePill
+                    label="Follow-up draft"
+                    value={responseDigest.followUpDraft.state.replace(/_/g, ' ')}
+                  />
+                  <ValuePill
+                    label="Priority"
+                    value={responseDigest.nextBestAction.priority}
+                  />
+                </div>
+                <div className="mt-2 grid gap-2 lg:grid-cols-2">
+                  <div
+                    id="warm-response-follow-up-draft"
+                    className="rounded-md border border-current/20 bg-background/20 p-2 text-[10px] leading-4"
+                  >
+                    <p className="font-semibold uppercase tracking-wide">Follow-up draft readiness</p>
+                    <p className="mt-1">
+                      {responseDigest.followUpDraft.detail}
+                    </p>
+                    {responseDigest.followUpDraft.subject && (
+                      <p className="mt-1 truncate">
+                        Subject: {responseDigest.followUpDraft.subject}
+                      </p>
+                    )}
+                  </div>
+                  <div
+                    id="warm-response-suppression-proposal"
+                    className="rounded-md border border-current/20 bg-background/20 p-2 text-[10px] leading-4"
+                  >
+                    <p className="font-semibold uppercase tracking-wide">Suppression proposal</p>
+                    <p className="mt-1">{responseDigest.suppressionProposal.reason}</p>
+                    <p className="mt-1">
+                      State: {responseDigest.suppressionProposal.state.replace(/_/g, ' ')} / mutation off
+                    </p>
+                  </div>
+                </div>
+                <p className="mt-2 text-[10px] leading-4 opacity-75">
+                  Provider monitoring off. Gmail drafts off. External send off. Slack dispatch off.
+                </p>
+              </div>
+              )}
               <div className="mt-3">
                 <p className="mb-2 text-[11px] font-medium uppercase tracking-wide text-muted-foreground/80">
                   Send authority review
@@ -468,6 +3707,11 @@ export default function RelationshipPacketPanel({
                 <div className="space-y-2">
                   <EmailLifecycleCompact
                     item={responseMonitoring.sendReadiness.modes.warm_1_to_1.find((item) => item.channel === 'email')}
+                    canaryError={gmailDraftCanaryError}
+                    canaryLoading={gmailDraftCanaryLoading}
+                    canaryResult={gmailDraftCanaryResult}
+                    inertSlackApprovalRequest={inertSlackApprovalRequest}
+                    onRunCanary={onGmailDraftCanary}
                   />
                   <SendAuthorityCompactRow
                     label="Warm one-to-one"
@@ -479,7 +3723,79 @@ export default function RelationshipPacketPanel({
                   />
                 </div>
               </div>
-
+              <div className="mt-3 rounded-md border border-sky-500/25 bg-sky-500/10 p-3 text-sky-50">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="min-w-0">
+                    <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wide">
+                      <RefreshCw size={13} aria-hidden />
+                      Response capture readiness
+                    </p>
+                    <p className="mt-1 text-xs leading-5 text-sky-100/90">
+                      {responseMonitoring.providerCaptureReadiness.label}
+                    </p>
+                  </div>
+                  <span className="inline-flex min-h-7 w-fit shrink-0 items-center gap-1.5 rounded-full border border-current/25 bg-background/25 px-2 py-0.5 text-[10px] font-semibold">
+                    <LockKeyhole size={12} aria-hidden />
+                    Polling off
+                  </span>
+                </div>
+                <GmailResponseImportReadinessCard readiness={responseMonitoring.gmailResponseImportReadiness} />
+                <div className="mt-2 grid gap-1.5 sm:grid-cols-2 xl:grid-cols-4">
+                  {responseMonitoring.providerCaptureReadiness.providers.map((provider) => (
+                    <div
+                      key={provider.provider}
+                      className={`rounded-md border p-2 ${providerCaptureClasses(provider.state)}`}
+                    >
+                      <p className="text-[11px] font-semibold">{provider.label}</p>
+                      <p className="mt-1 text-[10px] leading-4">
+                        Capture: {provider.manualCaptureEnabled ? 'manual allowed' : 'blocked'} / Provider import: off
+                      </p>
+                      <p className="mt-1 text-[10px] leading-4 opacity-85">{provider.detail}</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-2 grid gap-2 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
+                  <div className="rounded-md border border-current/20 bg-background/20 p-2">
+                    <p className="text-[10px] font-semibold uppercase tracking-wide">Supported classifications</p>
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      {responseMonitoring.providerCaptureReadiness.supportedClassifications.map((item) => (
+                        <span
+                          key={item.key}
+                          className="inline-flex min-h-7 items-center rounded-full border border-current/20 bg-background/25 px-2 py-1 text-[10px] font-semibold"
+                        >
+                          {item.label}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="rounded-md border border-current/20 bg-background/20 p-2 text-[10px] leading-4">
+                    <p className="font-semibold uppercase tracking-wide">{responseMonitoring.providerCaptureReadiness.slackAlertReadiness.label}</p>
+                    <p className="mt-1">{responseMonitoring.providerCaptureReadiness.slackAlertReadiness.detail}</p>
+                    <p className="mt-1 break-all">
+                      Deep link: {responseMonitoring.providerCaptureReadiness.slackAlertReadiness.route}. Slack dispatch: off.
+                    </p>
+                  </div>
+                </div>
+                <div className="mt-2 grid gap-1.5 sm:grid-cols-2 xl:grid-cols-3">
+                  {responseMonitoring.operatorDecisionPaths.map((path) => (
+                    <div
+                      key={path.key}
+                      className={`rounded-md border p-2 ${operatorDecisionClasses(path.state)}`}
+                    >
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <p className="text-[11px] font-semibold">{path.label}</p>
+                        <span className="rounded-full border border-current/20 px-2 py-0.5 text-[10px] font-semibold">
+                          {path.state.replace(/_/g, ' ')}
+                        </span>
+                      </div>
+                      <p className="mt-1 text-[10px] leading-4">{path.description}</p>
+                    </div>
+                  ))}
+                </div>
+                <p className="mt-2 break-all text-[10px] leading-4 text-sky-100/80">
+                  Capture key: {responseMonitoring.providerCaptureReadiness.responseCaptureKey}
+                </p>
+              </div>
               <details className="mt-3 rounded-md border border-silicon-slate/70 bg-background/25">
                 <summary className="cursor-pointer px-3 py-2 text-xs font-medium text-muted-foreground">
                   Monitoring evidence and send gate details

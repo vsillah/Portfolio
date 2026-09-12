@@ -24,7 +24,7 @@ vi.mock('@/lib/supabase', () => ({
   },
 }))
 
-import { GET, PATCH, POST } from './route'
+import { GET, PATCH } from './route'
 
 function params(id = 'proposal-1') {
   return { params: Promise.resolve({ id }) }
@@ -36,39 +36,6 @@ function makeJsonRequest(method: string, body?: unknown) {
     headers: body === undefined ? undefined : { 'content-type': 'application/json' },
     body: body === undefined ? undefined : JSON.stringify(body),
   })
-}
-
-function makeUploadRequest(fields: {
-  file?: File | null
-  title?: string | null
-  document_type?: string | null
-  omitFile?: boolean
-}) {
-  const values = new Map<string, unknown>()
-  if (!fields.omitFile && fields.file !== null) {
-    values.set(
-      'file',
-      fields.file ??
-        ({
-          type: 'application/pdf',
-          arrayBuffer: vi.fn(async () => Buffer.from('%PDF-1.4').buffer),
-        } as unknown as File),
-    )
-  }
-  if (fields.title !== null) {
-    values.set('title', fields.title ?? 'Strategy packet')
-  }
-  if (fields.document_type !== undefined && fields.document_type !== null) {
-    values.set('document_type', fields.document_type)
-  }
-
-  const request = new NextRequest('http://localhost/api/admin/proposals/proposal-1/documents', {
-    method: 'POST',
-  })
-  vi.spyOn(request, 'formData').mockResolvedValue({
-    get: vi.fn((key: string) => (values.has(key) ? values.get(key) : null)),
-  } as unknown as FormData)
-  return request
 }
 
 function chain(result: Record<string, unknown>) {
@@ -97,6 +64,7 @@ describe('/api/admin/proposals/[id]/documents', () => {
     mocks.storageFrom.mockReturnValue({
       upload: mocks.storageUpload,
       remove: mocks.storageRemove,
+      createSignedUrl: vi.fn(async()=>({data:{signedUrl:'https://synthetic.invalid/pdf'}})),
     })
     mocks.storageUpload.mockResolvedValue({ error: null })
     mocks.storageRemove.mockResolvedValue({ data: null, error: null })
@@ -140,118 +108,7 @@ describe('/api/admin/proposals/[id]/documents', () => {
       const response = await GET(makeJsonRequest('GET'), params())
 
       expect(response.status).toBe(200)
-      await expect(response.json()).resolves.toEqual({ documents: docs })
-    })
-  })
-
-  describe('POST', () => {
-    it('rejects non-PDF uploads', async () => {
-      mocks.from.mockImplementation((table: string) => {
-        if (table === 'proposals') return chain({ data: { id: 'proposal-1' }, error: null })
-        throw new Error(`Unexpected table: ${table}`)
-      })
-
-      const response = await POST(
-        makeUploadRequest({
-          file: new File([Buffer.from('not-pdf')], 'notes.txt', { type: 'text/plain' }),
-        }),
-        params(),
-      )
-
-      expect(response.status).toBe(400)
-      await expect(response.json()).resolves.toEqual({ error: 'File must be a PDF' })
-      expect(mocks.storageUpload).not.toHaveBeenCalled()
-    })
-
-    it('requires file and title', async () => {
-      mocks.from.mockImplementation((table: string) => {
-        if (table === 'proposals') return chain({ data: { id: 'proposal-1' }, error: null })
-        throw new Error(`Unexpected table: ${table}`)
-      })
-
-      const response = await POST(makeUploadRequest({ omitFile: true, title: '  ' }), params())
-
-      expect(response.status).toBe(400)
-      await expect(response.json()).resolves.toEqual({
-        error: 'Missing required fields: file, title',
-      })
-    })
-
-    it('uploads PDF, defaults invalid document_type to other, and appends display_order', async () => {
-      const inserted = {
-        id: 'doc-new',
-        proposal_id: 'proposal-1',
-        document_type: 'other',
-        title: 'Strategy packet',
-        file_path: 'proposal-docs/proposal-1/uuid.pdf',
-        display_order: 2,
-        source: 'uploaded',
-        created_at: '2026-07-27T00:00:00.000Z',
-      }
-
-      let proposalDocumentsCalls = 0
-      let capturedInsert: Record<string, unknown> | null = null
-      mocks.from.mockImplementation((table: string) => {
-        if (table === 'proposals') return chain({ data: { id: 'proposal-1' }, error: null })
-        if (table === 'proposal_documents') {
-          proposalDocumentsCalls += 1
-          if (proposalDocumentsCalls === 1) {
-            return chain({ data: { display_order: 1 }, error: null })
-          }
-          const api = chain({ data: inserted, error: null })
-          api.insert = vi.fn((payload: Record<string, unknown>) => {
-            capturedInsert = payload
-            return api
-          })
-          return api
-        }
-        throw new Error(`Unexpected table: ${table}`)
-      })
-
-      const response = await POST(
-        makeUploadRequest({ document_type: 'not-a-real-type' }),
-        params(),
-      )
-
-      expect(response.status).toBe(201)
-      await expect(response.json()).resolves.toEqual({ document: inserted })
-      expect(mocks.storageUpload).toHaveBeenCalledWith(
-        expect.stringMatching(/^proposal-docs\/proposal-1\/.+\.pdf$/),
-        expect.any(Buffer),
-        expect.objectContaining({ contentType: 'application/pdf', upsert: false }),
-      )
-      expect(capturedInsert).toEqual(
-        expect.objectContaining({
-          proposal_id: 'proposal-1',
-          document_type: 'other',
-          title: 'Strategy packet',
-          display_order: 2,
-          source: 'uploaded',
-        }),
-      )
-    })
-
-    it('removes the uploaded object when the document row insert fails', async () => {
-      let proposalDocumentsCalls = 0
-      mocks.from.mockImplementation((table: string) => {
-        if (table === 'proposals') return chain({ data: { id: 'proposal-1' }, error: null })
-        if (table === 'proposal_documents') {
-          proposalDocumentsCalls += 1
-          if (proposalDocumentsCalls === 1) {
-            return chain({ data: null, error: null })
-          }
-          return chain({ data: null, error: { message: 'insert failed' } })
-        }
-        throw new Error(`Unexpected table: ${table}`)
-      })
-
-      const response = await POST(makeUploadRequest({}), params())
-
-      expect(response.status).toBe(500)
-      await expect(response.json()).resolves.toEqual({ error: 'Failed to save document record' })
-      expect(mocks.storageRemove).toHaveBeenCalledWith([
-        expect.stringMatching(/^proposal-docs\/proposal-1\/.+\.pdf$/),
-      ])
+      await expect(response.json()).resolves.toMatchObject({ documents: docs })
     })
   })
 
@@ -279,11 +136,12 @@ describe('/api/admin/proposals/[id]/documents', () => {
       const updatePayloads: Array<{ id: string; display_order: number; proposalId: string }> = []
       let call = 0
       const ordered = [
-        { id: 'doc-2', display_order: 0 },
-        { id: 'doc-1', display_order: 1 },
+        { id: 'doc-2', display_order: 0, binding_role: 'primary', file_path: 'primary.pdf' },
+        { id: 'doc-1', display_order: 1, binding_role: 'supporting', file_path: 'support.pdf' },
       ]
 
       mocks.from.mockImplementation((table: string) => {
+        if (table === 'proposals') return chain({ data: { id: 'proposal-1', status: 'draft', pdf_url: 'storage:documents/primary.pdf' }, error: null })
         if (table !== 'proposal_documents') throw new Error(`Unexpected table: ${table}`)
         call += 1
 
@@ -328,7 +186,11 @@ describe('/api/admin/proposals/[id]/documents', () => {
       )
 
       expect(response.status).toBe(200)
-      await expect(response.json()).resolves.toEqual({ documents: ordered })
+      const data = await response.json()
+      expect(data.documents).toEqual([
+        expect.objectContaining({ ...ordered[0], current_role: 'primary', can_delete: false, signedUrl: 'https://synthetic.invalid/pdf' }),
+        expect.objectContaining({ ...ordered[1], can_delete: true, signedUrl: 'https://synthetic.invalid/pdf' }),
+      ])
       expect(updatePayloads).toEqual([
         { id: 'doc-2', proposalId: 'proposal-1', display_order: 0 },
         { id: 'doc-1', proposalId: 'proposal-1', display_order: 1 },

@@ -33,7 +33,7 @@ export async function GET(_request: NextRequest) {
     asset_id: r.theme_id,
     asset_name:
       defaultThemeId && r.theme_id === defaultThemeId
-        ? `${r.theme_name} (AmaduTown)`
+        ? `${r.theme_name} (AmaduTown, LLC)`
         : r.theme_name,
     is_favorite: r.is_favorite,
     is_default: r.is_default,

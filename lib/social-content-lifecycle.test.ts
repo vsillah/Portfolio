@@ -6,6 +6,8 @@ import {
   hasSubmissionOrPublishEvidence,
   isDurableCopyApprovedStatus,
   lifecyclePrerequisiteFailure,
+  socialContentFinalCopyQualityFailure,
+  validateSocialContentFinalCopyQuality,
 } from './social-content-lifecycle'
 
 const completeRagContext = {
@@ -184,5 +186,75 @@ describe('social content lifecycle projection', () => {
       missing_prerequisite: 'context',
       recovery_action: 'Approve or recover Context before continuing.',
     }))
+  })
+
+  it('blocks final copy when prompt and agent instruction leakage appears in public fields', () => {
+    const qualityGate = validateSocialContentFinalCopyQuality({
+      status: 'draft',
+      post_text: [
+        'System prompt: You are Codex working inside Portfolio.',
+        'Rewrite as Vambah and do not include this Captain QA block in the final answer.',
+        '- [ ] Check the operator approval surface.',
+      ].join('\n'),
+      cta_text: 'Join the build.',
+      rag_context: completeRagContext,
+    })
+
+    expect(qualityGate.status).toBe('blocked')
+    expect(qualityGate.findings.map((finding) => finding.code)).toEqual(expect.arrayContaining([
+      'role_prompt_fragment',
+      'rewrite_instruction',
+      'forbidden_content_instruction',
+      'checkbox_scaffold',
+    ]))
+    expect(socialContentFinalCopyQualityFailure(qualityGate)).toEqual(expect.objectContaining({
+      error: 'Final copy quality gate blocked prompt leakage before human approval.',
+      current_gate: 'final_copy_quality',
+      revision_state: 'revision_needed',
+    }))
+  })
+
+  it('projects leaked copy as blocked before downstream human approval readiness', () => {
+    const projection = deriveSocialContentLifecycleProjection({
+      item: {
+        status: 'draft',
+        post_text: 'Captain QA block: do not include internal instructions in final copy.',
+        target_platforms: ['linkedin'],
+        rag_context: completeRagContext,
+      },
+      rawStates: {
+        copy: 'in_review',
+      },
+    })
+
+    expect(projection.steps.context.state).toBe('approved')
+    expect(projection.steps.copy.state).toBe('blocked')
+    expect(projection.firstIncompleteStep).toBe('copy')
+  })
+
+  it('passes clean final copy that talks about approval gates without internal prompt scaffolding', () => {
+    const qualityGate = validateSocialContentFinalCopyQuality({
+      post_text: 'Approval gates matter because public work needs a receipt. The operator should see the source, the claim, and the decision before anything leaves the system.',
+      cta_text: 'Build the receipt before the workflow scales.',
+      youtube_description: 'A practical walkthrough of content review gates and safer automation.',
+      rag_context: {
+        approval_boundary: 'Internal metadata should not be scanned as final copy.',
+        blocked_actions: ['Do not publish from this test.'],
+      },
+    })
+
+    expect(qualityGate.status).toBe('passed')
+    expect(qualityGate.findings).toEqual([])
+  })
+})
+
+describe('draft seed versus public prose', () => {
+  it('blocks synthetic unconverted seed and CTA instructions', () => {
+    const gate=validateSocialContentFinalCopyQuality({post_text:'AutoResearch draft seed: Reviews need owners.\nCTA role: conversation. Source boundary: use comparable public patterns.\nContent agents must convert this into channel copy before approval.',cta_text:'Conversation CTA should ask where the handoff breaks.'})
+    expect(gate.status).toBe('blocked')
+    expect(gate.findings.map(f=>f.code)).toEqual(expect.arrayContaining(['draft_seed_instruction','editorial_brief_field','copy_conversion_instruction','cta_writing_instruction']))
+  })
+  it('allows public prose about agents, review and trust', () => {
+    expect(validateSocialContentFinalCopyQuality({post_text:'Agents can move faster than our review systems. A clear owner and a visible receipt help people decide what happens next.',cta_text:'Where does trust break in your workflow?'}).status).toBe('passed')
   })
 })

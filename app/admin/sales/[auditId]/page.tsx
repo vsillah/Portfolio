@@ -43,6 +43,7 @@ import { ConversationTimeline, ConversationStats } from '@/components/admin/sale
 import { DynamicScriptFlow } from '@/components/admin/sales/DynamicScriptFlow';
 import { ValueEvidencePanel } from '@/components/admin/sales/ValueEvidencePanel';
 import { ValueEvidenceCallPanel } from '@/components/admin/sales/ValueEvidenceCallPanel';
+import { useSavedProposal } from '@/hooks/useSavedProposal';
 import { ProposalModal } from '@/components/admin/sales/ProposalModal';
 import TechStackVerificationCard from '@/components/admin/sales/TechStackVerificationCard';
 import { useAdminReturnPath } from '@/lib/hooks/useAdminReturnPath';
@@ -266,12 +267,18 @@ export default function ClientWalkthroughPage() {
   // Proposal state
   const [showProposalModal, setShowProposalModal] = useState(false);
   const [valueReportId, setValueReportId] = useState<string | null>(null);
+  const saved = useSavedProposal(salesSession?.id);
   const [currentProposal, setCurrentProposal] = useState<{
     id: string;
     status: string;
     proposalLink: string;
     accessCode?: string;
   } | null>(null);
+  useEffect(() => {
+    const p = saved.proposal;
+    if (p) setCurrentProposal({id:p.id,status:p.status,proposalLink:p.access_code ? `https://amadutown.com/proposal/${encodeURIComponent(p.access_code)}` : '',accessCode:p.access_code || undefined});
+    else setCurrentProposal(null);
+  }, [saved.proposal]);
   const [proposalEmailDraft, setProposalEmailDraft] = useState<ProposalEmailDraft | null>(null);
 
   // Report + video one-click
@@ -1846,6 +1853,9 @@ export default function ClientWalkthroughPage() {
                   })}
 
                   {/* Selected Offer Preview */}
+                  {(saved.proposal || saved.error || saved.loading) && <div className="my-4 rounded-lg border border-gray-700 p-4">
+                    {saved.error ? <p role="alert">{saved.error} <button onClick={saved.refresh} className="underline ml-2">Retry</button></p> : saved.loading ? <p role="status">Loading saved proposal…</p> : <button onClick={() => setShowProposalModal(true)} className="rounded-lg bg-blue-600 px-4 py-3">Review saved proposal · {saved.proposal?.status}</button>}
+                  </div>}
                   {selectedContent.length > 0 && (
                     <div className="mt-6 pt-6 border-t border-gray-700">
                       <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
@@ -1975,7 +1985,7 @@ export default function ClientWalkthroughPage() {
                               </div>
                             )}
                             <div className="text-xs text-gray-500 mb-2">Shareable link</div>
-                            <div className="flex items-center gap-2">
+                            {currentProposal.proposalLink && <div className="flex items-center gap-2">
                               <input
                                 type="text"
                                 value={currentProposal.proposalLink}
@@ -2000,7 +2010,7 @@ export default function ClientWalkthroughPage() {
                               >
                                 <ExternalLink className="w-4 h-4" />
                               </a>
-                            </div>
+                            </div>}
                             {/* Email Draft */}
                             {proposalEmailDraft && (
                               <div className="mt-4 border-t border-gray-700 pt-4">
@@ -2043,7 +2053,7 @@ export default function ClientWalkthroughPage() {
                               onClick={() => setShowProposalModal(true)}
                               className="mt-3 w-full text-sm text-gray-400 hover:text-white transition-colors"
                             >
-                              Generate new proposal
+                              {saved.proposal ? 'Review saved proposal' : 'Generate new proposal'}
                             </button>
                           </div>
                         ) : (
@@ -2052,7 +2062,7 @@ export default function ClientWalkthroughPage() {
                             className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
                           >
                             <CreditCard className="w-4 h-4" />
-                            Generate Proposal & Payment Link
+                            {saved.proposal ? 'Review saved proposal' : 'Generate Proposal & Payment Link'}
                           </button>
                         )}
 
@@ -2326,12 +2336,15 @@ export default function ClientWalkthroughPage() {
       {/* Generate Proposal Modal */}
       {showProposalModal && (
         <ProposalModal
+          savedProposal={saved.proposal}
+          generationDisabled={selectedContent.length === 0 || saved.loading || !!saved.error}
           onClose={() => setShowProposalModal(false)}
           contactId={contact?.id ? parseInt(contact.id, 10) : null}
           defaultValueReportId={valueReportId}
           diagnosticAuditId={auditId}
           diagnosticReturnPath={adminReturnPath}
           onGenerate={async (data) => {
+            if (saved.loading || saved.error) return;
             const authSession = await getCurrentSession();
             if (!authSession?.access_token) return;
             
@@ -2376,6 +2389,7 @@ export default function ClientWalkthroughPage() {
             
             if (response.ok) {
               const result = await response.json();
+              saved.refresh();
               setCurrentProposal({
                 id: result.proposal.id,
                 status: result.proposal.status,

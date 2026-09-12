@@ -78,7 +78,8 @@ describe('notifyOutreachDraftReady', () => {
     expect(payload.text).toContain('*Contact:* Jane Doe | jane@example.com (lead #42)')
     expect(payload.text).toContain('*Template:* linkedin_cold_outreach')
     expect(payload.text).toContain('*Queue ID:* queue-uuid-1')
-    expect(payload.text).toContain('*Review:* https://amadutown.test/admin/outreach?contactId=42')
+    expect(payload.text).toContain('*Open gate:* https://amadutown.test/admin/outreach?tab=leads&id=42#warm-outreach-approval-gate')
+    expect(payload.text).toContain('does not create Gmail drafts, send email, send SMS, or contact a provider')
   })
 
   it('returns false when Slack rejects the webhook response', async () => {

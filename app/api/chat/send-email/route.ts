@@ -13,13 +13,13 @@ export async function POST(request: NextRequest) {
     const { to, templateType, sessionId } = parsed
     const data = parsed.data as Record<string, string | undefined> | undefined
 
-    const { data: session } = await supabaseAdmin
+    const { data: session, error: sessionError } = await supabaseAdmin
       .from('chat_sessions')
       .select('id, visitor_email, user_id')
       .eq('session_id', sessionId)
       .single()
 
-    if (!session) {
+    if (sessionError || !session) {
       return NextResponse.json(
         { error: 'Invalid session' },
         { status: 403 }
@@ -27,22 +27,22 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate to matches session's visitor_email or linked user's email
-    const toLower = String(to).toLowerCase()
-    let allowedEmails: string[] = []
+    const toLower = to.trim().toLowerCase()
+    const allowedEmails: string[] = []
     if (session.visitor_email) {
-      allowedEmails.push(session.visitor_email.toLowerCase())
+      allowedEmails.push(session.visitor_email.trim().toLowerCase())
     }
     if (session.user_id) {
-      const { data: profile } = await supabaseAdmin
+      const { data: profile, error: profileError } = await supabaseAdmin
         .from('user_profiles')
         .select('email')
         .eq('id', session.user_id)
         .single()
-      if (profile?.email) {
-        allowedEmails.push(profile.email.toLowerCase())
+      if (!profileError && profile?.email) {
+        allowedEmails.push(profile.email.trim().toLowerCase())
       }
     }
-    if (allowedEmails.length > 0 && !allowedEmails.includes(toLower)) {
+    if (!allowedEmails.includes(toLower)) {
       return NextResponse.json(
         { error: 'Email does not match session' },
         { status: 403 }

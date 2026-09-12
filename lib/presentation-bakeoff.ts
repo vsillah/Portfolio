@@ -343,7 +343,7 @@ export function buildPresentationBakeoffPlan(
     coursePlan: buildCoursePlan(input),
     requiredAssets: [
       'Personality corpus and humanizer guidance',
-      input.brandSystem === 'amadutown' ? 'AmaduTown logo, palette, and prior framework visuals' : 'Brand assets and visual rules',
+      input.brandSystem === 'amadutown' ? 'AmaduTown, LLC logo, palette, and prior framework visuals' : 'Brand assets and visual rules',
       'Proof screenshots that show tools in action',
       'Speaker notes and demo cues',
       'Source guide for market or factual claims',

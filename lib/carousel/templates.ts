@@ -119,7 +119,7 @@ function renderCta(slide: CarouselSlide, index: number, total: number, logoB64: 
         </div>
         <div>
           <div style="font-size:14px;font-weight:800;color:${COLORS.white};text-transform:uppercase;letter-spacing:1px;">Vambah Sillah</div>
-          <div style="font-size:12px;color:${COLORS.gray};margin-top:2px;">Director of Product · Co-Founder, Amadutown Advisory Solutions</div>
+          <div style="font-size:12px;color:${COLORS.gray};margin-top:2px;">Director of Product · Co-Founder, AmaduTown Advisory Solutions, LLC</div>
         </div>
       </div>
     </div>

@@ -1,0 +1,44 @@
+{
+  "migration": "supabase/migrations/20260909154521_capture_contact_sms_consent.sql",
+  "runtime": "isolated PGlite PostgreSQL; synthetic schema and data only",
+  "checks": [
+    {
+      "name": "anon: select/insert/update/delete denied",
+      "passed": true
+    },
+    {
+      "name": "authenticated: select/insert/update/delete denied",
+      "passed": true
+    },
+    {
+      "name": "service insert: server timestamp and pending/non-sendable defaults",
+      "passed": true
+    },
+    {
+      "name": "duplicate action retains original disclosure/timestamp, one row",
+      "passed": true
+    },
+    {
+      "name": "service update/delete/truncate denied",
+      "passed": true
+    },
+    {
+      "name": "RLS enabled",
+      "passed": true
+    },
+    {
+      "name": "suppressed inquiry phone and denial state unchanged",
+      "passed": true
+    },
+    {
+      "name": "send eligibility cannot be enabled even by table owner",
+      "passed": true
+    },
+    {
+      "name": "negative choice cannot overwrite affirmative evidence",
+      "passed": true
+    }
+  ],
+  "externalRequests": [],
+  "remoteMigrationsApplied": false
+}

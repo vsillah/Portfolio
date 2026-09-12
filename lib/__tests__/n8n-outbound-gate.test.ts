@@ -90,9 +90,13 @@ describe('N8N_OUTBOUND_DISABLED gate', () => {
       expect(mockFetch).not.toHaveBeenCalled()
     })
 
-    it(`${name} logs [N8N_DISABLED] when outbound is disabled`, async () => {
+    it(`${name} reports disabled outbound without dispatch`, async () => {
       const mod = await import('../n8n')
-      await call(mod as unknown as Record<string, (...args: any[]) => any>)
+      const result = await call(mod as unknown as Record<string, (...args: any[]) => any>)
+      if (name === 'triggerSocialContentPublish') {
+        expect(result).toMatchObject({ triggered: false, message: expect.stringContaining('native claimed publisher') })
+        return
+      }
       const logCalls = consoleSpy.mock.calls.map((c: unknown[]) => c[0])
       expect(logCalls.some((msg: string) => msg.includes('[N8N_DISABLED]'))).toBe(true)
     })
