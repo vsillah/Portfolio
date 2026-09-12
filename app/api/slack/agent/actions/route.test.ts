@@ -10,7 +10,7 @@ function request(body = 'payload=%7B%7D', retry = false) { return new NextReques
 beforeEach(() => { vi.resetAllMocks(); mocks.verify.mockReturnValue(true); mocks.process.mockResolvedValue(undefined) })
 describe('action receipt route', () => {
   it('rejects invalid signature before acceptance', async () => { mocks.verify.mockReturnValue(false); expect((await POST(request())).status).toBe(401); expect(mocks.accept).not.toHaveBeenCalled() })
-  it.each(['','payload=%7B'])('rejects missing/malformed payload %s', async body => { expect((await POST(request(body))).status).toBe(400); expect(mocks.accept).not.toHaveBeenCalled() })
+  it.each(['','payload=%7B', ...['null', '[]', 'true', '42', '"text"'].map(value => new URLSearchParams({ payload: value }).toString())])('rejects missing/malformed payload %s', async body => { expect((await POST(request(body))).status).toBe(400); expect(mocks.accept).not.toHaveBeenCalled() })
   it('validates retries and returns the persisted result', async () => {
     mocks.accept.mockResolvedValue({receipt:{idempotency_key:'key'},result:{responseType:'ephemeral',text:'Actual persisted outcome'}})
     expect(await (await POST(request(undefined,true))).json()).toEqual({response_type:'ephemeral',text:'Actual persisted outcome'})
@@ -18,4 +18,23 @@ describe('action receipt route', () => {
   })
   it('database failure never claims saved', async () => { mocks.accept.mockRejectedValue(new Error('timeout')); const r = await POST(request()); expect(r.status).toBe(503); expect((await r.json()).text).toContain('could not be confirmed'); expect(mocks.wait).not.toHaveBeenCalled() })
   it('ACK does not await execution', async () => { mocks.process.mockImplementation(() => new Promise(() => {})); mocks.accept.mockResolvedValue({receipt:{idempotency_key:'key'},result:{responseType:'ephemeral',text:'Queued'}}); expect((await POST(request())).status).toBe(200) })
+})
+
+it('does not dispatch without a confirmed receipt', async () => {
+  mocks.accept.mockResolvedValue({ result: { responseType: 'ephemeral', text: 'Processing disabled' } })
+  expect((await POST(request())).status).toBe(200)
+  expect(mocks.process).not.toHaveBeenCalled()
+  expect(mocks.wait).not.toHaveBeenCalled()
+})
+it('keeps a saved ACK when scheduling fails so cron can recover', async () => {
+  mocks.accept.mockResolvedValue({ receipt: { idempotency_key: 'key' }, result: { responseType: 'ephemeral', text: 'Saved and queued' } })
+  mocks.wait.mockImplementation(() => { throw new Error('dispatch unavailable') })
+  expect((await (await POST(request())).json()).text).toBe('Saved and queued')
+  expect(mocks.process).toHaveBeenCalledWith('key')
+})
+it('keeps a saved ACK when the background worker fails', async () => {
+  mocks.accept.mockResolvedValue({ receipt: { idempotency_key: 'key' }, result: { responseType: 'ephemeral', text: 'Saved and queued' } })
+  mocks.process.mockRejectedValue(new Error('worker unavailable'))
+  expect((await POST(request())).status).toBe(200)
+  await expect(mocks.wait.mock.calls[0][0]).resolves.toBeUndefined()
 })
