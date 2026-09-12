@@ -22,6 +22,7 @@ import { allowedSlackUserIds, isLocalSlackDevelopment, requireAuthorizedSlackAct
 
 export type SlackInteractivePayload = {
   type?: string
+  api_app_id?: string
   team?: { id?: string }
   channel?: { id?: string }
   user?: {
@@ -390,6 +391,10 @@ export function prepareSlackAgentAction(payload: SlackInteractivePayload) {
     return reject('Slack action rejected: invalid action fields.')
   }
   switch (value.action) {
+    case 'canary.receipt':
+      if (payload.actions?.[0]?.action_id !== 'agent_canary_receipt' || value.schemaVersion !== 'receipt-canary-v1' || !/^A[A-Z0-9]{1,31}$/.test(value.canaryAppId ?? '') || payload.api_app_id !== value.canaryAppId) return reject('Canary rejected: app identity does not match the signed command card.')
+      if (Object.keys(value).some(key => !['action', 'sourceEnvironment', 'sourceOrigin', 'schemaVersion', 'canaryAppId'].includes(key))) return reject('Canary rejected: receipt-only actions cannot target real records.')
+      break
     case 'approval.approve': case 'approval.reject': case 'approval.revision': case 'approval.ask_shaka':
       if (!value.approvalId) return reject('Missing approval id.')
       break
@@ -436,6 +441,8 @@ export async function handleSlackAgentAction(payload: SlackInteractivePayload): 
 }
 
 async function executeSlackAgentAction({ authorization, value, key }: Extract<ReturnType<typeof prepareSlackAgentAction>, { ok: true }>): Promise<SlackAgentActionResult> {
+
+  if (value.action === 'canary.receipt') return actionResult('Receipt canary verified. No approval, work, outreach, or provider action was performed.', 'completed')
 
   if (value.action === 'approval.approve' || value.action === 'approval.reject' || value.action === 'approval.revision') {
     if (!value.approvalId) return { responseType: 'ephemeral', text: 'Missing approval id.' }

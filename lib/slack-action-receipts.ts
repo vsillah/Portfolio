@@ -11,7 +11,7 @@ const DB_MS = 1_200
 export type ActionOutcome = { responseType: 'ephemeral' | 'in_channel'; text: string; actionStatus?: 'completed' | 'already_recorded' | 'blocked' | 'failed' }
 type ReceiptActionValue = SlackAgentActionValue & { sourceEnvironment?: string; sourceOrigin?: string }
 type Envelope = { environment: string; team: string; channel: string; user: string; ts: string; threadTs?: string; actionId: string; value: ReceiptActionValue }
-type State = 'queued' | 'claimed' | 'executing' | 'outcome' | 'delivering' | 'delivered' | 'reconciliation_required' | 'message_lock' | 'delivery_blocked'
+type State = 'receipt_only' | 'queued' | 'claimed' | 'executing' | 'outcome' | 'delivering' | 'delivered' | 'reconciliation_required' | 'message_lock' | 'delivery_blocked'
 export type Receipt = {
   id: string; idempotency_key: string; updated_at: string; status: string
   metadata: { envelope: Envelope; state: State; fence: string; leaseUntil: string; attempts: number }
@@ -103,7 +103,7 @@ function validThread(thread: unknown, ts: string): thread is string {
 }
 
 function payloadFor(e: Envelope): SlackInteractivePayload {
-  return { type: 'block_actions', team: { id: e.team }, channel: { id: e.channel }, user: { id: e.user },
+  return { type: 'block_actions', api_app_id: e.value.canaryAppId, team: { id: e.team }, channel: { id: e.channel }, user: { id: e.user },
     container: { channel_id: e.channel, message_ts: e.ts }, message: { ts: e.ts, ...(e.threadTs ? { thread_ts: e.threadTs } : {}) },
     actions: [{ action_id: e.actionId, value: JSON.stringify(e.value) }] } as SlackInteractivePayload
 }
@@ -121,7 +121,7 @@ function envelopeFor(payload: SlackInteractivePayload, value: ReceiptActionValue
   const source = getSlackAgentSource()
   if (value.sourceEnvironment !== source.sourceEnvironment || value.sourceOrigin !== source.sourceOrigin) throw new Error('Receipt source mismatch')
   const minimal: ReceiptActionValue = { action: value.action, sourceEnvironment: value.sourceEnvironment, sourceOrigin: value.sourceOrigin }
-  for (const key of ['schemaVersion', 'approvalId', 'runId', 'workItemId', 'agentKey', 'contentId', 'calendarItemId', 'commentId', 'expectedUpdatedAt', 'expectedReplyText', 'outreachQueueId', 'messageVersionKey', 'sendQueueIdempotencyKey', 'note'] as const) {
+  for (const key of ['canaryAppId', 'schemaVersion', 'approvalId', 'runId', 'workItemId', 'agentKey', 'contentId', 'calendarItemId', 'commentId', 'expectedUpdatedAt', 'expectedReplyText', 'outreachQueueId', 'messageVersionKey', 'sendQueueIdempotencyKey', 'note'] as const) {
     const item = value[key]
     if (item !== undefined) {
       if (typeof item !== 'string' || item.length > (key === 'note' ? 3000 : key === 'expectedReplyText' ? 1500 : 500) || /xox[baprs]-|hooks\.slack\.com\/|-----BEGIN .*PRIVATE KEY-----/i.test(item)) throw new Error('Unsafe receipt field')
@@ -142,8 +142,8 @@ export async function acceptSlackAction(payload: SlackInteractivePayload, store 
   const environment = receiptEnvironment()
   if (!environment) return { result: { responseType: 'ephemeral', text: 'Slack action processing is disabled. Open Portfolio to continue.', actionStatus: 'blocked' } as ActionOutcome }
   const card = payload as ReceiptPayload
-  if (card.message?.is_ephemeral === true || card.container?.is_ephemeral === true ||
-    card.message?.type === 'ephemeral' || card.message?.subtype === 'ephemeral' || card.container?.type === 'ephemeral') {
+  if (prepared.value.action !== 'canary.receipt' && (card.message?.is_ephemeral === true || card.container?.is_ephemeral === true ||
+    card.message?.type === 'ephemeral' || card.message?.subtype === 'ephemeral' || card.container?.type === 'ephemeral')) {
     return { result: { responseType: 'ephemeral', actionStatus: 'blocked',
       text: `This Slack card is ephemeral and cannot be updated. Review the decision in Portfolio: ${getSlackAgentSource().sourceOrigin}/admin/agents` } as ActionOutcome }
   }
@@ -186,7 +186,7 @@ export async function processSlackReceipt(key: string, store = receiptStore,
   if (!row || row.metadata.envelope.environment !== environment) return
   const now = Date.now()
   const state = row.metadata.state
-  if (state === 'delivered' || state === 'reconciliation_required' || state === 'message_lock' || state === 'delivery_blocked') return
+  if (state === 'receipt_only' || state === 'delivered' || state === 'reconciliation_required' || state === 'message_lock' || state === 'delivery_blocked') return
   if (state !== 'queued' && Date.parse(row.metadata.leaseUntil) > now) return
   if (state === 'executing') {
     await store.cas(row, transition(row, 'reconciliation_required', now, { status: 'waiting_for_approval' }))
@@ -215,6 +215,11 @@ export async function processSlackReceipt(key: string, store = receiptStore,
     if (!row) return
   }
   if (!row.outcome.canonical) return
+  // Receipt-only canaries terminate before any Slack API or response URL delivery.
+  if (row.metadata.envelope.value.action === 'canary.receipt') {
+    await store.cas(row, transition(row, 'receipt_only', Date.now()))
+    return
+  }
   const delivery = transition(row, 'delivering', Date.now())
   delivery.metadata.attempts++
   row = await store.cas(row, delivery)

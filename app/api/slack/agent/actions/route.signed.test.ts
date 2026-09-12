@@ -121,3 +121,73 @@ it('unconfirmed store write returns 503 with no trace or fallback execution', as
   expect(mocks.process).not.toHaveBeenCalled()
   expect(rows.size).toBe(0)
 })
+
+function canaryPayload() {
+  const value = payload()
+  Object.assign(value, { api_app_id: 'A123' })
+  Object.assign(value.container, { is_ephemeral: true })
+  value.actions = [{ action_id: 'agent_canary_receipt', value: JSON.stringify({ action: 'canary.receipt',
+    schemaVersion: 'receipt-canary-v1', canaryAppId: 'A123', sourceEnvironment: 'staging', sourceOrigin: 'https://staging.example.com' }) }]
+  return value
+}
+it('signed ephemeral canary creates a durable receipt and processes a no-op without delivery or real record access', async () => {
+  const response = await POST(signed(canaryPayload()))
+  expect((await response.json()).text).toContain('Receipt:')
+  const row = [...rows.values()][0]
+  expect(row.kind).toBe('slack_action_receipt')
+  const actual = await vi.importActual<typeof import('@/lib/slack-action-receipts')>('@/lib/slack-action-receipts')
+  const store: import('@/lib/slack-action-receipts').ReceiptStore = {
+    insert: async r => r,
+    get: async key => rows.get(key) ?? null,
+    cas: async (old, next) => { rows.set(old.idempotency_key, { ...next, kind: 'slack_action_receipt' }); return next },
+    pending: async () => [],
+  }
+  const deliver = vi.fn()
+  await actual.processSlackReceipt(row.idempotency_key, store, undefined, deliver)
+  const done = rows.get(row.idempotency_key)!
+  expect(done).toMatchObject({ status: 'completed', metadata: { state: 'receipt_only' },
+    outcome: { canonical: { actionStatus: 'completed', text: expect.stringContaining('No approval, work, outreach, or provider') } } })
+  expect(done.outcome.delivery).toBeUndefined()
+  expect(deliver).not.toHaveBeenCalled()
+  // Every database transport access is asserted to be agent_runs in the shared mock.
+  const writes = mocks.from.mock.calls.length
+  await actual.processSlackReceipt(row.idempotency_key, store, undefined, deliver)
+  expect(mocks.from).toHaveBeenCalledTimes(writes)
+  expect(deliver).not.toHaveBeenCalled()
+  const duplicate = await POST(signed(canaryPayload(), { retry: true }))
+  expect((await duplicate.json()).text).toContain('intentionally skipped')
+  expect(rows.size).toBe(1)
+})
+it.each(['actor', 'team', 'channel', 'source', 'app', 'action-id', 'target', 'version', 'signature', 'stale', 'disabled'])('rejects canary %s before receipt access', async mode => {
+  const p = canaryPayload()
+  const value = JSON.parse(p.actions[0].value)
+  if (mode === 'actor') p.user.id = 'U999'
+  if (mode === 'team') p.team.id = 'T999'
+  if (mode === 'channel') p.channel.id = p.container.channel_id = 'C999'
+  if (mode === 'source') value.sourceOrigin = 'https://wrong.example.com'
+  if (mode === 'app') value.canaryAppId = 'A999'
+  if (mode === 'action-id') p.actions[0].action_id = 'approval_reject'
+  if (mode === 'target') value.approvalId = 'real-approval'
+  if (mode === 'version') value.schemaVersion = 'v0'
+  if (mode === 'disabled') vi.stubEnv('SLACK_ACTION_RECEIPTS_ENABLED', 'false')
+  p.actions[0].value = JSON.stringify(value)
+  await POST(signed(p, { invalid: mode === 'signature', stale: mode === 'stale' }))
+  expect(rows.size).toBe(0)
+  expect(mocks.from).not.toHaveBeenCalled()
+  expect(mocks.process).not.toHaveBeenCalled()
+})
+it('signed slash canary responds inline from the invoking app without response URL delivery', async () => {
+  const { POST: command } = await import('../route')
+  const body = new URLSearchParams({ text: 'canary', user_id: 'U123', team_id: 'T123', channel_id: 'C123',
+    api_app_id: 'A123', response_url: 'https://hooks.slack.com/commands/never-fetch' }).toString()
+  const timestamp = String(Math.floor(Date.now() / 1000))
+  const signature = 'v0=' + createHmac('sha256', syntheticSecret).update(`v0:${timestamp}:${body}`).digest('hex')
+  const response = await command(new NextRequest('https://staging.example.com/api/slack/agent', { method: 'POST', body,
+    headers: { 'x-slack-request-timestamp': timestamp, 'x-slack-signature': signature } }))
+  const card = await response.json()
+  expect(card.response_type).toBe('ephemeral')
+  expect(card.text).toContain('Signed command app ID: A123')
+  expect(JSON.parse(card.blocks[1].elements[0].value)).toMatchObject({ action: 'canary.receipt', canaryAppId: 'A123' })
+  expect(mocks.wait).not.toHaveBeenCalled()
+  expect(mocks.from).not.toHaveBeenCalled()
+})
