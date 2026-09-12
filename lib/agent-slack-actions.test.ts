@@ -459,6 +459,31 @@ describe('Agent Ops Slack actions', () => {
     }))
   })
 
+  it('persists comment rejection with provider submission false and clear feedback', async () => {
+    const commentUpdate = queryResult({ data: { id: 'comment-1' }, error: null })
+    mocks.from
+      .mockReturnValueOnce(queryResult({ data: null, error: null }))
+      .mockReturnValueOnce(queryResult({ data: {
+        id: 'comment-1', updated_at: 'reply-v1', content_id: 'social-post-1',
+        publish_id: 'publish-1', platform: 'linkedin', provider: 'linkedin_organization', provider_comment_id: 'provider-comment-1',
+        proposed_reply_text: 'Synthetic reply for review.', response_approval_state: 'pending',
+        reply_submission_state: 'draft', provider_capability: { supports_reply_submission: true, external_submission_enabled: true },
+        metadata: { policy_decision: { classification: 'low_risk_acknowledgement', human_qa_required: false, auto_send: { eligible: true, can_send_now: true } } },
+      }, error: null }))
+      .mockReturnValueOnce(commentUpdate)
+    const fetchMock = vi.fn(() => { throw new Error('Egress forbidden') })
+    vi.stubGlobal('fetch', fetchMock)
+    const result = await handleSlackAgentAction(payload({ action: 'social_comment_reply.reject', commentId: 'comment-1',
+      expectedReplyText: 'Synthetic reply for review.' }))
+    expect(result.actionStatus).toBe('completed')
+    expect(result.text).toContain('Reply rejected from Slack')
+    expect(commentUpdate.update).toHaveBeenCalledWith(expect.objectContaining({
+      response_approval_state: 'rejected',
+      metadata: expect.objectContaining({ slack_reply_decision: expect.objectContaining({ status: 'rejected', external_submission_performed: false }) }),
+    }))
+    expect(fetchMock).not.toHaveBeenCalled()
+  })
+
   it('treats duplicate Slack comment reply approvals as already handled from comment metadata', async () => {
     const idempotencyKey = 'slack-agent-action:local-team:local-channel:U123:1716400000.000:social_comment_reply.approve:comment-1:reply-v1'
     mocks.from

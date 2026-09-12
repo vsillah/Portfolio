@@ -92,7 +92,8 @@ describe('ownership and recovery', () => {
     await Promise.all([processSlackReceipt(a.receipt!.idempotency_key, store, mocks.execute, deliver), processSlackReceipt(b.receipt!.idempotency_key, store, mocks.execute, deliver)])
     expect(mocks.execute).toHaveBeenCalledTimes(1); expect(deliver).toHaveBeenCalledTimes(1)
     expect([...rows.values()][0].metadata.state).toBe('delivered')
-    expect((await acceptSlackAction(payload, store)).result).toEqual(canonical)
+    expect((await acceptSlackAction(payload, store)).result).toEqual({ ...canonical,
+      text: `${canonical.text}\nSlack card updated. Receipt: https://staging.example.com/admin/agents/runs/${a.receipt!.id}` })
   })
   it('persists executing before mutation and outcome before feedback', async () => {
     const { store, rows } = memoryStore(); const a = await acceptSlackAction(payload, store); const key = a.receipt!.idempotency_key
@@ -256,7 +257,8 @@ describe('thread message feedback', () => {
     await processSlackReceipt(row.idempotency_key,store,execute,async()=>{})
     const duplicate = await acceptSlackAction({...payload,message:{ts:'123.456',thread_ts:threadTs,blocks:[{secret:'raw'}]},response_url:'https://hooks.slack.com/raw',thread_ts:'999.000'} as never,store)
     expect(duplicate.receipt!.id).toBe(row.id)
-    expect(duplicate.result).toEqual(canonical)
+    expect(duplicate.result).toEqual({ ...canonical,
+      text: `${canonical.text}\nSlack card updated. Receipt: https://staging.example.com/admin/agents/runs/${duplicate.receipt!.id}` })
     expect(JSON.stringify(row)).not.toMatch(/hooks|secret|999.000/)
   })
   it.each(['https://example.com/thread', '', '124.000', 120.001, null, {}, '120', '120.12345678901'])('rejects malformed or later parent %j before persistence',async parent=>{

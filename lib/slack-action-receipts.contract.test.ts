@@ -25,6 +25,7 @@ beforeEach(() => {
 afterEach(()=>{vi.unstubAllEnvs();vi.unstubAllGlobals()})
 const provenance = {sourceEnvironment:'staging',sourceOrigin:'https://staging.example.com',schemaVersion:'v1'}
 const packets = [
+  ...['social_comment_reply.approve','social_comment_reply.reject'].map(action=>({...provenance,action,commentId:'comment-1',expectedUpdatedAt:'2026-09-12T00:00:00.000Z',expectedReplyText:'Synthetic reply for review.'})),
   ...['social_calendar.approve','social_calendar.reject','social_calendar_draft_handoff.approve','social_calendar_draft_handoff.reject'].map(action=>({...provenance,action,calendarItemId:'calendar-1'})),
   ...['warm_gmail_send.approve','warm_gmail_send.revise','warm_gmail_send.reject'].map(action=>({...provenance,action,contactId:42,outreachQueueId:'queue-1',messageVersionKey:'version-1',sendQueueIdempotencyKey:'send-1'})),
   {...provenance,action:'insight.ask_shaka',contentId:'content-1',note:'Review the public source https://example.com/research'},
