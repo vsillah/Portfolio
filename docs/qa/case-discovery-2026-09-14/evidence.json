@@ -1,0 +1,298 @@
+[
+  {
+    "width": 1440,
+    "marks": [
+      {
+        "label": "conversation discovery entry",
+        "seconds": 1.9
+      },
+      {
+        "label": "conversation framework and evidence",
+        "seconds": 3.244
+      },
+      {
+        "label": "failed save retains edits",
+        "seconds": 5.001
+      },
+      {
+        "label": "conversation internal proposal review",
+        "seconds": 6.336
+      },
+      {
+        "label": "conversation restored after reload",
+        "seconds": 9.707
+      },
+      {
+        "label": "audit discovery entry",
+        "seconds": 12.734
+      },
+      {
+        "label": "audit framework and evidence",
+        "seconds": 14.009
+      },
+      {
+        "label": "audit internal proposal review",
+        "seconds": 15.701
+      },
+      {
+        "label": "audit restored after reload",
+        "seconds": 19.034
+      }
+    ],
+    "writes": [
+      {
+        "path": "/api/admin/sales/sessions",
+        "keys": [
+          "id",
+          "internal_notes"
+        ]
+      },
+      {
+        "path": "/api/admin/sales/sessions",
+        "keys": [
+          "id",
+          "internal_notes"
+        ]
+      },
+      {
+        "path": "/api/admin/sales/sessions",
+        "keys": [
+          "id",
+          "internal_notes"
+        ]
+      }
+    ],
+    "unexpectedWrites": [],
+    "publicReads": [],
+    "errors": [],
+    "blockedExternalRequests": [
+      "https://va.vercel-scripts.com",
+      "https://va.vercel-scripts.com",
+      "https://va.vercel-scripts.com",
+      "https://va.vercel-scripts.com"
+    ],
+    "mp4": "case-discovery-1440.mp4"
+  },
+  {
+    "width": 768,
+    "marks": [
+      {
+        "label": "conversation discovery entry",
+        "seconds": 1.861
+      },
+      {
+        "label": "conversation framework and evidence",
+        "seconds": 3.271
+      },
+      {
+        "label": "failed save retains edits",
+        "seconds": 4.879
+      },
+      {
+        "label": "conversation internal proposal review",
+        "seconds": 6.178
+      },
+      {
+        "label": "conversation restored after reload",
+        "seconds": 9.376
+      },
+      {
+        "label": "audit discovery entry",
+        "seconds": 12.374
+      },
+      {
+        "label": "audit framework and evidence",
+        "seconds": 13.684
+      },
+      {
+        "label": "audit internal proposal review",
+        "seconds": 15.223
+      },
+      {
+        "label": "audit restored after reload",
+        "seconds": 18.48
+      }
+    ],
+    "writes": [
+      {
+        "path": "/api/admin/sales/sessions",
+        "keys": [
+          "id",
+          "internal_notes"
+        ]
+      },
+      {
+        "path": "/api/admin/sales/sessions",
+        "keys": [
+          "id",
+          "internal_notes"
+        ]
+      },
+      {
+        "path": "/api/admin/sales/sessions",
+        "keys": [
+          "id",
+          "internal_notes"
+        ]
+      }
+    ],
+    "unexpectedWrites": [],
+    "publicReads": [],
+    "errors": [],
+    "blockedExternalRequests": [
+      "https://va.vercel-scripts.com",
+      "https://va.vercel-scripts.com",
+      "https://va.vercel-scripts.com",
+      "https://va.vercel-scripts.com"
+    ],
+    "mp4": "case-discovery-768.mp4"
+  },
+  {
+    "width": 390,
+    "marks": [
+      {
+        "label": "conversation discovery entry",
+        "seconds": 1.82
+      },
+      {
+        "label": "conversation framework and evidence",
+        "seconds": 3.358
+      },
+      {
+        "label": "failed save retains edits",
+        "seconds": 4.794
+      },
+      {
+        "label": "conversation internal proposal review",
+        "seconds": 6.07
+      },
+      {
+        "label": "conversation restored after reload",
+        "seconds": 9.247
+      },
+      {
+        "label": "audit discovery entry",
+        "seconds": 12.253
+      },
+      {
+        "label": "audit framework and evidence",
+        "seconds": 13.72
+      },
+      {
+        "label": "audit internal proposal review",
+        "seconds": 15.166
+      },
+      {
+        "label": "audit restored after reload",
+        "seconds": 18.306
+      }
+    ],
+    "writes": [
+      {
+        "path": "/api/admin/sales/sessions",
+        "keys": [
+          "id",
+          "internal_notes"
+        ]
+      },
+      {
+        "path": "/api/admin/sales/sessions",
+        "keys": [
+          "id",
+          "internal_notes"
+        ]
+      },
+      {
+        "path": "/api/admin/sales/sessions",
+        "keys": [
+          "id",
+          "internal_notes"
+        ]
+      }
+    ],
+    "unexpectedWrites": [],
+    "publicReads": [],
+    "errors": [],
+    "blockedExternalRequests": [
+      "https://va.vercel-scripts.com",
+      "https://va.vercel-scripts.com",
+      "https://va.vercel-scripts.com",
+      "https://va.vercel-scripts.com"
+    ],
+    "mp4": "case-discovery-390.mp4"
+  },
+  {
+    "width": 360,
+    "marks": [
+      {
+        "label": "conversation discovery entry",
+        "seconds": 1.816
+      },
+      {
+        "label": "conversation framework and evidence",
+        "seconds": 3.533
+      },
+      {
+        "label": "failed save retains edits",
+        "seconds": 4.96
+      },
+      {
+        "label": "conversation internal proposal review",
+        "seconds": 6.229
+      },
+      {
+        "label": "conversation restored after reload",
+        "seconds": 9.343
+      },
+      {
+        "label": "audit discovery entry",
+        "seconds": 12.35
+      },
+      {
+        "label": "audit framework and evidence",
+        "seconds": 13.819
+      },
+      {
+        "label": "audit internal proposal review",
+        "seconds": 15.272
+      },
+      {
+        "label": "audit restored after reload",
+        "seconds": 18.418
+      }
+    ],
+    "writes": [
+      {
+        "path": "/api/admin/sales/sessions",
+        "keys": [
+          "id",
+          "internal_notes"
+        ]
+      },
+      {
+        "path": "/api/admin/sales/sessions",
+        "keys": [
+          "id",
+          "internal_notes"
+        ]
+      },
+      {
+        "path": "/api/admin/sales/sessions",
+        "keys": [
+          "id",
+          "internal_notes"
+        ]
+      }
+    ],
+    "unexpectedWrites": [],
+    "publicReads": [],
+    "errors": [],
+    "blockedExternalRequests": [
+      "https://va.vercel-scripts.com",
+      "https://va.vercel-scripts.com",
+      "https://va.vercel-scripts.com",
+      "https://va.vercel-scripts.com"
+    ],
+    "mp4": "case-discovery-360.mp4"
+  }
+]

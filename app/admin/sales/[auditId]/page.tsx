@@ -44,6 +44,8 @@ import { DynamicScriptFlow } from '@/components/admin/sales/DynamicScriptFlow';
 import { ValueEvidencePanel } from '@/components/admin/sales/ValueEvidencePanel';
 import { ValueEvidenceCallPanel } from '@/components/admin/sales/ValueEvidenceCallPanel';
 import { useSavedProposal } from '@/hooks/useSavedProposal';
+import { CaseDiscoveryPanel, DiscoveryProposalReview } from '@/components/admin/sales/CaseDiscoveryPanel';
+import { readDiscovery, writeDiscovery } from '@/lib/case-discovery';
 import { ProposalModal } from '@/components/admin/sales/ProposalModal';
 import TechStackVerificationCard from '@/components/admin/sales/TechStackVerificationCard';
 import { useAdminReturnPath } from '@/lib/hooks/useAdminReturnPath';
@@ -463,11 +465,11 @@ export default function ClientWalkthroughPage() {
   }, [content]);
 
   // Update session
-  const updateSession = async (updates: Partial<SalesSession>) => {
-    if (!salesSession) return;
+  const updateSession = async (updates: Partial<SalesSession>, reportError = true) => {
+    if (!salesSession) return false;
     
     const authSession = await getCurrentSession();
-    if (!authSession?.access_token) return;
+    if (!authSession?.access_token) return false;
     
     setIsSaving(true);
     try {
@@ -484,8 +486,10 @@ export default function ClientWalkthroughPage() {
       
       const data = await res.json();
       setSalesSession(data.data);
+      return true;
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to save');
+      if (reportError) setError(err instanceof Error ? err.message : 'Failed to save');
+      return false;
     } finally {
       setIsSaving(false);
     }
@@ -798,7 +802,7 @@ export default function ClientWalkthroughPage() {
           conversationHistory: conversationState.responseHistory,
           contactSubmissionId: contact?.id ? parseInt(contact.id, 10) : null,
           contactNotes: contact?.message ?? null,
-          callNotes: notes,
+          callNotes: readDiscovery(notes).plainNotes,
         }),
       });
 
@@ -1177,6 +1181,18 @@ export default function ClientWalkthroughPage() {
           <FunnelStageSelector
             currentStage={salesSession?.funnel_stage || 'prospect'}
             onChange={handleStageChange}
+          />
+        </div>
+
+        <div className="mb-4">
+          <CaseDiscoveryPanel
+            notes={notes}
+            onChange={setNotes}
+            onSave={() => updateSession({ internal_notes: notes }, false)}
+            savedNotes={salesSession?.internal_notes || ''}
+            saving={isSaving}
+            proposalBlocked={saved.loading || !!saved.error || (!saved.proposal && selectedContent.length === 0)}
+            onReviewProposal={() => setShowProposalModal(true)}
           />
         </div>
 
@@ -1578,8 +1594,8 @@ export default function ClientWalkthroughPage() {
               </h3>
               
               <textarea
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
+                value={readDiscovery(notes).plainNotes}
+                onChange={(e) => setNotes(writeDiscovery(e.target.value, readDiscovery(notes).packet))}
                 placeholder="Add notes from the call..."
                 className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white placeholder-gray-500"
                 rows={4}
@@ -2336,6 +2352,7 @@ export default function ClientWalkthroughPage() {
       {/* Generate Proposal Modal */}
       {showProposalModal && (
         <ProposalModal
+          reviewSection={<DiscoveryProposalReview notes={notes} />}
           savedProposal={saved.proposal}
           generationDisabled={selectedContent.length === 0 || saved.loading || !!saved.error}
           onClose={() => setShowProposalModal(false)}

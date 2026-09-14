@@ -38,6 +38,8 @@ import { DynamicScriptFlow } from '@/components/admin/sales/DynamicScriptFlow';
 import { ValueEvidencePanel } from '@/components/admin/sales/ValueEvidencePanel';
 import { ValueEvidenceCallPanel } from '@/components/admin/sales/ValueEvidenceCallPanel';
 import { useSavedProposal } from '@/hooks/useSavedProposal';
+import { CaseDiscoveryPanel, DiscoveryProposalReview } from '@/components/admin/sales/CaseDiscoveryPanel';
+import { readDiscovery, writeDiscovery } from '@/lib/case-discovery';
 import { ProposalModal } from '@/components/admin/sales/ProposalModal';
 import { ViewDiagnosticLink } from '@/components/admin/ViewDiagnosticLink';
 import { useAdminReturnPath } from '@/lib/hooks/useAdminReturnPath';
@@ -599,9 +601,9 @@ export default function ConversationPage() {
   /* Session helpers                                                   */
   /* ================================================================ */
 
-  const updateSession = async (updates: Partial<SalesSessionRow>) => {
-    if (!salesSession) return;
-    if (!authSession?.access_token) return;
+  const updateSession = async (updates: Partial<SalesSessionRow>, reportError = true) => {
+    if (!salesSession) return false;
+    if (!authSession?.access_token) return false;
     setIsSaving(true);
     try {
       const res = await fetch('/api/admin/sales/sessions', {
@@ -612,8 +614,10 @@ export default function ConversationPage() {
       if (!res.ok) throw new Error('Failed to update session');
       const data = await res.json();
       setSalesSession(data.data);
+      return true;
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to save');
+      if (reportError) setError(err instanceof Error ? err.message : 'Failed to save');
+      return false;
     } finally {
       setIsSaving(false);
     }
@@ -719,7 +723,7 @@ export default function ConversationPage() {
           conversationHistory: conversationState.responseHistory,
           contactSubmissionId: contact?.id ? parseInt(contact.id, 10) : null,
           contactNotes: contact?.message ?? null,
-          callNotes: notes,
+          callNotes: readDiscovery(notes).plainNotes,
         }),
       });
       if (res.ok) {
@@ -1014,6 +1018,18 @@ export default function ConversationPage() {
           </button>
         </div>
 
+        <div className="mb-4">
+          <CaseDiscoveryPanel
+            notes={notes}
+            onChange={setNotes}
+            onSave={() => updateSession({ internal_notes: notes }, false)}
+            savedNotes={salesSession?.internal_notes || ''}
+            saving={isSaving}
+            proposalBlocked={saved.loading || !!saved.error || (!saved.proposal && selectedContent.length === 0)}
+            onReviewProposal={() => setShowProposalDrawer(true)}
+          />
+        </div>
+
         {/* Main row: Timeline | Script + objections | Unified offer panel */}
         <div className="grid grid-cols-1 gap-4 mb-6 xl:grid-cols-[minmax(260px,0.8fr)_minmax(360px,1fr)_minmax(420px,1fr)]">
           {/* ---- Col 1: Conversation Timeline ---- */}
@@ -1252,7 +1268,7 @@ export default function ConversationPage() {
             </div>
             <div className="bg-gray-900 rounded-lg border border-gray-800 p-4">
               <h3 className="font-medium text-white mb-3 flex items-center gap-2"><MessageSquare className="w-5 h-5 text-yellow-500" /> Call Notes</h3>
-              <textarea value={notes} onChange={e => setNotes(e.target.value)} placeholder="Add notes from the call..." className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white placeholder-gray-500" rows={4} />
+              <textarea value={readDiscovery(notes).plainNotes} onChange={e => setNotes(writeDiscovery(e.target.value, readDiscovery(notes).packet))} placeholder="Add notes from the call..." className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white placeholder-gray-500" rows={4} />
               <button onClick={saveNotes} className="mt-2 px-3 py-1.5 bg-gray-800 text-gray-300 rounded-lg text-sm hover:bg-gray-700 flex items-center gap-1"><Save className="w-4 h-4" /> Save Notes</button>
             </div>
             {salesSession?.contact_submission_id != null && (
@@ -1324,8 +1340,9 @@ export default function ConversationPage() {
           generationDisabled={selectedContent.length === 0 || saved.loading || !!saved.error}
           presentation="drawer"
           heading="Proposal & documents"
-          reviewSection={
-            currentProposal ? (
+          reviewSection={<>
+            <DiscoveryProposalReview notes={notes} />
+            {currentProposal ? (
               <ConversationProposalReviewSection
                 currentProposal={currentProposal}
                 proposalDocuments={proposalDocuments}
@@ -1335,8 +1352,8 @@ export default function ConversationPage() {
                 onOpenAttachModal={() => setShowAttachDocumentModal(true)}
                 contactSubmissionId={salesSession?.contact_submission_id ?? null}
               />
-            ) : undefined
-          }
+            ) : undefined}
+          </>}
           onClose={() => setShowProposalDrawer(false)}
           contactId={contact?.id ? parseInt(contact.id, 10) : null}
           defaultValueReportId={valueReportId}
