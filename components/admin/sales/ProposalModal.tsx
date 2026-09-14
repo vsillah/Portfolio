@@ -282,23 +282,21 @@ export function ProposalModal({
   const headerTitle = heading ?? (savedProposal ? 'Review saved proposal' : 'Generate Proposal');
 
   const header = (
-    <div className="flex items-center justify-between gap-2 p-4 border-b border-gray-800 shrink-0">
-      <h3 className="text-lg font-semibold flex items-center gap-2 min-w-0 flex-1 truncate">
-        <FileText className="w-5 h-5 text-blue-400 shrink-0" />
-        {headerTitle}
+    <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-x-3 gap-y-2 p-4 border-b border-gray-800 shrink-0">
+      <h3 className="flex min-w-0 items-start gap-2 text-lg font-semibold leading-snug">
+        <FileText className="mt-0.5 h-5 w-5 shrink-0 text-blue-400" />
+        <span className="min-w-0 break-words">{headerTitle}</span>
       </h3>
-      <div className="flex items-center gap-2 shrink-0">
-        {diagnosticAuditId && diagnosticReturnPath ? (
-          <ViewDiagnosticLink
-            auditId={diagnosticAuditId}
-            returnPath={diagnosticReturnPath}
-            className="text-sm font-medium text-emerald-400 hover:text-emerald-300 hover:underline whitespace-nowrap"
-          />
-        ) : null}
-        <button type="button" onClick={onClose} className="text-gray-400 hover:text-white" aria-label="Close">
-          <XCircle className="w-5 h-5" />
-        </button>
-      </div>
+      <button type="button" onClick={onClose} className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-gray-400 hover:bg-gray-800 hover:text-white" aria-label="Close">
+        <XCircle className="w-5 h-5" />
+      </button>
+      {diagnosticAuditId && diagnosticReturnPath ? (
+        <ViewDiagnosticLink
+          auditId={diagnosticAuditId}
+          returnPath={diagnosticReturnPath}
+          className="col-start-1 inline-flex min-h-8 w-fit max-w-full items-center rounded-md border border-emerald-500/30 px-2.5 text-sm font-medium text-emerald-300 hover:border-emerald-400/60 hover:text-emerald-200"
+        />
+      ) : null}
     </div>
   );
 

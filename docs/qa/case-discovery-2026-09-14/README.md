@@ -21,7 +21,7 @@ The proposal review includes a collapsed **Discovery review · Internal only** p
 ```bash
 node --import tsx scripts/build-chatbot-knowledge.ts
 ./node_modules/.bin/vitest run lib/case-discovery.test.ts components/admin/sales/CaseDiscoveryPanel.test.tsx
-./node_modules/.bin/next lint --file components/admin/sales/CaseDiscoveryPanel.tsx --file lib/case-discovery.ts --file 'app/admin/sales/conversation/[sessionId]/page.tsx' --file 'app/admin/sales/[auditId]/page.tsx'
+./node_modules/.bin/next lint --file components/admin/sales/ProposalModal.tsx --file components/admin/sales/CaseDiscoveryPanel.tsx --file lib/case-discovery.ts --file 'app/admin/sales/conversation/[sessionId]/page.tsx' --file 'app/admin/sales/[auditId]/page.tsx'
 ./node_modules/.bin/tsc --noEmit --pretty false
 node scripts/qa/slack-receipt-status-server.cjs
 node scripts/qa/case-discovery.cjs
@@ -39,7 +39,7 @@ Typecheck is blocked by existing duplicate object keys in `lib/social-comment-in
 - Audit: `http://127.0.0.1:3197/admin/sales/42`
 - These are real Next.js pages exercised with Playwright-supplied synthetic auth/API responses. The URLs alone do not recreate the fixture in a separate browser session.
 - Start the existing isolated QA server above in a clean worktree with no environment files. It injects synthetic credentials, blocks outbound server requests and mocks remote fonts. Then run the recorder; it blocks external browser requests and rejects unexpected API writes.
-- Committed review artifacts: `case-discovery-1440.mp4`, `case-discovery-390.mp4`, `conversation-360.png`, `proposal-audit-360.png`, and `evidence.json`. Desktop MP4 frames and narrow-width screenshots were visually inspected.
+- Committed review artifacts: `case-discovery-1440.mp4`, `case-discovery-390.mp4`, `conversation-360.png`, `proposal-audit-360.png`, and `evidence.json`. Desktop MP4 frames and narrow-width screenshots were visually inspected, including the 360px proposal header after the shared modal layout fix.
 - Recorder outputs: `local-private/case-discovery-qa/evidence.json`, `case-discovery-{1440,768,390,360}.mp4`, and screenshots for each route and proposal review.
 - The recorder covers both routes, framework selection, evidence entry, alignment, save failure/retry, private proposal handoff and reload persistence at 1440, 768, 390 and 360 pixels.
 - Writes are intercepted in browser memory. No live session, proposal or customer records are created or changed.

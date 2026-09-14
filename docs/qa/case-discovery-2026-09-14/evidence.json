@@ -4,39 +4,39 @@
     "marks": [
       {
         "label": "conversation discovery entry",
-        "seconds": 1.9
+        "seconds": 1.92
       },
       {
         "label": "conversation framework and evidence",
-        "seconds": 3.244
+        "seconds": 3.304
       },
       {
         "label": "failed save retains edits",
-        "seconds": 5.001
+        "seconds": 5.071
       },
       {
         "label": "conversation internal proposal review",
-        "seconds": 6.336
+        "seconds": 6.389
       },
       {
         "label": "conversation restored after reload",
-        "seconds": 9.707
+        "seconds": 9.724
       },
       {
         "label": "audit discovery entry",
-        "seconds": 12.734
+        "seconds": 12.753
       },
       {
         "label": "audit framework and evidence",
-        "seconds": 14.009
+        "seconds": 14.054
       },
       {
         "label": "audit internal proposal review",
-        "seconds": 15.701
+        "seconds": 15.744
       },
       {
         "label": "audit restored after reload",
-        "seconds": 19.034
+        "seconds": 19.09
       }
     ],
     "writes": [
@@ -71,46 +71,46 @@
       "https://va.vercel-scripts.com",
       "https://va.vercel-scripts.com"
     ],
-    "mp4": "case-discovery-1440.mp4"
+    "mp4": "/Users/vambahsillah/.codex/worktrees/5fff/Portfolio/local-private/case-discovery-qa/case-discovery-1440.mp4"
   },
   {
     "width": 768,
     "marks": [
       {
         "label": "conversation discovery entry",
-        "seconds": 1.861
+        "seconds": 1.868
       },
       {
         "label": "conversation framework and evidence",
-        "seconds": 3.271
+        "seconds": 3.276
       },
       {
         "label": "failed save retains edits",
-        "seconds": 4.879
+        "seconds": 4.886
       },
       {
         "label": "conversation internal proposal review",
-        "seconds": 6.178
+        "seconds": 6.162
       },
       {
         "label": "conversation restored after reload",
-        "seconds": 9.376
+        "seconds": 9.372
       },
       {
         "label": "audit discovery entry",
-        "seconds": 12.374
+        "seconds": 12.394
       },
       {
         "label": "audit framework and evidence",
-        "seconds": 13.684
+        "seconds": 13.709
       },
       {
         "label": "audit internal proposal review",
-        "seconds": 15.223
+        "seconds": 15.253
       },
       {
         "label": "audit restored after reload",
-        "seconds": 18.48
+        "seconds": 18.49
       }
     ],
     "writes": [
@@ -145,7 +145,7 @@
       "https://va.vercel-scripts.com",
       "https://va.vercel-scripts.com"
     ],
-    "mp4": "case-discovery-768.mp4"
+    "mp4": "/Users/vambahsillah/.codex/worktrees/5fff/Portfolio/local-private/case-discovery-qa/case-discovery-768.mp4"
   },
   {
     "width": 390,
@@ -156,35 +156,35 @@
       },
       {
         "label": "conversation framework and evidence",
-        "seconds": 3.358
+        "seconds": 3.37
       },
       {
         "label": "failed save retains edits",
-        "seconds": 4.794
+        "seconds": 4.882
       },
       {
         "label": "conversation internal proposal review",
-        "seconds": 6.07
+        "seconds": 6.158
       },
       {
         "label": "conversation restored after reload",
-        "seconds": 9.247
+        "seconds": 9.348
       },
       {
         "label": "audit discovery entry",
-        "seconds": 12.253
+        "seconds": 12.354
       },
       {
         "label": "audit framework and evidence",
-        "seconds": 13.72
+        "seconds": 13.817
       },
       {
         "label": "audit internal proposal review",
-        "seconds": 15.166
+        "seconds": 15.274
       },
       {
         "label": "audit restored after reload",
-        "seconds": 18.306
+        "seconds": 18.397
       }
     ],
     "writes": [
@@ -219,46 +219,46 @@
       "https://va.vercel-scripts.com",
       "https://va.vercel-scripts.com"
     ],
-    "mp4": "case-discovery-390.mp4"
+    "mp4": "/Users/vambahsillah/.codex/worktrees/5fff/Portfolio/local-private/case-discovery-qa/case-discovery-390.mp4"
   },
   {
     "width": 360,
     "marks": [
       {
         "label": "conversation discovery entry",
-        "seconds": 1.816
+        "seconds": 1.828
       },
       {
         "label": "conversation framework and evidence",
-        "seconds": 3.533
+        "seconds": 3.519
       },
       {
         "label": "failed save retains edits",
-        "seconds": 4.96
+        "seconds": 5.052
       },
       {
         "label": "conversation internal proposal review",
-        "seconds": 6.229
+        "seconds": 6.358
       },
       {
         "label": "conversation restored after reload",
-        "seconds": 9.343
+        "seconds": 9.479
       },
       {
         "label": "audit discovery entry",
-        "seconds": 12.35
+        "seconds": 12.486
       },
       {
         "label": "audit framework and evidence",
-        "seconds": 13.819
+        "seconds": 13.974
       },
       {
         "label": "audit internal proposal review",
-        "seconds": 15.272
+        "seconds": 15.484
       },
       {
         "label": "audit restored after reload",
-        "seconds": 18.418
+        "seconds": 18.639
       }
     ],
     "writes": [
@@ -293,6 +293,6 @@
       "https://va.vercel-scripts.com",
       "https://va.vercel-scripts.com"
     ],
-    "mp4": "case-discovery-360.mp4"
+    "mp4": "/Users/vambahsillah/.codex/worktrees/5fff/Portfolio/local-private/case-discovery-qa/case-discovery-360.mp4"
   }
 ]
