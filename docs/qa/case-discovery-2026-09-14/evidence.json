@@ -1,0 +1,298 @@
+[
+  {
+    "width": 1440,
+    "marks": [
+      {
+        "label": "conversation discovery entry",
+        "seconds": 1.92
+      },
+      {
+        "label": "conversation framework and evidence",
+        "seconds": 3.304
+      },
+      {
+        "label": "failed save retains edits",
+        "seconds": 5.071
+      },
+      {
+        "label": "conversation internal proposal review",
+        "seconds": 6.389
+      },
+      {
+        "label": "conversation restored after reload",
+        "seconds": 9.724
+      },
+      {
+        "label": "audit discovery entry",
+        "seconds": 12.753
+      },
+      {
+        "label": "audit framework and evidence",
+        "seconds": 14.054
+      },
+      {
+        "label": "audit internal proposal review",
+        "seconds": 15.744
+      },
+      {
+        "label": "audit restored after reload",
+        "seconds": 19.09
+      }
+    ],
+    "writes": [
+      {
+        "path": "/api/admin/sales/sessions",
+        "keys": [
+          "id",
+          "internal_notes"
+        ]
+      },
+      {
+        "path": "/api/admin/sales/sessions",
+        "keys": [
+          "id",
+          "internal_notes"
+        ]
+      },
+      {
+        "path": "/api/admin/sales/sessions",
+        "keys": [
+          "id",
+          "internal_notes"
+        ]
+      }
+    ],
+    "unexpectedWrites": [],
+    "publicReads": [],
+    "errors": [],
+    "blockedExternalRequests": [
+      "https://va.vercel-scripts.com",
+      "https://va.vercel-scripts.com",
+      "https://va.vercel-scripts.com",
+      "https://va.vercel-scripts.com"
+    ],
+    "mp4": "/Users/vambahsillah/.codex/worktrees/5fff/Portfolio/local-private/case-discovery-qa/case-discovery-1440.mp4"
+  },
+  {
+    "width": 768,
+    "marks": [
+      {
+        "label": "conversation discovery entry",
+        "seconds": 1.868
+      },
+      {
+        "label": "conversation framework and evidence",
+        "seconds": 3.276
+      },
+      {
+        "label": "failed save retains edits",
+        "seconds": 4.886
+      },
+      {
+        "label": "conversation internal proposal review",
+        "seconds": 6.162
+      },
+      {
+        "label": "conversation restored after reload",
+        "seconds": 9.372
+      },
+      {
+        "label": "audit discovery entry",
+        "seconds": 12.394
+      },
+      {
+        "label": "audit framework and evidence",
+        "seconds": 13.709
+      },
+      {
+        "label": "audit internal proposal review",
+        "seconds": 15.253
+      },
+      {
+        "label": "audit restored after reload",
+        "seconds": 18.49
+      }
+    ],
+    "writes": [
+      {
+        "path": "/api/admin/sales/sessions",
+        "keys": [
+          "id",
+          "internal_notes"
+        ]
+      },
+      {
+        "path": "/api/admin/sales/sessions",
+        "keys": [
+          "id",
+          "internal_notes"
+        ]
+      },
+      {
+        "path": "/api/admin/sales/sessions",
+        "keys": [
+          "id",
+          "internal_notes"
+        ]
+      }
+    ],
+    "unexpectedWrites": [],
+    "publicReads": [],
+    "errors": [],
+    "blockedExternalRequests": [
+      "https://va.vercel-scripts.com",
+      "https://va.vercel-scripts.com",
+      "https://va.vercel-scripts.com",
+      "https://va.vercel-scripts.com"
+    ],
+    "mp4": "/Users/vambahsillah/.codex/worktrees/5fff/Portfolio/local-private/case-discovery-qa/case-discovery-768.mp4"
+  },
+  {
+    "width": 390,
+    "marks": [
+      {
+        "label": "conversation discovery entry",
+        "seconds": 1.82
+      },
+      {
+        "label": "conversation framework and evidence",
+        "seconds": 3.37
+      },
+      {
+        "label": "failed save retains edits",
+        "seconds": 4.882
+      },
+      {
+        "label": "conversation internal proposal review",
+        "seconds": 6.158
+      },
+      {
+        "label": "conversation restored after reload",
+        "seconds": 9.348
+      },
+      {
+        "label": "audit discovery entry",
+        "seconds": 12.354
+      },
+      {
+        "label": "audit framework and evidence",
+        "seconds": 13.817
+      },
+      {
+        "label": "audit internal proposal review",
+        "seconds": 15.274
+      },
+      {
+        "label": "audit restored after reload",
+        "seconds": 18.397
+      }
+    ],
+    "writes": [
+      {
+        "path": "/api/admin/sales/sessions",
+        "keys": [
+          "id",
+          "internal_notes"
+        ]
+      },
+      {
+        "path": "/api/admin/sales/sessions",
+        "keys": [
+          "id",
+          "internal_notes"
+        ]
+      },
+      {
+        "path": "/api/admin/sales/sessions",
+        "keys": [
+          "id",
+          "internal_notes"
+        ]
+      }
+    ],
+    "unexpectedWrites": [],
+    "publicReads": [],
+    "errors": [],
+    "blockedExternalRequests": [
+      "https://va.vercel-scripts.com",
+      "https://va.vercel-scripts.com",
+      "https://va.vercel-scripts.com",
+      "https://va.vercel-scripts.com"
+    ],
+    "mp4": "/Users/vambahsillah/.codex/worktrees/5fff/Portfolio/local-private/case-discovery-qa/case-discovery-390.mp4"
+  },
+  {
+    "width": 360,
+    "marks": [
+      {
+        "label": "conversation discovery entry",
+        "seconds": 1.828
+      },
+      {
+        "label": "conversation framework and evidence",
+        "seconds": 3.519
+      },
+      {
+        "label": "failed save retains edits",
+        "seconds": 5.052
+      },
+      {
+        "label": "conversation internal proposal review",
+        "seconds": 6.358
+      },
+      {
+        "label": "conversation restored after reload",
+        "seconds": 9.479
+      },
+      {
+        "label": "audit discovery entry",
+        "seconds": 12.486
+      },
+      {
+        "label": "audit framework and evidence",
+        "seconds": 13.974
+      },
+      {
+        "label": "audit internal proposal review",
+        "seconds": 15.484
+      },
+      {
+        "label": "audit restored after reload",
+        "seconds": 18.639
+      }
+    ],
+    "writes": [
+      {
+        "path": "/api/admin/sales/sessions",
+        "keys": [
+          "id",
+          "internal_notes"
+        ]
+      },
+      {
+        "path": "/api/admin/sales/sessions",
+        "keys": [
+          "id",
+          "internal_notes"
+        ]
+      },
+      {
+        "path": "/api/admin/sales/sessions",
+        "keys": [
+          "id",
+          "internal_notes"
+        ]
+      }
+    ],
+    "unexpectedWrites": [],
+    "publicReads": [],
+    "errors": [],
+    "blockedExternalRequests": [
+      "https://va.vercel-scripts.com",
+      "https://va.vercel-scripts.com",
+      "https://va.vercel-scripts.com",
+      "https://va.vercel-scripts.com"
+    ],
+    "mp4": "/Users/vambahsillah/.codex/worktrees/5fff/Portfolio/local-private/case-discovery-qa/case-discovery-360.mp4"
+  }
+]
