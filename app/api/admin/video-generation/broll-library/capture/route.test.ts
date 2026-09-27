@@ -93,19 +93,25 @@ describe('POST /api/admin/video-generation/broll-library/capture', () => {
     const upsert = vi.fn().mockResolvedValue({ error: null })
     mocks.from.mockReturnValue({ upsert })
 
-    const response = await POST(makeRequest('not-json'))
+    const invalidJson = await POST(makeRequest('not-json'))
+    const emptyList = await POST(makeRequest({ routes: [] }))
 
-    expect(response.status).toBe(200)
-    const body = await response.json()
-    expect(body.captured).toBe(2)
-    expect(mocks.captureBroll).toHaveBeenCalledWith({
+    expect(invalidJson.status).toBe(200)
+    expect(emptyList.status).toBe(200)
+    expect((await invalidJson.json()).captured).toBe(2)
+    expect((await emptyList.json()).captured).toBe(2)
+    expect(mocks.captureBroll).toHaveBeenNthCalledWith(1, {
       routes: mocks.DEFAULT_ROUTES,
       outputDir: path.join(process.cwd(), 'design-files', 'broll', 'library'),
       recordVideos: true,
       baseUrl: 'http://localhost:3000',
       noStartServer: true,
     })
-    expect(upsert).toHaveBeenCalledTimes(2)
+    expect(mocks.captureBroll).toHaveBeenNthCalledWith(2, expect.objectContaining({
+      routes: mocks.DEFAULT_ROUTES,
+      recordVideos: true,
+    }))
+    expect(upsert).toHaveBeenCalledTimes(4)
   })
 
   it('captures only the requested routes and turns recordVideos off only for explicit false', async () => {
