@@ -1,6 +1,9 @@
 import type { CommentClassification } from '../comment-inbox-policy'
+import { COMMENT_POLICY_CLASSIFICATION_FIXTURES } from '../comment-inbox-policy.fixtures'
 export type Labels = { intent: CommentClassification; urgency: 0 | 1 | 2; spam: boolean; replyRisk: boolean; humanReview: boolean }
-export type Fixture = { id: string; family: string; text: string; expected: Labels }
+export type Fixture = { id: string; family: string; text: string; expected: Labels
+  source: 'policy-regression' | 'synthetic' | 'redacted-synthetic'
+  sourceConfidence?: number; providerAmbiguity?: boolean }
 // Hand-authored semantic expectations. No production exports, IDs, contacts, or model outputs.
 const seeds: Array<[string, string, CommentClassification, 0 | 1 | 2, boolean, boolean, boolean]> = [
   ['thanks', 'Thank you for sharing this.', 'low_risk_acknowledgement', 0, false, false, false],
@@ -41,6 +44,28 @@ const variants = [
   (s: string) => `Regarding the post: ${s}`, (s: string) => s.replaceAll(' ', '  '),
   (s: string) => `${s} This refers to the discussion above.`,
 ]
-export const FIXTURES: Fixture[] = seeds.flatMap(([family, text, intent, urgency, spam, replyRisk, humanReview]) =>
+const syntheticFixtures: Fixture[] = seeds.flatMap(([family, text, intent, urgency, spam, replyRisk, humanReview]) =>
   variants.map((variant, index) => ({ id: `${family}-${index + 1}`, family, text: variant(text),
-    expected: { intent, urgency, spam, replyRisk, humanReview } })))
+    source: 'synthetic', expected: { intent, urgency, spam, replyRisk, humanReview } })))
+
+// Classification expectations are the existing regression labels. Other dimensions
+// are hand-authored shadow expectations awaiting independent human adjudication.
+export const POLICY_FIXTURES: Fixture[] = COMMENT_POLICY_CLASSIFICATION_FIXTURES.map(
+  ([intent, text, sourceConfidence, context]) => ({
+    id: `policy-${intent}`, family: `policy-${intent}`, text, source: 'policy-regression',
+    sourceConfidence, providerAmbiguity: context?.provider === 'manual',
+    expected: { intent, urgency: ['low_risk_acknowledgement', 'spam'].includes(intent) ? 0 : 1,
+      spam: intent === 'spam', humanReview: intent !== 'low_risk_acknowledgement',
+      replyRisk: ['criticism_negative', 'misinformation_unsupported_claim', 'sensitive_privacy_legal_financial', 'spam'].includes(intent) },
+  }))
+
+const redactedFixtures: Fixture[] = [
+  ['private-email', 'Please remove my private email [private email redacted].'],
+  ['private-phone', 'The post exposes my private phone number [private number redacted].'],
+  ['private-record', 'Delete the confidential record at [link redacted].'],
+  ['private-handle', 'Keep my private account [private handle redacted] out of public replies.'],
+].map(([id, text]) => ({ id, text, family: id, source: 'redacted-synthetic', expected: {
+  intent: 'sensitive_privacy_legal_financial', urgency: 1, spam: false, replyRisk: true, humanReview: true,
+} }))
+
+export const FIXTURES: Fixture[] = [...POLICY_FIXTURES, ...syntheticFixtures, ...redactedFixtures]
