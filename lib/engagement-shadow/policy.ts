@@ -4,7 +4,12 @@ import { COMMENT_CLASSIFICATIONS } from '../comment-inbox-policy'
 // Portfolio owns all thresholds; this policy never grants execution authority.
 export const POLICY = Object.freeze({ confidence: 0.85, negative: 0.15, positive: 0.85,
   urgent: 1.5, timeoutMs: 1000, inputUsdPerMillion: 0.042, outputUsdPerMillion: 0 })
-export const inputSchema = z.object({ text: z.string().trim().min(1).max(4000) }).strict()
+export const inputSchema = z.object({
+  text: z.string().trim().min(1).max(4000),
+  // Local deterministic context; never sent to the model or treated as a label.
+  sourceConfidence: z.number().min(0).max(1).optional(),
+  providerAmbiguity: z.boolean().optional(),
+}).strict()
 export const judgmentsSchema = z.object({
   intent: z.enum(COMMENT_CLASSIFICATIONS), intentConfidence: z.number().min(0).max(1),
   urgency: z.number().min(0).max(2), urgencyConfidence: z.number().min(0).max(1),
@@ -27,7 +32,8 @@ export function routeJudgments(raw: unknown): Route {
 export type Decision = {
   judgments: Judgments | null
   route: Route
-  failure: 'invalid_input' | 'provider_gate' | 'timeout' | 'provider_status' | 'malformed_response' | 'transport_failure' | null
+  failure: 'invalid_input' | 'privacy_gate' | 'provider_gate' | 'timeout' | 'provider_status' | 'malformed_response' | 'transport_failure' | null
+  localReviewReasons?: Array<'redacted_input' | 'source_low_confidence' | 'provider_ambiguity'>
   latencyMs: number
   usage: { inputTokens: number; outputTokens: number } | null
   externalActionsAllowed: false

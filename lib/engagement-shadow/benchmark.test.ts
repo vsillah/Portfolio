@@ -2,7 +2,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { createJevAdapter, buildRequest, JEV_MODEL, type Transport } from './jev'
 import { mockTransport } from './mock'
-import { FIXTURES } from './fixtures'
+import { FIXTURES, POLICY_FIXTURES } from './fixtures'
 import { POLICY, routeJudgments } from './policy'
 import { runBenchmark, summarize, type Observation } from './benchmark'
 
@@ -96,13 +96,24 @@ describe('Jev contract', () => {
   })
 })
 describe('offline comparison', () => {
-  it('runs 240 cases without fetch and produces deterministic decisions independent of latency', async () => {
+  it('runs the shared policy cases plus synthetic cases without fetch or executable proposals', async () => {
     const fetch = vi.fn(() => { throw new Error('network forbidden') }); vi.stubGlobal('fetch', fetch)
-    expect(FIXTURES).toHaveLength(240)
-    expect(new Set(FIXTURES.map(f => f.id)).size).toBe(240)
+    expect(FIXTURES).toHaveLength(254)
+    expect(new Set(FIXTURES.map(f => f.id)).size).toBe(254)
     const first = await runBenchmark(); const second = await runBenchmark()
-    expect(first.baseline.cases).toBe(240)
+    expect(first.baseline.cases).toBe(254)
+    expect(first.corpus).toEqual({ policyRegression: 10, synthetic: 240, redactedSynthetic: 4, independentlyHumanReviewed: false })
+    for (const f of POLICY_FIXTURES) {
+      const row = first.rows.baseline.find(row => row.id === f.id)
+      expect(row?.predicted?.intent).toBe(f.expected.intent)
+    }
+    expect(first.rows.mock.find(r => r.id === 'policy-low_confidence')?.localReviewReasons).toContain('source_low_confidence')
+    expect(first.rows.mock.find(r => r.id === 'policy-provider_manual_ambiguity')?.localReviewReasons).toContain('provider_ambiguity')
+    expect(first.externalActionsAllowed).toBe(false)
+    expect(JSON.stringify(first)).not.toMatch(/workflowOwnedPatch|workflowUpdateProposal|leadWorkItemProposal|proposed_reply_text/)
     expect(first.mock.failureCount).toBe(0)
+    expect(first.mock.schemaFailureCount).toBe(0)
+    expect(first.agreementWithBaseline.intent).toBeLessThan(1)
     expect(first.mock.accuracy).toEqual(second.mock.accuracy)
     expect(first.rows.mock.map(r => r.predicted)).toEqual(second.rows.mock.map(r => r.predicted))
     expect(first.mock.inputTokens).toBe(0)
@@ -118,5 +129,9 @@ describe('offline comparison', () => {
     expect(summarize(rows)).toMatchObject({ falseSafeRate: 0.5, highRiskRecall: 0, highRiskContainment: 0.5,
       escalationRate: 0.5, failureCount: 1, estimatedUsd: null, accuracy: { intent: 0.5 }, latencyMs: { p95: 20 } })
     expect(summarize([]).falseSafeRate).toBeNull()
+    expect(summarize([]).estimatedUsd).toBeNull()
+    expect(summarize([{ ...rows[0], failure: 'malformed_response' }, rows[0]])).toMatchObject({
+      failureCount: 2, schemaFailureCount: 1, failuresByReason: { malformed_response: 1, timeout: 1 },
+    })
   })
 })

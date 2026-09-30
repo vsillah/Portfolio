@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "mode": "offline-mock",
   "model": "jev-1.13.0",
   "policy": {
@@ -11,69 +11,88 @@
     "inputUsdPerMillion": 0.042,
     "outputUsdPerMillion": 0
   },
-  "fixtureFamilies": 30,
+  "fixtureFamilies": 44,
   "externalActionsAllowed": false,
   "verdict": "HOLD live shadow: mock validates plumbing only; Jev quality is unmeasured. Requires approved credential reference, provider-call authority, and independently reviewed labels.",
+  "corpus": {
+    "policyRegression": 10,
+    "synthetic": 240,
+    "redactedSynthetic": 4,
+    "independentlyHumanReviewed": false
+  },
   "limitations": [
-    "240 cases are 30 correlated seed families, not independent samples.",
+    "The 240 formatting variants are 30 correlated seed families, not independent samples.",
     "Latency measures local CPU only; mock token use and cost are zero, not a live estimate.",
-    "Baseline spam and reply-risk are classification proxies; urgency comes from priority; confidence fixed at 0.95.",
+    "Baseline spam and reply-risk are classification proxies; urgency comes from priority; policy fixtures preserve original confidence/provider context; other confidence is 0.95.",
+    "The model sees minimized text only. Local confidence/provider flags can require review but do not rewrite model judgments.",
     "No routing, deterministic safeguards, or provider permissions are changed."
   ],
   "baseline": {
-    "cases": 240,
+    "cases": 254,
     "accuracy": {
-      "intent": 0.7208333333333333,
-      "urgency": 0.6375,
-      "spam": 0.9958333333333333,
-      "replyRisk": 0.7916666666666666,
-      "humanReview": 0.7208333333333333
+      "intent": 0.7362204724409449,
+      "urgency": 0.6377952755905512,
+      "spam": 0.9960629921259843,
+      "replyRisk": 0.8031496062992126,
+      "humanReview": 0.7362204724409449
     },
-    "falseSafeRate": 0.3,
-    "highRiskRecall": 0.625,
-    "highRiskContainment": 0.6764705882352942,
-    "escalationRate": 0.6125,
+    "falseSafeRate": 0.28169014084507044,
+    "highRiskRecall": 0.6458333333333334,
+    "highRiskContainment": 0.6944444444444444,
+    "escalationRate": 0.6299212598425197,
     "failureCount": 0,
+    "schemaFailureCount": 0,
+    "failuresByReason": {},
     "denominators": {
-      "unsafe": 200,
-      "highRisk": 136
+      "unsafe": 213,
+      "highRisk": 144
     },
     "latencyMs": {
-      "mean": 0.013763516666666102,
-      "p95": 0.017166000000003123
+      "mean": 0.011656188976379137,
+      "p95": 0.016000000000019554
     },
     "inputTokens": 0,
     "outputTokens": 0,
     "estimatedUsd": 0
   },
   "mock": {
-    "cases": 240,
+    "cases": 254,
     "accuracy": {
-      "intent": 0.9666666666666667,
-      "urgency": 0.9666666666666667,
+      "intent": 0.952755905511811,
+      "urgency": 0.9566929133858267,
       "spam": 1,
-      "replyRisk": 0.9666666666666667,
-      "humanReview": 0.9666666666666667
+      "replyRisk": 0.9645669291338582,
+      "humanReview": 0.9606299212598425
     },
     "falseSafeRate": 0,
-    "highRiskRecall": 1,
+    "highRiskRecall": 0.9930555555555556,
     "highRiskContainment": 1,
-    "escalationRate": 0.8666666666666667,
+    "escalationRate": 0.8700787401574803,
     "failureCount": 0,
+    "schemaFailureCount": 0,
+    "failuresByReason": {},
     "denominators": {
-      "unsafe": 200,
-      "highRisk": 136
+      "unsafe": 213,
+      "highRisk": 144
     },
     "latencyMs": {
-      "mean": 0.025300525000000344,
-      "p95": 0.04266699999999446
+      "mean": 0.03134060236220413,
+      "p95": 0.05575000000001751
     },
     "inputTokens": 0,
     "outputTokens": 0,
     "estimatedUsd": 0
   },
+  "agreementWithBaseline": {
+    "intent": 0.7440944881889764,
+    "urgency": 0.6299212598425197,
+    "spam": 0.9960629921259843,
+    "replyRisk": 0.8228346456692913,
+    "humanReview": 0.7519685039370079
+  },
   "disagreements": {
     "baseline": [
+      "policy-sensitive_privacy_legal_financial",
       "assertion-1",
       "assertion-2",
       "assertion-3",
@@ -161,9 +180,17 @@
       "urgent-5",
       "urgent-6",
       "urgent-7",
-      "urgent-8"
+      "urgent-8",
+      "private-email",
+      "private-phone",
+      "private-record",
+      "private-handle"
     ],
     "mock": [
+      "policy-buying_lead_intent",
+      "policy-misinformation_unsupported_claim",
+      "policy-low_confidence",
+      "policy-provider_manual_ambiguity",
       "negation-1",
       "negation-2",
       "negation-3",
@@ -171,7 +198,94 @@
       "negation-5",
       "negation-6",
       "negation-7",
-      "negation-8"
+      "negation-8",
+      "private-phone"
     ]
-  }
+  },
+  "localReviewExamples": [
+    {
+      "id": "policy-low_confidence",
+      "predicted": {
+        "intent": "low_risk_acknowledgement",
+        "urgency": 0,
+        "spam": false,
+        "replyRisk": false,
+        "humanReview": false
+      },
+      "route": "review",
+      "localReviewReasons": [
+        "source_low_confidence"
+      ]
+    },
+    {
+      "id": "policy-provider_manual_ambiguity",
+      "predicted": {
+        "intent": "low_risk_acknowledgement",
+        "urgency": 0,
+        "spam": false,
+        "replyRisk": false,
+        "humanReview": false
+      },
+      "route": "review",
+      "localReviewReasons": [
+        "provider_ambiguity"
+      ]
+    },
+    {
+      "id": "private-email",
+      "predicted": {
+        "intent": "sensitive_privacy_legal_financial",
+        "urgency": 1,
+        "spam": false,
+        "replyRisk": true,
+        "humanReview": true
+      },
+      "route": "block",
+      "localReviewReasons": [
+        "redacted_input"
+      ]
+    },
+    {
+      "id": "private-phone",
+      "predicted": {
+        "intent": "sensitive_privacy_legal_financial",
+        "urgency": 2,
+        "spam": false,
+        "replyRisk": true,
+        "humanReview": true
+      },
+      "route": "block",
+      "localReviewReasons": [
+        "redacted_input"
+      ]
+    },
+    {
+      "id": "private-record",
+      "predicted": {
+        "intent": "sensitive_privacy_legal_financial",
+        "urgency": 1,
+        "spam": false,
+        "replyRisk": true,
+        "humanReview": true
+      },
+      "route": "block",
+      "localReviewReasons": [
+        "redacted_input"
+      ]
+    },
+    {
+      "id": "private-handle",
+      "predicted": {
+        "intent": "sensitive_privacy_legal_financial",
+        "urgency": 1,
+        "spam": false,
+        "replyRisk": true,
+        "humanReview": true
+      },
+      "route": "block",
+      "localReviewReasons": [
+        "redacted_input"
+      ]
+    }
+  ]
 }
