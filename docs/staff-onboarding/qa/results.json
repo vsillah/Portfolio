@@ -1,0 +1,54 @@
+{
+  "route": "/admin/help/onboarding",
+  "base": "http://127.0.0.1:3199",
+  "inAppReview": "http://127.0.0.1:3199/admin/help/onboarding",
+  "evidence": "Real local Next route with synthetic auth and intercepted APIs. No live provider or production validation.",
+  "unauthenticatedRedirect": "pass",
+  "reports": [
+    {
+      "width": 360,
+      "contentLaneWidth": 360,
+      "status": "pass",
+      "pageErrors": [],
+      "browserWriteRequests": [],
+      "blockedExternalOrigins": [],
+      "externalRequestsAllowed": 0
+    },
+    {
+      "width": 390,
+      "contentLaneWidth": 390,
+      "status": "pass",
+      "pageErrors": [],
+      "browserWriteRequests": [],
+      "blockedExternalOrigins": [],
+      "externalRequestsAllowed": 0
+    },
+    {
+      "width": 430,
+      "contentLaneWidth": 430,
+      "status": "pass",
+      "pageErrors": [],
+      "browserWriteRequests": [],
+      "blockedExternalOrigins": [],
+      "externalRequestsAllowed": 0
+    },
+    {
+      "width": 768,
+      "contentLaneWidth": 768,
+      "status": "pass",
+      "pageErrors": [],
+      "browserWriteRequests": [],
+      "blockedExternalOrigins": [],
+      "externalRequestsAllowed": 0
+    },
+    {
+      "width": 1440,
+      "contentLaneWidth": 1024,
+      "status": "pass",
+      "pageErrors": [],
+      "browserWriteRequests": [],
+      "blockedExternalOrigins": [],
+      "externalRequestsAllowed": 0
+    }
+  ]
+}
