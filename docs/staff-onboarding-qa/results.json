@@ -1,0 +1,41 @@
+{
+  "route": "http://127.0.0.1:3217/help/staff",
+  "results": [
+    {
+      "width": 1440,
+      "sections": 6,
+      "overflow": false,
+      "checklist": "pass"
+    },
+    {
+      "width": 360,
+      "sections": 6,
+      "overflow": false,
+      "checklist": "pass"
+    },
+    {
+      "width": 390,
+      "sections": 6,
+      "overflow": false,
+      "checklist": "pass"
+    },
+    {
+      "width": 430,
+      "sections": 6,
+      "overflow": false,
+      "checklist": "pass"
+    },
+    {
+      "width": 768,
+      "sections": 6,
+      "overflow": false,
+      "checklist": "pass"
+    }
+  ],
+  "deepLinkReload": "pass",
+  "helpNavigation": "pass",
+  "adminAccessGate": "pass",
+  "printRoute": "pass",
+  "browserErrors": [],
+  "externalOriginsBlocked": []
+}

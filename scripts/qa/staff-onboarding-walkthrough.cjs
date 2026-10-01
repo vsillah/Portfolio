@@ -1,0 +1,47 @@
+const { chromium } = require('playwright')
+const { execFileSync } = require('node:child_process')
+const path = require('node:path')
+const base = 'http://127.0.0.1:3217'
+const out = path.resolve('docs/staff-onboarding-qa')
+;(async () => {
+  const browser = await chromium.launch({ headless: true })
+  for (const [name, width, height] of [['desktop', 1440, 1000], ['mobile', 390, 844]]) {
+    const context = await browser.newContext({ viewport: { width, height }, recordVideo: { dir: path.join(out, 'raw'), size: { width, height } } })
+    await context.route('**/*', route => new URL(route.request().url()).origin === base ? route.continue() : route.abort())
+    const page = await context.newPage()
+    await page.goto(`${base}/help/staff`)
+    await page.getByRole('heading', { level: 1 }).waitFor()
+    await page.evaluate(() => document.fonts.ready)
+    await page.waitForTimeout(2500)
+    for (const id of ['business-map', 'workday', 'boundaries']) {
+      await page.locator(`#${id} summary`).click()
+      await page.locator(`#${id}`).scrollIntoViewIfNeeded()
+      await page.waitForTimeout(2600)
+      if (width < 500) {
+        await page.mouse.wheel(0, 440)
+        await page.waitForTimeout(2300)
+      }
+      await page.locator(`#${id} summary`).click()
+    }
+    await page.getByRole('link', { name: /Start your first week/ }).click()
+    await page.getByRole('checkbox', { name: /Day 1: Confirm your supervisor/ }).check()
+    await page.waitForTimeout(2600)
+    await page.locator('#first-week summary').click()
+    await page.locator('#tool-map summary').click()
+    await page.locator('#tool-map').scrollIntoViewIfNeeded()
+    await page.waitForTimeout(2600)
+    await page.mouse.wheel(0, width < 500 ? 530 : 600)
+    await page.waitForTimeout(2600)
+    await page.getByRole('link', { name: 'Print / Save as PDF' }).click()
+    await page.waitForURL('**/help/staff/print')
+    await page.waitForTimeout(2600)
+    await page.getByRole('link', { name: '← Interactive guide' }).click()
+    await page.waitForTimeout(1500)
+    const video = page.video()
+    await context.close()
+    const source = await video.path()
+    execFileSync('ffmpeg', ['-y', '-i', source, '-c:v', 'libx264', '-preset', 'fast', '-crf', '23', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', path.join(out, `staff-guide-${name}.mp4`)], { stdio: 'ignore' })
+  }
+  await browser.close()
+  console.log('Desktop and mobile MP4 walkthroughs saved.')
+})().catch(error => { console.error(error); process.exit(1) })

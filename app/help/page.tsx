@@ -38,6 +38,10 @@ export default async function HelpPage() {
               { label: 'Help' },
             ]}
           />
+          <Link href="/help/staff" className="mt-6 block rounded-xl border border-radiant-gold/30 bg-card p-5 text-foreground hover:border-radiant-gold">
+            <strong className="block">Joining the team? Start with the staff guide →</strong>
+            <span className="mt-1 block text-sm text-muted-foreground">How Portfolio works, where people make decisions, and your first week.</span>
+          </Link>
           <div id="help-top" className="mt-6 p-8 sm:p-10 rounded-2xl bg-silicon-slate/20 backdrop-blur-md border border-radiant-gold/10">
             <DocViewer content={content} topAnchorId="help-top" />
             <p className="mt-8 pt-6 border-t border-radiant-gold/10">
