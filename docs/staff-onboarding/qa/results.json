@@ -4,8 +4,17 @@
   "inAppReview": "http://127.0.0.1:3199/admin/help/onboarding",
   "evidence": "Real local Next route with synthetic auth and intercepted APIs. No live provider or production validation.",
   "unauthenticatedRedirect": "pass",
+  "themeBehavior": "Both light and dark preferences tested. Existing admin layout forces dark presentation; no light-mode admin UI is implemented by this PR.",
   "reports": [
     {
+      "themePreference": "dark",
+      "effectiveGuideTheme": "dark",
+      "presentation": {
+        "backgroundToken": "#121E31",
+        "foreground": "rgb(234, 236, 238)",
+        "forcedDarkAdmin": true,
+        "headingFont": "__QA_Offline_6a1206, __QA_Offline_Fallback_6a1206, serif"
+      },
       "width": 360,
       "contentLaneWidth": 360,
       "status": "pass",
@@ -15,6 +24,14 @@
       "externalRequestsAllowed": 0
     },
     {
+      "themePreference": "dark",
+      "effectiveGuideTheme": "dark",
+      "presentation": {
+        "backgroundToken": "#121E31",
+        "foreground": "rgb(234, 236, 238)",
+        "forcedDarkAdmin": true,
+        "headingFont": "__QA_Offline_6a1206, __QA_Offline_Fallback_6a1206, serif"
+      },
       "width": 390,
       "contentLaneWidth": 390,
       "status": "pass",
@@ -24,6 +41,14 @@
       "externalRequestsAllowed": 0
     },
     {
+      "themePreference": "dark",
+      "effectiveGuideTheme": "dark",
+      "presentation": {
+        "backgroundToken": "#121E31",
+        "foreground": "rgb(234, 236, 238)",
+        "forcedDarkAdmin": true,
+        "headingFont": "__QA_Offline_6a1206, __QA_Offline_Fallback_6a1206, serif"
+      },
       "width": 430,
       "contentLaneWidth": 430,
       "status": "pass",
@@ -33,6 +58,14 @@
       "externalRequestsAllowed": 0
     },
     {
+      "themePreference": "dark",
+      "effectiveGuideTheme": "dark",
+      "presentation": {
+        "backgroundToken": "#121E31",
+        "foreground": "rgb(234, 236, 238)",
+        "forcedDarkAdmin": true,
+        "headingFont": "__QA_Offline_6a1206, __QA_Offline_Fallback_6a1206, serif"
+      },
       "width": 768,
       "contentLaneWidth": 768,
       "status": "pass",
@@ -42,6 +75,99 @@
       "externalRequestsAllowed": 0
     },
     {
+      "themePreference": "dark",
+      "effectiveGuideTheme": "dark",
+      "presentation": {
+        "backgroundToken": "#121E31",
+        "foreground": "rgb(234, 236, 238)",
+        "forcedDarkAdmin": true,
+        "headingFont": "__QA_Offline_6a1206, __QA_Offline_Fallback_6a1206, serif"
+      },
+      "width": 1440,
+      "contentLaneWidth": 1024,
+      "status": "pass",
+      "pageErrors": [],
+      "browserWriteRequests": [],
+      "blockedExternalOrigins": [],
+      "externalRequestsAllowed": 0
+    },
+    {
+      "themePreference": "light",
+      "effectiveGuideTheme": "dark",
+      "presentation": {
+        "backgroundToken": "#121E31",
+        "foreground": "rgb(234, 236, 238)",
+        "forcedDarkAdmin": true,
+        "headingFont": "__QA_Offline_6a1206, __QA_Offline_Fallback_6a1206, serif"
+      },
+      "width": 360,
+      "contentLaneWidth": 360,
+      "status": "pass",
+      "pageErrors": [],
+      "browserWriteRequests": [],
+      "blockedExternalOrigins": [],
+      "externalRequestsAllowed": 0
+    },
+    {
+      "themePreference": "light",
+      "effectiveGuideTheme": "dark",
+      "presentation": {
+        "backgroundToken": "#121E31",
+        "foreground": "rgb(234, 236, 238)",
+        "forcedDarkAdmin": true,
+        "headingFont": "__QA_Offline_6a1206, __QA_Offline_Fallback_6a1206, serif"
+      },
+      "width": 390,
+      "contentLaneWidth": 390,
+      "status": "pass",
+      "pageErrors": [],
+      "browserWriteRequests": [],
+      "blockedExternalOrigins": [],
+      "externalRequestsAllowed": 0
+    },
+    {
+      "themePreference": "light",
+      "effectiveGuideTheme": "dark",
+      "presentation": {
+        "backgroundToken": "#121E31",
+        "foreground": "rgb(234, 236, 238)",
+        "forcedDarkAdmin": true,
+        "headingFont": "__QA_Offline_6a1206, __QA_Offline_Fallback_6a1206, serif"
+      },
+      "width": 430,
+      "contentLaneWidth": 430,
+      "status": "pass",
+      "pageErrors": [],
+      "browserWriteRequests": [],
+      "blockedExternalOrigins": [],
+      "externalRequestsAllowed": 0
+    },
+    {
+      "themePreference": "light",
+      "effectiveGuideTheme": "dark",
+      "presentation": {
+        "backgroundToken": "#121E31",
+        "foreground": "rgb(234, 236, 238)",
+        "forcedDarkAdmin": true,
+        "headingFont": "__QA_Offline_6a1206, __QA_Offline_Fallback_6a1206, serif"
+      },
+      "width": 768,
+      "contentLaneWidth": 768,
+      "status": "pass",
+      "pageErrors": [],
+      "browserWriteRequests": [],
+      "blockedExternalOrigins": [],
+      "externalRequestsAllowed": 0
+    },
+    {
+      "themePreference": "light",
+      "effectiveGuideTheme": "dark",
+      "presentation": {
+        "backgroundToken": "#121E31",
+        "foreground": "rgb(234, 236, 238)",
+        "forcedDarkAdmin": true,
+        "headingFont": "__QA_Offline_6a1206, __QA_Offline_Fallback_6a1206, serif"
+      },
       "width": 1440,
       "contentLaneWidth": 1024,
       "status": "pass",

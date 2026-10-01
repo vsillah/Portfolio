@@ -14,10 +14,12 @@ const session = { access_token: 'synthetic-qa-token', refresh_token: 'synthetic-
 (async () => {
  const browser = await chromium.launch();
  const reports = [];
+ for (const theme of ['dark', 'light']) {
  for (const width of [360, 390, 430, 768, 1440]) {
-  const record = [390, 1440].includes(width);
+  const record = theme === 'dark' && [390, 1440].includes(width);
+  const screenshotOut = theme === 'dark' ? out : raw;
   const ctx = await browser.newContext({ viewport: { width, height: 960 }, serviceWorkers: 'block', ...(record ? { recordVideo: { dir: raw, size: { width, height: 960 } } } : {}) });
-  await ctx.addInitScript(session => localStorage.setItem('sb-127-auth-token', JSON.stringify(session)), session);
+  await ctx.addInitScript(({ session, theme }) => { localStorage.setItem('sb-127-auth-token', JSON.stringify(session)); localStorage.setItem('theme', theme); }, { session, theme });
   const externalBlocked = [], errors = [], writes = [];
   await ctx.route('**/*', request => {
    const req = request.request(), url = new URL(req.url());
@@ -35,7 +37,17 @@ const session = { access_token: 'synthetic-qa-token', refresh_token: 'synthetic-
   await expect(guide.getByRole('heading', { name: 'Welcome to your workspace' })).toBeVisible({ timeout: 60000 });
   await expect(guide.getByRole('img', { name: 'AmaduTown shield' })).toBeVisible();
   await guide.getByRole('img', { name: 'AmaduTown shield' }).evaluate(image => image.decode());
-  await page.screenshot({ path: `${out}/${width}-welcome.png` });
+  await expect(page.locator('html')).toHaveClass(new RegExp(theme));
+  const presentation = await guide.evaluate(el => ({
+   backgroundToken: getComputedStyle(el).getPropertyValue('--background').trim(),
+   foreground: getComputedStyle(el).color,
+   forcedDarkAdmin: Boolean(el.closest('div.dark')),
+   headingFont: getComputedStyle(el.querySelector('h1')).fontFamily,
+  }));
+  assert.equal(presentation.forcedDarkAdmin, true);
+  assert.equal(presentation.backgroundToken.toLowerCase(), '#121e31');
+  assert.equal(presentation.foreground, 'rgb(234, 236, 238)');
+  await page.screenshot({ path: `${out}/${width}-${theme === 'dark' ? 'welcome' : 'light-preference'}.png` });
   const overflow = async () => {
    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, 'page overflow');
    const clipped = await guide.locator('*').evaluateAll(elements => elements.filter(el => el.getClientRects().length && el.clientWidth > 0 && el.scrollWidth > el.clientWidth + 1).map(el => el.tagName + ':' + el.textContent.slice(0,60)));
@@ -51,7 +63,7 @@ const session = { access_token: 'synthetic-qa-token', refresh_token: 'synthetic-
    await page.screenshot({ path: `${raw}/${width}-${id}.png`, fullPage: true });
    if (['workspace','boundaries','tools'].includes(id)) {
     await guide.locator(`#${id}`).scrollIntoViewIfNeeded();
-    await page.screenshot({ path: `${out}/${width}-${id}.png` });
+    await page.screenshot({ path: `${screenshotOut}/${width}-${id}.png` });
     if (record) {
      await page.waitForTimeout(1800);
      await guide.locator(`#${id} > div`).evaluate(el => el.scrollIntoView({ block: 'start' }));
@@ -66,7 +78,7 @@ const session = { access_token: 'synthetic-qa-token', refresh_token: 'synthetic-
   for (const checkbox of await guide.getByRole('checkbox').all()) await checkbox.check();
   await expect(guide.getByText(/5 of 5 practice steps checked/)).toBeVisible();
   await overflow();
-  await page.screenshot({ path: `${out}/${width}-week.png` });
+  await page.screenshot({ path: `${screenshotOut}/${width}-week.png` });
   if (record) await page.waitForTimeout(2000);
   // Reloading a bookmark reopens the section and resets the explicitly session-only practice checks.
   await page.reload();
@@ -77,7 +89,7 @@ const session = { access_token: 'synthetic-qa-token', refresh_token: 'synthetic-
   await page.goto(base + route + '#boundaries');
   await expect(guide.locator('#boundaries')).toHaveAttribute('open', '');
   await page.goto(base + route);
-  if (width === 1440) {
+  if (theme === 'dark' && width === 1440) {
    const downloadPromise = page.waitForEvent('download', { timeout: 120000 });
    await guide.getByRole('button', { name: 'Download PDF' }).click();
    const download = await downloadPromise;
@@ -101,8 +113,9 @@ const session = { access_token: 'synthetic-qa-token', refresh_token: 'synthetic-
   const video = page.video(); await ctx.close();
   if (record) execFileSync('ffmpeg', ['-y','-i',await video.path(),'-c:v','libx264','-crf','25','-pix_fmt','yuv420p','-movflags','+faststart',`${out}/onboarding-${width}.mp4`], { stdio:'ignore' });
   assert.deepEqual(errors, []); assert.deepEqual(writes, []);
-  reports.push({ width, contentLaneWidth: laneWidth, status: 'pass', pageErrors: errors, browserWriteRequests: writes, blockedExternalOrigins: [...new Set(externalBlocked)], externalRequestsAllowed: 0 });
-  console.log(`PASS ${width}px: disclosure, checklist, bookmarks, Help navigation, overflow, keyboard${width === 1440 ? ', PDF' : ''}`);
+  reports.push({ themePreference: theme, effectiveGuideTheme: 'dark', presentation, width, contentLaneWidth: laneWidth, status: 'pass', pageErrors: errors, browserWriteRequests: writes, blockedExternalOrigins: [...new Set(externalBlocked)], externalRequestsAllowed: 0 });
+  console.log(`PASS ${theme} preference, ${width}px: disclosure, checklist, bookmarks, Help navigation, overflow, keyboard${theme === 'dark' && width === 1440 ? ', PDF' : ''}`);
+ }
  }
  const guest = await browser.newContext({ serviceWorkers:'block' });
  const unproxied = 'http://127.0.0.1:3198';
@@ -111,5 +124,5 @@ const session = { access_token: 'synthetic-qa-token', refresh_token: 'synthetic-
  await page.waitForURL('**/auth/login?redirect=**', { timeout: 30000 });
  assert.equal(new URL(page.url()).searchParams.get('redirect'), route);
  await guest.close(); await browser.close();
- fs.writeFileSync(`${out}/results.json`, JSON.stringify({ route, base, inAppReview: 'http://127.0.0.1:3199' + route, evidence: 'Real local Next route with synthetic auth and intercepted APIs. No live provider or production validation.', unauthenticatedRedirect: 'pass', reports }, null, 2));
+ fs.writeFileSync(`${out}/results.json`, JSON.stringify({ route, base, inAppReview: 'http://127.0.0.1:3199' + route, evidence: 'Real local Next route with synthetic auth and intercepted APIs. No live provider or production validation.', unauthenticatedRedirect: 'pass', themeBehavior: 'Both light and dark preferences tested. Existing admin layout forces dark presentation; no light-mode admin UI is implemented by this PR.', reports }, null, 2));
 })().catch(error => { console.error(error); process.exit(1); });
