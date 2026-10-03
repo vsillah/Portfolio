@@ -4,7 +4,7 @@ import { z } from 'zod'
 const text = z.string().min(1).max(2000).refine(value => value.trim().length > 0, 'Nonblank text required')
 const hash = z.string().regex(/^[a-f0-9]{64}$/)
 const instant = z.iso.datetime({ offset: true })
-const actionSchema = z.object({
+export const campaignReleaseActionSchema = z.object({
   id: z.string().uuid(),
   provider: z.enum(['linkedin', 'youtube', 'instagram', 'facebook', 'x', 'tiktok', 'gmail', 'heygen', 'manual_social']),
   operation: z.enum(['publish', 'send', 'render', 'manual_handoff']),
@@ -28,7 +28,8 @@ export const campaignReleaseManifestSchema = z.object({
   objective: text, createdAt: instant, expiresAt: instant,
   currency: z.literal('USD'), spendCapCents: z.number().int().nonnegative().max(1000000),
   stopConditions: z.array(z.enum(['operator_stop', 'source_changed', 'consent_revoked', 'suppression_changed', 'provider_uncertain', 'budget_exceeded'])).min(6).max(6),
-  actions: z.array(actionSchema).min(1).max(100),
+  planningSources: z.array(z.object({ table: z.enum(['attraction_campaigns', 'social_content_calendar_items', 'contact_submissions']), id: z.string().uuid(), fingerprint: hash }).strict()).max(201).optional(),
+  actions: z.array(campaignReleaseActionSchema).min(1).max(100),
 }).strict().superRefine((manifest, ctx) => {
   const fail = (message: string) => ctx.addIssue({ code: 'custom', message })
   if (Date.parse(manifest.expiresAt) <= Date.parse(manifest.createdAt)) fail('Expiration must follow creation.')
@@ -76,7 +77,7 @@ export function campaignSourceFingerprint(row: Record<string, unknown>): string 
   const { updated_at: _updated, ...source } = row
   return releaseHash(source)
 }
-function freezeOwned<T>(value: T): T {
+export function freezeOwned<T>(value: T): T {
   if (value !== null && typeof value === 'object') {
     Object.values(value).forEach(freezeOwned)
     Object.freeze(value)

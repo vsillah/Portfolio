@@ -5,9 +5,9 @@ export const CAMPAIGN_RELEASE_KIND = 'campaign_release_manifest'
 const fields = 'id,metadata'
 export async function assertCurrentCampaignSources(manifest: CampaignReleaseManifest) {
   if (!supabaseAdmin) throw new Error('Release database unavailable.')
-  for (const action of manifest.actions) {
-    const { data, error } = await supabaseAdmin.from(action.source.table).select('*').eq('id', action.source.id).single()
-    if (error || !data || campaignSourceFingerprint(data) !== action.source.fingerprint) throw new Error('Source changed or unavailable. Prepare a new release.')
+  for (const source of [...manifest.actions.map(action => action.source), ...(manifest.planningSources ?? [])]) {
+    const { data, error } = await supabaseAdmin.from(source.table).select('*').eq('id', source.id).single()
+    if (error || !data || campaignSourceFingerprint(data) !== source.fingerprint) throw new Error('Source changed or unavailable. Prepare a new release.')
   }
 }
 function table() {
