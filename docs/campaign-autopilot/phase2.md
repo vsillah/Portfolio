@@ -15,7 +15,7 @@ Status: development handoff. Production execution remains disabled. This phase q
 
 ## Integration boundary
 
-The production releases GET endpoint does not load execution attempts yet. The UI accepts the future `executionAttempts` projection, and synthetic QA supplies projections exported from the tested journal. Production shows preparation/provider-disabled guidance. The original coordinator remains unchanged and unregistered; the journal is a separate, synthetic-qualified transaction contract for the next integration phase.
+The production releases GET endpoint does not load execution attempts yet. The UI accepts the future `executionProgress` projection, and synthetic QA supplies projections exported from the tested journal. Production shows preparation/provider-disabled guidance. The original coordinator remains unchanged and unregistered; the journal is a separate, synthetic-qualified transaction contract for the next integration phase.
 
 A distributed store, trusted receipt/no-delivery verifier, source/consent/suppression rechecks at the provider claim boundary, and independently certified provider adapters are still required before live execution. Evidence IDs and asset digests supplied during assembly are review bindings, not independent verification that an asset or consent record is valid. The assembler cannot certify provider authority.
 
@@ -34,11 +34,11 @@ No migration, production data mutation, provider call, publishing, Gmail send, S
 
 ## Validation
 
-199 focused tests passed across 12 files, including existing Slack callback/receipt and campaign-page regression tests. Changed-file ESLint and `git diff --check` passed.
+205 focused tests passed across 13 files, including existing Slack callback/receipt and campaign-page regression tests. Changed-file ESLint and `git diff --check` passed.
 
 ```sh
 node_modules/.bin/vitest run lib/campaign-release-*.test.ts 'app/api/admin/campaigns/[id]/releases/assemble/route.test.ts' 'app/api/admin/campaigns/[id]/releases/route.test.ts' 'app/admin/campaigns/[id]/page.test.tsx' lib/agent-slack-actions.test.ts lib/agent-slack-blocks.test.ts lib/slack-action-receipts.test.ts
-node_modules/.bin/eslint lib/campaign-release-{packet,execution,local-store,adapters,recovery-view,manifest,store}.ts lib/campaign-release-{packet,execution,planning-evidence}.test.ts components/admin/CampaignReleaseReview.tsx 'app/api/admin/campaigns/[id]/releases/assemble/route.ts' 'app/api/admin/campaigns/[id]/releases/assemble/route.test.ts' scripts/qa/campaign-release-recovery-fixture.ts
+node_modules/.bin/eslint lib/campaign-release-{packet,execution,local-store,adapters,recovery-view,manifest,store}.ts lib/campaign-release-{packet,execution,planning-evidence,recovery-view}.test.ts components/admin/CampaignReleaseReview.tsx 'app/api/admin/campaigns/[id]/releases/assemble/route.ts' 'app/api/admin/campaigns/[id]/releases/assemble/route.test.ts' scripts/qa/campaign-release-recovery-fixture.ts
 git diff --check
 node --import tsx scripts/build-chatbot-knowledge.ts
 node_modules/.bin/tsc --noEmit --incremental false
@@ -61,10 +61,34 @@ Exact route: `http://127.0.0.1:3198/admin/campaigns/11111111-1111-4111-8111-0000
 
 Widths: 390, 768, 1440 pixels. Tested approval, disabled-provider state, dependency/partial completion, submitted outcome, restart recovery, uncertain outcome, verified no-delivery/retry eligibility, confirmed receipts, receipt disclosures, terminal stop, unavailable-data refresh recovery and step-evidence navigation. No horizontal page or panel overflow and no page errors. Screenshots and decoded MP4 frames were visually inspected at all three widths. The adjacent mobile campaign tab strip retains its pre-existing clipping; this lane does not change that container.
 
-Artifacts are in `qa/phase2/`: nine selected screenshots, result JSON for each width, and `campaign-recovery-390.mp4`, `campaign-recovery-768.mp4`, `campaign-recovery-1440.mp4`. Videos are H.264 MP4, approximately 13–15 seconds, with no private/customer data. The fixture spends 75 synthetic cents in a local ledger; actual expenses are $0.
+Artifacts are in `qa/phase2/`: nine selected screenshots, result JSON for each width, and `campaign-recovery-390.mp4`, `campaign-recovery-768.mp4`, `campaign-recovery-1440.mp4`. Videos are H.264 MP4, approximately 12.8–14.7 seconds, with no private/customer data. The fixture spends 75 synthetic cents in a local ledger; actual expenses are $0.
 
 No live workflow/customer-data smoke, production persistence, provider receipt verification, signed Slack callback, real charge, or deployment smoke was run. Vercel checks are reported on the draft PR. Both `Vercel – portfolio` and `Vercel – portfolio-staging` must pass captain review before deployment can be declared verified.
 
 ## Next gate
 
 Captain review of the draft PR and synthetic evidence; resolve baseline typecheck failures before treating the branch as build-validated. Then qualify a distributed transactional store and trusted reconciliation boundary in a separately scoped lane. Provider activation and production migrations retain their separate authorization gates. Keep this development lane visible through captain review and human QA.
+
+
+## Reconciliation with competing PR #1002
+
+Captain selected #1003 as the authoritative lane. This pass starts from clean `51a7750489376a7293df3167d444c93fb411136d` on `codex/campaign-autopilot-recovery`, in `/Users/vambahsillah/.codex/worktrees/a655/Portfolio`; merged base remains `38df8c1a`. The initial overlap was blocked; the captain explicitly resolved ownership and authorized this bounded reconciliation. #976 and #999 remain untouched. Only packet/journal/projection tests, the existing review component, QA scripts and affected evidence changed.
+
+| Guarantee | Disposition |
+| --- | --- |
+| Deterministic predecessor ordering | Added stable topological action ordering, sorted dependency sets, deduplicated/sorted provenance and rejection of inconsistent rereads during new packet assembly. Existing saved manifests and hashes are unchanged. |
+| Deep immutability | Manifest deep freeze already existed. Extended it to the packet envelope and provenance. |
+| Review bindings | Added required source fingerprint, content/assets hash, account, recipient hash and expiry comparisons. The assembly request now requires `selections[].review`; mismatches or missing bindings fail closed. These caller-supplied bindings are consistency checks, not independently certified authority. |
+| Durable filesystem and crash locks | Already present: exclusive lock, private journal file, file fsync, atomic rename, directory fsync, rollback on callback failure, and no automatic crash-lock eviction. Kept #1003's local transaction store. |
+| Owner/version fencing | Already present, including lease recovery and stale-worker rejection. Kept #1003's stronger bounded journal. |
+| Definite-no-dispatch retry | Already present through recovery of a pre-submit claim or verified zero-cost no-delivery evidence. Added pre-submit crash coverage proving old-worker fencing and a single retained reservation. |
+| Uncertain reservations | Already retained through recovery and terminal stop; no automatic resend. Existing tests retained. |
+| Predecessor receipts | Added validation of the actual matching receipt before dependent claims, beyond confirmed state/content hash. |
+| Sanitized progress | Added a server-side allowlist projection. QA serializes only synthetic step summaries; owner, version, lease, callbacks, authorization/delivery keys and event payloads stay in the journal. Foreign release/hash/action attempts and non-synthetic receipt IDs are excluded. |
+| Synthetic labels | Added explicit synthetic receipt and spend context on the existing review surface and receipt disclosure. Regenerated nine tracked screenshots and all three MP4s; inspected screenshots and decoded video frames. |
+
+Intentionally rejected #1002's duplicate file store/simulation/progress architecture, alternative canonical snapshot loaders, broader Telnyx adapter registry, and obsolete QA package. The existing #1003 canonical loaders, journal, assembly API, approval hashing and disabled adapters remain authoritative. No production receipt bridge or execution was added.
+
+Final validation: 205 focused tests in 13 files, changed-file ESLint and diff whitespace checks pass. Typecheck reports only the same two TS1117 baseline errors at `lib/social-comment-inbox-ui.test.ts:51-52`; confirmed those duplicated properties also exist on fetched `origin/main`. No production build or live workflow/customer-data smoke was run.
+
+The prior same-worktree QA server already held port 3198. Its cwd and process ancestry were checked through the existing `campaign-release-recovery-server.cjs` no-egress launcher before reuse. Browser walkthroughs passed at 390/768/1440 with zero page errors and zero external requests. H.264 MP4 durations are 12.76, 14.20 and 14.64 seconds. Existing adjacent mobile campaign-tab clipping remains outside this bounded pass.

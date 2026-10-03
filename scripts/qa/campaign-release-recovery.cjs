@@ -49,12 +49,12 @@ const session = { access_token: 'synthetic-token', refresh_token: 'synthetic-ref
   await shot('pending');
   await panel.getByRole('button', { name: 'Approve release', exact: true }).click();
   await expect(panel.getByRole('status')).toContainText('approved'); await shot('provider-disabled');
-  for (const [name, expected] of [['partial', 'Receipt confirmed'], ['submitted', 'Awaiting receipt'], ['uncertain', 'Reconcile outcome'], ['retryable', 'Retry eligible'], ['recovered', 'Receipt confirmed']]) {
+  for (const [name, expected] of [['partial', 'Synthetic receipt confirmed'], ['submitted', 'Awaiting receipt'], ['uncertain', 'Reconcile outcome'], ['retryable', 'Retry eligible'], ['recovered', 'Synthetic receipt confirmed']]) {
    frame = frames[name]; await panel.getByRole('button', { name: 'Refresh releases' }).click();
    await expect(recovery.getByText(expected, { exact: true }).first()).toBeVisible();
    await shot(name);
   }
-  for (const receipt of await recovery.getByText('Inspect receipt', { exact: true }).all()) { await receipt.click(); }
+  for (const receipt of await recovery.getByText('Inspect synthetic receipt', { exact: true }).all()) { await receipt.click(); }
   await expect(recovery.getByText(`synthetic:${manifest.actions[1].id}`, { exact: true })).toBeVisible(); await shot('receipts');
   await panel.getByRole('button', { name: 'Emergency stop', exact: true }).click();
   await expect(panel.getByRole('button', { name: 'Approve release', exact: true })).toBeDisabled();

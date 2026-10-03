@@ -135,3 +135,26 @@ describe('durable synthetic campaign coordination', () => {
     expect((await x.store.snapshot()).attempts[attempt.deliveryKey].reservedCents).toBe(50)
   })
 })
+
+
+it('recovers a pre-submit crash as definite no-dispatch, fences the old worker and reserves only once', async () => {
+  const x = await setup(twoSteps()), a = await x.claim()
+  const recovered = await x.journal.recover(a.deliveryKey, a.version, 'worker-b', later)
+  expect(recovered.state).toBe('retryable')
+  await expect(x.journal.submit(attemptFence(a), later)).rejects.toThrow('Ownership changed')
+  const retry = await x.journal.retry(attemptFence(recovered), later)
+  expect(retry.reservedCents).toBe(50)
+  const state = await x.store.snapshot()
+  expect(state.ledger.filter(e => e.kind === 'reserve')).toHaveLength(1)
+  retry.reservedCents = 999
+  expect((await x.store.snapshot()).attempts[a.deliveryKey].reservedCents).toBe(50)
+})
+
+
+it('requires a matching predecessor receipt, not only a confirmed state', async () => {
+  const x = await setup(twoSteps()), a = await x.journal.submit(attemptFence(await x.claim()), now)
+  await x.confirm(a)
+  await x.store.transaction(state => { state.attempts[a.deliveryKey].receipt!.accountId = 'wrong-account' })
+  await expect(x.claim(x.manifest.actions[1].id)).rejects.toThrow('Dependency receipt required')
+  expect(Object.values((await x.store.snapshot()).attempts)).toHaveLength(1)
+})

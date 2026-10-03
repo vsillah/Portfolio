@@ -4,9 +4,11 @@ const mocks = vi.hoisted(() => ({ auth: vi.fn(), from: vi.fn(), insert: vi.fn(),
 vi.mock('@/lib/auth-server', () => ({ verifyAdmin: mocks.auth, isAuthError: (r: object) => 'error' in r }))
 vi.mock('@/lib/supabase', () => ({ supabaseAdmin: { from: mocks.from } }))
 import { POST } from './route'
+import { campaignSourceFingerprint, releaseHash } from '@/lib/campaign-release-manifest'
 import { fixture } from '@/lib/campaign-release-test-fixture'
 const m = fixture(), { actions, ...header } = m, { copy: _copy, source, ...binding } = actions[0]
-const body = { ...header, selections: [{ ...binding, source: { table: source.table, id: source.id } }] }
+const canonical = { id: source.id, campaign_id: m.campaignId, status: 'approved', platform: 'linkedin', post_text: 'Canonical', hashtags: [] }
+const body = { ...header, selections: [{ ...binding, source: { table: source.table, id: source.id }, review: { sourceFingerprint: campaignSourceFingerprint(canonical), contentHash: releaseHash({ copy: { title: '', body: 'Canonical', metadata: { cta_text: '', cta_url: '', hashtags: '[]' } }, assets: binding.assets }), accountId: binding.accountId, recipientHash: releaseHash(binding.recipients), expiresAt: binding.evidenceExpiresAt } }] }
 const ctx = { params: { id: m.campaignId } }
 const request = (value: unknown = body) => new NextRequest('http://localhost/assemble', { method: 'POST', body: JSON.stringify(value) })
 describe('read-only canonical assembly endpoint', () => {

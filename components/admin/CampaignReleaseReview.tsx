@@ -2,8 +2,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { getCurrentSession } from '@/lib/auth'
 import type { ReleaseDecision, ReleaseRecord } from '@/lib/campaign-release-manifest'
-import type { ExecutionAttempt } from '@/lib/campaign-release-execution'
-import { campaignRecoveryView } from '@/lib/campaign-release-recovery-view'
+import { campaignRecoveryView, type SyntheticExecutionProgress } from '@/lib/campaign-release-recovery-view'
 
 const evidenceCurrent = (record: ReleaseRecord) => record.manifest.actions.every(action => Date.parse(action.evidenceExpiresAt) > Date.now())
 
@@ -18,7 +17,7 @@ export default function CampaignReleaseReview({ campaignId, releaseId }: { campa
   const [releases, setReleases] = useState<ReleaseRecord[]>([])
   const [notice, setNotice] = useState('')
   const [busy, setBusy] = useState(false)
-  const [attempts, setAttempts] = useState<ExecutionAttempt[]>([])
+  const [attempts, setAttempts] = useState<SyntheticExecutionProgress[]>([])
   const load = useCallback(async () => {
     setBusy(true)
     try {
@@ -27,7 +26,7 @@ export default function CampaignReleaseReview({ campaignId, releaseId }: { campa
       const response = await fetch(`/api/admin/campaigns/${campaignId}/releases${releaseId ? `?release=${encodeURIComponent(releaseId)}` : ''}`, { headers: { Authorization: `Bearer ${session.access_token}` } })
       if (!response.ok) throw new Error('Release records unavailable. Refresh to retry.')
       const result = await response.json()
-      setReleases(result.releases); setAttempts(result.executionAttempts ?? []); setNotice('')
+      setReleases(result.releases); setAttempts(result.executionProgress ?? []); setNotice('')
     } catch (error) { setNotice(error instanceof Error ? error.message : 'Release records unavailable.') }
     finally { setBusy(false) }
   }, [campaignId, releaseId])
@@ -57,13 +56,13 @@ export default function CampaignReleaseReview({ campaignId, releaseId }: { campa
       <p className="mt-2 text-sm text-gray-300">{record.manifest.actions.length} {record.manifest.actions.length === 1 ? 'action' : 'actions'} · ${(record.manifest.spendCapCents / 100).toFixed(2)} USD cap · Expires {new Date(record.manifest.expiresAt).toLocaleString()}</p>
       <details className="mt-3 rounded border border-gray-700 p-3">
         <summary className="cursor-pointer font-medium">Readiness and recovery</summary>
-        <p className="mt-2 text-xs text-gray-400">Live execution unavailable. Recovery is read-only until the durable provider store is certified.</p>
+        <p className="mt-2 text-xs text-gray-400">Live execution unavailable. Any receipts and spend shown here are synthetic. Recovery is read-only.</p>
         <ol className="mt-3 space-y-3">
           {campaignRecoveryView(record, attempts).map((step, index) => <li key={step.actionId} className="min-w-0 border-t border-gray-700 pt-2 text-sm">
             <div className="flex flex-wrap justify-between gap-2"><span className="font-medium">{index + 1}. {record.manifest.actions[index].provider}</span><span className={step.state === 'Reconcile outcome' ? 'text-amber-200' : 'text-gray-300'}>{step.state}</span></div>
             <p className="mt-1 break-words">{step.detail}</p>
             {step.attempts > 0 && <p className="mt-1 text-xs text-gray-400">Attempt {step.attempts} · ${(step.reservedCents / 100).toFixed(2)} reserved · ${(step.spentCents / 100).toFixed(2)} recorded spend</p>}
-            {step.receipt && <details className="mt-2"><summary className="cursor-pointer underline">Inspect receipt</summary><code className="mt-1 block break-all">{step.receipt}</code></details>}
+            {step.receipt && <details className="mt-2"><summary className="cursor-pointer underline">Inspect synthetic receipt</summary><code className="mt-1 block break-all">{step.receipt}</code></details>}
             <a className="mt-2 inline-block underline" href={record.manifest.actions[index].source.table === 'social_content_queue' ? `/admin/social-content/${record.manifest.actions[index].source.id}` : record.manifest.actions[index].source.table === 'outreach_queue' ? '/admin/outreach' : '/admin/content/video-generation'}>Review step {index + 1} evidence</a>
           </li>)}
         </ol>

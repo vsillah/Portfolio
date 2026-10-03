@@ -1,16 +1,19 @@
-import { campaignSourceFingerprint, campaignReleaseActionSchema, campaignReleaseManifestSchema, parseCampaignManifest, releaseHash, type CampaignReleaseAction, type CampaignReleaseManifest } from './campaign-release-manifest'
+import { campaignSourceFingerprint, campaignReleaseActionSchema, campaignReleaseManifestSchema, parseCampaignManifest, releaseHash, freezeOwned, type CampaignReleaseAction, type CampaignReleaseManifest } from './campaign-release-manifest'
 import { z } from 'zod'
 
 type Row = Record<string, unknown> & { id: string }
 export type ReleaseSourceReader = (table: 'attraction_campaigns' | 'social_content_calendar_items' | 'contact_submissions' | CampaignReleaseAction['source']['table'], id: string) => Promise<Row>
 export type PacketSelection = Omit<CampaignReleaseAction, 'copy' | 'source'> & {
   source: Pick<CampaignReleaseAction['source'], 'table' | 'id'>
+  review: { sourceFingerprint: string; contentHash: string; accountId: string; recipientHash: string; expiresAt: string }
   calendarId?: string
 }
 export type ReleasePacketRequest = Omit<CampaignReleaseManifest, 'actions' | 'planningSources'> & { selections: PacketSelection[] }
 export const releasePacketRequestSchema = z.object(campaignReleaseManifestSchema.shape).omit({ actions: true, planningSources: true }).extend({
   selections: z.array(campaignReleaseActionSchema.omit({ copy: true, source: true }).extend({
     source: campaignReleaseActionSchema.shape.source.omit({ fingerprint: true }), calendarId: z.uuid().optional(),
+    review: z.object({ sourceFingerprint: z.string().regex(/^[a-f0-9]{64}$/), contentHash: z.string().regex(/^[a-f0-9]{64}$/),
+      accountId: campaignReleaseActionSchema.shape.accountId, recipientHash: z.string().regex(/^[a-f0-9]{64}$/), expiresAt: campaignReleaseActionSchema.shape.evidenceExpiresAt }).strict(),
   })).min(1).max(100),
 }).strict()
 export type CampaignReleasePacket = {
@@ -34,7 +37,7 @@ export async function assembleCampaignReleasePacket(request: ReleasePacketReques
   const provenance = [{ table: 'attraction_campaigns', id: campaign.id, fingerprint: campaignSourceFingerprint(campaign) }]
   const actions: CampaignReleaseAction[] = []
   for (const selection of request.selections) {
-    const { calendarId, source, ...binding } = selection
+    const { calendarId, source, review, ...binding } = selection
     const row = await read(source.table, source.id)
     if (row.id !== source.id) throw new Error('Source identity mismatch.')
     if (calendarId) {
@@ -70,14 +73,32 @@ export async function assembleCampaignReleasePacket(request: ReleasePacketReques
         metadata: Object.fromEntries(['avatar_id', 'voice_id', 'aspect_ratio', 'channel', 'script_source', 'target_type', 'target_id'].map(key => [key, typeof row[key] === 'string' ? row[key] as string : ''])) }
     }
     const fingerprint = campaignSourceFingerprint(row)
+    if (fingerprint !== review.sourceFingerprint || releaseHash({ copy, assets: binding.assets }) !== review.contentHash
+      || binding.accountId !== review.accountId || releaseHash(binding.recipients) !== review.recipientHash
+      || binding.evidenceExpiresAt !== review.expiresAt) throw new Error('Channel review binding changed; prepare a fresh review.')
     provenance.push({ table: source.table, id: row.id, fingerprint })
     actions.push({ ...binding, source: { ...source, fingerprint }, copy })
   }
+  // Normalize sets only during new packet assembly; existing manifests retain their exact hashes.
+  const ordered: CampaignReleaseAction[] = []
+  const pending = actions.map(action => ({ ...action, dependsOn: [...action.dependsOn].sort() })).sort((a, b) => a.id < b.id ? -1 : a.id > b.id ? 1 : 0)
+  while (pending.length) {
+    const next = pending.findIndex(action => action.dependsOn.every(id => ordered.some(done => done.id === id)))
+    if (next < 0) throw new Error('Missing or cyclic packet dependency.')
+    ordered.push(pending.splice(next, 1)[0])
+  }
+  const unique = new Map<string, typeof provenance[number]>()
+  for (const source of provenance) {
+    const key = `${source.table}:${source.id}`, previous = unique.get(key)
+    if (previous && previous.fingerprint !== source.fingerprint) throw new Error('Planning evidence changed during assembly.')
+    unique.set(key, source)
+  }
+  provenance.splice(0, provenance.length, ...[...unique.entries()].sort(([a], [b]) => a < b ? -1 : a > b ? 1 : 0).map(([, source]) => source))
   const { selections: _selections, ...header } = request
-  const manifest = parseCampaignManifest({ ...header, planningSources: provenance.filter(row => !['social_content_queue', 'outreach_queue', 'video_generation_jobs'].includes(row.table)), actions })
+  const manifest = parseCampaignManifest({ ...header, planningSources: provenance.filter(row => !['social_content_queue', 'outreach_queue', 'video_generation_jobs'].includes(row.table)), actions: ordered })
   const manifestHash = releaseHash(manifest)
   const packetHash = releaseHash({ manifestHash, provenance })
-  return { manifest, manifestHash, provenance, packetHash, providerExecutionEnabled: false }
+  return freezeOwned({ manifest, manifestHash, provenance, packetHash, providerExecutionEnabled: false as const })
 }
 
 /** Re-read every dependency, including campaign/calendar records, before storing or approving. */

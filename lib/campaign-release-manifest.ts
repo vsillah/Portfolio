@@ -77,7 +77,7 @@ export function campaignSourceFingerprint(row: Record<string, unknown>): string 
   const { updated_at: _updated, ...source } = row
   return releaseHash(source)
 }
-function freezeOwned<T>(value: T): T {
+export function freezeOwned<T>(value: T): T {
   if (value !== null && typeof value === 'object') {
     Object.values(value).forEach(freezeOwned)
     Object.freeze(value)

@@ -85,7 +85,8 @@ export class CampaignExecutionJournal {
       if (Date.parse(action.scheduledFor) > +now) throw new Error('Schedule pending.')
       for (const depId of action.dependsOn) {
         const keys = campaignActionKeys(record.manifest, depId), dep = state.attempts[keys.deliveryKey]
-        if (dep?.state !== 'confirmed' || dep.contentHash !== keys.contentHash) throw new Error('Dependency receipt required.')
+        const predecessor = record.manifest.actions.find(step => step.id === depId)!
+        if (dep?.state !== 'confirmed' || dep.contentHash !== keys.contentHash || !dep.receipt || !matches(predecessor, dep, dep.receipt)) throw new Error('Dependency receipt required.')
       }
       const keys = campaignActionKeys(record.manifest, actionId)
       if (state.attempts[keys.deliveryKey]) throw new Error('Delivery already claimed; reconcile before retry.')

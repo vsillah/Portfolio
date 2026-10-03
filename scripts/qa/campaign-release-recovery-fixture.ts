@@ -5,6 +5,7 @@ import { fixture } from '../../lib/campaign-release-test-fixture'
 import { releaseHash } from '../../lib/campaign-release-manifest'
 import { CampaignExecutionJournal, attemptFence } from '../../lib/campaign-release-execution'
 import { LocalCampaignExecutionStore } from '../../lib/campaign-release-local-store'
+import { syntheticExecutionProgress } from '../../lib/campaign-release-recovery-view'
 import { syntheticCampaignReceipt } from '../../lib/campaign-release-adapters'
 
 async function main() {
@@ -17,7 +18,7 @@ async function main() {
   manifest.actions[0].evidenceExpiresAt = manifest.expiresAt; manifest.actions[0].maxSpendCents = 100
   manifest.actions.push({ ...structuredClone(manifest.actions[0]), id: '11111111-1111-4111-8111-000000000005', provider: 'youtube', source: { ...manifest.actions[0].source, id: '11111111-1111-4111-8111-000000000006' }, copy: { title: 'Synthetic workshop film', body: 'Local recovery demonstration.', metadata: {} }, dependsOn: [manifest.actions[0].id] })
   const hash = releaseHash(manifest), frames: Record<string, unknown> = {}
-  const capture = async (name: string) => { const state = await store.snapshot(); frames[name] = { releases: [state.releases[manifest.releaseId]], executionAttempts: Object.values(state.attempts), providerExecutionEnabled: false } }
+  const capture = async (name: string) => { const state = await store.snapshot(); frames[name] = { releases: [state.releases[manifest.releaseId]], executionProgress: syntheticExecutionProgress(state.releases[manifest.releaseId], Object.values(state.attempts)), providerExecutionEnabled: false } }
   await journal.prepare({ manifest, hash, state: 'pending', version: 1, audit: [] }); await capture('pending')
   await journal.decide(manifest.releaseId, hash, 'approve', 'synthetic-admin', now); await capture('approved')
   const claim = (actionId: string) => journal.claim({ releaseId: manifest.releaseId, hash, actionId, owner: 'synthetic-worker', now })
