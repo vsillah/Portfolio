@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { actionIdempotencyKey, decideCampaignRelease, parseCampaignManifest, releaseHash, type CampaignReleaseManifest, type ReleaseRecord } from './campaign-release-manifest'
+import { campaignActionKeys, actionIdempotencyKey, decideCampaignRelease, parseCampaignManifest, releaseHash, type ReleaseRecord } from './campaign-release-manifest'
 
 import { fixture } from './campaign-release-test-fixture'
 const id = (n: number) => `11111111-1111-4111-8111-${String(n).padStart(12, '0')}`
@@ -55,5 +55,53 @@ describe('bounded campaign manifest', () => {
     expect(releaseHash(a)).not.toBe(releaseHash(b))
     b.actions[0].source.fingerprint = 'f'.repeat(64)
     expect(actionIdempotencyKey(a.actions[0])).toBe(actionIdempotencyKey(b.actions[0]))
+  })
+})
+
+describe('reconciled release safety contract', () => {
+  it('owns and deeply freezes exact provider input without trimming approved bytes', () => {
+    const input = fixture(); input.actions[0].copy.body = '  Exact copy.  '
+    input.actions[0].accountId = ' exact-account '
+    input.actions[0].assets = [{ ref: 'a.mp4', sha256: 'b'.repeat(64), privacyReviewId: 'review' }]
+    const snapshot = parseCampaignManifest(input), digest = releaseHash(snapshot)
+    input.actions[0].copy.body = 'changed externally'
+    expect(snapshot.actions[0].copy.body).toBe('  Exact copy.  ')
+    expect(snapshot.actions[0].accountId).toBe(' exact-account ')
+    expect(Object.isFrozen(snapshot.actions[0].assets[0])).toBe(true)
+    expect(() => { snapshot.actions[0].copy.metadata.visibility = 'private' }).toThrow()
+    expect(releaseHash(snapshot)).toBe(digest)
+  })
+  it('separates revision authority and content hash from stable cross-revision delivery identity', () => {
+    const a = fixture(), b = fixture()
+    b.releaseId = id(40); b.revision++; b.actions[0].id = id(41)
+    b.actions[0].source.fingerprint = 'b'.repeat(64); b.actions[0].copy.body = 'Revised'
+    const oldKeys = campaignActionKeys(a, a.actions[0].id), newKeys = campaignActionKeys(b, b.actions[0].id)
+    expect(newKeys.deliveryKey).toBe(oldKeys.deliveryKey)
+    expect(newKeys.authorizationKey).not.toBe(oldKeys.authorizationKey)
+    expect(newKeys.contentHash).not.toBe(oldKeys.contentHash)
+    expect(() => campaignActionKeys(a, id(99))).toThrow('Unknown')
+  })
+  it('rejects missing/stale evidence and refuses approval after evidence expiry', () => {
+    const m = fixture(); m.actions[0].evidenceExpiresAt = '2026-10-03T12:30:00Z'
+    const record = pending(m)
+    expect(() => decideCampaignRelease(record, record.hash, 'approve', 'actor', new Date('2026-10-03T13:00:00Z'))).toThrow('Evidence expired')
+    m.actions[0].evidenceExpiresAt = m.actions[0].scheduledFor
+    expect(() => parseCampaignManifest(m)).toThrow('Evidence')
+    const { evidenceExpiresAt: _evidence, ...withoutEvidence } = fixture().actions[0]
+    expect(() => parseCampaignManifest({ ...fixture(), actions: [withoutEvidence] })).toThrow()
+  })
+  it.each(['telnyx', 'sms'])('keeps %s parked even with otherwise valid recipient and operation', provider => {
+    const m = fixture(); m.class = 'relationship_outreach_batch'
+    const action = { ...m.actions[0], provider, operation: 'send', expectedReceipt: 'gmail_message_id',
+      source: { ...m.actions[0].source, table: 'outreach_queue' },
+      recipients: [{ address: 'synthetic@example.invalid', consentEvidenceId: 'consent', suppressionEvidenceId: 'suppression' }] }
+    expect(() => parseCampaignManifest({ ...m, actions: [action] })).toThrow()
+  })
+  it('rejects hidden provider defaults and invalid decision clocks', () => {
+    const m = fixture()
+    expect(() => parseCampaignManifest({ ...m, actions: [{ ...m.actions[0], unreviewedProviderInput: true }] })).toThrow()
+    expect(() => parseCampaignManifest({ ...m, actions: [{ ...m.actions[0], copy: { ...m.actions[0].copy, hidden: true } }] })).toThrow()
+    const r = pending()
+    expect(() => decideCampaignRelease(r, r.hash, 'approve', 'actor', new Date('invalid'))).toThrow('Invalid decision time')
   })
 })

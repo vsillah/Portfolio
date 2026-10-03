@@ -17,7 +17,7 @@ const fixture = () => ({ hash: 'a'.repeat(64), state: 'pending', version: 1, aud
  actions: [{ id, provider: 'linkedin', operation: 'publish', accountId: 'synthetic-community-account', source: { table: 'social_content_queue', id, fingerprint: 'b'.repeat(64) },
  copy: { title: 'Build practical tools together', body: 'Join our synthetic workshop demonstration. This content is for local QA only.', metadata: { visibility: 'public' } },
  assets: [{ ref: 'synthetic-workshop.png', sha256: 'c'.repeat(64), privacyReviewId: 'synthetic-review' }], recipients: [], audience: 'Public workshop audience',
- scheduledFor: '2099-10-03T12:00:00Z', maxSpendCents: 0, expectedReceipt: 'platform_post_id', dependsOn: [] }] } });
+ scheduledFor: '2099-10-03T12:00:00Z', evidenceExpiresAt: '2099-10-04T00:00:00Z', maxSpendCents: 0, expectedReceipt: 'platform_post_id', dependsOn: [] }] } });
 (async () => {
  const browser = await chromium.launch();
  for (const width of [390, 768, 1440]) {
@@ -47,7 +47,11 @@ const fixture = () => ({ hash: 'a'.repeat(64), state: 'pending', version: 1, aud
   await page.goto(`${base}/admin/campaigns/${id}?release=${releaseId}`, { waitUntil: 'domcontentloaded' });
   const panel = page.getByRole('region', { name: 'Campaign releases' });
   await expect(panel).toBeVisible({ timeout: 60000 });
-  const shot = async label => { await panel.scrollIntoViewIfNeeded(); assert.equal(await panel.evaluate(el => el.scrollWidth > el.clientWidth), false, 'Panel overflow');
+  const shot = async label => {
+   if (['approved', 'stopped', 'Hold', 'Request-revision', 'expired', 'evidence-expired'].includes(label)) {
+    await panel.getByRole('button', { name: 'Approve release', exact: true }).scrollIntoViewIfNeeded();
+   } else await panel.scrollIntoViewIfNeeded();
+   assert.equal(await panel.evaluate(el => el.scrollWidth > el.clientWidth), false, 'Panel overflow');
    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, 'Page overflow');
    await page.screenshot({ path: `${out}/${width}-${label}.png` }); await page.waitForTimeout(800); };
   await shot('pending');
@@ -67,6 +71,9 @@ const fixture = () => ({ hash: 'a'.repeat(64), state: 'pending', version: 1, aud
   }
   record = fixture(); record.manifest.expiresAt = '2020-01-01T00:00:00Z'; await panel.getByRole('button', { name: 'Refresh releases' }).click();
   await expect(panel.getByRole('button', { name: 'Approve release', exact: true })).toBeDisabled(); await shot('expired');
+  record = fixture(); record.manifest.actions[0].evidenceExpiresAt = '2020-01-01T00:00:00Z'; await panel.getByRole('button', { name: 'Refresh releases' }).click();
+  await expect(panel.getByRole('button', { name: 'Approve release', exact: true })).toBeDisabled();
+  await expect(panel.getByText(/Evidence is expired or missing/)).toBeVisible(); await shot('evidence-expired');
   unavailable = true; await panel.getByRole('button', { name: 'Refresh releases' }).click(); await expect(panel.getByRole('status')).toContainText('unavailable'); await shot('unavailable');
   unavailable = false; empty = true; await panel.getByRole('button', { name: 'Refresh releases' }).click(); await expect(panel.getByText(/No release prepared/)).toBeVisible(); await shot('empty');
   empty = false; record = fixture(); await panel.getByRole('button', { name: 'Refresh releases' }).click();

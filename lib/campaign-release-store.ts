@@ -18,8 +18,9 @@ export async function getCampaignRelease(id: string): Promise<ReleaseRecord> {
   const { data, error } = await table().select(fields).eq('kind', CAMPAIGN_RELEASE_KIND).eq('id', id).single()
   if (error || !data) throw new Error('Release unavailable.')
   const record = data.metadata as ReleaseRecord
-  if (releaseHash(parseCampaignManifest(record.manifest)) !== record.hash) throw new Error('Release integrity check failed.')
-  return record
+  const manifest = parseCampaignManifest(record.manifest)
+  if (releaseHash(manifest) !== record.hash) throw new Error('Release integrity check failed.')
+  return { ...record, manifest }
 }
 export async function createCampaignRelease(value: unknown, actor: string): Promise<ReleaseRecord> {
   const manifest = parseCampaignManifest(value)

@@ -67,11 +67,35 @@ For this phase, Amina (Zazzau), the existing Strategic Narrative owner, owns pac
 
 ## Validation and review evidence
 
-- Focused manifest, coordinator, Slack card, API authorization, existing Slack action/block/receipt tests: 143 passed.
+- Focused manifest, coordinator, Slack card, API authorization, existing Slack action/block/receipt tests: 169 passed after safety reconciliation.
 - Existing campaign detail tests: 4 passed (React act warnings from async panel updates).
 - Changed-file ESLint and `git diff --check`: passed.
 - Full TypeScript check: after generating local chatbot knowledge, blocked only by baseline duplicate properties at `lib/social-comment-inbox-ui.test.ts:51-52`; new files have no reported type errors. Production build not run while the baseline typecheck is failing.
-- Real localhost campaign route, synthetic API fixtures, outbound blocked: 390, 768, 1440 px. Tested expanded scope, approval, revision, hold, permanent stop, expired approval, unavailable/recovery state and empty-state guidance. All tests passed; screenshots visually inspected. Provider execution and live customer data were not tested.
+- Real localhost campaign route, synthetic API fixtures, outbound blocked: 390, 768, 1440 px. Tested expanded scope, approval, revision, hold, permanent stop, expired approval, unavailable/recovery state and empty-state guidance. All tests passed, including expired evidence and its recovery guidance; screenshots visually inspected. Provider execution and live customer data were not tested.
 - `scripts/qa/campaign-release.cjs` reproduces the walkthrough using `scripts/qa/slack-receipt-status-server.cjs` for an isolated server. Videos and result JSON are in `qa/`.
 
 The Integration Captain owns review, merge, migrations, deployment verification and human-QA handoff. Keep this lane open; Campaign Autopilot Closure remains unfinished.
+
+## Safety contract reconciliation (2026-10-03)
+
+The authoritative #1001 implementation retains its UUID, source-fingerprint, dependency, API, Slack, and existing-surface model. The following stricter semantics are integrated from the foundation review:
+
+- Parsing owns and deeply freezes every nested manifest value. Exact text is preserved rather than silently trimmed; unknown fields are rejected. Adapters receive the immutable snapshot used for the hash check.
+- Every action requires `evidenceExpiresAt`, later than its schedule. Approval rejects expired evidence; execution checks expiration before and after preflight and after claim. The review panel explains expired/missing evidence and directs the operator back to channel review for a fresh packet. Earlier unreleased development packets without this field must be rebuilt and approved again.
+- `campaignActionKeys` returns a revision-bound `authorizationKey`, content hash, and stable `deliveryKey`. The existing `actionIdempotencyKey` name remains a compatibility alias for delivery identity. Delivery identity remains stable across release IDs, action UUIDs, source versions, and revised copy; a reused source cannot silently deliver again.
+- Confirmed receipts must match the exact copy/assets hash, provider, account, stable delivery key, and receipt type. An older-copy receipt cannot prove a revised action or unblock its dependents. Claimed, uncertain, or mismatched records require reconciliation and retain their delivery identity.
+- Preflight requires explicit provider certification, current consent/suppression, and safe integer reserved spending. Reservation plus the action maximum must fit the release cap. Atomic claim now receives the exact authorization, evidence window, action maximum and release cap; implementations must reserve budget and check stop/authority atomically. The coordinator repeats authority after claim. A stop/expiry there retains the reservation for reconciliation and skips provider dispatch.
+- SMS/Telnyx remains schema-rejected. No certified provider adapters or durable execution/budget store exist yet. Synthetic checks qualify these contracts only; they do not establish distributed enforcement, live receipts, or current provider authority.
+
+Reproduction from the authoritative worktree:
+
+```sh
+node_modules/.bin/vitest run lib/campaign-release-manifest.test.ts lib/campaign-release-coordinator.test.ts lib/campaign-release-slack.test.ts 'app/api/admin/campaigns/[id]/releases/route.test.ts' lib/agent-slack-actions.test.ts lib/agent-slack-blocks.test.ts lib/slack-action-receipts.test.ts 'app/admin/campaigns/[id]/page.test.tsx'
+node_modules/.bin/eslint lib/campaign-release-{manifest,coordinator,store,test-fixture}.ts lib/campaign-release-{manifest,coordinator}.test.ts components/admin/CampaignReleaseReview.tsx
+git diff --check
+node_modules/.bin/tsc --noEmit --incremental false
+node scripts/qa/slack-receipt-status-server.cjs
+node scripts/qa/campaign-release.cjs
+```
+
+The QA server must use this worktree and its isolated, synthetic environment. Reuse the already running server only after verifying its cwd and launcher. The QA script blocks browser egress and mocks APIs on the actual route; production data, signed live Slack callbacks, provider dispatch and deployment are intentionally untested. Full typecheck still reports the existing duplicate fields at `lib/social-comment-inbox-ui.test.ts:51-52`; build remains blocked and was not run. No merge, production mutation or #1000 closure was performed.

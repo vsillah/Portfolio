@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto'
 import { z } from 'zod'
 
-const text = z.string().trim().min(1).max(2000)
+const text = z.string().min(1).max(2000).refine(value => value.trim().length > 0, 'Nonblank text required')
 const hash = z.string().regex(/^[a-f0-9]{64}$/)
 const instant = z.iso.datetime({ offset: true })
 const actionSchema = z.object({
@@ -15,6 +15,7 @@ const actionSchema = z.object({
   recipients: z.array(z.object({ address: text, consentEvidenceId: text, suppressionEvidenceId: text }).strict()).max(100),
   audience: text,
   scheduledFor: instant,
+  evidenceExpiresAt: instant,
   maxSpendCents: z.number().int().nonnegative().max(1000000),
   expectedReceipt: z.enum(['platform_post_id', 'gmail_message_id', 'heygen_video_id', 'manual_confirmation']),
   dependsOn: z.array(z.string().uuid()).max(100),
@@ -42,6 +43,7 @@ export const campaignReleaseManifestSchema = z.object({
     targets.add(target)
     spend += action.maxSpendCents
     if (Date.parse(action.scheduledFor) < Date.parse(manifest.createdAt) || Date.parse(action.scheduledFor) >= Date.parse(manifest.expiresAt)) fail('Schedule must fall inside the authorization window.')
+    if (Date.parse(action.evidenceExpiresAt) <= Date.parse(action.scheduledFor)) fail('Evidence must remain current through the scheduled action.')
     const relationship = ['gmail', 'manual_social'].includes(action.provider)
     if ((manifest.class === 'relationship_outreach_batch') !== relationship) fail('Provider does not belong to this manifest class.')
     if (relationship && action.recipients.length !== 1) fail('Each relationship action must bind exactly one recipient.')
@@ -74,8 +76,29 @@ export function campaignSourceFingerprint(row: Record<string, unknown>): string 
   const { updated_at: _updated, ...source } = row
   return releaseHash(source)
 }
-export function parseCampaignManifest(value: unknown): CampaignReleaseManifest { return campaignReleaseManifestSchema.parse(value) }
+function freezeOwned<T>(value: T): T {
+  if (value !== null && typeof value === 'object') {
+    Object.values(value).forEach(freezeOwned)
+    Object.freeze(value)
+  }
+  return value
+}
+/** Zod owns the parsed copy; freezing every nested value prevents adapter/caller mutation. */
+export function parseCampaignManifest(value: unknown): CampaignReleaseManifest {
+  return freezeOwned(campaignReleaseManifestSchema.parse(value))
+}
+export function campaignActionKeys(manifest: CampaignReleaseManifest, actionId: string) {
+  const snapshot = parseCampaignManifest(manifest)
+  const action = snapshot.actions.find(candidate => candidate.id === actionId)
+  if (!action) throw new Error('Unknown release action.')
+  return {
+    contentHash: releaseHash({ copy: action.copy, assets: action.assets }),
+    authorizationKey: `campaign-authorization:${releaseHash([releaseHash(snapshot), action.id])}`,
+    deliveryKey: actionIdempotencyKey(action),
+  }
+}
 export function actionIdempotencyKey(action: CampaignReleaseAction): string {
+  // Legacy name: this is the stable delivery key, NOT revision-bound authorization.
   // Independent of release ID: repackaging an already submitted action cannot send it twice.
   return `campaign-action:${releaseHash({ provider: action.provider, accountId: action.accountId,
     source: { table: action.source.table, id: action.source.id }, operation: action.operation,
@@ -87,6 +110,8 @@ export type ReleaseState = 'pending' | 'approved' | 'revision_requested' | 'held
 export type ReleaseRecord = { manifest: CampaignReleaseManifest; hash: string; state: ReleaseState; version: number; audit: Array<{ decision: ReleaseDecision; actor: string; at: string; hash: string }> }
 export function decideCampaignRelease(record: ReleaseRecord, expectedHash: string, decision: ReleaseDecision, actor: string, now = new Date()): ReleaseRecord {
   const manifest = parseCampaignManifest(record.manifest)
+  if (!Number.isFinite(now.getTime())) throw new Error('Invalid decision time.')
+  if (!['approve', 'revise', 'hold', 'stop'].includes(decision)) throw new Error('Unknown release decision.')
   if (!actor.trim()) throw new Error('An authenticated actor is required.')
   if (expectedHash !== record.hash || releaseHash(manifest) !== record.hash) throw new Error('Manifest changed. Review a new release.')
   if (record.state === 'stopped') {
@@ -94,8 +119,9 @@ export function decideCampaignRelease(record: ReleaseRecord, expectedHash: strin
     throw new Error('Stopped releases cannot resume. Prepare a new release.')
   }
   if (decision === 'approve' && (Date.parse(manifest.expiresAt) <= now.getTime() || Date.parse(manifest.createdAt) > now.getTime())) throw new Error('Manifest is outside its authorization window.')
+  if (decision === 'approve' && manifest.actions.some(action => Date.parse(action.evidenceExpiresAt) <= now.getTime())) throw new Error('Evidence expired. Prepare a new release.')
   const state = ({ approve: 'approved', revise: 'revision_requested', hold: 'held', stop: 'stopped' } as const)[decision]
   if (record.state === state) return record
   if (decision === 'approve' && record.state !== 'pending') throw new Error('Prepare a fresh release after hold or revision.')
-  return { ...record, state, version: record.version + 1, audit: [...record.audit, { decision, actor, at: now.toISOString(), hash: record.hash }] }
+  return { ...record, manifest, state, version: record.version + 1, audit: [...record.audit, { decision, actor, at: now.toISOString(), hash: record.hash }] }
 }

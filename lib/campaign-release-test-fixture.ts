@@ -7,5 +7,5 @@ export function fixture(): CampaignReleaseManifest {
     stopConditions: ['operator_stop', 'source_changed', 'consent_revoked', 'suppression_changed', 'provider_uncertain', 'budget_exceeded'],
     actions: [{ id: id(3), provider: 'linkedin', operation: 'publish', accountId: 'synthetic-account', source: { table: 'social_content_queue', id: id(4), fingerprint: 'a'.repeat(64) },
       copy: { title: '', body: 'Reviewed exact copy.', metadata: { visibility: 'public' } }, assets: [], recipients: [], audience: 'Public',
-      scheduledFor: '2026-10-03T12:00:00Z', maxSpendCents: 0, expectedReceipt: 'platform_post_id', dependsOn: [] }] }
+      scheduledFor: '2026-10-03T12:00:00Z', evidenceExpiresAt: '2026-10-04T00:00:00Z', maxSpendCents: 0, expectedReceipt: 'platform_post_id', dependsOn: [] }] }
 }
