@@ -1,5 +1,7 @@
 # Campaign autopilot: release review foundation
 
+Phase 2 development adds canonical assembly, a durable synthetic execution journal, and recovery projections. See [phase2.md](phase2.md) for current scope, validation, evidence, and production integration gates. The foundation notes below describe the original #1001 boundary.
+
 Status: development foundation; live campaign execution blocked. This package does not complete Campaign Autopilot Closure.
 
 The campaign Content Calendar tab now reviews immutable Broadcast Release and Relationship Outreach Batch packets. A SHA-256 hash binds exact copy, assets and asset hashes, accounts, audience/recipient, schedule, spending caps, consent/suppression evidence references, expiration, stop conditions, dependencies, and expected receipts. One recipient is allowed per relationship action; one batch may contain many actions. SMS is rejected by the schema.

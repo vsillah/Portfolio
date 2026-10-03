@@ -2,6 +2,8 @@
 import { useCallback, useEffect, useState } from 'react'
 import { getCurrentSession } from '@/lib/auth'
 import type { ReleaseDecision, ReleaseRecord } from '@/lib/campaign-release-manifest'
+import type { ExecutionAttempt } from '@/lib/campaign-release-execution'
+import { campaignRecoveryView } from '@/lib/campaign-release-recovery-view'
 
 const evidenceCurrent = (record: ReleaseRecord) => record.manifest.actions.every(action => Date.parse(action.evidenceExpiresAt) > Date.now())
 
@@ -16,6 +18,7 @@ export default function CampaignReleaseReview({ campaignId, releaseId }: { campa
   const [releases, setReleases] = useState<ReleaseRecord[]>([])
   const [notice, setNotice] = useState('')
   const [busy, setBusy] = useState(false)
+  const [attempts, setAttempts] = useState<ExecutionAttempt[]>([])
   const load = useCallback(async () => {
     setBusy(true)
     try {
@@ -24,7 +27,7 @@ export default function CampaignReleaseReview({ campaignId, releaseId }: { campa
       const response = await fetch(`/api/admin/campaigns/${campaignId}/releases${releaseId ? `?release=${encodeURIComponent(releaseId)}` : ''}`, { headers: { Authorization: `Bearer ${session.access_token}` } })
       if (!response.ok) throw new Error('Release records unavailable. Refresh to retry.')
       const result = await response.json()
-      setReleases(result.releases); setNotice('')
+      setReleases(result.releases); setAttempts(result.executionAttempts ?? []); setNotice('')
     } catch (error) { setNotice(error instanceof Error ? error.message : 'Release records unavailable.') }
     finally { setBusy(false) }
   }, [campaignId, releaseId])
@@ -45,13 +48,26 @@ export default function CampaignReleaseReview({ campaignId, releaseId }: { campa
   }
   return <section className="my-6 min-w-0 rounded-xl border border-gray-700 bg-gray-900 p-4" aria-label="Campaign releases">
     <div className="flex flex-wrap items-center justify-between gap-3"><h2 className="text-xl font-semibold">Campaign releases</h2><button disabled={busy} onClick={() => void load()} className="rounded border border-gray-600 px-3 py-2 disabled:opacity-50">Refresh releases</button></div>
-    <p className="mt-2 text-sm text-gray-300">Review exact content, accounts, recipients, assets, timing, and spending together. Approval is limited to this version. Provider execution is currently unavailable.</p>
+    <p className="mt-2 text-sm text-gray-300">Approve the exact content and scope. Provider execution is disabled.</p>
     {notice && <p role="status" className="mt-3 rounded border border-amber-700 p-3 text-sm">{notice}</p>}
     {!busy && !releases.length && <p className="mt-3 text-sm">No release prepared. Complete the campaign content calendar and channel reviews, then have the campaign owner assemble the release packet.</p>}
     {releases.map(record => <article key={record.manifest.releaseId} id={`release-${record.manifest.releaseId}`} className="mt-4 min-w-0 rounded-lg border border-gray-700 p-3">
       <h3 className="font-semibold">{record.manifest.class === 'broadcast_release' ? 'Broadcast Release' : 'Relationship Outreach Batch'} · {record.state.replaceAll('_', ' ')}</h3>
       <p className="mt-1 break-words">{record.manifest.objective}</p>
       <p className="mt-2 text-sm text-gray-300">{record.manifest.actions.length} {record.manifest.actions.length === 1 ? 'action' : 'actions'} · ${(record.manifest.spendCapCents / 100).toFixed(2)} USD cap · Expires {new Date(record.manifest.expiresAt).toLocaleString()}</p>
+      <details className="mt-3 rounded border border-gray-700 p-3">
+        <summary className="cursor-pointer font-medium">Readiness and recovery</summary>
+        <p className="mt-2 text-xs text-gray-400">Live execution unavailable. Recovery is read-only until the durable provider store is certified.</p>
+        <ol className="mt-3 space-y-3">
+          {campaignRecoveryView(record, attempts).map((step, index) => <li key={step.actionId} className="min-w-0 border-t border-gray-700 pt-2 text-sm">
+            <div className="flex flex-wrap justify-between gap-2"><span className="font-medium">{index + 1}. {record.manifest.actions[index].provider}</span><span className={step.state === 'Reconcile outcome' ? 'text-amber-200' : 'text-gray-300'}>{step.state}</span></div>
+            <p className="mt-1 break-words">{step.detail}</p>
+            {step.attempts > 0 && <p className="mt-1 text-xs text-gray-400">Attempt {step.attempts} · ${(step.reservedCents / 100).toFixed(2)} reserved · ${(step.spentCents / 100).toFixed(2)} recorded spend</p>}
+            {step.receipt && <details className="mt-2"><summary className="cursor-pointer underline">Inspect receipt</summary><code className="mt-1 block break-all">{step.receipt}</code></details>}
+            <a className="mt-2 inline-block underline" href={record.manifest.actions[index].source.table === 'social_content_queue' ? `/admin/social-content/${record.manifest.actions[index].source.id}` : record.manifest.actions[index].source.table === 'outreach_queue' ? '/admin/outreach' : '/admin/content/video-generation'}>Review step {index + 1} evidence</a>
+          </li>)}
+        </ol>
+      </details>
       <details className="mt-3"><summary className="cursor-pointer py-2">Review content and scope</summary>
         {record.manifest.actions.map(action => <div key={action.id} className="my-3 min-w-0 rounded border border-gray-700 p-3 text-sm">
           <p className="font-semibold">{action.provider} · {action.operation}</p>

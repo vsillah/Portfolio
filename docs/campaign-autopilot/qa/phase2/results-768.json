@@ -1,0 +1,20 @@
+{
+  "url": "http://127.0.0.1:3198/admin/campaigns/11111111-1111-4111-8111-000000000002?release=11111111-1111-4111-8111-000000000001",
+  "width": 768,
+  "errors": [],
+  "blocked": [
+    "https://va.vercel-scripts.com"
+  ],
+  "externalRequests": 0,
+  "states": [
+    "pending",
+    "approved",
+    "partial",
+    "submitted",
+    "uncertain",
+    "retryable",
+    "recovered",
+    "stopped"
+  ],
+  "evidence": "Actual route with persisted synthetic journal projections. Provider adapters disabled; production execution and distributed durability untested."
+}
