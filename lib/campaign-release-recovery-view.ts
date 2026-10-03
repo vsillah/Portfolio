@@ -3,12 +3,13 @@ import type { ReceiptTrust } from './campaign-release-receipts'
 import type { ReleaseRecord } from './campaign-release-manifest'
 import type { ExecutionAttempt } from './campaign-release-execution'
 
-export type SyntheticExecutionProgress = Pick<ExecutionAttempt, 'releaseId' | 'manifestHash' | 'actionId' | 'state' | 'tryCount' | 'reservedCents' | 'spentCents'> & { mode: 'synthetic'; receiptId: string | null; receiptTrust?: ReceiptTrust }
+export type SyntheticExecutionProgress = Pick<ExecutionAttempt, 'releaseId' | 'manifestHash' | 'actionId' | 'state' | 'tryCount' | 'reservedCents' | 'spentCents'> & { mode: 'synthetic'; receiptId: string | null; receiptTrust?: ReceiptTrust; dispatchStatus?: 'prepared' | 'refused' }
 /** Call on the server before serialization. Never expose ownership, callbacks or audit payloads. */
 export function syntheticExecutionProgress(record: ReleaseRecord, attempts: ExecutionAttempt[]): SyntheticExecutionProgress[] {
   return attempts.filter(a => a.releaseId === record.manifest.releaseId && a.manifestHash === record.hash && record.manifest.actions.some(step => step.id === a.actionId)).map(a => ({
     mode: 'synthetic', releaseId: a.releaseId, manifestHash: a.manifestHash, actionId: a.actionId, state: a.state === 'confirmed' && (a.verification?.mode !== 'sandbox' && (a.receipt?.trust !== 'synthetic' || !a.receipt.providerId.startsWith('synthetic:'))) ? 'reconciliation_required' : a.state,
     tryCount: a.tryCount, reservedCents: a.reservedCents, spentCents: a.spentCents,
+    dispatchStatus: a.dispatchIntent?.status,
     receiptTrust: a.verification?.trust ?? a.receipt?.trust,
     receiptId: a.verification?.mode === 'sandbox' ? a.verification.providerId.slice(0, 200) : a.receipt?.trust === 'synthetic' && a.receipt.providerId.startsWith('synthetic:') ? a.receipt.providerId.slice(0, 200) : null,
   }))
@@ -22,6 +23,7 @@ export function campaignRecoveryView(record: ReleaseRecord, attempts: SyntheticE
     if (attempt) {
       state = ({ claimed: 'Reserved', submitted: 'Awaiting receipt', confirmed: 'Synthetic receipt confirmed', retryable: 'Retry eligible', reconciliation_required: 'Reconcile outcome', stopped: 'Stopped' })[attempt.state]
       detail = ({ claimed: 'Reservation held. No provider dispatch is enabled.', submitted: 'Keep the reservation. Verify delivery before retrying.', confirmed: 'Simulation only. No provider delivery occurred.', retryable: 'No delivery established. Refresh authority and budget before a bounded retry.', reconciliation_required: 'Verify the provider receipt or obtain no-delivery evidence. Do not resend.', stopped: 'Prepare a new packet if work should continue.' })[attempt.state]
+      if (attempt.dispatchStatus) { state = attempt.dispatchStatus === 'refused' ? 'Dispatch refused' : 'Dispatch intent reserved'; detail = 'Delivery disabled. Captain: qualify atomic authority before provider certification.' }
     } else if (record.state === 'stopped') { state = 'Stopped'; detail = 'This release cannot resume.' }
     else if (Date.parse(action.evidenceExpiresAt) <= now || Date.parse(record.manifest.expiresAt) <= now) { state = 'Evidence expired'; detail = 'Update channel checks and prepare a fresh packet.' }
     else if (action.dependsOn.some(id => !attempts.some(row => row.mode === 'synthetic' && row.releaseId === record.manifest.releaseId && row.manifestHash === record.hash && row.actionId === id && row.state === 'confirmed'))) { state = 'Waiting on dependency'; detail = `${action.dependsOn.length} required predecessor receipt(s).` }
@@ -46,6 +48,7 @@ export function campaignReadiness(record: ReleaseRecord, bindings: ApprovalProgr
     approval: !valid ? 'Expired / unavailable' : record.state.replaceAll('_', ' '),
     persistence: bound ? 'Approval bound · review only' : binding ? 'Binding stale / unconfirmed' : 'Journal not connected',
     delivery: 'Disabled',
-    nextAction: !valid || ['held', 'revision_requested', 'stopped'].includes(record.state) ? 'Prepare a fresh release packet.' : !approved ? 'Review content and approve this exact packet.' : uncertain ? 'Review uncertain receipts before any retry.' : !bound ? 'Captain: qualify the approval binding in staging.' : 'Captain: certify canonical dispatch fencing and provider receipts.',
+    dispatch: attempts.some(a => a.releaseId === record.manifest.releaseId && a.manifestHash === record.hash && a.dispatchStatus) ? 'Intent fenced · dispatch disabled' : 'Atomic authority unavailable',
+    nextAction: !valid || ['held', 'revision_requested', 'stopped'].includes(record.state) ? 'Prepare a fresh release packet.' : !approved ? 'Review content and approve this exact packet.' : uncertain ? 'Review uncertain receipts before any retry.' : !bound ? 'Captain: qualify the approval binding in staging.' : 'Captain: qualify atomic authority, then certify provider delivery.',
   }
 }

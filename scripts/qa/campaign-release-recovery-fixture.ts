@@ -1,3 +1,4 @@
+import { CampaignDispatchFence } from '../../lib/campaign-release-dispatch'
 import { hydrateApprovedCampaign } from '../../lib/campaign-release-activation'
 import { campaignReceiptContext } from '../../lib/campaign-release-execution'
 import { sandboxReceiptVerifier, type ReceiptTrust } from '../../lib/campaign-release-receipts'
@@ -53,6 +54,12 @@ async function main() {
   const binding = await hydrateApprovedCampaign({ releaseId: manifest.releaseId, expectedHash: hash, expectedVersion: approved.version, source: { read: async () => approved, assertCurrentSources: async () => {} }, store: bindingStore, now: () => later })
   const { auditHash: _audit, executionEnabled: _disabled, ...progress } = binding
   frames.bound = { releases: [approved], executionProgress: [], approvalProgress: [progress], providerExecutionEnabled: false }
+  const protocol = new CampaignDispatchFence({ read: async () => approved, assertCurrentSources: async () => {} }, bindingStore)
+  const intent = await protocol.prepare({ releaseId: manifest.releaseId, hash, approvalVersion: approved.version, actionId: manifest.actions[0].id, owner: 'sandbox-intent', journalVersion: (await bindingStore.snapshot()).version, now: later })
+  frames.fenced = { releases: [approved], executionProgress: syntheticExecutionProgress(approved, [intent]), approvalProgress: [progress], providerExecutionEnabled: false }
+  const refusal = await protocol.dispatch(attemptFence(intent), (await bindingStore.snapshot()).version, later)
+  if (refusal.dispatched !== false) throw new Error('Synthetic dispatch gate opened')
+  frames.refused = { releases: [approved], executionProgress: syntheticExecutionProgress(approved, [refusal.attempt]), approvalProgress: [progress], providerExecutionEnabled: false }
   await mkdir('local-private/campaign-recovery', { recursive: true })
   await writeFile('local-private/campaign-recovery/frames.json', JSON.stringify(frames, null, 2))
   console.log('Saved synthetic recovery projections after durable journal transitions; no provider calls.')

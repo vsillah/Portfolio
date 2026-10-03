@@ -1,6 +1,8 @@
 # Campaign autopilot: release review foundation
 
-Phase 4 development binds canonical approval evidence to the RPC journal and qualifies sandbox receipt trust. See [phase4.md](phase4.md) for the current handoff, responsive MP4s, validation, and remaining live-execution gates.
+Phase 5 adds a durable dispatch-intent protocol in the existing journal and operation-specific sandbox certification. Dispatch always refuses because the current canonical/source requests and journal CAS cannot enforce atomic live authority. See [phase5.md](phase5.md) for enforced invariants, the residual race, responsive MP4s and remaining activation gates. Campaign Autopilot Closure and one-response Slack execution remain blocked.
+
+Phase 4 development binds canonical approval evidence to the RPC journal and qualifies sandbox receipt trust. See [phase4.md](phase4.md) for the prior handoff, responsive MP4s, validation, and remaining live-execution gates.
 
 Phase 2 development adds canonical assembly, a durable synthetic execution journal, and recovery projections. See [phase2.md](phase2.md) for current scope, validation, evidence, and production integration gates. The foundation notes below describe the original #1001 boundary.
 
