@@ -5,9 +5,9 @@ export type SyntheticExecutionProgress = Pick<ExecutionAttempt, 'releaseId' | 'm
 /** Call on the server before serialization. Never expose ownership, callbacks or audit payloads. */
 export function syntheticExecutionProgress(record: ReleaseRecord, attempts: ExecutionAttempt[]): SyntheticExecutionProgress[] {
   return attempts.filter(a => a.releaseId === record.manifest.releaseId && a.manifestHash === record.hash && record.manifest.actions.some(step => step.id === a.actionId)).map(a => ({
-    mode: 'synthetic', releaseId: a.releaseId, manifestHash: a.manifestHash, actionId: a.actionId, state: a.state,
+    mode: 'synthetic', releaseId: a.releaseId, manifestHash: a.manifestHash, actionId: a.actionId, state: a.state === 'confirmed' && (a.receipt?.trust !== 'synthetic' || !a.receipt.providerId.startsWith('synthetic:')) ? 'reconciliation_required' : a.state,
     tryCount: a.tryCount, reservedCents: a.reservedCents, spentCents: a.spentCents,
-    receiptId: a.receipt?.providerId.startsWith('synthetic:') ? a.receipt.providerId.slice(0, 200) : null,
+    receiptId: a.receipt?.trust === 'synthetic' && a.receipt.providerId.startsWith('synthetic:') ? a.receipt.providerId.slice(0, 200) : null,
   }))
 }
 export type ReleaseRecoveryStep = { actionId: string; state: string; detail: string; receipt: string | null; attempts: number; reservedCents: number; spentCents: number }

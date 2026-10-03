@@ -20,7 +20,7 @@ export interface CampaignTransactionStore {
   snapshot(): Promise<ExecutionState>
 }
 export type AttemptFence = { deliveryKey: string; owner: string; version: number }
-export type Reconciliation = { callbackId: string; evidenceId: string; outcome: 'confirmed' | 'not_delivered' | 'uncertain'; receipt?: ActionReceipt; spentCents: number }
+export type Reconciliation = { trust: 'synthetic'; callbackId: string; evidenceId: string; outcome: 'confirmed' | 'not_delivered' | 'uncertain'; receipt?: ActionReceipt; spentCents: number }
 function clock(now: Date) { if (!Number.isFinite(now.getTime())) throw new Error('Invalid time.'); return now.toISOString() }
 function money(value: number) { if (!Number.isSafeInteger(value) || value < 0) throw new Error('Invalid spend.'); return value }
 function authority(state: ExecutionState, releaseId: string, hash: string, now: Date) {
@@ -44,7 +44,7 @@ function fenced(state: ExecutionState, fence: AttemptFence, now: Date) {
   return attempt
 }
 function matches(action: CampaignReleaseAction, attempt: ExecutionAttempt, receipt: ActionReceipt) {
-  return receipt.actionKey === attempt.deliveryKey && receipt.contentHash === attempt.contentHash && receipt.provider === action.provider && receipt.accountId === action.accountId && receipt.receiptType === action.expectedReceipt && Boolean(receipt.providerId.trim()) && Number.isFinite(Date.parse(receipt.receivedAt))
+  return receipt.trust === 'synthetic' && receipt.providerId.startsWith('synthetic:') && receipt.actionKey === attempt.deliveryKey && receipt.contentHash === attempt.contentHash && receipt.provider === action.provider && receipt.accountId === action.accountId && receipt.receiptType === action.expectedReceipt && Boolean(receipt.providerId.trim()) && Number.isFinite(Date.parse(receipt.receivedAt))
 }
 export class CampaignExecutionJournal {
   constructor(readonly store: CampaignTransactionStore) {}
@@ -130,6 +130,7 @@ export class CampaignExecutionJournal {
     return this.store.transaction(state => {
       clock(now)
       const current = state.attempts[fence.deliveryKey]
+      if (evidence.trust !== 'synthetic') throw new Error('Synthetic reconciliation classification required. Live verification unavailable.')
       if (!current || !evidence.callbackId.trim() || !evidence.evidenceId.trim()) throw new Error('Verified reconciliation evidence required.')
       const digest = releaseHash(evidence)
       if (current.callbacks[evidence.callbackId]) {

@@ -56,7 +56,7 @@ export default function CampaignReleaseReview({ campaignId, releaseId }: { campa
       <p className="mt-2 text-sm text-gray-300">{record.manifest.actions.length} {record.manifest.actions.length === 1 ? 'action' : 'actions'} · ${(record.manifest.spendCapCents / 100).toFixed(2)} USD cap · Expires {new Date(record.manifest.expiresAt).toLocaleString()}</p>
       <details className="mt-3 rounded border border-gray-700 p-3">
         <summary className="cursor-pointer font-medium">Readiness and recovery</summary>
-        <p className="mt-2 text-xs text-gray-400">Live execution unavailable. Any receipts and spend shown here are synthetic. Recovery is read-only.</p>
+        <p className="mt-2 text-xs text-gray-400">Live execution unavailable. Receipts and spend are synthetic test evidence. Uncertain outcomes keep their reservation. Recovery is read-only.</p>
         <ol className="mt-3 space-y-3">
           {campaignRecoveryView(record, attempts).map((step, index) => <li key={step.actionId} className="min-w-0 border-t border-gray-700 pt-2 text-sm">
             <div className="flex flex-wrap justify-between gap-2"><span className="font-medium">{index + 1}. {record.manifest.actions[index].provider}</span><span className={step.state === 'Reconcile outcome' ? 'text-amber-200' : 'text-gray-300'}>{step.state}</span></div>

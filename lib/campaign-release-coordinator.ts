@@ -1,6 +1,6 @@
 import { campaignActionKeys, actionIdempotencyKey, parseCampaignManifest, releaseHash, type CampaignReleaseAction, type ReleaseRecord } from './campaign-release-manifest'
 
-export type ActionReceipt = { provider: CampaignReleaseAction['provider']; accountId: string; actionKey: string; contentHash: string; receiptType: CampaignReleaseAction['expectedReceipt']; providerId: string; receivedAt: string }
+export type ActionReceipt = { trust?: 'synthetic'; provider: CampaignReleaseAction['provider']; accountId: string; actionKey: string; contentHash: string; receiptType: CampaignReleaseAction['expectedReceipt']; providerId: string; receivedAt: string }
 export type ActionExecution = { key: string; state: 'claimed' | 'confirmed' | 'reconciliation_required'; receipt?: ActionReceipt; reason?: string }
 export type ClaimAuthority = { releaseId: string; manifestHash: string; authorizationKey: string; expiresAt: string; evidenceExpiresAt: string; maxSpendCents: number; spendCapCents: number }
 export type CampaignPreflight = { ready: boolean; reason?: string; providerGateSatisfied: boolean; consentAndSuppressionCurrent: boolean; reservedSpendCents: number }
