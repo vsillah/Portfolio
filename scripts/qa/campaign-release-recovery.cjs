@@ -5,7 +5,7 @@ const { execFileSync } = require('node:child_process'); const assert = require('
 const base = `http://127.0.0.1:${process.env.CAMPAIGN_QA_PORT || '3198'}`;
 const frames = JSON.parse(fs.readFileSync('local-private/campaign-recovery/frames.json', 'utf8'));
 const manifest = frames.pending.releases[0].manifest, id = manifest.campaignId, releaseId = manifest.releaseId;
-const out = path.resolve(process.env.CAMPAIGN_QA_OUT || 'docs/campaign-autopilot/qa/phase4'); fs.mkdirSync(out, { recursive: true });
+const out = path.resolve(process.env.CAMPAIGN_QA_OUT || 'docs/campaign-autopilot/qa/phase5'); fs.mkdirSync(out, { recursive: true });
 const user = { id, email: 'qa@example.invalid', aud: 'authenticated', role: 'authenticated' };
 const session = { access_token: 'synthetic-token', refresh_token: 'synthetic-refresh', expires_at: 4102444800, expires_in: 3600, token_type: 'bearer', user };
 (async () => {
@@ -53,6 +53,11 @@ const session = { access_token: 'synthetic-token', refresh_token: 'synthetic-ref
   await expect(panel.getByRole('status')).toContainText('approved'); await shot('provider-disabled');
   frame = frames.bound; await panel.getByRole('button', { name: 'Refresh releases' }).click();
   await expect(panel.getByText('Approval bound · review only', { exact: true })).toBeVisible(); await shot('bound');
+  for (const [name, label] of [['fenced', 'Dispatch intent reserved'], ['refused', 'Dispatch refused']]) {
+   frame = frames[name]; await panel.getByRole('button', { name: 'Refresh releases' }).click();
+   await expect(panel.getByText(label, { exact: true })).toBeVisible();
+   await expect(panel.getByText('Intent fenced · dispatch disabled', { exact: true })).toBeVisible(); await shot(name);
+  }
   frame = frames.accepted; await panel.getByRole('button', { name: 'Refresh releases' }).click();
   await expect(panel.getByText('Receipt trust: Provider accepted · sandbox', { exact: true })).toBeVisible(); await shot('accepted');
   for (const [name, expected] of [['partial', 'Synthetic receipt confirmed'], ['submitted', 'Awaiting receipt'], ['uncertain', 'Reconcile outcome'], ['retryable', 'Retry eligible'], ['recovered', 'Synthetic receipt confirmed']]) {

@@ -1,3 +1,4 @@
+import type { DispatchIntent } from './campaign-release-dispatch'
 import type { ApprovalBinding } from './campaign-release-activation'
 import { assertVerifiedCampaignReceipt, receiptCompletesSandboxStep, type ReceiptContext, type VerifiedCampaignReceipt } from './campaign-release-receipts'
 import { randomUUID } from 'node:crypto'
@@ -10,6 +11,7 @@ export type ExecutionAttempt = {
   owner: string; version: number; leaseUntil: string; state: StepState; tryCount: number
   reservedCents: number; spentCents: number; receipt?: ActionReceipt; verification?: VerifiedCampaignReceipt
   events: Array<{ at: string; kind: string; evidenceId?: string }>
+  dispatchIntent?: DispatchIntent
   callbacks: Record<string, string>
 }
 export type SpendEntry = { attemptId: string; kind: 'reserve' | 'release' | 'spend'; cents: number; at: string }
@@ -35,6 +37,7 @@ function authority(state: ExecutionState, releaseId: string, hash: string, now: 
   return record
 }
 function currentAction(state: ExecutionState, attempt: ExecutionAttempt, now: Date) {
+  if (attempt.dispatchIntent) throw new Error('Canonical dispatch intent is review-only; synthetic submit/retry disabled.')
   const record = authority(state, attempt.releaseId, attempt.manifestHash, now)
   const action = record.manifest.actions.find(a => a.id === attempt.actionId)!
   if (Date.parse(action.evidenceExpiresAt) <= +now) throw new Error('Evidence expired; prepare a fresh packet.')
