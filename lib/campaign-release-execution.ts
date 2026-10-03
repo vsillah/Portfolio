@@ -1,3 +1,5 @@
+import type { ApprovalBinding } from './campaign-release-activation'
+import { assertVerifiedCampaignReceipt, receiptCompletesSandboxStep, type ReceiptContext, type VerifiedCampaignReceipt } from './campaign-release-receipts'
 import { randomUUID } from 'node:crypto'
 import { campaignActionKeys, decideCampaignRelease, parseCampaignManifest, releaseHash, type CampaignReleaseAction, type ReleaseDecision, type ReleaseRecord } from './campaign-release-manifest'
 import type { ActionReceipt } from './campaign-release-coordinator'
@@ -6,12 +8,12 @@ export type StepState = 'claimed' | 'submitted' | 'confirmed' | 'retryable' | 'r
 export type ExecutionAttempt = {
   id: string; releaseId: string; actionId: string; manifestHash: string; deliveryKey: string; authorizationKey: string; contentHash: string
   owner: string; version: number; leaseUntil: string; state: StepState; tryCount: number
-  reservedCents: number; spentCents: number; receipt?: ActionReceipt
+  reservedCents: number; spentCents: number; receipt?: ActionReceipt; verification?: VerifiedCampaignReceipt
   events: Array<{ at: string; kind: string; evidenceId?: string }>
   callbacks: Record<string, string>
 }
 export type SpendEntry = { attemptId: string; kind: 'reserve' | 'release' | 'spend'; cents: number; at: string }
-export type ExecutionState = { schemaVersion: 1; version: number; releases: Record<string, ReleaseRecord>; attempts: Record<string, ExecutionAttempt>; ledger: SpendEntry[] }
+export type ExecutionState = { schemaVersion: 1; version: number; approvalBindings?: Record<string, ApprovalBinding>; releases: Record<string, ReleaseRecord>; attempts: Record<string, ExecutionAttempt>; ledger: SpendEntry[] }
 export const emptyExecutionState = (): ExecutionState => ({ schemaVersion: 1, version: 0, releases: {}, attempts: {}, ledger: [] })
 /** The entire read/check/claim/budget/receipt transition must commit atomically.
  * Implementations must roll back on throw and return detached values. No provider calls in a transaction. */
@@ -26,6 +28,7 @@ function money(value: number) { if (!Number.isSafeInteger(value) || value < 0) t
 function authority(state: ExecutionState, releaseId: string, hash: string, now: Date) {
   clock(now)
   const record = state.releases[releaseId]
+  if (state.approvalBindings?.[releaseId]) throw new Error('Canonical binding is review-only. Worker registration disabled.')
   if (!record || record.manifest.releaseId !== releaseId || record.hash !== hash || releaseHash(parseCampaignManifest(record.manifest)) !== hash) throw new Error('Exact-hash authority required.')
   if (record.state !== 'approved') throw new Error(`Release ${record.state}.`)
   if (Date.parse(record.manifest.createdAt) > +now || Date.parse(record.manifest.expiresAt) <= +now) throw new Error('Release expired or not yet valid.')
@@ -44,7 +47,7 @@ function fenced(state: ExecutionState, fence: AttemptFence, now: Date) {
   return attempt
 }
 function matches(action: CampaignReleaseAction, attempt: ExecutionAttempt, receipt: ActionReceipt) {
-  return receipt.trust === 'synthetic' && receipt.providerId.startsWith('synthetic:') && receipt.actionKey === attempt.deliveryKey && receipt.contentHash === attempt.contentHash && receipt.provider === action.provider && receipt.accountId === action.accountId && receipt.receiptType === action.expectedReceipt && Boolean(receipt.providerId.trim()) && Number.isFinite(Date.parse(receipt.receivedAt))
+  return ((receipt.trust === 'synthetic' && receipt.providerId.startsWith('synthetic:')) || (attempt.verification?.mode === 'sandbox' && receiptCompletesSandboxStep(attempt.verification.trust) && releaseHash(receipt) === releaseHash(sandboxActionReceipt(attempt.verification)))) && receipt.actionKey === attempt.deliveryKey && receipt.contentHash === attempt.contentHash && receipt.provider === action.provider && receipt.accountId === action.accountId && receipt.receiptType === action.expectedReceipt && Boolean(receipt.providerId.trim()) && Number.isFinite(Date.parse(receipt.receivedAt))
 }
 export class CampaignExecutionJournal {
   constructor(readonly store: CampaignTransactionStore) {}
@@ -61,6 +64,7 @@ export class CampaignExecutionJournal {
   async decide(releaseId: string, hash: string, decision: ReleaseDecision, actor: string, now: Date) {
     return this.store.transaction(state => {
       const record = state.releases[releaseId]
+      if (state.approvalBindings?.[releaseId]) throw new Error('Use the canonical decision API; bound journal decisions are disabled.')
       if (!record) throw new Error('Release unavailable.')
       const next = decideCampaignRelease(record, hash, decision, actor, now)
       state.releases[releaseId] = next
@@ -130,6 +134,7 @@ export class CampaignExecutionJournal {
     return this.store.transaction(state => {
       clock(now)
       const current = state.attempts[fence.deliveryKey]
+      if (current?.verification) throw new Error('Use verified reconciliation for sandbox attempts.')
       if (evidence.trust !== 'synthetic') throw new Error('Synthetic reconciliation classification required. Live verification unavailable.')
       if (!current || !evidence.callbackId.trim() || !evidence.evidenceId.trim()) throw new Error('Verified reconciliation evidence required.')
       const digest = releaseHash(evidence)
@@ -163,6 +168,40 @@ export class CampaignExecutionJournal {
       return attempt
     })
   }
+  /** Sandbox verifier proofs only. Acceptance/local validation never unlock dependencies. */
+  async reconcileVerified(fence: AttemptFence, proof: VerifiedCampaignReceipt, now: Date) {
+    return this.store.transaction(state => {
+      clock(now)
+      const current = state.attempts[fence.deliveryKey]
+      if (!current) throw new Error('Attempt unavailable.')
+      const context = campaignReceiptContext(state, current)
+      assertVerifiedCampaignReceipt(proof, context)
+      if (Date.parse(proof.receivedAt) < Date.parse(current.events.filter(e => e.kind === 'submitted').at(-1)?.at ?? current.events[0].at)) throw new Error('Receipt predates submission.')
+      if (current.verification && current.verification.tryCount === current.tryCount && current.verification.providerId !== proof.providerId) throw new Error('Provider resource identity changed.')
+      if (Date.parse(proof.receivedAt) > +now) throw new Error('Future receipt.')
+      const digest = releaseHash(proof)
+      if (current.callbacks[proof.callbackId]) {
+        if (current.callbacks[proof.callbackId] !== digest) throw new Error('Conflicting callback identity.')
+        return current
+      }
+      if (Object.values(state.attempts).some(a => a.id !== current.id && a.callbacks[proof.callbackId])) throw new Error('Callback already belongs to another attempt.')
+      const attempt = fenced(state, fence, now)
+      if (!['submitted', 'reconciliation_required'].includes(attempt.state)) throw new Error('Step is not awaiting reconciliation.')
+      if (proof.spentCents > attempt.reservedCents) throw new Error('Receipt exceeds reserved budget.')
+      const complete = receiptCompletesSandboxStep(proof.trust)
+      attempt.verification = proof
+      if (complete) { attempt.receipt = sandboxActionReceipt(proof); attempt.state = 'confirmed' }
+      else if (proof.trust === 'rejected') { attempt.state = state.releases[attempt.releaseId].state === 'stopped' ? 'stopped' : 'retryable' }
+      else { attempt.state = 'reconciliation_required' }
+      if (complete || proof.trust === 'rejected') {
+        state.ledger.push({ attemptId: attempt.id, kind: 'release', cents: attempt.reservedCents, at: clock(now) }, { attemptId: attempt.id, kind: 'spend', cents: proof.spentCents, at: clock(now) })
+        attempt.reservedCents = 0; attempt.spentCents += proof.spentCents
+      }
+      attempt.callbacks[proof.callbackId] = digest; attempt.version++
+      attempt.events.push({ at: clock(now), kind: `sandbox:${proof.trust}`, evidenceId: proof.evidenceId })
+      return attempt
+    })
+  }
   async retry(fence: AttemptFence, now: Date) {
     return this.store.transaction(state => {
       const attempt = fenced(state, fence, now), action = currentAction(state, attempt, now)
@@ -178,3 +217,17 @@ export class CampaignExecutionJournal {
   }
 }
 export const attemptFence = (attempt: ExecutionAttempt): AttemptFence => ({ deliveryKey: attempt.deliveryKey, owner: attempt.owner, version: attempt.version })
+
+function sandboxActionReceipt(proof: VerifiedCampaignReceipt): ActionReceipt {
+  return { trust: proof.trust, provider: proof.provider, accountId: proof.accountId, actionKey: proof.actionKey, contentHash: proof.contentHash, receiptType: proof.receiptType, providerId: proof.providerId, receivedAt: proof.receivedAt }
+}
+export function campaignReceiptContext(state: ExecutionState, attempt: ExecutionAttempt): ReceiptContext {
+  const record = state.releases[attempt.releaseId], action = record.manifest.actions.find(a => a.id === attempt.actionId)!
+  const predecessors: Record<string, string> = {}
+  for (const id of action.dependsOn) {
+    const dependency = record.manifest.actions.find(a => a.id === id)!, prior = state.attempts[campaignActionKeys(record.manifest, id).deliveryKey]
+    if (prior?.state !== 'confirmed' || !prior.receipt || !matches(dependency, prior, prior.receipt)) throw new Error('Predecessor receipt unavailable or mismatched.')
+    predecessors[id] = releaseHash(prior.receipt)
+  }
+  return { releaseId: attempt.releaseId, manifestHash: attempt.manifestHash, actionId: attempt.actionId, actionKey: attempt.deliveryKey, contentHash: attempt.contentHash, provider: action.provider, accountId: action.accountId, receiptType: action.expectedReceipt, attemptId: attempt.id, tryCount: attempt.tryCount, predecessors }
+}

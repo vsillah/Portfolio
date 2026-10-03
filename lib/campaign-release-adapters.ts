@@ -22,3 +22,8 @@ export function syntheticCampaignReceipt(action: CampaignReleaseAction, identity
     contentHash: identity.contentHash, receiptType: action.expectedReceipt,
     providerId: `synthetic:${action.id}`, receivedAt: at }
 }
+
+/** No environment override can register a production journal worker in this phase. */
+export function registerCampaignProductionWorker(): never {
+  throw new Error('Production worker registration disabled. Canonical fencing and live-provider certification required.')
+}

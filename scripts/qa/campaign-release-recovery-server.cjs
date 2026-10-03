@@ -29,6 +29,6 @@ const env = { PATH: process.env.PATH, HOME: process.env.HOME, TMPDIR: process.en
  NODE_OPTIONS: `--require=${guard}`, NEXT_FONT_GOOGLE_MOCKED_RESPONSES: fonts, NEXT_TELEMETRY_DISABLED: '1',
  NEXT_PUBLIC_SUPABASE_URL: 'http://127.0.0.1:3999', NEXT_PUBLIC_SUPABASE_ANON_KEY: 'synthetic-anon-key',
  NEXT_PUBLIC_APP_ENV: 'development', APP_ENV: 'development', MOCK_N8N: 'true', N8N_DISABLE_OUTBOUND: 'true' };
-const child = spawn(process.execPath, [require.resolve('next/dist/bin/next'), 'dev', '--hostname', '127.0.0.1', '--port', process.env.CAMPAIGN_QA_PORT || '3198'], { env, stdio: 'inherit' });
+const child = spawn(process.execPath, [require.resolve('next/dist/bin/next'), ...(process.argv.includes('--build') ? ['build'] : ['dev', '--hostname', '127.0.0.1', '--port', process.env.CAMPAIGN_QA_PORT || '3198'])], { env, stdio: 'inherit' });
 for (const signal of ['SIGINT', 'SIGTERM']) process.on(signal, () => child.kill(signal));
 child.on('exit', code => process.exit(code ?? 0));

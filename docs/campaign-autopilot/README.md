@@ -1,5 +1,7 @@
 # Campaign autopilot: release review foundation
 
+Phase 4 development binds canonical approval evidence to the RPC journal and qualifies sandbox receipt trust. See [phase4.md](phase4.md) for the current handoff, responsive MP4s, validation, and remaining live-execution gates.
+
 Phase 2 development adds canonical assembly, a durable synthetic execution journal, and recovery projections. See [phase2.md](phase2.md) for current scope, validation, evidence, and production integration gates. The foundation notes below describe the original #1001 boundary.
 
 Status: development foundation; live campaign execution blocked. This package does not complete Campaign Autopilot Closure.
