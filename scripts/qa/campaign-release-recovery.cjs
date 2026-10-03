@@ -2,10 +2,10 @@
 const { chromium, expect } = require('@playwright/test');
 const fs = require('node:fs'); const path = require('node:path');
 const { execFileSync } = require('node:child_process'); const assert = require('node:assert/strict');
-const base = 'http://127.0.0.1:3198';
+const base = `http://127.0.0.1:${process.env.CAMPAIGN_QA_PORT || '3198'}`;
 const frames = JSON.parse(fs.readFileSync('local-private/campaign-recovery/frames.json', 'utf8'));
 const manifest = frames.pending.releases[0].manifest, id = manifest.campaignId, releaseId = manifest.releaseId;
-const out = path.resolve('docs/campaign-autopilot/qa/phase2'); fs.mkdirSync(out, { recursive: true });
+const out = path.resolve(process.env.CAMPAIGN_QA_OUT || 'docs/campaign-autopilot/qa/phase2'); fs.mkdirSync(out, { recursive: true });
 const user = { id, email: 'qa@example.invalid', aud: 'authenticated', role: 'authenticated' };
 const session = { access_token: 'synthetic-token', refresh_token: 'synthetic-refresh', expires_at: 4102444800, expires_in: 3600, token_type: 'bearer', user };
 (async () => {

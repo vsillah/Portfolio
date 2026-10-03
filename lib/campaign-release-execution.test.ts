@@ -19,7 +19,7 @@ async function setup(manifest = fixture()) {
   await journal.prepare({ manifest, hash, state: 'pending', version: 1, audit: [] })
   await journal.decide(manifest.releaseId, hash, 'approve', 'synthetic-admin', now)
   const claim = (actionId = manifest.actions[0].id, owner = 'worker-a', at = now) => journal.claim({ releaseId: manifest.releaseId, hash, actionId, owner, now: at })
-  const confirm = (attempt: ExecutionAttempt, at = now) => journal.reconcile(attemptFence(attempt), { callbackId: `receipt:${attempt.id}`, evidenceId: 'synthetic-proof', outcome: 'confirmed', spentCents: 0, receipt: syntheticCampaignReceipt(manifest.actions.find(a => a.id === attempt.actionId)!, attempt, at.toISOString()) }, at)
+  const confirm = (attempt: ExecutionAttempt, at = now) => journal.reconcile(attemptFence(attempt), { trust: 'synthetic', callbackId: `receipt:${attempt.id}`, evidenceId: 'synthetic-proof', outcome: 'confirmed', spentCents: 0, receipt: syntheticCampaignReceipt(manifest.actions.find(a => a.id === attempt.actionId)!, attempt, at.toISOString()) }, at)
   return { path, store, journal, claim, confirm, hash, manifest }
 }
 function twoSteps(): CampaignReleaseManifest {
@@ -54,7 +54,7 @@ describe('durable synthetic campaign coordination', () => {
     const a = await x.journal.submit(attemptFence(await x.claim()), now)
     await x.confirm(a)
     const b = await x.journal.submit(attemptFence(await x.claim(x.manifest.actions[1].id)), now)
-    await x.journal.reconcile(attemptFence(b), { callbackId: 'timeout', evidenceId: 'synthetic-timeout', outcome: 'uncertain', spentCents: 0 }, now)
+    await x.journal.reconcile(attemptFence(b), { trust: 'synthetic', callbackId: 'timeout', evidenceId: 'synthetic-timeout', outcome: 'uncertain', spentCents: 0 }, now)
     const states = Object.values((await x.store.snapshot()).attempts)
     expect(states.map(s => s.state)).toEqual(['confirmed', 'reconciliation_required'])
     expect(states[1].reservedCents).toBe(50)
@@ -63,12 +63,12 @@ describe('durable synthetic campaign coordination', () => {
     const x = await setup(), a = await x.journal.submit(attemptFence(await x.claim()), now)
     const first = await x.confirm(a), second = await x.confirm(a)
     expect(second.version).toBe(first.version)
-    await expect(x.journal.reconcile(attemptFence(first), { callbackId: `receipt:${a.id}`, evidenceId: 'changed', outcome: 'uncertain', spentCents: 0 }, now)).rejects.toThrow('Conflicting')
+    await expect(x.journal.reconcile(attemptFence(first), { trust: 'synthetic', callbackId: `receipt:${a.id}`, evidenceId: 'changed', outcome: 'uncertain', spentCents: 0 }, now)).rejects.toThrow('Conflicting')
   })
   it('rejects a receipt for different content, account, or delivery key', async () => {
     const x = await setup(), a = await x.journal.submit(attemptFence(await x.claim()), now)
     for (const change of [{ contentHash: 'e'.repeat(64) }, { accountId: 'other' }, { actionKey: 'other' }]) {
-      await expect(x.journal.reconcile(attemptFence(a), { callbackId: 'receipt', evidenceId: 'proof', outcome: 'confirmed', spentCents: 0, receipt: { ...syntheticCampaignReceipt(x.manifest.actions[0], a, now.toISOString()), ...change } }, now)).rejects.toThrow('does not match')
+      await expect(x.journal.reconcile(attemptFence(a), { trust: 'synthetic', callbackId: 'receipt', evidenceId: 'proof', outcome: 'confirmed', spentCents: 0, receipt: { ...syntheticCampaignReceipt(x.manifest.actions[0], a, now.toISOString()), ...change } }, now)).rejects.toThrow('does not match')
     }
   })
   it('recovers expired submitted ownership without resending and fences the old worker', async () => {
@@ -81,7 +81,7 @@ describe('durable synthetic campaign coordination', () => {
   })
   it('allows bounded retry only after no-delivery proof and rechecks authority', async () => {
     const x = await setup(), a = await x.journal.submit(attemptFence(await x.claim()), now)
-    const noDelivery = await x.journal.reconcile(attemptFence(a), { callbackId: 'not-delivered', evidenceId: 'verified-absence', outcome: 'not_delivered', spentCents: 0 }, now)
+    const noDelivery = await x.journal.reconcile(attemptFence(a), { trust: 'synthetic', callbackId: 'not-delivered', evidenceId: 'verified-absence', outcome: 'not_delivered', spentCents: 0 }, now)
     const retry = await x.journal.retry(attemptFence(noDelivery), now)
     expect(retry.tryCount).toBe(2); expect(retry.deliveryKey).toBe(a.deliveryKey)
     await x.journal.decide(x.manifest.releaseId, x.hash, 'stop', 'operator', now)
@@ -98,7 +98,7 @@ describe('durable synthetic campaign coordination', () => {
   })
   it('retains reservations on uncertainty and rejects overspend evidence', async () => {
     const x = await setup(twoSteps()), a = await x.journal.submit(attemptFence(await x.claim()), now)
-    await expect(x.journal.reconcile(attemptFence(a), { callbackId: 'over', evidenceId: 'proof', outcome: 'confirmed', spentCents: 51, receipt: syntheticCampaignReceipt(x.manifest.actions[0], a, now.toISOString()) }, now)).rejects.toThrow('budget')
+    await expect(x.journal.reconcile(attemptFence(a), { trust: 'synthetic', callbackId: 'over', evidenceId: 'proof', outcome: 'confirmed', spentCents: 51, receipt: syntheticCampaignReceipt(x.manifest.actions[0], a, now.toISOString()) }, now)).rejects.toThrow('budget')
     expect((await x.store.snapshot()).attempts[a.deliveryKey].reservedCents).toBe(50)
   })
   it('rolls back failed transactions and fails closed on a crash-held lock', async () => {
@@ -121,9 +121,9 @@ describe('durable synthetic campaign coordination', () => {
     const x = await setup()
     let attempt = await x.journal.submit(attemptFence(await x.claim()), now)
     for (let n = 1; n <= 3; n++) {
-      const uncertain = await x.journal.reconcile(attemptFence(attempt), { callbackId: `timeout-${n}`, evidenceId: 'timeout-only', outcome: 'uncertain', spentCents: 0 }, now)
+      const uncertain = await x.journal.reconcile(attemptFence(attempt), { trust: 'synthetic', callbackId: `timeout-${n}`, evidenceId: 'timeout-only', outcome: 'uncertain', spentCents: 0 }, now)
       await expect(x.journal.retry(attemptFence(uncertain), now)).rejects.toThrow('Retry unavailable')
-      const proof = await x.journal.reconcile(attemptFence(uncertain), { callbackId: `absence-${n}`, evidenceId: 'trusted-absence-proof', outcome: 'not_delivered', spentCents: 0 }, now)
+      const proof = await x.journal.reconcile(attemptFence(uncertain), { trust: 'synthetic', callbackId: `absence-${n}`, evidenceId: 'trusted-absence-proof', outcome: 'not_delivered', spentCents: 0 }, now)
       if (n === 3) await expect(x.journal.retry(attemptFence(proof), now)).rejects.toThrow('Retry unavailable')
       else attempt = await x.journal.submit(attemptFence(await x.journal.retry(attemptFence(proof), now)), now)
     }
