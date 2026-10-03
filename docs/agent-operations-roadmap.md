@@ -6,6 +6,12 @@ Portfolio admin remains the control plane. Slack remains the mobile command surf
 
 Agent Coordination adds a thin work-item layer on top of Agent Ops. `agent_work_items` is the shared assignment bus for cross-runtime work packets, branch/worktree ownership, blockers, PR links, validation summaries, and gated merge/deploy states. It does not replace `agent_runs`; every work item links back to a trace and records state changes as Agent Ops events. Handoffs continue to flow through `agent_handoffs`.
 
+## Campaign Autopilot Closure — 2026-10-03
+
+Status: release-review foundation in development; live execution blocked. [Campaign release runbook](campaign-autopilot/README.md) records the production-truth snapshot, manifest/Slack/API implementation, synthetic coordinator qualification, and remaining closure gates. The existing campaign Content Calendar hosts review. No provider executor, cron, agent runtime, or Slack dispatch is activated by this phase.
+
+Next: canonical packet assembly, durable action claims, certified adapters preserving existing channel authority, Slack canary, and an explicitly bounded LinkedIn/Gmail/HeyGen/YouTube pilot. Historical provider receipts and synthetic QA do not complete this roadmap item.
+
 ## Product Definition
 
 Agent Operations is done when Vambah can:

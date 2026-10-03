@@ -1,3 +1,5 @@
+import { decideStoredCampaignRelease } from '@/lib/campaign-release-store'
+import type { ReleaseDecision } from '@/lib/campaign-release-manifest'
 import { getSlackAgentSource } from '@/lib/slack-agent-environment'
 import { runChiefOfStaffChat } from '@/lib/chief-of-staff-chat'
 import { recordAgentEvent } from '@/lib/agent-run'
@@ -391,6 +393,9 @@ export function prepareSlackAgentAction(payload: SlackInteractivePayload) {
     return reject('Slack action rejected: invalid action fields.')
   }
   switch (value.action) {
+    case 'campaign_release.approve': case 'campaign_release.revise': case 'campaign_release.hold': case 'campaign_release.stop':
+      if (!value.runId || !/^[a-f0-9]{64}$/.test(value.manifestHash ?? '') || value.schemaVersion !== 'campaign-release/v1' || payload.actions?.[0]?.action_id !== value.action.replace('.', '_')) return reject('Missing exact campaign release identity. Open a fresh Portfolio card.')
+      break
     case 'canary.receipt':
       if (payload.actions?.[0]?.action_id !== 'agent_canary_receipt' || value.schemaVersion !== 'receipt-canary-v1' || !/^A[A-Z0-9]{1,31}$/.test(value.canaryAppId ?? '') || payload.api_app_id !== value.canaryAppId) return reject('Canary rejected: app identity does not match the signed command card.')
       if (Object.keys(value).some(key => !['action', 'sourceEnvironment', 'sourceOrigin', 'schemaVersion', 'canaryAppId'].includes(key))) return reject('Canary rejected: receipt-only actions cannot target real records.')
@@ -441,6 +446,11 @@ export async function handleSlackAgentAction(payload: SlackInteractivePayload): 
 }
 
 async function executeSlackAgentAction({ authorization, value, key }: Extract<ReturnType<typeof prepareSlackAgentAction>, { ok: true }>): Promise<SlackAgentActionResult> {
+
+  if (value.action.startsWith('campaign_release.')) {
+    const record = await decideStoredCampaignRelease(value.runId!, value.manifestHash!, value.action.split('.')[1] as ReleaseDecision, `slack:${authorization.userId}`)
+    return actionResult(`Campaign release ${record.state}. Provider execution remains gated. Review: ${baseUrl()}/admin/campaigns/${record.manifest.campaignId}?release=${record.manifest.releaseId}`, 'completed')
+  }
 
   if (value.action === 'canary.receipt') return actionResult('Receipt canary verified. No approval, work, outreach, or provider action was performed.', 'completed')
 

@@ -78,6 +78,10 @@ describe('CampaignDetailPage content calendar gates', () => {
         };
       }
 
+      if (url === '/api/admin/campaigns/campaign-1/releases') {
+        return { ok: true, json: async () => ({ releases: [] }) };
+      }
+
       if (url === '/api/admin/campaigns/campaign-1/enrollments') {
         return {
           ok: true,
@@ -160,6 +164,7 @@ describe('CampaignDetailPage content calendar gates', () => {
     expect(await screen.findByRole('heading', { name: 'Agent Ops Campaign' })).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: 'Content Calendar1' }));
+    await screen.findByText(/No release prepared/);
 
     expect(screen.getAllByText('Whisper-to-shout launch').length).toBeGreaterThan(1);
     expect(screen.getByRole('link', { name: 'HubSpot social calendar template' })).toHaveAttribute(
@@ -200,6 +205,7 @@ describe('CampaignDetailPage content calendar gates', () => {
 
     expect(await screen.findByRole('heading', { name: 'Agent Ops Campaign' })).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Content Calendar1' }));
+    await screen.findByText(/No release prepared/);
 
     fireEvent.click(screen.getByRole('button', { name: 'Reject' }));
     fireEvent.change(screen.getByLabelText('Decision note'), {
@@ -239,6 +245,7 @@ describe('CampaignDetailPage content calendar gates', () => {
 
     expect(await screen.findByRole('heading', { name: 'Agent Ops Campaign' })).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Content Calendar1' }));
+    await screen.findByText(/No release prepared/);
 
     const rejectedRow = screen.getByLabelText('Campaign calendar row Tease: Approval gates');
     const recoveryLink = screen.getByRole('link', { name: 'Edit and Return to Review' });
@@ -264,6 +271,7 @@ describe('CampaignDetailPage content calendar gates', () => {
 
     expect(await screen.findByRole('heading', { name: 'YouTube Authority Video Launch' })).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Content Calendar1' }));
+    await screen.findByText(/No release prepared/);
 
     await waitFor(() => {
       expect(screen.getByText('A video-led calendar with topic validation, hook/script readiness, thumbnail/title work, launch, and post-publish learning.')).toBeInTheDocument();

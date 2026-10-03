@@ -1,0 +1,107 @@
+import { describe, it, expect } from 'vitest'
+import { campaignActionKeys, actionIdempotencyKey, decideCampaignRelease, parseCampaignManifest, releaseHash, type ReleaseRecord } from './campaign-release-manifest'
+
+import { fixture } from './campaign-release-test-fixture'
+const id = (n: number) => `11111111-1111-4111-8111-${String(n).padStart(12, '0')}`
+const now = new Date('2026-10-03T01:00:00Z')
+function pending(manifest = fixture()): ReleaseRecord { return { manifest, hash: releaseHash(manifest), state: 'pending', version: 1, audit: [] } }
+describe('bounded campaign manifest', () => {
+  it('hashes equivalent object key order deterministically', () => expect(releaseHash({ b: 2, a: 1 })).toBe(releaseHash({ a: 1, b: 2 })))
+  it('accepts a broadcast and an exact one-recipient relationship action', () => {
+    expect(parseCampaignManifest(fixture()).class).toBe('broadcast_release')
+    const input = fixture(); input.class = 'relationship_outreach_batch'
+    Object.assign(input.actions[0], { provider: 'gmail', operation: 'send', expectedReceipt: 'gmail_message_id', recipients: [{ address: 'synthetic@example.invalid', consentEvidenceId: 'consent-1', suppressionEvidenceId: 'check-1' }] })
+    input.actions[0].source.table = 'outreach_queue'
+    expect(parseCampaignManifest(input).class).toBe('relationship_outreach_batch')
+  })
+  it.each(['copy', 'assets', 'accountId', 'scheduledFor', 'audience'] as const)('invalidates approval for material %s changes', field => {
+    const record = pending()
+    if (field === 'copy') record.manifest.actions[0].copy.body += 'changed'
+    else if (field === 'assets') record.manifest.actions[0].assets.push({ ref: 'new.mp4', sha256: 'b'.repeat(64), privacyReviewId: 'new-review' })
+    else record.manifest.actions[0][field] = field === 'scheduledFor' ? '2026-10-03T13:00:00Z' : 'changed'
+    expect(() => decideCampaignRelease(record, record.hash, 'approve', 'actor', now)).toThrow('Manifest changed')
+  })
+  it('rejects duplicate targets and over-cap actions', () => {
+    const m = fixture(); m.actions.push({ ...m.actions[0], id: id(5) })
+    expect(() => parseCampaignManifest(m)).toThrow('Duplicate source')
+    m.actions.pop(); m.actions[0].maxSpendCents = 1
+    expect(() => parseCampaignManifest(m)).toThrow('exceeds')
+  })
+  it('rejects cycles, out-of-window schedules, unknown scope and SMS', () => {
+    const m = fixture(); m.actions[0].dependsOn = [m.actions[0].id]
+    expect(() => parseCampaignManifest(m)).toThrow()
+    m.actions[0].dependsOn = []; m.actions[0].scheduledFor = m.expiresAt
+    expect(() => parseCampaignManifest(m)).toThrow('Schedule')
+    expect(() => parseCampaignManifest({ ...fixture(), blanketApproval: true })).toThrow()
+    const sms = fixture(); (sms.actions[0] as { provider: string }).provider = 'sms'
+    expect(() => parseCampaignManifest(sms)).toThrow()
+  })
+  it('stops permanently, preserves audit, and handles duplicate decisions', () => {
+    const record = pending()
+    const approved = decideCampaignRelease(record, record.hash, 'approve', 'actor', now)
+    expect(decideCampaignRelease(approved, record.hash, 'approve', 'actor', now)).toBe(approved)
+    const stopped = decideCampaignRelease(approved, record.hash, 'stop', 'actor', now)
+    expect(stopped.audit).toHaveLength(2)
+    expect(() => decideCampaignRelease(stopped, record.hash, 'approve', 'actor', now)).toThrow('Stopped')
+  })
+  it('requires fresh release after hold and rejects expired approvals', () => {
+    const r = pending()
+    expect(() => decideCampaignRelease(decideCampaignRelease(r, r.hash, 'hold', 'actor', now), r.hash, 'approve', 'actor', now)).toThrow('fresh')
+    expect(() => decideCampaignRelease(r, r.hash, 'approve', 'actor', new Date(r.manifest.expiresAt))).toThrow('window')
+  })
+  it('keeps action dedupe independent of a repackaged release ID', () => {
+    const a = fixture(), b = fixture(); b.releaseId = id(9)
+    expect(actionIdempotencyKey(a.actions[0])).toBe(actionIdempotencyKey(b.actions[0]))
+    expect(releaseHash(a)).not.toBe(releaseHash(b))
+    b.actions[0].source.fingerprint = 'f'.repeat(64)
+    expect(actionIdempotencyKey(a.actions[0])).toBe(actionIdempotencyKey(b.actions[0]))
+  })
+})
+
+describe('reconciled release safety contract', () => {
+  it('owns and deeply freezes exact provider input without trimming approved bytes', () => {
+    const input = fixture(); input.actions[0].copy.body = '  Exact copy.  '
+    input.actions[0].accountId = ' exact-account '
+    input.actions[0].assets = [{ ref: 'a.mp4', sha256: 'b'.repeat(64), privacyReviewId: 'review' }]
+    const snapshot = parseCampaignManifest(input), digest = releaseHash(snapshot)
+    input.actions[0].copy.body = 'changed externally'
+    expect(snapshot.actions[0].copy.body).toBe('  Exact copy.  ')
+    expect(snapshot.actions[0].accountId).toBe(' exact-account ')
+    expect(Object.isFrozen(snapshot.actions[0].assets[0])).toBe(true)
+    expect(() => { snapshot.actions[0].copy.metadata.visibility = 'private' }).toThrow()
+    expect(releaseHash(snapshot)).toBe(digest)
+  })
+  it('separates revision authority and content hash from stable cross-revision delivery identity', () => {
+    const a = fixture(), b = fixture()
+    b.releaseId = id(40); b.revision++; b.actions[0].id = id(41)
+    b.actions[0].source.fingerprint = 'b'.repeat(64); b.actions[0].copy.body = 'Revised'
+    const oldKeys = campaignActionKeys(a, a.actions[0].id), newKeys = campaignActionKeys(b, b.actions[0].id)
+    expect(newKeys.deliveryKey).toBe(oldKeys.deliveryKey)
+    expect(newKeys.authorizationKey).not.toBe(oldKeys.authorizationKey)
+    expect(newKeys.contentHash).not.toBe(oldKeys.contentHash)
+    expect(() => campaignActionKeys(a, id(99))).toThrow('Unknown')
+  })
+  it('rejects missing/stale evidence and refuses approval after evidence expiry', () => {
+    const m = fixture(); m.actions[0].evidenceExpiresAt = '2026-10-03T12:30:00Z'
+    const record = pending(m)
+    expect(() => decideCampaignRelease(record, record.hash, 'approve', 'actor', new Date('2026-10-03T13:00:00Z'))).toThrow('Evidence expired')
+    m.actions[0].evidenceExpiresAt = m.actions[0].scheduledFor
+    expect(() => parseCampaignManifest(m)).toThrow('Evidence')
+    const { evidenceExpiresAt: _evidence, ...withoutEvidence } = fixture().actions[0]
+    expect(() => parseCampaignManifest({ ...fixture(), actions: [withoutEvidence] })).toThrow()
+  })
+  it.each(['telnyx', 'sms'])('keeps %s parked even with otherwise valid recipient and operation', provider => {
+    const m = fixture(); m.class = 'relationship_outreach_batch'
+    const action = { ...m.actions[0], provider, operation: 'send', expectedReceipt: 'gmail_message_id',
+      source: { ...m.actions[0].source, table: 'outreach_queue' },
+      recipients: [{ address: 'synthetic@example.invalid', consentEvidenceId: 'consent', suppressionEvidenceId: 'suppression' }] }
+    expect(() => parseCampaignManifest({ ...m, actions: [action] })).toThrow()
+  })
+  it('rejects hidden provider defaults and invalid decision clocks', () => {
+    const m = fixture()
+    expect(() => parseCampaignManifest({ ...m, actions: [{ ...m.actions[0], unreviewedProviderInput: true }] })).toThrow()
+    expect(() => parseCampaignManifest({ ...m, actions: [{ ...m.actions[0], copy: { ...m.actions[0].copy, hidden: true } }] })).toThrow()
+    const r = pending()
+    expect(() => decideCampaignRelease(r, r.hash, 'approve', 'actor', new Date('invalid'))).toThrow('Invalid decision time')
+  })
+})
