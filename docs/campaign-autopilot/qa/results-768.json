@@ -1,0 +1,10 @@
+{
+  "route": "/admin/campaigns/11111111-1111-4111-8111-111111111111?release=22222222-2222-4222-8222-222222222222",
+  "width": 768,
+  "errors": [],
+  "blocked": [
+    "https://va.vercel-scripts.com"
+  ],
+  "externalRequests": 0,
+  "evidence": "Actual localhost route; synthetic API fixtures. Not live authorization or provider execution proof."
+}

@@ -54,6 +54,7 @@ export type SlackAgentActionValue = {
   schemaVersion?: string
   approvalId?: string
   runId?: string
+  manifestHash?: string
   workItemId?: string
   agentKey?: string
   contentId?: string
@@ -91,7 +92,7 @@ export function decodeSlackAgentActionValue(value: string | undefined): SlackAge
     const legacyLocal = !source.hosted && parsed.sourceEnvironment === undefined && parsed.sourceOrigin === undefined
     if (!legacyLocal && (parsed.sourceEnvironment !== source.sourceEnvironment || parsed.sourceOrigin !== source.sourceOrigin)) return null
     const result: SlackAgentActionValue = { action: parsed.action, sourceEnvironment: source.sourceEnvironment, sourceOrigin: source.sourceOrigin }
-    const fields = ['canaryAppId', 'schemaVersion', 'approvalId', 'runId', 'workItemId', 'agentKey', 'contentId', 'calendarItemId', 'commentId', 'expectedUpdatedAt', 'expectedReplyText', 'outreachQueueId', 'messageVersionKey', 'sendQueueIdempotencyKey', 'note'] as const
+    const fields = ['manifestHash', 'canaryAppId', 'schemaVersion', 'approvalId', 'runId', 'workItemId', 'agentKey', 'contentId', 'calendarItemId', 'commentId', 'expectedUpdatedAt', 'expectedReplyText', 'outreachQueueId', 'messageVersionKey', 'sendQueueIdempotencyKey', 'note'] as const
     for (const field of fields) {
       if (parsed[field] !== undefined) {
         if (typeof parsed[field] !== 'string') return null

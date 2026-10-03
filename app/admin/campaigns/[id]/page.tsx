@@ -8,6 +8,7 @@ import {
   ArrowLeft, Plus, Trash2, Target, Users, Package, CheckCircle2,
   Clock, Loader2, X, ChevronRight, AlertCircle, UserPlus, Calendar, Pencil,
 } from 'lucide-react';
+import CampaignReleaseReview from '@/components/admin/CampaignReleaseReview';
 import Breadcrumbs from '@/components/admin/Breadcrumbs';
 import { getCurrentSession } from '@/lib/auth';
 import { getBackUrl, buildLinkWithReturn } from '@/lib/admin-return-context';
@@ -105,7 +106,7 @@ export default function CampaignDetailPage() {
   const [campaign, setCampaign] = useState<CampaignDetail | null>(null);
   const [enrollments, setEnrollments] = useState<EnrollmentRow[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'criteria' | 'bundles' | 'enrollments' | 'content-calendar'>('criteria');
+  const [activeTab, setActiveTab] = useState<'criteria' | 'bundles' | 'enrollments' | 'content-calendar'>(searchParams.get('release') ? 'content-calendar' : 'criteria');
   const [generatingContentPlan, setGeneratingContentPlan] = useState(false);
   const [contentPlanNotice, setContentPlanNotice] = useState('');
   const [contentPlanTemplateKey, setContentPlanTemplateKey] =
@@ -663,6 +664,8 @@ export default function CampaignDetailPage() {
           </div>
         </div>
       )}
+
+      {activeTab === 'content-calendar' && <CampaignReleaseReview campaignId={campaignId} releaseId={searchParams.get('release')} />}
 
       {activeTab === 'content-calendar' && (
         <div>
