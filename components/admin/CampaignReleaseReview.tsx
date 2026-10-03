@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { getCurrentSession } from '@/lib/auth'
 import type { ReleaseDecision, ReleaseRecord } from '@/lib/campaign-release-manifest'
-import { campaignRecoveryView, type SyntheticExecutionProgress } from '@/lib/campaign-release-recovery-view'
+import { campaignReadiness, campaignRecoveryView, type ApprovalProgress, type SyntheticExecutionProgress } from '@/lib/campaign-release-recovery-view'
 
 const evidenceCurrent = (record: ReleaseRecord) => record.manifest.actions.every(action => Date.parse(action.evidenceExpiresAt) > Date.now())
 
@@ -17,6 +17,7 @@ export default function CampaignReleaseReview({ campaignId, releaseId }: { campa
   const [releases, setReleases] = useState<ReleaseRecord[]>([])
   const [notice, setNotice] = useState('')
   const [busy, setBusy] = useState(false)
+  const [bindings, setBindings] = useState<ApprovalProgress[]>([])
   const [attempts, setAttempts] = useState<SyntheticExecutionProgress[]>([])
   const load = useCallback(async () => {
     setBusy(true)
@@ -26,7 +27,7 @@ export default function CampaignReleaseReview({ campaignId, releaseId }: { campa
       const response = await fetch(`/api/admin/campaigns/${campaignId}/releases${releaseId ? `?release=${encodeURIComponent(releaseId)}` : ''}`, { headers: { Authorization: `Bearer ${session.access_token}` } })
       if (!response.ok) throw new Error('Release records unavailable. Refresh to retry.')
       const result = await response.json()
-      setReleases(result.releases); setAttempts(result.executionProgress ?? []); setNotice('')
+      setBindings(result.approvalProgress ?? []); setReleases(result.releases); setAttempts(result.executionProgress ?? []); setNotice('')
     } catch (error) { setNotice(error instanceof Error ? error.message : 'Release records unavailable.') }
     finally { setBusy(false) }
   }, [campaignId, releaseId])
@@ -54,15 +55,19 @@ export default function CampaignReleaseReview({ campaignId, releaseId }: { campa
       <h3 className="font-semibold">{record.manifest.class === 'broadcast_release' ? 'Broadcast Release' : 'Relationship Outreach Batch'} · {record.state.replaceAll('_', ' ')}</h3>
       <p className="mt-1 break-words">{record.manifest.objective}</p>
       <p className="mt-2 text-sm text-gray-300">{record.manifest.actions.length} {record.manifest.actions.length === 1 ? 'action' : 'actions'} · ${(record.manifest.spendCapCents / 100).toFixed(2)} USD cap · Expires {new Date(record.manifest.expiresAt).toLocaleString()}</p>
+      <dl aria-label="Release readiness" className="mt-3 flex flex-wrap gap-2 text-xs leading-5">
+        {Object.entries(campaignReadiness(record, bindings, Date.now(), attempts)).filter(([key]) => key !== 'nextAction').map(([key, value]) => <div key={key} className="min-w-0 max-w-full rounded border border-gray-600 px-2 py-1"><dt className="capitalize text-gray-400">{key}</dt><dd className="break-words">{value}</dd></div>)}
+      </dl>
+      <p className="mt-2 text-sm text-amber-200">Next: {campaignReadiness(record, bindings, Date.now(), attempts).nextAction}</p>
       <details className="mt-3 rounded border border-gray-700 p-3">
         <summary className="cursor-pointer font-medium">Readiness and recovery</summary>
-        <p className="mt-2 text-xs text-gray-400">Live execution unavailable. Receipts and spend are synthetic test evidence. Uncertain outcomes keep their reservation. Recovery is read-only.</p>
+        <p className="mt-2 text-xs text-gray-400">Sandbox evidence only. Acceptance leaves delivery unconfirmed; uncertain outcomes retain reservations.</p>
         <ol className="mt-3 space-y-3">
           {campaignRecoveryView(record, attempts).map((step, index) => <li key={step.actionId} className="min-w-0 border-t border-gray-700 pt-2 text-sm">
             <div className="flex flex-wrap justify-between gap-2"><span className="font-medium">{index + 1}. {record.manifest.actions[index].provider}</span><span className={step.state === 'Reconcile outcome' ? 'text-amber-200' : 'text-gray-300'}>{step.state}</span></div>
-            <p className="mt-1 break-words">{step.detail}</p>
+            <p className="mt-1 break-words">{step.detail}</p><p className="mt-1 text-xs text-gray-300">Receipt trust: {step.trust}</p>
             {step.attempts > 0 && <p className="mt-1 text-xs text-gray-400">Attempt {step.attempts} · ${(step.reservedCents / 100).toFixed(2)} reserved · ${(step.spentCents / 100).toFixed(2)} recorded spend</p>}
-            {step.receipt && <details className="mt-2"><summary className="cursor-pointer underline">Inspect synthetic receipt</summary><code className="mt-1 block break-all">{step.receipt}</code></details>}
+            {step.receipt && <details className="mt-2"><summary className="cursor-pointer underline">Inspect test receipt</summary><code className="mt-1 block break-all">{step.receipt}</code></details>}
             <a className="mt-2 inline-block underline" href={record.manifest.actions[index].source.table === 'social_content_queue' ? `/admin/social-content/${record.manifest.actions[index].source.id}` : record.manifest.actions[index].source.table === 'outreach_queue' ? '/admin/outreach' : '/admin/content/video-generation'}>Review step {index + 1} evidence</a>
           </li>)}
         </ol>

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { fixture } from './campaign-release-test-fixture'
 import { releaseHash, type ReleaseRecord } from './campaign-release-manifest'
 import type { ExecutionAttempt } from './campaign-release-execution'
-import { campaignRecoveryView, syntheticExecutionProgress } from './campaign-release-recovery-view'
+import { campaignReadiness, campaignRecoveryView, syntheticExecutionProgress } from './campaign-release-recovery-view'
 
 describe('sanitized synthetic recovery projection', () => {
   it('excludes worker fences, callbacks and raw receipt payloads before serialization', () => {
@@ -23,4 +23,15 @@ describe('sanitized synthetic recovery projection', () => {
     attempt.receipt!.providerId = 'private-provider-receipt'
     expect(syntheticExecutionProgress(record, [attempt])[0].receiptId).toBeNull()
   })
+})
+
+
+it('separates current approval from stale persistence and disabled delivery', () => {
+  const manifest = fixture(), record: ReleaseRecord = { manifest, hash: releaseHash(manifest), version: 2, audit: [], state: 'approved' }
+  const binding = { releaseId: manifest.releaseId, manifestHash: record.hash, approvalVersion: 2, status: 'bound' as const, checkedAt: manifest.createdAt }
+  const now = Date.parse('2026-10-03T13:00:00Z')
+  expect(campaignReadiness(record, [binding], now)).toMatchObject({ approval: 'approved', persistence: 'Approval bound · review only', delivery: 'Disabled' })
+  expect(campaignReadiness({ ...record, version: 3, state: 'held' }, [binding], now)).toMatchObject({ persistence: 'Binding stale / unconfirmed', nextAction: 'Prepare a fresh release packet.' })
+  expect(campaignReadiness(record, [], now).persistence).toBe('Journal not connected')
+  expect(campaignReadiness(record, [binding], Date.parse(manifest.expiresAt)).approval).toBe('Expired / unavailable')
 })

@@ -5,7 +5,7 @@ const { execFileSync } = require('node:child_process'); const assert = require('
 const base = `http://127.0.0.1:${process.env.CAMPAIGN_QA_PORT || '3198'}`;
 const frames = JSON.parse(fs.readFileSync('local-private/campaign-recovery/frames.json', 'utf8'));
 const manifest = frames.pending.releases[0].manifest, id = manifest.campaignId, releaseId = manifest.releaseId;
-const out = path.resolve(process.env.CAMPAIGN_QA_OUT || 'docs/campaign-autopilot/qa/phase2'); fs.mkdirSync(out, { recursive: true });
+const out = path.resolve(process.env.CAMPAIGN_QA_OUT || 'docs/campaign-autopilot/qa/phase4'); fs.mkdirSync(out, { recursive: true });
 const user = { id, email: 'qa@example.invalid', aud: 'authenticated', role: 'authenticated' };
 const session = { access_token: 'synthetic-token', refresh_token: 'synthetic-refresh', expires_at: 4102444800, expires_in: 3600, token_type: 'bearer', user };
 (async () => {
@@ -13,19 +13,21 @@ const session = { access_token: 'synthetic-token', refresh_token: 'synthetic-ref
  for (const width of [390, 768, 1440]) {
   let frame = frames.pending, unavailable = false;
   const ctx = await browser.newContext({ viewport: { width, height: 1000 }, recordVideo: { dir: 'local-private/campaign-recovery', size: { width, height: 1000 } }, serviceWorkers: 'block' });
-  await ctx.addInitScript(session => localStorage.setItem('sb-127-auth-token', JSON.stringify(session)), session);
-  const page = await ctx.newPage(), errors = [], blocked = [];
+  await ctx.addInitScript(session => { localStorage.setItem('sb-127-auth-token', JSON.stringify(session)); window.va = () => {}; window.si = () => {}; }, session);
+  const page = await ctx.newPage(), errors = [], blocked = [], analyticsSuppressed = [];
   page.on('pageerror', e => errors.push(e.message)); page.on('dialog', d => d.accept());
   await ctx.route('**/*', r => {
    const u = new URL(r.request().url()), json = data => r.fulfill({ contentType: 'application/json', body: JSON.stringify(data) });
    if (u.origin === 'http://127.0.0.1:3999' && u.pathname === '/auth/v1/user') return json(user);
+   if (u.pathname === '/_vercel/insights/script.js' || u.pathname === '/_vercel/speed-insights/script.js') return r.fulfill({ contentType: 'application/javascript', body: '' });
+   if (u.origin === 'https://va.vercel-scripts.com') { analyticsSuppressed.push(u.origin); return r.fulfill({ contentType: 'application/javascript', body: '' }); }
    if (u.origin !== base) { blocked.push(u.origin); return r.abort(); }
    if (u.pathname === '/api/user/profile') return json({ profile: { ...user, role: 'admin' } });
    if (u.pathname === `/api/admin/campaigns/${id}/releases`) {
     if (unavailable) return r.fulfill({ status: 503, contentType: 'application/json', body: '{}' });
     if (r.request().method() === 'PATCH') {
      const body = r.request().postDataJSON(); assert.equal(body.hash, frame.releases[0].hash);
-     frame = body.decision === 'stop' ? frames.stopped : frames.approved;
+     frame = ({ stop: frames.stopped, hold: frames.hold, revise: frames.revise, approve: frames.approved })[body.decision];
      return json({ record: frame.releases[0], providerExecutionEnabled: false });
     }
     return json(frame);
@@ -49,27 +51,41 @@ const session = { access_token: 'synthetic-token', refresh_token: 'synthetic-ref
   await shot('pending');
   await panel.getByRole('button', { name: 'Approve release', exact: true }).click();
   await expect(panel.getByRole('status')).toContainText('approved'); await shot('provider-disabled');
+  frame = frames.bound; await panel.getByRole('button', { name: 'Refresh releases' }).click();
+  await expect(panel.getByText('Approval bound · review only', { exact: true })).toBeVisible(); await shot('bound');
+  frame = frames.accepted; await panel.getByRole('button', { name: 'Refresh releases' }).click();
+  await expect(panel.getByText('Receipt trust: Provider accepted · sandbox', { exact: true })).toBeVisible(); await shot('accepted');
   for (const [name, expected] of [['partial', 'Synthetic receipt confirmed'], ['submitted', 'Awaiting receipt'], ['uncertain', 'Reconcile outcome'], ['retryable', 'Retry eligible'], ['recovered', 'Synthetic receipt confirmed']]) {
    frame = frames[name]; await panel.getByRole('button', { name: 'Refresh releases' }).click();
    await expect(recovery.getByText(expected, { exact: true }).first()).toBeVisible();
    await shot(name);
   }
-  for (const receipt of await recovery.getByText('Inspect synthetic receipt', { exact: true }).all()) { await receipt.click(); }
+  for (const receipt of await recovery.getByText('Inspect test receipt', { exact: true }).all()) { await receipt.click(); }
   await expect(recovery.getByText(`synthetic:${manifest.actions[1].id}`, { exact: true })).toBeVisible(); await shot('receipts');
   await panel.getByRole('button', { name: 'Emergency stop', exact: true }).click();
   await expect(panel.getByRole('button', { name: 'Approve release', exact: true })).toBeDisabled();
   await shot('stopped');
+  for (const [decision, label, expected] of [['hold', 'Hold', 'held'], ['revise', 'Request revision', 'revision requested']]) {
+   frame = frames.pending; await panel.getByRole('button', { name: 'Refresh releases' }).click();
+   await panel.getByRole('button', { name: label, exact: true }).click(); await expect(panel.getByRole('status')).toContainText(expected);
+   await expect(panel.getByRole('button', { name: 'Approve release', exact: true })).toBeDisabled();
+  }
   unavailable = true; await panel.getByRole('button', { name: 'Refresh releases' }).click();
   await expect(panel.getByRole('status')).toContainText('unavailable');
   unavailable = false; frame = frames.recovered; await panel.getByRole('button', { name: 'Refresh releases' }).click();
   await expect(panel.getByRole('status')).toHaveCount(0);
+  const scope = panel.locator('details').filter({ has: page.locator('summary', { hasText: /^Review content and scope$/ }) }).first();
+  await scope.locator('summary').first().click();
+  for (const disclosure of await scope.getByText('Assets, consent, and exact metadata', { exact: true }).all()) await disclosure.click();
+  await scope.getByText(/^Manifest hash:/).click();
+  await panel.getByText(/^Decision history/).click();
   const link = recovery.getByRole('link', { name: 'Review step 2 evidence', exact: true });
   await expect(link).toHaveAttribute('href', `/admin/social-content/${manifest.actions[1].source.id}`);
   await link.click(); await page.waitForURL(`**/admin/social-content/${manifest.actions[1].source.id}`);
   const video = page.video(); await ctx.close();
   execFileSync('ffmpeg', ['-y', '-i', await video.path(), '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', `${out}/campaign-recovery-${width}.mp4`], { stdio: 'ignore' });
-  fs.writeFileSync(`${out}/results-${width}.json`, JSON.stringify({ url, width, errors, blocked, externalRequests: 0, states: Object.keys(frames), evidence: 'Actual route with persisted synthetic journal projections. Provider adapters disabled; production execution and distributed durability untested.' }, null, 2));
-  assert.deepEqual(errors, []); console.log(`PASS ${width}px`);
+  fs.writeFileSync(`${out}/results-${width}.json`, JSON.stringify({ url, width, errors, blocked, analyticsSuppressed, externalRequests: 0, states: Object.keys(frames), evidence: 'Actual route with persisted synthetic journal projections. Provider adapters disabled; production execution and distributed durability untested.' }, null, 2));
+  assert.deepEqual(blocked, []); assert.deepEqual(errors, []); console.log(`PASS ${width}px`);
  }
  await browser.close();
 })().catch(error => { console.error(error); process.exit(1); });

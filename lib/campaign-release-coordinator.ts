@@ -1,6 +1,7 @@
+import { qualifiedSyntheticReceipt, type ReceiptTrust } from './campaign-release-receipts'
 import { campaignActionKeys, actionIdempotencyKey, parseCampaignManifest, releaseHash, type CampaignReleaseAction, type ReleaseRecord } from './campaign-release-manifest'
 
-export type ActionReceipt = { trust?: 'synthetic'; provider: CampaignReleaseAction['provider']; accountId: string; actionKey: string; contentHash: string; receiptType: CampaignReleaseAction['expectedReceipt']; providerId: string; receivedAt: string }
+export type ActionReceipt = { trust?: ReceiptTrust; provider: CampaignReleaseAction['provider']; accountId: string; actionKey: string; contentHash: string; receiptType: CampaignReleaseAction['expectedReceipt']; providerId: string; receivedAt: string }
 export type ActionExecution = { key: string; state: 'claimed' | 'confirmed' | 'reconciliation_required'; receipt?: ActionReceipt; reason?: string }
 export type ClaimAuthority = { releaseId: string; manifestHash: string; authorizationKey: string; expiresAt: string; evidenceExpiresAt: string; maxSpendCents: number; spendCapCents: number }
 export type CampaignPreflight = { ready: boolean; reason?: string; providerGateSatisfied: boolean; consentAndSuppressionCurrent: boolean; reservedSpendCents: number }
@@ -32,7 +33,7 @@ function authorizationFailure(record: ReleaseRecord, expectedHash: string, now: 
   return null
 }
 function receiptMatches(action: CampaignReleaseAction, key: string, receipt: ActionReceipt): boolean {
-  return receipt.provider === action.provider && receipt.accountId === action.accountId && receipt.actionKey === key
+  return qualifiedSyntheticReceipt(receipt) && receipt.provider === action.provider && receipt.accountId === action.accountId && receipt.actionKey === key
     && receipt.contentHash === releaseHash({ copy: action.copy, assets: action.assets })
     && receipt.receiptType === action.expectedReceipt && Boolean(receipt.providerId.trim()) && Number.isFinite(Date.parse(receipt.receivedAt))
 }

@@ -15,7 +15,7 @@ function setup() {
   }
   const adapter: CampaignExecutionAdapter = {
     preflight: vi.fn(async () => ({ ready: true, providerGateSatisfied: true, consentAndSuppressionCurrent: true, reservedSpendCents: 0 })),
-    execute: vi.fn(async (action, key) => ({ contentHash: releaseHash({ copy: action.copy, assets: action.assets }), actionKey: key, accountId: action.accountId, provider: action.provider, receiptType: action.expectedReceipt, providerId: 'synthetic-receipt', receivedAt: '2026-10-03T13:00:00Z' })),
+    execute: vi.fn(async (action, key) => ({ contentHash: releaseHash({ copy: action.copy, assets: action.assets }), actionKey: key, accountId: action.accountId, provider: action.provider, receiptType: action.expectedReceipt, trust: 'synthetic' as const, providerId: 'synthetic:receipt', receivedAt: '2026-10-03T13:00:00Z' })),
   }
   const run = (adapters = { linkedin: adapter }) => coordinateCampaignRelease({ releaseId: manifest.releaseId, expectedHash: record.hash, store, adapters, now: () => new Date('2026-10-03T13:00:00Z') })
   return { record, ledger, store, adapter, run }
