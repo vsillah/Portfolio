@@ -54,9 +54,20 @@ const fixture = () => ({ hash: 'a'.repeat(64), state: 'pending', version: 1, aud
    assert.equal(await panel.evaluate(el => el.scrollWidth > el.clientWidth), false, 'Panel overflow');
    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, 'Page overflow');
    await page.screenshot({ path: `${out}/${width}-${label}.png` }); await page.waitForTimeout(800); };
+  await page.evaluate(() => scrollTo(0, 0));
+  await page.screenshot({ path: `${out}/${width}-campaign-summary.png` });
   await shot('pending');
   await panel.getByText('Review content and scope', { exact: true }).click();
   await panel.getByText('Assets, consent, and exact metadata', { exact: true }).click();
+  for (const [label, hash] of [['Content hash', 'c'.repeat(64)], ['Manifest hash', record.hash]]) {
+   const summary = panel.locator('summary').filter({ hasText: label });
+   await expect(summary).toHaveAttribute('title', hash);
+   await expect(summary).toHaveText(`${label}: ${hash.slice(0, 8)}…${hash.slice(-6)}`);
+   await summary.click();
+   await expect(panel.getByLabel(`Full ${label.toLowerCase()}`)).toBeVisible();
+   await expect(panel.getByLabel(`Full ${label.toLowerCase()}`)).toHaveText(hash);
+   await summary.click();
+  }
   await shot('scope');
   await panel.getByRole('button', { name: 'Approve release', exact: true }).click();
   await expect(panel.getByRole('status')).toContainText('Release approved'); await shot('approved');
@@ -73,7 +84,7 @@ const fixture = () => ({ hash: 'a'.repeat(64), state: 'pending', version: 1, aud
   await expect(panel.getByRole('button', { name: 'Approve release', exact: true })).toBeDisabled(); await shot('expired');
   record = fixture(); record.manifest.actions[0].evidenceExpiresAt = '2020-01-01T00:00:00Z'; await panel.getByRole('button', { name: 'Refresh releases' }).click();
   await expect(panel.getByRole('button', { name: 'Approve release', exact: true })).toBeDisabled();
-  await expect(panel.getByText(/Evidence is expired or missing/)).toBeVisible(); await shot('evidence-expired');
+  await expect(panel.getByText(/Evidence expired or missing/)).toBeVisible(); await shot('evidence-expired');
   unavailable = true; await panel.getByRole('button', { name: 'Refresh releases' }).click(); await expect(panel.getByRole('status')).toContainText('unavailable'); await shot('unavailable');
   unavailable = false; empty = true; await panel.getByRole('button', { name: 'Refresh releases' }).click(); await expect(panel.getByText(/No release prepared/)).toBeVisible(); await shot('empty');
   empty = false; record = fixture(); await panel.getByRole('button', { name: 'Refresh releases' }).click();

@@ -68,7 +68,7 @@ For this phase, Amina (Zazzau), the existing Strategic Narrative owner, owns pac
 ## Validation and review evidence
 
 - Focused manifest, coordinator, Slack card, API authorization, existing Slack action/block/receipt tests: 169 passed after safety reconciliation.
-- Existing campaign detail tests: 4 passed (React act warnings from async panel updates).
+- Existing campaign detail tests: 4 passed with no React act warnings. Release-list fetches are mocked explicitly and each tab-opening test waits for the panel load.
 - Changed-file ESLint and `git diff --check`: passed.
 - Full TypeScript check: after generating local chatbot knowledge, blocked only by baseline duplicate properties at `lib/social-comment-inbox-ui.test.ts:51-52`; new files have no reported type errors. Production build not run while the baseline typecheck is failing.
 - Real localhost campaign route, synthetic API fixtures, outbound blocked: 390, 768, 1440 px. Tested expanded scope, approval, revision, hold, permanent stop, expired approval, unavailable/recovery state and empty-state guidance. All tests passed, including expired evidence and its recovery guidance; screenshots visually inspected. Provider execution and live customer data were not tested.
@@ -99,3 +99,11 @@ node scripts/qa/campaign-release.cjs
 ```
 
 The QA server must use this worktree and its isolated, synthetic environment. Reuse the already running server only after verifying its cwd and launcher. The QA script blocks browser egress and mocks APIs on the actual route; production data, signed live Slack callbacks, provider dispatch and deployment are intentionally untested. Full typecheck still reports the existing duplicate fields at `lib/social-comment-inbox-ui.test.ts:51-52`; build remains blocked and was not run. No merge, production mutation or #1000 closure was performed.
+
+## Pre-human-QA polish
+
+The full focused command above passes all 173 tests without warnings. Hashes display an eight-character prefix and six-character suffix; native summary titles retain the exact hash, and keyboard-accessible details reveal selectable full values. Responsive QA opens and closes both hash disclosures and checks the exact values. Evidence recovery copy is reduced to the next action.
+
+At 390px the synthetic campaign summary title, status/type chips, description, and dates fit inside their card. `qa/390-campaign-summary.png` records the surrounding surface. The adjacent tab row clips later tabs at its right edge: this is pre-existing. The header/tab markup is unchanged from `origin/main` (only the release import, initial tab selection, and release-panel insertion differ), and the shared `.admin-console-card` overflow styling in `app/globals.css` is unchanged. Earlier walkthrough frames also scrolled the summary beneath the fixed app header; that viewport occlusion is not truncation of the summary content. This narrow pass leaves the existing tab-navigation issue for a separate UI change.
+
+Changed-file lint for this polish: `node_modules/.bin/eslint components/admin/CampaignReleaseReview.tsx 'app/admin/campaigns/[id]/page.test.tsx'`; `git diff --check` passes. The actual route and all affected actions were rechecked at 390/768/1440; mobile and desktop MP4s were regenerated. The prior baseline type/build limitation remains unchanged; this pass does not claim deployment or live provider validation.

@@ -5,6 +5,13 @@ import type { ReleaseDecision, ReleaseRecord } from '@/lib/campaign-release-mani
 
 const evidenceCurrent = (record: ReleaseRecord) => record.manifest.actions.every(action => Date.parse(action.evidenceExpiresAt) > Date.now())
 
+function HashEvidence({ label, value }: { label: string; value: string }) {
+  return <details className="mt-2 text-xs">
+    <summary className="cursor-pointer" title={value}>{label}: <span className="font-mono">{value.slice(0, 8)}…{value.slice(-6)}</span></summary>
+    <code className="mt-1 block break-all" aria-label={`Full ${label.toLowerCase()}`}>{value}</code>
+  </details>
+}
+
 export default function CampaignReleaseReview({ campaignId, releaseId }: { campaignId: string; releaseId?: string | null }) {
   const [releases, setReleases] = useState<ReleaseRecord[]>([])
   const [notice, setNotice] = useState('')
@@ -55,20 +62,20 @@ export default function CampaignReleaseReview({ campaignId, releaseId }: { campa
           <p>Expected receipt: {({ platform_post_id: 'Published post confirmation', gmail_message_id: 'Gmail delivery record', heygen_video_id: 'HeyGen video record', manual_confirmation: 'Operator confirmation' })[action.expectedReceipt]}</p>
           <a className="mt-2 inline-block underline" href={action.source.table === 'social_content_queue' ? `/admin/social-content/${action.source.id}` : action.source.table === 'outreach_queue' ? '/admin/outreach' : '/admin/content/video-generation'}>Open channel review</a>
           <details className="mt-2"><summary className="cursor-pointer">Assets, consent, and exact metadata</summary>
-            {action.assets.length ? action.assets.map(asset => <div className="mt-2 break-all" key={asset.ref}><p>Asset: {asset.ref}</p><p>Privacy review: {asset.privacyReviewId}</p><p className="text-xs">Content hash: {asset.sha256}</p></div>) : <p className="mt-2">No media assets.</p>}
+            {action.assets.length ? action.assets.map(asset => <div className="mt-2 break-all" key={asset.ref}><p>Asset: {asset.ref}</p><p>Privacy review: {asset.privacyReviewId}</p><HashEvidence label="Content hash" value={asset.sha256} /></div>) : <p className="mt-2">No media assets.</p>}
             {action.recipients.map(recipient => <div className="mt-2 break-all" key={recipient.address}><p>Consent evidence: {recipient.consentEvidenceId}</p><p>Suppression check: {recipient.suppressionEvidenceId}</p></div>)}
             <dl className="mt-2">{Object.entries(action.copy.metadata).map(([key, value]) => <div className="mt-1 break-words" key={key}><dt className="font-semibold">{key.replaceAll('_', ' ')}</dt><dd>{value}</dd></div>)}</dl>
             <p className="mt-2">Evidence expires: {action.evidenceExpiresAt ? new Date(action.evidenceExpiresAt).toLocaleString() : 'Missing — prepare a fresh packet'}</p>
             <p className="mt-2">Required earlier actions: {action.dependsOn.length}</p>
           </details>
         </div>)}
-        <p className="break-all text-xs">Manifest hash: {record.hash}</p>
+        <HashEvidence label="Manifest hash" value={record.hash} />
         <p className="mt-2 text-sm">Stop conditions: {record.manifest.stopConditions.join(', ').replaceAll('_', ' ')}</p>
       </details>
       <div className="mt-3 flex flex-wrap gap-2">
         {(['approve', 'revise', 'hold', 'stop'] as const).map(decision => <button key={decision} disabled={busy || record.state === 'stopped' || (decision === 'approve' && (record.state !== 'pending' || !evidenceCurrent(record) || Date.parse(record.manifest.expiresAt) <= Date.now()))} onClick={() => void decide(record, decision)} className={`rounded px-3 py-2 text-sm disabled:opacity-40 ${decision === 'approve' ? 'bg-blue-600' : decision === 'stop' ? 'border border-red-500 text-red-200' : 'border border-gray-500'}`}>{({ approve: 'Approve release', revise: 'Request revision', hold: 'Hold', stop: 'Emergency stop' })[decision]}</button>)}
       </div>
-      {!evidenceCurrent(record) && <p className="mt-2 text-sm text-amber-200">Evidence is expired or missing. Refresh consent and suppression checks in channel review, then prepare a fresh release.</p>}
+      {!evidenceCurrent(record) && <p className="mt-2 text-sm text-amber-200">Evidence expired or missing. Update channel checks, then prepare a fresh release.</p>}
       <p className="mt-2 text-xs text-gray-400">Held, revised, stopped, or expired releases require a fresh packet before approval.</p>
       <details className="mt-3 text-sm"><summary className="cursor-pointer">Decision history ({record.audit.length})</summary>{record.audit.map((event, index) => <p className="mt-2 break-all" key={index}>{event.at} · {event.decision} · {event.actor}</p>)}</details>
     </article>)}
