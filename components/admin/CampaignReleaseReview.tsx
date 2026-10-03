@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { getCurrentSession } from '@/lib/auth'
 import type { ReleaseDecision, ReleaseRecord } from '@/lib/campaign-release-manifest'
-import { campaignRecoveryView, type SyntheticExecutionProgress } from '@/lib/campaign-release-recovery-view'
+import { campaignRecoveryView, campaignExecutionReadiness, type SyntheticExecutionProgress } from '@/lib/campaign-release-recovery-view'
 
 const evidenceCurrent = (record: ReleaseRecord) => record.manifest.actions.every(action => Date.parse(action.evidenceExpiresAt) > Date.now())
 
@@ -56,7 +56,12 @@ export default function CampaignReleaseReview({ campaignId, releaseId }: { campa
       <p className="mt-2 text-sm text-gray-300">{record.manifest.actions.length} {record.manifest.actions.length === 1 ? 'action' : 'actions'} · ${(record.manifest.spendCapCents / 100).toFixed(2)} USD cap · Expires {new Date(record.manifest.expiresAt).toLocaleString()}</p>
       <details className="mt-3 rounded border border-gray-700 p-3">
         <summary className="cursor-pointer font-medium">Readiness and recovery</summary>
-        <p className="mt-2 text-xs text-gray-400">Live execution unavailable. Any receipts and spend shown here are synthetic. Recovery is read-only.</p>
+        <dl className="mt-2 space-y-1 text-xs text-gray-400">
+          <div><dt className="inline">Approval: </dt><dd className="inline">{campaignExecutionReadiness(record, attempts).approval}</dd></div>
+          <div><dt className="inline">Persistence: </dt><dd className="inline">{campaignExecutionReadiness(record, attempts).durability}</dd></div>
+          <div><dt className="inline">Delivery: </dt><dd className="inline">Blocked. Receipts and spend are synthetic; recovery is read-only.</dd></div>
+        </dl>
+        <p className="mt-2 text-sm text-amber-100">Next: {campaignExecutionReadiness(record, attempts).next}</p>
         <ol className="mt-3 space-y-3">
           {campaignRecoveryView(record, attempts).map((step, index) => <li key={step.actionId} className="min-w-0 border-t border-gray-700 pt-2 text-sm">
             <div className="flex flex-wrap justify-between gap-2"><span className="font-medium">{index + 1}. {record.manifest.actions[index].provider}</span><span className={step.state === 'Reconcile outcome' ? 'text-amber-200' : 'text-gray-300'}>{step.state}</span></div>

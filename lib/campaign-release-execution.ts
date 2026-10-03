@@ -1,3 +1,4 @@
+import { syntheticReceiptQualified } from './campaign-release-receipts'
 import { randomUUID } from 'node:crypto'
 import { campaignActionKeys, decideCampaignRelease, parseCampaignManifest, releaseHash, type CampaignReleaseAction, type ReleaseDecision, type ReleaseRecord } from './campaign-release-manifest'
 import type { ActionReceipt } from './campaign-release-coordinator'
@@ -20,7 +21,7 @@ export interface CampaignTransactionStore {
   snapshot(): Promise<ExecutionState>
 }
 export type AttemptFence = { deliveryKey: string; owner: string; version: number }
-export type Reconciliation = { callbackId: string; evidenceId: string; outcome: 'confirmed' | 'not_delivered' | 'uncertain'; receipt?: ActionReceipt; spentCents: number }
+export type Reconciliation = { mode: 'synthetic'; callbackId: string; evidenceId: string; outcome: 'confirmed' | 'not_delivered' | 'uncertain'; receipt?: ActionReceipt; spentCents: number }
 function clock(now: Date) { if (!Number.isFinite(now.getTime())) throw new Error('Invalid time.'); return now.toISOString() }
 function money(value: number) { if (!Number.isSafeInteger(value) || value < 0) throw new Error('Invalid spend.'); return value }
 function authority(state: ExecutionState, releaseId: string, hash: string, now: Date) {
@@ -44,7 +45,7 @@ function fenced(state: ExecutionState, fence: AttemptFence, now: Date) {
   return attempt
 }
 function matches(action: CampaignReleaseAction, attempt: ExecutionAttempt, receipt: ActionReceipt) {
-  return receipt.actionKey === attempt.deliveryKey && receipt.contentHash === attempt.contentHash && receipt.provider === action.provider && receipt.accountId === action.accountId && receipt.receiptType === action.expectedReceipt && Boolean(receipt.providerId.trim()) && Number.isFinite(Date.parse(receipt.receivedAt))
+  return syntheticReceiptQualified(receipt) && receipt.actionKey === attempt.deliveryKey && receipt.contentHash === attempt.contentHash && receipt.provider === action.provider && receipt.accountId === action.accountId && receipt.receiptType === action.expectedReceipt && Boolean(receipt.providerId.trim()) && Number.isFinite(Date.parse(receipt.receivedAt))
 }
 export class CampaignExecutionJournal {
   constructor(readonly store: CampaignTransactionStore) {}
@@ -125,10 +126,11 @@ export class CampaignExecutionJournal {
       return attempt
     })
   }
-  /** Only a trusted receipt verifier may call this. No browser or provider callback is wired. */
+  /** Synthetic reconciliation only. No browser or provider callback is wired; no-delivery inputs are simulation evidence, never provider proof. */
   async reconcile(fence: AttemptFence, evidence: Reconciliation, now: Date) {
     return this.store.transaction(state => {
       clock(now)
+      if (evidence.mode !== 'synthetic') throw new Error('Only explicit synthetic reconciliation is enabled.')
       const current = state.attempts[fence.deliveryKey]
       if (!current || !evidence.callbackId.trim() || !evidence.evidenceId.trim()) throw new Error('Verified reconciliation evidence required.')
       const digest = releaseHash(evidence)

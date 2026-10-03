@@ -2,10 +2,10 @@
 const { chromium, expect } = require('@playwright/test');
 const fs = require('node:fs'); const path = require('node:path');
 const { execFileSync } = require('node:child_process'); const assert = require('node:assert/strict');
-const base = 'http://127.0.0.1:3198';
+const base = 'http://127.0.0.1:3199';
 const frames = JSON.parse(fs.readFileSync('local-private/campaign-recovery/frames.json', 'utf8'));
 const manifest = frames.pending.releases[0].manifest, id = manifest.campaignId, releaseId = manifest.releaseId;
-const out = path.resolve('docs/campaign-autopilot/qa/phase2'); fs.mkdirSync(out, { recursive: true });
+const out = path.resolve('docs/campaign-autopilot/qa/phase3'); fs.mkdirSync(out, { recursive: true });
 const user = { id, email: 'qa@example.invalid', aud: 'authenticated', role: 'authenticated' };
 const session = { access_token: 'synthetic-token', refresh_token: 'synthetic-refresh', expires_at: 4102444800, expires_in: 3600, token_type: 'bearer', user };
 (async () => {
@@ -14,6 +14,14 @@ const session = { access_token: 'synthetic-token', refresh_token: 'synthetic-ref
   let frame = frames.pending, unavailable = false;
   const ctx = await browser.newContext({ viewport: { width, height: 1000 }, recordVideo: { dir: 'local-private/campaign-recovery', size: { width, height: 1000 } }, serviceWorkers: 'block' });
   await ctx.addInitScript(session => localStorage.setItem('sb-127-auth-token', JSON.stringify(session)), session);
+  // Disable unrelated layout telemetry before it can create a network request.
+  await ctx.addInitScript(() => {
+   const append = Node.prototype.appendChild;
+   Node.prototype.appendChild = function(node) {
+    if (node instanceof HTMLScriptElement && node.src.startsWith('https://va.vercel-scripts.com/')) return node;
+    return append.call(this, node);
+   };
+  });
   const page = await ctx.newPage(), errors = [], blocked = [];
   page.on('pageerror', e => errors.push(e.message)); page.on('dialog', d => d.accept());
   await ctx.route('**/*', r => {
@@ -25,7 +33,7 @@ const session = { access_token: 'synthetic-token', refresh_token: 'synthetic-ref
     if (unavailable) return r.fulfill({ status: 503, contentType: 'application/json', body: '{}' });
     if (r.request().method() === 'PATCH') {
      const body = r.request().postDataJSON(); assert.equal(body.hash, frame.releases[0].hash);
-     frame = body.decision === 'stop' ? frames.stopped : frames.approved;
+     frame = ({ stop: frames.stopped, approve: frames.approved, hold: frames.hold, revise: frames.revise })[body.decision];
      return json({ record: frame.releases[0], providerExecutionEnabled: false });
     }
     return json(frame);
@@ -44,9 +52,21 @@ const session = { access_token: 'synthetic-token', refresh_token: 'synthetic-ref
    await recovery.scrollIntoViewIfNeeded();
    assert.equal(await panel.evaluate(el => el.scrollWidth > el.clientWidth), false);
    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
-   await page.screenshot({ path: `${out}/${width}-${label}.png` }); await page.waitForTimeout(950);
+   if (['uncertain', 'recovered', 'receipts'].includes(label)) await page.screenshot({ path: `${out}/${width}-${label}.png` });
+   await page.waitForTimeout(950);
   };
   await shot('pending');
+  for (const [button, state] of [['Hold', 'held'], ['Request revision', 'revision requested']]) {
+   await panel.getByRole('button', { name: button, exact: true }).click();
+   await expect(panel.getByRole('status')).toContainText(state);
+   await expect(panel.getByRole('button', { name: 'Approve release', exact: true })).toBeDisabled();
+   frame = frames.pending; await panel.getByRole('button', { name: 'Refresh releases' }).click();
+   await expect(panel.getByRole('button', { name: 'Approve release', exact: true })).toBeEnabled();
+  }
+  for (const summary of await panel.locator('summary').all()) {
+   if ((await summary.innerText()) === 'Readiness and recovery') continue;
+   if (await summary.isVisible()) { await summary.click(); await summary.click(); }
+  }
   await panel.getByRole('button', { name: 'Approve release', exact: true }).click();
   await expect(panel.getByRole('status')).toContainText('approved'); await shot('provider-disabled');
   for (const [name, expected] of [['partial', 'Synthetic receipt confirmed'], ['submitted', 'Awaiting receipt'], ['uncertain', 'Reconcile outcome'], ['retryable', 'Retry eligible'], ['recovered', 'Synthetic receipt confirmed']]) {
@@ -69,7 +89,7 @@ const session = { access_token: 'synthetic-token', refresh_token: 'synthetic-ref
   const video = page.video(); await ctx.close();
   execFileSync('ffmpeg', ['-y', '-i', await video.path(), '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', `${out}/campaign-recovery-${width}.mp4`], { stdio: 'ignore' });
   fs.writeFileSync(`${out}/results-${width}.json`, JSON.stringify({ url, width, errors, blocked, externalRequests: 0, states: Object.keys(frames), evidence: 'Actual route with persisted synthetic journal projections. Provider adapters disabled; production execution and distributed durability untested.' }, null, 2));
-  assert.deepEqual(errors, []); console.log(`PASS ${width}px`);
+  assert.deepEqual(blocked, []); assert.deepEqual(errors, []); console.log(`PASS ${width}px`);
  }
  await browser.close();
 })().catch(error => { console.error(error); process.exit(1); });

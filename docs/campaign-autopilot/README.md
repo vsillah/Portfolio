@@ -1,5 +1,7 @@
 # Campaign autopilot: release review foundation
 
+Phase 3 adds a dormant distributed CAS store and explicit synthetic receipt qualification. See [phase3.md](phase3.md) for current validation and the remaining database/authority gate.
+
 Phase 2 development adds canonical assembly, a durable synthetic execution journal, and recovery projections. See [phase2.md](phase2.md) for current scope, validation, evidence, and production integration gates. The foundation notes below describe the original #1001 boundary.
 
 Status: development foundation; live campaign execution blocked. This package does not complete Campaign Autopilot Closure.

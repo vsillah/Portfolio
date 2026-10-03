@@ -18,7 +18,7 @@ export function campaignDeliveryAdapters(): Readonly<Record<DeliveryFamily, Disa
 }
 /** Pure receipt factory for local tests; never proof of provider delivery. */
 export function syntheticCampaignReceipt(action: CampaignReleaseAction, identity: { deliveryKey: string; contentHash: string }, at: string): ActionReceipt {
-  return { provider: action.provider, accountId: action.accountId, actionKey: identity.deliveryKey,
+  return { trust: 'synthetic', provider: action.provider, accountId: action.accountId, actionKey: identity.deliveryKey,
     contentHash: identity.contentHash, receiptType: action.expectedReceipt,
     providerId: `synthetic:${action.id}`, receivedAt: at }
 }

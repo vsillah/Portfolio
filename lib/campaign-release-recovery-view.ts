@@ -1,3 +1,4 @@
+import { syntheticReceiptQualified } from './campaign-release-receipts'
 import type { ReleaseRecord } from './campaign-release-manifest'
 import type { ExecutionAttempt } from './campaign-release-execution'
 
@@ -5,9 +6,9 @@ export type SyntheticExecutionProgress = Pick<ExecutionAttempt, 'releaseId' | 'm
 /** Call on the server before serialization. Never expose ownership, callbacks or audit payloads. */
 export function syntheticExecutionProgress(record: ReleaseRecord, attempts: ExecutionAttempt[]): SyntheticExecutionProgress[] {
   return attempts.filter(a => a.releaseId === record.manifest.releaseId && a.manifestHash === record.hash && record.manifest.actions.some(step => step.id === a.actionId)).map(a => ({
-    mode: 'synthetic', releaseId: a.releaseId, manifestHash: a.manifestHash, actionId: a.actionId, state: a.state,
+    mode: 'synthetic', releaseId: a.releaseId, manifestHash: a.manifestHash, actionId: a.actionId, state: a.state === 'confirmed' && (!a.receipt || !syntheticReceiptQualified(a.receipt)) ? 'reconciliation_required' : a.state,
     tryCount: a.tryCount, reservedCents: a.reservedCents, spentCents: a.spentCents,
-    receiptId: a.receipt?.providerId.startsWith('synthetic:') ? a.receipt.providerId.slice(0, 200) : null,
+    receiptId: a.receipt && syntheticReceiptQualified(a.receipt) ? a.receipt.providerId.slice(0, 200) : null,
   }))
 }
 export type ReleaseRecoveryStep = { actionId: string; state: string; detail: string; receipt: string | null; attempts: number; reservedCents: number; spentCents: number }
@@ -25,4 +26,15 @@ export function campaignRecoveryView(record: ReleaseRecord, attempts: SyntheticE
     else if (record.state !== 'approved') { state = 'Review required'; detail = 'Review content and scope before approving this packet.' }
     return { actionId: action.id, state, detail, receipt: attempt?.receiptId ?? null, attempts: attempt?.tryCount ?? 0, reservedCents: attempt?.reservedCents ?? 0, spentCents: attempt?.spentCents ?? 0 }
   })
+}
+
+/** One operator next step, derived from exact-release state. No execution authority in this projection. */
+export function campaignExecutionReadiness(record: ReleaseRecord, attempts: SyntheticExecutionProgress[] = []) {
+  const rows = campaignRecoveryView(record, attempts)
+  const unresolved = rows.find(row => row.state === 'Reconcile outcome' || row.state === 'Awaiting receipt')
+  return {
+    approval: record.state === 'approved' ? 'Exact packet approved' : `Packet ${record.state.replaceAll('_', ' ')}`,
+    durability: attempts.some(a => a.releaseId === record.manifest.releaseId && a.manifestHash === record.hash) ? 'Local journal evidence available; database qualification pending' : 'Database execution not connected',
+    next: record.state === 'stopped' ? 'Prepare a new packet.' : unresolved ? 'Resolve the uncertain synthetic outcome before retrying.' : record.state !== 'approved' ? 'Review the packet and record a decision.' : 'Ask the captain to qualify database persistence and receipt verification.',
+  }
 }
