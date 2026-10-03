@@ -1,0 +1,45 @@
+{
+  "phase": 6,
+  "base": "b6928793",
+  "branch": "codex/campaign-atomic-authority",
+  "migration": "20261003233618_campaign_atomic_sandbox_authority.sql",
+  "database": {
+    "engine": "PostgreSQL 18.4 local disposable",
+    "testsPassed": 44,
+    "adapterTests": 5,
+    "realDatabaseCases": 39,
+    "physicalRestart": "passed",
+    "hostedQualification": "pending"
+  },
+  "focusedSuite": {
+    "filesPassed": 15,
+    "testsPassed": 176,
+    "databaseCasesSkippedHere": 39,
+    "databaseCasesRunSeparately": true
+  },
+  "changedFileLint": "passed",
+  "diffCheck": "passed",
+  "guardedBuild": "passed",
+  "fullTypecheck": {
+    "status": "baseline errors only",
+    "verifiedOn": "origin/main",
+    "errors": [
+      "lib/social-comment-inbox-ui.test.ts:51 TS1117",
+      "lib/social-comment-inbox-ui.test.ts:52 TS1117"
+    ]
+  },
+  "uiChanged": false,
+  "uiQa": "not applicable",
+  "hostedMigrationsApplied": false,
+  "providerExecutionEnabled": false,
+  "liveCustomerSmoke": false,
+  "mergePerformed": false,
+  "deploymentCommandRun": false,
+  "expenseUSD": 0,
+  "remainingGates": [
+    "captain review",
+    "isolated hosted staging qualification",
+    "dedicated atomic recovery",
+    "provider qualification and separate activation authority"
+  ]
+}
