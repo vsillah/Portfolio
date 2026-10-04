@@ -1,4 +1,4 @@
-> Latest development phase: [Phase 9 controlled provider receipt adoption](phase9.md), stacked on [Phase 8 provider certification](phase8.md) and [Phase 7 recovery](phase7.md). Local qualification keeps every provider disabled; hosted qualification, verifier integration and activation remain pending.
+> Latest development phase: [Phase 9 controlled provider receipt adoption](phase9.md), stacked on [Phase 8 provider certification](phase8.md) and [Phase 7 recovery](phase7.md). Local and Captain-reported isolated hosted qualification passed with providers disabled; final Captain review, verifier integration and activation remain pending. See Phase 9 for the index-amendment and preview verification limits.
 
 # Campaign autopilot: release review foundation
 

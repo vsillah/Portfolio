@@ -4,7 +4,7 @@
   "base": "81ceff37",
   "dependency_pr": 1012,
   "stack_dependency_pr": 1011,
-  "qualification": "local-only",
+  "qualification": "local plus Captain-reported isolated hosted Phase 8/9 qualification; index amendment locally validated",
   "postgres_version": "18.4",
   "adoption_suite": {
     "passed": 58,
@@ -52,8 +52,9 @@
   "deployments_performed": 0,
   "vercel_contexts_checked": [],
   "remaining_gates": [
-    "Captain stacked review",
-    "Authorized isolated hosted qualification",
+    "Final Captain stacked review and integration sequencing",
+    "Vercel portfolio-staging check and normal deployment verification",
+    "Hosted index-only rerun not performed; any further run requires separately authorized capacity",
     "Qualified verifier and current credential/version authority",
     "Fresh verification path for stale or unbound historical evidence",
     "Explicit provider activation and transport integration",
@@ -84,7 +85,9 @@
     "scope": "Phase 8/9 behavior before index amendment",
     "result": "pass reported; not rerun by development lane",
     "disposable_branch_cleanup": "deleted, reported by Captain",
-    "index_amendment_hosted_status": "not applied by this lane; pending Captain review"
+    "index_amendment_hosted_status": "not rerun: the single approved disposable branch had already been deleted",
+    "advisors": "security and performance advisors ran",
+    "advisor_fix_commit": "cb44fb59"
   },
   "index_review_followup": {
     "indexes": [
@@ -96,5 +99,12 @@
     "changed_file_lint": "pass",
     "diff_check": "pass",
     "build_typecheck_and_phase7": "prior evidence retained; not repeated for index-only amendment"
+  },
+  "lane_scope": "Hosted migration, deployment and Vercel-check fields describe this development lane; Captain-reported results are recorded separately.",
+  "captain_reported_vercel": {
+    "portfolio": "preview passed for cb44fb59",
+    "portfolio_staging": "not checked or deployed",
+    "source": "Captain follow-up in this chat",
+    "production_proof": false
   }
 }
