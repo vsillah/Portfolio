@@ -1,3 +1,5 @@
+> Latest backend phase: [Phase 6 atomic sandbox authority](phase6.md). Hosted staging qualification and all provider activation remain pending.
+
 # Campaign autopilot: release review foundation
 
 Phase 5 adds a durable dispatch-intent protocol in the existing journal and operation-specific sandbox certification. Dispatch always refuses because the current canonical/source requests and journal CAS cannot enforce atomic live authority. See [phase5.md](phase5.md) for enforced invariants, the residual race, responsive MP4s and remaining activation gates. Campaign Autopilot Closure and one-response Slack execution remain blocked.

@@ -1,3 +1,4 @@
+import { AtomicCampaignAuthority } from './campaign-release-atomic-authority'
 import 'server-only'
 import { CampaignDispatchFence } from './campaign-release-dispatch'
 import { getCampaignRelease, assertCurrentCampaignSources } from './campaign-release-store'
@@ -15,5 +16,6 @@ export function bindStoredCampaignApproval(client: CampaignJournalRpc, releaseId
 /** Server-owned readers only; no browser payload can supply canonical authority.
  * Returns an unregistered, fail-closed intent protocol, never a provider worker. */
 export function storedCampaignDispatchFence(client: CampaignJournalRpc) {
-  return new CampaignDispatchFence({ read: getCampaignRelease, assertCurrentSources: assertCurrentCampaignSources }, new DurableCampaignExecutionStore(client))
+  const source = { read: getCampaignRelease, assertCurrentSources: assertCurrentCampaignSources }
+  return new CampaignDispatchFence(source, new DurableCampaignExecutionStore(client), new AtomicCampaignAuthority(client, source))
 }

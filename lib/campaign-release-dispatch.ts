@@ -1,3 +1,4 @@
+import type { AtomicCampaignAuthority, AtomicCampaignRequest } from './campaign-release-atomic-authority'
 import { randomUUID } from 'node:crypto'
 import { approvalIdentity, type CampaignApprovalSource } from './campaign-release-activation'
 import { campaignActionKeys, releaseHash, type ReleaseRecord } from './campaign-release-manifest'
@@ -5,6 +6,7 @@ import { campaignReceiptContext, type AttemptFence, type CampaignTransactionStor
 
 export type DispatchIntent = {
   id: string; mode: 'disabled'; status: 'prepared' | 'refused'
+  atomicRequest?: AtomicCampaignRequest
   approval: ReturnType<typeof approvalIdentity>; sourceDigest: string; dependencyDigest: string
   journalVersion: number; reservedCents: number; checkedAt: string; reason: string
 }
@@ -31,13 +33,17 @@ function validateAttempt(state: ExecutionState, attempt: ExecutionAttempt, recor
   if (attempt.reservedCents !== action.maxSpendCents || committed > record.manifest.spendCapCents) throw new Error('Dispatch budget exhausted or reservation changed.')
   return releaseHash(campaignReceiptContext(state, attempt).predecessors)
 }
-/** Server-owned canonical reader + existing journal only. No transport can be supplied.
- * A prepared intent is NOT a dispatch permit. Separate canonical/source reads and journal
- * CAS cannot exclude a decision/source edit after the read. Refuse unconditionally at the
- * actual dispatch entry point, persist that refusal, and preserve the delivery-key fence.
- * No worker/route registers this protocol. Future atomic authority must replace this gate. */
+/** Unregistered server-owned protocol; no transport can be supplied.
+ * authorizeSandbox uses the optional SQL boundary for atomic sandbox intent only.
+ * Legacy prepare/dispatch keeps the Phase 5 durable refusal because independent
+ * canonical/source reads and journal CAS cannot prove atomic authority.
+ * Every path keeps actual provider dispatch disabled. */
 export class CampaignDispatchFence {
-  constructor(private readonly source: CampaignApprovalSource, private readonly store: CampaignTransactionStore) {}
+  constructor(private readonly source: CampaignApprovalSource, private readonly store: CampaignTransactionStore, private readonly atomic?: AtomicCampaignAuthority) {}
+  async authorizeSandbox(input: AtomicCampaignRequest) {
+    if (!this.atomic) throw new Error(disabled)
+    return this.atomic.authorize(input)
+  }
   async prepare(input: { releaseId: string; hash: string; approvalVersion: number; actionId: string; owner: string; journalVersion: number; now: Date }) {
     const record = structuredClone(await this.source.read(input.releaseId))
     const identity = approvalIdentity(record, input.now)
@@ -61,13 +67,20 @@ export class CampaignDispatchFence {
       return attempt
     })
   }
-  /** This is the only dispatch operation in the canonical protocol. Always returns false.
-   * Failed/stale reads also produce a durable refusal when the caller still owns the fence.
+  /** Always returns dispatched:false. Atomic receipts are revalidated by exact RPC replay;
+   * Phase 5 intents retain their unconditional durable refusal.
+   * Legacy failed/stale reads persist refusal when the caller still owns the fence.
+   * Atomic failures throw and preserve the existing historical receipt/reservation.
    * A crash/uncertain CAS never returns permission and never releases a reservation. */
   async dispatch(fence: AttemptFence, journalVersion: number, now: Date): Promise<{ dispatched: false; reason: string; attempt: ExecutionAttempt }> {
     if (!Number.isFinite(+now)) throw new Error('Invalid dispatch time.')
     const snapshot = await this.store.snapshot(), prior = snapshot.attempts[fence.deliveryKey]
     if (!prior?.dispatchIntent) throw new Error('Dispatch intent required.')
+    if (prior.dispatchIntent.atomicRequest) {
+      if (!this.atomic || prior.owner !== fence.owner || prior.version !== fence.version || snapshot.version !== journalVersion) throw new Error('Atomic dispatch ownership or journal changed.')
+      const attempt = await this.atomic.authorize(prior.dispatchIntent.atomicRequest)
+      return { dispatched: false, reason: 'Atomic sandbox intent qualified. Provider dispatch disabled.', attempt }
+    }
     let record: ReleaseRecord | undefined, reason = disabled
     try {
       record = structuredClone(await this.source.read(prior.releaseId))
