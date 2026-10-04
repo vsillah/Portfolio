@@ -1,0 +1,110 @@
+{
+  "phase": 9,
+  "branch": "codex/campaign-receipt-adoption",
+  "base": "81ceff37",
+  "dependency_pr": 1012,
+  "stack_dependency_pr": 1011,
+  "qualification": "local plus Captain-reported isolated hosted Phase 8/9 qualification; index amendment locally validated",
+  "postgres_version": "18.4",
+  "adoption_suite": {
+    "passed": 58,
+    "database_cases": 57,
+    "registration_boundary_cases": 1,
+    "physical_restart_rows_identical": true,
+    "post_restart_exact_replay": "pass",
+    "run_foreign_key_index_assertions": 3
+  },
+  "phase8_regression_with_phase9": {
+    "passed": 64,
+    "physical_restart": "pass"
+  },
+  "phase7_regression_with_phase9": {
+    "passed": 63,
+    "physical_restart_and_exact_replay": "pass"
+  },
+  "campaign_suite": {
+    "files_passed": 18,
+    "passed": 200,
+    "database_tests_skipped_in_non_database_run": 200,
+    "database_cases_run_separately": true
+  },
+  "changed_file_lint": "pass",
+  "guarded_build": "pass",
+  "git_diff_check": "pass",
+  "typecheck": {
+    "result": "baseline-errors-only",
+    "files": [
+      "lib/social-comment-inbox-ui.test.ts:51",
+      "lib/social-comment-inbox-ui.test.ts:52"
+    ],
+    "baseline_verified": "origin/main"
+  },
+  "ui_changed": false,
+  "route_contracts": "release API, assembly API and campaign page pass",
+  "rendered_qa_and_mp4": "not applicable; no UI change",
+  "hosted_migration": false,
+  "provider_calls": 0,
+  "external_sends": 0,
+  "credential_changes": 0,
+  "providers_enabled": false,
+  "sms": "parked",
+  "expenses_usd": 0,
+  "deployments_performed": 0,
+  "vercel_contexts_checked": [],
+  "remaining_gates": [
+    "Final Captain stacked review and integration sequencing",
+    "Vercel portfolio-staging check and normal deployment verification",
+    "Hosted index-only rerun not performed; any further run requires separately authorized capacity",
+    "Qualified verifier and current credential/version authority",
+    "Fresh verification path for stale or unbound historical evidence",
+    "Explicit provider activation and transport integration",
+    "Signed Slack outcomes and supervised campaign execution"
+  ],
+  "commands": [
+    "git fetch origin --prune",
+    "git status --short --branch",
+    "git log --oneline --decorate --max-count=5",
+    "gh pr list --state open --limit 100 --json number,title,headRefName,baseRefName,isDraft,mergeStateStatus,url",
+    "git diff --name-only origin/main...HEAD",
+    "gh pr view <each-open-pr> --json number,title,headRefName,files",
+    "supabase migration new campaign_provider_receipt_adoption",
+    "CAMPAIGN_TEST_POSTGRES_MODULE=/tmp/campaign-phase6-postgres/node_modules/embedded-postgres/dist/index.js node scripts/qa/campaign-provider-adoption-postgres.mjs",
+    "CAMPAIGN_WITH_ADOPTION=1 CAMPAIGN_TEST_POSTGRES_MODULE=/tmp/campaign-phase6-postgres/node_modules/embedded-postgres/dist/index.js node scripts/qa/campaign-provider-certification-postgres.mjs",
+    "CAMPAIGN_WITH_ADOPTION=1 CAMPAIGN_RECOVERY_WITH_CERTIFICATION=1 CAMPAIGN_TEST_POSTGRES_MODULE=/tmp/campaign-phase6-postgres/node_modules/embedded-postgres/dist/index.js node scripts/qa/campaign-atomic-recovery-postgres.mjs",
+    "node node_modules/vitest/vitest.mjs run lib/campaign-release 'app/api/admin/campaigns/[id]/releases' 'app/admin/campaigns/[id]/page.test.tsx'",
+    "node --import tsx scripts/build-chatbot-knowledge.ts",
+    "node scripts/qa/campaign-release-recovery-server.cjs --build",
+    "node node_modules/typescript/bin/tsc --noEmit --pretty false",
+    "node node_modules/eslint/bin/eslint.js lib/campaign-release-provider-adoption.test.ts lib/campaign-release-provider-certification.test.ts lib/campaign-release-atomic-recovery.test.ts scripts/qa/campaign-provider-adoption-postgres.mjs scripts/qa/campaign-provider-certification-postgres.mjs scripts/qa/campaign-atomic-recovery-postgres.mjs",
+    "git show origin/main:lib/social-comment-inbox-ui.test.ts",
+    "git diff --check"
+  ],
+  "captain_reported_hosted_qualification": {
+    "source": "Captain follow-up in this chat",
+    "postgres_version": "17.11",
+    "scope": "Phase 8/9 behavior before index amendment",
+    "result": "pass reported; not rerun by development lane",
+    "disposable_branch_cleanup": "deleted, reported by Captain",
+    "index_amendment_hosted_status": "not rerun: the single approved disposable branch had already been deleted",
+    "advisors": "security and performance advisors ran",
+    "advisor_fix_commit": "cb44fb59"
+  },
+  "index_review_followup": {
+    "indexes": [
+      "campaign_provider_qualification_receipts(run_id,created_at,receipt_id)",
+      "campaign_provider_adoptions(run_id)",
+      "campaign_provider_resource_claims(run_id)"
+    ],
+    "phase8_phase9_and_campaign_regressions": "pass",
+    "changed_file_lint": "pass",
+    "diff_check": "pass",
+    "build_typecheck_and_phase7": "prior evidence retained; not repeated for index-only amendment"
+  },
+  "lane_scope": "Hosted migration, deployment and Vercel-check fields describe this development lane; Captain-reported results are recorded separately.",
+  "captain_reported_vercel": {
+    "portfolio": "preview passed for cb44fb59",
+    "portfolio_staging": "not checked or deployed",
+    "source": "Captain follow-up in this chat",
+    "production_proof": false
+  }
+}

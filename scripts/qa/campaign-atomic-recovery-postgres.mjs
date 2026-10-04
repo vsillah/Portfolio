@@ -15,7 +15,7 @@ let resultCode = 0
 try {
   await pg.initialise(); await pg.start(); await pg.createDatabase('campaign_phase7_test')
   const child = spawn(process.execPath, [resolve('node_modules/vitest/vitest.mjs'), 'run', 'lib/campaign-release-atomic-recovery.test.ts'], {
-    stdio: 'inherit', env: { PATH: process.env.PATH, HOME: process.env.HOME,
+    stdio: 'inherit', env: { CAMPAIGN_WITH_ADOPTION: process.env.CAMPAIGN_WITH_ADOPTION, PATH: process.env.PATH, HOME: process.env.HOME,
       CAMPAIGN_RECOVERY_WITH_CERTIFICATION: process.env.CAMPAIGN_RECOVERY_WITH_CERTIFICATION,
       CAMPAIGN_ATOMIC_TEST_URL: 'postgresql://postgres:local-synthetic-only@127.0.0.1:15487/campaign_phase7_test' },
   })
@@ -29,7 +29,7 @@ try {
   await client.end()
   // Test suite writes its expected final snapshot and verifies it via a fresh process.
   const check = spawn(process.execPath, [resolve('node_modules/tsx/dist/cli.mjs'), 'scripts/qa/campaign-atomic-recovery-restart.ts'], {
-    stdio: 'inherit', env: { PATH: process.env.PATH, HOME: process.env.HOME,
+    stdio: 'inherit', env: { CAMPAIGN_WITH_ADOPTION: process.env.CAMPAIGN_WITH_ADOPTION, PATH: process.env.PATH, HOME: process.env.HOME,
       CAMPAIGN_RECOVERY_WITH_CERTIFICATION: process.env.CAMPAIGN_RECOVERY_WITH_CERTIFICATION,
       CAMPAIGN_ATOMIC_TEST_URL: 'postgresql://postgres:local-synthetic-only@127.0.0.1:15487/campaign_phase7_test' },
   })

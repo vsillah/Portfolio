@@ -1,0 +1,26 @@
+
+ RUN  v4.0.18 <phase9-worktree>
+
+ ✓ lib/campaign-release-atomic-authority.test.ts (44 tests | 39 skipped) 6ms
+ ✓ lib/campaign-release-atomic-recovery.test.ts (63 tests | 57 skipped) 3ms
+ ✓ lib/campaign-release-durable-store.test.ts (7 tests) 11ms
+ ✓ lib/campaign-release-certification.test.ts (15 tests) 24ms
+ ✓ lib/campaign-release-provider-certification.test.ts (64 tests | 47 skipped) 13ms
+ ✓ lib/campaign-release-authority-receipts.test.ts (34 tests) 33ms
+ ✓ lib/campaign-release-provider-adoption.test.ts (58 tests | 57 skipped) 65ms
+ ✓ lib/campaign-release-dispatch.test.ts (27 tests) 112ms
+ ✓ lib/campaign-release-recovery-view.test.ts (2 tests) 3ms
+ ✓ lib/campaign-release-planning-evidence.test.ts (2 tests) 3ms
+ ✓ lib/campaign-release-manifest.test.ts (18 tests) 10ms
+ ✓ lib/campaign-release-packet.test.ts (9 tests) 11ms
+ ✓ app/api/admin/campaigns/[id]/releases/assemble/route.test.ts (4 tests) 9ms
+ ✓ lib/campaign-release-coordinator.test.ts (27 tests) 13ms
+ ✓ app/api/admin/campaigns/[id]/releases/route.test.ts (5 tests) 9ms
+ ✓ lib/campaign-release-slack.test.ts (1 test) 2ms
+ ✓ app/admin/campaigns/[id]/page.test.tsx (4 tests) 278ms
+ ✓ lib/campaign-release-execution.test.ts (16 tests) 1121ms
+
+ Test Files  18 passed (18)
+      Tests  200 passed | 200 skipped (400)
+   Start at  21:56:57
+   Duration  1.37s (transform 1.16s, setup 657ms, import 1.87s, tests 1.73s, environment 2.08s)

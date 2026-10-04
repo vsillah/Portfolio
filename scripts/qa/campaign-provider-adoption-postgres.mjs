@@ -11,15 +11,15 @@ const modulePath = process.env.CAMPAIGN_TEST_POSTGRES_MODULE
 if (!modulePath?.startsWith('/')) throw new Error('Absolute disposable embedded-postgres module path required')
 const { default: Postgres } = await import(pathToFileURL(modulePath).href)
 const directory = await mkdtemp(join(tmpdir(), 'campaign-atomic-pg-'))
-const pg = new Postgres({ databaseDir: join(directory, 'data'), user: 'postgres', password: 'local-synthetic-only', port: 15488,
+const pg = new Postgres({ databaseDir: join(directory, 'data'), user: 'postgres', password: 'local-synthetic-only', port: 15489,
   persistent: true, postgresFlags: ['-h', '127.0.0.1'], onLog: () => {}, onError: () => {} })
 const { Client } = createRequire(import.meta.url)('pg')
 async function evidence() {
-  const client = new Client({ connectionString: 'postgresql://postgres:local-synthetic-only@127.0.0.1:15488/campaign_phase8_test' })
+  const client = new Client({ connectionString: 'postgresql://postgres:local-synthetic-only@127.0.0.1:15489/campaign_phase9_test' })
   await client.connect()
   try {
     const result = {}
-    for (const table of ['campaign_execution_journal','campaign_provider_qualifications','campaign_provider_qualification_receipts','campaign_provider_certifications','campaign_provider_certification_revocations']) {
+    for (const table of ['campaign_execution_journal','campaign_provider_qualifications','campaign_provider_qualification_receipts','campaign_provider_certifications','campaign_provider_certification_revocations','campaign_provider_attempt_bindings','campaign_provider_adoptions','campaign_provider_resource_claims']) {
       result[table] = (await client.query(`select to_jsonb(t) row from public.${table} t order by to_jsonb(t)::text`)).rows
     }
     return result
@@ -27,10 +27,10 @@ async function evidence() {
 }
 let resultCode = 0
 try {
-  await pg.initialise(); await pg.start(); await pg.createDatabase('campaign_phase8_test')
-  const child = spawn(process.execPath, [resolve('node_modules/vitest/vitest.mjs'), 'run', 'lib/campaign-release-provider-certification.test.ts'], {
-    stdio: 'inherit', env: { CAMPAIGN_WITH_ADOPTION: process.env.CAMPAIGN_WITH_ADOPTION, PATH: process.env.PATH, HOME: process.env.HOME,
-      CAMPAIGN_CERTIFICATION_TEST_URL: 'postgresql://postgres:local-synthetic-only@127.0.0.1:15488/campaign_phase8_test' },
+  await pg.initialise(); await pg.start(); await pg.createDatabase('campaign_phase9_test')
+  const child = spawn(process.execPath, [resolve('node_modules/vitest/vitest.mjs'), 'run', '--reporter=verbose', 'lib/campaign-release-provider-adoption.test.ts'], {
+    stdio: 'inherit', env: { PATH: process.env.PATH, HOME: process.env.HOME,
+      CAMPAIGN_ADOPTION_TEST_URL: 'postgresql://postgres:local-synthetic-only@127.0.0.1:15489/campaign_phase9_test' },
   })
   const code = await new Promise(resolve => child.on('exit', resolve))
   if (code !== 0) resultCode = Number(code) || 1
@@ -38,10 +38,19 @@ try {
   // A physical restart verifies the durable authorization survived process loss.
   await pg.stop(); await pg.start()
   const client = pg.getPgClient(); await client.connect()
-  const databases = await client.query("select datname from pg_database where datname = 'campaign_phase8_test'")
+  const databases = await client.query("select datname from pg_database where datname = 'campaign_phase9_test'")
   if (databases.rowCount !== 1) throw new Error('Restart lost database')
   await client.end()
   assert.deepEqual(await evidence(), before)
+  const replay = new Client({ connectionString: 'postgresql://postgres:local-synthetic-only@127.0.0.1:15489/campaign_phase9_test' })
+  await replay.connect()
+  try {
+    const rows = (await replay.query('select request,result from campaign_provider_adoptions')).rows
+    assert.ok(rows.length > 0)
+    for (const row of rows) assert.deepEqual((await replay.query('select campaign_adopt_provider_receipt($1) result',[row.request])).rows[0].result,row.result)
+    assert.deepEqual(await evidence(),before)
+  } finally { await replay.end() }
+  console.log('Post-restart exact adoption retry: identical historical result, no additional ledger writes.')
   console.log('Physical restart: journal and all qualification, receipt, certification and revocation rows identical.')
   console.log('Disposable PostgreSQL data:', directory)
 } finally { await pg.stop().catch(() => {}) }

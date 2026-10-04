@@ -96,10 +96,11 @@ describe.skipIf(!url)('real PostgreSQL provider certification', () => {
     x=data();await seed();await call();const beforeUpgrade=await snapshot()
     await admin.query(readFileSync('supabase/migrations/20261004001737_campaign_atomic_recovery.sql','utf8'))
     await admin.query(readFileSync('supabase/migrations/20261004005627_campaign_provider_certification.sql','utf8'))
+    if (process.env.CAMPAIGN_WITH_ADOPTION === '1') await admin.query(readFileSync('supabase/migrations/20261004011705_campaign_provider_receipt_adoption.sql','utf8'))
     expect(await snapshot()).toEqual(beforeUpgrade)
   }, 30000)
   afterAll(async () => { await Promise.all([admin?.end(), worker?.end(), other?.end()]) })
-  beforeEach(async () => { x = data(); await seed(); await admin.query('truncate campaign_provider_certification_revocations,campaign_provider_certifications,campaign_provider_qualification_receipts,campaign_provider_qualifications; delete from campaign_atomic_recovery_commands'); attempt = (await call()).attempt })
+  beforeEach(async () => { x = data(); await seed(); await admin.query(`truncate ${process.env.CAMPAIGN_WITH_ADOPTION === '1'?'campaign_provider_adoptions,campaign_provider_resource_claims,campaign_provider_attempt_bindings,':''}campaign_provider_certification_revocations,campaign_provider_certifications,campaign_provider_qualification_receipts,campaign_provider_qualifications; delete from campaign_atomic_recovery_commands`); attempt = (await call()).attempt })
 
   const scope = (patch: Partial<CertificationScope> = {}) => ({...campaignCertificationScope(x.record,x.request.actionId,{
     environment:'staging',credentialReferenceId:id(401),credentialVersion:1,mode:'no_delivery',verifierId:id(402),verifierVersion:1,
@@ -198,7 +199,7 @@ describe.skipIf(!url)('real PostgreSQL provider certification', () => {
   })
   it('controlled delivery cannot recycle delivery ownership across releases',async()=>{
     const s=scope({mode:'controlled_delivery'});await prepare(plan({scope:s}))
-    await expect(prepare(plan({runId:id(415),scope:{...s,releaseId:id(416),manifestHash:releaseHash('revision')}}))).rejects.toThrow('Current atomic intent')
+    await expect(prepare(plan({runId:id(415),scope:{...s,releaseId:id(416),manifestHash:releaseHash('revision')}}))).rejects.toThrow(process.env.CAMPAIGN_WITH_ADOPTION === '1'?'Controlled delivery already reserved':'Current atomic intent')
   })
   it('controlled qualification completion requires journal reconciliation, never redispatch',async()=>{
     const s=scope({mode:'controlled_delivery'});await prepare(plan({scope:s}));await record(receipt({scopeDigest:releaseHash(s),noDeliveryProven:false}));await issue()
