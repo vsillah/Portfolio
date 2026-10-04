@@ -1,0 +1,32 @@
+RUN  v4.0.18 /Users/vambahsillah/.codex/worktrees/c836/Portfolio
+
+stdout | lib/campaign-verifier-creator-admin.test.ts > real PostgreSQL creator-admin isolation
+Creator-admin test server: 17.6
+
+ ✓ lib/campaign-verifier-creator-admin.test.ts > real PostgreSQL creator-admin isolation > accepts only the actual creator ADMIN edge and leaves provision inactive 22ms
+ ✓ lib/campaign-verifier-creator-admin.test.ts > real PostgreSQL creator-admin isolation > preserves the existing zero-membership LOGIN path 2ms
+ ✓ lib/campaign-verifier-creator-admin.test.ts > real PostgreSQL creator-admin isolation > requires separate activation before a dedicated creator-owned LOGIN can reach ingest 29ms
+ ✓ lib/campaign-verifier-creator-admin.test.ts > real PostgreSQL creator-admin isolation > rejects parent with no registry/journal writes 12ms
+ ✓ lib/campaign-verifier-creator-admin.test.ts > real PostgreSQL creator-admin isolation > rejects child with no registry/journal writes 13ms
+ ✓ lib/campaign-verifier-creator-admin.test.ts > real PostgreSQL creator-admin isolation > rejects second creator grant with no registry/journal writes 13ms
+ ✓ lib/campaign-verifier-creator-admin.test.ts > real PostgreSQL creator-admin isolation > rejects inherit option with no registry/journal writes 12ms
+ ✓ lib/campaign-verifier-creator-admin.test.ts > real PostgreSQL creator-admin isolation > rejects set option with no registry/journal writes 12ms
+ ✓ lib/campaign-verifier-creator-admin.test.ts > real PostgreSQL creator-admin isolation > rejects missing admin option with no registry/journal writes 13ms
+ ✓ lib/campaign-verifier-creator-admin.test.ts > real PostgreSQL creator-admin isolation > rejects a sole unsafe grantor qa_schema_owner, including a spoofed platform name 14ms
+ ✓ lib/campaign-verifier-creator-admin.test.ts > real PostgreSQL creator-admin isolation > rejects a sole unsafe grantor supabase_admin, including a spoofed platform name 13ms
+ ✓ lib/campaign-verifier-creator-admin.test.ts > real PostgreSQL creator-admin isolation > rejects a sole unsafe grantor qa_other_super, including a spoofed platform name 12ms
+ ✓ lib/campaign-verifier-creator-admin.test.ts > real PostgreSQL creator-admin isolation > rejects an ADMIN edge to a different creator instead of the schema owner 15ms
+ ✓ lib/campaign-verifier-creator-admin.test.ts > real PostgreSQL creator-admin isolation > rejects the exception when the owner becomes superuser 13ms
+ ✓ lib/campaign-verifier-creator-admin.test.ts > real PostgreSQL creator-admin isolation > rejects the exception when the owner becomes nocreaterole 12ms
+ ✓ lib/campaign-verifier-creator-admin.test.ts > real PostgreSQL creator-admin isolation > still rejects excess select on campaign_verifier.identities 12ms
+ ✓ lib/campaign-verifier-creator-admin.test.ts > real PostgreSQL creator-admin isolation > still rejects excess update(active) on campaign_verifier.identities 12ms
+ ✓ lib/campaign-verifier-creator-admin.test.ts > real PostgreSQL creator-admin isolation > still rejects excess execute on function campaign_prepare_provider_qualification(jsonb) 13ms
+ ✓ lib/campaign-verifier-creator-admin.test.ts > real PostgreSQL creator-admin isolation > still rejects excess execute on function campaign_verifier.ingest(jsonb) with grant option 12ms
+ ✓ lib/campaign-verifier-creator-admin.test.ts > real PostgreSQL creator-admin isolation > still rejects excess create on schema campaign_verifier 12ms
+ ✓ lib/campaign-verifier-creator-admin.test.ts > real PostgreSQL creator-admin isolation > still rejects excess usage on schema campaign_verifier with grant option 13ms
+ ✓ lib/campaign-verifier-creator-admin.test.ts > real PostgreSQL creator-admin isolation > preserves direct-owner, authorization, production and privileged-LOGIN refusals 14ms
+
+ Test Files  1 passed (1)
+      Tests  22 passed (22)
+   Start at  06:36:41
+   Duration  476ms (transform 20ms, setup 25ms, import 33ms, tests 368ms, environment 0ms)

@@ -1,0 +1,124 @@
+{
+  "phase": 11,
+  "date_local": "2026-10-04",
+  "timezone": "America/New_York",
+  "base": "34c357518cede5dc200d3083e1d02c44da7f457c",
+  "branch": "codex/campaign-verifier-creator-admin",
+  "pr_base": "main",
+  "worktree": "/Users/vambahsillah/.codex/worktrees/c836/Portfolio",
+  "lane": "Dependent",
+  "open_pr_exact_file_overlap": [],
+  "qualification": "Disposable local PostgreSQL 17.6; actual non-superuser creator and distinct authenticated connections; no hosted qualification by this lane",
+  "postgres_runtime": "embedded-postgres@17.6.0-beta.15, installed outside repository",
+  "accepted_creator_edge": {
+    "roleid": "dedicated verifier OID",
+    "member": "schema-owner OID equals session_user OID",
+    "owner_superuser": false,
+    "owner_createrole": true,
+    "admin": true,
+    "inherit": false,
+    "set": false,
+    "grantor_oid": 10,
+    "grantor_superuser": true,
+    "total_memberships_touching_verifier": 1,
+    "name_allowlist": false
+  },
+  "zero_membership_path": "preserved",
+  "creator_admin_tests": {
+    "passed": 22,
+    "failed": 0,
+    "server_version": "17.6",
+    "result": "creator-admin-results.txt",
+    "unsafe_grantor_test_method": "Deliberate disposable catalog corruption isolates grantor predicate; positive and other rejection cases use actual role creation/GRANT/ALTER"
+  },
+  "provisioning_tests": {
+    "passed": 16,
+    "failed": 0,
+    "result": "provisioning-results.txt"
+  },
+  "verifier_tests": {
+    "passed": 60,
+    "failed": 0,
+    "physical_restart": "exact evidence state and historical retry result preserved",
+    "result": "verifier-results.txt"
+  },
+  "contracts": {
+    "passed": 242,
+    "skipped": 288,
+    "files_passed": 21,
+    "files_skipped": 2,
+    "failed": 0,
+    "result": "contracts-results.txt",
+    "skip_reason": "Database tests require loopback URLs and run separately; untouched Phase 6/7/8/9 database suites not rerun in this narrow role-check change"
+  },
+  "lint": "pass",
+  "diff_check": "pass",
+  "typecheck": {
+    "exit_code": 2,
+    "result": "existing baseline errors only",
+    "baseline": "Fresh main archive with same dependencies and same ignored generated knowledge file",
+    "baseline_exit_code": 2,
+    "comparison": "byte-identical diagnostics, cmp exit 0",
+    "files": [
+      "lib/social-comment-inbox-ui.test.ts:51",
+      "lib/social-comment-inbox-ui.test.ts:52"
+    ],
+    "diagnostics": "typecheck-results.txt",
+    "baseline_diagnostics": "baseline-typecheck-results.txt"
+  },
+  "initial_attempts": "New fixture first lacked journal ownership; corrected to direct owner. One new assertion expected wrong ingest rejection message; corrected. Original provisioning SQL-generation regex matched a new comment; removed SQL keyword from comment. Contracts initially hit sandbox EPERM on local sockets/CLI IPC; authorized local-process rerun passed. Final result files contain passing test runs.",
+  "production_code_change": "Only generated SQL role-isolation predicate; no migrations or other runtime behavior changes",
+  "ui_changed": false,
+  "build": "not run for metadata-only role check; targeted tests and typecheck used",
+  "mp4": "not applicable: no rendered surface changed",
+  "vercel_contexts_checked": [],
+  "security": {
+    "hosted_mutations": 0,
+    "hosted_role_creation": 0,
+    "live_credential_reads": 0,
+    "live_credential_writes": 0,
+    "provider_calls": 0,
+    "runtime_external_requests": 0,
+    "default_activation": false,
+    "production_packets": "refused",
+    "sms": "parked",
+    "scope": "Counts apply to generator/test runtime and hosted data; official documentation, npm runtime installation and authorized GitHub operations excluded"
+  },
+  "expenses_usd": 0,
+  "remaining_gates": [
+    "Captain review and integration",
+    "Authorized isolated staging qualification: inspect actual grantor OID/attributes and ADMIN/INHERIT/SET before applying regenerated SQL",
+    "Rollback synthetic qualification and record unchanged row/role state plus advisors",
+    "Both Vercel contexts during integration",
+    "Dedicated identity, activation, credential access, provider readback and external-action authorization remain separate"
+  ],
+  "commands": [
+    "git fetch origin --prune",
+    "git status --short --branch",
+    "git log --oneline --decorate --max-count=5",
+    "gh pr list --state open --limit 100 --json number,title,headRefName,baseRefName,isDraft,mergeStateStatus,url,files",
+    "git diff --name-only origin/main...HEAD",
+    "git switch -c codex/campaign-verifier-creator-admin origin/main",
+    "npm view embedded-postgres versions --json",
+    "npm install --prefix /private/tmp/campaign-pg17-compat --no-audit --no-fund embedded-postgres@17.6.0-beta.15",
+    "CAMPAIGN_TEST_POSTGRES_MODULE=/private/tmp/campaign-pg17-compat/node_modules/embedded-postgres/dist/index.js node scripts/qa/campaign-verifier-creator-admin-postgres.mjs",
+    "CAMPAIGN_TEST_POSTGRES_MODULE=/private/tmp/campaign-pg17-compat/node_modules/embedded-postgres/dist/index.js node scripts/qa/campaign-verifier-provisioning-postgres.mjs",
+    "CAMPAIGN_TEST_POSTGRES_MODULE=/private/tmp/campaign-pg17-compat/node_modules/embedded-postgres/dist/index.js node scripts/qa/campaign-provider-verifier-postgres.mjs",
+    "node node_modules/vitest/vitest.mjs run lib/campaign-release lib/campaign-verifier-provisioning.test.ts lib/campaign-verifier-creator-admin.test.ts scripts/credential-broker.test.ts 'app/api/admin/campaigns/[id]/releases' 'app/admin/campaigns/[id]/page.test.tsx'",
+    "node node_modules/eslint/bin/eslint.js lib/campaign-verifier-provisioning.ts lib/campaign-verifier-creator-admin.test.ts scripts/qa/campaign-verifier-creator-admin-postgres.mjs",
+    "node node_modules/typescript/bin/tsc --noEmit --incremental false",
+    "git archive 34c357518cede5dc200d3083e1d02c44da7f457c | tar -x -C /private/tmp/campaign-creator-baseline",
+    "ln -s /Users/vambahsillah/Projects/Portfolio/node_modules /private/tmp/campaign-creator-baseline/node_modules",
+    "cp lib/chatbot-knowledge-content.generated.ts /private/tmp/campaign-creator-baseline/lib/chatbot-knowledge-content.generated.ts",
+    "(cwd=/private/tmp/campaign-creator-baseline) node /Users/vambahsillah/Projects/Portfolio/node_modules/typescript/bin/tsc --noEmit --incremental false",
+    "cmp /private/tmp/creator-admin-typecheck.log /private/tmp/creator-admin-baseline-typecheck.log",
+    "git diff --check"
+  ],
+  "public_references": [
+    "https://www.postgresql.org/docs/17/role-attributes.html",
+    "https://github.com/postgres/postgres/blob/REL_17_STABLE/src/backend/commands/user.c",
+    "https://github.com/postgres/postgres/blob/REL_17_STABLE/src/include/catalog/pg_authid.dat",
+    "https://supabase.com/docs/guides/database/postgres/roles",
+    "https://supabase.com/changelog"
+  ]
+}
