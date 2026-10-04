@@ -1,0 +1,15 @@
+
+ RUN  v4.0.18 /Users/vambahsillah/.codex/worktrees/7098/Portfolio
+
+stdout | lib/campaign-release-atomic-authority.test.ts > real PostgreSQL atomic authority
+Database engine: PostgreSQL 18.4 on x86_64-apple-darwin24.6.0, compiled by Apple clang version 17.0.0 (clang-1700.6.3.2), 64-bit
+
+ ✓ lib/campaign-release-atomic-authority.test.ts (44 tests) 347ms
+
+ Test Files  1 passed (1)
+      Tests  44 passed (44)
+   Start at  22:26:24
+   Duration  537ms (transform 51ms, setup 46ms, import 85ms, tests 347ms, environment 0ms)
+
+PASS: physical PostgreSQL restart retains atomic intent, ownership and reservation
+Disposable PostgreSQL data: temporary local synthetic directory (stopped)

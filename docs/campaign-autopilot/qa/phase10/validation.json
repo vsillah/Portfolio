@@ -1,0 +1,91 @@
+{
+  "phase": 10,
+  "date_local": "2026-10-03",
+  "timezone": "America/New_York",
+  "branch": "codex/campaign-provider-verifier-bridge",
+  "base": "7cc1ee7c",
+  "pr_base": "codex/campaign-receipt-adoption",
+  "integration_order": [
+    1011,
+    1012,
+    1013,
+    "Phase 10"
+  ],
+  "qualification": "disposable local PostgreSQL only; synthetic authenticated attestations, no provider readback",
+  "postgres_version": "18.4",
+  "phase10": {
+    "database_checks_passed": 59,
+    "server_contract_checks_passed": 23,
+    "physical_restart": "pass",
+    "post_restart_exact_replay": "pass",
+    "dedicated_login_authentication": "pass",
+    "disconnect_rollback": "pass",
+    "concurrent_conflicting_replay": "pass"
+  },
+  "regressions": {
+    "phase6_passed": 44,
+    "phase7_with_phase8_and_phase9_passed": 63,
+    "phase8_passed": 64,
+    "phase9_passed": 58,
+    "campaign_passed": 223,
+    "campaign_files_passed": 19,
+    "database_tests_skipped_in_generic_run": 259,
+    "database_cases_exercised_separately": true,
+    "server_contract_checks_included_in_campaign_count": true
+  },
+  "guarded_build": "pass",
+  "changed_file_lint": "pass",
+  "typecheck": {
+    "result": "baseline errors only",
+    "files": [
+      "lib/social-comment-inbox-ui.test.ts:51",
+      "lib/social-comment-inbox-ui.test.ts:52"
+    ],
+    "baseline_verified": "origin/main"
+  },
+  "ui_changed": false,
+  "mp4": "not applicable: backend-only",
+  "hosted_migrations": 0,
+  "hosted_advisors": "not run; no hosted authorization",
+  "provider_calls": 0,
+  "credential_reads_or_changes": 0,
+  "slack_actions": 0,
+  "external_sends": 0,
+  "providers_enabled": false,
+  "sms": "parked",
+  "expenses_usd": 0,
+  "deployments_performed": 0,
+  "vercel_contexts_checked": [],
+  "remaining_gates": [
+    "Captain review and stack integration",
+    "Authorized isolated hosted qualification and advisors",
+    "Both Vercel contexts at integration",
+    "Dedicated verifier identity and metadata projection deployment",
+    "Real authenticated readback adapters and provider-family qualification",
+    "Signed Slack outcome projection",
+    "Provider activation and every external-action gate"
+  ],
+  "commands": [
+    "git fetch origin --prune",
+    "git status --short --branch",
+    "git log --oneline --decorate --max-count=5",
+    "gh pr list --state open --limit 100 --json number,title,headRefName,baseRefName,isDraft,mergeStateStatus,url",
+    "gh pr view <each-open-pr> --json number,title,headRefName,files",
+    "git diff --name-only origin/main...HEAD",
+    "git switch -c codex/campaign-provider-verifier-bridge 7cc1ee7c",
+    "supabase migration new campaign_provider_verifier_bridge",
+    "CAMPAIGN_TEST_POSTGRES_MODULE=/private/tmp/campaign-phase6-postgres/node_modules/embedded-postgres/dist/index.js node scripts/qa/campaign-provider-verifier-postgres.mjs",
+    "CAMPAIGN_TEST_POSTGRES_MODULE=/private/tmp/campaign-phase6-postgres/node_modules/embedded-postgres/dist/index.js node scripts/qa/campaign-atomic-postgres.mjs",
+    "CAMPAIGN_WITH_ADOPTION=1 CAMPAIGN_RECOVERY_WITH_CERTIFICATION=1 CAMPAIGN_TEST_POSTGRES_MODULE=/private/tmp/campaign-phase6-postgres/node_modules/embedded-postgres/dist/index.js node scripts/qa/campaign-atomic-recovery-postgres.mjs",
+    "CAMPAIGN_TEST_POSTGRES_MODULE=/private/tmp/campaign-phase6-postgres/node_modules/embedded-postgres/dist/index.js node scripts/qa/campaign-provider-certification-postgres.mjs",
+    "CAMPAIGN_TEST_POSTGRES_MODULE=/private/tmp/campaign-phase6-postgres/node_modules/embedded-postgres/dist/index.js node scripts/qa/campaign-provider-adoption-postgres.mjs",
+    "node node_modules/vitest/vitest.mjs run lib/campaign-release 'app/api/admin/campaigns/[id]/releases' 'app/admin/campaigns/[id]/page.test.tsx'",
+    "node --import tsx scripts/build-chatbot-knowledge.ts",
+    "node scripts/qa/campaign-release-recovery-server.cjs --build",
+    "node node_modules/typescript/bin/tsc --noEmit --incremental false",
+    "node node_modules/eslint/bin/eslint.js lib/campaign-release-provider-verifier.ts lib/campaign-release-provider-verifier.test.ts lib/campaign-release-provider-verifier-contract.test.ts scripts/qa/campaign-provider-verifier-postgres.mjs",
+    "git show origin/main:lib/social-comment-inbox-ui.test.ts",
+    "git diff --check"
+  ],
+  "git_diff_check": "pass"
+}
