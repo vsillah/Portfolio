@@ -1,0 +1,94 @@
+{
+  "date_local": "2026-10-04",
+  "timezone": "America/New_York",
+  "base": "2a0af6b5154ec260e1f242a61c831baa1675aae0",
+  "branch": "codex/campaign-authority-reconciliation",
+  "pr_base": "main",
+  "lane": "Dependent on merged campaign stack; no open-file owner overlap",
+  "migration": "20261004100212_campaign_authority_reconciliation.sql",
+  "scope": "Create-or-replace only three Phase 6 helpers; reassert specified helper and authorization/commit ACLs; never replace authorization/commit bodies",
+  "postgres_version": "18.4",
+  "focused": {
+    "passed": 13,
+    "database_cases": 12,
+    "static_scope_cases": 1,
+    "scenarios": [
+      "base journal + journal grants + Phases 7-11 without Phase 6",
+      "full campaign sequence: base journal + journal grants + Phase 6 + Phases 7-11"
+    ]
+  },
+  "before_repair": {
+    "skipped_helpers": "All three absent",
+    "skipped_authorize_proacl": null,
+    "skipped_authorize_public_execute": true,
+    "commit_service_role_only": true
+  },
+  "after_repair": {
+    "helpers": "Original definitions; canonical JSON/hash/action-key parity passed",
+    "helper_api_execute": false,
+    "authorize_api_execute": "service_role only",
+    "commit_api_execute": "service_role only",
+    "repeat_repair": "Pass; OIDs, definitions and rows preserved",
+    "explicit_acl_drift_repair": "Pass"
+  },
+  "preserved_function_hashes": {
+    "campaign_authorize_sandbox_intent": {
+      "md5_pg_get_functiondef": "ced09628b28bf79fe539dd65a795390e",
+      "md5_prosrc": "0224db60e6fc894181a320365c4c7d66"
+    },
+    "campaign_execution_commit": {
+      "md5_pg_get_functiondef": "b043abaa7512f64743853b9f4394bf94",
+      "md5_prosrc": "d48f0a1ca617a34cb4a705fb1a1e213d"
+    }
+  },
+  "semantics": "Disabled authorization and exact replay, single reservation, unrelated CAS allowed, atomic attempt mutation denied; all fixture writes rolled back",
+  "row_state": "Identical before/after campaign, verifier and source snapshots; pre-existing journal singleton unchanged; zero business/evidence/source fixture rows",
+  "campaign_contracts": {
+    "passed": 224,
+    "skipped": 272,
+    "files_passed": 20,
+    "files_skipped": 1,
+    "skipped_reason": "Generic run skips existing database cases; focused repair runner executes its 12 database cases separately. Original Phase 6-11 DB suites not rerun."
+  },
+  "lint": "pass",
+  "diff_check": "pass",
+  "typecheck": {
+    "result": "Two existing duplicate-property errors only",
+    "files": [
+      "lib/social-comment-inbox-ui.test.ts:51",
+      "lib/social-comment-inbox-ui.test.ts:52"
+    ],
+    "baseline": "Current origin/main source inspected; same diagnostics as predecessor baseline"
+  },
+  "build": "Not run: migration/test/docs-only repair; focused PostgreSQL, contracts, lint and typecheck used",
+  "provider_calls": 0,
+  "live_credential_reads_or_writes": 0,
+  "hosted_mutations": 0,
+  "production_mutations": 0,
+  "external_sends": 0,
+  "provider_activation": false,
+  "ui_changed": false,
+  "mp4": "not applicable",
+  "hosted_advisors": "not run",
+  "vercel_contexts_checked": [],
+  "expenses_usd": 0,
+  "next_gate": "Captain review/merge, authorized staging forward repair and post-apply hash/ACL/row validation; explicit current approval for production grant changes",
+  "commands": [
+    "git fetch origin --prune",
+    "git status --short --branch",
+    "git log --oneline --decorate --max-count=5",
+    "git diff --name-only origin/main...HEAD",
+    "gh pr list --state open --limit 100 --json number,title,headRefName,baseRefName,isDraft,mergeStateStatus,url",
+    "gh pr view <each-open-pr> --json number,title,headRefName,files",
+    "git switch -c codex/campaign-authority-reconciliation origin/main",
+    "supabase migration new campaign_authority_reconciliation",
+    "CAMPAIGN_TEST_POSTGRES_MODULE=/private/tmp/campaign-phase6-postgres/node_modules/embedded-postgres/dist/index.js node scripts/qa/campaign-authority-reconciliation-postgres.mjs",
+    "node node_modules/vitest/vitest.mjs run lib/campaign-authority-reconciliation.test.ts lib/campaign-release 'app/api/admin/campaigns/[id]/releases' 'app/admin/campaigns/[id]/page.test.tsx'",
+    "node node_modules/eslint/bin/eslint.js lib/campaign-authority-reconciliation.test.ts scripts/qa/campaign-authority-reconciliation-postgres.mjs",
+    "node node_modules/typescript/bin/tsc --noEmit --incremental false",
+    "git show origin/main:lib/social-comment-inbox-ui.test.ts | sed -n '44,54p'",
+    "git diff --check",
+    "git diff --cached --check",
+    "git diff 2a0af6b5...HEAD --check"
+  ]
+}

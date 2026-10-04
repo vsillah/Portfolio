@@ -1,0 +1,56 @@
+Database engine: PostgreSQL 18.4 on x86_64-apple-darwin24.6.0, compiled by Apple clang version 17.0.0 (clang-1700.6.3.2), 64-bit
+
+ RUN  v4.0.18 /Users/vambahsillah/.codex/worktrees/c836/Portfolio
+
+stdout | lib/campaign-authority-reconciliation.test.ts > real PostgreSQL repair: skipped_phase6
+skipped_phase6 [
+  {
+    proname: 'campaign_authorize_sandbox_intent',
+    body_md5: '0224db60e6fc894181a320365c4c7d66',
+    definition_md5: 'ced09628b28bf79fe539dd65a795390e'
+  },
+  {
+    proname: 'campaign_execution_commit',
+    body_md5: 'd48f0a1ca617a34cb4a705fb1a1e213d',
+    definition_md5: 'b043abaa7512f64743853b9f4394bf94'
+  }
+]
+
+stdout | lib/campaign-authority-reconciliation.test.ts > real PostgreSQL repair: skipped_phase6 > is idempotent across repeated repair and reasserts ACL drift without body or row drift
+skipped_phase6: preserved authorize definition md5 ced09628b28bf79fe539dd65a795390e; helper source sha256 eb0d266b16061d7dba20834c4f32eb07a0c9e0962a5b0ff288902dd5a2d778d0; zero persisted semantic-test rows.
+
+ ✓ lib/campaign-authority-reconciliation.test.ts > reconciliation migration scope > copies only the original three helper definitions and explicit ACL repairs 1ms
+ ✓ lib/campaign-authority-reconciliation.test.ts > real PostgreSQL repair: skipped_phase6 > reproduces the skipped-helper/public-authorize state without modifying the fixture to manufacture exposure 10ms
+ ✓ lib/campaign-authority-reconciliation.test.ts > real PostgreSQL repair: skipped_phase6 > reconciles without changing current authorization/commit definitions or any row 6ms
+ ✓ lib/campaign-authority-reconciliation.test.ts > real PostgreSQL repair: skipped_phase6 > matches original helper definitions and canonical JSON/hash/action-key semantics 3ms
+ ✓ lib/campaign-authority-reconciliation.test.ts > real PostgreSQL repair: skipped_phase6 > denies helper execution for API/PUBLIC roles and permits only service-role authorization/commit 7ms
+ ✓ lib/campaign-authority-reconciliation.test.ts > real PostgreSQL repair: skipped_phase6 > retains disabled exact authorization replay and the newer commit protection, with all semantic writes rolled back 9ms
+ ✓ lib/campaign-authority-reconciliation.test.ts > real PostgreSQL repair: skipped_phase6 > is idempotent across repeated repair and reasserts ACL drift without body or row drift 6ms
+stdout | lib/campaign-authority-reconciliation.test.ts > real PostgreSQL repair: full_sequence
+full_sequence [
+  {
+    proname: 'campaign_authorize_sandbox_intent',
+    body_md5: '0224db60e6fc894181a320365c4c7d66',
+    definition_md5: 'ced09628b28bf79fe539dd65a795390e'
+  },
+  {
+    proname: 'campaign_execution_commit',
+    body_md5: 'd48f0a1ca617a34cb4a705fb1a1e213d',
+    definition_md5: 'b043abaa7512f64743853b9f4394bf94'
+  }
+]
+
+stdout | lib/campaign-authority-reconciliation.test.ts > real PostgreSQL repair: full_sequence > is idempotent across repeated repair and reasserts ACL drift without body or row drift
+full_sequence: preserved authorize definition md5 ced09628b28bf79fe539dd65a795390e; helper source sha256 eb0d266b16061d7dba20834c4f32eb07a0c9e0962a5b0ff288902dd5a2d778d0; zero persisted semantic-test rows.
+
+ ✓ lib/campaign-authority-reconciliation.test.ts > real PostgreSQL repair: full_sequence > reproduces the skipped-helper/public-authorize state without modifying the fixture to manufacture exposure 3ms
+ ✓ lib/campaign-authority-reconciliation.test.ts > real PostgreSQL repair: full_sequence > reconciles without changing current authorization/commit definitions or any row 5ms
+ ✓ lib/campaign-authority-reconciliation.test.ts > real PostgreSQL repair: full_sequence > matches original helper definitions and canonical JSON/hash/action-key semantics 2ms
+ ✓ lib/campaign-authority-reconciliation.test.ts > real PostgreSQL repair: full_sequence > denies helper execution for API/PUBLIC roles and permits only service-role authorization/commit 7ms
+ ✓ lib/campaign-authority-reconciliation.test.ts > real PostgreSQL repair: full_sequence > retains disabled exact authorization replay and the newer commit protection, with all semantic writes rolled back 10ms
+ ✓ lib/campaign-authority-reconciliation.test.ts > real PostgreSQL repair: full_sequence > is idempotent across repeated repair and reasserts ACL drift without body or row drift 5ms
+
+ Test Files  1 passed (1)
+      Tests  13 passed (13)
+   Start at  06:10:37
+   Duration  319ms (transform 43ms, setup 26ms, import 64ms, tests 169ms, environment 0ms)

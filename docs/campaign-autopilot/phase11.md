@@ -2,6 +2,8 @@
 
 Status: local qualification; generation-only package, default off. Campaign Autopilot Closure remains incomplete. This phase prepares deployment artifacts without installing a hosted identity, resolving a credential, enabling a provider or granting resource authority. SMS remains parked. No UI changed; MP4 is not applicable.
 
+Integration follow-up: [authority migration-order reconciliation](authority-reconciliation.md) restores missing Phase 6 helpers and intended RPC grants after a skipped Phase 6, while preserving newer function bodies. Its hosted application remains a separate Captain gate.
+
 ## Stack and pre-flight
 
 Base `71f2d01d`, branch `codex/campaign-verifier-provisioning`, worktree `/Users/vambahsillah/.codex/worktrees/c836/Portfolio`. Draft PR targets `codex/campaign-provider-verifier-bridge` (#1014). Integration order: #1011 → #1012 → #1013 → #1014 → Phase 11. Fetch, status/log, open PR inventory, changed-file diff and every returned open PR's file list were checked before editing. Classification: **Dependent**. The roadmap overlaps the stack; no unrelated PR owns these new provisioning files. Shared surfaces: `lib/`, `scripts/`, and a new migration.
