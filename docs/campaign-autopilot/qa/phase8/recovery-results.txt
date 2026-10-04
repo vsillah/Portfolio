@@ -1,0 +1,14 @@
+RUN  v4.0.18 /Users/vambahsillah/.codex/worktrees/d0b3/Portfolio
+
+stdout | lib/campaign-release-atomic-recovery.test.ts > real PostgreSQL atomic recovery
+Database engine: PostgreSQL 18.4 on x86_64-apple-darwin24.6.0, compiled by Apple clang version 17.0.0 (clang-1700.6.3.2), 64-bit
+
+ ✓ lib/campaign-release-atomic-recovery.test.ts (63 tests) 371ms
+
+ Test Files  1 passed (1)
+      Tests  63 passed (63)
+   Start at  21:04:37
+   Duration  501ms (transform 40ms, setup 24ms, import 57ms, tests 371ms, environment 0ms)
+
+PASS: physical restart preserves complete journal, immutable intent, recovery command history and exact replay
+Disposable PostgreSQL data: /var/folders/q2/spyh50y9083bsnp9059ttv400000gn/T/campaign-atomic-pg-gRb4we

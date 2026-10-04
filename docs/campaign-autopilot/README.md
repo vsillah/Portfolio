@@ -1,4 +1,4 @@
-> Latest backend phase: [Phase 6 atomic sandbox authority](phase6.md). Hosted staging qualification and all provider activation remain pending.
+> Latest development phase: [Phase 8 provider certification boundary](phase8.md), stacked on [Phase 7 recovery](phase7.md). Local evidence is not live certification; hosted qualification and all provider activation remain pending.
 
 # Campaign autopilot: release review foundation
 

@@ -1,3 +1,4 @@
+import type { CampaignProviderCertification, CertificationScope } from './campaign-release-provider-certification'
 import type { AtomicCampaignAuthority, AtomicCampaignRequest } from './campaign-release-atomic-authority'
 import { randomUUID } from 'node:crypto'
 import { approvalIdentity, type CampaignApprovalSource } from './campaign-release-activation'
@@ -39,7 +40,15 @@ function validateAttempt(state: ExecutionState, attempt: ExecutionAttempt, recor
  * canonical/source reads and journal CAS cannot prove atomic authority.
  * Every path keeps actual provider dispatch disabled. */
 export class CampaignDispatchFence {
-  constructor(private readonly source: CampaignApprovalSource, private readonly store: CampaignTransactionStore, private readonly atomic?: AtomicCampaignAuthority) {}
+  constructor(private readonly source: CampaignApprovalSource, private readonly store: CampaignTransactionStore, private readonly atomic?: AtomicCampaignAuthority, private readonly certification?: CampaignProviderCertification) {}
+  /** Fresh certification evidence for this exact current fence. Historical atomic
+   * authorization/recovery eligibility never implies provider dispatch eligibility. */
+  async inspectProviderReadiness(fence: AttemptFence, scope: CertificationScope) {
+    if (!this.certification) throw new Error('Provider certification boundary unavailable. Providers remain disabled.')
+    const snapshot = await this.store.snapshot(), attempt = snapshot.attempts[fence.deliveryKey]
+    if (!attempt || attempt.owner !== fence.owner || attempt.version !== fence.version) throw new Error('Certification ownership fence changed.')
+    return this.certification.inspect(scope, attempt)
+  }
   async authorizeSandbox(input: AtomicCampaignRequest) {
     if (!this.atomic) throw new Error(disabled)
     return this.atomic.authorize(input)
