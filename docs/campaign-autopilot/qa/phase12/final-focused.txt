@@ -1,0 +1,11 @@
+
+ RUN  v4.0.18 /Users/vambahsillah/.codex/worktrees/a5e3/Portfolio
+
+ ✓ app/api/admin/campaigns/[id]/releases/slack/route.test.ts (9 tests) 11ms
+ ✓ lib/campaign-slack-bridge.test.ts (28 tests) 17ms
+ ✓ lib/campaign-slack-signed.integration.test.ts (21 tests) 36ms
+
+ Test Files  3 passed (3)
+      Tests  58 passed (58)
+   Start at  07:12:22
+   Duration  285ms (transform 230ms, setup 96ms, import 330ms, tests 64ms, environment 0ms)

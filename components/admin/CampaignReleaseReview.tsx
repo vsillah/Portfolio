@@ -1,5 +1,6 @@
 'use client'
 import { useCallback, useEffect, useState } from 'react'
+import CampaignSlackReview from './CampaignSlackReview'
 import { getCurrentSession } from '@/lib/auth'
 import type { ReleaseDecision, ReleaseRecord } from '@/lib/campaign-release-manifest'
 import { campaignReadiness, campaignRecoveryView, type ApprovalProgress, type SyntheticExecutionProgress } from '@/lib/campaign-release-recovery-view'
@@ -15,6 +16,7 @@ function HashEvidence({ label, value }: { label: string; value: string }) {
 
 export default function CampaignReleaseReview({ campaignId, releaseId }: { campaignId: string; releaseId?: string | null }) {
   const [releases, setReleases] = useState<ReleaseRecord[]>([])
+  const updateRelease = useCallback((record: ReleaseRecord) => setReleases(previous => previous.map(row => row.manifest.releaseId === record.manifest.releaseId && row.version <= record.version ? record : row)), [])
   const [notice, setNotice] = useState('')
   const [busy, setBusy] = useState(false)
   const [bindings, setBindings] = useState<ApprovalProgress[]>([])
@@ -97,6 +99,7 @@ export default function CampaignReleaseReview({ campaignId, releaseId }: { campa
       </div>
       {!evidenceCurrent(record) && <p className="mt-2 text-sm text-amber-200">Evidence expired or missing. Update channel checks, then prepare a fresh release.</p>}
       <p className="mt-2 text-xs text-gray-400">Held, revised, stopped, or expired releases require a fresh packet before approval.</p>
+      <CampaignSlackReview record={record} onRecord={updateRelease} />
       <details className="mt-3 text-sm"><summary className="cursor-pointer">Decision history ({record.audit.length})</summary>{record.audit.map((event, index) => <p className="mt-2 break-all" key={index}>{event.at} · {event.decision} · {event.actor}</p>)}</details>
     </article>)}
   </section>

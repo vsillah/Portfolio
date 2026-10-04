@@ -1,0 +1,10 @@
+    45	    status: 'new',
+    46	    classification: { label: 'unreviewed', priority: 'medium', reason: null },
+    47	    draftReply: '',
+    48	    submittedReplyLocked: false,
+    49	    submittedReplyLockReason: null,
+    50	    approvalState: 'not_started',
+    51	    submittedReplyLocked: false,
+    52	    submittedReplyLockReason: null,
+    53	    providerCapability: {
+    54	      provider: 'linkedin_organization',
