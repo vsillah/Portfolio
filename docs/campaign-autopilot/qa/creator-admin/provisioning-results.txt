@@ -1,0 +1,23 @@
+RUN  v4.0.18 /Users/vambahsillah/.codex/worktrees/c836/Portfolio
+
+ ✓ lib/campaign-verifier-provisioning.test.ts > metadata-only provisioning contract > defaults inactive, deterministic and generation only 3ms
+ ✓ lib/campaign-verifier-provisioning.test.ts > metadata-only provisioning contract > rejects unknown token without echoing values 1ms
+ ✓ lib/campaign-verifier-provisioning.test.ts > metadata-only provisioning contract > rejects unknown password without echoing values 0ms
+ ✓ lib/campaign-verifier-provisioning.test.ts > metadata-only provisioning contract > rejects unknown resolverPath without echoing values 0ms
+ ✓ lib/campaign-verifier-provisioning.test.ts > metadata-only provisioning contract > rejects unknown providerResponse without echoing values 0ms
+ ✓ lib/campaign-verifier-provisioning.test.ts > metadata-only provisioning contract > rejects unknown recipients without echoing values 0ms
+ ✓ lib/campaign-verifier-provisioning.test.ts > metadata-only provisioning contract > rejects unknown body without echoing values 0ms
+ ✓ lib/campaign-verifier-provisioning.test.ts > metadata-only provisioning contract > rejects unknown active without echoing values 0ms
+ ✓ lib/campaign-verifier-provisioning.test.ts > metadata-only provisioning contract > rejects API identities, resolver paths, SMS and invalid lifecycle versions 1ms
+ ✓ lib/campaign-verifier-provisioning.test.ts > metadata-only provisioning contract > broker command has no apply path, secret reads or provider egress 632ms
+ ✓ lib/campaign-verifier-provisioning.test.ts > real PostgreSQL provisioning lifecycle > requires separate authorization and defaults inactive with no grants 18ms
+ ✓ lib/campaign-verifier-provisioning.test.ts > real PostgreSQL provisioning lifecycle > binds exact database, environment, account, broker, identity and version 18ms
+ ✓ lib/campaign-verifier-provisioning.test.ts > real PostgreSQL provisioning lifecycle > activates only USAGE/ingest, authenticates session_user and denies API or registry writes 5ms
+ ✓ lib/campaign-verifier-provisioning.test.ts > real PostgreSQL provisioning lifecycle > rotation and revocation disable projections, preserve evidence/accounting and cannot be replayed into activation 16ms
+ ✓ lib/campaign-verifier-provisioning.test.ts > real PostgreSQL provisioning lifecycle > rolls back projection and grant changes if the append-only audit cannot be recorded 7ms
+ ✓ lib/campaign-verifier-provisioning.test.ts > real PostgreSQL provisioning lifecycle > refuses role membership and excess table/function privileges 12ms
+
+ Test Files  1 passed (1)
+      Tests  16 passed (16)
+   Start at  06:35:10
+   Duration  1.08s (transform 21ms, setup 25ms, import 35ms, tests 967ms, environment 0ms)

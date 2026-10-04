@@ -1,0 +1,74 @@
+RUN  v4.0.18 /Users/vambahsillah/.codex/worktrees/c836/Portfolio
+
+stdout | lib/campaign-release-provider-verifier.test.ts > real PostgreSQL authenticated verifier bridge
+Database engine: PostgreSQL 17.6 on x86_64-apple-darwin23.6.0, compiled by Apple clang version 16.0.0 (clang-1600.0.26.6), 64-bit
+
+ ✓ lib/campaign-release-provider-verifier.test.ts > real PostgreSQL authenticated verifier bridge > atomically certifies and adopts authenticated evidence; exact replay writes nothing 33ms
+ ✓ lib/campaign-release-provider-verifier.test.ts > real PostgreSQL authenticated verifier bridge > generated provisioning rotates/revokes real adopted evidence without releasing accounting or reviving old authority 56ms
+ ✓ lib/campaign-release-provider-verifier.test.ts > real PostgreSQL authenticated verifier bridge > accepted then unknown retains cap until confirmation 29ms
+ ✓ lib/campaign-release-provider-verifier.test.ts > real PostgreSQL authenticated verifier bridge > incomplete rejected proof remains uncertain 14ms
+ ✓ lib/campaign-release-provider-verifier.test.ts > real PostgreSQL authenticated verifier bridge > incomplete confirmed proof remains uncertain 14ms
+ ✓ lib/campaign-release-provider-verifier.test.ts > real PostgreSQL authenticated verifier bridge > positive no-delivery rejection settles once without completion 13ms
+ ✓ lib/campaign-release-provider-verifier.test.ts > real PostgreSQL authenticated verifier bridge > rejects scope credentialVersion drift 13ms
+ ✓ lib/campaign-release-provider-verifier.test.ts > real PostgreSQL authenticated verifier bridge > rejects scope credentialReferenceId drift 11ms
+ ✓ lib/campaign-release-provider-verifier.test.ts > real PostgreSQL authenticated verifier bridge > rejects scope verifierVersion drift 11ms
+ ✓ lib/campaign-release-provider-verifier.test.ts > real PostgreSQL authenticated verifier bridge > rejects scope verifierId drift 12ms
+ ✓ lib/campaign-release-provider-verifier.test.ts > real PostgreSQL authenticated verifier bridge > rejects scope accountId drift 10ms
+ ✓ lib/campaign-release-provider-verifier.test.ts > real PostgreSQL authenticated verifier bridge > rejects scope environment drift 10ms
+ ✓ lib/campaign-release-provider-verifier.test.ts > real PostgreSQL authenticated verifier bridge > rejects scope contentHash drift 11ms
+ ✓ lib/campaign-release-provider-verifier.test.ts > real PostgreSQL authenticated verifier bridge > rejects scope destinationDigest drift 11ms
+ ✓ lib/campaign-release-provider-verifier.test.ts > real PostgreSQL authenticated verifier bridge > rejects scope actionId drift 11ms
+ ✓ lib/campaign-release-provider-verifier.test.ts > real PostgreSQL authenticated verifier bridge > rejects current fence attemptId drift 11ms
+ ✓ lib/campaign-release-provider-verifier.test.ts > real PostgreSQL authenticated verifier bridge > rejects current fence intentId drift 10ms
+ ✓ lib/campaign-release-provider-verifier.test.ts > real PostgreSQL authenticated verifier bridge > rejects current fence owner drift 9ms
+ ✓ lib/campaign-release-provider-verifier.test.ts > real PostgreSQL authenticated verifier bridge > rejects current fence expectedVersion drift 11ms
+ ✓ lib/campaign-release-provider-verifier.test.ts > real PostgreSQL authenticated verifier bridge > rejects bad observation resourceDigest 11ms
+ ✓ lib/campaign-release-provider-verifier.test.ts > real PostgreSQL authenticated verifier bridge > rejects bad observation scopeDigest 10ms
+ ✓ lib/campaign-release-provider-verifier.test.ts > real PostgreSQL authenticated verifier bridge > rejects bad observation evidenceDigest 11ms
+ ✓ lib/campaign-release-provider-verifier.test.ts > real PostgreSQL authenticated verifier bridge > rejects fresh credential authority drift 12ms
+ ✓ lib/campaign-release-provider-verifier.test.ts > real PostgreSQL authenticated verifier bridge > rejects fresh verifier authority drift 12ms
+ ✓ lib/campaign-release-provider-verifier.test.ts > real PostgreSQL authenticated verifier bridge > rejects fresh revocation authority drift 12ms
+ ✓ lib/campaign-release-provider-verifier.test.ts > real PostgreSQL authenticated verifier bridge > rejects fresh expired authority drift 12ms
+ ✓ lib/campaign-release-provider-verifier.test.ts > real PostgreSQL authenticated verifier bridge > rejects fresh future authority drift 11ms
+ ✓ lib/campaign-release-provider-verifier.test.ts > real PostgreSQL authenticated verifier bridge > rejects fresh lease authority drift 12ms
+ ✓ lib/campaign-release-provider-verifier.test.ts > real PostgreSQL authenticated verifier bridge > rejects fresh source authority drift 11ms
+ ✓ lib/campaign-release-provider-verifier.test.ts > real PostgreSQL authenticated verifier bridge > rejects fresh approval authority drift 11ms
+ ✓ lib/campaign-release-provider-verifier.test.ts > real PostgreSQL authenticated verifier bridge > rejects fresh missing authority drift 11ms
+ ✓ lib/campaign-release-provider-verifier.test.ts > real PostgreSQL authenticated verifier bridge > enforces cumulative spend -1 12ms
+ ✓ lib/campaign-release-provider-verifier.test.ts > real PostgreSQL authenticated verifier bridge > enforces cumulative spend 51 11ms
+ ✓ lib/campaign-release-provider-verifier.test.ts > real PostgreSQL authenticated verifier bridge > rejects cumulative regression 15ms
+ ✓ lib/campaign-release-provider-verifier.test.ts > real PostgreSQL authenticated verifier bridge > rejects stale/future observation -3600000 11ms
+ ✓ lib/campaign-release-provider-verifier.test.ts > real PostgreSQL authenticated verifier bridge > rejects stale/future observation 3600000 11ms
+ ✓ lib/campaign-release-provider-verifier.test.ts > real PostgreSQL authenticated verifier bridge > denies API roles and unrelated authenticated logins, even with spoofed GUC 27ms
+ ✓ lib/campaign-release-provider-verifier.test.ts > real PostgreSQL authenticated verifier bridge > serializes concurrent replay and rejects conflicting concurrent requests 27ms
+ ✓ lib/campaign-release-provider-verifier.test.ts > real PostgreSQL authenticated verifier bridge > crash rollback leaves no partial qualification/certificate/adoption; retry commits once 15ms
+ ✓ lib/campaign-release-provider-verifier.test.ts > real PostgreSQL authenticated verifier bridge > expiry during registry lock wait retains reservation 229ms
+ ✓ lib/campaign-release-provider-verifier.test.ts > real PostgreSQL authenticated verifier bridge > durable evidence is append-only and revocation cannot turn replay into new authority 27ms
+ ✓ lib/campaign-release-provider-verifier.test.ts > real PostgreSQL authenticated verifier bridge > qualifies linkedin readback through exact provider family 18ms
+ ✓ lib/campaign-release-provider-verifier.test.ts > real PostgreSQL authenticated verifier bridge > qualifies instagram readback through exact provider family 17ms
+ ✓ lib/campaign-release-provider-verifier.test.ts > real PostgreSQL authenticated verifier bridge > qualifies facebook readback through exact provider family 15ms
+ ✓ lib/campaign-release-provider-verifier.test.ts > real PostgreSQL authenticated verifier bridge > qualifies x readback through exact provider family 14ms
+ ✓ lib/campaign-release-provider-verifier.test.ts > real PostgreSQL authenticated verifier bridge > qualifies tiktok readback through exact provider family 15ms
+ ✓ lib/campaign-release-provider-verifier.test.ts > real PostgreSQL authenticated verifier bridge > qualifies gmail readback through exact provider family 15ms
+ ✓ lib/campaign-release-provider-verifier.test.ts > real PostgreSQL authenticated verifier bridge > qualifies heygen readback through exact provider family 14ms
+ ✓ lib/campaign-release-provider-verifier.test.ts > real PostgreSQL authenticated verifier bridge > qualifies youtube readback through exact provider family 15ms
+ ✓ lib/campaign-release-provider-verifier.test.ts > real PostgreSQL authenticated verifier bridge > qualifies manual_social readback through exact provider family 14ms
+ ✓ lib/campaign-release-provider-verifier.test.ts > real PostgreSQL authenticated verifier bridge > fresh dependency and inspection fail after credential revocation 18ms
+ ✓ lib/campaign-release-provider-verifier.test.ts > real PostgreSQL authenticated verifier bridge > fresh dependency and inspection fail after verifier revocation 17ms
+ ✓ lib/campaign-release-provider-verifier.test.ts > real PostgreSQL authenticated verifier bridge > fresh dependency and inspection fail after authorization revocation 16ms
+ ✓ lib/campaign-release-provider-verifier.test.ts > real PostgreSQL authenticated verifier bridge > fresh dependency and inspection fail after certificate revocation 15ms
+ ✓ lib/campaign-release-provider-verifier.test.ts > real PostgreSQL authenticated verifier bridge > rolls back receipt/certificate when downstream adoption fails 14ms
+ ✓ lib/campaign-release-provider-verifier.test.ts > real PostgreSQL authenticated verifier bridge > does not expose private schema functions or tables through API roles 9ms
+ ✓ lib/campaign-release-provider-verifier.test.ts > real PostgreSQL authenticated verifier bridge > runs the server bridge end to end through authenticated private SQL 13ms
+ ✓ lib/campaign-release-provider-verifier.test.ts > real PostgreSQL authenticated verifier bridge > disconnect before commit rolls back and retry remains possible 35ms
+ ✓ lib/campaign-release-provider-verifier.test.ts > real PostgreSQL authenticated verifier bridge > concurrent conflicting commands have exactly one winner 27ms
+ ✓ lib/campaign-release-provider-verifier.test.ts > real PostgreSQL authenticated verifier bridge > leaves a durable final replay fixture 14ms
+
+ Test Files  1 passed (1)
+      Tests  60 passed (60)
+   Start at  06:33:51
+   Duration  1.43s (transform 67ms, setup 25ms, import 97ms, tests 1.26s, environment 0ms)
+
+Post-restart exact verifier retry: identical historical result, no additional ledger writes.
+Physical restart: journal and all qualification, receipt, certification and revocation rows identical.
+Disposable PostgreSQL data: /var/folders/q2/spyh50y9083bsnp9059ttv400000gn/T/campaign-atomic-pg-voAuU4

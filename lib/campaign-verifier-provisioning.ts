@@ -80,7 +80,16 @@ BEGIN
   END IF;
   ${p.operation !== 'revoke' ? `SELECT oid INTO principal_oid FROM pg_roles WHERE rolname='${i.principal}'
     AND rolcanlogin AND NOT rolsuper AND NOT rolcreaterole AND NOT rolcreatedb AND NOT rolreplication AND NOT rolbypassrls;
-  IF principal_oid IS NULL OR EXISTS(SELECT 1 FROM pg_auth_members WHERE member=principal_oid OR roleid=principal_oid) THEN
+  -- PostgreSQL's non-superuser creator grant: bootstrap superuser OID 10,
+  -- ADMIN only to the direct schema owner. No name-based platform allowlist.
+  IF principal_oid IS NULL
+    OR (SELECT count(*) FROM pg_auth_members WHERE member=principal_oid OR roleid=principal_oid) > 1
+    OR EXISTS(SELECT 1 FROM pg_auth_members m WHERE (m.member=principal_oid OR m.roleid=principal_oid)
+      AND (m.roleid=principal_oid
+        AND m.member=(SELECT nspowner FROM pg_namespace WHERE nspname='campaign_verifier')
+        AND m.member=(SELECT oid FROM pg_roles WHERE rolname=session_user AND NOT rolsuper AND rolcreaterole)
+        AND m.admin_option AND NOT m.inherit_option AND NOT m.set_option
+        AND EXISTS(SELECT 1 FROM pg_roles bootstrap WHERE bootstrap.oid=10 AND bootstrap.rolsuper AND bootstrap.oid=m.grantor)) IS NOT TRUE) THEN
     RAISE EXCEPTION 'Isolated existing verifier LOGIN required';
   END IF;
   -- Check effective privileges, including PUBLIC. Never silently repair an overprivileged role.
