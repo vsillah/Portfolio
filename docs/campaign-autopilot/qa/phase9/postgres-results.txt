@@ -1,0 +1,70 @@
+
+ RUN  v4.0.18 <phase9-worktree>
+
+stdout | lib/campaign-release-provider-adoption.test.ts > real PostgreSQL provider receipt adoption
+Database engine: PostgreSQL 18.4 on x86_64-apple-darwin24.6.0, compiled by Apple clang version 17.0.0 (clang-1700.6.3.2), 64-bit
+
+ ✓ lib/campaign-release-provider-adoption.test.ts > real PostgreSQL provider receipt adoption > adopts confirmed evidence once and exact retry recovers the historical result 18ms
+ ✓ lib/campaign-release-provider-adoption.test.ts > real PostgreSQL provider receipt adoption > acceptance and uncertainty reserve the full cap until final readback settles once 14ms
+ ✓ lib/campaign-release-provider-adoption.test.ts > real PostgreSQL provider receipt adoption > rejected no-delivery settles known cost but permanently stops the attempt 11ms
+ ✓ lib/campaign-release-provider-adoption.test.ts > real PostgreSQL provider receipt adoption > hold prevents completion eligibility while reconciling known final cost 9ms
+ ✓ lib/campaign-release-provider-adoption.test.ts > real PostgreSQL provider receipt adoption > revise prevents completion eligibility while reconciling known final cost 9ms
+ ✓ lib/campaign-release-provider-adoption.test.ts > real PostgreSQL provider receipt adoption > stop prevents completion eligibility while reconciling known final cost 8ms
+ ✓ lib/campaign-release-provider-adoption.test.ts > real PostgreSQL provider receipt adoption > source drift cannot unlock a successor 8ms
+ ✓ lib/campaign-release-provider-adoption.test.ts > real PostgreSQL provider receipt adoption > lease drift cannot unlock a successor 9ms
+ ✓ lib/campaign-release-provider-adoption.test.ts > real PostgreSQL provider receipt adoption > certificate drift cannot unlock a successor 9ms
+ ✓ lib/campaign-release-provider-adoption.test.ts > real PostgreSQL provider receipt adoption > revocation drift cannot unlock a successor 9ms
+ ✓ lib/campaign-release-provider-adoption.test.ts > real PostgreSQL provider receipt adoption > qualification drift cannot unlock a successor 9ms
+ ✓ lib/campaign-release-provider-adoption.test.ts > real PostgreSQL provider receipt adoption > budget drift cannot unlock a successor 8ms
+ ✓ lib/campaign-release-provider-adoption.test.ts > real PostgreSQL provider receipt adoption > rejects changed attemptId binding 7ms
+ ✓ lib/campaign-release-provider-adoption.test.ts > real PostgreSQL provider receipt adoption > rejects changed intentId binding 7ms
+ ✓ lib/campaign-release-provider-adoption.test.ts > real PostgreSQL provider receipt adoption > rejects changed owner binding 7ms
+ ✓ lib/campaign-release-provider-adoption.test.ts > real PostgreSQL provider receipt adoption > rejects changed expectedVersion binding 8ms
+ ✓ lib/campaign-release-provider-adoption.test.ts > real PostgreSQL provider receipt adoption > rejects changed accountId binding 8ms
+ ✓ lib/campaign-release-provider-adoption.test.ts > real PostgreSQL provider receipt adoption > rejects changed credentialVersion binding 8ms
+ ✓ lib/campaign-release-provider-adoption.test.ts > real PostgreSQL provider receipt adoption > rejects changed verifierVersion binding 8ms
+ ✓ lib/campaign-release-provider-adoption.test.ts > real PostgreSQL provider receipt adoption > rejects changed destinationDigest binding 8ms
+ ✓ lib/campaign-release-provider-adoption.test.ts > real PostgreSQL provider receipt adoption > rejects changed contentHash binding 7ms
+ ✓ lib/campaign-release-provider-adoption.test.ts > real PostgreSQL provider receipt adoption > rejects changed authorizationKey binding 8ms
+ ✓ lib/campaign-release-provider-adoption.test.ts > real PostgreSQL provider receipt adoption > rejects changed environment binding 8ms
+ ✓ lib/campaign-release-provider-adoption.test.ts > real PostgreSQL provider receipt adoption > requires latest evidence and refuses missing preparation-time attempt binding 10ms
+ ✓ lib/campaign-release-provider-adoption.test.ts > real PostgreSQL provider receipt adoption > refuses a resource identity already claimed by another run 9ms
+ ✓ lib/campaign-release-provider-adoption.test.ts > real PostgreSQL provider receipt adoption > recovery inspect cannot mutate an adopted outcome 11ms
+ ✓ lib/campaign-release-provider-adoption.test.ts > real PostgreSQL provider receipt adoption > recovery renew cannot mutate an adopted outcome 11ms
+ ✓ lib/campaign-release-provider-adoption.test.ts > real PostgreSQL provider receipt adoption > recovery release cannot mutate an adopted outcome 13ms
+ ✓ lib/campaign-release-provider-adoption.test.ts > real PostgreSQL provider receipt adoption > recovery reconcile cannot mutate an adopted outcome 15ms
+ ✓ lib/campaign-release-provider-adoption.test.ts > real PostgreSQL provider receipt adoption > recovery review_takeover cannot mutate an adopted outcome 9ms
+ ✓ lib/campaign-release-provider-adoption.test.ts > real PostgreSQL provider receipt adoption > recovery takeover cannot mutate an adopted outcome 9ms
+ ✓ lib/campaign-release-provider-adoption.test.ts > real PostgreSQL provider receipt adoption > simultaneous identical adoptions commit one settlement; conflicting replay fails 20ms
+ ✓ lib/campaign-release-provider-adoption.test.ts > real PostgreSQL provider receipt adoption > stop wins a canonical lock race before adoption 36ms
+ ✓ lib/campaign-release-provider-adoption.test.ts > real PostgreSQL provider receipt adoption > certificate expiry during its lock wait retains reservations 292ms
+ ✓ lib/campaign-release-provider-adoption.test.ts > real PostgreSQL provider receipt adoption > rollback leaves no adoption; connection loss after commit recovers exact result 36ms
+ ✓ lib/campaign-release-provider-adoption.test.ts > real PostgreSQL provider receipt adoption > adoption and recovery race cannot release or replace delivered ownership 41ms
+ ✓ lib/campaign-release-provider-adoption.test.ts > real PostgreSQL provider receipt adoption > API roles lack mutation grants and evidence rows are append-only 13ms
+ ✓ lib/campaign-release-provider-adoption.test.ts > real PostgreSQL provider receipt adoption > adopts linkedin exact provider receipt contract 10ms
+ ✓ lib/campaign-release-provider-adoption.test.ts > real PostgreSQL provider receipt adoption > adopts instagram exact provider receipt contract 10ms
+ ✓ lib/campaign-release-provider-adoption.test.ts > real PostgreSQL provider receipt adoption > adopts facebook exact provider receipt contract 10ms
+ ✓ lib/campaign-release-provider-adoption.test.ts > real PostgreSQL provider receipt adoption > adopts x exact provider receipt contract 10ms
+ ✓ lib/campaign-release-provider-adoption.test.ts > real PostgreSQL provider receipt adoption > adopts tiktok exact provider receipt contract 9ms
+ ✓ lib/campaign-release-provider-adoption.test.ts > real PostgreSQL provider receipt adoption > adopts gmail exact provider receipt contract 10ms
+ ✓ lib/campaign-release-provider-adoption.test.ts > real PostgreSQL provider receipt adoption > adopts heygen exact provider receipt contract 9ms
+ ✓ lib/campaign-release-provider-adoption.test.ts > real PostgreSQL provider receipt adoption > adopts youtube exact provider receipt contract 10ms
+ ✓ lib/campaign-release-provider-adoption.test.ts > real PostgreSQL provider receipt adoption > adopts manual_social exact provider receipt contract 10ms
+ ✓ lib/campaign-release-provider-adoption.test.ts > real PostgreSQL provider receipt adoption > only an exact confirmed adoption unlocks the eligible disabled successor path 15ms
+ ✓ lib/campaign-release-provider-adoption.test.ts > real PostgreSQL provider receipt adoption > never reserves the same delivery in a second environment 6ms
+ ✓ lib/campaign-release-provider-adoption.test.ts > real PostgreSQL provider receipt adoption > unknown-resource uncertainty retains money and cannot be resent by recovery 8ms
+ ✓ lib/campaign-release-provider-adoption.test.ts > real PostgreSQL provider receipt adoption > certificate revocation winning its lock forces reconciliation without settlement 32ms
+ ✓ lib/campaign-release-provider-adoption.test.ts > real PostgreSQL provider receipt adoption > forged or missing receipt trust cannot impersonate a durable confirmed adoption 9ms
+ ✓ lib/campaign-release-provider-adoption.test.ts > real PostgreSQL provider receipt adoption > append-only evidence rejects changed payload and extra raw input fields 8ms
+ ✓ lib/campaign-release-provider-adoption.test.ts > real PostgreSQL provider receipt adoption > successor authority expires while waiting for a predecessor certificate 877ms
+ ✓ lib/campaign-release-provider-adoption.test.ts > real PostgreSQL provider receipt adoption > leaves durable adoption for physical restart and exact historical retry 20ms
+ ✓ lib/campaign-release-provider-adoption.test.ts > provider adoption registration boundary > has no production caller, transport, credential resolver or activation registration 46ms
+
+ Test Files  1 passed (1)
+      Tests  55 passed (55)
+   Start at  21:37:20
+   Duration  2.04s (transform 42ms, setup 27ms, import 60ms, tests 1.90s, environment 0ms)
+
+Post-restart exact adoption retry: identical historical result, no additional ledger writes.
+Physical restart: journal and all qualification, receipt, certification and revocation rows identical.
+Disposable PostgreSQL data: temporary local directory (stopped)

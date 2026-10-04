@@ -1,4 +1,4 @@
-> Latest development phase: [Phase 8 provider certification boundary](phase8.md), stacked on [Phase 7 recovery](phase7.md). Local evidence is not live certification; hosted qualification and all provider activation remain pending.
+> Latest development phase: [Phase 9 controlled provider receipt adoption](phase9.md), stacked on [Phase 8 provider certification](phase8.md) and [Phase 7 recovery](phase7.md). Local qualification keeps every provider disabled; hosted qualification, verifier integration and activation remain pending.
 
 # Campaign autopilot: release review foundation
 

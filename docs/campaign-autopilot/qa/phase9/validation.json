@@ -1,0 +1,80 @@
+{
+  "phase": 9,
+  "branch": "codex/campaign-receipt-adoption",
+  "base": "81ceff37",
+  "dependency_pr": 1012,
+  "stack_dependency_pr": 1011,
+  "qualification": "local-only",
+  "postgres_version": "18.4",
+  "adoption_suite": {
+    "passed": 55,
+    "database_cases": 54,
+    "registration_boundary_cases": 1,
+    "physical_restart_rows_identical": true,
+    "post_restart_exact_replay": "pass"
+  },
+  "phase8_regression_with_phase9": {
+    "passed": 64,
+    "physical_restart": "pass"
+  },
+  "phase7_regression_with_phase9": {
+    "passed": 63,
+    "physical_restart_and_exact_replay": "pass"
+  },
+  "campaign_suite": {
+    "files_passed": 18,
+    "passed": 200,
+    "database_tests_skipped_in_non_database_run": 197,
+    "database_cases_run_separately": true
+  },
+  "changed_file_lint": "pass",
+  "guarded_build": "pass",
+  "git_diff_check": "pass",
+  "typecheck": {
+    "result": "baseline-errors-only",
+    "files": [
+      "lib/social-comment-inbox-ui.test.ts:51",
+      "lib/social-comment-inbox-ui.test.ts:52"
+    ],
+    "baseline_verified": "origin/main"
+  },
+  "ui_changed": false,
+  "route_contracts": "release API, assembly API and campaign page pass",
+  "rendered_qa_and_mp4": "not applicable; no UI change",
+  "hosted_migration": false,
+  "provider_calls": 0,
+  "external_sends": 0,
+  "credential_changes": 0,
+  "providers_enabled": false,
+  "sms": "parked",
+  "expenses_usd": 0,
+  "deployments_performed": 0,
+  "vercel_contexts_checked": [],
+  "remaining_gates": [
+    "Captain stacked review",
+    "Authorized isolated hosted qualification",
+    "Qualified verifier and current credential/version authority",
+    "Fresh verification path for stale or unbound historical evidence",
+    "Explicit provider activation and transport integration",
+    "Signed Slack outcomes and supervised campaign execution"
+  ],
+  "commands": [
+    "git fetch origin --prune",
+    "git status --short --branch",
+    "git log --oneline --decorate --max-count=5",
+    "gh pr list --state open --limit 100 --json number,title,headRefName,baseRefName,isDraft,mergeStateStatus,url",
+    "git diff --name-only origin/main...HEAD",
+    "gh pr view <each-open-pr> --json number,title,headRefName,files",
+    "supabase migration new campaign_provider_receipt_adoption",
+    "CAMPAIGN_TEST_POSTGRES_MODULE=/tmp/campaign-phase6-postgres/node_modules/embedded-postgres/dist/index.js node scripts/qa/campaign-provider-adoption-postgres.mjs",
+    "CAMPAIGN_WITH_ADOPTION=1 CAMPAIGN_TEST_POSTGRES_MODULE=/tmp/campaign-phase6-postgres/node_modules/embedded-postgres/dist/index.js node scripts/qa/campaign-provider-certification-postgres.mjs",
+    "CAMPAIGN_WITH_ADOPTION=1 CAMPAIGN_RECOVERY_WITH_CERTIFICATION=1 CAMPAIGN_TEST_POSTGRES_MODULE=/tmp/campaign-phase6-postgres/node_modules/embedded-postgres/dist/index.js node scripts/qa/campaign-atomic-recovery-postgres.mjs",
+    "node node_modules/vitest/vitest.mjs run lib/campaign-release 'app/api/admin/campaigns/[id]/releases' 'app/admin/campaigns/[id]/page.test.tsx'",
+    "node --import tsx scripts/build-chatbot-knowledge.ts",
+    "node scripts/qa/campaign-release-recovery-server.cjs --build",
+    "node node_modules/typescript/bin/tsc --noEmit --pretty false",
+    "node node_modules/eslint/bin/eslint.js lib/campaign-release-provider-adoption.test.ts lib/campaign-release-provider-certification.test.ts lib/campaign-release-atomic-recovery.test.ts scripts/qa/campaign-provider-adoption-postgres.mjs scripts/qa/campaign-provider-certification-postgres.mjs scripts/qa/campaign-atomic-recovery-postgres.mjs",
+    "git show origin/main:lib/social-comment-inbox-ui.test.ts",
+    "git diff --check"
+  ]
+}

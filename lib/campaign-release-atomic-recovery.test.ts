@@ -95,6 +95,7 @@ describe.skipIf(!url)('real PostgreSQL atomic recovery', () => {
     x=data();await seed();await call();const beforeUpgrade=await snapshot()
     await admin.query(readFileSync('supabase/migrations/20261004001737_campaign_atomic_recovery.sql','utf8'))
     if (process.env.CAMPAIGN_RECOVERY_WITH_CERTIFICATION === '1') await admin.query(readFileSync('supabase/migrations/20261004005627_campaign_provider_certification.sql','utf8'))
+    if (process.env.CAMPAIGN_WITH_ADOPTION === '1') await admin.query(readFileSync('supabase/migrations/20261004011705_campaign_provider_receipt_adoption.sql','utf8'))
     expect(await snapshot()).toEqual(beforeUpgrade)
   }, 30000)
   afterAll(async () => { await Promise.all([admin?.end(), worker?.end(), other?.end()]) })
