@@ -94,6 +94,7 @@ describe.skipIf(!url)('real PostgreSQL atomic recovery', () => {
     await worker.query('set role service_role'); await other.query('set role service_role')
     x=data();await seed();await call();const beforeUpgrade=await snapshot()
     await admin.query(readFileSync('supabase/migrations/20261004001737_campaign_atomic_recovery.sql','utf8'))
+    if (process.env.CAMPAIGN_RECOVERY_WITH_CERTIFICATION === '1') await admin.query(readFileSync('supabase/migrations/20261004005627_campaign_provider_certification.sql','utf8'))
     expect(await snapshot()).toEqual(beforeUpgrade)
   }, 30000)
   afterAll(async () => { await Promise.all([admin?.end(), worker?.end(), other?.end()]) })

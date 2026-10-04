@@ -1,0 +1,49 @@
+{
+  "phase": 8,
+  "branch": "codex/campaign-provider-certification",
+  "base": "fae4e9ba43c625c41e005646e0c8bc2666222324",
+  "dependency_pr": 1011,
+  "qualification": "local-only",
+  "postgres_version": "18.4",
+  "provider_certification_suite": {
+    "passed": 64,
+    "database_cases": 47,
+    "adapter_cases": 17,
+    "physical_restart_evidence_equal": true
+  },
+  "phase7_regression_with_phase8_migration": {
+    "passed": 63,
+    "physical_restart_and_exact_replay": "pass"
+  },
+  "campaign_suite": {
+    "files_passed": 17,
+    "passed": 199,
+    "database_cases_run_separately": true
+  },
+  "changed_file_lint": "pass",
+  "guarded_production_build": "pass",
+  "git_diff_check": "pass",
+  "typecheck": {
+    "result": "baseline-errors-only",
+    "files": [
+      "lib/social-comment-inbox-ui.test.ts:51",
+      "lib/social-comment-inbox-ui.test.ts:52"
+    ],
+    "baseline_verified": "origin/main"
+  },
+  "ui_changed": false,
+  "rendered_route_qa": "not-applicable-no-UI-change",
+  "route_contract_tests": "release API, assembly API and campaign page passed",
+  "new_mp4": "not-applicable",
+  "hosted_qualification": false,
+  "live_certified_providers": [],
+  "providers_enabled": false,
+  "sms": "parked",
+  "provider_calls": 0,
+  "production_migrations": 0,
+  "external_sends": 0,
+  "expenses_usd": 0,
+  "deployments_performed": 0,
+  "vercel_contexts_checked": [],
+  "next_gate": "Captain review of stacked draft, then isolated hosted qualification; verifier issuance, credential/provider access and activation remain separate gates"
+}
