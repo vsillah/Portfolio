@@ -1,0 +1,11 @@
+    body: 'Can this help intake?',
+    status: 'new',
+    classification: { label: 'unreviewed', priority: 'medium', reason: null },
+    draftReply: '',
+    submittedReplyLocked: false,
+    submittedReplyLockReason: null,
+    approvalState: 'not_started',
+    submittedReplyLocked: false,
+    submittedReplyLockReason: null,
+    providerCapability: {
+      provider: 'linkedin_organization',
