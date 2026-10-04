@@ -1,0 +1,44 @@
+{
+  "phase": 7,
+  "base": "fc49c4e7345dd51a7764788346ea179c218ea4f5",
+  "branch": "codex/campaign-atomic-recovery",
+  "migration": "20261004001737_campaign_atomic_recovery.sql",
+  "postgres": {
+    "engine": "PostgreSQL 18.4",
+    "passed": 63,
+    "databaseCases": 57,
+    "adapterCases": 6,
+    "physicalRestart": "passed",
+    "populatedPhase6Upgrade": "passed",
+    "realLockContention": "passed"
+  },
+  "broaderTests": {
+    "files": 16,
+    "passed": 182,
+    "optInDatabaseCasesSkipped": 96,
+    "note": "57 Phase 7 cases run separately; 39 unchanged Phase 6 database cases are outside this Phase 7 runner"
+  },
+  "lint": "passed",
+  "diffCheck": "passed",
+  "guardedProductionBuild": "passed",
+  "fullTypecheck": {
+    "status": "baseline errors only",
+    "errors": [
+      "lib/social-comment-inbox-ui.test.ts:51 TS1117",
+      "lib/social-comment-inbox-ui.test.ts:52 TS1117"
+    ],
+    "baselineVerifiedFrom": "origin/main"
+  },
+  "uiChanged": false,
+  "uiVideoApplicable": false,
+  "hostedMigrationsApplied": false,
+  "liveWorkflowOrCustomerDataSmoke": false,
+  "providerEnabled": false,
+  "dispatched": false,
+  "externalProviderCalls": 0,
+  "expensesUsd": 0,
+  "vercelContexts": {
+    "Vercel \u2013 portfolio": "not checked; Captain pre/post-merge gate",
+    "Vercel \u2013 portfolio-staging": "not checked; Captain pre/post-merge gate"
+  }
+}

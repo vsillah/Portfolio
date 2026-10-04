@@ -1,3 +1,4 @@
+import { AtomicCampaignRecovery } from './campaign-release-atomic-recovery'
 import { AtomicCampaignAuthority } from './campaign-release-atomic-authority'
 import 'server-only'
 import { CampaignDispatchFence } from './campaign-release-dispatch'
@@ -18,4 +19,9 @@ export function bindStoredCampaignApproval(client: CampaignJournalRpc, releaseId
 export function storedCampaignDispatchFence(client: CampaignJournalRpc) {
   const source = { read: getCampaignRelease, assertCurrentSources: assertCurrentCampaignSources }
   return new CampaignDispatchFence(source, new DurableCampaignExecutionStore(client), new AtomicCampaignAuthority(client, source))
+}
+
+/** Explicit, authenticated server-only recovery. Deliberately no HTTP/worker registration. */
+export function storedCampaignAtomicRecovery(client: CampaignJournalRpc, authenticatedPortfolioActor: string) {
+  return new AtomicCampaignRecovery(client, authenticatedPortfolioActor)
 }
