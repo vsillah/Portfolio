@@ -1,4 +1,6 @@
-> Latest development phase: [Phase 11 verifier provisioning](phase11.md), stacked on [Phase 10 verifier bridge](phase10.md) and Phases 7–9. Generation-only metadata package; registries remain empty in hosted environments and providers remain disabled. Captain review, authorized staging qualification, dedicated identity deployment and real readback adapters remain gates.
+> Latest development phase: [Phase 12 signed Slack command and outcome bridge](phase12.md). Default-off review dispatch, version-bound decisions, durable receipts and existing release-panel projections are locally qualified. Live Slack, hosted storage qualification, provider activation and Campaign Autopilot Closure remain gated.
+
+> Previous development phase: [Phase 11 verifier provisioning](phase11.md), stacked on [Phase 10 verifier bridge](phase10.md) and Phases 7–9. Generation-only metadata package; registries remain empty in hosted environments and providers remain disabled. Captain review, authorized staging qualification, dedicated identity deployment and real readback adapters remain gates.
 
 # Campaign autopilot: release review foundation
 

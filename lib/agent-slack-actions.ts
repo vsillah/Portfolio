@@ -1,4 +1,4 @@
-import { decideStoredCampaignRelease } from '@/lib/campaign-release-store'
+import { decideCampaignSlackRelease } from '@/lib/campaign-slack-bridge'
 import type { ReleaseDecision } from '@/lib/campaign-release-manifest'
 import { getSlackAgentSource } from '@/lib/slack-agent-environment'
 import { runChiefOfStaffChat } from '@/lib/chief-of-staff-chat'
@@ -111,6 +111,7 @@ function idempotencyKey(payload: SlackInteractivePayload, value: SlackAgentActio
     payload.container?.message_ts ?? payload.message?.ts ?? 'unknown-ts',
     value.action,
     target,
+    ...(value.action.startsWith('campaign_release.') ? [value.manifestHash!, value.releaseVersion!, value.dispatchIntentId!] : []),
     ...(value.agentKey ? [value.agentKey] : []),
   ].join(':')
 }
@@ -394,7 +395,12 @@ export function prepareSlackAgentAction(payload: SlackInteractivePayload) {
   }
   switch (value.action) {
     case 'campaign_release.approve': case 'campaign_release.revise': case 'campaign_release.hold': case 'campaign_release.stop':
-      if (!value.runId || !/^[a-f0-9]{64}$/.test(value.manifestHash ?? '') || value.schemaVersion !== 'campaign-release/v1' || payload.actions?.[0]?.action_id !== value.action.replace('.', '_')) return reject('Missing exact campaign release identity. Open a fresh Portfolio card.')
+      if (![value.runId, value.dispatchIntentId].every(id => typeof id === 'string' &&
+        /^[a-f0-9]{8}-[a-f0-9]{4}-[1-8][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i.test(id)) ||
+        !/^[1-9][0-9]{0,9}$/.test(value.releaseVersion ?? '') || !/^[a-f0-9]{64}$/.test(value.manifestHash ?? '') ||
+        value.schemaVersion !== 'campaign-release/v1' || payload.actions?.[0]?.action_id !== value.action.replace('.', '_')) {
+        return reject('Missing exact campaign release identity. Open a fresh Portfolio card.')
+      }
       break
     case 'canary.receipt':
       if (payload.actions?.[0]?.action_id !== 'agent_canary_receipt' || value.schemaVersion !== 'receipt-canary-v1' || !/^A[A-Z0-9]{1,31}$/.test(value.canaryAppId ?? '') || payload.api_app_id !== value.canaryAppId) return reject('Canary rejected: app identity does not match the signed command card.')
@@ -439,17 +445,20 @@ export async function handleSlackAgentAction(payload: SlackInteractivePayload): 
   const prepared = prepareSlackAgentAction(payload)
   if (!prepared.ok) return prepared.result
   try {
-    return await executeSlackAgentAction(prepared)
+    return await executeSlackAgentAction(prepared, payload)
   } catch {
     return actionResult('Slack action could not be confirmed. The decision or work item may already be saved. Check the current Portfolio gate before retrying; completion is unconfirmed.', 'failed')
   }
 }
 
-async function executeSlackAgentAction({ authorization, value, key }: Extract<ReturnType<typeof prepareSlackAgentAction>, { ok: true }>): Promise<SlackAgentActionResult> {
+async function executeSlackAgentAction({ authorization, value, key }: Extract<ReturnType<typeof prepareSlackAgentAction>, { ok: true }>, payload: SlackInteractivePayload): Promise<SlackAgentActionResult> {
 
   if (value.action.startsWith('campaign_release.')) {
-    const record = await decideStoredCampaignRelease(value.runId!, value.manifestHash!, value.action.split('.')[1] as ReleaseDecision, `slack:${authorization.userId}`)
-    return actionResult(`Campaign release ${record.state}. Provider execution remains gated. Review: ${baseUrl()}/admin/campaigns/${record.manifest.campaignId}?release=${record.manifest.releaseId}`, 'completed')
+    const result = await decideCampaignSlackRelease({ releaseId: value.runId!, hash: value.manifestHash!,
+      version: Number(value.releaseVersion), intentId: value.dispatchIntentId!, decision: value.action.split('.')[1] as ReleaseDecision,
+      actor: authorization.userId, team: payload.team?.id ?? '', channel: payload.channel?.id || payload.container?.channel_id || '',
+      ts: payload.container?.message_ts || payload.message?.ts || '', sourceEnvironment: value.sourceEnvironment!, sourceOrigin: value.sourceOrigin!, commandKey: key })
+    return actionResult(result.text, result.status)
   }
 
   if (value.action === 'canary.receipt') return actionResult('Receipt canary verified. No approval, work, outreach, or provider action was performed.', 'completed')

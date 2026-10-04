@@ -1,0 +1,24 @@
+{
+  "date": "2026-10-04",
+  "phase": 12,
+  "base": "a7394149515e497e3ac2f283342d2d777da236fd",
+  "branch": "codex/campaign-signed-slack-closure",
+  "regression": {
+    "passed": 518,
+    "skipped": 300,
+    "reason": "Optional disposable PostgreSQL suites not configured"
+  },
+  "viewports": [
+    390,
+    768,
+    1440
+  ],
+  "applicationExternalRequests": 0,
+  "hostedDatabaseMutations": 0,
+  "expensesUSD": 0,
+  "evidence": "Synthetic persistence/Slack transport and actual-route browser fixtures; not live Slack, provider or hosted DB qualification",
+  "typecheck": "Baseline TS1117 duplicate keys at lib/social-comment-inbox-ui.test.ts:51-52; no new errors",
+  "productionBuild": "Not run while baseline typecheck fails",
+  "vercelContexts": "Captain review pending",
+  "humanQA": "Pending"
+}

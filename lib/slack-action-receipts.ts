@@ -121,7 +121,7 @@ function envelopeFor(payload: SlackInteractivePayload, value: ReceiptActionValue
   const source = getSlackAgentSource()
   if (value.sourceEnvironment !== source.sourceEnvironment || value.sourceOrigin !== source.sourceOrigin) throw new Error('Receipt source mismatch')
   const minimal: ReceiptActionValue = { action: value.action, sourceEnvironment: value.sourceEnvironment, sourceOrigin: value.sourceOrigin }
-  for (const key of ['canaryAppId', 'schemaVersion', 'approvalId', 'runId', 'workItemId', 'agentKey', 'contentId', 'calendarItemId', 'commentId', 'expectedUpdatedAt', 'expectedReplyText', 'outreachQueueId', 'messageVersionKey', 'sendQueueIdempotencyKey', 'note'] as const) {
+  for (const key of ['manifestHash', 'releaseVersion', 'dispatchIntentId', 'canaryAppId', 'schemaVersion', 'approvalId', 'runId', 'workItemId', 'agentKey', 'contentId', 'calendarItemId', 'commentId', 'expectedUpdatedAt', 'expectedReplyText', 'outreachQueueId', 'messageVersionKey', 'sendQueueIdempotencyKey', 'note'] as const) {
     const item = value[key]
     if (item !== undefined) {
       if (typeof item !== 'string' || item.length > (key === 'note' ? 3000 : key === 'expectedReplyText' ? 1500 : 500) || /xox[baprs]-|hooks\.slack\.com\/|-----BEGIN .*PRIVATE KEY-----/i.test(item)) throw new Error('Unsafe receipt field')
@@ -152,9 +152,12 @@ export async function acceptSlackAction(payload: SlackInteractivePayload, store 
   if (!reconstructed.ok || reconstructed.key !== prepared.key) throw new Error('Receipt authorization contract mismatch')
   const key = 'slack-receipt:' + createHash('sha256').update(JSON.stringify([environment, envelope.team, envelope.channel, prepared.key])).digest('hex')
   const now = new Date().toISOString()
-  const row = await bounded(store.insert({ id: randomUUID(), idempotency_key: key, updated_at: now, status: 'queued',
+  const requestedId = randomUUID()
+  const row = await bounded(store.insert({ id: requestedId, idempotency_key: key, updated_at: now, status: 'queued',
     metadata: { envelope, state: 'queued', fence: randomUUID(), leaseUntil: now, attempts: 0 }, outcome: {} }))
-  return { receipt: row, result: receiptAcknowledgement(row) }
+  const duplicate = row.id !== requestedId
+  const result = receiptAcknowledgement(row)
+  return { receipt: row, duplicate, result: duplicate && prepared.value.action.startsWith('campaign_release.') ? { ...result, text: `Duplicate callback; no new decision queued. ${result.text}` } : result }
 }
 export function receiptAcknowledgement(row: Receipt): ActionOutcome {
   const result = receiptActionAcknowledgement(row)
@@ -260,6 +263,11 @@ export function patchActionBlocks(blocks: Block[], row: Receipt): Block[] {
     }
     if (['social_calendar.approve', 'social_calendar.reject', 'social_calendar_draft_handoff.approve', 'social_calendar_draft_handoff.reject'].includes(target.action)) {
       return String(action).split('.')[0] === target.action.split('.')[0] && ['approve', 'reject'].includes(String(action).split('.')[1]) && candidate.calendarItemId === target.calendarItemId
+    }
+    if (target.action.startsWith('campaign_release.')) {
+      return ['approve', 'revise', 'hold', 'stop'].some(decision => action === `campaign_release.${decision}`) &&
+        candidate.runId === target.runId && candidate.manifestHash === target.manifestHash &&
+        candidate.releaseVersion === target.releaseVersion && candidate.dispatchIntentId === target.dispatchIntentId
     }
     if (target.action.startsWith('warm_gmail_send.')) {
       return ['warm_gmail_send.approve', 'warm_gmail_send.reject', 'warm_gmail_send.revise'].includes(String(action)) && candidate.contactId === target.contactId && candidate.outreachQueueId === target.outreachQueueId
