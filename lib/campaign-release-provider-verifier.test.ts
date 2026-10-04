@@ -1,4 +1,5 @@
 // @vitest-environment node
+import { generateVerifierProvisioning } from './campaign-verifier-provisioning'
 import { campaignCertificationScope, type CertificationScope } from './campaign-release-provider-certification'
 import { readFileSync } from 'node:fs'
 import { Client } from 'pg'
@@ -94,6 +95,9 @@ describe.skipIf(!url)('real PostgreSQL authenticated verifier bridge', () => {
     await admin.query(readFileSync('supabase/migrations/20261004005627_campaign_provider_certification.sql','utf8'))
     await admin.query(readFileSync('supabase/migrations/20261004011705_campaign_provider_receipt_adoption.sql','utf8'))
     await admin.query(readFileSync('supabase/migrations/20261004021121_campaign_provider_verifier_bridge.sql','utf8'))
+    await admin.query(readFileSync('supabase/migrations/20261004025253_campaign_verifier_provisioning_events.sql','utf8'))
+    await admin.query("insert into campaign_verifier.deployment_target values(true,$1,'campaign_phase10_test','staging')",[id(499)])
+    await admin.query("create role campaign_v_lifecycle login password 'local-synthetic-only'")
     expect((await admin.query('select count(*)::int n from campaign_verifier.identities')).rows[0].n).toBe(0)
     await admin.query('grant usage on schema campaign_verifier to synthetic_verifier, unrelated_verifier; grant execute on function campaign_verifier.ingest(jsonb) to synthetic_verifier, unrelated_verifier')
     verifier = new Client({connectionString:url!.replace('postgres:local-synthetic-only@','synthetic_verifier:local-synthetic-only@')}); await verifier.connect()
@@ -131,6 +135,38 @@ describe.skipIf(!url)('real PostgreSQL authenticated verifier bridge', () => {
     expect(await ingest(r)).toEqual(result);expect(await snapshot()).toEqual(before)
     expect((await admin.query('select * from campaign_verifier.inspection')).rowCount).toBe(1)
     await expect(ingest({...r,receiptId:id(999)})).rejects.toThrow('Conflicting verifier replay')
+  })
+  it('generated provisioning rotates/revokes real adopted evidence without releasing accounting or reviving old authority',async()=>{
+    await register()
+    await admin.query('delete from campaign_verifier.identities; delete from campaign_verifier.credential_references')
+    const make=(operation:'provision'|'activate'|'rotate'|'revoke',version=1)=>generateVerifierProvisioning({
+      protocol:'campaign-verifier-provisioning/v1',commandId:id(sequence++),operation,targetId:id(499),databaseName:'campaign_phase10_test',
+      identity:{principal:'campaign_v_lifecycle',verifierId:id(402),version},
+      credential:{referenceId:id(401),version,provider:scope().provider,accountDigest:releaseHash(scope().accountId),environment:'staging',brokerEntryDigest:'b'.repeat(64)},
+      expectedIdentityVersion:operation==='provision'?0:operation==='rotate'?version-1:version,
+      expectedCredentialVersion:operation==='provision'?0:operation==='rotate'?version-1:version,expiresAt:stamp(600000),
+    })
+    const apply=async(p:ReturnType<typeof make>)=>{
+      await admin.query('begin')
+      try{await admin.query("select set_config('campaign.provisioning_authorization',$1,true)",[p.packetDigest]);await admin.query(p.sql);await admin.query('commit')}
+      catch(e){await admin.query('rollback');throw e}
+    }
+    await apply(make('provision'));const activation=make('activate');await apply(activation)
+    const caller=new Client({connectionString:url!.replace('postgres:local-synthetic-only@','campaign_v_lifecycle:local-synthetic-only@')});await caller.connect()
+    try{
+      const r=envelope();await ingest(r,caller)
+      const journal=await snapshot(),evidence=(await admin.query('select * from campaign_verifier.evidence')).rows
+      await apply(make('rotate',2))
+      expect((await admin.query('select revoked_at from campaign_verifier.authorizations')).rows[0].revoked_at).not.toBeNull()
+      expect((await admin.query('select campaign_verifier.is_current($1) ok',[id(403)])).rows[0].ok).toBe(false)
+      await expect(ingest(envelope(),caller)).rejects.toThrow('permission denied')
+      await apply(activation) // historical retry cannot reactivate version 1
+      expect((await admin.query('select active from campaign_verifier.identities')).rows[0].active).toBe(false)
+      await apply(make('activate',2));await apply(make('revoke',2))
+      await expect(apply(make('activate',2))).rejects.toThrow('Revoked version')
+      expect(await snapshot()).toEqual(journal)
+      expect((await admin.query('select * from campaign_verifier.evidence')).rows).toEqual(evidence)
+    }finally{await caller.end()}
   })
   it('accepted then unknown retains cap until confirmation',async()=>{
     await register();expect(await ingest(envelope('accepted'))).toMatchObject({outcome:'accepted',campaignReservedCents:50,campaignSpentCents:0})

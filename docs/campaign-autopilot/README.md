@@ -1,4 +1,4 @@
-> Latest development phase: [Phase 10 authenticated provider verifier bridge](phase10.md), stacked on [Phase 9 receipt adoption](phase9.md), [Phase 8 certification](phase8.md) and [Phase 7 recovery](phase7.md). Local evidence-boundary qualification only; registries are empty and providers remain disabled. Captain review, hosted qualification, dedicated verifier deployment and real readback adapters remain gates.
+> Latest development phase: [Phase 11 verifier provisioning](phase11.md), stacked on [Phase 10 verifier bridge](phase10.md) and Phases 7–9. Generation-only metadata package; registries remain empty in hosted environments and providers remain disabled. Captain review, authorized staging qualification, dedicated identity deployment and real readback adapters remain gates.
 
 # Campaign autopilot: release review foundation
 

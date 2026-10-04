@@ -1,4 +1,5 @@
 #!/usr/bin/env tsx
+import { generateVerifierProvisioning } from '../lib/campaign-verifier-provisioning'
 import { spawnSync } from 'node:child_process'
 import { createHash, randomBytes } from 'node:crypto'
 import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
@@ -99,6 +100,17 @@ const VERCEL_METADATA_TIMEOUT_MS = 15_000
 const N8N_METADATA_TIMEOUT_MS = 15_000
 
 function main() {
+  // This branch runs before inventory/environment/resolver access. Input is strict
+  // metadata JSON on stdin; no filename or resolver path is accepted.
+  if (process.argv[2] === 'verifier-provision') {
+    if (process.argv.length !== 3) fail('Verifier provisioning is generation-only; no flags or apply mode accepted.')
+    try {
+      console.log(JSON.stringify(generateVerifierProvisioning(JSON.parse(readFileSync(0, 'utf8'))), null, 2))
+    } catch {
+      fail('Invalid verifier metadata packet; no action performed.')
+    }
+    return
+  }
   const args = parseArgs(process.argv.slice(2))
   const inventory = loadInventory()
 
@@ -1145,6 +1157,7 @@ function printHelp() {
   console.log(`Credential broker
 
 Commands:
+  verifier-provision < metadata.json  (generation only; no apply mode)
   list-due      --env <dev|staging|prod> [--as-of YYYY-MM-DD] [--json]
   report        --env <dev|staging|prod> [--as-of YYYY-MM-DD] [--check-sinks] [--strict-sinks [missing,unknown,unavailable]] [--json]
   baseline-template --env <dev|staging|prod> [--updated-at YYYY-MM-DD] [--json]
