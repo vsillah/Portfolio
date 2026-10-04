@@ -19,6 +19,13 @@ create table public.campaign_provider_resource_claims (
   resource_digest text not null, run_id uuid not null references public.campaign_provider_attempt_bindings,
   primary key(provider,account_id,environment,resource_digest)
 );
+-- Cover run-scoped FK checks and reconciliation lookups. The receipt index also
+-- follows the evidence aggregation/latest-receipt ordering without indexing JSON.
+create index campaign_qualification_receipts_run_order_idx
+  on public.campaign_provider_qualification_receipts(run_id,created_at,receipt_id);
+create index campaign_provider_adoptions_run_idx on public.campaign_provider_adoptions(run_id);
+create index campaign_provider_resource_claims_run_idx on public.campaign_provider_resource_claims(run_id);
+
 alter table public.campaign_provider_attempt_bindings enable row level security;
 alter table public.campaign_provider_adoptions enable row level security;
 alter table public.campaign_provider_resource_claims enable row level security;

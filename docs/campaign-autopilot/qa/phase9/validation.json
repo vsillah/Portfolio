@@ -7,11 +7,12 @@
   "qualification": "local-only",
   "postgres_version": "18.4",
   "adoption_suite": {
-    "passed": 55,
-    "database_cases": 54,
+    "passed": 58,
+    "database_cases": 57,
     "registration_boundary_cases": 1,
     "physical_restart_rows_identical": true,
-    "post_restart_exact_replay": "pass"
+    "post_restart_exact_replay": "pass",
+    "run_foreign_key_index_assertions": 3
   },
   "phase8_regression_with_phase9": {
     "passed": 64,
@@ -24,7 +25,7 @@
   "campaign_suite": {
     "files_passed": 18,
     "passed": 200,
-    "database_tests_skipped_in_non_database_run": 197,
+    "database_tests_skipped_in_non_database_run": 200,
     "database_cases_run_separately": true
   },
   "changed_file_lint": "pass",
@@ -76,5 +77,24 @@
     "node node_modules/eslint/bin/eslint.js lib/campaign-release-provider-adoption.test.ts lib/campaign-release-provider-certification.test.ts lib/campaign-release-atomic-recovery.test.ts scripts/qa/campaign-provider-adoption-postgres.mjs scripts/qa/campaign-provider-certification-postgres.mjs scripts/qa/campaign-atomic-recovery-postgres.mjs",
     "git show origin/main:lib/social-comment-inbox-ui.test.ts",
     "git diff --check"
-  ]
+  ],
+  "captain_reported_hosted_qualification": {
+    "source": "Captain follow-up in this chat",
+    "postgres_version": "17.11",
+    "scope": "Phase 8/9 behavior before index amendment",
+    "result": "pass reported; not rerun by development lane",
+    "disposable_branch_cleanup": "deleted, reported by Captain",
+    "index_amendment_hosted_status": "not applied by this lane; pending Captain review"
+  },
+  "index_review_followup": {
+    "indexes": [
+      "campaign_provider_qualification_receipts(run_id,created_at,receipt_id)",
+      "campaign_provider_adoptions(run_id)",
+      "campaign_provider_resource_claims(run_id)"
+    ],
+    "phase8_phase9_and_campaign_regressions": "pass",
+    "changed_file_lint": "pass",
+    "diff_check": "pass",
+    "build_typecheck_and_phase7": "prior evidence retained; not repeated for index-only amendment"
+  }
 }

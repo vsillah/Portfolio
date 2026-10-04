@@ -60,7 +60,7 @@ The migration is `20261004011705_campaign_provider_receipt_adoption.sql`. New ta
 
 Append-only triggers protect adoption commands, attempt bindings, resource claims and Phase 8 receipt evidence. Tests also check role permissions and that application code contains no adoption caller. Supabase API security guidance was checked against the current [official documentation](https://supabase.com/docs/guides/api/securing-your-api); the changelog was reviewed. No hosted advisor or hosted schema validation was run.
 
-Validation: 55 adoption checks, 64 Phase 8 checks, 63 Phase 7 checks, and 200 broader campaign checks passed. Physical restart and historical replay passed. Changed-file lint, guarded production build and diff checks passed. Full typecheck reports only the two existing duplicate-property errors in `lib/social-comment-inbox-ui.test.ts:51–52`, verified against `origin/main`.
+Validation: 58 adoption checks, 64 Phase 8 checks, 63 Phase 7 checks, and 200 broader campaign checks passed. Physical restart and historical replay passed. Changed-file lint, guarded production build and diff checks passed. Full typecheck reports only the two existing duplicate-property errors in `lib/social-comment-inbox-ui.test.ts:51–52`, verified against `origin/main`.
 
 Evidence and exact commands are recorded in `qa/phase9/validation.json` and adjacent text files. The disposable runner uses PostgreSQL 18.4 on loopback, stops/starts the physical database, compares persisted rows and retries the exact adoption after restart. It does not use environment files or hosted credentials.
 
@@ -73,3 +73,12 @@ Rollback must preserve evidence and duplicate-delivery barriers. Revoke/disconne
 Late or stale terminal evidence remains in reconciliation. This phase intentionally supplies no lease takeover, authority renewal, credential rotation or administrative override to turn that historical result into permission. Current final proof may settle money without reopening the workflow. Expired provider evidence retains its reservation until a separately reviewed fresh-verification/reconciliation path exists. Unbound historical qualifications also remain an explicit gate.
 
 Next: Captain review of the stacked delta, isolated authorized hosted qualification on the actual schema/version, then qualified verifier integration and any narrowly scoped role design. Provider-specific authenticated readback, current credential/version authority, external execution approval, transport/scheduler registration, signed Slack outcome handling and supervised campaign operation remain unimplemented or unverified. SMS stays parked. Completing this local boundary does not establish one-Slack-approval campaign execution.
+
+
+## Captain performance-advisor follow-up
+
+The Captain reported passing isolated hosted Phase 8/9 qualification on PostgreSQL 17.11 before this amendment: exact confirmation/replay, disabled execution flags, recovery fencing, API-role denial, RLS/security-invoker behavior and append-only evidence. The Captain also reported deleting the disposable branch. This development lane did not repeat hosted qualification or access that database.
+
+The reported advisor findings are addressed in the Phase 9 migration with B-tree indexes on `campaign_provider_qualification_receipts(run_id, created_at, receipt_id)`, `campaign_provider_adoptions(run_id)` and `campaign_provider_resource_claims(run_id)`. Existing receipt/command/resource primary keys did not have `run_id` as a leading column. The receipt index additionally follows the per-run evidence aggregation/latest-receipt order. Large JSON payloads are excluded from these indexes.
+
+Three real catalog assertions verify valid, ready, non-partial plain-column B-tree indexes, their exact key order and leading coverage of each run foreign key. The amended local suites pass: 58 Phase 9 checks (including these assertions), 64 Phase 8 checks, and 200 broader campaign checks. Physical restart/replay, changed-file lint and diff-check pass. Prior build, typecheck and Phase 7 evidence is retained; those checks were not repeated for this index-only amendment. Final Captain PASS and any hosted verification of the amendment remain with the Captain. Providers remain disabled; no hosted/production/provider/credential/send action occurred in this follow-up.

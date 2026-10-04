@@ -228,6 +228,23 @@ describe.skipIf(!url)('real PostgreSQL provider receipt adoption', () => {
       expect((await pending).message).toContain('Recovery fence changed');expect((await current()).state).toBe('confirmed')
     }finally{await client.end()}
   })
+  it.each([
+    ['campaign_provider_qualification_receipts','campaign_qualification_receipts_run_order_idx',['run_id','created_at','receipt_id']],
+    ['campaign_provider_adoptions','campaign_provider_adoptions_run_idx',['run_id']],
+    ['campaign_provider_resource_claims','campaign_provider_resource_claims_run_idx',['run_id']],
+  ] as const)('covers %s run foreign key and lookup ordering',async(table,index,columns)=>{
+    const result=await admin.query(`select i.indisvalid,i.indisready,am.amname,
+      i.indpred is null as unfiltered,i.indexprs is null as plain_columns,
+      array(select a.attname::text from unnest(i.indkey::smallint[]) with ordinality k(attnum,position)
+        join pg_attribute a on a.attrelid=i.indrelid and a.attnum=k.attnum order by k.position) as columns,
+      exists(select 1 from pg_constraint c where c.conrelid=i.indrelid and c.contype='f'
+        and c.conkey[1]=i.indkey[0] and cardinality(c.conkey)=1) as covers_foreign_key
+      from pg_index i join pg_class ix on ix.oid=i.indexrelid
+      join pg_am am on am.oid=ix.relam
+      where i.indrelid=to_regclass($1) and i.indexrelid=to_regclass($2)`,[`public.${table}`,`public.${index}`])
+    expect(result.rows).toEqual([{indisvalid:true,indisready:true,amname:'btree',unfiltered:true,plain_columns:true,
+      columns:[...columns],covers_foreign_key:true}])
+  })
   it('API roles lack mutation grants and evidence rows are append-only',async()=>{
     await ready();await adopt()
     for(const role of ['anon','authenticated','service_role']) {

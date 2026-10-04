@@ -4,12 +4,12 @@
 stdout | lib/campaign-release-provider-certification.test.ts > real PostgreSQL provider certification
 Database engine: PostgreSQL 18.4 on x86_64-apple-darwin24.6.0, compiled by Apple clang version 17.0.0 (clang-1700.6.3.2), 64-bit
 
- ✓ lib/campaign-release-provider-certification.test.ts (64 tests) 493ms
+ ✓ lib/campaign-release-provider-certification.test.ts (64 tests) 558ms
 
  Test Files  1 passed (1)
       Tests  64 passed (64)
-   Start at  21:37:44
-   Duration  626ms (transform 43ms, setup 24ms, import 61ms, tests 493ms, environment 0ms)
+   Start at  21:57:01
+   Duration  695ms (transform 47ms, setup 23ms, import 66ms, tests 558ms, environment 0ms)
 
 Physical restart: journal and all qualification, receipt, certification and revocation rows identical.
 Disposable PostgreSQL data: temporary local directory (stopped)
