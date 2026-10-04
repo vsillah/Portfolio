@@ -19,7 +19,7 @@ async function evidence() {
   await client.connect()
   try {
     const result = {}
-    for (const table of ['campaign_execution_journal','campaign_provider_qualifications','campaign_provider_qualification_receipts','campaign_provider_certifications','campaign_provider_certification_revocations','campaign_provider_attempt_bindings','campaign_provider_adoptions','campaign_provider_resource_claims','campaign_verifier.evidence','campaign_verifier.authorizations','campaign_verifier.identities','campaign_verifier.credential_references']) {
+    for (const table of ['campaign_execution_journal','campaign_provider_qualifications','campaign_provider_qualification_receipts','campaign_provider_certifications','campaign_provider_certification_revocations','campaign_provider_attempt_bindings','campaign_provider_adoptions','campaign_provider_resource_claims','campaign_verifier.evidence','campaign_verifier.authorizations','campaign_verifier.identities','campaign_verifier.credential_references','campaign_verifier.provisioning_events','campaign_verifier.deployment_target']) {
       result[table] = (await client.query(`select to_jsonb(t) row from ${table.includes('.') ? table : `public.${table}`} t order by to_jsonb(t)::text`)).rows
     }
     return result
