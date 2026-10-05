@@ -117,6 +117,19 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid campaign type' }, { status: 400 });
     }
 
+    if (!body.starts_at || !body.ends_at) {
+      return NextResponse.json({ error: 'Campaign start and end dates are required' }, { status: 400 });
+    }
+
+    const startsAt = new Date(body.starts_at);
+    const endsAt = new Date(body.ends_at);
+    if (Number.isNaN(startsAt.getTime()) || Number.isNaN(endsAt.getTime())) {
+      return NextResponse.json({ error: 'Campaign start and end dates must be valid' }, { status: 400 });
+    }
+    if (endsAt <= startsAt) {
+      return NextResponse.json({ error: 'Campaign end date must be after its start date' }, { status: 400 });
+    }
+
     const { data, error } = await supabaseAdmin
       .from('attraction_campaigns')
       .insert({
@@ -125,8 +138,8 @@ export async function POST(request: NextRequest) {
         description: body.description?.trim() || null,
         campaign_type: body.campaign_type || 'win_money_back',
         status: 'draft',
-        starts_at: body.starts_at || null,
-        ends_at: body.ends_at || null,
+        starts_at: startsAt.toISOString(),
+        ends_at: endsAt.toISOString(),
         enrollment_deadline: body.enrollment_deadline || null,
         completion_window_days: body.completion_window_days || 90,
         min_purchase_amount: body.min_purchase_amount || 0,

@@ -112,6 +112,14 @@ export default function CampaignsAdminPage() {
   const handleCreate = async () => {
     if (!form.name?.trim() || !form.slug?.trim()) return;
     if (!validateSlug(form.slug)) return;
+    if (!form.starts_at || !form.ends_at) {
+      setRequestError({ message: 'Choose a start and end date before creating this campaign.', status: 400 });
+      return;
+    }
+    if (new Date(form.ends_at) <= new Date(form.starts_at)) {
+      setRequestError({ message: 'Campaign end date must be after its start date.', status: 400 });
+      return;
+    }
     setSaving(true);
     setRequestError(null);
     try {
@@ -248,6 +256,8 @@ export default function CampaignsAdminPage() {
               <label className="block text-sm text-muted-foreground mb-1">Starts At</label>
               <input
                 type="datetime-local"
+                aria-label="Campaign start"
+                required
                 value={form.starts_at || ''}
                 onChange={(e) => setForm({ ...form, starts_at: e.target.value })}
                 className="w-full px-3 py-2 bg-silicon-slate/50 border border-white/10 rounded-lg text-foreground focus:border-radiant-gold/50 focus:outline-none"
@@ -257,6 +267,8 @@ export default function CampaignsAdminPage() {
               <label className="block text-sm text-muted-foreground mb-1">Ends At</label>
               <input
                 type="datetime-local"
+                aria-label="Campaign end"
+                required
                 value={form.ends_at || ''}
                 onChange={(e) => setForm({ ...form, ends_at: e.target.value })}
                 className="w-full px-3 py-2 bg-silicon-slate/50 border border-white/10 rounded-lg text-foreground focus:border-radiant-gold/50 focus:outline-none"
@@ -299,7 +311,7 @@ export default function CampaignsAdminPage() {
           </div>
           <button
             onClick={handleCreate}
-            disabled={saving || !form.name?.trim() || !form.slug?.trim()}
+            disabled={saving || !form.name?.trim() || !form.slug?.trim() || !form.starts_at || !form.ends_at}
             className="admin-console-button-primary disabled:cursor-not-allowed disabled:opacity-50"
           >
             {saving && <Loader2 size={16} className="animate-spin" />}

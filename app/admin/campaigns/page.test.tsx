@@ -62,6 +62,8 @@ describe('CampaignsAdminPage', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'New Campaign' }))
     fireEvent.change(screen.getByPlaceholderText('Win Your Money Back Challenge'), { target: { value: 'Agentic Readiness Challenge' } })
+    fireEvent.change(screen.getByLabelText('Campaign start'), { target: { value: '2026-10-05T09:00' } })
+    fireEvent.change(screen.getByLabelText('Campaign end'), { target: { value: '2026-10-19T17:00' } })
     fireEvent.click(screen.getByRole('button', { name: 'Create Campaign' }))
 
     await waitFor(() => {
@@ -86,6 +88,8 @@ describe('CampaignsAdminPage', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'New Campaign' }))
     fireEvent.change(screen.getByPlaceholderText('Win Your Money Back Challenge'), { target: { value: 'Existing Campaign' } })
+    fireEvent.change(screen.getByLabelText('Campaign start'), { target: { value: '2026-10-05T09:00' } })
+    fireEvent.change(screen.getByLabelText('Campaign end'), { target: { value: '2026-10-19T17:00' } })
     fireEvent.click(screen.getByRole('button', { name: 'Create Campaign' }))
 
     expect(await screen.findByRole('alert')).toHaveTextContent('Campaign slug already exists.')
