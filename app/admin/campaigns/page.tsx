@@ -259,7 +259,7 @@ export default function CampaignsAdminPage() {
                 aria-label="Campaign start"
                 required
                 value={form.starts_at || ''}
-                onChange={(e) => setForm({ ...form, starts_at: e.target.value })}
+                onInput={(e) => setForm({ ...form, starts_at: e.currentTarget.value })}
                 className="w-full px-3 py-2 bg-silicon-slate/50 border border-white/10 rounded-lg text-foreground focus:border-radiant-gold/50 focus:outline-none"
               />
             </div>
@@ -270,7 +270,7 @@ export default function CampaignsAdminPage() {
                 aria-label="Campaign end"
                 required
                 value={form.ends_at || ''}
-                onChange={(e) => setForm({ ...form, ends_at: e.target.value })}
+                onInput={(e) => setForm({ ...form, ends_at: e.currentTarget.value })}
                 className="w-full px-3 py-2 bg-silicon-slate/50 border border-white/10 rounded-lg text-foreground focus:border-radiant-gold/50 focus:outline-none"
               />
             </div>

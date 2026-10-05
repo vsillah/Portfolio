@@ -255,8 +255,8 @@ describe('CampaignDetailPage content calendar gates', () => {
     expect(await screen.findByRole('heading', { name: 'Agent Ops Campaign' })).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: 'Edit schedule' }));
-    fireEvent.change(screen.getByLabelText('Campaign start'), { target: { value: '2026-10-05T09:00' } });
-    fireEvent.change(screen.getByLabelText('Campaign end'), { target: { value: '2026-10-19T17:00' } });
+    fireEvent.input(screen.getByLabelText('Campaign start'), { target: { value: '2026-10-05T09:00' } });
+    fireEvent.input(screen.getByLabelText('Campaign end'), { target: { value: '2026-10-19T17:00' } });
     fireEvent.click(screen.getByRole('button', { name: 'Save schedule' }));
 
     expect(await screen.findByRole('status')).toHaveTextContent('Campaign schedule saved.');

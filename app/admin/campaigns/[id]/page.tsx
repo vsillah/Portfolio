@@ -479,11 +479,17 @@ export default function CampaignDetailPage() {
           <div className="mt-4 grid gap-3 rounded-lg border border-white/10 bg-silicon-slate/35 p-4 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_auto] lg:items-end">
             <label className="grid gap-1 text-xs text-muted-foreground">
               Campaign start
-              <input aria-label="Campaign start" type="datetime-local" required value={scheduleForm.starts_at} onChange={(event) => setScheduleForm((current) => ({ ...current, starts_at: event.target.value }))} className="rounded-lg border border-white/10 bg-silicon-slate/60 px-3 py-2 text-sm text-foreground" />
+              <input aria-label="Campaign start" type="datetime-local" required value={scheduleForm.starts_at} onInput={(event) => {
+                const startsAt = event.currentTarget.value;
+                setScheduleForm((current) => ({ ...current, starts_at: startsAt }));
+              }} className="rounded-lg border border-white/10 bg-silicon-slate/60 px-3 py-2 text-sm text-foreground" />
             </label>
             <label className="grid gap-1 text-xs text-muted-foreground">
               Campaign end
-              <input aria-label="Campaign end" type="datetime-local" required value={scheduleForm.ends_at} onChange={(event) => setScheduleForm((current) => ({ ...current, ends_at: event.target.value }))} className="rounded-lg border border-white/10 bg-silicon-slate/60 px-3 py-2 text-sm text-foreground" />
+              <input aria-label="Campaign end" type="datetime-local" required value={scheduleForm.ends_at} onInput={(event) => {
+                const endsAt = event.currentTarget.value;
+                setScheduleForm((current) => ({ ...current, ends_at: endsAt }));
+              }} className="rounded-lg border border-white/10 bg-silicon-slate/60 px-3 py-2 text-sm text-foreground" />
             </label>
             <div className="flex flex-wrap gap-2 sm:col-span-2 lg:col-span-1">
               <button type="button" onClick={saveSchedule} disabled={savingSchedule || !scheduleForm.starts_at || !scheduleForm.ends_at} className="admin-console-button-primary disabled:cursor-not-allowed disabled:opacity-50">
