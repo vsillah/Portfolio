@@ -1,0 +1,29 @@
+{
+  "baseUrl": "http://127.0.0.1:3067",
+  "route": "/admin/campaigns",
+  "campaignId": "campaign-auth-qa",
+  "generatedAt": "2026-10-05T10:08:37.476Z",
+  "desktop": {
+    "createDisabledWithoutSchedule": true,
+    "layout": {
+      "clientWidth": 1440,
+      "scrollWidth": 1440,
+      "horizontalOverflow": false
+    },
+    "authenticatedCampaignRequests": 4,
+    "authorizationHeadersPresent": true,
+    "externalRequests": [],
+    "mutationRequests": []
+  },
+  "mobile": {
+    "layout": {
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "horizontalOverflow": false
+    },
+    "authenticatedCampaignRequests": 2,
+    "authorizationHeadersPresent": true,
+    "externalRequests": [],
+    "mutationRequests": []
+  }
+}

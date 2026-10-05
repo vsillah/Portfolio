@@ -506,20 +506,20 @@ export default function CampaignDetailPage() {
       </div>
 
       {/* Tabs */}
-      <div className="admin-console-card mb-6 flex gap-1 overflow-x-auto rounded-lg border p-1">
+      <div className="admin-console-card mb-6 grid grid-cols-2 gap-1 rounded-lg border p-1 sm:flex sm:flex-wrap">
         {tabs.map((tab) => (
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
-            className={`flex items-center gap-2 rounded-md px-4 py-3 text-sm font-medium transition-colors ${
+            className={`flex min-w-0 items-center justify-between gap-2 rounded-md px-3 py-3 text-left text-sm font-medium transition-colors sm:w-auto sm:justify-start sm:px-4 ${
               activeTab === tab.key
                 ? 'bg-radiant-gold text-imperial-navy'
                 : 'text-muted-foreground hover:bg-silicon-slate/60 hover:text-foreground'
             }`}
           >
-            <tab.icon size={16} />
-            {tab.label}
-            <span className="rounded-full border border-current/20 px-1.5 py-0.5 text-xs">{tab.count}</span>
+            <tab.icon size={16} className="shrink-0" />
+            <span className="min-w-0 flex-1 leading-5 sm:flex-none">{tab.label}</span>
+            <span className="shrink-0 rounded-full border border-current/20 px-1.5 py-0.5 text-xs">{tab.count}</span>
           </button>
         ))}
       </div>
