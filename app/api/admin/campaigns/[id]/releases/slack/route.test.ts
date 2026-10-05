@@ -26,5 +26,13 @@ it.each([{ ...body, actor: 'forged' }, { ...body, version: 0 }, { ...body, relea
 it('scopes reads and reports storage failure without false success', async () => {
   expect((await GET(request(), context)).status).toBe(200); expect(mocks.projection).toHaveBeenCalledWith('campaign-1', releaseId)
   mocks.projection.mockRejectedValue(new Error('unavailable')); expect((await GET(request(), context)).status).toBe(503)
-  mocks.route.mockRejectedValue(new Error('unconfirmed')); expect((await POST(request(), context)).status).toBe(409)
+  mocks.route.mockRejectedValue(new Error('database password=secret-token')); const failed = await POST(request(), context)
+  expect(failed.status).toBe(409); expect(await failed.json()).toEqual({ error: 'Slack request unconfirmed. Refresh the release and receipt before retrying.' })
+})
+it('hides an invalid release id instead of querying storage', async () => {
+  const missing = await GET(new NextRequest('https://example.invalid/api'), context)
+  const malformed = await GET(new NextRequest('https://example.invalid/api?release=not-a-uuid'), context)
+  expect(missing.status).toBe(503); expect(malformed.status).toBe(503)
+  expect(await malformed.json()).toEqual({ error: 'Slack outcome unavailable. Refresh before retrying.' })
+  expect(mocks.projection).not.toHaveBeenCalled()
 })
