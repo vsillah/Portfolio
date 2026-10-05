@@ -224,6 +224,53 @@ describe('CampaignDetailPage content calendar gates', () => {
     });
   });
 
+  it('repairs a missing campaign schedule through the detail header', async () => {
+    campaignResponse = { ...campaignDetail, starts_at: null, ends_at: null };
+    vi.mocked(fetch).mockImplementation(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input);
+      if (url === '/api/admin/campaigns/campaign-1' && init?.method === 'PUT') {
+        return {
+          ok: true,
+          json: async () => ({
+            data: {
+              starts_at: '2026-10-05T13:00:00.000Z',
+              ends_at: '2026-10-19T21:00:00.000Z',
+            },
+          }),
+        } as Response;
+      }
+      if (url === '/api/admin/campaigns/campaign-1') {
+        return { ok: true, json: async () => ({ data: campaignResponse }) } as Response;
+      }
+      if (url === '/api/admin/campaigns/campaign-1/releases') {
+        return { ok: true, json: async () => ({ releases: [] }) } as Response;
+      }
+      if (url === '/api/admin/campaigns/campaign-1/enrollments' || url === '/api/admin/sales/bundles') {
+        return { ok: true, json: async () => ({ data: [] }) } as Response;
+      }
+      return { ok: false, status: 404, json: async () => ({ error: `Unhandled ${url}` }) } as Response;
+    });
+
+    render(<CampaignDetailPage />);
+    expect(await screen.findByRole('heading', { name: 'Agent Ops Campaign' })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Edit schedule' }));
+    fireEvent.change(screen.getByLabelText('Campaign start'), { target: { value: '2026-10-05T09:00' } });
+    fireEvent.change(screen.getByLabelText('Campaign end'), { target: { value: '2026-10-19T17:00' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Save schedule' }));
+
+    expect(await screen.findByRole('status')).toHaveTextContent('Campaign schedule saved.');
+    const updateCall = vi.mocked(fetch).mock.calls.find(([input, init]) => (
+      String(input) === '/api/admin/campaigns/campaign-1' && init?.method === 'PUT'
+    ));
+    expect(updateCall).toBeTruthy();
+    expect(new Headers(updateCall?.[1]?.headers).get('Authorization')).toBe('Bearer admin-token');
+    expect(JSON.parse(String(updateCall?.[1]?.body))).toEqual({
+      starts_at: '2026-10-05T09:00',
+      ends_at: '2026-10-19T17:00',
+    });
+  });
+
   it('locks rejected campaign calendar actions and routes recovery to Content Intelligence', async () => {
     campaignResponse = {
       ...campaignDetail,

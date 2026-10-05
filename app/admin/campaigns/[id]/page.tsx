@@ -71,6 +71,13 @@ function sourceLabel(url: string) {
   return SOCIAL_CONTENT_CALENDAR_SOURCE_LABELS[url] || new URL(url).hostname.replace(/^www\./, '');
 }
 
+function toLocalDateTimeInput(value: string | null) {
+  if (!value) return '';
+  const date = new Date(value);
+  const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60_000);
+  return localDate.toISOString().slice(0, 16);
+}
+
 interface CampaignDetail extends AttractionCampaign {
   campaign_eligible_bundles: Array<{
     id: string;
@@ -135,6 +142,10 @@ export default function CampaignDetailPage() {
   const [showEnrollForm, setShowEnrollForm] = useState(false);
   const [enrollForm, setEnrollForm] = useState({ client_email: '', client_name: '' });
   const [enrollError, setEnrollError] = useState('');
+  const [showScheduleForm, setShowScheduleForm] = useState(false);
+  const [savingSchedule, setSavingSchedule] = useState(false);
+  const [scheduleNotice, setScheduleNotice] = useState('');
+  const [scheduleForm, setScheduleForm] = useState({ starts_at: '', ends_at: '' });
 
   const authedFetch = useCallback(async (path: string, init: RequestInit = {}) => {
     const session = await getCurrentSession();
@@ -182,6 +193,45 @@ export default function CampaignDetailPage() {
       console.error('Failed to fetch bundles:', err);
     }
   }, [authedFetch]);
+
+  const openScheduleForm = () => {
+    if (!campaign) return;
+    setScheduleNotice('');
+    setScheduleForm({
+      starts_at: toLocalDateTimeInput(campaign.starts_at),
+      ends_at: toLocalDateTimeInput(campaign.ends_at),
+    });
+    setShowScheduleForm(true);
+  };
+
+  const saveSchedule = async () => {
+    if (!scheduleForm.starts_at || !scheduleForm.ends_at) {
+      setScheduleNotice('Choose both a start and end date.');
+      return;
+    }
+    if (new Date(scheduleForm.ends_at) <= new Date(scheduleForm.starts_at)) {
+      setScheduleNotice('Campaign end date must be after its start date.');
+      return;
+    }
+
+    setSavingSchedule(true);
+    setScheduleNotice('');
+    try {
+      const response = await authedFetch(`/api/admin/campaigns/${campaignId}`, {
+        method: 'PUT',
+        body: JSON.stringify(scheduleForm),
+      });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error || 'Campaign schedule could not be saved.');
+      setCampaign((current) => current ? { ...current, ...payload.data } : current);
+      setShowScheduleForm(false);
+      setScheduleNotice('Campaign schedule saved.');
+    } catch (error) {
+      setScheduleNotice(error instanceof Error ? error.message : 'Campaign schedule could not be saved.');
+    } finally {
+      setSavingSchedule(false);
+    }
+  };
 
   useEffect(() => {
     Promise.all([fetchCampaign(), fetchEnrollments(), fetchBundles()]).finally(() => setLoading(false));
@@ -421,7 +471,29 @@ export default function CampaignDetailPage() {
         <div className="mt-4 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
           <span className="flex items-center gap-1"><Clock size={14} /> {campaign.completion_window_days} day window</span>
           <span className="flex items-center gap-1"><Calendar size={14} /> {campaign.starts_at ? new Date(campaign.starts_at).toLocaleDateString() : '—'} to {campaign.ends_at ? new Date(campaign.ends_at).toLocaleDateString() : '—'}</span>
+          <button type="button" onClick={openScheduleForm} className="admin-console-button-secondary px-3 py-1.5 text-xs">
+            <Pencil size={13} /> Edit schedule
+          </button>
         </div>
+        {showScheduleForm && (
+          <div className="mt-4 grid gap-3 rounded-lg border border-white/10 bg-silicon-slate/35 p-4 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_auto] lg:items-end">
+            <label className="grid gap-1 text-xs text-muted-foreground">
+              Campaign start
+              <input aria-label="Campaign start" type="datetime-local" required value={scheduleForm.starts_at} onChange={(event) => setScheduleForm((current) => ({ ...current, starts_at: event.target.value }))} className="rounded-lg border border-white/10 bg-silicon-slate/60 px-3 py-2 text-sm text-foreground" />
+            </label>
+            <label className="grid gap-1 text-xs text-muted-foreground">
+              Campaign end
+              <input aria-label="Campaign end" type="datetime-local" required value={scheduleForm.ends_at} onChange={(event) => setScheduleForm((current) => ({ ...current, ends_at: event.target.value }))} className="rounded-lg border border-white/10 bg-silicon-slate/60 px-3 py-2 text-sm text-foreground" />
+            </label>
+            <div className="flex flex-wrap gap-2 sm:col-span-2 lg:col-span-1">
+              <button type="button" onClick={saveSchedule} disabled={savingSchedule || !scheduleForm.starts_at || !scheduleForm.ends_at} className="admin-console-button-primary disabled:cursor-not-allowed disabled:opacity-50">
+                {savingSchedule && <Loader2 size={14} className="animate-spin" />} Save schedule
+              </button>
+              <button type="button" onClick={() => setShowScheduleForm(false)} className="admin-console-button-secondary">Cancel</button>
+            </div>
+          </div>
+        )}
+        {scheduleNotice && <p role="status" className="mt-3 text-sm text-muted-foreground">{scheduleNotice}</p>}
       </div>
 
       {/* Tabs */}
