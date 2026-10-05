@@ -425,4 +425,20 @@ describe('/api/admin/agents/work-items/[id]/social-channels/prepare-review-draft
     expect(lanes.thumbnail.draft_packet.fields.primary_text).toBe('Receipts Before Reach')
     expect(lanes.thumbnail.draft_packet.fields.primary_text).not.toContain('Agentified')
   })
+  it('preserves campaign lineage in every review packet without putting IDs in copy', async () => {
+    const item = cloneBaseWorkItem()
+    Object.assign(item.metadata, { campaign_id: 'campaign-1', calendar_item_id: 'calendar-1', social_content_id: 'draft-1', campaign_phase: 'tease', channel: 'linkedin' })
+    mocks.getAgentWorkItem.mockResolvedValue(item)
+    const response = await POST(request() as never, { params: { id: 'work-1' } })
+    expect(response.status).toBe(200)
+    const body = await response.json()
+    for (const packet of Object.values(body.drafts) as Record<string, any>[]) {
+      expect(packet.shared_source).toMatchObject({ campaign_id: 'campaign-1', calendar_item_id: 'calendar-1', social_content_id: 'draft-1', work_item_id: 'work-1' })
+      expect(packet.approval_status).toBe('in_review')
+      expect(packet.side_effects).toEqual({ provider_generation: false, upload: false, publish: false, schedule: false, external_post: false })
+      expect(JSON.stringify(packet.fields)).not.toContain('calendar-1')
+    }
+    expect(body.drafts.linkedin.fields.post_text).not.toContain('Calendar draft seed')
+  })
+
 })

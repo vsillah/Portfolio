@@ -162,4 +162,51 @@ describe('/api/admin/agents/work-items/[id]/research-packets', () => {
       },
     })
   })
+  it('links approved evidence without approving or mutating research packets', async () => {
+    mockResearchPacketQuery([{ ...packet, status: 'approved', pattern_status: 'usable_framework' }])
+    const response = await POST(request({ packet_ids: ['packet-1'], mode: 'link_approved' }) as never, { params: { id: 'work-1' } })
+    expect(response.status).toBe(200)
+    expect(mocks.from).toHaveBeenCalledTimes(1)
+    expect(mocks.updateAgentWorkItemMetadata).toHaveBeenCalledTimes(1)
+  })
+
+  it.each(['review_ready', 'rejected', 'archived'])('rejects %s evidence in recovery mode', async (status) => {
+    mockResearchPacketQuery([{ ...packet, status, pattern_status: 'usable_framework' }])
+    const response = await POST(request({ packet_ids: ['packet-1'], mode: 'link_approved' }) as never, { params: { id: 'work-1' } })
+    expect(response.status).toBe(400)
+    expect(mocks.updateAgentWorkItemMetadata).not.toHaveBeenCalled()
+    expect(mocks.from).toHaveBeenCalledTimes(1)
+  })
+
+  it.each(['needs_brand_translation', 'too_close_to_source', 'not_relevant'])('rejects approved but %s patterns', async (pattern_status) => {
+    mockResearchPacketQuery([{ ...packet, status: 'approved', pattern_status }])
+    const response = await POST(request({ packet_ids: ['packet-1'], mode: 'link_approved' }) as never, { params: { id: 'work-1' } })
+    expect(response.status).toBe(400)
+    expect(mocks.updateAgentWorkItemMetadata).not.toHaveBeenCalled()
+  })
+
+  it.each([true, false])('recovers only a matching authorized calendar handoff (match=%s)', async (matches) => {
+    mocks.getAgentWorkItem.mockResolvedValue({
+      id: 'work-1', source_type: 'social_content_calendar_authorization',
+      metadata: { draft_handoff_only: true, calendar_item_id: 'calendar-1', campaign_id: 'campaign-1', social_content_id: 'draft-1' },
+    })
+    mocks.from.mockImplementation((table) => {
+      if (table === 'social_content_research_packets') return { select: () => ({ in: async () => ({ data: [{ ...packet, status: 'approved', pattern_status: 'usable_framework' }], error: null }) }) }
+      if (table === 'social_content_calendar_items') return { select: () => ({ eq: () => ({ single: async () => ({ data: {
+        id: 'calendar-1', campaign_id: 'campaign-1', social_content_id: 'draft-1', title: 'Readiness Challenge',
+        planned_angle: 'Find the first workflow that needs a human decision.', authorization_status: 'authorized',
+        metadata: { platform_draft_handoff: { work_item_id: matches ? 'work-1' : 'other-work' } },
+      }, error: null }) }) }) }
+      throw new Error('Unexpected database access')
+    })
+    // Calendar handoffs always require already-approved evidence, even without mode.
+    const response = await POST(request({ packet_ids: ['packet-1'] }) as never, { params: { id: 'work-1' } })
+    expect(response.status).toBe(matches ? 200 : 409)
+    if (matches) expect(mocks.updateAgentWorkItemMetadata).toHaveBeenCalledWith(expect.objectContaining({ metadata: expect.objectContaining({
+      campaign_id: 'campaign-1', calendar_item_id: 'calendar-1', social_content_id: 'draft-1',
+      insight: expect.objectContaining({ title: 'Readiness Challenge', content_angle: 'Find the first workflow that needs a human decision.', source_ids: ['calendar-1', 'campaign-1'] }),
+    }) }))
+    else expect(mocks.updateAgentWorkItemMetadata).not.toHaveBeenCalled()
+  })
+
 })

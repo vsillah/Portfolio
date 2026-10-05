@@ -1,0 +1,56 @@
+[
+  {
+    "width": 390,
+    "url": "http://127.0.0.1:3218/admin/agents/social-insights/78060cc6-9f1c-4679-873f-4b651257a8d4",
+    "calls": [
+      {
+        "method": "POST",
+        "path": "/api/admin/agents/work-items/78060cc6-9f1c-4679-873f-4b651257a8d4/research-packets"
+      },
+      {
+        "method": "POST",
+        "path": "/api/admin/agents/work-items/78060cc6-9f1c-4679-873f-4b651257a8d4/social-channels/prepare-review-drafts"
+      }
+    ],
+    "errors": [],
+    "external_requests": 0,
+    "campaign_provenance": true,
+    "packets_in_review": 7
+  },
+  {
+    "width": 768,
+    "url": "http://127.0.0.1:3218/admin/agents/social-insights/78060cc6-9f1c-4679-873f-4b651257a8d4",
+    "calls": [
+      {
+        "method": "POST",
+        "path": "/api/admin/agents/work-items/78060cc6-9f1c-4679-873f-4b651257a8d4/research-packets"
+      },
+      {
+        "method": "POST",
+        "path": "/api/admin/agents/work-items/78060cc6-9f1c-4679-873f-4b651257a8d4/social-channels/prepare-review-drafts"
+      }
+    ],
+    "errors": [],
+    "external_requests": 0,
+    "campaign_provenance": true,
+    "packets_in_review": 7
+  },
+  {
+    "width": 1440,
+    "url": "http://127.0.0.1:3218/admin/agents/social-insights/78060cc6-9f1c-4679-873f-4b651257a8d4",
+    "calls": [
+      {
+        "method": "POST",
+        "path": "/api/admin/agents/work-items/78060cc6-9f1c-4679-873f-4b651257a8d4/research-packets"
+      },
+      {
+        "method": "POST",
+        "path": "/api/admin/agents/work-items/78060cc6-9f1c-4679-873f-4b651257a8d4/social-channels/prepare-review-drafts"
+      }
+    ],
+    "errors": [],
+    "external_requests": 0,
+    "campaign_provenance": true,
+    "packets_in_review": 7
+  }
+]

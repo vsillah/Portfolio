@@ -120,6 +120,10 @@ function SocialInsightDetailContent() {
   const [decisionNote, setDecisionNote] = useState('')
   const [savingLane, setSavingLane] = useState<SocialChannelLaneStatus | null>(null)
   const [preparingReviewDrafts, setPreparingReviewDrafts] = useState(false)
+  const [researchPackets, setResearchPackets] = useState<Record<string, unknown>[] | null>(null)
+  const [selectedPacket, setSelectedPacket] = useState('')
+  const [researchBusy, setResearchBusy] = useState(false)
+  const [researchError, setResearchError] = useState<string | null>(null)
   const [laneNotice, setLaneNotice] = useState<string | null>(null)
 
   const authedFetch = useCallback(async (path: string, init: RequestInit = {}) => {
@@ -203,6 +207,45 @@ function SocialInsightDetailContent() {
     }
   }, [activeTab, authedFetch, decisionNote, id])
 
+  const loadResearchPatterns = async () => {
+    setResearchBusy(true)
+    setResearchError(null)
+    setSelectedPacket('')
+    try {
+      const response = await authedFetch('/api/admin/social-content/intelligence/research-packets?status=approved&limit=50')
+      const body = await response.json()
+      if (!response.ok || body.unavailable) throw new Error(body.error || 'Could not load approved evidence.')
+      setResearchPackets(asRecordArray(body.packets).filter((packet) =>
+        packet.status === 'approved' && packet.pattern_status === 'usable_framework'
+        && asString(packet.source_url) && Object.keys(asRecord(packet.pattern_packet)).length > 0
+      ))
+    } catch (err) {
+      setResearchError(err instanceof Error ? err.message : 'Could not load approved evidence.')
+    } finally {
+      setResearchBusy(false)
+    }
+  }
+
+  const linkResearchPattern = async () => {
+    setResearchBusy(true)
+    setResearchError(null)
+    try {
+      const response = await authedFetch(`/api/admin/agents/work-items/${id}/research-packets`, {
+        method: 'POST',
+        body: JSON.stringify({ packet_ids: [selectedPacket], mode: 'link_approved' }),
+      })
+      const body = await response.json()
+      if (!response.ok) throw new Error(body.error || 'Could not link approved evidence.')
+      setItem(body.work_item)
+      setSelectedPacket('')
+      setLaneNotice('Approved evidence linked. Prepare channel review drafts next.')
+    } catch (err) {
+      setResearchError(err instanceof Error ? err.message : 'Could not link approved evidence.')
+    } finally {
+      setResearchBusy(false)
+    }
+  }
+
   const prepareReviewDrafts = useCallback(async () => {
     setError(null)
     setLaneNotice(null)
@@ -215,7 +258,7 @@ function SocialInsightDetailContent() {
       if (!response.ok) throw new Error(body.error || `Review draft HTTP ${response.status}`)
       setItem(body.work_item ?? null)
       setActiveTab('linkedin')
-      setLaneNotice('LinkedIn, YouTube Shorts, Instagram Reels, and TikTok are ready for human review.')
+      setLaneNotice('Channel drafts are ready for human review.')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to prepare channel review drafts')
     } finally {
@@ -224,7 +267,7 @@ function SocialInsightDetailContent() {
   }, [authedFetch, id])
 
   return (
-    <div className="agent-ops-page min-h-screen p-5 text-foreground lg:p-7">
+    <div className="agent-ops-page min-h-screen min-w-0 break-words p-3 sm:p-5 text-foreground lg:p-7">
       <div className="mx-auto max-w-7xl">
         <Breadcrumbs items={[
           { label: 'Admin Dashboard', href: '/admin' },
@@ -252,7 +295,7 @@ function SocialInsightDetailContent() {
               <button
                 type="button"
                 onClick={load}
-                disabled={loading}
+                disabled={loading || researchBusy || preparingReviewDrafts}
                 className="agent-ops-button-secondary disabled:opacity-60"
               >
                 <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
@@ -261,9 +304,9 @@ function SocialInsightDetailContent() {
               <button
                 type="button"
                 onClick={prepareReviewDrafts}
-                disabled={loading || preparingReviewDrafts || !canPrepareReviewDrafts}
+                disabled={loading || researchBusy || preparingReviewDrafts || !canPrepareReviewDrafts}
                 title={canPrepareReviewDrafts ? undefined : 'Link approved research patterns before preparing channel review drafts.'}
-                className="agent-ops-button-primary disabled:opacity-60"
+                className="agent-ops-button-primary max-w-full whitespace-normal disabled:opacity-60"
               >
                 <FileText size={16} />
                 {preparingReviewDrafts ? 'Preparing...' : 'Prepare Channel Review Drafts'}
@@ -282,11 +325,42 @@ function SocialInsightDetailContent() {
           <div className="py-16 text-center text-sm text-muted-foreground">Loading insight...</div>
         ) : item ? (
           <div className="grid gap-6 xl:grid-cols-[minmax(0,0.45fr)_minmax(0,1fr)]">
-            <section className="agent-ops-card rounded-lg border p-4">
+            <section className="agent-ops-card min-w-0 rounded-lg border p-4">
               <h2 className="text-lg font-semibold">Shared evidence</h2>
               {!canPrepareReviewDrafts ? (
                 <div className="mt-4 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-100">
                   Link at least one approved research pattern before preparing channel review drafts.
+                </div>
+              ) : null}
+              <div className="mt-4 space-y-3 rounded-lg border border-silicon-slate/70 p-3">
+                <h3 className="font-semibold">Link approved evidence</h3>
+                <p className="text-sm text-muted-foreground">Choose a reusable framework already approved in Content Intelligence. Linking keeps its source and approval unchanged. Copy remains subject to review.</p>
+                <button type="button" onClick={loadResearchPatterns} disabled={researchBusy || preparingReviewDrafts}
+                  className="agent-ops-button-secondary max-w-full whitespace-normal disabled:opacity-60">
+                  {researchBusy ? 'Working...' : researchPackets === null ? 'Find approved patterns' : 'Refresh approved patterns'}
+                </button>
+                {researchError ? <p role="alert" className="text-sm text-red-300">{researchError}</p> : null}
+                {researchPackets !== null ? researchPackets.length ? (
+                  <>
+                    <label className="block text-sm">Approved framework
+                      <select aria-label="Approved framework" value={selectedPacket} onChange={(event) => setSelectedPacket(event.target.value)} disabled={researchBusy || preparingReviewDrafts}
+                        className="mt-2 block w-full min-w-0 rounded border border-silicon-slate bg-background p-2 text-sm">
+                        <option value="">Select a pattern</option>
+                        {researchPackets.map((packet) => <option key={asString(packet.id)} value={asString(packet.id)}>{asString(packet.title) || asString(packet.source_url)}</option>)}
+                      </select>
+                    </label>
+                    {selectedPacket ? <ResearchPatternCard pattern={researchPackets.find((packet) => packet.id === selectedPacket) ?? {}} /> : null}
+                    <button type="button" onClick={linkResearchPattern} disabled={!selectedPacket || researchBusy || preparingReviewDrafts}
+                      className="agent-ops-button-secondary max-w-full whitespace-normal disabled:opacity-60">Link selected pattern</button>
+                  </>
+                ) : <p className="text-sm text-muted-foreground">No eligible approved frameworks found. Review research evidence in Content Intelligence, then return here and refresh.</p> : null}
+                <Link href="/admin/agents/content-intelligence?section=research" className="block text-sm text-blue-200 underline">Review evidence in Content Intelligence</Link>
+              </div>
+              {asString(metadata.calendar_item_id) ? (
+                <div className="mt-4 space-y-2 text-sm">
+                  <p>Campaign: {asString(metadata.campaign_name) || asString(metadata.campaign_id)}</p>
+                  <Link className="block text-blue-200 underline" href={`/admin/agents/content-intelligence?section=calendar&calendar_item=${encodeURIComponent(asString(metadata.calendar_item_id))}`}>Open source calendar item</Link>
+                  {asString(metadata.social_content_id) ? <Link className="block text-blue-200 underline" href={`/admin/social-content/${encodeURIComponent(asString(metadata.social_content_id))}`}>Open Social Content draft</Link> : null}
                 </div>
               ) : null}
               <div className="mt-4 space-y-3">
@@ -325,7 +399,7 @@ function SocialInsightDetailContent() {
               </div>
             </section>
 
-            <section className="agent-ops-card rounded-lg border p-4">
+            <section className="agent-ops-card min-w-0 rounded-lg border p-4">
               <div className="mb-4 flex flex-wrap gap-2" role="tablist" aria-label="Social channel lanes">
                 {SOCIAL_CONTENT_INTELLIGENCE_CHANNELS.map((channel) => (
                   <button
@@ -334,7 +408,7 @@ function SocialInsightDetailContent() {
                     role="tab"
                     aria-selected={activeTab === channel}
                     onClick={() => setActiveTab(channel)}
-                    className={`inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-sm ${
+                    className={`inline-flex max-w-full flex-wrap items-center gap-2 rounded-lg border px-3 py-2 text-sm ${
                       activeTab === channel
                         ? 'border-radiant-gold/60 bg-radiant-gold/15 text-radiant-gold'
                         : 'border-silicon-slate/70 bg-silicon-slate/20 text-muted-foreground hover:text-foreground'
@@ -357,7 +431,7 @@ function SocialInsightDetailContent() {
                       Review the channel adaptation before approval. This step does not render media, upload, schedule, or publish.
                     </p>
                   </div>
-                  <span className="inline-flex w-fit items-center gap-2 rounded-full border border-blue-500/30 bg-blue-500/10 px-3 py-1 text-xs font-semibold text-blue-100">
+                  <span className="inline-flex w-fit shrink-0 items-center gap-2 whitespace-nowrap rounded-full border border-blue-500/30 bg-blue-500/10 px-3 py-1 text-xs font-semibold text-blue-100">
                     <CheckCircle2 className="h-3.5 w-3.5" />
                     {statusLabel(activeLane.status)}
                   </span>
@@ -444,7 +518,7 @@ function ResearchPatternCard({ pattern }: { pattern: Record<string, unknown> }) 
   const promise = asString(patternPacket.promise_value)
   const thumbnail = asString(patternPacket.thumbnail_pattern)
   return (
-    <article className="rounded-lg border border-silicon-slate/70 bg-background/45 p-3">
+    <article className="min-w-0 break-words rounded-lg border border-silicon-slate/70 bg-background/45 p-3">
       <div className="flex flex-col gap-2 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <p className="text-sm font-semibold">{title}</p>
@@ -452,7 +526,7 @@ function ResearchPatternCard({ pattern }: { pattern: Record<string, unknown> }) 
             {asString(pattern.platform).replace(/_/g, ' ')} · {asString(pattern.creator_name) || asString(pattern.creator_handle) || 'Creator unknown'}
           </p>
         </div>
-        <span className="inline-flex w-fit rounded-full border border-radiant-gold/35 bg-radiant-gold/10 px-2 py-0.5 text-xs text-radiant-gold">
+        <span className="inline-flex w-fit shrink-0 whitespace-nowrap rounded-full border border-radiant-gold/35 bg-radiant-gold/10 px-2 py-0.5 text-xs text-radiant-gold">
           Outlier {Math.round(Number(pattern.outlier_score ?? 0))}
         </span>
       </div>

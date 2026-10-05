@@ -50,6 +50,19 @@ export async function POST(
       generatedAt: now,
       latestFeedback: asRecord(metadata.autoresearch_feedback_latest),
     })
+    // Keep campaign lineage in review metadata, never in public copy fields.
+    if (typeof metadata.calendar_item_id === 'string') {
+      for (const draft of Object.values(drafts)) {
+        Object.assign(draft.shared_source, {
+          work_item_id: workItem.id,
+          calendar_item_id: metadata.calendar_item_id,
+          campaign_id: metadata.campaign_id ?? null,
+          social_content_id: metadata.social_content_id ?? null,
+          campaign_phase: metadata.campaign_phase ?? null,
+          channel: metadata.channel ?? null,
+        })
+      }
+    }
     const lanes = normalizeSocialChannelLanes(metadata.channel_lanes)
 
     lanes.linkedin = {

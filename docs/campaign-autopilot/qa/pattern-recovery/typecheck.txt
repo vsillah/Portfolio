@@ -1,0 +1,4 @@
+lib/chatbot-knowledge.ts(69,30): error TS2307: Cannot find module './chatbot-knowledge-content.generated' or its corresponding type declarations.
+lib/social-comment-inbox-ui.test.ts(51,5): error TS1117: An object literal cannot have multiple properties with the same name.
+lib/social-comment-inbox-ui.test.ts(52,5): error TS1117: An object literal cannot have multiple properties with the same name.
+lib/video-ideas-context.ts(8,40): error TS2307: Cannot find module '@/lib/chatbot-knowledge-content.generated' or its corresponding type declarations.

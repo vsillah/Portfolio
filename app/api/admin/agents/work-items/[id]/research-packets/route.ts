@@ -58,7 +58,10 @@ export async function POST(
     if (!workItem) {
       return NextResponse.json({ error: 'Work item not found' }, { status: 404 })
     }
-    if (!isSocialTopicTriggerWorkItem(workItem)) {
+    const isCalendarHandoff = workItem.source_type === 'social_content_calendar_authorization'
+      && workItem.metadata?.draft_handoff_only === true
+    const linkApprovedOnly = body.mode === 'link_approved' || isCalendarHandoff
+    if (!isSocialTopicTriggerWorkItem(workItem) && !isCalendarHandoff) {
       return NextResponse.json({ error: 'Work item is not a social topic trigger' }, { status: 400 })
     }
 
@@ -71,6 +74,13 @@ export async function POST(
     const packetRows: Record<string, unknown>[] = ((packets ?? []) as unknown[]).map((packet) => asRecord(packet))
     if (packetRows.length !== packetIds.length) {
       return NextResponse.json({ error: 'One or more research packets were not found' }, { status: 404 })
+    }
+
+    if (linkApprovedOnly && packetRows.some((packet) =>
+      packet.status !== 'approved' || packet.pattern_status !== 'usable_framework'
+      || !asString(packet.source_url) || Object.keys(asRecord(packet.pattern_packet)).length === 0
+    )) {
+      return NextResponse.json({ error: 'Select an approved usable framework. Review other evidence in Content Intelligence first.' }, { status: 400 })
     }
 
     const blockedPacket = packetRows.find((packet) => {
@@ -89,7 +99,31 @@ export async function POST(
     }
 
     const metadata = workItem.metadata ?? {}
-    const insight = asRecord(metadata.insight)
+    let insight = asRecord(metadata.insight)
+    if (isCalendarHandoff) {
+      const { data: calendar, error: calendarError } = await supabaseAdmin
+        .from('social_content_calendar_items')
+        .select('id, campaign_id, title, planned_angle, channel, campaign_phase, authorization_status, social_content_id, metadata')
+        .eq('id', asString(metadata.calendar_item_id))
+        .single()
+      if (calendarError) throw new Error(calendarError.message)
+      const handoff = asRecord(asRecord(calendar?.metadata).platform_draft_handoff)
+      if (!calendar || calendar.authorization_status !== 'authorized' || handoff.work_item_id !== workItem.id
+        || calendar.campaign_id !== metadata.campaign_id || calendar.social_content_id !== metadata.social_content_id) {
+        return NextResponse.json({ error: 'The authorized calendar handoff no longer matches this insight. Open the calendar to review its current handoff.' }, { status: 409 })
+      }
+      insight = {
+        ...insight,
+        title: calendar.title,
+        triggering_event: calendar.title,
+        content_angle: calendar.planned_angle || calendar.title,
+        suggested_hook: calendar.planned_angle || calendar.title,
+        evidence_summary: 'Authorized campaign calendar brief. Research provides structure only; claims still require human review.',
+        claim_boundaries: Array.from(new Set([...asStringArray(insight.claim_boundaries), 'Campaign planning is not evidence of delivered outcomes.', 'Public patterns are frameworks, not source copy.'])),
+        source_ids: [calendar.id, calendar.campaign_id].filter(Boolean),
+        source_type: 'social_content_calendar_authorization',
+      }
+    }
     const existingPatterns = Array.isArray(insight.approved_research_patterns)
       ? insight.approved_research_patterns.map((item) => asRecord(item))
       : []
@@ -102,11 +136,15 @@ export async function POST(
       ...packetIds,
     ]))
 
-    const { error: packetUpdateError } = await supabaseAdmin
-      .from('social_content_research_packets')
-      .update({ status: 'approved' })
-      .in('id', packetIds)
-    if (packetUpdateError) throw new Error(packetUpdateError.message)
+    // Keep the established Content Intelligence approval action compatible.
+    // Recovery reuses approval and never changes the packet's governance state.
+    if (!linkApprovedOnly) {
+      const { error: packetUpdateError } = await supabaseAdmin
+        .from('social_content_research_packets')
+        .update({ status: 'approved' })
+        .in('id', packetIds)
+      if (packetUpdateError) throw new Error(packetUpdateError.message)
+    }
 
     const updated = await updateAgentWorkItemMetadata({
       id: workItem.id,

@@ -1,0 +1,12 @@
+RUN  v4.0.18 /Users/vambahsillah/.codex/worktrees/bcaa/Portfolio
+
+ ✓ lib/social-content-intelligence.test.ts (8 tests) 7ms
+ ✓ app/api/admin/agents/work-items/[id]/research-packets/route.test.ts (12 tests) 9ms
+ ✓ app/api/admin/agents/work-items/[id]/social-channels/prepare-review-drafts/route.test.ts (6 tests) 11ms
+ ✓ lib/social-content-calendar-handoff.test.ts (10 tests) 9ms
+ ✓ app/admin/agents/social-insights/[id]/page.test.tsx (8 tests) 568ms
+
+ Test Files  5 passed (5)
+      Tests  44 passed (44)
+   Start at  06:02:24
+   Duration  1.25s (transform 391ms, setup 294ms, import 499ms, tests 603ms, environment 1.91s)

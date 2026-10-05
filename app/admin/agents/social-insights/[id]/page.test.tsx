@@ -363,7 +363,7 @@ describe('SocialInsightDetailPage', () => {
     expect(screen.getByText('Prepare channel review drafts before approving this lane.')).toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: 'Prepare Channel Review Drafts' }))
-    await screen.findByText('LinkedIn, YouTube Shorts, Instagram Reels, and TikTok are ready for human review.')
+    await screen.findByText('Channel drafts are ready for human review.')
 
     fireEvent.change(screen.getByLabelText('Decision note'), {
       target: { value: 'Approved for LinkedIn planning; no publishing authorized.' },
@@ -397,7 +397,7 @@ describe('SocialInsightDetailPage', () => {
     await screen.findByRole('heading', { name: 'Approval gates create trust' })
     fireEvent.click(screen.getByRole('button', { name: 'Prepare Channel Review Drafts' }))
 
-    expect(await screen.findByText('LinkedIn, YouTube Shorts, Instagram Reels, and TikTok are ready for human review.')).toBeInTheDocument()
+    expect(await screen.findByText('Channel drafts are ready for human review.')).toBeInTheDocument()
     expect(screen.getByText('Review draft packet')).toBeInTheDocument()
     expect(screen.getByText('Shared source: Approval gates create trust')).toBeInTheDocument()
     expect(screen.getByText('Agent + Portfolio strategy')).toBeInTheDocument()
@@ -436,7 +436,7 @@ describe('SocialInsightDetailPage', () => {
 
     await screen.findByRole('heading', { name: 'Approval gates create trust' })
     fireEvent.click(screen.getByRole('button', { name: 'Prepare Channel Review Drafts' }))
-    await screen.findByText('LinkedIn, YouTube Shorts, Instagram Reels, and TikTok are ready for human review.')
+    await screen.findByText('Channel drafts are ready for human review.')
 
     fireEvent.click(screen.getByRole('tab', { name: /YouTube Shorts/ }))
     fireEvent.change(screen.getByLabelText('Decision note'), {
@@ -454,4 +454,48 @@ describe('SocialInsightDetailPage', () => {
       decision_note: 'Approved for YouTube Shorts review; rendering remains gated.',
     })
   })
+  it('recovers a blocked insight by selecting approved evidence before preparing copy', async () => {
+    let item = socialWorkItem()
+    item.metadata.insight.approved_research_patterns = []
+    const packet = { id: 'approved-1', title: 'Reusable structure', status: 'approved', pattern_status: 'usable_framework', source_url: 'https://example.com/framework', pattern_packet: { hook_structure: 'Start with a practical question' } }
+    const fetcher = vi.fn(async (url: string, init?: RequestInit) => {
+      if (url.includes('research-packets?')) return { ok: true, json: async () => ({ packets: [packet, { ...packet, id: 'unsafe', status: 'review_ready' }] }) }
+      if (url.endsWith('/research-packets')) {
+        expect(JSON.parse(String(init?.body))).toEqual({ packet_ids: ['approved-1'], mode: 'link_approved' })
+        item = socialWorkItem()
+      }
+      return { ok: true, json: async () => ({ work_item: item }) }
+    })
+    vi.stubGlobal('fetch', fetcher)
+    render(<SocialInsightDetailPage />)
+    await screen.findByText('Link at least one approved research pattern before preparing channel review drafts.')
+    expect(screen.getByRole('button', { name: 'Prepare Channel Review Drafts' })).toBeDisabled()
+    fireEvent.click(screen.getByRole('button', { name: 'Find approved patterns' }))
+    await screen.findByRole('option', { name: 'Reusable structure' })
+    expect(screen.getAllByRole('option')).toHaveLength(2)
+    fireEvent.change(screen.getByLabelText('Approved framework'), { target: { value: 'approved-1' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Link selected pattern' }))
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Prepare Channel Review Drafts' })).toBeEnabled())
+    expect(fetcher.mock.calls.filter(([url]) => url.endsWith('/research-packets'))).toHaveLength(1)
+  })
+
+  it('offers an evidence review path when approved evidence is unavailable', async () => {
+    vi.stubGlobal('fetch', vi.fn(async (url: string) => ({ ok: true, json: async () => url.includes('research-packets?') ? { packets: [] } : { work_item: socialWorkItem() } })))
+    render(<SocialInsightDetailPage />)
+    fireEvent.click(await screen.findByRole('button', { name: 'Find approved patterns' }))
+    await screen.findByText(/No eligible approved frameworks found/)
+    expect(screen.getByRole('link', { name: 'Review evidence in Content Intelligence' })).toHaveAttribute('href', '/admin/agents/content-intelligence?section=research')
+  })
+
+  it('keeps drafting blocked when evidence loading fails and exposes a retry', async () => {
+    const item = socialWorkItem()
+    item.metadata.insight.approved_research_patterns = []
+    vi.stubGlobal('fetch', vi.fn(async (url: string) => ({ ok: !url.includes('research-packets?'), json: async () => url.includes('research-packets?') ? { error: 'Evidence unavailable. Try again.' } : { work_item: item } })))
+    render(<SocialInsightDetailPage />)
+    fireEvent.click(await screen.findByRole('button', { name: 'Find approved patterns' }))
+    expect(await screen.findByRole('alert')).toHaveTextContent('Evidence unavailable. Try again.')
+    expect(screen.getByRole('button', { name: 'Find approved patterns' })).toBeEnabled()
+    expect(screen.getByRole('button', { name: 'Prepare Channel Review Drafts' })).toBeDisabled()
+  })
+
 })
