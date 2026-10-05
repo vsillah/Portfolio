@@ -5,11 +5,12 @@ import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import {
-  Megaphone, Plus, ChevronRight, Calendar, Users, Target,
+  AlertCircle, Megaphone, Plus, ChevronRight, Calendar, Users, Target,
   DollarSign, X, Loader2,
 } from 'lucide-react';
 import Breadcrumbs from '@/components/admin/Breadcrumbs';
 import { buildLinkWithReturn } from '@/lib/admin-return-context';
+import { campaignAdminRequest, CampaignAdminRequestError } from '@/lib/campaign-admin-request';
 import {
   CAMPAIGN_TYPE_LABELS, CAMPAIGN_STATUS_LABELS, CAMPAIGN_STATUS_COLORS,
   ENROLLMENT_STATUS_LABELS, validateSlug,
@@ -44,6 +45,7 @@ export default function CampaignsAdminPage() {
   const [saving, setSaving] = useState(false);
   const [statusFilter, setStatusFilter] = useState<CampaignStatus | ''>('');
   const [contextApplied, setContextApplied] = useState(false);
+  const [requestError, setRequestError] = useState<{ message: string; status: number } | null>(null);
 
   const [form, setForm] = useState<CreateCampaignInput>({
     name: '',
@@ -82,16 +84,20 @@ export default function CampaignsAdminPage() {
 
   const fetchCampaigns = useCallback(async () => {
     setLoading(true);
+    setRequestError(null);
     try {
       const params = new URLSearchParams();
       if (statusFilter) params.set('status', statusFilter);
-      const res = await fetch(`/api/admin/campaigns?${params.toString()}`);
-      if (res.ok) {
-        const data = await res.json();
-        setCampaigns(data.data || []);
-      }
+      const res = await campaignAdminRequest(`/api/admin/campaigns?${params.toString()}`);
+      const data = await res.json();
+      setCampaigns(data.data || []);
     } catch (err) {
       console.error('Failed to fetch campaigns:', err);
+      setCampaigns([]);
+      setRequestError({
+        message: err instanceof Error ? err.message : 'Campaign request failed. Try again.',
+        status: err instanceof CampaignAdminRequestError ? err.status : 500,
+      });
     } finally {
       setLoading(false);
     }
@@ -107,34 +113,40 @@ export default function CampaignsAdminPage() {
     if (!form.name?.trim() || !form.slug?.trim()) return;
     if (!validateSlug(form.slug)) return;
     setSaving(true);
+    setRequestError(null);
     try {
-      const res = await fetch('/api/admin/campaigns', {
+      await campaignAdminRequest('/api/admin/campaigns', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
       });
-      if (res.ok) {
-        setShowCreate(false);
-        setForm({ name: '', slug: '', campaign_type: 'win_money_back', completion_window_days: 90, payout_type: 'refund', payout_amount_type: 'full' });
-        fetchCampaigns();
-      }
+      setShowCreate(false);
+      setForm({ name: '', slug: '', campaign_type: 'win_money_back', completion_window_days: 90, payout_type: 'refund', payout_amount_type: 'full' });
+      await fetchCampaigns();
     } catch (err) {
       console.error('Failed to create campaign:', err);
+      setRequestError({
+        message: err instanceof Error ? err.message : 'Campaign request failed. Try again.',
+        status: err instanceof CampaignAdminRequestError ? err.status : 500,
+      });
     } finally {
       setSaving(false);
     }
   };
 
   const handleStatusChange = async (id: string, newStatus: CampaignStatus) => {
+    setRequestError(null);
     try {
-      await fetch(`/api/admin/campaigns/${id}`, {
+      await campaignAdminRequest(`/api/admin/campaigns/${id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus }),
       });
-      fetchCampaigns();
+      await fetchCampaigns();
     } catch (err) {
       console.error('Failed to update status:', err);
+      setRequestError({
+        message: err instanceof Error ? err.message : 'Campaign request failed. Try again.',
+        status: err instanceof CampaignAdminRequestError ? err.status : 500,
+      });
     }
   };
 
@@ -165,6 +177,24 @@ export default function CampaignsAdminPage() {
         <div className="admin-console-card mb-6 rounded-lg border border-radiant-gold/30 bg-radiant-gold/10 p-4 text-sm text-radiant-gold">
           Offer architecture context applied. Review the prefilled campaign, then add eligible bundles
           and criteria templates after creation.
+        </div>
+      )}
+
+      {requestError && (
+        <div role="alert" className="admin-console-card mb-6 flex flex-col gap-3 rounded-lg border border-red-500/35 bg-red-500/10 p-4 text-sm text-red-100 sm:flex-row sm:items-center sm:justify-between">
+          <span className="flex min-w-0 items-center gap-2">
+            <AlertCircle size={18} className="shrink-0" />
+            <span>{requestError.message}</span>
+          </span>
+          {requestError.status === 401 ? (
+            <Link href={`/auth/login?redirect=${encodeURIComponent('/admin/campaigns')}`} className="admin-console-button-secondary shrink-0">
+              Sign in again
+            </Link>
+          ) : (
+            <button type="button" onClick={fetchCampaigns} className="admin-console-button-secondary shrink-0">
+              Try again
+            </button>
+          )}
         </div>
       )}
 
@@ -294,7 +324,7 @@ export default function CampaignsAdminPage() {
       </div>
 
       {/* Campaign List */}
-      {loading ? (
+      {requestError ? null : loading ? (
         <div className="flex items-center justify-center py-20">
           <Loader2 size={32} className="animate-spin text-radiant-gold" />
         </div>
