@@ -75,6 +75,11 @@ describe('CampaignsAdminPage', () => {
         }),
       )
     })
+    const createCall = vi.mocked(campaignAdminRequest).mock.calls.find(([path]) => path === '/api/admin/campaigns')
+    expect(JSON.parse(String(createCall?.[1]?.body))).toEqual(expect.objectContaining({
+      starts_at: new Date('2026-10-05T09:00').toISOString(),
+      ends_at: new Date('2026-10-19T17:00').toISOString(),
+    }))
     expect(vi.mocked(campaignAdminRequest).mock.calls.filter(([path]) => path.startsWith('/api/admin/campaigns?'))).toHaveLength(2)
   })
 

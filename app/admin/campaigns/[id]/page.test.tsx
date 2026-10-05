@@ -266,8 +266,8 @@ describe('CampaignDetailPage content calendar gates', () => {
     expect(updateCall).toBeTruthy();
     expect(new Headers(updateCall?.[1]?.headers).get('Authorization')).toBe('Bearer admin-token');
     expect(JSON.parse(String(updateCall?.[1]?.body))).toEqual({
-      starts_at: '2026-10-05T09:00',
-      ends_at: '2026-10-19T17:00',
+      starts_at: new Date('2026-10-05T09:00').toISOString(),
+      ends_at: new Date('2026-10-19T17:00').toISOString(),
     });
   });
 

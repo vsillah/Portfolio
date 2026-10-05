@@ -125,7 +125,11 @@ export default function CampaignsAdminPage() {
     try {
       await campaignAdminRequest('/api/admin/campaigns', {
         method: 'POST',
-        body: JSON.stringify(form),
+        body: JSON.stringify({
+          ...form,
+          starts_at: new Date(form.starts_at).toISOString(),
+          ends_at: new Date(form.ends_at).toISOString(),
+        }),
       });
       setShowCreate(false);
       setForm({ name: '', slug: '', campaign_type: 'win_money_back', completion_window_days: 90, payout_type: 'refund', payout_amount_type: 'full' });

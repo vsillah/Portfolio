@@ -219,7 +219,10 @@ export default function CampaignDetailPage() {
     try {
       const response = await authedFetch(`/api/admin/campaigns/${campaignId}`, {
         method: 'PUT',
-        body: JSON.stringify(scheduleForm),
+        body: JSON.stringify({
+          starts_at: new Date(scheduleForm.starts_at).toISOString(),
+          ends_at: new Date(scheduleForm.ends_at).toISOString(),
+        }),
       });
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.error || 'Campaign schedule could not be saved.');
