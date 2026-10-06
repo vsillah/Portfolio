@@ -45,7 +45,9 @@ import type {
   AutoResearchContentOpportunity,
 } from '@/lib/cross-channel-autoresearch-backlog'
 
-type ResearchPacket = {
+import { ResearchPacketReview, type ReviewableResearchPacket } from '@/components/admin/ResearchPacketReview'
+
+type ResearchPacket = ReviewableResearchPacket & {
   id: string
   source_url: string
   platform: string
@@ -972,6 +974,7 @@ function ContentIntelligenceContent() {
   const [researchSearch, setResearchSearch] = useState('')
   const [researchPlatformFilter, setResearchPlatformFilter] = useState('')
   const [researchPatternFilter, setResearchPatternFilter] = useState('')
+  const [researchReviewFilter, setResearchReviewFilter] = useState('')
   const [researchSort, setResearchSort] = useState<ResearchSortKey>('score')
   const [researchSortDirection, setResearchSortDirection] = useState<SortDirection>('desc')
   const [researchPage, setResearchPage] = useState(1)
@@ -1123,7 +1126,7 @@ function ContentIntelligenceContent() {
     setError(null)
     try {
       const [packetResponse, insightResponse, digestResponse, calendarResponse, campaignResponse] = await Promise.all([
-        authedFetch('/api/admin/social-content/intelligence/research-packets?limit=12'),
+        authedFetch('/api/admin/social-content/intelligence/research-packets?limit=50'),
         authedFetch('/api/admin/agents/work-items?source_type=social_topic_trigger&limit=12'),
         authedFetch('/api/admin/social-content/intelligence/daily-digest?lookback_days=5&limit=12'),
         authedFetch('/api/admin/social-content/calendar?limit=50'),
@@ -1299,6 +1302,7 @@ function ContentIntelligenceContent() {
       .filter((packet) => {
         if (researchPlatformFilter && packet.platform !== researchPlatformFilter) return false
         if (researchPatternFilter && packet.pattern_status !== researchPatternFilter) return false
+        if (researchReviewFilter && packet.status !== researchReviewFilter) return false
         if (!search) return true
         return [
           packet.title,
@@ -1321,6 +1325,7 @@ function ContentIntelligenceContent() {
   }, [
     packets,
     researchPatternFilter,
+    researchReviewFilter,
     researchPlatformFilter,
     researchSearch,
     researchSort,
@@ -1386,7 +1391,7 @@ function ContentIntelligenceContent() {
 
   useEffect(() => {
     setResearchPage(1)
-  }, [researchPatternFilter, researchPlatformFilter, researchSearch, researchSort, researchSortDirection])
+  }, [researchPatternFilter, researchReviewFilter, researchPlatformFilter, researchSearch, researchSort, researchSortDirection])
 
   useEffect(() => {
     setInsightPage(1)
@@ -2912,6 +2917,16 @@ function ContentIntelligenceContent() {
                   </form>
                   </CollapsiblePanel>
                 ) : null}
+                <label className="block text-xs font-semibold text-muted-foreground">
+                  Review status (up to 50 loaded packets)
+                  <select value={researchReviewFilter} onChange={event => setResearchReviewFilter(event.target.value)} className={CONTENT_INTELLIGENCE_FIELD_CLASS}>
+                    <option value="">All review states</option>
+                    <option value="review_ready">Awaiting review</option>
+                    <option value="approved">Approved</option>
+                    <option value="rejected">Rejected</option>
+                    <option value="archived">Archived</option>
+                  </select>
+                </label>
                 <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_12rem_14rem]">
                   <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                     Search
@@ -2995,6 +3010,15 @@ function ContentIntelligenceContent() {
                             <p className="mt-1 text-xs text-muted-foreground">
                               {packet.creator_name ?? packet.creator_handle ?? 'Creator unknown'}
                             </p>
+                            <ResearchPacketReview packet={packet} onReview={async (decision, note) => {
+                              const response = await authedFetch(`/api/admin/social-content/intelligence/research-packets/${packet.id}/review`, {
+                                method: 'POST',
+                                body: JSON.stringify({ decision, note, updated_at: packet.updated_at }),
+                              })
+                              const body = await response.json()
+                              if (!response.ok) throw new Error(body.error || 'Unable to save review.')
+                              setPackets(current => current.map(item => item.id === packet.id ? body.packet : item))
+                            }} />
                             {packet.hook_transcript ? (
                               <p className="mt-1 line-clamp-2 text-xs leading-5 text-muted-foreground" title={packet.hook_transcript}>
                                 Hook: {packet.hook_transcript}
