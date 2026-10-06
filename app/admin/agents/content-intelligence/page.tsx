@@ -2968,9 +2968,9 @@ function ContentIntelligenceContent() {
                     </select>
                   </label>
                 </div>
-                <div className="overflow-x-auto rounded-lg border border-silicon-slate/70">
-                  <table className="min-w-full divide-y divide-silicon-slate/70 text-sm">
-                    <thead className="bg-silicon-slate/35 text-xs uppercase tracking-wide text-muted-foreground">
+                <div className="overflow-hidden rounded-lg border border-silicon-slate/70 sm:overflow-x-auto">
+                  <table className="w-full divide-y divide-silicon-slate/70 text-sm">
+                    <thead className="hidden bg-silicon-slate/35 text-xs uppercase tracking-wide text-muted-foreground sm:table-header-group">
                       <tr>
                         <th scope="col" className="px-3 py-2 text-left">
                           <SortButton active={researchSort === 'title'} direction={researchSortDirection} onClick={() => {
@@ -3000,16 +3000,27 @@ function ContentIntelligenceContent() {
                         </th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-silicon-slate/60 bg-background/20">
+                    <tbody className="block divide-y divide-silicon-slate/60 bg-background/20 sm:table-row-group">
                       {pagedResearchPackets.map((packet) => (
-                        <tr key={packet.id} className="align-top">
-                          <td className="max-w-md px-3 py-3">
+                        <tr key={packet.id} className="block min-w-0 align-top sm:table-row">
+                          <td className="block min-w-0 px-3 py-3 sm:table-cell sm:max-w-md">
                             <a href={packet.source_url} target="_blank" rel="noreferrer" className="font-semibold text-blue-100 hover:text-blue-50">
                               {packet.title ?? packet.caption ?? packet.source_url}
                             </a>
                             <p className="mt-1 text-xs text-muted-foreground">
                               {packet.creator_name ?? packet.creator_handle ?? 'Creator unknown'}
                             </p>
+                            <div className="mt-2 flex flex-wrap items-center gap-2 sm:hidden">
+                              <span className="inline-flex items-center gap-1 rounded-full border border-blue-500/30 bg-blue-500/10 px-2 py-0.5 text-xs text-blue-100">
+                                {platformIcon(packet.platform)}
+                                {packet.platform.replace(/_/g, ' ')}
+                              </span>
+                              <span className="rounded-full border border-silicon-slate/70 px-2 py-0.5 text-xs text-muted-foreground">
+                                {packet.pattern_status.replace(/_/g, ' ')}
+                              </span>
+                              <span className="text-xs font-semibold text-radiant-gold">Outlier {Math.round(Number(packet.outlier_score))}</span>
+                              <span className="text-xs text-muted-foreground">{new Date(packet.retrieved_at).toLocaleDateString()}</span>
+                            </div>
                             <ResearchPacketReview packet={packet} onReview={async (decision, note) => {
                               const response = await authedFetch(`/api/admin/social-content/intelligence/research-packets/${packet.id}/review`, {
                                 method: 'POST',
@@ -3025,21 +3036,21 @@ function ContentIntelligenceContent() {
                               </p>
                             ) : null}
                           </td>
-                          <td className="px-3 py-3">
+                          <td className="hidden px-3 py-3 sm:table-cell">
                             <span className="inline-flex items-center gap-1 rounded-full border border-blue-500/30 bg-blue-500/10 px-2 py-0.5 text-xs text-blue-100">
                               {platformIcon(packet.platform)}
                               {packet.platform.replace(/_/g, ' ')}
                             </span>
                           </td>
-                          <td className="px-3 py-3 text-right font-semibold text-radiant-gold">
+                          <td className="hidden px-3 py-3 text-right font-semibold text-radiant-gold sm:table-cell">
                             {Math.round(Number(packet.outlier_score))}
                           </td>
-                          <td className="px-3 py-3">
+                          <td className="hidden px-3 py-3 sm:table-cell">
                             <span className="rounded-full border border-silicon-slate/70 px-2 py-0.5 text-xs text-muted-foreground">
                               {packet.pattern_status.replace(/_/g, ' ')}
                             </span>
                           </td>
-                          <td className="px-3 py-3 text-right text-xs text-muted-foreground">
+                          <td className="hidden px-3 py-3 text-right text-xs text-muted-foreground sm:table-cell">
                             {new Date(packet.retrieved_at).toLocaleDateString()}
                           </td>
                         </tr>
