@@ -5,6 +5,7 @@ import SocialInsightDetailPage from './page'
 
 vi.mock('next/navigation', () => ({
   useParams: () => ({ id: 'work-social-1' }),
+  useSearchParams: () => new URLSearchParams(),
 }))
 
 vi.mock('@/components/ProtectedRoute', () => ({

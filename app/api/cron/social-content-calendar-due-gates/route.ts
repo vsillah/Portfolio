@@ -11,6 +11,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
+import { prepareCampaignReviewBatch } from '@/lib/campaign-review-backlog'
 import { getSlackAgentSource } from '@/lib/slack-agent-environment'
 import { createAgentWorkItem } from '@/lib/agent-work-items'
 import { runAgentSlackNotificationSweep } from '@/lib/agent-slack-notification-sweep'
@@ -306,8 +307,20 @@ async function runDueGateSweep(request: NextRequest) {
   }
 
   try {
-    getSlackAgentSource()
     const body = await bodyOrEmpty(request)
+    // This mode is internal preparation only. It must return before any Slack sweep.
+    if (new URL(request.url).searchParams.get('mode') === 'review_backlog' || body.mode === 'review_backlog') {
+      const campaignId = new URL(request.url).searchParams.get('campaign_id') || body.campaign_id
+      const options = { scheduled: true, dryRun: isDryRun(request, body) }
+      if (typeof campaignId === 'string' && campaignId) return NextResponse.json(await prepareCampaignReviewBatch(campaignId, options))
+      const { data: campaigns, error: campaignError } = await supabaseAdmin.from('attraction_campaigns').select('id').eq('status', 'active').limit(51)
+      if (campaignError) throw campaignError
+      if ((campaigns?.length ?? 0) > 50) return NextResponse.json({ error: 'Review scan exceeds 50 active campaigns; run campaign-scoped sweeps.' }, { status: 409 })
+      const results = []
+      for (const campaign of campaigns ?? []) results.push(await prepareCampaignReviewBatch(campaign.id, options))
+      return NextResponse.json({ results, slack_send: false })
+    }
+    getSlackAgentSource()
     const dryRun = isDryRun(request, body)
     const now = new Date()
     const windowStart = new Date(now.getTime() - CALENDAR_LOOKBACK_HOURS * 60 * 60 * 1000)
