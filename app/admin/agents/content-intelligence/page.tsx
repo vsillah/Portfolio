@@ -2969,7 +2969,7 @@ function ContentIntelligenceContent() {
                   </label>
                 </div>
                 <div className="overflow-hidden rounded-lg border border-silicon-slate/70 sm:overflow-x-auto">
-                  <table className="w-full divide-y divide-silicon-slate/70 text-sm">
+                  <table className="block w-full max-w-full table-fixed divide-y divide-silicon-slate/70 text-sm sm:table sm:table-auto">
                     <thead className="hidden bg-silicon-slate/35 text-xs uppercase tracking-wide text-muted-foreground sm:table-header-group">
                       <tr>
                         <th scope="col" className="px-3 py-2 text-left">
@@ -3003,8 +3003,8 @@ function ContentIntelligenceContent() {
                     <tbody className="block divide-y divide-silicon-slate/60 bg-background/20 sm:table-row-group">
                       {pagedResearchPackets.map((packet) => (
                         <tr key={packet.id} className="block min-w-0 align-top sm:table-row">
-                          <td className="block min-w-0 px-3 py-3 sm:table-cell sm:max-w-md">
-                            <a href={packet.source_url} target="_blank" rel="noreferrer" className="font-semibold text-blue-100 hover:text-blue-50">
+                          <td className="block w-full min-w-0 overflow-hidden break-words px-3 py-3 sm:table-cell sm:max-w-md">
+                            <a href={packet.source_url} target="_blank" rel="noreferrer" className="block break-words font-semibold text-blue-100 hover:text-blue-50">
                               {packet.title ?? packet.caption ?? packet.source_url}
                             </a>
                             <p className="mt-1 text-xs text-muted-foreground">
@@ -3031,7 +3031,7 @@ function ContentIntelligenceContent() {
                               setPackets(current => current.map(item => item.id === packet.id ? body.packet : item))
                             }} />
                             {packet.hook_transcript ? (
-                              <p className="mt-1 line-clamp-2 text-xs leading-5 text-muted-foreground" title={packet.hook_transcript}>
+                              <p className="mt-1 line-clamp-2 break-words text-xs leading-5 text-muted-foreground" title={packet.hook_transcript}>
                                 Hook: {packet.hook_transcript}
                               </p>
                             ) : null}

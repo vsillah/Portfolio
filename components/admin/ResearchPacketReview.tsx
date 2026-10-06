@@ -39,7 +39,7 @@ export function ResearchPacketReview({ packet, onReview }: {
     catch (err) { setError(err instanceof Error ? err.message : 'Review failed. Try again.') }
     finally { setBusy(false) }
   }
-  return <div className="mt-2 min-w-0 text-xs">
+  return <div className="mt-2 min-w-0 max-w-full overflow-hidden text-xs">
     <div className="flex flex-wrap items-center gap-2">
       <span className="capitalize">{(packet.status ?? 'unknown').replace(/_/g, ' ')}</span>
       <button type="button" className="agent-ops-button-secondary" aria-expanded={open} onClick={() => setOpen(!open)}>
