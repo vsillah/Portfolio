@@ -1,0 +1,119 @@
+[
+  {
+    "width": 390,
+    "url": "http://127.0.0.1:3226/admin/agents/content-intelligence?section=research",
+    "handoffs": 14,
+    "writes": [
+      {
+        "path": "/api/admin/social-content/intelligence/research-packets/packet-0/review",
+        "body": {
+          "decision": "approved",
+          "note": "Use public structure only; keep original claims and wording under human review.",
+          "updated_at": "2026-10-06T12:00:00Z"
+        }
+      },
+      {
+        "path": "/api/admin/agents/work-items/work-0/research-packets",
+        "body": {
+          "mode": "link_approved",
+          "packet_ids": [
+            "packet-0",
+            "packet-1"
+          ],
+          "decision_note": "Use public structure only; keep original claims and wording under human review."
+        }
+      },
+      {
+        "path": "/api/admin/agents/work-items/work-1/research-packets",
+        "body": {
+          "mode": "link_approved",
+          "packet_ids": [
+            "packet-0",
+            "packet-1"
+          ],
+          "decision_note": "Use public structure only; keep original claims and wording under human review."
+        }
+      }
+    ],
+    "external_requests": 0,
+    "errors": []
+  },
+  {
+    "width": 768,
+    "url": "http://127.0.0.1:3226/admin/agents/content-intelligence?section=research",
+    "handoffs": 14,
+    "writes": [
+      {
+        "path": "/api/admin/social-content/intelligence/research-packets/packet-0/review",
+        "body": {
+          "decision": "approved",
+          "note": "Use public structure only; keep original claims and wording under human review.",
+          "updated_at": "2026-10-06T12:00:00Z"
+        }
+      },
+      {
+        "path": "/api/admin/agents/work-items/work-0/research-packets",
+        "body": {
+          "mode": "link_approved",
+          "packet_ids": [
+            "packet-0",
+            "packet-1"
+          ],
+          "decision_note": "Use public structure only; keep original claims and wording under human review."
+        }
+      },
+      {
+        "path": "/api/admin/agents/work-items/work-1/research-packets",
+        "body": {
+          "mode": "link_approved",
+          "packet_ids": [
+            "packet-0",
+            "packet-1"
+          ],
+          "decision_note": "Use public structure only; keep original claims and wording under human review."
+        }
+      }
+    ],
+    "external_requests": 0,
+    "errors": []
+  },
+  {
+    "width": 1440,
+    "url": "http://127.0.0.1:3226/admin/agents/content-intelligence?section=research",
+    "handoffs": 14,
+    "writes": [
+      {
+        "path": "/api/admin/social-content/intelligence/research-packets/packet-0/review",
+        "body": {
+          "decision": "approved",
+          "note": "Use public structure only; keep original claims and wording under human review.",
+          "updated_at": "2026-10-06T12:00:00Z"
+        }
+      },
+      {
+        "path": "/api/admin/agents/work-items/work-0/research-packets",
+        "body": {
+          "mode": "link_approved",
+          "packet_ids": [
+            "packet-0",
+            "packet-1"
+          ],
+          "decision_note": "Use public structure only; keep original claims and wording under human review."
+        }
+      },
+      {
+        "path": "/api/admin/agents/work-items/work-1/research-packets",
+        "body": {
+          "mode": "link_approved",
+          "packet_ids": [
+            "packet-0",
+            "packet-1"
+          ],
+          "decision_note": "Use public structure only; keep original claims and wording under human review."
+        }
+      }
+    ],
+    "external_requests": 0,
+    "errors": []
+  }
+]

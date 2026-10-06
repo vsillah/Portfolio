@@ -25,6 +25,7 @@ import {
   XCircle,
   Youtube,
 } from 'lucide-react'
+import CampaignResearchBinding from '@/components/admin/CampaignResearchBinding'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import Pagination from '@/components/admin/Pagination'
@@ -925,6 +926,7 @@ function ContentIntelligenceContent() {
   const [evidenceForm, setEvidenceForm] = useState<EvidenceForm>(EMPTY_EVIDENCE_FORM)
   const [submittingEvidence, setSubmittingEvidence] = useState(false)
   const [evidenceNotice, setEvidenceNotice] = useState<string | null>(null)
+  const [bindingTarget, setBindingTarget] = useState('campaign')
   const [selectedPacketId, setSelectedPacketId] = useState('')
   const [selectedInsightId, setSelectedInsightId] = useState('')
   const [linkDecisionNote, setLinkDecisionNote] = useState('')
@@ -1121,8 +1123,8 @@ function ContentIntelligenceContent() {
     }
   }, [authedFetch])
 
-  const load = useCallback(async () => {
-    setLoading(true)
+  const load = useCallback(async (background = false) => {
+    if (!background) setLoading(true)
     setError(null)
     try {
       const [packetResponse, insightResponse, digestResponse, calendarResponse, campaignResponse] = await Promise.all([
@@ -2848,9 +2850,9 @@ function ContentIntelligenceContent() {
               <div className="py-12 text-center text-sm text-muted-foreground">Loading research packets...</div>
             ) : packets.length ? (
               <div className="space-y-4">
-                {insights.length ? (
+                {(
                   <CollapsiblePanel
-                    title="Link pattern to Shaka insight"
+                    title="Link research patterns"
                     panelKey="patternLink"
                     expanded={expandedPanels.patternLink}
                     onToggle={togglePanel}
@@ -2863,7 +2865,13 @@ function ContentIntelligenceContent() {
                       </span>
                     ) : null}
                   >
-                  <form onSubmit={linkResearchPattern}>
+                  <label className="mb-3 block text-sm">Evidence target
+                    <select value={bindingTarget} onChange={e => setBindingTarget(e.target.value)} className={CONTENT_INTELLIGENCE_FIELD_CLASS}>
+                      <option value="campaign">Campaign handoffs</option>
+                      <option value="social">Shaka social insights</option>
+                    </select>
+                  </label>
+                  {bindingTarget === 'campaign' ? <CampaignResearchBinding packets={packets} calendarItems={calendarItems} authedFetch={authedFetch} onLinked={() => load(true)} /> : <form onSubmit={linkResearchPattern}>
                     <div className="grid gap-3 lg:grid-cols-2">
                       <label className="block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                         Research packet
@@ -2914,9 +2922,9 @@ function ContentIntelligenceContent() {
                         {linkingPattern ? 'Linking...' : 'Link Pattern'}
                       </button>
                     </div>
-                  </form>
+                  </form>}
                   </CollapsiblePanel>
-                ) : null}
+                )}
                 <label className="block text-xs font-semibold text-muted-foreground">
                   Review status (up to 50 loaded packets)
                   <select value={researchReviewFilter} onChange={event => setResearchReviewFilter(event.target.value)} className={CONTENT_INTELLIGENCE_FIELD_CLASS}>

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { getAgentWorkItem, updateAgentWorkItemMetadata } from '@/lib/agent-work-items'
 import { isSocialTopicTriggerWorkItem } from '@/lib/social-content-intelligence'
+import { isCampaignResearchTarget, researchPacketBlocker } from '@/lib/campaign-research-targets'
 import { supabaseAdmin } from '@/lib/supabase'
 
 export const dynamic = 'force-dynamic'
@@ -58,11 +59,10 @@ export async function POST(
     if (!workItem) {
       return NextResponse.json({ error: 'Work item not found' }, { status: 404 })
     }
-    const isCalendarHandoff = workItem.source_type === 'social_content_calendar_authorization'
-      && workItem.metadata?.draft_handoff_only === true
+    const isCalendarHandoff = isCampaignResearchTarget(workItem)
     const linkApprovedOnly = body.mode === 'link_approved' || isCalendarHandoff
     if (!isSocialTopicTriggerWorkItem(workItem) && !isCalendarHandoff) {
-      return NextResponse.json({ error: 'Work item is not a social topic trigger' }, { status: 400 })
+      return NextResponse.json({ error: 'Work item is not a social topic trigger or campaign draft handoff' }, { status: 400 })
     }
 
     const { data: packets, error } = await supabaseAdmin
@@ -77,8 +77,7 @@ export async function POST(
     }
 
     if (linkApprovedOnly && packetRows.some((packet) =>
-      packet.status !== 'approved' || packet.pattern_status !== 'usable_framework'
-      || !asString(packet.source_url) || Object.keys(asRecord(packet.pattern_packet)).length === 0
+      packet.status !== 'approved' || researchPacketBlocker({ status: asString(packet.status), pattern_status: asString(packet.pattern_status), source_url: asString(packet.source_url), pattern_packet: packet.pattern_packet })
     )) {
       return NextResponse.json({ error: 'Select an approved usable framework. Review other evidence in Content Intelligence first.' }, { status: 400 })
     }
@@ -109,7 +108,8 @@ export async function POST(
       if (calendarError) throw new Error(calendarError.message)
       const handoff = asRecord(asRecord(calendar?.metadata).platform_draft_handoff)
       if (!calendar || calendar.authorization_status !== 'authorized' || handoff.work_item_id !== workItem.id
-        || calendar.campaign_id !== metadata.campaign_id || calendar.social_content_id !== metadata.social_content_id) {
+        || calendar.campaign_id !== metadata.campaign_id || calendar.social_content_id !== metadata.social_content_id
+        || calendar.channel !== metadata.channel || calendar.campaign_phase !== metadata.campaign_phase) {
         return NextResponse.json({ error: 'The authorized calendar handoff no longer matches this insight. Open the calendar to review its current handoff.' }, { status: 409 })
       }
       insight = {
