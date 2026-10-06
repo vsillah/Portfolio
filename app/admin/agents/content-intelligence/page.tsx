@@ -2969,10 +2969,10 @@ function ContentIntelligenceContent() {
                   </label>
                 </div>
                 <div className="overflow-hidden rounded-lg border border-silicon-slate/70 sm:overflow-x-auto">
-                  <table className="block w-full max-w-full table-fixed divide-y divide-silicon-slate/70 text-sm sm:table sm:table-auto">
+                  <table className="block w-full max-w-full table-fixed divide-y divide-silicon-slate/70 text-sm sm:table">
                     <thead className="hidden bg-silicon-slate/35 text-xs uppercase tracking-wide text-muted-foreground sm:table-header-group">
                       <tr>
-                        <th scope="col" className="px-3 py-2 text-left">
+                        <th scope="col" className="w-1/2 px-3 py-2 text-left">
                           <SortButton active={researchSort === 'title'} direction={researchSortDirection} onClick={() => {
                             setResearchSort('title')
                             setResearchSortDirection(researchSort === 'title' && researchSortDirection === 'asc' ? 'desc' : 'asc')
@@ -2980,8 +2980,8 @@ function ContentIntelligenceContent() {
                             Source
                           </SortButton>
                         </th>
-                        <th scope="col" className="px-3 py-2 text-left">Platform</th>
-                        <th scope="col" className="px-3 py-2 text-right">
+                        <th scope="col" className="w-[14%] px-3 py-2 text-left">Platform</th>
+                        <th scope="col" className="w-[10%] px-3 py-2 text-right">
                           <SortButton active={researchSort === 'score'} direction={researchSortDirection} onClick={() => {
                             setResearchSort('score')
                             setResearchSortDirection(researchSort === 'score' && researchSortDirection === 'desc' ? 'asc' : 'desc')
@@ -2989,8 +2989,8 @@ function ContentIntelligenceContent() {
                             Outlier
                           </SortButton>
                         </th>
-                        <th scope="col" className="px-3 py-2 text-left">Pattern</th>
-                        <th scope="col" className="px-3 py-2 text-right">
+                        <th scope="col" className="w-[16%] px-3 py-2 text-left">Pattern</th>
+                        <th scope="col" className="w-[10%] px-3 py-2 text-right">
                           <SortButton active={researchSort === 'retrieved'} direction={researchSortDirection} onClick={() => {
                             setResearchSort('retrieved')
                             setResearchSortDirection(researchSort === 'retrieved' && researchSortDirection === 'desc' ? 'asc' : 'desc')
