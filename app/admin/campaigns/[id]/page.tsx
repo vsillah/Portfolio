@@ -8,6 +8,7 @@ import {
   ArrowLeft, Plus, Trash2, Target, Users, Package, CheckCircle2,
   Clock, Loader2, X, ChevronRight, AlertCircle, UserPlus, Calendar, Pencil,
 } from 'lucide-react';
+import CampaignReviewBacklog from '@/components/admin/CampaignReviewBacklog';
 import CampaignReleaseReview from '@/components/admin/CampaignReleaseReview';
 import Breadcrumbs from '@/components/admin/Breadcrumbs';
 import { getCurrentSession } from '@/lib/auth';
@@ -113,7 +114,7 @@ export default function CampaignDetailPage() {
   const [campaign, setCampaign] = useState<CampaignDetail | null>(null);
   const [enrollments, setEnrollments] = useState<EnrollmentRow[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'criteria' | 'bundles' | 'enrollments' | 'content-calendar'>(searchParams.get('release') ? 'content-calendar' : 'criteria');
+  const [activeTab, setActiveTab] = useState<'criteria' | 'bundles' | 'enrollments' | 'content-calendar'>(searchParams.get('release') || searchParams.get('tab') === 'content-calendar' ? 'content-calendar' : 'criteria');
   const [generatingContentPlan, setGeneratingContentPlan] = useState(false);
   const [contentPlanNotice, setContentPlanNotice] = useState('');
   const [contentPlanTemplateKey, setContentPlanTemplateKey] =
@@ -746,9 +747,11 @@ export default function CampaignDetailPage() {
         </div>
       )}
 
-      {activeTab === 'content-calendar' && <CampaignReleaseReview campaignId={campaignId} releaseId={searchParams.get('release')} />}
+      {activeTab === 'content-calendar' && <CampaignReviewBacklog campaignId={campaignId} authedFetch={authedFetch} />}
+      {activeTab === 'content-calendar' && <details open={Boolean(searchParams.get('release'))} className="mb-4"><summary className="cursor-pointer text-sm">Release review</summary><CampaignReleaseReview campaignId={campaignId} releaseId={searchParams.get('release')} /></details>}
 
       {activeTab === 'content-calendar' && (
+        <details id="calendar-planning" className="min-w-0"><summary className="mb-4 cursor-pointer text-sm">Calendar planning and authorization</summary>
         <div>
           <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
@@ -775,7 +778,7 @@ export default function CampaignDetailPage() {
               <button
                 onClick={handleGenerateContentPlan}
                 disabled={generatingContentPlan}
-                className="admin-console-button-primary justify-center disabled:cursor-not-allowed disabled:opacity-50"
+                className="admin-console-button-secondary justify-center disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {generatingContentPlan ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />}
                 {generatingContentPlan ? 'Generating...' : 'Generate Calendar Plan'}
@@ -1070,6 +1073,7 @@ export default function CampaignDetailPage() {
             })}
           </div>
         </div>
+        </details>
       )}
       </div>
     </div>

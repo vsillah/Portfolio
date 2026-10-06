@@ -1,0 +1,4 @@
+app/admin/campaigns/[id]/page.test.tsx(228,45): error TS2322: Type 'null' is not assignable to type 'string'.
+app/admin/campaigns/[id]/page.test.tsx(228,62): error TS2322: Type 'null' is not assignable to type 'string'.
+lib/social-comment-inbox-ui.test.ts(51,5): error TS1117: An object literal cannot have multiple properties with the same name.
+lib/social-comment-inbox-ui.test.ts(52,5): error TS1117: An object literal cannot have multiple properties with the same name.

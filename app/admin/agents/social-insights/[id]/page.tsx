@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useParams } from 'next/navigation'
+import { useParams, useSearchParams } from 'next/navigation'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
 import {
@@ -114,7 +114,11 @@ export default function SocialInsightDetailPage() {
 function SocialInsightDetailContent() {
   const { id } = useParams<{ id: string }>()
   const [item, setItem] = useState<AgentWorkItem | null>(null)
-  const [activeTab, setActiveTab] = useState<SocialContentIntelligenceChannel>('linkedin')
+  const searchParams = useSearchParams()
+  const requestedChannel = searchParams.get('channel')
+  const [activeTab, setActiveTab] = useState<SocialContentIntelligenceChannel>(
+    SOCIAL_CONTENT_INTELLIGENCE_CHANNELS.find(channel => channel === requestedChannel) ?? 'linkedin',
+  )
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [decisionNote, setDecisionNote] = useState('')

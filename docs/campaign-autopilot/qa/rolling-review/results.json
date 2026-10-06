@@ -1,0 +1,56 @@
+[
+  {
+    "width": 390,
+    "url": "http://127.0.0.1:4021/admin/campaigns/campaign-review-qa?tab=content-calendar",
+    "first_batch_count": 3,
+    "persisted_ready_target": 12,
+    "external_requests": [],
+    "page_errors": [],
+    "mutations": [
+      {
+        "method": "POST",
+        "path": "/api/admin/campaigns/campaign-review-qa/review-backlog"
+      },
+      {
+        "method": "PATCH",
+        "path": "/api/admin/campaigns/campaign-review-qa/review-backlog"
+      }
+    ]
+  },
+  {
+    "width": 768,
+    "url": "http://127.0.0.1:4021/admin/campaigns/campaign-review-qa?tab=content-calendar",
+    "first_batch_count": 3,
+    "persisted_ready_target": 12,
+    "external_requests": [],
+    "page_errors": [],
+    "mutations": [
+      {
+        "method": "POST",
+        "path": "/api/admin/campaigns/campaign-review-qa/review-backlog"
+      },
+      {
+        "method": "PATCH",
+        "path": "/api/admin/campaigns/campaign-review-qa/review-backlog"
+      }
+    ]
+  },
+  {
+    "width": 1440,
+    "url": "http://127.0.0.1:4021/admin/campaigns/campaign-review-qa?tab=content-calendar",
+    "first_batch_count": 3,
+    "persisted_ready_target": 12,
+    "external_requests": [],
+    "page_errors": [],
+    "mutations": [
+      {
+        "method": "POST",
+        "path": "/api/admin/campaigns/campaign-review-qa/review-backlog"
+      },
+      {
+        "method": "PATCH",
+        "path": "/api/admin/campaigns/campaign-review-qa/review-backlog"
+      }
+    ]
+  }
+]

@@ -1,0 +1,23 @@
+
+ RUN  v4.0.18 /Users/vambahsillah/.codex/worktrees/2a57/Portfolio
+
+ ✓ app/api/admin/campaigns/[id]/review-backlog/route.test.ts (5 tests) 8ms
+ ✓ lib/campaign-review-cadence.test.ts (3 tests) 16ms
+ ✓ app/api/cron/social-content-calendar-due-gates/review-backlog.test.ts (3 tests) 6ms
+stderr | app/api/cron/social-content-calendar-due-gates/route.test.ts > /api/cron/social-content-calendar-due-gates > rejects ambiguous hosted provenance before calendar reads or writes
+[social-content-calendar-due-gates] failed: Error: Explicit Slack APP_ENV provenance is required.
+    at getSlackAgentEnvironment (/Users/vambahsillah/.codex/worktrees/2a57/Portfolio/lib/slack-agent-environment.ts:14:11)
+    at getSlackAgentSource (/Users/vambahsillah/.codex/worktrees/2a57/Portfolio/lib/slack-agent-environment.ts:36:29)
+    at runDueGateSweep (/Users/vambahsillah/.codex/worktrees/2a57/Portfolio/app/api/cron/social-content-calendar-due-gates/route.ts:323:5)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+
+ ✓ app/api/cron/social-content-calendar-due-gates/route.test.ts (13 tests) 18ms
+ ✓ app/admin/campaigns/[id]/page.test.tsx (5 tests) 491ms
+ ✓ app/admin/agents/social-insights/[id]/page.test.tsx (8 tests) 654ms
+ ✓ lib/campaign-review-backlog.test.ts (12 tests) 1140ms
+     ✓ fills Sunday horizon to ten and respects revision day limit of three  315ms
+
+ Test Files  7 passed (7)
+      Tests  49 passed (49)
+   Start at  06:27:50
+   Duration  1.86s (transform 623ms, setup 472ms, import 928ms, tests 2.33s, environment 3.03s)
