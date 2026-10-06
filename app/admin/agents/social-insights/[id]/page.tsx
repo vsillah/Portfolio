@@ -171,6 +171,8 @@ function SocialInsightDetailContent() {
   const activeLane = lanes[activeTab]
   const activeLaneHasReviewDraft = hasReviewDraft(activeLane)
   const activeLaneNeedsReviewDraft = activeTab !== 'thumbnail' && !activeLaneHasReviewDraft
+  const activeEnrichmentReceipt = asRecord(asRecord(activeLane.draft_packet).enrichment_receipt)
+  const activeLaneNeedsEnrichment = activeLaneHasReviewDraft && asString(activeEnrichmentReceipt.status) !== 'passed'
   const canPrepareReviewDrafts = approvedResearchPatterns.length > 0
 
   useEffect(() => {
@@ -455,6 +457,11 @@ function SocialInsightDetailContent() {
                           Prepare channel review drafts before approving this lane.
                         </p>
                       ) : null}
+                      {activeLaneNeedsEnrichment ? (
+                        <p className="mt-1 text-sm text-amber-100">
+                          This legacy packet has no passing content enrichment receipt. Regenerate channel review drafts before approval.
+                        </p>
+                      ) : null}
                     </div>
                     {laneNotice ? (
                       <span className="inline-flex w-fit rounded-full border border-emerald-500/35 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-100">
@@ -494,7 +501,7 @@ function SocialInsightDetailContent() {
                     <button
                       type="button"
                       onClick={() => updateLane('approved')}
-                      disabled={savingLane !== null || activeLaneNeedsReviewDraft || activeLane.status === 'approved'}
+                      disabled={savingLane !== null || activeLaneNeedsReviewDraft || activeLaneNeedsEnrichment || activeLane.status === 'approved'}
                       className="inline-flex items-center justify-center gap-2 rounded-lg border border-emerald-500/45 bg-emerald-500/10 px-4 py-2 text-sm font-semibold text-emerald-100 transition hover:bg-emerald-500/15 disabled:opacity-60"
                     >
                       <CheckCircle2 size={16} />
@@ -720,7 +727,11 @@ function ChannelInputs({
                 Avatar policy: {formatInputLabel(asString(visualCheck.avatar_policy) || 'pending before render')}. No media provider has been called.
               </p>
             </div>
-          ) : null}
+          ) : (
+            <p className="mt-2 rounded-md border border-amber-400/30 bg-amber-500/10 px-3 py-2 text-xs leading-5 text-amber-100">
+              Legacy packet: framework, voice, editorial, and avatar-stage enrichment are not verified. Regenerate before approval.
+            </p>
+          )}
         </div>
       ) : null}
 

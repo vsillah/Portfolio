@@ -97,6 +97,18 @@ function strategyEvidence(surfaceLabel: string, surfaceRoute: string, assets: st
   }
 }
 
+function enrichmentReceipt() {
+  return {
+    status: 'passed',
+    checks: {
+      research_frameworks: { status: 'passed', approved_pattern_count: 1 },
+      voice_calibration: { status: 'passed' },
+      editorial_challenger: { status: 'passed' },
+      avatar_and_visuals: { status: 'pending_visual_stage', avatar_policy: 'required_before_render' },
+    },
+  }
+}
+
 describe('SocialInsightDetailPage', () => {
   beforeEach(() => {
     vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
@@ -127,6 +139,7 @@ describe('SocialInsightDetailPage', () => {
                       channel: 'linkedin',
                       generated_at: '2026-06-24T15:00:00.000Z',
                       source_use_boundary: 'Drafts are generated for human review only.',
+                      enrichment_receipt: enrichmentReceipt(),
                       shared_source: {
                         insight_title: 'Approval gates create trust',
                         triggering_event: 'The Social Content review flow made the gate visible.',
@@ -156,6 +169,7 @@ describe('SocialInsightDetailPage', () => {
                       channel: 'youtube_shorts',
                       generated_at: '2026-06-24T15:00:00.000Z',
                       source_use_boundary: 'Drafts are generated for human review only.',
+                      enrichment_receipt: enrichmentReceipt(),
                       shared_source: {
                         insight_title: 'Approval gates create trust',
                         triggering_event: 'The Social Content review flow made the gate visible.',
@@ -185,6 +199,7 @@ describe('SocialInsightDetailPage', () => {
                       channel: 'instagram_reels',
                       generated_at: '2026-06-24T15:00:00.000Z',
                       source_use_boundary: 'Drafts are generated for human review only.',
+                      enrichment_receipt: enrichmentReceipt(),
                       shared_source: {
                         insight_title: 'Approval gates create trust',
                         triggering_event: 'The Social Content review flow made the gate visible.',
@@ -217,6 +232,7 @@ describe('SocialInsightDetailPage', () => {
                       channel: 'tiktok',
                       generated_at: '2026-06-24T15:00:00.000Z',
                       source_use_boundary: 'Drafts are generated for human review only.',
+                      enrichment_receipt: enrichmentReceipt(),
                       shared_source: {
                         insight_title: 'Approval gates create trust',
                         triggering_event: 'The Social Content review flow made the gate visible.',
@@ -354,6 +370,29 @@ describe('SocialInsightDetailPage', () => {
 
     expect(await screen.findByText('Add a decision note before rejecting a channel lane.')).toBeInTheDocument()
     expect(vi.mocked(fetch).mock.calls.some(([input]) => String(input).includes('/social-channels/linkedin'))).toBe(false)
+  })
+
+  it('blocks approval for a legacy draft without a passing enrichment receipt', async () => {
+    const legacy = socialWorkItem()
+    legacy.metadata.channel_lanes.linkedin = {
+      ...legacy.metadata.channel_lanes.linkedin,
+      status: 'in_review',
+      draft_packet: {
+        channel: 'linkedin',
+        generated_at: '2026-06-23T15:00:00.000Z',
+        fields: { post_text: 'Legacy draft copy.' },
+      },
+    }
+    vi.mocked(fetch).mockImplementationOnce(async () => ({
+      ok: true,
+      json: async () => ({ work_item: legacy }),
+    }) as Response)
+
+    render(<SocialInsightDetailPage />)
+
+    expect(await screen.findByText('Legacy packet: framework, voice, editorial, and avatar-stage enrichment are not verified. Regenerate before approval.')).toBeInTheDocument()
+    expect(screen.getByText('This legacy packet has no passing content enrichment receipt. Regenerate channel review drafts before approval.')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Approve Lane' })).toBeDisabled()
   })
 
   it('updates a channel lane decision through the review controls', async () => {
