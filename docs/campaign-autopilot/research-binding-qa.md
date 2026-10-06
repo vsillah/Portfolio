@@ -10,7 +10,7 @@ This extends the existing Content Intelligence Research panel with a campaign ha
 - Campaign, channel, phase, planned date, and linked packet count appear on each target. The target count is derived from returned data. The supplied readiness campaign has **14 handoffs**, not 13.
 - Multiple requests are deliberately sequential. This is not an atomic batch: a failed later request can leave earlier packet approvals or links saved. The UI reports completed counts and permits idempotent recovery after refresh.
 - Existing Shaka social-insight linking remains available through the same panel's Evidence target selector.
-- Up to 500 handoffs and the page's existing 50 calendar items/packets are loaded. A target whose calendar is outside the loaded set is blocked with a recovery message; the server always checks live lineage.
+- Up to 500 handoffs and 500 calendar lineage rows are loaded directly by the binding panel. A target whose calendar is outside the bounded set is blocked with a recovery message; the server always checks live lineage.
 
 ## Validation
 
@@ -21,15 +21,15 @@ The real Next page was exercised with synthetic API fixtures at 390, 768 and 144
 Commands:
 
 ```sh
-npx vitest run lib/campaign-research-targets.test.ts components/admin/CampaignResearchBinding.test.tsx 'app/api/admin/agents/work-items/[id]/research-packets' app/admin/agents/content-intelligence/page.test.tsx 'app/api/admin/social-content/intelligence/research-packets/[id]/review/route.test.ts'
+npx vitest run lib/campaign-research-targets.test.ts components/admin/CampaignResearchBinding.test.tsx 'app/api/admin/agents/work-items/[id]/research-packets' app/admin/agents/content-intelligence/page.test.tsx 'app/api/admin/social-content/intelligence/research-packets/[id]/review/route.test.ts' app/api/admin/social-content/calendar/route.test.ts
 CAMPAIGN_QA_PORT=3226 node scripts/qa/campaign-release-recovery-server.cjs
 node scripts/qa/campaign-research-binding.cjs
 npx tsc --noEmit --pretty false
-npx next lint --file components/admin/CampaignResearchBinding.tsx --file lib/campaign-research-targets.ts --file app/admin/agents/content-intelligence/page.tsx --file 'app/api/admin/agents/work-items/[id]/research-packets/route.ts'
+npx next lint --file components/admin/CampaignResearchBinding.tsx --file lib/campaign-research-targets.ts --file app/admin/agents/content-intelligence/page.tsx --file 'app/api/admin/agents/work-items/[id]/research-packets/route.ts' --file app/api/admin/social-content/calendar/route.ts
 git diff --check
 ```
 
-69 focused tests pass. Browser QA passes all three widths with zero outbound requests and zero page errors. Captures cover selection, blocked packets/handoffs, completion with updated counts, unauthorized recovery, and empty targets. API tests cover unrelated targets, stale lineage, authentication, approved-only behavior, idempotency, and all-false external side effects.
+73 focused tests pass. Browser QA passes all three widths with zero outbound requests and zero page errors. Captures cover selection, blocked packets/handoffs, completion with updated counts, unauthorized recovery, empty targets, human-readable planned dates, and the 500-row lineage lookup. API tests cover unrelated targets, stale lineage, authentication, approved-only behavior, idempotency, the bounded calendar limit, and all-false external side effects.
 
 Full typecheck remains blocked by unchanged files: nullable values in `app/admin/campaigns/[id]/page.test.tsx:228`, duplicate keys in `lib/social-comment-inbox-ui.test.ts:51-52`, and the absent ignored `lib/chatbot-knowledge-content.generated` module. No changed-file type errors remain. Full production build was not run; the actual Next Research route compiled and rendered in the isolated preview.
 
