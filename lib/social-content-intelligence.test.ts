@@ -429,4 +429,43 @@ describe('social-content-intelligence', () => {
     expect(drafts.tiktok.side_effects).toEqual(drafts.linkedin.side_effects)
     expect(drafts.thumbnail.side_effects).toEqual(drafts.linkedin.side_effects)
   })
+
+  it('keeps campaign planning instructions out of public channel fields', () => {
+    const drafts = buildLinkedInYoutubeReviewDrafts({
+      generatedAt: '2026-10-06T19:29:19.000Z',
+      insight: {
+        title: 'Hook batch: Agentic Operating System Readiness Challenge',
+        triggering_event: 'Hook batch: Agentic Operating System Readiness Challenge',
+        content_angle: 'Draft three hook/script variants with safe-area notes, captions, b-roll hints, and a clear first-frame promise.',
+        suggested_hook: 'Draft three hook/script variants with safe-area notes, captions, b-roll hints, and a clear first-frame promise.',
+        evidence_summary: 'Authorized campaign calendar brief. Research provides structure only; claims still require human review.',
+        claim_boundaries: [
+          'Campaign planning is not evidence of delivered outcomes.',
+          'Public patterns are frameworks, not source copy.',
+        ],
+        approved_research_patterns: [
+          {
+            source_url: 'https://example.com/public-pattern',
+            platform: 'linkedin',
+            creator_name: 'Public source',
+            pattern_status: 'usable_framework',
+            pattern_packet: {
+              hook_structure: 'Start with a behavior operators recognize.',
+              promise_value: 'Show the operating layer behind the content.',
+            },
+          },
+        ],
+      },
+    })
+
+    const publicFields = JSON.stringify(Object.values(drafts).map((draft) => draft.fields))
+
+    expect(publicFields).not.toContain('Hook batch')
+    expect(publicFields).not.toContain('Draft three hook/script variants')
+    expect(publicFields).not.toContain('safe-area notes')
+    expect(publicFields).not.toContain('b-roll hints')
+    expect(drafts.linkedin.fields.post_text).toContain('A working AI workflow still needs a visible approval path.')
+    expect(drafts.youtube.fields.opening_hook).toBe('AI speed means less if nobody can see the handoff.')
+    expect(drafts.youtube.fields.title_variants[0]).toContain('Visible review gates for AI content')
+  })
 })

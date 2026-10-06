@@ -864,6 +864,10 @@ function latestFeedbackGuidance(feedback: Record<string, unknown> | null | undef
 
 function isInternalPlanningPhrase(value: string) {
   return /open the x thread|prepared from|source basis|campaign packet|rollout campaign|agentified book and workbook/i.test(value)
+    || /^(?:hook batch|series hypothesis|proof cutdown|winning angle review)(?:\s*:|$)/i.test(value)
+    || /\bdraft\s+(?:three|\d+)\s+(?:hook|script|hook\/script)\s+variants?\b/i.test(value)
+    || /\b(?:safe-area notes?|b-roll hints?|first-frame promise)\b/i.test(value)
+    || /\b(?:tiktok-ready proof cutdown|queue the follow-up authorization gate|review performance and comments)\b/i.test(value)
 }
 
 function publicText(value: string, fallback: string) {
