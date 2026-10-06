@@ -494,7 +494,7 @@ function SocialInsightDetailContent() {
                     <button
                       type="button"
                       onClick={() => updateLane('approved')}
-                      disabled={savingLane !== null || activeLaneNeedsReviewDraft}
+                      disabled={savingLane !== null || activeLaneNeedsReviewDraft || activeLane.status === 'approved'}
                       className="inline-flex items-center justify-center gap-2 rounded-lg border border-emerald-500/45 bg-emerald-500/10 px-4 py-2 text-sm font-semibold text-emerald-100 transition hover:bg-emerald-500/15 disabled:opacity-60"
                     >
                       <CheckCircle2 size={16} />
