@@ -43,6 +43,8 @@ fs.mkdirSync(out, { recursive: true });
   const panel = page.getByLabel('Campaign research binding');
   async function shot(name) { await panel.scrollIntoViewIfNeeded(); await page.waitForTimeout(500); assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false); await page.screenshot({ path: `${out}/${width}-${name}.png` }); }
   await page.getByLabel('Campaign filter').selectOption('readiness');
+  await expect(page.getByText(/Planned: Oct 8, 2026/).first()).toBeVisible();
+  await expect(page.getByText(/2026-10-08T14:00:00Z/)).toHaveCount(0);
   await expect(page.getByLabel(/Source too close to reuse/)).toBeDisabled();
   await expect(page.getByLabel(/^Handoff 14:/)).toBeDisabled();
   await page.getByLabel(/^Workflow boundaries/).check(); await page.getByLabel(/^Public framework/).check();

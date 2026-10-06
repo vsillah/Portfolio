@@ -79,6 +79,17 @@ describe('/api/admin/social-content/calendar', () => {
     })
   })
 
+  it('supports the bounded 500-row research lineage lookup', async () => {
+    const query = listQuery()
+
+    const response = await GET(request(
+      'http://localhost/api/admin/social-content/calendar?limit=999',
+    ) as never)
+
+    expect(response.status).toBe(200)
+    expect(query.limit).toHaveBeenCalledWith(500)
+  })
+
   it('creates a pending calendar item without external side effects', async () => {
     const single = vi.fn(async () => ({
       data: { id: 'calendar-new', title: 'Teach item', authorization_status: 'pending' },

@@ -9,8 +9,24 @@ type Packet = { id: string; title: string | null; source_url: string; status: st
 type Props = { packets: Packet[]; calendarItems: ResearchCalendarTarget[]; authedFetch: (url: string, init?: RequestInit) => Promise<Response>; onLinked: () => Promise<void> }
 const field = 'mt-1 w-full min-w-0 rounded-lg border border-white/20 bg-slate-950 p-2 text-sm text-white'
 
+function formatPlannedDate(value: unknown) {
+  if (typeof value !== 'string' || !value) return 'Not set'
+  const dateOnly = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value)
+  const date = dateOnly
+    ? new Date(Number(dateOnly[1]), Number(dateOnly[2]) - 1, Number(dateOnly[3]))
+    : new Date(value)
+  if (!Number.isFinite(date.getTime())) return 'Not set'
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    ...(dateOnly ? {} : { hour: 'numeric', minute: '2-digit' }),
+  }).format(date)
+}
+
 export default function CampaignResearchBinding({ packets, calendarItems, authedFetch, onLinked }: Props) {
   const [targets, setTargets] = useState<AgentWorkItem[]>([])
+  const [lineage, setLineage] = useState<ResearchCalendarTarget[]>(calendarItems)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [campaign, setCampaign] = useState('')
@@ -24,18 +40,24 @@ export default function CampaignResearchBinding({ packets, calendarItems, authed
     let active = true
     setLoading(true)
     setError('')
-    authedFetch('/api/admin/agents/work-items?source_type=social_content_calendar_authorization&limit=500')
-      .then(async response => {
-        const body = await response.json()
-        if (!response.ok) throw new Error(body.error || 'Unable to load campaign handoffs. Sign in as an admin and retry.')
-        if (active) setTargets(Array.isArray(body.work_items) ? body.work_items : [])
-      }).catch(err => { if (active) { setTargets([]); setError(err.message) } })
+    Promise.all([
+      authedFetch('/api/admin/agents/work-items?source_type=social_content_calendar_authorization&limit=500'),
+      authedFetch('/api/admin/social-content/calendar?limit=500'),
+    ]).then(async ([targetResponse, calendarResponse]) => {
+        const [targetBody, calendarBody] = await Promise.all([targetResponse.json(), calendarResponse.json()])
+        if (!targetResponse.ok) throw new Error(targetBody.error || 'Unable to load campaign handoffs. Sign in as an admin and retry.')
+        if (!calendarResponse.ok) throw new Error(calendarBody.error || 'Unable to load campaign calendar lineage. Sign in as an admin and retry.')
+        if (active) {
+          setTargets(Array.isArray(targetBody.work_items) ? targetBody.work_items : [])
+          setLineage(Array.isArray(calendarBody.items) ? calendarBody.items : [])
+        }
+      }).catch(err => { if (active) { setTargets([]); setLineage([]); setError(err.message) } })
       .finally(() => { if (active) setLoading(false) })
     return () => { active = false }
   }, [authedFetch, refresh])
   const campaigns = Array.from(new Map(targets.filter(t => t.metadata?.campaign_id).map(t => [String(t.metadata.campaign_id), String(t.metadata.campaign_name || t.metadata.campaign_id)])).entries())
   const visible = targets.filter(t => !campaign || t.metadata?.campaign_id === campaign)
-  const blocker = (t: AgentWorkItem) => campaignResearchBlocker(t, calendarItems.find(c => c.id === t.metadata?.calendar_item_id))
+  const blocker = (t: AgentWorkItem) => campaignResearchBlocker(t, lineage.find(c => c.id === t.metadata?.calendar_item_id))
   const selectedPackets = packets.filter(p => packetIds.includes(p.id))
   const selectedTargets = visible.filter(t => targetIds.includes(t.id))
   const invalid = selectedPackets.some(p => researchPacketBlocker(p)) || selectedTargets.some(t => blocker(t))
@@ -87,7 +109,7 @@ export default function CampaignResearchBinding({ packets, calendarItems, authed
           {packets.map(p => { const reason = researchPacketBlocker(p); return <label key={p.id} className="flex items-start gap-2 rounded-lg border border-white/10 p-3"><input type="checkbox" className="mt-1 shrink-0" checked={packetIds.includes(p.id)} disabled={!!reason} onChange={() => setPacketIds(ids => toggle(ids, p.id))}/><span className="min-w-0 break-words"><span className="block">{p.title || p.source_url}</span><span className="text-xs text-muted-foreground">{reason || (p.status === 'approved' ? 'Approved · ready to link' : 'Awaiting your approval')}</span></span></label> })}
         </div></div>
         <div className="min-w-0"><h3 className="mb-2 font-semibold">Campaign handoffs</h3><div className="max-h-80 space-y-2 overflow-y-auto">
-          {visible.map(t => { const m = t.metadata; const reason = blocker(t); const count = Array.isArray(m.research_packet_ids) ? new Set(m.research_packet_ids).size : 0; return <label key={t.id} className="flex items-start gap-2 rounded-lg border border-white/10 p-3"><input type="checkbox" className="mt-1 shrink-0" checked={targetIds.includes(t.id)} disabled={!!reason} onChange={() => setTargetIds(ids => toggle(ids, t.id))}/><span className="min-w-0 break-words"><span className="block">{t.title}</span><span className="block text-xs text-muted-foreground">{String(m.campaign_name || m.campaign_id || 'No campaign')} · {String(m.channel || 'No channel')} · {String(m.campaign_phase || 'No phase')}</span><span className="block text-xs text-muted-foreground">Planned date: {String(m.scheduled_for || 'Not set')} · {count} linked</span>{reason && <span className="block text-xs text-amber-200">{reason}</span>}</span></label> })}
+          {visible.map(t => { const m = t.metadata; const reason = blocker(t); const count = Array.isArray(m.research_packet_ids) ? new Set(m.research_packet_ids).size : 0; return <label key={t.id} className="flex items-start gap-2 rounded-lg border border-white/10 p-3"><input type="checkbox" className="mt-1 shrink-0" checked={targetIds.includes(t.id)} disabled={!!reason} onChange={() => setTargetIds(ids => toggle(ids, t.id))}/><span className="min-w-0 break-words"><span className="block">{t.title}</span><span className="block text-xs text-muted-foreground">{String(m.campaign_name || m.campaign_id || 'No campaign')} · {String(m.channel || 'No channel')} · {String(m.campaign_phase || 'No phase')}</span><span className="block text-xs text-muted-foreground">Planned: {formatPlannedDate(m.scheduled_for)} · {count} linked</span>{reason && <span className="block text-xs text-amber-200">{reason}</span>}</span></label> })}
         </div></div>
       </fieldset>
       <label className="block">Campaign evidence decision note<textarea value={note} maxLength={2000} disabled={busy} onChange={e => setNote(e.target.value)} rows={2} className={field} placeholder="Why these frameworks fit the selected campaign handoffs; source-use boundaries."/></label>

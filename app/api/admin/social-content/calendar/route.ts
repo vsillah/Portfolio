@@ -27,7 +27,7 @@ function isoOrNull(value: unknown) {
 function limitFrom(value: string | null) {
   const parsed = Number(value)
   if (!Number.isFinite(parsed)) return 50
-  return Math.min(Math.max(Math.floor(parsed), 1), 100)
+  return Math.min(Math.max(Math.floor(parsed), 1), 500)
 }
 
 export async function GET(request: NextRequest) {
