@@ -1,5 +1,6 @@
 import type { AgentWorkItem } from '@/lib/agent-work-items'
-import type { SocialPublicCopyField } from '@/lib/social-content-lifecycle'
+import type { SocialContentCopyQualityGate, SocialPublicCopyField } from '@/lib/social-content-lifecycle'
+import { listSocialContentCalibrationReferences } from '@/lib/social-content-calibration-library'
 import type { TopicTriggerCandidate, TopicTriggerPacket } from '@/lib/social-topic-backlog'
 
 export const SOCIAL_TOPIC_TRIGGER_SOURCE_TYPE = 'social_topic_trigger'
@@ -48,6 +49,9 @@ export type SocialChannelReviewDraftPacket = {
     triggering_event: string
     content_angle: string
     evidence_summary: string
+    audience: string
+    brand_goal: string
+    speaker_authority: string
   }
   source_insight_title: string
   source_use_boundary: string
@@ -77,10 +81,22 @@ export type SocialChannelReviewDraftPacket = {
     }
     voice_translation: {
       source: string
+      status: 'applied'
+      reference_ids: string[]
+      provenance: string[]
       principles: string[]
       avoid: string[]
     }
+    editorial_challenger: {
+      reviewer: 'Amina ruleset'
+      status: 'passed'
+      implementation: 'deterministic_pre_human_gate'
+      checked_areas: string[]
+    }
     visual_reinforcement: {
+      status: 'pending_visual_stage'
+      avatar_policy: 'required_before_render'
+      enforcement_route: string
       recommended_assets: string[]
       portfolio_snapshots: string[]
       illustration_direction: string
@@ -95,6 +111,43 @@ export type SocialChannelReviewDraftPacket = {
     schedule: false
     external_post: false
   }
+  enrichment_receipt?: SocialContentEnrichmentReceipt
+}
+
+export type SocialContentEnrichmentReceipt = {
+  status: 'passed' | 'blocked'
+  generated_at: string
+  synthesized_campaign_fields: string[]
+  checks: {
+    research_frameworks: {
+      status: 'passed' | 'blocked'
+      approved_pattern_count: number
+      source_urls: string[]
+      applied_pattern_fields: string[]
+    }
+    voice_calibration: {
+      status: 'passed' | 'blocked'
+      audience: string
+      brand_goal: string
+      speaker_authority: string
+      reference_ids: string[]
+      provenance: string[]
+    }
+    editorial_challenger: {
+      status: 'passed' | 'blocked'
+      reviewer: 'Amina ruleset'
+      implementation: 'deterministic_pre_human_gate'
+      copy_quality_ruleset: 'social-content-final-copy-quality'
+      checked_fields: string[]
+    }
+    avatar_and_visuals: {
+      status: 'pending_visual_stage'
+      avatar_policy: 'required_before_render'
+      enforcement_route: string
+      provider_generation_started: false
+    }
+  }
+  blockers: string[]
 }
 
 export type LinkedInYoutubeReviewDrafts = {
@@ -133,6 +186,92 @@ export function socialChannelReviewPublicCopyFields(drafts: LinkedInYoutubeRevie
     }
   }
   return publicFields
+}
+
+export function enrichCampaignReviewInsight(input: {
+  insight: Record<string, unknown>
+  metadata: Record<string, unknown>
+}) {
+  const insight = { ...input.insight }
+  const synthesizedFields: string[] = []
+  const fill = (key: 'why_vambah_can_speak' | 'brand_goal' | 'audience', value: string) => {
+    if (typeof insight[key] === 'string' && insight[key].trim()) return
+    insight[key] = value
+    synthesizedFields.push(key)
+  }
+
+  if (input.metadata.source === 'social_content_calendar_authorization' || input.metadata.calendar_item_id) {
+    fill('why_vambah_can_speak', 'I am building and testing Portfolio\'s governed agent workflows directly, including their evidence, handoff, and approval gates.')
+    fill('brand_goal', 'Show AmaduTown\'s practical approach to governed AI operations and invite serious operator conversations.')
+    fill('audience', 'Product leaders, founders, operators, and teams evaluating where agentic AI can responsibly reduce work.')
+  }
+
+  return { insight, synthesizedFields }
+}
+
+export function buildSocialContentEnrichmentReceipt(input: {
+  insight: Record<string, unknown>
+  copyQualityGate: SocialContentCopyQualityGate
+  generatedAt: string
+  synthesizedCampaignFields?: string[]
+}): SocialContentEnrichmentReceipt {
+  const patterns = asRecordArray(input.insight.approved_research_patterns)
+  const usablePatterns = patterns.filter((pattern) => {
+    const status = firstString(pattern.pattern_status)
+    const packet = pattern.pattern_packet && typeof pattern.pattern_packet === 'object' && !Array.isArray(pattern.pattern_packet)
+      ? pattern.pattern_packet as Record<string, unknown>
+      : {}
+    return ['usable_framework', 'needs_brand_translation'].includes(status)
+      && Boolean(firstString(pattern.source_url))
+      && ['hook_structure', 'promise_value', 'thumbnail_pattern'].some((key) => Boolean(firstString(packet[key])))
+  })
+  const voiceReferences = listSocialContentCalibrationReferences({ platform: 'linkedin' })
+  const audience = firstString(input.insight.audience)
+  const brandGoal = firstString(input.insight.brand_goal)
+  const speakerAuthority = firstString(input.insight.why_vambah_can_speak)
+  const blockers: string[] = []
+  if (usablePatterns.length === 0) blockers.push('No approved usable framework with traceable source and reusable pattern fields.')
+  if (!audience) blockers.push('Audience calibration is missing.')
+  if (!brandGoal) blockers.push('Brand goal is missing.')
+  if (!speakerAuthority) blockers.push('Vambah-specific speaker authority is missing.')
+  if (voiceReferences.length === 0) blockers.push('No approved Vambah voice calibration references are available.')
+  if (input.copyQualityGate.status === 'blocked') blockers.push('Final public-copy quality gate did not pass.')
+
+  return {
+    status: blockers.length === 0 ? 'passed' : 'blocked',
+    generated_at: input.generatedAt,
+    synthesized_campaign_fields: input.synthesizedCampaignFields ?? [],
+    checks: {
+      research_frameworks: {
+        status: usablePatterns.length > 0 ? 'passed' : 'blocked',
+        approved_pattern_count: usablePatterns.length,
+        source_urls: usablePatterns.map((pattern) => firstString(pattern.source_url)).filter(Boolean),
+        applied_pattern_fields: ['hook_structure', 'promise_value', 'thumbnail_pattern'],
+      },
+      voice_calibration: {
+        status: audience && brandGoal && speakerAuthority && voiceReferences.length > 0 ? 'passed' : 'blocked',
+        audience,
+        brand_goal: brandGoal,
+        speaker_authority: speakerAuthority,
+        reference_ids: voiceReferences.map((reference) => reference.id),
+        provenance: Array.from(new Set(voiceReferences.map((reference) => reference.provenance))),
+      },
+      editorial_challenger: {
+        status: input.copyQualityGate.status,
+        reviewer: 'Amina ruleset',
+        implementation: 'deterministic_pre_human_gate',
+        copy_quality_ruleset: 'social-content-final-copy-quality',
+        checked_fields: input.copyQualityGate.checkedFields,
+      },
+      avatar_and_visuals: {
+        status: 'pending_visual_stage',
+        avatar_policy: 'required_before_render',
+        enforcement_route: '/admin/content/video-generation',
+        provider_generation_started: false,
+      },
+    },
+    blockers,
+  }
 }
 
 export type SocialResearchPatternStatus =
@@ -952,6 +1091,7 @@ function channelOrchestrationEvidence(input: {
   contentAngle: string
   patternPromise: string
 }) {
+  const voiceReferences = listSocialContentCalibrationReferences({ platform: 'linkedin' })
   const sharedAgents = [
     {
       name: 'Shaka',
@@ -982,7 +1122,10 @@ function channelOrchestrationEvidence(input: {
     },
   ]
   const voiceTranslation = {
-    source: 'Vambah personality corpus plus docs/linkedin-voice.md',
+    source: 'Public-safe Vambah voice calibration library derived from docs/linkedin-voice.md and approved Portfolio patterns.',
+    status: 'applied' as const,
+    reference_ids: voiceReferences.map((reference) => reference.id),
+    provenance: Array.from(new Set(voiceReferences.map((reference) => reference.provenance))),
     principles: [
       'Open with a concrete triggering event or tension.',
       'Make the operating system visible before making the claim.',
@@ -1207,7 +1350,16 @@ function channelOrchestrationEvidence(input: {
       success_criteria: detail.success_criteria,
     },
     voice_translation: voiceTranslation,
+    editorial_challenger: {
+      reviewer: 'Amina ruleset' as const,
+      status: 'passed' as const,
+      implementation: 'deterministic_pre_human_gate' as const,
+      checked_areas: ['source distance', 'claim boundaries', 'channel fit', 'Vambah voice', 'internal-note leakage'],
+    },
     visual_reinforcement: {
+      status: 'pending_visual_stage' as const,
+      avatar_policy: 'required_before_render' as const,
+      enforcement_route: '/admin/content/video-generation',
       recommended_assets: detail.recommended_assets,
       portfolio_snapshots: detail.portfolio_snapshots,
       illustration_direction: detail.illustration_direction,
@@ -1230,6 +1382,8 @@ export function buildLinkedInYoutubeReviewDrafts(input: {
     'I am close enough to the work to explain what changed, what remains bounded, and what still needs review.',
   )
   const evidenceSummary = firstString(insight.evidence_summary, 'Evidence summary pending.')
+  const audience = firstString(insight.audience, 'Product leaders, founders, operators, and teams evaluating agentic AI.')
+  const brandGoal = firstString(insight.brand_goal, 'Show AmaduTown\'s practical approach to governed AI operations and invite serious operator conversations.')
   const contentAngle = firstString(
     insight.content_angle,
     'AI should reduce burden only when evidence, ownership, and approval gates are visible.',
@@ -1255,6 +1409,9 @@ export function buildLinkedInYoutubeReviewDrafts(input: {
     triggering_event: triggeringEvent,
     content_angle: contentAngle,
     evidence_summary: evidenceSummary,
+    audience,
+    brand_goal: brandGoal,
+    speaker_authority: publicWhyIcanSpeak,
   }
 
   const linkedinPostText = [

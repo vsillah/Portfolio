@@ -302,6 +302,9 @@ describe('social-content-intelligence', () => {
       triggering_event: 'The Social Content review flow made the gate visible.',
       content_angle: 'AI should reduce burden when receipts and approval gates are visible.',
       evidence_summary: 'The work item links public research, channel drafts, and human decisions.',
+      audience: 'Product leaders, founders, operators, and teams evaluating agentic AI.',
+      brand_goal: 'Show AmaduTown\'s practical approach to governed AI operations and invite serious operator conversations.',
+      speaker_authority: 'I built and reviewed the workflow.',
     })
     expect(drafts.linkedin.fields).toMatchObject({
       post_text: expect.stringContaining('The Social Content review flow made the gate visible.'),
@@ -327,7 +330,7 @@ describe('social-content-intelligence', () => {
         format: expect.stringContaining('Thought-leadership post'),
       }),
       voice_translation: expect.objectContaining({
-        source: expect.stringContaining('Vambah personality corpus'),
+        source: expect.stringContaining('Public-safe Vambah voice calibration library'),
         avoid: expect.arrayContaining(['Generic AI hype.']),
       }),
       visual_reinforcement: expect.objectContaining({

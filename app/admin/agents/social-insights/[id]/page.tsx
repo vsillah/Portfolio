@@ -569,7 +569,7 @@ function StrategyEvidencePanel({ evidence }: { evidence: Record<string, unknown>
       </summary>
       <div className="mt-3 grid gap-3 xl:grid-cols-2">
         <div className="rounded-md border border-radiant-gold/20 bg-background/35 p-3">
-          <p className="text-xs uppercase tracking-wide text-muted-foreground">Agents called</p>
+          <p className="text-xs uppercase tracking-wide text-muted-foreground">Agent responsibilities</p>
           <ul className="mt-2 space-y-2 text-xs leading-5 text-muted-foreground">
             {agents.map((agent) => (
               <li key={`${asString(agent.name)}-${asString(agent.role)}`}>
@@ -655,6 +655,12 @@ function ChannelInputs({
   const sharedSource = asRecord(draftPacket.shared_source)
   const sharedSourceTitle = asString(sharedSource.insight_title)
   const orchestrationEvidence = asRecord(draftPacket.orchestration_evidence)
+  const enrichmentReceipt = asRecord(draftPacket.enrichment_receipt)
+  const enrichmentChecks = asRecord(enrichmentReceipt.checks)
+  const researchCheck = asRecord(enrichmentChecks.research_frameworks)
+  const voiceCheck = asRecord(enrichmentChecks.voice_calibration)
+  const editorialCheck = asRecord(enrichmentChecks.editorial_challenger)
+  const visualCheck = asRecord(enrichmentChecks.avatar_and_visuals)
   const sideEffects = asRecord(draftPacket.side_effects)
   const disabledSideEffects = [
     ['provider_generation', 'provider generation'],
@@ -703,6 +709,17 @@ function ChannelInputs({
             <p className="mt-2 rounded-md border border-emerald-400/20 bg-background/35 px-3 py-2 text-xs leading-5 text-emerald-100">
               No side effects authorized: {disabledSideEffects.join(', ')}.
             </p>
+          ) : null}
+          {Object.keys(enrichmentReceipt).length ? (
+            <div className="mt-2 rounded-md border border-emerald-400/20 bg-background/35 px-3 py-2 text-xs leading-5 text-emerald-100">
+              <p className="font-semibold">Content enrichment receipt: {asString(enrichmentReceipt.status)}</p>
+              <p className="mt-1 text-muted-foreground">
+                Frameworks {asString(researchCheck.status)} ({String(researchCheck.approved_pattern_count ?? 0)}) · Voice {asString(voiceCheck.status)} · Editorial gate {asString(editorialCheck.status)} · Avatar/visuals {asString(visualCheck.status)}
+              </p>
+              <p className="mt-1 text-muted-foreground">
+                Avatar policy: {formatInputLabel(asString(visualCheck.avatar_policy) || 'pending before render')}. No media provider has been called.
+              </p>
+            </div>
           ) : null}
         </div>
       ) : null}

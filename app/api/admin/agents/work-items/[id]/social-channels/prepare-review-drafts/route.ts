@@ -3,6 +3,8 @@ import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { getAgentWorkItem, updateAgentWorkItemMetadata } from '@/lib/agent-work-items'
 import {
   buildLinkedInYoutubeReviewDrafts,
+  buildSocialContentEnrichmentReceipt,
+  enrichCampaignReviewInsight,
   normalizeSocialChannelLanes,
   socialChannelReviewPublicCopyFields,
 } from '@/lib/social-content-intelligence'
@@ -35,8 +37,9 @@ export async function POST(
     }
 
     const metadata = workItem.metadata ?? {}
-    const insight = asRecord(metadata.insight)
-    if (!Object.keys(insight).length) {
+    const rawInsight = asRecord(metadata.insight)
+    const { insight, synthesizedFields } = enrichCampaignReviewInsight({ insight: rawInsight, metadata })
+    if (!Object.keys(rawInsight).length) {
       return NextResponse.json({ error: 'Social insight metadata is required' }, { status: 400 })
     }
     if (!hasApprovedResearchPatterns(insight)) {
@@ -62,6 +65,22 @@ export async function POST(
         quality_gate: copyQualityGate,
       }, { status: 422 })
     }
+    const enrichmentReceipt = buildSocialContentEnrichmentReceipt({
+      insight,
+      copyQualityGate,
+      generatedAt: now,
+      synthesizedCampaignFields: synthesizedFields,
+    })
+    if (enrichmentReceipt.status === 'blocked') {
+      return NextResponse.json({
+        error: 'Channel review draft enrichment gate is incomplete.',
+        current_gate: 'content_enrichment',
+        revision_state: 'revision_needed',
+        blockers: enrichmentReceipt.blockers,
+        enrichment_receipt: enrichmentReceipt,
+      }, { status: 422 })
+    }
+    for (const draft of Object.values(drafts)) draft.enrichment_receipt = enrichmentReceipt
     // Keep campaign lineage in review metadata, never in public copy fields.
     if (typeof metadata.calendar_item_id === 'string') {
       for (const draft of Object.values(drafts)) {
@@ -150,6 +169,7 @@ export async function POST(
             checked_at: now,
             ruleset: 'social-content-final-copy-quality',
           },
+          enrichment_receipt: enrichmentReceipt,
           side_effects: {
             provider_generation: false,
             upload: false,
