@@ -1127,7 +1127,7 @@ describe('ContentIntelligencePage', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /ResearchCreator evidence/ }))
     expect(screen.getByRole('heading', { name: 'Public creator research' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /Link pattern to Shaka insight/ })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Link research patterns/ })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Outlier research process' })).toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: /Backlog/ }))
@@ -1204,7 +1204,8 @@ describe('ContentIntelligencePage', () => {
 
     await screen.findByRole('heading', { name: 'Research and Shaka insight queue' })
     fireEvent.click(screen.getByRole('button', { name: /ResearchCreator evidence/ }))
-    fireEvent.click(screen.getByRole('button', { name: /Link pattern to Shaka insight/ }))
+    fireEvent.click(screen.getByRole('button', { name: /Link research patterns/ }))
+    fireEvent.change(screen.getByLabelText('Evidence target'), { target: { value: 'social' } })
 
     fireEvent.change(screen.getByLabelText('Decision note'), {
       target: { value: 'Use the structure, not the source wording.' },
