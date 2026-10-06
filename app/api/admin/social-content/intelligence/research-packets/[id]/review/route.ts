@@ -2,6 +2,20 @@ import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { supabaseAdmin } from '@/lib/supabase'
 
+function hasValidSourceUrl(value: unknown) {
+  if (typeof value !== 'string' || !value.trim()) return false
+  try {
+    const url = new URL(value)
+    return url.protocol === 'https:' || url.protocol === 'http:'
+  } catch {
+    return false
+  }
+}
+
+function hasPatternPacket(value: unknown) {
+  return !!value && typeof value === 'object' && !Array.isArray(value) && Object.keys(value).length > 0
+}
+
 export async function POST(request: NextRequest, context: { params: Promise<{ id: string }> }) {
   const auth = await verifyAdmin(request)
   if (isAuthError(auth)) return NextResponse.json({ error: auth.error }, { status: auth.status })
@@ -20,8 +34,12 @@ export async function POST(request: NextRequest, context: { params: Promise<{ id
   if (packet.status !== 'review_ready' || packet.updated_at !== body.updated_at) {
     return NextResponse.json({ error: 'Packet changed or was already reviewed. Refresh before reviewing.' }, { status: 409 })
   }
-  if (body.decision === 'approved' && packet.pattern_status !== 'usable_framework') {
-    return NextResponse.json({ error: 'Only usable frameworks can be approved. Translate or reassess the source pattern first.' }, { status: 422 })
+  if (body.decision === 'approved' && (
+    packet.pattern_status !== 'usable_framework'
+    || !hasValidSourceUrl(packet.source_url)
+    || !hasPatternPacket(packet.pattern_packet)
+  )) {
+    return NextResponse.json({ error: 'Approval requires a usable framework, a valid public source URL, and a nonempty pattern packet.' }, { status: 422 })
   }
   const metadata = packet.actor_metadata && typeof packet.actor_metadata === 'object' && !Array.isArray(packet.actor_metadata)
     ? packet.actor_metadata : {}

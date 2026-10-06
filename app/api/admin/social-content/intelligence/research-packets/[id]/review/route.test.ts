@@ -6,7 +6,7 @@ vi.mock('@/lib/supabase', () => ({ supabaseAdmin: { from: mocks.from } }))
 import { POST } from './route'
 const id = '11111111-1111-4111-8111-111111111111'
 const version = '2026-10-06T12:00:00.000Z'
-const packet = { id, status: 'review_ready', updated_at: version, pattern_status: 'usable_framework', source_url: 'https://example.com/source', actor_metadata: { provenance: 'public' } }
+const packet = { id, status: 'review_ready', updated_at: version, pattern_status: 'usable_framework', source_url: 'https://example.com/source', pattern_packet: { framework: 'Scene to lesson' }, actor_metadata: { provenance: 'public' } }
 const request = (body: unknown = { decision: 'approved', note: 'Safe abstract framework', updated_at: version }, packetId = id) => POST(new NextRequest('http://localhost/api/review', { method: 'POST', body: JSON.stringify(body) }), { params: Promise.resolve({ id: packetId }) })
 describe('research packet review', () => {
   beforeEach(() => {
@@ -26,6 +26,16 @@ describe('research packet review', () => {
   it('rejects invalid ids', async () => { expect((await request({}, 'bad')).status).toBe(400) })
   it.each(['too_close_to_source', 'not_relevant', 'needs_brand_translation'])('blocks approval of %s', async pattern_status => {
     mocks.single.mockReset().mockResolvedValue({ data: { ...packet, pattern_status } })
+    expect((await request()).status).toBe(422); expect(mocks.update).not.toHaveBeenCalled()
+  })
+  it.each([
+    { source_url: '' },
+    { source_url: 'not-a-url' },
+    { source_url: 'ftp://example.com/source' },
+    { pattern_packet: null },
+    { pattern_packet: {} },
+  ])('blocks incomplete approval evidence %j', async fields => {
+    mocks.single.mockReset().mockResolvedValue({ data: { ...packet, ...fields } })
     expect((await request()).status).toBe(422); expect(mocks.update).not.toHaveBeenCalled()
   })
   it('records review identity and preserves provenance atomically', async () => {

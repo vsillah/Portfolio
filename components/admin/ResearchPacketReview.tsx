@@ -7,6 +7,7 @@ export type ReviewableResearchPacket = {
   status: string
   updated_at: string
   pattern_status: string
+  source_url?: string | null
   pattern_packet?: Record<string, unknown>
   privacy_notes?: string | null
   actor_metadata: Record<string, unknown>
@@ -21,7 +22,16 @@ export function ResearchPacketReview({ packet, onReview }: {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const review = packet.actor_metadata?.operator_review as { note?: string; reviewed_at?: string } | undefined
-  const eligible = packet.pattern_status === 'usable_framework'
+  const hasSource = (() => {
+    try {
+      const url = new URL(packet.source_url ?? '')
+      return url.protocol === 'https:' || url.protocol === 'http:'
+    } catch {
+      return false
+    }
+  })()
+  const hasPattern = !!packet.pattern_packet && Object.keys(packet.pattern_packet).length > 0
+  const eligible = packet.pattern_status === 'usable_framework' && hasSource && hasPattern
   async function submit(decision: 'approved' | 'rejected') {
     setBusy(true)
     setError('')
@@ -46,7 +56,7 @@ export function ResearchPacketReview({ packet, onReview }: {
       </dl>
       {packet.privacy_notes && <p>{packet.privacy_notes}</p>}
       {packet.status === 'review_ready' ? <>
-        {!eligible && <p>Approval blocked: only usable frameworks can be approved. Translate or reassess this pattern first, or reject it below.</p>}
+        {!eligible && <p>Approval blocked: a usable framework, valid public source URL, and nonempty pattern packet are required. Complete or reassess this packet first, or reject it below.</p>}
         <label className="block">Review reason
           <textarea className="mt-1 block w-full rounded border border-silicon-slate bg-background p-2" rows={2} maxLength={2000} value={note} onChange={event => setNote(event.target.value)} disabled={busy} />
         </label>

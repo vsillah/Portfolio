@@ -3,7 +3,7 @@ import { fireEvent, render, screen, waitFor, cleanup } from '@testing-library/re
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { ResearchPacketReview } from './ResearchPacketReview'
 afterEach(cleanup)
-const packet = { id: 'packet', status: 'review_ready', updated_at: '2026-10-06T12:00:00Z', pattern_status: 'usable_framework', actor_metadata: {}, pattern_packet: { framework: 'Scene to lesson' }, privacy_notes: 'Public source only' }
+const packet = { id: 'packet', status: 'review_ready', updated_at: '2026-10-06T12:00:00Z', pattern_status: 'usable_framework', source_url: 'https://example.com/source', actor_metadata: {}, pattern_packet: { framework: 'Scene to lesson' }, privacy_notes: 'Public source only' }
 describe('ResearchPacketReview', () => {
   it('requires a note, shows evidence, and submits approval', async () => {
     const onReview = vi.fn().mockResolvedValue(undefined)
@@ -24,6 +24,17 @@ describe('ResearchPacketReview', () => {
     expect((screen.getByText('Approve framework') as HTMLButtonElement).disabled).toBe(true)
     fireEvent.click(screen.getByText('Reject packet'))
     await waitFor(() => expect(onReview).toHaveBeenCalledWith('rejected', 'Unsafe'))
+  })
+  it.each([
+    { source_url: '' },
+    { source_url: 'not-a-url' },
+    { pattern_packet: {} },
+  ])('blocks approval when evidence is incomplete: %j', fields => {
+    render(<ResearchPacketReview packet={{ ...packet, ...fields }} onReview={vi.fn()} />)
+    fireEvent.click(screen.getByText('Review packet'))
+    fireEvent.change(screen.getByLabelText('Review reason'), { target: { value: 'Needs evidence' } })
+    expect((screen.getByText('Approve framework') as HTMLButtonElement).disabled).toBe(true)
+    expect(screen.getByText(/valid public source URL/)).toBeTruthy()
   })
   it('keeps the note and shows actionable failure', async () => {
     render(<ResearchPacketReview packet={packet} onReview={vi.fn().mockRejectedValue(new Error('Packet changed. Refresh before reviewing.'))} />)
