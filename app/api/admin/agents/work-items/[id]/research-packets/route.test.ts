@@ -85,6 +85,53 @@ function mockResearchPacketQuery(packetRows = [packet]) {
   })
 }
 
+function calendarHandoffWorkItem() {
+  return {
+    id: 'work-1',
+    source_type: 'social_content_calendar_authorization',
+    metadata: {
+      draft_handoff_only: true,
+      calendar_item_id: 'calendar-1',
+      campaign_id: 'campaign-1',
+      social_content_id: 'draft-1',
+      insight: {
+        claim_boundaries: ['Campaign planning is not evidence of delivered outcomes.'],
+      } as Record<string, unknown>,
+    },
+  }
+}
+
+function approvedPacket(overrides: Record<string, unknown> = {}) {
+  return { ...packet, status: 'approved', pattern_status: 'usable_framework', ...overrides }
+}
+
+function mockCalendarHandoff(
+  calendar: Record<string, unknown>,
+  packets = [approvedPacket()],
+  calendarResult?: { data: unknown, error: { message: string } | null },
+) {
+  const packetUpdate = vi.fn(() => ({ in: vi.fn(async () => ({ error: null })) }))
+  mocks.from.mockImplementation((table: string) => {
+    if (table === 'social_content_research_packets') {
+      return {
+        select: () => ({ in: async () => ({ data: packets, error: null }) }),
+        update: packetUpdate,
+      }
+    }
+    if (table === 'social_content_calendar_items') {
+      return {
+        select: () => ({
+          eq: () => ({
+            single: async () => calendarResult ?? { data: calendar, error: null },
+          }),
+        }),
+      }
+    }
+    throw new Error(`Unexpected table ${table}`)
+  })
+  return { packetUpdate }
+}
+
 describe('/api/admin/agents/work-items/[id]/research-packets', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -207,6 +254,145 @@ describe('/api/admin/agents/work-items/[id]/research-packets', () => {
       insight: expect.objectContaining({ title: 'Readiness Challenge', content_angle: 'Find the first workflow that needs a human decision.', source_ids: ['calendar-1', 'campaign-1'] }),
     }) }))
     else expect(mocks.updateAgentWorkItemMetadata).not.toHaveBeenCalled()
+  })
+
+  it.each([
+    ['blank source', { source_url: '   ' }],
+    ['missing source', { source_url: undefined }],
+    ['empty pattern', { pattern_packet: {} }],
+    ['list pattern', { pattern_packet: ['not-a-framework'] }],
+  ])('rejects recovery evidence with a %s', async (_label, overrides) => {
+    mockResearchPacketQuery([approvedPacket(overrides)])
+    const response = await POST(request({ packet_ids: ['packet-1'], mode: 'link_approved' }) as never, { params: { id: 'work-1' } })
+    expect(response.status).toBe(400)
+    expect(await response.json()).toEqual({
+      error: 'Select an approved usable framework. Review other evidence in Content Intelligence first.',
+    })
+    expect(mocks.from).toHaveBeenCalledTimes(1)
+    expect(mocks.updateAgentWorkItemMetadata).not.toHaveBeenCalled()
+  })
+
+  it('does not let recovery mode link evidence onto a non-social work item', async () => {
+    mocks.getAgentWorkItem.mockResolvedValue({
+      id: 'work-1',
+      source_type: 'manual_note',
+      metadata: { draft_handoff_only: true, calendar_item_id: 'calendar-1' },
+    })
+    const response = await POST(request({ packet_ids: ['packet-1'], mode: 'link_approved' }) as never, { params: { id: 'work-1' } })
+    expect(response.status).toBe(400)
+    expect(await response.json()).toEqual({ error: 'Work item is not a social topic trigger' })
+    expect(mocks.from).not.toHaveBeenCalled()
+    expect(mocks.updateAgentWorkItemMetadata).not.toHaveBeenCalled()
+  })
+
+  it.each([false, 'true'])('requires an exact calendar handoff flag (draft_handoff_only=%s)', async (flag) => {
+    mocks.getAgentWorkItem.mockResolvedValue({
+      id: 'work-1',
+      source_type: 'social_content_calendar_authorization',
+      metadata: {
+        draft_handoff_only: flag,
+        calendar_item_id: 'calendar-1',
+        campaign_id: 'campaign-1',
+        social_content_id: 'draft-1',
+      },
+    })
+    const response = await POST(request({ packet_ids: ['packet-1'], mode: 'link_approved' }) as never, { params: { id: 'work-1' } })
+    expect(response.status).toBe(400)
+    expect(await response.json()).toEqual({ error: 'Work item is not a social topic trigger' })
+    expect(mocks.from).not.toHaveBeenCalled()
+  })
+
+  it.each([
+    ['authorization', { authorization_status: 'pending' }],
+    ['campaign', { campaign_id: 'other-campaign' }],
+    ['draft', { social_content_id: 'other-draft' }],
+  ])('rejects a calendar handoff after %s drift', async (_label, drift) => {
+    mocks.getAgentWorkItem.mockResolvedValue(calendarHandoffWorkItem())
+    const { packetUpdate } = mockCalendarHandoff({
+      id: 'calendar-1',
+      campaign_id: 'campaign-1',
+      social_content_id: 'draft-1',
+      title: 'Readiness Challenge',
+      planned_angle: 'Find the first workflow that needs a human decision.',
+      authorization_status: 'authorized',
+      metadata: { platform_draft_handoff: { work_item_id: 'work-1' } },
+      ...drift,
+    })
+    const response = await POST(request({ packet_ids: ['packet-1'] }) as never, { params: { id: 'work-1' } })
+    expect(response.status).toBe(409)
+    expect(await response.json()).toEqual({
+      error: 'The authorized calendar handoff no longer matches this insight. Open the calendar to review its current handoff.',
+    })
+    expect(packetUpdate).not.toHaveBeenCalled()
+    expect(mocks.updateAgentWorkItemMetadata).not.toHaveBeenCalled()
+  })
+
+  it('rejects ineligible calendar evidence before reading the handoff', async () => {
+    mocks.getAgentWorkItem.mockResolvedValue(calendarHandoffWorkItem())
+    const { packetUpdate } = mockCalendarHandoff(
+      { id: 'calendar-1' },
+      [approvedPacket({ source_url: ' ' })],
+    )
+    const response = await POST(request({ packet_ids: ['packet-1'] }) as never, { params: { id: 'work-1' } })
+    expect(response.status).toBe(400)
+    expect(await response.json()).toEqual({
+      error: 'Select an approved usable framework. Review other evidence in Content Intelligence first.',
+    })
+    expect(mocks.from).toHaveBeenCalledTimes(1)
+    expect(packetUpdate).not.toHaveBeenCalled()
+    expect(mocks.updateAgentWorkItemMetadata).not.toHaveBeenCalled()
+  })
+
+  it('does not rewrite the insight when the calendar handoff cannot be read', async () => {
+    mocks.getAgentWorkItem.mockResolvedValue(calendarHandoffWorkItem())
+    const { packetUpdate } = mockCalendarHandoff({}, [approvedPacket()], {
+      data: null,
+      error: { message: 'calendar relation missing' },
+    })
+    const response = await POST(request({ packet_ids: ['packet-1'] }) as never, { params: { id: 'work-1' } })
+    expect(response.status).toBe(500)
+    expect(await response.json()).toEqual({ error: 'calendar relation missing' })
+    expect(packetUpdate).not.toHaveBeenCalled()
+    expect(mocks.updateAgentWorkItemMetadata).not.toHaveBeenCalled()
+  })
+
+  it.each(['', null])('rebuilds a calendar insight from the title when the angle is %s', async (plannedAngle) => {
+    const item = calendarHandoffWorkItem()
+    item.metadata.insight.claim_boundaries = [
+      'Campaign planning is not evidence of delivered outcomes.',
+      'Keep the operator review.',
+    ]
+    mocks.getAgentWorkItem.mockResolvedValue(item)
+    const { packetUpdate } = mockCalendarHandoff({
+      id: 'calendar-1',
+      campaign_id: 'campaign-1',
+      social_content_id: 'draft-1',
+      title: 'Readiness Challenge',
+      planned_angle: plannedAngle,
+      authorization_status: 'authorized',
+      metadata: { platform_draft_handoff: { work_item_id: 'work-1' } },
+    })
+    const response = await POST(request({ packet_ids: ['packet-1'] }) as never, { params: { id: 'work-1' } })
+    expect(response.status).toBe(200)
+    expect(packetUpdate).not.toHaveBeenCalled()
+    expect(mocks.updateAgentWorkItemMetadata).toHaveBeenCalledWith(expect.objectContaining({
+      metadata: expect.objectContaining({
+        insight: expect.objectContaining({
+          title: 'Readiness Challenge',
+          triggering_event: 'Readiness Challenge',
+          content_angle: 'Readiness Challenge',
+          suggested_hook: 'Readiness Challenge',
+          evidence_summary: 'Authorized campaign calendar brief. Research provides structure only; claims still require human review.',
+          claim_boundaries: [
+            'Campaign planning is not evidence of delivered outcomes.',
+            'Keep the operator review.',
+            'Public patterns are frameworks, not source copy.',
+          ],
+          source_ids: ['calendar-1', 'campaign-1'],
+          source_type: 'social_content_calendar_authorization',
+        }),
+      }),
+    }))
   })
 
 })
