@@ -45,7 +45,9 @@ import type {
   AutoResearchContentOpportunity,
 } from '@/lib/cross-channel-autoresearch-backlog'
 
-type ResearchPacket = {
+import { ResearchPacketReview, type ReviewableResearchPacket } from '@/components/admin/ResearchPacketReview'
+
+type ResearchPacket = ReviewableResearchPacket & {
   id: string
   source_url: string
   platform: string
@@ -972,6 +974,7 @@ function ContentIntelligenceContent() {
   const [researchSearch, setResearchSearch] = useState('')
   const [researchPlatformFilter, setResearchPlatformFilter] = useState('')
   const [researchPatternFilter, setResearchPatternFilter] = useState('')
+  const [researchReviewFilter, setResearchReviewFilter] = useState('')
   const [researchSort, setResearchSort] = useState<ResearchSortKey>('score')
   const [researchSortDirection, setResearchSortDirection] = useState<SortDirection>('desc')
   const [researchPage, setResearchPage] = useState(1)
@@ -1123,7 +1126,7 @@ function ContentIntelligenceContent() {
     setError(null)
     try {
       const [packetResponse, insightResponse, digestResponse, calendarResponse, campaignResponse] = await Promise.all([
-        authedFetch('/api/admin/social-content/intelligence/research-packets?limit=12'),
+        authedFetch('/api/admin/social-content/intelligence/research-packets?limit=50'),
         authedFetch('/api/admin/agents/work-items?source_type=social_topic_trigger&limit=12'),
         authedFetch('/api/admin/social-content/intelligence/daily-digest?lookback_days=5&limit=12'),
         authedFetch('/api/admin/social-content/calendar?limit=50'),
@@ -1299,6 +1302,7 @@ function ContentIntelligenceContent() {
       .filter((packet) => {
         if (researchPlatformFilter && packet.platform !== researchPlatformFilter) return false
         if (researchPatternFilter && packet.pattern_status !== researchPatternFilter) return false
+        if (researchReviewFilter && packet.status !== researchReviewFilter) return false
         if (!search) return true
         return [
           packet.title,
@@ -1321,6 +1325,7 @@ function ContentIntelligenceContent() {
   }, [
     packets,
     researchPatternFilter,
+    researchReviewFilter,
     researchPlatformFilter,
     researchSearch,
     researchSort,
@@ -1386,7 +1391,7 @@ function ContentIntelligenceContent() {
 
   useEffect(() => {
     setResearchPage(1)
-  }, [researchPatternFilter, researchPlatformFilter, researchSearch, researchSort, researchSortDirection])
+  }, [researchPatternFilter, researchReviewFilter, researchPlatformFilter, researchSearch, researchSort, researchSortDirection])
 
   useEffect(() => {
     setInsightPage(1)
@@ -2912,6 +2917,16 @@ function ContentIntelligenceContent() {
                   </form>
                   </CollapsiblePanel>
                 ) : null}
+                <label className="block text-xs font-semibold text-muted-foreground">
+                  Review status (up to 50 loaded packets)
+                  <select value={researchReviewFilter} onChange={event => setResearchReviewFilter(event.target.value)} className={CONTENT_INTELLIGENCE_FIELD_CLASS}>
+                    <option value="">All review states</option>
+                    <option value="review_ready">Awaiting review</option>
+                    <option value="approved">Approved</option>
+                    <option value="rejected">Rejected</option>
+                    <option value="archived">Archived</option>
+                  </select>
+                </label>
                 <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_12rem_14rem]">
                   <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                     Search
@@ -2953,11 +2968,11 @@ function ContentIntelligenceContent() {
                     </select>
                   </label>
                 </div>
-                <div className="overflow-x-auto rounded-lg border border-silicon-slate/70">
-                  <table className="min-w-full divide-y divide-silicon-slate/70 text-sm">
-                    <thead className="bg-silicon-slate/35 text-xs uppercase tracking-wide text-muted-foreground">
+                <div className="overflow-hidden rounded-lg border border-silicon-slate/70 sm:overflow-x-auto">
+                  <table className="block w-full max-w-full table-fixed border-collapse divide-y divide-silicon-slate/70 text-sm sm:table">
+                    <thead className="hidden bg-silicon-slate/35 text-xs uppercase tracking-wide text-muted-foreground sm:table-header-group">
                       <tr>
-                        <th scope="col" className="px-3 py-2 text-left">
+                        <th scope="col" className="w-1/2 px-3 py-2 text-left">
                           <SortButton active={researchSort === 'title'} direction={researchSortDirection} onClick={() => {
                             setResearchSort('title')
                             setResearchSortDirection(researchSort === 'title' && researchSortDirection === 'asc' ? 'desc' : 'asc')
@@ -2965,8 +2980,8 @@ function ContentIntelligenceContent() {
                             Source
                           </SortButton>
                         </th>
-                        <th scope="col" className="px-3 py-2 text-left">Platform</th>
-                        <th scope="col" className="px-3 py-2 text-right">
+                        <th scope="col" className="w-[13%] overflow-hidden px-2 py-2 text-left">Platform</th>
+                        <th scope="col" className="w-[10%] px-3 py-2 text-right">
                           <SortButton active={researchSort === 'score'} direction={researchSortDirection} onClick={() => {
                             setResearchSort('score')
                             setResearchSortDirection(researchSort === 'score' && researchSortDirection === 'desc' ? 'asc' : 'desc')
@@ -2974,8 +2989,8 @@ function ContentIntelligenceContent() {
                             Outlier
                           </SortButton>
                         </th>
-                        <th scope="col" className="px-3 py-2 text-left">Pattern</th>
-                        <th scope="col" className="px-3 py-2 text-right">
+                        <th scope="col" className="w-[15%] px-3 py-2 text-left">Pattern</th>
+                        <th scope="col" className="w-[12%] overflow-hidden px-2 py-2 text-right">
                           <SortButton active={researchSort === 'retrieved'} direction={researchSortDirection} onClick={() => {
                             setResearchSort('retrieved')
                             setResearchSortDirection(researchSort === 'retrieved' && researchSortDirection === 'desc' ? 'asc' : 'desc')
@@ -2985,37 +3000,57 @@ function ContentIntelligenceContent() {
                         </th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-silicon-slate/60 bg-background/20">
+                    <tbody className="block divide-y divide-silicon-slate/60 bg-background/20 sm:table-row-group">
                       {pagedResearchPackets.map((packet) => (
-                        <tr key={packet.id} className="align-top">
-                          <td className="max-w-md px-3 py-3">
-                            <a href={packet.source_url} target="_blank" rel="noreferrer" className="font-semibold text-blue-100 hover:text-blue-50">
+                        <tr key={packet.id} className="block min-w-0 align-top sm:table-row">
+                          <td className="block w-full min-w-0 overflow-hidden break-words px-3 py-3 sm:table-cell sm:max-w-md">
+                            <a href={packet.source_url} target="_blank" rel="noreferrer" className="block break-words font-semibold text-blue-100 hover:text-blue-50">
                               {packet.title ?? packet.caption ?? packet.source_url}
                             </a>
                             <p className="mt-1 text-xs text-muted-foreground">
                               {packet.creator_name ?? packet.creator_handle ?? 'Creator unknown'}
                             </p>
+                            <div className="mt-2 flex flex-wrap items-center gap-2 sm:hidden">
+                              <span className="inline-flex items-center gap-1 rounded-full border border-blue-500/30 bg-blue-500/10 px-2 py-0.5 text-xs text-blue-100">
+                                {platformIcon(packet.platform)}
+                                {packet.platform.replace(/_/g, ' ')}
+                              </span>
+                              <span className="rounded-full border border-silicon-slate/70 px-2 py-0.5 text-xs text-muted-foreground">
+                                {packet.pattern_status.replace(/_/g, ' ')}
+                              </span>
+                              <span className="text-xs font-semibold text-radiant-gold">Outlier {Math.round(Number(packet.outlier_score))}</span>
+                              <span className="text-xs text-muted-foreground">{new Date(packet.retrieved_at).toLocaleDateString()}</span>
+                            </div>
+                            <ResearchPacketReview packet={packet} onReview={async (decision, note) => {
+                              const response = await authedFetch(`/api/admin/social-content/intelligence/research-packets/${packet.id}/review`, {
+                                method: 'POST',
+                                body: JSON.stringify({ decision, note, updated_at: packet.updated_at }),
+                              })
+                              const body = await response.json()
+                              if (!response.ok) throw new Error(body.error || 'Unable to save review.')
+                              setPackets(current => current.map(item => item.id === packet.id ? body.packet : item))
+                            }} />
                             {packet.hook_transcript ? (
-                              <p className="mt-1 line-clamp-2 text-xs leading-5 text-muted-foreground" title={packet.hook_transcript}>
+                              <p className="mt-1 line-clamp-2 break-words text-xs leading-5 text-muted-foreground" title={packet.hook_transcript}>
                                 Hook: {packet.hook_transcript}
                               </p>
                             ) : null}
                           </td>
-                          <td className="px-3 py-3">
-                            <span className="inline-flex items-center gap-1 rounded-full border border-blue-500/30 bg-blue-500/10 px-2 py-0.5 text-xs text-blue-100">
+                          <td className="hidden overflow-hidden px-2 py-3 sm:table-cell">
+                            <span className="inline-flex max-w-full items-center gap-1 overflow-hidden text-ellipsis whitespace-nowrap rounded-full border border-blue-500/30 bg-blue-500/10 px-2 py-0.5 text-xs text-blue-100">
                               {platformIcon(packet.platform)}
                               {packet.platform.replace(/_/g, ' ')}
                             </span>
                           </td>
-                          <td className="px-3 py-3 text-right font-semibold text-radiant-gold">
+                          <td className="hidden px-3 py-3 text-right font-semibold text-radiant-gold sm:table-cell">
                             {Math.round(Number(packet.outlier_score))}
                           </td>
-                          <td className="px-3 py-3">
+                          <td className="hidden px-3 py-3 sm:table-cell">
                             <span className="rounded-full border border-silicon-slate/70 px-2 py-0.5 text-xs text-muted-foreground">
                               {packet.pattern_status.replace(/_/g, ' ')}
                             </span>
                           </td>
-                          <td className="px-3 py-3 text-right text-xs text-muted-foreground">
+                          <td className="hidden overflow-hidden px-2 py-3 text-right text-xs text-muted-foreground sm:table-cell">
                             {new Date(packet.retrieved_at).toLocaleDateString()}
                           </td>
                         </tr>
