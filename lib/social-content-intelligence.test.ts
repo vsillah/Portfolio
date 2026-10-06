@@ -309,6 +309,8 @@ describe('social-content-intelligence', () => {
       visual_mode: 'carousel_or_framework_illustration_review',
     })
     expect(drafts.linkedin.fields.post_text).not.toContain('The work item links public research')
+    expect(drafts.linkedin.fields.post_text).toContain('I built and reviewed the workflow.')
+    expect(drafts.linkedin.fields.post_text).not.toContain('Vambah')
     expect(drafts.linkedin.reviewer_action_guidance).toMatchObject({
       feedback_target: 'both',
       feedback: 'Make the next operator action explicit.',
@@ -336,7 +338,7 @@ describe('social-content-intelligence', () => {
       opening_hook: 'AI should reduce burden.',
       first_30_seconds: expect.stringContaining('The mistake is thinking the demo is the finish line'),
       full_video_script: expect.arrayContaining([
-        expect.stringContaining('Core argument: AI should reduce burden'),
+        'AI should reduce burden when receipts and approval gates are visible.',
       ]),
       upload_readiness: 'pending_final_human_submission_gate',
       visibility_default: 'private',
@@ -346,6 +348,9 @@ describe('social-content-intelligence', () => {
         approved_pattern_count: 1,
       }),
     })
+    expect(drafts.youtube.fields.full_video_script).toContain('I built and reviewed the workflow.')
+    expect(drafts.youtube.fields.full_video_script).not.toContain('Vambah')
+    expect(JSON.stringify(drafts.youtube.fields.full_video_script)).not.toMatch(/Opening hook:|Reviewer note:|Proof walkthrough:/i)
     expect(drafts.youtube.orchestration_evidence).toMatchObject({
       channel_structure: expect.objectContaining({
         format: expect.stringContaining('Long-form YouTube video packet'),
@@ -466,6 +471,8 @@ describe('social-content-intelligence', () => {
     expect(publicFields).not.toContain('b-roll hints')
     expect(drafts.linkedin.fields.post_text).toContain('A working AI workflow still needs a visible approval path.')
     expect(drafts.youtube.fields.opening_hook).toBe('AI speed means less if nobody can see the handoff.')
-    expect(drafts.youtube.fields.title_variants[0]).toContain('Visible review gates for AI content')
+    expect(drafts.youtube.fields.title_variants).toEqual(expect.arrayContaining([
+      expect.stringContaining('Visible review gates for AI content'),
+    ]))
   })
 })

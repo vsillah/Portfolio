@@ -1,4 +1,5 @@
 import type { AgentWorkItem } from '@/lib/agent-work-items'
+import type { SocialPublicCopyField } from '@/lib/social-content-lifecycle'
 import type { TopicTriggerCandidate, TopicTriggerPacket } from '@/lib/social-topic-backlog'
 
 export const SOCIAL_TOPIC_TRIGGER_SOURCE_TYPE = 'social_topic_trigger'
@@ -104,6 +105,34 @@ export type LinkedInYoutubeReviewDrafts = {
   tiktok: SocialChannelReviewDraftPacket
   x: SocialChannelReviewDraftPacket
   thumbnail: SocialChannelReviewDraftPacket
+}
+
+const REVIEW_PUBLIC_FIELD_NAMES: Record<SocialContentIntelligenceChannel, string[]> = {
+  linkedin: ['post_text', 'cta'],
+  youtube: ['title_variants', 'description', 'opening_hook', 'first_30_seconds', 'full_video_script'],
+  youtube_shorts: ['hook', 'first_30_seconds', 'script', 'on_screen_text', 'caption'],
+  instagram_reels: ['hook', 'script', 'cover_text', 'caption'],
+  tiktok: ['hook', 'script', 'cover_frame', 'caption'],
+  x: ['post_text', 'thread_option', 'cta'],
+  thumbnail: ['primary_text', 'alternate_text_options'],
+}
+
+export function socialChannelReviewPublicCopyFields(drafts: LinkedInYoutubeReviewDrafts): SocialPublicCopyField[] {
+  const publicFields: SocialPublicCopyField[] = []
+  for (const channel of SOCIAL_CONTENT_INTELLIGENCE_CHANNELS) {
+    for (const fieldName of REVIEW_PUBLIC_FIELD_NAMES[channel]) {
+      const value = drafts[channel].fields[fieldName]
+      const values = Array.isArray(value) ? value : [value]
+      values.forEach((entry, index) => {
+        if (typeof entry !== 'string' || !entry.trim()) return
+        publicFields.push({
+          field: `${channel}.${fieldName}${Array.isArray(value) ? `[${index}]` : ''}`,
+          text: entry.trim(),
+        })
+      })
+    }
+  }
+  return publicFields
 }
 
 export type SocialResearchPatternStatus =
@@ -876,6 +905,24 @@ function publicText(value: string, fallback: string) {
   return trimmed
 }
 
+function firstPersonPublicText(value: string, fallback: string) {
+  const candidate = publicText(value, fallback)
+  return /\bVambah\b/i.test(candidate) ? fallback : candidate
+}
+
+function firstPersonSpeakerText(value: string, fallback: string) {
+  const candidate = publicText(value, fallback)
+  const normalized = candidate
+    .replace(/\bVambah['’]s\b/gi, 'my')
+    .replace(/\bVambah\s+is\b/gi, 'I am')
+    .replace(/\bVambah\s+has\b/gi, 'I have')
+    .replace(/\bVambah\s+was\b/gi, 'I was')
+    .replace(/\bVambah\s+does\b/gi, 'I do')
+    .replace(/\bVambah\s+can\b/gi, 'I can')
+    .replace(/\bVambah\b/gi, 'I')
+  return /\bVambah\b/i.test(normalized) ? fallback : normalized
+}
+
 function reviewerTrace(input: {
   evidenceSummary: string
   patterns: Array<Record<string, unknown>>
@@ -1180,7 +1227,7 @@ export function buildLinkedInYoutubeReviewDrafts(input: {
   const triggeringEvent = firstString(insight.triggering_event, title)
   const whyVambahCanSpeak = firstString(
     insight.why_vambah_can_speak,
-    'Vambah is close enough to the work to explain what changed, what remains bounded, and what still needs review.',
+    'I am close enough to the work to explain what changed, what remains bounded, and what still needs review.',
   )
   const evidenceSummary = firstString(insight.evidence_summary, 'Evidence summary pending.')
   const contentAngle = firstString(
@@ -1190,16 +1237,18 @@ export function buildLinkedInYoutubeReviewDrafts(input: {
   const hook = firstString(insight.suggested_hook, contentAngle)
   const claimBoundaries = asStringArray(insight.claim_boundaries)
   const patterns = asRecordArray(insight.approved_research_patterns).map(compactResearchPattern)
-  const patternHook = firstString(...patterns.map((pattern) => pattern.hook_structure))
   const patternPromise = firstString(...patterns.map((pattern) => pattern.promise_value))
   const sourceBoundary = 'Drafts are generated for human review only. Public research patterns are framework inputs, not source copy.'
   const guidance = latestFeedbackGuidance(input.latestFeedback)
   const trace = reviewerTrace({ evidenceSummary, patterns, claimBoundaries })
-  const publicAngle = publicText(contentAngle, 'AI tools earn trust when the handoff is visible before public action.')
-  const publicTrigger = publicText(triggeringEvent, 'A working AI workflow still needs a visible approval path.')
-  const publicHook = publicText(hook, 'AI speed means less if nobody can see the handoff.')
-  const publicTitle = publicText(title, 'Visible review gates for AI content')
-  const proofCue = 'Show the reviewed Portfolio workflow: source, owner, approval gate, and final human decision.'
+  const publicAngle = firstPersonPublicText(contentAngle, 'AI tools earn trust when the handoff is visible before public action.')
+  const publicTrigger = firstPersonPublicText(triggeringEvent, 'A working AI workflow still needs a visible approval path.')
+  const publicHook = firstPersonPublicText(hook, 'AI speed means less if nobody can see the handoff.')
+  const publicTitle = firstPersonPublicText(title, 'Visible review gates for AI content')
+  const publicWhyIcanSpeak = firstPersonSpeakerText(
+    whyVambahCanSpeak,
+    'I am close enough to the work to explain what changed, what remains bounded, and what still needs review.',
+  )
   const publicPrinciple = 'Trust is not created by more output. It is created by a visible handoff before the output reaches people.'
   const sharedSource = {
     insight_title: title,
@@ -1213,7 +1262,7 @@ export function buildLinkedInYoutubeReviewDrafts(input: {
     '',
     publicAngle,
     '',
-    `That matters because ${whyVambahCanSpeak}`,
+    `That matters because ${publicWhyIcanSpeak}`,
     '',
     'The practical test is simple: can the system show what the draft is based on, who touched it, and what still needs review before it reaches the public?',
     '',
@@ -1227,32 +1276,31 @@ export function buildLinkedInYoutubeReviewDrafts(input: {
     'The real test starts when the output needs evidence, ownership, and a human approval gate before it reaches the public.',
   ].join(' ')
   const youtubeShortsScript = [
-    `0-3s hook: ${youtubeHook}`,
-    '3-12s tension: The output may be fast, but speed does not answer who checked the source, who owns the decision, or what is still blocked.',
-    `12-30s proof cue: ${proofCue}`,
-    'Close: If the handoff is invisible, the automation is not ready.',
+    youtubeHook,
+    'The output may be fast, but speed does not answer who checked the source, who owns the decision, or what is still blocked.',
+    'Look for the source, the owner, the approval gate, and the final human decision.',
+    'If the handoff is invisible, the automation is not ready.',
   ]
   const instagramReelsScript = [
-    `Cover/opening: ${truncate(publicPrinciple, 70)}`,
-    `Voiceover: ${publicAngle}`,
-    `Proof moment: ${proofCue}`,
-    'Caption bridge: Save this as a review checklist before turning any AI draft into public content.',
+    truncate(publicPrinciple, 70),
+    publicAngle,
+    'Look for the source, the owner, the approval gate, and the final human decision.',
+    'Save this as a review checklist before turning any AI draft into public content.',
   ]
   const tiktokScript = [
-    `Hook: ${youtubeHook}`,
-    'Quick cut: show the draft, then the approval gate.',
-    'Plain-language point: the risky part is not that AI wrote something. The risky part is when nobody can tell what it was based on.',
-    'Close: If you cannot show the receipt, slow the handoff down.',
+    youtubeHook,
+    'Fast output is not the same as a trustworthy handoff.',
+    'The risky part is not that AI wrote something. The risky part is when nobody can tell what it was based on.',
+    'If you cannot show the receipt, slow the handoff down.',
   ]
   const fullVideoScript = [
-    `Opening hook: ${youtubeHook}`,
-    `Context: ${publicTrigger}`,
-    `Why Vambah can speak to it: ${whyVambahCanSpeak}`,
-    `Core argument: ${publicAngle}`,
-    `Proof walkthrough: ${proofCue}`,
-    patternHook ? 'Reviewer note: adapt the approved pattern structure without copying source language.' : 'Reviewer note: use the approved research packet for structure only.',
-    'Operating takeaway: make the source, owner, approval gate, final asset, and provider boundary visible before upload.',
-    'Close: invite the viewer to compare where their own AI or content workflow loses trust between draft and public action.',
+    youtubeHook,
+    publicTrigger,
+    publicWhyIcanSpeak,
+    publicAngle,
+    'Here is the practical test: can you see the source, the owner, the approval gate, and the final human decision?',
+    'Make the source, owner, approval gate, final asset, and provider boundary visible before anything reaches the public.',
+    'Where does your own AI or content workflow lose trust between draft and public action?',
   ]
   const storyboardScenes = [
     'Face-to-camera hook with the triggering event.',
@@ -1270,8 +1318,8 @@ export function buildLinkedInYoutubeReviewDrafts(input: {
     'Every risky action needs a gate.',
     'Trust is an operating layer.',
   ]
-  const nativeThumbnailText = truncate(publicText(patternPromise, 'Receipts Before Reach'), 34)
-  const nativeCoverText = truncate(publicText(patternPromise, 'Show the gate before the output'), 52)
+  const nativeThumbnailText = truncate(firstPersonPublicText(patternPromise, 'Receipts Before Reach'), 34)
+  const nativeCoverText = truncate(firstPersonPublicText(patternPromise, 'Show the gate before the output'), 52)
   const thumbnailSourcePatterns = patterns
     .map((pattern) => pattern.thumbnail_pattern || pattern.promise_value || pattern.hook_structure)
     .filter(Boolean)
@@ -1322,7 +1370,7 @@ export function buildLinkedInYoutubeReviewDrafts(input: {
           '',
           'A practical look at the review path behind trustworthy AI-enabled content: source, owner, approval gate, final asset, and provider boundary.',
           '',
-          'Provider upload, scheduling, and publication require a separate final human gate.',
+          'The goal is straightforward: make the handoff visible before the work reaches the public.',
         ].join('\n'),
         opening_hook: youtubeHook,
         first_30_seconds: firstThirtySeconds,
@@ -1473,8 +1521,8 @@ export function buildLinkedInYoutubeReviewDrafts(input: {
         post_text: truncate([
           publicTrigger,
           publicAngle,
-          `Why it matters: ${whyVambahCanSpeak}`,
-          'The practical test: can the system show the source, owner, approval gate, and public-action boundary before it reaches the audience?',
+          publicWhyIcanSpeak,
+          'Can the system show the source, owner, approval gate, and public-action boundary before it reaches the audience?',
         ].join('\n\n'), 1100),
         thread_option: [
           `1. ${truncate(publicTrigger, 240)}`,
@@ -1514,7 +1562,7 @@ export function buildLinkedInYoutubeReviewDrafts(input: {
           truncate('Receipts before autonomy', 44),
           truncate('Show the gate before the output', 44),
         ],
-        visual_direction: 'Use an original AmaduTown visual: Vambah or approved avatar in front of a simplified Portfolio approval path, with enough gutter between text and proof object.',
+        visual_direction: 'Use an original AmaduTown visual: a first-person presenter or approved avatar in front of a simplified Portfolio approval path, with enough gutter between text and proof object.',
         source_thumbnail_references: thumbnailSourcePatterns,
         layout_requirements: [
           'Keep all text inside thumbnail safe areas with generous padding.',

@@ -193,6 +193,10 @@ describe('/api/admin/agents/work-items/[id]/social-channels/prepare-review-draft
           status: 'human_review_ready',
           prepared_channels: ['linkedin', 'youtube', 'youtube_shorts', 'instagram_reels', 'tiktok', 'x', 'thumbnail'],
           prepared_at: '2026-06-24T15:00:00.000Z',
+          copy_quality_gate: expect.objectContaining({
+            status: 'passed',
+            ruleset: 'social-content-final-copy-quality',
+          }),
         }),
         channel_lanes: expect.objectContaining({
           linkedin: expect.objectContaining({
@@ -237,7 +241,7 @@ describe('/api/admin/agents/work-items/[id]/social-channels/prepare-review-draft
               }),
               fields: expect.objectContaining({
                 full_video_script: expect.arrayContaining([
-                  expect.stringContaining('Core argument: AI should reduce burden'),
+                  'AI should reduce burden, but only when authority and evidence are separated.',
                 ]),
                 upload_readiness: 'pending_final_human_submission_gate',
                 visibility_default: 'private',
@@ -418,12 +422,61 @@ describe('/api/admin/agents/work-items/[id]/social-channels/prepare-review-draft
     expect(publicText).not.toContain('Agentified book and workbook rollout campaign')
     expect(publicText).not.toContain('Prepared from the Agentified campaign packet')
     expect(publicText).not.toContain('internal source basis')
+    expect(publicText).not.toMatch(/\bVambah\b/i)
     expect(lanes.youtube.draft_packet.fields.reviewer_trace).toMatchObject({
       evidence_summary: 'Prepared from the Agentified campaign packet and internal source basis.',
       source_urls: ['https://example.com/public-pattern'],
     })
     expect(lanes.thumbnail.draft_packet.fields.primary_text).toBe('Receipts Before Reach')
     expect(lanes.thumbnail.draft_packet.fields.primary_text).not.toContain('Agentified')
+  })
+
+  it('normalizes third-person references to Vambah out of public channel copy', async () => {
+    const workItem = cloneBaseWorkItem()
+    workItem.metadata.insight = {
+      ...workItem.metadata.insight,
+      title: 'Vambah explains the review gate',
+      triggering_event: 'Vambah is reviewing the campaign handoff.',
+      content_angle: 'Vambah has a practical test for trustworthy automation.',
+      suggested_hook: "Vambah's rule is simple.",
+      why_vambah_can_speak: 'Vambah built and reviewed the workflow.',
+    }
+    mocks.getAgentWorkItem.mockResolvedValue(workItem)
+
+    const response = await POST(request() as never, { params: { id: 'work-1' } })
+
+    expect(response.status).toBe(200)
+    const lanes = preparedLanes()
+    const publicText = nonXPublicDraftText(lanes)
+    expect(publicText).not.toMatch(/\bVambah\b/i)
+    expect(lanes.linkedin.draft_packet.fields.post_text).toContain('A working AI workflow still needs a visible approval path.')
+    expect(lanes.linkedin.draft_packet.fields.post_text).toContain('I built and reviewed the workflow.')
+    expect(lanes.youtube.draft_packet.fields.full_video_script).toContain('I built and reviewed the workflow.')
+  })
+
+  it('blocks channel packets before persistence when public fields contain internal production notes', async () => {
+    const workItem = cloneBaseWorkItem()
+    workItem.metadata.insight = {
+      ...workItem.metadata.insight,
+      content_angle: 'Reviewer note: publish this framing as written.',
+    }
+    mocks.getAgentWorkItem.mockResolvedValue(workItem)
+
+    const response = await POST(request() as never, { params: { id: 'work-1' } })
+    const body = await response.json()
+
+    expect(response.status).toBe(422)
+    expect(body).toMatchObject({
+      current_gate: 'final_copy_quality',
+      revision_state: 'revision_needed',
+      quality_gate: {
+        status: 'blocked',
+        findings: expect.arrayContaining([
+          expect.objectContaining({ code: 'production_script_label' }),
+        ]),
+      },
+    })
+    expect(mocks.updateAgentWorkItemMetadata).not.toHaveBeenCalled()
   })
   it('preserves campaign lineage in every review packet without putting IDs in copy', async () => {
     const item = cloneBaseWorkItem()

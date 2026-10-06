@@ -57,6 +57,11 @@ export type SocialContentCopyQualityGate = {
   recoveryAction: string
 }
 
+export type SocialPublicCopyField = {
+  field: string
+  text: string
+}
+
 const LIFECYCLE_ORDER: SocialContentLifecycleStep[] = ['context', 'copy', 'visuals', 'draft', 'submit', 'status']
 
 const STEP_LABELS: Record<SocialContentLifecycleStep, string> = {
@@ -164,6 +169,18 @@ const PROMPT_LEAKAGE_PATTERNS: Array<{
     severity: 'medium',
     pattern: /\b(?:as an ai|i (?:cannot|can't) comply|i don't have access to|knowledge cutoff)\b/i,
   },
+  {
+    code: 'third_person_author_name',
+    label: 'Third-person author reference in public copy',
+    severity: 'high',
+    pattern: /\bVambah\b/i,
+  },
+  {
+    code: 'production_script_label',
+    label: 'Production or reviewer label leaked into audience script',
+    severity: 'high',
+    pattern: /(?:^|\n)\s*(?:opening hook|context|why i can speak to it|core argument|proof walkthrough|reviewer note|operating takeaway|cover\/opening|voiceover|proof moment|caption bridge|\d+-\d+s (?:hook|tension|proof cue)|quick cut|plain-language point|close)\s*:/i,
+  },
 ]
 
 function collectFinalCopyFields(item: LifecycleItem): Array<{ field: string; text: string }> {
@@ -191,8 +208,7 @@ function collectFinalCopyFields(item: LifecycleItem): Array<{ field: string; tex
   return fields
 }
 
-export function validateSocialContentFinalCopyQuality(item: LifecycleItem): SocialContentCopyQualityGate {
-  const fields = collectFinalCopyFields(item)
+export function validateSocialPublicCopyFields(fields: SocialPublicCopyField[]): SocialContentCopyQualityGate {
   const findings: SocialContentCopyQualityFinding[] = []
 
   for (const field of fields) {
@@ -220,6 +236,10 @@ export function validateSocialContentFinalCopyQuality(item: LifecycleItem): Soci
       ? 'Revise the public copy to remove internal prompts, agent instructions, tool/debug metadata, and planning scaffolding before human approval.'
       : 'Continue to the normal copy review gate.',
   }
+}
+
+export function validateSocialContentFinalCopyQuality(item: LifecycleItem): SocialContentCopyQualityGate {
+  return validateSocialPublicCopyFields(collectFinalCopyFields(item))
 }
 
 export function socialContentFinalCopyQualityFailure(
