@@ -9,6 +9,7 @@ import {
   Loader2, MessageSquare, DollarSign,
 } from 'lucide-react';
 import Breadcrumbs from '@/components/admin/Breadcrumbs';
+import { campaignAdminRequest, CampaignAdminRequestError } from '@/lib/campaign-admin-request';
 import {
   ENROLLMENT_STATUS_LABELS, ENROLLMENT_STATUS_COLORS, ENROLLMENT_SOURCE_LABELS,
   PROGRESS_STATUS_LABELS, PROGRESS_STATUS_COLORS, CRITERIA_TYPE_LABELS,
@@ -51,16 +52,24 @@ export default function EnrollmentDetailPage() {
   const [loading, setLoading] = useState(true);
   const [verifyingId, setVerifyingId] = useState<string | null>(null);
   const [resolving, setResolving] = useState(false);
+  const [requestError, setRequestError] = useState<{ message: string; status: number } | null>(null);
+
+  const reportRequestError = (err: unknown) => {
+    setRequestError({
+      message: err instanceof Error ? err.message : 'Campaign request failed. Try again.',
+      status: err instanceof CampaignAdminRequestError ? err.status : 500,
+    });
+  };
 
   const fetchEnrollment = useCallback(async () => {
+    setRequestError(null);
     try {
-      const res = await fetch(`/api/admin/campaigns/${campaignId}/enrollments/${enrollmentId}`);
-      if (res.ok) {
-        const data = await res.json();
-        setEnrollment(data.data);
-      }
+      const res = await campaignAdminRequest(`/api/admin/campaigns/${campaignId}/enrollments/${enrollmentId}`);
+      const data = await res.json();
+      setEnrollment(data.data);
     } catch (err) {
       console.error('Failed to fetch enrollment:', err);
+      reportRequestError(err);
     } finally {
       setLoading(false);
     }
@@ -70,15 +79,16 @@ export default function EnrollmentDetailPage() {
 
   const handleVerify = async (criterionId: string, status: 'met' | 'not_met' | 'waived', notes?: string) => {
     setVerifyingId(criterionId);
+    setRequestError(null);
     try {
-      await fetch(`/api/admin/campaigns/${campaignId}/enrollments/${enrollmentId}/progress/${criterionId}`, {
+      await campaignAdminRequest(`/api/admin/campaigns/${campaignId}/enrollments/${enrollmentId}/progress/${criterionId}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status, admin_notes: notes }),
       });
-      fetchEnrollment();
+      await fetchEnrollment();
     } catch (err) {
       console.error('Failed to verify:', err);
+      reportRequestError(err);
     } finally {
       setVerifyingId(null);
     }
@@ -86,15 +96,16 @@ export default function EnrollmentDetailPage() {
 
   const handleResolve = async (payoutType: string) => {
     setResolving(true);
+    setRequestError(null);
     try {
-      await fetch(`/api/admin/campaigns/${campaignId}/enrollments/${enrollmentId}/resolve`, {
+      await campaignAdminRequest(`/api/admin/campaigns/${campaignId}/enrollments/${enrollmentId}/resolve`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ payout_type: payoutType }),
       });
-      fetchEnrollment();
+      await fetchEnrollment();
     } catch (err) {
       console.error('Failed to resolve:', err);
+      reportRequestError(err);
     } finally {
       setResolving(false);
     }
@@ -112,7 +123,25 @@ export default function EnrollmentDetailPage() {
     return (
       <div className="admin-console-page min-h-screen px-4 py-6 text-foreground sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
-          <div className="admin-console-card rounded-lg border p-6 text-muted-foreground">Enrollment not found.</div>
+          {requestError ? (
+            <div role="alert" className="admin-console-card flex flex-col gap-3 rounded-lg border border-red-500/35 bg-red-500/10 p-4 text-sm text-red-100 sm:flex-row sm:items-center sm:justify-between">
+              <span className="flex min-w-0 items-center gap-2">
+                <AlertCircle size={18} className="shrink-0" />
+                <span>{requestError.message}</span>
+              </span>
+              {requestError.status === 401 ? (
+                <Link href={`/auth/login?redirect=${encodeURIComponent(`/admin/campaigns/${campaignId}/enrollments/${enrollmentId}`)}`} className="admin-console-button-secondary shrink-0">
+                  Sign in again
+                </Link>
+              ) : (
+                <button type="button" onClick={fetchEnrollment} className="admin-console-button-secondary shrink-0">
+                  Try again
+                </button>
+              )}
+            </div>
+          ) : (
+            <div className="admin-console-card rounded-lg border p-6 text-muted-foreground">Enrollment not found.</div>
+          )}
         </div>
       </div>
     );
@@ -137,6 +166,24 @@ export default function EnrollmentDetailPage() {
       <Link href={backUrl} className="mb-4 mt-4 inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground">
         <ArrowLeft size={14} /> Back
       </Link>
+
+      {requestError && (
+        <div role="alert" className="admin-console-card mb-6 flex flex-col gap-3 rounded-lg border border-red-500/35 bg-red-500/10 p-4 text-sm text-red-100 sm:flex-row sm:items-center sm:justify-between">
+          <span className="flex min-w-0 items-center gap-2">
+            <AlertCircle size={18} className="shrink-0" />
+            <span>{requestError.message}</span>
+          </span>
+          {requestError.status === 401 ? (
+            <Link href={`/auth/login?redirect=${encodeURIComponent(`/admin/campaigns/${campaignId}/enrollments/${enrollmentId}`)}`} className="admin-console-button-secondary shrink-0">
+              Sign in again
+            </Link>
+          ) : (
+            <button type="button" onClick={fetchEnrollment} className="admin-console-button-secondary shrink-0">
+              Try again
+            </button>
+          )}
+        </div>
+      )}
 
       {/* Client Header */}
       <div className="admin-console-surface-header mb-8 rounded-xl border p-5 sm:p-6">

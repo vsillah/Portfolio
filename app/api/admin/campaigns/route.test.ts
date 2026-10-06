@@ -226,4 +226,50 @@ describe('POST /api/admin/campaigns', () => {
     expect(await response.json()).toEqual({ error: 'Invalid campaign type' })
     expect(mocks.from).not.toHaveBeenCalled()
   })
+
+  it('requires a valid forward campaign window', async () => {
+    const missingWindow = await POST(postRequest({
+      name: 'Spring',
+      slug: 'spring-launch',
+    }))
+    expect(missingWindow.status).toBe(400)
+    expect(await missingWindow.json()).toEqual({
+      error: 'Campaign start and end dates are required',
+    })
+
+    const reversedWindow = await POST(postRequest({
+      name: 'Spring',
+      slug: 'spring-launch',
+      starts_at: '2026-10-19T17:00',
+      ends_at: '2026-10-05T09:00',
+    }))
+    expect(reversedWindow.status).toBe(400)
+    expect(await reversedWindow.json()).toEqual({
+      error: 'Campaign end date must be after its start date',
+    })
+    expect(mocks.from).not.toHaveBeenCalled()
+  })
+
+  it('normalizes and persists the campaign window', async () => {
+    const single = vi.fn().mockResolvedValue({
+      data: { id: 'campaign-1' },
+      error: null,
+    })
+    const select = vi.fn(() => ({ single }))
+    const insert = vi.fn(() => ({ select }))
+    mocks.from.mockReturnValue({ insert })
+
+    const response = await POST(postRequest({
+      name: 'Spring',
+      slug: 'spring-launch',
+      starts_at: '2026-10-05T09:00',
+      ends_at: '2026-10-19T17:00',
+    }))
+
+    expect(response.status).toBe(201)
+    expect(insert).toHaveBeenCalledWith(expect.objectContaining({
+      starts_at: new Date('2026-10-05T09:00').toISOString(),
+      ends_at: new Date('2026-10-19T17:00').toISOString(),
+    }))
+  })
 })

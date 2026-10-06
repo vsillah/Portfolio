@@ -95,6 +95,25 @@ export async function PUT(
       return NextResponse.json({ error: 'Invalid status' }, { status: 400 });
     }
 
+    let startsAt: string | undefined;
+    let endsAt: string | undefined;
+    if ('starts_at' in body || 'ends_at' in body) {
+      if (!body.starts_at || !body.ends_at) {
+        return NextResponse.json({ error: 'Campaign start and end dates are required' }, { status: 400 });
+      }
+
+      const parsedStart = new Date(body.starts_at);
+      const parsedEnd = new Date(body.ends_at);
+      if (Number.isNaN(parsedStart.getTime()) || Number.isNaN(parsedEnd.getTime())) {
+        return NextResponse.json({ error: 'Campaign start and end dates must be valid' }, { status: 400 });
+      }
+      if (parsedEnd <= parsedStart) {
+        return NextResponse.json({ error: 'Campaign end date must be after its start date' }, { status: 400 });
+      }
+      startsAt = parsedStart.toISOString();
+      endsAt = parsedEnd.toISOString();
+    }
+
     const updates: Record<string, unknown> = {};
     const allowedFields = [
       'name', 'slug', 'description', 'campaign_type', 'status',
@@ -108,6 +127,10 @@ export async function PUT(
       if (field in body) {
         updates[field] = (body as Record<string, unknown>)[field];
       }
+    }
+    if (startsAt && endsAt) {
+      updates.starts_at = startsAt;
+      updates.ends_at = endsAt;
     }
 
     if (Object.keys(updates).length === 0) {

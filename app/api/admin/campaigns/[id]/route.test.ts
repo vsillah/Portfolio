@@ -75,6 +75,43 @@ describe('PUT /api/admin/campaigns/[id]', () => {
     expect(mocks.from).not.toHaveBeenCalled()
   })
 
+  it('requires and normalizes a forward campaign window', async () => {
+    const missingEnd = await PUT(request({ starts_at: '2026-10-05T09:00' }), params)
+    expect(missingEnd.status).toBe(400)
+    expect(await missingEnd.json()).toEqual({
+      error: 'Campaign start and end dates are required',
+    })
+
+    const reversed = await PUT(request({
+      starts_at: '2026-10-19T17:00',
+      ends_at: '2026-10-05T09:00',
+    }), params)
+    expect(reversed.status).toBe(400)
+    expect(await reversed.json()).toEqual({
+      error: 'Campaign end date must be after its start date',
+    })
+    expect(mocks.from).not.toHaveBeenCalled()
+  })
+
+  it('persists a normalized campaign window', async () => {
+    const single = vi.fn().mockResolvedValue({ data: { id: 'camp-1' }, error: null })
+    const select = vi.fn(() => ({ single }))
+    const eq = vi.fn(() => ({ select }))
+    const update = vi.fn(() => ({ eq }))
+    mocks.from.mockReturnValue({ update })
+
+    const response = await PUT(request({
+      starts_at: '2026-10-05T09:00',
+      ends_at: '2026-10-19T17:00',
+    }), params)
+
+    expect(response.status).toBe(200)
+    expect(update).toHaveBeenCalledWith({
+      starts_at: new Date('2026-10-05T09:00').toISOString(),
+      ends_at: new Date('2026-10-19T17:00').toISOString(),
+    })
+  })
+
   it('returns 409 when the slug is already taken', async () => {
     mocks.from.mockReturnValue({
       update: vi.fn().mockReturnValue({
