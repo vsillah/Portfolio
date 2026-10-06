@@ -2969,7 +2969,7 @@ function ContentIntelligenceContent() {
                   </label>
                 </div>
                 <div className="overflow-hidden rounded-lg border border-silicon-slate/70 sm:overflow-x-auto">
-                  <table className="block w-full max-w-full table-fixed divide-y divide-silicon-slate/70 text-sm sm:table">
+                  <table className="block w-full max-w-full table-fixed border-collapse divide-y divide-silicon-slate/70 text-sm sm:table">
                     <thead className="hidden bg-silicon-slate/35 text-xs uppercase tracking-wide text-muted-foreground sm:table-header-group">
                       <tr>
                         <th scope="col" className="w-1/2 px-3 py-2 text-left">
