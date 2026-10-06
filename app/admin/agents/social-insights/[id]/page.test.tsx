@@ -388,8 +388,11 @@ describe('SocialInsightDetailPage', () => {
     })
 
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: 'Approved' })).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'Approved' })).toBeDisabled()
     })
+
+    fireEvent.click(screen.getByRole('button', { name: 'Approved' }))
+    expect(vi.mocked(fetch).mock.calls.filter(([input]) => String(input) === '/api/admin/agents/work-items/work-social-1/social-channels/linkedin')).toHaveLength(1)
   })
 
   it('prepares channel review drafts from the shared insight', async () => {
