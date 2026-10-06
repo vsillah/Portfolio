@@ -2980,7 +2980,7 @@ function ContentIntelligenceContent() {
                             Source
                           </SortButton>
                         </th>
-                        <th scope="col" className="w-[13%] px-3 py-2 text-left">Platform</th>
+                        <th scope="col" className="w-[13%] overflow-hidden px-2 py-2 text-left">Platform</th>
                         <th scope="col" className="w-[10%] px-3 py-2 text-right">
                           <SortButton active={researchSort === 'score'} direction={researchSortDirection} onClick={() => {
                             setResearchSort('score')
@@ -2990,7 +2990,7 @@ function ContentIntelligenceContent() {
                           </SortButton>
                         </th>
                         <th scope="col" className="w-[15%] px-3 py-2 text-left">Pattern</th>
-                        <th scope="col" className="w-[12%] px-3 py-2 text-right">
+                        <th scope="col" className="w-[12%] overflow-hidden px-2 py-2 text-right">
                           <SortButton active={researchSort === 'retrieved'} direction={researchSortDirection} onClick={() => {
                             setResearchSort('retrieved')
                             setResearchSortDirection(researchSort === 'retrieved' && researchSortDirection === 'desc' ? 'asc' : 'desc')
@@ -3036,8 +3036,8 @@ function ContentIntelligenceContent() {
                               </p>
                             ) : null}
                           </td>
-                          <td className="hidden px-3 py-3 sm:table-cell">
-                            <span className="inline-flex items-center gap-1 rounded-full border border-blue-500/30 bg-blue-500/10 px-2 py-0.5 text-xs text-blue-100">
+                          <td className="hidden overflow-hidden px-2 py-3 sm:table-cell">
+                            <span className="inline-flex max-w-full items-center gap-1 overflow-hidden text-ellipsis whitespace-nowrap rounded-full border border-blue-500/30 bg-blue-500/10 px-2 py-0.5 text-xs text-blue-100">
                               {platformIcon(packet.platform)}
                               {packet.platform.replace(/_/g, ' ')}
                             </span>
@@ -3050,7 +3050,7 @@ function ContentIntelligenceContent() {
                               {packet.pattern_status.replace(/_/g, ' ')}
                             </span>
                           </td>
-                          <td className="hidden px-3 py-3 text-right text-xs text-muted-foreground sm:table-cell">
+                          <td className="hidden overflow-hidden px-2 py-3 text-right text-xs text-muted-foreground sm:table-cell">
                             {new Date(packet.retrieved_at).toLocaleDateString()}
                           </td>
                         </tr>
