@@ -40,15 +40,40 @@ CAMPAIGN_QA_PORT=4028 node scripts/qa/campaign-release-recovery-server.cjs
 node scripts/qa/campaign-video-eligibility.cjs
 ```
 
-Exact route under the harness: `http://127.0.0.1:4028/admin/social-content/video-review-qa?step=copy`. Fixture interception is required; the URL alone is not an authenticated production QA session.
+Exact route under the harness: `http://127.0.0.1:4028/admin/social-content/video-review-qa?step=copy`. Fixture interception is required; the URL alone is not an authenticated production QA session. The local screenshots remain deterministic regression evidence only. The original fixture walkthrough MP4s are not Human QA evidence because their playable media came from an unrelated public homepage asset.
 
-[Mobile walkthrough](qa/campaign-video-eligibility/390-walkthrough.mp4) · [Tablet walkthrough](qa/campaign-video-eligibility/768-walkthrough.mp4) · [Desktop walkthrough](qa/campaign-video-eligibility/1440-walkthrough.mp4).
+## Authenticated staging QA
+
+The replacement Human QA evidence uses the authenticated PR-preview Social Content route and a real staging record. It demonstrates the fail-closed state without substituting unrelated media:
+
+- the saved spoken script is `Production quality: blocked`;
+- the item has no linked campaign calendar review;
+- stage-direction language must be rewritten as audience-facing speech;
+- every completed legacy video is labeled `Ineligible · history only`;
+- the selected legacy render lists campaign, channel, script/assets, avatar/voice, archive, and challenger-review blockers;
+- `Attach this video · reset media approval` remains disabled.
+
+The capture performed only authenticated GET requests and local select/scroll interactions. It did not approve copy or editorial quality, attach media, render, upload, schedule, publish, call a provider, or mutate staging/production data.
+
+Exact preview route: `https://portfolio-staging-git-codex-campaign-v-f9f896-vsillahs-projects.vercel.app/admin/social-content/317a251e-af97-476d-94c2-bac993c1333d?returnTo=%2Fadmin%2Fsocial-content&deploy=45be5cc4&step=copy`.
+
+[Mobile staging walkthrough](qa/campaign-video-eligibility/staging/390-staging-walkthrough.mp4) · [Tablet staging walkthrough](qa/campaign-video-eligibility/staging/768-staging-walkthrough.mp4) · [Desktop staging walkthrough](qa/campaign-video-eligibility/staging/1440-staging-walkthrough.mp4) · [read-only receipt](qa/campaign-video-eligibility/staging/results.json).
+
+Reproduce with a temporary auth state for the same preview origin:
+
+```sh
+PLAYWRIGHT_BASE_URL="$PREVIEW_URL" PLAYWRIGHT_AUTH_STATE=/tmp/pr1030-preview-auth.json npm run admin:auth:save
+PLAYWRIGHT_BASE_URL="$PREVIEW_URL" PLAYWRIGHT_AUTH_STATE=/tmp/pr1030-preview-auth.json \
+  CAMPAIGN_VIDEO_QA_ITEM_ID=317a251e-af97-476d-94c2-bac993c1333d \
+  CAMPAIGN_VIDEO_QA_COMMIT=45be5cc4 \
+  ./node_modules/.bin/tsx scripts/qa/record-campaign-video-preview-readonly.cjs
+```
 
 ## Captain handoff
 
-No database migration, credential change, live provider call, production mutation, actual asset attachment/upload, scheduling, publishing, or external send occurred. No campaign script or legacy archive was approved in production. The real campaign still needs editorial review and a separately authorized new render after integration.
+No database migration, credential change, live provider call, staging/production mutation, actual asset attachment/upload, scheduling, publishing, or external send occurred. No campaign script or legacy archive was approved. The current staging item correctly remains blocked until it has a linked approved campaign packet, audience-ready script, current challenger review, matching avatar/voice and asset receipts, and a verified private archive.
 
-Both Vercel contexts remain unverified in this development lane: `Vercel – portfolio` and `Vercel – portfolio-staging`. Merge, deployment verification, and live Human QA belong to the captain. Keep this lane open through Human QA. This draft PR supplies local behavior evidence; it does not certify the real campaign's editorial quality, real avatar output, or production readiness.
+Deployment checks, merge, and production verification remain captain gates. Keep this lane open through Human QA. The authenticated staging evidence verifies that the preview fails closed; it does not certify any real campaign's editorial quality, avatar output, or production readiness.
 
 ## Captain re-review fixes
 

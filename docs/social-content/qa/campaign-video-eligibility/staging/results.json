@@ -1,0 +1,68 @@
+{
+  "captured_at": "2026-10-07T22:37:23.290Z",
+  "source": "authenticated_pr_preview",
+  "base_url": "https://portfolio-staging-git-codex-campaign-v-f9f896-vsillahs-projects.vercel.app",
+  "item_id": "317a251e-af97-476d-94c2-bac993c1333d",
+  "commit": "45be5cc4",
+  "mutations": 0,
+  "provider_calls": 0,
+  "results": [
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "route": "/admin/social-content/317a251e-af97-476d-94c2-bac993c1333d?returnTo=%2Fadmin%2Fsocial-content&deploy=45be5cc4&step=copy",
+      "assertions": {
+        "production_quality": "blocked",
+        "campaign_linkage": "missing",
+        "candidate_label": "Ineligible · history only",
+        "attachment_enabled": false,
+        "provider_requests": []
+      },
+      "screenshots": [
+        "390-staging-editorial-blocked.png",
+        "390-staging-history-only.png"
+      ],
+      "video": "390-staging-walkthrough.mp4"
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "route": "/admin/social-content/317a251e-af97-476d-94c2-bac993c1333d?returnTo=%2Fadmin%2Fsocial-content&deploy=45be5cc4&step=copy",
+      "assertions": {
+        "production_quality": "blocked",
+        "campaign_linkage": "missing",
+        "candidate_label": "Ineligible · history only",
+        "attachment_enabled": false,
+        "provider_requests": []
+      },
+      "screenshots": [
+        "1440-staging-editorial-blocked.png",
+        "1440-staging-history-only.png"
+      ],
+      "video": "1440-staging-walkthrough.mp4"
+    },
+    {
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "route": "/admin/social-content/317a251e-af97-476d-94c2-bac993c1333d?returnTo=%2Fadmin%2Fsocial-content&deploy=45be5cc4&step=copy",
+      "assertions": {
+        "production_quality": "blocked",
+        "campaign_linkage": "missing",
+        "candidate_label": "Ineligible · history only",
+        "attachment_enabled": false,
+        "provider_requests": []
+      },
+      "screenshots": [
+        "768-staging-editorial-blocked.png",
+        "768-staging-history-only.png"
+      ],
+      "video": "768-staging-walkthrough.mp4"
+    }
+  ]
+}
