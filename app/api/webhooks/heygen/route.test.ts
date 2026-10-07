@@ -184,6 +184,78 @@ describe('POST /api/webhooks/heygen', () => {
     expect(mocks.handlers).not.toHaveBeenCalled()
   })
 
+  it('acks a deleted job without archiving or recording failure', async () => {
+    const update = vi.fn()
+    mocks.from.mockReturnValue({
+      select: () => ({ eq: () => ({ single: async () => ({ data: jobRow({ deleted_at: '2026-10-01T00:00:00.000Z' }) }) }) }),
+      update,
+    })
+
+    const response = await POST(makeRequest(successBody()))
+
+    expect(response.status).toBe(200)
+    await expect(response.json()).resolves.toEqual({ received: true })
+    expect(mocks.persistVideoCompletion).not.toHaveBeenCalled()
+    expect(mocks.handlers).not.toHaveBeenCalled()
+    expect(update).not.toHaveBeenCalled()
+  })
+
+  it('does not let a late failure overwrite a completed archive', async () => {
+    const update = vi.fn()
+    mocks.from.mockReturnValue({
+      select: () => ({ eq: () => ({ single: async () => ({ data: jobRow({ heygen_status: 'completed', video_url: 'portfolio-video:aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa' }) }) }) }),
+      update,
+    })
+    const body = JSON.stringify({
+      event_type: 'avatar_video.fail',
+      event_data: { video_id: 'hg-video-1', error_message: 'late failure https://files.heygen.ai/secret?token=abc' },
+    })
+
+    const response = await POST(makeRequest(body))
+
+    expect(response.status).toBe(200)
+    await expect(response.json()).resolves.toEqual({ received: true })
+    expect(update).not.toHaveBeenCalled()
+    expect(mocks.persistVideoCompletion).not.toHaveBeenCalled()
+  })
+
+  it('uses the stored provider input when a success receipt omits a URL', async () => {
+    const job = jobRow({ provider_video_url: 'https://files2.heygen.ai/stored.mp4', video_url: 'https://files2.heygen.ai/legacy.mp4' })
+    mocks.from.mockReturnValue({ select: () => ({ eq: () => ({ single: async () => ({ data: job }) }) }) })
+
+    await POST(makeRequest(JSON.stringify({ event_type: 'avatar_video.success', event_data: { video_id: 'hg-video-1' } })))
+
+    expect(mocks.persistVideoCompletion).toHaveBeenCalledWith(expect.any(Object), expect.any(Object), 'https://files2.heygen.ai/stored.mp4')
+  })
+
+  it('soft-acks archive exceptions without returning provider secrets', async () => {
+    mocks.persistVideoCompletion.mockRejectedValue(new Error('download failed https://files2.heygen.ai/video.mp4?Signature=secret&token=abc'))
+    mocks.from.mockReturnValue({ select: () => ({ eq: () => ({ single: async () => ({ data: jobRow() }) }) }) })
+
+    const response = await POST(makeRequest(successBody()))
+
+    expect(response.status).toBe(200)
+    await expect(response.json()).resolves.toEqual({ received: true })
+    expect(mocks.handlers).not.toHaveBeenCalled()
+  })
+
+  it('acks invalid JSON and records a generic provider failure when the receipt has no message', async () => {
+    const invalid = await POST(makeRequest('{'))
+    expect(invalid.status).toBe(200)
+    expect(mocks.from).not.toHaveBeenCalled()
+
+    const jobUpdate = vi.fn().mockReturnValue({ eq: vi.fn().mockResolvedValue({ error: null }) })
+    mocks.from.mockReturnValue({
+      select: () => ({ eq: () => ({ single: async () => ({ data: jobRow(), error: null }) }) }),
+      update: jobUpdate,
+    })
+    const response = await POST(makeRequest(JSON.stringify({ event_type: 'avatar_video.fail', event_data: { video_id: '  hg-video-1  ' } })))
+
+    expect(response.status).toBe(200)
+    expect(jobUpdate).toHaveBeenCalledWith({ heygen_status: 'failed', error_message: 'Provider render failed' })
+    expect(mocks.persistVideoCompletion).not.toHaveBeenCalled()
+  })
+
   it('persists failure error_message and still returns 200 if handlers throw', async () => {
     const job = jobRow()
     const selectSingle = vi.fn().mockResolvedValue({ data: job, error: null })
