@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
 
     const { data: job, error: jobErr } = await supabaseAdmin
       .from('video_generation_jobs')
-      .select('id, heygen_video_id, heygen_status, video_url, video_share_url, video_record_id, script_text, channel, aspect_ratio, provider_video_url, deleted_at')
+      .select('id, heygen_video_id, heygen_status, video_url, video_share_url, video_record_id, script_text, channel, aspect_ratio, provider_video_url, deleted_at, thumbnail_url')
       .eq('id', jobId)
       .single()
 
@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
     let finalReference = job.video_url
     let archiveBlocker: string | null = null
     if (newStatus === 'completed') {
-      const completion = await persistVideoCompletion(supabaseAdmin, job, statusResult.videoUrl || job.provider_video_url || job.video_url)
+      const completion = await persistVideoCompletion(supabaseAdmin, { ...job, thumbnail_url: statusResult.thumbnailUrl || job.thumbnail_url, video_share_url: statusResult.videoShareUrl || job.video_share_url }, statusResult.videoUrl || job.provider_video_url || job.video_url)
       videoRecordId = completion.videoRecordId
       finalReference = completion.reference
       archiveBlocker = completion.media_blocker
@@ -70,9 +70,9 @@ export async function GET(request: NextRequest) {
       videoUrl: playback.playback_url,
       videoReference: finalReference,
       media_blocker: archiveBlocker || playback.media_blocker,
-      videoShareUrl: job.video_share_url,
+      videoShareUrl: statusResult.videoShareUrl || job.video_share_url,
       videoRecordId,
-      thumbnailUrl: statusResult.thumbnailUrl,
+      thumbnailUrl: statusResult.thumbnailUrl || job.thumbnail_url,
       duration: statusResult.duration,
       error: statusResult.error,
     })

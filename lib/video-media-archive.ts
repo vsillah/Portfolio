@@ -3,8 +3,9 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import { archiveId, archiveReference, classifyVideoUrl, VIDEO_ARCHIVE_BUCKET, VIDEO_MEDIA_RECOVERY } from './video-media-url'
 const MAX_BYTES = 100 * 1024 * 1024
 const digest = (bytes: Uint8Array) => createHash('sha256').update(bytes).digest('hex')
-type Job = { id: string; heygen_video_id?: string | null; video_url?: string | null; provider_video_url?: string | null; video_record_id?: number | null; script_text?: string | null; channel?: string | null; deleted_at?: string | null }
+type Job = { id: string; heygen_video_id?: string | null; video_url?: string | null; provider_video_url?: string | null; video_record_id?: number | null; script_text?: string | null; channel?: string | null; deleted_at?: string | null; thumbnail_url?: string | null; video_share_url?: string | null }
 type Archive = { id: string; job_id: string; provider_video_id: string; bucket: string; object_path: string; sha256: string; byte_length: number; source_host: string; status: string }
+function completionMetadata(job: Job) { return { ...(job.thumbnail_url ? { thumbnail_url: job.thumbnail_url } : {}), ...(job.video_share_url ? { video_share_url: job.video_share_url } : {}) } }
 function expectedPath(row: Pick<Archive, 'job_id' | 'provider_video_id' | 'sha256'>) { return `${row.job_id}/${createHash('sha256').update(row.provider_video_id).digest('hex')}/${row.sha256}.mp4` }
 function validateArchive(row: Archive) {
   if (row.bucket !== VIDEO_ARCHIVE_BUCKET || !/^[a-f0-9]{64}$/.test(row.sha256) || row.object_path !== expectedPath(row)) throw new Error('Archive identity is invalid.')
@@ -71,16 +72,20 @@ export async function completeGeneratedVideo(admin: SupabaseClient, job: Job, so
   // Existing legacy record is adopted; a new record is unique by archive ID on all retries.
   let videoId = job.video_record_id
   if (videoId) {
-    const saved = await admin.from('videos').update({ video_url: ref, media_archive_id: archive.id }).eq('id', videoId).eq('video_generation_job_id', job.id).select('id').maybeSingle()
+    const saved = await admin.from('videos').update({ video_url: ref, media_archive_id: archive.id, ...(job.thumbnail_url ? { thumbnail_url: job.thumbnail_url } : {}) }).eq('id', videoId).eq('video_generation_job_id', job.id).select('id').maybeSingle()
     if (saved.error || !saved.data) throw new Error('Existing video record requires archive reconciliation.')
   } else {
-    const saved = await admin.from('videos').upsert({ title: `Generated video (${job.channel ?? 'youtube'})`, description: job.script_text?.slice(0, 200) || null, video_url: ref, display_order: 0, is_published: false, video_generation_job_id: job.id, media_archive_id: archive.id }, { onConflict: 'media_archive_id', ignoreDuplicates: true })
+    const saved = await admin.from('videos').upsert({ title: `Generated video (${job.channel ?? 'youtube'})`, description: job.script_text?.slice(0, 200) || null, video_url: ref, thumbnail_url: job.thumbnail_url || null, display_order: 0, is_published: false, video_generation_job_id: job.id, media_archive_id: archive.id }, { onConflict: 'media_archive_id', ignoreDuplicates: true })
     if (saved.error) throw new Error('Archived video record could not be saved.')
     const readback = await admin.from('videos').select('id').eq('media_archive_id', archive.id).single()
     if (readback.error || !readback.data) throw new Error('Archived video record could not be confirmed.')
     videoId = readback.data.id
+    if (job.thumbnail_url) {
+      const metadata = await admin.from('videos').update({ thumbnail_url: job.thumbnail_url }).eq('id', videoId)
+      if (metadata.error) throw new Error('Video thumbnail could not be saved.')
+    }
   }
-  const saved = await admin.from('video_generation_jobs').update({ heygen_status: 'completed', video_url: ref, provider_video_url: sourceUrl.startsWith('https://') ? sourceUrl : job.provider_video_url || null, video_record_id: videoId, error_message: null }).eq('id', job.id).eq('heygen_video_id', job.heygen_video_id).is('deleted_at', null).select('id').maybeSingle()
+  const saved = await admin.from('video_generation_jobs').update({ ...completionMetadata(job), heygen_status: 'completed', video_url: ref, provider_video_url: sourceUrl.startsWith('https://') ? sourceUrl : job.provider_video_url || null, video_record_id: videoId, error_message: null }).eq('id', job.id).eq('heygen_video_id', job.heygen_video_id).is('deleted_at', null).select('id').maybeSingle()
   if (saved.error || !saved.data) throw new Error('Job changed before archive linkage. Reload before recovery.')
   return { reference: ref, videoRecordId: videoId, sha256: archive.sha256 }
 }
@@ -105,7 +110,7 @@ export async function persistVideoCompletion(admin: SupabaseClient, job: Job, so
   catch (error) {
     // Do not expose signed provider URLs or transport errors in UI/logs.
     const reason = error instanceof Error && !/https?:|token|signature/i.test(error.message) ? error.message : 'Private archive failed. Refresh the provider input or retry archive recovery.'
-    const saved = await admin.from('video_generation_jobs').update({ heygen_status: 'completed', provider_video_url: sourceUrl, error_message: reason }).eq('id', job.id).eq('heygen_video_id', job.heygen_video_id)
+    const saved = await admin.from('video_generation_jobs').update({ ...completionMetadata(job), heygen_status: 'completed', provider_video_url: sourceUrl, error_message: reason }).eq('id', job.id).eq('heygen_video_id', job.heygen_video_id)
     if (saved.error) throw new Error('Archive failure state could not be saved.')
     return { reference: archiveId(job.video_url) ? job.video_url : null, videoRecordId: job.video_record_id, sha256: null, media_blocker: reason }
   }

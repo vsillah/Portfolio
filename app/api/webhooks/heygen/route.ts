@@ -7,7 +7,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import crypto from 'crypto'
 import { supabaseAdmin } from '@/lib/supabase'
-import { persistVideoCompletion } from '@/lib/video-media-archive'
+import { runVideoCompletionHandlers } from '@/lib/video-completion-handlers'
+import { archiveId } from '@/lib/video-media-url'
+import { persistVideoCompletion, videoPlayback } from '@/lib/video-media-archive'
 
 export const dynamic = 'force-dynamic'
 
@@ -83,7 +85,7 @@ export async function POST(request: NextRequest) {
 
     const { data: job, error: jobErr } = await supabaseAdmin
       .from('video_generation_jobs')
-      .select('id, heygen_video_id, heygen_status, video_url, video_record_id, script_text, channel, aspect_ratio, thumbnail_url, provider_video_url, deleted_at')
+      .select('id, heygen_video_id, heygen_status, video_url, video_record_id, script_text, channel, aspect_ratio, thumbnail_url, video_share_url, provider_video_url, deleted_at')
       .eq('heygen_video_id', videoId)
       .single()
 
@@ -95,7 +97,15 @@ export async function POST(request: NextRequest) {
     if (job.deleted_at) return NextResponse.json({ received: true })
     if (eventType === 'avatar_video.success') {
       // Repeated success receipts may repair an incomplete archive; the helper owns idempotency.
-      const result = await persistVideoCompletion(supabaseAdmin, job, eventData?.url || job.provider_video_url || job.video_url)
+      const completedJob = { ...job, thumbnail_url: eventData?.thumbnail_url || job.thumbnail_url, video_share_url: eventData?.video_share_page_url || job.video_share_url }
+      const result = await persistVideoCompletion(supabaseAdmin, completedJob, eventData?.url || job.provider_video_url || job.video_url)
+      // Preserve existing opt-in handlers after archival; never export a canonical reference.
+      if (!result.media_blocker && !archiveId(job.video_url)) {
+        const playback = await videoPlayback(supabaseAdmin, result.reference)
+        if (playback.playback_url && !playback.media_blocker) {
+          await runVideoCompletionHandlers({ ...completedJob, heygen_status: 'completed', video_url: playback.playback_url })
+        }
+      }
       return NextResponse.json({ received: true, archive_ready: !result.media_blocker })
     }
     if (job.heygen_status !== 'completed') {

@@ -43,6 +43,17 @@ describe('private video archive', () => {
     expect(s.rows.videos[0].video_url).toMatch(/^portfolio-video:/)
     expect(s.storage.upload).toHaveBeenCalledWith(expect.any(String), expect.any(Buffer), { contentType: 'video/mp4', upsert: false })
   })
+  it('persists thumbnail/share metadata on jobs and new or adopted videos', async () => {
+    const s = store(), job = { ...s.rows.video_generation_jobs[0], thumbnail_url: 'thumb-1', video_share_url: 'share-1' }
+    await completeGeneratedVideo(s.admin, job, fresh, fetcher())
+    expect(s.rows.video_generation_jobs[0]).toMatchObject({ thumbnail_url: 'thumb-1', video_share_url: 'share-1' })
+    expect(s.rows.videos[0].thumbnail_url).toBe('thumb-1')
+    await completeGeneratedVideo(s.admin, { ...job, video_record_id: 1, thumbnail_url: 'thumb-2' }, expired, fetcher())
+    expect(s.rows.videos[0].thumbnail_url).toBe('thumb-2')
+    await completeGeneratedVideo(s.admin, { ...job, video_record_id: 1, thumbnail_url: null, video_share_url: null }, expired, fetcher())
+    expect(s.rows.videos[0].thumbnail_url).toBe('thumb-2')
+    expect(s.rows.video_generation_jobs[0].video_share_url).toBe('share-1')
+  })
   it('converges concurrent completion callbacks without replacing human metadata', async () => {
     const s = store(), job = { ...s.rows.video_generation_jobs[0] }
     await Promise.all([completeGeneratedVideo(s.admin, job, fresh, fetcher()), completeGeneratedVideo(s.admin, job, fresh, fetcher())])

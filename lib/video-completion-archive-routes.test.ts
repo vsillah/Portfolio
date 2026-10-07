@@ -12,7 +12,7 @@ import { GET as jobs } from '@/app/api/admin/video-generation/jobs/route'
 const job = { id: 'job', heygen_video_id: 'provider', heygen_status: 'completed', video_url: 'expired-url', provider_video_url: 'fresh-stored-input', video_generation_job_id: 'job' }
 beforeEach(() => {
   vi.clearAllMocks()
-  m.status.mockResolvedValue({ status: 'completed', videoUrl: 'fresh-provider-input' })
+  m.status.mockResolvedValue({ status: 'completed', videoUrl: 'fresh-provider-input', thumbnailUrl: 'provider-thumb', videoShareUrl: 'provider-share' })
   m.complete.mockResolvedValue({ reference: 'private-reference', videoRecordId: 1, media_blocker: null })
   m.playback.mockResolvedValue({ playback_url: 'fresh-signed-playback', media_blocker: null })
   m.from.mockImplementation(() => { let one = false; const q: any = { select: () => q, eq: () => q, in: () => q, is: () => q, order: () => q, range: () => q, update: (p: unknown) => { m.update(p); return q }, single: () => { one = true; return q }, then: (resolve: any) => resolve({ data: one ? job : [job], error: null, count: 1 }) }; return q })
@@ -21,7 +21,7 @@ it('single status and batch paths converge on the same archive completion helper
   expect((await status(new NextRequest('http://localhost/status?jobId=job'))).status).toBe(200)
   expect((await batch(new NextRequest('http://localhost/batch', { method: 'POST', body: JSON.stringify({ jobIds: ['job'] }) }))).status).toBe(200)
   expect(m.complete).toHaveBeenCalledTimes(2)
-  expect(m.complete).toHaveBeenCalledWith(expect.any(Object), job, 'fresh-provider-input')
+  expect(m.complete).toHaveBeenCalledWith(expect.any(Object), { ...job, thumbnail_url: 'provider-thumb', video_share_url: 'provider-share' }, 'fresh-provider-input')
 })
 it('archive recovery does not refresh HeyGen; provider refresh does not archive or update final video URLs', async () => {
   const response = await recovery(new NextRequest('http://localhost/status', { method: 'POST', body: JSON.stringify({ jobId: 'job', action: 'archive' }) }))

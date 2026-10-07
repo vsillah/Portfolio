@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
 
   const { data: jobs, error } = await supabaseAdmin
     .from('video_generation_jobs')
-    .select('id, heygen_video_id, heygen_status, video_url, video_record_id, script_text, channel, provider_video_url, deleted_at')
+    .select('id, heygen_video_id, heygen_status, video_url, video_record_id, script_text, channel, provider_video_url, deleted_at, thumbnail_url, video_share_url')
     .in('id', jobIds)
     .is('deleted_at', null)
 
@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
       refreshed++
       const newStatus = statusResult.status ?? job.heygen_status
       if (newStatus === 'completed') {
-        const result = await persistVideoCompletion(supabaseAdmin, job, statusResult.videoUrl || job.provider_video_url || job.video_url)
+        const result = await persistVideoCompletion(supabaseAdmin, { ...job, thumbnail_url: statusResult.thumbnailUrl || job.thumbnail_url, video_share_url: statusResult.videoShareUrl || job.video_share_url }, statusResult.videoUrl || job.provider_video_url || job.video_url)
         if (!result.media_blocker) updated++
       } else if (newStatus !== job.heygen_status) {
         await supabaseAdmin.from('video_generation_jobs').update({ heygen_status: newStatus, error_message: statusResult.error || null }).eq('id', job.id)
