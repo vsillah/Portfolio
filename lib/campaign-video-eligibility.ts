@@ -4,6 +4,17 @@ import { campaignVideoScript, currentEditorialReceipt, editorialInputVersion, sc
 type Row = { id?: unknown; rag_context?: unknown; voiceover_text?: unknown; [key: string]: unknown }
 const record = (v: unknown): Record<string, any> => v && typeof v === 'object' && !Array.isArray(v) ? v as Record<string, any> : {}
 export const campaignChannel = (v: unknown) => v === 'linkedin_video' ? 'linkedin' : String(v || '')
+export function campaignVideoIdentity(item: { rag_context?: unknown }): string | null {
+  const rag = record(item.rag_context)
+  const text = (value: unknown) => typeof value === 'string' ? value.trim() : ''
+  const legacy = text(rag.campaign_id)
+  if (rag.campaign_review_handoff != null) {
+    const canonical = text(record(record(record(rag.campaign_review_handoff).packet).shared_source).campaign_id)
+    if (!canonical || (legacy && legacy !== canonical)) throw new Error('Campaign identity is incomplete or conflicting. Synchronize the current approved handoff before rendering.')
+    return canonical
+  }
+  return legacy || null
+}
 export function campaignVideoContext(item: Row) {
   const rag = record(item.rag_context), handoff = record(rag.campaign_review_handoff)
   const packet = record(handoff.packet), source = record(packet.shared_source)

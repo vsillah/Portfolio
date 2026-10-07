@@ -1,4 +1,5 @@
 import { screenVideoEditorial } from './video-editorial-quality'
+import { resolveVideoRenderInputs, type EffectiveVideoRenderInputs } from './video-render-inputs'
 /**
  * HeyGen API integration for avatar video generation.
  * Uses REST API (x-api-key auth). MCP is Cursor-side only.
@@ -532,6 +533,8 @@ export async function generateFromTemplate(
 }
 
 export interface CreateVideoParams {
+  /** Server-resolved snapshot already checked by the campaign gate; nulls disable later environment fallback. */
+  effectiveRenderInputs?: EffectiveVideoRenderInputs
   script: string
   title?: string
   aspectRatio?: VideoAspectRatio
@@ -566,10 +569,7 @@ export interface CreateVideoParams {
 export async function createVideo(params: CreateVideoParams): Promise<CreateAvatarVideoResult> {
   const editorial = screenVideoEditorial(params.script)
   if (editorial.blockers.length) return { videoId: null, error: `Editorial screening blocked render: ${editorial.blockers.join(' ')}` }
-  const templateId =
-    params.templateId ?? process.env.HEYGEN_TEMPLATE_ID
-  const brandVoiceId =
-    params.brandVoiceId ?? process.env.HEYGEN_BRAND_VOICE_ID
+  const { templateId, brandVoiceId } = params.effectiveRenderInputs ?? resolveVideoRenderInputs(params)
 
   if (templateId) {
     return generateFromTemplate({

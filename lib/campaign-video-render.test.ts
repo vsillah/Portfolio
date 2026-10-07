@@ -23,3 +23,11 @@ it('keeps a job unbound after a lost persistence update and identifies it for re
   await expect(bindCampaignVideoRender(item, 'new-job')).rejects.toThrow('Render job new-job was created')
   expect(tables.social_content_queue[0].rag_context.campaign_video_bindings['new-job']).toBeUndefined()
 })
+it('persists the canonical campaign binding without a legacy top-level campaign_id', async () => {
+  delete tables.social_content_queue[0].rag_context.campaign_id
+  const item = await requireCampaignVideoRender(input())
+  await bindCampaignVideoRender(item, 'new-canonical-job')
+  expect(tables.social_content_queue[0].rag_context.campaign_video_bindings['new-canonical-job']).toMatchObject({
+    campaign_id: 'campaign-qa', work_item_id: 'work-qa', social_content_id: 'video-review-qa', job_id: 'new-canonical-job',
+  })
+})

@@ -4,10 +4,13 @@ import { assertCurrentCampaign } from './campaign-video-source'
 import { campaignChannel, campaignVideoContext, campaignVideoRenderBinding } from './campaign-video-eligibility'
 import { updateSocialQueueWithVersion, assertSocialQueueWritable, assertSocialQueuePublicationClear } from './social-queue-write'
 import { reviewRecord } from './social-video-review'
+import { resolveVideoRenderInputs, type EffectiveVideoRenderInputs } from './video-render-inputs'
 
 export async function requireCampaignVideoRender(input: {
-  socialContentId: unknown; campaignId: unknown; script: string; channel: unknown; avatarId: unknown; voiceId: unknown; templateId?: unknown
+  socialContentId: unknown; campaignId: unknown; script: string; channel: unknown; avatarId: unknown; voiceId: unknown; templateId?: unknown; brandVoiceId?: unknown; effectiveRenderInputs?: EffectiveVideoRenderInputs
 }) {
+  const effective = input.effectiveRenderInputs ?? resolveVideoRenderInputs(input)
+  if (effective.templateId || effective.brandVoiceId) throw new Error('Render inputs differ from the approved campaign: template and brand-voice overrides are unqualified, including environment defaults.')
   if (typeof input.socialContentId !== 'string' || !input.socialContentId) throw new Error('Open the linked Social Content item and record its editorial review before rendering a campaign video.')
   const result = await supabaseAdmin.from('social_content_queue').select('*').eq('id', input.socialContentId).single()
   if (result.error || !result.data) throw new Error('Linked Social Content item unavailable.')
@@ -19,7 +22,7 @@ export async function requireCampaignVideoRender(input: {
   if (context.blockers.length || !context.receipt) throw new Error(context.blockers.join(' ') || 'Record a current production-quality editorial review before render.')
   const defaults = await getHeyGenDefaults()
   if (defaults.avatarId !== context.receipt.avatar_id || defaults.voiceId !== context.receipt.voice_id) throw new Error('Avatar or voice defaults changed. Record a fresh editorial and avatar review.')
-  if (input.templateId || context.campaign_id !== input.campaignId || input.script !== context.script
+  if (context.campaign_id !== input.campaignId || input.script !== context.script
     || campaignChannel(input.channel) !== context.channel || input.avatarId !== context.receipt.avatar_id || input.voiceId !== context.receipt.voice_id)
     throw new Error('Render inputs differ from the approved campaign script, channel, avatar, or voice. Template overrides require a separate qualified binding.')
   return item

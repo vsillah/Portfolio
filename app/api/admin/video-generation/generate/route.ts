@@ -1,3 +1,4 @@
+import { resolveVideoRenderInputs } from '@/lib/video-render-inputs'
 import { requireCampaignVideoRender, bindCampaignVideoRender } from '@/lib/campaign-video-render'
 import { videoRenderApprovalError } from '@/lib/video-render-approval'
 import { NextRequest, NextResponse } from 'next/server'
@@ -46,8 +47,8 @@ export async function POST(request: NextRequest) {
     const driveFileId = body.driveFileId as string | null
     const driveFileName = body.driveFileName as string | null
 
-    const templateId = (body.templateId as string)?.trim() || process.env.HEYGEN_TEMPLATE_ID
-    const brandVoiceId = (body.brandVoiceId as string)?.trim() || process.env.HEYGEN_BRAND_VOICE_ID
+    const effectiveRenderInputs = resolveVideoRenderInputs(body)
+    const { templateId, brandVoiceId } = effectiveRenderInputs
     let avatarId = (body.avatarId as string)?.trim() || process.env.HEYGEN_AVATAR_ID
     let voiceId = (body.voiceId as string)?.trim() || process.env.HEYGEN_VOICE_ID
 
@@ -105,10 +106,11 @@ export async function POST(request: NextRequest) {
       const approvalError = videoRenderApprovalError(body.renderApproval)
       if (approvalError) return NextResponse.json({ error: approvalError }, { status: 409 })
       try {
-        campaignItem = await requireCampaignVideoRender({ socialContentId: body.socialContentId, campaignId: targetId, script: scriptText, channel, avatarId, voiceId, templateId })
+        campaignItem = await requireCampaignVideoRender({ socialContentId: body.socialContentId, campaignId: targetId, script: scriptText, channel, avatarId, voiceId, effectiveRenderInputs })
       } catch (error) { return NextResponse.json({ error: error instanceof Error ? error.message : 'Campaign editorial review required.' }, { status: 409 }) }
     }
     const result = await createVideo({
+      effectiveRenderInputs,
       script: scriptText,
       title: body.title ?? `Video ${new Date().toISOString().slice(0, 10)}`,
       aspectRatio,

@@ -1,5 +1,6 @@
+import { resolveVideoRenderInputs } from '@/lib/video-render-inputs'
 import { requireCampaignVideoRender } from '@/lib/campaign-video-render'
-import { campaignVideoRenderBinding } from '@/lib/campaign-video-eligibility'
+import { campaignVideoIdentity, campaignVideoRenderBinding } from '@/lib/campaign-video-eligibility'
 import { currentEditorialReceipt } from '@/lib/video-editorial-quality'
 import { assertSocialQueueWritable, assertSocialQueuePublicationClear, updateSocialQueueWithVersion, SocialQueueWriteConflict } from '@/lib/social-queue-write'
 import { NextRequest, NextResponse } from 'next/server'
@@ -119,6 +120,10 @@ export async function POST(
     }
 
     const ragContext = asRecord(item.rag_context)
+    let campaignId: string | null
+    try { campaignId = campaignVideoIdentity(item) }
+    catch (error) { return NextResponse.json({ error: error instanceof Error ? error.message : 'Campaign identity unavailable.' }, { status: 409 }) }
+    const effectiveRenderInputs = resolveVideoRenderInputs(asRecord(body))
     const existingState = getSocialVideoProductionState(ragContext)
     if (existingState?.video_generation_job_id) {
       const { data: existingJob } = await supabaseAdmin
@@ -192,18 +197,17 @@ export async function POST(
     ])
     const favoriteAvatars = avatars.filter((asset) => asset.is_favorite)
     const favoriteVoices = voices.filter((asset) => asset.is_favorite)
-    const campaignId = asString(ragContext.campaign_id)
     const editorial = currentEditorialReceipt(item)
-    const avatarId = (campaignId ? editorial?.avatar_id : null) || selectRotatingFavoriteAvatar({
+    const avatarId = campaignId ? editorial?.avatar_id : selectRotatingFavoriteAvatar({
       defaults,
       favoriteAvatars,
       stableKey: `${params.id}:${asString(item.youtube_title) || productionAssets.video_script.title}`,
       lastAvatarId,
     })
-    const voiceId = (campaignId ? editorial?.voice_id : null) || selectFavoriteVoice({ defaults, favoriteVoices })
+    const voiceId = campaignId ? editorial?.voice_id : selectFavoriteVoice({ defaults, favoriteVoices })
     if (!avatarId || !voiceId) {
       return NextResponse.json({
-        error: 'Approved HeyGen avatar and voice must be configured before render preparation.',
+        error: campaignId ? 'Record a current campaign editorial and avatar review before render preparation.' : 'Approved HeyGen avatar and voice must be configured before render preparation.',
         social_video_production: buildSocialVideoProductionProjection({
           item,
           defaults,
@@ -261,7 +265,7 @@ export async function POST(
     }
 
     if (campaignId) {
-      try { await requireCampaignVideoRender({ socialContentId: item.id, campaignId, script: scriptText, channel: 'youtube', avatarId, voiceId, templateId: process.env.HEYGEN_TEMPLATE_ID }) }
+      try { await requireCampaignVideoRender({ socialContentId: item.id, campaignId, script: scriptText, channel: 'youtube', avatarId, voiceId, effectiveRenderInputs }) }
       catch (error) { return NextResponse.json({ error: error instanceof Error ? error.message : 'Campaign editorial review required.' }, { status: 409 }) }
     }
     const { data: matchingJobs, error: matchingJobsError } = await supabaseAdmin
@@ -338,6 +342,7 @@ export async function POST(
     }
 
     const result = await createVideo({
+      effectiveRenderInputs,
       script: scriptText,
       title: asString(item.youtube_title) || productionAssets.video_script.title || `Social Content video ${params.id}`,
       aspectRatio: '16:9',

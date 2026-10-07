@@ -49,3 +49,25 @@ Exact route under the harness: `http://127.0.0.1:4028/admin/social-content/video
 No database migration, credential change, live provider call, production mutation, actual asset attachment/upload, scheduling, publishing, or external send occurred. No campaign script or legacy archive was approved in production. The real campaign still needs editorial review and a separately authorized new render after integration.
 
 Both Vercel contexts remain unverified in this development lane: `Vercel – portfolio` and `Vercel – portfolio-staging`. Merge, deployment verification, and live Human QA belong to the captain. Keep this lane open through Human QA. This draft PR supplies local behavior evidence; it does not certify the real campaign's editorial quality, real avatar output, or production readiness.
+
+## Captain re-review fixes
+
+Canonical campaign identity now comes from `campaign_review_handoff.packet.shared_source.campaign_id`, with the older top-level field supported when no handoff exists. Incomplete or conflicting handoffs fail closed. The same resolved identity controls qualification, avatar selection, job target identity, job reuse suppression, and binding persistence. A campaign with missing editorial approval cannot fall back to a rotating avatar.
+
+Both render entry points resolve explicit and environment-default template and brand-voice settings before campaign qualification. Campaign templates and brand voices remain unqualified and are rejected. The resulting immutable snapshot is passed to `createVideo`; that layer consumes it without a second environment fallback. The snapshot test uses mocked fetch only, including a change to the environment between qualification and dispatch.
+
+Focused validation: **59 tests across 11 files passed**, including the actual synchronized handoff shape without a top-level campaign ID, canonical binding persistence, both routes' explicit/environment template and brand-voice rejection, and no-provider-call assertions. Scoped lint and `git diff --check` pass. No rendered UI changed; existing responsive screenshots and MP4s remain applicable.
+
+Exact test command:
+
+```sh
+npx vitest run 'app/api/admin/social-content/[id]/prepare-avatar-video' app/api/admin/video-generation/generate/campaign-gates.test.ts lib/campaign-video-render.test.ts lib/campaign-video-eligibility.test.ts lib/video-render-inputs.test.ts lib/video-editorial-provider-gate.test.ts 'app/api/admin/social-content/[id]/review-handoff' lib/social-video-production.test.ts lib/video-script-intelligence.test.ts
+```
+
+Exact lint command:
+
+```sh
+npx next lint --file lib/video-render-inputs.ts --file lib/video-render-inputs.test.ts --file lib/heygen.ts --file lib/campaign-video-render.ts --file lib/campaign-video-render.test.ts --file lib/campaign-video-eligibility.ts --file lib/campaign-video-eligibility.test.ts --file 'app/api/admin/social-content/[id]/prepare-avatar-video/route.ts' --file 'app/api/admin/social-content/[id]/prepare-avatar-video/campaign-gates.test.ts' --file app/api/admin/video-generation/generate/route.ts --file app/api/admin/video-generation/generate/campaign-gates.test.ts
+```
+
+[Focused results](qa/campaign-video-eligibility/captain-fixes-tests.txt), [lint](qa/campaign-video-eligibility/captain-fixes-lint.txt), and [typecheck](qa/campaign-video-eligibility/captain-fixes-typecheck.txt). `npx tsc --noEmit --pretty false` reports the same errors in the three unchanged test files listed above; no changed-file errors. PR remains draft; captain re-review is required. No live provider, production mutation, attachment, upload, publication, or scheduling action was taken.

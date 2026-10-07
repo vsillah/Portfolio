@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { campaignVideoEligibility, prepareCampaignVideoEditorial } from './campaign-video-eligibility'
+import { campaignVideoEligibility, campaignVideoIdentity, prepareCampaignVideoEditorial } from './campaign-video-eligibility'
 import { currentEditorialReceipt, editorialInputVersion, screenVideoEditorial, VIDEO_EDITORIAL_CRITERIA } from './video-editorial-quality'
 import { prepareMediaReview, prepareVideoAttachment } from './social-campaign-review-handoff'
 import { prepareManualCopyUpdate, socialCopyVersion } from './social-copy-revision'
@@ -8,6 +8,17 @@ import { reset, tables } from '../scripts/qa/campaign-video-fixture'
 beforeEach(reset)
 const current = () => ({ item: tables.social_content_queue[0], job: { ...tables.video_generation_jobs[0], media_version: 'a'.repeat(64) } })
 describe('campaign video eligibility', () => {
+  it('resolves canonical identity first, supports legacy identity, and rejects conflicting or malformed handoffs', () => {
+    const { item } = current()
+    delete item.rag_context.campaign_id
+    expect(campaignVideoIdentity(item)).toBe('campaign-qa')
+    item.rag_context.campaign_id = 'other'
+    expect(() => campaignVideoIdentity(item)).toThrow('conflicting')
+    item.rag_context.campaign_review_handoff = {}
+    expect(() => campaignVideoIdentity(item)).toThrow('incomplete')
+    expect(campaignVideoIdentity({ rag_context: { campaign_id: 'legacy' } })).toBe('legacy')
+    expect(campaignVideoIdentity({})).toBeNull()
+  })
   it('allows exact eligible attachment and media review, with idempotent attachment', () => {
     const { item, job } = current()
     expect(campaignVideoEligibility(item, job).eligible).toBe(true)
