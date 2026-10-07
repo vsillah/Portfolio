@@ -132,6 +132,17 @@ describe('SocialContentDetailRoute visual production review', () => {
     return render(<SocialContentDetailRoute />)
   }
 
+  it('renders LinkedIn campaign review for the linked canonical Instagram/Reels item', async () => {
+    const item = { ...baseItem, platform: 'instagram', target_platforms: ['instagram'], rag_context: { source: 'social_content_calendar_authorization', calendar_item_id: 'cd314ba5-f2d5-4e7f-9439-0475475c7fa9' } }
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => ({
+      ok: true,
+      json: async () => String(input).endsWith('/review-handoff') ? { preview: { packet_version: 'validated-linked-linkedin-packet' } } : { item },
+    } as Response)))
+    renderAtStep('copy')
+    expect(await screen.findByRole('region', { name: 'Campaign and video review' })).toBeVisible()
+    expect(screen.getByText('Compare approved campaign copy')).toBeEnabled()
+  })
+
   it('shows a compact mobile loading state while the selected detail is hydrating', () => {
     mocks.search = 'returnTo=%2Fadmin%2Fsocial-content&step=submit'
     vi.stubGlobal('fetch', vi.fn(() => new Promise<Response>(() => {})))

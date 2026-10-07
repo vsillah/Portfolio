@@ -1,6 +1,11 @@
 [
   {
     "width": 390,
+    "canonical_platform": "instagram",
+    "target_platforms": [
+      "instagram"
+    ],
+    "calendar_channel": "instagram_reels",
     "actions": [
       "synchronize",
       "attach_video",
@@ -14,6 +19,11 @@
   },
   {
     "width": 768,
+    "canonical_platform": "instagram",
+    "target_platforms": [
+      "instagram"
+    ],
+    "calendar_channel": "instagram_reels",
     "actions": [
       "synchronize",
       "attach_video",
@@ -27,6 +37,11 @@
   },
   {
     "width": 1440,
+    "canonical_platform": "instagram",
+    "target_platforms": [
+      "instagram"
+    ],
+    "calendar_channel": "instagram_reels",
     "actions": [
       "synchronize",
       "attach_video",

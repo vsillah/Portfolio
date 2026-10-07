@@ -75,3 +75,14 @@ describe('exact video review', () => {
     expect(ready.platforms[0].stages.find(s => s.key === 'platform_configuration')).toMatchObject({ state: 'blocked', detail: LINKEDIN_VIDEO_BLOCKER })
   })
 })
+
+it('accepts an approved LinkedIn packet on the canonical Instagram/Reels record without retargeting it', () => {
+  const f = fixture()
+  Object.assign(f.item, { platform: 'instagram', target_platforms: ['instagram'] })
+  f.calendar.channel = 'instagram_reels'
+  const preview = campaignReviewPreview(f.item, f.calendar, f.work)
+  const patch = prepareCampaignReviewHandoff(f.item, preview, preview.packet_version, f.item.updated_at, 'admin', now)!
+  expect({ ...f.item, ...patch }).toMatchObject({ platform: 'instagram', target_platforms: ['instagram'], post_text: 'A reviewed workflow.' })
+  f.packet.shared_source.social_content_id = 'unrelated'
+  expect(() => campaignReviewPreview(f.item, f.calendar, f.work)).toThrow()
+})

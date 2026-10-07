@@ -1,7 +1,7 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { it, expect, vi, afterEach } from 'vitest'
 vi.mock('@/lib/auth', () => ({ getCurrentSession: async () => ({ access_token: 'synthetic' }) }))
-import SocialVideoReview, { ReviewedVideoPlayer } from './SocialVideoReview'
+import SocialVideoReview, { LinkedInReviewSurface, ReviewedVideoPlayer } from './SocialVideoReview'
 afterEach(() => vi.restoreAllMocks())
 it('renders native controls and a poster without autoplay', () => {
   render(<ReviewedVideoPlayer url="https://example.invalid/final.mp4" poster="https://example.invalid/poster.png" />)
@@ -46,4 +46,21 @@ it('loads the existing render library and previews a selected job without attach
   await screen.findByLabelText('Final LinkedIn video')
   expect(fetch.mock.calls.every(([, options]) => options?.method === 'GET')).toBe(true)
   expect(screen.getByText('Attach this video · reset media approval')).toBeEnabled()
+})
+
+it('exposes an Instagram canonical record only after its linked approved LinkedIn packet is validated', async () => {
+  const fetch = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({ preview: { packet_version: 'approved-linkedin-packet' } })))
+  render(<LinkedInReviewSurface item={{ id: '2f6fe8d0-3838-4b5b-91b7-11ca9a64119c', platform: 'instagram', target_platforms: ['instagram'], status: 'draft', updated_at: 'v1', rag_context: { calendar_item_id: 'cd314ba5-f2d5-4e7f-9439-0475475c7fa9' } }} onRefresh={vi.fn()} />)
+  expect(screen.queryByRole('region', { name: 'Campaign and video review' })).not.toBeInTheDocument()
+  await screen.findByRole('region', { name: 'Campaign and video review' })
+  expect(fetch).toHaveBeenCalledWith('/api/admin/social-content/2f6fe8d0-3838-4b5b-91b7-11ca9a64119c/review-handoff', expect.objectContaining({ cache: 'no-store' }))
+})
+it('does not expose unrelated Instagram-only records or rejected linked packet evidence', async () => {
+  const fetch = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({ error: 'No approved LinkedIn packet' }), { status: 409 }))
+  const item = { id: 'instagram-only', platform: 'instagram', target_platforms: ['instagram'], status: 'draft', updated_at: 'v1' }
+  const view = render(<LinkedInReviewSurface item={item} onRefresh={vi.fn()} />)
+  expect(fetch).not.toHaveBeenCalled()
+  view.rerender(<LinkedInReviewSurface item={{ ...item, rag_context: { calendar_item_id: 'unrelated' } }} onRefresh={vi.fn()} />)
+  await waitFor(() => expect(fetch).toHaveBeenCalledTimes(1))
+  expect(screen.queryByRole('region', { name: 'Campaign and video review' })).not.toBeInTheDocument()
 })

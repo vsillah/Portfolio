@@ -16,7 +16,7 @@ export function campaignReviewPreview(current: Row, calendar: Row, work: Row) {
   const rag = record(current.rag_context), meta = record(work.metadata)
   const lane = record(record(meta.channel_lanes).linkedin), packet = record(lane.draft_packet)
   const source = record(packet.shared_source), fields = record(packet.fields)
-  if (rag.calendar_item_id !== calendar.id || calendar.social_content_id !== current.id || calendar.channel !== 'linkedin'
+  if (rag.calendar_item_id !== calendar.id || calendar.social_content_id !== current.id
     || !calendar.campaign_id || calendar.authorization_status !== 'authorized'
     || record(record(calendar.metadata).platform_draft_handoff).work_item_id !== work.id
     || work.source_type !== 'social_content_calendar_authorization' || meta.draft_handoff_only !== true

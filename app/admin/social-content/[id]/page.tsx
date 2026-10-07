@@ -40,7 +40,7 @@ import {
   MessageSquare,
   ShieldAlert,
 } from 'lucide-react'
-import SocialVideoReview, { ReviewedVideoPlayer } from '@/components/admin/SocialVideoReview'
+import { LinkedInReviewSurface, ReviewedVideoPlayer } from '@/components/admin/SocialVideoReview'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import MobileWorkflowSummary from '@/components/admin/MobileWorkflowSummary'
@@ -5387,7 +5387,7 @@ function SocialContentDetailPage() {
 
           {/* Right column: Preview */}
           <div className="space-y-4">
-            {(item.platform === 'linkedin' || item.target_platforms?.includes('linkedin')) && <SocialVideoReview item={item} hasUnsavedChanges={hasUnsavedCopyChanges} onRefresh={() => fetchItem({ silent: true })} />}
+            <LinkedInReviewSurface item={item} hasUnsavedChanges={hasUnsavedCopyChanges} onRefresh={() => fetchItem({ silent: true })} />
             <div className="bg-gray-900 border border-gray-800 rounded-xl p-4 lg:sticky lg:top-20">
               <h3 className="text-sm font-medium text-gray-400 mb-3 flex items-center gap-2">
                 <Linkedin className="w-4 h-4 text-blue-400" /> LinkedIn Preview

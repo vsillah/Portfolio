@@ -70,7 +70,7 @@ fs.mkdirSync(out, { recursive: true }); fs.mkdirSync(tmp, { recursive: true })
   await panel.getByText('Compare approved campaign copy').click(); await expect(panel.getByText(/Human copy edits differ/)).toBeVisible(); await expect(panel.getByText('Apply reviewed copy to this draft')).toBeDisabled()
   await shot('human-conflict')
   assert.equal(external.length, 0); assert.equal(errors.length, 0)
-  results.push({ width, actions, external_requests: external.length, page_errors: errors, copy_approval: 'fixture precondition; not exercised', route: url })
+  results.push({ width, canonical_platform: h.tables.social_content_queue[0].platform, target_platforms: h.tables.social_content_queue[0].target_platforms, calendar_channel: h.tables.social_content_calendar_items[0].channel, actions, external_requests: external.length, page_errors: errors, copy_approval: 'fixture precondition; not exercised', route: url })
   const video = page.video(); await context.close(); execFileSync('ffmpeg', ['-y', '-i', await video.path(), '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', `${out}/${width}-walkthrough.mp4`], { stdio: 'ignore' })
  }
  await browser.close(); fs.writeFileSync(`${out}/results.json`, JSON.stringify(results, null, 2))

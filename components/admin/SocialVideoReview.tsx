@@ -1,14 +1,37 @@
 'use client'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { getCurrentSession } from '@/lib/auth'
 import { LINKEDIN_VIDEO_BLOCKER, reviewRecord, socialVideoAssetVersion, socialVideoReviewReady } from '@/lib/social-video-review'
 
 export function ReviewedVideoPlayer({ url, poster }: { url: string; poster?: string | null }) {
   return <video key={url} aria-label="Final LinkedIn video" controls playsInline preload="metadata" src={url} poster={poster || undefined} className="max-h-96 w-full rounded-lg border border-gray-700 bg-black">Your browser cannot play this video. <a href={url}>Open the final video</a></video>
 }
-type Item = { id: string; updated_at: string; status: string; video_url?: string | null; rag_context?: unknown }
+type Item = { platform?: string; target_platforms?: string[] | null; id: string; updated_at: string; status: string; video_url?: string | null; rag_context?: unknown }
 type Preview = { packet_version: string; target_version: string; state: string; message: string; source_work_item_id: string; copy: { post_text: string; cta_text: string | null; cta_url: string | null; hashtags: string[] } }
 type Job = { id: string; updated_at: string; heygen_status: string; video_url: string; thumbnail_url: string | null }
+/** Cross-channel eligibility comes only from the server-validated linked packet. */
+export function LinkedInReviewSurface(props: { item: Item; hasUnsavedChanges?: boolean; onRefresh: () => Promise<unknown> }) {
+  const { item } = props
+  const nativeLinkedIn = item.platform === 'linkedin' || item.target_platforms?.includes('linkedin') === true
+  const calendarId = reviewRecord(item.rag_context).calendar_item_id
+  const key = `${item.id}:${String(calendarId)}`
+  const [eligibleKey, setEligibleKey] = useState<string | null>(null)
+  useEffect(() => {
+    if (nativeLinkedIn || !calendarId) return
+    const controller = new AbortController()
+    void (async () => {
+      try {
+        const session = await getCurrentSession()
+        if (!session || controller.signal.aborted) return
+        const response = await fetch(`/api/admin/social-content/${item.id}/review-handoff`, { cache: 'no-store', signal: controller.signal, headers: { Authorization: `Bearer ${session.access_token}` } })
+        const data = await response.json()
+        if (!controller.signal.aborted) setEligibleKey(response.ok && data.preview?.packet_version ? key : null)
+      } catch { if (!controller.signal.aborted) setEligibleKey(null) }
+    })()
+    return () => controller.abort()
+  }, [nativeLinkedIn, calendarId, item.id, item.updated_at, key])
+  return nativeLinkedIn || eligibleKey === key ? <SocialVideoReview {...props} /> : null
+}
 export default function SocialVideoReview({ item, onRefresh, hasUnsavedChanges = false }: { item: Item; hasUnsavedChanges?: boolean; onRefresh: () => Promise<unknown> }) {
   const [preview, setPreview] = useState<Preview | null>(null)
   const [library, setLibrary] = useState<Array<{ id: string; drive_file_name?: string; created_at?: string }>>([])

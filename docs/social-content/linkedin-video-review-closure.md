@@ -54,3 +54,11 @@ The in-app Browser was opened to the exact local route and reached the sign-in g
 ## Captain handoff
 
 Open a draft PR and stop before merge/deployment. Review the baseline typecheck failures, qualify the authenticated preview, and perform Human QA. Native video delivery remains a separate implementation and authorization gate; this PR closes internal review only.
+
+## Captain regression: canonical channel mismatch
+
+Captain QA identified an Instagram canonical item whose authorized `instagram_reels` calendar handoff contains an approved LinkedIn channel packet. The panel previously checked only the canonical platform labels, and the API separately required a LinkedIn calendar channel.
+
+The page now mounts `LinkedInReviewSurface`. Native LinkedIn items retain their existing behavior. Other platforms require a linked calendar and a successful authenticated, read-only handoff preview before the controls appear. That preview validates the exact Social Content/calendar/work-item/campaign lineage, LinkedIn packet approval, and passing enrichment. Removing the calendar-channel assumption does not remove those checks. Unrelated Instagram-only items remain excluded. Canonical platform and target platforms remain unchanged.
+
+Regression coverage includes the reported canonical platform/target mismatch, missing or rejected linked evidence, and mismatched packet ownership. The API fixture and all three responsive recordings now use `platform=instagram`, `target_platforms=[instagram]`, and `calendar.channel=instagram_reels`, with the approved LinkedIn packet linked to that same synthetic item. The focused suite passes 211 tests. The five baseline typecheck errors remain unrelated; lint and diff checks pass. No production/shared row was changed.
