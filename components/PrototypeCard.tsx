@@ -160,6 +160,18 @@ export default function PrototypeCard({ prototype, user, index, onEnrollmentSucc
 
         {/* Actions */}
         <div className="space-y-3 pt-6 border-t border-radiant-gold/5">
+          {prototype.download_url && (
+            <a
+              href={prototype.download_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full flex items-center justify-center gap-3 py-3 bg-radiant-gold text-imperial-navy rounded-full text-[10px] font-heading tracking-widest uppercase font-bold hover:brightness-110 transition-all"
+            >
+              <ExternalLink size={14} />
+              <span>Open App</span>
+            </a>
+          )}
+
           {prototype.linked_product && (
             <Link
               href={`/store/${prototype.linked_product.id}`}
@@ -170,7 +182,7 @@ export default function PrototypeCard({ prototype, user, index, onEnrollmentSucc
             </Link>
           )}
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className={`grid gap-3 ${prototype.app_repo_url ? 'grid-cols-2' : 'grid-cols-1'}`}>
             {prototype.app_repo_url && (
               <a
                 href={prototype.app_repo_url}
