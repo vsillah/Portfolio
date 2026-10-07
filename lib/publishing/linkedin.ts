@@ -1,3 +1,4 @@
+import { LINKEDIN_VIDEO_BLOCKER } from '@/lib/social-video-review'
 /**
  * LinkedIn Publishing Module
  *
@@ -26,6 +27,7 @@ export interface PublishPayload {
   ctaText?: string | null
   ctaUrl?: string | null
   hashtags?: string[]
+  videoUrl?: string | null
   imageUrl?: string | null
   carouselSlideUrls?: string[] | null
 }
@@ -392,12 +394,14 @@ async function updatePublishStatus(
 // ---------------------------------------------------------------------------
 
 export async function publishToLinkedIn(payload: PublishPayload): Promise<PublishResult> {
+  if (payload.videoUrl) return { success: false, error: LINKEDIN_VIDEO_BLOCKER }
   const { contentId, postText, ctaText, ctaUrl, hashtags, imageUrl, carouselSlideUrls } = payload
 
   const admin = supabaseAdmin
   if (!admin || !payload.releaseClaimId) return { success: false, error: 'A current dispatcher release claim is required.' }
   const { data: queue, error: queueError } = await admin.from('social_content_queue').select('*')
     .eq('id', contentId).single()
+  if (queue?.video_url) return { success: false, error: LINKEDIN_VIDEO_BLOCKER }
   const gate = socialReleaseGate(queue?.rag_context)
   if (queueError || !queue || gate.status !== 'submitting' || gate.release_id !== payload.releaseClaimId ||
     gate.approved_fingerprint !== socialReleaseFingerprint(queue) ||

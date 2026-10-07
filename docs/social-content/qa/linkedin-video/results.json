@@ -1,0 +1,41 @@
+[
+  {
+    "width": 390,
+    "actions": [
+      "synchronize",
+      "attach_video",
+      "approve_media",
+      "attach_video"
+    ],
+    "external_requests": 0,
+    "page_errors": [],
+    "copy_approval": "fixture precondition; not exercised",
+    "route": "http://127.0.0.1:4027/admin/social-content/video-review-qa?step=copy"
+  },
+  {
+    "width": 768,
+    "actions": [
+      "synchronize",
+      "attach_video",
+      "approve_media",
+      "attach_video"
+    ],
+    "external_requests": 0,
+    "page_errors": [],
+    "copy_approval": "fixture precondition; not exercised",
+    "route": "http://127.0.0.1:4027/admin/social-content/video-review-qa?step=copy"
+  },
+  {
+    "width": 1440,
+    "actions": [
+      "synchronize",
+      "attach_video",
+      "approve_media",
+      "attach_video"
+    ],
+    "external_requests": 0,
+    "page_errors": [],
+    "copy_approval": "fixture precondition; not exercised",
+    "route": "http://127.0.0.1:4027/admin/social-content/video-review-qa?step=copy"
+  }
+]

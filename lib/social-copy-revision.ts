@@ -61,9 +61,14 @@ export function prepareManualCopyUpdate(input: {
   if ('rag_context' in patch) {
     const storedRag = record(current.rag_context)
     const safeRag = { ...storedRag, ...record(patch.rag_context) }
-    if ('platform_submission_gate' in storedRag) safeRag.platform_submission_gate = storedRag.platform_submission_gate
-    else delete safeRag.platform_submission_gate
+    for (const key of ['platform_submission_gate', 'campaign_review_handoff', 'campaign_review_handoff_history', 'reviewed_video_asset', 'media_review']) {
+      if (key in storedRag) safeRag[key] = storedRag[key]
+      else delete safeRag[key]
+    }
     patch.rag_context = safeRag
+  }
+  if (socialCopyVersion({ ...current, ...patch }) !== socialCopyVersion(current) && record(current.rag_context).media_review) {
+    patch.rag_context = { ...record(current.rag_context), ...record(patch.rag_context), media_review: { status: 'pending', invalidation_reason: 'copy_changed' } }
   }
   if (!isCalendarSocialCopy(current)) return patch
   patch.updated_at = new Date(Math.max(Date.parse(now), Date.parse(String(current.updated_at)) + 1 || 0)).toISOString()
