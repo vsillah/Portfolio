@@ -199,7 +199,7 @@ describe('POST /api/admin/social-content/[id]/platform-submission', () => {
     expect(fetchSpy).not.toHaveBeenCalled()
   })
 
-  it('records final approval and triggers automatic submission through the publish route', async () => {
+  it('records final approval and triggers automatic submission for the selected TikTok target', async () => {
     const { publishUpsert, queueUpdate } = installSupabase({
       item: {
         id: 'social-1',
@@ -235,13 +235,12 @@ describe('POST /api/admin/social-content/[id]/platform-submission', () => {
       new Response(JSON.stringify({ published: true }), { status: 200 }),
     )
 
-    const response = await POST(request({ platforms: ['linkedin', 'tiktok'] }), { params: { id: 'social-1' } })
+    const response = await POST(request({ platforms: ['tiktok'] }), { params: { id: 'social-1' } })
 
     expect(response.status).toBe(200)
     const body = await response.json()
     expect(body.submit_triggered).toBe(true)
     expect(publishUpsert).toHaveBeenCalledWith([
-      { content_id: 'social-1', platform: 'linkedin', status: 'pending' },
       { content_id: 'social-1', platform: 'tiktok', status: 'pending' },
     ], { onConflict: 'content_id,platform', ignoreDuplicates: true })
     expect(queueUpdate).toHaveBeenCalledWith({
@@ -250,7 +249,7 @@ describe('POST /api/admin/social-content/[id]/platform-submission', () => {
         platform_submission_gate: expect.objectContaining({
           status: 'approved',
           approved_by: 'admin-1',
-          platforms: ['linkedin', 'tiktok'],
+          platforms: ['tiktok'],
         }),
       }),
     })
@@ -260,7 +259,7 @@ describe('POST /api/admin/social-content/[id]/platform-submission', () => {
       event: expect.objectContaining({
         type: 'platform_submission_approved',
         userId: 'admin-1',
-        platforms: ['linkedin', 'tiktok'],
+        platforms: ['tiktok'],
         submitAfterApproval: true,
       }),
     })
@@ -268,7 +267,7 @@ describe('POST /api/admin/social-content/[id]/platform-submission', () => {
       'http://localhost/api/admin/social-content/social-1/publish',
       expect.objectContaining({
         method: 'POST',
-        body: JSON.stringify({ platforms: ['linkedin', 'tiktok'], expected_updated_at: '2026-09-08T00:00:10.001Z' }),
+        body: JSON.stringify({ platforms: ['tiktok'], expected_updated_at: '2026-09-08T00:00:10.001Z' }),
       }),
     )
   })

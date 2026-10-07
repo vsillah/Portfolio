@@ -1,3 +1,4 @@
+import { videoPlayback } from '@/lib/video-media-archive'
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { supabaseAdmin } from '@/lib/supabase'
@@ -29,6 +30,8 @@ export async function GET(request: NextRequest) {
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1)
 
+    const id = searchParams.get('id')
+    if (id) query = query.eq('id', id)
     if (status) {
       query = query.eq('heygen_status', status)
     }
@@ -44,7 +47,7 @@ export async function GET(request: NextRequest) {
     }
 
     return NextResponse.json({
-      jobs: jobs ?? [],
+      jobs: await Promise.all((jobs ?? []).map(async (job: Record<string, unknown>) => { const playback = await videoPlayback(supabaseAdmin, job.video_url); return { ...job, video_reference: job.video_url, ...playback, video_url: playback.playback_url } })),
       total: count ?? 0,
       limit,
       offset,

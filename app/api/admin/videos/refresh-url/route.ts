@@ -52,21 +52,8 @@ export async function POST(request: NextRequest) {
   }
 
   const freshUrl = statusResult.videoUrl
-  if (freshUrl && freshUrl !== video.video_url) {
-    await supabaseAdmin
-      .from('videos')
-      .update({ video_url: freshUrl, updated_at: new Date().toISOString() })
-      .eq('id', videoId)
-
-    await supabaseAdmin
-      .from('video_generation_jobs')
-      .update({ video_url: freshUrl, updated_at: new Date().toISOString() })
-      .eq('id', video.video_generation_job_id)
-  }
-
-  return NextResponse.json({
-    videoId,
-    videoUrl: freshUrl ?? video.video_url,
-    refreshed: freshUrl !== video.video_url,
-  })
+  if (!freshUrl) return NextResponse.json({ error: 'Provider did not return a fresh media URL.' }, { status: 409 })
+  const saved = await supabaseAdmin.from('video_generation_jobs').update({ provider_video_url: freshUrl }).eq('id', video.video_generation_job_id)
+  if (saved.error) return NextResponse.json({ error: 'Fresh provider input could not be saved.' }, { status: 500 })
+  return NextResponse.json({ videoId, refreshed: true, archived: false, videoUrl: null, message: 'Provider input refreshed. Recover the private archive in Video Generation before review.' })
 }

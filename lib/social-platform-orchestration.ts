@@ -1,3 +1,4 @@
+import { LINKEDIN_VIDEO_BLOCKER, socialVideoReviewReady } from './social-video-review'
 import type {
   ContentStatus,
   PublishStatus,
@@ -613,7 +614,8 @@ export function buildPlatformOrchestrationPlan(input: BuildPlatformOrchestration
         publishRecord,
       })
       : undefined
-    const assetReadiness = input.platformAssetReadiness?.[platform]
+    const mediaBlocked = platform === 'linkedin' && !socialVideoReviewReady(input.item ?? {})
+    const assetReadiness = mediaBlocked ? { ready: false, detail: 'Review and approve the exact rendered video, rights, and privacy in Social Content.' } : input.platformAssetReadiness?.[platform]
       ?? (platform === 'youtube'
         ? {
           ready: !youtubeReadiness?.checks.some((check) => (
@@ -629,7 +631,7 @@ export function buildPlatformOrchestrationPlan(input: BuildPlatformOrchestration
             .join(' ') || 'YouTube release metadata, thumbnail readiness, final video URL, and privacy review are ready.',
         }
         : getPlatformAssetReadiness(input.item, platform))
-    const configuration = input.platformConfigs ? hasPlatformConfiguration(platform, platformConfig) : {
+    const configuration = platform === 'linkedin' && hasText(input.item?.video_url) ? { ready: false, detail: LINKEDIN_VIDEO_BLOCKER } : input.platformConfigs ? hasPlatformConfiguration(platform, platformConfig) : {
       ready: true,
       detail: `${PLATFORM_LABELS[platform]} configuration check was not requested.`,
     }

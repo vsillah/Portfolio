@@ -1,0 +1,66 @@
+import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { it, expect, vi, afterEach } from 'vitest'
+vi.mock('@/lib/auth', () => ({ getCurrentSession: async () => ({ access_token: 'synthetic' }) }))
+import SocialVideoReview, { LinkedInReviewSurface, ReviewedVideoPlayer } from './SocialVideoReview'
+afterEach(() => vi.restoreAllMocks())
+it('renders native controls and a poster without autoplay', () => {
+  render(<ReviewedVideoPlayer url="https://example.invalid/final.mp4" poster="https://example.invalid/poster.png" />)
+  const player = screen.getByLabelText('Final LinkedIn video')
+  expect(player).toHaveAttribute('controls'); expect(player).toHaveAttribute('playsinline'); expect(player).toHaveAttribute('poster', 'https://example.invalid/poster.png'); expect(player).not.toHaveAttribute('autoplay')
+})
+it('compares before applying and reports stale/conflicting handoffs without discarding them', async () => {
+  const refresh = vi.fn()
+  const fetch = vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(new Response(JSON.stringify({ preview: { packet_version: 'v1', target_version: 'now', state: 'ready', message: 'Review first', source_work_item_id: 'work', copy: { post_text: 'Reviewed copy', hashtags: ['#Safe'] } } })))
+    .mockResolvedValueOnce(new Response(JSON.stringify({ error: 'Content changed. Reload.' }), { status: 409 }))
+  render(<SocialVideoReview item={{ id: 'draft', status: 'draft', updated_at: 'now', rag_context: { calendar_item_id: 'calendar' } }} onRefresh={refresh} />)
+  fireEvent.click(screen.getByText('Compare approved campaign copy'))
+  await screen.findByText('Reviewed copy')
+  expect(fetch).toHaveBeenCalledTimes(1)
+  fireEvent.click(screen.getByText('Apply reviewed copy to this draft'))
+  await screen.findByText('Content changed. Reload.')
+  expect(refresh).not.toHaveBeenCalled()
+  expect(JSON.parse(String(fetch.mock.calls[1][1]?.body))).toMatchObject({ action: 'synchronize', packet_version: 'v1', expected_updated_at: 'now' })
+})
+it('keeps media approval disabled without copy approval and asset provenance', async () => {
+  render(<SocialVideoReview item={{ id: 'draft', status: 'draft', updated_at: 'now', video_url: 'https://example.invalid/final.mp4' }} onRefresh={vi.fn()} />)
+  fireEvent.click(screen.getByRole('checkbox'))
+  await waitFor(() => expect(screen.getByText('Approve this media version')).toBeDisabled())
+  expect(screen.getByText(/Native LinkedIn video submission is not configured/)).toBeVisible()
+})
+it('does not replace unsaved editor changes', async () => {
+  vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({ preview: { packet_version: 'v1', target_version: 'now', state: 'ready', message: 'Review first', source_work_item_id: 'work', copy: { post_text: 'Incoming copy', hashtags: [] } } })))
+  render(<SocialVideoReview item={{ id: 'draft', status: 'draft', updated_at: 'now', rag_context: { calendar_item_id: 'calendar' } }} hasUnsavedChanges onRefresh={vi.fn()} />)
+  fireEvent.click(screen.getByText('Compare approved campaign copy'))
+  await screen.findByText('Incoming copy')
+  expect(screen.getByText('Apply reviewed copy to this draft')).toBeDisabled()
+  expect(screen.getByText('Save or reload your copy edits before changing this review.')).toBeVisible()
+})
+it('loads the existing render library and previews a selected job without attaching it', async () => {
+  const fetch = vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(new Response(JSON.stringify({ jobs: [{ id: 'job-1', drive_file_name: 'Reviewed workflow' }] })))
+    .mockResolvedValueOnce(new Response(JSON.stringify({ job: { id: 'job-1', updated_at: 'version', heygen_status: 'completed', video_url: 'portfolio-video:11111111-1111-4111-8111-111111111111', playback_url: 'https://example.invalid/final.mp4' } })))
+  render(<SocialVideoReview item={{ id: 'draft', status: 'draft', updated_at: 'now' }} onRefresh={vi.fn()} />)
+  fireEvent.click(screen.getByText('Load completed videos'))
+  const select = await screen.findByLabelText('Choose a completed video')
+  fireEvent.change(select, { target: { value: 'job-1' } })
+  fireEvent.click(screen.getByText('Preview completed job'))
+  await screen.findByLabelText('Final LinkedIn video')
+  expect(fetch.mock.calls.every(([, options]) => options?.method === 'GET')).toBe(true)
+  expect(screen.getByText('Attach this video · reset media approval')).toBeEnabled()
+})
+
+it('exposes an Instagram canonical record only after its linked approved LinkedIn packet is validated', async () => {
+  const fetch = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({ preview: { packet_version: 'approved-linkedin-packet' } })))
+  render(<LinkedInReviewSurface item={{ id: '2f6fe8d0-3838-4b5b-91b7-11ca9a64119c', platform: 'instagram', target_platforms: ['instagram'], status: 'draft', updated_at: 'v1', rag_context: { calendar_item_id: 'cd314ba5-f2d5-4e7f-9439-0475475c7fa9' } }} onRefresh={vi.fn()} />)
+  expect(screen.queryByRole('region', { name: 'Campaign and video review' })).not.toBeInTheDocument()
+  await screen.findByRole('region', { name: 'Campaign and video review' })
+  expect(fetch).toHaveBeenCalledWith('/api/admin/social-content/2f6fe8d0-3838-4b5b-91b7-11ca9a64119c/review-handoff', expect.objectContaining({ cache: 'no-store' }))
+})
+it('does not expose unrelated Instagram-only records or rejected linked packet evidence', async () => {
+  const fetch = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({ error: 'No approved LinkedIn packet' }), { status: 409 }))
+  const item = { id: 'instagram-only', platform: 'instagram', target_platforms: ['instagram'], status: 'draft', updated_at: 'v1' }
+  const view = render(<LinkedInReviewSurface item={item} onRefresh={vi.fn()} />)
+  expect(fetch).not.toHaveBeenCalled()
+  view.rerender(<LinkedInReviewSurface item={{ ...item, rag_context: { calendar_item_id: 'unrelated' } }} onRefresh={vi.fn()} />)
+  await waitFor(() => expect(fetch).toHaveBeenCalledTimes(1))
+  expect(screen.queryByRole('region', { name: 'Campaign and video review' })).not.toBeInTheDocument()
+})

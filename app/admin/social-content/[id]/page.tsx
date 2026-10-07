@@ -40,6 +40,7 @@ import {
   MessageSquare,
   ShieldAlert,
 } from 'lucide-react'
+import { LinkedInReviewSurface, ReviewedVideoPlayer } from '@/components/admin/SocialVideoReview'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import MobileWorkflowSummary from '@/components/admin/MobileWorkflowSummary'
@@ -5386,6 +5387,7 @@ function SocialContentDetailPage() {
 
           {/* Right column: Preview */}
           <div className="space-y-4">
+            <LinkedInReviewSurface item={item} hasUnsavedChanges={hasUnsavedCopyChanges} onRefresh={() => fetchItem({ silent: true })} />
             <div className="bg-gray-900 border border-gray-800 rounded-xl p-4 lg:sticky lg:top-20">
               <h3 className="text-sm font-medium text-gray-400 mb-3 flex items-center gap-2">
                 <Linkedin className="w-4 h-4 text-blue-400" /> LinkedIn Preview
@@ -5406,7 +5408,7 @@ function SocialContentDetailPage() {
                 <div className="text-sm whitespace-pre-wrap leading-relaxed mb-3 text-gray-200">
                   {getFullPostText({ ...item, post_text: postText, cta_text: ctaText, cta_url: ctaUrl, hashtags: hashtags.split(',').map(t => t.trim()).filter(Boolean) })}
                 </div>
-                {item.content_format === 'carousel' && carouselSlideUrls.length > 0 ? (
+                {item.video_url ? <ReviewedVideoPlayer url={item.video_url} playbackUrl={item.video_playback_url} poster={asString(asRecord(ragContext?.reviewed_video_asset)?.thumbnail_url) || socialVideoProduction?.thumbnailUrl} /> : item.content_format === 'carousel' && carouselSlideUrls.length > 0 ? (
                   <div className="rounded-lg overflow-hidden border border-gray-700 relative w-full aspect-square bg-gray-900">
                     <Image src={carouselSlideUrls[0]} alt="Carousel cover" className="object-cover" fill sizes="(max-width: 600px) 100vw, 600px" />
                     <div className="absolute bottom-2 right-2 bg-black/60 text-white text-[10px] px-1.5 py-0.5 rounded">
@@ -6448,7 +6450,7 @@ function SocialContentDetailPage() {
             <p className="mt-2 text-sm text-amber-100">{releaseConfirmation.platforms.map(platform => PLATFORMS.find(option => option.value === platform)?.label ?? platform).join(', ')}{releaseConfirmation.submit ? ' · Publishes publicly now' : ' · Records approval only'}</p>
             <div className="my-3 min-h-0 overflow-y-auto space-y-3 text-sm text-gray-200">
               <p className="whitespace-pre-wrap break-words">{getFullPostText(releaseConfirmation.reviewed)}</p>
-              {releaseConfirmation.reviewed.video_url ? <video controls preload="metadata" src={releaseConfirmation.reviewed.video_url} className="max-h-52 w-full" /> : releaseConfirmation.reviewed.image_url ? <Image src={releaseConfirmation.reviewed.image_url} alt="Reviewed release asset" width={640} height={360} className="max-h-52 w-full object-contain" /> : !releaseConfirmation.reviewed.carousel_slide_urls?.length && !releaseConfirmation.reviewed.carousel_pdf_url ? <p className="text-gray-400">Text only · no attached asset</p> : null}
+              {releaseConfirmation.reviewed.video_url ? <ReviewedVideoPlayer url={releaseConfirmation.reviewed.video_url} playbackUrl={item.video_playback_url} /> : releaseConfirmation.reviewed.image_url ? <Image src={releaseConfirmation.reviewed.image_url} alt="Reviewed release asset" width={640} height={360} className="max-h-52 w-full object-contain" /> : !releaseConfirmation.reviewed.carousel_slide_urls?.length && !releaseConfirmation.reviewed.carousel_pdf_url ? <p className="text-gray-400">Text only · no attached asset</p> : null}
               {releaseConfirmation.platforms.includes('youtube') && <div><p>{releaseConfirmation.reviewed.youtube_title}</p><p className="whitespace-pre-wrap break-words">{releaseConfirmation.reviewed.youtube_description}</p></div>}
               {releaseConfirmation.reviewed.carousel_pdf_url && <a href={releaseConfirmation.reviewed.carousel_pdf_url} target="_blank" rel="noreferrer" className="block text-blue-200 underline">Reviewed carousel PDF</a>}
               {releaseConfirmation.reviewed.carousel_slide_urls?.map((url, index) => url ? <Image key={index} src={url} alt={`Reviewed slide ${index + 1}`} width={640} height={360} className="max-h-52 w-full object-contain" /> : null)}

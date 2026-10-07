@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { supabaseAdmin } from '@/lib/supabase'
+import { persistVideoCompletion } from '@/lib/video-media-archive'
 import { getVideoStatus } from '@/lib/heygen'
 
 export const dynamic = 'force-dynamic'
@@ -24,7 +25,7 @@ export async function POST(request: NextRequest) {
 
   const { data: jobs, error } = await supabaseAdmin
     .from('video_generation_jobs')
-    .select('id, heygen_video_id, heygen_status, video_url, video_record_id, script_text, channel')
+    .select('id, heygen_video_id, heygen_status, video_url, video_record_id, script_text, channel, provider_video_url, deleted_at, thumbnail_url, video_share_url')
     .in('id', jobIds)
     .is('deleted_at', null)
 
@@ -40,36 +41,12 @@ export async function POST(request: NextRequest) {
       const statusResult = await getVideoStatus(job.heygen_video_id)
       refreshed++
       const newStatus = statusResult.status ?? job.heygen_status
-      const newVideoUrl = statusResult.videoUrl ?? job.video_url
-      if (newStatus !== job.heygen_status || newVideoUrl !== job.video_url) {
-        const updateData: Record<string, unknown> = {
-          heygen_status: newStatus,
-          updated_at: new Date().toISOString(),
-        }
-        if (statusResult.error) updateData.error_message = statusResult.error
-        if (newVideoUrl) updateData.video_url = newVideoUrl
-        await supabaseAdmin.from('video_generation_jobs').update(updateData).eq('id', job.id)
+      if (newStatus === 'completed') {
+        const result = await persistVideoCompletion(supabaseAdmin, { ...job, thumbnail_url: statusResult.thumbnailUrl || job.thumbnail_url, video_share_url: statusResult.videoShareUrl || job.video_share_url }, statusResult.videoUrl || job.provider_video_url || job.video_url)
+        if (!result.media_blocker) updated++
+      } else if (newStatus !== job.heygen_status) {
+        await supabaseAdmin.from('video_generation_jobs').update({ heygen_status: newStatus, error_message: statusResult.error || null }).eq('id', job.id)
         updated++
-
-        if (newStatus === 'completed' && newVideoUrl && !job.video_record_id) {
-          const { data: videoRow } = await supabaseAdmin
-            .from('videos')
-            .insert({
-              title: `Generated video (${job.channel ?? 'youtube'})`,
-              description: job.script_text?.slice(0, 200) ?? null,
-              video_url: newVideoUrl,
-              display_order: 0,
-              is_published: false,
-              video_generation_job_id: job.id,
-            })
-            .select('id')
-            .single()
-          if (videoRow?.id) {
-            await supabaseAdmin.from('video_generation_jobs')
-              .update({ video_record_id: videoRow.id, updated_at: new Date().toISOString() })
-              .eq('id', job.id)
-          }
-        }
       }
     } catch {
       // Non-fatal per job
