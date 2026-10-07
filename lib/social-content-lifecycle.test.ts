@@ -246,6 +246,19 @@ describe('social content lifecycle projection', () => {
     expect(qualityGate.status).toBe('passed')
     expect(qualityGate.findings).toEqual([])
   })
+
+  it('blocks third-person author references and production labels in audience copy', () => {
+    const qualityGate = validateSocialContentFinalCopyQuality({
+      post_text: 'Vambah is close enough to the work to explain the review path.',
+      voiceover_text: 'Reviewer note: use the approved framing before publication.',
+    })
+
+    expect(qualityGate.status).toBe('blocked')
+    expect(qualityGate.findings.map((finding) => finding.code)).toEqual(expect.arrayContaining([
+      'third_person_author_name',
+      'production_script_label',
+    ]))
+  })
 })
 
 describe('draft seed versus public prose', () => {

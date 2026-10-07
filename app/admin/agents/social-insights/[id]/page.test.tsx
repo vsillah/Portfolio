@@ -97,6 +97,54 @@ function strategyEvidence(surfaceLabel: string, surfaceRoute: string, assets: st
   }
 }
 
+function enrichmentReceipt() {
+  return {
+    status: 'passed',
+    checks: {
+      research_frameworks: { status: 'passed', approved_pattern_count: 1 },
+      voice_calibration: { status: 'passed' },
+      editorial_challenger: { status: 'passed' },
+      avatar_and_visuals: { status: 'pending_visual_stage', avatar_policy: 'required_before_render' },
+    },
+  }
+}
+
+function approvalReadyWorkItem(status = 'in_review') {
+  const base = socialWorkItem()
+  const channels = [
+    ['linkedin', 'LinkedIn'],
+    ['youtube', 'YouTube'],
+    ['youtube_shorts', 'YouTube Shorts'],
+    ['instagram_reels', 'Instagram Reels'],
+    ['tiktok', 'TikTok'],
+    ['x', 'X'],
+    ['thumbnail', 'Thumbnail'],
+  ]
+  return {
+    ...base,
+    metadata: {
+      ...base.metadata,
+      channel_lanes: Object.fromEntries(channels.map(([channel, label]) => [channel, {
+        status,
+        label,
+        draft_packet: {
+          channel,
+          approval_status: status,
+          enrichment_receipt: enrichmentReceipt(),
+          fields: { copy: `${label} review copy` },
+          side_effects: {
+            provider_generation: false,
+            upload: false,
+            publish: false,
+            schedule: false,
+            external_post: false,
+          },
+        },
+      }])),
+    },
+  }
+}
+
 describe('SocialInsightDetailPage', () => {
   beforeEach(() => {
     vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
@@ -127,6 +175,7 @@ describe('SocialInsightDetailPage', () => {
                       channel: 'linkedin',
                       generated_at: '2026-06-24T15:00:00.000Z',
                       source_use_boundary: 'Drafts are generated for human review only.',
+                      enrichment_receipt: enrichmentReceipt(),
                       shared_source: {
                         insight_title: 'Approval gates create trust',
                         triggering_event: 'The Social Content review flow made the gate visible.',
@@ -156,6 +205,7 @@ describe('SocialInsightDetailPage', () => {
                       channel: 'youtube_shorts',
                       generated_at: '2026-06-24T15:00:00.000Z',
                       source_use_boundary: 'Drafts are generated for human review only.',
+                      enrichment_receipt: enrichmentReceipt(),
                       shared_source: {
                         insight_title: 'Approval gates create trust',
                         triggering_event: 'The Social Content review flow made the gate visible.',
@@ -185,6 +235,7 @@ describe('SocialInsightDetailPage', () => {
                       channel: 'instagram_reels',
                       generated_at: '2026-06-24T15:00:00.000Z',
                       source_use_boundary: 'Drafts are generated for human review only.',
+                      enrichment_receipt: enrichmentReceipt(),
                       shared_source: {
                         insight_title: 'Approval gates create trust',
                         triggering_event: 'The Social Content review flow made the gate visible.',
@@ -217,6 +268,7 @@ describe('SocialInsightDetailPage', () => {
                       channel: 'tiktok',
                       generated_at: '2026-06-24T15:00:00.000Z',
                       source_use_boundary: 'Drafts are generated for human review only.',
+                      enrichment_receipt: enrichmentReceipt(),
                       shared_source: {
                         insight_title: 'Approval gates create trust',
                         triggering_event: 'The Social Content review flow made the gate visible.',
@@ -245,6 +297,22 @@ describe('SocialInsightDetailPage', () => {
                 },
               },
             },
+            side_effects: {
+              provider_generation: false,
+              upload: false,
+              publish: false,
+              schedule: false,
+              external_post: false,
+            },
+          }),
+        }
+      }
+      if (url === '/api/admin/agents/work-items/work-social-1/social-channels/approve-all') {
+        return {
+          ok: true,
+          json: async () => ({
+            success: true,
+            work_item: approvalReadyWorkItem('approved'),
             side_effects: {
               provider_generation: false,
               upload: false,
@@ -356,6 +424,29 @@ describe('SocialInsightDetailPage', () => {
     expect(vi.mocked(fetch).mock.calls.some(([input]) => String(input).includes('/social-channels/linkedin'))).toBe(false)
   })
 
+  it('blocks approval for a legacy draft without a passing enrichment receipt', async () => {
+    const legacy = socialWorkItem()
+    Object.assign(legacy.metadata.channel_lanes.linkedin, {
+      ...legacy.metadata.channel_lanes.linkedin,
+      status: 'in_review',
+      draft_packet: {
+        channel: 'linkedin',
+        generated_at: '2026-06-23T15:00:00.000Z',
+        fields: { post_text: 'Legacy draft copy.' },
+      },
+    })
+    vi.mocked(fetch).mockImplementationOnce(async () => ({
+      ok: true,
+      json: async () => ({ work_item: legacy }),
+    }) as Response)
+
+    render(<SocialInsightDetailPage />)
+
+    expect(await screen.findByText('Legacy packet: framework, voice, editorial, and avatar-stage enrichment are not verified. Regenerate before approval.')).toBeInTheDocument()
+    expect(screen.getByText('This legacy packet has no passing content enrichment receipt. Regenerate channel review drafts before approval.')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Approve Lane' })).toBeDisabled()
+  })
+
   it('updates a channel lane decision through the review controls', async () => {
     render(<SocialInsightDetailPage />)
 
@@ -393,6 +484,23 @@ describe('SocialInsightDetailPage', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Approved' }))
     expect(vi.mocked(fetch).mock.calls.filter(([input]) => String(input) === '/api/admin/agents/work-items/work-social-1/social-channels/linkedin')).toHaveLength(1)
+  })
+
+  it('approves every receipt-backed lane with one bulk action', async () => {
+    vi.mocked(fetch).mockImplementationOnce(async () => ({
+      ok: true,
+      json: async () => ({ work_item: approvalReadyWorkItem() }),
+    }) as Response)
+    render(<SocialInsightDetailPage />)
+
+    await screen.findByRole('heading', { name: 'Approval gates create trust' })
+    fireEvent.click(screen.getByRole('button', { name: 'Approve All Lanes' }))
+
+    expect(await screen.findByText('All seven channel lanes marked approved. No rendering or publishing action ran.')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'All Lanes Approved' })).toBeDisabled()
+    const bulkCall = vi.mocked(fetch).mock.calls.find(([input]) => String(input).endsWith('/social-channels/approve-all'))
+    expect(bulkCall?.[1]).toMatchObject({ method: 'PATCH' })
+    expect(vi.mocked(fetch).mock.calls.filter(([input]) => /\/social-channels\/(linkedin|youtube|youtube_shorts|instagram_reels|tiktok|x|thumbnail)$/.test(String(input)))).toHaveLength(0)
   })
 
   it('prepares channel review drafts from the shared insight', async () => {

@@ -302,6 +302,9 @@ describe('social-content-intelligence', () => {
       triggering_event: 'The Social Content review flow made the gate visible.',
       content_angle: 'AI should reduce burden when receipts and approval gates are visible.',
       evidence_summary: 'The work item links public research, channel drafts, and human decisions.',
+      audience: 'Product leaders, founders, operators, and teams evaluating agentic AI.',
+      brand_goal: 'Show AmaduTown\'s practical approach to governed AI operations and invite serious operator conversations.',
+      speaker_authority: 'I built and reviewed the workflow.',
     })
     expect(drafts.linkedin.fields).toMatchObject({
       post_text: expect.stringContaining('The Social Content review flow made the gate visible.'),
@@ -309,6 +312,8 @@ describe('social-content-intelligence', () => {
       visual_mode: 'carousel_or_framework_illustration_review',
     })
     expect(drafts.linkedin.fields.post_text).not.toContain('The work item links public research')
+    expect(drafts.linkedin.fields.post_text).toContain('I built and reviewed the workflow.')
+    expect(drafts.linkedin.fields.post_text).not.toContain('Vambah')
     expect(drafts.linkedin.reviewer_action_guidance).toMatchObject({
       feedback_target: 'both',
       feedback: 'Make the next operator action explicit.',
@@ -325,7 +330,7 @@ describe('social-content-intelligence', () => {
         format: expect.stringContaining('Thought-leadership post'),
       }),
       voice_translation: expect.objectContaining({
-        source: expect.stringContaining('Vambah personality corpus'),
+        source: expect.stringContaining('Public-safe Vambah voice calibration library'),
         avoid: expect.arrayContaining(['Generic AI hype.']),
       }),
       visual_reinforcement: expect.objectContaining({
@@ -336,7 +341,7 @@ describe('social-content-intelligence', () => {
       opening_hook: 'AI should reduce burden.',
       first_30_seconds: expect.stringContaining('The mistake is thinking the demo is the finish line'),
       full_video_script: expect.arrayContaining([
-        expect.stringContaining('Core argument: AI should reduce burden'),
+        'AI should reduce burden when receipts and approval gates are visible.',
       ]),
       upload_readiness: 'pending_final_human_submission_gate',
       visibility_default: 'private',
@@ -346,6 +351,9 @@ describe('social-content-intelligence', () => {
         approved_pattern_count: 1,
       }),
     })
+    expect(drafts.youtube.fields.full_video_script).toContain('I built and reviewed the workflow.')
+    expect(drafts.youtube.fields.full_video_script).not.toContain('Vambah')
+    expect(JSON.stringify(drafts.youtube.fields.full_video_script)).not.toMatch(/Opening hook:|Reviewer note:|Proof walkthrough:/i)
     expect(drafts.youtube.orchestration_evidence).toMatchObject({
       channel_structure: expect.objectContaining({
         format: expect.stringContaining('Long-form YouTube video packet'),
@@ -428,5 +436,46 @@ describe('social-content-intelligence', () => {
     expect(drafts.instagram_reels.side_effects).toEqual(drafts.linkedin.side_effects)
     expect(drafts.tiktok.side_effects).toEqual(drafts.linkedin.side_effects)
     expect(drafts.thumbnail.side_effects).toEqual(drafts.linkedin.side_effects)
+  })
+
+  it('keeps campaign planning instructions out of public channel fields', () => {
+    const drafts = buildLinkedInYoutubeReviewDrafts({
+      generatedAt: '2026-10-06T19:29:19.000Z',
+      insight: {
+        title: 'Hook batch: Agentic Operating System Readiness Challenge',
+        triggering_event: 'Hook batch: Agentic Operating System Readiness Challenge',
+        content_angle: 'Draft three hook/script variants with safe-area notes, captions, b-roll hints, and a clear first-frame promise.',
+        suggested_hook: 'Draft three hook/script variants with safe-area notes, captions, b-roll hints, and a clear first-frame promise.',
+        evidence_summary: 'Authorized campaign calendar brief. Research provides structure only; claims still require human review.',
+        claim_boundaries: [
+          'Campaign planning is not evidence of delivered outcomes.',
+          'Public patterns are frameworks, not source copy.',
+        ],
+        approved_research_patterns: [
+          {
+            source_url: 'https://example.com/public-pattern',
+            platform: 'linkedin',
+            creator_name: 'Public source',
+            pattern_status: 'usable_framework',
+            pattern_packet: {
+              hook_structure: 'Start with a behavior operators recognize.',
+              promise_value: 'Show the operating layer behind the content.',
+            },
+          },
+        ],
+      },
+    })
+
+    const publicFields = JSON.stringify(Object.values(drafts).map((draft) => draft.fields))
+
+    expect(publicFields).not.toContain('Hook batch')
+    expect(publicFields).not.toContain('Draft three hook/script variants')
+    expect(publicFields).not.toContain('safe-area notes')
+    expect(publicFields).not.toContain('b-roll hints')
+    expect(drafts.linkedin.fields.post_text).toContain('A working AI workflow still needs a visible approval path.')
+    expect(drafts.youtube.fields.opening_hook).toBe('AI speed means less if nobody can see the handoff.')
+    expect(drafts.youtube.fields.title_variants).toEqual(expect.arrayContaining([
+      expect.stringContaining('Visible review gates for AI content'),
+    ]))
   })
 })

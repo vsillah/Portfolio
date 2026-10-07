@@ -123,6 +123,7 @@ When developing Portfolio admin, agent-ops, content, outreach, review, or approv
 - Design chips, pills, badges, and compact filters as resilient wrapping rows with intrinsic sizing, clear spacing, and stable line height. Long labels should truncate with a tooltip, move to secondary text, or wrap as a full row; they must not clip, overlap, bleed through neighboring labels, or compress adjacent text into narrow columns.
 - Validate responsive layout against the real content lane width, not only the browser viewport. Admin sidebars, drawers, QA evidence panels, and video side text reduce usable width and can expose layout defects that viewport-only checks miss.
 - During captain review, treat excessive static copy, unclear call-to-action placement, hidden recovery paths, repeated explanatory cards, non-actionable pseudo-controls, clipped pills, label bleed-through, line-height collisions, or evidence-recorder layout artifacts as UX defects that must be resolved before Human QA.
+- Public-facing copy written in Vambah's voice must not refer to Vambah by name or in the third person. Normalize authored messaging to first person or fail messaging QA before Human QA. Internal provenance, audit, and reviewer-trace fields may retain the original source wording.
 
 ## Human QA Video Evidence Rule
 

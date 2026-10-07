@@ -1,4 +1,6 @@
 import type { AgentWorkItem } from '@/lib/agent-work-items'
+import type { SocialContentCopyQualityGate, SocialPublicCopyField } from '@/lib/social-content-lifecycle'
+import { listSocialContentCalibrationReferences } from '@/lib/social-content-calibration-library'
 import type { TopicTriggerCandidate, TopicTriggerPacket } from '@/lib/social-topic-backlog'
 
 export const SOCIAL_TOPIC_TRIGGER_SOURCE_TYPE = 'social_topic_trigger'
@@ -47,6 +49,9 @@ export type SocialChannelReviewDraftPacket = {
     triggering_event: string
     content_angle: string
     evidence_summary: string
+    audience: string
+    brand_goal: string
+    speaker_authority: string
   }
   source_insight_title: string
   source_use_boundary: string
@@ -76,10 +81,22 @@ export type SocialChannelReviewDraftPacket = {
     }
     voice_translation: {
       source: string
+      status: 'applied'
+      reference_ids: string[]
+      provenance: string[]
       principles: string[]
       avoid: string[]
     }
+    editorial_challenger: {
+      reviewer: 'Amina ruleset'
+      status: 'passed'
+      implementation: 'deterministic_pre_human_gate'
+      checked_areas: string[]
+    }
     visual_reinforcement: {
+      status: 'pending_visual_stage'
+      avatar_policy: 'required_before_render'
+      enforcement_route: string
       recommended_assets: string[]
       portfolio_snapshots: string[]
       illustration_direction: string
@@ -94,6 +111,43 @@ export type SocialChannelReviewDraftPacket = {
     schedule: false
     external_post: false
   }
+  enrichment_receipt?: SocialContentEnrichmentReceipt
+}
+
+export type SocialContentEnrichmentReceipt = {
+  status: 'passed' | 'blocked'
+  generated_at: string
+  synthesized_campaign_fields: string[]
+  checks: {
+    research_frameworks: {
+      status: 'passed' | 'blocked'
+      approved_pattern_count: number
+      source_urls: string[]
+      applied_pattern_fields: string[]
+    }
+    voice_calibration: {
+      status: 'passed' | 'blocked'
+      audience: string
+      brand_goal: string
+      speaker_authority: string
+      reference_ids: string[]
+      provenance: string[]
+    }
+    editorial_challenger: {
+      status: 'passed' | 'blocked'
+      reviewer: 'Amina ruleset'
+      implementation: 'deterministic_pre_human_gate'
+      copy_quality_ruleset: 'social-content-final-copy-quality'
+      checked_fields: string[]
+    }
+    avatar_and_visuals: {
+      status: 'pending_visual_stage'
+      avatar_policy: 'required_before_render'
+      enforcement_route: string
+      provider_generation_started: false
+    }
+  }
+  blockers: string[]
 }
 
 export type LinkedInYoutubeReviewDrafts = {
@@ -104,6 +158,120 @@ export type LinkedInYoutubeReviewDrafts = {
   tiktok: SocialChannelReviewDraftPacket
   x: SocialChannelReviewDraftPacket
   thumbnail: SocialChannelReviewDraftPacket
+}
+
+const REVIEW_PUBLIC_FIELD_NAMES: Record<SocialContentIntelligenceChannel, string[]> = {
+  linkedin: ['post_text', 'cta'],
+  youtube: ['title_variants', 'description', 'opening_hook', 'first_30_seconds', 'full_video_script'],
+  youtube_shorts: ['hook', 'first_30_seconds', 'script', 'on_screen_text', 'caption'],
+  instagram_reels: ['hook', 'script', 'cover_text', 'caption'],
+  tiktok: ['hook', 'script', 'cover_frame', 'caption'],
+  x: ['post_text', 'thread_option', 'cta'],
+  thumbnail: ['primary_text', 'alternate_text_options'],
+}
+
+export function socialChannelReviewPublicCopyFields(drafts: LinkedInYoutubeReviewDrafts): SocialPublicCopyField[] {
+  const publicFields: SocialPublicCopyField[] = []
+  for (const channel of SOCIAL_CONTENT_INTELLIGENCE_CHANNELS) {
+    for (const fieldName of REVIEW_PUBLIC_FIELD_NAMES[channel]) {
+      const value = drafts[channel].fields[fieldName]
+      const values = Array.isArray(value) ? value : [value]
+      values.forEach((entry, index) => {
+        if (typeof entry !== 'string' || !entry.trim()) return
+        publicFields.push({
+          field: `${channel}.${fieldName}${Array.isArray(value) ? `[${index}]` : ''}`,
+          text: entry.trim(),
+        })
+      })
+    }
+  }
+  return publicFields
+}
+
+export function enrichCampaignReviewInsight(input: {
+  insight: Record<string, unknown>
+  metadata: Record<string, unknown>
+}) {
+  const insight = { ...input.insight }
+  const synthesizedFields: string[] = []
+  const fill = (key: 'why_vambah_can_speak' | 'brand_goal' | 'audience', value: string) => {
+    if (typeof insight[key] === 'string' && insight[key].trim()) return
+    insight[key] = value
+    synthesizedFields.push(key)
+  }
+
+  if (input.metadata.source === 'social_content_calendar_authorization' || input.metadata.calendar_item_id) {
+    fill('why_vambah_can_speak', 'I am building and testing Portfolio\'s governed agent workflows directly, including their evidence, handoff, and approval gates.')
+    fill('brand_goal', 'Show AmaduTown\'s practical approach to governed AI operations and invite serious operator conversations.')
+    fill('audience', 'Product leaders, founders, operators, and teams evaluating where agentic AI can responsibly reduce work.')
+  }
+
+  return { insight, synthesizedFields }
+}
+
+export function buildSocialContentEnrichmentReceipt(input: {
+  insight: Record<string, unknown>
+  copyQualityGate: SocialContentCopyQualityGate
+  generatedAt: string
+  synthesizedCampaignFields?: string[]
+}): SocialContentEnrichmentReceipt {
+  const patterns = asRecordArray(input.insight.approved_research_patterns)
+  const usablePatterns = patterns.filter((pattern) => {
+    const status = firstString(pattern.pattern_status)
+    const packet = pattern.pattern_packet && typeof pattern.pattern_packet === 'object' && !Array.isArray(pattern.pattern_packet)
+      ? pattern.pattern_packet as Record<string, unknown>
+      : {}
+    return ['usable_framework', 'needs_brand_translation'].includes(status)
+      && Boolean(firstString(pattern.source_url))
+      && ['hook_structure', 'promise_value', 'thumbnail_pattern'].some((key) => Boolean(firstString(packet[key])))
+  })
+  const voiceReferences = listSocialContentCalibrationReferences({ platform: 'linkedin' })
+  const audience = firstString(input.insight.audience)
+  const brandGoal = firstString(input.insight.brand_goal)
+  const speakerAuthority = firstString(input.insight.why_vambah_can_speak)
+  const blockers: string[] = []
+  if (usablePatterns.length === 0) blockers.push('No approved usable framework with traceable source and reusable pattern fields.')
+  if (!audience) blockers.push('Audience calibration is missing.')
+  if (!brandGoal) blockers.push('Brand goal is missing.')
+  if (!speakerAuthority) blockers.push('Vambah-specific speaker authority is missing.')
+  if (voiceReferences.length === 0) blockers.push('No approved Vambah voice calibration references are available.')
+  if (input.copyQualityGate.status === 'blocked') blockers.push('Final public-copy quality gate did not pass.')
+
+  return {
+    status: blockers.length === 0 ? 'passed' : 'blocked',
+    generated_at: input.generatedAt,
+    synthesized_campaign_fields: input.synthesizedCampaignFields ?? [],
+    checks: {
+      research_frameworks: {
+        status: usablePatterns.length > 0 ? 'passed' : 'blocked',
+        approved_pattern_count: usablePatterns.length,
+        source_urls: usablePatterns.map((pattern) => firstString(pattern.source_url)).filter(Boolean),
+        applied_pattern_fields: ['hook_structure', 'promise_value', 'thumbnail_pattern'],
+      },
+      voice_calibration: {
+        status: audience && brandGoal && speakerAuthority && voiceReferences.length > 0 ? 'passed' : 'blocked',
+        audience,
+        brand_goal: brandGoal,
+        speaker_authority: speakerAuthority,
+        reference_ids: voiceReferences.map((reference) => reference.id),
+        provenance: Array.from(new Set(voiceReferences.map((reference) => reference.provenance))),
+      },
+      editorial_challenger: {
+        status: input.copyQualityGate.status,
+        reviewer: 'Amina ruleset',
+        implementation: 'deterministic_pre_human_gate',
+        copy_quality_ruleset: 'social-content-final-copy-quality',
+        checked_fields: input.copyQualityGate.checkedFields,
+      },
+      avatar_and_visuals: {
+        status: 'pending_visual_stage',
+        avatar_policy: 'required_before_render',
+        enforcement_route: '/admin/content/video-generation',
+        provider_generation_started: false,
+      },
+    },
+    blockers,
+  }
 }
 
 export type SocialResearchPatternStatus =
@@ -864,12 +1032,34 @@ function latestFeedbackGuidance(feedback: Record<string, unknown> | null | undef
 
 function isInternalPlanningPhrase(value: string) {
   return /open the x thread|prepared from|source basis|campaign packet|rollout campaign|agentified book and workbook/i.test(value)
+    || /^(?:hook batch|series hypothesis|proof cutdown|winning angle review)(?:\s*:|$)/i.test(value)
+    || /\bdraft\s+(?:three|\d+)\s+(?:hook|script|hook\/script)\s+variants?\b/i.test(value)
+    || /\b(?:safe-area notes?|b-roll hints?|first-frame promise)\b/i.test(value)
+    || /\b(?:tiktok-ready proof cutdown|queue the follow-up authorization gate|review performance and comments)\b/i.test(value)
 }
 
 function publicText(value: string, fallback: string) {
   const trimmed = value.trim()
   if (!trimmed || isInternalPlanningPhrase(trimmed)) return fallback
   return trimmed
+}
+
+function firstPersonPublicText(value: string, fallback: string) {
+  const candidate = publicText(value, fallback)
+  return /\bVambah\b/i.test(candidate) ? fallback : candidate
+}
+
+function firstPersonSpeakerText(value: string, fallback: string) {
+  const candidate = publicText(value, fallback)
+  const normalized = candidate
+    .replace(/\bVambah['’]s\b/gi, 'my')
+    .replace(/\bVambah\s+is\b/gi, 'I am')
+    .replace(/\bVambah\s+has\b/gi, 'I have')
+    .replace(/\bVambah\s+was\b/gi, 'I was')
+    .replace(/\bVambah\s+does\b/gi, 'I do')
+    .replace(/\bVambah\s+can\b/gi, 'I can')
+    .replace(/\bVambah\b/gi, 'I')
+  return /\bVambah\b/i.test(normalized) ? fallback : normalized
 }
 
 function reviewerTrace(input: {
@@ -901,6 +1091,7 @@ function channelOrchestrationEvidence(input: {
   contentAngle: string
   patternPromise: string
 }) {
+  const voiceReferences = listSocialContentCalibrationReferences({ platform: 'linkedin' })
   const sharedAgents = [
     {
       name: 'Shaka',
@@ -931,7 +1122,10 @@ function channelOrchestrationEvidence(input: {
     },
   ]
   const voiceTranslation = {
-    source: 'Vambah personality corpus plus docs/linkedin-voice.md',
+    source: 'Public-safe Vambah voice calibration library derived from docs/linkedin-voice.md and approved Portfolio patterns.',
+    status: 'applied' as const,
+    reference_ids: voiceReferences.map((reference) => reference.id),
+    provenance: Array.from(new Set(voiceReferences.map((reference) => reference.provenance))),
     principles: [
       'Open with a concrete triggering event or tension.',
       'Make the operating system visible before making the claim.',
@@ -1156,7 +1350,16 @@ function channelOrchestrationEvidence(input: {
       success_criteria: detail.success_criteria,
     },
     voice_translation: voiceTranslation,
+    editorial_challenger: {
+      reviewer: 'Amina ruleset' as const,
+      status: 'passed' as const,
+      implementation: 'deterministic_pre_human_gate' as const,
+      checked_areas: ['source distance', 'claim boundaries', 'channel fit', 'Vambah voice', 'internal-note leakage'],
+    },
     visual_reinforcement: {
+      status: 'pending_visual_stage' as const,
+      avatar_policy: 'required_before_render' as const,
+      enforcement_route: '/admin/content/video-generation',
       recommended_assets: detail.recommended_assets,
       portfolio_snapshots: detail.portfolio_snapshots,
       illustration_direction: detail.illustration_direction,
@@ -1176,9 +1379,11 @@ export function buildLinkedInYoutubeReviewDrafts(input: {
   const triggeringEvent = firstString(insight.triggering_event, title)
   const whyVambahCanSpeak = firstString(
     insight.why_vambah_can_speak,
-    'Vambah is close enough to the work to explain what changed, what remains bounded, and what still needs review.',
+    'I am close enough to the work to explain what changed, what remains bounded, and what still needs review.',
   )
   const evidenceSummary = firstString(insight.evidence_summary, 'Evidence summary pending.')
+  const audience = firstString(insight.audience, 'Product leaders, founders, operators, and teams evaluating agentic AI.')
+  const brandGoal = firstString(insight.brand_goal, 'Show AmaduTown\'s practical approach to governed AI operations and invite serious operator conversations.')
   const contentAngle = firstString(
     insight.content_angle,
     'AI should reduce burden only when evidence, ownership, and approval gates are visible.',
@@ -1186,22 +1391,27 @@ export function buildLinkedInYoutubeReviewDrafts(input: {
   const hook = firstString(insight.suggested_hook, contentAngle)
   const claimBoundaries = asStringArray(insight.claim_boundaries)
   const patterns = asRecordArray(insight.approved_research_patterns).map(compactResearchPattern)
-  const patternHook = firstString(...patterns.map((pattern) => pattern.hook_structure))
   const patternPromise = firstString(...patterns.map((pattern) => pattern.promise_value))
   const sourceBoundary = 'Drafts are generated for human review only. Public research patterns are framework inputs, not source copy.'
   const guidance = latestFeedbackGuidance(input.latestFeedback)
   const trace = reviewerTrace({ evidenceSummary, patterns, claimBoundaries })
-  const publicAngle = publicText(contentAngle, 'AI tools earn trust when the handoff is visible before public action.')
-  const publicTrigger = publicText(triggeringEvent, 'A working AI workflow still needs a visible approval path.')
-  const publicHook = publicText(hook, 'AI speed means less if nobody can see the handoff.')
-  const publicTitle = publicText(title, 'Visible review gates for AI content')
-  const proofCue = 'Show the reviewed Portfolio workflow: source, owner, approval gate, and final human decision.'
+  const publicAngle = firstPersonPublicText(contentAngle, 'AI tools earn trust when the handoff is visible before public action.')
+  const publicTrigger = firstPersonPublicText(triggeringEvent, 'A working AI workflow still needs a visible approval path.')
+  const publicHook = firstPersonPublicText(hook, 'AI speed means less if nobody can see the handoff.')
+  const publicTitle = firstPersonPublicText(title, 'Visible review gates for AI content')
+  const publicWhyIcanSpeak = firstPersonSpeakerText(
+    whyVambahCanSpeak,
+    'I am close enough to the work to explain what changed, what remains bounded, and what still needs review.',
+  )
   const publicPrinciple = 'Trust is not created by more output. It is created by a visible handoff before the output reaches people.'
   const sharedSource = {
     insight_title: title,
     triggering_event: triggeringEvent,
     content_angle: contentAngle,
     evidence_summary: evidenceSummary,
+    audience,
+    brand_goal: brandGoal,
+    speaker_authority: publicWhyIcanSpeak,
   }
 
   const linkedinPostText = [
@@ -1209,7 +1419,7 @@ export function buildLinkedInYoutubeReviewDrafts(input: {
     '',
     publicAngle,
     '',
-    `That matters because ${whyVambahCanSpeak}`,
+    `That matters because ${publicWhyIcanSpeak}`,
     '',
     'The practical test is simple: can the system show what the draft is based on, who touched it, and what still needs review before it reaches the public?',
     '',
@@ -1223,32 +1433,31 @@ export function buildLinkedInYoutubeReviewDrafts(input: {
     'The real test starts when the output needs evidence, ownership, and a human approval gate before it reaches the public.',
   ].join(' ')
   const youtubeShortsScript = [
-    `0-3s hook: ${youtubeHook}`,
-    '3-12s tension: The output may be fast, but speed does not answer who checked the source, who owns the decision, or what is still blocked.',
-    `12-30s proof cue: ${proofCue}`,
-    'Close: If the handoff is invisible, the automation is not ready.',
+    youtubeHook,
+    'The output may be fast, but speed does not answer who checked the source, who owns the decision, or what is still blocked.',
+    'Look for the source, the owner, the approval gate, and the final human decision.',
+    'If the handoff is invisible, the automation is not ready.',
   ]
   const instagramReelsScript = [
-    `Cover/opening: ${truncate(publicPrinciple, 70)}`,
-    `Voiceover: ${publicAngle}`,
-    `Proof moment: ${proofCue}`,
-    'Caption bridge: Save this as a review checklist before turning any AI draft into public content.',
+    truncate(publicPrinciple, 70),
+    publicAngle,
+    'Look for the source, the owner, the approval gate, and the final human decision.',
+    'Save this as a review checklist before turning any AI draft into public content.',
   ]
   const tiktokScript = [
-    `Hook: ${youtubeHook}`,
-    'Quick cut: show the draft, then the approval gate.',
-    'Plain-language point: the risky part is not that AI wrote something. The risky part is when nobody can tell what it was based on.',
-    'Close: If you cannot show the receipt, slow the handoff down.',
+    youtubeHook,
+    'Fast output is not the same as a trustworthy handoff.',
+    'The risky part is not that AI wrote something. The risky part is when nobody can tell what it was based on.',
+    'If you cannot show the receipt, slow the handoff down.',
   ]
   const fullVideoScript = [
-    `Opening hook: ${youtubeHook}`,
-    `Context: ${publicTrigger}`,
-    `Why Vambah can speak to it: ${whyVambahCanSpeak}`,
-    `Core argument: ${publicAngle}`,
-    `Proof walkthrough: ${proofCue}`,
-    patternHook ? 'Reviewer note: adapt the approved pattern structure without copying source language.' : 'Reviewer note: use the approved research packet for structure only.',
-    'Operating takeaway: make the source, owner, approval gate, final asset, and provider boundary visible before upload.',
-    'Close: invite the viewer to compare where their own AI or content workflow loses trust between draft and public action.',
+    youtubeHook,
+    publicTrigger,
+    publicWhyIcanSpeak,
+    publicAngle,
+    'Here is the practical test: can you see the source, the owner, the approval gate, and the final human decision?',
+    'Make the source, owner, approval gate, final asset, and provider boundary visible before anything reaches the public.',
+    'Where does your own AI or content workflow lose trust between draft and public action?',
   ]
   const storyboardScenes = [
     'Face-to-camera hook with the triggering event.',
@@ -1266,8 +1475,8 @@ export function buildLinkedInYoutubeReviewDrafts(input: {
     'Every risky action needs a gate.',
     'Trust is an operating layer.',
   ]
-  const nativeThumbnailText = truncate(publicText(patternPromise, 'Receipts Before Reach'), 34)
-  const nativeCoverText = truncate(publicText(patternPromise, 'Show the gate before the output'), 52)
+  const nativeThumbnailText = truncate(firstPersonPublicText(patternPromise, 'Receipts Before Reach'), 34)
+  const nativeCoverText = truncate(firstPersonPublicText(patternPromise, 'Show the gate before the output'), 52)
   const thumbnailSourcePatterns = patterns
     .map((pattern) => pattern.thumbnail_pattern || pattern.promise_value || pattern.hook_structure)
     .filter(Boolean)
@@ -1318,7 +1527,7 @@ export function buildLinkedInYoutubeReviewDrafts(input: {
           '',
           'A practical look at the review path behind trustworthy AI-enabled content: source, owner, approval gate, final asset, and provider boundary.',
           '',
-          'Provider upload, scheduling, and publication require a separate final human gate.',
+          'The goal is straightforward: make the handoff visible before the work reaches the public.',
         ].join('\n'),
         opening_hook: youtubeHook,
         first_30_seconds: firstThirtySeconds,
@@ -1469,8 +1678,8 @@ export function buildLinkedInYoutubeReviewDrafts(input: {
         post_text: truncate([
           publicTrigger,
           publicAngle,
-          `Why it matters: ${whyVambahCanSpeak}`,
-          'The practical test: can the system show the source, owner, approval gate, and public-action boundary before it reaches the audience?',
+          publicWhyIcanSpeak,
+          'Can the system show the source, owner, approval gate, and public-action boundary before it reaches the audience?',
         ].join('\n\n'), 1100),
         thread_option: [
           `1. ${truncate(publicTrigger, 240)}`,
@@ -1510,7 +1719,7 @@ export function buildLinkedInYoutubeReviewDrafts(input: {
           truncate('Receipts before autonomy', 44),
           truncate('Show the gate before the output', 44),
         ],
-        visual_direction: 'Use an original AmaduTown visual: Vambah or approved avatar in front of a simplified Portfolio approval path, with enough gutter between text and proof object.',
+        visual_direction: 'Use an original AmaduTown visual: a first-person presenter or approved avatar in front of a simplified Portfolio approval path, with enough gutter between text and proof object.',
         source_thumbnail_references: thumbnailSourcePatterns,
         layout_requirements: [
           'Keep all text inside thumbnail safe areas with generous padding.',

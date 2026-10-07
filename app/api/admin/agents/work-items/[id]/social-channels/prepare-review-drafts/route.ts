@@ -3,8 +3,12 @@ import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { getAgentWorkItem, updateAgentWorkItemMetadata } from '@/lib/agent-work-items'
 import {
   buildLinkedInYoutubeReviewDrafts,
+  buildSocialContentEnrichmentReceipt,
+  enrichCampaignReviewInsight,
   normalizeSocialChannelLanes,
+  socialChannelReviewPublicCopyFields,
 } from '@/lib/social-content-intelligence'
+import { validateSocialPublicCopyFields } from '@/lib/social-content-lifecycle'
 
 export const dynamic = 'force-dynamic'
 
@@ -33,8 +37,9 @@ export async function POST(
     }
 
     const metadata = workItem.metadata ?? {}
-    const insight = asRecord(metadata.insight)
-    if (!Object.keys(insight).length) {
+    const rawInsight = asRecord(metadata.insight)
+    const { insight, synthesizedFields } = enrichCampaignReviewInsight({ insight: rawInsight, metadata })
+    if (!Object.keys(rawInsight).length) {
       return NextResponse.json({ error: 'Social insight metadata is required' }, { status: 400 })
     }
     if (!hasApprovedResearchPatterns(insight)) {
@@ -50,6 +55,32 @@ export async function POST(
       generatedAt: now,
       latestFeedback: asRecord(metadata.autoresearch_feedback_latest),
     })
+    const copyQualityGate = validateSocialPublicCopyFields(socialChannelReviewPublicCopyFields(drafts))
+    if (copyQualityGate.status === 'blocked') {
+      return NextResponse.json({
+        error: 'Channel review draft quality gate blocked internal instructions or non-audience copy.',
+        current_gate: 'final_copy_quality',
+        revision_state: 'revision_needed',
+        recovery_action: copyQualityGate.recoveryAction,
+        quality_gate: copyQualityGate,
+      }, { status: 422 })
+    }
+    const enrichmentReceipt = buildSocialContentEnrichmentReceipt({
+      insight,
+      copyQualityGate,
+      generatedAt: now,
+      synthesizedCampaignFields: synthesizedFields,
+    })
+    if (enrichmentReceipt.status === 'blocked') {
+      return NextResponse.json({
+        error: 'Channel review draft enrichment gate is incomplete.',
+        current_gate: 'content_enrichment',
+        revision_state: 'revision_needed',
+        blockers: enrichmentReceipt.blockers,
+        enrichment_receipt: enrichmentReceipt,
+      }, { status: 422 })
+    }
+    for (const draft of Object.values(drafts)) draft.enrichment_receipt = enrichmentReceipt
     // Keep campaign lineage in review metadata, never in public copy fields.
     if (typeof metadata.calendar_item_id === 'string') {
       for (const draft of Object.values(drafts)) {
@@ -132,6 +163,13 @@ export async function POST(
           prepared_channels: ['linkedin', 'youtube', 'youtube_shorts', 'instagram_reels', 'tiktok', 'x', 'thumbnail'],
           prepared_at: now,
           source_use_boundary: drafts.linkedin.source_use_boundary,
+          copy_quality_gate: {
+            status: copyQualityGate.status,
+            checked_fields: copyQualityGate.checkedFields,
+            checked_at: now,
+            ruleset: 'social-content-final-copy-quality',
+          },
+          enrichment_receipt: enrichmentReceipt,
           side_effects: {
             provider_generation: false,
             upload: false,

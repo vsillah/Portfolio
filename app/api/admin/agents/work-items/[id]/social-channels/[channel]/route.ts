@@ -24,6 +24,12 @@ function hasReviewDraft(lane: Record<string, unknown>) {
   return Object.keys(fields).length > 0
 }
 
+function hasPassingEnrichmentReceipt(lane: Record<string, unknown>) {
+  const draftPacket = asRecord(lane.draft_packet)
+  const receipt = asRecord(draftPacket.enrichment_receipt)
+  return asString(receipt.status) === 'passed'
+}
+
 function draftApprovalStatus(status: SocialChannelLaneStatus) {
   if (status === 'approved' || status === 'blocked') return status
   return 'in_review'
@@ -84,6 +90,12 @@ export async function PATCH(
       return NextResponse.json(
         { error: 'Prepare the channel review draft before approving this lane' },
         { status: 400 },
+      )
+    }
+    if (nextStatus === 'approved' && !hasPassingEnrichmentReceipt(lanes[params.channel])) {
+      return NextResponse.json(
+        { error: 'Regenerate the channel review draft with a passing enrichment receipt before approval' },
+        { status: 409 },
       )
     }
 

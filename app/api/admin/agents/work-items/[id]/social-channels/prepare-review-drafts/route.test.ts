@@ -35,6 +35,8 @@ const baseWorkItem = {
       triggering_event: 'The Social Content review flow made the gate visible.',
       why_vambah_can_speak: 'Vambah is building and reviewing the system directly.',
       evidence_summary: 'Review path and visual gate work shipped locally.',
+      brand_goal: 'Show AmaduTown\'s governed AI operating model.',
+      audience: 'Product leaders and operators evaluating agentic AI.',
       content_angle: 'AI should reduce burden, but only when authority and evidence are separated.',
       suggested_hook: 'AI should reduce burden.',
       claim_boundaries: ['Do not imply publishing is automated.'],
@@ -179,6 +181,84 @@ describe('/api/admin/agents/work-items/[id]/social-channels/prepare-review-draft
     expect(mocks.updateAgentWorkItemMetadata).not.toHaveBeenCalled()
   })
 
+  it('fails closed when a non-campaign insight lacks voice and audience calibration', async () => {
+    const workItem = cloneBaseWorkItem()
+    workItem.metadata.insight.why_vambah_can_speak = ''
+    workItem.metadata.insight.brand_goal = ''
+    workItem.metadata.insight.audience = ''
+    mocks.getAgentWorkItem.mockResolvedValue(workItem)
+
+    const response = await POST(request() as never, { params: { id: 'work-1' } })
+    const body = await response.json()
+
+    expect(response.status).toBe(422)
+    expect(body).toMatchObject({
+      current_gate: 'content_enrichment',
+      revision_state: 'revision_needed',
+      enrichment_receipt: {
+        status: 'blocked',
+        checks: {
+          voice_calibration: { status: 'blocked' },
+          avatar_and_visuals: { status: 'pending_visual_stage' },
+        },
+      },
+    })
+    expect(body.blockers).toEqual(expect.arrayContaining([
+      'Audience calibration is missing.',
+      'Brand goal is missing.',
+      'Vambah-specific speaker authority is missing.',
+    ]))
+    expect(mocks.updateAgentWorkItemMetadata).not.toHaveBeenCalled()
+  })
+
+  it('hydrates missing campaign calibration and records a truthful enrichment receipt', async () => {
+    const workItem = cloneBaseWorkItem()
+    workItem.metadata.insight.why_vambah_can_speak = ''
+    workItem.metadata.insight.brand_goal = ''
+    workItem.metadata.insight.audience = ''
+    Object.assign(workItem.metadata, {
+      source: 'social_content_calendar_authorization',
+      calendar_item_id: 'calendar-1',
+      campaign_id: 'campaign-1',
+      social_content_id: 'draft-1',
+      campaign_phase: 'teach',
+      channel: 'youtube',
+    })
+    mocks.getAgentWorkItem.mockResolvedValue(workItem)
+
+    const response = await POST(request() as never, { params: { id: 'work-1' } })
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(body.drafts.linkedin.enrichment_receipt).toMatchObject({
+      status: 'passed',
+      synthesized_campaign_fields: ['why_vambah_can_speak', 'brand_goal', 'audience'],
+      checks: {
+        research_frameworks: { status: 'passed', approved_pattern_count: 1 },
+        voice_calibration: {
+          status: 'passed',
+          reference_ids: expect.arrayContaining(['linkedin-builder-insight-production-readiness']),
+          provenance: expect.arrayContaining(['docs/linkedin-voice.md']),
+        },
+        editorial_challenger: {
+          status: 'passed',
+          reviewer: 'Amina ruleset',
+          implementation: 'deterministic_pre_human_gate',
+        },
+        avatar_and_visuals: {
+          status: 'pending_visual_stage',
+          avatar_policy: 'required_before_render',
+          provider_generation_started: false,
+        },
+      },
+    })
+    expect(preparedLanes().linkedin.draft_packet.shared_source).toMatchObject({
+      audience: expect.stringContaining('Product leaders'),
+      brand_goal: expect.stringContaining('AmaduTown'),
+      speaker_authority: expect.stringContaining('I am building'),
+    })
+  })
+
   it('prepares channel review drafts without external side effects', async () => {
     const response = await POST(request() as never, {
       params: { id: 'work-1' },
@@ -193,6 +273,10 @@ describe('/api/admin/agents/work-items/[id]/social-channels/prepare-review-draft
           status: 'human_review_ready',
           prepared_channels: ['linkedin', 'youtube', 'youtube_shorts', 'instagram_reels', 'tiktok', 'x', 'thumbnail'],
           prepared_at: '2026-06-24T15:00:00.000Z',
+          copy_quality_gate: expect.objectContaining({
+            status: 'passed',
+            ruleset: 'social-content-final-copy-quality',
+          }),
         }),
         channel_lanes: expect.objectContaining({
           linkedin: expect.objectContaining({
@@ -210,7 +294,7 @@ describe('/api/admin/agents/work-items/[id]/social-channels/prepare-review-draft
                   format: expect.stringContaining('Thought-leadership post'),
                 }),
                 voice_translation: expect.objectContaining({
-                  source: expect.stringContaining('Vambah personality corpus'),
+                  source: expect.stringContaining('Public-safe Vambah voice calibration library'),
                 }),
                 visual_reinforcement: expect.objectContaining({
                   recommended_assets: expect.arrayContaining(['Framework illustration', 'App screenshot carousel']),
@@ -237,7 +321,7 @@ describe('/api/admin/agents/work-items/[id]/social-channels/prepare-review-draft
               }),
               fields: expect.objectContaining({
                 full_video_script: expect.arrayContaining([
-                  expect.stringContaining('Core argument: AI should reduce burden'),
+                  'AI should reduce burden, but only when authority and evidence are separated.',
                 ]),
                 upload_readiness: 'pending_final_human_submission_gate',
                 visibility_default: 'private',
@@ -418,12 +502,61 @@ describe('/api/admin/agents/work-items/[id]/social-channels/prepare-review-draft
     expect(publicText).not.toContain('Agentified book and workbook rollout campaign')
     expect(publicText).not.toContain('Prepared from the Agentified campaign packet')
     expect(publicText).not.toContain('internal source basis')
+    expect(publicText).not.toMatch(/\bVambah\b/i)
     expect(lanes.youtube.draft_packet.fields.reviewer_trace).toMatchObject({
       evidence_summary: 'Prepared from the Agentified campaign packet and internal source basis.',
       source_urls: ['https://example.com/public-pattern'],
     })
     expect(lanes.thumbnail.draft_packet.fields.primary_text).toBe('Receipts Before Reach')
     expect(lanes.thumbnail.draft_packet.fields.primary_text).not.toContain('Agentified')
+  })
+
+  it('normalizes third-person references to Vambah out of public channel copy', async () => {
+    const workItem = cloneBaseWorkItem()
+    workItem.metadata.insight = {
+      ...workItem.metadata.insight,
+      title: 'Vambah explains the review gate',
+      triggering_event: 'Vambah is reviewing the campaign handoff.',
+      content_angle: 'Vambah has a practical test for trustworthy automation.',
+      suggested_hook: "Vambah's rule is simple.",
+      why_vambah_can_speak: 'Vambah built and reviewed the workflow.',
+    }
+    mocks.getAgentWorkItem.mockResolvedValue(workItem)
+
+    const response = await POST(request() as never, { params: { id: 'work-1' } })
+
+    expect(response.status).toBe(200)
+    const lanes = preparedLanes()
+    const publicText = nonXPublicDraftText(lanes)
+    expect(publicText).not.toMatch(/\bVambah\b/i)
+    expect(lanes.linkedin.draft_packet.fields.post_text).toContain('A working AI workflow still needs a visible approval path.')
+    expect(lanes.linkedin.draft_packet.fields.post_text).toContain('I built and reviewed the workflow.')
+    expect(lanes.youtube.draft_packet.fields.full_video_script).toContain('I built and reviewed the workflow.')
+  })
+
+  it('blocks channel packets before persistence when public fields contain internal production notes', async () => {
+    const workItem = cloneBaseWorkItem()
+    workItem.metadata.insight = {
+      ...workItem.metadata.insight,
+      content_angle: 'Reviewer note: publish this framing as written.',
+    }
+    mocks.getAgentWorkItem.mockResolvedValue(workItem)
+
+    const response = await POST(request() as never, { params: { id: 'work-1' } })
+    const body = await response.json()
+
+    expect(response.status).toBe(422)
+    expect(body).toMatchObject({
+      current_gate: 'final_copy_quality',
+      revision_state: 'revision_needed',
+      quality_gate: {
+        status: 'blocked',
+        findings: expect.arrayContaining([
+          expect.objectContaining({ code: 'production_script_label' }),
+        ]),
+      },
+    })
+    expect(mocks.updateAgentWorkItemMetadata).not.toHaveBeenCalled()
   })
   it('preserves campaign lineage in every review packet without putting IDs in copy', async () => {
     const item = cloneBaseWorkItem()

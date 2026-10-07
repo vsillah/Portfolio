@@ -124,6 +124,7 @@ function SocialInsightDetailContent() {
   const [decisionNote, setDecisionNote] = useState('')
   const [savingLane, setSavingLane] = useState<SocialChannelLaneStatus | null>(null)
   const [preparingReviewDrafts, setPreparingReviewDrafts] = useState(false)
+  const [approvingAllLanes, setApprovingAllLanes] = useState(false)
   const [researchPackets, setResearchPackets] = useState<Record<string, unknown>[] | null>(null)
   const [selectedPacket, setSelectedPacket] = useState('')
   const [researchBusy, setResearchBusy] = useState(false)
@@ -171,7 +172,15 @@ function SocialInsightDetailContent() {
   const activeLane = lanes[activeTab]
   const activeLaneHasReviewDraft = hasReviewDraft(activeLane)
   const activeLaneNeedsReviewDraft = activeTab !== 'thumbnail' && !activeLaneHasReviewDraft
+  const activeEnrichmentReceipt = asRecord(asRecord(activeLane.draft_packet).enrichment_receipt)
+  const activeLaneNeedsEnrichment = activeLaneHasReviewDraft && asString(activeEnrichmentReceipt.status) !== 'passed'
   const canPrepareReviewDrafts = approvedResearchPatterns.length > 0
+  const allLanesApprovalReady = SOCIAL_CONTENT_INTELLIGENCE_CHANNELS.every((channel) => {
+    const lane = lanes[channel]
+    const receipt = asRecord(asRecord(lane.draft_packet).enrichment_receipt)
+    return hasReviewDraft(lane) && asString(receipt.status) === 'passed'
+  })
+  const allLanesApproved = SOCIAL_CONTENT_INTELLIGENCE_CHANNELS.every((channel) => lanes[channel].status === 'approved')
 
   useEffect(() => {
     setDecisionNote(activeLane?.decision_note ?? '')
@@ -270,6 +279,25 @@ function SocialInsightDetailContent() {
     }
   }, [authedFetch, id])
 
+  const approveAllLanes = useCallback(async () => {
+    setError(null)
+    setLaneNotice(null)
+    setApprovingAllLanes(true)
+    try {
+      const response = await authedFetch(`/api/admin/agents/work-items/${id}/social-channels/approve-all`, {
+        method: 'PATCH',
+      })
+      const body = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(body.error || `Bulk approval HTTP ${response.status}`)
+      setItem(body.work_item ?? null)
+      setLaneNotice('All seven channel lanes marked approved. No rendering or publishing action ran.')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to approve all channel lanes')
+    } finally {
+      setApprovingAllLanes(false)
+    }
+  }, [authedFetch, id])
+
   return (
     <div className="agent-ops-page min-h-screen min-w-0 break-words p-3 sm:p-5 text-foreground lg:p-7">
       <div className="mx-auto max-w-7xl">
@@ -299,7 +327,7 @@ function SocialInsightDetailContent() {
               <button
                 type="button"
                 onClick={load}
-                disabled={loading || researchBusy || preparingReviewDrafts}
+                disabled={loading || researchBusy || preparingReviewDrafts || approvingAllLanes}
                 className="agent-ops-button-secondary disabled:opacity-60"
               >
                 <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
@@ -308,12 +336,22 @@ function SocialInsightDetailContent() {
               <button
                 type="button"
                 onClick={prepareReviewDrafts}
-                disabled={loading || researchBusy || preparingReviewDrafts || !canPrepareReviewDrafts}
+                disabled={loading || researchBusy || preparingReviewDrafts || approvingAllLanes || !canPrepareReviewDrafts}
                 title={canPrepareReviewDrafts ? undefined : 'Link approved research patterns before preparing channel review drafts.'}
                 className="agent-ops-button-primary max-w-full whitespace-normal disabled:opacity-60"
               >
                 <FileText size={16} />
                 {preparingReviewDrafts ? 'Preparing...' : 'Prepare Channel Review Drafts'}
+              </button>
+              <button
+                type="button"
+                onClick={approveAllLanes}
+                disabled={loading || researchBusy || preparingReviewDrafts || approvingAllLanes || !allLanesApprovalReady || allLanesApproved}
+                title={!allLanesApprovalReady ? 'Every lane needs a prepared draft and passing enrichment receipt.' : undefined}
+                className="inline-flex max-w-full items-center justify-center gap-2 whitespace-normal rounded-lg border border-emerald-500/45 bg-emerald-500/10 px-4 py-2 text-sm font-semibold text-emerald-100 transition hover:bg-emerald-500/15 disabled:opacity-60"
+              >
+                <CheckCircle2 size={16} />
+                {approvingAllLanes ? 'Approving All...' : allLanesApproved ? 'All Lanes Approved' : 'Approve All Lanes'}
               </button>
             </div>
           </div>
@@ -455,6 +493,11 @@ function SocialInsightDetailContent() {
                           Prepare channel review drafts before approving this lane.
                         </p>
                       ) : null}
+                      {activeLaneNeedsEnrichment ? (
+                        <p className="mt-1 text-sm text-amber-100">
+                          This legacy packet has no passing content enrichment receipt. Regenerate channel review drafts before approval.
+                        </p>
+                      ) : null}
                     </div>
                     {laneNotice ? (
                       <span className="inline-flex w-fit rounded-full border border-emerald-500/35 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-100">
@@ -494,7 +537,7 @@ function SocialInsightDetailContent() {
                     <button
                       type="button"
                       onClick={() => updateLane('approved')}
-                      disabled={savingLane !== null || activeLaneNeedsReviewDraft || activeLane.status === 'approved'}
+                      disabled={savingLane !== null || activeLaneNeedsReviewDraft || activeLaneNeedsEnrichment || activeLane.status === 'approved'}
                       className="inline-flex items-center justify-center gap-2 rounded-lg border border-emerald-500/45 bg-emerald-500/10 px-4 py-2 text-sm font-semibold text-emerald-100 transition hover:bg-emerald-500/15 disabled:opacity-60"
                     >
                       <CheckCircle2 size={16} />
@@ -569,7 +612,7 @@ function StrategyEvidencePanel({ evidence }: { evidence: Record<string, unknown>
       </summary>
       <div className="mt-3 grid gap-3 xl:grid-cols-2">
         <div className="rounded-md border border-radiant-gold/20 bg-background/35 p-3">
-          <p className="text-xs uppercase tracking-wide text-muted-foreground">Agents called</p>
+          <p className="text-xs uppercase tracking-wide text-muted-foreground">Agent responsibilities</p>
           <ul className="mt-2 space-y-2 text-xs leading-5 text-muted-foreground">
             {agents.map((agent) => (
               <li key={`${asString(agent.name)}-${asString(agent.role)}`}>
@@ -655,6 +698,12 @@ function ChannelInputs({
   const sharedSource = asRecord(draftPacket.shared_source)
   const sharedSourceTitle = asString(sharedSource.insight_title)
   const orchestrationEvidence = asRecord(draftPacket.orchestration_evidence)
+  const enrichmentReceipt = asRecord(draftPacket.enrichment_receipt)
+  const enrichmentChecks = asRecord(enrichmentReceipt.checks)
+  const researchCheck = asRecord(enrichmentChecks.research_frameworks)
+  const voiceCheck = asRecord(enrichmentChecks.voice_calibration)
+  const editorialCheck = asRecord(enrichmentChecks.editorial_challenger)
+  const visualCheck = asRecord(enrichmentChecks.avatar_and_visuals)
   const sideEffects = asRecord(draftPacket.side_effects)
   const disabledSideEffects = [
     ['provider_generation', 'provider generation'],
@@ -704,6 +753,21 @@ function ChannelInputs({
               No side effects authorized: {disabledSideEffects.join(', ')}.
             </p>
           ) : null}
+          {Object.keys(enrichmentReceipt).length ? (
+            <div className="mt-2 rounded-md border border-emerald-400/20 bg-background/35 px-3 py-2 text-xs leading-5 text-emerald-100">
+              <p className="font-semibold">Content enrichment receipt: {asString(enrichmentReceipt.status)}</p>
+              <p className="mt-1 text-muted-foreground">
+                Frameworks {asString(researchCheck.status)} ({String(researchCheck.approved_pattern_count ?? 0)}) · Voice {asString(voiceCheck.status)} · Editorial gate {asString(editorialCheck.status)} · Avatar/visuals {asString(visualCheck.status)}
+              </p>
+              <p className="mt-1 text-muted-foreground">
+                Avatar policy: {formatInputLabel(asString(visualCheck.avatar_policy) || 'pending before render')}. No media provider has been called.
+              </p>
+            </div>
+          ) : (
+            <p className="mt-2 rounded-md border border-amber-400/30 bg-amber-500/10 px-3 py-2 text-xs leading-5 text-amber-100">
+              Legacy packet: framework, voice, editorial, and avatar-stage enrichment are not verified. Regenerate before approval.
+            </p>
+          )}
         </div>
       ) : null}
 
