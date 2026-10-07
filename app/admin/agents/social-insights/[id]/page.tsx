@@ -124,6 +124,7 @@ function SocialInsightDetailContent() {
   const [decisionNote, setDecisionNote] = useState('')
   const [savingLane, setSavingLane] = useState<SocialChannelLaneStatus | null>(null)
   const [preparingReviewDrafts, setPreparingReviewDrafts] = useState(false)
+  const [approvingAllLanes, setApprovingAllLanes] = useState(false)
   const [researchPackets, setResearchPackets] = useState<Record<string, unknown>[] | null>(null)
   const [selectedPacket, setSelectedPacket] = useState('')
   const [researchBusy, setResearchBusy] = useState(false)
@@ -174,6 +175,12 @@ function SocialInsightDetailContent() {
   const activeEnrichmentReceipt = asRecord(asRecord(activeLane.draft_packet).enrichment_receipt)
   const activeLaneNeedsEnrichment = activeLaneHasReviewDraft && asString(activeEnrichmentReceipt.status) !== 'passed'
   const canPrepareReviewDrafts = approvedResearchPatterns.length > 0
+  const allLanesApprovalReady = SOCIAL_CONTENT_INTELLIGENCE_CHANNELS.every((channel) => {
+    const lane = lanes[channel]
+    const receipt = asRecord(asRecord(lane.draft_packet).enrichment_receipt)
+    return hasReviewDraft(lane) && asString(receipt.status) === 'passed'
+  })
+  const allLanesApproved = SOCIAL_CONTENT_INTELLIGENCE_CHANNELS.every((channel) => lanes[channel].status === 'approved')
 
   useEffect(() => {
     setDecisionNote(activeLane?.decision_note ?? '')
@@ -272,6 +279,25 @@ function SocialInsightDetailContent() {
     }
   }, [authedFetch, id])
 
+  const approveAllLanes = useCallback(async () => {
+    setError(null)
+    setLaneNotice(null)
+    setApprovingAllLanes(true)
+    try {
+      const response = await authedFetch(`/api/admin/agents/work-items/${id}/social-channels/approve-all`, {
+        method: 'PATCH',
+      })
+      const body = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(body.error || `Bulk approval HTTP ${response.status}`)
+      setItem(body.work_item ?? null)
+      setLaneNotice('All seven channel lanes marked approved. No rendering or publishing action ran.')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to approve all channel lanes')
+    } finally {
+      setApprovingAllLanes(false)
+    }
+  }, [authedFetch, id])
+
   return (
     <div className="agent-ops-page min-h-screen min-w-0 break-words p-3 sm:p-5 text-foreground lg:p-7">
       <div className="mx-auto max-w-7xl">
@@ -301,7 +327,7 @@ function SocialInsightDetailContent() {
               <button
                 type="button"
                 onClick={load}
-                disabled={loading || researchBusy || preparingReviewDrafts}
+                disabled={loading || researchBusy || preparingReviewDrafts || approvingAllLanes}
                 className="agent-ops-button-secondary disabled:opacity-60"
               >
                 <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
@@ -310,12 +336,22 @@ function SocialInsightDetailContent() {
               <button
                 type="button"
                 onClick={prepareReviewDrafts}
-                disabled={loading || researchBusy || preparingReviewDrafts || !canPrepareReviewDrafts}
+                disabled={loading || researchBusy || preparingReviewDrafts || approvingAllLanes || !canPrepareReviewDrafts}
                 title={canPrepareReviewDrafts ? undefined : 'Link approved research patterns before preparing channel review drafts.'}
                 className="agent-ops-button-primary max-w-full whitespace-normal disabled:opacity-60"
               >
                 <FileText size={16} />
                 {preparingReviewDrafts ? 'Preparing...' : 'Prepare Channel Review Drafts'}
+              </button>
+              <button
+                type="button"
+                onClick={approveAllLanes}
+                disabled={loading || researchBusy || preparingReviewDrafts || approvingAllLanes || !allLanesApprovalReady || allLanesApproved}
+                title={!allLanesApprovalReady ? 'Every lane needs a prepared draft and passing enrichment receipt.' : undefined}
+                className="inline-flex max-w-full items-center justify-center gap-2 whitespace-normal rounded-lg border border-emerald-500/45 bg-emerald-500/10 px-4 py-2 text-sm font-semibold text-emerald-100 transition hover:bg-emerald-500/15 disabled:opacity-60"
+              >
+                <CheckCircle2 size={16} />
+                {approvingAllLanes ? 'Approving All...' : allLanesApproved ? 'All Lanes Approved' : 'Approve All Lanes'}
               </button>
             </div>
           </div>

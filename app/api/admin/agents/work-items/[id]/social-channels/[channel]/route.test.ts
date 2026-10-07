@@ -37,6 +37,7 @@ const baseWorkItem = {
         required_inputs: ['post text', 'CTA'],
         draft_packet: {
           channel: 'linkedin',
+          enrichment_receipt: { status: 'passed' },
           fields: {
             post_text: 'LinkedIn draft',
           },
@@ -167,6 +168,31 @@ describe('/api/admin/agents/work-items/[id]/social-channels/[channel]', () => {
     expect(response.status).toBe(400)
     expect(await response.json()).toEqual({
       error: 'Prepare the channel review draft before approving this lane',
+    })
+    expect(mocks.updateAgentWorkItemMetadata).not.toHaveBeenCalled()
+  })
+
+  it('requires a passing enrichment receipt before approving a prepared lane', async () => {
+    mocks.getAgentWorkItem.mockResolvedValue({
+      ...baseWorkItem,
+      metadata: {
+        channel_lanes: {
+          linkedin: {
+            status: 'in_review',
+            label: 'LinkedIn',
+            draft_packet: { fields: { post_text: 'Legacy copy' } },
+          },
+        },
+      },
+    })
+
+    const response = await PATCH(request({ status: 'approved' }) as never, {
+      params: { id: 'work-1', channel: 'linkedin' },
+    })
+
+    expect(response.status).toBe(409)
+    expect(await response.json()).toEqual({
+      error: 'Regenerate the channel review draft with a passing enrichment receipt before approval',
     })
     expect(mocks.updateAgentWorkItemMetadata).not.toHaveBeenCalled()
   })

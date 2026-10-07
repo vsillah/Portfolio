@@ -109,6 +109,42 @@ function enrichmentReceipt() {
   }
 }
 
+function approvalReadyWorkItem(status = 'in_review') {
+  const base = socialWorkItem()
+  const channels = [
+    ['linkedin', 'LinkedIn'],
+    ['youtube', 'YouTube'],
+    ['youtube_shorts', 'YouTube Shorts'],
+    ['instagram_reels', 'Instagram Reels'],
+    ['tiktok', 'TikTok'],
+    ['x', 'X'],
+    ['thumbnail', 'Thumbnail'],
+  ]
+  return {
+    ...base,
+    metadata: {
+      ...base.metadata,
+      channel_lanes: Object.fromEntries(channels.map(([channel, label]) => [channel, {
+        status,
+        label,
+        draft_packet: {
+          channel,
+          approval_status: status,
+          enrichment_receipt: enrichmentReceipt(),
+          fields: { copy: `${label} review copy` },
+          side_effects: {
+            provider_generation: false,
+            upload: false,
+            publish: false,
+            schedule: false,
+            external_post: false,
+          },
+        },
+      }])),
+    },
+  }
+}
+
 describe('SocialInsightDetailPage', () => {
   beforeEach(() => {
     vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
@@ -271,6 +307,22 @@ describe('SocialInsightDetailPage', () => {
           }),
         }
       }
+      if (url === '/api/admin/agents/work-items/work-social-1/social-channels/approve-all') {
+        return {
+          ok: true,
+          json: async () => ({
+            success: true,
+            work_item: approvalReadyWorkItem('approved'),
+            side_effects: {
+              provider_generation: false,
+              upload: false,
+              publish: false,
+              schedule: false,
+              external_post: false,
+            },
+          }),
+        }
+      }
       if (url === '/api/admin/agents/work-items/work-social-1/social-channels/linkedin') {
         const body = JSON.parse(String(init?.body ?? '{}'))
         return {
@@ -374,7 +426,7 @@ describe('SocialInsightDetailPage', () => {
 
   it('blocks approval for a legacy draft without a passing enrichment receipt', async () => {
     const legacy = socialWorkItem()
-    legacy.metadata.channel_lanes.linkedin = {
+    Object.assign(legacy.metadata.channel_lanes.linkedin, {
       ...legacy.metadata.channel_lanes.linkedin,
       status: 'in_review',
       draft_packet: {
@@ -382,7 +434,7 @@ describe('SocialInsightDetailPage', () => {
         generated_at: '2026-06-23T15:00:00.000Z',
         fields: { post_text: 'Legacy draft copy.' },
       },
-    }
+    })
     vi.mocked(fetch).mockImplementationOnce(async () => ({
       ok: true,
       json: async () => ({ work_item: legacy }),
@@ -432,6 +484,23 @@ describe('SocialInsightDetailPage', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Approved' }))
     expect(vi.mocked(fetch).mock.calls.filter(([input]) => String(input) === '/api/admin/agents/work-items/work-social-1/social-channels/linkedin')).toHaveLength(1)
+  })
+
+  it('approves every receipt-backed lane with one bulk action', async () => {
+    vi.mocked(fetch).mockImplementationOnce(async () => ({
+      ok: true,
+      json: async () => ({ work_item: approvalReadyWorkItem() }),
+    }) as Response)
+    render(<SocialInsightDetailPage />)
+
+    await screen.findByRole('heading', { name: 'Approval gates create trust' })
+    fireEvent.click(screen.getByRole('button', { name: 'Approve All Lanes' }))
+
+    expect(await screen.findByText('All seven channel lanes marked approved. No rendering or publishing action ran.')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'All Lanes Approved' })).toBeDisabled()
+    const bulkCall = vi.mocked(fetch).mock.calls.find(([input]) => String(input).endsWith('/social-channels/approve-all'))
+    expect(bulkCall?.[1]).toMatchObject({ method: 'PATCH' })
+    expect(vi.mocked(fetch).mock.calls.filter(([input]) => /\/social-channels\/(linkedin|youtube|youtube_shorts|instagram_reels|tiktok|x|thumbnail)$/.test(String(input)))).toHaveLength(0)
   })
 
   it('prepares channel review drafts from the shared insight', async () => {
