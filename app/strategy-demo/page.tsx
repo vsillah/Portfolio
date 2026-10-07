@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import StrategyDemoLauncher from './StrategyDemoLauncher'
 
 const strategyDashboardUrl =
-  'https://strategy-evidence-dashboard.vercel.app/?x-vercel-protection-bypass=e155b45630f7b6bbc9a33fc50f1fb59d&qa=debrand-production#view=strategy&profileId=bd-osj-principal&strategyTrack=lifecycle'
+  'https://strategy-evidence-dashboard.vercel.app/?x-vercel-protection-bypass=e155b45630f7b6bbc9a33fc50f1fb59d&x-vercel-set-bypass-cookie=true&qa=debrand-production#view=strategy&profileId=bd-osj-principal&strategyTrack=lifecycle'
 
 export const metadata: Metadata = {
   title: 'Strategy Dashboard | AmaduTown',
