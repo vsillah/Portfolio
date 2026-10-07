@@ -42,6 +42,11 @@ export async function POST(request: NextRequest) {
 
   for (const job of jobs) {
     try {
+      // A retry is a new asset. Campaign renders must re-enter the linked editorial gate.
+      if (job.target_type === 'campaign' || job.script_source === 'campaign') {
+        errors.push(`Job ${job.id.slice(0, 8)}: reopen the linked Social Content editorial review before a campaign retry.`)
+        continue
+      }
       const heygenResult = await createVideo({
         script: job.script_text,
         avatarId: job.avatar_id ?? undefined,

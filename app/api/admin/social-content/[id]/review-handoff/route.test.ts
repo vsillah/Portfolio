@@ -1,3 +1,4 @@
+import { qualify } from '@/scripts/qa/campaign-video-fixture'
 import { beforeEach, it, expect, vi } from 'vitest'
 import { NextRequest } from 'next/server'
 vi.mock('@/lib/supabase', async () => import('@/scripts/qa/linkedin-video-fixture'))
@@ -26,6 +27,7 @@ it('rejects a lost CAS update without claiming success', async () => {
 })
 it('attaches a known completed job, approves its exact asset, then invalidates on replacement', async () => {
   const item = tables.social_content_queue[0], job = tables.video_generation_jobs[0]
+  qualify(item, tables.social_content_calendar_items[0], tables.agent_work_items[0], tables.video_generation_jobs.slice(0, 2))
   expect((await write({ action: 'attach_video', expected_updated_at: item.updated_at, job_id: job.id, job_version: 'stale' })).status).toBe(409)
   expect((await write({ action: 'attach_video', expected_updated_at: item.updated_at, job_id: job.id, job_version: job.updated_at })).status).toBe(200)
   item.status = 'approved'

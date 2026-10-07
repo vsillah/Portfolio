@@ -45,7 +45,8 @@ it('loads the existing render library and previews a selected job without attach
   fireEvent.click(screen.getByText('Preview completed job'))
   await screen.findByLabelText('Final LinkedIn video')
   expect(fetch.mock.calls.every(([, options]) => options?.method === 'GET')).toBe(true)
-  expect(screen.getByText('Attach this video · reset media approval')).toBeEnabled()
+  expect(screen.getByText('Attach this video · reset media approval')).toBeDisabled()
+  expect(screen.getByText(/Render status: completed · Ineligible/)).toBeVisible()
 })
 
 it('exposes an Instagram canonical record only after its linked approved LinkedIn packet is validated', async () => {
@@ -63,4 +64,13 @@ it('does not expose unrelated Instagram-only records or rejected linked packet e
   view.rerender(<LinkedInReviewSurface item={{ ...item, rag_context: { calendar_item_id: 'unrelated' } }} onRefresh={vi.fn()} />)
   await waitFor(() => expect(fetch).toHaveBeenCalledTimes(1))
   expect(screen.queryByRole('region', { name: 'Campaign and video review' })).not.toBeInTheDocument()
+})
+it('discards cached candidate eligibility when the saved item version changes', async () => {
+  vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({ jobs: [{ id: 'job', drive_file_name: 'Current campaign', eligibility: { eligible: true, blockers: [] } }] })))
+  const item = { id: 'draft', status: 'approved', updated_at: 'v1' }
+  const view = render(<SocialVideoReview item={item} onRefresh={vi.fn()} />)
+  fireEvent.click(screen.getByText('Load completed videos'))
+  await screen.findByLabelText('Choose a completed video')
+  view.rerender(<SocialVideoReview item={{ ...item, updated_at: 'v2' }} onRefresh={vi.fn()} />)
+  expect(screen.queryByLabelText('Choose a completed video')).not.toBeInTheDocument()
 })

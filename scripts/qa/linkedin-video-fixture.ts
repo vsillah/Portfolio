@@ -6,6 +6,8 @@ export let loseUpdate = false
 export const setLoseUpdate = (value: boolean) => { loseUpdate = value }
 export function reset() {
   loseUpdate = false
+  tables.heygen_config = [{ asset_type: 'avatar', asset_id: 'synthetic-avatar', is_default: true }, { asset_type: 'voice', asset_id: 'synthetic-voice', is_default: true }]
+  tables.social_content_publishes = []
   const id = 'video-review-qa', calendarId = 'calendar-qa', workId = 'work-qa', campaignId = 'campaign-qa'
   tables.social_content_queue = [{ id, status: 'draft', updated_at: '2026-10-06T00:00:00.000Z', created_at: '2026-10-06T00:00:00.000Z', post_text: 'The original draft waits here for review.', topic_extracted: 'A clearer approval path', cta_text: null, cta_url: null, hashtags: [], platform: 'instagram', target_platforms: ['instagram'], content_format: 'text', publishes: [], rag_context: { source: 'social_content_calendar_authorization', calendar_item_id: calendarId, campaign_id: campaignId } }]
   tables.social_content_calendar_items = [{ id: calendarId, social_content_id: id, campaign_id: campaignId, channel: 'instagram_reels', authorization_status: 'authorized', metadata: { platform_draft_handoff: { work_item_id: workId } } }]
@@ -18,7 +20,7 @@ export const verifyAdmin = async () => ({ user })
 export const isAuthError = () => false
 export const supabaseAdmin = { storage: { from: () => ({ createSignedUrl: async (path: string) => ({ data: { signedUrl: `https://media.example.invalid/${path}` }, error: null }) }) }, from(table: string) {
   let filters: Array<(row: any) => boolean> = [], patch: any, one = false
-  const q: any = { select: () => q, eq: (key: string, value: unknown) => { filters.push(row => row[key] === value); return q }, single: () => { one = true; return q }, maybeSingle: () => { one = true; return q }, update: (value: any) => { patch = value; return q }, then(resolve: any) {
+  const q: any = { select: () => q, is: (key: string, value: unknown) => { filters.push(row => (row[key] ?? null) === value); return q }, order: () => q, limit: () => q, eq: (key: string, value: unknown) => { filters.push(row => row[key] === value); return q }, single: () => { one = true; return q }, maybeSingle: () => { one = true; return q }, update: (value: any) => { patch = value; return q }, then(resolve: any) {
     if (!tables[table]) throw new Error(`Unexpected fixture table ${table}`)
     const rows = patch && loseUpdate ? [] : tables[table].filter(row => filters.every(f => f(row)))
     if (patch) rows.forEach(row => Object.assign(row, structuredClone(patch)))

@@ -1,3 +1,4 @@
+import { screenVideoEditorial } from './video-editorial-quality'
 export type VideoScriptTemplateSourceType = 'seeded' | 'creator_pattern' | 'amadutown_performance'
 
 export type VideoScriptTemplateOutline = {
@@ -234,7 +235,7 @@ export function evaluateVideoScript(input: {
     ? scorePresence(outline.source_distance_notes, 60)
     : 92
 
-  const blockers: string[] = []
+  const blockers: string[] = [...screenVideoEditorial(script).blockers]
   const warnings: string[] = []
   const notes: string[] = []
 

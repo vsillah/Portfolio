@@ -1,0 +1,7 @@
+app/admin/campaigns/[id]/page.test.tsx(228,45): error TS2322: Type 'null' is not assignable to type 'string'.
+app/admin/campaigns/[id]/page.test.tsx(228,62): error TS2322: Type 'null' is not assignable to type 'string'.
+components/admin/CampaignResearchBinding.test.tsx(13,65): error TS2322: Type 'Mock<Procedure | Constructable>' is not assignable to type '(url: string, init?: RequestInit | undefined) => Promise<Response>'.
+  Type 'MockInstance<Procedure | Constructable> & (new (...args: any[]) => any) & {}' is not assignable to type '(url: string, init?: RequestInit | undefined) => Promise<Response>'.
+    Type 'MockInstance<Procedure | Constructable> & (new (...args: any[]) => any) & {}' provides no match for the signature '(url: string, init?: RequestInit | undefined): Promise<Response>'.
+lib/social-comment-inbox-ui.test.ts(51,5): error TS1117: An object literal cannot have multiple properties with the same name.
+lib/social-comment-inbox-ui.test.ts(52,5): error TS1117: An object literal cannot have multiple properties with the same name.

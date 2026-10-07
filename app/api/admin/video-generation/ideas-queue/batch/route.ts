@@ -144,7 +144,7 @@ export async function POST(request: NextRequest) {
         console.warn('[Ideas queue batch] Skipping idea (script too long)', idea.id)
         continue
       }
-      const scorecard = idea.script_scorecard ?? evaluateVideoScript({
+      const scorecard = evaluateVideoScript({
         scriptText,
         outline: idea.script_outline,
         researchPacketCount: Array.isArray(idea.research_packet_ids) ? idea.research_packet_ids.length : 0,

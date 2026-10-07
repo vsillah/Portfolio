@@ -1,3 +1,4 @@
+import { screenVideoEditorial } from './video-editorial-quality'
 /**
  * HeyGen API integration for avatar video generation.
  * Uses REST API (x-api-key auth). MCP is Cursor-side only.
@@ -563,6 +564,8 @@ export interface CreateVideoParams {
  * otherwise uses createAvatarVideo. Brand Glossary applied when using template + HEYGEN_BRAND_VOICE_ID.
  */
 export async function createVideo(params: CreateVideoParams): Promise<CreateAvatarVideoResult> {
+  const editorial = screenVideoEditorial(params.script)
+  if (editorial.blockers.length) return { videoId: null, error: `Editorial screening blocked render: ${editorial.blockers.join(' ')}` }
   const templateId =
     params.templateId ?? process.env.HEYGEN_TEMPLATE_ID
   const brandVoiceId =
