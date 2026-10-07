@@ -11,7 +11,7 @@ export function fixture() {
   return { item, calendar, work, packet }
 }
 const now = '2026-10-07T00:00:00Z'
-const job: any = { id: '11111111-1111-4111-8111-111111111111', updated_at: now, heygen_status: 'completed', video_url: 'https://example.invalid/final.mp4', thumbnail_url: null }
+const job: any = { id: '11111111-1111-4111-8111-111111111111', updated_at: now, heygen_status: 'completed', video_url: 'portfolio-video:11111111-1111-4111-8111-111111111111', media_version: 'a'.repeat(64), thumbnail_url: null }
 describe('campaign handoff', () => {
   it('preserves the whole approved packet and previous human copy, resets approval, and repeats without writes', () => {
     const f = fixture(), p = campaignReviewPreview(f.item, f.calendar, f.work)
@@ -46,13 +46,13 @@ describe('exact video review', () => {
     expect(() => prepareMediaReview(attached, job, version, true, 'a', now)).toThrow('Approve copy first')
     attached.status = 'approved'
     expect(() => prepareMediaReview(attached, job, version, false, 'a', now)).toThrow()
-    expect(() => prepareMediaReview(attached, { ...job, updated_at: 'new' }, version, true, 'a', now)).toThrow('asset changed')
+    expect(() => prepareMediaReview(attached, { ...job, media_version: 'b'.repeat(64) }, version, true, 'a', now)).toThrow('asset changed')
     Object.assign(attached, prepareMediaReview(attached, job, version, true, 'a', now))
     expect(socialVideoReviewReady(attached)).toBe(true)
     expect(prepareVideoAttachment(attached, job, 'a', now)).toBeNull()
-    const newVersion = { ...attached, ...prepareVideoAttachment(attached, { ...job, updated_at: '2026-10-08T00:00:00Z' }, 'a', now) }
+    const newVersion = { ...attached, ...prepareVideoAttachment(attached, { ...job, updated_at: '2026-10-08T00:00:00Z', media_version: 'b'.repeat(64) }, 'a', now) }
     expect(socialVideoReviewReady(newVersion)).toBe(false)
-    const replaced = { ...attached, ...prepareVideoAttachment(attached, { ...job, video_url: 'https://example.invalid/replacement.mp4' }, 'a', now) }
+    const replaced = { ...attached, ...prepareVideoAttachment(attached, { ...job, video_url: 'portfolio-video:21111111-1111-4111-8111-111111111111', media_version: 'b'.repeat(64) }, 'a', now) }
     expect(socialVideoReviewReady(replaced)).toBe(false)
     expect(replaced.rag_context.platform_submission_gate.status).toBe('pending')
   })

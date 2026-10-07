@@ -37,7 +37,7 @@ it('does not replace unsaved editor changes', async () => {
 })
 it('loads the existing render library and previews a selected job without attaching it', async () => {
   const fetch = vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(new Response(JSON.stringify({ jobs: [{ id: 'job-1', drive_file_name: 'Reviewed workflow' }] })))
-    .mockResolvedValueOnce(new Response(JSON.stringify({ job: { id: 'job-1', updated_at: 'version', heygen_status: 'completed', video_url: 'https://example.invalid/final.mp4' } })))
+    .mockResolvedValueOnce(new Response(JSON.stringify({ job: { id: 'job-1', updated_at: 'version', heygen_status: 'completed', video_url: 'portfolio-video:11111111-1111-4111-8111-111111111111', playback_url: 'https://example.invalid/final.mp4' } })))
   render(<SocialVideoReview item={{ id: 'draft', status: 'draft', updated_at: 'now' }} onRefresh={vi.fn()} />)
   fireEvent.click(screen.getByText('Load completed videos'))
   const select = await screen.findByLabelText('Choose a completed video')

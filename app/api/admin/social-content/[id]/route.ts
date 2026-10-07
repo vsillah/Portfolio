@@ -1,3 +1,4 @@
+import { videoPlayback } from '@/lib/video-media-archive'
 import { isCalendarSocialCopy, prepareSocialImageAttachment, prepareManualCopyUpdate, withSocialCopyRevision } from '@/lib/social-copy-revision'
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
@@ -140,10 +141,12 @@ export async function GET(
         .select('id, heygen_video_id, heygen_status, video_url, video_share_url, thumbnail_url, avatar_id, voice_id, broll_asset_ids, created_at, updated_at')
         .eq('id', socialVideoState.video_generation_job_id)
         .maybeSingle()
-      socialVideoJob = mapVideoGenerationJob(job)
+      const playback = job?.video_url ? await videoPlayback(supabaseAdmin, job.video_url) : null
+      socialVideoJob = mapVideoGenerationJob(job ? { ...job, video_url: playback?.playback_url || null } : null)
     }
+    const mediaPlayback = data.video_url ? await videoPlayback(supabaseAdmin, data.video_url) : null
     const socialVideoProduction = buildSocialVideoProductionProjection({
-      item: data,
+      item: { ...data, video_url: mediaPlayback?.playback_url || null },
       defaults,
       favoriteAvatars: avatars.filter((asset) => asset.is_favorite),
       favoriteVoices: voices.filter((asset) => asset.is_favorite),
@@ -153,6 +156,8 @@ export async function GET(
     return NextResponse.json({
       item: {
         ...withSocialCopyRevision(data),
+        video_playback_url: mediaPlayback?.playback_url || null,
+        video_media_blocker: mediaPlayback?.media_blocker || null,
         meeting_record: meetingRecord,
         publishes: publishes || [],
         social_video_production: socialVideoProduction,

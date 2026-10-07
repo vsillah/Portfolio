@@ -7,7 +7,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import crypto from 'crypto'
 import { supabaseAdmin } from '@/lib/supabase'
-import { runVideoCompletionHandlers } from '@/lib/video-completion-handlers'
+import { persistVideoCompletion } from '@/lib/video-media-archive'
 
 export const dynamic = 'force-dynamic'
 
@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
 
     const { data: job, error: jobErr } = await supabaseAdmin
       .from('video_generation_jobs')
-      .select('id, heygen_video_id, heygen_status, video_url, video_record_id, script_text, channel, aspect_ratio, thumbnail_url')
+      .select('id, heygen_video_id, heygen_status, video_url, video_record_id, script_text, channel, aspect_ratio, thumbnail_url, provider_video_url, deleted_at')
       .eq('heygen_video_id', videoId)
       .single()
 
@@ -92,79 +92,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ received: true }, { status: 200 })
     }
 
-    // Idempotency: only update if still pending or processing
-    if (job.heygen_status === 'completed' || job.heygen_status === 'failed') {
-      console.log('[HeyGen webhook] Job already terminal', job.id, job.heygen_status)
-      return NextResponse.json({ received: true }, { status: 200 })
+    if (job.deleted_at) return NextResponse.json({ received: true })
+    if (eventType === 'avatar_video.success') {
+      // Repeated success receipts may repair an incomplete archive; the helper owns idempotency.
+      const result = await persistVideoCompletion(supabaseAdmin, job, eventData?.url || job.provider_video_url || job.video_url)
+      return NextResponse.json({ received: true, archive_ready: !result.media_blocker })
     }
-
-    const isSuccess = eventType === 'avatar_video.success'
-    const update: Record<string, unknown> = {
-      heygen_status: isSuccess ? 'completed' : 'failed',
-      updated_at: new Date().toISOString(),
-    }
-    if (eventData?.url) update.video_url = eventData.url
-    if (eventData?.thumbnail_url) update.thumbnail_url = eventData.thumbnail_url
-    if (eventData?.video_share_page_url) update.video_share_url = eventData.video_share_page_url
-    if (!isSuccess && eventData?.error_message) update.error_message = eventData.error_message
-
-    const { error: updateErr } = await supabaseAdmin
-      .from('video_generation_jobs')
-      .update(update)
-      .eq('id', job.id)
-
-    if (updateErr) {
-      console.error('[HeyGen webhook] Failed to update job', job.id, updateErr)
-      return NextResponse.json({ received: true }, { status: 200 })
-    }
-
-    console.log('[HeyGen webhook] Job updated', job.id, 'video_id', videoId, 'status', update.heygen_status)
-
-    let videoRecordId = job.video_record_id
-    if (isSuccess && (eventData?.url ?? job.video_url) && !videoRecordId) {
-      const finalVideoUrl = (eventData?.url ?? job.video_url) as string
-      const thumbnailUrl = (eventData?.thumbnail_url ?? job.thumbnail_url) as string | null | undefined
-      const { data: videoRow } = await supabaseAdmin
-        .from('videos')
-        .insert({
-          title: `Generated video (${job.channel ?? 'youtube'})`,
-          description: (job.script_text ?? '').slice(0, 200) || null,
-          video_url: finalVideoUrl,
-          thumbnail_url: thumbnailUrl ?? null,
-          display_order: 0,
-          is_published: false,
-          video_generation_job_id: job.id,
-        })
-        .select('id')
-        .single()
-
-      if (videoRow?.id) {
-        videoRecordId = videoRow.id
-        await supabaseAdmin
-          .from('video_generation_jobs')
-          .update({
-            video_record_id: videoRecordId,
-            video_url: finalVideoUrl,
-            thumbnail_url: thumbnailUrl ?? null,
-            updated_at: new Date().toISOString(),
-          })
-          .eq('id', job.id)
-      }
-    }
-
-    const updatedJob = {
-      id: job.id,
-      heygen_video_id: job.heygen_video_id,
-      heygen_status: update.heygen_status as string,
-      video_url: (update.video_url ?? job.video_url) as string | null,
-      script_text: job.script_text,
-      channel: job.channel,
-      aspect_ratio: job.aspect_ratio,
-    }
-    try {
-      await runVideoCompletionHandlers(updatedJob)
-    } catch (handlerErr) {
-      console.error('[HeyGen webhook] Completion handler error', job.id, handlerErr)
+    if (job.heygen_status !== 'completed') {
+      await supabaseAdmin.from('video_generation_jobs').update({ heygen_status: 'failed', error_message: eventData?.error_message || 'Provider render failed' }).eq('id', job.id)
     }
 
     return NextResponse.json({ received: true }, { status: 200 })

@@ -122,6 +122,8 @@ interface DriveQueueItem {
 }
 
 interface VideoJob {
+  media_blocker?: string | null
+  video_reference?: string | null
   id: string
   script_source: string
   script_text: string
@@ -1511,6 +1513,21 @@ export default function VideoGenerationPage() {
   const [previewJob, setPreviewJob] = useState<VideoJob | null>(null)
   const [refreshingUrl, setRefreshingUrl] = useState<string | null>(null)
 
+  const [archiveMessage, setArchiveMessage] = useState('')
+  const [archiveBusy, setArchiveBusy] = useState(false)
+  const recoverVideoArchive = async (jobId: string, action: 'archive' | 'refresh_provider') => {
+    const token = await getToken()
+    if (!token) return
+    setArchiveBusy(true)
+    try {
+      const response = await fetch('/api/admin/video-generation/status', { method: 'POST', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ jobId, action }) })
+      const data = await response.json()
+      setArchiveMessage(data.error || data.media_blocker || data.message || 'Private archive ready. Return to Social Content and attach this version.')
+      await fetchJobs()
+      const refreshed = await fetch(`/api/admin/video-generation/jobs?id=${encodeURIComponent(jobId)}`, { headers: { Authorization: `Bearer ${token}` } }).then(r => r.json())
+      if (refreshed.jobs?.[0]) setPreviewJob(previous => previous?.id === jobId ? refreshed.jobs[0] : previous)
+    } catch { setArchiveMessage('Archive recovery failed. Reload the job before retrying.') } finally { setArchiveBusy(false) }
+  }
   const refreshJobStatus = async (jobId: string) => {
     const token = await getToken()
     if (!token) return
@@ -1524,13 +1541,11 @@ export default function VideoGenerationPage() {
     const token = await getToken()
     if (!token) { setRefreshingUrl(null); return }
     try {
-      const res = await fetch(`/api/admin/video-generation/status?jobId=${job.id}`, {
+      const res = await fetch(`/api/admin/video-generation/jobs?id=${encodeURIComponent(job.id)}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       const data = await res.json()
-      if (data.videoUrl) {
-        setPreviewJob(prev => prev && prev.id === job.id ? { ...prev, video_url: data.videoUrl } : prev)
-      }
+      if (data.jobs?.[0]) setPreviewJob(prev => prev && prev.id === job.id ? data.jobs[0] : prev)
       fetchJobs()
     } catch { /* ignore */ }
     finally { setRefreshingUrl(null) }
@@ -1686,9 +1701,9 @@ export default function VideoGenerationPage() {
         title: job.drive_file_name ?? (job.script_text.slice(0, 64) || 'Video generation job'),
         channel: job.channel,
         stage: 'Generated review',
-        nextAction: job.video_url ? 'Review the internal render' : 'Track generation status',
-        statusLabel: job.video_url || job.heygen_status === 'completed' ? 'Ready' : job.heygen_status ?? 'Pending',
-        statusTone: job.video_url || job.heygen_status === 'completed' ? 'done' : job.heygen_status === 'failed' ? 'blocked' : 'pending',
+        nextAction: job.media_blocker ? 'Recover the private video archive' : job.video_url ? 'Review the internal render' : 'Track generation status',
+        statusLabel: job.media_blocker ? 'Media blocked' : job.video_url ? 'Ready' : job.heygen_status ?? 'Pending',
+        statusTone: job.video_url && !job.media_blocker ? 'done' : job.media_blocker || job.heygen_status === 'failed' ? 'blocked' : 'pending',
         priorityLabel: 'Normal priority',
         jobIds: [job.id],
         brollAssetIds: job.broll_asset_ids ?? [],
@@ -2341,11 +2356,12 @@ export default function VideoGenerationPage() {
                                     <div className="text-sm font-semibold text-foreground">{job.drive_file_name ?? 'Generated video job'}</div>
                                     <div className="mt-1 text-[10px] text-gray-500">{job.channel} · {job.aspect_ratio} · {safeDateLabel(job.created_at)}</div>
                                   </div>
-                                  <span className={`rounded-full border px-2 py-0.5 text-[10px] font-medium ${statusToneClass(job.video_url || job.heygen_status === 'completed' ? 'done' : job.heygen_status === 'failed' ? 'blocked' : 'pending')}`}>
-                                    {job.video_url || job.heygen_status === 'completed' ? 'Ready' : job.heygen_status ?? 'Pending'}
+                                  <span className={`rounded-full border px-2 py-0.5 text-[10px] font-medium ${statusToneClass(job.video_url && !job.media_blocker ? 'done' : job.media_blocker || job.heygen_status === 'failed' ? 'blocked' : 'pending')}`}>
+                                    {job.media_blocker ? 'Media blocked' : job.video_url ? 'Ready' : job.heygen_status ?? 'Pending'}
                                   </span>
                                 </div>
-                                {job.video_url ? (
+                                {job.media_blocker && <div className="mt-3 space-y-2 text-sm text-amber-200"><p>{job.media_blocker}</p><div className="flex flex-wrap gap-2"><button disabled={archiveBusy} onClick={() => recoverVideoArchive(job.id, 'refresh_provider')} className="rounded border border-gray-600 px-3 py-2 disabled:opacity-50">Refresh provider input</button><button disabled={archiveBusy} onClick={() => recoverVideoArchive(job.id, 'archive')} className="rounded border border-gray-600 px-3 py-2 disabled:opacity-50">Recover private archive</button></div>{archiveMessage && <p role="status">{archiveMessage}</p>}</div>}
+                                {job.video_url && !job.media_blocker ? (
                                   <div className="mt-3">
                                     <video src={job.video_url} controls className="max-h-80 w-full rounded-md border border-silicon-slate bg-black" />
                                   </div>
@@ -3696,7 +3712,7 @@ export default function VideoGenerationPage() {
                         className="flex items-center gap-1 rounded-lg border border-silicon-slate px-3 py-2 text-xs font-medium text-gray-300 hover:border-radiant-gold/40 disabled:opacity-50"
                       >
                         {refreshingUrl === latestCompletedReviewJob.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
-                        Refresh URL
+                        Refresh playback link
                       </button>
                     </div>
                   </div>
@@ -3749,7 +3765,8 @@ export default function VideoGenerationPage() {
                       )}
                       {(job.heygen_status === 'completed' || job.video_url) && (
                         <>
-                          <span className="flex items-center gap-1 text-[10px] text-emerald-400"><CheckCircle className="w-3 h-3" /> Done</span>
+                          <span className="flex items-center gap-1 text-[10px] text-emerald-400"><CheckCircle className="w-3 h-3" /> {job.media_blocker ? 'Render complete · media blocked' : 'Ready'}</span>
+                          {job.media_blocker && <button onClick={() => setPreviewJob(job)} className="text-xs text-amber-200">Media blocked · Recover</button>}
                           {job.video_url && (
                             <button onClick={() => setPreviewJob(job)} className="flex items-center gap-1 text-[10px] text-radiant-gold hover:text-gold-light">
                               <Play className="w-3 h-3" /> View
@@ -3820,10 +3837,10 @@ export default function VideoGenerationPage() {
                     onClick={() => refreshVideoUrl(previewJob)}
                     disabled={refreshingUrl === previewJob.id}
                     className="flex items-center gap-1 text-[10px] px-2 py-1 rounded bg-radiant-gold/10 text-radiant-gold hover:bg-radiant-gold/20 disabled:opacity-50"
-                    title="Refresh video URL (HeyGen URLs expire after 7 days)"
+                    title="Issue a fresh private playback link"
                   >
                     {refreshingUrl === previewJob.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <RefreshCw className="w-3 h-3" />}
-                    Refresh URL
+                    Refresh playback link
                   </button>
                   {previewJob.video_share_url && (
                     <a
@@ -3849,7 +3866,8 @@ export default function VideoGenerationPage() {
                   </button>
                 </div>
               </div>
-              <div className="bg-black flex items-center justify-center">
+              <div className="bg-black flex flex-col items-center justify-center">
+                {previewJob.media_blocker && <div className="space-y-2 p-4 text-sm text-amber-200"><p>{previewJob.media_blocker}</p><button disabled={archiveBusy} onClick={() => recoverVideoArchive(previewJob.id, 'refresh_provider')} className="mr-2 rounded border p-2">Refresh provider input</button><button disabled={archiveBusy} onClick={() => recoverVideoArchive(previewJob.id, 'archive')} className="rounded border p-2">Recover private archive</button><p role="status">{archiveMessage}</p></div>}
                 {previewJob.video_url ? (
                   <video
                     key={previewJob.video_url}
@@ -3857,28 +3875,22 @@ export default function VideoGenerationPage() {
                     controls
                     autoPlay
                     className="w-full max-h-[70vh]"
-                    onError={(e) => {
-                      const target = e.currentTarget
-                      if (!target.dataset.retried) {
-                        target.dataset.retried = '1'
-                        refreshVideoUrl(previewJob)
-                      }
-                    }}
+                    onError={() => setPreviewJob({ ...previewJob, video_url: null, media_blocker: 'Playback failed. Refresh the playback link or recover the archive.' })}
                   >
                     Your browser does not support the video tag.
                   </video>
-                ) : (
+                ) : !previewJob.media_blocker ? (
                   <div className="flex flex-col items-center gap-3 py-16 text-gray-500">
                     <Video className="w-10 h-10" />
-                    <p className="text-sm">No video URL available</p>
+                    <p className="text-sm">{previewJob.media_blocker || 'No private playback link available'}</p>
                     <button
                       onClick={() => refreshVideoUrl(previewJob)}
                       className="flex items-center gap-1 text-xs text-radiant-gold hover:text-gold-light"
                     >
-                      <RefreshCw className="w-3 h-3" /> Try refreshing from HeyGen
+                      <RefreshCw className="w-3 h-3" /> Refresh playback link
                     </button>
                   </div>
-                )}
+                ) : null}
               </div>
             </motion.div>
           </motion.div>

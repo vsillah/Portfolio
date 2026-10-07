@@ -46,6 +46,8 @@ export interface HormoziFramework {
 }
 
 export interface SocialContentItem {
+  video_playback_url?: string | null
+  video_media_blocker?: string | null
   id: string
   meeting_record_id: string | null
   platform: SocialPlatform

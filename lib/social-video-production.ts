@@ -278,7 +278,7 @@ export function buildSocialVideoProductionProjection(input: {
   const jobStatus = input.job?.heygenStatus
   const status: SocialVideoProductionStatus = input.job
     ? jobStatus === 'completed'
-      ? 'completed'
+      ? finalVideoUrl ? 'completed' : 'blocked'
       : jobStatus === 'failed'
         ? 'failed'
         : jobStatus === 'processing'
@@ -290,7 +290,7 @@ export function buildSocialVideoProductionProjection(input: {
   const readyForRenderApproval = !input.job && blockers.length === 0
   const nextAction = input.job
     ? jobStatus === 'completed'
-      ? 'Review the final video and thumbnail, then keep YouTube submission behind the final platform gate.'
+      ? finalVideoUrl ? 'Review the final video and thumbnail, then keep YouTube submission behind the final platform gate.' : 'Open Video Generation to recover the private archive before media review.'
       : jobStatus === 'failed'
         ? 'Inspect the HeyGen job failure before requesting a new render.'
         : 'Wait for the HeyGen job to finish or refresh the video generation job status.'

@@ -4,7 +4,7 @@ const { execFileSync } = require('node:child_process')
 const base = 'http://127.0.0.1:4027', out = path.resolve('docs/social-content/qa/linkedin-video'), tmp = path.resolve('test-results/linkedin-video')
 fs.mkdirSync(out, { recursive: true }); fs.mkdirSync(tmp, { recursive: true })
 ;(async () => {
- await esbuild.build({ stdin: { contents: `export {GET, POST} from './app/api/admin/social-content/[id]/review-handoff/route'; export {reset,tables,user} from './scripts/qa/linkedin-video-fixture';`, resolveDir: process.cwd(), loader: 'ts' }, bundle: true, platform: 'node', packages: 'external', outfile: `${tmp}/handlers.cjs`, plugins: [{ name: 'fixture', setup(b) { b.onResolve({ filter: /^@\/lib\/(supabase|auth-server)$/ }, () => ({ path: path.resolve('scripts/qa/linkedin-video-fixture.ts') })) } }] })
+ await esbuild.build({ stdin: { contents: `export {GET, POST} from './app/api/admin/social-content/[id]/review-handoff/route'; export {videoPlayback} from './lib/video-media-archive'; export {reset,tables,user,supabaseAdmin} from './scripts/qa/linkedin-video-fixture';`, resolveDir: process.cwd(), loader: 'ts' }, bundle: true, platform: 'node', packages: 'external', outfile: `${tmp}/handlers.cjs`, plugins: [{ name: 'fixture', setup(b) { b.onResolve({ filter: /^@\/lib\/(supabase|auth-server)$/ }, () => ({ path: path.resolve('scripts/qa/linkedin-video-fixture.ts') })) } }] })
  const h = require(`${tmp}/handlers.cjs`), { NextRequest } = require('next/server'), results = []
  const browser = await chromium.launch()
  for (const width of [390, 768, 1440]) {
@@ -23,7 +23,7 @@ fs.mkdirSync(out, { recursive: true }); fs.mkdirSync(tmp, { recursive: true })
    if (u.origin === 'http://127.0.0.1:3999' && u.pathname === '/auth/v1/user') return json(h.user)
    if (u.hostname === 'media.example.invalid') return r.fulfill({ contentType: 'video/mp4', body: fs.readFileSync('public/prototypes/portfolio-pipeline-hero/higgsfield-light-mode-hero-loop-web-20260628.mp4') })
    if (u.origin !== base) { external.push(u.origin + u.pathname); return r.abort() }
-   if (u.pathname === '/api/admin/video-generation/jobs') return json({ jobs: h.tables.video_generation_jobs.map((job, index) => ({ ...job, drive_file_name: `Synthetic workflow video ${index + 1}` })) })
+   if (u.pathname === '/api/admin/video-generation/jobs') return json({ jobs: await Promise.all(h.tables.video_generation_jobs.map(async (job, index) => ({ ...job, ...await h.videoPlayback(h.supabaseAdmin, job.video_url), drive_file_name: `Synthetic workflow video ${index + 1}` }))) })
    if (u.pathname === '/api/user/profile') return json({ profile: { ...h.user, role: 'admin' } })
    const item = h.tables.social_content_queue[0]
    if (u.pathname === `/api/admin/social-content/${item.id}/review-handoff`) {
@@ -31,7 +31,7 @@ fs.mkdirSync(out, { recursive: true }); fs.mkdirSync(tmp, { recursive: true })
     const response = await h[method](new NextRequest(u, { method, ...(method !== 'GET' ? { body: r.request().postData() || '{}' } : {}) }), { params: { id: item.id } })
     return json(await response.json(), response.status)
    }
-   if (u.pathname === `/api/admin/social-content/${item.id}`) return json({ item })
+   if (u.pathname === `/api/admin/social-content/${item.id}`) return json({ item: { ...item, video_playback_url: item.video_url ? (await h.videoPlayback(h.supabaseAdmin, item.video_url)).playback_url : null } })
    if (u.pathname.startsWith('/api/')) { if (method !== 'GET') throw new Error('Unexpected mutation ' + u.pathname); return json({ data: [], items: [], configs: [], references: [], count: 0 }) }
    return r.continue()
   })
@@ -46,6 +46,11 @@ fs.mkdirSync(out, { recursive: true }); fs.mkdirSync(tmp, { recursive: true })
   await panel.getByText('Apply reviewed copy to this draft').click(); await expect(panel.getByText('Saved for internal review. External submission remains separate.')).toBeVisible()
   await panel.getByText('Compare approved campaign copy').click(); await expect(panel.getByText('Apply reviewed copy to this draft')).toBeDisabled()
   await panel.getByText('Load completed videos').click()
+  await panel.getByLabel('Choose a completed video').selectOption(h.tables.video_generation_jobs[2].id)
+  await panel.getByText('Preview completed job').click()
+  await expect(panel.getByText('Attach this video · reset media approval')).toBeDisabled()
+  await expect(panel.locator('video')).toHaveCount(0)
+  await shot('expired-media-blocked')
   await panel.getByLabel('Choose a completed video').selectOption(h.tables.video_generation_jobs[0].id)
   await panel.getByText('Preview completed job').click(); await expect(panel.getByText('Attach this video · reset media approval')).toBeEnabled()
   await panel.getByText('Attach this video · reset media approval').click()

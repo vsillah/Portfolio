@@ -4,7 +4,7 @@ import { NextRequest } from 'next/server'
 
 const mocks = vi.hoisted(() => ({
   from: vi.fn(),
-  runVideoCompletionHandlers: vi.fn(),
+  persistVideoCompletion: vi.fn(),
 }))
 
 vi.mock('@/lib/supabase', () => ({
@@ -13,8 +13,8 @@ vi.mock('@/lib/supabase', () => ({
   },
 }))
 
-vi.mock('@/lib/video-completion-handlers', () => ({
-  runVideoCompletionHandlers: mocks.runVideoCompletionHandlers,
+vi.mock('@/lib/video-media-archive', () => ({
+  persistVideoCompletion: mocks.persistVideoCompletion,
 }))
 
 import { POST } from './route'
@@ -78,7 +78,7 @@ describe('POST /api/webhooks/heygen', () => {
     vi.clearAllMocks()
     restoreEnv()
     process.env.HEYGEN_WEBHOOK_SECRET = SECRET
-    mocks.runVideoCompletionHandlers.mockResolvedValue(undefined)
+    mocks.persistVideoCompletion.mockResolvedValue({ media_blocker: null })
     vi.spyOn(console, 'error').mockImplementation(() => {})
     vi.spyOn(console, 'warn').mockImplementation(() => {})
     vi.spyOn(console, 'log').mockImplementation(() => {})
@@ -137,10 +137,10 @@ describe('POST /api/webhooks/heygen', () => {
 
     expect(response.status).toBe(200)
     await expect(response.json()).resolves.toEqual({ received: true })
-    expect(mocks.runVideoCompletionHandlers).not.toHaveBeenCalled()
+    expect(mocks.persistVideoCompletion).not.toHaveBeenCalled()
   })
 
-  it('skips terminal jobs without re-updating', async () => {
+  it('routes repeated completion receipts through the idempotent archive helper', async () => {
     const single = vi.fn().mockResolvedValue({
       data: jobRow({ heygen_status: 'completed' }),
       error: null,
@@ -155,57 +155,15 @@ describe('POST /api/webhooks/heygen', () => {
 
     expect(response.status).toBe(200)
     expect(update).not.toHaveBeenCalled()
-    expect(mocks.runVideoCompletionHandlers).not.toHaveBeenCalled()
+    expect(mocks.persistVideoCompletion).toHaveBeenCalledOnce()
   })
 
-  it('marks success, inserts a video row when missing, and runs completion handlers', async () => {
+  it('delegates completion persistence to the shared archive helper without exporting provider media', async () => {
     const job = jobRow()
-    const selectSingle = vi.fn().mockResolvedValue({ data: job, error: null })
-    const jobUpdateEq = vi.fn().mockResolvedValue({ error: null })
-    const jobUpdate = vi.fn().mockReturnValue({ eq: jobUpdateEq })
-    const videoInsertSelectSingle = vi.fn().mockResolvedValue({ data: { id: 'video-1' }, error: null })
-    const videoInsertSelect = vi.fn().mockReturnValue({ single: videoInsertSelectSingle })
-    const videoInsert = vi.fn().mockReturnValue({ select: videoInsertSelect })
-
-    mocks.from.mockImplementation((table: string) => {
-      if (table === 'video_generation_jobs') {
-        return {
-          select: vi.fn().mockReturnValue({ eq: vi.fn().mockReturnValue({ single: selectSingle }) }),
-          update: jobUpdate,
-        }
-      }
-      if (table === 'videos') {
-        return { insert: videoInsert }
-      }
-      throw new Error(`Unexpected table: ${table}`)
-    })
-
+    mocks.from.mockReturnValue({ select: () => ({ eq: () => ({ single: async () => ({ data: job }) }) }) })
     const response = await POST(makeRequest(successBody()))
-
     expect(response.status).toBe(200)
-    expect(jobUpdate).toHaveBeenCalledWith(
-      expect.objectContaining({
-        heygen_status: 'completed',
-        video_url: 'https://cdn.example.com/video.mp4',
-        thumbnail_url: 'https://cdn.example.com/thumb.jpg',
-        video_share_url: 'https://heygen.example.com/share/1',
-      }),
-    )
-    expect(videoInsert).toHaveBeenCalledWith(
-      expect.objectContaining({
-        video_url: 'https://cdn.example.com/video.mp4',
-        video_generation_job_id: 'job-1',
-        is_published: false,
-      }),
-    )
-    expect(jobUpdateEq).toHaveBeenCalled()
-    expect(mocks.runVideoCompletionHandlers).toHaveBeenCalledWith(
-      expect.objectContaining({
-        id: 'job-1',
-        heygen_status: 'completed',
-        video_url: 'https://cdn.example.com/video.mp4',
-      }),
-    )
+    expect(mocks.persistVideoCompletion).toHaveBeenCalledWith(expect.any(Object), job, 'https://cdn.example.com/video.mp4')
   })
 
   it('persists failure error_message and still returns 200 if handlers throw', async () => {
@@ -217,7 +175,6 @@ describe('POST /api/webhooks/heygen', () => {
       select: vi.fn().mockReturnValue({ eq: vi.fn().mockReturnValue({ single: selectSingle }) }),
       update: jobUpdate,
     })
-    mocks.runVideoCompletionHandlers.mockRejectedValueOnce(new Error('handler boom'))
 
     const body = JSON.stringify({
       event_type: 'avatar_video.fail',
@@ -236,6 +193,6 @@ describe('POST /api/webhooks/heygen', () => {
         error_message: 'render failed',
       }),
     )
-    expect(mocks.runVideoCompletionHandlers).toHaveBeenCalled()
+    expect(mocks.persistVideoCompletion).not.toHaveBeenCalled()
   })
 })

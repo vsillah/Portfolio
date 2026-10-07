@@ -1,3 +1,4 @@
+import { videoPlayback } from '@/lib/video-media-archive'
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { supabaseAdmin } from '@/lib/supabase'
@@ -14,7 +15,7 @@ async function readJob(id: unknown) {
   if (typeof id !== 'string' || !/^[0-9a-f-]{36}$/i.test(id)) throw new Error('Enter the Video Generation job UUID.')
   const result = await supabaseAdmin.from('video_generation_jobs').select('id,heygen_status,video_url,thumbnail_url,updated_at,deleted_at').eq('id', id).single()
   if (result.error || !result.data) throw new Error('Video Generation job unavailable.')
-  return result.data
+  return { ...result.data, ...await videoPlayback(supabaseAdmin, result.data.video_url) }
 }
 async function preview(item: Awaited<ReturnType<typeof readItem>>) {
   const calendarId = record(item.rag_context).calendar_item_id

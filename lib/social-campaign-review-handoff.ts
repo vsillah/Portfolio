@@ -1,3 +1,4 @@
+import { archiveId } from './video-media-url'
 import { createHash } from 'node:crypto'
 import { hasSocialCopyReleaseEvidence, prepareManualCopyUpdate, socialCopyVersion } from './social-copy-revision'
 import { nextSocialReleaseVersion } from './social-release-safety'
@@ -54,10 +55,9 @@ export function prepareCampaignReviewHandoff(current: Row, preview: ReturnType<t
 export function prepareVideoAttachment(current: Row, job: Row, actor: string, now: string) {
   if (hasSocialCopyReleaseEvidence(current)) throw new Error('Resolve release or schedule evidence before replacing the video.')
   if (job.heygen_status !== 'completed' || job.deleted_at || !job.updated_at || typeof job.video_url !== 'string') throw new Error('Choose a completed, available Video Generation job.')
-  const url = new URL(job.video_url)
-  if (url.protocol !== 'https:' || url.username || url.password) throw new Error('The completed job needs a secure final video URL.')
+  if (!archiveId(job.video_url) || !/^[a-f0-9]{64}$/.test(String(job.media_version)) || job.media_blocker) throw new Error('This video needs a verified private archive before attachment. Open Video Generation to recover it.')
   const rag = record(current.rag_context)
-  const asset = { job_id: job.id, job_version: job.updated_at, url: job.video_url, thumbnail_url: job.thumbnail_url ?? null }
+  const asset = { job_id: job.id, job_version: job.media_version, url: job.video_url, thumbnail_url: job.thumbnail_url ?? null }
   if (socialVideoAssetVersion(current) === socialVideoAssetVersion({ video_url: job.video_url, rag_context: { reviewed_video_asset: asset } })) return null
   const gates = { ...record(rag.section_gate_reviews) }
   for (const key of ['visual_assets', 'asset_packet', 'privacy', 'linkedin_draft', 'platform_draft', 'submit']) gates[key] = { status: 'pending', invalidation_reason: 'video_replaced', invalidated_at: now }
@@ -71,7 +71,7 @@ export function prepareVideoAttachment(current: Row, job: Row, actor: string, no
 export function prepareMediaReview(current: Row, job: Row, expectedAsset: unknown, privacyConfirmed: unknown, actor: string, now: string) {
   if (hasSocialCopyReleaseEvidence(current)) throw new Error('Resolve release evidence before media review.')
   const version = socialVideoAssetVersion(current), asset = record(record(current.rag_context).reviewed_video_asset)
-  if (!version || expectedAsset !== version || asset.job_id !== job.id || asset.job_version !== job.updated_at || asset.url !== job.video_url || job.heygen_status !== 'completed' || job.deleted_at) throw new Error('The rendered asset changed. Attach and review the current completed job again.')
+  if (!version || expectedAsset !== version || asset.job_id !== job.id || asset.job_version !== job.media_version || !archiveId(job.video_url) || Boolean(job.media_blocker) || asset.url !== job.video_url || job.heygen_status !== 'completed' || job.deleted_at) throw new Error('The rendered asset changed. Attach and review the current completed job again.')
   if (current.status !== 'approved' || privacyConfirmed !== true) throw new Error('Approve copy first, then confirm the rendered video, rights, and privacy review.')
   return { updated_at: nextSocialReleaseVersion(current.updated_at, Date.parse(now)), rag_context: { ...record(current.rag_context), media_review: { status: 'approved', asset_version: version, approved_by: actor, approved_at: now, privacy_confirmed: true }, platform_submission_gate: { status: 'pending' } } }
 }
