@@ -63,6 +63,7 @@ fs.mkdirSync(out, { recursive: true }); fs.mkdirSync(tmp, { recursive: true })
     await expect(page.getByRole('button', { name: 'Open admin menu' })).toBeHidden()
   }
   const header = page.locator('[data-social-detail-header]')
+  await expect(header).toHaveCSS('background-color', 'rgb(3, 7, 18)') // Solid contrast above bright media.
   const post = page.getByLabel('LinkedIn post preview')
   const previewToggle = post.getByRole('button')
   await expect(previewToggle).toHaveAccessibleName('Read complete post')

@@ -3349,7 +3349,7 @@ function SocialContentDetailPage() {
       </AnimatePresence>
 
       {/* Sticky header — current decision and saved draft controls */}
-      <div data-social-detail-header className="sticky top-0 z-40 max-h-[40dvh] overflow-y-auto border-b border-gray-800 bg-background/95 px-4 py-2 backdrop-blur-md sm:px-6 lg:px-8" style={{ paddingTop: 'max(0.5rem, env(safe-area-inset-top))' }}>
+      <div data-social-detail-header className="sticky top-0 z-40 max-h-[40dvh] overflow-y-auto border-b border-gray-800 bg-gray-950 px-4 py-2 sm:px-6 lg:px-8" style={{ paddingTop: 'max(0.5rem, env(safe-area-inset-top))' }}>
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex min-w-0 flex-wrap items-center gap-2 sm:gap-3">
             <button
