@@ -1,3 +1,7 @@
+import { resolveVideoRenderInputs } from '@/lib/video-render-inputs'
+import { requireCampaignVideoRender } from '@/lib/campaign-video-render'
+import { campaignVideoIdentity, campaignVideoRenderBinding } from '@/lib/campaign-video-eligibility'
+import { currentEditorialReceipt } from '@/lib/video-editorial-quality'
 import { assertSocialQueueWritable, assertSocialQueuePublicationClear, updateSocialQueueWithVersion, SocialQueueWriteConflict } from '@/lib/social-queue-write'
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
@@ -116,6 +120,10 @@ export async function POST(
     }
 
     const ragContext = asRecord(item.rag_context)
+    let campaignId: string | null
+    try { campaignId = campaignVideoIdentity(item) }
+    catch (error) { return NextResponse.json({ error: error instanceof Error ? error.message : 'Campaign identity unavailable.' }, { status: 409 }) }
+    const effectiveRenderInputs = resolveVideoRenderInputs(asRecord(body))
     const existingState = getSocialVideoProductionState(ragContext)
     if (existingState?.video_generation_job_id) {
       const { data: existingJob } = await supabaseAdmin
@@ -189,16 +197,17 @@ export async function POST(
     ])
     const favoriteAvatars = avatars.filter((asset) => asset.is_favorite)
     const favoriteVoices = voices.filter((asset) => asset.is_favorite)
-    const avatarId = selectRotatingFavoriteAvatar({
+    const editorial = currentEditorialReceipt(item)
+    const avatarId = campaignId ? editorial?.avatar_id : selectRotatingFavoriteAvatar({
       defaults,
       favoriteAvatars,
       stableKey: `${params.id}:${asString(item.youtube_title) || productionAssets.video_script.title}`,
       lastAvatarId,
     })
-    const voiceId = selectFavoriteVoice({ defaults, favoriteVoices })
+    const voiceId = campaignId ? editorial?.voice_id : selectFavoriteVoice({ defaults, favoriteVoices })
     if (!avatarId || !voiceId) {
       return NextResponse.json({
-        error: 'Approved HeyGen avatar and voice must be configured before render preparation.',
+        error: campaignId ? 'Record a current campaign editorial and avatar review before render preparation.' : 'Approved HeyGen avatar and voice must be configured before render preparation.',
         social_video_production: buildSocialVideoProductionProjection({
           item,
           defaults,
@@ -255,6 +264,10 @@ export async function POST(
       }, { status: 409 })
     }
 
+    if (campaignId) {
+      try { await requireCampaignVideoRender({ socialContentId: item.id, campaignId, script: scriptText, channel: 'youtube', avatarId, voiceId, effectiveRenderInputs }) }
+      catch (error) { return NextResponse.json({ error: error instanceof Error ? error.message : 'Campaign editorial review required.' }, { status: 409 }) }
+    }
     const { data: matchingJobs, error: matchingJobsError } = await supabaseAdmin
       .from('video_generation_jobs')
       .select('id, heygen_video_id, heygen_status, video_url, video_share_url, thumbnail_url, avatar_id, voice_id, broll_asset_ids, created_at, updated_at')
@@ -271,7 +284,7 @@ export async function POST(
       return NextResponse.json({ error: 'Unable to verify existing HeyGen render jobs before preparation.' }, { status: 500 })
     }
 
-    const reusableJob = (Array.isArray(matchingJobs) ? matchingJobs : [])
+    const reusableJob = (!campaignId && Array.isArray(matchingJobs) ? matchingJobs : [])
       .map((row) => mapJob(asRecord(row)))
       .find((job): job is SocialVideoGenerationJobProjection => {
         return job !== null && job.id.length > 0 && sameStringSet(job.brollAssetIds, selectedBroll.ids)
@@ -329,6 +342,7 @@ export async function POST(
     }
 
     const result = await createVideo({
+      effectiveRenderInputs,
       script: scriptText,
       title: asString(item.youtube_title) || productionAssets.video_script.title || `Social Content video ${params.id}`,
       aspectRatio: '16:9',
@@ -345,6 +359,8 @@ export async function POST(
       .from('video_generation_jobs')
       .insert({
         script_source: 'campaign',
+        target_type: campaignId ? 'campaign' : null,
+        target_id: campaignId || null,
         script_text: scriptText,
         drive_file_id: null,
         drive_file_name: asString(item.youtube_title) || productionAssets.video_script.title,
@@ -381,6 +397,7 @@ export async function POST(
     const nextRagContext = {
       ...ragContext,
       social_video_production: storedState,
+      ...(campaignId ? { campaign_video_bindings: { ...asRecord(ragContext.campaign_video_bindings), [job.id]: campaignVideoRenderBinding(item, job.id) } } : {}),
     }
 
     const { data: savedQueue, error: updateError } = await updateSocialQueueWithVersion(supabaseAdmin, item, {

@@ -1,3 +1,4 @@
+import { editorialInputVersion } from './video-editorial-quality'
 import { createHash } from 'node:crypto'
 import { hasSubmissionOrPublishEvidence, validateSocialContentFinalCopyQuality, type LifecycleItem } from './social-content-lifecycle'
 
@@ -61,11 +62,18 @@ export function prepareManualCopyUpdate(input: {
   if ('rag_context' in patch) {
     const storedRag = record(current.rag_context)
     const safeRag = { ...storedRag, ...record(patch.rag_context) }
-    for (const key of ['platform_submission_gate', 'campaign_review_handoff', 'campaign_review_handoff_history', 'reviewed_video_asset', 'media_review']) {
+    for (const key of ['platform_submission_gate', 'campaign_review_handoff', 'campaign_review_handoff_history', 'reviewed_video_asset', 'media_review', 'campaign_video_editorial', 'campaign_video_bindings']) {
       if (key in storedRag) safeRag[key] = storedRag[key]
       else delete safeRag[key]
     }
     patch.rag_context = safeRag
+  }
+  if (editorialInputVersion({ ...current, ...patch }) !== editorialInputVersion(current)) {
+    const nextRag = { ...record(current.rag_context), ...record(patch.rag_context) }
+    patch.rag_context = { ...nextRag,
+      campaign_video_editorial: { ...record(nextRag.campaign_video_editorial), status: 'pending', invalidation_reason: 'script_or_assets_changed' },
+      media_review: { status: 'pending', invalidation_reason: 'script_or_assets_changed' },
+    }
   }
   if (socialCopyVersion({ ...current, ...patch }) !== socialCopyVersion(current) && record(current.rag_context).media_review) {
     patch.rag_context = { ...record(current.rag_context), ...record(patch.rag_context), media_review: { status: 'pending', invalidation_reason: 'copy_changed' } }

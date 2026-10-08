@@ -1,3 +1,4 @@
+import { campaignVideoContext } from './campaign-video-eligibility'
 import type { SocialContentItem } from '@/lib/social-content'
 import {
   getProductionAssets,
@@ -260,7 +261,10 @@ export function buildSocialVideoProductionProjection(input: {
     : stored?.selected_broll_asset_ids?.length
       ? stored.selected_broll_asset_ids
       : brollCandidates.map((asset) => asset.id)
+  const campaign = asRecord(item.rag_context)?.campaign_id || asRecord(item.rag_context)?.campaign_review_handoff ? campaignVideoContext(item) : null
+  const editorialBlockers = campaign ? [...campaign.blockers, ...(!campaign.receipt ? ['Record a current production-quality editorial review in Social Content before render.'] : [])] : []
   const blockers = [
+    ...editorialBlockers,
     !isYouTubeTarget ? 'This draft is not targeting YouTube.' : '',
     item.status !== 'approved' ? 'Copy must be approved before HeyGen preparation.' : '',
     !productionAssets ? 'Prepare the production asset packet before avatar video preparation.' : '',
@@ -276,7 +280,7 @@ export function buildSocialVideoProductionProjection(input: {
   const finalVideoUrl = input.job?.videoUrl || item.video_url || null
   const thumbnailUrl = input.job?.thumbnailUrl || item.image_url || null
   const jobStatus = input.job?.heygenStatus
-  const status: SocialVideoProductionStatus = input.job
+  const status: SocialVideoProductionStatus = editorialBlockers.length ? 'blocked' : input.job
     ? jobStatus === 'completed'
       ? finalVideoUrl ? 'completed' : 'blocked'
       : jobStatus === 'failed'
@@ -288,13 +292,13 @@ export function buildSocialVideoProductionProjection(input: {
       ? 'blocked'
       : 'ready_for_render_approval'
   const readyForRenderApproval = !input.job && blockers.length === 0
-  const nextAction = input.job
+  const nextAction = editorialBlockers[0] || (input.job
     ? jobStatus === 'completed'
       ? finalVideoUrl ? 'Review the final video and thumbnail, then keep YouTube submission behind the final platform gate.' : 'Open Video Generation to recover the private archive before media review.'
       : jobStatus === 'failed'
         ? 'Inspect the HeyGen job failure before requesting a new render.'
         : 'Wait for the HeyGen job to finish or refresh the video generation job status.'
-    : blockers[0] || 'Confirm internal render preparation to create the HeyGen avatar video job.'
+    : blockers[0] || 'Confirm internal render preparation to create the HeyGen avatar video job.')
 
   return {
     status,

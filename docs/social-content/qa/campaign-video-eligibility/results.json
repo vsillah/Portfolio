@@ -1,0 +1,65 @@
+[
+  {
+    "width": 390,
+    "canonical_platform": "instagram",
+    "target_platforms": [
+      "instagram"
+    ],
+    "calendar_channel": "instagram_reels",
+    "actions": [
+      "attach_video",
+      "approve_media",
+      "save_video_script",
+      "save_video_script",
+      "approve_editorial"
+    ],
+    "external_requests": 0,
+    "page_errors": [],
+    "copy_approval": "fixture precondition; not exercised",
+    "provider_calls": 0,
+    "production_mutations": 0,
+    "route": "http://127.0.0.1:4028/admin/social-content/video-review-qa?step=copy"
+  },
+  {
+    "width": 768,
+    "canonical_platform": "instagram",
+    "target_platforms": [
+      "instagram"
+    ],
+    "calendar_channel": "instagram_reels",
+    "actions": [
+      "attach_video",
+      "approve_media",
+      "save_video_script",
+      "save_video_script",
+      "approve_editorial"
+    ],
+    "external_requests": 0,
+    "page_errors": [],
+    "copy_approval": "fixture precondition; not exercised",
+    "provider_calls": 0,
+    "production_mutations": 0,
+    "route": "http://127.0.0.1:4028/admin/social-content/video-review-qa?step=copy"
+  },
+  {
+    "width": 1440,
+    "canonical_platform": "instagram",
+    "target_platforms": [
+      "instagram"
+    ],
+    "calendar_channel": "instagram_reels",
+    "actions": [
+      "attach_video",
+      "approve_media",
+      "save_video_script",
+      "save_video_script",
+      "approve_editorial"
+    ],
+    "external_requests": 0,
+    "page_errors": [],
+    "copy_approval": "fixture precondition; not exercised",
+    "provider_calls": 0,
+    "production_mutations": 0,
+    "route": "http://127.0.0.1:4028/admin/social-content/video-review-qa?step=copy"
+  }
+]

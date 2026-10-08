@@ -1,0 +1,19 @@
+
+ RUN  v4.0.18 /Users/vambahsillah/.codex/worktrees/d2b9/Portfolio
+
+ ✓ lib/video-script-intelligence.test.ts (3 tests) 4ms
+ ✓ lib/social-video-production.test.ts (5 tests) 2ms
+ ✓ lib/video-editorial-provider-gate.test.ts (1 test) 4ms
+ ✓ lib/video-render-inputs.test.ts (2 tests) 4ms
+ ✓ lib/campaign-video-render.test.ts (4 tests) 14ms
+ ✓ lib/campaign-video-eligibility.test.ts (20 tests) 20ms
+ ✓ app/api/admin/social-content/[id]/prepare-avatar-video/route.test.ts (8 tests) 15ms
+ ✓ app/api/admin/social-content/[id]/prepare-avatar-video/campaign-gates.test.ts (6 tests) 21ms
+ ✓ app/api/admin/social-content/[id]/review-handoff/campaign-eligibility.test.ts (3 tests) 19ms
+ ✓ app/api/admin/video-generation/generate/campaign-gates.test.ts (4 tests) 16ms
+ ✓ app/api/admin/social-content/[id]/review-handoff/route.test.ts (3 tests) 20ms
+
+ Test Files  11 passed (11)
+      Tests  59 passed (59)
+   Start at  06:05:43
+   Duration  512ms (transform 812ms, setup 462ms, import 996ms, tests 139ms, environment 2.94s)

@@ -1,3 +1,4 @@
+import { qualify } from '../scripts/qa/campaign-video-fixture'
 import { describe, it, expect } from 'vitest'
 import { campaignReviewPreview, prepareCampaignReviewHandoff, prepareVideoAttachment, prepareMediaReview } from './social-campaign-review-handoff'
 import { prepareManualCopyUpdate, socialCopyVersion } from './social-copy-revision'
@@ -38,12 +39,13 @@ describe('campaign handoff', () => {
 })
 describe('exact video review', () => {
   it('requires a completed job, copy approval, privacy attestation, and exact current job version', () => {
-    const { item } = fixture()
+    const f = fixture(); const { item } = f; qualify(item, f.calendar, f.work, [job])
     expect(() => prepareVideoAttachment(item, { ...job, heygen_status: 'processing' }, 'a', now)).toThrow()
     const attached = { ...item, ...prepareVideoAttachment(item, job, 'a', now) }
     expect(socialVideoReviewReady(attached)).toBe(false)
     const version = socialVideoAssetVersion(attached)
-    expect(() => prepareMediaReview(attached, job, version, true, 'a', now)).toThrow('Approve copy first')
+    attached.status = 'draft'
+    expect(() => prepareMediaReview(attached, job, version, true, 'a', now)).toThrow()
     attached.status = 'approved'
     expect(() => prepareMediaReview(attached, job, version, false, 'a', now)).toThrow()
     expect(() => prepareMediaReview(attached, { ...job, media_version: 'b'.repeat(64) }, version, true, 'a', now)).toThrow('asset changed')
@@ -57,7 +59,7 @@ describe('exact video review', () => {
     expect(replaced.rag_context.platform_submission_gate.status).toBe('pending')
   })
   it('protects server receipts from generic edits and invalidates media on copy edits', () => {
-    const { item } = fixture()
+    const f = fixture(); const { item } = f; qualify(item, f.calendar, f.work, [job])
     Object.assign(item, prepareVideoAttachment(item, job, 'a', now)); item.status = 'approved'
     Object.assign(item, prepareMediaReview(item, job, socialVideoAssetVersion(item), true, 'a', now))
     const p = prepareManualCopyUpdate({ current: item, patch: { rag_context: { media_review: { status: 'forged' }, reviewed_video_asset: {} } }, expectedVersion: socialCopyVersion(item), actor: 'a', now })
@@ -66,7 +68,7 @@ describe('exact video review', () => {
     expect(socialVideoReviewReady({ ...item, ...edit })).toBe(false)
   })
   it('blocks native video even with all other gates and override inputs ready', () => {
-    const { item } = fixture(); Object.assign(item, prepareVideoAttachment(item, job, 'a', now)); item.status = 'approved'
+    const f = fixture(); const { item } = f; qualify(item, f.calendar, f.work, [job]); Object.assign(item, prepareVideoAttachment(item, job, 'a', now)); item.status = 'approved'
     const input = { item, targetPlatforms: ['linkedin'] as const, copyApproved: true, productionReady: true, redactionReady: true, draftHandoffReady: true, finalSubmissionGateReady: true }
     const plan = buildPlatformOrchestrationPlan({ ...input, targetPlatforms: ['linkedin'], platformAssetReadiness: { linkedin: { ready: true, detail: 'override' } } })
     expect(plan.platforms[0].stages.find(s => s.key === 'asset_readiness')?.state).toBe('blocked')

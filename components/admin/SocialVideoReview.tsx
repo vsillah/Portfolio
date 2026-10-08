@@ -1,4 +1,5 @@
 'use client'
+import { VIDEO_EDITORIAL_CRITERIA } from '@/lib/video-editorial-quality'
 import { useEffect, useState } from 'react'
 import { archiveId, classifyVideoUrl, VIDEO_MEDIA_RECOVERY } from '@/lib/video-media-url'
 import { getCurrentSession } from '@/lib/auth'
@@ -12,9 +13,11 @@ export function ReviewedVideoPlayer({ url, poster, playbackUrl }: { url: string;
   if (!source || failed) return <p role="status" className="text-sm text-amber-200">{failed ? 'Video playback failed. Reload for a fresh link; if it still fails, recover the archive.' : media.reason || 'Private playback is unavailable. Reload this review.'} <a className="underline" href="/admin/content/video-generation">Open Video Generation</a></p>
   return <video key={source} onError={() => setFailedSource(source)} aria-label="Final LinkedIn video" controls playsInline preload="metadata" src={source} poster={poster || undefined} className="max-h-96 w-full rounded-lg border border-gray-700 bg-black">Your browser cannot play this video. <a href={source}>Open the final video</a></video>
 }
-type Item = { platform?: string; target_platforms?: string[] | null; id: string; updated_at: string; status: string; video_url?: string | null; rag_context?: unknown }
+type Item = { platform?: string; target_platforms?: string[] | null; id: string; updated_at: string; status: string; video_url?: string | null; rag_context?: unknown; voiceover_text?: string | null }
 type Preview = { packet_version: string; target_version: string; state: string; message: string; source_work_item_id: string; copy: { post_text: string; cta_text: string | null; cta_url: string | null; hashtags: string[] } }
-type Job = { id: string; updated_at: string; heygen_status: string; video_url: string; thumbnail_url: string | null; playback_url?: string | null; media_blocker?: string | null }
+type Eligibility = { eligible: boolean; label: string; blockers: string[] }
+type Editorial = { input_version: string; script: string; blockers: string[]; receipt: unknown; screening: { safety: { status: string }; production_quality: { status: string } } }
+type Job = { eligibility?: Eligibility; id: string; updated_at: string; heygen_status: string; video_url: string; thumbnail_url: string | null; playback_url?: string | null; media_blocker?: string | null }
 /** Cross-channel eligibility comes only from the server-validated linked packet. */
 export function LinkedInReviewSurface(props: { item: Item; hasUnsavedChanges?: boolean; onRefresh: () => Promise<unknown> }) {
   const { item } = props
@@ -39,10 +42,14 @@ export function LinkedInReviewSurface(props: { item: Item; hasUnsavedChanges?: b
   return nativeLinkedIn || eligibleKey === key ? <SocialVideoReview {...props} /> : null
 }
 export default function SocialVideoReview({ item, onRefresh, hasUnsavedChanges = false }: { item: Item; hasUnsavedChanges?: boolean; onRefresh: () => Promise<unknown> }) {
+  const [scriptDraft, setScriptDraft] = useState('')
+  const [editorial, setEditorial] = useState<Editorial | null>(null), [checks, setChecks] = useState<Record<string, boolean>>({}), [notes, setNotes] = useState('')
+  const [avatarDefaults, setAvatarDefaults] = useState<{ avatarId?: string; voiceId?: string }>({})
   const [preview, setPreview] = useState<Preview | null>(null)
-  const [library, setLibrary] = useState<Array<{ id: string; drive_file_name?: string; created_at?: string; media_blocker?: string | null }>>([])
+  const [library, setLibrary] = useState<Array<{ id: string; drive_file_name?: string; created_at?: string; media_blocker?: string | null; eligibility?: Eligibility }>>([])
   const [jobId, setJobId] = useState(''), [job, setJob] = useState<Job | null>(null)
   const [busy, setBusy] = useState(false), [message, setMessage] = useState(''), [privacy, setPrivacy] = useState(false)
+  useEffect(() => { setLibrary([]); setJob(null); setJobId(''); setEditorial(null); setChecks({}); setPrivacy(false) }, [item.id, item.updated_at])
   const rag = reviewRecord(item.rag_context), asset = reviewRecord(rag.reviewed_video_asset)
   async function request(body?: Record<string, unknown>, query = '', path?: string) {
     const session = await getCurrentSession()
@@ -59,7 +66,7 @@ export default function SocialVideoReview({ item, onRefresh, hasUnsavedChanges =
   async function save(body: Record<string, unknown>) {
     if (hasUnsavedChanges) throw new Error('Save or reload your copy edits before changing this review.')
     const result = await request(body)
-    setPrivacy(false); setJob(null); setPreview(null)
+    setPrivacy(false); setJob(null); setJobId(''); setLibrary([]); setPreview(null); setEditorial(null); setChecks({}); setNotes('')
     await onRefresh()
     setMessage(result.unchanged ? 'Already synchronized; no changes made.' : 'Saved for internal review. External submission remains separate.')
   }
@@ -77,13 +84,28 @@ export default function SocialVideoReview({ item, onRefresh, hasUnsavedChanges =
         <button type="button" className={button} disabled={busy || hasUnsavedChanges || preview.state !== 'ready' || preview.target_version !== item.updated_at} onClick={() => void run(() => save({ action: 'synchronize', packet_version: preview.packet_version }))}>Apply reviewed copy to this draft</button>
       </div>}
     </div> : null}
+    <div className="space-y-3 rounded border border-gray-700 p-3">
+      <h4 className="font-medium">Pre-render editorial review</h4>
+      <p className="text-sm text-gray-300">Safety screening checks leakage. Production review checks the spoken story, audience value, voice, evidence, and campaign message. Playback alone qualifies neither.</p>
+      <button type="button" className={button} disabled={busy} onClick={() => void run(async () => { const data = await request(undefined, '?editorial=1'); setEditorial(data.editorial); setScriptDraft(data.editorial.script); setAvatarDefaults(data.defaults || {}); setChecks({}); setNotes('') })}>Review saved video script</button>
+      {editorial && <div className="space-y-3 text-sm">
+        <p>Safety screening: {editorial.screening.safety.status} · Production quality: {editorial.receipt ? 'reviewed for this version' : editorial.screening.production_quality.status.replace('_', ' ')}</p>
+        <label className="block">Saved spoken script<textarea value={scriptDraft} onChange={e => setScriptDraft(e.target.value)} rows={7} className="mt-1 w-full rounded border border-gray-600 bg-gray-950 p-2" /></label>
+        <button type="button" className={button} disabled={busy || hasUnsavedChanges || !scriptDraft.trim() || scriptDraft.trim().length > 5000 || scriptDraft.trim() === editorial.script} onClick={() => void run(() => save({ action: 'save_video_script', input_version: editorial.input_version, script: scriptDraft }))}>Save script · reset editorial and media review</button>
+        <p className="break-all">Avatar: {avatarDefaults.avatarId || 'Select a default in Video Generation settings'} · Voice: {avatarDefaults.voiceId || 'Select a default in Video Generation settings'}</p>
+        {editorial.blockers.map(reason => <p key={reason} className="text-amber-200">{reason}</p>)}
+        {Object.entries(VIDEO_EDITORIAL_CRITERIA).map(([key, label]) => <label key={key} className="flex items-start gap-2"><input className="mt-1" type="checkbox" checked={checks[key] || false} onChange={e => setChecks({ ...checks, [key]: e.target.checked })} /><span>{label}</span></label>)}
+        <label className="block">Editorial evidence and source support<textarea value={notes} onChange={e => setNotes(e.target.value)} className="mt-1 w-full rounded border border-gray-600 bg-gray-950 p-2" /></label>
+        <button type="button" className={button} disabled={busy || hasUnsavedChanges || scriptDraft.trim() !== editorial.script || editorial.blockers.length > 0 || !avatarDefaults.avatarId || !avatarDefaults.voiceId || notes.trim().length < 20 || !Object.keys(VIDEO_EDITORIAL_CRITERIA).every(key => checks[key])} onClick={() => void run(() => save({ action: 'approve_editorial', input_version: editorial.input_version, avatar_id: avatarDefaults.avatarId, voice_id: avatarDefaults.voiceId, checks, notes }))}>Record editorial review · no render</button>
+      </div>}
+    </div>
     <div className="space-y-2">
-      <a className="text-sm text-blue-300 underline" href="/admin/content/video-generation">Open Video Generation library</a>
-      <button type="button" className={button} disabled={busy} onClick={() => void run(async () => { const data = await request(undefined, '', '/api/admin/video-generation/jobs?status=completed&limit=50'); setLibrary(data.jobs || []); if (!data.jobs?.length) setMessage('No completed videos yet. Open Video Generation to review render status.') })}>Load completed videos</button>
-      {library.length > 0 && <label className="block text-sm">Choose a completed video<select value={jobId} onChange={event => { setJobId(event.target.value); setJob(null) }} className="mt-1 w-full min-w-0 rounded border border-gray-600 bg-gray-950 p-2"><option value="">Choose from the latest 50 completed videos</option>{library.map(video => <option key={video.id} value={video.id}>{video.media_blocker ? 'Blocked · ' : ''}{video.drive_file_name || 'Completed video'}{video.created_at ? ` · ${new Date(video.created_at).toLocaleDateString()}` : ''} · {video.id.slice(0, 8)}</option>)}</select></label>}
+      <a className="block text-sm text-blue-300 underline" href="/admin/content/video-generation">Open Video Generation library</a>
+      <button type="button" className={button} disabled={busy} onClick={() => void run(async () => { const data = await request(undefined, '?candidates=1'); setLibrary(data.jobs || []); if (!data.jobs?.length) setMessage('No completed videos yet. Open Video Generation to review render status.') })}>Load completed videos</button>
+      {library.length > 0 && <label className="block text-sm">Choose a completed video<select value={jobId} onChange={event => { setJobId(event.target.value); setJob(null) }} className="mt-1 w-full min-w-0 rounded border border-gray-600 bg-gray-950 p-2"><option value="">Choose from the latest 50 completed videos</option>{library.map(video => <option key={video.id} value={video.id}>{video.eligibility?.eligible ? 'Eligible · ' : 'Ineligible · history only · '}{video.drive_file_name || 'Completed video'}{video.created_at ? ` · ${new Date(video.created_at).toLocaleDateString()}` : ''} · {video.id.slice(0, 8)}</option>)}</select></label>}
       <details><summary className="cursor-pointer text-sm text-gray-400">Find an older video by job ID</summary><label className="block text-sm">Completed video job ID<input value={jobId} onChange={event => { setJobId(event.target.value); setJob(null) }} className="mt-1 w-full min-w-0 rounded border border-gray-600 bg-gray-950 p-2" /></label></details>
       <button type="button" className={button} disabled={busy || !jobId.trim()} onClick={() => void run(async () => { setJob(null); setJob((await request(undefined, `?job_id=${encodeURIComponent(jobId.trim())}`)).job) })}>Preview completed job</button>
-      {job && <div className="space-y-2"><p className="text-sm">Render status: {job.heygen_status}</p>{job.media_blocker && <p role="status" className="text-sm text-amber-200">{job.media_blocker} {VIDEO_MEDIA_RECOVERY}</p>}{job.video_url && !job.media_blocker && <ReviewedVideoPlayer url={job.video_url} poster={job.thumbnail_url} playbackUrl={job.playback_url} />}<button type="button" className={button} disabled={busy || hasUnsavedChanges || job.heygen_status !== 'completed' || Boolean(job.media_blocker) || !archiveId(job.video_url)} onClick={() => void run(() => save({ action: 'attach_video', job_id: job.id, job_version: job.updated_at }))}>Attach this video · reset media approval</button></div>}
+      {job && <div className="space-y-2"><p className="text-sm">Render status: {job.heygen_status} · {job.eligibility?.label || 'Ineligible · history only'}</p>{job.eligibility?.blockers.map(reason => <p role="status" key={reason} className="text-sm text-amber-200">{reason}</p>)}{job.media_blocker && <p role="status" className="text-sm text-amber-200">{job.media_blocker} {VIDEO_MEDIA_RECOVERY}</p>}{job.video_url && !job.media_blocker && <ReviewedVideoPlayer url={job.video_url} poster={job.thumbnail_url} playbackUrl={job.playback_url} />}<button type="button" className={button} disabled={busy || hasUnsavedChanges || !job.eligibility?.eligible || job.heygen_status !== 'completed' || Boolean(job.media_blocker) || !archiveId(job.video_url)} onClick={() => void run(() => save({ action: 'attach_video', job_id: job.id, job_version: job.updated_at }))}>Attach this video · reset media approval</button></div>}
     </div>
     {item.video_url && <div className="space-y-3 text-sm">
       <p>Render: attached · Media: {socialVideoReviewReady(item) ? 'approved for this version' : 'review required'} · External submission: blocked</p>

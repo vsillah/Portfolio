@@ -101,9 +101,7 @@ export async function POST(
       )
     }
 
-    const scriptScorecard = queueItem.script_scorecard && typeof queueItem.script_scorecard === 'object'
-      ? queueItem.script_scorecard as ReturnType<typeof evaluateVideoScript>
-      : evaluateVideoScript({
+    const scriptScorecard = evaluateVideoScript({
         scriptText,
         outline: queueItem.script_outline as Record<string, unknown> | null,
         researchPacketCount: Array.isArray(queueItem.research_packet_ids) ? queueItem.research_packet_ids.length : 0,
