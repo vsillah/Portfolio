@@ -44,6 +44,7 @@ import { LinkedInReviewSurface, ReviewedVideoPlayer } from '@/components/admin/S
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import MobileWorkflowSummary from '@/components/admin/MobileWorkflowSummary'
+import CompactPostPreview from '@/components/admin/CompactPostPreview'
 import { getCurrentSession } from '@/lib/auth'
 import {
   STATUS_CONFIG,
@@ -3135,13 +3136,6 @@ function SocialContentDetailPage() {
   const mobileSummaryState = activeApprovalStep === 'status' && publicationSummary
     ? publicationSummary.stateLabel
     : GATE_STATE_CONFIG[approvalStepTabs.find((step) => step.step === activeApprovalStep)?.state ?? overallGateState].label
-  const mobileSummaryTone = activeApprovalStep === 'status' && publicationSummary
-    ? publicationSummary.tone
-    : overallGateState === 'blocked'
-      ? 'red'
-      : activeApprovalStepDetail.waitingOnYou.startsWith('Yes')
-        ? 'yellow'
-        : 'blue'
   const mobileSummaryBlocker = activeApprovalStep === 'copy' && copyRejectionResolved
     ? null
     : activeApprovalStep === 'status'
@@ -3354,8 +3348,8 @@ function SocialContentDetailPage() {
         )}
       </AnimatePresence>
 
-      {/* Sticky Header — slim, Save Draft only */}
-      <div data-social-detail-header className="sticky top-0 z-40 border-b border-gray-800 bg-background/80 px-4 py-3 backdrop-blur-md sm:px-6 lg:px-8">
+      {/* Sticky header — current decision and saved draft controls */}
+      <div data-social-detail-header className="sticky top-0 z-40 max-h-[40dvh] overflow-y-auto border-b border-gray-800 bg-gray-950 px-4 py-2 sm:px-6 lg:px-8" style={{ paddingTop: 'max(0.5rem, env(safe-area-inset-top))' }}>
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex min-w-0 flex-wrap items-center gap-2 sm:gap-3">
             <button
@@ -3386,26 +3380,41 @@ function SocialContentDetailPage() {
             </button>
           )}
         </div>
+        <div aria-label="Current review action" className="mt-2 flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 border-t border-gray-800 pt-2 text-sm">
+          <span className="min-w-0 break-words font-medium">{activeApprovalStepDetail.title}</span>
+          <span className="text-gray-300">{mobileSummaryState}</span>
+          <a href={activeStepHref} onClick={(event) => {
+            if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
+            const target = document.getElementById(APPROVAL_STEP_SECTION_IDS[activeApprovalStep])
+            event.preventDefault()
+            if (target) {
+              if (target instanceof HTMLDetailsElement) target.open = true
+              const header = event.currentTarget.closest('[data-social-detail-header]')
+              target.style.scrollMarginTop = `${(header?.getBoundingClientRect().height ?? 240) + 16}px`
+              target.tabIndex = -1
+              target.focus({ preventScroll: true })
+              target.scrollIntoView({ block: 'start' })
+            } else {
+              showMsg('error', 'This decision section is unavailable. Reload the draft and select the approval step again.')
+            }
+          }} className="inline-flex min-h-11 items-center rounded-lg border border-radiant-gold/45 px-3 py-2 font-semibold text-radiant-gold">Open current decision</a>
+          <details className="w-full text-xs leading-5 text-gray-300">
+            <summary className="cursor-pointer py-1">Next action and blockers</summary>
+            <p>{activeApprovalStepDetail.nextAction}</p>
+            <p>{activeApprovalStepDetail.waitingOnYou}</p>
+            {(activeApprovalStep === 'copy' ? copyApprovalDisabledReason : mobileSummaryBlocker) && <p className="mt-1 text-amber-200">{activeApprovalStep === 'copy' ? copyApprovalDisabledReason : mobileSummaryBlocker}</p>}
+          </details>
+        </div>
       </div>
 
       <div className="mx-auto w-full max-w-[90rem] space-y-6 px-4 py-6 sm:px-6 lg:px-8">
         <SocialGateDeepLinkLanding routeId={id} itemId={item.id} gateId={APPROVAL_STEP_SECTION_IDS[activeApprovalStep]} completed={completedGateLandings} />
-        <MobileWorkflowSummary
-          title={activeApprovalStepDetail.title}
-          currentState={mobileSummaryState}
-          owner={activeApprovalStepDetail.owner}
-          nextAction={activeApprovalStepDetail.nextAction}
-          waitingOnYou={activeApprovalStepDetail.waitingOnYou}
-          blocker={mobileSummaryBlocker}
-          canonicalHref={activeStepHref}
-          canonicalLabel="Open selected approval step"
-          tone={mobileSummaryTone}
-        />
+
 	        {activeApprovalStep === 'copy' && (
 	          <section
 	            id="social-copy-gate"
 	            aria-label="Copy review decision gate"
-	            className="scroll-mt-28 rounded-xl border border-emerald-500/25 bg-emerald-500/10 p-4 sm:p-5"
+	            className="scroll-mt-64 rounded-xl border border-emerald-500/25 bg-emerald-500/10 p-4 sm:p-5"
 	          >
 	            <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
 	              <div className="min-w-0">
@@ -3555,7 +3564,7 @@ function SocialContentDetailPage() {
 
 	            {activeApprovalStep === 'context' && (
 	            <>
-	            <details id="social-supporting-context-gate" className="mt-4 scroll-mt-28 rounded-lg border border-silicon-slate/80 bg-background/35" open={contextMissingAfterCopyApproval}>
+	            <details id="social-supporting-context-gate" className="mt-4 scroll-mt-64 rounded-lg border border-silicon-slate/80 bg-background/35" open={contextMissingAfterCopyApproval}>
               <summary className="cursor-pointer list-none px-4 py-3">
                 <span className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <span className="text-sm font-semibold text-gray-200">
@@ -4205,7 +4214,8 @@ function SocialContentDetailPage() {
 		          })}
 		          </div>
 		        </div>
-            <section className="rounded-xl border border-silicon-slate/80 bg-background/35 p-4" aria-label="Current approval step details">
+            <details className="rounded-xl border border-silicon-slate/80 bg-background/35 p-4" aria-label="Current approval step details">
+              <summary className="cursor-pointer text-sm font-semibold text-gray-200">Approval details · {activeApprovalStepDetail.title}</summary>
               <div className="grid gap-3 xl:grid-cols-[minmax(0,1.4fr)_repeat(4,minmax(0,0.9fr))]">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.14em] text-radiant-gold">What this means</p>
@@ -4239,7 +4249,7 @@ function SocialContentDetailPage() {
                 <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">Next action</p>
                 <p className="mt-1 text-sm leading-6 text-gray-200">{activeApprovalStepDetail.nextAction}</p>
               </div>
-            </section>
+            </details>
 
 	        {/* ================================================================ */}
         {/* SECTION 1: Content (two-col on lg: edit fields + preview)        */}
@@ -4249,7 +4259,7 @@ function SocialContentDetailPage() {
 	          <div className="min-w-0 space-y-4">
 	            {/* Post text */}
 	            {activeApprovalStep === 'copy' && (
-	            <div id="social-copy-editor" className="scroll-mt-28 rounded-xl border border-gray-800 bg-gray-900 p-4">
+	            <div id="social-copy-editor" className="scroll-mt-64 rounded-xl border border-gray-800 bg-gray-900 p-4">
               <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <p className="admin-console-eyebrow">Copy Fields</p>
@@ -4517,7 +4527,7 @@ function SocialContentDetailPage() {
 	            {/* Visual Media section (single image or carousel) */}
 	            {activeApprovalStep === 'visuals' && (
 	            <>
-	            <div id="social-visual-assets-gate" className="scroll-mt-28 rounded-xl border border-gray-800 bg-gray-900 p-4">
+	            <div id="social-visual-assets-gate" className="scroll-mt-64 rounded-xl border border-gray-800 bg-gray-900 p-4">
               {item.copy_revision && !item.copy_revision.release_locked && (
                 <details className="mb-4 rounded-lg border border-amber-500/30 p-3">
                   <summary className="cursor-pointer text-sm font-semibold text-amber-100">Attach an existing image</summary>
@@ -4656,7 +4666,7 @@ function SocialContentDetailPage() {
                       rejectDisabled: !visualAssetReady,
                       notePlaceholder: 'What must change before the visual assets are approved?',
                     })}
-                    <div id="social-asset-packet-gate" className="mt-4 scroll-mt-28 border-t border-amber-500/25 pt-4">
+                    <div id="social-asset-packet-gate" className="mt-4 scroll-mt-64 border-t border-amber-500/25 pt-4">
                       <div className="flex flex-col gap-3">
                         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                           <div className="flex min-w-0 items-start gap-3">
@@ -5386,9 +5396,9 @@ function SocialContentDetailPage() {
 	          </div>
 
           {/* Right column: Preview */}
-          <div className="space-y-4">
+          <div className="min-w-0 space-y-4">
             <LinkedInReviewSurface item={item} hasUnsavedChanges={hasUnsavedCopyChanges} onRefresh={() => fetchItem({ silent: true })} />
-            <div className="bg-gray-900 border border-gray-800 rounded-xl p-4 lg:sticky lg:top-20">
+            <div className="min-w-0 bg-gray-900 border border-gray-800 rounded-xl p-4">
               <h3 className="text-sm font-medium text-gray-400 mb-3 flex items-center gap-2">
                 <Linkedin className="w-4 h-4 text-blue-400" /> LinkedIn Preview
               </h3>
@@ -5405,9 +5415,7 @@ function SocialContentDetailPage() {
                     <div className="text-xs text-gray-500">Just now</div>
                   </div>
                 </div>
-                <div className="text-sm whitespace-pre-wrap leading-relaxed mb-3 text-gray-200">
-                  {getFullPostText({ ...item, post_text: postText, cta_text: ctaText, cta_url: ctaUrl, hashtags: hashtags.split(',').map(t => t.trim()).filter(Boolean) })}
-                </div>
+                <CompactPostPreview key={item.id} text={getFullPostText({ ...item, post_text: postText, cta_text: ctaText, cta_url: ctaUrl, hashtags: hashtags.split(',').map(t => t.trim()).filter(Boolean) })} />
                 {item.video_url ? <ReviewedVideoPlayer url={item.video_url} playbackUrl={item.video_playback_url} poster={asString(asRecord(ragContext?.reviewed_video_asset)?.thumbnail_url) || socialVideoProduction?.thumbnailUrl} /> : item.content_format === 'carousel' && carouselSlideUrls.length > 0 ? (
                   <div className="rounded-lg overflow-hidden border border-gray-700 relative w-full aspect-square bg-gray-900">
                     <Image src={carouselSlideUrls[0]} alt="Carousel cover" className="object-cover" fill sizes="(max-width: 600px) 100vw, 600px" />
@@ -5430,7 +5438,7 @@ function SocialContentDetailPage() {
 	        {/* SECTION 2: "Where & When" Publish Panel                          */}
         {/* ================================================================ */}
 	        {activeApprovalStep === 'draft' && (
-	        <div id="social-draft-approval-gate" className="scroll-mt-28 space-y-6 rounded-xl border-2 border-gray-700 bg-gray-900 p-6">
+	        <div id="social-draft-approval-gate" className="scroll-mt-64 space-y-6 rounded-xl border-2 border-gray-700 bg-gray-900 p-6">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <h2 className="text-lg font-semibold text-gray-200 flex items-center gap-2">
               <Send className="w-5 h-5 text-green-400" />
@@ -5650,7 +5658,7 @@ function SocialContentDetailPage() {
         {/* SECTION 2A: Platform Submission Path                              */}
         {/* ================================================================ */}
 	        {activeApprovalStep === 'submit' && (
-	        <div id="social-platform-submission-gate" className="scroll-mt-28 rounded-xl border-2 border-gray-700 bg-gray-900 p-6">
+	        <div id="social-platform-submission-gate" className="scroll-mt-64 rounded-xl border-2 border-gray-700 bg-gray-900 p-6">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <h2 className="flex items-center gap-2 text-lg font-semibold text-gray-200">
@@ -5895,9 +5903,9 @@ function SocialContentDetailPage() {
 	        {/* SECTION 2B: Engagement Metrics                                   */}
 	        {/* ================================================================ */}
 	        {activeApprovalStep === 'status' && (
-	        <div id="social-publication-status-gate" className="scroll-mt-28 space-y-6">
+	        <div id="social-publication-status-gate" className="scroll-mt-64 space-y-6">
 	        {item.schedule_recovery ? (
-	          <section id="scheduled-publish-recovery" className="scroll-mt-28 rounded-xl border border-amber-500/40 bg-amber-500/10 p-4 sm:p-5" aria-label="Scheduled publication recovery">
+	          <section id="scheduled-publish-recovery" className="scroll-mt-64 rounded-xl border border-amber-500/40 bg-amber-500/10 p-4 sm:p-5" aria-label="Scheduled publication recovery">
 	            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
 	              <div className="min-w-0">
 	                <p className="text-xs font-semibold uppercase tracking-wide text-amber-200">Scheduled publication paused</p>

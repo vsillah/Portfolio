@@ -1,0 +1,74 @@
+[
+  {
+    "width": 390,
+    "collapsed_post_height": 468.5,
+    "expanded_post_height": 1901.75,
+    "collapsed_review_height": 340,
+    "canonical_platform": "instagram",
+    "target_platforms": [
+      "instagram"
+    ],
+    "calendar_channel": "instagram_reels",
+    "actions": [
+      "attach_video",
+      "approve_media",
+      "save_video_script",
+      "save_video_script",
+      "approve_editorial"
+    ],
+    "external_requests": 0,
+    "page_errors": [],
+    "copy_approval": "fixture precondition; not exercised",
+    "provider_calls": 0,
+    "production_mutations": 0,
+    "route": "http://127.0.0.1:4031/admin/social-content/video-review-qa?step=copy"
+  },
+  {
+    "width": 768,
+    "collapsed_post_height": 377.5,
+    "expanded_post_height": 1492.25,
+    "collapsed_review_height": 320,
+    "canonical_platform": "instagram",
+    "target_platforms": [
+      "instagram"
+    ],
+    "calendar_channel": "instagram_reels",
+    "actions": [
+      "attach_video",
+      "approve_media",
+      "save_video_script",
+      "save_video_script",
+      "approve_editorial"
+    ],
+    "external_requests": 0,
+    "page_errors": [],
+    "copy_approval": "fixture precondition; not exercised",
+    "provider_calls": 0,
+    "production_mutations": 0,
+    "route": "http://127.0.0.1:4031/admin/social-content/video-review-qa?step=copy"
+  },
+  {
+    "width": 1440,
+    "collapsed_post_height": 468.5,
+    "expanded_post_height": 1901.75,
+    "collapsed_review_height": 340,
+    "canonical_platform": "instagram",
+    "target_platforms": [
+      "instagram"
+    ],
+    "calendar_channel": "instagram_reels",
+    "actions": [
+      "attach_video",
+      "approve_media",
+      "save_video_script",
+      "save_video_script",
+      "approve_editorial"
+    ],
+    "external_requests": 0,
+    "page_errors": [],
+    "copy_approval": "fixture precondition; not exercised",
+    "provider_calls": 0,
+    "production_mutations": 0,
+    "route": "http://127.0.0.1:4031/admin/social-content/video-review-qa?step=copy"
+  }
+]
