@@ -4,11 +4,18 @@ const { execFileSync } = require('node:child_process')
 const base = 'http://127.0.0.1:4031', out = path.resolve('docs/social-content/qa/nandi-compact'), tmp = path.resolve('test-results/nandi-compact')
 fs.mkdirSync(out, { recursive: true }); fs.mkdirSync(tmp, { recursive: true })
 ;(async () => {
- await esbuild.build({ stdin: { contents: `export {GET, POST} from './app/api/admin/social-content/[id]/review-handoff/route'; export {videoPlayback} from './lib/video-media-archive'; export {reset,qualify,tables,user,supabaseAdmin} from './scripts/qa/campaign-video-fixture';`, resolveDir: process.cwd(), loader: 'ts' }, bundle: true, platform: 'node', packages: 'external', outfile: `${tmp}/handlers.cjs`, plugins: [{ name: 'fixture', setup(b) { b.onResolve({ filter: /^(?:@\/lib\/|\.\/)(supabase|auth-server)$/ }, () => ({ path: path.resolve('scripts/qa/campaign-video-fixture.ts') })) } }] })
+ await esbuild.build({ stdin: { contents: `export {GET, POST} from './app/api/admin/social-content/[id]/review-handoff/route'; export {videoPlayback} from './lib/video-media-archive'; export {qualify,tables,user,supabaseAdmin} from './scripts/qa/campaign-video-fixture'; export {reset} from './scripts/qa/linkedin-video-fixture';`, resolveDir: process.cwd(), loader: 'ts' }, bundle: true, platform: 'node', packages: 'external', outfile: `${tmp}/handlers.cjs`, plugins: [{ name: 'fixture', setup(b) { b.onResolve({ filter: /^(?:@\/lib\/|\.\/)(supabase|auth-server)$/ }, () => ({ path: path.resolve('scripts/qa/campaign-video-fixture.ts') })) } }] })
  const h = require(`${tmp}/handlers.cjs`), { NextRequest } = require('next/server'), results = []
  const browser = await chromium.launch()
  for (const width of [390, 768, 1440]) {
-  h.reset(); h.tables.agent_work_items[0].metadata.channel_lanes.linkedin.draft_packet.fields.post_text = ('A team can finish the work and still lose time waiting for a decision. Make the handoff visible. Keep the evidence beside the draft.\n\n').repeat(18); h.qualify(h.tables.social_content_queue[0], h.tables.social_content_calendar_items[0], h.tables.agent_work_items[0], [h.tables.video_generation_jobs[0]]); const external = [], errors = [], actions = []
+  // Start before handoff receipts exist; editing an already qualified fixture correctly triggers conflict protection.
+  h.reset()
+  const longPublicCopy = ('A team can finish the work and still lose time waiting for a decision. Make the handoff visible. Keep the evidence beside the draft.\n\n').repeat(18)
+  h.tables.agent_work_items[0].metadata.channel_lanes.linkedin.draft_packet.fields.post_text = longPublicCopy
+  h.tables.social_content_queue[0].post_text = longPublicCopy
+  h.qualify(h.tables.social_content_queue[0], h.tables.social_content_calendar_items[0], h.tables.agent_work_items[0], [h.tables.video_generation_jobs[0]])
+  assert.equal(h.tables.social_content_queue[0].post_text, longPublicCopy, 'Preview fixture retains long public copy after qualification')
+  const external = [], errors = [], actions = []
   const context = await browser.newContext({ viewport: { width, height: 898 }, recordVideo: { dir: tmp, size: { width, height: 898 } }, serviceWorkers: 'block' })
   await context.addInitScript(user => { localStorage.setItem('sb-127-auth-token', JSON.stringify({ access_token: 'synthetic-token', refresh_token: 'synthetic-refresh', expires_at: 4102444800, expires_in: 3600, token_type: 'bearer', user })) }, h.user)
   await context.addInitScript(() => {

@@ -40,6 +40,8 @@ Scoped lint, knowledge generation, QA-script syntax, and diff checks passed. Typ
 
 ## Rendered QA blocker and continuation
 
+Resume checkpoint: the synthetic setup now assigns the same long public-copy fixture to both the campaign packet and the Social Content item before qualification. It uses the unqualified fixture reset so existing handoff receipts are not accidentally treated as human copy conflicts. A local execution of this exact setup confirmed that the qualified item retains the long copy; script syntax and diff checks passed. No application gates changed. The captain reported restored browser execution, but this chat's integrated Browser still refused the route on retry with the same unavailable admin-policy check. Responsive QA and MP4 remain unverified here.
+
 The isolated no-egress localhost server started at port 4031. Initial headless test launch was denied by the OS sandbox before a page loaded. The integrated Codex Browser was then used for the requested route and refused access twice because its admin-enforced security policy check was unavailable. No alternate browser or indirect route was used after that refusal.
 
 Consequently, none of the desktop/tablet/mobile visual checks, pixel-height improvements, sticky overlap checks, or MP4 evidence are claimed as passed. The original 5,912-pixel measurement is task-provided context, not a measurement from this implementation.
