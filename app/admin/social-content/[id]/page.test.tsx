@@ -1360,6 +1360,27 @@ describe('SocialContentDetailRoute visual production review', () => {
     })
   })
 
+  it('shows the complete single-image asset in the LinkedIn preview without cropping', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => ({
+      ok: true,
+      json: async () => ({
+        item: {
+          ...baseItem,
+          image_url: 'https://example.com/framework.png',
+        },
+      }),
+    })))
+
+    renderAtStep('copy')
+
+    const image = await screen.findByAltText('Generated framework illustration')
+    expect(image.className).toContain('object-contain')
+    expect(image.className).not.toContain('object-cover')
+    expect(image.parentElement?.className).toContain('aspect-[4/5]')
+    const optimizedImageUrl = new URL(image.getAttribute('src') ?? '', 'https://portfolio.test').searchParams.get('url')
+    expect(decodeURIComponent(optimizedImageUrl ?? '')).toContain('v=2026-06-12T10:05:00.000Z')
+  })
+
   it('writes out campaign acronyms before approval and captures reject feedback for iteration', async () => {
     const calendarItem = {
       ...baseItem,
