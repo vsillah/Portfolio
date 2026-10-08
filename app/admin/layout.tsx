@@ -64,16 +64,16 @@ export default function AdminLayout({
   }, [drawerOpen])
 
   return (
-    <div className="dark flex min-h-screen bg-background text-foreground">
+    <div className="dark flex h-dvh overflow-hidden bg-background text-foreground">
       {/* Desktop sidebar */}
-      <aside className="hidden lg:flex shrink-0 sticky top-0 h-screen">
+      <aside className="hidden h-full shrink-0 lg:flex">
         <AdminSidebar />
       </aside>
 
       {/* Mobile drawer overlay */}
       {drawerOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden"
+          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm lg:hidden"
           aria-hidden
           onClick={closeDrawer}
         />
@@ -82,7 +82,7 @@ export default function AdminLayout({
       {/* Mobile drawer */}
       <aside
         ref={drawerRef}
-        className={`fixed left-0 top-0 z-50 h-full w-[284px] transform overflow-hidden bg-[linear-gradient(180deg,rgba(18,30,49,0.99)_0%,rgba(15,26,43,0.99)_100%)] shadow-[16px_0_48px_rgba(0,0,0,0.28)] transition-transform duration-200 ease-out lg:hidden ${
+        className={`fixed left-0 top-0 z-[60] h-full w-[284px] transform overflow-hidden bg-[linear-gradient(180deg,rgba(18,30,49,0.99)_0%,rgba(15,26,43,0.99)_100%)] shadow-[16px_0_48px_rgba(0,0,0,0.28)] transition-transform duration-200 ease-out lg:hidden ${
           drawerOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
         aria-label="Admin navigation"
@@ -111,8 +111,8 @@ export default function AdminLayout({
         </div>
       </aside>
 
-      <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-10 flex items-center justify-between border-b border-radiant-gold/10 bg-background/90 px-4 py-3 backdrop-blur lg:px-6">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+        <header className="relative z-10 flex shrink-0 items-center justify-between border-b border-radiant-gold/10 bg-background/90 px-4 py-3 backdrop-blur lg:px-6">
           <button
             ref={hamburgerRef}
             type="button"
@@ -131,7 +131,7 @@ export default function AdminLayout({
             Help
           </Link>
         </header>
-        <main id="admin-main" className="flex-1 overflow-auto">
+        <main id="admin-main" className="min-h-0 min-w-0 flex-1 overflow-auto">
           {children}
         </main>
       </div>
