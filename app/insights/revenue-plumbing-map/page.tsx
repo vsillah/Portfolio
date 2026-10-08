@@ -101,6 +101,10 @@ export default function RevenuePlumbingMapPage() {
             </Link>
           </div>
         </section>
+
+        <p className="mt-10 max-w-3xl text-sm text-muted-foreground">
+          Inspired by a pipeline diagram I first saw in a Jack Roberts video.
+        </p>
       </article>
     </main>
   )
