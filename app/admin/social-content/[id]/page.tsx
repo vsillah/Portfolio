@@ -151,6 +151,17 @@ function isApprovalStep(value: string | null): value is ApprovalStep {
   return Boolean(value && APPROVAL_STEPS.includes(value as ApprovalStep))
 }
 
+function versionAssetUrl(url: string, version: string | null | undefined): string {
+  if (!url || !version) return url
+
+  const hashIndex = url.indexOf('#')
+  const base = hashIndex === -1 ? url : url.slice(0, hashIndex)
+  const hash = hashIndex === -1 ? '' : url.slice(hashIndex)
+  const separator = base.includes('?') ? '&' : '?'
+
+  return `${base}${separator}v=${encodeURIComponent(version)}${hash}`
+}
+
 const GATE_STATE_CONFIG: Record<GateState, { label: string; className: string }> = {
   approved: {
     label: 'Approved',
@@ -2703,9 +2714,12 @@ function SocialContentDetailPage() {
     : isCarouselFormat
       ? agentifiedVisualQaPacket?.candidateUrls ?? []
       : []
-  const visualPreviewImageUrl = isSingleImageFormat
-    ? item.image_url || agentifiedVisualQaPacket?.primaryCandidateUrl || ''
-    : ''
+  const visualPreviewImageUrl = versionAssetUrl(
+    isSingleImageFormat
+      ? item.image_url || agentifiedVisualQaPacket?.primaryCandidateUrl || ''
+      : '',
+    item.updated_at,
+  )
   const visualPreviewAlt = item.image_url
     ? 'Generated framework illustration'
     : agentifiedVisualQaPacket?.altText || 'Amina visual QA candidate'
