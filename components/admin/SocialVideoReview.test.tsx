@@ -2,7 +2,31 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { it, expect, vi, afterEach } from 'vitest'
 vi.mock('@/lib/auth', () => ({ getCurrentSession: async () => ({ access_token: 'synthetic' }) }))
 import SocialVideoReview, { LinkedInReviewSurface, ReviewedVideoPlayer } from './SocialVideoReview'
+import { VIDEO_EDITORIAL_CRITERIA } from '@/lib/video-editorial-quality'
 afterEach(() => vi.restoreAllMocks())
+it('keeps disclosure toggles local and preserves editorial checks without granting approval', async () => {
+  const fetch = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({
+    editorial: { input_version: 'v1', script: 'Saved spoken story.', blockers: [], receipt: null, screening: { safety: { status: 'passed' }, production_quality: { status: 'review_required' } } },
+    defaults: { avatarId: 'avatar', voiceId: 'voice' },
+  })))
+  render(<SocialVideoReview item={{ id: 'draft', status: 'approved', updated_at: 'v1' }} onRefresh={vi.fn()} />)
+  fireEvent.click(screen.getByText('Pre-render editorial review'))
+  expect(fetch).not.toHaveBeenCalled()
+  fireEvent.click(screen.getByText('Review saved video script'))
+  await screen.findByLabelText('Saved spoken script')
+  const disclosure = screen.getByText('Editorial checklist and source evidence')
+  fireEvent.click(disclosure)
+  const check = screen.getByLabelText(Object.values(VIDEO_EDITORIAL_CRITERIA)[0])
+  fireEvent.click(check)
+  fireEvent.change(screen.getByLabelText('Editorial evidence and source support'), { target: { value: 'Evidence retained while checking the remaining editorial criteria.' } })
+  fireEvent.click(disclosure)
+  fireEvent.click(disclosure)
+  expect(check).toBeChecked()
+  expect(screen.getByLabelText('Editorial evidence and source support')).toHaveValue('Evidence retained while checking the remaining editorial criteria.')
+  expect(screen.getByText('Record editorial review · no render')).toBeDisabled()
+  expect(fetch).toHaveBeenCalledTimes(1)
+  expect(fetch.mock.calls[0][1]?.method).toBe('GET')
+})
 it('renders native controls and a poster without autoplay', () => {
   render(<ReviewedVideoPlayer url="https://example.invalid/final.mp4" poster="https://example.invalid/poster.png" />)
   const player = screen.getByLabelText('Final LinkedIn video')
@@ -13,6 +37,7 @@ it('compares before applying and reports stale/conflicting handoffs without disc
   const fetch = vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(new Response(JSON.stringify({ preview: { packet_version: 'v1', target_version: 'now', state: 'ready', message: 'Review first', source_work_item_id: 'work', copy: { post_text: 'Reviewed copy', hashtags: ['#Safe'] } } })))
     .mockResolvedValueOnce(new Response(JSON.stringify({ error: 'Content changed. Reload.' }), { status: 409 }))
   render(<SocialVideoReview item={{ id: 'draft', status: 'draft', updated_at: 'now', rag_context: { calendar_item_id: 'calendar' } }} onRefresh={refresh} />)
+  fireEvent.click(screen.getByText('Campaign copy and lineage receipts'))
   fireEvent.click(screen.getByText('Compare approved campaign copy'))
   await screen.findByText('Reviewed copy')
   expect(fetch).toHaveBeenCalledTimes(1)
@@ -23,13 +48,16 @@ it('compares before applying and reports stale/conflicting handoffs without disc
 })
 it('keeps media approval disabled without copy approval and asset provenance', async () => {
   render(<SocialVideoReview item={{ id: 'draft', status: 'draft', updated_at: 'now', video_url: 'https://example.invalid/final.mp4' }} onRefresh={vi.fn()} />)
+  fireEvent.click(screen.getByText('Attached media review and audit detail'))
   fireEvent.click(screen.getByRole('checkbox'))
   await waitFor(() => expect(screen.getByText('Approve this media version')).toBeDisabled())
+  fireEvent.click(screen.getByText(/Full blocker evidence and provider boundary/))
   expect(screen.getByText(/Native LinkedIn video submission is not configured/)).toBeVisible()
 })
 it('does not replace unsaved editor changes', async () => {
   vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({ preview: { packet_version: 'v1', target_version: 'now', state: 'ready', message: 'Review first', source_work_item_id: 'work', copy: { post_text: 'Incoming copy', hashtags: [] } } })))
   render(<SocialVideoReview item={{ id: 'draft', status: 'draft', updated_at: 'now', rag_context: { calendar_item_id: 'calendar' } }} hasUnsavedChanges onRefresh={vi.fn()} />)
+  fireEvent.click(screen.getByText('Campaign copy and lineage receipts'))
   fireEvent.click(screen.getByText('Compare approved campaign copy'))
   await screen.findByText('Incoming copy')
   expect(screen.getByText('Apply reviewed copy to this draft')).toBeDisabled()
@@ -39,6 +67,7 @@ it('loads the existing render library and previews a selected job without attach
   const fetch = vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(new Response(JSON.stringify({ jobs: [{ id: 'job-1', drive_file_name: 'Reviewed workflow' }] })))
     .mockResolvedValueOnce(new Response(JSON.stringify({ job: { id: 'job-1', updated_at: 'version', heygen_status: 'completed', video_url: 'portfolio-video:11111111-1111-4111-8111-111111111111', playback_url: 'https://example.invalid/final.mp4' } })))
   render(<SocialVideoReview item={{ id: 'draft', status: 'draft', updated_at: 'now' }} onRefresh={vi.fn()} />)
+  fireEvent.click(screen.getByText('Completed videos and eligibility'))
   fireEvent.click(screen.getByText('Load completed videos'))
   const select = await screen.findByLabelText('Choose a completed video')
   fireEvent.change(select, { target: { value: 'job-1' } })
@@ -69,6 +98,7 @@ it('discards cached candidate eligibility when the saved item version changes', 
   vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({ jobs: [{ id: 'job', drive_file_name: 'Current campaign', eligibility: { eligible: true, blockers: [] } }] })))
   const item = { id: 'draft', status: 'approved', updated_at: 'v1' }
   const view = render(<SocialVideoReview item={item} onRefresh={vi.fn()} />)
+  fireEvent.click(screen.getByText('Completed videos and eligibility'))
   fireEvent.click(screen.getByText('Load completed videos'))
   await screen.findByLabelText('Choose a completed video')
   view.rerender(<SocialVideoReview item={{ ...item, updated_at: 'v2' }} onRefresh={vi.fn()} />)

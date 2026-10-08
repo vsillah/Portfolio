@@ -158,17 +158,23 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(screen.getByLabelText('Social content detail loading')).toBeInTheDocument()
   })
 
-  it('preserves the selected step in the mobile workflow summary deep link', async () => {
+  it('preserves the selected step in the sticky current-action deep link', async () => {
     mocks.search = 'returnTo=%2Fadmin%2Fsocial-content&step=submit'
 
     render(<SocialContentDetailRoute />)
 
-    expect(await screen.findByLabelText('Explicit submit gate mobile workflow summary')).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Open selected approval step' })).toHaveAttribute(
+    expect(await screen.findByLabelText('Current review action')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Open current decision' })).toHaveAttribute(
       'href',
       '/admin/social-content/social-1?returnTo=%2Fadmin%2Fsocial-content&step=submit#social-platform-submission-gate',
     )
     expect(document.getElementById('social-platform-submission-gate')).not.toBeNull()
+    const scroll = vi.fn()
+    const gate = document.getElementById('social-platform-submission-gate')!
+    gate.scrollIntoView = scroll
+    fireEvent.click(screen.getByRole('link', { name: 'Open current decision' }))
+    expect(gate).toHaveFocus()
+    expect(scroll).toHaveBeenCalledWith({ block: 'start' })
   })
 
   it('exposes every responsive approval step without a horizontal scroll rail and activates later steps through the canonical query', async () => {
@@ -250,7 +256,7 @@ describe('SocialContentDetailRoute visual production review', () => {
 
     expect(await screen.findByRole('button', { name: 'Copy: Approved' })).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Copy: Pending' })).not.toBeInTheDocument()
-    expect(within(screen.getByLabelText('Publication and signal status mobile workflow summary')).getByText('Pending')).toBeInTheDocument()
+    expect(within(screen.getByLabelText('Current review action')).getByText('Pending')).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Status: Approved' })).not.toBeInTheDocument()
   })
 
@@ -404,7 +410,7 @@ describe('SocialContentDetailRoute visual production review', () => {
     const statusStep = screen.getByRole('button', { name: 'Approval step 6: Status' })
     expect(within(statusStep).getAllByText(stateLabel).length).toBeGreaterThan(0)
 
-    const workflowSummary = screen.getByLabelText(`${typeof headline === 'string' ? headline : within(providerCard).getByRole('heading').textContent} mobile workflow summary`)
+    const workflowSummary = screen.getByLabelText('Current review action')
     expect(within(workflowSummary).getByText(stateLabel)).toBeInTheDocument()
     expect(within(workflowSummary).getByText(waiting)).toBeInTheDocument()
   })
@@ -497,7 +503,7 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(within(providerCard).getByText('No - Amina owns the next action')).toBeInTheDocument()
     expect(within(providerCard).getByText(/must complete the applicable visual, privacy, rights, and source-distance evidence/i)).toBeInTheDocument()
 
-    const workflowSummary = screen.getByLabelText('X publication blocked by Amina Visuals mobile workflow summary')
+    const workflowSummary = screen.getByLabelText('Current review action')
     expect(within(workflowSummary).getByText('Blocked')).toBeInTheDocument()
     expect(within(workflowSummary).getByText('No - Amina owns the next action')).toBeInTheDocument()
   })
@@ -639,9 +645,10 @@ describe('SocialContentDetailRoute visual production review', () => {
 
     renderAtStep('submit')
 
-    expect(await screen.findByLabelText('Submit lifecycle mismatch mobile workflow summary')).toBeInTheDocument()
+    expect(await screen.findByLabelText('Current review action')).toBeInTheDocument()
     expect(screen.getAllByText('Blocked').length).toBeGreaterThan(0)
     expect(screen.queryByRole('button', { name: 'Submit: Approved' })).not.toBeInTheDocument()
+    fireEvent.click(screen.getByText('Approval details · Submit lifecycle mismatch'))
     expect(screen.getByRole('heading', { name: 'Submit lifecycle mismatch' })).toBeInTheDocument()
     expect(screen.getAllByText(/Lifecycle mismatch: Submit has downstream evidence, but Context is not approved/i).length).toBeGreaterThan(0)
   })
@@ -870,12 +877,12 @@ describe('SocialContentDetailRoute visual production review', () => {
     renderAtStep('copy')
 
     expect((await screen.findAllByText('Copy: Rejected')).length).toBeGreaterThan(0)
-    expect(screen.getByLabelText('Copy rejected mobile workflow summary')).toBeInTheDocument()
+    expect(screen.getByLabelText('Current review action')).toBeInTheDocument()
     expect(screen.getByText('Copy revision')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Return to Copy Review' })).toBeInTheDocument()
     expect(screen.queryByText('Final copy quality gate blocked approval')).not.toBeInTheDocument()
     expect(screen.queryByText('Copy needs revision')).not.toBeInTheDocument()
-    expect(within(screen.getByLabelText('Copy rejected mobile workflow summary')).getByText('Edit the draft, then use Return to Copy Review to make it reviewable again.')).toBeInTheDocument()
+    expect(within(screen.getByLabelText('Current review action')).getByText('Edit the draft, then use Return to Copy Review to make it reviewable again.')).toBeInTheDocument()
   })
 
   it('shows YouTube release readiness before the final submission gate', async () => {
@@ -1416,8 +1423,8 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(screen.getByRole('button', { name: /Cancel feedback/i })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Request Revision/i })).toBeDisabled()
     expect(within(screen.getByText('Copy Review Decision').closest('section') as HTMLElement).getByText(/Add feedback and choose Request Revision for Shaka, or choose Reject again to reject without comments/i)).toBeInTheDocument()
-    expect(within(screen.getByLabelText('Copy review mobile workflow summary')).queryByText(/Add feedback and choose Request Revision for Shaka/i)).not.toBeInTheDocument()
-    expect(within(screen.getByLabelText('Copy review mobile workflow summary')).getByText('Complete the copy decision in the gate below.')).toBeInTheDocument()
+    expect(within(screen.getByLabelText('Current review action')).queryByText(/Add feedback and choose Request Revision for Shaka/i)).not.toBeInTheDocument()
+    expect(within(screen.getByLabelText('Current review action')).getByText('Complete the copy decision in the gate below.')).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: /Cancel feedback/i }))
     expect(screen.queryByLabelText('Revision feedback for Shaka')).not.toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: /^Reject$/i }))
@@ -1498,8 +1505,8 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(screen.getByLabelText('Revision feedback for Shaka')).toBeInTheDocument()
     expect(within(gateSection as HTMLElement).getByRole('button', { name: /Request Revision/i })).toBeDisabled()
     expect(within(gateSection as HTMLElement).getByText(/Add feedback and choose Request Revision for Shaka/i)).toBeInTheDocument()
-    expect(within(screen.getByLabelText('Copy review mobile workflow summary')).queryByText(/Add feedback and choose Request Revision for Shaka/i)).not.toBeInTheDocument()
-    expect(within(screen.getByLabelText('Copy review mobile workflow summary')).getByText('Complete the copy decision in the gate below.')).toBeInTheDocument()
+    expect(within(screen.getByLabelText('Current review action')).queryByText(/Add feedback and choose Request Revision for Shaka/i)).not.toBeInTheDocument()
+    expect(within(screen.getByLabelText('Current review action')).getByText('Complete the copy decision in the gate below.')).toBeInTheDocument()
 
     fireEvent.click(within(gateSection as HTMLElement).getByRole('button', { name: /^Reject$/i }))
     await waitFor(() => {
@@ -1523,8 +1530,8 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(within(gateSection as HTMLElement).queryByRole('button', { name: /Request Revision/i })).not.toBeInTheDocument()
     expect(within(gateSection as HTMLElement).queryByRole('button', { name: /Approve Copy/i })).not.toBeInTheDocument()
     expect(within(gateSection as HTMLElement).getByText(/Copy rejection is recorded/i)).toBeInTheDocument()
-    expect(within(screen.getByLabelText('Copy rejected mobile workflow summary')).queryByText(/The copy decision is recorded as rejected/i)).not.toBeInTheDocument()
-    expect(within(screen.getByLabelText('Copy rejected mobile workflow summary')).getByText('Edit the draft, then use Return to Copy Review to make it reviewable again.')).toBeInTheDocument()
+    expect(within(screen.getByLabelText('Current review action')).queryByText(/The copy decision is recorded as rejected/i)).not.toBeInTheDocument()
+    expect(within(screen.getByLabelText('Current review action')).getByText('Edit the draft, then use Return to Copy Review to make it reviewable again.')).toBeInTheDocument()
     expect(fetchMock.mock.calls.some(([url]) => String(url).includes('/calibration-revision'))).toBe(false)
   })
 
@@ -1577,8 +1584,8 @@ describe('SocialContentDetailRoute visual production review', () => {
     fireEvent.click(within(gateSection as HTMLElement).getByRole('button', { name: /^Reject$/i }))
     expect(screen.getByLabelText('Revision feedback for Shaka')).toBeInTheDocument()
     expect(within(gateSection as HTMLElement).getByRole('button', { name: /Request Revision/i })).toBeDisabled()
-    expect(within(screen.getByLabelText('Copy review mobile workflow summary')).queryByText(/Add feedback and choose Request Revision for Shaka/i)).not.toBeInTheDocument()
-    expect(within(screen.getByLabelText('Copy review mobile workflow summary')).getByText('Complete the copy decision in the gate below.')).toBeInTheDocument()
+    expect(within(screen.getByLabelText('Current review action')).queryByText(/Add feedback and choose Request Revision for Shaka/i)).not.toBeInTheDocument()
+    expect(within(screen.getByLabelText('Current review action')).getByText('Complete the copy decision in the gate below.')).toBeInTheDocument()
 
     const feedback = 'Keep the topic, but add the Slack canary context and name the revision path Shaka should take next.'
     fireEvent.change(screen.getByLabelText('Revision feedback for Shaka'), {
@@ -1614,8 +1621,8 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(within(gateSection as HTMLElement).queryByRole('button', { name: /Request Revision/i })).not.toBeInTheDocument()
     expect(within(gateSection as HTMLElement).queryByRole('button', { name: /Approve Copy/i })).not.toBeInTheDocument()
     expect(within(gateSection as HTMLElement).getByText(/Copy rejection is recorded/i)).toBeInTheDocument()
-    expect(within(screen.getByLabelText('Copy rejected mobile workflow summary')).queryByText(/The copy decision is recorded as rejected/i)).not.toBeInTheDocument()
-    expect(within(screen.getByLabelText('Copy rejected mobile workflow summary')).getByText('Edit the draft, then use Return to Copy Review to make it reviewable again.')).toBeInTheDocument()
+    expect(within(screen.getByLabelText('Current review action')).queryByText(/The copy decision is recorded as rejected/i)).not.toBeInTheDocument()
+    expect(within(screen.getByLabelText('Current review action')).getByText('Edit the draft, then use Return to Copy Review to make it reviewable again.')).toBeInTheDocument()
     expect(screen.queryByText('Copy rejected with revision feedback.')).not.toBeInTheDocument()
     expect(fetchMock.mock.calls.some(([url]) => String(url).includes('/calibration-revision'))).toBe(false)
   })
