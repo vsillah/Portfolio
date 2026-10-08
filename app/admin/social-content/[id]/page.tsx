@@ -5424,8 +5424,8 @@ function SocialContentDetailPage() {
                     </div>
                   </div>
                 ) : visualPreviewImageUrl ? (
-                  <div className="rounded-lg overflow-hidden border border-gray-700 relative w-full aspect-video bg-gray-900">
-                    <Image src={visualPreviewImageUrl} alt={visualPreviewAlt} className="object-cover" fill sizes="(max-width: 600px) 100vw, 600px" />
+                  <div className="relative w-full aspect-[4/5] overflow-hidden rounded-lg border border-gray-700 bg-gray-900">
+                    <Image src={visualPreviewImageUrl} alt={visualPreviewAlt} className="object-contain" fill sizes="(max-width: 600px) 100vw, 600px" />
                   </div>
                 ) : null}
               </div>
