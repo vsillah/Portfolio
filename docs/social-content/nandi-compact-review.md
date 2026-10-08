@@ -1,6 +1,6 @@
 # Nandi: compact Social Content detail
 
-Status: captain scripted QA passed at `f3ef2778`; final visual review found header contrast loss over bright media. The solid-background correction awaits a fresh rendered run. Draft PR remains gated on that check.
+Status: final synthetic rendered QA passed at `a3a36a5d`, including the solid-header contrast correction. Ready for a stacked draft PR and captain integration review; no merge or deployment performed.
 
 ## Binding and scope
 
@@ -40,7 +40,7 @@ Scoped lint, knowledge generation, QA-script syntax, and diff checks passed. Typ
 
 ## Rendered evidence and final contrast correction
 
-The captain ran the permitted synthetic QA in this worktree at `f3ef2778`:
+The captain reran the permitted synthetic QA in this worktree at `a3a36a5d` after the contrast correction:
 
 ```sh
 CAMPAIGN_QA_PORT=4031 node scripts/qa/campaign-release-recovery-server.cjs
@@ -59,11 +59,13 @@ The preview reduction is about 75% on this fixture. These are component measurem
 
 All widths recorded zero external requests, provider calls, production mutations, and page errors. Assertions covered disclosure keyboard operation, full-copy expansion, focused decision visibility, main-container scrolling, bounded document scrolling, mobile drawer open/close/Escape, desktop sidebar, blocked legacy video attachment, media approval, script invalidation, editorial review, and old-render rejection. Mutations occurred only in the in-memory fixture. Copy approval was a fixture precondition, not exercised by this run.
 
-Captain visual inspection passed the compact-review and sticky-decision screenshots. Nandi also inspected those screenshots and sampled frames from all three H.264 MP4s. The videos are 21.84 seconds (390), 23.08 seconds (768), and 24.88 seconds (1440), each 898 pixels high. All screenshots, the three MP4s, and results are preserved in `qa/nandi-compact/`. The stale `390-sticky-geometry.png` diagnostic was removed.
+Captain visual inspection passed the compact-review and sticky-decision screenshots. Nandi also inspected those screenshots and sampled frames from all three H.264 MP4s. The videos are 22.00 seconds (390), 22.88 seconds (768), and 24.72 seconds (1440), each 898 pixels high. All screenshots, the three MP4s, and results are preserved in `qa/nandi-compact/`. The stale `390-sticky-geometry.png` diagnostic was removed.
 
-The tablet MP4 exposed an additional issue around 2 seconds: the bright playback fixture showed through the sticky header, washing out its labels. `bg-background/95` uses a CSS-variable color that does not produce the intended opaque background here. The header now uses solid `bg-gray-950` without backdrop blur, and the QA harness asserts the actual computed background color. Existing captures precede this contrast correction and must not be presented as final passing evidence for it.
+The initial tablet recording exposed contrast loss when bright playback appeared behind the sticky header. The header now uses solid `bg-gray-950` without backdrop blur, and the QA harness asserts its computed background color. The final captain rerun passed at all three widths; the updated tablet sticky-decision artifact was visually re-inspected and labels remain legible. The committed captures replace the earlier recordings and document the corrected implementation.
 
-This lane's Browser again refused the route because its admin-enforced policy check was unavailable. No bypass was attempted. The next step is one fresh permitted QA run from the captain's working browser session, replacing the captures/results and checking header contrast over the bright media. Once that passes, open a draft PR based on `codex/campaign-video-editorial-eligibility` (#1030), then stop before merge/deployment.
+This lane's integrated Browser remained unavailable due to its admin-policy check. The final rendered execution was performed in the captain's permitted working session; no bypass was used here. Nandi verified the refreshed results, MP4 codec/dimensions/durations, and updated tablet screenshot locally. There are no remaining lane-level rendered-QA blockers.
+
+The draft PR is stacked on `codex/campaign-video-editorial-eligibility` (#1030). The integration captain owns dependency merge sequencing, retarget/rebase after #1030 lands, broader shared-shell smoke, deployment verification, and Human QA.
 
 ## Limits and integration
 
