@@ -6,10 +6,17 @@ export function socialReleaseReview(item: unknown, platform?: string) {
   const row = record(item)
   const gate = record(record(row.rag_context).platform_submission_gate)
   const confirmedPlatforms = record(gate.confirmed_platforms)
-  const partial = gate.status === 'partially_submitted' || Object.keys(confirmedPlatforms).length > 0
   const all = Array.isArray(row.publishes) ? row.publishes.map(record) : []
   const selected = platform ? all.filter(pub => pub.platform === platform) : all
   const confirmed = (pub: Record<string, unknown>) => pub.status === 'published' && typeof pub.platform_post_id === 'string' && pub.platform_post_id.length > 0
+  const configuredTargets = Array.isArray(row.target_platforms)
+    ? row.target_platforms.filter((target): target is string => typeof target === 'string' && target.length > 0)
+    : []
+  const targetPlatforms = configuredTargets.length > 0
+    ? configuredTargets
+    : all.flatMap(pub => typeof pub.platform === 'string' ? [pub.platform] : [])
+  const hasRemainingTargets = targetPlatforms.some(target => !all.some(pub => pub.platform === target && confirmed(pub)))
+  const partial = (gate.status === 'partially_submitted' || Object.keys(confirmedPlatforms).length > 0) && hasRemainingTargets
   // Match backend hasAmbiguousSocialPublishRows: only pristine pending rows or
   // published rows with a provider ID are safe, regardless of a status label.
   const ambiguous = (pub: Record<string, unknown>) => pub.status === 'published' ? !confirmed(pub)

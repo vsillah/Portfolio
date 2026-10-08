@@ -8,10 +8,20 @@ describe('release review UI', () => {
     expect(socialReleaseReview({publishes:[{platform:'linkedin',status:'failed',platform_post_id:'provider'}]},'linkedin')).toMatchObject({locked:true,continuation:false})
   })
   it('allows only pending unsubmitted platforms through a new final approval after partial confirmation',()=>{
-    const item={rag_context:{platform_submission_gate:{status:'partially_submitted',confirmed_platforms:{linkedin:'provider'}}},publishes:[{platform:'linkedin',status:'published',platform_post_id:'provider'},{platform:'x',status:'pending'}]}
+    const item={target_platforms:['linkedin','x'],rag_context:{platform_submission_gate:{status:'partially_submitted',confirmed_platforms:{linkedin:'provider'}}},publishes:[{platform:'linkedin',status:'published',platform_post_id:'provider'},{platform:'x',status:'pending'}]}
     expect(socialReleaseReview(item,'linkedin')).toMatchObject({locked:true,continuation:false,label:'Post confirmed'})
     expect(socialReleaseReview(item,'x')).toMatchObject({locked:false,continuation:true})
     expect(socialReleaseReview({...item,rag_context:{platform_submission_gate:{...item.rag_context.platform_submission_gate,status:'uncertain'}}},'x')).toMatchObject({locked:true,continuation:false})
+  })
+  it('treats a completed single-platform release as confirmed even when the gate retains partial history',()=>{
+    const item={
+      target_platforms:['linkedin'],
+      rag_context:{platform_submission_gate:{status:'partially_submitted',confirmed_platforms:{linkedin:'provider'}}},
+      publishes:[{platform:'linkedin',status:'published',platform_post_id:'provider'}],
+    }
+
+    expect(socialReleaseReview(item)).toMatchObject({locked:true,phase:'Confirmed',continuation:false,label:'Post confirmed'})
+    expect(socialReleaseReview(item,'linkedin')).toMatchObject({locked:true,phase:'Confirmed',continuation:false,label:'Post confirmed'})
   })
   it.each([{status:'failed'},{status:'published'},{status:'submitted'},{status:'queued'},{status:'unknown'},{status:'published',platform_post_url:'https://example.com/post'},{status:'pending',platform_post_id:'unexpected'}])('locks ambiguous receipt %j without inventing confirmation', receipt=>{
     const view=socialReleaseReview({publishes:[{platform:'linkedin',...receipt}]},'linkedin')
