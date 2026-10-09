@@ -3037,6 +3037,14 @@ function ContentIntelligenceContent() {
                               const body = await response.json()
                               if (!response.ok) throw new Error(body.error || 'Unable to save review.')
                               setPackets(current => current.map(item => item.id === packet.id ? body.packet : item))
+                            }} onSaveEvidence={async evidence => {
+                              const response = await authedFetch(`/api/admin/social-content/intelligence/research-packets/${packet.id}/review`, {
+                                method: 'PATCH',
+                                body: JSON.stringify({ evidence, updated_at: packet.updated_at }),
+                              })
+                              const body = await response.json()
+                              if (!response.ok) throw new Error(body.error || 'Unable to save practitioner evidence.')
+                              setPackets(current => current.map(item => item.id === packet.id ? body.packet : item))
                             }} />
                             {packet.hook_transcript ? (
                               <p className="mt-1 line-clamp-2 break-words text-xs leading-5 text-muted-foreground" title={packet.hook_transcript}>
