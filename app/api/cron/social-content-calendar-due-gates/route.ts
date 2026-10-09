@@ -548,10 +548,14 @@ async function runDueGateSweep(request: NextRequest) {
       const projected = result.rows.find(row => row.id === item.id)
       const blocked = result.blocked_items?.find(row => row.calendar_item_id === item.id)
       if (!completed) {
-        const blocker = blocked?.reason || projected?.reason || 'The review package is not ready for Human QA.'
+        const blocker = blocked?.reason
+          || projected?.reason
+          || 'Automatic preparation returned no eligible packet. Verify the calendar linkage, due trigger, practitioner quality marker, and required receipts in the linked Social Content copy gate.'
         const recoveryAction = blocked?.recovery_action
           || projected?.href
-          || `/admin/agents/content-intelligence?section=calendar&calendar_item=${encodeURIComponent(item.id)}#content-calendar-gate`
+          || (socialContentId
+            ? `/admin/social-content/${encodeURIComponent(socialContentId)}?step=copy`
+            : `/admin/agents/content-intelligence?section=calendar&calendar_item=${encodeURIComponent(item.id)}#content-calendar-gate`)
         const updateResult = await supabaseAdmin
           .from('social_content_calendar_items')
           .update({

@@ -17,6 +17,7 @@ vi.mock('@/lib/supabase', () => ({ supabaseAdmin: { from(table: string) {
   }; return q
 } } }))
 import { getCampaignReviewBacklog, prepareCampaignReviewBatch, saveCampaignReviewCadence } from './campaign-review-backlog'
+import { practitionerContentQaFixture } from './social-practitioner-content-qa-fixture'
 const now = new Date('2026-10-05T11:00:00Z')
 function seed(count = 12) {
   db.writes = []; db.fail = false; db.race = false
@@ -24,7 +25,11 @@ function seed(count = 12) {
   for (let i = 0; i < count; i++) {
     const c = { id: `calendar-${i}`, campaign_id: 'campaign', title: `Review ${i}`, channel: 'linkedin', campaign_phase: 'teach', social_content_id: `draft-${i}`, authorization_status: 'authorized', due_status: 'planned', scheduled_for: '2026-10-10T12:00:00Z', updated_at: 'v1', metadata: { platform_draft_handoff: { work_item_id: `work-${i}` } } }
     db.tables.social_content_calendar_items.push(c)
-    db.tables.social_content_queue.push({ id: c.social_content_id, status: 'draft', post_text: 'Synthetic draft' })
+    db.tables.social_content_queue.push({
+      ...structuredClone(practitionerContentQaFixture()),
+      id: c.social_content_id,
+      status: 'draft',
+    })
     db.tables.agent_work_items.push({ id: `work-${i}`, source_type: 'social_content_calendar_authorization', updated_at: 'v1', metadata: { calendar_item_id: c.id, campaign_id: c.campaign_id, channel: c.channel, campaign_phase: c.campaign_phase, social_content_id: c.social_content_id, draft_handoff_only: true, research_packet_ids: ['evidence'], insight: { title: c.title, content_angle: 'A practical workflow review', approved_research_patterns: [{ packet_id: 'evidence' }] } } })
   }
   db.tables.social_content_queue.push({
@@ -92,6 +97,17 @@ describe('campaign rolling review persistence', () => {
       calibration_reference_ids: ['portfolio-social-published-calibration-1'],
       calibration_causal_boundary: 'correlational_only',
     })
+    expect(meta.channel_lanes.linkedin.draft_packet.fields.practitioner_quality_receipt).toMatchObject({
+      version: 'practitioner_evidence_v1',
+      status: 'passed',
+      specificity_result: 'specific',
+      social_content_id: 'draft-0',
+    })
+    expect(meta.channel_lanes.linkedin.draft_packet.fields.practitioner_content_quality).toMatchObject({
+      version: 'practitioner_evidence_v1',
+      evidence_packet: { status: 'approved' },
+    })
+    expect(meta.rolling_review.linkedin.review_path).toBe('/admin/social-content/draft-0?step=copy')
     expect(meta.rolling_review.linkedin.content_version).toMatch(/^[a-f0-9]{64}$/)
     expect(meta.rolling_review_claims.linkedin.status).toBe('prepared')
     expect(Object.values(meta.side_effects).every(v => v === false)).toBe(true)
@@ -160,6 +176,22 @@ describe('campaign rolling review persistence', () => {
     meta.channel_lanes.linkedin.draft_packet.shared_source.campaign_id = 'different'
     expect((await getCampaignReviewBacklog('campaign', now)).blocked).toBe(1)
   })
+  it('never preserves a legacy in-review packet that omitted the practitioner receipt', async () => {
+    seed(1); await prepareCampaignReviewBatch('campaign', { now })
+    const meta = db.tables.agent_work_items[0].metadata
+    delete meta.rolling_review
+    delete meta.channel_lanes.linkedin.draft_packet.fields.practitioner_quality_receipt
+    delete meta.channel_lanes.linkedin.draft_packet.fields.practitioner_content_quality
+
+    const result = await getCampaignReviewBacklog('campaign', now)
+
+    expect(result.ready).toBe(0)
+    expect(result.rows[0]).toMatchObject({
+      state: 'blocked',
+      reason: expect.stringContaining('missing its passed practitioner-quality receipt'),
+      href: '/admin/social-content/draft-0?step=copy',
+    })
+  })
   it('dedupes shared social drafts and honors campaign boundaries and external locks', async () => {
     seed(3)
     db.tables.social_content_calendar_items[1].social_content_id = 'draft-0'
@@ -188,6 +220,76 @@ describe('campaign rolling review persistence', () => {
     expect(result.prepared_items.map(item => item.calendar_item_id)).toEqual(['calendar-1', 'calendar-0'])
     expect(result.prepared_items.every(item => /^[a-f0-9]{64}$/.test(item.content_version))).toBe(true)
     expect(db.tables.agent_work_items[2].metadata.rolling_review).toBeUndefined()
+  })
+
+  it('fails closed when the practitioner quality marker is omitted', async () => {
+    seed(1)
+    delete db.tables.social_content_queue[0].rag_context.practitioner_content_quality
+
+    const result = await prepareCampaignReviewBatch('campaign', { now })
+
+    expect(result.prepared_count).toBe(0)
+    expect(result.blocked_items).toEqual([expect.objectContaining({
+      calendar_item_id: 'calendar-0',
+      reason: expect.stringContaining('practitioner_evidence_v1 is missing'),
+      recovery_action: '/admin/social-content/draft-0?step=copy',
+    })])
+    expect(db.writes).toEqual([])
+  })
+
+  it('propagates concrete practitioner receipt failures to the Social Content recovery route', async () => {
+    seed(1)
+    const quality = db.tables.social_content_queue[0].rag_context.practitioner_content_quality
+    quality.evidence_packet.redaction_receipt.status = 'blocked'
+    quality.framework_application.performance_calibration.status = 'blocked'
+    quality.framework_application.performance_calibration.fallback_reason = null
+    quality.deterministic_visual.candidate.status = 'draft'
+
+    const result = await prepareCampaignReviewBatch('campaign', { now })
+
+    expect(result.prepared_count).toBe(0)
+    expect(result.blocked_items[0]).toMatchObject({
+      recovery_action: '/admin/social-content/draft-0?step=copy',
+    })
+    expect(result.blocked_items[0].reason).toEqual(expect.stringContaining('[redaction_not_passed]'))
+    expect(result.blocked_items[0].reason).toEqual(expect.stringContaining('[calibration_trace_missing]'))
+    expect(result.blocked_items[0].reason).toEqual(expect.stringContaining('[visual_candidate_not_ready]'))
+    expect(db.writes).toEqual([])
+  })
+
+  it('keeps overdue eligible items inside the bounded campaign projection', async () => {
+    seed(1)
+    db.tables.social_content_calendar_items[0].scheduled_for = '2026-09-30T11:00:00Z'
+    db.tables.social_content_calendar_items[0].metadata.review_trigger_at = '2026-09-30T11:00:00Z'
+
+    const projected = await getCampaignReviewBacklog('campaign', now)
+    const result = await prepareCampaignReviewBatch('campaign', {
+      now,
+      dueOnly: true,
+      calendarItemIds: ['calendar-0'],
+    })
+
+    expect(projected.rows).toEqual([expect.objectContaining({ id: 'calendar-0', state: 'eligible' })])
+    expect(result.prepared_items).toEqual([expect.objectContaining({ calendar_item_id: 'calendar-0' })])
+
+    seed(1)
+    db.tables.social_content_calendar_items[0].scheduled_for = '2026-08-30T11:00:00Z'
+    db.tables.social_content_calendar_items[0].metadata.review_trigger_at = '2026-08-30T11:00:00Z'
+    expect((await getCampaignReviewBacklog('campaign', now)).rows).toEqual([])
+  })
+
+  it('invalidates a prepared packet when its practitioner receipt lineage changes', async () => {
+    seed(1)
+    await prepareCampaignReviewBatch('campaign', { now })
+    db.tables.social_content_queue[0].rag_context.practitioner_content_quality.evidence_packet.redaction_receipt.receipt_id = 'redaction-revised'
+
+    const projection = await getCampaignReviewBacklog('campaign', now)
+
+    expect(projection.ready).toBe(0)
+    expect(projection.rows[0]).toMatchObject({
+      state: 'blocked',
+      reason: 'Source changed. Revise this packet in the existing review panel.',
+    })
   })
 
 })

@@ -16,6 +16,11 @@ import {
   socialChannelReviewPublicCopyFields,
 } from '@/lib/social-content-intelligence'
 import { validateSocialPublicCopyFields } from '@/lib/social-content-lifecycle'
+import {
+  PRACTITIONER_CONTENT_QUALITY_VERSION,
+  requiresPractitionerContentQuality,
+  validatePractitionerContentQuality,
+} from '@/lib/social-practitioner-content'
 import { nextReviewWindow, reviewCadence, reviewWindows, REVIEW_SIDE_EFFECTS, type ReviewProjection, type ReviewRow, type ReviewWindow } from '@/lib/campaign-review-cadence'
 
 type Row = Record<string, any> // Database JSON records are validated before preparing a packet.
@@ -24,7 +29,9 @@ const text = (v: unknown) => typeof v === 'string' ? v : ''
 const nextVersion = (value: unknown) => new Date(Math.max(Date.now(), (Date.parse(text(value)) || 0) + 1)).toISOString()
 const hash = (v: unknown): string => createHash('sha256').update(JSON.stringify(v, (_k, x) => x && typeof x === 'object' && !Array.isArray(x) ? Object.fromEntries(Object.entries(x).sort(([a], [b]) => a.localeCompare(b))) : x)).digest('hex')
 const CLAIM_LEASE_MS = 5 * 60 * 1000
+const REVIEW_LOOKBACK_MS = 30 * 24 * 60 * 60 * 1000
 const PRIORITY_WEIGHT = { urgent: 0, high: 1, medium: 2, low: 3 } as const
+type PractitionerQualityInput = Parameters<typeof validatePractitionerContentQuality>[0] & { id?: string }
 
 function reviewPriority(value: unknown): ReviewRow['priority'] {
   return value === 'urgent' || value === 'high' || value === 'low' ? value : 'medium'
@@ -46,6 +53,7 @@ function claimIsActive(value: unknown, lineage: string, now: Date) {
 function packetReadiness(input: {
   insight: Row
   metadata: Row
+  socialContent: PractitionerQualityInput
   channel: string
   generatedAt: string
   calibrationReferences: SocialContentCalibrationReference[]
@@ -68,9 +76,12 @@ function packetReadiness(input: {
   for (const draft of Object.values(drafts)) draft.enrichment_receipt = enrichmentReceipt
 
   if (!isSocialContentIntelligenceChannel(input.channel)) {
-    return { packet: null, blockers: ['This channel needs a manual Social Content review.'] }
+    return { packet: null, blockers: ['This channel needs a manual Social Content review.'], practitionerGate: null }
   }
   const packet = drafts[input.channel]
+  const practitionerGate = requiresPractitionerContentQuality(input.socialContent)
+    ? validatePractitionerContentQuality(input.socialContent)
+    : null
   const privacyNotes = packet.orchestration_evidence?.visual_reinforcement.privacy_notes ?? []
   const blockers = [
     ...enrichmentReceipt.blockers,
@@ -80,8 +91,24 @@ function packetReadiness(input: {
     ...(copyQualityGate.status === 'passed' ? [] : copyQualityGate.findings.map(finding => `${finding.label} in ${finding.field}.`)),
     ...(privacyNotes.length ? [] : ['Privacy and source-use boundary is missing.']),
     ...(Object.values(packet.side_effects).every(value => value === false) ? [] : ['External execution must remain disabled.']),
+    ...(!practitionerGate
+      ? [`Practitioner content quality marker ${PRACTITIONER_CONTENT_QUALITY_VERSION} is missing from the linked Social Content draft.`]
+      : practitionerGate.status === 'passed'
+        ? []
+        : practitionerGate.findings.map(finding => `[${finding.code}] ${finding.message}`)),
   ]
-  return { packet, blockers: [...new Set(blockers)] }
+  if (practitionerGate?.status === 'passed') {
+    packet.fields.practitioner_content_quality = practitionerGate.record
+    packet.fields.practitioner_quality_receipt = {
+      version: PRACTITIONER_CONTENT_QUALITY_VERSION,
+      status: practitionerGate.status,
+      specificity_result: practitionerGate.specificity_result,
+      matched_public_details: practitionerGate.matched_public_details,
+      validated_at: input.generatedAt,
+      social_content_id: text(input.socialContent.id),
+    }
+  }
+  return { packet, blockers: [...new Set(blockers)], practitionerGate }
 }
 function reviewNotification(id: string, window: ReviewWindow, calendarItemIds: string[]) {
   const input: AgentSlackNotificationInput = { kind: 'review_ready', goalId: 'social-content-calendar', calendarItemIds, dedupeKey: `campaign-review:${id}:${window.key}`, triggerSource: 'campaign_review_backlog' }
@@ -122,7 +149,7 @@ type Snapshot = Awaited<ReturnType<typeof load>>
 function project(s: Snapshot, now: Date): ReviewProjection {
   const anchor = s.calendar[0]
   const config = reviewCadence(record(anchor?.metadata).campaign_review_cadence)
-  const horizonStart = Math.max(now.getTime(), Date.parse(s.campaign.starts_at) || 0)
+  const horizonStart = Math.max(now.getTime() - REVIEW_LOOKBACK_MS, Date.parse(s.campaign.starts_at) || 0)
   const end = new Date(Math.min(now.getTime() + config.horizon_days * 86400000, Date.parse(s.campaign.ends_at) || Infinity)).toISOString()
   const rows: ReviewRow[] = []
   const seen = new Set<string>()
@@ -138,7 +165,30 @@ function project(s: Snapshot, now: Date): ReviewProjection {
     const evidence = ids.map(id => s.evidence.find(e => e.id === id))
     const lanes = record(wm.channel_lanes), lane = record(lanes[c.channel]), packet = record(lane.draft_packet)
     const draft = s.drafts.find(d => d.id === c.social_content_id)
-    const lineage = hash({ campaign: s.campaign.id, calendar: c.id, phase: c.campaign_phase, channel: c.channel, work: wid, social: c.social_content_id, evidence, insight, title: c.title, angle: c.planned_angle, feedback: wm.autoresearch_feedback_latest, copy: draft?.post_text, calibration_references: s.calibrationReferences })
+    const lineage = hash({
+      campaign: s.campaign.id,
+      calendar: c.id,
+      phase: c.campaign_phase,
+      channel: c.channel,
+      work: wid,
+      social: c.social_content_id,
+      evidence,
+      insight,
+      title: c.title,
+      angle: c.planned_angle,
+      feedback: wm.autoresearch_feedback_latest,
+      canonical_content: draft ? {
+        post_text: draft.post_text,
+        cta_text: draft.cta_text,
+        voiceover_text: draft.voiceover_text,
+        youtube_title: draft.youtube_title,
+        youtube_description: draft.youtube_description,
+        hormozi_framework: draft.hormozi_framework,
+        practitioner_content_quality: record(draft.rag_context).practitioner_content_quality,
+        content_calibration: record(draft.rag_context).content_calibration,
+      } : null,
+      calibration_references: s.calibrationReferences,
+    })
     let href = wid ? `/admin/agents/social-insights/${encodeURIComponent(wid)}?channel=${encodeURIComponent(c.channel)}` : `/admin/agents/content-intelligence?section=calendar&calendar_item=${encodeURIComponent(c.id)}#content-calendar-gate`
     let reason = '', state: ReviewRow['state'] = 'eligible'
     if (s.campaign.status !== 'active') reason = 'Activate the campaign before preparing review batches.'
@@ -158,9 +208,22 @@ function project(s: Snapshot, now: Date): ReviewProjection {
     const claim = record(record(wm.rolling_review_claims)[c.channel])
     if (!reason && state === 'eligible' && lane.status === 'in_review' && packet.approval_status === 'in_review') {
       const source = record(packet.shared_source)
+      const packetFields = record(packet.fields)
+      const practitionerReceipt = record(packetFields.practitioner_quality_receipt)
+      const practitionerRecord = record(packetFields.practitioner_content_quality)
       const existingMatches = source.calendar_item_id === c.id && source.work_item_id === wid && source.campaign_id === s.campaign.id && source.social_content_id === c.social_content_id && source.channel === c.channel
-      if (saved.lineage === lineage || (!saved.lineage && existingMatches)) state = 'ready'
+      const practitionerReceiptAttached = practitionerReceipt.version === PRACTITIONER_CONTENT_QUALITY_VERSION
+        && practitionerReceipt.status === 'passed'
+        && practitionerReceipt.social_content_id === c.social_content_id
+        && practitionerRecord.version === PRACTITIONER_CONTENT_QUALITY_VERSION
+      if (!practitionerReceiptAttached) {
+        reason = 'The prepared packet is missing its passed practitioner-quality receipt. Resolve the linked Social Content checks, then prepare it again.'
+        state = 'blocked'
+      } else if (saved.lineage === lineage || (!saved.lineage && existingMatches)) state = 'ready'
       else { reason = 'Source changed. Revise this packet in the existing review panel.'; state = 'blocked' }
+    }
+    if (reason.startsWith('The prepared packet is missing its passed practitioner-quality receipt.') && c.social_content_id) {
+      href = `/admin/social-content/${encodeURIComponent(c.social_content_id)}?step=copy`
     }
     if (!reason && state === 'eligible' && claimIsActive(claim, lineage, now)) {
       reason = 'Preparation is already in progress. Retry after the five-minute claim lease expires.'
@@ -240,7 +303,10 @@ export async function prepareCampaignReviewBatch(id: string, options: {
         ? Number(record(blocked(b)).status === 'blocked') - Number(record(blocked(a)).status === 'blocked')
         : 0
       return revision || a.trigger_at.localeCompare(b.trigger_at) || a.id.localeCompare(b.id)
-    }).slice(0, Math.max(0, Math.min(window.limit - used, before.gap)))
+    }).slice(0, Math.max(0, Math.min(
+      window.limit - used,
+      selectedIds.size ? selectedIds.size : before.gap,
+    )))
   let prepared = 0
   const preparedItems: Array<{ calendar_item_id: string; work_item_id: string; social_content_id: string | null; review_path: string; content_version: string; lineage: string }> = []
   const blockedItems: Array<{ calendar_item_id: string; reason: string; recovery_action: string }> = []
@@ -263,12 +329,22 @@ export async function prepareCampaignReviewBatch(id: string, options: {
       })
       continue
     }
-    const readiness = packetReadiness({ insight, metadata: wm, channel: live.channel, generatedAt: now.toISOString(), calibrationReferences: current.calibrationReferences })
+    const socialContent = current.drafts.find(draft => draft.id === live.social_content_id)! as PractitionerQualityInput
+    const readiness = packetReadiness({
+      insight,
+      metadata: wm,
+      socialContent,
+      channel: live.channel,
+      generatedAt: now.toISOString(),
+      calibrationReferences: current.calibrationReferences,
+    })
     if (!readiness.packet || readiness.blockers.length) {
       blockedItems.push({
         calendar_item_id: live.id,
         reason: readiness.blockers.join(' '),
-        recovery_action: live.href,
+        recovery_action: live.social_content_id
+          ? `/admin/social-content/${encodeURIComponent(live.social_content_id)}?step=copy`
+          : live.href,
       })
       continue
     }
@@ -303,7 +379,9 @@ export async function prepareCampaignReviewBatch(id: string, options: {
     const contentVersion = hash({ packet, lineage: live.lineage })
     const lanes = normalizeSocialChannelLanes(claimedWorkMetadata.channel_lanes)
     lanes[live.channel] = { ...lanes[live.channel], status: 'in_review', draft_packet: packet, review_requested_at: now.toISOString(), updated_at: now.toISOString() }
-    const reviewPath = `/admin/agents/social-insights/${encodeURIComponent(w.id)}?channel=${encodeURIComponent(live.channel)}`
+    const reviewPath = live.social_content_id
+      ? `/admin/social-content/${encodeURIComponent(live.social_content_id)}?step=copy`
+      : `/admin/agents/social-insights/${encodeURIComponent(w.id)}?channel=${encodeURIComponent(live.channel)}`
     const updatedMetadata = {
       ...claimedWorkMetadata,
       channel_lanes: lanes,
