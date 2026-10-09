@@ -294,6 +294,68 @@ describe('/api/cron/social-content-calendar-due-gates', () => {
     })
   })
 
+  it('persists concrete preparation checks and a Social Content recovery route', async () => {
+    const scheduledFor = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
+    const items = [{
+      id: 'calendar-blocked-quality',
+      title: 'Blocked practitioner packet',
+      campaign_id: 'campaign-1',
+      social_content_id: 'social-blocked-quality',
+      channel: 'linkedin',
+      campaign_phase: 'teach',
+      scheduled_for: scheduledFor,
+      authorization_status: 'authorized',
+      metadata: {},
+      social_content_queue: {
+        id: 'social-blocked-quality',
+        status: 'draft',
+        social_content_publishes: [],
+      },
+    }]
+    const selectQuery: Record<string, unknown> = {
+      in: vi.fn(() => selectQuery),
+      gte: vi.fn(() => selectQuery),
+      lte: vi.fn(() => selectQuery),
+      order: vi.fn(() => selectQuery),
+      range: vi.fn(async () => ({ data: items, error: null })),
+    }
+    const updateEq = vi.fn(async () => ({ data: null, error: null }))
+    const update = vi.fn(() => ({ eq: updateEq }))
+    mocks.from.mockReturnValueOnce({ select: vi.fn(() => selectQuery) }).mockReturnValue({ update })
+    mocks.prepareCampaignReviewBatch.mockResolvedValue({
+      rows: [{ id: 'calendar-blocked-quality', state: 'eligible', reason: '', lineage: 'quality-v1' }],
+      prepared_items: [],
+      blocked_items: [{
+        calendar_item_id: 'calendar-blocked-quality',
+        reason: '[redaction_not_passed] Record a passing redaction receipt. [visual_candidate_not_ready] Create an HTML/SVG visual candidate and place it in the existing in-review lifecycle.',
+        recovery_action: '/admin/social-content/social-blocked-quality?step=copy',
+      }],
+      prepared_count: 0,
+    })
+
+    const response = await POST(request('http://localhost/api/cron/social-content-calendar-due-gates', 'POST') as never)
+
+    expect(response.status).toBe(200)
+    expect(update).toHaveBeenCalledWith(expect.objectContaining({
+      metadata: expect.objectContaining({
+        publish_preparation: expect.objectContaining({
+          status: 'blocked',
+          blocker: expect.stringContaining('[redaction_not_passed]'),
+          recovery_action: '/admin/social-content/social-blocked-quality?step=copy',
+        }),
+      }),
+    }))
+    expect(mocks.runAgentSlackNotificationSweep).not.toHaveBeenCalled()
+    await expect(response.json()).resolves.toMatchObject({
+      preparation_count: 0,
+      preparation_blocked_count: 1,
+      preparation_blocked: [expect.objectContaining({
+        calendar_item_id: 'calendar-blocked-quality',
+        recovery_action: '/admin/social-content/social-blocked-quality?step=copy',
+      })],
+    })
+  })
+
   it('recalibrates missed unreleased calendar dates without external execution', async () => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date('2026-08-15T12:00:00.000Z'))
