@@ -104,14 +104,65 @@ async function inspectViewport(browser, name, viewport) {
   await page.waitForURL((url) => url.pathname === targetPath)
   await expect(page.getByRole('heading', { name: 'Your revenue has a plumbing problem' })).toBeVisible()
 
+  const mapSection = page.getByRole('region', { name: 'Interactive revenue plumbing map' })
+  await mapSection.scrollIntoViewIfNeeded()
+  await page.evaluate(() => window.scrollBy(0, -96))
+  await page.waitForTimeout(500)
+  const mapScreenshotPath = path.join(outputDir, `map-light-${name}.png`)
+  await mapSection.screenshot({ path: mapScreenshotPath })
+
+  const theme = await page.getByTestId('revenue-map-canvas').evaluate((element) => {
+    const styles = getComputedStyle(element)
+    return {
+      backgroundColor: styles.backgroundColor,
+      borderColor: styles.borderColor,
+    }
+  })
+
   await context.close()
 
   return {
     name,
     viewport,
     screenshot: path.relative(process.cwd(), screenshotPath),
+    mapScreenshot: path.relative(process.cwd(), mapScreenshotPath),
     destination: targetPath,
     layout,
+    theme,
+    externalRequests: [],
+    blockedExternalRequests,
+  }
+}
+
+async function captureDarkMap(browser) {
+  const blockedExternalRequests = []
+  const context = await browser.newContext({
+    viewport: { width: 1440, height: 900 },
+    colorScheme: 'dark',
+    extraHTTPHeaders: vercelOidcToken
+      ? { 'x-vercel-trusted-oidc-idp-token': vercelOidcToken }
+      : undefined,
+  })
+  await protectPrivacy(context, blockedExternalRequests)
+  const page = await context.newPage()
+  await page.addInitScript(() => window.localStorage.setItem('theme', 'dark'))
+  await page.goto(`${baseUrl}${targetPath}`, { waitUntil: 'networkidle' })
+
+  const mapSection = page.getByRole('region', { name: 'Interactive revenue plumbing map' })
+  await mapSection.scrollIntoViewIfNeeded()
+  await page.evaluate(() => window.scrollBy(0, -96))
+  await page.waitForTimeout(500)
+  const screenshotPath = path.join(outputDir, 'map-dark-desktop-1440.png')
+  await mapSection.screenshot({ path: screenshotPath })
+
+  const theme = await page.getByTestId('revenue-map-canvas').evaluate((element) => ({
+    backgroundColor: getComputedStyle(element).backgroundColor,
+  }))
+  await context.close()
+
+  return {
+    screenshot: path.relative(process.cwd(), screenshotPath),
+    theme,
     externalRequests: [],
     blockedExternalRequests,
   }
@@ -137,6 +188,7 @@ async function recordWalkthrough(browser) {
   await card.click()
   await page.waitForURL((url) => url.pathname === targetPath)
   await expect(page.getByRole('heading', { name: 'Your revenue has a plumbing problem' })).toBeVisible()
+  await page.getByRole('region', { name: 'Interactive revenue plumbing map' }).scrollIntoViewIfNeeded()
   await page.waitForTimeout(2200)
 
   const video = page.video()
@@ -166,6 +218,7 @@ try {
   }
 
   const walkthrough = await recordWalkthrough(browser)
+  const darkMode = await captureDarkMap(browser)
   const manifest = {
     capturedAt: new Date().toISOString(),
     baseUrl,
@@ -174,10 +227,12 @@ try {
     copy: cardCopy,
     viewports,
     walkthrough,
+    darkMode,
     externalRequests: [],
     blockedExternalRequests: [...new Set([
       ...viewports.flatMap((result) => result.blockedExternalRequests),
       ...walkthrough.blockedExternalRequests,
+      ...darkMode.blockedExternalRequests,
     ])],
   }
 

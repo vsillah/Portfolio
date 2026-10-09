@@ -1,6 +1,6 @@
 {
-  "capturedAt": "2026-10-09T09:49:07.370Z",
-  "baseUrl": "http://localhost:3025",
+  "capturedAt": "2026-10-09T10:19:43.760Z",
+  "baseUrl": "http://127.0.0.1:3025",
   "route": "/",
   "destination": "/insights/revenue-plumbing-map",
   "copy": "An interactive AmaduTown operating model for finding where revenue systems leak capacity.",
@@ -12,21 +12,28 @@
         "height": 844
       },
       "screenshot": "docs/qa/revenue-plumbing-home-card/homepage-card-mobile-390.png",
+      "mapScreenshot": "docs/qa/revenue-plumbing-home-card/map-light-mobile-390.png",
       "destination": "/insights/revenue-plumbing-map",
       "layout": {
         "card": {
-          "bottom": 764,
+          "bottom": 549,
           "height": 254,
           "left": 20,
           "right": 370,
-          "top": 510,
+          "top": 295,
           "width": 350
         },
         "documentWidth": 390,
         "viewportWidth": 390
       },
+      "theme": {
+        "backgroundColor": "rgb(232, 237, 243)",
+        "borderColor": "rgba(111, 83, 16, 0.34)"
+      },
       "externalRequests": [],
-      "blockedExternalRequests": []
+      "blockedExternalRequests": [
+        "https://va.vercel-scripts.com/v1/speed-insights/script.debug.js"
+      ]
     },
     {
       "name": "tablet-768",
@@ -35,6 +42,7 @@
         "height": 900
       },
       "screenshot": "docs/qa/revenue-plumbing-home-card/homepage-card-tablet-768.png",
+      "mapScreenshot": "docs/qa/revenue-plumbing-home-card/map-light-tablet-768.png",
       "destination": "/insights/revenue-plumbing-map",
       "layout": {
         "card": {
@@ -48,6 +56,10 @@
         "documentWidth": 768,
         "viewportWidth": 768
       },
+      "theme": {
+        "backgroundColor": "rgb(232, 237, 243)",
+        "borderColor": "rgba(111, 83, 16, 0.34)"
+      },
       "externalRequests": [],
       "blockedExternalRequests": [
         "https://va.vercel-scripts.com/v1/speed-insights/script.debug.js"
@@ -60,6 +72,7 @@
         "height": 900
       },
       "screenshot": "docs/qa/revenue-plumbing-home-card/homepage-card-desktop-1440.png",
+      "mapScreenshot": "docs/qa/revenue-plumbing-home-card/map-light-desktop-1440.png",
       "destination": "/insights/revenue-plumbing-map",
       "layout": {
         "card": {
@@ -73,6 +86,10 @@
         "documentWidth": 1440,
         "viewportWidth": 1440
       },
+      "theme": {
+        "backgroundColor": "rgb(232, 237, 243)",
+        "borderColor": "rgba(111, 83, 16, 0.34)"
+      },
       "externalRequests": [],
       "blockedExternalRequests": [
         "https://va.vercel-scripts.com/v1/speed-insights/script.debug.js"
@@ -82,6 +99,16 @@
   "walkthrough": {
     "video": "docs/qa/revenue-plumbing-home-card/homepage-card-walkthrough.mp4",
     "destination": "/insights/revenue-plumbing-map",
+    "externalRequests": [],
+    "blockedExternalRequests": [
+      "https://va.vercel-scripts.com/v1/speed-insights/script.debug.js"
+    ]
+  },
+  "darkMode": {
+    "screenshot": "docs/qa/revenue-plumbing-home-card/map-dark-desktop-1440.png",
+    "theme": {
+      "backgroundColor": "rgb(18, 30, 49)"
+    },
     "externalRequests": [],
     "blockedExternalRequests": [
       "https://va.vercel-scripts.com/v1/speed-insights/script.debug.js"
