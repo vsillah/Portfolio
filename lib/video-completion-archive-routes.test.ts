@@ -31,6 +31,43 @@ it('archive recovery does not refresh HeyGen; provider refresh does not archive 
   await refresh(new NextRequest('http://localhost/refresh', { method: 'POST', body: JSON.stringify({ videoId: 1 }) }))
   expect(m.complete).not.toHaveBeenCalled(); expect(m.update).toHaveBeenCalledWith({ provider_video_url: 'fresh-provider-input' })
 })
+it('provider refresh writes only the stored input, and a blocked archive stays unconfirmed', async () => {
+  const refreshed = await recovery(new NextRequest('http://localhost/status', { method: 'POST', body: JSON.stringify({ jobId: 'job', action: 'refresh_provider' }) }))
+  expect(refreshed.status).toBe(200)
+  await expect(refreshed.json()).resolves.toMatchObject({ refreshed: true, archived: false })
+  expect(m.status).toHaveBeenCalledWith('provider')
+  expect(m.update).toHaveBeenCalledWith({ provider_video_url: 'fresh-provider-input' })
+  expect(m.complete).not.toHaveBeenCalled()
+
+  m.status.mockResolvedValue({ status: 'completed', videoUrl: '' })
+  m.update.mockClear()
+  const missing = await recovery(new NextRequest('http://localhost/status', { method: 'POST', body: JSON.stringify({ jobId: 'job', action: 'refresh_provider' }) }))
+  expect(missing.status).toBe(409)
+  expect(m.update).not.toHaveBeenCalled()
+  expect(m.complete).not.toHaveBeenCalled()
+
+  job.heygen_status = 'processing'
+  const unavailable = await recovery(new NextRequest('http://localhost/status', { method: 'POST', body: JSON.stringify({ jobId: 'job', action: 'archive' }) }))
+  expect(unavailable.status).toBe(409)
+  expect(m.complete).not.toHaveBeenCalled()
+  job.heygen_status = 'completed'
+
+  const invalid = await recovery(new NextRequest('http://localhost/status', { method: 'POST', body: JSON.stringify({ jobId: 'job', action: 'publish' }) }))
+  expect(invalid.status).toBe(400)
+  expect(m.complete).not.toHaveBeenCalled()
+
+  m.complete.mockResolvedValue({ reference: null, videoRecordId: null, sha256: null, media_blocker: 'Private archive failed. Refresh the provider input or retry archive recovery.' })
+  m.playback.mockResolvedValue({ playback_url: null, media_blocker: null })
+  const blocked = await recovery(new NextRequest('http://localhost/status', { method: 'POST', body: JSON.stringify({ jobId: 'job', action: 'archive' }) }))
+  expect(blocked.status).toBe(409)
+  const body = await blocked.json()
+  expect(body).toMatchObject({ playback_url: null, media_blocker: null, reference: null })
+  expect(JSON.stringify(body)).not.toMatch(/https?:|signature|token/i)
+  m.playback.mockResolvedValue({ playback_url: null, media_blocker: 'Video URL is missing or unusable.' })
+  const playbackWins = await recovery(new NextRequest('http://localhost/status', { method: 'POST', body: JSON.stringify({ jobId: 'job', action: 'archive' }) }))
+  expect(playbackWins.status).toBe(409)
+  expect((await playbackWins.json()).media_blocker).toBe('Video URL is missing or unusable.')
+})
 it('the completed-jobs list strips unusable media and returns its recovery reason', async () => {
   m.playback.mockResolvedValue({ playback_url: null, media_blocker: 'Provider video link expired.' })
   const response = await jobs(new NextRequest('http://localhost/jobs?status=completed'))
