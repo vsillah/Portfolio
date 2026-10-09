@@ -116,6 +116,27 @@ async function recordMobile() {
   return video.path()
 }
 
+async function captureTablet() {
+  const context = await browser.newContext({
+    storageState: authState,
+    viewport: { width: 768, height: 900 },
+    reducedMotion: 'reduce',
+    extraHTTPHeaders: {
+      'x-vercel-protection-bypass': bypassSecret!,
+      'x-vercel-set-bypass-cookie': 'true',
+    },
+  })
+  try {
+    const page = await context.newPage()
+    await openResearch(page)
+    await page.getByRole('button', { name: 'Review packet', exact: true }).first().click()
+    await page.getByText('Privacy and redaction receipt', { exact: true }).scrollIntoViewIfNeeded()
+    await page.screenshot({ path: join(outputDir, 'tablet-privacy-review.png'), fullPage: false })
+  } finally {
+    await context.close()
+  }
+}
+
 let browser: Awaited<ReturnType<typeof chromium.launch>>
 
 async function main() {
@@ -125,6 +146,7 @@ async function main() {
   let mobileRaw = ''
   try {
     desktopRaw = await recordDesktop()
+    await captureTablet()
     mobileRaw = await recordMobile()
   } finally {
     await browser.close()
@@ -148,9 +170,10 @@ async function main() {
 
   writeFileSync(join(outputDir, 'results.json'), JSON.stringify({
     generated_at: new Date().toISOString(),
+    commit: execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(),
     base_url: baseUrl,
     route,
-    viewports: [{ width: 1440, height: 900 }, { width: 390, height: 844 }],
+    viewports: [{ width: 1440, height: 900 }, { width: 768, height: 900 }, { width: 390, height: 844 }],
     packet_source: 'existing public research packet from the authenticated preview',
     synthetic_form_values: true,
     product_writes: 0,
