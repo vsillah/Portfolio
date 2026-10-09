@@ -47,6 +47,7 @@ const calls = {
   filters: [] as unknown[],
   updates: [] as Array<{ payload: unknown; eq: unknown[] }>,
   inserts: [] as unknown[],
+  writeOrder: [] as string[],
 }
 
 function ordinaryJob(overrides: Partial<Job> = {}): Job {
@@ -66,7 +67,13 @@ function ordinaryJob(overrides: Partial<Job> = {}): Job {
   }
 }
 
-function jobsClient(result: { data: Job[] | null; error: { message: string } | null }) {
+function jobsClient(
+  result: { data: Job[] | null; error: { message: string } | null },
+  persistence: {
+    updateError?: { message: string } | null
+    insertError?: { message: string } | null
+  } = {},
+) {
   return {
     select: () => ({
       in: (_column: string, ids: string[]) => {
@@ -86,13 +93,15 @@ function jobsClient(result: { data: Job[] | null; error: { message: string } | n
     }),
     update: (payload: unknown) => ({
       eq: (column: string, value: unknown) => {
+        calls.writeOrder.push('update')
         calls.updates.push({ payload, eq: [column, value] })
-        return Promise.resolve({ error: null })
+        return Promise.resolve({ error: persistence.updateError ?? null })
       },
     }),
     insert: (payload: unknown) => {
+      calls.writeOrder.push('insert')
       calls.inserts.push(payload)
-      return Promise.resolve({ error: null })
+      return Promise.resolve({ error: persistence.insertError ?? null })
     },
   }
 }
@@ -115,6 +124,7 @@ describe('POST /api/admin/video-generation/jobs/batch-retry', () => {
     calls.filters = []
     calls.updates = []
     calls.inserts = []
+    calls.writeOrder = []
     mocks.verifyAdmin.mockResolvedValue({ user: { id: 'admin-1' }, isAdmin: true })
     mocks.isAuthError.mockReturnValue(false)
     mocks.createVideo.mockResolvedValue({ videoId: 'vid-new' })
@@ -152,21 +162,15 @@ describe('POST /api/admin/video-generation/jobs/batch-retry', () => {
     expect(mocks.createVideo).not.toHaveBeenCalled()
   })
 
-  it('queries only failed, undeleted jobs and caps the batch at 20 ids', async () => {
+  it('rejects more than 20 ids before reading jobs or calling HeyGen', async () => {
     const ids = Array.from({ length: 25 }, (_, index) => `job-${String(index).padStart(2, '0')}-extra`)
-    mocks.from.mockImplementation((table: string) => {
-      calls.tables.push(table)
-      return jobsClient({ data: [], error: null })
-    })
 
     const response = await POST(makeRequest({ jobIds: ids }))
     const body = await response.json()
 
     expect(response.status).toBe(400)
-    expect(body.error).toBe('No failed jobs found among the provided IDs')
-    expect(calls.tables).toEqual(['video_generation_jobs'])
-    expect(calls.inIds).toEqual(ids.slice(0, 20))
-    expect(calls.filters).toEqual([['heygen_status', 'failed'], ['deleted_at', null]])
+    expect(body.error).toBe('A maximum of 20 job IDs can be retried at once')
+    expect(mocks.from).not.toHaveBeenCalled()
     expect(mocks.createVideo).not.toHaveBeenCalled()
   })
 
@@ -244,6 +248,7 @@ describe('POST /api/admin/video-generation/jobs/batch-retry', () => {
       heygen_video_id: 'vid-new',
       heygen_status: 'pending',
     }])
+    expect(calls.writeOrder).toEqual(['insert', 'update'])
   })
 
   it('keeps the failed job when HeyGen returns no video id', async () => {
@@ -271,6 +276,74 @@ describe('POST /api/admin/video-generation/jobs/batch-retry', () => {
     })
     expect(calls.updates).toEqual([])
     expect(calls.inserts).toEqual([])
+  })
+
+  it('returns a reconciliation receipt when the replacement insert fails', async () => {
+    const ordinary = ordinaryJob()
+    mocks.from.mockImplementation((table: string) => {
+      calls.tables.push(table)
+      return jobsClient(
+        { data: [ordinary], error: null },
+        { insertError: { message: 'database host unavailable' } },
+      )
+    })
+
+    const response = await POST(makeRequest({ jobIds: [ordinary.id] }))
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(body).toEqual({
+      retried: 0,
+      failed: 1,
+      errors: ['Job abcd1234: provider receipt requires reconciliation because the replacement job was not persisted.'],
+      reconciliation: [{
+        job: 'abcd1234',
+        source_job_id: ordinary.id,
+        provider_video_id: 'vid-new',
+        replacement_persisted: false,
+        reason: 'replacement_insert_failed',
+      }],
+      total: 1,
+    })
+    expect(JSON.stringify(body)).not.toContain('database host unavailable')
+    expect(mocks.createVideo).toHaveBeenCalledTimes(1)
+    expect(calls.inserts).toHaveLength(1)
+    expect(calls.updates).toEqual([])
+    expect(calls.writeOrder).toEqual(['insert'])
+  })
+
+  it('returns a reconciliation receipt when source cleanup fails after insert', async () => {
+    const ordinary = ordinaryJob()
+    mocks.from.mockImplementation((table: string) => {
+      calls.tables.push(table)
+      return jobsClient(
+        { data: [ordinary], error: null },
+        { updateError: { message: 'cleanup write failed' } },
+      )
+    })
+
+    const response = await POST(makeRequest({ jobIds: [ordinary.id] }))
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(body).toEqual({
+      retried: 0,
+      failed: 1,
+      errors: ['Job abcd1234: provider receipt was persisted, but the failed source job still requires reconciliation.'],
+      reconciliation: [{
+        job: 'abcd1234',
+        source_job_id: ordinary.id,
+        provider_video_id: 'vid-new',
+        replacement_persisted: true,
+        reason: 'source_cleanup_failed',
+      }],
+      total: 1,
+    })
+    expect(JSON.stringify(body)).not.toContain('cleanup write failed')
+    expect(mocks.createVideo).toHaveBeenCalledTimes(1)
+    expect(calls.inserts).toHaveLength(1)
+    expect(calls.updates).toEqual([{ payload: { deleted_at: FROZEN_NOW }, eq: ['id', ordinary.id] }])
+    expect(calls.writeOrder).toEqual(['insert', 'update'])
   })
 
   it('continues the batch when one provider call throws', async () => {
