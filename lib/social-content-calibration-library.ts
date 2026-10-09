@@ -1,5 +1,17 @@
 export type SocialContentCalibrationPlatform = 'linkedin'
 
+export type SocialContentExperimentTags = {
+  experiment_id: string
+  anecdote_depth: 'brief' | 'scene' | 'full_case'
+  specificity: 'medium' | 'high'
+  evidence_type: 'practitioner_anecdote' | 'observed_result' | 'metric_pending'
+  hook_framework: string
+  channel: string
+  visual_treatment: string
+  hypothesis: string
+  causal_claim_boundary: 'correlational_only'
+}
+
 export type SocialContentCalibrationReference = {
   id: string
   platform: SocialContentCalibrationPlatform
@@ -12,6 +24,7 @@ export type SocialContentCalibrationReference = {
   why_it_worked: string
   claim_boundaries: string[]
   provenance: string
+  experiment_tags?: SocialContentExperimentTags | null
 }
 
 export type SocialContentCalibrationHistoryRow = {
@@ -219,6 +232,7 @@ export function socialContentHistoryReferenceFromRow(
   const ragContext = asRecord(row.rag_context) ?? {}
   const contentCalibration = asRecord(ragContext.content_calibration) ?? {}
   const referenceCuration = asRecord(contentCalibration.reference_curation) ?? {}
+  const experimentTags = asRecord(contentCalibration.experiment_tags)
   const isGoldStandard = referenceCuration.gold_standard === true || contentCalibration.gold_standard === true
   const engagement = asRecord(ragContext.engagement) ?? {}
   const mappedTheme = asString(engagement.mapped_theme)
@@ -254,5 +268,32 @@ export function socialContentHistoryReferenceFromRow(
       ...sourceProvenance.slice(0, 2),
     ],
     provenance: `/admin/social-content/${row.id}`,
+    experiment_tags: experimentTags ? {
+      experiment_id: asString(experimentTags.experiment_id),
+      anecdote_depth: asString(experimentTags.anecdote_depth) as SocialContentExperimentTags['anecdote_depth'],
+      specificity: asString(experimentTags.specificity) as SocialContentExperimentTags['specificity'],
+      evidence_type: asString(experimentTags.evidence_type) as SocialContentExperimentTags['evidence_type'],
+      hook_framework: asString(experimentTags.hook_framework),
+      channel: asString(experimentTags.channel),
+      visual_treatment: asString(experimentTags.visual_treatment),
+      hypothesis: asString(experimentTags.hypothesis),
+      causal_claim_boundary: asString(experimentTags.causal_claim_boundary) as 'correlational_only',
+    } : null,
   }
+}
+
+export function selectSocialContentHistoryReferences(
+  rows: SocialContentCalibrationHistoryRow[],
+  limit = 3,
+): SocialContentCalibrationReference[] {
+  return rows
+    .map(socialContentHistoryReferenceFromRow)
+    .filter((reference): reference is SocialContentCalibrationReference => Boolean(reference))
+    .sort((left, right) => {
+      if (left.curation_status === right.curation_status) return 0
+      if (left.curation_status === 'gold_standard') return -1
+      if (right.curation_status === 'gold_standard') return 1
+      return 0
+    })
+    .slice(0, Math.max(0, limit))
 }

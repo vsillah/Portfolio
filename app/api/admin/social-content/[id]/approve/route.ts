@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { approveSocialContentItem, SocialContentApprovalError } from '@/lib/social-content-approval'
+import { isPractitionerContentQaFixtureId } from '@/lib/social-practitioner-content-qa-fixture'
 
 export const dynamic = 'force-dynamic'
 
@@ -14,6 +15,13 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   try {
+    if (isPractitionerContentQaFixtureId(params.id)) {
+      return NextResponse.json({
+        error: 'Synthetic preview fixture is read-only and cannot be approved.',
+        fixture: true,
+        blocked: true,
+      }, { status: 409 })
+    }
     const authResult = await verifyAdmin(request)
     if (isAuthError(authResult)) {
       return NextResponse.json({ error: authResult.error }, { status: authResult.status })

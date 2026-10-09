@@ -41,6 +41,7 @@ vi.mock('@/lib/social-content-calendar-linkage', () => ({
 
 import { POST as routePost } from './route'
 import { withVersionedQueueMock } from '@/lib/social-queue-write.test-fixtures'
+import { buildPractitionerContentQualityScaffold } from '@/lib/social-practitioner-content'
 const POST: typeof routePost = (...args) => withVersionedQueueMock(mocks.from, () => routePost(...args))
 
 function request(expectedCopyVersion?: string) {
@@ -186,6 +187,41 @@ describe('POST /api/admin/social-content/[id]/approve', () => {
     const response=await POST(request(socialCopyVersion(row)),{params:{id:'social-1'}})
     expect(response.status).toBe(409)
     expect(await response.json()).toMatchObject({current_gate:'final_copy_quality'})
+    expect(mocks.queueUpdate).not.toHaveBeenCalled()
+    expect(mocks.createAgentWorkItem).not.toHaveBeenCalled()
+  })
+
+  it('blocks new practitioner-quality drafts without approved evidence, privacy, experiment, and visual receipts', async () => {
+    const scaffold = buildPractitionerContentQualityScaffold({
+      channel: 'linkedin',
+      title: 'A practitioner workflow changed',
+      plannedAngle: 'Show the operational decision.',
+    })
+    const row = {
+      id: 'social-1',
+      status: 'draft',
+      updated_at: '2026-10-09T00:00:00Z',
+      post_text: 'A team changed one review step after watching the same handoff fail twice.',
+      cta_text: 'Which handoff would you inspect first?',
+      target_platforms: ['linkedin'],
+      rag_context: {
+        source: 'social_content_calendar_authorization',
+        calendar_item_id: 'calendar-fixture',
+        campaign_id: 'campaign-fixture',
+        publish_gate: 'draft_only',
+        ...scaffold,
+      },
+      publishes: [],
+    }
+    mocks.queueSingle.mockResolvedValue({ data: row, error: null })
+
+    const response = await POST(request(socialCopyVersion(row)), { params: { id: 'social-1' } })
+
+    expect(response.status).toBe(409)
+    expect(await response.json()).toMatchObject({
+      current_gate: 'practitioner_content_quality',
+      revision_state: 'revision_needed',
+    })
     expect(mocks.queueUpdate).not.toHaveBeenCalled()
     expect(mocks.createAgentWorkItem).not.toHaveBeenCalled()
   })

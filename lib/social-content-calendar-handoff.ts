@@ -11,6 +11,7 @@ import {
   type PlatformOrchestrationPlan,
 } from '@/lib/social-platform-orchestration'
 import type { SocialPlatform } from '@/lib/social-content'
+import { buildPractitionerContentQualityScaffold } from '@/lib/social-practitioner-content'
 
 type CalendarActionAuth = {
   user: {
@@ -181,6 +182,11 @@ function buildDraftRagContext(item: SocialContentCalendarItem, auth: CalendarAct
         target_platforms: targetPlatforms,
       }
     : null
+  const practitionerQuality = buildPractitionerContentQualityScaffold({
+    channel: item.channel,
+    title: item.title,
+    plannedAngle: item.planned_angle,
+  })
 
   return {
     source: 'social_content_calendar_authorization',
@@ -204,6 +210,11 @@ function buildDraftRagContext(item: SocialContentCalendarItem, auth: CalendarAct
     ...(youtubeRelease ? { youtube_release: youtubeRelease } : {}),
     linked_agent_work_item_id: item.agent_work_item_id,
     calendar_metadata: metadata,
+    practitioner_content_quality: practitionerQuality.practitioner_content_quality,
+    content_calibration: {
+      ...parseMetadata(metadata.content_calibration),
+      ...practitionerQuality.content_calibration,
+    },
   }
 }
 
@@ -313,6 +324,8 @@ async function createDraftHandoffWorkItem(input: {
     objective: [
       `Use the authorized calendar item to prepare the ${channelLabel} draft handoff.`,
       item.planned_angle ? `Planned angle: ${item.planned_angle}` : null,
+      'Build an anonymized practitioner evidence packet, pass the specificity and privacy gate, and tag the existing content_calibration record for later engagement comparison.',
+      'Create the finished visual through the deterministic AmaduTown HTML/SVG candidate system. Model assistance may provide receipt-backed art direction or critique, but it must not render lettering.',
       hasSocialContentDraft && socialContentId
         ? `Continue in the Social Content draft at /admin/social-content/${socialContentId}.`
         : 'Prepare planning/export-readiness inputs only; this channel does not have an approved publishing integration in V1.',

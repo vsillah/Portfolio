@@ -18,6 +18,15 @@ import {
   validateSocialContentFinalCopyQuality,
 } from '@/lib/social-content-lifecycle'
 import {
+  practitionerContentQualityFailure,
+  validatePractitionerContentQuality,
+} from '@/lib/social-practitioner-content'
+import {
+  isPractitionerContentQaFixtureId,
+  practitionerContentQaFixture,
+  type PractitionerContentQaScriptSize,
+} from '@/lib/social-practitioner-content-qa-fixture'
+import {
   buildScheduleRecoveryProjection,
   createSupabaseSocialScheduleRecoveryRepository,
 } from '@/lib/social-schedule-recovery'
@@ -81,6 +90,26 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    if (isPractitionerContentQaFixtureId(params.id)) {
+      const fixtureState = request.nextUrl.searchParams.get('qa_state') === 'blocked'
+        || request.headers.get('x-portfolio-qa-state') === 'blocked'
+        ? 'blocked'
+        : 'ready'
+      const requestedScriptSize = request.headers.get('x-portfolio-qa-script-size')
+      const fixtureScriptSize: PractitionerContentQaScriptSize = requestedScriptSize === 'short'
+        || requestedScriptSize === 'medium'
+        || requestedScriptSize === 'over-cap'
+        || requestedScriptSize === 'complete'
+        ? requestedScriptSize
+        : 'complete'
+      return NextResponse.json({
+        item: practitionerContentQaFixture(fixtureState, fixtureScriptSize),
+        fixture: true,
+        fixture_state: fixtureState,
+        fixture_script_size: fixtureScriptSize,
+        integration_note: 'Synthetic preview-only practitioner content fixture. No shared row, provider call, upload, schedule, or publication action is represented.',
+      })
+    }
     const authResult = await verifyAdmin(request)
     if (isAuthError(authResult)) {
       return NextResponse.json({ error: authResult.error }, { status: authResult.status })
@@ -179,6 +208,13 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
+    if (isPractitionerContentQaFixtureId(params.id)) {
+      return NextResponse.json({
+        error: 'Synthetic preview fixture is read-only.',
+        fixture: true,
+        blocked: true,
+      }, { status: 409 })
+    }
     const authResult = await verifyAdmin(request)
     if (isAuthError(authResult)) {
       return NextResponse.json({ error: authResult.error }, { status: authResult.status })
@@ -251,6 +287,12 @@ export async function PUT(
         )
         if (copyQualityFailure) {
           return NextResponse.json(copyQualityFailure, { status: 409 })
+        }
+        const practitionerFailure = practitionerContentQualityFailure(
+          validatePractitionerContentQuality(candidateItem),
+        )
+        if (practitionerFailure) {
+          return NextResponse.json(practitionerFailure, { status: 409 })
         }
       }
 

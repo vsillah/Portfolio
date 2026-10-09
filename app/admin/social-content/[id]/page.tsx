@@ -44,7 +44,9 @@ import { LinkedInReviewSurface, ReviewedVideoPlayer } from '@/components/admin/S
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import MobileWorkflowSummary from '@/components/admin/MobileWorkflowSummary'
+import PractitionerContentReview from '@/components/admin/PractitionerContentReview'
 import CompactPostPreview from '@/components/admin/CompactPostPreview'
+import AutoSizingScriptTextarea from '@/components/admin/AutoSizingScriptTextarea'
 import { getCurrentSession } from '@/lib/auth'
 import {
   STATUS_CONFIG,
@@ -73,6 +75,7 @@ import {
   isDurableCopyApprovedStatus,
   validateSocialContentFinalCopyQuality,
 } from '@/lib/social-content-lifecycle'
+import { validatePractitionerContentQuality } from '@/lib/social-practitioner-content'
 import {
   derivePublicationProjection,
   reconcilePublicationProjectionWithLifecycle,
@@ -2474,6 +2477,10 @@ function SocialContentDetailPage() {
     .map(p => PLATFORMS.find(pl => pl.value === p)?.label || p)
     .join(', ')
   const ragContext = asRecord(item.rag_context)
+  const qaFixture = asRecord(ragContext?.qa_fixture)
+  const previewFixtureReadOnly = qaFixture?.read_only === true
+  const previewFixtureReason = asString(qaFixture?.reason) || 'Preview fixture is read-only.'
+  const previewFixtureNextAction = asString(qaFixture?.next_action) || 'Review the evidence, then return to Social Content or the PR handoff.'
   const isAgentSocialPilot = ragContext?.source === 'agent_ops_social_outreach_goal'
   const agentPilotGoalId = asString(ragContext?.goal_id)
   const agentPilotPacketId = asString(ragContext?.content_packet_id)
@@ -2610,15 +2617,28 @@ function SocialContentDetailPage() {
     voiceover_text: voiceoverText || null,
   })
   const copyHasPromptLeakage = copyQualityGate.status === 'blocked'
+  const practitionerQualityGate = validatePractitionerContentQuality({
+    ...item,
+    post_text: postText,
+    cta_text: ctaText || null,
+    voiceover_text: voiceoverText || null,
+  })
+  const practitionerQualityBlocksReview = practitionerQualityGate.status === 'blocked'
   const copyGateRejected = item.status === 'rejected'
     || agentPilotCalibrationStatus === 'revision_requested'
     || Boolean(asRecord(agentPilotCalibration?.approval_rejection))
   const copyQualityBlocksReview = copyHasPromptLeakage && !copyGateRejected
-  const canApproveCurrentDraft = !item.copy_revision?.release_locked && canApproveAgentPilot && !copyHasBlockingAcronymIssues && !copyQualityBlocksReview
+  const canApproveCurrentDraft = !item.copy_revision?.release_locked
+    && canApproveAgentPilot
+    && !copyHasBlockingAcronymIssues
+    && !copyQualityBlocksReview
+    && !practitionerQualityBlocksReview
   const approveBlockedTitle = videoPrivacyBlocked
     ? 'Video privacy review required before publish readiness'
     : copyQualityBlocksReview
       ? 'Final copy quality gate found internal prompt or meta-instruction leakage'
+    : practitionerQualityBlocksReview
+      ? practitionerQualityGate.summary
     : copyHasBlockingAcronymIssues
       ? 'Write out known acronyms before approval'
       : canApproveAgentPilot
@@ -3362,6 +3382,28 @@ function SocialContentDetailPage() {
         )}
       </AnimatePresence>
 
+      {previewFixtureReadOnly && (
+        <section
+          id="preview-fixture-read-only-notice"
+          role="status"
+          className="mx-auto mt-4 w-[calc(100%-2rem)] max-w-[90rem] rounded-xl border border-amber-400/40 bg-amber-400/10 p-4 text-amber-50 sm:w-[calc(100%-3rem)]"
+        >
+          <p className="font-semibold">{previewFixtureReason}</p>
+          <p className="mt-1 text-sm leading-6 text-amber-100/90">
+            No changes, approvals, or rejection decisions can be saved from this route. {previewFixtureNextAction}
+          </p>
+          <Link href={backUrl} className="mt-3 inline-flex min-h-11 items-center rounded-lg border border-amber-300/45 px-3 py-2 text-sm font-semibold text-amber-50 transition-colors hover:bg-amber-300/10">
+            Back to Social Content
+          </Link>
+        </section>
+      )}
+
+      <fieldset
+        disabled={previewFixtureReadOnly}
+        aria-describedby={previewFixtureReadOnly ? 'preview-fixture-read-only-notice' : undefined}
+        className="m-0 min-w-0 w-full border-0 p-0 disabled:[&_button]:cursor-not-allowed disabled:[&_button]:opacity-50"
+      >
+
       {/* Sticky header — current decision and saved draft controls */}
       <div data-social-detail-header className="sticky top-0 z-40 max-h-[40dvh] overflow-y-auto border-b border-gray-800 bg-gray-950 px-4 py-2 sm:px-6 lg:px-8" style={{ paddingTop: 'max(0.5rem, env(safe-area-inset-top))' }}>
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
@@ -3507,6 +3549,9 @@ function SocialContentDetailPage() {
 	            )}
 	            {copyRevisionFeedbackFields}
 	          </section>
+	        )}
+	        {activeApprovalStep === 'copy' && (
+	          <PractitionerContentReview item={item} finishedCopy={postText} />
 	        )}
 	        {isAgentSocialPilot && (
 	          <section className="admin-console-card rounded-xl border border-radiant-gold/25 p-4 sm:p-5">
@@ -4407,13 +4452,13 @@ function SocialContentDetailPage() {
                 </div>
               )}
               <label htmlFor="social-final-post-text" className="mb-2 block text-sm font-medium text-gray-400">Post Text</label>
-              <textarea
+              <AutoSizingScriptTextarea
                 id="social-final-post-text"
+                data-social-script-editor="post-text"
                 value={postText}
                 onChange={(e) => setPostText(e.target.value)}
                 disabled={!isEditable}
-                rows={10}
-                className="w-full bg-gray-800 text-gray-200 border border-gray-700 rounded-lg px-3 py-2 text-sm resize-y disabled:opacity-60"
+                className="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-gray-200 disabled:opacity-60"
               />
               <div className="flex justify-between mt-1">
                 <span className="text-xs text-gray-500">{postText.length} characters</span>
@@ -5219,13 +5264,14 @@ function SocialContentDetailPage() {
                 </div>
               )}
               <div>
-                <label className="block text-xs text-gray-500 mb-1">Voiceover Script</label>
-                <textarea
+                <label htmlFor="social-voiceover-script" className="block text-xs text-gray-500 mb-1">Voiceover Script</label>
+                <AutoSizingScriptTextarea
+                  id="social-voiceover-script"
+                  data-social-script-editor="voiceover-script"
                   value={voiceoverText}
                   onChange={(e) => setVoiceoverText(e.target.value)}
                   disabled={!isEditable}
-                  rows={3}
-                  className="w-full bg-gray-800 text-gray-200 border border-gray-700 rounded-lg px-3 py-2 text-xs resize-y disabled:opacity-60"
+                  className="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-xs text-gray-200 disabled:opacity-60"
                 />
               </div>
             </div>
@@ -6562,6 +6608,7 @@ function SocialContentDetailPage() {
           </motion.div>
         )}
       </AnimatePresence>
+      </fieldset>
     </div>
   )
 }

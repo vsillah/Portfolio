@@ -1,6 +1,9 @@
 import type { AgentWorkItem } from '@/lib/agent-work-items'
 import type { SocialContentCopyQualityGate, SocialPublicCopyField } from '@/lib/social-content-lifecycle'
-import { listSocialContentCalibrationReferences } from '@/lib/social-content-calibration-library'
+import {
+  listSocialContentCalibrationReferences,
+  type SocialContentCalibrationReference,
+} from '@/lib/social-content-calibration-library'
 import type { TopicTriggerCandidate, TopicTriggerPacket } from '@/lib/social-topic-backlog'
 
 export const SOCIAL_TOPIC_TRIGGER_SOURCE_TYPE = 'social_topic_trigger'
@@ -86,6 +89,16 @@ export type SocialChannelReviewDraftPacket = {
       provenance: string[]
       principles: string[]
       avoid: string[]
+      calibration_application: {
+        causal_claim_boundary: 'correlational_only'
+        selected_references: Array<{
+          id: string
+          source_type: SocialContentCalibrationReference['source_type']
+          engagement_recommendation: string
+          why_it_worked: string
+          experiment_tags: SocialContentCalibrationReference['experiment_tags']
+        }>
+      }
     }
     editorial_challenger: {
       reviewer: 'Amina ruleset'
@@ -214,6 +227,7 @@ export function buildSocialContentEnrichmentReceipt(input: {
   copyQualityGate: SocialContentCopyQualityGate
   generatedAt: string
   synthesizedCampaignFields?: string[]
+  calibrationReferences?: SocialContentCalibrationReference[]
 }): SocialContentEnrichmentReceipt {
   const patterns = asRecordArray(input.insight.approved_research_patterns)
   const usablePatterns = patterns.filter((pattern) => {
@@ -225,7 +239,7 @@ export function buildSocialContentEnrichmentReceipt(input: {
       && Boolean(firstString(pattern.source_url))
       && ['hook_structure', 'promise_value', 'thumbnail_pattern'].some((key) => Boolean(firstString(packet[key])))
   })
-  const voiceReferences = listSocialContentCalibrationReferences({ platform: 'linkedin' })
+  const voiceReferences = selectCalibrationReferences(input.calibrationReferences)
   const audience = firstString(input.insight.audience)
   const brandGoal = firstString(input.insight.brand_goal)
   const speakerAuthority = firstString(input.insight.why_vambah_can_speak)
@@ -1066,12 +1080,15 @@ function reviewerTrace(input: {
   evidenceSummary: string
   patterns: Array<Record<string, unknown>>
   claimBoundaries: string[]
+  calibrationReferences: SocialContentCalibrationReference[]
 }) {
   return {
     evidence_summary: input.evidenceSummary,
     source_urls: input.patterns.map((pattern) => pattern.source_url).filter(Boolean),
     approved_pattern_count: input.patterns.length,
     claim_boundaries: input.claimBoundaries,
+    calibration_reference_ids: input.calibrationReferences.map((reference) => reference.id),
+    calibration_causal_boundary: 'correlational_only',
     transformation_boundary: 'Use source material for reviewer trace, proof direction, and claim boundaries only. Do not paste source summaries, packet titles, campaign mechanics, or platform instructions into public copy.',
   }
 }
@@ -1086,12 +1103,21 @@ function reviewDraftSideEffects(): SocialChannelReviewDraftPacket['side_effects'
   }
 }
 
+function selectCalibrationReferences(input?: SocialContentCalibrationReference[]) {
+  const available = input?.length
+    ? input
+    : listSocialContentCalibrationReferences({ platform: 'linkedin' })
+  const successfulHistory = available.filter((reference) => reference.source_type === 'portfolio_content_history')
+  return (successfulHistory.length ? successfulHistory : available).slice(0, 3)
+}
+
 function channelOrchestrationEvidence(input: {
   channel: SocialContentIntelligenceChannel
   contentAngle: string
   patternPromise: string
+  calibrationReferences: SocialContentCalibrationReference[]
 }) {
-  const voiceReferences = listSocialContentCalibrationReferences({ platform: 'linkedin' })
+  const voiceReferences = input.calibrationReferences
   const sharedAgents = [
     {
       name: 'Shaka',
@@ -1139,6 +1165,16 @@ function channelOrchestrationEvidence(input: {
       'Copying creator scripts, titles, thumbnails, or visual identity.',
       'Private Chronicle notes, raw chats, client records, credentials, or hidden admin data.',
     ],
+    calibration_application: {
+      causal_claim_boundary: 'correlational_only' as const,
+      selected_references: voiceReferences.map((reference) => ({
+        id: reference.id,
+        source_type: reference.source_type,
+        engagement_recommendation: reference.engagement_signal,
+        why_it_worked: reference.why_it_worked,
+        experiment_tags: reference.experiment_tags ?? null,
+      })),
+    },
   }
   const sharedPrivacyNotes = [
     'Use public-safe Portfolio/admin proof only.',
@@ -1372,6 +1408,7 @@ export function buildLinkedInYoutubeReviewDrafts(input: {
   insight: Record<string, unknown>
   generatedAt?: string
   latestFeedback?: Record<string, unknown> | null
+  calibrationReferences?: SocialContentCalibrationReference[]
 }): LinkedInYoutubeReviewDrafts {
   const insight = input.insight
   const generatedAt = input.generatedAt ?? new Date().toISOString()
@@ -1391,10 +1428,11 @@ export function buildLinkedInYoutubeReviewDrafts(input: {
   const hook = firstString(insight.suggested_hook, contentAngle)
   const claimBoundaries = asStringArray(insight.claim_boundaries)
   const patterns = asRecordArray(insight.approved_research_patterns).map(compactResearchPattern)
+  const calibrationReferences = selectCalibrationReferences(input.calibrationReferences)
   const patternPromise = firstString(...patterns.map((pattern) => pattern.promise_value))
   const sourceBoundary = 'Drafts are generated for human review only. Public research patterns are framework inputs, not source copy.'
   const guidance = latestFeedbackGuidance(input.latestFeedback)
-  const trace = reviewerTrace({ evidenceSummary, patterns, claimBoundaries })
+  const trace = reviewerTrace({ evidenceSummary, patterns, claimBoundaries, calibrationReferences })
   const publicAngle = firstPersonPublicText(contentAngle, 'AI tools earn trust when the handoff is visible before public action.')
   const publicTrigger = firstPersonPublicText(triggeringEvent, 'A working AI workflow still needs a visible approval path.')
   const publicHook = firstPersonPublicText(hook, 'AI speed means less if nobody can see the handoff.')
@@ -1505,6 +1543,7 @@ export function buildLinkedInYoutubeReviewDrafts(input: {
         channel: 'linkedin',
         contentAngle,
         patternPromise,
+        calibrationReferences,
       }),
       source_research_patterns: patterns,
       side_effects: reviewDraftSideEffects(),
@@ -1549,6 +1588,7 @@ export function buildLinkedInYoutubeReviewDrafts(input: {
         channel: 'youtube',
         contentAngle,
         patternPromise,
+        calibrationReferences,
       }),
       source_research_patterns: patterns,
       side_effects: reviewDraftSideEffects(),
@@ -1583,6 +1623,7 @@ export function buildLinkedInYoutubeReviewDrafts(input: {
         channel: 'youtube_shorts',
         contentAngle,
         patternPromise,
+        calibrationReferences,
       }),
       source_research_patterns: patterns,
       side_effects: reviewDraftSideEffects(),
@@ -1622,6 +1663,7 @@ export function buildLinkedInYoutubeReviewDrafts(input: {
         channel: 'instagram_reels',
         contentAngle,
         patternPromise,
+        calibrationReferences,
       }),
       source_research_patterns: patterns,
       side_effects: reviewDraftSideEffects(),
@@ -1662,6 +1704,7 @@ export function buildLinkedInYoutubeReviewDrafts(input: {
         channel: 'tiktok',
         contentAngle,
         patternPromise,
+        calibrationReferences,
       }),
       source_research_patterns: patterns,
       side_effects: reviewDraftSideEffects(),
@@ -1700,6 +1743,7 @@ export function buildLinkedInYoutubeReviewDrafts(input: {
         channel: 'x',
         contentAngle,
         patternPromise,
+        calibrationReferences,
       }),
       source_research_patterns: patterns,
       side_effects: reviewDraftSideEffects(),
@@ -1741,6 +1785,7 @@ export function buildLinkedInYoutubeReviewDrafts(input: {
         channel: 'thumbnail',
         contentAngle,
         patternPromise,
+        calibrationReferences,
       }),
       source_research_patterns: patterns,
       side_effects: reviewDraftSideEffects(),

@@ -8,7 +8,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
   const auth = await verifyAdmin(request)
   if (isAuthError(auth)) return NextResponse.json({ error: auth.error }, { status: auth.status })
   return NextResponse.json({
-    error: 'External image regeneration is unavailable because its completion workflow can overwrite an active release. Attach a reviewed asset in Portfolio instead.',
+    error: 'Provider-rendered image regeneration is retired for this path. Complete the deterministic AmaduTown visual specification and review its HTML/SVG candidate in Portfolio.',
     code: 'external_regeneration_unfenced',
     triggered: false,
     recovery_url: `/admin/social-content/${encodeURIComponent(params.id)}?step=visuals#social-visual-assets-gate`,

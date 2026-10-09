@@ -37,8 +37,20 @@ export interface TopicExtracted {
   transcript_evidence?: string
 }
 
+export const HORMOZI_FRAMEWORK_TYPES = [
+  'value_equation',
+  'offer_creation',
+  'lead_magnet',
+  'dream_outcome',
+  'risk_reversal',
+  'scarcity_urgency',
+  'proof_stacking',
+] as const
+
+export type HormoziFrameworkType = typeof HORMOZI_FRAMEWORK_TYPES[number]
+
 export interface HormoziFramework {
-  framework_type?: string
+  framework_type?: HormoziFrameworkType
   hook_type?: string
   proof_pattern?: string
   cta_pattern?: string
