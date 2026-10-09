@@ -18,6 +18,10 @@ import {
   validateSocialContentFinalCopyQuality,
 } from '@/lib/social-content-lifecycle'
 import {
+  practitionerContentQualityFailure,
+  validatePractitionerContentQuality,
+} from '@/lib/social-practitioner-content'
+import {
   buildScheduleRecoveryProjection,
   createSupabaseSocialScheduleRecoveryRepository,
 } from '@/lib/social-schedule-recovery'
@@ -251,6 +255,12 @@ export async function PUT(
         )
         if (copyQualityFailure) {
           return NextResponse.json(copyQualityFailure, { status: 409 })
+        }
+        const practitionerFailure = practitionerContentQualityFailure(
+          validatePractitionerContentQuality(candidateItem),
+        )
+        if (practitionerFailure) {
+          return NextResponse.json(practitionerFailure, { status: 409 })
         }
       }
 

@@ -176,7 +176,7 @@ Return JSON only:
   "post_text": "revised LinkedIn post text",
   "cta_text": "specific closing question",
   "hashtags": ["#AIProduct", "#ProductManagement"],
-  "image_prompt": "optional revised visual brief",
+  "image_prompt": "optional structured art direction for the deterministic HTML/SVG renderer; describe hierarchy and proof objects, never ask a model to render lettering",
   "revision_notes": ["what changed and why"]
 }
 
@@ -241,6 +241,9 @@ ${asString(feedback.revision_request)}
 
 Claim boundaries:
 ${asString(feedback.claim_boundaries)}
+
+Engagement experiment tags (compare as cohorts or variants only; do not claim causation):
+${JSON.stringify(asRecord(calibration.experiment_tags) ?? {}, null, 2)}
 
 If context is still missing, make the best draft from the available packet and mention the missing input in revision_notes, not in the post.
 

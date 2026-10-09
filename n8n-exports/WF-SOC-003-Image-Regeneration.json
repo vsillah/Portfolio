@@ -1,9 +1,9 @@
 {
   "id": "eo0OAfcGmsZUqvjp",
-  "name": "WF-SOC-003 Image Regeneration",
-  "active": true,
+  "name": "WF-SOC-003 Deterministic Visual Direction",
+  "active": false,
   "createdAt": "2026-03-28T10:28:26.750Z",
-  "updatedAt": "2026-03-28T10:38:15.160Z",
+  "updatedAt": "2026-10-09T00:00:00.000Z",
   "nodes": [
     {
       "id": "webhook-trigger",
@@ -15,84 +15,47 @@
         "httpMethod": "POST",
         "path": "social-content-regenerate-image",
         "responseMode": "responseNode"
-      }
-    },
-    {
-      "id": "generate-and-upload",
-      "name": "Generate Image",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [500, 300],
-      "parameters": {
-        "language": "javaScript",
-        "mode": "runOnceForAllItems",
-        "jsCode": "const GEMINI_API_KEY = $vars.GEMINI_API_KEY;\nif (!GEMINI_API_KEY) throw new Error('Set GEMINI_API_KEY in n8n Variables');\n\nconst input = $input.first().json;\nconst { content_id, image_prompt, framework_visual_type } = input.body || input;\n\nif (!content_id || !image_prompt) {\n  return [{ json: { success: false, error: 'content_id and image_prompt are required' } }];\n}\n\ntry {\n  const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent?key=${GEMINI_API_KEY}`;\n  let geminiResp;\n  try {\n    geminiResp = await this.helpers.httpRequest({\n      method: 'POST',\n      url: geminiUrl,\n      headers: { 'Content-Type': 'application/json' },\n      body: {\n        contents: [{ parts: [{ text: image_prompt + '\\n\\nGenerate a 1:1 square image.' }] }],\n        generationConfig: { responseModalities: ['IMAGE', 'TEXT'] }\n      },\n      json: true,\n      timeout: 90000,\n      ignoreHttpStatusErrors: true\n    });\n  } catch (geminiErr) {\n    return [{ json: { success: false, error: `Gemini request failed: ${geminiErr.message}` } }];\n  }\n\n  if (geminiResp.error) {\n    return [{ json: { success: false, error: `Gemini API error: ${JSON.stringify(geminiResp.error).slice(0, 300)}` } }];\n  }\n\n  let imageBase64 = null;\n  let imageMimeType = 'image/png';\n  if (geminiResp.candidates?.[0]?.content?.parts) {\n    for (const part of geminiResp.candidates[0].content.parts) {\n      if (part.inlineData) {\n        imageBase64 = part.inlineData.data;\n        imageMimeType = part.inlineData.mimeType || 'image/png';\n        break;\n      }\n    }\n  }\n  if (!imageBase64) {\n    return [{ json: { success: false, error: 'Gemini did not return an image' } }];\n  }\n\n  const ext = imageMimeType.includes('png') ? 'png' : imageMimeType.includes('webp') ? 'webp' : 'jpg';\n  const fileName = `framework-illustrations/${content_id}-${Date.now()}.${ext}`;\n\n  const binaryData = await this.helpers.prepareBinaryData(\n    Buffer.from(imageBase64, 'base64'),\n    `${content_id}.${ext}`,\n    imageMimeType\n  );\n\n  return [{\n    json: { success: true, content_id, fileName, imageMimeType },\n    binary: { data: binaryData }\n  }];\n} catch (err) {\n  return [{ json: { success: false, error: `Unexpected error: ${err.message}` } }];\n}"
       },
-      "notes": "Calls Gemini to generate framework illustration, prepares binary for upload to Supabase Storage"
+      "notes": "Compatibility path only. This export is inactive and performs no provider, upload, publication, or database action."
     },
     {
-      "id": "upload-to-storage",
-      "name": "Upload to Storage",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.4,
-      "position": [750, 300],
-      "parameters": {
-        "method": "POST",
-        "url": "={{ $vars.SUPABASE_URL }}/storage/v1/object/social-content/{{ $json.fileName }}",
-        "sendBody": true,
-        "contentType": "binaryData",
-        "inputDataFieldName": "data",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            { "name": "Authorization", "value": "=Bearer {{ $vars.SUPABASE_SERVICE_ROLE_KEY }}" },
-            { "name": "apikey", "value": "={{ $vars.SUPABASE_SERVICE_ROLE_KEY }}" },
-            { "name": "x-upsert", "value": "true" }
-          ]
-        },
-        "options": { "timeout": 30000 }
-      }
-    },
-    {
-      "id": "update-db-and-respond",
-      "name": "Update DB",
+      "id": "build-deterministic-direction",
+      "name": "Build Deterministic Direction",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [1000, 300],
+      "position": [520, 300],
       "parameters": {
         "language": "javaScript",
         "mode": "runOnceForAllItems",
-        "jsCode": "const SUPABASE_URL = $vars.SUPABASE_URL;\nif (!SUPABASE_URL) throw new Error('Set SUPABASE_URL in n8n Variables');\nconst SUPABASE_KEY = $vars.SUPABASE_SERVICE_ROLE_KEY;\nif (!SUPABASE_KEY) throw new Error('Set SUPABASE_SERVICE_ROLE_KEY in n8n Variables');\n\nconst prev = $node['Generate Image'].json;\nif (!prev.success) {\n  return [{ json: { success: false, error: prev.error } }];\n}\n\nconst { content_id, fileName } = prev;\nconst imageUrl = `${SUPABASE_URL}/storage/v1/object/public/social-content/${fileName}`;\n\ntry {\n  await this.helpers.httpRequest({\n    method: 'PATCH',\n    url: `${SUPABASE_URL}/rest/v1/social_content_queue?id=eq.${content_id}`,\n    headers: {\n      'Authorization': `Bearer ${SUPABASE_KEY}`,\n      'apikey': SUPABASE_KEY,\n      'Content-Type': 'application/json',\n      'Prefer': 'return=representation'\n    },\n    body: { image_url: imageUrl },\n    json: true,\n    timeout: 10000\n  });\n} catch (dbErr) {\n  return [{ json: { success: false, error: `DB update failed: ${dbErr.message}`, image_url: imageUrl } }];\n}\n\nreturn [{ json: { success: true, image_url: imageUrl, content_id } }];"
-      }
+        "jsCode": "const input = $input.first().json;\nconst body = input.body || input;\nconst { content_id, practitioner_content_quality, content_calibration } = body;\nconst quality = practitioner_content_quality || {};\nconst visual = quality.deterministic_visual || {};\nconst evidence = quality.evidence_packet || {};\nconst experiment = (content_calibration || {}).experiment_tags || {};\n\nconst supportedRatios = new Set(['1.91:1', '1:1', '4:5', '9:16']);\nconst blockers = [];\nif (!content_id) blockers.push('content_id is required');\nif (quality.version !== 'practitioner_evidence_v1') blockers.push('practitioner evidence packet version is required');\nif (evidence.status !== 'approved') blockers.push('approved practitioner evidence is required');\nif (!Array.isArray(evidence.approved_public_details) || evidence.approved_public_details.length < 2) blockers.push('two approved public details are required');\nif (evidence.redaction_receipt?.status !== 'passed') blockers.push('passing redaction receipt is required');\nif (visual.system_version !== 'amadutown_deterministic_v1') blockers.push('deterministic visual system version is required');\nif (!supportedRatios.has(visual.aspect_ratio)) blockers.push('supported aspect ratio is required');\nif (!visual.headline || !Array.isArray(visual.evidence_lines) || visual.evidence_lines.length < 2) blockers.push('headline and evidence lines are required');\nif (!visual.visual_rationale) blockers.push('visual rationale is required');\nif (!experiment.experiment_id || experiment.causal_claim_boundary !== 'correlational_only') blockers.push('content_calibration experiment tags are required');\n\nreturn [{ json: {\n  success: blockers.length === 0,\n  blocked: blockers.length > 0,\n  blockers,\n  content_id: content_id || null,\n  render_contract: blockers.length ? null : {\n    renderer: 'portfolio_html_svg',\n    system_version: 'amadutown_deterministic_v1',\n    template: visual.template,\n    aspect_ratio: visual.aspect_ratio,\n    typography: { heading: 'Orbitron', body: 'Inter' },\n    colors: { navy: '#121E31', gold: '#D4AF37', white: '#EAECEE', slate: '#2C3E50' },\n    logo: '/amadutown-logo-upscaled.png',\n    safe_area_percent: 6,\n    headline: visual.headline,\n    eyebrow: visual.eyebrow,\n    evidence_lines: visual.evidence_lines,\n    result_label: visual.result_label,\n    visual_rationale: visual.visual_rationale\n  },\n  art_direction_receipt: visual.art_direction_receipt || { provider: 'none', model: null, receipt_id: 'workflow-local-deterministic', status: 'not_called' },\n  side_effects: { provider_call: false, media_render: false, upload: false, database_write: false, schedule: false, publish: false }\n} }];"
+      },
+      "notes": "Validates the existing evidence, calibration, and deterministic visual contracts. It never asks a model to render typography or media."
     },
     {
       "id": "respond-webhook",
       "name": "Respond to Webhook",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.5,
-      "position": [1250, 300],
+      "position": [790, 300],
       "parameters": {
         "respondWith": "json",
-        "responseBody": "={{ JSON.stringify({ success: $json.success, image_url: $json.image_url || null, error: $json.error || null }) }}"
+        "responseBody": "={{ JSON.stringify($json) }}"
       }
     }
   ],
   "connections": {
     "Webhook Trigger": {
-      "main": [[{ "node": "Generate Image", "type": "main", "index": 0 }]]
+      "main": [[{ "node": "Build Deterministic Direction", "type": "main", "index": 0 }]]
     },
-    "Generate Image": {
-      "main": [[{ "node": "Upload to Storage", "type": "main", "index": 0 }]]
-    },
-    "Upload to Storage": {
-      "main": [[{ "node": "Update DB", "type": "main", "index": 0 }]]
-    },
-    "Update DB": {
+    "Build Deterministic Direction": {
       "main": [[{ "node": "Respond to Webhook", "type": "main", "index": 0 }]]
     }
   },
   "settings": {
     "executionOrder": "v1",
     "timezone": "America/New_York"
+  },
+  "meta": {
+    "migration_note": "Provider image composition, storage upload, and direct database mutation were removed. Import and activation require a separate operator review."
   }
 }

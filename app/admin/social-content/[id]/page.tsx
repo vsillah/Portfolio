@@ -44,6 +44,7 @@ import { LinkedInReviewSurface, ReviewedVideoPlayer } from '@/components/admin/S
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import MobileWorkflowSummary from '@/components/admin/MobileWorkflowSummary'
+import PractitionerContentReview from '@/components/admin/PractitionerContentReview'
 import CompactPostPreview from '@/components/admin/CompactPostPreview'
 import { getCurrentSession } from '@/lib/auth'
 import {
@@ -73,6 +74,7 @@ import {
   isDurableCopyApprovedStatus,
   validateSocialContentFinalCopyQuality,
 } from '@/lib/social-content-lifecycle'
+import { validatePractitionerContentQuality } from '@/lib/social-practitioner-content'
 import {
   derivePublicationProjection,
   reconcilePublicationProjectionWithLifecycle,
@@ -2610,15 +2612,28 @@ function SocialContentDetailPage() {
     voiceover_text: voiceoverText || null,
   })
   const copyHasPromptLeakage = copyQualityGate.status === 'blocked'
+  const practitionerQualityGate = validatePractitionerContentQuality({
+    ...item,
+    post_text: postText,
+    cta_text: ctaText || null,
+    voiceover_text: voiceoverText || null,
+  })
+  const practitionerQualityBlocksReview = practitionerQualityGate.status === 'blocked'
   const copyGateRejected = item.status === 'rejected'
     || agentPilotCalibrationStatus === 'revision_requested'
     || Boolean(asRecord(agentPilotCalibration?.approval_rejection))
   const copyQualityBlocksReview = copyHasPromptLeakage && !copyGateRejected
-  const canApproveCurrentDraft = !item.copy_revision?.release_locked && canApproveAgentPilot && !copyHasBlockingAcronymIssues && !copyQualityBlocksReview
+  const canApproveCurrentDraft = !item.copy_revision?.release_locked
+    && canApproveAgentPilot
+    && !copyHasBlockingAcronymIssues
+    && !copyQualityBlocksReview
+    && !practitionerQualityBlocksReview
   const approveBlockedTitle = videoPrivacyBlocked
     ? 'Video privacy review required before publish readiness'
     : copyQualityBlocksReview
       ? 'Final copy quality gate found internal prompt or meta-instruction leakage'
+    : practitionerQualityBlocksReview
+      ? practitionerQualityGate.summary
     : copyHasBlockingAcronymIssues
       ? 'Write out known acronyms before approval'
       : canApproveAgentPilot
@@ -3507,6 +3522,9 @@ function SocialContentDetailPage() {
 	            )}
 	            {copyRevisionFeedbackFields}
 	          </section>
+	        )}
+	        {activeApprovalStep === 'copy' && (
+	          <PractitionerContentReview item={item} finishedCopy={postText} />
 	        )}
 	        {isAgentSocialPilot && (
 	          <section className="admin-console-card rounded-xl border border-radiant-gold/25 p-4 sm:p-5">

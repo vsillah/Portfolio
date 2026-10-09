@@ -12,6 +12,10 @@ import {
   socialContentFinalCopyQualityFailure,
   validateSocialContentFinalCopyQuality,
 } from '@/lib/social-content-lifecycle'
+import {
+  practitionerContentQualityFailure,
+  validatePractitionerContentQuality,
+} from '@/lib/social-practitioner-content'
 
 // Same release evidence boundary used by the coordinated manual-copy lane, also applied to non-calendar approvals.
 function hasSocialCopyReleaseEvidence(item: Record<string, any>): boolean {
@@ -157,6 +161,13 @@ export async function approveSocialContentItem({
   )
   if (copyQualityFailure) {
     throw new SocialContentApprovalError(409, copyQualityFailure)
+  }
+
+  const practitionerQualityFailure = practitionerContentQualityFailure(
+    validatePractitionerContentQuality({ ...item, rag_context: ragContext }),
+  )
+  if (practitionerQualityFailure) {
+    throw new SocialContentApprovalError(409, practitionerQualityFailure)
   }
 
   const copyPrerequisiteFailure = lifecyclePrerequisiteFailure(
