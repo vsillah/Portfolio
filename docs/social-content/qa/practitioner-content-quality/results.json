@@ -1,7 +1,7 @@
 [
   {
     "width": 390,
-    "route": "https://portfolio-gr698qq7c-vsillahs-projects.vercel.app/admin/social-content/practitioner-content-quality-qa?step=copy",
+    "route": "https://portfolio-hyo1ftend-vsillahs-projects.vercel.app/admin/social-content/practitioner-content-quality-qa?step=copy",
     "source": "deployed_preview_fixture",
     "fixture_responses": [
       "blocked",
@@ -91,7 +91,7 @@
   },
   {
     "width": 768,
-    "route": "https://portfolio-gr698qq7c-vsillahs-projects.vercel.app/admin/social-content/practitioner-content-quality-qa?step=copy",
+    "route": "https://portfolio-hyo1ftend-vsillahs-projects.vercel.app/admin/social-content/practitioner-content-quality-qa?step=copy",
     "source": "deployed_preview_fixture",
     "fixture_responses": [
       "blocked",
@@ -181,7 +181,7 @@
   },
   {
     "width": 1440,
-    "route": "https://portfolio-gr698qq7c-vsillahs-projects.vercel.app/admin/social-content/practitioner-content-quality-qa?step=copy",
+    "route": "https://portfolio-hyo1ftend-vsillahs-projects.vercel.app/admin/social-content/practitioner-content-quality-qa?step=copy",
     "source": "deployed_preview_fixture",
     "fixture_responses": [
       "blocked",
