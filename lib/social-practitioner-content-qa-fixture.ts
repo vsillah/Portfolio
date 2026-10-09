@@ -38,7 +38,7 @@ export function practitionerContentQaFixture(state: 'ready' | 'blocked' = 'ready
     image_prompt: null,
     framework_visual_type: 'architecture',
     voiceover_url: null,
-    voiceover_text: null,
+    voiceover_text: postText,
     video_url: null,
     topic_extracted: null,
     hormozi_framework: null,

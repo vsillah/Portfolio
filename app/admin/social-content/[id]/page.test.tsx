@@ -172,6 +172,26 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(screen.getByText('Compare approved campaign copy')).toBeEnabled()
   })
 
+  it('gives only post and voiceover script editors a consistently tall responsive canvas', async () => {
+    const view = renderAtStep('copy')
+
+    const postEditor = await screen.findByLabelText('Post Text')
+    expect(postEditor).toHaveAttribute('data-social-script-editor', 'post-text')
+    expect(postEditor).toHaveAttribute('rows', '12')
+    expect(postEditor).toHaveClass('min-h-64', 'resize-y', 'sm:min-h-72', 'lg:min-h-80')
+
+    mocks.search = 'step=visuals'
+    view.rerender(<SocialContentDetailRoute />)
+    const voiceoverEditor = await screen.findByLabelText('Voiceover Script')
+    expect(voiceoverEditor).toHaveAttribute('data-social-script-editor', 'voiceover-script')
+    expect(voiceoverEditor).toHaveAttribute('rows', '12')
+    expect(voiceoverEditor).toHaveClass('min-h-64', 'resize-y', 'sm:min-h-72', 'lg:min-h-80')
+
+    const imagePrompt = screen.getByText('Image Prompt').nextElementSibling
+    expect(imagePrompt).not.toHaveAttribute('data-social-script-editor')
+    expect(imagePrompt).not.toHaveClass('min-h-64', 'sm:min-h-72', 'lg:min-h-80')
+  })
+
   it('shows a compact mobile loading state while the selected detail is hydrating', () => {
     mocks.search = 'returnTo=%2Fadmin%2Fsocial-content&step=submit'
     vi.stubGlobal('fetch', vi.fn(() => new Promise<Response>(() => {})))

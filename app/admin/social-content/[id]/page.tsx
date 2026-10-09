@@ -46,6 +46,7 @@ import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import MobileWorkflowSummary from '@/components/admin/MobileWorkflowSummary'
 import PractitionerContentReview from '@/components/admin/PractitionerContentReview'
 import CompactPostPreview from '@/components/admin/CompactPostPreview'
+import { SOCIAL_SCRIPT_EDITOR_CLASS } from '@/lib/social-script-editor'
 import { getCurrentSession } from '@/lib/auth'
 import {
   STATUS_CONFIG,
@@ -4453,11 +4454,12 @@ function SocialContentDetailPage() {
               <label htmlFor="social-final-post-text" className="mb-2 block text-sm font-medium text-gray-400">Post Text</label>
               <textarea
                 id="social-final-post-text"
+                data-social-script-editor="post-text"
                 value={postText}
                 onChange={(e) => setPostText(e.target.value)}
                 disabled={!isEditable}
-                rows={10}
-                className="w-full bg-gray-800 text-gray-200 border border-gray-700 rounded-lg px-3 py-2 text-sm resize-y disabled:opacity-60"
+                rows={12}
+                className={`${SOCIAL_SCRIPT_EDITOR_CLASS} w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-gray-200 disabled:opacity-60`}
               />
               <div className="flex justify-between mt-1">
                 <span className="text-xs text-gray-500">{postText.length} characters</span>
@@ -5263,13 +5265,15 @@ function SocialContentDetailPage() {
                 </div>
               )}
               <div>
-                <label className="block text-xs text-gray-500 mb-1">Voiceover Script</label>
+                <label htmlFor="social-voiceover-script" className="block text-xs text-gray-500 mb-1">Voiceover Script</label>
                 <textarea
+                  id="social-voiceover-script"
+                  data-social-script-editor="voiceover-script"
                   value={voiceoverText}
                   onChange={(e) => setVoiceoverText(e.target.value)}
                   disabled={!isEditable}
-                  rows={3}
-                  className="w-full bg-gray-800 text-gray-200 border border-gray-700 rounded-lg px-3 py-2 text-xs resize-y disabled:opacity-60"
+                  rows={12}
+                  className={`${SOCIAL_SCRIPT_EDITOR_CLASS} w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-xs text-gray-200 disabled:opacity-60`}
                 />
               </div>
             </div>

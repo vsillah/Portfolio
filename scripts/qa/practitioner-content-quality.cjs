@@ -108,6 +108,32 @@ const session = {
     await page.waitForTimeout(800)
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, `${width}px horizontal overflow`)
     await page.screenshot({ path: path.join(out, `${width}-practitioner-review.png`), fullPage: true })
+
+    const expectedScriptHeight = width >= 1024 ? 320 : width >= 640 ? 288 : 256
+    const postEditor = page.locator('[data-social-script-editor="post-text"]')
+    await expect(postEditor).toBeVisible()
+    const postEditorHeight = await postEditor.evaluate((element) => element.getBoundingClientRect().height)
+    const postEditorResize = await postEditor.evaluate((element) => getComputedStyle(element).resize)
+    assert.ok(postEditorHeight >= expectedScriptHeight, `${width}px post editor is shorter than ${expectedScriptHeight}px`)
+    assert.equal(postEditorResize, 'vertical', `${width}px post editor is not vertically resizable`)
+    await postEditor.scrollIntoViewIfNeeded()
+    await page.screenshot({ path: path.join(out, `${width}-post-script-editor.png`) })
+
+    const visualsUrl = `${base}/admin/social-content/${contentId}?step=visuals`
+    await page.goto(visualsUrl, { waitUntil: 'domcontentloaded' })
+    const voiceoverEditor = page.locator('[data-social-script-editor="voiceover-script"]')
+    await expect(voiceoverEditor).toBeVisible({ timeout: 90000 })
+    const voiceoverEditorHeight = await voiceoverEditor.evaluate((element) => element.getBoundingClientRect().height)
+    const voiceoverEditorResize = await voiceoverEditor.evaluate((element) => getComputedStyle(element).resize)
+    const imagePrompt = page.getByText('Image Prompt', { exact: true }).locator('..').locator('textarea')
+    const imagePromptHeight = await imagePrompt.evaluate((element) => element.getBoundingClientRect().height)
+    assert.ok(voiceoverEditorHeight >= expectedScriptHeight, `${width}px voiceover editor is shorter than ${expectedScriptHeight}px`)
+    assert.equal(voiceoverEditorResize, 'vertical', `${width}px voiceover editor is not vertically resizable`)
+    assert.ok(imagePromptHeight < voiceoverEditorHeight, `${width}px non-script image prompt was enlarged with script editors`)
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, `${width}px visuals horizontal overflow`)
+    await voiceoverEditor.scrollIntoViewIfNeeded()
+    await page.screenshot({ path: path.join(out, `${width}-voiceover-script-editor.png`) })
+
     assert.deepEqual([...new Set(fixtureResponses)], ['blocked', 'ready'], `${width}px did not read both deployed fixture states`)
     assert.equal(mutations.length, 0, `${width}px QA made a mutation`)
     assert.equal(external.length, 0, `${width}px QA made an external request: ${external.join(', ')}`)
@@ -119,6 +145,12 @@ const session = {
       fixture_responses: [...new Set(fixtureResponses)],
       specificity: 'specific', gates_observed: ['blocked_before_human_qa', 'ready_for_human_qa'],
       read_only_controls: ['save_draft', 'approve_copy', 'reject'],
+      script_editor_heights: {
+        expected_minimum: expectedScriptHeight,
+        post_text: postEditorHeight,
+        voiceover_script: voiceoverEditorHeight,
+        image_prompt_control: imagePromptHeight,
+      },
       provider_calls: 0, external_requests: 0, mutations: 0, page_errors: [],
     })
     const video = page.video()
