@@ -1,6 +1,6 @@
 # Revenue Plumbing homepage card QA
 
-This packet covers the compact homepage discovery card for the Revenue Plumbing Map.
+This packet covers the compact homepage discovery card for the Revenue Plumbing Map, including the revised light-mode contrast treatment.
 
 ## Review path
 
@@ -8,7 +8,8 @@ This packet covers the compact homepage discovery card for the Revenue Plumbing 
 2. Scroll past the System Story.
 3. Find the `Revenue Plumbing Map` card.
 4. Confirm the card describes an interactive AmaduTown operating model for finding where revenue systems leak capacity.
-5. Select `Explore the map` and confirm the browser opens `/insights/revenue-plumbing-map`.
+5. In light mode, confirm the muted blue-gray card, bronze accents, navy action, and surrounding section transition read as one intentional surface rather than a stark white panel.
+6. Select `Explore the map` and confirm the browser opens `/insights/revenue-plumbing-map`.
 
 ## Evidence
 

@@ -1,6 +1,6 @@
 {
-  "capturedAt": "2026-10-09T09:24:08.188Z",
-  "baseUrl": "https://portfolio-i8buxg3f1-vsillahs-projects.vercel.app",
+  "capturedAt": "2026-10-09T09:49:07.370Z",
+  "baseUrl": "http://localhost:3025",
   "route": "/",
   "destination": "/insights/revenue-plumbing-map",
   "copy": "An interactive AmaduTown operating model for finding where revenue systems leak capacity.",
@@ -15,20 +15,18 @@
       "destination": "/insights/revenue-plumbing-map",
       "layout": {
         "card": {
-          "bottom": 549,
+          "bottom": 764,
           "height": 254,
           "left": 20,
           "right": 370,
-          "top": 295,
+          "top": 510,
           "width": 350
         },
         "documentWidth": 390,
         "viewportWidth": 390
       },
       "externalRequests": [],
-      "blockedExternalRequests": [
-        "https://vercel.live/_next-live/feedback/feedback.js"
-      ]
+      "blockedExternalRequests": []
     },
     {
       "name": "tablet-768",
@@ -52,7 +50,7 @@
       },
       "externalRequests": [],
       "blockedExternalRequests": [
-        "https://vercel.live/_next-live/feedback/feedback.js"
+        "https://va.vercel-scripts.com/v1/speed-insights/script.debug.js"
       ]
     },
     {
@@ -77,7 +75,7 @@
       },
       "externalRequests": [],
       "blockedExternalRequests": [
-        "https://vercel.live/_next-live/feedback/feedback.js"
+        "https://va.vercel-scripts.com/v1/speed-insights/script.debug.js"
       ]
     }
   ],
@@ -86,11 +84,11 @@
     "destination": "/insights/revenue-plumbing-map",
     "externalRequests": [],
     "blockedExternalRequests": [
-      "https://vercel.live/_next-live/feedback/feedback.js"
+      "https://va.vercel-scripts.com/v1/speed-insights/script.debug.js"
     ]
   },
   "externalRequests": [],
   "blockedExternalRequests": [
-    "https://vercel.live/_next-live/feedback/feedback.js"
+    "https://va.vercel-scripts.com/v1/speed-insights/script.debug.js"
   ]
 }
