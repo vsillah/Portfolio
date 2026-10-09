@@ -116,8 +116,10 @@ const session = {
     const postEditorResize = await postEditor.evaluate((element) => getComputedStyle(element).resize)
     assert.ok(postEditorHeight >= expectedScriptHeight, `${width}px post editor is shorter than ${expectedScriptHeight}px`)
     assert.equal(postEditorResize, 'vertical', `${width}px post editor is not vertically resizable`)
-    await postEditor.scrollIntoViewIfNeeded()
-    await page.screenshot({ path: path.join(out, `${width}-post-script-editor.png`) })
+    const postEditorRegion = postEditor.locator('xpath=..')
+    await page.locator('[data-social-detail-header]').evaluate((element) => { element.style.position = 'static' })
+    await postEditorRegion.screenshot({ path: path.join(out, `${width}-post-script-editor.png`) })
+    await page.locator('[data-social-detail-header]').evaluate((element) => { element.style.position = '' })
 
     const visualsUrl = `${base}/admin/social-content/${contentId}?step=visuals`
     await page.goto(visualsUrl, { waitUntil: 'domcontentloaded' })
@@ -131,8 +133,10 @@ const session = {
     assert.equal(voiceoverEditorResize, 'vertical', `${width}px voiceover editor is not vertically resizable`)
     assert.ok(imagePromptHeight < voiceoverEditorHeight, `${width}px non-script image prompt was enlarged with script editors`)
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, `${width}px visuals horizontal overflow`)
-    await voiceoverEditor.scrollIntoViewIfNeeded()
-    await page.screenshot({ path: path.join(out, `${width}-voiceover-script-editor.png`) })
+    const voiceoverEditorRegion = voiceoverEditor.locator('xpath=..')
+    await page.locator('[data-social-detail-header]').evaluate((element) => { element.style.position = 'static' })
+    await voiceoverEditorRegion.screenshot({ path: path.join(out, `${width}-voiceover-script-editor.png`) })
+    await page.locator('[data-social-detail-header]').evaluate((element) => { element.style.position = '' })
 
     assert.deepEqual([...new Set(fixtureResponses)], ['blocked', 'ready'], `${width}px did not read both deployed fixture states`)
     assert.equal(mutations.length, 0, `${width}px QA made a mutation`)
