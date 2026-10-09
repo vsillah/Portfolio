@@ -4,7 +4,7 @@ This packet exercises the existing Social Content detail route with a synthetic,
 
 Exact deployed QA route:
 
-`https://portfolio-9qeq8k6yz-vsillahs-projects.vercel.app/admin/social-content/practitioner-content-quality-qa?step=copy`
+`https://portfolio-gr698qq7c-vsillahs-projects.vercel.app/admin/social-content/practitioner-content-quality-qa?step=copy`
 
 The fixture exists only in local development, tests, and Vercel Preview. Production returns to the normal authenticated database path.
 
@@ -35,7 +35,7 @@ For a protected Vercel preview, use the linked Portfolio project's short-lived d
 vc env run --cwd /Users/vambahsillah/Projects/Portfolio -- \
   sh -c 'cd "$1" && QA_BASE_URL="$2" node scripts/qa/practitioner-content-quality.cjs' \
   sh /Users/vambahsillah/.codex/worktrees/491f/Portfolio \
-  https://portfolio-9qeq8k6yz-vsillahs-projects.vercel.app
+  https://portfolio-gr698qq7c-vsillahs-projects.vercel.app
 ```
 
 The Playwright script reads the fixture from the deployed Social Content detail API; it does not intercept that endpoint. It supplies synthetic browser auth, records the blocked state followed by the finished review state, blocks Vercel feedback/analytics scripts and unrelated admin dependencies, asserts zero external requests and API mutations, and converts each viewport recording to MP4 with FFmpeg.

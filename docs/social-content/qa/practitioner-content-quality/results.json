@@ -1,7 +1,7 @@
 [
   {
     "width": 390,
-    "route": "https://portfolio-9qeq8k6yz-vsillahs-projects.vercel.app/admin/social-content/practitioner-content-quality-qa?step=copy",
+    "route": "https://portfolio-gr698qq7c-vsillahs-projects.vercel.app/admin/social-content/practitioner-content-quality-qa?step=copy",
     "source": "deployed_preview_fixture",
     "fixture_responses": [
       "blocked",
@@ -17,11 +17,72 @@
       "approve_copy",
       "reject"
     ],
-    "script_editor_heights": {
-      "expected_minimum": 256,
-      "post_text": 258,
-      "voiceover_script": 256,
-      "image_prompt_control": 66
+    "script_editor_sizing": {
+      "expected_minimum": 144,
+      "expected_maximum": 320,
+      "states": {
+        "short": {
+          "post_text": {
+            "height": 144,
+            "min_height": 144,
+            "max_height": 320,
+            "client_height": 142,
+            "scroll_height": 142,
+            "overflow_y": "hidden",
+            "resize": "vertical"
+          },
+          "voiceover_script": {
+            "height": 144,
+            "min_height": 144,
+            "max_height": 320,
+            "client_height": 142,
+            "scroll_height": 142,
+            "overflow_y": "hidden",
+            "resize": "vertical"
+          }
+        },
+        "medium": {
+          "post_text": {
+            "height": 256,
+            "min_height": 144,
+            "max_height": 320,
+            "client_height": 254,
+            "scroll_height": 256,
+            "overflow_y": "hidden",
+            "resize": "vertical"
+          },
+          "voiceover_script": {
+            "height": 192,
+            "min_height": 144,
+            "max_height": 320,
+            "client_height": 190,
+            "scroll_height": 192,
+            "overflow_y": "hidden",
+            "resize": "vertical"
+          }
+        },
+        "over-cap": {
+          "post_text": {
+            "height": 320,
+            "min_height": 144,
+            "max_height": 320,
+            "client_height": 318,
+            "scroll_height": 2556,
+            "overflow_y": "auto",
+            "resize": "vertical"
+          },
+          "voiceover_script": {
+            "height": 320,
+            "min_height": 144,
+            "max_height": 320,
+            "client_height": 318,
+            "scroll_height": 2048,
+            "overflow_y": "auto",
+            "resize": "vertical"
+          }
+        }
+      },
+      "non_script_image_prompt_height": 66
     },
     "provider_calls": 0,
     "external_requests": 0,
@@ -30,7 +91,7 @@
   },
   {
     "width": 768,
-    "route": "https://portfolio-9qeq8k6yz-vsillahs-projects.vercel.app/admin/social-content/practitioner-content-quality-qa?step=copy",
+    "route": "https://portfolio-gr698qq7c-vsillahs-projects.vercel.app/admin/social-content/practitioner-content-quality-qa?step=copy",
     "source": "deployed_preview_fixture",
     "fixture_responses": [
       "blocked",
@@ -46,11 +107,72 @@
       "approve_copy",
       "reject"
     ],
-    "script_editor_heights": {
-      "expected_minimum": 288,
-      "post_text": 288,
-      "voiceover_script": 288,
-      "image_prompt_control": 66
+    "script_editor_sizing": {
+      "expected_minimum": 144,
+      "expected_maximum": 384,
+      "states": {
+        "short": {
+          "post_text": {
+            "height": 144,
+            "min_height": 144,
+            "max_height": 384,
+            "client_height": 142,
+            "scroll_height": 142,
+            "overflow_y": "hidden",
+            "resize": "vertical"
+          },
+          "voiceover_script": {
+            "height": 144,
+            "min_height": 144,
+            "max_height": 384,
+            "client_height": 142,
+            "scroll_height": 142,
+            "overflow_y": "hidden",
+            "resize": "vertical"
+          }
+        },
+        "medium": {
+          "post_text": {
+            "height": 156,
+            "min_height": 144,
+            "max_height": 384,
+            "client_height": 154,
+            "scroll_height": 156,
+            "overflow_y": "hidden",
+            "resize": "vertical"
+          },
+          "voiceover_script": {
+            "height": 144,
+            "min_height": 144,
+            "max_height": 384,
+            "client_height": 142,
+            "scroll_height": 142,
+            "overflow_y": "hidden",
+            "resize": "vertical"
+          }
+        },
+        "over-cap": {
+          "post_text": {
+            "height": 384,
+            "min_height": 144,
+            "max_height": 384,
+            "client_height": 382,
+            "scroll_height": 1916,
+            "overflow_y": "auto",
+            "resize": "vertical"
+          },
+          "voiceover_script": {
+            "height": 384,
+            "min_height": 144,
+            "max_height": 384,
+            "client_height": 382,
+            "scroll_height": 1024,
+            "overflow_y": "auto",
+            "resize": "vertical"
+          }
+        }
+      },
+      "non_script_image_prompt_height": 66
     },
     "provider_calls": 0,
     "external_requests": 0,
@@ -59,7 +181,7 @@
   },
   {
     "width": 1440,
-    "route": "https://portfolio-9qeq8k6yz-vsillahs-projects.vercel.app/admin/social-content/practitioner-content-quality-qa?step=copy",
+    "route": "https://portfolio-gr698qq7c-vsillahs-projects.vercel.app/admin/social-content/practitioner-content-quality-qa?step=copy",
     "source": "deployed_preview_fixture",
     "fixture_responses": [
       "blocked",
@@ -75,11 +197,72 @@
       "approve_copy",
       "reject"
     ],
-    "script_editor_heights": {
-      "expected_minimum": 320,
-      "post_text": 320,
-      "voiceover_script": 320,
-      "image_prompt_control": 66
+    "script_editor_sizing": {
+      "expected_minimum": 144,
+      "expected_maximum": 512,
+      "states": {
+        "short": {
+          "post_text": {
+            "height": 144,
+            "min_height": 144,
+            "max_height": 512,
+            "client_height": 142,
+            "scroll_height": 142,
+            "overflow_y": "hidden",
+            "resize": "vertical"
+          },
+          "voiceover_script": {
+            "height": 144,
+            "min_height": 144,
+            "max_height": 512,
+            "client_height": 142,
+            "scroll_height": 142,
+            "overflow_y": "hidden",
+            "resize": "vertical"
+          }
+        },
+        "medium": {
+          "post_text": {
+            "height": 156,
+            "min_height": 144,
+            "max_height": 512,
+            "client_height": 154,
+            "scroll_height": 156,
+            "overflow_y": "hidden",
+            "resize": "vertical"
+          },
+          "voiceover_script": {
+            "height": 144,
+            "min_height": 144,
+            "max_height": 512,
+            "client_height": 142,
+            "scroll_height": 142,
+            "overflow_y": "hidden",
+            "resize": "vertical"
+          }
+        },
+        "over-cap": {
+          "post_text": {
+            "height": 512,
+            "min_height": 144,
+            "max_height": 512,
+            "client_height": 510,
+            "scroll_height": 1916,
+            "overflow_y": "auto",
+            "resize": "vertical"
+          },
+          "voiceover_script": {
+            "height": 512,
+            "min_height": 144,
+            "max_height": 512,
+            "client_height": 510,
+            "scroll_height": 1024,
+            "overflow_y": "auto",
+            "resize": "vertical"
+          }
+        }
+      },
+      "non_script_image_prompt_height": 66
     },
     "provider_calls": 0,
     "external_requests": 0,
