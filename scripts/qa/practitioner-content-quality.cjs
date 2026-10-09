@@ -103,6 +103,7 @@ const session = {
     await expect(page.getByRole('button', { name: 'Save Draft' })).toBeDisabled()
     await expect(page.getByRole('button', { name: 'Approve Copy' })).toBeDisabled()
     await expect(page.getByRole('button', { name: 'Reject', exact: true })).toBeDisabled()
+    await page.screenshot({ path: path.join(out, `${width}-read-only-fixture.png`) })
     await panel.scrollIntoViewIfNeeded()
     await page.waitForTimeout(800)
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, `${width}px horizontal overflow`)
@@ -117,6 +118,7 @@ const session = {
       source: base.includes('.vercel.app') ? 'deployed_preview_fixture' : 'local_preview_fixture',
       fixture_responses: [...new Set(fixtureResponses)],
       specificity: 'specific', gates_observed: ['blocked_before_human_qa', 'ready_for_human_qa'],
+      read_only_controls: ['save_draft', 'approve_copy', 'reject'],
       provider_calls: 0, external_requests: 0, mutations: 0, page_errors: [],
     })
     const video = page.video()
