@@ -259,6 +259,19 @@ describe('social content lifecycle projection', () => {
       'production_script_label',
     ]))
   })
+
+  it('blocks email and phone details from entering public review copy', () => {
+    const qualityGate = validateSocialContentFinalCopyQuality({
+      post_text: 'Email operator@example.com for the private record.',
+      cta_text: 'Call 202-555-0147 to continue.',
+    })
+
+    expect(qualityGate.status).toBe('blocked')
+    expect(qualityGate.findings.map((finding) => finding.code)).toEqual(expect.arrayContaining([
+      'private_email_address',
+      'private_phone_number',
+    ]))
+  })
 })
 
 describe('draft seed versus public prose', () => {

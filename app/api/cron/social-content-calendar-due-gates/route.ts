@@ -80,6 +80,26 @@ function isDryRun(request: NextRequest, body: Record<string, unknown>) {
     || body.dry_run === true
 }
 
+async function notifyPreparedReviewItems(input: {
+  calendarItemIds: string[]
+  dryRun: boolean
+  actorLabel: string
+  triggerSource: string
+}) {
+  if (!input.calendarItemIds.length) return null
+  return runAgentSlackNotificationSweep({
+    mode: 'immediate',
+    kinds: ['review_ready'],
+    goalId: 'social-content-calendar',
+    calendarItemIds: [...new Set(input.calendarItemIds)],
+    dryRun: input.dryRun,
+    actorLabel: input.actorLabel,
+    triggerSource: input.triggerSource,
+  }).catch((notificationError) => ({
+    error: notificationError instanceof Error ? notificationError.message : 'Review-ready Slack sweep failed',
+  }))
+}
+
 function pingAlreadySent(item: SocialContentCalendarItem, window: '24h' | '2h') {
   return calendarDueGatePingAlreadySent(item, window)
 }
@@ -87,14 +107,34 @@ function pingAlreadySent(item: SocialContentCalendarItem, window: '24h' | '2h') 
 function preparationAlreadyRecorded(item: SocialContentCalendarItem) {
   const metadata = parseMetadata(item.metadata)
   const preparation = parseMetadata(metadata.publish_preparation)
-  return typeof preparation.work_item_id === 'string' && preparation.work_item_id.length > 0
+  return preparation.status === 'ready'
+    && typeof preparation.content_version === 'string'
+    && preparation.content_version.length > 0
+}
+
+function preparationTriggerAt(item: SocialContentCalendarItem) {
+  const metadata = parseMetadata(item.metadata)
+  const value = typeof metadata.review_trigger_at === 'string'
+    ? metadata.review_trigger_at
+    : typeof metadata.review_due_at === 'string'
+      ? metadata.review_due_at
+      : item.scheduled_for
+  return new Date(value).getTime()
+}
+
+function preparationPriority(item: SocialContentCalendarItem) {
+  const priority = parseMetadata(item.metadata).review_priority
+  if (priority === 'urgent') return 0
+  if (priority === 'high') return 1
+  if (priority === 'low') return 3
+  return 2
 }
 
 function isWithinPreparationWindow(item: SocialContentCalendarItem, now: Date) {
-  const scheduledAt = new Date(item.scheduled_for).getTime()
-  if (!Number.isFinite(scheduledAt)) return false
-  return scheduledAt >= now.getTime() - CALENDAR_LOOKBACK_HOURS * 60 * 60 * 1000
-    && scheduledAt <= now.getTime() + 24 * 60 * 60 * 1000
+  const triggerAt = preparationTriggerAt(item)
+  if (!Number.isFinite(triggerAt)) return false
+  return triggerAt >= now.getTime() - CALENDAR_LOOKBACK_HOURS * 60 * 60 * 1000
+    && triggerAt <= now.getTime()
 }
 
 function needsPublishPreparation(item: SocialContentCalendarItem, now: Date) {
@@ -108,49 +148,6 @@ function calendarNeedsRecalibration(item: SocialContentCalendarItem, now: Date) 
   if (item.authorization_status === 'authorized') return false
   if (item.due_status === 'completed' || item.due_status === 'cancelled') return false
   return calendarMissedReleaseWindow(item.scheduled_for, now)
-}
-
-async function createPublishPreparationWorkItem(item: SocialContentCalendarItem, now: Date) {
-  const socialContentId = item.social_content_queue?.id ?? item.social_content_id
-  const channelLabel = CALENDAR_CHANNEL_LABELS[item.channel]
-  const publishes = item.social_content_queue?.social_content_publishes ?? []
-  const missingPublishRows = publishes.length === 0
-
-  return createAgentWorkItem({
-    title: `Prepare authorized ${channelLabel} Social Content item: ${item.title}`,
-    objective: [
-      `Continue in the canonical Social Content item at /admin/social-content/${socialContentId}.`,
-      'Prepare the internal publish records and review gates needed for a human readiness decision.',
-      'Do not approve a gate, generate provider media, upload, schedule, publish, or call a provider from this work item.',
-    ].join(' '),
-    priority: new Date(item.scheduled_for).getTime() < now.getTime() ? 'urgent' : 'high',
-    status: 'queued',
-    ownerAgentKey: 'content-repurposing',
-    ownerRuntime: 'codex',
-    source: {
-      type: 'social_content_calendar_publish_preparation',
-      id: item.id,
-      label: item.title,
-    },
-    overlapGroup: 'social-content-calendar',
-    metadata: {
-      goal_id: 'social-content-calendar',
-      calendar_item_id: item.id,
-      campaign_id: item.campaign_id,
-      social_content_id: socialContentId,
-      social_content_path: `/admin/social-content/${socialContentId}`,
-      queue_status: item.social_content_queue?.status ?? null,
-      channel: item.channel,
-      campaign_phase: item.campaign_phase,
-      scheduled_for: item.scheduled_for,
-      preparation_action: 'prepare_publish_rows_and_gates_for_human_review',
-      missing_publish_rows: missingPublishRows,
-      existing_publish_row_count: publishes.length,
-      external_execution_enabled: false,
-      side_effects: CALENDAR_SIDE_EFFECTS,
-    },
-    idempotencyKey: `social-content-calendar-publish-preparation:${item.id}`,
-  })
 }
 
 async function collectDueGateCandidates(input: {
@@ -221,9 +218,11 @@ async function collectDueGateCandidates(input: {
     ) break
   }
 
-  preparationCandidates.sort(
-    (left, right) => new Date(left.scheduled_for).getTime() - new Date(right.scheduled_for).getTime(),
-  )
+  preparationCandidates.sort((left, right) => (
+    preparationPriority(left) - preparationPriority(right)
+      || preparationTriggerAt(left) - preparationTriggerAt(right)
+      || left.id.localeCompare(right.id)
+  ))
   recalibrationCandidates.sort(
     (left, right) => new Date(left.item.scheduled_for).getTime() - new Date(right.item.scheduled_for).getTime(),
   )
@@ -308,17 +307,40 @@ async function runDueGateSweep(request: NextRequest) {
 
   try {
     const body = await bodyOrEmpty(request)
-    // This mode is internal preparation only. It must return before any Slack sweep.
+    // This mode prepares internal review packets only. Slack may notify and deep-link
+    // after readiness is persisted; it never becomes the approval surface.
     if (new URL(request.url).searchParams.get('mode') === 'review_backlog' || body.mode === 'review_backlog') {
       const campaignId = new URL(request.url).searchParams.get('campaign_id') || body.campaign_id
-      const options = { scheduled: true, dryRun: isDryRun(request, body) }
-      if (typeof campaignId === 'string' && campaignId) return NextResponse.json(await prepareCampaignReviewBatch(campaignId, options))
+      const dryRun = isDryRun(request, body)
+      const options = { scheduled: true, dryRun, dueOnly: true }
+      if (typeof campaignId === 'string' && campaignId) {
+        const result = await prepareCampaignReviewBatch(campaignId, options)
+        const calendarItemIds = dryRun
+          ? (result.rows ?? []).filter(row => row.state === 'eligible' && Date.parse(row.trigger_at) <= Date.now()).map(row => row.id)
+          : (result.prepared_items ?? []).map(row => row.calendar_item_id)
+        const slackNotificationResult = await notifyPreparedReviewItems({
+          calendarItemIds,
+          dryRun,
+          actorLabel: dryRun ? 'Campaign review backlog dry run' : 'Campaign review backlog cron',
+          triggerSource: dryRun ? 'dry_run_campaign_review_backlog' : 'campaign_review_backlog',
+        })
+        return NextResponse.json({ ...result, slack_notification_result: slackNotificationResult })
+      }
       const { data: campaigns, error: campaignError } = await supabaseAdmin.from('attraction_campaigns').select('id').eq('status', 'active').limit(51)
       if (campaignError) throw campaignError
       if ((campaigns?.length ?? 0) > 50) return NextResponse.json({ error: 'Review scan exceeds 50 active campaigns; run campaign-scoped sweeps.' }, { status: 409 })
       const results = []
       for (const campaign of campaigns ?? []) results.push(await prepareCampaignReviewBatch(campaign.id, options))
-      return NextResponse.json({ results, slack_send: false })
+      const calendarItemIds = dryRun
+        ? results.flatMap(result => (result.rows ?? []).filter(row => row.state === 'eligible' && Date.parse(row.trigger_at) <= Date.now()).map(row => row.id))
+        : results.flatMap(result => (result.prepared_items ?? []).map(row => row.calendar_item_id))
+      const slackNotificationResult = await notifyPreparedReviewItems({
+        calendarItemIds,
+        dryRun,
+        actorLabel: dryRun ? 'Campaign review backlog dry run' : 'Campaign review backlog cron',
+        triggerSource: dryRun ? 'dry_run_campaign_review_backlog' : 'campaign_review_backlog',
+      })
+      return NextResponse.json({ results, slack_notification_result: slackNotificationResult })
     }
     getSlackAgentSource()
     const dryRun = isDryRun(request, body)
@@ -414,7 +436,8 @@ async function runDueGateSweep(request: NextRequest) {
     }
 
     const pinged: Array<{ calendar_item_id: string; work_item_id: string; window: '24h' | '2h' }> = []
-    const prepared: Array<{ calendar_item_id: string; social_content_id: string | null; work_item_id: string }> = []
+    const prepared: Array<{ calendar_item_id: string; social_content_id: string | null; work_item_id: string; review_path: string; content_version: string }> = []
+    const preparationBlocked: Array<{ calendar_item_id: string; blocker: string; recovery_action: string }> = []
     const recalibrated: Array<{
       anchor_calendar_item_id: string
       work_item_id: string
@@ -490,9 +513,68 @@ async function runDueGateSweep(request: NextRequest) {
     }
 
     for (const item of preparationCandidates) {
-      const workItem = await createPublishPreparationWorkItem(item, now)
       const metadata = parseMetadata(item.metadata)
       const socialContentId = item.social_content_queue?.id ?? item.social_content_id
+      if (!item.campaign_id) {
+        const blocker = 'Link this prioritized calendar item to an active campaign before automatic preparation.'
+        const recoveryAction = `/admin/agents/content-intelligence?section=calendar&calendar_item=${encodeURIComponent(item.id)}#content-calendar-gate`
+        const updateResult = await supabaseAdmin
+          .from('social_content_calendar_items')
+          .update({
+            metadata: {
+              ...metadata,
+              publish_preparation: {
+                status: 'blocked',
+                blocked_at: now.toISOString(),
+                trigger_at: new Date(preparationTriggerAt(item)).toISOString(),
+                blocker,
+                recovery_action: recoveryAction,
+              },
+              external_execution_enabled: false,
+            },
+          })
+          .eq('id', item.id)
+        assertSupabaseWriteSucceeded(updateResult, `Record publish preparation blocker for ${item.id}`)
+        preparationBlocked.push({ calendar_item_id: item.id, blocker, recovery_action: recoveryAction })
+        continue
+      }
+
+      const result = await prepareCampaignReviewBatch(item.campaign_id, {
+        now,
+        calendarItemIds: [item.id],
+        dueOnly: true,
+      })
+      const completed = result.prepared_items?.find(row => row.calendar_item_id === item.id)
+      const projected = result.rows.find(row => row.id === item.id)
+      const blocked = result.blocked_items?.find(row => row.calendar_item_id === item.id)
+      if (!completed) {
+        const blocker = blocked?.reason || projected?.reason || 'The review package is not ready for Human QA.'
+        const recoveryAction = blocked?.recovery_action
+          || projected?.href
+          || `/admin/agents/content-intelligence?section=calendar&calendar_item=${encodeURIComponent(item.id)}#content-calendar-gate`
+        const updateResult = await supabaseAdmin
+          .from('social_content_calendar_items')
+          .update({
+            due_status: deriveDueStatus(item.scheduled_for, now),
+            metadata: {
+              ...metadata,
+              publish_preparation: {
+                status: 'blocked',
+                blocked_at: now.toISOString(),
+                trigger_at: new Date(preparationTriggerAt(item)).toISOString(),
+                blocker,
+                recovery_action: recoveryAction,
+                source_lineage: projected?.lineage ?? null,
+              },
+              external_execution_enabled: false,
+            },
+          })
+          .eq('id', item.id)
+        assertSupabaseWriteSucceeded(updateResult, `Record publish preparation blocker for ${item.id}`)
+        preparationBlocked.push({ calendar_item_id: item.id, blocker, recovery_action: recoveryAction })
+        continue
+      }
+
       const updateResult = await supabaseAdmin
         .from('social_content_calendar_items')
         .update({
@@ -500,10 +582,16 @@ async function runDueGateSweep(request: NextRequest) {
           metadata: {
             ...metadata,
             publish_preparation: {
+              status: 'ready',
               prepared_at: now.toISOString(),
-              work_item_id: workItem.id,
+              trigger_at: new Date(preparationTriggerAt(item)).toISOString(),
+              work_item_id: completed.work_item_id,
               social_content_id: socialContentId,
-              action: 'prepare_publish_rows_and_gates_for_human_review',
+              action: 'review_receipt_backed_social_content_package',
+              review_path: completed.review_path,
+              content_version: completed.content_version,
+              source_lineage: completed.lineage,
+              notification_key: `social-calendar-review-ready:${item.id}:${completed.content_version}`,
             },
             external_execution_enabled: false,
           },
@@ -514,7 +602,9 @@ async function runDueGateSweep(request: NextRequest) {
       prepared.push({
         calendar_item_id: item.id,
         social_content_id: socialContentId,
-        work_item_id: workItem.id,
+        work_item_id: completed.work_item_id,
+        review_path: completed.review_path,
+        content_version: completed.content_version,
       })
     }
 
@@ -573,18 +663,35 @@ async function runDueGateSweep(request: NextRequest) {
     // Slack selects eligible rows from the calendar table. Persisting due_gate_pings
     // before this sweep makes the same row look already notified and suppresses
     // the alert that the work item was created for.
-    const slackResult = pinged.length + prepared.length + recalibrated.length > 0
-      ? await runAgentSlackNotificationSweep({
+    const slackSweeps = []
+    if (pinged.length + recalibrated.length > 0) {
+      slackSweeps.push(await runAgentSlackNotificationSweep({
           mode: 'immediate',
           kinds: ['social_calendar_approval_due'],
           goalId: 'social-content-calendar',
-          calendarItemIds: [...new Set([...pinged.map((row) => row.calendar_item_id), ...prepared.map((row) => row.calendar_item_id), ...recalibrated.flatMap((row) => row.updates.map((update) => update.calendar_item_id))])],
+          calendarItemIds: [...new Set([...pinged.map((row) => row.calendar_item_id), ...recalibrated.flatMap((row) => row.updates.map((update) => update.calendar_item_id))])],
           actorLabel: request.method === 'GET' ? 'Calendar due-gate cron' : 'Manual calendar due-gate sweep',
           triggerSource,
         }).catch((notificationError) => ({
           error: notificationError instanceof Error ? notificationError.message : 'Slack sweep failed',
-        }))
-      : null
+        })))
+    }
+    if (prepared.length > 0) {
+      slackSweeps.push(await runAgentSlackNotificationSweep({
+        mode: 'immediate',
+        kinds: ['review_ready'],
+        goalId: 'social-content-calendar',
+        calendarItemIds: prepared.map(row => row.calendar_item_id),
+        actorLabel: request.method === 'GET' ? 'Calendar preparation cron' : 'Manual calendar preparation sweep',
+        triggerSource: `${triggerSource}_review_ready`,
+      }).catch((notificationError) => ({
+        error: notificationError instanceof Error ? notificationError.message : 'Review-ready Slack sweep failed',
+      })))
+    }
+    const slackResult = slackSweeps.length ? {
+      results: slackSweeps.flatMap(sweep => 'results' in sweep ? sweep.results : []),
+      errors: slackSweeps.flatMap(sweep => 'error' in sweep ? [sweep.error] : []),
+    } : null
 
     const receipts = slackResult && 'results' in slackResult ? slackResult.results.filter((result) =>
       (result.sent || result.deduped) && result.slackChannel && result.slackMessageTs,
@@ -632,9 +739,11 @@ async function runDueGateSweep(request: NextRequest) {
       work_item_count: pinged.length,
       notification_incomplete: pinged.some((row) => !deliveredIds.has(row.calendar_item_id)),
       preparation_count: prepared.length,
+      preparation_blocked_count: preparationBlocked.length,
       recalibrated_count: recalibrated.length,
       pinged: pinged.filter((row) => deliveredIds.has(row.calendar_item_id)),
       prepared,
+      preparation_blocked: preparationBlocked,
       recalibrated,
       slack_notification_result: slackResult,
       side_effects: {

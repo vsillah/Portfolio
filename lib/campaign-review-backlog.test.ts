@@ -34,11 +34,21 @@ describe('campaign rolling review persistence', () => {
     const [a, b] = await Promise.all([prepareCampaignReviewBatch('campaign', { now }), prepareCampaignReviewBatch('campaign', { now })])
     expect(a.prepared_count + b.prepared_count).toBe(5)
     expect((await prepareCampaignReviewBatch('campaign', { now })).prepared_count).toBe(0)
-    expect(db.writes).toHaveLength(5)
+    expect(db.writes).toHaveLength(10)
     expect(db.writes[0].update.updated_at).toMatch(/^202/)
     const meta = db.tables.agent_work_items[0].metadata
     expect(meta.channel_lanes.linkedin.status).toBe('in_review')
     expect(meta.channel_lanes.linkedin.draft_packet.shared_source).toMatchObject({ calendar_item_id: 'calendar-0', campaign_id: 'campaign', social_content_id: 'draft-0', work_item_id: 'work-0', evidence_ids: ['evidence'], channel: 'linkedin' })
+    expect(meta.channel_lanes.linkedin.draft_packet.enrichment_receipt).toMatchObject({
+      status: 'passed',
+      checks: {
+        research_frameworks: { status: 'passed' },
+        voice_calibration: { status: 'passed' },
+        editorial_challenger: { status: 'passed' },
+      },
+    })
+    expect(meta.rolling_review.linkedin.content_version).toMatch(/^[a-f0-9]{64}$/)
+    expect(meta.rolling_review_claims.linkedin.status).toBe('prepared')
     expect(Object.values(meta.side_effects).every(v => v === false)).toBe(true)
     expect(db.tables.social_content_queue[0].status).toBe('draft')
   })
@@ -113,6 +123,26 @@ describe('campaign rolling review persistence', () => {
     expect((await prepareCampaignReviewBatch('campaign', { now })).prepared_count).toBe(1)
     db.tables.attraction_campaigns[0].ends_at = '2026-10-08T00:00:00Z'
     expect((await getCampaignReviewBacklog('campaign', now)).rows).toEqual([])
+  })
+
+  it('claims due items in priority order and leaves future trigger times untouched', async () => {
+    seed(3)
+    db.tables.social_content_calendar_items[0].metadata.review_priority = 'low'
+    db.tables.social_content_calendar_items[0].metadata.review_trigger_at = now.toISOString()
+    db.tables.social_content_calendar_items[1].metadata.review_priority = 'urgent'
+    db.tables.social_content_calendar_items[1].metadata.review_trigger_at = now.toISOString()
+    db.tables.social_content_calendar_items[2].metadata.review_priority = 'high'
+    db.tables.social_content_calendar_items[2].metadata.review_trigger_at = '2026-10-06T11:00:00Z'
+
+    const result = await prepareCampaignReviewBatch('campaign', {
+      now,
+      dueOnly: true,
+      calendarItemIds: ['calendar-0', 'calendar-1', 'calendar-2'],
+    })
+
+    expect(result.prepared_items.map(item => item.calendar_item_id)).toEqual(['calendar-1', 'calendar-0'])
+    expect(result.prepared_items.every(item => /^[a-f0-9]{64}$/.test(item.content_version))).toBe(true)
+    expect(db.tables.agent_work_items[2].metadata.rolling_review).toBeUndefined()
   })
 
 })
