@@ -97,9 +97,11 @@ export async function GET(
         : 'ready'
       const requestedScriptSize = request.headers.get('x-portfolio-qa-script-size')
       const fixtureScriptSize: PractitionerContentQaScriptSize = requestedScriptSize === 'short'
+        || requestedScriptSize === 'medium'
         || requestedScriptSize === 'over-cap'
+        || requestedScriptSize === 'complete'
         ? requestedScriptSize
-        : 'medium'
+        : 'complete'
       return NextResponse.json({
         item: practitionerContentQaFixture(fixtureState, fixtureScriptSize),
         fixture: true,

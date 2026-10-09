@@ -49,8 +49,21 @@ describe('practitioner content preview fixture route', () => {
           practitioner_content_quality: {
             version: 'practitioner_evidence_v1',
             evidence_packet: { status: 'approved' },
+            framework_application: {
+              status: 'applied',
+              selected_framework: { framework_type: 'proof_stacking' },
+              voice_calibration: { status: 'applied' },
+              performance_calibration: { status: 'bounded_fallback' },
+            },
             deterministic_visual: {
               system_version: 'amadutown_deterministic_v1',
+              argument_map: {
+                context: expect.any(String),
+                constraint: expect.any(String),
+                decision_mechanism: expect.any(String),
+                result_boundary: expect.any(String),
+                practical_takeaway: expect.any(String),
+              },
               candidate: { status: 'in_review', renderer: 'html_svg' },
               art_direction_receipt: { provider: 'none', status: 'not_called' },
             },

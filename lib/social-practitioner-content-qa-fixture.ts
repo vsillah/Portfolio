@@ -1,7 +1,23 @@
 import type { SocialContentItem } from '@/lib/social-content'
 
 export const PRACTITIONER_CONTENT_QA_ID = 'practitioner-content-quality-qa'
-export type PractitionerContentQaScriptSize = 'short' | 'medium' | 'over-cap'
+export type PractitionerContentQaScriptSize = 'complete' | 'short' | 'medium' | 'over-cap'
+
+const COMPLETE_PRACTITIONER_POST = [
+  'Every Friday, a nonprofit operations lead opened three spreadsheets to answer one question: which intake record was ready for action?',
+  'The work looked simple from a distance. One intake could appear in more than one file, so the lead reconstructed the record history before making a decision.',
+  'Volunteer coverage changed week to week, the intake rules had to stay consistent, and the lead still carried the final decision.',
+  'A bigger dashboard would have added another layer. The team needed one place where the rules stayed visible and the decision owner stayed human.',
+  'We used a proof-stacking structure to redesign the workflow: show the burden, name the constraint, change one mechanism, then separate the result we can see from the result that still needs time.',
+  'Each submission entered the same rule set, possible duplicates landed in one check, and the operations lead made the final call before the Friday handoff.',
+  'The duplicate review step disappeared from the weekly process, while the 30-day outcome check remains pending.',
+  'That boundary matters. A cleaner handoff is visible now. Long-term impact still has to be measured.',
+  'Many automation projects lose the operator at this point. A polished demo focuses on output. A working operating system makes authority, exceptions, and evidence visible to the person accountable for the outcome.',
+  'Use four questions before choosing a model or building another dashboard:\n\n1. Where does the same work get reviewed twice?\n2. Which rule must stay stable when staffing changes?\n3. Who owns the final decision?\n4. What result can you observe now, and what still needs time?',
+  "Start with the repeated burden, name the stable rule, keep one decision owner, and separate today's evidence from tomorrow's metric.",
+  'The right automation makes the weekly process lighter while keeping judgment close to the people who understand the work.',
+  'Where does duplicate review still show up in your workflow, and who should own the final decision when it disappears?',
+].join('\n\n')
 
 const MEDIUM_SCRIPT = [
   'A nonprofit operations lead reconciled one intake across three spreadsheets every Friday.',
@@ -11,6 +27,7 @@ const MEDIUM_SCRIPT = [
 ].join('\n\n')
 
 const SCRIPT_BY_SIZE: Record<PractitionerContentQaScriptSize, string> = {
+  complete: COMPLETE_PRACTITIONER_POST,
   short: 'One reviewed queue replaced three duplicate checks.',
   medium: MEDIUM_SCRIPT,
   'over-cap': Array.from({ length: 32 }, (_, index) => (
@@ -33,7 +50,7 @@ export function isPractitionerContentQaFixtureId(id: string | null | undefined) 
 
 export function practitionerContentQaFixture(
   state: 'ready' | 'blocked' = 'ready',
-  scriptSize: PractitionerContentQaScriptSize = 'medium',
+  scriptSize: PractitionerContentQaScriptSize = 'complete',
 ): SocialContentItem {
   const blocked = state === 'blocked'
   const postText = SCRIPT_BY_SIZE[scriptSize]
@@ -54,7 +71,12 @@ export function practitionerContentQaFixture(
     voiceover_text: postText,
     video_url: null,
     topic_extracted: null,
-    hormozi_framework: null,
+    hormozi_framework: {
+      framework_type: 'proof_stacking',
+      hook_type: 'operational_scene',
+      proof_pattern: 'constraint_mechanism_bounded_result',
+      cta_pattern: 'specific_operator_question',
+    },
     scheduled_for: null,
     published_at: null,
     platform_post_id: null,
@@ -128,15 +150,64 @@ export function practitionerContentQaFixture(
             unresolved_identifier_types: [],
           },
         },
+        framework_application: {
+          receipt_id: blocked ? '' : 'framework-application-synthetic-preview-1',
+          status: blocked ? 'draft' : 'applied',
+          applied_at: blocked ? null : '2026-10-09T10:00:00.000Z',
+          selected_framework: {
+            framework_type: 'proof_stacking',
+            hook_type: 'operational_scene',
+            proof_pattern: 'constraint_mechanism_bounded_result',
+            cta_pattern: 'specific_operator_question',
+            approved_pattern_id: 'hormozi-proof-stacking',
+            approved_pattern_source: 'social-content:hormozi-frameworks',
+          },
+          copy_beats: {
+            hook_tension: 'Every Friday, a nonprofit operations lead opened three spreadsheets to answer one question: which intake record was ready for action?',
+            practitioner_scene: 'Every Friday, a nonprofit operations lead opened three spreadsheets to answer one question: which intake record was ready for action?',
+            operational_constraint: 'Volunteer coverage changed week to week, the intake rules had to stay consistent, and the lead still carried the final decision.',
+            decision_mechanism: 'Each submission entered the same rule set, possible duplicates landed in one check, and the operations lead made the final call before the Friday handoff.',
+            proof_result_boundary: 'The duplicate review step disappeared from the weekly process, while the 30-day outcome check remains pending.',
+            practical_takeaway: "Start with the repeated burden, name the stable rule, keep one decision owner, and separate today's evidence from tomorrow's metric.",
+            cta: 'Where does duplicate review still show up in your workflow, and who should own the final decision when it disappears?',
+          },
+          voice_calibration: {
+            status: 'applied',
+            reference_ids: ['linkedin-ai-reduces-burden'],
+            principles_applied: [
+              'Open with a concrete operating burden.',
+              'Move from the system problem to a usable operator test.',
+            ],
+          },
+          performance_calibration: {
+            status: 'bounded_fallback',
+            reference_ids: [],
+            fallback_reason: 'No measured performance history is attached; the approved static reference shapes voice and structure only.',
+            causal_claim_boundary: 'correlational_only',
+          },
+          content_shape: {
+            format: 'standard_post',
+            target_min_characters: 1800,
+            target_max_characters: 2100,
+            short_form_justification: null,
+          },
+        },
         deterministic_visual: {
           system_version: 'amadutown_deterministic_v1',
           template: 'constraint_decision_result',
           aspect_ratio: '1.91:1',
-          eyebrow: 'Field note',
-          headline: 'One queue. One decision owner.',
-          evidence_lines: ['Three spreadsheets', 'Weekly volunteer changes', 'One reviewed queue'],
+          eyebrow: 'Operator system map',
+          headline: 'Make the repeated burden visible. Keep judgment human.',
+          evidence_lines: ['Three spreadsheets', 'Changing volunteer coverage', 'One reviewed queue', 'Decision owner stays human', '30-day metric pending'],
           result_label: '30-day metric pending',
-          visual_rationale: 'Make the operating constraint and decision change visible without exposing the organization.',
+          argument_map: {
+            context: 'Every Friday, three spreadsheets fed one intake decision.',
+            constraint: 'Volunteer coverage changed while intake rules had to stay consistent.',
+            decision_mechanism: 'One reviewed queue kept the final call with the operations lead.',
+            result_boundary: 'Duplicate review disappeared; the 30-day outcome remains pending.',
+            practical_takeaway: 'Start with repeated burden, stable rules, and one decision owner.',
+          },
+          visual_rationale: 'Map the full operator argument from weekly burden through bounded result and takeaway without exposing the organization.',
           candidate: {
             candidate_id: 'visual-candidate-synthetic-preview-1',
             status: blocked ? 'draft' : 'in_review',

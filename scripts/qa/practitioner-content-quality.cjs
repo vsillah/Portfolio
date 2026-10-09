@@ -25,7 +25,7 @@ const session = {
   const results = []
   for (const width of [390, 768, 1440]) {
     let fixtureState = 'blocked'
-    let fixtureScriptSize = 'medium'
+    let fixtureScriptSize = 'complete'
     const external = []
     const mutations = []
     const pageErrors = []
@@ -102,9 +102,14 @@ const session = {
     await page.goto(readyUrl, { waitUntil: 'domcontentloaded' })
     await expect(panel).toBeVisible({ timeout: 90000 })
     await expect(panel.getByText('Ready for Human QA')).toBeVisible()
-    await expect(panel.getByText('One queue. One decision owner.')).toBeVisible()
+    await expect(panel.getByText('Make the repeated burden visible. Keep judgment human.')).toBeVisible()
     await expect(panel.getByText('Specificity: specific')).toBeVisible()
     await expect(panel.getByText('Correlation only')).toBeVisible()
+    await expect(panel.getByText('Framework: applied')).toBeVisible()
+    await expect(panel.getByText('Voice: applied')).toBeVisible()
+    await expect(panel.getByText('Performance: bounded fallback')).toBeVisible()
+    await expect(panel.getByText('Every Friday, three spreadsheets fed one intake decision.')).toBeVisible()
+    await expect(panel.getByText('Start with repeated burden, stable rules, and one decision owner.')).toBeVisible()
     await expect(panel.getByLabel('Deterministic AmaduTown visual candidate')).toBeVisible()
     await expect(page.getByText('Preview fixture is read-only.', { exact: true })).toBeVisible()
     await expect(page.getByText(/No changes, approvals, or rejection decisions can be saved from this route/)).toBeVisible()
@@ -113,10 +118,21 @@ const session = {
     await expect(page.getByRole('button', { name: 'Approve Copy' })).toBeDisabled()
     await expect(page.getByRole('button', { name: 'Reject', exact: true })).toBeDisabled()
     await page.screenshot({ path: path.join(out, `${width}-read-only-fixture.png`) })
+    const detailHeader = page.locator('[data-social-detail-header]')
+    await detailHeader.evaluate((element) => { element.style.position = 'static' })
     await panel.scrollIntoViewIfNeeded()
+    await page.waitForTimeout(400)
+    await panel.getByText('Finished copy', { exact: true }).scrollIntoViewIfNeeded()
+    await page.waitForTimeout(500)
+    const visualCandidate = panel.getByLabel('Deterministic AmaduTown visual candidate')
+    await visualCandidate.scrollIntoViewIfNeeded()
     await page.waitForTimeout(800)
+    await visualCandidate.screenshot({ path: path.join(out, `${width}-argument-visual.png`) })
+    await panel.getByText('Visual rationale:', { exact: false }).scrollIntoViewIfNeeded()
+    await page.waitForTimeout(500)
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, `${width}px horizontal overflow`)
-    await page.screenshot({ path: path.join(out, `${width}-practitioner-review.png`), fullPage: true })
+    await panel.screenshot({ path: path.join(out, `${width}-practitioner-review.png`) })
+    await detailHeader.evaluate((element) => { element.style.position = '' })
 
     const expectedMinHeight = 144
     const expectedMaxHeight = width >= 1024 ? 512 : width >= 640 ? 384 : 320
@@ -166,7 +182,7 @@ const session = {
       await measureEditor({ step: 'copy', editorKey: 'post-text', resultKey: 'post_text', size })
       await measureEditor({ step: 'visuals', editorKey: 'voiceover-script', resultKey: 'voiceover_script', size })
     }
-    fixtureScriptSize = 'medium'
+    fixtureScriptSize = 'complete'
     await page.goto(`${base}/admin/social-content/${contentId}?step=visuals`, { waitUntil: 'domcontentloaded' })
     const imagePrompt = page.getByText('Image Prompt', { exact: true }).locator('..').locator('textarea')
     await expect(imagePrompt).toBeVisible({ timeout: 90000 })
@@ -175,7 +191,7 @@ const session = {
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, `${width}px visuals horizontal overflow`)
 
     assert.deepEqual([...new Set(fixtureResponses)], ['blocked', 'ready'], `${width}px did not read both deployed fixture states`)
-    assert.deepEqual([...new Set(fixtureScriptResponses)].sort(), ['medium', 'over-cap', 'short'], `${width}px did not read all deployed script-size states`)
+    assert.deepEqual([...new Set(fixtureScriptResponses)].sort(), ['complete', 'medium', 'over-cap', 'short'], `${width}px did not read the complete post and all deployed script-size states`)
     assert.equal(mutations.length, 0, `${width}px QA made a mutation`)
     assert.equal(external.length, 0, `${width}px QA made an external request: ${external.join(', ')}`)
     assert.equal(pageErrors.length, 0, `${width}px QA emitted a page error`)

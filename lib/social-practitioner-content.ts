@@ -1,4 +1,4 @@
-import type { SocialContentItem, SocialPlatform } from '@/lib/social-content'
+import { HORMOZI_FRAMEWORK_TYPES, type HormoziFramework, type HormoziFrameworkType, type SocialContentItem, type SocialPlatform } from '@/lib/social-content'
 import type { SocialContentExperimentTags } from '@/lib/social-content-calibration-library'
 
 export const PRACTITIONER_CONTENT_QUALITY_VERSION = 'practitioner_evidence_v1' as const
@@ -47,6 +47,46 @@ export type PractitionerEngagementExperiment = SocialContentExperimentTags & {
   } | null
 }
 
+export type PractitionerFrameworkApplicationReceipt = {
+  receipt_id: string
+  status: 'draft' | 'applied' | 'blocked'
+  applied_at: string | null
+  selected_framework: {
+    framework_type: HormoziFrameworkType
+    hook_type: string
+    proof_pattern: string
+    cta_pattern: string
+    approved_pattern_id: string
+    approved_pattern_source: string
+  }
+  copy_beats: {
+    hook_tension: string
+    practitioner_scene: string
+    operational_constraint: string
+    decision_mechanism: string
+    proof_result_boundary: string
+    practical_takeaway: string
+    cta: string
+  }
+  voice_calibration: {
+    status: 'applied' | 'blocked'
+    reference_ids: string[]
+    principles_applied: string[]
+  }
+  performance_calibration: {
+    status: 'applied' | 'bounded_fallback' | 'blocked'
+    reference_ids: string[]
+    fallback_reason: string | null
+    causal_claim_boundary: 'correlational_only'
+  }
+  content_shape: {
+    format: 'standard_post' | 'justified_short_form'
+    target_min_characters: number
+    target_max_characters: number
+    short_form_justification: string | null
+  }
+}
+
 export type DeterministicVisualSpec = {
   system_version: typeof AMADUTOWN_VISUAL_SYSTEM_VERSION
   template: 'practitioner_signal_card' | 'constraint_decision_result'
@@ -55,6 +95,13 @@ export type DeterministicVisualSpec = {
   headline: string
   evidence_lines: string[]
   result_label: string
+  argument_map: {
+    context: string
+    constraint: string
+    decision_mechanism: string
+    result_boundary: string
+    practical_takeaway: string
+  }
   visual_rationale: string
   candidate: {
     candidate_id: string
@@ -74,6 +121,7 @@ export type PractitionerContentQualityRecord = {
   version: typeof PRACTITIONER_CONTENT_QUALITY_VERSION
   evidence_packet: PractitionerEvidencePacket
   engagement_experiment: PractitionerEngagementExperiment
+  framework_application: PractitionerFrameworkApplicationReceipt | null
   deterministic_visual: DeterministicVisualSpec
 }
 
@@ -117,6 +165,21 @@ function includesMeaningfulDetail(copy: string, detail: string) {
   if (words.length === 0) return false
   const matchingWords = words.filter((word) => normalizedCopy.includes(word))
   return matchingWords.length >= Math.min(3, words.length)
+}
+
+function includesReceiptBeat(copy: string, beat: string) {
+  const normalizedBeat = normalized(beat)
+  return normalizedBeat.length >= 18 && normalized(copy).includes(normalizedBeat)
+}
+
+function sharesMeaningfulDetail(left: string, right: string) {
+  const leftWords = new Set(normalized(left).split(' ').filter((word) => word.length >= 5))
+  const rightWords = new Set(normalized(right).split(' ').filter((word) => word.length >= 5))
+  let overlap = 0
+  for (const word of leftWords) {
+    if (rightWords.has(word)) overlap += 1
+  }
+  return overlap >= 2
 }
 
 function parseEvidencePacket(value: unknown): PractitionerEvidencePacket | null {
@@ -186,6 +249,56 @@ function parseExperiment(value: unknown): PractitionerEngagementExperiment | nul
   }
 }
 
+function parseFrameworkApplication(value: unknown): PractitionerFrameworkApplicationReceipt | null {
+  const application = asRecord(value)
+  const framework = asRecord(application?.selected_framework)
+  const beats = asRecord(application?.copy_beats)
+  const voice = asRecord(application?.voice_calibration)
+  const performance = asRecord(application?.performance_calibration)
+  const shape = asRecord(application?.content_shape)
+  if (!application || !framework || !beats || !voice || !performance || !shape) return null
+
+  return {
+    receipt_id: asString(application.receipt_id),
+    status: asString(application.status) as PractitionerFrameworkApplicationReceipt['status'],
+    applied_at: asString(application.applied_at) || null,
+    selected_framework: {
+      framework_type: asString(framework.framework_type) as HormoziFrameworkType,
+      hook_type: asString(framework.hook_type),
+      proof_pattern: asString(framework.proof_pattern),
+      cta_pattern: asString(framework.cta_pattern),
+      approved_pattern_id: asString(framework.approved_pattern_id),
+      approved_pattern_source: asString(framework.approved_pattern_source),
+    },
+    copy_beats: {
+      hook_tension: asString(beats.hook_tension),
+      practitioner_scene: asString(beats.practitioner_scene),
+      operational_constraint: asString(beats.operational_constraint),
+      decision_mechanism: asString(beats.decision_mechanism),
+      proof_result_boundary: asString(beats.proof_result_boundary),
+      practical_takeaway: asString(beats.practical_takeaway),
+      cta: asString(beats.cta),
+    },
+    voice_calibration: {
+      status: asString(voice.status) as PractitionerFrameworkApplicationReceipt['voice_calibration']['status'],
+      reference_ids: asStrings(voice.reference_ids),
+      principles_applied: asStrings(voice.principles_applied),
+    },
+    performance_calibration: {
+      status: asString(performance.status) as PractitionerFrameworkApplicationReceipt['performance_calibration']['status'],
+      reference_ids: asStrings(performance.reference_ids),
+      fallback_reason: asString(performance.fallback_reason) || null,
+      causal_claim_boundary: asString(performance.causal_claim_boundary) as 'correlational_only',
+    },
+    content_shape: {
+      format: asString(shape.format) as PractitionerFrameworkApplicationReceipt['content_shape']['format'],
+      target_min_characters: typeof shape.target_min_characters === 'number' ? shape.target_min_characters : 0,
+      target_max_characters: typeof shape.target_max_characters === 'number' ? shape.target_max_characters : 0,
+      short_form_justification: asString(shape.short_form_justification) || null,
+    },
+  }
+}
+
 function parseVisual(value: unknown): DeterministicVisualSpec | null {
   const visual = asRecord(value)
   const receipt = asRecord(visual?.art_direction_receipt)
@@ -198,6 +311,13 @@ function parseVisual(value: unknown): DeterministicVisualSpec | null {
     headline: asString(visual.headline),
     evidence_lines: asStrings(visual.evidence_lines),
     result_label: asString(visual.result_label),
+    argument_map: {
+      context: asString(asRecord(visual.argument_map)?.context),
+      constraint: asString(asRecord(visual.argument_map)?.constraint),
+      decision_mechanism: asString(asRecord(visual.argument_map)?.decision_mechanism),
+      result_boundary: asString(asRecord(visual.argument_map)?.result_boundary),
+      practical_takeaway: asString(asRecord(visual.argument_map)?.practical_takeaway),
+    },
     visual_rationale: asString(visual.visual_rationale),
     candidate: {
       candidate_id: asString(asRecord(visual.candidate)?.candidate_id),
@@ -225,6 +345,7 @@ export function readPractitionerContentQuality(value: unknown): PractitionerCont
     version: asString(quality.version) as typeof PRACTITIONER_CONTENT_QUALITY_VERSION,
     evidence_packet: evidencePacket,
     engagement_experiment: experiment,
+    framework_application: parseFrameworkApplication(quality.framework_application),
     deterministic_visual: visual,
   }
 }
@@ -235,7 +356,9 @@ export function requiresPractitionerContentQuality(item: Pick<SocialContentItem,
 }
 
 export function validatePractitionerContentQuality(
-  item: Pick<SocialContentItem, 'rag_context' | 'post_text' | 'cta_text' | 'voiceover_text' | 'youtube_title' | 'youtube_description'>,
+  item: Pick<SocialContentItem, 'rag_context' | 'post_text' | 'cta_text' | 'voiceover_text' | 'youtube_title' | 'youtube_description'> & {
+    hormozi_framework?: HormoziFramework | null
+  },
 ): PractitionerContentQualityGate {
   if (!requiresPractitionerContentQuality(item)) {
     return {
@@ -306,6 +429,80 @@ export function validatePractitionerContentQuality(
     findings.push({ code: 'unsupported_numeric_claim', message: 'Tie every numeric claim to the approved evidence packet.' })
   }
 
+  const application = record?.framework_application
+  const itemFramework = item.hormozi_framework
+  const frameworkType = asString(itemFramework?.framework_type)
+  if (!frameworkType || !HORMOZI_FRAMEWORK_TYPES.includes(frameworkType as (typeof HORMOZI_FRAMEWORK_TYPES)[number])
+    || !asString(itemFramework?.hook_type) || !asString(itemFramework?.proof_pattern) || !asString(itemFramework?.cta_pattern)) {
+    findings.push({ code: 'framework_unapplied', message: 'Apply one approved Social Content framework with hook, proof, and CTA structure.' })
+  }
+  if (!application || application.status !== 'applied' || !application.receipt_id || !application.applied_at
+    || !application.selected_framework.approved_pattern_id || !application.selected_framework.approved_pattern_source) {
+    findings.push({ code: 'framework_receipt_missing', message: 'Record the applied framework and approved pattern in a traceable receipt.' })
+  }
+  if (application && itemFramework && [
+    ['framework_type', itemFramework.framework_type],
+    ['hook_type', itemFramework.hook_type],
+    ['proof_pattern', itemFramework.proof_pattern],
+    ['cta_pattern', itemFramework.cta_pattern],
+  ].some(([key, value]) => asString(value) !== asString(application.selected_framework[key as keyof typeof application.selected_framework]))) {
+    findings.push({ code: 'framework_receipt_mismatch', message: 'Make the applied-framework receipt match the selected Social Content framework.' })
+  }
+
+  const postText = asString(item.post_text)
+  const first210 = postText.slice(0, 210)
+  const beats = application?.copy_beats
+  const beatChecks = [
+    ['hook_not_concrete', 'Put the concrete practitioner tension inside the first 210 characters.', beats?.hook_tension, first210],
+    ['practitioner_scene_missing', 'Carry the anonymized practitioner scene into the finished copy.', beats?.practitioner_scene, postText],
+    ['operational_constraint_missing', 'Name the operating constraint in the finished copy.', beats?.operational_constraint, postText],
+    ['decision_mechanism_missing', 'Explain the decision mechanism in the finished copy.', beats?.decision_mechanism, postText],
+    ['result_boundary_missing', 'Separate the observed result from the metric still pending.', beats?.proof_result_boundary, postText],
+    ['practical_takeaway_missing', 'Give the reader a usable practical takeaway.', beats?.practical_takeaway, postText],
+    ['cta_missing', 'End with a specific question or CTA tied to the operating problem.', beats?.cta, publicCopy],
+  ] as const
+  const missingBeatCodes = beatChecks
+    .filter(([, , beat, copy]) => !beat || !includesReceiptBeat(copy, beat))
+    .map(([code, message]) => {
+      findings.push({ code, message })
+      return code
+    })
+  if (missingBeatCodes.length) {
+    findings.push({ code: 'copy_structure_incomplete', message: 'Make every receipt-backed framework beat visible in the finished copy.' })
+  }
+  if (beats && (!packet || !sharesMeaningfulDetail(beats.practitioner_scene, packet.situation))) {
+    findings.push({ code: 'practitioner_scene_unbound', message: 'Bind the copy scene to the approved anonymized practitioner situation.' })
+  }
+  if (beats?.cta && (!beats.cta.endsWith('?') || beats.cta.length < 24)) {
+    findings.push({ code: 'cta_not_specific', message: 'Use a specific response-driving question rather than a generic CTA.' })
+  }
+
+  const shape = application?.content_shape
+  const standardShape = shape?.format === 'standard_post'
+    && shape.target_min_characters === 1800
+    && shape.target_max_characters === 2100
+    && postText.length >= 1800
+    && postText.length <= 2100
+  const justifiedShortShape = shape?.format === 'justified_short_form'
+    && postText.length >= 800
+    && postText.length < 1800
+    && (shape.short_form_justification?.length ?? 0) >= 30
+  if ((!standardShape && !justifiedShortShape) || postText.length > 3000) {
+    findings.push({ code: 'post_length_out_of_range', message: `Use the 1,800-2,100 character standard-post target or document a justified short-form path. Current copy: ${postText.length} characters.` })
+  }
+
+  const voice = application?.voice_calibration
+  const performance = application?.performance_calibration
+  const voiceReady = voice?.status === 'applied'
+    && voice.reference_ids.length > 0
+    && voice.principles_applied.length >= 2
+  const performanceReady = performance?.status === 'applied'
+    ? performance.reference_ids.length > 0
+    : performance?.status === 'bounded_fallback' && (performance.fallback_reason?.length ?? 0) >= 30
+  if (!voiceReady || !performanceReady || performance?.causal_claim_boundary !== 'correlational_only') {
+    findings.push({ code: 'calibration_trace_missing', message: 'Attach voice and performance-learning references, or record a bounded performance fallback.' })
+  }
+
   const experiment = record?.engagement_experiment
   if (!experiment?.experiment_id || !experiment.hook_framework || !experiment.channel || !experiment.visual_treatment || !experiment.hypothesis) {
     findings.push({ code: 'experiment_tags_missing', message: 'Complete the engagement experiment tags.' })
@@ -333,6 +530,22 @@ export function validatePractitionerContentQuality(
   if (!visual?.candidate.candidate_id || visual.candidate.renderer !== 'html_svg' || visual.candidate.status !== 'in_review') {
     findings.push({ code: 'visual_candidate_not_ready', message: 'Create an HTML/SVG visual candidate and place it in the existing in-review lifecycle.' })
   }
+  const argumentMap = visual?.argument_map
+  const argumentValues = argumentMap ? Object.values(argumentMap) : []
+  const visualSources = [
+    packet?.situation ?? '',
+    packet?.operational_constraint ?? '',
+    packet?.decision_intervention ?? '',
+    packet?.observable_result.summary ?? '',
+    beats?.practical_takeaway ?? '',
+  ]
+  const visualArgumentComplete = argumentValues.length === 5
+    && argumentValues.every((value) => value.length >= 20)
+    && new Set(argumentValues.map(normalized)).size === 5
+    && argumentValues.every((value, index) => sharesMeaningfulDetail(value, visualSources[index]))
+  if (!visualArgumentComplete) {
+    findings.push({ code: 'visual_argument_incomplete', message: 'Map context, constraint, decision mechanism, result boundary, and practical takeaway into the deterministic visual.' })
+  }
 
   const status = findings.length ? 'blocked' : 'passed'
   return {
@@ -342,11 +555,11 @@ export function validatePractitionerContentQuality(
     findings,
     matched_public_details: matchedPublicDetails,
     summary: status === 'passed'
-      ? 'Approved practitioner evidence, privacy receipts, experiment tags, and deterministic visual are ready for Human QA.'
+      ? 'Specificity, privacy, applied framework, voice calibration, performance trace, complete copy, and visual coverage are ready for Human QA.'
       : `${findings.length} practitioner-content blocker${findings.length === 1 ? '' : 's'} must be resolved before Human QA.`,
     recovery_action: status === 'passed'
       ? 'Review the finished copy and deterministic candidate together.'
-      : 'Complete the approved evidence packet, revise the copy around public-safe details, pass redaction, and finish the deterministic visual spec.',
+      : 'Complete the evidence, applied-framework receipt, calibration trace, finished-copy structure, privacy review, and full-argument visual before Human QA.',
     record,
   }
 }
@@ -412,6 +625,45 @@ export function buildPractitionerContentQualityScaffold(input: {
         unresolved_identifier_types: [],
       },
     },
+    framework_application: {
+      receipt_id: '',
+      status: 'draft',
+      applied_at: null,
+      selected_framework: {
+        framework_type: '',
+        hook_type: '',
+        proof_pattern: '',
+        cta_pattern: '',
+        approved_pattern_id: '',
+        approved_pattern_source: '',
+      },
+      copy_beats: {
+        hook_tension: '',
+        practitioner_scene: '',
+        operational_constraint: '',
+        decision_mechanism: '',
+        proof_result_boundary: '',
+        practical_takeaway: '',
+        cta: '',
+      },
+      voice_calibration: {
+        status: 'blocked',
+        reference_ids: [],
+        principles_applied: [],
+      },
+      performance_calibration: {
+        status: 'blocked',
+        reference_ids: [],
+        fallback_reason: null,
+        causal_claim_boundary: 'correlational_only',
+      },
+      content_shape: {
+        format: 'standard_post',
+        target_min_characters: 1800,
+        target_max_characters: 2100,
+        short_form_justification: null,
+      },
+    },
     deterministic_visual: {
       system_version: AMADUTOWN_VISUAL_SYSTEM_VERSION,
       template: 'practitioner_signal_card',
@@ -420,6 +672,13 @@ export function buildPractitionerContentQualityScaffold(input: {
       headline: input.title,
       evidence_lines: [],
       result_label: 'Metric pending',
+      argument_map: {
+        context: '',
+        constraint: '',
+        decision_mechanism: '',
+        result_boundary: '',
+        practical_takeaway: '',
+      },
       visual_rationale: input.plannedAngle ? `Support the approved practitioner story for: ${input.plannedAngle}` : '',
       candidate: {
         candidate_id: '',

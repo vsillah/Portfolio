@@ -16,10 +16,15 @@ const RATIO_CLASSES: Record<DeterministicVisualSpec['aspect_ratio'], string> = {
 
 function DeterministicCandidate({ spec }: { spec: DeterministicVisualSpec }) {
   const isLandscape = spec.aspect_ratio === '1.91:1'
+  const argumentStages = [
+    { number: '01', label: 'Context', value: spec.argument_map.context },
+    { number: '02', label: 'Constraint', value: spec.argument_map.constraint },
+    { number: '03', label: 'Decision mechanism', value: spec.argument_map.decision_mechanism },
+  ]
   return (
     <div
       aria-label="Deterministic AmaduTown visual candidate"
-      className={`relative mx-auto w-full max-w-3xl overflow-hidden rounded-2xl border border-[#d4af37]/60 bg-[#121e31] text-[#eaecee] shadow-2xl ${RATIO_CLASSES[spec.aspect_ratio]}`}
+      className={`relative mx-auto w-full max-w-3xl overflow-hidden rounded-2xl border border-[#d4af37]/60 bg-[#121e31] text-[#eaecee] shadow-2xl ${isLandscape ? 'min-h-[34rem] sm:min-h-0 sm:aspect-[1.91/1]' : RATIO_CLASSES[spec.aspect_ratio]}`}
     >
       <svg aria-hidden="true" className="absolute inset-0 h-full w-full" viewBox="0 0 1200 900" preserveAspectRatio="xMidYMid slice">
         <defs>
@@ -51,27 +56,36 @@ function DeterministicCandidate({ spec }: { spec: DeterministicVisualSpec }) {
           />
         </div>
 
-        <h3 className={`${isLandscape ? 'mt-[2%] text-[clamp(0.95rem,2.8vw,2.15rem)]' : 'mt-[5%] text-[clamp(1.15rem,4.2vw,3.2rem)]'} max-w-[88%] font-sans font-black leading-[1.04] tracking-[-0.035em] text-white`}>
+        <h3 className={`${isLandscape ? 'mt-2 text-[clamp(1.05rem,2.5vw,1.75rem)] sm:mt-[1%]' : 'mt-[5%] text-[clamp(1.15rem,4.2vw,3.2rem)]'} max-w-[92%] font-sans font-black leading-[1.04] tracking-[-0.035em] text-white`}>
           {spec.headline}
         </h3>
 
-        <div className={`mt-auto grid ${isLandscape ? 'grid-cols-3 gap-1.5' : 'gap-2 sm:grid-cols-2 sm:gap-3'}`}>
-          {spec.evidence_lines.slice(0, 4).map((line, index) => (
-            <div key={`${line}-${index}`} className={`rounded-xl border border-white/15 bg-white/[0.06] backdrop-blur-sm ${isLandscape ? 'p-2' : 'p-[4%]'}`}>
-              <span className="block text-[clamp(0.55rem,1vw,0.72rem)] font-bold uppercase tracking-[0.18em] text-[#f5d060]">
-                {String(index + 1).padStart(2, '0')}
-              </span>
-              <p className={`mt-1 font-sans font-semibold leading-snug text-white/95 ${isLandscape ? 'text-[clamp(0.58rem,1.15vw,0.82rem)]' : 'text-[clamp(0.72rem,1.45vw,1rem)]'}`}>{line}</p>
+        <div className={`${isLandscape ? 'mt-4 sm:mt-[2%]' : 'mt-[5%]'} grid gap-2 sm:grid-cols-3`}>
+          {argumentStages.map((stage) => (
+            <div key={stage.label} className="rounded-xl border border-white/15 bg-white/[0.07] p-3 backdrop-blur-sm sm:p-2.5">
+              <div className="flex items-center gap-2">
+                <span className="text-[0.62rem] font-black tracking-[0.18em] text-[#f5d060]">{stage.number}</span>
+                <span className="text-[0.62rem] font-bold uppercase tracking-[0.13em] text-white/60">{stage.label}</span>
+              </div>
+              <p className="mt-1.5 font-sans text-[clamp(0.72rem,1.25vw,0.88rem)] font-semibold leading-snug text-white/95">{stage.value}</p>
             </div>
           ))}
         </div>
 
-        <div className={`${isLandscape ? 'mt-[2%] pt-[1.5%]' : 'mt-[4%] pt-[3%]'} flex items-center justify-between gap-3 border-t border-[#d4af37]/45`}>
-          <p className="text-[clamp(0.62rem,1.2vw,0.88rem)] font-semibold text-white/75">AmaduTown Advisory Solutions</p>
-          <p className="rounded-full border border-[#d4af37]/60 bg-[#d4af37]/10 px-3 py-1 text-[clamp(0.6rem,1.1vw,0.8rem)] font-bold text-[#f5d060]">
-            {spec.result_label}
-          </p>
+        <div className="mt-2 grid gap-2 sm:grid-cols-[0.9fr_1.1fr]">
+          <div className="rounded-xl border border-emerald-300/25 bg-emerald-300/[0.08] p-3 sm:p-2.5">
+            <div className="flex flex-wrap items-center justify-between gap-1.5">
+              <p className="text-[0.62rem] font-bold uppercase tracking-[0.13em] text-emerald-200">04 · Bounded result</p>
+              <span className="rounded-full border border-emerald-200/25 px-2 py-0.5 text-[0.55rem] font-bold text-emerald-100">{spec.result_label}</span>
+            </div>
+            <p className="mt-1.5 text-[clamp(0.72rem,1.2vw,0.86rem)] font-semibold leading-snug text-white/95">{spec.argument_map.result_boundary}</p>
+          </div>
+          <div className="rounded-xl border border-[#d4af37]/40 bg-[#d4af37]/10 p-3 sm:p-2.5">
+            <p className="text-[0.62rem] font-bold uppercase tracking-[0.13em] text-[#f5d060]">05 · Practical takeaway</p>
+            <p className="mt-1.5 text-[clamp(0.72rem,1.2vw,0.86rem)] font-semibold leading-snug text-white">{spec.argument_map.practical_takeaway}</p>
+          </div>
         </div>
+
       </div>
     </div>
   )
@@ -93,6 +107,7 @@ export default function PractitionerContentReview({
   const record = gate.record
   const packet = record?.evidence_packet
   const experiment = record?.engagement_experiment
+  const application = record?.framework_application
   const visual = record?.deterministic_visual
   const passed = gate.status === 'passed'
 
@@ -103,7 +118,7 @@ export default function PractitionerContentReview({
           <p className="admin-console-eyebrow text-radiant-gold">Practitioner evidence</p>
           <h2 className="mt-2 text-xl font-semibold text-gray-100">Copy and candidate, reviewed together</h2>
           <p className="mt-1 max-w-3xl text-sm leading-6 text-gray-400">
-            The story must be specific enough to teach from practice and bounded enough to protect the people behind it.
+            Human QA opens only after specificity, privacy, applied framework, voice calibration, performance trace, copy completeness, and visual coverage all pass.
           </p>
         </div>
         <span className={`w-fit rounded-full border px-3 py-1 text-xs font-semibold ${passed ? 'border-emerald-500/35 bg-emerald-500/10 text-emerald-100' : 'border-amber-500/40 bg-amber-500/10 text-amber-100'}`}>
@@ -111,7 +126,7 @@ export default function PractitionerContentReview({
         </span>
       </div>
 
-      <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]">
+      <div className="mt-4 grid gap-4 2xl:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]">
         <div className="space-y-3">
           <div className="rounded-lg border border-silicon-slate/75 bg-background/40 p-4">
             <div className="flex flex-wrap items-center gap-2">
@@ -124,6 +139,15 @@ export default function PractitionerContentReview({
               <span className="rounded-full border border-silicon-slate px-2 py-0.5 text-[10px] font-semibold text-gray-300">
                 {experiment?.causal_claim_boundary === 'correlational_only' ? 'Correlation only' : 'Causal boundary missing'}
               </span>
+              <span className="rounded-full border border-silicon-slate px-2 py-0.5 text-[10px] font-semibold text-gray-300">
+                Framework: {application?.status || 'missing'}
+              </span>
+              <span className="rounded-full border border-silicon-slate px-2 py-0.5 text-[10px] font-semibold text-gray-300">
+                Voice: {application?.voice_calibration.status || 'missing'}
+              </span>
+              <span className="rounded-full border border-silicon-slate px-2 py-0.5 text-[10px] font-semibold text-gray-300">
+                Performance: {application?.performance_calibration.status?.replace('_', ' ') || 'missing'}
+              </span>
             </div>
             <dl className="mt-4 grid gap-3 text-sm">
               <div><dt className="text-xs font-semibold uppercase tracking-wider text-gray-500">Situation</dt><dd className="mt-1 leading-6 text-gray-200">{packet?.situation || 'Missing'}</dd></div>
@@ -131,6 +155,8 @@ export default function PractitionerContentReview({
               <div><dt className="text-xs font-semibold uppercase tracking-wider text-gray-500">Practitioner detail</dt><dd className="mt-1 leading-6 text-gray-200">{packet?.practitioner_only_detail || 'Missing'}</dd></div>
               <div><dt className="text-xs font-semibold uppercase tracking-wider text-gray-500">Decision and result</dt><dd className="mt-1 leading-6 text-gray-200">{packet?.decision_intervention || 'Missing'}{packet?.observable_result.summary ? ` ${packet.observable_result.summary}` : ''}</dd></div>
               <div><dt className="text-xs font-semibold uppercase tracking-wider text-gray-500">Disclosure boundary</dt><dd className="mt-1 leading-6 text-gray-200">{packet?.disclosure_boundary.summary || 'Missing'}</dd></div>
+              <div><dt className="text-xs font-semibold uppercase tracking-wider text-gray-500">Applied framework</dt><dd className="mt-1 leading-6 text-gray-200">{application?.selected_framework.framework_type?.replace(/_/g, ' ') || 'Missing'} · {application?.selected_framework.approved_pattern_id || 'No approved pattern receipt'}</dd></div>
+              <div><dt className="text-xs font-semibold uppercase tracking-wider text-gray-500">Voice and learning trace</dt><dd className="mt-1 leading-6 text-gray-200">{application?.voice_calibration.reference_ids.join(', ') || 'Voice reference missing'} · {application?.performance_calibration.status === 'bounded_fallback' ? application.performance_calibration.fallback_reason : application?.performance_calibration.reference_ids.join(', ') || 'Performance reference missing'}</dd></div>
             </dl>
           </div>
 

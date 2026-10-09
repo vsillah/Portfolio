@@ -46,13 +46,14 @@ describe('GET /api/admin/social-content/[id] practitioner QA fixture', () => {
     expect(mocks.from).not.toHaveBeenCalled()
   })
 
-  it('defaults unknown script-size input to medium', async () => {
+  it('defaults unknown script-size input to the content-complete practitioner post', async () => {
     const response = await GET(new NextRequest('http://localhost/api/admin/social-content/practitioner-content-quality-qa', {
       headers: { 'x-portfolio-qa-script-size': 'unbounded' },
     }) as never, { params: { id: 'practitioner-content-quality-qa' } })
     const body = await response.json()
 
-    expect(body.fixture_script_size).toBe('medium')
+    expect(body.fixture_script_size).toBe('complete')
+    expect(body.item.post_text.length).toBeGreaterThanOrEqual(1800)
   })
 })
 
