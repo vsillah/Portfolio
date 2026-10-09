@@ -17,7 +17,11 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json().catch(() => ({}))
-  const jobIds = Array.isArray(body.jobIds) ? (body.jobIds as string[]).slice(0, 20) : []
+  const requestedJobIds = Array.isArray(body.jobIds) ? body.jobIds as string[] : []
+  if (requestedJobIds.length > 20) {
+    return NextResponse.json({ error: 'A maximum of 20 job IDs can be retried at once' }, { status: 400 })
+  }
+  const jobIds = requestedJobIds
   if (jobIds.length === 0) {
     return NextResponse.json({ error: 'No job IDs provided' }, { status: 400 })
   }
@@ -39,6 +43,13 @@ export async function POST(request: NextRequest) {
 
   let retried = 0
   const errors: string[] = []
+  const reconciliation: Array<{
+    job: string
+    source_job_id: string
+    provider_video_id: string
+    replacement_persisted: boolean
+    reason: 'replacement_insert_failed' | 'source_cleanup_failed'
+  }> = []
 
   for (const job of jobs) {
     try {
@@ -59,13 +70,10 @@ export async function POST(request: NextRequest) {
         continue
       }
 
-      // Soft-delete the old failed job
-      await supabaseAdmin.from('video_generation_jobs')
-        .update({ deleted_at: new Date().toISOString() })
-        .eq('id', job.id)
-
-      // Create new job record
-      await supabaseAdmin.from('video_generation_jobs').insert({
+      // Persist the provider receipt before retiring the failed source job. If
+      // either write fails, the response carries enough receipt data for an
+      // operator to reconcile without issuing another provider request.
+      const { error: insertError } = await supabaseAdmin.from('video_generation_jobs').insert({
         script_source: job.script_source,
         script_text: job.script_text,
         drive_file_name: job.drive_file_name,
@@ -79,6 +87,36 @@ export async function POST(request: NextRequest) {
         heygen_video_id: heygenResult.videoId,
         heygen_status: 'pending',
       })
+      if (insertError) {
+        errors.push(`Job ${job.id.slice(0, 8)}: provider receipt requires reconciliation because the replacement job was not persisted.`)
+        const receipt = {
+          job: job.id.slice(0, 8),
+          source_job_id: job.id,
+          provider_video_id: heygenResult.videoId,
+          replacement_persisted: false,
+          reason: 'replacement_insert_failed' as const,
+        }
+        reconciliation.push(receipt)
+        console.error('[video-batch-retry] reconciliation required', receipt)
+        continue
+      }
+
+      const { error: cleanupError } = await supabaseAdmin.from('video_generation_jobs')
+        .update({ deleted_at: new Date().toISOString() })
+        .eq('id', job.id)
+      if (cleanupError) {
+        errors.push(`Job ${job.id.slice(0, 8)}: provider receipt was persisted, but the failed source job still requires reconciliation.`)
+        const receipt = {
+          job: job.id.slice(0, 8),
+          source_job_id: job.id,
+          provider_video_id: heygenResult.videoId,
+          replacement_persisted: true,
+          reason: 'source_cleanup_failed' as const,
+        }
+        reconciliation.push(receipt)
+        console.error('[video-batch-retry] reconciliation required', receipt)
+        continue
+      }
 
       retried++
     } catch (err) {
@@ -90,6 +128,7 @@ export async function POST(request: NextRequest) {
     retried,
     failed: errors.length,
     errors: errors.length > 0 ? errors : undefined,
+    reconciliation: reconciliation.length > 0 ? reconciliation : undefined,
     total: jobs.length,
   })
 }

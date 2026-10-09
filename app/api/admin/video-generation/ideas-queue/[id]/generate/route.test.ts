@@ -39,7 +39,7 @@ function makeRequest(body: Record<string, unknown>) {
   })
 }
 
-function queueFetchBuilder() {
+function queueFetchBuilder(overrides: Record<string, unknown> = {}) {
   const single = vi.fn().mockResolvedValue({
     data: {
       id: 'draft-1',
@@ -58,6 +58,7 @@ function queueFetchBuilder() {
       research_packet_ids: [],
       status: 'pending',
       source: 'manual',
+      ...overrides,
     },
     error: null,
   })
@@ -176,5 +177,30 @@ describe('POST /api/admin/video-generation/ideas-queue/[id]/generate', () => {
       avatarId: 'db-avatar-1',
       voiceId: 'db-voice-1',
     }))
+  })
+
+  it('blocks a live script failure even when the stored scorecard has no blockers', async () => {
+    mocks.from.mockReturnValueOnce(queueFetchBuilder({
+      script_text: 'Audience: operators\nRequirements: show the workflow',
+      script_outline: null,
+      script_scorecard: { blockers: [] },
+    }))
+
+    const response = await POST(
+      makeRequest({
+        channel: 'youtube',
+        templateId: 'template-1',
+        renderApproval: buildVideoRenderApproval(true),
+      }),
+      { params: { id: 'draft-1' } }
+    )
+    const body = await response.json()
+
+    expect(response.status).toBe(400)
+    expect(body.error).toContain('Script intelligence gate blocked render')
+    expect(body.scorecard.blockers.length).toBeGreaterThan(0)
+    expect(body.side_effects).toMatchObject({ heygen: false, render: false, publish: false })
+    expect(mocks.createVideo).not.toHaveBeenCalled()
+    expect(mocks.from).toHaveBeenCalledTimes(1)
   })
 })
