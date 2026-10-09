@@ -176,6 +176,18 @@ const PROMPT_LEAKAGE_PATTERNS: Array<{
     pattern: /\bVambah\b/i,
   },
   {
+    code: 'private_email_address',
+    label: 'Email address in public copy',
+    severity: 'high',
+    pattern: /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/i,
+  },
+  {
+    code: 'private_phone_number',
+    label: 'Phone number in public copy',
+    severity: 'high',
+    pattern: /(?:\+?1[\s.-]?)?(?:\(?\d{3}\)?[\s.-]?)\d{3}[\s.-]?\d{4}\b/,
+  },
+  {
     code: 'production_script_label',
     label: 'Production or reviewer label leaked into audience script',
     severity: 'high',

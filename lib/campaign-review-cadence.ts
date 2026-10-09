@@ -48,5 +48,6 @@ export function reviewWindows(now: Date, config: ReviewCadence): ReviewWindow[] 
 export function nextReviewWindow(now: Date, config: ReviewCadence) {
   return reviewWindows(now, config).find(w => w.kind !== 'refresh' && Date.parse(w.at) >= now.getTime())!
 }
-export type ReviewRow = { id: string; title: string; channel: string; phase: string; scheduled_for: string; state: 'ready' | 'eligible' | 'blocked' | 'reviewed'; reason: string; href: string; work_item_id: string | null; social_content_id: string | null; evidence_ids: string[]; lineage: string; prepared_window: string | null }
+export type ReviewPriority = 'urgent' | 'high' | 'medium' | 'low'
+export type ReviewRow = { id: string; title: string; channel: string; phase: string; scheduled_for: string; trigger_at: string; priority: ReviewPriority; state: 'ready' | 'eligible' | 'blocked' | 'reviewed'; reason: string; href: string; work_item_id: string | null; social_content_id: string | null; evidence_ids: string[]; lineage: string; prepared_window: string | null; content_version: string | null }
 export type ReviewProjection = { campaign: { id: string; name: string; status: string }; config: ReviewCadence; anchor_id: string | null; rows: ReviewRow[]; ready: number; blocked: number; eligible: number; gap: number; coverage_days: number; batch_remaining: number; horizon_end: string; next_batch: ReviewWindow; next_refresh: ReviewWindow; side_effects: typeof REVIEW_SIDE_EFFECTS }

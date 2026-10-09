@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 const mocks = vi.hoisted(() => ({
   from: vi.fn(),
   createAgentWorkItem: vi.fn(),
+  prepareCampaignReviewBatch: vi.fn(),
   runAgentSlackNotificationSweep: vi.fn(),
 }))
 
@@ -12,6 +13,10 @@ vi.mock('@/lib/supabase', () => ({
 
 vi.mock('@/lib/agent-work-items', () => ({
   createAgentWorkItem: mocks.createAgentWorkItem,
+}))
+
+vi.mock('@/lib/campaign-review-backlog', () => ({
+  prepareCampaignReviewBatch: mocks.prepareCampaignReviewBatch,
 }))
 
 vi.mock('@/lib/agent-slack-notification-sweep', () => ({
@@ -45,6 +50,12 @@ describe('/api/cron/social-content-calendar-due-gates', () => {
     process.env.CRON_SECRET = 'cron-secret'
     process.env.N8N_INGEST_SECRET = ''
     mocks.runAgentSlackNotificationSweep.mockResolvedValue({ sentCount: 0, dryRun: true })
+    mocks.prepareCampaignReviewBatch.mockResolvedValue({
+      rows: [],
+      prepared_items: [],
+      blocked_items: [],
+      prepared_count: 0,
+    })
   })
 
   afterEach(() => {
@@ -186,7 +197,7 @@ describe('/api/cron/social-content-calendar-due-gates', () => {
     })
   })
 
-  it('dedupes overdue authorized drafts into one internal publish-preparation item', async () => {
+  it('prepares one receipt-backed Human QA package and dedupes duplicate due rows', async () => {
     const scheduledFor = new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString()
     const authorizedDraft = {
       id: 'calendar-instagram-overdue',
@@ -221,44 +232,41 @@ describe('/api/cron/social-content-calendar-due-gates', () => {
     mocks.from
       .mockReturnValueOnce({ select: vi.fn(() => selectQuery) })
       .mockReturnValue({ update })
-    mocks.createAgentWorkItem.mockResolvedValue({ id: 'work-instagram-preparation' })
-    mocks.runAgentSlackNotificationSweep.mockResolvedValue({ sentCount: 1, results: [{ sent: true, deliveredCalendarItemIds: ['calendar-1'], slackChannel: 'CSTAGING', slackMessageTs: '1770000000.000001' }] })
+    mocks.prepareCampaignReviewBatch.mockResolvedValue({
+      rows: [{ id: 'calendar-instagram-overdue', state: 'ready', reason: '', href: '/admin/agents/social-insights/work-social-1?channel=instagram', lineage: 'source-v1' }],
+      blocked_items: [],
+      prepared_count: 1,
+      prepared_items: [{
+        calendar_item_id: 'calendar-instagram-overdue',
+        social_content_id: 'social-instagram-draft',
+        work_item_id: 'work-social-1',
+        review_path: '/admin/agents/social-insights/work-social-1?channel=instagram',
+        content_version: 'content-v1',
+        lineage: 'source-v1',
+      }],
+    })
+    mocks.runAgentSlackNotificationSweep.mockResolvedValue({ sentCount: 1, results: [{ sent: true }] })
 
     const response = await POST(request('http://localhost/api/cron/social-content-calendar-due-gates', 'POST') as never)
 
     expect(response.status).toBe(200)
     expect(selectQuery.in).toHaveBeenCalledWith('authorization_status', ['pending', 'authorized'])
     expect(selectQuery.gte).toHaveBeenCalledWith('scheduled_for', expect.any(String))
-    expect(mocks.createAgentWorkItem).toHaveBeenCalledTimes(1)
-    expect(mocks.createAgentWorkItem).toHaveBeenCalledWith(expect.objectContaining({
-      title: 'Prepare authorized Instagram Social Content item: Authorized Instagram launch post',
-      priority: 'urgent',
-      source: {
-        type: 'social_content_calendar_publish_preparation',
-        id: 'calendar-instagram-overdue',
-        label: 'Authorized Instagram launch post',
-      },
-      idempotencyKey: 'social-content-calendar-publish-preparation:calendar-instagram-overdue',
-      metadata: expect.objectContaining({
-        social_content_id: 'social-instagram-draft',
-        preparation_action: 'prepare_publish_rows_and_gates_for_human_review',
-        missing_publish_rows: true,
-        external_execution_enabled: false,
-        side_effects: expect.objectContaining({
-          provider_generation: false,
-          upload: false,
-          external_schedule: false,
-          publish: false,
-          external_post: false,
-        }),
-      }),
+    expect(mocks.createAgentWorkItem).not.toHaveBeenCalled()
+    expect(mocks.prepareCampaignReviewBatch).toHaveBeenCalledTimes(1)
+    expect(mocks.prepareCampaignReviewBatch).toHaveBeenCalledWith('campaign-1', expect.objectContaining({
+      calendarItemIds: ['calendar-instagram-overdue'],
+      dueOnly: true,
     }))
     expect(update).toHaveBeenCalledWith(expect.objectContaining({
       metadata: expect.objectContaining({
         external_execution_enabled: false,
         publish_preparation: expect.objectContaining({
-          work_item_id: 'work-instagram-preparation',
+          status: 'ready',
+          work_item_id: 'work-social-1',
           social_content_id: 'social-instagram-draft',
+          content_version: 'content-v1',
+          source_lineage: 'source-v1',
         }),
       }),
     }))
@@ -272,7 +280,8 @@ describe('/api/cron/social-content-calendar-due-gates', () => {
       prepared: [{
         calendar_item_id: 'calendar-instagram-overdue',
         social_content_id: 'social-instagram-draft',
-        work_item_id: 'work-instagram-preparation',
+        work_item_id: 'work-social-1',
+        content_version: 'content-v1',
       }],
       side_effects: {
         provider_generation: false,
@@ -572,7 +581,7 @@ describe('/api/cron/social-content-calendar-due-gates', () => {
       scheduled_for: oldScheduledFor,
       authorization_status: 'authorized',
       metadata: {
-        publish_preparation: { work_item_id: `work-recorded-${index}` },
+        publish_preparation: { status: 'ready', work_item_id: `work-recorded-${index}`, content_version: `version-${index}` },
       },
       social_content_queue: {
         id: `social-recorded-${index}`,
@@ -611,7 +620,12 @@ describe('/api/cron/social-content-calendar-due-gates', () => {
       .mockReturnValueOnce({ select: vi.fn(() => firstPage) })
       .mockReturnValueOnce({ select: vi.fn(() => secondPage) })
       .mockReturnValue({ update })
-    mocks.createAgentWorkItem.mockResolvedValue({ id: 'work-actionable-newer' })
+    mocks.prepareCampaignReviewBatch.mockResolvedValue({
+      rows: [{ id: 'calendar-actionable-newer', state: 'ready', reason: '', href: '/admin/agents/social-insights/work-actionable-newer?channel=instagram', lineage: 'source-v2' }],
+      blocked_items: [],
+      prepared_count: 1,
+      prepared_items: [{ calendar_item_id: 'calendar-actionable-newer', social_content_id: 'social-actionable-newer', work_item_id: 'work-actionable-newer', review_path: '/admin/agents/social-insights/work-actionable-newer?channel=instagram', content_version: 'content-v2', lineage: 'source-v2' }],
+    })
     mocks.runAgentSlackNotificationSweep.mockResolvedValue({ sentCount: 1, results: [{ sent: true, deliveredCalendarItemIds: ['calendar-1'], slackChannel: 'CSTAGING', slackMessageTs: '1770000000.000001' }] })
 
     const response = await POST(request('http://localhost/api/cron/social-content-calendar-due-gates', 'POST') as never)
@@ -619,10 +633,8 @@ describe('/api/cron/social-content-calendar-due-gates', () => {
     expect(response.status).toBe(200)
     expect(firstPage.range).toHaveBeenCalledWith(0, 49)
     expect(secondPage.range).toHaveBeenCalledWith(50, 99)
-    expect(mocks.createAgentWorkItem).toHaveBeenCalledTimes(1)
-    expect(mocks.createAgentWorkItem).toHaveBeenCalledWith(expect.objectContaining({
-      idempotencyKey: 'social-content-calendar-publish-preparation:calendar-actionable-newer',
-    }))
+    expect(mocks.createAgentWorkItem).not.toHaveBeenCalled()
+    expect(mocks.prepareCampaignReviewBatch).toHaveBeenCalledWith('campaign-1', expect.objectContaining({ calendarItemIds: ['calendar-actionable-newer'], dueOnly: true }))
     await expect(response.json()).resolves.toMatchObject({
       scanned_count: 51,
       candidate_count: 1,
@@ -631,6 +643,7 @@ describe('/api/cron/social-content-calendar-due-gates', () => {
         calendar_item_id: 'calendar-actionable-newer',
         social_content_id: 'social-actionable-newer',
         work_item_id: 'work-actionable-newer',
+        content_version: 'content-v2',
       }],
       side_effects: { publish: false, external_post: false },
     })

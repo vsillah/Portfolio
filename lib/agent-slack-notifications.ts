@@ -250,6 +250,8 @@ async function runsById(runIds: string[]) {
 }
 
 function workItemHref(item: AgentWorkItem) {
+  const reviewPath = typeof item.metadata?.review_path === 'string' ? item.metadata.review_path : ''
+  if (reviewPath.startsWith('/admin/') && !reviewPath.startsWith('//')) return agentUrl(reviewPath)
   if (item.active_run_id) return agentUrl(`/admin/agents/runs/${item.active_run_id}`)
   if (item.source_run_id) return agentUrl(`/admin/agents/runs/${item.source_run_id}`)
   return agentUrl(`/admin/agents/swarm-board?work_item=${encodeURIComponent(item.id)}`)
@@ -1087,6 +1089,13 @@ async function buildWorkItemPayload(input: AgentSlackNotificationInput) {
     intro = 'Start here when work is stuck or waiting on an owner decision.'
   } else if (input.kind === 'review_ready') {
     items = allItems.filter((item) => item.status === 'ready_for_review' || item.status === 'ready_for_merge')
+    if (input.calendarItemIds?.length) {
+      const calendarItemIds = new Set(input.calendarItemIds)
+      items = items.filter((item) => (
+        typeof item.metadata?.calendar_item_id === 'string'
+        && calendarItemIds.has(item.metadata.calendar_item_id)
+      ))
+    }
     title = 'Review-ready Agent Ops work'
     intro = 'These cards are waiting for review, trace inspection, or merge readiness.'
   } else if (input.kind === 'goal_decisions') {

@@ -17,11 +17,32 @@ it('returns before every Slack configuration/delivery path, including dry runs',
     const result = await GET(new NextRequest(`http://localhost/cron?mode=review_backlog&campaign_id=campaign${dry}`, { headers: { authorization: 'Bearer synthetic' } }))
     expect(result.status).toBe(200)
   }
-  expect(mocks.prepare).toHaveBeenLastCalledWith('campaign', { scheduled: true, dryRun: true })
+  expect(mocks.prepare).toHaveBeenLastCalledWith('campaign', { scheduled: true, dryRun: true, dueOnly: true })
   expect(mocks.send).not.toHaveBeenCalled(); expect(mocks.source).not.toHaveBeenCalled(); expect(mocks.from).not.toHaveBeenCalled()
 })
 it('uses active campaigns for the configured schedule', async () => {
   mocks.from.mockReturnValue({ select: () => ({ eq: () => ({ limit: async () => ({ data: [{ id: 'active' }], error: null }) }) }) })
   const result = await GET(new NextRequest('http://localhost/cron?mode=review_backlog', { headers: { authorization: 'Bearer synthetic' } }))
-  expect(result.status).toBe(200); expect(mocks.prepare).toHaveBeenCalledWith('active', { scheduled: true, dryRun: false }); expect(mocks.send).not.toHaveBeenCalled()
+  expect(result.status).toBe(200); expect(mocks.prepare).toHaveBeenCalledWith('active', { scheduled: true, dryRun: false, dueOnly: true }); expect(mocks.send).not.toHaveBeenCalled()
+})
+it('notifies once after a new receipt-backed package and stays quiet on duplicate retry', async () => {
+  const ready = {
+    rows: [],
+    prepared_count: 1,
+    prepared_items: [{ calendar_item_id: 'calendar-1' }],
+  }
+  const duplicate = { rows: [], prepared_count: 0, prepared_items: [] }
+  mocks.prepare.mockResolvedValueOnce(ready).mockResolvedValueOnce(duplicate)
+  mocks.send.mockResolvedValue({ sentCount: 1, dedupedCount: 0, results: [{ sent: true }] })
+  const request = () => new NextRequest('http://localhost/cron?mode=review_backlog&campaign_id=campaign', { headers: { authorization: 'Bearer synthetic' } })
+
+  expect((await GET(request())).status).toBe(200)
+  expect((await GET(request())).status).toBe(200)
+
+  expect(mocks.send).toHaveBeenCalledTimes(1)
+  expect(mocks.send).toHaveBeenCalledWith(expect.objectContaining({
+    kinds: ['review_ready'],
+    calendarItemIds: ['calendar-1'],
+    triggerSource: 'campaign_review_backlog',
+  }))
 })
