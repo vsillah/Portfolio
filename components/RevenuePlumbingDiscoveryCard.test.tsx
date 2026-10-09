@@ -25,4 +25,17 @@ describe('RevenuePlumbingDiscoveryCard', () => {
       '/insights/revenue-plumbing-map',
     )
   })
+
+  it('uses a restrained light surface while preserving the dark treatment', () => {
+    render(<RevenuePlumbingDiscoveryCard />)
+
+    const card = screen.getByRole('link', { name: /Revenue Plumbing Map/i })
+    const action = screen.getByText('Explore the map')
+
+    expect(card).toHaveClass('bg-[#E8EDF3]/[0.96]')
+    expect(card).toHaveClass('border-[#A88A2D]/25')
+    expect(card).toHaveClass('dark:bg-silicon-slate/45')
+    expect(action).toHaveClass('bg-[#121E31]')
+    expect(action).toHaveClass('dark:bg-transparent')
+  })
 })

@@ -64,4 +64,16 @@ describe('RevenuePlumbingMap', () => {
     expect(screen.queryByTestId('compact-step-list')).not.toBeInTheDocument()
     expect(screen.getAllByRole('button', { name: /show where it leaks/i })).toHaveLength(PLUMBING_STEPS.length)
   })
+
+  it('uses theme-aware surfaces instead of forcing the dark canvas', () => {
+    useMedia()
+    const { container } = render(<RevenuePlumbingMap />)
+
+    expect(container.querySelector('.rpm-map')).toBeInTheDocument()
+    expect(screen.getByTestId('revenue-map-canvas')).toHaveStyle({ background: 'var(--rpm-canvas)' })
+    expect(screen.getByTestId('revenue-map-console')).toHaveStyle({ background: 'var(--rpm-console)' })
+    expect(container.querySelector('style')?.textContent).toContain('.dark .rpm-map')
+    expect(container.querySelector('style')?.textContent).toContain('--rpm-canvas: #e8edf3')
+    expect(container.querySelector('style')?.textContent).toContain('--rpm-canvas: #121e31')
+  })
 })

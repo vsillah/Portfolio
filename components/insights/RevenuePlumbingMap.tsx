@@ -16,27 +16,27 @@ import {
   type PlumbingStage,
 } from './revenue-plumbing-data'
 
-const NAVY = '#121E31'
-const SLATE = '#2C3E50'
-const PLATINUM = '#EAECEE'
-const GOLD = '#D4AF37'
-const BRONZE = '#8B6914'
-const GOLD_LIGHT = '#F5D060'
+const NAVY = 'var(--rpm-navy)'
+const SLATE = 'var(--rpm-slate)'
+const PLATINUM = 'var(--rpm-platinum)'
+const GOLD = 'var(--rpm-gold)'
+const BRONZE = 'var(--rpm-bronze)'
+const GOLD_LIGHT = 'var(--rpm-gold-light)'
 
 const HEADING_FONT = 'var(--font-orbitron), sans-serif'
 const PREMIUM_FONT = 'var(--font-cormorant), serif'
 const BODY_FONT = 'var(--font-inter), system-ui, sans-serif'
 
 const CHIP_STYLES: Record<PlumbingStage, CSSProperties> = {
-  marketing: { background: 'rgba(212,175,55,0.14)', border: '1px solid rgba(212,175,55,0.6)', color: GOLD_LIGHT },
-  sales: { background: SLATE, border: '1px solid rgba(234,236,238,0.22)', color: PLATINUM },
-  delivery: { background: PLATINUM, border: `1px solid ${PLATINUM}`, color: NAVY },
+  marketing: { background: 'var(--rpm-marketing-bg)', border: '1px solid var(--rpm-gold-border)', color: 'var(--rpm-marketing-copy)' },
+  sales: { background: 'var(--rpm-sales-bg)', border: '1px solid var(--rpm-slate-border)', color: 'var(--rpm-sales-copy)' },
+  delivery: { background: 'var(--rpm-delivery-bg)', border: '1px solid var(--rpm-delivery-border)', color: NAVY },
   expansion: {
     background: `linear-gradient(135deg, ${GOLD}, ${GOLD_LIGHT})`,
     border: 'none',
     color: NAVY,
     fontWeight: 700,
-    boxShadow: '0 0 20px rgba(212,175,55,0.3)',
+    boxShadow: '0 0 20px var(--rpm-gold-glow)',
   },
 }
 
@@ -48,6 +48,64 @@ const LEGEND: Array<{ stage: PlumbingStage; left: number; width: number }> = [
 ]
 
 const MAP_CSS = `
+.rpm-map {
+  --rpm-navy: #15243a;
+  --rpm-slate: #d1dae5;
+  --rpm-platinum: #ffffff;
+  --rpm-gold: #9a7311;
+  --rpm-bronze: #6f5310;
+  --rpm-gold-light: #b78408;
+  --rpm-canvas: #e8edf3;
+  --rpm-canvas-glow: rgba(212, 175, 55, 0.16);
+  --rpm-canvas-clear: rgba(232, 237, 243, 0);
+  --rpm-copy: #18263a;
+  --rpm-copy-muted: #536174;
+  --rpm-marketing-bg: rgba(154, 115, 17, 0.12);
+  --rpm-marketing-copy: #6f5310;
+  --rpm-sales-bg: #30465f;
+  --rpm-sales-copy: #ffffff;
+  --rpm-delivery-bg: #ffffff;
+  --rpm-delivery-border: rgba(18, 30, 49, 0.18);
+  --rpm-gold-border: rgba(111, 83, 16, 0.58);
+  --rpm-slate-border: rgba(18, 30, 49, 0.22);
+  --rpm-gold-glow: rgba(154, 115, 17, 0.22);
+  --rpm-ring: #15243a;
+  --rpm-ring-glow: rgba(154, 115, 17, 0.42);
+  --rpm-console: #f7f9fb;
+  --rpm-console-border: rgba(111, 83, 16, 0.34);
+  --rpm-console-rule: rgba(18, 30, 49, 0.12);
+  --rpm-control-focus: #15243a;
+  --rpm-barrel-top: #bdc8d5;
+}
+.dark .rpm-map {
+  --rpm-navy: #121e31;
+  --rpm-slate: #2c3e50;
+  --rpm-platinum: #eaecee;
+  --rpm-gold: #d4af37;
+  --rpm-bronze: #8b6914;
+  --rpm-gold-light: #f5d060;
+  --rpm-canvas: #121e31;
+  --rpm-canvas-glow: rgba(139, 105, 20, 0.20);
+  --rpm-canvas-clear: rgba(18, 30, 49, 0);
+  --rpm-copy: #eaecee;
+  --rpm-copy-muted: rgba(234, 236, 238, 0.78);
+  --rpm-marketing-bg: rgba(212, 175, 55, 0.14);
+  --rpm-marketing-copy: #f5d060;
+  --rpm-sales-bg: #2c3e50;
+  --rpm-sales-copy: #eaecee;
+  --rpm-delivery-bg: #eaecee;
+  --rpm-delivery-border: #eaecee;
+  --rpm-gold-border: rgba(212, 175, 55, 0.6);
+  --rpm-slate-border: rgba(234, 236, 238, 0.22);
+  --rpm-gold-glow: rgba(212, 175, 55, 0.3);
+  --rpm-ring: #ffffff;
+  --rpm-ring-glow: rgba(245, 208, 96, 0.6);
+  --rpm-console: #121e31;
+  --rpm-console-border: rgba(212, 175, 55, 0.3);
+  --rpm-console-rule: rgba(255, 255, 255, 0.1);
+  --rpm-control-focus: #ffffff;
+  --rpm-barrel-top: #1a2838;
+}
 @keyframes rpm-flow { to { stroke-dashoffset: -32; } }
 @keyframes rpm-fly { to { stroke-dashoffset: -14; } }
 @keyframes rpm-pulse { 0% { transform: scale(0.6); opacity: 1; } 100% { transform: scale(2.4); opacity: 0; } }
@@ -59,7 +117,7 @@ const MAP_CSS = `
 .rpm-drop { animation: rpm-drip 1.1s ease-in infinite; }
 .rpm-coin { animation: rpm-coin 2.4s ease-in infinite; }
 .rpm-chip { position: absolute; box-sizing: border-box; display: flex; align-items: center; justify-content: center; text-align: center; border-radius: 8px; font-size: 14px; line-height: 18px; font-weight: 600; padding: 0; cursor: pointer; font-family: inherit; }
-.rpm-chip:focus-visible, .rpm-control:focus-visible { outline: 2px solid #ffffff; outline-offset: 3px; }
+.rpm-chip:focus-visible, .rpm-control:focus-visible { outline: 2px solid var(--rpm-control-focus); outline-offset: 3px; }
 @media (prefers-reduced-motion: reduce) {
   .rpm-flow, .rpm-fly, .rpm-ring, .rpm-drop, .rpm-coin { animation: none; }
 }
@@ -142,14 +200,15 @@ export default function RevenuePlumbingMap({ secondsPerStep = 5 }: RevenuePlumbi
   const counter = `Leak ${String(index + 1).padStart(2, '0')} of ${total}`
 
   return (
-    <div style={{ fontFamily: BODY_FONT }}>
+    <div className="rpm-map" style={{ fontFamily: BODY_FONT }}>
       <style>{MAP_CSS}</style>
 
       {/* Map: fixed 1680 x 1470 canvas, scaled to the available width */}
       <div
         ref={frameRef}
-        className="relative w-full overflow-hidden rounded-xl border border-radiant-gold/30"
-        style={{ height: MAP_HEIGHT * scale, background: NAVY }}
+        data-testid="revenue-map-canvas"
+        className="relative w-full overflow-hidden rounded-xl border"
+        style={{ height: MAP_HEIGHT * scale, background: 'var(--rpm-canvas)', borderColor: 'var(--rpm-console-border)' }}
       >
         <div
           aria-hidden={compactControls || undefined}
@@ -162,8 +221,8 @@ export default function RevenuePlumbingMap({ secondsPerStep = 5 }: RevenuePlumbi
             height: MAP_HEIGHT,
             transform: `scale(${scale})`,
             transformOrigin: 'top left',
-            background: `radial-gradient(circle at 88% 0%, rgba(139,105,20,0.20), rgba(18,30,49,0) 46%), ${NAVY}`,
-            color: PLATINUM,
+            background: 'radial-gradient(circle at 88% 0%, var(--rpm-canvas-glow), var(--rpm-canvas-clear) 46%), var(--rpm-canvas)',
+            color: 'var(--rpm-copy)',
           }}
         >
           {/* Reinvest flywheel */}
@@ -215,7 +274,7 @@ export default function RevenuePlumbingMap({ secondsPerStep = 5 }: RevenuePlumbi
             </g>
             <path d="M 36 30 C 0 120, 0 240, 36 330 L 244 330 C 280 240, 280 120, 244 30" fill="none" stroke={GOLD} strokeWidth={2} />
             <path d="M 36 330 Q 140 352 244 330" fill={SLATE} stroke={GOLD} strokeWidth={2} />
-            <ellipse cx={140} cy={30} rx={104} ry={20} fill="#1A2838" stroke={GOLD} strokeWidth={2} />
+            <ellipse cx={140} cy={30} rx={104} ry={20} fill="var(--rpm-barrel-top)" stroke={GOLD} strokeWidth={2} />
             <ellipse cx={140} cy={30} rx={84} ry={13} fill="none" stroke={GOLD_LIGHT} strokeWidth={1} opacity={0.5} />
           </svg>
 
@@ -265,10 +324,10 @@ export default function RevenuePlumbingMap({ secondsPerStep = 5 }: RevenuePlumbi
           <div style={{ position: 'absolute', left: 64, top: 64, fontFamily: HEADING_FONT, fontWeight: 500, fontSize: 13, lineHeight: '16px', letterSpacing: '0.22em', color: GOLD }}>
             AMADUTOWN ADVISORY SOLUTIONS
           </div>
-          <div style={{ position: 'absolute', left: 64, top: 92, fontFamily: HEADING_FONT, fontWeight: 700, fontSize: 44, lineHeight: '52px', letterSpacing: '0.02em', color: PLATINUM }}>
+          <div style={{ position: 'absolute', left: 64, top: 92, fontFamily: HEADING_FONT, fontWeight: 700, fontSize: 44, lineHeight: '52px', letterSpacing: '0.02em', color: 'var(--rpm-copy)' }}>
             The Revenue Plumbing Map
           </div>
-          <div style={{ position: 'absolute', left: 64, top: 154, width: 760, fontFamily: PREMIUM_FONT, fontStyle: 'italic', fontWeight: 500, fontSize: 26, lineHeight: '32px', color: 'rgba(234,236,238,0.78)' }}>
+          <div style={{ position: 'absolute', left: 64, top: 154, width: 760, fontFamily: PREMIUM_FONT, fontStyle: 'italic', fontWeight: 500, fontSize: 26, lineHeight: '32px', color: 'var(--rpm-copy-muted)' }}>
             From raw market value to money in the bank. Every joint is a place value can leak.
           </div>
 
@@ -303,8 +362,8 @@ export default function RevenuePlumbingMap({ secondsPerStep = 5 }: RevenuePlumbi
             <br />
             (RAW VALUE)
           </div>
-          <div style={{ position: 'absolute', left: 592, top: 318, width: 120, fontSize: 14, lineHeight: '20px', color: 'rgba(234,236,238,0.78)' }}>
-            <b style={{ color: PLATINUM }}>Ads</b>
+          <div style={{ position: 'absolute', left: 592, top: 318, width: 120, fontSize: 14, lineHeight: '20px', color: 'var(--rpm-copy-muted)' }}>
+            <b style={{ color: 'var(--rpm-copy)' }}>Ads</b>
             <br />
             (or content)
             <br />
@@ -361,9 +420,9 @@ export default function RevenuePlumbingMap({ secondsPerStep = 5 }: RevenuePlumbi
               width: current.w + 10,
               height: current.h + 10,
               boxSizing: 'border-box',
-              border: '2px solid #FFFFFF',
+              border: '2px solid var(--rpm-ring)',
               borderRadius: 12,
-              boxShadow: '0 0 0 4px rgba(245,208,96,0.35), 0 0 24px rgba(245,208,96,0.6)',
+              boxShadow: '0 0 0 4px var(--rpm-gold-glow), 0 0 24px var(--rpm-ring-glow)',
               pointerEvents: 'none',
               transition: 'left 0.35s ease, top 0.35s ease, width 0.35s ease, height 0.35s ease',
             }}
@@ -384,9 +443,9 @@ export default function RevenuePlumbingMap({ secondsPerStep = 5 }: RevenuePlumbi
               transition: 'left 0.35s ease, top 0.35s ease',
             }}
           >
-            <circle className="rpm-ring" cx={30} cy={30} r={10} fill="none" stroke="#FFFFFF" strokeWidth={2.5} />
-            <circle cx={30} cy={30} r={6} fill="#FFFFFF" stroke={NAVY} strokeWidth={2} />
-            <circle className="rpm-drop" cx={30} cy={44} r={4} fill="#FFFFFF" />
+            <circle className="rpm-ring" cx={30} cy={30} r={10} fill="none" stroke="var(--rpm-ring)" strokeWidth={2.5} />
+            <circle cx={30} cy={30} r={6} fill="var(--rpm-ring)" stroke={NAVY} strokeWidth={2} />
+            <circle className="rpm-drop" cx={30} cy={44} r={4} fill="var(--rpm-ring)" />
             <circle className="rpm-drop" cx={23} cy={44} r={3} fill={PLATINUM} style={{ animationDelay: '0.35s' }} />
             <circle className="rpm-drop" cx={37} cy={44} r={2.5} fill={PLATINUM} style={{ animationDelay: '0.7s' }} />
           </svg>
@@ -395,8 +454,9 @@ export default function RevenuePlumbingMap({ secondsPerStep = 5 }: RevenuePlumbi
 
       {/* Explanation console */}
       <div
-        className="mt-4 rounded-xl border border-radiant-gold/30 p-5 sm:p-6"
-        style={{ background: NAVY, color: PLATINUM }}
+        data-testid="revenue-map-console"
+        className="mt-4 rounded-xl border p-5 sm:p-6"
+        style={{ background: 'var(--rpm-console)', color: 'var(--rpm-copy)', borderColor: 'var(--rpm-console-border)' }}
       >
         <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:gap-8">
           <div className="lg:w-72 lg:shrink-0" aria-live={playing ? 'off' : 'polite'}>
@@ -406,7 +466,7 @@ export default function RevenuePlumbingMap({ secondsPerStep = 5 }: RevenuePlumbi
             <p className="mt-2 text-2xl font-bold leading-8" style={{ fontFamily: HEADING_FONT }}>
               {current.name}
             </p>
-            <p className="mt-2 text-sm" style={{ color: 'rgba(234,236,238,0.72)' }}>
+            <p className="mt-2 text-sm" style={{ color: 'var(--rpm-copy-muted)' }}>
               Select any step, or let it run.
             </p>
           </div>
@@ -429,7 +489,7 @@ export default function RevenuePlumbingMap({ secondsPerStep = 5 }: RevenuePlumbi
             <button
               type="button"
               className="rpm-control flex h-12 w-12 items-center justify-center rounded-lg border bg-transparent"
-              style={{ borderColor: 'rgba(212,175,55,0.6)', color: GOLD_LIGHT }}
+              style={{ borderColor: 'var(--rpm-gold-border)', color: GOLD_LIGHT }}
               aria-label="Previous step"
               onClick={() => pick((index - 1 + total) % total)}
             >
@@ -447,7 +507,7 @@ export default function RevenuePlumbingMap({ secondsPerStep = 5 }: RevenuePlumbi
             <button
               type="button"
               className="rpm-control flex h-12 w-12 items-center justify-center rounded-lg border bg-transparent"
-              style={{ borderColor: 'rgba(212,175,55,0.6)', color: GOLD_LIGHT }}
+              style={{ borderColor: 'var(--rpm-gold-border)', color: GOLD_LIGHT }}
               aria-label="Next step"
               onClick={() => pick((index + 1) % total)}
             >
@@ -458,7 +518,7 @@ export default function RevenuePlumbingMap({ secondsPerStep = 5 }: RevenuePlumbi
 
         {/* Small screens: the map labels are too small to tap, so list the steps here */}
         {compactControls ? (
-          <div className="mt-6 space-y-4 border-t border-white/10 pt-5" data-testid="compact-step-list">
+          <div className="mt-6 space-y-4 border-t pt-5" style={{ borderColor: 'var(--rpm-console-rule)' }} data-testid="compact-step-list">
             {STAGE_ORDER.map((stage) => (
               <div key={stage}>
                 <p className="text-xs uppercase tracking-[0.16em]" style={{ fontFamily: HEADING_FONT, color: GOLD }}>
@@ -475,7 +535,7 @@ export default function RevenuePlumbingMap({ secondsPerStep = 5 }: RevenuePlumbi
                         onClick={() => pick(i)}
                         style={{
                           ...CHIP_STYLES[stage],
-                          boxShadow: i === index ? '0 0 0 2px #FFFFFF' : 'none',
+                          boxShadow: i === index ? '0 0 0 2px var(--rpm-ring)' : 'none',
                         }}
                       >
                         {step.name}
