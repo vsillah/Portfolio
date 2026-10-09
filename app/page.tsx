@@ -4,6 +4,10 @@ import HomeAnalytics from '@/components/HomeAnalytics'
 
 const Hero = dynamic(() => import('@/components/Hero'), { ssr: true })
 const SystemStory = dynamic(() => import('@/components/SystemStory'), { ssr: true })
+const RevenuePlumbingDiscoveryCard = dynamic(
+  () => import('@/components/RevenuePlumbingDiscoveryCard'),
+  { ssr: true },
+)
 const ActiveCampaigns = dynamic(() => import('@/components/ActiveCampaigns'), { ssr: false })
 const Store = dynamic(() => import('@/components/Store'), { ssr: false })
 const Services = dynamic(() => import('@/components/Services'), { ssr: false })
@@ -18,6 +22,7 @@ export default function Home() {
       <Navigation />
       <Hero />
       <SystemStory />
+      <RevenuePlumbingDiscoveryCard />
       <ActiveCampaigns />
       <Store section="products" />
       <Services />
