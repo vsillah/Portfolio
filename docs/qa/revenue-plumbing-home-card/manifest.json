@@ -1,0 +1,96 @@
+{
+  "capturedAt": "2026-10-09T09:24:08.188Z",
+  "baseUrl": "https://portfolio-i8buxg3f1-vsillahs-projects.vercel.app",
+  "route": "/",
+  "destination": "/insights/revenue-plumbing-map",
+  "copy": "An interactive AmaduTown operating model for finding where revenue systems leak capacity.",
+  "viewports": [
+    {
+      "name": "mobile-390",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "screenshot": "docs/qa/revenue-plumbing-home-card/homepage-card-mobile-390.png",
+      "destination": "/insights/revenue-plumbing-map",
+      "layout": {
+        "card": {
+          "bottom": 549,
+          "height": 254,
+          "left": 20,
+          "right": 370,
+          "top": 295,
+          "width": 350
+        },
+        "documentWidth": 390,
+        "viewportWidth": 390
+      },
+      "externalRequests": [],
+      "blockedExternalRequests": [
+        "https://vercel.live/_next-live/feedback/feedback.js"
+      ]
+    },
+    {
+      "name": "tablet-768",
+      "viewport": {
+        "width": 768,
+        "height": 900
+      },
+      "screenshot": "docs/qa/revenue-plumbing-home-card/homepage-card-tablet-768.png",
+      "destination": "/insights/revenue-plumbing-map",
+      "layout": {
+        "card": {
+          "bottom": 560,
+          "height": 220,
+          "left": 32,
+          "right": 736,
+          "top": 340,
+          "width": 704
+        },
+        "documentWidth": 768,
+        "viewportWidth": 768
+      },
+      "externalRequests": [],
+      "blockedExternalRequests": [
+        "https://vercel.live/_next-live/feedback/feedback.js"
+      ]
+    },
+    {
+      "name": "desktop-1440",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "screenshot": "docs/qa/revenue-plumbing-home-card/homepage-card-desktop-1440.png",
+      "destination": "/insights/revenue-plumbing-map",
+      "layout": {
+        "card": {
+          "bottom": 532,
+          "height": 164,
+          "left": 80,
+          "right": 1360,
+          "top": 368,
+          "width": 1280
+        },
+        "documentWidth": 1440,
+        "viewportWidth": 1440
+      },
+      "externalRequests": [],
+      "blockedExternalRequests": [
+        "https://vercel.live/_next-live/feedback/feedback.js"
+      ]
+    }
+  ],
+  "walkthrough": {
+    "video": "docs/qa/revenue-plumbing-home-card/homepage-card-walkthrough.mp4",
+    "destination": "/insights/revenue-plumbing-map",
+    "externalRequests": [],
+    "blockedExternalRequests": [
+      "https://vercel.live/_next-live/feedback/feedback.js"
+    ]
+  },
+  "externalRequests": [],
+  "blockedExternalRequests": [
+    "https://vercel.live/_next-live/feedback/feedback.js"
+  ]
+}
