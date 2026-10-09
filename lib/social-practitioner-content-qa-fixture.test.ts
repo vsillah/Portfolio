@@ -23,7 +23,7 @@ describe('practitioner content QA fixture', () => {
     expect(item.rag_context).toMatchObject({ external_execution_enabled: false })
 
     vi.stubEnv('VERCEL_ENV', 'production')
-    vi.stubEnv('SOCIAL_PRACTITIONER_CONTENT_QA_FIXTURE', '')
+    vi.stubEnv('SOCIAL_PRACTITIONER_CONTENT_QA_FIXTURE', 'true')
     expect(isPractitionerContentQaFixtureId(PRACTITIONER_CONTENT_QA_ID)).toBe(false)
   })
 })

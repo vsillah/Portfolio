@@ -2476,6 +2476,10 @@ function SocialContentDetailPage() {
     .map(p => PLATFORMS.find(pl => pl.value === p)?.label || p)
     .join(', ')
   const ragContext = asRecord(item.rag_context)
+  const qaFixture = asRecord(ragContext?.qa_fixture)
+  const previewFixtureReadOnly = qaFixture?.read_only === true
+  const previewFixtureReason = asString(qaFixture?.reason) || 'Preview fixture is read-only.'
+  const previewFixtureNextAction = asString(qaFixture?.next_action) || 'Review the evidence, then return to Social Content or the PR handoff.'
   const isAgentSocialPilot = ragContext?.source === 'agent_ops_social_outreach_goal'
   const agentPilotGoalId = asString(ragContext?.goal_id)
   const agentPilotPacketId = asString(ragContext?.content_packet_id)
@@ -3376,6 +3380,28 @@ function SocialContentDetailPage() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {previewFixtureReadOnly && (
+        <section
+          id="preview-fixture-read-only-notice"
+          role="status"
+          className="mx-auto mt-4 w-[calc(100%-2rem)] max-w-[90rem] rounded-xl border border-amber-400/40 bg-amber-400/10 p-4 text-amber-50 sm:w-[calc(100%-3rem)]"
+        >
+          <p className="font-semibold">{previewFixtureReason}</p>
+          <p className="mt-1 text-sm leading-6 text-amber-100/90">
+            No changes, approvals, or rejection decisions can be saved from this route. {previewFixtureNextAction}
+          </p>
+          <Link href={backUrl} className="mt-3 inline-flex min-h-11 items-center rounded-lg border border-amber-300/45 px-3 py-2 text-sm font-semibold text-amber-50 transition-colors hover:bg-amber-300/10">
+            Back to Social Content
+          </Link>
+        </section>
+      )}
+
+      <fieldset
+        disabled={previewFixtureReadOnly}
+        aria-describedby={previewFixtureReadOnly ? 'preview-fixture-read-only-notice' : undefined}
+        className="m-0 min-w-0 w-full border-0 p-0 disabled:[&_button]:cursor-not-allowed disabled:[&_button]:opacity-50"
+      >
 
       {/* Sticky header — current decision and saved draft controls */}
       <div data-social-detail-header className="sticky top-0 z-40 max-h-[40dvh] overflow-y-auto border-b border-gray-800 bg-gray-950 px-4 py-2 sm:px-6 lg:px-8" style={{ paddingTop: 'max(0.5rem, env(safe-area-inset-top))' }}>
@@ -6580,6 +6606,7 @@ function SocialContentDetailPage() {
           </motion.div>
         )}
       </AnimatePresence>
+      </fieldset>
     </div>
   )
 }

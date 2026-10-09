@@ -3,6 +3,8 @@ import type { SocialContentItem } from '@/lib/social-content'
 export const PRACTITIONER_CONTENT_QA_ID = 'practitioner-content-quality-qa'
 
 export function practitionerContentQaFixtureEnabled() {
+  if (process.env.VERCEL_ENV === 'production') return false
+
   return process.env.SOCIAL_PRACTITIONER_CONTENT_QA_FIXTURE === 'true'
     || process.env.VERCEL_ENV === 'preview'
     || process.env.NODE_ENV === 'development'
@@ -68,6 +70,13 @@ export function practitionerContentQaFixture(state: 'ready' | 'blocked' = 'ready
       publish_gate: 'draft_only',
       external_execution_enabled: false,
       approval_boundary: 'Synthetic preview review only. No provider, upload, scheduling, publishing, or shared-data action is available.',
+      qa_fixture: {
+        id: PRACTITIONER_CONTENT_QA_ID,
+        kind: 'synthetic_preview',
+        read_only: true,
+        reason: 'Preview fixture is read-only.',
+        next_action: 'Review the evidence, then return to Social Content or the PR handoff.',
+      },
       practitioner_content_quality: {
         version: 'practitioner_evidence_v1',
         evidence_packet: {

@@ -132,6 +132,35 @@ describe('SocialContentDetailRoute visual production review', () => {
     return render(<SocialContentDetailRoute />)
   }
 
+  it('marks a preview fixture read-only and disables its mutation decisions with a recovery action', async () => {
+    const fixtureItem = {
+      ...baseItem,
+      status: 'draft',
+      rag_context: {
+        ...baseItem.rag_context,
+        qa_fixture: {
+          kind: 'synthetic_preview',
+          read_only: true,
+          reason: 'Preview fixture is read-only.',
+          next_action: 'Review the evidence, then return to Social Content or the PR handoff.',
+        },
+      },
+    }
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => ({
+      ok: true,
+      json: async () => String(input).includes('/topic-backlog') ? { items: [] } : { item: fixtureItem },
+    } as Response)))
+
+    renderAtStep('copy')
+
+    expect(await screen.findByText('Preview fixture is read-only.')).toBeVisible()
+    expect(screen.getByText(/No changes, approvals, or rejection decisions can be saved from this route/)).toBeVisible()
+    expect(screen.getByRole('link', { name: 'Back to Social Content' })).toHaveAttribute('href', '/admin/social-content')
+    expect(screen.getByRole('button', { name: 'Save Draft' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: /Approve Copy/i })).toBeDisabled()
+    expect(screen.getByRole('button', { name: /^Reject$/i })).toBeDisabled()
+  })
+
   it('renders LinkedIn campaign review for the linked canonical Instagram/Reels item', async () => {
     const item = { ...baseItem, platform: 'instagram', target_platforms: ['instagram'], rag_context: { source: 'social_content_calendar_authorization', calendar_item_id: 'cd314ba5-f2d5-4e7f-9439-0475475c7fa9' } }
     vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => ({

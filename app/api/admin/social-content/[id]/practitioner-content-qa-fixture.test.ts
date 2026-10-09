@@ -41,6 +41,11 @@ describe('practitioner content preview fixture route', () => {
         id: PRACTITIONER_CONTENT_QA_ID,
         rag_context: {
           external_execution_enabled: false,
+          qa_fixture: {
+            kind: 'synthetic_preview',
+            read_only: true,
+            reason: 'Preview fixture is read-only.',
+          },
           practitioner_content_quality: {
             version: 'practitioner_evidence_v1',
             evidence_packet: { status: 'approved' },
