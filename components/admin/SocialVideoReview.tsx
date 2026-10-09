@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { archiveId, classifyVideoUrl, VIDEO_MEDIA_RECOVERY } from '@/lib/video-media-url'
 import { getCurrentSession } from '@/lib/auth'
 import { LINKEDIN_VIDEO_BLOCKER, reviewRecord, socialVideoAssetVersion, socialVideoReviewReady } from '@/lib/social-video-review'
-import { SOCIAL_SCRIPT_EDITOR_CLASS } from '@/lib/social-script-editor'
+import { SOCIAL_SCRIPT_EDITOR_CLASS } from '@/components/admin/social-script-editor'
 
 export function ReviewedVideoPlayer({ url, poster, playbackUrl }: { url: string; poster?: string | null; playbackUrl?: string | null }) {
   const [failedSource, setFailedSource] = useState<string | null>(null)

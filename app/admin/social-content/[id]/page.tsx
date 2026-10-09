@@ -46,7 +46,7 @@ import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import MobileWorkflowSummary from '@/components/admin/MobileWorkflowSummary'
 import PractitionerContentReview from '@/components/admin/PractitionerContentReview'
 import CompactPostPreview from '@/components/admin/CompactPostPreview'
-import { SOCIAL_SCRIPT_EDITOR_CLASS } from '@/lib/social-script-editor'
+import { SOCIAL_SCRIPT_EDITOR_CLASS } from '@/components/admin/social-script-editor'
 import { getCurrentSession } from '@/lib/auth'
 import {
   STATUS_CONFIG,
