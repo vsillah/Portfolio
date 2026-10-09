@@ -73,13 +73,13 @@ export default function RevenuePlumbingMapPage() {
 
           <section>
             <h2 className="font-heading text-xl font-bold tracking-wide text-foreground">
-              Technology is the great equalizer
+              Technology can narrow the capacity gap
             </h2>
             <p className="mt-4 text-lg leading-8 text-foreground/90">
-              A large company has a department watching every joint. A small business has an owner
-              and a long day. Automation closes that distance: reminders that send themselves,
-              onboarding that runs while you sleep, a follow-up that is already on the calendar
-              before the work ships.
+              A large company can assign a team to watch every handoff. A small business owner is
+              often the team. The right automation reduces that operating burden: reminders go out
+              on time, onboarding starts without a chase, and follow-up is already scheduled before
+              the work ships.
             </p>
           </section>
         </div>
@@ -103,7 +103,8 @@ export default function RevenuePlumbingMapPage() {
         </section>
 
         <p className="mt-10 max-w-3xl text-sm text-muted-foreground">
-          Inspired by a pipeline diagram I first saw in a Jack Roberts video.
+          The Revenue Plumbing Map is an AmaduTown operating model built from recurring breakdowns
+          across marketing, sales, onboarding, delivery, and client expansion.
         </p>
       </article>
     </main>

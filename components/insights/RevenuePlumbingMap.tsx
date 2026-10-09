@@ -92,6 +92,7 @@ interface RevenuePlumbingMapProps {
 export default function RevenuePlumbingMap({ secondsPerStep = 5 }: RevenuePlumbingMapProps) {
   const [index, setIndex] = useState(0)
   const [playing, setPlaying] = useState(true)
+  const [compactControls, setCompactControls] = useState(false)
   const [scale, setScale] = useState(1)
   const frameRef = useRef<HTMLDivElement>(null)
 
@@ -102,6 +103,15 @@ export default function RevenuePlumbingMap({ secondsPerStep = 5 }: RevenuePlumbi
     if (typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
       setPlaying(false)
     }
+  }, [])
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return
+    const query = window.matchMedia('(max-width: 1023px)')
+    const update = () => setCompactControls(query.matches)
+    update()
+    query.addEventListener?.('change', update)
+    return () => query.removeEventListener?.('change', update)
   }, [])
 
   useEffect(() => {
@@ -142,6 +152,8 @@ export default function RevenuePlumbingMap({ secondsPerStep = 5 }: RevenuePlumbi
         style={{ height: MAP_HEIGHT * scale, background: NAVY }}
       >
         <div
+          aria-hidden={compactControls || undefined}
+          data-testid="revenue-map-overview"
           style={{
             position: 'absolute',
             left: 0,
@@ -308,16 +320,8 @@ export default function RevenuePlumbingMap({ secondsPerStep = 5 }: RevenuePlumbi
           </div>
 
           {/* Step chips */}
-          {PLUMBING_STEPS.map((step, i) => (
-            <button
-              key={step.id}
-              type="button"
-              className="rpm-chip"
-              aria-pressed={i === index}
-              aria-label={`${step.name}: show where it leaks`}
-              onClick={() => pick(i)}
-              style={{ left: step.x, top: step.y, width: step.w, height: step.h, ...CHIP_STYLES[step.stage] }}
-            >
+          {PLUMBING_STEPS.map((step, i) => {
+            const content = (
               <span>
                 {step.label.map((line) => (
                   <span key={line} style={{ display: 'block' }}>
@@ -325,8 +329,27 @@ export default function RevenuePlumbingMap({ secondsPerStep = 5 }: RevenuePlumbi
                   </span>
                 ))}
               </span>
-            </button>
-          ))}
+            )
+            const style = { left: step.x, top: step.y, width: step.w, height: step.h, ...CHIP_STYLES[step.stage] }
+
+            return compactControls ? (
+              <span key={step.id} className="rpm-chip" style={{ ...style, cursor: 'default' }}>
+                {content}
+              </span>
+            ) : (
+              <button
+                key={step.id}
+                type="button"
+                className="rpm-chip"
+                aria-pressed={i === index}
+                aria-label={`${step.name}: show where it leaks`}
+                onClick={() => pick(i)}
+                style={style}
+              >
+                {content}
+              </button>
+            )
+          })}
 
           {/* Active step ring */}
           <div
@@ -434,34 +457,36 @@ export default function RevenuePlumbingMap({ secondsPerStep = 5 }: RevenuePlumbi
         </div>
 
         {/* Small screens: the map labels are too small to tap, so list the steps here */}
-        <div className="mt-6 space-y-4 border-t border-white/10 pt-5 lg:hidden">
-          {STAGE_ORDER.map((stage) => (
-            <div key={stage}>
-              <p className="text-xs uppercase tracking-[0.16em]" style={{ fontFamily: HEADING_FONT, color: GOLD }}>
-                {STAGE_LABELS[stage]}
-              </p>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {PLUMBING_STEPS.map((step, i) =>
-                  step.stage === stage ? (
-                    <button
-                      key={step.id}
-                      type="button"
-                      className="rpm-control min-h-[44px] rounded-lg px-3 text-sm font-semibold"
-                      aria-pressed={i === index}
-                      onClick={() => pick(i)}
-                      style={{
-                        ...CHIP_STYLES[stage],
-                        boxShadow: i === index ? '0 0 0 2px #FFFFFF' : 'none',
-                      }}
-                    >
-                      {step.name}
-                    </button>
-                  ) : null,
-                )}
+        {compactControls ? (
+          <div className="mt-6 space-y-4 border-t border-white/10 pt-5" data-testid="compact-step-list">
+            {STAGE_ORDER.map((stage) => (
+              <div key={stage}>
+                <p className="text-xs uppercase tracking-[0.16em]" style={{ fontFamily: HEADING_FONT, color: GOLD }}>
+                  {STAGE_LABELS[stage]}
+                </p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {PLUMBING_STEPS.map((step, i) =>
+                    step.stage === stage ? (
+                      <button
+                        key={step.id}
+                        type="button"
+                        className="rpm-control min-h-[44px] rounded-lg px-3 text-sm font-semibold"
+                        aria-pressed={i === index}
+                        onClick={() => pick(i)}
+                        style={{
+                          ...CHIP_STYLES[stage],
+                          boxShadow: i === index ? '0 0 0 2px #FFFFFF' : 'none',
+                        }}
+                      >
+                        {step.name}
+                      </button>
+                    ) : null,
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : null}
       </div>
     </div>
   )
