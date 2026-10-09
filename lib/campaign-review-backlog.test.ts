@@ -27,6 +27,36 @@ function seed(count = 12) {
     db.tables.social_content_queue.push({ id: c.social_content_id, status: 'draft', post_text: 'Synthetic draft' })
     db.tables.agent_work_items.push({ id: `work-${i}`, source_type: 'social_content_calendar_authorization', updated_at: 'v1', metadata: { calendar_item_id: c.id, campaign_id: c.campaign_id, channel: c.channel, campaign_phase: c.campaign_phase, social_content_id: c.social_content_id, draft_handoff_only: true, research_packet_ids: ['evidence'], insight: { title: c.title, content_angle: 'A practical workflow review', approved_research_patterns: [{ packet_id: 'evidence' }] } } })
   }
+  db.tables.social_content_queue.push({
+    id: 'published-calibration-1',
+    platform: 'linkedin',
+    status: 'published',
+    post_text: 'A nonprofit operations lead reconciled three spreadsheets every Friday before moving the rules into one reviewed queue.',
+    content_pillar: 'AI and product management',
+    published_at: '2026-09-25T12:00:00Z',
+    updated_at: '2026-09-26T12:00:00Z',
+    rag_context: {
+      engagement: {
+        latest_score: 81,
+        recommendation_label: 'high signal',
+        latest: { comments: 7, shares: 3, reactions: 28, capturedAt: '2026-09-26T12:00:00Z' },
+      },
+      content_calibration: {
+        reference_curation: { gold_standard: true, reason: 'Operators answered with their own workflow examples.' },
+        experiment_tags: {
+          experiment_id: 'practitioner-depth-001',
+          anecdote_depth: 'scene',
+          specificity: 'high',
+          evidence_type: 'observed_result',
+          hook_framework: 'operational_scene',
+          channel: 'linkedin',
+          visual_treatment: 'deterministic_constraint_decision_result',
+          hypothesis: 'Concrete operating scenes may correlate with substantive comments.',
+          causal_claim_boundary: 'correlational_only',
+        },
+      },
+    },
+  })
 }
 describe('campaign rolling review persistence', () => {
   beforeEach(() => seed())
@@ -46,6 +76,21 @@ describe('campaign rolling review persistence', () => {
         voice_calibration: { status: 'passed' },
         editorial_challenger: { status: 'passed' },
       },
+    })
+    expect(meta.channel_lanes.linkedin.draft_packet.orchestration_evidence.voice_translation.calibration_application).toMatchObject({
+      causal_claim_boundary: 'correlational_only',
+      selected_references: [expect.objectContaining({
+        id: 'portfolio-social-published-calibration-1',
+        engagement_recommendation: expect.stringContaining('high signal'),
+        experiment_tags: expect.objectContaining({
+          experiment_id: 'practitioner-depth-001',
+          causal_claim_boundary: 'correlational_only',
+        }),
+      })],
+    })
+    expect(meta.channel_lanes.linkedin.draft_packet.fields.reviewer_trace).toMatchObject({
+      calibration_reference_ids: ['portfolio-social-published-calibration-1'],
+      calibration_causal_boundary: 'correlational_only',
     })
     expect(meta.rolling_review.linkedin.content_version).toMatch(/^[a-f0-9]{64}$/)
     expect(meta.rolling_review_claims.linkedin.status).toBe('prepared')

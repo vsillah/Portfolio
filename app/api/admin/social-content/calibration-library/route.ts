@@ -3,7 +3,7 @@ import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { supabaseAdmin } from '@/lib/supabase'
 import {
   listSocialContentCalibrationReferences,
-  socialContentHistoryReferenceFromRow,
+  selectSocialContentHistoryReferences,
   type SocialContentCalibrationHistoryRow,
   type SocialContentCalibrationReference,
 } from '@/lib/social-content-calibration-library'
@@ -34,16 +34,10 @@ export async function GET(request: NextRequest) {
 
       if (error) throw new Error(error.message)
 
-      historyReferences = ((data ?? []) as SocialContentCalibrationHistoryRow[])
-        .map(socialContentHistoryReferenceFromRow)
-        .filter((reference): reference is NonNullable<typeof reference> => Boolean(reference))
-        .sort((left, right) => {
-          if (left.curation_status === right.curation_status) return 0
-          if (left.curation_status === 'gold_standard') return -1
-          if (right.curation_status === 'gold_standard') return 1
-          return 0
-        })
-        .slice(0, historyLimit)
+      historyReferences = selectSocialContentHistoryReferences(
+        (data ?? []) as SocialContentCalibrationHistoryRow[],
+        historyLimit,
+      )
     }
     const references = [...historyReferences, ...staticReferences]
 

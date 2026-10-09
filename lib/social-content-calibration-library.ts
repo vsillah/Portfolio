@@ -281,3 +281,19 @@ export function socialContentHistoryReferenceFromRow(
     } : null,
   }
 }
+
+export function selectSocialContentHistoryReferences(
+  rows: SocialContentCalibrationHistoryRow[],
+  limit = 3,
+): SocialContentCalibrationReference[] {
+  return rows
+    .map(socialContentHistoryReferenceFromRow)
+    .filter((reference): reference is SocialContentCalibrationReference => Boolean(reference))
+    .sort((left, right) => {
+      if (left.curation_status === right.curation_status) return 0
+      if (left.curation_status === 'gold_standard') return -1
+      if (right.curation_status === 'gold_standard') return 1
+      return 0
+    })
+    .slice(0, Math.max(0, limit))
+}

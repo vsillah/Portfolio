@@ -3,6 +3,11 @@ import type { AgentSlackNotificationInput } from '@/lib/agent-slack-notification
 import { supabaseAdmin } from '@/lib/supabase'
 import { parseMetadata } from '@/lib/social-content-calendar'
 import {
+  selectSocialContentHistoryReferences,
+  type SocialContentCalibrationHistoryRow,
+  type SocialContentCalibrationReference,
+} from '@/lib/social-content-calibration-library'
+import {
   buildLinkedInYoutubeReviewDrafts,
   buildSocialContentEnrichmentReceipt,
   enrichCampaignReviewInsight,
@@ -38,12 +43,19 @@ function claimIsActive(value: unknown, lineage: string, now: Date) {
     && Date.parse(text(claim.claimed_at)) > now.getTime() - CLAIM_LEASE_MS
 }
 
-function packetReadiness(input: { insight: Row; metadata: Row; channel: string; generatedAt: string }) {
+function packetReadiness(input: {
+  insight: Row
+  metadata: Row
+  channel: string
+  generatedAt: string
+  calibrationReferences: SocialContentCalibrationReference[]
+}) {
   const enriched = enrichCampaignReviewInsight({ insight: input.insight, metadata: input.metadata })
   const drafts = buildLinkedInYoutubeReviewDrafts({
     insight: enriched.insight,
     generatedAt: input.generatedAt,
     latestFeedback: record(input.metadata.autoresearch_feedback_latest),
+    calibrationReferences: input.calibrationReferences,
   })
   const copyQualityGate = validateSocialPublicCopyFields(socialChannelReviewPublicCopyFields(drafts))
   const enrichmentReceipt = buildSocialContentEnrichmentReceipt({
@@ -51,6 +63,7 @@ function packetReadiness(input: { insight: Row; metadata: Row; channel: string; 
     copyQualityGate,
     generatedAt: input.generatedAt,
     synthesizedCampaignFields: enriched.synthesizedFields,
+    calibrationReferences: input.calibrationReferences,
   })
   for (const draft of Object.values(drafts)) draft.enrichment_receipt = enrichmentReceipt
 
@@ -91,8 +104,19 @@ async function load(campaignId: string) {
   const workIds = calendar.map(c => text(record(record(c.metadata).platform_draft_handoff).work_item_id)).filter(Boolean)
   const works = await byIds('agent_work_items', workIds)
   const evidenceIds = works.flatMap(w => Array.isArray(record(w.metadata).research_packet_ids) ? record(w.metadata).research_packet_ids as string[] : []).filter(id => typeof id === 'string')
-  const [evidence, drafts] = await Promise.all([byIds('social_content_research_packets', evidenceIds), byIds('social_content_queue', calendar.map(c => text(c.social_content_id)).filter(Boolean))])
-  return { campaign, calendar, works, evidence, drafts }
+  const [evidence, drafts, calibrationResult] = await Promise.all([
+    byIds('social_content_research_packets', evidenceIds),
+    byIds('social_content_queue', calendar.map(c => text(c.social_content_id)).filter(Boolean)),
+    supabaseAdmin
+      .from('social_content_queue')
+      .select('id, platform, status, post_text, cta_text, hashtags, topic_extracted, rag_context, content_pillar, target_platforms, published_at, updated_at, created_at')
+      .in('status', ['published', 'approved'])
+      .order('updated_at', { ascending: false })
+      .limit(16),
+  ])
+  const calibrationRows = checked(calibrationResult) as SocialContentCalibrationHistoryRow[]
+  const calibrationReferences = selectSocialContentHistoryReferences(calibrationRows, 3)
+  return { campaign, calendar, works, evidence, drafts, calibrationReferences }
 }
 type Snapshot = Awaited<ReturnType<typeof load>>
 function project(s: Snapshot, now: Date): ReviewProjection {
@@ -114,7 +138,7 @@ function project(s: Snapshot, now: Date): ReviewProjection {
     const evidence = ids.map(id => s.evidence.find(e => e.id === id))
     const lanes = record(wm.channel_lanes), lane = record(lanes[c.channel]), packet = record(lane.draft_packet)
     const draft = s.drafts.find(d => d.id === c.social_content_id)
-    const lineage = hash({ campaign: s.campaign.id, calendar: c.id, phase: c.campaign_phase, channel: c.channel, work: wid, social: c.social_content_id, evidence, insight, title: c.title, angle: c.planned_angle, feedback: wm.autoresearch_feedback_latest, copy: draft?.post_text })
+    const lineage = hash({ campaign: s.campaign.id, calendar: c.id, phase: c.campaign_phase, channel: c.channel, work: wid, social: c.social_content_id, evidence, insight, title: c.title, angle: c.planned_angle, feedback: wm.autoresearch_feedback_latest, copy: draft?.post_text, calibration_references: s.calibrationReferences })
     let href = wid ? `/admin/agents/social-insights/${encodeURIComponent(wid)}?channel=${encodeURIComponent(c.channel)}` : `/admin/agents/content-intelligence?section=calendar&calendar_item=${encodeURIComponent(c.id)}#content-calendar-gate`
     let reason = '', state: ReviewRow['state'] = 'eligible'
     if (s.campaign.status !== 'active') reason = 'Activate the campaign before preparing review batches.'
@@ -239,7 +263,7 @@ export async function prepareCampaignReviewBatch(id: string, options: {
       })
       continue
     }
-    const readiness = packetReadiness({ insight, metadata: wm, channel: live.channel, generatedAt: now.toISOString() })
+    const readiness = packetReadiness({ insight, metadata: wm, channel: live.channel, generatedAt: now.toISOString(), calibrationReferences: current.calibrationReferences })
     if (!readiness.packet || readiness.blockers.length) {
       blockedItems.push({
         calendar_item_id: live.id,
