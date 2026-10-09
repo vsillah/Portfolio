@@ -280,7 +280,7 @@ describe('/api/admin/agents/work-items/[id]/research-packets', () => {
     })
     const response = await POST(request({ packet_ids: ['packet-1'], mode: 'link_approved' }) as never, { params: { id: 'work-1' } })
     expect(response.status).toBe(400)
-    expect(await response.json()).toEqual({ error: 'Work item is not a social topic trigger' })
+    expect(await response.json()).toEqual({ error: 'Work item is not a social topic trigger or campaign draft handoff' })
     expect(mocks.from).not.toHaveBeenCalled()
     expect(mocks.updateAgentWorkItemMetadata).not.toHaveBeenCalled()
   })
@@ -298,7 +298,7 @@ describe('/api/admin/agents/work-items/[id]/research-packets', () => {
     })
     const response = await POST(request({ packet_ids: ['packet-1'], mode: 'link_approved' }) as never, { params: { id: 'work-1' } })
     expect(response.status).toBe(400)
-    expect(await response.json()).toEqual({ error: 'Work item is not a social topic trigger' })
+    expect(await response.json()).toEqual({ error: 'Work item is not a social topic trigger or campaign draft handoff' })
     expect(mocks.from).not.toHaveBeenCalled()
   })
 
