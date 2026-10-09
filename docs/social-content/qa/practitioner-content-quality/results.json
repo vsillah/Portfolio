@@ -1,7 +1,12 @@
 [
   {
     "width": 390,
-    "route": "http://127.0.0.1:4033/admin/social-content/practitioner-quality-qa?step=copy",
+    "route": "https://portfolio-edgup6x4m-vsillahs-projects.vercel.app/admin/social-content/practitioner-content-quality-qa?step=copy",
+    "source": "deployed_preview_fixture",
+    "fixture_responses": [
+      "blocked",
+      "ready"
+    ],
     "specificity": "specific",
     "gates_observed": [
       "blocked_before_human_qa",
@@ -14,7 +19,12 @@
   },
   {
     "width": 768,
-    "route": "http://127.0.0.1:4033/admin/social-content/practitioner-quality-qa?step=copy",
+    "route": "https://portfolio-edgup6x4m-vsillahs-projects.vercel.app/admin/social-content/practitioner-content-quality-qa?step=copy",
+    "source": "deployed_preview_fixture",
+    "fixture_responses": [
+      "blocked",
+      "ready"
+    ],
     "specificity": "specific",
     "gates_observed": [
       "blocked_before_human_qa",
@@ -27,7 +37,12 @@
   },
   {
     "width": 1440,
-    "route": "http://127.0.0.1:4033/admin/social-content/practitioner-quality-qa?step=copy",
+    "route": "https://portfolio-edgup6x4m-vsillahs-projects.vercel.app/admin/social-content/practitioner-content-quality-qa?step=copy",
+    "source": "deployed_preview_fixture",
+    "fixture_responses": [
+      "blocked",
+      "ready"
+    ],
     "specificity": "specific",
     "gates_observed": [
       "blocked_before_human_qa",

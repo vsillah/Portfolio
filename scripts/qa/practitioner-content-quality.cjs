@@ -33,6 +33,9 @@ const session = {
       viewport: { width, height: width === 390 ? 844 : 1000 },
       recordVideo: { dir: rawVideo, size: { width, height: width === 390 ? 844 : 1000 } },
       serviceWorkers: 'block',
+      extraHTTPHeaders: process.env.VERCEL_OIDC_TOKEN
+        ? { 'x-vercel-trusted-oidc-idp-token': process.env.VERCEL_OIDC_TOKEN }
+        : undefined,
     })
     await context.addInitScript(({ session }) => {
       const originalGetItem = Storage.prototype.getItem
@@ -46,7 +49,7 @@ const session = {
       const url = new URL(request.url())
       const method = request.method()
       const json = (data, status = 200) => route.fulfill({ status, contentType: 'application/json', body: JSON.stringify(data) })
-      if (url.hostname === 'va.vercel-scripts.com') return route.abort()
+      if (url.hostname === 'va.vercel-scripts.com' || url.hostname === 'vercel.live') return route.abort()
       if (url.pathname === '/auth/v1/user') return json(user)
       if (url.pathname === '/rest/v1/user_profiles') return json([{ id: user.id, email: user.email, role: 'admin' }])
       if (url.origin !== base) {

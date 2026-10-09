@@ -2,6 +2,12 @@
 
 This packet exercises the existing Social Content detail route with a synthetic, anonymized practitioner story. It does not read or mutate shared content.
 
+Exact deployed QA route:
+
+`https://portfolio-edgup6x4m-vsillahs-projects.vercel.app/admin/social-content/practitioner-content-quality-qa?step=copy`
+
+The fixture exists only in local development, tests, and Vercel Preview. Production returns to the normal authenticated database path.
+
 ## Reviewed behavior
 
 - Structured evidence shows the situation, operating constraint, practitioner detail, decision, result state, provenance boundary, and redaction status.
@@ -20,12 +26,15 @@ This packet exercises the existing Social Content detail route with a synthetic,
 
 ## Reproduction
 
-Run the local app on port 4033 with synthetic Supabase client variables, then:
+For a protected Vercel preview, use the linked Portfolio project's short-lived development OIDC token without printing or persisting it:
 
 ```bash
-node scripts/qa/practitioner-content-quality.cjs
+vc env run --cwd /Users/vambahsillah/Projects/Portfolio -- \
+  sh -c 'cd "$1" && QA_BASE_URL="$2" node scripts/qa/practitioner-content-quality.cjs' \
+  sh /Users/vambahsillah/.codex/worktrees/491f/Portfolio \
+  https://portfolio-edgup6x4m-vsillahs-projects.vercel.app
 ```
 
-The Playwright script intercepts the exact Social Content API route, supplies only the synthetic fixture, records the blocked state followed by the finished review state, blocks telemetry, asserts zero external requests and API mutations, and converts each viewport recording to MP4 with FFmpeg.
+The Playwright script reads the fixture from the deployed Social Content detail API; it does not intercept that endpoint. It supplies synthetic browser auth, records the blocked state followed by the finished review state, blocks Vercel feedback/analytics scripts and unrelated admin dependencies, asserts zero external requests and API mutations, and converts each viewport recording to MP4 with FFmpeg.
 
 No model, media, upload, scheduling, publishing, or external provider call is part of this QA packet.
