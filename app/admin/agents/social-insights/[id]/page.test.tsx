@@ -610,4 +610,93 @@ describe('SocialInsightDetailPage', () => {
     expect(screen.getByRole('button', { name: 'Prepare Channel Review Drafts' })).toBeDisabled()
   })
 
+  it('hides approved packets that have no source or pattern body', async () => {
+    const item = socialWorkItem()
+    item.metadata.insight.approved_research_patterns = []
+    const eligible = {
+      id: 'approved-1',
+      title: 'Reusable structure',
+      status: 'approved',
+      pattern_status: 'usable_framework',
+      source_url: 'https://example.com/framework',
+      pattern_packet: { hook_structure: 'Start with a practical question' },
+    }
+    vi.stubGlobal('fetch', vi.fn(async (url: string) => ({
+      ok: true,
+      json: async () => url.includes('research-packets?')
+        ? {
+          packets: [
+            eligible,
+            { ...eligible, id: 'blank-source', title: 'Blank source', source_url: '' },
+            { ...eligible, id: 'missing-source', title: 'Missing source', source_url: undefined },
+            { ...eligible, id: 'empty-pattern', title: 'Empty pattern', pattern_packet: {} },
+            { ...eligible, id: 'list-pattern', title: 'List pattern', pattern_packet: ['not-a-framework'] },
+          ],
+        }
+        : { work_item: item },
+    })))
+    render(<SocialInsightDetailPage />)
+    fireEvent.click(await screen.findByRole('button', { name: 'Find approved patterns' }))
+    await screen.findByRole('option', { name: 'Reusable structure' })
+    expect(screen.getAllByRole('option').map((option) => option.textContent)).toEqual([
+      'Select a pattern',
+      'Reusable structure',
+    ])
+    expect(screen.getByRole('button', { name: 'Prepare Channel Review Drafts' })).toBeDisabled()
+  })
+
+  it('keeps drafting blocked when linking approved evidence is rejected', async () => {
+    const item = socialWorkItem()
+    item.metadata.insight.approved_research_patterns = []
+    const packet = {
+      id: 'approved-1',
+      title: 'Reusable structure',
+      status: 'approved',
+      pattern_status: 'usable_framework',
+      source_url: 'https://example.com/framework',
+      pattern_packet: { hook_structure: 'Start with a practical question' },
+    }
+    vi.stubGlobal('fetch', vi.fn(async (url: string) => {
+      if (url.endsWith('/research-packets')) {
+        return {
+          ok: false,
+          json: async () => ({ error: 'Select an approved usable framework. Review other evidence in Content Intelligence first.' }),
+        }
+      }
+      return {
+        ok: true,
+        json: async () => url.includes('research-packets?') ? { packets: [packet] } : { work_item: item },
+      }
+    }))
+    render(<SocialInsightDetailPage />)
+    fireEvent.click(await screen.findByRole('button', { name: 'Find approved patterns' }))
+    fireEvent.change(await screen.findByLabelText('Approved framework'), { target: { value: 'approved-1' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Link selected pattern' }))
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Select an approved usable framework. Review other evidence in Content Intelligence first.',
+    )
+    expect(screen.getByRole('button', { name: 'Prepare Channel Review Drafts' })).toBeDisabled()
+    expect(screen.getByText('Link at least one approved research pattern before preparing channel review drafts.')).toBeInTheDocument()
+  })
+
+  it('links a calendar handoff back to its source item and social draft', async () => {
+    const item = socialWorkItem()
+    Object.assign(item.metadata, {
+      calendar_item_id: 'calendar item/1',
+      campaign_name: 'Readiness',
+      social_content_id: 'draft/1',
+    })
+    vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, json: async () => ({ work_item: item }) })))
+    render(<SocialInsightDetailPage />)
+    expect(await screen.findByText('Campaign: Readiness')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Open source calendar item' })).toHaveAttribute(
+      'href',
+      '/admin/agents/content-intelligence?section=calendar&calendar_item=calendar%20item%2F1',
+    )
+    expect(screen.getByRole('link', { name: 'Open Social Content draft' })).toHaveAttribute(
+      'href',
+      '/admin/social-content/draft%2F1',
+    )
+  })
+
 })

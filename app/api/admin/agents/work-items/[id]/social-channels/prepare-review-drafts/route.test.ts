@@ -574,4 +574,29 @@ describe('/api/admin/agents/work-items/[id]/social-channels/prepare-review-draft
     expect(body.drafts.linkedin.fields.post_text).not.toContain('Calendar draft seed')
   })
 
+  it.each([42, { id: 'calendar-object-leak' }, null])(
+    'leaves campaign lineage off review packets when calendar_item_id is not a string',
+    async (calendarId) => {
+      const item = cloneBaseWorkItem()
+      Object.assign(item.metadata, {
+        campaign_id: 'campaign-should-stay-out',
+        calendar_item_id: calendarId,
+        social_content_id: 'draft-should-stay-out',
+        campaign_phase: 'tease',
+        channel: 'linkedin',
+      })
+      mocks.getAgentWorkItem.mockResolvedValue(item)
+      const response = await POST(request() as never, { params: { id: 'work-1' } })
+      expect(response.status).toBe(200)
+      const body = await response.json()
+      for (const packet of Object.values(body.drafts) as Record<string, { shared_source: Record<string, unknown> }>[]) {
+        expect(packet.shared_source).not.toHaveProperty('calendar_item_id')
+        expect(packet.shared_source).not.toHaveProperty('campaign_id')
+        expect(JSON.stringify(packet)).not.toContain('campaign-should-stay-out')
+        expect(JSON.stringify(packet)).not.toContain('draft-should-stay-out')
+        expect(JSON.stringify(packet)).not.toContain('calendar-object-leak')
+      }
+    },
+  )
+
 })
