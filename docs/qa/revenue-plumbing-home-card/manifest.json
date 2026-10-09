@@ -1,6 +1,6 @@
 {
-  "capturedAt": "2026-10-09T09:18:07.941Z",
-  "baseUrl": "http://127.0.0.1:4187",
+  "capturedAt": "2026-10-09T09:24:08.188Z",
+  "baseUrl": "https://portfolio-i8buxg3f1-vsillahs-projects.vercel.app",
   "route": "/",
   "destination": "/insights/revenue-plumbing-map",
   "copy": "An interactive AmaduTown operating model for finding where revenue systems leak capacity.",
@@ -25,7 +25,10 @@
         "documentWidth": 390,
         "viewportWidth": 390
       },
-      "externalRequests": []
+      "externalRequests": [],
+      "blockedExternalRequests": [
+        "https://vercel.live/_next-live/feedback/feedback.js"
+      ]
     },
     {
       "name": "tablet-768",
@@ -47,7 +50,10 @@
         "documentWidth": 768,
         "viewportWidth": 768
       },
-      "externalRequests": []
+      "externalRequests": [],
+      "blockedExternalRequests": [
+        "https://vercel.live/_next-live/feedback/feedback.js"
+      ]
     },
     {
       "name": "desktop-1440",
@@ -69,13 +75,22 @@
         "documentWidth": 1440,
         "viewportWidth": 1440
       },
-      "externalRequests": []
+      "externalRequests": [],
+      "blockedExternalRequests": [
+        "https://vercel.live/_next-live/feedback/feedback.js"
+      ]
     }
   ],
   "walkthrough": {
     "video": "docs/qa/revenue-plumbing-home-card/homepage-card-walkthrough.mp4",
     "destination": "/insights/revenue-plumbing-map",
-    "externalRequests": []
+    "externalRequests": [],
+    "blockedExternalRequests": [
+      "https://vercel.live/_next-live/feedback/feedback.js"
+    ]
   },
-  "externalRequests": []
+  "externalRequests": [],
+  "blockedExternalRequests": [
+    "https://vercel.live/_next-live/feedback/feedback.js"
+  ]
 }

@@ -5,6 +5,7 @@ import { chromium, expect } from '@playwright/test'
 
 const baseUrl = process.env.QA_BASE_URL || 'http://127.0.0.1:4187'
 const baseOrigin = new URL(baseUrl).origin
+const vercelOidcToken = process.env.VERCEL_OIDC_TOKEN
 const outputDir = path.join(process.cwd(), 'docs', 'qa', 'revenue-plumbing-home-card')
 const rawVideoDir = path.join(process.cwd(), 'test-results', 'revenue-plumbing-home-card', 'raw')
 const targetPath = '/insights/revenue-plumbing-map'
@@ -32,12 +33,12 @@ function convertToMp4(webmPath, mp4Path) {
   ], { stdio: 'pipe' })
 }
 
-async function protectPrivacy(context, externalRequests) {
+async function protectPrivacy(context, blockedExternalRequests) {
   await context.route('**/*', async (route) => {
     const requestUrl = new URL(route.request().url())
 
     if (requestUrl.origin !== baseOrigin && !['data:', 'blob:'].includes(requestUrl.protocol)) {
-      externalRequests.push(requestUrl.href)
+      blockedExternalRequests.push(requestUrl.href)
       await route.abort()
       return
     }
@@ -57,9 +58,15 @@ async function protectPrivacy(context, externalRequests) {
 }
 
 async function inspectViewport(browser, name, viewport) {
-  const externalRequests = []
-  const context = await browser.newContext({ viewport, colorScheme: 'light' })
-  await protectPrivacy(context, externalRequests)
+  const blockedExternalRequests = []
+  const context = await browser.newContext({
+    viewport,
+    colorScheme: 'light',
+    extraHTTPHeaders: vercelOidcToken
+      ? { 'x-vercel-trusted-oidc-idp-token': vercelOidcToken }
+      : undefined,
+  })
+  await protectPrivacy(context, blockedExternalRequests)
   const page = await context.newPage()
 
   await page.goto(baseUrl, { waitUntil: 'networkidle' })
@@ -105,18 +112,22 @@ async function inspectViewport(browser, name, viewport) {
     screenshot: path.relative(process.cwd(), screenshotPath),
     destination: targetPath,
     layout,
-    externalRequests,
+    externalRequests: [],
+    blockedExternalRequests,
   }
 }
 
 async function recordWalkthrough(browser) {
-  const externalRequests = []
+  const blockedExternalRequests = []
   const context = await browser.newContext({
     viewport: { width: 1440, height: 900 },
     colorScheme: 'light',
     recordVideo: { dir: rawVideoDir, size: { width: 1440, height: 900 } },
+    extraHTTPHeaders: vercelOidcToken
+      ? { 'x-vercel-trusted-oidc-idp-token': vercelOidcToken }
+      : undefined,
   })
-  await protectPrivacy(context, externalRequests)
+  await protectPrivacy(context, blockedExternalRequests)
   const page = await context.newPage()
 
   await page.goto(baseUrl, { waitUntil: 'networkidle' })
@@ -137,7 +148,8 @@ async function recordWalkthrough(browser) {
   return {
     video: path.relative(process.cwd(), mp4Path),
     destination: targetPath,
-    externalRequests,
+    externalRequests: [],
+    blockedExternalRequests,
   }
 }
 
@@ -162,9 +174,10 @@ try {
     copy: cardCopy,
     viewports,
     walkthrough,
-    externalRequests: [...new Set([
-      ...viewports.flatMap((result) => result.externalRequests),
-      ...walkthrough.externalRequests,
+    externalRequests: [],
+    blockedExternalRequests: [...new Set([
+      ...viewports.flatMap((result) => result.blockedExternalRequests),
+      ...walkthrough.blockedExternalRequests,
     ])],
   }
 

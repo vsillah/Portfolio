@@ -18,4 +18,4 @@ This packet covers the compact homepage discovery card for the Revenue Plumbing 
 - `homepage-card-walkthrough.mp4`: privacy-safe desktop walkthrough from the homepage card to the live map route.
 - `manifest.json`: route, viewport, layout, destination, and external-request results.
 
-The automated walkthrough blocks all non-origin requests and fulfills homepage API reads with empty synthetic responses. The recorded run reported zero external requests. The first packet was captured from the local production build; rerun `scripts/record-revenue-plumbing-home-card-qa.mjs` with `QA_BASE_URL` set to the PR preview URL to refresh it against the hosted review route.
+The automated walkthrough blocks all non-origin requests and fulfills homepage API reads with empty synthetic responses. The hosted run reported zero completed external requests. It blocked the Vercel preview feedback-toolbar script before egress and records that attempted URL separately in the manifest.
