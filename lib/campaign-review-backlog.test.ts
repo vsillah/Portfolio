@@ -19,9 +19,28 @@ vi.mock('@/lib/supabase', () => ({ supabaseAdmin: { from(table: string) {
 import { getCampaignReviewBacklog, prepareCampaignReviewBatch, saveCampaignReviewCadence } from './campaign-review-backlog'
 import { practitionerContentQaFixture } from './social-practitioner-content-qa-fixture'
 const now = new Date('2026-10-05T11:00:00Z')
+function approvedPractitionerPattern() {
+  const fixture = practitionerContentQaFixture()
+  const quality = (fixture.rag_context as any).practitioner_content_quality
+  const application = quality.framework_application
+  return {
+    hook_structure: 'Open with the approved practitioner operating scene.',
+    promise_value: 'Show the constraint, decision mechanism, and bounded result.',
+    visual_headline: 'One queue. One decision owner.',
+    practitioner_evidence: structuredClone(quality.evidence_packet),
+    practitioner_framework: {
+      framework_type: application.selected_framework.framework_type,
+      hook_type: application.selected_framework.hook_type,
+      proof_pattern: application.selected_framework.proof_pattern,
+      cta_pattern: application.selected_framework.cta_pattern,
+      practical_takeaway: application.copy_beats.practical_takeaway,
+      cta: application.copy_beats.cta,
+    },
+  }
+}
 function seed(count = 12) {
   db.writes = []; db.fail = false; db.race = false
-  db.tables = { attraction_campaigns: [{ id: 'campaign', name: 'Synthetic campaign', status: 'active' }], social_content_calendar_items: [], agent_work_items: [], social_content_queue: [], social_content_research_packets: [{ id: 'evidence', status: 'approved', pattern_status: 'usable_framework', source_url: 'https://example.test/research', pattern_packet: { hook_structure: 'Question followed by a practical checklist' } }] }
+  db.tables = { attraction_campaigns: [{ id: 'campaign', name: 'Synthetic campaign', status: 'active' }], social_content_calendar_items: [], agent_work_items: [], social_content_queue: [], social_content_research_packets: [{ id: 'evidence', title: 'Approved synthetic practitioner source', updated_at: '2026-10-04T12:00:00Z', status: 'approved', pattern_status: 'usable_framework', source_url: 'https://example.test/research', privacy_notes: 'Synthetic anonymized operator evidence approved for public-use testing.', pattern_packet: approvedPractitionerPattern() }] }
   for (let i = 0; i < count; i++) {
     const c = { id: `calendar-${i}`, campaign_id: 'campaign', title: `Review ${i}`, channel: 'linkedin', campaign_phase: 'teach', social_content_id: `draft-${i}`, authorization_status: 'authorized', due_status: 'planned', scheduled_for: '2026-10-10T12:00:00Z', updated_at: 'v1', metadata: { platform_draft_handoff: { work_item_id: `work-${i}` } } }
     db.tables.social_content_calendar_items.push(c)
@@ -222,18 +241,98 @@ describe('campaign rolling review persistence', () => {
     expect(db.tables.agent_work_items[2].metadata.rolling_review).toBeUndefined()
   })
 
-  it('fails closed when the practitioner quality marker is omitted', async () => {
+  it('builds a complete receipt-backed practitioner record when the marker is omitted and approved inputs are sufficient', async () => {
     seed(1)
     delete db.tables.social_content_queue[0].rag_context.practitioner_content_quality
+
+    const result = await prepareCampaignReviewBatch('campaign', { now })
+
+    expect(result.prepared_count).toBe(1)
+    expect(result.blocked_items).toEqual([])
+    expect(db.tables.social_content_queue[0]).toMatchObject({
+      status: 'draft',
+      hormozi_framework: { framework_type: 'proof_stacking' },
+      rag_context: {
+        practitioner_content_quality: {
+          version: 'practitioner_evidence_v1',
+          evidence_packet: {
+            status: 'approved',
+            source_provenance: [expect.objectContaining({ source_id: 'evidence', approved_for_public_use: true })],
+            redaction_receipt: { status: 'passed' },
+          },
+          framework_application: {
+            status: 'applied',
+            performance_calibration: {
+              status: 'applied',
+              reference_ids: ['portfolio-social-published-calibration-1'],
+              causal_claim_boundary: 'correlational_only',
+            },
+          },
+          deterministic_visual: {
+            candidate: { status: 'in_review', renderer: 'html_svg' },
+            art_direction_receipt: { provider: 'none', status: 'not_called' },
+          },
+        },
+      },
+    })
+    expect(db.tables.social_content_queue[0].post_text.length).toBeGreaterThanOrEqual(800)
+    expect(db.writes.map(write => write.table)).toEqual(['social_content_queue', 'agent_work_items', 'agent_work_items'])
+    expect(db.writes[0].update).not.toHaveProperty('image_url')
+    expect(db.writes[0].update).not.toHaveProperty('video_url')
+    expect(db.writes[0].update).not.toHaveProperty('scheduled_for')
+    expect(db.writes[0].update).not.toHaveProperty('status')
+    const packet = db.tables.agent_work_items[0].metadata.channel_lanes.linkedin.draft_packet
+    expect(packet.fields.practitioner_quality_receipt).toMatchObject({ status: 'passed', social_content_id: 'draft-0' })
+    expect(packet.fields.canonical_practitioner_copy.post_text).toBe(db.tables.social_content_queue[0].post_text)
+    expect(Object.values(packet.side_effects).every(value => value === false)).toBe(true)
+  })
+
+  it('loses a concurrent markerless hydration without overwriting the canonical draft', async () => {
+    seed(1)
+    delete db.tables.social_content_queue[0].rag_context.practitioner_content_quality
+    const originalPostText = db.tables.social_content_queue[0].post_text
+    db.race = true
+
+    const result = await prepareCampaignReviewBatch('campaign', { now })
+
+    expect(result.prepared_count).toBe(0)
+    expect(db.tables.social_content_queue[0].post_text).toBe(originalPostText)
+    expect(db.tables.social_content_queue[0].rag_context.practitioner_content_quality).toBeUndefined()
+    expect(db.tables.agent_work_items[0].metadata.channel_lanes).toBeUndefined()
+    expect(db.writes).toEqual([])
+  })
+
+  it('fails closed without writes when approved practitioner inputs are missing', async () => {
+    seed(1)
+    delete db.tables.social_content_queue[0].rag_context.practitioner_content_quality
+    delete db.tables.social_content_research_packets[0].pattern_packet.practitioner_evidence
 
     const result = await prepareCampaignReviewBatch('campaign', { now })
 
     expect(result.prepared_count).toBe(0)
     expect(result.blocked_items).toEqual([expect.objectContaining({
       calendar_item_id: 'calendar-0',
-      reason: expect.stringContaining('practitioner_evidence_v1 is missing'),
-      recovery_action: '/admin/social-content/draft-0?step=copy',
+      reason: expect.stringContaining('[practitioner_source_missing]'),
+      recovery_action: '/admin/agents/social-insights/work-0?channel=linkedin',
     })])
+    expect(db.writes).toEqual([])
+  })
+
+  it.each([
+    ['redaction receipt', (tables: Record<string, any[]>) => { tables.social_content_research_packets[0].pattern_packet.practitioner_evidence.redaction_receipt.status = 'blocked' }, '[practitioner_redaction_receipt_missing]'],
+    ['framework receipt', (tables: Record<string, any[]>) => { delete tables.social_content_research_packets[0].pattern_packet.practitioner_framework }, '[practitioner_framework_incomplete]'],
+    ['performance calibration', (tables: Record<string, any[]>) => { tables.social_content_queue = tables.social_content_queue.filter(row => row.id !== 'published-calibration-1') }, '[practitioner_performance_calibration_missing]'],
+  ])('does not partially persist markerless content when the approved %s is unavailable', async (_label, mutate, expectedCode) => {
+    seed(1)
+    delete db.tables.social_content_queue[0].rag_context.practitioner_content_quality
+    mutate(db.tables)
+
+    const result = await prepareCampaignReviewBatch('campaign', { now })
+
+    expect(result.prepared_count).toBe(0)
+    expect(result.blocked_items[0].reason).toContain(expectedCode)
+    expect(result.blocked_items[0].recovery_action).toBe('/admin/agents/social-insights/work-0?channel=linkedin')
+    expect(db.tables.social_content_queue[0].rag_context.practitioner_content_quality).toBeUndefined()
     expect(db.writes).toEqual([])
   })
 
