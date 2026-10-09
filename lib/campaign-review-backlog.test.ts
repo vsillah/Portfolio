@@ -17,6 +17,7 @@ vi.mock('@/lib/supabase', () => ({ supabaseAdmin: { from(table: string) {
   }; return q
 } } }))
 import { getCampaignReviewBacklog, prepareCampaignReviewBatch, saveCampaignReviewCadence } from './campaign-review-backlog'
+import { buildPractitionerContentQualityScaffold } from './social-practitioner-content'
 import { practitionerContentQaFixture } from './social-practitioner-content-qa-fixture'
 const now = new Date('2026-10-05T11:00:00Z')
 function approvedPractitionerPattern() {
@@ -262,6 +263,11 @@ describe('campaign rolling review persistence', () => {
           },
           framework_application: {
             status: 'applied',
+            content_shape: {
+              format: 'justified_short_form',
+              target_min_characters: 800,
+              target_max_characters: 1799,
+            },
             performance_calibration: {
               status: 'applied',
               reference_ids: ['portfolio-social-published-calibration-1'],
@@ -285,6 +291,78 @@ describe('campaign rolling review persistence', () => {
     expect(packet.fields.practitioner_quality_receipt).toMatchObject({ status: 'passed', social_content_id: 'draft-0' })
     expect(packet.fields.canonical_practitioner_copy.post_text).toBe(db.tables.social_content_queue[0].post_text)
     expect(Object.values(packet.side_effects).every(value => value === false)).toBe(true)
+  })
+
+  it('hydrates the untouched PR #1045 practitioner scaffold from approved inputs', async () => {
+    seed(1)
+    const plannedAngle = 'A practical workflow review'
+    const scaffold = buildPractitionerContentQualityScaffold({
+      channel: 'linkedin',
+      title: 'Review 0',
+      plannedAngle,
+    })
+    db.tables.social_content_queue[0].post_text = [
+      'Calendar draft seed: Review 0',
+      `Planned angle: ${plannedAngle}`,
+      'Campaign phase: teach',
+      'This is an internal draft seed. Shaka/content agents should turn it into reviewed channel copy before any publish approval.',
+    ].join('\n\n')
+    db.tables.social_content_queue[0].rag_context = {
+      source: 'social_content_calendar_authorization',
+      campaign_phase: 'teach',
+      planned_angle: plannedAngle,
+      ...scaffold,
+    }
+
+    const result = await prepareCampaignReviewBatch('campaign', { now })
+
+    expect(result.prepared_count).toBe(1)
+    expect(db.writes.map(write => write.table)).toEqual(['social_content_queue', 'agent_work_items', 'agent_work_items'])
+    expect(db.tables.social_content_queue[0].rag_context.practitioner_content_quality).toMatchObject({
+      evidence_packet: { status: 'approved' },
+      framework_application: {
+        status: 'applied',
+        content_shape: {
+          format: 'justified_short_form',
+          target_min_characters: 800,
+          target_max_characters: 1799,
+        },
+      },
+    })
+  })
+
+  it('preserves substantive human edits to an incomplete practitioner scaffold', async () => {
+    seed(1)
+    const plannedAngle = 'A practical workflow review'
+    const scaffold = buildPractitionerContentQualityScaffold({
+      channel: 'linkedin',
+      title: 'Review 0',
+      plannedAngle,
+    })
+    scaffold.practitioner_content_quality.evidence_packet.situation = 'A practitioner added this specific operating situation for revision.'
+    db.tables.social_content_queue[0].post_text = [
+      'Calendar draft seed: Review 0',
+      `Planned angle: ${plannedAngle}`,
+      'Campaign phase: teach',
+      'This is an internal draft seed. Shaka/content agents should turn it into reviewed channel copy before any publish approval.',
+    ].join('\n\n')
+    db.tables.social_content_queue[0].rag_context = {
+      source: 'social_content_calendar_authorization',
+      campaign_phase: 'teach',
+      planned_angle: plannedAngle,
+      ...scaffold,
+    }
+
+    const result = await prepareCampaignReviewBatch('campaign', { now })
+
+    expect(result.prepared_count).toBe(0)
+    expect(result.blocked_items[0]).toMatchObject({
+      recovery_action: '/admin/social-content/draft-0?step=copy',
+    })
+    expect(result.blocked_items[0].reason).toContain('[packet_not_approved]')
+    expect(db.tables.social_content_queue[0].rag_context.practitioner_content_quality.evidence_packet.situation)
+      .toBe('A practitioner added this specific operating situation for revision.')
+    expect(db.writes).toEqual([])
   })
 
   it('loses a concurrent markerless hydration without overwriting the canonical draft', async () => {

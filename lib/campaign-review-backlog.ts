@@ -19,6 +19,7 @@ import {
 import { HORMOZI_FRAMEWORK_TYPES, type HormoziFrameworkType } from '@/lib/social-content'
 import { validateSocialPublicCopyFields } from '@/lib/social-content-lifecycle'
 import {
+  buildPractitionerContentQualityScaffold,
   PRACTITIONER_CONTENT_QUALITY_VERSION,
   requiresPractitionerContentQuality,
   validatePractitionerContentQuality,
@@ -43,6 +44,32 @@ function practitionerAspectRatio(channel: string) {
   if (channel === 'instagram' || channel === 'instagram_reels' || channel === 'tiktok' || channel === 'youtube_shorts') return '4:5'
   if (channel === 'facebook') return '1:1'
   return '1.91:1'
+}
+
+function isUntouchedPractitionerScaffold(input: {
+  socialContent: PractitionerQualityInput & Row
+  insight: Row
+  channel: string
+}) {
+  const ragContext = record(input.socialContent.rag_context)
+  const plannedAngle = text(ragContext.planned_angle) || null
+  const title = text(input.insight.title)
+  const campaignPhase = text(ragContext.campaign_phase)
+  if (!title || !campaignPhase) return false
+  const scaffold = buildPractitionerContentQualityScaffold({
+    channel: input.channel,
+    title,
+    plannedAngle,
+  })
+  const expectedSeed = [
+    `Calendar draft seed: ${title}`,
+    plannedAngle ? `Planned angle: ${plannedAngle}` : null,
+    `Campaign phase: ${campaignPhase}`,
+    'This is an internal draft seed. Shaka/content agents should turn it into reviewed channel copy before any publish approval.',
+  ].filter(Boolean).join('\n\n')
+  return text(input.socialContent.post_text) === expectedSeed
+    && hash(record(ragContext.practitioner_content_quality)) === hash(scaffold.practitioner_content_quality)
+    && hash(record(record(ragContext.content_calibration).experiment_tags)) === hash(scaffold.content_calibration.experiment_tags)
 }
 
 function buildPractitionerPost(input: {
@@ -78,7 +105,8 @@ function buildAutomaticPractitionerContent(input: {
   generatedAt: string
   calibrationReferences: SocialContentCalibrationReference[]
 }) {
-  if (requiresPractitionerContentQuality(input.socialContent)) {
+  const hasPractitionerRecord = requiresPractitionerContentQuality(input.socialContent)
+  if (hasPractitionerRecord && !isUntouchedPractitionerScaffold(input)) {
     return { item: input.socialContent, update: null, blockers: [] as string[] }
   }
 
@@ -245,8 +273,8 @@ function buildAutomaticPractitionerContent(input: {
       },
       content_shape: {
         format: 'justified_short_form',
-        target_min_characters: 1800,
-        target_max_characters: 2100,
+        target_min_characters: 800,
+        target_max_characters: 1799,
         short_form_justification: 'Automatic preparation uses a bounded practitioner field note when the approved source record supports a concise operating case.',
       },
     },
