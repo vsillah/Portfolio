@@ -24,6 +24,7 @@ import {
 import {
   isPractitionerContentQaFixtureId,
   practitionerContentQaFixture,
+  type PractitionerContentQaScriptSize,
 } from '@/lib/social-practitioner-content-qa-fixture'
 import {
   buildScheduleRecoveryProjection,
@@ -94,10 +95,16 @@ export async function GET(
         || request.headers.get('x-portfolio-qa-state') === 'blocked'
         ? 'blocked'
         : 'ready'
+      const requestedScriptSize = request.headers.get('x-portfolio-qa-script-size')
+      const fixtureScriptSize: PractitionerContentQaScriptSize = requestedScriptSize === 'short'
+        || requestedScriptSize === 'over-cap'
+        ? requestedScriptSize
+        : 'medium'
       return NextResponse.json({
-        item: practitionerContentQaFixture(fixtureState),
+        item: practitionerContentQaFixture(fixtureState, fixtureScriptSize),
         fixture: true,
         fixture_state: fixtureState,
+        fixture_script_size: fixtureScriptSize,
         integration_note: 'Synthetic preview-only practitioner content fixture. No shared row, provider call, upload, schedule, or publication action is represented.',
       })
     }

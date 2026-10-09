@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { archiveId, classifyVideoUrl, VIDEO_MEDIA_RECOVERY } from '@/lib/video-media-url'
 import { getCurrentSession } from '@/lib/auth'
 import { LINKEDIN_VIDEO_BLOCKER, reviewRecord, socialVideoAssetVersion, socialVideoReviewReady } from '@/lib/social-video-review'
-import { SOCIAL_SCRIPT_EDITOR_CLASS } from '@/components/admin/social-script-editor'
+import AutoSizingScriptTextarea from '@/components/admin/AutoSizingScriptTextarea'
 
 export function ReviewedVideoPlayer({ url, poster, playbackUrl }: { url: string; poster?: string | null; playbackUrl?: string | null }) {
   const [failedSource, setFailedSource] = useState<string | null>(null)
@@ -112,7 +112,7 @@ export default function SocialVideoReview({ item, onRefresh, hasUnsavedChanges =
       <button type="button" className={button} disabled={busy} onClick={() => void run(async () => { const data = await request(undefined, '?editorial=1'); setEditorial(data.editorial); setScriptDraft(data.editorial.script); setAvatarDefaults(data.defaults || {}); setChecks({}); setNotes('') })}>Review saved video script</button>
       {editorial && <div className="space-y-3 text-sm">
         <p>Safety screening: {editorial.screening.safety.status} · Production quality: {editorial.receipt ? 'reviewed for this version' : editorial.screening.production_quality.status.replace('_', ' ')}</p>
-        <label className="block">Saved spoken script<textarea data-social-script-editor="saved-spoken-script" value={scriptDraft} onChange={e => setScriptDraft(e.target.value)} rows={12} className={`${SOCIAL_SCRIPT_EDITOR_CLASS} mt-1 w-full rounded border border-gray-600 bg-gray-950 p-2`} /></label>
+        <label className="block">Saved spoken script<AutoSizingScriptTextarea data-social-script-editor="saved-spoken-script" value={scriptDraft} onChange={e => setScriptDraft(e.target.value)} className="mt-1 w-full rounded border border-gray-600 bg-gray-950 p-2" /></label>
         <button type="button" className={button} disabled={busy || hasUnsavedChanges || !scriptDraft.trim() || scriptDraft.trim().length > 5000 || scriptDraft.trim() === editorial.script} onClick={() => void run(() => save({ action: 'save_video_script', input_version: editorial.input_version, script: scriptDraft }))}>Save script · reset editorial and media review</button>
         <p className="break-all">Avatar: {avatarDefaults.avatarId || 'Select a default in Video Generation settings'} · Voice: {avatarDefaults.voiceId || 'Select a default in Video Generation settings'}</p>
         {editorial.blockers.map(reason => <p key={reason} className="text-amber-200">{reason}</p>)}

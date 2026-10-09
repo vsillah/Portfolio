@@ -46,7 +46,7 @@ import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import MobileWorkflowSummary from '@/components/admin/MobileWorkflowSummary'
 import PractitionerContentReview from '@/components/admin/PractitionerContentReview'
 import CompactPostPreview from '@/components/admin/CompactPostPreview'
-import { SOCIAL_SCRIPT_EDITOR_CLASS } from '@/components/admin/social-script-editor'
+import AutoSizingScriptTextarea from '@/components/admin/AutoSizingScriptTextarea'
 import { getCurrentSession } from '@/lib/auth'
 import {
   STATUS_CONFIG,
@@ -4452,14 +4452,13 @@ function SocialContentDetailPage() {
                 </div>
               )}
               <label htmlFor="social-final-post-text" className="mb-2 block text-sm font-medium text-gray-400">Post Text</label>
-              <textarea
+              <AutoSizingScriptTextarea
                 id="social-final-post-text"
                 data-social-script-editor="post-text"
                 value={postText}
                 onChange={(e) => setPostText(e.target.value)}
                 disabled={!isEditable}
-                rows={12}
-                className={`${SOCIAL_SCRIPT_EDITOR_CLASS} w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-gray-200 disabled:opacity-60`}
+                className="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-sm text-gray-200 disabled:opacity-60"
               />
               <div className="flex justify-between mt-1">
                 <span className="text-xs text-gray-500">{postText.length} characters</span>
@@ -5266,14 +5265,13 @@ function SocialContentDetailPage() {
               )}
               <div>
                 <label htmlFor="social-voiceover-script" className="block text-xs text-gray-500 mb-1">Voiceover Script</label>
-                <textarea
+                <AutoSizingScriptTextarea
                   id="social-voiceover-script"
                   data-social-script-editor="voiceover-script"
                   value={voiceoverText}
                   onChange={(e) => setVoiceoverText(e.target.value)}
                   disabled={!isEditable}
-                  rows={12}
-                  className={`${SOCIAL_SCRIPT_EDITOR_CLASS} w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-xs text-gray-200 disabled:opacity-60`}
+                  className="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-xs text-gray-200 disabled:opacity-60"
                 />
               </div>
             </div>

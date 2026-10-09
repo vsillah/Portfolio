@@ -16,7 +16,7 @@ The fixture exists only in local development, tests, and Vercel Preview. Product
 - Existing engagement calibration carries anecdote depth, specificity, evidence type, hook/framework, channel, and visual treatment tags with a `correlational_only` boundary.
 - The approval gate fails closed when evidence, privacy receipts, calibration tags, or the deterministic candidate lifecycle is incomplete.
 - The fixture identifies itself as read-only, explains the boundary, provides a recovery link, and disables save, approval, and rejection controls.
-- Post and voiceover script editors use the same comfortably tall, vertically resizable canvas across mobile, tablet, and desktop; compact non-script fields retain their prior height.
+- Post Text, Voiceover Script, and Saved spoken script share one content-aware editor: a readable six-line minimum, natural growth with the script, responsive caps, and internal vertical scrolling only after the active cap. Compact non-script fields retain their prior height.
 - Legacy provider-generated imagery is comparison evidence only and remains unapproved.
 
 ## Responsive evidence
@@ -24,8 +24,8 @@ The fixture exists only in local development, tests, and Vercel Preview. Product
 - `390-read-only-fixture.png`, `390-blocked-gate.png`, `390-practitioner-review.png`, and `390-walkthrough.mp4`
 - `768-read-only-fixture.png`, `768-blocked-gate.png`, `768-practitioner-review.png`, and `768-walkthrough.mp4`
 - `1440-read-only-fixture.png`, `1440-blocked-gate.png`, `1440-practitioner-review.png`, and `1440-walkthrough.mp4`
-- Each viewport also includes `*-post-script-editor.png` and `*-voiceover-script-editor.png` captures.
-- `results.json` records the no-egress and no-mutation assertions.
+- Each viewport also includes medium-content `*-post-text-editor.png` and `*-voiceover-script-editor.png` captures plus matching `*-over-cap.png` captures.
+- `results.json` records computed height, minimum, maximum, scroll height, overflow behavior, and resize behavior for short, medium, and over-cap content at every viewport, along with the no-egress and no-mutation assertions.
 
 ## Reproduction
 

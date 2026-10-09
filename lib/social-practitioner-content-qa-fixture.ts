@@ -1,6 +1,22 @@
 import type { SocialContentItem } from '@/lib/social-content'
 
 export const PRACTITIONER_CONTENT_QA_ID = 'practitioner-content-quality-qa'
+export type PractitionerContentQaScriptSize = 'short' | 'medium' | 'over-cap'
+
+const MEDIUM_SCRIPT = [
+  'A nonprofit operations lead reconciled one intake across three spreadsheets every Friday.',
+  'Weekly volunteer coverage changed, but the rules could not drift.',
+  'We moved the rules into one reviewed queue and kept the final decision with the lead.',
+  'The duplicate review disappeared. The 30-day outcome check remains pending.',
+].join('\n\n')
+
+const SCRIPT_BY_SIZE: Record<PractitionerContentQaScriptSize, string> = {
+  short: 'One reviewed queue replaced three duplicate checks.',
+  medium: MEDIUM_SCRIPT,
+  'over-cap': Array.from({ length: 32 }, (_, index) => (
+    `${index + 1}. The operations lead reviewed one synthetic workflow note while the 30-day outcome remained pending.`
+  )).join('\n\n'),
+}
 
 export function practitionerContentQaFixtureEnabled() {
   if (process.env.VERCEL_ENV === 'production') return false
@@ -15,15 +31,12 @@ export function isPractitionerContentQaFixtureId(id: string | null | undefined) 
   return practitionerContentQaFixtureEnabled() && id === PRACTITIONER_CONTENT_QA_ID
 }
 
-export function practitionerContentQaFixture(state: 'ready' | 'blocked' = 'ready'): SocialContentItem {
+export function practitionerContentQaFixture(
+  state: 'ready' | 'blocked' = 'ready',
+  scriptSize: PractitionerContentQaScriptSize = 'medium',
+): SocialContentItem {
   const blocked = state === 'blocked'
-  const postText = [
-    'A nonprofit operations lead was reconciling the same intake in three spreadsheets every Friday.',
-    'Volunteer coverage changed weekly, but the intake rules could not drift.',
-    'We moved the rules into one reviewed queue and kept the final decision with the operations lead.',
-    'The duplicate review step disappeared. The 30-day outcome check is still pending.',
-    'Where does duplicate review still show up in your workflow?',
-  ].join('\n\n')
+  const postText = SCRIPT_BY_SIZE[scriptSize]
 
   return {
     id: PRACTITIONER_CONTENT_QA_ID,

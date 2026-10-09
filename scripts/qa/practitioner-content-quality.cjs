@@ -25,10 +25,12 @@ const session = {
   const results = []
   for (const width of [390, 768, 1440]) {
     let fixtureState = 'blocked'
+    let fixtureScriptSize = 'medium'
     const external = []
     const mutations = []
     const pageErrors = []
     const fixtureResponses = []
+    const fixtureScriptResponses = []
     const context = await browser.newContext({
       viewport: { width, height: width === 390 ? 844 : 1000 },
       recordVideo: { dir: rawVideo, size: { width, height: width === 390 ? 844 : 1000 } },
@@ -64,7 +66,11 @@ const session = {
         return json({ items: [], data: [], configs: [], references: [], count: 0 })
       }
       if (url.pathname === `/api/admin/social-content/${contentId}`) {
-        return route.continue({ headers: { ...request.headers(), 'x-portfolio-qa-state': fixtureState } })
+        return route.continue({ headers: {
+          ...request.headers(),
+          'x-portfolio-qa-state': fixtureState,
+          'x-portfolio-qa-script-size': fixtureScriptSize,
+        } })
       }
       return route.continue()
     })
@@ -74,7 +80,10 @@ const session = {
       const url = new URL(response.url())
       if (url.origin === base && url.pathname === `/api/admin/social-content/${contentId}`) {
         const body = await response.json().catch(() => null)
-        if (body?.fixture === true) fixtureResponses.push(body.fixture_state)
+        if (body?.fixture === true) {
+          fixtureResponses.push(body.fixture_state)
+          fixtureScriptResponses.push(body.fixture_script_size)
+        }
       }
     })
 
@@ -109,36 +118,64 @@ const session = {
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, `${width}px horizontal overflow`)
     await page.screenshot({ path: path.join(out, `${width}-practitioner-review.png`), fullPage: true })
 
-    const expectedScriptHeight = width >= 1024 ? 320 : width >= 640 ? 288 : 256
-    const postEditor = page.locator('[data-social-script-editor="post-text"]')
-    await expect(postEditor).toBeVisible()
-    const postEditorHeight = await postEditor.evaluate((element) => element.getBoundingClientRect().height)
-    const postEditorResize = await postEditor.evaluate((element) => getComputedStyle(element).resize)
-    assert.ok(postEditorHeight >= expectedScriptHeight, `${width}px post editor is shorter than ${expectedScriptHeight}px`)
-    assert.equal(postEditorResize, 'vertical', `${width}px post editor is not vertically resizable`)
-    const postEditorRegion = postEditor.locator('xpath=..')
-    await page.locator('[data-social-detail-header]').evaluate((element) => { element.style.position = 'static' })
-    await postEditorRegion.screenshot({ path: path.join(out, `${width}-post-script-editor.png`) })
-    await page.locator('[data-social-detail-header]').evaluate((element) => { element.style.position = '' })
+    const expectedMinHeight = 144
+    const expectedMaxHeight = width >= 1024 ? 512 : width >= 640 ? 384 : 320
+    const sizing = { short: {}, medium: {}, 'over-cap': {} }
+    const measureEditor = async ({ step, editorKey, resultKey, size }) => {
+      fixtureScriptSize = size
+      await page.goto(`${base}/admin/social-content/${contentId}?step=${step}`, { waitUntil: 'domcontentloaded' })
+      const editor = page.locator(`[data-social-script-editor="${editorKey}"]`)
+      await expect(editor).toBeVisible({ timeout: 90000 })
+      const metrics = await editor.evaluate((element) => {
+        const styles = getComputedStyle(element)
+        return {
+          height: element.getBoundingClientRect().height,
+          min_height: Number.parseFloat(styles.minHeight),
+          max_height: Number.parseFloat(styles.maxHeight),
+          client_height: element.clientHeight,
+          scroll_height: element.scrollHeight,
+          overflow_y: styles.overflowY,
+          resize: styles.resize,
+        }
+      })
+      assert.ok(Math.abs(metrics.min_height - expectedMinHeight) <= 1, `${width}px ${resultKey} minimum is not ${expectedMinHeight}px`)
+      assert.ok(Math.abs(metrics.max_height - expectedMaxHeight) <= 1, `${width}px ${resultKey} cap is not ${expectedMaxHeight}px`)
+      assert.equal(metrics.resize, 'vertical', `${width}px ${resultKey} is not vertically resizable`)
+      if (size === 'short') {
+        assert.ok(Math.abs(metrics.height - expectedMinHeight) <= 2, `${width}px ${resultKey} short content did not use the readable minimum`)
+        assert.equal(metrics.overflow_y, 'hidden', `${width}px ${resultKey} short content unexpectedly scrolls`)
+      } else if (size === 'medium') {
+        assert.ok(metrics.height >= expectedMinHeight && metrics.height < expectedMaxHeight, `${width}px ${resultKey} medium content did not fit below the responsive cap`)
+        assert.equal(metrics.overflow_y, 'hidden', `${width}px ${resultKey} medium content unexpectedly scrolls`)
+      } else {
+        assert.ok(Math.abs(metrics.height - expectedMaxHeight) <= 2, `${width}px ${resultKey} over-cap content did not stop at the responsive cap`)
+        assert.equal(metrics.overflow_y, 'auto', `${width}px ${resultKey} over-cap content did not enable internal scrolling`)
+        assert.ok(metrics.scroll_height > metrics.client_height, `${width}px ${resultKey} over-cap content does not overflow internally`)
+      }
+      if (size === 'medium' || size === 'over-cap') {
+        const suffix = size === 'medium' ? '' : '-over-cap'
+        const region = editor.locator('xpath=..')
+        await page.locator('[data-social-detail-header]').evaluate((element) => { element.style.position = 'static' })
+        await region.screenshot({ path: path.join(out, `${width}-${editorKey}-editor${suffix}.png`) })
+        await page.locator('[data-social-detail-header]').evaluate((element) => { element.style.position = '' })
+      }
+      sizing[size][resultKey] = metrics
+    }
 
-    const visualsUrl = `${base}/admin/social-content/${contentId}?step=visuals`
-    await page.goto(visualsUrl, { waitUntil: 'domcontentloaded' })
-    const voiceoverEditor = page.locator('[data-social-script-editor="voiceover-script"]')
-    await expect(voiceoverEditor).toBeVisible({ timeout: 90000 })
-    const voiceoverEditorHeight = await voiceoverEditor.evaluate((element) => element.getBoundingClientRect().height)
-    const voiceoverEditorResize = await voiceoverEditor.evaluate((element) => getComputedStyle(element).resize)
+    for (const size of ['short', 'medium', 'over-cap']) {
+      await measureEditor({ step: 'copy', editorKey: 'post-text', resultKey: 'post_text', size })
+      await measureEditor({ step: 'visuals', editorKey: 'voiceover-script', resultKey: 'voiceover_script', size })
+    }
+    fixtureScriptSize = 'medium'
+    await page.goto(`${base}/admin/social-content/${contentId}?step=visuals`, { waitUntil: 'domcontentloaded' })
     const imagePrompt = page.getByText('Image Prompt', { exact: true }).locator('..').locator('textarea')
+    await expect(imagePrompt).toBeVisible({ timeout: 90000 })
     const imagePromptHeight = await imagePrompt.evaluate((element) => element.getBoundingClientRect().height)
-    assert.ok(voiceoverEditorHeight >= expectedScriptHeight, `${width}px voiceover editor is shorter than ${expectedScriptHeight}px`)
-    assert.equal(voiceoverEditorResize, 'vertical', `${width}px voiceover editor is not vertically resizable`)
-    assert.ok(imagePromptHeight < voiceoverEditorHeight, `${width}px non-script image prompt was enlarged with script editors`)
+    assert.ok(imagePromptHeight < expectedMinHeight, `${width}px non-script image prompt was enlarged with script editors`)
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, `${width}px visuals horizontal overflow`)
-    const voiceoverEditorRegion = voiceoverEditor.locator('xpath=..')
-    await page.locator('[data-social-detail-header]').evaluate((element) => { element.style.position = 'static' })
-    await voiceoverEditorRegion.screenshot({ path: path.join(out, `${width}-voiceover-script-editor.png`) })
-    await page.locator('[data-social-detail-header]').evaluate((element) => { element.style.position = '' })
 
     assert.deepEqual([...new Set(fixtureResponses)], ['blocked', 'ready'], `${width}px did not read both deployed fixture states`)
+    assert.deepEqual([...new Set(fixtureScriptResponses)].sort(), ['medium', 'over-cap', 'short'], `${width}px did not read all deployed script-size states`)
     assert.equal(mutations.length, 0, `${width}px QA made a mutation`)
     assert.equal(external.length, 0, `${width}px QA made an external request: ${external.join(', ')}`)
     assert.equal(pageErrors.length, 0, `${width}px QA emitted a page error`)
@@ -149,11 +186,11 @@ const session = {
       fixture_responses: [...new Set(fixtureResponses)],
       specificity: 'specific', gates_observed: ['blocked_before_human_qa', 'ready_for_human_qa'],
       read_only_controls: ['save_draft', 'approve_copy', 'reject'],
-      script_editor_heights: {
-        expected_minimum: expectedScriptHeight,
-        post_text: postEditorHeight,
-        voiceover_script: voiceoverEditorHeight,
-        image_prompt_control: imagePromptHeight,
+      script_editor_sizing: {
+        expected_minimum: expectedMinHeight,
+        expected_maximum: expectedMaxHeight,
+        states: sizing,
+        non_script_image_prompt_height: imagePromptHeight,
       },
       provider_calls: 0, external_requests: 0, mutations: 0, page_errors: [],
     })

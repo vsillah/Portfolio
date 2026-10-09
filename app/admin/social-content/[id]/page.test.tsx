@@ -172,24 +172,24 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(screen.getByText('Compare approved campaign copy')).toBeEnabled()
   })
 
-  it('gives only post and voiceover script editors a consistently tall responsive canvas', async () => {
+  it('gives only post and voiceover script editors a content-aware responsive canvas', async () => {
     const view = renderAtStep('copy')
 
     const postEditor = await screen.findByLabelText('Post Text')
     expect(postEditor).toHaveAttribute('data-social-script-editor', 'post-text')
-    expect(postEditor).toHaveAttribute('rows', '12')
-    expect(postEditor).toHaveClass('min-h-64', 'resize-y', 'sm:min-h-72', 'lg:min-h-80')
+    expect(postEditor).toHaveAttribute('rows', '6')
+    expect(postEditor).toHaveClass('min-h-36', 'max-h-80', 'resize-y', 'overflow-y-hidden', 'sm:max-h-96', 'lg:max-h-[32rem]')
 
     mocks.search = 'step=visuals'
     view.rerender(<SocialContentDetailRoute />)
     const voiceoverEditor = await screen.findByLabelText('Voiceover Script')
     expect(voiceoverEditor).toHaveAttribute('data-social-script-editor', 'voiceover-script')
-    expect(voiceoverEditor).toHaveAttribute('rows', '12')
-    expect(voiceoverEditor).toHaveClass('min-h-64', 'resize-y', 'sm:min-h-72', 'lg:min-h-80')
+    expect(voiceoverEditor).toHaveAttribute('rows', '6')
+    expect(voiceoverEditor).toHaveClass('min-h-36', 'max-h-80', 'resize-y', 'overflow-y-hidden', 'sm:max-h-96', 'lg:max-h-[32rem]')
 
     const imagePrompt = screen.getByText('Image Prompt').nextElementSibling
     expect(imagePrompt).not.toHaveAttribute('data-social-script-editor')
-    expect(imagePrompt).not.toHaveClass('min-h-64', 'sm:min-h-72', 'lg:min-h-80')
+    expect(imagePrompt).not.toHaveClass('min-h-36', 'max-h-80', 'sm:max-h-96', 'lg:max-h-[32rem]')
   })
 
   it('shows a compact mobile loading state while the selected detail is hydrating', () => {

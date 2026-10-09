@@ -22,7 +22,7 @@ vi.mock('@/lib/supabase', () => ({
   },
 }))
 
-import { PUT } from './route'
+import { GET, PUT } from './route'
 import { socialCopyVersion, withSocialCopyRevision } from '@/lib/social-copy-revision'
 
 function request(body: unknown) {
@@ -32,6 +32,29 @@ function request(body: unknown) {
     body: JSON.stringify(body),
   })
 }
+
+describe('GET /api/admin/social-content/[id] practitioner QA fixture', () => {
+  it('selects a bounded script-size state without reading shared data', async () => {
+    const response = await GET(new NextRequest('http://localhost/api/admin/social-content/practitioner-content-quality-qa', {
+      headers: { 'x-portfolio-qa-script-size': 'over-cap' },
+    }) as never, { params: { id: 'practitioner-content-quality-qa' } })
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(body).toMatchObject({ fixture: true, fixture_state: 'ready', fixture_script_size: 'over-cap' })
+    expect(body.item.post_text.split('\n\n')).toHaveLength(32)
+    expect(mocks.from).not.toHaveBeenCalled()
+  })
+
+  it('defaults unknown script-size input to medium', async () => {
+    const response = await GET(new NextRequest('http://localhost/api/admin/social-content/practitioner-content-quality-qa', {
+      headers: { 'x-portfolio-qa-script-size': 'unbounded' },
+    }) as never, { params: { id: 'practitioner-content-quality-qa' } })
+    const body = await response.json()
+
+    expect(body.fixture_script_size).toBe('medium')
+  })
+})
 
 describe('PUT /api/admin/social-content/[id]', () => {
   beforeEach(() => {

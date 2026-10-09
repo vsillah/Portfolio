@@ -26,4 +26,15 @@ describe('practitioner content QA fixture', () => {
     vi.stubEnv('SOCIAL_PRACTITIONER_CONTENT_QA_FIXTURE', 'true')
     expect(isPractitionerContentQaFixtureId(PRACTITIONER_CONTENT_QA_ID)).toBe(false)
   })
+
+  it('provides synthetic short, medium, and over-cap scripts for responsive editor QA', () => {
+    const short = practitionerContentQaFixture('ready', 'short').post_text || ''
+    const medium = practitionerContentQaFixture('ready', 'medium').post_text || ''
+    const overCap = practitionerContentQaFixture('ready', 'over-cap').post_text || ''
+
+    expect(short.length).toBeLessThan(medium.length)
+    expect(medium.length).toBeLessThan(overCap.length)
+    expect(overCap.split('\n\n')).toHaveLength(32)
+    expect(practitionerContentQaFixture('ready', 'over-cap').voiceover_text).toBe(overCap)
+  })
 })
