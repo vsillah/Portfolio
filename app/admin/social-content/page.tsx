@@ -40,6 +40,7 @@ import {
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import AgenticContentReviewPacketPager from '@/components/admin/AgenticContentReviewPacketPager'
+import SocialSourceCoverageEvidence from '@/components/admin/SocialSourceCoverageEvidence'
 import { ExtractionStatusChip } from '@/components/admin/ExtractionStatusChip'
 import MobileWorkflowSummary from '@/components/admin/MobileWorkflowSummary'
 import { useSearchParams } from 'next/navigation'
@@ -1243,6 +1244,8 @@ function SocialContentQueuePage() {
       </div>
 
       {activeWorkflowView === 'evidence' && (
+      <>
+      <SocialSourceCoverageEvidence active={activeWorkflowView === 'evidence'} />
       <div className="admin-console-card mb-6 rounded-lg border p-4">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
@@ -1337,6 +1340,7 @@ function SocialContentQueuePage() {
           showDecisionActions={false}
         />
       </div>
+      </>
       )}
 
       {activeWorkflowView === 'create' && (

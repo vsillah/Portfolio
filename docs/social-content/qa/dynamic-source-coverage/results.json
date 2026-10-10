@@ -1,0 +1,41 @@
+[
+  {
+    "width": 1440,
+    "route": "http://127.0.0.1:4036/admin/social-content?workflow=evidence",
+    "source": "live_read_only_collectors",
+    "coverage_visible": true,
+    "shows_freshness": true,
+    "shows_lifecycle": true,
+    "shows_recovery": true,
+    "mutations": 0,
+    "provider_calls": 0,
+    "page_errors": [],
+    "horizontal_overflow": false
+  },
+  {
+    "width": 768,
+    "route": "http://127.0.0.1:4036/admin/social-content?workflow=evidence",
+    "source": "live_read_only_collectors",
+    "coverage_visible": true,
+    "shows_freshness": true,
+    "shows_lifecycle": true,
+    "shows_recovery": true,
+    "mutations": 0,
+    "provider_calls": 0,
+    "page_errors": [],
+    "horizontal_overflow": false
+  },
+  {
+    "width": 390,
+    "route": "http://127.0.0.1:4036/admin/social-content?workflow=evidence",
+    "source": "live_read_only_collectors",
+    "coverage_visible": true,
+    "shows_freshness": true,
+    "shows_lifecycle": true,
+    "shows_recovery": true,
+    "mutations": 0,
+    "provider_calls": 0,
+    "page_errors": [],
+    "horizontal_overflow": false
+  }
+]

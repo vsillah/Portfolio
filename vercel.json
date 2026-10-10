@@ -25,6 +25,10 @@
       "schedule": "0 16 * * 1-5"
     },
     {
+      "path": "/api/cron/social-topic-source-coverage",
+      "schedule": "45 15 * * 1-5"
+    },
+    {
       "path": "/api/cron/social-content-calendar-due-gates?mode=review_backlog",
       "schedule": "*/15 * * * *"
     },

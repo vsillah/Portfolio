@@ -21,6 +21,10 @@ vi.mock('@/components/admin/AgenticContentReviewPacketPager', () => ({
   default: () => null,
 }))
 
+vi.mock('@/components/admin/SocialSourceCoverageEvidence', () => ({
+  default: ({ active }: { active: boolean }) => active ? <div>Dynamic source coverage evidence</div> : null,
+}))
+
 vi.mock('@/components/admin/ExtractionStatusChip', () => ({
   ExtractionStatusChip: () => null,
 }))
@@ -345,5 +349,15 @@ describe('SocialContentQueuePage Instagram provider setup', () => {
     expect(await screen.findByText('No rejected social content found.')).toBeInTheDocument()
     expect(screen.getByText('Adjust or clear filters to return to the full review queue.')).toBeInTheDocument()
     expect(rejectedMetric).toHaveAttribute('aria-pressed', 'true')
+  })
+
+  it('integrates dynamic source coverage into the existing Launch evidence mode', async () => {
+    window.history.replaceState({}, '', '/admin/social-content')
+    render(<SocialContentQueuePage />)
+
+    fireEvent.click(screen.getByRole('tab', { name: /Launch evidence/i }))
+    expect(await screen.findByText('Dynamic source coverage evidence')).toBeInTheDocument()
+    expect(screen.getByRole('tab', { name: /Launch evidence/i })).toHaveAttribute('aria-selected', 'true')
+    expect(window.location.pathname + window.location.search).toContain('/admin/social-content?workflow=evidence')
   })
 })
