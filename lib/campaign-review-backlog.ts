@@ -101,6 +101,7 @@ function buildAutomaticPractitionerContent(input: {
   socialContent: PractitionerQualityInput & Row
   evidence: Row[]
   insight: Row
+  metadata: Row
   channel: string
   generatedAt: string
   calibrationReferences: SocialContentCalibrationReference[]
@@ -311,6 +312,15 @@ function buildAutomaticPractitionerContent(input: {
   const ragContext = record(input.socialContent.rag_context)
   const nextRagContext = {
     ...ragContext,
+    source: 'social_content_calendar_authorization',
+    source_type: 'social_content_calendar_item',
+    calendar_item_id: text(input.metadata.calendar_item_id),
+    campaign_id: text(input.metadata.campaign_id),
+    campaign_phase: text(input.metadata.campaign_phase),
+    channel: input.channel,
+    publish_gate: 'draft_only',
+    external_execution_enabled: false,
+    approval_boundary: 'Internal draft handoff only. This does not publish, schedule externally, upload, call media providers, or create public content.',
     practitioner_content_quality: quality,
     content_calibration: {
       ...record(ragContext.content_calibration),
