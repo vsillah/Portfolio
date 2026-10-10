@@ -8,7 +8,6 @@ const RevenuePlumbingDiscoveryCard = dynamic(
   () => import('@/components/RevenuePlumbingDiscoveryCard'),
   { ssr: true },
 )
-const ActiveCampaigns = dynamic(() => import('@/components/ActiveCampaigns'), { ssr: false })
 const Store = dynamic(() => import('@/components/Store'), { ssr: false })
 const Services = dynamic(() => import('@/components/Services'), { ssr: false })
 const Publications = dynamic(() => import('@/components/Publications'), { ssr: false })
@@ -23,7 +22,6 @@ export default function Home() {
       <Hero />
       <SystemStory />
       <RevenuePlumbingDiscoveryCard />
-      <ActiveCampaigns />
       <Store section="products" />
       <Services />
       <Store section="merchandise" />

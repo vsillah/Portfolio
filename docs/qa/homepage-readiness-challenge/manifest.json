@@ -1,0 +1,163 @@
+{
+  "capturedAt": "2026-10-10T01:56:07.315Z",
+  "baseUrl": "https://portfolio-git-codex-homepage-readiness-947fe9-vsillahs-projects.vercel.app",
+  "privacy": "Synthetic campaign and product fixtures; all external requests blocked.",
+  "runs": [
+    {
+      "name": "mobile-390",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "colorScheme": "light",
+      "route": "/",
+      "destination": "/campaigns/agentic-operating-system-readiness-challenge",
+      "screenshot": "docs/qa/homepage-readiness-challenge/mobile-390-light.png",
+      "video": "docs/qa/homepage-readiness-challenge/mobile-390-walkthrough.mp4",
+      "layout": {
+        "documentWidth": 390,
+        "viewportWidth": 390,
+        "cards": [
+          {
+            "left": 24,
+            "right": 366,
+            "top": 162,
+            "width": 342,
+            "backgroundColor": "rgba(255, 255, 255, 0.88)",
+            "borderColor": "rgba(18, 30, 49, 0.1)"
+          },
+          {
+            "left": 24,
+            "right": 366,
+            "top": 721,
+            "width": 342,
+            "backgroundColor": "rgba(255, 255, 255, 0.88)",
+            "borderColor": "rgba(18, 30, 49, 0.1)"
+          }
+        ]
+      },
+      "externalRequests": [],
+      "blockedExternalRequests": [
+        "https://vercel.live/_next-live/feedback/feedback.js"
+      ]
+    },
+    {
+      "name": "tablet-768",
+      "viewport": {
+        "width": 768,
+        "height": 900
+      },
+      "colorScheme": "light",
+      "route": "/",
+      "destination": "/campaigns/agentic-operating-system-readiness-challenge",
+      "screenshot": "docs/qa/homepage-readiness-challenge/tablet-768-light.png",
+      "video": null,
+      "layout": {
+        "documentWidth": 768,
+        "viewportWidth": 768,
+        "cards": [
+          {
+            "left": 40,
+            "right": 364,
+            "top": 190,
+            "width": 324,
+            "backgroundColor": "rgba(255, 255, 255, 0.88)",
+            "borderColor": "rgba(18, 30, 49, 0.1)"
+          },
+          {
+            "left": 404,
+            "right": 728,
+            "top": 190,
+            "width": 324,
+            "backgroundColor": "rgba(255, 255, 255, 0.88)",
+            "borderColor": "rgba(18, 30, 49, 0.1)"
+          }
+        ]
+      },
+      "externalRequests": [],
+      "blockedExternalRequests": [
+        "https://vercel.live/_next-live/feedback/feedback.js"
+      ]
+    },
+    {
+      "name": "desktop-1440",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "colorScheme": "light",
+      "route": "/",
+      "destination": "/campaigns/agentic-operating-system-readiness-challenge",
+      "screenshot": "docs/qa/homepage-readiness-challenge/desktop-1440-light.png",
+      "video": "docs/qa/homepage-readiness-challenge/desktop-1440-walkthrough.mp4",
+      "layout": {
+        "documentWidth": 1440,
+        "viewportWidth": 1440,
+        "cards": [
+          {
+            "left": 80,
+            "right": 480,
+            "top": 190,
+            "width": 400,
+            "backgroundColor": "rgba(255, 255, 255, 0.88)",
+            "borderColor": "rgba(18, 30, 49, 0.1)"
+          },
+          {
+            "left": 520,
+            "right": 920,
+            "top": 190,
+            "width": 400,
+            "backgroundColor": "rgba(255, 255, 255, 0.88)",
+            "borderColor": "rgba(18, 30, 49, 0.1)"
+          }
+        ]
+      },
+      "externalRequests": [],
+      "blockedExternalRequests": [
+        "https://vercel.live/_next-live/feedback/feedback.js"
+      ]
+    },
+    {
+      "name": "desktop-1440",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "colorScheme": "dark",
+      "route": "/",
+      "destination": "/campaigns/agentic-operating-system-readiness-challenge",
+      "screenshot": "docs/qa/homepage-readiness-challenge/desktop-1440-dark.png",
+      "video": null,
+      "layout": {
+        "documentWidth": 1440,
+        "viewportWidth": 1440,
+        "cards": [
+          {
+            "left": 80,
+            "right": 480,
+            "top": 190,
+            "width": 400,
+            "backgroundColor": "rgba(44, 62, 80, 0.4)",
+            "borderColor": "rgba(212, 175, 55, 0.05)"
+          },
+          {
+            "left": 520,
+            "right": 920,
+            "top": 190,
+            "width": 400,
+            "backgroundColor": "rgba(44, 62, 80, 0.4)",
+            "borderColor": "rgba(212, 175, 55, 0.05)"
+          }
+        ]
+      },
+      "externalRequests": [],
+      "blockedExternalRequests": [
+        "https://vercel.live/_next-live/feedback/feedback.js"
+      ]
+    }
+  ],
+  "externalRequests": [],
+  "blockedExternalRequests": [
+    "https://vercel.live/_next-live/feedback/feedback.js"
+  ]
+}
