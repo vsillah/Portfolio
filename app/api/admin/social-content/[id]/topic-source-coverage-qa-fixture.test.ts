@@ -45,6 +45,17 @@ describe('topic source coverage preview fixture route', () => {
           qa_fixture: {
             kind: 'topic_source_coverage_preview',
             read_only: true,
+            preview_only: true,
+            synthetic: true,
+            capabilities: {
+              save: false,
+              approve: false,
+              provider: false,
+              upload: false,
+              schedule: false,
+              publish: false,
+              external_execution: false,
+            },
           },
           content_calibration: {
             topic_trigger_packet: {

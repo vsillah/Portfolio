@@ -539,6 +539,182 @@ function SocialContentDetailLoadingState({ canonicalHref }: { canonicalHref?: st
   )
 }
 
+function SyntheticTopicSourceCoveragePreview({ item, backUrl, reason, nextAction }: {
+  item: SocialContentItem
+  backUrl: string
+  reason: string
+  nextAction: string
+}) {
+  const ragContext = asRecord(item.rag_context)
+  const calibration = asRecord(ragContext?.content_calibration)
+  const packet = asRecord(calibration?.topic_trigger_packet)
+  const coverageReport = asRecord(packet?.coverage_report)
+  const sourceCollections = asRecordArray(coverageReport?.source_collections)
+  const products = asRecordArray(coverageReport?.products)
+  const candidates = asRecordArray(packet?.candidates)
+  const blockers = asStringArray(coverageReport?.blockers)
+  const packetReceipts = asRecordArray(packet?.source_receipts)
+  const candidateReceipts = candidates.flatMap((candidate) => asRecordArray(candidate.source_receipts))
+  const receipts = [...packetReceipts, ...candidateReceipts].filter((receipt, index, all) => {
+    const receiptId = asString(receipt.receipt_id) || asString(receipt.source_id)
+    return all.findIndex((candidate) => (asString(candidate.receipt_id) || asString(candidate.source_id)) === receiptId) === index
+  })
+  const coverageReady = asString(coverageReport?.status) === 'ready'
+  const privacyBoundary = asString(packet?.privacy_boundary)
+  const generatedAt = asString(coverageReport?.generated_at) || asString(packet?.generated_at)
+  const recoveryText = (blocker: string) => blocker.replace(/^\[[^\]]+\]\s*/, '')
+
+  return (
+    <main className="min-h-screen bg-background text-foreground">
+      <header className="border-b border-gray-800 bg-gray-950 px-4 py-4 sm:px-6 lg:px-8">
+        <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="rounded-full border border-violet-400/40 bg-violet-400/10 px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-violet-100">Synthetic QA fixture</span>
+              <span className="rounded-full border border-amber-400/40 bg-amber-400/10 px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-amber-100">Preview-only · Read-only</span>
+            </div>
+            <h1 className="mt-3 text-2xl font-semibold text-gray-100 sm:text-3xl">Topic source coverage report</h1>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-300">
+              {reason} This route contains no editable post, approval control, provider action, upload, schedule, publishing control, or external execution path.
+            </p>
+          </div>
+          <Link href={backUrl} className="inline-flex min-h-11 w-fit items-center gap-2 rounded-lg border border-gray-700 px-3 py-2 text-sm font-semibold text-gray-200 transition-colors hover:bg-gray-800">
+            <ArrowLeft className="h-4 w-4" /> Back to Social Content
+          </Link>
+        </div>
+      </header>
+
+      <div className="mx-auto w-full max-w-6xl space-y-6 px-4 py-6 sm:px-6 lg:px-8">
+        <section aria-labelledby="synthetic-coverage-summary" className={`rounded-xl border p-4 sm:p-5 ${coverageReady ? 'border-emerald-500/35 bg-emerald-500/10' : 'border-amber-500/35 bg-amber-500/10'}`}>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-400">Coverage report</p>
+              <h2 id="synthetic-coverage-summary" className="mt-1 flex items-center gap-2 text-lg font-semibold text-gray-100">
+                {coverageReady ? <CheckCircle2 className="h-5 w-5 text-emerald-300" /> : <AlertCircle className="h-5 w-5 text-amber-300" />}
+                Coverage {coverageReady ? 'ready' : 'blocked'}
+              </h2>
+              <p className="mt-2 text-sm leading-6 text-gray-300">
+                {String(coverageReport?.source_receipt_count ?? receipts.length)} approved receipts represented in this synthetic report.
+              </p>
+            </div>
+            {generatedAt && <p className="text-xs text-gray-400">Generated {new Date(generatedAt).toLocaleString()}</p>}
+          </div>
+          {privacyBoundary && <p className="mt-3 rounded-lg border border-gray-700/80 bg-gray-950/35 p-3 text-xs leading-5 text-gray-300">{privacyBoundary}</p>}
+        </section>
+
+        <div className="grid gap-6 lg:grid-cols-2">
+          <section aria-labelledby="synthetic-source-collections" className="rounded-xl border border-gray-800 bg-gray-900 p-4 sm:p-5">
+            <h2 id="synthetic-source-collections" className="text-lg font-semibold text-gray-100">Source collections</h2>
+            <div className="mt-4 space-y-3">
+              {sourceCollections.map((collection) => {
+                const ready = asString(collection.status) === 'ready'
+                const sourceGroup = asString(collection.source_group)
+                const receiptCount = Number(collection.receipt_count ?? 0)
+                return (
+                  <article key={sourceGroup} className="rounded-lg border border-gray-800 bg-gray-950/45 p-3">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <h3 className="font-medium capitalize text-gray-100">{sourceGroup.replace(/_/g, ' ')}</h3>
+                      <span className={`rounded-full border px-2 py-0.5 text-xs font-semibold ${ready ? 'border-emerald-400/35 text-emerald-100' : 'border-amber-400/35 text-amber-100'}`}>
+                        {ready ? `${receiptCount} ${receiptCount === 1 ? 'receipt' : 'receipts'}` : 'Blocked'}
+                      </span>
+                    </div>
+                    {asString(collection.blocker) && <p className="mt-2 text-xs leading-5 text-amber-100">{recoveryText(asString(collection.blocker))}</p>}
+                  </article>
+                )
+              })}
+            </div>
+          </section>
+
+          <section aria-labelledby="synthetic-product-coverage" className="rounded-xl border border-gray-800 bg-gray-900 p-4 sm:p-5">
+            <h2 id="synthetic-product-coverage" className="text-lg font-semibold text-gray-100">Product coverage</h2>
+            <div className="mt-4 space-y-3">
+              {products.map((product) => {
+                const ready = asString(product.status) === 'ready'
+                return (
+                  <article key={asString(product.product_id)} className="rounded-lg border border-gray-800 bg-gray-950/45 p-3">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <h3 className="font-medium text-gray-100">{asString(product.label)}</h3>
+                      <span className={`rounded-full border px-2 py-0.5 text-xs font-semibold ${ready ? 'border-emerald-400/35 text-emerald-100' : 'border-amber-400/35 text-amber-100'}`}>
+                        {ready ? 'Covered' : 'Needs receipt'}
+                      </span>
+                    </div>
+                    <p className="mt-2 break-words text-xs text-gray-400">Sources: {asStringArray(product.source_ids).join(', ') || 'None attached'}</p>
+                    {asString(product.blocker) && <p className="mt-2 text-xs leading-5 text-amber-100">{recoveryText(asString(product.blocker))}</p>}
+                  </article>
+                )
+              })}
+            </div>
+          </section>
+        </div>
+
+        <section aria-labelledby="synthetic-source-receipts" className="rounded-xl border border-gray-800 bg-gray-900 p-4 sm:p-5">
+          <h2 id="synthetic-source-receipts" className="text-lg font-semibold text-gray-100">Source receipts</h2>
+          {receipts.length > 0 ? (
+            <div className="mt-4 grid gap-3 md:grid-cols-2">
+              {receipts.map((receipt) => (
+                <article key={asString(receipt.receipt_id) || asString(receipt.source_id)} className="rounded-lg border border-gray-800 bg-gray-950/45 p-3 text-xs leading-5">
+                  <p className="break-words font-semibold text-gray-100">{asString(receipt.source_id)}</p>
+                  <p className="mt-1 text-gray-400">{asString(receipt.source_kind).replace(/_/g, ' ')} · {asString(receipt.approval_status)} · {asString(receipt.privacy_classification).replace(/_/g, ' ')}</p>
+                  <p className="mt-1 break-words text-gray-500">Receipt: {asString(receipt.receipt_id)}</p>
+                  <p className="text-gray-500">Raw content included: {receipt.raw_content_included === true ? 'yes' : 'no'}</p>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <p className="mt-3 rounded-lg border border-amber-500/25 bg-amber-500/5 p-3 text-sm text-amber-100">No approved source receipts are attached to the blocked synthetic candidate.</p>
+          )}
+        </section>
+
+        <section aria-labelledby="synthetic-backlog-candidates" className="rounded-xl border border-gray-800 bg-gray-900 p-4 sm:p-5">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-violet-200">Review-only backlog candidates</p>
+              <h2 id="synthetic-backlog-candidates" className="mt-1 text-lg font-semibold text-gray-100">Candidate evidence</h2>
+            </div>
+            <span className="w-fit rounded-full border border-violet-400/35 px-2 py-0.5 text-xs font-semibold text-violet-100">No selection action</span>
+          </div>
+          <div className="mt-4 space-y-3">
+            {candidates.map((candidate) => (
+              <article key={asString(candidate.id)} className="rounded-lg border border-gray-800 bg-gray-950/45 p-4">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="min-w-0">
+                    <h3 className="font-semibold text-gray-100">{asString(candidate.title)}</h3>
+                    <p className="mt-2 text-sm leading-6 text-gray-300">{asString(candidate.triggering_event)}</p>
+                  </div>
+                  <span className="w-fit shrink-0 rounded-full border border-violet-400/30 px-2 py-0.5 text-xs text-violet-100">
+                    {asString(candidate.priority_tier)} priority · {String(candidate.priority_score ?? 0)}
+                  </span>
+                </div>
+                <dl className="mt-3 grid gap-2 text-xs text-gray-400 sm:grid-cols-2">
+                  <div><dt className="font-semibold text-gray-300">Products</dt><dd className="mt-1">{asStringArray(candidate.product_ids).map((value) => value.replace(/_/g, ' ')).join(', ') || 'None'}</dd></div>
+                  <div><dt className="font-semibold text-gray-300">Approved receipts</dt><dd className="mt-1">{asRecordArray(candidate.source_receipts).length}</dd></div>
+                </dl>
+                {asStringArray(candidate.claim_boundaries).length > 0 && (
+                  <div className="mt-3 rounded-lg border border-gray-800 bg-gray-900/70 p-3 text-xs leading-5 text-gray-300">
+                    {asStringArray(candidate.claim_boundaries).map((boundary) => <p key={boundary}>Boundary: {boundary}</p>)}
+                  </div>
+                )}
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section aria-labelledby="synthetic-recovery-actions" className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 sm:p-5">
+          <h2 id="synthetic-recovery-actions" className="flex items-center gap-2 text-lg font-semibold text-amber-50"><ShieldAlert className="h-5 w-5" /> Actionable blockers and recovery</h2>
+          {blockers.length > 0 ? (
+            <ul className="mt-3 space-y-2 text-sm leading-6 text-amber-50/90">
+              {blockers.map((blocker) => <li key={blocker} className="rounded-lg border border-amber-400/20 bg-gray-950/25 p-3">{recoveryText(blocker)}</li>)}
+            </ul>
+          ) : (
+            <p className="mt-3 text-sm leading-6 text-amber-50/90">No source-coverage recovery is required in this ready fixture.</p>
+          )}
+          <p className="mt-3 text-sm leading-6 text-amber-50/80">{nextAction}</p>
+        </section>
+      </div>
+    </main>
+  )
+}
+
 function SocialContentDetailPage() {
   const completedGateLandings = useRef(new Set<string>())
   const { id } = useParams<{ id: string }>()
@@ -2499,6 +2675,7 @@ function SocialContentDetailPage() {
   const ragContext = asRecord(item.rag_context)
   const qaFixture = asRecord(ragContext?.qa_fixture)
   const previewFixtureReadOnly = qaFixture?.read_only === true
+  const isTopicSourceCoveragePreview = asString(qaFixture?.kind) === 'topic_source_coverage_preview'
   const previewFixtureReason = asString(qaFixture?.reason) || 'Preview fixture is read-only.'
   const previewFixtureNextAction = asString(qaFixture?.next_action) || 'Review the evidence, then return to Social Content or the PR handoff.'
   const isAgentSocialPilot = ragContext?.source === 'agent_ops_social_outreach_goal'
@@ -3385,6 +3562,17 @@ function SocialContentDetailPage() {
           </button>
         </div>
       </div>
+    )
+  }
+
+  if (isTopicSourceCoveragePreview) {
+    return (
+      <SyntheticTopicSourceCoveragePreview
+        item={item}
+        backUrl={backUrl}
+        reason={previewFixtureReason}
+        nextAction={previewFixtureNextAction}
+      />
     )
   }
 

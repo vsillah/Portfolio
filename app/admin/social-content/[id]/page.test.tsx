@@ -151,20 +151,8 @@ describe('SocialContentDetailRoute visual production review', () => {
     return render(<SocialContentDetailRoute />)
   }
 
-  it('marks a preview fixture read-only and disables its mutation decisions with a recovery action', async () => {
-    const fixtureItem = {
-      ...baseItem,
-      status: 'draft',
-      rag_context: {
-        ...baseItem.rag_context,
-        qa_fixture: {
-          kind: 'synthetic_preview',
-          read_only: true,
-          reason: 'Preview fixture is read-only.',
-          next_action: 'Review the evidence, then return to Social Content or the PR handoff.',
-        },
-      },
-    }
+  it('renders a synthetic source-coverage fixture as evidence-only with no publishable affordances', async () => {
+    const fixtureItem = topicSourceCoverageQaFixture('ready')
     vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => ({
       ok: true,
       json: async () => String(input).includes('/topic-backlog') ? { items: [] } : { item: fixtureItem },
@@ -172,12 +160,17 @@ describe('SocialContentDetailRoute visual production review', () => {
 
     renderAtStep('copy')
 
-    expect(await screen.findByText('Preview fixture is read-only.')).toBeVisible()
-    expect(screen.getByText(/No changes, approvals, or rejection decisions can be saved from this route/)).toBeVisible()
+    expect(await screen.findByText('Synthetic QA fixture')).toBeVisible()
+    expect(screen.getByText('Preview-only · Read-only')).toBeVisible()
+    expect(screen.getByRole('heading', { name: 'Topic source coverage report' })).toBeVisible()
+    expect(screen.getByText(/contains no editable post, approval control, provider action, upload, schedule, publishing control, or external execution path/i)).toBeVisible()
     expect(screen.getByRole('link', { name: 'Back to Social Content' })).toHaveAttribute('href', '/admin/social-content')
-    expect(screen.getByRole('button', { name: 'Save Draft' })).toBeDisabled()
-    expect(screen.getByRole('button', { name: /Approve Copy/i })).toBeDisabled()
-    expect(screen.getByRole('button', { name: /^Reject$/i })).toBeDisabled()
+    expect(screen.queryByRole('button')).not.toBeInTheDocument()
+    expect(screen.queryByLabelText('LinkedIn post preview')).not.toBeInTheDocument()
+    expect(screen.queryByLabelText('Post Text')).not.toBeInTheDocument()
+    expect(screen.queryByText('Where & When')).not.toBeInTheDocument()
+    expect(screen.queryByText('Publish Status')).not.toBeInTheDocument()
+    expect(screen.queryByLabelText('Social content approval process')).not.toBeInTheDocument()
   })
 
   it('renders the deployed topic coverage fixture from its draft-local packet without the live backlog', async () => {
@@ -193,14 +186,18 @@ describe('SocialContentDetailRoute visual production review', () => {
 
     renderAtStep('copy')
 
-    expect(await screen.findByText('Coverage: ready')).toBeVisible()
-    expect(screen.getByText('Dark Castle Chess: covered')).toBeVisible()
-    expect(screen.getByText('Accelerated: covered')).toBeVisible()
-    expect(screen.getByText('Agentified: covered')).toBeVisible()
-    expect(screen.getByText('meeting summaries: 1')).toBeVisible()
-    expect(screen.getByRole('button', { name: 'Use topic' })).toBeDisabled()
-    expect(screen.getByText('Preview fixture is read-only.')).toBeVisible()
-    expect(screen.getByRole('button', { name: 'Save Draft' })).toBeDisabled()
+    expect(await screen.findByRole('heading', { name: 'Coverage ready' })).toBeVisible()
+    expect(screen.getByRole('heading', { name: 'Source collections' })).toBeVisible()
+    expect(screen.getByRole('heading', { name: 'Product coverage' })).toBeVisible()
+    expect(screen.getByRole('heading', { name: 'Source receipts' })).toBeVisible()
+    expect(screen.getByText('Review-only backlog candidates')).toBeVisible()
+    expect(screen.getByRole('heading', { name: 'Actionable blockers and recovery' })).toBeVisible()
+    expect(screen.getByRole('heading', { name: 'Dark Castle Chess' })).toBeVisible()
+    expect(screen.getByRole('heading', { name: 'Accelerated' })).toBeVisible()
+    expect(screen.getByRole('heading', { name: 'Agentified' })).toBeVisible()
+    expect(screen.getByText('publications:agentified')).toBeVisible()
+    expect(screen.getByText('No selection action')).toBeVisible()
+    expect(screen.queryByRole('button')).not.toBeInTheDocument()
     expect(fetchMock.mock.calls.some(([input]) => String(input).includes('/topic-backlog'))).toBe(false)
   })
 

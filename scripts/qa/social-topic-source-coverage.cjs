@@ -92,37 +92,42 @@ const session = {
 
     const blockedUrl = `${base}/admin/social-content/${contentId}?step=copy&qa=topic-source-coverage&qa_state=blocked`
     await page.goto(blockedUrl, { waitUntil: 'domcontentloaded' })
-    const topicPanel = page.getByText('LinkedIn topics from Agentic Backlog').locator('..').locator('..')
-    await expect(page.getByText('Coverage: blocked')).toBeVisible({ timeout: 90000 })
-    await expect(page.getByText('Agentified: needs receipt')).toBeVisible()
-    await expect(page.getByText('meeting summaries: scan blocked')).toBeVisible()
-    await expect(page.getByText('Resolve 2 source coverage blocker(s)')).toBeVisible()
-    await expect(page.getByRole('button', { name: 'Receipts required' })).toBeDisabled()
-    await expect(page.getByText('Preview fixture is read-only.', { exact: true })).toBeVisible()
-    await expect(page.getByRole('button', { name: 'Save Draft' })).toBeDisabled()
-    await expect(page.getByRole('button', { name: 'Approve Copy' })).toBeDisabled()
-    await expect(page.getByRole('button', { name: 'Reject', exact: true })).toBeDisabled()
-    await topicPanel.scrollIntoViewIfNeeded()
+    const blockedSurface = page.getByRole('main')
+    await expect(page.getByText('Synthetic QA fixture')).toBeVisible({ timeout: 90000 })
+    await expect(page.getByText('Preview-only · Read-only')).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Coverage blocked' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Agentified', exact: true })).toBeVisible()
+    await expect(page.getByText('Needs receipt')).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Meeting summaries' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Actionable blockers and recovery' })).toBeVisible()
+    await expect(page.getByText('No approved source receipts are attached to the blocked synthetic candidate.')).toBeVisible()
+    await expect(blockedSurface.getByRole('button')).toHaveCount(0)
+    await expect(blockedSurface.getByLabel('LinkedIn post preview')).toHaveCount(0)
+    await expect(blockedSurface.getByLabel('Post Text')).toHaveCount(0)
     await page.waitForTimeout(1200)
-    await page.getByText('Resolve 2 source coverage blocker(s)').click()
-    await expect(page.getByText(/source_collection_failed:meeting_summaries/)).toBeVisible()
+    const recoveryPanel = page.getByRole('heading', { name: 'Actionable blockers and recovery' }).locator('..')
+    await recoveryPanel.scrollIntoViewIfNeeded()
+    await page.waitForTimeout(1200)
+    await expect(recoveryPanel.getByText('Restore approved-summary read access and retry.')).toBeVisible()
+    await expect(recoveryPanel.getByText('Approve a privacy-safe Agentified summary.')).toBeVisible()
     await page.waitForTimeout(900)
     await page.screenshot({ path: path.join(outputDir, `${width}-blocked.png`), fullPage: true })
 
     fixtureState = 'ready'
     const readyUrl = `${base}/admin/social-content/${contentId}?step=copy&qa=topic-source-coverage`
     await page.goto(readyUrl, { waitUntil: 'domcontentloaded' })
-    await expect(page.getByText('Coverage: ready')).toBeVisible({ timeout: 90000 })
-    await expect(page.getByText('Dark Castle Chess: covered')).toBeVisible()
-    await expect(page.getByText('Accelerated: covered')).toBeVisible()
-    await expect(page.getByText('Agentified: covered')).toBeVisible()
-    await expect(page.getByText('meeting summaries: 1')).toBeVisible()
-    await expect(page.getByRole('button', { name: 'Use topic' })).toBeDisabled()
-    await expect(page.getByText('Preview fixture is read-only.', { exact: true })).toBeVisible()
-    await topicPanel.scrollIntoViewIfNeeded()
+    const readySurface = page.getByRole('main')
+    await expect(page.getByRole('heading', { name: 'Coverage ready' })).toBeVisible({ timeout: 90000 })
+    await expect(page.getByRole('heading', { name: 'Dark Castle Chess' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Accelerated' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Agentified', exact: true })).toBeVisible()
+    await expect(page.getByText('Review-only backlog candidates')).toBeVisible()
+    await expect(page.getByText('No selection action')).toBeVisible()
+    await expect(page.getByText('publications:agentified', { exact: true })).toBeVisible()
+    await expect(readySurface.getByRole('button')).toHaveCount(0)
     await page.waitForTimeout(1200)
-    await page.getByText('Receipts and boundaries').click()
-    await expect(page.getByText('1 approved source receipt(s)')).toBeVisible()
+    await page.getByText('Review-only backlog candidates').scrollIntoViewIfNeeded()
+    await page.waitForTimeout(1200)
     await expect(page.getByText('medium priority · 70')).toBeVisible()
     await expect(page.getByText('Boundary: Verify performance claims before drafting.')).toBeVisible()
     await page.waitForTimeout(900)
@@ -141,7 +146,8 @@ const session = {
       fixture_responses: [...new Set(fixtureResponses)],
       product_coverage: ['dark_castle_chess', 'accelerated', 'agentified'],
       source_collection_states: ['ready', 'blocked'],
-      read_only_controls: ['save_draft', 'approve_copy', 'reject', 'use_topic'],
+      evidence_only_surface: true,
+      absent_affordances: ['post_editor', 'social_preview', 'save', 'approve', 'provider', 'upload', 'schedule', 'publish'],
       live_backlog_requests: 0,
       provider_calls: 0,
       external_requests: 0,
