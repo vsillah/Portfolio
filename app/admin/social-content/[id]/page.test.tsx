@@ -2,15 +2,17 @@ import { fireEvent, render, screen, waitFor, within } from '@testing-library/rea
 import type { ReactNode } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import SocialContentDetailRoute from './page'
+import { topicSourceCoverageQaFixture } from '@/lib/social-topic-source-coverage-qa-fixture'
 
 const mocks = vi.hoisted(() => ({
   push: vi.fn(),
   replace: vi.fn(),
   search: '',
+  id: 'social-1',
 }))
 
 vi.mock('next/navigation', () => ({
-  useParams: () => ({ id: 'social-1' }),
+  useParams: () => ({ id: mocks.id }),
   useRouter: () => ({ push: mocks.push, replace: mocks.replace }),
   useSearchParams: () => new URLSearchParams(mocks.search),
 }))
@@ -111,6 +113,7 @@ describe('SocialContentDetailRoute visual production review', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
+    mocks.id = 'social-1'
     mocks.search = ''
     vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
       if (String(input).includes('/topic-backlog')) {
@@ -175,6 +178,30 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(screen.getByRole('button', { name: 'Save Draft' })).toBeDisabled()
     expect(screen.getByRole('button', { name: /Approve Copy/i })).toBeDisabled()
     expect(screen.getByRole('button', { name: /^Reject$/i })).toBeDisabled()
+  })
+
+  it('renders the deployed topic coverage fixture from its draft-local packet without the live backlog', async () => {
+    mocks.id = 'topic-source-coverage-qa'
+    const fixtureItem = topicSourceCoverageQaFixture('ready')
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => ({
+      ok: true,
+      json: async () => String(input) === '/api/admin/social-content/topic-source-coverage-qa'
+        ? { fixture: true, fixture_state: 'ready', item: fixtureItem }
+        : { items: [], configs: [], references: [] },
+    } as Response))
+    vi.stubGlobal('fetch', fetchMock)
+
+    renderAtStep('copy')
+
+    expect(await screen.findByText('Coverage: ready')).toBeVisible()
+    expect(screen.getByText('Dark Castle Chess: covered')).toBeVisible()
+    expect(screen.getByText('Accelerated: covered')).toBeVisible()
+    expect(screen.getByText('Agentified: covered')).toBeVisible()
+    expect(screen.getByText('meeting summaries: 1')).toBeVisible()
+    expect(screen.getByRole('button', { name: 'Use topic' })).toBeDisabled()
+    expect(screen.getByText('Preview fixture is read-only.')).toBeVisible()
+    expect(screen.getByRole('button', { name: 'Save Draft' })).toBeDisabled()
+    expect(fetchMock.mock.calls.some(([input]) => String(input).includes('/topic-backlog'))).toBe(false)
   })
 
   it('renders LinkedIn campaign review for the linked canonical Instagram/Reels item', async () => {

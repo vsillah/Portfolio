@@ -103,6 +103,8 @@ const PLATFORM_ICONS: Record<string, React.ReactNode> = {
   x: <X className="w-4 h-4" />,
 }
 
+const TOPIC_SOURCE_COVERAGE_QA_ID = 'topic-source-coverage-qa'
+
 const PLATFORM_COLORS: Record<string, { active: string; inactive: string }> = {
   linkedin: { active: 'bg-blue-600/20 border-blue-500 text-blue-300', inactive: 'bg-gray-800 border-gray-700 text-gray-500 hover:border-gray-600' },
   youtube: { active: 'bg-red-600/20 border-red-500 text-red-300', inactive: 'bg-gray-800 border-gray-700 text-gray-500 hover:border-gray-600' },
@@ -640,6 +642,12 @@ function SocialContentDetailPage() {
   const fetchTopicBacklog = useCallback(async () => {
     setLoadingTopicBacklog(true)
     try {
+      if (id === TOPIC_SOURCE_COVERAGE_QA_ID) {
+        setTopicBacklogItems([])
+        setTopicBacklogUnavailable(false)
+        setTopicBacklogCoverageReport(null)
+        return
+      }
       const session = await getCurrentSession()
       if (!session) return
 
@@ -656,7 +664,7 @@ function SocialContentDetailPage() {
     } finally {
       setLoadingTopicBacklog(false)
     }
-  }, [])
+  }, [id])
 
   const fetchCalibrationLibrary = useCallback(async () => {
     setLoadingCalibrationLibrary(true)

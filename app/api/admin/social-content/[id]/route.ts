@@ -27,6 +27,10 @@ import {
   type PractitionerContentQaScriptSize,
 } from '@/lib/social-practitioner-content-qa-fixture'
 import {
+  isTopicSourceCoverageQaFixtureId,
+  topicSourceCoverageQaFixture,
+} from '@/lib/social-topic-source-coverage-qa-fixture'
+import {
   buildScheduleRecoveryProjection,
   createSupabaseSocialScheduleRecoveryRepository,
 } from '@/lib/social-schedule-recovery'
@@ -90,6 +94,17 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    if (isTopicSourceCoverageQaFixtureId(params.id)) {
+      const fixtureState = request.headers.get('x-portfolio-topic-coverage-state') === 'blocked'
+        ? 'blocked'
+        : 'ready'
+      return NextResponse.json({
+        item: topicSourceCoverageQaFixture(fixtureState),
+        fixture: true,
+        fixture_state: fixtureState,
+        integration_note: 'Synthetic preview-only topic source coverage fixture. No shared row, provider call, upload, schedule, publication, or external send is represented.',
+      })
+    }
     if (isPractitionerContentQaFixtureId(params.id)) {
       const fixtureState = request.nextUrl.searchParams.get('qa_state') === 'blocked'
         || request.headers.get('x-portfolio-qa-state') === 'blocked'
@@ -208,7 +223,7 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
-    if (isPractitionerContentQaFixtureId(params.id)) {
+    if (isPractitionerContentQaFixtureId(params.id) || isTopicSourceCoverageQaFixtureId(params.id)) {
       return NextResponse.json({
         error: 'Synthetic preview fixture is read-only.',
         fixture: true,
