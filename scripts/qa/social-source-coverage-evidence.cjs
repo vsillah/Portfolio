@@ -19,8 +19,16 @@ const session = { access_token: 'privacy-safe-qa-token', refresh_token: 'privacy
   const liveSnapshot = JSON.parse(execFileSync('npx', ['tsx', 'scripts/qa/social-source-coverage-live-snapshot.ts'], { encoding: 'utf8' }))
   const results = []
   const clips = []
+  const scenarios = [
+    { width: 1440, theme: 'dark' },
+    { width: 1440, theme: 'light' },
+    { width: 768, theme: 'dark' },
+    { width: 768, theme: 'light' },
+    { width: 390, theme: 'dark' },
+    { width: 390, theme: 'light' },
+  ]
 
-  for (const width of [1440, 768, 390]) {
+  for (const { width, theme } of scenarios) {
     const height = width === 390 ? 844 : 1000
     const mutations = []
     const providerCalls = []
@@ -33,13 +41,14 @@ const session = { access_token: 'privacy-safe-qa-token', refresh_token: 'privacy
         ? { 'x-vercel-trusted-oidc-idp-token': process.env.VERCEL_OIDC_TOKEN }
         : undefined,
     })
-    await context.addInitScript(({ session }) => {
+    await context.addInitScript(({ session, theme }) => {
+      localStorage.setItem('theme', theme)
       const originalGetItem = Storage.prototype.getItem
       Storage.prototype.getItem = function getItem(key) {
         if (/^sb-.*-auth-token$/.test(key)) return JSON.stringify(session)
         return originalGetItem.call(this, key)
       }
-    }, { session })
+    }, { session, theme })
     await context.route('**/*', async (route) => {
       const request = route.request()
       const url = new URL(request.url())
@@ -70,6 +79,14 @@ const session = { access_token: 'privacy-safe-qa-token', refresh_token: 'privacy
 
     const coverage = page.locator('section[aria-labelledby="source-coverage-heading"]')
     await coverage.scrollIntoViewIfNeeded()
+    await page.waitForTimeout(theme === 'light' ? 600 : 150)
+    await page.evaluate((nextTheme) => {
+      const adminMain = document.querySelector('#admin-main')
+      const adminRoot = adminMain?.parentElement?.parentElement
+      document.documentElement.classList.toggle('dark', nextTheme === 'dark')
+      adminRoot?.classList.toggle('dark', nextTheme === 'dark')
+      adminRoot?.setAttribute('data-qa-theme', nextTheme)
+    }, theme)
     await page.waitForTimeout(900)
     const priorityList = coverage.getByTestId('priority-coverage-list')
     await expect(priorityList.getByTestId('coverage-product-row')).toHaveCount(3)
@@ -78,21 +95,46 @@ const session = { access_token: 'privacy-safe-qa-token', refresh_token: 'privacy
     await directoryToggle.click()
     const directoryPage = coverage.getByTestId('additional-product-page')
     const visibleDirectoryRows = await directoryPage.getByTestId('coverage-product-row').count()
-    assert.ok(visibleDirectoryRows <= 5, `${width}px directory rendered ${visibleDirectoryRows} rows`)
+    assert.ok(visibleDirectoryRows <= 5, `${theme} ${width}px directory rendered ${visibleDirectoryRows} rows`)
     await directoryToggle.click()
     await coverage.getByText('Collector freshness, failures, and recovery').click()
     await expect(coverage.getByText(/Recovery:/).first()).toBeVisible()
     await page.waitForTimeout(900)
-    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, `${width}px horizontal overflow`)
-    await page.screenshot({ path: path.join(outputDir, `${width}-launch-evidence.png`), fullPage: true })
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, `${theme} ${width}px horizontal overflow`)
+    const themeMetrics = await page.evaluate(() => {
+      const input = document.querySelector('input[placeholder="Search recurring priorities"]')
+      const section = document.querySelector('section[aria-labelledby="source-coverage-heading"]')
+      const rgbLuma = (value) => {
+        const values = value.match(/[\d.]+/g)?.slice(0, 3).map(Number) ?? [0, 0, 0]
+        return Math.round((values[0] * 0.2126) + (values[1] * 0.7152) + (values[2] * 0.0722))
+      }
+      const inputStyle = input ? getComputedStyle(input) : null
+      const sectionStyle = section ? getComputedStyle(section) : null
+      return {
+        input_background: inputStyle?.backgroundColor ?? '',
+        input_background_luma: rgbLuma(inputStyle?.backgroundColor ?? ''),
+        input_text_luma: rgbLuma(inputStyle?.color ?? ''),
+        section_background: sectionStyle?.backgroundColor ?? '',
+      }
+    })
+    if (theme === 'dark') {
+      assert.ok(themeMetrics.input_background_luma < 120, `dark ${width}px search input is too bright: ${themeMetrics.input_background}`)
+      assert.ok(themeMetrics.input_text_luma > 150, `dark ${width}px search text lacks contrast`)
+    } else {
+      assert.ok(themeMetrics.input_background_luma > 180, `light ${width}px search input is too dark: ${themeMetrics.input_background}`)
+      assert.ok(themeMetrics.input_text_luma < 120, `light ${width}px search text lacks contrast`)
+    }
+    const screenshotName = theme === 'dark' ? `${width}-launch-evidence.png` : `${width}-light-launch-evidence.png`
+    await page.screenshot({ path: path.join(outputDir, screenshotName), fullPage: true })
     await page.waitForTimeout(700)
 
-    assert.equal(mutations.length, 0, `${width}px QA made a mutation: ${mutations.join(', ')}`)
-    assert.equal(providerCalls.length, 0, `${width}px QA called a provider: ${providerCalls.join(', ')}`)
-    assert.equal(pageErrors.length, 0, `${width}px QA emitted a page error: ${pageErrors.join(', ')}`)
+    assert.equal(mutations.length, 0, `${theme} ${width}px QA made a mutation: ${mutations.join(', ')}`)
+    assert.equal(providerCalls.length, 0, `${theme} ${width}px QA called a provider: ${providerCalls.join(', ')}`)
+    assert.equal(pageErrors.length, 0, `${theme} ${width}px QA emitted a page error: ${pageErrors.join(', ')}`)
     const summary = await coverage.innerText()
     results.push({
       width,
+      theme,
       route: `${base}${routePath}`,
       source: 'live_read_only_collectors',
       coverage_visible: true,
@@ -105,12 +147,13 @@ const session = { access_token: 'privacy-safe-qa-token', refresh_token: 'privacy
       provider_calls: 0,
       page_errors: [],
       horizontal_overflow: false,
+      theme_metrics: themeMetrics,
     })
 
     const video = page.video()
     await context.close()
     const raw = await video.path()
-    const clip = path.join(tempDir, `${width}.mp4`)
+    const clip = path.join(tempDir, `${theme}-${width}.mp4`)
     execFileSync('ffmpeg', [
       '-y', '-i', raw,
       '-vf', 'scale=1440:1000:force_original_aspect_ratio=decrease,pad=1440:1000:(ow-iw)/2:(oh-ih)/2:color=0x07101c',

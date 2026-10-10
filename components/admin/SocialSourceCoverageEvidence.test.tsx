@@ -65,6 +65,21 @@ describe('SocialSourceCoverageEvidence', () => {
     expect(screen.getByText('Priority page 1 of 1')).toBeInTheDocument()
   })
 
+  it('uses semantic theme surfaces for inputs, rows, states, and controls', async () => {
+    render(<SocialSourceCoverageEvidence active />)
+    const section = await screen.findByTestId('source-coverage-section')
+    expect(section).toHaveClass('border-border', 'bg-card', 'text-card-foreground')
+    const priorityInput = screen.getByPlaceholderText('Search recurring priorities')
+    expect(priorityInput).toHaveClass('input-brand', 'bg-background', 'text-foreground', 'placeholder:text-muted-foreground')
+    const priorityRow = within(screen.getByTestId('priority-coverage-list')).getAllByTestId('coverage-product-row')[0]
+    expect(priorityRow).toHaveClass('border-border', 'bg-muted/30', 'text-card-foreground')
+    const previous = screen.getByRole('button', { name: 'Previous priorities' })
+    expect(previous).toHaveClass('focus-visible:ring-accent', 'focus-visible:ring-offset-background', 'disabled:cursor-not-allowed', 'disabled:opacity-50')
+    fireEvent.change(priorityInput, { target: { value: 'no-such-priority' } })
+    expect(screen.getByText('No matching recurring priorities.')).toHaveClass('border-border', 'bg-muted/20', 'text-muted-foreground')
+    expect(section.innerHTML).not.toMatch(/(?:bg-imperial-navy|border-silicon-slate|text-(?:red|amber|emerald|sky)-)/)
+  })
+
   it('keeps the additional directory bounded to five rows and supports paging and search', async () => {
     render(<SocialSourceCoverageEvidence active />)
     await screen.findByText('Additional product directory')
@@ -86,6 +101,7 @@ describe('SocialSourceCoverageEvidence', () => {
     render(<SocialSourceCoverageEvidence active />)
     expect(screen.getByText('Reading')).toBeInTheDocument()
     expect(screen.queryByText('Fail closed')).not.toBeInTheDocument()
+    expect(screen.getByText('Reading approved source receipts…')).toHaveClass('border-border', 'bg-muted/40', 'text-muted-foreground')
   })
 
   it('fails visibly when the approved read path is unavailable', async () => {
@@ -93,5 +109,6 @@ describe('SocialSourceCoverageEvidence', () => {
     render(<SocialSourceCoverageEvidence active />)
     await waitFor(() => expect(screen.getByText('Coverage read is blocked')).toBeInTheDocument())
     expect(screen.getByText('Admin session is unavailable.')).toBeInTheDocument()
+    expect(screen.getByText('Coverage read is blocked').parentElement).toHaveClass('border-accent/40', 'bg-muted/50', 'text-foreground')
   })
 })

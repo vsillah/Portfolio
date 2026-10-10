@@ -19,6 +19,10 @@ import type { ProductLifecycleCoverage, SocialTopicLiveCoverage } from '@/lib/so
 
 const PRIORITY_PAGE_SIZE = 3
 const DIRECTORY_PAGE_SIZE = 5
+const BUTTON_CLASS = 'admin-console-button-secondary min-h-9 px-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50'
+const INPUT_CLASS = 'input-brand min-h-10 w-full bg-background pl-9 text-foreground placeholder:text-muted-foreground'
+const DISCLOSURE_CLASS = 'group rounded-lg border border-border bg-muted/30 text-card-foreground'
+const SUMMARY_CLASS = 'flex cursor-pointer list-none items-center gap-3 rounded-lg p-3 transition-colors hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-inset'
 
 function formatDate(value: string | null) {
   if (!value || !Number.isFinite(Date.parse(value))) return 'No successful scan yet'
@@ -29,20 +33,20 @@ function formatDate(value: string | null) {
 
 function ProductEvidenceRow({ product }: { product: ProductLifecycleCoverage }) {
   return (
-    <details className="group rounded-lg border border-silicon-slate bg-imperial-navy/30" data-testid="coverage-product-row">
-      <summary className="flex cursor-pointer list-none items-center gap-3 p-3">
+    <details className={DISCLOSURE_CLASS} data-testid="coverage-product-row">
+      <summary className={SUMMARY_CLASS}>
         <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-180" />
         <div className="min-w-0 flex-1"><div className="truncate text-sm font-semibold text-foreground">{product.label}</div></div>
-        <span className={`rounded-full border px-2 py-1 text-[10px] font-medium capitalize ${product.current_stage ? 'border-radiant-gold/30 bg-radiant-gold/10 text-radiant-gold' : 'border-amber-500/30 bg-amber-500/10 text-amber-200'}`}>
+        <span className={`rounded-full border px-2 py-1 text-[10px] font-medium capitalize ${product.current_stage ? 'border-accent/40 bg-accent/10 text-accent' : 'border-border bg-muted text-muted-foreground'}`}>
           {product.current_stage?.replace(/_/g, ' ') ?? 'Needs evidence'}
         </span>
         <span className="hidden text-xs text-muted-foreground sm:inline">{product.receipt_count} receipts</span>
       </summary>
-      <div className="border-t border-silicon-slate px-3 pb-3 pt-3">
+      <div className="border-t border-border px-3 pb-3 pt-3">
         <p className="mb-2 font-mono text-[10px] text-muted-foreground">Internal identity: {product.product_identity}</p>
-        {product.stages.length > 0 && <div className="flex flex-wrap gap-1.5">{product.stages.map((stage) => <span key={stage} className="rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2 py-1 text-[10px] capitalize text-emerald-200">{stage.replace(/_/g, ' ')}</span>)}</div>}
+        {product.stages.length > 0 && <div className="flex flex-wrap gap-1.5">{product.stages.map((stage) => <span key={stage} className="rounded-full border border-accent/30 bg-accent/10 px-2 py-1 text-[10px] capitalize text-accent">{stage.replace(/_/g, ' ')}</span>)}</div>}
         <p className="mt-2 text-xs text-muted-foreground">Latest evidence: {formatDate(product.latest_evidence_at)} · {product.source_groups.length} source groups</p>
-        {product.gaps.length > 0 && <ul className="mt-2 space-y-1 text-xs text-amber-200">{product.gaps.map((gap) => <li key={gap}>Action needed: {gap}</li>)}</ul>}
+        {product.gaps.length > 0 && <ul className="mt-2 space-y-1 text-xs text-foreground">{product.gaps.map((gap) => <li key={gap}><strong className="text-accent">Action needed:</strong> {gap}</li>)}</ul>}
         {product.historical_gaps.length > 0 && <div className="mt-2 text-[10px] text-muted-foreground">Historical evidence gaps: {product.historical_gaps.join(' · ')}</div>}
       </div>
     </details>
@@ -108,7 +112,7 @@ export default function SocialSourceCoverageEvidence({ active }: { active: boole
   const awaitingInitialRead = active && !coverage && !error
 
   return (
-    <section className="admin-console-card mb-6 rounded-lg border p-4" aria-labelledby="source-coverage-heading">
+    <section className="mb-6 rounded-lg border border-border bg-card p-4 text-card-foreground shadow-sm" aria-labelledby="source-coverage-heading" data-testid="source-coverage-section">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
         <div className="max-w-3xl">
           <div className="admin-console-eyebrow mb-2 flex items-center gap-2"><Activity className="h-4 w-4" /> Launch evidence · source coverage</div>
@@ -118,22 +122,22 @@ export default function SocialSourceCoverageEvidence({ active }: { active: boole
           </p>
         </div>
         <div className="flex shrink-0 items-center gap-2">
-          <span className={`rounded-full border px-2.5 py-1 text-xs font-medium ${coverage?.status === 'ready' ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300' : 'border-amber-500/30 bg-amber-500/10 text-amber-300'}`}>
+          <span className={`rounded-full border px-2.5 py-1 text-xs font-medium ${coverage?.status === 'ready' ? 'border-border bg-muted/60 text-foreground' : 'border-accent/40 bg-accent/10 text-foreground'}`}>
             {awaitingInitialRead ? 'Reading' : coverage?.status === 'ready' ? 'Coverage ready' : 'Fail closed'}
           </span>
-          <button type="button" onClick={() => void loadCoverage()} disabled={loading} className="admin-console-button-secondary min-h-9 px-3 py-1.5 disabled:opacity-60">
+          <button type="button" onClick={() => void loadCoverage()} disabled={loading} className={`${BUTTON_CLASS} py-1.5`}>
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />} Refresh
           </button>
         </div>
       </div>
 
       {awaitingInitialRead ? (
-        <div className="mt-4 flex min-h-28 items-center justify-center gap-2 rounded-lg border border-silicon-slate bg-imperial-navy/35 text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" /> Reading approved source receipts…</div>
+        <div className="mt-4 flex min-h-28 items-center justify-center gap-2 rounded-lg border border-border bg-muted/40 text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" /> Reading approved source receipts…</div>
       ) : error ? (
-        <div className="mt-4 rounded-lg border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-100">
+        <div className="mt-4 rounded-lg border border-accent/40 bg-muted/50 p-4 text-sm text-foreground">
           <div className="flex items-center gap-2 font-semibold"><AlertTriangle className="h-4 w-4" /> Coverage read is blocked</div>
-          <p className="mt-1 text-red-100/80">{error}</p>
-          <p className="mt-2 text-xs text-red-100/70">Restore the approved projection or collector read path. Candidate creation must remain closed while receipts are unavailable.</p>
+          <p className="mt-1 text-muted-foreground">{error}</p>
+          <p className="mt-2 text-xs text-muted-foreground">Restore the approved projection or collector read path. Candidate creation must remain closed while receipts are unavailable.</p>
         </div>
       ) : coverage ? (
         <div className="mt-4 space-y-4">
@@ -143,11 +147,11 @@ export default function SocialSourceCoverageEvidence({ active }: { active: boole
               { label: 'Receipts', value: summary.receipts, icon: ShieldCheck },
               { label: 'Products', value: summary.products, icon: Database },
               { label: 'Priority gaps', value: summary.gaps, icon: AlertTriangle },
-            ].map((item) => <div key={item.label} className="rounded-lg border border-silicon-slate bg-imperial-navy/35 p-3"><div className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.12em] text-muted-foreground"><item.icon className="h-3.5 w-3.5 text-radiant-gold" />{item.label}</div><div className="mt-1 text-lg font-semibold text-foreground">{item.value}</div></div>)}
+            ].map((item) => <div key={item.label} className="rounded-lg border border-border bg-muted/40 p-3"><div className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.12em] text-muted-foreground"><item.icon className="h-3.5 w-3.5 text-accent" />{item.label}</div><div className="mt-1 text-lg font-semibold text-foreground">{item.value}</div></div>)}
           </div>
 
           {coverage.products.length === 0 ? (
-            <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-100">No product is eligible. Approve a privacy-safe summary with provenance before Shaka creates a candidate.</div>
+            <div className="rounded-lg border border-border bg-muted/50 p-3 text-sm text-foreground">No product is eligible. Approve a privacy-safe summary with provenance before Shaka creates a candidate.</div>
           ) : (
             <div className="space-y-3">
               <div className="flex flex-wrap items-center justify-between gap-2">
@@ -157,58 +161,58 @@ export default function SocialSourceCoverageEvidence({ active }: { active: boole
               <label className="relative block">
                 <span className="sr-only">Search recurring priority products</span>
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <input value={priorityQuery} onChange={(event) => setPriorityQuery(event.target.value)} placeholder="Search recurring priorities" className="admin-console-input min-h-10 w-full pl-9" />
+                <input value={priorityQuery} onChange={(event) => setPriorityQuery(event.target.value)} placeholder="Search recurring priorities" className={INPUT_CLASS} />
               </label>
               <div className="space-y-2" data-testid="priority-coverage-list">
-                {visiblePriorityProducts.length > 0 ? visiblePriorityProducts.map((product) => <ProductEvidenceRow key={product.product_identity} product={product} />) : <div className="rounded-lg border border-dashed border-silicon-slate p-4 text-sm text-muted-foreground">No matching recurring priorities.</div>}
+                {visiblePriorityProducts.length > 0 ? visiblePriorityProducts.map((product) => <ProductEvidenceRow key={product.product_identity} product={product} />) : <div className="rounded-lg border border-dashed border-border bg-muted/20 p-4 text-sm text-muted-foreground">No matching recurring priorities.</div>}
               </div>
               <div className="flex items-center justify-between gap-3 text-xs text-muted-foreground">
-                <button type="button" className="admin-console-button-secondary min-h-9 px-3" disabled={priorityPage === 0} onClick={() => setPriorityPage((page) => Math.max(0, page - 1))}>Previous priorities</button>
+                <button type="button" className={BUTTON_CLASS} disabled={priorityPage === 0} onClick={() => setPriorityPage((page) => Math.max(0, page - 1))}>Previous priorities</button>
                 <span>Priority page {priorityPage + 1} of {priorityPages}</span>
-                <button type="button" className="admin-console-button-secondary min-h-9 px-3" disabled={priorityPage + 1 >= priorityPages} onClick={() => setPriorityPage((page) => Math.min(priorityPages - 1, page + 1))}>Next priorities</button>
+                <button type="button" className={BUTTON_CLASS} disabled={priorityPage + 1 >= priorityPages} onClick={() => setPriorityPage((page) => Math.min(priorityPages - 1, page + 1))}>Next priorities</button>
               </div>
 
-              <details className="group rounded-lg border border-silicon-slate bg-imperial-navy/20">
-                <summary className="flex cursor-pointer list-none items-center gap-3 p-3">
+              <details className={DISCLOSURE_CLASS}>
+                <summary className={SUMMARY_CLASS}>
                   <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform group-open:rotate-180" />
                   <span className="flex-1 text-sm font-semibold text-foreground">Additional product directory</span>
                   <span className="text-xs text-muted-foreground">{directoryProducts.length} products · 5 per page</span>
                 </summary>
-                <div className="space-y-3 border-t border-silicon-slate p-3">
+                <div className="space-y-3 border-t border-border p-3">
                   <label className="relative block">
                     <span className="sr-only">Search additional products</span>
                     <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                    <input value={directoryQuery} onChange={(event) => setDirectoryQuery(event.target.value)} placeholder="Search product directory" className="admin-console-input min-h-10 w-full pl-9" />
+                    <input value={directoryQuery} onChange={(event) => setDirectoryQuery(event.target.value)} placeholder="Search product directory" className={INPUT_CLASS} />
                   </label>
                   <div className="space-y-2" data-testid="additional-product-page">
-                    {visibleDirectoryProducts.length > 0 ? visibleDirectoryProducts.map((product) => <ProductEvidenceRow key={product.product_identity} product={product} />) : <div className="rounded-lg border border-dashed border-silicon-slate p-4 text-sm text-muted-foreground">No matching products.</div>}
+                    {visibleDirectoryProducts.length > 0 ? visibleDirectoryProducts.map((product) => <ProductEvidenceRow key={product.product_identity} product={product} />) : <div className="rounded-lg border border-dashed border-border bg-muted/20 p-4 text-sm text-muted-foreground">No matching products.</div>}
                   </div>
                   <div className="flex items-center justify-between gap-3 text-xs text-muted-foreground">
-                    <button type="button" className="admin-console-button-secondary min-h-9 px-3" disabled={directoryPage === 0} onClick={() => setDirectoryPage((page) => Math.max(0, page - 1))}>Previous</button>
+                    <button type="button" className={BUTTON_CLASS} disabled={directoryPage === 0} onClick={() => setDirectoryPage((page) => Math.max(0, page - 1))}>Previous</button>
                     <span>Page {directoryPage + 1} of {directoryPages}</span>
-                    <button type="button" className="admin-console-button-secondary min-h-9 px-3" disabled={directoryPage + 1 >= directoryPages} onClick={() => setDirectoryPage((page) => Math.min(directoryPages - 1, page + 1))}>Next</button>
+                    <button type="button" className={BUTTON_CLASS} disabled={directoryPage + 1 >= directoryPages} onClick={() => setDirectoryPage((page) => Math.min(directoryPages - 1, page + 1))}>Next</button>
                   </div>
                 </div>
               </details>
             </div>
           )}
 
-          <details className="group rounded-lg border border-silicon-slate bg-imperial-navy/30">
-            <summary className="flex cursor-pointer list-none items-center gap-3 p-3"><ChevronDown className="h-4 w-4 text-muted-foreground transition-transform group-open:rotate-180" /><div className="flex-1 text-sm font-semibold text-foreground">Collector freshness, failures, and recovery</div><span className="text-xs text-muted-foreground">{coverage.sources.filter((source) => source.status === 'blocked').length} blocked</span></summary>
-            <div className="grid gap-2 border-t border-silicon-slate p-3 md:grid-cols-2 xl:grid-cols-4">
-              {coverage.sources.map((source) => <article key={source.key} className={`rounded-lg border p-3 ${source.status === 'ready' ? 'border-emerald-500/20 bg-emerald-500/[0.05]' : 'border-red-500/25 bg-red-500/[0.07]'}`}>
-                <div className="flex items-start justify-between gap-2"><h3 className="text-xs font-semibold text-foreground">{source.label}</h3>{source.status === 'ready' ? <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-300" /> : <AlertTriangle className="h-4 w-4 shrink-0 text-red-300" />}</div>
+          <details className={DISCLOSURE_CLASS}>
+            <summary className={SUMMARY_CLASS}><ChevronDown className="h-4 w-4 text-muted-foreground transition-transform group-open:rotate-180" /><div className="flex-1 text-sm font-semibold text-foreground">Collector freshness, failures, and recovery</div><span className="text-xs text-muted-foreground">{coverage.sources.filter((source) => source.status === 'blocked').length} blocked</span></summary>
+            <div className="grid gap-2 border-t border-border p-3 md:grid-cols-2 xl:grid-cols-4">
+              {coverage.sources.map((source) => <article key={source.key} className={`rounded-lg border bg-card p-3 text-card-foreground ${source.status === 'ready' ? 'border-border' : 'border-accent/50'}`}>
+                <div className="flex items-start justify-between gap-2"><h3 className="text-xs font-semibold text-foreground">{source.label}</h3>{source.status === 'ready' ? <CheckCircle2 className="h-4 w-4 shrink-0 text-accent" /> : <AlertTriangle className="h-4 w-4 shrink-0 text-accent" />}</div>
                 <div className="mt-2 flex flex-wrap gap-2 text-[10px] text-muted-foreground"><span className="capitalize">{source.freshness}</span><span>•</span><span>{source.receipt_count} receipts</span><span>•</span><span>{source.product_count} products</span></div>
                 <div className="mt-2 flex gap-1.5 text-[10px] text-muted-foreground"><Clock3 className="mt-0.5 h-3 w-3 shrink-0" />Last success {formatDate(source.last_successful_scan)}</div>
-                {source.collector_failure && <p className="mt-2 rounded bg-red-950/30 p-2 text-[10px] text-red-100">{source.collector_failure}</p>}
-                <p className="mt-2 border-t border-white/10 pt-2 text-[10px] leading-4 text-muted-foreground"><strong className="text-radiant-gold">Recovery:</strong> {source.recovery_action}</p>
+                {source.collector_failure && <p className="mt-2 rounded border border-border bg-muted/60 p-2 text-[10px] text-foreground">{source.collector_failure}</p>}
+                <p className="mt-2 border-t border-border pt-2 text-[10px] leading-4 text-muted-foreground"><strong className="text-accent">Recovery:</strong> {source.recovery_action}</p>
               </article>)}
             </div>
           </details>
 
-          <details className="group rounded-lg border border-sky-400/20 bg-sky-400/[0.05]">
-            <summary className="flex cursor-pointer list-none items-center gap-3 p-3"><ChevronDown className="h-4 w-4 text-sky-200 transition-transform group-open:rotate-180" /><ShieldCheck className="h-4 w-4 text-sky-200" /><span className="flex-1 text-sm font-semibold text-sky-50">Privacy and candidate gates</span><GitPullRequest className="h-4 w-4 text-sky-200" /></summary>
-            <ul className="grid gap-1 border-t border-sky-400/15 p-3 text-xs leading-5 text-sky-50/75 lg:grid-cols-2">{coverage.boundaries.map((boundary) => <li key={boundary}>• {boundary}</li>)}</ul>
+          <details className={DISCLOSURE_CLASS}>
+            <summary className={SUMMARY_CLASS}><ChevronDown className="h-4 w-4 text-muted-foreground transition-transform group-open:rotate-180" /><ShieldCheck className="h-4 w-4 text-accent" /><span className="flex-1 text-sm font-semibold text-foreground">Privacy and candidate gates</span><GitPullRequest className="h-4 w-4 text-accent" /></summary>
+            <ul className="grid gap-1 border-t border-border p-3 text-xs leading-5 text-muted-foreground lg:grid-cols-2">{coverage.boundaries.map((boundary) => <li key={boundary}>• {boundary}</li>)}</ul>
           </details>
         </div>
       ) : null}
