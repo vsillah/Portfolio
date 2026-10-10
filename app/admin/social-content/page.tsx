@@ -909,8 +909,8 @@ function SocialContentQueuePage() {
   }
 
   const platformIcon = (platform: string) => {
-    if (platform === 'linkedin') return <Linkedin className="w-4 h-4 text-blue-400" />
-    return <Share2 className="w-4 h-4 text-gray-400" />
+    if (platform === 'linkedin') return <Linkedin className="h-4 w-4 text-blue-700 dark:text-blue-300" />
+    return <Share2 className="h-4 w-4 text-muted-foreground" />
   }
 
   const workflowViews: Array<{
@@ -965,46 +965,46 @@ function SocialContentQueuePage() {
     {
       label: 'Drafts',
       value: stats.draft,
-      color: 'text-gray-400',
+      color: 'text-muted-foreground',
       status: 'draft',
       ariaLabel: `Filter social content to drafts (${stats.draft})`,
     },
     {
       label: 'Approved',
       value: stats.approved,
-      color: 'text-blue-400',
+      color: 'text-blue-700 dark:text-blue-300',
       status: 'approved',
       ariaLabel: `Filter social content to approved (${stats.approved})`,
     },
     {
       label: 'Scheduled',
       value: stats.scheduled,
-      color: 'text-amber-400',
+      color: 'text-amber-700 dark:text-amber-300',
       status: 'scheduled',
       ariaLabel: `Filter social content to scheduled (${stats.scheduled})`,
     },
     {
       label: 'Published',
       value: stats.published,
-      color: 'text-green-400',
+      color: 'text-green-700 dark:text-green-300',
       status: 'published',
       ariaLabel: `Filter social content to published (${stats.published})`,
     },
     {
       label: 'Rejected',
       value: stats.rejected,
-      color: 'text-red-400',
+      color: 'text-red-700 dark:text-red-300',
       status: 'rejected',
       ariaLabel: `Filter social content to rejected (${stats.rejected})`,
     },
   ]
 
   return (
-    <div className="admin-console-page min-h-screen p-6 text-foreground lg:p-8">
+    <div className="min-h-screen bg-background p-6 text-foreground lg:p-8" data-testid="social-content-page">
       <Breadcrumbs items={[{ label: 'Admin', href: '/admin' }, { label: 'Social Content' }]} />
 
       {/* Header */}
-      <div className="admin-console-surface-header mb-6 mt-5 flex flex-col items-start gap-4 rounded-xl border p-5 sm:flex-row sm:items-center">
+      <div className="mb-6 mt-5 flex flex-col items-start gap-4 rounded-xl border border-border bg-card p-5 text-card-foreground shadow-sm sm:flex-row sm:items-center" data-testid="social-content-header">
         <div className="flex h-12 w-12 items-center justify-center rounded-lg border border-radiant-gold/40 bg-radiant-gold/15 text-radiant-gold">
           <Share2 className="h-6 w-6" />
         </div>
@@ -1038,7 +1038,7 @@ function SocialContentQueuePage() {
         tone={stats.draft ? 'yellow' : 'blue'}
       />
 
-      <div className="admin-console-card mb-6 rounded-lg border p-4">
+      <div className="mb-6 rounded-lg border border-border bg-card p-4 text-card-foreground shadow-sm" data-testid="social-workflow-focus">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <div className="admin-console-eyebrow mb-2">Workflow focus</div>
@@ -1066,21 +1066,21 @@ function SocialContentQueuePage() {
                 className={`rounded-lg border p-4 text-left transition-colors ${
                   isActive
                     ? 'border-radiant-gold/70 bg-radiant-gold/15 text-foreground shadow-[0_0_0_1px_rgba(226,194,93,0.22)]'
-                    : 'border-silicon-slate bg-background/35 text-muted-foreground hover:border-radiant-gold/40 hover:bg-background/55 hover:text-foreground'
+                    : 'border-border bg-muted/30 text-muted-foreground hover:border-radiant-gold/40 hover:bg-muted/50 hover:text-foreground'
                 }`}
               >
                 <div className="flex items-start justify-between gap-3">
                   <span className={`inline-flex h-9 w-9 items-center justify-center rounded-lg border ${
                     isActive
                       ? 'border-radiant-gold/50 bg-radiant-gold/20 text-radiant-gold'
-                      : 'border-silicon-slate bg-imperial-navy/50 text-gray-400'
+                      : 'border-border bg-background text-muted-foreground'
                   }`}>
                     {view.icon}
                   </span>
                   <span className={`rounded-full border px-2.5 py-1 text-xs ${
                     isActive
                       ? 'border-radiant-gold/40 bg-radiant-gold/10 text-radiant-gold'
-                      : 'border-silicon-slate bg-imperial-navy/50 text-gray-400'
+                      : 'border-border bg-background text-muted-foreground'
                   }`}>
                     {view.metric}
                   </span>
@@ -1093,10 +1093,10 @@ function SocialContentQueuePage() {
         </div>
       </div>
 
-      <div className="admin-console-card mb-6 rounded-lg border p-4">
+      <div className="mb-6 rounded-lg border border-border bg-card p-4 text-card-foreground shadow-sm" data-testid="social-provider-meta">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div className="flex min-w-0 items-start gap-3">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-pink-400/30 bg-pink-500/10 text-pink-200">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-pink-500/30 bg-pink-500/10 text-pink-700 dark:text-pink-300">
               <Instagram className="h-5 w-5" />
             </span>
             <div className="min-w-0">
@@ -1108,7 +1108,7 @@ function SocialContentQueuePage() {
                   : 'Connect Meta before Instagram or Facebook companion posts can be submitted. This stores the provider adapter only; it does not post, schedule, or alter copy.'}
               </p>
               {metaConnectionNotice && (
-                <p className={`mt-2 text-xs ${metaConnectionNotice.type === 'success' ? 'text-emerald-300' : 'text-red-300'}`}>
+                <p className={`mt-2 text-xs ${metaConnectionNotice.type === 'success' ? 'text-emerald-700 dark:text-emerald-300' : 'text-red-700 dark:text-red-300'}`}>
                   {metaConnectionNotice.message}
                 </p>
               )}
@@ -1118,11 +1118,11 @@ function SocialContentQueuePage() {
                     key={label}
                     className={`flex items-center gap-2 rounded-md border px-2.5 py-2 text-xs ${
                       ready
-                        ? 'border-emerald-500/25 bg-emerald-500/10 text-emerald-100'
-                        : 'border-silicon-slate bg-imperial-navy/40 text-gray-400'
+                        ? 'border-emerald-500/25 bg-emerald-500/10 text-emerald-800 dark:text-emerald-200'
+                        : 'border-border bg-muted/30 text-muted-foreground'
                     }`}
                   >
-                    <CheckCircle2 className={`h-3.5 w-3.5 shrink-0 ${ready ? 'text-emerald-300' : 'text-gray-600'}`} />
+                    <CheckCircle2 className={`h-3.5 w-3.5 shrink-0 ${ready ? 'text-emerald-700 dark:text-emerald-300' : 'text-muted-foreground'}`} />
                     <span>{label}</span>
                   </div>
                 ))}
@@ -1135,10 +1135,10 @@ function SocialContentQueuePage() {
           <div className="flex shrink-0 flex-col items-stretch gap-2 sm:flex-row sm:items-center">
             <span className={`w-fit rounded-full border px-3 py-1 text-xs font-medium ${
               platformConfigsLoading
-                ? 'border-silicon-slate bg-imperial-navy/50 text-gray-400'
+                ? 'border-border bg-muted/30 text-muted-foreground'
                 : metaReady
-                  ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300'
-                  : 'border-amber-500/30 bg-amber-500/10 text-amber-300'
+                  ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300'
+                  : 'border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300'
             }`}>
               {platformConfigsLoading ? 'Checking' : metaReady ? 'Ready' : 'Blocked'}
             </span>
@@ -1155,10 +1155,10 @@ function SocialContentQueuePage() {
         </div>
       </div>
 
-      <div className="admin-console-card mb-6 rounded-lg border p-4">
+      <div className="mb-6 rounded-lg border border-border bg-card p-4 text-card-foreground shadow-sm" data-testid="social-provider-youtube">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex min-w-0 items-start gap-3">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-red-400/30 bg-red-500/10 text-red-200">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-red-500/30 bg-red-500/10 text-red-700 dark:text-red-300">
               <Youtube className="h-5 w-5" />
             </span>
             <div className="min-w-0">
@@ -1170,7 +1170,7 @@ function SocialContentQueuePage() {
                   : 'Connect the channel before YouTube uploads. This only authorizes the provider adapter; it does not create, schedule, upload, or publish content.'}
               </p>
               {youtubeConnectionNotice && (
-                <p className={`mt-2 text-xs ${youtubeConnectionNotice.type === 'success' ? 'text-emerald-300' : 'text-red-300'}`}>
+                <p className={`mt-2 text-xs ${youtubeConnectionNotice.type === 'success' ? 'text-emerald-700 dark:text-emerald-300' : 'text-red-700 dark:text-red-300'}`}>
                   {youtubeConnectionNotice.message}
                 </p>
               )}
@@ -1179,10 +1179,10 @@ function SocialContentQueuePage() {
           <div className="flex shrink-0 flex-col items-stretch gap-2 sm:flex-row sm:items-center">
             <span className={`rounded-full border px-3 py-1 text-xs font-medium ${
               platformConfigsLoading
-                ? 'border-silicon-slate bg-imperial-navy/50 text-gray-400'
+                ? 'border-border bg-muted/30 text-muted-foreground'
                 : youtubeConnected
-                  ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300'
-                  : 'border-amber-500/30 bg-amber-500/10 text-amber-300'
+                  ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300'
+                  : 'border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300'
             }`}>
               {platformConfigsLoading ? 'Checking' : youtubeConnected ? 'Connected' : 'Not connected'}
             </span>
@@ -1199,10 +1199,10 @@ function SocialContentQueuePage() {
         </div>
       </div>
 
-      <div className="admin-console-card mb-6 rounded-lg border p-4">
+      <div className="mb-6 rounded-lg border border-border bg-card p-4 text-card-foreground shadow-sm" data-testid="social-provider-x">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex min-w-0 items-start gap-3">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-gray-300/30 bg-gray-100/10 text-gray-100">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-border bg-muted/40 text-foreground">
               <AtSign className="h-5 w-5" />
             </span>
             <div className="min-w-0">
@@ -1214,7 +1214,7 @@ function SocialContentQueuePage() {
                   : 'Connect @amadutown before X posts or threads can be submitted. This authorizes the provider adapter only; it does not post, schedule, or alter copy.'}
               </p>
               {xConnectionNotice && (
-                <p className={`mt-2 text-xs ${xConnectionNotice.type === 'success' ? 'text-emerald-300' : 'text-red-300'}`}>
+                <p className={`mt-2 text-xs ${xConnectionNotice.type === 'success' ? 'text-emerald-700 dark:text-emerald-300' : 'text-red-700 dark:text-red-300'}`}>
                   {xConnectionNotice.message}
                 </p>
               )}
@@ -1223,10 +1223,10 @@ function SocialContentQueuePage() {
           <div className="flex shrink-0 flex-col items-stretch gap-2 sm:flex-row sm:items-center">
             <span className={`rounded-full border px-3 py-1 text-xs font-medium ${
               platformConfigsLoading
-                ? 'border-silicon-slate bg-imperial-navy/50 text-gray-400'
+                ? 'border-border bg-muted/30 text-muted-foreground'
                 : xConnected
-                  ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300'
-                  : 'border-amber-500/30 bg-amber-500/10 text-amber-300'
+                  ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300'
+                  : 'border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300'
             }`}>
               {platformConfigsLoading ? 'Checking' : xConnected ? 'Connected' : 'Not connected'}
             </span>
@@ -1246,7 +1246,7 @@ function SocialContentQueuePage() {
       {activeWorkflowView === 'evidence' && (
       <>
       <SocialSourceCoverageEvidence active={activeWorkflowView === 'evidence'} />
-      <div className="admin-console-card mb-6 rounded-lg border p-4">
+      <div className="mb-6 rounded-lg border border-border bg-card p-4 text-card-foreground shadow-sm" data-testid="social-challenger-packets">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <div className="admin-console-eyebrow mb-2">Agentic challenger loop</div>
@@ -1255,14 +1255,14 @@ function SocialContentQueuePage() {
               These assets have passed Amina challenger review and can be reviewed by Vambah here before any scheduling, publishing, visual build, or provider step.
             </p>
           </div>
-          <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-300">
+          <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-700 dark:text-emerald-300">
             {AGENTIC_SOCIAL_REVIEW_PACKETS.length} ready
           </span>
         </div>
 
         <div className="mt-4 flex flex-col gap-3 rounded-lg border border-radiant-gold/40 bg-radiant-gold/10 p-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <h3 className="text-sm font-semibold text-gray-200">Approve launch package</h3>
+            <h3 className="text-sm font-semibold text-foreground">Approve launch package</h3>
             <p className="mt-1 max-w-2xl text-xs leading-5 text-muted-foreground">
               Creates missing draft-only rows, approves the challenger-cleared launch drafts, and opens post-approval handoff work. It still does not schedule, publish, send outreach, build visuals, or call providers.
             </p>
@@ -1281,28 +1281,28 @@ function SocialContentQueuePage() {
         {launchApprovalResult && (
           <div className={`mt-3 rounded-lg border px-4 py-3 text-sm ${
             launchApprovalResult.success
-              ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300'
-              : 'border-red-500/30 bg-red-500/10 text-red-300'
+              ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300'
+              : 'border-red-500/30 bg-red-500/10 text-red-700 dark:text-red-300'
           }`}>
             <div className="flex items-center gap-2">
               {launchApprovalResult.success ? <CheckCircle2 className="h-4 w-4" /> : <AlertCircle className="h-4 w-4" />}
               <span>{launchApprovalResult.message}</span>
             </div>
             <div className="mt-3 grid gap-2 text-xs text-muted-foreground sm:grid-cols-3">
-              <span className="rounded-md border border-silicon-slate bg-imperial-navy/40 px-2.5 py-2">
+              <span className="rounded-md border border-border bg-background px-2.5 py-2">
                 {launchApprovalResult.inserted.length} seeded
               </span>
-              <span className="rounded-md border border-silicon-slate bg-imperial-navy/40 px-2.5 py-2">
+              <span className="rounded-md border border-border bg-background px-2.5 py-2">
                 {launchApprovalResult.existing.length} already existed
               </span>
-              <span className="rounded-md border border-silicon-slate bg-imperial-navy/40 px-2.5 py-2">
+              <span className="rounded-md border border-border bg-background px-2.5 py-2">
                 {launchApprovalResult.approved.length} internally approved
               </span>
             </div>
             {launchApprovalResult.remainingExternalGates.length > 0 && (
               <div className="mt-3 flex flex-wrap gap-2">
                 {launchApprovalResult.remainingExternalGates.map((gate) => (
-                  <span key={gate} className="rounded-full border border-radiant-gold/30 bg-imperial-navy/50 px-2.5 py-1 text-xs text-radiant-gold">
+                  <span key={gate} className="rounded-full border border-radiant-gold/30 bg-background px-2.5 py-1 text-xs text-radiant-gold">
                     {gate.replace(/_/g, ' ')} still gated
                   </span>
                 ))}
@@ -1323,7 +1323,7 @@ function SocialContentQueuePage() {
                   <Link
                     key={`${draft.assetId ?? draft.id}:${draft.id}:failed`}
                     href={draft.href}
-                    className="inline-flex items-center gap-1 rounded-full border border-red-500/30 px-2.5 py-1 text-xs text-red-300 hover:bg-red-500/10"
+                    className="inline-flex items-center gap-1 rounded-full border border-red-500/30 px-2.5 py-1 text-xs text-red-700 hover:bg-red-500/10 dark:text-red-300"
                   >
                     Review failed draft <AlertCircle className="h-3 w-3" />
                   </Link>
@@ -1345,7 +1345,7 @@ function SocialContentQueuePage() {
 
       {activeWorkflowView === 'create' && (
       <>
-      <div className="admin-console-card mb-6 rounded-lg border p-4">
+      <div className="mb-6 rounded-lg border border-border bg-card p-4 text-card-foreground shadow-sm" data-testid="social-create-intro">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
           <div>
             <div className="admin-console-eyebrow mb-2">Create content</div>
@@ -1361,10 +1361,10 @@ function SocialContentQueuePage() {
       </div>
 
       {/* Meeting Transcript Intake */}
-      <div className="admin-console-card relative z-30 mb-6 rounded-lg border p-4" style={{ overflow: 'visible' }}>
+      <div className="relative z-30 mb-6 rounded-lg border border-border bg-card p-4 text-card-foreground shadow-sm" style={{ overflow: 'visible' }} data-testid="social-meeting-intake">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div className="max-w-3xl">
-            <div className="flex items-center gap-2 text-sm font-semibold text-gray-200">
+            <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
               <Zap className="h-4 w-4 text-radiant-gold" />
               Create from meetings
             </div>
@@ -1377,7 +1377,7 @@ function SocialContentQueuePage() {
                 'Output: Social Content drafts',
                 'Gate: human review before publishing',
               ].map((label) => (
-                <span key={label} className="rounded-full border border-silicon-slate bg-imperial-navy/50 px-2.5 py-1 text-[11px] text-gray-300">
+                <span key={label} className="rounded-full border border-border bg-muted/30 px-2.5 py-1 text-[11px] text-muted-foreground">
                   {label}
                 </span>
               ))}
@@ -1413,12 +1413,12 @@ function SocialContentQueuePage() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="mt-4 space-y-4 rounded-lg border border-silicon-slate bg-imperial-navy/55 p-5"
+            className="mt-4 space-y-4 rounded-lg border border-border bg-muted/25 p-5"
           >
             <div className="flex items-center gap-2">
-              <h3 className="text-sm font-semibold text-gray-200">Meeting transcript picker</h3>
+              <h3 className="text-sm font-semibold text-foreground">Meeting transcript picker</h3>
               <span
-                className="text-gray-600 hover:text-gray-400 transition-colors cursor-help"
+                className="cursor-help text-muted-foreground transition-colors hover:text-foreground"
                 title="Runs WF-SOC-001 to create draft-only social content from selected meeting transcripts."
               >
                 <Info className="w-3.5 h-3.5" />
@@ -1428,46 +1428,46 @@ function SocialContentQueuePage() {
             {/* Search & Date Filters */}
             <div className="flex flex-wrap items-end gap-3">
               <div className="flex-1 min-w-[200px]">
-                <label className="block text-xs text-gray-500 mb-1">Search meetings</label>
+                <label className="mb-1 block text-xs text-muted-foreground">Search meetings</label>
                 <div className="relative">
-                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-500" />
+                  <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
                   <input
                     type="text"
                     value={meetingSearch}
                     onChange={(e) => setMeetingSearch(e.target.value)}
                     placeholder="Type, transcript, topic..."
-                    className="w-full rounded-lg border border-silicon-slate bg-imperial-navy/70 py-2 pl-8 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-radiant-gold/60 transition-colors"
+                    className="input-brand w-full py-2 pl-8 pr-3 text-sm"
                   />
                 </div>
               </div>
               <div className="flex flex-wrap items-center gap-2">
-                <Calendar className="w-3.5 h-3.5 text-gray-500 shrink-0" />
+                <Calendar className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                 <input
                   type="date"
                   value={meetingDateFrom}
                   onChange={(e) => setMeetingDateFrom(e.target.value)}
-                  className="w-full rounded-lg border border-silicon-slate bg-imperial-navy/70 px-2 py-2 text-sm text-foreground focus:outline-none focus:border-radiant-gold/60 sm:w-32"
+                  className="input-brand w-full px-2 py-2 text-sm sm:w-32"
                 />
-                <span className="text-xs text-gray-500">to</span>
+                <span className="text-xs text-muted-foreground">to</span>
                 <input
                   type="date"
                   value={meetingDateTo}
                   onChange={(e) => setMeetingDateTo(e.target.value)}
-                  className="w-full rounded-lg border border-silicon-slate bg-imperial-navy/70 px-2 py-2 text-sm text-foreground focus:outline-none focus:border-radiant-gold/60 sm:w-32"
+                  className="input-brand w-full px-2 py-2 text-sm sm:w-32"
                 />
                 {(meetingDateFrom || meetingDateTo) && (
-                  <button onClick={() => { setMeetingDateFrom(''); setMeetingDateTo('') }} className="text-xs text-gray-400 hover:text-white">Clear</button>
+                  <button onClick={() => { setMeetingDateFrom(''); setMeetingDateTo('') }} className="text-xs text-muted-foreground hover:text-foreground">Clear</button>
                 )}
               </div>
             </div>
 
             {/* Meeting List */}
             {meetingsLoading ? (
-              <div className="flex items-center gap-2 text-sm text-gray-400 py-6 justify-center">
+              <div className="flex items-center justify-center gap-2 py-6 text-sm text-muted-foreground">
                 <Loader2 className="w-4 h-4 animate-spin" /> Loading meetings...
               </div>
             ) : meetings.length === 0 ? (
-              <div className="text-center py-6 text-sm text-gray-500">
+              <div className="py-6 text-center text-sm text-muted-foreground">
                 No matching meeting transcripts found.{(meetingSearch || meetingDateFrom) ? ' Try clearing filters.' : ' Use the voice-note builder below when the source is still a brainstorm.'}
               </div>
             ) : (
@@ -1485,7 +1485,7 @@ function SocialContentQueuePage() {
                               prev.size === allIds.size ? new Set() : allIds
                             )
                           }}
-                          className="text-xs px-2 py-1 rounded border border-gray-700 text-gray-400 hover:text-white"
+                          className="rounded border border-border bg-background px-2 py-1 text-xs text-muted-foreground hover:text-foreground"
                         >
                           {selectedMeetings.size === meetings.length ? 'Deselect all' : 'Select all'}
                         </button>
@@ -1497,10 +1497,10 @@ function SocialContentQueuePage() {
                         </button>
                       </>
                     ) : (
-                      <span className="text-xs text-gray-500">Select meetings to turn into draft content, or use all recent transcripts.</span>
+                      <span className="text-xs text-muted-foreground">Select meetings to turn into draft content, or use all recent transcripts.</span>
                     )}
                   </div>
-                  <span className="text-xs text-gray-500">{meetingsTotal} meeting{meetingsTotal !== 1 ? 's' : ''}</span>
+                  <span className="text-xs text-muted-foreground">{meetingsTotal} meeting{meetingsTotal !== 1 ? 's' : ''}</span>
                 </div>
 
                 {/* Meeting rows */}
@@ -1522,46 +1522,46 @@ function SocialContentQueuePage() {
                         className={`w-full text-left flex items-center gap-2.5 px-3 py-2.5 rounded-lg border transition-colors ${
                           isSelected
                             ? 'border-amber-600/40 bg-amber-600/5'
-                            : 'border-gray-800 bg-gray-800/50 hover:bg-gray-800'
+                            : 'border-border bg-background hover:bg-muted/50'
                         }`}
                       >
                         {isSelected ? (
                           <CheckSquare className="w-4 h-4 text-amber-500 shrink-0" />
                         ) : (
-                          <Square className="w-4 h-4 text-gray-600 shrink-0" />
+                          <Square className="h-4 w-4 shrink-0 text-muted-foreground" />
                         )}
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
-                            <span className="text-sm text-gray-200 font-medium truncate">{title}</span>
+                            <span className="truncate text-sm font-medium text-foreground">{title}</span>
                             {showTypePill && (
-                              <span className="text-[10px] px-1.5 py-0.5 bg-purple-500/20 text-purple-400 rounded font-medium">
+                              <span className="rounded bg-purple-500/20 px-1.5 py-0.5 text-[10px] font-medium text-purple-700 dark:text-purple-300">
                                 {m.meeting_type.replace(/_/g, ' ')}
                               </span>
                             )}
                             {date && (
-                              <span className="text-xs text-gray-500">
+                              <span className="text-xs text-muted-foreground">
                                 {date.toLocaleDateString()} {date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                               </span>
                             )}
                             {!!m.duration_minutes && m.duration_minutes > 0 && (
-                              <span className="text-xs text-gray-500">{m.duration_minutes}m</span>
+                              <span className="text-xs text-muted-foreground">{m.duration_minutes}m</span>
                             )}
                           </div>
                           {m.participants?.length > 0 && (
-                            <div className="text-xs text-amber-400/70 mt-0.5 truncate">
+                            <div className="mt-0.5 truncate text-xs text-amber-700 dark:text-amber-300">
                               with {m.participants.join(', ')}
                             </div>
                           )}
                           {m.snippet && (
-                            <div className="text-xs text-gray-500 mt-0.5 line-clamp-2">{m.snippet}</div>
+                            <div className="mt-0.5 line-clamp-2 text-xs text-muted-foreground">{m.snippet}</div>
                           )}
                         </div>
                         <div className="flex items-center gap-1.5 shrink-0">
                           {m.has_transcript && (
-                            <span className="text-[9px] px-1 py-0.5 bg-emerald-500/15 text-emerald-400 rounded">Transcript</span>
+                            <span className="rounded bg-emerald-500/15 px-1 py-0.5 text-[9px] text-emerald-700 dark:text-emerald-300">Transcript</span>
                           )}
                           {m.queued_count > 0 && (
-                            <span className="text-[9px] px-1 py-0.5 bg-blue-500/15 text-blue-400 rounded">
+                            <span className="rounded bg-blue-500/15 px-1 py-0.5 text-[9px] text-blue-700 dark:text-blue-300">
                               {m.queued_count} post{m.queued_count > 1 ? 's' : ''}
                             </span>
                           )}
@@ -1577,19 +1577,19 @@ function SocialContentQueuePage() {
                   if (totalPages <= 1) return null
                   return (
                     <div className="flex items-center justify-between pt-1">
-                      <span className="text-xs text-gray-500">Page {meetingsPage} of {totalPages}</span>
+                      <span className="text-xs text-muted-foreground">Page {meetingsPage} of {totalPages}</span>
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => setMeetingsPage((p) => Math.max(1, p - 1))}
                           disabled={meetingsPage === 1}
-                          className="flex items-center gap-1 px-2 py-1 rounded text-xs bg-gray-800 border border-gray-700 text-gray-300 hover:border-amber-600/30 disabled:opacity-40 disabled:cursor-not-allowed"
+                          className="flex items-center gap-1 rounded border border-border bg-background px-2 py-1 text-xs text-foreground hover:border-amber-600/30 disabled:cursor-not-allowed disabled:opacity-40"
                         >
                           <ChevronLeft className="w-3 h-3" /> Prev
                         </button>
                         <button
                           onClick={() => setMeetingsPage((p) => Math.min(totalPages, p + 1))}
                           disabled={meetingsPage === totalPages}
-                          className="flex items-center gap-1 px-2 py-1 rounded text-xs bg-gray-800 border border-gray-700 text-gray-300 hover:border-amber-600/30 disabled:opacity-40 disabled:cursor-not-allowed"
+                          className="flex items-center gap-1 rounded border border-border bg-background px-2 py-1 text-xs text-foreground hover:border-amber-600/30 disabled:cursor-not-allowed disabled:opacity-40"
                         >
                           Next <ChevronRight className="w-3 h-3" />
                         </button>
@@ -1601,7 +1601,7 @@ function SocialContentQueuePage() {
             )}
 
             {/* Action buttons */}
-            <div className="flex items-center gap-3 pt-2 border-t border-gray-800">
+            <div className="flex items-center gap-3 border-t border-border pt-2">
               {extractionStatus.state === 'running' || extractionStatus.state === 'stale' ? (
                 <button
                   onClick={() => {
@@ -1649,8 +1649,8 @@ function SocialContentQueuePage() {
             {triggerResult && (
               <div className={`flex items-center gap-2 text-sm rounded-lg px-3 py-2 ${
                 triggerResult.success
-                  ? 'bg-green-500/10 text-green-400 border border-green-500/30'
-                  : 'bg-red-500/10 text-red-400 border border-red-500/30'
+                  ? 'border border-green-500/30 bg-green-500/10 text-green-700 dark:text-green-300'
+                  : 'border border-red-500/30 bg-red-500/10 text-red-700 dark:text-red-300'
               }`}>
                 {triggerResult.success ? (
                   <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
@@ -1665,10 +1665,10 @@ function SocialContentQueuePage() {
       </div>
 
       {/* Voice-note Package Intake */}
-      <div className="admin-console-card mb-6 rounded-lg border p-4">
+      <div className="mb-6 rounded-lg border border-border bg-card p-4 text-card-foreground shadow-sm" data-testid="social-voice-intake">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <div className="flex items-center gap-2 text-sm font-semibold text-gray-200">
+            <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
               <Mic className="h-4 w-4 text-radiant-gold" />
               Voice-note package builder
             </div>
@@ -1681,7 +1681,7 @@ function SocialContentQueuePage() {
                 'Output: multi-format draft package',
                 'Gate: internal review',
               ].map((label) => (
-                <span key={label} className="rounded-full border border-silicon-slate bg-imperial-navy/50 px-2.5 py-1 text-[11px] text-gray-300">
+                <span key={label} className="rounded-full border border-border bg-muted/30 px-2.5 py-1 text-[11px] text-muted-foreground">
                   {label}
                 </span>
               ))}
@@ -1701,26 +1701,26 @@ function SocialContentQueuePage() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="mt-4 grid gap-4 rounded-lg border border-silicon-slate bg-imperial-navy/55 p-5 xl:grid-cols-[minmax(0,1.1fr)_minmax(320px,0.9fr)]"
+            className="mt-4 grid gap-4 rounded-lg border border-border bg-muted/25 p-5 xl:grid-cols-[minmax(0,1.1fr)_minmax(320px,0.9fr)]"
           >
             <div className="space-y-4">
               <div className="grid gap-3 md:grid-cols-2">
                 <label className="block">
-                  <span className="mb-1 block text-xs text-gray-500">Title</span>
+                  <span className="mb-1 block text-xs text-muted-foreground">Title</span>
                   <input
                     value={voiceTitle}
                     onChange={(e) => setVoiceTitle(e.target.value)}
                     placeholder="Optional package title"
-                    className="w-full rounded-lg border border-silicon-slate bg-imperial-navy/70 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-radiant-gold/60"
+                    className="input-brand w-full px-3 py-2 text-sm"
                   />
                 </label>
                 <label className="block">
-                  <span className="mb-1 block text-xs text-gray-500">Topic</span>
+                  <span className="mb-1 block text-xs text-muted-foreground">Topic</span>
                   <input
                     value={voiceTopic}
                     onChange={(e) => setVoiceTopic(e.target.value)}
                     placeholder="Main idea or angle"
-                    className="w-full rounded-lg border border-silicon-slate bg-imperial-navy/70 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-radiant-gold/60"
+                    className="input-brand w-full px-3 py-2 text-sm"
                   />
                 </label>
               </div>
@@ -1729,7 +1729,7 @@ function SocialContentQueuePage() {
                 value={voiceAudience}
                 onChange={(e) => setVoiceAudience(e.target.value)}
                 placeholder="Audience: founders, operators, nonprofit leaders, product teams..."
-                className="w-full rounded-lg border border-silicon-slate bg-imperial-navy/70 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-radiant-gold/60"
+                className="input-brand w-full px-3 py-2 text-sm"
               />
 
               <textarea
@@ -1737,7 +1737,7 @@ function SocialContentQueuePage() {
                 onChange={(e) => setVoiceTranscript(e.target.value)}
                 rows={6}
                 placeholder="Optional while recording. If left blank, the captured audio is transcribed server-side when OPENAI_API_KEY is configured."
-                className="w-full rounded-lg border border-silicon-slate bg-imperial-navy/70 px-3 py-2 text-sm leading-6 text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-radiant-gold/60"
+                className="input-brand w-full px-3 py-2 text-sm leading-6"
               />
 
               <div className="flex flex-wrap items-center gap-2">
@@ -1746,7 +1746,7 @@ function SocialContentQueuePage() {
                   onClick={isRecording ? stopVoiceRecording : startVoiceRecording}
                   className={`inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-medium transition-colors ${
                     isRecording
-                      ? 'border-red-500/50 bg-red-500/15 text-red-300'
+                      ? 'border-red-500/50 bg-red-500/15 text-red-700 dark:text-red-300'
                       : 'border-radiant-gold/40 bg-radiant-gold/10 text-radiant-gold hover:bg-radiant-gold/20'
                   }`}
                 >
@@ -1754,12 +1754,12 @@ function SocialContentQueuePage() {
                   {isRecording ? 'Stop Recording' : 'Record Natively'}
                 </button>
                 {voiceAudioFile && (
-                  <span className="truncate text-xs text-emerald-400">Captured: {voiceAudioFile.name}</span>
+                  <span className="truncate text-xs text-emerald-700 dark:text-emerald-300">Captured: {voiceAudioFile.name}</span>
                 )}
               </div>
 
               <div>
-                <div className="mb-2 text-xs text-gray-500">Outputs</div>
+                <div className="mb-2 text-xs text-muted-foreground">Outputs</div>
                 <div className="flex flex-wrap gap-2">
                   {VOICE_NOTE_OUTPUTS.map((output) => (
                     <button
@@ -1769,7 +1769,7 @@ function SocialContentQueuePage() {
                       className={`rounded-full border px-3 py-1 text-xs transition-colors ${
                         voiceOutputs.includes(output.value)
                           ? 'border-radiant-gold/60 bg-radiant-gold/15 text-radiant-gold'
-                          : 'border-silicon-slate text-gray-400 hover:border-gray-500'
+                          : 'border-border bg-background text-muted-foreground hover:border-radiant-gold/40 hover:text-foreground'
                       }`}
                     >
                       {output.label}
@@ -1779,7 +1779,7 @@ function SocialContentQueuePage() {
               </div>
 
               <div>
-                <div className="mb-2 text-xs text-gray-500">Frameworks</div>
+                <div className="mb-2 text-xs text-muted-foreground">Frameworks</div>
                 <div className="grid gap-2 md:grid-cols-2">
                   {contentFrameworks.map((framework) => (
                     <button
@@ -1789,10 +1789,10 @@ function SocialContentQueuePage() {
                       className={`rounded-lg border p-3 text-left transition-colors ${
                         voiceFrameworks.includes(framework.id)
                           ? 'border-radiant-gold/60 bg-radiant-gold/10'
-                          : 'border-silicon-slate hover:border-gray-500'
+                          : 'border-border bg-background hover:border-radiant-gold/40'
                       }`}
                     >
-                      <div className="text-xs font-semibold text-gray-200">{framework.creator_name}</div>
+                      <div className="text-xs font-semibold text-foreground">{framework.creator_name}</div>
                       <div className="mt-1 text-xs text-muted-foreground">{framework.display_name}</div>
                     </button>
                   ))}
@@ -1813,8 +1813,8 @@ function SocialContentQueuePage() {
               {voiceResult && (
                 <div className={`rounded-lg border px-3 py-2 text-sm ${
                   voiceResult.success
-                    ? 'border-green-500/30 bg-green-500/10 text-green-300'
-                    : 'border-red-500/30 bg-red-500/10 text-red-300'
+                    ? 'border-green-500/30 bg-green-500/10 text-green-700 dark:text-green-300'
+                    : 'border-red-500/30 bg-red-500/10 text-red-700 dark:text-red-300'
                 }`}>
                   <div>{voiceResult.message}</div>
                   <div className="mt-2 flex flex-wrap items-center gap-3">
@@ -1848,35 +1848,35 @@ function SocialContentQueuePage() {
                 </div>
               )}
 
-              <div className="rounded-lg border border-silicon-slate bg-background/30 p-3">
+              <div className="rounded-lg border border-border bg-background p-3">
                 <div className="mb-3 flex items-center justify-between">
-                  <h3 className="text-sm font-semibold text-gray-200">Recent intakes</h3>
+                  <h3 className="text-sm font-semibold text-foreground">Recent intakes</h3>
                   <button onClick={fetchVoiceIntakes} className="text-xs text-radiant-gold hover:underline">Refresh</button>
                 </div>
                 {voiceLoading ? (
-                  <div className="flex justify-center py-6"><Loader2 className="h-5 w-5 animate-spin text-gray-500" /></div>
+                  <div className="flex justify-center py-6"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
                 ) : voiceIntakes.length === 0 ? (
                   <p className="py-6 text-center text-xs text-muted-foreground">No voice-note intakes yet.</p>
                 ) : (
                   <div className="space-y-2">
                     {voiceIntakes.map((intake) => (
-                      <div key={intake.id} className="rounded-lg border border-silicon-slate/80 bg-imperial-navy/50 p-3">
+                      <div key={intake.id} className="rounded-lg border border-border bg-muted/30 p-3">
                         <div className="flex items-start justify-between gap-3">
                           <div className="min-w-0">
-                            <div className="truncate text-sm font-medium text-gray-200">{intake.title}</div>
-                            <div className="mt-1 flex flex-wrap gap-2 text-[10px] text-gray-500">
+                            <div className="truncate text-sm font-medium text-foreground">{intake.title}</div>
+                            <div className="mt-1 flex flex-wrap gap-2 text-[10px] text-muted-foreground">
                               <span>{intake.status.replace(/_/g, ' ')}</span>
                               {intake.audio_file_name && <span>audio captured</span>}
                               <span>{new Date(intake.created_at).toLocaleDateString()}</span>
                             </div>
                             <div className="mt-2 flex flex-wrap gap-1">
                               {(intake.target_outputs ?? []).slice(0, 5).map((output) => (
-                                <span key={output} className="rounded-full bg-silicon-slate/70 px-2 py-0.5 text-[10px] text-gray-300">{output.replace(/_/g, ' ')}</span>
+                                <span key={output} className="rounded-full bg-muted px-2 py-0.5 text-[10px] text-muted-foreground">{output.replace(/_/g, ' ')}</span>
                               ))}
                             </div>
                           </div>
                           {intake.status === 'packet_generated' ? (
-                            <span className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1.5 text-xs text-emerald-300">
+                            <span className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1.5 text-xs text-emerald-700 dark:text-emerald-300">
                               Generated
                             </span>
                           ) : (
@@ -1915,14 +1915,14 @@ function SocialContentQueuePage() {
               aria-label={stat.ariaLabel}
               aria-pressed={isActive}
               onClick={() => setStatusFilter(stat.status)}
-              className={`admin-console-metric min-h-[76px] rounded-xl border p-3 text-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-radiant-gold/60 ${
+              className={`min-h-[76px] rounded-xl border border-border bg-card p-3 text-center text-card-foreground shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-radiant-gold/60 ${
                 isActive
                   ? 'border-radiant-gold/70 bg-radiant-gold/15 shadow-[0_0_0_1px_rgba(226,194,93,0.22)]'
                   : 'hover:border-radiant-gold/50 hover:bg-radiant-gold/10'
               }`}
             >
               <div className={`text-xl font-bold tabular-nums ${stat.color}`}>{stat.value}</div>
-              <div className={`mt-1 text-xs font-medium ${isActive ? 'text-radiant-gold' : 'text-gray-500'}`}>
+              <div className={`mt-1 text-xs font-medium ${isActive ? 'text-radiant-gold' : 'text-muted-foreground'}`}>
                 {stat.label}
               </div>
             </button>
@@ -1931,13 +1931,13 @@ function SocialContentQueuePage() {
       </div>
 
       {/* Filters */}
-      <div className="admin-console-card mb-6 flex flex-wrap items-center gap-3 rounded-lg border p-4">
-        <Filter className="w-4 h-4 text-gray-500" />
+      <div className="mb-6 flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card p-4 text-card-foreground shadow-sm" data-testid="social-review-filters">
+        <Filter className="h-4 w-4 text-muted-foreground" />
         <select
           aria-label="Filter social content by status"
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value as ContentStatus | 'all')}
-          className="rounded-lg border border-silicon-slate bg-imperial-navy/70 px-3 py-1.5 text-sm text-foreground"
+          className="input-brand px-3 py-1.5 text-sm"
         >
           <option value="all">All Statuses</option>
           {CONTENT_STATUSES.map((s) => (
@@ -1948,7 +1948,7 @@ function SocialContentQueuePage() {
           aria-label="Filter social content by platform"
           value={platformFilter}
           onChange={(e) => setPlatformFilter(e.target.value as SocialPlatform | 'all')}
-          className="rounded-lg border border-silicon-slate bg-imperial-navy/70 px-3 py-1.5 text-sm text-foreground"
+          className="input-brand px-3 py-1.5 text-sm"
         >
           <option value="all">All Platforms</option>
           {PLATFORMS.map((p) => (
@@ -1961,7 +1961,7 @@ function SocialContentQueuePage() {
           placeholder="Search posts..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="min-w-[200px] flex-1 rounded-lg border border-silicon-slate bg-imperial-navy/70 px-3 py-1.5 text-sm text-foreground placeholder:text-muted-foreground"
+          className="input-brand min-w-[200px] flex-1 px-3 py-1.5 text-sm"
         />
       </div>
 
@@ -1969,10 +1969,10 @@ function SocialContentQueuePage() {
       <div id="social-content-approval-queue" className="scroll-mt-24" />
       {loading ? (
         <div className="flex items-center justify-center py-20">
-          <Loader2 className="w-6 h-6 text-gray-400 animate-spin" />
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
         </div>
       ) : items.length === 0 ? (
-        <div className="text-center py-20 text-gray-500">
+        <div className="py-20 text-center text-muted-foreground" data-testid="social-review-empty">
           <FileText className="w-12 h-12 mx-auto mb-3 opacity-50" />
           <p>{hasQueueFilters ? `No ${activeStatusLabel ? `${activeStatusLabel.toLowerCase()} ` : 'matching '}social content found.` : 'No social content yet.'}</p>
           <p className="text-sm mt-1">
@@ -1995,15 +1995,15 @@ function SocialContentQueuePage() {
               >
                 <Link
                   href={buildLinkWithReturn(`/admin/social-content/${item.id}${scheduleState.stale ? '?step=status' : ''}`, '/admin/social-content')}
-                  className="admin-console-card admin-console-interactive block rounded-xl border p-4 transition-colors"
+                  className="block rounded-xl border border-border bg-card p-4 text-card-foreground shadow-sm transition-colors hover:border-radiant-gold/50 hover:bg-muted/20"
                 >
                   <div className="flex items-start gap-4">
                     {/* Image thumbnail */}
-                    <div className="w-16 h-16 rounded-lg border border-silicon-slate bg-imperial-navy/70 flex-shrink-0 overflow-hidden flex items-center justify-center relative">
+                    <div className="relative flex h-16 w-16 flex-shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border bg-muted/30">
                       {item.image_url ? (
                         <Image src={item.image_url} alt="" className="object-cover" fill sizes="64px" />
                       ) : (
-                        <ImageIcon className="w-6 h-6 text-gray-600" />
+                        <ImageIcon className="h-6 w-6 text-muted-foreground" />
                       )}
                     </div>
 
@@ -2015,21 +2015,21 @@ function SocialContentQueuePage() {
                           {statusCfg.label}
                         </span>
                         {item.framework_visual_type && (
-                          <span className="text-xs px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-400 border border-purple-500/50">
+                          <span className="rounded-full border border-purple-500/50 bg-purple-500/20 px-2 py-0.5 text-xs text-purple-700 dark:text-purple-300">
                             {item.framework_visual_type}
                           </span>
                         )}
                         {item.voiceover_url && (
-                          <Volume2 className="w-3.5 h-3.5 text-emerald-400" />
+                          <Volume2 className="h-3.5 w-3.5 text-emerald-700 dark:text-emerald-300" />
                         )}
                       </div>
-                      <p className="text-sm text-gray-300 line-clamp-2">
+                      <p className="line-clamp-2 text-sm text-foreground">
                         {truncateForPreview(item.post_text, 200)}
                       </p>
-                      <div className="flex items-center gap-3 mt-2 text-xs text-gray-500 flex-wrap">
+                      <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
                         <span>{new Date(item.created_at).toLocaleDateString()}</span>
                         {item.meeting_title && (
-                          <span className="flex items-center gap-1 text-blue-400/70 truncate max-w-[250px]">
+                          <span className="flex max-w-[250px] items-center gap-1 truncate text-blue-700 dark:text-blue-300">
                             <FileText className="w-3 h-3 flex-shrink-0" />
                             {item.meeting_title}
                           </span>
@@ -2040,7 +2040,7 @@ function SocialContentQueuePage() {
                           </span>
                         )}
                         {scheduleState.label && (
-                          <span className={`flex items-center gap-1 ${scheduleState.stale ? 'text-amber-300' : ''}`}>
+                          <span className={`flex items-center gap-1 ${scheduleState.stale ? 'text-amber-700 dark:text-amber-300' : ''}`}>
                             <Clock className="w-3 h-3" />
                             {scheduleState.label}
                           </span>
@@ -2061,7 +2061,7 @@ function SocialContentQueuePage() {
                             onClick={(e) => handleQuickApprove(e, item.id)}
                             disabled={actionLoading === item.id}
                             title="Approve"
-                            className="p-1.5 rounded-lg bg-green-900/30 hover:bg-green-900/60 text-green-400 border border-green-800/50 transition-colors disabled:opacity-50"
+                              className="rounded-lg border border-green-500/40 bg-green-500/10 p-1.5 text-green-700 transition-colors hover:bg-green-500/20 disabled:opacity-50 dark:text-green-300"
                           >
                             {actionLoading === item.id ? (
                               <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -2073,13 +2073,13 @@ function SocialContentQueuePage() {
                             onClick={(e) => handleQuickReject(e, item.id)}
                             disabled={actionLoading === item.id}
                             title="Reject"
-                            className="p-1.5 rounded-lg bg-red-900/30 hover:bg-red-900/60 text-red-400 border border-red-800/50 transition-colors disabled:opacity-50"
+                            className="rounded-lg border border-red-500/40 bg-red-500/10 p-1.5 text-red-700 transition-colors hover:bg-red-500/20 disabled:opacity-50 dark:text-red-300"
                           >
                             <ThumbsDown className="w-3.5 h-3.5" />
                           </button>
                         </>
                       )}
-                      <Eye className="w-4 h-4 text-gray-600" />
+                      <Eye className="h-4 w-4 text-muted-foreground" />
                     </div>
                   </div>
                 </Link>
@@ -2092,21 +2092,21 @@ function SocialContentQueuePage() {
       {/* Pagination */}
       {pagination.totalPages > 1 && (
         <div className="flex items-center justify-between mt-6">
-          <span className="text-sm text-gray-500">
+          <span className="text-sm text-muted-foreground">
             Page {pagination.page} of {pagination.totalPages} ({pagination.total} items)
           </span>
           <div className="flex gap-2">
             <button
               onClick={() => fetchItems(pagination.page - 1)}
               disabled={pagination.page <= 1}
-              className="px-3 py-1.5 bg-gray-800 border border-gray-700 rounded-lg text-sm disabled:opacity-50 hover:bg-gray-700 transition-colors"
+              className="rounded-lg border border-border bg-card px-3 py-1.5 text-sm text-foreground transition-colors hover:bg-muted disabled:opacity-50"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
             <button
               onClick={() => fetchItems(pagination.page + 1)}
               disabled={pagination.page >= pagination.totalPages}
-              className="px-3 py-1.5 bg-gray-800 border border-gray-700 rounded-lg text-sm disabled:opacity-50 hover:bg-gray-700 transition-colors"
+              className="rounded-lg border border-border bg-card px-3 py-1.5 text-sm text-foreground transition-colors hover:bg-muted disabled:opacity-50"
             >
               <ChevronRight className="w-4 h-4" />
             </button>

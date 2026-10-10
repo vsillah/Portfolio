@@ -77,19 +77,21 @@ const session = { access_token: 'privacy-safe-qa-token', refresh_token: 'privacy
     await expect(page.getByRole('heading', { name: 'Coverage before candidate creation' })).toBeVisible({ timeout: 90000 })
     await expect(page.getByText(/Branches prove development; previews do not prove production/i)).toBeVisible()
 
-    const coverage = page.locator('section[aria-labelledby="source-coverage-heading"]')
-    await coverage.scrollIntoViewIfNeeded()
-    await page.waitForTimeout(theme === 'light' ? 600 : 150)
     await page.evaluate((nextTheme) => {
       const adminMain = document.querySelector('#admin-main')
       const adminRoot = adminMain?.parentElement?.parentElement
+      localStorage.setItem('theme', nextTheme)
       document.documentElement.classList.toggle('dark', nextTheme === 'dark')
       adminRoot?.classList.toggle('dark', nextTheme === 'dark')
       adminRoot?.setAttribute('data-qa-theme', nextTheme)
     }, theme)
     await page.waitForTimeout(900)
+
+    const coverage = page.locator('section[aria-labelledby="source-coverage-heading"]')
+    await coverage.scrollIntoViewIfNeeded()
     const priorityList = coverage.getByTestId('priority-coverage-list')
     await expect(priorityList.getByTestId('coverage-product-row')).toHaveCount(3)
+    const priorityProductsVisible = await priorityList.getByTestId('coverage-product-row').count()
     await priorityList.getByTestId('coverage-product-row').first().locator('summary').click()
     const directoryToggle = coverage.getByText('Additional product directory')
     await directoryToggle.click()
@@ -127,27 +129,84 @@ const session = { access_token: 'privacy-safe-qa-token', refresh_token: 'privacy
     const screenshotName = theme === 'dark' ? `${width}-launch-evidence.png` : `${width}-light-launch-evidence.png`
     await page.screenshot({ path: path.join(outputDir, screenshotName), fullPage: true })
     await page.waitForTimeout(700)
+    const coverageSummary = await coverage.innerText()
+
+    const workflowSurfaceMetrics = {}
+    const inspectSurface = async (workflow, testId) => {
+      const metric = await page.getByTestId(testId).evaluate((element) => {
+        const rgbLuma = (value) => {
+          const values = value.match(/[\d.]+/g)?.slice(0, 3).map(Number) ?? [0, 0, 0]
+          return Math.round((values[0] * 0.2126) + (values[1] * 0.7152) + (values[2] * 0.0722))
+        }
+        const style = getComputedStyle(element)
+        return {
+          background: style.backgroundColor,
+          background_luma: rgbLuma(style.backgroundColor),
+          text: style.color,
+          text_luma: rgbLuma(style.color),
+        }
+      })
+      if (theme === 'dark') {
+        assert.ok(metric.background_luma < 120, `${theme} ${width}px ${workflow} surface is too bright: ${metric.background}`)
+        assert.ok(metric.text_luma > 150, `${theme} ${width}px ${workflow} text lacks contrast: ${metric.text}`)
+      } else {
+        assert.ok(metric.background_luma > 180, `${theme} ${width}px ${workflow} surface is too dark: ${metric.background}`)
+        assert.ok(metric.text_luma < 120, `${theme} ${width}px ${workflow} text lacks contrast: ${metric.text}`)
+      }
+      workflowSurfaceMetrics[workflow] = metric
+    }
+
+    await inspectSurface('evidence', 'social-challenger-packets')
+
+    await page.getByRole('tab', { name: /Review draft queue/i }).click()
+    await expect(page.getByRole('tab', { name: /Review draft queue/i })).toHaveAttribute('aria-selected', 'true')
+    await expect(page.getByTestId('social-review-filters')).toBeVisible()
+    await inspectSurface('review', 'social-review-filters')
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, `${theme} ${width}px review horizontal overflow`)
+    await page.screenshot({ path: path.join(outputDir, `${width}-${theme}-review-queue.png`), fullPage: true })
+    await page.waitForTimeout(600)
+
+    await page.getByRole('tab', { name: /Create content/i }).click()
+    await expect(page.getByRole('tab', { name: /Create content/i })).toHaveAttribute('aria-selected', 'true')
+    await expect(page.getByTestId('social-meeting-intake')).toBeVisible()
+    await page.getByRole('button', { name: 'Open meeting picker' }).click()
+    await expect(page.getByRole('heading', { name: 'Meeting transcript picker' })).toBeVisible()
+    await page.getByRole('button', { name: 'Build Package' }).click()
+    await expect(page.getByPlaceholder('Optional package title')).toBeVisible()
+    await inspectSurface('create', 'social-meeting-intake')
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, `${theme} ${width}px create horizontal overflow`)
+    await page.screenshot({ path: path.join(outputDir, `${width}-${theme}-create-content.png`), fullPage: true })
+    await page.waitForTimeout(700)
+
+    const legacyThemeClasses = await page.getByTestId('social-content-page').evaluate((root) => {
+      const pattern = /(?:bg-imperial-navy|border-silicon-slate|bg-gray-(?:700|800|900)|text-gray-(?:100|200|300|400|500|600))/
+      return Array.from(root.querySelectorAll('[class]'))
+        .map((element) => element.getAttribute('class') || '')
+        .filter((className) => pattern.test(className))
+    })
+    assert.deepEqual(legacyThemeClasses, [], `${theme} ${width}px retained fixed dark surface classes: ${legacyThemeClasses.join(', ')}`)
 
     assert.equal(mutations.length, 0, `${theme} ${width}px QA made a mutation: ${mutations.join(', ')}`)
     assert.equal(providerCalls.length, 0, `${theme} ${width}px QA called a provider: ${providerCalls.join(', ')}`)
     assert.equal(pageErrors.length, 0, `${theme} ${width}px QA emitted a page error: ${pageErrors.join(', ')}`)
-    const summary = await coverage.innerText()
     results.push({
       width,
       theme,
       route: `${base}${routePath}`,
       source: 'live_read_only_collectors',
       coverage_visible: true,
-      shows_freshness: /fresh|aging|stale|No successful scan/i.test(summary),
-      shows_lifecycle: /insight|development|preview|production|public/i.test(summary),
-      shows_recovery: /Recovery:/i.test(summary),
-      priority_products_visible: await priorityList.getByTestId('coverage-product-row').count(),
+      shows_freshness: /fresh|aging|stale|No successful scan/i.test(coverageSummary),
+      shows_lifecycle: /insight|development|preview|production|public/i.test(coverageSummary),
+      shows_recovery: /Recovery:/i.test(coverageSummary),
+      priority_products_visible: priorityProductsVisible,
       directory_rows_bounded: visibleDirectoryRows,
       mutations: 0,
       provider_calls: 0,
       page_errors: [],
       horizontal_overflow: false,
       theme_metrics: themeMetrics,
+      workflow_surfaces: workflowSurfaceMetrics,
+      workflow_modes_checked: ['evidence', 'review', 'create'],
     })
 
     const video = page.video()

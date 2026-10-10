@@ -102,6 +102,32 @@ describe('SocialContentQueuePage Instagram provider setup', () => {
     vi.unstubAllGlobals()
   })
 
+  it('uses semantic light and dark surfaces across every workflow mode', async () => {
+    const { container } = render(<SocialContentQueuePage />)
+
+    expect(await screen.findByTestId('social-content-header')).toHaveClass('border-border', 'bg-card', 'text-card-foreground')
+    expect(screen.getByTestId('social-workflow-focus')).toHaveClass('border-border', 'bg-card', 'text-card-foreground')
+    expect(screen.getByTestId('social-provider-meta')).toHaveClass('border-border', 'bg-card', 'text-card-foreground')
+    expect(screen.getByTestId('social-provider-youtube')).toHaveClass('border-border', 'bg-card', 'text-card-foreground')
+    expect(screen.getByTestId('social-provider-x')).toHaveClass('border-border', 'bg-card', 'text-card-foreground')
+    expect(screen.getByTestId('social-review-filters')).toHaveClass('border-border', 'bg-card', 'text-card-foreground')
+    expect(screen.getByTestId('social-review-empty')).toHaveClass('text-muted-foreground')
+
+    fireEvent.click(screen.getByRole('tab', { name: /Launch evidence/i }))
+    expect(screen.getByText('Dynamic source coverage evidence')).toBeInTheDocument()
+    expect(screen.getByTestId('social-challenger-packets')).toHaveClass('border-border', 'bg-card', 'text-card-foreground')
+
+    fireEvent.click(screen.getByRole('tab', { name: /Create content/i }))
+    expect(screen.getByTestId('social-create-intro')).toHaveClass('border-border', 'bg-card', 'text-card-foreground')
+    expect(screen.getByTestId('social-meeting-intake')).toHaveClass('border-border', 'bg-card', 'text-card-foreground')
+    expect(screen.getByTestId('social-voice-intake')).toHaveClass('border-border', 'bg-card', 'text-card-foreground')
+
+    const classNames = Array.from(container.querySelectorAll<HTMLElement>('[class]'))
+      .map((element) => element.className)
+      .join(' ')
+    expect(classNames).not.toMatch(/bg-imperial-navy|border-silicon-slate|bg-gray-(700|800|900)|text-gray-(100|200|300|400|500|600)/)
+  })
+
   it('renders Instagram requirements without exposing credential values or setup actions', async () => {
     render(<SocialContentQueuePage />)
 

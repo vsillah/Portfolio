@@ -60,9 +60,9 @@ export default function AgenticContentReviewPacketCard({
   const sendBackHelp = hasDecisionNote ? 'Sends this revision note to the repair task.' : 'Add a decision note before sending back.'
 
   return (
-    <div className="rounded-lg border border-silicon-slate bg-imperial-navy/45 p-4">
+    <div className="rounded-lg border border-border bg-card p-4 text-card-foreground">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div className="flex flex-wrap items-center gap-2 text-[10px] font-medium uppercase tracking-[0.14em] text-gray-500">
+        <div className="flex flex-wrap items-center gap-2 text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
           <span className="rounded-full border border-radiant-gold/30 px-2 py-0.5 text-radiant-gold">{priorityLabel(packet.priority)}</span>
           <span>{packet.channel}</span>
           <span>{packet.output}</span>
@@ -75,7 +75,7 @@ export default function AgenticContentReviewPacketCard({
               rel="noreferrer"
               title="Open source draft"
               aria-label="Open source draft"
-              className="inline-flex h-8 items-center gap-1.5 rounded-md border border-emerald-500/35 bg-emerald-500/10 px-2.5 text-[11px] font-medium text-emerald-100 transition-colors hover:border-emerald-400 hover:text-emerald-50"
+              className="inline-flex h-8 items-center gap-1.5 rounded-md border border-emerald-500/35 bg-emerald-500/10 px-2.5 text-[11px] font-medium text-emerald-700 transition-colors hover:border-emerald-500 dark:text-emerald-300"
             >
               <ExternalLink className="h-3.5 w-3.5" />
               Draft
@@ -87,7 +87,7 @@ export default function AgenticContentReviewPacketCard({
             rel="noreferrer"
             title="Open source packet"
             aria-label="Open source packet"
-            className="inline-flex h-8 items-center gap-1.5 rounded-md border border-silicon-slate bg-background/50 px-2.5 text-[11px] font-medium text-gray-200 transition-colors hover:border-radiant-gold/50 hover:text-radiant-gold"
+            className="inline-flex h-8 items-center gap-1.5 rounded-md border border-border bg-background px-2.5 text-[11px] font-medium text-foreground transition-colors hover:border-radiant-gold/50 hover:text-radiant-gold"
           >
             <ExternalLink className="h-3.5 w-3.5" />
             Packet
@@ -97,7 +97,7 @@ export default function AgenticContentReviewPacketCard({
               href={nextGateHref}
               title={nextGateLabel}
               aria-label={nextGateLabel}
-              className="inline-flex h-8 items-center gap-1.5 rounded-md border border-silicon-slate bg-background/50 px-2.5 text-[11px] font-medium text-gray-200 transition-colors hover:border-radiant-gold/50 hover:text-radiant-gold"
+              className="inline-flex h-8 items-center gap-1.5 rounded-md border border-border bg-background px-2.5 text-[11px] font-medium text-foreground transition-colors hover:border-radiant-gold/50 hover:text-radiant-gold"
             >
               <AlertTriangle className="h-3.5 w-3.5" />
               Queue
@@ -106,60 +106,60 @@ export default function AgenticContentReviewPacketCard({
         </div>
       </div>
 
-      <h3 className="mt-3 text-sm font-semibold text-gray-100">{packet.title}</h3>
-      <p className="mt-2 text-xs leading-5 text-gray-400">{packet.humanReview}</p>
+      <h3 className="mt-3 text-sm font-semibold text-foreground">{packet.title}</h3>
+      <p className="mt-2 text-xs leading-5 text-muted-foreground">{packet.humanReview}</p>
 
-      <div className="mt-3 grid gap-2 text-[11px] text-gray-500 sm:grid-cols-2">
+      <div className="mt-3 grid gap-2 text-[11px] text-muted-foreground sm:grid-cols-2">
         <div>
-          <span className="text-gray-400">Challenger</span>
-          <div className="mt-0.5 text-emerald-300">{packet.challengerAgent} - {packet.challengerStatus}</div>
+          <span>Challenger</span>
+          <div className="mt-0.5 text-emerald-700 dark:text-emerald-300">{packet.challengerAgent} - {packet.challengerStatus}</div>
         </div>
         <div>
-          <span className="text-gray-400">Approval</span>
-          <div className="mt-0.5 text-emerald-300">{packet.approvalStatus}</div>
+          <span>Approval</span>
+          <div className="mt-0.5 text-emerald-700 dark:text-emerald-300">{packet.approvalStatus}</div>
         </div>
       </div>
 
-      <div className="mt-3 rounded-md border border-silicon-slate/70 bg-background/40 p-2 text-[11px] leading-5 text-gray-400">
-        <div><span className="text-gray-500">Source packet:</span> <code className="text-radiant-gold">{packet.packetPath}</code></div>
-        <div><span className="text-gray-500">Next gate:</span> {packet.nextGate}</div>
+      <div className="mt-3 rounded-md border border-border bg-muted/30 p-2 text-[11px] leading-5 text-muted-foreground">
+        <div><span>Source packet:</span> <code className="text-radiant-gold">{packet.packetPath}</code></div>
+        <div><span>Next gate:</span> {packet.nextGate}</div>
       </div>
 
       {packet.evidencePacket ? (
         <div className="mt-3 rounded-md border border-blue-400/20 bg-blue-500/10 p-3">
-          <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-blue-200">
+          <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-blue-700 dark:text-blue-300">
             <FileText className="h-3.5 w-3.5" />
             Evidence packet
           </div>
-          <p className="mt-2 text-xs leading-5 text-gray-100">{packet.evidencePacket.draftPreview}</p>
+          <p className="mt-2 text-xs leading-5 text-foreground">{packet.evidencePacket.draftPreview}</p>
           <div className="mt-3 grid gap-3 text-[11px] leading-5 lg:grid-cols-2">
             <div>
               <div className="font-semibold uppercase tracking-[0.12em] text-radiant-gold/90">Source basis</div>
-              <ul className="mt-1 space-y-1 text-gray-300">
+              <ul className="mt-1 space-y-1 text-foreground">
                 {packet.evidencePacket.sourceBasis.map((source) => (
                   <li key={source}>- {source}</li>
                 ))}
               </ul>
             </div>
             <div>
-              <div className="font-semibold uppercase tracking-[0.12em] text-emerald-300">Amina clearance</div>
-              <ul className="mt-1 space-y-1 text-gray-300">
+              <div className="font-semibold uppercase tracking-[0.12em] text-emerald-700 dark:text-emerald-300">Amina clearance</div>
+              <ul className="mt-1 space-y-1 text-foreground">
                 {packet.evidencePacket.challengerFindings.map((finding) => (
                   <li key={finding}>- {finding}</li>
                 ))}
               </ul>
             </div>
             <div>
-              <div className="font-semibold uppercase tracking-[0.12em] text-amber-300">Human checks</div>
-              <ul className="mt-1 space-y-1 text-gray-300">
+              <div className="font-semibold uppercase tracking-[0.12em] text-amber-700 dark:text-amber-300">Human checks</div>
+              <ul className="mt-1 space-y-1 text-foreground">
                 {packet.evidencePacket.humanChecks.map((check) => (
                   <li key={check}>- {check}</li>
                 ))}
               </ul>
             </div>
             <div>
-              <div className="font-semibold uppercase tracking-[0.12em] text-rose-300">Still gated</div>
-              <ul className="mt-1 space-y-1 text-gray-300">
+              <div className="font-semibold uppercase tracking-[0.12em] text-rose-700 dark:text-rose-300">Still gated</div>
+              <ul className="mt-1 space-y-1 text-foreground">
                 {packet.evidencePacket.closedGates.map((gate) => (
                   <li key={gate}>- {gate}</li>
                 ))}
@@ -174,7 +174,7 @@ export default function AgenticContentReviewPacketCard({
           <Link
             href={buildAgenticContentReviewActionHref(packet, 'approve_next_gate')}
             title={copy.approveHelp}
-            className="inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-md border border-emerald-500/45 bg-emerald-500/15 px-3 py-2 font-semibold text-emerald-100 transition-colors hover:border-emerald-300 hover:bg-emerald-500/25 sm:flex-none"
+            className="inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-md border border-emerald-500/45 bg-emerald-500/15 px-3 py-2 font-semibold text-emerald-700 transition-colors hover:border-emerald-500 hover:bg-emerald-500/25 dark:text-emerald-300 sm:flex-none"
           >
             <CheckCircle2 className="h-3.5 w-3.5" />
             {copy.approveLabel}
@@ -182,7 +182,7 @@ export default function AgenticContentReviewPacketCard({
           <Link
             href={buildAgenticContentReviewActionHref(packet, 'send_back_for_repair', decisionNote)}
             title={sendBackHelp}
-            className="inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-md border border-amber-500/45 bg-amber-500/15 px-3 py-2 font-semibold text-amber-100 transition-colors hover:border-amber-300 hover:bg-amber-500/25 sm:flex-none"
+            className="inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-md border border-amber-500/45 bg-amber-500/15 px-3 py-2 font-semibold text-amber-700 transition-colors hover:border-amber-500 hover:bg-amber-500/25 dark:text-amber-300 sm:flex-none"
           >
             <RotateCcw className="h-3.5 w-3.5" />
             Send back
@@ -190,7 +190,7 @@ export default function AgenticContentReviewPacketCard({
           <Link
             href={buildAgenticContentReviewActionHref(packet, 'hold_for_human', decisionNote)}
             title="Frames the unresolved risk for a human-only decision."
-            className="inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-md border border-rose-500/40 bg-rose-500/15 px-3 py-2 font-semibold text-rose-100 transition-colors hover:border-rose-300 hover:bg-rose-500/25 sm:flex-none"
+            className="inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-md border border-rose-500/40 bg-rose-500/15 px-3 py-2 font-semibold text-rose-700 transition-colors hover:border-rose-500 hover:bg-rose-500/25 dark:text-rose-300 sm:flex-none"
           >
             <PauseCircle className="h-3.5 w-3.5" />
             Hold

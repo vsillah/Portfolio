@@ -18,7 +18,7 @@ describe('MobileWorkflowSummary', () => {
       />,
     )
 
-    expect(screen.getByLabelText('Decision Queue mobile workflow summary')).toBeInTheDocument()
+    expect(screen.getByLabelText('Decision Queue mobile workflow summary')).toHaveClass('border-border', 'bg-card', 'text-card-foreground')
     expect(screen.getByText('blocked')).toBeInTheDocument()
     expect(screen.getByText('Integration Captain')).toBeInTheDocument()
     expect(screen.getByText('Review the controller packet.')).toBeInTheDocument()

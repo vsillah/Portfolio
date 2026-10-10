@@ -18,11 +18,11 @@ export type MobileWorkflowSummaryProps = {
 }
 
 const toneClasses: Record<WorkflowSummaryTone, string> = {
-  green: 'border-emerald-500/35 bg-emerald-500/10 text-emerald-100',
-  yellow: 'border-amber-500/40 bg-amber-500/10 text-amber-100',
-  red: 'border-red-500/40 bg-red-500/10 text-red-100',
-  blue: 'border-blue-500/35 bg-blue-500/10 text-blue-100',
-  slate: 'border-silicon-slate/70 bg-silicon-slate/20 text-foreground',
+  green: 'border-emerald-500/35 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300',
+  yellow: 'border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-300',
+  red: 'border-red-500/40 bg-red-500/10 text-red-700 dark:text-red-300',
+  blue: 'border-blue-500/35 bg-blue-500/10 text-blue-700 dark:text-blue-300',
+  slate: 'border-border bg-muted/30 text-foreground',
 }
 
 export default function MobileWorkflowSummary({
@@ -39,7 +39,7 @@ export default function MobileWorkflowSummary({
   return (
     <section
       aria-label={`${title} mobile workflow summary`}
-      className="mobile-workflow-summary rounded-xl border border-silicon-slate/70 bg-background/70 p-4 shadow-sm lg:hidden"
+      className="mobile-workflow-summary rounded-xl border border-border bg-card p-4 text-card-foreground shadow-sm lg:hidden"
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
@@ -68,8 +68,8 @@ export default function MobileWorkflowSummary({
         </div>
         <div className="flex gap-3">
           {waitingOnYou.toLowerCase().startsWith('yes')
-            ? <Clock3 className="mt-0.5 h-4 w-4 shrink-0 text-amber-300" />
-            : <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-300" />}
+            ? <Clock3 className="mt-0.5 h-4 w-4 shrink-0 text-amber-700 dark:text-amber-300" />
+            : <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-700 dark:text-emerald-300" />}
           <div className="min-w-0">
             <dt className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Waiting on you</dt>
             <dd className="mt-0.5 text-foreground">{waitingOnYou}</dd>
@@ -78,7 +78,7 @@ export default function MobileWorkflowSummary({
       </dl>
 
       {blocker ? (
-        <div className="mt-4 rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm leading-6 text-red-50">
+        <div className="mt-4 rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm leading-6 text-red-800 dark:text-red-200">
           <div className="flex gap-2">
             <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
             <p>{blocker}</p>
