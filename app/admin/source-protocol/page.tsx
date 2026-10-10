@@ -1,17 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import {
-  AlertTriangle,
-  BookOpenCheck,
-  CircleDollarSign,
-  Database,
-  FileText,
-  RefreshCw,
-  Search,
-  ShieldCheck,
-  Users,
-} from 'lucide-react'
+import { AlertTriangle, BookOpenCheck, CircleDollarSign, Database, FileText, RefreshCw, Search, ShieldCheck, Users } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import { getCurrentSession } from '@/lib/auth'
@@ -96,6 +86,12 @@ type SourceProtocolOverview = {
     rows: any[]
     queueAppendDrafts: any[]
     blockedActions: string[]
+  }
+  bannedBooksEvidenceQaUnavailable?: {
+    code: 'optional_projection_file_missing' | 'optional_projection_unavailable'
+    message: string
+    sourceImportPath: string
+    approvalPath: string
   }
 }
 
@@ -216,30 +212,33 @@ function SourceProtocolContent() {
     }
   }, [canViewEarnings, canViewReceipts, loadOverview, portalStatus, selectedCreatorId, selectedUserId])
 
-  const updatePortalAccount = useCallback(async (accountId: string, update: Record<string, unknown>) => {
-    setPortalBusy(true)
-    setPortalMessage(null)
-    try {
-      const session = await getCurrentSession()
-      if (!session?.access_token) throw new Error('Missing admin session')
-      const res = await fetch('/api/admin/source-protocol/portal-accounts', {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${session.access_token}`,
-        },
-        body: JSON.stringify({ accountId, ...update }),
-      })
-      const body = await res.json().catch(() => ({}))
-      if (!res.ok) throw new Error(body.error || `HTTP ${res.status}`)
-      setPortalMessage('Portal account updated.')
-      await loadOverview()
-    } catch (err) {
-      setPortalMessage(err instanceof Error ? err.message : 'Failed to update portal account')
-    } finally {
-      setPortalBusy(false)
-    }
-  }, [loadOverview])
+  const updatePortalAccount = useCallback(
+    async (accountId: string, update: Record<string, unknown>) => {
+      setPortalBusy(true)
+      setPortalMessage(null)
+      try {
+        const session = await getCurrentSession()
+        if (!session?.access_token) throw new Error('Missing admin session')
+        const res = await fetch('/api/admin/source-protocol/portal-accounts', {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({ accountId, ...update }),
+        })
+        const body = await res.json().catch(() => ({}))
+        if (!res.ok) throw new Error(body.error || `HTTP ${res.status}`)
+        setPortalMessage('Portal account updated.')
+        await loadOverview()
+      } catch (err) {
+        setPortalMessage(err instanceof Error ? err.message : 'Failed to update portal account')
+      } finally {
+        setPortalBusy(false)
+      }
+    },
+    [loadOverview],
+  )
 
   const summary = overview?.summary
   const hasOpenRightsIssue = Boolean(summary && (summary.openDisputes > 0 || summary.heldPayouts > 0))
@@ -255,16 +254,13 @@ function SourceProtocolContent() {
       reviews: overview?.modelReviews?.length ?? 0,
       bannedBooks: overview?.bannedBooksCorpus?.summary.stagedRecords ?? 0,
     }),
-    [overview]
+    [overview],
   )
 
   return (
-    <div className="min-h-screen bg-background text-foreground p-6 lg:p-8">
+    <div className="min-h-screen bg-background p-6 text-foreground lg:p-8" data-testid="source-protocol-page">
       <div className="max-w-7xl mx-auto">
-        <Breadcrumbs items={[
-          { label: 'Admin Dashboard', href: '/admin' },
-          { label: 'Source Protocol' },
-        ]} />
+        <Breadcrumbs items={[{ label: 'Admin Dashboard', href: '/admin' }, { label: 'Source Protocol' }]} />
 
         <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div>
@@ -273,9 +269,8 @@ function SourceProtocolContent() {
               Operating view for opt-in creator content, active license grants, cited answer receipts, monthly payout settlement, and creator portal access.
             </p>
           </div>
-          <div className="rounded-lg border border-silicon-slate bg-silicon-slate/30 px-4 py-3 text-xs text-muted-foreground">
-            Source docs:{' '}
-            <span className="font-mono text-foreground">docs/source-respecting-llm-protocol.md</span>
+          <div className="rounded-lg border border-border bg-card px-4 py-3 text-xs text-muted-foreground shadow-sm">
+            Source docs: <span className="font-mono text-foreground">docs/source-respecting-llm-protocol.md</span>
             {' / '}
             <span className="font-mono text-foreground">docs/creator-rights-model-review-monitor.md</span>
           </div>
@@ -293,18 +288,21 @@ function SourceProtocolContent() {
           />
         ) : overview && summary ? (
           <>
-            <section className="mb-6 rounded-lg border border-silicon-slate bg-silicon-slate/30 p-5">
+            <section className="mb-6 rounded-lg border border-border bg-card p-5 text-card-foreground shadow-sm" data-testid="source-protocol-stance">
               <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div>
                   <div className="mb-2 flex items-center gap-2">
-                    <ShieldCheck size={20} className="text-radiant-gold" />
+                    <ShieldCheck size={20} className="text-bronze dark:text-radiant-gold" />
                     <h2 className="text-xl font-semibold">Protocol stance</h2>
                   </div>
                   <p className="text-sm text-muted-foreground max-w-3xl">
                     Retrieval remains permission-aware. Payouts accrue per answer receipt, then settle monthly to avoid high transaction costs.
                   </p>
                 </div>
-                <div className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-wide ${hasOpenRightsIssue ? 'border-amber-500/40 bg-amber-500/10 text-amber-300' : 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300'}`}>
+                <div
+                  data-contrast-audit="protocol-status"
+                  className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-wide ${hasOpenRightsIssue ? 'border-amber-600/45 bg-amber-100 text-amber-900 dark:border-amber-500/45 dark:bg-amber-500/10 dark:text-amber-200' : 'border-emerald-600/45 bg-emerald-100 text-emerald-900 dark:border-emerald-500/45 dark:bg-emerald-500/10 dark:text-emerald-200'}`}
+                >
                   {hasOpenRightsIssue ? 'Review needed' : 'No open holds'}
                 </div>
               </div>
@@ -343,20 +341,22 @@ function SourceProtocolContent() {
               </Panel>
             </section>
 
-            <section className="mb-4 flex flex-wrap gap-2">
+            <section className="mb-4 flex flex-wrap gap-2" aria-label="Source Protocol sections">
               {TABS.map((item) => (
                 <button
                   key={item.key}
                   type="button"
                   onClick={() => setTab(item.key)}
-                  className={`rounded-lg border px-3 py-2 text-sm ${tab === item.key ? 'border-radiant-gold bg-radiant-gold/10 text-radiant-gold' : 'border-silicon-slate text-muted-foreground hover:text-foreground'}`}
+                  aria-pressed={tab === item.key}
+                  data-contrast-audit={tab === item.key ? 'active-tab' : undefined}
+                  className={`rounded-lg border px-3 py-2 text-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-radiant-gold focus-visible:ring-offset-2 focus-visible:ring-offset-background ${tab === item.key ? 'border-radiant-gold/60 bg-radiant-gold/15 font-semibold text-[#6F5310] dark:border-radiant-gold/45 dark:text-radiant-gold' : 'border-border bg-card text-muted-foreground hover:border-radiant-gold/40 hover:text-foreground'}`}
                 >
                   {item.label} <span className="ml-1 font-mono text-xs">{tabCounts[item.key]}</span>
                 </button>
               ))}
             </section>
 
-            <section className={tab === 'portal' ? '' : 'overflow-hidden rounded-lg border border-silicon-slate'}>
+            <section className={tab === 'portal' ? '' : 'overflow-hidden rounded-lg border border-border bg-card text-card-foreground'}>
               {tab === 'portal' && (
                 <PortalAccountsPanel
                   creators={overview.creators ?? []}
@@ -385,6 +385,7 @@ function SourceProtocolContent() {
                 <BannedBooksCorpusPanel
                   corpus={overview.bannedBooksCorpus}
                   evidenceQa={overview.bannedBooksEvidenceQa}
+                  evidenceQaUnavailable={overview.bannedBooksEvidenceQaUnavailable}
                 />
               )}
               {tab === 'creators' && <CreatorsTable rows={overview.creators ?? []} />}
@@ -403,11 +404,12 @@ function SourceProtocolContent() {
 }
 
 function Notice({ tone, title, body }: { tone: 'amber' | 'red'; title: string; body: string }) {
-  const classes = tone === 'amber'
-    ? 'border-amber-500/50 bg-amber-500/10 text-amber-200'
-    : 'border-red-500/50 bg-red-500/10 text-red-300'
+  const classes =
+    tone === 'amber'
+      ? 'border-amber-600/45 bg-amber-100 text-amber-950 dark:border-amber-500/50 dark:bg-amber-500/10 dark:text-amber-200'
+      : 'border-red-600/45 bg-red-100 text-red-950 dark:border-red-500/50 dark:bg-red-500/10 dark:text-red-200'
   return (
-    <div className={`rounded-lg border p-6 ${classes}`}>
+    <div data-contrast-audit={`${tone}-notice`} className={`rounded-lg border p-6 ${classes}`}>
       <p className="font-medium">{title}</p>
       <p className="mt-1 text-sm">{body}</p>
     </div>
@@ -459,9 +461,9 @@ function PortalAccountsPanel({
 }) {
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(320px,420px)_1fr]">
-      <section className="rounded-lg border border-silicon-slate bg-silicon-slate/30 p-5">
+      <section className="rounded-lg border border-border bg-card p-5 text-card-foreground shadow-sm" data-testid="source-protocol-portal-form">
         <div className="mb-4 flex items-center gap-2">
-          <Users size={20} className="text-radiant-gold" />
+          <Users size={20} className="text-bronze dark:text-radiant-gold" />
           <h2 className="text-lg font-semibold">Link creator access</h2>
         </div>
 
@@ -471,7 +473,7 @@ function PortalAccountsPanel({
             <select
               value={selectedCreatorId}
               onChange={(event) => onSelectedCreatorChange(event.target.value)}
-              className="w-full rounded-lg border border-silicon-slate bg-background px-3 py-2 text-sm"
+              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-radiant-gold disabled:cursor-not-allowed disabled:opacity-50"
             >
               <option value="">Choose a creator</option>
               {creators.map((creator) => (
@@ -490,13 +492,13 @@ function PortalAccountsPanel({
                 value={userSearch}
                 onChange={(event) => onUserSearchChange(event.target.value)}
                 placeholder="Search user email"
-                className="min-w-0 flex-1 rounded-lg border border-silicon-slate bg-background px-3 py-2 text-sm"
+                className="min-w-0 flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-radiant-gold disabled:cursor-not-allowed disabled:opacity-50"
               />
               <button
                 type="button"
                 onClick={onSearchUsers}
                 disabled={busy}
-                className="inline-flex items-center gap-2 rounded-lg border border-silicon-slate px-3 py-2 text-sm text-muted-foreground hover:text-foreground disabled:opacity-50"
+                className="inline-flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-2 text-sm text-muted-foreground transition-colors hover:border-radiant-gold/40 hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-radiant-gold disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <Search size={16} />
                 Search
@@ -509,7 +511,7 @@ function PortalAccountsPanel({
             <select
               value={selectedUserId}
               onChange={(event) => onSelectedUserChange(event.target.value)}
-              className="w-full rounded-lg border border-silicon-slate bg-background px-3 py-2 text-sm"
+              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-radiant-gold disabled:cursor-not-allowed disabled:opacity-50"
             >
               <option value="">Choose a user</option>
               {userOptions.map((user) => (
@@ -525,7 +527,7 @@ function PortalAccountsPanel({
             <select
               value={portalStatus}
               onChange={(event) => onStatusChange(event.target.value)}
-              className="w-full rounded-lg border border-silicon-slate bg-background px-3 py-2 text-sm"
+              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-radiant-gold disabled:cursor-not-allowed disabled:opacity-50"
             >
               <option value="active">Active</option>
               <option value="pending">Pending</option>
@@ -534,42 +536,31 @@ function PortalAccountsPanel({
             </select>
           </label>
 
-          <label className="flex items-center justify-between gap-3 rounded-lg border border-silicon-slate px-3 py-2 text-sm">
+          <label className="flex items-center justify-between gap-3 rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground">
             <span>Show earnings</span>
-            <input
-              type="checkbox"
-              checked={canViewEarnings}
-              onChange={(event) => onCanViewEarningsChange(event.target.checked)}
-            />
+            <input type="checkbox" checked={canViewEarnings} onChange={(event) => onCanViewEarningsChange(event.target.checked)} />
           </label>
-          <label className="flex items-center justify-between gap-3 rounded-lg border border-silicon-slate px-3 py-2 text-sm">
+          <label className="flex items-center justify-between gap-3 rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground">
             <span>Show receipt details</span>
-            <input
-              type="checkbox"
-              checked={canViewReceipts}
-              onChange={(event) => onCanViewReceiptsChange(event.target.checked)}
-            />
+            <input type="checkbox" checked={canViewReceipts} onChange={(event) => onCanViewReceiptsChange(event.target.checked)} />
           </label>
 
           <button
             type="button"
             onClick={onCreate}
             disabled={busy || !selectedCreatorId || !selectedUserId}
-            className="w-full rounded-lg border border-radiant-gold bg-radiant-gold/10 px-3 py-2 text-sm font-semibold text-radiant-gold hover:bg-radiant-gold/20 disabled:cursor-not-allowed disabled:opacity-50"
+            data-contrast-audit="primary-action"
+            className="w-full rounded-lg border border-bronze bg-bronze px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#765811] focus:outline-none focus-visible:ring-2 focus-visible:ring-radiant-gold focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:border-border disabled:bg-muted disabled:text-muted-foreground dark:border-radiant-gold dark:bg-radiant-gold dark:text-imperial-navy dark:hover:bg-gold-light dark:disabled:border-border dark:disabled:bg-muted dark:disabled:text-muted-foreground"
           >
             {busy ? 'Saving...' : 'Save portal link'}
           </button>
 
-          {message && (
-            <p className="rounded-lg border border-silicon-slate bg-background/50 px-3 py-2 text-sm text-muted-foreground">
-              {message}
-            </p>
-          )}
+          {message && <p className="rounded-lg border border-border bg-muted/30 px-3 py-2 text-sm text-muted-foreground">{message}</p>}
         </div>
       </section>
 
-      <section className="overflow-hidden rounded-lg border border-silicon-slate">
-        <div className="hidden grid-cols-6 gap-4 bg-silicon-slate/60 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground lg:grid">
+      <section className="overflow-hidden rounded-lg border border-border bg-card text-card-foreground" data-testid="source-protocol-portal-accounts">
+        <div className="hidden gap-4 border-b border-border bg-muted/60 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground xl:grid xl:grid-cols-[minmax(85px,1.15fr)_minmax(100px,1.2fr)_minmax(70px,.75fr)_minmax(85px,1fr)_minmax(80px,.8fr)_minmax(120px,1.35fr)]">
           <span>Creator</span>
           <span>User</span>
           <span>Status</span>
@@ -577,60 +568,78 @@ function PortalAccountsPanel({
           <span>Created</span>
           <span>Actions</span>
         </div>
-        <div className="divide-y divide-silicon-slate">
+        <div className="divide-y divide-border">
           {accounts.length === 0 ? (
             <div className="px-4 py-8 text-center text-sm text-muted-foreground">No portal accounts yet.</div>
-          ) : accounts.map((account) => (
-            <div key={account.id} className="grid grid-cols-1 gap-3 px-4 py-4 text-sm lg:grid-cols-6 lg:gap-4">
-              <div className="font-medium">{account.creator_display_name || shortId(account.creator_id)}</div>
-              <div className="text-muted-foreground">
-                <p>{account.user_email || shortId(account.user_id)}</p>
-                <p className="font-mono text-xs">{shortId(account.user_id)}</p>
+          ) : (
+            accounts.map((account) => (
+              <div
+                key={account.id}
+                className="grid grid-cols-1 gap-3 px-4 py-4 text-sm xl:grid-cols-[minmax(85px,1.15fr)_minmax(100px,1.2fr)_minmax(70px,.75fr)_minmax(85px,1fr)_minmax(80px,.8fr)_minmax(120px,1.35fr)] xl:gap-4"
+              >
+                <div className="min-w-0 break-words font-medium">{account.creator_display_name || shortId(account.creator_id)}</div>
+                <div className="min-w-0 text-muted-foreground">
+                  <p className="break-all">{account.user_email || shortId(account.user_id)}</p>
+                  <p className="font-mono text-xs">{shortId(account.user_id)}</p>
+                </div>
+                <div>
+                  <StatusBadge status={account.status} />
+                </div>
+                <div className="text-muted-foreground">
+                  <p>{account.can_view_earnings ? 'Earnings visible' : 'Earnings hidden'}</p>
+                  <p>{account.can_view_receipts ? 'Receipts visible' : 'Receipts hidden'}</p>
+                </div>
+                <div className="text-muted-foreground">{formatDate(account.created_at)}</div>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      onUpdate(account.id, {
+                        status: account.status === 'active' ? 'suspended' : 'active',
+                      })
+                    }
+                    disabled={busy || account.status === 'revoked'}
+                    className="rounded border border-border bg-background px-2 py-1 text-xs text-muted-foreground transition-colors hover:border-radiant-gold/40 hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-radiant-gold disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {account.status === 'active' ? 'Suspend' : 'Activate'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onUpdate(account.id, { status: 'revoked' })}
+                    disabled={busy || account.status === 'revoked'}
+                    data-contrast-audit="destructive-action"
+                    className="rounded border border-red-600/50 bg-red-50 px-2 py-1 text-xs font-medium text-red-800 transition-colors hover:bg-red-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 disabled:cursor-not-allowed disabled:border-border disabled:bg-muted disabled:text-muted-foreground dark:border-red-500/50 dark:bg-red-500/10 dark:text-red-200 dark:hover:bg-red-500/20 dark:disabled:border-border dark:disabled:bg-muted dark:disabled:text-muted-foreground"
+                  >
+                    Revoke
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      onUpdate(account.id, {
+                        canViewEarnings: !account.can_view_earnings,
+                      })
+                    }
+                    disabled={busy || account.status === 'revoked'}
+                    className="rounded border border-border bg-background px-2 py-1 text-xs text-muted-foreground transition-colors hover:border-radiant-gold/40 hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-radiant-gold disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <RefreshCw size={12} className="inline" /> Earnings
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      onUpdate(account.id, {
+                        canViewReceipts: !account.can_view_receipts,
+                      })
+                    }
+                    disabled={busy || account.status === 'revoked'}
+                    className="rounded border border-border bg-background px-2 py-1 text-xs text-muted-foreground transition-colors hover:border-radiant-gold/40 hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-radiant-gold disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <RefreshCw size={12} className="inline" /> Receipts
+                  </button>
+                </div>
               </div>
-              <div>
-                <StatusBadge status={account.status} />
-              </div>
-              <div className="text-muted-foreground">
-                <p>{account.can_view_earnings ? 'Earnings visible' : 'Earnings hidden'}</p>
-                <p>{account.can_view_receipts ? 'Receipts visible' : 'Receipts hidden'}</p>
-              </div>
-              <div className="text-muted-foreground">{formatDate(account.created_at)}</div>
-              <div className="flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  onClick={() => onUpdate(account.id, { status: account.status === 'active' ? 'suspended' : 'active' })}
-                  disabled={busy || account.status === 'revoked'}
-                  className="rounded border border-silicon-slate px-2 py-1 text-xs text-muted-foreground hover:text-foreground disabled:opacity-50"
-                >
-                  {account.status === 'active' ? 'Suspend' : 'Activate'}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => onUpdate(account.id, { status: 'revoked' })}
-                  disabled={busy || account.status === 'revoked'}
-                  className="rounded border border-red-500/40 px-2 py-1 text-xs text-red-300 disabled:opacity-50"
-                >
-                  Revoke
-                </button>
-                <button
-                  type="button"
-                  onClick={() => onUpdate(account.id, { canViewEarnings: !account.can_view_earnings })}
-                  disabled={busy || account.status === 'revoked'}
-                  className="rounded border border-silicon-slate px-2 py-1 text-xs text-muted-foreground hover:text-foreground disabled:opacity-50"
-                >
-                  <RefreshCw size={12} className="inline" /> Earnings
-                </button>
-                <button
-                  type="button"
-                  onClick={() => onUpdate(account.id, { canViewReceipts: !account.can_view_receipts })}
-                  disabled={busy || account.status === 'revoked'}
-                  className="rounded border border-silicon-slate px-2 py-1 text-xs text-muted-foreground hover:text-foreground disabled:opacity-50"
-                >
-                  <RefreshCw size={12} className="inline" /> Receipts
-                </button>
-              </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </section>
     </div>
@@ -640,31 +649,32 @@ function PortalAccountsPanel({
 function BannedBooksCorpusPanel({
   corpus,
   evidenceQa,
+  evidenceQaUnavailable,
 }: {
   corpus: SourceProtocolOverview['bannedBooksCorpus']
   evidenceQa?: SourceProtocolOverview['bannedBooksEvidenceQa']
+  evidenceQaUnavailable?: SourceProtocolOverview['bannedBooksEvidenceQaUnavailable']
 }) {
   if (!corpus) {
-    return (
-      <div className="rounded-lg border border-silicon-slate px-4 py-8 text-center text-sm text-muted-foreground">
-        No banned-books corpus projection is available.
-      </div>
-    )
+    return <div className="rounded-lg border border-border bg-card px-4 py-8 text-center text-sm text-muted-foreground">No banned-books corpus projection is available.</div>
   }
 
   return (
     <div className="space-y-4">
-      <section className="rounded-lg border border-silicon-slate bg-silicon-slate/30 p-5">
+      <section className="rounded-lg border border-border bg-card p-5 text-card-foreground shadow-sm" data-testid="source-protocol-banned-books">
         <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
           <div>
             <div className="mb-2 flex items-center gap-2">
-              <BookOpenCheck size={20} className="text-radiant-gold" />
+              <BookOpenCheck size={20} className="text-bronze dark:text-radiant-gold" />
               <h2 className="text-lg font-semibold">Banned Books Rights-Ready Corpus</h2>
             </div>
             <p className="max-w-4xl text-sm text-muted-foreground">{corpus.scope}</p>
             <p className="mt-2 max-w-4xl text-sm text-muted-foreground">{corpus.licenseModel}</p>
           </div>
-          <div className="rounded-full border border-amber-500/40 bg-amber-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-amber-300">
+          <div
+            data-contrast-audit="staged-status"
+            className="rounded-full border border-amber-600/45 bg-amber-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-amber-900 dark:border-amber-500/45 dark:bg-amber-500/10 dark:text-amber-200"
+          >
             Staged only
           </div>
         </div>
@@ -693,12 +703,29 @@ function BannedBooksCorpusPanel({
         </Panel>
       </section>
 
-      {corpus.sourceIngestionQueue && (
-        <section className="overflow-hidden rounded-lg border border-silicon-slate">
-          <div className="bg-silicon-slate/60 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            Source ingestion queue
+      {evidenceQaUnavailable && (
+        <section
+          className="rounded-lg border border-amber-600/45 bg-amber-100 p-4 text-amber-950 dark:border-amber-500/50 dark:bg-amber-500/10 dark:text-amber-200"
+          data-testid="banned-books-evidence-unavailable"
+          data-contrast-audit="optional-projection-unavailable"
+        >
+          <div className="flex items-start gap-3">
+            <AlertTriangle size={20} className="mt-0.5 shrink-0" />
+            <div>
+              <h3 className="font-semibold">Evidence QA approval projection unavailable</h3>
+              <p className="mt-1 text-sm">{evidenceQaUnavailable.message}</p>
+              <p className="mt-2 text-xs opacity-80">
+                Live Source Protocol records remain available. This optional dry-run projection is held closed until its packaged fixture inputs can be verified.
+              </p>
+            </div>
           </div>
-          <div className="grid grid-cols-2 gap-3 border-b border-silicon-slate p-4 lg:grid-cols-6">
+        </section>
+      )}
+
+      {corpus.sourceIngestionQueue && (
+        <section className="overflow-hidden rounded-lg border border-border bg-card text-card-foreground">
+          <div className="border-b border-border bg-muted/60 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Source ingestion queue</div>
+          <div className="grid grid-cols-2 gap-3 border-b border-border p-4 lg:grid-cols-6">
             <Stat icon={<Database size={18} />} label="Sources" value={corpus.sourceIngestionQueue.summary.sourceCount} />
             <Stat icon={<Search size={18} />} label="Candidates" value={corpus.sourceIngestionQueue.summary.candidateCount} />
             <Stat icon={<BookOpenCheck size={18} />} label="Matched" value={corpus.sourceIngestionQueue.summary.existingRecordMatches} />
@@ -706,10 +733,8 @@ function BannedBooksCorpusPanel({
             <Stat icon={<AlertTriangle size={18} />} label="Needs QA" value={corpus.sourceIngestionQueue.summary.evidenceReviewRequired} />
             <Stat icon={<AlertTriangle size={18} />} label="Blocked" value={corpus.sourceIngestionQueue.summary.blockedFullTextActions} />
           </div>
-          <div className="border-b border-silicon-slate px-4 py-3 text-sm text-muted-foreground">
-            {corpus.sourceIngestionQueue.policy}
-          </div>
-          <div className="divide-y divide-silicon-slate">
+          <div className="border-b border-border px-4 py-3 text-sm text-muted-foreground">{corpus.sourceIngestionQueue.policy}</div>
+          <div className="divide-y divide-border">
             {corpus.sourceIngestionQueue.candidates.map((candidate) => (
               <div key={candidate.externalId} className="grid grid-cols-1 gap-3 px-4 py-4 text-sm lg:grid-cols-5 lg:gap-4">
                 <div>
@@ -736,11 +761,9 @@ function BannedBooksCorpusPanel({
       )}
 
       {evidenceQa && (
-        <section className="overflow-hidden rounded-lg border border-silicon-slate">
-          <div className="bg-silicon-slate/60 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            Evidence QA approval queue
-          </div>
-          <div className="grid grid-cols-2 gap-3 border-b border-silicon-slate p-4 lg:grid-cols-7">
+        <section className="overflow-hidden rounded-lg border border-border bg-card text-card-foreground">
+          <div className="border-b border-border bg-muted/60 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Evidence QA approval queue</div>
+          <div className="grid grid-cols-2 gap-3 border-b border-border p-4 lg:grid-cols-7">
             <Stat icon={<FileText size={18} />} label="Import rows" value={evidenceQa.summary.importRows} />
             <Stat icon={<ShieldCheck size={18} />} label="Decisions" value={evidenceQa.summary.decisions} />
             <Stat icon={<BookOpenCheck size={18} />} label="Approved" value={evidenceQa.summary.approvedQueueAppends} />
@@ -749,10 +772,10 @@ function BannedBooksCorpusPanel({
             <Stat icon={<AlertTriangle size={18} />} label="Blocked" value={evidenceQa.summary.blocked} />
             <Stat icon={<Database size={18} />} label="Already queued" value={evidenceQa.summary.alreadyQueued} />
           </div>
-          <div className="border-b border-silicon-slate px-4 py-3 text-sm text-muted-foreground">
+          <div className="border-b border-border px-4 py-3 text-sm text-muted-foreground">
             Reviewer: {evidenceQa.reviewer}. Dry run: {String(evidenceQa.dryRun)}. Source import: {evidenceQa.sourceImportPath}.
           </div>
-          <div className="divide-y divide-silicon-slate">
+          <div className="divide-y divide-border">
             {evidenceQa.rows.map((row) => (
               <div key={row.externalId} className="grid grid-cols-1 gap-3 px-4 py-4 text-sm lg:grid-cols-5 lg:gap-4">
                 <div>
@@ -777,11 +800,9 @@ function BannedBooksCorpusPanel({
         </section>
       )}
 
-      <section className="overflow-hidden rounded-lg border border-silicon-slate">
-        <div className="bg-silicon-slate/60 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-          MECE agent lanes
-        </div>
-        <div className="divide-y divide-silicon-slate">
+      <section className="overflow-hidden rounded-lg border border-border bg-card text-card-foreground">
+        <div className="border-b border-border bg-muted/60 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">MECE agent lanes</div>
+        <div className="divide-y divide-border">
           {corpus.swarmAgents.map((agent) => (
             <div key={agent.key} className="grid grid-cols-1 gap-3 px-4 py-4 text-sm lg:grid-cols-5 lg:gap-4">
               <div>
@@ -797,11 +818,9 @@ function BannedBooksCorpusPanel({
         </div>
       </section>
 
-      <section className="overflow-hidden rounded-lg border border-silicon-slate">
-        <div className="bg-silicon-slate/60 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-          Permission packet templates
-        </div>
-        <div className="divide-y divide-silicon-slate">
+      <section className="overflow-hidden rounded-lg border border-border bg-card text-card-foreground">
+        <div className="border-b border-border bg-muted/60 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Permission packet templates</div>
+        <div className="divide-y divide-border">
           {corpus.outreachPackets.map((packet) => (
             <div key={packet.key} className="grid grid-cols-1 gap-3 px-4 py-4 text-sm lg:grid-cols-4 lg:gap-4">
               <div>
@@ -825,11 +844,9 @@ function BannedBooksCorpusPanel({
         </div>
       </section>
 
-      <section className="overflow-hidden rounded-lg border border-silicon-slate">
-        <div className="bg-silicon-slate/60 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-          Staged rights-ready shortlist
-        </div>
-        <div className="divide-y divide-silicon-slate">
+      <section className="overflow-hidden rounded-lg border border-border bg-card text-card-foreground">
+        <div className="border-b border-border bg-muted/60 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Staged rights-ready shortlist</div>
+        <div className="divide-y divide-border">
           {corpus.records.map((record) => (
             <div key={record.id} className="grid grid-cols-1 gap-3 px-4 py-4 text-sm lg:grid-cols-5 lg:gap-4">
               <div>
@@ -861,28 +878,34 @@ function BannedBooksCorpusPanel({
 function StatusBadge({ status }: { status: string }) {
   const classes =
     status === 'active'
-      ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300'
+      ? 'border-emerald-600/45 bg-emerald-100 text-emerald-900 dark:border-emerald-500/45 dark:bg-emerald-500/10 dark:text-emerald-200'
       : status === 'revoked'
-        ? 'border-red-500/40 bg-red-500/10 text-red-300'
-        : 'border-amber-500/40 bg-amber-500/10 text-amber-300'
-  return <span className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-medium ${classes}`}>{status}</span>
+        ? 'border-red-600/45 bg-red-100 text-red-900 dark:border-red-500/45 dark:bg-red-500/10 dark:text-red-200'
+        : 'border-amber-600/45 bg-amber-100 text-amber-900 dark:border-amber-500/45 dark:bg-amber-500/10 dark:text-amber-200'
+  return (
+    <span data-contrast-audit="status-badge" className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-medium ${classes}`}>
+      {status}
+    </span>
+  )
 }
 
 function Stat({ icon, label, value }: { icon: React.ReactNode; label: string; value: string | number }) {
   return (
-    <div className="rounded-lg border border-silicon-slate bg-silicon-slate/30 p-4">
+    <div className="rounded-lg border border-border bg-muted/30 p-4 text-card-foreground">
       <div className="mb-2 flex items-center gap-2 text-muted-foreground">
         {icon}
         <span className="text-xs font-semibold uppercase tracking-wide">{label}</span>
       </div>
-      <p className="text-2xl font-bold tabular-nums text-radiant-gold">{value}</p>
+      <p data-contrast-audit="stat-value" className="text-2xl font-bold tabular-nums text-bronze dark:text-radiant-gold">
+        {value}
+      </p>
     </div>
   )
 }
 
 function Panel({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-lg border border-silicon-slate bg-silicon-slate/30 p-5">
+    <div className="rounded-lg border border-border bg-card p-5 text-card-foreground shadow-sm">
       <h2 className="mb-3 text-lg font-semibold">{title}</h2>
       <dl className="space-y-2 text-sm">{children}</dl>
     </div>
@@ -891,7 +914,7 @@ function Panel({ title, children }: { title: string; children: React.ReactNode }
 
 function KeyValue({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex flex-wrap justify-between gap-2 border-b border-silicon-slate/70 pb-2 last:border-b-0">
+    <div className="flex flex-wrap justify-between gap-2 border-b border-border pb-2 last:border-b-0">
       <dt className="text-muted-foreground">{label}</dt>
       <dd className="text-right font-mono text-xs text-foreground">{value}</dd>
     </div>
@@ -901,12 +924,12 @@ function KeyValue({ label, value }: { label: string; value: string }) {
 function TableFrame({ headers, children, empty }: { headers: string[]; children: React.ReactNode; empty: boolean }) {
   return (
     <>
-      <div className="hidden grid-cols-5 gap-4 bg-silicon-slate/60 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground lg:grid">
-        {headers.map((header) => <span key={header}>{header}</span>)}
+      <div className="hidden grid-cols-5 gap-4 border-b border-border bg-muted/60 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground lg:grid">
+        {headers.map((header) => (
+          <span key={header}>{header}</span>
+        ))}
       </div>
-      <div className="divide-y divide-silicon-slate">
-        {empty ? <div className="px-4 py-8 text-center text-sm text-muted-foreground">No records yet.</div> : children}
-      </div>
+      <div className="divide-y divide-border">{empty ? <div className="px-4 py-8 text-center text-sm text-muted-foreground">No records yet.</div> : children}</div>
     </>
   )
 }
@@ -915,13 +938,16 @@ function CreatorsTable({ rows }: { rows: any[] }) {
   return (
     <TableFrame headers={['Creator', 'Categories', 'Rights holders', 'Verification', 'Created']} empty={rows.length === 0}>
       {rows.map((row) => (
-        <Row key={row.id} cells={[
-          row.protected_identity ? 'Protected identity' : row.display_name,
-          list(row.categories),
-          list(row.rights_holder_types),
-          row.verification_status,
-          formatDate(row.created_at),
-        ]} />
+        <Row
+          key={row.id}
+          cells={[
+            row.protected_identity ? 'Protected identity' : row.display_name,
+            list(row.categories),
+            list(row.rights_holder_types),
+            row.verification_status,
+            formatDate(row.created_at),
+          ]}
+        />
       ))}
     </TableFrame>
   )
@@ -931,13 +957,16 @@ function WorksTable({ rows }: { rows: any[] }) {
   return (
     <TableFrame headers={['Work', 'Rights holder', 'Ban status', 'Review', 'Consent']} empty={rows.length === 0}>
       {rows.map((row) => (
-        <Row key={row.id} cells={[
-          row.title,
-          row.rights_holder_type,
-          row.ban_status,
-          row.review_status,
-          row.community_consent_required ? consentLabel(row.community_consent_verified) : chainLabel(row.chain_of_title_verified),
-        ]} />
+        <Row
+          key={row.id}
+          cells={[
+            row.title,
+            row.rights_holder_type,
+            row.ban_status,
+            row.review_status,
+            row.community_consent_required ? consentLabel(row.community_consent_verified) : chainLabel(row.chain_of_title_verified),
+          ]}
+        />
       ))}
     </TableFrame>
   )
@@ -947,13 +976,7 @@ function GrantsTable({ rows }: { rows: any[] }) {
   return (
     <TableFrame headers={['Grant', 'Status', 'Allowed uses', 'Blocked topics', 'Expires']} empty={rows.length === 0}>
       {rows.map((row) => (
-        <Row key={row.id} cells={[
-          shortId(row.id),
-          row.status,
-          list(row.allowed_uses),
-          list(row.blocked_topics),
-          row.expires_at ? formatDate(row.expires_at) : 'No expiry',
-        ]} />
+        <Row key={row.id} cells={[shortId(row.id), row.status, list(row.allowed_uses), list(row.blocked_topics), row.expires_at ? formatDate(row.expires_at) : 'No expiry']} />
       ))}
     </TableFrame>
   )
@@ -963,13 +986,10 @@ function ChunksTable({ rows }: { rows: any[] }) {
   return (
     <TableFrame headers={['Citation', 'Location', 'Retrievable', 'Sensitive topics', 'Created']} empty={rows.length === 0}>
       {rows.map((row) => (
-        <Row key={row.id} cells={[
-          row.citation_label,
-          row.source_location || 'Unspecified',
-          row.is_retrievable ? 'Yes' : 'No',
-          list(row.sensitive_topics),
-          formatDate(row.created_at),
-        ]} />
+        <Row
+          key={row.id}
+          cells={[row.citation_label, row.source_location || 'Unspecified', row.is_retrievable ? 'Yes' : 'No', list(row.sensitive_topics), formatDate(row.created_at)]}
+        />
       ))}
     </TableFrame>
   )
@@ -989,13 +1009,16 @@ function ReceiptsTable({ receipts, chunks }: { receipts: any[]; chunks: any[] })
       {receipts.map((receipt) => {
         const attributed = chunksByReceipt[receipt.id] ?? []
         return (
-          <Row key={receipt.id} cells={[
-            shortId(receipt.id),
-            receipt.model_id,
-            `${receipt.cited_chunk_ids?.length ?? 0} cited / ${attributed.length} attributed`,
-            formatMoney(receipt.creator_pool_usd),
-            formatDate(receipt.generated_at),
-          ]} />
+          <Row
+            key={receipt.id}
+            cells={[
+              shortId(receipt.id),
+              receipt.model_id,
+              `${receipt.cited_chunk_ids?.length ?? 0} cited / ${attributed.length} attributed`,
+              formatMoney(receipt.creator_pool_usd),
+              formatDate(receipt.generated_at),
+            ]}
+          />
         )
       })}
     </TableFrame>
@@ -1006,22 +1029,19 @@ function PayoutsTable({ rows, disputes }: { rows: any[]; disputes: any[] }) {
   return (
     <TableFrame headers={['Creator', 'Period', 'Tokens', 'Accrued', 'Status']} empty={rows.length === 0 && disputes.length === 0}>
       {rows.map((row) => (
-        <Row key={row.id} cells={[
-          shortId(row.creator_external_id),
-          row.settlement_period,
-          String(row.attributed_token_count ?? 0),
-          formatMoney(row.accrued_payout_usd),
-          row.hold_reason ? `${row.settlement_status}: ${row.hold_reason}` : row.settlement_status,
-        ]} />
+        <Row
+          key={row.id}
+          cells={[
+            shortId(row.creator_external_id),
+            row.settlement_period,
+            String(row.attributed_token_count ?? 0),
+            formatMoney(row.accrued_payout_usd),
+            row.hold_reason ? `${row.settlement_status}: ${row.hold_reason}` : row.settlement_status,
+          ]}
+        />
       ))}
       {disputes.map((row) => (
-        <Row key={row.id} cells={[
-          shortId(row.id),
-          'Dispute',
-          row.dispute_type,
-          row.status,
-          row.summary,
-        ]} />
+        <Row key={row.id} cells={[shortId(row.id), 'Dispute', row.dispute_type, row.status, row.summary]} />
       ))}
     </TableFrame>
   )
@@ -1031,13 +1051,16 @@ function ModelReviewsTable({ rows }: { rows: any[] }) {
   return (
     <TableFrame headers={['Reviewed', 'Incumbent', 'Recommended', 'Recommendation', 'Gates']} empty={rows.length === 0}>
       {rows.map((row) => (
-        <Row key={row.id} cells={[
-          formatDate(row.reviewed_at),
-          row.incumbent_model_id,
-          row.recommended_model_id,
-          row.recommendation,
-          `${row.quality_gate_passed ? 'quality' : 'quality pending'} / ${row.license_governance_gate_passed ? 'license' : 'license pending'}`,
-        ]} />
+        <Row
+          key={row.id}
+          cells={[
+            formatDate(row.reviewed_at),
+            row.incumbent_model_id,
+            row.recommended_model_id,
+            row.recommendation,
+            `${row.quality_gate_passed ? 'quality' : 'quality pending'} / ${row.license_governance_gate_passed ? 'license' : 'license pending'}`,
+          ]}
+        />
       ))}
     </TableFrame>
   )
@@ -1076,10 +1099,18 @@ function formatDate(value: string): string {
   if (!value) return 'Unknown'
   const date = new Date(value)
   if (Number.isNaN(date.getTime())) return value
-  return new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).format(date)
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  }).format(date)
 }
 
 function formatMoney(value: unknown): string {
   const amount = Number(value ?? 0)
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 6 }).format(amount)
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: 6,
+  }).format(amount)
 }

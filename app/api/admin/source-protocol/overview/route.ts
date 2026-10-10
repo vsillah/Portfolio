@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { buildBannedBooksCorpusProjection } from '@/lib/banned-books-corpus'
-import { buildEvidenceQaApprovalPlanFromFiles } from '@/lib/banned-books-evidence-qa'
+import { buildOptionalEvidenceQaProjection } from '@/lib/source-protocol-optional-projection'
 
 export const dynamic = 'force-dynamic'
 
@@ -167,6 +167,10 @@ export async function GET(request: NextRequest) {
       user_role: usersById.get(account.user_id)?.role ?? null,
       creator_display_name: creatorsById.get(account.creator_id)?.display_name ?? null,
     }))
+    const evidenceQaProjection = buildOptionalEvidenceQaProjection(
+      'data/source-protocol/banned-books-source-import-sample.json',
+      'data/source-protocol/banned-books-evidence-qa-approvals.sample.json'
+    )
 
     return NextResponse.json({
       available: true,
@@ -194,10 +198,8 @@ export async function GET(request: NextRequest) {
       disputes: disputeRows,
       modelReviews: modelReviewRows,
       bannedBooksCorpus: buildBannedBooksCorpusProjection(),
-      bannedBooksEvidenceQa: buildEvidenceQaApprovalPlanFromFiles(
-        'data/source-protocol/banned-books-source-import-sample.json',
-        'data/source-protocol/banned-books-evidence-qa-approvals.sample.json'
-      ),
+      bannedBooksEvidenceQa: evidenceQaProjection.data,
+      bannedBooksEvidenceQaUnavailable: evidenceQaProjection.unavailable,
     })
   } catch (error: any) {
     if (isMissingSourceProtocolSchema(error)) {

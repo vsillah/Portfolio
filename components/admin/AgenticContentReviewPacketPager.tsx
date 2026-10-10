@@ -26,24 +26,24 @@ export default function AgenticContentReviewPacketPager({
 
   if (!activePacket) {
     return (
-      <div className="mt-4 rounded-lg border border-silicon-slate/80 bg-background/35 p-4 text-sm text-muted-foreground">
+      <div className="mt-4 rounded-lg border border-border bg-muted/30 p-4 text-sm text-muted-foreground">
         No review packets are ready yet.
       </div>
     )
   }
 
   return (
-    <section className="mt-4 rounded-lg border border-silicon-slate/80 bg-background/35 p-3" aria-label="Review packet pager">
-      <div className="flex flex-col gap-3 border-b border-silicon-slate/70 pb-3 lg:flex-row lg:items-center lg:justify-between">
+    <section className="mt-4 rounded-lg border border-border bg-muted/25 p-3 text-foreground" aria-label="Review packet pager">
+      <div className="flex flex-col gap-3 border-b border-border pb-3 lg:flex-row lg:items-center lg:justify-between">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-radiant-gold">
             <FileText className="h-3.5 w-3.5" />
             Review packet
-            <span className="rounded-full border border-silicon-slate bg-imperial-navy/60 px-2 py-0.5 text-gray-300">
+            <span className="rounded-full border border-border bg-background px-2 py-0.5 text-muted-foreground">
               Packet {activePacketIndex + 1} of {packetCount}
             </span>
           </div>
-          <p className="mt-1 truncate text-sm font-semibold text-gray-100">{activePacket.title}</p>
+          <p className="mt-1 truncate text-sm font-semibold text-foreground">{activePacket.title}</p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
@@ -52,7 +52,7 @@ export default function AgenticContentReviewPacketPager({
             id="agentic-review-packet-select"
             value={activePacketIndex}
             onChange={(event) => setActivePacketIndex(Number(event.target.value))}
-            className="h-9 max-w-full rounded-md border border-silicon-slate bg-imperial-navy/70 px-3 text-xs font-medium text-gray-100 outline-none transition-colors hover:border-radiant-gold/50 focus:border-radiant-gold focus:ring-2 focus:ring-radiant-gold/25 sm:max-w-72"
+            className="input-brand h-9 max-w-full px-3 text-xs font-medium sm:max-w-72"
             aria-label="Select review packet"
           >
             {packets.map((packet, index) => (
@@ -65,7 +65,7 @@ export default function AgenticContentReviewPacketPager({
             type="button"
             onClick={() => setActivePacketIndex((index) => Math.max(0, index - 1))}
             disabled={!hasPrevious}
-            className="inline-flex h-9 items-center gap-1.5 rounded-md border border-silicon-slate bg-imperial-navy/50 px-3 text-xs font-medium text-gray-200 transition-colors hover:border-radiant-gold/50 hover:text-radiant-gold disabled:cursor-not-allowed disabled:opacity-45"
+            className="inline-flex h-9 items-center gap-1.5 rounded-md border border-border bg-background px-3 text-xs font-medium text-foreground transition-colors hover:border-radiant-gold/50 hover:text-radiant-gold disabled:cursor-not-allowed disabled:opacity-45"
           >
             <ChevronLeft className="h-3.5 w-3.5" />
             Previous
@@ -74,7 +74,7 @@ export default function AgenticContentReviewPacketPager({
             type="button"
             onClick={() => setActivePacketIndex((index) => Math.min(packetCount - 1, index + 1))}
             disabled={!hasNext}
-            className="inline-flex h-9 items-center gap-1.5 rounded-md border border-silicon-slate bg-imperial-navy/50 px-3 text-xs font-medium text-gray-200 transition-colors hover:border-radiant-gold/50 hover:text-radiant-gold disabled:cursor-not-allowed disabled:opacity-45"
+            className="inline-flex h-9 items-center gap-1.5 rounded-md border border-border bg-background px-3 text-xs font-medium text-foreground transition-colors hover:border-radiant-gold/50 hover:text-radiant-gold disabled:cursor-not-allowed disabled:opacity-45"
           >
             Next
             <ChevronRight className="h-3.5 w-3.5" />

@@ -70,4 +70,17 @@ describe('AgenticContentReviewPacketCard', () => {
     expect(screen.queryByRole('link', { name: 'Send back' })).not.toBeInTheDocument()
     expect(screen.queryByRole('link', { name: 'Hold' })).not.toBeInTheDocument()
   })
+
+  it('uses semantic surfaces and theme-aware status accents', () => {
+    const packet = getAgenticContentReviewPacketByAssetId('p0-linkedin-flagship-agentic-operating-system')
+    const { container } = render(<AgenticContentReviewPacketCard packet={packet!} />)
+
+    expect(container.firstElementChild).toHaveClass('border-border', 'bg-card', 'text-card-foreground')
+    expect(screen.getByText('Evidence packet').closest('div')?.parentElement).toHaveClass('bg-blue-500/10')
+
+    const classNames = Array.from(container.querySelectorAll<HTMLElement>('[class]'))
+      .map((element) => element.className)
+      .join(' ')
+    expect(classNames).not.toMatch(/bg-imperial-navy|border-silicon-slate|bg-gray-(700|800|900)|text-gray-(100|200|300|400|500|600)/)
+  })
 })

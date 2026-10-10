@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 import { HelpCircle, Menu, X } from 'lucide-react'
 import { useState, useEffect, useRef } from 'react'
 import AdminSidebar from '@/components/admin/AdminSidebar'
+import ThemeToggle, { ThemePreferenceList } from '@/components/ThemeToggle'
 
 export default function AdminLayout({
   children,
@@ -64,7 +65,7 @@ export default function AdminLayout({
   }, [drawerOpen])
 
   return (
-    <div className="dark flex h-dvh overflow-hidden bg-background text-foreground">
+    <div className="flex h-dvh overflow-hidden bg-background text-foreground" data-testid="admin-layout">
       {/* Desktop sidebar */}
       <aside className="hidden h-full shrink-0 lg:flex">
         <AdminSidebar />
@@ -73,7 +74,7 @@ export default function AdminLayout({
       {/* Mobile drawer overlay */}
       {drawerOpen && (
         <div
-          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm lg:hidden"
+          className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm dark:bg-black/60 lg:hidden"
           aria-hidden
           onClick={closeDrawer}
         />
@@ -82,17 +83,18 @@ export default function AdminLayout({
       {/* Mobile drawer */}
       <aside
         ref={drawerRef}
-        className={`fixed left-0 top-0 z-[60] h-full w-[284px] transform overflow-hidden bg-[linear-gradient(180deg,rgba(18,30,49,0.99)_0%,rgba(15,26,43,0.99)_100%)] shadow-[16px_0_48px_rgba(0,0,0,0.28)] transition-transform duration-200 ease-out lg:hidden ${
+        className={`fixed left-0 top-0 z-[60] h-full w-[284px] transform overflow-hidden border-r border-border bg-card text-card-foreground shadow-[16px_0_48px_rgba(18,30,49,0.16)] transition-transform duration-200 ease-out dark:shadow-[16px_0_48px_rgba(0,0,0,0.28)] lg:hidden ${
           drawerOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
         aria-label="Admin navigation"
         aria-modal="true"
         role="dialog"
         hidden={!drawerOpen}
+        data-testid="admin-mobile-drawer"
       >
-        <div className="flex items-center justify-between border-b border-radiant-gold/10 bg-imperial-navy/70 p-4">
+        <div className="flex items-center justify-between border-b border-border bg-card p-4" data-testid="admin-mobile-drawer-header">
           <div>
-            <div className="mb-0.5 block text-[11px] font-bold uppercase tracking-[0.16em] text-radiant-gold">
+            <div className="mb-0.5 block text-[11px] font-bold uppercase tracking-[0.16em] text-bronze dark:text-radiant-gold">
               Admin
             </div>
             <span className="text-base font-semibold text-foreground">Command Center</span>
@@ -100,36 +102,44 @@ export default function AdminLayout({
           <button
             type="button"
             onClick={closeDrawer}
-            className="rounded-lg border border-radiant-gold/10 p-2 text-muted-foreground transition-colors hover:border-radiant-gold/30 hover:bg-radiant-gold/10 hover:text-foreground focus:outline-none focus:ring-2 focus:ring-radiant-gold"
+            className="rounded-lg border border-border p-2 text-muted-foreground transition-colors hover:border-radiant-gold/40 hover:bg-radiant-gold/10 hover:text-foreground focus:outline-none focus:ring-2 focus:ring-radiant-gold"
             aria-label="Close menu"
           >
             <X size={20} />
           </button>
         </div>
         <div className="h-[calc(100%-73px)] overflow-y-auto">
+          <div className="border-b border-border px-3 py-3" data-testid="admin-mobile-theme-control">
+            <ThemePreferenceList />
+          </div>
           <AdminSidebar showHeader={false} />
         </div>
       </aside>
 
       <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-        <header className="relative z-10 flex shrink-0 items-center justify-between border-b border-radiant-gold/10 bg-background/90 px-4 py-3 backdrop-blur lg:px-6">
+        <header className="relative z-10 flex shrink-0 items-center justify-between border-b border-border bg-background/90 px-4 py-3 backdrop-blur lg:px-6">
           <button
             ref={hamburgerRef}
             type="button"
             onClick={() => setDrawerOpen(true)}
-            className="rounded-lg border border-radiant-gold/10 p-2 text-muted-foreground transition-colors hover:border-radiant-gold/30 hover:bg-radiant-gold/10 hover:text-foreground focus:outline-none focus:ring-2 focus:ring-radiant-gold lg:hidden"
+            className="rounded-lg border border-border p-2 text-muted-foreground transition-colors hover:border-radiant-gold/40 hover:bg-radiant-gold/10 hover:text-foreground focus:outline-none focus:ring-2 focus:ring-radiant-gold lg:hidden"
             aria-label="Open admin menu"
           >
             <Menu size={22} />
           </button>
           <div className="flex-1 lg:flex-initial" />
-          <Link
-            href="/admin/help"
-            className="flex items-center gap-2 rounded-lg border border-transparent px-2 py-1.5 text-sm text-muted-foreground transition-colors hover:border-radiant-gold/20 hover:bg-radiant-gold/10 hover:text-foreground"
-          >
-            <HelpCircle size={18} />
-            Help
-          </Link>
+          <div className="flex items-center gap-2">
+            <div className="hidden lg:block" data-testid="admin-desktop-theme-control">
+              <ThemeToggle variant="compact" />
+            </div>
+            <Link
+              href="/admin/help"
+              className="flex items-center gap-2 rounded-lg border border-transparent px-2 py-1.5 text-sm text-muted-foreground transition-colors hover:border-radiant-gold/20 hover:bg-radiant-gold/10 hover:text-foreground"
+            >
+              <HelpCircle size={18} />
+              Help
+            </Link>
+          </div>
         </header>
         <main id="admin-main" className="min-h-0 min-w-0 flex-1 overflow-auto">
           {children}

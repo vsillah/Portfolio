@@ -1,0 +1,2225 @@
+[
+  {
+    "route": "https://portfolio-staging-lc9hy9iyy-vsillahs-projects.vercel.app/admin/source-protocol",
+    "width": 1440,
+    "height": 1000,
+    "theme_preference": "light",
+    "effective_theme": "light",
+    "tabs_checked": [
+      "Banned Books",
+      "Portal Access",
+      "Creators",
+      "Works",
+      "Grants",
+      "Chunks",
+      "Receipts",
+      "Payouts",
+      "Model Reviews"
+    ],
+    "states_checked": [
+      "selected",
+      "focus",
+      "hover",
+      "disabled",
+      "active badge",
+      "pending badge",
+      "revoked badge"
+    ],
+    "empty_state_checked": true,
+    "error_state_checked": true,
+    "contrast": {
+      "overview": {
+        "samples": 191,
+        "disabled_samples": 0,
+        "minimum_ratio": 4.7,
+        "failures": [],
+        "lowest": [
+          {
+            "text": "2",
+            "ratio": 4.7,
+            "required": 3,
+            "disabled": false,
+            "color": "rgb(139, 105, 20)",
+            "background": "rgb(244, 246, 250)"
+          },
+          {
+            "text": "3",
+            "ratio": 4.7,
+            "required": 3,
+            "disabled": false,
+            "color": "rgb(139, 105, 20)",
+            "background": "rgb(244, 246, 250)"
+          },
+          {
+            "text": "1",
+            "ratio": 4.7,
+            "required": 3,
+            "disabled": false,
+            "color": "rgb(139, 105, 20)",
+            "background": "rgb(244, 246, 250)"
+          },
+          {
+            "text": "1",
+            "ratio": 4.7,
+            "required": 3,
+            "disabled": false,
+            "color": "rgb(139, 105, 20)",
+            "background": "rgb(244, 246, 250)"
+          },
+          {
+            "text": "1",
+            "ratio": 4.7,
+            "required": 3,
+            "disabled": false,
+            "color": "rgb(139, 105, 20)",
+            "background": "rgb(244, 246, 250)"
+          },
+          {
+            "text": "1",
+            "ratio": 4.7,
+            "required": 3,
+            "disabled": false,
+            "color": "rgb(139, 105, 20)",
+            "background": "rgb(244, 246, 250)"
+          },
+          {
+            "text": "1",
+            "ratio": 4.7,
+            "required": 3,
+            "disabled": false,
+            "color": "rgb(139, 105, 20)",
+            "background": "rgb(244, 246, 250)"
+          },
+          {
+            "text": "1",
+            "ratio": 4.7,
+            "required": 3,
+            "disabled": false,
+            "color": "rgb(139, 105, 20)",
+            "background": "rgb(244, 246, 250)"
+          },
+          {
+            "text": "$14.75",
+            "ratio": 4.7,
+            "required": 3,
+            "disabled": false,
+            "color": "rgb(139, 105, 20)",
+            "background": "rgb(244, 246, 250)"
+          },
+          {
+            "text": "2",
+            "ratio": 5.09,
+            "required": 3,
+            "disabled": false,
+            "color": "rgb(139, 105, 20)",
+            "background": "rgb(255, 255, 255)"
+          },
+          {
+            "text": "1",
+            "ratio": 5.09,
+            "required": 3,
+            "disabled": false,
+            "color": "rgb(139, 105, 20)",
+            "background": "rgb(255, 255, 255)"
+          },
+          {
+            "text": "1",
+            "ratio": 5.09,
+            "required": 3,
+            "disabled": false,
+            "color": "rgb(139, 105, 20)",
+            "background": "rgb(255, 255, 255)"
+          }
+        ]
+      },
+      "portal": {
+        "samples": 117,
+        "disabled_samples": 5,
+        "minimum_ratio": 4.7,
+        "failures": [],
+        "lowest": [
+          {
+            "text": "2",
+            "ratio": 4.7,
+            "required": 3,
+            "disabled": false,
+            "color": "rgb(139, 105, 20)",
+            "background": "rgb(244, 246, 250)"
+          },
+          {
+            "text": "3",
+            "ratio": 4.7,
+            "required": 3,
+            "disabled": false,
+            "color": "rgb(139, 105, 20)",
+            "background": "rgb(244, 246, 250)"
+          },
+          {
+            "text": "1",
+            "ratio": 4.7,
+            "required": 3,
+            "disabled": false,
+            "color": "rgb(139, 105, 20)",
+            "background": "rgb(244, 246, 250)"
+          },
+          {
+            "text": "1",
+            "ratio": 4.7,
+            "required": 3,
+            "disabled": false,
+            "color": "rgb(139, 105, 20)",
+            "background": "rgb(244, 246, 250)"
+          },
+          {
+            "text": "1",
+            "ratio": 4.7,
+            "required": 3,
+            "disabled": false,
+            "color": "rgb(139, 105, 20)",
+            "background": "rgb(244, 246, 250)"
+          },
+          {
+            "text": "1",
+            "ratio": 4.7,
+            "required": 3,
+            "disabled": false,
+            "color": "rgb(139, 105, 20)",
+            "background": "rgb(244, 246, 250)"
+          },
+          {
+            "text": "1",
+            "ratio": 4.7,
+            "required": 3,
+            "disabled": false,
+            "color": "rgb(139, 105, 20)",
+            "background": "rgb(244, 246, 250)"
+          },
+          {
+            "text": "1",
+            "ratio": 4.7,
+            "required": 3,
+            "disabled": false,
+            "color": "rgb(139, 105, 20)",
+            "background": "rgb(244, 246, 250)"
+          },
+          {
+            "text": "$14.75",
+            "ratio": 4.7,
+            "required": 3,
+            "disabled": false,
+            "color": "rgb(139, 105, 20)",
+            "background": "rgb(244, 246, 250)"
+          },
+          {
+            "text": "Portal Access",
+            "ratio": 6.04,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgb(111, 83, 16)",
+            "background": "rgb(239, 235, 221)"
+          },
+          {
+            "text": "3",
+            "ratio": 6.04,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgb(111, 83, 16)",
+            "background": "rgb(239, 235, 221)"
+          },
+          {
+            "text": "Home",
+            "ratio": 7,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgb(71, 85, 105)",
+            "background": "rgb(244, 246, 250)"
+          }
+        ],
+        "disabled_primary_colors": {
+          "background": "rgb(232, 236, 242)",
+          "color": "rgb(71, 85, 105)"
+        }
+      }
+    },
+    "horizontal_overflow": false,
+    "writes": [],
+    "external_requests_blocked": [],
+    "page_errors": []
+  },
+  {
+    "route": "https://portfolio-staging-lc9hy9iyy-vsillahs-projects.vercel.app/admin/source-protocol",
+    "width": 1440,
+    "height": 1000,
+    "theme_preference": "dark",
+    "effective_theme": "dark",
+    "tabs_checked": [
+      "Banned Books",
+      "Portal Access",
+      "Creators",
+      "Works",
+      "Grants",
+      "Chunks",
+      "Receipts",
+      "Payouts",
+      "Model Reviews"
+    ],
+    "states_checked": [
+      "selected",
+      "focus",
+      "hover",
+      "disabled",
+      "active badge",
+      "pending badge",
+      "revoked badge"
+    ],
+    "empty_state_checked": false,
+    "error_state_checked": false,
+    "contrast": {
+      "overview": {
+        "samples": 191,
+        "disabled_samples": 0,
+        "minimum_ratio": 6.04,
+        "failures": [],
+        "lowest": [
+          {
+            "text": "Banned Books",
+            "ratio": 6.04,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgb(212, 175, 55)",
+            "background": "rgb(47, 52, 50)"
+          },
+          {
+            "text": "2",
+            "ratio": 6.04,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgb(212, 175, 55)",
+            "background": "rgb(47, 52, 50)"
+          },
+          {
+            "text": "Home",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Admin Dashboard",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Operating view for opt-in creator content, active license grants, cited answer receipts, monthly pay",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Source docs: /",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Retrieval remains permission-aware. Payouts accrue per answer receipt, then settle monthly to avoid ",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Creators",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Portal accounts",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Works",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Retrievable chunks",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Answer receipts",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          }
+        ]
+      },
+      "portal": {
+        "samples": 117,
+        "disabled_samples": 5,
+        "minimum_ratio": 6.04,
+        "failures": [],
+        "lowest": [
+          {
+            "text": "Portal Access",
+            "ratio": 6.04,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgb(212, 175, 55)",
+            "background": "rgb(47, 52, 50)"
+          },
+          {
+            "text": "3",
+            "ratio": 6.04,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgb(212, 175, 55)",
+            "background": "rgb(47, 52, 50)"
+          },
+          {
+            "text": "Home",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Admin Dashboard",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Operating view for opt-in creator content, active license grants, cited answer receipts, monthly pay",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Source docs: /",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Retrieval remains permission-aware. Payouts accrue per answer receipt, then settle monthly to avoid ",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Creators",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Portal accounts",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Works",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Retrievable chunks",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Answer receipts",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          }
+        ],
+        "disabled_primary_colors": {
+          "background": "rgba(234, 236, 238, 0.08)",
+          "color": "rgba(234, 236, 238, 0.72)"
+        }
+      }
+    },
+    "horizontal_overflow": false,
+    "writes": [],
+    "external_requests_blocked": [],
+    "page_errors": []
+  },
+  {
+    "route": "https://portfolio-staging-lc9hy9iyy-vsillahs-projects.vercel.app/admin/source-protocol",
+    "width": 1440,
+    "height": 1000,
+    "theme_preference": "system",
+    "effective_theme": "dark",
+    "tabs_checked": [
+      "Banned Books",
+      "Portal Access",
+      "Creators",
+      "Works",
+      "Grants",
+      "Chunks",
+      "Receipts",
+      "Payouts",
+      "Model Reviews"
+    ],
+    "states_checked": [
+      "selected",
+      "focus",
+      "hover",
+      "disabled",
+      "active badge",
+      "pending badge",
+      "revoked badge"
+    ],
+    "empty_state_checked": false,
+    "error_state_checked": false,
+    "contrast": {
+      "overview": {
+        "samples": 191,
+        "disabled_samples": 0,
+        "minimum_ratio": 6.04,
+        "failures": [],
+        "lowest": [
+          {
+            "text": "Banned Books",
+            "ratio": 6.04,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgb(212, 175, 55)",
+            "background": "rgb(47, 52, 50)"
+          },
+          {
+            "text": "2",
+            "ratio": 6.04,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgb(212, 175, 55)",
+            "background": "rgb(47, 52, 50)"
+          },
+          {
+            "text": "Home",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Admin Dashboard",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Operating view for opt-in creator content, active license grants, cited answer receipts, monthly pay",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Source docs: /",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Retrieval remains permission-aware. Payouts accrue per answer receipt, then settle monthly to avoid ",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Creators",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Portal accounts",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Works",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Retrievable chunks",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Answer receipts",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          }
+        ]
+      },
+      "portal": {
+        "samples": 117,
+        "disabled_samples": 5,
+        "minimum_ratio": 6.04,
+        "failures": [],
+        "lowest": [
+          {
+            "text": "Portal Access",
+            "ratio": 6.04,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgb(212, 175, 55)",
+            "background": "rgb(47, 52, 50)"
+          },
+          {
+            "text": "3",
+            "ratio": 6.04,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgb(212, 175, 55)",
+            "background": "rgb(47, 52, 50)"
+          },
+          {
+            "text": "Home",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Admin Dashboard",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Operating view for opt-in creator content, active license grants, cited answer receipts, monthly pay",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Source docs: /",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Retrieval remains permission-aware. Payouts accrue per answer receipt, then settle monthly to avoid ",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Creators",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Portal accounts",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Works",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Retrievable chunks",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Answer receipts",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          }
+        ],
+        "disabled_primary_colors": {
+          "background": "rgba(234, 236, 238, 0.08)",
+          "color": "rgba(234, 236, 238, 0.72)"
+        }
+      }
+    },
+    "horizontal_overflow": false,
+    "writes": [],
+    "external_requests_blocked": [],
+    "page_errors": []
+  },
+  {
+    "route": "https://portfolio-staging-lc9hy9iyy-vsillahs-projects.vercel.app/admin/source-protocol",
+    "width": 768,
+    "height": 1000,
+    "theme_preference": "light",
+    "effective_theme": "light",
+    "tabs_checked": [
+      "Banned Books",
+      "Portal Access",
+      "Creators",
+      "Works",
+      "Grants",
+      "Chunks",
+      "Receipts",
+      "Payouts",
+      "Model Reviews"
+    ],
+    "states_checked": [
+      "selected",
+      "focus",
+      "hover",
+      "disabled",
+      "active badge",
+      "pending badge",
+      "revoked badge"
+    ],
+    "empty_state_checked": false,
+    "error_state_checked": false,
+    "contrast": {
+      "overview": {
+        "samples": 191,
+        "disabled_samples": 0,
+        "minimum_ratio": 4.7,
+        "failures": [],
+        "lowest": [
+          {
+            "text": "2",
+            "ratio": 4.7,
+            "required": 3,
+            "disabled": false,
+            "color": "rgb(139, 105, 20)",
+            "background": "rgb(244, 246, 250)"
+          },
+          {
+            "text": "3",
+            "ratio": 4.7,
+            "required": 3,
+            "disabled": false,
+            "color": "rgb(139, 105, 20)",
+            "background": "rgb(244, 246, 250)"
+          },
+          {
+            "text": "1",
+            "ratio": 4.7,
+            "required": 3,
+            "disabled": false,
+            "color": "rgb(139, 105, 20)",
+            "background": "rgb(244, 246, 250)"
+          },
+          {
+            "text": "1",
+            "ratio": 4.7,
+            "required": 3,
+            "disabled": false,
+            "color": "rgb(139, 105, 20)",
+            "background": "rgb(244, 246, 250)"
+          },
+          {
+            "text": "1",
+            "ratio": 4.7,
+            "required": 3,
+            "disabled": false,
+            "color": "rgb(139, 105, 20)",
+            "background": "rgb(244, 246, 250)"
+          },
+          {
+            "text": "1",
+            "ratio": 4.7,
+            "required": 3,
+            "disabled": false,
+            "color": "rgb(139, 105, 20)",
+            "background": "rgb(244, 246, 250)"
+          },
+          {
+            "text": "1",
+            "ratio": 4.7,
+            "required": 3,
+            "disabled": false,
+            "color": "rgb(139, 105, 20)",
+            "background": "rgb(244, 246, 250)"
+          },
+          {
+            "text": "1",
+            "ratio": 4.7,
+            "required": 3,
+            "disabled": false,
+            "color": "rgb(139, 105, 20)",
+            "background": "rgb(244, 246, 250)"
+          },
+          {
+            "text": "$14.75",
+            "ratio": 4.7,
+            "required": 3,
+            "disabled": false,
+            "color": "rgb(139, 105, 20)",
+            "background": "rgb(244, 246, 250)"
+          },
+          {
+            "text": "2",
+            "ratio": 5.09,
+            "required": 3,
+            "disabled": false,
+            "color": "rgb(139, 105, 20)",
+            "background": "rgb(255, 255, 255)"
+          },
+          {
+            "text": "1",
+            "ratio": 5.09,
+            "required": 3,
+            "disabled": false,
+            "color": "rgb(139, 105, 20)",
+            "background": "rgb(255, 255, 255)"
+          },
+          {
+            "text": "1",
+            "ratio": 5.09,
+            "required": 3,
+            "disabled": false,
+            "color": "rgb(139, 105, 20)",
+            "background": "rgb(255, 255, 255)"
+          }
+        ]
+      },
+      "portal": {
+        "samples": 111,
+        "disabled_samples": 5,
+        "minimum_ratio": 4.7,
+        "failures": [],
+        "lowest": [
+          {
+            "text": "2",
+            "ratio": 4.7,
+            "required": 3,
+            "disabled": false,
+            "color": "rgb(139, 105, 20)",
+            "background": "rgb(244, 246, 250)"
+          },
+          {
+            "text": "3",
+            "ratio": 4.7,
+            "required": 3,
+            "disabled": false,
+            "color": "rgb(139, 105, 20)",
+            "background": "rgb(244, 246, 250)"
+          },
+          {
+            "text": "1",
+            "ratio": 4.7,
+            "required": 3,
+            "disabled": false,
+            "color": "rgb(139, 105, 20)",
+            "background": "rgb(244, 246, 250)"
+          },
+          {
+            "text": "1",
+            "ratio": 4.7,
+            "required": 3,
+            "disabled": false,
+            "color": "rgb(139, 105, 20)",
+            "background": "rgb(244, 246, 250)"
+          },
+          {
+            "text": "1",
+            "ratio": 4.7,
+            "required": 3,
+            "disabled": false,
+            "color": "rgb(139, 105, 20)",
+            "background": "rgb(244, 246, 250)"
+          },
+          {
+            "text": "1",
+            "ratio": 4.7,
+            "required": 3,
+            "disabled": false,
+            "color": "rgb(139, 105, 20)",
+            "background": "rgb(244, 246, 250)"
+          },
+          {
+            "text": "1",
+            "ratio": 4.7,
+            "required": 3,
+            "disabled": false,
+            "color": "rgb(139, 105, 20)",
+            "background": "rgb(244, 246, 250)"
+          },
+          {
+            "text": "1",
+            "ratio": 4.7,
+            "required": 3,
+            "disabled": false,
+            "color": "rgb(139, 105, 20)",
+            "background": "rgb(244, 246, 250)"
+          },
+          {
+            "text": "$14.75",
+            "ratio": 4.7,
+            "required": 3,
+            "disabled": false,
+            "color": "rgb(139, 105, 20)",
+            "background": "rgb(244, 246, 250)"
+          },
+          {
+            "text": "Portal Access",
+            "ratio": 6.04,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgb(111, 83, 16)",
+            "background": "rgb(239, 235, 221)"
+          },
+          {
+            "text": "3",
+            "ratio": 6.04,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgb(111, 83, 16)",
+            "background": "rgb(239, 235, 221)"
+          },
+          {
+            "text": "Home",
+            "ratio": 7,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgb(71, 85, 105)",
+            "background": "rgb(244, 246, 250)"
+          }
+        ],
+        "disabled_primary_colors": {
+          "background": "rgb(232, 236, 242)",
+          "color": "rgb(71, 85, 105)"
+        }
+      }
+    },
+    "horizontal_overflow": false,
+    "writes": [],
+    "external_requests_blocked": [],
+    "page_errors": []
+  },
+  {
+    "route": "https://portfolio-staging-lc9hy9iyy-vsillahs-projects.vercel.app/admin/source-protocol",
+    "width": 768,
+    "height": 1000,
+    "theme_preference": "dark",
+    "effective_theme": "dark",
+    "tabs_checked": [
+      "Banned Books",
+      "Portal Access",
+      "Creators",
+      "Works",
+      "Grants",
+      "Chunks",
+      "Receipts",
+      "Payouts",
+      "Model Reviews"
+    ],
+    "states_checked": [
+      "selected",
+      "focus",
+      "hover",
+      "disabled",
+      "active badge",
+      "pending badge",
+      "revoked badge"
+    ],
+    "empty_state_checked": false,
+    "error_state_checked": false,
+    "contrast": {
+      "overview": {
+        "samples": 191,
+        "disabled_samples": 0,
+        "minimum_ratio": 6.04,
+        "failures": [],
+        "lowest": [
+          {
+            "text": "Banned Books",
+            "ratio": 6.04,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgb(212, 175, 55)",
+            "background": "rgb(47, 52, 50)"
+          },
+          {
+            "text": "2",
+            "ratio": 6.04,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgb(212, 175, 55)",
+            "background": "rgb(47, 52, 50)"
+          },
+          {
+            "text": "Home",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Admin Dashboard",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Operating view for opt-in creator content, active license grants, cited answer receipts, monthly pay",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Source docs: /",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Retrieval remains permission-aware. Payouts accrue per answer receipt, then settle monthly to avoid ",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Creators",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Portal accounts",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Works",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Retrievable chunks",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Answer receipts",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          }
+        ]
+      },
+      "portal": {
+        "samples": 111,
+        "disabled_samples": 5,
+        "minimum_ratio": 6.04,
+        "failures": [],
+        "lowest": [
+          {
+            "text": "Portal Access",
+            "ratio": 6.04,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgb(212, 175, 55)",
+            "background": "rgb(47, 52, 50)"
+          },
+          {
+            "text": "3",
+            "ratio": 6.04,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgb(212, 175, 55)",
+            "background": "rgb(47, 52, 50)"
+          },
+          {
+            "text": "Home",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Admin Dashboard",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Operating view for opt-in creator content, active license grants, cited answer receipts, monthly pay",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Source docs: /",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Retrieval remains permission-aware. Payouts accrue per answer receipt, then settle monthly to avoid ",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Creators",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Portal accounts",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Works",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Retrievable chunks",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Answer receipts",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          }
+        ],
+        "disabled_primary_colors": {
+          "background": "rgba(234, 236, 238, 0.08)",
+          "color": "rgba(234, 236, 238, 0.72)"
+        }
+      }
+    },
+    "horizontal_overflow": false,
+    "writes": [],
+    "external_requests_blocked": [],
+    "page_errors": []
+  },
+  {
+    "route": "https://portfolio-staging-lc9hy9iyy-vsillahs-projects.vercel.app/admin/source-protocol",
+    "width": 768,
+    "height": 1000,
+    "theme_preference": "system",
+    "effective_theme": "dark",
+    "tabs_checked": [
+      "Banned Books",
+      "Portal Access",
+      "Creators",
+      "Works",
+      "Grants",
+      "Chunks",
+      "Receipts",
+      "Payouts",
+      "Model Reviews"
+    ],
+    "states_checked": [
+      "selected",
+      "focus",
+      "hover",
+      "disabled",
+      "active badge",
+      "pending badge",
+      "revoked badge"
+    ],
+    "empty_state_checked": false,
+    "error_state_checked": false,
+    "contrast": {
+      "overview": {
+        "samples": 191,
+        "disabled_samples": 0,
+        "minimum_ratio": 6.04,
+        "failures": [],
+        "lowest": [
+          {
+            "text": "Banned Books",
+            "ratio": 6.04,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgb(212, 175, 55)",
+            "background": "rgb(47, 52, 50)"
+          },
+          {
+            "text": "2",
+            "ratio": 6.04,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgb(212, 175, 55)",
+            "background": "rgb(47, 52, 50)"
+          },
+          {
+            "text": "Home",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Admin Dashboard",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Operating view for opt-in creator content, active license grants, cited answer receipts, monthly pay",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Source docs: /",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Retrieval remains permission-aware. Payouts accrue per answer receipt, then settle monthly to avoid ",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Creators",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Portal accounts",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Works",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Retrievable chunks",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Answer receipts",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          }
+        ]
+      },
+      "portal": {
+        "samples": 111,
+        "disabled_samples": 5,
+        "minimum_ratio": 6.04,
+        "failures": [],
+        "lowest": [
+          {
+            "text": "Portal Access",
+            "ratio": 6.04,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgb(212, 175, 55)",
+            "background": "rgb(47, 52, 50)"
+          },
+          {
+            "text": "3",
+            "ratio": 6.04,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgb(212, 175, 55)",
+            "background": "rgb(47, 52, 50)"
+          },
+          {
+            "text": "Home",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Admin Dashboard",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Operating view for opt-in creator content, active license grants, cited answer receipts, monthly pay",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Source docs: /",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Retrieval remains permission-aware. Payouts accrue per answer receipt, then settle monthly to avoid ",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Creators",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Portal accounts",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Works",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Retrievable chunks",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Answer receipts",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          }
+        ],
+        "disabled_primary_colors": {
+          "background": "rgba(234, 236, 238, 0.08)",
+          "color": "rgba(234, 236, 238, 0.72)"
+        }
+      }
+    },
+    "horizontal_overflow": false,
+    "writes": [],
+    "external_requests_blocked": [],
+    "page_errors": []
+  },
+  {
+    "route": "https://portfolio-staging-lc9hy9iyy-vsillahs-projects.vercel.app/admin/source-protocol",
+    "width": 390,
+    "height": 844,
+    "theme_preference": "light",
+    "effective_theme": "light",
+    "tabs_checked": [
+      "Banned Books",
+      "Portal Access",
+      "Creators",
+      "Works",
+      "Grants",
+      "Chunks",
+      "Receipts",
+      "Payouts",
+      "Model Reviews"
+    ],
+    "states_checked": [
+      "selected",
+      "focus",
+      "hover",
+      "disabled",
+      "active badge",
+      "pending badge",
+      "revoked badge"
+    ],
+    "empty_state_checked": false,
+    "error_state_checked": false,
+    "contrast": {
+      "overview": {
+        "samples": 191,
+        "disabled_samples": 0,
+        "minimum_ratio": 4.7,
+        "failures": [],
+        "lowest": [
+          {
+            "text": "2",
+            "ratio": 4.7,
+            "required": 3,
+            "disabled": false,
+            "color": "rgb(139, 105, 20)",
+            "background": "rgb(244, 246, 250)"
+          },
+          {
+            "text": "3",
+            "ratio": 4.7,
+            "required": 3,
+            "disabled": false,
+            "color": "rgb(139, 105, 20)",
+            "background": "rgb(244, 246, 250)"
+          },
+          {
+            "text": "1",
+            "ratio": 4.7,
+            "required": 3,
+            "disabled": false,
+            "color": "rgb(139, 105, 20)",
+            "background": "rgb(244, 246, 250)"
+          },
+          {
+            "text": "1",
+            "ratio": 4.7,
+            "required": 3,
+            "disabled": false,
+            "color": "rgb(139, 105, 20)",
+            "background": "rgb(244, 246, 250)"
+          },
+          {
+            "text": "1",
+            "ratio": 4.7,
+            "required": 3,
+            "disabled": false,
+            "color": "rgb(139, 105, 20)",
+            "background": "rgb(244, 246, 250)"
+          },
+          {
+            "text": "1",
+            "ratio": 4.7,
+            "required": 3,
+            "disabled": false,
+            "color": "rgb(139, 105, 20)",
+            "background": "rgb(244, 246, 250)"
+          },
+          {
+            "text": "1",
+            "ratio": 4.7,
+            "required": 3,
+            "disabled": false,
+            "color": "rgb(139, 105, 20)",
+            "background": "rgb(244, 246, 250)"
+          },
+          {
+            "text": "1",
+            "ratio": 4.7,
+            "required": 3,
+            "disabled": false,
+            "color": "rgb(139, 105, 20)",
+            "background": "rgb(244, 246, 250)"
+          },
+          {
+            "text": "$14.75",
+            "ratio": 4.7,
+            "required": 3,
+            "disabled": false,
+            "color": "rgb(139, 105, 20)",
+            "background": "rgb(244, 246, 250)"
+          },
+          {
+            "text": "2",
+            "ratio": 5.09,
+            "required": 3,
+            "disabled": false,
+            "color": "rgb(139, 105, 20)",
+            "background": "rgb(255, 255, 255)"
+          },
+          {
+            "text": "1",
+            "ratio": 5.09,
+            "required": 3,
+            "disabled": false,
+            "color": "rgb(139, 105, 20)",
+            "background": "rgb(255, 255, 255)"
+          },
+          {
+            "text": "1",
+            "ratio": 5.09,
+            "required": 3,
+            "disabled": false,
+            "color": "rgb(139, 105, 20)",
+            "background": "rgb(255, 255, 255)"
+          }
+        ]
+      },
+      "portal": {
+        "samples": 111,
+        "disabled_samples": 5,
+        "minimum_ratio": 4.7,
+        "failures": [],
+        "lowest": [
+          {
+            "text": "2",
+            "ratio": 4.7,
+            "required": 3,
+            "disabled": false,
+            "color": "rgb(139, 105, 20)",
+            "background": "rgb(244, 246, 250)"
+          },
+          {
+            "text": "3",
+            "ratio": 4.7,
+            "required": 3,
+            "disabled": false,
+            "color": "rgb(139, 105, 20)",
+            "background": "rgb(244, 246, 250)"
+          },
+          {
+            "text": "1",
+            "ratio": 4.7,
+            "required": 3,
+            "disabled": false,
+            "color": "rgb(139, 105, 20)",
+            "background": "rgb(244, 246, 250)"
+          },
+          {
+            "text": "1",
+            "ratio": 4.7,
+            "required": 3,
+            "disabled": false,
+            "color": "rgb(139, 105, 20)",
+            "background": "rgb(244, 246, 250)"
+          },
+          {
+            "text": "1",
+            "ratio": 4.7,
+            "required": 3,
+            "disabled": false,
+            "color": "rgb(139, 105, 20)",
+            "background": "rgb(244, 246, 250)"
+          },
+          {
+            "text": "1",
+            "ratio": 4.7,
+            "required": 3,
+            "disabled": false,
+            "color": "rgb(139, 105, 20)",
+            "background": "rgb(244, 246, 250)"
+          },
+          {
+            "text": "1",
+            "ratio": 4.7,
+            "required": 3,
+            "disabled": false,
+            "color": "rgb(139, 105, 20)",
+            "background": "rgb(244, 246, 250)"
+          },
+          {
+            "text": "1",
+            "ratio": 4.7,
+            "required": 3,
+            "disabled": false,
+            "color": "rgb(139, 105, 20)",
+            "background": "rgb(244, 246, 250)"
+          },
+          {
+            "text": "$14.75",
+            "ratio": 4.7,
+            "required": 3,
+            "disabled": false,
+            "color": "rgb(139, 105, 20)",
+            "background": "rgb(244, 246, 250)"
+          },
+          {
+            "text": "Portal Access",
+            "ratio": 6.05,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgb(111, 83, 16)",
+            "background": "rgb(239, 236, 221)"
+          },
+          {
+            "text": "3",
+            "ratio": 6.05,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgb(111, 83, 16)",
+            "background": "rgb(239, 236, 221)"
+          },
+          {
+            "text": "Home",
+            "ratio": 7,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgb(71, 85, 105)",
+            "background": "rgb(244, 246, 250)"
+          }
+        ],
+        "disabled_primary_colors": {
+          "background": "rgb(232, 236, 242)",
+          "color": "rgb(71, 85, 105)"
+        }
+      }
+    },
+    "horizontal_overflow": false,
+    "writes": [],
+    "external_requests_blocked": [],
+    "page_errors": []
+  },
+  {
+    "route": "https://portfolio-staging-lc9hy9iyy-vsillahs-projects.vercel.app/admin/source-protocol",
+    "width": 390,
+    "height": 844,
+    "theme_preference": "dark",
+    "effective_theme": "dark",
+    "tabs_checked": [
+      "Banned Books",
+      "Portal Access",
+      "Creators",
+      "Works",
+      "Grants",
+      "Chunks",
+      "Receipts",
+      "Payouts",
+      "Model Reviews"
+    ],
+    "states_checked": [
+      "selected",
+      "focus",
+      "hover",
+      "disabled",
+      "active badge",
+      "pending badge",
+      "revoked badge"
+    ],
+    "empty_state_checked": true,
+    "error_state_checked": true,
+    "contrast": {
+      "overview": {
+        "samples": 191,
+        "disabled_samples": 0,
+        "minimum_ratio": 6.04,
+        "failures": [],
+        "lowest": [
+          {
+            "text": "Banned Books",
+            "ratio": 6.04,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgb(212, 175, 55)",
+            "background": "rgb(47, 52, 50)"
+          },
+          {
+            "text": "2",
+            "ratio": 6.04,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgb(212, 175, 55)",
+            "background": "rgb(47, 52, 50)"
+          },
+          {
+            "text": "Home",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Admin Dashboard",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Operating view for opt-in creator content, active license grants, cited answer receipts, monthly pay",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Source docs: /",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Retrieval remains permission-aware. Payouts accrue per answer receipt, then settle monthly to avoid ",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Creators",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Portal accounts",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Works",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Retrievable chunks",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Answer receipts",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          }
+        ]
+      },
+      "portal": {
+        "samples": 111,
+        "disabled_samples": 5,
+        "minimum_ratio": 6.02,
+        "failures": [],
+        "lowest": [
+          {
+            "text": "Portal Access",
+            "ratio": 6.02,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(212, 175, 56, 0.996)",
+            "background": "rgb(47, 52, 50)"
+          },
+          {
+            "text": "3",
+            "ratio": 6.02,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(212, 175, 56, 0.996)",
+            "background": "rgb(47, 52, 50)"
+          },
+          {
+            "text": "Home",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Admin Dashboard",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Operating view for opt-in creator content, active license grants, cited answer receipts, monthly pay",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Source docs: /",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Retrieval remains permission-aware. Payouts accrue per answer receipt, then settle monthly to avoid ",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Creators",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Portal accounts",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Works",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Retrievable chunks",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Answer receipts",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          }
+        ],
+        "disabled_primary_colors": {
+          "background": "rgba(234, 236, 238, 0.08)",
+          "color": "rgba(234, 236, 238, 0.72)"
+        }
+      }
+    },
+    "horizontal_overflow": false,
+    "writes": [],
+    "external_requests_blocked": [],
+    "page_errors": []
+  },
+  {
+    "route": "https://portfolio-staging-lc9hy9iyy-vsillahs-projects.vercel.app/admin/source-protocol",
+    "width": 390,
+    "height": 844,
+    "theme_preference": "system",
+    "effective_theme": "dark",
+    "tabs_checked": [
+      "Banned Books",
+      "Portal Access",
+      "Creators",
+      "Works",
+      "Grants",
+      "Chunks",
+      "Receipts",
+      "Payouts",
+      "Model Reviews"
+    ],
+    "states_checked": [
+      "selected",
+      "focus",
+      "hover",
+      "disabled",
+      "active badge",
+      "pending badge",
+      "revoked badge"
+    ],
+    "empty_state_checked": false,
+    "error_state_checked": false,
+    "contrast": {
+      "overview": {
+        "samples": 191,
+        "disabled_samples": 0,
+        "minimum_ratio": 6.04,
+        "failures": [],
+        "lowest": [
+          {
+            "text": "Banned Books",
+            "ratio": 6.04,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgb(212, 175, 55)",
+            "background": "rgb(47, 52, 50)"
+          },
+          {
+            "text": "2",
+            "ratio": 6.04,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgb(212, 175, 55)",
+            "background": "rgb(47, 52, 50)"
+          },
+          {
+            "text": "Home",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Admin Dashboard",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Operating view for opt-in creator content, active license grants, cited answer receipts, monthly pay",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Source docs: /",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Retrieval remains permission-aware. Payouts accrue per answer receipt, then settle monthly to avoid ",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Creators",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Portal accounts",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Works",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Retrievable chunks",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Answer receipts",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          }
+        ]
+      },
+      "portal": {
+        "samples": 111,
+        "disabled_samples": 5,
+        "minimum_ratio": 6.05,
+        "failures": [],
+        "lowest": [
+          {
+            "text": "Portal Access",
+            "ratio": 6.05,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(212, 175, 56, 1)",
+            "background": "rgb(47, 52, 50)"
+          },
+          {
+            "text": "3",
+            "ratio": 6.05,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(212, 175, 56, 1)",
+            "background": "rgb(47, 52, 50)"
+          },
+          {
+            "text": "Banned Books",
+            "ratio": 7.82,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 235, 236, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "2",
+            "ratio": 7.82,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 235, 236, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Home",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Admin Dashboard",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Operating view for opt-in creator content, active license grants, cited answer receipts, monthly pay",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Source docs: /",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Retrieval remains permission-aware. Payouts accrue per answer receipt, then settle monthly to avoid ",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Creators",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Portal accounts",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          },
+          {
+            "text": "Works",
+            "ratio": 7.87,
+            "required": 4.5,
+            "disabled": false,
+            "color": "rgba(234, 236, 238, 0.72)",
+            "background": "rgb(18, 30, 49)"
+          }
+        ],
+        "disabled_primary_colors": {
+          "background": "rgba(234, 236, 238, 0.08)",
+          "color": "rgba(234, 236, 238, 0.72)"
+        }
+      }
+    },
+    "horizontal_overflow": false,
+    "writes": [],
+    "external_requests_blocked": [],
+    "page_errors": []
+  }
+]

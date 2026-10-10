@@ -399,22 +399,22 @@ function RunRow({ run }: { run: ExtractionRun }) {
   return (
     <div className="flex items-center gap-2.5 py-1.5 text-xs">
       <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${dotColor}`} />
-      <span className="text-gray-400 w-[70px] flex-shrink-0">
+      <span className="w-[70px] flex-shrink-0 text-muted-foreground">
         {new Date(run.triggered_at).toLocaleDateString([], { month: 'numeric', day: 'numeric' })}{' '}
         {new Date(run.triggered_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
       </span>
-      <span className="text-gray-300 truncate flex-1 min-w-0 flex items-center gap-1">
+      <span className="flex min-w-0 flex-1 items-center gap-1 truncate text-foreground">
         {run.scope_type && (
-          <span className="text-[9px] uppercase tracking-wider text-emerald-400/70 bg-emerald-500/10 px-1 py-0.5 rounded flex-shrink-0">
+          <span className="flex-shrink-0 rounded bg-emerald-500/10 px-1 py-0.5 text-[9px] uppercase tracking-wider text-emerald-700 dark:text-emerald-300">
             Targeted
           </span>
         )}
         {runLabel}
       </span>
-      <span className="text-gray-500 flex-shrink-0">
+      <span className="flex-shrink-0 text-muted-foreground">
         {run.items_inserted != null ? `${run.items_inserted} items` : '—'}
       </span>
-      <span className="text-gray-600 flex-shrink-0 w-[36px] text-right">
+      <span className="w-[36px] flex-shrink-0 text-right text-muted-foreground">
         {formatDuration(run.triggered_at, run.completed_at)}
       </span>
     </div>
@@ -430,7 +430,7 @@ function ScopeDropdown({ selected, onChange }: { selected: number; onChange: (v:
     <select
       value={selected}
       onChange={e => onChange(Number(e.target.value))}
-      className="text-xs bg-gray-900/80 text-gray-300 border border-gray-700/60 rounded px-2 py-1 focus:outline-none focus:border-amber-500/50 cursor-pointer"
+      className="input-brand cursor-pointer rounded px-2 py-1 text-xs"
     >
       {SCAN_SCOPE_OPTIONS.map(opt => (
         <option key={opt.value} value={opt.value}>
@@ -459,8 +459,8 @@ function SourceChecklist({ selected, onChange }: { selected: string[]; onChange:
             onClick={() => toggle(src.id)}
             className={`text-[11px] px-2 py-0.5 rounded-full border transition-colors ${
               checked
-                ? 'bg-amber-600/20 text-amber-300 border-amber-600/40'
-                : 'bg-gray-900/60 text-gray-500 border-gray-700/50 hover:text-gray-300'
+                ? 'border-amber-600/40 bg-amber-600/20 text-amber-700 dark:text-amber-300'
+                : 'border-border bg-background text-muted-foreground hover:text-foreground'
             }`}
           >
             {src.label}
@@ -514,8 +514,8 @@ function ScopeTypePicker({
             onClick={() => onChange(active ? null : st.id)}
             className={`text-[11px] px-2 py-0.5 rounded-full border transition-colors ${
               active
-                ? 'bg-emerald-600/20 text-emerald-300 border-emerald-600/40'
-                : 'bg-gray-900/60 text-gray-500 border-gray-700/50 hover:text-gray-300'
+                ? 'border-emerald-600/40 bg-emerald-600/20 text-emerald-700 dark:text-emerald-300'
+                : 'border-border bg-background text-muted-foreground hover:text-foreground'
             }`}
           >
             {st.label}
@@ -588,7 +588,7 @@ function ScopeEntitySearch({
   return (
     <div className="relative" ref={containerRef}>
       {selectedId && selectedEntity ? (
-        <div className="flex items-center gap-1.5 text-[11px] bg-emerald-600/10 text-emerald-300 border border-emerald-600/30 rounded px-2 py-1.5">
+        <div className="flex items-center gap-1.5 rounded border border-emerald-600/30 bg-emerald-600/10 px-2 py-1.5 text-[11px] text-emerald-700 dark:text-emerald-300">
           <Crosshair className="w-3 h-3 flex-shrink-0" />
           <span className="truncate flex-1">{selectedEntity.label}</span>
           <button
@@ -601,17 +601,17 @@ function ScopeEntitySearch({
         </div>
       ) : (
         <div className="relative">
-          <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-500" />
+          <Search className="absolute left-2 top-1/2 h-3 w-3 -translate-y-1/2 text-muted-foreground" />
           <input
             type="text"
             value={query}
             onChange={e => { setQuery(e.target.value); setIsOpen(true) }}
             onFocus={() => setIsOpen(true)}
             placeholder={`Search ${scopeType}s...`}
-            className="w-full text-[11px] bg-gray-900/80 text-gray-300 border border-gray-700/60 rounded pl-7 pr-2 py-1.5 focus:outline-none focus:border-emerald-500/50 placeholder:text-gray-600"
+            className="input-brand w-full py-1.5 pl-7 pr-2 text-[11px]"
           />
           {loading && (
-            <Loader2 className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-500 animate-spin" />
+            <Loader2 className="absolute right-2 top-1/2 h-3 w-3 -translate-y-1/2 animate-spin text-muted-foreground" />
           )}
         </div>
       )}
@@ -623,10 +623,10 @@ function ScopeEntitySearch({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -4 }}
             transition={{ duration: 0.1 }}
-            className="absolute left-0 right-0 top-full mt-1 max-h-[160px] overflow-y-auto bg-gray-900 border border-gray-700 rounded-lg shadow-xl z-50"
+            className="absolute left-0 right-0 top-full z-50 mt-1 max-h-[160px] overflow-y-auto rounded-lg border border-border bg-popover text-popover-foreground shadow-xl"
           >
             {entities.length === 0 && !loading && (
-              <div className="px-3 py-2 text-[11px] text-gray-500">No {scopeType}s found</div>
+              <div className="px-3 py-2 text-[11px] text-muted-foreground">No {scopeType}s found</div>
             )}
             {entities.map(entity => (
               <button
@@ -637,11 +637,11 @@ function ScopeEntitySearch({
                   setIsOpen(false)
                   setQuery('')
                 }}
-                className="w-full text-left px-3 py-1.5 hover:bg-gray-800 transition-colors border-b border-gray-800/50 last:border-0"
+                className="w-full border-b border-border px-3 py-1.5 text-left transition-colors last:border-0 hover:bg-muted"
               >
-                <div className="text-[11px] text-gray-300 truncate">{entity.label}</div>
+                <div className="truncate text-[11px] text-foreground">{entity.label}</div>
                 {entity.subtitle && (
-                  <div className="text-[10px] text-gray-500 truncate">{entity.subtitle}</div>
+                  <div className="truncate text-[10px] text-muted-foreground">{entity.subtitle}</div>
                 )}
               </button>
             ))}
@@ -664,11 +664,11 @@ function ScopePicker({
       <button
         type="button"
         onClick={() => setExpanded(!expanded)}
-        className="text-[11px] text-gray-400 hover:text-gray-200 transition-colors flex items-center gap-1.5"
+        className="flex items-center gap-1.5 text-[11px] text-muted-foreground transition-colors hover:text-foreground"
       >
         <Crosshair className="w-3 h-3" />
         {config.scopeType && config.scopeLabel
-          ? <span className="text-emerald-400">Targeted: {config.scopeLabel.substring(0, 40)}{config.scopeLabel.length > 40 ? '...' : ''}</span>
+          ? <span className="text-emerald-700 dark:text-emerald-300">Targeted: {config.scopeLabel.substring(0, 40)}{config.scopeLabel.length > 40 ? '...' : ''}</span>
           : 'Scope: All data (full sweep)'
         }
       </button>
@@ -711,22 +711,22 @@ export function PipelineProgressBar({
   indeterminate?: boolean
   barOnly?: boolean
 }) {
-  const trackColor = stale ? 'bg-orange-950/80 ring-1 ring-orange-500/20' : 'bg-gray-950/80 ring-1 ring-amber-500/15'
+  const trackColor = stale ? 'bg-orange-500/15 ring-1 ring-orange-500/25' : 'bg-muted ring-1 ring-amber-500/20'
 
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between gap-2 text-[11px]">
         {barOnly ? (
-          <span className="text-gray-500">Estimated progress (this step)</span>
+          <span className="text-muted-foreground">Estimated progress (this step)</span>
         ) : (
-          <span className="text-gray-300 font-medium truncate" title={stageLabel}>
+          <span className="truncate font-medium text-foreground" title={stageLabel}>
             {stageLabel}
           </span>
         )}
         {indeterminate ? (
-          <span className="text-gray-600 tabular-nums shrink-0">…</span>
+          <span className="shrink-0 tabular-nums text-muted-foreground">…</span>
         ) : (
-          <span className="text-gray-500 tabular-nums shrink-0">{progressPct}%</span>
+          <span className="shrink-0 tabular-nums text-muted-foreground">{progressPct}%</span>
         )}
       </div>
       <div className={`relative h-2 w-full rounded-full ${trackColor} overflow-hidden`}>
@@ -830,7 +830,7 @@ export function ExtractionStatusChip({
       {/* Chip */}
       <button
         onClick={toggleDrawer}
-        className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-800/80 border border-gray-700/60 hover:border-gray-600 transition-colors text-xs cursor-pointer"
+        className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-border bg-card px-3 py-1.5 text-xs text-card-foreground transition-colors hover:border-radiant-gold/50"
         aria-expanded={isDrawerOpen}
         aria-label={[
           label ? `${label} ` : '',
@@ -848,19 +848,19 @@ export function ExtractionStatusChip({
         }
       >
         <StatusDot state={state} />
-        <span className="text-gray-300">
-          {label && <span className="text-gray-500 mr-1">{label}</span>}
+        <span className="text-foreground">
+          {label && <span className="mr-1 text-muted-foreground">{label}</span>}
           {pipelinePhase && (
-            <span className="text-gray-600 mr-1.5 tabular-nums">
+            <span className="mr-1.5 tabular-nums text-muted-foreground">
               {pipelinePhase.current}/{pipelinePhase.total}
             </span>
           )}
           {chipLabel(state, currentRun, elapsedMs, runningStageLabel, runningCount)}
         </span>
         {isDrawerOpen ? (
-          <ChevronUp className="w-3 h-3 text-gray-500" />
+          <ChevronUp className="h-3 w-3 text-muted-foreground" />
         ) : (
-          <ChevronDown className="w-3 h-3 text-gray-500" />
+          <ChevronDown className="h-3 w-3 text-muted-foreground" />
         )}
       </button>
 
@@ -873,7 +873,7 @@ export function ExtractionStatusChip({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.15 }}
-            className="absolute right-0 top-full z-[70] mt-2 w-[360px] max-w-[calc(100vw-2rem)] overflow-hidden rounded-lg border border-gray-700 bg-gray-800/95 shadow-xl backdrop-blur-sm"
+            className="absolute right-0 top-full z-[70] mt-2 w-[360px] max-w-[calc(100vw-2rem)] overflow-hidden rounded-lg border border-border bg-popover text-popover-foreground shadow-xl backdrop-blur-sm"
           >
             {/* Current run detail */}
             {currentRun && (
@@ -882,45 +882,45 @@ export function ExtractionStatusChip({
                 {(state === 'running' || state === 'stale') && (
                   <div>
                     <div className="flex items-center gap-2 mb-1">
-                      <Loader2 className="w-3.5 h-3.5 text-amber-400 animate-spin" />
-                      <span className="text-sm font-medium text-gray-200">
+                      <Loader2 className="h-3.5 w-3.5 animate-spin text-amber-700 dark:text-amber-300" />
+                      <span className="text-sm font-medium text-foreground">
                         {state === 'stale' ? 'May be stuck' : 'Processing'}
                         {(runningCount ?? 0) > 1 && (
-                          <span className="text-gray-400 font-normal ml-1">
+                          <span className="ml-1 font-normal text-muted-foreground">
                             ({runningCount} meetings)
                           </span>
                         )}
                       </span>
-                      <span className="text-xs text-gray-500 ml-auto tabular-nums">{formatElapsed(elapsedMs)}</span>
+                      <span className="ml-auto text-xs tabular-nums text-muted-foreground">{formatElapsed(elapsedMs)}</span>
                     </div>
                     {pipelinePhase && (
-                      <p className="text-xs text-gray-500 mb-1 pl-6">
+                      <p className="mb-1 pl-6 text-xs text-muted-foreground">
                         Phase {pipelinePhase.current} of {pipelinePhase.total}
                         {label ? ` · ${label}` : ''}
                       </p>
                     )}
                     {state === 'running' && (
-                      <p className="text-xs text-amber-400/90 mb-2 pl-6 -mt-0.5" aria-live="polite">
+                      <p className="-mt-0.5 mb-2 pl-6 text-xs text-amber-700 dark:text-amber-300" aria-live="polite">
                         Step {stepIndex} of {stepTotal}: {currentStageLabel}
                       </p>
                     )}
                     {state === 'stale' && (
-                      <p className="text-xs text-orange-400/80 mb-2 pl-6 -mt-0.5">
+                      <p className="-mt-0.5 mb-2 pl-6 text-xs text-orange-700 dark:text-orange-300">
                         Last step{stepTotal > 0 ? ` (${stepIndex} of ${stepTotal})` : ''}: {currentStageLabel}
                       </p>
                     )}
                     {currentRun.scope_label && (
-                      <div className="text-[11px] text-emerald-400/80 mb-2 pl-6 flex items-center gap-1">
+                      <div className="mb-2 flex items-center gap-1 pl-6 text-[11px] text-emerald-700 dark:text-emerald-300">
                         <Crosshair className="w-3 h-3 flex-shrink-0" />
                         <span className="truncate">{currentRun.scope_label}</span>
                       </div>
                     )}
                     {!currentRun.scope_label && currentRun.meeting_title && (
-                      <div className="text-xs text-gray-400 mb-3 truncate">{currentRun.meeting_title}</div>
+                      <div className="mb-3 truncate text-xs text-muted-foreground">{currentRun.meeting_title}</div>
                     )}
                     {/* VEP002: progress is shown only via step line + bar (no per-source checklist — avoids misleading empty circles). */}
                     {currentRun.workflow_id === 'vep002' && (currentRun.items_inserted ?? 0) > 0 && (
-                      <p className="text-[11px] text-amber-400/70 mb-2 pl-6 tabular-nums">
+                      <p className="mb-2 pl-6 text-[11px] tabular-nums text-amber-700 dark:text-amber-300">
                         {currentRun.items_inserted} items so far
                       </p>
                     )}
@@ -932,13 +932,13 @@ export function ExtractionStatusChip({
                       barOnly
                     />
                     {state === 'stale' && (
-                      <p className="mt-2 text-xs text-orange-400/80">Running longer than expected — the workflow may have stalled</p>
+                      <p className="mt-2 text-xs text-orange-700 dark:text-orange-300">Running longer than expected — the workflow may have stalled</p>
                     )}
                     <div className="mt-3 flex justify-end">
                       <button
                         type="button"
                         onClick={() => markRunFailed(currentRun.id, 'Cancelled by user')}
-                        className="text-xs px-2.5 py-1 rounded bg-red-600/20 text-red-400 border border-red-600/30 hover:bg-red-600/30 transition-colors"
+                        className="rounded border border-red-600/30 bg-red-600/20 px-2.5 py-1 text-xs text-red-700 transition-colors hover:bg-red-600/30 dark:text-red-300"
                         title="Stop this run"
                       >
                         Cancel
@@ -952,22 +952,22 @@ export function ExtractionStatusChip({
                   <div>
                     <div className="flex items-center gap-2 mb-1">
                       {(currentRun.items_inserted ?? 0) > 0 ? (
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                        <CheckCircle2 className="h-3.5 w-3.5 text-emerald-700 dark:text-emerald-300" />
                       ) : (
-                        <AlertTriangle className="w-3.5 h-3.5 text-yellow-400" />
+                        <AlertTriangle className="h-3.5 w-3.5 text-yellow-700 dark:text-yellow-300" />
                       )}
-                      <span className="text-sm font-medium text-gray-200">
+                      <span className="text-sm font-medium text-foreground">
                         {(currentRun.items_inserted ?? 0) > 0
                           ? `${currentRun.items_inserted} item${currentRun.items_inserted !== 1 ? 's' : ''} created`
                           : 'No evidence found'}
                       </span>
                     </div>
                     {(currentRun.items_inserted ?? 0) === 0 && (
-                      <div className="text-xs text-yellow-400/80 bg-yellow-500/10 border border-yellow-500/20 rounded px-2.5 py-1.5 mb-2">
+                      <div className="mb-2 rounded border border-yellow-500/20 bg-yellow-500/10 px-2.5 py-1.5 text-xs text-yellow-800 dark:text-yellow-200">
                         No data returned. Check: do the search terms match the lead&apos;s industry? Did the selected sources return results?
                       </div>
                     )}
-                    <div className="flex items-center gap-3 text-xs text-gray-500">
+                    <div className="flex items-center gap-3 text-xs text-muted-foreground">
                       {currentRun.meeting_title && (
                         <span className="truncate">{currentRun.meeting_title}</span>
                       )}
@@ -990,7 +990,7 @@ export function ExtractionStatusChip({
                           )}
                           <button
                             onClick={() => onRetry(scopeSelector?.selected)}
-                            className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded bg-amber-600/20 text-amber-400 border border-amber-600/30 hover:bg-amber-600/30 transition-colors"
+                            className="inline-flex items-center gap-1 rounded border border-amber-600/30 bg-amber-600/20 px-2 py-1 text-xs text-amber-700 transition-colors hover:bg-amber-600/30 dark:text-amber-300"
                             title="Run again"
                           >
                             <Play className="w-3 h-3" />
@@ -1006,25 +1006,25 @@ export function ExtractionStatusChip({
                 {state === 'failed' && (
                   <div>
                     <div className="flex items-center gap-2 mb-2">
-                      <XCircle className="w-3.5 h-3.5 text-red-400" />
-                      <span className="text-sm font-medium text-gray-200">Failed</span>
+                      <XCircle className="h-3.5 w-3.5 text-red-700 dark:text-red-300" />
+                      <span className="text-sm font-medium text-foreground">Failed</span>
                       <button
                         onClick={toggleDrawer}
-                        className="ml-auto p-0.5 rounded hover:bg-gray-700 transition-colors"
+                        className="ml-auto rounded p-0.5 transition-colors hover:bg-muted"
                         title="Dismiss"
                       >
-                        <X className="w-3 h-3 text-gray-500" />
+                        <X className="h-3 w-3 text-muted-foreground" />
                       </button>
                     </div>
                     {currentRun.error_message && (
-                      <div className="text-xs text-red-400/80 bg-red-500/10 border border-red-500/20 rounded px-2.5 py-1.5 mb-2 line-clamp-3">
+                      <div className="mb-2 line-clamp-3 rounded border border-red-500/20 bg-red-500/10 px-2.5 py-1.5 text-xs text-red-800 dark:text-red-200">
                         {currentRun.error_message}
                       </div>
                     )}
                     <div className="space-y-2">
                       {currentRun.meeting_title && (
                         <div className="flex items-center gap-2">
-                          <span className="text-xs text-gray-500 truncate flex-1">{currentRun.meeting_title}</span>
+                          <span className="flex-1 truncate text-xs text-muted-foreground">{currentRun.meeting_title}</span>
                         </div>
                       )}
                       {(onRetry || (onRetryFailed && recentFailedRetryable.length > 0)) && (
@@ -1043,7 +1043,7 @@ export function ExtractionStatusChip({
                               <button
                                 type="button"
                                 onClick={onRetryFailed}
-                                className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded bg-orange-600/20 text-orange-400 border border-orange-600/30 hover:bg-orange-600/30 transition-colors"
+                                className="inline-flex items-center gap-1.5 rounded border border-orange-600/30 bg-orange-600/20 px-2.5 py-1 text-xs text-orange-700 transition-colors hover:bg-orange-600/30 dark:text-orange-300"
                                 title={`Retry ${recentFailedRetryable.length} failed meeting(s)`}
                               >
                                 <RotateCcw className="w-3 h-3" />
@@ -1053,7 +1053,7 @@ export function ExtractionStatusChip({
                               <button
                                 type="button"
                                 onClick={() => onRetry(scopeSelector?.selected)}
-                                className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded bg-blue-600/20 text-blue-400 border border-blue-600/30 hover:bg-blue-600/30 transition-colors"
+                                className="inline-flex items-center gap-1.5 rounded border border-blue-600/30 bg-blue-600/20 px-2.5 py-1 text-xs text-blue-700 transition-colors hover:bg-blue-600/30 dark:text-blue-300"
                                 title="Re-run the extraction"
                               >
                                 <RotateCcw className="w-3 h-3" />
@@ -1071,12 +1071,12 @@ export function ExtractionStatusChip({
                 {state === 'idle' && (
                   <div>
                     <div className="flex items-center gap-2">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-gray-500" />
-                      <span className="text-sm text-gray-400">
+                      <CheckCircle2 className="h-3.5 w-3.5 text-muted-foreground" />
+                      <span className="text-sm text-muted-foreground">
                         Last run {timeAgo(currentRun.completed_at || currentRun.triggered_at)}
                       </span>
                       {currentRun.items_inserted != null && (
-                        <span className="text-xs text-gray-500">· {currentRun.items_inserted} items</span>
+                        <span className="text-xs text-muted-foreground">· {currentRun.items_inserted} items</span>
                       )}
                     </div>
                     {onRetry && (
@@ -1093,7 +1093,7 @@ export function ExtractionStatusChip({
                           )}
                           <button
                             onClick={() => onRetry(scopeSelector?.selected)}
-                            className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded bg-amber-600/20 text-amber-400 border border-amber-600/30 hover:bg-amber-600/30 transition-colors"
+                            className="inline-flex items-center gap-1 rounded border border-amber-600/30 bg-amber-600/20 px-2 py-1 text-xs text-amber-700 transition-colors hover:bg-amber-600/30 dark:text-amber-300"
                             title="Run this workflow"
                           >
                             <Play className="w-3 h-3" />
@@ -1109,7 +1109,7 @@ export function ExtractionStatusChip({
 
             {!currentRun && (
               <div className="p-4">
-                <p className="text-xs text-gray-500 mb-3">
+                <p className="mb-3 text-xs text-muted-foreground">
                   No runs yet. Use Run to start the first sync.
                 </p>
                 {onRetry && (
@@ -1127,7 +1127,7 @@ export function ExtractionStatusChip({
                       <button
                         type="button"
                         onClick={() => onRetry(scopeSelector?.selected)}
-                        className="inline-flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg bg-amber-600/20 text-amber-400 border border-amber-600/30 hover:bg-amber-600/30 transition-colors font-medium"
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-amber-600/30 bg-amber-600/20 px-3 py-2 text-xs font-medium text-amber-700 transition-colors hover:bg-amber-600/30 dark:text-amber-300"
                         title="Start a run"
                       >
                         <Play className="w-3.5 h-3.5" />
@@ -1141,12 +1141,12 @@ export function ExtractionStatusChip({
 
             {/* Recent runs */}
             {completedRuns.length > 0 && (
-              <div className="border-t border-gray-700/60 px-4 py-3">
+              <div className="border-t border-border px-4 py-3">
                 <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-[10px] uppercase tracking-wider text-gray-600 font-medium">Recent</span>
+                  <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Recent</span>
                   <button
                     onClick={toggleHistory}
-                    className="inline-flex items-center gap-1 text-[10px] text-gray-500 hover:text-gray-300 transition-colors"
+                    className="inline-flex items-center gap-1 text-[10px] text-muted-foreground transition-colors hover:text-foreground"
                     title="View full extraction history"
                   >
                     <History className="w-3 h-3" />
@@ -1160,12 +1160,12 @@ export function ExtractionStatusChip({
             )}
 
             {drawerFooterAction && (
-              <div className="border-t border-gray-700/60 px-4 py-2.5 bg-gray-900/40">
+              <div className="border-t border-border bg-muted/30 px-4 py-2.5">
                 <button
                   type="button"
                   onClick={drawerFooterAction.onClick}
                   disabled={drawerFooterAction.disabled}
-                  className="text-xs text-amber-400/90 hover:text-amber-300 underline underline-offset-2 disabled:opacity-40 disabled:pointer-events-none"
+                  className="text-xs text-amber-700 underline underline-offset-2 hover:text-amber-600 disabled:pointer-events-none disabled:opacity-40 dark:text-amber-300 dark:hover:text-amber-200"
                 >
                   {drawerFooterAction.label}
                 </button>
@@ -1222,24 +1222,24 @@ function RunHistorySlideOver({
         animate={{ x: 0 }}
         exit={{ x: '100%' }}
         transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-        className="fixed right-0 top-0 bottom-0 w-[400px] max-w-[90vw] bg-gray-900 border-l border-gray-700 z-[61] overflow-y-auto"
+        className="fixed bottom-0 right-0 top-0 z-[61] w-[400px] max-w-[90vw] overflow-y-auto border-l border-border bg-card text-card-foreground"
         role="dialog"
         aria-label="Extraction run history"
       >
-        <div className="flex items-center justify-between p-4 border-b border-gray-800 sticky top-0 bg-gray-900 z-10">
-          <h2 className="text-sm font-semibold text-gray-200">Run History</h2>
+        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-card p-4">
+          <h2 className="text-sm font-semibold text-foreground">Run History</h2>
           <button
             onClick={onClose}
-            className="p-1 rounded hover:bg-gray-800 transition-colors"
+            className="rounded p-1 transition-colors hover:bg-muted"
             title="Close"
           >
-            <X className="w-4 h-4 text-gray-500" />
+            <X className="h-4 w-4 text-muted-foreground" />
           </button>
         </div>
 
         <div className="p-4 space-y-2">
           {runs.length === 0 && (
-            <p className="text-xs text-gray-500 py-8 text-center">No extraction runs yet.</p>
+            <p className="py-8 text-center text-xs text-muted-foreground">No extraction runs yet.</p>
           )}
 
           {runs.map(run => (
@@ -1253,12 +1253,12 @@ function RunHistorySlideOver({
 
 function RunHistoryCard({ run }: { run: ExtractionRun }) {
   const statusIcon = run.status === 'success'
-    ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+    ? <CheckCircle2 className="h-3.5 w-3.5 text-emerald-700 dark:text-emerald-300" />
     : run.status === 'failed'
-      ? <XCircle className="w-3.5 h-3.5 text-red-400" />
+      ? <XCircle className="h-3.5 w-3.5 text-red-700 dark:text-red-300" />
       : run.stale
-        ? <AlertTriangle className="w-3.5 h-3.5 text-orange-400" />
-        : <Loader2 className="w-3.5 h-3.5 text-amber-400 animate-spin" />
+        ? <AlertTriangle className="h-3.5 w-3.5 text-orange-700 dark:text-orange-300" />
+        : <Loader2 className="h-3.5 w-3.5 animate-spin text-amber-700 dark:text-amber-300" />
 
   const statusLabel = run.status === 'success'
     ? 'Success'
@@ -1269,37 +1269,37 @@ function RunHistoryCard({ run }: { run: ExtractionRun }) {
         : 'Running'
 
   return (
-    <div className="bg-gray-800/60 border border-gray-700/50 rounded-lg p-3">
+    <div className="rounded-lg border border-border bg-muted/30 p-3">
       <div className="flex items-center gap-2 mb-1.5">
         {statusIcon}
-        <span className="text-xs font-medium text-gray-300">{statusLabel}</span>
+        <span className="text-xs font-medium text-foreground">{statusLabel}</span>
         {run.items_inserted != null && (
-          <span className="text-xs text-gray-500">· {run.items_inserted} items</span>
+          <span className="text-xs text-muted-foreground">· {run.items_inserted} items</span>
         )}
         {run.completed_at && (
-          <span className="text-xs text-gray-600 ml-auto flex items-center gap-1">
+          <span className="ml-auto flex items-center gap-1 text-xs text-muted-foreground">
             <Clock className="w-3 h-3" />
             {formatDuration(run.triggered_at, run.completed_at)}
           </span>
         )}
       </div>
-      <div className="text-xs text-gray-500">
+      <div className="text-xs text-muted-foreground">
         {new Date(run.triggered_at).toLocaleString([], {
           month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit',
         })}
         {run.scope_label ? (
-          <span className="ml-2 text-emerald-400/70">· {run.scope_label}</span>
+          <span className="ml-2 text-emerald-700 dark:text-emerald-300">· {run.scope_label}</span>
         ) : run.meeting_title ? (
-          <span className="ml-2 text-gray-400">· {run.meeting_title}</span>
+          <span className="ml-2 text-muted-foreground">· {run.meeting_title}</span>
         ) : null}
       </div>
       {run.scope_type && (
-        <span className="inline-block mt-1 text-[9px] uppercase tracking-wider text-emerald-400/70 bg-emerald-500/10 px-1.5 py-0.5 rounded">
+        <span className="mt-1 inline-block rounded bg-emerald-500/10 px-1.5 py-0.5 text-[9px] uppercase tracking-wider text-emerald-700 dark:text-emerald-300">
           Targeted · {run.scope_type}
         </span>
       )}
       {run.error_message && (
-        <div className="mt-1.5 text-xs text-red-400/70 line-clamp-2">
+        <div className="mt-1.5 line-clamp-2 text-xs text-red-700 dark:text-red-300">
           {run.error_message}
         </div>
       )}

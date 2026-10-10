@@ -52,13 +52,15 @@ export function ThemePreferenceList({
           <button
             key={value}
             type="button"
+            aria-label={`${itemLabel} theme`}
+            aria-pressed={selected}
             onClick={() => {
               setTheme(value)
               onSelect?.()
             }}
             className={`flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm transition-colors rounded-lg ${
               selected
-                ? 'bg-radiant-gold/15 text-radiant-gold'
+                ? 'bg-radiant-gold/15 text-bronze dark:text-radiant-gold'
                 : 'text-muted-foreground hover:bg-muted/80 hover:text-foreground'
             }`}
           >
@@ -76,7 +78,7 @@ export function ThemePreferenceList({
   )
 }
 
-export default function ThemeToggle() {
+export default function ThemeToggle({ variant = 'default' }: { variant?: 'default' | 'compact' }) {
   const { theme, resolvedTheme } = useTheme()
   const [open, setOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
@@ -96,7 +98,9 @@ export default function ThemeToggle() {
   if (!mounted) {
     return (
       <div
-        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-border/60 bg-card/50"
+        className={`flex shrink-0 items-center justify-center border border-border bg-card ${
+          variant === 'compact' ? 'h-9 w-9 rounded-lg' : 'h-11 w-11 rounded-full'
+        }`}
         aria-hidden
       />
     )
@@ -118,16 +122,24 @@ export default function ThemeToggle() {
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full glass-card border border-radiant-gold/30 text-foreground hover:border-radiant-gold/60 hover:text-radiant-gold transition-all duration-300 hover:scale-105 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-radiant-gold focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+        className={`flex shrink-0 items-center justify-center border border-radiant-gold/30 bg-card text-foreground transition-all duration-300 hover:border-radiant-gold/60 hover:text-bronze active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-radiant-gold focus-visible:ring-offset-2 focus-visible:ring-offset-background dark:hover:text-radiant-gold ${
+          variant === 'compact'
+            ? 'h-9 w-9 rounded-lg'
+            : 'glass-card h-11 w-11 rounded-full hover:scale-105'
+        }`}
         aria-label={`Theme: ${label}. Change theme`}
         aria-expanded={open}
-        aria-haspopup="listbox"
+        aria-haspopup="dialog"
       >
         <TriggerIcon size={18} aria-hidden />
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full z-[70] mt-2 min-w-[11rem] rounded-xl glass-card border border-radiant-gold/25 py-1 shadow-2xl">
+        <div
+          className="absolute right-0 top-full z-[70] mt-2 min-w-[11rem] rounded-xl glass-card border border-radiant-gold/25 py-1 shadow-2xl"
+          role="dialog"
+          aria-label="Theme preferences"
+        >
           <ThemePreferenceList
             showLabel={false}
             onSelect={() => setOpen(false)}

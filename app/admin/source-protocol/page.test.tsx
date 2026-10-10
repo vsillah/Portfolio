@@ -1,4 +1,6 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import type { ReactNode } from 'react'
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
 import { ADMIN_NAV } from '@/lib/admin-nav'
@@ -234,10 +236,13 @@ const overview = {
 
 describe('SourceProtocolPage', () => {
   beforeEach(() => {
-    vi.stubGlobal('fetch', vi.fn(async () => ({
-      ok: true,
-      json: async () => overview,
-    })))
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => ({
+        ok: true,
+        json: async () => overview,
+      })),
+    )
   })
 
   afterEach(() => {
@@ -257,11 +262,30 @@ describe('SourceProtocolPage', () => {
     expect(screen.getByText('Held Candidate Book')).toBeInTheDocument()
     expect(screen.getAllByText('Demo Challenged Book').length).toBeGreaterThanOrEqual(1)
 
+    const page = screen.getByTestId('source-protocol-page')
+    const stance = screen.getByTestId('source-protocol-stance')
+    const activeTab = screen.getByRole('button', { name: /Banned Books/i })
+    const stagedStatus = page.querySelector('[data-contrast-audit="staged-status"]')
+
+    expect(page).toHaveClass('bg-background', 'text-foreground')
+    expect(stance).toHaveClass('border-border', 'bg-card', 'text-card-foreground')
+    expect(activeTab).toHaveClass('text-[#6F5310]', 'dark:text-radiant-gold')
+    expect(activeTab).toHaveAttribute('aria-pressed', 'true')
+    expect(stagedStatus).toHaveClass('text-amber-900', 'dark:text-amber-200')
+
     fireEvent.click(screen.getAllByRole('button', { name: /Portal Access/i })[0])
 
     expect(screen.getByText(/Payouts accrue per answer receipt/i)).toBeInTheDocument()
     expect(screen.getByText('Demo Creator')).toBeInTheDocument()
     expect(screen.getByText('creator@example.com')).toBeInTheDocument()
+    expect(screen.getByTestId('source-protocol-portal-form')).toHaveClass('border-border', 'bg-card', 'text-card-foreground')
+    expect(screen.getByRole('button', { name: 'Save portal link' })).toHaveClass(
+      'disabled:bg-muted',
+      'disabled:text-muted-foreground',
+      'dark:disabled:bg-muted',
+      'dark:disabled:text-muted-foreground',
+    )
+    expect(screen.getByRole('button', { name: 'Revoke' })).toHaveClass('text-red-800', 'dark:text-red-200')
 
     fireEvent.click(screen.getAllByRole('button', { name: /Receipts/i })[0])
 
@@ -276,20 +300,46 @@ describe('SourceProtocolPage', () => {
   })
 
   it('shows the missing schema state without failing the page', async () => {
-    vi.stubGlobal('fetch', vi.fn(async () => ({
-      ok: true,
-      json: async () => ({
-        available: false,
-        generatedAt: '2026-05-03T12:00:00.000Z',
-        reason: 'Source protocol schema has not been applied in this environment.',
-        migration: 'migrations/20260501193000_source_respecting_llm.sql',
-      }),
-    })))
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => ({
+        ok: true,
+        json: async () => ({
+          available: false,
+          generatedAt: '2026-05-03T12:00:00.000Z',
+          reason: 'Source protocol schema has not been applied in this environment.',
+          migration: 'migrations/20260501193000_source_respecting_llm.sql',
+        }),
+      })),
+    )
 
     render(<SourceProtocolPage />)
 
     expect(await screen.findByText('Source protocol schema is not available here')).toBeInTheDocument()
     expect(screen.getByText(/20260501193000_source_respecting_llm/i)).toBeInTheDocument()
+  })
+
+  it('keeps live Source Protocol content visible when the optional Evidence QA projection is unavailable', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => ({
+      ok: true,
+      json: async () => ({
+        ...overview,
+        bannedBooksEvidenceQa: null,
+        bannedBooksEvidenceQaUnavailable: {
+          code: 'optional_projection_file_missing',
+          message: 'Evidence QA approval projection is unavailable because its optional local fixture files were not packaged for this deployment.',
+          sourceImportPath: 'data/source-protocol/banned-books-source-import-sample.json',
+          approvalPath: 'data/source-protocol/banned-books-evidence-qa-approvals.sample.json',
+        },
+      }),
+    })))
+
+    render(<SourceProtocolPage />)
+
+    expect(await screen.findByText('Evidence QA approval projection unavailable')).toBeInTheDocument()
+    expect(screen.getByText(/Live Source Protocol records remain available/i)).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Banned Books Rights-Ready Corpus' })).toBeInTheDocument()
+    expect(screen.queryByText('Failed to load source protocol overview')).not.toBeInTheDocument()
   })
 
   it('is linked from Quality & insights admin navigation', () => {
@@ -301,7 +351,19 @@ describe('SourceProtocolPage', () => {
           label: 'Source Protocol',
           href: '/admin/source-protocol',
         }),
-      ])
+      ]),
     )
+  })
+
+  it('uses semantic surfaces and paired light/dark status text classes', () => {
+    const source = readFileSync(join(process.cwd(), 'app/admin/source-protocol/page.tsx'), 'utf8')
+
+    expect(source).not.toMatch(/(?:border|bg|divide)-silicon-slate/)
+    expect(source).not.toContain('className="text-radiant-gold"')
+    expect(source).not.toMatch(/(?<!dark:)text-(?:amber|emerald|red)-(?:200|300)\b/)
+    expect(source).toContain('text-bronze dark:text-radiant-gold')
+    expect(source).toContain('text-amber-900 dark:border-amber-500/45')
+    expect(source).toContain('text-emerald-900 dark:border-emerald-500/45')
+    expect(source).toContain('text-red-900 dark:border-red-500/45')
   })
 })

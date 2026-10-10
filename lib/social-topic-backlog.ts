@@ -8,7 +8,6 @@ import {
   SOCIAL_TOPIC_TRIGGER_SOURCE_TYPE,
 } from '@/lib/social-content-intelligence'
 import { supabaseAdmin } from '@/lib/supabase'
-import { getOpenBrainSnapshot } from '@/lib/open-brain'
 
 export type SourceType =
   | 'meeting'
@@ -111,6 +110,11 @@ export type SourceSignal = {
   sensitivity: TopicSensitivity
   receipt: SocialTopicSourceReceipt
   product_ids: RequiredSocialTopicProduct[]
+  lifecycle_stage?: 'preview_deployed' | 'production_deployed'
+}
+
+export function prototypeLifecycleStage(value: unknown): NonNullable<SourceSignal['lifecycle_stage']> {
+  return value === 'Production' ? 'production_deployed' : 'preview_deployed'
 }
 
 export type TopicTriggerCandidate = {
@@ -269,6 +273,7 @@ function signalFromApprovedSummary(input: {
   approvedAt: unknown
   approvedBy: unknown
   productIds?: unknown
+  lifecycleStage?: SourceSignal['lifecycle_stage']
 }): SourceSignal | null {
   const summary = sanitizeSummary(input.summary)
   const inferredProducts = inferRequiredProducts(input.label, summary)
@@ -297,6 +302,7 @@ function signalFromApprovedSummary(input: {
     sensitivity: receipt.privacy_classification,
     receipt,
     product_ids: productIds,
+    lifecycle_stage: input.lifecycleStage,
   }
 }
 
@@ -651,26 +657,32 @@ async function fetchRecentMeetingSignals(): Promise<SourceSignal[]> {
 }
 
 async function fetchApprovedOpenBrainSignals(): Promise<SourceSignal[]> {
-  const snapshot = await getOpenBrainSnapshot()
-  return snapshot.proposals
-    .filter((proposal) => proposal.status === 'approved')
-    .filter((proposal) => proposal.proposedMemory.privacyTier === 'public_safe' || proposal.proposedMemory.privacyTier === 'client_safe')
-    .map((proposal) => signalFromApprovedSummary({
-      id: `open_brain_proposal:${proposal.id}`,
+  const { data, error } = await supabaseAdmin
+    .from('social_topic_source_receipts')
+    .select('receipt_id, source_id, source_kind, product_identity, label, approved_summary, privacy_classification, provenance, approved_at, approved_by, observed_at')
+    .eq('source_group', 'codex_insights')
+    .eq('approval_status', 'approved')
+    .eq('raw_content_included', false)
+    .order('observed_at', { ascending: false })
+    .limit(24)
+
+  if (error) throw new Error('open_brain_approved_projection_read_failed')
+
+  return (data ?? [])
+    .map((projection: Record<string, unknown>) => signalFromApprovedSummary({
+      id: `open_brain_projection:${asString(projection.receipt_id)}`,
       type: 'open_brain',
       kind: 'open_brain_conversation_proposal',
-      label: proposal.proposedMemory.title,
-      summary: proposal.proposedMemory.body,
-      date: proposal.reviewedAt ?? proposal.createdAt,
-      privacyClassification: proposal.proposedMemory.privacyTier,
-      provenance: proposal.sourceIds.length > 0
-        ? `open_brain:${proposal.id}:${[...proposal.sourceIds].sort().join(',')}`
-        : '',
-      approvedAt: proposal.reviewedAt,
-      approvedBy: proposal.reviewedBy,
-      productIds: inferRequiredProducts(proposal.proposedMemory.title, proposal.proposedMemory.body),
+      label: asString(projection.label),
+      summary: asString(projection.approved_summary),
+      date: asString(projection.observed_at) || asString(projection.approved_at),
+      privacyClassification: projection.privacy_classification,
+      provenance: asString(projection.provenance),
+      approvedAt: projection.approved_at,
+      approvedBy: projection.approved_by,
+      productIds: [asString(projection.product_identity)],
     }))
-    .filter((signal): signal is SourceSignal => Boolean(signal))
+    .filter((signal: SourceSignal | null): signal is SourceSignal => Boolean(signal))
     .slice(0, 12)
 }
 
@@ -730,6 +742,7 @@ async function fetchAppPrototypeSignals(): Promise<SourceSignal[]> {
       approvedAt: observedAt,
       approvedBy: 'public_catalog_state',
       productIds: inferRequiredProducts(label, summary),
+      lifecycleStage: prototypeLifecycleStage(prototype.production_stage),
     })
   }).filter((signal: SourceSignal | null): signal is SourceSignal => Boolean(signal))
 }

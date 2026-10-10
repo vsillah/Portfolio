@@ -1,0 +1,380 @@
+[
+  {
+    "width": 1440,
+    "theme": "dark",
+    "route": "https://portfolio-staging-7x9hsjwjo-vsillahs-projects.vercel.app/admin/social-content?workflow=evidence",
+    "source": "live_read_only_collectors",
+    "coverage_visible": true,
+    "shows_freshness": true,
+    "shows_lifecycle": true,
+    "shows_recovery": true,
+    "priority_products_visible": 3,
+    "directory_rows_bounded": 5,
+    "mutations": 0,
+    "provider_calls": 0,
+    "page_errors": [],
+    "horizontal_overflow": false,
+    "theme_metrics": {
+      "input_background": "rgb(18, 30, 49)",
+      "input_background_luma": 29,
+      "input_text_luma": 236,
+      "section_background": "rgba(18, 30, 49, 0.55)"
+    },
+    "navigation_surface": {
+      "background": "rgba(18, 30, 49, 0.55)",
+      "background_luma": 29,
+      "text": "rgb(234, 236, 238)",
+      "text_luma": 236
+    },
+    "theme_control_surface": "desktop_header",
+    "theme_preferences_checked": [
+      "light",
+      "dark",
+      "system"
+    ],
+    "representative_admin_routes": [
+      "/admin/help",
+      "/admin/source-protocol"
+    ],
+    "workflow_surfaces": {
+      "evidence": {
+        "background": "rgba(18, 30, 49, 0.55)",
+        "background_luma": 29,
+        "text": "rgb(234, 236, 238)",
+        "text_luma": 236
+      },
+      "review": {
+        "background": "rgba(18, 30, 49, 0.55)",
+        "background_luma": 29,
+        "text": "rgb(234, 236, 238)",
+        "text_luma": 236
+      },
+      "create": {
+        "background": "rgba(18, 30, 49, 0.55)",
+        "background_luma": 29,
+        "text": "rgb(234, 236, 238)",
+        "text_luma": 236
+      }
+    },
+    "workflow_modes_checked": [
+      "evidence",
+      "review",
+      "create"
+    ]
+  },
+  {
+    "width": 1440,
+    "theme": "light",
+    "route": "https://portfolio-staging-7x9hsjwjo-vsillahs-projects.vercel.app/admin/social-content?workflow=evidence",
+    "source": "live_read_only_collectors",
+    "coverage_visible": true,
+    "shows_freshness": true,
+    "shows_lifecycle": true,
+    "shows_recovery": true,
+    "priority_products_visible": 3,
+    "directory_rows_bounded": 5,
+    "mutations": 0,
+    "provider_calls": 0,
+    "page_errors": [],
+    "horizontal_overflow": false,
+    "theme_metrics": {
+      "input_background": "rgb(255, 255, 255)",
+      "input_background_luma": 255,
+      "input_text_luma": 29,
+      "section_background": "rgb(255, 255, 255)"
+    },
+    "navigation_surface": {
+      "background": "rgb(255, 255, 255)",
+      "background_luma": 255,
+      "text": "rgb(18, 30, 49)",
+      "text_luma": 29
+    },
+    "theme_control_surface": "desktop_header",
+    "theme_preferences_checked": [
+      "light",
+      "dark",
+      "system"
+    ],
+    "representative_admin_routes": [
+      "/admin/help",
+      "/admin/source-protocol"
+    ],
+    "workflow_surfaces": {
+      "evidence": {
+        "background": "rgb(255, 255, 255)",
+        "background_luma": 255,
+        "text": "rgb(18, 30, 49)",
+        "text_luma": 29
+      },
+      "review": {
+        "background": "rgb(255, 255, 255)",
+        "background_luma": 255,
+        "text": "rgb(18, 30, 49)",
+        "text_luma": 29
+      },
+      "create": {
+        "background": "rgb(255, 255, 255)",
+        "background_luma": 255,
+        "text": "rgb(18, 30, 49)",
+        "text_luma": 29
+      }
+    },
+    "workflow_modes_checked": [
+      "evidence",
+      "review",
+      "create"
+    ]
+  },
+  {
+    "width": 768,
+    "theme": "dark",
+    "route": "https://portfolio-staging-7x9hsjwjo-vsillahs-projects.vercel.app/admin/social-content?workflow=evidence",
+    "source": "live_read_only_collectors",
+    "coverage_visible": true,
+    "shows_freshness": true,
+    "shows_lifecycle": true,
+    "shows_recovery": true,
+    "priority_products_visible": 3,
+    "directory_rows_bounded": 5,
+    "mutations": 0,
+    "provider_calls": 0,
+    "page_errors": [],
+    "horizontal_overflow": false,
+    "theme_metrics": {
+      "input_background": "rgb(18, 30, 49)",
+      "input_background_luma": 29,
+      "input_text_luma": 236,
+      "section_background": "rgba(18, 30, 49, 0.55)"
+    },
+    "navigation_surface": {
+      "background": "rgba(18, 30, 49, 0.55)",
+      "background_luma": 29,
+      "text": "rgb(234, 236, 238)",
+      "text_luma": 236
+    },
+    "theme_control_surface": "mobile_drawer",
+    "theme_preferences_checked": [
+      "light",
+      "dark",
+      "system"
+    ],
+    "representative_admin_routes": [
+      "/admin/help",
+      "/admin/source-protocol"
+    ],
+    "workflow_surfaces": {
+      "evidence": {
+        "background": "rgba(18, 30, 49, 0.55)",
+        "background_luma": 29,
+        "text": "rgb(234, 236, 238)",
+        "text_luma": 236
+      },
+      "review": {
+        "background": "rgba(18, 30, 49, 0.55)",
+        "background_luma": 29,
+        "text": "rgb(234, 236, 238)",
+        "text_luma": 236
+      },
+      "create": {
+        "background": "rgba(18, 30, 49, 0.55)",
+        "background_luma": 29,
+        "text": "rgb(234, 236, 238)",
+        "text_luma": 236
+      }
+    },
+    "workflow_modes_checked": [
+      "evidence",
+      "review",
+      "create"
+    ]
+  },
+  {
+    "width": 768,
+    "theme": "light",
+    "route": "https://portfolio-staging-7x9hsjwjo-vsillahs-projects.vercel.app/admin/social-content?workflow=evidence",
+    "source": "live_read_only_collectors",
+    "coverage_visible": true,
+    "shows_freshness": true,
+    "shows_lifecycle": true,
+    "shows_recovery": true,
+    "priority_products_visible": 3,
+    "directory_rows_bounded": 5,
+    "mutations": 0,
+    "provider_calls": 0,
+    "page_errors": [],
+    "horizontal_overflow": false,
+    "theme_metrics": {
+      "input_background": "rgb(255, 255, 255)",
+      "input_background_luma": 255,
+      "input_text_luma": 29,
+      "section_background": "rgb(255, 255, 255)"
+    },
+    "navigation_surface": {
+      "background": "rgb(255, 255, 255)",
+      "background_luma": 255,
+      "text": "rgb(18, 30, 49)",
+      "text_luma": 29
+    },
+    "theme_control_surface": "mobile_drawer",
+    "theme_preferences_checked": [
+      "light",
+      "dark",
+      "system"
+    ],
+    "representative_admin_routes": [
+      "/admin/help",
+      "/admin/source-protocol"
+    ],
+    "workflow_surfaces": {
+      "evidence": {
+        "background": "rgb(255, 255, 255)",
+        "background_luma": 255,
+        "text": "rgb(18, 30, 49)",
+        "text_luma": 29
+      },
+      "review": {
+        "background": "rgb(255, 255, 255)",
+        "background_luma": 255,
+        "text": "rgb(18, 30, 49)",
+        "text_luma": 29
+      },
+      "create": {
+        "background": "rgb(255, 255, 255)",
+        "background_luma": 255,
+        "text": "rgb(18, 30, 49)",
+        "text_luma": 29
+      }
+    },
+    "workflow_modes_checked": [
+      "evidence",
+      "review",
+      "create"
+    ]
+  },
+  {
+    "width": 390,
+    "theme": "dark",
+    "route": "https://portfolio-staging-7x9hsjwjo-vsillahs-projects.vercel.app/admin/social-content?workflow=evidence",
+    "source": "live_read_only_collectors",
+    "coverage_visible": true,
+    "shows_freshness": true,
+    "shows_lifecycle": true,
+    "shows_recovery": true,
+    "priority_products_visible": 3,
+    "directory_rows_bounded": 5,
+    "mutations": 0,
+    "provider_calls": 0,
+    "page_errors": [],
+    "horizontal_overflow": false,
+    "theme_metrics": {
+      "input_background": "rgb(18, 30, 49)",
+      "input_background_luma": 29,
+      "input_text_luma": 236,
+      "section_background": "rgba(18, 30, 49, 0.55)"
+    },
+    "navigation_surface": {
+      "background": "rgba(18, 30, 49, 0.55)",
+      "background_luma": 29,
+      "text": "rgb(234, 236, 238)",
+      "text_luma": 236
+    },
+    "theme_control_surface": "mobile_drawer",
+    "theme_preferences_checked": [
+      "light",
+      "dark",
+      "system"
+    ],
+    "representative_admin_routes": [
+      "/admin/help",
+      "/admin/source-protocol"
+    ],
+    "workflow_surfaces": {
+      "evidence": {
+        "background": "rgba(18, 30, 49, 0.55)",
+        "background_luma": 29,
+        "text": "rgb(234, 236, 238)",
+        "text_luma": 236
+      },
+      "review": {
+        "background": "rgba(18, 30, 49, 0.55)",
+        "background_luma": 29,
+        "text": "rgb(234, 236, 238)",
+        "text_luma": 236
+      },
+      "create": {
+        "background": "rgba(18, 30, 49, 0.55)",
+        "background_luma": 29,
+        "text": "rgb(234, 236, 238)",
+        "text_luma": 236
+      }
+    },
+    "workflow_modes_checked": [
+      "evidence",
+      "review",
+      "create"
+    ]
+  },
+  {
+    "width": 390,
+    "theme": "light",
+    "route": "https://portfolio-staging-7x9hsjwjo-vsillahs-projects.vercel.app/admin/social-content?workflow=evidence",
+    "source": "live_read_only_collectors",
+    "coverage_visible": true,
+    "shows_freshness": true,
+    "shows_lifecycle": true,
+    "shows_recovery": true,
+    "priority_products_visible": 3,
+    "directory_rows_bounded": 5,
+    "mutations": 0,
+    "provider_calls": 0,
+    "page_errors": [],
+    "horizontal_overflow": false,
+    "theme_metrics": {
+      "input_background": "rgb(255, 255, 255)",
+      "input_background_luma": 255,
+      "input_text_luma": 29,
+      "section_background": "rgb(255, 255, 255)"
+    },
+    "navigation_surface": {
+      "background": "rgb(255, 255, 255)",
+      "background_luma": 255,
+      "text": "rgb(18, 30, 49)",
+      "text_luma": 29
+    },
+    "theme_control_surface": "mobile_drawer",
+    "theme_preferences_checked": [
+      "light",
+      "dark",
+      "system"
+    ],
+    "representative_admin_routes": [
+      "/admin/help",
+      "/admin/source-protocol"
+    ],
+    "workflow_surfaces": {
+      "evidence": {
+        "background": "rgb(255, 255, 255)",
+        "background_luma": 255,
+        "text": "rgb(18, 30, 49)",
+        "text_luma": 29
+      },
+      "review": {
+        "background": "rgb(255, 255, 255)",
+        "background_luma": 255,
+        "text": "rgb(18, 30, 49)",
+        "text_luma": 29
+      },
+      "create": {
+        "background": "rgb(255, 255, 255)",
+        "background_luma": 255,
+        "text": "rgb(18, 30, 49)",
+        "text_luma": 29
+      }
+    },
+    "workflow_modes_checked": [
+      "evidence",
+      "review",
+      "create"
+    ]
+  }
+]

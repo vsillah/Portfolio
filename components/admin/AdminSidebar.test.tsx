@@ -1,4 +1,6 @@
 import { fireEvent, render, screen, within } from '@testing-library/react'
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import AdminSidebar, { NAV_ITEM_ICONS } from './AdminSidebar'
 import { ADMIN_NAV, isNavItemActive } from '@/lib/admin-nav'
@@ -82,6 +84,42 @@ describe('AdminSidebar Agent Ops hierarchy', () => {
 
     expect(pipelineSection).toHaveAttribute('aria-expanded', 'true')
     expect(within(nav).getByRole('link', { name: 'Lead Pipeline' })).toHaveAttribute('href', '/admin/outreach')
+  })
+
+  it('uses semantic light and dark rail tokens while preserving active gold hierarchy', () => {
+    usePathnameMock.mockReturnValue('/admin/social-content')
+
+    render(<AdminSidebar />)
+
+    const nav = screen.getByTestId('admin-sidebar')
+    const activeLink = within(nav).getByRole('link', { name: 'Social Content' })
+    const activeSection = within(nav).getByRole('button', { name: /Pipeline/i })
+    const inactiveLink = within(nav).getByRole('link', { name: 'Dashboard' })
+
+    expect(nav).toHaveClass('bg-card', 'text-card-foreground', 'border-border')
+    expect(nav.className).not.toContain('linear-gradient')
+    expect(screen.getByTestId('admin-sidebar-header')).toHaveClass('border-border')
+    expect(activeLink).toHaveAttribute('aria-current', 'page')
+    expect(activeLink).toHaveClass('text-bronze', 'dark:text-radiant-gold')
+    expect(activeSection).toHaveAttribute('aria-expanded', 'true')
+    expect(activeSection).toHaveClass('text-bronze', 'dark:text-radiant-gold')
+    expect(within(activeSection).getByText('4')).toHaveClass('bg-muted', 'border-border')
+    expect(inactiveLink).toHaveClass(
+      'hover:bg-radiant-gold/10',
+      'focus-visible:ring-radiant-gold/60',
+      'aria-disabled:opacity-45',
+    )
+  })
+
+  it('keeps the shared sidebar stylesheet semantic in both themes', () => {
+    const globalStyles = readFileSync(join(process.cwd(), 'app/globals.css'), 'utf8')
+    const sidebarStyles = globalStyles.split('Shared Admin Sidebar Standard')[1]?.split('Circuit Mesh Animation Classes')[0]
+
+    expect(sidebarStyles).toContain('background: var(--card) !important')
+    expect(sidebarStyles).toContain('color: var(--bronze) !important')
+    expect(sidebarStyles).toContain('html.dark nav[aria-label="Admin navigation"]')
+    expect(sidebarStyles).toContain('color: var(--radiant-gold) !important')
+    expect(sidebarStyles).not.toContain('linear-gradient(180deg, rgba(18, 30, 49')
   })
 
   it('keeps every sidebar nav link mapped to an icon', () => {

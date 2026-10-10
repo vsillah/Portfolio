@@ -58,4 +58,16 @@ describe('AgenticContentReviewPacketPager', () => {
     expect(screen.queryByRole('link', { name: 'Hold' })).not.toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Open approval queue' })).toBeInTheDocument()
   })
+
+  it('uses semantic surfaces for packet navigation and empty states', () => {
+    const packets = getAgenticContentReviewPacketsForSurface('social')
+    const { rerender } = render(<AgenticContentReviewPacketPager packets={packets} />)
+
+    expect(screen.getByRole('region', { name: 'Review packet pager' })).toHaveClass('border-border', 'bg-muted/25', 'text-foreground')
+    expect(screen.getByRole('combobox', { name: 'Select review packet' })).toHaveClass('input-brand')
+    expect(screen.getByRole('button', { name: 'Previous' })).toHaveClass('border-border', 'bg-background', 'text-foreground')
+
+    rerender(<AgenticContentReviewPacketPager packets={[]} />)
+    expect(screen.getByText('No review packets are ready yet.')).toHaveClass('border-border', 'bg-muted/30', 'text-muted-foreground')
+  })
 })
