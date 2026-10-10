@@ -70,7 +70,7 @@ describe('SocialSourceCoverageEvidence', () => {
     const section = await screen.findByTestId('source-coverage-section')
     expect(section).toHaveClass('border-border', 'bg-card', 'text-card-foreground')
     const priorityInput = screen.getByPlaceholderText('Search recurring priorities')
-    expect(priorityInput).toHaveClass('input-brand', 'bg-background', 'text-foreground', 'placeholder:text-muted-foreground')
+    expect(priorityInput).toHaveClass('input-brand', 'bg-background', '!pl-9', 'text-foreground', 'placeholder:text-muted-foreground')
     const priorityRow = within(screen.getByTestId('priority-coverage-list')).getAllByTestId('coverage-product-row')[0]
     expect(priorityRow).toHaveClass('border-border', 'bg-muted/30', 'text-card-foreground')
     const previous = screen.getByRole('button', { name: 'Previous priorities' })

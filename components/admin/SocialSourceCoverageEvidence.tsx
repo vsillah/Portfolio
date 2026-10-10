@@ -20,7 +20,7 @@ import type { ProductLifecycleCoverage, SocialTopicLiveCoverage } from '@/lib/so
 const PRIORITY_PAGE_SIZE = 3
 const DIRECTORY_PAGE_SIZE = 5
 const BUTTON_CLASS = 'admin-console-button-secondary min-h-9 px-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50'
-const INPUT_CLASS = 'input-brand min-h-10 w-full bg-background pl-9 text-foreground placeholder:text-muted-foreground'
+const INPUT_CLASS = 'input-brand min-h-10 w-full bg-background !pl-9 text-foreground placeholder:text-muted-foreground'
 const DISCLOSURE_CLASS = 'group rounded-lg border border-border bg-muted/30 text-card-foreground'
 const SUMMARY_CLASS = 'flex cursor-pointer list-none items-center gap-3 rounded-lg p-3 transition-colors hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-inset'
 

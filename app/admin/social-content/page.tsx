@@ -1436,7 +1436,7 @@ function SocialContentQueuePage() {
                     value={meetingSearch}
                     onChange={(e) => setMeetingSearch(e.target.value)}
                     placeholder="Type, transcript, topic..."
-                    className="input-brand w-full py-2 pl-8 pr-3 text-sm"
+                    className="input-brand w-full py-2 !pl-8 pr-3 text-sm"
                   />
                 </div>
               </div>
