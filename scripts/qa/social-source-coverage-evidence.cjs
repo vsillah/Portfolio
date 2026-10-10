@@ -29,6 +29,9 @@ const session = { access_token: 'privacy-safe-qa-token', refresh_token: 'privacy
       viewport: { width, height },
       recordVideo: { dir: tempDir, size: { width, height } },
       serviceWorkers: 'block',
+      extraHTTPHeaders: process.env.VERCEL_OIDC_TOKEN
+        ? { 'x-vercel-trusted-oidc-idp-token': process.env.VERCEL_OIDC_TOKEN }
+        : undefined,
     })
     await context.addInitScript(({ session }) => {
       const originalGetItem = Storage.prototype.getItem

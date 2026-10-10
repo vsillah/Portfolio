@@ -1,7 +1,7 @@
 [
   {
     "width": 1440,
-    "route": "http://127.0.0.1:4036/admin/social-content?workflow=evidence",
+    "route": "https://portfolio-staging-git-codex-dynamic-ca-d482e9-vsillahs-projects.vercel.app/admin/social-content?workflow=evidence",
     "source": "live_read_only_collectors",
     "coverage_visible": true,
     "shows_freshness": true,
@@ -16,7 +16,7 @@
   },
   {
     "width": 768,
-    "route": "http://127.0.0.1:4036/admin/social-content?workflow=evidence",
+    "route": "https://portfolio-staging-git-codex-dynamic-ca-d482e9-vsillahs-projects.vercel.app/admin/social-content?workflow=evidence",
     "source": "live_read_only_collectors",
     "coverage_visible": true,
     "shows_freshness": true,
@@ -31,7 +31,7 @@
   },
   {
     "width": 390,
-    "route": "http://127.0.0.1:4036/admin/social-content?workflow=evidence",
+    "route": "https://portfolio-staging-git-codex-dynamic-ca-d482e9-vsillahs-projects.vercel.app/admin/social-content?workflow=evidence",
     "source": "live_read_only_collectors",
     "coverage_visible": true,
     "shows_freshness": true,
