@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { type FormEvent, type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Fragment, type FormEvent, type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   ArrowUpDown,
   BarChart3,
@@ -3010,7 +3010,8 @@ function ContentIntelligenceContent() {
                     </thead>
                     <tbody className="block divide-y divide-silicon-slate/60 bg-background/20 sm:table-row-group">
                       {pagedResearchPackets.map((packet) => (
-                        <tr key={packet.id} className="block min-w-0 align-top sm:table-row">
+                        <Fragment key={packet.id}>
+                        <tr className="block min-w-0 align-top sm:table-row">
                           <td className="block w-full min-w-0 overflow-hidden break-words px-3 py-3 sm:table-cell sm:max-w-md">
                             <a href={packet.source_url} target="_blank" rel="noreferrer" className="block break-words font-semibold text-blue-100 hover:text-blue-50">
                               {packet.title ?? packet.caption ?? packet.source_url}
@@ -3029,15 +3030,6 @@ function ContentIntelligenceContent() {
                               <span className="text-xs font-semibold text-radiant-gold">Outlier {Math.round(Number(packet.outlier_score))}</span>
                               <span className="text-xs text-muted-foreground">{new Date(packet.retrieved_at).toLocaleDateString()}</span>
                             </div>
-                            <ResearchPacketReview packet={packet} onReview={async (decision, note) => {
-                              const response = await authedFetch(`/api/admin/social-content/intelligence/research-packets/${packet.id}/review`, {
-                                method: 'POST',
-                                body: JSON.stringify({ decision, note, updated_at: packet.updated_at }),
-                              })
-                              const body = await response.json()
-                              if (!response.ok) throw new Error(body.error || 'Unable to save review.')
-                              setPackets(current => current.map(item => item.id === packet.id ? body.packet : item))
-                            }} />
                             {packet.hook_transcript ? (
                               <p className="mt-1 line-clamp-2 break-words text-xs leading-5 text-muted-foreground" title={packet.hook_transcript}>
                                 Hook: {packet.hook_transcript}
@@ -3062,6 +3054,28 @@ function ContentIntelligenceContent() {
                             {new Date(packet.retrieved_at).toLocaleDateString()}
                           </td>
                         </tr>
+                        <tr className="block w-full sm:table-row">
+                          <td colSpan={5} className="block w-full px-3 pb-3 sm:table-cell">
+                            <ResearchPacketReview packet={packet} onReview={async (decision, note) => {
+                              const response = await authedFetch(`/api/admin/social-content/intelligence/research-packets/${packet.id}/review`, {
+                                method: 'POST',
+                                body: JSON.stringify({ decision, note, updated_at: packet.updated_at }),
+                              })
+                              const body = await response.json()
+                              if (!response.ok) throw new Error(body.error || 'Unable to save review.')
+                              setPackets(current => current.map(item => item.id === packet.id ? body.packet : item))
+                            }} onSaveEvidence={async evidence => {
+                              const response = await authedFetch(`/api/admin/social-content/intelligence/research-packets/${packet.id}/review`, {
+                                method: 'PATCH',
+                                body: JSON.stringify({ evidence, updated_at: packet.updated_at }),
+                              })
+                              const body = await response.json()
+                              if (!response.ok) throw new Error(body.error || 'Unable to save practitioner evidence.')
+                              setPackets(current => current.map(item => item.id === packet.id ? body.packet : item))
+                            }} />
+                          </td>
+                        </tr>
+                        </Fragment>
                       ))}
                     </tbody>
                   </table>

@@ -1,0 +1,29 @@
+{
+  "generated_at": "2026-10-09T23:51:00.741Z",
+  "commit": "e6f047f62f77656f9ec38467c23b50f7d654d4f7",
+  "base_url": "https://portfolio-git-codex-practitioner-evide-a5ac9b-vsillahs-projects.vercel.app",
+  "route": "/admin/agents/content-intelligence?section=research",
+  "viewports": [
+    {
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "width": 768,
+      "height": 900
+    },
+    {
+      "width": 390,
+      "height": 844
+    }
+  ],
+  "packet_source": "existing public research packet from the authenticated preview",
+  "synthetic_form_values": true,
+  "product_writes": 0,
+  "actions_withheld": [
+    "save evidence draft",
+    "approve framework",
+    "reject packet"
+  ],
+  "output": "practitioner-evidence-authoring-walkthrough.mp4"
+}
