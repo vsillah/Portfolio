@@ -68,8 +68,15 @@ const session = { access_token: 'privacy-safe-qa-token', refresh_token: 'privacy
     const coverage = page.locator('section[aria-labelledby="source-coverage-heading"]')
     await coverage.scrollIntoViewIfNeeded()
     await page.waitForTimeout(900)
-    const products = coverage.locator('details').filter({ hasText: /receipt/ })
-    if (await products.count()) await products.first().locator('summary').click()
+    const priorityList = coverage.getByTestId('priority-coverage-list')
+    await expect(priorityList.getByTestId('coverage-product-row')).toHaveCount(3)
+    await priorityList.getByTestId('coverage-product-row').first().locator('summary').click()
+    const directoryToggle = coverage.getByText('Additional product directory')
+    await directoryToggle.click()
+    const directoryPage = coverage.getByTestId('additional-product-page')
+    const visibleDirectoryRows = await directoryPage.getByTestId('coverage-product-row').count()
+    assert.ok(visibleDirectoryRows <= 5, `${width}px directory rendered ${visibleDirectoryRows} rows`)
+    await directoryToggle.click()
     await coverage.getByText('Collector freshness, failures, and recovery').click()
     await expect(coverage.getByText(/Recovery:/).first()).toBeVisible()
     await page.waitForTimeout(900)
@@ -89,6 +96,8 @@ const session = { access_token: 'privacy-safe-qa-token', refresh_token: 'privacy
       shows_freshness: /fresh|aging|stale|No successful scan/i.test(summary),
       shows_lifecycle: /insight|development|preview|production|public/i.test(summary),
       shows_recovery: /Recovery:/i.test(summary),
+      priority_products_visible: await priorityList.getByTestId('coverage-product-row').count(),
+      directory_rows_bounded: visibleDirectoryRows,
       mutations: 0,
       provider_calls: 0,
       page_errors: [],

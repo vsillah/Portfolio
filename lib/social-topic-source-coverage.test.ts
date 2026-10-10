@@ -72,13 +72,21 @@ describe('dynamic Social Content source coverage', () => {
         receipt('publicly_cataloged', 'public_catalog'),
       ],
     })
-    expect(report.products).toHaveLength(1)
+    expect(report.products).toHaveLength(3)
     expect(report.products[0]).toMatchObject({
       product_identity: 'dark_castle_chess',
       current_stage: 'publicly_cataloged',
       receipt_count: 5,
       gaps: [],
     })
+    expect(report.products.map((product) => product.product_identity).slice(0, 3)).toEqual([
+      'dark_castle_chess', 'accelerated', 'agentified',
+    ])
+    expect(report.gaps).toEqual([
+      'Accelerated: No approved privacy-safe source receipt',
+      'Agentified: No approved privacy-safe source receipt',
+    ])
+    expect(report.historical_gaps).toEqual([])
   })
 
   it('does not treat a preview as production or public release', () => {
@@ -86,11 +94,14 @@ describe('dynamic Social Content source coverage', () => {
       generatedAt: at,
       receipts: [receipt('insight', 'codex_insights'), receipt('preview_deployed', 'vercel_deployments')],
     })
-    expect(report.products[0].current_stage).toBe('preview_deployed')
-    expect(report.products[0].gaps).toEqual([
-      'Missing in development evidence',
+    const product = report.products[0]
+    expect(product.current_stage).toBe('preview_deployed')
+    expect(product.gaps).toEqual([])
+    expect(product.historical_gaps).toEqual([
+      'No recorded in development evidence',
       'No public catalog/site release evidence',
     ])
+    expect(report.gaps).toHaveLength(2)
   })
 
   it('preserves last successful scan and actionable recovery for failed collectors', () => {

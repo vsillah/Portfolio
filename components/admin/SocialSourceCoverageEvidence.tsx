@@ -11,10 +11,14 @@ import {
   GitPullRequest,
   Loader2,
   RefreshCw,
+  Search,
   ShieldCheck,
 } from 'lucide-react'
 import { getCurrentSession } from '@/lib/auth'
-import type { SocialTopicLiveCoverage } from '@/lib/social-topic-source-coverage'
+import type { ProductLifecycleCoverage, SocialTopicLiveCoverage } from '@/lib/social-topic-source-coverage'
+
+const PRIORITY_PRODUCTS = ['dark_castle_chess', 'accelerated', 'agentified']
+const DIRECTORY_PAGE_SIZE = 5
 
 function formatDate(value: string | null) {
   if (!value || !Number.isFinite(Date.parse(value))) return 'No successful scan yet'
@@ -23,10 +27,34 @@ function formatDate(value: string | null) {
   }).format(new Date(value))
 }
 
+function ProductEvidenceRow({ product }: { product: ProductLifecycleCoverage }) {
+  return (
+    <details className="group rounded-lg border border-silicon-slate bg-imperial-navy/30" data-testid="coverage-product-row">
+      <summary className="flex cursor-pointer list-none items-center gap-3 p-3">
+        <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-180" />
+        <div className="min-w-0 flex-1"><div className="truncate text-sm font-semibold text-foreground">{product.label}</div></div>
+        <span className={`rounded-full border px-2 py-1 text-[10px] font-medium capitalize ${product.current_stage ? 'border-radiant-gold/30 bg-radiant-gold/10 text-radiant-gold' : 'border-amber-500/30 bg-amber-500/10 text-amber-200'}`}>
+          {product.current_stage?.replace(/_/g, ' ') ?? 'Needs evidence'}
+        </span>
+        <span className="hidden text-xs text-muted-foreground sm:inline">{product.receipt_count} receipts</span>
+      </summary>
+      <div className="border-t border-silicon-slate px-3 pb-3 pt-3">
+        <p className="mb-2 font-mono text-[10px] text-muted-foreground">Internal identity: {product.product_identity}</p>
+        {product.stages.length > 0 && <div className="flex flex-wrap gap-1.5">{product.stages.map((stage) => <span key={stage} className="rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2 py-1 text-[10px] capitalize text-emerald-200">{stage.replace(/_/g, ' ')}</span>)}</div>}
+        <p className="mt-2 text-xs text-muted-foreground">Latest evidence: {formatDate(product.latest_evidence_at)} · {product.source_groups.length} source groups</p>
+        {product.gaps.length > 0 && <ul className="mt-2 space-y-1 text-xs text-amber-200">{product.gaps.map((gap) => <li key={gap}>Action needed: {gap}</li>)}</ul>}
+        {product.historical_gaps.length > 0 && <div className="mt-2 text-[10px] text-muted-foreground">Historical evidence gaps: {product.historical_gaps.join(' · ')}</div>}
+      </div>
+    </details>
+  )
+}
+
 export default function SocialSourceCoverageEvidence({ active }: { active: boolean }) {
   const [coverage, setCoverage] = useState<SocialTopicLiveCoverage | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [directoryQuery, setDirectoryQuery] = useState('')
+  const [directoryPage, setDirectoryPage] = useState(0)
 
   const loadCoverage = useCallback(async () => {
     setLoading(true)
@@ -55,9 +83,21 @@ export default function SocialSourceCoverageEvidence({ active }: { active: boole
   const summary = useMemo(() => ({
     healthy: coverage?.sources.filter((source) => source.status === 'ready').length ?? 0,
     receipts: coverage?.receipts.length ?? 0,
-    products: coverage?.products.length ?? 0,
+    products: coverage?.products.filter((product) => product.receipt_count > 0).length ?? 0,
     gaps: coverage?.gaps.length ?? 0,
   }), [coverage])
+  const priorityProducts = useMemo(() => coverage?.products
+    .filter((product) => PRIORITY_PRODUCTS.includes(product.product_identity))
+    .sort((a, b) => PRIORITY_PRODUCTS.indexOf(a.product_identity) - PRIORITY_PRODUCTS.indexOf(b.product_identity)) ?? [], [coverage])
+  const directoryProducts = useMemo(() => {
+    const query = directoryQuery.trim().toLowerCase()
+    return coverage?.products.filter((product) => !PRIORITY_PRODUCTS.includes(product.product_identity))
+      .filter((product) => !query || product.label.toLowerCase().includes(query) || product.product_identity.toLowerCase().includes(query)) ?? []
+  }, [coverage, directoryQuery])
+  const directoryPages = Math.max(1, Math.ceil(directoryProducts.length / DIRECTORY_PAGE_SIZE))
+  const visibleDirectoryProducts = directoryProducts.slice(directoryPage * DIRECTORY_PAGE_SIZE, (directoryPage + 1) * DIRECTORY_PAGE_SIZE)
+
+  useEffect(() => { setDirectoryPage(0) }, [directoryQuery])
   const awaitingInitialRead = active && !coverage && !error
 
   return (
@@ -95,30 +135,39 @@ export default function SocialSourceCoverageEvidence({ active }: { active: boole
               { label: 'Collectors', value: `${summary.healthy}/${coverage.sources.length}`, icon: CheckCircle2 },
               { label: 'Receipts', value: summary.receipts, icon: ShieldCheck },
               { label: 'Products', value: summary.products, icon: Database },
-              { label: 'Open gaps', value: summary.gaps, icon: AlertTriangle },
+              { label: 'Priority gaps', value: summary.gaps, icon: AlertTriangle },
             ].map((item) => <div key={item.label} className="rounded-lg border border-silicon-slate bg-imperial-navy/35 p-3"><div className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.12em] text-muted-foreground"><item.icon className="h-3.5 w-3.5 text-radiant-gold" />{item.label}</div><div className="mt-1 text-lg font-semibold text-foreground">{item.value}</div></div>)}
           </div>
 
           {coverage.products.length === 0 ? (
             <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-100">No product is eligible. Approve a privacy-safe summary with provenance before Shaka creates a candidate.</div>
           ) : (
-            <div className="space-y-2">
-              <div className="text-xs font-semibold uppercase tracking-[0.13em] text-muted-foreground">Product lifecycle evidence</div>
-              {coverage.products.map((product) => (
-                <details key={product.product_identity} className="group rounded-lg border border-silicon-slate bg-imperial-navy/30">
-                  <summary className="flex cursor-pointer list-none items-center gap-3 p-3">
-                    <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-180" />
-                    <div className="min-w-0 flex-1"><div className="truncate text-sm font-semibold text-foreground">{product.label}</div><div className="truncate font-mono text-[10px] text-muted-foreground">{product.product_identity}</div></div>
-                    <span className="rounded-full border border-radiant-gold/30 bg-radiant-gold/10 px-2 py-1 text-[10px] font-medium capitalize text-radiant-gold">{product.current_stage.replace(/_/g, ' ')}</span>
-                    <span className="hidden text-xs text-muted-foreground sm:inline">{product.receipt_count} receipts</span>
-                  </summary>
-                  <div className="border-t border-silicon-slate px-3 pb-3 pt-3">
-                    <div className="flex flex-wrap gap-1.5">{product.stages.map((stage) => <span key={stage} className="rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2 py-1 text-[10px] capitalize text-emerald-200">{stage.replace(/_/g, ' ')}</span>)}</div>
-                    <p className="mt-2 text-xs text-muted-foreground">Latest evidence: {formatDate(product.latest_evidence_at)} · {product.source_groups.length} source groups</p>
-                    {product.gaps.length > 0 && <ul className="mt-2 space-y-1 text-xs text-amber-200">{product.gaps.map((gap) => <li key={gap}>• {gap}</li>)}</ul>}
+            <div className="space-y-3">
+              <div className="text-xs font-semibold uppercase tracking-[0.13em] text-muted-foreground">Priority recurring products</div>
+              <div className="space-y-2" data-testid="priority-coverage-list">{priorityProducts.map((product) => <ProductEvidenceRow key={product.product_identity} product={product} />)}</div>
+
+              <details className="group rounded-lg border border-silicon-slate bg-imperial-navy/20">
+                <summary className="flex cursor-pointer list-none items-center gap-3 p-3">
+                  <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform group-open:rotate-180" />
+                  <span className="flex-1 text-sm font-semibold text-foreground">Additional product directory</span>
+                  <span className="text-xs text-muted-foreground">{directoryProducts.length} products · 5 per page</span>
+                </summary>
+                <div className="space-y-3 border-t border-silicon-slate p-3">
+                  <label className="relative block">
+                    <span className="sr-only">Search additional products</span>
+                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    <input value={directoryQuery} onChange={(event) => setDirectoryQuery(event.target.value)} placeholder="Search product directory" className="admin-console-input min-h-10 w-full pl-9" />
+                  </label>
+                  <div className="space-y-2" data-testid="additional-product-page">
+                    {visibleDirectoryProducts.length > 0 ? visibleDirectoryProducts.map((product) => <ProductEvidenceRow key={product.product_identity} product={product} />) : <div className="rounded-lg border border-dashed border-silicon-slate p-4 text-sm text-muted-foreground">No matching products.</div>}
                   </div>
-                </details>
-              ))}
+                  <div className="flex items-center justify-between gap-3 text-xs text-muted-foreground">
+                    <button type="button" className="admin-console-button-secondary min-h-9 px-3" disabled={directoryPage === 0} onClick={() => setDirectoryPage((page) => Math.max(0, page - 1))}>Previous</button>
+                    <span>Page {directoryPage + 1} of {directoryPages}</span>
+                    <button type="button" className="admin-console-button-secondary min-h-9 px-3" disabled={directoryPage + 1 >= directoryPages} onClick={() => setDirectoryPage((page) => Math.min(directoryPages - 1, page + 1))}>Next</button>
+                  </div>
+                </div>
+              </details>
             </div>
           )}
 

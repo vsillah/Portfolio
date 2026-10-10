@@ -33,12 +33,14 @@ export type CoverageSourceHealth = {
 export type ProductLifecycleCoverage = {
   product_identity: string
   label: string
-  current_stage: SocialTopicLifecycleStage
+  current_stage: SocialTopicLifecycleStage | null
   stages: SocialTopicLifecycleStage[]
   receipt_count: number
   source_groups: string[]
-  latest_evidence_at: string
+  latest_evidence_at: string | null
   gaps: string[]
+  historical_gaps: string[]
+  priority: boolean
 }
 
 export type SocialTopicLiveCoverage = {
@@ -51,6 +53,7 @@ export type SocialTopicLiveCoverage = {
   products: ProductLifecycleCoverage[]
   receipts: SocialTopicSourceProjection[]
   gaps: string[]
+  historical_gaps: string[]
   blockers: string[]
   boundaries: string[]
 }
@@ -84,6 +87,18 @@ const ORDERED_STAGES: SocialTopicLifecycleStage[] = [
   'production_deployed',
   'publicly_cataloged',
 ]
+
+export const PRIORITY_PRODUCT_IDENTITIES = [
+  'dark_castle_chess',
+  'accelerated',
+  'agentified',
+] as const
+
+const PRIORITY_PRODUCT_LABELS: Record<(typeof PRIORITY_PRODUCT_IDENTITIES)[number], string> = {
+  dark_castle_chess: 'Dark Castle Chess',
+  accelerated: 'Accelerated',
+  agentified: 'Agentified',
+}
 
 function asRecord(value: unknown): Record<string, unknown> {
   return value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : {}
@@ -242,26 +257,56 @@ function productCoverage(receipts: SocialTopicSourceProjection[]): ProductLifecy
   for (const receipt of receipts) {
     byProduct.set(receipt.product_identity, [...(byProduct.get(receipt.product_identity) ?? []), receipt])
   }
-  return [...byProduct.entries()].map(([productIdentity, evidence]) => {
+  const products = [...byProduct.entries()].map(([productIdentity, evidence]): ProductLifecycleCoverage => {
     const stages = ORDERED_STAGES.filter((stage) => evidence.some((item) => item.lifecycle_stage === stage))
     const currentStage = stages[stages.length - 1] ?? 'insight'
-    const gaps: string[] = []
+    const historicalGaps: string[] = []
     const currentIndex = ORDERED_STAGES.indexOf(currentStage)
     for (const stage of ORDERED_STAGES.slice(0, currentIndex)) {
-      if (!stages.includes(stage)) gaps.push(`Missing ${stage.replace(/_/g, ' ')} evidence`)
+      if (!stages.includes(stage)) historicalGaps.push(`No recorded ${stage.replace(/_/g, ' ')} evidence`)
     }
-    if (currentStage !== 'publicly_cataloged') gaps.push('No public catalog/site release evidence')
+    if (currentStage !== 'publicly_cataloged') historicalGaps.push('No public catalog/site release evidence')
+    const priority = PRIORITY_PRODUCT_IDENTITIES.includes(productIdentity as (typeof PRIORITY_PRODUCT_IDENTITIES)[number])
     return {
       product_identity: productIdentity,
-      label: evidence[0].label,
+      label: priority
+        ? PRIORITY_PRODUCT_LABELS[productIdentity as (typeof PRIORITY_PRODUCT_IDENTITIES)[number]]
+        : evidence[0].label,
       current_stage: currentStage,
       stages,
       receipt_count: evidence.length,
       source_groups: [...new Set(evidence.map((item) => item.source_group))].sort(),
       latest_evidence_at: evidence.map((item) => item.observed_at).sort().at(-1) ?? evidence[0].observed_at,
-      gaps,
+      gaps: [],
+      historical_gaps: historicalGaps,
+      priority,
     }
-  }).sort((a, b) => b.latest_evidence_at.localeCompare(a.latest_evidence_at))
+  })
+  for (const productIdentity of PRIORITY_PRODUCT_IDENTITIES) {
+    if (byProduct.has(productIdentity)) continue
+    products.push({
+      product_identity: productIdentity,
+      label: PRIORITY_PRODUCT_LABELS[productIdentity],
+      current_stage: null,
+      stages: [],
+      receipt_count: 0,
+      source_groups: [],
+      latest_evidence_at: null,
+      gaps: ['No approved privacy-safe source receipt'],
+      historical_gaps: [],
+      priority: true,
+    })
+  }
+  return products.sort((a, b) => {
+    const aPriority = PRIORITY_PRODUCT_IDENTITIES.indexOf(a.product_identity as (typeof PRIORITY_PRODUCT_IDENTITIES)[number])
+    const bPriority = PRIORITY_PRODUCT_IDENTITIES.indexOf(b.product_identity as (typeof PRIORITY_PRODUCT_IDENTITIES)[number])
+    if (aPriority >= 0 || bPriority >= 0) {
+      if (aPriority < 0) return 1
+      if (bPriority < 0) return -1
+      return aPriority - bPriority
+    }
+    return (b.latest_evidence_at ?? '').localeCompare(a.latest_evidence_at ?? '')
+  })
 }
 
 export function buildLiveCoverage(input: {
@@ -295,10 +340,12 @@ export function buildLiveCoverage(input: {
   })
   const products = productCoverage(receipts)
   const gaps = products.flatMap((product) => product.gaps.map((gap) => `${product.label}: ${gap}`))
+  const historicalGaps = products.flatMap((product) => product.historical_gaps.map((gap) => `${product.label}: ${gap}`))
   const blockers = sources
     .filter((source) => source.status === 'blocked')
     .map((source) => `${source.label}: ${source.collector_failure}`)
   if (receipts.length === 0) blockers.push('No approved source receipts are available. Candidate creation remains blocked.')
+  blockers.push(...gaps)
   return {
     version: 'social_topic_live_coverage_v1',
     generated_at: input.generatedAt,
@@ -309,6 +356,7 @@ export function buildLiveCoverage(input: {
     products,
     receipts,
     gaps,
+    historical_gaps: historicalGaps,
     blockers,
     boundaries: [
       'Raw Codex conversations, meeting transcripts, owned-media source files, secrets, and unrelated task data are never collected.',
