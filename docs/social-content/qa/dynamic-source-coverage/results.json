@@ -2,7 +2,7 @@
   {
     "width": 1440,
     "theme": "dark",
-    "route": "https://portfolio-staging-git-codex-dynamic-ca-d482e9-vsillahs-projects.vercel.app/admin/social-content?workflow=evidence",
+    "route": "https://portfolio-staging-o7holt8u8-vsillahs-projects.vercel.app/admin/social-content?workflow=evidence",
     "source": "live_read_only_collectors",
     "coverage_visible": true,
     "shows_freshness": true,
@@ -20,6 +20,16 @@
       "input_text_luma": 236,
       "section_background": "rgba(18, 30, 49, 0.55)"
     },
+    "navigation_surface": {
+      "background": "rgba(18, 30, 49, 0.55)",
+      "background_luma": 29,
+      "text": "rgb(234, 236, 238)",
+      "text_luma": 236
+    },
+    "representative_admin_routes": [
+      "/admin/help",
+      "/admin/source-protocol"
+    ],
     "workflow_surfaces": {
       "evidence": {
         "background": "rgba(18, 30, 49, 0.55)",
@@ -49,7 +59,7 @@
   {
     "width": 1440,
     "theme": "light",
-    "route": "https://portfolio-staging-git-codex-dynamic-ca-d482e9-vsillahs-projects.vercel.app/admin/social-content?workflow=evidence",
+    "route": "https://portfolio-staging-o7holt8u8-vsillahs-projects.vercel.app/admin/social-content?workflow=evidence",
     "source": "live_read_only_collectors",
     "coverage_visible": true,
     "shows_freshness": true,
@@ -67,6 +77,16 @@
       "input_text_luma": 29,
       "section_background": "rgb(255, 255, 255)"
     },
+    "navigation_surface": {
+      "background": "rgb(255, 255, 255)",
+      "background_luma": 255,
+      "text": "rgb(18, 30, 49)",
+      "text_luma": 29
+    },
+    "representative_admin_routes": [
+      "/admin/help",
+      "/admin/source-protocol"
+    ],
     "workflow_surfaces": {
       "evidence": {
         "background": "rgb(255, 255, 255)",
@@ -96,7 +116,7 @@
   {
     "width": 768,
     "theme": "dark",
-    "route": "https://portfolio-staging-git-codex-dynamic-ca-d482e9-vsillahs-projects.vercel.app/admin/social-content?workflow=evidence",
+    "route": "https://portfolio-staging-o7holt8u8-vsillahs-projects.vercel.app/admin/social-content?workflow=evidence",
     "source": "live_read_only_collectors",
     "coverage_visible": true,
     "shows_freshness": true,
@@ -114,6 +134,16 @@
       "input_text_luma": 236,
       "section_background": "rgba(18, 30, 49, 0.55)"
     },
+    "navigation_surface": {
+      "background": "rgba(18, 30, 49, 0.55)",
+      "background_luma": 29,
+      "text": "rgb(234, 236, 238)",
+      "text_luma": 236
+    },
+    "representative_admin_routes": [
+      "/admin/help",
+      "/admin/source-protocol"
+    ],
     "workflow_surfaces": {
       "evidence": {
         "background": "rgba(18, 30, 49, 0.55)",
@@ -143,7 +173,7 @@
   {
     "width": 768,
     "theme": "light",
-    "route": "https://portfolio-staging-git-codex-dynamic-ca-d482e9-vsillahs-projects.vercel.app/admin/social-content?workflow=evidence",
+    "route": "https://portfolio-staging-o7holt8u8-vsillahs-projects.vercel.app/admin/social-content?workflow=evidence",
     "source": "live_read_only_collectors",
     "coverage_visible": true,
     "shows_freshness": true,
@@ -161,6 +191,16 @@
       "input_text_luma": 29,
       "section_background": "rgb(255, 255, 255)"
     },
+    "navigation_surface": {
+      "background": "rgb(255, 255, 255)",
+      "background_luma": 255,
+      "text": "rgb(18, 30, 49)",
+      "text_luma": 29
+    },
+    "representative_admin_routes": [
+      "/admin/help",
+      "/admin/source-protocol"
+    ],
     "workflow_surfaces": {
       "evidence": {
         "background": "rgb(255, 255, 255)",
@@ -190,7 +230,7 @@
   {
     "width": 390,
     "theme": "dark",
-    "route": "https://portfolio-staging-git-codex-dynamic-ca-d482e9-vsillahs-projects.vercel.app/admin/social-content?workflow=evidence",
+    "route": "https://portfolio-staging-o7holt8u8-vsillahs-projects.vercel.app/admin/social-content?workflow=evidence",
     "source": "live_read_only_collectors",
     "coverage_visible": true,
     "shows_freshness": true,
@@ -208,6 +248,16 @@
       "input_text_luma": 236,
       "section_background": "rgba(18, 30, 49, 0.55)"
     },
+    "navigation_surface": {
+      "background": "rgba(18, 30, 49, 0.55)",
+      "background_luma": 29,
+      "text": "rgb(234, 236, 238)",
+      "text_luma": 236
+    },
+    "representative_admin_routes": [
+      "/admin/help",
+      "/admin/source-protocol"
+    ],
     "workflow_surfaces": {
       "evidence": {
         "background": "rgba(18, 30, 49, 0.55)",
@@ -237,7 +287,7 @@
   {
     "width": 390,
     "theme": "light",
-    "route": "https://portfolio-staging-git-codex-dynamic-ca-d482e9-vsillahs-projects.vercel.app/admin/social-content?workflow=evidence",
+    "route": "https://portfolio-staging-o7holt8u8-vsillahs-projects.vercel.app/admin/social-content?workflow=evidence",
     "source": "live_read_only_collectors",
     "coverage_visible": true,
     "shows_freshness": true,
@@ -255,6 +305,16 @@
       "input_text_luma": 29,
       "section_background": "rgb(255, 255, 255)"
     },
+    "navigation_surface": {
+      "background": "rgb(255, 255, 255)",
+      "background_luma": 255,
+      "text": "rgb(18, 30, 49)",
+      "text_luma": 29
+    },
+    "representative_admin_routes": [
+      "/admin/help",
+      "/admin/source-protocol"
+    ],
     "workflow_surfaces": {
       "evidence": {
         "background": "rgb(255, 255, 255)",

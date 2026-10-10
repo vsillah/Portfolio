@@ -217,10 +217,11 @@ const session = { access_token: 'privacy-safe-qa-token', refresh_token: 'privacy
     assert.equal(providerCalls.length, 0, `${theme} ${width}px QA called a provider: ${providerCalls.join(', ')}`)
     assert.equal(pageErrors.length, 0, `${theme} ${width}px QA emitted a page error: ${pageErrors.join(', ')}`)
 
-    const representativeRoutes = ['/admin', '/admin/agents']
+    const representativeRoutes = ['/admin/help', '/admin/source-protocol']
     for (const adminRoute of representativeRoutes) {
       await page.goto(`${base}${adminRoute}`, { waitUntil: 'domcontentloaded' })
       await expect(page.getByTestId('admin-layout')).not.toHaveClass(/\bdark\b/)
+      await page.waitForTimeout(350)
       if (width >= 1024) {
         const rail = page.locator('[data-testid="admin-sidebar"]:visible')
         await expect(rail).toBeVisible()
