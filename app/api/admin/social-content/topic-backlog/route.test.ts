@@ -6,6 +6,7 @@ const mocks = vi.hoisted(() => ({
   isAuthError: vi.fn(),
   from: vi.fn(),
   selectLimit: vi.fn(),
+  projectionSelectSingle: vi.fn(),
   updateSingle: vi.fn(),
   getAgentWorkItem: vi.fn(),
   listAgentWorkItems: vi.fn(),
@@ -63,6 +64,8 @@ const centralWorkItem = {
   approval_id: null,
   metadata: {
     social_topic_trigger: true,
+    source_receipts: [{ receipt_id: 'receipt-1', approval_status: 'approved' }],
+    coverage_report: { status: 'ready', blockers: [] },
     channel_lanes: {
       linkedin: {
         status: 'not_started',
@@ -105,9 +108,20 @@ describe('/api/admin/social-content/topic-backlog', () => {
       },
       error: null,
     })
+    mocks.projectionSelectSingle.mockResolvedValue({
+      data: {
+        id: 'topic-1',
+        metadata: {
+          source_receipts: [{ receipt_id: 'receipt-1', approval_status: 'approved' }],
+          coverage_report: { status: 'ready', blockers: [] },
+        },
+      },
+      error: null,
+    })
     mocks.runSocialTopicBacklogDiscovery.mockResolvedValue({
       backlogItems: [{ id: 'topic-1' }],
       sourceCounts: { meeting: 1 },
+      coverageReport: { status: 'ready', products: [] },
       packet: { candidates: [{ id: 'topic-1' }] },
     })
     mocks.listAgentWorkItems.mockResolvedValue([centralWorkItem])
@@ -129,6 +143,7 @@ describe('/api/admin/social-content/topic-backlog', () => {
     mocks.from.mockReturnValue({
       select: vi.fn(() => ({
         eq: vi.fn(() => ({
+          single: mocks.projectionSelectSingle,
           order: vi.fn(() => ({
             limit: mocks.selectLimit,
           })),
@@ -220,5 +235,59 @@ describe('/api/admin/social-content/topic-backlog', () => {
         selected_for_social_content_id: 'social-1',
       }),
     }))
+  })
+
+  it('blocks selection when source receipts or required product coverage are missing', async () => {
+    mocks.getAgentWorkItem.mockResolvedValueOnce({
+      ...centralWorkItem,
+      metadata: {
+        ...centralWorkItem.metadata,
+        source_receipts: [],
+        coverage_report: {
+          status: 'blocked',
+          blockers: ['[product_coverage_receipt_missing:agentified] Approve an Agentified summary.'],
+        },
+      },
+    })
+
+    const response = await PATCH(new NextRequest('http://localhost/api/admin/social-content/topic-backlog', {
+      method: 'PATCH',
+      body: JSON.stringify({ id: 'work-topic-1', content_id: 'social-1', status: 'selected' }),
+    }))
+
+    expect(response.status).toBe(409)
+    await expect(response.json()).resolves.toMatchObject({
+      error: expect.stringContaining('approved source receipts'),
+      blockers: [expect.stringContaining('agentified')],
+    })
+    expect(mocks.updateAgentWorkItemMetadata).not.toHaveBeenCalled()
+  })
+
+  it('also blocks the legacy projection fallback when receipt evidence is missing', async () => {
+    mocks.getAgentWorkItem.mockResolvedValueOnce(null)
+    mocks.projectionSelectSingle.mockResolvedValueOnce({
+      data: {
+        id: 'topic-1',
+        metadata: {
+          source_receipts: [],
+          coverage_report: {
+            status: 'blocked',
+            blockers: ['[approved_source_receipts_missing] Approve one sanitized source summary.'],
+          },
+        },
+      },
+      error: null,
+    })
+
+    const response = await PATCH(new NextRequest('http://localhost/api/admin/social-content/topic-backlog', {
+      method: 'PATCH',
+      body: JSON.stringify({ id: 'topic-1', content_id: 'social-1', status: 'selected' }),
+    }))
+
+    expect(response.status).toBe(409)
+    await expect(response.json()).resolves.toMatchObject({
+      blockers: [expect.stringContaining('approved_source_receipts_missing')],
+    })
+    expect(mocks.updateSingle).not.toHaveBeenCalled()
   })
 })

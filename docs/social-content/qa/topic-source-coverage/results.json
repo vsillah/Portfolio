@@ -1,0 +1,32 @@
+[
+  {
+    "width": 390,
+    "route": "http://127.0.0.1:4032/admin/social-content/video-review-qa?step=copy&qa=topic-source-coverage",
+    "ready": true,
+    "blocked": true,
+    "external_requests": 0,
+    "production_mutations": 0,
+    "page_errors": 0,
+    "video": "docs/social-content/qa/topic-source-coverage/390-walkthrough.mp4"
+  },
+  {
+    "width": 768,
+    "route": "http://127.0.0.1:4032/admin/social-content/video-review-qa?step=copy&qa=topic-source-coverage",
+    "ready": true,
+    "blocked": true,
+    "external_requests": 0,
+    "production_mutations": 0,
+    "page_errors": 0,
+    "video": "docs/social-content/qa/topic-source-coverage/768-walkthrough.mp4"
+  },
+  {
+    "width": 1440,
+    "route": "http://127.0.0.1:4032/admin/social-content/video-review-qa?step=copy&qa=topic-source-coverage",
+    "ready": true,
+    "blocked": true,
+    "external_requests": 0,
+    "production_mutations": 0,
+    "page_errors": 0,
+    "video": "docs/social-content/qa/topic-source-coverage/1440-walkthrough.mp4"
+  }
+]

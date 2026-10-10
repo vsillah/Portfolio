@@ -97,9 +97,14 @@ describe('SocialContentDetailRoute visual production review', () => {
     content_angle: 'AI needs accountable operating gates.',
     suggested_hook: 'AI should reduce burden. That only happens when every risky action has a gate.',
     audience: 'Product leaders adopting AI',
-    sensitivity: 'needs_review',
+    sensitivity: 'client_safe_summary',
     evidence_summary: 'Sanitized meeting summary.',
     claim_boundaries: ['Do not name private meeting participants.'],
+    source_receipts: [{ receipt_id: 'source-receipt-1', approval_status: 'approved' }],
+    product_ids: ['agentified'],
+    priority_score: 82,
+    priority_tier: 'high',
+    priority_reasons: ['Required product coverage: Agentified'],
     status: 'available',
     last_seen_at: '2026-06-22T16:00:00.000Z',
   }
@@ -111,7 +116,18 @@ describe('SocialContentDetailRoute visual production review', () => {
       if (String(input).includes('/topic-backlog')) {
         return {
           ok: true,
-          json: async () => ({ items: [topicBacklogItem] }),
+          json: async () => ({
+            items: [topicBacklogItem],
+            coverage_report: {
+              status: 'ready',
+              blockers: [],
+              products: [
+                { product_id: 'dark_castle_chess', label: 'Dark Castle Chess', status: 'ready', receipt_ids: ['r1'] },
+                { product_id: 'accelerated', label: 'Accelerated', status: 'ready', receipt_ids: ['r2'] },
+                { product_id: 'agentified', label: 'Agentified', status: 'ready', receipt_ids: ['r3'] },
+              ],
+            },
+          }),
         } as Response
       }
       return {
@@ -827,7 +843,10 @@ describe('SocialContentDetailRoute visual production review', () => {
       if (url.includes('/topic-backlog')) {
         return {
           ok: true,
-          json: async () => ({ items: [topicBacklogItem] }),
+          json: async () => ({
+            items: [topicBacklogItem],
+            coverage_report: { status: 'ready', blockers: [], products: [] },
+          }),
         } as Response
       }
       if (url.includes('/calibration-library')) {
@@ -1258,7 +1277,10 @@ describe('SocialContentDetailRoute visual production review', () => {
       if (String(input).includes('/topic-backlog')) {
         return {
           ok: true,
-          json: async () => ({ items: [topicBacklogItem] }),
+          json: async () => ({
+            items: [topicBacklogItem],
+            coverage_report: { status: 'ready', blockers: [], products: [] },
+          }),
         } as Response
       }
       return {
@@ -1287,6 +1309,58 @@ describe('SocialContentDetailRoute visual production review', () => {
         }),
       )
     })
+  })
+
+  it('keeps topic selection visibly blocked until source and product receipts are ready', async () => {
+    const blockedTopic = {
+      ...topicBacklogItem,
+      source_receipts: [],
+      product_ids: ['agentified'],
+    }
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
+      if (String(input).includes('/topic-backlog')) {
+        return {
+          ok: true,
+          json: async () => ({
+            items: [blockedTopic],
+            coverage_report: {
+              status: 'blocked',
+              blockers: [
+                '[source_collection_failed:meeting_summaries] Restore read access and retry.',
+                '[product_coverage_receipt_missing:agentified] Approve an Agentified summary.',
+              ],
+              products: [
+                {
+                  product_id: 'agentified',
+                  label: 'Agentified',
+                  status: 'blocked',
+                  receipt_ids: [],
+                  blocker: 'Approve an Agentified summary.',
+                },
+              ],
+              source_collections: [{
+                source_group: 'meeting_summaries',
+                status: 'blocked',
+                receipt_count: 0,
+                blocker: '[source_collection_failed:meeting_summaries] Restore read access and retry.',
+              }],
+            },
+          }),
+        } as Response
+      }
+      return {
+        ok: true,
+        json: async () => ({ item: baseItem }),
+      } as Response
+    }))
+
+    renderAtStep('copy')
+
+    expect(await screen.findByText('Coverage: blocked')).toBeInTheDocument()
+    expect(screen.getByText('Agentified: needs receipt')).toBeInTheDocument()
+    expect(screen.getByText('meeting summaries: scan blocked')).toBeInTheDocument()
+    expect(screen.getByText('Resolve 2 source coverage blocker(s)')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Receipts required' })).toBeDisabled()
   })
 
   it('shows a campaign copy queue and advances after draft-only approval', async () => {

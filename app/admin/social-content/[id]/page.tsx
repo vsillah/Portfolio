@@ -582,6 +582,7 @@ function SocialContentDetailPage() {
   const [loadingTopicBacklog, setLoadingTopicBacklog] = useState(false)
   const [topicBacklogItems, setTopicBacklogItems] = useState<TopicBacklogRecord[]>([])
   const [topicBacklogUnavailable, setTopicBacklogUnavailable] = useState(false)
+  const [topicBacklogCoverageReport, setTopicBacklogCoverageReport] = useState<Record<string, unknown> | null>(null)
   const [selectedTopicBacklogId, setSelectedTopicBacklogId] = useState<string | null>(null)
   const [reviewQueueItems, setReviewQueueItems] = useState<SocialContentItem[]>([])
   const [loadingReviewQueue, setLoadingReviewQueue] = useState(false)
@@ -649,6 +650,7 @@ function SocialContentDetailPage() {
       if (!res.ok) return
       setTopicBacklogItems(Array.isArray(data.items) ? data.items : [])
       setTopicBacklogUnavailable(Boolean(data.unavailable))
+      setTopicBacklogCoverageReport(asRecord(data.coverage_report))
     } catch (err) {
       console.error('Failed to fetch topic backlog:', err)
     } finally {
@@ -1349,6 +1351,10 @@ function SocialContentDetailPage() {
   }
 
   const handleUseTopicTrigger = async (candidate: TopicTriggerCandidateRecord) => {
+    if (!topicCoverageReady || !Array.isArray(candidate.source_receipts) || candidate.source_receipts.length === 0) {
+      showMsg('error', 'Approve the missing source receipts and required product coverage before using this topic')
+      return
+    }
     const title = asString(candidate.title).trim()
     const triggeringEvent = asString(candidate.triggering_event).trim()
     const audience = asString(candidate.audience).trim()
@@ -1374,7 +1380,7 @@ function SocialContentDetailPage() {
       try {
         const session = await getCurrentSession()
         if (session) {
-          await fetch('/api/admin/social-content/topic-backlog', {
+          const response = await fetch('/api/admin/social-content/topic-backlog', {
             method: 'PATCH',
             headers: {
               Authorization: `Bearer ${session.access_token}`,
@@ -1386,6 +1392,12 @@ function SocialContentDetailPage() {
               status: 'selected',
             }),
           })
+          if (!response.ok) {
+            const result = await response.json().catch(() => ({}))
+            setSelectedTopicBacklogId(null)
+            showMsg('error', asString(result.error) || 'The selected topic is missing approved source receipts')
+            return
+          }
         }
       } catch (err) {
         console.error('Failed to mark topic backlog item selected:', err)
@@ -2520,6 +2532,12 @@ function SocialContentDetailPage() {
   const agentPilotTopicTriggerGeneratedAt = asString(agentPilotTopicTriggerPacket?.generated_at)
   const agentPilotTopicTriggerCandidates = asRecordArray(agentPilotTopicTriggerPacket?.candidates)
   const agentPilotTopicTriggerCounts = asRecord(agentPilotTopicTriggerPacket?.source_counts)
+  const agentPilotTopicCoverageReport = asRecord(agentPilotTopicTriggerPacket?.coverage_report)
+  const activeTopicCoverageReport = topicBacklogCoverageReport ?? agentPilotTopicCoverageReport
+  const topicCoverageProducts = asRecordArray(activeTopicCoverageReport?.products)
+  const topicCoverageSourceCollections = asRecordArray(activeTopicCoverageReport?.source_collections)
+  const topicCoverageBlockers = asStringArray(activeTopicCoverageReport?.blockers)
+  const topicCoverageReady = activeTopicCoverageReport?.status === 'ready'
   const displayedTopicBacklogItems = topicBacklogItems.length > 0
     ? topicBacklogItems
     : agentPilotTopicTriggerCandidates
@@ -4350,7 +4368,7 @@ function SocialContentDetailPage() {
                         LinkedIn topics from Agentic Backlog
                       </p>
                       <p className="mt-1 text-sm leading-6 text-blue-50/85">
-                        Filtered from the central Shaka insight backlog. The same insight can also feed YouTube Shorts, Instagram Reels, and thumbnail production.
+                        Choose an approved, source-backed topic for this draft.
                       </p>
                     </div>
                     <div className="flex shrink-0 flex-wrap items-center gap-2 lg:justify-end">
@@ -4360,8 +4378,54 @@ function SocialContentDetailPage() {
                       <span className="rounded-full border border-blue-400/25 px-2 py-0.5 text-[10px] text-blue-50/75">
                         Weekday scan
                       </span>
+                      {activeTopicCoverageReport && (
+                        <span className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${topicCoverageReady ? 'border-emerald-400/35 text-emerald-100' : 'border-amber-400/35 text-amber-100'}`}>
+                          Coverage: {topicCoverageReady ? 'ready' : 'blocked'}
+                        </span>
+                      )}
                     </div>
                   </div>
+                  {topicCoverageProducts.length > 0 && (
+                    <div className="mt-2 flex flex-wrap gap-1.5" aria-label="Required product coverage">
+                      {topicCoverageProducts.map((product) => {
+                        const ready = asString(product.status) === 'ready'
+                        return (
+                          <span
+                            key={asString(product.product_id)}
+                            className={`rounded-full border px-2 py-0.5 text-[10px] ${ready ? 'border-emerald-400/30 text-emerald-100' : 'border-amber-400/35 text-amber-100'}`}
+                            title={asString(product.blocker) || `${asStringArray(product.receipt_ids).length} approved receipt(s)`}
+                          >
+                            {asString(product.label)}: {ready ? 'covered' : 'needs receipt'}
+                          </span>
+                        )
+                      })}
+                    </div>
+                  )}
+                  {topicCoverageSourceCollections.length > 0 && (
+                    <div className="mt-2 flex flex-wrap gap-1.5" aria-label="Approved source scan coverage">
+                      {topicCoverageSourceCollections.map((collection) => {
+                        const ready = asString(collection.status) === 'ready'
+                        const sourceGroup = asString(collection.source_group)
+                        return (
+                          <span
+                            key={sourceGroup}
+                            className={`rounded-full border px-2 py-0.5 text-[10px] ${ready ? 'border-blue-400/25 text-blue-50/75' : 'border-amber-400/35 text-amber-100'}`}
+                            title={asString(collection.blocker) || `${String(collection.receipt_count ?? 0)} approved receipt(s)`}
+                          >
+                            {sourceGroup.replace(/_/g, ' ')}: {ready ? String(collection.receipt_count ?? 0) : 'scan blocked'}
+                          </span>
+                        )
+                      })}
+                    </div>
+                  )}
+                  {topicCoverageBlockers.length > 0 && (
+                    <details className="mt-2 rounded-lg border border-amber-400/25 bg-amber-400/5 px-3 py-2 text-xs text-amber-50">
+                      <summary className="cursor-pointer font-semibold">Resolve {topicCoverageBlockers.length} source coverage blocker(s)</summary>
+                      <ul className="mt-2 space-y-1 leading-5 text-amber-50/80">
+                        {topicCoverageBlockers.map((blocker) => <li key={blocker}>{blocker}</li>)}
+                      </ul>
+                    </details>
+                  )}
                   {topicBacklogUnavailable && (
                     <p className="mt-2 text-xs text-amber-200">
                       Backlog migration pending. The central Agentic Backlog will populate this after deployment.
@@ -4405,6 +4469,7 @@ function SocialContentDetailPage() {
                         const title = asString(candidate.title) || `Topic ${index + 1}`
                         const sensitivity = asString(candidate.sensitivity) || 'needs_review'
                         const isSelectedTopic = selectedTopicBacklogId === asString(candidate.id)
+                        const candidateReceiptsReady = Array.isArray(candidate.source_receipts) && candidate.source_receipts.length > 0 && topicCoverageReady
                         return (
                           <div key={asString(candidate.id) || `${title}-${index}`} className="rounded-lg border border-blue-400/20 bg-background/35 p-3">
                             <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
@@ -4417,6 +4482,11 @@ function SocialContentDetailPage() {
                                   {isSelectedTopic && (
                                     <span className="rounded-full border border-emerald-400/35 px-2 py-0.5 text-[10px] text-emerald-100">
                                       Selected
+                                    </span>
+                                  )}
+                                  {asString(candidate.priority_tier) && (
+                                    <span className="rounded-full border border-violet-400/25 px-2 py-0.5 text-[10px] text-violet-100">
+                                      {asString(candidate.priority_tier)} priority · {String(candidate.priority_score ?? 0)}
                                     </span>
                                   )}
                                 </div>
@@ -4433,15 +4503,25 @@ function SocialContentDetailPage() {
                                     Hook: {asString(candidate.suggested_hook)}
                                   </p>
                                 )}
+                                <details className="mt-2 text-xs text-blue-50/70">
+                                  <summary className="cursor-pointer font-medium text-blue-100">Receipts and boundaries</summary>
+                                  <div className="mt-2 space-y-1.5 border-l border-blue-400/20 pl-3">
+                                    <p>{asStringArray(candidate.product_ids).map((id) => id.replace(/_/g, ' ')).join(' · ') || 'No required product tag'}</p>
+                                    <p>{Array.isArray(candidate.source_receipts) ? candidate.source_receipts.length : 0} approved source receipt(s)</p>
+                                    {asStringArray(candidate.priority_reasons).map((reason) => <p key={reason}>{reason}</p>)}
+                                    {asStringArray(candidate.claim_boundaries).map((boundary) => <p key={boundary}>Boundary: {boundary}</p>)}
+                                  </div>
+                                </details>
                               </div>
                               <button
                                 type="button"
                                 onClick={() => handleUseTopicTrigger(candidate)}
-                                disabled={isSelectedTopic}
+                                disabled={isSelectedTopic || !candidateReceiptsReady}
+                                title={candidateReceiptsReady ? 'Use this source-backed topic' : 'Approve the missing source receipts and required product coverage before selecting this topic'}
                                 className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-blue-400 px-3 py-2 text-sm font-semibold text-slate-950 transition-colors hover:bg-blue-300 disabled:opacity-60"
                               >
                                 <CheckCircle2 className="h-3.5 w-3.5" />
-                                {isSelectedTopic ? 'Selected' : 'Use topic'}
+                                {isSelectedTopic ? 'Selected' : candidateReceiptsReady ? 'Use topic' : 'Receipts required'}
                               </button>
                             </div>
                           </div>
