@@ -2,7 +2,7 @@
   {
     "width": 1440,
     "theme": "dark",
-    "route": "https://portfolio-staging-o7holt8u8-vsillahs-projects.vercel.app/admin/social-content?workflow=evidence",
+    "route": "https://portfolio-staging-7x9hsjwjo-vsillahs-projects.vercel.app/admin/social-content?workflow=evidence",
     "source": "live_read_only_collectors",
     "coverage_visible": true,
     "shows_freshness": true,
@@ -26,6 +26,12 @@
       "text": "rgb(234, 236, 238)",
       "text_luma": 236
     },
+    "theme_control_surface": "desktop_header",
+    "theme_preferences_checked": [
+      "light",
+      "dark",
+      "system"
+    ],
     "representative_admin_routes": [
       "/admin/help",
       "/admin/source-protocol"
@@ -59,7 +65,7 @@
   {
     "width": 1440,
     "theme": "light",
-    "route": "https://portfolio-staging-o7holt8u8-vsillahs-projects.vercel.app/admin/social-content?workflow=evidence",
+    "route": "https://portfolio-staging-7x9hsjwjo-vsillahs-projects.vercel.app/admin/social-content?workflow=evidence",
     "source": "live_read_only_collectors",
     "coverage_visible": true,
     "shows_freshness": true,
@@ -83,6 +89,12 @@
       "text": "rgb(18, 30, 49)",
       "text_luma": 29
     },
+    "theme_control_surface": "desktop_header",
+    "theme_preferences_checked": [
+      "light",
+      "dark",
+      "system"
+    ],
     "representative_admin_routes": [
       "/admin/help",
       "/admin/source-protocol"
@@ -116,7 +128,7 @@
   {
     "width": 768,
     "theme": "dark",
-    "route": "https://portfolio-staging-o7holt8u8-vsillahs-projects.vercel.app/admin/social-content?workflow=evidence",
+    "route": "https://portfolio-staging-7x9hsjwjo-vsillahs-projects.vercel.app/admin/social-content?workflow=evidence",
     "source": "live_read_only_collectors",
     "coverage_visible": true,
     "shows_freshness": true,
@@ -140,6 +152,12 @@
       "text": "rgb(234, 236, 238)",
       "text_luma": 236
     },
+    "theme_control_surface": "mobile_drawer",
+    "theme_preferences_checked": [
+      "light",
+      "dark",
+      "system"
+    ],
     "representative_admin_routes": [
       "/admin/help",
       "/admin/source-protocol"
@@ -173,7 +191,7 @@
   {
     "width": 768,
     "theme": "light",
-    "route": "https://portfolio-staging-o7holt8u8-vsillahs-projects.vercel.app/admin/social-content?workflow=evidence",
+    "route": "https://portfolio-staging-7x9hsjwjo-vsillahs-projects.vercel.app/admin/social-content?workflow=evidence",
     "source": "live_read_only_collectors",
     "coverage_visible": true,
     "shows_freshness": true,
@@ -197,6 +215,12 @@
       "text": "rgb(18, 30, 49)",
       "text_luma": 29
     },
+    "theme_control_surface": "mobile_drawer",
+    "theme_preferences_checked": [
+      "light",
+      "dark",
+      "system"
+    ],
     "representative_admin_routes": [
       "/admin/help",
       "/admin/source-protocol"
@@ -230,7 +254,7 @@
   {
     "width": 390,
     "theme": "dark",
-    "route": "https://portfolio-staging-o7holt8u8-vsillahs-projects.vercel.app/admin/social-content?workflow=evidence",
+    "route": "https://portfolio-staging-7x9hsjwjo-vsillahs-projects.vercel.app/admin/social-content?workflow=evidence",
     "source": "live_read_only_collectors",
     "coverage_visible": true,
     "shows_freshness": true,
@@ -254,6 +278,12 @@
       "text": "rgb(234, 236, 238)",
       "text_luma": 236
     },
+    "theme_control_surface": "mobile_drawer",
+    "theme_preferences_checked": [
+      "light",
+      "dark",
+      "system"
+    ],
     "representative_admin_routes": [
       "/admin/help",
       "/admin/source-protocol"
@@ -287,7 +317,7 @@
   {
     "width": 390,
     "theme": "light",
-    "route": "https://portfolio-staging-o7holt8u8-vsillahs-projects.vercel.app/admin/social-content?workflow=evidence",
+    "route": "https://portfolio-staging-7x9hsjwjo-vsillahs-projects.vercel.app/admin/social-content?workflow=evidence",
     "source": "live_read_only_collectors",
     "coverage_visible": true,
     "shows_freshness": true,
@@ -311,6 +341,12 @@
       "text": "rgb(18, 30, 49)",
       "text_luma": 29
     },
+    "theme_control_surface": "mobile_drawer",
+    "theme_preferences_checked": [
+      "light",
+      "dark",
+      "system"
+    ],
     "representative_admin_routes": [
       "/admin/help",
       "/admin/source-protocol"
