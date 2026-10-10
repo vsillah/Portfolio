@@ -1,6 +1,6 @@
 {
-  "capturedAt": "2026-10-10T01:46:41.433Z",
-  "baseUrl": "http://127.0.0.1:4189",
+  "capturedAt": "2026-10-10T01:56:07.315Z",
+  "baseUrl": "https://portfolio-git-codex-homepage-readiness-947fe9-vsillahs-projects.vercel.app",
   "privacy": "Synthetic campaign and product fixtures; all external requests blocked.",
   "runs": [
     {
@@ -38,7 +38,7 @@
       },
       "externalRequests": [],
       "blockedExternalRequests": [
-        "https://va.vercel-scripts.com/v1/speed-insights/script.debug.js"
+        "https://vercel.live/_next-live/feedback/feedback.js"
       ]
     },
     {
@@ -76,7 +76,7 @@
       },
       "externalRequests": [],
       "blockedExternalRequests": [
-        "https://va.vercel-scripts.com/v1/speed-insights/script.debug.js"
+        "https://vercel.live/_next-live/feedback/feedback.js"
       ]
     },
     {
@@ -114,7 +114,7 @@
       },
       "externalRequests": [],
       "blockedExternalRequests": [
-        "https://va.vercel-scripts.com/v1/speed-insights/script.debug.js"
+        "https://vercel.live/_next-live/feedback/feedback.js"
       ]
     },
     {
@@ -152,12 +152,12 @@
       },
       "externalRequests": [],
       "blockedExternalRequests": [
-        "https://va.vercel-scripts.com/v1/speed-insights/script.debug.js"
+        "https://vercel.live/_next-live/feedback/feedback.js"
       ]
     }
   ],
   "externalRequests": [],
   "blockedExternalRequests": [
-    "https://va.vercel-scripts.com/v1/speed-insights/script.debug.js"
+    "https://vercel.live/_next-live/feedback/feedback.js"
   ]
 }
