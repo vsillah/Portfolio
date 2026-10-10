@@ -1,8 +1,8 @@
 [
   {
     "width": 390,
-    "route": "http://127.0.0.1:4032/admin/social-content/topic-source-coverage-qa?step=copy&qa=topic-source-coverage",
-    "source": "local_preview_fixture",
+    "route": "https://portfolio-git-codex-synthetic-source-c-ad598e-vsillahs-projects.vercel.app/admin/social-content/topic-source-coverage-qa?step=copy&qa=topic-source-coverage",
+    "source": "deployed_preview_fixture",
     "fixture_responses": [
       "blocked",
       "ready"
@@ -35,8 +35,8 @@
   },
   {
     "width": 768,
-    "route": "http://127.0.0.1:4032/admin/social-content/topic-source-coverage-qa?step=copy&qa=topic-source-coverage",
-    "source": "local_preview_fixture",
+    "route": "https://portfolio-git-codex-synthetic-source-c-ad598e-vsillahs-projects.vercel.app/admin/social-content/topic-source-coverage-qa?step=copy&qa=topic-source-coverage",
+    "source": "deployed_preview_fixture",
     "fixture_responses": [
       "blocked",
       "ready"
@@ -69,8 +69,8 @@
   },
   {
     "width": 1440,
-    "route": "http://127.0.0.1:4032/admin/social-content/topic-source-coverage-qa?step=copy&qa=topic-source-coverage",
-    "source": "local_preview_fixture",
+    "route": "https://portfolio-git-codex-synthetic-source-c-ad598e-vsillahs-projects.vercel.app/admin/social-content/topic-source-coverage-qa?step=copy&qa=topic-source-coverage",
+    "source": "deployed_preview_fixture",
     "fixture_responses": [
       "blocked",
       "ready"
