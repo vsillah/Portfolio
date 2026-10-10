@@ -319,6 +319,29 @@ describe('SourceProtocolPage', () => {
     expect(screen.getByText(/20260501193000_source_respecting_llm/i)).toBeInTheDocument()
   })
 
+  it('keeps live Source Protocol content visible when the optional Evidence QA projection is unavailable', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => ({
+      ok: true,
+      json: async () => ({
+        ...overview,
+        bannedBooksEvidenceQa: null,
+        bannedBooksEvidenceQaUnavailable: {
+          code: 'optional_projection_file_missing',
+          message: 'Evidence QA approval projection is unavailable because its optional local fixture files were not packaged for this deployment.',
+          sourceImportPath: 'data/source-protocol/banned-books-source-import-sample.json',
+          approvalPath: 'data/source-protocol/banned-books-evidence-qa-approvals.sample.json',
+        },
+      }),
+    })))
+
+    render(<SourceProtocolPage />)
+
+    expect(await screen.findByText('Evidence QA approval projection unavailable')).toBeInTheDocument()
+    expect(screen.getByText(/Live Source Protocol records remain available/i)).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Banned Books Rights-Ready Corpus' })).toBeInTheDocument()
+    expect(screen.queryByText('Failed to load source protocol overview')).not.toBeInTheDocument()
+  })
+
   it('is linked from Quality & insights admin navigation', () => {
     const qualityCategory = ADMIN_NAV.categories.find((category) => category.label === 'Quality & insights')
 

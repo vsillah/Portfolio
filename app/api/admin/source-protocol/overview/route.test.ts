@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { readFileSync } from 'node:fs'
 
 type QueryResult = {
   data?: unknown[]
@@ -24,6 +25,7 @@ vi.mock('@/lib/supabase', () => ({
   },
 }))
 
+import { buildOptionalEvidenceQaProjection } from '@/lib/source-protocol-optional-projection'
 import { GET } from './route'
 
 function request() {
@@ -132,6 +134,38 @@ describe('GET /api/admin/source-protocol/overview', () => {
       reason: 'Source protocol schema has not been applied in this environment.',
       migration: 'migrations/20260501193000_source_respecting_llm.sql',
     })
+  })
+
+  it('fails an optional Evidence QA fixture projection closed in a Vercel-like runtime', () => {
+    const missingFile = Object.assign(
+      new Error("ENOENT: no such file or directory, open '/var/task/data/source-protocol/banned-books-source-import-sample.json'"),
+      { code: 'ENOENT' }
+    )
+    const builder = vi.fn(() => {
+      throw missingFile
+    })
+
+    const result = buildOptionalEvidenceQaProjection(
+      '/var/task/data/source-protocol/banned-books-source-import-sample.json',
+      '/var/task/data/source-protocol/banned-books-evidence-qa-approvals.sample.json',
+      builder
+    )
+
+    expect(result.data).toBeNull()
+    expect(result.unavailable).toEqual({
+      code: 'optional_projection_file_missing',
+      message: 'Evidence QA approval projection is unavailable because its optional local fixture files were not packaged for this deployment.',
+      sourceImportPath: '/var/task/data/source-protocol/banned-books-source-import-sample.json',
+      approvalPath: '/var/task/data/source-protocol/banned-books-evidence-qa-approvals.sample.json',
+    })
+  })
+
+  it('traces both optional Evidence QA fixture inputs into the Vercel function', () => {
+    const config = readFileSync('next.config.js', 'utf8')
+
+    expect(config).toContain("'/api/admin/source-protocol/overview'")
+    expect(config).toContain("'./data/source-protocol/banned-books-source-import-sample.json'")
+    expect(config).toContain("'./data/source-protocol/banned-books-evidence-qa-approvals.sample.json'")
   })
 
   it('aggregates summary counts and accrued payouts from table results', async () => {

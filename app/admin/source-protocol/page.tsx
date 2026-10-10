@@ -87,6 +87,12 @@ type SourceProtocolOverview = {
     queueAppendDrafts: any[]
     blockedActions: string[]
   }
+  bannedBooksEvidenceQaUnavailable?: {
+    code: 'optional_projection_file_missing' | 'optional_projection_unavailable'
+    message: string
+    sourceImportPath: string
+    approvalPath: string
+  }
 }
 
 type AdminUserOption = {
@@ -375,7 +381,13 @@ function SourceProtocolContent() {
                   onUpdate={updatePortalAccount}
                 />
               )}
-              {tab === 'bannedBooks' && <BannedBooksCorpusPanel corpus={overview.bannedBooksCorpus} evidenceQa={overview.bannedBooksEvidenceQa} />}
+              {tab === 'bannedBooks' && (
+                <BannedBooksCorpusPanel
+                  corpus={overview.bannedBooksCorpus}
+                  evidenceQa={overview.bannedBooksEvidenceQa}
+                  evidenceQaUnavailable={overview.bannedBooksEvidenceQaUnavailable}
+                />
+              )}
               {tab === 'creators' && <CreatorsTable rows={overview.creators ?? []} />}
               {tab === 'works' && <WorksTable rows={overview.works ?? []} />}
               {tab === 'grants' && <GrantsTable rows={overview.licenseGrants ?? []} />}
@@ -634,7 +646,15 @@ function PortalAccountsPanel({
   )
 }
 
-function BannedBooksCorpusPanel({ corpus, evidenceQa }: { corpus: SourceProtocolOverview['bannedBooksCorpus']; evidenceQa?: SourceProtocolOverview['bannedBooksEvidenceQa'] }) {
+function BannedBooksCorpusPanel({
+  corpus,
+  evidenceQa,
+  evidenceQaUnavailable,
+}: {
+  corpus: SourceProtocolOverview['bannedBooksCorpus']
+  evidenceQa?: SourceProtocolOverview['bannedBooksEvidenceQa']
+  evidenceQaUnavailable?: SourceProtocolOverview['bannedBooksEvidenceQaUnavailable']
+}) {
   if (!corpus) {
     return <div className="rounded-lg border border-border bg-card px-4 py-8 text-center text-sm text-muted-foreground">No banned-books corpus projection is available.</div>
   }
@@ -682,6 +702,25 @@ function BannedBooksCorpusPanel({ corpus, evidenceQa }: { corpus: SourceProtocol
           ))}
         </Panel>
       </section>
+
+      {evidenceQaUnavailable && (
+        <section
+          className="rounded-lg border border-amber-600/45 bg-amber-100 p-4 text-amber-950 dark:border-amber-500/50 dark:bg-amber-500/10 dark:text-amber-200"
+          data-testid="banned-books-evidence-unavailable"
+          data-contrast-audit="optional-projection-unavailable"
+        >
+          <div className="flex items-start gap-3">
+            <AlertTriangle size={20} className="mt-0.5 shrink-0" />
+            <div>
+              <h3 className="font-semibold">Evidence QA approval projection unavailable</h3>
+              <p className="mt-1 text-sm">{evidenceQaUnavailable.message}</p>
+              <p className="mt-2 text-xs opacity-80">
+                Live Source Protocol records remain available. This optional dry-run projection is held closed until its packaged fixture inputs can be verified.
+              </p>
+            </div>
+          </div>
+        </section>
+      )}
 
       {corpus.sourceIngestionQueue && (
         <section className="overflow-hidden rounded-lg border border-border bg-card text-card-foreground">
