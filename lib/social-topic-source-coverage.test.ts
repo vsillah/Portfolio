@@ -89,6 +89,45 @@ describe('dynamic Social Content source coverage', () => {
     expect(report.historical_gaps).toEqual([])
   })
 
+  it('derives recurring membership and order from the latest approved receipt metadata', () => {
+    const dynamicReceipt = (productIdentity: string, label: string, enabled: boolean, order: number, observedAt: string) => buildApprovedSourceProjection({
+      sourceGroup: 'public_catalog',
+      sourceKind: 'amadutown_product',
+      sourceId: productIdentity,
+      productIdentity,
+      lifecycleStage: 'publicly_cataloged',
+      label,
+      approvedSummary: `${label} approved catalog evidence.`,
+      privacyClassification: 'public_safe',
+      provenance: `catalog:${productIdentity}`,
+      approvedAt: observedAt,
+      approvedBy: 'reviewer-1',
+      observedAt,
+      metadata: { recurring_priority: { approval_status: 'approved', enabled, order } },
+    })
+    const report = buildLiveCoverage({
+      generatedAt: at,
+      receipts: [
+        dynamicReceipt('dark_castle_chess', 'Dark Castle Chess', false, 1, '2026-10-10T11:00:00.000Z'),
+        dynamicReceipt('new_priority_alpha', 'New Priority Alpha', true, 2, '2026-10-10T12:00:00.000Z'),
+        dynamicReceipt('new_priority_beta', 'New Priority Beta', true, 1, '2026-10-10T13:00:00.000Z'),
+      ],
+    })
+    expect(report.products.filter((product) => product.priority).map((product) => product.product_identity)).toEqual([
+      'new_priority_beta', 'new_priority_alpha',
+    ])
+    expect(report.products.find((product) => product.product_identity === 'dark_castle_chess')?.priority).toBe(false)
+    expect(report.products.some((product) => product.product_identity === 'accelerated')).toBe(false)
+  })
+
+  it('uses the three seeded priorities only when no approved priority metadata exists', () => {
+    const report = buildLiveCoverage({ generatedAt: at, receipts: [receipt('insight', 'codex_insights')] })
+    expect(report.products.filter((product) => product.priority).map((product) => product.product_identity)).toEqual([
+      'dark_castle_chess', 'accelerated', 'agentified',
+    ])
+    expect(report.products.every((product) => !product.priority || product.priority_source === 'fallback_seed')).toBe(true)
+  })
+
   it('does not treat a preview as production or public release', () => {
     const report = buildLiveCoverage({
       generatedAt: at,

@@ -8,14 +8,15 @@ vi.mock('@/lib/auth', () => ({ getCurrentSession: mocks.getCurrentSession }))
 import SocialSourceCoverageEvidence from './SocialSourceCoverageEvidence'
 
 const priorityProducts = [
-  { product_identity: 'dark_castle_chess', label: 'Dark Castle Chess', current_stage: 'preview_deployed', stages: ['insight', 'preview_deployed'], receipt_count: 2, source_groups: ['codex_insights', 'vercel_deployments'], latest_evidence_at: '2026-10-10T14:00:00.000Z', gaps: [], historical_gaps: ['No recorded in development evidence'], priority: true },
-  { product_identity: 'accelerated', label: 'Accelerated', current_stage: 'publicly_cataloged', stages: ['publicly_cataloged'], receipt_count: 1, source_groups: ['public_catalog'], latest_evidence_at: '2026-10-09T14:00:00.000Z', gaps: [], historical_gaps: ['No recorded insight evidence'], priority: true },
-  { product_identity: 'agentified', label: 'Agentified', current_stage: null, stages: [], receipt_count: 0, source_groups: [], latest_evidence_at: null, gaps: ['No approved privacy-safe source receipt'], historical_gaps: [], priority: true },
+  { product_identity: 'dark_castle_chess', label: 'Dark Castle Chess', current_stage: 'preview_deployed', stages: ['insight', 'preview_deployed'], receipt_count: 2, source_groups: ['codex_insights', 'vercel_deployments'], latest_evidence_at: '2026-10-10T14:00:00.000Z', gaps: [], historical_gaps: ['No recorded in development evidence'], priority: true, priority_order: 1, priority_source: 'approved_metadata' },
+  { product_identity: 'accelerated', label: 'Accelerated', current_stage: 'publicly_cataloged', stages: ['publicly_cataloged'], receipt_count: 1, source_groups: ['public_catalog'], latest_evidence_at: '2026-10-09T14:00:00.000Z', gaps: [], historical_gaps: ['No recorded insight evidence'], priority: true, priority_order: 2, priority_source: 'approved_metadata' },
+  { product_identity: 'agentified', label: 'Agentified', current_stage: null, stages: [], receipt_count: 0, source_groups: [], latest_evidence_at: null, gaps: ['No approved privacy-safe source receipt'], historical_gaps: [], priority: true, priority_order: 3, priority_source: 'approved_metadata' },
+  ...Array.from({ length: 4 }, (_, index) => ({ product_identity: `dynamic_priority_${index + 1}`, label: `Dynamic Priority ${index + 1}`, current_stage: 'insight', stages: ['insight'], receipt_count: 1, source_groups: ['codex_insights'], latest_evidence_at: '2026-10-08T14:00:00.000Z', gaps: [], historical_gaps: ['No public catalog/site release evidence'], priority: true, priority_order: index + 4, priority_source: 'approved_metadata' })),
 ]
 const directoryProducts = Array.from({ length: 12 }, (_, index) => ({
   product_identity: `directory_product_${index + 1}`,
   label: `Directory Product ${index + 1}`,
-  current_stage: 'publicly_cataloged', stages: ['publicly_cataloged'], receipt_count: 1, source_groups: ['public_catalog'], latest_evidence_at: '2026-10-08T14:00:00.000Z', gaps: [], historical_gaps: [], priority: false,
+  current_stage: 'publicly_cataloged', stages: ['publicly_cataloged'], receipt_count: 1, source_groups: ['public_catalog'], latest_evidence_at: '2026-10-08T14:00:00.000Z', gaps: [], historical_gaps: [], priority: false, priority_order: null, priority_source: null,
 }))
 
 const coverage = {
@@ -40,12 +41,28 @@ describe('SocialSourceCoverageEvidence', () => {
     rerender(<SocialSourceCoverageEvidence active />)
     expect(await screen.findByRole('heading', { name: 'Coverage before candidate creation' })).toBeInTheDocument()
     const priorityList = screen.getByTestId('priority-coverage-list')
+    expect(within(priorityList).getAllByTestId('coverage-product-row')).toHaveLength(3)
     expect(within(priorityList).getAllByTestId('coverage-product-row').map((row) => row.textContent)).toEqual(expect.arrayContaining([
       expect.stringContaining('Dark Castle Chess'), expect.stringContaining('Accelerated'), expect.stringContaining('Agentified'),
     ]))
     expect(screen.getByText('Priority gaps').parentElement).toHaveTextContent('1')
     expect([...priorityList.querySelectorAll('summary')].every((summary) => !summary.textContent?.includes('dark_castle_chess'))).toBe(true)
     expect(screen.getByText('Collector freshness, failures, and recovery')).toBeInTheDocument()
+  })
+
+  it('bounds recurring priorities and supports priority pagination and search', async () => {
+    render(<SocialSourceCoverageEvidence active />)
+    const priorityList = await screen.findByTestId('priority-coverage-list')
+    expect(within(priorityList).getAllByTestId('coverage-product-row')).toHaveLength(3)
+    expect(screen.getByText('Priority page 1 of 3')).toBeInTheDocument()
+    expect(screen.getByText('7 visible · 7 recurring · 3 per page')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Next priorities' }))
+    expect(screen.getByText('Priority page 2 of 3')).toBeInTheDocument()
+    expect(within(priorityList).getAllByTestId('coverage-product-row')).toHaveLength(3)
+    fireEvent.change(screen.getByPlaceholderText('Search recurring priorities'), { target: { value: 'Dynamic Priority 4' } })
+    expect(within(priorityList).getAllByTestId('coverage-product-row')).toHaveLength(1)
+    expect(within(priorityList).getByText('Dynamic Priority 4')).toBeInTheDocument()
+    expect(screen.getByText('Priority page 1 of 1')).toBeInTheDocument()
   })
 
   it('keeps the additional directory bounded to five rows and supports paging and search', async () => {

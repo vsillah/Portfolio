@@ -41,6 +41,8 @@ export type ProductLifecycleCoverage = {
   gaps: string[]
   historical_gaps: string[]
   priority: boolean
+  priority_order: number | null
+  priority_source: 'approved_metadata' | 'fallback_seed' | null
 }
 
 export type SocialTopicLiveCoverage = {
@@ -88,13 +90,13 @@ const ORDERED_STAGES: SocialTopicLifecycleStage[] = [
   'publicly_cataloged',
 ]
 
-export const PRIORITY_PRODUCT_IDENTITIES = [
+export const FALLBACK_PRIORITY_PRODUCT_IDENTITIES = [
   'dark_castle_chess',
   'accelerated',
   'agentified',
 ] as const
 
-const PRIORITY_PRODUCT_LABELS: Record<(typeof PRIORITY_PRODUCT_IDENTITIES)[number], string> = {
+const FALLBACK_PRIORITY_PRODUCT_LABELS: Record<(typeof FALLBACK_PRIORITY_PRODUCT_IDENTITIES)[number], string> = {
   dark_castle_chess: 'Dark Castle Chess',
   accelerated: 'Accelerated',
   agentified: 'Agentified',
@@ -186,6 +188,10 @@ export function workItemCoverageProjections(rows: Record<string, unknown>[], now
     const approvedBy = asString(approvedReceipt.approved_by)
     const approvedAt = iso(approvedReceipt.approved_at, observedAt)
     const provenance = asString(approvedReceipt.provenance)
+    const receiptPriority = asRecord(approvedReceipt.recurring_priority)
+    const recurringPriority = receiptPriority.approval_status === 'approved' && typeof receiptPriority.enabled === 'boolean'
+      ? receiptPriority
+      : null
     const base = {
       sourceId: asString(row.id),
       productIdentity,
@@ -195,7 +201,11 @@ export function workItemCoverageProjections(rows: Record<string, unknown>[], now
       approvedAt,
       approvedBy,
       observedAt,
-      metadata: { agent_work_item_status: row.status, approved_source_receipt: true },
+      metadata: {
+        agent_work_item_status: row.status,
+        approved_source_receipt: true,
+        recurring_priority: recurringPriority,
+      },
     }
     if (asString(row.branch_name) || row.pr_number || asString(row.pr_url)) {
       projections.push(buildApprovedSourceProjection({
@@ -249,10 +259,68 @@ export function workItemCoverageProjections(rows: Record<string, unknown>[], now
 }
 
 function dedupeReceipts(receipts: SocialTopicSourceProjection[]) {
-  return [...new Map(receipts.map((receipt) => [receipt.receipt_id, receipt])).values()]
+  const byId = new Map<string, SocialTopicSourceProjection>()
+  for (const receipt of receipts) {
+    const existing = byId.get(receipt.receipt_id)
+    if (!existing) {
+      byId.set(receipt.receipt_id, receipt)
+      continue
+    }
+    const existingPriority = asRecord(asRecord(existing.metadata).recurring_priority)
+    const incomingPriority = asRecord(asRecord(receipt.metadata).recurring_priority)
+    const incomingHasDecision = incomingPriority.approval_status === 'approved' && typeof incomingPriority.enabled === 'boolean'
+    const existingHasDecision = existingPriority.approval_status === 'approved' && typeof existingPriority.enabled === 'boolean'
+    const metadata = { ...existing.metadata, ...receipt.metadata }
+    if (!incomingHasDecision && existingHasDecision) metadata.recurring_priority = existingPriority
+    byId.set(receipt.receipt_id, { ...receipt, metadata })
+  }
+  return [...byId.values()]
+}
+
+type RecurringPriorityConfig = {
+  enabled: boolean
+  order: number
+  source: 'approved_metadata' | 'fallback_seed'
+}
+
+export function resolveRecurringPriority(receipts: SocialTopicSourceProjection[]) {
+  const explicit = receipts
+    .map((receipt) => {
+      const metadata = asRecord(receipt.metadata)
+      const priority = asRecord(metadata.recurring_priority)
+      if (priority.approval_status !== 'approved' || typeof priority.enabled !== 'boolean') return null
+      const rawOrder = Number(priority.order)
+      return {
+        product_identity: receipt.product_identity,
+        enabled: priority.enabled,
+        order: Number.isFinite(rawOrder) && rawOrder > 0 ? rawOrder : Number.MAX_SAFE_INTEGER,
+        observed_at: receipt.observed_at,
+      }
+    })
+    .filter((item): item is NonNullable<typeof item> => Boolean(item))
+    .sort((a, b) => b.observed_at.localeCompare(a.observed_at))
+
+  const resolved = new Map<string, RecurringPriorityConfig>()
+  if (explicit.length === 0) {
+    FALLBACK_PRIORITY_PRODUCT_IDENTITIES.forEach((identity, index) => resolved.set(identity, {
+      enabled: true,
+      order: index + 1,
+      source: 'fallback_seed',
+    }))
+    return resolved
+  }
+  for (const item of explicit) {
+    if (!resolved.has(item.product_identity)) resolved.set(item.product_identity, {
+      enabled: item.enabled,
+      order: item.order,
+      source: 'approved_metadata',
+    })
+  }
+  return resolved
 }
 
 function productCoverage(receipts: SocialTopicSourceProjection[]): ProductLifecycleCoverage[] {
+  const recurringPriority = resolveRecurringPriority(receipts)
   const byProduct = new Map<string, SocialTopicSourceProjection[]>()
   for (const receipt of receipts) {
     byProduct.set(receipt.product_identity, [...(byProduct.get(receipt.product_identity) ?? []), receipt])
@@ -266,11 +334,13 @@ function productCoverage(receipts: SocialTopicSourceProjection[]): ProductLifecy
       if (!stages.includes(stage)) historicalGaps.push(`No recorded ${stage.replace(/_/g, ' ')} evidence`)
     }
     if (currentStage !== 'publicly_cataloged') historicalGaps.push('No public catalog/site release evidence')
-    const priority = PRIORITY_PRODUCT_IDENTITIES.includes(productIdentity as (typeof PRIORITY_PRODUCT_IDENTITIES)[number])
+    const priorityConfig = recurringPriority.get(productIdentity)
+    const priority = priorityConfig?.enabled === true
+    const fallbackIdentity = productIdentity as (typeof FALLBACK_PRIORITY_PRODUCT_IDENTITIES)[number]
     return {
       product_identity: productIdentity,
-      label: priority
-        ? PRIORITY_PRODUCT_LABELS[productIdentity as (typeof PRIORITY_PRODUCT_IDENTITIES)[number]]
+      label: FALLBACK_PRIORITY_PRODUCT_IDENTITIES.includes(fallbackIdentity)
+        ? FALLBACK_PRIORITY_PRODUCT_LABELS[fallbackIdentity]
         : evidence[0].label,
       current_stage: currentStage,
       stages,
@@ -280,13 +350,16 @@ function productCoverage(receipts: SocialTopicSourceProjection[]): ProductLifecy
       gaps: [],
       historical_gaps: historicalGaps,
       priority,
+      priority_order: priority ? priorityConfig?.order ?? null : null,
+      priority_source: priority ? priorityConfig?.source ?? null : null,
     }
   })
-  for (const productIdentity of PRIORITY_PRODUCT_IDENTITIES) {
+  for (const productIdentity of FALLBACK_PRIORITY_PRODUCT_IDENTITIES) {
+    if (recurringPriority.get(productIdentity)?.source !== 'fallback_seed') continue
     if (byProduct.has(productIdentity)) continue
     products.push({
       product_identity: productIdentity,
-      label: PRIORITY_PRODUCT_LABELS[productIdentity],
+      label: FALLBACK_PRIORITY_PRODUCT_LABELS[productIdentity],
       current_stage: null,
       stages: [],
       receipt_count: 0,
@@ -295,15 +368,17 @@ function productCoverage(receipts: SocialTopicSourceProjection[]): ProductLifecy
       gaps: ['No approved privacy-safe source receipt'],
       historical_gaps: [],
       priority: true,
+      priority_order: recurringPriority.get(productIdentity)?.order ?? null,
+      priority_source: 'fallback_seed',
     })
   }
   return products.sort((a, b) => {
-    const aPriority = PRIORITY_PRODUCT_IDENTITIES.indexOf(a.product_identity as (typeof PRIORITY_PRODUCT_IDENTITIES)[number])
-    const bPriority = PRIORITY_PRODUCT_IDENTITIES.indexOf(b.product_identity as (typeof PRIORITY_PRODUCT_IDENTITIES)[number])
-    if (aPriority >= 0 || bPriority >= 0) {
-      if (aPriority < 0) return 1
-      if (bPriority < 0) return -1
-      return aPriority - bPriority
+    if (a.priority || b.priority) {
+      if (!a.priority) return 1
+      if (!b.priority) return -1
+      const orderDifference = (a.priority_order ?? Number.MAX_SAFE_INTEGER) - (b.priority_order ?? Number.MAX_SAFE_INTEGER)
+      if (orderDifference !== 0) return orderDifference
+      return a.label.localeCompare(b.label)
     }
     return (b.latest_evidence_at ?? '').localeCompare(a.latest_evidence_at ?? '')
   })

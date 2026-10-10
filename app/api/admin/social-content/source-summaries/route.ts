@@ -41,6 +41,11 @@ export async function POST(request: NextRequest) {
   const productIdentity = text(body.product_identity)
   const privacy = text(body.privacy_classification) as SocialTopicReceiptPrivacy
   const lifecycle = text(body.lifecycle_stage) as SocialTopicLifecycleStage
+  const requestedPriority = asRecord(body.recurring_priority)
+  const hasPriorityDecision = typeof requestedPriority.enabled === 'boolean'
+  if (hasPriorityDecision && requestedPriority.approval_status !== 'approved') {
+    return NextResponse.json({ error: 'Recurring-priority changes require explicit approved metadata.' }, { status: 400 })
+  }
 
   if (
     !SOURCE_TYPES.has(sourceKind)
@@ -63,6 +68,14 @@ export async function POST(request: NextRequest) {
   }
 
   const approvedAt = new Date().toISOString()
+  const priorityOrder = Number(requestedPriority.order)
+  const recurringPriority = hasPriorityDecision ? {
+    approval_status: 'approved',
+    enabled: requestedPriority.enabled,
+    order: Number.isFinite(priorityOrder) && priorityOrder > 0 ? priorityOrder : Number.MAX_SAFE_INTEGER,
+    approved_at: approvedAt,
+    approved_by: auth.user.id,
+  } : null
   const sourceGroup = sourceKind === 'meeting_summary'
     ? 'meeting_summaries'
     : sourceKind === 'owned_media_summary'
@@ -91,6 +104,7 @@ export async function POST(request: NextRequest) {
             approved_at: approvedAt,
             approved_by: auth.user.id,
             raw_content_included: false,
+            recurring_priority: recurringPriority,
           },
         },
       }).eq('id', sourceId)
@@ -119,6 +133,7 @@ export async function POST(request: NextRequest) {
             approved_at: approvedAt,
             approved_by: auth.user.id,
             raw_content_included: false,
+            recurring_priority: recurringPriority,
           },
         },
       }).eq('id', sourceId).eq('status', 'approved')
@@ -141,6 +156,7 @@ export async function POST(request: NextRequest) {
       metadata: {
         approval_reference: text(body.approval_reference) || null,
         producer: 'social_content_approved_summary',
+        recurring_priority: recurringPriority,
       },
     })
     await persistApprovedSourceProjections([projection])

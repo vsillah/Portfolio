@@ -17,7 +17,7 @@ import {
 import { getCurrentSession } from '@/lib/auth'
 import type { ProductLifecycleCoverage, SocialTopicLiveCoverage } from '@/lib/social-topic-source-coverage'
 
-const PRIORITY_PRODUCTS = ['dark_castle_chess', 'accelerated', 'agentified']
+const PRIORITY_PAGE_SIZE = 3
 const DIRECTORY_PAGE_SIZE = 5
 
 function formatDate(value: string | null) {
@@ -53,6 +53,8 @@ export default function SocialSourceCoverageEvidence({ active }: { active: boole
   const [coverage, setCoverage] = useState<SocialTopicLiveCoverage | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [priorityQuery, setPriorityQuery] = useState('')
+  const [priorityPage, setPriorityPage] = useState(0)
   const [directoryQuery, setDirectoryQuery] = useState('')
   const [directoryPage, setDirectoryPage] = useState(0)
 
@@ -86,17 +88,22 @@ export default function SocialSourceCoverageEvidence({ active }: { active: boole
     products: coverage?.products.filter((product) => product.receipt_count > 0).length ?? 0,
     gaps: coverage?.gaps.length ?? 0,
   }), [coverage])
-  const priorityProducts = useMemo(() => coverage?.products
-    .filter((product) => PRIORITY_PRODUCTS.includes(product.product_identity))
-    .sort((a, b) => PRIORITY_PRODUCTS.indexOf(a.product_identity) - PRIORITY_PRODUCTS.indexOf(b.product_identity)) ?? [], [coverage])
+  const priorityProducts = useMemo(() => {
+    const query = priorityQuery.trim().toLowerCase()
+    return coverage?.products.filter((product) => product.priority)
+      .filter((product) => !query || product.label.toLowerCase().includes(query) || product.product_identity.toLowerCase().includes(query)) ?? []
+  }, [coverage, priorityQuery])
+  const priorityPages = Math.max(1, Math.ceil(priorityProducts.length / PRIORITY_PAGE_SIZE))
+  const visiblePriorityProducts = priorityProducts.slice(priorityPage * PRIORITY_PAGE_SIZE, (priorityPage + 1) * PRIORITY_PAGE_SIZE)
   const directoryProducts = useMemo(() => {
     const query = directoryQuery.trim().toLowerCase()
-    return coverage?.products.filter((product) => !PRIORITY_PRODUCTS.includes(product.product_identity))
+    return coverage?.products.filter((product) => !product.priority)
       .filter((product) => !query || product.label.toLowerCase().includes(query) || product.product_identity.toLowerCase().includes(query)) ?? []
   }, [coverage, directoryQuery])
   const directoryPages = Math.max(1, Math.ceil(directoryProducts.length / DIRECTORY_PAGE_SIZE))
   const visibleDirectoryProducts = directoryProducts.slice(directoryPage * DIRECTORY_PAGE_SIZE, (directoryPage + 1) * DIRECTORY_PAGE_SIZE)
 
+  useEffect(() => { setPriorityPage(0) }, [priorityQuery])
   useEffect(() => { setDirectoryPage(0) }, [directoryQuery])
   const awaitingInitialRead = active && !coverage && !error
 
@@ -143,8 +150,23 @@ export default function SocialSourceCoverageEvidence({ active }: { active: boole
             <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-sm text-amber-100">No product is eligible. Approve a privacy-safe summary with provenance before Shaka creates a candidate.</div>
           ) : (
             <div className="space-y-3">
-              <div className="text-xs font-semibold uppercase tracking-[0.13em] text-muted-foreground">Priority recurring products</div>
-              <div className="space-y-2" data-testid="priority-coverage-list">{priorityProducts.map((product) => <ProductEvidenceRow key={product.product_identity} product={product} />)}</div>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="text-xs font-semibold uppercase tracking-[0.13em] text-muted-foreground">Priority recurring products</div>
+                <span className="text-xs text-muted-foreground">{priorityProducts.length} visible · {coverage.products.filter((product) => product.priority).length} recurring · 3 per page</span>
+              </div>
+              <label className="relative block">
+                <span className="sr-only">Search recurring priority products</span>
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <input value={priorityQuery} onChange={(event) => setPriorityQuery(event.target.value)} placeholder="Search recurring priorities" className="admin-console-input min-h-10 w-full pl-9" />
+              </label>
+              <div className="space-y-2" data-testid="priority-coverage-list">
+                {visiblePriorityProducts.length > 0 ? visiblePriorityProducts.map((product) => <ProductEvidenceRow key={product.product_identity} product={product} />) : <div className="rounded-lg border border-dashed border-silicon-slate p-4 text-sm text-muted-foreground">No matching recurring priorities.</div>}
+              </div>
+              <div className="flex items-center justify-between gap-3 text-xs text-muted-foreground">
+                <button type="button" className="admin-console-button-secondary min-h-9 px-3" disabled={priorityPage === 0} onClick={() => setPriorityPage((page) => Math.max(0, page - 1))}>Previous priorities</button>
+                <span>Priority page {priorityPage + 1} of {priorityPages}</span>
+                <button type="button" className="admin-console-button-secondary min-h-9 px-3" disabled={priorityPage + 1 >= priorityPages} onClick={() => setPriorityPage((page) => Math.min(priorityPages - 1, page + 1))}>Next priorities</button>
+              </div>
 
               <details className="group rounded-lg border border-silicon-slate bg-imperial-navy/20">
                 <summary className="flex cursor-pointer list-none items-center gap-3 p-3">

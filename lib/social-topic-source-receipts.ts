@@ -55,6 +55,8 @@ export function sanitizeApprovedSourceSummary(value: unknown) {
 }
 
 export function stableProductIdentity(...values: unknown[]) {
+  const explicitIdentity = compact(values[0], 80).toLowerCase()
+  if (/^[a-z0-9]+(?:_[a-z0-9]+)*$/.test(explicitIdentity)) return explicitIdentity
   const text = values.map((value) => compact(value, 240)).filter(Boolean).join(' ')
   for (const [pattern, identity] of PRODUCT_ALIASES) {
     if (pattern.test(text)) return identity
