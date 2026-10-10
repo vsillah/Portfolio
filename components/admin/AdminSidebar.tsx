@@ -68,10 +68,10 @@ const ITEM_ICON_SIZE = 16
 
 function navItemClass(active: boolean, depth: 'root' | 'item' | 'child' = 'item') {
   const depthPadding = depth === 'root' ? 'px-3' : depth === 'child' ? 'pl-7 pr-3' : 'pl-4 pr-3'
-  return `group flex items-center gap-2 rounded-lg ${depthPadding} py-2 text-sm transition-colors ${
+  return `group flex items-center gap-2 rounded-lg ${depthPadding} py-2 text-sm transition-colors aria-disabled:pointer-events-none aria-disabled:opacity-45 ${
     active
-      ? 'border border-radiant-gold/35 bg-radiant-gold/15 text-radiant-gold shadow-[0_0_22px_rgba(212,175,55,0.08)]'
-      : 'border border-transparent text-foreground/85 hover:border-radiant-gold/20 hover:bg-radiant-gold/10 hover:text-foreground'
+      ? 'border border-radiant-gold/45 bg-radiant-gold/15 text-bronze shadow-[0_0_22px_rgba(212,175,55,0.08)] dark:border-radiant-gold/35 dark:text-radiant-gold'
+      : 'border border-transparent text-foreground/80 hover:border-radiant-gold/30 hover:bg-radiant-gold/10 hover:text-foreground focus-visible:border-radiant-gold/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-radiant-gold/60'
   }`
 }
 
@@ -151,7 +151,7 @@ function NavItemIcon({ href, active = false }: { href: string; active?: boolean 
     <Icon
       size={ITEM_ICON_SIZE}
       className={`shrink-0 transition-colors ${
-        active ? 'text-radiant-gold' : 'text-muted-foreground group-hover:text-radiant-gold/80'
+        active ? 'text-bronze dark:text-radiant-gold' : 'text-muted-foreground group-hover:text-bronze dark:group-hover:text-radiant-gold/80'
       }`}
     />
   )
@@ -194,8 +194,9 @@ export default function AdminSidebar({ showHeader = true }: { showHeader?: boole
 
   return (
     <nav
-      className="flex h-full min-w-[264px] flex-col border-r border-radiant-gold/10 bg-[linear-gradient(180deg,rgba(18,30,49,0.97)_0%,rgba(15,26,43,0.98)_100%)] text-foreground shadow-[8px_0_32px_rgba(0,0,0,0.18)]"
+      className="flex h-full min-w-[264px] flex-col border-r border-border bg-card/95 text-card-foreground shadow-[8px_0_32px_rgba(18,30,49,0.08)] backdrop-blur dark:shadow-[8px_0_32px_rgba(0,0,0,0.18)]"
       aria-label="Admin navigation"
+      data-testid="admin-sidebar"
     >
       <a
         href="#admin-main"
@@ -204,8 +205,8 @@ export default function AdminSidebar({ showHeader = true }: { showHeader?: boole
         Skip to main content
       </a>
       {showHeader && (
-        <div className="border-b border-radiant-gold/10 px-4 py-4">
-          <div className="mb-1 block text-[11px] font-bold uppercase tracking-[0.16em] text-radiant-gold">
+        <div className="border-b border-border px-4 py-4" data-testid="admin-sidebar-header">
+          <div className="mb-1 block text-[11px] font-bold uppercase tracking-[0.16em] text-bronze dark:text-radiant-gold">
             Admin
           </div>
           <div className="text-lg font-semibold text-foreground">Command Center</div>
@@ -221,7 +222,7 @@ export default function AdminSidebar({ showHeader = true }: { showHeader?: boole
           <LayoutDashboard
             size={18}
             className={`shrink-0 ${
-              pathname === ADMIN_NAV.dashboard.href ? 'text-radiant-gold' : 'text-muted-foreground'
+              pathname === ADMIN_NAV.dashboard.href ? 'text-bronze dark:text-radiant-gold' : 'text-muted-foreground'
             }`}
           />
           {ADMIN_NAV.dashboard.label}
@@ -242,23 +243,23 @@ export default function AdminSidebar({ showHeader = true }: { showHeader?: boole
                     [cat.label]: !categoryExpanded,
                   }))
                 }
-                className={`group flex min-h-8 items-center justify-between rounded-lg border px-2 py-1.5 text-left text-[11px] font-semibold uppercase tracking-[0.18em] transition-colors ${
+                className={`group flex min-h-8 items-center justify-between rounded-lg border px-2 py-1.5 text-left text-[11px] font-semibold uppercase tracking-[0.18em] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-radiant-gold/60 disabled:pointer-events-none disabled:opacity-45 ${
                   categoryActive
-                    ? 'border-radiant-gold/25 bg-radiant-gold/10 text-radiant-gold'
-                    : 'border-transparent text-muted-foreground/78 hover:border-radiant-gold/20 hover:bg-radiant-gold/10 hover:text-foreground'
+                    ? 'border-radiant-gold/35 bg-radiant-gold/10 text-bronze dark:border-radiant-gold/25 dark:text-radiant-gold'
+                    : 'border-transparent text-muted-foreground hover:border-radiant-gold/30 hover:bg-radiant-gold/10 hover:text-foreground'
                 }`}
                 aria-expanded={categoryExpanded}
                 aria-controls={categoryId}
               >
                 <span>{cat.label}</span>
                 <span className="flex items-center gap-1.5">
-                  <span className="rounded-full border border-radiant-gold/15 px-1.5 py-0.5 text-[10px] tracking-normal text-muted-foreground/75">
+                  <span className="rounded-full border border-border bg-muted/55 px-1.5 py-0.5 text-[10px] tracking-normal text-muted-foreground">
                     {cat.items.length + (cat.children?.length ?? 0)}
                   </span>
                   {categoryExpanded ? (
-                    <ChevronDown size={14} className="text-muted-foreground group-hover:text-radiant-gold" />
+                    <ChevronDown size={14} className="text-muted-foreground group-hover:text-bronze dark:group-hover:text-radiant-gold" />
                   ) : (
-                    <ChevronRight size={14} className="text-muted-foreground group-hover:text-radiant-gold" />
+                    <ChevronRight size={14} className="text-muted-foreground group-hover:text-bronze dark:group-hover:text-radiant-gold" />
                   )}
                 </span>
               </button>
@@ -287,12 +288,12 @@ export default function AdminSidebar({ showHeader = true }: { showHeader?: boole
                                   {expanded ? (
                                     <ChevronDown
                                       size={ITEM_ICON_SIZE}
-                                      className={`shrink-0 ${active ? 'text-radiant-gold' : ''}`}
+                                      className={`shrink-0 ${active ? 'text-bronze dark:text-radiant-gold' : ''}`}
                                     />
                                   ) : (
                                     <ChevronRight
                                       size={ITEM_ICON_SIZE}
-                                      className={`shrink-0 ${active ? 'text-radiant-gold' : ''}`}
+                                      className={`shrink-0 ${active ? 'text-bronze dark:text-radiant-gold' : ''}`}
                                     />
                                   )}
                                   <NavItemIcon href={item.href} active={active} />
@@ -300,7 +301,7 @@ export default function AdminSidebar({ showHeader = true }: { showHeader?: boole
                                 </button>
                                 <div
                                   id={childrenId}
-                                  className="mt-1 flex flex-col gap-0.5 overflow-hidden border-l border-radiant-gold/10 pl-2"
+                                  className="mt-1 flex flex-col gap-0.5 overflow-hidden border-l border-border pl-2"
                                   hidden={!expanded}
                                 >
                                   {expanded &&

@@ -78,14 +78,44 @@ const session = { access_token: 'privacy-safe-qa-token', refresh_token: 'privacy
     await expect(page.getByText(/Branches prove development; previews do not prove production/i)).toBeVisible()
 
     await page.evaluate((nextTheme) => {
-      const adminMain = document.querySelector('#admin-main')
-      const adminRoot = adminMain?.parentElement?.parentElement
       localStorage.setItem('theme', nextTheme)
       document.documentElement.classList.toggle('dark', nextTheme === 'dark')
-      adminRoot?.classList.toggle('dark', nextTheme === 'dark')
-      adminRoot?.setAttribute('data-qa-theme', nextTheme)
+      document.documentElement.setAttribute('data-qa-theme', nextTheme)
     }, theme)
     await page.waitForTimeout(900)
+
+    const inspectSemanticSurface = async (locator, label) => {
+      const metric = await locator.evaluate((element) => {
+        const rgbLuma = (value) => {
+          const values = value.match(/[\d.]+/g)?.slice(0, 3).map(Number) ?? [0, 0, 0]
+          return Math.round((values[0] * 0.2126) + (values[1] * 0.7152) + (values[2] * 0.0722))
+        }
+        const style = getComputedStyle(element)
+        return {
+          background: style.backgroundColor,
+          background_luma: rgbLuma(style.backgroundColor),
+          text: style.color,
+          text_luma: rgbLuma(style.color),
+        }
+      })
+      if (theme === 'dark') {
+        assert.ok(metric.background_luma < 120, `${theme} ${width}px ${label} is too bright: ${metric.background}`)
+        assert.ok(metric.text_luma > 150, `${theme} ${width}px ${label} text lacks contrast: ${metric.text}`)
+      } else {
+        assert.ok(metric.background_luma > 180, `${theme} ${width}px ${label} is too dark: ${metric.background}`)
+        assert.ok(metric.text_luma < 120, `${theme} ${width}px ${label} text lacks contrast: ${metric.text}`)
+      }
+      return metric
+    }
+
+    const adminLayout = page.getByTestId('admin-layout')
+    await expect(adminLayout).not.toHaveClass(/\bdark\b/)
+    let navigationMetric
+    if (width >= 1024) {
+      const rail = page.getByTestId('admin-sidebar')
+      await expect(rail).toBeVisible()
+      navigationMetric = await inspectSemanticSurface(rail, 'desktop navigation rail')
+    }
 
     const coverage = page.locator('section[aria-labelledby="source-coverage-heading"]')
     await coverage.scrollIntoViewIfNeeded()
@@ -133,26 +163,7 @@ const session = { access_token: 'privacy-safe-qa-token', refresh_token: 'privacy
 
     const workflowSurfaceMetrics = {}
     const inspectSurface = async (workflow, testId) => {
-      const metric = await page.getByTestId(testId).evaluate((element) => {
-        const rgbLuma = (value) => {
-          const values = value.match(/[\d.]+/g)?.slice(0, 3).map(Number) ?? [0, 0, 0]
-          return Math.round((values[0] * 0.2126) + (values[1] * 0.7152) + (values[2] * 0.0722))
-        }
-        const style = getComputedStyle(element)
-        return {
-          background: style.backgroundColor,
-          background_luma: rgbLuma(style.backgroundColor),
-          text: style.color,
-          text_luma: rgbLuma(style.color),
-        }
-      })
-      if (theme === 'dark') {
-        assert.ok(metric.background_luma < 120, `${theme} ${width}px ${workflow} surface is too bright: ${metric.background}`)
-        assert.ok(metric.text_luma > 150, `${theme} ${width}px ${workflow} text lacks contrast: ${metric.text}`)
-      } else {
-        assert.ok(metric.background_luma > 180, `${theme} ${width}px ${workflow} surface is too dark: ${metric.background}`)
-        assert.ok(metric.text_luma < 120, `${theme} ${width}px ${workflow} text lacks contrast: ${metric.text}`)
-      }
+      const metric = await inspectSemanticSurface(page.getByTestId(testId), `${workflow} surface`)
       workflowSurfaceMetrics[workflow] = metric
     }
 
@@ -182,6 +193,18 @@ const session = { access_token: 'privacy-safe-qa-token', refresh_token: 'privacy
     await page.screenshot({ path: path.join(outputDir, `${width}-${theme}-create-content.png`), fullPage: true })
     await page.waitForTimeout(700)
 
+    if (width < 1024) {
+      await page.getByRole('button', { name: 'Open admin menu' }).click()
+      const drawer = page.getByTestId('admin-mobile-drawer')
+      await expect(drawer).toBeVisible()
+      navigationMetric = await inspectSemanticSurface(drawer, 'mobile navigation drawer')
+      await expect(drawer.getByRole('link', { name: 'Social Content' })).toHaveAttribute('aria-current', 'page')
+      await page.screenshot({ path: path.join(outputDir, `${width}-${theme}-navigation-drawer.png`), fullPage: true })
+      await page.waitForTimeout(700)
+      await page.getByRole('button', { name: 'Close menu' }).click()
+      await expect(drawer).toBeHidden()
+    }
+
     const legacyThemeClasses = await page.getByTestId('social-content-page').evaluate((root) => {
       const pattern = /(?:bg-imperial-navy|border-silicon-slate|bg-gray-(?:700|800|900)|text-gray-(?:100|200|300|400|500|600))/
       return Array.from(root.querySelectorAll('[class]'))
@@ -193,6 +216,25 @@ const session = { access_token: 'privacy-safe-qa-token', refresh_token: 'privacy
     assert.equal(mutations.length, 0, `${theme} ${width}px QA made a mutation: ${mutations.join(', ')}`)
     assert.equal(providerCalls.length, 0, `${theme} ${width}px QA called a provider: ${providerCalls.join(', ')}`)
     assert.equal(pageErrors.length, 0, `${theme} ${width}px QA emitted a page error: ${pageErrors.join(', ')}`)
+
+    const representativeRoutes = ['/admin', '/admin/agents']
+    for (const adminRoute of representativeRoutes) {
+      await page.goto(`${base}${adminRoute}`, { waitUntil: 'domcontentloaded' })
+      await expect(page.getByTestId('admin-layout')).not.toHaveClass(/\bdark\b/)
+      if (width >= 1024) {
+        await expect(page.getByTestId('admin-sidebar')).toBeVisible()
+        await inspectSemanticSurface(page.getByTestId('admin-sidebar'), `${adminRoute} navigation rail`)
+      } else {
+        await page.getByRole('button', { name: 'Open admin menu' }).click()
+        await expect(page.getByTestId('admin-mobile-drawer')).toBeVisible()
+        await inspectSemanticSurface(page.getByTestId('admin-mobile-drawer'), `${adminRoute} navigation drawer`)
+        await page.getByRole('button', { name: 'Close menu' }).click()
+      }
+    }
+    assert.equal(mutations.length, 0, `${theme} ${width}px representative route smoke made a mutation: ${mutations.join(', ')}`)
+    assert.equal(providerCalls.length, 0, `${theme} ${width}px representative route smoke called a provider: ${providerCalls.join(', ')}`)
+    assert.equal(pageErrors.length, 0, `${theme} ${width}px representative route smoke emitted a page error: ${pageErrors.join(', ')}`)
+
     results.push({
       width,
       theme,
@@ -209,6 +251,8 @@ const session = { access_token: 'privacy-safe-qa-token', refresh_token: 'privacy
       page_errors: [],
       horizontal_overflow: false,
       theme_metrics: themeMetrics,
+      navigation_surface: navigationMetric,
+      representative_admin_routes: representativeRoutes,
       workflow_surfaces: workflowSurfaceMetrics,
       workflow_modes_checked: ['evidence', 'review', 'create'],
     })
