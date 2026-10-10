@@ -1,32 +1,89 @@
 [
   {
     "width": 390,
-    "route": "http://127.0.0.1:4032/admin/social-content/video-review-qa?step=copy&qa=topic-source-coverage",
-    "ready": true,
-    "blocked": true,
+    "route": "https://portfolio-git-codex-campaign-source-coverage-vsillahs-projects.vercel.app/admin/social-content/topic-source-coverage-qa?step=copy&qa=topic-source-coverage",
+    "source": "deployed_preview_fixture",
+    "fixture_responses": [
+      "blocked",
+      "ready"
+    ],
+    "product_coverage": [
+      "dark_castle_chess",
+      "accelerated",
+      "agentified"
+    ],
+    "source_collection_states": [
+      "ready",
+      "blocked"
+    ],
+    "read_only_controls": [
+      "save_draft",
+      "approve_copy",
+      "reject",
+      "use_topic"
+    ],
+    "live_backlog_requests": 0,
+    "provider_calls": 0,
     "external_requests": 0,
-    "production_mutations": 0,
-    "page_errors": 0,
-    "video": "docs/social-content/qa/topic-source-coverage/390-walkthrough.mp4"
+    "mutations": 0,
+    "page_errors": []
   },
   {
     "width": 768,
-    "route": "http://127.0.0.1:4032/admin/social-content/video-review-qa?step=copy&qa=topic-source-coverage",
-    "ready": true,
-    "blocked": true,
+    "route": "https://portfolio-git-codex-campaign-source-coverage-vsillahs-projects.vercel.app/admin/social-content/topic-source-coverage-qa?step=copy&qa=topic-source-coverage",
+    "source": "deployed_preview_fixture",
+    "fixture_responses": [
+      "blocked",
+      "ready"
+    ],
+    "product_coverage": [
+      "dark_castle_chess",
+      "accelerated",
+      "agentified"
+    ],
+    "source_collection_states": [
+      "ready",
+      "blocked"
+    ],
+    "read_only_controls": [
+      "save_draft",
+      "approve_copy",
+      "reject",
+      "use_topic"
+    ],
+    "live_backlog_requests": 0,
+    "provider_calls": 0,
     "external_requests": 0,
-    "production_mutations": 0,
-    "page_errors": 0,
-    "video": "docs/social-content/qa/topic-source-coverage/768-walkthrough.mp4"
+    "mutations": 0,
+    "page_errors": []
   },
   {
     "width": 1440,
-    "route": "http://127.0.0.1:4032/admin/social-content/video-review-qa?step=copy&qa=topic-source-coverage",
-    "ready": true,
-    "blocked": true,
+    "route": "https://portfolio-git-codex-campaign-source-coverage-vsillahs-projects.vercel.app/admin/social-content/topic-source-coverage-qa?step=copy&qa=topic-source-coverage",
+    "source": "deployed_preview_fixture",
+    "fixture_responses": [
+      "blocked",
+      "ready"
+    ],
+    "product_coverage": [
+      "dark_castle_chess",
+      "accelerated",
+      "agentified"
+    ],
+    "source_collection_states": [
+      "ready",
+      "blocked"
+    ],
+    "read_only_controls": [
+      "save_draft",
+      "approve_copy",
+      "reject",
+      "use_topic"
+    ],
+    "live_backlog_requests": 0,
+    "provider_calls": 0,
     "external_requests": 0,
-    "production_mutations": 0,
-    "page_errors": 0,
-    "video": "docs/social-content/qa/topic-source-coverage/1440-walkthrough.mp4"
+    "mutations": 0,
+    "page_errors": []
   }
 ]
