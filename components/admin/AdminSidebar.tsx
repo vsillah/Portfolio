@@ -194,7 +194,7 @@ export default function AdminSidebar({ showHeader = true }: { showHeader?: boole
 
   return (
     <nav
-      className="flex h-full min-w-[264px] flex-col border-r border-border bg-card/95 text-card-foreground shadow-[8px_0_32px_rgba(18,30,49,0.08)] backdrop-blur dark:shadow-[8px_0_32px_rgba(0,0,0,0.18)]"
+      className="flex h-full min-w-[264px] flex-col border-r border-border bg-card text-card-foreground shadow-[8px_0_32px_rgba(18,30,49,0.08)] dark:shadow-[8px_0_32px_rgba(0,0,0,0.18)]"
       aria-label="Admin navigation"
       data-testid="admin-sidebar"
     >
@@ -253,7 +253,7 @@ export default function AdminSidebar({ showHeader = true }: { showHeader?: boole
               >
                 <span>{cat.label}</span>
                 <span className="flex items-center gap-1.5">
-                  <span className="rounded-full border border-border bg-muted/55 px-1.5 py-0.5 text-[10px] tracking-normal text-muted-foreground">
+                  <span className="rounded-full border border-border bg-muted px-1.5 py-0.5 text-[10px] tracking-normal text-muted-foreground">
                     {cat.items.length + (cat.children?.length ?? 0)}
                   </span>
                   {categoryExpanded ? (

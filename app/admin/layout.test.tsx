@@ -29,7 +29,7 @@ describe('AdminLayout theme-aware navigation shell', () => {
     const drawer = screen.getByTestId('admin-mobile-drawer')
     expect(drawer).toBeVisible()
     expect(drawer).toHaveClass('bg-card', 'text-card-foreground', 'border-border', 'translate-x-0')
-    expect(screen.getByTestId('admin-mobile-drawer-header')).toHaveClass('bg-card/95', 'border-border')
+    expect(screen.getByTestId('admin-mobile-drawer-header')).toHaveClass('bg-card', 'border-border')
     expect(screen.getAllByRole('link', { name: 'Social Content' }).at(-1)).toHaveAttribute('aria-current', 'page')
 
     fireEvent.click(screen.getByRole('button', { name: 'Close menu' }))

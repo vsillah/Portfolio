@@ -91,7 +91,7 @@ export default function AdminLayout({
         hidden={!drawerOpen}
         data-testid="admin-mobile-drawer"
       >
-        <div className="flex items-center justify-between border-b border-border bg-card/95 p-4" data-testid="admin-mobile-drawer-header">
+        <div className="flex items-center justify-between border-b border-border bg-card p-4" data-testid="admin-mobile-drawer-header">
           <div>
             <div className="mb-0.5 block text-[11px] font-bold uppercase tracking-[0.16em] text-bronze dark:text-radiant-gold">
               Admin

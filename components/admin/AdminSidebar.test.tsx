@@ -94,14 +94,14 @@ describe('AdminSidebar Agent Ops hierarchy', () => {
     const activeSection = within(nav).getByRole('button', { name: /Pipeline/i })
     const inactiveLink = within(nav).getByRole('link', { name: 'Dashboard' })
 
-    expect(nav).toHaveClass('bg-card/95', 'text-card-foreground', 'border-border')
+    expect(nav).toHaveClass('bg-card', 'text-card-foreground', 'border-border')
     expect(nav.className).not.toContain('linear-gradient')
     expect(screen.getByTestId('admin-sidebar-header')).toHaveClass('border-border')
     expect(activeLink).toHaveAttribute('aria-current', 'page')
     expect(activeLink).toHaveClass('text-bronze', 'dark:text-radiant-gold')
     expect(activeSection).toHaveAttribute('aria-expanded', 'true')
     expect(activeSection).toHaveClass('text-bronze', 'dark:text-radiant-gold')
-    expect(within(activeSection).getByText('4')).toHaveClass('bg-muted/55', 'border-border')
+    expect(within(activeSection).getByText('4')).toHaveClass('bg-muted', 'border-border')
     expect(inactiveLink).toHaveClass(
       'hover:bg-radiant-gold/10',
       'focus-visible:ring-radiant-gold/60',

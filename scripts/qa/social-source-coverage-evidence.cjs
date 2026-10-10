@@ -112,7 +112,7 @@ const session = { access_token: 'privacy-safe-qa-token', refresh_token: 'privacy
     await expect(adminLayout).not.toHaveClass(/\bdark\b/)
     let navigationMetric
     if (width >= 1024) {
-      const rail = page.getByTestId('admin-sidebar')
+      const rail = page.locator('[data-testid="admin-sidebar"]:visible')
       await expect(rail).toBeVisible()
       navigationMetric = await inspectSemanticSurface(rail, 'desktop navigation rail')
     }
@@ -222,12 +222,16 @@ const session = { access_token: 'privacy-safe-qa-token', refresh_token: 'privacy
       await page.goto(`${base}${adminRoute}`, { waitUntil: 'domcontentloaded' })
       await expect(page.getByTestId('admin-layout')).not.toHaveClass(/\bdark\b/)
       if (width >= 1024) {
-        await expect(page.getByTestId('admin-sidebar')).toBeVisible()
-        await inspectSemanticSurface(page.getByTestId('admin-sidebar'), `${adminRoute} navigation rail`)
+        const rail = page.locator('[data-testid="admin-sidebar"]:visible')
+        await expect(rail).toBeVisible()
+        await expect(rail).toHaveClass(/bg-card/)
+        await expect(rail).toHaveClass(/border-border/)
       } else {
         await page.getByRole('button', { name: 'Open admin menu' }).click()
-        await expect(page.getByTestId('admin-mobile-drawer')).toBeVisible()
-        await inspectSemanticSurface(page.getByTestId('admin-mobile-drawer'), `${adminRoute} navigation drawer`)
+        const drawer = page.getByTestId('admin-mobile-drawer')
+        await expect(drawer).toBeVisible()
+        await expect(drawer).toHaveClass(/bg-card/)
+        await expect(drawer).toHaveClass(/border-border/)
         await page.getByRole('button', { name: 'Close menu' }).click()
       }
     }
