@@ -16,6 +16,12 @@ const mocks = vi.hoisted(() => ({
   update: vi.fn(),
   backlogUpsert: vi.fn(),
   backlogSelect: vi.fn(),
+  getOpenBrainSnapshot: vi.fn(),
+  ownedMediaLimit: vi.fn(),
+  prototypesLimit: vi.fn(),
+  productsLimit: vi.fn(),
+  publicationsLimit: vi.fn(),
+  servicesLimit: vi.fn(),
 }))
 
 vi.mock('@/lib/auth-server', () => ({
@@ -29,6 +35,10 @@ vi.mock('@/lib/llm-dispatch', () => ({
 
 vi.mock('@/lib/agent-work-items', () => ({
   createAgentWorkItem: mocks.createAgentWorkItem,
+}))
+
+vi.mock('@/lib/open-brain', () => ({
+  getOpenBrainSnapshot: mocks.getOpenBrainSnapshot,
 }))
 
 vi.mock('@/lib/supabase', () => ({
@@ -130,6 +140,19 @@ function limitTable(limitMock: ReturnType<typeof vi.fn>) {
   }
 }
 
+function filteredLimitTable(limitMock: ReturnType<typeof vi.fn>, filter: 'eq' | 'in' = 'eq') {
+  const filtered = {
+    order: vi.fn(() => ({
+      limit: limitMock,
+    })),
+  }
+  return {
+    select: vi.fn(() => ({
+      [filter]: vi.fn(() => filtered),
+    })),
+  }
+}
+
 function socialTopicBacklogTable() {
   return {
     upsert: mocks.backlogUpsert,
@@ -141,6 +164,7 @@ describe('POST /api/admin/social-content/[id]/discover-topic-triggers', () => {
     vi.clearAllMocks()
     mocks.verifyAdmin.mockResolvedValue({ user: { id: 'admin-1' }, isAdmin: true })
     mocks.isAuthError.mockReturnValue(false)
+    mocks.getOpenBrainSnapshot.mockResolvedValue({ proposals: [] })
     mocks.currentSingle.mockResolvedValue({
       data: {
         id: 'social-1',
@@ -163,9 +187,15 @@ describe('POST /api/admin/social-content/[id]/discover-topic-triggers', () => {
           meeting_date: '2026-06-18',
           created_at: '2026-06-18T10:00:00.000Z',
           raw_notes: null,
-          structured_notes: {
+          social_topic_summary: {
+            status: 'approved',
             title: 'Agent Ops review',
-            summary: 'The review exposed that approval gates need clearer ownership. Contact vambah@example.com for details.',
+            summary: 'The review exposed that approval gates need clearer ownership.',
+            privacy_classification: 'client_safe_summary',
+            provenance: 'meeting_records:meeting-1:structured_notes.social_topic_summary',
+            approved_at: '2026-06-19T12:00:00.000Z',
+            approved_by: 'admin-1',
+            product_ids: [],
           },
         },
       ],
@@ -216,6 +246,42 @@ describe('POST /api/admin/social-content/[id]/discover-topic-triggers', () => {
           created_at: '2026-06-17T10:00:00.000Z',
         },
       ],
+      error: null,
+    })
+    mocks.ownedMediaLimit.mockResolvedValue({ data: [], error: null })
+    mocks.prototypesLimit.mockResolvedValue({
+      data: [{
+        id: 'prototype-dcc',
+        name: 'Dark Castle Chess',
+        title: 'Dark Castle Chess',
+        description: 'A public learning-first chess experience with clear review gates.',
+        production_stage: 'Production',
+        updated_at: '2026-06-20T10:00:00.000Z',
+        created_at: '2026-06-01T10:00:00.000Z',
+      }],
+      error: null,
+    })
+    mocks.productsLimit.mockResolvedValue({
+      data: [{
+        id: 'product-agentified',
+        title: 'Agentified',
+        description: 'A public book and workbook about accountable agent systems.',
+        type: 'book',
+        updated_at: '2026-06-20T10:00:00.000Z',
+        created_at: '2026-06-01T10:00:00.000Z',
+      }],
+      error: null,
+    })
+    mocks.publicationsLimit.mockResolvedValue({ data: [], error: null })
+    mocks.servicesLimit.mockResolvedValue({
+      data: [{
+        id: 'service-accelerated',
+        title: 'Accelerated',
+        description: 'A public practical course for building and operating AI systems.',
+        service_type: 'training',
+        updated_at: '2026-06-20T10:00:00.000Z',
+        created_at: '2026-06-01T10:00:00.000Z',
+      }],
       error: null,
     })
     mocks.generateJsonCompletion.mockResolvedValue({
@@ -282,8 +348,11 @@ describe('POST /api/admin/social-content/[id]/discover-topic-triggers', () => {
       if (table === 'social_content_queue') return socialContentTable()
       if (table === 'social_topic_backlog') return socialTopicBacklogTable()
       if (table === 'meeting_records') return limitTable(mocks.meetingsLimit)
-      if (table === 'client_projects') return limitTable(mocks.projectsLimit)
-      if (table === 'agent_runs') return limitTable(mocks.runsLimit)
+      if (table === 'social_content_research_packets') return filteredLimitTable(mocks.ownedMediaLimit)
+      if (table === 'app_prototypes') return filteredLimitTable(mocks.prototypesLimit, 'in')
+      if (table === 'products') return filteredLimitTable(mocks.productsLimit)
+      if (table === 'publications') return filteredLimitTable(mocks.publicationsLimit)
+      if (table === 'services') return filteredLimitTable(mocks.servicesLimit)
       throw new Error(`Unexpected table ${table}`)
     })
   })
@@ -305,18 +374,19 @@ describe('POST /api/admin/social-content/[id]/discover-topic-triggers', () => {
     expect(response.status).toBe(200)
     const body = await response.json()
     expect(body.topic_trigger_packet).toMatchObject({
-      version: 'social_topic_trigger_discovery_v1',
+      version: 'social_topic_trigger_discovery_v2',
       status: 'review_ready',
       source_policy: 'sanitized_summaries_only',
+      coverage_report: expect.objectContaining({ status: 'ready' }),
       privacy_boundary: expect.stringContaining('Review-only topic scouting'),
-      candidates: [
+      candidates: expect.arrayContaining([
         expect.objectContaining({
           id: 'approval-gates-review',
           title: 'Approval gates create trust',
           source_ids: ['meeting:meeting-1'],
-          sensitivity: 'needs_review',
+          sensitivity: 'client_safe_summary',
         }),
-      ],
+      ]),
     })
     expect(mocks.generateJsonCompletion).toHaveBeenCalledWith(expect.objectContaining({
       costContext: expect.objectContaining({
@@ -343,17 +413,17 @@ describe('POST /api/admin/social-content/[id]/discover-topic-triggers', () => {
       source: expect.objectContaining({
         type: 'social_topic_trigger',
       }),
-      idempotencyKey: expect.stringContaining('social-topic-trigger:approval-gates-review'),
+      idempotencyKey: expect.stringMatching(/^social-topic-trigger:topic-[a-f0-9]{40}$/),
     }))
-    expect(mocks.backlogUpsert).toHaveBeenCalledWith([
+    expect(mocks.backlogUpsert).toHaveBeenCalledWith(expect.arrayContaining([
       expect.objectContaining({
         agent_work_item_id: 'work-topic-1',
-        candidate_key: expect.stringContaining('approval-gates-review'),
+        candidate_key: expect.stringMatching(/^topic-[a-f0-9]{40}$/),
         title: 'Approval gates create trust',
         status: 'available',
         source_policy: 'sanitized_summaries_only',
       }),
-    ], { onConflict: 'candidate_key' })
+    ]), { onConflict: 'candidate_key' })
     expect(body.backlog_items).toHaveLength(1)
   })
 
@@ -370,18 +440,18 @@ describe('POST /api/admin/social-content/[id]/discover-topic-triggers', () => {
     expect(response.status).toBe(200)
     const body = await response.json()
     expect(body.topic_trigger_packet).toMatchObject({
-      version: 'social_topic_trigger_discovery_v1',
+      version: 'social_topic_trigger_discovery_v2',
       status: 'review_ready',
     })
-    expect(body.backlog_items).toEqual([
+    expect(body.backlog_items).toEqual(expect.arrayContaining([
       expect.objectContaining({
         id: 'work-topic-1',
         agent_work_item_id: 'work-topic-1',
-        candidate_key: expect.stringContaining('approval-gates-review'),
+        candidate_key: expect.stringMatching(/^topic-[a-f0-9]{40}$/),
         title: 'Approval gates create trust',
         status: 'available',
       }),
-    ])
+    ]))
     expect(body.backlog_warning).toBeNull()
     expect(mocks.update).toHaveBeenCalledWith({
       rag_context: expect.objectContaining({
@@ -391,6 +461,37 @@ describe('POST /api/admin/social-content/[id]/discover-topic-triggers', () => {
         }),
       }),
     })
+  })
+
+  it('fails closed before model use when only raw or unapproved summaries are available', async () => {
+    mocks.meetingsLimit.mockResolvedValueOnce({
+      data: [{
+        id: 'meeting-private',
+        meeting_type: 'Private meeting',
+        meeting_date: '2026-06-18',
+        raw_notes: 'Raw private notes must never enter discovery.',
+        social_topic_summary: { summary: 'A summary exists, but it has no approval receipt.' },
+        created_at: '2026-06-18T10:00:00.000Z',
+      }],
+      error: null,
+    })
+    mocks.prototypesLimit.mockResolvedValueOnce({ data: [], error: null })
+    mocks.productsLimit.mockResolvedValueOnce({ data: [], error: null })
+    mocks.publicationsLimit.mockResolvedValueOnce({ data: [], error: null })
+    mocks.servicesLimit.mockResolvedValueOnce({ data: [], error: null })
+
+    const response = await POST(request(), { params: { id: 'social-1' } })
+
+    expect(response.status).toBe(422)
+    await expect(response.json()).resolves.toMatchObject({
+      error: expect.stringContaining('blocked'),
+      blockers: expect.arrayContaining([
+        expect.stringContaining('approved_source_receipts_missing'),
+        expect.stringContaining('product_coverage_receipt_missing:dark_castle_chess'),
+      ]),
+      coverage_report: expect.objectContaining({ status: 'blocked' }),
+    })
+    expect(mocks.generateJsonCompletion).not.toHaveBeenCalled()
   })
 
   it('rejects non-Agent-Ops social drafts', async () => {

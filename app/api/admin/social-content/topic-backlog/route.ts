@@ -10,7 +10,7 @@ import {
   socialTopicBacklogItemFromWorkItem,
   SOCIAL_TOPIC_TRIGGER_SOURCE_TYPE,
 } from '@/lib/social-content-intelligence'
-import { runSocialTopicBacklogDiscovery } from '@/lib/social-topic-backlog'
+import { runSocialTopicBacklogDiscovery, SocialTopicCoverageError } from '@/lib/social-topic-backlog'
 import { supabaseAdmin } from '@/lib/supabase'
 
 export const dynamic = 'force-dynamic'
@@ -28,6 +28,41 @@ function isMissingBacklogTable(error: unknown) {
     || message.includes('Could not find the table')
     || message.includes('schema cache')
   )
+}
+
+function coverageReportFromItems(items: Array<Record<string, unknown>>) {
+  for (const item of items) {
+    const metadata = item.metadata && typeof item.metadata === 'object' && !Array.isArray(item.metadata)
+      ? item.metadata as Record<string, unknown>
+      : null
+    const report = metadata?.coverage_report
+    if (report && typeof report === 'object' && !Array.isArray(report)) return report
+  }
+  return null
+}
+
+function receiptGateFromMetadata(metadata: unknown) {
+  const record = metadata && typeof metadata === 'object' && !Array.isArray(metadata)
+    ? metadata as Record<string, unknown>
+    : null
+  const receipts = Array.isArray(record?.source_receipts) ? record.source_receipts : []
+  const coverageReport = record?.coverage_report && typeof record.coverage_report === 'object' && !Array.isArray(record.coverage_report)
+    ? record.coverage_report as Record<string, unknown>
+    : null
+  return {
+    ready: receipts.length > 0 && coverageReport?.status === 'ready',
+    blockers: Array.isArray(coverageReport?.blockers)
+      ? coverageReport.blockers
+      : ['Approved source receipts are missing.'],
+  }
+}
+
+function receiptGateResponse(blockers: unknown[]) {
+  return NextResponse.json({
+    error: 'This topic cannot be selected until its approved source receipts and required product coverage report are ready.',
+    next_action: 'Run the scheduled source scan after approving the missing sanitized summaries, then select the refreshed topic.',
+    blockers,
+  }, { status: 409 })
 }
 
 export async function GET(request: NextRequest) {
@@ -53,6 +88,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({
         items: mappedItems,
         source: 'agent_work_items',
+        coverage_report: coverageReportFromItems(mappedItems),
       })
     }
 
@@ -74,7 +110,11 @@ export async function GET(request: NextRequest) {
       throw new Error(error.message)
     }
 
-    return NextResponse.json({ items: data ?? [] })
+    const items = data ?? []
+    return NextResponse.json({
+      items,
+      coverage_report: coverageReportFromItems(items),
+    })
   } catch (error) {
     console.error('[social-topic-backlog] list failed:', error)
     return NextResponse.json(
@@ -100,6 +140,7 @@ export async function POST(request: NextRequest) {
       success: true,
       items: result.backlogItems,
       source_counts: result.sourceCounts,
+      coverage_report: result.coverageReport,
       candidate_count: result.packet.candidates.length,
       side_effects: {
         provider_generation: false,
@@ -110,6 +151,13 @@ export async function POST(request: NextRequest) {
     })
   } catch (error) {
     console.error('[social-topic-backlog] refresh failed:', error)
+    if (error instanceof SocialTopicCoverageError) {
+      return NextResponse.json({
+        error: 'Topic backlog refresh is blocked until the required approved source receipts are available.',
+        blockers: error.coverageReport.blockers,
+        coverage_report: error.coverageReport,
+      }, { status: 422 })
+    }
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Failed to refresh social topic backlog' },
       { status: 500 },
@@ -149,6 +197,10 @@ export async function PATCH(request: NextRequest) {
 
     const workItem = await getAgentWorkItem(body.id)
     if (workItem?.source_type === SOCIAL_TOPIC_TRIGGER_SOURCE_TYPE || workItem?.metadata?.social_topic_trigger === true) {
+      const receiptGate = receiptGateFromMetadata(workItem.metadata)
+      if (!receiptGate.ready) {
+        return receiptGateResponse(receiptGate.blockers)
+      }
       const lanes = normalizeSocialChannelLanes(workItem.metadata?.channel_lanes)
       lanes.linkedin = {
         ...lanes.linkedin,
@@ -171,6 +223,21 @@ export async function PATCH(request: NextRequest) {
         item: socialTopicBacklogItemFromWorkItem(updated),
         source: 'agent_work_items',
       })
+    }
+
+    const { data: projectionItem, error: projectionError } = await supabaseAdmin
+      .from('social_topic_backlog')
+      .select('id, metadata')
+      .eq('id', body.id)
+      .single()
+
+    if (projectionError) {
+      throw new Error(projectionError.message)
+    }
+
+    const projectionGate = receiptGateFromMetadata(projectionItem?.metadata)
+    if (!projectionGate.ready) {
+      return receiptGateResponse(projectionGate.blockers)
     }
 
     const { data, error } = await supabaseAdmin

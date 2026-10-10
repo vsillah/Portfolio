@@ -6,7 +6,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { runSocialTopicBacklogDiscovery } from '@/lib/social-topic-backlog'
+import { runSocialTopicBacklogDiscovery, SocialTopicCoverageError } from '@/lib/social-topic-backlog'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 60
@@ -35,6 +35,7 @@ async function runBacklogRefresh(request: NextRequest) {
       candidate_count: result.packet.candidates.length,
       backlog_item_count: result.backlogItems.length,
       source_counts: result.sourceCounts,
+      coverage_report: result.coverageReport,
       side_effects: {
         provider_generation: false,
         publish: false,
@@ -44,6 +45,13 @@ async function runBacklogRefresh(request: NextRequest) {
     })
   } catch (error) {
     console.error('[social-topic-backlog-cron] failed:', error)
+    if (error instanceof SocialTopicCoverageError) {
+      return NextResponse.json({
+        error: 'Topic backlog refresh is blocked until the required approved source receipts are available.',
+        blockers: error.coverageReport.blockers,
+        coverage_report: error.coverageReport,
+      }, { status: 422 })
+    }
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Social topic backlog refresh failed' },
       { status: 500 },

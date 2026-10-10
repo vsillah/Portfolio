@@ -4,6 +4,7 @@ import {
   discoverSocialTopicCandidates,
   fetchSocialContentTopicContext,
   saveTopicTriggerPacketToSocialContent,
+  SocialTopicCoverageError,
   upsertSocialTopicBacklog,
 } from '@/lib/social-topic-backlog'
 
@@ -60,6 +61,13 @@ export async function POST(
     })
   } catch (error) {
     console.error('[discover-topic-triggers] error:', error)
+    if (error instanceof SocialTopicCoverageError) {
+      return NextResponse.json({
+        error: 'Topic discovery is blocked until the required approved source receipts are available.',
+        blockers: error.coverageReport.blockers,
+        coverage_report: error.coverageReport,
+      }, { status: 422 })
+    }
     const message = error instanceof Error ? error.message : 'Internal server error'
     const status = message.includes('No sanctioned source summaries') ? 409 : message.includes('invalid JSON') || message.includes('usable candidates') ? 502 : 500
     return NextResponse.json({ error: message }, { status })
