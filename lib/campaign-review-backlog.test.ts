@@ -329,6 +329,36 @@ describe('campaign rolling review persistence', () => {
         },
       },
     })
+    expect(db.tables.social_content_queue[0].rag_context).toMatchObject({
+      source: 'social_content_calendar_authorization',
+      source_type: 'social_content_calendar_item',
+      calendar_item_id: 'calendar-0',
+      campaign_id: 'campaign',
+      campaign_phase: 'teach',
+      channel: 'linkedin',
+      publish_gate: 'draft_only',
+      external_execution_enabled: false,
+    })
+  })
+
+  it('restores a legacy calendar draft-only boundary before copy approval', async () => {
+    seed(1)
+    db.tables.social_content_queue[0].rag_context = {}
+
+    const result = await prepareCampaignReviewBatch('campaign', { now })
+
+    expect(result.prepared_count).toBe(1)
+    expect(db.tables.social_content_queue[0].rag_context).toMatchObject({
+      source: 'social_content_calendar_authorization',
+      source_type: 'social_content_calendar_item',
+      calendar_item_id: 'calendar-0',
+      campaign_id: 'campaign',
+      campaign_phase: 'teach',
+      channel: 'linkedin',
+      publish_gate: 'draft_only',
+      external_execution_enabled: false,
+      approval_boundary: expect.stringContaining('does not publish'),
+    })
   })
 
   it('preserves substantive human edits to an incomplete practitioner scaffold', async () => {
