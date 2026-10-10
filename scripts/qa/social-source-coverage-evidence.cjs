@@ -110,11 +110,35 @@ const session = { access_token: 'privacy-safe-qa-token', refresh_token: 'privacy
 
     const adminLayout = page.getByTestId('admin-layout')
     await expect(adminLayout).not.toHaveClass(/\bdark\b/)
+    const expectThemePreference = async (expected) => {
+      await expect.poll(() => page.evaluate(() => localStorage.getItem('theme'))).toBe(expected)
+      if (expected === 'dark') await expect(page.locator('html')).toHaveClass(/\bdark\b/)
+      if (expected === 'light') await expect(page.locator('html')).not.toHaveClass(/\bdark\b/)
+    }
     let navigationMetric
     if (width >= 1024) {
       const rail = page.locator('[data-testid="admin-sidebar"]:visible')
       await expect(rail).toBeVisible()
       navigationMetric = await inspectSemanticSurface(rail, 'desktop navigation rail')
+
+      const desktopThemeControl = page.getByTestId('admin-desktop-theme-control')
+      const trigger = desktopThemeControl.getByRole('button', { name: /Theme:/ })
+      await expect(trigger).toBeVisible()
+      await trigger.focus()
+      await expect(trigger).toBeFocused()
+      const chooseDesktopTheme = async (preference) => {
+        await trigger.click()
+        const dialog = page.getByRole('dialog', { name: 'Theme preferences' })
+        await expect(dialog).toBeVisible()
+        await dialog.getByRole('button', { name: `${preference[0].toUpperCase()}${preference.slice(1)} theme` }).click()
+        await expectThemePreference(preference)
+      }
+      for (const preference of ['light', 'dark', 'system']) await chooseDesktopTheme(preference)
+      await trigger.click()
+      await expect(page.getByRole('dialog', { name: 'Theme preferences' })).toBeVisible()
+      await page.screenshot({ path: path.join(outputDir, `${width}-${theme}-system-theme-menu.png`), fullPage: true })
+      await page.getByRole('dialog', { name: 'Theme preferences' }).getByRole('button', { name: `${theme[0].toUpperCase()}${theme.slice(1)} theme` }).click()
+      await expectThemePreference(theme)
     }
 
     const coverage = page.locator('section[aria-labelledby="source-coverage-heading"]')
@@ -199,6 +223,24 @@ const session = { access_token: 'privacy-safe-qa-token', refresh_token: 'privacy
       await expect(drawer).toBeVisible()
       navigationMetric = await inspectSemanticSurface(drawer, 'mobile navigation drawer')
       await expect(drawer.getByRole('link', { name: 'Social Content' })).toHaveAttribute('aria-current', 'page')
+      const mobileThemeControl = drawer.getByTestId('admin-mobile-theme-control')
+      const lightTheme = mobileThemeControl.getByRole('button', { name: 'Light theme' })
+      const darkTheme = mobileThemeControl.getByRole('button', { name: 'Dark theme' })
+      const systemTheme = mobileThemeControl.getByRole('button', { name: 'System theme' })
+      await expect(lightTheme).toBeVisible()
+      await expect(darkTheme).toBeVisible()
+      await expect(systemTheme).toBeVisible()
+      await lightTheme.focus()
+      await expect(lightTheme).toBeFocused()
+      await lightTheme.click()
+      await expectThemePreference('light')
+      await darkTheme.click()
+      await expectThemePreference('dark')
+      await systemTheme.click()
+      await expectThemePreference('system')
+      await page.screenshot({ path: path.join(outputDir, `${width}-${theme}-system-theme-drawer.png`), fullPage: true })
+      await mobileThemeControl.getByRole('button', { name: `${theme[0].toUpperCase()}${theme.slice(1)} theme` }).click()
+      await expectThemePreference(theme)
       await page.screenshot({ path: path.join(outputDir, `${width}-${theme}-navigation-drawer.png`), fullPage: true })
       await page.waitForTimeout(700)
       await page.getByRole('button', { name: 'Close menu' }).click()
@@ -257,6 +299,8 @@ const session = { access_token: 'privacy-safe-qa-token', refresh_token: 'privacy
       horizontal_overflow: false,
       theme_metrics: themeMetrics,
       navigation_surface: navigationMetric,
+      theme_control_surface: width >= 1024 ? 'desktop_header' : 'mobile_drawer',
+      theme_preferences_checked: ['light', 'dark', 'system'],
       representative_admin_routes: representativeRoutes,
       workflow_surfaces: workflowSurfaceMetrics,
       workflow_modes_checked: ['evidence', 'review', 'create'],

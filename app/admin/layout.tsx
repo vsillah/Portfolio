@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 import { HelpCircle, Menu, X } from 'lucide-react'
 import { useState, useEffect, useRef } from 'react'
 import AdminSidebar from '@/components/admin/AdminSidebar'
+import ThemeToggle, { ThemePreferenceList } from '@/components/ThemeToggle'
 
 export default function AdminLayout({
   children,
@@ -108,6 +109,9 @@ export default function AdminLayout({
           </button>
         </div>
         <div className="h-[calc(100%-73px)] overflow-y-auto">
+          <div className="border-b border-border px-3 py-3" data-testid="admin-mobile-theme-control">
+            <ThemePreferenceList />
+          </div>
           <AdminSidebar showHeader={false} />
         </div>
       </aside>
@@ -124,13 +128,18 @@ export default function AdminLayout({
             <Menu size={22} />
           </button>
           <div className="flex-1 lg:flex-initial" />
-          <Link
-            href="/admin/help"
-            className="flex items-center gap-2 rounded-lg border border-transparent px-2 py-1.5 text-sm text-muted-foreground transition-colors hover:border-radiant-gold/20 hover:bg-radiant-gold/10 hover:text-foreground"
-          >
-            <HelpCircle size={18} />
-            Help
-          </Link>
+          <div className="flex items-center gap-2">
+            <div className="hidden lg:block" data-testid="admin-desktop-theme-control">
+              <ThemeToggle variant="compact" />
+            </div>
+            <Link
+              href="/admin/help"
+              className="flex items-center gap-2 rounded-lg border border-transparent px-2 py-1.5 text-sm text-muted-foreground transition-colors hover:border-radiant-gold/20 hover:bg-radiant-gold/10 hover:text-foreground"
+            >
+              <HelpCircle size={18} />
+              Help
+            </Link>
+          </div>
         </header>
         <main id="admin-main" className="min-h-0 min-w-0 flex-1 overflow-auto">
           {children}
