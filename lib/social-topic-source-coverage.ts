@@ -111,9 +111,9 @@ function freshness(lastSuccess: string | null, now: string): CoverageSourceHealt
   return 'stale'
 }
 
-function sourceSignalProjection(signal: SourceSignal): SocialTopicSourceProjection[] {
+export function sourceSignalProjection(signal: SourceSignal): SocialTopicSourceProjection[] {
   const stage: SocialTopicLifecycleStage = signal.kind === 'app_prototype'
-    ? 'production_deployed'
+    ? signal.lifecycle_stage ?? 'preview_deployed'
     : signal.kind === 'amadutown_product' || signal.kind === 'amadutown_book' || signal.kind === 'amadutown_site_material'
       ? 'publicly_cataloged'
       : 'insight'

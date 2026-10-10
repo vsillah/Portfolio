@@ -33,6 +33,13 @@ describe('SocialSourceCoverageEvidence', () => {
     expect(screen.getByText('Collector freshness, failures, and recovery')).toBeInTheDocument()
   })
 
+  it('shows Reading instead of a false fail-closed state before the first response resolves', () => {
+    vi.stubGlobal('fetch', vi.fn(() => new Promise(() => {})))
+    render(<SocialSourceCoverageEvidence active />)
+    expect(screen.getByText('Reading')).toBeInTheDocument()
+    expect(screen.queryByText('Fail closed')).not.toBeInTheDocument()
+  })
+
   it('fails visibly when the approved read path is unavailable', async () => {
     mocks.getCurrentSession.mockResolvedValue(null)
     render(<SocialSourceCoverageEvidence active />)

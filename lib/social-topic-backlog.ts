@@ -110,6 +110,11 @@ export type SourceSignal = {
   sensitivity: TopicSensitivity
   receipt: SocialTopicSourceReceipt
   product_ids: RequiredSocialTopicProduct[]
+  lifecycle_stage?: 'preview_deployed' | 'production_deployed'
+}
+
+export function prototypeLifecycleStage(value: unknown): NonNullable<SourceSignal['lifecycle_stage']> {
+  return value === 'Production' ? 'production_deployed' : 'preview_deployed'
 }
 
 export type TopicTriggerCandidate = {
@@ -268,6 +273,7 @@ function signalFromApprovedSummary(input: {
   approvedAt: unknown
   approvedBy: unknown
   productIds?: unknown
+  lifecycleStage?: SourceSignal['lifecycle_stage']
 }): SourceSignal | null {
   const summary = sanitizeSummary(input.summary)
   const inferredProducts = inferRequiredProducts(input.label, summary)
@@ -296,6 +302,7 @@ function signalFromApprovedSummary(input: {
     sensitivity: receipt.privacy_classification,
     receipt,
     product_ids: productIds,
+    lifecycle_stage: input.lifecycleStage,
   }
 }
 
@@ -735,6 +742,7 @@ async function fetchAppPrototypeSignals(): Promise<SourceSignal[]> {
       approvedAt: observedAt,
       approvedBy: 'public_catalog_state',
       productIds: inferRequiredProducts(label, summary),
+      lifecycleStage: prototypeLifecycleStage(prototype.production_stage),
     })
   }).filter((signal: SourceSignal | null): signal is SourceSignal => Boolean(signal))
 }

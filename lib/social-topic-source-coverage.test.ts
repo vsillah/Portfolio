@@ -1,9 +1,13 @@
 import { describe, expect, it, vi } from 'vitest'
 
-vi.mock('@/lib/social-topic-backlog', () => ({ collectSocialTopicSignals: vi.fn() }))
+vi.mock('@/lib/social-topic-backlog', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/lib/social-topic-backlog')>()
+  return { ...actual, collectSocialTopicSignals: vi.fn() }
+})
 vi.mock('@/lib/supabase', () => ({ supabaseAdmin: { from: vi.fn() } }))
-import { buildLiveCoverage, workItemCoverageProjections } from './social-topic-source-coverage'
+import { buildLiveCoverage, sourceSignalProjection, workItemCoverageProjections } from './social-topic-source-coverage'
 import { buildApprovedSourceProjection } from './social-topic-source-receipts'
+import { prototypeLifecycleStage, type SourceSignal } from './social-topic-backlog'
 
 const at = '2026-10-10T14:00:00.000Z'
 
@@ -24,6 +28,39 @@ function receipt(stage: 'insight' | 'in_development' | 'preview_deployed' | 'pro
 }
 
 describe('dynamic Social Content source coverage', () => {
+  it.each([
+    ['Pilot', 'preview_deployed'],
+    ['Production', 'production_deployed'],
+  ] as const)('maps an app prototype %s record without overstating its lifecycle', (productionStage, expected) => {
+    const lifecycleStage = prototypeLifecycleStage(productionStage)
+    const signal: SourceSignal = {
+      id: `app_prototype:${productionStage}`,
+      type: 'shipped_feature',
+      kind: 'app_prototype',
+      label: `Prototype ${lifecycleStage}`,
+      summary: 'A public-safe app prototype summary.',
+      date: at,
+      sensitivity: 'public_safe',
+      product_ids: ['dark_castle_chess'],
+      lifecycle_stage: lifecycleStage,
+      receipt: {
+        receipt_id: `receipt-${lifecycleStage}`,
+        source_id: `app_prototype:${productionStage}`,
+        source_kind: 'app_prototype',
+        approval_status: 'approved',
+        approved_at: at,
+        approved_by: 'public_catalog_state',
+        privacy_classification: 'public_safe',
+        provenance: `public_catalog:app_prototypes:${lifecycleStage}`,
+        summary_sha256: 'hash',
+        product_ids: ['dark_castle_chess'],
+        raw_content_included: false,
+      },
+    }
+
+    expect(sourceSignalProjection(signal).map((item) => item.lifecycle_stage)).toEqual([expected])
+  })
+
   it('deduplicates cross-source evidence into one product lifecycle', () => {
     const report = buildLiveCoverage({
       generatedAt: at,

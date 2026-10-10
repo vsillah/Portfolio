@@ -58,6 +58,7 @@ export default function SocialSourceCoverageEvidence({ active }: { active: boole
     products: coverage?.products.length ?? 0,
     gaps: coverage?.gaps.length ?? 0,
   }), [coverage])
+  const awaitingInitialRead = active && !coverage && !error
 
   return (
     <section className="admin-console-card mb-6 rounded-lg border p-4" aria-labelledby="source-coverage-heading">
@@ -71,7 +72,7 @@ export default function SocialSourceCoverageEvidence({ active }: { active: boole
         </div>
         <div className="flex shrink-0 items-center gap-2">
           <span className={`rounded-full border px-2.5 py-1 text-xs font-medium ${coverage?.status === 'ready' ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300' : 'border-amber-500/30 bg-amber-500/10 text-amber-300'}`}>
-            {loading && !coverage ? 'Reading' : coverage?.status === 'ready' ? 'Coverage ready' : 'Fail closed'}
+            {awaitingInitialRead ? 'Reading' : coverage?.status === 'ready' ? 'Coverage ready' : 'Fail closed'}
           </span>
           <button type="button" onClick={() => void loadCoverage()} disabled={loading} className="admin-console-button-secondary min-h-9 px-3 py-1.5 disabled:opacity-60">
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />} Refresh
@@ -79,7 +80,7 @@ export default function SocialSourceCoverageEvidence({ active }: { active: boole
         </div>
       </div>
 
-      {loading && !coverage ? (
+      {awaitingInitialRead ? (
         <div className="mt-4 flex min-h-28 items-center justify-center gap-2 rounded-lg border border-silicon-slate bg-imperial-navy/35 text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" /> Reading approved source receipts…</div>
       ) : error ? (
         <div className="mt-4 rounded-lg border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-100">
