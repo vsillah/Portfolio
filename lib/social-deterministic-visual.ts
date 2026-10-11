@@ -14,7 +14,7 @@ import {
 } from '@/lib/social-deterministic-visual-recipe'
 
 export const DETERMINISTIC_VISUAL_ASSET_VERSION = 'deterministic_visual_asset_v4' as const
-export const DETERMINISTIC_VISUAL_RENDERER_VERSION = 'amadutown_html_svg_v3' as const
+export const DETERMINISTIC_VISUAL_RENDERER_VERSION = 'amadutown_html_svg_v4' as const
 export const DETERMINISTIC_VISUAL_STORAGE_BUCKET = 'social-content' as const
 
 export type DeterministicVisualEffectiveInputs = {

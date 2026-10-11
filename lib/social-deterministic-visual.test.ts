@@ -348,14 +348,22 @@ describe('deterministic Social Content visual binding', () => {
   it('embeds the bundled render font so server-side rasterization does not depend on host fonts', () => {
     const spec = readDeterministicVisualSpec(approvedItem().rag_context)!
     const svg = embedDeterministicVisualFont(
-      buildDeterministicVisualSvg(spec, 'architecture'),
+      buildDeterministicVisualSvg({
+        ...spec,
+        evidence_lines: [
+          ...spec.evidence_lines.slice(0, 2),
+          'The asset was withheld from publication and returned to review.',
+        ],
+      }, 'architecture'),
       Buffer.from('font-bytes'),
     )
 
     expect(svg).toContain('@font-face')
-    expect(svg).toContain('data:font/woff2;base64,Zm9udC1ieXRlcw==')
+    expect(svg).toContain('data:font/ttf;base64,Zm9udC1ieXRlcw==')
+    expect(svg).toContain('format("truetype")')
     expect(svg).toContain('font-family: "AmaduTown Inter", sans-serif;')
     expect(svg).not.toContain('font-family: Inter, ui-sans-serif')
+    expect(svg).toContain('returned to review.')
   })
 
   it('refuses to substitute the architecture composition for another selected visual type', () => {
