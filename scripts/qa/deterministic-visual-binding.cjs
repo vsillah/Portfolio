@@ -101,6 +101,7 @@ async function revealBelowStickyHeader(page, locator) {
     const renderStatus = page.getByLabel('Deterministic visual render status')
     await expect(renderStatus.getByText('Ready to render')).toBeVisible()
     await expect(renderStatus.getByText('Provider none')).toBeVisible()
+    await expect(renderStatus.getByText('architecture', { exact: true })).toBeVisible()
     await expect(page.getByText(/Gemini, HeyGen, n8n media, and other media providers stay off/i)).toBeVisible()
     const renderButton = page.getByRole('button', { name: 'Render deterministic visual' })
     await expect(renderButton).toBeEnabled()
@@ -129,6 +130,15 @@ async function revealBelowStickyHeader(page, locator) {
     await page.waitForTimeout(900)
     await page.screenshot({ path: path.join(outputDir, `${width}-missing-candidate.png`) })
 
+    await page.goto(routeFor('architecture_mismatch'), { waitUntil: 'domcontentloaded' })
+    await expect(page.getByText('Architecture visuals require explicit connectors between every adjacent node.')).toBeVisible({ timeout: 90000 })
+    await expect(page.getByText(/Provide exactly three labeled architecture nodes and two labeled connectors/i)).toBeVisible()
+    await expect(page.getByText('Render blocked')).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Render deterministic visual' })).toBeDisabled()
+    await revealBelowStickyHeader(page, page.getByLabel('Deterministic visual render status'))
+    await page.waitForTimeout(900)
+    await page.screenshot({ path: path.join(outputDir, `${width}-architecture-mismatch.png`) })
+
     await page.goto(routeFor('storage_unavailable'), { waitUntil: 'domcontentloaded' })
     await expect(page.getByText('Internal Social Content storage is unavailable.')).toBeVisible({ timeout: 90000 })
     await expect(page.getByText(/No provider fallback is allowed/i)).toBeVisible()
@@ -145,7 +155,7 @@ async function revealBelowStickyHeader(page, locator) {
       width,
       height,
       route: routeFor('ready'),
-      fixture_states: ['ready', 'current', 'missing_candidate', 'storage_unavailable'],
+      fixture_states: ['ready', 'current', 'missing_candidate', 'architecture_mismatch', 'storage_unavailable'],
       fixture_responses: fixtureResponses,
       provider: 'none',
       provider_calls: 0,

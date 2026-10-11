@@ -9,7 +9,10 @@ import {
   projectDeterministicVisualRender,
   readDeterministicVisualSpec,
 } from './social-deterministic-visual'
-import { buildDeterministicVisualSvg } from './social-deterministic-visual-renderer'
+import {
+  buildDeterministicVisualSvg,
+  renderDeterministicVisualPng,
+} from './social-deterministic-visual-renderer'
 import { practitionerContentQaFixture } from './social-practitioner-content-qa-fixture'
 import { socialCopyVersion } from './social-copy-revision'
 
@@ -29,7 +32,7 @@ function renderPatch(item = approvedItem()) {
   const spec = readDeterministicVisualSpec(item.rag_context)!
   const candidateHash = deterministicVisualCandidateHash(spec)
   const brandAssetHash = 'b'.repeat(64)
-  const renderInputHash = deterministicVisualRenderInputHash({ copyVersion, candidateHash, brandAssetHash })
+  const renderInputHash = deterministicVisualRenderInputHash({ copyVersion, candidateHash, visualType: item.framework_visual_type, brandAssetHash })
   const storagePath = deterministicVisualStoragePath({
     socialContentId: item.id,
     copyVersion,
@@ -59,6 +62,15 @@ describe('deterministic Social Content visual binding', () => {
       candidate: { ...spec.candidate, status: 'approved', artifact_url: 'https://storage.example/current.png' },
     })).toBe(currentHash)
     expect(deterministicVisualCandidateHash({ ...spec, headline: `${spec.headline} changed` })).not.toBe(currentHash)
+    expect(deterministicVisualCandidateHash({
+      ...spec,
+      architecture: {
+        ...spec.architecture!,
+        connectors: spec.architecture!.connectors.map((connector, index) => (
+          index === 0 ? { ...connector, label: `${connector.label} changed` } : connector
+        )),
+      },
+    })).not.toBe(currentHash)
   })
 
   it('projects ready, current, stale, missing-candidate, and storage-blocked states', () => {
@@ -95,6 +107,35 @@ describe('deterministic Social Content visual binding', () => {
     unsupported.rag_context.practitioner_content_quality.deterministic_visual.system_version = 'unsupported'
     expect(projectDeterministicVisualRender({ item: unsupported, copyVersion: socialCopyVersion(unsupported), storageAvailable: true })).toMatchObject({
       state: 'blocked', code: 'candidate_missing', can_render: false,
+    })
+  })
+
+  it('binds architecture as a strict visual type and blocks mismatched or disconnected candidates', () => {
+    const mismatched = approvedItem()
+    mismatched.framework_visual_type = 'timeline'
+    expect(projectDeterministicVisualRender({
+      item: mismatched,
+      copyVersion: socialCopyVersion(mismatched),
+      storageAvailable: true,
+    })).toMatchObject({
+      state: 'blocked',
+      code: 'visual_type_mismatch',
+      can_render: false,
+      recovery_action: expect.stringMatching(/exactly matches/i),
+    })
+
+    const disconnected = approvedItem()
+    disconnected.rag_context.practitioner_content_quality.deterministic_visual.architecture.connectors = []
+    expect(projectDeterministicVisualRender({
+      item: disconnected,
+      copyVersion: socialCopyVersion(disconnected),
+      storageAvailable: true,
+    })).toMatchObject({
+      state: 'blocked',
+      code: 'architecture_structure_invalid',
+      can_render: false,
+      summary: expect.stringMatching(/explicit connectors/i),
+      recovery_action: expect.stringMatching(/three labeled architecture nodes and two labeled connectors/i),
     })
   })
 
@@ -137,9 +178,44 @@ describe('deterministic Social Content visual binding', () => {
 
   it('escapes candidate text before producing SVG markup', () => {
     const spec = readDeterministicVisualSpec(approvedItem().rag_context)!
-    const svg = buildDeterministicVisualSvg({ ...spec, headline: '<script>alert("x")</script>' })
+    const svg = buildDeterministicVisualSvg({ ...spec, headline: '<script>alert("x")</script>' }, 'architecture')
     expect(svg).toContain('&lt;script&gt;')
     expect(svg).not.toContain('<script>')
-    expect(svg).toContain('PROVIDER NONE')
+  })
+
+  it.each(['1.91:1', '1:1', '4:5', '9:16'] as const)(
+    'keeps internal governance wording out of the %s publication asset',
+    (aspectRatio) => {
+      const spec = readDeterministicVisualSpec(approvedItem().rag_context)!
+      const svg = buildDeterministicVisualSvg({ ...spec, aspect_ratio: aspectRatio }, 'architecture')
+      expect(svg).toContain('AmaduTown Advisory Solutions')
+      expect(svg).toContain('data-visual-type="architecture"')
+      expect(svg.match(/data-architecture-node=/g)).toHaveLength(3)
+      expect(svg.match(/data-architecture-connector=/g)).toHaveLength(2)
+      expect(svg.match(/marker-end="url\(#architecture-arrow\)"/g)).toHaveLength(2)
+      expect(svg).not.toMatch(/deterministic\s+review\s+asset/i)
+      expect(svg).not.toMatch(/provider\s+(?:none|not[\s_-]*called|disabled|off)/i)
+      expect(svg).not.toMatch(/human\s+approval\s+(?:required|pending)/i)
+      expect(svg).not.toMatch(/approval\s+(?:required|pending)/i)
+      expect(svg).not.toMatch(/external\s+call\s+(?:false|disabled|off)/i)
+      expect(svg).not.toMatch(/internal\s+(?:review|governance|only)/i)
+      expect(svg).not.toMatch(/(?:for\s+)?review\s+only/i)
+      expect(svg).not.toMatch(/not\s+for\s+publication/i)
+      expect(svg).not.toMatch(/draft\s+asset/i)
+    },
+  )
+
+  it('fails closed before PNG rasterization when candidate text contains an internal governance note', async () => {
+    const spec = readDeterministicVisualSpec(approvedItem().rag_context)!
+    await expect(renderDeterministicVisualPng({
+      spec: { ...spec, headline: 'Provider none — human approval required' },
+      visualType: 'architecture',
+      logoPng: Buffer.alloc(0),
+    })).rejects.toThrow('not safe for publication')
+  })
+
+  it('refuses to substitute the architecture composition for another selected visual type', () => {
+    const spec = readDeterministicVisualSpec(approvedItem().rag_context)!
+    expect(() => buildDeterministicVisualSvg(spec, 'timeline')).toThrow('does not match candidate visual type')
   })
 })

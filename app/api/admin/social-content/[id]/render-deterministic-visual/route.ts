@@ -169,7 +169,7 @@ export async function POST(
   }
 
   const spec = readDeterministicVisualSpec(original.rag_context)
-  if (!spec || !projection.candidate_hash || !projection.candidate_id) {
+  if (!spec || !projection.candidate_hash || !projection.candidate_id || !projection.visual_type) {
     return blockedResponse(new DeterministicVisualRenderError(
       'candidate_missing',
       'The current deterministic candidate could not be read.',
@@ -181,7 +181,11 @@ export async function POST(
   let renderedPng: Buffer
   try {
     logoPng = await loadAmaduTownLogoPng()
-    renderedPng = await renderDeterministicVisualPng({ spec, logoPng })
+    renderedPng = await renderDeterministicVisualPng({
+      spec,
+      visualType: projection.visual_type,
+      logoPng,
+    })
   } catch (error) {
     console.error('Deterministic visual render failed:', error)
     return blockedResponse(new DeterministicVisualRenderError(
@@ -196,6 +200,7 @@ export async function POST(
   const renderInputHash = deterministicVisualRenderInputHash({
     copyVersion: projection.copy_version,
     candidateHash: projection.candidate_hash,
+    visualType: projection.visual_type,
     brandAssetHash,
   })
   const storagePath = deterministicVisualStoragePath({

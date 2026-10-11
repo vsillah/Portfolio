@@ -4974,6 +4974,7 @@ function SocialContentDetailPage() {
                             </div>
                           </div>
                           <dl className="mt-3 grid gap-2 text-xs text-gray-300 sm:grid-cols-2 lg:grid-cols-3">
+                            <div><dt className="text-gray-500">Visual type</dt><dd className="mt-0.5 font-medium capitalize">{deterministicVisualRender.visual_type?.replace(/_/g, ' ') || 'Missing'}</dd></div>
                             <div><dt className="text-gray-500">Candidate</dt><dd className="mt-0.5 break-all font-mono">{deterministicVisualRender.candidate_id || 'Missing'}</dd></div>
                             <div><dt className="text-gray-500">Candidate hash</dt><dd className="mt-0.5 break-all font-mono">{deterministicVisualRender.candidate_hash ? deterministicVisualRender.candidate_hash.slice(0, 16) : 'Unavailable'}</dd></div>
                             <div><dt className="text-gray-500">Copy version</dt><dd className="mt-0.5 break-all font-mono">{deterministicVisualRender.copy_version.slice(0, 16)}</dd></div>

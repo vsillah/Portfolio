@@ -231,6 +231,7 @@ describe('SocialContentDetailRoute visual production review', () => {
 
     expect(await screen.findByText('The approved copy and provider-none HTML/SVG candidate are ready for local rendering.')).toBeVisible()
     expect(screen.getByText('Provider none')).toBeVisible()
+    expect(within(screen.getByLabelText('Deterministic visual render status')).getByText('architecture')).toBeVisible()
     expect(screen.getByText(/Gemini, HeyGen, n8n media, and other media providers stay off/i)).toBeVisible()
     const renderButton = screen.getByRole('button', { name: 'Render deterministic visual' })
     expect(renderButton).toBeEnabled()
@@ -277,6 +278,7 @@ describe('SocialContentDetailRoute visual production review', () => {
 
   it.each([
     'missing_candidate',
+    'architecture_mismatch',
     'storage_unavailable',
   ] as const)('shows the %s recovery state without enabling a provider fallback', async (qaState) => {
     const blockedItem = deterministicVisualBindingQaFixture(qaState)

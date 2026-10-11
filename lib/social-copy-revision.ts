@@ -96,7 +96,10 @@ export function prepareManualCopyUpdate(input: {
   const incomingCandidateRag = { ...currentRag, ...incomingRag, source: currentRag.source }
   const currentCandidateHash = deterministicVisualCandidateHashFromRagContext(currentRag)
   const nextCandidateHash = deterministicVisualCandidateHashFromRagContext(incomingCandidateRag)
-  const candidateChanged = currentCandidateHash !== nextCandidateHash && Boolean(currentCandidateHash || nextCandidateHash)
+  const visualTypeChanged = 'framework_visual_type' in patch
+    && patch.framework_visual_type !== current.framework_visual_type
+  const candidateChanged = visualTypeChanged
+    || (currentCandidateHash !== nextCandidateHash && Boolean(currentCandidateHash || nextCandidateHash))
   const revisionFeedback = record(incomingRag.content_calibration).operator_feedback
   const needsVersion = COPY_FIELDS.some((field) => field in patch) || 'status' in patch || 'scheduled_for' in patch || 'section_gate_reviews' in incomingRag || revisionFeedback !== undefined || candidateChanged
   if (needsVersion && (typeof input.expectedVersion !== 'string' || !input.expectedVersion.trim())) {
@@ -173,7 +176,7 @@ export function prepareManualCopyUpdate(input: {
   }
   // Ignore fabricated client revision metadata even on unrelated saves.
   nextRag.copy_revision = revision
-  if (patch.rag_context !== undefined || patch.status === 'rejected' || changed || revision !== existing) patch.rag_context = nextRag
+  if (patch.rag_context !== undefined || patch.status === 'rejected' || changed || candidateChanged || revision !== existing) patch.rag_context = nextRag
   return patch
 }
 

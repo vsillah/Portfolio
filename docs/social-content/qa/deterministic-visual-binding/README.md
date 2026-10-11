@@ -6,7 +6,7 @@ This packet exercises the Social Content visual-render binding without touching 
 
 - Production target inspected read-only: `52a4baec-ad2d-415d-a6fa-4436dbfd6360`.
 - Synthetic route: `/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=deterministic-visual-binding&qa_state=ready`.
-- States covered: ready, current/idempotent, missing candidate, and storage unavailable.
+- States covered: ready, current/idempotent, missing candidate, architecture-structure mismatch, and storage unavailable.
 - Viewports covered: 390×844, 768×1000, and 1440×1000.
 - Provider receipt: `provider=none`, `model=null`, `status=not_called`, `external_call=false`.
 - Shared database writes, shared storage writes, platform drafts, scheduling, publishing, and external sends: zero.
@@ -20,7 +20,10 @@ The synthetic fixture is enabled only for development, test, or Vercel preview c
 - `1440-walkthrough.mp4` — desktop interaction and recovery states.
 - `results.json` — request/state receipts, overflow result, page errors, and no-egress counters.
 - `*-current-asset.png` — the stored review PNG inside the rendered Social Content surface.
-- `*-missing-candidate.png` and `*-storage-blocked.png` — fail-closed recovery states.
+- `*-architecture-mismatch.png` — fail-closed proof that an Architecture selection requires labeled nodes and explicit connectors.
+- `*-missing-candidate.png` and `*-storage-blocked.png` — other fail-closed recovery states.
+
+The publication asset itself contains only public-facing content and the AmaduTown Advisory Solutions brand footer. Provider, deterministic-render, internal-review, and Human-QA metadata remain in the review UI and receipt rather than the PNG.
 
 All MP4 files are H.264 with `yuv420p` pixel format and fast-start metadata.
 

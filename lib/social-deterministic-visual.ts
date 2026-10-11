@@ -1,13 +1,14 @@
 import { createHash } from 'node:crypto'
 
-import type { SocialContentItem } from '@/lib/social-content'
+import type { FrameworkVisualType, SocialContentItem } from '@/lib/social-content'
 import {
   AMADUTOWN_VISUAL_SYSTEM_VERSION,
+  deterministicArchitectureStructureIssue,
   type DeterministicVisualSpec,
 } from '@/lib/social-practitioner-content'
 
-export const DETERMINISTIC_VISUAL_ASSET_VERSION = 'deterministic_visual_asset_v1' as const
-export const DETERMINISTIC_VISUAL_RENDERER_VERSION = 'amadutown_html_svg_v1' as const
+export const DETERMINISTIC_VISUAL_ASSET_VERSION = 'deterministic_visual_asset_v2' as const
+export const DETERMINISTIC_VISUAL_RENDERER_VERSION = 'amadutown_html_svg_v2' as const
 export const DETERMINISTIC_VISUAL_STORAGE_BUCKET = 'social-content' as const
 
 export type DeterministicVisualAssetReceipt = {
@@ -17,6 +18,7 @@ export type DeterministicVisualAssetReceipt = {
   copy_version: string
   candidate_id: string
   candidate_hash: string
+  visual_type: FrameworkVisualType
   renderer: 'html_svg'
   renderer_version: typeof DETERMINISTIC_VISUAL_RENDERER_VERSION
   render_input_hash: string
@@ -62,6 +64,10 @@ export type DeterministicVisualRenderProjection = {
     | 'release_locked'
     | 'candidate_missing'
     | 'candidate_not_reviewable'
+    | 'visual_type_missing'
+    | 'visual_type_mismatch'
+    | 'visual_type_unsupported'
+    | 'architecture_structure_invalid'
     | 'provider_boundary_invalid'
     | 'storage_unavailable'
     | 'copy_version_stale'
@@ -75,6 +81,7 @@ export type DeterministicVisualRenderProjection = {
   copy_version: string
   candidate_id: string | null
   candidate_hash: string | null
+  visual_type: FrameworkVisualType | null
   provider: 'none' | null
   provider_calls_enabled: false
   receipt: DeterministicVisualAssetReceipt | null
@@ -92,7 +99,7 @@ export class DeterministicVisualRenderError extends Error {
   }
 }
 
-type VisualRenderItem = Pick<SocialContentItem, 'id' | 'status' | 'image_url' | 'rag_context'>
+type VisualRenderItem = Pick<SocialContentItem, 'id' | 'status' | 'image_url' | 'framework_visual_type' | 'rag_context'>
 
 function record(value: unknown): Record<string, unknown> {
   return value && typeof value === 'object' && !Array.isArray(value)
@@ -134,6 +141,7 @@ export function readDeterministicVisualSpec(ragContext: unknown): DeterministicV
 
   return {
     system_version: text(visual.system_version) as DeterministicVisualSpec['system_version'],
+    visual_type: text(visual.visual_type) as DeterministicVisualSpec['visual_type'],
     template: text(visual.template) as DeterministicVisualSpec['template'],
     aspect_ratio: text(visual.aspect_ratio) as DeterministicVisualSpec['aspect_ratio'],
     eyebrow: text(visual.eyebrow),
@@ -148,6 +156,24 @@ export function readDeterministicVisualSpec(ragContext: unknown): DeterministicV
       practical_takeaway: text(argumentMap.practical_takeaway),
     },
     visual_rationale: text(visual.visual_rationale),
+    architecture: Object.keys(record(visual.architecture)).length
+      ? {
+          nodes: Array.isArray(record(visual.architecture).nodes)
+            ? (record(visual.architecture).nodes as unknown[]).map(record).map((node) => ({
+                id: text(node.id),
+                label: text(node.label),
+                body: text(node.body),
+              }))
+            : [],
+          connectors: Array.isArray(record(visual.architecture).connectors)
+            ? (record(visual.architecture).connectors as unknown[]).map(record).map((connector) => ({
+                from: text(connector.from),
+                to: text(connector.to),
+                label: text(connector.label),
+              }))
+            : [],
+        }
+      : null,
     candidate: {
       candidate_id: text(candidate.candidate_id),
       status: text(candidate.status) as DeterministicVisualSpec['candidate']['status'],
@@ -166,6 +192,7 @@ export function readDeterministicVisualSpec(ragContext: unknown): DeterministicV
 export function deterministicVisualCandidateHash(spec: DeterministicVisualSpec): string {
   const candidateIdentity = {
     system_version: spec.system_version,
+    visual_type: spec.visual_type,
     template: spec.template,
     aspect_ratio: spec.aspect_ratio,
     eyebrow: spec.eyebrow,
@@ -174,6 +201,7 @@ export function deterministicVisualCandidateHash(spec: DeterministicVisualSpec):
     result_label: spec.result_label,
     argument_map: spec.argument_map,
     visual_rationale: spec.visual_rationale,
+    architecture: spec.architecture,
     candidate: {
       candidate_id: spec.candidate.candidate_id,
       renderer: spec.candidate.renderer,
@@ -194,7 +222,10 @@ export function readDeterministicVisualAssetReceipt(ragContext: unknown): Determ
   return value as unknown as DeterministicVisualAssetReceipt
 }
 
-function candidateBlocker(spec: DeterministicVisualSpec | null): Pick<DeterministicVisualRenderProjection, 'code' | 'summary' | 'recovery_action'> | null {
+function candidateBlocker(
+  spec: DeterministicVisualSpec | null,
+  selectedVisualType: FrameworkVisualType | null,
+): Pick<DeterministicVisualRenderProjection, 'code' | 'summary' | 'recovery_action'> | null {
   if (
     spec?.system_version !== AMADUTOWN_VISUAL_SYSTEM_VERSION
     || !['practitioner_signal_card', 'constraint_decision_result'].includes(spec.template)
@@ -204,6 +235,35 @@ function candidateBlocker(spec: DeterministicVisualSpec | null): Pick<Determinis
       code: 'candidate_missing',
       summary: 'The deterministic candidate uses an unsupported visual-system contract.',
       recovery_action: 'Restore the current AmaduTown deterministic system version, template, and aspect ratio before rendering.',
+    }
+  }
+  if (!selectedVisualType) {
+    return {
+      code: 'visual_type_missing',
+      summary: 'No framework visual type is selected for this candidate.',
+      recovery_action: 'Select Architecture for this system diagram, then save a matching architecture candidate before rendering.',
+    }
+  }
+  if (spec.visual_type !== selectedVisualType) {
+    return {
+      code: 'visual_type_mismatch',
+      summary: `The selected ${selectedVisualType} visual type does not match the candidate ${spec.visual_type || 'unset'} contract.`,
+      recovery_action: 'Regenerate or revise the candidate so its visual_type exactly matches the selected framework visual type.',
+    }
+  }
+  if (selectedVisualType !== 'architecture') {
+    return {
+      code: 'visual_type_unsupported',
+      summary: `The deterministic renderer does not yet implement the selected ${selectedVisualType} composition.`,
+      recovery_action: 'Use a renderer with an explicit composition contract for this visual type; do not substitute the generic architecture layout.',
+    }
+  }
+  const architectureIssue = deterministicArchitectureStructureIssue(spec)
+  if (architectureIssue) {
+    return {
+      code: 'architecture_structure_invalid',
+      summary: architectureIssue,
+      recovery_action: 'Provide exactly three labeled architecture nodes and two labeled connectors forming one constraint-to-decision-to-result path.',
     }
   }
   if (!spec?.candidate.candidate_id || spec.candidate.renderer !== 'html_svg') {
@@ -263,6 +323,7 @@ export function projectDeterministicVisualRender(input: {
     copy_version: input.copyVersion,
     candidate_id: candidateId,
     candidate_hash: candidateHash,
+    visual_type: input.item.framework_visual_type,
     provider: spec?.art_direction_receipt.provider === 'none' ? 'none' as const : null,
     provider_calls_enabled: false as const,
     receipt,
@@ -288,7 +349,7 @@ export function projectDeterministicVisualRender(input: {
       recovery_action: 'Reconcile the schedule or publication evidence before replacing its reviewed asset.',
     }
   }
-  const blocker = candidateBlocker(spec)
+  const blocker = candidateBlocker(spec, input.item.framework_visual_type)
   if (blocker) {
     return { ...base, state: 'blocked', can_render: false, ...blocker }
   }
@@ -309,11 +370,14 @@ export function projectDeterministicVisualRender(input: {
     && receipt.copy_version === input.copyVersion
     && receipt.candidate_id === candidateId
     && receipt.candidate_hash === candidateHash
+    && receipt.visual_type === input.item.framework_visual_type
+    && receipt.visual_type === spec?.visual_type
     && receipt.renderer === 'html_svg'
     && receipt.renderer_version === DETERMINISTIC_VISUAL_RENDERER_VERSION
     && receipt.render_input_hash === deterministicVisualRenderInputHash({
       copyVersion: input.copyVersion,
       candidateHash: candidateHash || '',
+      visualType: input.item.framework_visual_type as FrameworkVisualType,
       brandAssetHash: receipt.brand_asset_hash,
     })
     && /^[a-f0-9]{64}$/.test(receipt.asset_sha256)
@@ -411,12 +475,14 @@ export function assertDeterministicVisualRenderRequest(input: {
 export function deterministicVisualRenderInputHash(input: {
   copyVersion: string
   candidateHash: string
+  visualType: FrameworkVisualType
   brandAssetHash: string
 }): string {
   return sha256(JSON.stringify({
     renderer_version: DETERMINISTIC_VISUAL_RENDERER_VERSION,
     copy_version: input.copyVersion,
     candidate_hash: input.candidateHash,
+    visual_type: input.visualType,
     brand_asset_hash: input.brandAssetHash,
   }))
 }
@@ -459,6 +525,7 @@ export function buildDeterministicVisualAssetPatch(input: {
     copy_version: input.copyVersion,
     candidate_id: text(candidate.candidate_id),
     candidate_hash: input.candidateHash,
+    visual_type: input.item.framework_visual_type as FrameworkVisualType,
     renderer: 'html_svg',
     renderer_version: DETERMINISTIC_VISUAL_RENDERER_VERSION,
     render_input_hash: input.renderInputHash,

@@ -281,6 +281,7 @@ function buildAutomaticPractitionerContent(input: {
     },
     deterministic_visual: {
       system_version: 'amadutown_deterministic_v1',
+      visual_type: 'architecture',
       template: 'constraint_decision_result',
       aspect_ratio: practitionerAspectRatio(input.channel),
       eyebrow: 'Field note',
@@ -295,6 +296,17 @@ function buildAutomaticPractitionerContent(input: {
         practical_takeaway: practicalTakeaway,
       },
       visual_rationale: `Map the approved operating context, constraint, decision, bounded result, and practical takeaway from research packet ${text(source.id)}.`,
+      architecture: {
+        nodes: [
+          { id: 'constraint', label: 'Constraint', body: operationalConstraint },
+          { id: 'decision', label: 'Human decision', body: decisionIntervention },
+          { id: 'result', label: 'Bounded result', body: observableResult },
+        ],
+        connectors: [
+          { from: 'constraint', to: 'decision', label: 'Stable rules' },
+          { from: 'decision', to: 'result', label: 'Owned decision' },
+        ],
+      },
       candidate: {
         candidate_id: `automatic-visual-${hash(receiptBasis).slice(0, 16)}`,
         status: 'in_review',
@@ -341,6 +353,7 @@ function buildAutomaticPractitionerContent(input: {
     ...input.socialContent,
     post_text: postText,
     cta_text: cta,
+    framework_visual_type: 'architecture',
     hormozi_framework: hormoziFramework,
     rag_context: nextRagContext,
   }
@@ -352,6 +365,7 @@ function buildAutomaticPractitionerContent(input: {
       values: {
         post_text: postText,
         cta_text: cta,
+        framework_visual_type: 'architecture',
         hormozi_framework: hormoziFramework,
         rag_context: nextRagContext,
       },

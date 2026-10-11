@@ -25,6 +25,7 @@ async function main() {
   )
   const png = await renderDeterministicVisualPng({
     spec,
+    visualType: fixture.framework_visual_type!,
     logoPng: await loadAmaduTownLogoPng(),
   })
   await mkdir(path.dirname(outputPath), { recursive: true })

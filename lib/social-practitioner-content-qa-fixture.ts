@@ -194,6 +194,7 @@ export function practitionerContentQaFixture(
         },
         deterministic_visual: {
           system_version: 'amadutown_deterministic_v1',
+          visual_type: 'architecture',
           template: 'constraint_decision_result',
           aspect_ratio: '1.91:1',
           eyebrow: 'Operator system map',
@@ -208,6 +209,29 @@ export function practitionerContentQaFixture(
             practical_takeaway: 'Start with repeated burden, stable rules, and one decision owner.',
           },
           visual_rationale: 'Map the full operator argument from weekly burden through bounded result and takeaway without exposing the organization.',
+          architecture: {
+            nodes: [
+              {
+                id: 'constraint',
+                label: 'Constraint',
+                body: 'Volunteer coverage changed while intake rules had to stay consistent.',
+              },
+              {
+                id: 'decision',
+                label: 'Human decision',
+                body: 'One reviewed queue kept the final call with the operations lead.',
+              },
+              {
+                id: 'result',
+                label: 'Bounded result',
+                body: 'Duplicate review disappeared; the 30-day outcome remains pending.',
+              },
+            ],
+            connectors: [
+              { from: 'constraint', to: 'decision', label: 'Stable rules' },
+              { from: 'decision', to: 'result', label: 'Owned decision' },
+            ],
+          },
           candidate: {
             candidate_id: 'visual-candidate-synthetic-preview-1',
             status: blocked ? 'draft' : 'in_review',

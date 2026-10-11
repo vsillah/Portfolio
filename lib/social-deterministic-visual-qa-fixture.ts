@@ -1,6 +1,7 @@
 import { DETERMINISTIC_VISUAL_BINDING_QA_ID, type SocialContentItem } from '@/lib/social-content'
 import {
   buildDeterministicVisualAssetPatch,
+  DETERMINISTIC_VISUAL_RENDERER_VERSION,
   deterministicVisualCandidateHash,
   deterministicVisualRenderInputHash,
   projectDeterministicVisualRender,
@@ -10,9 +11,9 @@ import { practitionerContentQaFixture } from '@/lib/social-practitioner-content-
 import { socialCopyVersion } from '@/lib/social-copy-revision'
 
 export const DETERMINISTIC_VISUAL_TARGET_RECORD_ID = '52a4baec-ad2d-415d-a6fa-4436dbfd6360'
-export const DETERMINISTIC_VISUAL_QA_ASSET_URL = '/qa/social-content/deterministic-visual-binding.png'
+export const DETERMINISTIC_VISUAL_QA_ASSET_URL = `/qa/social-content/deterministic-visual-binding.png?renderer=${DETERMINISTIC_VISUAL_RENDERER_VERSION}`
 
-export type DeterministicVisualQaState = 'ready' | 'current' | 'stale' | 'missing_candidate' | 'storage_unavailable'
+export type DeterministicVisualQaState = 'ready' | 'current' | 'stale' | 'missing_candidate' | 'architecture_mismatch' | 'storage_unavailable'
 
 export function deterministicVisualBindingQaFixtureEnabled() {
   if (process.env.VERCEL_ENV === 'production') return false
@@ -30,6 +31,7 @@ export function parseDeterministicVisualQaState(value: string | null | undefined
   return value === 'current'
     || value === 'stale'
     || value === 'missing_candidate'
+    || value === 'architecture_mismatch'
     || value === 'storage_unavailable'
     ? value
     : 'ready'
@@ -86,12 +88,18 @@ export function deterministicVisualBindingQaFixture(
     item.rag_context = rag
   }
 
+  if (state === 'architecture_mismatch') {
+    const rag = structuredClone(item.rag_context ?? {}) as Record<string, any>
+    rag.practitioner_content_quality.deterministic_visual.architecture.connectors = []
+    item.rag_context = rag
+  }
+
   const copyVersion = socialCopyVersion(item)
   const spec = readDeterministicVisualSpec(item.rag_context)
   if (spec && (state === 'current' || state === 'stale')) {
     const candidateHash = deterministicVisualCandidateHash(spec)
     const brandAssetHash = 'f'.repeat(64)
-    const renderInputHash = deterministicVisualRenderInputHash({ copyVersion, candidateHash, brandAssetHash })
+    const renderInputHash = deterministicVisualRenderInputHash({ copyVersion, candidateHash, visualType: item.framework_visual_type!, brandAssetHash })
     const patch = buildDeterministicVisualAssetPatch({
       item,
       copyVersion: state === 'stale' ? '0'.repeat(64) : copyVersion,

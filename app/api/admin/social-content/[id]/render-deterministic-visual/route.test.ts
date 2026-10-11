@@ -90,7 +90,7 @@ function bindCurrent(item = row()) {
   const spec = readDeterministicVisualSpec(item.rag_context)!
   const candidateHash = deterministicVisualCandidateHash(spec)
   const brandAssetHash = 'b'.repeat(64)
-  const renderInputHash = deterministicVisualRenderInputHash({ copyVersion, candidateHash, brandAssetHash })
+  const renderInputHash = deterministicVisualRenderInputHash({ copyVersion, candidateHash, visualType: item.framework_visual_type, brandAssetHash })
   Object.assign(item, buildDeterministicVisualAssetPatch({
     item,
     copyVersion,
@@ -148,6 +148,11 @@ describe('POST /api/admin/social-content/[id]/render-deterministic-visual', () =
       contentType: 'image/png', cacheControl: '31536000', upsert: false,
     })
     expect(mocks.updateSocialQueueWithVersion).toHaveBeenCalledTimes(1)
+    expect(mocks.renderPng).toHaveBeenCalledWith({
+      spec: expect.objectContaining({ visual_type: 'architecture' }),
+      visualType: 'architecture',
+      logoPng: Buffer.from('logo'),
+    })
     expect(externalFetch).not.toHaveBeenCalled()
   })
 
@@ -200,6 +205,28 @@ describe('POST /api/admin/social-content/[id]/render-deterministic-visual', () =
     expect(response.status).toBe(409)
     await expect(response.json()).resolves.toMatchObject({ code: 'candidate_missing', render: { can_render: false } })
     expect(mocks.renderPng).not.toHaveBeenCalled()
+  })
+
+  it('blocks an architecture candidate without explicit connectors before renderer or storage work', async () => {
+    const item = row()
+    item.rag_context.practitioner_content_quality.deterministic_visual.architecture.connectors = []
+    mocks.readSocialQueueForWrite.mockResolvedValue(item)
+    const view = projection(item)
+    const response = await POST(new NextRequest('http://localhost/api/admin/social-content/social-1/render-deterministic-visual', {
+      method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({
+        expected_copy_version: view.copy_version,
+        expected_candidate_id: view.candidate_id,
+        expected_candidate_hash: view.candidate_hash,
+      }),
+    }), { params: { id: item.id } })
+    expect(response.status).toBe(409)
+    await expect(response.json()).resolves.toMatchObject({
+      code: 'architecture_structure_invalid',
+      render: { can_render: false, visual_type: 'architecture' },
+      recovery_action: expect.stringMatching(/three labeled architecture nodes and two labeled connectors/i),
+    })
+    expect(mocks.renderPng).not.toHaveBeenCalled()
+    expect(mocks.upload).not.toHaveBeenCalled()
   })
 
   it('fails closed when internal storage is unavailable', async () => {

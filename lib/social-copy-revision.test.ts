@@ -19,7 +19,7 @@ describe('calendar copy manual revision contract', () => {
     const spec = readDeterministicVisualSpec(item.rag_context)!
     const candidateHash = deterministicVisualCandidateHash(spec)
     const brandAssetHash = 'b'.repeat(64)
-    const renderInputHash = deterministicVisualRenderInputHash({ copyVersion, candidateHash, brandAssetHash })
+    const renderInputHash = deterministicVisualRenderInputHash({ copyVersion, candidateHash, visualType: item.framework_visual_type, brandAssetHash })
     Object.assign(item, buildDeterministicVisualAssetPatch({
       item,
       copyVersion,
@@ -128,6 +128,21 @@ describe('calendar copy manual revision contract', () => {
     expect(patch.rag_context).toMatchObject({
       deterministic_visual_asset: { status: 'stale', invalidation_reason: 'candidate_changed' },
       practitioner_content_quality: { deterministic_visual: { headline: 'A newly reviewed deterministic headline.', candidate: { artifact_url: null } } },
+    })
+  })
+  it('invalidates the bound asset when the selected visual type changes', () => {
+    const current = boundDeterministicItem()
+    const patch = prepareManualCopyUpdate({
+      current,
+      patch: { framework_visual_type: 'timeline' },
+      expectedVersion: socialCopyVersion(current),
+      actor: 'fixture-admin',
+      now,
+    })
+    expect(patch.image_url).toBeNull()
+    expect(patch.rag_context).toMatchObject({
+      deterministic_visual_asset: { status: 'stale', invalidation_reason: 'candidate_changed' },
+      practitioner_content_quality: { deterministic_visual: { candidate: { artifact_url: null } } },
     })
   })
   it('keeps leaked prompt text out of returned human review', () => {
