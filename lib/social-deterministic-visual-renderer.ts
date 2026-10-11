@@ -37,12 +37,12 @@ export function assertPublicationSafeDeterministicVisualSvg(svg: string): void {
   }
 }
 
-export function embedDeterministicVisualFont(svg: string, fontWoff2: Buffer): string {
-  if (!fontWoff2.length) {
+export function embedDeterministicVisualFont(svg: string, fontTtf: Buffer): string {
+  if (!fontTtf.length) {
     throw new Error('Deterministic visual font is unavailable.')
   }
 
-  const fontFace = `@font-face { font-family: "${EMBEDDED_FONT_FAMILY}"; src: url("data:font/woff2;base64,${fontWoff2.toString('base64')}") format("woff2"); font-style: normal; font-weight: 100 900; }`
+  const fontFace = `@font-face { font-family: "${EMBEDDED_FONT_FAMILY}"; src: url("data:font/ttf;base64,${fontTtf.toString('base64')}") format("truetype"); font-style: normal; font-weight: 100 900; }`
   return svg
     .replace('<style>', `<style>${fontFace}`)
     .replaceAll('font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;', `font-family: "${EMBEDDED_FONT_FAMILY}", sans-serif;`)
@@ -73,9 +73,12 @@ function wrap(value: string, maxCharacters: number, maxLines: number): string[] 
       current = candidate
       continue
     }
+    if (lines.length === maxLines - 1) {
+      current = `${current.replace(/…$/, '').replace(/[.,;:]$/, '')}…`
+      break
+    }
     lines.push(current)
     current = word
-    if (lines.length === maxLines - 1) break
   }
   if (current && lines.length < maxLines) lines.push(current)
   const consumed = lines.join(' ').split(/\s+/).filter(Boolean).length
@@ -256,8 +259,8 @@ export async function loadAmaduTownLogoPng(): Promise<Buffer> {
   return readFile(path.join(process.cwd(), 'public', 'amadutown-logo-upscaled.png'))
 }
 
-export async function loadDeterministicVisualFontWoff2(): Promise<Buffer> {
-  return readFile(path.join(process.cwd(), 'public', 'fonts', 'inter-latin-variable.woff2'))
+export async function loadDeterministicVisualFontTtf(): Promise<Buffer> {
+  return readFile(path.join(process.cwd(), 'public', 'fonts', 'inter-latin-subset.ttf'))
 }
 
 export async function renderDeterministicVisualPng(input: {
@@ -266,10 +269,10 @@ export async function renderDeterministicVisualPng(input: {
   logoPng: Buffer
 }): Promise<Buffer> {
   const dimensions = DIMENSIONS[input.spec.aspect_ratio] ?? DIMENSIONS['1.91:1']
-  const fontWoff2 = await loadDeterministicVisualFontWoff2()
+  const fontTtf = await loadDeterministicVisualFontTtf()
   const svg = embedDeterministicVisualFont(
     buildDeterministicVisualSvg(input.spec, input.visualType),
-    fontWoff2,
+    fontTtf,
   )
   const logoHeight = input.spec.aspect_ratio === '1.91:1' ? 76 : 92
   const logo = await sharp(input.logoPng)
