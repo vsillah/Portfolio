@@ -134,6 +134,69 @@ describe('deterministic Social Content visual binding', () => {
     })
   })
 
+  it('fails closed when any customer-facing visual field lacks an approved source binding', () => {
+    const item = approvedItem()
+    delete item.rag_context.practitioner_content_quality.deterministic_visual.source_bindings.headline
+
+    const projection = projectDeterministicVisualRender({
+      item,
+      copyVersion: socialCopyVersion(item),
+      storageAvailable: true,
+    })
+
+    expect(projection).toMatchObject({
+      state: 'blocked',
+      code: 'field_lineage_blocked',
+      can_render: false,
+      inputs: {
+        lineage_status: 'blocked',
+        field_lineage: expect.arrayContaining([
+          expect.objectContaining({ id: 'headline', proof_status: 'blocked', source_path: '' }),
+        ]),
+      },
+    })
+    expect(projection.recovery_action).toMatch(/headline/i)
+  })
+
+  it('distinguishes source-backed copy from fixed template language', () => {
+    const item = approvedItem()
+    const projection = projectDeterministicVisualRender({
+      item,
+      copyVersion: socialCopyVersion(item),
+      storageAvailable: true,
+    })
+
+    expect(projection.inputs.lineage_status).toBe('passed')
+    expect(projection.inputs.field_lineage).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        id: 'node.constraint.body',
+        derivation: 'source_backed',
+        source_path: 'practitioner_content_quality.evidence_packet.operational_constraint',
+        proof_receipt_id: 'redaction-synthetic-preview-1',
+        approved_for_public_use: true,
+        redaction_status: 'passed',
+      }),
+      expect.objectContaining({
+        id: 'node.constraint.label',
+        derivation: 'template_derived',
+        source_path: 'template.constraint_decision_result.nodes.constraint.label',
+        proof_receipt_id: 'template:constraint_decision_result',
+      }),
+    ]))
+  })
+
+  it('stores the exact field lineage used by the renderer in the asset receipt', () => {
+    const item = approvedItem()
+    const patch = renderPatch(item)
+    const receipt = patch.rag_context.deterministic_visual_asset as any
+
+    expect(receipt.effective_inputs.lineage_status).toBe('passed')
+    expect(receipt.effective_inputs.field_lineage).toEqual(expect.arrayContaining([
+      expect.objectContaining({ id: 'headline', proof_status: 'passed' }),
+      expect.objectContaining({ id: 'node.result.body', proof_status: 'passed' }),
+    ]))
+  })
+
   it('binds architecture as a strict visual type and blocks mismatched or disconnected candidates', () => {
     const mismatched = approvedItem()
     mismatched.framework_visual_type = 'timeline'

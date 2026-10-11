@@ -209,6 +209,19 @@ export function practitionerContentQaFixture(
             practical_takeaway: 'Start with repeated burden, stable rules, and one decision owner.',
           },
           visual_rationale: 'Map the full operator argument from weekly burden through bounded result and takeaway without exposing the organization.',
+          source_bindings: {
+            eyebrow: { source_path: 'practitioner_content_quality.evidence_packet.situation', relationship: 'bounded_paraphrase', proof_receipt_id: 'redaction-synthetic-preview-1' },
+            headline: { source_path: 'practitioner_content_quality.evidence_packet.decision_intervention', relationship: 'bounded_paraphrase', proof_receipt_id: 'framework-application-synthetic-preview-1' },
+            'evidence.0': { source_path: 'practitioner_content_quality.evidence_packet.situation', relationship: 'bounded_paraphrase', proof_receipt_id: 'redaction-synthetic-preview-1' },
+            'evidence.1': { source_path: 'practitioner_content_quality.evidence_packet.operational_constraint', relationship: 'bounded_paraphrase', proof_receipt_id: 'redaction-synthetic-preview-1' },
+            'evidence.2': { source_path: 'practitioner_content_quality.evidence_packet.decision_intervention', relationship: 'bounded_paraphrase', proof_receipt_id: 'redaction-synthetic-preview-1' },
+            'evidence.3': { source_path: 'practitioner_content_quality.evidence_packet.decision_intervention', relationship: 'bounded_paraphrase', proof_receipt_id: 'redaction-synthetic-preview-1' },
+            'evidence.4': { source_path: 'practitioner_content_quality.evidence_packet.observable_result.metric', relationship: 'bounded_paraphrase', proof_receipt_id: 'redaction-synthetic-preview-1' },
+            result_label: { source_path: 'practitioner_content_quality.evidence_packet.observable_result.metric', relationship: 'bounded_paraphrase', proof_receipt_id: 'redaction-synthetic-preview-1' },
+            'node.constraint.body': { source_path: 'practitioner_content_quality.evidence_packet.operational_constraint', relationship: 'bounded_paraphrase', proof_receipt_id: 'redaction-synthetic-preview-1' },
+            'node.decision.body': { source_path: 'practitioner_content_quality.evidence_packet.decision_intervention', relationship: 'bounded_paraphrase', proof_receipt_id: 'redaction-synthetic-preview-1' },
+            'node.result.body': { source_path: 'practitioner_content_quality.evidence_packet.observable_result.summary', relationship: 'bounded_paraphrase', proof_receipt_id: 'redaction-synthetic-preview-1' },
+          },
           architecture: {
             nodes: [
               {

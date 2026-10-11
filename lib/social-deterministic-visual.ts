@@ -17,6 +17,26 @@ export const DETERMINISTIC_VISUAL_ASSET_VERSION = 'deterministic_visual_asset_v4
 export const DETERMINISTIC_VISUAL_RENDERER_VERSION = 'amadutown_html_svg_v5' as const
 export const DETERMINISTIC_VISUAL_STORAGE_BUCKET = 'social-content' as const
 
+export type DeterministicVisualFieldLineage = {
+  id: string
+  region: 'eyebrow' | 'headline' | 'evidence' | 'node_label' | 'node_body' | 'connector_label' | 'result_label'
+  label: string
+  text: string
+  derivation: 'source_backed' | 'template_derived'
+  source_path: string
+  source_label: string
+  source_id: string | null
+  source_type: string | null
+  proof_receipt_id: string | null
+  proof_status: 'passed' | 'blocked'
+  proof_detail: string
+  approved_for_public_use: boolean
+  disclosure_classification: string | null
+  redaction_receipt_id: string | null
+  redaction_status: string | null
+  redaction_reviewed_at: string | null
+}
+
 export type DeterministicVisualEffectiveInputs = {
   render_mode: typeof DETERMINISTIC_VISUAL_RENDER_MODE
   renderer_version: typeof DETERMINISTIC_VISUAL_RENDERER_VERSION
@@ -38,6 +58,8 @@ export type DeterministicVisualEffectiveInputs = {
   visual_rationale: string | null
   nodes: Array<{ id: string; label: string; body: string }>
   connectors: Array<{ from: string; to: string; label: string }>
+  lineage_status: 'passed' | 'blocked'
+  field_lineage: DeterministicVisualFieldLineage[]
   provenance: {
     recipe_selection: string
     derived_content: string
@@ -105,6 +127,7 @@ export type DeterministicVisualRenderProjection = {
     | 'visual_type_mismatch'
     | 'visual_type_unsupported'
     | 'architecture_structure_invalid'
+    | 'field_lineage_blocked'
     | 'provider_boundary_invalid'
     | 'storage_unavailable'
     | 'copy_version_stale'
@@ -154,6 +177,110 @@ function strings(value: unknown): string[] {
   return Array.isArray(value)
     ? value.filter((entry): entry is string => typeof entry === 'string').map((entry) => entry.trim()).filter(Boolean)
     : []
+}
+
+function valueAtPath(value: unknown, path: string): unknown {
+  return path.split('.').filter(Boolean).reduce<unknown>((current, segment) => {
+    if (Array.isArray(current)) return current[Number(segment)]
+    return record(current)[segment]
+  }, value)
+}
+
+function deterministicVisualFieldLineage(ragContext: unknown, spec: DeterministicVisualSpec | null): DeterministicVisualFieldLineage[] {
+  if (!spec) return []
+  const quality = record(record(ragContext).practitioner_content_quality)
+  const packet = record(quality.evidence_packet)
+  const disclosure = record(packet.disclosure_boundary)
+  const redaction = record(packet.redaction_receipt)
+  const sources = Array.isArray(packet.source_provenance) ? packet.source_provenance.map(record) : []
+  const visual = record(quality.deterministic_visual)
+  const bindings = record(visual.source_bindings)
+  const primarySource = sources.find((source) => source.approved_for_public_use === true) || sources[0] || {}
+  const packetReady = packet.status === 'approved'
+    && text(disclosure.classification) === 'anonymized'
+    && text(redaction.status) === 'passed'
+    && Boolean(text(redaction.receipt_id))
+    && Boolean(text(redaction.reviewed_at))
+    && primarySource.approved_for_public_use === true
+
+  const sourceBacked = (id: string, region: DeterministicVisualFieldLineage['region'], label: string, visibleText: string) => {
+    const binding = record(bindings[id])
+    const sourcePath = text(binding.source_path)
+    const sourceValue = sourcePath ? text(valueAtPath(ragContext, sourcePath)) : ''
+    const relationship = text(binding.relationship)
+    const proofReceiptId = text(binding.proof_receipt_id)
+    const relationshipReady = ['exact', 'bounded_paraphrase'].includes(relationship)
+    const exactMatches = relationship !== 'exact' || canonicalize(visibleText.toLowerCase()) === canonicalize(sourceValue.toLowerCase())
+    const passed = Boolean(visibleText && sourcePath && sourceValue && relationshipReady && proofReceiptId && exactMatches && packetReady)
+    return {
+      id,
+      region,
+      label,
+      text: visibleText,
+      derivation: 'source_backed' as const,
+      source_path: sourcePath,
+      source_label: text(primarySource.label) || 'Approved practitioner evidence packet',
+      source_id: text(primarySource.source_id) || null,
+      source_type: text(primarySource.source_type) || null,
+      proof_receipt_id: proofReceiptId || null,
+      proof_status: passed ? 'passed' as const : 'blocked' as const,
+      proof_detail: passed
+        ? `${relationship === 'exact' ? 'Exact source text' : 'Bounded paraphrase'} bound to an approved anonymized evidence field.`
+        : !sourcePath
+          ? 'No explicit source field is bound to this visible text.'
+          : !sourceValue
+            ? 'The bound source field is missing or empty.'
+            : !relationshipReady
+              ? 'The binding must declare exact or bounded_paraphrase derivation.'
+              : !proofReceiptId
+                ? 'The field binding is missing its review receipt.'
+                : !exactMatches
+                  ? 'The visible text no longer exactly matches its exact-source binding.'
+              : 'The evidence packet, public-use source, disclosure boundary, or redaction receipt is not approved.',
+      approved_for_public_use: primarySource.approved_for_public_use === true,
+      disclosure_classification: text(disclosure.classification) || null,
+      redaction_receipt_id: text(redaction.receipt_id) || null,
+      redaction_status: text(redaction.status) || null,
+      redaction_reviewed_at: text(redaction.reviewed_at) || null,
+    }
+  }
+  const templateDerived = (id: string, region: DeterministicVisualFieldLineage['region'], label: string, visibleText: string, sourcePath: string) => ({
+    id,
+    region,
+    label,
+    text: visibleText,
+    derivation: 'template_derived' as const,
+    source_path: sourcePath,
+    source_label: deterministicVisualTemplateLabel(spec.template),
+    source_id: spec.template,
+    source_type: 'approved_visual_template',
+    proof_receipt_id: `template:${spec.template}`,
+    proof_status: visibleText ? 'passed' as const : 'blocked' as const,
+    proof_detail: visibleText ? 'Fixed structural language from the approved deterministic template.' : 'Required template language is missing.',
+    approved_for_public_use: true,
+    disclosure_classification: 'template_contract',
+    redaction_receipt_id: null,
+    redaction_status: null,
+    redaction_reviewed_at: null,
+  })
+
+  return [
+    sourceBacked('eyebrow', 'eyebrow', 'Eyebrow', spec.eyebrow),
+    sourceBacked('headline', 'headline', 'Headline', spec.headline),
+    ...spec.evidence_lines.map((line, index) => sourceBacked(`evidence.${index}`, 'evidence', `Evidence ${index + 1}`, line)),
+    ...(spec.result_label ? [sourceBacked('result_label', 'result_label', 'Result badge', spec.result_label)] : []),
+    ...(spec.architecture?.nodes.flatMap((node) => [
+      templateDerived(`node.${node.id}.label`, 'node_label', `${node.id} label`, node.label, `template.${spec.template}.nodes.${node.id}.label`),
+      sourceBacked(`node.${node.id}.body`, 'node_body', `${node.label} text`, node.body),
+    ]) ?? []),
+    ...(spec.architecture?.connectors.map((connector, index) => templateDerived(
+      `connector.${index}.label`,
+      'connector_label',
+      `${connector.from} to ${connector.to}`,
+      connector.label,
+      `template.${spec.template}.connectors.${index}.label`,
+    )) ?? []),
+  ]
 }
 
 function canonicalize(value: unknown): unknown {
@@ -260,7 +387,9 @@ function deterministicVisualEffectiveInputs(input: {
   selectedVisualType: FrameworkVisualType | null
   copyVersion: string
   candidateHash: string | null
+  ragContext: unknown
 }): DeterministicVisualEffectiveInputs {
+  const fieldLineage = deterministicVisualFieldLineage(input.ragContext, input.spec)
   const authoringInputs = input.spec ? {
     render_mode: DETERMINISTIC_VISUAL_RENDER_MODE,
     system_version: input.spec.system_version,
@@ -297,6 +426,8 @@ function deterministicVisualEffectiveInputs(input: {
     visual_rationale: input.spec?.visual_rationale || null,
     nodes: input.spec?.architecture?.nodes.map(({ id, label, body }) => ({ id, label, body })) ?? [],
     connectors: input.spec?.architecture?.connectors.map(({ from, to, label }) => ({ from, to, label })) ?? [],
+    lineage_status: fieldLineage.length > 0 && fieldLineage.every((entry) => entry.proof_status === 'passed') ? 'passed' : 'blocked',
+    field_lineage: fieldLineage,
     provenance: {
       recipe_selection: 'Saved deterministic candidate and Social Content visual-type selection',
       derived_content: 'Approved practitioner content packet',
@@ -464,6 +595,7 @@ export function projectDeterministicVisualRender(input: {
     selectedVisualType: input.item.framework_visual_type,
     copyVersion: input.copyVersion,
     candidateHash,
+    ragContext: input.item.rag_context,
   })
   const base = {
     copy_version: input.copyVersion,
@@ -499,6 +631,17 @@ export function projectDeterministicVisualRender(input: {
   const blocker = candidateBlocker(spec, input.item.framework_visual_type)
   if (blocker) {
     return { ...base, state: 'blocked', can_render: false, ...blocker }
+  }
+  const blockedLineage = inputs.field_lineage.filter((entry) => entry.proof_status === 'blocked')
+  if (blockedLineage.length) {
+    return {
+      ...base,
+      state: 'blocked',
+      code: 'field_lineage_blocked',
+      can_render: false,
+      summary: `${blockedLineage.length} customer-facing visual field${blockedLineage.length === 1 ? '' : 's'} lack approved source proof.`,
+      recovery_action: `Bind ${blockedLineage.slice(0, 3).map((entry) => entry.label).join(', ')}${blockedLineage.length > 3 ? ', and the remaining fields' : ''} to approved evidence paths before rendering or approval.`,
+    }
   }
   if (!input.storageAvailable) {
     return {
@@ -688,6 +831,7 @@ export function buildDeterministicVisualAssetPatch(input: {
     selectedVisualType: input.item.framework_visual_type,
     copyVersion: input.copyVersion,
     candidateHash: input.candidateHash,
+    ragContext: input.item.rag_context,
   })
   const receipt: DeterministicVisualAssetReceipt = {
     version: DETERMINISTIC_VISUAL_ASSET_VERSION,
