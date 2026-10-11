@@ -1788,13 +1788,28 @@ function SocialContentDetailPage() {
         section_gate_reviews,
       }
 
+      const fixtureDecisionContext = id === DETERMINISTIC_VISUAL_BINDING_QA_ID
+        ? {
+            qa_state: 'current',
+            qa_visual_recipe: {
+              template: deterministicVisualTemplate,
+              visual_type: frameworkVisualType,
+              aspect_ratio: deterministicVisualAspectRatio,
+            },
+          }
+        : {}
+
       const res = await fetch(`/api/admin/social-content/${id}`, {
         method: 'PUT',
         headers: {
           Authorization: `Bearer ${session.access_token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ rag_context, expected_copy_version: item.copy_revision?.current_version }),
+        body: JSON.stringify({
+          rag_context,
+          expected_copy_version: item.copy_revision?.current_version,
+          ...fixtureDecisionContext,
+        }),
       })
       const data = await res.json()
       if (!res.ok) {
