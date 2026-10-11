@@ -23,8 +23,11 @@ const evidenceStills = new Set([
   '390-system-light-recipe-effective-inputs.png',
   '390-system-light-recipe-unsupported.png',
   '768-system-light-recipe-dirty.png',
+  '768-system-light-recipe-rebuilt.png',
   '1440-system-light-recipe-current-asset.png',
   '1440-dark-recipe-current-asset.png',
+  '1440-system-light-recipe-stale.png',
+  '1440-dark-recipe-stale.png',
   '390-system-light-recipe-decision.png',
   '390-dark-recipe-decision.png',
 ])
@@ -419,6 +422,8 @@ async function auditSocialVisual(page, resolved) {
     const lane = laneElement.getBoundingClientRect()
     const laneStyles = getComputedStyle(laneElement)
     const horizontalPadding = Number.parseFloat(laneStyles.paddingLeft) + Number.parseFloat(laneStyles.paddingRight)
+    const linkedinPreview = document.querySelector('[data-media-canvas="linkedin-post-preview"]')
+    const linkedinPreviewLuminance = linkedinPreview ? luminance(effectiveBackground(linkedinPreview)) : null
     return {
       resolved_theme: document.documentElement.classList.contains('dark') ? 'dark' : 'light',
       expected_theme: resolvedTheme,
@@ -430,6 +435,10 @@ async function auditSocialVisual(page, resolved) {
         viewport_width: innerWidth,
       },
       contrast_checks: contrastChecks,
+      linkedin_preview: {
+        background_luminance: linkedinPreviewLuminance === null ? null : Number(linkedinPreviewLuminance.toFixed(3)),
+        semantic_theme_classes: Boolean(linkedinPreview?.classList.contains('bg-background') && linkedinPreview?.classList.contains('text-foreground')),
+      },
       horizontal_overflow: document.documentElement.scrollWidth > innerWidth,
     }
   }, { resolvedTheme: resolved })
@@ -595,10 +604,14 @@ function dashboardResponse(pathname) {
 
       const renderStatus = page.getByLabel('Deterministic visual render status')
       const effectiveInputs = page.getByLabel('Effective deterministic visual inputs')
-      const renderButton = page.getByRole('button', { name: 'Render deterministic visual' })
-      const saveRecipeButton = page.getByRole('button', { name: /Save and rebuild recipe|Recipe validated/ })
-      await expect(renderStatus.getByText('Ready to render')).toBeVisible()
-      await expect(renderStatus.getByText('Provider none')).toBeVisible()
+      const primaryAction = page.locator('[data-visual-primary-action]')
+      await expect(renderStatus).toHaveAttribute('data-visual-operator-state', 'initial')
+      await expect(renderStatus.getByText('Ready to render').first()).toBeVisible()
+      await expect(primaryAction).toHaveText('Render review visual')
+      await expect(primaryAction).toBeEnabled()
+      await expect(page.getByText('proof stacking', { exact: true })).toBeVisible()
+      await expect(page.getByText(/2 deterministic templates currently available/i)).toBeVisible()
+      await expect(page.getByText(/1 render-enabled/i)).toBeVisible()
       assert.equal(await effectiveInputs.evaluate((element) => element.open), false, `${evidencePrefix} effective inputs start collapsed`)
       await effectiveInputs.locator('summary').click()
       await expect(effectiveInputs.getByText('Constraint → decision → result', { exact: false })).toBeVisible()
@@ -611,23 +624,26 @@ function dashboardResponse(pathname) {
       await effectiveInputs.locator('summary').click()
       assert.equal(await effectiveInputs.evaluate((element) => element.open), false, `${evidencePrefix} effective inputs collapse after inspection`)
       await expect(page.getByRole('textbox', { name: /image prompt/i })).toHaveCount(0)
-      await expect(page.getByLabel('Why this image will look this way')).toBeVisible()
+      const visualRationale = page.getByLabel('Why this image will look this way')
+      await expect(visualRationale).toBeVisible()
+      assert.equal(await visualRationale.evaluate((element) => element.open), false, `${evidencePrefix} visual rationale starts collapsed`)
       const providerDirection = page.getByText('Provider art direction · stored, collapsed, and excluded from this render', { exact: true }).locator('..')
       await expect(providerDirection).toContainText('future provider-media or asset-packet handoff')
       await expect(providerDirection).toContainText('deterministic render button never reads it')
       assert.equal(await providerDirection.evaluate((element) => element.open), false, `${evidencePrefix} provider art direction stays collapsed`)
       const workflowOrder = await page.locator('[data-visual-workflow-step]').evaluateAll((elements) => elements.map((element) => element.getAttribute('data-visual-workflow-step')))
-      assert.deepEqual(workflowOrder, ['recipe', 'validation', 'render', 'preview', 'decision'], `${evidencePrefix} workflow order`)
-      await expect(page.getByText(/Gemini, HeyGen, n8n media, and other media providers stay off/i)).toBeVisible()
-      await expect(renderButton).toBeEnabled()
+      assert.deepEqual(workflowOrder, ['configure', 'generate', 'decide'], `${evidencePrefix} workflow order`)
+      await expect(page.getByText(/Gemini, HeyGen, n8n media, platform drafts, scheduling, publishing, and external sends stay off/i)).toBeVisible()
+      const mediaPackage = page.locator('#social-asset-packet-gate')
+      assert.equal(await mediaPackage.evaluate((element) => element.open), false, `${evidencePrefix} media package starts collapsed`)
 
-      await pauseAtWorkflowStep(page, 'recipe')
+      await pauseAtWorkflowStep(page, 'configure')
       await page.locator('#deterministic-visual-template').selectOption('practitioner_signal_card')
-      const unsupportedRecipe = page.getByText(/does not have an enabled deterministic renderer/i)
+      const unsupportedRecipe = page.getByText(/does not have an enabled deterministic renderer/i).first()
       await expect(unsupportedRecipe).toBeVisible()
       await expect(page.locator('#deterministic-visual-type')).toBeDisabled()
-      await expect(saveRecipeButton).toBeDisabled()
-      await expect(renderButton).toBeDisabled()
+      await expect(primaryAction).toHaveText('Save changes and rebuild candidate')
+      await expect(primaryAction).toBeDisabled()
       await reveal(unsupportedRecipe)
       await page.waitForTimeout(900)
       await captureEvidenceStill(page, evidencePrefix, 'recipe-unsupported')
@@ -635,34 +651,53 @@ function dashboardResponse(pathname) {
       await page.locator('#deterministic-visual-template').selectOption('constraint_decision_result')
       await expect(page.locator('#deterministic-visual-type')).toHaveValue('architecture')
       await page.locator('#deterministic-visual-aspect').selectOption('4:5')
-      await expect(renderStatus.getByText('Save and rebuild the visual recipe before rendering.')).toBeVisible()
-      await expect(renderButton).toBeDisabled()
-      await expect(page.getByText(/prior asset is not current for the visible selection/i)).toBeVisible()
-      await pauseAtWorkflowStep(page, 'validation')
+      await expect(renderStatus).toHaveAttribute('data-visual-operator-state', 'dirty')
+      await expect(renderStatus.getByText('Changes not saved').first()).toBeVisible()
+      await expect(primaryAction).toHaveText('Save changes and rebuild candidate')
+      await expect(primaryAction).toBeEnabled()
+      await pauseAtWorkflowStep(page, 'generate')
       await captureEvidenceStill(page, evidencePrefix, 'recipe-dirty')
 
-      await page.getByRole('button', { name: 'Save and rebuild recipe' }).click()
-      await expect(page.getByRole('button', { name: 'Recipe validated' })).toBeDisabled()
-      await expect(renderStatus.getByText('Ready to render')).toBeVisible()
+      await primaryAction.click()
+      await expect(renderStatus).toHaveAttribute('data-visual-operator-state', 'rebuilt')
+      await expect(renderStatus.getByText('Candidate rebuilt').first()).toBeVisible()
       await expect(effectiveInputs).toContainText('4:5')
-      await expect(renderButton).toBeEnabled()
-      await pauseAtWorkflowStep(page, 'render')
-      await captureEvidenceStill(page, evidencePrefix, 'recipe-validated')
+      await expect(primaryAction).toHaveText('Render updated visual')
+      await expect(primaryAction).toBeEnabled()
+      await pauseAtWorkflowStep(page, 'generate')
+      await captureEvidenceStill(page, evidencePrefix, 'recipe-rebuilt')
 
-      await renderButton.click()
-      await expect(page.getByRole('button', { name: 'Review asset current' })).toBeDisabled()
-      await expect(renderStatus.getByText('Asset current')).toBeVisible()
+      await primaryAction.click()
+      await expect(renderStatus).toHaveAttribute('data-visual-operator-state', 'rendered_current')
+      await expect(primaryAction).toHaveText('Render again')
+      await expect(primaryAction).toBeEnabled()
+      await expect(page.getByRole('button', { name: 'Change recipe' })).toBeVisible()
+      await expect(renderStatus.getByText('Current asset').first()).toBeVisible()
       await expect(renderStatus.getByText(/provider none · external call false/i)).toBeVisible()
       const reviewAsset = page.getByAltText('Deterministic AmaduTown review asset').first()
       await expect(reviewAsset).toBeVisible()
       await reveal(reviewAsset)
       await page.waitForTimeout(1100)
       await captureEvidenceStill(page, evidencePrefix, 'recipe-current-asset')
-      await pauseAtWorkflowStep(page, 'decision')
+      await pauseAtWorkflowStep(page, 'decide')
       await expect(page.getByRole('button', { name: 'Approve Visuals' })).toBeVisible()
       await expect(page.getByRole('button', { name: 'Reject Visuals' })).toBeVisible()
       await page.waitForTimeout(900)
       await captureEvidenceStill(page, evidencePrefix, 'recipe-decision')
+
+      await page.goto(socialRouteFor('stale'), { waitUntil: 'domcontentloaded' })
+      await expect(page.getByText('Synthetic production-equivalent fixture')).toBeVisible({ timeout: 90000 })
+      await assertResolvedTheme(page, theme, `${evidencePrefix} stale recipe`)
+      const staleStatus = page.getByLabel('Deterministic visual render status')
+      const stalePrimaryAction = page.locator('[data-visual-primary-action]')
+      await expect(staleStatus).toHaveAttribute('data-visual-operator-state', 'rendered_stale')
+      await expect(staleStatus.getByText('Rendered asset stale').first()).toBeVisible()
+      await expect(stalePrimaryAction).toHaveText('Render updated visual')
+      await expect(stalePrimaryAction).toBeEnabled()
+      await expect(page.getByText(/Stale asset · visible for comparison/i)).toBeVisible()
+      await expect(page.getByRole('button', { name: 'Approve Visuals' })).toBeDisabled()
+      await pauseAtWorkflowStep(page, 'generate')
+      await captureEvidenceStill(page, evidencePrefix, 'recipe-stale')
 
       const socialAudit = await auditSocialVisual(page, theme.resolved)
       assert.equal(socialAudit.resolved_theme, theme.resolved, `${evidencePrefix} social resolved theme`)
@@ -670,6 +705,10 @@ function dashboardResponse(pathname) {
       assert.ok(socialAudit.content_lane.usable_width > 0, `${evidencePrefix} usable content lane width`)
       assert.ok(socialAudit.content_lane.left >= 0 && socialAudit.content_lane.right <= width + 1, `${evidencePrefix} content lane bounds`)
       assert.equal(socialAudit.horizontal_overflow, false, `${evidencePrefix} social horizontal overflow`)
+      assert.equal(socialAudit.linkedin_preview.semantic_theme_classes, true, `${evidencePrefix} LinkedIn preview semantic theme classes`)
+      assert.notEqual(socialAudit.linkedin_preview.background_luminance, null, `${evidencePrefix} LinkedIn preview background luminance`)
+      if (theme.resolved === 'light') assert.ok(socialAudit.linkedin_preview.background_luminance > 0.52, `${evidencePrefix} LinkedIn preview remained dark in light mode`)
+      else assert.ok(socialAudit.linkedin_preview.background_luminance < 0.52, `${evidencePrefix} LinkedIn preview remained light in dark mode`)
       assert.ok(socialAudit.contrast_checks.length >= 2, `${evidencePrefix} contrast sample coverage`)
       for (const check of socialAudit.contrast_checks) assert.ok(check.ratio >= check.minimum, `${evidencePrefix} ${check.name} contrast ${check.ratio} < ${check.minimum}`)
 
@@ -711,17 +750,25 @@ function dashboardResponse(pathname) {
         theme: theme.name,
         persisted_theme: theme.preference,
         resolved_theme: theme.resolved,
-        routes: [`${base}/admin`, `${base}/admin/agents`, socialRouteFor('ready')],
+        routes: [`${base}/admin`, `${base}/admin/agents`, socialRouteFor('ready'), socialRouteFor('stale')],
         agent_ops: {
           compact_dashboard: compactRadarAudit,
           full_mission_control: fullRadarAudit,
         },
         fixture_responses: fixtureResponses,
         workflow_order: workflowOrder,
+        state_machine: {
+          initial: 'Render review visual',
+          dirty: 'Save changes and rebuild candidate',
+          rebuilt: 'Render updated visual',
+          rendered_current: ['Current asset', 'Change recipe', 'Render again'],
+          rendered_stale: 'Render updated visual',
+        },
         deterministic_image_prompt_controls: 0,
         recipe: recipeSaveBodies[0]?.visual_recipe,
         expected_recipe_version: renderBodies[0]?.expected_recipe_version,
         content_lane: socialAudit.content_lane,
+        linkedin_preview: socialAudit.linkedin_preview,
         contrast_checks: socialAudit.contrast_checks,
         provider: 'none',
         provider_calls: 0,

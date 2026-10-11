@@ -231,8 +231,12 @@ describe('SocialContentDetailRoute visual production review', () => {
 
     render(<SocialContentDetailRoute />)
 
-    expect(await screen.findByText('The approved copy and provider-none HTML/SVG candidate are ready for local rendering.')).toBeVisible()
+    expect(await screen.findAllByText('Ready to render')).toHaveLength(2)
     expect(screen.getByText('Provider none')).toBeVisible()
+    expect(screen.getByText('proof stacking')).toBeVisible()
+    expect(screen.getByText(/Editorial and persuasion structure already applied/i)).toBeVisible()
+    expect(screen.getByText(/2 deterministic templates currently available/i)).toBeVisible()
+    expect(screen.getByText(/1 render-enabled/i)).toBeVisible()
     const effectiveInputs = screen.getByLabelText('Effective deterministic visual inputs')
     expect(effectiveInputs).not.toHaveAttribute('open')
     fireEvent.click(within(effectiveInputs).getByText(/Effective persisted inputs/))
@@ -246,17 +250,20 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(within(effectiveInputs).getByText(/Saved deterministic candidate/)).toBeVisible()
     expect(screen.queryByRole('textbox', { name: /image prompt/i })).not.toBeInTheDocument()
     expect(screen.getByText(/stored, collapsed, and excluded from this render/i)).toBeVisible()
-    expect(screen.getByLabelText('Why this image will look this way')).toBeVisible()
-    expect(screen.getByText(/Gemini, HeyGen, n8n media, and other media providers stay off/i)).toBeVisible()
+    const rationale = screen.getByLabelText('Why this image will look this way')
+    expect(rationale).not.toHaveAttribute('open')
+    fireEvent.click(within(rationale).getByText('Why this image will look this way'))
+    expect(rationale).toHaveAttribute('open')
+    expect(screen.getByText(/Gemini, HeyGen, n8n media, platform drafts, scheduling, publishing, and external sends stay off/i)).toBeVisible()
     const workflowSteps = Array.from(document.querySelectorAll('[data-visual-workflow-step]'))
     expect(workflowSteps.map((element) => element.getAttribute('data-visual-workflow-step'))).toEqual([
-      'recipe',
-      'validation',
-      'render',
-      'preview',
-      'decision',
+      'configure',
+      'generate',
+      'decide',
     ])
-    const renderButton = screen.getByRole('button', { name: 'Render deterministic visual' })
+    const mediaPackage = screen.getByText('Next: media package').closest('details')
+    expect(mediaPackage).not.toHaveAttribute('open')
+    const renderButton = screen.getByRole('button', { name: 'Render review visual' })
     expect(renderButton).toBeEnabled()
     fireEvent.click(renderButton)
 
@@ -283,14 +290,16 @@ describe('SocialContentDetailRoute visual production review', () => {
     })
     expect(JSON.stringify(renderBody)).not.toMatch(/image_prompt|provider art direction|Create a framework visual/i)
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: 'Review asset current' })).toBeDisabled()
+      expect(screen.getByRole('button', { name: 'Render again' })).toBeEnabled()
     })
+    expect(screen.getByRole('button', { name: 'Change recipe' })).toBeEnabled()
+    expect(screen.getAllByText('Current asset').length).toBeGreaterThanOrEqual(2)
     expect(screen.getByText(/provider none · external call false/i)).toBeVisible()
     expect((await screen.findAllByAltText('Deterministic AmaduTown review asset')).length).toBeGreaterThan(0)
     expect(fetchMock.mock.calls.some(([input]) => /generate-image|gemini|heygen|n8n/i.test(String(input)))).toBe(false)
   })
 
-  it('keeps an already-current deterministic review asset idempotently disabled', async () => {
+  it('keeps an already-current deterministic review asset explicit and idempotent', async () => {
     const currentItem = deterministicVisualBindingQaFixture('current')
     mocks.id = currentItem.id
     mocks.search = 'step=visuals&qa_state=current'
@@ -301,10 +310,35 @@ describe('SocialContentDetailRoute visual production review', () => {
 
     render(<SocialContentDetailRoute />)
 
-    expect(await screen.findByText(currentItem.deterministic_visual_render?.summary ?? '')).toBeVisible()
-    expect(screen.getByRole('button', { name: 'Review asset current' })).toBeDisabled()
-    expect(screen.getByText('Asset current')).toBeVisible()
+    expect(await screen.findByText('This asset matches the approved copy, saved recipe, and current candidate.')).toBeVisible()
+    expect(screen.getByRole('button', { name: 'Render again' })).toBeEnabled()
+    expect(screen.getByRole('button', { name: 'Change recipe' })).toBeEnabled()
+    expect(screen.getAllByText('Current asset').length).toBeGreaterThanOrEqual(2)
+    expect(screen.getByText(/already-current result remains idempotent/i)).toBeVisible()
     expect(screen.getByText(/provider none · external call false/i)).toBeVisible()
+
+    fireEvent.change(screen.getByLabelText(/Aspect ratio · editable/i), { target: { value: '4:5' } })
+    expect(screen.getAllByText('Changes not saved').length).toBeGreaterThanOrEqual(2)
+    expect(screen.getByRole('button', { name: 'Save changes and rebuild candidate' })).toBeEnabled()
+    expect(screen.getByText(/Stale asset · visible for comparison/i)).toBeVisible()
+    expect(screen.getByRole('button', { name: /Approve Visuals/i })).toBeDisabled()
+  })
+
+  it('routes a persisted stale asset directly to the updated render action', async () => {
+    const staleItem = deterministicVisualBindingQaFixture('stale')
+    mocks.id = staleItem.id
+    mocks.search = 'step=visuals&qa_state=stale'
+    vi.stubGlobal('fetch', vi.fn(async () => ({
+      ok: true,
+      json: async () => ({ fixture: true, fixture_state: 'stale', item: staleItem }),
+    })))
+
+    render(<SocialContentDetailRoute />)
+
+    expect(await screen.findAllByText('Rendered asset stale')).toHaveLength(2)
+    expect(screen.getByRole('button', { name: 'Render updated visual' })).toBeEnabled()
+    expect(screen.getByText(/Stale asset · visible for comparison/i)).toBeVisible()
+    expect(screen.getByRole('button', { name: /Approve Visuals/i })).toBeDisabled()
   })
 
   it('requires a persisted exact recipe before rendering and fails closed for unsupported template combinations', async () => {
@@ -348,25 +382,25 @@ describe('SocialContentDetailRoute visual production review', () => {
 
     render(<SocialContentDetailRoute />)
 
-    const renderButton = await screen.findByRole('button', { name: 'Render deterministic visual' })
+    const renderButton = await screen.findByRole('button', { name: 'Render review visual' })
     expect(renderButton).toBeEnabled()
-    fireEvent.change(screen.getByLabelText(/Template · editable/i), { target: { value: 'practitioner_signal_card' } })
+    fireEvent.change(screen.getByLabelText(/Visual template · editable/i), { target: { value: 'practitioner_signal_card' } })
 
     expect(renderButton).toBeDisabled()
-    expect(screen.getByText(/does not have an enabled deterministic renderer/i)).toBeVisible()
-    expect(screen.getByRole('button', { name: 'Save and rebuild recipe' })).toBeDisabled()
+    expect(screen.getAllByText(/does not have an enabled deterministic renderer/i)).toHaveLength(2)
+    expect(screen.getByRole('button', { name: 'Save changes and rebuild candidate' })).toBeDisabled()
     expect(screen.getByRole('button', { name: /Approve Visuals/i })).toBeDisabled()
     expect(fetchMock.mock.calls.some(([input]) => String(input).includes('/render-deterministic-visual'))).toBe(false)
 
-    fireEvent.change(screen.getByLabelText(/Template · editable/i), { target: { value: 'constraint_decision_result' } })
+    fireEvent.change(screen.getByLabelText(/Visual template · editable/i), { target: { value: 'constraint_decision_result' } })
     fireEvent.change(screen.getByLabelText(/Aspect ratio · editable/i), { target: { value: '4:5' } })
 
-    expect(screen.getByText(/Unsaved recipe: render is blocked/i)).toBeVisible()
-    expect(screen.getByRole('button', { name: 'Save and rebuild recipe' })).toBeEnabled()
+    expect(screen.getAllByText('Changes not saved').length).toBeGreaterThanOrEqual(2)
+    expect(screen.getByRole('button', { name: 'Save changes and rebuild candidate' })).toBeEnabled()
     expect(screen.getByRole('button', { name: /Approve Visuals/i })).toBeDisabled()
     expect(fetchMock.mock.calls.some(([input]) => String(input).includes('/render-deterministic-visual'))).toBe(false)
 
-    fireEvent.click(screen.getByRole('button', { name: 'Save and rebuild recipe' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Save changes and rebuild candidate' }))
     await waitFor(() => expect(fetchMock.mock.calls.some(([, init]) => init?.method === 'PUT')).toBe(true))
     const putCall = fetchMock.mock.calls.find(([, init]) => init?.method === 'PUT')
     expect(JSON.parse(String(putCall?.[1]?.body))).toEqual({
@@ -377,8 +411,8 @@ describe('SocialContentDetailRoute visual production review', () => {
         aspect_ratio: '4:5',
       },
     })
-    expect(await screen.findByText(/Persisted recipe matches the visible controls/i)).toBeVisible()
-    expect(screen.getByRole('button', { name: 'Render deterministic visual' })).toBeEnabled()
+    expect(await screen.findAllByText('Candidate rebuilt')).toHaveLength(2)
+    expect(screen.getByRole('button', { name: 'Render updated visual' })).toBeEnabled()
   })
 
   it('inherits the system-light theme without leaking dark review-panel chrome', async () => {
@@ -416,7 +450,9 @@ describe('SocialContentDetailRoute visual production review', () => {
 
     const previewCanvas = within(detail).getByLabelText('LinkedIn post preview')
     expect(previewCanvas).toHaveAttribute('data-media-canvas', 'linkedin-post-preview')
-    expect(previewCanvas.className).toContain('bg-gray-950/85')
+    expect(within(detail).getByText('Follows Portfolio theme')).toBeVisible()
+    expect(previewCanvas).toHaveClass('bg-background', 'text-foreground', 'border-border')
+    expect(previewCanvas.className).not.toMatch(/bg-gray-950|text-gray-100/)
   })
 
   it.each([
@@ -434,9 +470,9 @@ describe('SocialContentDetailRoute visual production review', () => {
 
     render(<SocialContentDetailRoute />)
 
-    expect(await screen.findByText(blockedItem.deterministic_visual_render?.summary ?? '')).toBeVisible()
-    expect(screen.getByText('Render blocked')).toBeVisible()
-    expect(screen.getByRole('button', { name: 'Render deterministic visual' })).toBeDisabled()
+    expect(await screen.findByText(blockedItem.deterministic_visual_render?.recovery_action ?? '')).toBeVisible()
+    expect(screen.getAllByText('Render blocked').length).toBeGreaterThanOrEqual(2)
+    expect(screen.getByRole('button', { name: 'Render unavailable' })).toBeDisabled()
     expect(screen.getByText('Provider none')).toBeVisible()
     expect(screen.queryByRole('button', { name: /Gemini|HeyGen|n8n/i })).not.toBeInTheDocument()
   })
@@ -1060,12 +1096,13 @@ describe('SocialContentDetailRoute visual production review', () => {
     view.rerender(<SocialContentDetailRoute />)
 
     expect(await screen.findByText('Visual Production')).toBeInTheDocument()
-    expect(screen.getByText('1. Visual recipe')).toBeInTheDocument()
+    expect(screen.getByText('A. Configure visual')).toBeInTheDocument()
     expect(screen.getByText('Selected')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /Render deterministic visual/i })).toBeDisabled()
+    expect(screen.getByRole('button', { name: /Render unavailable/i })).toBeDisabled()
     expect(screen.getByRole('button', { name: /App screenshot carousel/i })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Approve Visuals/i })).toBeDisabled()
     expect(screen.getByRole('button', { name: /Reject Visuals/i })).toBeDisabled()
+    fireEvent.click(screen.getByText('Next: media package'))
     expect(screen.getByRole('button', { name: /Approve Asset Packet/i })).toBeDisabled()
     expect(screen.getByRole('button', { name: /Reject Asset Packet/i })).toBeDisabled()
     expect(screen.getByRole('button', { name: /Approve Privacy Review/i })).toBeDisabled()
@@ -1513,8 +1550,10 @@ describe('SocialContentDetailRoute visual production review', () => {
 
     renderAtStep('visuals')
 
-    expect(await screen.findByText('Amina visual QA packet')).toBeInTheDocument()
-    expect(screen.getByText('Current Amina candidate')).toBeInTheDocument()
+    expect(await screen.findByText('Amina candidate evidence')).toBeInTheDocument()
+    fireEvent.click(screen.getByText('Amina candidate evidence'))
+    fireEvent.click(screen.getByText('Next: media package'))
+    expect(screen.getByText('Amina visual QA packet')).toBeInTheDocument()
     expect(screen.getByText('Amina packet attached')).toBeInTheDocument()
     expect(screen.getAllByText('single-image boundary card').length).toBeGreaterThanOrEqual(1)
     expect(screen.getAllByText(/Use an authority-ladder card/i).length).toBeGreaterThanOrEqual(1)
@@ -1718,8 +1757,8 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(within(approvalProcess).getByText('2')).toBeInTheDocument()
 
     const preview = screen.getByLabelText('LinkedIn post preview')
-    expect(preview.className).toContain('bg-gray-950/85')
-    expect(preview.className).toContain('text-gray-100')
+    expect(preview).toHaveClass('bg-background', 'text-foreground', 'border-border')
+    expect(preview.className).not.toMatch(/bg-gray-950|text-gray-100/)
 
     const decisionGate = screen.getByText('Copy Review Decision').closest('section')
     expect(decisionGate).not.toBeNull()
@@ -2320,7 +2359,8 @@ describe('SocialContentDetailRoute visual production review', () => {
 
     renderAtStep('visuals')
 
-    expect(await screen.findByText('Asset packet')).toBeInTheDocument()
+    expect(await screen.findByText('Next: media package')).toBeInTheDocument()
+    fireEvent.click(screen.getByText('Next: media package'))
     expect(screen.getAllByText('Asset packet: In review').length).toBeGreaterThan(1)
     expect(screen.getAllByText('Privacy: Blocked').length).toBeGreaterThan(0)
     expect(screen.getByRole('button', { name: /Approve Asset Packet/i })).not.toBeDisabled()
@@ -2448,7 +2488,7 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(screen.getByText('Controls are locked until the revised section is returned for review.')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Rejected' })).toBeDisabled()
     expect(screen.getByRole('button', { name: /Approve Visuals/i })).toBeDisabled()
-    expect(screen.getByRole('button', { name: /Render deterministic visual/i })).toBeDisabled()
+    expect(screen.getByRole('button', { name: /Render unavailable/i })).toBeDisabled()
     expect(screen.getByRole('button', { name: /App screenshot carousel/i })).toBeDisabled()
   })
 
@@ -2476,6 +2516,7 @@ describe('SocialContentDetailRoute visual production review', () => {
 
     renderAtStep('visuals')
 
+    fireEvent.click(await screen.findByText('Next: media package'))
     expect(await screen.findByText('Asset packet revision in progress')).toBeInTheDocument()
     expect(screen.getAllByText('Asset packet: Rejected').length).toBeGreaterThan(1)
     expect(screen.getByText('Controls are locked until the revised section is returned for review.')).toBeInTheDocument()
