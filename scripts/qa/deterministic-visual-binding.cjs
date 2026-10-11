@@ -6,9 +6,12 @@ const assert = require('node:assert/strict')
 
 const base = (process.env.QA_BASE_URL || 'http://127.0.0.1:4033').replace(/\/$/, '')
 const baseOrigin = new URL(base).origin
+const sourceCommit = process.env.QA_SOURCE_COMMIT?.trim() || null
+const trustedOidcToken = process.env.VERCEL_OIDC_TOKEN?.trim() || null
 const contentId = 'deterministic-visual-binding-qa'
 const outputDir = path.resolve('docs/social-content/qa/deterministic-visual-binding')
 const tempDir = path.resolve('test-results/deterministic-visual-binding')
+const publicDir = path.resolve('public')
 fs.mkdirSync(outputDir, { recursive: true })
 fs.mkdirSync(tempDir, { recursive: true })
 
@@ -474,6 +477,9 @@ function dashboardResponse(pathname) {
         colorScheme: theme.colorScheme,
         recordVideo: { dir: tempDir, size: { width, height } },
         serviceWorkers: 'block',
+        ...(trustedOidcToken
+          ? { extraHTTPHeaders: { 'x-vercel-trusted-oidc-idp-token': trustedOidcToken } }
+          : {}),
       })
       await context.addInitScript(({ browserSession, themePreference }) => {
         localStorage.setItem('theme', themePreference)
@@ -492,6 +498,12 @@ function dashboardResponse(pathname) {
         const json = (data, status = 200) => route.fulfill({ status, contentType: 'application/json', body: JSON.stringify(data) })
 
         if (url.hostname === 'va.vercel-scripts.com' || url.hostname === 'vercel.live') return route.abort()
+        if (url.origin === 'https://amadutown.com' && url.pathname.startsWith('/agent-avatars/')) {
+          const localAssetPath = path.resolve(publicDir, `.${url.pathname}`)
+          assert.ok(localAssetPath.startsWith(`${publicDir}${path.sep}`), `${evidencePrefix} avatar path escaped public directory`)
+          assert.ok(fs.existsSync(localAssetPath), `${evidencePrefix} missing local avatar fixture: ${url.pathname}`)
+          return route.fulfill({ path: localAssetPath })
+        }
         if (url.pathname === '/auth/v1/user') return json(user)
         if (url.pathname === '/rest/v1/user_profiles') return json([{ id: user.id, email: user.email, role: 'admin' }])
         if (url.origin !== baseOrigin) {
@@ -692,6 +704,8 @@ function dashboardResponse(pathname) {
       assert.ok(Number.isFinite(duration) && duration > 1, `${evidencePrefix} MP4 is not playable`)
 
       results.push({
+        base_url: base,
+        source_commit: sourceCommit,
         width,
         height,
         theme: theme.name,

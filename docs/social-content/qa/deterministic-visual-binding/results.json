@@ -1,14 +1,16 @@
 [
   {
+    "base_url": "https://portfolio-f0r9hsksz-vsillahs-projects.vercel.app",
+    "source_commit": "d046a424e0795e14dbb0e1c64f4924f59d10b39a",
     "width": 390,
     "height": 844,
     "theme": "system-light",
     "persisted_theme": "system",
     "resolved_theme": "light",
     "routes": [
-      "http://127.0.0.1:4033/admin",
-      "http://127.0.0.1:4033/admin/agents",
-      "http://127.0.0.1:4033/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=deterministic-visual-binding&qa_state=ready"
+      "https://portfolio-f0r9hsksz-vsillahs-projects.vercel.app/admin",
+      "https://portfolio-f0r9hsksz-vsillahs-projects.vercel.app/admin/agents",
+      "https://portfolio-f0r9hsksz-vsillahs-projects.vercel.app/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=deterministic-visual-binding&qa_state=ready"
     ],
     "agent_ops": {
       "compact_dashboard": {
@@ -40,10 +42,6 @@
       }
     },
     "fixture_responses": [
-      {
-        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
-        "state": "ready"
-      },
       {
         "path": "/api/admin/social-content/deterministic-visual-binding-qa",
         "state": "ready"
@@ -115,20 +113,22 @@
     "page_errors": [],
     "video": {
       "path": "docs/social-content/qa/deterministic-visual-binding/390-system-light-walkthrough.mp4",
-      "duration_seconds": 12.56,
+      "duration_seconds": 12.52,
       "playable": true
     }
   },
   {
+    "base_url": "https://portfolio-f0r9hsksz-vsillahs-projects.vercel.app",
+    "source_commit": "d046a424e0795e14dbb0e1c64f4924f59d10b39a",
     "width": 768,
     "height": 1000,
     "theme": "system-light",
     "persisted_theme": "system",
     "resolved_theme": "light",
     "routes": [
-      "http://127.0.0.1:4033/admin",
-      "http://127.0.0.1:4033/admin/agents",
-      "http://127.0.0.1:4033/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=deterministic-visual-binding&qa_state=ready"
+      "https://portfolio-f0r9hsksz-vsillahs-projects.vercel.app/admin",
+      "https://portfolio-f0r9hsksz-vsillahs-projects.vercel.app/admin/agents",
+      "https://portfolio-f0r9hsksz-vsillahs-projects.vercel.app/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=deterministic-visual-binding&qa_state=ready"
     ],
     "agent_ops": {
       "compact_dashboard": {
@@ -160,10 +160,6 @@
       }
     },
     "fixture_responses": [
-      {
-        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
-        "state": "ready"
-      },
       {
         "path": "/api/admin/social-content/deterministic-visual-binding-qa",
         "state": "ready"
@@ -235,20 +231,22 @@
     "page_errors": [],
     "video": {
       "path": "docs/social-content/qa/deterministic-visual-binding/768-system-light-walkthrough.mp4",
-      "duration_seconds": 12.52,
+      "duration_seconds": 12.68,
       "playable": true
     }
   },
   {
+    "base_url": "https://portfolio-f0r9hsksz-vsillahs-projects.vercel.app",
+    "source_commit": "d046a424e0795e14dbb0e1c64f4924f59d10b39a",
     "width": 1440,
     "height": 1000,
     "theme": "system-light",
     "persisted_theme": "system",
     "resolved_theme": "light",
     "routes": [
-      "http://127.0.0.1:4033/admin",
-      "http://127.0.0.1:4033/admin/agents",
-      "http://127.0.0.1:4033/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=deterministic-visual-binding&qa_state=ready"
+      "https://portfolio-f0r9hsksz-vsillahs-projects.vercel.app/admin",
+      "https://portfolio-f0r9hsksz-vsillahs-projects.vercel.app/admin/agents",
+      "https://portfolio-f0r9hsksz-vsillahs-projects.vercel.app/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=deterministic-visual-binding&qa_state=ready"
     ],
     "agent_ops": {
       "compact_dashboard": {
@@ -280,10 +278,6 @@
       }
     },
     "fixture_responses": [
-      {
-        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
-        "state": "ready"
-      },
       {
         "path": "/api/admin/social-content/deterministic-visual-binding-qa",
         "state": "ready"
@@ -355,20 +349,22 @@
     "page_errors": [],
     "video": {
       "path": "docs/social-content/qa/deterministic-visual-binding/1440-system-light-walkthrough.mp4",
-      "duration_seconds": 12.96,
+      "duration_seconds": 13.32,
       "playable": true
     }
   },
   {
+    "base_url": "https://portfolio-f0r9hsksz-vsillahs-projects.vercel.app",
+    "source_commit": "d046a424e0795e14dbb0e1c64f4924f59d10b39a",
     "width": 390,
     "height": 844,
     "theme": "dark",
     "persisted_theme": "dark",
     "resolved_theme": "dark",
     "routes": [
-      "http://127.0.0.1:4033/admin",
-      "http://127.0.0.1:4033/admin/agents",
-      "http://127.0.0.1:4033/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=deterministic-visual-binding&qa_state=ready"
+      "https://portfolio-f0r9hsksz-vsillahs-projects.vercel.app/admin",
+      "https://portfolio-f0r9hsksz-vsillahs-projects.vercel.app/admin/agents",
+      "https://portfolio-f0r9hsksz-vsillahs-projects.vercel.app/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=deterministic-visual-binding&qa_state=ready"
     ],
     "agent_ops": {
       "compact_dashboard": {
@@ -400,10 +396,6 @@
       }
     },
     "fixture_responses": [
-      {
-        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
-        "state": "ready"
-      },
       {
         "path": "/api/admin/social-content/deterministic-visual-binding-qa",
         "state": "ready"
@@ -475,20 +467,22 @@
     "page_errors": [],
     "video": {
       "path": "docs/social-content/qa/deterministic-visual-binding/390-dark-walkthrough.mp4",
-      "duration_seconds": 12.36,
+      "duration_seconds": 11.88,
       "playable": true
     }
   },
   {
+    "base_url": "https://portfolio-f0r9hsksz-vsillahs-projects.vercel.app",
+    "source_commit": "d046a424e0795e14dbb0e1c64f4924f59d10b39a",
     "width": 768,
     "height": 1000,
     "theme": "dark",
     "persisted_theme": "dark",
     "resolved_theme": "dark",
     "routes": [
-      "http://127.0.0.1:4033/admin",
-      "http://127.0.0.1:4033/admin/agents",
-      "http://127.0.0.1:4033/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=deterministic-visual-binding&qa_state=ready"
+      "https://portfolio-f0r9hsksz-vsillahs-projects.vercel.app/admin",
+      "https://portfolio-f0r9hsksz-vsillahs-projects.vercel.app/admin/agents",
+      "https://portfolio-f0r9hsksz-vsillahs-projects.vercel.app/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=deterministic-visual-binding&qa_state=ready"
     ],
     "agent_ops": {
       "compact_dashboard": {
@@ -520,10 +514,6 @@
       }
     },
     "fixture_responses": [
-      {
-        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
-        "state": "ready"
-      },
       {
         "path": "/api/admin/social-content/deterministic-visual-binding-qa",
         "state": "ready"
@@ -595,20 +585,22 @@
     "page_errors": [],
     "video": {
       "path": "docs/social-content/qa/deterministic-visual-binding/768-dark-walkthrough.mp4",
-      "duration_seconds": 12.32,
+      "duration_seconds": 12.08,
       "playable": true
     }
   },
   {
+    "base_url": "https://portfolio-f0r9hsksz-vsillahs-projects.vercel.app",
+    "source_commit": "d046a424e0795e14dbb0e1c64f4924f59d10b39a",
     "width": 1440,
     "height": 1000,
     "theme": "dark",
     "persisted_theme": "dark",
     "resolved_theme": "dark",
     "routes": [
-      "http://127.0.0.1:4033/admin",
-      "http://127.0.0.1:4033/admin/agents",
-      "http://127.0.0.1:4033/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=deterministic-visual-binding&qa_state=ready"
+      "https://portfolio-f0r9hsksz-vsillahs-projects.vercel.app/admin",
+      "https://portfolio-f0r9hsksz-vsillahs-projects.vercel.app/admin/agents",
+      "https://portfolio-f0r9hsksz-vsillahs-projects.vercel.app/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=deterministic-visual-binding&qa_state=ready"
     ],
     "agent_ops": {
       "compact_dashboard": {
@@ -640,10 +632,6 @@
       }
     },
     "fixture_responses": [
-      {
-        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
-        "state": "ready"
-      },
       {
         "path": "/api/admin/social-content/deterministic-visual-binding-qa",
         "state": "ready"
@@ -715,7 +703,7 @@
     "page_errors": [],
     "video": {
       "path": "docs/social-content/qa/deterministic-visual-binding/1440-dark-walkthrough.mp4",
-      "duration_seconds": 13,
+      "duration_seconds": 13.68,
       "playable": true
     }
   }

@@ -41,3 +41,13 @@ QA_BASE_URL=http://127.0.0.1:4033 node scripts/qa/deterministic-visual-binding.c
 ```
 
 The QA runner blocks external browser requests, permits only the synthetic recipe PUT and render POST, asserts the five-step workflow order and zero active deterministic image-prompt controls, verifies exact recipe persistence and render-version fencing, asserts zero unexpected mutations, and fails on theme drift, light/dark surface regression, contrast failure, horizontal overflow, browser errors, or unplayable MP4 output.
+
+For a protected Git preview, keep Deployment Protection enabled and let the linked Vercel project inject its short-lived development OIDC token without printing or persisting it:
+
+```bash
+QA_BASE_URL=https://exact-preview.vercel.app \
+QA_SOURCE_COMMIT=<exact-preview-commit> \
+  vc env run -- node scripts/qa/deterministic-visual-binding.cjs
+```
+
+The recorder sends the token only through the origin-scoped Vercel Trusted Sources header before navigation. `results.json` records the preview base URL and source commit, never the token.
