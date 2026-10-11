@@ -3869,7 +3869,11 @@ function SocialContentDetailPage() {
                 { label: isEditable ? 'Edit Post' : 'View Post' },
               ]} />
             </div>
-            <span className={`shrink-0 rounded-full border px-2.5 py-0.5 text-xs font-medium ${statusCfg.bgColor} ${statusCfg.color} ${statusCfg.borderColor}`}>
+            <span
+              data-content-status={item.status}
+              data-contrast-audit="content-status-badge"
+              className={`content-status-badge shrink-0 rounded-full border px-2.5 py-0.5 text-xs font-semibold ${statusCfg.bgColor} ${statusCfg.color} ${statusCfg.borderColor}`}
+            >
               {statusCfg.label}
             </span>
           </div>

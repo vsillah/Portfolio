@@ -576,6 +576,14 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(scroll).toHaveBeenCalledWith({ block: 'start' })
   })
 
+  it('marks the sticky lifecycle badge for theme-aware contrast styling', async () => {
+    renderAtStep('visuals')
+
+    const badge = await screen.findByText('Approved', { selector: '[data-content-status="approved"]' })
+    expect(badge).toHaveAttribute('data-contrast-audit', 'content-status-badge')
+    expect(badge).toHaveClass('content-status-badge', 'font-semibold')
+  })
+
   it('exposes every responsive approval step without a horizontal scroll rail and activates later steps through the canonical query', async () => {
     mocks.search = 'returnTo=%2Fadmin%2Fsocial-content&step=copy'
 
