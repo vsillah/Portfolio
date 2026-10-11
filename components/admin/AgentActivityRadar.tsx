@@ -42,13 +42,13 @@ const STATE_LABELS: Record<AgentActivityState, string> = {
 }
 
 const STATE_STYLES: Record<AgentActivityState, string> = {
-  active: 'border-emerald-400/40 bg-emerald-500/10 text-emerald-200',
-  idle: 'border-silicon-slate/60 bg-silicon-slate/20 text-muted-foreground',
-  queued: 'border-sky-400/40 bg-sky-500/10 text-sky-200',
-  waiting_for_approval: 'border-radiant-gold/45 bg-radiant-gold/10 text-radiant-gold',
-  blocked: 'border-yellow-400/45 bg-yellow-500/10 text-yellow-200',
-  stale: 'border-orange-400/45 bg-orange-500/10 text-orange-200',
-  failed: 'border-red-400/45 bg-red-500/10 text-red-200',
+  active: 'border-emerald-600/40 bg-emerald-100 text-emerald-900 dark:border-emerald-400/40 dark:bg-emerald-500/10 dark:text-emerald-200',
+  idle: 'border-border bg-muted text-muted-foreground dark:border-silicon-slate/60 dark:bg-silicon-slate/20',
+  queued: 'border-sky-600/40 bg-sky-100 text-sky-900 dark:border-sky-400/40 dark:bg-sky-500/10 dark:text-sky-200',
+  waiting_for_approval: 'border-amber-600/45 bg-amber-100 text-amber-950 dark:border-radiant-gold/45 dark:bg-radiant-gold/10 dark:text-radiant-gold',
+  blocked: 'border-yellow-600/45 bg-yellow-100 text-yellow-950 dark:border-yellow-400/45 dark:bg-yellow-500/10 dark:text-yellow-200',
+  stale: 'border-orange-600/45 bg-orange-100 text-orange-950 dark:border-orange-400/45 dark:bg-orange-500/10 dark:text-orange-200',
+  failed: 'border-red-600/45 bg-red-100 text-red-950 dark:border-red-400/45 dark:bg-red-500/10 dark:text-red-200',
 }
 
 type ClientLifecycleStageKey =
@@ -88,70 +88,70 @@ const CLIENT_LIFECYCLE_STAGES: ClientLifecycleStage[] = [
     label: 'Attract',
     eyebrow: 'Social + content',
     description: 'Posts, campaigns, comments, and lead capture.',
-    className: 'border-cyan-400/35 bg-cyan-500/10',
+    className: 'border-cyan-600/35 bg-cyan-50 dark:border-cyan-400/35 dark:bg-cyan-500/10',
   },
   {
     key: 'qualify',
     label: 'Qualify',
     eyebrow: 'Research + fit',
     description: 'Lead research, source maps, and fit scoring.',
-    className: 'border-sky-400/35 bg-sky-500/10',
+    className: 'border-sky-600/35 bg-sky-50 dark:border-sky-400/35 dark:bg-sky-500/10',
   },
   {
     key: 'schedule',
     label: 'Schedule',
     eyebrow: 'Conversation',
     description: 'Warm follow-up, calendar holds, and meeting prep.',
-    className: 'border-violet-400/35 bg-violet-500/10',
+    className: 'border-violet-600/35 bg-violet-50 dark:border-violet-400/35 dark:bg-violet-500/10',
   },
   {
     key: 'diagnose',
     label: 'Diagnose',
     eyebrow: 'Discovery',
     description: 'Audits, pain points, and value evidence.',
-    className: 'border-fuchsia-400/35 bg-fuchsia-500/10',
+    className: 'border-fuchsia-600/35 bg-fuchsia-50 dark:border-fuchsia-400/35 dark:bg-fuchsia-500/10',
   },
   {
     key: 'propose',
     label: 'Propose',
     eyebrow: 'Offer design',
     description: 'Packages, scripts, pricing, and proof packets.',
-    className: 'border-amber-400/35 bg-amber-500/10',
+    className: 'border-amber-600/35 bg-amber-50 dark:border-amber-400/35 dark:bg-amber-500/10',
   },
   {
     key: 'close',
     label: 'Close',
     eyebrow: 'Transaction',
     description: 'Contracts, checkout, payment, and approvals.',
-    className: 'border-emerald-400/35 bg-emerald-500/10',
+    className: 'border-emerald-600/35 bg-emerald-50 dark:border-emerald-400/35 dark:bg-emerald-500/10',
   },
   {
     key: 'onboard',
     label: 'Onboard',
     eyebrow: 'Kickoff',
     description: 'Provisioning, access, intake, and kickoff notes.',
-    className: 'border-teal-400/35 bg-teal-500/10',
+    className: 'border-teal-600/35 bg-teal-50 dark:border-teal-400/35 dark:bg-teal-500/10',
   },
   {
     key: 'deliver',
     label: 'Deliver',
     eyebrow: 'Build + operate',
     description: 'Implementation, workflows, automation, and handoffs.',
-    className: 'border-blue-400/35 bg-blue-500/10',
+    className: 'border-blue-600/35 bg-blue-50 dark:border-blue-400/35 dark:bg-blue-500/10',
   },
   {
     key: 'prove',
     label: 'Prove',
     eyebrow: 'QA + evidence',
     description: 'Validation, observability, reporting, and traceability.',
-    className: 'border-radiant-gold/45 bg-radiant-gold/10',
+    className: 'border-amber-600/45 bg-amber-50 dark:border-radiant-gold/45 dark:bg-radiant-gold/10',
   },
   {
     key: 'retain',
     label: 'Retain',
     eyebrow: 'Continuity',
     description: 'Weekly updates, renewals, upsell, and down-sell motion.',
-    className: 'border-rose-400/35 bg-rose-500/10',
+    className: 'border-rose-600/35 bg-rose-50 dark:border-rose-400/35 dark:bg-rose-500/10',
   },
 ]
 
@@ -344,7 +344,7 @@ export default function AgentActivityRadar({ variant = 'full' }: AgentActivityRa
   )
 
   return (
-    <section className="agent-ops-panel rounded-xl border p-5" aria-label="Agent Activity Radar">
+    <section className="agent-ops-panel rounded-xl border p-5" aria-label="Agent Activity Radar" data-agent-ops-surface="radar-root" data-agent-ops-contrast="semantic">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <div className="agent-ops-eyebrow mb-2">
@@ -357,7 +357,7 @@ export default function AgentActivityRadar({ variant = 'full' }: AgentActivityRa
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <span className="rounded-lg border border-silicon-slate/60 bg-background/45 px-3 py-2 text-xs text-muted-foreground">
+          <span className="rounded-lg border border-border bg-background px-3 py-2 text-xs text-muted-foreground dark:border-silicon-slate/60 dark:bg-background/45">
             Updated {formatGeneratedAt(snapshot?.generated_at ?? null)}
           </span>
           <button
@@ -365,11 +365,12 @@ export default function AgentActivityRadar({ variant = 'full' }: AgentActivityRa
             onClick={() => loadRadar({ quiet: true })}
             disabled={loading || refreshing}
             className="agent-ops-button-secondary disabled:opacity-60"
+            data-agent-ops-surface="refresh-button"
           >
             <RefreshCw size={16} className={refreshing ? 'animate-spin' : ''} />
             Refresh
           </button>
-          <Link href="/admin/agents" className="agent-ops-button-muted">
+          <Link href="/admin/agents" className="agent-ops-button-muted" data-agent-ops-surface="navigation-button">
             Agent Ops
             <ArrowRight size={15} />
           </Link>
@@ -377,21 +378,21 @@ export default function AgentActivityRadar({ variant = 'full' }: AgentActivityRa
       </div>
 
       {error ? (
-        <div className="mt-4 rounded-lg border border-yellow-400/35 bg-yellow-500/10 p-3 text-sm text-yellow-100" role="status">
+        <div className="mt-4 rounded-lg border border-yellow-600/35 bg-yellow-100 p-3 text-sm text-yellow-950 dark:border-yellow-400/35 dark:bg-yellow-500/10 dark:text-yellow-100" role="status" data-agent-ops-surface="error-state">
           {error}
-          {snapshot ? <span className="ml-1 text-yellow-100/70">Showing the last loaded radar.</span> : null}
+          {snapshot ? <span className="ml-1 text-yellow-800 dark:text-yellow-100/70">Showing the last loaded radar.</span> : null}
         </div>
       ) : null}
 
       {actionResult ? (
-        <div className="mt-4 flex items-center gap-2 rounded-lg border border-emerald-400/35 bg-emerald-500/10 p-3 text-sm text-emerald-100" role="status">
+        <div className="mt-4 flex items-center gap-2 rounded-lg border border-emerald-600/35 bg-emerald-100 p-3 text-sm text-emerald-950 dark:border-emerald-400/35 dark:bg-emerald-500/10 dark:text-emerald-100" role="status" data-agent-ops-surface="action-result">
           <CheckCircle2 size={16} />
           {actionResult}
         </div>
       ) : null}
 
       {loading && !snapshot ? (
-        <div className="mt-6 flex items-center justify-center gap-2 rounded-lg border border-silicon-slate/60 bg-silicon-slate/20 p-8 text-sm text-muted-foreground">
+        <div className="mt-6 flex items-center justify-center gap-2 rounded-lg border border-border bg-muted p-8 text-sm text-muted-foreground dark:border-silicon-slate/60 dark:bg-silicon-slate/20" data-agent-ops-surface="loading-state">
           <Loader2 size={16} className="animate-spin" />
           Loading Agent Activity Radar...
         </div>
@@ -486,7 +487,7 @@ function ClientLifecycleMap({
   }
 
   return (
-    <div className="relative z-20 mt-5 rounded-xl border border-silicon-slate/70 bg-background/35 p-4" aria-label="Client engagement lifecycle">
+    <div className="relative z-20 mt-5 rounded-xl border border-border bg-background p-4 dark:border-silicon-slate/70 dark:bg-background/35" aria-label="Client engagement lifecycle" data-agent-ops-surface="lifecycle-map">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div className="min-w-0">
           <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Client lifecycle</p>
@@ -507,18 +508,19 @@ function ClientLifecycleMap({
               key={stage.key}
               className={`relative min-h-[168px] overflow-visible rounded-lg border p-3 ${stage.className}`}
               aria-label={`${stage.label} lifecycle stage`}
+              data-agent-ops-surface="lifecycle-room"
             >
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
                   <p className="line-clamp-2 text-[11px] font-semibold uppercase leading-snug tracking-wide text-muted-foreground">{stage.eyebrow}</p>
                   <h4 className="mt-1 text-sm font-semibold leading-tight">{stage.label}</h4>
                 </div>
-                <span className="shrink-0 rounded-full border border-silicon-slate/60 bg-background/55 px-2 py-1 text-[11px] tabular-nums">
+                <span className="shrink-0 rounded-full border border-border bg-background px-2 py-1 text-[11px] tabular-nums dark:border-silicon-slate/60 dark:bg-background/55">
                   {roomAgents.length}
                 </span>
               </div>
               <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-muted-foreground">{stage.description}</p>
-              <div className="mt-3 h-1.5 rounded-full bg-background/55" aria-label={`${stage.label} average progress ${averageProgress}%`}>
+              <div className="mt-3 h-1.5 rounded-full bg-muted dark:bg-background/55" aria-label={`${stage.label} average progress ${averageProgress}%`}>
                 <div className="h-full rounded-full bg-radiant-gold/80" style={{ width: `${averageProgress}%` }} />
               </div>
               <LifecycleStageAgentPager
@@ -605,7 +607,7 @@ function LifecycleStageAgentPager({
   if (!agents.length) {
     return (
       <div className="mt-4 min-h-[2.625rem]" aria-label={`${stage.label} assigned agents`}>
-        <span className="block rounded-lg border border-dashed border-silicon-slate/55 bg-background/30 px-2 py-1.5 text-[11px] text-muted-foreground">
+        <span className="block rounded-lg border border-dashed border-border bg-muted/50 px-2 py-1.5 text-[11px] text-muted-foreground dark:border-silicon-slate/55 dark:bg-background/30">
           No assigned agents
         </span>
       </div>
@@ -636,19 +638,19 @@ function LifecycleStageAgentPager({
             type="button"
             onClick={() => setPageIndex((currentPage) => Math.max(0, currentPage - 1))}
             disabled={pageIndex === 0}
-            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-silicon-slate/60 bg-background/45 text-muted-foreground transition hover:border-radiant-gold/60 hover:text-radiant-gold disabled:cursor-not-allowed disabled:opacity-35"
+            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-border bg-background text-muted-foreground transition hover:border-radiant-gold/60 hover:text-radiant-gold disabled:cursor-not-allowed disabled:opacity-35 dark:border-silicon-slate/60 dark:bg-background/45"
             aria-label={`Previous ${stage.label} agents`}
           >
             <ChevronLeft size={14} />
           </button>
-          <span className="rounded-full border border-silicon-slate/60 bg-background/45 px-2 py-1 text-[11px] leading-none text-muted-foreground tabular-nums">
+          <span className="rounded-full border border-border bg-background px-2 py-1 text-[11px] leading-none text-muted-foreground tabular-nums dark:border-silicon-slate/60 dark:bg-background/45">
             {pageStart + 1}-{pageEnd}/{agents.length}
           </span>
           <button
             type="button"
             onClick={() => setPageIndex((currentPage) => Math.min(pageCount - 1, currentPage + 1))}
             disabled={pageIndex >= pageCount - 1}
-            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-silicon-slate/60 bg-background/45 text-muted-foreground transition hover:border-radiant-gold/60 hover:text-radiant-gold disabled:cursor-not-allowed disabled:opacity-35"
+            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-border bg-background text-muted-foreground transition hover:border-radiant-gold/60 hover:text-radiant-gold disabled:cursor-not-allowed disabled:opacity-35 dark:border-silicon-slate/60 dark:bg-background/45"
             aria-label={`Next ${stage.label} agents`}
           >
             <ChevronRight size={14} />
@@ -681,7 +683,7 @@ function LifecycleAgentPin({
         onFocus={(event) => onShowTooltip(agent, event.currentTarget)}
         onBlur={onHideTooltip}
         onClick={(event) => onToggleSelected(agent, event.currentTarget)}
-        className={`rounded-xl border bg-background/60 p-1 transition hover:-translate-y-0.5 hover:border-radiant-gold/70 focus:outline-none focus:ring-2 focus:ring-radiant-gold/70 ${selected ? 'ring-2 ring-radiant-gold/80' : ''} ${STATE_STYLES[agent.live_state]}`}
+        className={`rounded-xl border bg-background p-1 transition hover:-translate-y-0.5 hover:border-radiant-gold/70 focus:outline-none focus:ring-2 focus:ring-radiant-gold/70 dark:bg-background/60 ${selected ? 'ring-2 ring-radiant-gold/80' : ''} ${STATE_STYLES[agent.live_state]}`}
         aria-label={`${selected ? 'Clear' : 'Open'} ${agent.name} lifecycle detail`}
         aria-pressed={selected}
       >
@@ -708,12 +710,13 @@ function LifecycleAgentTooltip({
 
   return (
     <div
-      className="fixed z-[9999] w-[min(20rem,calc(100vw-1.5rem))] rounded-lg border border-silicon-slate/70 bg-background/95 p-3 text-left shadow-2xl shadow-black/40 backdrop-blur-md"
+      className="fixed z-[9999] w-[min(20rem,calc(100vw-1.5rem))] rounded-lg border border-border bg-card/95 p-3 text-left text-card-foreground shadow-2xl shadow-slate-900/15 backdrop-blur-md dark:border-silicon-slate/70 dark:bg-background/95 dark:shadow-black/40"
       style={{ left, top }}
       onMouseLeave={onClose}
       data-placement={placement}
       role="dialog"
       aria-label={`${agent.name} lifecycle detail`}
+      data-agent-ops-surface="lifecycle-tooltip"
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
@@ -725,7 +728,7 @@ function LifecycleAgentTooltip({
           <span className="truncate">{STATE_LABELS[agent.live_state]}</span>
         </span>
       </div>
-      <div className="mt-3 rounded-lg border border-silicon-slate/55 bg-silicon-slate/15 p-2">
+      <div className="mt-3 rounded-lg border border-border bg-muted/50 p-2 dark:border-silicon-slate/55 dark:bg-silicon-slate/15">
         <p className="line-clamp-2 text-xs font-medium leading-snug">{currentWorkLabel(agent)}</p>
         <p className="mt-1 line-clamp-2 text-[11px] leading-snug text-muted-foreground">
           {agent.current_step ?? agent.latest_event?.message ?? 'No current step recorded.'}
@@ -736,7 +739,7 @@ function LifecycleAgentTooltip({
           <span>Progress</span>
           <span>{progress}%</span>
         </div>
-        <div className="h-1.5 rounded-full bg-silicon-slate/45" aria-label={`${agent.name} progress ${progress}%`}>
+        <div className="h-1.5 rounded-full bg-muted dark:bg-silicon-slate/45" aria-label={`${agent.name} progress ${progress}%`}>
           <div className="h-full rounded-full bg-radiant-gold" style={{ width: `${progress}%` }} />
         </div>
       </div>
@@ -746,7 +749,7 @@ function LifecycleAgentTooltip({
             key={action.kind}
             href={action.href}
             aria-label={`${action.label} for ${agent.name}`}
-            className="inline-flex min-w-0 items-center gap-1 rounded-md border border-silicon-slate/65 px-2 py-1 text-[11px] leading-tight hover:border-radiant-gold/55"
+            className="inline-flex min-w-0 items-center gap-1 rounded-md border border-border bg-background px-2 py-1 text-[11px] leading-tight hover:border-radiant-gold/55 dark:border-silicon-slate/65 dark:bg-transparent"
           >
             <span className="truncate">{action.label}</span>
           </Link>
@@ -757,7 +760,7 @@ function LifecycleAgentTooltip({
             aria-label={`${action.label} for ${agent.name}`}
             onClick={() => onExecuteAction(agent, action)}
             disabled={actionLoading === `${agent.key}:${action.kind}`}
-            className="inline-flex min-w-0 items-center gap-1 rounded-md border border-silicon-slate/65 px-2 py-1 text-[11px] leading-tight hover:border-radiant-gold/55 disabled:opacity-60"
+            className="inline-flex min-w-0 items-center gap-1 rounded-md border border-border bg-background px-2 py-1 text-[11px] leading-tight hover:border-radiant-gold/55 disabled:opacity-60 dark:border-silicon-slate/65 dark:bg-transparent"
           >
             {action.kind === 'ask_shaka' ? <MessageSquare size={12} /> : <Send size={12} />}
             <span className="truncate">{actionLoading === `${agent.key}:${action.kind}` ? 'Sending...' : action.label}</span>
@@ -781,13 +784,13 @@ function SelectedAgentPanel({
   onExecuteAction: (agent: AgentActivityRadarAgent, action: AgentActivitySteerAction) => void
 }) {
   return (
-    <section className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/10 p-3" aria-label="Selected agent detail">
+    <section className="rounded-lg border border-border bg-card p-3 text-card-foreground dark:border-silicon-slate/70 dark:bg-silicon-slate/10" aria-label="Selected agent detail" data-agent-ops-surface="selected-agent">
       <div className="mb-3 flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
           <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Selected agent</p>
           <h3 className="mt-1 truncate text-lg font-semibold leading-tight" title={agent.name}>{agent.name}</h3>
         </div>
-        <span className="w-fit rounded-full border border-silicon-slate/60 px-2 py-1 text-xs text-muted-foreground">
+        <span className="w-fit rounded-full border border-border px-2 py-1 text-xs text-muted-foreground dark:border-silicon-slate/60">
           From lifecycle map
         </span>
       </div>
@@ -804,9 +807,9 @@ function SelectedAgentPanel({
 function SummaryStrip({ snapshot }: { snapshot: AgentActivityRadarSnapshot }) {
   const keys: AgentActivityState[] = ['active', 'queued', 'waiting_for_approval', 'blocked', 'stale', 'failed', 'idle']
   return (
-    <div className="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7" aria-label="Agent Activity Radar summary">
+    <div className="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7" aria-label="Agent Activity Radar summary" data-agent-ops-surface="summary-strip">
       {keys.map((key) => (
-        <div key={key} className={`min-w-0 rounded-lg border px-3 py-2 ${STATE_STYLES[key]}`}>
+        <div key={key} className={`min-w-0 rounded-lg border px-3 py-2 ${STATE_STYLES[key]}`} data-agent-ops-surface="summary-metric" data-agent-state={key}>
           <div className="flex min-w-0 items-center gap-2 text-xs font-semibold uppercase leading-tight tracking-wide">
             {stateIcon(key)}
             <span className="truncate">{STATE_LABELS[key]}</span>
@@ -833,7 +836,7 @@ function AgentRadarCard({
     ? agent.steer_actions.filter((action) => ['open_trace', 'open_kanban', 'open_approval', 'ask_shaka'].includes(action.kind)).slice(0, 3)
     : agent.steer_actions
   return (
-    <article className="min-w-0 rounded-lg border border-silicon-slate/70 bg-silicon-slate/15 p-4">
+    <article className="min-w-0 rounded-lg border border-border bg-background p-4 dark:border-silicon-slate/70 dark:bg-silicon-slate/15" data-agent-ops-surface="agent-card">
       <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <p className="truncate font-semibold" title={agent.name}>{agent.name}</p>
@@ -845,7 +848,7 @@ function AgentRadarCard({
         </span>
       </div>
 
-      <div className="mt-4 rounded-lg border border-silicon-slate/55 bg-background/45 p-3">
+      <div className="mt-4 rounded-lg border border-border bg-muted/40 p-3 dark:border-silicon-slate/55 dark:bg-background/45">
         <p className="text-xs uppercase leading-tight tracking-wide text-muted-foreground">Current work</p>
         <p className="mt-1 line-clamp-2 text-sm font-medium leading-snug">
           {agent.current_work_item?.title ?? agent.active_run?.title ?? agent.idle_reason ?? 'No active assignment'}
@@ -856,9 +859,9 @@ function AgentRadarCard({
       </div>
 
       <div className="mt-3 flex flex-wrap gap-2 text-xs leading-tight text-muted-foreground">
-        <span className="min-w-0 max-w-full rounded-full border border-silicon-slate/60 px-2 py-1">Last signal {formatAge(agent.age_seconds)}</span>
-        {agent.backlog_lane ? <span className="min-w-0 max-w-full rounded-full border border-silicon-slate/60 px-2 py-1">{agent.backlog_lane.label}</span> : null}
-        {agent.linked_goal ? <span className="min-w-0 max-w-full rounded-full border border-silicon-slate/60 px-2 py-1">Goal linked</span> : null}
+        <span className="min-w-0 max-w-full rounded-full border border-border px-2 py-1 dark:border-silicon-slate/60">Last signal {formatAge(agent.age_seconds)}</span>
+        {agent.backlog_lane ? <span className="min-w-0 max-w-full rounded-full border border-border px-2 py-1 dark:border-silicon-slate/60">{agent.backlog_lane.label}</span> : null}
+        {agent.linked_goal ? <span className="min-w-0 max-w-full rounded-full border border-border px-2 py-1 dark:border-silicon-slate/60">Goal linked</span> : null}
       </div>
 
       {!compact && agent.linked_goal ? (
@@ -868,16 +871,16 @@ function AgentRadarCard({
           </Link>
           <div className="mt-2 flex flex-wrap gap-1.5 text-[11px] leading-tight">
             {agent.linked_goal.current_gate ? (
-              <span className="rounded-full border border-silicon-slate/60 px-2 py-1 text-muted-foreground">
+              <span className="rounded-full border border-border px-2 py-1 text-muted-foreground dark:border-silicon-slate/60">
                 Gate: {agent.linked_goal.current_gate.replace(/_/g, ' ')}
               </span>
             ) : null}
             {agent.linked_goal.challenger_status ? (
-              <span className="rounded-full border border-silicon-slate/60 px-2 py-1 text-muted-foreground">
+              <span className="rounded-full border border-border px-2 py-1 text-muted-foreground dark:border-silicon-slate/60">
                 Challenger: {agent.linked_goal.challenger_status.replace(/_/g, ' ')}
               </span>
             ) : null}
-            <span className={`rounded-full border px-2 py-1 ${agent.linked_goal.pass_to_human ? 'border-emerald-500/40 text-emerald-200' : 'border-amber-500/35 text-amber-200'}`}>
+            <span className={`rounded-full border px-2 py-1 ${agent.linked_goal.pass_to_human ? 'border-emerald-600/40 text-emerald-800 dark:border-emerald-500/40 dark:text-emerald-200' : 'border-amber-600/35 text-amber-900 dark:border-amber-500/35 dark:text-amber-200'}`}>
               {agent.linked_goal.pass_to_human ? 'Human review ready' : 'Before human review'}
             </span>
           </div>
@@ -886,7 +889,7 @@ function AgentRadarCard({
 
       <div className="mt-4 flex flex-wrap gap-2">
         {actions.map((action) => action.href ? (
-          <Link key={action.kind} href={action.href} className="inline-flex min-w-0 max-w-full items-center gap-1 rounded-lg border border-silicon-slate/65 px-2 py-1.5 text-xs leading-tight hover:border-radiant-gold/55">
+          <Link key={action.kind} href={action.href} className="inline-flex min-w-0 max-w-full items-center gap-1 rounded-lg border border-border bg-background px-2 py-1.5 text-xs leading-tight hover:border-radiant-gold/55 dark:border-silicon-slate/65 dark:bg-transparent">
             <span className="truncate">{action.label}</span>
           </Link>
         ) : (
@@ -895,7 +898,7 @@ function AgentRadarCard({
             type="button"
             onClick={() => onExecuteAction(agent, action)}
             disabled={actionLoading === `${agent.key}:${action.kind}`}
-            className="inline-flex min-w-0 max-w-full items-center gap-1 rounded-lg border border-silicon-slate/65 px-2 py-1.5 text-xs leading-tight hover:border-radiant-gold/55 disabled:opacity-60"
+            className="inline-flex min-w-0 max-w-full items-center gap-1 rounded-lg border border-border bg-background px-2 py-1.5 text-xs leading-tight hover:border-radiant-gold/55 disabled:opacity-60 dark:border-silicon-slate/65 dark:bg-transparent"
           >
             {action.kind === 'ask_shaka' ? <MessageSquare size={13} /> : <Send size={13} />}
             <span className="truncate">{actionLoading === `${agent.key}:${action.kind}` ? 'Sending...' : action.label}</span>
@@ -909,7 +912,7 @@ function AgentRadarCard({
 function AttentionList({ attention, compact }: { attention: AgentActivityRadarAttention[]; compact: boolean }) {
   const visible = compact ? attention.slice(0, 4) : attention
   return (
-    <aside className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/15 p-4" aria-label="Agent Activity Radar attention">
+    <aside className="rounded-lg border border-border bg-card p-4 text-card-foreground dark:border-silicon-slate/70 dark:bg-silicon-slate/15" aria-label="Agent Activity Radar attention" data-agent-ops-surface="attention-list">
       <div className="flex items-center justify-between gap-3">
         <div>
           <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Attention queue</p>
@@ -921,10 +924,10 @@ function AttentionList({ attention, compact }: { attention: AgentActivityRadarAt
       </div>
       <div className="mt-4 space-y-3">
         {visible.length ? visible.map((item) => (
-          <Link key={item.id} href={item.href} className="block rounded-lg border border-silicon-slate/60 bg-background/45 p-3 hover:border-radiant-gold/50">
+          <Link key={item.id} href={item.href} className="block rounded-lg border border-border bg-background p-3 hover:border-radiant-gold/50 dark:border-silicon-slate/60 dark:bg-background/45">
             <div className="flex items-start justify-between gap-3">
               <p className="line-clamp-2 text-sm font-medium">{item.title}</p>
-              <span className={`rounded-full border px-2 py-1 text-xs ${item.severity === 'error' ? 'border-red-400/40 text-red-200' : item.severity === 'warning' ? 'border-yellow-400/40 text-yellow-200' : 'border-silicon-slate/60 text-muted-foreground'}`}>
+              <span className={`rounded-full border px-2 py-1 text-xs ${item.severity === 'error' ? 'border-red-600/40 text-red-800 dark:border-red-400/40 dark:text-red-200' : item.severity === 'warning' ? 'border-yellow-600/40 text-yellow-900 dark:border-yellow-400/40 dark:text-yellow-200' : 'border-border text-muted-foreground dark:border-silicon-slate/60'}`}>
                 {STATE_LABELS[item.state]}
               </span>
             </div>
@@ -932,7 +935,7 @@ function AttentionList({ attention, compact }: { attention: AgentActivityRadarAt
             <p className="mt-2 text-xs text-muted-foreground">{item.agent_name} · {formatAge(item.age_seconds)}</p>
           </Link>
         )) : (
-          <div className="rounded-lg border border-emerald-400/25 bg-emerald-500/10 p-3 text-sm text-emerald-100">
+          <div className="rounded-lg border border-emerald-600/25 bg-emerald-100 p-3 text-sm text-emerald-950 dark:border-emerald-400/25 dark:bg-emerald-500/10 dark:text-emerald-100" data-agent-ops-surface="empty-state">
             No blocked, failed, stale, or approval-waiting agents in the current radar.
           </div>
         )}

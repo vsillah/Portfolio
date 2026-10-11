@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import {
   assertDeterministicVisualRenderRequest,
   buildDeterministicVisualAssetPatch,
+  buildDeterministicVisualRecipePatch,
   deterministicVisualCandidateHash,
   deterministicVisualRenderInputHash,
   deterministicVisualStoragePath,
@@ -14,7 +15,7 @@ import {
   renderDeterministicVisualPng,
 } from './social-deterministic-visual-renderer'
 import { practitionerContentQaFixture } from './social-practitioner-content-qa-fixture'
-import { socialCopyVersion } from './social-copy-revision'
+import { prepareManualCopyUpdate, socialCopyVersion } from './social-copy-revision'
 
 function approvedItem() {
   const item = practitionerContentQaFixture('ready') as any
@@ -154,7 +155,7 @@ describe('deterministic Social Content visual binding', () => {
       state: 'blocked',
       code: 'visual_type_unsupported',
       can_render: false,
-      recovery_action: expect.stringMatching(/explicit composition contract/i),
+      recovery_action: expect.stringMatching(/will not substitute a generic architecture layout/i),
     })
 
     const disconnected = approvedItem()
@@ -181,6 +182,7 @@ describe('deterministic Social Content visual binding', () => {
       expectedCandidateId: projection.candidate_id,
       expectedCandidateHash: projection.candidate_hash,
       expectedVisualType: projection.visual_type,
+      expectedRecipeVersion: projection.inputs.recipe_version,
     })).toThrow('Copy changed')
     expect(() => assertDeterministicVisualRenderRequest({
       projection,
@@ -188,6 +190,7 @@ describe('deterministic Social Content visual binding', () => {
       expectedCandidateId: projection.candidate_id,
       expectedCandidateHash: 'changed',
       expectedVisualType: projection.visual_type,
+      expectedRecipeVersion: projection.inputs.recipe_version,
     })).toThrow('candidate content changed')
     expect(() => assertDeterministicVisualRenderRequest({
       projection,
@@ -195,7 +198,73 @@ describe('deterministic Social Content visual binding', () => {
       expectedCandidateId: projection.candidate_id,
       expectedCandidateHash: projection.candidate_hash,
       expectedVisualType: 'timeline',
+      expectedRecipeVersion: projection.inputs.recipe_version,
     })).toThrow('visual type changed')
+    expect(() => assertDeterministicVisualRenderRequest({
+      projection,
+      expectedCopyVersion: projection.copy_version,
+      expectedCandidateId: projection.candidate_id,
+      expectedCandidateHash: projection.candidate_hash,
+      expectedVisualType: projection.visual_type,
+      expectedRecipeVersion: 'changed',
+    })).toThrow('visual recipe changed')
+  })
+
+  it('persists supported recipe changes while invalidating the prior asset and approvals', () => {
+    const item = approvedItem()
+    Object.assign(item, renderPatch(item))
+    item.rag_context.section_gate_reviews = {
+      visual_assets: { status: 'approved' },
+      asset_packet: { status: 'approved' },
+      privacy: { status: 'approved' },
+    }
+    const copyVersion = socialCopyVersion(item)
+    const recipePatch = buildDeterministicVisualRecipePatch({
+      item,
+      selection: {
+        template: 'constraint_decision_result',
+        visual_type: 'architecture',
+        aspect_ratio: '4:5',
+      },
+    })
+    const prepared = prepareManualCopyUpdate({
+      current: item,
+      patch: recipePatch,
+      expectedVersion: copyVersion,
+      actor: 'admin-1',
+      now: '2026-10-11T12:00:00.000Z',
+    }) as any
+    const next = { ...item, ...prepared }
+    const nextProjection = projectDeterministicVisualRender({ item: next, copyVersion, storageAvailable: true })
+
+    expect(readDeterministicVisualSpec(next.rag_context)).toMatchObject({
+      template: 'constraint_decision_result',
+      visual_type: 'architecture',
+      aspect_ratio: '4:5',
+      candidate: { status: 'in_review', artifact_url: null },
+    })
+    expect(prepared.image_url).toBeNull()
+    expect(nextProjection).toMatchObject({ state: 'ready', code: 'asset_stale', can_render: true })
+    expect(nextProjection.inputs.recipe_version).not.toBe(projectDeterministicVisualRender({ item, copyVersion, storageAvailable: true }).inputs.recipe_version)
+    expect(prepared.rag_context.section_gate_reviews.visual_assets).toMatchObject({ status: 'pending', invalidation_reason: 'candidate_changed' })
+    expect(prepared.rag_context.section_gate_reviews.asset_packet).toMatchObject({ status: 'pending', invalidation_reason: 'candidate_changed' })
+    expect(prepared.rag_context.section_gate_reviews.privacy).toMatchObject({ status: 'pending', invalidation_reason: 'candidate_changed' })
+  })
+
+  it('fails closed for unsupported template and type combinations without substituting architecture', () => {
+    const item = approvedItem()
+    expect(() => buildDeterministicVisualRecipePatch({
+      item,
+      selection: {
+        template: 'practitioner_signal_card',
+        visual_type: 'architecture',
+        aspect_ratio: '1:1',
+      },
+    })).toThrow(/does not have an enabled deterministic renderer|cannot render/i)
+    expect(readDeterministicVisualSpec(item.rag_context)).toMatchObject({
+      template: 'constraint_decision_result',
+      visual_type: 'architecture',
+    })
   })
 
   it('builds a provider-none receipt and resets downstream asset decisions', () => {
@@ -209,6 +278,11 @@ describe('deterministic Social Content visual binding', () => {
       status: 'current',
       social_content_id: 'social-1',
       effective_inputs: {
+        render_mode: 'provider_none_structured_html_svg',
+        template_id: 'constraint_decision_result',
+        template_label: 'Constraint → decision → result',
+        aspect_ratio: '1.91:1',
+        recipe_version: expect.stringMatching(/^[a-f0-9]{64}$/),
         selected_visual_type: 'architecture',
         candidate_visual_type: 'architecture',
         headline: expect.any(String),

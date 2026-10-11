@@ -938,13 +938,13 @@ export default function AgentOperationsPage() {
           <Breadcrumbs items={[{ label: 'Admin Dashboard', href: '/admin' }, { label: 'Agent Operations' }]} />
 
           {error ? (
-            <div className="mt-4 rounded-lg border border-red-400/40 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+            <div className="mt-4 rounded-lg border border-red-600/40 bg-red-100 px-4 py-3 text-sm text-red-950 dark:border-red-400/40 dark:bg-red-500/10 dark:text-red-200">
               {error}
             </div>
           ) : null}
 
           <section className="agent-ops-panel mt-5 rounded-xl border">
-            <div className="flex flex-col gap-4 border-b border-silicon-slate/60 p-5 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex flex-col gap-4 border-b border-border p-5 dark:border-silicon-slate/60 lg:flex-row lg:items-center lg:justify-between">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Agent Operations</p>
                 <h2 className="mt-1 text-2xl font-bold">Mission Control</h2>
@@ -954,7 +954,7 @@ export default function AgentOperationsPage() {
                   type="button"
                   onClick={refreshMissionControl}
                   disabled={loading || moremiReviewLoading}
-                  className="inline-flex items-center gap-2 rounded-lg border border-silicon-slate/70 bg-background/60 px-3 py-2 text-sm hover:border-radiant-gold/60 disabled:opacity-60"
+                  className="inline-flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-2 text-sm hover:border-radiant-gold/60 disabled:opacity-60 dark:border-silicon-slate/70 dark:bg-background/60"
                 >
                   <RefreshCw size={16} className={loading || moremiReviewLoading ? 'animate-spin' : ''} />
                   Refresh
@@ -1124,7 +1124,7 @@ export default function AgentOperationsPage() {
 
               </div>
 
-              <aside className="space-y-4">
+              <aside className="space-y-4" data-agent-ops-surface="operations-side-rail">
                 <div className="agent-ops-card rounded-lg border p-4">
                   <p className="text-xs font-semibold uppercase tracking-wider text-radiant-gold">Operations rail</p>
                   <div className="mt-3 grid gap-3">
@@ -1158,14 +1158,14 @@ export default function AgentOperationsPage() {
                         type="button"
                         onClick={createMoremiWarningWorkItems}
                         disabled={!moremiReview.warning_count || actionLoading === 'moremi-review'}
-                        className="rounded-lg border border-silicon-slate/60 bg-background/40 p-3 text-left hover:border-radiant-gold/50 disabled:opacity-60"
+                        className="rounded-lg border border-border bg-background p-3 text-left hover:border-radiant-gold/50 disabled:opacity-60 dark:border-silicon-slate/60 dark:bg-background/40"
                       >
                         <p className="font-semibold">{moremiReviewConfirm ? 'Confirm Moremi work items' : 'Route Moremi warnings'}</p>
                         <p className="mt-1 text-sm text-muted-foreground">{moremiReview.warning_count} warning(s), {moremiReview.linked_work_items.length} linked item(s).</p>
                       </button>
                     ) : null}
                     {actionResult ? (
-                      <Link href={`/admin/agents/runs/${actionResult.runId}`} className="rounded-lg border border-emerald-400/30 bg-emerald-500/10 p-3 text-sm text-emerald-200 hover:underline">
+                      <Link href={`/admin/agents/runs/${actionResult.runId}`} className="rounded-lg border border-emerald-600/30 bg-emerald-100 p-3 text-sm text-emerald-950 hover:underline dark:border-emerald-400/30 dark:bg-emerald-500/10 dark:text-emerald-200">
                         Open {actionResult.label} run
                       </Link>
                     ) : null}
@@ -1197,7 +1197,7 @@ export default function AgentOperationsPage() {
                         onRoute={() => routeInboxItem(item)}
                       />
                     )) : (
-                      <p className="rounded-lg border border-silicon-slate/50 bg-black/10 p-3 text-sm text-muted-foreground">
+                      <p className="rounded-lg border border-border bg-muted/50 p-3 text-sm text-muted-foreground dark:border-silicon-slate/50 dark:bg-black/10">
                         No agent inbox items need attention.
                       </p>
                     )}
@@ -1261,9 +1261,9 @@ export default function AgentOperationsPage() {
 }
 
 function MetricCard({ icon, label, value, tone = 'default' }: { icon: ReactNode; label: string; value: string | number; tone?: 'default' | 'red' | 'yellow' }) {
-  const toneClass = tone === 'red' ? 'text-red-200' : tone === 'yellow' ? 'text-yellow-200' : 'text-foreground'
+  const toneClass = tone === 'red' ? 'text-red-800 dark:text-red-200' : tone === 'yellow' ? 'text-yellow-900 dark:text-yellow-200' : 'text-foreground'
   return (
-    <div className="rounded-lg border border-silicon-slate/60 bg-silicon-slate/20 p-3">
+    <div className="rounded-lg border border-border bg-muted/50 p-3 dark:border-silicon-slate/60 dark:bg-silicon-slate/20">
       <div className="flex items-center gap-2 text-muted-foreground">
         {icon}
         <span className="text-xs font-semibold uppercase tracking-wider">{label}</span>
@@ -1298,7 +1298,7 @@ function PagerControls({
   return (
     <div className="inline-flex items-center gap-2 text-xs text-muted-foreground" aria-label={`${label} pagination`}>
       <span>{pageLabel}</span>
-      <div className="inline-flex overflow-hidden rounded-full border border-silicon-slate/60 bg-black/10">
+      <div className="inline-flex overflow-hidden rounded-full border border-border bg-muted/50 dark:border-silicon-slate/60 dark:bg-black/10">
         <button
           type="button"
           onClick={onPrevious}
@@ -1312,7 +1312,7 @@ function PagerControls({
           type="button"
           onClick={onNext}
           disabled={page >= pageCount - 1 || pagingDisabled}
-          className="inline-flex h-7 w-7 items-center justify-center border-l border-silicon-slate/60 hover:bg-radiant-gold/10 disabled:cursor-not-allowed disabled:opacity-35"
+          className="inline-flex h-7 w-7 items-center justify-center border-l border-border hover:bg-radiant-gold/10 disabled:cursor-not-allowed disabled:opacity-35 dark:border-silicon-slate/60"
           aria-label={`Next ${label} page`}
         >
           <ChevronRight size={14} />
@@ -1361,7 +1361,7 @@ function OperatorChecksPanel({
   }, [pageCount])
 
   return (
-    <div className="rounded-lg border border-silicon-slate/60 bg-background/35 p-3">
+    <div className="rounded-lg border border-border bg-background p-3 dark:border-silicon-slate/60 dark:bg-background/35">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-wider text-radiant-gold">Operator checks</p>
@@ -1403,7 +1403,7 @@ function OperatorChecksPanel({
           return (
             <div
               key={action.kind}
-              className={`rounded-lg border p-3 ${canRun ? 'border-radiant-gold/45 bg-radiant-gold/10' : activeRun ? 'border-sky-400/35 bg-sky-500/10' : 'border-silicon-slate/60 bg-black/10'}`}
+              className={`rounded-lg border p-3 ${canRun ? 'border-radiant-gold/45 bg-radiant-gold/10' : activeRun ? 'border-sky-600/35 bg-sky-100 dark:border-sky-400/35 dark:bg-sky-500/10' : 'border-border bg-muted/50 dark:border-silicon-slate/60 dark:bg-black/10'}`}
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
@@ -1421,7 +1421,7 @@ function OperatorChecksPanel({
                   Run
                 </button>
               </div>
-              <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-black/25">
+              <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-muted dark:bg-black/25">
                 <div className={`h-full rounded-full ${activeRun ? 'bg-sky-300' : progress === 100 ? 'bg-emerald-300' : 'bg-radiant-gold'}`} style={{ width: `${progress}%` }} />
               </div>
               <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
@@ -1441,7 +1441,7 @@ function OperatorChecksPanel({
                 </Link>
               </div>
               {latestResult ? (
-                <Link href={`/admin/agents/runs/${latestResult.runId}`} className="mt-2 flex items-center justify-between gap-3 rounded-lg border border-emerald-400/30 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-200 hover:underline">
+                <Link href={`/admin/agents/runs/${latestResult.runId}`} className="mt-2 flex items-center justify-between gap-3 rounded-lg border border-emerald-600/30 bg-emerald-100 px-3 py-2 text-sm text-emerald-950 hover:underline dark:border-emerald-400/30 dark:bg-emerald-500/10 dark:text-emerald-200">
                   <span>Open {latestResult.label} run</span>
                   <ArrowRight size={14} />
                 </Link>
@@ -1472,7 +1472,7 @@ function SlackMobileBridgePanel({
   ]
 
   return (
-    <div className="rounded-lg border border-silicon-slate/60 bg-background/40 p-3">
+    <div className="rounded-lg border border-border bg-background p-3 dark:border-silicon-slate/60 dark:bg-background/40">
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-xs font-semibold uppercase tracking-wider text-radiant-gold">Slack mobile bridge</p>
@@ -1487,7 +1487,7 @@ function SlackMobileBridgePanel({
             type="button"
             onClick={() => onSend(action.kind)}
             disabled={loadingKind != null}
-            className="rounded-lg border border-silicon-slate/60 bg-black/10 p-2 text-left transition hover:border-radiant-gold/50 disabled:cursor-not-allowed disabled:opacity-60"
+            className="rounded-lg border border-border bg-muted/50 p-2 text-left transition hover:border-radiant-gold/50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-silicon-slate/60 dark:bg-black/10"
           >
             <span className="block text-sm font-semibold">
               {loadingKind === action.kind ? 'Sending...' : action.label}
@@ -1497,7 +1497,7 @@ function SlackMobileBridgePanel({
         ))}
       </div>
       {result ? (
-        <Link href={result.runId ? `/admin/agents/runs/${result.runId}` : '/admin/agents/runs'} className="mt-3 block rounded-lg border border-emerald-400/30 bg-emerald-500/10 p-2 text-xs text-emerald-100 hover:underline">
+        <Link href={result.runId ? `/admin/agents/runs/${result.runId}` : '/admin/agents/runs'} className="mt-3 block rounded-lg border border-emerald-600/30 bg-emerald-100 p-2 text-xs text-emerald-950 hover:underline dark:border-emerald-400/30 dark:bg-emerald-500/10 dark:text-emerald-100">
           {result.text}
         </Link>
       ) : null}
@@ -1535,7 +1535,7 @@ function AutomationGoalsPanel({
   const allTierOneSeeded = tierOneGoals.length > 0 && tierOneSeededCount === tierOneGoals.length
 
   return (
-    <div className="rounded-lg border border-silicon-slate/60 bg-background/35 p-3" aria-label="Automation to-do">
+    <div className="rounded-lg border border-border bg-background p-3 dark:border-silicon-slate/60 dark:bg-background/35" aria-label="Automation to-do">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="text-xs font-semibold uppercase tracking-wider text-radiant-gold">Automation to-do</p>
@@ -1569,7 +1569,7 @@ function AutomationGoalsPanel({
 
       <div className="mt-3 space-y-2">
         {loading ? (
-          <p className="rounded-lg border border-silicon-slate/50 bg-black/10 p-3 text-sm text-muted-foreground">
+          <p className="rounded-lg border border-border bg-muted/50 p-3 text-sm text-muted-foreground dark:border-silicon-slate/50 dark:bg-black/10">
             Loading automation goals.
           </p>
         ) : goals.length ? goals.map((goal) => (
@@ -1580,7 +1580,7 @@ function AutomationGoalsPanel({
             onCreateProposal={onCreateProposal}
           />
         )) : (
-          <p className="rounded-lg border border-silicon-slate/50 bg-black/10 p-3 text-sm text-muted-foreground">
+          <p className="rounded-lg border border-border bg-muted/50 p-3 text-sm text-muted-foreground dark:border-silicon-slate/50 dark:bg-black/10">
             No automation goal seeds are available.
           </p>
         )}
@@ -1614,7 +1614,7 @@ function AutomationGoalRow({
   const tone = goal.seeded ? 'green' : goal.requiresNewWorkflow ? 'yellow' : 'blue'
 
   return (
-    <div className="rounded-lg border border-silicon-slate/55 bg-black/10 p-3">
+    <div className="rounded-lg border border-border bg-muted/50 p-3 dark:border-silicon-slate/55 dark:bg-black/10">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-[11px] font-semibold uppercase tracking-wider text-radiant-gold">{goal.workflowFamily.replace(/_/g, ' ')}</p>
@@ -1635,7 +1635,7 @@ function AutomationGoalRow({
           <span className="rounded-full border border-silicon-slate/50 bg-background/40 px-2 py-0.5">{goal.n8nWorkflows.length} n8n workflow(s)</span>
         ) : null}
         {proposalCount ? (
-          <span className="rounded-full border border-green-500/30 bg-green-500/10 px-2 py-0.5 text-green-100">
+          <span className="rounded-full border border-green-600/30 bg-green-100 px-2 py-0.5 text-green-900 dark:border-green-500/30 dark:bg-green-500/10 dark:text-green-100">
             {proposalCount} proposal{proposalCount === 1 ? '' : 's'}
           </span>
         ) : goal.requiresNewWorkflow ? (
@@ -1645,9 +1645,9 @@ function AutomationGoalRow({
         ) : null}
       </div>
       {proposal ? (
-        <div className="mt-3 rounded-md border border-green-500/25 bg-green-500/5 p-2 text-xs">
+          <div className="mt-3 rounded-md border border-green-600/25 bg-green-50 p-2 text-xs dark:border-green-500/25 dark:bg-green-500/5">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <p className="font-medium text-green-100">n8n proposal in controller</p>
+            <p className="font-medium text-green-900 dark:text-green-100">n8n proposal in controller</p>
             <StatusOnlyPill tone={proposal.status === 'blocked' ? 'red' : proposal.status === 'ready_for_review' || proposal.status === 'ready_for_merge' ? 'yellow' : 'green'}>
               {proposal.status.replace(/_/g, ' ')}
             </StatusOnlyPill>
@@ -1884,11 +1884,11 @@ function MissionStatusCard({
 
 function StatusOnlyPill({ children, tone }: { children: ReactNode; tone: 'green' | 'yellow' | 'red' | 'blue' | 'neutral' }) {
   const toneClass = {
-    green: 'border-emerald-400/40 bg-emerald-500/10 text-emerald-200',
-    yellow: 'border-yellow-400/40 bg-yellow-500/10 text-yellow-100',
-    red: 'border-red-400/40 bg-red-500/10 text-red-200',
-    blue: 'border-sky-400/40 bg-sky-500/10 text-sky-200',
-    neutral: 'border-silicon-slate/60 bg-black/20 text-muted-foreground',
+    green: 'border-emerald-600/40 bg-emerald-100 text-emerald-900 dark:border-emerald-400/40 dark:bg-emerald-500/10 dark:text-emerald-200',
+    yellow: 'border-yellow-600/40 bg-yellow-100 text-yellow-950 dark:border-yellow-400/40 dark:bg-yellow-500/10 dark:text-yellow-100',
+    red: 'border-red-600/40 bg-red-100 text-red-950 dark:border-red-400/40 dark:bg-red-500/10 dark:text-red-200',
+    blue: 'border-sky-600/40 bg-sky-100 text-sky-900 dark:border-sky-400/40 dark:bg-sky-500/10 dark:text-sky-200',
+    neutral: 'border-border bg-muted text-muted-foreground dark:border-silicon-slate/60 dark:bg-black/20',
   }[tone]
 
   return (
@@ -1899,9 +1899,9 @@ function StatusOnlyPill({ children, tone }: { children: ReactNode; tone: 'green'
 }
 
 function MiniMetric({ label, value, tone = 'default' }: { label: string; value: string | number; tone?: 'default' | 'yellow' | 'green' }) {
-  const toneClass = tone === 'yellow' ? 'text-yellow-200' : tone === 'green' ? 'text-emerald-200' : 'text-foreground'
+  const toneClass = tone === 'yellow' ? 'text-yellow-900 dark:text-yellow-200' : tone === 'green' ? 'text-emerald-900 dark:text-emerald-200' : 'text-foreground'
   return (
-    <div className="rounded-lg border border-silicon-slate/50 bg-black/10 p-3">
+    <div className="rounded-lg border border-border bg-muted/50 p-3 dark:border-silicon-slate/50 dark:bg-black/10">
       <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{label}</p>
       <p className={`mt-1 text-lg font-semibold ${toneClass}`}>{value}</p>
     </div>

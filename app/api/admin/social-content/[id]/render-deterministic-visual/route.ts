@@ -19,6 +19,7 @@ import {
   isDeterministicVisualBindingQaFixtureId,
   parseDeterministicVisualQaState,
 } from '@/lib/social-deterministic-visual-qa-fixture'
+import type { DeterministicVisualRecipeSelection } from '@/lib/social-deterministic-visual-recipe'
 import {
   loadAmaduTownLogoPng,
   renderDeterministicVisualPng,
@@ -103,7 +104,11 @@ export async function POST(
 
   if (isDeterministicVisualBindingQaFixtureId(params.id)) {
     const qaState = parseDeterministicVisualQaState(typeof body.qa_state === 'string' ? body.qa_state : null)
-    const fixture = deterministicVisualBindingQaFixture(qaState)
+    const qaRecipeRecord = record(body.qa_visual_recipe)
+    const qaRecipe = Object.keys(qaRecipeRecord).length
+      ? qaRecipeRecord as unknown as DeterministicVisualRecipeSelection
+      : undefined
+    const fixture = deterministicVisualBindingQaFixture(qaState, qaRecipe)
     const projection = fixture.deterministic_visual_render!
     try {
       const action = assertDeterministicVisualRenderRequest({
@@ -112,8 +117,9 @@ export async function POST(
         expectedCandidateId: body.expected_candidate_id,
         expectedCandidateHash: body.expected_candidate_hash,
         expectedVisualType: body.expected_visual_type,
+        expectedRecipeVersion: body.expected_recipe_version,
       })
-      const item = action === 'current' ? fixture : completeDeterministicVisualBindingQaFixture()
+      const item = action === 'current' ? fixture : completeDeterministicVisualBindingQaFixture(qaRecipe)
       return NextResponse.json({
         success: true,
         fixture: true,
@@ -152,6 +158,7 @@ export async function POST(
       expectedCandidateId: body.expected_candidate_id,
       expectedCandidateHash: body.expected_candidate_hash,
       expectedVisualType: body.expected_visual_type,
+      expectedRecipeVersion: body.expected_recipe_version,
     })
   } catch (error) {
     if (error instanceof DeterministicVisualRenderError) return blockedResponse(error, projection)

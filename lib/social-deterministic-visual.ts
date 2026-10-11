@@ -6,21 +6,45 @@ import {
   deterministicArchitectureStructureIssue,
   type DeterministicVisualSpec,
 } from '@/lib/social-practitioner-content'
+import {
+  DETERMINISTIC_VISUAL_RENDER_MODE,
+  deterministicVisualRecipeCombinationIssue,
+  deterministicVisualTemplateLabel,
+  type DeterministicVisualRecipeSelection,
+} from '@/lib/social-deterministic-visual-recipe'
 
-export const DETERMINISTIC_VISUAL_ASSET_VERSION = 'deterministic_visual_asset_v3' as const
+export const DETERMINISTIC_VISUAL_ASSET_VERSION = 'deterministic_visual_asset_v4' as const
 export const DETERMINISTIC_VISUAL_RENDERER_VERSION = 'amadutown_html_svg_v2' as const
 export const DETERMINISTIC_VISUAL_STORAGE_BUCKET = 'social-content' as const
 
 export type DeterministicVisualEffectiveInputs = {
+  render_mode: typeof DETERMINISTIC_VISUAL_RENDER_MODE
   renderer_version: typeof DETERMINISTIC_VISUAL_RENDERER_VERSION
+  system_version: typeof AMADUTOWN_VISUAL_SYSTEM_VERSION | null
+  template_id: DeterministicVisualSpec['template'] | null
+  template_label: string | null
+  aspect_ratio: DeterministicVisualSpec['aspect_ratio'] | null
+  recipe_version: string | null
   copy_version: string
   candidate_id: string | null
   candidate_hash: string | null
   selected_visual_type: FrameworkVisualType | null
   candidate_visual_type: FrameworkVisualType | null
+  eyebrow: string | null
   headline: string | null
-  nodes: Array<{ id: string; label: string }>
+  evidence_lines: string[]
+  result_label: string | null
+  argument_map: DeterministicVisualSpec['argument_map'] | null
+  visual_rationale: string | null
+  nodes: Array<{ id: string; label: string; body: string }>
   connectors: Array<{ from: string; to: string; label: string }>
+  provenance: {
+    recipe_selection: string
+    derived_content: string
+    candidate_version: string
+    copy_version: string
+    renderer: string
+  }
 }
 
 export type DeterministicVisualAssetReceipt = {
@@ -86,6 +110,7 @@ export type DeterministicVisualRenderProjection = {
     | 'copy_version_stale'
     | 'candidate_id_mismatch'
     | 'candidate_hash_mismatch'
+    | 'recipe_version_mismatch'
     | 'render_unavailable'
     | 'write_conflict'
   can_render: boolean
@@ -236,16 +261,94 @@ function deterministicVisualEffectiveInputs(input: {
   copyVersion: string
   candidateHash: string | null
 }): DeterministicVisualEffectiveInputs {
+  const authoringInputs = input.spec ? {
+    render_mode: DETERMINISTIC_VISUAL_RENDER_MODE,
+    system_version: input.spec.system_version,
+    template_id: input.spec.template,
+    aspect_ratio: input.spec.aspect_ratio,
+    selected_visual_type: input.selectedVisualType,
+    candidate_visual_type: input.spec.visual_type,
+    eyebrow: input.spec.eyebrow,
+    headline: input.spec.headline,
+    evidence_lines: input.spec.evidence_lines,
+    result_label: input.spec.result_label,
+    argument_map: input.spec.argument_map,
+    visual_rationale: input.spec.visual_rationale,
+    architecture: input.spec.architecture,
+  } : null
   return {
+    render_mode: DETERMINISTIC_VISUAL_RENDER_MODE,
     renderer_version: DETERMINISTIC_VISUAL_RENDERER_VERSION,
+    system_version: input.spec?.system_version || null,
+    template_id: input.spec?.template || null,
+    template_label: input.spec ? deterministicVisualTemplateLabel(input.spec.template) : null,
+    aspect_ratio: input.spec?.aspect_ratio || null,
+    recipe_version: authoringInputs ? sha256(JSON.stringify(canonicalize(authoringInputs))) : null,
     copy_version: input.copyVersion,
     candidate_id: input.spec?.candidate.candidate_id || null,
     candidate_hash: input.candidateHash,
     selected_visual_type: input.selectedVisualType,
     candidate_visual_type: input.spec?.visual_type || null,
+    eyebrow: input.spec?.eyebrow || null,
     headline: input.spec?.headline || null,
-    nodes: input.spec?.architecture?.nodes.map(({ id, label }) => ({ id, label })) ?? [],
+    evidence_lines: input.spec?.evidence_lines ?? [],
+    result_label: input.spec?.result_label || null,
+    argument_map: input.spec?.argument_map ?? null,
+    visual_rationale: input.spec?.visual_rationale || null,
+    nodes: input.spec?.architecture?.nodes.map(({ id, label, body }) => ({ id, label, body })) ?? [],
     connectors: input.spec?.architecture?.connectors.map(({ from, to, label }) => ({ from, to, label })) ?? [],
+    provenance: {
+      recipe_selection: 'Saved deterministic candidate and Social Content visual-type selection',
+      derived_content: 'Approved practitioner content packet',
+      candidate_version: 'Computed from the persisted deterministic candidate',
+      copy_version: 'Computed from the approved Social Content copy fields',
+      renderer: 'Portfolio provider-none HTML/SVG renderer',
+    },
+  }
+}
+
+export function buildDeterministicVisualRecipePatch(input: {
+  item: Pick<SocialContentItem, 'rag_context'>
+  selection: DeterministicVisualRecipeSelection
+}): { framework_visual_type: FrameworkVisualType; rag_context: Record<string, unknown> } {
+  const issue = deterministicVisualRecipeCombinationIssue(input.selection)
+  if (issue) {
+    throw new DeterministicVisualRenderError(
+      'visual_type_unsupported',
+      issue,
+      'Choose Constraint → decision → result, Architecture, and a supported aspect ratio before saving and rebuilding.',
+    )
+  }
+  const spec = readDeterministicVisualSpec(input.item.rag_context)
+  if (!spec) {
+    throw new DeterministicVisualRenderError(
+      'candidate_missing',
+      'The saved deterministic recipe is missing.',
+      'Return to the approved content packet, rebuild its deterministic recipe, and reload this review.',
+    )
+  }
+  const ragContext = record(input.item.rag_context)
+  const quality = record(ragContext.practitioner_content_quality)
+  const visual = record(quality.deterministic_visual)
+  const candidate = record(visual.candidate)
+  return {
+    framework_visual_type: input.selection.visual_type,
+    rag_context: {
+      practitioner_content_quality: {
+        ...quality,
+        deterministic_visual: {
+          ...visual,
+          template: input.selection.template,
+          visual_type: input.selection.visual_type,
+          aspect_ratio: input.selection.aspect_ratio,
+          candidate: {
+            ...candidate,
+            status: 'in_review',
+            artifact_url: null,
+          },
+        },
+      },
+    },
   }
 }
 
@@ -284,11 +387,16 @@ function candidateBlocker(
       recovery_action: 'Regenerate or revise the candidate so its visual_type exactly matches the selected framework visual type.',
     }
   }
-  if (selectedVisualType !== 'architecture') {
+  const recipeIssue = deterministicVisualRecipeCombinationIssue({
+    template: spec.template,
+    visual_type: selectedVisualType,
+    aspect_ratio: spec.aspect_ratio,
+  })
+  if (recipeIssue) {
     return {
       code: 'visual_type_unsupported',
-      summary: `The deterministic renderer does not yet implement the selected ${selectedVisualType} composition.`,
-      recovery_action: 'Use a renderer with an explicit composition contract for this visual type; do not substitute the generic architecture layout.',
+      summary: recipeIssue,
+      recovery_action: 'Choose a supported template, visual type, and aspect ratio, then save and rebuild the candidate. The renderer will not substitute a generic architecture layout.',
     }
   }
   const architectureIssue = deterministicArchitectureStructureIssue(spec)
@@ -469,6 +577,7 @@ export function assertDeterministicVisualRenderRequest(input: {
   expectedCandidateId: unknown
   expectedCandidateHash: unknown
   expectedVisualType: unknown
+  expectedRecipeVersion: unknown
 }): 'render' | 'current' {
   const expectedCopyVersion = text(input.expectedCopyVersion)
   const expectedCandidateId = text(input.expectedCandidateId)
@@ -507,6 +616,13 @@ export function assertDeterministicVisualRenderRequest(input: {
       'visual_type_mismatch',
       'The selected visual type changed since this visual review opened.',
       'Reload the Visuals step, save the selected type, and render only its matching candidate contract.',
+    )
+  }
+  if (text(input.expectedRecipeVersion) !== input.projection.inputs.recipe_version) {
+    throw new DeterministicVisualRenderError(
+      'recipe_version_mismatch',
+      'The deterministic visual recipe changed since this review opened.',
+      'Reload the Visuals step and render only the persisted recipe version shown in the recipe summary.',
     )
   }
   if (input.projection.state === 'current') return 'current'

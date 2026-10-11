@@ -92,6 +92,16 @@ import type {
   SocialPlatform,
 } from '@/lib/social-content'
 import { DETERMINISTIC_VISUAL_BINDING_QA_ID } from '@/lib/social-content'
+import {
+  DETERMINISTIC_VISUAL_ASPECT_RATIO_OPTIONS,
+  DETERMINISTIC_VISUAL_RENDER_MODE,
+  DETERMINISTIC_VISUAL_TEMPLATE_OPTIONS,
+  deterministicVisualAllowedTypes,
+  deterministicVisualRecipeCombinationIssue,
+  deterministicVisualTemplateLabel,
+  type DeterministicVisualAspectRatio,
+  type DeterministicVisualTemplate,
+} from '@/lib/social-deterministic-visual-recipe'
 import type { SocialCommentInboxItem } from '@/lib/social-comment-inbox-ui'
 import type { SocialContentCalibrationReference } from '@/lib/social-content-calibration-library'
 import Link from 'next/link'
@@ -794,6 +804,8 @@ function SocialContentDetailPage() {
   const [imagePrompt, setImagePrompt] = useState('')
   const [voiceoverText, setVoiceoverText] = useState('')
   const [frameworkVisualType, setFrameworkVisualType] = useState<FrameworkVisualType | ''>('')
+  const [deterministicVisualTemplate, setDeterministicVisualTemplate] = useState<DeterministicVisualTemplate | ''>('')
+  const [deterministicVisualAspectRatio, setDeterministicVisualAspectRatio] = useState<DeterministicVisualAspectRatio | ''>('')
   const [selectedVisualFormat, setSelectedVisualFormat] = useState<'framework' | 'carousel'>('framework')
   const [savingVisualConfiguration, setSavingVisualConfiguration] = useState(false)
   const [scheduledFor, setScheduledFor] = useState('')
@@ -1021,6 +1033,8 @@ function SocialContentDetailPage() {
       setImagePrompt(i.image_prompt || '')
       setVoiceoverText(i.voiceover_text || '')
       setFrameworkVisualType(i.framework_visual_type || '')
+      setDeterministicVisualTemplate(i.deterministic_visual_render?.inputs.template_id || '')
+      setDeterministicVisualAspectRatio(i.deterministic_visual_render?.inputs.aspect_ratio || '')
       setSelectedVisualFormat(i.content_format === 'carousel' ? 'carousel' : 'framework')
       setScheduledFor(i.scheduled_for ? new Date(i.scheduled_for).toISOString().slice(0, 16) : '')
       if (!options.silent) {
@@ -2392,7 +2406,15 @@ function SocialContentDetailPage() {
           expected_candidate_id: renderState.candidate_id,
           expected_candidate_hash: renderState.candidate_hash,
           expected_visual_type: renderState.visual_type,
-          ...(id === DETERMINISTIC_VISUAL_BINDING_QA_ID ? { qa_state: deterministicVisualQaState } : {}),
+          expected_recipe_version: renderState.inputs.recipe_version,
+          ...(id === DETERMINISTIC_VISUAL_BINDING_QA_ID ? {
+            qa_state: deterministicVisualQaState,
+            qa_visual_recipe: {
+              template: deterministicVisualTemplate,
+              visual_type: frameworkVisualType,
+              aspect_ratio: deterministicVisualAspectRatio,
+            },
+          } : {}),
         }),
       })
 
@@ -2426,9 +2448,14 @@ function SocialContentDetailPage() {
   const handleSaveDeterministicVisualConfiguration = async () => {
     if (
       !item
-      || id === DETERMINISTIC_VISUAL_BINDING_QA_ID
+      || !deterministicVisualTemplate
       || !frameworkVisualType
-      || frameworkVisualType === (item.framework_visual_type || '')
+      || !deterministicVisualAspectRatio
+      || deterministicVisualRecipeCombinationIssue({
+        template: deterministicVisualTemplate,
+        visual_type: frameworkVisualType,
+        aspect_ratio: deterministicVisualAspectRatio,
+      })
     ) return
 
     setSavingVisualConfiguration(true)
@@ -2444,7 +2471,12 @@ function SocialContentDetailPage() {
         },
         body: JSON.stringify({
           expected_copy_version: deterministicVisualRender?.copy_version || item.copy_revision?.current_version,
-          framework_visual_type: frameworkVisualType,
+          visual_recipe: {
+            template: deterministicVisualTemplate,
+            visual_type: frameworkVisualType,
+            aspect_ratio: deterministicVisualAspectRatio,
+          },
+          ...(id === DETERMINISTIC_VISUAL_BINDING_QA_ID ? { qa_state: deterministicVisualQaState } : {}),
         }),
       })
       const data = await res.json()
@@ -2455,13 +2487,15 @@ function SocialContentDetailPage() {
 
       setItem(prev => prev ? { ...prev, ...data.item } : data.item)
       setFrameworkVisualType(data.item.framework_visual_type || '')
+      setDeterministicVisualTemplate(data.item.deterministic_visual_render?.inputs.template_id || '')
+      setDeterministicVisualAspectRatio(data.item.deterministic_visual_render?.inputs.aspect_ratio || '')
       setDeterministicVisualRenderOverride(data.item.deterministic_visual_render ?? null)
       const projection = data.item.deterministic_visual_render as DeterministicVisualRenderProjection | null
       showMsg(
         projection?.can_render ? 'success' : 'error',
         projection?.can_render
-          ? 'Visual configuration saved and its candidate contract is ready to render.'
-          : projection?.recovery_action || 'Visual configuration saved. A matching deterministic candidate is required before rendering.',
+          ? 'Visual recipe saved, rebuilt, and validated. Its exact persisted version is ready to render.'
+          : projection?.recovery_action || 'Visual recipe saved. A matching deterministic candidate is required before rendering.',
       )
     } catch {
       showMsg('error', 'Visual configuration save failed. Reload this review before retrying.')
@@ -3017,8 +3051,19 @@ function SocialContentDetailPage() {
   const deterministicVisualInputs = deterministicVisualRender?.inputs ?? null
   const hasDeterministicVisualContract = Boolean(asString(asRecord(asRecord(ragContext?.practitioner_content_quality)?.deterministic_visual)?.system_version))
   const persistedVisualFormat: 'framework' | 'carousel' = item.content_format === 'carousel' ? 'carousel' : 'framework'
-  const hasUnsavedVisualConfiguration = hasDeterministicVisualContract
-    && frameworkVisualType !== (item.framework_visual_type || '')
+  const allowedDeterministicVisualTypes = deterministicVisualAllowedTypes(deterministicVisualTemplate)
+  const deterministicVisualRecipeIssue = hasDeterministicVisualContract
+    ? deterministicVisualRecipeCombinationIssue({
+        template: deterministicVisualTemplate || undefined,
+        visual_type: frameworkVisualType || undefined,
+        aspect_ratio: deterministicVisualAspectRatio || undefined,
+      })
+    : null
+  const hasUnsavedVisualConfiguration = hasDeterministicVisualContract && (
+    frameworkVisualType !== (deterministicVisualInputs?.selected_visual_type || item.framework_visual_type || '')
+    || deterministicVisualTemplate !== (deterministicVisualInputs?.template_id || '')
+    || deterministicVisualAspectRatio !== (deterministicVisualInputs?.aspect_ratio || '')
+  )
   const visualFormatDirty = selectedVisualFormat !== persistedVisualFormat
   const frameworkIllustrationLabel = deterministicVisualRender?.state === 'current'
     ? 'Review asset current'
@@ -5005,8 +5050,16 @@ function SocialContentDetailPage() {
 	                    <div data-theme-surface="provider-boundary" className="rounded-lg border border-amber-600/25 bg-white/60 px-3 py-2 text-xs leading-5 text-amber-950/80 dark:border-amber-500/20 dark:bg-muted dark:text-amber-50/80">
 	                      The framework action renders the stored AmaduTown HTML/SVG specification locally and writes only its internal review asset. Gemini, HeyGen, n8n media, and other media providers stay off. It does not create a platform draft, schedule, publish, or send externally.
 	                    </div>
-                    <div data-visual-workflow-step="format" className="mt-3">
-                      <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-amber-800/80 dark:text-amber-100/70">1. Choose one visual format</p>
+                    <div data-visual-workflow-step="recipe" data-theme-surface="deterministic-recipe" className="mt-3 rounded-lg border border-border bg-white/60 p-3 dark:border-amber-500/25 dark:bg-muted">
+                      <div className="flex flex-wrap items-start justify-between gap-2">
+                        <div>
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-amber-800/80 dark:text-amber-100/70">1. Visual recipe</p>
+                          <p className="mt-1 text-xs leading-5 text-muted-foreground">Choose the format and exact persisted inputs before rendering.</p>
+                        </div>
+                        {isSingleImageFormat && hasDeterministicVisualContract && (
+                          <span title={DETERMINISTIC_VISUAL_RENDER_MODE} className="rounded-full border border-emerald-600/40 bg-emerald-100 px-2 py-1 text-[10px] font-semibold text-emerald-900 dark:border-emerald-300/35 dark:bg-emerald-300/10 dark:text-emerald-100">Active mode · provider-none structured HTML/SVG</span>
+                        )}
+                      </div>
                       <div className="mt-2 grid gap-3 lg:grid-cols-2">
                         <button
                           type="button"
@@ -5019,7 +5072,7 @@ function SocialContentDetailPage() {
                             <span className="flex items-center gap-2 text-sm font-semibold text-foreground"><ImageIcon className="h-4 w-4 text-amber-800 dark:text-amber-200" />Framework illustration</span>
                             {isSingleImageFormat && <span className="inline-flex items-center gap-1 rounded-full border border-amber-700/45 px-2 py-0.5 text-[10px] font-semibold text-amber-950 dark:border-amber-300/50 dark:text-amber-100"><CheckCircle2 className="h-3 w-3" />Selected</span>}
                           </span>
-                          <span className="mt-2 block text-sm leading-6 text-muted-foreground">Uses a saved visual type and its exact version-bound deterministic candidate.</span>
+                          <span className="mt-2 block text-sm leading-6 text-muted-foreground">Uses a saved template, type, aspect, derived content, and exact version-bound candidate.</span>
                         </button>
                         <button
                           type="button"
@@ -5035,86 +5088,142 @@ function SocialContentDetailPage() {
                           <span className="mt-2 block text-sm leading-6 text-muted-foreground">Builds a review carousel from real Portfolio screens without publishing it.</span>
                         </button>
                       </div>
-                    </div>
-
-                    <div data-visual-workflow-step="configuration" data-theme-surface="deterministic-configuration" className="mt-3 rounded-lg border border-border bg-white/60 p-3 dark:border-amber-500/25 dark:bg-muted">
-                      <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-amber-800/80 dark:text-amber-100/70">2. Configure and validate</p>
                       {isSingleImageFormat ? hasDeterministicVisualContract ? (
                         <div className="mt-3 space-y-3">
-                          <div>
-                            <label htmlFor="deterministic-visual-type" className="mb-1 block text-xs font-medium text-foreground">Visual type used by deterministic renderer</label>
+                          <div className="grid gap-3 lg:grid-cols-3">
+                            <label htmlFor="deterministic-visual-template" className="block text-xs font-medium text-foreground">
+                              Template <span className="font-normal text-muted-foreground">· editable</span>
+                              <select
+                                id="deterministic-visual-template"
+                                value={deterministicVisualTemplate}
+                                onChange={(event) => {
+                                  const nextTemplate = event.target.value as DeterministicVisualTemplate | ''
+                                  setDeterministicVisualTemplate(nextTemplate)
+                                  const nextAllowedTypes = deterministicVisualAllowedTypes(nextTemplate)
+                                  setFrameworkVisualType(current => nextAllowedTypes.includes(current as FrameworkVisualType) ? current : nextAllowedTypes[0] || '')
+                                }}
+                                disabled={savingVisualConfiguration}
+                                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground disabled:opacity-60"
+                              >
+                                <option value="">Choose a template</option>
+                                {DETERMINISTIC_VISUAL_TEMPLATE_OPTIONS.map((template) => <option key={template.value} value={template.value}>{template.label}</option>)}
+                              </select>
+                            </label>
+                            <label htmlFor="deterministic-visual-type" className="block text-xs font-medium text-foreground">
+                              Visual type <span className="font-normal text-muted-foreground">· editable, constrained by template</span>
                             <select
                               id="deterministic-visual-type"
                               value={frameworkVisualType}
                               onChange={(event) => setFrameworkVisualType(event.target.value as FrameworkVisualType | '')}
-                              disabled={id === DETERMINISTIC_VISUAL_BINDING_QA_ID || savingVisualConfiguration}
-                              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground disabled:opacity-60"
+                              disabled={savingVisualConfiguration || allowedDeterministicVisualTypes.length === 0}
+                              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground disabled:opacity-60"
                             >
                               <option value="">Choose a visual type</option>
-                              {FRAMEWORK_VISUAL_TYPES.map((type) => <option key={type.value} value={type.value}>{type.label} — {type.description}</option>)}
+                              {FRAMEWORK_VISUAL_TYPES.filter((type) => allowedDeterministicVisualTypes.includes(type.value)).map((type) => <option key={type.value} value={type.value}>{type.label} — {type.description}</option>)}
                             </select>
-                          </div>
-                          {id === DETERMINISTIC_VISUAL_BINDING_QA_ID ? (
-                            <p className="text-xs leading-5 text-muted-foreground">This synthetic QA record is read-only and already bound to its saved architecture contract.</p>
-                          ) : (
-                            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                              <p className={`text-xs leading-5 ${hasUnsavedVisualConfiguration ? 'text-red-800 dark:text-red-200' : 'text-muted-foreground'}`}>
-                                {hasUnsavedVisualConfiguration
-                                  ? 'Unsaved type change: the prior asset and approval are no longer eligible. Save to invalidate them and validate the matching candidate.'
-                                  : 'Configuration saved. Rendering remains bound to the candidate and copy versions shown below.'}
-                              </p>
-                              <button
-                                type="button"
-                                onClick={handleSaveDeterministicVisualConfiguration}
-                                disabled={!hasUnsavedVisualConfiguration || !frameworkVisualType || savingVisualConfiguration}
-                                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-amber-600/45 px-3 py-2 text-sm font-semibold text-amber-950 transition-colors hover:bg-amber-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-amber-400/45 dark:text-amber-100 dark:hover:bg-amber-500/10"
+                            </label>
+                            <label htmlFor="deterministic-visual-aspect" className="block text-xs font-medium text-foreground">
+                              Aspect ratio <span className="font-normal text-muted-foreground">· editable</span>
+                              <select
+                                id="deterministic-visual-aspect"
+                                value={deterministicVisualAspectRatio}
+                                onChange={(event) => setDeterministicVisualAspectRatio(event.target.value as DeterministicVisualAspectRatio | '')}
+                                disabled={savingVisualConfiguration}
+                                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground disabled:opacity-60"
                               >
-                                {savingVisualConfiguration ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
-                                {savingVisualConfiguration ? 'Saving configuration…' : hasUnsavedVisualConfiguration ? 'Save visual configuration' : 'Configuration saved'}
-                              </button>
-                            </div>
-                          )}
+                                <option value="">Choose an aspect ratio</option>
+                                {DETERMINISTIC_VISUAL_ASPECT_RATIO_OPTIONS.map((aspect) => <option key={aspect.value} value={aspect.value}>{aspect.label}</option>)}
+                              </select>
+                            </label>
+                          </div>
+                          <p className="text-xs leading-5 text-muted-foreground">{deterministicVisualTemplate ? `${deterministicVisualTemplateLabel(deterministicVisualTemplate)}: ${DETERMINISTIC_VISUAL_TEMPLATE_OPTIONS.find((option) => option.value === deterministicVisualTemplate)?.description}` : 'Choose the template first; it determines which visual types are allowed.'}</p>
                           {deterministicVisualInputs ? (
-                            <div aria-label="Inputs used for this render" className="rounded-lg border border-border bg-background p-3 text-xs text-foreground">
-                              <p className="font-semibold">Inputs used for this render</p>
-                              <dl className="mt-2 grid gap-2 sm:grid-cols-2">
+                            <details aria-label="Effective deterministic visual inputs" className="rounded-lg border border-border bg-background p-3 text-xs text-foreground">
+                              <summary className="cursor-pointer font-semibold">Effective persisted inputs <span className="font-normal text-muted-foreground">· read-only until the approved copy packet changes</span></summary>
+                              <dl className="mt-3 grid gap-2 sm:grid-cols-2">
+                                <div><dt className="text-muted-foreground">Render mode</dt><dd className="font-mono">{deterministicVisualInputs.render_mode}</dd></div>
+                                <div><dt className="text-muted-foreground">System</dt><dd className="font-mono">{deterministicVisualInputs.system_version || 'Missing'}</dd></div>
+                                <div><dt className="text-muted-foreground">Template</dt><dd className="font-medium">{deterministicVisualInputs.template_label} <span className="font-mono text-muted-foreground">({deterministicVisualInputs.template_id})</span></dd></div>
+                                <div><dt className="text-muted-foreground">Aspect</dt><dd className="font-medium">{deterministicVisualInputs.aspect_ratio || 'Missing'}</dd></div>
                                 <div><dt className="text-muted-foreground">Selected type</dt><dd className="font-medium capitalize">{deterministicVisualInputs.selected_visual_type?.replace(/_/g, ' ') || 'Missing'}</dd></div>
                                 <div><dt className="text-muted-foreground">Candidate type</dt><dd className="font-medium capitalize">{deterministicVisualInputs.candidate_visual_type?.replace(/_/g, ' ') || 'Missing'}</dd></div>
+                                <div className="sm:col-span-2"><dt className="text-muted-foreground">Eyebrow</dt><dd>{deterministicVisualInputs.eyebrow || 'Missing'}</dd></div>
                                 <div className="sm:col-span-2"><dt className="text-muted-foreground">Headline</dt><dd className="font-medium">{deterministicVisualInputs.headline || 'Missing'}</dd></div>
-                                <div className="sm:col-span-2"><dt className="text-muted-foreground">Node labels</dt><dd>{deterministicVisualInputs.nodes.length ? deterministicVisualInputs.nodes.map((node) => node.label).join(' · ') : 'Missing'}</dd></div>
+                                <div className="sm:col-span-2"><dt className="text-muted-foreground">Evidence lines</dt><dd>{deterministicVisualInputs.evidence_lines.length ? deterministicVisualInputs.evidence_lines.join(' · ') : 'Missing'}</dd></div>
+                                <div className="sm:col-span-2"><dt className="text-muted-foreground">Result label</dt><dd>{deterministicVisualInputs.result_label || 'Missing'}</dd></div>
+                                <div className="sm:col-span-2"><dt className="text-muted-foreground">Argument map</dt><dd>{deterministicVisualInputs.argument_map ? Object.entries(deterministicVisualInputs.argument_map).map(([key, value]) => `${key.replace(/_/g, ' ')}: ${value}`).join(' · ') : 'Missing'}</dd></div>
+                                <div className="sm:col-span-2"><dt className="text-muted-foreground">Nodes</dt><dd className="space-y-1">{deterministicVisualInputs.nodes.length ? deterministicVisualInputs.nodes.map((node) => <span key={node.id} className="block"><strong>{node.label}:</strong> {node.body}</span>) : 'Missing'}</dd></div>
                                 <div className="sm:col-span-2"><dt className="text-muted-foreground">Connectors</dt><dd>{deterministicVisualInputs.connectors.length ? deterministicVisualInputs.connectors.map((connector) => `${connector.from} → ${connector.to}: ${connector.label}`).join(' · ') : 'Missing'}</dd></div>
-                                <div className="sm:col-span-2"><dt className="text-muted-foreground">Candidate hash</dt><dd className="break-all font-mono">{deterministicVisualInputs.candidate_hash || 'Unavailable'}</dd></div>
-                                <div className="sm:col-span-2"><dt className="text-muted-foreground">Copy version</dt><dd className="break-all font-mono">{deterministicVisualInputs.copy_version}</dd></div>
-                                <div className="sm:col-span-2"><dt className="text-muted-foreground">Renderer version</dt><dd className="font-mono">{deterministicVisualInputs.renderer_version}</dd></div>
+                                <div className="sm:col-span-2"><dt className="text-muted-foreground">Visual rationale</dt><dd>{deterministicVisualInputs.visual_rationale || 'Missing'}</dd></div>
+                                <div><dt className="text-muted-foreground">Candidate ID</dt><dd className="break-all font-mono">{deterministicVisualInputs.candidate_id || 'Unavailable'}</dd></div>
+                                <div><dt className="text-muted-foreground">Candidate version</dt><dd className="break-all font-mono">{deterministicVisualInputs.candidate_hash || 'Unavailable'}</dd></div>
+                                <div><dt className="text-muted-foreground">Copy version</dt><dd className="break-all font-mono">{deterministicVisualInputs.copy_version}</dd></div>
+                                <div><dt className="text-muted-foreground">Recipe version</dt><dd className="break-all font-mono">{deterministicVisualInputs.recipe_version || 'Unavailable'}</dd></div>
+                                <div className="sm:col-span-2"><dt className="text-muted-foreground">Renderer</dt><dd className="font-mono">{deterministicVisualInputs.renderer_version}</dd></div>
                               </dl>
-                              <p className="mt-3 text-muted-foreground">No image prompt is used by the deterministic renderer.</p>
-                            </div>
-                          ) : <p className="text-xs text-red-800 dark:text-red-200">Effective deterministic inputs are unavailable. Reload this record before rendering.</p>}
-                          {imagePrompt.trim() && (
-                            <details className="rounded-lg border border-border p-3 text-xs">
-                              <summary className="cursor-pointer font-semibold text-foreground">Legacy/provider art direction — excluded from deterministic render</summary>
-                              <p className="mt-2 whitespace-pre-wrap leading-5 text-muted-foreground">{imagePrompt}</p>
+                              <div className="mt-3 rounded-md border border-border bg-muted/50 p-2 text-muted-foreground">
+                                <p className="font-semibold text-foreground">Provenance</p>
+                                <p>{Object.entries(deterministicVisualInputs.provenance).map(([key, value]) => `${key.replace(/_/g, ' ')}: ${value}`).join(' · ')}</p>
+                              </div>
+                              <button type="button" onClick={() => setApprovalStep('copy')} className="mt-3 inline-flex items-center gap-2 rounded-lg border border-border px-3 py-2 font-semibold text-foreground hover:bg-muted">Revise the approved source copy</button>
                             </details>
-                          )}
+                          ) : <p className="text-xs text-red-800 dark:text-red-200">Effective deterministic inputs are unavailable. Reload this record before rendering.</p>}
+                          <details className="rounded-lg border border-border p-3 text-xs">
+                            <summary className="cursor-pointer font-semibold text-foreground">Provider art direction · stored, collapsed, and excluded from this render</summary>
+                            <p className="mt-2 leading-5 text-muted-foreground">This field is reserved for a future provider-media or asset-packet handoff. The deterministic render button never reads it and never calls a media provider.</p>
+                            <p className="mt-2 whitespace-pre-wrap rounded-md bg-muted/50 p-2 text-muted-foreground">{imagePrompt.trim() || 'No provider art direction is saved.'}</p>
+                          </details>
                         </div>
                       ) : (
                         <div className="mt-3 space-y-3">
                           <label className="block text-xs text-muted-foreground">Legacy/provider visual type<select value={frameworkVisualType} onChange={(event) => setFrameworkVisualType(event.target.value as FrameworkVisualType | '')} disabled={!canEditVisualProduction} className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground disabled:opacity-60"><option value="">Auto-detect</option>{FRAMEWORK_VISUAL_TYPES.map((type) => <option key={type.value} value={type.value}>{type.label} — {type.description}</option>)}</select></label>
                           <label className="block text-xs text-muted-foreground">Legacy/provider image prompt<textarea value={imagePrompt} onChange={(event) => setImagePrompt(event.target.value)} disabled={!canEditVisualProduction} rows={3} className="mt-1 w-full resize-y rounded-lg border border-border bg-background px-3 py-2 text-xs text-foreground disabled:opacity-60" /></label>
                         </div>
-                      ) : <p className="mt-2 text-xs leading-5 text-muted-foreground">No deterministic configuration is used for the screenshot-carousel path. The build action below captures the selected internal review surfaces.</p>}
+                      ) : <p className="mt-3 text-xs leading-5 text-muted-foreground">No deterministic recipe is used for the screenshot-carousel path. The build action below captures the selected internal review surfaces.</p>}
+                    </div>
+
+                    <div data-visual-workflow-step="validation" data-theme-surface="deterministic-validation" className="mt-3 rounded-lg border border-border bg-white/60 p-3 dark:border-amber-500/25 dark:bg-muted">
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-amber-800/80 dark:text-amber-100/70">2. Save, rebuild, and validate</p>
+                      {isSingleImageFormat && hasDeterministicVisualContract ? (
+                        <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                          <div>
+                            <p className={`text-xs font-semibold ${deterministicVisualRecipeIssue || hasUnsavedVisualConfiguration ? 'text-red-800 dark:text-red-200' : 'text-emerald-800 dark:text-emerald-200'}`}>
+                              {deterministicVisualRecipeIssue
+                                ? deterministicVisualRecipeIssue
+                                : hasUnsavedVisualConfiguration
+                                  ? 'Unsaved recipe: render is blocked until this exact selection is persisted.'
+                                  : 'Persisted recipe matches the visible controls.'}
+                            </p>
+                            <p className="mt-1 text-xs leading-5 text-muted-foreground">Saving a changed recipe invalidates the prior candidate asset and downstream approvals, then rebuilds the candidate for review.</p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={handleSaveDeterministicVisualConfiguration}
+                            disabled={!hasUnsavedVisualConfiguration || Boolean(deterministicVisualRecipeIssue) || savingVisualConfiguration}
+                            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-amber-600/45 px-3 py-2 text-sm font-semibold text-amber-950 transition-colors hover:bg-amber-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-amber-400/45 dark:text-amber-100 dark:hover:bg-amber-500/10"
+                          >
+                            {savingVisualConfiguration ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+                            {savingVisualConfiguration ? 'Saving and rebuilding…' : hasUnsavedVisualConfiguration ? 'Save and rebuild recipe' : 'Recipe validated'}
+                          </button>
+                        </div>
+                      ) : <p className="mt-2 text-xs leading-5 text-muted-foreground">The selected path has no deterministic recipe to persist.</p>}
                     </div>
 
                     <div data-visual-workflow-step="render" className="mt-3 rounded-lg border border-border bg-white/60 p-3 dark:border-amber-500/25 dark:bg-muted">
                       <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-amber-800/80 dark:text-amber-100/70">3. Render the selected format</p>
                       {isSingleImageFormat ? (
                         <>
+                          <div aria-label="Why this image will look this way" className="mt-3 rounded-lg border border-border bg-background p-3 text-xs leading-5 text-foreground">
+                            <p className="font-semibold">Why this image will look this way</p>
+                            <p className="mt-1 text-muted-foreground">{deterministicVisualInputs?.visual_rationale || 'The visual rationale is missing from the approved content packet.'}</p>
+                            <p className="mt-2 text-muted-foreground">Template {deterministicVisualInputs?.template_label || 'missing'} · {deterministicVisualInputs?.aspect_ratio || 'aspect missing'} · {deterministicVisualInputs?.nodes.length || 0} content nodes · {deterministicVisualInputs?.connectors.length || 0} connectors. The renderer reads these structured fields, not the provider art-direction prompt.</p>
+                          </div>
                           {deterministicVisualRender ? (
                             <div aria-label="Deterministic visual render status" data-theme-surface="render-status" className={`mt-3 rounded-lg border p-3 ${hasUnsavedVisualConfiguration || deterministicVisualRender.state === 'blocked' ? 'border-red-400/30 bg-red-400/10' : deterministicVisualRender.state === 'current' ? 'border-emerald-400/30 bg-emerald-400/10' : 'border-blue-400/30 bg-blue-400/10'}`}>
                               <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                                 <div className="min-w-0">
-                                  <p className="text-sm font-semibold text-foreground" data-contrast-audit="render-summary">{hasUnsavedVisualConfiguration ? 'Save the visual type before rendering.' : deterministicVisualRender.summary}</p>
-                                  <p className="mt-1 text-xs leading-5 text-muted-foreground" data-contrast-audit="render-recovery">{hasUnsavedVisualConfiguration ? 'The visible selection does not match the persisted candidate contract.' : deterministicVisualRender.recovery_action}</p>
+                                  <p className="text-sm font-semibold text-foreground" data-contrast-audit="render-summary">{hasUnsavedVisualConfiguration ? 'Save and rebuild the visual recipe before rendering.' : deterministicVisualRender.summary}</p>
+                                  <p className="mt-1 text-xs leading-5 text-muted-foreground" data-contrast-audit="render-recovery">{hasUnsavedVisualConfiguration ? 'The visible template, type, or aspect does not match the persisted recipe version.' : deterministicVisualRender.recovery_action}</p>
                                 </div>
                                 <div className="flex shrink-0 flex-wrap gap-2 sm:justify-end">
                                   <span className="rounded-full border border-emerald-600/40 bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-900 dark:border-emerald-300/35 dark:bg-emerald-300/10 dark:text-emerald-100">Provider none</span>
@@ -5127,8 +5236,8 @@ function SocialContentDetailPage() {
                           <button
                             type="button"
                             onClick={handleRenderDeterministicVisual}
-                            disabled={renderingDeterministicVisual || savingVisualConfiguration || hasUnsavedVisualConfiguration || !deterministicVisualRender?.can_render || visualAssetsRejected}
-                            title={hasUnsavedVisualConfiguration ? 'Save and validate the selected visual type before rendering.' : !deterministicVisualRender?.can_render ? deterministicVisualRender?.recovery_action || 'Reload deterministic render readiness.' : undefined}
+                            disabled={renderingDeterministicVisual || savingVisualConfiguration || hasUnsavedVisualConfiguration || Boolean(deterministicVisualRecipeIssue) || !deterministicVisualRender?.can_render || visualAssetsRejected}
+                            title={hasUnsavedVisualConfiguration ? 'Save, rebuild, and validate this exact recipe before rendering.' : !deterministicVisualRender?.can_render ? deterministicVisualRender?.recovery_action || 'Reload deterministic render readiness.' : undefined}
                             className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-amber-400 px-3 py-2 text-sm font-semibold text-slate-950 transition-colors hover:bg-amber-300 disabled:cursor-not-allowed disabled:opacity-50"
                           >
                             {renderingDeterministicVisual ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ImageIcon className="h-3.5 w-3.5" />}{frameworkActionLabel}

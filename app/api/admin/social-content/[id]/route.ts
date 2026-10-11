@@ -35,7 +35,12 @@ import {
   isDeterministicVisualBindingQaFixtureId,
   parseDeterministicVisualQaState,
 } from '@/lib/social-deterministic-visual-qa-fixture'
-import { projectDeterministicVisualRender } from '@/lib/social-deterministic-visual'
+import {
+  buildDeterministicVisualRecipePatch,
+  DeterministicVisualRenderError,
+  projectDeterministicVisualRender,
+} from '@/lib/social-deterministic-visual'
+import type { DeterministicVisualRecipeSelection } from '@/lib/social-deterministic-visual-recipe'
 import {
   buildScheduleRecoveryProjection,
   createSupabaseSocialScheduleRecoveryRepository,
@@ -250,7 +255,40 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
-    if (isPractitionerContentQaFixtureId(params.id) || isTopicSourceCoverageQaFixtureId(params.id) || isDeterministicVisualBindingQaFixtureId(params.id)) {
+    if (isDeterministicVisualBindingQaFixtureId(params.id)) {
+      const body = await request.json()
+      const recipe = asRecord(body.visual_recipe) as unknown as DeterministicVisualRecipeSelection | null
+      if (!recipe) {
+        return NextResponse.json({ error: 'Synthetic preview fixture only accepts a visual recipe rebuild.', fixture: true, blocked: true }, { status: 409 })
+      }
+      try {
+        const current = deterministicVisualBindingQaFixture(parseDeterministicVisualQaState(asString(body.qa_state)))
+        const recipePatch = buildDeterministicVisualRecipePatch({ item: current, selection: recipe })
+        const prepared = prepareManualCopyUpdate({
+          current: current as never,
+          patch: recipePatch,
+          expectedVersion: body.expected_copy_version,
+          actor: 'synthetic-reviewer',
+          now: '2026-10-11T12:00:00.000Z',
+        })
+        const item = withDeterministicVisualProjection({ ...current, ...prepared }, true)
+        return NextResponse.json({
+          item,
+          fixture: true,
+          message: 'Synthetic deterministic recipe rebuilt. No shared storage, database, provider, draft, schedule, publication, or external send was used.',
+        })
+      } catch (error) {
+        const renderError = error instanceof DeterministicVisualRenderError ? error : null
+        return NextResponse.json({
+          error: error instanceof Error ? error.message : 'Visual recipe rebuild blocked.',
+          code: renderError?.code,
+          recovery_action: renderError?.recoveryAction,
+          fixture: true,
+          blocked: true,
+        }, { status: renderError?.status ?? 409 })
+      }
+    }
+    if (isPractitionerContentQaFixtureId(params.id) || isTopicSourceCoverageQaFixtureId(params.id)) {
       return NextResponse.json({
         error: 'Synthetic preview fixture is read-only.',
         fixture: true,
@@ -264,6 +302,10 @@ export async function PUT(
 
     const { id } = params
     const body = await request.json()
+    const visualRecipe = asRecord(body.visual_recipe) as unknown as DeterministicVisualRecipeSelection | null
+    if (visualRecipe && ('rag_context' in body || 'framework_visual_type' in body)) {
+      return NextResponse.json({ error: 'Save a visual recipe separately from raw visual fields.' }, { status: 400 })
+    }
 
     const allowedFields = [
       'post_text', 'cta_text', 'cta_url', 'hashtags',
@@ -283,7 +325,7 @@ export async function PUT(
       sanitized.reviewed_by = authResult.user.id
     }
 
-    if (Object.keys(sanitized).length === 0 && body.attach_existing_image !== true) {
+    if (Object.keys(sanitized).length === 0 && body.attach_existing_image !== true && !visualRecipe) {
       return NextResponse.json({ error: 'No valid fields to update' }, { status: 400 })
     }
 
@@ -310,6 +352,9 @@ export async function PUT(
       {
         if (typeof currentItem.updated_at !== 'string') return NextResponse.json({ error: 'Current copy version is unavailable. Reload before saving.' }, { status: 409 })
         try {
+          if (visualRecipe) {
+            Object.assign(sanitized, buildDeterministicVisualRecipePatch({ item: currentItem, selection: visualRecipe }))
+          }
           const prepared = body.attach_existing_image === true
             ? prepareSocialImageAttachment({current:currentItem,url:body.image_url,sourceNote:body.image_source_note,expectedVersion:body.expected_copy_version,actor:authResult.user.id,now:new Date().toISOString(),storageOrigin:process.env.NEXT_PUBLIC_SUPABASE_URL || ''})
             : prepareManualCopyUpdate({ current: currentItem, patch: sanitized, expectedVersion: body.expected_copy_version, actor: authResult.user.id, now: new Date().toISOString() })

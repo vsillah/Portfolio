@@ -3,7 +3,7 @@ import type { ReactNode } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import SocialContentDetailRoute from './page'
 import { deterministicVisualBindingQaFixture } from '@/lib/social-deterministic-visual-qa-fixture'
-import { projectDeterministicVisualRender } from '@/lib/social-deterministic-visual'
+import { buildDeterministicVisualRecipePatch, projectDeterministicVisualRender } from '@/lib/social-deterministic-visual'
 import { socialCopyVersion } from '@/lib/social-copy-revision'
 import { topicSourceCoverageQaFixture } from '@/lib/social-topic-source-coverage-qa-fixture'
 
@@ -233,17 +233,25 @@ describe('SocialContentDetailRoute visual production review', () => {
 
     expect(await screen.findByText('The approved copy and provider-none HTML/SVG candidate are ready for local rendering.')).toBeVisible()
     expect(screen.getByText('Provider none')).toBeVisible()
-    const effectiveInputs = screen.getByLabelText('Inputs used for this render')
+    const effectiveInputs = screen.getByLabelText('Effective deterministic visual inputs')
+    expect(effectiveInputs).not.toHaveAttribute('open')
+    fireEvent.click(within(effectiveInputs).getByText(/Effective persisted inputs/))
     expect(within(effectiveInputs).getAllByText('architecture').length).toBeGreaterThanOrEqual(2)
-    expect(within(effectiveInputs).getByText('Inputs used for this render')).toBeVisible()
-    expect(within(effectiveInputs).getByText(/Constraint/)).toBeVisible()
+    expect(within(effectiveInputs).getByText(/Effective persisted inputs/)).toBeVisible()
+    expect(within(effectiveInputs).getAllByText(/Constraint/).length).toBeGreaterThanOrEqual(2)
+    expect(within(effectiveInputs).getByText('provider_none_structured_html_svg')).toBeVisible()
+    expect(within(effectiveInputs).getByText(/constraint_decision_result/)).toBeVisible()
+    expect(within(effectiveInputs).getByText('1.91:1')).toBeVisible()
+    expect(within(effectiveInputs).getByText(/Every Friday/)).toBeVisible()
+    expect(within(effectiveInputs).getByText(/Saved deterministic candidate/)).toBeVisible()
     expect(screen.queryByRole('textbox', { name: /image prompt/i })).not.toBeInTheDocument()
-    expect(screen.getByText('No image prompt is used by the deterministic renderer.')).toBeVisible()
+    expect(screen.getByText(/stored, collapsed, and excluded from this render/i)).toBeVisible()
+    expect(screen.getByLabelText('Why this image will look this way')).toBeVisible()
     expect(screen.getByText(/Gemini, HeyGen, n8n media, and other media providers stay off/i)).toBeVisible()
     const workflowSteps = Array.from(document.querySelectorAll('[data-visual-workflow-step]'))
     expect(workflowSteps.map((element) => element.getAttribute('data-visual-workflow-step'))).toEqual([
-      'format',
-      'configuration',
+      'recipe',
+      'validation',
       'render',
       'preview',
       'decision',
@@ -265,8 +273,15 @@ describe('SocialContentDetailRoute visual production review', () => {
       expected_candidate_id: readyItem.deterministic_visual_render?.candidate_id,
       expected_candidate_hash: readyItem.deterministic_visual_render?.candidate_hash,
       expected_visual_type: readyItem.deterministic_visual_render?.visual_type,
+      expected_recipe_version: readyItem.deterministic_visual_render?.inputs.recipe_version,
       qa_state: 'ready',
+      qa_visual_recipe: {
+        template: 'constraint_decision_result',
+        visual_type: 'architecture',
+        aspect_ratio: '1.91:1',
+      },
     })
+    expect(JSON.stringify(renderBody)).not.toMatch(/image_prompt|provider art direction|Create a framework visual/i)
     await waitFor(() => {
       expect(screen.getByRole('button', { name: 'Review asset current' })).toBeDisabled()
     })
@@ -292,7 +307,7 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(screen.getByText(/provider none · external call false/i)).toBeVisible()
   })
 
-  it('requires a persisted matching visual type before rendering the deterministic candidate', async () => {
+  it('requires a persisted exact recipe before rendering and fails closed for unsupported template combinations', async () => {
     const realItem = structuredClone(deterministicVisualBindingQaFixture('ready'))
     realItem.id = 'visual-config-real'
     const realRagContext = structuredClone(realItem.rag_context ?? {}) as Record<string, unknown>
@@ -309,9 +324,14 @@ describe('SocialContentDetailRoute visual production review', () => {
     const fetchMock = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
       if (init?.method === 'PUT') {
         const body = JSON.parse(String(init.body))
+        const recipePatch = buildDeterministicVisualRecipePatch({ item: realItem, selection: body.visual_recipe })
         const savedItem = {
           ...realItem,
-          framework_visual_type: body.framework_visual_type,
+          ...recipePatch,
+          rag_context: {
+            ...realItem.rag_context,
+            ...recipePatch.rag_context,
+          },
           image_url: null,
           updated_at: '2026-10-10T20:06:00.000Z',
         }
@@ -330,23 +350,35 @@ describe('SocialContentDetailRoute visual production review', () => {
 
     const renderButton = await screen.findByRole('button', { name: 'Render deterministic visual' })
     expect(renderButton).toBeEnabled()
-    fireEvent.change(screen.getByLabelText('Visual type used by deterministic renderer'), { target: { value: 'timeline' } })
+    fireEvent.change(screen.getByLabelText(/Template · editable/i), { target: { value: 'practitioner_signal_card' } })
 
     expect(renderButton).toBeDisabled()
-    expect(screen.getByText(/Unsaved type change/)).toBeVisible()
-    expect(screen.getByRole('button', { name: 'Save visual configuration' })).toBeEnabled()
+    expect(screen.getByText(/does not have an enabled deterministic renderer/i)).toBeVisible()
+    expect(screen.getByRole('button', { name: 'Save and rebuild recipe' })).toBeDisabled()
     expect(screen.getByRole('button', { name: /Approve Visuals/i })).toBeDisabled()
     expect(fetchMock.mock.calls.some(([input]) => String(input).includes('/render-deterministic-visual'))).toBe(false)
 
-    fireEvent.click(screen.getByRole('button', { name: 'Save visual configuration' }))
+    fireEvent.change(screen.getByLabelText(/Template · editable/i), { target: { value: 'constraint_decision_result' } })
+    fireEvent.change(screen.getByLabelText(/Aspect ratio · editable/i), { target: { value: '4:5' } })
+
+    expect(screen.getByText(/Unsaved recipe: render is blocked/i)).toBeVisible()
+    expect(screen.getByRole('button', { name: 'Save and rebuild recipe' })).toBeEnabled()
+    expect(screen.getByRole('button', { name: /Approve Visuals/i })).toBeDisabled()
+    expect(fetchMock.mock.calls.some(([input]) => String(input).includes('/render-deterministic-visual'))).toBe(false)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Save and rebuild recipe' }))
     await waitFor(() => expect(fetchMock.mock.calls.some(([, init]) => init?.method === 'PUT')).toBe(true))
     const putCall = fetchMock.mock.calls.find(([, init]) => init?.method === 'PUT')
     expect(JSON.parse(String(putCall?.[1]?.body))).toEqual({
       expected_copy_version: realItem.deterministic_visual_render?.copy_version,
-      framework_visual_type: 'timeline',
+      visual_recipe: {
+        template: 'constraint_decision_result',
+        visual_type: 'architecture',
+        aspect_ratio: '4:5',
+      },
     })
-    expect(await screen.findByText(/selected timeline visual type does not match the candidate architecture contract/i)).toBeVisible()
-    expect(screen.getByRole('button', { name: 'Render deterministic visual' })).toBeDisabled()
+    expect(await screen.findByText(/Persisted recipe matches the visible controls/i)).toBeVisible()
+    expect(screen.getByRole('button', { name: 'Render deterministic visual' })).toBeEnabled()
   })
 
   it('inherits the system-light theme without leaking dark review-panel chrome', async () => {
@@ -1028,7 +1060,7 @@ describe('SocialContentDetailRoute visual production review', () => {
     view.rerender(<SocialContentDetailRoute />)
 
     expect(await screen.findByText('Visual Production')).toBeInTheDocument()
-    expect(screen.getByText('1. Choose one visual format')).toBeInTheDocument()
+    expect(screen.getByText('1. Visual recipe')).toBeInTheDocument()
     expect(screen.getByText('Selected')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Render deterministic visual/i })).toBeDisabled()
     expect(screen.getByRole('button', { name: /App screenshot carousel/i })).toBeInTheDocument()

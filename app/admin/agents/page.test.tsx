@@ -617,6 +617,8 @@ describe('AgentOperationsPage mission control landing', () => {
     expect(screen.getAllByRole('img', { name: /Illustrated avatar for Shaka/i }).length).toBeGreaterThan(0)
     expect(screen.queryByText('Active work')).not.toBeInTheDocument()
     expect(screen.getByLabelText('Agent Activity Radar')).toBeInTheDocument()
+    expect(screen.getByLabelText('Agent Activity Radar')).toHaveAttribute('data-agent-ops-contrast', 'semantic')
+    expect(document.querySelector('[data-agent-ops-surface="operations-side-rail"]')).toBeInTheDocument()
     expect(screen.getByText('Live agent work map')).toBeInTheDocument()
     expect(await screen.findByLabelText('Client engagement lifecycle')).toBeInTheDocument()
     expect(screen.queryByLabelText('Selected agent detail')).not.toBeInTheDocument()

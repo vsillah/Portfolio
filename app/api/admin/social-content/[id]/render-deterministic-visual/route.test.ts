@@ -81,6 +81,7 @@ function request(item = row(), overrides: Record<string, unknown> = {}) {
       expected_candidate_id: view.candidate_id,
       expected_candidate_hash: view.candidate_hash,
       expected_visual_type: view.visual_type,
+      expected_recipe_version: view.inputs.recipe_version,
       ...overrides,
     }),
   })
@@ -208,6 +209,16 @@ describe('POST /api/admin/social-content/[id]/render-deterministic-visual', () =
     expect(mocks.upload).not.toHaveBeenCalled()
   })
 
+  it('rejects a stale persisted recipe version before renderer or storage work', async () => {
+    const item = row()
+    mocks.readSocialQueueForWrite.mockResolvedValue(item)
+    const response = await POST(request(item, { expected_recipe_version: 'stale-recipe' }), { params: { id: item.id } })
+    expect(response.status).toBe(409)
+    await expect(response.json()).resolves.toMatchObject({ code: 'recipe_version_mismatch', provider_calls_enabled: false })
+    expect(mocks.renderPng).not.toHaveBeenCalled()
+    expect(mocks.upload).not.toHaveBeenCalled()
+  })
+
   it('blocks a missing candidate with an in-context recovery action', async () => {
     const item = row()
     item.rag_context.practitioner_content_quality.deterministic_visual.candidate.candidate_id = ''
@@ -219,6 +230,7 @@ describe('POST /api/admin/social-content/[id]/render-deterministic-visual', () =
         expected_candidate_id: view.candidate_id,
         expected_candidate_hash: view.candidate_hash,
         expected_visual_type: view.visual_type,
+        expected_recipe_version: view.inputs.recipe_version,
       }),
     }), { params: { id: item.id } })
     expect(response.status).toBe(409)
@@ -237,6 +249,7 @@ describe('POST /api/admin/social-content/[id]/render-deterministic-visual', () =
         expected_candidate_id: view.candidate_id,
         expected_candidate_hash: view.candidate_hash,
         expected_visual_type: view.visual_type,
+        expected_recipe_version: view.inputs.recipe_version,
       }),
     }), { params: { id: item.id } })
     expect(response.status).toBe(409)

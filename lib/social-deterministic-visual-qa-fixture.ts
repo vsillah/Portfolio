@@ -1,12 +1,14 @@
 import { DETERMINISTIC_VISUAL_BINDING_QA_ID, type SocialContentItem } from '@/lib/social-content'
 import {
   buildDeterministicVisualAssetPatch,
+  buildDeterministicVisualRecipePatch,
   DETERMINISTIC_VISUAL_RENDERER_VERSION,
   deterministicVisualCandidateHash,
   deterministicVisualRenderInputHash,
   projectDeterministicVisualRender,
   readDeterministicVisualSpec,
 } from '@/lib/social-deterministic-visual'
+import type { DeterministicVisualRecipeSelection } from '@/lib/social-deterministic-visual-recipe'
 import { practitionerContentQaFixture } from '@/lib/social-practitioner-content-qa-fixture'
 import { socialCopyVersion } from '@/lib/social-copy-revision'
 
@@ -39,6 +41,7 @@ export function parseDeterministicVisualQaState(value: string | null | undefined
 
 export function deterministicVisualBindingQaFixture(
   state: DeterministicVisualQaState = 'ready',
+  recipe?: DeterministicVisualRecipeSelection,
 ): SocialContentItem {
   const base = practitionerContentQaFixture('ready')
   const baseRag = structuredClone(base.rag_context ?? {}) as Record<string, unknown>
@@ -75,6 +78,15 @@ export function deterministicVisualBindingQaFixture(
         next_action: 'Review the render state and provider-none receipt. Use the target record only after captain-controlled deployment verification.',
       },
     },
+  }
+
+  if (recipe) {
+    const patch = buildDeterministicVisualRecipePatch({ item, selection: recipe })
+    item.framework_visual_type = patch.framework_visual_type
+    item.rag_context = {
+      ...structuredClone(item.rag_context ?? {}) as Record<string, unknown>,
+      ...patch.rag_context,
+    }
   }
 
   if (state === 'missing_candidate') {
@@ -124,6 +136,6 @@ export function deterministicVisualBindingQaFixture(
   return item
 }
 
-export function completeDeterministicVisualBindingQaFixture(): SocialContentItem {
-  return deterministicVisualBindingQaFixture('current')
+export function completeDeterministicVisualBindingQaFixture(recipe?: DeterministicVisualRecipeSelection): SocialContentItem {
+  return deterministicVisualBindingQaFixture('current', recipe)
 }

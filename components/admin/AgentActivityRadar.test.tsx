@@ -220,6 +220,36 @@ describe('AgentActivityRadar', () => {
     expect(within(selectedPanel).getByRole('link', { name: 'Open trace' })).toHaveAttribute('href', '/admin/agents/runs/run-active')
   })
 
+  it('pairs semantic light surfaces with explicit dark overrides across the shared radar', async () => {
+    const { container } = render(<AgentActivityRadar variant="full" />)
+
+    const root = await screen.findByLabelText('Agent Activity Radar')
+    expect(root).toHaveAttribute('data-agent-ops-surface', 'radar-root')
+    expect(root).toHaveAttribute('data-agent-ops-contrast', 'semantic')
+    expect(container.querySelector('[data-agent-ops-surface="summary-strip"]')).toBeInTheDocument()
+    const activeMetric = container.querySelector<HTMLElement>('[data-agent-ops-surface="summary-metric"][data-agent-state="active"]')
+    expect(activeMetric?.className).toContain('bg-emerald-100')
+    expect(activeMetric?.className).toContain('dark:bg-emerald-500/10')
+    const lifecycle = container.querySelector<HTMLElement>('[data-agent-ops-surface="lifecycle-map"]')
+    expect(lifecycle?.className).toContain('bg-background')
+    expect(lifecycle?.className).toContain('dark:bg-background/35')
+    const firstRoom = container.querySelector<HTMLElement>('[data-agent-ops-surface="lifecycle-room"]')
+    expect(firstRoom?.className).toContain('bg-cyan-50')
+    expect(firstRoom?.className).toContain('dark:bg-cyan-500/10')
+    expect(container.querySelector('[data-agent-ops-surface="attention-list"]')).toBeInTheDocument()
+    expect(container.querySelector('[data-agent-ops-surface="refresh-button"]')).toBeInTheDocument()
+    expect(container.querySelector('[data-agent-ops-surface="navigation-button"]')).toBeInTheDocument()
+
+    const shakaButton = screen.getByRole('button', { name: 'Open Shaka (Zulu) - Chief of Staff lifecycle detail' })
+    fireEvent.mouseEnter(shakaButton)
+    const tooltip = screen.getByRole('dialog', { name: 'Shaka (Zulu) - Chief of Staff lifecycle detail' })
+    expect(tooltip).toHaveAttribute('data-agent-ops-surface', 'lifecycle-tooltip')
+    expect(tooltip.className).toContain('bg-card/95')
+    expect(tooltip.className).toContain('dark:bg-background/95')
+    fireEvent.click(shakaButton)
+    expect(screen.getByLabelText('Selected agent detail')).toHaveAttribute('data-agent-ops-surface', 'selected-agent')
+  })
+
   it('polls every 15 seconds while visible', async () => {
     vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval'] })
     render(<AgentActivityRadar variant="compact" />)
@@ -247,6 +277,7 @@ describe('AgentActivityRadar', () => {
     fireEvent.click(within(selectedPanel).getByRole('button', { name: 'Ask Shaka' }))
 
     expect(await screen.findByText('Ask Shaka queued. Trace: shaka-run')).toBeInTheDocument()
+    expect(document.querySelector('[data-agent-ops-surface="action-result"]')).toBeInTheDocument()
     expect(fetch).toHaveBeenCalledWith('/api/admin/agents/chief-of-staff/chat', expect.objectContaining({
       method: 'POST',
       headers: expect.objectContaining({ Authorization: 'Bearer admin-token' }),
@@ -265,7 +296,24 @@ describe('AgentActivityRadar', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Refresh' }))
 
     expect(await screen.findByText(/Database not available/i)).toBeInTheDocument()
+    expect(document.querySelector('[data-agent-ops-surface="error-state"]')).toBeInTheDocument()
     expect(screen.getByText(/Showing the last loaded radar/i)).toBeInTheDocument()
     expect(screen.queryByLabelText('Selected agent detail')).not.toBeInTheDocument()
+  })
+
+  it('keeps loading and empty states on semantic theme surfaces', async () => {
+    const pendingFetch = vi.fn(() => new Promise(() => {}))
+    vi.stubGlobal('fetch', pendingFetch)
+    const loadingView = render(<AgentActivityRadar variant="compact" />)
+    expect(document.querySelector('[data-agent-ops-surface="loading-state"]')).toBeInTheDocument()
+    loadingView.unmount()
+
+    vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, json: async () => ({ ...radarSnapshot, attention: [] }) })))
+    render(<AgentActivityRadar variant="compact" />)
+    await screen.findByRole('heading', { name: 'Agent office map' })
+    const emptyState = document.querySelector<HTMLElement>('[data-agent-ops-surface="empty-state"]')
+    expect(emptyState).toBeInTheDocument()
+    expect(emptyState?.className).toContain('bg-emerald-100')
+    expect(emptyState?.className).toContain('dark:bg-emerald-500/10')
   })
 })
