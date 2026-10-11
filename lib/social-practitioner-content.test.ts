@@ -109,6 +109,7 @@ function approvedRagContext() {
       },
       deterministic_visual: {
         system_version: 'amadutown_deterministic_v1',
+        visual_type: 'architecture',
         template: 'constraint_decision_result',
         aspect_ratio: '1.91:1',
         eyebrow: 'Field note',
@@ -123,6 +124,17 @@ function approvedRagContext() {
           practical_takeaway: 'Start with repeated burden, stable rules, and one decision owner.',
         },
         visual_rationale: 'Use the operating constraint and the decision change as the visual hierarchy.',
+        architecture: {
+          nodes: [
+            { id: 'constraint', label: 'Constraint', body: 'Volunteer coverage changed while intake rules had to stay consistent.' },
+            { id: 'decision', label: 'Human decision', body: 'One reviewed queue kept the final call with the operations lead.' },
+            { id: 'result', label: 'Bounded result', body: 'Duplicate review disappeared; the 30-day outcome remains pending.' },
+          ],
+          connectors: [
+            { from: 'constraint', to: 'decision', label: 'Stable rules' },
+            { from: 'decision', to: 'result', label: 'Owned decision' },
+          ],
+        },
         candidate: {
           candidate_id: 'visual-candidate-synthetic-1',
           status: 'in_review',

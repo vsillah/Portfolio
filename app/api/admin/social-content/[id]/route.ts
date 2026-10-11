@@ -1,5 +1,5 @@
 import { videoPlayback } from '@/lib/video-media-archive'
-import { isCalendarSocialCopy, prepareSocialImageAttachment, prepareManualCopyUpdate, withSocialCopyRevision } from '@/lib/social-copy-revision'
+import { hasSocialCopyReleaseEvidence, isCalendarSocialCopy, prepareSocialImageAttachment, prepareManualCopyUpdate, socialCopyVersion, withSocialCopyRevision } from '@/lib/social-copy-revision'
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
@@ -31,11 +31,34 @@ import {
   topicSourceCoverageQaFixture,
 } from '@/lib/social-topic-source-coverage-qa-fixture'
 import {
+  deterministicVisualBindingQaFixture,
+  isDeterministicVisualBindingQaFixtureId,
+  parseDeterministicVisualQaState,
+} from '@/lib/social-deterministic-visual-qa-fixture'
+import {
+  buildDeterministicVisualRecipePatch,
+  DeterministicVisualRenderError,
+  projectDeterministicVisualRender,
+} from '@/lib/social-deterministic-visual'
+import type { DeterministicVisualRecipeSelection } from '@/lib/social-deterministic-visual-recipe'
+import {
   buildScheduleRecoveryProjection,
   createSupabaseSocialScheduleRecoveryRepository,
 } from '@/lib/social-schedule-recovery'
 
 export const dynamic = 'force-dynamic'
+
+function withDeterministicVisualProjection<T extends Record<string, unknown>>(item: T, storageAvailable = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY)) {
+  return {
+    ...withSocialCopyRevision(item),
+    deterministic_visual_render: projectDeterministicVisualRender({
+      item: item as never,
+      copyVersion: socialCopyVersion(item),
+      storageAvailable,
+      releaseLocked: hasSocialCopyReleaseEvidence(item),
+    }),
+  }
+}
 
 function asRecord(value: unknown): Record<string, unknown> | null {
   return value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : null
@@ -94,6 +117,15 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    if (isDeterministicVisualBindingQaFixtureId(params.id)) {
+      const fixtureState = parseDeterministicVisualQaState(request.nextUrl.searchParams.get('qa_state'))
+      return NextResponse.json({
+        item: deterministicVisualBindingQaFixture(fixtureState),
+        fixture: true,
+        fixture_state: fixtureState,
+        integration_note: 'Synthetic production-equivalent deterministic visual fixture. Its render action does not write shared storage, database records, provider drafts, schedules, publications, or external sends.',
+      })
+    }
     if (isTopicSourceCoverageQaFixtureId(params.id)) {
       const fixtureState = request.headers.get('x-portfolio-topic-coverage-state') === 'blocked'
         ? 'blocked'
@@ -199,7 +231,7 @@ export async function GET(
 
     return NextResponse.json({
       item: {
-        ...withSocialCopyRevision(data),
+        ...withDeterministicVisualProjection(data),
         video_playback_url: mediaPlayback?.playback_url || null,
         video_media_blocker: mediaPlayback?.media_blocker || null,
         meeting_record: meetingRecord,
@@ -223,6 +255,39 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
+    if (isDeterministicVisualBindingQaFixtureId(params.id)) {
+      const body = await request.json()
+      const recipe = asRecord(body.visual_recipe) as unknown as DeterministicVisualRecipeSelection | null
+      if (!recipe) {
+        return NextResponse.json({ error: 'Synthetic preview fixture only accepts a visual recipe rebuild.', fixture: true, blocked: true }, { status: 409 })
+      }
+      try {
+        const current = deterministicVisualBindingQaFixture(parseDeterministicVisualQaState(asString(body.qa_state)))
+        const recipePatch = buildDeterministicVisualRecipePatch({ item: current, selection: recipe })
+        const prepared = prepareManualCopyUpdate({
+          current: current as never,
+          patch: recipePatch,
+          expectedVersion: body.expected_copy_version,
+          actor: 'synthetic-reviewer',
+          now: '2026-10-11T12:00:00.000Z',
+        })
+        const item = withDeterministicVisualProjection({ ...current, ...prepared }, true)
+        return NextResponse.json({
+          item,
+          fixture: true,
+          message: 'Synthetic deterministic recipe rebuilt. No shared storage, database, provider, draft, schedule, publication, or external send was used.',
+        })
+      } catch (error) {
+        const renderError = error instanceof DeterministicVisualRenderError ? error : null
+        return NextResponse.json({
+          error: error instanceof Error ? error.message : 'Visual recipe rebuild blocked.',
+          code: renderError?.code,
+          recovery_action: renderError?.recoveryAction,
+          fixture: true,
+          blocked: true,
+        }, { status: renderError?.status ?? 409 })
+      }
+    }
     if (isPractitionerContentQaFixtureId(params.id) || isTopicSourceCoverageQaFixtureId(params.id)) {
       return NextResponse.json({
         error: 'Synthetic preview fixture is read-only.',
@@ -237,6 +302,10 @@ export async function PUT(
 
     const { id } = params
     const body = await request.json()
+    const visualRecipe = asRecord(body.visual_recipe) as unknown as DeterministicVisualRecipeSelection | null
+    if (visualRecipe && ('rag_context' in body || 'framework_visual_type' in body)) {
+      return NextResponse.json({ error: 'Save a visual recipe separately from raw visual fields.' }, { status: 400 })
+    }
 
     const allowedFields = [
       'post_text', 'cta_text', 'cta_url', 'hashtags',
@@ -256,7 +325,7 @@ export async function PUT(
       sanitized.reviewed_by = authResult.user.id
     }
 
-    if (Object.keys(sanitized).length === 0 && body.attach_existing_image !== true) {
+    if (Object.keys(sanitized).length === 0 && body.attach_existing_image !== true && !visualRecipe) {
       return NextResponse.json({ error: 'No valid fields to update' }, { status: 400 })
     }
 
@@ -283,6 +352,9 @@ export async function PUT(
       {
         if (typeof currentItem.updated_at !== 'string') return NextResponse.json({ error: 'Current copy version is unavailable. Reload before saving.' }, { status: 409 })
         try {
+          if (visualRecipe) {
+            Object.assign(sanitized, buildDeterministicVisualRecipePatch({ item: currentItem, selection: visualRecipe }))
+          }
           const prepared = body.attach_existing_image === true
             ? prepareSocialImageAttachment({current:currentItem,url:body.image_url,sourceNote:body.image_source_note,expectedVersion:body.expected_copy_version,actor:authResult.user.id,now:new Date().toISOString(),storageOrigin:process.env.NEXT_PUBLIC_SUPABASE_URL || ''})
             : prepareManualCopyUpdate({ current: currentItem, patch: sanitized, expectedVersion: body.expected_copy_version, actor: authResult.user.id, now: new Date().toISOString() })
@@ -336,7 +408,7 @@ export async function PUT(
       return NextResponse.json({ error: 'Failed to update content' }, { status: 500 })
     }
 
-    return NextResponse.json({ item: withSocialCopyRevision(data) })
+    return NextResponse.json({ item: withDeterministicVisualProjection(data) })
   } catch (error) {
     console.error('Error in PUT /api/admin/social-content/[id]:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

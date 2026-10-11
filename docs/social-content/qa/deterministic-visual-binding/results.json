@@ -1,0 +1,818 @@
+[
+  {
+    "base_url": "https://portfolio-4nn98g77n-vsillahs-projects.vercel.app",
+    "source_commit": "e689a285de9d0a55df830a7fea8d857dc0b35b66",
+    "width": 390,
+    "height": 844,
+    "theme": "system-light",
+    "persisted_theme": "system",
+    "resolved_theme": "light",
+    "routes": [
+      "https://portfolio-4nn98g77n-vsillahs-projects.vercel.app/admin",
+      "https://portfolio-4nn98g77n-vsillahs-projects.vercel.app/admin/agents",
+      "https://portfolio-4nn98g77n-vsillahs-projects.vercel.app/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=deterministic-visual-binding&qa_state=ready",
+      "https://portfolio-4nn98g77n-vsillahs-projects.vercel.app/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=deterministic-visual-binding&qa_state=stale"
+    ],
+    "agent_ops": {
+      "compact_dashboard": {
+        "resolved_theme": "light",
+        "expected_theme": "light",
+        "semantic_root": "semantic",
+        "surfaces": {
+          "radar": 1,
+          "summary": 0.876,
+          "lifecycle": 0.92,
+          "attention": 1,
+          "selected": 1
+        },
+        "horizontal_overflow": false
+      },
+      "full_mission_control": {
+        "resolved_theme": "light",
+        "expected_theme": "light",
+        "semantic_root": "semantic",
+        "surfaces": {
+          "radar": 1,
+          "summary": 0.876,
+          "lifecycle": 0.92,
+          "attention": 1,
+          "selected": 1,
+          "side_rail": 1
+        },
+        "horizontal_overflow": false
+      }
+    },
+    "fixture_responses": [
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
+        "state": "ready"
+      },
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
+        "state": null
+      },
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa/render-deterministic-visual",
+        "state": "current"
+      },
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
+        "state": "stale"
+      }
+    ],
+    "workflow_order": [
+      "configure",
+      "generate",
+      "decide"
+    ],
+    "state_machine": {
+      "initial": "Render review visual",
+      "dirty": "Save changes and rebuild candidate",
+      "rebuilt": "Render updated visual",
+      "rendered_current": [
+        "Current asset",
+        "Change recipe",
+        "Render again"
+      ],
+      "rendered_stale": "Render updated visual"
+    },
+    "deterministic_image_prompt_controls": 0,
+    "recipe": {
+      "template": "constraint_decision_result",
+      "visual_type": "architecture",
+      "aspect_ratio": "4:5"
+    },
+    "expected_recipe_version": "4fdcae0528d273d20a3dcebc57fc25204604333c30e5f6b5aeb6a1ddf26ffc55",
+    "content_lane": {
+      "left": 0,
+      "right": 390,
+      "width": 390,
+      "usable_width": 358,
+      "viewport_width": 390
+    },
+    "linkedin_preview": {
+      "background_luminance": 0.92,
+      "semantic_theme_classes": true
+    },
+    "contrast_checks": [
+      {
+        "name": "current-review-state",
+        "ratio": 7,
+        "minimum": 4.5
+      },
+      {
+        "name": "render-summary",
+        "ratio": 14.98,
+        "minimum": 4.5
+      },
+      {
+        "name": "render-recovery",
+        "ratio": 6.79,
+        "minimum": 4.5
+      },
+      {
+        "name": "campaign-video-review-title",
+        "ratio": 16.72,
+        "minimum": 4.5
+      }
+    ],
+    "provider": "none",
+    "provider_calls": 0,
+    "shared_database_writes": 0,
+    "shared_storage_writes": 0,
+    "platform_drafts": 0,
+    "uploads": 0,
+    "scheduled_posts": 0,
+    "publications": 0,
+    "external_sends": 0,
+    "synthetic_recipe_save_requests": 1,
+    "synthetic_render_requests": 1,
+    "horizontal_overflow": false,
+    "page_errors": [],
+    "video": {
+      "path": "docs/social-content/qa/deterministic-visual-binding/390-system-light-walkthrough.mp4",
+      "duration_seconds": 14.52,
+      "playable": true
+    }
+  },
+  {
+    "base_url": "https://portfolio-4nn98g77n-vsillahs-projects.vercel.app",
+    "source_commit": "e689a285de9d0a55df830a7fea8d857dc0b35b66",
+    "width": 768,
+    "height": 1000,
+    "theme": "system-light",
+    "persisted_theme": "system",
+    "resolved_theme": "light",
+    "routes": [
+      "https://portfolio-4nn98g77n-vsillahs-projects.vercel.app/admin",
+      "https://portfolio-4nn98g77n-vsillahs-projects.vercel.app/admin/agents",
+      "https://portfolio-4nn98g77n-vsillahs-projects.vercel.app/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=deterministic-visual-binding&qa_state=ready",
+      "https://portfolio-4nn98g77n-vsillahs-projects.vercel.app/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=deterministic-visual-binding&qa_state=stale"
+    ],
+    "agent_ops": {
+      "compact_dashboard": {
+        "resolved_theme": "light",
+        "expected_theme": "light",
+        "semantic_root": "semantic",
+        "surfaces": {
+          "radar": 1,
+          "summary": 0.876,
+          "lifecycle": 0.92,
+          "attention": 1,
+          "selected": 1
+        },
+        "horizontal_overflow": false
+      },
+      "full_mission_control": {
+        "resolved_theme": "light",
+        "expected_theme": "light",
+        "semantic_root": "semantic",
+        "surfaces": {
+          "radar": 1,
+          "summary": 0.876,
+          "lifecycle": 0.92,
+          "attention": 1,
+          "selected": 1,
+          "side_rail": 1
+        },
+        "horizontal_overflow": false
+      }
+    },
+    "fixture_responses": [
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
+        "state": "ready"
+      },
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
+        "state": null
+      },
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa/render-deterministic-visual",
+        "state": "current"
+      },
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
+        "state": "stale"
+      }
+    ],
+    "workflow_order": [
+      "configure",
+      "generate",
+      "decide"
+    ],
+    "state_machine": {
+      "initial": "Render review visual",
+      "dirty": "Save changes and rebuild candidate",
+      "rebuilt": "Render updated visual",
+      "rendered_current": [
+        "Current asset",
+        "Change recipe",
+        "Render again"
+      ],
+      "rendered_stale": "Render updated visual"
+    },
+    "deterministic_image_prompt_controls": 0,
+    "recipe": {
+      "template": "constraint_decision_result",
+      "visual_type": "architecture",
+      "aspect_ratio": "4:5"
+    },
+    "expected_recipe_version": "4fdcae0528d273d20a3dcebc57fc25204604333c30e5f6b5aeb6a1ddf26ffc55",
+    "content_lane": {
+      "left": 0,
+      "right": 768,
+      "width": 768,
+      "usable_width": 720,
+      "viewport_width": 768
+    },
+    "linkedin_preview": {
+      "background_luminance": 0.92,
+      "semantic_theme_classes": true
+    },
+    "contrast_checks": [
+      {
+        "name": "current-review-state",
+        "ratio": 7,
+        "minimum": 4.5
+      },
+      {
+        "name": "render-summary",
+        "ratio": 14.98,
+        "minimum": 4.5
+      },
+      {
+        "name": "render-recovery",
+        "ratio": 6.79,
+        "minimum": 4.5
+      },
+      {
+        "name": "campaign-video-review-title",
+        "ratio": 16.72,
+        "minimum": 4.5
+      }
+    ],
+    "provider": "none",
+    "provider_calls": 0,
+    "shared_database_writes": 0,
+    "shared_storage_writes": 0,
+    "platform_drafts": 0,
+    "uploads": 0,
+    "scheduled_posts": 0,
+    "publications": 0,
+    "external_sends": 0,
+    "synthetic_recipe_save_requests": 1,
+    "synthetic_render_requests": 1,
+    "horizontal_overflow": false,
+    "page_errors": [],
+    "video": {
+      "path": "docs/social-content/qa/deterministic-visual-binding/768-system-light-walkthrough.mp4",
+      "duration_seconds": 14.04,
+      "playable": true
+    }
+  },
+  {
+    "base_url": "https://portfolio-4nn98g77n-vsillahs-projects.vercel.app",
+    "source_commit": "e689a285de9d0a55df830a7fea8d857dc0b35b66",
+    "width": 1440,
+    "height": 1000,
+    "theme": "system-light",
+    "persisted_theme": "system",
+    "resolved_theme": "light",
+    "routes": [
+      "https://portfolio-4nn98g77n-vsillahs-projects.vercel.app/admin",
+      "https://portfolio-4nn98g77n-vsillahs-projects.vercel.app/admin/agents",
+      "https://portfolio-4nn98g77n-vsillahs-projects.vercel.app/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=deterministic-visual-binding&qa_state=ready",
+      "https://portfolio-4nn98g77n-vsillahs-projects.vercel.app/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=deterministic-visual-binding&qa_state=stale"
+    ],
+    "agent_ops": {
+      "compact_dashboard": {
+        "resolved_theme": "light",
+        "expected_theme": "light",
+        "semantic_root": "semantic",
+        "surfaces": {
+          "radar": 1,
+          "summary": 0.876,
+          "lifecycle": 0.92,
+          "attention": 1,
+          "selected": 1
+        },
+        "horizontal_overflow": false
+      },
+      "full_mission_control": {
+        "resolved_theme": "light",
+        "expected_theme": "light",
+        "semantic_root": "semantic",
+        "surfaces": {
+          "radar": 1,
+          "summary": 0.876,
+          "lifecycle": 0.92,
+          "attention": 1,
+          "selected": 1,
+          "side_rail": 1
+        },
+        "horizontal_overflow": false
+      }
+    },
+    "fixture_responses": [
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
+        "state": "ready"
+      },
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
+        "state": null
+      },
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa/render-deterministic-visual",
+        "state": "current"
+      },
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
+        "state": "stale"
+      }
+    ],
+    "workflow_order": [
+      "configure",
+      "generate",
+      "decide"
+    ],
+    "state_machine": {
+      "initial": "Render review visual",
+      "dirty": "Save changes and rebuild candidate",
+      "rebuilt": "Render updated visual",
+      "rendered_current": [
+        "Current asset",
+        "Change recipe",
+        "Render again"
+      ],
+      "rendered_stale": "Render updated visual"
+    },
+    "deterministic_image_prompt_controls": 0,
+    "recipe": {
+      "template": "constraint_decision_result",
+      "visual_type": "architecture",
+      "aspect_ratio": "4:5"
+    },
+    "expected_recipe_version": "4fdcae0528d273d20a3dcebc57fc25204604333c30e5f6b5aeb6a1ddf26ffc55",
+    "content_lane": {
+      "left": 264,
+      "right": 1440,
+      "width": 1176,
+      "usable_width": 1112,
+      "viewport_width": 1440
+    },
+    "linkedin_preview": {
+      "background_luminance": 0.92,
+      "semantic_theme_classes": true
+    },
+    "contrast_checks": [
+      {
+        "name": "current-review-state",
+        "ratio": 7,
+        "minimum": 4.5
+      },
+      {
+        "name": "render-summary",
+        "ratio": 14.98,
+        "minimum": 4.5
+      },
+      {
+        "name": "render-recovery",
+        "ratio": 6.79,
+        "minimum": 4.5
+      },
+      {
+        "name": "campaign-video-review-title",
+        "ratio": 16.72,
+        "minimum": 4.5
+      }
+    ],
+    "provider": "none",
+    "provider_calls": 0,
+    "shared_database_writes": 0,
+    "shared_storage_writes": 0,
+    "platform_drafts": 0,
+    "uploads": 0,
+    "scheduled_posts": 0,
+    "publications": 0,
+    "external_sends": 0,
+    "synthetic_recipe_save_requests": 1,
+    "synthetic_render_requests": 1,
+    "horizontal_overflow": false,
+    "page_errors": [],
+    "video": {
+      "path": "docs/social-content/qa/deterministic-visual-binding/1440-system-light-walkthrough.mp4",
+      "duration_seconds": 14.88,
+      "playable": true
+    }
+  },
+  {
+    "base_url": "https://portfolio-4nn98g77n-vsillahs-projects.vercel.app",
+    "source_commit": "e689a285de9d0a55df830a7fea8d857dc0b35b66",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "persisted_theme": "dark",
+    "resolved_theme": "dark",
+    "routes": [
+      "https://portfolio-4nn98g77n-vsillahs-projects.vercel.app/admin",
+      "https://portfolio-4nn98g77n-vsillahs-projects.vercel.app/admin/agents",
+      "https://portfolio-4nn98g77n-vsillahs-projects.vercel.app/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=deterministic-visual-binding&qa_state=ready",
+      "https://portfolio-4nn98g77n-vsillahs-projects.vercel.app/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=deterministic-visual-binding&qa_state=stale"
+    ],
+    "agent_ops": {
+      "compact_dashboard": {
+        "resolved_theme": "dark",
+        "expected_theme": "dark",
+        "semantic_root": "semantic",
+        "surfaces": {
+          "radar": 0.013,
+          "summary": 0.023,
+          "lifecycle": 0.013,
+          "attention": 0.016,
+          "selected": 0.015
+        },
+        "horizontal_overflow": false
+      },
+      "full_mission_control": {
+        "resolved_theme": "dark",
+        "expected_theme": "dark",
+        "semantic_root": "semantic",
+        "surfaces": {
+          "radar": 0.013,
+          "summary": 0.023,
+          "lifecycle": 0.013,
+          "attention": 0.016,
+          "selected": 0.015,
+          "side_rail": 0.013
+        },
+        "horizontal_overflow": false
+      }
+    },
+    "fixture_responses": [
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
+        "state": "ready"
+      },
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
+        "state": null
+      },
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa/render-deterministic-visual",
+        "state": "current"
+      },
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
+        "state": "stale"
+      }
+    ],
+    "workflow_order": [
+      "configure",
+      "generate",
+      "decide"
+    ],
+    "state_machine": {
+      "initial": "Render review visual",
+      "dirty": "Save changes and rebuild candidate",
+      "rebuilt": "Render updated visual",
+      "rendered_current": [
+        "Current asset",
+        "Change recipe",
+        "Render again"
+      ],
+      "rendered_stale": "Render updated visual"
+    },
+    "deterministic_image_prompt_controls": 0,
+    "recipe": {
+      "template": "constraint_decision_result",
+      "visual_type": "architecture",
+      "aspect_ratio": "4:5"
+    },
+    "expected_recipe_version": "4fdcae0528d273d20a3dcebc57fc25204604333c30e5f6b5aeb6a1ddf26ffc55",
+    "content_lane": {
+      "left": 0,
+      "right": 390,
+      "width": 390,
+      "usable_width": 358,
+      "viewport_width": 390
+    },
+    "linkedin_preview": {
+      "background_luminance": 0.013,
+      "semantic_theme_classes": true
+    },
+    "contrast_checks": [
+      {
+        "name": "current-review-state",
+        "ratio": 7.87,
+        "minimum": 4.5
+      },
+      {
+        "name": "render-summary",
+        "ratio": 8.4,
+        "minimum": 4.5
+      },
+      {
+        "name": "render-recovery",
+        "ratio": 5.26,
+        "minimum": 4.5
+      },
+      {
+        "name": "campaign-video-review-title",
+        "ratio": 14.12,
+        "minimum": 4.5
+      }
+    ],
+    "provider": "none",
+    "provider_calls": 0,
+    "shared_database_writes": 0,
+    "shared_storage_writes": 0,
+    "platform_drafts": 0,
+    "uploads": 0,
+    "scheduled_posts": 0,
+    "publications": 0,
+    "external_sends": 0,
+    "synthetic_recipe_save_requests": 1,
+    "synthetic_render_requests": 1,
+    "horizontal_overflow": false,
+    "page_errors": [],
+    "video": {
+      "path": "docs/social-content/qa/deterministic-visual-binding/390-dark-walkthrough.mp4",
+      "duration_seconds": 13.6,
+      "playable": true
+    }
+  },
+  {
+    "base_url": "https://portfolio-4nn98g77n-vsillahs-projects.vercel.app",
+    "source_commit": "e689a285de9d0a55df830a7fea8d857dc0b35b66",
+    "width": 768,
+    "height": 1000,
+    "theme": "dark",
+    "persisted_theme": "dark",
+    "resolved_theme": "dark",
+    "routes": [
+      "https://portfolio-4nn98g77n-vsillahs-projects.vercel.app/admin",
+      "https://portfolio-4nn98g77n-vsillahs-projects.vercel.app/admin/agents",
+      "https://portfolio-4nn98g77n-vsillahs-projects.vercel.app/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=deterministic-visual-binding&qa_state=ready",
+      "https://portfolio-4nn98g77n-vsillahs-projects.vercel.app/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=deterministic-visual-binding&qa_state=stale"
+    ],
+    "agent_ops": {
+      "compact_dashboard": {
+        "resolved_theme": "dark",
+        "expected_theme": "dark",
+        "semantic_root": "semantic",
+        "surfaces": {
+          "radar": 0.013,
+          "summary": 0.023,
+          "lifecycle": 0.013,
+          "attention": 0.016,
+          "selected": 0.015
+        },
+        "horizontal_overflow": false
+      },
+      "full_mission_control": {
+        "resolved_theme": "dark",
+        "expected_theme": "dark",
+        "semantic_root": "semantic",
+        "surfaces": {
+          "radar": 0.013,
+          "summary": 0.023,
+          "lifecycle": 0.013,
+          "attention": 0.016,
+          "selected": 0.015,
+          "side_rail": 0.013
+        },
+        "horizontal_overflow": false
+      }
+    },
+    "fixture_responses": [
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
+        "state": "ready"
+      },
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
+        "state": null
+      },
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa/render-deterministic-visual",
+        "state": "current"
+      },
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
+        "state": "stale"
+      }
+    ],
+    "workflow_order": [
+      "configure",
+      "generate",
+      "decide"
+    ],
+    "state_machine": {
+      "initial": "Render review visual",
+      "dirty": "Save changes and rebuild candidate",
+      "rebuilt": "Render updated visual",
+      "rendered_current": [
+        "Current asset",
+        "Change recipe",
+        "Render again"
+      ],
+      "rendered_stale": "Render updated visual"
+    },
+    "deterministic_image_prompt_controls": 0,
+    "recipe": {
+      "template": "constraint_decision_result",
+      "visual_type": "architecture",
+      "aspect_ratio": "4:5"
+    },
+    "expected_recipe_version": "4fdcae0528d273d20a3dcebc57fc25204604333c30e5f6b5aeb6a1ddf26ffc55",
+    "content_lane": {
+      "left": 0,
+      "right": 768,
+      "width": 768,
+      "usable_width": 720,
+      "viewport_width": 768
+    },
+    "linkedin_preview": {
+      "background_luminance": 0.013,
+      "semantic_theme_classes": true
+    },
+    "contrast_checks": [
+      {
+        "name": "current-review-state",
+        "ratio": 7.87,
+        "minimum": 4.5
+      },
+      {
+        "name": "render-summary",
+        "ratio": 8.4,
+        "minimum": 4.5
+      },
+      {
+        "name": "render-recovery",
+        "ratio": 5.26,
+        "minimum": 4.5
+      },
+      {
+        "name": "campaign-video-review-title",
+        "ratio": 14.12,
+        "minimum": 4.5
+      }
+    ],
+    "provider": "none",
+    "provider_calls": 0,
+    "shared_database_writes": 0,
+    "shared_storage_writes": 0,
+    "platform_drafts": 0,
+    "uploads": 0,
+    "scheduled_posts": 0,
+    "publications": 0,
+    "external_sends": 0,
+    "synthetic_recipe_save_requests": 1,
+    "synthetic_render_requests": 1,
+    "horizontal_overflow": false,
+    "page_errors": [],
+    "video": {
+      "path": "docs/social-content/qa/deterministic-visual-binding/768-dark-walkthrough.mp4",
+      "duration_seconds": 13.72,
+      "playable": true
+    }
+  },
+  {
+    "base_url": "https://portfolio-4nn98g77n-vsillahs-projects.vercel.app",
+    "source_commit": "e689a285de9d0a55df830a7fea8d857dc0b35b66",
+    "width": 1440,
+    "height": 1000,
+    "theme": "dark",
+    "persisted_theme": "dark",
+    "resolved_theme": "dark",
+    "routes": [
+      "https://portfolio-4nn98g77n-vsillahs-projects.vercel.app/admin",
+      "https://portfolio-4nn98g77n-vsillahs-projects.vercel.app/admin/agents",
+      "https://portfolio-4nn98g77n-vsillahs-projects.vercel.app/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=deterministic-visual-binding&qa_state=ready",
+      "https://portfolio-4nn98g77n-vsillahs-projects.vercel.app/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=deterministic-visual-binding&qa_state=stale"
+    ],
+    "agent_ops": {
+      "compact_dashboard": {
+        "resolved_theme": "dark",
+        "expected_theme": "dark",
+        "semantic_root": "semantic",
+        "surfaces": {
+          "radar": 0.013,
+          "summary": 0.023,
+          "lifecycle": 0.013,
+          "attention": 0.016,
+          "selected": 0.015
+        },
+        "horizontal_overflow": false
+      },
+      "full_mission_control": {
+        "resolved_theme": "dark",
+        "expected_theme": "dark",
+        "semantic_root": "semantic",
+        "surfaces": {
+          "radar": 0.013,
+          "summary": 0.023,
+          "lifecycle": 0.013,
+          "attention": 0.016,
+          "selected": 0.015,
+          "side_rail": 0.013
+        },
+        "horizontal_overflow": false
+      }
+    },
+    "fixture_responses": [
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
+        "state": "ready"
+      },
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
+        "state": null
+      },
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa/render-deterministic-visual",
+        "state": "current"
+      },
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
+        "state": "stale"
+      }
+    ],
+    "workflow_order": [
+      "configure",
+      "generate",
+      "decide"
+    ],
+    "state_machine": {
+      "initial": "Render review visual",
+      "dirty": "Save changes and rebuild candidate",
+      "rebuilt": "Render updated visual",
+      "rendered_current": [
+        "Current asset",
+        "Change recipe",
+        "Render again"
+      ],
+      "rendered_stale": "Render updated visual"
+    },
+    "deterministic_image_prompt_controls": 0,
+    "recipe": {
+      "template": "constraint_decision_result",
+      "visual_type": "architecture",
+      "aspect_ratio": "4:5"
+    },
+    "expected_recipe_version": "4fdcae0528d273d20a3dcebc57fc25204604333c30e5f6b5aeb6a1ddf26ffc55",
+    "content_lane": {
+      "left": 264,
+      "right": 1440,
+      "width": 1176,
+      "usable_width": 1112,
+      "viewport_width": 1440
+    },
+    "linkedin_preview": {
+      "background_luminance": 0.013,
+      "semantic_theme_classes": true
+    },
+    "contrast_checks": [
+      {
+        "name": "current-review-state",
+        "ratio": 7.87,
+        "minimum": 4.5
+      },
+      {
+        "name": "render-summary",
+        "ratio": 8.4,
+        "minimum": 4.5
+      },
+      {
+        "name": "render-recovery",
+        "ratio": 5.26,
+        "minimum": 4.5
+      },
+      {
+        "name": "campaign-video-review-title",
+        "ratio": 14.12,
+        "minimum": 4.5
+      }
+    ],
+    "provider": "none",
+    "provider_calls": 0,
+    "shared_database_writes": 0,
+    "shared_storage_writes": 0,
+    "platform_drafts": 0,
+    "uploads": 0,
+    "scheduled_posts": 0,
+    "publications": 0,
+    "external_sends": 0,
+    "synthetic_recipe_save_requests": 1,
+    "synthetic_render_requests": 1,
+    "horizontal_overflow": false,
+    "page_errors": [],
+    "video": {
+      "path": "docs/social-content/qa/deterministic-visual-binding/1440-dark-walkthrough.mp4",
+      "duration_seconds": 14.84,
+      "playable": true
+    }
+  }
+]

@@ -141,6 +141,8 @@ describe('AdminDashboard Agent Activity Radar', () => {
     render(<AdminDashboard />)
 
     expect(await screen.findByLabelText('Agent Activity Radar')).toBeInTheDocument()
+    expect(screen.getByLabelText('Agent Activity Radar')).toHaveAttribute('data-agent-ops-contrast', 'semantic')
+    expect(document.querySelector('[data-agent-ops-surface="summary-strip"]')).toBeInTheDocument()
     expect(screen.getByText('Live agent work map')).toBeInTheDocument()
     expect(screen.getByLabelText('Client engagement lifecycle')).toBeInTheDocument()
     expect(screen.queryByLabelText('Selected agent detail')).not.toBeInTheDocument()

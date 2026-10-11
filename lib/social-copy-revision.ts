@@ -1,6 +1,10 @@
 import { editorialInputVersion } from './video-editorial-quality'
 import { createHash } from 'node:crypto'
 import { hasSubmissionOrPublishEvidence, validateSocialContentFinalCopyQuality, type LifecycleItem } from './social-content-lifecycle'
+import {
+  deterministicVisualCandidateHashFromRagContext,
+  invalidateDeterministicVisualAsset,
+} from './social-deterministic-visual'
 
 // Calendar copy currently has no revision consumer. This contract describes
 // persisted manual edits only; a work-item row is not worker evidence.
@@ -22,16 +26,18 @@ function record(value: unknown): Record<string, unknown> {
 export function isCalendarSocialCopy(item: { rag_context?: unknown }) {
   return record(item.rag_context).source === 'social_content_calendar_authorization'
 }
-export function hasSocialCopyReleaseEvidence(item: CopyRow): boolean {
+export function hasSocialCopyReleaseEvidence(item: object): boolean {
+  const row = item as CopyRow
   // Reuse durable lifecycle evidence, then conservatively lock in-flight or
   // uncertain outcomes even when the provider has not supplied an ID yet.
   const inFlight = ['claimed', 'submitting', 'publishing', 'submitted', 'uncertain', 'ambiguous']
-  const gate = record(record(item.rag_context).platform_submission_gate)
-  return gate.status === 'partially_submitted' || Object.keys(record(gate.confirmed_platforms)).length > 0 || inFlight.includes(String(gate.status)) || hasSubmissionOrPublishEvidence(item as LifecycleItem) || Boolean(item.scheduled_for) || inFlight.includes(item.status || '') ||
-    (Array.isArray(item.publishes) && item.publishes.some(value => ['scheduled', ...inFlight].includes(String(record(value).status))))
+  const gate = record(record(row.rag_context).platform_submission_gate)
+  return gate.status === 'partially_submitted' || Object.keys(record(gate.confirmed_platforms)).length > 0 || inFlight.includes(String(gate.status)) || hasSubmissionOrPublishEvidence(row as LifecycleItem) || Boolean(row.scheduled_for) || inFlight.includes(row.status || '') ||
+    (Array.isArray(row.publishes) && row.publishes.some(value => ['scheduled', ...inFlight].includes(String(record(value).status))))
 }
-export function socialCopyVersion(item: CopyRow) {
-  return createHash('sha256').update(JSON.stringify(COPY_FIELDS.map((key) => item[key] ?? null))).digest('hex')
+export function socialCopyVersion(item: object) {
+  const row = item as Record<string, unknown>
+  return createHash('sha256').update(JSON.stringify(COPY_FIELDS.map((key) => row[key] ?? null))).digest('hex')
 }
 export function socialCopyRevisionView(item: CopyRow): SocialCopyRevisionView {
   const revision = record(record(item.rag_context).copy_revision)
@@ -48,8 +54,9 @@ export function socialCopyRevisionView(item: CopyRow): SocialCopyRevisionView {
     review_path: `/admin/social-content/${encodeURIComponent(item.id)}?step=copy#social-copy-gate`,
   }
 }
-export function withSocialCopyRevision<T extends CopyRow>(item: T) {
-  return isCalendarSocialCopy(item) ? { ...item, copy_revision: socialCopyRevisionView(item) } : item
+export function withSocialCopyRevision<T extends object>(item: T) {
+  const row = item as CopyRow
+  return isCalendarSocialCopy(row) ? { ...item, copy_revision: socialCopyRevisionView(row) } : item
 }
 export function prepareManualCopyUpdate(input: {
   current: CopyRow; patch: Record<string, unknown>; expectedVersion?: unknown; actor: string; now: string
@@ -62,7 +69,7 @@ export function prepareManualCopyUpdate(input: {
   if ('rag_context' in patch) {
     const storedRag = record(current.rag_context)
     const safeRag = { ...storedRag, ...record(patch.rag_context) }
-    for (const key of ['platform_submission_gate', 'campaign_review_handoff', 'campaign_review_handoff_history', 'reviewed_video_asset', 'media_review', 'campaign_video_editorial', 'campaign_video_bindings']) {
+    for (const key of ['platform_submission_gate', 'campaign_review_handoff', 'campaign_review_handoff_history', 'reviewed_video_asset', 'media_review', 'campaign_video_editorial', 'campaign_video_bindings', 'deterministic_visual_asset', 'deterministic_visual_asset_history']) {
       if (key in storedRag) safeRag[key] = storedRag[key]
       else delete safeRag[key]
     }
@@ -85,16 +92,23 @@ export function prepareManualCopyUpdate(input: {
     throw new Error('Resolve publication or schedule evidence in the platform recovery gate before changing this copy.')
   }
   const incomingRag = record(patch.rag_context)
+  const currentRag = record(current.rag_context)
+  const incomingCandidateRag = { ...currentRag, ...incomingRag, source: currentRag.source }
+  const currentCandidateHash = deterministicVisualCandidateHashFromRagContext(currentRag)
+  const nextCandidateHash = deterministicVisualCandidateHashFromRagContext(incomingCandidateRag)
+  const visualTypeChanged = 'framework_visual_type' in patch
+    && patch.framework_visual_type !== current.framework_visual_type
+  const candidateChanged = visualTypeChanged
+    || (currentCandidateHash !== nextCandidateHash && Boolean(currentCandidateHash || nextCandidateHash))
   const revisionFeedback = record(incomingRag.content_calibration).operator_feedback
-  const needsVersion = COPY_FIELDS.some((field) => field in patch) || 'status' in patch || 'scheduled_for' in patch || 'section_gate_reviews' in incomingRag || revisionFeedback !== undefined
+  const needsVersion = COPY_FIELDS.some((field) => field in patch) || 'status' in patch || 'scheduled_for' in patch || 'section_gate_reviews' in incomingRag || revisionFeedback !== undefined || candidateChanged
   if (needsVersion && (typeof input.expectedVersion !== 'string' || !input.expectedVersion.trim())) {
     throw new Error('A current copy version is required for edits, decisions, or revision feedback. Reload this review before saving.')
   }
   if (input.expectedVersion !== undefined && input.expectedVersion !== version) {
     throw new Error('Copy changed since this review opened. Reload the current version before deciding or saving.')
   }
-  const currentRag = record(current.rag_context)
-  const nextRag: Record<string, unknown> = { ...currentRag, ...incomingRag, source: currentRag.source }
+  let nextRag: Record<string, unknown> = incomingCandidateRag
   for (const field of ['calendar_item_id', 'campaign_id', 'copy_approval_invalidated_at', 'platform_submission_orchestration', 'platform_draft_handoff', 'linkedin_draft_handoff']) {
     if (field in currentRag) nextRag[field] = currentRag[field]
     else delete nextRag[field]
@@ -107,6 +121,18 @@ export function prepareManualCopyUpdate(input: {
   const changed = nextVersion !== version
   if (changed && ['scheduled', 'publishing', 'published'].includes(current.status || '')) {
     throw new Error('Resolve the existing publication or schedule in its recovery gate before creating a revised draft.')
+  }
+  if (changed || candidateChanged) {
+    const invalidation = invalidateDeterministicVisualAsset({
+      currentRagContext: currentRag,
+      nextRagContext: nextRag,
+      now,
+      reason: changed ? 'copy_version_changed' : 'candidate_changed',
+    })
+    nextRag = invalidation.ragContext
+    if (invalidation.invalidatedAssetUrl && current.image_url === invalidation.invalidatedAssetUrl) {
+      patch.image_url = null
+    }
   }
   const calibration = record(nextRag.content_calibration)
   const feedback = record(calibration.operator_feedback).revision_request
@@ -130,7 +156,7 @@ export function prepareManualCopyUpdate(input: {
     if (changed && patch.status !== 'rejected' && (['approved', 'scheduled'].includes(current.status || '') || ['approved', 'scheduled'].includes(String(patch.status)))) patch.status = 'draft'
     patch.reviewed_by = null
     patch.scheduled_for = null
-    const gates = { ...record(currentRag.section_gate_reviews), ...record(incomingRag.section_gate_reviews) }
+    const gates = record(nextRag.section_gate_reviews)
     nextRag.section_gate_reviews = Object.fromEntries(Object.entries(gates).map(([key, value]) => [key, {
       ...record(value), status: 'pending', invalidated_at: changed ? now : record(value).invalidated_at || now, invalidation_reason: changed ? 'copy_version_changed' : 'copy_rejected',
     }]))
@@ -150,7 +176,7 @@ export function prepareManualCopyUpdate(input: {
   }
   // Ignore fabricated client revision metadata even on unrelated saves.
   nextRag.copy_revision = revision
-  if (patch.rag_context !== undefined || patch.status === 'rejected' || changed || revision !== existing) patch.rag_context = nextRag
+  if (patch.rag_context !== undefined || patch.status === 'rejected' || changed || candidateChanged || revision !== existing) patch.rag_context = nextRag
   return patch
 }
 

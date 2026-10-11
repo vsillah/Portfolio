@@ -48,6 +48,10 @@ export const HORMOZI_FRAMEWORK_TYPES = [
 ] as const
 
 export type HormoziFrameworkType = typeof HORMOZI_FRAMEWORK_TYPES[number]
+export const DETERMINISTIC_VISUAL_BINDING_QA_ID = 'deterministic-visual-binding-qa'
+
+export type DeterministicVisualRenderProjection =
+  import('@/lib/social-deterministic-visual').DeterministicVisualRenderProjection
 
 export interface HormoziFramework {
   framework_type?: HormoziFrameworkType
@@ -125,6 +129,8 @@ export interface SocialContentItem {
     next_action: string
     automatic_publication_blocked: true
   } | null
+  // Hydrated by the detail route from the version-fenced deterministic visual contract.
+  deterministic_visual_render?: DeterministicVisualRenderProjection
 }
 
 export interface SocialContentPublish {
@@ -169,11 +175,11 @@ export const PUBLISH_STATUS_CONFIG: Record<PublishStatus, {
   bgColor: string
   borderColor: string
 }> = {
-  pending: { label: 'Pending', color: 'text-gray-400', bgColor: 'bg-gray-500/20', borderColor: 'border-gray-500/50' },
-  publishing: { label: 'Publishing...', color: 'text-blue-400', bgColor: 'bg-blue-500/20', borderColor: 'border-blue-500/50' },
-  published: { label: 'Published', color: 'text-green-400', bgColor: 'bg-green-500/20', borderColor: 'border-green-500/50' },
-  failed: { label: 'Failed', color: 'text-red-400', bgColor: 'bg-red-500/20', borderColor: 'border-red-500/50' },
-  skipped: { label: 'Skipped', color: 'text-amber-400', bgColor: 'bg-amber-500/20', borderColor: 'border-amber-500/50' },
+  pending: { label: 'Pending', color: 'text-slate-700 dark:text-slate-300', bgColor: 'bg-slate-100 dark:bg-slate-500/20', borderColor: 'border-slate-400/60 dark:border-slate-500/50' },
+  publishing: { label: 'Publishing...', color: 'text-blue-800 dark:text-blue-200', bgColor: 'bg-blue-100 dark:bg-blue-500/20', borderColor: 'border-blue-500/50' },
+  published: { label: 'Published', color: 'text-green-800 dark:text-green-200', bgColor: 'bg-green-100 dark:bg-green-500/20', borderColor: 'border-green-500/50' },
+  failed: { label: 'Failed', color: 'text-red-800 dark:text-red-200', bgColor: 'bg-red-100 dark:bg-red-500/20', borderColor: 'border-red-500/50' },
+  skipped: { label: 'Skipped', color: 'text-amber-900 dark:text-amber-200', bgColor: 'bg-amber-100 dark:bg-amber-500/20', borderColor: 'border-amber-500/50' },
 }
 
 export const CONTENT_STATUSES: { value: ContentStatus; label: string }[] = [
@@ -190,11 +196,11 @@ export const STATUS_CONFIG: Record<ContentStatus, {
   bgColor: string
   borderColor: string
 }> = {
-  draft: { label: 'Draft', color: 'text-gray-400', bgColor: 'bg-gray-500/20', borderColor: 'border-gray-500/50' },
-  approved: { label: 'Approved', color: 'text-blue-400', bgColor: 'bg-blue-500/20', borderColor: 'border-blue-500/50' },
-  scheduled: { label: 'Scheduled', color: 'text-amber-400', bgColor: 'bg-amber-500/20', borderColor: 'border-amber-500/50' },
-  published: { label: 'Published', color: 'text-green-400', bgColor: 'bg-green-500/20', borderColor: 'border-green-500/50' },
-  rejected: { label: 'Rejected', color: 'text-red-400', bgColor: 'bg-red-500/20', borderColor: 'border-red-500/50' },
+  draft: { label: 'Draft', color: 'text-slate-700 dark:text-slate-300', bgColor: 'bg-slate-100 dark:bg-slate-500/20', borderColor: 'border-slate-400/60 dark:border-slate-500/50' },
+  approved: { label: 'Approved', color: 'text-blue-800 dark:text-blue-200', bgColor: 'bg-blue-100 dark:bg-blue-500/20', borderColor: 'border-blue-500/50' },
+  scheduled: { label: 'Scheduled', color: 'text-amber-900 dark:text-amber-200', bgColor: 'bg-amber-100 dark:bg-amber-500/20', borderColor: 'border-amber-500/50' },
+  published: { label: 'Published', color: 'text-green-800 dark:text-green-200', bgColor: 'bg-green-100 dark:bg-green-500/20', borderColor: 'border-green-500/50' },
+  rejected: { label: 'Rejected', color: 'text-red-800 dark:text-red-200', bgColor: 'bg-red-100 dark:bg-red-500/20', borderColor: 'border-red-500/50' },
 }
 
 export const FRAMEWORK_VISUAL_TYPES: { value: FrameworkVisualType; label: string; description: string }[] = [

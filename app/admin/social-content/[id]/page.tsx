@@ -86,10 +86,22 @@ import type {
   SocialContentItem as BaseSocialContentItem,
   SocialContentPublish,
   SocialContentConfig,
+  DeterministicVisualRenderProjection,
   ContentStatus,
   FrameworkVisualType,
   SocialPlatform,
 } from '@/lib/social-content'
+import { DETERMINISTIC_VISUAL_BINDING_QA_ID } from '@/lib/social-content'
+import {
+  DETERMINISTIC_VISUAL_ASPECT_RATIO_OPTIONS,
+  DETERMINISTIC_VISUAL_RENDER_MODE,
+  DETERMINISTIC_VISUAL_TEMPLATE_OPTIONS,
+  deterministicVisualAllowedTypes,
+  deterministicVisualRecipeCombinationIssue,
+  deterministicVisualTemplateLabel,
+  type DeterministicVisualAspectRatio,
+  type DeterministicVisualTemplate,
+} from '@/lib/social-deterministic-visual-recipe'
 import type { SocialCommentInboxItem } from '@/lib/social-comment-inbox-ui'
 import type { SocialContentCalibrationReference } from '@/lib/social-content-calibration-library'
 import Link from 'next/link'
@@ -106,12 +118,12 @@ const PLATFORM_ICONS: Record<string, React.ReactNode> = {
 const TOPIC_SOURCE_COVERAGE_QA_ID = 'topic-source-coverage-qa'
 
 const PLATFORM_COLORS: Record<string, { active: string; inactive: string }> = {
-  linkedin: { active: 'bg-blue-600/20 border-blue-500 text-blue-300', inactive: 'bg-gray-800 border-gray-700 text-gray-500 hover:border-gray-600' },
-  youtube: { active: 'bg-red-600/20 border-red-500 text-red-300', inactive: 'bg-gray-800 border-gray-700 text-gray-500 hover:border-gray-600' },
-  instagram: { active: 'bg-pink-600/20 border-pink-500 text-pink-300', inactive: 'bg-gray-800 border-gray-700 text-gray-500 hover:border-gray-600' },
-  facebook: { active: 'bg-blue-600/20 border-blue-500 text-blue-300', inactive: 'bg-gray-800 border-gray-700 text-gray-500 hover:border-gray-600' },
-  tiktok: { active: 'bg-cyan-600/20 border-cyan-500 text-cyan-200', inactive: 'bg-gray-800 border-gray-700 text-gray-500 hover:border-gray-600' },
-  x: { active: 'bg-gray-100/15 border-gray-300 text-gray-100', inactive: 'bg-gray-800 border-gray-700 text-gray-500 hover:border-gray-600' },
+  linkedin: { active: 'border-blue-500 bg-blue-100 text-blue-900 dark:bg-blue-600/20 dark:text-blue-200', inactive: 'border-border bg-card text-muted-foreground hover:border-blue-500/50 hover:text-foreground' },
+  youtube: { active: 'border-red-500 bg-red-100 text-red-900 dark:bg-red-600/20 dark:text-red-200', inactive: 'border-border bg-card text-muted-foreground hover:border-red-500/50 hover:text-foreground' },
+  instagram: { active: 'border-pink-500 bg-pink-100 text-pink-900 dark:bg-pink-600/20 dark:text-pink-200', inactive: 'border-border bg-card text-muted-foreground hover:border-pink-500/50 hover:text-foreground' },
+  facebook: { active: 'border-blue-500 bg-blue-100 text-blue-900 dark:bg-blue-600/20 dark:text-blue-200', inactive: 'border-border bg-card text-muted-foreground hover:border-blue-500/50 hover:text-foreground' },
+  tiktok: { active: 'border-cyan-500 bg-cyan-100 text-cyan-900 dark:bg-cyan-600/20 dark:text-cyan-100', inactive: 'border-border bg-card text-muted-foreground hover:border-cyan-500/50 hover:text-foreground' },
+  x: { active: 'border-slate-400 bg-slate-100 text-slate-900 dark:border-slate-500 dark:bg-slate-100/15 dark:text-slate-100', inactive: 'border-border bg-card text-muted-foreground hover:border-slate-500/50 hover:text-foreground' },
 }
 
 const FINAL_GATE_ONLY_PLATFORMS = new Set<SocialPlatform>(['youtube', 'instagram'])
@@ -170,32 +182,32 @@ function versionAssetUrl(url: string, version: string | null | undefined): strin
 const GATE_STATE_CONFIG: Record<GateState, { label: string; className: string }> = {
   approved: {
     label: 'Approved',
-    className: 'border-emerald-500/30 bg-emerald-500/10 text-emerald-200',
+    className: 'border-emerald-600/40 bg-emerald-100 text-emerald-900 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-200',
   },
   in_review: {
     label: 'In review',
-    className: 'border-blue-500/30 bg-blue-500/10 text-blue-200',
+    className: 'border-blue-600/40 bg-blue-100 text-blue-900 dark:border-blue-500/30 dark:bg-blue-500/10 dark:text-blue-200',
   },
   pending: {
     label: 'Pending',
-    className: 'border-amber-500/40 bg-amber-500/10 text-amber-200',
+    className: 'border-amber-600/45 bg-amber-100 text-amber-950 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-200',
   },
   blocked: {
     label: 'Blocked',
-    className: 'border-red-500/35 bg-red-500/10 text-red-200',
+    className: 'border-red-600/40 bg-red-100 text-red-900 dark:border-red-500/35 dark:bg-red-500/10 dark:text-red-200',
   },
   rejected: {
     label: 'Rejected',
-    className: 'border-red-500/40 bg-red-500/10 text-red-200',
+    className: 'border-red-600/45 bg-red-100 text-red-900 dark:border-red-500/40 dark:bg-red-500/10 dark:text-red-200',
   },
 }
 
 const PUBLICATION_TONE_CLASSES: Record<PublicationProjectionTone, string> = {
-  green: 'border-emerald-500/35 bg-emerald-500/10 text-emerald-100',
-  yellow: 'border-amber-500/40 bg-amber-500/10 text-amber-100',
-  red: 'border-red-500/40 bg-red-500/10 text-red-100',
-  blue: 'border-blue-500/35 bg-blue-500/10 text-blue-100',
-  slate: 'border-gray-600/60 bg-gray-800/60 text-gray-200',
+  green: 'border-emerald-600/40 bg-emerald-100 text-emerald-900 dark:border-emerald-500/35 dark:bg-emerald-500/10 dark:text-emerald-100',
+  yellow: 'border-amber-600/45 bg-amber-100 text-amber-950 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-100',
+  red: 'border-red-600/45 bg-red-100 text-red-900 dark:border-red-500/40 dark:bg-red-500/10 dark:text-red-100',
+  blue: 'border-blue-600/40 bg-blue-100 text-blue-900 dark:border-blue-500/35 dark:bg-blue-500/10 dark:text-blue-100',
+  slate: 'border-border bg-muted text-foreground',
 }
 
 const SECTION_GATE_KEYS: SectionGateKey[] = ['visual_assets', 'asset_packet', 'privacy', 'linkedin_draft']
@@ -722,6 +734,7 @@ function SocialContentDetailPage() {
   const searchParams = useSearchParams()
   const backUrl = getBackUrl(searchParams, '/admin/social-content')
   const rawRecoveryStep = searchParams.get('step')
+  const deterministicVisualQaState = searchParams.get('qa_state')
   const recoveryStep: ApprovalStep = isApprovalStep(rawRecoveryStep) ? rawRecoveryStep : 'copy'
   const recoveryStepParams = new URLSearchParams(searchParams.toString())
   recoveryStepParams.set('step', recoveryStep)
@@ -731,7 +744,8 @@ function SocialContentDetailPage() {
   const [loadError, setLoadError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
   const [approving, setApproving] = useState(false)
-  const [regeneratingImage, setRegeneratingImage] = useState(false)
+  const [renderingDeterministicVisual, setRenderingDeterministicVisual] = useState(false)
+  const [deterministicVisualRenderOverride, setDeterministicVisualRenderOverride] = useState<DeterministicVisualRenderProjection | null>(null)
   const [regeneratingAudio, setRegeneratingAudio] = useState(false)
   const [convertingFormat, setConvertingFormat] = useState(false)
   const [capturingAppCarousel, setCapturingAppCarousel] = useState(false)
@@ -790,6 +804,10 @@ function SocialContentDetailPage() {
   const [imagePrompt, setImagePrompt] = useState('')
   const [voiceoverText, setVoiceoverText] = useState('')
   const [frameworkVisualType, setFrameworkVisualType] = useState<FrameworkVisualType | ''>('')
+  const [deterministicVisualTemplate, setDeterministicVisualTemplate] = useState<DeterministicVisualTemplate | ''>('')
+  const [deterministicVisualAspectRatio, setDeterministicVisualAspectRatio] = useState<DeterministicVisualAspectRatio | ''>('')
+  const [selectedVisualFormat, setSelectedVisualFormat] = useState<'framework' | 'carousel'>('framework')
+  const [savingVisualConfiguration, setSavingVisualConfiguration] = useState(false)
   const [scheduledFor, setScheduledFor] = useState('')
   const [recoveryScheduledFor, setRecoveryScheduledFor] = useState('')
   const [reconfirmPublicationIntent, setReconfirmPublicationIntent] = useState(false)
@@ -818,7 +836,7 @@ function SocialContentDetailPage() {
   const fetchTopicBacklog = useCallback(async () => {
     setLoadingTopicBacklog(true)
     try {
-      if (id === TOPIC_SOURCE_COVERAGE_QA_ID) {
+      if (id === TOPIC_SOURCE_COVERAGE_QA_ID || id === DETERMINISTIC_VISUAL_BINDING_QA_ID) {
         setTopicBacklogItems([])
         setTopicBacklogUnavailable(false)
         setTopicBacklogCoverageReport(null)
@@ -868,6 +886,10 @@ function SocialContentDetailPage() {
 
   const fetchPlatformConfigs = useCallback(async () => {
     try {
+      if (id === DETERMINISTIC_VISUAL_BINDING_QA_ID) {
+        setPlatformConfigs([])
+        return
+      }
       const session = await getCurrentSession()
       if (!session) return
 
@@ -881,7 +903,7 @@ function SocialContentDetailPage() {
     } catch (err) {
       console.error('Failed to fetch social platform config:', err)
     }
-  }, [])
+  }, [id])
 
   const fetchReviewQueue = useCallback(async (currentItem: SocialContentItem) => {
     const currentGroupKey = getReviewQueueGroupKey(currentItem)
@@ -978,7 +1000,10 @@ function SocialContentDetailPage() {
         return
       }
 
-      const res = await fetch(`/api/admin/social-content/${id}`, {
+      const detailQuery = id === DETERMINISTIC_VISUAL_BINDING_QA_ID && deterministicVisualQaState
+        ? `?qa_state=${encodeURIComponent(deterministicVisualQaState)}`
+        : ''
+      const res = await fetch(`/api/admin/social-content/${id}${detailQuery}`, {
         cache: 'no-store',
         headers: { Authorization: `Bearer ${session.access_token}` },
       })
@@ -1000,6 +1025,7 @@ function SocialContentDetailPage() {
       const i = itemRecord as unknown as SocialContentItem
       setLoadError(null)
       setItem(i)
+      setDeterministicVisualRenderOverride(null)
       setPostText(i.post_text || '')
       setCtaText(i.cta_text || '')
       setCtaUrl(i.cta_url || '')
@@ -1007,6 +1033,9 @@ function SocialContentDetailPage() {
       setImagePrompt(i.image_prompt || '')
       setVoiceoverText(i.voiceover_text || '')
       setFrameworkVisualType(i.framework_visual_type || '')
+      setDeterministicVisualTemplate(i.deterministic_visual_render?.inputs.template_id || '')
+      setDeterministicVisualAspectRatio(i.deterministic_visual_render?.inputs.aspect_ratio || '')
+      setSelectedVisualFormat(i.content_format === 'carousel' ? 'carousel' : 'framework')
       setScheduledFor(i.scheduled_for ? new Date(i.scheduled_for).toISOString().slice(0, 16) : '')
       if (!options.silent) {
         setRecoveryScheduledFor('')
@@ -1030,8 +1059,13 @@ function SocialContentDetailPage() {
       })
       setSelectedComparisonReferenceIds(asStringArray(operatorFeedback?.comparison_reference_ids))
       setCopyRevisionRequest(asString(operatorFeedback?.revision_request))
-      void fetchReviewQueue(i)
-      void fetchCommentInboxItems()
+      if (id === DETERMINISTIC_VISUAL_BINDING_QA_ID) {
+        setReviewQueueItems([i])
+        setCommentInboxItems([])
+      } else {
+        void fetchReviewQueue(i)
+        void fetchCommentInboxItems()
+      }
       return i
     } catch (err) {
       console.error('Failed to fetch item:', err)
@@ -1040,7 +1074,7 @@ function SocialContentDetailPage() {
     } finally {
       if (!options.silent) setLoading(false)
     }
-  }, [fetchCommentInboxItems, fetchReviewQueue, id])
+  }, [deterministicVisualQaState, fetchCommentInboxItems, fetchReviewQueue, id])
 
   useEffect(() => {
     fetchItem()
@@ -2353,34 +2387,129 @@ function SocialContentDetailPage() {
     }
   }
 
-  const handleRegenerateImage = async () => {
-    setRegeneratingImage(true)
+  const handleRenderDeterministicVisual = async () => {
+    const renderState = deterministicVisualRenderOverride ?? item?.deterministic_visual_render
+    if (!renderState || renderState.state === 'blocked') return
+    setRenderingDeterministicVisual(true)
     try {
       const session = await getCurrentSession()
       if (!session) return
 
-      const res = await fetch(`/api/admin/social-content/${id}/regenerate-image`, {
+      const res = await fetch(`/api/admin/social-content/${id}/render-deterministic-visual`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${session.access_token}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          image_prompt: imagePrompt,
-          framework_visual_type: frameworkVisualType || null,
+          expected_copy_version: renderState.copy_version,
+          expected_candidate_id: renderState.candidate_id,
+          expected_candidate_hash: renderState.candidate_hash,
+          expected_visual_type: renderState.visual_type,
+          expected_recipe_version: renderState.inputs.recipe_version,
+          ...(id === DETERMINISTIC_VISUAL_BINDING_QA_ID ? {
+            qa_state: deterministicVisualQaState,
+            qa_visual_recipe: {
+              template: deterministicVisualTemplate,
+              visual_type: frameworkVisualType,
+              aspect_ratio: deterministicVisualAspectRatio,
+            },
+          } : {}),
         }),
       })
 
       const data = await res.json()
-      if (data.triggered && data.image_url) {
-        setItem(prev => prev ? { ...prev, image_url: data.image_url } : prev)
+      if (data.render) {
+        setDeterministicVisualRenderOverride(data.render as DeterministicVisualRenderProjection)
       }
-      showMsg(data.triggered ? 'success' : 'error', data.message)
+      if (!res.ok || !data.item) {
+        showMsg('error', data.error || 'Deterministic render is blocked. Follow the recovery action shown below.')
+        return
+      }
+      setItem(prev => prev ? { ...prev, ...data.item } : data.item)
+      setDeterministicVisualRenderOverride(data.render ?? data.item.deterministic_visual_render ?? null)
+      setSelectedVisualFormat('framework')
+      showMsg('success', data.message || (data.idempotent ? 'Deterministic review asset is already current' : 'Deterministic review asset rendered'))
     } catch {
-      showMsg('error', 'Failed to trigger image regeneration')
+      setDeterministicVisualRenderOverride(current => current ? {
+        ...current,
+        state: 'blocked',
+        code: 'render_unavailable',
+        can_render: false,
+        summary: 'The deterministic render request could not complete.',
+        recovery_action: 'Check the internal preview connection, then reload this Social Content record. No provider fallback is allowed.',
+      } : current)
+      showMsg('error', 'Deterministic render request failed')
     } finally {
-      setRegeneratingImage(false)
+      setRenderingDeterministicVisual(false)
     }
+  }
+
+  const handleSaveDeterministicVisualConfiguration = async () => {
+    if (
+      !item
+      || !deterministicVisualTemplate
+      || !frameworkVisualType
+      || !deterministicVisualAspectRatio
+      || deterministicVisualRecipeCombinationIssue({
+        template: deterministicVisualTemplate,
+        visual_type: frameworkVisualType,
+        aspect_ratio: deterministicVisualAspectRatio,
+      })
+    ) return
+
+    setSavingVisualConfiguration(true)
+    try {
+      const session = await getCurrentSession()
+      if (!session) return
+
+      const res = await fetch(`/api/admin/social-content/${id}`, {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          expected_copy_version: deterministicVisualRender?.copy_version || item.copy_revision?.current_version,
+          visual_recipe: {
+            template: deterministicVisualTemplate,
+            visual_type: frameworkVisualType,
+            aspect_ratio: deterministicVisualAspectRatio,
+          },
+          ...(id === DETERMINISTIC_VISUAL_BINDING_QA_ID ? { qa_state: deterministicVisualQaState } : {}),
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok || !data.item) {
+        showMsg('error', data.error || 'Visual configuration could not be saved. Reload this review before retrying.')
+        return
+      }
+
+      setItem(prev => prev ? { ...prev, ...data.item } : data.item)
+      setFrameworkVisualType(data.item.framework_visual_type || '')
+      setDeterministicVisualTemplate(data.item.deterministic_visual_render?.inputs.template_id || '')
+      setDeterministicVisualAspectRatio(data.item.deterministic_visual_render?.inputs.aspect_ratio || '')
+      setDeterministicVisualRenderOverride(data.item.deterministic_visual_render ?? null)
+      const projection = data.item.deterministic_visual_render as DeterministicVisualRenderProjection | null
+      showMsg(
+        projection?.can_render ? 'success' : 'error',
+        projection?.can_render
+          ? 'Visual recipe saved, rebuilt, and validated. Its exact persisted version is ready to render.'
+          : projection?.recovery_action || 'Visual recipe saved. A matching deterministic candidate is required before rendering.',
+      )
+    } catch {
+      showMsg('error', 'Visual configuration save failed. Reload this review before retrying.')
+    } finally {
+      setSavingVisualConfiguration(false)
+    }
+  }
+
+  const handleDeterministicVisualPrimaryAction = () => {
+    if (deterministicVisualOperatorState === 'dirty') {
+      void handleSaveDeterministicVisualConfiguration()
+      return
+    }
+    void handleRenderDeterministicVisual()
   }
 
   const handleRegenerateAudio = async () => {
@@ -2433,6 +2562,7 @@ function SocialContentDetailPage() {
           carousel_pdf_url: data.carousel_pdf_url,
           rag_context: data.rag_context || prev.rag_context,
         } : prev)
+        setSelectedVisualFormat('carousel')
         setSelectedSlide(0)
         showMsg('success', `App screenshot carousel built with ${data.slide_count} slides`)
       } else {
@@ -2580,11 +2710,6 @@ function SocialContentDetailPage() {
     }
   }
 
-  const handleConvertToSingleImage = async () => {
-    if (!confirm('Convert this post to a single image? This will clear all carousel data and regenerate the framework illustration.')) return
-    await handleRegenerateImage()
-  }
-
   const handleRegenerateCarousel = async () => {
     if (!item?.carousel_slides) return
     setConvertingFormat(true)
@@ -2675,6 +2800,7 @@ function SocialContentDetailPage() {
   const ragContext = asRecord(item.rag_context)
   const qaFixture = asRecord(ragContext?.qa_fixture)
   const previewFixtureReadOnly = qaFixture?.read_only === true
+  const previewFixtureInteractive = qaFixture?.interactive === true
   const isTopicSourceCoveragePreview = asString(qaFixture?.kind) === 'topic_source_coverage_preview'
   const previewFixtureReason = asString(qaFixture?.reason) || 'Preview fixture is read-only.'
   const previewFixtureNextAction = asString(qaFixture?.next_action) || 'Review the evidence, then return to Social Content or the PR handoff.'
@@ -2927,10 +3053,74 @@ function SocialContentDetailPage() {
   ) : null
   const canEditVisualProduction = isEditable || (item.status === 'approved' && (isDraftOnlyPilot || isYouTubeTarget))
   const visualProductionUnlocked = canEditVisualProduction && isDraftOnlyPilot
-  const frameworkIllustrationLabel = item.image_url
-    ? 'Regenerate Framework Illustration'
-    : 'Generate Framework Illustration'
-  const isCarouselFormat = item.content_format === 'carousel'
+  const deterministicVisualRender = deterministicVisualRenderOverride ?? item.deterministic_visual_render ?? null
+  const deterministicVisualReceipt = asRecord(deterministicVisualRender?.receipt)
+  const deterministicProviderReceipt = asRecord(deterministicVisualReceipt?.provider_receipt)
+  const deterministicVisualInputs = deterministicVisualRender?.inputs ?? null
+  const hasDeterministicVisualContract = Boolean(asString(asRecord(asRecord(ragContext?.practitioner_content_quality)?.deterministic_visual)?.system_version))
+  const frameworkApplication = asRecord(asRecord(ragContext?.practitioner_content_quality)?.framework_application)
+  const selectedContentFramework = asRecord(frameworkApplication?.selected_framework)
+  const contentFrameworkType = asString(selectedContentFramework?.framework_type)
+    || asString(asRecord(item.hormozi_framework)?.framework_type)
+  const contentFrameworkStatus = asString(frameworkApplication?.status)
+  const persistedVisualFormat: 'framework' | 'carousel' = item.content_format === 'carousel' ? 'carousel' : 'framework'
+  const allowedDeterministicVisualTypes = deterministicVisualAllowedTypes(deterministicVisualTemplate)
+  const deterministicVisualRecipeIssue = hasDeterministicVisualContract
+    ? deterministicVisualRecipeCombinationIssue({
+        template: deterministicVisualTemplate || undefined,
+        visual_type: frameworkVisualType || undefined,
+        aspect_ratio: deterministicVisualAspectRatio || undefined,
+      })
+    : null
+  const hasUnsavedVisualConfiguration = hasDeterministicVisualContract && (
+    frameworkVisualType !== (deterministicVisualInputs?.selected_visual_type || item.framework_visual_type || '')
+    || deterministicVisualTemplate !== (deterministicVisualInputs?.template_id || '')
+    || deterministicVisualAspectRatio !== (deterministicVisualInputs?.aspect_ratio || '')
+  )
+  const visualFormatDirty = selectedVisualFormat !== persistedVisualFormat
+  const deterministicVisualOperatorState = visualFormatDirty || hasUnsavedVisualConfiguration
+    ? 'dirty'
+    : deterministicVisualRender?.state === 'current'
+      ? 'rendered_current'
+      : deterministicVisualRender?.code === 'asset_stale'
+        ? 'rendered_stale'
+        : deterministicVisualRender?.state === 'ready' && deterministicVisualRenderOverride?.state === 'ready'
+          ? 'rebuilt'
+          : deterministicVisualRender?.state === 'ready'
+            ? 'initial'
+            : 'blocked'
+  const deterministicVisualPrimaryAction = deterministicVisualOperatorState === 'dirty'
+    ? 'Save changes and rebuild candidate'
+    : deterministicVisualOperatorState === 'rebuilt' || deterministicVisualOperatorState === 'rendered_stale'
+      ? 'Render updated visual'
+      : deterministicVisualOperatorState === 'rendered_current'
+        ? 'Render again'
+        : deterministicVisualOperatorState === 'initial'
+          ? 'Render review visual'
+          : 'Render unavailable'
+  const deterministicVisualStatusLabel = deterministicVisualOperatorState === 'dirty'
+    ? 'Changes not saved'
+    : deterministicVisualOperatorState === 'rebuilt'
+      ? 'Candidate rebuilt'
+      : deterministicVisualOperatorState === 'rendered_current'
+        ? 'Current asset'
+        : deterministicVisualOperatorState === 'rendered_stale'
+          ? 'Rendered asset stale'
+          : deterministicVisualOperatorState === 'initial'
+            ? 'Ready to render'
+            : 'Render blocked'
+  const deterministicVisualStatusSummary = deterministicVisualOperatorState === 'dirty'
+    ? 'Save the visible recipe to rebuild its version-bound candidate. The prior asset cannot be approved for these changes.'
+    : deterministicVisualOperatorState === 'rebuilt'
+      ? 'The saved recipe and rebuilt candidate match. Render the updated visual for review.'
+      : deterministicVisualOperatorState === 'rendered_current'
+        ? 'This asset matches the approved copy, saved recipe, and current candidate.'
+        : deterministicVisualOperatorState === 'rendered_stale'
+          ? 'The saved recipe is current, but the rendered asset is stale. Render the updated visual before deciding.'
+          : deterministicVisualOperatorState === 'initial'
+            ? 'The saved recipe is valid and its candidate is ready for the first review render.'
+            : deterministicVisualRender?.summary || 'Deterministic render readiness is unavailable.'
+  const isCarouselFormat = selectedVisualFormat === 'carousel'
   const isSingleImageFormat = !isCarouselFormat
   const carouselSlideUrls = item.carousel_slide_urls?.length
     ? item.carousel_slide_urls
@@ -2944,12 +3134,9 @@ function SocialContentDetailPage() {
     item.updated_at,
   )
   const visualPreviewAlt = item.image_url
-    ? 'Generated framework illustration'
+    ? 'Deterministic AmaduTown review asset'
     : agentifiedVisualQaPacket?.altText || 'Amina visual QA candidate'
-  const frameworkActionLabel = isCarouselFormat
-    ? 'Switch to Framework Illustration'
-    : frameworkIllustrationLabel
-  const carouselActionLabel = isCarouselFormat
+  const carouselActionLabel = persistedVisualFormat === 'carousel'
     ? 'Rebuild App Screenshot Carousel'
     : 'Switch to App Screenshot Carousel'
   const approveActionLabel = isDraftOnlyPilot
@@ -3021,12 +3208,33 @@ function SocialContentDetailPage() {
       : supportingContextDetails.some((gate) => gate.state === 'in_review')
         ? 'in_review'
         : 'pending'
-  const visualAssetReady = isCarouselFormat
+  const visualAssetReady = !visualFormatDirty && !hasUnsavedVisualConfiguration && (isCarouselFormat
     ? Boolean(carouselSlideUrls.length)
-    : Boolean(visualPreviewImageUrl)
+    : hasDeterministicVisualContract
+      ? deterministicVisualRender?.state === 'current'
+      : Boolean(visualPreviewImageUrl))
   const visualAssetsBaseGateState: GateState = visualAssetReady ? 'in_review' : 'pending'
-  const visualAssetsGateState: GateState = getExplicitSectionGateState('visual_assets', visualAssetsBaseGateState)
+  const visualAssetsGateState: GateState = visualFormatDirty || hasUnsavedVisualConfiguration
+    ? 'pending'
+    : getExplicitSectionGateState('visual_assets', visualAssetsBaseGateState)
   const visualAssetsRejected = visualAssetsGateState === 'rejected'
+  const deterministicVisualPrimaryDisabledReason = visualAssetsRejected
+    ? 'Visuals were rejected. Resolve the rejection before rebuilding or rendering.'
+    : deterministicVisualRecipeIssue
+      ? deterministicVisualRecipeIssue
+      : deterministicVisualOperatorState === 'blocked'
+        ? deterministicVisualRender?.recovery_action || 'Reload deterministic render readiness.'
+        : null
+  const deterministicVisualPrimaryDisabled = renderingDeterministicVisual
+    || savingVisualConfiguration
+    || visualAssetsRejected
+    || Boolean(deterministicVisualRecipeIssue)
+    || deterministicVisualOperatorState === 'blocked'
+    || (
+      deterministicVisualOperatorState !== 'dirty'
+      && deterministicVisualOperatorState !== 'rendered_current'
+      && !deterministicVisualRender?.can_render
+    )
   const assetPacketBaseGateState: GateState = productionAssets || agentifiedVisualQaPacket ? 'in_review' : 'pending'
   const assetPacketGateState: GateState = getExplicitSectionGateState('asset_packet', assetPacketBaseGateState)
   const assetPacketRejected = assetPacketGateState === 'rejected'
@@ -3477,16 +3685,16 @@ function SocialContentDetailPage() {
     const rejectSubmitDisabled = rejectActionDisabled || !noteValue.trim()
 
     return (
-      <div className="mt-3 rounded-lg border border-silicon-slate/70 bg-background/30 p-3">
+      <div className="mt-3 rounded-lg border border-border bg-muted/35 p-3 text-foreground">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
           <div>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">{label} decision</p>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">{label} decision</p>
             {decidedAt && (
-              <p className="mt-1 text-xs text-gray-500">
+              <p className="mt-1 text-xs text-muted-foreground">
                 Last decision: {new Date(decidedAt).toLocaleString()}
               </p>
             )}
-            {note && <p className="mt-1 text-xs leading-5 text-gray-300">Note: {note}</p>}
+            {note && <p className="mt-1 text-xs leading-5 text-muted-foreground">Note: {note}</p>}
           </div>
           <span className={`w-fit rounded-full border px-2 py-0.5 text-[10px] font-semibold ${GATE_STATE_CONFIG[state].className}`}>
             {label}: {GATE_STATE_CONFIG[state].label}
@@ -3496,12 +3704,12 @@ function SocialContentDetailPage() {
           <div className="mt-3 rounded-lg border border-red-500/30 bg-red-500/10 p-3">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <p className="text-sm font-semibold text-red-100">{label} revision in progress</p>
-                <p className="mt-1 text-xs leading-5 text-red-50/75">
+                <p className="text-sm font-semibold text-red-900 dark:text-red-100">{label} revision in progress</p>
+                <p className="mt-1 text-xs leading-5 text-red-900/75 dark:text-red-50/75">
                   Controls are locked until the revised section is returned for review.
                 </p>
               </div>
-              <span className="w-fit rounded-full border border-red-400/40 px-2 py-0.5 text-[10px] font-semibold text-red-100">
+              <span className="w-fit rounded-full border border-red-600/40 px-2 py-0.5 text-[10px] font-semibold text-red-900 dark:border-red-400/40 dark:text-red-100">
                 {repairStatus || 'requested'}
               </span>
             </div>
@@ -3511,13 +3719,13 @@ function SocialContentDetailPage() {
           </div>
         )}
         {isRejecting && (
-          <label className="mt-3 block text-xs font-medium uppercase tracking-[0.12em] text-gray-500">
+          <label className="mt-3 block text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">
             Rejection note
             <textarea
               value={noteValue}
               onChange={(event) => setSectionGateNotes((current) => ({ ...current, [gateKey]: event.target.value }))}
               rows={2}
-              className="mt-2 w-full rounded-lg border border-gray-700 bg-gray-950/70 px-3 py-2 text-sm normal-case leading-6 tracking-normal text-gray-200 placeholder:text-gray-500"
+              className="mt-2 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm normal-case leading-6 tracking-normal text-foreground placeholder:text-muted-foreground"
               placeholder={options.notePlaceholder ?? 'What needs to change before this section can be approved?'}
             />
           </label>
@@ -3531,7 +3739,7 @@ function SocialContentDetailPage() {
                 setSectionGateNotes((current) => ({ ...current, [gateKey]: '' }))
               }}
               disabled={isSaving}
-              className="inline-flex items-center gap-2 rounded-lg border border-gray-600 px-3 py-2 text-sm font-semibold text-gray-300 transition-colors hover:bg-gray-800 disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-muted disabled:opacity-50"
             >
               Cancel
             </button>
@@ -3546,7 +3754,7 @@ function SocialContentDetailPage() {
               handleSectionGateDecision(gateKey, 'rejected')
             }}
             disabled={isRejecting ? rejectSubmitDisabled : rejectActionDisabled}
-            className="inline-flex items-center gap-2 rounded-lg border border-red-500/40 px-3 py-2 text-sm font-semibold text-red-200 transition-colors hover:bg-red-500/10 disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-lg border border-red-600/45 px-3 py-2 text-sm font-semibold text-red-800 transition-colors hover:bg-red-100 disabled:opacity-50 dark:border-red-500/40 dark:text-red-200 dark:hover:bg-red-500/10"
           >
             {isSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <XCircle className="h-3.5 w-3.5" />}
             {isRepairPending ? 'Rejected' : isRejecting ? 'Submit Rejection' : (options.rejectLabel ?? `Reject ${label}`)}
@@ -3555,7 +3763,7 @@ function SocialContentDetailPage() {
             type="button"
             onClick={() => handleSectionGateDecision(gateKey, 'approved')}
             disabled={isSaving || options.disabled || options.approveDisabled || isRepairPending}
-            className="inline-flex items-center gap-2 rounded-lg border border-emerald-500/40 px-3 py-2 text-sm font-semibold text-emerald-200 transition-colors hover:bg-emerald-500/10 disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-lg border border-emerald-600/45 px-3 py-2 text-sm font-semibold text-emerald-800 transition-colors hover:bg-emerald-100 disabled:opacity-50 dark:border-emerald-500/40 dark:text-emerald-200 dark:hover:bg-emerald-500/10"
           >
             {isSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
             {options.approveLabel ?? `Approve ${label}`}
@@ -3577,7 +3785,7 @@ function SocialContentDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-background text-foreground" data-testid="social-content-detail">
       {/* Toast */}
       <AnimatePresence>
         {message && (
@@ -3600,15 +3808,26 @@ function SocialContentDetailPage() {
         <section
           id="preview-fixture-read-only-notice"
           role="status"
-          className="mx-auto mt-4 w-[calc(100%-2rem)] max-w-[90rem] rounded-xl border border-amber-400/40 bg-amber-400/10 p-4 text-amber-50 sm:w-[calc(100%-3rem)]"
+          className="mx-auto mt-4 w-[calc(100%-2rem)] max-w-[90rem] rounded-xl border border-amber-600/40 bg-amber-50 p-4 text-amber-950 sm:w-[calc(100%-3rem)] dark:border-amber-400/40 dark:bg-amber-400/10 dark:text-amber-50"
         >
           <p className="font-semibold">{previewFixtureReason}</p>
-          <p className="mt-1 text-sm leading-6 text-amber-100/90">
+          <p className="mt-1 text-sm leading-6 text-amber-900/90 dark:text-amber-100/90">
             No changes, approvals, or rejection decisions can be saved from this route. {previewFixtureNextAction}
           </p>
-          <Link href={backUrl} className="mt-3 inline-flex min-h-11 items-center rounded-lg border border-amber-300/45 px-3 py-2 text-sm font-semibold text-amber-50 transition-colors hover:bg-amber-300/10">
+          <Link href={backUrl} className="mt-3 inline-flex min-h-11 items-center rounded-lg border border-amber-700/45 px-3 py-2 text-sm font-semibold text-amber-950 transition-colors hover:bg-amber-200/60 dark:border-amber-300/45 dark:text-amber-50 dark:hover:bg-amber-300/10">
             Back to Social Content
           </Link>
+        </section>
+      )}
+      {previewFixtureInteractive && (
+        <section
+          role="status"
+          className="mx-auto mt-4 w-[calc(100%-2rem)] max-w-[90rem] rounded-xl border border-cyan-600/40 bg-cyan-50 p-4 text-cyan-950 sm:w-[calc(100%-3rem)] dark:border-cyan-400/40 dark:bg-cyan-400/10 dark:text-cyan-50"
+        >
+          <p className="font-semibold">Synthetic production-equivalent fixture</p>
+          <p className="mt-1 text-sm leading-6 text-cyan-900/85 dark:text-cyan-50/85">
+            The deterministic render interaction is simulated locally. No shared database row, storage object, media provider, platform draft, schedule, publication, or external send can be created here.
+          </p>
         </section>
       )}
 
@@ -3619,12 +3838,12 @@ function SocialContentDetailPage() {
       >
 
       {/* Sticky header — current decision and saved draft controls */}
-      <div data-social-detail-header className="sticky top-0 z-40 max-h-[40dvh] overflow-y-auto border-b border-gray-800 bg-gray-950 px-4 py-2 sm:px-6 lg:px-8" style={{ paddingTop: 'max(0.5rem, env(safe-area-inset-top))' }}>
+      <div data-social-detail-header data-theme-surface="sticky-header" className="sticky top-0 z-40 max-h-[40dvh] overflow-y-auto border-b border-border bg-card/95 px-4 py-2 text-card-foreground shadow-sm backdrop-blur sm:px-6 lg:px-8" style={{ paddingTop: 'max(0.5rem, env(safe-area-inset-top))' }}>
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex min-w-0 flex-wrap items-center gap-2 sm:gap-3">
             <button
               onClick={() => router.push(backUrl)}
-              className="shrink-0 rounded-lg bg-gray-800 p-2 transition-colors hover:bg-gray-700"
+              className="shrink-0 rounded-lg border border-border bg-muted p-2 text-foreground transition-colors hover:bg-muted/70"
             >
               <ArrowLeft className="w-4 h-4" />
             </button>
@@ -3643,16 +3862,16 @@ function SocialContentDetailPage() {
             <button
               onClick={handleSave}
               disabled={saving}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm transition-colors disabled:opacity-50"
+              className="flex items-center gap-1.5 rounded-lg border border-border bg-muted px-3 py-1.5 text-sm text-foreground transition-colors hover:bg-muted/70 disabled:opacity-50"
             >
               {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
               Save Draft
             </button>
           )}
         </div>
-        <div aria-label="Current review action" className="mt-2 flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 border-t border-gray-800 pt-2 text-sm">
+        <div aria-label="Current review action" className="mt-2 flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 border-t border-border pt-2 text-sm">
           <span className="min-w-0 break-words font-medium">{activeApprovalStepDetail.title}</span>
-          <span className="text-gray-300">{mobileSummaryState}</span>
+          <span className="text-muted-foreground" data-contrast-audit="current-review-state">{mobileSummaryState}</span>
           <a href={activeStepHref} onClick={(event) => {
             if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
             const target = document.getElementById(APPROVAL_STEP_SECTION_IDS[activeApprovalStep])
@@ -3668,7 +3887,7 @@ function SocialContentDetailPage() {
               showMsg('error', 'This decision section is unavailable. Reload the draft and select the approval step again.')
             }
           }} className="inline-flex min-h-11 items-center rounded-lg border border-radiant-gold/45 px-3 py-2 font-semibold text-radiant-gold">Open current decision</a>
-          <details className="w-full text-xs leading-5 text-gray-300">
+          <details className="w-full text-xs leading-5 text-muted-foreground">
             <summary className="cursor-pointer py-1">Next action and blockers</summary>
             <p>{activeApprovalStepDetail.nextAction}</p>
             <p>{activeApprovalStepDetail.waitingOnYou}</p>
@@ -3677,7 +3896,7 @@ function SocialContentDetailPage() {
         </div>
       </div>
 
-      <div className="mx-auto w-full max-w-[90rem] space-y-6 px-4 py-6 sm:px-6 lg:px-8">
+      <div data-social-detail-content className="mx-auto w-full max-w-[90rem] space-y-6 px-4 py-6 sm:px-6 lg:px-8">
         <SocialGateDeepLinkLanding routeId={id} itemId={item.id} gateId={APPROVAL_STEP_SECTION_IDS[activeApprovalStep]} completed={completedGateLandings} />
 
 	        {activeApprovalStep === 'copy' && (
@@ -3768,17 +3987,17 @@ function SocialContentDetailPage() {
 	          <PractitionerContentReview item={item} finishedCopy={postText} />
 	        )}
 	        {isAgentSocialPilot && (
-	          <section className="admin-console-card rounded-xl border border-radiant-gold/25 p-4 sm:p-5">
+	          <section data-theme-surface="draft-only-packet" className="admin-console-card rounded-xl border border-radiant-gold/25 p-4 sm:p-5">
             <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(18rem,auto)] xl:items-start">
               <div className="min-w-0">
                 <p className="admin-console-eyebrow">Agent Ops LinkedIn Pilot</p>
-                <h2 className="mt-2 text-xl font-semibold text-gray-100">Draft-only content packet</h2>
-                <p className="mt-1 max-w-4xl text-sm leading-6 text-gray-400">
+                <h2 className="mt-2 text-xl font-semibold text-foreground">Draft-only content packet</h2>
+                <p className="mt-1 max-w-4xl text-sm leading-6 text-muted-foreground">
                   Current state for this draft. Supporting evidence and checklists are collapsed below.
                 </p>
               </div>
               <div className="min-w-0 xl:text-right">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">Overall</p>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Overall</p>
                 <span className={`mt-2 inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${GATE_STATE_CONFIG[overallGateState].className}`}>
                   {GATE_STATE_CONFIG[overallGateState].label}
                 </span>
@@ -3788,7 +4007,7 @@ function SocialContentDetailPage() {
 	                    onClick={() => {
 	                      handleReviewGateJump(nextReviewGate.step)
 	                    }}
-	                    className="mt-2 inline-flex text-xs text-blue-300 transition-colors hover:text-blue-200"
+	                    className="mt-2 inline-flex text-xs text-blue-800 transition-colors hover:text-blue-700 dark:text-blue-300 dark:hover:text-blue-200"
 	                  >
                     Next: {nextReviewGate.label}
                   </button>
@@ -3810,11 +4029,11 @@ function SocialContentDetailPage() {
               </div>
             )}
 
-            <div className="mt-4 rounded-lg border border-silicon-slate/80 bg-background/35 p-3">
+            <div className="mt-4 rounded-lg border border-border bg-muted/35 p-3">
               <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
                 <div className="min-w-0">
-                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">Review path</p>
-	                  <p className="mt-1 text-sm text-gray-400">Click a gate to open its review workspace.</p>
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">Review path</p>
+	                  <p className="mt-1 text-sm text-muted-foreground">Click a gate to open its review workspace.</p>
 	                </div>
 	                <nav aria-label="Social content review gates" className="flex flex-wrap gap-2 xl:max-w-4xl xl:justify-end">
 	                  {reviewGateSummary.map((gate) => (
@@ -4381,21 +4600,21 @@ function SocialContentDetailPage() {
               {agentPilotGoalId && (
                 <Link
                   href={`/admin/agents/standup?goal=${encodeURIComponent(agentPilotGoalId)}`}
-                  className="inline-flex items-center gap-2 rounded-lg border border-amber-500/40 px-3 py-2 text-amber-200 transition-colors hover:bg-amber-500/10"
+                  className="inline-flex items-center gap-2 rounded-lg border border-amber-600/45 px-3 py-2 text-amber-900 transition-colors hover:bg-amber-100 dark:border-amber-500/40 dark:text-amber-200 dark:hover:bg-amber-500/10"
                 >
                   Open goal session <ExternalLink className="h-3.5 w-3.5" />
                 </Link>
               )}
               <Link
                 href="/admin/agents/swarm-board"
-                className="inline-flex items-center gap-2 rounded-lg border border-gray-700 px-3 py-2 text-gray-300 transition-colors hover:border-gray-600 hover:bg-gray-800"
+                className="inline-flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-2 text-foreground transition-colors hover:border-radiant-gold/45 hover:bg-muted"
               >
                 View Kanban tasks <ExternalLink className="h-3.5 w-3.5" />
               </Link>
               {agentPilotOpenBrainReferences.length > 0 && (
                 <Link
                   href="/admin/agents/open-brain"
-                  className="inline-flex items-center gap-2 rounded-lg border border-gray-700 px-3 py-2 text-gray-300 transition-colors hover:border-gray-600 hover:bg-gray-800"
+                  className="inline-flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-2 text-foreground transition-colors hover:border-radiant-gold/45 hover:bg-muted"
                 >
                   Open Brain references <ExternalLink className="h-3.5 w-3.5" />
                 </Link>
@@ -4407,22 +4626,22 @@ function SocialContentDetailPage() {
 	        )}
 
 	        {isDraftOnlyPilot && (
-	          <section className="admin-console-card rounded-xl border border-amber-500/25 p-4">
+	          <section data-theme-surface="campaign-copy-review" className="admin-console-card rounded-xl border border-amber-500/25 p-4">
 	            <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
 	              <div className="min-w-0">
 	                <p className="admin-console-eyebrow">Campaign Copy Review</p>
 	                <div className="mt-2 flex flex-wrap items-center gap-2">
-	                  <h2 className="text-lg font-semibold text-gray-100">
+	                  <h2 className="text-lg font-semibold text-foreground">
 	                    Draft {reviewQueueItems.length ? normalizedReviewQueueIndex + 1 : 1} of {reviewQueueItems.length || 1}
 	                  </h2>
-	                  <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-amber-100">
+	                  <span className="rounded-full border border-amber-600/35 bg-amber-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-amber-950 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-100">
 	                    {loadingReviewQueue ? 'Syncing queue' : `${remainingReviewDraftCount} draft${remainingReviewDraftCount === 1 ? '' : 's'} remaining`}
 	                  </span>
 	                </div>
-	                <p className="mt-1 max-w-3xl truncate text-sm text-gray-400">
+	                <p className="mt-1 max-w-3xl truncate text-sm text-muted-foreground">
 	                  {getReviewQueueLabel(item, normalizedReviewQueueIndex)}
 	                </p>
-	                <p className="mt-1 text-xs text-gray-500">
+	                <p className="mt-1 text-xs text-muted-foreground">
 	                  {asString(ragContext?.campaign_name) || reviewQueueLabel.replace(/^campaign /, 'Campaign ')}
 	                </p>
 	              </div>
@@ -4431,7 +4650,7 @@ function SocialContentDetailPage() {
 	                  type="button"
 	                  onClick={() => previousReviewQueueItem && navigateToReviewQueueItem(previousReviewQueueItem.id)}
 	                  disabled={!previousReviewQueueItem}
-	                  className="inline-flex items-center gap-2 rounded-lg border border-gray-700 px-3 py-2 text-sm text-gray-300 transition-colors hover:border-gray-600 hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
+	                  className="inline-flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground transition-colors hover:border-radiant-gold/45 hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
 	                >
 	                  <ChevronLeft className="h-4 w-4" />
 	                  Previous
@@ -4440,7 +4659,7 @@ function SocialContentDetailPage() {
 	                  type="button"
 	                  onClick={() => nextReviewQueueItem && navigateToReviewQueueItem(nextReviewQueueItem.id)}
 	                  disabled={!nextReviewQueueItem}
-	                  className="inline-flex items-center gap-2 rounded-lg border border-gray-700 px-3 py-2 text-sm text-gray-300 transition-colors hover:border-gray-600 hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
+	                  className="inline-flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground transition-colors hover:border-radiant-gold/45 hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
 	                >
 	                  Next
 	                  <ChevronRight className="h-4 w-4" />
@@ -4450,7 +4669,7 @@ function SocialContentDetailPage() {
 	          </section>
 	        )}
 
-		        <div aria-label="Social content approval process" className="admin-console-card social-approval-process rounded-xl border p-2">
+		        <div aria-label="Social content approval process" data-theme-surface="approval-process" className="admin-console-card social-approval-process rounded-xl border p-2">
 		          <div className="social-approval-step-grid">
 		          {approvalStepTabs.map((tab, index) => {
 		            const isActive = activeApprovalStep === tab.step
@@ -4463,14 +4682,14 @@ function SocialContentDetailPage() {
 		                  onClick={() => setApprovalStep(tab.step)}
 		                  className={`grid min-h-[5.5rem] w-full min-w-0 grid-cols-[auto_minmax(0,1fr)] content-start items-start gap-x-2 gap-y-1 rounded-lg border px-2.5 py-2.5 text-left text-sm font-medium transition-all ${
 		                    isActive
-		                      ? 'border-green-500/55 bg-green-600/25 text-green-100 shadow-inner shadow-green-950/30'
-		                      : 'border-gray-800/80 text-muted-foreground hover:border-gray-700 hover:bg-silicon-slate/50 hover:text-foreground'
+		                      ? 'border-green-600/55 bg-green-100 text-green-950 shadow-inner shadow-green-900/10 dark:border-green-500/55 dark:bg-green-600/25 dark:text-green-100 dark:shadow-green-950/30'
+		                      : 'border-border bg-background/60 text-muted-foreground hover:border-radiant-gold/40 hover:bg-muted hover:text-foreground'
 		                  }`}
 		                >
 		                  <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-[10px] font-semibold ${
 		                    isActive
-		                      ? 'border-green-300/45 bg-green-400/20 text-green-50'
-		                      : 'border-gray-700 bg-gray-950/35 text-gray-400'
+		                      ? 'border-green-600/45 bg-green-200 text-green-950 dark:border-green-300/45 dark:bg-green-400/20 dark:text-green-50'
+		                      : 'border-border bg-muted text-muted-foreground'
 		                  }`}>
 		                    {index + 1}
 		                  </span>
@@ -4487,28 +4706,28 @@ function SocialContentDetailPage() {
 		          })}
 		          </div>
 		        </div>
-            <details className="rounded-xl border border-silicon-slate/80 bg-background/35 p-4" aria-label="Current approval step details">
-              <summary className="cursor-pointer text-sm font-semibold text-gray-200">Approval details · {activeApprovalStepDetail.title}</summary>
+            <details data-theme-surface="approval-details" className="rounded-xl border border-border bg-card p-4 text-card-foreground" aria-label="Current approval step details">
+              <summary className="cursor-pointer text-sm font-semibold text-foreground">Approval details · {activeApprovalStepDetail.title}</summary>
               <div className="grid gap-3 xl:grid-cols-[minmax(0,1.4fr)_repeat(4,minmax(0,0.9fr))]">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.14em] text-radiant-gold">What this means</p>
-                  <h2 className="mt-1 text-lg font-semibold text-gray-100">{activeApprovalStepDetail.title}</h2>
-                  <p className="mt-2 text-sm leading-6 text-gray-300">{activeApprovalStepDetail.body}</p>
+                  <h2 className="mt-1 text-lg font-semibold text-foreground">{activeApprovalStepDetail.title}</h2>
+                  <p className="mt-2 text-sm leading-6 text-muted-foreground">{activeApprovalStepDetail.body}</p>
                 </div>
-                <div className="rounded-lg border border-silicon-slate/70 bg-imperial-navy/30 p-3">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">Owner</p>
-                  <p className="mt-2 text-sm font-semibold text-gray-100">{activeApprovalStepDetail.owner}</p>
+                <div className="rounded-lg border border-border bg-muted/40 p-3">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Owner</p>
+                  <p className="mt-2 text-sm font-semibold text-foreground">{activeApprovalStepDetail.owner}</p>
                 </div>
-                <div className="rounded-lg border border-silicon-slate/70 bg-imperial-navy/30 p-3">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">Last update</p>
-                  <p className="mt-2 text-sm text-gray-200">{activeApprovalStepDetail.lastUpdate}</p>
+                <div className="rounded-lg border border-border bg-muted/40 p-3">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Last update</p>
+                  <p className="mt-2 text-sm text-foreground">{activeApprovalStepDetail.lastUpdate}</p>
                 </div>
-                <div className="rounded-lg border border-silicon-slate/70 bg-imperial-navy/30 p-3">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">Waiting on you?</p>
-                  <p className="mt-2 text-sm font-semibold text-gray-100">{activeApprovalStepDetail.waitingOnYou}</p>
+                <div className="rounded-lg border border-border bg-muted/40 p-3">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Waiting on you?</p>
+                  <p className="mt-2 text-sm font-semibold text-foreground">{activeApprovalStepDetail.waitingOnYou}</p>
                 </div>
-                <div className="rounded-lg border border-silicon-slate/70 bg-imperial-navy/30 p-3">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">Canonical work</p>
+                <div className="rounded-lg border border-border bg-muted/40 p-3">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Canonical work</p>
                   <Link
                     href={canonicalKanbanHref}
                     className="mt-2 inline-flex items-center gap-2 text-sm font-semibold text-radiant-gold hover:underline"
@@ -4518,9 +4737,9 @@ function SocialContentDetailPage() {
                   </Link>
                 </div>
               </div>
-              <div className="mt-3 rounded-lg border border-silicon-slate/70 bg-imperial-navy/30 p-3">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">Next action</p>
-                <p className="mt-1 text-sm leading-6 text-gray-200">{activeApprovalStepDetail.nextAction}</p>
+              <div className="mt-3 rounded-lg border border-border bg-muted/40 p-3">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Next action</p>
+                <p className="mt-1 text-sm leading-6 text-foreground">{activeApprovalStepDetail.nextAction}</p>
               </div>
             </details>
 
@@ -4862,173 +5081,294 @@ function SocialContentDetailPage() {
 	            {/* Visual Media section (single image or carousel) */}
 	            {activeApprovalStep === 'visuals' && (
 	            <>
-	            <div id="social-visual-assets-gate" className="scroll-mt-64 rounded-xl border border-gray-800 bg-gray-900 p-4">
+	            <div id="social-visual-assets-gate" data-theme-surface="visual-assets" className="scroll-mt-64 rounded-xl border border-border bg-card p-4 text-card-foreground shadow-sm">
               {item.copy_revision && !item.copy_revision.release_locked && (
                 <details className="mb-4 rounded-lg border border-amber-500/30 p-3">
-                  <summary className="cursor-pointer text-sm font-semibold text-amber-100">Attach an existing image</summary>
+                  <summary className="cursor-pointer text-sm font-semibold text-amber-900 dark:text-amber-100">Attach an existing image</summary>
                   <div className="mt-3 space-y-3">
-                    <p className="text-xs text-gray-400">Use the approved graphic. Attachment keeps copy approval; visual and privacy review remain pending.</p>
+                    <p className="text-xs text-muted-foreground">Use the approved graphic. Attachment keeps copy approval; visual and privacy review remain pending.</p>
                     <label className="block text-sm">Image file<input aria-label="Existing image file" type="file" accept="image/png,image/jpeg,image/webp,image/gif" disabled={attachingImage} onChange={event=>setSelectedImageFile(event.target.files?.[0]??null)} className="mt-1 block w-full min-w-0 text-xs" /></label>
-                    <label className="block text-sm">Or stored image URL<input aria-label="Stored image URL" type="url" value={existingImageUrl} disabled={attachingImage||Boolean(selectedImageFile)} onChange={event=>setExistingImageUrl(event.target.value)} placeholder="Existing social-content storage URL" className="mt-1 w-full min-w-0 rounded border border-gray-700 bg-gray-800 p-2 text-sm" /></label>
-                    <label className="block text-sm">Source or approval reference<input aria-label="Image source or approval reference" value={imageSourceNote} onChange={event=>setImageSourceNote(event.target.value)} disabled={attachingImage} className="mt-1 w-full min-w-0 rounded border border-gray-700 bg-gray-800 p-2 text-sm" /></label>
-                    {imageAttachmentError && <p role="alert" className="text-sm text-red-300">{imageAttachmentError}</p>}
+                    <label className="block text-sm">Or stored image URL<input aria-label="Stored image URL" type="url" value={existingImageUrl} disabled={attachingImage||Boolean(selectedImageFile)} onChange={event=>setExistingImageUrl(event.target.value)} placeholder="Existing social-content storage URL" className="mt-1 w-full min-w-0 rounded border border-border bg-background p-2 text-sm text-foreground placeholder:text-muted-foreground" /></label>
+                    <label className="block text-sm">Source or approval reference<input aria-label="Image source or approval reference" value={imageSourceNote} onChange={event=>setImageSourceNote(event.target.value)} disabled={attachingImage} className="mt-1 w-full min-w-0 rounded border border-border bg-background p-2 text-sm text-foreground" /></label>
+                    {imageAttachmentError && <p role="alert" className="text-sm text-red-800 dark:text-red-300">{imageAttachmentError}</p>}
                     <button type="button" onClick={()=>void handleAttachExistingImage()} disabled={attachingImage||!imageSourceNote.trim()||(!selectedImageFile&&!existingImageUrl.trim())} className="w-full rounded-lg bg-amber-400 px-3 py-2 text-sm font-semibold text-slate-950 disabled:opacity-50">{attachingImage?'Attaching…':selectedImageFile?'Upload and attach image':'Attach stored image'}</button>
                   </div>
                 </details>
               )}
               {canEditVisualProduction && (
-                <div className="mb-4 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4">
+                <div data-theme-surface="visual-production" className="mb-4 rounded-lg border border-amber-600/30 bg-amber-50 p-4 text-amber-950 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-50">
                   <div className="flex flex-col gap-2">
                     <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                       <div>
-                        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-amber-200">Visual Production</p>
-                        <p className="mt-1 text-sm leading-6 text-amber-50/90">
-                          {visualProductionUnlocked
-                            ? 'Copy approved. Choose one visual format; either path replaces the current draft visual.'
-                            : 'Choose one visual format for this draft. These actions stay separate from copy approval and publishing.'}
-                        </p>
+	                        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-amber-800 dark:text-amber-200">Visual Production</p>
+	                        <p className="mt-1 text-sm leading-6 text-amber-950/90 dark:text-amber-50/90">
+	                          {visualProductionUnlocked
+	                            ? 'Copy approved. Render the stored deterministic candidate or choose the existing screenshot-carousel path.'
+	                            : 'Choose one visual format for this draft. Rendering stays separate from visual approval and publishing.'}
+	                        </p>
                       </div>
                       <span className={`inline-flex w-fit shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-semibold ${GATE_STATE_CONFIG[visualAssetsGateState].className}`}>
                         Visual assets: {GATE_STATE_CONFIG[visualAssetsGateState].label}
                       </span>
                     </div>
-                    <div className="rounded-lg border border-amber-500/20 bg-background/25 px-3 py-2 text-xs leading-5 text-amber-50/75">
-                      Clicking a visual action may generate or replace assets; it does not publish or schedule.
-                    </div>
-                    {agentifiedVisualQaPacket?.primaryCandidateUrl && (
-                      <div className="mt-3 overflow-hidden rounded-lg border border-emerald-400/30 bg-emerald-500/10">
-                        <div className="flex flex-col gap-3 p-3 lg:flex-row lg:items-start">
-                          <div className="relative aspect-[1.91/1] min-h-[220px] w-full overflow-hidden rounded-md border border-emerald-300/20 bg-gray-950/70 lg:max-w-[520px]">
-                            <Image
-                              src={agentifiedVisualQaPacket.primaryCandidateUrl}
-                              alt={agentifiedVisualQaPacket.altText || 'Amina visual QA candidate'}
-                              className="object-contain"
-                              fill
-                              sizes="(max-width: 900px) 100vw, 520px"
-                            />
-                          </div>
-                          <div className="min-w-0 flex-1">
-                            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-emerald-100/75">Current Amina candidate</p>
-                            <p className="mt-2 text-sm font-semibold text-emerald-50">{agentifiedVisualQaPacket.selectedForm}</p>
-                            <p className="mt-2 text-sm leading-6 text-emerald-50/80">{agentifiedVisualQaPacket.recommendation}</p>
-                            <div className="mt-3 flex flex-wrap gap-2">
-                              <span className="rounded-full border border-emerald-300/35 bg-emerald-300/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-100">
-                                QA {agentifiedVisualQaReady ? 'passed' : 'needs review'}
-                              </span>
-                              <span className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${agentifiedVisualPrivacyReady ? 'border-emerald-300/35 bg-emerald-300/10 text-emerald-100' : 'border-red-300/35 bg-red-300/10 text-red-100'}`}>
-                                Privacy/rights {agentifiedVisualPrivacyReady ? 'passed' : 'blocked'}
-                              </span>
-                              <span className="rounded-full border border-amber-300/35 bg-amber-300/10 px-2 py-0.5 text-[10px] font-semibold text-amber-100">
-                                Human review required
-                              </span>
-                            </div>
-                            <p className="mt-3 text-xs leading-5 text-emerald-50/65">
-                              Review this candidate, then use the approval controls below. The generate/switch actions are fallback repair paths, not the primary next step.
-                            </p>
-                          </div>
+		                    <div data-theme-surface="provider-boundary" className="rounded-lg border border-amber-600/25 bg-white/60 px-3 py-2 text-xs leading-5 text-amber-950/80 dark:border-amber-500/20 dark:bg-muted dark:text-amber-50/80">
+		                      Local deterministic review only. Gemini, HeyGen, n8n media, platform drafts, scheduling, publishing, and external sends stay off.
+		                    </div>
+	                    <div data-visual-workflow-step="configure" data-theme-surface="deterministic-recipe" className="mt-3 rounded-lg border border-border bg-white/60 p-3 dark:border-amber-500/25 dark:bg-muted">
+	                      <div className="flex flex-wrap items-start justify-between gap-2">
+	                        <div>
+	                          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-amber-800/80 dark:text-amber-100/70">A. Configure visual</p>
+	                          <p className="mt-1 text-xs leading-5 text-muted-foreground">Choose one deterministic layout for the approved editorial framework.</p>
                         </div>
+                        {isSingleImageFormat && hasDeterministicVisualContract && (
+                          <span title={DETERMINISTIC_VISUAL_RENDER_MODE} className="rounded-full border border-emerald-600/40 bg-emerald-100 px-2 py-1 text-[10px] font-semibold text-emerald-900 dark:border-emerald-300/35 dark:bg-emerald-300/10 dark:text-emerald-100">Active mode · provider-none structured HTML/SVG</span>
+                        )}
                       </div>
-                    )}
-                    <div className="mt-3">
-                      <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-amber-100/70">Choose one visual format</p>
                       <div className="mt-2 grid gap-3 lg:grid-cols-2">
-                        <div className={`rounded-lg border p-3 ${isSingleImageFormat ? 'border-amber-400/70 bg-amber-400/10' : 'border-amber-500/25 bg-gray-950/30'}`}>
-                          <div className="flex items-start justify-between gap-3">
-                            <div className="flex items-center gap-2">
-                              <ImageIcon className="h-4 w-4 text-amber-200" />
-                              <p className="text-sm font-semibold text-amber-50">Framework illustration</p>
-                            </div>
-                            {isSingleImageFormat && (
-                              <span className="inline-flex items-center gap-1 rounded-full border border-amber-300/50 bg-amber-300/10 px-2 py-0.5 text-[10px] font-semibold text-amber-100">
-                                <CheckCircle2 className="h-3 w-3" />
-                                Selected format
-                              </span>
-                            )}
-                          </div>
-                          <p className="mt-2 text-sm leading-6 text-amber-50/80">
-                            Best when the post needs a clean concept visual for the argument. Switching here clears carousel data and uses a single image.
-                          </p>
-                          <button
-                            type="button"
-                            onClick={isCarouselFormat ? handleConvertToSingleImage : handleRegenerateImage}
-                            disabled={regeneratingImage || !imagePrompt || visualAssetsRejected}
-                            className={`mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition-colors disabled:opacity-50 ${
-                              isSingleImageFormat
-                                ? 'bg-amber-400 text-slate-950 hover:bg-amber-300'
-                                : 'border border-amber-500/45 text-amber-100 hover:bg-amber-500/10'
-                            }`}
-                          >
-                            {regeneratingImage ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ImageIcon className="h-3.5 w-3.5" />}
-                            {frameworkActionLabel}
-                          </button>
-                        </div>
-                        <div className={`rounded-lg border p-3 ${isCarouselFormat ? 'border-blue-400/70 bg-blue-400/10' : 'border-amber-500/25 bg-gray-950/30'}`}>
-                          <div className="flex items-start justify-between gap-3">
-                            <div className="flex items-center gap-2">
-                              <LayoutGrid className="h-4 w-4 text-blue-100" />
-                              <p className="text-sm font-semibold text-amber-50">App screenshot carousel</p>
-                            </div>
-                            {isCarouselFormat && (
-                              <span className="inline-flex items-center gap-1 rounded-full border border-blue-300/50 bg-blue-300/10 px-2 py-0.5 text-[10px] font-semibold text-blue-100">
-                                <CheckCircle2 className="h-3 w-3" />
-                                Selected format
-                              </span>
-                            )}
-                          </div>
-                          <p className="mt-2 text-sm leading-6 text-amber-50/80">
-                            Best when the post needs proof from real Portfolio screens. Switching here replaces the single-image draft with a screenshot carousel.
-                          </p>
-                          <button
-                            type="button"
-                            onClick={handleBuildAppScreenshotCarousel}
-                            disabled={capturingAppCarousel || visualAssetsRejected}
-                            className={`mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition-colors disabled:opacity-50 ${
-                              isCarouselFormat
-                                ? 'bg-blue-400 text-slate-950 hover:bg-blue-300'
-                                : 'border border-blue-400/45 text-blue-100 hover:bg-blue-500/10'
-                            }`}
-                          >
-                            {capturingAppCarousel ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <LayoutGrid className="h-3.5 w-3.5" />}
-                            {carouselActionLabel}
-                          </button>
-                        </div>
+                        <button
+                          type="button"
+                          aria-pressed={isSingleImageFormat}
+                          onClick={() => setSelectedVisualFormat('framework')}
+                          disabled={visualAssetsRejected}
+                          className={`rounded-lg border p-3 text-left transition-colors ${isSingleImageFormat ? 'border-amber-600/55 bg-amber-100 dark:border-amber-400/70 dark:bg-amber-400/10' : 'border-border bg-white/60 hover:border-amber-600/45 dark:border-amber-500/25 dark:bg-muted'}`}
+                        >
+                          <span className="flex items-start justify-between gap-3">
+	                            <span className="flex items-center gap-2 text-sm font-semibold text-foreground"><ImageIcon className="h-4 w-4 text-amber-800 dark:text-amber-200" />Deterministic visual</span>
+                            {isSingleImageFormat && <span className="inline-flex items-center gap-1 rounded-full border border-amber-700/45 px-2 py-0.5 text-[10px] font-semibold text-amber-950 dark:border-amber-300/50 dark:text-amber-100"><CheckCircle2 className="h-3 w-3" />Selected</span>}
+                          </span>
+                          <span className="mt-2 block text-sm leading-6 text-muted-foreground">Uses a saved template, type, aspect, derived content, and exact version-bound candidate.</span>
+                        </button>
+                        <button
+                          type="button"
+                          aria-pressed={isCarouselFormat}
+                          onClick={() => setSelectedVisualFormat('carousel')}
+                          disabled={visualAssetsRejected}
+                          className={`rounded-lg border p-3 text-left transition-colors ${isCarouselFormat ? 'border-blue-600/55 bg-blue-100 dark:border-blue-400/70 dark:bg-blue-400/10' : 'border-border bg-white/60 hover:border-blue-600/45 dark:border-amber-500/25 dark:bg-muted'}`}
+                        >
+                          <span className="flex items-start justify-between gap-3">
+                            <span className="flex items-center gap-2 text-sm font-semibold text-foreground"><LayoutGrid className="h-4 w-4 text-blue-800 dark:text-blue-100" />App screenshot carousel</span>
+                            {isCarouselFormat && <span className="inline-flex items-center gap-1 rounded-full border border-blue-700/45 px-2 py-0.5 text-[10px] font-semibold text-blue-950 dark:border-blue-300/50 dark:text-blue-100"><CheckCircle2 className="h-3 w-3" />Selected</span>}
+                          </span>
+                          <span className="mt-2 block text-sm leading-6 text-muted-foreground">Builds a review carousel from real Portfolio screens without publishing it.</span>
+                        </button>
                       </div>
-                    </div>
-                    {renderSectionGateControls('visual_assets', 'Visual assets', visualAssetsGateState, {
-                      approveLabel: 'Approve Visuals',
-                      rejectLabel: 'Reject Visuals',
-                      approveDisabled: !visualAssetReady,
-                      rejectDisabled: !visualAssetReady,
-                      notePlaceholder: 'What must change before the visual assets are approved?',
-                    })}
-                    <div id="social-asset-packet-gate" className="mt-4 scroll-mt-64 border-t border-amber-500/25 pt-4">
-                      <div className="flex flex-col gap-3">
-                        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                          <div className="flex min-w-0 items-start gap-3">
-                            <FileText className="mt-0.5 h-4 w-4 shrink-0 text-amber-200" />
-                            <div>
-                              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-amber-100/70">Asset packet</p>
-                              <p className="mt-1 text-xs leading-5 text-amber-50/70">
-                                Required for repeatable b-roll, video, and privacy QA.
-                              </p>
+                      {isSingleImageFormat ? hasDeterministicVisualContract ? (
+                        <div className="mt-3 space-y-3">
+                          <div className="rounded-lg border border-border bg-background p-3">
+                            <div className="flex flex-wrap items-start justify-between gap-2">
+                              <div>
+                                <p className="text-xs font-semibold text-foreground">Content framework <span className="font-normal text-muted-foreground">· read-only</span></p>
+                                <p className="mt-1 text-sm font-medium capitalize text-foreground">{contentFrameworkType ? contentFrameworkType.replace(/_/g, ' ') : 'Not recorded'}</p>
+                              </div>
+                              {contentFrameworkStatus && <span className="rounded-full border border-border bg-muted px-2 py-0.5 text-[10px] font-semibold capitalize text-foreground">{contentFrameworkStatus.replace(/_/g, ' ')}</span>}
                             </div>
+                            <p className="mt-2 text-xs leading-5 text-muted-foreground">Editorial and persuasion structure already applied to the approved copy. It is separate from the visual template and visual type below.</p>
                           </div>
-                          <div className="flex shrink-0 flex-wrap gap-2 sm:justify-end">
-                            <span className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${GATE_STATE_CONFIG[assetPacketGateState].className}`}>
-                              Asset packet: {GATE_STATE_CONFIG[assetPacketGateState].label}
-                            </span>
-                            <span className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${GATE_STATE_CONFIG[privacyGateState].className}`}>
-                              Privacy: {GATE_STATE_CONFIG[privacyGateState].label}
-                            </span>
+                          <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+                            <span><strong className="text-foreground">{DETERMINISTIC_VISUAL_TEMPLATE_OPTIONS.length} deterministic templates currently available</strong> · {DETERMINISTIC_VISUAL_TEMPLATE_OPTIONS.filter((option) => option.allowed_visual_types.length > 0).length} render-enabled</span>
+                            <span>Unavailable combinations explain the recovery path.</span>
                           </div>
+                          <div className="grid gap-3 lg:grid-cols-3">
+                            <label htmlFor="deterministic-visual-template" className="block text-xs font-medium text-foreground">
+                              Visual template <span className="font-normal text-muted-foreground">· editable</span>
+                              <select
+                                id="deterministic-visual-template"
+                                value={deterministicVisualTemplate}
+                                onChange={(event) => {
+                                  const nextTemplate = event.target.value as DeterministicVisualTemplate | ''
+                                  setDeterministicVisualTemplate(nextTemplate)
+                                  const nextAllowedTypes = deterministicVisualAllowedTypes(nextTemplate)
+                                  setFrameworkVisualType(current => nextAllowedTypes.includes(current as FrameworkVisualType) ? current : nextAllowedTypes[0] || '')
+                                }}
+                                disabled={savingVisualConfiguration}
+                                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground disabled:opacity-60"
+                              >
+                                <option value="">Choose a template</option>
+                                {DETERMINISTIC_VISUAL_TEMPLATE_OPTIONS.map((template) => <option key={template.value} value={template.value}>{template.label}{template.allowed_visual_types.length ? '' : ' — unavailable'}</option>)}
+                              </select>
+                            </label>
+                            <label htmlFor="deterministic-visual-type" className="block text-xs font-medium text-foreground">
+                              Visual type <span className="font-normal text-muted-foreground">· editable, constrained by template</span>
+                            <select
+                              id="deterministic-visual-type"
+                              value={frameworkVisualType}
+                              onChange={(event) => setFrameworkVisualType(event.target.value as FrameworkVisualType | '')}
+                              disabled={savingVisualConfiguration || allowedDeterministicVisualTypes.length === 0}
+                              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground disabled:opacity-60"
+                            >
+                              <option value="">Choose a visual type</option>
+                              {FRAMEWORK_VISUAL_TYPES.filter((type) => allowedDeterministicVisualTypes.includes(type.value)).map((type) => <option key={type.value} value={type.value}>{type.label} — {type.description}</option>)}
+                            </select>
+                            </label>
+                            <label htmlFor="deterministic-visual-aspect" className="block text-xs font-medium text-foreground">
+                              Aspect ratio <span className="font-normal text-muted-foreground">· editable</span>
+                              <select
+                                id="deterministic-visual-aspect"
+                                value={deterministicVisualAspectRatio}
+                                onChange={(event) => setDeterministicVisualAspectRatio(event.target.value as DeterministicVisualAspectRatio | '')}
+                                disabled={savingVisualConfiguration}
+                                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground disabled:opacity-60"
+                              >
+                                <option value="">Choose an aspect ratio</option>
+                                {DETERMINISTIC_VISUAL_ASPECT_RATIO_OPTIONS.map((aspect) => <option key={aspect.value} value={aspect.value}>{aspect.label}</option>)}
+                              </select>
+                            </label>
+                          </div>
+                          <p className="text-xs leading-5 text-muted-foreground">{deterministicVisualTemplate ? `${deterministicVisualTemplateLabel(deterministicVisualTemplate)}: ${DETERMINISTIC_VISUAL_TEMPLATE_OPTIONS.find((option) => option.value === deterministicVisualTemplate)?.description}` : 'Choose the template first; it determines which visual types are allowed.'}</p>
+                          {deterministicVisualInputs ? (
+                            <details aria-label="Effective deterministic visual inputs" className="rounded-lg border border-border bg-background p-3 text-xs text-foreground">
+                              <summary className="cursor-pointer font-semibold">Effective persisted inputs <span className="font-normal text-muted-foreground">· read-only until the approved copy packet changes</span></summary>
+                              <dl className="mt-3 grid gap-2 sm:grid-cols-2">
+                                <div><dt className="text-muted-foreground">Render mode</dt><dd className="font-mono">{deterministicVisualInputs.render_mode}</dd></div>
+                                <div><dt className="text-muted-foreground">System</dt><dd className="font-mono">{deterministicVisualInputs.system_version || 'Missing'}</dd></div>
+                                <div><dt className="text-muted-foreground">Template</dt><dd className="font-medium">{deterministicVisualInputs.template_label} <span className="font-mono text-muted-foreground">({deterministicVisualInputs.template_id})</span></dd></div>
+                                <div><dt className="text-muted-foreground">Aspect</dt><dd className="font-medium">{deterministicVisualInputs.aspect_ratio || 'Missing'}</dd></div>
+                                <div><dt className="text-muted-foreground">Selected type</dt><dd className="font-medium capitalize">{deterministicVisualInputs.selected_visual_type?.replace(/_/g, ' ') || 'Missing'}</dd></div>
+                                <div><dt className="text-muted-foreground">Candidate type</dt><dd className="font-medium capitalize">{deterministicVisualInputs.candidate_visual_type?.replace(/_/g, ' ') || 'Missing'}</dd></div>
+                                <div className="sm:col-span-2"><dt className="text-muted-foreground">Eyebrow</dt><dd>{deterministicVisualInputs.eyebrow || 'Missing'}</dd></div>
+                                <div className="sm:col-span-2"><dt className="text-muted-foreground">Headline</dt><dd className="font-medium">{deterministicVisualInputs.headline || 'Missing'}</dd></div>
+                                <div className="sm:col-span-2"><dt className="text-muted-foreground">Evidence lines</dt><dd>{deterministicVisualInputs.evidence_lines.length ? deterministicVisualInputs.evidence_lines.join(' · ') : 'Missing'}</dd></div>
+                                <div className="sm:col-span-2"><dt className="text-muted-foreground">Result label</dt><dd>{deterministicVisualInputs.result_label || 'Missing'}</dd></div>
+                                <div className="sm:col-span-2"><dt className="text-muted-foreground">Argument map</dt><dd>{deterministicVisualInputs.argument_map ? Object.entries(deterministicVisualInputs.argument_map).map(([key, value]) => `${key.replace(/_/g, ' ')}: ${value}`).join(' · ') : 'Missing'}</dd></div>
+                                <div className="sm:col-span-2"><dt className="text-muted-foreground">Nodes</dt><dd className="space-y-1">{deterministicVisualInputs.nodes.length ? deterministicVisualInputs.nodes.map((node) => <span key={node.id} className="block"><strong>{node.label}:</strong> {node.body}</span>) : 'Missing'}</dd></div>
+                                <div className="sm:col-span-2"><dt className="text-muted-foreground">Connectors</dt><dd>{deterministicVisualInputs.connectors.length ? deterministicVisualInputs.connectors.map((connector) => `${connector.from} → ${connector.to}: ${connector.label}`).join(' · ') : 'Missing'}</dd></div>
+                                <div className="sm:col-span-2"><dt className="text-muted-foreground">Visual rationale</dt><dd>{deterministicVisualInputs.visual_rationale || 'Missing'}</dd></div>
+                                <div><dt className="text-muted-foreground">Candidate ID</dt><dd className="break-all font-mono">{deterministicVisualInputs.candidate_id || 'Unavailable'}</dd></div>
+                                <div><dt className="text-muted-foreground">Candidate version</dt><dd className="break-all font-mono">{deterministicVisualInputs.candidate_hash || 'Unavailable'}</dd></div>
+                                <div><dt className="text-muted-foreground">Copy version</dt><dd className="break-all font-mono">{deterministicVisualInputs.copy_version}</dd></div>
+                                <div><dt className="text-muted-foreground">Recipe version</dt><dd className="break-all font-mono">{deterministicVisualInputs.recipe_version || 'Unavailable'}</dd></div>
+                                <div className="sm:col-span-2"><dt className="text-muted-foreground">Renderer</dt><dd className="font-mono">{deterministicVisualInputs.renderer_version}</dd></div>
+                              </dl>
+                              <div className="mt-3 rounded-md border border-border bg-muted/50 p-2 text-muted-foreground">
+                                <p className="font-semibold text-foreground">Provenance</p>
+                                <p>{Object.entries(deterministicVisualInputs.provenance).map(([key, value]) => `${key.replace(/_/g, ' ')}: ${value}`).join(' · ')}</p>
+                              </div>
+                              <button type="button" onClick={() => setApprovalStep('copy')} className="mt-3 inline-flex items-center gap-2 rounded-lg border border-border px-3 py-2 font-semibold text-foreground hover:bg-muted">Revise the approved source copy</button>
+                            </details>
+                          ) : <p className="text-xs text-red-800 dark:text-red-200">Effective deterministic inputs are unavailable. Reload this record before rendering.</p>}
+                          <details className="rounded-lg border border-border p-3 text-xs">
+                            <summary className="cursor-pointer font-semibold text-foreground">Provider art direction · stored, collapsed, and excluded from this render</summary>
+                            <p className="mt-2 leading-5 text-muted-foreground">This field is reserved for a future provider-media or asset-packet handoff. The deterministic render button never reads it and never calls a media provider.</p>
+                            <p className="mt-2 whitespace-pre-wrap rounded-md bg-muted/50 p-2 text-muted-foreground">{imagePrompt.trim() || 'No provider art direction is saved.'}</p>
+                          </details>
                         </div>
+                      ) : (
+                        <div className="mt-3 space-y-3">
+                          <label className="block text-xs text-muted-foreground">Legacy/provider visual type<select value={frameworkVisualType} onChange={(event) => setFrameworkVisualType(event.target.value as FrameworkVisualType | '')} disabled={!canEditVisualProduction} className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground disabled:opacity-60"><option value="">Auto-detect</option>{FRAMEWORK_VISUAL_TYPES.map((type) => <option key={type.value} value={type.value}>{type.label} — {type.description}</option>)}</select></label>
+                          <label className="block text-xs text-muted-foreground">Legacy/provider image prompt<textarea value={imagePrompt} onChange={(event) => setImagePrompt(event.target.value)} disabled={!canEditVisualProduction} rows={3} className="mt-1 w-full resize-y rounded-lg border border-border bg-background px-3 py-2 text-xs text-foreground disabled:opacity-60" /></label>
+                        </div>
+                      ) : <p className="mt-3 text-xs leading-5 text-muted-foreground">No deterministic recipe is used for the screenshot-carousel path. The build action below captures the selected internal review surfaces.</p>}
+                    </div>
+
+                    <div data-visual-workflow-step="generate" data-theme-surface="deterministic-validation" className="mt-3 rounded-lg border border-border bg-white/60 p-3 dark:border-amber-500/25 dark:bg-muted">
+                      <div className="flex flex-wrap items-start justify-between gap-2">
+                        <div>
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-amber-800/80 dark:text-amber-100/70">B. Generate review asset</p>
+                          <p className="mt-1 text-xs leading-5 text-muted-foreground">The primary action always advances the visible recipe by one valid step.</p>
+                        </div>
+                        {isSingleImageFormat && <span className="rounded-full border border-emerald-600/40 bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-900 dark:border-emerald-300/35 dark:bg-emerald-300/10 dark:text-emerald-100">Provider none</span>}
+                      </div>
+                      {isSingleImageFormat ? (
+                        <>
+                          <div aria-label="Deterministic visual render status" data-theme-surface="render-status" data-visual-operator-state={deterministicVisualOperatorState} className={`mt-3 rounded-lg border p-3 ${deterministicVisualOperatorState === 'dirty' || deterministicVisualOperatorState === 'blocked' || deterministicVisualOperatorState === 'rendered_stale' ? 'border-red-400/30 bg-red-400/10' : deterministicVisualOperatorState === 'rendered_current' ? 'border-emerald-400/30 bg-emerald-400/10' : 'border-blue-400/30 bg-blue-400/10'}`}>
+                            <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                              <div className="min-w-0">
+                                <p className="text-sm font-semibold text-foreground" data-contrast-audit="render-summary">{deterministicVisualStatusLabel}</p>
+                                <p className="mt-1 text-xs leading-5 text-muted-foreground" data-contrast-audit="render-recovery">{deterministicVisualRecipeIssue || deterministicVisualStatusSummary}</p>
+                              </div>
+                              <span className="w-fit shrink-0 rounded-full border border-border bg-muted px-2 py-0.5 text-[10px] font-semibold text-foreground">{deterministicVisualStatusLabel}</span>
+                            </div>
+                            {deterministicVisualOperatorState === 'rendered_current' && deterministicVisualReceipt && <p className="mt-3 text-xs leading-5 text-emerald-900/80 dark:text-emerald-100/80">Receipt {asString(deterministicProviderReceipt?.receipt_id) || 'recorded'} · provider {asString(deterministicProviderReceipt?.provider) || 'none'} · external call {deterministicProviderReceipt?.external_call === false ? 'false' : 'not allowed'}</p>}
+                          </div>
+                          <div className="mt-3 grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto]">
+                            <button
+                              type="button"
+                              data-visual-primary-action
+                              onClick={handleDeterministicVisualPrimaryAction}
+                              disabled={deterministicVisualPrimaryDisabled}
+                              title={deterministicVisualPrimaryDisabledReason || undefined}
+                              className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-amber-400 px-4 py-2 text-sm font-semibold text-slate-950 transition-colors hover:bg-amber-300 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                              {renderingDeterministicVisual || savingVisualConfiguration
+                                ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                : deterministicVisualOperatorState === 'dirty'
+                                  ? <Save className="h-3.5 w-3.5" />
+                                  : <ImageIcon className="h-3.5 w-3.5" />}
+                              {savingVisualConfiguration ? 'Saving and rebuilding…' : renderingDeterministicVisual ? 'Rendering…' : deterministicVisualPrimaryAction}
+                            </button>
+                            {deterministicVisualOperatorState === 'rendered_current' && (
+                              <button type="button" onClick={() => document.getElementById('deterministic-visual-template')?.focus()} className="inline-flex min-h-11 items-center justify-center rounded-lg border border-border px-4 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-muted">Change recipe</button>
+                            )}
+                          </div>
+                          {deterministicVisualPrimaryDisabledReason && <p className="mt-2 text-xs leading-5 text-red-800 dark:text-red-200">{deterministicVisualPrimaryDisabledReason}</p>}
+                          {deterministicVisualOperatorState === 'rendered_current' && <p className="mt-2 text-xs leading-5 text-muted-foreground">Render again rechecks the same version-bound recipe; an already-current result remains idempotent.</p>}
+                          <details aria-label="Why this image will look this way" className="mt-3 rounded-lg border border-border bg-background p-3 text-xs leading-5 text-foreground">
+                            <summary className="cursor-pointer font-semibold">Why this image will look this way</summary>
+                            <p className="mt-2 text-muted-foreground">{deterministicVisualInputs?.visual_rationale || 'The visual rationale is missing from the approved content packet.'}</p>
+                            <p className="mt-2 text-muted-foreground">Visual template {deterministicVisualInputs?.template_label || 'missing'} · {deterministicVisualInputs?.aspect_ratio || 'aspect missing'} · {deterministicVisualInputs?.nodes.length || 0} content nodes · {deterministicVisualInputs?.connectors.length || 0} connectors. The renderer reads these structured fields, never the optional provider art direction.</p>
+                          </details>
+                          {visualPreviewImageUrl ? (
+                            <div className="mt-3">
+                              {(deterministicVisualOperatorState === 'dirty' || deterministicVisualOperatorState === 'rendered_stale') && <p className="mb-2 rounded-lg border border-red-500/35 bg-red-500/5 p-2 text-xs font-semibold text-red-800 dark:text-red-200">Stale asset · visible for comparison, unavailable for approval until the primary action completes.</p>}
+                              <div data-media-canvas="framework-illustration" className="relative h-[min(400px,70vw)] min-h-56 w-full overflow-hidden rounded-lg bg-slate-950"><Image src={visualPreviewImageUrl} alt={visualPreviewAlt} className="object-contain" fill sizes="(max-width: 800px) 100vw, 800px" /></div>
+                            </div>
+                          ) : <div className="mt-3 flex h-40 items-center justify-center rounded-lg border border-dashed border-border bg-muted/40 p-4 text-center text-sm text-muted-foreground">Complete the primary action to create the review asset.</div>}
+                        </>
+                      ) : (
+                        <>
+                          <button type="button" onClick={handleBuildAppScreenshotCarousel} disabled={capturingAppCarousel || visualAssetsRejected} className="mt-3 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-blue-400 px-3 py-2 text-sm font-semibold text-slate-950 transition-colors hover:bg-blue-300 disabled:opacity-50">{capturingAppCarousel ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <LayoutGrid className="h-3.5 w-3.5" />}{carouselActionLabel}</button>
+                          {carouselSlideUrls.length > 0 ? (
+                            <div className="mt-3 space-y-3">
+                              <div className="flex flex-wrap items-center justify-between gap-2">
+                                <p className="text-sm font-medium text-foreground">Carousel ({carouselSlideUrls.length} slides)</p>
+                                <div className="flex flex-wrap gap-2">
+                                  {item.carousel_pdf_url && <a href={item.carousel_pdf_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 rounded-lg border border-border px-2 py-1 text-xs text-foreground"><Download className="h-3 w-3" />PDF</a>}
+                                  <button type="button" onClick={handleRegenerateCarousel} disabled={convertingFormat || visualAssetsRejected} className="inline-flex items-center gap-1 rounded-lg border border-border px-2 py-1 text-xs text-foreground disabled:opacity-50">{convertingFormat ? <Loader2 className="h-3 w-3 animate-spin" /> : <RefreshCw className="h-3 w-3" />}Retry export</button>
+                                </div>
+                              </div>
+                              <div data-media-canvas="carousel-preview" className="relative aspect-square w-full overflow-hidden rounded-lg bg-slate-950"><Image src={carouselSlideUrls[selectedSlide] || carouselSlideUrls[0]} alt={`Slide ${selectedSlide + 1}`} className="object-contain" fill sizes="(max-width: 800px) 100vw, 800px" /></div>
+                              <div className="flex gap-2 overflow-x-auto pb-1">{carouselSlideUrls.map((url, index) => <button type="button" key={url} onClick={() => setSelectedSlide(index)} className={`h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg border-2 ${selectedSlide === index ? 'border-purple-500' : 'border-border'}`}><Image src={url} alt={`Slide ${index + 1}`} width={64} height={64} className="h-full w-full object-cover" /></button>)}</div>
+                            </div>
+                          ) : <div className="mt-3 flex h-40 items-center justify-center rounded-lg border border-dashed border-border bg-muted/40 text-sm text-muted-foreground">Build the carousel to create its review asset.</div>}
+                        </>
+                      )}
+                      {agentifiedVisualQaPacket?.primaryCandidateUrl && (
+                        <details className="mt-3 overflow-hidden rounded-lg border border-emerald-400/30 bg-emerald-500/10 p-3">
+                          <summary className="cursor-pointer text-xs font-semibold text-emerald-900 dark:text-emerald-100">Amina candidate evidence</summary>
+                          <div data-media-canvas="amina-candidate" className="relative mt-3 aspect-[1.91/1] min-h-[220px] w-full overflow-hidden rounded-md bg-slate-950"><Image src={agentifiedVisualQaPacket.primaryCandidateUrl} alt={agentifiedVisualQaPacket.altText || 'Amina visual QA candidate'} className="object-contain" fill sizes="(max-width: 900px) 100vw, 520px" /></div>
+                          <p className="mt-3 text-sm font-semibold text-foreground">{agentifiedVisualQaPacket.selectedForm}</p><p className="mt-1 text-xs leading-5 text-muted-foreground">{agentifiedVisualQaPacket.recommendation} · QA {agentifiedVisualQaReady ? 'passed' : 'needs review'} · privacy/rights {agentifiedVisualPrivacyReady ? 'passed' : 'blocked'}.</p>
+                        </details>
+                      )}
+                    </div>
+
+                    <div data-visual-workflow-step="decide" className="mt-3 rounded-lg border border-border bg-background p-3">
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-amber-800/80 dark:text-amber-100/70">C. Decide</p>
+                      <p className="mt-1 text-xs leading-5 text-muted-foreground">Approve or reject only the current rendered asset. Dirty, rebuilt, blocked, and stale states remain unavailable.</p>
+                      {renderSectionGateControls('visual_assets', 'Visual assets', visualAssetsGateState, {
+                        approveLabel: 'Approve Visuals',
+                        rejectLabel: 'Reject Visuals',
+                        approveDisabled: !visualAssetReady,
+                        rejectDisabled: !visualAssetReady,
+                        notePlaceholder: 'What must change before the visual assets are approved?',
+                      })}
+                    </div>
+                    <details id="social-asset-packet-gate" className="mt-4 scroll-mt-64 rounded-lg border border-border bg-background p-3">
+                      <summary className="flex cursor-pointer list-none flex-wrap items-center justify-between gap-2 text-sm font-semibold text-foreground">
+                        <span>Next: media package</span>
+                        <span className="flex flex-wrap gap-2">
+                          <span className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${GATE_STATE_CONFIG[assetPacketGateState].className}`}>Asset packet: {GATE_STATE_CONFIG[assetPacketGateState].label}</span>
+                          <span className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${GATE_STATE_CONFIG[privacyGateState].className}`}>Privacy: {GATE_STATE_CONFIG[privacyGateState].label}</span>
+                        </span>
+                      </summary>
+                      <div className="flex flex-col gap-3">
+                        <p className="mt-2 text-xs leading-5 text-muted-foreground">Downstream asset packet, b-roll, video, and privacy controls stay collapsed until the review asset decision is clear.</p>
                         {agentifiedVisualQaPacket ? (
-                          <div className="rounded-lg border border-emerald-500/25 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-50">
+                          <div className="rounded-lg border border-emerald-600/30 bg-emerald-100 px-3 py-2 text-sm text-emerald-900 dark:border-emerald-500/25 dark:bg-emerald-500/10 dark:text-emerald-50">
                             <div className="flex items-start gap-2">
-                              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-300" />
+                              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-700 dark:text-emerald-300" />
                               <div>
                                 <p className="font-semibold">Amina packet attached</p>
-                                <p className="mt-1 text-xs leading-5 text-emerald-50/75">
+                                <p className="mt-1 text-xs leading-5 text-emerald-900/75 dark:text-emerald-50/75">
                                   Candidate, provenance, alt text, QA findings, and privacy/rights result are ready for human review.
                                 </p>
                               </div>
@@ -5039,7 +5379,7 @@ function SocialContentDetailPage() {
                             type="button"
                             onClick={handlePrepareAssetPacket}
                             disabled={preparingAssetPacket || item.status !== 'approved' || assetPacketRejected}
-                            className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-amber-400/45 px-3 py-2 text-sm font-semibold text-amber-100 transition-colors hover:bg-amber-500/10 disabled:opacity-50"
+                            className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-amber-600/45 px-3 py-2 text-sm font-semibold text-amber-900 transition-colors hover:bg-amber-100 disabled:opacity-50 dark:border-amber-400/45 dark:text-amber-100 dark:hover:bg-amber-500/10"
                           >
                             {preparingAssetPacket ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <FileText className="h-3.5 w-3.5" />}
                             Prepare Asset Packet
@@ -5383,140 +5723,17 @@ function SocialContentDetailPage() {
                         </button>
                       </div>
                     </div>
-                  )}
-                    </div>
-                  </div>
-                </div>
-              )}
-              {item.content_format === 'carousel' ? (
-                <>
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-sm font-medium text-gray-400 flex items-center gap-2">
-                      <LayoutGrid className="w-4 h-4" /> Carousel ({carouselSlideUrls.length} slides)
-                    </h3>
-                    <div className="flex items-center gap-2">
-                      {item.carousel_pdf_url && (
-                        <a
-                          href={item.carousel_pdf_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-1 px-2 py-1 bg-blue-900/50 hover:bg-blue-900/70 text-blue-300 rounded-lg text-xs transition-colors"
-                        >
-                          <Download className="w-3 h-3" /> PDF
-                        </a>
-                      )}
-                      {canEditVisualProduction && (
-                        <>
-                          <button
-                            onClick={handleRegenerateCarousel}
-                            disabled={convertingFormat || visualAssetsRejected}
-                            title="Retry exporting the current carousel PDF and slide images"
-                            className="flex items-center gap-1 px-2 py-1 bg-purple-900/50 hover:bg-purple-900/70 text-purple-300 rounded-lg text-xs transition-colors disabled:opacity-50"
-                          >
-                            {convertingFormat ? <Loader2 className="w-3 h-3 animate-spin" /> : <RefreshCw className="w-3 h-3" />}
-                            Retry export
-                          </button>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                  {carouselSlideUrls.length > 0 ? (
-                    <div className="space-y-3">
-                      <div className="rounded-lg overflow-hidden bg-gray-800 relative w-full aspect-square">
-                        <Image
-                          src={carouselSlideUrls[selectedSlide] || carouselSlideUrls[0]}
-                          alt={`Slide ${selectedSlide + 1}`}
-                          className="object-contain"
-                          fill
-                          sizes="(max-width: 800px) 100vw, 800px"
-                        />
-                      </div>
-                      <div className="flex gap-2 overflow-x-auto pb-1">
-                        {carouselSlideUrls.map((url, i) => (
-                          <button
-                            key={i}
-                            onClick={() => setSelectedSlide(i)}
-                            className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-colors ${
-                              selectedSlide === i ? 'border-purple-500' : 'border-gray-700 hover:border-gray-500'
-                            }`}
-                          >
-                            <Image src={url} alt={`Slide ${i + 1}`} width={64} height={64} className="object-cover w-full h-full" />
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="rounded-lg bg-gray-800 h-48 flex items-center justify-center mb-3">
-                      <div className="text-center text-gray-500">
-                        <LayoutGrid className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                        <p className="text-xs">Slides not yet rendered</p>
-                        {canEditVisualProduction && (
-                          <button
-                            onClick={handleRegenerateCarousel}
-                            disabled={convertingFormat || visualAssetsRejected}
-                            title="Retry exporting the current carousel PDF and slide images"
-                            className="mt-2 text-xs text-purple-400 hover:text-purple-300"
-                          >
-                            {convertingFormat ? 'Exporting...' : 'Retry export'}
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  )}
-                </>
-              ) : (
-                <>
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-sm font-medium text-gray-400 flex items-center gap-2">
-                      <ImageIcon className="w-4 h-4" /> Framework Illustration
-                    </h3>
-                  </div>
-                  {visualPreviewImageUrl ? (
-                    <div className="rounded-lg overflow-hidden mb-3 bg-gray-800 relative w-full h-[400px]">
-                      <Image src={visualPreviewImageUrl} alt={visualPreviewAlt} className="object-contain" fill sizes="(max-width: 800px) 100vw, 800px" />
-                    </div>
-                  ) : (
-                    <div className="rounded-lg bg-gray-800 h-48 flex items-center justify-center mb-3">
-                      <div className="text-center text-gray-500">
-                        <ImageIcon className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                        <p className="text-xs">No image generated yet</p>
-                      </div>
-                    </div>
-                  )}
-                </>
-              )}
-              <div className="space-y-2 mt-3">
-                <div>
-                  <label className="block text-xs text-gray-500 mb-1">Visual Type</label>
-                  <select
-                    value={frameworkVisualType}
-                    onChange={(e) => setFrameworkVisualType(e.target.value as FrameworkVisualType | '')}
-                    disabled={!canEditVisualProduction}
-                    className="w-full bg-gray-800 text-gray-300 border border-gray-700 rounded-lg px-3 py-1.5 text-sm disabled:opacity-60"
-                  >
-                    <option value="">Auto-detect</option>
-                    {FRAMEWORK_VISUAL_TYPES.map((t) => (
-                      <option key={t.value} value={t.value}>{t.label} — {t.description}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs text-gray-500 mb-1">Image Prompt</label>
-                  <textarea
-                    value={imagePrompt}
-                    onChange={(e) => setImagePrompt(e.target.value)}
-                    disabled={!canEditVisualProduction}
-                    rows={3}
-                    className="w-full bg-gray-800 text-gray-200 border border-gray-700 rounded-lg px-3 py-2 text-xs resize-y disabled:opacity-60"
-                  />
-                </div>
-              </div>
+	                  )}
+	                    </details>
+	                  </div>
+	                </div>
+	              )}
             </div>
 
             {/* Audio section */}
-            <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
+            <div data-theme-surface="voiceover" className="rounded-xl border border-border bg-card p-4 text-card-foreground shadow-sm">
               <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-medium text-gray-400 flex items-center gap-2">
+                <h3 className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
                   <Volume2 className="w-4 h-4" /> Voiceover
                 </h3>
                 {isEditable && (
@@ -5535,19 +5752,19 @@ function SocialContentDetailPage() {
                   <track kind="captions" />
                 </audio>
               ) : (
-                <div className="rounded-lg bg-gray-800 h-12 flex items-center justify-center mb-3 text-xs text-gray-500">
+                <div className="mb-3 flex h-12 items-center justify-center rounded-lg border border-dashed border-border bg-muted/40 text-xs text-muted-foreground">
                   No voiceover generated yet
                 </div>
               )}
               <div>
-                <label htmlFor="social-voiceover-script" className="block text-xs text-gray-500 mb-1">Voiceover Script</label>
+                <label htmlFor="social-voiceover-script" className="mb-1 block text-xs text-muted-foreground">Voiceover Script</label>
                 <AutoSizingScriptTextarea
                   id="social-voiceover-script"
                   data-social-script-editor="voiceover-script"
                   value={voiceoverText}
                   onChange={(e) => setVoiceoverText(e.target.value)}
                   disabled={!isEditable}
-                  className="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-xs text-gray-200 disabled:opacity-60"
+                  className="w-full rounded-lg border border-border bg-background px-3 py-2 text-xs text-foreground disabled:opacity-60"
                 />
               </div>
             </div>
@@ -5734,33 +5951,35 @@ function SocialContentDetailPage() {
           {/* Right column: Preview */}
           <div className="min-w-0 space-y-4">
             <LinkedInReviewSurface item={item} hasUnsavedChanges={hasUnsavedCopyChanges} onRefresh={() => fetchItem({ silent: true })} />
-            <div className="min-w-0 bg-gray-900 border border-gray-800 rounded-xl p-4">
-              <h3 className="text-sm font-medium text-gray-400 mb-3 flex items-center gap-2">
-                <Linkedin className="w-4 h-4 text-blue-400" /> LinkedIn Preview
+            <div data-theme-surface="linkedin-preview-chrome" className="min-w-0 rounded-xl border border-border bg-card p-4 text-card-foreground shadow-sm">
+              <h3 className="mb-3 flex flex-wrap items-center gap-2 text-sm font-medium text-muted-foreground">
+	                <Linkedin className="h-4 w-4 text-blue-700 dark:text-blue-300" /> LinkedIn Preview
+                  <span className="ml-auto rounded-full border border-border bg-muted px-2 py-0.5 text-[10px] font-semibold text-foreground">Follows Portfolio theme</span>
               </h3>
               <div
                 aria-label="LinkedIn post preview"
-                className="rounded-lg border border-silicon-slate/80 bg-gray-950/85 p-4 text-gray-100 shadow-inner shadow-black/30"
+                data-media-canvas="linkedin-post-preview"
+                className="rounded-lg border border-border bg-background p-4 text-foreground shadow-sm"
               >
                 <div className="flex items-center gap-2 mb-3">
                   <div className="w-10 h-10 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 flex items-center justify-center text-white font-bold text-sm">
                     AT
                   </div>
                   <div>
-                    <div className="font-semibold text-sm text-gray-100">AmaduTown, LLC</div>
-                    <div className="text-xs text-gray-500">Just now</div>
+                    <div className="text-sm font-semibold text-foreground">AmaduTown, LLC</div>
+                    <div className="text-xs text-muted-foreground">Just now</div>
                   </div>
                 </div>
                 <CompactPostPreview key={item.id} text={getFullPostText({ ...item, post_text: postText, cta_text: ctaText, cta_url: ctaUrl, hashtags: hashtags.split(',').map(t => t.trim()).filter(Boolean) })} />
                 {item.video_url ? <ReviewedVideoPlayer url={item.video_url} playbackUrl={item.video_playback_url} poster={asString(asRecord(ragContext?.reviewed_video_asset)?.thumbnail_url) || socialVideoProduction?.thumbnailUrl} /> : item.content_format === 'carousel' && carouselSlideUrls.length > 0 ? (
-                  <div className="rounded-lg overflow-hidden border border-gray-700 relative w-full aspect-square bg-gray-900">
+                  <div className="relative aspect-square w-full overflow-hidden rounded-lg border border-border bg-muted">
                     <Image src={carouselSlideUrls[0]} alt="Carousel cover" className="object-cover" fill sizes="(max-width: 600px) 100vw, 600px" />
                     <div className="absolute bottom-2 right-2 bg-black/60 text-white text-[10px] px-1.5 py-0.5 rounded">
                       1/{carouselSlideUrls.length}
                     </div>
                   </div>
                 ) : visualPreviewImageUrl ? (
-                  <div className="relative w-full aspect-[4/5] overflow-hidden rounded-lg border border-gray-700 bg-gray-900">
+                  <div className="relative aspect-[4/5] w-full overflow-hidden rounded-lg border border-border bg-muted">
                     <Image src={visualPreviewImageUrl} alt={visualPreviewAlt} className="object-contain" fill sizes="(max-width: 600px) 100vw, 600px" />
                   </div>
                 ) : null}

@@ -329,7 +329,7 @@ html.dark .card-brand {
   position: relative;
   background:
     radial-gradient(circle at 18% 0%, rgba(212, 175, 55, 0.045), transparent 28rem),
-    linear-gradient(180deg, #121e31 0%, #0f1a2b 100%);
+    var(--background);
 }
 
 .agent-ops-page::before {
@@ -338,8 +338,8 @@ html.dark .card-brand {
   inset: 0;
   pointer-events: none;
   background:
-    linear-gradient(rgba(234, 236, 238, 0.018) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(234, 236, 238, 0.014) 1px, transparent 1px);
+    linear-gradient(rgba(18, 30, 49, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(18, 30, 49, 0.028) 1px, transparent 1px);
   background-size: 42px 42px;
   opacity: 0.45;
   mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.4), transparent 72%);
@@ -357,11 +357,12 @@ html.dark .card-brand {
 }
 
 .agent-ops-panel {
-  border-color: rgba(212, 175, 55, 0.2);
-  background: rgba(18, 30, 49, 0.78);
+  border-color: var(--border);
+  background: var(--card);
+  color: var(--card-foreground);
   box-shadow:
-    0 18px 46px rgba(0, 0, 0, 0.24),
-    inset 0 1px 0 rgba(234, 236, 238, 0.055);
+    0 18px 46px rgba(18, 30, 49, 0.09),
+    inset 0 1px 0 rgba(255, 255, 255, 0.72);
 }
 
 .agent-ops-panel::before,
@@ -375,7 +376,7 @@ html.dark .card-brand {
   pointer-events: none;
   background:
     radial-gradient(circle at 18% 0%, rgba(212, 175, 55, 0.055), transparent 14rem),
-    linear-gradient(135deg, rgba(255, 255, 255, 0.035), transparent 46%);
+    linear-gradient(135deg, rgba(18, 30, 49, 0.025), transparent 46%);
   opacity: 0.55;
 }
 
@@ -394,21 +395,23 @@ html.dark .card-brand {
 .agent-ops-surface-header,
 .agent-ops-card,
 .agent-ops-drill-card {
-  border-color: rgba(212, 175, 55, 0.16);
-  background: rgba(18, 30, 49, 0.72);
+  border-color: var(--border);
+  background: var(--card);
+  color: var(--card-foreground);
   box-shadow:
-    inset 0 1px 0 rgba(234, 236, 238, 0.045),
-    0 12px 28px rgba(0, 0, 0, 0.16);
+    inset 0 1px 0 rgba(255, 255, 255, 0.62),
+    0 12px 28px rgba(18, 30, 49, 0.08);
 }
 
 .agent-ops-surface-header {
-  border-color: rgba(212, 175, 55, 0.24);
+  border-color: var(--border);
   background:
     radial-gradient(circle at 12% 0%, rgba(212, 175, 55, 0.07), transparent 18rem),
-    rgba(18, 30, 49, 0.78);
+    var(--card);
+  color: var(--card-foreground);
   box-shadow:
-    0 18px 46px rgba(0, 0, 0, 0.22),
-    inset 0 1px 0 rgba(234, 236, 238, 0.065);
+    0 18px 46px rgba(18, 30, 49, 0.09),
+    inset 0 1px 0 rgba(255, 255, 255, 0.72);
 }
 
 .agent-ops-eyebrow {
@@ -463,8 +466,8 @@ html.dark .card-brand {
 }
 
 .agent-ops-button-muted {
-  border: 1px solid rgba(100, 116, 139, 0.7);
-  background: rgba(18, 30, 49, 0.52);
+  border: 1px solid var(--border);
+  background: var(--muted);
   color: var(--foreground);
 }
 
@@ -477,49 +480,50 @@ html.dark .card-brand {
   border-color: rgba(212, 175, 55, 0.58);
   background:
     radial-gradient(circle at 18% 0%, rgba(212, 175, 55, 0.08), transparent 13rem),
-    rgba(18, 30, 49, 0.9);
+    #fffdf5;
   box-shadow:
     0 0 0 1px rgba(212, 175, 55, 0.09),
     0 0 28px rgba(212, 175, 55, 0.1),
-    0 16px 42px rgba(0, 0, 0, 0.24),
-    inset 0 1px 0 rgba(245, 208, 96, 0.14);
+    0 16px 42px rgba(18, 30, 49, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.72);
 }
 
 .agent-ops-route-card-decision {
-  background: rgba(44, 62, 80, 0.58);
+  background: #fffbeb;
   border-color: rgba(212, 175, 55, 0.42);
 }
 
 .agent-ops-route-card-kanban,
 .agent-ops-metric-blue {
-  background: rgba(20, 42, 63, 0.72);
+  background: #eff6ff;
 }
 
 .agent-ops-route-card-console,
 .agent-ops-metric-neutral {
-  background: rgba(18, 30, 49, 0.72);
+  background: var(--card);
 }
 
 .agent-ops-route-card-health,
 .agent-ops-metric-green {
-  background: rgba(22, 50, 48, 0.58);
+  background: #ecfdf5;
 }
 
 .agent-ops-metric-yellow {
   border-color: rgba(212, 175, 55, 0.5);
-  background: rgba(44, 62, 80, 0.62);
+  background: #fffbeb;
   box-shadow: 0 0 22px rgba(212, 175, 55, 0.08);
 }
 
 .agent-ops-metric-red {
-  background: rgba(63, 36, 48, 0.58);
+  background: #fff1f2;
 }
 
 .agent-ops-metric {
-  border-color: rgba(212, 175, 55, 0.18);
+  border-color: var(--border);
+  color: var(--card-foreground);
   box-shadow:
-    inset 0 1px 0 rgba(234, 236, 238, 0.05),
-    0 12px 30px rgba(0, 0, 0, 0.16);
+    inset 0 1px 0 rgba(255, 255, 255, 0.62),
+    0 12px 30px rgba(18, 30, 49, 0.08);
 }
 
 .agent-ops-route-card:hover,
@@ -530,7 +534,73 @@ html.dark .card-brand {
   box-shadow:
     0 0 0 1px rgba(212, 175, 55, 0.1),
     0 0 34px rgba(212, 175, 55, 0.12),
-    0 18px 48px rgba(0, 0, 0, 0.24);
+    0 18px 48px rgba(18, 30, 49, 0.13);
+}
+
+html.dark .agent-ops-page {
+  background:
+    radial-gradient(circle at 18% 0%, rgba(212, 175, 55, 0.045), transparent 28rem),
+    linear-gradient(180deg, #121e31 0%, #0f1a2b 100%);
+}
+
+html.dark .agent-ops-page::before {
+  background:
+    linear-gradient(rgba(234, 236, 238, 0.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(234, 236, 238, 0.014) 1px, transparent 1px);
+}
+
+html.dark .agent-ops-panel {
+  border-color: rgba(212, 175, 55, 0.2);
+  background: rgba(18, 30, 49, 0.78);
+  box-shadow: 0 18px 46px rgba(0, 0, 0, 0.24), inset 0 1px 0 rgba(234, 236, 238, 0.055);
+}
+
+html.dark .agent-ops-panel::before,
+html.dark .agent-ops-surface-header::before,
+html.dark .agent-ops-command-card::before,
+html.dark .agent-ops-route-card::before,
+html.dark .agent-ops-drill-card::before {
+  background: radial-gradient(circle at 18% 0%, rgba(212, 175, 55, 0.055), transparent 14rem), linear-gradient(135deg, rgba(255, 255, 255, 0.035), transparent 46%);
+}
+
+html.dark .agent-ops-route-card,
+html.dark .agent-ops-card,
+html.dark .agent-ops-drill-card {
+  border-color: rgba(212, 175, 55, 0.16);
+  background: rgba(18, 30, 49, 0.72);
+  box-shadow: inset 0 1px 0 rgba(234, 236, 238, 0.045), 0 12px 28px rgba(0, 0, 0, 0.16);
+}
+
+html.dark .agent-ops-surface-header {
+  border-color: rgba(212, 175, 55, 0.24);
+  background: radial-gradient(circle at 12% 0%, rgba(212, 175, 55, 0.07), transparent 18rem), rgba(18, 30, 49, 0.78);
+  box-shadow: 0 18px 46px rgba(0, 0, 0, 0.22), inset 0 1px 0 rgba(234, 236, 238, 0.065);
+}
+
+html.dark .agent-ops-button-muted {
+  border-color: rgba(100, 116, 139, 0.7);
+  background: rgba(18, 30, 49, 0.52);
+}
+
+html.dark .agent-ops-route-card-active,
+html.dark .agent-ops-command-card {
+  background: radial-gradient(circle at 18% 0%, rgba(212, 175, 55, 0.08), transparent 13rem), rgba(18, 30, 49, 0.9);
+  box-shadow: 0 0 0 1px rgba(212, 175, 55, 0.09), 0 0 28px rgba(212, 175, 55, 0.1), 0 16px 42px rgba(0, 0, 0, 0.24), inset 0 1px 0 rgba(245, 208, 96, 0.14);
+}
+
+html.dark .agent-ops-route-card-decision,
+html.dark .agent-ops-metric-yellow { background: rgba(44, 62, 80, 0.62); }
+html.dark .agent-ops-route-card-kanban,
+html.dark .agent-ops-metric-blue { background: rgba(20, 42, 63, 0.72); }
+html.dark .agent-ops-route-card-console,
+html.dark .agent-ops-metric-neutral { background: rgba(18, 30, 49, 0.72); }
+html.dark .agent-ops-route-card-health,
+html.dark .agent-ops-metric-green { background: rgba(22, 50, 48, 0.58); }
+html.dark .agent-ops-metric-red { background: rgba(63, 36, 48, 0.58); }
+
+html.dark .agent-ops-metric {
+  border-color: rgba(212, 175, 55, 0.18);
+  box-shadow: inset 0 1px 0 rgba(234, 236, 238, 0.05), 0 12px 30px rgba(0, 0, 0, 0.16);
 }
 
 /* ========================================
@@ -541,7 +611,7 @@ html.dark .card-brand {
   position: relative;
   background:
     radial-gradient(circle at 18% 0%, rgba(212, 175, 55, 0.04), transparent 28rem),
-    linear-gradient(180deg, #121e31 0%, #0f1a2b 100%);
+    var(--background);
 }
 
 .admin-console-panel,
@@ -594,11 +664,12 @@ html.dark .card-brand {
 .admin-console-surface-header,
 .admin-console-card,
 .admin-console-metric {
-  border-color: rgba(212, 175, 55, 0.16);
-  background: rgba(18, 30, 49, 0.72);
+  border-color: var(--border);
+  background: var(--card);
+  color: var(--card-foreground);
   box-shadow:
-    inset 0 1px 0 rgba(234, 236, 238, 0.045),
-    0 12px 28px rgba(0, 0, 0, 0.16);
+    inset 0 1px 0 rgba(255, 255, 255, 0.32),
+    0 12px 28px rgba(18, 30, 49, 0.08);
 }
 
 .admin-console-panel::before,
@@ -616,13 +687,13 @@ html.dark .card-brand {
 }
 
 .admin-console-surface-header {
-  border-color: rgba(212, 175, 55, 0.24);
+  border-color: var(--border);
   background:
     radial-gradient(circle at 12% 0%, rgba(212, 175, 55, 0.06), transparent 18rem),
-    rgba(18, 30, 49, 0.78);
+    var(--card);
   box-shadow:
-    0 18px 46px rgba(0, 0, 0, 0.22),
-    inset 0 1px 0 rgba(234, 236, 238, 0.065);
+    0 18px 46px rgba(18, 30, 49, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.36);
 }
 
 .admin-console-interactive:hover,
@@ -641,7 +712,7 @@ button.admin-console-metric:hover {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  color: var(--radiant-gold);
+  color: var(--accent);
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.16em;
@@ -673,9 +744,9 @@ button.admin-console-metric:hover {
 }
 
 .admin-console-button-secondary {
-  border: 1px solid rgba(212, 175, 55, 0.5);
+  border: 1px solid var(--border);
   background: rgba(212, 175, 55, 0.1);
-  color: var(--radiant-gold);
+  color: var(--accent);
 }
 
 .admin-console-button-secondary:hover {
@@ -683,13 +754,33 @@ button.admin-console-metric:hover {
 }
 
 .admin-console-button-muted {
-  border: 1px solid rgba(100, 116, 139, 0.7);
-  background: rgba(18, 30, 49, 0.52);
+  border: 1px solid var(--border);
+  background: var(--muted);
   color: var(--foreground);
 }
 
 .admin-console-button-muted:hover {
   border-color: rgba(245, 208, 96, 0.6);
+}
+
+html.dark .admin-console-panel,
+html.dark .admin-console-surface-header,
+html.dark .admin-console-card,
+html.dark .admin-console-metric {
+  box-shadow:
+    inset 0 1px 0 rgba(234, 236, 238, 0.045),
+    0 12px 28px rgba(0, 0, 0, 0.16);
+}
+
+html.dark .admin-console-surface-header {
+  box-shadow:
+    0 18px 46px rgba(0, 0, 0, 0.22),
+    inset 0 1px 0 rgba(234, 236, 238, 0.065);
+}
+
+html.dark .admin-console-eyebrow,
+html.dark .admin-console-button-secondary {
+  color: var(--radiant-gold);
 }
 
 /* ========================================

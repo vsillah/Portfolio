@@ -2,6 +2,9 @@ import { fireEvent, render, screen, waitFor, within } from '@testing-library/rea
 import type { ReactNode } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import SocialContentDetailRoute from './page'
+import { deterministicVisualBindingQaFixture } from '@/lib/social-deterministic-visual-qa-fixture'
+import { buildDeterministicVisualRecipePatch, projectDeterministicVisualRender } from '@/lib/social-deterministic-visual'
+import { socialCopyVersion } from '@/lib/social-copy-revision'
 import { topicSourceCoverageQaFixture } from '@/lib/social-topic-source-coverage-qa-fixture'
 
 const mocks = vi.hoisted(() => ({
@@ -201,6 +204,279 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(fetchMock.mock.calls.some(([input]) => String(input).includes('/topic-backlog'))).toBe(false)
   })
 
+  it('renders the approved provider-none candidate and records the current receipt without external calls', async () => {
+    const readyItem = deterministicVisualBindingQaFixture('ready')
+    const currentItem = deterministicVisualBindingQaFixture('current')
+    mocks.id = readyItem.id
+    mocks.search = 'step=visuals&qa_state=ready'
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      if (String(input).includes('/render-deterministic-visual') && init?.method === 'POST') {
+        return {
+          ok: true,
+          json: async () => ({
+            fixture: true,
+            idempotent: false,
+            message: 'Synthetic deterministic review asset rendered',
+            item: currentItem,
+            render: currentItem.deterministic_visual_render,
+          }),
+        } as Response
+      }
+      return {
+        ok: true,
+        json: async () => ({ fixture: true, fixture_state: 'ready', item: readyItem }),
+      } as Response
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    render(<SocialContentDetailRoute />)
+
+    expect(await screen.findAllByText('Ready to render')).toHaveLength(2)
+    expect(screen.getByText('Provider none')).toBeVisible()
+    expect(screen.getByText('proof stacking')).toBeVisible()
+    expect(screen.getByText(/Editorial and persuasion structure already applied/i)).toBeVisible()
+    expect(screen.getByText(/2 deterministic templates currently available/i)).toBeVisible()
+    expect(screen.getByText(/1 render-enabled/i)).toBeVisible()
+    const effectiveInputs = screen.getByLabelText('Effective deterministic visual inputs')
+    expect(effectiveInputs).not.toHaveAttribute('open')
+    fireEvent.click(within(effectiveInputs).getByText(/Effective persisted inputs/))
+    expect(within(effectiveInputs).getAllByText('architecture').length).toBeGreaterThanOrEqual(2)
+    expect(within(effectiveInputs).getByText(/Effective persisted inputs/)).toBeVisible()
+    expect(within(effectiveInputs).getAllByText(/Constraint/).length).toBeGreaterThanOrEqual(2)
+    expect(within(effectiveInputs).getByText('provider_none_structured_html_svg')).toBeVisible()
+    expect(within(effectiveInputs).getByText(/constraint_decision_result/)).toBeVisible()
+    expect(within(effectiveInputs).getByText('1.91:1')).toBeVisible()
+    expect(within(effectiveInputs).getByText(/Every Friday/)).toBeVisible()
+    expect(within(effectiveInputs).getByText(/Saved deterministic candidate/)).toBeVisible()
+    expect(screen.queryByRole('textbox', { name: /image prompt/i })).not.toBeInTheDocument()
+    expect(screen.getByText(/stored, collapsed, and excluded from this render/i)).toBeVisible()
+    const rationale = screen.getByLabelText('Why this image will look this way')
+    expect(rationale).not.toHaveAttribute('open')
+    fireEvent.click(within(rationale).getByText('Why this image will look this way'))
+    expect(rationale).toHaveAttribute('open')
+    expect(screen.getByText(/Gemini, HeyGen, n8n media, platform drafts, scheduling, publishing, and external sends stay off/i)).toBeVisible()
+    const workflowSteps = Array.from(document.querySelectorAll('[data-visual-workflow-step]'))
+    expect(workflowSteps.map((element) => element.getAttribute('data-visual-workflow-step'))).toEqual([
+      'configure',
+      'generate',
+      'decide',
+    ])
+    const mediaPackage = screen.getByText('Next: media package').closest('details')
+    expect(mediaPackage).not.toHaveAttribute('open')
+    const renderButton = screen.getByRole('button', { name: 'Render review visual' })
+    expect(renderButton).toBeEnabled()
+    fireEvent.click(renderButton)
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledWith(
+        expect.stringContaining('/render-deterministic-visual'),
+        expect.objectContaining({ method: 'POST' }),
+      )
+    })
+    const renderCall = fetchMock.mock.calls.find(([input]) => String(input).includes('/render-deterministic-visual'))
+    const renderBody = JSON.parse(String(renderCall?.[1]?.body))
+    expect(renderBody).toMatchObject({
+      expected_copy_version: readyItem.deterministic_visual_render?.copy_version,
+      expected_candidate_id: readyItem.deterministic_visual_render?.candidate_id,
+      expected_candidate_hash: readyItem.deterministic_visual_render?.candidate_hash,
+      expected_visual_type: readyItem.deterministic_visual_render?.visual_type,
+      expected_recipe_version: readyItem.deterministic_visual_render?.inputs.recipe_version,
+      qa_state: 'ready',
+      qa_visual_recipe: {
+        template: 'constraint_decision_result',
+        visual_type: 'architecture',
+        aspect_ratio: '1.91:1',
+      },
+    })
+    expect(JSON.stringify(renderBody)).not.toMatch(/image_prompt|provider art direction|Create a framework visual/i)
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Render again' })).toBeEnabled()
+    })
+    expect(screen.getByRole('button', { name: 'Change recipe' })).toBeEnabled()
+    expect(screen.getAllByText('Current asset').length).toBeGreaterThanOrEqual(2)
+    expect(screen.getByText(/provider none · external call false/i)).toBeVisible()
+    expect((await screen.findAllByAltText('Deterministic AmaduTown review asset')).length).toBeGreaterThan(0)
+    expect(fetchMock.mock.calls.some(([input]) => /generate-image|gemini|heygen|n8n/i.test(String(input)))).toBe(false)
+  })
+
+  it('keeps an already-current deterministic review asset explicit and idempotent', async () => {
+    const currentItem = deterministicVisualBindingQaFixture('current')
+    mocks.id = currentItem.id
+    mocks.search = 'step=visuals&qa_state=current'
+    vi.stubGlobal('fetch', vi.fn(async () => ({
+      ok: true,
+      json: async () => ({ fixture: true, fixture_state: 'current', item: currentItem }),
+    })))
+
+    render(<SocialContentDetailRoute />)
+
+    expect(await screen.findByText('This asset matches the approved copy, saved recipe, and current candidate.')).toBeVisible()
+    expect(screen.getByRole('button', { name: 'Render again' })).toBeEnabled()
+    expect(screen.getByRole('button', { name: 'Change recipe' })).toBeEnabled()
+    expect(screen.getAllByText('Current asset').length).toBeGreaterThanOrEqual(2)
+    expect(screen.getByText(/already-current result remains idempotent/i)).toBeVisible()
+    expect(screen.getByText(/provider none · external call false/i)).toBeVisible()
+
+    fireEvent.change(screen.getByLabelText(/Aspect ratio · editable/i), { target: { value: '4:5' } })
+    expect(screen.getAllByText('Changes not saved').length).toBeGreaterThanOrEqual(2)
+    expect(screen.getByRole('button', { name: 'Save changes and rebuild candidate' })).toBeEnabled()
+    expect(screen.getByText(/Stale asset · visible for comparison/i)).toBeVisible()
+    expect(screen.getByRole('button', { name: /Approve Visuals/i })).toBeDisabled()
+  })
+
+  it('routes a persisted stale asset directly to the updated render action', async () => {
+    const staleItem = deterministicVisualBindingQaFixture('stale')
+    mocks.id = staleItem.id
+    mocks.search = 'step=visuals&qa_state=stale'
+    vi.stubGlobal('fetch', vi.fn(async () => ({
+      ok: true,
+      json: async () => ({ fixture: true, fixture_state: 'stale', item: staleItem }),
+    })))
+
+    render(<SocialContentDetailRoute />)
+
+    expect(await screen.findAllByText('Rendered asset stale')).toHaveLength(2)
+    expect(screen.getByRole('button', { name: 'Render updated visual' })).toBeEnabled()
+    expect(screen.getByText(/Stale asset · visible for comparison/i)).toBeVisible()
+    expect(screen.getByRole('button', { name: /Approve Visuals/i })).toBeDisabled()
+  })
+
+  it('requires a persisted exact recipe before rendering and fails closed for unsupported template combinations', async () => {
+    const realItem = structuredClone(deterministicVisualBindingQaFixture('ready'))
+    realItem.id = 'visual-config-real'
+    const realRagContext = structuredClone(realItem.rag_context ?? {}) as Record<string, unknown>
+    delete realRagContext.qa_fixture
+    realItem.rag_context = realRagContext
+    realItem.deterministic_visual_render = projectDeterministicVisualRender({
+      item: realItem,
+      copyVersion: socialCopyVersion(realItem),
+      storageAvailable: true,
+    })
+    mocks.id = realItem.id
+    mocks.search = 'step=visuals'
+
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
+      if (init?.method === 'PUT') {
+        const body = JSON.parse(String(init.body))
+        const recipePatch = buildDeterministicVisualRecipePatch({ item: realItem, selection: body.visual_recipe })
+        const savedItem = {
+          ...realItem,
+          ...recipePatch,
+          rag_context: {
+            ...realItem.rag_context,
+            ...recipePatch.rag_context,
+          },
+          image_url: null,
+          updated_at: '2026-10-10T20:06:00.000Z',
+        }
+        savedItem.deterministic_visual_render = projectDeterministicVisualRender({
+          item: savedItem,
+          copyVersion: socialCopyVersion(savedItem),
+          storageAvailable: true,
+        })
+        return { ok: true, json: async () => ({ item: savedItem }) } as Response
+      }
+      return { ok: true, json: async () => ({ item: realItem }) } as Response
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    render(<SocialContentDetailRoute />)
+
+    const renderButton = await screen.findByRole('button', { name: 'Render review visual' })
+    expect(renderButton).toBeEnabled()
+    fireEvent.change(screen.getByLabelText(/Visual template · editable/i), { target: { value: 'practitioner_signal_card' } })
+
+    expect(renderButton).toBeDisabled()
+    expect(screen.getAllByText(/does not have an enabled deterministic renderer/i)).toHaveLength(2)
+    expect(screen.getByRole('button', { name: 'Save changes and rebuild candidate' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: /Approve Visuals/i })).toBeDisabled()
+    expect(fetchMock.mock.calls.some(([input]) => String(input).includes('/render-deterministic-visual'))).toBe(false)
+
+    fireEvent.change(screen.getByLabelText(/Visual template · editable/i), { target: { value: 'constraint_decision_result' } })
+    fireEvent.change(screen.getByLabelText(/Aspect ratio · editable/i), { target: { value: '4:5' } })
+
+    expect(screen.getAllByText('Changes not saved').length).toBeGreaterThanOrEqual(2)
+    expect(screen.getByRole('button', { name: 'Save changes and rebuild candidate' })).toBeEnabled()
+    expect(screen.getByRole('button', { name: /Approve Visuals/i })).toBeDisabled()
+    expect(fetchMock.mock.calls.some(([input]) => String(input).includes('/render-deterministic-visual'))).toBe(false)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Save changes and rebuild candidate' }))
+    await waitFor(() => expect(fetchMock.mock.calls.some(([, init]) => init?.method === 'PUT')).toBe(true))
+    const putCall = fetchMock.mock.calls.find(([, init]) => init?.method === 'PUT')
+    expect(JSON.parse(String(putCall?.[1]?.body))).toEqual({
+      expected_copy_version: realItem.deterministic_visual_render?.copy_version,
+      visual_recipe: {
+        template: 'constraint_decision_result',
+        visual_type: 'architecture',
+        aspect_ratio: '4:5',
+      },
+    })
+    expect(await screen.findAllByText('Candidate rebuilt')).toHaveLength(2)
+    expect(screen.getByRole('button', { name: 'Render updated visual' })).toBeEnabled()
+  })
+
+  it('inherits the system-light theme without leaking dark review-panel chrome', async () => {
+    const readyItem = deterministicVisualBindingQaFixture('ready')
+    mocks.id = readyItem.id
+    mocks.search = 'step=visuals&qa=deterministic-visual-binding&qa_state=ready'
+    document.documentElement.classList.remove('dark')
+    vi.stubGlobal('fetch', vi.fn(async () => ({
+      ok: true,
+      json: async () => ({ fixture: true, fixture_state: 'ready', item: readyItem }),
+    })))
+
+    render(<SocialContentDetailRoute />)
+
+    const detail = await screen.findByTestId('social-content-detail')
+    expect(detail).toHaveClass('bg-background', 'text-foreground')
+    expect(detail).not.toHaveClass('dark')
+
+    const surfaces = Array.from(detail.querySelectorAll<HTMLElement>('[data-theme-surface]'))
+    expect(surfaces.map((surface) => surface.dataset.themeSurface)).toEqual(expect.arrayContaining([
+      'sticky-header',
+      'campaign-copy-review',
+      'approval-process',
+      'approval-details',
+      'visual-assets',
+      'visual-production',
+      'render-status',
+      'voiceover',
+      'campaign-video-review',
+      'linkedin-preview-chrome',
+    ]))
+    for (const surface of surfaces) {
+      expect(surface.className).not.toMatch(/(?:^|\s)(?:bg|border|text)-gray-(?:7|8|9)\d{2}(?:\/\d+)?(?:\s|$)/)
+    }
+
+    const previewCanvas = within(detail).getByLabelText('LinkedIn post preview')
+    expect(previewCanvas).toHaveAttribute('data-media-canvas', 'linkedin-post-preview')
+    expect(within(detail).getByText('Follows Portfolio theme')).toBeVisible()
+    expect(previewCanvas).toHaveClass('bg-background', 'text-foreground', 'border-border')
+    expect(previewCanvas.className).not.toMatch(/bg-gray-950|text-gray-100/)
+  })
+
+  it.each([
+    'missing_candidate',
+    'architecture_mismatch',
+    'storage_unavailable',
+  ] as const)('shows the %s recovery state without enabling a provider fallback', async (qaState) => {
+    const blockedItem = deterministicVisualBindingQaFixture(qaState)
+    mocks.id = blockedItem.id
+    mocks.search = `step=visuals&qa_state=${qaState}`
+    vi.stubGlobal('fetch', vi.fn(async () => ({
+      ok: true,
+      json: async () => ({ fixture: true, fixture_state: qaState, item: blockedItem }),
+    })))
+
+    render(<SocialContentDetailRoute />)
+
+    expect(await screen.findByText(blockedItem.deterministic_visual_render?.recovery_action ?? '')).toBeVisible()
+    expect(screen.getAllByText('Render blocked').length).toBeGreaterThanOrEqual(2)
+    expect(screen.getByRole('button', { name: 'Render unavailable' })).toBeDisabled()
+    expect(screen.getByText('Provider none')).toBeVisible()
+    expect(screen.queryByRole('button', { name: /Gemini|HeyGen|n8n/i })).not.toBeInTheDocument()
+  })
+
   it('renders LinkedIn campaign review for the linked canonical Instagram/Reels item', async () => {
     const item = { ...baseItem, platform: 'instagram', target_platforms: ['instagram'], rag_context: { source: 'social_content_calendar_authorization', calendar_item_id: 'cd314ba5-f2d5-4e7f-9439-0475475c7fa9' } }
     vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => ({
@@ -227,7 +503,7 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(voiceoverEditor).toHaveAttribute('rows', '6')
     expect(voiceoverEditor).toHaveClass('min-h-36', 'max-h-80', 'resize-y', 'overflow-y-hidden', 'sm:max-h-96', 'lg:max-h-[32rem]')
 
-    const imagePrompt = screen.getByText('Image Prompt').nextElementSibling
+    const imagePrompt = screen.getByLabelText('Legacy/provider image prompt')
     expect(imagePrompt).not.toHaveAttribute('data-social-script-editor')
     expect(imagePrompt).not.toHaveClass('min-h-36', 'max-h-80', 'sm:max-h-96', 'lg:max-h-[32rem]')
   })
@@ -820,12 +1096,13 @@ describe('SocialContentDetailRoute visual production review', () => {
     view.rerender(<SocialContentDetailRoute />)
 
     expect(await screen.findByText('Visual Production')).toBeInTheDocument()
-    expect(screen.getByText('Choose one visual format')).toBeInTheDocument()
-    expect(screen.getByText('Selected format')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /Generate Framework Illustration/i })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /Switch to App Screenshot Carousel/i })).toBeInTheDocument()
+    expect(screen.getByText('A. Configure visual')).toBeInTheDocument()
+    expect(screen.getByText('Selected')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Render unavailable/i })).toBeDisabled()
+    expect(screen.getByRole('button', { name: /App screenshot carousel/i })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Approve Visuals/i })).toBeDisabled()
     expect(screen.getByRole('button', { name: /Reject Visuals/i })).toBeDisabled()
+    fireEvent.click(screen.getByText('Next: media package'))
     expect(screen.getByRole('button', { name: /Approve Asset Packet/i })).toBeDisabled()
     expect(screen.getByRole('button', { name: /Reject Asset Packet/i })).toBeDisabled()
     expect(screen.getByRole('button', { name: /Approve Privacy Review/i })).toBeDisabled()
@@ -1273,8 +1550,10 @@ describe('SocialContentDetailRoute visual production review', () => {
 
     renderAtStep('visuals')
 
-    expect(await screen.findByText('Amina visual QA packet')).toBeInTheDocument()
-    expect(screen.getByText('Current Amina candidate')).toBeInTheDocument()
+    expect(await screen.findByText('Amina candidate evidence')).toBeInTheDocument()
+    fireEvent.click(screen.getByText('Amina candidate evidence'))
+    fireEvent.click(screen.getByText('Next: media package'))
+    expect(screen.getByText('Amina visual QA packet')).toBeInTheDocument()
     expect(screen.getByText('Amina packet attached')).toBeInTheDocument()
     expect(screen.getAllByText('single-image boundary card').length).toBeGreaterThanOrEqual(1)
     expect(screen.getAllByText(/Use an authority-ladder card/i).length).toBeGreaterThanOrEqual(1)
@@ -1478,8 +1757,8 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(within(approvalProcess).getByText('2')).toBeInTheDocument()
 
     const preview = screen.getByLabelText('LinkedIn post preview')
-    expect(preview.className).toContain('bg-gray-950/85')
-    expect(preview.className).toContain('text-gray-100')
+    expect(preview).toHaveClass('bg-background', 'text-foreground', 'border-border')
+    expect(preview.className).not.toMatch(/bg-gray-950|text-gray-100/)
 
     const decisionGate = screen.getByText('Copy Review Decision').closest('section')
     expect(decisionGate).not.toBeNull()
@@ -1520,7 +1799,7 @@ describe('SocialContentDetailRoute visual production review', () => {
 
     renderAtStep('copy')
 
-    const image = await screen.findByAltText('Generated framework illustration')
+    const image = await screen.findByAltText('Deterministic AmaduTown review asset')
     expect(image.className).toContain('object-contain')
     expect(image.className).not.toContain('object-cover')
     expect(image.parentElement?.className).toContain('aspect-[4/5]')
@@ -2080,7 +2359,8 @@ describe('SocialContentDetailRoute visual production review', () => {
 
     renderAtStep('visuals')
 
-    expect(await screen.findByText('Asset packet')).toBeInTheDocument()
+    expect(await screen.findByText('Next: media package')).toBeInTheDocument()
+    fireEvent.click(screen.getByText('Next: media package'))
     expect(screen.getAllByText('Asset packet: In review').length).toBeGreaterThan(1)
     expect(screen.getAllByText('Privacy: Blocked').length).toBeGreaterThan(0)
     expect(screen.getByRole('button', { name: /Approve Asset Packet/i })).not.toBeDisabled()
@@ -2208,8 +2488,8 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(screen.getByText('Controls are locked until the revised section is returned for review.')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Rejected' })).toBeDisabled()
     expect(screen.getByRole('button', { name: /Approve Visuals/i })).toBeDisabled()
-    expect(screen.getByRole('button', { name: /Regenerate Framework Illustration/i })).toBeDisabled()
-    expect(screen.getByRole('button', { name: /Switch to App Screenshot Carousel/i })).toBeDisabled()
+    expect(screen.getByRole('button', { name: /Render unavailable/i })).toBeDisabled()
+    expect(screen.getByRole('button', { name: /App screenshot carousel/i })).toBeDisabled()
   })
 
   it('locks asset packet actions while a rejected section is awaiting repair', async () => {
@@ -2236,6 +2516,7 @@ describe('SocialContentDetailRoute visual production review', () => {
 
     renderAtStep('visuals')
 
+    fireEvent.click(await screen.findByText('Next: media package'))
     expect(await screen.findByText('Asset packet revision in progress')).toBeInTheDocument()
     expect(screen.getAllByText('Asset packet: Rejected').length).toBeGreaterThan(1)
     expect(screen.getByText('Controls are locked until the revised section is returned for review.')).toBeInTheDocument()
