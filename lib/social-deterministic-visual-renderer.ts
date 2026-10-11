@@ -173,6 +173,12 @@ function horizontalSvg(
       ${renderText({ lines: [truncate(connector.label.toUpperCase(), 18)], x: middleX, y: 336, lineHeight: 0, className: 'connector', fontSize: 10, fontWeight: 700, letterSpacing: 0.8, anchor: 'middle' })}
     </g>`
   }).join('')
+  const resultBadge = spec.result_label
+    ? `<g transform="translate(62,276)">
+      <rect x="0" y="0" width="${Math.min(360, Math.max(190, spec.result_label.length * 9 + 42))}" height="36" rx="18" fill="#f4b942"/>
+      ${renderText({ lines: [truncate(spec.result_label.toUpperCase(), 36)], x: 20, y: 24, lineHeight: 0, className: 'result', fontSize: 15, fontWeight: 760, letterSpacing: 1 })}
+    </g>`
+    : ''
 
   return `<?xml version="1.0" encoding="UTF-8"?>
   <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
@@ -211,10 +217,7 @@ function horizontalSvg(
     <g transform="translate(700,112)">
       ${evidence.map((lines, index) => `<g transform="translate(0,${index * 62})"><circle cx="8" cy="-5" r="5" fill="#5dd4c8"/>${renderText({ lines, x: 27, y: 0, lineHeight: 20, className: 'evidence', fontSize: 16, fontWeight: 520 })}</g>`).join('')}
     </g>
-    <g transform="translate(62,276)">
-      <rect x="0" y="0" width="${Math.min(360, Math.max(190, spec.result_label.length * 9 + 42))}" height="36" rx="18" fill="#f4b942"/>
-      ${renderText({ lines: [truncate(spec.result_label.toUpperCase(), 36)], x: 20, y: 24, lineHeight: 0, className: 'result', fontSize: 15, fontWeight: 760, letterSpacing: 1 })}
-    </g>
+    ${resultBadge}
     <g data-visual-type="architecture">
       ${connectorPaths}
       ${cards}
@@ -258,6 +261,9 @@ function verticalSvg(
       ${renderText({ lines: [truncate(connector.label.toUpperCase(), 24)], x: 570, y: middleY + 5, lineHeight: 0, className: 'connector', fontSize: compact ? 12 : 14, fontWeight: 700, letterSpacing: 0.8 })}
     </g>`
   }).join('')
+  const resultBadge = spec.result_label
+    ? `<g transform="translate(70,${cardTop - 70})"><rect width="360" height="42" rx="21" fill="#f4b942"/>${renderText({ lines: [truncate(spec.result_label.toUpperCase(), 36)], x: 22, y: 28, lineHeight: 0, className: 'result', fontSize: 18, fontWeight: 760, letterSpacing: 1 })}</g>`
+    : ''
   return `<?xml version="1.0" encoding="UTF-8"?>
   <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
     <defs>
@@ -279,7 +285,7 @@ function verticalSvg(
     <circle cx="960" cy="100" r="220" fill="#f4b942" opacity="0.05"/>
     ${renderText({ lines: [spec.eyebrow.toUpperCase()], x: 70, y: top, lineHeight: 0, className: 'eyebrow', fontSize: 21, fontWeight: 750, letterSpacing: 3 })}
     ${renderText({ lines: headline, x: 70, y: top + 76, lineHeight: headlineSize + 5, className: 'headline', fontSize: headlineSize, fontWeight: 760, letterSpacing: -1 })}
-    <g transform="translate(70,${cardTop - 70})"><rect width="360" height="42" rx="21" fill="#f4b942"/>${renderText({ lines: [truncate(spec.result_label.toUpperCase(), 36)], x: 22, y: 28, lineHeight: 0, className: 'result', fontSize: 18, fontWeight: 760, letterSpacing: 1 })}</g>
+    ${resultBadge}
     <g data-visual-type="architecture">
       ${connectorPaths}
       ${cards}

@@ -437,7 +437,6 @@ function candidateBlocker(
     !spec.headline
     || !spec.eyebrow
     || spec.evidence_lines.length < 2
-    || !spec.result_label
     || !spec.visual_rationale
     || Object.values(spec.argument_map).some((value) => !value)
   ) {

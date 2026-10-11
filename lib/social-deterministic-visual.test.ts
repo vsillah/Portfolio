@@ -317,6 +317,25 @@ describe('deterministic Social Content visual binding', () => {
     expect(svg).not.toContain('<script>')
   })
 
+  it.each(['1.91:1', '4:5'] as const)(
+    'omits the result badge when the %s candidate intentionally has no result label',
+    (aspectRatio) => {
+      const item = approvedItem()
+      item.rag_context.practitioner_content_quality.deterministic_visual.result_label = ''
+      const projection = projectDeterministicVisualRender({
+        item,
+        copyVersion: socialCopyVersion(item),
+        storageAvailable: true,
+      })
+      const spec = readDeterministicVisualSpec(item.rag_context)!
+      const svg = buildDeterministicVisualSvg({ ...spec, aspect_ratio: aspectRatio }, 'architecture')
+
+      expect(projection).toMatchObject({ state: 'ready', code: 'ready', can_render: true })
+      expect(svg).not.toContain('METRIC PENDING')
+      expect(svg).toContain('data-architecture-node="result"')
+    },
+  )
+
   it.each(['1.91:1', '1:1', '4:5', '9:16'] as const)(
     'keeps internal governance wording out of the %s publication asset',
     (aspectRatio) => {
