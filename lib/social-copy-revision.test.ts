@@ -1,11 +1,40 @@
 import { describe, expect, it } from 'vitest'
 import { prepareSocialImageAttachment, prepareManualCopyUpdate, socialCopyRevisionView, socialCopyVersion } from './social-copy-revision'
+import { buildDeterministicVisualAssetPatch, deterministicVisualCandidateHash, deterministicVisualRenderInputHash, readDeterministicVisualSpec } from './social-deterministic-visual'
+import { practitionerContentQaFixture } from './social-practitioner-content-qa-fixture'
 const original = { id: 'social-fixture', status: 'draft', post_text: 'An operator reviewed the first draft.', updated_at: '2026-09-06T12:00:00.000Z', rag_context: { source: 'social_content_calendar_authorization' } }
 const now = '2026-09-06T13:00:00.000Z'
 function apply(current: typeof original, patch: Record<string, unknown>, expectedVersion = socialCopyVersion(current)) {
   return { ...current, ...prepareManualCopyUpdate({ current, patch, expectedVersion, actor: 'fixture-admin', now }) } as typeof original
 }
 describe('calendar copy manual revision contract', () => {
+  function boundDeterministicItem() {
+    const item = practitionerContentQaFixture('ready') as any
+    item.id = 'social-fixture'
+    item.status = 'approved'
+    item.rag_context.source = 'social_content_calendar_authorization'
+    item.rag_context.calendar_item_id = 'calendar-1'
+    delete item.rag_context.qa_fixture
+    const copyVersion = socialCopyVersion(item)
+    const spec = readDeterministicVisualSpec(item.rag_context)!
+    const candidateHash = deterministicVisualCandidateHash(spec)
+    const brandAssetHash = 'b'.repeat(64)
+    const renderInputHash = deterministicVisualRenderInputHash({ copyVersion, candidateHash, visualType: item.framework_visual_type, brandAssetHash })
+    Object.assign(item, buildDeterministicVisualAssetPatch({
+      item,
+      copyVersion,
+      candidateHash,
+      renderInputHash,
+      brandAssetHash,
+      assetSha256: 'a'.repeat(64),
+      assetUrl: 'https://storage.example/storage/v1/object/public/social-content/current.png',
+      storagePath: 'deterministic/social-fixture/current.png',
+      actor: 'fixture-admin',
+      renderedAt: now,
+    }))
+    return item
+  }
+
   it.each(['social_content_calendar_authorization','manual'])('preserves server release gate for %s client metadata', source => {
     const current={...original,rag_context:{source,platform_submission_gate:{status:'approved',approved_fingerprint:'server'}}}
     const patch=prepareManualCopyUpdate({current,patch:{rag_context:{platform_submission_gate:{status:'approved',approved_fingerprint:'forged'},notes:'safe'}},actor:'admin',now})
@@ -61,6 +90,66 @@ describe('calendar copy manual revision contract', () => {
   it('invalidates independent platform release approval when copy changes', () => {
     const current={...original,rag_context:{...original.rag_context,platform_submission_gate:{status:'approved',approved_by:'old-reviewer'}}}
     expect(apply(current,{post_text:'A new version'}).rag_context).toMatchObject({platform_submission_gate:{status:'pending',approved_by:null}})
+  })
+  it('invalidates the bound deterministic asset when approved copy changes', () => {
+    const current = boundDeterministicItem()
+    const patch = prepareManualCopyUpdate({
+      current,
+      patch: { post_text: 'A newer approved-copy candidate must be reviewed.' },
+      expectedVersion: socialCopyVersion(current),
+      actor: 'fixture-admin',
+      now,
+    })
+    expect(patch.image_url).toBeNull()
+    expect(patch.status).toBe('draft')
+    expect(patch.rag_context).toMatchObject({
+      deterministic_visual_asset: { status: 'stale', invalidation_reason: 'copy_version_changed' },
+      practitioner_content_quality: { deterministic_visual: { candidate: { artifact_url: null } } },
+      section_gate_reviews: {
+        visual_assets: { status: 'pending', invalidation_reason: 'copy_version_changed' },
+        privacy: { status: 'pending', invalidation_reason: 'copy_version_changed' },
+      },
+    })
+  })
+  it('invalidates the bound asset and requires a version token when candidate content changes', () => {
+    const current = boundDeterministicItem()
+    const ragContext = structuredClone(current.rag_context)
+    ragContext.practitioner_content_quality.deterministic_visual.headline = 'A newly reviewed deterministic headline.'
+    expect(() => prepareManualCopyUpdate({ current, patch: { rag_context: ragContext }, actor: 'fixture-admin', now })).toThrow('current copy version is required')
+    const patch = prepareManualCopyUpdate({
+      current,
+      patch: { rag_context: ragContext },
+      expectedVersion: socialCopyVersion(current),
+      actor: 'fixture-admin',
+      now,
+    })
+    expect(patch.image_url).toBeNull()
+    expect(patch.status).toBeUndefined()
+    expect(patch.rag_context).toMatchObject({
+      deterministic_visual_asset: { status: 'stale', invalidation_reason: 'candidate_changed' },
+      practitioner_content_quality: { deterministic_visual: { headline: 'A newly reviewed deterministic headline.', candidate: { artifact_url: null } } },
+    })
+  })
+  it('invalidates the bound asset when the selected visual type changes', () => {
+    const current = boundDeterministicItem()
+    current.rag_context.section_gate_reviews.visual_assets = { status: 'approved' }
+    current.rag_context.section_gate_reviews.privacy = { status: 'approved' }
+    const patch = prepareManualCopyUpdate({
+      current,
+      patch: { framework_visual_type: 'timeline' },
+      expectedVersion: socialCopyVersion(current),
+      actor: 'fixture-admin',
+      now,
+    })
+    expect(patch.image_url).toBeNull()
+    expect(patch.rag_context).toMatchObject({
+      deterministic_visual_asset: { status: 'stale', invalidation_reason: 'candidate_changed' },
+      practitioner_content_quality: { deterministic_visual: { candidate: { artifact_url: null } } },
+      section_gate_reviews: {
+        visual_assets: { status: 'pending', invalidation_reason: 'candidate_changed' },
+        privacy: { status: 'pending', invalidation_reason: 'candidate_changed' },
+      },
+    })
   })
   it('keeps leaked prompt text out of returned human review', () => {
     const rejected=apply(original,{status:'rejected'})

@@ -1,4 +1,4 @@
-import { HORMOZI_FRAMEWORK_TYPES, type HormoziFramework, type HormoziFrameworkType, type SocialContentItem, type SocialPlatform } from '@/lib/social-content'
+import { HORMOZI_FRAMEWORK_TYPES, type FrameworkVisualType, type HormoziFramework, type HormoziFrameworkType, type SocialContentItem, type SocialPlatform } from '@/lib/social-content'
 import type { SocialContentExperimentTags } from '@/lib/social-content-calibration-library'
 
 export const PRACTITIONER_CONTENT_QUALITY_VERSION = 'practitioner_evidence_v1' as const
@@ -89,6 +89,7 @@ export type PractitionerFrameworkApplicationReceipt = {
 
 export type DeterministicVisualSpec = {
   system_version: typeof AMADUTOWN_VISUAL_SYSTEM_VERSION
+  visual_type: FrameworkVisualType
   template: 'practitioner_signal_card' | 'constraint_decision_result'
   aspect_ratio: '1.91:1' | '1:1' | '4:5' | '9:16'
   eyebrow: string
@@ -103,6 +104,18 @@ export type DeterministicVisualSpec = {
     practical_takeaway: string
   }
   visual_rationale: string
+  architecture: {
+    nodes: Array<{
+      id: string
+      label: string
+      body: string
+    }>
+    connectors: Array<{
+      from: string
+      to: string
+      label: string
+    }>
+  } | null
   candidate: {
     candidate_id: string
     status: 'draft' | 'in_review' | 'approved' | 'rejected'
@@ -115,6 +128,39 @@ export type DeterministicVisualSpec = {
     receipt_id: string
     status: 'not_called' | 'receipt_recorded'
   }
+}
+
+export function deterministicArchitectureStructureIssue(spec: DeterministicVisualSpec): string | null {
+  if (spec.visual_type !== 'architecture') return null
+  if (spec.template !== 'constraint_decision_result') {
+    return 'Architecture visuals require the constraint_decision_result template.'
+  }
+  const nodes = spec.architecture?.nodes ?? []
+  const connectors = spec.architecture?.connectors ?? []
+  if (nodes.length !== 3) {
+    return 'Architecture visuals require exactly three labeled nodes.'
+  }
+  const nodeIds = new Set(nodes.map((node) => node.id))
+  if (
+    nodeIds.size !== nodes.length
+    || nodes.some((node) => !node.id || !node.label || !node.body)
+  ) {
+    return 'Architecture nodes require unique IDs, visible labels, and body text.'
+  }
+  if (connectors.length !== nodes.length - 1) {
+    return 'Architecture visuals require explicit connectors between every adjacent node.'
+  }
+  for (let index = 0; index < connectors.length; index += 1) {
+    const connector = connectors[index]
+    if (
+      connector.from !== nodes[index].id
+      || connector.to !== nodes[index + 1].id
+      || !connector.label
+    ) {
+      return 'Architecture connectors must form one labeled path through the ordered nodes.'
+    }
+  }
+  return null
 }
 
 export type PractitionerContentQualityRecord = {
@@ -302,9 +348,11 @@ function parseFrameworkApplication(value: unknown): PractitionerFrameworkApplica
 function parseVisual(value: unknown): DeterministicVisualSpec | null {
   const visual = asRecord(value)
   const receipt = asRecord(visual?.art_direction_receipt)
+  const architecture = asRecord(visual?.architecture)
   if (!visual || !receipt) return null
   return {
     system_version: asString(visual.system_version) as typeof AMADUTOWN_VISUAL_SYSTEM_VERSION,
+    visual_type: asString(visual.visual_type) as FrameworkVisualType,
     template: asString(visual.template) as DeterministicVisualSpec['template'],
     aspect_ratio: asString(visual.aspect_ratio) as DeterministicVisualSpec['aspect_ratio'],
     eyebrow: asString(visual.eyebrow),
@@ -319,6 +367,24 @@ function parseVisual(value: unknown): DeterministicVisualSpec | null {
       practical_takeaway: asString(asRecord(visual.argument_map)?.practical_takeaway),
     },
     visual_rationale: asString(visual.visual_rationale),
+    architecture: architecture
+      ? {
+          nodes: Array.isArray(architecture.nodes)
+            ? architecture.nodes.map(asRecord).filter(Boolean).map((node) => ({
+                id: asString(node?.id),
+                label: asString(node?.label),
+                body: asString(node?.body),
+              }))
+            : [],
+          connectors: Array.isArray(architecture.connectors)
+            ? architecture.connectors.map(asRecord).filter(Boolean).map((connector) => ({
+                from: asString(connector?.from),
+                to: asString(connector?.to),
+                label: asString(connector?.label),
+              }))
+            : [],
+        }
+      : null,
     candidate: {
       candidate_id: asString(asRecord(visual.candidate)?.candidate_id),
       status: asString(asRecord(visual.candidate)?.status) as DeterministicVisualSpec['candidate']['status'],
@@ -518,7 +584,7 @@ export function validatePractitionerContentQuality(
   }
 
   const visual = record?.deterministic_visual
-  if (visual?.system_version !== AMADUTOWN_VISUAL_SYSTEM_VERSION || !visual.headline || visual.evidence_lines.length < 2 || !visual.visual_rationale) {
+  if (visual?.system_version !== AMADUTOWN_VISUAL_SYSTEM_VERSION || !visual.visual_type || !visual.headline || visual.evidence_lines.length < 2 || !visual.visual_rationale) {
     findings.push({ code: 'deterministic_visual_missing', message: 'Complete the deterministic AmaduTown visual specification.' })
   }
   if (visual && !['1.91:1', '1:1', '4:5', '9:16'].includes(visual.aspect_ratio)) {
@@ -529,6 +595,12 @@ export function validatePractitionerContentQuality(
   }
   if (!visual?.candidate.candidate_id || visual.candidate.renderer !== 'html_svg' || visual.candidate.status !== 'in_review') {
     findings.push({ code: 'visual_candidate_not_ready', message: 'Create an HTML/SVG visual candidate and place it in the existing in-review lifecycle.' })
+  }
+  if (visual) {
+    const architectureIssue = deterministicArchitectureStructureIssue(visual)
+    if (architectureIssue) {
+      findings.push({ code: 'architecture_structure_invalid', message: architectureIssue })
+    }
   }
   const argumentMap = visual?.argument_map
   const argumentValues = argumentMap ? Object.values(argumentMap) : []
@@ -595,7 +667,7 @@ export function buildPractitionerContentQualityScaffold(input: {
     evidence_type: 'metric_pending',
     hook_framework: '',
     channel: input.channel,
-    visual_treatment: 'deterministic_practitioner_signal_card',
+    visual_treatment: 'deterministic_architecture',
     hypothesis: '',
     causal_claim_boundary: 'correlational_only',
     captured_engagement: null,
@@ -666,7 +738,8 @@ export function buildPractitionerContentQualityScaffold(input: {
     },
     deterministic_visual: {
       system_version: AMADUTOWN_VISUAL_SYSTEM_VERSION,
-      template: 'practitioner_signal_card',
+      visual_type: 'architecture' as const,
+      template: 'constraint_decision_result',
       aspect_ratio: aspectRatioForPlatform(input.channel),
       eyebrow: 'Field note',
       headline: input.title,
@@ -680,6 +753,17 @@ export function buildPractitionerContentQualityScaffold(input: {
         practical_takeaway: '',
       },
       visual_rationale: input.plannedAngle ? `Support the approved practitioner story for: ${input.plannedAngle}` : '',
+      architecture: {
+        nodes: [
+          { id: 'constraint', label: 'Constraint', body: '' },
+          { id: 'decision', label: 'Human decision', body: '' },
+          { id: 'result', label: 'Bounded result', body: '' },
+        ],
+        connectors: [
+          { from: 'constraint', to: 'decision', label: 'Rules enter one queue' },
+          { from: 'decision', to: 'result', label: 'Decision produces evidence' },
+        ],
+      },
       candidate: {
         candidate_id: '',
         status: 'draft',

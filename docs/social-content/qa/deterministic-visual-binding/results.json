@@ -1,0 +1,806 @@
+[
+  {
+    "width": 390,
+    "height": 844,
+    "theme": "system-light",
+    "persisted_theme": "system",
+    "resolved_theme": "light",
+    "route": "http://127.0.0.1:4033/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=deterministic-visual-binding&qa_state=ready",
+    "fixture_states": [
+      "ready",
+      "current",
+      "missing_candidate",
+      "architecture_mismatch",
+      "storage_unavailable"
+    ],
+    "fixture_responses": [
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
+        "state": "ready"
+      },
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa/render-deterministic-visual",
+        "state": "current"
+      },
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
+        "state": "missing_candidate"
+      },
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
+        "state": "architecture_mismatch"
+      },
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
+        "state": "storage_unavailable"
+      }
+    ],
+    "workflow_order": [
+      "format",
+      "configuration",
+      "render",
+      "preview",
+      "decision"
+    ],
+    "deterministic_image_prompt_controls": 0,
+    "content_lane": {
+      "left": 0,
+      "right": 390,
+      "width": 390,
+      "usableWidth": 358,
+      "viewportWidth": 390
+    },
+    "contrast_checks": [
+      {
+        "name": "current-review-state",
+        "ratio": 7,
+        "minimum": 4.5
+      },
+      {
+        "name": "render-summary",
+        "ratio": 15.39,
+        "minimum": 4.5
+      },
+      {
+        "name": "render-recovery",
+        "ratio": 6.97,
+        "minimum": 4.5
+      },
+      {
+        "name": "campaign-video-review-title",
+        "ratio": 16.72,
+        "minimum": 4.5
+      }
+    ],
+    "theme_surfaces": [
+      {
+        "name": "sticky-header",
+        "luminance": 0.92
+      },
+      {
+        "name": "campaign-copy-review",
+        "luminance": 1
+      },
+      {
+        "name": "approval-process",
+        "luminance": 1
+      },
+      {
+        "name": "approval-details",
+        "luminance": 1
+      },
+      {
+        "name": "visual-assets",
+        "luminance": 1
+      },
+      {
+        "name": "visual-production",
+        "luminance": 0.963
+      },
+      {
+        "name": "provider-boundary",
+        "luminance": 0.985
+      },
+      {
+        "name": "deterministic-configuration",
+        "luminance": 0.985
+      },
+      {
+        "name": "render-status",
+        "luminance": 0.916
+      },
+      {
+        "name": "voiceover",
+        "luminance": 1
+      },
+      {
+        "name": "campaign-video-review",
+        "luminance": 1
+      },
+      {
+        "name": "linkedin-preview-chrome",
+        "luminance": 1
+      }
+    ],
+    "dark_panel_leakage": [],
+    "light_panel_leakage": [],
+    "provider": "none",
+    "provider_calls": 0,
+    "shared_database_writes": 0,
+    "shared_storage_writes": 0,
+    "external_actions": 0,
+    "synthetic_render_requests": 1,
+    "horizontal_overflow": false,
+    "page_errors": []
+  },
+  {
+    "width": 768,
+    "height": 1000,
+    "theme": "system-light",
+    "persisted_theme": "system",
+    "resolved_theme": "light",
+    "route": "http://127.0.0.1:4033/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=deterministic-visual-binding&qa_state=ready",
+    "fixture_states": [
+      "ready",
+      "current",
+      "missing_candidate",
+      "architecture_mismatch",
+      "storage_unavailable"
+    ],
+    "fixture_responses": [
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
+        "state": "ready"
+      },
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa/render-deterministic-visual",
+        "state": "current"
+      },
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
+        "state": "missing_candidate"
+      },
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
+        "state": "architecture_mismatch"
+      },
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
+        "state": "storage_unavailable"
+      }
+    ],
+    "workflow_order": [
+      "format",
+      "configuration",
+      "render",
+      "preview",
+      "decision"
+    ],
+    "deterministic_image_prompt_controls": 0,
+    "content_lane": {
+      "left": 0,
+      "right": 768,
+      "width": 768,
+      "usableWidth": 720,
+      "viewportWidth": 768
+    },
+    "contrast_checks": [
+      {
+        "name": "current-review-state",
+        "ratio": 7,
+        "minimum": 4.5
+      },
+      {
+        "name": "render-summary",
+        "ratio": 15.39,
+        "minimum": 4.5
+      },
+      {
+        "name": "render-recovery",
+        "ratio": 6.97,
+        "minimum": 4.5
+      },
+      {
+        "name": "campaign-video-review-title",
+        "ratio": 16.72,
+        "minimum": 4.5
+      }
+    ],
+    "theme_surfaces": [
+      {
+        "name": "sticky-header",
+        "luminance": 0.92
+      },
+      {
+        "name": "campaign-copy-review",
+        "luminance": 1
+      },
+      {
+        "name": "approval-process",
+        "luminance": 1
+      },
+      {
+        "name": "approval-details",
+        "luminance": 1
+      },
+      {
+        "name": "visual-assets",
+        "luminance": 1
+      },
+      {
+        "name": "visual-production",
+        "luminance": 0.963
+      },
+      {
+        "name": "provider-boundary",
+        "luminance": 0.985
+      },
+      {
+        "name": "deterministic-configuration",
+        "luminance": 0.985
+      },
+      {
+        "name": "render-status",
+        "luminance": 0.916
+      },
+      {
+        "name": "voiceover",
+        "luminance": 1
+      },
+      {
+        "name": "campaign-video-review",
+        "luminance": 1
+      },
+      {
+        "name": "linkedin-preview-chrome",
+        "luminance": 1
+      }
+    ],
+    "dark_panel_leakage": [],
+    "light_panel_leakage": [],
+    "provider": "none",
+    "provider_calls": 0,
+    "shared_database_writes": 0,
+    "shared_storage_writes": 0,
+    "external_actions": 0,
+    "synthetic_render_requests": 1,
+    "horizontal_overflow": false,
+    "page_errors": []
+  },
+  {
+    "width": 1440,
+    "height": 1000,
+    "theme": "system-light",
+    "persisted_theme": "system",
+    "resolved_theme": "light",
+    "route": "http://127.0.0.1:4033/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=deterministic-visual-binding&qa_state=ready",
+    "fixture_states": [
+      "ready",
+      "current",
+      "missing_candidate",
+      "architecture_mismatch",
+      "storage_unavailable"
+    ],
+    "fixture_responses": [
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
+        "state": "ready"
+      },
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa/render-deterministic-visual",
+        "state": "current"
+      },
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
+        "state": "missing_candidate"
+      },
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
+        "state": "architecture_mismatch"
+      },
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
+        "state": "storage_unavailable"
+      }
+    ],
+    "workflow_order": [
+      "format",
+      "configuration",
+      "render",
+      "preview",
+      "decision"
+    ],
+    "deterministic_image_prompt_controls": 0,
+    "content_lane": {
+      "left": 264,
+      "right": 1440,
+      "width": 1176,
+      "usableWidth": 1112,
+      "viewportWidth": 1440
+    },
+    "contrast_checks": [
+      {
+        "name": "current-review-state",
+        "ratio": 7,
+        "minimum": 4.5
+      },
+      {
+        "name": "render-summary",
+        "ratio": 15.39,
+        "minimum": 4.5
+      },
+      {
+        "name": "render-recovery",
+        "ratio": 6.97,
+        "minimum": 4.5
+      },
+      {
+        "name": "campaign-video-review-title",
+        "ratio": 16.72,
+        "minimum": 4.5
+      }
+    ],
+    "theme_surfaces": [
+      {
+        "name": "sticky-header",
+        "luminance": 0.92
+      },
+      {
+        "name": "campaign-copy-review",
+        "luminance": 1
+      },
+      {
+        "name": "approval-process",
+        "luminance": 1
+      },
+      {
+        "name": "approval-details",
+        "luminance": 1
+      },
+      {
+        "name": "visual-assets",
+        "luminance": 1
+      },
+      {
+        "name": "visual-production",
+        "luminance": 0.963
+      },
+      {
+        "name": "provider-boundary",
+        "luminance": 0.985
+      },
+      {
+        "name": "deterministic-configuration",
+        "luminance": 0.985
+      },
+      {
+        "name": "render-status",
+        "luminance": 0.916
+      },
+      {
+        "name": "voiceover",
+        "luminance": 1
+      },
+      {
+        "name": "campaign-video-review",
+        "luminance": 1
+      },
+      {
+        "name": "linkedin-preview-chrome",
+        "luminance": 1
+      }
+    ],
+    "dark_panel_leakage": [],
+    "light_panel_leakage": [],
+    "provider": "none",
+    "provider_calls": 0,
+    "shared_database_writes": 0,
+    "shared_storage_writes": 0,
+    "external_actions": 0,
+    "synthetic_render_requests": 1,
+    "horizontal_overflow": false,
+    "page_errors": []
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "persisted_theme": "dark",
+    "resolved_theme": "dark",
+    "route": "http://127.0.0.1:4033/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=deterministic-visual-binding&qa_state=ready",
+    "fixture_states": [
+      "ready",
+      "current",
+      "missing_candidate",
+      "architecture_mismatch",
+      "storage_unavailable"
+    ],
+    "fixture_responses": [
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
+        "state": "ready"
+      },
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa/render-deterministic-visual",
+        "state": "current"
+      },
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
+        "state": "missing_candidate"
+      },
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
+        "state": "architecture_mismatch"
+      },
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
+        "state": "storage_unavailable"
+      }
+    ],
+    "workflow_order": [
+      "format",
+      "configuration",
+      "render",
+      "preview",
+      "decision"
+    ],
+    "deterministic_image_prompt_controls": 0,
+    "content_lane": {
+      "left": 0,
+      "right": 390,
+      "width": 390,
+      "usableWidth": 358,
+      "viewportWidth": 390
+    },
+    "contrast_checks": [
+      {
+        "name": "current-review-state",
+        "ratio": 7.87,
+        "minimum": 4.5
+      },
+      {
+        "name": "render-summary",
+        "ratio": 7.98,
+        "minimum": 4.5
+      },
+      {
+        "name": "render-recovery",
+        "ratio": 5.04,
+        "minimum": 4.5
+      },
+      {
+        "name": "campaign-video-review-title",
+        "ratio": 14.12,
+        "minimum": 4.5
+      }
+    ],
+    "theme_surfaces": [
+      {
+        "name": "sticky-header",
+        "luminance": 0.013
+      },
+      {
+        "name": "campaign-copy-review",
+        "luminance": 0.013
+      },
+      {
+        "name": "approval-process",
+        "luminance": 0.013
+      },
+      {
+        "name": "approval-details",
+        "luminance": 0.013
+      },
+      {
+        "name": "visual-assets",
+        "luminance": 0.013
+      },
+      {
+        "name": "visual-production",
+        "luminance": 0.024
+      },
+      {
+        "name": "provider-boundary",
+        "luminance": 0.042
+      },
+      {
+        "name": "deterministic-configuration",
+        "luminance": 0.042
+      },
+      {
+        "name": "render-status",
+        "luminance": 0.061
+      },
+      {
+        "name": "voiceover",
+        "luminance": 0.013
+      },
+      {
+        "name": "campaign-video-review",
+        "luminance": 0.013
+      },
+      {
+        "name": "linkedin-preview-chrome",
+        "luminance": 0.013
+      }
+    ],
+    "dark_panel_leakage": [],
+    "light_panel_leakage": [],
+    "provider": "none",
+    "provider_calls": 0,
+    "shared_database_writes": 0,
+    "shared_storage_writes": 0,
+    "external_actions": 0,
+    "synthetic_render_requests": 1,
+    "horizontal_overflow": false,
+    "page_errors": []
+  },
+  {
+    "width": 768,
+    "height": 1000,
+    "theme": "dark",
+    "persisted_theme": "dark",
+    "resolved_theme": "dark",
+    "route": "http://127.0.0.1:4033/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=deterministic-visual-binding&qa_state=ready",
+    "fixture_states": [
+      "ready",
+      "current",
+      "missing_candidate",
+      "architecture_mismatch",
+      "storage_unavailable"
+    ],
+    "fixture_responses": [
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
+        "state": "ready"
+      },
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa/render-deterministic-visual",
+        "state": "current"
+      },
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
+        "state": "missing_candidate"
+      },
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
+        "state": "architecture_mismatch"
+      },
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
+        "state": "storage_unavailable"
+      }
+    ],
+    "workflow_order": [
+      "format",
+      "configuration",
+      "render",
+      "preview",
+      "decision"
+    ],
+    "deterministic_image_prompt_controls": 0,
+    "content_lane": {
+      "left": 0,
+      "right": 768,
+      "width": 768,
+      "usableWidth": 720,
+      "viewportWidth": 768
+    },
+    "contrast_checks": [
+      {
+        "name": "current-review-state",
+        "ratio": 7.87,
+        "minimum": 4.5
+      },
+      {
+        "name": "render-summary",
+        "ratio": 7.98,
+        "minimum": 4.5
+      },
+      {
+        "name": "render-recovery",
+        "ratio": 5.04,
+        "minimum": 4.5
+      },
+      {
+        "name": "campaign-video-review-title",
+        "ratio": 14.12,
+        "minimum": 4.5
+      }
+    ],
+    "theme_surfaces": [
+      {
+        "name": "sticky-header",
+        "luminance": 0.013
+      },
+      {
+        "name": "campaign-copy-review",
+        "luminance": 0.013
+      },
+      {
+        "name": "approval-process",
+        "luminance": 0.013
+      },
+      {
+        "name": "approval-details",
+        "luminance": 0.013
+      },
+      {
+        "name": "visual-assets",
+        "luminance": 0.013
+      },
+      {
+        "name": "visual-production",
+        "luminance": 0.024
+      },
+      {
+        "name": "provider-boundary",
+        "luminance": 0.042
+      },
+      {
+        "name": "deterministic-configuration",
+        "luminance": 0.042
+      },
+      {
+        "name": "render-status",
+        "luminance": 0.061
+      },
+      {
+        "name": "voiceover",
+        "luminance": 0.013
+      },
+      {
+        "name": "campaign-video-review",
+        "luminance": 0.013
+      },
+      {
+        "name": "linkedin-preview-chrome",
+        "luminance": 0.013
+      }
+    ],
+    "dark_panel_leakage": [],
+    "light_panel_leakage": [],
+    "provider": "none",
+    "provider_calls": 0,
+    "shared_database_writes": 0,
+    "shared_storage_writes": 0,
+    "external_actions": 0,
+    "synthetic_render_requests": 1,
+    "horizontal_overflow": false,
+    "page_errors": []
+  },
+  {
+    "width": 1440,
+    "height": 1000,
+    "theme": "dark",
+    "persisted_theme": "dark",
+    "resolved_theme": "dark",
+    "route": "http://127.0.0.1:4033/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=deterministic-visual-binding&qa_state=ready",
+    "fixture_states": [
+      "ready",
+      "current",
+      "missing_candidate",
+      "architecture_mismatch",
+      "storage_unavailable"
+    ],
+    "fixture_responses": [
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
+        "state": "ready"
+      },
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa/render-deterministic-visual",
+        "state": "current"
+      },
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
+        "state": "missing_candidate"
+      },
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
+        "state": "architecture_mismatch"
+      },
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
+        "state": "storage_unavailable"
+      }
+    ],
+    "workflow_order": [
+      "format",
+      "configuration",
+      "render",
+      "preview",
+      "decision"
+    ],
+    "deterministic_image_prompt_controls": 0,
+    "content_lane": {
+      "left": 264,
+      "right": 1440,
+      "width": 1176,
+      "usableWidth": 1112,
+      "viewportWidth": 1440
+    },
+    "contrast_checks": [
+      {
+        "name": "current-review-state",
+        "ratio": 7.87,
+        "minimum": 4.5
+      },
+      {
+        "name": "render-summary",
+        "ratio": 7.98,
+        "minimum": 4.5
+      },
+      {
+        "name": "render-recovery",
+        "ratio": 5.04,
+        "minimum": 4.5
+      },
+      {
+        "name": "campaign-video-review-title",
+        "ratio": 14.12,
+        "minimum": 4.5
+      }
+    ],
+    "theme_surfaces": [
+      {
+        "name": "sticky-header",
+        "luminance": 0.013
+      },
+      {
+        "name": "campaign-copy-review",
+        "luminance": 0.013
+      },
+      {
+        "name": "approval-process",
+        "luminance": 0.013
+      },
+      {
+        "name": "approval-details",
+        "luminance": 0.013
+      },
+      {
+        "name": "visual-assets",
+        "luminance": 0.013
+      },
+      {
+        "name": "visual-production",
+        "luminance": 0.024
+      },
+      {
+        "name": "provider-boundary",
+        "luminance": 0.042
+      },
+      {
+        "name": "deterministic-configuration",
+        "luminance": 0.042
+      },
+      {
+        "name": "render-status",
+        "luminance": 0.061
+      },
+      {
+        "name": "voiceover",
+        "luminance": 0.013
+      },
+      {
+        "name": "campaign-video-review",
+        "luminance": 0.013
+      },
+      {
+        "name": "linkedin-preview-chrome",
+        "luminance": 0.013
+      }
+    ],
+    "dark_panel_leakage": [],
+    "light_panel_leakage": [],
+    "provider": "none",
+    "provider_calls": 0,
+    "shared_database_writes": 0,
+    "shared_storage_writes": 0,
+    "external_actions": 0,
+    "synthetic_render_requests": 1,
+    "horizontal_overflow": false,
+    "page_errors": []
+  }
+]
