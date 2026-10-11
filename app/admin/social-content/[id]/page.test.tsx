@@ -276,6 +276,44 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(screen.getByText(/provider none · external call false/i)).toBeVisible()
   })
 
+  it('inherits the system-light theme without leaking dark review-panel chrome', async () => {
+    const readyItem = deterministicVisualBindingQaFixture('ready')
+    mocks.id = readyItem.id
+    mocks.search = 'step=visuals&qa=deterministic-visual-binding&qa_state=ready'
+    document.documentElement.classList.remove('dark')
+    vi.stubGlobal('fetch', vi.fn(async () => ({
+      ok: true,
+      json: async () => ({ fixture: true, fixture_state: 'ready', item: readyItem }),
+    })))
+
+    render(<SocialContentDetailRoute />)
+
+    const detail = await screen.findByTestId('social-content-detail')
+    expect(detail).toHaveClass('bg-background', 'text-foreground')
+    expect(detail).not.toHaveClass('dark')
+
+    const surfaces = Array.from(detail.querySelectorAll<HTMLElement>('[data-theme-surface]'))
+    expect(surfaces.map((surface) => surface.dataset.themeSurface)).toEqual(expect.arrayContaining([
+      'sticky-header',
+      'campaign-copy-review',
+      'approval-process',
+      'approval-details',
+      'visual-assets',
+      'visual-production',
+      'render-status',
+      'voiceover',
+      'campaign-video-review',
+      'linkedin-preview-chrome',
+    ]))
+    for (const surface of surfaces) {
+      expect(surface.className).not.toMatch(/(?:^|\s)(?:bg|border|text)-gray-(?:7|8|9)\d{2}(?:\/\d+)?(?:\s|$)/)
+    }
+
+    const previewCanvas = within(detail).getByLabelText('LinkedIn post preview')
+    expect(previewCanvas).toHaveAttribute('data-media-canvas', 'linkedin-post-preview')
+    expect(previewCanvas.className).toContain('bg-gray-950/85')
+  })
+
   it.each([
     'missing_candidate',
     'architecture_mismatch',

@@ -60,6 +60,18 @@ it('keeps media approval disabled without copy approval and asset provenance', a
   fireEvent.click(screen.getByText(/Full blocker evidence and provider boundary/))
   expect(screen.getByText(/Native LinkedIn video submission is not configured/)).toBeVisible()
 })
+it('uses inherited theme tokens for review chrome and reserves dark canvas styling for video', () => {
+  document.documentElement.classList.remove('dark')
+  render(<>
+    <SocialVideoReview item={{ id: 'draft', status: 'approved', updated_at: 'now' }} onRefresh={vi.fn()} />
+    <ReviewedVideoPlayer url="https://example.invalid/final.mp4" />
+  </>)
+  const surface = screen.getByRole('region', { name: 'Campaign and video review' })
+  expect(surface).toHaveAttribute('data-theme-surface', 'campaign-video-review')
+  expect(surface).toHaveClass('border-border', 'bg-card', 'text-card-foreground')
+  expect(surface.className).not.toMatch(/(?:^|\s)(?:bg|border|text)-gray-(?:7|8|9)\d{2}(?:\/\d+)?(?:\s|$)/)
+  expect(screen.getByLabelText('Final LinkedIn video')).toHaveAttribute('data-media-canvas', 'reviewed-video')
+})
 it('does not replace unsaved editor changes', async () => {
   vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(JSON.stringify({ preview: { packet_version: 'v1', target_version: 'now', state: 'ready', message: 'Review first', source_work_item_id: 'work', copy: { post_text: 'Incoming copy', hashtags: [] } } })))
   render(<SocialVideoReview item={{ id: 'draft', status: 'draft', updated_at: 'now', rag_context: { calendar_item_id: 'calendar' } }} hasUnsavedChanges onRefresh={vi.fn()} />)
