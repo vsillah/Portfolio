@@ -1,7 +1,7 @@
 [
   {
     "width": 390,
-    "route": "https://portfolio-git-codex-campaign-source-coverage-vsillahs-projects.vercel.app/admin/social-content/topic-source-coverage-qa?step=copy&qa=topic-source-coverage",
+    "route": "https://portfolio-git-codex-synthetic-source-c-ad598e-vsillahs-projects.vercel.app/admin/social-content/topic-source-coverage-qa?step=copy&qa=topic-source-coverage",
     "source": "deployed_preview_fixture",
     "fixture_responses": [
       "blocked",
@@ -16,11 +16,16 @@
       "ready",
       "blocked"
     ],
-    "read_only_controls": [
-      "save_draft",
-      "approve_copy",
-      "reject",
-      "use_topic"
+    "evidence_only_surface": true,
+    "absent_affordances": [
+      "post_editor",
+      "social_preview",
+      "save",
+      "approve",
+      "provider",
+      "upload",
+      "schedule",
+      "publish"
     ],
     "live_backlog_requests": 0,
     "provider_calls": 0,
@@ -30,7 +35,7 @@
   },
   {
     "width": 768,
-    "route": "https://portfolio-git-codex-campaign-source-coverage-vsillahs-projects.vercel.app/admin/social-content/topic-source-coverage-qa?step=copy&qa=topic-source-coverage",
+    "route": "https://portfolio-git-codex-synthetic-source-c-ad598e-vsillahs-projects.vercel.app/admin/social-content/topic-source-coverage-qa?step=copy&qa=topic-source-coverage",
     "source": "deployed_preview_fixture",
     "fixture_responses": [
       "blocked",
@@ -45,11 +50,16 @@
       "ready",
       "blocked"
     ],
-    "read_only_controls": [
-      "save_draft",
-      "approve_copy",
-      "reject",
-      "use_topic"
+    "evidence_only_surface": true,
+    "absent_affordances": [
+      "post_editor",
+      "social_preview",
+      "save",
+      "approve",
+      "provider",
+      "upload",
+      "schedule",
+      "publish"
     ],
     "live_backlog_requests": 0,
     "provider_calls": 0,
@@ -59,7 +69,7 @@
   },
   {
     "width": 1440,
-    "route": "https://portfolio-git-codex-campaign-source-coverage-vsillahs-projects.vercel.app/admin/social-content/topic-source-coverage-qa?step=copy&qa=topic-source-coverage",
+    "route": "https://portfolio-git-codex-synthetic-source-c-ad598e-vsillahs-projects.vercel.app/admin/social-content/topic-source-coverage-qa?step=copy&qa=topic-source-coverage",
     "source": "deployed_preview_fixture",
     "fixture_responses": [
       "blocked",
@@ -74,11 +84,16 @@
       "ready",
       "blocked"
     ],
-    "read_only_controls": [
-      "save_draft",
-      "approve_copy",
-      "reject",
-      "use_topic"
+    "evidence_only_surface": true,
+    "absent_affordances": [
+      "post_editor",
+      "social_preview",
+      "save",
+      "approve",
+      "provider",
+      "upload",
+      "schedule",
+      "publish"
     ],
     "live_backlog_requests": 0,
     "provider_calls": 0,
