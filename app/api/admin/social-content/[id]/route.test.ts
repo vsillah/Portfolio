@@ -33,6 +33,14 @@ function request(body: unknown) {
   })
 }
 
+function fixtureRequest(body: unknown) {
+  return new NextRequest('http://localhost/api/admin/social-content/deterministic-visual-binding-qa', {
+    method: 'PUT',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(body),
+  })
+}
+
 describe('GET /api/admin/social-content/[id] practitioner QA fixture', () => {
   it('selects a bounded script-size state without reading shared data', async () => {
     const response = await GET(new NextRequest('http://localhost/api/admin/social-content/practitioner-content-quality-qa', {
@@ -70,6 +78,46 @@ describe('PUT /api/admin/social-content/[id]', () => {
     mocks.eq.mockReturnValue({ eq: mocks.eq, select: mocks.select, single: mocks.single })
     mocks.update.mockReturnValue({ eq: mocks.eq })
     mocks.from.mockReturnValue({ update: mocks.update, select: mocks.select })
+  })
+
+  it.each([
+    ['approved', null],
+    ['rejected', 'Use a stronger decision label.'],
+  ] as const)('simulates a non-persistent fixture visual decision without shared data for %s', async (status, note) => {
+    const response = await PUT(fixtureRequest({
+      rag_context: {
+        section_gate_reviews: {
+          visual_assets: {
+            status,
+            note,
+            decided_at: '2026-10-11T12:05:00.000Z',
+          },
+        },
+      },
+      qa_visual_recipe: {
+        template: 'constraint_decision_result',
+        visual_type: 'architecture',
+        aspect_ratio: '1.91:1',
+      },
+    }) as never, { params: { id: 'deterministic-visual-binding-qa' } })
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(body).toMatchObject({ fixture: true, persisted: false })
+    expect(body.item.rag_context.section_gate_reviews.visual_assets).toMatchObject({ status, note })
+    expect(body.item.image_url).toContain('/qa/social-content/deterministic-visual-binding.png')
+    expect(mocks.verifyAdmin).not.toHaveBeenCalled()
+    expect(mocks.from).not.toHaveBeenCalled()
+  })
+
+  it('keeps unrelated fixture mutations fail closed', async () => {
+    const response = await PUT(fixtureRequest({ rag_context: { arbitrary: true } }) as never, {
+      params: { id: 'deterministic-visual-binding-qa' },
+    })
+
+    expect(response.status).toBe(409)
+    expect(await response.json()).toMatchObject({ fixture: true, blocked: true })
+    expect(mocks.from).not.toHaveBeenCalled()
   })
 
   it('blocks non-calendar release metadata erasure before any update', async () => {
@@ -119,7 +167,12 @@ describe('PUT /api/admin/social-content/[id]', () => {
 
     expect(response.status).toBe(200)
     expect(await response.json()).toEqual({
-      item: { updated_at: '2026-09-08T12:00:00.000Z', id: 'social-1', rag_context: { source: 'agent_ops_social_outreach_goal' } },
+      item: expect.objectContaining({
+        updated_at: '2026-09-08T12:00:00.000Z',
+        id: 'social-1',
+        rag_context: { source: 'agent_ops_social_outreach_goal' },
+        deterministic_visual_render: expect.objectContaining({ state: 'blocked' }),
+      }),
     })
     expect(mocks.from).toHaveBeenCalledWith('social_content_queue')
     expect(mocks.update).toHaveBeenCalledWith({ rag_context: ragContext })
@@ -264,7 +317,12 @@ describe('PUT /api/admin/social-content/[id]', () => {
     })
 
     expect(response.status).toBe(200)
-    expect(await response.json()).toEqual({ item: updatedItem })
+    expect(await response.json()).toEqual({
+      item: expect.objectContaining({
+        ...updatedItem,
+        deterministic_visual_render: expect.objectContaining({ state: 'blocked' }),
+      }),
+    })
     expect(mocks.update).toHaveBeenCalledWith({
       status: 'approved',
       reviewed_by: 'admin-1',

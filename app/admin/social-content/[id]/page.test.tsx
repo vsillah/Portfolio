@@ -222,6 +222,23 @@ describe('SocialContentDetailRoute visual production review', () => {
           }),
         } as Response
       }
+      if (init?.method === 'PUT') {
+        const body = JSON.parse(String(init.body))
+        return {
+          ok: true,
+          json: async () => ({
+            fixture: true,
+            persisted: false,
+            item: {
+              ...currentItem,
+              rag_context: {
+                ...currentItem.rag_context,
+                section_gate_reviews: body.rag_context.section_gate_reviews,
+              },
+            },
+          }),
+        } as Response
+      }
       return {
         ok: true,
         json: async () => ({ fixture: true, fixture_state: 'ready', item: readyItem }),
@@ -297,6 +314,23 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(screen.getByText(/provider none · external call false/i)).toBeVisible()
     expect((await screen.findAllByAltText('Deterministic AmaduTown review asset')).length).toBeGreaterThan(0)
     expect(fetchMock.mock.calls.some(([input]) => /generate-image|gemini|heygen|n8n/i.test(String(input)))).toBe(false)
+
+    fireEvent.click(screen.getByRole('button', { name: /Approve Visuals/i }))
+    await waitFor(() => expect(screen.getAllByText('Visual assets: Approved').length).toBeGreaterThan(0))
+    const decisionCall = fetchMock.mock.calls.find(([, init]) => init?.method === 'PUT')
+    expect(JSON.parse(String(decisionCall?.[1]?.body))).toMatchObject({
+      qa_state: 'current',
+      qa_visual_recipe: {
+        template: 'constraint_decision_result',
+        visual_type: 'architecture',
+        aspect_ratio: '1.91:1',
+      },
+      rag_context: {
+        section_gate_reviews: {
+          visual_assets: { status: 'approved' },
+        },
+      },
+    })
   })
 
   it('keeps an already-current deterministic review asset explicit and idempotent', async () => {

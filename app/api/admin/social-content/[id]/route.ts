@@ -258,35 +258,77 @@ export async function PUT(
     if (isDeterministicVisualBindingQaFixtureId(params.id)) {
       const body = await request.json()
       const recipe = asRecord(body.visual_recipe) as unknown as DeterministicVisualRecipeSelection | null
-      if (!recipe) {
-        return NextResponse.json({ error: 'Synthetic preview fixture only accepts a visual recipe rebuild.', fixture: true, blocked: true }, { status: 409 })
+      if (recipe) {
+        try {
+          const current = deterministicVisualBindingQaFixture(parseDeterministicVisualQaState(asString(body.qa_state)))
+          const recipePatch = buildDeterministicVisualRecipePatch({ item: current, selection: recipe })
+          const prepared = prepareManualCopyUpdate({
+            current: current as never,
+            patch: recipePatch,
+            expectedVersion: body.expected_copy_version,
+            actor: 'synthetic-reviewer',
+            now: '2026-10-11T12:00:00.000Z',
+          })
+          const item = withDeterministicVisualProjection({ ...current, ...prepared }, true)
+          return NextResponse.json({
+            item,
+            fixture: true,
+            message: 'Synthetic deterministic recipe rebuilt. No shared storage, database, provider, draft, schedule, publication, or external send was used.',
+          })
+        } catch (error) {
+          const renderError = error instanceof DeterministicVisualRenderError ? error : null
+          return NextResponse.json({
+            error: error instanceof Error ? error.message : 'Visual recipe rebuild blocked.',
+            code: renderError?.code,
+            recovery_action: renderError?.recoveryAction,
+            fixture: true,
+            blocked: true,
+          }, { status: renderError?.status ?? 409 })
+        }
       }
-      try {
-        const current = deterministicVisualBindingQaFixture(parseDeterministicVisualQaState(asString(body.qa_state)))
-        const recipePatch = buildDeterministicVisualRecipePatch({ item: current, selection: recipe })
-        const prepared = prepareManualCopyUpdate({
-          current: current as never,
-          patch: recipePatch,
-          expectedVersion: body.expected_copy_version,
-          actor: 'synthetic-reviewer',
-          now: '2026-10-11T12:00:00.000Z',
-        })
-        const item = withDeterministicVisualProjection({ ...current, ...prepared }, true)
+
+      const requestedRag = asRecord(body.rag_context)
+      const requestedReviews = asRecord(requestedRag?.section_gate_reviews)
+      const requestedVisualReview = asRecord(requestedReviews?.visual_assets)
+      const decision = asString(requestedVisualReview?.status)
+      const note = asString(requestedVisualReview?.note)
+      if ((decision === 'approved' || decision === 'rejected') && (decision === 'approved' || note)) {
+        const qaRecipe = asRecord(body.qa_visual_recipe) as unknown as DeterministicVisualRecipeSelection | null
+        const current = deterministicVisualBindingQaFixture('current', qaRecipe ?? undefined)
+        const currentRag = asRecord(current.rag_context) ?? {}
+        const item = {
+          ...current,
+          rag_context: {
+            ...currentRag,
+            section_gate_reviews: {
+              visual_assets: {
+                status: decision,
+                decided_at: asString(requestedVisualReview?.decided_at) || '2026-10-11T12:05:00.000Z',
+                decided_by: 'synthetic-reviewer',
+                note: note || null,
+                repair_status: decision === 'rejected' ? 'requested' : null,
+                repair_requested_at: decision === 'rejected'
+                  ? asString(requestedVisualReview?.repair_requested_at) || '2026-10-11T12:05:00.000Z'
+                  : null,
+              },
+            },
+          },
+        }
         return NextResponse.json({
           item,
           fixture: true,
-          message: 'Synthetic deterministic recipe rebuilt. No shared storage, database, provider, draft, schedule, publication, or external send was used.',
+          persisted: false,
+          message: decision === 'approved'
+            ? 'Synthetic visual approval simulated for this browser session only.'
+            : 'Synthetic visual rejection simulated for this browser session only.',
         })
-      } catch (error) {
-        const renderError = error instanceof DeterministicVisualRenderError ? error : null
-        return NextResponse.json({
-          error: error instanceof Error ? error.message : 'Visual recipe rebuild blocked.',
-          code: renderError?.code,
-          recovery_action: renderError?.recoveryAction,
-          fixture: true,
-          blocked: true,
-        }, { status: renderError?.status ?? 409 })
       }
+
+      return NextResponse.json({
+        error: 'Synthetic preview fixture accepts only a visual recipe rebuild or a non-persistent visual decision.',
+        fixture: true,
+        blocked: true,
+      }, { status: 409 })
     }
     if (isPractitionerContentQaFixtureId(params.id) || isTopicSourceCoverageQaFixtureId(params.id)) {
       return NextResponse.json({
