@@ -12,6 +12,7 @@ import {
 } from './social-deterministic-visual'
 import {
   buildDeterministicVisualSvg,
+  embedDeterministicVisualFont,
   renderDeterministicVisualPng,
 } from './social-deterministic-visual-renderer'
 import { practitionerContentQaFixture } from './social-practitioner-content-qa-fixture'
@@ -342,6 +343,19 @@ describe('deterministic Social Content visual binding', () => {
       visualType: 'architecture',
       logoPng: Buffer.alloc(0),
     })).rejects.toThrow('not safe for publication')
+  })
+
+  it('embeds the bundled render font so server-side rasterization does not depend on host fonts', () => {
+    const spec = readDeterministicVisualSpec(approvedItem().rag_context)!
+    const svg = embedDeterministicVisualFont(
+      buildDeterministicVisualSvg(spec, 'architecture'),
+      Buffer.from('font-bytes'),
+    )
+
+    expect(svg).toContain('@font-face')
+    expect(svg).toContain('data:font/woff2;base64,Zm9udC1ieXRlcw==')
+    expect(svg).toContain('font-family: "AmaduTown Inter", sans-serif;')
+    expect(svg).not.toContain('font-family: Inter, ui-sans-serif')
   })
 
   it('refuses to substitute the architecture composition for another selected visual type', () => {
