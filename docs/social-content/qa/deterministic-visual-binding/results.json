@@ -1,16 +1,17 @@
 [
   {
-    "base_url": "https://portfolio-f0r9hsksz-vsillahs-projects.vercel.app",
-    "source_commit": "d046a424e0795e14dbb0e1c64f4924f59d10b39a",
+    "base_url": "https://portfolio-4nn98g77n-vsillahs-projects.vercel.app",
+    "source_commit": "e689a285de9d0a55df830a7fea8d857dc0b35b66",
     "width": 390,
     "height": 844,
     "theme": "system-light",
     "persisted_theme": "system",
     "resolved_theme": "light",
     "routes": [
-      "https://portfolio-f0r9hsksz-vsillahs-projects.vercel.app/admin",
-      "https://portfolio-f0r9hsksz-vsillahs-projects.vercel.app/admin/agents",
-      "https://portfolio-f0r9hsksz-vsillahs-projects.vercel.app/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=deterministic-visual-binding&qa_state=ready"
+      "https://portfolio-4nn98g77n-vsillahs-projects.vercel.app/admin",
+      "https://portfolio-4nn98g77n-vsillahs-projects.vercel.app/admin/agents",
+      "https://portfolio-4nn98g77n-vsillahs-projects.vercel.app/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=deterministic-visual-binding&qa_state=ready",
+      "https://portfolio-4nn98g77n-vsillahs-projects.vercel.app/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=deterministic-visual-binding&qa_state=stale"
     ],
     "agent_ops": {
       "compact_dashboard": {
@@ -53,15 +54,28 @@
       {
         "path": "/api/admin/social-content/deterministic-visual-binding-qa/render-deterministic-visual",
         "state": "current"
+      },
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
+        "state": "stale"
       }
     ],
     "workflow_order": [
-      "recipe",
-      "validation",
-      "render",
-      "preview",
-      "decision"
+      "configure",
+      "generate",
+      "decide"
     ],
+    "state_machine": {
+      "initial": "Render review visual",
+      "dirty": "Save changes and rebuild candidate",
+      "rebuilt": "Render updated visual",
+      "rendered_current": [
+        "Current asset",
+        "Change recipe",
+        "Render again"
+      ],
+      "rendered_stale": "Render updated visual"
+    },
     "deterministic_image_prompt_controls": 0,
     "recipe": {
       "template": "constraint_decision_result",
@@ -76,6 +90,10 @@
       "usable_width": 358,
       "viewport_width": 390
     },
+    "linkedin_preview": {
+      "background_luminance": 0.92,
+      "semantic_theme_classes": true
+    },
     "contrast_checks": [
       {
         "name": "current-review-state",
@@ -84,12 +102,12 @@
       },
       {
         "name": "render-summary",
-        "ratio": 15.39,
+        "ratio": 14.98,
         "minimum": 4.5
       },
       {
         "name": "render-recovery",
-        "ratio": 6.97,
+        "ratio": 6.79,
         "minimum": 4.5
       },
       {
@@ -113,22 +131,23 @@
     "page_errors": [],
     "video": {
       "path": "docs/social-content/qa/deterministic-visual-binding/390-system-light-walkthrough.mp4",
-      "duration_seconds": 12.52,
+      "duration_seconds": 14.52,
       "playable": true
     }
   },
   {
-    "base_url": "https://portfolio-f0r9hsksz-vsillahs-projects.vercel.app",
-    "source_commit": "d046a424e0795e14dbb0e1c64f4924f59d10b39a",
+    "base_url": "https://portfolio-4nn98g77n-vsillahs-projects.vercel.app",
+    "source_commit": "e689a285de9d0a55df830a7fea8d857dc0b35b66",
     "width": 768,
     "height": 1000,
     "theme": "system-light",
     "persisted_theme": "system",
     "resolved_theme": "light",
     "routes": [
-      "https://portfolio-f0r9hsksz-vsillahs-projects.vercel.app/admin",
-      "https://portfolio-f0r9hsksz-vsillahs-projects.vercel.app/admin/agents",
-      "https://portfolio-f0r9hsksz-vsillahs-projects.vercel.app/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=deterministic-visual-binding&qa_state=ready"
+      "https://portfolio-4nn98g77n-vsillahs-projects.vercel.app/admin",
+      "https://portfolio-4nn98g77n-vsillahs-projects.vercel.app/admin/agents",
+      "https://portfolio-4nn98g77n-vsillahs-projects.vercel.app/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=deterministic-visual-binding&qa_state=ready",
+      "https://portfolio-4nn98g77n-vsillahs-projects.vercel.app/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=deterministic-visual-binding&qa_state=stale"
     ],
     "agent_ops": {
       "compact_dashboard": {
@@ -171,15 +190,28 @@
       {
         "path": "/api/admin/social-content/deterministic-visual-binding-qa/render-deterministic-visual",
         "state": "current"
+      },
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
+        "state": "stale"
       }
     ],
     "workflow_order": [
-      "recipe",
-      "validation",
-      "render",
-      "preview",
-      "decision"
+      "configure",
+      "generate",
+      "decide"
     ],
+    "state_machine": {
+      "initial": "Render review visual",
+      "dirty": "Save changes and rebuild candidate",
+      "rebuilt": "Render updated visual",
+      "rendered_current": [
+        "Current asset",
+        "Change recipe",
+        "Render again"
+      ],
+      "rendered_stale": "Render updated visual"
+    },
     "deterministic_image_prompt_controls": 0,
     "recipe": {
       "template": "constraint_decision_result",
@@ -194,6 +226,10 @@
       "usable_width": 720,
       "viewport_width": 768
     },
+    "linkedin_preview": {
+      "background_luminance": 0.92,
+      "semantic_theme_classes": true
+    },
     "contrast_checks": [
       {
         "name": "current-review-state",
@@ -202,12 +238,12 @@
       },
       {
         "name": "render-summary",
-        "ratio": 15.39,
+        "ratio": 14.98,
         "minimum": 4.5
       },
       {
         "name": "render-recovery",
-        "ratio": 6.97,
+        "ratio": 6.79,
         "minimum": 4.5
       },
       {
@@ -231,22 +267,23 @@
     "page_errors": [],
     "video": {
       "path": "docs/social-content/qa/deterministic-visual-binding/768-system-light-walkthrough.mp4",
-      "duration_seconds": 12.68,
+      "duration_seconds": 14.04,
       "playable": true
     }
   },
   {
-    "base_url": "https://portfolio-f0r9hsksz-vsillahs-projects.vercel.app",
-    "source_commit": "d046a424e0795e14dbb0e1c64f4924f59d10b39a",
+    "base_url": "https://portfolio-4nn98g77n-vsillahs-projects.vercel.app",
+    "source_commit": "e689a285de9d0a55df830a7fea8d857dc0b35b66",
     "width": 1440,
     "height": 1000,
     "theme": "system-light",
     "persisted_theme": "system",
     "resolved_theme": "light",
     "routes": [
-      "https://portfolio-f0r9hsksz-vsillahs-projects.vercel.app/admin",
-      "https://portfolio-f0r9hsksz-vsillahs-projects.vercel.app/admin/agents",
-      "https://portfolio-f0r9hsksz-vsillahs-projects.vercel.app/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=deterministic-visual-binding&qa_state=ready"
+      "https://portfolio-4nn98g77n-vsillahs-projects.vercel.app/admin",
+      "https://portfolio-4nn98g77n-vsillahs-projects.vercel.app/admin/agents",
+      "https://portfolio-4nn98g77n-vsillahs-projects.vercel.app/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=deterministic-visual-binding&qa_state=ready",
+      "https://portfolio-4nn98g77n-vsillahs-projects.vercel.app/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=deterministic-visual-binding&qa_state=stale"
     ],
     "agent_ops": {
       "compact_dashboard": {
@@ -289,15 +326,28 @@
       {
         "path": "/api/admin/social-content/deterministic-visual-binding-qa/render-deterministic-visual",
         "state": "current"
+      },
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
+        "state": "stale"
       }
     ],
     "workflow_order": [
-      "recipe",
-      "validation",
-      "render",
-      "preview",
-      "decision"
+      "configure",
+      "generate",
+      "decide"
     ],
+    "state_machine": {
+      "initial": "Render review visual",
+      "dirty": "Save changes and rebuild candidate",
+      "rebuilt": "Render updated visual",
+      "rendered_current": [
+        "Current asset",
+        "Change recipe",
+        "Render again"
+      ],
+      "rendered_stale": "Render updated visual"
+    },
     "deterministic_image_prompt_controls": 0,
     "recipe": {
       "template": "constraint_decision_result",
@@ -312,6 +362,10 @@
       "usable_width": 1112,
       "viewport_width": 1440
     },
+    "linkedin_preview": {
+      "background_luminance": 0.92,
+      "semantic_theme_classes": true
+    },
     "contrast_checks": [
       {
         "name": "current-review-state",
@@ -320,12 +374,12 @@
       },
       {
         "name": "render-summary",
-        "ratio": 15.39,
+        "ratio": 14.98,
         "minimum": 4.5
       },
       {
         "name": "render-recovery",
-        "ratio": 6.97,
+        "ratio": 6.79,
         "minimum": 4.5
       },
       {
@@ -349,22 +403,23 @@
     "page_errors": [],
     "video": {
       "path": "docs/social-content/qa/deterministic-visual-binding/1440-system-light-walkthrough.mp4",
-      "duration_seconds": 13.32,
+      "duration_seconds": 14.88,
       "playable": true
     }
   },
   {
-    "base_url": "https://portfolio-f0r9hsksz-vsillahs-projects.vercel.app",
-    "source_commit": "d046a424e0795e14dbb0e1c64f4924f59d10b39a",
+    "base_url": "https://portfolio-4nn98g77n-vsillahs-projects.vercel.app",
+    "source_commit": "e689a285de9d0a55df830a7fea8d857dc0b35b66",
     "width": 390,
     "height": 844,
     "theme": "dark",
     "persisted_theme": "dark",
     "resolved_theme": "dark",
     "routes": [
-      "https://portfolio-f0r9hsksz-vsillahs-projects.vercel.app/admin",
-      "https://portfolio-f0r9hsksz-vsillahs-projects.vercel.app/admin/agents",
-      "https://portfolio-f0r9hsksz-vsillahs-projects.vercel.app/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=deterministic-visual-binding&qa_state=ready"
+      "https://portfolio-4nn98g77n-vsillahs-projects.vercel.app/admin",
+      "https://portfolio-4nn98g77n-vsillahs-projects.vercel.app/admin/agents",
+      "https://portfolio-4nn98g77n-vsillahs-projects.vercel.app/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=deterministic-visual-binding&qa_state=ready",
+      "https://portfolio-4nn98g77n-vsillahs-projects.vercel.app/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=deterministic-visual-binding&qa_state=stale"
     ],
     "agent_ops": {
       "compact_dashboard": {
@@ -407,15 +462,28 @@
       {
         "path": "/api/admin/social-content/deterministic-visual-binding-qa/render-deterministic-visual",
         "state": "current"
+      },
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
+        "state": "stale"
       }
     ],
     "workflow_order": [
-      "recipe",
-      "validation",
-      "render",
-      "preview",
-      "decision"
+      "configure",
+      "generate",
+      "decide"
     ],
+    "state_machine": {
+      "initial": "Render review visual",
+      "dirty": "Save changes and rebuild candidate",
+      "rebuilt": "Render updated visual",
+      "rendered_current": [
+        "Current asset",
+        "Change recipe",
+        "Render again"
+      ],
+      "rendered_stale": "Render updated visual"
+    },
     "deterministic_image_prompt_controls": 0,
     "recipe": {
       "template": "constraint_decision_result",
@@ -430,6 +498,10 @@
       "usable_width": 358,
       "viewport_width": 390
     },
+    "linkedin_preview": {
+      "background_luminance": 0.013,
+      "semantic_theme_classes": true
+    },
     "contrast_checks": [
       {
         "name": "current-review-state",
@@ -438,12 +510,12 @@
       },
       {
         "name": "render-summary",
-        "ratio": 7.98,
+        "ratio": 8.4,
         "minimum": 4.5
       },
       {
         "name": "render-recovery",
-        "ratio": 5.04,
+        "ratio": 5.26,
         "minimum": 4.5
       },
       {
@@ -467,22 +539,23 @@
     "page_errors": [],
     "video": {
       "path": "docs/social-content/qa/deterministic-visual-binding/390-dark-walkthrough.mp4",
-      "duration_seconds": 11.88,
+      "duration_seconds": 13.6,
       "playable": true
     }
   },
   {
-    "base_url": "https://portfolio-f0r9hsksz-vsillahs-projects.vercel.app",
-    "source_commit": "d046a424e0795e14dbb0e1c64f4924f59d10b39a",
+    "base_url": "https://portfolio-4nn98g77n-vsillahs-projects.vercel.app",
+    "source_commit": "e689a285de9d0a55df830a7fea8d857dc0b35b66",
     "width": 768,
     "height": 1000,
     "theme": "dark",
     "persisted_theme": "dark",
     "resolved_theme": "dark",
     "routes": [
-      "https://portfolio-f0r9hsksz-vsillahs-projects.vercel.app/admin",
-      "https://portfolio-f0r9hsksz-vsillahs-projects.vercel.app/admin/agents",
-      "https://portfolio-f0r9hsksz-vsillahs-projects.vercel.app/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=deterministic-visual-binding&qa_state=ready"
+      "https://portfolio-4nn98g77n-vsillahs-projects.vercel.app/admin",
+      "https://portfolio-4nn98g77n-vsillahs-projects.vercel.app/admin/agents",
+      "https://portfolio-4nn98g77n-vsillahs-projects.vercel.app/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=deterministic-visual-binding&qa_state=ready",
+      "https://portfolio-4nn98g77n-vsillahs-projects.vercel.app/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=deterministic-visual-binding&qa_state=stale"
     ],
     "agent_ops": {
       "compact_dashboard": {
@@ -525,15 +598,28 @@
       {
         "path": "/api/admin/social-content/deterministic-visual-binding-qa/render-deterministic-visual",
         "state": "current"
+      },
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
+        "state": "stale"
       }
     ],
     "workflow_order": [
-      "recipe",
-      "validation",
-      "render",
-      "preview",
-      "decision"
+      "configure",
+      "generate",
+      "decide"
     ],
+    "state_machine": {
+      "initial": "Render review visual",
+      "dirty": "Save changes and rebuild candidate",
+      "rebuilt": "Render updated visual",
+      "rendered_current": [
+        "Current asset",
+        "Change recipe",
+        "Render again"
+      ],
+      "rendered_stale": "Render updated visual"
+    },
     "deterministic_image_prompt_controls": 0,
     "recipe": {
       "template": "constraint_decision_result",
@@ -548,6 +634,10 @@
       "usable_width": 720,
       "viewport_width": 768
     },
+    "linkedin_preview": {
+      "background_luminance": 0.013,
+      "semantic_theme_classes": true
+    },
     "contrast_checks": [
       {
         "name": "current-review-state",
@@ -556,12 +646,12 @@
       },
       {
         "name": "render-summary",
-        "ratio": 7.98,
+        "ratio": 8.4,
         "minimum": 4.5
       },
       {
         "name": "render-recovery",
-        "ratio": 5.04,
+        "ratio": 5.26,
         "minimum": 4.5
       },
       {
@@ -585,22 +675,23 @@
     "page_errors": [],
     "video": {
       "path": "docs/social-content/qa/deterministic-visual-binding/768-dark-walkthrough.mp4",
-      "duration_seconds": 12.08,
+      "duration_seconds": 13.72,
       "playable": true
     }
   },
   {
-    "base_url": "https://portfolio-f0r9hsksz-vsillahs-projects.vercel.app",
-    "source_commit": "d046a424e0795e14dbb0e1c64f4924f59d10b39a",
+    "base_url": "https://portfolio-4nn98g77n-vsillahs-projects.vercel.app",
+    "source_commit": "e689a285de9d0a55df830a7fea8d857dc0b35b66",
     "width": 1440,
     "height": 1000,
     "theme": "dark",
     "persisted_theme": "dark",
     "resolved_theme": "dark",
     "routes": [
-      "https://portfolio-f0r9hsksz-vsillahs-projects.vercel.app/admin",
-      "https://portfolio-f0r9hsksz-vsillahs-projects.vercel.app/admin/agents",
-      "https://portfolio-f0r9hsksz-vsillahs-projects.vercel.app/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=deterministic-visual-binding&qa_state=ready"
+      "https://portfolio-4nn98g77n-vsillahs-projects.vercel.app/admin",
+      "https://portfolio-4nn98g77n-vsillahs-projects.vercel.app/admin/agents",
+      "https://portfolio-4nn98g77n-vsillahs-projects.vercel.app/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=deterministic-visual-binding&qa_state=ready",
+      "https://portfolio-4nn98g77n-vsillahs-projects.vercel.app/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=deterministic-visual-binding&qa_state=stale"
     ],
     "agent_ops": {
       "compact_dashboard": {
@@ -643,15 +734,28 @@
       {
         "path": "/api/admin/social-content/deterministic-visual-binding-qa/render-deterministic-visual",
         "state": "current"
+      },
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
+        "state": "stale"
       }
     ],
     "workflow_order": [
-      "recipe",
-      "validation",
-      "render",
-      "preview",
-      "decision"
+      "configure",
+      "generate",
+      "decide"
     ],
+    "state_machine": {
+      "initial": "Render review visual",
+      "dirty": "Save changes and rebuild candidate",
+      "rebuilt": "Render updated visual",
+      "rendered_current": [
+        "Current asset",
+        "Change recipe",
+        "Render again"
+      ],
+      "rendered_stale": "Render updated visual"
+    },
     "deterministic_image_prompt_controls": 0,
     "recipe": {
       "template": "constraint_decision_result",
@@ -666,6 +770,10 @@
       "usable_width": 1112,
       "viewport_width": 1440
     },
+    "linkedin_preview": {
+      "background_luminance": 0.013,
+      "semantic_theme_classes": true
+    },
     "contrast_checks": [
       {
         "name": "current-review-state",
@@ -674,12 +782,12 @@
       },
       {
         "name": "render-summary",
-        "ratio": 7.98,
+        "ratio": 8.4,
         "minimum": 4.5
       },
       {
         "name": "render-recovery",
-        "ratio": 5.04,
+        "ratio": 5.26,
         "minimum": 4.5
       },
       {
@@ -703,7 +811,7 @@
     "page_errors": [],
     "video": {
       "path": "docs/social-content/qa/deterministic-visual-binding/1440-dark-walkthrough.mp4",
-      "duration_seconds": 13.68,
+      "duration_seconds": 14.84,
       "playable": true
     }
   }
