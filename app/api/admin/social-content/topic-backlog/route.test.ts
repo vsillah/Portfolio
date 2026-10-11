@@ -1,18 +1,31 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { NextRequest } from 'next/server'
 
-const mocks = vi.hoisted(() => ({
-  verifyAdmin: vi.fn(),
-  isAuthError: vi.fn(),
-  from: vi.fn(),
-  selectLimit: vi.fn(),
-  projectionSelectSingle: vi.fn(),
-  updateSingle: vi.fn(),
-  getAgentWorkItem: vi.fn(),
-  listAgentWorkItems: vi.fn(),
-  updateAgentWorkItemMetadata: vi.fn(),
-  runSocialTopicBacklogDiscovery: vi.fn(),
-}))
+const mocks = vi.hoisted(() => {
+  class SocialTopicCoverageError extends Error {
+    coverageReport: { status: string; blockers: string[] }
+
+    constructor(coverageReport: { status: string; blockers: string[] }) {
+      super('relation secret_catalog is missing')
+      this.name = 'SocialTopicCoverageError'
+      this.coverageReport = coverageReport
+    }
+  }
+
+  return {
+    verifyAdmin: vi.fn(),
+    isAuthError: vi.fn(),
+    from: vi.fn(),
+    selectLimit: vi.fn(),
+    projectionSelectSingle: vi.fn(),
+    updateSingle: vi.fn(),
+    getAgentWorkItem: vi.fn(),
+    listAgentWorkItems: vi.fn(),
+    updateAgentWorkItemMetadata: vi.fn(),
+    runSocialTopicBacklogDiscovery: vi.fn(),
+    SocialTopicCoverageError,
+  }
+})
 
 vi.mock('@/lib/auth-server', () => ({
   verifyAdmin: mocks.verifyAdmin,
@@ -27,6 +40,7 @@ vi.mock('@/lib/supabase', () => ({
 
 vi.mock('@/lib/social-topic-backlog', () => ({
   runSocialTopicBacklogDiscovery: mocks.runSocialTopicBacklogDiscovery,
+  SocialTopicCoverageError: mocks.SocialTopicCoverageError,
 }))
 
 vi.mock('@/lib/agent-work-items', () => ({
@@ -289,5 +303,124 @@ describe('/api/admin/social-content/topic-backlog', () => {
       blockers: [expect.stringContaining('approved_source_receipts_missing')],
     })
     expect(mocks.updateSingle).not.toHaveBeenCalled()
+  })
+
+  it('returns the closed coverage gate for a manual refresh', async () => {
+    mocks.runSocialTopicBacklogDiscovery.mockRejectedValueOnce(new mocks.SocialTopicCoverageError({
+      status: 'blocked',
+      blockers: ['[approved_source_receipts_missing] Approve one sanitized source summary.'],
+    }))
+
+    const response = await POST(new NextRequest('http://localhost/api/admin/social-content/topic-backlog', {
+      method: 'POST',
+    }))
+
+    expect(response.status).toBe(422)
+    const body = await response.json()
+    expect(body.error).toBe('Topic backlog refresh is blocked until the required approved source receipts are available.')
+    expect(body.coverage_report.status).toBe('blocked')
+    expect(JSON.stringify(body)).not.toContain('secret_catalog')
+  })
+
+  it.each([
+    [{}, 'Topic backlog id is required'],
+    [{ id: 'work-topic-1', status: 'published' }, 'Invalid topic backlog status'],
+  ])('rejects an invalid topic selection before reading the work item %#', async (body, error) => {
+    const response = await PATCH(new NextRequest('http://localhost/api/admin/social-content/topic-backlog', {
+      method: 'PATCH',
+      body: JSON.stringify(body),
+    }))
+
+    expect(response.status).toBe(400)
+    expect(await response.json()).toEqual({ error })
+    expect(mocks.getAgentWorkItem).not.toHaveBeenCalled()
+    expect(mocks.updateAgentWorkItemMetadata).not.toHaveBeenCalled()
+  })
+
+  it('keeps a topic closed when the coverage report says ready but no receipt is attached', async () => {
+    mocks.getAgentWorkItem.mockResolvedValueOnce({
+      ...centralWorkItem,
+      source_type: 'manual',
+      metadata: {
+        ...centralWorkItem.metadata,
+        social_topic_trigger: true,
+        source_receipts: [],
+        coverage_report: { status: 'ready' },
+      },
+    })
+
+    const response = await PATCH(new NextRequest('http://localhost/api/admin/social-content/topic-backlog', {
+      method: 'PATCH',
+      body: JSON.stringify({ id: 'work-topic-1', content_id: 'social-1', status: 'selected' }),
+    }))
+
+    expect(response.status).toBe(409)
+    expect(await response.json()).toMatchObject({
+      blockers: ['Approved source receipts are missing.'],
+    })
+    expect(mocks.updateAgentWorkItemMetadata).not.toHaveBeenCalled()
+  })
+
+  it('does not mark a dismissed topic as a selected LinkedIn lane', async () => {
+    const response = await PATCH(new NextRequest('http://localhost/api/admin/social-content/topic-backlog', {
+      method: 'PATCH',
+      body: JSON.stringify({ id: 'work-topic-1', status: 'dismissed' }),
+    }))
+
+    expect(response.status).toBe(200)
+    expect(mocks.updateAgentWorkItemMetadata).toHaveBeenCalledWith(expect.objectContaining({
+      metadata: expect.objectContaining({
+        social_topic_backlog_status: 'dismissed',
+        channel_lanes: expect.objectContaining({
+          linkedin: expect.objectContaining({ status: 'not_started' }),
+        }),
+      }),
+    }))
+  })
+
+  it('returns every lane status and the stored coverage report when the filter is all', async () => {
+    const selected = {
+      ...centralWorkItem,
+      id: 'work-topic-2',
+      metadata: {
+        ...centralWorkItem.metadata,
+        coverage_report: { status: 'ready', blockers: [] },
+        channel_lanes: {
+          linkedin: { status: 'selected', label: 'LinkedIn', required_inputs: ['post text'] },
+        },
+      },
+    }
+    mocks.listAgentWorkItems.mockResolvedValueOnce([centralWorkItem, selected])
+
+    const response = await GET(new NextRequest('http://localhost/api/admin/social-content/topic-backlog?status=all&limit=0'))
+
+    expect(response.status).toBe(200)
+    const body = await response.json()
+    expect(body.items.map((item: { id: string; status: string }) => [item.id, item.status])).toEqual([
+      ['work-topic-1', 'available'],
+      ['work-topic-2', 'selected'],
+    ])
+    expect(body.coverage_report).toMatchObject({ status: 'ready' })
+    expect(mocks.listAgentWorkItems).toHaveBeenCalledWith(expect.objectContaining({ limit: 1 }))
+  })
+
+  it('caps an oversized backlog page and reports a missing projection table without the database text', async () => {
+    mocks.listAgentWorkItems.mockResolvedValueOnce([])
+    mocks.selectLimit.mockResolvedValueOnce({
+      data: null,
+      error: { message: "Could not find the table 'public.social_topic_backlog' in the schema cache: secret_schema_detail" },
+    })
+
+    const response = await GET(new NextRequest('http://localhost/api/admin/social-content/topic-backlog?limit=100'))
+
+    expect(response.status).toBe(200)
+    const body = await response.json()
+    expect(body).toEqual({
+      items: [],
+      unavailable: true,
+      error: 'Social topic backlog migration has not been applied yet',
+    })
+    expect(JSON.stringify(body)).not.toContain('secret_schema_detail')
+    expect(mocks.listAgentWorkItems).toHaveBeenCalledWith(expect.objectContaining({ limit: 24 }))
   })
 })

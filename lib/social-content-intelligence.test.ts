@@ -12,6 +12,7 @@ import {
   socialTopicBacklogItemFromWorkItem,
 } from './social-content-intelligence'
 import type { AgentWorkItem } from './agent-work-items'
+import type { SocialContentCalibrationReference } from './social-content-calibration-library'
 
 describe('social-content-intelligence', () => {
   it('classifies public research decision windows without promoting weak signals', () => {
@@ -477,5 +478,74 @@ describe('social-content-intelligence', () => {
     expect(drafts.youtube.fields.title_variants).toEqual(expect.arrayContaining([
       expect.stringContaining('Visible review gates for AI content'),
     ]))
+  })
+
+  it('prefers portfolio history and keeps the calibration set to three references', () => {
+    const reference = (
+      id: string,
+      sourceType: SocialContentCalibrationReference['source_type'],
+    ): SocialContentCalibrationReference => ({
+      id,
+      platform: 'linkedin',
+      label: id,
+      source_type: sourceType,
+      content_pillar: 'AI and product management',
+      post_excerpt: `${id} excerpt`,
+      engagement_signal: `${id} signal`,
+      why_it_worked: `${id} stayed specific.`,
+      claim_boundaries: ['Stay specific.'],
+      provenance: `provenance:${id}`,
+      experiment_tags: null,
+    })
+    const drafts = buildLinkedInYoutubeReviewDrafts({
+      generatedAt: '2026-10-10T12:00:00.000Z',
+      calibrationReferences: [
+        reference('voice-1', 'voice_guide_reference'),
+        reference('history-1', 'portfolio_content_history'),
+        reference('history-2', 'portfolio_content_history'),
+        reference('history-3', 'portfolio_content_history'),
+        reference('history-4', 'portfolio_content_history'),
+      ],
+      insight: {
+        title: 'Approval gates create trust',
+        triggering_event: 'The review made the gate visible.',
+        content_angle: 'Receipts stay visible before public action.',
+        evidence_summary: 'Approved portfolio history is available.',
+        claim_boundaries: ['Do not treat correlation as a promised result.'],
+      },
+    })
+
+    const selected = drafts.linkedin.orchestration_evidence.voice_translation.calibration_application.selected_references
+    expect(selected.map((item) => item.id)).toEqual(['history-1', 'history-2', 'history-3'])
+    expect(selected.every((item) => item.source_type === 'portfolio_content_history')).toBe(true)
+    expect(drafts.linkedin.orchestration_evidence.voice_translation.calibration_application.causal_claim_boundary).toBe('correlational_only')
+    expect(drafts.youtube.fields.reviewer_trace).toMatchObject({
+      calibration_reference_ids: ['history-1', 'history-2', 'history-3'],
+      calibration_causal_boundary: 'correlational_only',
+    })
+    expect(JSON.stringify(selected)).not.toContain('voice-1')
+    expect(JSON.stringify(selected)).not.toContain('history-4')
+  })
+
+  it('uses the static calibration library when the caller supplies no history', () => {
+    const drafts = buildLinkedInYoutubeReviewDrafts({
+      generatedAt: '2026-10-10T12:00:00.000Z',
+      calibrationReferences: [],
+      insight: {
+        title: 'Approval gates create trust',
+        triggering_event: 'The review made the gate visible.',
+        content_angle: 'Receipts stay visible before public action.',
+        evidence_summary: 'No portfolio history was supplied.',
+        claim_boundaries: ['Do not invent engagement results.'],
+      },
+    })
+
+    expect(drafts.linkedin.orchestration_evidence.voice_translation.reference_ids).toEqual([
+      'linkedin-builder-insight-production-readiness',
+      'linkedin-access-exposure-metco',
+      'linkedin-ai-reduces-burden',
+    ])
+    expect(drafts.linkedin.orchestration_evidence.voice_translation.calibration_application.selected_references)
+      .toHaveLength(3)
   })
 })
