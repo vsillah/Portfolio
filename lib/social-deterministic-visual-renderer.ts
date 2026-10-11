@@ -28,11 +28,24 @@ const INTERNAL_VISIBLE_TEXT_PATTERNS = [
   /draft\s+asset/i,
 ]
 
+const EMBEDDED_FONT_FAMILY = 'AmaduTown Inter'
+
 export function assertPublicationSafeDeterministicVisualSvg(svg: string): void {
   const unsafePattern = INTERNAL_VISIBLE_TEXT_PATTERNS.find((pattern) => pattern.test(svg))
   if (unsafePattern) {
     throw new Error('Deterministic visual contains internal governance text that is not safe for publication.')
   }
+}
+
+export function embedDeterministicVisualFont(svg: string, fontWoff2: Buffer): string {
+  if (!fontWoff2.length) {
+    throw new Error('Deterministic visual font is unavailable.')
+  }
+
+  const fontFace = `@font-face { font-family: "${EMBEDDED_FONT_FAMILY}"; src: url("data:font/woff2;base64,${fontWoff2.toString('base64')}") format("woff2"); font-style: normal; font-weight: 100 900; }`
+  return svg
+    .replace('<style>', `<style>${fontFace}`)
+    .replaceAll('font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;', `font-family: "${EMBEDDED_FONT_FAMILY}", sans-serif;`)
 }
 
 function escapeXml(value: string): string {
@@ -86,7 +99,7 @@ function textLines(input: {
 
 function horizontalSvg(spec: DeterministicVisualSpec, width: number, height: number): string {
   const headline = wrap(spec.headline, 25, 3)
-  const evidence = spec.evidence_lines.slice(0, 3).map((line) => truncate(line, 76))
+  const evidence = spec.evidence_lines.slice(0, 3).map((line) => wrap(line, 46, 2))
   const nodes = spec.architecture!.nodes
   const connectors = spec.architecture!.connectors
   const accents = ['#f4b942', '#5dd4c8', '#9fc5ff']
@@ -94,7 +107,7 @@ function horizontalSvg(spec: DeterministicVisualSpec, width: number, height: num
   const cardGap = 88
   const cards = nodes.map((node, index) => {
     const x = 62 + index * (cardWidth + cardGap)
-    const bodyLines = wrap(node.body, 31, 4)
+    const bodyLines = wrap(node.body, 34, 5)
     return `
       <g data-architecture-node="${escapeXml(node.id)}">
         <rect x="${x}" y="344" width="${cardWidth}" height="190" rx="22" fill="#111d31" stroke="#33445f" stroke-width="2"/>
@@ -133,7 +146,7 @@ function horizontalSvg(spec: DeterministicVisualSpec, width: number, height: num
         .eyebrow { fill: #f4c96b; font-size: 18px; font-weight: 750; letter-spacing: 3px; }
         .headline { fill: #f7fafc; font-size: 46px; font-weight: 760; letter-spacing: -1px; }
         .stage { font-size: 15px; font-weight: 760; letter-spacing: 1.8px; }
-        .body { fill: #dbe7f7; font-size: 18px; font-weight: 520; }
+        .body { fill: #dbe7f7; font-size: 16.5px; font-weight: 520; }
         .connector { fill: #9eb8d1; font-size: 10px; font-weight: 700; letter-spacing: 0.8px; }
         .connector-line { fill: none; stroke: #86a9c9; stroke-width: 4; stroke-linecap: round; }
         .evidence { fill: #b9c8dc; font-size: 16px; font-weight: 520; }
@@ -147,8 +160,8 @@ function horizontalSvg(spec: DeterministicVisualSpec, width: number, height: num
     <path d="M62 318 H1138" stroke="#32425b" stroke-width="2"/>
     <text x="62" y="70" class="eyebrow">${escapeXml(spec.eyebrow.toUpperCase())}</text>
     ${textLines({ lines: headline, x: 62, y: 126, lineHeight: 50, className: 'headline' })}
-    <g transform="translate(720,104)">
-      ${evidence.map((line, index) => `<g transform="translate(0,${index * 48})"><circle cx="8" cy="-5" r="5" fill="#5dd4c8"/><text x="27" y="0" class="evidence">${escapeXml(line)}</text></g>`).join('')}
+    <g transform="translate(700,112)">
+      ${evidence.map((lines, index) => `<g transform="translate(0,${index * 62})"><circle cx="8" cy="-5" r="5" fill="#5dd4c8"/>${textLines({ lines, x: 27, y: 0, lineHeight: 20, className: 'evidence' })}</g>`).join('')}
     </g>
     <g transform="translate(62,276)">
       <rect x="0" y="0" width="${Math.min(360, Math.max(190, spec.result_label.length * 9 + 42))}" height="36" rx="18" fill="#f4b942"/>
@@ -243,13 +256,21 @@ export async function loadAmaduTownLogoPng(): Promise<Buffer> {
   return readFile(path.join(process.cwd(), 'public', 'amadutown-logo-upscaled.png'))
 }
 
+export async function loadDeterministicVisualFontWoff2(): Promise<Buffer> {
+  return readFile(path.join(process.cwd(), 'public', 'fonts', 'inter-latin-variable.woff2'))
+}
+
 export async function renderDeterministicVisualPng(input: {
   spec: DeterministicVisualSpec
   visualType: FrameworkVisualType
   logoPng: Buffer
 }): Promise<Buffer> {
   const dimensions = DIMENSIONS[input.spec.aspect_ratio] ?? DIMENSIONS['1.91:1']
-  const svg = buildDeterministicVisualSvg(input.spec, input.visualType)
+  const fontWoff2 = await loadDeterministicVisualFontWoff2()
+  const svg = embedDeterministicVisualFont(
+    buildDeterministicVisualSvg(input.spec, input.visualType),
+    fontWoff2,
+  )
   const logoHeight = input.spec.aspect_ratio === '1.91:1' ? 76 : 92
   const logo = await sharp(input.logoPng)
     .resize({ height: logoHeight, withoutEnlargement: true })
