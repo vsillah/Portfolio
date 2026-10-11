@@ -132,6 +132,8 @@ describe('calendar copy manual revision contract', () => {
   })
   it('invalidates the bound asset when the selected visual type changes', () => {
     const current = boundDeterministicItem()
+    current.rag_context.section_gate_reviews.visual_assets = { status: 'approved' }
+    current.rag_context.section_gate_reviews.privacy = { status: 'approved' }
     const patch = prepareManualCopyUpdate({
       current,
       patch: { framework_visual_type: 'timeline' },
@@ -143,6 +145,10 @@ describe('calendar copy manual revision contract', () => {
     expect(patch.rag_context).toMatchObject({
       deterministic_visual_asset: { status: 'stale', invalidation_reason: 'candidate_changed' },
       practitioner_content_quality: { deterministic_visual: { candidate: { artifact_url: null } } },
+      section_gate_reviews: {
+        visual_assets: { status: 'pending', invalidation_reason: 'candidate_changed' },
+        privacy: { status: 'pending', invalidation_reason: 'candidate_changed' },
+      },
     })
   })
   it('keeps leaked prompt text out of returned human review', () => {

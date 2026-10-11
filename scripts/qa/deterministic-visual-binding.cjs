@@ -37,6 +37,14 @@ async function revealBelowStickyHeader(page, locator) {
   })
 }
 
+async function pauseAtWorkflowStep(page, step) {
+  const locator = page.locator(`[data-visual-workflow-step="${step}"]`)
+  await locator.evaluate((element) => {
+    element.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'instant' })
+  })
+  await page.waitForTimeout(650)
+}
+
 ;(async () => {
   const browser = await chromium.launch()
   const results = []
@@ -113,12 +121,22 @@ async function revealBelowStickyHeader(page, locator) {
       assert.equal(themeState.darkClass, theme.resolved === 'dark', `${evidencePrefix} resolved theme class`)
 
       const renderStatus = page.getByLabel('Deterministic visual render status')
+      const effectiveInputs = page.getByLabel('Inputs used for this render')
       await expect(renderStatus.getByText('Ready to render')).toBeVisible()
       await expect(renderStatus.getByText('Provider none')).toBeVisible()
-      await expect(renderStatus.getByText('architecture', { exact: true })).toBeVisible()
+      await expect(effectiveInputs.getByText('architecture', { exact: true }).first()).toBeVisible()
+      await expect(effectiveInputs.getByText('Inputs used for this render')).toBeVisible()
+      await expect(effectiveInputs.getByText(/Constraint/)).toBeVisible()
+      await expect(page.getByRole('textbox', { name: /image prompt/i })).toHaveCount(0)
+      await expect(page.getByText('No image prompt is used by the deterministic renderer.')).toBeVisible()
+      const workflowOrder = await page.locator('[data-visual-workflow-step]').evaluateAll((elements) => elements.map((element) => element.getAttribute('data-visual-workflow-step')))
+      assert.deepEqual(workflowOrder, ['format', 'configuration', 'render', 'preview', 'decision'], `${evidencePrefix} workflow order`)
       await expect(page.getByText(/Gemini, HeyGen, n8n media, and other media providers stay off/i)).toBeVisible()
       const renderButton = page.getByRole('button', { name: 'Render deterministic visual' })
       await expect(renderButton).toBeEnabled()
+      await pauseAtWorkflowStep(page, 'format')
+      await pauseAtWorkflowStep(page, 'configuration')
+      await pauseAtWorkflowStep(page, 'render')
       await revealBelowStickyHeader(page, renderStatus)
       await page.waitForTimeout(1000)
       await page.screenshot({ path: path.join(outputDir, `${evidencePrefix}-ready.png`) })
@@ -135,6 +153,7 @@ async function revealBelowStickyHeader(page, locator) {
       await revealBelowStickyHeader(page, reviewAsset)
       await page.waitForTimeout(1000)
       await page.screenshot({ path: path.join(outputDir, `${evidencePrefix}-current-asset.png`) })
+      await pauseAtWorkflowStep(page, 'decision')
 
       const visualAudit = await page.evaluate(({ resolved }) => {
         const parse = (value) => {
@@ -248,6 +267,8 @@ async function revealBelowStickyHeader(page, locator) {
         route: routeFor('ready'),
         fixture_states: ['ready', 'current', 'missing_candidate', 'architecture_mismatch', 'storage_unavailable'],
         fixture_responses: fixtureResponses,
+        workflow_order: workflowOrder,
+        deterministic_image_prompt_controls: 0,
         content_lane: visualAudit.contentLane,
         contrast_checks: visualAudit.contrastChecks,
         theme_surfaces: visualAudit.surfaces,

@@ -111,6 +111,7 @@ export async function POST(
         expectedCopyVersion: body.expected_copy_version,
         expectedCandidateId: body.expected_candidate_id,
         expectedCandidateHash: body.expected_candidate_hash,
+        expectedVisualType: body.expected_visual_type,
       })
       const item = action === 'current' ? fixture : completeDeterministicVisualBindingQaFixture()
       return NextResponse.json({
@@ -150,6 +151,7 @@ export async function POST(
       expectedCopyVersion: body.expected_copy_version,
       expectedCandidateId: body.expected_candidate_id,
       expectedCandidateHash: body.expected_candidate_hash,
+      expectedVisualType: body.expected_visual_type,
     })
   } catch (error) {
     if (error instanceof DeterministicVisualRenderError) return blockedResponse(error, projection)

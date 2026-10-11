@@ -80,6 +80,7 @@ function request(item = row(), overrides: Record<string, unknown> = {}) {
       expected_copy_version: view.copy_version,
       expected_candidate_id: view.candidate_id,
       expected_candidate_hash: view.candidate_hash,
+      expected_visual_type: view.visual_type,
       ...overrides,
     }),
   })
@@ -141,6 +142,13 @@ describe('POST /api/admin/social-content/[id]/render-deterministic-visual', () =
       copy_version: socialCopyVersion(item),
       candidate_id: projection(item).candidate_id,
       candidate_hash: projection(item).candidate_hash,
+      visual_type: 'architecture',
+      effective_inputs: {
+        copy_version: socialCopyVersion(item),
+        candidate_hash: projection(item).candidate_hash,
+        selected_visual_type: 'architecture',
+        candidate_visual_type: 'architecture',
+      },
       provider_receipt: { provider: 'none', model: null, status: 'not_called', external_call: false },
       provider_calls: { gemini: false, heygen: false, n8n_media: false, other_media: false },
     })
@@ -190,6 +198,16 @@ describe('POST /api/admin/social-content/[id]/render-deterministic-visual', () =
     expect(mocks.upload).not.toHaveBeenCalled()
   })
 
+  it('rejects a selected visual type mismatch before renderer or storage work', async () => {
+    const item = row()
+    mocks.readSocialQueueForWrite.mockResolvedValue(item)
+    const response = await POST(request(item, { expected_visual_type: 'timeline' }), { params: { id: item.id } })
+    expect(response.status).toBe(409)
+    await expect(response.json()).resolves.toMatchObject({ code: 'visual_type_mismatch', provider_calls_enabled: false })
+    expect(mocks.renderPng).not.toHaveBeenCalled()
+    expect(mocks.upload).not.toHaveBeenCalled()
+  })
+
   it('blocks a missing candidate with an in-context recovery action', async () => {
     const item = row()
     item.rag_context.practitioner_content_quality.deterministic_visual.candidate.candidate_id = ''
@@ -200,6 +218,7 @@ describe('POST /api/admin/social-content/[id]/render-deterministic-visual', () =
         expected_copy_version: view.copy_version,
         expected_candidate_id: view.candidate_id,
         expected_candidate_hash: view.candidate_hash,
+        expected_visual_type: view.visual_type,
       }),
     }), { params: { id: item.id } })
     expect(response.status).toBe(409)
@@ -217,6 +236,7 @@ describe('POST /api/admin/social-content/[id]/render-deterministic-visual', () =
         expected_copy_version: view.copy_version,
         expected_candidate_id: view.candidate_id,
         expected_candidate_hash: view.candidate_hash,
+        expected_visual_type: view.visual_type,
       }),
     }), { params: { id: item.id } })
     expect(response.status).toBe(409)

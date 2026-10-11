@@ -19,10 +19,6 @@
         "state": "ready"
       },
       {
-        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
-        "state": "ready"
-      },
-      {
         "path": "/api/admin/social-content/deterministic-visual-binding-qa/render-deterministic-visual",
         "state": "current"
       },
@@ -32,25 +28,21 @@
       },
       {
         "path": "/api/admin/social-content/deterministic-visual-binding-qa",
-        "state": "missing_candidate"
-      },
-      {
-        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
         "state": "architecture_mismatch"
-      },
-      {
-        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
-        "state": "architecture_mismatch"
-      },
-      {
-        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
-        "state": "storage_unavailable"
       },
       {
         "path": "/api/admin/social-content/deterministic-visual-binding-qa",
         "state": "storage_unavailable"
       }
     ],
+    "workflow_order": [
+      "format",
+      "configuration",
+      "render",
+      "preview",
+      "decision"
+    ],
+    "deterministic_image_prompt_controls": 0,
     "content_lane": {
       "left": 0,
       "right": 390,
@@ -66,12 +58,12 @@
       },
       {
         "name": "render-summary",
-        "ratio": 15.08,
+        "ratio": 15.39,
         "minimum": 4.5
       },
       {
         "name": "render-recovery",
-        "ratio": 6.83,
+        "ratio": 6.97,
         "minimum": 4.5
       },
       {
@@ -110,16 +102,12 @@
         "luminance": 0.985
       },
       {
-        "name": "render-status",
-        "luminance": 0.897
-      },
-      {
-        "name": "framework-format",
-        "luminance": 0.893
-      },
-      {
-        "name": "carousel-format",
+        "name": "deterministic-configuration",
         "luminance": 0.985
+      },
+      {
+        "name": "render-status",
+        "luminance": 0.916
       },
       {
         "name": "voiceover",
@@ -165,10 +153,6 @@
         "state": "ready"
       },
       {
-        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
-        "state": "ready"
-      },
-      {
         "path": "/api/admin/social-content/deterministic-visual-binding-qa/render-deterministic-visual",
         "state": "current"
       },
@@ -178,25 +162,21 @@
       },
       {
         "path": "/api/admin/social-content/deterministic-visual-binding-qa",
-        "state": "missing_candidate"
-      },
-      {
-        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
         "state": "architecture_mismatch"
-      },
-      {
-        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
-        "state": "architecture_mismatch"
-      },
-      {
-        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
-        "state": "storage_unavailable"
       },
       {
         "path": "/api/admin/social-content/deterministic-visual-binding-qa",
         "state": "storage_unavailable"
       }
     ],
+    "workflow_order": [
+      "format",
+      "configuration",
+      "render",
+      "preview",
+      "decision"
+    ],
+    "deterministic_image_prompt_controls": 0,
     "content_lane": {
       "left": 0,
       "right": 768,
@@ -212,12 +192,12 @@
       },
       {
         "name": "render-summary",
-        "ratio": 15.08,
+        "ratio": 15.39,
         "minimum": 4.5
       },
       {
         "name": "render-recovery",
-        "ratio": 6.83,
+        "ratio": 6.97,
         "minimum": 4.5
       },
       {
@@ -256,16 +236,12 @@
         "luminance": 0.985
       },
       {
-        "name": "render-status",
-        "luminance": 0.897
-      },
-      {
-        "name": "framework-format",
-        "luminance": 0.893
-      },
-      {
-        "name": "carousel-format",
+        "name": "deterministic-configuration",
         "luminance": 0.985
+      },
+      {
+        "name": "render-status",
+        "luminance": 0.916
       },
       {
         "name": "voiceover",
@@ -311,10 +287,6 @@
         "state": "ready"
       },
       {
-        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
-        "state": "ready"
-      },
-      {
         "path": "/api/admin/social-content/deterministic-visual-binding-qa/render-deterministic-visual",
         "state": "current"
       },
@@ -324,25 +296,21 @@
       },
       {
         "path": "/api/admin/social-content/deterministic-visual-binding-qa",
-        "state": "missing_candidate"
-      },
-      {
-        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
         "state": "architecture_mismatch"
-      },
-      {
-        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
-        "state": "architecture_mismatch"
-      },
-      {
-        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
-        "state": "storage_unavailable"
       },
       {
         "path": "/api/admin/social-content/deterministic-visual-binding-qa",
         "state": "storage_unavailable"
       }
     ],
+    "workflow_order": [
+      "format",
+      "configuration",
+      "render",
+      "preview",
+      "decision"
+    ],
+    "deterministic_image_prompt_controls": 0,
     "content_lane": {
       "left": 264,
       "right": 1440,
@@ -358,12 +326,12 @@
       },
       {
         "name": "render-summary",
-        "ratio": 15.08,
+        "ratio": 15.39,
         "minimum": 4.5
       },
       {
         "name": "render-recovery",
-        "ratio": 6.83,
+        "ratio": 6.97,
         "minimum": 4.5
       },
       {
@@ -402,16 +370,12 @@
         "luminance": 0.985
       },
       {
-        "name": "render-status",
-        "luminance": 0.897
-      },
-      {
-        "name": "framework-format",
-        "luminance": 0.893
-      },
-      {
-        "name": "carousel-format",
+        "name": "deterministic-configuration",
         "luminance": 0.985
+      },
+      {
+        "name": "render-status",
+        "luminance": 0.916
       },
       {
         "name": "voiceover",
@@ -457,10 +421,6 @@
         "state": "ready"
       },
       {
-        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
-        "state": "ready"
-      },
-      {
         "path": "/api/admin/social-content/deterministic-visual-binding-qa/render-deterministic-visual",
         "state": "current"
       },
@@ -470,25 +430,21 @@
       },
       {
         "path": "/api/admin/social-content/deterministic-visual-binding-qa",
-        "state": "missing_candidate"
-      },
-      {
-        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
         "state": "architecture_mismatch"
-      },
-      {
-        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
-        "state": "architecture_mismatch"
-      },
-      {
-        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
-        "state": "storage_unavailable"
       },
       {
         "path": "/api/admin/social-content/deterministic-visual-binding-qa",
         "state": "storage_unavailable"
       }
     ],
+    "workflow_order": [
+      "format",
+      "configuration",
+      "render",
+      "preview",
+      "decision"
+    ],
+    "deterministic_image_prompt_controls": 0,
     "content_lane": {
       "left": 0,
       "right": 390,
@@ -504,12 +460,12 @@
       },
       {
         "name": "render-summary",
-        "ratio": 9.89,
+        "ratio": 7.98,
         "minimum": 4.5
       },
       {
         "name": "render-recovery",
-        "ratio": 5.99,
+        "ratio": 5.04,
         "minimum": 4.5
       },
       {
@@ -548,16 +504,12 @@
         "luminance": 0.042
       },
       {
+        "name": "deterministic-configuration",
+        "luminance": 0.042
+      },
+      {
         "name": "render-status",
-        "luminance": 0.04
-      },
-      {
-        "name": "framework-format",
-        "luminance": 0.042
-      },
-      {
-        "name": "carousel-format",
-        "luminance": 0.042
+        "luminance": 0.061
       },
       {
         "name": "voiceover",
@@ -603,10 +555,6 @@
         "state": "ready"
       },
       {
-        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
-        "state": "ready"
-      },
-      {
         "path": "/api/admin/social-content/deterministic-visual-binding-qa/render-deterministic-visual",
         "state": "current"
       },
@@ -616,25 +564,21 @@
       },
       {
         "path": "/api/admin/social-content/deterministic-visual-binding-qa",
-        "state": "missing_candidate"
-      },
-      {
-        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
         "state": "architecture_mismatch"
-      },
-      {
-        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
-        "state": "architecture_mismatch"
-      },
-      {
-        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
-        "state": "storage_unavailable"
       },
       {
         "path": "/api/admin/social-content/deterministic-visual-binding-qa",
         "state": "storage_unavailable"
       }
     ],
+    "workflow_order": [
+      "format",
+      "configuration",
+      "render",
+      "preview",
+      "decision"
+    ],
+    "deterministic_image_prompt_controls": 0,
     "content_lane": {
       "left": 0,
       "right": 768,
@@ -650,12 +594,12 @@
       },
       {
         "name": "render-summary",
-        "ratio": 9.89,
+        "ratio": 7.98,
         "minimum": 4.5
       },
       {
         "name": "render-recovery",
-        "ratio": 5.99,
+        "ratio": 5.04,
         "minimum": 4.5
       },
       {
@@ -694,16 +638,12 @@
         "luminance": 0.042
       },
       {
+        "name": "deterministic-configuration",
+        "luminance": 0.042
+      },
+      {
         "name": "render-status",
-        "luminance": 0.04
-      },
-      {
-        "name": "framework-format",
-        "luminance": 0.042
-      },
-      {
-        "name": "carousel-format",
-        "luminance": 0.042
+        "luminance": 0.061
       },
       {
         "name": "voiceover",
@@ -749,10 +689,6 @@
         "state": "ready"
       },
       {
-        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
-        "state": "ready"
-      },
-      {
         "path": "/api/admin/social-content/deterministic-visual-binding-qa/render-deterministic-visual",
         "state": "current"
       },
@@ -762,25 +698,21 @@
       },
       {
         "path": "/api/admin/social-content/deterministic-visual-binding-qa",
-        "state": "missing_candidate"
-      },
-      {
-        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
         "state": "architecture_mismatch"
-      },
-      {
-        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
-        "state": "architecture_mismatch"
-      },
-      {
-        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
-        "state": "storage_unavailable"
       },
       {
         "path": "/api/admin/social-content/deterministic-visual-binding-qa",
         "state": "storage_unavailable"
       }
     ],
+    "workflow_order": [
+      "format",
+      "configuration",
+      "render",
+      "preview",
+      "decision"
+    ],
+    "deterministic_image_prompt_controls": 0,
     "content_lane": {
       "left": 264,
       "right": 1440,
@@ -796,12 +728,12 @@
       },
       {
         "name": "render-summary",
-        "ratio": 9.89,
+        "ratio": 7.98,
         "minimum": 4.5
       },
       {
         "name": "render-recovery",
-        "ratio": 5.99,
+        "ratio": 5.04,
         "minimum": 4.5
       },
       {
@@ -840,16 +772,12 @@
         "luminance": 0.042
       },
       {
+        "name": "deterministic-configuration",
+        "luminance": 0.042
+      },
+      {
         "name": "render-status",
-        "luminance": 0.04
-      },
-      {
-        "name": "framework-format",
-        "luminance": 0.042
-      },
-      {
-        "name": "carousel-format",
-        "luminance": 0.042
+        "luminance": 0.061
       },
       {
         "name": "voiceover",

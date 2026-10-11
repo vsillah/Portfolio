@@ -7,9 +7,21 @@ import {
   type DeterministicVisualSpec,
 } from '@/lib/social-practitioner-content'
 
-export const DETERMINISTIC_VISUAL_ASSET_VERSION = 'deterministic_visual_asset_v2' as const
+export const DETERMINISTIC_VISUAL_ASSET_VERSION = 'deterministic_visual_asset_v3' as const
 export const DETERMINISTIC_VISUAL_RENDERER_VERSION = 'amadutown_html_svg_v2' as const
 export const DETERMINISTIC_VISUAL_STORAGE_BUCKET = 'social-content' as const
+
+export type DeterministicVisualEffectiveInputs = {
+  renderer_version: typeof DETERMINISTIC_VISUAL_RENDERER_VERSION
+  copy_version: string
+  candidate_id: string | null
+  candidate_hash: string | null
+  selected_visual_type: FrameworkVisualType | null
+  candidate_visual_type: FrameworkVisualType | null
+  headline: string | null
+  nodes: Array<{ id: string; label: string }>
+  connectors: Array<{ from: string; to: string; label: string }>
+}
 
 export type DeterministicVisualAssetReceipt = {
   version: typeof DETERMINISTIC_VISUAL_ASSET_VERSION
@@ -23,6 +35,7 @@ export type DeterministicVisualAssetReceipt = {
   renderer_version: typeof DETERMINISTIC_VISUAL_RENDERER_VERSION
   render_input_hash: string
   brand_asset_hash: string
+  effective_inputs: DeterministicVisualEffectiveInputs
   asset_sha256: string
   asset_url: string
   storage_bucket: typeof DETERMINISTIC_VISUAL_STORAGE_BUCKET
@@ -84,6 +97,7 @@ export type DeterministicVisualRenderProjection = {
   visual_type: FrameworkVisualType | null
   provider: 'none' | null
   provider_calls_enabled: false
+  inputs: DeterministicVisualEffectiveInputs
   receipt: DeterministicVisualAssetReceipt | null
 }
 
@@ -216,6 +230,25 @@ export function deterministicVisualCandidateHashFromRagContext(ragContext: unkno
   return spec ? deterministicVisualCandidateHash(spec) : null
 }
 
+function deterministicVisualEffectiveInputs(input: {
+  spec: DeterministicVisualSpec | null
+  selectedVisualType: FrameworkVisualType | null
+  copyVersion: string
+  candidateHash: string | null
+}): DeterministicVisualEffectiveInputs {
+  return {
+    renderer_version: DETERMINISTIC_VISUAL_RENDERER_VERSION,
+    copy_version: input.copyVersion,
+    candidate_id: input.spec?.candidate.candidate_id || null,
+    candidate_hash: input.candidateHash,
+    selected_visual_type: input.selectedVisualType,
+    candidate_visual_type: input.spec?.visual_type || null,
+    headline: input.spec?.headline || null,
+    nodes: input.spec?.architecture?.nodes.map(({ id, label }) => ({ id, label })) ?? [],
+    connectors: input.spec?.architecture?.connectors.map(({ from, to, label }) => ({ from, to, label })) ?? [],
+  }
+}
+
 export function readDeterministicVisualAssetReceipt(ragContext: unknown): DeterministicVisualAssetReceipt | null {
   const value = record(record(ragContext).deterministic_visual_asset)
   if (value.version !== DETERMINISTIC_VISUAL_ASSET_VERSION) return null
@@ -319,6 +352,12 @@ export function projectDeterministicVisualRender(input: {
   const candidateId = spec?.candidate.candidate_id || null
   const candidateHash = spec ? deterministicVisualCandidateHash(spec) : null
   const receipt = readDeterministicVisualAssetReceipt(input.item.rag_context)
+  const inputs = deterministicVisualEffectiveInputs({
+    spec,
+    selectedVisualType: input.item.framework_visual_type,
+    copyVersion: input.copyVersion,
+    candidateHash,
+  })
   const base = {
     copy_version: input.copyVersion,
     candidate_id: candidateId,
@@ -326,6 +365,7 @@ export function projectDeterministicVisualRender(input: {
     visual_type: input.item.framework_visual_type,
     provider: spec?.art_direction_receipt.provider === 'none' ? 'none' as const : null,
     provider_calls_enabled: false as const,
+    inputs,
     receipt,
   }
 
@@ -380,6 +420,7 @@ export function projectDeterministicVisualRender(input: {
       visualType: input.item.framework_visual_type as FrameworkVisualType,
       brandAssetHash: receipt.brand_asset_hash,
     })
+    && JSON.stringify(canonicalize(receipt.effective_inputs)) === JSON.stringify(canonicalize(inputs))
     && /^[a-f0-9]{64}$/.test(receipt.asset_sha256)
     && receipt.provider_receipt?.provider === 'none'
     && receipt.provider_receipt?.model === null
@@ -427,6 +468,7 @@ export function assertDeterministicVisualRenderRequest(input: {
   expectedCopyVersion: unknown
   expectedCandidateId: unknown
   expectedCandidateHash: unknown
+  expectedVisualType: unknown
 }): 'render' | 'current' {
   const expectedCopyVersion = text(input.expectedCopyVersion)
   const expectedCandidateId = text(input.expectedCandidateId)
@@ -458,6 +500,13 @@ export function assertDeterministicVisualRenderRequest(input: {
       'candidate_hash_mismatch',
       'The deterministic candidate content changed since this visual review opened.',
       'Reload the Visuals step and render only the currently displayed candidate hash.',
+    )
+  }
+  if (text(input.expectedVisualType) !== input.projection.visual_type) {
+    throw new DeterministicVisualRenderError(
+      'visual_type_mismatch',
+      'The selected visual type changed since this visual review opened.',
+      'Reload the Visuals step, save the selected type, and render only its matching candidate contract.',
     )
   }
   if (input.projection.state === 'current') return 'current'
@@ -518,6 +567,13 @@ export function buildDeterministicVisualAssetPatch(input: {
     ? ragContext.deterministic_visual_asset_history
     : []
   const providerReceiptId = `provider-none-${input.renderInputHash.slice(0, 24)}`
+  const spec = readDeterministicVisualSpec(input.item.rag_context)
+  const effectiveInputs = deterministicVisualEffectiveInputs({
+    spec,
+    selectedVisualType: input.item.framework_visual_type,
+    copyVersion: input.copyVersion,
+    candidateHash: input.candidateHash,
+  })
   const receipt: DeterministicVisualAssetReceipt = {
     version: DETERMINISTIC_VISUAL_ASSET_VERSION,
     status: 'current',
@@ -530,6 +586,7 @@ export function buildDeterministicVisualAssetPatch(input: {
     renderer_version: DETERMINISTIC_VISUAL_RENDERER_VERSION,
     render_input_hash: input.renderInputHash,
     brand_asset_hash: input.brandAssetHash,
+    effective_inputs: effectiveInputs,
     asset_sha256: input.assetSha256,
     asset_url: input.assetUrl,
     storage_bucket: DETERMINISTIC_VISUAL_STORAGE_BUCKET,

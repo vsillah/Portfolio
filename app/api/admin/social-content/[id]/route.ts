@@ -363,7 +363,7 @@ export async function PUT(
       return NextResponse.json({ error: 'Failed to update content' }, { status: 500 })
     }
 
-    return NextResponse.json({ item: withSocialCopyRevision(data) })
+    return NextResponse.json({ item: withDeterministicVisualProjection(data) })
   } catch (error) {
     console.error('Error in PUT /api/admin/social-content/[id]:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

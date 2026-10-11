@@ -77,11 +77,30 @@ describe('deterministic Social Content visual binding', () => {
     const item = approvedItem()
     const copyVersion = socialCopyVersion(item)
     const ready = projectDeterministicVisualRender({ item, copyVersion, storageAvailable: true })
-    expect(ready).toMatchObject({ state: 'ready', code: 'ready', can_render: true, provider: 'none', provider_calls_enabled: false })
+    expect(ready).toMatchObject({
+      state: 'ready',
+      code: 'ready',
+      can_render: true,
+      provider: 'none',
+      provider_calls_enabled: false,
+      inputs: {
+        selected_visual_type: 'architecture',
+        candidate_visual_type: 'architecture',
+        headline: expect.any(String),
+        nodes: expect.any(Array),
+        connectors: expect.any(Array),
+      },
+    })
 
     Object.assign(item, renderPatch(item))
     const current = projectDeterministicVisualRender({ item, copyVersion, storageAvailable: true })
     expect(current).toMatchObject({ state: 'current', code: 'already_current', can_render: false })
+
+    item.rag_context.deterministic_visual_asset.effective_inputs.headline = 'A receipt for different effective inputs.'
+    expect(projectDeterministicVisualRender({ item, copyVersion, storageAvailable: true })).toMatchObject({
+      state: 'ready', code: 'asset_stale', can_render: true,
+    })
+    item.rag_context.deterministic_visual_asset.effective_inputs.headline = current.inputs.headline
 
     item.rag_context.deterministic_visual_asset.provider_receipt.external_call = true
     expect(projectDeterministicVisualRender({ item, copyVersion, storageAvailable: true })).toMatchObject({
@@ -124,6 +143,20 @@ describe('deterministic Social Content visual binding', () => {
       recovery_action: expect.stringMatching(/exactly matches/i),
     })
 
+    const unsupported = approvedItem()
+    unsupported.framework_visual_type = 'timeline'
+    unsupported.rag_context.practitioner_content_quality.deterministic_visual.visual_type = 'timeline'
+    expect(projectDeterministicVisualRender({
+      item: unsupported,
+      copyVersion: socialCopyVersion(unsupported),
+      storageAvailable: true,
+    })).toMatchObject({
+      state: 'blocked',
+      code: 'visual_type_unsupported',
+      can_render: false,
+      recovery_action: expect.stringMatching(/explicit composition contract/i),
+    })
+
     const disconnected = approvedItem()
     disconnected.rag_context.practitioner_content_quality.deterministic_visual.architecture.connectors = []
     expect(projectDeterministicVisualRender({
@@ -147,13 +180,22 @@ describe('deterministic Social Content visual binding', () => {
       expectedCopyVersion: 'stale',
       expectedCandidateId: projection.candidate_id,
       expectedCandidateHash: projection.candidate_hash,
+      expectedVisualType: projection.visual_type,
     })).toThrow('Copy changed')
     expect(() => assertDeterministicVisualRenderRequest({
       projection,
       expectedCopyVersion: projection.copy_version,
       expectedCandidateId: projection.candidate_id,
       expectedCandidateHash: 'changed',
+      expectedVisualType: projection.visual_type,
     })).toThrow('candidate content changed')
+    expect(() => assertDeterministicVisualRenderRequest({
+      projection,
+      expectedCopyVersion: projection.copy_version,
+      expectedCandidateId: projection.candidate_id,
+      expectedCandidateHash: projection.candidate_hash,
+      expectedVisualType: 'timeline',
+    })).toThrow('visual type changed')
   })
 
   it('builds a provider-none receipt and resets downstream asset decisions', () => {
@@ -166,6 +208,20 @@ describe('deterministic Social Content visual binding', () => {
     expect(patch.rag_context.deterministic_visual_asset).toMatchObject({
       status: 'current',
       social_content_id: 'social-1',
+      effective_inputs: {
+        selected_visual_type: 'architecture',
+        candidate_visual_type: 'architecture',
+        headline: expect.any(String),
+        nodes: expect.arrayContaining([
+          expect.objectContaining({ id: 'constraint', label: 'Constraint' }),
+          expect.objectContaining({ id: 'decision', label: 'Human decision' }),
+          expect.objectContaining({ id: 'result', label: 'Bounded result' }),
+        ]),
+        connectors: expect.arrayContaining([
+          expect.objectContaining({ from: 'constraint', to: 'decision' }),
+          expect.objectContaining({ from: 'decision', to: 'result' }),
+        ]),
+      },
       provider_receipt: { provider: 'none', model: null, status: 'not_called', external_call: false },
       provider_calls: { gemini: false, heygen: false, n8n_media: false, other_media: false },
       external_actions: { provider_upload: false, platform_draft: false, schedule: false, publish: false, external_send: false },
