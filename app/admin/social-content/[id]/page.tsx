@@ -86,10 +86,12 @@ import type {
   SocialContentItem as BaseSocialContentItem,
   SocialContentPublish,
   SocialContentConfig,
+  DeterministicVisualRenderProjection,
   ContentStatus,
   FrameworkVisualType,
   SocialPlatform,
 } from '@/lib/social-content'
+import { DETERMINISTIC_VISUAL_BINDING_QA_ID } from '@/lib/social-content'
 import type { SocialCommentInboxItem } from '@/lib/social-comment-inbox-ui'
 import type { SocialContentCalibrationReference } from '@/lib/social-content-calibration-library'
 import Link from 'next/link'
@@ -722,6 +724,7 @@ function SocialContentDetailPage() {
   const searchParams = useSearchParams()
   const backUrl = getBackUrl(searchParams, '/admin/social-content')
   const rawRecoveryStep = searchParams.get('step')
+  const deterministicVisualQaState = searchParams.get('qa_state')
   const recoveryStep: ApprovalStep = isApprovalStep(rawRecoveryStep) ? rawRecoveryStep : 'copy'
   const recoveryStepParams = new URLSearchParams(searchParams.toString())
   recoveryStepParams.set('step', recoveryStep)
@@ -731,7 +734,8 @@ function SocialContentDetailPage() {
   const [loadError, setLoadError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
   const [approving, setApproving] = useState(false)
-  const [regeneratingImage, setRegeneratingImage] = useState(false)
+  const [renderingDeterministicVisual, setRenderingDeterministicVisual] = useState(false)
+  const [deterministicVisualRenderOverride, setDeterministicVisualRenderOverride] = useState<DeterministicVisualRenderProjection | null>(null)
   const [regeneratingAudio, setRegeneratingAudio] = useState(false)
   const [convertingFormat, setConvertingFormat] = useState(false)
   const [capturingAppCarousel, setCapturingAppCarousel] = useState(false)
@@ -818,7 +822,7 @@ function SocialContentDetailPage() {
   const fetchTopicBacklog = useCallback(async () => {
     setLoadingTopicBacklog(true)
     try {
-      if (id === TOPIC_SOURCE_COVERAGE_QA_ID) {
+      if (id === TOPIC_SOURCE_COVERAGE_QA_ID || id === DETERMINISTIC_VISUAL_BINDING_QA_ID) {
         setTopicBacklogItems([])
         setTopicBacklogUnavailable(false)
         setTopicBacklogCoverageReport(null)
@@ -868,6 +872,10 @@ function SocialContentDetailPage() {
 
   const fetchPlatformConfigs = useCallback(async () => {
     try {
+      if (id === DETERMINISTIC_VISUAL_BINDING_QA_ID) {
+        setPlatformConfigs([])
+        return
+      }
       const session = await getCurrentSession()
       if (!session) return
 
@@ -881,7 +889,7 @@ function SocialContentDetailPage() {
     } catch (err) {
       console.error('Failed to fetch social platform config:', err)
     }
-  }, [])
+  }, [id])
 
   const fetchReviewQueue = useCallback(async (currentItem: SocialContentItem) => {
     const currentGroupKey = getReviewQueueGroupKey(currentItem)
@@ -978,7 +986,10 @@ function SocialContentDetailPage() {
         return
       }
 
-      const res = await fetch(`/api/admin/social-content/${id}`, {
+      const detailQuery = id === DETERMINISTIC_VISUAL_BINDING_QA_ID && deterministicVisualQaState
+        ? `?qa_state=${encodeURIComponent(deterministicVisualQaState)}`
+        : ''
+      const res = await fetch(`/api/admin/social-content/${id}${detailQuery}`, {
         cache: 'no-store',
         headers: { Authorization: `Bearer ${session.access_token}` },
       })
@@ -1000,6 +1011,7 @@ function SocialContentDetailPage() {
       const i = itemRecord as unknown as SocialContentItem
       setLoadError(null)
       setItem(i)
+      setDeterministicVisualRenderOverride(null)
       setPostText(i.post_text || '')
       setCtaText(i.cta_text || '')
       setCtaUrl(i.cta_url || '')
@@ -1030,8 +1042,13 @@ function SocialContentDetailPage() {
       })
       setSelectedComparisonReferenceIds(asStringArray(operatorFeedback?.comparison_reference_ids))
       setCopyRevisionRequest(asString(operatorFeedback?.revision_request))
-      void fetchReviewQueue(i)
-      void fetchCommentInboxItems()
+      if (id === DETERMINISTIC_VISUAL_BINDING_QA_ID) {
+        setReviewQueueItems([i])
+        setCommentInboxItems([])
+      } else {
+        void fetchReviewQueue(i)
+        void fetchCommentInboxItems()
+      }
       return i
     } catch (err) {
       console.error('Failed to fetch item:', err)
@@ -1040,7 +1057,7 @@ function SocialContentDetailPage() {
     } finally {
       if (!options.silent) setLoading(false)
     }
-  }, [fetchCommentInboxItems, fetchReviewQueue, id])
+  }, [deterministicVisualQaState, fetchCommentInboxItems, fetchReviewQueue, id])
 
   useEffect(() => {
     fetchItem()
@@ -2353,33 +2370,51 @@ function SocialContentDetailPage() {
     }
   }
 
-  const handleRegenerateImage = async () => {
-    setRegeneratingImage(true)
+  const handleRenderDeterministicVisual = async () => {
+    const renderState = deterministicVisualRenderOverride ?? item?.deterministic_visual_render
+    if (!renderState?.can_render) return
+    setRenderingDeterministicVisual(true)
     try {
       const session = await getCurrentSession()
       if (!session) return
 
-      const res = await fetch(`/api/admin/social-content/${id}/regenerate-image`, {
+      const res = await fetch(`/api/admin/social-content/${id}/render-deterministic-visual`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${session.access_token}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          image_prompt: imagePrompt,
-          framework_visual_type: frameworkVisualType || null,
+          expected_copy_version: renderState.copy_version,
+          expected_candidate_id: renderState.candidate_id,
+          expected_candidate_hash: renderState.candidate_hash,
+          ...(id === DETERMINISTIC_VISUAL_BINDING_QA_ID ? { qa_state: deterministicVisualQaState } : {}),
         }),
       })
 
       const data = await res.json()
-      if (data.triggered && data.image_url) {
-        setItem(prev => prev ? { ...prev, image_url: data.image_url } : prev)
+      if (data.render) {
+        setDeterministicVisualRenderOverride(data.render as DeterministicVisualRenderProjection)
       }
-      showMsg(data.triggered ? 'success' : 'error', data.message)
+      if (!res.ok || !data.item) {
+        showMsg('error', data.error || 'Deterministic render is blocked. Follow the recovery action shown below.')
+        return
+      }
+      setItem(prev => prev ? { ...prev, ...data.item } : data.item)
+      setDeterministicVisualRenderOverride(data.render ?? data.item.deterministic_visual_render ?? null)
+      showMsg('success', data.message || (data.idempotent ? 'Deterministic review asset is already current' : 'Deterministic review asset rendered'))
     } catch {
-      showMsg('error', 'Failed to trigger image regeneration')
+      setDeterministicVisualRenderOverride(current => current ? {
+        ...current,
+        state: 'blocked',
+        code: 'render_unavailable',
+        can_render: false,
+        summary: 'The deterministic render request could not complete.',
+        recovery_action: 'Check the internal preview connection, then reload this Social Content record. No provider fallback is allowed.',
+      } : current)
+      showMsg('error', 'Deterministic render request failed')
     } finally {
-      setRegeneratingImage(false)
+      setRenderingDeterministicVisual(false)
     }
   }
 
@@ -2581,8 +2616,8 @@ function SocialContentDetailPage() {
   }
 
   const handleConvertToSingleImage = async () => {
-    if (!confirm('Convert this post to a single image? This will clear all carousel data and regenerate the framework illustration.')) return
-    await handleRegenerateImage()
+    if (!confirm('Switch this post to the current deterministic single-image candidate? This clears carousel data, stores the version-bound review asset, and does not call a media provider or publish.')) return
+    await handleRenderDeterministicVisual()
   }
 
   const handleRegenerateCarousel = async () => {
@@ -2675,6 +2710,7 @@ function SocialContentDetailPage() {
   const ragContext = asRecord(item.rag_context)
   const qaFixture = asRecord(ragContext?.qa_fixture)
   const previewFixtureReadOnly = qaFixture?.read_only === true
+  const previewFixtureInteractive = qaFixture?.interactive === true
   const isTopicSourceCoveragePreview = asString(qaFixture?.kind) === 'topic_source_coverage_preview'
   const previewFixtureReason = asString(qaFixture?.reason) || 'Preview fixture is read-only.'
   const previewFixtureNextAction = asString(qaFixture?.next_action) || 'Review the evidence, then return to Social Content or the PR handoff.'
@@ -2927,9 +2963,15 @@ function SocialContentDetailPage() {
   ) : null
   const canEditVisualProduction = isEditable || (item.status === 'approved' && (isDraftOnlyPilot || isYouTubeTarget))
   const visualProductionUnlocked = canEditVisualProduction && isDraftOnlyPilot
-  const frameworkIllustrationLabel = item.image_url
-    ? 'Regenerate Framework Illustration'
-    : 'Generate Framework Illustration'
+  const deterministicVisualRender = deterministicVisualRenderOverride ?? item.deterministic_visual_render ?? null
+  const deterministicVisualReceipt = asRecord(deterministicVisualRender?.receipt)
+  const deterministicProviderReceipt = asRecord(deterministicVisualReceipt?.provider_receipt)
+  const hasDeterministicVisualContract = Boolean(asString(asRecord(asRecord(ragContext?.practitioner_content_quality)?.deterministic_visual)?.system_version))
+  const frameworkIllustrationLabel = deterministicVisualRender?.state === 'current'
+    ? 'Review asset current'
+    : deterministicVisualRender?.code === 'asset_stale'
+      ? 'Render current candidate'
+      : 'Render deterministic visual'
   const isCarouselFormat = item.content_format === 'carousel'
   const isSingleImageFormat = !isCarouselFormat
   const carouselSlideUrls = item.carousel_slide_urls?.length
@@ -2944,10 +2986,10 @@ function SocialContentDetailPage() {
     item.updated_at,
   )
   const visualPreviewAlt = item.image_url
-    ? 'Generated framework illustration'
+    ? 'Deterministic AmaduTown review asset'
     : agentifiedVisualQaPacket?.altText || 'Amina visual QA candidate'
   const frameworkActionLabel = isCarouselFormat
-    ? 'Switch to Framework Illustration'
+    ? 'Switch and render deterministic visual'
     : frameworkIllustrationLabel
   const carouselActionLabel = isCarouselFormat
     ? 'Rebuild App Screenshot Carousel'
@@ -3023,7 +3065,9 @@ function SocialContentDetailPage() {
         : 'pending'
   const visualAssetReady = isCarouselFormat
     ? Boolean(carouselSlideUrls.length)
-    : Boolean(visualPreviewImageUrl)
+    : hasDeterministicVisualContract
+      ? deterministicVisualRender?.state === 'current'
+      : Boolean(visualPreviewImageUrl)
   const visualAssetsBaseGateState: GateState = visualAssetReady ? 'in_review' : 'pending'
   const visualAssetsGateState: GateState = getExplicitSectionGateState('visual_assets', visualAssetsBaseGateState)
   const visualAssetsRejected = visualAssetsGateState === 'rejected'
@@ -3609,6 +3653,17 @@ function SocialContentDetailPage() {
           <Link href={backUrl} className="mt-3 inline-flex min-h-11 items-center rounded-lg border border-amber-300/45 px-3 py-2 text-sm font-semibold text-amber-50 transition-colors hover:bg-amber-300/10">
             Back to Social Content
           </Link>
+        </section>
+      )}
+      {previewFixtureInteractive && (
+        <section
+          role="status"
+          className="mx-auto mt-4 w-[calc(100%-2rem)] max-w-[90rem] rounded-xl border border-cyan-400/40 bg-cyan-400/10 p-4 text-cyan-50 sm:w-[calc(100%-3rem)]"
+        >
+          <p className="font-semibold">Synthetic production-equivalent fixture</p>
+          <p className="mt-1 text-sm leading-6 text-cyan-50/85">
+            The deterministic render interaction is simulated locally. No shared database row, storage object, media provider, platform draft, schedule, publication, or external send can be created here.
+          </p>
         </section>
       )}
 
@@ -4881,20 +4936,59 @@ function SocialContentDetailPage() {
                   <div className="flex flex-col gap-2">
                     <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                       <div>
-                        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-amber-200">Visual Production</p>
-                        <p className="mt-1 text-sm leading-6 text-amber-50/90">
-                          {visualProductionUnlocked
-                            ? 'Copy approved. Choose one visual format; either path replaces the current draft visual.'
-                            : 'Choose one visual format for this draft. These actions stay separate from copy approval and publishing.'}
-                        </p>
+	                        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-amber-200">Visual Production</p>
+	                        <p className="mt-1 text-sm leading-6 text-amber-50/90">
+	                          {visualProductionUnlocked
+	                            ? 'Copy approved. Render the stored deterministic candidate or choose the existing screenshot-carousel path.'
+	                            : 'Choose one visual format for this draft. Rendering stays separate from visual approval and publishing.'}
+	                        </p>
                       </div>
                       <span className={`inline-flex w-fit shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-semibold ${GATE_STATE_CONFIG[visualAssetsGateState].className}`}>
                         Visual assets: {GATE_STATE_CONFIG[visualAssetsGateState].label}
                       </span>
                     </div>
-                    <div className="rounded-lg border border-amber-500/20 bg-background/25 px-3 py-2 text-xs leading-5 text-amber-50/75">
-                      Clicking a visual action may generate or replace assets; it does not publish or schedule.
-                    </div>
+	                    <div className="rounded-lg border border-amber-500/20 bg-background/25 px-3 py-2 text-xs leading-5 text-amber-50/80">
+	                      The framework action renders the stored AmaduTown HTML/SVG specification locally and writes only its internal review asset. Gemini, HeyGen, n8n media, and other media providers stay off. It does not create a platform draft, schedule, publish, or send externally.
+	                    </div>
+                      {deterministicVisualRender ? (
+                        <div
+                          aria-label="Deterministic visual render status"
+                          className={`rounded-lg border p-3 ${
+                            deterministicVisualRender.state === 'current'
+                              ? 'border-emerald-400/30 bg-emerald-400/10'
+                              : deterministicVisualRender.state === 'ready'
+                                ? 'border-blue-400/30 bg-blue-400/10'
+                                : 'border-red-400/30 bg-red-400/10'
+                          }`}
+                        >
+                          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                            <div className="min-w-0">
+                              <p className="text-sm font-semibold text-gray-50">{deterministicVisualRender.summary}</p>
+                              <p className="mt-1 text-xs leading-5 text-gray-300">{deterministicVisualRender.recovery_action}</p>
+                            </div>
+                            <div className="flex shrink-0 flex-wrap gap-2 sm:justify-end">
+                              <span className="rounded-full border border-emerald-300/35 bg-emerald-300/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-100">Provider none</span>
+                              <span className="rounded-full border border-gray-500/40 bg-gray-950/35 px-2 py-0.5 text-[10px] font-semibold text-gray-200">
+                                {deterministicVisualRender.state === 'current' ? 'Asset current' : deterministicVisualRender.state === 'ready' ? 'Ready to render' : 'Render blocked'}
+                              </span>
+                            </div>
+                          </div>
+                          <dl className="mt-3 grid gap-2 text-xs text-gray-300 sm:grid-cols-2 lg:grid-cols-3">
+                            <div><dt className="text-gray-500">Candidate</dt><dd className="mt-0.5 break-all font-mono">{deterministicVisualRender.candidate_id || 'Missing'}</dd></div>
+                            <div><dt className="text-gray-500">Candidate hash</dt><dd className="mt-0.5 break-all font-mono">{deterministicVisualRender.candidate_hash ? deterministicVisualRender.candidate_hash.slice(0, 16) : 'Unavailable'}</dd></div>
+                            <div><dt className="text-gray-500">Copy version</dt><dd className="mt-0.5 break-all font-mono">{deterministicVisualRender.copy_version.slice(0, 16)}</dd></div>
+                          </dl>
+                          {deterministicVisualRender.state === 'current' && deterministicVisualReceipt && (
+                            <p className="mt-3 text-xs leading-5 text-emerald-100/80">
+                              Receipt {asString(deterministicProviderReceipt?.receipt_id) || 'recorded'} · provider {asString(deterministicProviderReceipt?.provider) || 'none'} · external call {deterministicProviderReceipt?.external_call === false ? 'false' : 'not allowed'}
+                            </p>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="rounded-lg border border-red-400/30 bg-red-400/10 p-3 text-xs leading-5 text-red-100">
+                          Deterministic render readiness is unavailable. Reload this record; do not use a provider fallback.
+                        </div>
+                      )}
                     {agentifiedVisualQaPacket?.primaryCandidateUrl && (
                       <div className="mt-3 overflow-hidden rounded-lg border border-emerald-400/30 bg-emerald-500/10">
                         <div className="flex flex-col gap-3 p-3 lg:flex-row lg:items-start">
@@ -4945,20 +5039,21 @@ function SocialContentDetailPage() {
                               </span>
                             )}
                           </div>
-                          <p className="mt-2 text-sm leading-6 text-amber-50/80">
-                            Best when the post needs a clean concept visual for the argument. Switching here clears carousel data and uses a single image.
-                          </p>
-                          <button
-                            type="button"
-                            onClick={isCarouselFormat ? handleConvertToSingleImage : handleRegenerateImage}
-                            disabled={regeneratingImage || !imagePrompt || visualAssetsRejected}
-                            className={`mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition-colors disabled:opacity-50 ${
+	                          <p className="mt-2 text-sm leading-6 text-amber-50/80">
+	                            Uses the approved copy version and stored candidate hash. Rendering is idempotent; switching here clears carousel data and stores one review-only PNG.
+	                          </p>
+	                          <button
+	                            type="button"
+	                            onClick={isCarouselFormat ? handleConvertToSingleImage : handleRenderDeterministicVisual}
+	                            disabled={renderingDeterministicVisual || !deterministicVisualRender?.can_render || visualAssetsRejected}
+                              title={!deterministicVisualRender?.can_render ? deterministicVisualRender?.recovery_action || 'Reload deterministic render readiness.' : undefined}
+	                            className={`mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition-colors disabled:opacity-50 ${
                               isSingleImageFormat
                                 ? 'bg-amber-400 text-slate-950 hover:bg-amber-300'
                                 : 'border border-amber-500/45 text-amber-100 hover:bg-amber-500/10'
                             }`}
                           >
-                            {regeneratingImage ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ImageIcon className="h-3.5 w-3.5" />}
+	                            {renderingDeterministicVisual ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ImageIcon className="h-3.5 w-3.5" />}
                             {frameworkActionLabel}
                           </button>
                         </div>

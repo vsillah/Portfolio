@@ -1,5 +1,5 @@
 import { videoPlayback } from '@/lib/video-media-archive'
-import { isCalendarSocialCopy, prepareSocialImageAttachment, prepareManualCopyUpdate, withSocialCopyRevision } from '@/lib/social-copy-revision'
+import { hasSocialCopyReleaseEvidence, isCalendarSocialCopy, prepareSocialImageAttachment, prepareManualCopyUpdate, socialCopyVersion, withSocialCopyRevision } from '@/lib/social-copy-revision'
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
@@ -31,11 +31,29 @@ import {
   topicSourceCoverageQaFixture,
 } from '@/lib/social-topic-source-coverage-qa-fixture'
 import {
+  deterministicVisualBindingQaFixture,
+  isDeterministicVisualBindingQaFixtureId,
+  parseDeterministicVisualQaState,
+} from '@/lib/social-deterministic-visual-qa-fixture'
+import { projectDeterministicVisualRender } from '@/lib/social-deterministic-visual'
+import {
   buildScheduleRecoveryProjection,
   createSupabaseSocialScheduleRecoveryRepository,
 } from '@/lib/social-schedule-recovery'
 
 export const dynamic = 'force-dynamic'
+
+function withDeterministicVisualProjection<T extends Record<string, unknown>>(item: T, storageAvailable = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY)) {
+  return {
+    ...withSocialCopyRevision(item),
+    deterministic_visual_render: projectDeterministicVisualRender({
+      item: item as never,
+      copyVersion: socialCopyVersion(item),
+      storageAvailable,
+      releaseLocked: hasSocialCopyReleaseEvidence(item),
+    }),
+  }
+}
 
 function asRecord(value: unknown): Record<string, unknown> | null {
   return value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : null
@@ -94,6 +112,15 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    if (isDeterministicVisualBindingQaFixtureId(params.id)) {
+      const fixtureState = parseDeterministicVisualQaState(request.nextUrl.searchParams.get('qa_state'))
+      return NextResponse.json({
+        item: deterministicVisualBindingQaFixture(fixtureState),
+        fixture: true,
+        fixture_state: fixtureState,
+        integration_note: 'Synthetic production-equivalent deterministic visual fixture. Its render action does not write shared storage, database records, provider drafts, schedules, publications, or external sends.',
+      })
+    }
     if (isTopicSourceCoverageQaFixtureId(params.id)) {
       const fixtureState = request.headers.get('x-portfolio-topic-coverage-state') === 'blocked'
         ? 'blocked'
@@ -199,7 +226,7 @@ export async function GET(
 
     return NextResponse.json({
       item: {
-        ...withSocialCopyRevision(data),
+        ...withDeterministicVisualProjection(data),
         video_playback_url: mediaPlayback?.playback_url || null,
         video_media_blocker: mediaPlayback?.media_blocker || null,
         meeting_record: meetingRecord,
@@ -223,7 +250,7 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
-    if (isPractitionerContentQaFixtureId(params.id) || isTopicSourceCoverageQaFixtureId(params.id)) {
+    if (isPractitionerContentQaFixtureId(params.id) || isTopicSourceCoverageQaFixtureId(params.id) || isDeterministicVisualBindingQaFixtureId(params.id)) {
       return NextResponse.json({
         error: 'Synthetic preview fixture is read-only.',
         fixture: true,

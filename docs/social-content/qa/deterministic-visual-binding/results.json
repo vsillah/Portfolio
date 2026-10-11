@@ -1,0 +1,113 @@
+[
+  {
+    "width": 390,
+    "height": 844,
+    "route": "http://127.0.0.1:4033/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=deterministic-visual-binding&qa_state=ready",
+    "fixture_states": [
+      "ready",
+      "current",
+      "missing_candidate",
+      "storage_unavailable"
+    ],
+    "fixture_responses": [
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
+        "state": "ready"
+      },
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa/render-deterministic-visual",
+        "state": "current"
+      },
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
+        "state": "missing_candidate"
+      },
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
+        "state": "storage_unavailable"
+      }
+    ],
+    "provider": "none",
+    "provider_calls": 0,
+    "shared_database_writes": 0,
+    "shared_storage_writes": 0,
+    "external_actions": 0,
+    "synthetic_render_requests": 1,
+    "horizontal_overflow": false,
+    "page_errors": []
+  },
+  {
+    "width": 768,
+    "height": 1000,
+    "route": "http://127.0.0.1:4033/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=deterministic-visual-binding&qa_state=ready",
+    "fixture_states": [
+      "ready",
+      "current",
+      "missing_candidate",
+      "storage_unavailable"
+    ],
+    "fixture_responses": [
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
+        "state": "ready"
+      },
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa/render-deterministic-visual",
+        "state": "current"
+      },
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
+        "state": "missing_candidate"
+      },
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
+        "state": "storage_unavailable"
+      }
+    ],
+    "provider": "none",
+    "provider_calls": 0,
+    "shared_database_writes": 0,
+    "shared_storage_writes": 0,
+    "external_actions": 0,
+    "synthetic_render_requests": 1,
+    "horizontal_overflow": false,
+    "page_errors": []
+  },
+  {
+    "width": 1440,
+    "height": 1000,
+    "route": "http://127.0.0.1:4033/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=deterministic-visual-binding&qa_state=ready",
+    "fixture_states": [
+      "ready",
+      "current",
+      "missing_candidate",
+      "storage_unavailable"
+    ],
+    "fixture_responses": [
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
+        "state": "ready"
+      },
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa/render-deterministic-visual",
+        "state": "current"
+      },
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
+        "state": "missing_candidate"
+      },
+      {
+        "path": "/api/admin/social-content/deterministic-visual-binding-qa",
+        "state": "storage_unavailable"
+      }
+    ],
+    "provider": "none",
+    "provider_calls": 0,
+    "shared_database_writes": 0,
+    "shared_storage_writes": 0,
+    "external_actions": 0,
+    "synthetic_render_requests": 1,
+    "horizontal_overflow": false,
+    "page_errors": []
+  }
+]

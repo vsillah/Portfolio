@@ -48,6 +48,10 @@ export const HORMOZI_FRAMEWORK_TYPES = [
 ] as const
 
 export type HormoziFrameworkType = typeof HORMOZI_FRAMEWORK_TYPES[number]
+export const DETERMINISTIC_VISUAL_BINDING_QA_ID = 'deterministic-visual-binding-qa'
+
+export type DeterministicVisualRenderProjection =
+  import('@/lib/social-deterministic-visual').DeterministicVisualRenderProjection
 
 export interface HormoziFramework {
   framework_type?: HormoziFrameworkType
@@ -125,6 +129,8 @@ export interface SocialContentItem {
     next_action: string
     automatic_publication_blocked: true
   } | null
+  // Hydrated by the detail route from the version-fenced deterministic visual contract.
+  deterministic_visual_render?: DeterministicVisualRenderProjection
 }
 
 export interface SocialContentPublish {

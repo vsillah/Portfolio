@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor, within } from '@testing-library/rea
 import type { ReactNode } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import SocialContentDetailRoute from './page'
+import { deterministicVisualBindingQaFixture } from '@/lib/social-deterministic-visual-qa-fixture'
 import { topicSourceCoverageQaFixture } from '@/lib/social-topic-source-coverage-qa-fixture'
 
 const mocks = vi.hoisted(() => ({
@@ -199,6 +200,100 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(screen.getByText('No selection action')).toBeVisible()
     expect(screen.queryByRole('button')).not.toBeInTheDocument()
     expect(fetchMock.mock.calls.some(([input]) => String(input).includes('/topic-backlog'))).toBe(false)
+  })
+
+  it('renders the approved provider-none candidate and records the current receipt without external calls', async () => {
+    const readyItem = deterministicVisualBindingQaFixture('ready')
+    const currentItem = deterministicVisualBindingQaFixture('current')
+    mocks.id = readyItem.id
+    mocks.search = 'step=visuals&qa_state=ready'
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      if (String(input).includes('/render-deterministic-visual') && init?.method === 'POST') {
+        return {
+          ok: true,
+          json: async () => ({
+            fixture: true,
+            idempotent: false,
+            message: 'Synthetic deterministic review asset rendered',
+            item: currentItem,
+            render: currentItem.deterministic_visual_render,
+          }),
+        } as Response
+      }
+      return {
+        ok: true,
+        json: async () => ({ fixture: true, fixture_state: 'ready', item: readyItem }),
+      } as Response
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    render(<SocialContentDetailRoute />)
+
+    expect(await screen.findByText('The approved copy and provider-none HTML/SVG candidate are ready for local rendering.')).toBeVisible()
+    expect(screen.getByText('Provider none')).toBeVisible()
+    expect(screen.getByText(/Gemini, HeyGen, n8n media, and other media providers stay off/i)).toBeVisible()
+    const renderButton = screen.getByRole('button', { name: 'Render deterministic visual' })
+    expect(renderButton).toBeEnabled()
+    fireEvent.click(renderButton)
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledWith(
+        expect.stringContaining('/render-deterministic-visual'),
+        expect.objectContaining({ method: 'POST' }),
+      )
+    })
+    const renderCall = fetchMock.mock.calls.find(([input]) => String(input).includes('/render-deterministic-visual'))
+    const renderBody = JSON.parse(String(renderCall?.[1]?.body))
+    expect(renderBody).toMatchObject({
+      expected_copy_version: readyItem.deterministic_visual_render?.copy_version,
+      expected_candidate_id: readyItem.deterministic_visual_render?.candidate_id,
+      expected_candidate_hash: readyItem.deterministic_visual_render?.candidate_hash,
+      qa_state: 'ready',
+    })
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Review asset current' })).toBeDisabled()
+    })
+    expect(screen.getByText(/provider none · external call false/i)).toBeVisible()
+    expect((await screen.findAllByAltText('Deterministic AmaduTown review asset')).length).toBeGreaterThan(0)
+    expect(fetchMock.mock.calls.some(([input]) => /generate-image|gemini|heygen|n8n/i.test(String(input)))).toBe(false)
+  })
+
+  it('keeps an already-current deterministic review asset idempotently disabled', async () => {
+    const currentItem = deterministicVisualBindingQaFixture('current')
+    mocks.id = currentItem.id
+    mocks.search = 'step=visuals&qa_state=current'
+    vi.stubGlobal('fetch', vi.fn(async () => ({
+      ok: true,
+      json: async () => ({ fixture: true, fixture_state: 'current', item: currentItem }),
+    })))
+
+    render(<SocialContentDetailRoute />)
+
+    expect(await screen.findByText(currentItem.deterministic_visual_render?.summary ?? '')).toBeVisible()
+    expect(screen.getByRole('button', { name: 'Review asset current' })).toBeDisabled()
+    expect(screen.getByText('Asset current')).toBeVisible()
+    expect(screen.getByText(/provider none · external call false/i)).toBeVisible()
+  })
+
+  it.each([
+    'missing_candidate',
+    'storage_unavailable',
+  ] as const)('shows the %s recovery state without enabling a provider fallback', async (qaState) => {
+    const blockedItem = deterministicVisualBindingQaFixture(qaState)
+    mocks.id = blockedItem.id
+    mocks.search = `step=visuals&qa_state=${qaState}`
+    vi.stubGlobal('fetch', vi.fn(async () => ({
+      ok: true,
+      json: async () => ({ fixture: true, fixture_state: qaState, item: blockedItem }),
+    })))
+
+    render(<SocialContentDetailRoute />)
+
+    expect(await screen.findByText(blockedItem.deterministic_visual_render?.summary ?? '')).toBeVisible()
+    expect(screen.getByText('Render blocked')).toBeVisible()
+    expect(screen.getByRole('button', { name: 'Render deterministic visual' })).toBeDisabled()
+    expect(screen.getByText('Provider none')).toBeVisible()
+    expect(screen.queryByRole('button', { name: /Gemini|HeyGen|n8n/i })).not.toBeInTheDocument()
   })
 
   it('renders LinkedIn campaign review for the linked canonical Instagram/Reels item', async () => {
@@ -822,7 +917,7 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(await screen.findByText('Visual Production')).toBeInTheDocument()
     expect(screen.getByText('Choose one visual format')).toBeInTheDocument()
     expect(screen.getByText('Selected format')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /Generate Framework Illustration/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Render deterministic visual/i })).toBeDisabled()
     expect(screen.getByRole('button', { name: /Switch to App Screenshot Carousel/i })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Approve Visuals/i })).toBeDisabled()
     expect(screen.getByRole('button', { name: /Reject Visuals/i })).toBeDisabled()
@@ -1520,7 +1615,7 @@ describe('SocialContentDetailRoute visual production review', () => {
 
     renderAtStep('copy')
 
-    const image = await screen.findByAltText('Generated framework illustration')
+    const image = await screen.findByAltText('Deterministic AmaduTown review asset')
     expect(image.className).toContain('object-contain')
     expect(image.className).not.toContain('object-cover')
     expect(image.parentElement?.className).toContain('aspect-[4/5]')
@@ -2208,7 +2303,7 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(screen.getByText('Controls are locked until the revised section is returned for review.')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Rejected' })).toBeDisabled()
     expect(screen.getByRole('button', { name: /Approve Visuals/i })).toBeDisabled()
-    expect(screen.getByRole('button', { name: /Regenerate Framework Illustration/i })).toBeDisabled()
+    expect(screen.getByRole('button', { name: /Render deterministic visual/i })).toBeDisabled()
     expect(screen.getByRole('button', { name: /Switch to App Screenshot Carousel/i })).toBeDisabled()
   })
 
