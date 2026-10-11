@@ -1,6 +1,7 @@
 import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 
+import { create as createFont } from 'fontkit'
 import sharp from 'sharp'
 
 import type { FrameworkVisualType } from '@/lib/social-content'
@@ -28,24 +29,11 @@ const INTERNAL_VISIBLE_TEXT_PATTERNS = [
   /draft\s+asset/i,
 ]
 
-const EMBEDDED_FONT_FAMILY = 'AmaduTown Inter'
-
 export function assertPublicationSafeDeterministicVisualSvg(svg: string): void {
   const unsafePattern = INTERNAL_VISIBLE_TEXT_PATTERNS.find((pattern) => pattern.test(svg))
   if (unsafePattern) {
     throw new Error('Deterministic visual contains internal governance text that is not safe for publication.')
   }
-}
-
-export function embedDeterministicVisualFont(svg: string, fontTtf: Buffer): string {
-  if (!fontTtf.length) {
-    throw new Error('Deterministic visual font is unavailable.')
-  }
-
-  const fontFace = `@font-face { font-family: "${EMBEDDED_FONT_FAMILY}"; src: url("data:font/ttf;base64,${fontTtf.toString('base64')}") format("truetype"); font-style: normal; font-weight: 100 900; }`
-  return svg
-    .replace('<style>', `<style>${fontFace}`)
-    .replaceAll('font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;', `font-family: "${EMBEDDED_FONT_FAMILY}", sans-serif;`)
 }
 
 function escapeXml(value: string): string {
@@ -94,13 +82,70 @@ function textLines(input: {
   y: number
   lineHeight: number
   className: string
+  anchor?: 'start' | 'middle'
+  fill?: string
 }): string {
-  return `<text x="${input.x}" y="${input.y}" class="${input.className}">${input.lines
+  const anchor = input.anchor === 'middle' ? ' text-anchor="middle"' : ''
+  const fill = input.fill ? ` fill="${input.fill}"` : ''
+  return `<text x="${input.x}" y="${input.y}" class="${input.className}"${anchor}${fill}>${input.lines
     .map((line, index) => `<tspan x="${input.x}" dy="${index === 0 ? 0 : input.lineHeight}">${escapeXml(line)}</tspan>`)
     .join('')}</text>`
 }
 
-function horizontalSvg(spec: DeterministicVisualSpec, width: number, height: number): string {
+type VisualTextInput = {
+  lines: string[]
+  x: number
+  y: number
+  lineHeight: number
+  className: string
+  fontSize: number
+  fontWeight: number
+  letterSpacing?: number
+  anchor?: 'start' | 'middle'
+  fill?: string
+}
+
+type VisualTextRenderer = (input: VisualTextInput) => string
+
+const svgTextRenderer: VisualTextRenderer = (input) => textLines(input)
+
+export function createDeterministicVisualPathTextRenderer(fontTtf: Buffer): VisualTextRenderer {
+  if (!fontTtf.length) throw new Error('Deterministic visual font is unavailable.')
+  const sourceFont = createFont(fontTtf)
+  const variants = new Map<number, ReturnType<typeof createFont>>()
+
+  return (input) => input.lines.map((line, lineIndex) => {
+    let font = variants.get(input.fontWeight)
+    if (!font) {
+      font = sourceFont.getVariation({ wght: input.fontWeight, opsz: Math.max(14, input.fontSize) })
+      variants.set(input.fontWeight, font)
+    }
+    const run = font.layout(line)
+    const scale = input.fontSize / font.unitsPerEm
+    const letterSpacingUnits = (input.letterSpacing ?? 0) / scale
+    const totalAdvance = run.positions.reduce((sum, position, index) => (
+      sum + position.xAdvance + (index < run.positions.length - 1 ? letterSpacingUnits : 0)
+    ), 0)
+    const startX = input.anchor === 'middle' ? input.x - (totalAdvance * scale) / 2 : input.x
+    let cursor = 0
+    const paths = run.glyphs.map((glyph, index) => {
+      const pathData = glyph.path.toSVG()
+      const positioned = `<path d="${pathData}" transform="translate(${cursor} ${-run.positions[index].yOffset})"/>`
+      cursor += run.positions[index].xAdvance + letterSpacingUnits
+      return positioned
+    }).join('')
+    const baseline = input.y + lineIndex * input.lineHeight
+    const fill = input.fill ? ` fill="${input.fill}"` : ''
+    return `<g class="${input.className}"${fill} transform="translate(${startX} ${baseline}) scale(${scale} ${-scale})">${paths}</g>`
+  }).join('')
+}
+
+function horizontalSvg(
+  spec: DeterministicVisualSpec,
+  width: number,
+  height: number,
+  renderText: VisualTextRenderer,
+): string {
   const headline = wrap(spec.headline, 25, 3)
   const evidence = spec.evidence_lines.slice(0, 3).map((line) => wrap(line, 46, 2))
   const nodes = spec.architecture!.nodes
@@ -115,8 +160,8 @@ function horizontalSvg(spec: DeterministicVisualSpec, width: number, height: num
       <g data-architecture-node="${escapeXml(node.id)}">
         <rect x="${x}" y="344" width="${cardWidth}" height="190" rx="22" fill="#111d31" stroke="#33445f" stroke-width="2"/>
         <rect x="${x}" y="344" width="${cardWidth}" height="8" rx="4" fill="${accents[index]}"/>
-        <text x="${x + 22}" y="382" class="stage" fill="${accents[index]}">${escapeXml(node.label.toUpperCase())}</text>
-        ${textLines({ lines: bodyLines, x: x + 22, y: 416, lineHeight: 25, className: 'body' })}
+        ${renderText({ lines: [node.label.toUpperCase()], x: x + 22, y: 382, lineHeight: 0, className: 'stage', fontSize: 15, fontWeight: 760, letterSpacing: 1.8, fill: accents[index] })}
+        ${renderText({ lines: bodyLines, x: x + 22, y: 416, lineHeight: 25, className: 'body', fontSize: 16.5, fontWeight: 520 })}
       </g>`
   }).join('')
   const connectorPaths = connectors.map((connector, index) => {
@@ -125,7 +170,7 @@ function horizontalSvg(spec: DeterministicVisualSpec, width: number, height: num
     const middleX = Math.round((startX + endX) / 2)
     return `<g data-architecture-connector="${escapeXml(connector.from)}:${escapeXml(connector.to)}">
       <path d="M${startX} 442 H${endX}" class="connector-line" marker-end="url(#architecture-arrow)"/>
-      <text x="${middleX}" y="336" text-anchor="middle" class="connector">${escapeXml(truncate(connector.label.toUpperCase(), 18))}</text>
+      ${renderText({ lines: [truncate(connector.label.toUpperCase(), 18)], x: middleX, y: 336, lineHeight: 0, className: 'connector', fontSize: 10, fontWeight: 700, letterSpacing: 0.8, anchor: 'middle' })}
     </g>`
   }).join('')
 
@@ -161,24 +206,29 @@ function horizontalSvg(spec: DeterministicVisualSpec, width: number, height: num
     <rect width="${width}" height="${height}" fill="url(#glow)"/>
     <circle cx="1110" cy="80" r="170" fill="#f4b942" opacity="0.035"/>
     <path d="M62 318 H1138" stroke="#32425b" stroke-width="2"/>
-    <text x="62" y="70" class="eyebrow">${escapeXml(spec.eyebrow.toUpperCase())}</text>
-    ${textLines({ lines: headline, x: 62, y: 126, lineHeight: 50, className: 'headline' })}
+    ${renderText({ lines: [spec.eyebrow.toUpperCase()], x: 62, y: 70, lineHeight: 0, className: 'eyebrow', fontSize: 18, fontWeight: 750, letterSpacing: 3 })}
+    ${renderText({ lines: headline, x: 62, y: 126, lineHeight: 50, className: 'headline', fontSize: 46, fontWeight: 760, letterSpacing: -1 })}
     <g transform="translate(700,112)">
-      ${evidence.map((lines, index) => `<g transform="translate(0,${index * 62})"><circle cx="8" cy="-5" r="5" fill="#5dd4c8"/>${textLines({ lines, x: 27, y: 0, lineHeight: 20, className: 'evidence' })}</g>`).join('')}
+      ${evidence.map((lines, index) => `<g transform="translate(0,${index * 62})"><circle cx="8" cy="-5" r="5" fill="#5dd4c8"/>${renderText({ lines, x: 27, y: 0, lineHeight: 20, className: 'evidence', fontSize: 16, fontWeight: 520 })}</g>`).join('')}
     </g>
     <g transform="translate(62,276)">
       <rect x="0" y="0" width="${Math.min(360, Math.max(190, spec.result_label.length * 9 + 42))}" height="36" rx="18" fill="#f4b942"/>
-      <text x="20" y="24" class="result">${escapeXml(truncate(spec.result_label.toUpperCase(), 36))}</text>
+      ${renderText({ lines: [truncate(spec.result_label.toUpperCase(), 36)], x: 20, y: 24, lineHeight: 0, className: 'result', fontSize: 15, fontWeight: 760, letterSpacing: 1 })}
     </g>
     <g data-visual-type="architecture">
       ${connectorPaths}
       ${cards}
     </g>
-    <text x="600" y="584" text-anchor="middle" class="footer">AmaduTown Advisory Solutions</text>
+    ${renderText({ lines: ['AmaduTown Advisory Solutions'], x: 600, y: 584, lineHeight: 0, className: 'footer', fontSize: 14, fontWeight: 560, anchor: 'middle' })}
   </svg>`
 }
 
-function verticalSvg(spec: DeterministicVisualSpec, width: number, height: number): string {
+function verticalSvg(
+  spec: DeterministicVisualSpec,
+  width: number,
+  height: number,
+  renderText: VisualTextRenderer,
+): string {
   const headline = wrap(spec.headline, 25, 4)
   const compact = height < 1200
   const top = compact ? 82 : 110
@@ -195,8 +245,8 @@ function verticalSvg(spec: DeterministicVisualSpec, width: number, height: numbe
     return `<g data-architecture-node="${escapeXml(node.id)}">
       <rect x="70" y="${y}" width="940" height="${cardHeight}" rx="28" fill="#111d31" stroke="#33445f" stroke-width="2"/>
       <rect x="70" y="${y}" width="10" height="${cardHeight}" rx="5" fill="${accents[index]}"/>
-      <text x="112" y="${y + 50}" class="stage" fill="${accents[index]}">${escapeXml(node.label.toUpperCase())}</text>
-      ${textLines({ lines: bodyLines, x: 112, y: y + 96, lineHeight: compact ? 31 : 36, className: 'body' })}
+      ${renderText({ lines: [node.label.toUpperCase()], x: 112, y: y + 50, lineHeight: 0, className: 'stage', fontSize: 18, fontWeight: 760, letterSpacing: 1.8, fill: accents[index] })}
+      ${renderText({ lines: bodyLines, x: 112, y: y + 96, lineHeight: compact ? 31 : 36, className: 'body', fontSize: compact ? 24 : 27, fontWeight: 520 })}
     </g>`
   }).join('')
   const connectorPaths = connectors.map((connector, index) => {
@@ -205,7 +255,7 @@ function verticalSvg(spec: DeterministicVisualSpec, width: number, height: numbe
     const middleY = Math.round((startY + endY) / 2)
     return `<g data-architecture-connector="${escapeXml(connector.from)}:${escapeXml(connector.to)}">
       <path d="M540 ${startY} V${endY}" class="connector-line" marker-end="url(#architecture-arrow)"/>
-      <text x="570" y="${middleY + 5}" class="connector">${escapeXml(truncate(connector.label.toUpperCase(), 24))}</text>
+      ${renderText({ lines: [truncate(connector.label.toUpperCase(), 24)], x: 570, y: middleY + 5, lineHeight: 0, className: 'connector', fontSize: compact ? 12 : 14, fontWeight: 700, letterSpacing: 0.8 })}
     </g>`
   }).join('')
   return `<?xml version="1.0" encoding="UTF-8"?>
@@ -227,18 +277,22 @@ function verticalSvg(spec: DeterministicVisualSpec, width: number, height: numbe
     </defs>
     <rect width="${width}" height="${height}" fill="url(#bg)"/>
     <circle cx="960" cy="100" r="220" fill="#f4b942" opacity="0.05"/>
-    <text x="70" y="${top}" class="eyebrow">${escapeXml(spec.eyebrow.toUpperCase())}</text>
-    ${textLines({ lines: headline, x: 70, y: top + 76, lineHeight: headlineSize + 5, className: 'headline' })}
-    <g transform="translate(70,${cardTop - 70})"><rect width="360" height="42" rx="21" fill="#f4b942"/><text x="22" y="28" class="result">${escapeXml(truncate(spec.result_label.toUpperCase(), 36))}</text></g>
+    ${renderText({ lines: [spec.eyebrow.toUpperCase()], x: 70, y: top, lineHeight: 0, className: 'eyebrow', fontSize: 21, fontWeight: 750, letterSpacing: 3 })}
+    ${renderText({ lines: headline, x: 70, y: top + 76, lineHeight: headlineSize + 5, className: 'headline', fontSize: headlineSize, fontWeight: 760, letterSpacing: -1 })}
+    <g transform="translate(70,${cardTop - 70})"><rect width="360" height="42" rx="21" fill="#f4b942"/>${renderText({ lines: [truncate(spec.result_label.toUpperCase(), 36)], x: 22, y: 28, lineHeight: 0, className: 'result', fontSize: 18, fontWeight: 760, letterSpacing: 1 })}</g>
     <g data-visual-type="architecture">
       ${connectorPaths}
       ${cards}
     </g>
-    <text x="540" y="${height - 64}" text-anchor="middle" class="footer">AmaduTown Advisory Solutions</text>
+    ${renderText({ lines: ['AmaduTown Advisory Solutions'], x: 540, y: height - 64, lineHeight: 0, className: 'footer', fontSize: 16, fontWeight: 560, anchor: 'middle' })}
   </svg>`
 }
 
-export function buildDeterministicVisualSvg(spec: DeterministicVisualSpec, visualType: FrameworkVisualType): string {
+function buildDeterministicVisualSvgWithRenderer(
+  spec: DeterministicVisualSpec,
+  visualType: FrameworkVisualType,
+  renderText: VisualTextRenderer,
+): string {
   if (visualType !== spec.visual_type) {
     throw new Error(`Selected visual type ${visualType} does not match candidate visual type ${spec.visual_type || 'unset'}.`)
   }
@@ -249,10 +303,27 @@ export function buildDeterministicVisualSvg(spec: DeterministicVisualSpec, visua
   if (architectureIssue) throw new Error(architectureIssue)
   const dimensions = DIMENSIONS[spec.aspect_ratio] ?? DIMENSIONS['1.91:1']
   const svg = spec.aspect_ratio === '1.91:1'
-    ? horizontalSvg(spec, dimensions.width, dimensions.height)
-    : verticalSvg(spec, dimensions.width, dimensions.height)
+    ? horizontalSvg(spec, dimensions.width, dimensions.height, renderText)
+    : verticalSvg(spec, dimensions.width, dimensions.height, renderText)
   assertPublicationSafeDeterministicVisualSvg(svg)
   return svg
+}
+
+export function buildDeterministicVisualSvg(spec: DeterministicVisualSpec, visualType: FrameworkVisualType): string {
+  return buildDeterministicVisualSvgWithRenderer(spec, visualType, svgTextRenderer)
+}
+
+export function buildDeterministicVisualSvgWithFontPaths(
+  spec: DeterministicVisualSpec,
+  visualType: FrameworkVisualType,
+  fontTtf: Buffer,
+): string {
+  buildDeterministicVisualSvg(spec, visualType)
+  return buildDeterministicVisualSvgWithRenderer(
+    spec,
+    visualType,
+    createDeterministicVisualPathTextRenderer(fontTtf),
+  )
 }
 
 export async function loadAmaduTownLogoPng(): Promise<Buffer> {
@@ -260,7 +331,7 @@ export async function loadAmaduTownLogoPng(): Promise<Buffer> {
 }
 
 export async function loadDeterministicVisualFontTtf(): Promise<Buffer> {
-  return readFile(path.join(process.cwd(), 'public', 'fonts', 'inter-latin-subset.ttf'))
+  return readFile(path.join(process.cwd(), 'public', 'fonts', 'inter-latin-variable.ttf'))
 }
 
 export async function renderDeterministicVisualPng(input: {
@@ -270,10 +341,7 @@ export async function renderDeterministicVisualPng(input: {
 }): Promise<Buffer> {
   const dimensions = DIMENSIONS[input.spec.aspect_ratio] ?? DIMENSIONS['1.91:1']
   const fontTtf = await loadDeterministicVisualFontTtf()
-  const svg = embedDeterministicVisualFont(
-    buildDeterministicVisualSvg(input.spec, input.visualType),
-    fontTtf,
-  )
+  const svg = buildDeterministicVisualSvgWithFontPaths(input.spec, input.visualType, fontTtf)
   const logoHeight = input.spec.aspect_ratio === '1.91:1' ? 76 : 92
   const logo = await sharp(input.logoPng)
     .resize({ height: logoHeight, withoutEnlargement: true })
