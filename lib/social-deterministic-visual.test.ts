@@ -1,3 +1,6 @@
+import { readFile } from 'node:fs/promises'
+import path from 'node:path'
+
 import { describe, expect, it } from 'vitest'
 
 import {
@@ -12,7 +15,7 @@ import {
 } from './social-deterministic-visual'
 import {
   buildDeterministicVisualSvg,
-  embedDeterministicVisualFont,
+  buildDeterministicVisualSvgWithFontPaths,
   renderDeterministicVisualPng,
 } from './social-deterministic-visual-renderer'
 import { practitionerContentQaFixture } from './social-practitioner-content-qa-fixture'
@@ -345,25 +348,24 @@ describe('deterministic Social Content visual binding', () => {
     })).rejects.toThrow('not safe for publication')
   })
 
-  it('embeds the bundled render font so server-side rasterization does not depend on host fonts', () => {
+  it('converts render text to font paths so server-side rasterization does not depend on host fonts', async () => {
     const spec = readDeterministicVisualSpec(approvedItem().rag_context)!
-    const svg = embedDeterministicVisualFont(
-      buildDeterministicVisualSvg({
+    const font = await readFile(path.join(process.cwd(), 'public', 'fonts', 'inter-latin-variable.ttf'))
+    const svg = buildDeterministicVisualSvgWithFontPaths(
+      {
         ...spec,
         evidence_lines: [
           ...spec.evidence_lines.slice(0, 2),
           'The asset was withheld from publication and returned to review.',
         ],
-      }, 'architecture'),
-      Buffer.from('font-bytes'),
+      },
+      'architecture',
+      font,
     )
 
-    expect(svg).toContain('@font-face')
-    expect(svg).toContain('data:font/ttf;base64,Zm9udC1ieXRlcw==')
-    expect(svg).toContain('format("truetype")')
-    expect(svg).toContain('font-family: "AmaduTown Inter", sans-serif;')
-    expect(svg).not.toContain('font-family: Inter, ui-sans-serif')
-    expect(svg).toContain('returned to review.')
+    expect(svg).toContain('<path d="')
+    expect(svg).not.toContain('<text')
+    expect(svg).not.toContain('@font-face')
   })
 
   it('refuses to substitute the architecture composition for another selected visual type', () => {
