@@ -486,15 +486,20 @@ export function topicCandidateFromTrendWorkJoin(
     .filter((receipt): receipt is SocialTopicSourceProjection => Boolean(receipt))
     .map(projectionReceipt)
   if (sourceReceipts.length !== candidate.source_receipt_ids.length) return null
+  const isExternalIntersection = candidate.external_receipt_ids.length > 0
   return {
     id: candidate.candidate_key,
     title: candidate.title,
     triggering_event: candidate.triggering_event,
-    source_type: 'public_momentum',
-    source_label: `${candidate.product_label} momentum + work evidence`,
+    source_type: isExternalIntersection ? 'public_momentum' : 'portfolio_work',
+    source_label: isExternalIntersection
+      ? `${candidate.product_label} momentum + work evidence`
+      : `${candidate.product_label} active GitHub work`,
     source_ids: sourceReceipts.map((receipt) => receipt.source_id),
     why_vambah_can_speak: candidate.why_vambah_can_speak,
-    brand_goal: `Prioritize a timely ${candidate.product_label} angle only where approved external momentum intersects with demonstrated work.`,
+    brand_goal: isExternalIntersection
+      ? `Prioritize a timely ${candidate.product_label} angle only where approved external momentum intersects with demonstrated work.`
+      : `Turn current ${candidate.product_label} implementation work into a receipt-backed practitioner lesson without overstating release or outcomes.`,
     content_angle: candidate.content_angle,
     suggested_hook: candidate.suggested_hook,
     audience: 'Operators, builders, and leaders evaluating practical product and AI systems',

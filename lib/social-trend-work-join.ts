@@ -334,6 +334,73 @@ export function buildTrendWorkRelevanceReport(
     })
   }
 
+  const momentumProducts = new Set(candidates.map((candidate) => candidate.product_identity))
+  const currentGitHub = receipts.filter((receipt) => (
+    receipt.source_group === 'github_development'
+    && receipt.source_kind.startsWith('github_')
+    && momentumFreshness(receipt.observed_at, generatedAt) !== 'stale'
+  ))
+  const githubProducts = [...new Set(currentGitHub.map((receipt) => receipt.product_identity))].sort()
+  for (const productIdentity of githubProducts) {
+    if (momentumProducts.has(productIdentity)) continue
+    const related = currentGitHub
+      .filter((receipt) => receipt.product_identity === productIdentity)
+      .sort((a, b) => b.observed_at.localeCompare(a.observed_at) || a.receipt_id.localeCompare(b.receipt_id))
+      .slice(0, 6)
+    const mapped = related.filter((receipt) => Boolean(asString(asRecord(receipt.metadata).portfolio_product_id)))
+    if (mapped.length === 0) {
+      blockers.push(`[github_product_identity_unbound:${productIdentity}] Link the GitHub repository to an unambiguous Portfolio product before creating an active-work candidate.`)
+      continue
+    }
+    const latest = related[0]
+    const freshness = momentumFreshness(latest.observed_at, generatedAt) as Exclude<TrendWorkFreshness, 'stale'>
+    const topics = [...new Set(related.flatMap(receiptTopics))].sort()
+    const sourceReceiptIds = related.map((receipt) => receipt.receipt_id).sort()
+    const fingerprint = sha256(JSON.stringify({
+      candidate_kind: 'active_github_work',
+      product_identity: productIdentity,
+      source_receipt_ids: sourceReceiptIds,
+    }))
+    const label = productLabel(related, productIdentity)
+    candidates.push({
+      candidate_key: `active-work:${fingerprint.slice(0, 40)}`,
+      status: 'review_only',
+      product_identity: productIdentity,
+      product_label: label,
+      topic_identities: topics,
+      title: `${label}: what the current build is teaching us`,
+      triggering_event: sanitizeApprovedSourceSummary(latest.approved_summary),
+      why_vambah_can_speak: `${related.length} current read-only GitHub receipt${related.length === 1 ? '' : 's'} connect active development to the Portfolio product identity for ${label}.`,
+      content_angle: `Review the concrete product and operating lessons visible in the current ${label} build activity without implying deployment, adoption, or outcomes.`,
+      suggested_hook: `${label} is still being built. The useful story is what the latest implementation decisions are teaching us.`,
+      evidence_summary: related.map((receipt) => sanitizeApprovedSourceSummary(receipt.approved_summary)).join(' '),
+      source_receipt_ids: sourceReceiptIds,
+      external_receipt_ids: [],
+      work_receipt_ids: sourceReceiptIds,
+      freshness,
+      priority_score: freshness === 'fresh' ? 82 : 72,
+      priority_reasons: [
+        `${freshness === 'fresh' ? 'Current' : 'Recent'} direct GitHub activity`,
+        `Unambiguous Portfolio product binding: ${productIdentity}`,
+        `${related.length} privacy-safe development receipt${related.length === 1 ? '' : 's'}`,
+      ],
+      dedupe_fingerprint: fingerprint,
+      claim_boundaries: [
+        'Use only privacy-safe GitHub activity summaries and the stable Portfolio product identity.',
+        'Development activity does not prove deployment, customer use, adoption, or business outcomes.',
+        'Verify the specific implementation lesson during editorial review before drafting.',
+      ],
+      side_effects: {
+        content_generation: false,
+        approval: false,
+        provider_call: false,
+        draft_creation: false,
+        schedule: false,
+        publish: false,
+      },
+    })
+  }
+
   if (uniqueMomentum.length === 0) {
     blockers.push('[approved_public_momentum_missing] Ingest an approved public-news or social-trend summary with an HTTPS source URL and stable topic/product identities.')
   }
