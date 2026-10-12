@@ -107,15 +107,9 @@ export function deterministicVisualBindingQaFixture(
     item.rag_context = rag
   }
 
-  if (state === 'lineage_missing') {
-    const rag = structuredClone(item.rag_context ?? {}) as Record<string, any>
-    rag.practitioner_content_quality.deterministic_visual.source_bindings = {}
-    item.rag_context = rag
-  }
-
   const copyVersion = socialCopyVersion(item)
   const spec = readDeterministicVisualSpec(item.rag_context)
-  if (spec && (state === 'current' || state === 'stale')) {
+  if (spec && (state === 'current' || state === 'stale' || state === 'lineage_missing')) {
     const candidateHash = deterministicVisualCandidateHash(spec)
     const brandAssetHash = 'f'.repeat(64)
     const renderInputHash = deterministicVisualRenderInputHash({ copyVersion, candidateHash, visualType: item.framework_visual_type!, brandAssetHash })
@@ -132,6 +126,12 @@ export function deterministicVisualBindingQaFixture(
       renderedAt: '2026-10-10T20:05:00.000Z',
     })
     Object.assign(item, patch)
+  }
+
+  if (state === 'lineage_missing') {
+    const rag = structuredClone(item.rag_context ?? {}) as Record<string, any>
+    rag.practitioner_content_quality.deterministic_visual.source_bindings = {}
+    item.rag_context = rag
   }
 
   item.deterministic_visual_render = projectDeterministicVisualRender({
