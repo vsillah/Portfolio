@@ -1,0 +1,28 @@
+{
+  "generated_at": "2026-10-12T00:47:59.471Z",
+  "commit": "f01062d21aad2ef556d18c4adc4372fb81a77794",
+  "base_url": "https://portfolio-git-codex-social-status-badge-theme-vsillahs-projects.vercel.app",
+  "route": "/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=visual-source-trace-129073e7&qa_state=lineage_missing#social-visual-assets-gate",
+  "viewports": [
+    {
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "width": 390,
+      "height": 844
+    }
+  ],
+  "record": "deterministic-visual-binding-qa",
+  "data_scope": "privacy-safe synthetic production-equivalent fixture",
+  "writes": 0,
+  "actions_withheld": [
+    "render visual",
+    "approve visuals",
+    "reject visuals",
+    "publish",
+    "schedule",
+    "provider calls"
+  ],
+  "output": "social-visual-source-trace-walkthrough.mp4"
+}

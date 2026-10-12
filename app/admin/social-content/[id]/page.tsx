@@ -39,6 +39,7 @@ import {
   Star,
   MessageSquare,
   ShieldAlert,
+  FileSearch,
 } from 'lucide-react'
 import { LinkedInReviewSurface, ReviewedVideoPlayer } from '@/components/admin/SocialVideoReview'
 import ProtectedRoute from '@/components/ProtectedRoute'
@@ -807,6 +808,7 @@ function SocialContentDetailPage() {
   const [deterministicVisualTemplate, setDeterministicVisualTemplate] = useState<DeterministicVisualTemplate | ''>('')
   const [deterministicVisualAspectRatio, setDeterministicVisualAspectRatio] = useState<DeterministicVisualAspectRatio | ''>('')
   const [selectedVisualFormat, setSelectedVisualFormat] = useState<'framework' | 'carousel'>('framework')
+  const [selectedVisualLineageId, setSelectedVisualLineageId] = useState<string | null>(null)
   const [savingVisualConfiguration, setSavingVisualConfiguration] = useState(false)
   const [scheduledFor, setScheduledFor] = useState('')
   const [recoveryScheduledFor, setRecoveryScheduledFor] = useState('')
@@ -3072,6 +3074,17 @@ function SocialContentDetailPage() {
   const deterministicVisualReceipt = asRecord(deterministicVisualRender?.receipt)
   const deterministicProviderReceipt = asRecord(deterministicVisualReceipt?.provider_receipt)
   const deterministicVisualInputs = deterministicVisualRender?.inputs ?? null
+  const deterministicVisualLineage = deterministicVisualInputs?.field_lineage ?? []
+  const selectedVisualLineage = deterministicVisualLineage.find((entry) => entry.id === selectedVisualLineageId)
+    || deterministicVisualLineage[0]
+    || null
+  const traceHotspots = [
+    { id: 'headline', number: 1, className: 'left-[32%] top-[22%]' },
+    { id: 'evidence.0', number: 2, className: 'left-[74%] top-[23%]' },
+    { id: 'node.constraint.body', number: 3, className: 'left-[20%] top-[68%]' },
+    { id: 'node.decision.body', number: 4, className: 'left-[50%] top-[68%]' },
+    { id: 'node.result.body', number: 5, className: 'left-[81%] top-[68%]' },
+  ].filter((hotspot) => deterministicVisualLineage.some((entry) => entry.id === hotspot.id))
   const hasDeterministicVisualContract = Boolean(asString(asRecord(asRecord(ragContext?.practitioner_content_quality)?.deterministic_visual)?.system_version))
   const frameworkApplication = asRecord(asRecord(ragContext?.practitioner_content_quality)?.framework_application)
   const selectedContentFramework = asRecord(frameworkApplication?.selected_framework)
@@ -3869,7 +3882,11 @@ function SocialContentDetailPage() {
                 { label: isEditable ? 'Edit Post' : 'View Post' },
               ]} />
             </div>
-            <span className={`shrink-0 rounded-full border px-2.5 py-0.5 text-xs font-medium ${statusCfg.bgColor} ${statusCfg.color} ${statusCfg.borderColor}`}>
+            <span
+              data-content-status={item.status}
+              data-contrast-audit="content-status-badge"
+              className={`content-status-badge shrink-0 rounded-full border px-2.5 py-0.5 text-xs font-semibold ${statusCfg.bgColor} ${statusCfg.color} ${statusCfg.borderColor}`}
+            >
               {statusCfg.label}
             </span>
           </div>
@@ -5325,7 +5342,70 @@ function SocialContentDetailPage() {
                           {visualPreviewImageUrl ? (
                             <div className="mt-3">
                               {(deterministicVisualOperatorState === 'dirty' || deterministicVisualOperatorState === 'rendered_stale') && <p className="mb-2 rounded-lg border border-red-500/35 bg-red-500/5 p-2 text-xs font-semibold text-red-800 dark:text-red-200">Stale asset · visible for comparison, unavailable for approval until the primary action completes.</p>}
-                              <div data-media-canvas="framework-illustration" className="relative h-[min(400px,70vw)] min-h-56 w-full overflow-hidden rounded-lg bg-slate-950"><Image src={visualPreviewImageUrl} alt={visualPreviewAlt} className="object-contain" fill sizes="(max-width: 800px) 100vw, 800px" /></div>
+                              <div data-media-canvas="framework-illustration" className="relative h-[min(400px,70vw)] min-h-56 w-full overflow-hidden rounded-lg bg-slate-950">
+                                <Image src={visualPreviewImageUrl} alt={visualPreviewAlt} className="object-contain" fill sizes="(max-width: 800px) 100vw, 800px" />
+                                {deterministicVisualLineage.length > 0 && deterministicVisualAspectRatio === '1.91:1' && traceHotspots.map((hotspot) => {
+                                  const lineage = deterministicVisualLineage.find((entry) => entry.id === hotspot.id)
+                                  if (!lineage) return null
+                                  return (
+                                    <button
+                                      key={hotspot.id}
+                                      type="button"
+                                      aria-label={`Trace ${lineage.label}`}
+                                      title={`${lineage.label}: ${lineage.proof_status === 'passed' ? 'source proof passed' : lineage.proof_detail}`}
+                                      onClick={() => setSelectedVisualLineageId(hotspot.id)}
+                                      className={`absolute z-10 flex h-7 w-7 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 text-xs font-bold shadow-lg transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-amber-300 ${hotspot.className} ${lineage.proof_status === 'passed' ? 'border-white bg-emerald-600 text-white' : 'border-white bg-red-600 text-white'}`}
+                                    >
+                                      {hotspot.number}
+                                    </button>
+                                  )
+                                })}
+                              </div>
+                              {deterministicVisualLineage.length > 0 && (
+                                <section aria-label="Visual source trace" className="mt-3 border-t border-border pt-3">
+                                  <div className="flex flex-wrap items-start justify-between gap-2">
+                                    <div>
+                                      <p className="flex items-center gap-2 text-sm font-semibold text-foreground"><FileSearch className="h-4 w-4 text-amber-700 dark:text-amber-300" />Trace this visual</p>
+                                      <p className="mt-1 text-xs leading-5 text-muted-foreground">Every visible phrase must resolve to approved evidence or fixed template language before rendering and approval.</p>
+                                    </div>
+                                    <span className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${deterministicVisualInputs?.lineage_status === 'passed' ? 'border-emerald-600/40 bg-emerald-100 text-emerald-900 dark:bg-emerald-300/10 dark:text-emerald-100' : 'border-red-600/40 bg-red-100 text-red-900 dark:bg-red-300/10 dark:text-red-100'}`}>
+                                      {deterministicVisualInputs?.lineage_status === 'passed' ? 'All fields traced' : 'Source proof blocked'}
+                                    </span>
+                                  </div>
+                                  <div className="mt-3 flex gap-2 overflow-x-auto pb-2" aria-label="Visual field sources">
+                                    {deterministicVisualLineage.map((entry, index) => (
+                                      <button
+                                        key={entry.id}
+                                        type="button"
+                                        onClick={() => setSelectedVisualLineageId(entry.id)}
+                                        aria-pressed={selectedVisualLineage?.id === entry.id}
+                                        className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors ${selectedVisualLineage?.id === entry.id ? 'border-amber-600 bg-amber-100 text-amber-950 dark:border-amber-300 dark:bg-amber-300/15 dark:text-amber-100' : 'border-border bg-background text-foreground hover:bg-muted'}`}
+                                      >
+                                        <span className={entry.proof_status === 'passed' ? 'text-emerald-700 dark:text-emerald-300' : 'text-red-700 dark:text-red-300'}>{entry.proof_status === 'passed' ? 'Verified' : 'Blocked'}</span>{' '}
+                                        {index + 1}. {entry.label}
+                                      </button>
+                                    ))}
+                                  </div>
+                                  {selectedVisualLineage && (
+                                    <div className="mt-1 grid gap-3 border-l-2 border-amber-500/60 pl-3 text-xs lg:grid-cols-[minmax(0,1fr)_minmax(260px,0.8fr)]">
+                                      <div>
+                                        <p className="font-semibold text-foreground">{selectedVisualLineage.label}</p>
+                                        <p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-foreground">“{selectedVisualLineage.text}”</p>
+                                        <p className={`mt-2 font-semibold ${selectedVisualLineage.proof_status === 'passed' ? 'text-emerald-800 dark:text-emerald-200' : 'text-red-800 dark:text-red-200'}`}>{selectedVisualLineage.proof_detail}</p>
+                                      </div>
+                                      <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-1 text-muted-foreground">
+                                        <dt>Derivation</dt><dd className="font-medium text-foreground">{selectedVisualLineage.derivation.replace(/_/g, ' ')}</dd>
+                                        <dt>Source</dt><dd className="font-medium text-foreground">{selectedVisualLineage.source_label}</dd>
+                                        <dt>Field</dt><dd className="break-all font-mono text-[11px] text-foreground">{selectedVisualLineage.source_path || 'Missing binding'}</dd>
+                                        <dt>Receipt</dt><dd className="break-all font-mono text-[11px] text-foreground">{selectedVisualLineage.proof_receipt_id || 'Missing'}</dd>
+                                        <dt>Public use</dt><dd className="font-medium text-foreground">{selectedVisualLineage.approved_for_public_use ? 'Approved' : 'Not approved'}</dd>
+                                        <dt>Privacy</dt><dd className="font-medium text-foreground">{selectedVisualLineage.disclosure_classification || 'Not recorded'}</dd>
+                                        <dt>Redaction</dt><dd className="font-medium text-foreground">{selectedVisualLineage.redaction_status || 'Template language'}{selectedVisualLineage.redaction_receipt_id ? ` · ${selectedVisualLineage.redaction_receipt_id}` : ''}</dd>
+                                      </dl>
+                                    </div>
+                                  )}
+                                </section>
+                              )}
                             </div>
                           ) : <div className="mt-3 flex h-40 items-center justify-center rounded-lg border border-dashed border-border bg-muted/40 p-4 text-center text-sm text-muted-foreground">Complete the primary action to create the review asset.</div>}
                         </>

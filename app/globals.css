@@ -783,6 +783,69 @@ html.dark .admin-console-button-secondary {
   color: var(--radiant-gold);
 }
 
+/* Social Content lifecycle badges remain legible independently of surrounding
+   glass and sticky-header treatments. Keep both palettes explicit so system
+   theme changes cannot leave a light badge treatment on a dark surface. */
+.content-status-badge[data-content-status="draft"] {
+  border-color: #94a3b8;
+  background: #e2e8f0;
+  color: #1e293b;
+}
+
+.content-status-badge[data-content-status="approved"] {
+  border-color: #3b82f6;
+  background: #dbeafe;
+  color: #1e3a8a;
+}
+
+.content-status-badge[data-content-status="scheduled"] {
+  border-color: #d97706;
+  background: #fef3c7;
+  color: #78350f;
+}
+
+.content-status-badge[data-content-status="published"] {
+  border-color: #16a34a;
+  background: #dcfce7;
+  color: #14532d;
+}
+
+.content-status-badge[data-content-status="rejected"] {
+  border-color: #dc2626;
+  background: #fee2e2;
+  color: #7f1d1d;
+}
+
+html.dark .content-status-badge[data-content-status="draft"] {
+  border-color: #64748b;
+  background: #1e293b;
+  color: #e2e8f0;
+}
+
+html.dark .content-status-badge[data-content-status="approved"] {
+  border-color: #60a5fa;
+  background: #172554;
+  color: #dbeafe;
+}
+
+html.dark .content-status-badge[data-content-status="scheduled"] {
+  border-color: #f59e0b;
+  background: #451a03;
+  color: #fef3c7;
+}
+
+html.dark .content-status-badge[data-content-status="published"] {
+  border-color: #4ade80;
+  background: #052e16;
+  color: #dcfce7;
+}
+
+html.dark .content-status-badge[data-content-status="rejected"] {
+  border-color: #f87171;
+  background: #450a0a;
+  color: #fee2e2;
+}
+
 /* ========================================
    Shared Admin Sidebar Standard
    ======================================== */
