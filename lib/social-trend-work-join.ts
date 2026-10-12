@@ -423,6 +423,18 @@ export function buildTrendWorkRelevanceReport(
   }
 }
 
+export function sourceReceiptsForTrendWorkCandidates(
+  candidates: TrendWorkBacklogCandidate[],
+  receipts: SocialTopicSourceProjection[],
+) {
+  const candidateReceiptIds = new Set(candidates.flatMap((candidate) => candidate.source_receipt_ids))
+  return [...new Map(
+    receipts
+      .filter((receipt) => candidateReceiptIds.has(receipt.receipt_id))
+      .map((receipt) => [receipt.receipt_id, receipt]),
+  ).values()]
+}
+
 export async function collectApprovedTrendWorkRelevance(generatedAt = new Date().toISOString()) {
   const { supabaseAdmin } = await import('@/lib/supabase')
   const [persistedResult, momentumResult, githubResult] = await Promise.all([
@@ -437,14 +449,16 @@ export async function collectApprovedTrendWorkRelevance(generatedAt = new Date()
     collectDirectGitHubActivityProjections({ generatedAt }),
   ])
   if (persistedResult.error) throw new Error(`trend_work_receipt_read_failed:${persistedResult.error.message}`)
-  const report = buildTrendWorkRelevanceReport([
+  const sourceReceipts = [
     ...((persistedResult.data ?? []) as SocialTopicSourceProjection[]),
     ...momentumResult.projections,
     ...githubResult.projections,
     ...approvedRepositoryEvidenceProjections(generatedAt),
-  ], generatedAt)
+  ]
+  const report = buildTrendWorkRelevanceReport(sourceReceipts, generatedAt)
   return {
     ...report,
     blockers: [...new Set([...report.blockers, ...momentumResult.blockers, ...githubResult.blockers])],
+    source_receipts: sourceReceiptsForTrendWorkCandidates(report.candidates, sourceReceipts),
   }
 }
