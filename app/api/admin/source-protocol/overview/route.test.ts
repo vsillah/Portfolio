@@ -160,6 +160,23 @@ describe('GET /api/admin/source-protocol/overview', () => {
     })
   })
 
+  it('fails an optional Evidence QA fixture closed when generation throws for another reason', () => {
+    const builder = vi.fn(() => {
+      throw Object.assign(new Error('fixture JSON is not an approval plan'), { code: 'EACCES' })
+    })
+
+    const result = buildOptionalEvidenceQaProjection('source.json', 'approval.json', builder)
+
+    expect(result.data).toBeNull()
+    expect(result.unavailable).toEqual({
+      code: 'optional_projection_unavailable',
+      message: 'Evidence QA approval projection could not be generated from its optional local fixture files.',
+      sourceImportPath: 'source.json',
+      approvalPath: 'approval.json',
+    })
+    expect(JSON.stringify(result)).not.toContain('fixture JSON')
+  })
+
   it('traces both optional Evidence QA fixture inputs into the Vercel function', () => {
     const config = readFileSync('next.config.js', 'utf8')
 
