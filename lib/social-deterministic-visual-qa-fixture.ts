@@ -14,6 +14,7 @@ import { socialCopyVersion } from '@/lib/social-copy-revision'
 
 export const DETERMINISTIC_VISUAL_TARGET_RECORD_ID = '52a4baec-ad2d-415d-a6fa-4436dbfd6360'
 export const DETERMINISTIC_VISUAL_QA_ASSET_URL = `/qa/social-content/deterministic-visual-binding.png?renderer=${DETERMINISTIC_VISUAL_RENDERER_VERSION}`
+export const DETERMINISTIC_VISUAL_QA_SOURCE_PACKET_ID = '56d34256-d196-42c6-973d-8d9af3aeff37'
 
 export type DeterministicVisualQaState = 'ready' | 'current' | 'stale' | 'missing_candidate' | 'architecture_mismatch' | 'storage_unavailable' | 'lineage_missing'
 
@@ -46,6 +47,16 @@ export function deterministicVisualBindingQaFixture(
 ): SocialContentItem {
   const base = practitionerContentQaFixture('ready')
   const baseRag = structuredClone(base.rag_context ?? {}) as Record<string, unknown>
+  const practitionerQuality = baseRag.practitioner_content_quality as Record<string, unknown>
+  const evidencePacket = practitionerQuality.evidence_packet as Record<string, unknown>
+  if (Array.isArray(evidencePacket.source_provenance)) {
+    evidencePacket.source_provenance = evidencePacket.source_provenance.map((source) => ({
+      ...(source as Record<string, unknown>),
+      source_id: DETERMINISTIC_VISUAL_QA_SOURCE_PACKET_ID,
+      source_type: 'approved_social_content_research_packet',
+      label: 'Approved staging research packet',
+    }))
+  }
   const item: SocialContentItem = {
     ...base,
     id: DETERMINISTIC_VISUAL_BINDING_QA_ID,

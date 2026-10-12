@@ -1140,6 +1140,20 @@ describe('ContentIntelligencePage', () => {
     expect(screen.getByRole('button', { name: 'Prepare Review Drafts' })).toBeDisabled()
   })
 
+  it('opens an exact research packet from a visual source trace', async () => {
+    window.history.replaceState({}, '', '/admin/agents/content-intelligence?section=research&packet=packet-1')
+
+    render(<ContentIntelligencePage />)
+
+    expect(await screen.findByRole('heading', { name: 'Research and Shaka insight queue' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /ResearchCreator evidence/ })).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('searchbox', { name: 'Search' })).toHaveValue('packet-1')
+    const packetRow = document.getElementById('research-packet-packet-1')
+    expect(packetRow).toBeInTheDocument()
+    expect(packetRow?.className).toContain('outline-amber-400/80')
+    expect(screen.getByText('Outlier research process')).toBeVisible()
+  })
+
   it('filters release calendar rows by content title and linked work item', async () => {
     render(<ContentIntelligencePage />)
 

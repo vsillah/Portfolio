@@ -2,7 +2,10 @@ import { fireEvent, render, screen, waitFor, within } from '@testing-library/rea
 import type { ReactNode } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import SocialContentDetailRoute from './page'
-import { deterministicVisualBindingQaFixture } from '@/lib/social-deterministic-visual-qa-fixture'
+import {
+  DETERMINISTIC_VISUAL_QA_SOURCE_PACKET_ID,
+  deterministicVisualBindingQaFixture,
+} from '@/lib/social-deterministic-visual-qa-fixture'
 import { buildDeterministicVisualRecipePatch, projectDeterministicVisualRender } from '@/lib/social-deterministic-visual'
 import { socialCopyVersion } from '@/lib/social-copy-revision'
 import { topicSourceCoverageQaFixture } from '@/lib/social-topic-source-coverage-qa-fixture'
@@ -313,6 +316,27 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(screen.getAllByText('Current asset').length).toBeGreaterThanOrEqual(2)
     expect(screen.getByText(/provider none · external call false/i)).toBeVisible()
     expect((await screen.findAllByAltText('Deterministic AmaduTown review asset')).length).toBeGreaterThan(0)
+    expect(screen.getByRole('button', { name: 'Show source trace' })).toHaveAttribute('aria-pressed', 'false')
+    expect(screen.queryByRole('region', { name: 'Visual source trace' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Trace Headline' })).not.toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Show source trace' }))
+    expect(screen.getByRole('button', { name: 'Hide source trace' })).toHaveAttribute('aria-pressed', 'true')
+    const traceRegion = screen.getByRole('region', { name: 'Visual source trace' })
+    expect(traceRegion).toBeVisible()
+    const headlineIndex = (currentItem.deterministic_visual_render?.inputs.field_lineage.findIndex((entry) => entry.id === 'headline') ?? -1) + 1
+    expect(within(screen.getByRole('button', { name: 'Trace Headline' })).getByText(String(headlineIndex))).toBeVisible()
+    expect(within(traceRegion).getByRole('button', { name: new RegExp(`${headlineIndex}\\. Headline`) })).toBeVisible()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Trace Headline' }))
+    expect(screen.getByRole('link', { name: 'Open exact evidence packet' })).toHaveAttribute(
+      'href',
+      `/admin/agents/content-intelligence?section=research&packet=${DETERMINISTIC_VISUAL_QA_SOURCE_PACKET_ID}`,
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'Hide source trace' }))
+    expect(screen.queryByRole('region', { name: 'Visual source trace' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Trace Headline' })).not.toBeInTheDocument()
     expect(fetchMock.mock.calls.some(([input]) => /generate-image|gemini|heygen|n8n/i.test(String(input)))).toBe(false)
 
     fireEvent.click(screen.getByRole('button', { name: /Approve Visuals/i }))

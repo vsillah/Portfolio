@@ -9,6 +9,7 @@ const baseOrigin = new URL(base).origin
 const sourceCommit = process.env.QA_SOURCE_COMMIT?.trim() || null
 const trustedOidcToken = process.env.VERCEL_OIDC_TOKEN?.trim() || null
 const contentId = 'deterministic-visual-binding-qa'
+const evidencePacketId = '56d34256-d196-42c6-973d-8d9af3aeff37'
 const outputDir = path.resolve('docs/social-content/qa/deterministic-visual-binding')
 const tempDir = path.resolve('test-results/deterministic-visual-binding')
 const publicDir = path.resolve('public')
@@ -526,6 +527,28 @@ function dashboardResponse(pathname) {
         if (url.pathname === '/api/admin/agents/runs') return json({ runs: [] })
         if (url.pathname === '/api/admin/agents/swarm-board') return json({ ok: true, organization: { summary: { goals: [] } } })
         if (url.pathname === '/api/admin/agents/automation-goals') return json({ goals: [] })
+        if (url.pathname.startsWith('/api/admin/social-content/intelligence/research-packets')) {
+          return json({
+            packets: [{
+              id: evidencePacketId,
+              source_url: 'https://youtube.com/watch?v=demo-social-review',
+              platform: 'youtube',
+              creator_name: 'AmaduTown approved evidence',
+              creator_handle: '@amadutown',
+              title: 'Demo research pattern for accountable AI content',
+              caption: null,
+              thumbnail_url: null,
+              hook_transcript: 'Approved public-safe operating evidence for accountable content review.',
+              outlier_score: 81,
+              pattern_status: 'approved',
+              review_status: 'approved',
+              retrieved_at: '2026-10-10T12:00:00.000Z',
+              updated_at: '2026-10-10T12:00:00.000Z',
+              actor_metadata: { source: 'privacy-safe QA projection' },
+              metrics: {},
+            }],
+          })
+        }
 
         const dashboard = dashboardResponse(url.pathname)
         if (dashboard) return json(dashboard)
@@ -636,6 +659,32 @@ function dashboardResponse(pathname) {
       await expect(page.getByText(/Gemini, HeyGen, n8n media, platform drafts, scheduling, publishing, and external sends stay off/i)).toBeVisible()
       const mediaPackage = page.locator('#social-asset-packet-gate')
       assert.equal(await mediaPackage.evaluate((element) => element.open), false, `${evidencePrefix} media package starts collapsed`)
+
+      await page.goto(socialRouteFor('current'), { waitUntil: 'domcontentloaded' })
+      await expect(page.getByText('Synthetic production-equivalent fixture')).toBeVisible({ timeout: 90000 })
+      await assertResolvedTheme(page, theme, `${evidencePrefix} source trace`)
+      const traceToggle = page.getByRole('button', { name: 'Show source trace' })
+      await expect(traceToggle).toHaveAttribute('aria-pressed', 'false')
+      await expect(page.getByRole('button', { name: 'Trace Headline' })).toHaveCount(0)
+      await reveal(traceToggle)
+      await page.waitForTimeout(700)
+      await traceToggle.click()
+      await expect(page.getByRole('button', { name: 'Hide source trace' })).toHaveAttribute('aria-pressed', 'true')
+      const headlineMarker = page.getByRole('button', { name: 'Trace Headline' })
+      const headlineChip = page.getByRole('button', { name: /Verified \d+\. Headline/ })
+      await headlineMarker.click()
+      const headlineNumber = (await headlineMarker.textContent()).trim()
+      await expect(headlineChip).toContainText(`Verified ${headlineNumber}. Headline`)
+      const exactPacketLink = page.getByRole('link', { name: 'Open exact evidence packet' })
+      await reveal(exactPacketLink)
+      await expect(exactPacketLink).toHaveAttribute('href', `/admin/agents/content-intelligence?section=research&packet=${evidencePacketId}`)
+      await page.waitForTimeout(900)
+      await page.getByRole('button', { name: 'Hide source trace' }).click()
+      await expect(page.getByRole('button', { name: 'Trace Headline' })).toHaveCount(0)
+      await page.waitForTimeout(700)
+      await page.goto(socialRouteFor('ready'), { waitUntil: 'domcontentloaded' })
+      await expect(page.getByText('Synthetic production-equivalent fixture')).toBeVisible({ timeout: 90000 })
+      await assertResolvedTheme(page, theme, `${evidencePrefix} social recipe restored`)
 
       await pauseAtWorkflowStep(page, 'configure')
       await page.locator('#deterministic-visual-template').selectOption('practitioner_signal_card')

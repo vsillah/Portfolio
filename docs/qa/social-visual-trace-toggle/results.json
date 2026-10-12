@@ -1,0 +1,42 @@
+{
+  "generated_at": "2026-10-11T23:54:00-04:00",
+  "source_commit": "817dcd4b",
+  "route": "/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=visual-trace-toggle&qa_state=current#social-visual-assets-gate",
+  "viewports": [
+    {
+      "width": 1440,
+      "height": 1000,
+      "theme": "system-light"
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "theme": "system-light"
+    }
+  ],
+  "verified_behaviors": [
+    "customer-facing image opens without trace markers",
+    "source trace can be shown and hidden without rebuilding the asset",
+    "headline marker and headline source chip use the same number",
+    "selected field exposes the exact evidence-packet deep link",
+    "clean image returns after trace mode is hidden"
+  ],
+  "source_deep_link": "/admin/agents/content-intelligence?section=research&packet=56d34256-d196-42c6-973d-8d9af3aeff37",
+  "writes": 0,
+  "provider_calls": 0,
+  "platform_drafts": 0,
+  "uploads": 0,
+  "scheduled_posts": 0,
+  "publications": 0,
+  "external_sends": 0,
+  "video": {
+    "path": "visual-trace-toggle-walkthrough.mp4",
+    "sha256": "059d7f5eaf2f30bb61363a521aa65fe02c02637dd1d0c60c91678ccf7bdb0c2a",
+    "duration_seconds": 38.52,
+    "width": 1280,
+    "height": 720,
+    "codec": "h264",
+    "pixel_format": "yuv420p",
+    "playable": true
+  }
+}
