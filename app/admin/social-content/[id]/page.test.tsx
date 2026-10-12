@@ -382,6 +382,110 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(screen.getByRole('button', { name: /Approve Visuals/i })).toBeDisabled()
   })
 
+  it('projects a persisted current provider-none approval consistently across reloads', async () => {
+    const approvedItem = deterministicVisualBindingQaFixture('approved')
+    mocks.id = approvedItem.id
+    mocks.search = 'step=visuals&qa_state=approved'
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      json: async () => ({ fixture: true, fixture_state: 'approved', item: approvedItem }),
+    }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    const assertApprovedProjection = async () => {
+      const currentReview = await screen.findByLabelText('Current review action')
+      expect(within(currentReview).getByText('Visual asset approved')).toBeVisible()
+      expect(within(currentReview).getByText('Approved')).toBeVisible()
+      expect(within(currentReview).getByText(/current visual is approved.*media package gate/i)).toBeInTheDocument()
+
+      const visualStep = screen.getByRole('button', { name: 'Approval step 3: Amina Visuals' })
+      expect(within(visualStep).getByText('Current visual approved')).toBeVisible()
+      expect(within(visualStep).getByText('Approved')).toBeVisible()
+      expect(screen.getAllByText('Visual assets: Approved').length).toBeGreaterThan(0)
+      expect(screen.getByText(/provider-none-[a-f0-9]+.*provider none.*external call false/i)).toBeVisible()
+      expect(screen.getAllByAltText('Deterministic AmaduTown review asset').length).toBeGreaterThan(0)
+    }
+
+    const firstRender = render(<SocialContentDetailRoute />)
+    await assertApprovedProjection()
+    firstRender.unmount()
+
+    render(<SocialContentDetailRoute />)
+    await assertApprovedProjection()
+    expect(fetchMock).toHaveBeenCalledTimes(2)
+  })
+
+  it.each([
+    ['ready', 'Pending'],
+    ['stale', 'Pending'],
+  ] as const)('does not project %s deterministic assets as approved even with a stale visual decision', async (state, expectedState) => {
+    const item = deterministicVisualBindingQaFixture(state)
+    item.rag_context = {
+      ...item.rag_context,
+      section_gate_reviews: {
+        visual_assets: {
+          status: 'approved',
+          decided_at: '2026-10-11T12:05:00.000Z',
+        },
+      },
+    }
+    mocks.id = item.id
+    mocks.search = `step=visuals&qa_state=${state}`
+    vi.stubGlobal('fetch', vi.fn(async () => ({
+      ok: true,
+      json: async () => ({ fixture: true, fixture_state: state, item }),
+    })))
+
+    render(<SocialContentDetailRoute />)
+
+    const currentReview = await screen.findByLabelText('Current review action')
+    expect(within(currentReview).getByText(expectedState)).toBeVisible()
+    expect(within(currentReview).queryByText('Visual asset approved')).not.toBeInTheDocument()
+    expect(within(screen.getByRole('button', { name: 'Approval step 3: Amina Visuals' })).queryByText('Approved')).not.toBeInTheDocument()
+  })
+
+  it('revokes the approved summary for rejected or dirty current visuals', async () => {
+    const rejectedItem = deterministicVisualBindingQaFixture('current')
+    rejectedItem.rag_context = {
+      ...rejectedItem.rag_context,
+      section_gate_reviews: {
+        visual_assets: {
+          status: 'rejected',
+          decided_at: '2026-10-11T12:05:00.000Z',
+          note: 'Revise the decision label.',
+          repair_status: 'requested',
+        },
+      },
+    }
+    mocks.id = rejectedItem.id
+    mocks.search = 'step=visuals&qa_state=current'
+    vi.stubGlobal('fetch', vi.fn(async () => ({
+      ok: true,
+      json: async () => ({ fixture: true, fixture_state: 'current', item: rejectedItem }),
+    })))
+
+    const rejectedRender = render(<SocialContentDetailRoute />)
+    const rejectedReview = await screen.findByLabelText('Current review action')
+    expect(within(rejectedReview).getByText('Blocked')).toBeVisible()
+    expect(within(rejectedReview).queryByText('Visual asset approved')).not.toBeInTheDocument()
+    rejectedRender.unmount()
+
+    const approvedItem = deterministicVisualBindingQaFixture('approved')
+    mocks.search = 'step=visuals&qa_state=approved'
+    vi.stubGlobal('fetch', vi.fn(async () => ({
+      ok: true,
+      json: async () => ({ fixture: true, fixture_state: 'approved', item: approvedItem }),
+    })))
+    render(<SocialContentDetailRoute />)
+    expect(await screen.findAllByText('Visual asset approved')).toHaveLength(2)
+    fireEvent.change(screen.getByLabelText(/Aspect ratio · editable/i), { target: { value: '4:5' } })
+
+    const dirtyReview = screen.getByLabelText('Current review action')
+    expect(within(dirtyReview).getByText('Pending')).toBeVisible()
+    expect(within(dirtyReview).queryByText('Visual asset approved')).not.toBeInTheDocument()
+    expect(screen.getAllByText('Changes not saved').length).toBeGreaterThanOrEqual(2)
+  })
+
   it('routes a persisted stale asset directly to the updated render action', async () => {
     const staleItem = deterministicVisualBindingQaFixture('stale')
     mocks.id = staleItem.id
