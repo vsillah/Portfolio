@@ -4,6 +4,7 @@ import {
   approvedPublicMomentumProjectionsFromResearchPackets,
   buildApprovedPublicMomentumProjection,
   buildTrendWorkRelevanceReport,
+  sourceReceiptsForTrendWorkCandidates,
 } from './social-trend-work-join'
 
 const generatedAt = '2026-10-12T16:00:00.000Z'
@@ -107,6 +108,33 @@ describe('trend-to-work relevance joining', () => {
     })
     expect(report.candidates[0].source_receipt_ids).toHaveLength(3)
     expect(report.candidates[0].why_vambah_can_speak).toContain('2 approved firsthand Portfolio receipts')
+  })
+
+  it('keeps every joined candidate receipt available for durable backlog projection', () => {
+    const external = momentum({
+      sourceId: 'jev-public-momentum', productIdentity: 'jev', label: 'Jev',
+      summary: 'Approved Jev momentum.', topics: ['governed capability analysis'], url: 'https://news.example.com/jev',
+    })
+    const analysis = workReceipt({
+      sourceGroup: 'repository_documents', sourceKind: 'approved_repository_document', sourceId: 'jev-analysis',
+      productIdentity: 'jev', label: 'Jev', summary: 'Approved Jev capability analysis.', topics: ['governed capability analysis'],
+    })
+    const darkCastle = workReceipt({
+      sourceGroup: 'github_development', sourceKind: 'github_pull_request_activity', sourceId: 'dark-castle-prs',
+      productIdentity: 'dark_castle_chess', label: 'Dark Castle Chess', summary: 'Current Dark Castle pull-request activity.',
+      topics: ['chess product development'], metadata: { portfolio_product_id: 'dark-castle-product' },
+    })
+    const report = buildTrendWorkRelevanceReport([external, analysis, darkCastle], generatedAt)
+    const candidateReceiptIds = new Set(
+      sourceReceiptsForTrendWorkCandidates(report.candidates, [external, analysis, darkCastle])
+        .map((receipt) => receipt.receipt_id),
+    )
+
+    expect(candidateReceiptIds).toEqual(new Set([
+      external.receipt_id,
+      analysis.receipt_id,
+      darkCastle.receipt_id,
+    ]))
   })
 
   it('joins Dark Castle Chess identity to current GitHub development activity', () => {

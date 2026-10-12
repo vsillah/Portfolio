@@ -13,7 +13,10 @@ import {
   type TrendWorkBacklogCandidate,
   type TrendWorkRelevanceReport,
 } from '@/lib/social-trend-work-join'
-import type { SocialTopicSourceProjection } from '@/lib/social-topic-source-receipts'
+import {
+  persistApprovedSourceProjections,
+  type SocialTopicSourceProjection,
+} from '@/lib/social-topic-source-receipts'
 
 export type SourceType =
   | 'public_momentum'
@@ -940,7 +943,22 @@ export async function discoverSocialTopicCandidates(options: {
     stale_momentum_count: 0,
     deduplicated_momentum_count: 0,
     privacy_rejected_count: 0,
+    source_receipts: [] as SocialTopicSourceProjection[],
   }))
+
+  const trendReceiptIds = [...new Set(
+    trendWorkResult.candidates.flatMap((candidate) => candidate.source_receipt_ids),
+  )]
+  const trendReceiptMap = new Map(
+    trendWorkResult.source_receipts.map((receipt) => [receipt.receipt_id, receipt]),
+  )
+  const trendReceipts = trendReceiptIds
+    .map((receiptId) => trendReceiptMap.get(receiptId))
+    .filter((receipt): receipt is SocialTopicSourceProjection => Boolean(receipt))
+  if (trendReceipts.length !== trendReceiptIds.length) {
+    throw new Error('Trend/work candidate receipts were incomplete; backlog reconciliation stopped before candidate creation')
+  }
+  await persistApprovedSourceProjections(trendReceipts)
 
   const model = process.env.SOCIAL_TOPIC_DISCOVERY_MODEL || 'gpt-4o-mini'
   const aiResponse = await generateJsonCompletion({
@@ -968,16 +986,6 @@ export async function discoverSocialTopicCandidates(options: {
     throw new Error('Topic discovery returned invalid JSON')
   }
 
-  const trendReceiptIds = trendWorkResult.candidates.flatMap((candidate) => candidate.source_receipt_ids)
-  const trendReceiptResult = trendReceiptIds.length > 0
-    ? await supabaseAdmin
-      .from('social_topic_source_receipts')
-      .select('*')
-      .in('receipt_id', trendReceiptIds)
-    : { data: [] as SocialTopicSourceProjection[], error: null }
-  const trendReceipts = trendReceiptResult.error
-    ? []
-    : (trendReceiptResult.data ?? []) as SocialTopicSourceProjection[]
   const joinedCandidates = trendWorkResult.candidates
     .map((candidate) => topicCandidateFromTrendWorkJoin(candidate, trendReceipts))
     .filter((candidate): candidate is TopicTriggerCandidate => Boolean(candidate))
