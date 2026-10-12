@@ -302,6 +302,8 @@ export async function collectDirectGitHubActivityProjections(options: {
         evidenceUrl: repo.html_url || repoRef.url,
         metadata: {
           collector: privateRepository ? 'github_authenticated_api_read_only' : 'github_public_api_read_only',
+          portfolio_product_id: row.id,
+          repository_mapping: asString(row.app_repo_url) ? 'explicit_app_repo_url' : 'discovered_stable_product_identity',
           repository: repo.full_name || `${repoRef.owner}/${repoRef.repo}`,
           repository_visibility: privateRepository ? 'private_summary' : 'public',
           topic_identities: topics,

@@ -35,4 +35,21 @@ describe('trend/work topic backlog projection', () => {
       ]),
     })
   })
+
+  it('promotes a bound active GitHub work signal as Portfolio work without requiring public momentum', () => {
+    const github = buildApprovedSourceProjection({
+      sourceGroup: 'github_development', sourceKind: 'github_pull_request_activity', sourceId: 'dark-castle-prs', productIdentity: 'dark_castle_chess',
+      lifecycleStage: 'in_development', label: 'Dark Castle Chess', approvedSummary: 'Dark Castle Chess has current pull-request activity.', privacyClassification: 'client_safe_summary',
+      provenance: 'github_authenticated_api:vsillah/dark-castle-chess:pulls', approvedAt: at, approvedBy: 'github_authenticated_api', observedAt: at,
+      evidenceUrl: 'https://github.com/vsillah/dark-castle-chess/pulls', metadata: { portfolio_product_id: 'dark-castle-product', topic_identities: ['chess_product_development'] },
+    })
+    const report = buildTrendWorkRelevanceReport([github], '2026-10-12T16:00:00.000Z')
+
+    expect(topicCandidateFromTrendWorkJoin(report.candidates[0], [github])).toMatchObject({
+      source_type: 'portfolio_work',
+      product_ids: ['dark_castle_chess'],
+      sensitivity: 'client_safe_summary',
+      source_receipts: [expect.objectContaining({ source_kind: 'github_pull_request_activity', raw_content_included: false })],
+    })
+  })
 })

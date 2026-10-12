@@ -17,6 +17,7 @@ function workReceipt(input: {
   label: string
   summary: string
   topics: string[]
+  metadata?: Record<string, unknown>
 }) {
   return buildApprovedSourceProjection({
     ...input,
@@ -27,7 +28,7 @@ function workReceipt(input: {
     approvedAt,
     approvedBy: 'fixture-reviewer',
     observedAt: approvedAt,
-    metadata: { topic_identities: input.topics },
+    metadata: { topic_identities: input.topics, ...input.metadata },
   })
 }
 
@@ -132,6 +133,40 @@ describe('trend-to-work relevance joining', () => {
     expect(candidate.product_identity).toBe('dark_castle_chess')
     expect(candidate.work_receipt_ids).toHaveLength(2)
     expect(candidate.claim_boundaries).toContain('Development activity does not prove deployment, customer use, or business outcomes.')
+  })
+
+  it('creates a Dark Castle active-work candidate from a bound Portfolio identity and current GitHub activity without public momentum', () => {
+    const github = workReceipt({
+      sourceGroup: 'github_development', sourceKind: 'github_pull_request_activity', sourceId: 'dark-castle-current-prs',
+      productIdentity: 'dark_castle_chess', label: 'Dark Castle Chess', summary: 'Dark Castle Chess has current pull-request activity.',
+      topics: ['chess product development'], metadata: { portfolio_product_id: 'dark-castle-product' },
+    })
+
+    const report = buildTrendWorkRelevanceReport([github], generatedAt)
+
+    expect(report.status).toBe('ready')
+    expect(report.candidates).toHaveLength(1)
+    expect(report.candidates[0]).toMatchObject({
+      product_identity: 'dark_castle_chess',
+      external_receipt_ids: [],
+      work_receipt_ids: [github.receipt_id],
+      freshness: 'fresh',
+      status: 'review_only',
+    })
+    expect(report.candidates[0].title).toContain('current build')
+  })
+
+  it('fails closed when current GitHub activity is not bound to a Portfolio product', () => {
+    const github = workReceipt({
+      sourceGroup: 'github_development', sourceKind: 'github_repository_activity', sourceId: 'unbound-repository',
+      productIdentity: 'unbound_product', label: 'Unbound product', summary: 'A repository has current activity.',
+      topics: ['product development'],
+    })
+
+    const report = buildTrendWorkRelevanceReport([github], generatedAt)
+
+    expect(report.candidates).toEqual([])
+    expect(report.blockers).toContain('[github_product_identity_unbound:unbound_product] Link the GitHub repository to an unambiguous Portfolio product before creating an active-work candidate.')
   })
 
   it('deduplicates canonical momentum, rejects private receipts, and blocks stale signals', () => {
