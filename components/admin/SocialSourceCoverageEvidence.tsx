@@ -17,6 +17,7 @@ import {
 } from 'lucide-react'
 import { getCurrentSession } from '@/lib/auth'
 import type { ProductLifecycleCoverage, SocialTopicLiveCoverage } from '@/lib/social-topic-source-coverage'
+import { SOCIAL_CANDIDATE_PROJECTION_QA_FIXTURE } from '@/lib/social-candidate-projection-qa-contract'
 
 const PRIORITY_PAGE_SIZE = 3
 const DIRECTORY_PAGE_SIZE = 5
@@ -54,7 +55,13 @@ function ProductEvidenceRow({ product }: { product: ProductLifecycleCoverage }) 
   )
 }
 
-export default function SocialSourceCoverageEvidence({ active }: { active: boolean }) {
+export default function SocialSourceCoverageEvidence({
+  active,
+  qaFixture,
+}: {
+  active: boolean
+  qaFixture?: typeof SOCIAL_CANDIDATE_PROJECTION_QA_FIXTURE
+}) {
   const [coverage, setCoverage] = useState<SocialTopicLiveCoverage | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -69,7 +76,10 @@ export default function SocialSourceCoverageEvidence({ active }: { active: boole
     try {
       const session = await getCurrentSession()
       if (!session?.access_token) throw new Error('Admin session is unavailable.')
-      const response = await fetch('/api/admin/social-content/source-coverage', {
+      const endpoint = qaFixture
+        ? `/api/admin/social-content/source-coverage?qa_fixture=${encodeURIComponent(qaFixture)}`
+        : '/api/admin/social-content/source-coverage'
+      const response = await fetch(endpoint, {
         cache: 'no-store',
         headers: { Authorization: `Bearer ${session.access_token}` },
       })
@@ -81,7 +91,7 @@ export default function SocialSourceCoverageEvidence({ active }: { active: boole
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [qaFixture])
 
   useEffect(() => {
     if (active && !coverage && !loading && !error) void loadCoverage()
@@ -114,6 +124,14 @@ export default function SocialSourceCoverageEvidence({ active }: { active: boole
 
   return (
     <section className="mb-6 rounded-lg border border-border bg-card p-4 text-card-foreground shadow-sm" aria-labelledby="source-coverage-heading" data-testid="source-coverage-section">
+      {qaFixture && (
+        <div className="mb-4 rounded-lg border border-accent/50 bg-accent/10 p-3" data-testid="synthetic-candidate-qa-banner">
+          <div className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-[0.13em] text-foreground">
+            <ShieldCheck className="h-4 w-4 text-accent" /> Synthetic QA fixture · preview only · read only
+          </div>
+          <p className="mt-1 text-xs leading-5 text-muted-foreground">No production data, reconciliation, model or provider call, render, upload, scheduling, publishing, external send, or candidate approval is available on this route.</p>
+        </div>
+      )}
       <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
         <div className="max-w-3xl">
           <div className="admin-console-eyebrow mb-2 flex items-center gap-2"><Activity className="h-4 w-4" /> Launch evidence · source coverage</div>
@@ -127,7 +145,7 @@ export default function SocialSourceCoverageEvidence({ active }: { active: boole
             {awaitingInitialRead ? 'Reading' : coverage?.status === 'ready' ? 'Coverage ready' : 'Fail closed'}
           </span>
           <button type="button" onClick={() => void loadCoverage()} disabled={loading} className={`${BUTTON_CLASS} py-1.5`}>
-            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />} Refresh
+            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />} {qaFixture ? 'Reload fixture' : 'Refresh'}
           </button>
         </div>
       </div>
@@ -154,8 +172,8 @@ export default function SocialSourceCoverageEvidence({ active }: { active: boole
           <div className="rounded-lg border border-border bg-muted/20 p-3" data-testid="trend-work-relevance">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
               <div>
-                <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.13em] text-muted-foreground"><Newspaper className="h-4 w-4 text-accent" /> Trend-to-work relevance</div>
-                <p className="mt-1 max-w-3xl text-xs leading-5 text-muted-foreground">Approved public momentum is joined to stable product and topic identities, then grounded in privacy-safe evidence of firsthand work. Results enter the existing review-only topic backlog; no copy, approval, provider call, draft, schedule, or post is created here.</p>
+                <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.13em] text-muted-foreground"><Newspaper className="h-4 w-4 text-accent" /> Trend-to-work and capability relevance</div>
+                <p className="mt-1 max-w-3xl text-xs leading-5 text-muted-foreground">Approved public momentum is joined by exact product identity or explicit shared theme, then grounded in privacy-safe evidence of firsthand work or an owned capability. Results enter the existing review-only topic backlog; no reconciliation, copy, approval, provider call, draft, render, upload, schedule, post, or external send is created here.</p>
               </div>
               <span className={`shrink-0 rounded-full border px-2.5 py-1 text-xs font-medium ${coverage.trend_work_relevance?.status === 'ready' ? 'border-accent/40 bg-accent/10 text-foreground' : 'border-border bg-muted text-muted-foreground'}`}>
                 {coverage.trend_work_relevance?.candidates.length ?? 0} joined candidates
@@ -167,14 +185,44 @@ export default function SocialSourceCoverageEvidence({ active }: { active: boole
                   <article key={candidate.candidate_key} className="rounded-lg border border-border bg-card p-3 text-card-foreground" data-testid="trend-work-candidate">
                     <div className="flex flex-wrap items-start justify-between gap-2">
                       <h3 className="text-sm font-semibold text-foreground">{candidate.product_label}</h3>
-                      <span className="rounded-full border border-accent/30 bg-accent/10 px-2 py-1 text-[10px] capitalize text-accent">{candidate.freshness} · score {candidate.priority_score}</span>
+                      <div className="flex flex-wrap justify-end gap-1.5">
+                        <span className="rounded-full border border-border bg-muted/50 px-2 py-1 text-[10px] text-muted-foreground">{candidate.candidate_class.replace(/_/g, ' ')}</span>
+                        <span className="rounded-full border border-accent/30 bg-accent/10 px-2 py-1 text-[10px] capitalize text-accent">{candidate.freshness} · score {candidate.priority_score}</span>
+                      </div>
                     </div>
                     <p className="mt-2 text-xs leading-5 text-foreground">{candidate.triggering_event}</p>
+                    {candidate.public_signal && (
+                      <div className="mt-2 rounded-md border border-border bg-muted/30 p-2 text-xs leading-5 text-muted-foreground">
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          <span className="rounded-full border border-border bg-card px-2 py-0.5 capitalize text-foreground">{candidate.public_signal.sentiment}</span>
+                          <span>{candidate.public_signal.signal_kind.replace(/_/g, ' ')}</span>
+                          <span>· attention {Math.round(candidate.public_signal.public_attention_score * 100)}%</span>
+                          <span>· relevance {Math.round(candidate.public_signal.relevance_score * 100)}%</span>
+                        </div>
+                        <p className="mt-1">{candidate.public_signal.context_summary}</p>
+                        <p className="mt-1 font-mono text-[10px]">Published {formatDate(candidate.public_signal.published_at)} · observed {formatDate(candidate.public_signal.observed_at)} · expires {formatDate(candidate.public_signal.expires_at)}</p>
+                        <a className="mt-1 inline-block text-[10px] font-medium text-accent underline-offset-2 hover:underline" href={candidate.public_signal.source_url} target="_blank" rel="noreferrer">View attributable public source</a>
+                      </div>
+                    )}
                     <p className="mt-2 text-xs leading-5 text-muted-foreground">{candidate.why_vambah_can_speak}</p>
+                    <p className="mt-2 text-xs leading-5 text-muted-foreground"><strong className="text-foreground">Angle:</strong> {candidate.content_angle}</p>
+                    {candidate.confidence && (
+                      <p className="mt-2 text-xs leading-5 text-muted-foreground">
+                        <strong className="text-foreground">Confidence:</strong> {candidate.confidence.level} ({Math.round(candidate.confidence.score * 100)}%) · {candidate.confidence.basis.join(' · ')}
+                      </p>
+                    )}
+                    {candidate.actionable_next_step && (
+                      <p className="mt-2 text-xs leading-5 text-muted-foreground"><strong className="text-foreground">Next:</strong> {candidate.actionable_next_step}</p>
+                    )}
                     <div className="mt-2 flex flex-wrap gap-1.5">
                       {candidate.topic_identities.map((topic) => <span key={topic} className="rounded-full border border-border bg-muted/50 px-2 py-1 text-[10px] text-muted-foreground">{topic.replace(/_/g, ' ')}</span>)}
                     </div>
-                    <p className="mt-2 font-mono text-[10px] text-muted-foreground">{candidate.source_receipt_ids.length} receipts · {candidate.status.replace(/_/g, ' ')}</p>
+                    <details className="mt-2 text-[10px] text-muted-foreground">
+                      <summary className="cursor-pointer font-mono">{candidate.source_receipt_ids.length} exact receipts · {candidate.status.replace(/_/g, ' ')}</summary>
+                      <ul className="mt-1 space-y-1 break-all font-mono">
+                        {candidate.source_receipt_ids.map((receiptId) => <li key={receiptId}>{receiptId}</li>)}
+                      </ul>
+                    </details>
                   </article>
                 ))}
               </div>
@@ -184,6 +232,14 @@ export default function SocialSourceCoverageEvidence({ active }: { active: boole
                 {coverage.trend_work_relevance?.blockers[0] ?? 'Add an approved fresh public-momentum receipt and matching firsthand-work receipt.'}
               </div>
             )}
+            {coverage.trend_work_relevance?.blockers.length ? (
+              <div className="mt-3 rounded-lg border border-accent/40 bg-accent/10 p-3" data-testid="trend-work-blockers">
+                <div className="flex items-center gap-2 text-xs font-semibold text-foreground"><AlertTriangle className="h-4 w-4 text-accent" /> Actionable policy blockers</div>
+                <ul className="mt-2 space-y-1 text-xs leading-5 text-muted-foreground">
+                  {coverage.trend_work_relevance.blockers.map((blocker) => <li key={blocker}>{blocker}</li>)}
+                </ul>
+              </div>
+            ) : null}
           </div>
 
           {coverage.products.length === 0 ? (

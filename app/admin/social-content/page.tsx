@@ -56,6 +56,7 @@ import {
 } from '@/lib/social-content'
 import type { SocialContentItem, ContentStatus, SocialPlatform } from '@/lib/social-content'
 import Link from 'next/link'
+import { SOCIAL_CANDIDATE_PROJECTION_QA_FIXTURE } from '@/lib/social-candidate-projection-qa-contract'
 
 interface Stats {
   draft: number
@@ -2120,9 +2121,22 @@ function SocialContentQueuePage() {
 }
 
 export default function SocialContentPage() {
+  const searchParams = useSearchParams()
+  const candidateQaFixture = initialQueryValue(searchParams, 'candidateQa') === SOCIAL_CANDIDATE_PROJECTION_QA_FIXTURE
+
   return (
     <ProtectedRoute requireAdmin>
-      <SocialContentQueuePage />
+      {candidateQaFixture ? (
+        <div className="min-h-screen bg-background p-4 text-foreground sm:p-6 lg:p-8" data-testid="social-candidate-qa-page">
+          <Breadcrumbs items={[{ label: 'Admin', href: '/admin' }, { label: 'Social Content', href: '/admin/social-content?workflow=evidence' }, { label: 'Synthetic candidate QA' }]} />
+          <div className="mb-6 mt-5 rounded-xl border border-accent/40 bg-card p-5 text-card-foreground shadow-sm">
+            <div className="admin-console-eyebrow mb-2">Social Content evidence QA</div>
+            <h1 className="text-2xl font-bold text-foreground">Durable candidate projection fixture</h1>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">Review the four synthetic acceptance states on the existing evidence surface. This isolated route mounts no queue, approval, provider, scheduling, publishing, or external-send controls.</p>
+          </div>
+          <SocialSourceCoverageEvidence active qaFixture={SOCIAL_CANDIDATE_PROJECTION_QA_FIXTURE} />
+        </div>
+      ) : <SocialContentQueuePage />}
     </ProtectedRoute>
   )
 }

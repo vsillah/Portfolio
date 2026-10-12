@@ -3,6 +3,7 @@ import { generateJsonCompletion } from '@/lib/llm-dispatch'
 import { createAgentWorkItem } from '@/lib/agent-work-items'
 import {
   defaultSocialChannelLanes,
+  socialCandidateReceiptMetadata,
   socialInsightMetadataFromCandidate,
   socialTopicBacklogItemFromWorkItem,
   SOCIAL_TOPIC_TRIGGER_SOURCE_TYPE,
@@ -10,6 +11,7 @@ import {
 import { supabaseAdmin } from '@/lib/supabase'
 import {
   collectApprovedTrendWorkRelevance,
+  evaluateSocialCandidateReceiptPolicy,
   type TrendWorkBacklogCandidate,
   type TrendWorkRelevanceReport,
 } from '@/lib/social-trend-work-join'
@@ -58,6 +60,9 @@ export type SocialTopicSourceKind =
   | 'app_prototype'
   | 'amadutown_product'
   | 'amadutown_book'
+  | 'amadutown_course_material'
+  | 'approved_course_material'
+  | 'course_material'
   | 'amadutown_site_material'
   | 'existing_social_content'
   | 'agent_run_summary'
@@ -142,6 +147,7 @@ export function prototypeLifecycleStage(value: unknown): NonNullable<SourceSigna
 
 export type TopicTriggerCandidate = {
   id: string
+  candidate_class?: TrendWorkBacklogCandidate['candidate_class']
   title: string
   triggering_event: string
   source_type: SourceType
@@ -161,6 +167,13 @@ export type TopicTriggerCandidate = {
   priority_tier: 'high' | 'medium' | 'low'
   priority_reasons: string[]
   dedupe_fingerprint: string
+  receipt_policy?: TrendWorkBacklogCandidate['receipt_policy']
+  receipt_lineage?: TrendWorkBacklogCandidate['receipt_lineage']
+  theme_identity?: TrendWorkBacklogCandidate['theme_identity']
+  relevant_owned_capability?: TrendWorkBacklogCandidate['relevant_owned_capability']
+  confidence?: TrendWorkBacklogCandidate['confidence']
+  actionable_next_step?: TrendWorkBacklogCandidate['actionable_next_step']
+  public_signal?: TrendWorkBacklogCandidate['public_signal']
 }
 
 type DiscoveryResponse = {
@@ -484,24 +497,50 @@ export function topicCandidateFromTrendWorkJoin(
   receipts: SocialTopicSourceProjection[],
 ): TopicTriggerCandidate | null {
   const byId = new Map(receipts.map((receipt) => [receipt.receipt_id, receipt]))
-  const sourceReceipts = candidate.source_receipt_ids
+  const sourceProjections = candidate.source_receipt_ids
     .map((receiptId) => byId.get(receiptId))
     .filter((receipt): receipt is SocialTopicSourceProjection => Boolean(receipt))
-    .map(projectionReceipt)
-  if (sourceReceipts.length !== candidate.source_receipt_ids.length) return null
+  if (sourceProjections.length !== candidate.source_receipt_ids.length) return null
+  if (
+    candidate.receipt_policy.product_identity_join === 'exact'
+    && sourceProjections.some((receipt) => receipt.product_identity !== candidate.product_identity)
+  ) return null
+  const policyEvaluation = evaluateSocialCandidateReceiptPolicy({
+    candidateClass: candidate.candidate_class,
+    productIdentity: candidate.product_identity,
+    receipts: sourceProjections,
+    themeIdentity: candidate.theme_identity,
+  })
+  if (policyEvaluation.status !== 'ready') return null
+  const expectedReceiptIds = [...candidate.source_receipt_ids].sort()
+  const evaluatedReceiptIds = policyEvaluation.matched_receipts.map((receipt) => receipt.receipt_id).sort()
+  const lineageReceiptIds = candidate.receipt_lineage.map((receipt) => receipt.receipt_id).sort()
+  if (JSON.stringify(evaluatedReceiptIds) !== JSON.stringify(expectedReceiptIds)) return null
+  if (JSON.stringify(lineageReceiptIds) !== JSON.stringify(expectedReceiptIds)) return null
+  if (JSON.stringify(candidate.receipt_policy) !== JSON.stringify(policyEvaluation.policy)) return null
+  const declaredLineage = [...candidate.receipt_lineage].sort((a, b) => a.receipt_id.localeCompare(b.receipt_id))
+  const evaluatedLineage = [...policyEvaluation.receipt_lineage].sort((a, b) => a.receipt_id.localeCompare(b.receipt_id))
+  if (JSON.stringify(declaredLineage) !== JSON.stringify(evaluatedLineage)) return null
+  const sourceReceipts = sourceProjections.map(projectionReceipt)
   const isExternalIntersection = candidate.external_receipt_ids.length > 0
+  const isThematicOpportunity = candidate.candidate_class === 'public_theme_owned_capability'
   return {
     id: candidate.candidate_key,
+    candidate_class: candidate.candidate_class,
     title: candidate.title,
     triggering_event: candidate.triggering_event,
     source_type: isExternalIntersection ? 'public_momentum' : 'portfolio_work',
     source_label: isExternalIntersection
-      ? `${candidate.product_label} momentum + work evidence`
+      ? isThematicOpportunity
+        ? `${candidate.product_label} thematic opportunity evidence`
+        : `${candidate.product_label} momentum + work evidence`
       : `${candidate.product_label} active GitHub work`,
     source_ids: sourceReceipts.map((receipt) => receipt.source_id),
     why_vambah_can_speak: candidate.why_vambah_can_speak,
     brand_goal: isExternalIntersection
-      ? `Prioritize a timely ${candidate.product_label} angle only where approved external momentum intersects with demonstrated work.`
+      ? isThematicOpportunity
+        ? `Review a timely thematic opportunity only where approved external momentum intersects with an approved privacy-safe owned capability.`
+        : `Prioritize a timely ${candidate.product_label} angle only where approved external momentum intersects with demonstrated work.`
       : `Turn current ${candidate.product_label} implementation work into a receipt-backed practitioner lesson without overstating release or outcomes.`,
     content_angle: candidate.content_angle,
     suggested_hook: candidate.suggested_hook,
@@ -517,6 +556,13 @@ export function topicCandidateFromTrendWorkJoin(
     priority_tier: candidate.priority_score >= 75 ? 'high' : candidate.priority_score >= 55 ? 'medium' : 'low',
     priority_reasons: candidate.priority_reasons,
     dedupe_fingerprint: candidate.dedupe_fingerprint,
+    receipt_policy: policyEvaluation.policy,
+    receipt_lineage: evaluatedLineage,
+    theme_identity: candidate.theme_identity,
+    relevant_owned_capability: candidate.relevant_owned_capability,
+    confidence: candidate.confidence,
+    actionable_next_step: candidate.actionable_next_step,
+    public_signal: candidate.public_signal,
   }
 }
 
@@ -1110,6 +1156,7 @@ export async function upsertSocialTopicBacklog(packet: TopicTriggerPacket, trigg
         notes: packet.notes,
         privacy_boundary: packet.privacy_boundary,
         source_receipts: candidate.source_receipts,
+        ...socialCandidateReceiptMetadata(candidate),
         product_ids: candidate.product_ids,
         priority_score: candidate.priority_score,
         priority_tier: candidate.priority_tier,

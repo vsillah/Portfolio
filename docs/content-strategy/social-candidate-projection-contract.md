@@ -1,0 +1,56 @@
+# Social candidate projection contract
+
+## User value
+
+The existing Social Content evidence and topic-backlog workflow turns timely public momentum and active product work into traceable, review-only content opportunities. The projection is recurring and policy-driven. Jev, Dark Castle Chess, and future products qualify through the same receipt rules rather than product-specific exceptions.
+
+## Stable identity join
+
+Every receipt is normalized to one `product_identity`. Candidate projection uses an exact identity join. A matching topic phrase cannot join receipts from different products.
+
+Only approved, privacy-safe summaries with provenance, reviewer, approval timestamp, content hash, and `raw_content_included: false` are eligible.
+
+## Candidate classes
+
+| Candidate class | Required receipts | Current acceptance case |
+| --- | --- | --- |
+| `public_momentum_repository` | One fresh approved public-news or social-trend receipt and one approved repository document or implementation receipt with the same product identity | Jev |
+| `active_github_product` | One approved app/product catalog receipt and one current read-only GitHub activity receipt with the same product identity | Dark Castle Chess |
+| `public_theme_owned_capability` | One fresh approved public-news or social-trend receipt and one approved privacy-safe Portfolio/Open Brain capability, product, book, course-material, repository, or public-site receipt with the same explicit topic identity | Any qualifying theme; course momentum matched to an owned course capability is a regression case |
+
+The code-level policy registry is `SOCIAL_CANDIDATE_RECEIPT_POLICIES` in `lib/social-trend-work-join.ts`. Missing receipt classes produce a `candidate_receipt_policy_incomplete` blocker with a recovery action. The candidate is not projected until every required class is present.
+
+The thematic policy is cross-product by design: an industry signal and an owned capability may use different product identities, but both receipts must carry the same explicit normalized topic identity. The join never infers a theme from raw prose. Each thematic opportunity records the trend, owned capability, exact receipt lineage, deterministic confidence basis, and a review action. Missing external evidence, missing owned evidence, stale momentum, topic mismatch, private/raw material, and duplicate receipt fingerprints all fail closed.
+
+## Public news and social momentum admission
+
+Public news and social-trend receipts are recurring first-class signals only after approval. Each receipt must include an attributable HTTPS source, recurring coverage identity, publication, observation and expiry timestamps, explicit topic and entity identities, sentiment plus context, materiality, relevance score, public-attention score, evidence state, reviewer, and provenance. Coverage identity deduplicates repeated reporting about the same development even when URLs differ.
+
+Only material signals with relevance and public-attention scores of at least `0.65` qualify. Expired, ambient, noisy, uncertain, disputed, incomplete, or insufficiently public signals remain blockers and cannot create a candidate. Negative signals may support a critical or cautionary editorial angle, but the candidate must preserve neutral attribution, avoid assuming wrongdoing, and exclude unverified claims.
+
+## Persisted lineage
+
+Each joined candidate retains:
+
+- the candidate class and policy version;
+- every joined receipt ID;
+- source group, source kind, and source ID;
+- exact product identity and lifecycle stage;
+- provenance and evidence URL;
+- summary hash;
+- reviewer and approval, observation timestamps; and
+- the explicit no-raw-content flag.
+
+The same metadata helper writes this lineage into the canonical Agent Ops work item and the existing `social_topic_backlog` projection. Candidate keys remain receipt-derived for deduplication. Freshness rules continue to reject stale momentum and stale GitHub activity.
+
+## Boundaries
+
+Projection creates review-only opportunities. It does not ingest or quote raw private conversations or transcripts, generate copy, approve content, call discovery or media providers, render media, upload assets, schedule, publish, send externally, or claim that development activity proves deployment or outcomes.
+
+## Synthetic review fixture
+
+Captain and Human QA can review the durable-candidate states on the preview-only route:
+
+`/admin/social-content?workflow=evidence&candidateQa=durable-candidates`
+
+The route mounts only the existing source-coverage evidence panel and demonstrates synthetic Jev public-momentum/repository, Dark Castle Chess active-GitHub/product, Agentified thematic-owned-capability, and incomplete-policy blocker states. The fixture endpoint is unavailable in production. It reads no production records and exposes no queue, approval, reconciliation, model/provider, rendering, upload, scheduling, publishing, or external-send control.
