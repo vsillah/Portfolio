@@ -2,7 +2,10 @@ import { fireEvent, render, screen, waitFor, within } from '@testing-library/rea
 import type { ReactNode } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import SocialContentDetailRoute from './page'
-import { deterministicVisualBindingQaFixture } from '@/lib/social-deterministic-visual-qa-fixture'
+import {
+  DETERMINISTIC_VISUAL_QA_SOURCE_PACKET_ID,
+  deterministicVisualBindingQaFixture,
+} from '@/lib/social-deterministic-visual-qa-fixture'
 import { buildDeterministicVisualRecipePatch, projectDeterministicVisualRender } from '@/lib/social-deterministic-visual'
 import { socialCopyVersion } from '@/lib/social-copy-revision'
 import { topicSourceCoverageQaFixture } from '@/lib/social-topic-source-coverage-qa-fixture'
@@ -207,11 +210,6 @@ describe('SocialContentDetailRoute visual production review', () => {
   it('renders the approved provider-none candidate and records the current receipt without external calls', async () => {
     const readyItem = deterministicVisualBindingQaFixture('ready')
     const currentItem = deterministicVisualBindingQaFixture('current')
-    const headlineLineage = currentItem.deterministic_visual_render?.inputs.field_lineage.find((entry) => entry.id === 'headline')
-    if (headlineLineage) {
-      headlineLineage.source_type = 'approved_social_content_research_packet'
-      headlineLineage.source_id = 'packet-visual-proof'
-    }
     mocks.id = readyItem.id
     mocks.search = 'step=visuals&qa_state=ready'
     const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
@@ -333,7 +331,7 @@ describe('SocialContentDetailRoute visual production review', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Trace Headline' }))
     expect(screen.getByRole('link', { name: 'Open exact evidence packet' })).toHaveAttribute(
       'href',
-      '/admin/agents/content-intelligence?section=research&packet=packet-visual-proof',
+      `/admin/agents/content-intelligence?section=research&packet=${DETERMINISTIC_VISUAL_QA_SOURCE_PACKET_ID}`,
     )
 
     fireEvent.click(screen.getByRole('button', { name: 'Hide source trace' }))
