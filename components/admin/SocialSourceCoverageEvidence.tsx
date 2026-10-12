@@ -9,6 +9,7 @@ import {
   Clock3,
   Database,
   GitPullRequest,
+  Newspaper,
   Loader2,
   RefreshCw,
   Search,
@@ -148,6 +149,41 @@ export default function SocialSourceCoverageEvidence({ active }: { active: boole
               { label: 'Products', value: summary.products, icon: Database },
               { label: 'Priority gaps', value: summary.gaps, icon: AlertTriangle },
             ].map((item) => <div key={item.label} className="rounded-lg border border-border bg-muted/40 p-3"><div className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.12em] text-muted-foreground"><item.icon className="h-3.5 w-3.5 text-accent" />{item.label}</div><div className="mt-1 text-lg font-semibold text-foreground">{item.value}</div></div>)}
+          </div>
+
+          <div className="rounded-lg border border-border bg-muted/20 p-3" data-testid="trend-work-relevance">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.13em] text-muted-foreground"><Newspaper className="h-4 w-4 text-accent" /> Trend-to-work relevance</div>
+                <p className="mt-1 max-w-3xl text-xs leading-5 text-muted-foreground">Approved public momentum is joined to stable product and topic identities, then grounded in privacy-safe evidence of firsthand work. Results enter the existing review-only topic backlog; no copy, approval, provider call, draft, schedule, or post is created here.</p>
+              </div>
+              <span className={`shrink-0 rounded-full border px-2.5 py-1 text-xs font-medium ${coverage.trend_work_relevance?.status === 'ready' ? 'border-accent/40 bg-accent/10 text-foreground' : 'border-border bg-muted text-muted-foreground'}`}>
+                {coverage.trend_work_relevance?.candidates.length ?? 0} joined candidates
+              </span>
+            </div>
+            {coverage.trend_work_relevance?.candidates.length ? (
+              <div className="mt-3 grid gap-2 lg:grid-cols-2" data-testid="trend-work-candidate-list">
+                {coverage.trend_work_relevance.candidates.map((candidate) => (
+                  <article key={candidate.candidate_key} className="rounded-lg border border-border bg-card p-3 text-card-foreground" data-testid="trend-work-candidate">
+                    <div className="flex flex-wrap items-start justify-between gap-2">
+                      <h3 className="text-sm font-semibold text-foreground">{candidate.product_label}</h3>
+                      <span className="rounded-full border border-accent/30 bg-accent/10 px-2 py-1 text-[10px] capitalize text-accent">{candidate.freshness} · score {candidate.priority_score}</span>
+                    </div>
+                    <p className="mt-2 text-xs leading-5 text-foreground">{candidate.triggering_event}</p>
+                    <p className="mt-2 text-xs leading-5 text-muted-foreground">{candidate.why_vambah_can_speak}</p>
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      {candidate.topic_identities.map((topic) => <span key={topic} className="rounded-full border border-border bg-muted/50 px-2 py-1 text-[10px] text-muted-foreground">{topic.replace(/_/g, ' ')}</span>)}
+                    </div>
+                    <p className="mt-2 font-mono text-[10px] text-muted-foreground">{candidate.source_receipt_ids.length} receipts · {candidate.status.replace(/_/g, ' ')}</p>
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <div className="mt-3 rounded-lg border border-dashed border-border bg-card p-3 text-xs text-muted-foreground">
+                <strong className="text-foreground">Join remains closed.</strong>{' '}
+                {coverage.trend_work_relevance?.blockers[0] ?? 'Add an approved fresh public-momentum receipt and matching firsthand-work receipt.'}
+              </div>
+            )}
           </div>
 
           {coverage.products.length === 0 ? (
