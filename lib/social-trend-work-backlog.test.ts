@@ -81,6 +81,49 @@ describe('trend/work topic backlog projection', () => {
     })
   })
 
+  it('projects a course-theme match into the existing backlog contract with exact lineage and review metadata', () => {
+    const publicTrend = buildApprovedPublicMomentumProjection({
+      sourceId: 'course-pattern', momentumKind: 'social_trend', productIdentity: 'course_industry', label: 'Course industry pattern',
+      approvedSummary: 'Approved public evidence shows stronger performance for practical cohort courses.',
+      canonicalUrl: 'https://social.example.com/course-pattern', publisher: 'Public fixture publisher', topicIdentities: ['practical cohort courses'],
+      approvedAt: at, approvedBy: 'reviewer', observedAt: at,
+    })
+    const ownedCourse = buildApprovedSourceProjection({
+      sourceGroup: 'public_catalog', sourceKind: 'amadutown_product', sourceId: 'accelerated-course', productIdentity: 'accelerated',
+      lifecycleStage: 'publicly_cataloged', label: 'Accelerated', approvedSummary: 'Accelerated is an approved owned practical course capability.', privacyClassification: 'public_safe',
+      provenance: 'public_catalog:products:accelerated-course', approvedAt: at, approvedBy: 'public_catalog_state', observedAt: at,
+      metadata: { topic_identities: ['practical_cohort_courses'] },
+    })
+    const report = buildTrendWorkRelevanceReport([publicTrend, ownedCourse], '2026-10-12T16:00:00.000Z')
+    const thematic = report.candidates.find((candidate) => candidate.candidate_class === 'public_theme_owned_capability')!
+
+    const projected = topicCandidateFromTrendWorkJoin(thematic, [publicTrend, ownedCourse])
+
+    expect(projected).toMatchObject({
+      candidate_class: 'public_theme_owned_capability',
+      source_type: 'public_momentum',
+      source_label: 'Accelerated thematic opportunity evidence',
+      product_ids: ['accelerated'],
+      theme_identity: 'practical_cohort_courses',
+      relevant_owned_capability: {
+        product_identity: 'accelerated',
+        source_receipt_ids: [ownedCourse.receipt_id],
+      },
+      confidence: { score: 0.88, level: 'medium' },
+      receipt_policy: expect.objectContaining({ policy_id: 'public_theme_owned_capability_v1' }),
+      receipt_lineage: expect.arrayContaining([
+        expect.objectContaining({ receipt_id: publicTrend.receipt_id, product_identity: 'course_industry' }),
+        expect.objectContaining({ receipt_id: ownedCourse.receipt_id, product_identity: 'accelerated' }),
+      ]),
+    })
+    expect(projected?.actionable_next_step).toContain('No copy or downstream action is created automatically.')
+    expect(socialCandidateReceiptMetadata(projected!)).toMatchObject({
+      theme_identity: 'practical_cohort_courses',
+      confidence: { score: 0.88, level: 'medium' },
+      actionable_next_step: expect.stringContaining('Review the exact receipts'),
+    })
+  })
+
   it('does not project a joined candidate when its required receipt set is incomplete', () => {
     const product = buildApprovedSourceProjection({
       sourceGroup: 'app_prototypes', sourceKind: 'app_prototype', sourceId: 'dark-castle-product', productIdentity: 'dark_castle_chess',

@@ -30,7 +30,7 @@ const coverage = {
     version: 'trend_work_relevance_v1', generated_at: '2026-10-10T14:00:00.000Z', status: 'ready', review_only: true,
     blockers: [], source_receipt_count: 5, fresh_momentum_count: 2, stale_momentum_count: 0, deduplicated_momentum_count: 1, privacy_rejected_count: 0,
     candidates: [{
-      candidate_key: 'trend-work:jev', status: 'review_only', product_identity: 'jev', product_label: 'Jev',
+      candidate_key: 'trend-work:jev', status: 'review_only', candidate_class: 'public_momentum_repository', product_identity: 'jev', product_label: 'Jev',
       topic_identities: ['governed_capability_analysis'], title: 'Jev: where current momentum meets demonstrated work',
       triggering_event: 'Approved public momentum around governed capability analysis.',
       why_vambah_can_speak: '2 approved firsthand Portfolio receipts connect this public signal to Jev.',
@@ -38,6 +38,19 @@ const coverage = {
       source_receipt_ids: ['momentum-1', 'work-1', 'work-2'], external_receipt_ids: ['momentum-1'], work_receipt_ids: ['work-1', 'work-2'],
       freshness: 'fresh', priority_score: 94, priority_reasons: ['Current approved public momentum'], dedupe_fingerprint: 'jev-fingerprint',
       claim_boundaries: ['Review only.'], side_effects: { content_generation: false, approval: false, provider_call: false, draft_creation: false, schedule: false, publish: false },
+    }, {
+      candidate_key: 'thematic-opportunity:accelerated', status: 'review_only', candidate_class: 'public_theme_owned_capability', product_identity: 'accelerated', product_label: 'Accelerated',
+      topic_identities: ['practical_cohort_courses'], title: 'Accelerated: a practical cohort courses opportunity to review',
+      triggering_event: 'Approved public evidence shows stronger performance for practical cohort courses.',
+      why_vambah_can_speak: '2 approved privacy-safe owned-capability receipts connect the practical cohort courses trend to Accelerated.',
+      content_angle: 'Review the evidence-bound thematic opportunity.', suggested_hook: 'The course pattern is moving.', evidence_summary: 'Approved public and owned evidence.',
+      source_receipt_ids: ['course-trend-1', 'accelerated-product-1', 'accelerated-corpus-1'], external_receipt_ids: ['course-trend-1'], work_receipt_ids: ['accelerated-product-1', 'accelerated-corpus-1'],
+      freshness: 'fresh', priority_score: 90, priority_reasons: ['Exact shared topic identity'], dedupe_fingerprint: 'accelerated-theme-fingerprint',
+      claim_boundaries: ['Review only.'], theme_identity: 'practical_cohort_courses',
+      relevant_owned_capability: { product_identity: 'accelerated', label: 'Accelerated', source_receipt_ids: ['accelerated-product-1', 'accelerated-corpus-1'] },
+      confidence: { score: 0.92, level: 'high', basis: ['Exact shared topic identity: practical_cohort_courses', 'Fresh approved public momentum receipt'] },
+      actionable_next_step: 'Review the exact receipts and decide whether this should become a bounded Accelerated content brief. No copy or downstream action is created automatically.',
+      side_effects: { content_generation: false, approval: false, provider_call: false, draft_creation: false, schedule: false, publish: false },
     }],
   },
 }
@@ -113,13 +126,20 @@ describe('SocialSourceCoverageEvidence', () => {
   it('renders source-backed trend/work joins as review-only backlog candidates', async () => {
     render(<SocialSourceCoverageEvidence active />)
     const section = await screen.findByTestId('trend-work-relevance')
-    expect(within(section).getByText('Trend-to-work relevance')).toBeInTheDocument()
-    expect(within(section).getByText('1 joined candidates')).toBeInTheDocument()
-    const candidate = within(section).getByTestId('trend-work-candidate')
-    expect(candidate).toHaveTextContent('Jev')
-    expect(candidate).toHaveTextContent('Approved public momentum around governed capability analysis.')
-    expect(candidate).toHaveTextContent('3 receipts · review only')
-    expect(section).toHaveTextContent('no copy, approval, provider call, draft, schedule, or post is created here')
+    expect(within(section).getByText('Trend-to-work and capability relevance')).toBeInTheDocument()
+    expect(within(section).getByText('2 joined candidates')).toBeInTheDocument()
+    const candidates = within(section).getAllByTestId('trend-work-candidate')
+    expect(candidates[0]).toHaveTextContent('Jev')
+    expect(candidates[0]).toHaveTextContent('Approved public momentum around governed capability analysis.')
+    expect(candidates[0]).toHaveTextContent('3 exact receipts · review only')
+    expect(candidates[1]).toHaveTextContent('Accelerated')
+    expect(candidates[1]).toHaveTextContent('Confidence: high (92%)')
+    expect(candidates[1]).toHaveTextContent('Review the exact receipts')
+    expect(candidates[1]).toHaveTextContent('3 exact receipts · review only')
+    fireEvent.click(within(candidates[1]).getByText('3 exact receipts · review only'))
+    expect(candidates[1]).toHaveTextContent('course-trend-1')
+    expect(candidates[1]).toHaveTextContent('accelerated-product-1')
+    expect(section).toHaveTextContent('no reconciliation, copy, approval, provider call, draft, render, upload, schedule, post, or external send is created here')
   })
 
   it('shows Reading instead of a false fail-closed state before the first response resolves', () => {

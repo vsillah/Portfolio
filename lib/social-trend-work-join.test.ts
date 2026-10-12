@@ -104,12 +104,16 @@ describe('trend-to-work relevance joining', () => {
         product_identity_join: 'exact',
       },
       side_effects: {
+        reconciliation: false,
         content_generation: false,
         approval: false,
         provider_call: false,
         draft_creation: false,
+        media_render: false,
+        upload: false,
         schedule: false,
         publish: false,
+        external_send: false,
       },
     })
     expect(report.candidates[0].source_receipt_ids).toHaveLength(3)
@@ -265,10 +269,13 @@ describe('trend-to-work relevance joining', () => {
     ], generatedAt)
     expect(report.status).toBe('blocked')
     expect(report.candidates).toEqual([])
-    expect(report.blockers[0]).toContain('candidate_receipt_policy_incomplete:public_momentum_repository_v1:jev:repository_evidence')
+    expect(report.blockers).toEqual(expect.arrayContaining([
+      expect.stringContaining('candidate_receipt_policy_incomplete:public_momentum_repository_v1:jev:repository_evidence'),
+    ]))
+    expect(report.blockers).toContain('[thematic_owned_capability_missing:capability] Approve a privacy-safe Portfolio or Open Brain capability, product, book, course-material, repository, or public-site summary with the same explicit topic identity.')
   })
 
-  it('does not join matching topics across different product identities', () => {
+  it('keeps the direct product join exact while allowing an explicit cross-product thematic match', () => {
     const report = buildTrendWorkRelevanceReport([
       momentum({
         sourceId: 'jev-momentum', productIdentity: 'jev', label: 'Jev', summary: 'Approved Jev momentum.',
@@ -281,7 +288,118 @@ describe('trend-to-work relevance joining', () => {
       }),
     ], generatedAt)
 
-    expect(report.candidates).toEqual([])
-    expect(report.blockers).toContain('[candidate_receipt_policy_incomplete:public_momentum_repository_v1:jev:repository_evidence] Approve a repository document or implementation summary with provenance, reviewer, privacy classification, timestamp, and the same stable product identity.')
+    expect(report.candidates).toHaveLength(1)
+    expect(report.candidates[0]).toMatchObject({
+      candidate_class: 'public_theme_owned_capability',
+      product_identity: 'another_product',
+      theme_identity: 'governed_capability_analysis',
+      receipt_policy: {
+        policy_id: 'public_theme_owned_capability_v1',
+        product_identity_join: 'shared_topic_identity',
+      },
+    })
+    expect(report.candidates.some((candidate) => candidate.candidate_class === 'public_momentum_repository')).toBe(false)
+    expect(report.blockers).not.toContain('[candidate_receipt_policy_incomplete:public_momentum_repository_v1:jev:repository_evidence] Approve a repository document or implementation summary with provenance, reviewer, privacy classification, timestamp, and the same stable product identity.')
+  })
+
+  it('creates a generic course-theme opportunity from approved public momentum and owned course evidence', () => {
+    const publicTrend = momentum({
+      sourceId: 'course-market-pattern', productIdentity: 'course_industry', label: 'Course industry pattern',
+      summary: 'Approved public evidence shows stronger current performance for practical cohort courses.',
+      topics: ['practical cohort courses'], url: 'https://news.example.com/course-pattern',
+    })
+    const ownedCourse = workReceipt({
+      sourceGroup: 'public_catalog', sourceKind: 'amadutown_product', sourceId: 'accelerated-course',
+      productIdentity: 'accelerated', label: 'Accelerated', summary: 'Accelerated is an owned practical course capability with approved public materials.',
+      topics: ['practical cohort courses'],
+    })
+    const approvedCorpus = workReceipt({
+      sourceGroup: 'codex_insights', sourceKind: 'open_brain_conversation_proposal', sourceId: 'accelerated-course-capability',
+      productIdentity: 'accelerated', label: 'Accelerated', summary: 'An approved privacy-safe corpus summary documents the course operating capability without raw conversations.',
+      topics: ['practical cohort courses'],
+    })
+
+    const report = buildTrendWorkRelevanceReport([publicTrend, ownedCourse, approvedCorpus], generatedAt)
+    const candidate = report.candidates.find((item) => item.candidate_class === 'public_theme_owned_capability')
+
+    expect(candidate).toMatchObject({
+      product_identity: 'accelerated',
+      theme_identity: 'practical_cohort_courses',
+      status: 'review_only',
+      relevant_owned_capability: {
+        product_identity: 'accelerated',
+        label: 'Accelerated',
+        source_receipt_ids: expect.arrayContaining([ownedCourse.receipt_id, approvedCorpus.receipt_id]),
+      },
+      confidence: {
+        score: 0.92,
+        level: 'high',
+        basis: expect.arrayContaining(['Exact shared topic identity: practical_cohort_courses']),
+      },
+      receipt_policy: {
+        policy_id: 'public_theme_owned_capability_v1',
+        required_receipt_classes: ['public_momentum', 'owned_capability'],
+        product_identity_join: 'shared_topic_identity',
+      },
+      side_effects: {
+        reconciliation: false,
+        content_generation: false,
+        approval: false,
+        provider_call: false,
+        draft_creation: false,
+        media_render: false,
+        upload: false,
+        schedule: false,
+        publish: false,
+        external_send: false,
+      },
+    })
+    expect(candidate?.source_receipt_ids).toEqual(expect.arrayContaining([
+      publicTrend.receipt_id,
+      ownedCourse.receipt_id,
+      approvedCorpus.receipt_id,
+    ]))
+    expect(candidate?.actionable_next_step).toContain('Review the exact receipts')
+    expect(candidate?.claim_boundaries).toContain('Never ingest, quote, or expose raw private conversations, transcripts, notes, or source material.')
+  })
+
+  it('rejects a thematic opportunity when the owned evidence lacks the explicit shared theme', () => {
+    const publicTrend = momentum({
+      sourceId: 'course-market-pattern', productIdentity: 'course_industry', label: 'Course industry pattern',
+      summary: 'Approved public evidence shows stronger current performance for practical cohort courses.',
+      topics: ['practical cohort courses'], url: 'https://news.example.com/course-pattern',
+    })
+    const unrelatedCourse = workReceipt({
+      sourceGroup: 'public_catalog', sourceKind: 'amadutown_product', sourceId: 'accelerated-course',
+      productIdentity: 'accelerated', label: 'Accelerated', summary: 'Accelerated has an approved public catalog receipt.',
+      topics: ['agentic operating systems'],
+    })
+
+    const report = buildTrendWorkRelevanceReport([publicTrend, unrelatedCourse], generatedAt)
+
+    expect(report.candidates.filter((item) => item.candidate_class === 'public_theme_owned_capability')).toEqual([])
+    expect(report.blockers).toContain('[thematic_owned_capability_missing:practical_cohort_courses] Approve a privacy-safe Portfolio or Open Brain capability, product, book, course-material, repository, or public-site summary with the same explicit topic identity.')
+  })
+
+  it('does not treat raw private corpus material as owned-capability evidence', () => {
+    const publicTrend = momentum({
+      sourceId: 'course-market-pattern', productIdentity: 'course_industry', label: 'Course industry pattern',
+      summary: 'Approved public evidence shows stronger current performance for practical cohort courses.',
+      topics: ['practical cohort courses'], url: 'https://news.example.com/course-pattern',
+    })
+    const rawPrivateCorpus = {
+      ...workReceipt({
+        sourceGroup: 'codex_insights', sourceKind: 'open_brain_conversation_proposal', sourceId: 'raw-course-conversation',
+        productIdentity: 'accelerated', label: 'Accelerated', summary: 'Raw private conversation material must not qualify.',
+        topics: ['practical cohort courses'],
+      }),
+      raw_content_included: true,
+    } as unknown as SocialTopicSourceProjection
+
+    const report = buildTrendWorkRelevanceReport([publicTrend, rawPrivateCorpus], generatedAt)
+
+    expect(report.candidates.filter((item) => item.candidate_class === 'public_theme_owned_capability')).toEqual([])
+    expect(report.privacy_rejected_count).toBe(1)
+    expect(report.blockers).toContain('[thematic_owned_capability_missing:practical_cohort_courses] Approve a privacy-safe Portfolio or Open Brain capability, product, book, course-material, repository, or public-site summary with the same explicit topic identity.')
   })
 })

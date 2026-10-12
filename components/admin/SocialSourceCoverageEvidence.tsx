@@ -154,8 +154,8 @@ export default function SocialSourceCoverageEvidence({ active }: { active: boole
           <div className="rounded-lg border border-border bg-muted/20 p-3" data-testid="trend-work-relevance">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
               <div>
-                <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.13em] text-muted-foreground"><Newspaper className="h-4 w-4 text-accent" /> Trend-to-work relevance</div>
-                <p className="mt-1 max-w-3xl text-xs leading-5 text-muted-foreground">Approved public momentum is joined to stable product and topic identities, then grounded in privacy-safe evidence of firsthand work. Results enter the existing review-only topic backlog; no copy, approval, provider call, draft, schedule, or post is created here.</p>
+                <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.13em] text-muted-foreground"><Newspaper className="h-4 w-4 text-accent" /> Trend-to-work and capability relevance</div>
+                <p className="mt-1 max-w-3xl text-xs leading-5 text-muted-foreground">Approved public momentum is joined by exact product identity or explicit shared theme, then grounded in privacy-safe evidence of firsthand work or an owned capability. Results enter the existing review-only topic backlog; no reconciliation, copy, approval, provider call, draft, render, upload, schedule, post, or external send is created here.</p>
               </div>
               <span className={`shrink-0 rounded-full border px-2.5 py-1 text-xs font-medium ${coverage.trend_work_relevance?.status === 'ready' ? 'border-accent/40 bg-accent/10 text-foreground' : 'border-border bg-muted text-muted-foreground'}`}>
                 {coverage.trend_work_relevance?.candidates.length ?? 0} joined candidates
@@ -171,10 +171,23 @@ export default function SocialSourceCoverageEvidence({ active }: { active: boole
                     </div>
                     <p className="mt-2 text-xs leading-5 text-foreground">{candidate.triggering_event}</p>
                     <p className="mt-2 text-xs leading-5 text-muted-foreground">{candidate.why_vambah_can_speak}</p>
+                    {candidate.confidence && (
+                      <p className="mt-2 text-xs leading-5 text-muted-foreground">
+                        <strong className="text-foreground">Confidence:</strong> {candidate.confidence.level} ({Math.round(candidate.confidence.score * 100)}%) · {candidate.confidence.basis.join(' · ')}
+                      </p>
+                    )}
+                    {candidate.actionable_next_step && (
+                      <p className="mt-2 text-xs leading-5 text-muted-foreground"><strong className="text-foreground">Next:</strong> {candidate.actionable_next_step}</p>
+                    )}
                     <div className="mt-2 flex flex-wrap gap-1.5">
                       {candidate.topic_identities.map((topic) => <span key={topic} className="rounded-full border border-border bg-muted/50 px-2 py-1 text-[10px] text-muted-foreground">{topic.replace(/_/g, ' ')}</span>)}
                     </div>
-                    <p className="mt-2 font-mono text-[10px] text-muted-foreground">{candidate.source_receipt_ids.length} receipts · {candidate.status.replace(/_/g, ' ')}</p>
+                    <details className="mt-2 text-[10px] text-muted-foreground">
+                      <summary className="cursor-pointer font-mono">{candidate.source_receipt_ids.length} exact receipts · {candidate.status.replace(/_/g, ' ')}</summary>
+                      <ul className="mt-1 space-y-1 break-all font-mono">
+                        {candidate.source_receipt_ids.map((receiptId) => <li key={receiptId}>{receiptId}</li>)}
+                      </ul>
+                    </details>
                   </article>
                 ))}
               </div>

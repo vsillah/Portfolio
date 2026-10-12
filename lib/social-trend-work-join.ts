@@ -18,17 +18,25 @@ export type SocialCandidateReceiptClass =
   | 'repository_evidence'
   | 'product_catalog'
   | 'github_activity'
+  | 'owned_capability'
 
 export type SocialCandidateClass =
   | 'public_momentum_repository'
   | 'active_github_product'
+  | 'public_theme_owned_capability'
 
 export type SocialCandidateReceiptPolicy = {
   policy_id: string
   version: 'social_candidate_receipt_policy_v1'
   candidate_class: SocialCandidateClass
   required_receipt_classes: SocialCandidateReceiptClass[]
-  product_identity_join: 'exact'
+  product_identity_join: 'exact' | 'shared_topic_identity'
+}
+
+export type SocialCandidateConfidence = {
+  score: number
+  level: 'high' | 'medium'
+  basis: string[]
 }
 
 export type SocialCandidateReceiptLineage = Pick<SocialTopicSourceProjection,
@@ -92,6 +100,23 @@ export const SOCIAL_CANDIDATE_RECEIPT_POLICIES: Record<SocialCandidateClass, Soc
       },
     ],
   },
+  public_theme_owned_capability: {
+    policy_id: 'public_theme_owned_capability_v1',
+    version: 'social_candidate_receipt_policy_v1',
+    candidate_class: 'public_theme_owned_capability',
+    required_receipt_classes: ['public_momentum', 'owned_capability'],
+    product_identity_join: 'shared_topic_identity',
+    requirements: [
+      {
+        receipt_class: 'public_momentum',
+        recovery_action: 'Approve a fresh public-news or social-trend summary with an HTTPS source and an explicit stable topic identity.',
+      },
+      {
+        receipt_class: 'owned_capability',
+        recovery_action: 'Approve a privacy-safe Portfolio or Open Brain capability, product, book, course-material, repository, or public-site summary with the same explicit topic identity.',
+      },
+    ],
+  },
 }
 
 export type TrendWorkBacklogCandidate = {
@@ -115,15 +140,27 @@ export type TrendWorkBacklogCandidate = {
   priority_reasons: string[]
   dedupe_fingerprint: string
   claim_boundaries: string[]
+  theme_identity?: string
+  relevant_owned_capability?: {
+    product_identity: string
+    label: string
+    source_receipt_ids: string[]
+  }
+  confidence?: SocialCandidateConfidence
+  actionable_next_step?: string
   receipt_policy: SocialCandidateReceiptPolicy
   receipt_lineage: SocialCandidateReceiptLineage[]
   side_effects: {
+    reconciliation: false
     content_generation: false
     approval: false
     provider_call: false
     draft_creation: false
+    media_render: false
+    upload: false
     schedule: false
     publish: false
+    external_send: false
   }
 }
 
@@ -227,6 +264,36 @@ export function socialCandidateReceiptClass(receipt: SocialTopicSourceProjection
   return null
 }
 
+function isOwnedCapabilityReceipt(receipt: SocialTopicSourceProjection) {
+  return (
+    receipt.source_group === 'codex_insights'
+    && receipt.source_kind === 'open_brain_conversation_proposal'
+  ) || (
+    receipt.source_group === 'owned_media_summaries'
+    && receipt.source_kind === 'owned_media_summary'
+  ) || (
+    ['app_prototypes', 'public_catalog', 'amadutown_catalog'].includes(receipt.source_group)
+    && [
+      'app_prototype',
+      'amadutown_product',
+      'amadutown_book',
+      'amadutown_course_material',
+      'approved_course_material',
+      'course_material',
+      'amadutown_site_material',
+    ].includes(receipt.source_kind)
+  ) || (
+    receipt.source_group === 'repository_documents'
+    && ['approved_repository_document', 'approved_repository_implementation'].includes(receipt.source_kind)
+  )
+}
+
+function receiptMatchesClass(receipt: SocialTopicSourceProjection, receiptClass: SocialCandidateReceiptClass) {
+  return receiptClass === 'owned_capability'
+    ? isOwnedCapabilityReceipt(receipt)
+    : socialCandidateReceiptClass(receipt) === receiptClass
+}
+
 function receiptPolicy(config: SocialCandidateReceiptPolicyConfig): SocialCandidateReceiptPolicy {
   return {
     policy_id: config.policy_id,
@@ -262,17 +329,22 @@ export function evaluateSocialCandidateReceiptPolicy(input: {
   candidateClass: SocialCandidateClass
   productIdentity: string
   receipts: SocialTopicSourceProjection[]
+  themeIdentity?: string
 }) {
   const config = SOCIAL_CANDIDATE_RECEIPT_POLICIES[input.candidateClass]
-  const exactIdentityReceipts = input.receipts
-    .filter(isApprovedPrivacySafeReceipt)
-    .filter((receipt) => receipt.product_identity === input.productIdentity)
+  const themeIdentity = stableTopicIdentity(input.themeIdentity ?? '')
+  const eligibleReceipts = input.receipts.filter(isApprovedPrivacySafeReceipt)
   const matched = new Map<SocialCandidateReceiptClass, SocialTopicSourceProjection[]>()
-  for (const receipt of exactIdentityReceipts) {
-    const receiptClass = socialCandidateReceiptClass(receipt)
-    if (!receiptClass) continue
-    matched.set(receiptClass, [...(matched.get(receiptClass) ?? []), receipt])
+  for (const receiptClass of config.required_receipt_classes) {
+    const matches = eligibleReceipts.filter((receipt) => {
+      if (!receiptMatchesClass(receipt, receiptClass)) return false
+      if (config.product_identity_join === 'exact') return receipt.product_identity === input.productIdentity
+      if (!themeIdentity || !receiptTopics(receipt).includes(themeIdentity)) return false
+      return receiptClass === 'public_momentum' || receipt.product_identity === input.productIdentity
+    })
+    if (matches.length > 0) matched.set(receiptClass, matches)
   }
+  const missingThemeIdentity = config.product_identity_join === 'shared_topic_identity' && !themeIdentity
   const missing = config.requirements.filter((requirement) => (matched.get(requirement.receipt_class) ?? []).length === 0)
   const matchedReceipts = config.required_receipt_classes
     .flatMap((receiptClass) => matched.get(receiptClass) ?? [])
@@ -280,8 +352,11 @@ export function evaluateSocialCandidateReceiptPolicy(input: {
   const blockers = missing.map((requirement) => (
     `[candidate_receipt_policy_incomplete:${config.policy_id}:${input.productIdentity}:${requirement.receipt_class}] ${requirement.recovery_action}`
   ))
+  if (missingThemeIdentity) {
+    blockers.unshift(`[candidate_theme_identity_missing:${config.policy_id}:${input.productIdentity}] Add the same explicit stable topic identity to the approved public signal and owned-capability receipts.`)
+  }
   return {
-    status: missing.length === 0 ? 'ready' as const : 'blocked' as const,
+    status: missing.length === 0 && !missingThemeIdentity ? 'ready' as const : 'blocked' as const,
     policy: receiptPolicy(config),
     matched_receipts: matchedReceipts,
     receipt_lineage: matchedReceipts.map(receiptLineage),
@@ -422,6 +497,8 @@ export function buildTrendWorkRelevanceReport(
   const staleMomentum = uniqueMomentum.filter((receipt) => momentumFreshness(receipt.observed_at, generatedAt) === 'stale')
   const candidates: TrendWorkBacklogCandidate[] = []
   const blockers: string[] = []
+  const unmatchedMomentumBlockers = new Map<string, string[]>()
+  const matchedMomentumReceiptIds = new Set<string>()
 
   for (const receipt of activeMomentum) {
     const evaluation = evaluateSocialCandidateReceiptPolicy({
@@ -436,7 +513,7 @@ export function buildTrendWorkRelevanceReport(
       ],
     })
     if (evaluation.status !== 'ready') {
-      blockers.push(...evaluation.blockers)
+      unmatchedMomentumBlockers.set(receipt.receipt_id, evaluation.blockers)
       continue
     }
     const related = evaluation.matched_receipts
@@ -491,14 +568,144 @@ export function buildTrendWorkRelevanceReport(
         .sort((a, b) => a.receipt_id.localeCompare(b.receipt_id))
         .map(receiptLineage),
       side_effects: {
+        reconciliation: false,
         content_generation: false,
         approval: false,
         provider_call: false,
         draft_creation: false,
+        media_render: false,
+        upload: false,
         schedule: false,
         publish: false,
+        external_send: false,
       },
     })
+    matchedMomentumReceiptIds.add(receipt.receipt_id)
+  }
+
+  for (const receipt of activeMomentum) {
+    const exactPolicyReady = evaluateSocialCandidateReceiptPolicy({
+      candidateClass: 'public_momentum_repository',
+      productIdentity: receipt.product_identity,
+      receipts,
+    }).status === 'ready'
+    const activeProductPolicyReady = evaluateSocialCandidateReceiptPolicy({
+      candidateClass: 'active_github_product',
+      productIdentity: receipt.product_identity,
+      receipts,
+    }).status === 'ready'
+    for (const themeIdentity of receiptTopics(receipt)) {
+      const matchingOwnedReceipts = receipts.filter((candidate) => (
+        candidate.receipt_id !== receipt.receipt_id
+        && isOwnedCapabilityReceipt(candidate)
+        && receiptTopics(candidate).includes(themeIdentity)
+      ))
+      const ownedProductIdentities = [...new Set(matchingOwnedReceipts.map((candidate) => candidate.product_identity))].sort()
+      if (ownedProductIdentities.length === 0) {
+        if (!exactPolicyReady && !activeProductPolicyReady) {
+          blockers.push(`[thematic_owned_capability_missing:${themeIdentity}] Approve a privacy-safe Portfolio or Open Brain capability, product, book, course-material, repository, or public-site summary with the same explicit topic identity.`)
+        }
+        continue
+      }
+      for (const productIdentity of ownedProductIdentities) {
+        if ((exactPolicyReady || activeProductPolicyReady) && productIdentity === receipt.product_identity) continue
+        const related = matchingOwnedReceipts
+          .filter((candidate) => candidate.product_identity === productIdentity)
+          .sort((a, b) => b.observed_at.localeCompare(a.observed_at) || a.receipt_id.localeCompare(b.receipt_id))
+          .slice(0, 6)
+        const evaluation = evaluateSocialCandidateReceiptPolicy({
+          candidateClass: 'public_theme_owned_capability',
+          productIdentity,
+          themeIdentity,
+          receipts: [receipt, ...related],
+        })
+        if (evaluation.status !== 'ready') {
+          blockers.push(...evaluation.blockers)
+          continue
+        }
+        const freshness = momentumFreshness(receipt.observed_at, generatedAt) as Exclude<TrendWorkFreshness, 'stale'>
+        const label = productLabel(related, productIdentity)
+        const workReceiptIds = related.map((candidate) => candidate.receipt_id).sort()
+        const sourceReceiptIds = evaluation.matched_receipts.map((candidate) => candidate.receipt_id).sort()
+        const fingerprint = sha256(JSON.stringify({
+          candidate_kind: 'public_theme_owned_capability',
+          theme_identity: themeIdentity,
+          momentum_key: canonicalMomentumKey(receipt),
+          product_identity: productIdentity,
+          work_receipt_ids: workReceiptIds,
+        }))
+        const confidenceScore = Math.min(0.96, 0.82 + (freshness === 'fresh' ? 0.06 : 0) + Math.min(0.08, (related.length - 1) * 0.04))
+        const confidence: SocialCandidateConfidence = {
+          score: Number(confidenceScore.toFixed(2)),
+          level: confidenceScore >= 0.9 ? 'high' : 'medium',
+          basis: [
+            `Exact shared topic identity: ${themeIdentity}`,
+            `${freshness === 'fresh' ? 'Fresh' : 'Recent'} approved public momentum receipt`,
+            `${related.length} approved privacy-safe owned-capability receipt${related.length === 1 ? '' : 's'}`,
+          ],
+        }
+        candidates.push({
+          candidate_key: `thematic-opportunity:${fingerprint.slice(0, 40)}`,
+          status: 'review_only',
+          candidate_class: 'public_theme_owned_capability',
+          product_identity: productIdentity,
+          product_label: label,
+          topic_identities: [themeIdentity],
+          title: `${label}: a ${themeIdentity.replace(/_/g, ' ')} opportunity to review`,
+          triggering_event: sanitizeApprovedSourceSummary(receipt.approved_summary),
+          why_vambah_can_speak: `${related.length} approved privacy-safe owned-capability receipt${related.length === 1 ? '' : 's'} connect the ${themeIdentity.replace(/_/g, ' ')} trend to ${label}.`,
+          content_angle: `Review whether the external ${themeIdentity.replace(/_/g, ' ')} pattern creates a useful, evidence-bound angle for ${label}.`,
+          suggested_hook: `The ${themeIdentity.replace(/_/g, ' ')} pattern is moving. The practical question is what ${label} already knows or can teach about it.`,
+          evidence_summary: `${sanitizeApprovedSourceSummary(receipt.approved_summary)} ${related.map((candidate) => sanitizeApprovedSourceSummary(candidate.approved_summary)).join(' ')}`,
+          source_receipt_ids: sourceReceiptIds,
+          external_receipt_ids: [receipt.receipt_id],
+          work_receipt_ids: workReceiptIds,
+          freshness,
+          priority_score: Math.min(100, 68 + (freshness === 'fresh' ? 10 : 4) + Math.min(12, related.length * 4)),
+          priority_reasons: [
+            `${freshness === 'fresh' ? 'Current' : 'Recent'} approved public thematic momentum`,
+            `Exact shared topic identity: ${themeIdentity}`,
+            `${related.length} approved owned-capability receipt${related.length === 1 ? '' : 's'}`,
+            `Stable owned capability identity: ${productIdentity}`,
+          ],
+          dedupe_fingerprint: fingerprint,
+          claim_boundaries: [
+            'Use only approved public summaries and privacy-safe derived Portfolio or Open Brain receipts.',
+            'Never ingest, quote, or expose raw private conversations, transcripts, notes, or source material.',
+            'Verify the thematic pattern and owned capability during editorial review before any copy is drafted.',
+          ],
+          theme_identity: themeIdentity,
+          relevant_owned_capability: {
+            product_identity: productIdentity,
+            label,
+            source_receipt_ids: workReceiptIds,
+          },
+          confidence,
+          actionable_next_step: `Review the exact receipts and decide whether ${themeIdentity.replace(/_/g, ' ')} should become a bounded ${label} content brief. No copy or downstream action is created automatically.`,
+          receipt_policy: evaluation.policy,
+          receipt_lineage: evaluation.receipt_lineage,
+          side_effects: {
+            reconciliation: false,
+            content_generation: false,
+            approval: false,
+            provider_call: false,
+            draft_creation: false,
+            media_render: false,
+            upload: false,
+            schedule: false,
+            publish: false,
+            external_send: false,
+          },
+        })
+        matchedMomentumReceiptIds.add(receipt.receipt_id)
+      }
+    }
+  }
+
+  for (const receipt of activeMomentum) {
+    if (!matchedMomentumReceiptIds.has(receipt.receipt_id)) {
+      blockers.push(...(unmatchedMomentumBlockers.get(receipt.receipt_id) ?? []))
+    }
   }
 
   const currentGitHub = receipts.filter((receipt) => (
@@ -572,12 +779,16 @@ export function buildTrendWorkRelevanceReport(
       receipt_policy: evaluation.policy,
       receipt_lineage: evaluation.receipt_lineage,
       side_effects: {
+        reconciliation: false,
         content_generation: false,
         approval: false,
         provider_call: false,
         draft_creation: false,
+        media_render: false,
+        upload: false,
         schedule: false,
         publish: false,
+        external_send: false,
       },
     })
   }

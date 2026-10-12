@@ -1798,6 +1798,10 @@ export function socialCandidateReceiptMetadata(candidate: TopicTriggerCandidate)
     candidate_class: candidate.candidate_class ?? null,
     receipt_policy: candidate.receipt_policy ?? null,
     receipt_lineage: candidate.receipt_lineage ?? [],
+    theme_identity: candidate.theme_identity ?? null,
+    relevant_owned_capability: candidate.relevant_owned_capability ?? null,
+    confidence: candidate.confidence ?? null,
+    actionable_next_step: candidate.actionable_next_step ?? null,
   }
 }
 

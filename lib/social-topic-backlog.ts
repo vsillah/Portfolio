@@ -60,6 +60,9 @@ export type SocialTopicSourceKind =
   | 'app_prototype'
   | 'amadutown_product'
   | 'amadutown_book'
+  | 'amadutown_course_material'
+  | 'approved_course_material'
+  | 'course_material'
   | 'amadutown_site_material'
   | 'existing_social_content'
   | 'agent_run_summary'
@@ -166,6 +169,10 @@ export type TopicTriggerCandidate = {
   dedupe_fingerprint: string
   receipt_policy?: TrendWorkBacklogCandidate['receipt_policy']
   receipt_lineage?: TrendWorkBacklogCandidate['receipt_lineage']
+  theme_identity?: TrendWorkBacklogCandidate['theme_identity']
+  relevant_owned_capability?: TrendWorkBacklogCandidate['relevant_owned_capability']
+  confidence?: TrendWorkBacklogCandidate['confidence']
+  actionable_next_step?: TrendWorkBacklogCandidate['actionable_next_step']
 }
 
 type DiscoveryResponse = {
@@ -493,11 +500,15 @@ export function topicCandidateFromTrendWorkJoin(
     .map((receiptId) => byId.get(receiptId))
     .filter((receipt): receipt is SocialTopicSourceProjection => Boolean(receipt))
   if (sourceProjections.length !== candidate.source_receipt_ids.length) return null
-  if (sourceProjections.some((receipt) => receipt.product_identity !== candidate.product_identity)) return null
+  if (
+    candidate.receipt_policy.product_identity_join === 'exact'
+    && sourceProjections.some((receipt) => receipt.product_identity !== candidate.product_identity)
+  ) return null
   const policyEvaluation = evaluateSocialCandidateReceiptPolicy({
     candidateClass: candidate.candidate_class,
     productIdentity: candidate.product_identity,
     receipts: sourceProjections,
+    themeIdentity: candidate.theme_identity,
   })
   if (policyEvaluation.status !== 'ready') return null
   const expectedReceiptIds = [...candidate.source_receipt_ids].sort()
@@ -511,6 +522,7 @@ export function topicCandidateFromTrendWorkJoin(
   if (JSON.stringify(declaredLineage) !== JSON.stringify(evaluatedLineage)) return null
   const sourceReceipts = sourceProjections.map(projectionReceipt)
   const isExternalIntersection = candidate.external_receipt_ids.length > 0
+  const isThematicOpportunity = candidate.candidate_class === 'public_theme_owned_capability'
   return {
     id: candidate.candidate_key,
     candidate_class: candidate.candidate_class,
@@ -518,12 +530,16 @@ export function topicCandidateFromTrendWorkJoin(
     triggering_event: candidate.triggering_event,
     source_type: isExternalIntersection ? 'public_momentum' : 'portfolio_work',
     source_label: isExternalIntersection
-      ? `${candidate.product_label} momentum + work evidence`
+      ? isThematicOpportunity
+        ? `${candidate.product_label} thematic opportunity evidence`
+        : `${candidate.product_label} momentum + work evidence`
       : `${candidate.product_label} active GitHub work`,
     source_ids: sourceReceipts.map((receipt) => receipt.source_id),
     why_vambah_can_speak: candidate.why_vambah_can_speak,
     brand_goal: isExternalIntersection
-      ? `Prioritize a timely ${candidate.product_label} angle only where approved external momentum intersects with demonstrated work.`
+      ? isThematicOpportunity
+        ? `Review a timely thematic opportunity only where approved external momentum intersects with an approved privacy-safe owned capability.`
+        : `Prioritize a timely ${candidate.product_label} angle only where approved external momentum intersects with demonstrated work.`
       : `Turn current ${candidate.product_label} implementation work into a receipt-backed practitioner lesson without overstating release or outcomes.`,
     content_angle: candidate.content_angle,
     suggested_hook: candidate.suggested_hook,
@@ -541,6 +557,10 @@ export function topicCandidateFromTrendWorkJoin(
     dedupe_fingerprint: candidate.dedupe_fingerprint,
     receipt_policy: policyEvaluation.policy,
     receipt_lineage: evaluatedLineage,
+    theme_identity: candidate.theme_identity,
+    relevant_owned_capability: candidate.relevant_owned_capability,
+    confidence: candidate.confidence,
+    actionable_next_step: candidate.actionable_next_step,
   }
 }
 
