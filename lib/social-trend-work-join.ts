@@ -12,6 +12,26 @@ export const PUBLIC_MOMENTUM_SOURCE_GROUP = 'public_momentum'
 
 export type PublicMomentumKind = 'public_news' | 'social_trend'
 export type TrendWorkFreshness = 'fresh' | 'aging' | 'stale'
+export type PublicSignalSentiment = 'positive' | 'negative' | 'mixed'
+export type PublicSignalEvidenceState = 'corroborated' | 'attributable_single_source' | 'uncertain' | 'disputed'
+
+export type PublicSignalEvidence = {
+  signal_kind: PublicMomentumKind
+  coverage_identity: string
+  sentiment: PublicSignalSentiment
+  context_summary: string
+  entity_identities: string[]
+  topic_identities: string[]
+  relevance_score: number
+  public_attention_score: number
+  materiality: 'material'
+  evidence_state: Extract<PublicSignalEvidenceState, 'corroborated' | 'attributable_single_source'>
+  source_url: string
+  published_at: string
+  observed_at: string
+  expires_at: string
+  provenance: string
+}
 
 export type SocialCandidateReceiptClass =
   | 'public_momentum'
@@ -148,6 +168,7 @@ export type TrendWorkBacklogCandidate = {
   }
   confidence?: SocialCandidateConfidence
   actionable_next_step?: string
+  public_signal?: PublicSignalEvidence
   receipt_policy: SocialCandidateReceiptPolicy
   receipt_lineage: SocialCandidateReceiptLineage[]
   side_effects: {
@@ -224,10 +245,102 @@ function momentumKind(receipt: SocialTopicSourceProjection): PublicMomentumKind 
 
 function canonicalMomentumKey(receipt: SocialTopicSourceProjection) {
   const metadata = asRecord(receipt.metadata)
+  const coverageIdentity = stableTopicIdentity(asString(metadata.coverage_identity))
+  if (coverageIdentity) return `coverage:${coverageIdentity}`
   const canonicalUrl = asString(metadata.canonical_url) || asString(receipt.evidence_url)
   return canonicalUrl
     ? canonicalUrl.toLowerCase().replace(/[?#].*$/, '').replace(/\/$/, '')
     : `${receipt.source_kind}:${receipt.source_id}:${receipt.summary_sha256}`
+}
+
+function finiteScore(value: unknown) {
+  return typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= 1 ? value : null
+}
+
+function publicSignalEvidence(receipt: SocialTopicSourceProjection): PublicSignalEvidence | null {
+  const metadata = asRecord(receipt.metadata)
+  const signalKind = momentumKind(receipt)
+  const coverageIdentity = stableTopicIdentity(asString(metadata.coverage_identity))
+  const sentiment = asString(metadata.sentiment)
+  const evidenceState = asString(metadata.evidence_state)
+  const contextSummary = sanitizeApprovedSourceSummary(metadata.context_summary)
+  const topicIdentities = receiptTopics(receipt)
+  const entityIdentities = strings(metadata.entity_identities)
+  const relevanceScore = finiteScore(metadata.relevance_score)
+  const publicAttentionScore = finiteScore(metadata.public_attention_score)
+  const sourceUrl = asString(metadata.canonical_url) || asString(receipt.evidence_url)
+  const publishedAt = asString(metadata.published_at)
+  const expiresAt = asString(metadata.expires_at)
+  if (
+    !signalKind
+    || !coverageIdentity
+    || !['positive', 'negative', 'mixed'].includes(sentiment)
+    || !['corroborated', 'attributable_single_source'].includes(evidenceState)
+    || !contextSummary
+    || topicIdentities.length === 0
+    || entityIdentities.length === 0
+    || relevanceScore === null
+    || publicAttentionScore === null
+    || metadata.materiality !== 'material'
+    || !sourceUrl.startsWith('https://')
+    || !Number.isFinite(Date.parse(publishedAt))
+    || !Number.isFinite(Date.parse(receipt.observed_at))
+    || !Number.isFinite(Date.parse(expiresAt))
+  ) return null
+  return {
+    signal_kind: signalKind,
+    coverage_identity: coverageIdentity,
+    sentiment: sentiment as PublicSignalSentiment,
+    context_summary: contextSummary,
+    entity_identities: entityIdentities,
+    topic_identities: topicIdentities,
+    relevance_score: relevanceScore,
+    public_attention_score: publicAttentionScore,
+    materiality: 'material',
+    evidence_state: evidenceState as PublicSignalEvidence['evidence_state'],
+    source_url: sourceUrl,
+    published_at: publishedAt,
+    observed_at: receipt.observed_at,
+    expires_at: expiresAt,
+    provenance: receipt.provenance,
+  }
+}
+
+function assessPublicSignal(receipt: SocialTopicSourceProjection, generatedAt: string) {
+  const metadata = asRecord(receipt.metadata)
+  const blockers: string[] = []
+  const evidence = publicSignalEvidence(receipt)
+  const coverageIdentity = stableTopicIdentity(asString(metadata.coverage_identity)) || receipt.source_id
+  const evidenceState = asString(metadata.evidence_state)
+  const relevanceScore = finiteScore(metadata.relevance_score)
+  const publicAttentionScore = finiteScore(metadata.public_attention_score)
+  const expiresAt = asString(metadata.expires_at)
+  if (!evidence) {
+    blockers.push(`[public_signal_evidence_incomplete:${coverageIdentity}] Approve an attributable public signal with source URL, published/observed/expiry times, topic and entity identities, sentiment context, materiality, relevance, public attention, evidence state, and provenance.`)
+  }
+  if (evidenceState === 'uncertain' || evidenceState === 'disputed') {
+    blockers.push(`[public_signal_${evidenceState}:${coverageIdentity}] Resolve or explicitly bound the public-source disagreement before projecting an editorial opportunity.`)
+  }
+  if (relevanceScore !== null && relevanceScore < 0.65) {
+    blockers.push(`[public_signal_low_relevance:${coverageIdentity}] The approved signal is below the 0.65 relevance threshold and cannot create a candidate.`)
+  }
+  if (publicAttentionScore !== null && publicAttentionScore < 0.65) {
+    blockers.push(`[public_signal_insufficient_attention:${coverageIdentity}] Public attention is below the 0.65 threshold; keep the signal visible as insufficient rather than inferring momentum.`)
+  }
+  if (metadata.materiality !== 'material') {
+    blockers.push(`[public_signal_not_material:${coverageIdentity}] The approved signal is ambient or noisy rather than a material development.`)
+  }
+  if (Number.isFinite(Date.parse(expiresAt)) && Date.parse(expiresAt) < Date.parse(generatedAt)) {
+    blockers.push(`[public_signal_stale:${coverageIdentity}] Refresh or re-approve the signal; its explicit freshness window has expired.`)
+  }
+  if (momentumFreshness(receipt.observed_at, generatedAt) === 'stale') {
+    blockers.push(`[public_momentum_stale:${receipt.product_identity}] Refresh or re-approve the public momentum receipt; evidence older than 30 days cannot create a timely candidate.`)
+  }
+  return {
+    status: evidence && blockers.length === 0 ? 'ready' as const : 'blocked' as const,
+    evidence,
+    blockers,
+  }
 }
 
 export function momentumFreshness(observedAt: string, generatedAt: string): TrendWorkFreshness {
@@ -378,6 +491,16 @@ export function buildApprovedPublicMomentumProjection(input: {
   canonicalUrl: string
   publisher: string
   topicIdentities: string[]
+  entityIdentities: string[]
+  coverageIdentity: string
+  sentiment: PublicSignalSentiment
+  contextSummary: string
+  relevanceScore: number
+  publicAttentionScore: number
+  materiality: 'material' | 'ambient' | 'noisy'
+  evidenceState: PublicSignalEvidenceState
+  publishedAt: string
+  expiresAt: string
   approvedAt: string
   approvedBy: string
   observedAt: string
@@ -385,8 +508,23 @@ export function buildApprovedPublicMomentumProjection(input: {
   const url = new URL(input.canonicalUrl)
   if (url.protocol !== 'https:') throw new Error('Public momentum receipts require an HTTPS canonical URL.')
   const topics = [...new Set(input.topicIdentities.map(stableTopicIdentity).filter(Boolean))].sort()
+  const entities = [...new Set(input.entityIdentities.map(stableTopicIdentity).filter(Boolean))].sort()
   if (topics.length === 0) throw new Error('Public momentum receipts require at least one stable topic identity.')
+  if (entities.length === 0) throw new Error('Public momentum receipts require at least one stable entity identity.')
   if (!input.publisher.trim()) throw new Error('Public momentum receipts require a publisher or platform label.')
+  if (!stableTopicIdentity(input.coverageIdentity)) throw new Error('Public momentum receipts require a stable recurring coverage identity.')
+  if (!['positive', 'negative', 'mixed'].includes(input.sentiment)) throw new Error('Public momentum receipts require an explicit sentiment classification.')
+  if (!sanitizeApprovedSourceSummary(input.contextSummary)) throw new Error('Public momentum receipts require approved sentiment and source context.')
+  if (finiteScore(input.relevanceScore) === null || finiteScore(input.publicAttentionScore) === null) {
+    throw new Error('Public momentum relevance and public-attention scores must be between 0 and 1.')
+  }
+  if (!['material', 'ambient', 'noisy'].includes(input.materiality)) throw new Error('Public momentum receipts require an explicit materiality classification.')
+  if (!['corroborated', 'attributable_single_source', 'uncertain', 'disputed'].includes(input.evidenceState)) {
+    throw new Error('Public momentum receipts require an explicit evidence state.')
+  }
+  if (!Number.isFinite(Date.parse(input.publishedAt)) || !Number.isFinite(Date.parse(input.observedAt)) || !Number.isFinite(Date.parse(input.expiresAt))) {
+    throw new Error('Public momentum receipts require valid publication, observation, and expiry timestamps.')
+  }
   return buildApprovedSourceProjection({
     sourceGroup: PUBLIC_MOMENTUM_SOURCE_GROUP,
     sourceKind: input.momentumKind,
@@ -407,6 +545,16 @@ export function buildApprovedPublicMomentumProjection(input: {
       canonical_url: url.toString(),
       publisher: input.publisher.trim(),
       topic_identities: topics,
+      entity_identities: entities,
+      coverage_identity: stableTopicIdentity(input.coverageIdentity),
+      sentiment: input.sentiment,
+      context_summary: sanitizeApprovedSourceSummary(input.contextSummary),
+      relevance_score: input.relevanceScore,
+      public_attention_score: input.publicAttentionScore,
+      materiality: input.materiality,
+      evidence_state: input.evidenceState,
+      published_at: input.publishedAt,
+      expires_at: input.expiresAt,
       ingestion_boundary: 'approved_public_summary_only',
     },
   })
@@ -452,6 +600,16 @@ export function approvedPublicMomentumProjectionsFromResearchPackets(rows: Recor
         canonicalUrl: sourceUrl,
         publisher: asString(receipt.publisher) || asString(row.platform) || 'Approved public source',
         topicIdentities,
+        entityIdentities: strings(receipt.entity_identities),
+        coverageIdentity: asString(receipt.coverage_identity),
+        sentiment: asString(receipt.sentiment) as PublicSignalSentiment,
+        contextSummary: asString(receipt.context_summary),
+        relevanceScore: typeof receipt.relevance_score === 'number' ? receipt.relevance_score : Number.NaN,
+        publicAttentionScore: typeof receipt.public_attention_score === 'number' ? receipt.public_attention_score : Number.NaN,
+        materiality: asString(receipt.materiality) as 'material' | 'ambient' | 'noisy',
+        evidenceState: asString(receipt.evidence_state) as PublicSignalEvidenceState,
+        publishedAt: asString(receipt.published_at),
+        expiresAt: asString(receipt.expires_at),
         approvedAt,
         approvedBy,
         observedAt: asString(receipt.observed_at) || asString(row.retrieved_at) || asString(row.updated_at) || approvedAt,
@@ -493,10 +651,16 @@ export function buildTrendWorkRelevanceReport(
     if (!existing || receipt.observed_at > existing.observed_at) dedupedMomentum.set(key, receipt)
   }
   const uniqueMomentum = [...dedupedMomentum.values()]
-  const activeMomentum = uniqueMomentum.filter((receipt) => momentumFreshness(receipt.observed_at, generatedAt) !== 'stale')
-  const staleMomentum = uniqueMomentum.filter((receipt) => momentumFreshness(receipt.observed_at, generatedAt) === 'stale')
+  const momentumAssessments = new Map(uniqueMomentum.map((receipt) => [
+    receipt.receipt_id,
+    assessPublicSignal(receipt, generatedAt),
+  ]))
+  const activeMomentum = uniqueMomentum.filter((receipt) => momentumAssessments.get(receipt.receipt_id)?.status === 'ready')
+  const staleMomentum = uniqueMomentum.filter((receipt) => (
+    momentumAssessments.get(receipt.receipt_id)?.blockers.some((blocker) => blocker.startsWith('[public_signal_stale:') || blocker.startsWith('[public_momentum_stale:'))
+  ))
   const candidates: TrendWorkBacklogCandidate[] = []
-  const blockers: string[] = []
+  const blockers: string[] = uniqueMomentum.flatMap((receipt) => momentumAssessments.get(receipt.receipt_id)?.blockers ?? [])
   const unmatchedMomentumBlockers = new Map<string, string[]>()
   const matchedMomentumReceiptIds = new Set<string>()
 
@@ -530,6 +694,8 @@ export function buildTrendWorkRelevanceReport(
       work_receipt_ids: related.map((work) => work.receipt_id).sort(),
     }))
     const freshness = momentumFreshness(receipt.observed_at, generatedAt) as Exclude<TrendWorkFreshness, 'stale'>
+    const publicSignal = momentumAssessments.get(receipt.receipt_id)?.evidence
+    if (!publicSignal) continue
     const label = productLabel([receipt, ...related], receipt.product_identity)
     const sourceGroups = [...new Set(related.map((work) => work.source_group))]
     const score = Math.min(100, 62 + (freshness === 'fresh' ? 12 : 5) + Math.min(18, sourceGroups.length * 6) + Math.min(8, topics.length * 2))
@@ -561,8 +727,12 @@ export function buildTrendWorkRelevanceReport(
       claim_boundaries: [
         'Use only approved public summaries and privacy-safe Portfolio receipts.',
         'Verify time-sensitive facts at editorial review before drafting.',
+        ...(publicSignal.sentiment === 'negative'
+          ? ['A negative news cycle supports a critical or cautionary angle only; it does not establish wrongdoing or verify disputed claims.']
+          : []),
         'Development activity does not prove deployment, customer use, or business outcomes.',
       ],
+      public_signal: publicSignal,
       receipt_policy: evaluation.policy,
       receipt_lineage: joinedReceipts
         .sort((a, b) => a.receipt_id.localeCompare(b.receipt_id))
@@ -624,6 +794,8 @@ export function buildTrendWorkRelevanceReport(
           continue
         }
         const freshness = momentumFreshness(receipt.observed_at, generatedAt) as Exclude<TrendWorkFreshness, 'stale'>
+        const publicSignal = momentumAssessments.get(receipt.receipt_id)?.evidence
+        if (!publicSignal) continue
         const label = productLabel(related, productIdentity)
         const workReceiptIds = related.map((candidate) => candidate.receipt_id).sort()
         const sourceReceiptIds = evaluation.matched_receipts.map((candidate) => candidate.receipt_id).sort()
@@ -654,7 +826,9 @@ export function buildTrendWorkRelevanceReport(
           title: `${label}: a ${themeIdentity.replace(/_/g, ' ')} opportunity to review`,
           triggering_event: sanitizeApprovedSourceSummary(receipt.approved_summary),
           why_vambah_can_speak: `${related.length} approved privacy-safe owned-capability receipt${related.length === 1 ? '' : 's'} connect the ${themeIdentity.replace(/_/g, ' ')} trend to ${label}.`,
-          content_angle: `Review whether the external ${themeIdentity.replace(/_/g, ' ')} pattern creates a useful, evidence-bound angle for ${label}.`,
+          content_angle: publicSignal.sentiment === 'negative'
+            ? `Review a critical or cautionary ${label} angle on the ${themeIdentity.replace(/_/g, ' ')} development without treating public reporting as proof of wrongdoing or repeating unverified claims.`
+            : `Review whether the external ${themeIdentity.replace(/_/g, ' ')} pattern creates a useful, evidence-bound angle for ${label}.`,
           suggested_hook: `The ${themeIdentity.replace(/_/g, ' ')} pattern is moving. The practical question is what ${label} already knows or can teach about it.`,
           evidence_summary: `${sanitizeApprovedSourceSummary(receipt.approved_summary)} ${related.map((candidate) => sanitizeApprovedSourceSummary(candidate.approved_summary)).join(' ')}`,
           source_receipt_ids: sourceReceiptIds,
@@ -672,6 +846,9 @@ export function buildTrendWorkRelevanceReport(
           claim_boundaries: [
             'Use only approved public summaries and privacy-safe derived Portfolio or Open Brain receipts.',
             'Never ingest, quote, or expose raw private conversations, transcripts, notes, or source material.',
+            ...(publicSignal.sentiment === 'negative'
+              ? ['A negative news cycle supports a critical or cautionary perspective only; never assume wrongdoing or repeat unverified claims.']
+              : []),
             'Verify the thematic pattern and owned capability during editorial review before any copy is drafted.',
           ],
           theme_identity: themeIdentity,
@@ -682,6 +859,7 @@ export function buildTrendWorkRelevanceReport(
           },
           confidence,
           actionable_next_step: `Review the exact receipts and decide whether ${themeIdentity.replace(/_/g, ' ')} should become a bounded ${label} content brief. No copy or downstream action is created automatically.`,
+          public_signal: publicSignal,
           receipt_policy: evaluation.policy,
           receipt_lineage: evaluation.receipt_lineage,
           side_effects: {
@@ -796,10 +974,6 @@ export function buildTrendWorkRelevanceReport(
   if (uniqueMomentum.length === 0) {
     blockers.push('[approved_public_momentum_missing] Ingest an approved public-news or social-trend summary with an HTTPS source URL and stable topic/product identities.')
   }
-  for (const receipt of staleMomentum) {
-    blockers.push(`[public_momentum_stale:${receipt.product_identity}] Refresh or re-approve the public momentum receipt; evidence older than 30 days cannot create a timely candidate.`)
-  }
-
   return {
     version: 'trend_work_relevance_v1',
     generated_at: generatedAt,

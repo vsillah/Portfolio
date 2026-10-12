@@ -1802,6 +1802,7 @@ export function socialCandidateReceiptMetadata(candidate: TopicTriggerCandidate)
     relevant_owned_capability: candidate.relevant_owned_capability ?? null,
     confidence: candidate.confidence ?? null,
     actionable_next_step: candidate.actionable_next_step ?? null,
+    public_signal: candidate.public_signal ?? null,
   }
 }
 

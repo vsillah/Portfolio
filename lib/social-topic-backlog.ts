@@ -173,6 +173,7 @@ export type TopicTriggerCandidate = {
   relevant_owned_capability?: TrendWorkBacklogCandidate['relevant_owned_capability']
   confidence?: TrendWorkBacklogCandidate['confidence']
   actionable_next_step?: TrendWorkBacklogCandidate['actionable_next_step']
+  public_signal?: TrendWorkBacklogCandidate['public_signal']
 }
 
 type DiscoveryResponse = {
@@ -561,6 +562,7 @@ export function topicCandidateFromTrendWorkJoin(
     relevant_owned_capability: candidate.relevant_owned_capability,
     confidence: candidate.confidence,
     actionable_next_step: candidate.actionable_next_step,
+    public_signal: candidate.public_signal,
   }
 }
 

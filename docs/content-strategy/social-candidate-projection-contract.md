@@ -22,6 +22,12 @@ The code-level policy registry is `SOCIAL_CANDIDATE_RECEIPT_POLICIES` in `lib/so
 
 The thematic policy is cross-product by design: an industry signal and an owned capability may use different product identities, but both receipts must carry the same explicit normalized topic identity. The join never infers a theme from raw prose. Each thematic opportunity records the trend, owned capability, exact receipt lineage, deterministic confidence basis, and a review action. Missing external evidence, missing owned evidence, stale momentum, topic mismatch, private/raw material, and duplicate receipt fingerprints all fail closed.
 
+## Public news and social momentum admission
+
+Public news and social-trend receipts are recurring first-class signals only after approval. Each receipt must include an attributable HTTPS source, recurring coverage identity, publication, observation and expiry timestamps, explicit topic and entity identities, sentiment plus context, materiality, relevance score, public-attention score, evidence state, reviewer, and provenance. Coverage identity deduplicates repeated reporting about the same development even when URLs differ.
+
+Only material signals with relevance and public-attention scores of at least `0.65` qualify. Expired, ambient, noisy, uncertain, disputed, incomplete, or insufficiently public signals remain blockers and cannot create a candidate. Negative signals may support a critical or cautionary editorial angle, but the candidate must preserve neutral attribution, avoid assuming wrongdoing, and exclude unverified claims.
+
 ## Persisted lineage
 
 Each joined candidate retains:

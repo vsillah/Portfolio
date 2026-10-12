@@ -33,16 +33,45 @@ function workReceipt(input: {
   })
 }
 
-function momentum(input: { sourceId: string; productIdentity: string; label: string; summary: string; topics: string[]; url: string; observedAt?: string }) {
+function momentum(input: {
+  sourceId: string
+  productIdentity: string
+  label: string
+  summary: string
+  topics: string[]
+  url: string
+  observedAt?: string
+  publishedAt?: string
+  expiresAt?: string
+  sentiment?: 'positive' | 'negative' | 'mixed'
+  contextSummary?: string
+  relevanceScore?: number
+  publicAttentionScore?: number
+  materiality?: 'material' | 'ambient' | 'noisy'
+  evidenceState?: 'corroborated' | 'attributable_single_source' | 'uncertain' | 'disputed'
+  entities?: string[]
+  coverageIdentity?: string
+  momentumKind?: 'public_news' | 'social_trend'
+}) {
   return buildApprovedPublicMomentumProjection({
     sourceId: input.sourceId,
-    momentumKind: 'public_news',
+    momentumKind: input.momentumKind ?? 'public_news',
     productIdentity: input.productIdentity,
     label: input.label,
     approvedSummary: input.summary,
     canonicalUrl: input.url,
     publisher: 'Public fixture publisher',
     topicIdentities: input.topics,
+    entityIdentities: input.entities ?? [input.productIdentity],
+    coverageIdentity: input.coverageIdentity ?? `${new URL(input.url).hostname}${new URL(input.url).pathname}`,
+    sentiment: input.sentiment ?? 'positive',
+    contextSummary: input.contextSummary ?? 'Approved attributable public context shows a material development with visible attention.',
+    relevanceScore: input.relevanceScore ?? 0.9,
+    publicAttentionScore: input.publicAttentionScore ?? 0.85,
+    materiality: input.materiality ?? 'material',
+    evidenceState: input.evidenceState ?? 'corroborated',
+    publishedAt: input.publishedAt ?? input.observedAt ?? approvedAt,
+    expiresAt: input.expiresAt ?? '2026-10-26T12:00:00.000Z',
     approvedAt,
     approvedBy: 'fixture-reviewer',
     observedAt: input.observedAt ?? approvedAt,
@@ -59,6 +88,10 @@ describe('trend-to-work relevance joining', () => {
           approval_status: 'approved', raw_content_included: false, privacy_classification: 'public_safe', momentum_kind: 'public_news',
           approved_summary: 'Approved public momentum around governed capability analysis.', product_identity: 'jev', product_label: 'Jev',
           topic_identities: ['governed capability analysis'], approved_at: approvedAt, approved_by: 'reviewer', publisher: 'Fixture news',
+          entity_identities: ['jev'], coverage_identity: 'jev-governed-capability-news', sentiment: 'positive',
+          context_summary: 'Approved attributable reporting shows material attention around governed capability analysis.',
+          relevance_score: 0.9, public_attention_score: 0.82, materiality: 'material', evidence_state: 'corroborated',
+          published_at: approvedAt, observed_at: approvedAt, expires_at: '2026-10-26T12:00:00.000Z',
         },
       },
     }, {
@@ -361,6 +394,138 @@ describe('trend-to-work relevance joining', () => {
     ]))
     expect(candidate?.actionable_next_step).toContain('Review the exact receipts')
     expect(candidate?.claim_boundaries).toContain('Never ingest, quote, or expose raw private conversations, transcripts, notes, or source material.')
+  })
+
+  it('matches qualifying public news to Agentified without vendor-specific logic', () => {
+    const news = momentum({
+      sourceId: 'vendor-agent-governance-news', productIdentity: 'ai_agent_industry', label: 'AI agent industry news',
+      summary: 'Approved attributable reporting shows material positive attention around governed AI-agent operations.',
+      topics: ['governed AI agent operations'], entities: ['named_ai_vendor', 'agentic_work'],
+      coverageIdentity: 'governed-agent-operations-market-development', sentiment: 'positive',
+      contextSummary: 'Multiple attributable public reports describe increased attention to governance in AI-agent operations.',
+      relevanceScore: 0.94, publicAttentionScore: 0.88, evidenceState: 'corroborated',
+      url: 'https://news.example.com/agent-governance-development',
+    })
+    const agentified = workReceipt({
+      sourceGroup: 'public_catalog', sourceKind: 'amadutown_book', sourceId: 'agentified-book',
+      productIdentity: 'agentified', label: 'Agentified', summary: 'Agentified is approved public work about governed agentic operating systems.',
+      topics: ['governed AI agent operations'],
+    })
+
+    const report = buildTrendWorkRelevanceReport([news, agentified], generatedAt)
+    const candidate = report.candidates.find((item) => item.product_identity === 'agentified')
+
+    expect(candidate).toMatchObject({
+      candidate_class: 'public_theme_owned_capability',
+      product_identity: 'agentified',
+      public_signal: {
+        signal_kind: 'public_news',
+        coverage_identity: 'governed_agent_operations_market_development',
+        sentiment: 'positive',
+        entity_identities: ['agentic_work', 'named_ai_vendor'],
+        relevance_score: 0.94,
+        public_attention_score: 0.88,
+        evidence_state: 'corroborated',
+      },
+      relevant_owned_capability: { product_identity: 'agentified', label: 'Agentified' },
+    })
+    expect(candidate?.source_receipt_ids).toEqual(expect.arrayContaining([news.receipt_id, agentified.receipt_id]))
+    expect(candidate?.content_angle).toContain('evidence-bound angle for Agentified')
+  })
+
+  it('qualifies attributable social momentum and deduplicates recurring coverage identity', () => {
+    const current = momentum({
+      sourceId: 'operator-social-pattern-current', momentumKind: 'social_trend', productIdentity: 'agentic_work_community', label: 'Agentic work community pattern',
+      summary: 'Approved attributable social evidence shows material attention around human-gated agent operations.',
+      topics: ['human gated agent operations'], entities: ['agentic_work_community'],
+      coverageIdentity: 'human-gated-agent-operations-social-pattern', sentiment: 'positive',
+      contextSummary: 'Approved public social observations show sustained attention to human gates in agent operations.',
+      relevanceScore: 0.9, publicAttentionScore: 0.81, evidenceState: 'attributable_single_source',
+      url: 'https://social.example.com/current-agent-operations', observedAt: '2026-10-12T12:00:00.000Z',
+    })
+    const duplicate = momentum({
+      sourceId: 'operator-social-pattern-earlier', momentumKind: 'social_trend', productIdentity: 'agentic_work_community', label: 'Agentic work community pattern',
+      summary: 'Earlier approved observation of the same recurring social pattern.', topics: ['human gated agent operations'],
+      entities: ['agentic_work_community'], coverageIdentity: 'human-gated-agent-operations-social-pattern', sentiment: 'positive',
+      contextSummary: 'Earlier attributable public social observation of the same pattern.', relevanceScore: 0.87, publicAttentionScore: 0.76,
+      evidenceState: 'attributable_single_source', url: 'https://social.example.com/earlier-agent-operations', observedAt: '2026-10-11T12:00:00.000Z',
+    })
+    const ownedCapability = workReceipt({
+      sourceGroup: 'codex_insights', sourceKind: 'open_brain_conversation_proposal', sourceId: 'approved-agent-ops-capability',
+      productIdentity: 'portfolio_agent_ops', label: 'Portfolio Agent Ops', summary: 'An approved privacy-safe summary documents human-gated agent operations.',
+      topics: ['human gated agent operations'],
+    })
+
+    const report = buildTrendWorkRelevanceReport([duplicate, current, ownedCapability], generatedAt)
+    const candidate = report.candidates.find((item) => item.product_identity === 'portfolio_agent_ops')
+
+    expect(report.deduplicated_momentum_count).toBe(1)
+    expect(candidate).toMatchObject({
+      candidate_class: 'public_theme_owned_capability',
+      public_signal: {
+        signal_kind: 'social_trend',
+        coverage_identity: 'human_gated_agent_operations_social_pattern',
+        evidence_state: 'attributable_single_source',
+      },
+    })
+    expect(candidate?.external_receipt_ids).toEqual([current.receipt_id])
+  })
+
+  it('rejects stale, noisy, disputed, and insufficiently public signals with visible blockers', () => {
+    const stale = momentum({
+      sourceId: 'expired-agent-news', productIdentity: 'ai_agent_industry', label: 'Expired AI-agent news',
+      summary: 'Approved but expired public reporting.', topics: ['agent operating practices'], entities: ['ai_agent_industry'],
+      coverageIdentity: 'expired-agent-news', sentiment: 'positive', contextSummary: 'This attributable report is outside its approved freshness window.',
+      relevanceScore: 0.9, publicAttentionScore: 0.8, url: 'https://news.example.com/expired-agent-news',
+      observedAt: '2026-10-01T12:00:00.000Z', publishedAt: '2026-10-01T10:00:00.000Z', expiresAt: '2026-10-08T12:00:00.000Z',
+    })
+    const noisy = momentum({
+      sourceId: 'noisy-agent-chatter', momentumKind: 'social_trend', productIdentity: 'ai_agent_industry', label: 'Noisy agent chatter',
+      summary: 'Approved observation with insufficient public attention.', topics: ['agent operating practices'], entities: ['ai_agent_industry'],
+      coverageIdentity: 'noisy-agent-chatter', sentiment: 'mixed', contextSummary: 'The signal is disputed and does not show material public attention.',
+      relevanceScore: 0.8, publicAttentionScore: 0.3, materiality: 'noisy', evidenceState: 'disputed',
+      url: 'https://social.example.com/noisy-agent-chatter',
+    })
+    const ownedCapability = workReceipt({
+      sourceGroup: 'public_catalog', sourceKind: 'amadutown_book', sourceId: 'agentified-book', productIdentity: 'agentified', label: 'Agentified',
+      summary: 'Agentified covers agent operating practices.', topics: ['agent operating practices'],
+    })
+
+    const report = buildTrendWorkRelevanceReport([stale, noisy, ownedCapability], generatedAt)
+
+    expect(report.candidates.filter((item) => item.candidate_class === 'public_theme_owned_capability')).toEqual([])
+    expect(report.stale_momentum_count).toBe(1)
+    expect(report.blockers).toEqual(expect.arrayContaining([
+      expect.stringContaining('public_signal_stale:expired_agent_news'),
+      expect.stringContaining('public_signal_insufficient_attention:noisy_agent_chatter'),
+      expect.stringContaining('public_signal_disputed:noisy_agent_chatter'),
+      expect.stringContaining('public_signal_not_material:noisy_agent_chatter'),
+    ]))
+  })
+
+  it('bounds a qualifying negative news cycle to a neutral critical perspective', () => {
+    const negativeNews = momentum({
+      sourceId: 'agent-accountability-scrutiny', productIdentity: 'ai_agent_industry', label: 'AI agent accountability reporting',
+      summary: 'Approved attributable reporting describes public scrutiny of weak AI-agent accountability practices.',
+      topics: ['AI agent accountability'], entities: ['named_ai_vendor', 'agentic_work'],
+      coverageIdentity: 'agent-accountability-scrutiny', sentiment: 'negative',
+      contextSummary: 'Corroborated public reports describe scrutiny while leaving disputed claims explicitly unverified.',
+      relevanceScore: 0.92, publicAttentionScore: 0.84, evidenceState: 'corroborated',
+      url: 'https://news.example.com/agent-accountability-scrutiny',
+    })
+    const agentified = workReceipt({
+      sourceGroup: 'public_catalog', sourceKind: 'amadutown_book', sourceId: 'agentified-book', productIdentity: 'agentified', label: 'Agentified',
+      summary: 'Agentified is approved public work about accountable agentic operating practices.', topics: ['AI agent accountability'],
+    })
+
+    const report = buildTrendWorkRelevanceReport([negativeNews, agentified], generatedAt)
+    const candidate = report.candidates.find((item) => item.product_identity === 'agentified')
+
+    expect(candidate?.public_signal?.sentiment).toBe('negative')
+    expect(candidate?.content_angle).toContain('critical or cautionary')
+    expect(candidate?.content_angle).toContain('without treating public reporting as proof of wrongdoing')
+    expect(candidate?.claim_boundaries).toContain('A negative news cycle supports a critical or cautionary perspective only; never assume wrongdoing or repeat unverified claims.')
+    expect(candidate?.triggering_event).toBe(negativeNews.approved_summary)
   })
 
   it('rejects a thematic opportunity when the owned evidence lacks the explicit shared theme', () => {

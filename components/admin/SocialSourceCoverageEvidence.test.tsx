@@ -50,6 +50,13 @@ const coverage = {
       relevant_owned_capability: { product_identity: 'accelerated', label: 'Accelerated', source_receipt_ids: ['accelerated-product-1', 'accelerated-corpus-1'] },
       confidence: { score: 0.92, level: 'high', basis: ['Exact shared topic identity: practical_cohort_courses', 'Fresh approved public momentum receipt'] },
       actionable_next_step: 'Review the exact receipts and decide whether this should become a bounded Accelerated content brief. No copy or downstream action is created automatically.',
+      public_signal: {
+        signal_kind: 'social_trend', coverage_identity: 'practical_cohort_course_pattern', sentiment: 'positive',
+        context_summary: 'Approved attributable social evidence shows material public attention around practical cohort courses.',
+        entity_identities: ['course_industry'], topic_identities: ['practical_cohort_courses'], relevance_score: 0.9, public_attention_score: 0.85,
+        materiality: 'material', evidence_state: 'corroborated', source_url: 'https://social.example.com/course-pattern',
+        published_at: '2026-10-10T14:00:00.000Z', observed_at: '2026-10-10T14:00:00.000Z', expires_at: '2026-10-20T14:00:00.000Z', provenance: 'fixture:public-social-trend',
+      },
       side_effects: { content_generation: false, approval: false, provider_call: false, draft_creation: false, schedule: false, publish: false },
     }],
   },
@@ -134,6 +141,12 @@ describe('SocialSourceCoverageEvidence', () => {
     expect(candidates[0]).toHaveTextContent('3 exact receipts · review only')
     expect(candidates[1]).toHaveTextContent('Accelerated')
     expect(candidates[1]).toHaveTextContent('Confidence: high (92%)')
+    expect(candidates[1]).toHaveTextContent('positive')
+    expect(candidates[1]).toHaveTextContent('attention 85%')
+    expect(candidates[1]).toHaveTextContent('relevance 90%')
+    expect(candidates[1]).toHaveTextContent('Approved attributable social evidence')
+    expect(candidates[1]).toHaveTextContent('Angle: Review the evidence-bound thematic opportunity.')
+    expect(within(candidates[1]).getByRole('link', { name: 'View attributable public source' })).toHaveAttribute('href', 'https://social.example.com/course-pattern')
     expect(candidates[1]).toHaveTextContent('Review the exact receipts')
     expect(candidates[1]).toHaveTextContent('3 exact receipts · review only')
     fireEvent.click(within(candidates[1]).getByText('3 exact receipts · review only'))

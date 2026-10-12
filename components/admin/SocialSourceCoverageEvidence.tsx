@@ -170,7 +170,21 @@ export default function SocialSourceCoverageEvidence({ active }: { active: boole
                       <span className="rounded-full border border-accent/30 bg-accent/10 px-2 py-1 text-[10px] capitalize text-accent">{candidate.freshness} · score {candidate.priority_score}</span>
                     </div>
                     <p className="mt-2 text-xs leading-5 text-foreground">{candidate.triggering_event}</p>
+                    {candidate.public_signal && (
+                      <div className="mt-2 rounded-md border border-border bg-muted/30 p-2 text-xs leading-5 text-muted-foreground">
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          <span className="rounded-full border border-border bg-card px-2 py-0.5 capitalize text-foreground">{candidate.public_signal.sentiment}</span>
+                          <span>{candidate.public_signal.signal_kind.replace(/_/g, ' ')}</span>
+                          <span>· attention {Math.round(candidate.public_signal.public_attention_score * 100)}%</span>
+                          <span>· relevance {Math.round(candidate.public_signal.relevance_score * 100)}%</span>
+                        </div>
+                        <p className="mt-1">{candidate.public_signal.context_summary}</p>
+                        <p className="mt-1 font-mono text-[10px]">Published {formatDate(candidate.public_signal.published_at)} · observed {formatDate(candidate.public_signal.observed_at)} · expires {formatDate(candidate.public_signal.expires_at)}</p>
+                        <a className="mt-1 inline-block text-[10px] font-medium text-accent underline-offset-2 hover:underline" href={candidate.public_signal.source_url} target="_blank" rel="noreferrer">View attributable public source</a>
+                      </div>
+                    )}
                     <p className="mt-2 text-xs leading-5 text-muted-foreground">{candidate.why_vambah_can_speak}</p>
+                    <p className="mt-2 text-xs leading-5 text-muted-foreground"><strong className="text-foreground">Angle:</strong> {candidate.content_angle}</p>
                     {candidate.confidence && (
                       <p className="mt-2 text-xs leading-5 text-muted-foreground">
                         <strong className="text-foreground">Confidence:</strong> {candidate.confidence.level} ({Math.round(candidate.confidence.score * 100)}%) · {candidate.confidence.basis.join(' · ')}

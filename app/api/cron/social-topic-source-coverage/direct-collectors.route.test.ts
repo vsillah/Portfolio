@@ -44,6 +44,10 @@ describe('source coverage cron direct collector reconciliation', () => {
           approval_status: 'approved', raw_content_included: false, privacy_classification: 'public_safe', momentum_kind: 'public_news',
           approved_summary: 'Approved public momentum around governed capability analysis.', product_identity: 'jev', product_label: 'Jev',
           topic_identities: ['governed_capability_analysis'], approved_at: at, approved_by: 'reviewer', publisher: 'Fixture news',
+          entity_identities: ['jev'], coverage_identity: 'jev-governed-capability-news', sentiment: 'positive',
+          context_summary: 'Approved attributable reporting shows material attention around governed capability analysis.',
+          relevance_score: 0.9, public_attention_score: 0.82, materiality: 'material', evidence_state: 'corroborated',
+          published_at: at, observed_at: at, expires_at: '2026-10-26T16:00:00.000Z',
         },
       },
     }]).projections

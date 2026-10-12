@@ -17,6 +17,10 @@ describe('trend/work topic backlog projection', () => {
       sourceId: 'jev-news', momentumKind: 'public_news', productIdentity: 'jev', label: 'Jev',
       approvedSummary: 'Approved public momentum around governed capability analysis.',
       canonicalUrl: 'https://news.example.com/jev', publisher: 'Fixture publisher', topicIdentities: ['governed capability analysis'],
+      entityIdentities: ['jev'], coverageIdentity: 'jev-governed-capability-news', sentiment: 'positive',
+      contextSummary: 'Approved attributable reporting shows material attention around governed capability analysis.',
+      relevanceScore: 0.9, publicAttentionScore: 0.82, materiality: 'material', evidenceState: 'corroborated',
+      publishedAt: at, expiresAt: '2026-10-26T12:00:00.000Z',
       approvedAt: at, approvedBy: 'reviewer', observedAt: at,
     })
     const analysis = buildApprovedSourceProjection({
@@ -86,6 +90,10 @@ describe('trend/work topic backlog projection', () => {
       sourceId: 'course-pattern', momentumKind: 'social_trend', productIdentity: 'course_industry', label: 'Course industry pattern',
       approvedSummary: 'Approved public evidence shows stronger performance for practical cohort courses.',
       canonicalUrl: 'https://social.example.com/course-pattern', publisher: 'Public fixture publisher', topicIdentities: ['practical cohort courses'],
+      entityIdentities: ['course_industry'], coverageIdentity: 'practical-cohort-course-pattern', sentiment: 'positive',
+      contextSummary: 'Approved attributable social evidence shows material public attention around practical cohort courses.',
+      relevanceScore: 0.9, publicAttentionScore: 0.85, materiality: 'material', evidenceState: 'corroborated',
+      publishedAt: at, expiresAt: '2026-10-26T12:00:00.000Z',
       approvedAt: at, approvedBy: 'reviewer', observedAt: at,
     })
     const ownedCourse = buildApprovedSourceProjection({
@@ -110,6 +118,12 @@ describe('trend/work topic backlog projection', () => {
         source_receipt_ids: [ownedCourse.receipt_id],
       },
       confidence: { score: 0.88, level: 'medium' },
+      public_signal: {
+        signal_kind: 'social_trend',
+        coverage_identity: 'practical_cohort_course_pattern',
+        sentiment: 'positive',
+        public_attention_score: 0.85,
+      },
       receipt_policy: expect.objectContaining({ policy_id: 'public_theme_owned_capability_v1' }),
       receipt_lineage: expect.arrayContaining([
         expect.objectContaining({ receipt_id: publicTrend.receipt_id, product_identity: 'course_industry' }),
@@ -120,6 +134,7 @@ describe('trend/work topic backlog projection', () => {
     expect(socialCandidateReceiptMetadata(projected!)).toMatchObject({
       theme_identity: 'practical_cohort_courses',
       confidence: { score: 0.88, level: 'medium' },
+      public_signal: expect.objectContaining({ coverage_identity: 'practical_cohort_course_pattern' }),
       actionable_next_step: expect.stringContaining('Review the exact receipts'),
     })
   })
