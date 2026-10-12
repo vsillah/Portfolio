@@ -8,12 +8,16 @@ import {
 } from '@/lib/social-topic-source-receipts'
 import {
   buildTrendWorkRelevanceReport,
+  collectApprovedPublicMomentumProjections,
   type TrendWorkRelevanceReport,
 } from '@/lib/social-trend-work-join'
+import { collectDirectGitHubActivityProjections } from '@/lib/social-github-activity'
+import { approvedRepositoryEvidenceProjections } from '@/lib/social-repository-evidence'
 
 export type CoverageSourceKey =
   | 'public_momentum'
   | 'codex_insights'
+  | 'repository_documents'
   | 'github_development'
   | 'vercel_deployments'
   | 'operational_records'
@@ -69,6 +73,7 @@ export type SocialTopicLiveCoverage = {
 const SOURCE_LABELS: Record<CoverageSourceKey, string> = {
   public_momentum: 'Approved public news + social trends',
   codex_insights: 'Codex insights + approved Open Brain',
+  repository_documents: 'Approved Portfolio repository evidence',
   github_development: 'GitHub development',
   vercel_deployments: 'Vercel deployments',
   operational_records: 'Convex + Supabase approved records',
@@ -81,7 +86,8 @@ const SOURCE_LABELS: Record<CoverageSourceKey, string> = {
 const RECOVERY_ACTIONS: Record<CoverageSourceKey, string> = {
   public_momentum: 'Add an approved public-news or social-trend receipt with an HTTPS source, stable topic and product identities, reviewer, and timestamp. Never copy raw private conversations or feeds.',
   codex_insights: 'Approve a privacy-safe Open Brain proposal, then project the approved summary into social_topic_source_receipts. Never copy raw Codex conversations.',
-  github_development: 'Attach a branch or pull request to the canonical Agent Ops work item and confirm its product identity metadata.',
+  repository_documents: 'Review the repository evidence manifest and its approved summaries; never project raw private files, secrets, or unapproved inference.',
+  github_development: 'Add a canonical public GitHub repository URL to the app prototype record and restore read-only GitHub API access. Development activity never proves deployment or release.',
   vercel_deployments: 'Record the preview or production deployment receipt on the canonical Agent Ops work item; do not infer deployment from a merged PR.',
   operational_records: 'Project an approved Convex or Supabase product receipt with provenance; do not read private operational rows into Social Content.',
   meeting_summaries: 'Review and approve a privacy-safe meeting summary with provenance and product identity. Never submit a transcript.',
@@ -468,7 +474,7 @@ async function readPersistedCoverage() {
 export async function collectLiveSocialTopicCoverage(options: { persist?: boolean } = {}) {
   const generatedAt = new Date().toISOString()
   const collectorFailures: Partial<Record<CoverageSourceKey, string>> = {}
-  const [persisted, socialResult, workItemResult] = await Promise.all([
+  const [persisted, socialResult, workItemResult, githubResult, momentumResult] = await Promise.all([
     readPersistedCoverage(),
     collectSocialTopicSignals().catch((error) => {
       collectorFailures.meeting_summaries = error instanceof Error ? error.message : 'approved_summary_collection_failed'
@@ -479,6 +485,14 @@ export async function collectLiveSocialTopicCoverage(options: { persist?: boolea
       .not('status', 'eq', 'cancelled')
       .order('updated_at', { ascending: false })
       .limit(250),
+    collectDirectGitHubActivityProjections().catch((error) => {
+      collectorFailures.github_development = error instanceof Error ? error.message : 'direct_github_activity_collection_failed'
+      return { projections: [], blockers: [], repositories_scanned: 0, private_repositories_rejected: 0, private_repositories_summarized: 0, read_only: true as const }
+    }),
+    collectApprovedPublicMomentumProjections().catch((error) => {
+      collectorFailures.public_momentum = error instanceof Error ? error.message : 'approved_public_momentum_collection_failed'
+      return { projections: [], blockers: [], approved_records_scanned: 0, read_only: true as const }
+    }),
   ])
 
   for (const collection of socialResult.sourceCollections) {
@@ -500,20 +514,28 @@ export async function collectLiveSocialTopicCoverage(options: { persist?: boolea
     collectorFailures.vercel_deployments = workItemResult.error.message
     collectorFailures.operational_records = workItemResult.error.message
   }
+  if (githubResult.blockers.length > 0) collectorFailures.github_development = githubResult.blockers.join(' ')
+  if (momentumResult.blockers.length > 0) collectorFailures.public_momentum = momentumResult.blockers.join(' ')
 
   const liveReceipts = socialResult.signals.flatMap(sourceSignalProjection)
   const workReceipts = workItemResult.error ? [] : workItemCoverageProjections((workItemResult.data ?? []) as Record<string, unknown>[], generatedAt)
+  const repositoryReceipts = approvedRepositoryEvidenceProjections(generatedAt)
+  const collectedReceipts = [
+    ...githubResult.projections,
+    ...momentumResult.projections,
+    ...repositoryReceipts,
+  ]
   const report = buildLiveCoverage({
     generatedAt,
-    receipts: [...persisted.receipts, ...liveReceipts, ...workReceipts],
+    receipts: [...persisted.receipts, ...liveReceipts, ...workReceipts, ...collectedReceipts],
     collectorFailures,
     persistedScans: persisted.scans,
   })
 
   if (options.persist) {
-    if (liveReceipts.length > 0 || workReceipts.length > 0) {
+    if (liveReceipts.length > 0 || workReceipts.length > 0 || collectedReceipts.length > 0) {
       const { error } = await supabaseAdmin.from('social_topic_source_receipts')
-        .upsert(dedupeReceipts([...liveReceipts, ...workReceipts]), { onConflict: 'receipt_id' })
+        .upsert(dedupeReceipts([...liveReceipts, ...workReceipts, ...collectedReceipts]), { onConflict: 'receipt_id' })
       if (error) throw new Error(`coverage_receipt_persist_failed:${error.message}`)
     }
     const scans = report.sources.map((source) => ({

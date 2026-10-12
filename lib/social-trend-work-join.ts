@@ -5,6 +5,8 @@ import {
   stableProductIdentity,
   type SocialTopicSourceProjection,
 } from '@/lib/social-topic-source-receipts'
+import { collectDirectGitHubActivityProjections } from '@/lib/social-github-activity'
+import { approvedRepositoryEvidenceProjections } from '@/lib/social-repository-evidence'
 
 export const PUBLIC_MOMENTUM_SOURCE_GROUP = 'public_momentum'
 
@@ -55,8 +57,16 @@ export type TrendWorkRelevanceReport = {
   privacy_rejected_count: number
 }
 
+export type ApprovedMomentumCollection = {
+  projections: SocialTopicSourceProjection[]
+  blockers: string[]
+  approved_records_scanned: number
+  read_only: true
+}
+
 const FIRSTHAND_SOURCE_GROUPS = new Set([
   'codex_insights',
+  'repository_documents',
   'github_development',
   'operational_records',
   'app_prototypes',
@@ -179,6 +189,69 @@ export function buildApprovedPublicMomentumProjection(input: {
   })
 }
 
+export function approvedPublicMomentumProjectionsFromResearchPackets(rows: Record<string, unknown>[]): ApprovedMomentumCollection {
+  const projections: SocialTopicSourceProjection[] = []
+  const blockers: string[] = []
+  let approvedRecordsScanned = 0
+  for (const row of rows) {
+    if (row.status !== 'approved') continue
+    approvedRecordsScanned += 1
+    const actorMetadata = asRecord(row.actor_metadata)
+    const patternPacket = asRecord(row.pattern_packet)
+    const receipt = Object.keys(asRecord(actorMetadata.topic_momentum_receipt)).length > 0
+      ? asRecord(actorMetadata.topic_momentum_receipt)
+      : asRecord(patternPacket.topic_momentum_receipt)
+    if (Object.keys(receipt).length === 0) continue
+    const operatorReview = asRecord(actorMetadata.operator_review)
+    const sourceId = asString(row.id)
+    const momentum = momentumKind({ source_kind: asString(receipt.momentum_kind), metadata: receipt } as SocialTopicSourceProjection)
+    const approvedSummary = asString(receipt.approved_summary)
+    const productIdentity = stableProductIdentity(receipt.product_identity, receipt.product_label)
+    const topicIdentities = strings(receipt.topic_identities)
+    const sourceUrl = asString(row.source_url)
+    const approvedAt = asString(receipt.approved_at) || asString(operatorReview.reviewed_at)
+    const approvedBy = asString(receipt.approved_by) || asString(operatorReview.reviewed_by)
+    const isApproved = receipt.approval_status === 'approved'
+      && receipt.raw_content_included === false
+      && receipt.privacy_classification === 'public_safe'
+      && operatorReview.decision === 'approved'
+    if (!sourceId || !momentum || !approvedSummary || productIdentity === 'unassigned_product' || topicIdentities.length === 0 || !sourceUrl || !approvedAt || !approvedBy || !isApproved) {
+      blockers.push(`[public_momentum_receipt_invalid:${sourceId || 'unknown'}] Approved research records require an explicit public-safe momentum receipt, operator approval, stable product/topic identities, summary, reviewer, timestamp, and HTTPS source.`)
+      continue
+    }
+    try {
+      projections.push(buildApprovedPublicMomentumProjection({
+        sourceId: `research_packet:${sourceId}`,
+        momentumKind: momentum,
+        productIdentity,
+        label: asString(receipt.product_label) || asString(row.title) || productIdentity.replace(/_/g, ' '),
+        approvedSummary,
+        canonicalUrl: sourceUrl,
+        publisher: asString(receipt.publisher) || asString(row.platform) || 'Approved public source',
+        topicIdentities,
+        approvedAt,
+        approvedBy,
+        observedAt: asString(receipt.observed_at) || asString(row.retrieved_at) || asString(row.updated_at) || approvedAt,
+      }))
+    } catch (error) {
+      blockers.push(`[public_momentum_projection_failed:${sourceId}] ${error instanceof Error ? error.message : 'Approved public momentum projection failed.'}`)
+    }
+  }
+  return { projections, blockers, approved_records_scanned: approvedRecordsScanned, read_only: true }
+}
+
+export async function collectApprovedPublicMomentumProjections(): Promise<ApprovedMomentumCollection> {
+  const { supabaseAdmin } = await import('@/lib/supabase')
+  const { data, error } = await supabaseAdmin
+    .from('social_content_research_packets')
+    .select('id, source_url, platform, title, pattern_packet, actor_metadata, privacy_notes, retrieved_at, updated_at, status')
+    .eq('status', 'approved')
+    .order('retrieved_at', { ascending: false })
+    .limit(100)
+  if (error) throw new Error(`approved_public_source_read_failed:${error.message}`)
+  return approvedPublicMomentumProjectionsFromResearchPackets((data ?? []) as Record<string, unknown>[])
+}
+
 export function buildTrendWorkRelevanceReport(
   inputReceipts: SocialTopicSourceProjection[],
   generatedAt: string,
@@ -285,13 +358,26 @@ export function buildTrendWorkRelevanceReport(
 
 export async function collectApprovedTrendWorkRelevance(generatedAt = new Date().toISOString()) {
   const { supabaseAdmin } = await import('@/lib/supabase')
-  const { data, error } = await supabaseAdmin
-    .from('social_topic_source_receipts')
-    .select('*')
-    .eq('approval_status', 'approved')
-    .eq('raw_content_included', false)
-    .order('observed_at', { ascending: false })
-    .limit(500)
-  if (error) throw new Error(`trend_work_receipt_read_failed:${error.message}`)
-  return buildTrendWorkRelevanceReport((data ?? []) as SocialTopicSourceProjection[], generatedAt)
+  const [persistedResult, momentumResult, githubResult] = await Promise.all([
+    supabaseAdmin
+      .from('social_topic_source_receipts')
+      .select('*')
+      .eq('approval_status', 'approved')
+      .eq('raw_content_included', false)
+      .order('observed_at', { ascending: false })
+      .limit(500),
+    collectApprovedPublicMomentumProjections(),
+    collectDirectGitHubActivityProjections({ generatedAt }),
+  ])
+  if (persistedResult.error) throw new Error(`trend_work_receipt_read_failed:${persistedResult.error.message}`)
+  const report = buildTrendWorkRelevanceReport([
+    ...((persistedResult.data ?? []) as SocialTopicSourceProjection[]),
+    ...momentumResult.projections,
+    ...githubResult.projections,
+    ...approvedRepositoryEvidenceProjections(generatedAt),
+  ], generatedAt)
+  return {
+    ...report,
+    blockers: [...new Set([...report.blockers, ...momentumResult.blockers, ...githubResult.blockers])],
+  }
 }

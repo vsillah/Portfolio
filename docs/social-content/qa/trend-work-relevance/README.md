@@ -4,8 +4,8 @@ This packet validates the existing `/admin/social-content?workflow=evidence` sur
 
 Acceptance fixtures:
 
-- Jev: approved public momentum + approved Jev capability analysis + approved Portfolio product evidence.
-- Dark Castle Chess: approved public momentum + canonical Portfolio product identity + privacy-safe GitHub development receipt.
+- Jev: an approved public-source momentum receipt + approved Jev repository capability and implementation evidence.
+- Dark Castle Chess: approved public momentum + canonical Portfolio product identity + direct read-only GitHub activity evidence. No Agent Ops work-item receipt is used by this regression fixture.
 
 Run:
 

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { buildApprovedSourceProjection, type SocialTopicSourceProjection } from './social-topic-source-receipts'
 import {
+  approvedPublicMomentumProjectionsFromResearchPackets,
   buildApprovedPublicMomentumProjection,
   buildTrendWorkRelevanceReport,
 } from './social-trend-work-join'
@@ -47,6 +48,27 @@ function momentum(input: { sourceId: string; productIdentity: string; label: str
 }
 
 describe('trend-to-work relevance joining', () => {
+  it('ingests only explicitly approved public momentum from reviewed research records', () => {
+    const collection = approvedPublicMomentumProjectionsFromResearchPackets([{
+      id: 'packet-jev', status: 'approved', source_url: 'https://news.example.com/jev', platform: 'other', title: 'Jev momentum', retrieved_at: approvedAt,
+      actor_metadata: {
+        operator_review: { decision: 'approved', reviewed_at: approvedAt, reviewed_by: 'reviewer' },
+        topic_momentum_receipt: {
+          approval_status: 'approved', raw_content_included: false, privacy_classification: 'public_safe', momentum_kind: 'public_news',
+          approved_summary: 'Approved public momentum around governed capability analysis.', product_identity: 'jev', product_label: 'Jev',
+          topic_identities: ['governed capability analysis'], approved_at: approvedAt, approved_by: 'reviewer', publisher: 'Fixture news',
+        },
+      },
+    }, {
+      id: 'packet-raw', status: 'approved', source_url: 'https://news.example.com/raw', title: 'Raw record', caption: 'Raw source text is never admitted.',
+      actor_metadata: { operator_review: { decision: 'approved' } },
+    }])
+    expect(collection).toMatchObject({ approved_records_scanned: 2, read_only: true, blockers: [] })
+    expect(collection.projections).toHaveLength(1)
+    expect(collection.projections[0]).toMatchObject({ source_group: 'public_momentum', source_kind: 'public_news', product_identity: 'jev', raw_content_included: false })
+    expect(collection.projections[0].approved_summary).not.toContain('Raw source text')
+  })
+
   it('joins Jev momentum to its approved capability analysis and Portfolio evidence', () => {
     const receipts = [
       momentum({

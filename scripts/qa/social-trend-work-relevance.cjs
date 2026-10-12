@@ -30,6 +30,7 @@ const coverage = {
   sources: [
     source('public_momentum', 'Approved public news + social trends', 2),
     source('codex_insights', 'Codex insights + approved Open Brain', 1),
+    source('repository_documents', 'Approved Portfolio repository evidence', 2),
     source('github_development', 'GitHub development', 1),
     source('vercel_deployments', 'Vercel deployments', 0),
     source('operational_records', 'Convex + Supabase approved records', 0),
@@ -40,17 +41,17 @@ const coverage = {
   ],
   products: [
     { product_identity: 'dark_castle_chess', label: 'Dark Castle Chess', current_stage: 'publicly_cataloged', stages: ['insight', 'in_development', 'publicly_cataloged'], receipt_count: 3, source_groups: ['public_momentum', 'github_development', 'public_catalog'], latest_evidence_at: at, gaps: [], historical_gaps: ['No production deployment evidence'], priority: true, priority_order: 1, priority_source: 'approved_metadata' },
-    { product_identity: 'jev', label: 'Jev', current_stage: 'publicly_cataloged', stages: ['insight', 'publicly_cataloged'], receipt_count: 3, source_groups: ['public_momentum', 'codex_insights', 'public_catalog'], latest_evidence_at: at, gaps: [], historical_gaps: ['No development receipt'], priority: true, priority_order: 2, priority_source: 'approved_metadata' },
+    { product_identity: 'jev', label: 'Jev', current_stage: 'in_development', stages: ['insight', 'in_development'], receipt_count: 3, source_groups: ['public_momentum', 'repository_documents'], latest_evidence_at: at, gaps: [], historical_gaps: ['No public catalog/site release evidence'], priority: true, priority_order: 2, priority_source: 'approved_metadata' },
   ],
-  receipts: Array.from({ length: 6 }, (_, index) => ({ receipt_id: `fixture-receipt-${index + 1}` })),
-  gaps: [], historical_gaps: ['Dark Castle Chess: No production deployment evidence', 'Jev: No development receipt'], blockers: [],
+  receipts: Array.from({ length: 8 }, (_, index) => ({ receipt_id: `fixture-receipt-${index + 1}` })),
+  gaps: [], historical_gaps: ['Dark Castle Chess: No production deployment evidence', 'Jev: No public catalog/site release evidence'], blockers: [],
   boundaries: [
     'Raw private conversations and transcripts are never collected.',
     'A branch or pull request proves development, not deployment.',
     'Trend joins remain review-only and cannot generate, approve, draft, schedule, or publish content.',
   ],
   trend_work_relevance: {
-    version: 'trend_work_relevance_v1', generated_at: at, status: 'ready', review_only: true, blockers: [], source_receipt_count: 6,
+    version: 'trend_work_relevance_v1', generated_at: at, status: 'ready', review_only: true, blockers: [], source_receipt_count: 8,
     fresh_momentum_count: 2, stale_momentum_count: 0, deduplicated_momentum_count: 0, privacy_rejected_count: 0,
     candidates: [
       candidate('jev', 'Jev', 'Approved public momentum highlights governed capability analysis.', '2 approved firsthand Portfolio receipts connect this public signal to Jev.', ['governed_capability_analysis'], 96, ['jev-momentum', 'jev-analysis', 'jev-portfolio']),

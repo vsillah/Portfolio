@@ -21,6 +21,20 @@ export async function GET(request: NextRequest) {
       product_count: coverage.products.length,
       blockers: coverage.blockers,
       review_only: true,
+      trend_work_candidate_count: coverage.trend_work_relevance?.candidates.length ?? 0,
+      trend_work_product_identities: coverage.trend_work_relevance?.candidates.map((candidate) => candidate.product_identity) ?? [],
+      github_activity_product_identities: [...new Set(coverage.receipts
+        .filter((receipt) => receipt.source_group === 'github_development' && receipt.source_kind.startsWith('github_'))
+        .map((receipt) => receipt.product_identity))],
+      side_effects: {
+        github_write: false,
+        provider_generation: false,
+        upload: false,
+        draft_creation: false,
+        schedule: false,
+        publish: false,
+        external_send: false,
+      },
     })
   } catch (error) {
     console.error('[social-topic-source-coverage-cron] reconciliation failed:', error)
