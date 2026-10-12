@@ -969,7 +969,7 @@ function ContentIntelligenceContent() {
   const [calendarEditForms, setCalendarEditForms] = useState<Record<string, CalendarForm>>({})
   const [activeSection, setActiveSection] = useState<IntelligenceSection>(() => initialActiveSection())
   const [focusedCalendarItemId, setFocusedCalendarItemId] = useState<string | null>(() => initialFocusedCalendarItemId())
-  const [focusedResearchPacketId] = useState<string | null>(() => initialFocusedResearchPacketId())
+  const [focusedResearchPacketId, setFocusedResearchPacketId] = useState<string | null>(() => initialFocusedResearchPacketId())
   const [calendarFocusRecovery, setCalendarFocusRecovery] = useState<string | null>(null)
   const [expandedPanels, setExpandedPanels] = useState<Record<string, boolean>>({
     templateLibrary: false,
@@ -992,6 +992,20 @@ function ContentIntelligenceContent() {
   const [insightSort, setInsightSort] = useState<InsightSortKey>('updated')
   const [insightSortDirection, setInsightSortDirection] = useState<SortDirection>('desc')
   const [insightPage, setInsightPage] = useState(1)
+
+  useEffect(() => {
+    const searchParams = currentUrlSearchParams()
+    const requestedSection = searchParams.get('section') as IntelligenceSection | null
+    if (requestedSection && SECTION_TABS.some((candidate) => candidate.key === requestedSection)) {
+      setActiveSection(requestedSection)
+    }
+
+    const requestedPacketId = searchParams.get('packet')
+    if (requestedPacketId) {
+      setFocusedResearchPacketId(requestedPacketId)
+      setResearchSearch(requestedPacketId)
+    }
+  }, [])
   const autoResearchTakeaways = useMemo(
     () => buildAutoResearchTakeaways(autoResearchBacklog?.items ?? []),
     [autoResearchBacklog],
