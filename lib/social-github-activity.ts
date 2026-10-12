@@ -24,9 +24,11 @@ type PrototypeRepoRow = {
 
 type GitHubRepository = {
   id?: number
+  name?: string
   full_name?: string
   html_url?: string
   private?: boolean
+  owner?: { login?: string }
   default_branch?: string
   pushed_at?: string | null
   updated_at?: string | null
@@ -115,6 +117,23 @@ function safeIso(value: unknown, fallback: string) {
   return Number.isFinite(Date.parse(text)) ? text : fallback
 }
 
+function configuredGitHubOwner(explicitOwner?: string) {
+  const direct = asString(explicitOwner)
+  if (direct) return direct.toLowerCase()
+  const configuredRepo = asString(process.env.GITHUB_REPO)
+  const [owner] = configuredRepo.split('/')
+  return asString(owner).toLowerCase()
+}
+
+function productIdentityForRow(row: PrototypeRepoRow, fallback = '') {
+  return stableProductIdentity('', asString(row.title) || fallback)
+}
+
+function repositoryIdentity(repo: GitHubRepository) {
+  const name = asString(repo.name) || asString(repo.full_name).split('/').at(-1) || ''
+  return stableProductIdentity('', name)
+}
+
 function blockerForRepository(productIdentity: string, error: unknown) {
   const message = error instanceof Error ? error.message : 'Read-only GitHub activity collection failed.'
   if (message.startsWith('github_rate_limited:')) {
@@ -159,6 +178,7 @@ export async function collectDirectGitHubActivityProjections(options: {
   concurrency?: number
   requestTimeoutMs?: number
   collectorTimeoutMs?: number
+  githubOwner?: string
 } = {}): Promise<GitHubActivityCollection> {
   const generatedAt = options.generatedAt ?? new Date().toISOString()
   const fetchImpl = options.fetchImpl ?? fetch
@@ -172,23 +192,80 @@ export async function collectDirectGitHubActivityProjections(options: {
     const { data, error } = await supabaseAdmin
       .from('app_prototypes')
       .select('id, title, description, app_repo_url, updated_at')
-      .not('app_repo_url', 'is', null)
       .order('updated_at', { ascending: false })
       .limit(100)
     if (error) throw new Error(`github_product_mapping_read_failed:${error.message}`)
     rows = (data ?? []) as PrototypeRepoRow[]
   }
 
-  const repositoryRows = rows
-    .map((row) => ({ row, repoRef: parsePublicGitHubRepoUrl(row.app_repo_url) }))
-    .filter((item): item is { row: PrototypeRepoRow; repoRef: NonNullable<ReturnType<typeof parsePublicGitHubRepoUrl>> } => Boolean(item.repoRef))
+  const resolutionBlockers: string[] = []
+  const repositoryRows: Array<{ row: PrototypeRepoRow; repoRef: NonNullable<ReturnType<typeof parsePublicGitHubRepoUrl>> }> = []
+  const unlinkedRows: PrototypeRepoRow[] = []
+  for (const row of rows) {
+    const configuredUrl = asString(row.app_repo_url)
+    const repoRef = parsePublicGitHubRepoUrl(configuredUrl)
+    if (repoRef) {
+      repositoryRows.push({ row, repoRef })
+    } else if (configuredUrl) {
+      resolutionBlockers.push(`[github_repository_url_invalid:${productIdentityForRow(row)}] Replace the product repository URL with a canonical HTTPS github.com owner/repository URL.`)
+    } else {
+      unlinkedRows.push(row)
+    }
+  }
+
+  if (unlinkedRows.length > 0) {
+    const token = process.env.GITHUB_TOKEN?.trim()
+    if (!token) {
+      for (const row of unlinkedRows.sort((a, b) => productIdentityForRow(a).localeCompare(productIdentityForRow(b)))) {
+        resolutionBlockers.push(`[github_repository_discovery_unavailable:${productIdentityForRow(row)}] Configure the read-only GitHub integration or add an explicit app_repo_url before collecting development evidence.`)
+      }
+    } else {
+      try {
+        const inventory = await githubJson<GitHubRepository[]>(
+          `${GITHUB_API}/user/repos?affiliation=owner&visibility=all&sort=updated&per_page=100`,
+          fetchImpl,
+          Math.min(requestTimeoutMs, collectorDeadline - Date.now()),
+        )
+        const owner = configuredGitHubOwner(options.githubOwner)
+        const eligibleRepositories = inventory.filter((repo) => {
+          if (!owner) return true
+          const repoOwner = asString(repo.owner?.login) || asString(repo.full_name).split('/')[0]
+          return repoOwner.toLowerCase() === owner
+        })
+        for (const row of unlinkedRows.sort((a, b) => productIdentityForRow(a).localeCompare(productIdentityForRow(b)))) {
+          const productIdentity = productIdentityForRow(row)
+          const matches = eligibleRepositories.filter((repo) => repositoryIdentity(repo) === productIdentity)
+          if (matches.length === 0) {
+            resolutionBlockers.push(`[github_repository_match_missing:${productIdentity}] No authenticated repository name matched this Portfolio product identity. Add an explicit app_repo_url or align the repository name.`)
+            continue
+          }
+          if (matches.length > 1) {
+            resolutionBlockers.push(`[github_repository_match_ambiguous:${productIdentity}] ${matches.length} authenticated repositories match this Portfolio product identity. Add an explicit app_repo_url to select one.`)
+            continue
+          }
+          const repoRef = parsePublicGitHubRepoUrl(matches[0].html_url)
+          if (!repoRef) {
+            resolutionBlockers.push(`[github_repository_match_invalid:${productIdentity}] The authenticated repository match did not provide a canonical HTTPS github.com URL. Add an explicit app_repo_url.`)
+            continue
+          }
+          repositoryRows.push({ row, repoRef })
+        }
+      } catch (error) {
+        for (const row of unlinkedRows.sort((a, b) => productIdentityForRow(a).localeCompare(productIdentityForRow(b)))) {
+          resolutionBlockers.push(blockerForRepository(productIdentityForRow(row), error))
+        }
+      }
+    }
+  }
+
+  repositoryRows
     .sort((a, b) => `${a.repoRef.owner}/${a.repoRef.repo}/${a.row.id}`.localeCompare(`${b.repoRef.owner}/${b.repoRef.repo}/${b.row.id}`))
 
   const repositoryResults = await mapWithBoundedConcurrency(repositoryRows, concurrency, async ({ row, repoRef }): Promise<RepositoryCollectionResult> => {
     const projections: SocialTopicSourceProjection[] = []
     const blockers: string[] = []
     const label = asString(row.title) || repoRef.repo
-    const productIdentity = stableProductIdentity(label, row.description, repoRef.repo)
+    const productIdentity = productIdentityForRow(row, repoRef.repo)
     const topics = productTopics(productIdentity, label)
     const remainingTimeout = () => Math.min(requestTimeoutMs, collectorDeadline - Date.now())
     try {
@@ -280,7 +357,7 @@ export async function collectDirectGitHubActivityProjections(options: {
 
   return {
     projections: repositoryResults.flatMap((result) => result.projections),
-    blockers: repositoryResults.flatMap((result) => result.blockers),
+    blockers: [...resolutionBlockers, ...repositoryResults.flatMap((result) => result.blockers)],
     repositories_scanned: repositoryResults.reduce((total, result) => total + result.repositoriesScanned, 0),
     private_repositories_rejected: repositoryResults.reduce((total, result) => total + result.privateRepositoriesRejected, 0),
     private_repositories_summarized: repositoryResults.reduce((total, result) => total + result.privateRepositoriesSummarized, 0),
