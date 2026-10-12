@@ -3346,7 +3346,13 @@ function SocialContentDetailPage() {
         ? 'in_review'
         : 'pending'
   const canonicalVisualPrerequisitesReady = hasSocialContentVisualPrerequisites(item)
-  const visualWorkflowGateState: GateState = canonicalVisualPrerequisitesReady
+  const currentDeterministicVisualApproved = isSingleImageFormat
+    && hasDeterministicVisualContract
+    && deterministicVisualRender?.state === 'current'
+    && visualAssetsGateState === 'approved'
+  const visualWorkflowGateState: GateState = currentDeterministicVisualApproved
+    ? 'approved'
+    : canonicalVisualPrerequisitesReady
     ? 'approved'
     : visualAssetsGateState === 'approved' && assetPacketGateState === 'approved' && privacyGateState === 'approved'
     ? 'approved'
@@ -3467,7 +3473,11 @@ function SocialContentDetailPage() {
     {
       step: 'visuals',
       label: 'Amina Visuals',
-      description: effectiveVisualWorkflowGateState === 'pending' ? 'Strategy not started' : 'Strategy, QA, privacy',
+      description: currentDeterministicVisualApproved
+        ? 'Current visual approved'
+        : effectiveVisualWorkflowGateState === 'pending'
+          ? 'Strategy not started'
+          : 'Strategy, QA, privacy',
       state: effectiveVisualWorkflowGateState,
     },
     {
@@ -3555,6 +3565,8 @@ function SocialContentDetailPage() {
     },
     visuals: {
       title: lifecycleBlockedDetail('visuals') ? 'Visual lifecycle mismatch'
+        : currentDeterministicVisualApproved
+        ? 'Visual asset approved'
         : effectiveVisualWorkflowGateState === 'approved'
         ? 'Visuals and privacy approved'
         : effectiveVisualWorkflowGateState === 'pending'
@@ -3562,17 +3574,27 @@ function SocialContentDetailPage() {
           : agentifiedVisualQaPacket
             ? 'Amina visual strategy ready for human review'
             : 'Amina visual strategy in progress',
-      body: lifecycleBlockedDetail('visuals') ?? (agentifiedVisualQaPacket
+      body: lifecycleBlockedDetail('visuals') ?? (currentDeterministicVisualApproved
+        ? `The current version-bound provider-none asset is approved under receipt ${asString(deterministicProviderReceipt?.receipt_id) || 'recorded'}. Media packaging and privacy remain separate downstream gates.`
+        : agentifiedVisualQaPacket
         ? `${agentifiedVisualQaPacket.ownerDisplayName} selected ${agentifiedVisualQaPacket.selectedForm}, attached source provenance, drafted alt text, and passed agent QA for human visual/privacy review.`
         : 'Amina owns visual form selection, approved asset reuse, original candidate generation when needed, provenance, agent QA, accessibility, rights, and privacy checks before final human visual/privacy review.'),
       owner: 'Amina',
-      lastUpdate: agentifiedVisualQaPacket
+      lastUpdate: currentDeterministicVisualApproved
+        ? asString(getSectionGateReview('visual_assets')?.decided_at) || asString(deterministicVisualReceipt?.rendered_at) || new Date(item.updated_at).toLocaleString()
+        : agentifiedVisualQaPacket
         ? agentifiedVisualQaPacket.reportDate
         : productionAssets
           ? new Date(item.updated_at).toLocaleString()
           : 'No asset packet recorded',
-      nextAction: lifecycleMismatchByStep.visuals.mismatch?.recoveryAction ?? (effectiveVisualWorkflowGateState === 'approved'
-        ? 'Proceed to governed platform draft handoff.'
+      nextAction: lifecycleMismatchByStep.visuals.mismatch?.recoveryAction ?? (currentDeterministicVisualApproved
+        ? assetPacketGateState !== 'approved'
+          ? 'The current visual is approved. Complete the media package gate before platform draft handoff.'
+          : privacyGateState !== 'approved'
+            ? 'The current visual is approved. Complete the privacy gate before platform draft handoff.'
+            : 'Proceed to governed platform draft handoff.'
+        : effectiveVisualWorkflowGateState === 'approved'
+          ? 'Proceed to governed platform draft handoff.'
         : agentifiedVisualQaPacket
           ? 'Review the candidate, rationale, provenance, QA findings, and privacy/rights result below, then approve or reject each visual gate.'
           : 'Use the canonical Kanban view to track source research, candidate creation, QA, blockers, and final review readiness.'),

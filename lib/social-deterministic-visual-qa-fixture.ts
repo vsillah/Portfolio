@@ -16,7 +16,7 @@ export const DETERMINISTIC_VISUAL_TARGET_RECORD_ID = '52a4baec-ad2d-415d-a6fa-44
 export const DETERMINISTIC_VISUAL_QA_ASSET_URL = `/qa/social-content/deterministic-visual-binding.png?renderer=${DETERMINISTIC_VISUAL_RENDERER_VERSION}`
 export const DETERMINISTIC_VISUAL_QA_SOURCE_PACKET_ID = '56d34256-d196-42c6-973d-8d9af3aeff37'
 
-export type DeterministicVisualQaState = 'ready' | 'current' | 'stale' | 'missing_candidate' | 'architecture_mismatch' | 'storage_unavailable' | 'lineage_missing'
+export type DeterministicVisualQaState = 'ready' | 'current' | 'approved' | 'stale' | 'missing_candidate' | 'architecture_mismatch' | 'storage_unavailable' | 'lineage_missing'
 
 export function deterministicVisualBindingQaFixtureEnabled() {
   if (process.env.VERCEL_ENV === 'production') return false
@@ -32,6 +32,7 @@ export function isDeterministicVisualBindingQaFixtureId(id: string | null | unde
 
 export function parseDeterministicVisualQaState(value: string | null | undefined): DeterministicVisualQaState {
   return value === 'current'
+    || value === 'approved'
     || value === 'stale'
     || value === 'missing_candidate'
     || value === 'architecture_mismatch'
@@ -120,7 +121,7 @@ export function deterministicVisualBindingQaFixture(
 
   const copyVersion = socialCopyVersion(item)
   const spec = readDeterministicVisualSpec(item.rag_context)
-  if (spec && (state === 'current' || state === 'stale' || state === 'lineage_missing')) {
+  if (spec && (state === 'current' || state === 'approved' || state === 'stale' || state === 'lineage_missing')) {
     const candidateHash = deterministicVisualCandidateHash(spec)
     const brandAssetHash = 'f'.repeat(64)
     const renderInputHash = deterministicVisualRenderInputHash({ copyVersion, candidateHash, visualType: item.framework_visual_type!, brandAssetHash })
@@ -143,6 +144,20 @@ export function deterministicVisualBindingQaFixture(
     const rag = structuredClone(item.rag_context ?? {}) as Record<string, any>
     rag.practitioner_content_quality.deterministic_visual.source_bindings = {}
     item.rag_context = rag
+  }
+
+  if (state === 'approved') {
+    item.rag_context = {
+      ...structuredClone(item.rag_context ?? {}) as Record<string, unknown>,
+      section_gate_reviews: {
+        visual_assets: {
+          status: 'approved',
+          decided_at: '2026-10-11T12:05:00.000Z',
+          decided_by: 'synthetic-reviewer',
+          note: null,
+        },
+      },
+    }
   }
 
   item.deterministic_visual_render = projectDeterministicVisualRender({

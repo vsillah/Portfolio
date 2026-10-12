@@ -1,0 +1,222 @@
+{
+  "results": [
+    {
+      "route": "http://127.0.0.1:4034/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=visual-approval-summary&qa_state=approved",
+      "stale_route": "http://127.0.0.1:4034/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=visual-approval-summary&qa_state=stale",
+      "viewport": {
+        "name": "mobile",
+        "width": 390,
+        "height": 844
+      },
+      "theme": {
+        "name": "light",
+        "preference": "light",
+        "colorScheme": "light",
+        "resolved": "light"
+      },
+      "approved_summary": true,
+      "reload_preserved": true,
+      "stale_fail_closed": true,
+      "horizontal_overflow": false,
+      "external_requests": 0,
+      "mutation_requests": 0,
+      "page_errors": [],
+      "video": "docs/social-content/qa/visual-approval-summary/390-light-walkthrough.mp4",
+      "duration_seconds": 2.72
+    },
+    {
+      "route": "http://127.0.0.1:4034/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=visual-approval-summary&qa_state=approved",
+      "stale_route": "http://127.0.0.1:4034/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=visual-approval-summary&qa_state=stale",
+      "viewport": {
+        "name": "tablet",
+        "width": 768,
+        "height": 1024
+      },
+      "theme": {
+        "name": "light",
+        "preference": "light",
+        "colorScheme": "light",
+        "resolved": "light"
+      },
+      "approved_summary": true,
+      "reload_preserved": true,
+      "stale_fail_closed": true,
+      "horizontal_overflow": false,
+      "external_requests": 0,
+      "mutation_requests": 0,
+      "page_errors": [],
+      "video": "docs/social-content/qa/visual-approval-summary/768-light-walkthrough.mp4",
+      "duration_seconds": 2.88
+    },
+    {
+      "route": "http://127.0.0.1:4034/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=visual-approval-summary&qa_state=approved",
+      "stale_route": "http://127.0.0.1:4034/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=visual-approval-summary&qa_state=stale",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": {
+        "name": "light",
+        "preference": "light",
+        "colorScheme": "light",
+        "resolved": "light"
+      },
+      "approved_summary": true,
+      "reload_preserved": true,
+      "stale_fail_closed": true,
+      "horizontal_overflow": false,
+      "external_requests": 0,
+      "mutation_requests": 0,
+      "page_errors": [],
+      "video": "docs/social-content/qa/visual-approval-summary/1440-light-walkthrough.mp4",
+      "duration_seconds": 3.04
+    },
+    {
+      "route": "http://127.0.0.1:4034/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=visual-approval-summary&qa_state=approved",
+      "stale_route": "http://127.0.0.1:4034/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=visual-approval-summary&qa_state=stale",
+      "viewport": {
+        "name": "mobile",
+        "width": 390,
+        "height": 844
+      },
+      "theme": {
+        "name": "dark",
+        "preference": "dark",
+        "colorScheme": "dark",
+        "resolved": "dark"
+      },
+      "approved_summary": true,
+      "reload_preserved": true,
+      "stale_fail_closed": true,
+      "horizontal_overflow": false,
+      "external_requests": 0,
+      "mutation_requests": 0,
+      "page_errors": [],
+      "video": "docs/social-content/qa/visual-approval-summary/390-dark-walkthrough.mp4",
+      "duration_seconds": 2.6
+    },
+    {
+      "route": "http://127.0.0.1:4034/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=visual-approval-summary&qa_state=approved",
+      "stale_route": "http://127.0.0.1:4034/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=visual-approval-summary&qa_state=stale",
+      "viewport": {
+        "name": "tablet",
+        "width": 768,
+        "height": 1024
+      },
+      "theme": {
+        "name": "dark",
+        "preference": "dark",
+        "colorScheme": "dark",
+        "resolved": "dark"
+      },
+      "approved_summary": true,
+      "reload_preserved": true,
+      "stale_fail_closed": true,
+      "horizontal_overflow": false,
+      "external_requests": 0,
+      "mutation_requests": 0,
+      "page_errors": [],
+      "video": "docs/social-content/qa/visual-approval-summary/768-dark-walkthrough.mp4",
+      "duration_seconds": 2.84
+    },
+    {
+      "route": "http://127.0.0.1:4034/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=visual-approval-summary&qa_state=approved",
+      "stale_route": "http://127.0.0.1:4034/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=visual-approval-summary&qa_state=stale",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": {
+        "name": "dark",
+        "preference": "dark",
+        "colorScheme": "dark",
+        "resolved": "dark"
+      },
+      "approved_summary": true,
+      "reload_preserved": true,
+      "stale_fail_closed": true,
+      "horizontal_overflow": false,
+      "external_requests": 0,
+      "mutation_requests": 0,
+      "page_errors": [],
+      "video": "docs/social-content/qa/visual-approval-summary/1440-dark-walkthrough.mp4",
+      "duration_seconds": 2.8
+    },
+    {
+      "route": "http://127.0.0.1:4034/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=visual-approval-summary&qa_state=approved",
+      "stale_route": "http://127.0.0.1:4034/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=visual-approval-summary&qa_state=stale",
+      "viewport": {
+        "name": "mobile",
+        "width": 390,
+        "height": 844
+      },
+      "theme": {
+        "name": "system",
+        "preference": "system",
+        "colorScheme": "light",
+        "resolved": "light"
+      },
+      "approved_summary": true,
+      "reload_preserved": true,
+      "stale_fail_closed": true,
+      "horizontal_overflow": false,
+      "external_requests": 0,
+      "mutation_requests": 0,
+      "page_errors": [],
+      "video": "docs/social-content/qa/visual-approval-summary/390-system-walkthrough.mp4",
+      "duration_seconds": 2.56
+    },
+    {
+      "route": "http://127.0.0.1:4034/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=visual-approval-summary&qa_state=approved",
+      "stale_route": "http://127.0.0.1:4034/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=visual-approval-summary&qa_state=stale",
+      "viewport": {
+        "name": "tablet",
+        "width": 768,
+        "height": 1024
+      },
+      "theme": {
+        "name": "system",
+        "preference": "system",
+        "colorScheme": "light",
+        "resolved": "light"
+      },
+      "approved_summary": true,
+      "reload_preserved": true,
+      "stale_fail_closed": true,
+      "horizontal_overflow": false,
+      "external_requests": 0,
+      "mutation_requests": 0,
+      "page_errors": [],
+      "video": "docs/social-content/qa/visual-approval-summary/768-system-walkthrough.mp4",
+      "duration_seconds": 2.88
+    },
+    {
+      "route": "http://127.0.0.1:4034/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=visual-approval-summary&qa_state=approved",
+      "stale_route": "http://127.0.0.1:4034/admin/social-content/deterministic-visual-binding-qa?step=visuals&qa=visual-approval-summary&qa_state=stale",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 1000
+      },
+      "theme": {
+        "name": "system",
+        "preference": "system",
+        "colorScheme": "light",
+        "resolved": "light"
+      },
+      "approved_summary": true,
+      "reload_preserved": true,
+      "stale_fail_closed": true,
+      "horizontal_overflow": false,
+      "external_requests": 0,
+      "mutation_requests": 0,
+      "page_errors": [],
+      "video": "docs/social-content/qa/visual-approval-summary/1440-system-walkthrough.mp4",
+      "duration_seconds": 2.84
+    }
+  ],
+  "combined_video": "docs/social-content/qa/visual-approval-summary/social-visual-approval-summary-walkthrough.mp4",
+  "combined_duration_seconds": 25.16
+}
