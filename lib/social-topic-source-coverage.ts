@@ -6,8 +6,13 @@ import {
   type SocialTopicLifecycleStage,
   type SocialTopicSourceProjection,
 } from '@/lib/social-topic-source-receipts'
+import {
+  buildTrendWorkRelevanceReport,
+  type TrendWorkRelevanceReport,
+} from '@/lib/social-trend-work-join'
 
 export type CoverageSourceKey =
+  | 'public_momentum'
   | 'codex_insights'
   | 'github_development'
   | 'vercel_deployments'
@@ -58,9 +63,11 @@ export type SocialTopicLiveCoverage = {
   historical_gaps: string[]
   blockers: string[]
   boundaries: string[]
+  trend_work_relevance?: TrendWorkRelevanceReport
 }
 
 const SOURCE_LABELS: Record<CoverageSourceKey, string> = {
+  public_momentum: 'Approved public news + social trends',
   codex_insights: 'Codex insights + approved Open Brain',
   github_development: 'GitHub development',
   vercel_deployments: 'Vercel deployments',
@@ -72,6 +79,7 @@ const SOURCE_LABELS: Record<CoverageSourceKey, string> = {
 }
 
 const RECOVERY_ACTIONS: Record<CoverageSourceKey, string> = {
+  public_momentum: 'Add an approved public-news or social-trend receipt with an HTTPS source, stable topic and product identities, reviewer, and timestamp. Never copy raw private conversations or feeds.',
   codex_insights: 'Approve a privacy-safe Open Brain proposal, then project the approved summary into social_topic_source_receipts. Never copy raw Codex conversations.',
   github_development: 'Attach a branch or pull request to the canonical Agent Ops work item and confirm its product identity metadata.',
   vercel_deployments: 'Record the preview or production deployment receipt on the canonical Agent Ops work item; do not infer deployment from a merged PR.',
@@ -414,6 +422,7 @@ export function buildLiveCoverage(input: {
     }
   })
   const products = productCoverage(receipts)
+  const trendWorkRelevance = buildTrendWorkRelevanceReport(receipts, input.generatedAt)
   const gaps = products.flatMap((product) => product.gaps.map((gap) => `${product.label}: ${gap}`))
   const historicalGaps = products.flatMap((product) => product.historical_gaps.map((gap) => `${product.label}: ${gap}`))
   const blockers = sources
@@ -438,7 +447,9 @@ export function buildLiveCoverage(input: {
       'A branch or pull request proves development, not deployment.',
       'A preview proves preview deployment, not production or public release.',
       'Candidate creation stays review-only and fails closed without approval, provenance, privacy classification, and receipts.',
+      'Trend-to-work joins create backlog candidates only; they never generate copy, approve content, call media providers, create platform drafts, schedule, publish, or post.',
     ],
+    trend_work_relevance: trendWorkRelevance,
   }
 }
 

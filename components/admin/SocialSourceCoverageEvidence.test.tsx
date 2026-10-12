@@ -26,6 +26,20 @@ const coverage = {
   products: [...priorityProducts, ...directoryProducts],
   receipts: [{ receipt_id: 'receipt-1' }], gaps: ['Agentified: No approved privacy-safe source receipt'], historical_gaps: ['Dark Castle Chess: No recorded in development evidence'], blockers: ['Vercel deployments: deployment receipt missing'],
   boundaries: ['Raw Codex conversations are never collected.', 'A preview proves preview deployment, not production or public release.'],
+  trend_work_relevance: {
+    version: 'trend_work_relevance_v1', generated_at: '2026-10-10T14:00:00.000Z', status: 'ready', review_only: true,
+    blockers: [], source_receipt_count: 5, fresh_momentum_count: 2, stale_momentum_count: 0, deduplicated_momentum_count: 1, privacy_rejected_count: 0,
+    candidates: [{
+      candidate_key: 'trend-work:jev', status: 'review_only', product_identity: 'jev', product_label: 'Jev',
+      topic_identities: ['governed_capability_analysis'], title: 'Jev: where current momentum meets demonstrated work',
+      triggering_event: 'Approved public momentum around governed capability analysis.',
+      why_vambah_can_speak: '2 approved firsthand Portfolio receipts connect this public signal to Jev.',
+      content_angle: 'Connect the signal to demonstrated work.', suggested_hook: 'The signal is moving.', evidence_summary: 'Approved evidence.',
+      source_receipt_ids: ['momentum-1', 'work-1', 'work-2'], external_receipt_ids: ['momentum-1'], work_receipt_ids: ['work-1', 'work-2'],
+      freshness: 'fresh', priority_score: 94, priority_reasons: ['Current approved public momentum'], dedupe_fingerprint: 'jev-fingerprint',
+      claim_boundaries: ['Review only.'], side_effects: { content_generation: false, approval: false, provider_call: false, draft_creation: false, schedule: false, publish: false },
+    }],
+  },
 }
 
 describe('SocialSourceCoverageEvidence', () => {
@@ -94,6 +108,18 @@ describe('SocialSourceCoverageEvidence', () => {
     expect(within(page).getAllByTestId('coverage-product-row')).toHaveLength(1)
     expect(within(page).getByText('Directory Product 12')).toBeInTheDocument()
     expect(screen.getByText('Page 1 of 1')).toBeInTheDocument()
+  })
+
+  it('renders source-backed trend/work joins as review-only backlog candidates', async () => {
+    render(<SocialSourceCoverageEvidence active />)
+    const section = await screen.findByTestId('trend-work-relevance')
+    expect(within(section).getByText('Trend-to-work relevance')).toBeInTheDocument()
+    expect(within(section).getByText('1 joined candidates')).toBeInTheDocument()
+    const candidate = within(section).getByTestId('trend-work-candidate')
+    expect(candidate).toHaveTextContent('Jev')
+    expect(candidate).toHaveTextContent('Approved public momentum around governed capability analysis.')
+    expect(candidate).toHaveTextContent('3 receipts · review only')
+    expect(section).toHaveTextContent('no copy, approval, provider call, draft, schedule, or post is created here')
   })
 
   it('shows Reading instead of a false fail-closed state before the first response resolves', () => {

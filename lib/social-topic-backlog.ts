@@ -8,8 +8,15 @@ import {
   SOCIAL_TOPIC_TRIGGER_SOURCE_TYPE,
 } from '@/lib/social-content-intelligence'
 import { supabaseAdmin } from '@/lib/supabase'
+import {
+  collectApprovedTrendWorkRelevance,
+  type TrendWorkBacklogCandidate,
+  type TrendWorkRelevanceReport,
+} from '@/lib/social-trend-work-join'
+import type { SocialTopicSourceProjection } from '@/lib/social-topic-source-receipts'
 
 export type SourceType =
+  | 'public_momentum'
   | 'meeting'
   | 'shipped_feature'
   | 'client_safe_project'
@@ -29,6 +36,13 @@ export const REQUIRED_SOCIAL_TOPIC_PRODUCTS = [
 export type RequiredSocialTopicProduct = typeof REQUIRED_SOCIAL_TOPIC_PRODUCTS[number]
 
 export type SocialTopicSourceKind =
+  | 'public_news'
+  | 'social_trend'
+  | 'agent_work_item_github'
+  | 'vercel_preview_receipt'
+  | 'vercel_production_receipt'
+  | 'convex_approved_product_record'
+  | 'supabase_approved_product_record'
   | 'open_brain_conversation_proposal'
   | 'meeting_summary'
   | 'owned_media_summary'
@@ -50,7 +64,7 @@ export type SocialTopicSourceReceipt = {
   privacy_classification: Extract<TopicSensitivity, 'public_safe' | 'client_safe_summary'>
   provenance: string
   summary_sha256: string
-  product_ids: RequiredSocialTopicProduct[]
+  product_ids: string[]
   raw_content_included: false
 }
 
@@ -109,7 +123,7 @@ export type SourceSignal = {
   date?: string | null
   sensitivity: TopicSensitivity
   receipt: SocialTopicSourceReceipt
-  product_ids: RequiredSocialTopicProduct[]
+  product_ids: string[]
   lifecycle_stage?: 'preview_deployed' | 'production_deployed'
 }
 
@@ -133,7 +147,7 @@ export type TopicTriggerCandidate = {
   evidence_summary: string
   claim_boundaries: string[]
   source_receipts: SocialTopicSourceReceipt[]
-  product_ids: RequiredSocialTopicProduct[]
+  product_ids: string[]
   priority_score: number
   priority_tier: 'high' | 'medium' | 'low'
   priority_reasons: string[]
@@ -159,6 +173,7 @@ export type TopicTriggerPacket = {
   candidates: TopicTriggerCandidate[]
   notes: string[]
   privacy_boundary: string
+  trend_work_relevance?: TrendWorkRelevanceReport
 }
 
 export class SocialTopicCoverageError extends Error {
@@ -363,7 +378,8 @@ function normalizeTopicSensitivity(value: unknown, fallback: TopicSensitivity): 
 
 function normalizeSourceType(value: unknown): SourceType {
   if (
-    value === 'meeting'
+    value === 'public_momentum'
+    || value === 'meeting'
     || value === 'shipped_feature'
     || value === 'client_safe_project'
     || value === 'chronicle_observation'
@@ -379,7 +395,7 @@ function normalizeSourceType(value: unknown): SourceType {
 function candidateFingerprint(input: {
   title: string
   sourceIds: string[]
-  productIds: RequiredSocialTopicProduct[]
+  productIds: string[]
 }) {
   return sha256(JSON.stringify({
     title: input.title.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim(),
@@ -390,7 +406,7 @@ function candidateFingerprint(input: {
 
 function candidatePriority(input: {
   receipts: SocialTopicSourceReceipt[]
-  productIds: RequiredSocialTopicProduct[]
+  productIds: string[]
   sensitivity: TopicSensitivity
 }) {
   const sourceKinds = new Set(input.receipts.map((receipt) => receipt.source_kind))
@@ -398,7 +414,7 @@ function candidatePriority(input: {
   const reasons: string[] = []
   if (input.productIds.length > 0) {
     score += 25
-    reasons.push(`Required product coverage: ${input.productIds.map((id) => PRODUCT_LABELS[id]).join(', ')}`)
+    reasons.push(`Product coverage: ${input.productIds.map((id) => PRODUCT_LABELS[id as RequiredSocialTopicProduct] ?? id.replace(/_/g, ' ')).join(', ')}`)
   }
   if (input.receipts.length > 1) {
     score += Math.min(18, (input.receipts.length - 1) * 6)
@@ -428,6 +444,7 @@ export function socialTopicSourceCounts(signals: SourceSignal[]) {
     return counts
   }, {
     meeting: 0,
+    public_momentum: 0,
     shipped_feature: 0,
     client_safe_project: 0,
     chronicle_observation: 0,
@@ -435,6 +452,58 @@ export function socialTopicSourceCounts(signals: SourceSignal[]) {
     open_brain: 0,
     portfolio_work: 0,
   })
+}
+
+function projectionReceipt(receipt: SocialTopicSourceProjection): SocialTopicSourceReceipt {
+  return {
+    receipt_id: receipt.receipt_id,
+    source_id: receipt.source_id,
+    source_kind: receipt.source_kind as SocialTopicSourceKind,
+    approval_status: 'approved',
+    approved_at: receipt.approved_at,
+    approved_by: receipt.approved_by,
+    privacy_classification: receipt.privacy_classification,
+    provenance: receipt.provenance,
+    summary_sha256: receipt.summary_sha256,
+    product_ids: [receipt.product_identity],
+    raw_content_included: false,
+  }
+}
+
+export function topicCandidateFromTrendWorkJoin(
+  candidate: TrendWorkBacklogCandidate,
+  receipts: SocialTopicSourceProjection[],
+): TopicTriggerCandidate | null {
+  const byId = new Map(receipts.map((receipt) => [receipt.receipt_id, receipt]))
+  const sourceReceipts = candidate.source_receipt_ids
+    .map((receiptId) => byId.get(receiptId))
+    .filter((receipt): receipt is SocialTopicSourceProjection => Boolean(receipt))
+    .map(projectionReceipt)
+  if (sourceReceipts.length !== candidate.source_receipt_ids.length) return null
+  return {
+    id: candidate.candidate_key,
+    title: candidate.title,
+    triggering_event: candidate.triggering_event,
+    source_type: 'public_momentum',
+    source_label: `${candidate.product_label} momentum + work evidence`,
+    source_ids: sourceReceipts.map((receipt) => receipt.source_id),
+    why_vambah_can_speak: candidate.why_vambah_can_speak,
+    brand_goal: `Prioritize a timely ${candidate.product_label} angle only where approved external momentum intersects with demonstrated work.`,
+    content_angle: candidate.content_angle,
+    suggested_hook: candidate.suggested_hook,
+    audience: 'Operators, builders, and leaders evaluating practical product and AI systems',
+    sensitivity: sourceReceipts.some((receipt) => receipt.privacy_classification === 'client_safe_summary')
+      ? 'client_safe_summary'
+      : 'public_safe',
+    evidence_summary: candidate.evidence_summary,
+    claim_boundaries: candidate.claim_boundaries,
+    source_receipts: sourceReceipts,
+    product_ids: [candidate.product_identity],
+    priority_score: candidate.priority_score,
+    priority_tier: candidate.priority_score >= 75 ? 'high' : candidate.priority_score >= 55 ? 'medium' : 'low',
+    priority_reasons: candidate.priority_reasons,
+    dedupe_fingerprint: candidate.dedupe_fingerprint,
+  }
 }
 
 function normalizeCandidates(parsed: DiscoveryResponse, signals: SourceSignal[]): TopicTriggerCandidate[] {
@@ -848,6 +917,19 @@ export async function discoverSocialTopicCandidates(options: {
   if (coverageReport.status !== 'ready') {
     throw new SocialTopicCoverageError(coverageReport)
   }
+  const trendWorkResult = await collectApprovedTrendWorkRelevance().catch((error) => ({
+    version: 'trend_work_relevance_v1' as const,
+    generated_at: new Date().toISOString(),
+    status: 'blocked' as const,
+    review_only: true as const,
+    candidates: [],
+    blockers: [`[trend_work_collection_failed] ${error instanceof Error ? error.message : 'Approved trend/work receipts could not be read.'}`],
+    source_receipt_count: 0,
+    fresh_momentum_count: 0,
+    stale_momentum_count: 0,
+    deduplicated_momentum_count: 0,
+    privacy_rejected_count: 0,
+  }))
 
   const model = process.env.SOCIAL_TOPIC_DISCOVERY_MODEL || 'gpt-4o-mini'
   const aiResponse = await generateJsonCompletion({
@@ -875,7 +957,23 @@ export async function discoverSocialTopicCandidates(options: {
     throw new Error('Topic discovery returned invalid JSON')
   }
 
-  const candidates = ensureRequiredProductCandidates(normalizeCandidates(parsed, signals), signals)
+  const trendReceiptIds = trendWorkResult.candidates.flatMap((candidate) => candidate.source_receipt_ids)
+  const trendReceiptResult = trendReceiptIds.length > 0
+    ? await supabaseAdmin
+      .from('social_topic_source_receipts')
+      .select('*')
+      .in('receipt_id', trendReceiptIds)
+    : { data: [] as SocialTopicSourceProjection[], error: null }
+  const trendReceipts = trendReceiptResult.error
+    ? []
+    : (trendReceiptResult.data ?? []) as SocialTopicSourceProjection[]
+  const joinedCandidates = trendWorkResult.candidates
+    .map((candidate) => topicCandidateFromTrendWorkJoin(candidate, trendReceipts))
+    .filter((candidate): candidate is TopicTriggerCandidate => Boolean(candidate))
+  const candidates = ensureRequiredProductCandidates([
+    ...normalizeCandidates(parsed, signals),
+    ...joinedCandidates,
+  ], signals)
   if (candidates.length === 0) {
     throw new Error('Topic discovery did not return usable candidates')
   }
@@ -894,6 +992,7 @@ export async function discoverSocialTopicCandidates(options: {
     candidates,
     notes: asStringArray(parsed.notes).map((note) => truncate(note, 240)).slice(0, 5),
     privacy_boundary: 'Review-only topic scouting from approved summaries and durable source receipts. Raw conversations, meeting transcripts, private URLs, contact details, provider sends, publishing, and scheduling stay out of this action.',
+    trend_work_relevance: trendWorkResult,
   }
 
   return { packet, signals }

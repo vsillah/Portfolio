@@ -1,0 +1,38 @@
+[
+  {
+    "width": 1440,
+    "route": "http://127.0.0.1:4042/admin/social-content?workflow=evidence",
+    "candidates": [
+      "jev",
+      "dark_castle_chess"
+    ],
+    "mutations": 0,
+    "external_requests": 0,
+    "page_errors": [],
+    "horizontal_overflow": false
+  },
+  {
+    "width": 768,
+    "route": "http://127.0.0.1:4042/admin/social-content?workflow=evidence",
+    "candidates": [
+      "jev",
+      "dark_castle_chess"
+    ],
+    "mutations": 0,
+    "external_requests": 0,
+    "page_errors": [],
+    "horizontal_overflow": false
+  },
+  {
+    "width": 390,
+    "route": "http://127.0.0.1:4042/admin/social-content?workflow=evidence",
+    "candidates": [
+      "jev",
+      "dark_castle_chess"
+    ],
+    "mutations": 0,
+    "external_requests": 0,
+    "page_errors": [],
+    "horizontal_overflow": false
+  }
+]
