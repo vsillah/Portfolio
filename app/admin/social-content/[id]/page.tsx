@@ -809,6 +809,7 @@ function SocialContentDetailPage() {
   const [deterministicVisualAspectRatio, setDeterministicVisualAspectRatio] = useState<DeterministicVisualAspectRatio | ''>('')
   const [selectedVisualFormat, setSelectedVisualFormat] = useState<'framework' | 'carousel'>('framework')
   const [selectedVisualLineageId, setSelectedVisualLineageId] = useState<string | null>(null)
+  const [visualTraceMode, setVisualTraceMode] = useState(false)
   const [savingVisualConfiguration, setSavingVisualConfiguration] = useState(false)
   const [scheduledFor, setScheduledFor] = useState('')
   const [recoveryScheduledFor, setRecoveryScheduledFor] = useState('')
@@ -3078,13 +3079,20 @@ function SocialContentDetailPage() {
   const selectedVisualLineage = deterministicVisualLineage.find((entry) => entry.id === selectedVisualLineageId)
     || deterministicVisualLineage[0]
     || null
+  const visualLineageNumberById = new Map(
+    deterministicVisualLineage.map((entry, index) => [entry.id, index + 1]),
+  )
   const traceHotspots = [
-    { id: 'headline', number: 1, className: 'left-[32%] top-[22%]' },
-    { id: 'evidence.0', number: 2, className: 'left-[74%] top-[23%]' },
-    { id: 'node.constraint.body', number: 3, className: 'left-[20%] top-[68%]' },
-    { id: 'node.decision.body', number: 4, className: 'left-[50%] top-[68%]' },
-    { id: 'node.result.body', number: 5, className: 'left-[81%] top-[68%]' },
+    { id: 'headline', className: 'left-[32%] top-[22%]' },
+    { id: 'evidence.0', className: 'left-[74%] top-[23%]' },
+    { id: 'node.constraint.body', className: 'left-[20%] top-[68%]' },
+    { id: 'node.decision.body', className: 'left-[50%] top-[68%]' },
+    { id: 'node.result.body', className: 'left-[81%] top-[68%]' },
   ].filter((hotspot) => deterministicVisualLineage.some((entry) => entry.id === hotspot.id))
+  const selectedVisualSourceHref = selectedVisualLineage?.source_type === 'approved_social_content_research_packet'
+    && selectedVisualLineage.source_id
+    ? `/admin/agents/content-intelligence?section=research&packet=${encodeURIComponent(selectedVisualLineage.source_id)}`
+    : null
   const hasDeterministicVisualContract = Boolean(asString(asRecord(asRecord(ragContext?.practitioner_content_quality)?.deterministic_visual)?.system_version))
   const frameworkApplication = asRecord(asRecord(ragContext?.practitioner_content_quality)?.framework_application)
   const selectedContentFramework = asRecord(frameworkApplication?.selected_framework)
@@ -5342,11 +5350,29 @@ function SocialContentDetailPage() {
                           {visualPreviewImageUrl ? (
                             <div className="mt-3">
                               {(deterministicVisualOperatorState === 'dirty' || deterministicVisualOperatorState === 'rendered_stale') && <p className="mb-2 rounded-lg border border-red-500/35 bg-red-500/5 p-2 text-xs font-semibold text-red-800 dark:text-red-200">Stale asset · visible for comparison, unavailable for approval until the primary action completes.</p>}
+                              <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                                <div>
+                                  <p className="text-sm font-semibold text-foreground">Framework illustration</p>
+                                  <p className="mt-0.5 text-xs text-muted-foreground">The customer-facing image stays clean. Turn trace mode on only when you need to inspect its evidence.</p>
+                                </div>
+                                {deterministicVisualLineage.length > 0 && (
+                                  <button
+                                    type="button"
+                                    aria-pressed={visualTraceMode}
+                                    onClick={() => setVisualTraceMode((current) => !current)}
+                                    className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-border bg-background px-3 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-muted"
+                                  >
+                                    <FileSearch className="h-4 w-4 text-amber-700 dark:text-amber-300" />
+                                    {visualTraceMode ? 'Hide source trace' : 'Show source trace'}
+                                  </button>
+                                )}
+                              </div>
                               <div data-media-canvas="framework-illustration" className="relative h-[min(400px,70vw)] min-h-56 w-full overflow-hidden rounded-lg bg-slate-950">
                                 <Image src={visualPreviewImageUrl} alt={visualPreviewAlt} className="object-contain" fill sizes="(max-width: 800px) 100vw, 800px" />
-                                {deterministicVisualLineage.length > 0 && deterministicVisualAspectRatio === '1.91:1' && traceHotspots.map((hotspot) => {
+                                {visualTraceMode && deterministicVisualLineage.length > 0 && deterministicVisualAspectRatio === '1.91:1' && traceHotspots.map((hotspot) => {
                                   const lineage = deterministicVisualLineage.find((entry) => entry.id === hotspot.id)
-                                  if (!lineage) return null
+                                  const lineageNumber = visualLineageNumberById.get(hotspot.id)
+                                  if (!lineage || !lineageNumber) return null
                                   return (
                                     <button
                                       key={hotspot.id}
@@ -5356,12 +5382,12 @@ function SocialContentDetailPage() {
                                       onClick={() => setSelectedVisualLineageId(hotspot.id)}
                                       className={`absolute z-10 flex h-7 w-7 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 text-xs font-bold shadow-lg transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-amber-300 ${hotspot.className} ${lineage.proof_status === 'passed' ? 'border-white bg-emerald-600 text-white' : 'border-white bg-red-600 text-white'}`}
                                     >
-                                      {hotspot.number}
+                                      {lineageNumber}
                                     </button>
                                   )
                                 })}
                               </div>
-                              {deterministicVisualLineage.length > 0 && (
+                              {visualTraceMode && deterministicVisualLineage.length > 0 && (
                                 <section aria-label="Visual source trace" className="mt-3 border-t border-border pt-3">
                                   <div className="flex flex-wrap items-start justify-between gap-2">
                                     <div>
@@ -5402,6 +5428,17 @@ function SocialContentDetailPage() {
                                         <dt>Privacy</dt><dd className="font-medium text-foreground">{selectedVisualLineage.disclosure_classification || 'Not recorded'}</dd>
                                         <dt>Redaction</dt><dd className="font-medium text-foreground">{selectedVisualLineage.redaction_status || 'Template language'}{selectedVisualLineage.redaction_receipt_id ? ` · ${selectedVisualLineage.redaction_receipt_id}` : ''}</dd>
                                       </dl>
+                                      {selectedVisualSourceHref && (
+                                        <div className="lg:col-span-2">
+                                          <Link
+                                            href={selectedVisualSourceHref}
+                                            className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-amber-600/50 bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-950 transition-colors hover:bg-amber-100 dark:border-amber-300/40 dark:bg-amber-300/10 dark:text-amber-100 dark:hover:bg-amber-300/15"
+                                          >
+                                            <ExternalLink className="h-4 w-4" />
+                                            Open exact evidence packet
+                                          </Link>
+                                        </div>
+                                      )}
                                     </div>
                                   )}
                                 </section>

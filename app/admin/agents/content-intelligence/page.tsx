@@ -381,6 +381,10 @@ function initialFocusedCalendarItemId() {
   return currentUrlSearchParams().get('calendar_item') || null
 }
 
+function initialFocusedResearchPacketId() {
+  return currentUrlSearchParams().get('packet') || null
+}
+
 const SOCIAL_CONTENT_APPROVAL_STEP_FRAGMENTS = {
   copy: 'social-copy-gate',
   visuals: 'social-visual-assets-gate',
@@ -917,6 +921,7 @@ export default function ContentIntelligencePage() {
 
 function ContentIntelligenceContent() {
   const calendarItemRefs = useRef<Record<string, HTMLElement | null>>({})
+  const researchPacketRefs = useRef<Record<string, HTMLTableRowElement | null>>({})
   const [packets, setPackets] = useState<ResearchPacket[]>([])
   const [insights, setInsights] = useState<AgentWorkItem[]>([])
   const [calendarItems, setCalendarItems] = useState<CalendarItem[]>([])
@@ -964,6 +969,7 @@ function ContentIntelligenceContent() {
   const [calendarEditForms, setCalendarEditForms] = useState<Record<string, CalendarForm>>({})
   const [activeSection, setActiveSection] = useState<IntelligenceSection>(() => initialActiveSection())
   const [focusedCalendarItemId, setFocusedCalendarItemId] = useState<string | null>(() => initialFocusedCalendarItemId())
+  const [focusedResearchPacketId] = useState<string | null>(() => initialFocusedResearchPacketId())
   const [calendarFocusRecovery, setCalendarFocusRecovery] = useState<string | null>(null)
   const [expandedPanels, setExpandedPanels] = useState<Record<string, boolean>>({
     templateLibrary: false,
@@ -973,7 +979,7 @@ function ContentIntelligenceContent() {
     evidenceForm: true,
     patternLink: false,
   })
-  const [researchSearch, setResearchSearch] = useState('')
+  const [researchSearch, setResearchSearch] = useState(() => initialFocusedResearchPacketId() || '')
   const [researchPlatformFilter, setResearchPlatformFilter] = useState('')
   const [researchPatternFilter, setResearchPatternFilter] = useState('')
   const [researchReviewFilter, setResearchReviewFilter] = useState('')
@@ -1307,6 +1313,7 @@ function ContentIntelligenceContent() {
         if (researchReviewFilter && packet.status !== researchReviewFilter) return false
         if (!search) return true
         return [
+          packet.id,
           packet.title,
           packet.caption,
           packet.creator_name,
@@ -1340,6 +1347,25 @@ function ContentIntelligenceContent() {
   }, [filteredResearchPackets, researchPage])
 
   const researchTotalPages = Math.max(1, Math.ceil(filteredResearchPackets.length / TABLE_PAGE_SIZE))
+
+  useEffect(() => {
+    if (!focusedResearchPacketId || activeSection !== 'research') return
+    const focusedIndex = filteredResearchPackets.findIndex((packet) => packet.id === focusedResearchPacketId)
+    if (focusedIndex < 0) return
+
+    const page = Math.floor(focusedIndex / TABLE_PAGE_SIZE) + 1
+    if (researchPage !== page) {
+      setResearchPage(page)
+      return
+    }
+
+    const element = researchPacketRefs.current[focusedResearchPacketId]
+    if (!element) return
+    window.requestAnimationFrame(() => {
+      element.scrollIntoView({ block: 'center', behavior: 'smooth' })
+      element.focus({ preventScroll: true })
+    })
+  }, [activeSection, filteredResearchPackets, focusedResearchPacketId, researchPage])
 
   const insightStatuses = useMemo(() => {
     return Array.from(new Set(insights.map((item) => item.status).filter(Boolean))).sort()
@@ -3011,7 +3037,12 @@ function ContentIntelligenceContent() {
                     <tbody className="block divide-y divide-silicon-slate/60 bg-background/20 sm:table-row-group">
                       {pagedResearchPackets.map((packet) => (
                         <Fragment key={packet.id}>
-                        <tr className="block min-w-0 align-top sm:table-row">
+                        <tr
+                          ref={(element) => { researchPacketRefs.current[packet.id] = element }}
+                          id={`research-packet-${packet.id}`}
+                          tabIndex={focusedResearchPacketId === packet.id ? -1 : undefined}
+                          className={`block min-w-0 align-top sm:table-row ${focusedResearchPacketId === packet.id ? 'outline outline-2 outline-offset-[-2px] outline-amber-400/80' : ''}`}
+                        >
                           <td className="block w-full min-w-0 overflow-hidden break-words px-3 py-3 sm:table-cell sm:max-w-md">
                             <a href={packet.source_url} target="_blank" rel="noreferrer" className="block break-words font-semibold text-blue-100 hover:text-blue-50">
                               {packet.title ?? packet.caption ?? packet.source_url}
