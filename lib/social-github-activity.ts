@@ -1,6 +1,9 @@
 import { stableProductIdentity, buildApprovedSourceProjection, type SocialTopicSourceProjection } from '@/lib/social-topic-source-receipts'
 
 const GITHUB_API = 'https://api.github.com'
+const DEFAULT_GITHUB_CONCURRENCY = 4
+const DEFAULT_GITHUB_REQUEST_TIMEOUT_MS = 8_000
+const DEFAULT_GITHUB_COLLECTOR_TIMEOUT_MS = 40_000
 
 export type GitHubActivityCollection = {
   projections: SocialTopicSourceProjection[]
@@ -62,19 +65,49 @@ function productTopics(productIdentity: string, label: string) {
   ].filter(Boolean))]
 }
 
-async function githubJson<T>(url: string, fetchImpl: typeof fetch): Promise<T> {
+async function githubJson<T>(url: string, fetchImpl: typeof fetch, timeoutMs: number): Promise<T> {
+  if (timeoutMs <= 0) {
+    throw new Error('github_request_timeout: GitHub collector time budget was exhausted before the request started; retry the scan or reduce the repository set.')
+  }
   const token = process.env.GITHUB_TOKEN?.trim()
-  const response = await fetchImpl(url, {
-    method: 'GET',
-    headers: {
-      Accept: 'application/vnd.github+json',
-      'X-GitHub-Api-Version': '2022-11-28',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-    cache: 'no-store',
-  })
-  if (!response.ok) throw new Error(`github_read_failed:${response.status}`)
-  return response.json() as Promise<T>
+  const controller = new AbortController()
+  let timedOut = false
+  const timeout = setTimeout(() => {
+    timedOut = true
+    controller.abort()
+  }, timeoutMs)
+  try {
+    const response = await fetchImpl(url, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/vnd.github+json',
+        'X-GitHub-Api-Version': '2022-11-28',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      cache: 'no-store',
+      signal: controller.signal,
+    })
+    if (!response.ok) {
+      const retryAfter = response.headers.get('retry-after')
+      const rateLimitReset = response.headers.get('x-ratelimit-reset')
+      const rateLimited = response.status === 429 || response.headers.get('x-ratelimit-remaining') === '0'
+      if (rateLimited) {
+        const resetAt = rateLimitReset && Number.isFinite(Number(rateLimitReset))
+          ? new Date(Number(rateLimitReset) * 1000).toISOString()
+          : null
+        throw new Error(`github_rate_limited: GitHub returned ${response.status}; retry ${retryAfter ? `after ${retryAfter} seconds` : resetAt ? `after ${resetAt}` : 'after the integration rate limit resets'}.`)
+      }
+      throw new Error(`github_read_failed: GitHub returned ${response.status} for a read-only activity request.`)
+    }
+    return response.json() as Promise<T>
+  } catch (error) {
+    if (timedOut || (error instanceof Error && error.name === 'AbortError')) {
+      throw new Error(`github_request_timeout: GitHub did not answer within ${timeoutMs}ms; retry the scan after checking integration availability.`)
+    }
+    throw error
+  } finally {
+    clearTimeout(timeout)
+  }
 }
 
 function safeIso(value: unknown, fallback: string) {
@@ -82,13 +115,57 @@ function safeIso(value: unknown, fallback: string) {
   return Number.isFinite(Date.parse(text)) ? text : fallback
 }
 
+function blockerForRepository(productIdentity: string, error: unknown) {
+  const message = error instanceof Error ? error.message : 'Read-only GitHub activity collection failed.'
+  if (message.startsWith('github_rate_limited:')) {
+    return `[github_rate_limited:${productIdentity}]${message.slice('github_rate_limited:'.length)}`
+  }
+  if (message.startsWith('github_request_timeout:')) {
+    return `[github_request_timeout:${productIdentity}]${message.slice('github_request_timeout:'.length)}`
+  }
+  return `[github_activity_collection_failed:${productIdentity}] ${message}`
+}
+
+async function mapWithBoundedConcurrency<T, R>(
+  items: T[],
+  concurrency: number,
+  mapper: (item: T, index: number) => Promise<R>,
+) {
+  const results = new Array<R>(items.length)
+  let nextIndex = 0
+  const workerCount = Math.min(Math.max(1, concurrency), items.length)
+  await Promise.all(Array.from({ length: workerCount }, async () => {
+    while (nextIndex < items.length) {
+      const index = nextIndex
+      nextIndex += 1
+      results[index] = await mapper(items[index], index)
+    }
+  }))
+  return results
+}
+
+type RepositoryCollectionResult = {
+  projections: SocialTopicSourceProjection[]
+  blockers: string[]
+  repositoriesScanned: number
+  privateRepositoriesRejected: number
+  privateRepositoriesSummarized: number
+}
+
 export async function collectDirectGitHubActivityProjections(options: {
   prototypeRows?: PrototypeRepoRow[]
   fetchImpl?: typeof fetch
   generatedAt?: string
+  concurrency?: number
+  requestTimeoutMs?: number
+  collectorTimeoutMs?: number
 } = {}): Promise<GitHubActivityCollection> {
   const generatedAt = options.generatedAt ?? new Date().toISOString()
   const fetchImpl = options.fetchImpl ?? fetch
+  const concurrency = Math.min(8, Math.max(1, Math.floor(options.concurrency ?? DEFAULT_GITHUB_CONCURRENCY)))
+  const requestTimeoutMs = Math.max(25, Math.floor(options.requestTimeoutMs ?? DEFAULT_GITHUB_REQUEST_TIMEOUT_MS))
+  const collectorTimeoutMs = Math.max(requestTimeoutMs, Math.floor(options.collectorTimeoutMs ?? DEFAULT_GITHUB_COLLECTOR_TIMEOUT_MS))
+  const collectorDeadline = Date.now() + collectorTimeoutMs
   let rows = options.prototypeRows
   if (!rows) {
     const { supabaseAdmin } = await import('@/lib/supabase')
@@ -102,36 +179,33 @@ export async function collectDirectGitHubActivityProjections(options: {
     rows = (data ?? []) as PrototypeRepoRow[]
   }
 
-  const projections: SocialTopicSourceProjection[] = []
-  const blockers: string[] = []
-  let repositoriesScanned = 0
-  let privateRepositoriesRejected = 0
-  let privateRepositoriesSummarized = 0
+  const repositoryRows = rows
+    .map((row) => ({ row, repoRef: parsePublicGitHubRepoUrl(row.app_repo_url) }))
+    .filter((item): item is { row: PrototypeRepoRow; repoRef: NonNullable<ReturnType<typeof parsePublicGitHubRepoUrl>> } => Boolean(item.repoRef))
+    .sort((a, b) => `${a.repoRef.owner}/${a.repoRef.repo}/${a.row.id}`.localeCompare(`${b.repoRef.owner}/${b.repoRef.repo}/${b.row.id}`))
 
-  for (const row of rows) {
-    const repoRef = parsePublicGitHubRepoUrl(row.app_repo_url)
-    if (!repoRef) continue
+  const repositoryResults = await mapWithBoundedConcurrency(repositoryRows, concurrency, async ({ row, repoRef }): Promise<RepositoryCollectionResult> => {
+    const projections: SocialTopicSourceProjection[] = []
+    const blockers: string[] = []
     const label = asString(row.title) || repoRef.repo
     const productIdentity = stableProductIdentity(label, row.description, repoRef.repo)
     const topics = productTopics(productIdentity, label)
+    const remainingTimeout = () => Math.min(requestTimeoutMs, collectorDeadline - Date.now())
     try {
-      const repo = await githubJson<GitHubRepository>(`${GITHUB_API}/repos/${repoRef.owner}/${repoRef.repo}`, fetchImpl)
+      const repo = await githubJson<GitHubRepository>(`${GITHUB_API}/repos/${repoRef.owner}/${repoRef.repo}`, fetchImpl, remainingTimeout())
       const privateRepository = repo.private === true
       if (privateRepository && !process.env.GITHUB_TOKEN?.trim()) {
-        privateRepositoriesRejected += 1
         blockers.push(`[github_private_repository_requires_configured_token:${productIdentity}] Private repository activity requires the configured read-only GitHub integration.`)
-        continue
+        return { projections, blockers, repositoriesScanned: 0, privateRepositoriesRejected: 1, privateRepositoriesSummarized: 0 }
       }
-      if (privateRepository) privateRepositoriesSummarized += 1
-      repositoriesScanned += 1
       const [branches, pulls, deployments] = await Promise.all([
-        githubJson<GitHubBranch[]>(`${GITHUB_API}/repos/${repoRef.owner}/${repoRef.repo}/branches?per_page=20`, fetchImpl),
-        githubJson<GitHubPullRequest[]>(`${GITHUB_API}/repos/${repoRef.owner}/${repoRef.repo}/pulls?state=all&sort=updated&direction=desc&per_page=20`, fetchImpl),
-        githubJson<GitHubDeployment[]>(`${GITHUB_API}/repos/${repoRef.owner}/${repoRef.repo}/deployments?per_page=20`, fetchImpl),
+        githubJson<GitHubBranch[]>(`${GITHUB_API}/repos/${repoRef.owner}/${repoRef.repo}/branches?per_page=20`, fetchImpl, remainingTimeout()),
+        githubJson<GitHubPullRequest[]>(`${GITHUB_API}/repos/${repoRef.owner}/${repoRef.repo}/pulls?state=all&sort=updated&direction=desc&per_page=20`, fetchImpl, remainingTimeout()),
+        githubJson<GitHubDeployment[]>(`${GITHUB_API}/repos/${repoRef.owner}/${repoRef.repo}/deployments?per_page=20`, fetchImpl, remainingTimeout()),
       ])
       const deploymentStatuses = (await Promise.all(deployments.slice(0, 10).map(async (deployment) => {
         if (!deployment.statuses_url) return null
-        const statuses = await githubJson<GitHubDeploymentStatus[]>(deployment.statuses_url, fetchImpl)
+        const statuses = await githubJson<GitHubDeploymentStatus[]>(deployment.statuses_url, fetchImpl, remainingTimeout())
         return { deployment, status: statuses[0] ?? null }
       }))).filter((item): item is NonNullable<typeof item> => Boolean(item))
       const observedAt = safeIso(
@@ -191,17 +265,25 @@ export async function collectDirectGitHubActivityProjections(options: {
           metadata: { ...base.metadata, deployment_status_count: deploymentStatuses.length, latest_deployment_state: latest.status?.state ?? null, latest_deployment_environment: latest.deployment.environment ?? null },
         }))
       }
+      return {
+        projections,
+        blockers,
+        repositoriesScanned: 1,
+        privateRepositoriesRejected: 0,
+        privateRepositoriesSummarized: privateRepository ? 1 : 0,
+      }
     } catch (error) {
-      blockers.push(`[github_activity_collection_failed:${productIdentity}] ${error instanceof Error ? error.message : 'Read-only GitHub activity collection failed.'}`)
+      blockers.push(blockerForRepository(productIdentity, error))
+      return { projections: [], blockers, repositoriesScanned: 0, privateRepositoriesRejected: 0, privateRepositoriesSummarized: 0 }
     }
-  }
+  })
 
   return {
-    projections,
-    blockers,
-    repositories_scanned: repositoriesScanned,
-    private_repositories_rejected: privateRepositoriesRejected,
-    private_repositories_summarized: privateRepositoriesSummarized,
+    projections: repositoryResults.flatMap((result) => result.projections),
+    blockers: repositoryResults.flatMap((result) => result.blockers),
+    repositories_scanned: repositoryResults.reduce((total, result) => total + result.repositoriesScanned, 0),
+    private_repositories_rejected: repositoryResults.reduce((total, result) => total + result.privateRepositoriesRejected, 0),
+    private_repositories_summarized: repositoryResults.reduce((total, result) => total + result.privateRepositoriesSummarized, 0),
     read_only: true,
   }
 }

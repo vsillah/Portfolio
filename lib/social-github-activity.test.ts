@@ -6,8 +6,12 @@ import { collectDirectGitHubActivityProjections, parsePublicGitHubRepoUrl } from
 
 const at = '2026-10-12T16:00:00.000Z'
 
-function response(body: unknown, status = 200) {
-  return new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } })
+function response(body: unknown, status = 200, headers: Record<string, string> = {}) {
+  return new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json', ...headers } })
+}
+
+function repoName(input: string | URL | Request) {
+  return String(input).match(/\/repos\/fixture\/([^/?]+)$/)?.[1] ?? null
 }
 
 describe('direct read-only GitHub activity collection', () => {
@@ -79,6 +83,89 @@ describe('direct read-only GitHub activity collection', () => {
     expect(result.projections).toEqual([])
     expect(result.private_repositories_rejected).toBe(1)
     expect(result.blockers[0]).toContain('github_private_repository_requires_configured_token')
+  })
+
+  it('scans multiple repositories concurrently while preserving deterministic repository order', async () => {
+    let activeRepositoryReads = 0
+    let maxActiveRepositoryReads = 0
+    const fetchImpl = vi.fn(async (input: string | URL | Request) => {
+      const url = String(input)
+      const name = repoName(input)
+      if (name) {
+        activeRepositoryReads += 1
+        maxActiveRepositoryReads = Math.max(maxActiveRepositoryReads, activeRepositoryReads)
+        await new Promise((resolve) => setTimeout(resolve, name === 'alpha' ? 25 : 5))
+        activeRepositoryReads -= 1
+        return response({ id: name === 'alpha' ? 1 : 2, full_name: `fixture/${name}`, html_url: `https://github.com/fixture/${name}`, private: false, default_branch: 'main', updated_at: at })
+      }
+      if (url.includes('/branches?') || url.includes('/pulls?') || url.includes('/deployments?')) return response([])
+      return response({ message: 'not found' }, 404)
+    }) as typeof fetch
+
+    const result = await collectDirectGitHubActivityProjections({
+      prototypeRows: [
+        { id: '2', title: 'Beta', app_repo_url: 'https://github.com/fixture/beta' },
+        { id: '1', title: 'Alpha', app_repo_url: 'https://github.com/fixture/alpha' },
+      ],
+      fetchImpl,
+      generatedAt: at,
+      concurrency: 2,
+    })
+
+    expect(maxActiveRepositoryReads).toBe(2)
+    expect(result.repositories_scanned).toBe(2)
+    expect(result.projections.map((item) => item.product_identity)).toEqual(['alpha', 'beta'])
+  })
+
+  it('keeps successful receipts when another repository is rate limited', async () => {
+    const fetchImpl = vi.fn(async (input: string | URL | Request) => {
+      const url = String(input)
+      const name = repoName(input)
+      if (name === 'limited') return response({ message: 'rate limited' }, 429, { 'retry-after': '60', 'x-ratelimit-remaining': '0' })
+      if (name === 'ready') return response({ id: 3, full_name: 'fixture/ready', html_url: 'https://github.com/fixture/ready', private: false, default_branch: 'main', updated_at: at })
+      if (url.includes('/branches?') || url.includes('/pulls?') || url.includes('/deployments?')) return response([])
+      return response({ message: 'not found' }, 404)
+    }) as typeof fetch
+
+    const result = await collectDirectGitHubActivityProjections({
+      prototypeRows: [
+        { id: 'limited', title: 'Limited', app_repo_url: 'https://github.com/fixture/limited' },
+        { id: 'ready', title: 'Ready', app_repo_url: 'https://github.com/fixture/ready' },
+      ],
+      fetchImpl,
+      generatedAt: at,
+      concurrency: 2,
+    })
+
+    expect(result.repositories_scanned).toBe(1)
+    expect(result.projections.map((item) => item.product_identity)).toEqual(['ready'])
+    expect(result.blockers).toEqual([
+      '[github_rate_limited:limited] GitHub returned 429; retry after 60 seconds.',
+    ])
+  })
+
+  it('returns an actionable timeout blocker without hanging the collector', async () => {
+    const fetchImpl = vi.fn((input: string | URL | Request, init?: RequestInit) => {
+      if (!repoName(input)) return Promise.resolve(response([]))
+      return new Promise<Response>((_resolve, reject) => {
+        init?.signal?.addEventListener('abort', () => {
+          const error = new Error('aborted')
+          error.name = 'AbortError'
+          reject(error)
+        }, { once: true })
+      })
+    }) as typeof fetch
+
+    const result = await collectDirectGitHubActivityProjections({
+      prototypeRows: [{ id: 'slow', title: 'Slow', app_repo_url: 'https://github.com/fixture/slow' }],
+      fetchImpl,
+      generatedAt: at,
+      requestTimeoutMs: 25,
+      collectorTimeoutMs: 50,
+    })
+
+    expect(result.projections).toEqual([])
+    expect(result.blockers[0]).toMatch(/^\[github_request_timeout:slow\].*retry the scan/i)
   })
 
   it('accepts only canonical HTTPS github.com repository URLs', () => {
