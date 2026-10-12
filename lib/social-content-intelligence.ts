@@ -1793,6 +1793,14 @@ export function buildLinkedInYoutubeReviewDrafts(input: {
   }
 }
 
+export function socialCandidateReceiptMetadata(candidate: TopicTriggerCandidate) {
+  return {
+    candidate_class: candidate.candidate_class ?? null,
+    receipt_policy: candidate.receipt_policy ?? null,
+    receipt_lineage: candidate.receipt_lineage ?? [],
+  }
+}
+
 export function socialInsightMetadataFromCandidate(input: {
   candidate: TopicTriggerCandidate
   packet: TopicTriggerPacket
@@ -1813,6 +1821,7 @@ export function socialInsightMetadataFromCandidate(input: {
     notes: packet.notes,
     privacy_boundary: packet.privacy_boundary,
     source_receipts: candidate.source_receipts,
+    ...socialCandidateReceiptMetadata(candidate),
     product_ids: candidate.product_ids,
     priority_score: candidate.priority_score,
     priority_tier: candidate.priority_tier,
@@ -1837,6 +1846,7 @@ export function socialInsightMetadataFromCandidate(input: {
       evidence_summary: candidate.evidence_summary,
       claim_boundaries: candidate.claim_boundaries,
       source_receipts: candidate.source_receipts,
+      ...socialCandidateReceiptMetadata(candidate),
       product_ids: candidate.product_ids,
       priority_score: candidate.priority_score,
       priority_tier: candidate.priority_tier,

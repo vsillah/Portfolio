@@ -79,13 +79,13 @@ describe('trend-to-work relevance joining', () => {
         topics: ['governed capability analysis'], url: 'https://news.example.com/jev-capability',
       }),
       workReceipt({
-        sourceGroup: 'codex_insights', sourceKind: 'open_brain_conversation_proposal', sourceId: 'jev-capability-analysis',
+        sourceGroup: 'repository_documents', sourceKind: 'approved_repository_document', sourceId: 'jev-capability-analysis',
         productIdentity: 'jev', label: 'Jev', summary: 'Approved Jev capability analysis documents the operating constraints and tested capabilities.',
         topics: ['governed capability analysis'],
       }),
       workReceipt({
-        sourceGroup: 'public_catalog', sourceKind: 'app_prototype', sourceId: 'jev-portfolio-record',
-        productIdentity: 'jev', label: 'Jev', summary: 'The approved Portfolio prototype record establishes the existing Jev product identity.',
+        sourceGroup: 'repository_documents', sourceKind: 'approved_repository_implementation', sourceId: 'jev-portfolio-implementation',
+        productIdentity: 'jev', label: 'Jev', summary: 'The approved Portfolio implementation records the bounded Jev evaluation harness.',
         topics: ['governed capability analysis'],
       }),
     ]
@@ -95,8 +95,14 @@ describe('trend-to-work relevance joining', () => {
     expect(report.candidates).toHaveLength(1)
     expect(report.candidates[0]).toMatchObject({
       product_identity: 'jev',
+      candidate_class: 'public_momentum_repository',
       status: 'review_only',
       freshness: 'fresh',
+      receipt_policy: {
+        policy_id: 'public_momentum_repository_v1',
+        required_receipt_classes: ['public_momentum', 'repository_evidence'],
+        product_identity_join: 'exact',
+      },
       side_effects: {
         content_generation: false,
         approval: false,
@@ -107,6 +113,8 @@ describe('trend-to-work relevance joining', () => {
       },
     })
     expect(report.candidates[0].source_receipt_ids).toHaveLength(3)
+    expect(report.candidates[0].receipt_lineage.map((receipt) => receipt.receipt_id).sort())
+      .toEqual([...report.candidates[0].source_receipt_ids].sort())
     expect(report.candidates[0].why_vambah_can_speak).toContain('2 approved firsthand Portfolio receipts')
   })
 
@@ -124,15 +132,21 @@ describe('trend-to-work relevance joining', () => {
       productIdentity: 'dark_castle_chess', label: 'Dark Castle Chess', summary: 'Current Dark Castle pull-request activity.',
       topics: ['chess product development'], metadata: { portfolio_product_id: 'dark-castle-product' },
     })
-    const report = buildTrendWorkRelevanceReport([external, analysis, darkCastle], generatedAt)
+    const darkCastleProduct = workReceipt({
+      sourceGroup: 'app_prototypes', sourceKind: 'app_prototype', sourceId: 'dark-castle-product',
+      productIdentity: 'dark_castle_chess', label: 'Dark Castle Chess', summary: 'The approved app record establishes the Dark Castle Chess product identity.',
+      topics: ['chess product development'],
+    })
+    const report = buildTrendWorkRelevanceReport([external, analysis, darkCastleProduct, darkCastle], generatedAt)
     const candidateReceiptIds = new Set(
-      sourceReceiptsForTrendWorkCandidates(report.candidates, [external, analysis, darkCastle])
+      sourceReceiptsForTrendWorkCandidates(report.candidates, [external, analysis, darkCastleProduct, darkCastle])
         .map((receipt) => receipt.receipt_id),
     )
 
     expect(candidateReceiptIds).toEqual(new Set([
       external.receipt_id,
       analysis.receipt_id,
+      darkCastleProduct.receipt_id,
       darkCastle.receipt_id,
     ]))
   })
@@ -159,27 +173,39 @@ describe('trend-to-work relevance joining', () => {
     const report = buildTrendWorkRelevanceReport(receipts, generatedAt)
     const candidate = report.candidates[0]
     expect(candidate.product_identity).toBe('dark_castle_chess')
+    expect(candidate.candidate_class).toBe('active_github_product')
     expect(candidate.work_receipt_ids).toHaveLength(2)
-    expect(candidate.claim_boundaries).toContain('Development activity does not prove deployment, customer use, or business outcomes.')
+    expect(candidate.claim_boundaries).toContain('Development activity does not prove deployment, customer use, adoption, or business outcomes.')
   })
 
   it('creates a Dark Castle active-work candidate from a bound Portfolio identity and current GitHub activity without public momentum', () => {
+    const product = workReceipt({
+      sourceGroup: 'app_prototypes', sourceKind: 'app_prototype', sourceId: 'dark-castle-product',
+      productIdentity: 'dark_castle_chess', label: 'Dark Castle Chess', summary: 'The approved app record establishes the Dark Castle Chess product identity.',
+      topics: ['chess product development'],
+    })
     const github = workReceipt({
       sourceGroup: 'github_development', sourceKind: 'github_pull_request_activity', sourceId: 'dark-castle-current-prs',
       productIdentity: 'dark_castle_chess', label: 'Dark Castle Chess', summary: 'Dark Castle Chess has current pull-request activity.',
       topics: ['chess product development'], metadata: { portfolio_product_id: 'dark-castle-product' },
     })
 
-    const report = buildTrendWorkRelevanceReport([github], generatedAt)
+    const report = buildTrendWorkRelevanceReport([product, github], generatedAt)
 
     expect(report.status).toBe('ready')
     expect(report.candidates).toHaveLength(1)
     expect(report.candidates[0]).toMatchObject({
       product_identity: 'dark_castle_chess',
+      candidate_class: 'active_github_product',
       external_receipt_ids: [],
-      work_receipt_ids: [github.receipt_id],
+      work_receipt_ids: expect.arrayContaining([product.receipt_id, github.receipt_id]),
       freshness: 'fresh',
       status: 'review_only',
+      receipt_policy: {
+        policy_id: 'active_github_product_v1',
+        required_receipt_classes: ['product_catalog', 'github_activity'],
+        product_identity_join: 'exact',
+      },
     })
     expect(report.candidates[0].title).toContain('current build')
   })
@@ -194,7 +220,7 @@ describe('trend-to-work relevance joining', () => {
     const report = buildTrendWorkRelevanceReport([github], generatedAt)
 
     expect(report.candidates).toEqual([])
-    expect(report.blockers).toContain('[github_product_identity_unbound:unbound_product] Link the GitHub repository to an unambiguous Portfolio product before creating an active-work candidate.')
+    expect(report.blockers).toContain('[candidate_receipt_policy_incomplete:active_github_product_v1:unbound_product:product_catalog] Add or update the approved app/product catalog record that owns this stable product identity.')
   })
 
   it('deduplicates canonical momentum, rejects private receipts, and blocks stale signals', () => {
@@ -218,7 +244,7 @@ describe('trend-to-work relevance joining', () => {
       raw_content_included: true,
     } as unknown as SocialTopicSourceProjection
     const approvedWork = workReceipt({
-      sourceGroup: 'codex_insights', sourceKind: 'open_brain_conversation_proposal', sourceId: 'approved-analysis',
+      sourceGroup: 'repository_documents', sourceKind: 'approved_repository_document', sourceId: 'approved-analysis',
       productIdentity: 'jev', label: 'Jev', summary: 'Approved capability analysis.', topics: ['capability'],
     })
 
@@ -239,6 +265,23 @@ describe('trend-to-work relevance joining', () => {
     ], generatedAt)
     expect(report.status).toBe('blocked')
     expect(report.candidates).toEqual([])
-    expect(report.blockers[0]).toContain('trend_work_firsthand_evidence_missing:jev')
+    expect(report.blockers[0]).toContain('candidate_receipt_policy_incomplete:public_momentum_repository_v1:jev:repository_evidence')
+  })
+
+  it('does not join matching topics across different product identities', () => {
+    const report = buildTrendWorkRelevanceReport([
+      momentum({
+        sourceId: 'jev-momentum', productIdentity: 'jev', label: 'Jev', summary: 'Approved Jev momentum.',
+        topics: ['governed capability analysis'], url: 'https://news.example.com/jev-exact-identity',
+      }),
+      workReceipt({
+        sourceGroup: 'repository_documents', sourceKind: 'approved_repository_document', sourceId: 'other-product-analysis',
+        productIdentity: 'another_product', label: 'Another product', summary: 'A repository document uses the same topic words.',
+        topics: ['governed capability analysis'],
+      }),
+    ], generatedAt)
+
+    expect(report.candidates).toEqual([])
+    expect(report.blockers).toContain('[candidate_receipt_policy_incomplete:public_momentum_repository_v1:jev:repository_evidence] Approve a repository document or implementation summary with provenance, reviewer, privacy classification, timestamp, and the same stable product identity.')
   })
 })

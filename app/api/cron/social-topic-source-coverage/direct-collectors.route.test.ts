@@ -30,6 +30,12 @@ describe('source coverage cron direct collector reconciliation', () => {
       privacyClassification: 'public_safe', provenance: 'github_public_api:vsillah/Dark-Castle-Chess:pulls', approvedAt: at, approvedBy: 'github_public_api', observedAt: at,
       evidenceUrl: 'https://github.com/vsillah/Dark-Castle-Chess/pulls', metadata: { collector: 'github_public_api_read_only', topic_identities: ['chess_product_development'] },
     })
+    const productReceipt = buildApprovedSourceProjection({
+      sourceGroup: 'app_prototypes', sourceKind: 'app_prototype', sourceId: 'app_prototype:dark-castle-product', productIdentity: 'dark_castle_chess',
+      lifecycleStage: 'publicly_cataloged', label: 'Dark Castle Chess', approvedSummary: 'The approved app record establishes the Dark Castle Chess product identity.',
+      privacyClassification: 'public_safe', provenance: 'public_catalog:app_prototypes:dark-castle-product', approvedAt: at, approvedBy: 'public_catalog_state', observedAt: at,
+      metadata: { topic_identities: ['chess_product_development'] },
+    })
     const momentum = approvedPublicMomentumProjectionsFromResearchPackets([{
       id: 'jev-public-source', status: 'approved', source_url: 'https://news.example.com/jev', platform: 'other', title: 'Jev public momentum', retrieved_at: at,
       actor_metadata: {
@@ -41,7 +47,7 @@ describe('source coverage cron direct collector reconciliation', () => {
         },
       },
     }]).projections
-    const report = buildLiveCoverage({ generatedAt: at, receipts: [githubReceipt, ...momentum, ...approvedRepositoryEvidenceProjections(at)] })
+    const report = buildLiveCoverage({ generatedAt: at, receipts: [productReceipt, githubReceipt, ...momentum, ...approvedRepositoryEvidenceProjections(at)] })
     mocks.collectLiveSocialTopicCoverage.mockResolvedValue(report)
 
     const response = await GET(new NextRequest('http://localhost/api/cron/social-topic-source-coverage', {
@@ -53,13 +59,21 @@ describe('source coverage cron direct collector reconciliation', () => {
     expect(body).toMatchObject({
       review_only: true,
       github_activity_product_identities: ['dark_castle_chess'],
-      trend_work_product_identities: ['jev'],
       side_effects: {
         github_write: false, provider_generation: false, upload: false, draft_creation: false,
         schedule: false, publish: false, external_send: false,
       },
     })
+    expect(body.trend_work_product_identities).toEqual(expect.arrayContaining(['jev', 'dark_castle_chess']))
     expect(report.receipts.some((receipt) => receipt.source_kind === 'agent_work_item_github')).toBe(false)
-    expect(report.trend_work_relevance?.candidates[0].source_receipt_ids).toHaveLength(3)
+    expect(report.trend_work_relevance?.candidates.find((candidate) => candidate.product_identity === 'jev')).toMatchObject({
+      candidate_class: 'public_momentum_repository',
+      receipt_policy: expect.objectContaining({ policy_id: 'public_momentum_repository_v1' }),
+    })
+    expect(report.trend_work_relevance?.candidates.find((candidate) => candidate.product_identity === 'dark_castle_chess')).toMatchObject({
+      candidate_class: 'active_github_product',
+      receipt_policy: expect.objectContaining({ policy_id: 'active_github_product_v1' }),
+      source_receipt_ids: expect.arrayContaining([productReceipt.receipt_id, githubReceipt.receipt_id]),
+    })
   })
 })

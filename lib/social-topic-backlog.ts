@@ -3,6 +3,7 @@ import { generateJsonCompletion } from '@/lib/llm-dispatch'
 import { createAgentWorkItem } from '@/lib/agent-work-items'
 import {
   defaultSocialChannelLanes,
+  socialCandidateReceiptMetadata,
   socialInsightMetadataFromCandidate,
   socialTopicBacklogItemFromWorkItem,
   SOCIAL_TOPIC_TRIGGER_SOURCE_TYPE,
@@ -10,6 +11,7 @@ import {
 import { supabaseAdmin } from '@/lib/supabase'
 import {
   collectApprovedTrendWorkRelevance,
+  evaluateSocialCandidateReceiptPolicy,
   type TrendWorkBacklogCandidate,
   type TrendWorkRelevanceReport,
 } from '@/lib/social-trend-work-join'
@@ -142,6 +144,7 @@ export function prototypeLifecycleStage(value: unknown): NonNullable<SourceSigna
 
 export type TopicTriggerCandidate = {
   id: string
+  candidate_class?: TrendWorkBacklogCandidate['candidate_class']
   title: string
   triggering_event: string
   source_type: SourceType
@@ -161,6 +164,8 @@ export type TopicTriggerCandidate = {
   priority_tier: 'high' | 'medium' | 'low'
   priority_reasons: string[]
   dedupe_fingerprint: string
+  receipt_policy?: TrendWorkBacklogCandidate['receipt_policy']
+  receipt_lineage?: TrendWorkBacklogCandidate['receipt_lineage']
 }
 
 type DiscoveryResponse = {
@@ -484,14 +489,31 @@ export function topicCandidateFromTrendWorkJoin(
   receipts: SocialTopicSourceProjection[],
 ): TopicTriggerCandidate | null {
   const byId = new Map(receipts.map((receipt) => [receipt.receipt_id, receipt]))
-  const sourceReceipts = candidate.source_receipt_ids
+  const sourceProjections = candidate.source_receipt_ids
     .map((receiptId) => byId.get(receiptId))
     .filter((receipt): receipt is SocialTopicSourceProjection => Boolean(receipt))
-    .map(projectionReceipt)
-  if (sourceReceipts.length !== candidate.source_receipt_ids.length) return null
+  if (sourceProjections.length !== candidate.source_receipt_ids.length) return null
+  if (sourceProjections.some((receipt) => receipt.product_identity !== candidate.product_identity)) return null
+  const policyEvaluation = evaluateSocialCandidateReceiptPolicy({
+    candidateClass: candidate.candidate_class,
+    productIdentity: candidate.product_identity,
+    receipts: sourceProjections,
+  })
+  if (policyEvaluation.status !== 'ready') return null
+  const expectedReceiptIds = [...candidate.source_receipt_ids].sort()
+  const evaluatedReceiptIds = policyEvaluation.matched_receipts.map((receipt) => receipt.receipt_id).sort()
+  const lineageReceiptIds = candidate.receipt_lineage.map((receipt) => receipt.receipt_id).sort()
+  if (JSON.stringify(evaluatedReceiptIds) !== JSON.stringify(expectedReceiptIds)) return null
+  if (JSON.stringify(lineageReceiptIds) !== JSON.stringify(expectedReceiptIds)) return null
+  if (JSON.stringify(candidate.receipt_policy) !== JSON.stringify(policyEvaluation.policy)) return null
+  const declaredLineage = [...candidate.receipt_lineage].sort((a, b) => a.receipt_id.localeCompare(b.receipt_id))
+  const evaluatedLineage = [...policyEvaluation.receipt_lineage].sort((a, b) => a.receipt_id.localeCompare(b.receipt_id))
+  if (JSON.stringify(declaredLineage) !== JSON.stringify(evaluatedLineage)) return null
+  const sourceReceipts = sourceProjections.map(projectionReceipt)
   const isExternalIntersection = candidate.external_receipt_ids.length > 0
   return {
     id: candidate.candidate_key,
+    candidate_class: candidate.candidate_class,
     title: candidate.title,
     triggering_event: candidate.triggering_event,
     source_type: isExternalIntersection ? 'public_momentum' : 'portfolio_work',
@@ -517,6 +539,8 @@ export function topicCandidateFromTrendWorkJoin(
     priority_tier: candidate.priority_score >= 75 ? 'high' : candidate.priority_score >= 55 ? 'medium' : 'low',
     priority_reasons: candidate.priority_reasons,
     dedupe_fingerprint: candidate.dedupe_fingerprint,
+    receipt_policy: policyEvaluation.policy,
+    receipt_lineage: evaluatedLineage,
   }
 }
 
@@ -1110,6 +1134,7 @@ export async function upsertSocialTopicBacklog(packet: TopicTriggerPacket, trigg
         notes: packet.notes,
         privacy_boundary: packet.privacy_boundary,
         source_receipts: candidate.source_receipts,
+        ...socialCandidateReceiptMetadata(candidate),
         product_ids: candidate.product_ids,
         priority_score: candidate.priority_score,
         priority_tier: candidate.priority_tier,
