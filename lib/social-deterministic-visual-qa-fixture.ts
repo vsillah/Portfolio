@@ -15,7 +15,7 @@ import { socialCopyVersion } from '@/lib/social-copy-revision'
 export const DETERMINISTIC_VISUAL_TARGET_RECORD_ID = '52a4baec-ad2d-415d-a6fa-4436dbfd6360'
 export const DETERMINISTIC_VISUAL_QA_ASSET_URL = `/qa/social-content/deterministic-visual-binding.png?renderer=${DETERMINISTIC_VISUAL_RENDERER_VERSION}`
 
-export type DeterministicVisualQaState = 'ready' | 'current' | 'stale' | 'missing_candidate' | 'architecture_mismatch' | 'storage_unavailable'
+export type DeterministicVisualQaState = 'ready' | 'current' | 'stale' | 'missing_candidate' | 'architecture_mismatch' | 'storage_unavailable' | 'lineage_missing'
 
 export function deterministicVisualBindingQaFixtureEnabled() {
   if (process.env.VERCEL_ENV === 'production') return false
@@ -35,6 +35,7 @@ export function parseDeterministicVisualQaState(value: string | null | undefined
     || value === 'missing_candidate'
     || value === 'architecture_mismatch'
     || value === 'storage_unavailable'
+    || value === 'lineage_missing'
     ? value
     : 'ready'
 }
@@ -103,6 +104,12 @@ export function deterministicVisualBindingQaFixture(
   if (state === 'architecture_mismatch') {
     const rag = structuredClone(item.rag_context ?? {}) as Record<string, any>
     rag.practitioner_content_quality.deterministic_visual.architecture.connectors = []
+    item.rag_context = rag
+  }
+
+  if (state === 'lineage_missing') {
+    const rag = structuredClone(item.rag_context ?? {}) as Record<string, any>
+    rag.practitioner_content_quality.deterministic_visual.source_bindings = {}
     item.rag_context = rag
   }
 
