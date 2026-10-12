@@ -22,7 +22,7 @@ vi.mock('@/components/admin/AgenticContentReviewPacketPager', () => ({
 }))
 
 vi.mock('@/components/admin/SocialSourceCoverageEvidence', () => ({
-  default: ({ active }: { active: boolean }) => active ? <div>Dynamic source coverage evidence</div> : null,
+  default: ({ active, qaFixture }: { active: boolean; qaFixture?: string }) => active ? <div>Dynamic source coverage evidence{qaFixture ? ` · ${qaFixture}` : ''}</div> : null,
 }))
 
 vi.mock('@/components/admin/ExtractionStatusChip', () => ({
@@ -385,5 +385,18 @@ describe('SocialContentQueuePage Instagram provider setup', () => {
     expect(await screen.findByText('Dynamic source coverage evidence')).toBeInTheDocument()
     expect(screen.getByRole('tab', { name: /Launch evidence/i })).toHaveAttribute('aria-selected', 'true')
     expect(window.location.pathname + window.location.search).toContain('/admin/social-content?workflow=evidence')
+  })
+
+  it('isolates the synthetic candidate fixture from queue and execution controls', () => {
+    window.history.replaceState({}, '', '/admin/social-content?workflow=evidence&candidateQa=durable-candidates')
+
+    render(<SocialContentQueuePage />)
+
+    expect(screen.getByRole('heading', { name: 'Durable candidate projection fixture' })).toBeInTheDocument()
+    expect(screen.getByText('Dynamic source coverage evidence · durable-candidates')).toBeInTheDocument()
+    expect(screen.getByText(/mounts no queue, approval, provider, scheduling, publishing, or external-send controls/i)).toBeInTheDocument()
+    expect(screen.queryByText('Approve launch package')).not.toBeInTheDocument()
+    expect(screen.queryByText('Meta Instagram/Facebook readiness')).not.toBeInTheDocument()
+    expect(fetch).not.toHaveBeenCalled()
   })
 })

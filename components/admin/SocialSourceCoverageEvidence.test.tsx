@@ -6,6 +6,7 @@ const mocks = vi.hoisted(() => ({ getCurrentSession: vi.fn() }))
 vi.mock('@/lib/auth', () => ({ getCurrentSession: mocks.getCurrentSession }))
 
 import SocialSourceCoverageEvidence from './SocialSourceCoverageEvidence'
+import { buildSocialCandidateProjectionQaFixture } from '@/lib/social-candidate-projection-qa-fixture'
 
 const priorityProducts = [
   { product_identity: 'dark_castle_chess', label: 'Dark Castle Chess', current_stage: 'preview_deployed', stages: ['insight', 'preview_deployed'], receipt_count: 2, source_groups: ['codex_insights', 'vercel_deployments'], latest_evidence_at: '2026-10-10T14:00:00.000Z', gaps: [], historical_gaps: ['No recorded in development evidence'], priority: true, priority_order: 1, priority_source: 'approved_metadata' },
@@ -153,6 +154,25 @@ describe('SocialSourceCoverageEvidence', () => {
     expect(candidates[1]).toHaveTextContent('course-trend-1')
     expect(candidates[1]).toHaveTextContent('accelerated-product-1')
     expect(section).toHaveTextContent('no reconciliation, copy, approval, provider call, draft, render, upload, schedule, post, or external send is created here')
+  })
+
+  it('renders the isolated synthetic candidate acceptance fixture with a visible blocker', async () => {
+    const fixture = buildSocialCandidateProjectionQaFixture()
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => ({ coverage: fixture }) }))
+
+    render(<SocialSourceCoverageEvidence active qaFixture="durable-candidates" />)
+
+    const banner = await screen.findByTestId('synthetic-candidate-qa-banner')
+    expect(banner).toHaveTextContent('Synthetic QA fixture · preview only · read only')
+    expect(banner).toHaveTextContent('No production data, reconciliation, model or provider call, render, upload, scheduling, publishing, external send, or candidate approval')
+    expect(fetch).toHaveBeenCalledWith('/api/admin/social-content/source-coverage?qa_fixture=durable-candidates', expect.any(Object))
+    const candidates = screen.getAllByTestId('trend-work-candidate')
+    expect(candidates).toHaveLength(3)
+    expect(candidates.some((candidate) => candidate.textContent?.includes('Jev') && candidate.textContent.includes('public momentum repository'))).toBe(true)
+    expect(candidates.some((candidate) => candidate.textContent?.includes('Dark Castle Chess') && candidate.textContent.includes('active github product'))).toBe(true)
+    expect(candidates.some((candidate) => candidate.textContent?.includes('Agentified') && candidate.textContent.includes('public theme owned capability'))).toBe(true)
+    expect(screen.getByTestId('trend-work-blockers')).toHaveTextContent('candidate_receipt_policy_incomplete:public_momentum_repository_v1:policy_watch:repository_evidence')
+    expect(screen.getByRole('button', { name: 'Reload fixture' })).toBeInTheDocument()
   })
 
   it('shows Reading instead of a false fail-closed state before the first response resolves', () => {

@@ -17,6 +17,7 @@ import {
 } from 'lucide-react'
 import { getCurrentSession } from '@/lib/auth'
 import type { ProductLifecycleCoverage, SocialTopicLiveCoverage } from '@/lib/social-topic-source-coverage'
+import { SOCIAL_CANDIDATE_PROJECTION_QA_FIXTURE } from '@/lib/social-candidate-projection-qa-contract'
 
 const PRIORITY_PAGE_SIZE = 3
 const DIRECTORY_PAGE_SIZE = 5
@@ -54,7 +55,13 @@ function ProductEvidenceRow({ product }: { product: ProductLifecycleCoverage }) 
   )
 }
 
-export default function SocialSourceCoverageEvidence({ active }: { active: boolean }) {
+export default function SocialSourceCoverageEvidence({
+  active,
+  qaFixture,
+}: {
+  active: boolean
+  qaFixture?: typeof SOCIAL_CANDIDATE_PROJECTION_QA_FIXTURE
+}) {
   const [coverage, setCoverage] = useState<SocialTopicLiveCoverage | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -69,7 +76,10 @@ export default function SocialSourceCoverageEvidence({ active }: { active: boole
     try {
       const session = await getCurrentSession()
       if (!session?.access_token) throw new Error('Admin session is unavailable.')
-      const response = await fetch('/api/admin/social-content/source-coverage', {
+      const endpoint = qaFixture
+        ? `/api/admin/social-content/source-coverage?qa_fixture=${encodeURIComponent(qaFixture)}`
+        : '/api/admin/social-content/source-coverage'
+      const response = await fetch(endpoint, {
         cache: 'no-store',
         headers: { Authorization: `Bearer ${session.access_token}` },
       })
@@ -81,7 +91,7 @@ export default function SocialSourceCoverageEvidence({ active }: { active: boole
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [qaFixture])
 
   useEffect(() => {
     if (active && !coverage && !loading && !error) void loadCoverage()
@@ -114,6 +124,14 @@ export default function SocialSourceCoverageEvidence({ active }: { active: boole
 
   return (
     <section className="mb-6 rounded-lg border border-border bg-card p-4 text-card-foreground shadow-sm" aria-labelledby="source-coverage-heading" data-testid="source-coverage-section">
+      {qaFixture && (
+        <div className="mb-4 rounded-lg border border-accent/50 bg-accent/10 p-3" data-testid="synthetic-candidate-qa-banner">
+          <div className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-[0.13em] text-foreground">
+            <ShieldCheck className="h-4 w-4 text-accent" /> Synthetic QA fixture · preview only · read only
+          </div>
+          <p className="mt-1 text-xs leading-5 text-muted-foreground">No production data, reconciliation, model or provider call, render, upload, scheduling, publishing, external send, or candidate approval is available on this route.</p>
+        </div>
+      )}
       <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
         <div className="max-w-3xl">
           <div className="admin-console-eyebrow mb-2 flex items-center gap-2"><Activity className="h-4 w-4" /> Launch evidence · source coverage</div>
@@ -127,7 +145,7 @@ export default function SocialSourceCoverageEvidence({ active }: { active: boole
             {awaitingInitialRead ? 'Reading' : coverage?.status === 'ready' ? 'Coverage ready' : 'Fail closed'}
           </span>
           <button type="button" onClick={() => void loadCoverage()} disabled={loading} className={`${BUTTON_CLASS} py-1.5`}>
-            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />} Refresh
+            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />} {qaFixture ? 'Reload fixture' : 'Refresh'}
           </button>
         </div>
       </div>
@@ -167,7 +185,10 @@ export default function SocialSourceCoverageEvidence({ active }: { active: boole
                   <article key={candidate.candidate_key} className="rounded-lg border border-border bg-card p-3 text-card-foreground" data-testid="trend-work-candidate">
                     <div className="flex flex-wrap items-start justify-between gap-2">
                       <h3 className="text-sm font-semibold text-foreground">{candidate.product_label}</h3>
-                      <span className="rounded-full border border-accent/30 bg-accent/10 px-2 py-1 text-[10px] capitalize text-accent">{candidate.freshness} · score {candidate.priority_score}</span>
+                      <div className="flex flex-wrap justify-end gap-1.5">
+                        <span className="rounded-full border border-border bg-muted/50 px-2 py-1 text-[10px] text-muted-foreground">{candidate.candidate_class.replace(/_/g, ' ')}</span>
+                        <span className="rounded-full border border-accent/30 bg-accent/10 px-2 py-1 text-[10px] capitalize text-accent">{candidate.freshness} · score {candidate.priority_score}</span>
+                      </div>
                     </div>
                     <p className="mt-2 text-xs leading-5 text-foreground">{candidate.triggering_event}</p>
                     {candidate.public_signal && (
@@ -211,6 +232,14 @@ export default function SocialSourceCoverageEvidence({ active }: { active: boole
                 {coverage.trend_work_relevance?.blockers[0] ?? 'Add an approved fresh public-momentum receipt and matching firsthand-work receipt.'}
               </div>
             )}
+            {coverage.trend_work_relevance?.blockers.length ? (
+              <div className="mt-3 rounded-lg border border-accent/40 bg-accent/10 p-3" data-testid="trend-work-blockers">
+                <div className="flex items-center gap-2 text-xs font-semibold text-foreground"><AlertTriangle className="h-4 w-4 text-accent" /> Actionable policy blockers</div>
+                <ul className="mt-2 space-y-1 text-xs leading-5 text-muted-foreground">
+                  {coverage.trend_work_relevance.blockers.map((blocker) => <li key={blocker}>{blocker}</li>)}
+                </ul>
+              </div>
+            ) : null}
           </div>
 
           {coverage.products.length === 0 ? (

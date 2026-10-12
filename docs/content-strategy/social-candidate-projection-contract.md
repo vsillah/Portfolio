@@ -46,3 +46,11 @@ The same metadata helper writes this lineage into the canonical Agent Ops work i
 ## Boundaries
 
 Projection creates review-only opportunities. It does not ingest or quote raw private conversations or transcripts, generate copy, approve content, call discovery or media providers, render media, upload assets, schedule, publish, send externally, or claim that development activity proves deployment or outcomes.
+
+## Synthetic review fixture
+
+Captain and Human QA can review the durable-candidate states on the preview-only route:
+
+`/admin/social-content?workflow=evidence&candidateQa=durable-candidates`
+
+The route mounts only the existing source-coverage evidence panel and demonstrates synthetic Jev public-momentum/repository, Dark Castle Chess active-GitHub/product, Agentified thematic-owned-capability, and incomplete-policy blocker states. The fixture endpoint is unavailable in production. It reads no production records and exposes no queue, approval, reconciliation, model/provider, rendering, upload, scheduling, publishing, or external-send control.
