@@ -780,13 +780,24 @@ describe('SocialContentDetailRoute visual production review', () => {
     const panel = await screen.findByLabelText('Protected mobile Social Content decision')
     expect(within(panel).getByText('One decision. One version. One immutable receipt.')).toHaveClass('text-foreground')
     expect(within(panel).getByText('Candidate projection is read-only')).toHaveClass('text-blue-900', 'dark:text-blue-100')
-    expect(within(panel).getByRole('link', { name: 'Open Decision Queue' })).toHaveAttribute(
+    const queueLink = within(panel).getByRole('link', { name: 'Open Decision Queue' })
+    expect(queueLink).toHaveAttribute(
       'href',
       '/admin/agents/coordination?proposal=work-1',
     )
-    expect(within(panel).getByRole('button', { name: 'Approve' })).toBeEnabled()
-    expect(within(panel).getByRole('button', { name: 'Request revision' })).toBeEnabled()
-    fireEvent.click(within(panel).getByRole('button', { name: 'Hold' }))
+    expect(queueLink).toHaveClass('admin-console-button-secondary', 'focus-visible:ring-2', 'active:translate-y-px')
+    const approve = within(panel).getByRole('button', { name: 'Approve' })
+    const requestRevision = within(panel).getByRole('button', { name: 'Request revision' })
+    const hold = within(panel).getByRole('button', { name: 'Hold' })
+    expect(approve).toBeEnabled()
+    expect(approve).toHaveClass('admin-console-button-primary', 'focus-visible:ring-2', 'active:translate-y-px')
+    expect(approve).toHaveAttribute('data-action-hierarchy', 'primary')
+    expect(requestRevision).toBeEnabled()
+    expect(requestRevision).toHaveClass('admin-console-button-secondary', 'focus-visible:ring-2', 'active:translate-y-px')
+    expect(requestRevision).toHaveAttribute('data-action-hierarchy', 'secondary')
+    expect(hold).toHaveClass('admin-console-button-muted', 'focus-visible:ring-2', 'active:translate-y-px')
+    expect(hold).toHaveAttribute('data-action-hierarchy', 'neutral')
+    fireEvent.click(hold)
 
     await waitFor(() => expect(fetchMock).toHaveBeenCalledWith(
       '/api/admin/social-content/social-1/decision',
@@ -862,10 +873,12 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(within(panel).getByRole('status')).toHaveTextContent('decision-receipt-1')
     expect(within(panel).getByRole('status')).toHaveTextContent('asset_packet')
     expect(within(panel).queryByRole('button', { name: 'Approve' })).not.toBeInTheDocument()
-    expect(within(panel).getByRole('link', { name: 'Open asset packet gate' })).toHaveAttribute(
+    const assetPacketLink = within(panel).getByRole('link', { name: 'Open asset packet gate' })
+    expect(assetPacketLink).toHaveAttribute(
       'href',
       '/admin/social-content/social-1?step=visuals&review=mobile#social-asset-packet-gate',
     )
+    expect(assetPacketLink).toHaveClass('admin-console-button-secondary', 'focus-visible:ring-2', 'active:translate-y-px')
   })
 
   it('blocks a completed-looking decision when the immutable receipt projection is missing', async () => {
@@ -958,9 +971,15 @@ describe('SocialContentDetailRoute visual production review', () => {
     const panel = await screen.findByLabelText('Protected mobile Social Content decision')
     expect(within(panel).getByText('Decision blocked closed')).toHaveClass('text-red-900', 'dark:text-red-100')
     expect(within(panel).getByRole('status')).toHaveTextContent(/incomplete|missing/i)
-    expect(within(panel).getByRole('button', { name: 'Approve' })).toBeDisabled()
-    expect(within(panel).getByRole('button', { name: 'Request revision' })).toBeDisabled()
-    expect(within(panel).getByRole('button', { name: 'Hold' })).toBeDisabled()
+    const approve = within(panel).getByRole('button', { name: 'Approve' })
+    const requestRevision = within(panel).getByRole('button', { name: 'Request revision' })
+    const hold = within(panel).getByRole('button', { name: 'Hold' })
+    expect(approve).toBeDisabled()
+    expect(approve).toHaveClass('admin-console-button-primary', 'disabled:opacity-45')
+    expect(requestRevision).toBeDisabled()
+    expect(requestRevision).toHaveClass('admin-console-button-secondary', 'disabled:opacity-45')
+    expect(hold).toBeDisabled()
+    expect(hold).toHaveClass('admin-console-button-muted', 'disabled:opacity-45')
   })
 
   it('exposes every responsive approval step without a horizontal scroll rail and activates later steps through the canonical query', async () => {
