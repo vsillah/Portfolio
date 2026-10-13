@@ -1,5 +1,5 @@
 {
-  "route": "https://portfolio-git-codex-amanirenas-mobile-89d7c8-vsillahs-projects.vercel.app/admin/social-content?candidateQa=durable-candidates&workflow=evidence",
+  "route": "http://127.0.0.1:4038/admin/social-content?candidateQa=durable-candidates&workflow=evidence",
   "scenarios": [
     {
       "width": 1440,
@@ -26,6 +26,20 @@
     "390-dark-decision-inbox.png"
   ],
   "walkthrough": "mobile-content-validation-inbox-walkthrough.mp4",
+  "tabs": [
+    "Candidates",
+    "Run history",
+    "Blockers"
+  ],
+  "candidate_page_size": 4,
+  "candidate_records": 5,
+  "metric_destinations_checked": [
+    "Collectors",
+    "Receipts",
+    "Products",
+    "Priority gaps"
+  ],
+  "browser_back_forward_checked": true,
   "external_writes": 0,
   "api_mutations": 0,
   "slack_connection": false,

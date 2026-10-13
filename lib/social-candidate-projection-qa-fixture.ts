@@ -130,6 +130,42 @@ export function buildSocialCandidateProjectionQaFixture(): SocialTopicLiveCovera
     evidenceUrl: 'https://example.com/qa/agentified',
     metadata: { topic_identities: ['accountable_agentic_work'] },
   })
+  const mentorRiMomentum = buildApprovedPublicMomentumProjection({
+    sourceId: 'qa:mentorri-workforce-navigation', momentumKind: 'public_news', productIdentity: 'mentorri', label: 'MentorRI',
+    approvedSummary: 'Synthetic public coverage shows material attention around accountable workforce navigation.',
+    canonicalUrl: 'https://example.com/qa/mentorri-workforce-navigation', publisher: 'Synthetic workforce-news fixture',
+    topicIdentities: ['accountable_workforce_navigation'], entityIdentities: ['mentorri'], coverageIdentity: 'mentorri-workforce-navigation',
+    sentiment: 'positive', contextSummary: 'Synthetic attributable context for testing the exact MentorRI identity join.',
+    relevanceScore: 0.82, publicAttentionScore: 0.74, materiality: 'material', evidenceState: 'corroborated',
+    publishedAt: '2026-10-12T12:00:00.000Z', expiresAt: EXPIRES_AT, approvedAt: GENERATED_AT,
+    approvedBy: 'synthetic-qa-reviewer', observedAt: GENERATED_AT,
+  })
+  const mentorRiRepository = buildApprovedSourceProjection({
+    sourceGroup: 'repository_documents', sourceKind: 'approved_repository_implementation', sourceId: 'qa:mentorri-repository-evidence',
+    productIdentity: 'mentorri', lifecycleStage: 'in_development', label: 'MentorRI',
+    approvedSummary: 'Synthetic repository evidence documents privacy-safe workforce navigation implementation.',
+    privacyClassification: 'public_safe', provenance: 'synthetic_qa:repository:mentorri', approvedAt: GENERATED_AT,
+    approvedBy: 'synthetic-qa-reviewer', observedAt: GENERATED_AT, evidenceUrl: 'https://github.com/example/mentorri',
+    metadata: { topic_identities: ['accountable_workforce_navigation'] },
+  })
+  const reversrMomentum = buildApprovedPublicMomentumProjection({
+    sourceId: 'qa:reversr-cad-access', momentumKind: 'social_trend', productIdentity: 'reversr', label: 'ReversR',
+    approvedSummary: 'Synthetic public momentum shows material interest in clearer CAD access and review workflows.',
+    canonicalUrl: 'https://example.com/qa/reversr-cad-access', publisher: 'Synthetic CAD-discussion fixture',
+    topicIdentities: ['accessible_cad_review'], entityIdentities: ['reversr'], coverageIdentity: 'reversr-accessible-cad-review',
+    sentiment: 'mixed', contextSummary: 'Synthetic attributable context for testing the exact ReversR identity join.',
+    relevanceScore: 0.79, publicAttentionScore: 0.72, materiality: 'material', evidenceState: 'corroborated',
+    publishedAt: '2026-10-12T11:00:00.000Z', expiresAt: EXPIRES_AT, approvedAt: GENERATED_AT,
+    approvedBy: 'synthetic-qa-reviewer', observedAt: GENERATED_AT,
+  })
+  const reversrRepository = buildApprovedSourceProjection({
+    sourceGroup: 'repository_documents', sourceKind: 'approved_repository_implementation', sourceId: 'qa:reversr-repository-evidence',
+    productIdentity: 'reversr', lifecycleStage: 'in_development', label: 'ReversR',
+    approvedSummary: 'Synthetic repository evidence shows current work on accessible CAD review.',
+    privacyClassification: 'public_safe', provenance: 'synthetic_qa:repository:reversr', approvedAt: GENERATED_AT,
+    approvedBy: 'synthetic-qa-reviewer', observedAt: GENERATED_AT, evidenceUrl: 'https://github.com/example/reversr',
+    metadata: { topic_identities: ['accessible_cad_review'] },
+  })
   const incompletePolicySignal = buildApprovedPublicMomentumProjection({
     sourceId: 'qa:policy-watch-incomplete',
     momentumKind: 'public_news',
@@ -160,6 +196,10 @@ export function buildSocialCandidateProjectionQaFixture(): SocialTopicLiveCovera
     darkCastleGitHub,
     agenticMomentum,
     agentifiedCapability,
+    mentorRiMomentum,
+    mentorRiRepository,
+    reversrMomentum,
+    reversrRepository,
     incompletePolicySignal,
   ]
   const trendWorkRelevance = buildTrendWorkRelevanceReport(receipts, GENERATED_AT)
@@ -173,8 +213,8 @@ export function buildSocialCandidateProjectionQaFixture(): SocialTopicLiveCovera
     review_only: true,
     source_policy: 'approved_privacy_safe_summaries_and_operational_receipts_only',
     sources: [
-      { key: 'public_momentum', label: 'Approved public news + social trends', status: 'ready', freshness: 'fresh', last_successful_scan: GENERATED_AT, scanned_at: GENERATED_AT, receipt_count: 3, product_count: 3, collector_failure: null, recovery_action: 'Synthetic fixture only. Review the exact public-signal receipts; no collector runs from this route.' },
-      { key: 'repository_documents', label: 'Approved Portfolio repository evidence', status: 'ready', freshness: 'fresh', last_successful_scan: GENERATED_AT, scanned_at: GENERATED_AT, receipt_count: 1, product_count: 1, collector_failure: null, recovery_action: 'Synthetic fixture only. No repository write or reconciliation is available.' },
+      { key: 'public_momentum', label: 'Approved public news + social trends', status: 'ready', freshness: 'fresh', last_successful_scan: GENERATED_AT, scanned_at: GENERATED_AT, receipt_count: 5, product_count: 5, collector_failure: null, recovery_action: 'Synthetic fixture only. Review the exact public-signal receipts; no collector runs from this route.' },
+      { key: 'repository_documents', label: 'Approved Portfolio repository evidence', status: 'ready', freshness: 'fresh', last_successful_scan: GENERATED_AT, scanned_at: GENERATED_AT, receipt_count: 3, product_count: 3, collector_failure: null, recovery_action: 'Synthetic fixture only. No repository write or reconciliation is available.' },
       { key: 'github_development', label: 'GitHub development', status: 'ready', freshness: 'fresh', last_successful_scan: GENERATED_AT, scanned_at: GENERATED_AT, receipt_count: 1, product_count: 1, collector_failure: null, recovery_action: 'Synthetic fixture only. GitHub activity is read-only and cannot trigger external action.' },
       { key: 'public_catalog', label: 'Public catalog + site', status: 'ready', freshness: 'fresh', last_successful_scan: GENERATED_AT, scanned_at: GENERATED_AT, receipt_count: 2, product_count: 2, collector_failure: null, recovery_action: 'Synthetic fixture only. No catalog or provider mutation is available.' },
     ],
@@ -182,6 +222,8 @@ export function buildSocialCandidateProjectionQaFixture(): SocialTopicLiveCovera
       { product_identity: 'dark_castle_chess', label: 'Dark Castle Chess', current_stage: 'preview_deployed', stages: ['in_development', 'preview_deployed'], receipt_count: 2, source_groups: ['app_prototypes', 'github_development'], latest_evidence_at: GENERATED_AT, gaps: [], historical_gaps: [], priority: true, priority_order: 1, priority_source: 'approved_metadata' },
       { product_identity: 'agentified', label: 'Agentified', current_stage: 'publicly_cataloged', stages: ['publicly_cataloged'], receipt_count: 1, source_groups: ['public_catalog'], latest_evidence_at: GENERATED_AT, gaps: [], historical_gaps: [], priority: true, priority_order: 2, priority_source: 'approved_metadata' },
       { product_identity: 'jev', label: 'Jev', current_stage: 'in_development', stages: ['insight', 'in_development'], receipt_count: 2, source_groups: ['public_momentum', 'repository_documents'], latest_evidence_at: GENERATED_AT, gaps: [], historical_gaps: [], priority: false, priority_order: null, priority_source: null },
+      { product_identity: 'mentorri', label: 'MentorRI', current_stage: 'in_development', stages: ['insight', 'in_development'], receipt_count: 2, source_groups: ['public_momentum', 'repository_documents'], latest_evidence_at: GENERATED_AT, gaps: [], historical_gaps: [], priority: false, priority_order: null, priority_source: null },
+      { product_identity: 'reversr', label: 'ReversR', current_stage: 'in_development', stages: ['insight', 'in_development'], receipt_count: 2, source_groups: ['public_momentum', 'repository_documents'], latest_evidence_at: GENERATED_AT, gaps: [], historical_gaps: [], priority: false, priority_order: null, priority_source: null },
       { product_identity: 'policy_watch', label: 'AI policy watch', current_stage: 'insight', stages: ['insight'], receipt_count: 1, source_groups: ['public_momentum'], latest_evidence_at: GENERATED_AT, gaps: [policyBlocker], historical_gaps: [], priority: false, priority_order: null, priority_source: null },
     ],
     receipts,

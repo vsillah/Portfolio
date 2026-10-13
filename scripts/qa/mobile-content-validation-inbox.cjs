@@ -68,8 +68,9 @@ async function runScenario(browser, scenario) {
   await expect(page.getByRole('button', { name: /Publish|Schedule|Approve candidate|Generate/i })).toHaveCount(0)
 
   const inbox = page.getByTestId('mobile-decision-inbox')
-  await inbox.getByRole('link', { name: /Candidates/i }).click()
+  await inbox.getByRole('tab', { name: 'Candidates' }).click()
   await expect(page).toHaveURL(/#candidate-inbox$/)
+  await expect(inbox.getByRole('tab', { name: 'Candidates' })).toHaveAttribute('aria-selected', 'true')
   await page.waitForTimeout(700)
   const candidate = page.getByTestId('trend-work-candidate').first()
   await candidate.getByText(/Source lineage/i).click()
@@ -77,18 +78,41 @@ async function runScenario(browser, scenario) {
   await expect(candidate.getByRole('link', { name: 'Open source evidence' }).first()).toHaveAttribute('href', /^https:\/\//)
   await page.waitForTimeout(900)
 
-  await inbox.getByRole('link', { name: /Run history/i }).click()
+  await expect(page.getByText('Candidate page 1 of 2 · 5 matches')).toBeVisible()
+  await page.getByRole('button', { name: 'Next candidates' }).click()
+  await expect(page.getByText('Candidate page 2 of 2 · 5 matches')).toBeVisible()
+  await expect(page.getByTestId('trend-work-candidate')).toContainText('Dark Castle Chess')
+  const candidateSearch = page.getByPlaceholder('Search review candidates')
+  await candidateSearch.fill('MentorRI')
+  await expect(page.getByText('Candidate page 1 of 1 · 1 matches')).toBeVisible()
+  await expect(page.getByTestId('trend-work-candidate')).toContainText('MentorRI')
+  await page.getByRole('button', { name: 'Reset candidate search' }).click()
+  await expect(page.getByText('Candidate page 1 of 2 · 5 matches')).toBeVisible()
+  await page.waitForTimeout(900)
+
+  await page.getByTestId('collectors-metric').click()
   await expect(page).toHaveURL(/#source-run-history$/)
+  await expect(inbox.getByRole('tab', { name: 'Run history' })).toHaveAttribute('aria-selected', 'true')
   await expect(page.getByTestId('source-run-history')).toContainText('Opening this inbox only reads the latest approved projection')
   await page.waitForTimeout(800)
 
-  await inbox.getByRole('link', { name: /Blockers/i }).click()
+  await page.getByTestId('receipts-metric').click()
+  await expect(page).toHaveURL(/#candidate-inbox$/)
+  await expect(inbox.getByRole('tab', { name: 'Candidates' })).toHaveAttribute('aria-selected', 'true')
+  await page.getByTestId('products-metric').click()
+  await expect(page).toHaveURL(/#candidate-inbox$/)
+  await page.getByTestId('priority-gaps-metric').click()
   await expect(page).toHaveURL(/#source-blockers$/)
+  await expect(inbox.getByRole('tab', { name: 'Blockers' })).toHaveAttribute('aria-selected', 'true')
   const blockers = page.getByTestId('source-blocker-inbox')
   await expect(blockers).toContainText('Candidate policy blockers')
   await expect(blockers.getByRole('link', { name: 'Review source policy' })).toHaveAttribute('href', '/admin/source-protocol')
   await expect(page.getByTestId('slack-disabled-specification')).toContainText('Disabled')
   await expect(page.getByTestId('slack-disabled-specification')).toContainText('No Slack connection')
+  await page.goBack()
+  await expect(page).toHaveURL(/#candidate-inbox$/)
+  await page.goForward()
+  await expect(page).toHaveURL(/#source-blockers$/)
   await page.waitForTimeout(1000)
 
   await page.screenshot({ path: path.join(outputDir, `${width}-${theme}-decision-inbox.png`), fullPage: true })
@@ -130,6 +154,11 @@ async function runScenario(browser, scenario) {
     scenarios,
     screenshots: scenarios.map(({ width, theme }) => `${width}-${theme}-decision-inbox.png`),
     walkthrough: path.basename(output),
+    tabs: ['Candidates', 'Run history', 'Blockers'],
+    candidate_page_size: 4,
+    candidate_records: 5,
+    metric_destinations_checked: ['Collectors', 'Receipts', 'Products', 'Priority gaps'],
+    browser_back_forward_checked: true,
     external_writes: 0,
     api_mutations: 0,
     slack_connection: false,

@@ -13,7 +13,10 @@ The route uses the repository's synthetic, preview-only candidate fixture. It re
 - 1440 × 900, light theme
 - 768 × 900, system theme resolving dark
 - 390 × 844, dark theme
-- mobile jump links for candidates, source-run history, and blockers
+- compact Candidates, Run history, and Blockers tabs with hash deep links and browser back/forward continuity
+- candidate search, reset, and four-record pagination across five synthetic exact-lineage candidates
+- actionable Collectors, Receipts, Products, and Priority gaps metrics that activate the relevant tab
+- keyboard-focusable tabs and metric links with clear active, hover, focus, and theme states
 - exact receipt-lineage drill-down and attributable source links
 - candidate freshness and explicit review-only state
 - twice-weekly review-history framing over persisted source scan timestamps
@@ -23,7 +26,7 @@ The route uses the repository's synthetic, preview-only candidate fixture. It re
 
 ## Evidence
 
-- `mobile-content-validation-inbox-walkthrough.mp4` — H.264 MP4 walkthrough across the three responsive scenarios
+- `mobile-content-validation-inbox-walkthrough.mp4` — playable H.264 MP4 walkthrough of candidate paging/search, metric navigation, tab switching, and blocker recovery across the three responsive scenarios
 - `1440-light-decision-inbox.png`
 - `768-system-decision-inbox.png`
 - `390-dark-decision-inbox.png`

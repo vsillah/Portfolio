@@ -38,7 +38,7 @@ describe('GET /api/admin/social-content/source-coverage', () => {
       read_only: true,
       external_execution_enabled: false,
     })
-    expect(payload.coverage.trend_work_relevance.candidates).toHaveLength(3)
+    expect(payload.coverage.trend_work_relevance.candidates).toHaveLength(5)
     expect(mocks.collectLiveSocialTopicCoverage).not.toHaveBeenCalled()
   })
 
