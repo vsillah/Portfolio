@@ -45,6 +45,7 @@ import {
   buildScheduleRecoveryProjection,
   createSupabaseSocialScheduleRecoveryRepository,
 } from '@/lib/social-schedule-recovery'
+import { readVerifiedSocialContentDecisionReceipt } from '@/lib/social-content-recorded-decision'
 
 export const dynamic = 'force-dynamic'
 
@@ -174,6 +175,11 @@ export async function GET(
       return NextResponse.json({ error: 'Content not found' }, { status: 404 })
     }
 
+    const recordedInternalDecisionReceipt = await readVerifiedSocialContentDecisionReceipt(
+      supabaseAdmin,
+      data,
+    )
+
     let meetingRecord = null
     if (data.meeting_record_id) {
       const { data: meeting } = await supabaseAdmin
@@ -238,6 +244,7 @@ export async function GET(
         publishes: publishes || [],
         social_video_production: socialVideoProduction,
         schedule_recovery: scheduleRecovery,
+        recorded_internal_decision_receipt: recordedInternalDecisionReceipt,
       },
     })
   } catch (error) {

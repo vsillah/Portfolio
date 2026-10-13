@@ -7,11 +7,11 @@ import { promisify } from 'node:util'
 
 const execFileAsync = promisify(execFile)
 const root = process.env.QA_OUTPUT_ROOT || process.cwd()
-const outputDir = path.join(root, 'docs', 'mobile-social-decision-qa')
-const rawVideoDir = path.join(root, 'test-results', 'mobile-social-decision-qa')
-const desktopScreenshotPath = path.join(outputDir, 'desktop-ready.png')
+const outputDir = path.join(root, 'docs', 'mobile-social-decision-reconciliation-qa')
+const rawVideoDir = path.join(root, 'test-results', 'mobile-social-decision-reconciliation-qa')
+const desktopScreenshotPath = path.join(outputDir, 'desktop-recorded.png')
 const mobileScreenshotPath = path.join(outputDir, 'mobile-blocked.png')
-const mp4Path = path.join(outputDir, 'mobile-social-decision-receipts.mp4')
+const mp4Path = path.join(outputDir, 'social-decision-version-reconciliation.mp4')
 const baseUrl = process.env.QA_BASE_URL || 'http://localhost:3011'
 const trustedOidcToken = process.env.VERCEL_OIDC_TOKEN
 const authStatePath = process.env.PLAYWRIGHT_AUTH_STATE
@@ -58,7 +58,8 @@ function evidenceReceipt(key, status = 'approved') {
   return { receipt_id: `${key}-receipt-qa`, status, content_updated_at: version }
 }
 
-function socialItem(blocked = false) {
+function socialItem(mode = 'recorded') {
+  const blocked = mode === 'blocked'
   const receipts = {
     source: evidenceReceipt('source'),
     voice: evidenceReceipt('voice'),
@@ -67,13 +68,17 @@ function socialItem(blocked = false) {
     visual: evidenceReceipt('visual'),
     challenger: evidenceReceipt('challenger'),
   }
-  if (blocked) delete receipts.challenger
+  if (blocked) receipts.challenger = evidenceReceipt('challenger', 'pending')
+
+  const currentVersion = '2026-10-13T02:32:06.000Z'
+  const recorded = mode === 'recorded'
+  const claimsRecorded = recorded || blocked
 
   return {
     id: contentId,
     meeting_record_id: null,
     platform: 'linkedin',
-    status: 'draft',
+    status: claimsRecorded ? 'approved' : 'draft',
     post_text: 'A decision is trustworthy when the evidence travels with it.',
     cta_text: 'Review the receipt before advancing the gate.',
     cta_url: null,
@@ -90,6 +95,11 @@ function socialItem(blocked = false) {
       source: 'privacy_safe_qa_fixture',
       publish_gate: 'draft_only',
       pass_to_human: true,
+      ...(claimsRecorded ? {
+        current_gate: 'asset_packet',
+        latest_internal_decision_receipt_id: 'decision-receipt-qa',
+        latest_internal_decision: 'approve',
+      } : {}),
       mobile_decision_review: {
         version: 'social-content-decision-review/v1',
         approval_id: 'approval-mobile-qa',
@@ -98,11 +108,11 @@ function socialItem(blocked = false) {
         content_id: contentId,
         content_updated_at: version,
         current_gate: 'copy_review',
-        next_gate: 'visual_review',
+        next_gate: 'asset_packet',
         receipts,
         candidate_projection: {
           headline: 'Read-only candidate projection',
-          next_internal_gate: 'visual_review',
+          next_internal_gate: 'asset_packet',
         },
       },
     },
@@ -110,7 +120,7 @@ function socialItem(blocked = false) {
     published_at: null,
     platform_post_id: null,
     admin_notes: null,
-    reviewed_by: null,
+    reviewed_by: claimsRecorded ? user.id : null,
     target_platforms: ['linkedin'],
     video_generation_method: 'none',
     youtube_title: null,
@@ -122,7 +132,14 @@ function socialItem(blocked = false) {
     carousel_pdf_url: null,
     carousel_slide_urls: null,
     created_at: version,
-    updated_at: version,
+    updated_at: currentVersion,
+    recorded_internal_decision_receipt: recorded ? {
+      receipt_id: 'decision-receipt-qa',
+      decision: 'approve',
+      reviewed_content_updated_at: version,
+      next_gate: 'asset_packet',
+      verified: true,
+    } : null,
     publishes: [],
   }
 }
@@ -166,6 +183,7 @@ async function discoverPreviewSupabaseConfig(page) {
 }
 
 async function seedAuthenticatedPreviewSession(page) {
+  if (['localhost', '127.0.0.1'].includes(new URL(baseUrl).hostname)) return false
   const email = process.env.ADMIN_E2E_EMAIL
   const password = process.env.ADMIN_E2E_PASSWORD
   if (!email || !password) return false
@@ -193,25 +211,23 @@ async function installRoutes(page, state) {
       },
     }))
   }
+  await page.route('**/auth/v1/user', (route) => route.fulfill({ json: user }))
   await page.route('**/api/user/profile**', (route) => route.fulfill({
     json: { profile: { id: user.id, email: user.email, role: 'admin', created_at: version, updated_at: version } },
   }))
   await page.route(`**/api/admin/social-content/${contentId}/decision`, (route) => route.fulfill({
-    status: 200,
+    status: 409,
     json: {
-      ok: true,
-      decision: 'hold',
-      next_internal_gate: 'copy_review',
-      external_execution: false,
-      item: socialItem(state.blocked),
+      error: 'QA fixture does not permit decision writes.',
+      code: 'QA_FIXTURE_READ_ONLY',
     },
   }))
   await page.route(`**/api/admin/social-content/${contentId}/engagement/comments**`, (route) => route.fulfill({ json: { comments: [] } }))
-  await page.route(`**/api/admin/social-content/${contentId}`, (route) => route.fulfill({ json: { item: socialItem(state.blocked) } }))
+  await page.route(`**/api/admin/social-content/${contentId}`, (route) => route.fulfill({ json: { item: socialItem(state.mode) } }))
   await page.route('**/api/admin/social-content/topic-backlog**', (route) => route.fulfill({ json: { items: [] } }))
   await page.route('**/api/admin/social-content/calibration-library**', (route) => route.fulfill({ json: { references: [] } }))
   await page.route('**/api/admin/social-content/config**', (route) => route.fulfill({ json: { configs: [] } }))
-  await page.route('**/api/admin/social-content?**', (route) => route.fulfill({ json: { items: [socialItem(state.blocked)] } }))
+  await page.route('**/api/admin/social-content?**', (route) => route.fulfill({ json: { items: [socialItem(state.mode)] } }))
 }
 
 function watchExternalRequests(page) {
@@ -233,8 +249,8 @@ async function captureViewportScreenshot(page, target, screenshotPath, block = '
   if (await header.count()) await header.evaluate((element) => { element.style.visibility = '' })
 }
 
-async function recordViewport(browser, { viewport, screenshotPath, label, demonstrateHold, storageState }) {
-  const state = { blocked: false }
+async function recordViewport(browser, { viewport, screenshotPath, label, mode, storageState }) {
+  const state = { mode }
   const rawDir = path.join(rawVideoDir, label)
   await mkdir(rawDir, { recursive: true })
   const context = await browser.newContext({
@@ -288,25 +304,19 @@ async function recordViewport(browser, { viewport, screenshotPath, label, demons
   }
   await panel.scrollIntoViewIfNeeded()
   await page.evaluate((offset) => window.scrollBy(0, offset), viewport.width <= 480 ? -520 : -240)
+  const expectedState = mode === 'recorded' ? 'Recorded decision verified' : 'Decision blocked closed'
+  const stateIndicator = panel.getByText(expectedState)
+  await stateIndicator.waitFor()
+  await page.waitForTimeout(1600)
+  await captureViewportScreenshot(page, mode === 'blocked' ? stateIndicator : panel, screenshotPath, mode === 'blocked' ? 'center' : 'start')
+  if (mode === 'recorded') {
+    await panel.getByRole('link', { name: 'Open asset packet gate' }).click()
+    const assetPacketGate = page.locator('#social-asset-packet-gate')
+    await assetPacketGate.waitFor()
+    await assetPacketGate.scrollIntoViewIfNeeded()
+    await page.waitForTimeout(1400)
+  }
   await page.waitForTimeout(900)
-  if (demonstrateHold) {
-    await panel.getByRole('button', { name: 'Hold' }).click()
-    await page.getByText('Held in the central Decision Queue. No external action was authorized.').waitFor()
-    await page.waitForTimeout(900)
-  }
-  if (demonstrateHold) await captureViewportScreenshot(page, panel, screenshotPath)
-
-  state.blocked = true
-  await page.reload({ waitUntil: 'domcontentloaded' })
-  const blockedPanel = page.getByLabel('Protected mobile Social Content decision')
-  await blockedPanel.waitFor({ timeout: 30_000 })
-  await blockedPanel.scrollIntoViewIfNeeded()
-  await page.evaluate((offset) => window.scrollBy(0, offset), viewport.width <= 480 ? -520 : -240)
-  await blockedPanel.getByText('Decision blocked closed').waitFor()
-  await page.waitForTimeout(1400)
-  if (!demonstrateHold) {
-    await captureViewportScreenshot(page, blockedPanel.getByText('Decision blocked closed'), screenshotPath, 'center')
-  }
 
   const video = page.video()
   await context.close()
@@ -322,14 +332,14 @@ const desktopRaw = await recordViewport(browser, {
   viewport: { width: 1280, height: 900 },
   screenshotPath: desktopScreenshotPath,
   label: 'desktop',
-  demonstrateHold: true,
+  mode: 'recorded',
   storageState,
 })
 const mobileRaw = await recordViewport(browser, {
   viewport: { width: 390, height: 844 },
   screenshotPath: mobileScreenshotPath,
   label: 'mobile',
-  demonstrateHold: false,
+  mode: 'blocked',
   storageState,
 })
 await browser.close()

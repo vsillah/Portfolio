@@ -49,8 +49,30 @@ describe('Social Content mobile decision readiness', () => {
 
     expect(readiness.ready).toBe(true)
     expect(readiness.blockers).toEqual([])
+    expect(readiness.recorded_decision).toBeNull()
     expect(readiness.packet?.next_gate).toBe('visual_review')
     expect(readiness.packet?.candidate_projection).toEqual({ headline: 'Read-only candidate' })
+  })
+
+  it('fails closed when the central Decision Queue packet is missing', () => {
+    const candidate = item()
+    delete (candidate.rag_context as Record<string, unknown>).mobile_decision_review
+
+    const readiness = getSocialContentDecisionReadiness(candidate as never)
+
+    expect(readiness.ready).toBe(false)
+    expect(readiness.recorded_decision).toBeNull()
+    expect(readiness.blockers).toEqual(['The central Decision Queue review packet is missing.'])
+  })
+
+  it('fails closed when the central Decision Queue packet is malformed', () => {
+    const candidate = item({ version: 'social-content-decision-review/v2' })
+
+    const readiness = getSocialContentDecisionReadiness(candidate as never)
+
+    expect(readiness.ready).toBe(false)
+    expect(readiness.recorded_decision).toBeNull()
+    expect(readiness.blockers).toEqual(['The central Decision Queue review packet is incomplete or malformed.'])
   })
 
   it('fails closed when one required receipt is missing', () => {
@@ -71,7 +93,104 @@ describe('Social Content mobile decision readiness', () => {
 
     expect(readiness.ready).toBe(false)
     expect(readiness.stale).toBe(true)
+    expect(readiness.recorded_decision).toBeNull()
     expect(readiness.blockers).toContain('The review packet is stale for the current content version.')
+  })
+
+  it('reconciles a receipt-complete recorded approval with the post-decision content version', () => {
+    const candidate = item({ next_gate: 'asset_packet' })
+    candidate.updated_at = '2026-10-12T18:31:00.000Z'
+    Object.assign(candidate.rag_context, {
+      current_gate: 'asset_packet',
+      latest_internal_decision_receipt_id: 'decision-receipt-1',
+      latest_internal_decision: 'approve',
+    })
+    Object.assign(candidate, {
+      recorded_internal_decision_receipt: {
+        receipt_id: 'decision-receipt-1',
+        decision: 'approve',
+        reviewed_content_updated_at: VERSION,
+        next_gate: 'asset_packet',
+        verified: true,
+      },
+    })
+
+    const readiness = getSocialContentDecisionReadiness(candidate as never)
+
+    expect(readiness.ready).toBe(false)
+    expect(readiness.stale).toBe(true)
+    expect(readiness.blockers).toEqual([])
+    expect(readiness.recorded_decision).toEqual({
+      receipt_id: 'decision-receipt-1',
+      decision: 'approve',
+      reviewed_content_updated_at: VERSION,
+      current_content_updated_at: '2026-10-12T18:31:00.000Z',
+      next_gate: 'asset_packet',
+    })
+  })
+
+  it('does not trust a claimed recorded decision when the post-decision gate does not match', () => {
+    const candidate = item({ next_gate: 'asset_packet' })
+    candidate.updated_at = '2026-10-12T18:31:00.000Z'
+    Object.assign(candidate.rag_context, {
+      current_gate: 'visual_review',
+      latest_internal_decision_receipt_id: 'decision-receipt-1',
+      latest_internal_decision: 'approve',
+    })
+    Object.assign(candidate, {
+      recorded_internal_decision_receipt: {
+        receipt_id: 'decision-receipt-1',
+        decision: 'approve',
+        reviewed_content_updated_at: VERSION,
+        next_gate: 'asset_packet',
+        verified: true,
+      },
+    })
+
+    const readiness = getSocialContentDecisionReadiness(candidate as never)
+
+    expect(readiness.recorded_decision).toBeNull()
+    expect(readiness.blockers).toContain('The recorded decision receipt could not be verified against the immutable receipt store.')
+    expect(readiness.blockers).toContain('The review packet is stale for the current content version.')
+  })
+
+  it('fails closed when recorded metadata has no server-verified immutable receipt', () => {
+    const candidate = item({ next_gate: 'asset_packet' })
+    candidate.updated_at = '2026-10-12T18:31:00.000Z'
+    Object.assign(candidate.rag_context, {
+      current_gate: 'asset_packet',
+      latest_internal_decision_receipt_id: 'decision-receipt-1',
+      latest_internal_decision: 'approve',
+    })
+
+    const readiness = getSocialContentDecisionReadiness(candidate as never)
+
+    expect(readiness.recorded_decision).toBeNull()
+    expect(readiness.blockers).toContain('The recorded decision receipt could not be verified against the immutable receipt store.')
+  })
+
+  it('fails closed when the server-verified receipt projection is bound to another receipt', () => {
+    const candidate = item({ next_gate: 'asset_packet' })
+    candidate.updated_at = '2026-10-12T18:31:00.000Z'
+    Object.assign(candidate.rag_context, {
+      current_gate: 'asset_packet',
+      latest_internal_decision_receipt_id: 'decision-receipt-1',
+      latest_internal_decision: 'approve',
+    })
+    Object.assign(candidate, {
+      recorded_internal_decision_receipt: {
+        receipt_id: 'another-receipt',
+        decision: 'approve',
+        reviewed_content_updated_at: VERSION,
+        next_gate: 'asset_packet',
+        verified: true,
+      },
+    })
+
+    const readiness = getSocialContentDecisionReadiness(candidate as never)
+
+    expect(readiness.recorded_decision).toBeNull()
+    expect(readiness.blockers).toContain('The recorded decision receipt could not be verified against the immutable receipt store.')
   })
 
   it('fails closed when challenger review has not passed', () => {
