@@ -1,5 +1,5 @@
 {
-  "route": "http://127.0.0.1:4038/admin/social-content?candidateQa=durable-candidates&workflow=evidence",
+  "route": "https://portfolio-aymgvobmu-vsillahs-projects.vercel.app/admin/social-content?candidateQa=durable-candidates&workflow=evidence",
   "scenarios": [
     {
       "width": 1440,
