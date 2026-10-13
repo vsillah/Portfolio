@@ -72,12 +72,13 @@ function socialItem(mode = 'recorded') {
 
   const currentVersion = '2026-10-13T02:32:06.000Z'
   const recorded = mode === 'recorded'
+  const claimsRecorded = recorded || blocked
 
   return {
     id: contentId,
     meeting_record_id: null,
     platform: 'linkedin',
-    status: recorded ? 'approved' : 'draft',
+    status: claimsRecorded ? 'approved' : 'draft',
     post_text: 'A decision is trustworthy when the evidence travels with it.',
     cta_text: 'Review the receipt before advancing the gate.',
     cta_url: null,
@@ -94,7 +95,7 @@ function socialItem(mode = 'recorded') {
       source: 'privacy_safe_qa_fixture',
       publish_gate: 'draft_only',
       pass_to_human: true,
-      ...(recorded ? {
+      ...(claimsRecorded ? {
         current_gate: 'asset_packet',
         latest_internal_decision_receipt_id: 'decision-receipt-qa',
         latest_internal_decision: 'approve',
@@ -119,7 +120,7 @@ function socialItem(mode = 'recorded') {
     published_at: null,
     platform_post_id: null,
     admin_notes: null,
-    reviewed_by: recorded ? user.id : null,
+    reviewed_by: claimsRecorded ? user.id : null,
     target_platforms: ['linkedin'],
     video_generation_method: 'none',
     youtube_title: null,
@@ -132,6 +133,13 @@ function socialItem(mode = 'recorded') {
     carousel_slide_urls: null,
     created_at: version,
     updated_at: currentVersion,
+    recorded_internal_decision_receipt: recorded ? {
+      receipt_id: 'decision-receipt-qa',
+      decision: 'approve',
+      reviewed_content_updated_at: version,
+      next_gate: 'asset_packet',
+      verified: true,
+    } : null,
     publishes: [],
   }
 }

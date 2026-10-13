@@ -131,6 +131,15 @@ export interface SocialContentItem {
   } | null
   // Hydrated by the detail route from the version-fenced deterministic visual contract.
   deterministic_visual_render?: DeterministicVisualRenderProjection
+  // Server-attested projection from the immutable decision-receipt table.
+  // Absent or null means the client must keep any post-decision packet blocked.
+  recorded_internal_decision_receipt?: {
+    receipt_id: string
+    decision: 'approve' | 'request_revision' | 'hold'
+    reviewed_content_updated_at: string
+    next_gate: string
+    verified: true
+  } | null
 }
 
 export interface SocialContentPublish {

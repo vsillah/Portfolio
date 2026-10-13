@@ -129,7 +129,7 @@ export function getSocialContentDecisionReviewPacket(
 }
 
 export function getSocialContentDecisionReadiness(
-  item: Pick<SocialContentItem, 'id' | 'updated_at' | 'rag_context'>,
+  item: Pick<SocialContentItem, 'id' | 'updated_at' | 'rag_context' | 'recorded_internal_decision_receipt'>,
 ): SocialContentDecisionReadiness {
   const ragContext = recordValue(item.rag_context)
   const rawPacket = recordValue(ragContext?.mobile_decision_review)
@@ -175,6 +175,11 @@ export function getSocialContentDecisionReadiness(
   const latestReceiptId = stringValue(ragContext?.latest_internal_decision_receipt_id)
   const latestDecision = stringValue(ragContext?.latest_internal_decision)
   const currentGate = stringValue(ragContext?.current_gate)
+  const verifiedReceipt = recordValue(item.recorded_internal_decision_receipt)
+  const verifiedReceiptId = stringValue(verifiedReceipt?.receipt_id)
+  const verifiedDecision = stringValue(verifiedReceipt?.decision)
+  const verifiedReviewedVersion = normalizeTimestamp(stringValue(verifiedReceipt?.reviewed_content_updated_at))
+  const verifiedNextGate = stringValue(verifiedReceipt?.next_gate)
   const expectedRecordedGate = latestDecision === 'approve'
     ? packet.next_gate
     : latestDecision === 'request_revision'
@@ -186,6 +191,11 @@ export function getSocialContentDecisionReadiness(
     && Boolean(latestReceiptId)
     && isSocialContentDecision(latestDecision)
     && currentGate === expectedRecordedGate
+    && verifiedReceipt?.verified === true
+    && verifiedReceiptId === latestReceiptId
+    && verifiedDecision === latestDecision
+    && verifiedReviewedVersion === packetVersion
+    && verifiedNextGate === currentGate
     ? {
         receipt_id: latestReceiptId,
         decision: latestDecision,
@@ -195,6 +205,9 @@ export function getSocialContentDecisionReadiness(
       }
     : null
 
+  if ((latestReceiptId || latestDecision) && stale && !recordedDecision) {
+    blockers.push('The recorded decision receipt could not be verified against the immutable receipt store.')
+  }
   if ((!itemVersion || !packetVersion || itemVersion !== packetVersion) && !recordedDecision) {
     blockers.push('The review packet is stale for the current content version.')
   }

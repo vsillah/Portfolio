@@ -11,7 +11,7 @@ The checked-in evidence was captured from the protected PR preview after both Po
 ## States shown
 
 - Desktop recorded state: all six evidence receipts remain bound to the reviewed version, the immutable decision receipt is present, and the post-decision row reports `asset_packet` as its current gate.
-- Mobile blocked state: the row version is stale, the challenger receipt is still pending, no immutable decision receipt is present, and all decision controls remain disabled.
+- Mobile blocked state: the row version is stale, the challenger receipt is still pending, metadata claims a completed decision, but no server-verified immutable receipt row is present; all decision controls remain disabled.
 
 The recorder intercepts the fixture APIs, rejects decision writes, records zero provider or external feature requests, and emits H.264 MP4 evidence. It does not render or upload media, create platform drafts, schedule, publish, or send.
 

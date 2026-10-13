@@ -1974,6 +1974,7 @@ function SocialContentDetailPage() {
       }
 
       if (data.item) setItem(data.item as SocialContentItem)
+      await fetchItem({ silent: true })
       const outcome = decision === 'approve'
         ? `Approved for ${data.next_internal_gate || 'the next internal gate'}`
         : decision === 'request_revision'

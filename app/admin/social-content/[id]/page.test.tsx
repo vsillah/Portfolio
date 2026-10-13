@@ -805,6 +805,13 @@ describe('SocialContentDetailRoute visual production review', () => {
       status: 'approved',
       reviewed_by: 'admin-1',
       updated_at: currentVersion,
+      recorded_internal_decision_receipt: {
+        receipt_id: 'decision-receipt-1',
+        decision: 'approve',
+        reviewed_content_updated_at: reviewedVersion,
+        next_gate: 'asset_packet',
+        verified: true,
+      },
       rag_context: {
         ...baseItem.rag_context,
         current_gate: 'asset_packet',
@@ -852,6 +859,62 @@ describe('SocialContentDetailRoute visual production review', () => {
       'href',
       '/admin/social-content/social-1?step=visuals&review=mobile#social-asset-packet-gate',
     )
+  })
+
+  it('blocks a completed-looking decision when the immutable receipt projection is missing', async () => {
+    const reviewedVersion = baseItem.updated_at
+    const currentVersion = '2026-10-12T18:31:00.000Z'
+    const evidenceReceipt = (key: string) => ({
+      receipt_id: `${key}-receipt-1`,
+      status: 'approved',
+      content_updated_at: reviewedVersion,
+    })
+    const unverifiedItem = {
+      ...baseItem,
+      status: 'approved',
+      reviewed_by: 'admin-1',
+      updated_at: currentVersion,
+      rag_context: {
+        ...baseItem.rag_context,
+        current_gate: 'asset_packet',
+        latest_internal_decision_receipt_id: 'decision-receipt-1',
+        latest_internal_decision: 'approve',
+        mobile_decision_review: {
+          version: 'social-content-decision-review/v1',
+          approval_id: 'approval-1',
+          run_id: 'run-1',
+          work_item_id: 'work-1',
+          content_id: 'social-1',
+          content_updated_at: reviewedVersion,
+          current_gate: 'copy_review',
+          next_gate: 'asset_packet',
+          receipts: {
+            source: evidenceReceipt('source'),
+            voice: evidenceReceipt('voice'),
+            framework: evidenceReceipt('framework'),
+            privacy: evidenceReceipt('privacy'),
+            visual: evidenceReceipt('visual'),
+            challenger: evidenceReceipt('challenger'),
+          },
+        },
+      },
+    }
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input)
+      if (url.includes('/topic-backlog')) return { ok: true, json: async () => ({ items: [] }) } as Response
+      if (url.includes('/config')) return { ok: true, json: async () => ({ configs: [] }) } as Response
+      if (url.includes('?status=all')) return { ok: true, json: async () => ({ items: [unverifiedItem] }) } as Response
+      return { ok: true, json: async () => ({ item: unverifiedItem }) } as Response
+    }))
+    mocks.search = 'step=copy&review=mobile'
+
+    render(<SocialContentDetailRoute />)
+
+    const panel = await screen.findByLabelText('Protected mobile Social Content decision')
+    expect(within(panel).getByText('Decision blocked closed')).toBeVisible()
+    expect(within(panel).getByRole('status')).toHaveTextContent('could not be verified against the immutable receipt store')
+    expect(within(panel).queryByRole('link', { name: 'Open asset packet gate' })).not.toBeInTheDocument()
+    expect(within(panel).getByRole('button', { name: 'Approve' })).toBeDisabled()
   })
 
   it('blocks all mobile decisions when a required receipt is missing', async () => {
