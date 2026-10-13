@@ -4011,7 +4011,7 @@ function SocialContentDetailPage() {
       <div data-social-detail-content className="mx-auto w-full max-w-[90rem] space-y-6 px-4 py-6 sm:px-6 lg:px-8">
         <SocialGateDeepLinkLanding routeId={id} itemId={item.id} gateId={APPROVAL_STEP_SECTION_IDS[activeApprovalStep]} completed={completedGateLandings} />
 
-	        {activeApprovalStep === 'copy' && (
+	        {activeApprovalStep === 'copy' && !mobileDecisionMode && (
 	          <section
 	            id="social-copy-gate"
 	            aria-label="Copy review decision gate"
@@ -4095,7 +4095,7 @@ function SocialContentDetailPage() {
 	            {copyRevisionFeedbackFields}
 	          </section>
 	        )}
-	        {activeApprovalStep === 'copy' && (
+	        {activeApprovalStep === 'copy' && !mobileDecisionMode && (
 	          <PractitionerContentReview item={item} finishedCopy={postText} />
 	        )}
 	        {isAgentSocialPilot && (
