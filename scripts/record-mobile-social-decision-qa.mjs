@@ -7,12 +7,9 @@ import { promisify } from 'node:util'
 
 const execFileAsync = promisify(execFile)
 const root = process.env.QA_OUTPUT_ROOT || process.cwd()
-const outputDir = path.join(root, 'docs', 'social-decision-consolidation-qa')
-const rawVideoDir = path.join(root, 'test-results', 'social-decision-consolidation-qa')
-const desktopScreenshotPath = path.join(outputDir, 'desktop-canonical-receipt.png')
-const tabletScreenshotPath = path.join(outputDir, 'tablet-canonical-receipt.png')
-const mobileScreenshotPath = path.join(outputDir, 'mobile-canonical-blocked.png')
-const mp4Path = path.join(outputDir, 'social-decision-consolidation.mp4')
+const outputDir = path.join(root, 'docs', 'social-decision-theme-qa')
+const rawVideoDir = path.join(root, 'test-results', 'social-decision-theme-qa')
+const mp4Path = path.join(outputDir, 'social-decision-theme-parity.mp4')
 const baseUrl = process.env.QA_BASE_URL || 'http://localhost:3011'
 const trustedOidcToken = process.env.VERCEL_OIDC_TOKEN
 const authStatePath = process.env.PLAYWRIGHT_AUTH_STATE
@@ -20,7 +17,6 @@ const contentId = '11111111-2222-4333-8444-555555555555'
 const workItemId = 'work-mobile-qa'
 const qaPath = `/admin/social-content/${contentId}?step=copy&review=mobile&proposal=${workItemId}#social-mobile-decision-receipt`
 const decisionQueuePath = `/admin/agents/coordination?proposal=${workItemId}`
-const runPath = '/admin/agents/runs/run-mobile-qa'
 const version = '2026-10-13T02:31:06.000Z'
 
 await mkdir(outputDir, { recursive: true })
@@ -74,7 +70,7 @@ function socialItem(mode = 'recorded') {
   }
   if (blocked) receipts.challenger = evidenceReceipt('challenger', 'pending')
 
-  const currentVersion = '2026-10-13T02:32:06.000Z'
+  const currentVersion = mode === 'ready' ? version : '2026-10-13T02:32:06.000Z'
   const recorded = mode === 'recorded'
   const claimsRecorded = recorded || blocked
 
@@ -325,15 +321,17 @@ async function captureViewportScreenshot(page, target, screenshotPath, block = '
   if (await header.count()) await header.evaluate((element) => { element.style.visibility = '' })
 }
 
-async function recordViewport(browser, { viewport, screenshotPath, label, mode, storageState }) {
+async function recordViewport(browser, { viewport, screenshotPath, label, mode, theme, colorScheme, interaction, storageState }) {
   const state = { mode }
   const rawDir = path.join(rawVideoDir, label)
   await mkdir(rawDir, { recursive: true })
   const context = await browser.newContext({
     viewport,
+    colorScheme,
     recordVideo: { dir: rawDir, size: viewport },
   })
   const page = await context.newPage()
+  await page.addInitScript((selectedTheme) => window.localStorage.setItem('theme', selectedTheme), theme)
   const authDiagnostics = []
   page.on('request', (request) => {
     if (/\/auth\/v1\//.test(request.url())) authDiagnostics.push(`request ${new URL(request.url()).pathname}`)
@@ -386,11 +384,27 @@ async function recordViewport(browser, { viewport, screenshotPath, label, mode, 
   }
   await panel.scrollIntoViewIfNeeded()
   await page.evaluate((offset) => window.scrollBy(0, offset), viewport.width <= 480 ? -520 : -240)
-  const expectedState = mode === 'recorded' ? 'Recorded decision verified' : 'Decision blocked closed'
-  const stateIndicator = panel.getByText(expectedState)
+  const stateIndicator = mode === 'recorded'
+    ? panel.getByText('Recorded decision verified')
+    : mode === 'blocked'
+      ? panel.getByText('Decision blocked closed')
+      : panel.getByRole('button', { name: 'Approve' })
   await stateIndicator.waitFor()
   await page.waitForTimeout(1600)
-  await captureViewportScreenshot(page, mode === 'blocked' ? stateIndicator : panel, screenshotPath, mode === 'blocked' ? 'center' : 'start')
+  if (mode === 'ready') {
+    if (interaction === 'focus') {
+      await panel.getByRole('button', { name: 'Approve' }).focus()
+    } else if (interaction === 'hover') {
+      await panel.getByRole('button', { name: 'Request revision' }).hover()
+    } else if (interaction === 'pressed') {
+      await panel.getByRole('button', { name: 'Hold' }).hover()
+      await page.mouse.down()
+    }
+    await page.waitForTimeout(900)
+  }
+  const screenshotTarget = mode === 'blocked' || (mode === 'ready' && viewport.width <= 480) ? stateIndicator : panel
+  await captureViewportScreenshot(page, screenshotTarget, screenshotPath, screenshotTarget === panel ? 'start' : 'center')
+  if (interaction === 'pressed') await page.mouse.up()
   if (mode === 'recorded') {
     await panel.getByRole('link', { name: 'Open asset packet gate' }).click()
     const assetPacketGate = page.locator('#social-asset-packet-gate')
@@ -398,16 +412,7 @@ async function recordViewport(browser, { viewport, screenshotPath, label, mode, 
     await assetPacketGate.scrollIntoViewIfNeeded()
     await page.waitForTimeout(1400)
   }
-  await page.waitForTimeout(900)
-
-  await page.goto(`${baseUrl}${runPath}`, { waitUntil: 'domcontentloaded' })
-  const genericBypass = page.getByRole('link', { name: 'Open canonical Social Content decision' }).first()
-  await genericBypass.waitFor({ timeout: 12_000 })
-  await genericBypass.scrollIntoViewIfNeeded()
-  if (await page.getByRole('button', { name: 'Approve' }).count()) {
-    throw new Error('Generic Agent Run approval bypass is still visible for Social Content.')
-  }
-  await page.waitForTimeout(1800)
+  await page.waitForTimeout(1200)
 
   const video = page.video()
   await context.close()
@@ -419,36 +424,30 @@ async function recordViewport(browser, { viewport, screenshotPath, label, mode, 
 
 const browser = await chromium.launch()
 const storageState = await loadMappedStorageState()
-const desktopRaw = await recordViewport(browser, {
-  viewport: { width: 1280, height: 900 },
-  screenshotPath: desktopScreenshotPath,
-  label: 'desktop',
-  mode: 'recorded',
-  storageState,
-})
-const tabletRaw = await recordViewport(browser, {
-  viewport: { width: 768, height: 1024 },
-  screenshotPath: tabletScreenshotPath,
-  label: 'tablet',
-  mode: 'recorded',
-  storageState,
-})
-const mobileRaw = await recordViewport(browser, {
-  viewport: { width: 390, height: 844 },
-  screenshotPath: mobileScreenshotPath,
-  label: 'mobile',
-  mode: 'blocked',
-  storageState,
-})
+const scenarios = [
+  { label: 'light-mobile-focus', viewport: { width: 390, height: 844 }, mode: 'ready', theme: 'light', colorScheme: 'light', interaction: 'focus' },
+  { label: 'light-desktop-hover', viewport: { width: 1280, height: 900 }, mode: 'ready', theme: 'light', colorScheme: 'light', interaction: 'hover' },
+  { label: 'dark-mobile-pressed', viewport: { width: 390, height: 844 }, mode: 'ready', theme: 'dark', colorScheme: 'dark', interaction: 'pressed' },
+  { label: 'dark-desktop-focus', viewport: { width: 1280, height: 900 }, mode: 'ready', theme: 'dark', colorScheme: 'dark', interaction: 'focus' },
+  { label: 'system-mobile-disabled', viewport: { width: 390, height: 844 }, mode: 'blocked', theme: 'system', colorScheme: 'light', interaction: 'disabled' },
+  { label: 'system-desktop-hover', viewport: { width: 1280, height: 900 }, mode: 'ready', theme: 'system', colorScheme: 'dark', interaction: 'hover' },
+]
+const captures = []
+for (const scenario of scenarios) {
+  const screenshotPath = path.join(outputDir, `${scenario.label}.png`)
+  const rawVideoPath = await recordViewport(browser, { ...scenario, screenshotPath, storageState })
+  captures.push({ ...scenario, screenshotPath, rawVideoPath })
+}
 await browser.close()
 
+const ffmpegInputs = captures.flatMap(({ rawVideoPath }) => ['-i', rawVideoPath])
+const ffmpegSegments = captures.map((_, index) => `[${index}:v]scale=1280:900:force_original_aspect_ratio=decrease,pad=1280:900:(ow-iw)/2:(oh-ih)/2:black,setsar=1[v${index}]`).join(';')
+const ffmpegConcat = `${captures.map((_, index) => `[v${index}]`).join('')}concat=n=${captures.length}:v=1:a=0[outv]`
 await execFileAsync('ffmpeg', [
   '-y',
-  '-i', desktopRaw,
-  '-i', tabletRaw,
-  '-i', mobileRaw,
+  ...ffmpegInputs,
   '-filter_complex',
-  '[0:v]scale=1280:900:force_original_aspect_ratio=decrease,pad=1280:900:(ow-iw)/2:(oh-ih)/2:black,setsar=1[desktop];[1:v]scale=1280:900:force_original_aspect_ratio=decrease,pad=1280:900:(ow-iw)/2:(oh-ih)/2:black,setsar=1[tablet];[2:v]scale=1280:900:force_original_aspect_ratio=decrease,pad=1280:900:(ow-iw)/2:(oh-ih)/2:black,setsar=1[mobile];[desktop][tablet][mobile]concat=n=3:v=1:a=0[outv]',
+  `${ffmpegSegments};${ffmpegConcat}`,
   '-map', '[outv]',
   '-c:v', 'libx264',
   '-pix_fmt', 'yuv420p',
@@ -459,9 +458,7 @@ await execFileAsync('ffmpeg', [
 console.log(JSON.stringify({
   baseUrl,
   qaPath,
-  desktopScreenshotPath,
-  tabletScreenshotPath,
-  mobileScreenshotPath,
+  screenshots: captures.map(({ label, screenshotPath }) => ({ label, screenshotPath })),
   videoPath: mp4Path,
   externalRequests: [],
 }, null, 2))

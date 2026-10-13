@@ -164,6 +164,12 @@ type CommentInboxUnavailableState = {
 const APPROVAL_STEPS: ApprovalStep[] = ['context', 'copy', 'visuals', 'draft', 'submit', 'status']
 const COMMENT_REFRESH_SUPPORTED_PLATFORMS = new Set<SocialPlatform>(['youtube', 'instagram', 'facebook', 'x'])
 const COMMENT_REFRESH_ERROR_LIMIT = 3
+const SOCIAL_DECISION_CONTROL_BASE = 'min-h-11 w-full font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-radiant-gold/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background active:translate-y-px disabled:cursor-not-allowed disabled:opacity-45 disabled:active:translate-y-0'
+const SOCIAL_DECISION_ACTION_CLASS: Record<SocialContentDecision, string> = {
+  approve: 'admin-console-button-primary',
+  request_revision: 'admin-console-button-secondary',
+  hold: 'admin-console-button-muted',
+}
 
 function getCommentRefreshRecoveryGuidance(platform: SocialPlatform): string {
   if (platform === 'x') {
@@ -4012,7 +4018,7 @@ function SocialContentDetailPage() {
             } else {
               showMsg('error', 'This decision section is unavailable. Reload the draft and select the approval step again.')
             }
-          }} className="inline-flex min-h-11 items-center rounded-lg border border-radiant-gold/45 px-3 py-2 font-semibold text-radiant-gold">Open current decision</a>
+          }} className={`admin-console-button-secondary ${SOCIAL_DECISION_CONTROL_BASE} sm:w-auto`}>Open current decision</a>
           <details className="w-full text-xs leading-5 text-muted-foreground">
             <summary className="cursor-pointer py-1">Next action and blockers</summary>
             <p>{activeApprovalStepDetail.nextAction}</p>
@@ -6224,7 +6230,7 @@ function SocialContentDetailPage() {
 	              {mobileDecisionReadiness.packet ? (
 	                <Link
 	                  href={`/admin/agents/coordination?proposal=${encodeURIComponent(mobileDecisionReadiness.packet.work_item_id)}`}
-	                  className="inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-lg border border-amber-600/40 px-3 py-2 text-sm font-semibold text-amber-800 hover:bg-amber-500/10 dark:border-radiant-gold/40 dark:text-radiant-gold xl:w-auto"
+	                  className={`admin-console-button-secondary ${SOCIAL_DECISION_CONTROL_BASE} shrink-0 xl:w-auto`}
 	                >
 	                  Open Decision Queue
 	                  <ExternalLink className="h-4 w-4" />
@@ -6323,7 +6329,7 @@ function SocialContentDetailPage() {
 	                {recordedMobileDecision.next_gate === 'asset_packet' ? (
 	                  <Link
 	                    href={`/admin/social-content/${encodeURIComponent(id)}?step=visuals&review=mobile#social-asset-packet-gate`}
-	                    className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-lg border border-emerald-600/40 bg-emerald-500/10 px-4 py-2 text-sm font-semibold text-emerald-900 hover:bg-emerald-500/20 dark:border-emerald-500/40 dark:text-emerald-100"
+	                    className={`admin-console-button-secondary ${SOCIAL_DECISION_CONTROL_BASE} shrink-0 sm:w-auto`}
 	                  >
 	                    Open asset packet gate
 	                    <ChevronRight className="h-4 w-4" />
@@ -6334,18 +6340,16 @@ function SocialContentDetailPage() {
 	              <div className="mt-4 grid gap-2 sm:grid-cols-3">
 	                {(['approve', 'request_revision', 'hold'] as SocialContentDecision[]).map((decision) => {
 	                const isLoading = mobileDecisionAction === decision
-	                const styles = decision === 'approve'
-	                  ? 'bg-emerald-600 text-white hover:bg-emerald-500'
-	                  : decision === 'request_revision'
-	                    ? 'border border-amber-600/50 bg-amber-500/10 text-amber-900 hover:bg-amber-500/20 dark:border-amber-500/50 dark:text-amber-100'
-	                    : 'border border-silicon-slate/80 bg-card text-card-foreground hover:border-gray-500'
 	                return (
 	                  <button
 	                    key={decision}
 	                    type="button"
 	                    onClick={() => handleMobileDecision(decision)}
 	                    disabled={!mobileDecisionReadiness.ready || Boolean(mobileDecisionAction)}
-	                    className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-45 ${styles}`}
+	                    aria-busy={isLoading}
+	                    data-decision-action={decision}
+	                    data-action-hierarchy={decision === 'approve' ? 'primary' : decision === 'request_revision' ? 'secondary' : 'neutral'}
+	                    className={`${SOCIAL_DECISION_ACTION_CLASS[decision]} ${SOCIAL_DECISION_CONTROL_BASE}`}
 	                  >
 	                    {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : decision === 'approve' ? <CheckCircle2 className="h-4 w-4" /> : decision === 'request_revision' ? <RefreshCw className="h-4 w-4" /> : <AlertCircle className="h-4 w-4" />}
 	                    {socialContentDecisionLabel(decision)}
