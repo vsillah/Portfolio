@@ -4,11 +4,14 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   Activity,
   AlertTriangle,
+  ArrowRight,
   CheckCircle2,
   ChevronDown,
   Clock3,
   Database,
+  ExternalLink,
   GitPullRequest,
+  History,
   Newspaper,
   Loader2,
   RefreshCw,
@@ -16,7 +19,7 @@ import {
   ShieldCheck,
 } from 'lucide-react'
 import { getCurrentSession } from '@/lib/auth'
-import type { ProductLifecycleCoverage, SocialTopicLiveCoverage } from '@/lib/social-topic-source-coverage'
+import type { CoverageSourceKey, ProductLifecycleCoverage, SocialTopicLiveCoverage } from '@/lib/social-topic-source-coverage'
 import { SOCIAL_CANDIDATE_PROJECTION_QA_FIXTURE } from '@/lib/social-candidate-projection-qa-contract'
 
 const PRIORITY_PAGE_SIZE = 3
@@ -25,6 +28,20 @@ const BUTTON_CLASS = 'admin-console-button-secondary min-h-9 px-3 focus-visible:
 const INPUT_CLASS = 'input-brand min-h-10 w-full bg-background !pl-9 text-foreground placeholder:text-muted-foreground'
 const DISCLOSURE_CLASS = 'group rounded-lg border border-border bg-muted/30 text-card-foreground'
 const SUMMARY_CLASS = 'flex cursor-pointer list-none items-center gap-3 rounded-lg p-3 transition-colors hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-inset'
+const MOBILE_DEEP_LINK_CLASS = 'inline-flex min-h-10 items-center justify-center gap-1.5 rounded-md border border-border bg-background px-3 py-2 text-xs font-medium text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent'
+
+const RECOVERY_LINKS: Record<CoverageSourceKey, { href: string; label: string }> = {
+  public_momentum: { href: '/admin/source-protocol', label: 'Open Source Protocol' },
+  codex_insights: { href: '/admin/agents/open-brain', label: 'Open approved memory proposals' },
+  repository_documents: { href: '/admin/agents/coordination', label: 'Open Agent Ops evidence' },
+  github_development: { href: '/admin/agents/coordination', label: 'Open GitHub work evidence' },
+  vercel_deployments: { href: '/admin/agents/coordination', label: 'Open deployment evidence' },
+  operational_records: { href: '/admin/agents/coordination', label: 'Open operational evidence' },
+  meeting_summaries: { href: '/admin/meetings', label: 'Open meeting summaries' },
+  owned_media_summaries: { href: '/admin/agents/content-intelligence', label: 'Open Content Intelligence' },
+  app_prototypes: { href: '/admin/content/prototypes', label: 'Open app prototypes' },
+  public_catalog: { href: '/admin/content/products', label: 'Open product catalog' },
+}
 
 function formatDate(value: string | null) {
   if (!value || !Number.isFinite(Date.parse(value))) return 'No successful scan yet'
@@ -117,6 +134,10 @@ export default function SocialSourceCoverageEvidence({
   }, [coverage, directoryQuery])
   const directoryPages = Math.max(1, Math.ceil(directoryProducts.length / DIRECTORY_PAGE_SIZE))
   const visibleDirectoryProducts = directoryProducts.slice(directoryPage * DIRECTORY_PAGE_SIZE, (directoryPage + 1) * DIRECTORY_PAGE_SIZE)
+  const sourceRunHistory = useMemo(() => coverage?.sources
+    .toSorted((a, b) => (b.scanned_at || '').localeCompare(a.scanned_at || '') || a.label.localeCompare(b.label)), [coverage])
+  const blockedSources = useMemo(() => coverage?.sources.filter((source) => source.status === 'blocked') ?? [], [coverage])
+  const reviewBlockerCount = blockedSources.length + (coverage?.trend_work_relevance?.blockers.length ?? 0)
 
   useEffect(() => { setPriorityPage(0) }, [priorityQuery])
   useEffect(() => { setDirectoryPage(0) }, [directoryQuery])
@@ -160,6 +181,21 @@ export default function SocialSourceCoverageEvidence({
         </div>
       ) : coverage ? (
         <div className="mt-4 space-y-4">
+          <div className="sticky top-2 z-20 rounded-lg border border-accent/30 bg-card/95 p-3 shadow-sm backdrop-blur md:static md:shadow-none" data-testid="mobile-decision-inbox">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <div className="text-xs font-semibold uppercase tracking-[0.13em] text-foreground">Mobile decision inbox</div>
+                <p className="mt-1 text-xs text-muted-foreground">Review lineage and freshness from a phone. No decision here can generate, approve, schedule, publish, or send content.</p>
+              </div>
+              <span className="rounded-full border border-accent/40 bg-accent/10 px-2.5 py-1 text-xs font-semibold text-foreground">Review only</span>
+            </div>
+            <nav className="mt-3 grid grid-cols-3 gap-2" aria-label="Decision inbox sections">
+              <a href="#candidate-inbox" className={MOBILE_DEEP_LINK_CLASS}>Candidates <ArrowRight className="h-3.5 w-3.5" /></a>
+              <a href="#source-run-history" className={MOBILE_DEEP_LINK_CLASS}>Run history <ArrowRight className="h-3.5 w-3.5" /></a>
+              <a href="#source-blockers" className={MOBILE_DEEP_LINK_CLASS}>Blockers <ArrowRight className="h-3.5 w-3.5" /></a>
+            </nav>
+          </div>
+
           <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
             {[
               { label: 'Collectors', value: `${summary.healthy}/${coverage.sources.length}`, icon: CheckCircle2 },
@@ -169,7 +205,7 @@ export default function SocialSourceCoverageEvidence({
             ].map((item) => <div key={item.label} className="rounded-lg border border-border bg-muted/40 p-3"><div className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.12em] text-muted-foreground"><item.icon className="h-3.5 w-3.5 text-accent" />{item.label}</div><div className="mt-1 text-lg font-semibold text-foreground">{item.value}</div></div>)}
           </div>
 
-          <div className="rounded-lg border border-border bg-muted/20 p-3" data-testid="trend-work-relevance">
+          <div id="candidate-inbox" className="scroll-mt-24 rounded-lg border border-border bg-muted/20 p-3" data-testid="trend-work-relevance">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.13em] text-muted-foreground"><Newspaper className="h-4 w-4 text-accent" /> Trend-to-work and capability relevance</div>
@@ -186,6 +222,7 @@ export default function SocialSourceCoverageEvidence({
                     <div className="flex flex-wrap items-start justify-between gap-2">
                       <h3 className="text-sm font-semibold text-foreground">{candidate.product_label}</h3>
                       <div className="flex flex-wrap justify-end gap-1.5">
+                        <span className="rounded-full border border-border bg-background px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.08em] text-foreground">Review only</span>
                         <span className="rounded-full border border-border bg-muted/50 px-2 py-1 text-[10px] text-muted-foreground">{candidate.candidate_class.replace(/_/g, ' ')}</span>
                         <span className="rounded-full border border-accent/30 bg-accent/10 px-2 py-1 text-[10px] capitalize text-accent">{candidate.freshness} · score {candidate.priority_score}</span>
                       </div>
@@ -217,11 +254,27 @@ export default function SocialSourceCoverageEvidence({
                     <div className="mt-2 flex flex-wrap gap-1.5">
                       {candidate.topic_identities.map((topic) => <span key={topic} className="rounded-full border border-border bg-muted/50 px-2 py-1 text-[10px] text-muted-foreground">{topic.replace(/_/g, ' ')}</span>)}
                     </div>
-                    <details className="mt-2 text-[10px] text-muted-foreground">
-                      <summary className="cursor-pointer font-mono">{candidate.source_receipt_ids.length} exact receipts · {candidate.status.replace(/_/g, ' ')}</summary>
-                      <ul className="mt-1 space-y-1 break-all font-mono">
-                        {candidate.source_receipt_ids.map((receiptId) => <li key={receiptId}>{receiptId}</li>)}
-                      </ul>
+                    <details className="mt-3 rounded-md border border-border bg-muted/20 text-xs text-muted-foreground">
+                      <summary className="cursor-pointer list-none p-2 font-semibold text-foreground">Source lineage · {candidate.source_receipt_ids.length} exact receipts</summary>
+                      <div className="space-y-2 border-t border-border p-2" data-testid="candidate-source-lineage">
+                        {candidate.receipt_lineage?.length ? candidate.receipt_lineage.map((receipt) => (
+                          <div key={receipt.receipt_id} className="rounded border border-border bg-background p-2">
+                            <div className="flex flex-wrap items-start justify-between gap-2">
+                              <span className="font-medium text-foreground">{receipt.label} · {receipt.source_group.replace(/_/g, ' ')}</span>
+                              <span className="rounded-full border border-border px-2 py-0.5 text-[10px] capitalize">{receipt.privacy_classification.replace(/_/g, ' ')}</span>
+                            </div>
+                            <p className="mt-1 font-mono text-[10px] break-all">{receipt.receipt_id}</p>
+                            <p className="mt-1 text-[10px]">Observed {formatDate(receipt.observed_at)} · approved {formatDate(receipt.approved_at)} · {receipt.lifecycle_stage.replace(/_/g, ' ')}</p>
+                            <p className="mt-1 font-mono text-[10px] break-all">Provenance: {receipt.provenance}</p>
+                            {receipt.evidence_url ? <a href={receipt.evidence_url} target="_blank" rel="noreferrer" className="mt-2 inline-flex items-center gap-1 font-medium text-accent hover:underline">Open source evidence <ExternalLink className="h-3 w-3" /></a> : null}
+                          </div>
+                        )) : (
+                          <ul className="space-y-1 break-all font-mono text-[10px]">
+                            {candidate.source_receipt_ids.map((receiptId) => <li key={receiptId}>{receiptId}</li>)}
+                          </ul>
+                        )}
+                        <p className="text-[10px]">Policy: {candidate.receipt_policy?.policy_id ?? candidate.candidate_class} · exact source receipts only.</p>
+                      </div>
                     </details>
                   </article>
                 ))}
@@ -240,6 +293,58 @@ export default function SocialSourceCoverageEvidence({
                 </ul>
               </div>
             ) : null}
+          </div>
+
+          <section id="source-run-history" className="scroll-mt-24 rounded-lg border border-border bg-muted/20 p-3" aria-labelledby="source-run-history-heading" data-testid="source-run-history">
+            <div className="flex flex-wrap items-start justify-between gap-2">
+              <div>
+                <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.13em] text-muted-foreground"><History className="h-4 w-4 text-accent" /> Twice-weekly source review history</div>
+                <h3 id="source-run-history-heading" className="mt-1 text-sm font-semibold text-foreground">Latest collector snapshots</h3>
+                <p className="mt-1 text-xs leading-5 text-muted-foreground">Use these persisted scan timestamps for the twice-weekly decision rhythm. Opening this inbox only reads the latest approved projection; it does not run a collector.</p>
+              </div>
+              <span className="rounded-full border border-border bg-background px-2.5 py-1 text-xs text-muted-foreground">Projection {formatDate(coverage.generated_at)}</span>
+            </div>
+            <div className="mt-3 grid gap-2 md:grid-cols-2 xl:grid-cols-3">
+              {sourceRunHistory?.map((source) => (
+                <article key={source.key} className="rounded-lg border border-border bg-card p-3 text-card-foreground">
+                  <div className="flex items-start justify-between gap-2">
+                    <h4 className="text-xs font-semibold text-foreground">{source.label}</h4>
+                    <span className={`rounded-full border px-2 py-0.5 text-[10px] capitalize ${source.status === 'ready' ? 'border-border bg-muted/40 text-foreground' : 'border-accent/50 bg-accent/10 text-foreground'}`}>{source.status}</span>
+                  </div>
+                  <p className="mt-2 text-[10px] text-muted-foreground">Scanned {formatDate(source.scanned_at)}</p>
+                  <p className="mt-1 text-[10px] text-muted-foreground">Last success {formatDate(source.last_successful_scan)} · {source.receipt_count} receipts · {source.product_count} products</p>
+                </article>
+              ))}
+            </div>
+          </section>
+
+          <section id="source-blockers" className="scroll-mt-24 rounded-lg border border-border bg-muted/20 p-3" aria-labelledby="source-blockers-heading" data-testid="source-blocker-inbox">
+            <div className="flex flex-wrap items-start justify-between gap-2">
+              <div>
+                <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.13em] text-muted-foreground"><AlertTriangle className="h-4 w-4 text-accent" /> Blockers and recovery</div>
+                <h3 id="source-blockers-heading" className="mt-1 text-sm font-semibold text-foreground">Recovery links stay inside approved review surfaces</h3>
+              </div>
+              <span className="rounded-full border border-accent/40 bg-accent/10 px-2.5 py-1 text-xs font-medium text-foreground">{reviewBlockerCount} review {reviewBlockerCount === 1 ? 'blocker' : 'blockers'}</span>
+            </div>
+            {blockedSources.length ? (
+              <div className="mt-3 grid gap-2 lg:grid-cols-2">
+                {blockedSources.map((source) => {
+                  const recoveryLink = RECOVERY_LINKS[source.key]
+                  return <article key={source.key} className="rounded-lg border border-accent/40 bg-card p-3 text-card-foreground">
+                    <h4 className="text-xs font-semibold text-foreground">{source.label}</h4>
+                    <p className="mt-1 text-xs leading-5 text-muted-foreground">{source.collector_failure}</p>
+                    <p className="mt-2 text-xs leading-5 text-muted-foreground"><strong className="text-foreground">Recovery:</strong> {source.recovery_action}</p>
+                    <a href={recoveryLink.href} className="mt-3 inline-flex min-h-10 items-center gap-1.5 rounded-md border border-border bg-background px-3 py-2 text-xs font-medium text-foreground hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent">{recoveryLink.label} <ArrowRight className="h-3.5 w-3.5" /></a>
+                  </article>
+                })}
+              </div>
+            ) : <p className="mt-3 rounded-lg border border-border bg-card p-3 text-xs text-muted-foreground">No source collector is blocked. Candidate-level receipt and editorial gates still apply.</p>}
+            {coverage.trend_work_relevance?.blockers.length ? <div className="mt-3 break-words rounded-lg border border-accent/40 bg-accent/10 p-3 text-xs text-muted-foreground [overflow-wrap:anywhere]"><strong className="text-foreground">Candidate policy blockers:</strong> {coverage.trend_work_relevance.blockers.join(' · ')} <a href="/admin/source-protocol" className="ml-1 font-medium text-accent hover:underline">Review source policy</a></div> : null}
+          </section>
+
+          <div className="rounded-lg border border-border bg-muted/30 p-3" data-testid="slack-disabled-specification">
+            <div className="flex flex-wrap items-center justify-between gap-2"><span className="text-xs font-semibold text-foreground">Slack mobile review integration specification</span><span className="rounded-full border border-border bg-background px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">Disabled</span></div>
+            <p className="mt-1 text-xs leading-5 text-muted-foreground">No Slack connection, credential, notification, interactive decision, or external send is configured. The links above are ordinary Portfolio deep links for authenticated review.</p>
           </div>
 
           {coverage.products.length === 0 ? (

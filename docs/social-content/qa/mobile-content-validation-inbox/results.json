@@ -1,0 +1,33 @@
+{
+  "route": "http://127.0.0.1:4038/admin/social-content?candidateQa=durable-candidates&workflow=evidence",
+  "scenarios": [
+    {
+      "width": 1440,
+      "height": 900,
+      "theme": "light",
+      "colorScheme": "light"
+    },
+    {
+      "width": 768,
+      "height": 900,
+      "theme": "system",
+      "colorScheme": "dark"
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "theme": "dark",
+      "colorScheme": "dark"
+    }
+  ],
+  "screenshots": [
+    "1440-light-decision-inbox.png",
+    "768-system-decision-inbox.png",
+    "390-dark-decision-inbox.png"
+  ],
+  "walkthrough": "mobile-content-validation-inbox-walkthrough.mp4",
+  "external_writes": 0,
+  "api_mutations": 0,
+  "slack_connection": false,
+  "passed": true
+}
