@@ -1,5 +1,5 @@
 {
-  "route": "http://127.0.0.1:4038/admin/social-content?candidateQa=durable-candidates&workflow=evidence",
+  "route": "https://portfolio-git-codex-amanirenas-mobile-89d7c8-vsillahs-projects.vercel.app/admin/social-content?candidateQa=durable-candidates&workflow=evidence",
   "scenarios": [
     {
       "width": 1440,
