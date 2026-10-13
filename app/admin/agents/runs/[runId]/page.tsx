@@ -9,6 +9,10 @@ import AgentAvatar from '@/components/admin/AgentAvatar'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import SlackReceiptStatus from '@/components/admin/SlackReceiptStatus'
 import { getCurrentSession } from '@/lib/auth'
+import {
+  SOCIAL_CONTENT_INTERNAL_REVIEW_APPROVAL_TYPE,
+  socialContentDecisionHrefFromApproval,
+} from '@/lib/social-content-decision-routing'
 
 type AnyRow = Record<string, unknown>
 
@@ -751,6 +755,10 @@ function ApprovalDecisionList({
         const n8nSummary = n8nApprovalSummary(row)
         const pending = row.status === 'pending'
         const expanded = expandedId === id
+        const socialContentHref = socialContentDecisionHrefFromApproval({
+          approvalType: row.approval_type,
+          metadata: row.metadata,
+        })
 
         return (
           <article key={id} className="rounded-lg border border-silicon-slate/60 bg-background/45 p-4">
@@ -768,7 +776,19 @@ function ApprovalDecisionList({
                 </div>
                 <p className="mt-1 text-sm text-muted-foreground">{summary.actionRequired}</p>
               </div>
-              {pending ? (
+              {pending && socialContentHref ? (
+                <div className="flex shrink-0 flex-col items-start gap-2 xl:items-end">
+                  <Link
+                    href={socialContentHref}
+                    className="inline-flex min-h-11 items-center gap-2 rounded-md border border-radiant-gold/40 bg-radiant-gold/10 px-3 py-2 text-sm font-medium text-radiant-gold hover:bg-radiant-gold/20"
+                  >
+                    Open canonical Social Content decision
+                  </Link>
+                  <p className="max-w-xs text-xs text-muted-foreground xl:text-right">
+                    Copy, asset, privacy, and submission decisions cannot be recorded from the generic run approval form.
+                  </p>
+                </div>
+              ) : pending ? (
                 <div className="flex shrink-0 flex-wrap gap-2">
                   <button
                     type="button"
@@ -929,7 +949,16 @@ function List({
               {rowSummary(row)}
             </pre>
           ) : null}
-          {onDecision && row.status === 'pending' && typeof row.id === 'string' ? (
+          {row.status === 'pending'
+            && row.approval_type === SOCIAL_CONTENT_INTERNAL_REVIEW_APPROVAL_TYPE
+            && socialContentDecisionHrefFromApproval({ approvalType: row.approval_type, metadata: row.metadata }) ? (
+            <Link
+              href={socialContentDecisionHrefFromApproval({ approvalType: row.approval_type, metadata: row.metadata })!}
+              className="mt-3 inline-flex min-h-11 items-center rounded-md border border-radiant-gold/40 bg-radiant-gold/10 px-3 py-2 text-xs font-semibold text-radiant-gold hover:bg-radiant-gold/20"
+            >
+              Open canonical Social Content decision
+            </Link>
+          ) : onDecision && row.status === 'pending' && typeof row.id === 'string' ? (
             <div className="mt-3 flex flex-wrap gap-2">
               <button
                 onClick={() => onDecision(row.id as string, 'approved')}

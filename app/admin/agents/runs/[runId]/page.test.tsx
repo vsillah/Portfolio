@@ -148,6 +148,24 @@ const n8nRunDetail = {
   ],
 }
 
+const socialContentRunDetail = {
+  ...runDetail,
+  approvals: [
+    {
+      id: 'approval-social-1',
+      approval_type: 'social_content_internal_review',
+      status: 'pending',
+      metadata: {
+        review_packet: {
+          content_id: 'social-1',
+          work_item_id: 'work-social-1',
+          current_gate: 'privacy',
+        },
+      },
+    },
+  ],
+}
+
 function setupFetch(detail: unknown = runDetail) {
   vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
     const url = String(input)
@@ -324,6 +342,19 @@ describe('AgentRunDetailPage scoped Shaka context', () => {
     expect(screen.getByText(/It does not activate a workflow, change credentials, enable schedules/i)).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Decision Queue' })).toHaveAttribute('href', '/admin/agents/coordination?proposal=work-n8n-1')
     expect(screen.getByRole('link', { name: 'Kanban card' })).toHaveAttribute('href', '/admin/agents/swarm-board?work_item=work-n8n-1')
+  })
+
+  it('replaces generic Social Content approval buttons with the canonical stage deep link', async () => {
+    setupFetch(socialContentRunDetail)
+    render(<AgentRunDetailPage params={{ runId: 'run-1' }} />)
+
+    expect(await screen.findByRole('link', { name: 'Open canonical Social Content decision' })).toHaveAttribute(
+      'href',
+      '/admin/social-content/social-1?step=visuals&review=mobile&proposal=work-social-1#social-asset-packet-gate',
+    )
+    expect(screen.queryByRole('button', { name: 'Approve' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Decline' })).not.toBeInTheDocument()
+    expect(screen.getByText(/cannot be recorded from the generic run approval form/i)).toBeInTheDocument()
   })
 })
 

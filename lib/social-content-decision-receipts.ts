@@ -182,9 +182,7 @@ export function getSocialContentDecisionReadiness(
   const verifiedNextGate = stringValue(verifiedReceipt?.next_gate)
   const expectedRecordedGate = latestDecision === 'approve'
     ? packet.next_gate
-    : latestDecision === 'request_revision'
-      ? 'copy_revision'
-      : packet.current_gate
+    : packet.current_gate
   const recordedDecision = blockers.length === 0
     && packet.content_id === item.id
     && Boolean(itemVersion && packetVersion && itemVersion !== packetVersion)
@@ -229,11 +227,13 @@ export function socialContentDecisionIdempotencyKey(input: {
   approvalId: string
   contentUpdatedAt: string
   decision: SocialContentDecision
+  currentGate?: string
 }) {
   return [
     'social-content-decision',
     input.approvalId,
     encodeURIComponent(new Date(input.contentUpdatedAt).toISOString()),
+    input.currentGate || 'unbound-gate',
     input.decision,
   ].join(':')
 }

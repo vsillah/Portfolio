@@ -7,6 +7,7 @@ import {
   socialContentDecisionIdempotencyKey,
 } from '@/lib/social-content-decision-receipts'
 import type { SocialContentItem } from '@/lib/social-content'
+import { socialContentCanonicalCommand } from '@/lib/social-content-decision-routing'
 
 export const dynamic = 'force-dynamic'
 
@@ -75,14 +76,29 @@ export async function POST(
   // row freshness, which makes a retry safe after the first decision changed
   // the Social Content row version. A stale first attempt still fails closed.
   const packet = readiness.packet
+  if (body.work_item_id !== packet.work_item_id) {
+    return NextResponse.json({
+      error: 'Decision Queue entry binding is missing or stale.',
+      code: 'SOCIAL_DECISION_WORK_ITEM_MISMATCH',
+      canonical_href: `/admin/agents/coordination?proposal=${encodeURIComponent(packet.work_item_id)}`,
+    }, { status: 409 })
+  }
+  const commandName = socialContentCanonicalCommand(packet.current_gate, body.decision)
+  if (!commandName) {
+    return NextResponse.json({
+      error: 'The review packet does not name a supported canonical Social Content stage.',
+      code: 'SOCIAL_DECISION_STAGE_UNSUPPORTED',
+    }, { status: 409 })
+  }
   const idempotencyKey = socialContentDecisionIdempotencyKey({
     approvalId: packet.approval_id,
     contentUpdatedAt: packet.content_updated_at,
+    currentGate: packet.current_gate,
     decision: body.decision,
   })
 
   const { data: receipt, error: decisionError } = await supabaseAdmin.rpc(
-    'record_social_content_decision',
+    'record_social_content_stage_decision',
     {
       p_social_content_id: params.id,
       p_approval_id: packet.approval_id,
@@ -90,6 +106,7 @@ export async function POST(
       p_decision: body.decision,
       p_decided_by_user_id: auth.user.id,
       p_idempotency_key: idempotencyKey,
+      p_command_name: commandName,
     },
   )
 
@@ -116,5 +133,6 @@ export async function POST(
     item: updatedItem,
     next_internal_gate: body.decision === 'approve' ? packet.next_gate : 'copy_revision',
     external_execution: false,
+    canonical_command: commandName,
   })
 }
