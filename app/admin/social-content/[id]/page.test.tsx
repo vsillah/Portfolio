@@ -792,6 +792,68 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(screen.queryByText('Copy Review Decision')).not.toBeInTheDocument()
   })
 
+  it('shows the immutable approval receipt after the decision advances the content version', async () => {
+    const reviewedVersion = baseItem.updated_at
+    const currentVersion = '2026-10-12T18:31:00.000Z'
+    const evidenceReceipt = (key: string) => ({
+      receipt_id: `${key}-receipt-1`,
+      status: 'approved',
+      content_updated_at: reviewedVersion,
+    })
+    const decidedItem = {
+      ...baseItem,
+      status: 'approved',
+      reviewed_by: 'admin-1',
+      updated_at: currentVersion,
+      rag_context: {
+        ...baseItem.rag_context,
+        current_gate: 'asset_packet',
+        latest_internal_decision_receipt_id: 'decision-receipt-1',
+        latest_internal_decision: 'approve',
+        mobile_decision_review: {
+          version: 'social-content-decision-review/v1',
+          approval_id: 'approval-1',
+          run_id: 'run-1',
+          work_item_id: 'work-1',
+          content_id: 'social-1',
+          content_updated_at: reviewedVersion,
+          current_gate: 'copy_review',
+          next_gate: 'asset_packet',
+          receipts: {
+            source: evidenceReceipt('source'),
+            voice: evidenceReceipt('voice'),
+            framework: evidenceReceipt('framework'),
+            privacy: evidenceReceipt('privacy'),
+            visual: evidenceReceipt('visual'),
+            challenger: evidenceReceipt('challenger'),
+          },
+          candidate_projection: { headline: 'Read-only candidate' },
+        },
+      },
+    }
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input)
+      if (url.includes('/topic-backlog')) return { ok: true, json: async () => ({ items: [] }) } as Response
+      if (url.includes('/config')) return { ok: true, json: async () => ({ configs: [] }) } as Response
+      if (url.includes('?status=all')) return { ok: true, json: async () => ({ items: [decidedItem] }) } as Response
+      return { ok: true, json: async () => ({ item: decidedItem }) } as Response
+    }))
+    mocks.search = 'step=copy&review=mobile'
+
+    render(<SocialContentDetailRoute />)
+
+    const panel = await screen.findByLabelText('Protected mobile Social Content decision')
+    expect(within(panel).getByRole('heading', { name: 'Decision recorded. Next: asset packet.' })).toBeVisible()
+    expect(within(panel).getByRole('status')).toHaveTextContent('Recorded decision verified')
+    expect(within(panel).getByRole('status')).toHaveTextContent('decision-receipt-1')
+    expect(within(panel).getByRole('status')).toHaveTextContent('asset_packet')
+    expect(within(panel).queryByRole('button', { name: 'Approve' })).not.toBeInTheDocument()
+    expect(within(panel).getByRole('link', { name: 'Open asset packet gate' })).toHaveAttribute(
+      'href',
+      '/admin/social-content/social-1?step=visuals&review=mobile#social-asset-packet-gate',
+    )
+  })
+
   it('blocks all mobile decisions when a required receipt is missing', async () => {
     const mobileItem = {
       ...baseItem,

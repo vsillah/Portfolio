@@ -38,6 +38,15 @@ export type SocialContentDecisionReadiness = {
   stale: boolean
   blockers: string[]
   packet: SocialContentDecisionReviewPacket | null
+  recorded_decision: SocialContentRecordedDecision | null
+}
+
+export type SocialContentRecordedDecision = {
+  receipt_id: string
+  decision: SocialContentDecision
+  reviewed_content_updated_at: string
+  current_content_updated_at: string
+  next_gate: string
 }
 
 function recordValue(value: unknown): Record<string, unknown> | null {
@@ -133,6 +142,7 @@ export function getSocialContentDecisionReadiness(
       stale: false,
       blockers: ['The central Decision Queue review packet is missing.'],
       packet: null,
+      recorded_decision: null,
     }
   }
 
@@ -142,6 +152,7 @@ export function getSocialContentDecisionReadiness(
       stale: false,
       blockers: ['The central Decision Queue review packet is incomplete or malformed.'],
       packet: null,
+      recorded_decision: null,
     }
   }
 
@@ -149,9 +160,6 @@ export function getSocialContentDecisionReadiness(
   const packetVersion = normalizeTimestamp(packet.content_updated_at)
   const stale = packet.content_id !== item.id || !itemVersion || !packetVersion || itemVersion !== packetVersion
   if (packet.content_id !== item.id) blockers.push('The packet is bound to a different Social Content item.')
-  if (!itemVersion || !packetVersion || itemVersion !== packetVersion) {
-    blockers.push('The review packet is stale for the current content version.')
-  }
 
   for (const key of SOCIAL_CONTENT_DECISION_RECEIPT_KEYS) {
     const receipt = packet.receipts[key]
@@ -164,11 +172,39 @@ export function getSocialContentDecisionReadiness(
     }
   }
 
+  const latestReceiptId = stringValue(ragContext?.latest_internal_decision_receipt_id)
+  const latestDecision = stringValue(ragContext?.latest_internal_decision)
+  const currentGate = stringValue(ragContext?.current_gate)
+  const expectedRecordedGate = latestDecision === 'approve'
+    ? packet.next_gate
+    : latestDecision === 'request_revision'
+      ? 'copy_revision'
+      : packet.current_gate
+  const recordedDecision = blockers.length === 0
+    && packet.content_id === item.id
+    && Boolean(itemVersion && packetVersion && itemVersion !== packetVersion)
+    && Boolean(latestReceiptId)
+    && isSocialContentDecision(latestDecision)
+    && currentGate === expectedRecordedGate
+    ? {
+        receipt_id: latestReceiptId,
+        decision: latestDecision,
+        reviewed_content_updated_at: packetVersion!,
+        current_content_updated_at: itemVersion!,
+        next_gate: currentGate,
+      }
+    : null
+
+  if ((!itemVersion || !packetVersion || itemVersion !== packetVersion) && !recordedDecision) {
+    blockers.push('The review packet is stale for the current content version.')
+  }
+
   return {
-    ready: blockers.length === 0,
+    ready: blockers.length === 0 && !stale,
     stale,
     blockers,
     packet,
+    recorded_decision: recordedDecision,
   }
 }
 

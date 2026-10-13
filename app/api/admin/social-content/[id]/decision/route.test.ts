@@ -136,6 +136,11 @@ describe('POST /api/admin/social-content/[id]/decision', () => {
 
   it('returns the existing immutable receipt on a retry after the item version advanced', async () => {
     const advancedItem = reviewItem('2026-10-12T18:31:00.000Z')
+    Object.assign(advancedItem.rag_context, {
+      current_gate: 'visual_review',
+      latest_internal_decision_receipt_id: '55555555-5555-4555-8555-555555555555',
+      latest_internal_decision: 'approve',
+    })
     mocks.single.mockReset()
     mocks.single
       .mockResolvedValueOnce({ data: advancedItem, error: null })

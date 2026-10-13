@@ -2870,6 +2870,7 @@ function SocialContentDetailPage() {
   const previewFixtureReason = asString(qaFixture?.reason) || 'Preview fixture is read-only.'
   const previewFixtureNextAction = asString(qaFixture?.next_action) || 'Review the evidence, then return to Social Content or the PR handoff.'
   const mobileDecisionReadiness = getSocialContentDecisionReadiness(item)
+  const recordedMobileDecision = mobileDecisionReadiness.recorded_decision
   const mobileDecisionMode = searchParams.get('review') === 'mobile'
     || Boolean(asRecord(ragContext?.mobile_decision_review))
   const isAgentSocialPilot = ragContext?.source === 'agent_ops_social_outreach_goal'
@@ -6198,7 +6199,11 @@ function SocialContentDetailPage() {
 	            <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
 	              <div className="min-w-0">
 	                <p className="admin-console-eyebrow">Protected mobile decision</p>
-	                <h2 className="mt-1 text-lg font-semibold text-foreground">One decision. One version. One immutable receipt.</h2>
+	                <h2 className="mt-1 text-lg font-semibold text-foreground">
+	                  {recordedMobileDecision
+	                    ? `Decision recorded. Next: ${recordedMobileDecision.next_gate.replace(/_/g, ' ')}.`
+	                    : 'One decision. One version. One immutable receipt.'}
+	                </h2>
 	                <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">
 	                  This control uses the central Decision Queue packet and advances only one internal review gate. It cannot enable Slack, render or upload media, schedule, publish, send, or change provider credentials.
 	                </p>
@@ -6217,7 +6222,11 @@ function SocialContentDetailPage() {
 	            <div className="mt-4 grid gap-3 md:grid-cols-3">
 	              <div className="rounded-lg border border-silicon-slate/70 bg-background/35 p-3">
 	                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Action</p>
-	                <p className="mt-1 text-sm font-semibold text-foreground">Record internal review decision</p>
+	                <p className="mt-1 text-sm font-semibold text-foreground">
+	                  {recordedMobileDecision
+	                    ? `${socialContentDecisionLabel(recordedMobileDecision.decision)} recorded`
+	                    : 'Record internal review decision'}
+	                </p>
 	              </div>
 	              <div className="rounded-lg border border-silicon-slate/70 bg-background/35 p-3">
 	                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Bound value</p>
@@ -6228,7 +6237,9 @@ function SocialContentDetailPage() {
 	              <div className="rounded-lg border border-silicon-slate/70 bg-background/35 p-3">
 	                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Expected result</p>
 	                <p className="mt-1 text-sm text-foreground">
-	                  {mobileDecisionReadiness.packet
+	                  {recordedMobileDecision
+	                    ? `Immutable receipt recorded; the next internal gate is ${recordedMobileDecision.next_gate}.`
+	                    : mobileDecisionReadiness.packet
 	                    ? `Approve moves to ${mobileDecisionReadiness.packet.next_gate}; revision returns to copy; hold stays here.`
 	                    : 'Actions remain locked until a receipt-complete Decision Queue packet is attached.'}
 	                </p>
@@ -6262,7 +6273,24 @@ function SocialContentDetailPage() {
 	              </p>
 	            </div>
 
-	            {!mobileDecisionReadiness.ready ? (
+	            {recordedMobileDecision ? (
+	              <div className="mt-4 rounded-lg border border-emerald-500/35 bg-emerald-500/10 p-3" role="status">
+	                <div className="flex items-start gap-2">
+	                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-700 dark:text-emerald-300" />
+	                  <div className="min-w-0">
+	                    <p className="text-sm font-semibold text-emerald-900 dark:text-emerald-100">Recorded decision verified</p>
+	                    <p className="mt-1 text-xs leading-5 text-emerald-800/85 dark:text-emerald-100/80">
+	                      {socialContentDecisionLabel(recordedMobileDecision.decision)} is recorded under immutable receipt{' '}
+	                      <span className="break-all font-mono">{recordedMobileDecision.receipt_id}</span>. The content advanced to{' '}
+	                      <span className="font-semibold">{recordedMobileDecision.next_gate}</span>; repeat decision controls remain locked and no external action was authorized.
+	                    </p>
+	                    <p className="mt-1 text-[11px] leading-5 text-emerald-800/70 dark:text-emerald-100/65">
+	                      Reviewed version {recordedMobileDecision.reviewed_content_updated_at} · current version {recordedMobileDecision.current_content_updated_at}
+	                    </p>
+	                  </div>
+	                </div>
+	              </div>
+	            ) : !mobileDecisionReadiness.ready ? (
 	              <div className="mt-4 rounded-lg border border-red-500/35 bg-red-500/10 p-3" role="status">
 	                <div className="flex items-start gap-2">
 	                  <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-red-700 dark:text-red-300" />
@@ -6276,8 +6304,22 @@ function SocialContentDetailPage() {
 	              </div>
 	            ) : null}
 
-	            <div className="mt-4 grid gap-2 sm:grid-cols-3">
-	              {(['approve', 'request_revision', 'hold'] as SocialContentDecision[]).map((decision) => {
+	            {recordedMobileDecision ? (
+	              <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+	                <p className="text-xs leading-5 text-muted-foreground">This panel is now a receipt view. A new decision requires a new version-bound review packet.</p>
+	                {recordedMobileDecision.next_gate === 'asset_packet' ? (
+	                  <Link
+	                    href={`/admin/social-content/${encodeURIComponent(id)}?step=visuals&review=mobile#social-asset-packet-gate`}
+	                    className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-lg border border-emerald-600/40 bg-emerald-500/10 px-4 py-2 text-sm font-semibold text-emerald-900 hover:bg-emerald-500/20 dark:border-emerald-500/40 dark:text-emerald-100"
+	                  >
+	                    Open asset packet gate
+	                    <ChevronRight className="h-4 w-4" />
+	                  </Link>
+	                ) : null}
+	              </div>
+	            ) : (
+	              <div className="mt-4 grid gap-2 sm:grid-cols-3">
+	                {(['approve', 'request_revision', 'hold'] as SocialContentDecision[]).map((decision) => {
 	                const isLoading = mobileDecisionAction === decision
 	                const styles = decision === 'approve'
 	                  ? 'bg-emerald-600 text-white hover:bg-emerald-500'
@@ -6296,8 +6338,9 @@ function SocialContentDetailPage() {
 	                    {socialContentDecisionLabel(decision)}
 	                  </button>
 	                )
-	              })}
-	            </div>
+	                })}
+	              </div>
+	            )}
 	          </section>
 	        )}
 
