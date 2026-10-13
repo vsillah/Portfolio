@@ -771,8 +771,8 @@ describe('SocialContentDetailRoute visual production review', () => {
     render(<SocialContentDetailRoute />)
 
     const panel = await screen.findByLabelText('Protected mobile Social Content decision')
-    expect(within(panel).getByText('One decision. One version. One immutable receipt.')).toBeInTheDocument()
-    expect(within(panel).getByText('Candidate projection is read-only')).toBeInTheDocument()
+    expect(within(panel).getByText('One decision. One version. One immutable receipt.')).toHaveClass('text-foreground')
+    expect(within(panel).getByText('Candidate projection is read-only')).toHaveClass('text-blue-900', 'dark:text-blue-100')
     expect(within(panel).getByRole('link', { name: 'Open Decision Queue' })).toHaveAttribute(
       'href',
       '/admin/agents/coordination?proposal=work-1',
@@ -824,7 +824,7 @@ describe('SocialContentDetailRoute visual production review', () => {
     render(<SocialContentDetailRoute />)
 
     const panel = await screen.findByLabelText('Protected mobile Social Content decision')
-    expect(within(panel).getByText('Decision blocked closed')).toBeInTheDocument()
+    expect(within(panel).getByText('Decision blocked closed')).toHaveClass('text-red-900', 'dark:text-red-100')
     expect(within(panel).getByRole('status')).toHaveTextContent(/incomplete|missing/i)
     expect(within(panel).getByRole('button', { name: 'Approve' })).toBeDisabled()
     expect(within(panel).getByRole('button', { name: 'Request revision' })).toBeDisabled()

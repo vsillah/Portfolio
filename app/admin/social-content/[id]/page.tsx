@@ -6198,15 +6198,15 @@ function SocialContentDetailPage() {
 	            <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
 	              <div className="min-w-0">
 	                <p className="admin-console-eyebrow">Protected mobile decision</p>
-	                <h2 className="mt-1 text-lg font-semibold text-gray-100">One decision. One version. One immutable receipt.</h2>
-	                <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-300">
+	                <h2 className="mt-1 text-lg font-semibold text-foreground">One decision. One version. One immutable receipt.</h2>
+	                <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">
 	                  This control uses the central Decision Queue packet and advances only one internal review gate. It cannot enable Slack, render or upload media, schedule, publish, send, or change provider credentials.
 	                </p>
 	              </div>
 	              {mobileDecisionReadiness.packet ? (
 	                <Link
 	                  href={`/admin/agents/coordination?proposal=${encodeURIComponent(mobileDecisionReadiness.packet.work_item_id)}`}
-	                  className="inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-lg border border-radiant-gold/40 px-3 py-2 text-sm font-semibold text-radiant-gold hover:bg-radiant-gold/10 xl:w-auto"
+	                  className="inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-lg border border-amber-600/40 px-3 py-2 text-sm font-semibold text-amber-800 hover:bg-amber-500/10 dark:border-radiant-gold/40 dark:text-radiant-gold xl:w-auto"
 	                >
 	                  Open Decision Queue
 	                  <ExternalLink className="h-4 w-4" />
@@ -6216,18 +6216,18 @@ function SocialContentDetailPage() {
 
 	            <div className="mt-4 grid gap-3 md:grid-cols-3">
 	              <div className="rounded-lg border border-silicon-slate/70 bg-background/35 p-3">
-	                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">Action</p>
-	                <p className="mt-1 text-sm font-semibold text-gray-100">Record internal review decision</p>
+	                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Action</p>
+	                <p className="mt-1 text-sm font-semibold text-foreground">Record internal review decision</p>
 	              </div>
 	              <div className="rounded-lg border border-silicon-slate/70 bg-background/35 p-3">
-	                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">Bound value</p>
-	                <p className="mt-1 break-all text-xs text-gray-200">
+	                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Bound value</p>
+	                <p className="mt-1 break-all text-xs text-foreground">
 	                  {mobileDecisionReadiness.packet?.content_updated_at || item.updated_at}
 	                </p>
 	              </div>
 	              <div className="rounded-lg border border-silicon-slate/70 bg-background/35 p-3">
-	                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-500">Expected result</p>
-	                <p className="mt-1 text-sm text-gray-200">
+	                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Expected result</p>
+	                <p className="mt-1 text-sm text-foreground">
 	                  {mobileDecisionReadiness.packet
 	                    ? `Approve moves to ${mobileDecisionReadiness.packet.next_gate}; revision returns to copy; hold stays here.`
 	                    : 'Actions remain locked until a receipt-complete Decision Queue packet is attached.'}
@@ -6242,20 +6242,20 @@ function SocialContentDetailPage() {
 	                return (
 	                  <div key={key} className={`rounded-lg border px-3 py-2 ${passed ? 'border-emerald-500/30 bg-emerald-500/10' : 'border-red-500/30 bg-red-500/10'}`}>
 	                    <div className="flex items-center justify-between gap-2">
-	                      <span className="text-xs font-semibold capitalize text-gray-100">{key}</span>
-	                      <span className={`text-[10px] font-semibold uppercase tracking-[0.12em] ${passed ? 'text-emerald-200' : 'text-red-200'}`}>
+	                      <span className="text-xs font-semibold capitalize text-foreground">{key}</span>
+	                      <span className={`text-[10px] font-semibold uppercase tracking-[0.12em] ${passed ? 'text-emerald-800 dark:text-emerald-200' : 'text-red-800 dark:text-red-200'}`}>
 	                        {passed ? 'ready' : 'blocked'}
 	                      </span>
 	                    </div>
-	                    <p className="mt-1 truncate text-[11px] text-gray-400">{receipt?.receipt_id || 'receipt missing'}</p>
+	                    <p className="mt-1 truncate text-[11px] text-muted-foreground">{receipt?.receipt_id || 'receipt missing'}</p>
 	                  </div>
 	                )
 	              })}
 	            </div>
 
 	            <div className="mt-4 rounded-lg border border-blue-500/25 bg-blue-500/10 p-3" aria-readonly="true">
-	              <p className="text-xs font-semibold text-blue-100">Candidate projection is read-only</p>
-	              <p className="mt-1 text-xs leading-5 text-blue-100/75">
+	              <p className="text-xs font-semibold text-blue-900 dark:text-blue-100">Candidate projection is read-only</p>
+	              <p className="mt-1 text-xs leading-5 text-blue-800/80 dark:text-blue-100/75">
 	                {mobileDecisionReadiness.packet?.candidate_projection
 	                  ? `${Object.keys(mobileDecisionReadiness.packet.candidate_projection).length} projected field(s) are attached to the immutable receipt snapshot; these controls cannot edit them.`
 	                  : 'No candidate projection is attached. Decision controls cannot create or edit one.'}
@@ -6265,10 +6265,10 @@ function SocialContentDetailPage() {
 	            {!mobileDecisionReadiness.ready ? (
 	              <div className="mt-4 rounded-lg border border-red-500/35 bg-red-500/10 p-3" role="status">
 	                <div className="flex items-start gap-2">
-	                  <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-red-300" />
+	                  <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-red-700 dark:text-red-300" />
 	                  <div>
-	                    <p className="text-sm font-semibold text-red-100">Decision blocked closed</p>
-	                    <ul className="mt-1 space-y-1 text-xs leading-5 text-red-100/80">
+	                    <p className="text-sm font-semibold text-red-900 dark:text-red-100">Decision blocked closed</p>
+	                    <ul className="mt-1 space-y-1 text-xs leading-5 text-red-800/85 dark:text-red-100/80">
 	                      {mobileDecisionReadiness.blockers.map((blocker) => <li key={blocker}>- {blocker}</li>)}
 	                    </ul>
 	                  </div>
@@ -6282,8 +6282,8 @@ function SocialContentDetailPage() {
 	                const styles = decision === 'approve'
 	                  ? 'bg-emerald-600 text-white hover:bg-emerald-500'
 	                  : decision === 'request_revision'
-	                    ? 'border border-amber-500/50 bg-amber-500/10 text-amber-100 hover:bg-amber-500/20'
-	                    : 'border border-silicon-slate/80 bg-gray-900 text-gray-200 hover:border-gray-500'
+	                    ? 'border border-amber-600/50 bg-amber-500/10 text-amber-900 hover:bg-amber-500/20 dark:border-amber-500/50 dark:text-amber-100'
+	                    : 'border border-silicon-slate/80 bg-card text-card-foreground hover:border-gray-500'
 	                return (
 	                  <button
 	                    key={decision}
