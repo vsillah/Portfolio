@@ -65,6 +65,7 @@ const coverage = {
 
 describe('SocialSourceCoverageEvidence', () => {
   beforeEach(() => {
+    window.history.replaceState({}, '', '/admin/social-content?workflow=evidence')
     mocks.getCurrentSession.mockResolvedValue({ access_token: 'token' })
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => ({ coverage }) }))
   })
@@ -80,7 +81,7 @@ describe('SocialSourceCoverageEvidence', () => {
     expect(within(priorityList).getAllByTestId('coverage-product-row').map((row) => row.textContent)).toEqual(expect.arrayContaining([
       expect.stringContaining('Dark Castle Chess'), expect.stringContaining('Accelerated'), expect.stringContaining('Agentified'),
     ]))
-    expect(screen.getByText('Priority gaps').parentElement).toHaveTextContent('1')
+    expect(screen.getByTestId('priority-gaps-metric')).toHaveTextContent('1')
     expect([...priorityList.querySelectorAll('summary')].every((summary) => !summary.textContent?.includes('dark_castle_chess'))).toBe(true)
     expect(screen.getByText('Collector freshness, failures, and recovery')).toBeInTheDocument()
   })
@@ -139,7 +140,7 @@ describe('SocialSourceCoverageEvidence', () => {
     const candidates = within(section).getAllByTestId('trend-work-candidate')
     expect(candidates[0]).toHaveTextContent('Jev')
     expect(candidates[0]).toHaveTextContent('Approved public momentum around governed capability analysis.')
-    expect(candidates[0]).toHaveTextContent('3 exact receipts · review only')
+    expect(candidates[0]).toHaveTextContent('Source lineage · 3 exact receipts')
     expect(candidates[1]).toHaveTextContent('Accelerated')
     expect(candidates[1]).toHaveTextContent('Confidence: high (92%)')
     expect(candidates[1]).toHaveTextContent('positive')
@@ -149,11 +150,48 @@ describe('SocialSourceCoverageEvidence', () => {
     expect(candidates[1]).toHaveTextContent('Angle: Review the evidence-bound thematic opportunity.')
     expect(within(candidates[1]).getByRole('link', { name: 'View attributable public source' })).toHaveAttribute('href', 'https://social.example.com/course-pattern')
     expect(candidates[1]).toHaveTextContent('Review the exact receipts')
-    expect(candidates[1]).toHaveTextContent('3 exact receipts · review only')
-    fireEvent.click(within(candidates[1]).getByText('3 exact receipts · review only'))
+    expect(candidates[1]).toHaveTextContent('Source lineage · 3 exact receipts')
+    fireEvent.click(within(candidates[1]).getByText('Source lineage · 3 exact receipts'))
     expect(candidates[1]).toHaveTextContent('course-trend-1')
     expect(candidates[1]).toHaveTextContent('accelerated-product-1')
     expect(section).toHaveTextContent('no reconciliation, copy, approval, provider call, draft, render, upload, schedule, post, or external send is created here')
+  })
+
+  it('searches, resets, and pages candidates in groups of four', async () => {
+    const baseCandidates = coverage.trend_work_relevance.candidates
+    const expandedCoverage = {
+      ...coverage,
+      trend_work_relevance: {
+        ...coverage.trend_work_relevance,
+        candidates: [
+          ...baseCandidates,
+          ...Array.from({ length: 4 }, (_, index) => ({
+            ...baseCandidates[0],
+            candidate_key: `trend-work:expanded-${index + 1}`,
+            product_identity: `expanded_${index + 1}`,
+            product_label: `Expanded Candidate ${index + 1}`,
+            triggering_event: `Synthetic event ${index + 1}`,
+          })),
+        ],
+      },
+    }
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, json: async () => ({ coverage: expandedCoverage }) }))
+
+    render(<SocialSourceCoverageEvidence active />)
+    const list = await screen.findByTestId('trend-work-candidate-list')
+    expect(within(list).getAllByTestId('trend-work-candidate')).toHaveLength(4)
+    expect(screen.getByText('Candidate page 1 of 2 · 6 matches')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Next candidates' }))
+    expect(within(list).getAllByTestId('trend-work-candidate')).toHaveLength(2)
+    expect(screen.getByText('Candidate page 2 of 2 · 6 matches')).toBeInTheDocument()
+
+    fireEvent.change(screen.getByPlaceholderText('Search review candidates'), { target: { value: 'Expanded Candidate 4' } })
+    expect(within(list).getAllByTestId('trend-work-candidate')).toHaveLength(1)
+    expect(within(list).getByText('Expanded Candidate 4')).toBeInTheDocument()
+    expect(screen.getByText('Candidate page 1 of 1 · 1 matches')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Reset candidate search' }))
+    expect(screen.getByPlaceholderText('Search review candidates')).toHaveValue('')
+    expect(screen.getByText('Candidate page 1 of 2 · 6 matches')).toBeInTheDocument()
   })
 
   it('renders the isolated synthetic candidate acceptance fixture with a visible blocker', async () => {
@@ -167,12 +205,81 @@ describe('SocialSourceCoverageEvidence', () => {
     expect(banner).toHaveTextContent('No production data, reconciliation, model or provider call, render, upload, scheduling, publishing, external send, or candidate approval')
     expect(fetch).toHaveBeenCalledWith('/api/admin/social-content/source-coverage?qa_fixture=durable-candidates', expect.any(Object))
     const candidates = screen.getAllByTestId('trend-work-candidate')
-    expect(candidates).toHaveLength(3)
+    expect(candidates).toHaveLength(4)
+    expect(screen.getByText('Candidate page 1 of 2 · 5 matches')).toBeInTheDocument()
     expect(candidates.some((candidate) => candidate.textContent?.includes('Jev') && candidate.textContent.includes('public momentum repository'))).toBe(true)
-    expect(candidates.some((candidate) => candidate.textContent?.includes('Dark Castle Chess') && candidate.textContent.includes('active github product'))).toBe(true)
     expect(candidates.some((candidate) => candidate.textContent?.includes('Agentified') && candidate.textContent.includes('public theme owned capability'))).toBe(true)
+    expect(candidates.every((candidate) => candidate.textContent?.includes('Review only'))).toBe(true)
+    const jevLineageToggle = within(candidates[0]).getByText(/Source lineage · 2 exact receipts/i)
+    fireEvent.click(jevLineageToggle)
+    const jevLineage = within(candidates[0]).getByTestId('candidate-source-lineage')
+    expect(jevLineage).toHaveTextContent('approved_public_momentum:public_news:example.com:qa:jev-public-momentum')
+    expect(jevLineage).toHaveTextContent('synthetic_qa:repository:jev')
+    expect(within(jevLineage).getAllByRole('link', { name: 'Open source evidence' })).toHaveLength(2)
     expect(screen.getByTestId('trend-work-blockers')).toHaveTextContent('candidate_receipt_policy_incomplete:public_momentum_repository_v1:policy_watch:repository_evidence')
+    fireEvent.click(screen.getByRole('button', { name: 'Next candidates' }))
+    expect(screen.getByText('Candidate page 2 of 2 · 5 matches')).toBeInTheDocument()
+    expect(screen.getByTestId('trend-work-candidate')).toHaveTextContent('Dark Castle Chess')
+    expect(screen.getByTestId('trend-work-candidate')).toHaveTextContent('active github product')
     expect(screen.getByRole('button', { name: 'Reload fixture' })).toBeInTheDocument()
+  })
+
+  it('provides a mobile review inbox with run history, recovery deep links, and disabled Slack specification', async () => {
+    render(<SocialSourceCoverageEvidence active />)
+
+    const inbox = await screen.findByTestId('mobile-decision-inbox')
+    expect(inbox).toHaveTextContent('Mobile decision inbox')
+    expect(inbox).toHaveTextContent('Review only')
+    const candidatesTab = within(inbox).getByRole('tab', { name: 'Candidates' })
+    const runHistoryTab = within(inbox).getByRole('tab', { name: 'Run history' })
+    const blockersTab = within(inbox).getByRole('tab', { name: 'Blockers' })
+    expect(candidatesTab).toHaveAttribute('href', '#candidate-inbox')
+    expect(runHistoryTab).toHaveAttribute('href', '#source-run-history')
+    expect(blockersTab).toHaveAttribute('href', '#source-blockers')
+    expect(candidatesTab).toHaveAttribute('aria-selected', 'true')
+    fireEvent.change(screen.getByPlaceholderText('Search review candidates'), { target: { value: 'Jev' } })
+
+    fireEvent.keyDown(candidatesTab, { key: 'ArrowRight' })
+    await waitFor(() => expect(window.location.hash).toBe('#source-run-history'))
+    expect(runHistoryTab).toHaveFocus()
+    expect(runHistoryTab).toHaveAttribute('aria-selected', 'true')
+
+    const runHistory = screen.getByTestId('source-run-history')
+    expect(runHistory).toHaveTextContent('Twice-weekly source review history')
+    expect(runHistory).toHaveTextContent('Codex insights + approved Open Brain')
+    expect(runHistory).toHaveTextContent('Vercel deployments')
+    expect(runHistory).toHaveTextContent('Opening this inbox only reads the latest approved projection')
+
+    fireEvent.click(screen.getByTestId('priority-gaps-metric'))
+    await waitFor(() => expect(window.location.hash).toBe('#source-blockers'))
+    expect(blockersTab).toHaveAttribute('aria-selected', 'true')
+
+    const blockers = screen.getByTestId('source-blocker-inbox')
+    expect(blockers).toHaveTextContent('1 review blocker')
+    expect(blockers).toHaveTextContent('deployment receipt missing')
+    expect(within(blockers).getByRole('link', { name: 'Open deployment evidence' })).toHaveAttribute('href', '/admin/agents/coordination')
+
+    const slack = screen.getByTestId('slack-disabled-specification')
+    expect(slack).toHaveTextContent('Disabled')
+    expect(slack).toHaveTextContent('No Slack connection, credential, notification, interactive decision, or external send is configured')
+    expect(within(slack).queryByRole('button')).not.toBeInTheDocument()
+
+    expect(screen.getByTestId('collectors-metric')).toHaveAttribute('href', '#source-run-history')
+    expect(screen.getByTestId('receipts-metric')).toHaveAttribute('href', '#candidate-inbox')
+    expect(screen.getByTestId('products-metric')).toHaveAttribute('href', '#candidate-inbox')
+    fireEvent.click(screen.getByTestId('receipts-metric'))
+    await waitFor(() => expect(candidatesTab).toHaveAttribute('aria-selected', 'true'))
+    expect(screen.getByPlaceholderText('Search review candidates')).toHaveValue('Jev')
+  })
+
+  it('opens the tab addressed by an initial deep-link hash', async () => {
+    window.history.replaceState({}, '', '/admin/social-content?workflow=evidence#source-blockers')
+    render(<SocialSourceCoverageEvidence active />)
+
+    const blockersTab = await screen.findByRole('tab', { name: 'Blockers' })
+    expect(blockersTab).toHaveAttribute('aria-selected', 'true')
+    expect(screen.getByTestId('source-blocker-inbox')).not.toHaveAttribute('hidden')
+    expect(screen.getByTestId('trend-work-relevance')).toHaveAttribute('hidden')
   })
 
   it('shows Reading instead of a false fail-closed state before the first response resolves', () => {

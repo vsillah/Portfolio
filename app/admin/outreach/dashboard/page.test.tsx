@@ -100,6 +100,11 @@ describe('OutreachDashboardPage metric parity', () => {
     expect(screen.queryByRole('link', { name: /enriched leads/i })).not.toBeInTheDocument()
     expect(screen.getByLabelText('Enriched leads metric')).toBeInTheDocument()
     expect(screen.getByLabelText('Enriched leads metric').querySelector('.admin-console-interactive')).toBeNull()
+    for (const label of ['Reply Rate: 50%. Summary only', 'Booking Rate: 25%. Summary only', 'Drafts Pending: 2. Summary only', 'Active Sequences: 4. Summary only']) {
+      const metric = screen.getByLabelText(label)
+      expect(metric).toHaveAttribute('data-interactive', 'false')
+      expect(metric).toHaveTextContent('Summary only')
+    }
   })
 
   it('preserves the selected temperature filter in actionable funnel drilldowns', async () => {

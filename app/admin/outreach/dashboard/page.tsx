@@ -31,6 +31,7 @@ import {
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import MobileWorkflowSummary from '@/components/admin/MobileWorkflowSummary'
+import AdminMetricCard from '@/components/admin/AdminMetricCard'
 import { getCurrentSession } from '@/lib/auth'
 import { OUTREACH_MODE_GATING_NOTE, OUTREACH_MODE_POLICIES } from '@/lib/outreach-mode-gating'
 import Link from 'next/link'
@@ -699,24 +700,10 @@ function DashboardContent() {
 
         {/* Key Metrics */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <div className="admin-console-metric rounded-lg border p-4">
-            <div className="text-sm text-sky-300">Reply Rate</div>
-            <div className="text-3xl font-bold mt-1">{activeFunnel.reply_rate}%</div>
-          </div>
-          <div className="admin-console-metric rounded-lg border p-4">
-            <div className="text-sm text-green-400">Booking Rate</div>
-            <div className="text-3xl font-bold mt-1">{activeFunnel.booking_rate}%</div>
-          </div>
-          <div className="admin-console-metric rounded-lg border p-4">
-            <div className="text-sm text-yellow-400">Drafts Pending</div>
-            <div className="text-3xl font-bold mt-1">{data.queueStats.draft || 0}</div>
-          </div>
-          <div className="admin-console-metric rounded-lg border p-4">
-            <div className="text-sm text-radiant-gold">Active Sequences</div>
-            <div className="text-3xl font-bold mt-1">
-              {activeFunnel.contacted}
-            </div>
-          </div>
+          <AdminMetricCard label="Reply Rate" value={`${activeFunnel.reply_rate}%`} labelClassName="text-sky-300" className="p-4" />
+          <AdminMetricCard label="Booking Rate" value={`${activeFunnel.booking_rate}%`} labelClassName="text-green-400" className="p-4" />
+          <AdminMetricCard label="Drafts Pending" value={data.queueStats.draft || 0} labelClassName="text-yellow-400" className="p-4" />
+          <AdminMetricCard label="Active Sequences" value={activeFunnel.contacted} labelClassName="text-radiant-gold" className="p-4" />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
