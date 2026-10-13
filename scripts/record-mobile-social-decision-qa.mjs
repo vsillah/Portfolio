@@ -224,6 +224,15 @@ function watchExternalRequests(page) {
   return blocked
 }
 
+async function captureViewportScreenshot(page, target, screenshotPath, block = 'start') {
+  const header = page.locator('[data-social-detail-header]')
+  if (await header.count()) await header.evaluate((element) => { element.style.visibility = 'hidden' })
+  await target.evaluate((element, targetBlock) => element.scrollIntoView({ block: targetBlock }), block)
+  await page.waitForTimeout(100)
+  await page.screenshot({ path: screenshotPath })
+  if (await header.count()) await header.evaluate((element) => { element.style.visibility = '' })
+}
+
 async function recordViewport(browser, { viewport, screenshotPath, label, demonstrateHold, storageState }) {
   const state = { blocked: false }
   const rawDir = path.join(rawVideoDir, label)
@@ -278,22 +287,26 @@ async function recordViewport(browser, { viewport, screenshotPath, label, demons
     throw new Error(`Protected panel did not load at ${page.url()} (${title}); storage keys: ${localStorageKeys.join(', ')}; expected: ${storageKey}; bundle refs: ${bundledProjectRefs.join(', ')}; auth: ${authDiagnostics.join(' | ')}; page: ${visibleText}`, { cause: error })
   }
   await panel.scrollIntoViewIfNeeded()
+  await page.evaluate((offset) => window.scrollBy(0, offset), viewport.width <= 480 ? -520 : -240)
   await page.waitForTimeout(900)
   if (demonstrateHold) {
     await panel.getByRole('button', { name: 'Hold' }).click()
     await page.getByText('Held in the central Decision Queue. No external action was authorized.').waitFor()
     await page.waitForTimeout(900)
   }
-  if (demonstrateHold) await page.screenshot({ path: screenshotPath, fullPage: true })
+  if (demonstrateHold) await captureViewportScreenshot(page, panel, screenshotPath)
 
   state.blocked = true
   await page.reload({ waitUntil: 'domcontentloaded' })
   const blockedPanel = page.getByLabel('Protected mobile Social Content decision')
   await blockedPanel.waitFor({ timeout: 30_000 })
   await blockedPanel.scrollIntoViewIfNeeded()
+  await page.evaluate((offset) => window.scrollBy(0, offset), viewport.width <= 480 ? -520 : -240)
   await blockedPanel.getByText('Decision blocked closed').waitFor()
   await page.waitForTimeout(1400)
-  if (!demonstrateHold) await page.screenshot({ path: screenshotPath, fullPage: true })
+  if (!demonstrateHold) {
+    await captureViewportScreenshot(page, blockedPanel.getByText('Decision blocked closed'), screenshotPath, 'center')
+  }
 
   const video = page.video()
   await context.close()
