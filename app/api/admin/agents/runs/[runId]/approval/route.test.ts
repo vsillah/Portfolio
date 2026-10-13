@@ -154,6 +154,30 @@ describe('POST /api/admin/agents/runs/[runId]/approval', () => {
     }))
   })
 
+  it('blocks generic decisions for Social Content and returns the canonical stage deep link', async () => {
+    setupSupabase({
+      review_packet: {
+        content_id: 'social-1',
+        work_item_id: 'work-1',
+        current_gate: 'privacy',
+      },
+    }, 'social_content_internal_review')
+
+    const response = await POST(makeRequest({
+      approval_id: 'approval-1',
+      status: 'approved',
+    }) as never, { params: { runId: 'run-1' } })
+
+    expect(response.status).toBe(409)
+    expect(await response.json()).toEqual({
+      error: 'Social Content review decisions must use the canonical stage command.',
+      code: 'SOCIAL_CONTENT_CANONICAL_DECISION_REQUIRED',
+      canonical_href: '/admin/social-content/social-1?step=visuals&review=mobile&proposal=work-1#social-asset-packet-gate',
+    })
+    expect(mocks.approvalUpdate).not.toHaveBeenCalled()
+    expect(mocks.eventInsert).not.toHaveBeenCalled()
+  })
+
   it('returns 404 when the approval id does not belong to the run', async () => {
     const existingSingle = vi.fn().mockResolvedValue({ data: null, error: { message: 'not found' } })
     mocks.from.mockReturnValue({

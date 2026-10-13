@@ -66,7 +66,7 @@ function request(decision: string) {
   return new NextRequest(`http://localhost/api/admin/social-content/${CONTENT_ID}/decision`, {
     method: 'POST',
     headers: { authorization: 'Bearer admin-token', 'content-type': 'application/json' },
-    body: JSON.stringify({ decision }),
+    body: JSON.stringify({ decision, work_item_id: '44444444-4444-4444-8444-444444444444' }),
   })
 }
 
@@ -102,12 +102,13 @@ describe('POST /api/admin/social-content/[id]/decision', () => {
       next_internal_gate: 'visual_review',
       external_execution: false,
     }))
-    expect(mocks.rpc).toHaveBeenCalledWith('record_social_content_decision', expect.objectContaining({
+    expect(mocks.rpc).toHaveBeenCalledWith('record_social_content_stage_decision', expect.objectContaining({
       p_social_content_id: CONTENT_ID,
       p_approval_id: APPROVAL_ID,
       p_content_updated_at: VERSION,
       p_decision: 'approve',
       p_decided_by_user_id: 'admin-1',
+      p_command_name: 'approve_copy',
       p_idempotency_key: expect.stringContaining(`${APPROVAL_ID}:`),
     }))
     expect(mocks.from).toHaveBeenCalledTimes(2)
@@ -128,7 +129,7 @@ describe('POST /api/admin/social-content/[id]/decision', () => {
 
     expect(response.status).toBe(409)
     expect(await response.json()).toEqual({ error: 'Social Content review packet is stale' })
-    expect(mocks.rpc).toHaveBeenCalledWith('record_social_content_decision', expect.objectContaining({
+    expect(mocks.rpc).toHaveBeenCalledWith('record_social_content_stage_decision', expect.objectContaining({
       p_decision: 'hold',
       p_content_updated_at: VERSION,
     }))

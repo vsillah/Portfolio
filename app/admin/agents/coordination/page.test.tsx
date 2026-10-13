@@ -276,6 +276,24 @@ const workItems = [
   },
 ]
 
+const socialDecisionWorkItem = {
+  ...workItems[0],
+  id: 'work-social-1',
+  title: 'Review Social Content privacy gate',
+  source_type: 'social_content_internal_review',
+  source_id: 'social-1',
+  source_label: 'Social Content',
+  active_run_id: 'run-social-1',
+  approval_id: 'approval-social-1',
+  metadata: {
+    review_packet: {
+      content_id: 'social-1',
+      work_item_id: 'work-social-1',
+      current_gate: 'privacy',
+    },
+  },
+}
+
 const approvalCard = {
   approvalId: 'approval-1',
   runId: 'run-1',
@@ -354,7 +372,13 @@ function moremiDrillResponse() {
   }
 }
 
-function setupFetch({ failWorkItems = false } = {}) {
+function setupFetch({
+  failWorkItems = false,
+  items = workItems,
+}: {
+  failWorkItems?: boolean
+  items?: Array<Record<string, unknown>>
+} = {}) {
   vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
     const url = String(input)
 
@@ -409,7 +433,7 @@ function setupFetch({ failWorkItems = false } = {}) {
     if (url.startsWith('/api/admin/agents/work-items')) {
       if (failWorkItems) return { ok: false, status: 503, json: async () => ({ error: 'work item service unavailable' }) }
       const status = new URL(`http://localhost${url}`).searchParams.get('status')
-      const filtered = status ? workItems.filter((item) => item.status === status) : workItems
+      const filtered = status ? items.filter((item) => item.status === status) : items
       return { ok: true, json: async () => ({ work_items: filtered }) }
     }
 
@@ -482,6 +506,18 @@ describe('AgentCoordinationPage decision queue controller', () => {
     expect(screen.getAllByText('Approval gates create trust').length).toBeGreaterThan(0)
     expect(screen.getByRole('link', { name: /Open channel tabs/ })).toHaveAttribute('href', '/admin/agents/social-insights/work-social-topic-1')
     expect(screen.getByText('Showing 1-3 of 6')).toBeInTheDocument()
+  })
+
+  it('routes a Social Content decision from the single Decision Queue to its exact canonical gate', async () => {
+    window.history.replaceState({}, '', '/admin/agents/coordination?proposal=work-social-1')
+    setupFetch({ items: [socialDecisionWorkItem] })
+    render(<AgentCoordinationPage />)
+
+    expect(await screen.findByRole('link', { name: 'Review Social Content gate' })).toHaveAttribute(
+      'href',
+      '/admin/social-content/social-1?step=visuals&review=mobile&proposal=work-social-1#social-asset-packet-gate',
+    )
+    expect(screen.queryByLabelText('Missing proposal link mobile workflow summary')).not.toBeInTheDocument()
   })
 
   it('runs top controller decision actions with scoped Shaka context', async () => {

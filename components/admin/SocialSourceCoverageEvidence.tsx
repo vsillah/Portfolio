@@ -237,7 +237,7 @@ export default function SocialSourceCoverageEvidence({
           <div className="rounded-lg border border-accent/30 bg-card p-3" data-testid="mobile-decision-inbox">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div>
-                <div className="text-xs font-semibold uppercase tracking-[0.13em] text-foreground">Mobile decision inbox</div>
+                <div className="text-xs font-semibold uppercase tracking-[0.13em] text-foreground">Source coverage review</div>
                 <p className="mt-1 text-xs text-muted-foreground">Review lineage and freshness from a phone. No decision here can generate, approve, schedule, publish, or send content.</p>
               </div>
               <span className="rounded-full border border-accent/40 bg-accent/10 px-2.5 py-1 text-xs font-semibold text-foreground">Review only</span>

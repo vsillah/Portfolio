@@ -766,7 +766,14 @@ describe('SocialContentDetailRoute visual production review', () => {
       return { ok: true, json: async () => ({ item: mobileItem }) } as Response
     })
     vi.stubGlobal('fetch', fetchMock)
+
     mocks.search = 'step=copy&review=mobile'
+    const ordinaryDetail = render(<SocialContentDetailRoute />)
+    expect(await screen.findByLabelText('Copy review decision gate')).toBeInTheDocument()
+    expect(screen.queryByLabelText('Protected mobile Social Content decision')).not.toBeInTheDocument()
+    ordinaryDetail.unmount()
+
+    mocks.search = 'step=copy&review=mobile&proposal=work-1'
 
     render(<SocialContentDetailRoute />)
 
@@ -785,7 +792,7 @@ describe('SocialContentDetailRoute visual production review', () => {
       '/api/admin/social-content/social-1/decision',
       expect.objectContaining({
         method: 'POST',
-        body: JSON.stringify({ decision: 'hold' }),
+        body: JSON.stringify({ decision: 'hold', work_item_id: 'work-1' }),
       }),
     ))
     expect(await screen.findByText('Held in the central Decision Queue. No external action was authorized.')).toBeInTheDocument()
@@ -845,7 +852,7 @@ describe('SocialContentDetailRoute visual production review', () => {
       if (url.includes('?status=all')) return { ok: true, json: async () => ({ items: [decidedItem] }) } as Response
       return { ok: true, json: async () => ({ item: decidedItem }) } as Response
     }))
-    mocks.search = 'step=copy&review=mobile'
+    mocks.search = 'step=copy&review=mobile&proposal=work-1'
 
     render(<SocialContentDetailRoute />)
 
@@ -906,7 +913,7 @@ describe('SocialContentDetailRoute visual production review', () => {
       if (url.includes('?status=all')) return { ok: true, json: async () => ({ items: [unverifiedItem] }) } as Response
       return { ok: true, json: async () => ({ item: unverifiedItem }) } as Response
     }))
-    mocks.search = 'step=copy&review=mobile'
+    mocks.search = 'step=copy&review=mobile&proposal=work-1'
 
     render(<SocialContentDetailRoute />)
 
@@ -944,7 +951,7 @@ describe('SocialContentDetailRoute visual production review', () => {
       if (url.includes('?status=all')) return { ok: true, json: async () => ({ items: [mobileItem] }) } as Response
       return { ok: true, json: async () => ({ item: mobileItem }) } as Response
     }))
-    mocks.search = 'step=copy&review=mobile'
+    mocks.search = 'step=copy&review=mobile&proposal=work-1'
 
     render(<SocialContentDetailRoute />)
 

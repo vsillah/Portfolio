@@ -4,6 +4,10 @@ import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { AGENT_APPROVAL_STATUSES, type AgentApprovalStatus } from '@/lib/agent-run'
 import { N8N_WORKFLOW_ACTIVATION_APPROVAL_TYPE } from '@/lib/agent-work-items'
 import { VERCEL_RESEARCH_APPROVAL_TYPE } from '@/lib/vercel-deployment-research'
+import {
+  SOCIAL_CONTENT_INTERNAL_REVIEW_APPROVAL_TYPE,
+  socialContentDecisionHrefFromApproval,
+} from '@/lib/social-content-decision-routing'
 
 export const dynamic = 'force-dynamic'
 
@@ -47,6 +51,13 @@ export async function POST(
   }
 
   const decided = status !== 'pending'
+  if (body.approval_type === SOCIAL_CONTENT_INTERNAL_REVIEW_APPROVAL_TYPE && decided) {
+    return NextResponse.json({
+      error: 'Social Content review decisions must be created pending and completed through the canonical Social Content stage command.',
+      code: 'SOCIAL_CONTENT_CANONICAL_DECISION_REQUIRED',
+      canonical_href: null,
+    }, { status: 409 })
+  }
   let approvalId = body.approval_id ?? null
   let approvalType = body.approval_type ?? null
   let approvalMetadata: Record<string, unknown> = body.metadata ?? {}
@@ -69,6 +80,17 @@ export async function POST(
         ? existing.metadata as Record<string, unknown>
         : {}
     approvalType = existing.approval_type as string
+    if (approvalType === SOCIAL_CONTENT_INTERNAL_REVIEW_APPROVAL_TYPE && decided) {
+      const canonicalHref = socialContentDecisionHrefFromApproval({
+        approvalType,
+        metadata: existingMetadata,
+      })
+      return NextResponse.json({
+        error: 'Social Content review decisions must use the canonical stage command.',
+        code: 'SOCIAL_CONTENT_CANONICAL_DECISION_REQUIRED',
+        canonical_href: canonicalHref,
+      }, { status: 409 })
+    }
     const decisionMetadata = decided
       ? {
           status,

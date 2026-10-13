@@ -84,6 +84,10 @@ import {
   type SocialContentDecision,
 } from '@/lib/social-content-decision-receipts'
 import {
+  isBoundSocialContentDecisionRoute,
+  socialContentGateStep,
+} from '@/lib/social-content-decision-routing'
+import {
   derivePublicationProjection,
   reconcilePublicationProjectionWithLifecycle,
   summarizePublicationProjections,
@@ -1963,7 +1967,10 @@ function SocialContentDetailPage() {
           Authorization: `Bearer ${session.access_token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ decision }),
+        body: JSON.stringify({
+          decision,
+          work_item_id: mobileDecisionReadiness.packet?.work_item_id,
+        }),
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) {
@@ -1978,7 +1985,7 @@ function SocialContentDetailPage() {
       const outcome = decision === 'approve'
         ? `Approved for ${data.next_internal_gate || 'the next internal gate'}`
         : decision === 'request_revision'
-          ? 'Returned to the internal copy revision gate'
+          ? `Returned to the ${data.next_internal_gate || 'current'} review gate`
           : 'Held in the central Decision Queue'
       showMsg('success', `${outcome}. No external action was authorized.`)
     } catch {
@@ -2872,8 +2879,13 @@ function SocialContentDetailPage() {
   const previewFixtureNextAction = asString(qaFixture?.next_action) || 'Review the evidence, then return to Social Content or the PR handoff.'
   const mobileDecisionReadiness = getSocialContentDecisionReadiness(item)
   const recordedMobileDecision = mobileDecisionReadiness.recorded_decision
-  const mobileDecisionMode = searchParams.get('review') === 'mobile'
-    || Boolean(asRecord(ragContext?.mobile_decision_review))
+  const rawMobileDecisionPacket = asRecord(ragContext?.mobile_decision_review)
+  const mobileDecisionMode = isBoundSocialContentDecisionRoute({
+    review: searchParams.get('review'),
+    proposal: searchParams.get('proposal'),
+    workItemId: mobileDecisionReadiness.packet?.work_item_id || asString(rawMobileDecisionPacket?.work_item_id),
+  })
+  const mobileDecisionStep = socialContentGateStep(mobileDecisionReadiness.packet?.current_gate || asString(rawMobileDecisionPacket?.current_gate) || 'copy')
   const isAgentSocialPilot = ragContext?.source === 'agent_ops_social_outreach_goal'
   const agentPilotGoalId = asString(ragContext?.goal_id)
   const agentPilotPacketId = asString(ragContext?.content_packet_id)
@@ -6195,7 +6207,7 @@ function SocialContentDetailPage() {
 	        </div>
 	        )}
 
-	        {activeApprovalStep === 'copy' && mobileDecisionMode && (
+	        {activeApprovalStep === mobileDecisionStep && mobileDecisionMode && (
 	          <section id="social-mobile-decision-receipt" className="scroll-mt-28 rounded-xl border border-radiant-gold/35 bg-radiant-gold/5 p-4 sm:p-5" aria-label="Protected mobile Social Content decision">
 	            <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
 	              <div className="min-w-0">
@@ -6241,7 +6253,7 @@ function SocialContentDetailPage() {
 	                  {recordedMobileDecision
 	                    ? `Immutable receipt recorded; the next internal gate is ${recordedMobileDecision.next_gate}.`
 	                    : mobileDecisionReadiness.packet
-	                    ? `Approve moves to ${mobileDecisionReadiness.packet.next_gate}; revision returns to copy; hold stays here.`
+	                    ? `Approve runs the ${mobileDecisionReadiness.packet.current_gate.replace(/_/g, ' ')} command and moves to ${mobileDecisionReadiness.packet.next_gate}; revision returns this stage for repair; hold stays here.`
 	                    : 'Actions remain locked until a receipt-complete Decision Queue packet is attached.'}
 	                </p>
 	              </div>

@@ -7,16 +7,20 @@ import { promisify } from 'node:util'
 
 const execFileAsync = promisify(execFile)
 const root = process.env.QA_OUTPUT_ROOT || process.cwd()
-const outputDir = path.join(root, 'docs', 'mobile-social-decision-reconciliation-qa')
-const rawVideoDir = path.join(root, 'test-results', 'mobile-social-decision-reconciliation-qa')
-const desktopScreenshotPath = path.join(outputDir, 'desktop-recorded.png')
-const mobileScreenshotPath = path.join(outputDir, 'mobile-blocked.png')
-const mp4Path = path.join(outputDir, 'social-decision-version-reconciliation.mp4')
+const outputDir = path.join(root, 'docs', 'social-decision-consolidation-qa')
+const rawVideoDir = path.join(root, 'test-results', 'social-decision-consolidation-qa')
+const desktopScreenshotPath = path.join(outputDir, 'desktop-canonical-receipt.png')
+const tabletScreenshotPath = path.join(outputDir, 'tablet-canonical-receipt.png')
+const mobileScreenshotPath = path.join(outputDir, 'mobile-canonical-blocked.png')
+const mp4Path = path.join(outputDir, 'social-decision-consolidation.mp4')
 const baseUrl = process.env.QA_BASE_URL || 'http://localhost:3011'
 const trustedOidcToken = process.env.VERCEL_OIDC_TOKEN
 const authStatePath = process.env.PLAYWRIGHT_AUTH_STATE
 const contentId = '11111111-2222-4333-8444-555555555555'
-const qaPath = `/admin/social-content/${contentId}?step=copy&review=mobile#social-mobile-decision-receipt`
+const workItemId = 'work-mobile-qa'
+const qaPath = `/admin/social-content/${contentId}?step=copy&review=mobile&proposal=${workItemId}#social-mobile-decision-receipt`
+const decisionQueuePath = `/admin/agents/coordination?proposal=${workItemId}`
+const runPath = '/admin/agents/runs/run-mobile-qa'
 const version = '2026-10-13T02:31:06.000Z'
 
 await mkdir(outputDir, { recursive: true })
@@ -222,6 +226,78 @@ async function installRoutes(page, state) {
       code: 'QA_FIXTURE_READ_ONLY',
     },
   }))
+  await page.route('**/api/admin/agents/work-items**', (route) => route.fulfill({
+    json: {
+      work_items: [{
+        id: workItemId,
+        title: 'Review Social Content copy gate',
+        objective: 'Review the exact version-bound Social Content packet and use its canonical copy command.',
+        status: 'ready_for_review',
+        priority: 'high',
+        owner_agent_key: 'chief-of-staff',
+        owner_runtime: 'codex',
+        source_type: 'social_content_internal_review',
+        source_id: contentId,
+        source_label: 'Social Content',
+        source_run_id: 'run-mobile-qa',
+        active_run_id: 'run-mobile-qa',
+        parent_work_item_id: null,
+        branch_name: null,
+        worktree_path: null,
+        pr_number: null,
+        pr_url: null,
+        expected_files: [],
+        touched_files: [],
+        overlap_group: 'social-content-review',
+        dependency_ids: [],
+        blocker_summary: null,
+        validation_summary: 'Six version-bound evidence receipts are attached.',
+        approval_id: 'approval-mobile-qa',
+        metadata: {
+          review_packet: {
+            content_id: contentId,
+            work_item_id: workItemId,
+            current_gate: 'copy_review',
+          },
+          recommendation: 'Open the canonical Social Content copy decision.',
+          risk: 'medium',
+        },
+        idempotency_key: 'qa-social-decision',
+        created_at: version,
+        updated_at: version,
+        completed_at: null,
+      }],
+    },
+  }))
+  await page.route('**/api/admin/agents/vercel-research/proposals**', (route) => route.fulfill({ json: { approvals: [] } }))
+  await page.route('**/api/admin/agents/runs/run-mobile-qa', (route) => route.fulfill({
+    json: {
+      run: {
+        id: 'run-mobile-qa',
+        title: 'Social Content internal review',
+        kind: 'social_content_review',
+        agent_key: 'chief-of-staff',
+        runtime: 'codex',
+        status: 'waiting_for_approval',
+        subject_type: 'social_content_internal_review',
+        subject_id: contentId,
+        subject_label: 'Social Content QA fixture',
+      },
+      steps: [], events: [], artifacts: [], handoffs: [], costs: [], evaluations: [], cost_total: 0,
+      approvals: [{
+        id: 'approval-mobile-qa',
+        approval_type: 'social_content_internal_review',
+        status: 'pending',
+        metadata: {
+          review_packet: {
+            content_id: contentId,
+            work_item_id: workItemId,
+            current_gate: 'copy_review',
+          },
+        },
+      }],
+    },
+  }))
   await page.route(`**/api/admin/social-content/${contentId}/engagement/comments**`, (route) => route.fulfill({ json: { comments: [] } }))
   await page.route(`**/api/admin/social-content/${contentId}`, (route) => route.fulfill({ json: { item: socialItem(state.mode) } }))
   await page.route('**/api/admin/social-content/topic-backlog**', (route) => route.fulfill({ json: { items: [] } }))
@@ -281,7 +357,13 @@ async function recordViewport(browser, { viewport, screenshotPath, label, mode, 
     await seedSession(page)
   }
 
-  await page.goto(`${baseUrl}${qaPath}`, { waitUntil: 'domcontentloaded' })
+  await page.goto(`${baseUrl}${decisionQueuePath}`, { waitUntil: 'domcontentloaded' })
+  const queueAction = page.getByRole('link', { name: 'Review Social Content gate' }).first()
+  await queueAction.waitFor({ timeout: 12_000 })
+  await queueAction.scrollIntoViewIfNeeded()
+  await page.waitForTimeout(1000)
+  await queueAction.click()
+  await page.waitForURL((url) => url.pathname.includes(`/admin/social-content/${contentId}`))
   const panel = page.getByLabel('Protected mobile Social Content decision')
   try {
     await panel.waitFor({ timeout: 12_000 })
@@ -318,6 +400,15 @@ async function recordViewport(browser, { viewport, screenshotPath, label, mode, 
   }
   await page.waitForTimeout(900)
 
+  await page.goto(`${baseUrl}${runPath}`, { waitUntil: 'domcontentloaded' })
+  const genericBypass = page.getByRole('link', { name: 'Open canonical Social Content decision' }).first()
+  await genericBypass.waitFor({ timeout: 12_000 })
+  await genericBypass.scrollIntoViewIfNeeded()
+  if (await page.getByRole('button', { name: 'Approve' }).count()) {
+    throw new Error('Generic Agent Run approval bypass is still visible for Social Content.')
+  }
+  await page.waitForTimeout(1800)
+
   const video = page.video()
   await context.close()
   const rawVideoPath = video ? await video.path() : null
@@ -335,6 +426,13 @@ const desktopRaw = await recordViewport(browser, {
   mode: 'recorded',
   storageState,
 })
+const tabletRaw = await recordViewport(browser, {
+  viewport: { width: 768, height: 1024 },
+  screenshotPath: tabletScreenshotPath,
+  label: 'tablet',
+  mode: 'recorded',
+  storageState,
+})
 const mobileRaw = await recordViewport(browser, {
   viewport: { width: 390, height: 844 },
   screenshotPath: mobileScreenshotPath,
@@ -347,9 +445,10 @@ await browser.close()
 await execFileAsync('ffmpeg', [
   '-y',
   '-i', desktopRaw,
+  '-i', tabletRaw,
   '-i', mobileRaw,
   '-filter_complex',
-  '[0:v]scale=1280:900:force_original_aspect_ratio=decrease,pad=1280:900:(ow-iw)/2:(oh-ih)/2:black,setsar=1[desktop];[1:v]scale=1280:900:force_original_aspect_ratio=decrease,pad=1280:900:(ow-iw)/2:(oh-ih)/2:black,setsar=1[mobile];[desktop][mobile]concat=n=2:v=1:a=0[outv]',
+  '[0:v]scale=1280:900:force_original_aspect_ratio=decrease,pad=1280:900:(ow-iw)/2:(oh-ih)/2:black,setsar=1[desktop];[1:v]scale=1280:900:force_original_aspect_ratio=decrease,pad=1280:900:(ow-iw)/2:(oh-ih)/2:black,setsar=1[tablet];[2:v]scale=1280:900:force_original_aspect_ratio=decrease,pad=1280:900:(ow-iw)/2:(oh-ih)/2:black,setsar=1[mobile];[desktop][tablet][mobile]concat=n=3:v=1:a=0[outv]',
   '-map', '[outv]',
   '-c:v', 'libx264',
   '-pix_fmt', 'yuv420p',
@@ -361,6 +460,7 @@ console.log(JSON.stringify({
   baseUrl,
   qaPath,
   desktopScreenshotPath,
+  tabletScreenshotPath,
   mobileScreenshotPath,
   videoPath: mp4Path,
   externalRequests: [],

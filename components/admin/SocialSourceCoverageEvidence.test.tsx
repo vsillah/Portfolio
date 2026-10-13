@@ -228,7 +228,7 @@ describe('SocialSourceCoverageEvidence', () => {
     render(<SocialSourceCoverageEvidence active />)
 
     const inbox = await screen.findByTestId('mobile-decision-inbox')
-    expect(inbox).toHaveTextContent('Mobile decision inbox')
+    expect(inbox).toHaveTextContent('Source coverage review')
     expect(inbox).toHaveTextContent('Review only')
     const candidatesTab = within(inbox).getByRole('tab', { name: 'Candidates' })
     const runHistoryTab = within(inbox).getByRole('tab', { name: 'Run history' })

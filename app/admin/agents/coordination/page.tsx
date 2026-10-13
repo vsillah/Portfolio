@@ -32,6 +32,7 @@ import {
   isSocialTopicTriggerWorkItem,
   socialChannelLaneSummary,
 } from '@/lib/social-content-intelligence'
+import { socialContentDecisionHrefFromWorkItem } from '@/lib/social-content-decision-routing'
 
 const STATUSES: Array<'all' | AgentWorkItemStatus> = [
   'all',
@@ -541,7 +542,7 @@ function AgentCoordinationContent() {
       })
   }, [items])
   const highlightedProposal = n8nDeepLink.proposalId
-    ? n8nWorkflowProposals.find((item) => item.id === n8nDeepLink.proposalId) ?? null
+    ? items.find((item) => item.id === n8nDeepLink.proposalId && !isTerminalWorkItem(item)) ?? null
     : null
   const missingLinkedProposalId = n8nDeepLink.proposalId && !highlightedProposal ? n8nDeepLink.proposalId : null
   const primaryDecisionItem = missingLinkedProposalId ? null : highlightedProposal ?? controllerQueueItems[0] ?? n8nWorkflowProposals[0] ?? null
@@ -1241,6 +1242,7 @@ function ControllerDecisionQueuePanel({
         <div className="grid gap-3">
           {items.map((item) => {
             const model = decisionQueueModel(item)
+            const socialContentDecisionHref = socialContentDecisionHrefFromWorkItem(item)
             return (
               <article key={item.id} className={`rounded-lg border p-4 ${model.toneClass}`}>
                 <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
@@ -1272,6 +1274,15 @@ function ControllerDecisionQueuePanel({
                     </div>
                   </div>
                   <div className="flex shrink-0 flex-wrap gap-2 xl:w-72 xl:justify-end">
+                    {socialContentDecisionHref ? (
+                      <Link
+                        href={socialContentDecisionHref}
+                        className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-emerald-500/45 bg-emerald-500/10 px-3 py-2 text-sm font-semibold text-emerald-100 hover:bg-emerald-500/20"
+                      >
+                        Review Social Content gate
+                        <ArrowRight size={16} />
+                      </Link>
+                    ) : null}
                     {item.active_run_id ? (
                       <Link
                         href={`/admin/agents/runs/${item.active_run_id}`}
