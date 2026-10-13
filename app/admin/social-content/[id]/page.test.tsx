@@ -712,6 +712,125 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(badge).toHaveClass('content-status-badge', 'font-semibold')
   })
 
+  it('shows one-tap internal decisions for a receipt-complete version-bound packet', async () => {
+    const version = baseItem.updated_at
+    const evidenceReceipt = (key: string) => ({
+      receipt_id: `${key}-receipt-1`,
+      status: 'approved',
+      content_updated_at: version,
+    })
+    const mobileItem = {
+      ...baseItem,
+      status: 'draft',
+      reviewed_by: null,
+      rag_context: {
+        ...baseItem.rag_context,
+        mobile_decision_review: {
+          version: 'social-content-decision-review/v1',
+          approval_id: 'approval-1',
+          run_id: 'run-1',
+          work_item_id: 'work-1',
+          content_id: 'social-1',
+          content_updated_at: version,
+          current_gate: 'copy_review',
+          next_gate: 'visual_review',
+          receipts: {
+            source: evidenceReceipt('source'),
+            voice: evidenceReceipt('voice'),
+            framework: evidenceReceipt('framework'),
+            privacy: evidenceReceipt('privacy'),
+            visual: evidenceReceipt('visual'),
+            challenger: evidenceReceipt('challenger'),
+          },
+          candidate_projection: { headline: 'Read-only candidate' },
+        },
+      },
+    }
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input)
+      if (url.includes('/decision') && init?.method === 'POST') {
+        return {
+          ok: true,
+          json: async () => ({
+            ok: true,
+            decision: 'hold',
+            next_internal_gate: 'copy_review',
+            external_execution: false,
+            item: mobileItem,
+          }),
+        } as Response
+      }
+      if (url.includes('/topic-backlog')) return { ok: true, json: async () => ({ items: [] }) } as Response
+      if (url.includes('/config')) return { ok: true, json: async () => ({ configs: [] }) } as Response
+      if (url.includes('?status=all')) return { ok: true, json: async () => ({ items: [mobileItem] }) } as Response
+      return { ok: true, json: async () => ({ item: mobileItem }) } as Response
+    })
+    vi.stubGlobal('fetch', fetchMock)
+    mocks.search = 'step=copy&review=mobile'
+
+    render(<SocialContentDetailRoute />)
+
+    const panel = await screen.findByLabelText('Protected mobile Social Content decision')
+    expect(within(panel).getByText('One decision. One version. One immutable receipt.')).toHaveClass('text-foreground')
+    expect(within(panel).getByText('Candidate projection is read-only')).toHaveClass('text-blue-900', 'dark:text-blue-100')
+    expect(within(panel).getByRole('link', { name: 'Open Decision Queue' })).toHaveAttribute(
+      'href',
+      '/admin/agents/coordination?proposal=work-1',
+    )
+    expect(within(panel).getByRole('button', { name: 'Approve' })).toBeEnabled()
+    expect(within(panel).getByRole('button', { name: 'Request revision' })).toBeEnabled()
+    fireEvent.click(within(panel).getByRole('button', { name: 'Hold' }))
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledWith(
+      '/api/admin/social-content/social-1/decision',
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({ decision: 'hold' }),
+      }),
+    ))
+    expect(await screen.findByText('Held in the central Decision Queue. No external action was authorized.')).toBeInTheDocument()
+    expect(screen.queryByText('Copy Review Decision')).not.toBeInTheDocument()
+  })
+
+  it('blocks all mobile decisions when a required receipt is missing', async () => {
+    const mobileItem = {
+      ...baseItem,
+      status: 'draft',
+      reviewed_by: null,
+      rag_context: {
+        ...baseItem.rag_context,
+        mobile_decision_review: {
+          version: 'social-content-decision-review/v1',
+          approval_id: 'approval-1',
+          run_id: 'run-1',
+          work_item_id: 'work-1',
+          content_id: 'social-1',
+          content_updated_at: baseItem.updated_at,
+          current_gate: 'copy_review',
+          next_gate: 'visual_review',
+          receipts: {},
+        },
+      },
+    }
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input)
+      if (url.includes('/topic-backlog')) return { ok: true, json: async () => ({ items: [] }) } as Response
+      if (url.includes('/config')) return { ok: true, json: async () => ({ configs: [] }) } as Response
+      if (url.includes('?status=all')) return { ok: true, json: async () => ({ items: [mobileItem] }) } as Response
+      return { ok: true, json: async () => ({ item: mobileItem }) } as Response
+    }))
+    mocks.search = 'step=copy&review=mobile'
+
+    render(<SocialContentDetailRoute />)
+
+    const panel = await screen.findByLabelText('Protected mobile Social Content decision')
+    expect(within(panel).getByText('Decision blocked closed')).toHaveClass('text-red-900', 'dark:text-red-100')
+    expect(within(panel).getByRole('status')).toHaveTextContent(/incomplete|missing/i)
+    expect(within(panel).getByRole('button', { name: 'Approve' })).toBeDisabled()
+    expect(within(panel).getByRole('button', { name: 'Request revision' })).toBeDisabled()
+    expect(within(panel).getByRole('button', { name: 'Hold' })).toBeDisabled()
+  })
+
   it('exposes every responsive approval step without a horizontal scroll rail and activates later steps through the canonical query', async () => {
     mocks.search = 'returnTo=%2Fadmin%2Fsocial-content&step=copy'
 

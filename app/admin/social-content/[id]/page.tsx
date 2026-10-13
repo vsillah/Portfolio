@@ -78,6 +78,12 @@ import {
 } from '@/lib/social-content-lifecycle'
 import { validatePractitionerContentQuality } from '@/lib/social-practitioner-content'
 import {
+  getSocialContentDecisionReadiness,
+  SOCIAL_CONTENT_DECISION_RECEIPT_KEYS,
+  socialContentDecisionLabel,
+  type SocialContentDecision,
+} from '@/lib/social-content-decision-receipts'
+import {
   derivePublicationProjection,
   reconcilePublicationProjectionWithLifecycle,
   summarizePublicationProjections,
@@ -747,6 +753,8 @@ function SocialContentDetailPage() {
   const [approving, setApproving] = useState(false)
   const [renderingDeterministicVisual, setRenderingDeterministicVisual] = useState(false)
   const [deterministicVisualRenderOverride, setDeterministicVisualRenderOverride] = useState<DeterministicVisualRenderProjection | null>(null)
+  const [mobileDecisionAction, setMobileDecisionAction] = useState<SocialContentDecision | null>(null)
+  const [regeneratingImage, setRegeneratingImage] = useState(false)
   const [regeneratingAudio, setRegeneratingAudio] = useState(false)
   const [convertingFormat, setConvertingFormat] = useState(false)
   const [capturingAppCarousel, setCapturingAppCarousel] = useState(false)
@@ -1940,6 +1948,45 @@ function SocialContentDetailPage() {
     }
   }
 
+  const handleMobileDecision = async (decision: SocialContentDecision) => {
+    setMobileDecisionAction(decision)
+    try {
+      const session = await getCurrentSession()
+      if (!session) {
+        showMsg('error', 'Admin session is unavailable for this decision')
+        return
+      }
+
+      const res = await fetch(`/api/admin/social-content/${id}/decision`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ decision }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        const blocker = Array.isArray(data.blockers) ? data.blockers[0] : null
+        showMsg('error', blocker || data.error || 'Failed to record internal decision')
+        await fetchItem({ silent: true })
+        return
+      }
+
+      if (data.item) setItem(data.item as SocialContentItem)
+      const outcome = decision === 'approve'
+        ? `Approved for ${data.next_internal_gate || 'the next internal gate'}`
+        : decision === 'request_revision'
+          ? 'Returned to the internal copy revision gate'
+          : 'Held in the central Decision Queue'
+      showMsg('success', `${outcome}. No external action was authorized.`)
+    } catch {
+      showMsg('error', 'Failed to record internal decision')
+    } finally {
+      setMobileDecisionAction(null)
+    }
+  }
+
   const handleReject = async (options: { withCopyFeedback?: boolean } = {}) => {
     if (item?.copy_revision?.release_locked) return
     const isCopyReject = activeApprovalStep === 'copy'
@@ -2822,6 +2869,9 @@ function SocialContentDetailPage() {
   const isTopicSourceCoveragePreview = asString(qaFixture?.kind) === 'topic_source_coverage_preview'
   const previewFixtureReason = asString(qaFixture?.reason) || 'Preview fixture is read-only.'
   const previewFixtureNextAction = asString(qaFixture?.next_action) || 'Review the evidence, then return to Social Content or the PR handoff.'
+  const mobileDecisionReadiness = getSocialContentDecisionReadiness(item)
+  const mobileDecisionMode = searchParams.get('review') === 'mobile'
+    || Boolean(asRecord(ragContext?.mobile_decision_review))
   const isAgentSocialPilot = ragContext?.source === 'agent_ops_social_outreach_goal'
   const agentPilotGoalId = asString(ragContext?.goal_id)
   const agentPilotPacketId = asString(ragContext?.content_packet_id)
@@ -3961,7 +4011,7 @@ function SocialContentDetailPage() {
       <div data-social-detail-content className="mx-auto w-full max-w-[90rem] space-y-6 px-4 py-6 sm:px-6 lg:px-8">
         <SocialGateDeepLinkLanding routeId={id} itemId={item.id} gateId={APPROVAL_STEP_SECTION_IDS[activeApprovalStep]} completed={completedGateLandings} />
 
-	        {activeApprovalStep === 'copy' && (
+	        {activeApprovalStep === 'copy' && !mobileDecisionMode && (
 	          <section
 	            id="social-copy-gate"
 	            aria-label="Copy review decision gate"
@@ -4045,7 +4095,7 @@ function SocialContentDetailPage() {
 	            {copyRevisionFeedbackFields}
 	          </section>
 	        )}
-	        {activeApprovalStep === 'copy' && (
+	        {activeApprovalStep === 'copy' && !mobileDecisionMode && (
 	          <PractitionerContentReview item={item} finishedCopy={postText} />
 	        )}
 	        {isAgentSocialPilot && (
@@ -6143,7 +6193,115 @@ function SocialContentDetailPage() {
 	        </div>
 	        )}
 
-		        {/* ================================================================ */}
+	        {activeApprovalStep === 'copy' && mobileDecisionMode && (
+	          <section id="social-mobile-decision-receipt" className="scroll-mt-28 rounded-xl border border-radiant-gold/35 bg-radiant-gold/5 p-4 sm:p-5" aria-label="Protected mobile Social Content decision">
+	            <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+	              <div className="min-w-0">
+	                <p className="admin-console-eyebrow">Protected mobile decision</p>
+	                <h2 className="mt-1 text-lg font-semibold text-foreground">One decision. One version. One immutable receipt.</h2>
+	                <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">
+	                  This control uses the central Decision Queue packet and advances only one internal review gate. It cannot enable Slack, render or upload media, schedule, publish, send, or change provider credentials.
+	                </p>
+	              </div>
+	              {mobileDecisionReadiness.packet ? (
+	                <Link
+	                  href={`/admin/agents/coordination?proposal=${encodeURIComponent(mobileDecisionReadiness.packet.work_item_id)}`}
+	                  className="inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-lg border border-amber-600/40 px-3 py-2 text-sm font-semibold text-amber-800 hover:bg-amber-500/10 dark:border-radiant-gold/40 dark:text-radiant-gold xl:w-auto"
+	                >
+	                  Open Decision Queue
+	                  <ExternalLink className="h-4 w-4" />
+	                </Link>
+	              ) : null}
+	            </div>
+
+	            <div className="mt-4 grid gap-3 md:grid-cols-3">
+	              <div className="rounded-lg border border-silicon-slate/70 bg-background/35 p-3">
+	                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Action</p>
+	                <p className="mt-1 text-sm font-semibold text-foreground">Record internal review decision</p>
+	              </div>
+	              <div className="rounded-lg border border-silicon-slate/70 bg-background/35 p-3">
+	                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Bound value</p>
+	                <p className="mt-1 break-all text-xs text-foreground">
+	                  {mobileDecisionReadiness.packet?.content_updated_at || item.updated_at}
+	                </p>
+	              </div>
+	              <div className="rounded-lg border border-silicon-slate/70 bg-background/35 p-3">
+	                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Expected result</p>
+	                <p className="mt-1 text-sm text-foreground">
+	                  {mobileDecisionReadiness.packet
+	                    ? `Approve moves to ${mobileDecisionReadiness.packet.next_gate}; revision returns to copy; hold stays here.`
+	                    : 'Actions remain locked until a receipt-complete Decision Queue packet is attached.'}
+	                </p>
+	              </div>
+	            </div>
+
+	            <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+	              {SOCIAL_CONTENT_DECISION_RECEIPT_KEYS.map((key) => {
+	                const receipt = mobileDecisionReadiness.packet?.receipts[key]
+	                const passed = Boolean(receipt && ['approved', 'passed', 'complete'].includes(receipt.status))
+	                return (
+	                  <div key={key} className={`rounded-lg border px-3 py-2 ${passed ? 'border-emerald-500/30 bg-emerald-500/10' : 'border-red-500/30 bg-red-500/10'}`}>
+	                    <div className="flex items-center justify-between gap-2">
+	                      <span className="text-xs font-semibold capitalize text-foreground">{key}</span>
+	                      <span className={`text-[10px] font-semibold uppercase tracking-[0.12em] ${passed ? 'text-emerald-800 dark:text-emerald-200' : 'text-red-800 dark:text-red-200'}`}>
+	                        {passed ? 'ready' : 'blocked'}
+	                      </span>
+	                    </div>
+	                    <p className="mt-1 truncate text-[11px] text-muted-foreground">{receipt?.receipt_id || 'receipt missing'}</p>
+	                  </div>
+	                )
+	              })}
+	            </div>
+
+	            <div className="mt-4 rounded-lg border border-blue-500/25 bg-blue-500/10 p-3" aria-readonly="true">
+	              <p className="text-xs font-semibold text-blue-900 dark:text-blue-100">Candidate projection is read-only</p>
+	              <p className="mt-1 text-xs leading-5 text-blue-800/80 dark:text-blue-100/75">
+	                {mobileDecisionReadiness.packet?.candidate_projection
+	                  ? `${Object.keys(mobileDecisionReadiness.packet.candidate_projection).length} projected field(s) are attached to the immutable receipt snapshot; these controls cannot edit them.`
+	                  : 'No candidate projection is attached. Decision controls cannot create or edit one.'}
+	              </p>
+	            </div>
+
+	            {!mobileDecisionReadiness.ready ? (
+	              <div className="mt-4 rounded-lg border border-red-500/35 bg-red-500/10 p-3" role="status">
+	                <div className="flex items-start gap-2">
+	                  <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-red-700 dark:text-red-300" />
+	                  <div>
+	                    <p className="text-sm font-semibold text-red-900 dark:text-red-100">Decision blocked closed</p>
+	                    <ul className="mt-1 space-y-1 text-xs leading-5 text-red-800/85 dark:text-red-100/80">
+	                      {mobileDecisionReadiness.blockers.map((blocker) => <li key={blocker}>- {blocker}</li>)}
+	                    </ul>
+	                  </div>
+	                </div>
+	              </div>
+	            ) : null}
+
+	            <div className="mt-4 grid gap-2 sm:grid-cols-3">
+	              {(['approve', 'request_revision', 'hold'] as SocialContentDecision[]).map((decision) => {
+	                const isLoading = mobileDecisionAction === decision
+	                const styles = decision === 'approve'
+	                  ? 'bg-emerald-600 text-white hover:bg-emerald-500'
+	                  : decision === 'request_revision'
+	                    ? 'border border-amber-600/50 bg-amber-500/10 text-amber-900 hover:bg-amber-500/20 dark:border-amber-500/50 dark:text-amber-100'
+	                    : 'border border-silicon-slate/80 bg-card text-card-foreground hover:border-gray-500'
+	                return (
+	                  <button
+	                    key={decision}
+	                    type="button"
+	                    onClick={() => handleMobileDecision(decision)}
+	                    disabled={!mobileDecisionReadiness.ready || Boolean(mobileDecisionAction)}
+	                    className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-45 ${styles}`}
+	                  >
+	                    {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : decision === 'approve' ? <CheckCircle2 className="h-4 w-4" /> : decision === 'request_revision' ? <RefreshCw className="h-4 w-4" /> : <AlertCircle className="h-4 w-4" />}
+	                    {socialContentDecisionLabel(decision)}
+	                  </button>
+	                )
+	              })}
+	            </div>
+	          </section>
+	        )}
+
+	        {/* ================================================================ */}
 	        {/* SECTION 2: "Where & When" Publish Panel                          */}
         {/* ================================================================ */}
 	        {activeApprovalStep === 'draft' && (
@@ -6317,7 +6475,7 @@ function SocialContentDetailPage() {
           </div>
 
           {/* Action buttons */}
-          {isEditable && (
+          {isEditable && !mobileDecisionMode && (
             <div className="flex flex-col gap-2 border-t border-gray-700 pt-4 sm:flex-row sm:items-center sm:justify-end">
               {copyReviewCanDecide && (
                 <button
