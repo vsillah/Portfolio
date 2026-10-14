@@ -158,6 +158,7 @@ describe('SocialContentDetailRoute visual production review', () => {
   }
 
   it('renders a YouTube Shorts review packet with channel-native copy guidance and no LinkedIn preview', async () => {
+    mocks.search = 'step=copy&qa_fixture=channel_native_video_v2'
     const youtubeItem = {
       ...baseItem,
       id: 'f966123f-05eb-48ec-a7c2-970afce642ef',
@@ -206,7 +207,7 @@ describe('SocialContentDetailRoute visual production review', () => {
       json: async () => String(input).includes('/topic-backlog') ? { items: [] } : { item: youtubeItem },
     } as Response)))
 
-    renderAtStep('copy')
+    render(<SocialContentDetailRoute />)
 
     expect(await screen.findByLabelText('YouTube Shorts channel-native video review')).toBeVisible()
     expect(screen.getByText('Video Script')).toBeVisible()
@@ -217,6 +218,10 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(screen.queryByLabelText('LinkedIn post preview')).not.toBeInTheDocument()
     expect(screen.queryByText('LinkedIn optimal: 150-300 words')).not.toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Open canonical Decision Queue' })).toHaveAttribute('href', '/admin/agents/coordination?proposal=24651a05-c8e5-4dd7-82fb-682e0223ee97')
+    expect(fetch).toHaveBeenCalledWith(
+      '/api/admin/social-content/social-1?qa_fixture=channel_native_video_v2',
+      expect.objectContaining({ cache: 'no-store' }),
+    )
   })
 
   it('renders a synthetic source-coverage fixture as evidence-only with no publishable affordances', async () => {

@@ -753,6 +753,7 @@ function SocialContentDetailPage() {
   const backUrl = getBackUrl(searchParams, '/admin/social-content')
   const rawRecoveryStep = searchParams.get('step')
   const deterministicVisualQaState = searchParams.get('qa_state')
+  const channelNativeQaFixture = searchParams.get('qa_fixture') === 'channel_native_video_v2'
   const recoveryStep: ApprovalStep = isApprovalStep(rawRecoveryStep) ? rawRecoveryStep : 'copy'
   const recoveryStepParams = new URLSearchParams(searchParams.toString())
   recoveryStepParams.set('step', recoveryStep)
@@ -1024,7 +1025,9 @@ function SocialContentDetailPage() {
 
       const detailQuery = id === DETERMINISTIC_VISUAL_BINDING_QA_ID && deterministicVisualQaState
         ? `?qa_state=${encodeURIComponent(deterministicVisualQaState)}`
-        : ''
+        : channelNativeQaFixture
+          ? '?qa_fixture=channel_native_video_v2'
+          : ''
       const res = await fetch(`/api/admin/social-content/${id}${detailQuery}`, {
         cache: 'no-store',
         headers: { Authorization: `Bearer ${session.access_token}` },
@@ -1097,7 +1100,7 @@ function SocialContentDetailPage() {
     } finally {
       if (!options.silent) setLoading(false)
     }
-  }, [deterministicVisualQaState, fetchCommentInboxItems, fetchReviewQueue, id])
+  }, [channelNativeQaFixture, deterministicVisualQaState, fetchCommentInboxItems, fetchReviewQueue, id])
 
   useEffect(() => {
     fetchItem()

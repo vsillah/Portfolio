@@ -10,7 +10,7 @@ const authState = process.env.PLAYWRIGHT_AUTH_STATE || '/Users/vambahsillah/Proj
 const outputDir = path.resolve(process.env.QA_OUTPUT_DIR || 'artifacts/human-qa/channel-native-video-review-2026-10-14/jev-motion-v2')
 const rawVideoDir = path.join(outputDir, 'raw-video')
 const mp4Path = path.join(outputDir, 'jev-motion-review-walkthrough.mp4')
-const reviewUrl = `${baseUrl}/admin/social-content/f966123f-05eb-48ec-a7c2-970afce642ef?step=copy`
+const reviewUrl = `${baseUrl}/admin/social-content/f966123f-05eb-48ec-a7c2-970afce642ef?step=copy&qa_fixture=channel_native_video_v2`
 
 await mkdir(rawVideoDir, { recursive: true })
 

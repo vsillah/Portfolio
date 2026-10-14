@@ -4,7 +4,7 @@ Privacy-safe rendered evidence for the Social Content detail repair.
 
 ## Exact routes
 
-- Jev: `/admin/social-content/f966123f-05eb-48ec-a7c2-970afce642ef?step=copy`
+- Jev motion v2: `/admin/social-content/f966123f-05eb-48ec-a7c2-970afce642ef?step=copy&qa_fixture=channel_native_video_v2`
 - Dark Castle Chess: `/admin/social-content/21c492c2-9279-4e08-afc9-49207935a681?step=copy`
 
 ## Coverage

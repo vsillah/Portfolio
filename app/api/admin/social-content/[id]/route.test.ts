@@ -127,6 +127,21 @@ describe('GET /api/admin/social-content/[id] channel-native video fallback', () 
       spending: false,
     }))
   })
+
+  it('uses the explicit read-only Jev QA binding even when the shared row exists', async () => {
+    const id = 'f966123f-05eb-48ec-a7c2-970afce642ef'
+    mocks.single.mockResolvedValue({ data: { id, rag_context: { source_type: 'stale-shared-row' } }, error: null })
+    const response = await GET(new NextRequest(`http://localhost/api/admin/social-content/${id}?qa_fixture=channel_native_video_v2`) as never, { params: { id } })
+    const body = await response.json()
+
+    expect(body).toMatchObject({ fixture: true, fixture_state: 'repository_bound_review' })
+    expect(body.item.rag_context.approved_video_packet).toMatchObject({
+      video_sha256: '191d1d99c00688aba025c13bfbace887c647e36cc67e47dcbaaa0902614ca92e',
+      render_version: 'social_video_adaptation_local_render_v2',
+    })
+    expect(mocks.from).not.toHaveBeenCalled()
+    expect(mocks.update).not.toHaveBeenCalled()
+  })
 })
 
 describe('PUT /api/admin/social-content/[id]', () => {
