@@ -1,0 +1,177 @@
+{
+  "version": "social_avatar_motion_composite_v1",
+  "idempotency_key": "social-avatar-motion:a6977d1fd2804cc8f50d9e2b5f2b94f1cd2bccabfe9b8cd398d18b27705565e4",
+  "social_content_id": "f966123f-05eb-48ec-a7c2-970afce642ef",
+  "content_version": "sha256:e6fc9ae4aadd61e3a871e8f7af2dd0a2d424d5c20ae6a8d0eac861b16e796bd5",
+  "script_sha256": "sha256:732a517ca9e98ab15bb3caa5196e4982e4c24a16f7885557fb37247f55b0f77f",
+  "avatar": {
+    "id": "3feb738b9af64f7b8f91cc8e4ffcdc45",
+    "identity_id": "6c12a6e4973643c5851716f855b8da7f",
+    "look_id": "3feb738b9af64f7b8f91cc8e4ffcdc45",
+    "version": "provider-catalog-2026-10-14",
+    "selection": {
+      "selectorVersion": "social_avatar_look_lru_v1",
+      "identityId": "6c12a6e4973643c5851716f855b8da7f",
+      "lookId": "3feb738b9af64f7b8f91cc8e4ffcdc45",
+      "lookVersion": "provider-catalog-2026-10-14",
+      "providerCharacterType": "avatar",
+      "reason": "campaign_pin",
+      "selectionKey": "campaign:jev:v3-mad-hadda:killer-script:api-credit:v3",
+      "sourceReceiptId": "source:jev:approved-composite-20261014",
+      "consentRightsReceiptId": "rights:jev:red-v-neck-mad-hadda-killer-script-api-credit-v3-one-review-20261014",
+      "recentCompletedHistory": [
+        {
+          "identityId": "6c12a6e4973643c5851716f855b8da7f",
+          "lookId": "3feb738b9af64f7b8f91cc8e4ffcdc45",
+          "providerJobId": "23ae7d28cc31ed24c93424cd568e0e09",
+          "completedAt": "2026-10-14T22:14:48.000Z"
+        }
+      ]
+    }
+  },
+  "voice": {
+    "id": "3bed25c167534fd6ac5becdec4516ec7",
+    "version": "provider-catalog-2026-10-14"
+  },
+  "provider": {
+    "name": "heygen",
+    "job_id": "c051d4c479011ba54c84c99ebd128a29",
+    "output_sha256": "c9b0949da45208fd8fa84cd614c7c2c5c8667d548e74e4ef25975a9d0e29494d",
+    "duration_seconds": 67.28,
+    "cost_usd": 5.416,
+    "authorization_id": "jev-heygen-v3-red-mad-hadda-killer-script-api-credit-v3-one-job-20261014",
+    "max_cost_usd": 9
+  },
+  "motion_master_sha256": "17bd925703c0f670046a3cd017a081c9547fbae5a7a5fc9d444721d4721e23b2",
+  "consent_rights_receipt_id": "rights:jev:red-v-neck-mad-hadda-killer-script-api-credit-v3-one-review-20261014",
+  "privacy_receipt_id": "privacy:jev:public-safe-20261014",
+  "source_receipt_id": "source:jev:approved-composite-20261014",
+  "presenter_source_path": "/Users/vambahsillah/.codex/worktrees/e6d7/Portfolio/artifacts/human-qa/artifact-video-review-2026-10-14/jev-avatar-motion-v3-mad-hadda-v3-api-credit/jev-heygen-presenter-native.mp4",
+  "presenter_windows": [
+    {
+      "sourceStart": 0,
+      "sourceEnd": 11.213333333333333,
+      "outputStart": 0,
+      "x": 90,
+      "y": 1310,
+      "width": 900,
+      "height": 506
+    },
+    {
+      "sourceStart": 11.213333333333333,
+      "sourceEnd": 22.426666666666666,
+      "outputStart": 12.413333333333332,
+      "x": 130,
+      "y": 1340,
+      "width": 820,
+      "height": 460
+    },
+    {
+      "sourceStart": 22.426666666666666,
+      "sourceEnd": 33.64,
+      "outputStart": 24.826666666666664,
+      "x": 300,
+      "y": 1370,
+      "width": 760,
+      "height": 428
+    },
+    {
+      "sourceStart": 33.64,
+      "sourceEnd": 44.85333333333333,
+      "outputStart": 37.24,
+      "x": 90,
+      "y": 1310,
+      "width": 900,
+      "height": 506
+    },
+    {
+      "sourceStart": 44.85333333333333,
+      "sourceEnd": 56.06666666666666,
+      "outputStart": 49.65333333333333,
+      "x": 130,
+      "y": 1340,
+      "width": 820,
+      "height": 460
+    },
+    {
+      "sourceStart": 56.06666666666666,
+      "sourceEnd": 67.28,
+      "outputStart": 62.06666666666666,
+      "x": 300,
+      "y": 1370,
+      "width": 760,
+      "height": 428
+    }
+  ],
+  "output_path": "/Users/vambahsillah/.codex/worktrees/e6d7/Portfolio/artifacts/human-qa/artifact-video-review-2026-10-14/jev-avatar-motion-v3-mad-hadda-v3-api-credit/jev-avatar-motion-review.mp4",
+  "output_sha256": "d567a263d31be2fe5c39190b977fe04461eb61f1ecf34db5599a2749a5b5a85a",
+  "ffmpeg_command": "ffmpeg \"-y\" \"-i\" \"/Users/vambahsillah/.codex/worktrees/e6d7/Portfolio/artifacts/human-qa/artifact-video-review-2026-10-14/jev-template-v2-motion-master.mp4\" \"-i\" \"/Users/vambahsillah/.codex/worktrees/e6d7/Portfolio/artifacts/human-qa/artifact-video-review-2026-10-14/jev-avatar-motion-v3-mad-hadda-v3-api-credit/jev-heygen-presenter-native.mp4\" \"-filter_complex\" \"[1:v]split=6[pv0][pv1][pv2][pv3][pv4][pv5];[pv0]trim=start=0:end=11.213333333333333,crop=712:400:4:(ih-oh)/2,chromakey=0x00ED59:0.18:0.08,despill=green,setpts=PTS-STARTPTS+0/TB,scale=900:506[p0];[pv1]trim=start=11.213333333333333:end=22.426666666666666,crop=712:400:4:(ih-oh)/2,chromakey=0x00ED59:0.18:0.08,despill=green,setpts=PTS-STARTPTS+12.413333333333332/TB,scale=820:460[p1];[pv2]trim=start=22.426666666666666:end=33.64,crop=712:400:4:(ih-oh)/2,chromakey=0x00ED59:0.18:0.08,despill=green,setpts=PTS-STARTPTS+24.826666666666664/TB,scale=760:428[p2];[pv3]trim=start=33.64:end=44.85333333333333,crop=712:400:4:(ih-oh)/2,chromakey=0x00ED59:0.18:0.08,despill=green,setpts=PTS-STARTPTS+37.24/TB,scale=900:506[p3];[pv4]trim=start=44.85333333333333:end=56.06666666666666,crop=712:400:4:(ih-oh)/2,chromakey=0x00ED59:0.18:0.08,despill=green,setpts=PTS-STARTPTS+49.65333333333333/TB,scale=820:460[p4];[pv5]trim=start=56.06666666666666:end=67.28,crop=712:400:4:(ih-oh)/2,chromakey=0x00ED59:0.18:0.08,despill=green,setpts=PTS-STARTPTS+62.06666666666666/TB,scale=760:428[p5];[0:v][p0]overlay=x=90:y=1310:enable='between(t,0,11.213333333333333)'[v0];[v0][p1]overlay=x=130:y=1340:enable='between(t,12.413333333333332,23.626666666666665)'[v1];[v1][p2]overlay=x=300:y=1370:enable='between(t,24.826666666666664,36.04)'[v2];[v2][p3]overlay=x=90:y=1310:enable='between(t,37.24,48.45333333333333)'[v3];[v3][p4]overlay=x=130:y=1340:enable='between(t,49.65333333333333,60.86666666666666)'[v4];[v4][p5]overlay=x=300:y=1370:enable='between(t,62.06666666666666,73.28)'[video];[1:a]asplit=6[pa0][pa1][pa2][pa3][pa4][pa5];[pa0]atrim=start=0:end=11.213333333333333,asetpts=PTS-STARTPTS,adelay=0|0[a0];[pa1]atrim=start=11.213333333333333:end=22.426666666666666,asetpts=PTS-STARTPTS,adelay=12413|12413[a1];[pa2]atrim=start=22.426666666666666:end=33.64,asetpts=PTS-STARTPTS,adelay=24827|24827[a2];[pa3]atrim=start=33.64:end=44.85333333333333,asetpts=PTS-STARTPTS,adelay=37240|37240[a3];[pa4]atrim=start=44.85333333333333:end=56.06666666666666,asetpts=PTS-STARTPTS,adelay=49653|49653[a4];[pa5]atrim=start=56.06666666666666:end=67.28,asetpts=PTS-STARTPTS,adelay=62067|62067[a5];[0:a]volume=0[basea];[basea][a0][a1][a2][a3][a4][a5]amix=inputs=7:duration=longest:normalize=0[audio]\" \"-map\" \"[video]\" \"-map\" \"[audio]\" \"-t\" \"74.28\" \"-c:v\" \"libx264\" \"-preset\" \"medium\" \"-crf\" \"18\" \"-pix_fmt\" \"yuv420p\" \"-r\" \"30\" \"-c:a\" \"aac\" \"-b:a\" \"192k\" \"-movflags\" \"+faststart\" \"/Users/vambahsillah/.codex/worktrees/e6d7/Portfolio/artifacts/human-qa/artifact-video-review-2026-10-14/jev-avatar-motion-v3-mad-hadda-v3-api-credit/jev-avatar-motion-review.mp4\"",
+  "gates": {
+    "youtube_upload": false,
+    "platform_draft": false,
+    "schedule": false,
+    "publish": false,
+    "external_send": false
+  },
+  "output_duration_seconds": 74.28,
+  "presenter_probe": {
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "index": 0,
+        "codec_name": "h264",
+        "codec_type": "video",
+        "width": 720,
+        "height": 1280,
+        "r_frame_rate": "25/1",
+        "avg_frame_rate": "25/1",
+        "nb_frames": "1682"
+      },
+      {
+        "index": 1,
+        "codec_name": "aac",
+        "codec_type": "audio",
+        "sample_rate": "48000",
+        "channels": 2,
+        "r_frame_rate": "0/0",
+        "avg_frame_rate": "0/0",
+        "nb_frames": "3154"
+      }
+    ],
+    "format": {
+      "duration": "67.280000",
+      "size": "7057650"
+    }
+  },
+  "output_probe": {
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "index": 0,
+        "codec_name": "h264",
+        "codec_type": "video",
+        "width": 1080,
+        "height": 1920,
+        "r_frame_rate": "30/1",
+        "avg_frame_rate": "30/1",
+        "nb_frames": "2229"
+      },
+      {
+        "index": 1,
+        "codec_name": "aac",
+        "codec_type": "audio",
+        "sample_rate": "48000",
+        "channels": 2,
+        "r_frame_rate": "0/0",
+        "avg_frame_rate": "0/0",
+        "nb_frames": "3480"
+      }
+    ],
+    "format": {
+      "duration": "74.300000",
+      "size": "14638081"
+    }
+  }
+}
