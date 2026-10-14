@@ -51,6 +51,17 @@
     "replacement_composite_created": false,
     "human_qa_status": "withheld"
   },
+  "api_credit_top_up": {
+    "status": "paid_observed",
+    "receipt": "jev-avatar-motion-v3-mad-hadda-v2-template/heygen-api-credit-top-up.receipt.json",
+    "vendor": "HeyGen",
+    "total_paid_usd": 5.31,
+    "api_balance_before_usd": 5.38,
+    "api_balance_after_usd": 10.38,
+    "auto_reload": false,
+    "new_provider_job_submitted": false,
+    "provider_execution": "blocked_pending_fresh_action_time_authority"
+  },
   "provider": {
     "name": "heygen",
     "api_version": "v3",

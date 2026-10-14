@@ -49,12 +49,12 @@
   },
   "next_gate": {
     "status": "blocked",
-    "reason": "The single authorized job was consumed and failed because the account lacks API credits.",
+    "reason": "API credits are now available, but the single authorized job was consumed and failed. Fresh action-time provider authority is required.",
     "requirements": [
-      "Resolve HeyGen API-credit availability without changing credentials or purchasing an unknown or recurring commitment.",
       "Issue a fresh provider authorization with a new idempotency key, one-job maximum, no retry, and a pricing bound based on the current US$4.83/minute rate. A US$9 cap requires a maximum of 111 generated seconds; retaining 120 seconds requires a higher separately approved cap.",
       "Revalidate the exact script, template receipt, look, voice, engines, duration, and cost bindings before any new submission."
-    ]
+    ],
+    "api_credit_top_up_receipt": "heygen-api-credit-top-up.receipt.json"
   },
   "side_effects": {
     "uploads": 0,

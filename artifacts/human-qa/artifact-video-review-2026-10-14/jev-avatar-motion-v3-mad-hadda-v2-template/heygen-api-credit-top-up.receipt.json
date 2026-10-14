@@ -1,0 +1,44 @@
+{
+  "version": "provider_expense_receipt_v1",
+  "status": "paid_observed",
+  "recorded_at": "2026-10-14T23:03:44.000Z",
+  "vendor": "HeyGen",
+  "purpose": "One-time API-credit top-up for the already-approved Jev presenter pipeline.",
+  "approved_goal": "Restore sufficient API-credit availability for a future, separately authorized Jev Killer-script presenter generation.",
+  "authorization_basis": "Standing small-expense authorization: one-time total strictly below US$10 for an already-approved goal.",
+  "checkout": {
+    "currency": "USD",
+    "subtotal": 5,
+    "sales_tax": 0.31,
+    "sales_tax_jurisdiction": "Massachusetts",
+    "total_paid": 5.31,
+    "recurring": false,
+    "auto_reload_before": false,
+    "auto_reload_after": false,
+    "payment_method": "Existing account payment method; payment details intentionally omitted."
+  },
+  "api_account_state": {
+    "balance_before_usd": 5.38,
+    "balance_after_usd": 10.38,
+    "balance_delta_usd": 5,
+    "surface": "Authenticated HeyGen Developer Billing",
+    "evidence_boundary": "Account-state and checkout totals were observed; no credential, payment-card, or billing-address details are stored in this receipt."
+  },
+  "provider_execution": {
+    "new_job_submitted": false,
+    "reason": "The prior one-job/no-retry authority was consumed by failed job 59486d96b12ed3613ff8090324b08184. Fresh action-time authority is required before any new provider request.",
+    "failed_job_id": "59486d96b12ed3613ff8090324b08184",
+    "failed_idempotency_key": "social-avatar-motion:5086cf2b506cd0c893e5c46aca70daafba7c3f55f48183d987d803f90881cc32"
+  },
+  "external_action_gates": {
+    "provider_generation": "blocked_pending_fresh_action_time_authority",
+    "upload": false,
+    "platform_draft": false,
+    "schedule": false,
+    "publish": false,
+    "external_send": false,
+    "credential_change": false,
+    "migration": false,
+    "unrelated_or_shared_production_data_mutation": false
+  }
+}
