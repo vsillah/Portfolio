@@ -2012,7 +2012,11 @@ function SocialContentQueuePage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
                         {platformIcon(item.platform)}
-                        <span className={`text-xs px-2 py-0.5 rounded-full ${statusCfg.bgColor} ${statusCfg.color} border ${statusCfg.borderColor}`}>
+                        <span
+                          className={`rounded-full border px-2 py-0.5 text-xs font-semibold ${statusCfg.bgColor} ${statusCfg.color} ${statusCfg.borderColor}`}
+                          data-content-status={item.status}
+                          data-contrast-audit="content-status-badge"
+                        >
                           {statusCfg.label}
                         </span>
                         {item.framework_visual_type && (

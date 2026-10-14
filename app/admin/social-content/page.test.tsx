@@ -336,6 +336,9 @@ describe('SocialContentQueuePage Instagram provider setup', () => {
     render(<SocialContentQueuePage />)
 
     expect(await screen.findByText('draft social copy')).toBeInTheDocument()
+    const approvedBadge = document.querySelector('[data-content-status="approved"]')
+    expect(approvedBadge).toHaveAttribute('data-contrast-audit', 'content-status-badge')
+    expect(approvedBadge).toHaveClass('font-semibold', 'dark:bg-blue-700', 'dark:text-white', 'dark:border-blue-300/80')
     const statusSelect = screen.getByRole('combobox', { name: 'Filter social content by status' }) as HTMLSelectElement
     const draftMetric = screen.getByRole('button', { name: 'Filter social content to drafts (1)' })
 
