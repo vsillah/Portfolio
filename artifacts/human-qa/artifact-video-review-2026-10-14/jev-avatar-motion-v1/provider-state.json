@@ -1,0 +1,13 @@
+{
+  "idempotencyKey": "social-avatar-motion:0121e25ff316b87d90f85007ba8e7ad38bc2048cf465ad3467a4ba653ffb0457",
+  "status": "failed",
+  "reservedAt": "2026-10-14T21:18:24.991Z",
+  "quotaBefore": 367,
+  "quotaAfter": 367,
+  "providerJobId": "cf25007cd3d34be9adedf747df28577f",
+  "failure": "Voice validation failed for 1 voice(s)",
+  "providerError": {
+    "code": "VOICE_CONFIG_ERROR",
+    "message": "Voice validation failed for 1 voice(s)"
+  }
+}
