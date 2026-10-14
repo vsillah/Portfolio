@@ -80,8 +80,13 @@ export type SocialVideoAdaptationDraft = {
     promise: string
     claim_ids: string[]
   }>
-  opening_hook: string
-  full_spoken_script: string
+  format_adaptations: Array<{
+    target: SocialVideoTarget
+    opening_hook: string
+    full_spoken_script: string
+    target_duration_seconds: number
+    adaptation_rationale: string
+  }>
   practical_value: string
   why_artifact_matters: string
   scenes: SocialVideoScene[]
@@ -232,6 +237,7 @@ export function evaluateSocialVideoAdaptation(input: SocialVideoAdaptationInput)
   if (!input.identity.channel_packet_ids.length || !sameSet(input.identity.channel_packet_ids, input.source_channel_packet.channel_packet_ids)) {
     blockers.push('Channel packet identities are missing or conflict with the approved source packet.')
   }
+  if (!text(input.source_channel_packet.linkedin_copy)) blockers.push('The approved source channel copy is missing.')
 
   for (const kind of SOCIAL_VIDEO_ADAPTATION_RECEIPT_KINDS) {
     const receipt = input.receipts[kind]
@@ -257,7 +263,7 @@ export function evaluateSocialVideoAdaptation(input: SocialVideoAdaptationInput)
     if (!text(claim.claim_id) || claimIds.has(claim.claim_id)) blockers.push('Every claim requires a unique stable claim identity.')
     claimIds.add(claim.claim_id)
     if (!text(claim.text) || !text(claim.privacy_boundary)) blockers.push(`Claim ${claim.claim_id || '(missing id)'} requires text and a privacy boundary.`)
-    if (!claim.source_receipt_ids.length || claim.source_receipt_ids.some((id) => !receiptIds.has(id))) {
+    if (!claim.source_receipt_ids.includes(sourceReceiptId) || claim.source_receipt_ids.some((id) => !receiptIds.has(id))) {
       blockers.push(`Claim ${claim.claim_id || '(missing id)'} is not bound to current source receipts.`)
     }
     if (!claim.proof_receipt_ids.length || claim.proof_receipt_ids.some((id) => !receiptIds.has(id))) {
@@ -292,11 +298,22 @@ export function evaluateSocialVideoAdaptation(input: SocialVideoAdaptationInput)
   for (const target of targets) {
     if (!draft.title_options.some((option) => option.targets.includes(target))) blockers.push(`No title option supports ${target}.`)
   }
-  if (text(draft.opening_hook).length < 30) blockers.push('Opening hook must establish a concrete artifact-specific tension.')
-  if (text(draft.full_spoken_script).length < minScriptCharacters(targets)) blockers.push('The full spoken script is too thin for the selected format.')
-  if (isThinLinkedInRestatement(input.source_channel_packet.linkedin_copy, draft.full_spoken_script)) {
-    blockers.push('The video script merely restates the LinkedIn copy instead of adapting the artifact for video.')
+  for (const target of targets) {
+    const adaptations = draft.format_adaptations.filter((adaptation) => adaptation.target === target)
+    if (adaptations.length !== 1) {
+      blockers.push(`${target} requires exactly one format-specific spoken-script adaptation.`)
+      continue
+    }
+    const adaptation = adaptations[0]
+    if (text(adaptation.opening_hook).length < 30) blockers.push(`${target} opening hook must establish a concrete artifact-specific tension.`)
+    if (text(adaptation.full_spoken_script).length < minScriptCharacters([target])) blockers.push(`${target} full spoken script is too thin for the selected format.`)
+    if (!Number.isFinite(adaptation.target_duration_seconds) || adaptation.target_duration_seconds <= 0) blockers.push(`${target} requires a positive target duration.`)
+    if (text(adaptation.adaptation_rationale).length < 30) blockers.push(`${target} requires a format-specific adaptation rationale.`)
+    if (isThinLinkedInRestatement(input.source_channel_packet.linkedin_copy, adaptation.full_spoken_script)) {
+      blockers.push(`${target} script merely restates the LinkedIn copy instead of adapting the artifact for video.`)
+    }
   }
+  if (draft.format_adaptations.some((adaptation) => !targets.includes(adaptation.target))) blockers.push('Format adaptations cannot target an unsupported format.')
   if (text(draft.practical_value).length < 30 || text(draft.why_artifact_matters).length < 30 || text(draft.traceability_summary).length < 30) {
     blockers.push('Practical value, why the artifact matters, and traceability must each be explicit.')
   }
@@ -309,7 +326,7 @@ export function evaluateSocialVideoAdaptation(input: SocialVideoAdaptationInput)
     if (!text(scene.purpose) || !text(scene.narration) || !text(scene.motion_direction)) blockers.push(`Scene ${scene.scene_id || '(missing id)'} lacks purpose, narration, or motion direction.`)
     if (!scene.claim_ids.length || scene.claim_ids.some((id) => !claimIds.has(id))) blockers.push(`Scene ${scene.scene_id || '(missing id)'} has missing or invalid claim bindings.`)
     if (!scene.artifact_ids.length || scene.artifact_ids.some((id) => !artifactIds.has(id))) blockers.push(`Scene ${scene.scene_id || '(missing id)'} has missing or invalid artifact bindings.`)
-    if (!scene.source_receipt_ids.length || scene.source_receipt_ids.some((id) => !receiptIds.has(id))) blockers.push(`Scene ${scene.scene_id || '(missing id)'} has missing or invalid source receipts.`)
+    if (!scene.source_receipt_ids.includes(sourceReceiptId) || scene.source_receipt_ids.some((id) => !receiptIds.has(id))) blockers.push(`Scene ${scene.scene_id || '(missing id)'} has missing or invalid source receipts.`)
     if (!scene.on_screen_text.length || scene.on_screen_text.some((value) => !text(value))) blockers.push(`Scene ${scene.scene_id || '(missing id)'} needs bounded on-screen text.`)
   }
   for (const target of targets) {
@@ -319,10 +336,12 @@ export function evaluateSocialVideoAdaptation(input: SocialVideoAdaptationInput)
     }
   }
 
+  const shotIds = new Set<string>()
   for (const shot of draft.shot_plan) {
-    if (!text(shot.shot_id) || !sceneIds.has(shot.scene_id) || !artifactIds.has(shot.artifact_id)) blockers.push('Every shot must bind a unique shot identity to a valid scene and evidence artifact.')
+    if (!text(shot.shot_id) || shotIds.has(shot.shot_id) || !sceneIds.has(shot.scene_id) || !artifactIds.has(shot.artifact_id)) blockers.push('Every shot must bind a unique shot identity to a valid scene and evidence artifact.')
+    shotIds.add(shot.shot_id)
     if (!text(shot.framing) || !text(shot.action) || !text(shot.privacy_boundary)) blockers.push(`Shot ${shot.shot_id || '(missing id)'} lacks framing, action, or a privacy boundary.`)
-    if (!shot.source_receipt_ids.length || shot.source_receipt_ids.some((id) => !receiptIds.has(id))) blockers.push(`Shot ${shot.shot_id || '(missing id)'} has missing or invalid source receipts.`)
+    if (!shot.source_receipt_ids.includes(sourceReceiptId) || shot.source_receipt_ids.some((id) => !receiptIds.has(id))) blockers.push(`Shot ${shot.shot_id || '(missing id)'} has missing or invalid source receipts.`)
   }
   for (const scene of draft.scenes) {
     if (!draft.shot_plan.some((shot) => shot.scene_id === scene.scene_id)) blockers.push(`Scene ${scene.scene_id} has no B-roll, screenshot, gameplay, or artifact shot plan.`)

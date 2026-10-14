@@ -69,6 +69,22 @@ function fixture(input: {
       scene({ id: 'short-close', target: 'youtube_shorts' as const, artifactId: assetId, purpose: 'the traceable operating principle' }),
     ] : []),
   ].filter((item) => targets.includes(item.target))
+  const longFormScript = [
+    `Most people see a polished ${productLabel} artifact. The useful story is the decision trail the artifact makes visible.`,
+    'Start with the operator problem. A result can look finished while the source, review state, and next accountable action remain scattered across separate tools.',
+    `This approved ${productLabel} evidence gives us something concrete to inspect. The first region shows what entered the workflow. The second makes the decision visible. The third preserves the boundary around what the system may do next.`,
+    'That sequence matters because the viewer can distinguish a demonstrated capability from a provider promise or a production action. The artifact carries proof, ownership, and limits together.',
+    'Now follow the visual path. We begin wide so the full operating context is legible, move to the evidence region as the claim is introduced, and finish on the receipt trail that lets an operator verify the next action.',
+    'The practical value is not another dashboard or decorative diagram. It is less time reconstructing why a decision was made and less ambiguity about who still owns the handoff.',
+    'The same test applies to any AI-enabled workflow: show the source, show the decision, show the boundary, and keep the final action human-gated until its separate approval exists.',
+    'Use this artifact as a review tool. Ask whether every visible claim has a receipt and whether the motion helps the viewer understand the system instead of adding spectacle.',
+  ].join('\n\n')
+  const shortsScript = [
+    `${productLabel} looks polished, but the useful part is the decision trail behind it.`,
+    'Watch the artifact move from source evidence to the operator decision and then to the bounded next action.',
+    'That visible receipt trail helps a reviewer separate demonstrated value from provider promises or production activation.',
+    'If the source, owner, and gate are visible, the artifact becomes a practical review tool instead of a decorative proof point.',
+  ].join(' ')
 
   return {
     adaptation_id: `adaptation-${productId}`,
@@ -113,17 +129,17 @@ function fixture(input: {
         { title: `What ${productLabel}'s artifact teaches operators`, targets, promise: 'Walk through the evidence and decision path.', claim_ids: ['claim-value'] },
         { title: 'The receipt trail behind a trustworthy operating decision', targets, promise: 'See the artifact, process, and bounded value.', claim_ids: ['claim-value'] },
       ],
-      opening_hook: `Most people see a polished ${productLabel} artifact. The useful story is the decision trail the artifact makes visible.`,
-      full_spoken_script: [
-        `Most people see a polished ${productLabel} artifact. The useful story is the decision trail the artifact makes visible.`,
-        'Start with the operator problem. A result can look finished while the source, review state, and next accountable action remain scattered across separate tools.',
-        `This approved ${productLabel} evidence gives us something concrete to inspect. The first region shows what entered the workflow. The second makes the decision visible. The third preserves the boundary around what the system may do next.`,
-        'That sequence matters because the viewer can distinguish a demonstrated capability from a provider promise or a production action. The artifact carries proof, ownership, and limits together.',
-        'Now follow the visual path. We begin wide so the full operating context is legible, move to the evidence region as the claim is introduced, and finish on the receipt trail that lets an operator verify the next action.',
-        'The practical value is not another dashboard or decorative diagram. It is less time reconstructing why a decision was made and less ambiguity about who still owns the handoff.',
-        'The same test applies to any AI-enabled workflow: show the source, show the decision, show the boundary, and keep the final action human-gated until its separate approval exists.',
-        'Use this artifact as a review tool. Ask whether every visible claim has a receipt and whether the motion helps the viewer understand the system instead of adding spectacle.',
-      ].join('\n\n'),
+      format_adaptations: targets.map((target) => ({
+        target,
+        opening_hook: target === 'youtube_long_form'
+          ? `Most people see a polished ${productLabel} artifact. The useful story is the decision trail the artifact makes visible.`
+          : `${productLabel} looks polished. Can you see the decision trail behind it?`,
+        full_spoken_script: target === 'youtube_long_form' ? longFormScript : shortsScript,
+        target_duration_seconds: target === 'youtube_long_form' ? 420 : 45,
+        adaptation_rationale: target === 'youtube_long_form'
+          ? 'The long-form cut teaches the full artifact, process, value, and receipt sequence with time for visual inspection.'
+          : 'The Shorts cut compresses the artifact into one tension, one proof path, and one traceable operating principle.',
+      })),
       practical_value: 'The walkthrough gives operators a repeatable test for evidence, ownership, and next-action clarity.',
       why_artifact_matters: 'The approved artifact turns an abstract governance claim into an inspectable operating sequence.',
       scenes,
@@ -201,12 +217,12 @@ describe('social video artifact adaptation', () => {
 
   it('rejects a packet that merely reformats its LinkedIn copy', () => {
     const input = fixture({ targetDecision: 'shorts' })
-    input.draft.full_spoken_script = input.source_channel_packet.linkedin_copy
+    input.draft.format_adaptations[0].full_spoken_script = input.source_channel_packet.linkedin_copy
 
     const readiness = evaluateSocialVideoAdaptation(input)
 
     expect(readiness.ready).toBe(false)
-    expect(readiness.blockers).toContain('The video script merely restates the LinkedIn copy instead of adapting the artifact for video.')
+    expect(readiness.blockers).toContain('youtube_shorts script merely restates the LinkedIn copy instead of adapting the artifact for video.')
     expect(() => buildSocialVideoAdaptationPacket(input)).toThrow(SocialVideoAdaptationError)
   })
 
@@ -220,7 +236,7 @@ describe('social video artifact adaptation', () => {
 
     expect(packet.identity.product_id).toBe('future-product')
     expect(packet.evidence_assets[0].asset_type).toBe('workflow_capture')
-    expect(packet.draft.opening_hook).toContain('Future Product')
+    expect(packet.draft.format_adaptations[0].opening_hook).toContain('Future Product')
   })
 
   it('fails closed when receipts are missing, stale, expired, or do not clear asset rights', () => {
