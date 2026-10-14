@@ -15,7 +15,7 @@ Human QA remains pending. This packet replaces the rejected static-timeline evid
 ## Evidence files
 
 - `jev-deployed-review-walkthrough.mp4`: 1440x900, 4.8 fps, 126 frames, 26.25 seconds, H.264. SHA-256 `4c741a98b9a75a5e3cab67f343073866ad05d810a478ec61a1c737b6fb1302a8`.
-- `jev-deployed-motion-review.png`: desktop deployed motion frame. SHA-256 `47f47aea3fbb53e0faecff12bcb7bd4d5599124338bed0d976d5256c4be4f12c`.
+- `jev-deployed-motion-review.png`: desktop deployed motion frame. SHA-256 `a0048e5009b999abc86544e4a476f505b288abb07423bf525b4dcacf88dfa04e`.
 - `jev-deployed-receipts.png`: deployed source, voice, framework, privacy, visual, rights, challenger, and script-quality receipts. SHA-256 `58f3e3906443b90053ebaaf81aa0731fa58e2a61f12abaa73fac5258e0ce313b`.
 - `jev-deployed-mobile.png`: narrow-width layout with the 22-second duration and video receipt visible. SHA-256 `2a4f1176b40f6828680c98b360f97971cb98156f1512353ef16773658ed2f108`.
 
