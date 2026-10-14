@@ -1,7 +1,32 @@
 import { describe, it, expect } from 'vitest'
-import { extractMeetingTitle, extractMeetingSourceUrl } from './social-content'
+import { extractMeetingTitle, extractMeetingSourceUrl, STATUS_CONFIG } from './social-content'
 
 describe('social-content helpers', () => {
+  describe('STATUS_CONFIG', () => {
+    it('uses opaque high-contrast lifecycle colors in dark mode', () => {
+      expect(STATUS_CONFIG.draft).toMatchObject({
+        color: expect.stringContaining('dark:text-white'),
+        bgColor: expect.stringContaining('dark:bg-gray-800'),
+      })
+      expect(STATUS_CONFIG.approved).toMatchObject({
+        color: expect.stringContaining('dark:text-white'),
+        bgColor: expect.stringContaining('dark:bg-blue-700'),
+      })
+      expect(STATUS_CONFIG.scheduled).toMatchObject({
+        color: expect.stringContaining('dark:text-amber-950'),
+        bgColor: expect.stringContaining('dark:bg-amber-400'),
+      })
+      expect(STATUS_CONFIG.published).toMatchObject({
+        color: expect.stringContaining('dark:text-white'),
+        bgColor: expect.stringContaining('dark:bg-emerald-700'),
+      })
+      expect(STATUS_CONFIG.rejected).toMatchObject({
+        color: expect.stringContaining('dark:text-white'),
+        bgColor: expect.stringContaining('dark:bg-red-700'),
+      })
+    })
+  })
+
   describe('extractMeetingTitle', () => {
     it('prefers structured_notes.title when present', () => {
       const title = extractMeetingTitle(
