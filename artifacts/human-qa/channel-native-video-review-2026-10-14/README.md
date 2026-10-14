@@ -18,7 +18,9 @@ Privacy-safe rendered evidence for the Social Content detail repair.
 - The bound link for each item opened the canonical Decision Queue route.
 - No production/shared row was changed. No provider call, upload, platform draft, schedule, publication, credential change, privacy-boundary change, external send, or migration occurred.
 
-`channel-native-video-review.mp4` is the primary Human-QA walkthrough. The PNGs preserve each route's default and expanded evidence states at both tested widths.
+`channel-native-video-review.mp4` and the sibling PNGs document the original channel-native review-surface pass. Vambah rejected the Jev media shown in that recording because it remained a static image on a timeline.
+
+The replacement Jev evidence belongs in `jev-motion-v2/`. Its MP4 must show the new 22-second vertical motion piece playing inside the exact deployed Social Content route, followed by the receipt and disabled-action boundary. Dark Castle remains bound to its previously approved packet and is outside this repair.
 
 Reproduce with:
 
@@ -26,4 +28,12 @@ Reproduce with:
 QA_BASE_URL=http://localhost:3000 \
 PLAYWRIGHT_AUTH_STATE=/path/to/portfolio-admin-storage-state.json \
 node scripts/qa/record-channel-native-video-review.mjs
+```
+
+Record the repaired Jev route with:
+
+```bash
+QA_BASE_URL=https://<exact-pr-preview> \
+PLAYWRIGHT_AUTH_STATE=/path/to/portfolio-admin-storage-state.json \
+node scripts/qa/record-jev-motion-video-review.mjs
 ```

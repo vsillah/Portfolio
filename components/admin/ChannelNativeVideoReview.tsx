@@ -92,6 +92,8 @@ export default function ChannelNativeVideoReview({ item }: { item: ChannelNative
   const review = getChannelVideoPacket(item)
   if (!review) return null
 
+  const isPortraitVideo = Number(review.packet.height) > Number(review.packet.width)
+
   const receiptEntries = Object.entries(review.receipts ?? {})
     .map(([kind, value]) => ({ kind, receipt: record(value) }))
     .filter((entry): entry is { kind: string; receipt: RecordValue } => Boolean(entry.receipt))
@@ -121,17 +123,21 @@ export default function ChannelNativeVideoReview({ item }: { item: ChannelNative
       </div>
 
       {review.videoUrl ? (
-        <video
-          aria-label={`${review.channelLabel} review video`}
-          controls
-          playsInline
-          preload="metadata"
-          poster={review.posterUrl ?? undefined}
-          src={review.videoUrl}
-          className="aspect-video w-full rounded-lg border border-border bg-black object-contain"
-        >
-          Your browser cannot play this review video.
-        </video>
+        <div className={isPortraitVideo ? 'flex justify-center rounded-lg border border-border bg-black p-2 sm:p-4' : ''}>
+          <video
+            aria-label={`${review.channelLabel} review video`}
+            controls
+            playsInline
+            preload="metadata"
+            poster={review.posterUrl ?? undefined}
+            src={review.videoUrl}
+            className={isPortraitVideo
+              ? 'aspect-[9/16] max-h-[78vh] w-auto max-w-full rounded-lg bg-black object-contain'
+              : 'aspect-video w-full rounded-lg border border-border bg-black object-contain'}
+          >
+            Your browser cannot play this review video.
+          </video>
+        </div>
       ) : review.posterUrl ? (
         <Image src={review.posterUrl} alt={`${review.channelLabel} approved thumbnail poster`} width={1920} height={1080} className="aspect-video w-full rounded-lg border border-border bg-black object-contain" />
       ) : (

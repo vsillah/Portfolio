@@ -9,7 +9,7 @@ const QA_FIXTURES = {
     receipt: jevReceipt,
     videoPath: 'artifacts/human-qa/artifact-video-review-2026-10-14/jev-provider-none-review.mp4',
     posterPath: 'artifacts/human-qa/artifact-video-review-2026-10-14/jev-customer-facing-poster.png',
-    posterSha256: '437b739edad19e95427ff7c8e1d660a34363a531ac64c879c5e6d038d0306fa0',
+    posterSha256: '7709869d1d3f6d219128d5f47d0e5c3701c39a5079c4cf9378d2f958cd124a97',
   },
   '21c492c2-9279-4e08-afc9-49207935a681': {
     packet: darkCastlePacket,
@@ -80,7 +80,7 @@ export function channelNativeVideoQaFixture(id: ChannelNativeVideoQaFixtureId) {
       external_execution_enabled: false,
       side_effects: receipt.side_effects,
       approved_video_packet: {
-        status: 'human_qa_approved',
+        status: packet.identity.product_id === 'jev' ? 'human_qa_pending' : 'human_qa_approved',
         target: receipt.target,
         provider: receipt.provider,
         video_path: fixture.videoPath,
@@ -88,7 +88,9 @@ export function channelNativeVideoQaFixture(id: ChannelNativeVideoQaFixtureId) {
         packet_path: `artifacts/human-qa/artifact-video-review-2026-10-14/inputs/${packet.identity.product_id === 'jev' ? 'jev' : 'dark_castle_chess'}.json`,
         receipt_path: fixture.videoPath.replace(/\.mp4$/, '.receipt.json'),
         video_sha256: receipt.output.sha256,
-        poster_sha256: fixture.posterSha256,
+        poster_sha256: (receipt.output as { poster_sha256?: string }).poster_sha256 ?? fixture.posterSha256,
+        render_version: receipt.version,
+        motion_profile: (receipt as { composition?: { motion_profile?: string } }).composition?.motion_profile ?? null,
         duration_seconds: Number(receipt.output.probe.format.duration),
         codec: receipt.output.probe.streams[0]?.codec_name,
         width: receipt.output.probe.streams[0]?.width,

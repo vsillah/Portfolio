@@ -12,6 +12,10 @@ This package is a provider-free local review render for the approved Phase 4 art
 - Source location: `artifacts/human-qa/youtube-packet-review-2026-10-14/jev.json` and `jev-operator-field-guide.png` in the primary Portfolio checkout
 - Review target: `youtube_shorts`
 - Required evidence path: worked typed-probability return, policy bands, system ownership, and the live-provider hold boundary
+- Motion repair: `jev_decision_flow_v2`, a 22-second, 1080 × 1920 provider-none composition with 660 encoded frames at 30 fps.
+- Temporal structure: score hook, animated probability routing, policy-band reveal, ownership handoffs, exception routing, and the closing operating principle.
+- Avatar audit: Portfolio and AmaduTown owned-media folders contain presenter footage, but no clip-level consent and rights receipt binds a specific clip to this Jev packet. No presenter footage was reused, and the avatar-source gate remains closed.
+- Human QA state: pending after the original static-image timeline was rejected.
 
 ## Dark Castle Chess
 

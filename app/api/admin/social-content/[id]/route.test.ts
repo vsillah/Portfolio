@@ -99,6 +99,34 @@ describe('GET /api/admin/social-content/[id] channel-native video fallback', () 
     }))
     expect(mocks.update).not.toHaveBeenCalled()
   })
+
+  it('binds Jev to the motion-graphics v2 receipt while leaving external execution closed', async () => {
+    const id = 'f966123f-05eb-48ec-a7c2-970afce642ef'
+    const response = await GET(new NextRequest(`http://localhost/api/admin/social-content/${id}`) as never, { params: { id } })
+    const body = await response.json()
+    const video = body.item.rag_context.approved_video_packet
+
+    expect(video).toMatchObject({
+      video_sha256: '191d1d99c00688aba025c13bfbace887c647e36cc67e47dcbaaa0902614ca92e',
+      poster_sha256: '7709869d1d3f6d219128d5f47d0e5c3701c39a5079c4cf9378d2f958cd124a97',
+      render_version: 'social_video_adaptation_local_render_v2',
+      motion_profile: 'jev_decision_flow_v2',
+      duration_seconds: 22,
+      width: 1080,
+      height: 1920,
+      provider: 'none',
+    })
+    expect(body.item.rag_context.side_effects).toEqual(expect.objectContaining({
+      provider_generation: false,
+      upload: false,
+      platform_draft: false,
+      schedule: false,
+      publish: false,
+      external_send: false,
+      credential_change: false,
+      spending: false,
+    }))
+  })
 })
 
 describe('PUT /api/admin/social-content/[id]', () => {

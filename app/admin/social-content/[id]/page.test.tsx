@@ -188,8 +188,10 @@ describe('SocialContentDetailRoute visual production review', () => {
           provider: 'none',
           video_path: 'artifacts/human-qa/artifact-video-review-2026-10-14/jev-provider-none-review.mp4',
           poster_path: 'artifacts/human-qa/artifact-video-review-2026-10-14/jev-customer-facing-poster.png',
-          duration_seconds: 16,
-          video_sha256: 'f4e1fd76615e7cb4d6d5acef0cb0c6120134a85df000b465f7c1093f65fd6e70',
+          duration_seconds: 22,
+          width: 1080,
+          height: 1920,
+          video_sha256: '191d1d99c00688aba025c13bfbace887c647e36cc67e47dcbaaa0902614ca92e',
         },
         receipts: {
           source: { status: 'passed', receipt_id: 'source:jev:approved' },
@@ -210,6 +212,7 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(screen.getByText('Video Script')).toBeVisible()
     expect(screen.getByText(/YouTube Shorts review: confirm the full spoken script/i)).toBeVisible()
     expect(screen.getByLabelText('YouTube Shorts review video')).toHaveAttribute('poster', '/review-assets/social-content/jev-customer-facing-poster.png')
+    expect(screen.getByLabelText('YouTube Shorts review video')).toHaveClass('aspect-[9/16]')
     expect(screen.queryByText('LinkedIn Preview')).not.toBeInTheDocument()
     expect(screen.queryByLabelText('LinkedIn post preview')).not.toBeInTheDocument()
     expect(screen.queryByText('LinkedIn optimal: 150-300 words')).not.toBeInTheDocument()

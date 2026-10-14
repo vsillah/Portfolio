@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import {
+  JEV_MOTION_TIMELINE,
   SOCIAL_VIDEO_INTERNAL_FRAME_MARKERS,
   assertSocialVideoClientFacingText,
+  buildJevMotionFrameSvg,
   buildSocialVideoClientFrameSvg,
 } from './social-video-client-frame.mjs'
 
@@ -37,5 +39,30 @@ describe('social video customer-facing frame', () => {
     expect(() => assertSocialVideoClientFacingText(['Approved title', marker])).toThrow(
       'Customer-facing video text contains an internal QA marker',
     )
+  })
+
+  it('renders six distinct Jev motion states without exposing internal review language', () => {
+    expect(JEV_MOTION_TIMELINE.map((scene) => scene.id)).toEqual([
+      'hook',
+      'signal',
+      'policy',
+      'ownership',
+      'exception',
+      'close',
+    ])
+
+    const renderedStates = [0.8, 4.8, 8.8, 12.8, 16.8, 20.2].map((seconds) => (
+      buildJevMotionFrameSvg({ frame: Math.round(seconds * 30), fps: 30, duration: 22 })
+    ))
+
+    expect(renderedStates[0]).toContain('A score is not')
+    expect(renderedStates[1]).toContain('Read the signal')
+    expect(renderedStates[2]).toContain('Apply the policy')
+    expect(renderedStates[3]).toContain('Keep ownership visible')
+    expect(renderedStates[4]).toContain('Who owns')
+    expect(renderedStates[5]).toContain('Make uncertainty')
+    for (const svg of renderedStates) {
+      for (const marker of SOCIAL_VIDEO_INTERNAL_FRAME_MARKERS) expect(svg).not.toMatch(marker)
+    }
   })
 })
