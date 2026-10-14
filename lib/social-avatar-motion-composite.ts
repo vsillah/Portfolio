@@ -343,7 +343,7 @@ export function validateAvatarMotionPacket(packet: AvatarMotionPacket, now = new
     if (!packet.providerContract.catalogReceiptId.trim()) blockers.push('HeyGen v3 catalog receipt binding is required.')
     if (!packet.avatar.selection) blockers.push('HeyGen v3 generation requires the complete approved avatar-look selection receipt.')
   }
-  const forbidden = /\b(?:qa|receipt|provider|implementation|prompt|sha256|job id|internal)\b/i
+  const forbidden = /\b(?:internal qa|implementation note|system prompt|sha256|job id|provider (?:job|request|receipt|execution|contract|authorization))\b/i
   for (const text of [packet.script.text, ...packet.customerFacingText]) {
     if (forbidden.test(text)) blockers.push('Customer-facing text contains internal production language.')
   }

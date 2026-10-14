@@ -284,14 +284,30 @@ if (mode === 'compose') {
   if (fileSha256(presenterPath) !== existing.providerReceipt.outputSha256) throw new Error('Native presenter file does not match its provider receipt.')
   const presenterProbe = probe(presenterPath)
   const duration = Number(presenterProbe.format.duration)
-  const firstEnd = Math.min(3.2, duration * 0.35)
-  const secondEnd = Math.min(duration - 2.8, firstEnd + 4.8)
-  const windows = [
-    { sourceStart: 0, sourceEnd: firstEnd, outputStart: 0, x: 90, y: 1310, width: 900, height: 506 },
-    { sourceStart: firstEnd, sourceEnd: secondEnd, outputStart: 7.7, x: 130, y: 1340, width: 820, height: 460 },
-    { sourceStart: secondEnd, sourceEnd: duration, outputStart: Math.max(17.2, 22 - (duration - secondEnd)), x: 300, y: 1370, width: 760, height: 428 },
-  ].filter((window) => window.sourceEnd - window.sourceStart > 0.15)
+  const gapSeconds = duration > 30 ? 1.2 : 4.5
+  const windowCount = duration > 30 ? 6 : 3
+  const positions = [
+    { x: 90, y: 1310, width: 900, height: 506 },
+    { x: 130, y: 1340, width: 820, height: 460 },
+    { x: 300, y: 1370, width: 760, height: 428 },
+  ]
+  const chunkDuration = duration / windowCount
+  const windows = Array.from({ length: windowCount }, (_, index) => {
+    const sourceStart = index * chunkDuration
+    const sourceEnd = index === windowCount - 1 ? duration : (index + 1) * chunkDuration
+    const position = positions[index % positions.length]
+    return {
+      sourceStart,
+      sourceEnd,
+      outputStart: sourceStart + (index * gapSeconds),
+      ...position,
+    }
+  }).filter((window) => window.sourceEnd - window.sourceStart > 0.15)
   if (windows.length < 2) throw new Error('Presenter clip is too short for the required bounded windows.')
+  const outputDuration = Number((windows[windows.length - 1].outputStart + (windows[windows.length - 1].sourceEnd - windows[windows.length - 1].sourceStart) + 1).toFixed(3))
+  if (outputDuration > packet.motionMaster.durationSeconds || outputDuration > packet.providerAuthorization.maxBillableSeconds) {
+    throw new Error('Presenter windows exceed the approved motion-master or billable duration bound.')
+  }
 
   const videoFilters: string[] = [`[1:v]split=${windows.length}${windows.map((_, index) => `[pv${index}]`).join('')}`]
   const audioFilters: string[] = [`[1:a]asplit=${windows.length}${windows.map((_, index) => `[pa${index}]`).join('')}`]
@@ -313,14 +329,14 @@ if (mode === 'compose') {
   const commandArgs = [
     '-y', '-i', motionPath, '-i', presenterPath,
     '-filter_complex', filterComplex,
-    '-map', '[video]', '-map', '[audio]', '-t', String(packet.motionMaster.durationSeconds),
+    '-map', '[video]', '-map', '[audio]', '-t', String(outputDuration),
     '-c:v', 'libx264', '-preset', 'medium', '-crf', '18', '-pix_fmt', 'yuv420p', '-r', String(packet.motionMaster.fps),
     '-c:a', 'aac', '-b:a', '192k', '-movflags', '+faststart', compositePath,
   ]
   run('ffmpeg', commandArgs)
   const outputProbe = probe(compositePath)
   const probeBlockers = validateCompositeProbe(outputProbe, {
-    durationSeconds: packet.motionMaster.durationSeconds,
+    durationSeconds: outputDuration,
     width: packet.motionMaster.width,
     height: packet.motionMaster.height,
   })
@@ -336,8 +352,8 @@ if (mode === 'compose') {
     ffmpegCommand,
     presenterWindows: windows,
   })
-  await writeFile(manifestPath, `${JSON.stringify({ ...manifest, presenter_probe: presenterProbe, output_probe: outputProbe }, null, 2)}\n`)
-  console.log(JSON.stringify({ status: 'composed', compositePath, manifestPath, outputSha256, windows, outputProbe }, null, 2))
+  await writeFile(manifestPath, `${JSON.stringify({ ...manifest, output_duration_seconds: outputDuration, presenter_probe: presenterProbe, output_probe: outputProbe }, null, 2)}\n`)
+  console.log(JSON.stringify({ status: 'composed', compositePath, manifestPath, outputSha256, outputDuration, windows, outputProbe }, null, 2))
   process.exit(0)
 }
 

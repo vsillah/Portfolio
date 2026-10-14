@@ -1,0 +1,9 @@
+{
+  "idempotencyKey": "social-avatar-motion:5086cf2b506cd0c893e5c46aca70daafba7c3f55f48183d987d803f90881cc32",
+  "status": "failed",
+  "reservedAt": "2026-10-14T22:53:08.508Z",
+  "quotaBefore": 323,
+  "providerJobId": "59486d96b12ed3613ff8090324b08184",
+  "quotaAfter": 323,
+  "failure": "Insufficient credit. This operation requires 'api' credits."
+}

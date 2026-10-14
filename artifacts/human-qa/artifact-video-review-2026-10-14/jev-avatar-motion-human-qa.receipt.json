@@ -37,6 +37,19 @@
     "expected_duration_seconds": 68,
     "provider_execution": "blocked_pending_explicit_approval"
   },
+  "template_generation_attempt": {
+    "status": "failed_no_retry",
+    "packet": "inputs/jev-avatar-motion-v3-mad-hadda-v2-template.json",
+    "failure_receipt": "jev-avatar-motion-v3-mad-hadda-v2-template/provider-failure.receipt.json",
+    "provider_job_id": "59486d96b12ed3613ff8090324b08184",
+    "idempotency_key": "social-avatar-motion:5086cf2b506cd0c893e5c46aca70daafba7c3f55f48183d987d803f90881cc32",
+    "failure": "Insufficient credit. This operation requires 'api' credits.",
+    "quota_before": 323,
+    "quota_after": 323,
+    "retries": 0,
+    "replacement_composite_created": false,
+    "human_qa_status": "withheld"
+  },
   "provider": {
     "name": "heygen",
     "api_version": "v3",

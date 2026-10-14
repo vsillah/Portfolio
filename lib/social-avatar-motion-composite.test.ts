@@ -186,6 +186,14 @@ describe('social avatar-motion composite gate', () => {
     expect(validateAvatarMotionPacket(value, NOW)).toContain('Customer-facing text contains internal production language.')
   })
 
+  it('allows approved public governance language about receipts and provider-use boundaries', () => {
+    const value = packet()
+    value.script.text = 'Keep the versioned receipt visible. Live provider use remains on hold.'
+    value.script.sha256 = `sha256:${sha256(value.script.text)}`
+    value.customerFacingText = ['Keep the versioned receipt visible.', 'Live provider use remains on hold.']
+    expect(validateAvatarMotionPacket(value, NOW)).not.toContain('Customer-facing text contains internal production language.')
+  })
+
   it('binds audio-bearing provider output and preserves external gates', () => {
     const value = packet()
     const manifest = buildAvatarMotionCompositeManifest({
