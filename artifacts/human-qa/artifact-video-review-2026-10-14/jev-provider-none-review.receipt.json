@@ -1,6 +1,6 @@
 {
   "version": "social_video_adaptation_local_render_v1",
-  "rendered_at": "2026-10-14T12:01:17.879Z",
+  "rendered_at": "2026-10-14T12:17:50.475Z",
   "packet": "/Users/vambahsillah/.codex/worktrees/d01f/Portfolio/artifacts/human-qa/artifact-video-review-2026-10-14/inputs/jev.json",
   "packet_adaptation_id": "jev-artifact-video-20261014-rev1",
   "input_version": "sha256:e6fc9ae4aadd61e3a871e8f7af2dd0a2d424d5c20ae6a8d0eac861b16e796bd5",
@@ -45,7 +45,7 @@
   },
   "output": {
     "path": "/Users/vambahsillah/.codex/worktrees/d01f/Portfolio/artifacts/human-qa/artifact-video-review-2026-10-14/jev-provider-none-review.mp4",
-    "sha256": "4c6dccd638dd06cb1bedb2d480df0a78e8a59857473cbe5d5d220d2661b04d63",
+    "sha256": "f4e1fd76615e7cb4d6d5acef0cb0c6120134a85df000b465f7c1093f65fd6e70",
     "probe": {
       "programs": [],
       "stream_groups": [],
@@ -63,7 +63,7 @@
       ],
       "format": {
         "duration": "16.000000",
-        "size": "449416"
+        "size": "409901"
       }
     }
   }

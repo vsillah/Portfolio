@@ -2,6 +2,8 @@
 
 This package is a provider-free local review render for the approved Phase 4 artifact-to-video packets. It does not upload media, create a platform draft, schedule, publish, send, change credentials, or spend money.
 
+`index.html` is the Human QA surface. Each clean **Customer-facing video** is visually separated from an expandable **QA evidence** panel. Input versions, receipt identities, provenance, traceability, provider-off state, and validation details remain in those panels and the sibling receipt JSON files; they are not burned into the video pixels.
+
 ## Jev
 
 - Packet: `inputs/jev.json`

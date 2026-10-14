@@ -1,6 +1,6 @@
 {
   "version": "social_video_adaptation_local_render_v1",
-  "rendered_at": "2026-10-14T12:01:18.545Z",
+  "rendered_at": "2026-10-14T12:17:51.290Z",
   "packet": "/Users/vambahsillah/.codex/worktrees/d01f/Portfolio/artifacts/human-qa/artifact-video-review-2026-10-14/inputs/dark_castle_chess.json",
   "packet_adaptation_id": "dark-castle-artifact-video-20261014-rev1",
   "input_version": "sha256:4d3bc63ebaeb1aed344d64ed15ebb0ff865772de48b48249526ccce0b2c02e9e",
@@ -49,7 +49,7 @@
   },
   "output": {
     "path": "/Users/vambahsillah/.codex/worktrees/d01f/Portfolio/artifacts/human-qa/artifact-video-review-2026-10-14/dark-castle-provider-none-review.mp4",
-    "sha256": "90564beb2e64c7304d64c6d42a5ef123fd53440b34bf28ab1eb9204afae0499a",
+    "sha256": "c8f7467f5304996ac959ffc51081493a81a625aa8d867a2e61a0cb6b74167eba",
     "probe": {
       "programs": [],
       "stream_groups": [],
@@ -67,7 +67,7 @@
       ],
       "format": {
         "duration": "24.000000",
-        "size": "695446"
+        "size": "635317"
       }
     }
   }
