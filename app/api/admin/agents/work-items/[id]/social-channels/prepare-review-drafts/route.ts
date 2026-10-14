@@ -9,6 +9,12 @@ import {
   socialChannelReviewPublicCopyFields,
 } from '@/lib/social-content-intelligence'
 import { validateSocialPublicCopyFields } from '@/lib/social-content-lifecycle'
+import {
+  SocialVideoAdaptationError,
+  buildSocialVideoAdaptationPacket,
+  type SocialVideoAdaptationInput,
+  type SocialVideoAdaptationPacket,
+} from '@/lib/social-video-adaptation'
 
 export const dynamic = 'force-dynamic'
 
@@ -19,6 +25,25 @@ function asRecord(value: unknown): Record<string, unknown> {
 function hasApprovedResearchPatterns(insight: Record<string, unknown>) {
   return Array.isArray(insight.approved_research_patterns)
     && insight.approved_research_patterns.some((pattern) => Object.keys(asRecord(pattern)).length > 0)
+}
+
+function requestedArtifactVideoAdaptation(metadata: Record<string, unknown>) {
+  const request = asRecord(metadata.artifact_video_adaptation_request)
+  return Object.keys(request).length ? request as unknown as SocialVideoAdaptationInput : null
+}
+
+function attachArtifactVideoAdaptation(
+  drafts: ReturnType<typeof buildLinkedInYoutubeReviewDrafts>,
+  packet: SocialVideoAdaptationPacket,
+) {
+  if (packet.targets.includes('youtube_long_form')) {
+    drafts.youtube.fields.artifact_video_adaptation = packet
+    drafts.youtube.fields.video_generation_bridge = packet.video_generation_bridge
+  }
+  if (packet.targets.includes('youtube_shorts')) {
+    drafts.youtube_shorts.fields.artifact_video_adaptation = packet
+    drafts.youtube_shorts.fields.video_generation_bridge = packet.video_generation_bridge
+  }
 }
 
 export async function POST(
@@ -81,6 +106,35 @@ export async function POST(
       }, { status: 422 })
     }
     for (const draft of Object.values(drafts)) draft.enrichment_receipt = enrichmentReceipt
+    let artifactVideoAdaptation: SocialVideoAdaptationPacket | null = null
+    const adaptationRequest = requestedArtifactVideoAdaptation(metadata)
+    if (adaptationRequest) {
+      const currentLinkedInCopy = typeof drafts.linkedin.fields.post_text === 'string'
+        ? drafts.linkedin.fields.post_text
+        : ''
+      if (adaptationRequest.source_channel_packet?.linkedin_copy !== currentLinkedInCopy) {
+        return NextResponse.json({
+          error: 'Artifact-to-video adaptation is stale for the current LinkedIn channel packet.',
+          current_gate: 'artifact_video_adaptation',
+          revision_state: 'revision_needed',
+          blockers: ['Rebuild the adaptation from the current approved LinkedIn channel packet before Video Generation handoff.'],
+        }, { status: 422 })
+      }
+      try {
+        artifactVideoAdaptation = buildSocialVideoAdaptationPacket(adaptationRequest)
+      } catch (error) {
+        if (error instanceof SocialVideoAdaptationError) {
+          return NextResponse.json({
+            error: 'Artifact-to-video adaptation is incomplete.',
+            current_gate: 'artifact_video_adaptation',
+            revision_state: 'revision_needed',
+            blockers: error.blockers,
+          }, { status: 422 })
+        }
+        throw error
+      }
+      attachArtifactVideoAdaptation(drafts, artifactVideoAdaptation)
+    }
     // Keep campaign lineage in review metadata, never in public copy fields.
     if (typeof metadata.calendar_item_id === 'string') {
       for (const draft of Object.values(drafts)) {
@@ -177,6 +231,14 @@ export async function POST(
             blocker: 'A visual candidate must supply subject, source-binding, template-novelty, and responsive-legibility receipts before visual Human QA.',
           },
           enrichment_receipt: enrichmentReceipt,
+          artifact_video_adaptation: artifactVideoAdaptation
+            ? {
+                status: artifactVideoAdaptation.status,
+                adaptation_id: artifactVideoAdaptation.adaptation_id,
+                targets: artifactVideoAdaptation.targets,
+                video_generation_bridge: artifactVideoAdaptation.video_generation_bridge,
+              }
+            : null,
           side_effects: {
             provider_generation: false,
             upload: false,
@@ -193,6 +255,7 @@ export async function POST(
       success: true,
       work_item: updated,
       drafts,
+      artifact_video_adaptation: artifactVideoAdaptation,
       side_effects: {
         provider_generation: false,
         upload: false,
