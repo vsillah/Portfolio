@@ -135,7 +135,7 @@ describe('social avatar-motion composite gate', () => {
     expect(decideAvatarMotionReplay({ packet: value, existing: { idempotencyKey: key, status: 'submitted' } })).toMatchObject({ action: 'reconcile' })
   })
 
-  it('fails before generation when the avatar or voice is unavailable or incompatible', () => {
+  it('fails before generation when the avatar or voice is unavailable or explicitly blocked', () => {
     const value = packet()
     expect(validateHeyGenProviderAssets({ packet: value, avatars: [], voices: [] })).toEqual([
       'Selected avatar is not available in the current HeyGen catalog.',
@@ -144,8 +144,8 @@ describe('social avatar-motion composite gate', () => {
     expect(validateHeyGenProviderAssets({
       packet: value,
       avatars: [{ id: value.avatar.id, status: 'ready' }],
-      voices: [{ id: value.voice.id, status: 'ready', allowedEngines: [] }],
-    })).toContain('Selected voice has no currently allowed HeyGen generation engine.')
+      voices: [{ id: value.voice.id, status: 'blocked' }],
+    })).toContain('Selected voice is not ready for generation.')
   })
 
   it('rejects internal production language in customer-facing frames', () => {

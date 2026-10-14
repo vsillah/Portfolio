@@ -17,7 +17,7 @@ Every run must bind:
 - approved motion-master path, hash, probe, and aspect ratio
 - one-job provider authorization with an expiry, maximum script size, worst-case billing rate, maximum billable duration, and a total cap strictly below US$10
 
-Missing, expired, stale, mismatched, or unavailable inputs fail before generation. The live provider catalog must confirm that the avatar exists and that the voice has a currently allowed generation engine.
+Missing, expired, stale, mismatched, or unavailable inputs fail before generation. The live provider catalog must confirm that the avatar and voice still exist. A provider validation failure blocks that version-fenced attempt and requires a newly selected and approved compatible asset; it never authorizes an automatic retry.
 
 ## Idempotency and failure recovery
 

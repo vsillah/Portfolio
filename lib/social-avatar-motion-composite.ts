@@ -183,7 +183,7 @@ export function assertAvatarMotionPacket(packet: AvatarMotionPacket, now = new D
 export function validateHeyGenProviderAssets(input: {
   packet: AvatarMotionPacket
   avatars: Array<{ id: string; status?: string | null }>
-  voices: Array<{ id: string; status?: string | null; allowedEngines?: string[] | null }>
+  voices: Array<{ id: string; status?: string | null }>
 }): string[] {
   const blockers: string[] = []
   const avatar = input.avatars.find((value) => value.id === input.packet.avatar.id)
@@ -192,9 +192,6 @@ export function validateHeyGenProviderAssets(input: {
   if (avatar?.status && !['ready', 'completed', 'active'].includes(avatar.status)) blockers.push('Selected avatar is not ready for generation.')
   if (!voice) blockers.push('Selected voice is not available in the current HeyGen catalog.')
   if (voice?.status && !['ready', 'completed', 'active'].includes(voice.status)) blockers.push('Selected voice is not ready for generation.')
-  if (voice && Array.isArray(voice.allowedEngines) && voice.allowedEngines.length === 0) {
-    blockers.push('Selected voice has no currently allowed HeyGen generation engine.')
-  }
   return blockers
 }
 

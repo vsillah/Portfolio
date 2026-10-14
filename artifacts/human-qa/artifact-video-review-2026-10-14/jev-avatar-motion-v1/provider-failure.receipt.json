@@ -38,5 +38,5 @@
     "external_send": false,
     "shared_row_mutation": false
   },
-  "recovery_gate": "Do not retry this idempotency key. Select and re-approve a currently compatible voice with a non-empty HeyGen allowed_engines set, issue a new bounded provider authorization and content packet, then create a new version-fenced idempotency key."
+  "recovery_gate": "Do not retry this idempotency key. Select and re-approve a currently compatible voice that HeyGen accepts for avatar-video generation, issue a new bounded provider authorization and content packet, then create a new version-fenced idempotency key."
 }

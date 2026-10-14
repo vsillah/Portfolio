@@ -148,7 +148,7 @@ if (mode === 'generate') {
     talking_photos?: Array<{ talking_photo_id?: string; status?: string }>
   } | undefined
   const voiceData = voiceCatalog.data as {
-    voices?: Array<{ voice_id?: string; status?: string; allowed_engines?: string[] }>
+    voices?: Array<{ voice_id?: string; status?: string }>
   } | undefined
   const providerAssetBlockers = validateHeyGenProviderAssets({
     packet,
@@ -156,7 +156,7 @@ if (mode === 'generate') {
       ...(avatarData?.avatars ?? []).map((value) => ({ id: value.avatar_id ?? '', status: value.status })),
       ...(avatarData?.talking_photos ?? []).map((value) => ({ id: value.talking_photo_id ?? '', status: value.status })),
     ],
-    voices: (voiceData?.voices ?? []).map((value) => ({ id: value.voice_id ?? '', status: value.status, allowedEngines: value.allowed_engines })),
+    voices: (voiceData?.voices ?? []).map((value) => ({ id: value.voice_id ?? '', status: value.status })),
   })
   if (providerAssetBlockers.length) throw new Error(providerAssetBlockers.join(' '))
   const state = await reserveState(idempotencyKey)
