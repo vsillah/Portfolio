@@ -4,6 +4,18 @@ export const SOCIAL_AVATAR_MOTION_PIPELINE_VERSION = 'social_avatar_motion_compo
 export const SOCIAL_AVATAR_MOTION_PROVIDER = 'heygen' as const
 export const SOCIAL_AVATAR_MOTION_MAX_USD = 10
 export const SOCIAL_AVATAR_LOOK_SELECTOR_VERSION = 'social_avatar_look_lru_v1' as const
+export const HEYGEN_V3_VIDEO_ENDPOINT = '/v3/videos' as const
+
+export type HeyGenAvatarEngine = 'avatar_v' | 'avatar_iv' | 'avatar_iii'
+export type HeyGenVoiceEngine = 'elevenlabs' | 'fish' | 'starfish'
+
+export type HeyGenV3ProviderContract = {
+  apiVersion: 'v3'
+  endpoint: typeof HEYGEN_V3_VIDEO_ENDPOINT
+  avatarEngine: HeyGenAvatarEngine
+  voiceEngine: HeyGenVoiceEngine
+  catalogReceiptId: string
+}
 
 type ApprovalStatus = 'approved' | 'passed' | 'complete'
 
@@ -73,6 +85,7 @@ export type AvatarMotionPacket = {
     maxProviderJobs: 1
     maxScriptCharacters: number
   }
+  providerContract?: HeyGenV3ProviderContract
   customerFacingText: string[]
 }
 
@@ -201,6 +214,35 @@ export type AvatarMotionReplayDecision =
   | { action: 'reuse'; idempotencyKey: string; receipt: AvatarMotionProviderReceipt }
   | { action: 'reconcile'; idempotencyKey: string; reason: string }
 
+export type HeyGenV3AvatarLook = {
+  id: string
+  groupId?: string | null
+  status?: string | null
+  supportedApiEngines?: string[] | null
+}
+
+export type HeyGenV3Voice = {
+  id: string
+  status?: string | null
+  defaultEngine?: string | null
+  availableEngines?: string[] | null
+}
+
+export type HeyGenV3VideoRequest = {
+  type: 'avatar'
+  avatar_id: string
+  title: string
+  aspect_ratio: AvatarMotionPacket['aspectRatio']
+  output_format: 'mp4'
+  script: string
+  voice_id: string
+  voice_settings: {
+    speed: 1
+    engine_settings: { engine_type: HeyGenVoiceEngine }
+  }
+  engine: { type: HeyGenAvatarEngine }
+}
+
 export type MediaProbe = {
   streams?: Array<{
     codec_type?: string
@@ -296,6 +338,11 @@ export function validateAvatarMotionPacket(packet: AvatarMotionPacket, now = new
   if (avatarMotionWorstCaseCostUsd(packet) > authorization.maxCostUsd) blockers.push('Worst-case provider cost exceeds the authorized cap.')
   if (packet.script.text.length > authorization.maxScriptCharacters) blockers.push('Script exceeds the bounded provider authorization.')
   if (!Number.isFinite(Date.parse(authorization.expiresAt)) || Date.parse(authorization.expiresAt) <= now.getTime()) blockers.push('Provider authorization is expired.')
+  if (packet.providerContract) {
+    if (packet.providerContract.apiVersion !== 'v3' || packet.providerContract.endpoint !== HEYGEN_V3_VIDEO_ENDPOINT) blockers.push('Unsupported HeyGen provider contract.')
+    if (!packet.providerContract.catalogReceiptId.trim()) blockers.push('HeyGen v3 catalog receipt binding is required.')
+    if (!packet.avatar.selection) blockers.push('HeyGen v3 generation requires the complete approved avatar-look selection receipt.')
+  }
   const forbidden = /\b(?:qa|receipt|provider|implementation|prompt|sha256|job id|internal)\b/i
   for (const text of [packet.script.text, ...packet.customerFacingText]) {
     if (forbidden.test(text)) blockers.push('Customer-facing text contains internal production language.')
@@ -322,6 +369,43 @@ export function validateHeyGenProviderAssets(input: {
   if (voice?.status && !['ready', 'completed', 'active'].includes(voice.status)) blockers.push('Selected voice is not ready for generation.')
   if (voice && Array.isArray(voice.allowedEngines) && voice.allowedEngines.length === 0) blockers.push('Selected voice has no allowed v2 API generation engines.')
   return blockers
+}
+
+export function buildHeyGenV3VideoRequest(input: {
+  packet: AvatarMotionPacket
+  look: HeyGenV3AvatarLook
+  voice: HeyGenV3Voice
+  title?: string
+}): { blockers: string[]; request?: HeyGenV3VideoRequest } {
+  const { packet, look, voice } = input
+  const blockers: string[] = []
+  const contract = packet.providerContract
+  const lookId = selectedAvatarLookId(packet)
+  if (!contract) blockers.push('A version-bound HeyGen v3 provider contract is required before generation.')
+  if (look.id !== lookId) blockers.push('HeyGen v3 look evidence does not bind the selected look.')
+  if (packet.avatar.identityId && look.groupId !== packet.avatar.identityId) blockers.push('HeyGen v3 look evidence does not bind the selected avatar identity.')
+  if (look.status !== 'completed') blockers.push('Selected HeyGen v3 look is not completed.')
+  if (!Array.isArray(look.supportedApiEngines) || look.supportedApiEngines.length === 0) blockers.push('Selected HeyGen v3 look has no supported API engines.')
+  if (contract && !look.supportedApiEngines?.includes(contract.avatarEngine)) blockers.push('Selected HeyGen v3 look does not support the bound avatar engine.')
+  if (voice.id !== packet.voice.id) blockers.push('HeyGen v3 voice evidence does not bind the selected voice.')
+  if (voice.status && !['ready', 'completed', 'active'].includes(voice.status)) blockers.push('Selected HeyGen v3 voice is not ready for generation.')
+  if (!Array.isArray(voice.availableEngines) || voice.availableEngines.length === 0) blockers.push('Selected HeyGen v3 voice has no available API engines.')
+  if (contract && !voice.availableEngines?.includes(contract.voiceEngine)) blockers.push('Selected HeyGen v3 voice does not support the bound voice engine.')
+  if (blockers.length || !contract) return { blockers: [...new Set(blockers)] }
+  return {
+    blockers: [],
+    request: {
+      type: 'avatar',
+      avatar_id: lookId,
+      title: input.title ?? 'Jev presenter clip - review only',
+      aspect_ratio: packet.aspectRatio,
+      output_format: 'mp4',
+      script: packet.script.text,
+      voice_id: packet.voice.id,
+      voice_settings: { speed: 1, engine_settings: { engine_type: contract.voiceEngine } },
+      engine: { type: contract.avatarEngine },
+    },
+  }
 }
 
 export function validateCompositeProbe(probe: MediaProbe, expected: { durationSeconds: number; width: number; height: number }): string[] {
@@ -356,6 +440,7 @@ export function buildAvatarMotionIdempotencyKey(packet: AvatarMotionPacket): str
     binding.avatarLookVersion = packet.avatar.lookVersion ?? packet.avatar.version
     binding.avatarSelection = packet.avatar.selection
   }
+  if (packet.providerContract) binding.providerContract = packet.providerContract
   return `social-avatar-motion:${canonicalSha256(binding)}`
 }
 

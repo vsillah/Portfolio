@@ -6,11 +6,11 @@ import { spawnSync } from 'node:child_process'
 import {
   assertAvatarMotionPacket,
   avatarMotionWorstCaseCostUsd,
+  buildHeyGenV3VideoRequest,
   buildAvatarMotionCompositeManifest,
   buildAvatarMotionIdempotencyKey,
   decideAvatarMotionReplay,
   validateCompositeProbe,
-  validateHeyGenProviderAssets,
   selectedAvatarLookId,
   type AvatarMotionPacket,
   type AvatarMotionProviderReceipt,
@@ -141,47 +141,61 @@ if (mode === 'generate') {
     process.exit(0)
   }
   if (decision.action === 'reconcile') throw new Error(decision.reason)
-  const [avatarCatalog, voiceCatalog] = await Promise.all([
-    heygenGet('/v2/avatars'),
-    heygenGet('/v2/voices'),
+  if (!packet.providerContract) throw new Error('Legacy v2 packets cannot create a new job. Bind a new approval and authorization to the validated HeyGen v3 contract.')
+  const [lookResponse, voiceCatalog] = await Promise.all([
+    heygenGet(`/v3/avatars/looks/${encodeURIComponent(avatarLookId)}`),
+    heygenGet('/v3/voices?type=private&limit=100'),
   ])
-  const avatarData = avatarCatalog.data as {
-    avatars?: Array<{ avatar_id?: string; status?: string }>
-    talking_photos?: Array<{ talking_photo_id?: string; status?: string }>
-  } | undefined
-  const voiceData = voiceCatalog.data as {
-    voices?: Array<{ voice_id?: string; status?: string; allowed_engines?: string[] }>
-  } | undefined
-  const providerAssetBlockers = validateHeyGenProviderAssets({
+  const lookData = (lookResponse.data ?? lookResponse) as {
+    id?: string
+    look_id?: string
+    group_id?: string
+    status?: string
+    supported_api_engines?: string[]
+  }
+  const voiceData = voiceCatalog.data as Array<{
+    id?: string
+    voice_id?: string
+    status?: string
+    default_engine?: string
+    available_engines?: string[]
+  }> | { voices?: Array<{
+      id?: string
+      voice_id?: string
+      status?: string
+      default_engine?: string
+      available_engines?: string[]
+    }> } | undefined
+  const voices = Array.isArray(voiceData) ? voiceData : voiceData?.voices ?? []
+  const voice = voices.find((value) => (value.id ?? value.voice_id) === packet.voice.id)
+  const v3Request = buildHeyGenV3VideoRequest({
     packet,
-    avatars: [
-      ...(avatarData?.avatars ?? []).map((value) => ({ id: value.avatar_id ?? '', status: value.status })),
-      ...(avatarData?.talking_photos ?? []).map((value) => ({ id: value.talking_photo_id ?? '', status: value.status })),
-    ],
-    voices: (voiceData?.voices ?? []).map((value) => ({ id: value.voice_id ?? '', status: value.status, allowedEngines: value.allowed_engines })),
+    look: {
+      id: lookData.id ?? lookData.look_id ?? '',
+      groupId: lookData.group_id,
+      status: lookData.status,
+      supportedApiEngines: lookData.supported_api_engines,
+    },
+    voice: {
+      id: voice?.id ?? voice?.voice_id ?? '',
+      status: voice?.status,
+      defaultEngine: voice?.default_engine,
+      availableEngines: voice?.available_engines,
+    },
   })
-  if (providerAssetBlockers.length) throw new Error(providerAssetBlockers.join(' '))
+  if (v3Request.blockers.length || !v3Request.request) throw new Error(v3Request.blockers.join(' '))
   const state = await reserveState(idempotencyKey)
   state.quotaBefore = await remainingQuota()
   await writeState(state)
 
-  const response = await fetch('https://api.heygen.com/v2/video/generate', {
+  const response = await fetch(`https://api.heygen.com${packet.providerContract.endpoint}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'x-api-key': process.env.HEYGEN_API_KEY ?? '',
+      'Idempotency-Key': idempotencyKey,
     },
-    body: JSON.stringify({
-      title: 'Jev presenter clip - review only',
-      callback_id: idempotencyKey,
-      dimension: { width: 1080, height: 1920 },
-      video_inputs: [{
-        character: packet.avatar.providerCharacterType === 'talking_photo'
-          ? { type: 'talking_photo', talking_photo_id: avatarLookId }
-          : { type: 'avatar', avatar_id: avatarLookId },
-        voice: { type: 'text', voice_id: packet.voice.id, input_text: packet.script.text, speed: 1 },
-      }],
-    }),
+    body: JSON.stringify(v3Request.request),
     signal: AbortSignal.timeout(60_000),
   })
   const body = await response.json() as { error?: unknown; message?: string; data?: { video_id?: string } }
@@ -205,14 +219,14 @@ if (mode === 'generate') {
   let completed: { video_url?: string; duration?: number } | null = null
   while (Date.now() - started < 5 * 60_000) {
     await new Promise((resolveWait) => setTimeout(resolveWait, 20_000))
-    const statusBody = await heygenGet(`/v1/video_status.get?video_id=${encodeURIComponent(providerJobId)}`)
-    const data = statusBody.data as { status?: string; video_url?: string; duration?: number; error?: { code?: string; message?: string } } | undefined
+    const statusBody = await heygenGet(`/v3/videos/${encodeURIComponent(providerJobId)}`)
+    const data = (statusBody.data ?? statusBody) as { status?: string; video_url?: string; duration?: number; error?: { code?: string; message?: string }; failure_message?: string }
     console.log(JSON.stringify({ status: data?.status ?? 'unknown', elapsedSeconds: Math.round((Date.now() - started) / 1000) }))
     if (data?.status === 'failed') {
       state.status = 'failed'
       state.quotaAfter = await remainingQuota().catch(() => undefined)
       state.providerError = data.error
-      state.failure = data.error?.message || 'HeyGen provider job failed.'
+      state.failure = data.error?.message || data.failure_message || 'HeyGen provider job failed.'
       await writeState(state)
       throw new Error(state.failure)
     }

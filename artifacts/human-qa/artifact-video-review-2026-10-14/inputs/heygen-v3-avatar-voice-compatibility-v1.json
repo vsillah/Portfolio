@@ -1,0 +1,60 @@
+{
+  "version": "heygen_v3_avatar_voice_compatibility_v1",
+  "provider": "heygen",
+  "observed_at": "2026-10-14T22:01:26.000Z",
+  "observation_mode": "read_only_catalog",
+  "catalog_receipt_id": "provider-catalog:heygen:v3-avatar-voice-compatibility:20261014",
+  "official_contract": {
+    "create_video_endpoint": "/v3/videos",
+    "create_video_docs": "https://developers.heygen.com/reference/create-video",
+    "avatar_looks_docs": "https://developers.heygen.com/docs/avatar-looks",
+    "list_voices_docs": "https://developers.heygen.com/reference/list-voices",
+    "get_avatar_look_docs": "https://developers.heygen.com/reference/get-avatar-look",
+    "bound_avatar_engine": "avatar_iv",
+    "bound_voice_engine": "elevenlabs"
+  },
+  "looks": [
+    { "look_id": "7275ba9035f94b31ad589dda6532d002", "group_id": "5796a337512c43bbbdaa77c1cefc295f", "status": "completed", "supported_api_engines": ["avatar_v", "avatar_iv", "avatar_iii"], "default_voice_id": "4f53988b1c314610b514db98432fd0ef" },
+    { "look_id": "4a1dba5b1dbf448ea988b374fe242368", "group_id": "538b59345dfa438d8b018f83d0a339f2", "status": "completed", "supported_api_engines": ["avatar_v", "avatar_iv", "avatar_iii"], "default_voice_id": "554b9c038cce47c6aebfd9c23da67f56" },
+    { "look_id": "3feb738b9af64f7b8f91cc8e4ffcdc45", "group_id": "6c12a6e4973643c5851716f855b8da7f", "status": "completed", "supported_api_engines": ["avatar_v", "avatar_iv", "avatar_iii"], "default_voice_id": "3bed25c167534fd6ac5becdec4516ec7" },
+    { "look_id": "329ae68b92d342f6a4362cc656d486a0", "group_id": "bf6569281efc48a3a00ed2bbe2a33cf8", "status": "completed", "supported_api_engines": ["avatar_v", "avatar_iv", "avatar_iii"], "default_voice_id": "14b592b937744404a4fa7c01aafd7dbe" },
+    { "look_id": "f419ef2f4db64e24a3c324b1b8fd310d", "group_id": "bf6569281efc48a3a00ed2bbe2a33cf8", "status": "completed", "supported_api_engines": ["avatar_v", "avatar_iv", "avatar_iii"], "default_voice_id": "14b592b937744404a4fa7c01aafd7dbe" },
+    { "look_id": "4bca605f5c6a4bd2a0c230c75aac0621", "group_id": "bf6569281efc48a3a00ed2bbe2a33cf8", "status": "completed", "supported_api_engines": ["avatar_v", "avatar_iv", "avatar_iii"], "default_voice_id": "14b592b937744404a4fa7c01aafd7dbe" },
+    { "look_id": "8256027f78cb45b4971bc89ea51a9b24", "group_id": "bf6569281efc48a3a00ed2bbe2a33cf8", "status": "completed", "supported_api_engines": ["avatar_v", "avatar_iv", "avatar_iii"], "default_voice_id": "14b592b937744404a4fa7c01aafd7dbe" }
+  ],
+  "voices": [
+    {
+      "voice_id": "17c1834716ca4e27b32de949a72f2b5d",
+      "name": "Young Black CEO Voice",
+      "relationship": "voice bound to the consumed v2 packet",
+      "default_engine": "elevenlabs",
+      "available_engines": ["elevenlabs", "elevenlabs_v3"]
+    },
+    {
+      "voice_id": "3bed25c167534fd6ac5becdec4516ec7",
+      "name": "Vambah Sillah (Mad Hadda)",
+      "relationship": "default voice for the Red V-Neck look",
+      "default_engine": "elevenlabs",
+      "available_engines": ["starfish", "orca", "elevenlabs", "elevenlabs_v3"]
+    }
+  ],
+  "finding": "The v2 allowed_engines empty array is not the current v3 compatibility contract. The v3 catalog positively exposes supported_api_engines for every approved look and available_engines for both exact voice IDs. This evidence validates an adapter but does not authorize a provider job or a voice substitution.",
+  "legacy_attempt": {
+    "provider_job_id": "cf25007cd3d34be9adedf747df28577f",
+    "idempotency_key": "social-avatar-motion:0121e25ff316b87d90f85007ba8e7ad38bc2048cf465ad3467a4ba653ffb0457",
+    "status": "failed",
+    "retry_authorized": false
+  },
+  "side_effects": {
+    "provider_jobs_created": 0,
+    "uploads": 0,
+    "credential_changes": 0,
+    "cost_usd": 0,
+    "youtube_upload": false,
+    "platform_draft": false,
+    "schedule": false,
+    "publish": false,
+    "external_send": false
+  },
+  "next_gate": "Before any generation, approve one exact voice ID, a new v3-bound packet and provider authorization, and a new idempotency key. Switching from the consumed packet voice to the Red V-Neck default Mad Hadda voice is a separate explicit selection; never infer it from the look default."
+}

@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs'
 import {
   SOCIAL_AVATAR_MOTION_PIPELINE_VERSION,
   avatarMotionWorstCaseCostUsd,
+  buildHeyGenV3VideoRequest,
   buildAvatarMotionCompositeManifest,
   buildAvatarMotionIdempotencyKey,
   decideAvatarMotionReplay,
@@ -156,6 +157,11 @@ describe('social avatar-motion composite gate', () => {
     expect(decideAvatarMotionReplay({ packet: value, existing: { idempotencyKey: key, status: 'submitted' } })).toMatchObject({ action: 'reconcile' })
   })
 
+  it('preserves the consumed legacy packet idempotency key exactly', () => {
+    const legacyPacket = JSON.parse(readFileSync('artifacts/human-qa/artifact-video-review-2026-10-14/inputs/jev-avatar-motion-v1.json', 'utf8')) as AvatarMotionPacket
+    expect(buildAvatarMotionIdempotencyKey(legacyPacket)).toBe('social-avatar-motion:0121e25ff316b87d90f85007ba8e7ad38bc2048cf465ad3467a4ba653ffb0457')
+  })
+
   it('fails before generation when the avatar or voice is unavailable or explicitly blocked', () => {
     const value = packet()
     expect(validateHeyGenProviderAssets({ packet: value, avatars: [], voices: [] })).toEqual([
@@ -212,6 +218,93 @@ describe('social avatar-motion composite gate', () => {
       'Final composite has no playable audio stream.',
       'Final composite duration does not match the approved motion master.',
     ])
+  })
+})
+
+describe('HeyGen v3 contract adapter', () => {
+  function v3Packet(): AvatarMotionPacket {
+    const value = packet()
+    const look = avatarLook(value.avatar.id, {
+      identityId: 'owned-group',
+      lookVersion: value.avatar.version,
+      consentRightsReceiptId: value.receipts.consentRights.receiptId,
+      sourceReceiptId: value.receipts.source.receiptId,
+    })
+    const selection = selectApprovedAvatarLook({ looks: [look], history: [], target: value.target, selectionKey: 'campaign:jev:v3-contract' })
+    value.avatar = {
+      ...value.avatar,
+      identityId: selection.identityId,
+      lookId: selection.lookId,
+      lookVersion: selection.lookVersion,
+      providerCharacterType: selection.providerCharacterType,
+      selection,
+    }
+    value.providerContract = {
+      apiVersion: 'v3',
+      endpoint: '/v3/videos',
+      avatarEngine: 'avatar_iv',
+      voiceEngine: 'elevenlabs',
+      catalogReceiptId: 'provider-catalog:heygen:v3:20261014',
+    }
+    return value
+  }
+
+  it('builds the current direct-avatar request only from exact engine-bound catalog evidence', () => {
+    const value = v3Packet()
+    const result = buildHeyGenV3VideoRequest({
+      packet: value,
+      look: { id: value.avatar.id, groupId: value.avatar.identityId, status: 'completed', supportedApiEngines: ['avatar_v', 'avatar_iv', 'avatar_iii'] },
+      voice: { id: value.voice.id, defaultEngine: 'elevenlabs', availableEngines: ['elevenlabs', 'elevenlabs_v3'] },
+    })
+    expect(result.blockers).toEqual([])
+    expect(result.request).toEqual(expect.objectContaining({
+      type: 'avatar',
+      avatar_id: value.avatar.id,
+      aspect_ratio: '9:16',
+      script: value.script.text,
+      voice_id: value.voice.id,
+      engine: { type: 'avatar_iv' },
+      voice_settings: { speed: 1, engine_settings: { engine_type: 'elevenlabs' } },
+    }))
+  })
+
+  it('accepts the Red V-Neck default Mad Hadda voice through the same exact-ID contract', () => {
+    const value = v3Packet()
+    value.voice = { id: '3bed25c167534fd6ac5becdec4516ec7', version: 'provider-catalog-2026-10-14', name: 'Vambah Sillah (Mad Hadda)', status: 'approved' }
+    value.receipts.consentRights.voiceId = value.voice.id
+    const result = buildHeyGenV3VideoRequest({
+      packet: value,
+      look: { id: value.avatar.id, groupId: value.avatar.identityId, status: 'completed', supportedApiEngines: ['avatar_iv'] },
+      voice: { id: value.voice.id, defaultEngine: 'elevenlabs', availableEngines: ['starfish', 'orca', 'elevenlabs', 'elevenlabs_v3'] },
+    })
+    expect(result.blockers).toEqual([])
+    expect(result.request?.voice_id).toBe(value.voice.id)
+  })
+
+  it('fails closed for absent evidence, identity drift, or unsupported bound engines', () => {
+    const value = v3Packet()
+    const result = buildHeyGenV3VideoRequest({
+      packet: value,
+      look: { id: value.avatar.id, groupId: 'other-group', status: 'pending', supportedApiEngines: ['avatar_iii'] },
+      voice: { id: value.voice.id, availableEngines: [] },
+    })
+    expect(result.request).toBeUndefined()
+    expect(result.blockers).toEqual(expect.arrayContaining([
+      'HeyGen v3 look evidence does not bind the selected avatar identity.',
+      'Selected HeyGen v3 look is not completed.',
+      'Selected HeyGen v3 look does not support the bound avatar engine.',
+      'Selected HeyGen v3 voice has no available API engines.',
+      'Selected HeyGen v3 voice does not support the bound voice engine.',
+    ]))
+  })
+
+  it('requires a new idempotency binding when the provider contract is added or changed', () => {
+    const legacy = packet()
+    const v3 = v3Packet()
+    expect(buildAvatarMotionIdempotencyKey(v3)).not.toBe(buildAvatarMotionIdempotencyKey(legacy))
+    const first = buildAvatarMotionIdempotencyKey(v3)
+    v3.providerContract = { ...v3.providerContract!, avatarEngine: 'avatar_v' }
+    expect(buildAvatarMotionIdempotencyKey(v3)).not.toBe(first)
   })
 })
 
@@ -334,5 +427,29 @@ describe('owned avatar-look rotation', () => {
     expect(new Set(catalog.looks.map((look) => look.identityId)).size).toBe(4)
     expect(catalog.looks.every((look) => look.ownership === 'owned' && look.approvalStatus === 'approved')).toBe(true)
     expect(catalog.looks.every((look) => Boolean(look.sourceReceiptId) && Boolean(look.consentRightsReceiptId))).toBe(true)
+  })
+
+  it('binds all seven approved looks and both candidate voices to positive v3 engine evidence', () => {
+    const catalog = JSON.parse(readFileSync('artifacts/human-qa/artifact-video-review-2026-10-14/inputs/vambah-owned-avatar-look-catalog-v1.json', 'utf8')) as { looks: ApprovedAvatarLook[] }
+    const evidence = JSON.parse(readFileSync('artifacts/human-qa/artifact-video-review-2026-10-14/inputs/heygen-v3-avatar-voice-compatibility-v1.json', 'utf8')) as {
+      looks: Array<{ look_id: string; group_id: string; status: string; supported_api_engines: string[] }>
+      voices: Array<{ voice_id: string; available_engines: string[] }>
+      side_effects: { provider_jobs_created: number; uploads: number; credential_changes: number; cost_usd: number }
+    }
+    expect(evidence.looks).toHaveLength(7)
+    for (const look of catalog.looks) {
+      expect(evidence.looks).toContainEqual(expect.objectContaining({
+        look_id: look.lookId,
+        group_id: look.identityId,
+        status: 'completed',
+        supported_api_engines: expect.arrayContaining(['avatar_iv']),
+      }))
+    }
+    expect(evidence.voices.map((voice) => voice.voice_id)).toEqual(expect.arrayContaining([
+      '17c1834716ca4e27b32de949a72f2b5d',
+      '3bed25c167534fd6ac5becdec4516ec7',
+    ]))
+    expect(evidence.voices.every((voice) => voice.available_engines.includes('elevenlabs'))).toBe(true)
+    expect(evidence.side_effects).toMatchObject({ provider_jobs_created: 0, uploads: 0, credential_changes: 0, cost_usd: 0 })
   })
 })

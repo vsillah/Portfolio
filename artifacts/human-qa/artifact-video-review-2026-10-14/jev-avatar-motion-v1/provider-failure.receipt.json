@@ -36,6 +36,17 @@
     "v2_voice_allowed_engines": [],
     "finding": "Studio preview compatibility does not establish v2 API generation compatibility. The failed v2 job and empty allowed-engines catalog require fail-closed recovery."
   },
+  "v3_recovery_evidence": {
+    "catalog_receipt_id": "provider-catalog:heygen:v3-avatar-voice-compatibility:20261014",
+    "evidence_path": "artifacts/human-qa/artifact-video-review-2026-10-14/inputs/heygen-v3-avatar-voice-compatibility-v1.json",
+    "endpoint": "/v3/videos",
+    "selected_look_supported_api_engines": ["avatar_v", "avatar_iv", "avatar_iii"],
+    "consumed_packet_voice_id": "17c1834716ca4e27b32de949a72f2b5d",
+    "consumed_packet_voice_available_engines": ["elevenlabs", "elevenlabs_v3"],
+    "red_v_neck_default_voice_id": "3bed25c167534fd6ac5becdec4516ec7",
+    "red_v_neck_default_voice_name": "Vambah Sillah (Mad Hadda)",
+    "finding": "Read-only v3 metadata establishes a supported migration contract. It does not alter, retry, or supersede the historical failed job and does not authorize a voice substitution or new generation."
+  },
   "side_effects": {
     "provider_jobs_created": 1,
     "provider_outputs_completed": 0,
@@ -46,5 +57,5 @@
     "external_send": false,
     "shared_row_mutation": false
   },
-  "recovery_gate": "Do not retry this idempotency key. Obtain positive v2 API engine compatibility for the selected voice (Studio default status and preview playback are insufficient), bind that evidence to a newly approved voice/version, issue a new bounded provider authorization and content packet, then create a new version-fenced idempotency key."
+  "recovery_gate": "Do not retry this idempotency key. Bind the validated v3 endpoint, exact avatar and voice IDs, avatar_iv and elevenlabs engines, catalog receipt, newly approved provider authorization, and content packet to a new version-fenced idempotency key. Any change from Young Black CEO Voice to the Red V-Neck default Vambah Sillah (Mad Hadda) voice requires explicit selection and approval."
 }
