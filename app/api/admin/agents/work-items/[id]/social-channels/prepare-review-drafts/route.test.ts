@@ -812,4 +812,32 @@ describe('/api/admin/agents/work-items/[id]/social-channels/prepare-review-draft
     expect(mocks.updateAgentWorkItemMetadata).not.toHaveBeenCalled()
   })
 
+  it('returns a fail-closed 422 for malformed adaptation source metadata', async () => {
+    const workItem = cloneBaseWorkItem()
+    Object.assign(workItem.metadata, {
+      artifact_video_adaptation_source: {
+        source_version: 'social_video_adaptation_source_v1',
+        target_decision: 'long_form',
+      },
+    })
+    mocks.getAgentWorkItem.mockResolvedValue(workItem)
+
+    const response = await POST(request() as never, { params: { id: 'work-1' } })
+    const body = await response.json()
+
+    expect(response.status).toBe(422)
+    expect(body).toMatchObject({
+      error: 'Artifact-to-video adaptation is incomplete.',
+      current_gate: 'artifact_video_adaptation',
+      revision_state: 'revision_needed',
+      blockers: expect.arrayContaining([
+        'Artifact adaptation source requires identity and source channel packet objects.',
+        'Artifact adaptation source requires a receipts object.',
+        'Artifact adaptation source requires claims and evidence_assets arrays.',
+        'Artifact semantics are missing.',
+      ]),
+    })
+    expect(mocks.updateAgentWorkItemMetadata).not.toHaveBeenCalled()
+  })
+
 })

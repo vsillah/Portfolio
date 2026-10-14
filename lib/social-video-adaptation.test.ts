@@ -242,6 +242,10 @@ describe('social video artifact adaptation', () => {
     expect(packet.draft.scenes.filter((scene) => scene.target === 'youtube_shorts')).toHaveLength(3)
     expect(packet.draft.composition_rationale.dominant_composition).toBe('gameplay_decision_sequence')
     expect(packet.draft.format_adaptations.find((item) => item.target === 'youtube_long_form')?.full_spoken_script).toContain('Inspect the decision response')
+    const shorts = packet.draft.format_adaptations.find((item) => item.target === 'youtube_shorts')!
+    const shortsOpening = 'The board position looks simple until the player must explain why one move teaches more than another.'
+    expect(`${shorts.opening_hook} ${shorts.full_spoken_script}`.split(shortsOpening)).toHaveLength(2)
+    expect(shorts.full_spoken_script).not.toContain(shortsOpening)
     expect(packet.draft.practical_value).toContain('learner')
     expect(packet.draft.traceability_summary).toContain('approved source identities')
   })

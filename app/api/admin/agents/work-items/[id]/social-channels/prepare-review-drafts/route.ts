@@ -15,7 +15,6 @@ import {
   buildSocialVideoAdaptationPacket,
   produceSocialVideoAdaptationInput,
   type SocialVideoAdaptationPacket,
-  type SocialVideoAdaptationSourceInput,
 } from '@/lib/social-video-adaptation'
 
 export const dynamic = 'force-dynamic'
@@ -30,8 +29,8 @@ function hasApprovedResearchPatterns(insight: Record<string, unknown>) {
 }
 
 function requestedArtifactVideoAdaptationSource(metadata: Record<string, unknown>) {
-  const request = asRecord(metadata[SOCIAL_VIDEO_ADAPTATION_SOURCE_METADATA_KEY])
-  return Object.keys(request).length ? request as unknown as SocialVideoAdaptationSourceInput : null
+  if (!(SOCIAL_VIDEO_ADAPTATION_SOURCE_METADATA_KEY in metadata)) return null
+  return metadata[SOCIAL_VIDEO_ADAPTATION_SOURCE_METADATA_KEY]
 }
 
 function attachArtifactVideoAdaptation(
@@ -110,20 +109,20 @@ export async function POST(
     for (const draft of Object.values(drafts)) draft.enrichment_receipt = enrichmentReceipt
     let artifactVideoAdaptation: SocialVideoAdaptationPacket | null = null
     const adaptationSource = requestedArtifactVideoAdaptationSource(metadata)
-    if (adaptationSource) {
+    if (adaptationSource !== null && adaptationSource !== undefined) {
       const currentLinkedInCopy = typeof drafts.linkedin.fields.post_text === 'string'
         ? drafts.linkedin.fields.post_text
         : ''
-      if (adaptationSource.source_channel_packet?.linkedin_copy !== currentLinkedInCopy) {
-        return NextResponse.json({
-          error: 'Artifact-to-video adaptation is stale for the current LinkedIn channel packet.',
-          current_gate: 'artifact_video_adaptation',
-          revision_state: 'revision_needed',
-          blockers: ['Rebuild the adaptation from the current approved LinkedIn channel packet before Video Generation handoff.'],
-        }, { status: 422 })
-      }
       try {
         const adaptationInput = produceSocialVideoAdaptationInput(adaptationSource)
+        if (adaptationInput.source_channel_packet.linkedin_copy !== currentLinkedInCopy) {
+          return NextResponse.json({
+            error: 'Artifact-to-video adaptation is stale for the current LinkedIn channel packet.',
+            current_gate: 'artifact_video_adaptation',
+            revision_state: 'revision_needed',
+            blockers: ['Rebuild the adaptation from the current approved LinkedIn channel packet before Video Generation handoff.'],
+          }, { status: 422 })
+        }
         artifactVideoAdaptation = buildSocialVideoAdaptationPacket(adaptationInput)
       } catch (error) {
         if (error instanceof SocialVideoAdaptationError) {

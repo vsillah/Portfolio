@@ -249,6 +249,57 @@ function minScriptCharacters(targets: SocialVideoTarget[]) {
   return targets.includes('youtube_long_form') ? 600 : 160
 }
 
+function record(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === 'object' && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : null
+}
+
+export function parseSocialVideoAdaptationSource(value: unknown): SocialVideoAdaptationSourceInput {
+  const blockers: string[] = []
+  const source = record(value)
+  if (!source) throw new SocialVideoAdaptationError(['Artifact adaptation source must be an object.'])
+
+  const identity = record(source.identity)
+  const channelPacket = record(source.source_channel_packet)
+  const receipts = record(source.receipts)
+  const semantics = record(source.artifact_semantics)
+  const claims = Array.isArray(source.claims) ? source.claims : null
+  const evidenceAssets = Array.isArray(source.evidence_assets) ? source.evidence_assets : null
+  const evidenceRegions = Array.isArray(semantics?.evidence_regions) ? semantics.evidence_regions : null
+  const processSteps = Array.isArray(semantics?.process_steps) ? semantics.process_steps : null
+
+  if (source.source_version !== SOCIAL_VIDEO_ADAPTATION_SOURCE_VERSION) blockers.push('Artifact adaptation source contract is missing or unsupported.')
+  if (!['long_form', 'shorts', 'both'].includes(text(source.target_decision))) blockers.push('Artifact adaptation target decision must be long_form, shorts, or both.')
+  if (!identity || !channelPacket) blockers.push('Artifact adaptation source requires identity and source channel packet objects.')
+  if (!receipts) blockers.push('Artifact adaptation source requires a receipts object.')
+  if (!claims || !evidenceAssets) blockers.push('Artifact adaptation source requires claims and evidence_assets arrays.')
+  if (!semantics) blockers.push('Artifact semantics are missing.')
+  if (semantics && (!evidenceRegions || !processSteps)) blockers.push('Artifact semantics require evidence_regions and process_steps arrays.')
+
+  if (identity && (!Array.isArray(identity.source_ids) || !Array.isArray(identity.channel_packet_ids))) blockers.push('Artifact adaptation identity requires source_ids and channel_packet_ids arrays.')
+  if (channelPacket && (!Array.isArray(channelPacket.source_ids) || !Array.isArray(channelPacket.channel_packet_ids))) blockers.push('Artifact source channel packet requires source_ids and channel_packet_ids arrays.')
+  if (claims?.some((claim) => {
+    const item = record(claim)
+    return !item || !Array.isArray(item.source_receipt_ids) || !Array.isArray(item.proof_receipt_ids)
+  })) blockers.push('Every artifact claim requires source_receipt_ids and proof_receipt_ids arrays.')
+  if (evidenceAssets?.some((asset) => {
+    const item = record(asset)
+    return !item || !Array.isArray(item.source_receipt_ids)
+  })) blockers.push('Every evidence asset requires a source_receipt_ids array.')
+  if (evidenceRegions?.some((region) => {
+    const item = record(region)
+    return !item || !Array.isArray(item.claim_ids)
+  })) blockers.push('Every evidence region requires a claim_ids array.')
+  if (processSteps?.some((step) => {
+    const item = record(step)
+    return !item || !Array.isArray(item.claim_ids) || !Array.isArray(item.evidence_region_ids)
+  })) blockers.push('Every process step requires claim_ids and evidence_region_ids arrays.')
+
+  if (blockers.length) throw new SocialVideoAdaptationError(unique(blockers))
+  return source as unknown as SocialVideoAdaptationSourceInput
+}
+
 function compositionForAsset(asset: SocialVideoEvidenceAsset) {
   if (asset.asset_type === 'gameplay_capture') {
     return {
@@ -293,8 +344,9 @@ function privacyBoundaryForClaims(claims: SocialVideoClaim[], claimIds: string[]
 }
 
 export function produceSocialVideoAdaptationInput(
-  source: SocialVideoAdaptationSourceInput,
+  sourceValue: unknown,
 ): SocialVideoAdaptationInput {
+  const source = parseSocialVideoAdaptationSource(sourceValue)
   const blockers: string[] = []
   const semantics = source.artifact_semantics
   const targets = targetsForDecision(source.target_decision)
@@ -312,7 +364,6 @@ export function produceSocialVideoAdaptationInput(
     ['closing principle', semantics.closing_principle, 30],
     ['thumbnail promise', semantics.thumbnail_promise, 8],
   ] as const
-  if (source.source_version !== SOCIAL_VIDEO_ADAPTATION_SOURCE_VERSION) blockers.push('Artifact adaptation source contract is missing or unsupported.')
   for (const [label, value, minimumLength] of requiredNarrative) {
     if (text(value).length < minimumLength) blockers.push(`Artifact semantics require a specific ${label}.`)
   }
@@ -357,7 +408,6 @@ export function produceSocialVideoAdaptationInput(
     semantics.closing_principle,
   ].join('\n\n')
   const shortScript = [
-    shortHook,
     semantics.audience_problem,
     ...semantics.process_steps.map((step) => `${step.label}: ${step.description}`),
     semantics.practical_value,
