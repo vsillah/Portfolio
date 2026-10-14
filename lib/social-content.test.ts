@@ -6,7 +6,7 @@ describe('social-content helpers', () => {
     it('uses opaque high-contrast lifecycle colors in dark mode', () => {
       expect(STATUS_CONFIG.draft).toMatchObject({
         color: expect.stringContaining('dark:text-white'),
-        bgColor: expect.stringContaining('dark:bg-slate-600'),
+        bgColor: expect.stringContaining('dark:bg-[#334155]'),
       })
       expect(STATUS_CONFIG.approved).toMatchObject({
         color: expect.stringContaining('dark:text-white'),

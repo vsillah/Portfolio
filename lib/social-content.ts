@@ -205,7 +205,7 @@ export const STATUS_CONFIG: Record<ContentStatus, {
   bgColor: string
   borderColor: string
 }> = {
-  draft: { label: 'Draft', color: 'text-slate-800 dark:text-white', bgColor: 'bg-slate-100 dark:bg-slate-600', borderColor: 'border-slate-400/70 dark:border-slate-300/80' },
+  draft: { label: 'Draft', color: 'text-slate-800 dark:text-white', bgColor: 'bg-slate-100 dark:bg-[#334155]', borderColor: 'border-slate-400/70 dark:border-[#cbd5e1]/80' },
   approved: { label: 'Approved', color: 'text-blue-900 dark:text-white', bgColor: 'bg-blue-100 dark:bg-blue-700', borderColor: 'border-blue-500/60 dark:border-blue-300/80' },
   scheduled: { label: 'Scheduled', color: 'text-amber-950 dark:text-amber-950', bgColor: 'bg-amber-100 dark:bg-amber-400', borderColor: 'border-amber-500/60 dark:border-amber-200/90' },
   published: { label: 'Published', color: 'text-emerald-900 dark:text-white', bgColor: 'bg-emerald-100 dark:bg-emerald-700', borderColor: 'border-emerald-500/60 dark:border-emerald-300/80' },
