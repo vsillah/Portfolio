@@ -1,0 +1,518 @@
+{
+  "adaptation_id": "jev-artifact-video-20261014-rev1",
+  "generated_at": "2026-10-14T11:48:05.555Z",
+  "input_version": "sha256:e6fc9ae4aadd61e3a871e8f7af2dd0a2d424d5c20ae6a8d0eac861b16e796bd5",
+  "target_decision": "both",
+  "identity": {
+    "campaign_id": "artifact-video-pilot-20261014",
+    "product_id": "jev",
+    "topic_id": "governed-probabilistic-decisions",
+    "source_ids": [
+      "docs/jev-shadow/README.md",
+      "research_packet:68dfaed1-b319-4a82-98c0-b9caea34835e",
+      "lib/engagement-shadow/benchmark.ts"
+    ],
+    "channel_packet_ids": [
+      "work-item:24651a05-c8e5-4dd7-82fb-682e0223ee97",
+      "linkedin-approved:20261014"
+    ]
+  },
+  "source_channel_packet": {
+    "campaign_id": "artifact-video-pilot-20261014",
+    "product_id": "jev",
+    "topic_id": "governed-probabilistic-decisions",
+    "source_ids": [
+      "docs/jev-shadow/README.md",
+      "research_packet:68dfaed1-b319-4a82-98c0-b9caea34835e",
+      "lib/engagement-shadow/benchmark.ts"
+    ],
+    "channel_packet_ids": [
+      "work-item:24651a05-c8e5-4dd7-82fb-682e0223ee97",
+      "linkedin-approved:20261014"
+    ],
+    "linkedin_copy": "Most AI teams are still trying to make the model talk better.\n\nJev is interesting because it moves in the opposite direction: no paragraph, no confident explanation, just typed probabilities for a bounded decision.\n\nThat sounds small. It changes the operating problem.\n\nIn the evaluation harness I have been building, the hard part has never been getting an answer. It is deciding:\n\n- what the model is allowed to decide\n- what confidence is enough to move\n- what evidence must be retained\n- when the system must stop and hand the call to a person\n\nA probability distribution leaves room for policy. A result at 0.81 can route differently from one at 0.54. A free-form answer often hides that distinction behind fluent language.\n\nJev's launch does not prove production reliability. The current public evidence is still a single attributable source, and my own work is mock-qualified with live provider use on HOLD.\n\nThat boundary is the point.\n\nGoverned automation begins when uncertainty is explicit enough to route, review, and refuse."
+  },
+  "receipts": {
+    "source": {
+      "receipt_id": "source:jev:approved-composite-20261014",
+      "kind": "source",
+      "status": "passed",
+      "input_version": "sha256:e6fc9ae4aadd61e3a871e8f7af2dd0a2d424d5c20ae6a8d0eac861b16e796bd5",
+      "reviewed_at": "2026-10-14T09:00:12.552926Z",
+      "valid_until": "2026-10-21T23:59:59.000Z"
+    },
+    "voice": {
+      "receipt_id": "voice:jev:portfolio-calibration-20261014",
+      "kind": "voice",
+      "status": "passed",
+      "input_version": "sha256:e6fc9ae4aadd61e3a871e8f7af2dd0a2d424d5c20ae6a8d0eac861b16e796bd5",
+      "reviewed_at": "2026-10-14T09:00:12.552926Z",
+      "valid_until": "2026-10-21T23:59:59.000Z"
+    },
+    "framework": {
+      "receipt_id": "framework:jev:approved-social-lane-20261014",
+      "kind": "framework",
+      "status": "passed",
+      "input_version": "sha256:e6fc9ae4aadd61e3a871e8f7af2dd0a2d424d5c20ae6a8d0eac861b16e796bd5",
+      "reviewed_at": "2026-10-14T09:00:12.552926Z",
+      "valid_until": "2026-10-21T23:59:59.000Z"
+    },
+    "privacy": {
+      "receipt_id": "privacy:jev:public-safe-20261014",
+      "kind": "privacy",
+      "status": "passed",
+      "input_version": "sha256:e6fc9ae4aadd61e3a871e8f7af2dd0a2d424d5c20ae6a8d0eac861b16e796bd5",
+      "reviewed_at": "2026-10-14T09:00:12.552926Z",
+      "valid_until": "2026-10-21T23:59:59.000Z"
+    },
+    "visual": {
+      "receipt_id": "visual:jev:human-qa-rev2-20261014",
+      "kind": "visual",
+      "status": "passed",
+      "input_version": "sha256:e6fc9ae4aadd61e3a871e8f7af2dd0a2d424d5c20ae6a8d0eac861b16e796bd5",
+      "reviewed_at": "2026-10-14T09:00:12.552926Z",
+      "valid_until": "2026-10-21T23:59:59.000Z"
+    },
+    "rights": {
+      "receipt_id": "rights:jev:owned-public-assets-20261014",
+      "kind": "rights",
+      "status": "passed",
+      "input_version": "sha256:e6fc9ae4aadd61e3a871e8f7af2dd0a2d424d5c20ae6a8d0eac861b16e796bd5",
+      "reviewed_at": "2026-10-14T09:00:12.552926Z",
+      "valid_until": "2026-10-21T23:59:59.000Z"
+    },
+    "challenger": {
+      "receipt_id": "challenger:jev:amina-passed-20261014",
+      "kind": "challenger",
+      "status": "passed",
+      "input_version": "sha256:e6fc9ae4aadd61e3a871e8f7af2dd0a2d424d5c20ae6a8d0eac861b16e796bd5",
+      "reviewed_at": "2026-10-14T09:00:12.552926Z",
+      "valid_until": "2026-10-21T23:59:59.000Z"
+    },
+    "script_quality": {
+      "receipt_id": "script-quality:jev:artifact-video-v1-20261014",
+      "kind": "script_quality",
+      "status": "passed",
+      "input_version": "sha256:e6fc9ae4aadd61e3a871e8f7af2dd0a2d424d5c20ae6a8d0eac861b16e796bd5",
+      "reviewed_at": "2026-10-14T09:00:12.552926Z",
+      "valid_until": "2026-10-21T23:59:59.000Z"
+    }
+  },
+  "claims": [
+    {
+      "claim_id": "jev-typed-probabilities",
+      "text": "Jev returns typed probabilities for bounded decisions rather than free-form text.",
+      "source_receipt_ids": [
+        "source:jev:approved-composite-20261014"
+      ],
+      "proof_receipt_ids": [
+        "visual:jev:human-qa-rev2-20261014",
+        "challenger:jev:amina-passed-20261014"
+      ],
+      "privacy_boundary": "Attribute the public launch and do not claim independently verified production reliability."
+    },
+    {
+      "claim_id": "jev-policy-boundary",
+      "text": "A policy layer and human owner still decide how confidence routes, stops, or escalates work.",
+      "source_receipt_ids": [
+        "source:jev:approved-composite-20261014"
+      ],
+      "proof_receipt_ids": [
+        "framework:jev:approved-social-lane-20261014",
+        "script-quality:jev:artifact-video-v1-20261014"
+      ],
+      "privacy_boundary": "Describe the approved mock-qualified Portfolio harness only; live provider use remains on HOLD."
+    }
+  ],
+  "evidence_assets": [
+    {
+      "asset_id": "jev-operator-field-guide",
+      "asset_type": "dashboard_capture",
+      "label": "Jev decision interface operator field guide",
+      "reference": "youtube-packet-review-2026-10-14/jev-operator-field-guide.png",
+      "source_receipt_ids": [
+        "source:jev:approved-composite-20261014"
+      ],
+      "privacy_receipt_id": "privacy:jev:public-safe-20261014",
+      "rights_receipt_id": "rights:jev:owned-public-assets-20261014",
+      "approved_use": "Use the approved AmaduTown operator field guide and its illustrative policy bands; identify the thresholds as illustrative."
+    }
+  ],
+  "draft": {
+    "title_options": [
+      {
+        "title": "Jev: what the artifact makes visible",
+        "targets": [
+          "youtube_long_form",
+          "youtube_shorts"
+        ],
+        "promise": "Who owns the decision after the score?",
+        "claim_ids": [
+          "jev-typed-probabilities",
+          "jev-policy-boundary"
+        ]
+      },
+      {
+        "title": "The process behind Jev decision interface operator field guide",
+        "targets": [
+          "youtube_long_form",
+          "youtube_shorts"
+        ],
+        "promise": "The field guide gives operators a reusable way to separate model scoring, policy thresholds, human ownership, and retained receipts.",
+        "claim_ids": [
+          "jev-typed-probabilities",
+          "jev-policy-boundary"
+        ]
+      }
+    ],
+    "format_adaptations": [
+      {
+        "target": "youtube_long_form",
+        "opening_hook": "A typed probability makes uncertainty visible, but the system still has to decide what confidence is enough and who owns the exception.",
+        "full_spoken_script": "A typed probability makes uncertainty visible, but the system still has to decide what confidence is enough and who owns the exception.\n\nFluent model output can hide uncertainty, leaving operators without a clear rule for when to route, review, or refuse a decision.\n\nJev decision interface operator field guide gives us a concrete dashboard capture to inspect. We will use its approved evidence regions rather than turning the source copy into a generic talking-head summary.\n\nStep 1, Inspect the score. Start with typed choices and visible confidence instead of trusting a fluent paragraph. The approved worked typed-probability return evidence keeps this explanation tied to what the artifact actually shows.\n\nStep 2, Apply the policy. Use pre-authorized thresholds to route, review, or stop the bounded decision. The approved policy bands evidence keeps this explanation tied to what the artifact actually shows.\n\nStep 3, Retain ownership. Keep exceptions and irreversible actions with a human, then preserve the versioned receipt. The approved system ownership map and evidence boundary evidence keeps this explanation tied to what the artifact actually shows.\n\nThe field guide gives operators a reusable way to separate model scoring, policy thresholds, human ownership, and retained receipts.\n\nThe visual turns a timely product launch into a concrete governance reference without implying that public attention proves production reliability.\n\nEvery customer-facing claim in this adaptation remains bound to 3 approved source identities, 1 cleared artifact, and the current privacy, rights, challenger, and script-quality receipts.\n\nGoverned automation begins when uncertainty is explicit enough to route, review, and refuse.",
+        "target_duration_seconds": 240,
+        "adaptation_rationale": "Long form follows Jev decision interface operator field guide through its approved evidence regions, process, value, and receipt trail with time for inspection."
+      },
+      {
+        "target": "youtube_shorts",
+        "opening_hook": "A typed probability makes uncertainty visible, but the system still has to decide what confidence is enough and who owns the exception. Jev decision interface operator field guide makes that tension visible.",
+        "full_spoken_script": "Fluent model output can hide uncertainty, leaving operators without a clear rule for when to route, review, or refuse a decision. Inspect the score: Start with typed choices and visible confidence instead of trusting a fluent paragraph. Apply the policy: Use pre-authorized thresholds to route, review, or stop the bounded decision. Retain ownership: Keep exceptions and irreversible actions with a human, then preserve the versioned receipt. The field guide gives operators a reusable way to separate model scoring, policy thresholds, human ownership, and retained receipts. Every customer-facing claim in this adaptation remains bound to 3 approved source identities, 1 cleared artifact, and the current privacy, rights, challenger, and script-quality receipts. Governed automation begins when uncertainty is explicit enough to route, review, and refuse.",
+        "target_duration_seconds": 45,
+        "adaptation_rationale": "Shorts compresses Jev decision interface operator field guide into one tension, one evidence sequence, and one traceable operating principle."
+      }
+    ],
+    "practical_value": "The field guide gives operators a reusable way to separate model scoring, policy thresholds, human ownership, and retained receipts.",
+    "why_artifact_matters": "The visual turns a timely product launch into a concrete governance reference without implying that public attention proves production reliability.",
+    "scenes": [
+      {
+        "scene_id": "long-hook",
+        "target": "youtube_long_form",
+        "purpose": "Establish the artifact-specific operating tension.",
+        "narration": "A typed probability makes uncertainty visible, but the system still has to decide what confidence is enough and who owns the exception.",
+        "claim_ids": [
+          "jev-typed-probabilities"
+        ],
+        "artifact_ids": [
+          "jev-operator-field-guide"
+        ],
+        "source_receipt_ids": [
+          "source:jev:approved-composite-20261014"
+        ],
+        "on_screen_text": [
+          "0.81 route · 0.14 review · 0.05 refuse"
+        ],
+        "motion_direction": "Begin with the full dashboard, move between approved evidence regions, and pause at each decision or receipt boundary for inspection."
+      },
+      {
+        "scene_id": "long-inspect-score",
+        "target": "youtube_long_form",
+        "purpose": "Teach Inspect the score through approved artifact evidence.",
+        "narration": "Inspect the score. Start with typed choices and visible confidence instead of trusting a fluent paragraph.",
+        "claim_ids": [
+          "jev-typed-probabilities"
+        ],
+        "artifact_ids": [
+          "jev-operator-field-guide"
+        ],
+        "source_receipt_ids": [
+          "source:jev:approved-composite-20261014"
+        ],
+        "on_screen_text": [
+          "0.81 route · 0.14 review · 0.05 refuse"
+        ],
+        "motion_direction": "Begin with the full dashboard, move between approved evidence regions, and pause at each decision or receipt boundary for inspection."
+      },
+      {
+        "scene_id": "long-apply-policy",
+        "target": "youtube_long_form",
+        "purpose": "Teach Apply the policy through approved artifact evidence.",
+        "narration": "Apply the policy. Use pre-authorized thresholds to route, review, or stop the bounded decision.",
+        "claim_ids": [
+          "jev-policy-boundary"
+        ],
+        "artifact_ids": [
+          "jev-operator-field-guide"
+        ],
+        "source_receipt_ids": [
+          "source:jev:approved-composite-20261014"
+        ],
+        "on_screen_text": [
+          "Policy lives outside the model"
+        ],
+        "motion_direction": "Begin with the full dashboard, move between approved evidence regions, and pause at each decision or receipt boundary for inspection."
+      },
+      {
+        "scene_id": "long-retain-ownership",
+        "target": "youtube_long_form",
+        "purpose": "Teach Retain ownership through approved artifact evidence.",
+        "narration": "Retain ownership. Keep exceptions and irreversible actions with a human, then preserve the versioned receipt.",
+        "claim_ids": [
+          "jev-policy-boundary"
+        ],
+        "artifact_ids": [
+          "jev-operator-field-guide"
+        ],
+        "source_receipt_ids": [
+          "source:jev:approved-composite-20261014"
+        ],
+        "on_screen_text": [
+          "Score · govern · decide · retain",
+          "Live provider use remains on HOLD"
+        ],
+        "motion_direction": "Begin with the full dashboard, move between approved evidence regions, and pause at each decision or receipt boundary for inspection."
+      },
+      {
+        "scene_id": "long-value",
+        "target": "youtube_long_form",
+        "purpose": "Explain practical value and why the artifact matters.",
+        "narration": "The field guide gives operators a reusable way to separate model scoring, policy thresholds, human ownership, and retained receipts. The visual turns a timely product launch into a concrete governance reference without implying that public attention proves production reliability.",
+        "claim_ids": [
+          "jev-typed-probabilities",
+          "jev-policy-boundary"
+        ],
+        "artifact_ids": [
+          "jev-operator-field-guide"
+        ],
+        "source_receipt_ids": [
+          "source:jev:approved-composite-20261014"
+        ],
+        "on_screen_text": [
+          "Who owns the decision after the score?"
+        ],
+        "motion_direction": "Begin with the full dashboard, move between approved evidence regions, and pause at each decision or receipt boundary for inspection."
+      },
+      {
+        "scene_id": "long-traceability",
+        "target": "youtube_long_form",
+        "purpose": "Close on traceability and the bounded next action.",
+        "narration": "Every customer-facing claim in this adaptation remains bound to 3 approved source identities, 1 cleared artifact, and the current privacy, rights, challenger, and script-quality receipts. Governed automation begins when uncertainty is explicit enough to route, review, and refuse.",
+        "claim_ids": [
+          "jev-typed-probabilities",
+          "jev-policy-boundary"
+        ],
+        "artifact_ids": [
+          "jev-operator-field-guide"
+        ],
+        "source_receipt_ids": [
+          "source:jev:approved-composite-20261014"
+        ],
+        "on_screen_text": [
+          "Source → evidence → decision → boundary"
+        ],
+        "motion_direction": "Begin with the full dashboard, move between approved evidence regions, and pause at each decision or receipt boundary for inspection."
+      },
+      {
+        "scene_id": "short-hook",
+        "target": "youtube_shorts",
+        "purpose": "Name the artifact-specific tension in the opening seconds.",
+        "narration": "A typed probability makes uncertainty visible, but the system still has to decide what confidence is enough and who owns the exception. Jev decision interface operator field guide makes that tension visible.",
+        "claim_ids": [
+          "jev-typed-probabilities"
+        ],
+        "artifact_ids": [
+          "jev-operator-field-guide"
+        ],
+        "source_receipt_ids": [
+          "source:jev:approved-composite-20261014"
+        ],
+        "on_screen_text": [
+          "0.81 route · 0.14 review · 0.05 refuse"
+        ],
+        "motion_direction": "Begin with the full dashboard, move between approved evidence regions, and pause at each decision or receipt boundary for inspection."
+      },
+      {
+        "scene_id": "short-process",
+        "target": "youtube_shorts",
+        "purpose": "Compress the approved process into one evidence sequence.",
+        "narration": "Inspect the score: Start with typed choices and visible confidence instead of trusting a fluent paragraph. Apply the policy: Use pre-authorized thresholds to route, review, or stop the bounded decision. Retain ownership: Keep exceptions and irreversible actions with a human, then preserve the versioned receipt.",
+        "claim_ids": [
+          "jev-typed-probabilities",
+          "jev-policy-boundary"
+        ],
+        "artifact_ids": [
+          "jev-operator-field-guide"
+        ],
+        "source_receipt_ids": [
+          "source:jev:approved-composite-20261014"
+        ],
+        "on_screen_text": [
+          "Inspect the score",
+          "Apply the policy",
+          "Retain ownership"
+        ],
+        "motion_direction": "Begin with the full dashboard, move between approved evidence regions, and pause at each decision or receipt boundary for inspection."
+      },
+      {
+        "scene_id": "short-close",
+        "target": "youtube_shorts",
+        "purpose": "Close on practical value and traceability.",
+        "narration": "The field guide gives operators a reusable way to separate model scoring, policy thresholds, human ownership, and retained receipts. Governed automation begins when uncertainty is explicit enough to route, review, and refuse.",
+        "claim_ids": [
+          "jev-typed-probabilities",
+          "jev-policy-boundary"
+        ],
+        "artifact_ids": [
+          "jev-operator-field-guide"
+        ],
+        "source_receipt_ids": [
+          "source:jev:approved-composite-20261014"
+        ],
+        "on_screen_text": [
+          "Who owns the decision after the score?"
+        ],
+        "motion_direction": "Begin with the full dashboard, move between approved evidence regions, and pause at each decision or receipt boundary for inspection."
+      }
+    ],
+    "shot_plan": [
+      {
+        "shot_id": "long-hook-shot-1",
+        "scene_id": "long-hook",
+        "artifact_id": "jev-operator-field-guide",
+        "framing": "Establish the complete Jev decision interface operator field guide.",
+        "action": "Begin with the full dashboard, move between approved evidence regions, and pause at each decision or receipt boundary for inspection.",
+        "source_receipt_ids": [
+          "source:jev:approved-composite-20261014"
+        ],
+        "privacy_boundary": "Use the approved AmaduTown operator field guide and its illustrative policy bands; identify the thresholds as illustrative. Attribute the public launch and do not claim independently verified production reliability."
+      },
+      {
+        "shot_id": "long-inspect-score-shot-1",
+        "scene_id": "long-inspect-score",
+        "artifact_id": "jev-operator-field-guide",
+        "framing": "Crop to the evidence region named by the scene while retaining enough Jev decision interface operator field guide context to remain legible.",
+        "action": "Begin with the full dashboard, move between approved evidence regions, and pause at each decision or receipt boundary for inspection.",
+        "source_receipt_ids": [
+          "source:jev:approved-composite-20261014"
+        ],
+        "privacy_boundary": "Use the approved AmaduTown operator field guide and its illustrative policy bands; identify the thresholds as illustrative. Attribute the public launch and do not claim independently verified production reliability."
+      },
+      {
+        "shot_id": "long-apply-policy-shot-1",
+        "scene_id": "long-apply-policy",
+        "artifact_id": "jev-operator-field-guide",
+        "framing": "Crop to the evidence region named by the scene while retaining enough Jev decision interface operator field guide context to remain legible.",
+        "action": "Begin with the full dashboard, move between approved evidence regions, and pause at each decision or receipt boundary for inspection.",
+        "source_receipt_ids": [
+          "source:jev:approved-composite-20261014"
+        ],
+        "privacy_boundary": "Use the approved AmaduTown operator field guide and its illustrative policy bands; identify the thresholds as illustrative. Describe the approved mock-qualified Portfolio harness only; live provider use remains on HOLD."
+      },
+      {
+        "shot_id": "long-retain-ownership-shot-1",
+        "scene_id": "long-retain-ownership",
+        "artifact_id": "jev-operator-field-guide",
+        "framing": "Crop to the evidence region named by the scene while retaining enough Jev decision interface operator field guide context to remain legible.",
+        "action": "Begin with the full dashboard, move between approved evidence regions, and pause at each decision or receipt boundary for inspection.",
+        "source_receipt_ids": [
+          "source:jev:approved-composite-20261014"
+        ],
+        "privacy_boundary": "Use the approved AmaduTown operator field guide and its illustrative policy bands; identify the thresholds as illustrative. Describe the approved mock-qualified Portfolio harness only; live provider use remains on HOLD."
+      },
+      {
+        "shot_id": "long-value-shot-1",
+        "scene_id": "long-value",
+        "artifact_id": "jev-operator-field-guide",
+        "framing": "Crop to the evidence region named by the scene while retaining enough Jev decision interface operator field guide context to remain legible.",
+        "action": "Begin with the full dashboard, move between approved evidence regions, and pause at each decision or receipt boundary for inspection.",
+        "source_receipt_ids": [
+          "source:jev:approved-composite-20261014"
+        ],
+        "privacy_boundary": "Use the approved AmaduTown operator field guide and its illustrative policy bands; identify the thresholds as illustrative. Attribute the public launch and do not claim independently verified production reliability. Describe the approved mock-qualified Portfolio harness only; live provider use remains on HOLD."
+      },
+      {
+        "shot_id": "long-traceability-shot-1",
+        "scene_id": "long-traceability",
+        "artifact_id": "jev-operator-field-guide",
+        "framing": "Crop to the evidence region named by the scene while retaining enough Jev decision interface operator field guide context to remain legible.",
+        "action": "Begin with the full dashboard, move between approved evidence regions, and pause at each decision or receipt boundary for inspection.",
+        "source_receipt_ids": [
+          "source:jev:approved-composite-20261014"
+        ],
+        "privacy_boundary": "Use the approved AmaduTown operator field guide and its illustrative policy bands; identify the thresholds as illustrative. Attribute the public launch and do not claim independently verified production reliability. Describe the approved mock-qualified Portfolio harness only; live provider use remains on HOLD."
+      },
+      {
+        "shot_id": "short-hook-shot-1",
+        "scene_id": "short-hook",
+        "artifact_id": "jev-operator-field-guide",
+        "framing": "Establish the complete Jev decision interface operator field guide.",
+        "action": "Begin with the full dashboard, move between approved evidence regions, and pause at each decision or receipt boundary for inspection.",
+        "source_receipt_ids": [
+          "source:jev:approved-composite-20261014"
+        ],
+        "privacy_boundary": "Use the approved AmaduTown operator field guide and its illustrative policy bands; identify the thresholds as illustrative. Attribute the public launch and do not claim independently verified production reliability."
+      },
+      {
+        "shot_id": "short-process-shot-1",
+        "scene_id": "short-process",
+        "artifact_id": "jev-operator-field-guide",
+        "framing": "Crop to the evidence region named by the scene while retaining enough Jev decision interface operator field guide context to remain legible.",
+        "action": "Begin with the full dashboard, move between approved evidence regions, and pause at each decision or receipt boundary for inspection.",
+        "source_receipt_ids": [
+          "source:jev:approved-composite-20261014"
+        ],
+        "privacy_boundary": "Use the approved AmaduTown operator field guide and its illustrative policy bands; identify the thresholds as illustrative. Attribute the public launch and do not claim independently verified production reliability. Describe the approved mock-qualified Portfolio harness only; live provider use remains on HOLD."
+      },
+      {
+        "shot_id": "short-close-shot-1",
+        "scene_id": "short-close",
+        "artifact_id": "jev-operator-field-guide",
+        "framing": "Crop to the evidence region named by the scene while retaining enough Jev decision interface operator field guide context to remain legible.",
+        "action": "Begin with the full dashboard, move between approved evidence regions, and pause at each decision or receipt boundary for inspection.",
+        "source_receipt_ids": [
+          "source:jev:approved-composite-20261014"
+        ],
+        "privacy_boundary": "Use the approved AmaduTown operator field guide and its illustrative policy bands; identify the thresholds as illustrative. Attribute the public launch and do not claim independently verified production reliability. Describe the approved mock-qualified Portfolio harness only; live provider use remains on HOLD."
+      }
+    ],
+    "thumbnail_brief": {
+      "headline": "Who owns the decision after the score?",
+      "visual_subject": "Jev decision interface operator field guide, anchored by Jev decision interface operator field guide.",
+      "artifact_ids": [
+        "jev-operator-field-guide"
+      ],
+      "claim_ids": [
+        "jev-typed-probabilities",
+        "jev-policy-boundary"
+      ],
+      "source_receipt_ids": [
+        "source:jev:approved-composite-20261014",
+        "visual:jev:human-qa-rev2-20261014"
+      ],
+      "composition": "Use the real dashboard as the visual anchor, then follow its evidence regions in the same order an operator uses them to make a decision. Use one artifact-specific evidence path rather than a generic repeated card layout.",
+      "mobile_readability_note": "Keep Jev decision interface operator field guide recognizable at phone size and preserve the evidence region that supports the promise."
+    },
+    "composition_rationale": {
+      "dominant_composition": "dashboard_evidence_path",
+      "why_this_structure": "Use the real dashboard as the visual anchor, then follow its evidence regions in the same order an operator uses them to make a decision.",
+      "motion_rationale": "Begin with the full dashboard, move between approved evidence regions, and pause at each decision or receipt boundary for inspection.",
+      "recent_approved_compositions": [
+        "dark-castle-gameplay-story",
+        "constraint-decision-result"
+      ]
+    },
+    "traceability_summary": "Every customer-facing claim in this adaptation remains bound to 3 approved source identities, 1 cleared artifact, and the current privacy, rights, challenger, and script-quality receipts."
+  },
+  "version": "social_video_adaptation_v1",
+  "status": "ready_for_render_approval",
+  "targets": [
+    "youtube_long_form",
+    "youtube_shorts"
+  ],
+  "video_generation_bridge": {
+    "status": "manual_draft_packet_ready",
+    "route": "/admin/content/video-generation",
+    "render_gate": "explicit_approval_required",
+    "approval_boundary": "This packet may be reviewed or imported as a manual Video Generation draft only. Rendering, provider calls, uploads, platform drafts, scheduling, publishing, external sends, credentials, and spending remain separately approved actions.",
+    "side_effects": {
+      "provider_generation": false,
+      "render": false,
+      "upload": false,
+      "platform_draft": false,
+      "schedule": false,
+      "publish": false,
+      "external_send": false,
+      "credential_change": false,
+      "spending": false
+    }
+  }
+}
