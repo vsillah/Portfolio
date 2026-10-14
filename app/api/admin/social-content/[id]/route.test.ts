@@ -65,6 +65,42 @@ describe('GET /api/admin/social-content/[id] practitioner QA fixture', () => {
   })
 })
 
+describe('GET /api/admin/social-content/[id] channel-native video fallback', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mocks.verifyAdmin.mockResolvedValue({ user: { id: 'admin-1' }, isAdmin: true })
+    mocks.isAuthError.mockReturnValue(false)
+    mocks.single.mockResolvedValue({ data: null, error: { message: 'not found' } })
+    mocks.select.mockReturnValue({ eq: mocks.eq })
+    mocks.eq.mockReturnValue({ single: mocks.single })
+    mocks.from.mockReturnValue({ select: mocks.select })
+  })
+
+  it.each([
+    ['f966123f-05eb-48ec-a7c2-970afce642ef', 'jev-provider-none-review.mp4'],
+    ['21c492c2-9279-4e08-afc9-49207935a681', 'dark-castle-provider-none-review.mp4'],
+  ])('returns the read-only repository packet when %s is absent from the bound preview database', async (id, videoName) => {
+    const response = await GET(new NextRequest(`http://localhost/api/admin/social-content/${id}`) as never, { params: { id } })
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(body).toMatchObject({ fixture: true, fixture_state: 'repository_bound_review' })
+    expect(body.item.id).toBe(id)
+    expect(body.item.rag_context.approved_video_packet.video_path).toContain(videoName)
+    expect(body.item.rag_context.approved_video_packet.provider).toBe('none')
+    expect(body.item.rag_context.qa_fixture).toMatchObject({ read_only: true, kind: 'channel_native_video_review' })
+    expect(body.item.rag_context.side_effects).toEqual(expect.objectContaining({
+      provider_generation: false,
+      upload: false,
+      platform_draft: false,
+      schedule: false,
+      publish: false,
+      external_send: false,
+    }))
+    expect(mocks.update).not.toHaveBeenCalled()
+  })
+})
+
 describe('PUT /api/admin/social-content/[id]', () => {
   beforeEach(() => {
     vi.clearAllMocks()
