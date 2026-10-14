@@ -2,11 +2,15 @@ import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { getAgentWorkItem, updateAgentWorkItemMetadata } from '@/lib/agent-work-items'
 import {
+  SOCIAL_CONTENT_INTELLIGENCE_CHANNELS,
   buildLinkedInYoutubeReviewDrafts,
   buildSocialContentEnrichmentReceipt,
   enrichCampaignReviewInsight,
   normalizeSocialChannelLanes,
   socialChannelReviewPublicCopyFields,
+  type LinkedInYoutubeReviewDrafts,
+  type SocialChannelLanes,
+  type SocialChannelReviewDraftPacket,
 } from '@/lib/social-content-intelligence'
 import { validateSocialPublicCopyFields } from '@/lib/social-content-lifecycle'
 import {
@@ -34,7 +38,7 @@ function requestedArtifactVideoAdaptationSource(metadata: Record<string, unknown
 }
 
 function attachArtifactVideoAdaptation(
-  drafts: ReturnType<typeof buildLinkedInYoutubeReviewDrafts>,
+  drafts: LinkedInYoutubeReviewDrafts,
   packet: SocialVideoAdaptationPacket,
 ) {
   if (packet.targets.includes('youtube_long_form')) {
@@ -44,6 +48,48 @@ function attachArtifactVideoAdaptation(
   if (packet.targets.includes('youtube_shorts')) {
     drafts.youtube_shorts.fields.artifact_video_adaptation = packet
     drafts.youtube_shorts.fields.video_generation_bridge = packet.video_generation_bridge
+  }
+}
+
+function approvedDraftPacket(
+  lanes: SocialChannelLanes,
+  channel: keyof LinkedInYoutubeReviewDrafts,
+) {
+  const lane = lanes[channel]
+  if (lane.status !== 'approved' || lane.draft_packet?.approval_status !== 'approved') return null
+  if (!Object.keys(asRecord(lane.draft_packet.fields)).length) return null
+  return structuredClone(lane.draft_packet) as SocialChannelReviewDraftPacket
+}
+
+function preserveApprovedChannelDrafts(
+  generated: LinkedInYoutubeReviewDrafts,
+  lanes: SocialChannelLanes,
+): LinkedInYoutubeReviewDrafts {
+  const drafts = structuredClone(generated)
+  for (const channel of SOCIAL_CONTENT_INTELLIGENCE_CHANNELS) {
+    const approved = approvedDraftPacket(lanes, channel)
+    if (approved) drafts[channel] = approved
+  }
+  return drafts
+}
+
+function updateLaneWithPreparedDraft(input: {
+  lanes: SocialChannelLanes
+  channel: keyof LinkedInYoutubeReviewDrafts
+  draft: SocialChannelReviewDraftPacket
+  now: string
+}) {
+  const existing = input.lanes[input.channel]
+  const preserveApproval = existing.status === 'approved'
+    && existing.draft_packet?.approval_status === 'approved'
+
+  input.lanes[input.channel] = {
+    ...existing,
+    status: preserveApproval ? 'approved' : 'in_review',
+    draft_packet: input.draft,
+    decision_note: preserveApproval ? existing.decision_note : null,
+    review_requested_at: preserveApproval ? existing.review_requested_at : input.now,
+    updated_at: input.now,
   }
 }
 
@@ -76,11 +122,13 @@ export async function POST(
     }
 
     const now = new Date().toISOString()
-    const drafts = buildLinkedInYoutubeReviewDrafts({
+    const lanes = normalizeSocialChannelLanes(metadata.channel_lanes)
+    const generatedDrafts = buildLinkedInYoutubeReviewDrafts({
       insight,
       generatedAt: now,
       latestFeedback: asRecord(metadata.autoresearch_feedback_latest),
     })
+    const drafts = preserveApprovedChannelDrafts(generatedDrafts, lanes)
     const copyQualityGate = validateSocialPublicCopyFields(socialChannelReviewPublicCopyFields(drafts))
     if (copyQualityGate.status === 'blocked') {
       return NextResponse.json({
@@ -106,7 +154,9 @@ export async function POST(
         enrichment_receipt: enrichmentReceipt,
       }, { status: 422 })
     }
-    for (const draft of Object.values(drafts)) draft.enrichment_receipt = enrichmentReceipt
+    for (const channel of SOCIAL_CONTENT_INTELLIGENCE_CHANNELS) {
+      if (!approvedDraftPacket(lanes, channel)) drafts[channel].enrichment_receipt = enrichmentReceipt
+    }
     let artifactVideoAdaptation: SocialVideoAdaptationPacket | null = null
     const adaptationSource = requestedArtifactVideoAdaptationSource(metadata)
     if (adaptationSource !== null && adaptationSource !== undefined) {
@@ -150,63 +200,8 @@ export async function POST(
         })
       }
     }
-    const lanes = normalizeSocialChannelLanes(metadata.channel_lanes)
-
-    lanes.linkedin = {
-      ...lanes.linkedin,
-      status: 'in_review',
-      draft_packet: drafts.linkedin,
-      decision_note: null,
-      review_requested_at: now,
-      updated_at: now,
-    }
-    lanes.youtube = {
-      ...lanes.youtube,
-      status: 'in_review',
-      draft_packet: drafts.youtube,
-      decision_note: null,
-      review_requested_at: now,
-      updated_at: now,
-    }
-    lanes.youtube_shorts = {
-      ...lanes.youtube_shorts,
-      status: 'in_review',
-      draft_packet: drafts.youtube_shorts,
-      decision_note: null,
-      review_requested_at: now,
-      updated_at: now,
-    }
-    lanes.instagram_reels = {
-      ...lanes.instagram_reels,
-      status: 'in_review',
-      draft_packet: drafts.instagram_reels,
-      decision_note: null,
-      review_requested_at: now,
-      updated_at: now,
-    }
-    lanes.tiktok = {
-      ...lanes.tiktok,
-      status: 'in_review',
-      draft_packet: drafts.tiktok,
-      decision_note: null,
-      review_requested_at: now,
-      updated_at: now,
-    }
-    lanes.x = {
-      ...lanes.x,
-      status: 'in_review',
-      draft_packet: drafts.x,
-      decision_note: null,
-      review_requested_at: now,
-      updated_at: now,
-    }
-    lanes.thumbnail = {
-      ...lanes.thumbnail,
-      status: 'in_review',
-      draft_packet: drafts.thumbnail,
-      decision_note: null,
-      review_requested_at: now,
-      updated_at: now,
+    for (const channel of SOCIAL_CONTENT_INTELLIGENCE_CHANNELS) {
+      updateLaneWithPreparedDraft({ lanes, channel, draft: drafts[channel], now })
     }
 
     const updated = await updateAgentWorkItemMetadata({

@@ -1,0 +1,576 @@
+{
+  "adaptation_id": "dark-castle-artifact-video-20261014-rev1",
+  "generated_at": "2026-10-14T11:48:05.555Z",
+  "input_version": "sha256:4d3bc63ebaeb1aed344d64ed15ebb0ff865772de48b48249526ccce0b2c02e9e",
+  "target_decision": "both",
+  "identity": {
+    "campaign_id": "artifact-video-pilot-20261014",
+    "product_id": "dark_castle_chess",
+    "topic_id": "state-continuity-learning-loop",
+    "source_ids": [
+      "app_prototype:448d2fc4-6aac-404d-9f69-cd6056341ba2",
+      "github:vsillah/dark-castle-chess@5bfbcde5"
+    ],
+    "channel_packet_ids": [
+      "work-item:2403b70a-c262-429e-8da3-964e082f5a59",
+      "linkedin-approved:20261014"
+    ]
+  },
+  "source_channel_packet": {
+    "campaign_id": "artifact-video-pilot-20261014",
+    "product_id": "dark_castle_chess",
+    "topic_id": "state-continuity-learning-loop",
+    "source_ids": [
+      "app_prototype:448d2fc4-6aac-404d-9f69-cd6056341ba2",
+      "github:vsillah/dark-castle-chess@5bfbcde5"
+    ],
+    "channel_packet_ids": [
+      "work-item:2403b70a-c262-429e-8da3-964e082f5a59",
+      "linkedin-approved:20261014"
+    ],
+    "linkedin_copy": "The part of building a chess game that looks least like chess taught me the most about product strategy.\n\nThis week, Dark Castle Chess moved through iOS release preparation: App Store metadata, copyright ownership, and a series of release gates.\n\nNone of that changes how a knight moves.\n\nAll of it determines whether a product is ready to leave the workshop.\n\nThe game is built around a tight learning loop:\n\n- drill a position\n- play it under pressure\n- turn mistakes into new cards\n- return to the weak spot later\n\nBuilding the product forced me through the same loop.\n\nEvery review exposed a gap between \"the feature exists\" and \"a real person can trust this.\" Board sizing. Progress backups. Profile boundaries. Release claims. Each problem became part of the next pass.\n\nThat is the strategic lesson I keep carrying back into product work: readiness is not one winning move. It is the discipline of turning mistakes into the next training set.\n\nDark Castle Chess is still in pilot. I am not claiming outcomes we have not measured.\n\nBut the operating lesson is already clear."
+  },
+  "receipts": {
+    "source": {
+      "receipt_id": "source:dark-castle-chess:approved-composite-20261014",
+      "kind": "source",
+      "status": "passed",
+      "input_version": "sha256:4d3bc63ebaeb1aed344d64ed15ebb0ff865772de48b48249526ccce0b2c02e9e",
+      "reviewed_at": "2026-10-14T09:00:12.552926Z",
+      "valid_until": "2026-10-21T23:59:59.000Z"
+    },
+    "voice": {
+      "receipt_id": "voice:dark-castle-chess:portfolio-calibration-20261014",
+      "kind": "voice",
+      "status": "passed",
+      "input_version": "sha256:4d3bc63ebaeb1aed344d64ed15ebb0ff865772de48b48249526ccce0b2c02e9e",
+      "reviewed_at": "2026-10-14T09:00:12.552926Z",
+      "valid_until": "2026-10-21T23:59:59.000Z"
+    },
+    "framework": {
+      "receipt_id": "framework:dark-castle-chess:approved-social-lane-20261014",
+      "kind": "framework",
+      "status": "passed",
+      "input_version": "sha256:4d3bc63ebaeb1aed344d64ed15ebb0ff865772de48b48249526ccce0b2c02e9e",
+      "reviewed_at": "2026-10-14T09:00:12.552926Z",
+      "valid_until": "2026-10-21T23:59:59.000Z"
+    },
+    "privacy": {
+      "receipt_id": "privacy:dark-castle-chess:public-safe-20261014",
+      "kind": "privacy",
+      "status": "passed",
+      "input_version": "sha256:4d3bc63ebaeb1aed344d64ed15ebb0ff865772de48b48249526ccce0b2c02e9e",
+      "reviewed_at": "2026-10-14T09:00:12.552926Z",
+      "valid_until": "2026-10-21T23:59:59.000Z"
+    },
+    "visual": {
+      "receipt_id": "visual:dark-castle-chess:human-qa-rev2-20261014",
+      "kind": "visual",
+      "status": "passed",
+      "input_version": "sha256:4d3bc63ebaeb1aed344d64ed15ebb0ff865772de48b48249526ccce0b2c02e9e",
+      "reviewed_at": "2026-10-14T09:00:12.552926Z",
+      "valid_until": "2026-10-21T23:59:59.000Z"
+    },
+    "rights": {
+      "receipt_id": "rights:dark-castle-chess:owned-public-assets-20261014",
+      "kind": "rights",
+      "status": "passed",
+      "input_version": "sha256:4d3bc63ebaeb1aed344d64ed15ebb0ff865772de48b48249526ccce0b2c02e9e",
+      "reviewed_at": "2026-10-14T09:00:12.552926Z",
+      "valid_until": "2026-10-21T23:59:59.000Z"
+    },
+    "challenger": {
+      "receipt_id": "challenger:dark-castle-chess:amina-passed-20261014",
+      "kind": "challenger",
+      "status": "passed",
+      "input_version": "sha256:4d3bc63ebaeb1aed344d64ed15ebb0ff865772de48b48249526ccce0b2c02e9e",
+      "reviewed_at": "2026-10-14T09:00:12.552926Z",
+      "valid_until": "2026-10-21T23:59:59.000Z"
+    },
+    "script_quality": {
+      "receipt_id": "script-quality:dark-castle-chess:artifact-video-v1-20261014",
+      "kind": "script_quality",
+      "status": "passed",
+      "input_version": "sha256:4d3bc63ebaeb1aed344d64ed15ebb0ff865772de48b48249526ccce0b2c02e9e",
+      "reviewed_at": "2026-10-14T09:00:12.552926Z",
+      "valid_until": "2026-10-21T23:59:59.000Z"
+    }
+  },
+  "claims": [
+    {
+      "claim_id": "castle-state-continuity",
+      "text": "The public Dark Castle pilot carries the explored e4 position into computer play instead of resetting the learning context.",
+      "source_receipt_ids": [
+        "source:dark-castle-chess:approved-composite-20261014"
+      ],
+      "proof_receipt_ids": [
+        "visual:dark-castle-chess:human-qa-rev2-20261014",
+        "challenger:dark-castle-chess:amina-passed-20261014"
+      ],
+      "privacy_boundary": "Use only the three public gameplay captures; do not expose private code or conversations."
+    },
+    {
+      "claim_id": "castle-pilot-boundary",
+      "text": "Dark Castle Chess remains a browser pilot with no native-store release or measured learner-outcome claim.",
+      "source_receipt_ids": [
+        "source:dark-castle-chess:approved-composite-20261014"
+      ],
+      "proof_receipt_ids": [
+        "framework:dark-castle-chess:approved-social-lane-20261014",
+        "script-quality:dark-castle-chess:artifact-video-v1-20261014"
+      ],
+      "privacy_boundary": "Describe release preparation as preparation, not submission, activation, or public native release."
+    }
+  ],
+  "evidence_assets": [
+    {
+      "asset_id": "castle-explore",
+      "asset_type": "gameplay_capture",
+      "label": "Explore position",
+      "reference": "https://dark-castle-chess.vercel.app/welcome/media/explore-position.jpg",
+      "source_receipt_ids": [
+        "source:dark-castle-chess:approved-composite-20261014"
+      ],
+      "privacy_receipt_id": "privacy:dark-castle-chess:public-safe-20261014",
+      "rights_receipt_id": "rights:dark-castle-chess:owned-public-assets-20261014",
+      "approved_use": "Use this public gameplay capture to explain the visible product state; do not infer measured learning outcomes."
+    },
+    {
+      "asset_id": "castle-transfer",
+      "asset_type": "gameplay_capture",
+      "label": "Transfer into computer play",
+      "reference": "https://dark-castle-chess.vercel.app/welcome/media/explore-start.jpg",
+      "source_receipt_ids": [
+        "source:dark-castle-chess:approved-composite-20261014"
+      ],
+      "privacy_receipt_id": "privacy:dark-castle-chess:public-safe-20261014",
+      "rights_receipt_id": "rights:dark-castle-chess:owned-public-assets-20261014",
+      "approved_use": "Use this public gameplay capture to explain the visible product state; do not infer measured learning outcomes."
+    },
+    {
+      "asset_id": "castle-response",
+      "asset_type": "gameplay_capture",
+      "label": "Computer response with coaching",
+      "reference": "https://dark-castle-chess.vercel.app/welcome/media/explore-computer.jpg",
+      "source_receipt_ids": [
+        "source:dark-castle-chess:approved-composite-20261014"
+      ],
+      "privacy_receipt_id": "privacy:dark-castle-chess:public-safe-20261014",
+      "rights_receipt_id": "rights:dark-castle-chess:owned-public-assets-20261014",
+      "approved_use": "Use this public gameplay capture to explain the visible product state; do not infer measured learning outcomes."
+    }
+  ],
+  "draft": {
+    "title_options": [
+      {
+        "title": "Dark Castle Chess: what the artifact makes visible",
+        "targets": [
+          "youtube_long_form",
+          "youtube_shorts"
+        ],
+        "promise": "The position survives the handoff",
+        "claim_ids": [
+          "castle-state-continuity",
+          "castle-pilot-boundary"
+        ]
+      },
+      {
+        "title": "The process behind Dark Castle gameplay state-continuity sequence",
+        "targets": [
+          "youtube_long_form",
+          "youtube_shorts"
+        ],
+        "promise": "The sequence shows product teams how state continuity turns a disconnected tutorial into a repeatable explore, transfer, and respond learning loop.",
+        "claim_ids": [
+          "castle-state-continuity",
+          "castle-pilot-boundary"
+        ]
+      }
+    ],
+    "format_adaptations": [
+      {
+        "target": "youtube_long_form",
+        "opening_hook": "The feature looks complete until the explored position has to survive the handoff into a live computer response.",
+        "full_spoken_script": "The feature looks complete until the explored position has to survive the handoff into a live computer response.\n\nA tutorial can teach a move and still lose the lesson when the player crosses into real play and the board resets.\n\nDark Castle gameplay state-continuity sequence gives us a concrete gameplay capture to inspect. We will use its approved evidence regions rather than turning the source copy into a generic talking-head summary.\n\nStep 1, Explore. Inspect a position and choose a move before adding time pressure. The approved explored e4 position evidence keeps this explanation tied to what the artifact actually shows.\n\nStep 2, Transfer. Carry the same board state into computer play without resetting the lesson. The approved transfer prompt retaining e4 evidence keeps this explanation tied to what the artifact actually shows.\n\nStep 3, Meet the response. Use the reply, coaching, and notation to consider the next decision while staying inside the public pilot boundary. The approved computer response and guidance evidence keeps this explanation tied to what the artifact actually shows.\n\nThe sequence shows product teams how state continuity turns a disconnected tutorial into a repeatable explore, transfer, and respond learning loop.\n\nReal gameplay makes the product lesson inspectable while the pilot and outcome boundaries prevent a compelling visual from becoming an unsupported claim.\n\nEvery customer-facing claim in this adaptation remains bound to 2 approved source identities, 3 cleared artifacts, and the current privacy, rights, challenger, and script-quality receipts.\n\nState continuity is part of the learning experience, not invisible plumbing.",
+        "target_duration_seconds": 240,
+        "adaptation_rationale": "Long form follows Dark Castle gameplay state-continuity sequence through its approved evidence regions, process, value, and receipt trail with time for inspection."
+      },
+      {
+        "target": "youtube_shorts",
+        "opening_hook": "The feature looks complete until the explored position has to survive the handoff into a live computer response. Dark Castle gameplay state-continuity sequence makes that tension visible.",
+        "full_spoken_script": "A tutorial can teach a move and still lose the lesson when the player crosses into real play and the board resets. Explore: Inspect a position and choose a move before adding time pressure. Transfer: Carry the same board state into computer play without resetting the lesson. Meet the response: Use the reply, coaching, and notation to consider the next decision while staying inside the public pilot boundary. The sequence shows product teams how state continuity turns a disconnected tutorial into a repeatable explore, transfer, and respond learning loop. Every customer-facing claim in this adaptation remains bound to 2 approved source identities, 3 cleared artifacts, and the current privacy, rights, challenger, and script-quality receipts. State continuity is part of the learning experience, not invisible plumbing.",
+        "target_duration_seconds": 45,
+        "adaptation_rationale": "Shorts compresses Dark Castle gameplay state-continuity sequence into one tension, one evidence sequence, and one traceable operating principle."
+      }
+    ],
+    "practical_value": "The sequence shows product teams how state continuity turns a disconnected tutorial into a repeatable explore, transfer, and respond learning loop.",
+    "why_artifact_matters": "Real gameplay makes the product lesson inspectable while the pilot and outcome boundaries prevent a compelling visual from becoming an unsupported claim.",
+    "scenes": [
+      {
+        "scene_id": "long-hook",
+        "target": "youtube_long_form",
+        "purpose": "Establish the artifact-specific operating tension.",
+        "narration": "The feature looks complete until the explored position has to survive the handoff into a live computer response.",
+        "claim_ids": [
+          "castle-state-continuity"
+        ],
+        "artifact_ids": [
+          "castle-explore"
+        ],
+        "source_receipt_ids": [
+          "source:dark-castle-chess:approved-composite-20261014"
+        ],
+        "on_screen_text": [
+          "01 · Explore the position"
+        ],
+        "motion_direction": "Hold the full board or gameplay state first, then crop to the decision region and follow the approved sequence without inventing unrecorded play."
+      },
+      {
+        "scene_id": "long-explore",
+        "target": "youtube_long_form",
+        "purpose": "Teach Explore through approved artifact evidence.",
+        "narration": "Explore. Inspect a position and choose a move before adding time pressure.",
+        "claim_ids": [
+          "castle-state-continuity"
+        ],
+        "artifact_ids": [
+          "castle-explore"
+        ],
+        "source_receipt_ids": [
+          "source:dark-castle-chess:approved-composite-20261014"
+        ],
+        "on_screen_text": [
+          "01 · Explore the position"
+        ],
+        "motion_direction": "Hold the full board or gameplay state first, then crop to the decision region and follow the approved sequence without inventing unrecorded play."
+      },
+      {
+        "scene_id": "long-transfer",
+        "target": "youtube_long_form",
+        "purpose": "Teach Transfer through approved artifact evidence.",
+        "narration": "Transfer. Carry the same board state into computer play without resetting the lesson.",
+        "claim_ids": [
+          "castle-state-continuity"
+        ],
+        "artifact_ids": [
+          "castle-transfer"
+        ],
+        "source_receipt_ids": [
+          "source:dark-castle-chess:approved-composite-20261014"
+        ],
+        "on_screen_text": [
+          "02 · Carry the state into play"
+        ],
+        "motion_direction": "Hold the full board or gameplay state first, then crop to the decision region and follow the approved sequence without inventing unrecorded play."
+      },
+      {
+        "scene_id": "long-respond",
+        "target": "youtube_long_form",
+        "purpose": "Teach Meet the response through approved artifact evidence.",
+        "narration": "Meet the response. Use the reply, coaching, and notation to consider the next decision while staying inside the public pilot boundary.",
+        "claim_ids": [
+          "castle-state-continuity",
+          "castle-pilot-boundary"
+        ],
+        "artifact_ids": [
+          "castle-response"
+        ],
+        "source_receipt_ids": [
+          "source:dark-castle-chess:approved-composite-20261014"
+        ],
+        "on_screen_text": [
+          "03 · Learn from the response"
+        ],
+        "motion_direction": "Hold the full board or gameplay state first, then crop to the decision region and follow the approved sequence without inventing unrecorded play."
+      },
+      {
+        "scene_id": "long-value",
+        "target": "youtube_long_form",
+        "purpose": "Explain practical value and why the artifact matters.",
+        "narration": "The sequence shows product teams how state continuity turns a disconnected tutorial into a repeatable explore, transfer, and respond learning loop. Real gameplay makes the product lesson inspectable while the pilot and outcome boundaries prevent a compelling visual from becoming an unsupported claim.",
+        "claim_ids": [
+          "castle-state-continuity",
+          "castle-pilot-boundary"
+        ],
+        "artifact_ids": [
+          "castle-response"
+        ],
+        "source_receipt_ids": [
+          "source:dark-castle-chess:approved-composite-20261014"
+        ],
+        "on_screen_text": [
+          "The position survives the handoff"
+        ],
+        "motion_direction": "Hold the full board or gameplay state first, then crop to the decision region and follow the approved sequence without inventing unrecorded play."
+      },
+      {
+        "scene_id": "long-traceability",
+        "target": "youtube_long_form",
+        "purpose": "Close on traceability and the bounded next action.",
+        "narration": "Every customer-facing claim in this adaptation remains bound to 2 approved source identities, 3 cleared artifacts, and the current privacy, rights, challenger, and script-quality receipts. State continuity is part of the learning experience, not invisible plumbing.",
+        "claim_ids": [
+          "castle-state-continuity",
+          "castle-pilot-boundary"
+        ],
+        "artifact_ids": [
+          "castle-explore",
+          "castle-response"
+        ],
+        "source_receipt_ids": [
+          "source:dark-castle-chess:approved-composite-20261014"
+        ],
+        "on_screen_text": [
+          "Source → evidence → decision → boundary"
+        ],
+        "motion_direction": "Hold the full board or gameplay state first, then crop to the decision region and follow the approved sequence without inventing unrecorded play."
+      },
+      {
+        "scene_id": "short-hook",
+        "target": "youtube_shorts",
+        "purpose": "Name the artifact-specific tension in the opening seconds.",
+        "narration": "The feature looks complete until the explored position has to survive the handoff into a live computer response. Dark Castle gameplay state-continuity sequence makes that tension visible.",
+        "claim_ids": [
+          "castle-state-continuity"
+        ],
+        "artifact_ids": [
+          "castle-explore"
+        ],
+        "source_receipt_ids": [
+          "source:dark-castle-chess:approved-composite-20261014"
+        ],
+        "on_screen_text": [
+          "01 · Explore the position"
+        ],
+        "motion_direction": "Hold the full board or gameplay state first, then crop to the decision region and follow the approved sequence without inventing unrecorded play."
+      },
+      {
+        "scene_id": "short-process",
+        "target": "youtube_shorts",
+        "purpose": "Compress the approved process into one evidence sequence.",
+        "narration": "Explore: Inspect a position and choose a move before adding time pressure. Transfer: Carry the same board state into computer play without resetting the lesson. Meet the response: Use the reply, coaching, and notation to consider the next decision while staying inside the public pilot boundary.",
+        "claim_ids": [
+          "castle-state-continuity",
+          "castle-pilot-boundary"
+        ],
+        "artifact_ids": [
+          "castle-explore",
+          "castle-transfer",
+          "castle-response"
+        ],
+        "source_receipt_ids": [
+          "source:dark-castle-chess:approved-composite-20261014"
+        ],
+        "on_screen_text": [
+          "Explore",
+          "Transfer",
+          "Meet the response"
+        ],
+        "motion_direction": "Hold the full board or gameplay state first, then crop to the decision region and follow the approved sequence without inventing unrecorded play."
+      },
+      {
+        "scene_id": "short-close",
+        "target": "youtube_shorts",
+        "purpose": "Close on practical value and traceability.",
+        "narration": "The sequence shows product teams how state continuity turns a disconnected tutorial into a repeatable explore, transfer, and respond learning loop. State continuity is part of the learning experience, not invisible plumbing.",
+        "claim_ids": [
+          "castle-state-continuity",
+          "castle-pilot-boundary"
+        ],
+        "artifact_ids": [
+          "castle-response"
+        ],
+        "source_receipt_ids": [
+          "source:dark-castle-chess:approved-composite-20261014"
+        ],
+        "on_screen_text": [
+          "The position survives the handoff"
+        ],
+        "motion_direction": "Hold the full board or gameplay state first, then crop to the decision region and follow the approved sequence without inventing unrecorded play."
+      }
+    ],
+    "shot_plan": [
+      {
+        "shot_id": "long-hook-shot-1",
+        "scene_id": "long-hook",
+        "artifact_id": "castle-explore",
+        "framing": "Establish the complete Explore position.",
+        "action": "Hold the full board or gameplay state first, then crop to the decision region and follow the approved sequence without inventing unrecorded play.",
+        "source_receipt_ids": [
+          "source:dark-castle-chess:approved-composite-20261014"
+        ],
+        "privacy_boundary": "Use this public gameplay capture to explain the visible product state; do not infer measured learning outcomes. Use only the three public gameplay captures; do not expose private code or conversations."
+      },
+      {
+        "shot_id": "long-explore-shot-1",
+        "scene_id": "long-explore",
+        "artifact_id": "castle-explore",
+        "framing": "Crop to the evidence region named by the scene while retaining enough Dark Castle gameplay state-continuity sequence context to remain legible.",
+        "action": "Hold the full board or gameplay state first, then crop to the decision region and follow the approved sequence without inventing unrecorded play.",
+        "source_receipt_ids": [
+          "source:dark-castle-chess:approved-composite-20261014"
+        ],
+        "privacy_boundary": "Use this public gameplay capture to explain the visible product state; do not infer measured learning outcomes. Use only the three public gameplay captures; do not expose private code or conversations."
+      },
+      {
+        "shot_id": "long-transfer-shot-1",
+        "scene_id": "long-transfer",
+        "artifact_id": "castle-transfer",
+        "framing": "Crop to the evidence region named by the scene while retaining enough Dark Castle gameplay state-continuity sequence context to remain legible.",
+        "action": "Hold the full board or gameplay state first, then crop to the decision region and follow the approved sequence without inventing unrecorded play.",
+        "source_receipt_ids": [
+          "source:dark-castle-chess:approved-composite-20261014"
+        ],
+        "privacy_boundary": "Use this public gameplay capture to explain the visible product state; do not infer measured learning outcomes. Use only the three public gameplay captures; do not expose private code or conversations."
+      },
+      {
+        "shot_id": "long-respond-shot-1",
+        "scene_id": "long-respond",
+        "artifact_id": "castle-response",
+        "framing": "Crop to the evidence region named by the scene while retaining enough Dark Castle gameplay state-continuity sequence context to remain legible.",
+        "action": "Hold the full board or gameplay state first, then crop to the decision region and follow the approved sequence without inventing unrecorded play.",
+        "source_receipt_ids": [
+          "source:dark-castle-chess:approved-composite-20261014"
+        ],
+        "privacy_boundary": "Use this public gameplay capture to explain the visible product state; do not infer measured learning outcomes. Use only the three public gameplay captures; do not expose private code or conversations. Describe release preparation as preparation, not submission, activation, or public native release."
+      },
+      {
+        "shot_id": "long-value-shot-1",
+        "scene_id": "long-value",
+        "artifact_id": "castle-response",
+        "framing": "Crop to the evidence region named by the scene while retaining enough Dark Castle gameplay state-continuity sequence context to remain legible.",
+        "action": "Hold the full board or gameplay state first, then crop to the decision region and follow the approved sequence without inventing unrecorded play.",
+        "source_receipt_ids": [
+          "source:dark-castle-chess:approved-composite-20261014"
+        ],
+        "privacy_boundary": "Use this public gameplay capture to explain the visible product state; do not infer measured learning outcomes. Use only the three public gameplay captures; do not expose private code or conversations. Describe release preparation as preparation, not submission, activation, or public native release."
+      },
+      {
+        "shot_id": "long-traceability-shot-1",
+        "scene_id": "long-traceability",
+        "artifact_id": "castle-explore",
+        "framing": "Crop to the evidence region named by the scene while retaining enough Dark Castle gameplay state-continuity sequence context to remain legible.",
+        "action": "Hold the full board or gameplay state first, then crop to the decision region and follow the approved sequence without inventing unrecorded play.",
+        "source_receipt_ids": [
+          "source:dark-castle-chess:approved-composite-20261014"
+        ],
+        "privacy_boundary": "Use this public gameplay capture to explain the visible product state; do not infer measured learning outcomes. Use only the three public gameplay captures; do not expose private code or conversations. Describe release preparation as preparation, not submission, activation, or public native release."
+      },
+      {
+        "shot_id": "long-traceability-shot-2",
+        "scene_id": "long-traceability",
+        "artifact_id": "castle-response",
+        "framing": "Crop to the evidence region named by the scene while retaining enough Dark Castle gameplay state-continuity sequence context to remain legible.",
+        "action": "Hold the full board or gameplay state first, then crop to the decision region and follow the approved sequence without inventing unrecorded play.",
+        "source_receipt_ids": [
+          "source:dark-castle-chess:approved-composite-20261014"
+        ],
+        "privacy_boundary": "Use this public gameplay capture to explain the visible product state; do not infer measured learning outcomes. Use only the three public gameplay captures; do not expose private code or conversations. Describe release preparation as preparation, not submission, activation, or public native release."
+      },
+      {
+        "shot_id": "short-hook-shot-1",
+        "scene_id": "short-hook",
+        "artifact_id": "castle-explore",
+        "framing": "Establish the complete Explore position.",
+        "action": "Hold the full board or gameplay state first, then crop to the decision region and follow the approved sequence without inventing unrecorded play.",
+        "source_receipt_ids": [
+          "source:dark-castle-chess:approved-composite-20261014"
+        ],
+        "privacy_boundary": "Use this public gameplay capture to explain the visible product state; do not infer measured learning outcomes. Use only the three public gameplay captures; do not expose private code or conversations."
+      },
+      {
+        "shot_id": "short-process-shot-1",
+        "scene_id": "short-process",
+        "artifact_id": "castle-explore",
+        "framing": "Crop to the evidence region named by the scene while retaining enough Dark Castle gameplay state-continuity sequence context to remain legible.",
+        "action": "Hold the full board or gameplay state first, then crop to the decision region and follow the approved sequence without inventing unrecorded play.",
+        "source_receipt_ids": [
+          "source:dark-castle-chess:approved-composite-20261014"
+        ],
+        "privacy_boundary": "Use this public gameplay capture to explain the visible product state; do not infer measured learning outcomes. Use only the three public gameplay captures; do not expose private code or conversations. Describe release preparation as preparation, not submission, activation, or public native release."
+      },
+      {
+        "shot_id": "short-process-shot-2",
+        "scene_id": "short-process",
+        "artifact_id": "castle-transfer",
+        "framing": "Crop to the evidence region named by the scene while retaining enough Dark Castle gameplay state-continuity sequence context to remain legible.",
+        "action": "Hold the full board or gameplay state first, then crop to the decision region and follow the approved sequence without inventing unrecorded play.",
+        "source_receipt_ids": [
+          "source:dark-castle-chess:approved-composite-20261014"
+        ],
+        "privacy_boundary": "Use this public gameplay capture to explain the visible product state; do not infer measured learning outcomes. Use only the three public gameplay captures; do not expose private code or conversations. Describe release preparation as preparation, not submission, activation, or public native release."
+      },
+      {
+        "shot_id": "short-process-shot-3",
+        "scene_id": "short-process",
+        "artifact_id": "castle-response",
+        "framing": "Crop to the evidence region named by the scene while retaining enough Dark Castle gameplay state-continuity sequence context to remain legible.",
+        "action": "Hold the full board or gameplay state first, then crop to the decision region and follow the approved sequence without inventing unrecorded play.",
+        "source_receipt_ids": [
+          "source:dark-castle-chess:approved-composite-20261014"
+        ],
+        "privacy_boundary": "Use this public gameplay capture to explain the visible product state; do not infer measured learning outcomes. Use only the three public gameplay captures; do not expose private code or conversations. Describe release preparation as preparation, not submission, activation, or public native release."
+      },
+      {
+        "shot_id": "short-close-shot-1",
+        "scene_id": "short-close",
+        "artifact_id": "castle-response",
+        "framing": "Crop to the evidence region named by the scene while retaining enough Dark Castle gameplay state-continuity sequence context to remain legible.",
+        "action": "Hold the full board or gameplay state first, then crop to the decision region and follow the approved sequence without inventing unrecorded play.",
+        "source_receipt_ids": [
+          "source:dark-castle-chess:approved-composite-20261014"
+        ],
+        "privacy_boundary": "Use this public gameplay capture to explain the visible product state; do not infer measured learning outcomes. Use only the three public gameplay captures; do not expose private code or conversations. Describe release preparation as preparation, not submission, activation, or public native release."
+      }
+    ],
+    "thumbnail_brief": {
+      "headline": "The position survives the handoff",
+      "visual_subject": "Dark Castle gameplay state-continuity sequence, anchored by Explore position.",
+      "artifact_ids": [
+        "castle-explore"
+      ],
+      "claim_ids": [
+        "castle-state-continuity",
+        "castle-pilot-boundary"
+      ],
+      "source_receipt_ids": [
+        "source:dark-castle-chess:approved-composite-20261014",
+        "visual:dark-castle-chess:human-qa-rev2-20261014"
+      ],
+      "composition": "Use the real gameplay state as the visual anchor, then follow the player decision, product response, and traceable learning value. Use one artifact-specific evidence path rather than a generic repeated card layout.",
+      "mobile_readability_note": "Keep Dark Castle gameplay state-continuity sequence recognizable at phone size and preserve the evidence region that supports the promise."
+    },
+    "composition_rationale": {
+      "dominant_composition": "gameplay_decision_sequence",
+      "why_this_structure": "Use the real gameplay state as the visual anchor, then follow the player decision, product response, and traceable learning value.",
+      "motion_rationale": "Hold the full board or gameplay state first, then crop to the decision region and follow the approved sequence without inventing unrecorded play.",
+      "recent_approved_compositions": [
+        "jev-dashboard-field-guide",
+        "constraint-decision-result"
+      ]
+    },
+    "traceability_summary": "Every customer-facing claim in this adaptation remains bound to 2 approved source identities, 3 cleared artifacts, and the current privacy, rights, challenger, and script-quality receipts."
+  },
+  "version": "social_video_adaptation_v1",
+  "status": "ready_for_render_approval",
+  "targets": [
+    "youtube_long_form",
+    "youtube_shorts"
+  ],
+  "video_generation_bridge": {
+    "status": "manual_draft_packet_ready",
+    "route": "/admin/content/video-generation",
+    "render_gate": "explicit_approval_required",
+    "approval_boundary": "This packet may be reviewed or imported as a manual Video Generation draft only. Rendering, provider calls, uploads, platform drafts, scheduling, publishing, external sends, credentials, and spending remain separately approved actions.",
+    "side_effects": {
+      "provider_generation": false,
+      "render": false,
+      "upload": false,
+      "platform_draft": false,
+      "schedule": false,
+      "publish": false,
+      "external_send": false,
+      "credential_change": false,
+      "spending": false
+    }
+  }
+}

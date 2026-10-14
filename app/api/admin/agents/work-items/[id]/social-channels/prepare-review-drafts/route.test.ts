@@ -194,6 +194,38 @@ function artifactVideoAdaptationSource() {
   }
 }
 
+function approvedChannelLanes(linkedinCopy: string) {
+  const drafts = buildLinkedInYoutubeReviewDrafts({
+    insight: baseWorkItem.metadata.insight,
+    generatedAt: '2026-06-23T12:00:00.000Z',
+    latestFeedback: baseWorkItem.metadata.autoresearch_feedback_latest,
+  })
+  drafts.linkedin.fields.post_text = linkedinCopy
+  drafts.x.fields.post_text = 'Approved X copy about visible evidence, accountable ownership, and a human decision before public action.'
+  drafts.youtube.fields.full_video_script = ['Approved', 'YouTube', 'script', 'that', 'must', 'remain', 'unchanged.']
+  drafts.instagram_reels.fields.caption = 'Approved Instagram caption that must remain unchanged.'
+
+  return Object.fromEntries(Object.entries(drafts).map(([channel, draft]) => [channel, {
+    status: 'approved',
+    label: channel,
+    required_inputs: ['approved copy'],
+    decision_note: `Approved ${channel} copy`,
+    review_requested_at: '2026-06-23T12:00:00.000Z',
+    updated_at: '2026-06-23T13:00:00.000Z',
+    draft_packet: {
+      ...draft,
+      approval_status: 'approved',
+      decision_note: `Approved ${channel} copy`,
+      decided_at: '2026-06-23T13:00:00.000Z',
+      enrichment_receipt: {
+        ...draft.enrichment_receipt,
+        status: 'passed',
+        approved_copy_receipt: `approved-copy:${channel}:20260623`,
+      },
+    },
+  }]))
+}
+
 function preparedLanes() {
   return mocks.updateAgentWorkItemMetadata.mock.calls[0][0].metadata.channel_lanes
 }
@@ -790,6 +822,87 @@ describe('/api/admin/agents/work-items/[id]/social-channels/prepare-review-draft
         }),
       }),
     }))
+  })
+
+  it('preserves every approved channel packet while attaching the version-fenced video packet idempotently', async () => {
+    const approvedLinkedInCopy = [
+      'A visible score can support a decision, but it cannot own the decision.',
+      'The operator still needs a policy boundary, a named human owner, and a receipt that preserves what happened.',
+      'That is how automation reduces burden without hiding accountability.',
+    ].join('\n\n')
+    const source = artifactVideoAdaptationSource()
+    source.source_channel_packet.linkedin_copy = approvedLinkedInCopy
+    const workItem = cloneBaseWorkItem()
+    Object.assign(workItem.metadata, {
+      channel_lanes: approvedChannelLanes(approvedLinkedInCopy),
+      artifact_video_adaptation_source: source,
+    })
+    mocks.getAgentWorkItem.mockResolvedValue(workItem)
+
+    const firstResponse = await POST(request() as never, { params: { id: 'work-1' } })
+    const firstBody = await firstResponse.json()
+    const firstMetadata = mocks.updateAgentWorkItemMetadata.mock.calls[0][0].metadata
+
+    expect(firstResponse.status).toBe(200)
+    expect(firstMetadata.channel_lanes.linkedin).toMatchObject({
+      status: 'approved',
+      decision_note: 'Approved linkedin copy',
+      review_requested_at: '2026-06-23T12:00:00.000Z',
+      draft_packet: {
+        approval_status: 'approved',
+        decided_at: '2026-06-23T13:00:00.000Z',
+        fields: { post_text: approvedLinkedInCopy },
+        enrichment_receipt: { approved_copy_receipt: 'approved-copy:linkedin:20260623' },
+      },
+    })
+    expect(firstMetadata.channel_lanes.x.draft_packet.fields.post_text).toBe(
+      'Approved X copy about visible evidence, accountable ownership, and a human decision before public action.',
+    )
+    expect(firstMetadata.channel_lanes.instagram_reels.draft_packet.fields.caption).toBe(
+      'Approved Instagram caption that must remain unchanged.',
+    )
+    expect(firstMetadata.channel_lanes.youtube.draft_packet.fields.full_video_script).toEqual(
+      ['Approved', 'YouTube', 'script', 'that', 'must', 'remain', 'unchanged.'],
+    )
+    expect(firstMetadata.channel_lanes.youtube.draft_packet.fields.artifact_video_adaptation.receipts).toEqual(source.receipts)
+    expect(firstBody.side_effects).toEqual({
+      provider_generation: false,
+      upload: false,
+      publish: false,
+      schedule: false,
+      external_post: false,
+    })
+
+    vi.setSystemTime(new Date('2026-06-24T15:05:00.000Z'))
+    mocks.getAgentWorkItem.mockResolvedValue({ ...workItem, metadata: firstMetadata })
+    const secondResponse = await POST(request() as never, { params: { id: 'work-1' } })
+    const secondMetadata = mocks.updateAgentWorkItemMetadata.mock.calls[1][0].metadata
+
+    expect(secondResponse.status).toBe(200)
+    expect(secondMetadata.channel_lanes.linkedin.draft_packet).toEqual(firstMetadata.channel_lanes.linkedin.draft_packet)
+    expect(secondMetadata.channel_lanes.youtube.draft_packet).toEqual(firstMetadata.channel_lanes.youtube.draft_packet)
+    expect(secondMetadata.channel_lanes.youtube_shorts.draft_packet).toEqual(firstMetadata.channel_lanes.youtube_shorts.draft_packet)
+  })
+
+  it('rejects attachment when the current approved LinkedIn copy is newer than the packet source version', async () => {
+    const approvedLinkedInCopy = 'The approved LinkedIn copy changed after the packet receipts were issued, so the stale packet must not attach.'
+    const workItem = cloneBaseWorkItem()
+    Object.assign(workItem.metadata, {
+      channel_lanes: approvedChannelLanes(approvedLinkedInCopy),
+      artifact_video_adaptation_source: artifactVideoAdaptationSource(),
+    })
+    mocks.getAgentWorkItem.mockResolvedValue(workItem)
+
+    const response = await POST(request() as never, { params: { id: 'work-1' } })
+    const body = await response.json()
+
+    expect(response.status).toBe(422)
+    expect(body).toMatchObject({
+      error: 'Artifact-to-video adaptation is stale for the current LinkedIn channel packet.',
+      current_gate: 'artifact_video_adaptation',
+      revision_state: 'revision_needed',
+    })
+    expect(mocks.updateAgentWorkItemMetadata).not.toHaveBeenCalled()
   })
 
   it('blocks a receipt-incomplete artifact packet before channel metadata persistence', async () => {
