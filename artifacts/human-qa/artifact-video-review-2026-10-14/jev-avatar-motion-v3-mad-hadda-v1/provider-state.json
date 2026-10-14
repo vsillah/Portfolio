@@ -1,0 +1,17 @@
+{
+  "idempotencyKey": "social-avatar-motion:55332aa2f626595c1053f4757a187909e567b5dcf438e39158140a14f2cc24af",
+  "status": "completed",
+  "reservedAt": "2026-10-14T22:10:34.143Z",
+  "quotaBefore": 367,
+  "providerJobId": "23ae7d28cc31ed24c93424cd568e0e09",
+  "quotaAfter": 323,
+  "providerReceipt": {
+    "idempotencyKey": "social-avatar-motion:55332aa2f626595c1053f4757a187909e567b5dcf438e39158140a14f2cc24af",
+    "provider": "heygen",
+    "providerJobId": "23ae7d28cc31ed24c93424cd568e0e09",
+    "outputSha256": "eca8e916fc3ce60790f683e53575569128229dc6b8be64f1d9b548afa07ed414",
+    "durationSeconds": 9.2,
+    "costUsd": 0.6133,
+    "status": "completed"
+  }
+}

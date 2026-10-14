@@ -243,8 +243,8 @@ if (mode === 'generate') {
     throw new Error('Provider output duration exceeds the authorized billable bound.')
   }
   state.quotaAfter = await remainingQuota()
-  const standardRateUsdPerMinute = 1
-  const costUsd = Number(((durationSeconds * standardRateUsdPerMinute) / 60).toFixed(4))
+  const conservativeRateUsdPerMinute = packet.providerAuthorization.worstCaseRateUsdPerMinute
+  const costUsd = Number(((durationSeconds * conservativeRateUsdPerMinute) / 60).toFixed(4))
   if (costUsd > packet.providerAuthorization.maxCostUsd) throw new Error('Observed provider cost exceeds the authorized cap.')
   const providerReceipt: AvatarMotionProviderReceipt = {
     idempotencyKey,
@@ -261,8 +261,8 @@ if (mode === 'generate') {
   await writeFile(resolve(outputDir, 'jev-heygen-presenter-native.receipt.json'), `${JSON.stringify({
     ...providerReceipt,
     pricing: {
-      apiRateUsdPerMinute: standardRateUsdPerMinute,
-      billingBasis: 'actual generated seconds',
+      conservativeRateUsdPerMinute,
+      billingBasis: 'conservative authorized-rate estimate from actual generated seconds; provider quota delta is recorded separately',
       quotaBefore: state.quotaBefore,
       quotaAfter: state.quotaAfter,
       quotaDelta: typeof state.quotaBefore === 'number' && typeof state.quotaAfter === 'number'
@@ -287,16 +287,16 @@ if (mode === 'compose') {
   const firstEnd = Math.min(3.2, duration * 0.28)
   const secondEnd = Math.min(duration - 2.8, firstEnd + 4.8)
   const windows = [
-    { sourceStart: 0, sourceEnd: firstEnd, outputStart: 0, x: 650, y: 1080, width: 360, height: 640 },
-    { sourceStart: firstEnd, sourceEnd: secondEnd, outputStart: 7.7, x: 650, y: 1080, width: 360, height: 640 },
-    { sourceStart: secondEnd, sourceEnd: duration, outputStart: Math.max(17.2, 22 - (duration - secondEnd)), x: 650, y: 1080, width: 360, height: 640 },
+    { sourceStart: 0, sourceEnd: firstEnd, outputStart: 0, x: 650, y: 1570, width: 360, height: 202 },
+    { sourceStart: firstEnd, sourceEnd: secondEnd, outputStart: 7.7, x: 650, y: 1570, width: 360, height: 202 },
+    { sourceStart: secondEnd, sourceEnd: duration, outputStart: Math.max(17.2, 22 - (duration - secondEnd)), x: 650, y: 1570, width: 360, height: 202 },
   ].filter((window) => window.sourceEnd - window.sourceStart > 0.15)
   if (windows.length < 2) throw new Error('Presenter clip is too short for the required bounded windows.')
 
   const videoFilters: string[] = [`[1:v]split=${windows.length}${windows.map((_, index) => `[pv${index}]`).join('')}`]
   const audioFilters: string[] = [`[1:a]asplit=${windows.length}${windows.map((_, index) => `[pa${index}]`).join('')}`]
   windows.forEach((window, index) => {
-    videoFilters.push(`[pv${index}]trim=start=${window.sourceStart}:end=${window.sourceEnd},setpts=PTS-STARTPTS+${window.outputStart}/TB,scale=${window.width}:-2:force_original_aspect_ratio=decrease,pad=${window.width}:${window.height}:(ow-iw)/2:(oh-ih)/2:color=0x07101b@1[p${index}]`)
+    videoFilters.push(`[pv${index}]trim=start=${window.sourceStart}:end=${window.sourceEnd},crop=iw:trunc(iw*9/16/2)*2:0:(ih-oh)/2,setpts=PTS-STARTPTS+${window.outputStart}/TB,scale=${window.width}:${window.height}[p${index}]`)
     const delayMs = Math.round(window.outputStart * 1000)
     audioFilters.push(`[pa${index}]atrim=start=${window.sourceStart}:end=${window.sourceEnd},asetpts=PTS-STARTPTS,adelay=${delayMs}|${delayMs}[a${index}]`)
   })

@@ -1,0 +1,48 @@
+{
+  "idempotencyKey": "social-avatar-motion:55332aa2f626595c1053f4757a187909e567b5dcf438e39158140a14f2cc24af",
+  "provider": "heygen",
+  "providerJobId": "23ae7d28cc31ed24c93424cd568e0e09",
+  "outputSha256": "eca8e916fc3ce60790f683e53575569128229dc6b8be64f1d9b548afa07ed414",
+  "durationSeconds": 9.2,
+  "costUsd": 0.6133,
+  "status": "completed",
+  "pricing": {
+    "conservativeRateUsdPerMinute": 4,
+    "billingBasis": "conservative authorized-rate estimate from actual generated seconds; provider quota delta is recorded separately",
+    "quotaBefore": 367,
+    "quotaAfter": 323,
+    "quotaDelta": 44,
+    "authorizedMaximumUsd": 9,
+    "worstCaseBoundUsd": 8
+  },
+  "probe": {
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "index": 0,
+        "codec_name": "h264",
+        "codec_type": "video",
+        "width": 720,
+        "height": 1280,
+        "r_frame_rate": "25/1",
+        "avg_frame_rate": "25/1",
+        "nb_frames": "230"
+      },
+      {
+        "index": 1,
+        "codec_name": "aac",
+        "codec_type": "audio",
+        "sample_rate": "48000",
+        "channels": 2,
+        "r_frame_rate": "0/0",
+        "avg_frame_rate": "0/0",
+        "nb_frames": "432"
+      }
+    ],
+    "format": {
+      "duration": "9.200000",
+      "size": "968893"
+    }
+  }
+}

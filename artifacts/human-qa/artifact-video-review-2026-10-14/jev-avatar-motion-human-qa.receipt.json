@@ -1,0 +1,78 @@
+{
+  "version": "jev_avatar_motion_human_qa_v1",
+  "status": "pending_human_qa",
+  "created_at": "2026-10-14T22:16:00.000Z",
+  "review_route": "#jev",
+  "video": {
+    "path": "jev-avatar-motion-v3-mad-hadda-v1/jev-avatar-motion-review.mp4",
+    "sha256": "2ebabd3824ac28bddae69c7ec2b642021d73936fe9e334bf8fa86f0c60eff5de",
+    "duration_seconds": 22,
+    "width": 1080,
+    "height": 1920,
+    "fps": 30,
+    "frame_count": 660,
+    "video_codec": "h264",
+    "audio_codec": "aac",
+    "audio_channels": 2
+  },
+  "screenshot": {
+    "path": "jev-avatar-motion-human-qa.png",
+    "sha256": "2159cde5a154ab9e6d616a54512d522a6c0a9cff0baed530d572e9cb572861f0",
+    "captured_at_seconds": 8.8,
+    "width": 1080,
+    "height": 1920
+  },
+  "provider": {
+    "name": "heygen",
+    "api_version": "v3",
+    "job_id": "23ae7d28cc31ed24c93424cd568e0e09",
+    "idempotency_key": "social-avatar-motion:55332aa2f626595c1053f4757a187909e567b5dcf438e39158140a14f2cc24af",
+    "look_id": "3feb738b9af64f7b8f91cc8e4ffcdc45",
+    "voice_id": "3bed25c167534fd6ac5becdec4516ec7",
+    "avatar_engine": "avatar_iv",
+    "voice_engine": "elevenlabs",
+    "native_source_sha256": "eca8e916fc3ce60790f683e53575569128229dc6b8be64f1d9b548afa07ed414",
+    "native_duration_seconds": 9.2,
+    "native_fps": 25,
+    "native_frame_count": 230,
+    "quota_before": 367,
+    "quota_after": 323,
+    "quota_delta": 44,
+    "conservative_cost_estimate_usd": 0.6133,
+    "authorized_cost_cap_usd": 9
+  },
+  "receipts": {
+    "consent_rights": "rights:jev:red-v-neck-mad-hadda-v3-one-review-20261014",
+    "privacy": "privacy:jev:public-safe-20261014",
+    "source": "source:jev:approved-composite-20261014",
+    "catalog": "provider-catalog:heygen:v3-avatar-voice-compatibility:20261014"
+  },
+  "validation": {
+    "full_decode": "passed",
+    "duration": "passed",
+    "frame_count": "passed",
+    "audio_stream": "passed",
+    "native_source_hash": "passed",
+    "output_hash": "passed",
+    "rights_and_source_bindings": "passed",
+    "customer_facing_text": "passed",
+    "visual_contact_sheet": "passed",
+    "presenter_matte_crop": "passed",
+    "presenter_windows": [
+      { "output_start": 0, "output_end": 2.576 },
+      { "output_start": 7.7, "output_end": 11.524 },
+      { "output_start": 19.2, "output_end": 22 }
+    ]
+  },
+  "side_effects": {
+    "provider_jobs_created": 1,
+    "provider_retries": 0,
+    "uploads": 0,
+    "platform_drafts": 0,
+    "scheduled_posts": 0,
+    "published_posts": 0,
+    "external_sends": 0,
+    "credential_changes": 0,
+    "shared_production_mutations": 0
+  }
+}
