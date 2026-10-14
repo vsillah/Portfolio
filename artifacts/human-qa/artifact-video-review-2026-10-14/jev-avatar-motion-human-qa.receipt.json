@@ -47,6 +47,7 @@
     "quota_before": 323,
     "quota_after": 323,
     "retries": 0,
+    "post_attempt_pricing_reconciliation": "blocked; current US$4.83/minute Avatar IV Studio Avatar rate makes 120 seconds US$9.66, above the approved US$9 cap",
     "replacement_composite_created": false,
     "human_qa_status": "withheld"
   },

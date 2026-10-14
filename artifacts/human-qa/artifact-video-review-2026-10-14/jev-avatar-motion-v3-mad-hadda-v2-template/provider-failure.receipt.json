@@ -36,12 +36,23 @@
     "direct_cash_invoice_usd": null,
     "note": "The provider returned no media and the observed quota did not change. No direct cash invoice was returned."
   },
+  "post_attempt_pricing_reconciliation": {
+    "status": "binding_mismatch_detected",
+    "checked_at": "2026-10-14T22:56:00.000Z",
+    "source": "https://help.heygen.com/en/articles/10060327-heygen-api-pricing-explained",
+    "source_updated_at": "2026-09-16",
+    "avatar_iv_studio_avatar_rate_usd_per_minute": 4.83,
+    "expected_68_second_cost_usd": 5.474,
+    "authorized_120_second_worst_case_usd": 9.66,
+    "approved_hard_cap_usd": 9,
+    "finding": "The execution packet retained the earlier US$4/minute basis. Current official pricing makes the 120-second worst-case bound exceed the approved US$9 cap, so the request should have stopped before submission. The provider failure occurred before media generation and no observed quota changed."
+  },
   "next_gate": {
     "status": "blocked",
     "reason": "The single authorized job was consumed and failed because the account lacks API credits.",
     "requirements": [
       "Resolve HeyGen API-credit availability without changing credentials or purchasing an unknown or recurring commitment.",
-      "Issue a fresh provider authorization with a new idempotency key, one-job maximum, no retry, 120-second maximum, and a hard cap below US$10.",
+      "Issue a fresh provider authorization with a new idempotency key, one-job maximum, no retry, and a pricing bound based on the current US$4.83/minute rate. A US$9 cap requires a maximum of 111 generated seconds; retaining 120 seconds requires a higher separately approved cap.",
       "Revalidate the exact script, template receipt, look, voice, engines, duration, and cost bindings before any new submission."
     ]
   },
