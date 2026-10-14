@@ -15,7 +15,7 @@
     p { color: #c7d5e5; line-height: 1.55; max-width: 80ch; }
     section { border: 1px solid #49617d; margin: 0 0 28px; padding: 22px; background: #0d1c2f; border-radius: 16px; }
     h2 { margin: 0 0 8px; font-size: 25px; }
-    video { width: 100%; margin-top: 16px; background: #000; border: 1px solid #49617d; }
+    video { display: block; width: 100%; max-height: 78vh; object-fit: contain; margin-top: 16px; background: #000; border: 1px solid #49617d; }
     .media-label { display: inline-flex; border-radius: 999px; background: #f5c518; color: #081525; padding: 7px 12px; font-size: 13px; font-weight: 800; margin-top: 12px; }
     details { margin-top: 16px; border: 1px solid #49617d; background: #081525; }
     summary { cursor: pointer; padding: 14px 16px; font-weight: 800; color: #9ec7f5; }
@@ -31,25 +31,27 @@
 <body>
   <main>
     <header>
-      <div class="eyebrow">Human QA review</div>
+      <div class="eyebrow">Video evidence review</div>
       <h1>Jev and Dark Castle Chess video packets</h1>
-      <p>The videos below are the clean customer-facing media. Provenance, version binding, receipts, traceability, provider-off state, and validation evidence remain separate in each expandable QA evidence panel.</p>
+      <p>The media below preserve the current review evidence. Provenance, version binding, receipts, traceability, execution state, and validation details remain separate in each expandable evidence panel.</p>
     </header>
     <section id="jev">
       <h2>Jev</h2>
-      <p>Confirm that the native Red V-Neck presenter and Mad Hadda voice feel natural within the motion story, and that the journey from probability to policy, ownership, and the human decision boundary remains legible.</p>
-      <div class="media-label">Human-QA MP4 walkthrough</div>
-      <video controls preload="metadata" poster="jev-avatar-motion-human-qa.png" src="jev-avatar-motion-v3-mad-hadda-v1/jev-avatar-motion-review.mp4"></video>
+      <p>Human QA is withheld. This completed presenter composite is preserved as superseded draft evidence while the Jev Short is rebuilt from the version-bound Killer script template run.</p>
+      <div class="media-label">Superseded draft evidence</div>
+      <video controls preload="metadata" poster="jev-avatar-motion-human-qa.png?v=427a1f03" src="jev-avatar-motion-v3-mad-hadda-v1/jev-avatar-motion-review.mp4?v=f4527b10"></video>
       <details>
         <summary>QA evidence</summary>
         <div class="evidence">
           <div class="meta"><span>22 seconds</span><span>1080 × 1920</span><span>30 fps H.264 / stereo AAC</span><span class="safe">Native MP4 composite</span></div>
           <p><strong>Provenance:</strong> approved Jev decision-interface motion master plus the exact completed HeyGen Red V-Neck presenter MP4 and its native Mad Hadda audio.</p>
           <p><strong>Version:</strong> input prefix <code>e6fc9ae4</code>.</p>
+          <p><strong>Template gate:</strong> the revised 68-second script, section map, source bindings, exact script diff, expected cost, and future approval wording are preserved in the <a href="inputs/jev-killer-script-template-run-v1.json">Killer script template-run receipt</a>. Provider execution remains blocked.</p>
           <p><strong>Receipts:</strong> the exact provider job, source hash, quota delta, conservative US$0.6133 cost estimate, avatar/voice bindings, and native-composite command are preserved in the <a href="jev-avatar-motion-v3-mad-hadda-v1/jev-heygen-presenter-native.receipt.json">provider receipt</a> and <a href="jev-avatar-motion-v3-mad-hadda-v1/jev-avatar-motion-review.manifest.json">final manifest</a>.</p>
-          <p><strong>Traceability:</strong> the presenter appears in three bounded windows while the motion master preserves the worked score, policy bands, ownership map, exception routing, and closing principle.</p>
-          <p><strong>Execution boundary:</strong> exactly one authorized provider job completed. No upload, platform draft, scheduling, publishing, external send, credential change, migration, or unrelated/shared production-data mutation occurred.</p>
-          <p><strong>Validation:</strong> full decode, 660-frame count, 22.000-second duration, stereo audio, source and output hashes, silence-window alignment, content/rights receipts, responsive review page, and visual contact-sheet inspection passed.</p>
+          <p><strong>Traceability:</strong> the presenter is immediately visible at 760–900 pixels wide in three bounded presenter-led windows, alternating with clean motion-only sections. The motion master preserves the worked score, policy bands, ownership map, exception routing, and closing principle.</p>
+          <p><strong>Source comparison:</strong> the <a href="jev-avatar-motion-source-final-comparison.png">source/final frame comparison</a> confirms that only the green background and blank edge pixels were removed; the face, microphone, clothing, and native source framing remain visible.</p>
+          <p><strong>Execution boundary:</strong> exactly one earlier authorized provider job completed. No new provider job or retry is authorized by the template run. No upload, platform draft, scheduling, publishing, external send, credential change, migration, or unrelated/shared production-data mutation occurred.</p>
+          <p><strong>Validation:</strong> full decode, 660-frame count, 22.000-second duration, stereo audio, source and output hashes, silence-window alignment, content/rights receipts, source/final frame comparison, mobile-portrait timestamp review, and visual contact-sheet inspection passed.</p>
         </div>
       </details>
     </section>

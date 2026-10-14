@@ -43,35 +43,35 @@
   "presenter_windows": [
     {
       "sourceStart": 0,
-      "sourceEnd": 2.576,
+      "sourceEnd": 3.2,
       "outputStart": 0,
-      "x": 650,
-      "y": 1570,
-      "width": 360,
-      "height": 202
+      "x": 90,
+      "y": 1310,
+      "width": 900,
+      "height": 506
     },
     {
-      "sourceStart": 2.576,
+      "sourceStart": 3.2,
       "sourceEnd": 6.3999999999999995,
       "outputStart": 7.7,
-      "x": 650,
-      "y": 1570,
-      "width": 360,
-      "height": 202
+      "x": 130,
+      "y": 1340,
+      "width": 820,
+      "height": 460
     },
     {
       "sourceStart": 6.3999999999999995,
       "sourceEnd": 9.2,
       "outputStart": 19.2,
-      "x": 650,
-      "y": 1570,
-      "width": 360,
-      "height": 202
+      "x": 300,
+      "y": 1370,
+      "width": 760,
+      "height": 428
     }
   ],
   "output_path": "/Users/vambahsillah/.codex/worktrees/e6d7/Portfolio/artifacts/human-qa/artifact-video-review-2026-10-14/jev-avatar-motion-v3-mad-hadda-v1/jev-avatar-motion-review.mp4",
-  "output_sha256": "2ebabd3824ac28bddae69c7ec2b642021d73936fe9e334bf8fa86f0c60eff5de",
-  "ffmpeg_command": "ffmpeg \"-y\" \"-i\" \"/Users/vambahsillah/.codex/worktrees/e6d7/Portfolio/artifacts/human-qa/artifact-video-review-2026-10-14/jev-provider-none-review.mp4\" \"-i\" \"/Users/vambahsillah/.codex/worktrees/e6d7/Portfolio/artifacts/human-qa/artifact-video-review-2026-10-14/jev-avatar-motion-v3-mad-hadda-v1/jev-heygen-presenter-native.mp4\" \"-filter_complex\" \"[1:v]split=3[pv0][pv1][pv2];[pv0]trim=start=0:end=2.576,crop=iw:trunc(iw*9/16/2)*2:0:(ih-oh)/2,setpts=PTS-STARTPTS+0/TB,scale=360:202[p0];[pv1]trim=start=2.576:end=6.3999999999999995,crop=iw:trunc(iw*9/16/2)*2:0:(ih-oh)/2,setpts=PTS-STARTPTS+7.7/TB,scale=360:202[p1];[pv2]trim=start=6.3999999999999995:end=9.2,crop=iw:trunc(iw*9/16/2)*2:0:(ih-oh)/2,setpts=PTS-STARTPTS+19.2/TB,scale=360:202[p2];[0:v][p0]overlay=x=650:y=1570:enable='between(t,0,2.576)'[v0];[v0][p1]overlay=x=650:y=1570:enable='between(t,7.7,11.524)'[v1];[v1][p2]overlay=x=650:y=1570:enable='between(t,19.2,22)'[video];[1:a]asplit=3[pa0][pa1][pa2];[pa0]atrim=start=0:end=2.576,asetpts=PTS-STARTPTS,adelay=0|0[a0];[pa1]atrim=start=2.576:end=6.3999999999999995,asetpts=PTS-STARTPTS,adelay=7700|7700[a1];[pa2]atrim=start=6.3999999999999995:end=9.2,asetpts=PTS-STARTPTS,adelay=19200|19200[a2];[0:a]volume=0[basea];[basea][a0][a1][a2]amix=inputs=4:duration=longest:normalize=0[audio]\" \"-map\" \"[video]\" \"-map\" \"[audio]\" \"-t\" \"22\" \"-c:v\" \"libx264\" \"-preset\" \"medium\" \"-crf\" \"18\" \"-pix_fmt\" \"yuv420p\" \"-r\" \"30\" \"-c:a\" \"aac\" \"-b:a\" \"192k\" \"-movflags\" \"+faststart\" \"/Users/vambahsillah/.codex/worktrees/e6d7/Portfolio/artifacts/human-qa/artifact-video-review-2026-10-14/jev-avatar-motion-v3-mad-hadda-v1/jev-avatar-motion-review.mp4\"",
+  "output_sha256": "f4527b104707c05326a09aa3494fd5799e2fc6d9c0103018a9ec2adb8283ed25",
+  "ffmpeg_command": "ffmpeg \"-y\" \"-i\" \"/Users/vambahsillah/.codex/worktrees/e6d7/Portfolio/artifacts/human-qa/artifact-video-review-2026-10-14/jev-provider-none-review.mp4\" \"-i\" \"/Users/vambahsillah/.codex/worktrees/e6d7/Portfolio/artifacts/human-qa/artifact-video-review-2026-10-14/jev-avatar-motion-v3-mad-hadda-v1/jev-heygen-presenter-native.mp4\" \"-filter_complex\" \"[1:v]split=3[pv0][pv1][pv2];[pv0]trim=start=0:end=3.2,crop=712:400:4:(ih-oh)/2,chromakey=0x00ED59:0.18:0.08,despill=green,setpts=PTS-STARTPTS+0/TB,scale=900:506[p0];[pv1]trim=start=3.2:end=6.3999999999999995,crop=712:400:4:(ih-oh)/2,chromakey=0x00ED59:0.18:0.08,despill=green,setpts=PTS-STARTPTS+7.7/TB,scale=820:460[p1];[pv2]trim=start=6.3999999999999995:end=9.2,crop=712:400:4:(ih-oh)/2,chromakey=0x00ED59:0.18:0.08,despill=green,setpts=PTS-STARTPTS+19.2/TB,scale=760:428[p2];[0:v][p0]overlay=x=90:y=1310:enable='between(t,0,3.2)'[v0];[v0][p1]overlay=x=130:y=1340:enable='between(t,7.7,10.899999999999999)'[v1];[v1][p2]overlay=x=300:y=1370:enable='between(t,19.2,22)'[video];[1:a]asplit=3[pa0][pa1][pa2];[pa0]atrim=start=0:end=3.2,asetpts=PTS-STARTPTS,adelay=0|0[a0];[pa1]atrim=start=3.2:end=6.3999999999999995,asetpts=PTS-STARTPTS,adelay=7700|7700[a1];[pa2]atrim=start=6.3999999999999995:end=9.2,asetpts=PTS-STARTPTS,adelay=19200|19200[a2];[0:a]volume=0[basea];[basea][a0][a1][a2]amix=inputs=4:duration=longest:normalize=0[audio]\" \"-map\" \"[video]\" \"-map\" \"[audio]\" \"-t\" \"22\" \"-c:v\" \"libx264\" \"-preset\" \"medium\" \"-crf\" \"18\" \"-pix_fmt\" \"yuv420p\" \"-r\" \"30\" \"-c:a\" \"aac\" \"-b:a\" \"192k\" \"-movflags\" \"+faststart\" \"/Users/vambahsillah/.codex/worktrees/e6d7/Portfolio/artifacts/human-qa/artifact-video-review-2026-10-14/jev-avatar-motion-v3-mad-hadda-v1/jev-avatar-motion-review.mp4\"",
   "gates": {
     "youtube_upload": false,
     "platform_draft": false,
@@ -136,7 +136,7 @@
     ],
     "format": {
       "duration": "22.000000",
-      "size": "2875575"
+      "size": "3359487"
     }
   }
 }

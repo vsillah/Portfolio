@@ -1,11 +1,11 @@
 {
   "version": "jev_avatar_motion_human_qa_v1",
-  "status": "pending_human_qa",
+  "status": "human_qa_withheld_template_regeneration_required",
   "created_at": "2026-10-14T22:16:00.000Z",
   "review_route": "#jev",
   "video": {
     "path": "jev-avatar-motion-v3-mad-hadda-v1/jev-avatar-motion-review.mp4",
-    "sha256": "2ebabd3824ac28bddae69c7ec2b642021d73936fe9e334bf8fa86f0c60eff5de",
+    "sha256": "f4527b104707c05326a09aa3494fd5799e2fc6d9c0103018a9ec2adb8283ed25",
     "duration_seconds": 22,
     "width": 1080,
     "height": 1920,
@@ -17,10 +17,25 @@
   },
   "screenshot": {
     "path": "jev-avatar-motion-human-qa.png",
-    "sha256": "2159cde5a154ab9e6d616a54512d522a6c0a9cff0baed530d572e9cb572861f0",
+    "sha256": "427a1f03a66e36d5dc62d7293fafb7f3b75da823bea43c7f403bc45edfdbcc8b",
     "captured_at_seconds": 8.8,
     "width": 1080,
     "height": 1920
+  },
+  "source_final_comparison": {
+    "path": "jev-avatar-motion-source-final-comparison.png",
+    "sha256": "7cb385f9cb7dbbbc54b1b8a8d5654840de9d9f1b6be20ec99864a73e3f38a924",
+    "source_timestamp_seconds": 1.2,
+    "final_timestamp_seconds": 1.2
+  },
+  "template_run": {
+    "receipt_id": "template-run:jev:killer-script:youtube-shorts:v1:20261014",
+    "path": "inputs/jev-killer-script-template-run-v1.json",
+    "template_contract_version": "video_script_template_v1",
+    "template_id": "seed-killer-script",
+    "script_sha256": "sha256:732a517ca9e98ab15bb3caa5196e4982e4c24a16f7885557fb37247f55b0f77f",
+    "expected_duration_seconds": 68,
+    "provider_execution": "blocked_pending_explicit_approval"
   },
   "provider": {
     "name": "heygen",
@@ -57,10 +72,15 @@
     "rights_and_source_bindings": "passed",
     "customer_facing_text": "passed",
     "visual_contact_sheet": "passed",
-    "presenter_matte_crop": "passed",
+    "presenter_green_removal": "passed",
+    "source_final_frame_comparison": "passed",
+    "presenter_visibility": "passed; immediately visible and 760 to 900 pixels wide during presenter-led sections",
+    "motion_graphic_occlusion": "passed; no essential text covered at 1.2, 8.8, or 20.2 seconds",
+    "integrated_browser_playback": "passed; duration 22 seconds, ready state 4, 1080 by 1920 media",
+    "mobile_portrait_review": "passed at 390 by 844 viewport; presenter, controls, primary text, and evidence disclosure remain visible",
     "presenter_windows": [
-      { "output_start": 0, "output_end": 2.576 },
-      { "output_start": 7.7, "output_end": 11.524 },
+      { "output_start": 0, "output_end": 3.2 },
+      { "output_start": 7.7, "output_end": 10.9 },
       { "output_start": 19.2, "output_end": 22 }
     ]
   },

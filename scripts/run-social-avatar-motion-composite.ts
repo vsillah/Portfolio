@@ -284,19 +284,19 @@ if (mode === 'compose') {
   if (fileSha256(presenterPath) !== existing.providerReceipt.outputSha256) throw new Error('Native presenter file does not match its provider receipt.')
   const presenterProbe = probe(presenterPath)
   const duration = Number(presenterProbe.format.duration)
-  const firstEnd = Math.min(3.2, duration * 0.28)
+  const firstEnd = Math.min(3.2, duration * 0.35)
   const secondEnd = Math.min(duration - 2.8, firstEnd + 4.8)
   const windows = [
-    { sourceStart: 0, sourceEnd: firstEnd, outputStart: 0, x: 650, y: 1570, width: 360, height: 202 },
-    { sourceStart: firstEnd, sourceEnd: secondEnd, outputStart: 7.7, x: 650, y: 1570, width: 360, height: 202 },
-    { sourceStart: secondEnd, sourceEnd: duration, outputStart: Math.max(17.2, 22 - (duration - secondEnd)), x: 650, y: 1570, width: 360, height: 202 },
+    { sourceStart: 0, sourceEnd: firstEnd, outputStart: 0, x: 90, y: 1310, width: 900, height: 506 },
+    { sourceStart: firstEnd, sourceEnd: secondEnd, outputStart: 7.7, x: 130, y: 1340, width: 820, height: 460 },
+    { sourceStart: secondEnd, sourceEnd: duration, outputStart: Math.max(17.2, 22 - (duration - secondEnd)), x: 300, y: 1370, width: 760, height: 428 },
   ].filter((window) => window.sourceEnd - window.sourceStart > 0.15)
   if (windows.length < 2) throw new Error('Presenter clip is too short for the required bounded windows.')
 
   const videoFilters: string[] = [`[1:v]split=${windows.length}${windows.map((_, index) => `[pv${index}]`).join('')}`]
   const audioFilters: string[] = [`[1:a]asplit=${windows.length}${windows.map((_, index) => `[pa${index}]`).join('')}`]
   windows.forEach((window, index) => {
-    videoFilters.push(`[pv${index}]trim=start=${window.sourceStart}:end=${window.sourceEnd},crop=iw:trunc(iw*9/16/2)*2:0:(ih-oh)/2,setpts=PTS-STARTPTS+${window.outputStart}/TB,scale=${window.width}:${window.height}[p${index}]`)
+    videoFilters.push(`[pv${index}]trim=start=${window.sourceStart}:end=${window.sourceEnd},crop=712:400:4:(ih-oh)/2,chromakey=0x00ED59:0.18:0.08,despill=green,setpts=PTS-STARTPTS+${window.outputStart}/TB,scale=${window.width}:${window.height}[p${index}]`)
     const delayMs = Math.round(window.outputStart * 1000)
     audioFilters.push(`[pa${index}]atrim=start=${window.sourceStart}:end=${window.sourceEnd},asetpts=PTS-STARTPTS,adelay=${delayMs}|${delayMs}[a${index}]`)
   })

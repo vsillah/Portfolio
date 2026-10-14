@@ -1,0 +1,76 @@
+{
+  "receipt_version": "video_script_template_run_receipt_v1",
+  "receipt_id": "template-run:jev:killer-script:youtube-shorts:v1:20261014",
+  "status": "passed",
+  "input_version": "sha256:e6fc9ae4aadd61e3a871e8f7af2dd0a2d424d5c20ae6a8d0eac861b16e796bd5",
+  "generated_at": "2026-10-14T22:43:22.000Z",
+  "target": "youtube_shorts",
+  "selection": {
+    "selected_template": "Killer script",
+    "reason": "This existing template is the closest fit for a 22–120 second Jev Short because it begins with an operator pain, opens a concrete question, teaches an operating frame, requires practitioner or artifact proof, and closes with one review action. Problem, proof, offer would force a sales offer that is not present in the approved Jev source. Accelerated lesson is course-specific and would misstate the approved campaign context."
+  },
+  "template_binding": {
+    "contract_version": "video_script_template_v1",
+    "template_id": "seed-killer-script",
+    "template_key": "killer_script",
+    "template_name": "Killer script"
+  },
+  "source_binding": {
+    "source_receipt_id": "source:jev:approved-composite-20261014",
+    "claim_ids": [
+      "jev-typed-probabilities",
+      "jev-policy-boundary"
+    ],
+    "evidence_asset_ids": [
+      "jev-operator-field-guide"
+    ],
+    "approved_copy_reference": "artifacts/human-qa/artifact-video-review-2026-10-14/inputs/jev.json#/source_channel_packet/linkedin_copy"
+  },
+  "narrative_map": {
+    "pain_point": "A fluent answer can sound certain even when the model is guessing.",
+    "hook": "A fluent answer can sound certain even when the model is guessing. Jev takes a different route: typed probabilities for a bounded decision.",
+    "open_loop": "The Short will make the real operator work visible: inspect the score, apply the policy, retain human ownership, and preserve the receipt.",
+    "frame": "A score is an input to a governed decision; policy, ownership, and retained evidence determine what happens next.",
+    "practitioner_proof": "In the evaluation harness I have been building, typed probabilities make the real work visible; the harness remains mock-qualified and live provider use remains on hold.",
+    "explanatory_progression": [
+      "Inspect the score and distinguish a 0.81 result from a 0.54 result.",
+      "Apply a pre-authorized policy to route, review, or stop the bounded decision.",
+      "Keep exceptions and irreversible actions with a person, then retain the versioned receipt."
+    ],
+    "practical_value": "Operators can see the score, threshold, owner, and evidence behind the handoff.",
+    "cta": "Use the approved field guide as a review test: ask what threshold applies, who owns the exception, and which receipt remains before a score moves work.",
+    "closing_principle": "Governed automation begins when uncertainty is visible enough to route, review, and refuse."
+  },
+  "script": {
+    "text": "A fluent answer can sound certain even when the model is guessing. Jev takes a different route: typed probabilities for a bounded decision. In the evaluation harness I have been building, that makes the real work visible. First, inspect the score. A 0.81 result can route differently from one at 0.54. Then apply a pre-authorized policy: route, review, or stop. Finally, keep exceptions and irreversible actions with a person, and retain the versioned receipt. The value is practical: operators can see the score, the threshold, the owner, and the evidence behind the handoff. Jev’s launch does not prove production reliability, and my current harness remains mock-qualified with live provider use on hold. Use the field guide as a review test. Before any score moves work, ask what threshold applies, who owns the exception, and which receipt remains. Governed automation begins when uncertainty is visible enough to route, review, and refuse.",
+    "sha256": "sha256:732a517ca9e98ab15bb3caa5196e4982e4c24a16f7885557fb37247f55b0f77f",
+    "word_count": 150,
+    "expected_duration_seconds": 68
+  },
+  "prior_script": {
+    "text": "A score is not a decision. Read the signal, apply the policy, and keep a human owner visible. Route the exception. Make uncertainty visible enough to act.",
+    "sha256": "sha256:8cf8e227d8709b5cddc7afff54d55adc1a5e1c5b49a6bbd2dd7f9b7b65efbf4a",
+    "disposition": "superseded_draft_evidence"
+  },
+  "script_diff": {
+    "prior_word_count": 26,
+    "revised_word_count": 150,
+    "added_template_requirements": [
+      "operator pain and concrete hook",
+      "practitioner proof from the approved evaluation-harness copy",
+      "score-to-policy-to-human-owner explanatory progression",
+      "practical operator value",
+      "field-guide review CTA",
+      "production-reliability and live-provider boundary"
+    ]
+  },
+  "provider_execution": {
+    "status": "blocked_pending_explicit_approval",
+    "max_provider_jobs": 1,
+    "no_retry": true,
+    "cost_ceiling_usd": 9,
+    "expected_cost_usd": 4.53,
+    "pricing_basis": "68 expected seconds at the approved conservative HeyGen Avatar IV ceiling of US$4 per minute; execution must stop if the provider cannot enforce the existing 120-second maximum or US$9 hard cap.",
+    "approval_wording": "Approve exactly one review-only HeyGen v3 Jev presenter job using script sha256:732a517ca9e98ab15bb3caa5196e4982e4c24a16f7885557fb37247f55b0f77f, the Red V-Neck look 3feb738b9af64f7b8f91cc8e4ffcdc45, Vambah Sillah (Mad Hadda) voice 3bed25c167534fd6ac5becdec4516ec7, Avatar IV, and ElevenLabs, with a 120-second maximum, a US$9 hard cap, and no retry. Preserve the existing job and composite as superseded draft evidence. Do not upload, create a platform draft, schedule, publish, send externally, change credentials, run a migration, or mutate unrelated or shared production data. Stop before execution if the script hash, template-run receipt, avatar or voice binding, provider contract, duration bound, or cost ceiling differs."
+  }
+}
