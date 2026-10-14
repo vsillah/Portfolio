@@ -11,6 +11,7 @@ import {
   decideAvatarMotionReplay,
   validateCompositeProbe,
   validateHeyGenProviderAssets,
+  selectedAvatarLookId,
   type AvatarMotionPacket,
   type AvatarMotionProviderReceipt,
 } from '../lib/social-avatar-motion-composite'
@@ -44,6 +45,7 @@ async function main() {
 const packet = JSON.parse(await readFile(packetPath, 'utf8')) as AvatarMotionPacket
 assertAvatarMotionPacket(packet)
 const motionPath = resolve(packet.motionMaster.path)
+const avatarLookId = selectedAvatarLookId(packet)
 
 function fileSha256(path: string): string {
   return createHash('sha256').update(readFileSync(path)).digest('hex')
@@ -148,7 +150,7 @@ if (mode === 'generate') {
     talking_photos?: Array<{ talking_photo_id?: string; status?: string }>
   } | undefined
   const voiceData = voiceCatalog.data as {
-    voices?: Array<{ voice_id?: string; status?: string }>
+    voices?: Array<{ voice_id?: string; status?: string; allowed_engines?: string[] }>
   } | undefined
   const providerAssetBlockers = validateHeyGenProviderAssets({
     packet,
@@ -156,7 +158,7 @@ if (mode === 'generate') {
       ...(avatarData?.avatars ?? []).map((value) => ({ id: value.avatar_id ?? '', status: value.status })),
       ...(avatarData?.talking_photos ?? []).map((value) => ({ id: value.talking_photo_id ?? '', status: value.status })),
     ],
-    voices: (voiceData?.voices ?? []).map((value) => ({ id: value.voice_id ?? '', status: value.status })),
+    voices: (voiceData?.voices ?? []).map((value) => ({ id: value.voice_id ?? '', status: value.status, allowedEngines: value.allowed_engines })),
   })
   if (providerAssetBlockers.length) throw new Error(providerAssetBlockers.join(' '))
   const state = await reserveState(idempotencyKey)
@@ -174,7 +176,9 @@ if (mode === 'generate') {
       callback_id: idempotencyKey,
       dimension: { width: 1080, height: 1920 },
       video_inputs: [{
-        character: { type: 'avatar', avatar_id: packet.avatar.id },
+        character: packet.avatar.providerCharacterType === 'talking_photo'
+          ? { type: 'talking_photo', talking_photo_id: avatarLookId }
+          : { type: 'avatar', avatar_id: avatarLookId },
         voice: { type: 'text', voice_id: packet.voice.id, input_text: packet.script.text, speed: 1 },
       }],
     }),

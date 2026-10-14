@@ -3,6 +3,7 @@ import { createHash } from 'node:crypto'
 export const SOCIAL_AVATAR_MOTION_PIPELINE_VERSION = 'social_avatar_motion_composite_v1' as const
 export const SOCIAL_AVATAR_MOTION_PROVIDER = 'heygen' as const
 export const SOCIAL_AVATAR_MOTION_MAX_USD = 10
+export const SOCIAL_AVATAR_LOOK_SELECTOR_VERSION = 'social_avatar_look_lru_v1' as const
 
 type ApprovalStatus = 'approved' | 'passed' | 'complete'
 
@@ -30,6 +31,11 @@ export type AvatarMotionPacket = {
     version: string
     name: string
     status: 'approved'
+    identityId?: string
+    lookId?: string
+    lookVersion?: string
+    providerCharacterType?: 'avatar' | 'talking_photo'
+    selection?: AvatarLookSelectionReceipt
   }
   voice: {
     id: string
@@ -68,6 +74,116 @@ export type AvatarMotionPacket = {
     maxScriptCharacters: number
   }
   customerFacingText: string[]
+}
+
+export type ApprovedAvatarLook = {
+  identityId: string
+  identityName: string
+  lookId: string
+  lookName: string
+  lookVersion: string
+  providerCharacterType: 'avatar' | 'talking_photo'
+  ownership: 'owned' | 'public' | 'third_party'
+  approvalStatus: 'approved' | 'pending' | 'blocked'
+  availability: 'available' | 'unavailable'
+  compatibleTargets: AvatarMotionPacket['target'][]
+  consentRightsReceiptId: string
+  sourceReceiptId: string
+}
+
+export type AvatarLookHistoryEntry = {
+  identityId: string
+  lookId: string
+  providerJobId: string
+  status: 'completed' | 'failed' | 'reserved' | 'submitted'
+  attemptedAt: string
+  completedAt?: string
+}
+
+export type AvatarLookSelectionReceipt = {
+  selectorVersion: typeof SOCIAL_AVATAR_LOOK_SELECTOR_VERSION
+  identityId: string
+  lookId: string
+  lookVersion: string
+  providerCharacterType: ApprovedAvatarLook['providerCharacterType']
+  reason: 'campaign_pin' | 'least_recently_used' | 'only_eligible_look'
+  selectionKey: string
+  sourceReceiptId: string
+  consentRightsReceiptId: string
+  recentCompletedHistory: Array<Pick<AvatarLookHistoryEntry, 'identityId' | 'lookId' | 'providerJobId' | 'completedAt'>>
+}
+
+export function selectedAvatarLookId(packet: AvatarMotionPacket): string {
+  return packet.avatar.lookId ?? packet.avatar.id
+}
+
+export function selectApprovedAvatarLook(input: {
+  looks: ApprovedAvatarLook[]
+  history: AvatarLookHistoryEntry[]
+  target: AvatarMotionPacket['target']
+  selectionKey: string
+  pin?: { identityId: string; lookId: string } | null
+}): AvatarLookSelectionReceipt {
+  if (!input.selectionKey.trim()) throw new Error('A stable avatar-look selection key is required.')
+  const completedHistory = input.history
+    .filter((entry) => entry.status === 'completed' && Number.isFinite(Date.parse(entry.completedAt ?? '')))
+    .sort((left, right) => Date.parse(right.completedAt ?? '') - Date.parse(left.completedAt ?? ''))
+  const eligible = input.looks.filter((look) =>
+    look.ownership === 'owned'
+    && look.approvalStatus === 'approved'
+    && look.availability === 'available'
+    && look.compatibleTargets.includes(input.target)
+    && Boolean(look.identityId.trim())
+    && Boolean(look.lookId.trim())
+    && Boolean(look.lookVersion.trim())
+    && Boolean(look.consentRightsReceiptId.trim())
+    && Boolean(look.sourceReceiptId.trim()),
+  )
+  if (!eligible.length) throw new Error('No owned, approved, available, rights-bound avatar look is compatible with this target.')
+
+  let selected: ApprovedAvatarLook
+  let reason: AvatarLookSelectionReceipt['reason']
+  if (input.pin) {
+    const pinned = eligible.find((look) => look.identityId === input.pin?.identityId && look.lookId === input.pin.lookId)
+    if (!pinned) throw new Error('The campaign-pinned avatar look is not eligible; selection failed closed.')
+    selected = pinned
+    reason = 'campaign_pin'
+  } else if (eligible.length === 1) {
+    selected = eligible[0]
+    reason = 'only_eligible_look'
+  } else {
+    const immediatelyPreviousLookId = completedHistory[0]?.lookId
+    const candidates = eligible.filter((look) => look.lookId !== immediatelyPreviousLookId)
+    const mostRecentUse = new Map<string, number>()
+    for (const entry of completedHistory) {
+      if (!mostRecentUse.has(entry.lookId)) mostRecentUse.set(entry.lookId, Date.parse(entry.completedAt ?? ''))
+    }
+    selected = [...candidates].sort((left, right) => {
+      const leftUsedAt = mostRecentUse.get(left.lookId) ?? Number.NEGATIVE_INFINITY
+      const rightUsedAt = mostRecentUse.get(right.lookId) ?? Number.NEGATIVE_INFINITY
+      if (leftUsedAt !== rightUsedAt) return leftUsedAt - rightUsedAt
+      return sha256(`${input.selectionKey}:${left.lookId}`).localeCompare(sha256(`${input.selectionKey}:${right.lookId}`))
+    })[0]
+    reason = 'least_recently_used'
+  }
+
+  return {
+    selectorVersion: SOCIAL_AVATAR_LOOK_SELECTOR_VERSION,
+    identityId: selected.identityId,
+    lookId: selected.lookId,
+    lookVersion: selected.lookVersion,
+    providerCharacterType: selected.providerCharacterType,
+    reason,
+    selectionKey: input.selectionKey,
+    sourceReceiptId: selected.sourceReceiptId,
+    consentRightsReceiptId: selected.consentRightsReceiptId,
+    recentCompletedHistory: completedHistory.map(({ identityId, lookId, providerJobId, completedAt }) => ({
+      identityId,
+      lookId,
+      providerJobId,
+      completedAt,
+    })),
+  }
 }
 
 export type AvatarMotionProviderReceipt = {
@@ -142,16 +258,28 @@ export function validateAvatarMotionPacket(packet: AvatarMotionPacket, now = new
   if (!/^sha256:[a-f0-9]{64}$/.test(packet.contentVersion)) blockers.push('Content version must be a SHA-256 binding.')
   if (packet.script.status !== 'approved') blockers.push('Script is not approved.')
   if (`sha256:${sha256(packet.script.text)}` !== packet.script.sha256) blockers.push('Script hash does not match the approved text.')
-  if (!packet.avatar.id.trim() || packet.avatar.status !== 'approved') blockers.push('Approved avatar is required.')
+  const avatarLookId = selectedAvatarLookId(packet)
+  if (!avatarLookId.trim() || packet.avatar.status !== 'approved') blockers.push('Approved avatar is required.')
   if (!packet.voice.id.trim() || packet.voice.status !== 'approved') blockers.push('Approved voice is required.')
   if (!packet.avatar.version.trim()) blockers.push('Avatar version is required.')
   if (!packet.voice.version.trim()) blockers.push('Voice version is required.')
-  if (packet.receipts.consentRights.avatarId !== packet.avatar.id) blockers.push('Consent and rights receipt does not bind the selected avatar.')
+  if (packet.receipts.consentRights.avatarId !== avatarLookId) blockers.push('Consent and rights receipt does not bind the selected avatar.')
   if (packet.receipts.consentRights.voiceId !== packet.voice.id) blockers.push('Consent and rights receipt does not bind the selected voice.')
   if (!packet.receipts.consentRights.authorizationScope.trim()) blockers.push('Consent and rights authorization scope is required.')
   validateReceipt('Consent and rights', packet.receipts.consentRights, packet.contentVersion, now, blockers)
   validateReceipt('Privacy', packet.receipts.privacy, packet.contentVersion, now, blockers)
   validateReceipt('Source', packet.receipts.source, packet.contentVersion, now, blockers)
+  const hasEnrichedAvatarBinding = Boolean(packet.avatar.identityId || packet.avatar.lookId || packet.avatar.lookVersion || packet.avatar.providerCharacterType || packet.avatar.selection)
+  if (hasEnrichedAvatarBinding && (!packet.avatar.identityId || !packet.avatar.lookId || !packet.avatar.lookVersion || !packet.avatar.providerCharacterType || !packet.avatar.selection)) {
+    blockers.push('Enriched avatar packets require a complete identity, look, character type, and selection receipt binding.')
+  }
+  if (packet.avatar.selection) {
+    const selection = packet.avatar.selection
+    if (selection.lookId !== avatarLookId || selection.identityId !== packet.avatar.identityId) blockers.push('Avatar selection receipt does not bind the selected identity and look.')
+    if (selection.lookVersion !== (packet.avatar.lookVersion ?? packet.avatar.version)) blockers.push('Avatar selection receipt does not bind the selected look version.')
+    if (selection.consentRightsReceiptId !== packet.receipts.consentRights.receiptId) blockers.push('Avatar selection receipt does not bind the consent and rights receipt.')
+    if (selection.sourceReceiptId !== packet.receipts.source.receiptId) blockers.push('Avatar selection receipt does not bind the source receipt.')
+  }
   if (packet.motionMaster.status !== 'approved') blockers.push('Motion master is not approved.')
   if (!/^[a-f0-9]{64}$/.test(packet.motionMaster.sha256)) blockers.push('Motion-master hash is invalid.')
   if (packet.motionMaster.durationSeconds <= 0 || packet.motionMaster.width <= 0 || packet.motionMaster.height <= 0 || packet.motionMaster.fps <= 0) {
@@ -183,15 +311,16 @@ export function assertAvatarMotionPacket(packet: AvatarMotionPacket, now = new D
 export function validateHeyGenProviderAssets(input: {
   packet: AvatarMotionPacket
   avatars: Array<{ id: string; status?: string | null }>
-  voices: Array<{ id: string; status?: string | null }>
+  voices: Array<{ id: string; status?: string | null; allowedEngines?: string[] | null }>
 }): string[] {
   const blockers: string[] = []
-  const avatar = input.avatars.find((value) => value.id === input.packet.avatar.id)
+  const avatar = input.avatars.find((value) => value.id === selectedAvatarLookId(input.packet))
   const voice = input.voices.find((value) => value.id === input.packet.voice.id)
   if (!avatar) blockers.push('Selected avatar is not available in the current HeyGen catalog.')
   if (avatar?.status && !['ready', 'completed', 'active'].includes(avatar.status)) blockers.push('Selected avatar is not ready for generation.')
   if (!voice) blockers.push('Selected voice is not available in the current HeyGen catalog.')
   if (voice?.status && !['ready', 'completed', 'active'].includes(voice.status)) blockers.push('Selected voice is not ready for generation.')
+  if (voice && Array.isArray(voice.allowedEngines) && voice.allowedEngines.length === 0) blockers.push('Selected voice has no allowed v2 API generation engines.')
   return blockers
 }
 
@@ -208,7 +337,7 @@ export function validateCompositeProbe(probe: MediaProbe, expected: { durationSe
 }
 
 export function buildAvatarMotionIdempotencyKey(packet: AvatarMotionPacket): string {
-  const binding = {
+  const binding: Record<string, unknown> = {
     version: packet.version,
     socialContentId: packet.socialContentId,
     contentVersion: packet.contentVersion,
@@ -220,6 +349,12 @@ export function buildAvatarMotionIdempotencyKey(packet: AvatarMotionPacket): str
     motionMasterSha256: packet.motionMaster.sha256,
     aspectRatio: packet.aspectRatio,
     authorizationId: packet.providerAuthorization.authorizationId,
+  }
+  if (packet.avatar.lookId || packet.avatar.identityId || packet.avatar.selection) {
+    binding.avatarIdentityId = packet.avatar.identityId
+    binding.avatarLookId = selectedAvatarLookId(packet)
+    binding.avatarLookVersion = packet.avatar.lookVersion ?? packet.avatar.version
+    binding.avatarSelection = packet.avatar.selection
   }
   return `social-avatar-motion:${canonicalSha256(binding)}`
 }
@@ -270,7 +405,13 @@ export function buildAvatarMotionCompositeManifest(input: {
     social_content_id: input.packet.socialContentId,
     content_version: input.packet.contentVersion,
     script_sha256: input.packet.script.sha256,
-    avatar: { id: input.packet.avatar.id, version: input.packet.avatar.version },
+    avatar: {
+      id: selectedAvatarLookId(input.packet),
+      identity_id: input.packet.avatar.identityId,
+      look_id: input.packet.avatar.lookId,
+      version: input.packet.avatar.lookVersion ?? input.packet.avatar.version,
+      selection: input.packet.avatar.selection,
+    },
     voice: { id: input.packet.voice.id, version: input.packet.voice.version },
     provider: {
       name: input.providerReceipt.provider,

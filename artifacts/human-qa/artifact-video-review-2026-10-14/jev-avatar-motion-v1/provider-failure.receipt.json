@@ -28,6 +28,14 @@
     "quota_delta": 0,
     "provider_cost_usd": 0
   },
+  "compatibility_evidence": {
+    "studio_avatar": "Vambah Red V-Neck Sweater",
+    "studio_voice": "Vambah Sillah (Mad Hadda)",
+    "studio_voice_relationship": "Default for this avatar",
+    "studio_preview": "playable",
+    "v2_voice_allowed_engines": [],
+    "finding": "Studio preview compatibility does not establish v2 API generation compatibility. The failed v2 job and empty allowed-engines catalog require fail-closed recovery."
+  },
   "side_effects": {
     "provider_jobs_created": 1,
     "provider_outputs_completed": 0,
@@ -38,5 +46,5 @@
     "external_send": false,
     "shared_row_mutation": false
   },
-  "recovery_gate": "Do not retry this idempotency key. Select and re-approve a currently compatible voice that HeyGen accepts for avatar-video generation, issue a new bounded provider authorization and content packet, then create a new version-fenced idempotency key."
+  "recovery_gate": "Do not retry this idempotency key. Obtain positive v2 API engine compatibility for the selected voice (Studio default status and preview playback are insufficient), bind that evidence to a newly approved voice/version, issue a new bounded provider authorization and content packet, then create a new version-fenced idempotency key."
 }

@@ -15,6 +15,7 @@ This package is a provider-free local review render for the approved Phase 4 art
 - Motion repair: `jev_decision_flow_v2`, a 22-second, 1080 × 1920 provider-none composition with 660 encoded frames at 30 fps.
 - Temporal structure: score hook, animated probability routing, policy-band reveal, ownership handoffs, exception routing, and the closing operating principle.
 - Avatar audit: Portfolio and AmaduTown owned-media folders contain presenter footage, but no clip-level consent and rights receipt binds a specific clip to this Jev packet. No presenter footage was reused, and the avatar-source gate remains closed.
+- HeyGen recovery evidence: the authenticated Studio pairs Red V-Neck with the Mad Hadda default voice and plays its preview, but the v2 voice catalog exposes no allowed engines for the owned voices. The single authorized v2 attempt failed `VOICE_CONFIG_ERROR` with zero quota change and no output. Treat this as a Studio-versus-v2 API compatibility mismatch; no retry is authorized.
 - Human QA state: pending after the original static-image timeline was rejected.
 
 ## Dark Castle Chess

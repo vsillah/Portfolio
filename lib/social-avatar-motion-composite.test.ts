@@ -1,16 +1,19 @@
 import { describe, expect, it } from 'vitest'
+import { readFileSync } from 'node:fs'
 import {
   SOCIAL_AVATAR_MOTION_PIPELINE_VERSION,
   avatarMotionWorstCaseCostUsd,
   buildAvatarMotionCompositeManifest,
   buildAvatarMotionIdempotencyKey,
   decideAvatarMotionReplay,
+  selectApprovedAvatarLook,
   sha256,
   validateCompositeProbe,
   validateHeyGenProviderAssets,
   validateAvatarMotionPacket,
   type AvatarMotionPacket,
   type AvatarMotionProviderReceipt,
+  type ApprovedAvatarLook,
 } from './social-avatar-motion-composite'
 
 const NOW = new Date('2026-10-14T21:00:00.000Z')
@@ -84,6 +87,24 @@ function providerReceipt(p: AvatarMotionPacket): AvatarMotionProviderReceipt {
   }
 }
 
+function avatarLook(id: string, overrides: Partial<ApprovedAvatarLook> = {}): ApprovedAvatarLook {
+  return {
+    identityId: `identity-${id}`,
+    identityName: `Identity ${id}`,
+    lookId: id,
+    lookName: `Look ${id}`,
+    lookVersion: '2026-10-14',
+    providerCharacterType: 'avatar',
+    ownership: 'owned',
+    approvalStatus: 'approved',
+    availability: 'available',
+    compatibleTargets: ['youtube_long_form', 'youtube_shorts'],
+    consentRightsReceiptId: `rights-${id}`,
+    sourceReceiptId: `source-${id}`,
+    ...overrides,
+  }
+}
+
 describe('social avatar-motion composite gate', () => {
   it('accepts one receipt-complete, bounded composition packet', () => {
     const value = packet()
@@ -146,6 +167,11 @@ describe('social avatar-motion composite gate', () => {
       avatars: [{ id: value.avatar.id, status: 'ready' }],
       voices: [{ id: value.voice.id, status: 'blocked' }],
     })).toContain('Selected voice is not ready for generation.')
+    expect(validateHeyGenProviderAssets({
+      packet: value,
+      avatars: [{ id: value.avatar.id, status: 'ready' }],
+      voices: [{ id: value.voice.id, status: 'ready', allowedEngines: [] }],
+    })).toContain('Selected voice has no allowed v2 API generation engines.')
   })
 
   it('rejects internal production language in customer-facing frames', () => {
@@ -186,5 +212,127 @@ describe('social avatar-motion composite gate', () => {
       'Final composite has no playable audio stream.',
       'Final composite duration does not match the approved motion master.',
     ])
+  })
+})
+
+describe('owned avatar-look rotation', () => {
+  const looks = [avatarLook('gray'), avatarLook('red'), avatarLook('green')]
+
+  it('is deterministic for an identical replay input', () => {
+    const input = { looks, history: [], target: 'youtube_shorts' as const, selectionKey: 'campaign:jev:v1' }
+    expect(selectApprovedAvatarLook(input)).toEqual(selectApprovedAvatarLook(input))
+  })
+
+  it('does not immediately repeat the most recently completed look', () => {
+    const selected = selectApprovedAvatarLook({
+      looks,
+      target: 'youtube_shorts',
+      selectionKey: 'campaign:jev:v2',
+      history: [{ identityId: 'identity-gray', lookId: 'gray', providerJobId: 'job-1', status: 'completed', attemptedAt: '2026-10-14T18:00:00Z', completedAt: '2026-10-14T18:01:00Z' }],
+    })
+    expect(selected.lookId).not.toBe('gray')
+  })
+
+  it('chooses the least recently used eligible look', () => {
+    const selected = selectApprovedAvatarLook({
+      looks,
+      target: 'youtube_shorts',
+      selectionKey: 'campaign:jev:v3',
+      history: [
+        { identityId: 'identity-gray', lookId: 'gray', providerJobId: 'job-3', status: 'completed', attemptedAt: '2026-10-14T20:00:00Z', completedAt: '2026-10-14T20:01:00Z' },
+        { identityId: 'identity-red', lookId: 'red', providerJobId: 'job-2', status: 'completed', attemptedAt: '2026-10-14T19:00:00Z', completedAt: '2026-10-14T19:01:00Z' },
+        { identityId: 'identity-green', lookId: 'green', providerJobId: 'job-1', status: 'completed', attemptedAt: '2026-10-14T18:00:00Z', completedAt: '2026-10-14T18:01:00Z' },
+      ],
+    })
+    expect(selected.lookId).toBe('green')
+    expect(selected.reason).toBe('least_recently_used')
+  })
+
+  it('honors an eligible campaign pin', () => {
+    const selected = selectApprovedAvatarLook({
+      looks,
+      history: [],
+      target: 'youtube_long_form',
+      selectionKey: 'campaign:founder-story',
+      pin: { identityId: 'identity-red', lookId: 'red' },
+    })
+    expect(selected).toMatchObject({ lookId: 'red', reason: 'campaign_pin' })
+  })
+
+  it('fails closed for an unavailable campaign pin', () => {
+    expect(() => selectApprovedAvatarLook({
+      looks: [avatarLook('red', { availability: 'unavailable' })],
+      history: [],
+      target: 'youtube_shorts',
+      selectionKey: 'campaign:blocked',
+      pin: { identityId: 'identity-red', lookId: 'red' },
+    })).toThrow('No owned, approved, available, rights-bound avatar look')
+  })
+
+  it('fails closed instead of substituting another look for an ineligible pin', () => {
+    expect(() => selectApprovedAvatarLook({
+      looks,
+      history: [],
+      target: 'youtube_shorts',
+      selectionKey: 'campaign:bad-pin',
+      pin: { identityId: 'identity-missing', lookId: 'missing' },
+    })).toThrow('campaign-pinned avatar look is not eligible')
+  })
+
+  it('excludes public, unapproved, rights-incomplete, and incompatible looks', () => {
+    const selected = selectApprovedAvatarLook({
+      looks: [
+        avatarLook('owned'),
+        avatarLook('public', { ownership: 'public' }),
+        avatarLook('pending', { approvalStatus: 'pending' }),
+        avatarLook('no-rights', { consentRightsReceiptId: '' }),
+        avatarLook('wrong-target', { compatibleTargets: ['youtube_long_form'] }),
+      ],
+      history: [],
+      target: 'youtube_shorts',
+      selectionKey: 'campaign:eligible-only',
+    })
+    expect(selected).toMatchObject({ lookId: 'owned', reason: 'only_eligible_look' })
+  })
+
+  it('does not advance rotation history for a failed provider job', () => {
+    const failed = { identityId: 'identity-gray', lookId: 'gray', providerJobId: 'job-failed', status: 'failed' as const, attemptedAt: '2026-10-14T21:00:00Z' }
+    const withoutFailure = selectApprovedAvatarLook({ looks, history: [], target: 'youtube_shorts', selectionKey: 'campaign:failure-safe' })
+    const withFailure = selectApprovedAvatarLook({ looks, history: [failed], target: 'youtube_shorts', selectionKey: 'campaign:failure-safe' })
+    expect(withFailure).toEqual(withoutFailure)
+    expect(withFailure.recentCompletedHistory).toEqual([])
+  })
+
+  it('keeps the selected identity and look inside enriched idempotency bindings', () => {
+    const value = packet()
+    const selection = selectApprovedAvatarLook({ looks, history: [], target: value.target, selectionKey: 'campaign:packet-v1' })
+    value.avatar = {
+      ...value.avatar,
+      id: selection.lookId,
+      identityId: selection.identityId,
+      lookId: selection.lookId,
+      lookVersion: selection.lookVersion,
+      providerCharacterType: selection.providerCharacterType,
+      selection: { ...selection, sourceReceiptId: value.receipts.source.receiptId, consentRightsReceiptId: value.receipts.consentRights.receiptId },
+    }
+    value.receipts.consentRights.avatarId = selection.lookId
+    const originalKey = buildAvatarMotionIdempotencyKey(value)
+    value.avatar.lookId = 'different-look'
+    expect(buildAvatarMotionIdempotencyKey(value)).not.toBe(originalKey)
+  })
+
+  it('rejects partially enriched packet bindings', () => {
+    const value = packet()
+    value.avatar.identityId = 'identity-gray'
+    expect(validateAvatarMotionPacket(value, NOW)).toContain('Enriched avatar packets require a complete identity, look, character type, and selection receipt binding.')
+  })
+
+  it('keeps the authenticated owned-look catalog unique and receipt-bound', () => {
+    const catalog = JSON.parse(readFileSync('artifacts/human-qa/artifact-video-review-2026-10-14/inputs/vambah-owned-avatar-look-catalog-v1.json', 'utf8')) as { looks: ApprovedAvatarLook[] }
+    expect(catalog.looks).toHaveLength(7)
+    expect(new Set(catalog.looks.map((look) => look.lookId)).size).toBe(catalog.looks.length)
+    expect(new Set(catalog.looks.map((look) => look.identityId)).size).toBe(4)
+    expect(catalog.looks.every((look) => look.ownership === 'owned' && look.approvalStatus === 'approved')).toBe(true)
+    expect(catalog.looks.every((look) => Boolean(look.sourceReceiptId) && Boolean(look.consentRightsReceiptId))).toBe(true)
   })
 })
