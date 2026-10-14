@@ -10,10 +10,12 @@ import {
 } from '@/lib/social-content-intelligence'
 import { validateSocialPublicCopyFields } from '@/lib/social-content-lifecycle'
 import {
+  SOCIAL_VIDEO_ADAPTATION_SOURCE_METADATA_KEY,
   SocialVideoAdaptationError,
   buildSocialVideoAdaptationPacket,
-  type SocialVideoAdaptationInput,
+  produceSocialVideoAdaptationInput,
   type SocialVideoAdaptationPacket,
+  type SocialVideoAdaptationSourceInput,
 } from '@/lib/social-video-adaptation'
 
 export const dynamic = 'force-dynamic'
@@ -27,9 +29,9 @@ function hasApprovedResearchPatterns(insight: Record<string, unknown>) {
     && insight.approved_research_patterns.some((pattern) => Object.keys(asRecord(pattern)).length > 0)
 }
 
-function requestedArtifactVideoAdaptation(metadata: Record<string, unknown>) {
-  const request = asRecord(metadata.artifact_video_adaptation_request)
-  return Object.keys(request).length ? request as unknown as SocialVideoAdaptationInput : null
+function requestedArtifactVideoAdaptationSource(metadata: Record<string, unknown>) {
+  const request = asRecord(metadata[SOCIAL_VIDEO_ADAPTATION_SOURCE_METADATA_KEY])
+  return Object.keys(request).length ? request as unknown as SocialVideoAdaptationSourceInput : null
 }
 
 function attachArtifactVideoAdaptation(
@@ -107,12 +109,12 @@ export async function POST(
     }
     for (const draft of Object.values(drafts)) draft.enrichment_receipt = enrichmentReceipt
     let artifactVideoAdaptation: SocialVideoAdaptationPacket | null = null
-    const adaptationRequest = requestedArtifactVideoAdaptation(metadata)
-    if (adaptationRequest) {
+    const adaptationSource = requestedArtifactVideoAdaptationSource(metadata)
+    if (adaptationSource) {
       const currentLinkedInCopy = typeof drafts.linkedin.fields.post_text === 'string'
         ? drafts.linkedin.fields.post_text
         : ''
-      if (adaptationRequest.source_channel_packet?.linkedin_copy !== currentLinkedInCopy) {
+      if (adaptationSource.source_channel_packet?.linkedin_copy !== currentLinkedInCopy) {
         return NextResponse.json({
           error: 'Artifact-to-video adaptation is stale for the current LinkedIn channel packet.',
           current_gate: 'artifact_video_adaptation',
@@ -121,7 +123,8 @@ export async function POST(
         }, { status: 422 })
       }
       try {
-        artifactVideoAdaptation = buildSocialVideoAdaptationPacket(adaptationRequest)
+        const adaptationInput = produceSocialVideoAdaptationInput(adaptationSource)
+        artifactVideoAdaptation = buildSocialVideoAdaptationPacket(adaptationInput)
       } catch (error) {
         if (error instanceof SocialVideoAdaptationError) {
           return NextResponse.json({

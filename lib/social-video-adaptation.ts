@@ -1,4 +1,6 @@
 export const SOCIAL_VIDEO_ADAPTATION_VERSION = 'social_video_adaptation_v1' as const
+export const SOCIAL_VIDEO_ADAPTATION_SOURCE_VERSION = 'social_video_adaptation_source_v1' as const
+export const SOCIAL_VIDEO_ADAPTATION_SOURCE_METADATA_KEY = 'artifact_video_adaptation_source' as const
 
 export const SOCIAL_VIDEO_ADAPTATION_RECEIPT_KINDS = [
   'source',
@@ -130,6 +132,37 @@ export type SocialVideoAdaptationInput = {
   draft: SocialVideoAdaptationDraft
 }
 
+export type SocialVideoAdaptationSourceInput = Omit<SocialVideoAdaptationInput, 'draft'> & {
+  source_version: typeof SOCIAL_VIDEO_ADAPTATION_SOURCE_VERSION
+  artifact_semantics: {
+    product_label: string
+    subject_label: string
+    audience_problem: string
+    operating_tension: string
+    practical_value: string
+    why_artifact_matters: string
+    closing_principle: string
+    thumbnail_promise: string
+    evidence_regions: Array<{
+      region_id: string
+      asset_id: string
+      label: string
+      description: string
+      claim_ids: string[]
+      on_screen_text: string
+    }>
+    process_steps: Array<{
+      step_id: string
+      label: string
+      description: string
+      claim_ids: string[]
+      evidence_region_ids: string[]
+    }>
+    recent_approved_compositions: string[]
+    composition_reuse_rationale?: string | null
+  }
+}
+
 export type SocialVideoAdaptationReadiness = {
   ready: boolean
   blockers: string[]
@@ -214,6 +247,224 @@ function receiptPassed(receipt: SocialVideoAdaptationReceipt | undefined) {
 
 function minScriptCharacters(targets: SocialVideoTarget[]) {
   return targets.includes('youtube_long_form') ? 600 : 160
+}
+
+function compositionForAsset(asset: SocialVideoEvidenceAsset) {
+  if (asset.asset_type === 'gameplay_capture') {
+    return {
+      name: 'gameplay_decision_sequence',
+      structure: 'Use the real gameplay state as the visual anchor, then follow the player decision, product response, and traceable learning value.',
+      motion: 'Hold the full board or gameplay state first, then crop to the decision region and follow the approved sequence without inventing unrecorded play.',
+    }
+  }
+  if (asset.asset_type === 'dashboard_capture') {
+    return {
+      name: 'dashboard_evidence_path',
+      structure: 'Use the real dashboard as the visual anchor, then follow its evidence regions in the same order an operator uses them to make a decision.',
+      motion: 'Begin with the full dashboard, move between approved evidence regions, and pause at each decision or receipt boundary for inspection.',
+    }
+  }
+  if (asset.asset_type === 'workflow_capture') {
+    return {
+      name: 'workflow_handoff_path',
+      structure: 'Use the real workflow capture as the visual anchor and follow the handoff from input through decision to the bounded next action.',
+      motion: 'Trace the approved workflow path in order, retaining enough surrounding context to keep ownership and gates legible.',
+    }
+  }
+  if (asset.asset_type === 'diagram') {
+    return {
+      name: 'diagram_explainer_path',
+      structure: 'Use the approved diagram as the visual anchor and reveal its relationships in the order needed to understand the operating model.',
+      motion: 'Reveal one approved diagram relationship at a time and return to the full model before the conclusion.',
+    }
+  }
+  return {
+    name: 'artifact_evidence_walkthrough',
+    structure: 'Use the approved artifact as the visual anchor and organize the explanation around its evidence regions, process, value, and traceability.',
+    motion: 'Begin with the full artifact, move only to approved evidence regions, and return to the complete artifact for the final principle.',
+  }
+}
+
+function privacyBoundaryForClaims(claims: SocialVideoClaim[], claimIds: string[]) {
+  return unique(claims
+    .filter((claim) => claimIds.includes(claim.claim_id))
+    .map((claim) => claim.privacy_boundary))
+    .join(' ')
+}
+
+export function produceSocialVideoAdaptationInput(
+  source: SocialVideoAdaptationSourceInput,
+): SocialVideoAdaptationInput {
+  const blockers: string[] = []
+  const semantics = source.artifact_semantics
+  const targets = targetsForDecision(source.target_decision)
+  const assetsById = new Map(source.evidence_assets.map((asset) => [asset.asset_id, asset]))
+  const claimsById = new Map(source.claims.map((claim) => [claim.claim_id, claim]))
+  const regionsById = new Map(semantics.evidence_regions.map((region) => [region.region_id, region]))
+
+  const requiredNarrative = [
+    ['product label', semantics.product_label, 2],
+    ['subject label', semantics.subject_label, 8],
+    ['audience problem', semantics.audience_problem, 30],
+    ['operating tension', semantics.operating_tension, 30],
+    ['practical value', semantics.practical_value, 30],
+    ['why the artifact matters', semantics.why_artifact_matters, 30],
+    ['closing principle', semantics.closing_principle, 30],
+    ['thumbnail promise', semantics.thumbnail_promise, 8],
+  ] as const
+  if (source.source_version !== SOCIAL_VIDEO_ADAPTATION_SOURCE_VERSION) blockers.push('Artifact adaptation source contract is missing or unsupported.')
+  for (const [label, value, minimumLength] of requiredNarrative) {
+    if (text(value).length < minimumLength) blockers.push(`Artifact semantics require a specific ${label}.`)
+  }
+  if (semantics.process_steps.length < 2) blockers.push('Artifact semantics require at least two evidence-backed process steps.')
+  if (semantics.evidence_regions.length < 2) blockers.push('Artifact semantics require at least two inspectable evidence regions.')
+  for (const region of semantics.evidence_regions) {
+    if (!text(region.region_id) || !assetsById.has(region.asset_id) || !text(region.label) || !text(region.description) || !text(region.on_screen_text)) {
+      blockers.push(`Evidence region ${region.region_id || '(missing id)'} is incomplete or references an unknown artifact.`)
+    }
+    if (!region.claim_ids.length || region.claim_ids.some((claimId) => !claimsById.has(claimId))) blockers.push(`Evidence region ${region.region_id || '(missing id)'} has invalid claim bindings.`)
+  }
+  for (const step of semantics.process_steps) {
+    if (!text(step.step_id) || !text(step.label) || !text(step.description)) blockers.push(`Process step ${step.step_id || '(missing id)'} is incomplete.`)
+    if (!step.claim_ids.length || step.claim_ids.some((claimId) => !claimsById.has(claimId))) blockers.push(`Process step ${step.step_id || '(missing id)'} has invalid claim bindings.`)
+    if (!step.evidence_region_ids.length || step.evidence_region_ids.some((regionId) => !regionsById.has(regionId))) blockers.push(`Process step ${step.step_id || '(missing id)'} has invalid evidence-region bindings.`)
+  }
+  if (blockers.length) throw new SocialVideoAdaptationError(unique(blockers))
+
+  const primaryRegion = semantics.evidence_regions[0]
+  const finalRegion = semantics.evidence_regions[semantics.evidence_regions.length - 1]
+  const primaryAsset = assetsById.get(primaryRegion.asset_id)!
+  const composition = compositionForAsset(primaryAsset)
+  const allClaimIds = unique(semantics.process_steps.flatMap((step) => step.claim_ids))
+  const sourceReceiptIds = unique(source.evidence_assets.flatMap((asset) => asset.source_receipt_ids))
+  const visualReceiptId = text(source.receipts.visual?.receipt_id)
+  const thumbnailReceiptIds = unique([...sourceReceiptIds, visualReceiptId])
+  const processNarration = semantics.process_steps.map((step, index) => {
+    const regionLabels = step.evidence_region_ids.map((id) => regionsById.get(id)?.label).filter(Boolean).join(' and ')
+    return `Step ${index + 1}, ${step.label}. ${step.description} The approved ${regionLabels} evidence keeps this explanation tied to what the artifact actually shows.`
+  })
+  const traceabilityLine = `Every customer-facing claim in this adaptation remains bound to ${source.identity.source_ids.length} approved source identities, ${source.evidence_assets.length} cleared artifact${source.evidence_assets.length === 1 ? '' : 's'}, and the current privacy, rights, challenger, and script-quality receipts.`
+  const longHook = semantics.operating_tension
+  const shortHook = `${semantics.operating_tension} ${semantics.subject_label} makes that tension visible.`
+  const longScript = [
+    longHook,
+    semantics.audience_problem,
+    `${semantics.subject_label} gives us a concrete ${primaryAsset.asset_type.replaceAll('_', ' ')} to inspect. We will use its approved evidence regions rather than turning the source copy into a generic talking-head summary.`,
+    ...processNarration,
+    semantics.practical_value,
+    semantics.why_artifact_matters,
+    traceabilityLine,
+    semantics.closing_principle,
+  ].join('\n\n')
+  const shortScript = [
+    shortHook,
+    semantics.audience_problem,
+    ...semantics.process_steps.map((step) => `${step.label}: ${step.description}`),
+    semantics.practical_value,
+    traceabilityLine,
+    semantics.closing_principle,
+  ].join(' ')
+
+  const scenes: SocialVideoScene[] = []
+  const addScene = (input: {
+    id: string
+    target: SocialVideoTarget
+    purpose: string
+    narration: string
+    claimIds: string[]
+    regionIds: string[]
+    onScreenText: string[]
+  }) => {
+    const regions = input.regionIds.map((id) => regionsById.get(id)!).filter(Boolean)
+    const artifactIds = unique(regions.map((region) => region.asset_id))
+    const regionAssets = artifactIds.map((id) => assetsById.get(id)!).filter(Boolean)
+    scenes.push({
+      scene_id: input.id,
+      target: input.target,
+      purpose: input.purpose,
+      narration: input.narration,
+      claim_ids: unique(input.claimIds),
+      artifact_ids: artifactIds,
+      source_receipt_ids: unique(regionAssets.flatMap((asset) => asset.source_receipt_ids)),
+      on_screen_text: input.onScreenText,
+      motion_direction: composition.motion,
+    })
+  }
+
+  if (targets.includes('youtube_long_form')) {
+    addScene({ id: 'long-hook', target: 'youtube_long_form', purpose: 'Establish the artifact-specific operating tension.', narration: longHook, claimIds: primaryRegion.claim_ids, regionIds: [primaryRegion.region_id], onScreenText: [primaryRegion.on_screen_text] })
+    for (const step of semantics.process_steps) {
+      addScene({ id: `long-${step.step_id}`, target: 'youtube_long_form', purpose: `Teach ${step.label} through approved artifact evidence.`, narration: `${step.label}. ${step.description}`, claimIds: step.claim_ids, regionIds: step.evidence_region_ids, onScreenText: step.evidence_region_ids.map((id) => regionsById.get(id)!.on_screen_text) })
+    }
+    addScene({ id: 'long-value', target: 'youtube_long_form', purpose: 'Explain practical value and why the artifact matters.', narration: `${semantics.practical_value} ${semantics.why_artifact_matters}`, claimIds: finalRegion.claim_ids, regionIds: [finalRegion.region_id], onScreenText: [semantics.thumbnail_promise] })
+    addScene({ id: 'long-traceability', target: 'youtube_long_form', purpose: 'Close on traceability and the bounded next action.', narration: `${traceabilityLine} ${semantics.closing_principle}`, claimIds: allClaimIds, regionIds: [primaryRegion.region_id, finalRegion.region_id], onScreenText: ['Source → evidence → decision → boundary'] })
+  }
+  if (targets.includes('youtube_shorts')) {
+    addScene({ id: 'short-hook', target: 'youtube_shorts', purpose: 'Name the artifact-specific tension in the opening seconds.', narration: shortHook, claimIds: primaryRegion.claim_ids, regionIds: [primaryRegion.region_id], onScreenText: [primaryRegion.on_screen_text] })
+    addScene({ id: 'short-process', target: 'youtube_shorts', purpose: 'Compress the approved process into one evidence sequence.', narration: semantics.process_steps.map((step) => `${step.label}: ${step.description}`).join(' '), claimIds: allClaimIds, regionIds: unique(semantics.process_steps.flatMap((step) => step.evidence_region_ids)), onScreenText: semantics.process_steps.map((step) => step.label) })
+    addScene({ id: 'short-close', target: 'youtube_shorts', purpose: 'Close on practical value and traceability.', narration: `${semantics.practical_value} ${semantics.closing_principle}`, claimIds: finalRegion.claim_ids, regionIds: [finalRegion.region_id], onScreenText: [semantics.thumbnail_promise] })
+  }
+
+  const shotPlan: SocialVideoShot[] = scenes.flatMap((scene) => scene.artifact_ids.map((artifactId, artifactIndex) => {
+    const asset = assetsById.get(artifactId)!
+    return {
+      shot_id: `${scene.scene_id}-shot-${artifactIndex + 1}`,
+      scene_id: scene.scene_id,
+      artifact_id: artifactId,
+      framing: scene.scene_id.endsWith('hook') ? `Establish the complete ${asset.label}.` : `Crop to the evidence region named by the scene while retaining enough ${semantics.subject_label} context to remain legible.`,
+      action: composition.motion,
+      source_receipt_ids: asset.source_receipt_ids,
+      privacy_boundary: `${asset.approved_use} ${privacyBoundaryForClaims(source.claims, scene.claim_ids)}`,
+    }
+  }))
+
+  return {
+    adaptation_id: source.adaptation_id,
+    generated_at: source.generated_at,
+    input_version: source.input_version,
+    target_decision: source.target_decision,
+    identity: source.identity,
+    source_channel_packet: source.source_channel_packet,
+    receipts: source.receipts,
+    claims: source.claims,
+    evidence_assets: source.evidence_assets,
+    draft: {
+      title_options: [
+        { title: `${semantics.product_label}: what the artifact makes visible`, targets, promise: semantics.thumbnail_promise, claim_ids: allClaimIds },
+        { title: `The process behind ${semantics.subject_label}`, targets, promise: semantics.practical_value, claim_ids: allClaimIds },
+      ],
+      format_adaptations: targets.map((target) => ({
+        target,
+        opening_hook: target === 'youtube_long_form' ? longHook : shortHook,
+        full_spoken_script: target === 'youtube_long_form' ? longScript : shortScript,
+        target_duration_seconds: target === 'youtube_long_form' ? Math.max(240, Math.ceil(longScript.split(/\s+/).length / 2.2)) : 45,
+        adaptation_rationale: target === 'youtube_long_form'
+          ? `Long form follows ${semantics.subject_label} through its approved evidence regions, process, value, and receipt trail with time for inspection.`
+          : `Shorts compresses ${semantics.subject_label} into one tension, one evidence sequence, and one traceable operating principle.`,
+      })),
+      practical_value: semantics.practical_value,
+      why_artifact_matters: semantics.why_artifact_matters,
+      scenes,
+      shot_plan: shotPlan,
+      thumbnail_brief: {
+        headline: semantics.thumbnail_promise,
+        visual_subject: `${semantics.subject_label}, anchored by ${primaryAsset.label}.`,
+        artifact_ids: [primaryAsset.asset_id],
+        claim_ids: allClaimIds,
+        source_receipt_ids: thumbnailReceiptIds,
+        composition: `${composition.structure} Use one artifact-specific evidence path rather than a generic repeated card layout.`,
+        mobile_readability_note: `Keep ${semantics.subject_label} recognizable at phone size and preserve the evidence region that supports the promise.`,
+      },
+      composition_rationale: {
+        dominant_composition: composition.name,
+        why_this_structure: composition.structure,
+        motion_rationale: composition.motion,
+        recent_approved_compositions: semantics.recent_approved_compositions,
+        composition_reuse_rationale: semantics.composition_reuse_rationale,
+      },
+      traceability_summary: traceabilityLine,
+    },
+  }
 }
 
 export function evaluateSocialVideoAdaptation(input: SocialVideoAdaptationInput): SocialVideoAdaptationReadiness {

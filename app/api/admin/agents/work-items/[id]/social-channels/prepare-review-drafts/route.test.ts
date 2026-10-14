@@ -76,7 +76,7 @@ function cloneBaseWorkItem() {
   return structuredClone(baseWorkItem)
 }
 
-function artifactVideoAdaptationRequest() {
+function artifactVideoAdaptationSource() {
   const inputVersion = 'sha256:jev-dashboard-current'
   const linkedinCopy = String(buildLinkedInYoutubeReviewDrafts({
     insight: baseWorkItem.metadata.insight,
@@ -92,19 +92,8 @@ function artifactVideoAdaptationRequest() {
     reviewed_at: '2026-06-24T14:00:00.000Z',
     valid_until: '2026-07-01T14:00:00.000Z',
   }]))
-  const scenes = ['problem', 'walkthrough', 'value', 'traceability'].map((purpose, index) => ({
-    scene_id: `jev-scene-${index + 1}`,
-    target: 'youtube_long_form',
-    purpose: `Teach the operator-dashboard ${purpose} with inspectable evidence.`,
-    narration: `The approved dashboard ${purpose} scene shows the visible evidence and bounded operator decision without implying live provider activation.`,
-    claim_ids: ['claim-jev-value'],
-    artifact_ids: ['jev-operator-dashboard'],
-    source_receipt_ids: ['receipt-source'],
-    on_screen_text: [`Dashboard ${purpose}`],
-    motion_direction: 'Start wide, move to the named evidence region, then pause long enough for the viewer to inspect it.',
-  }))
-
   return {
+    source_version: 'social_video_adaptation_source_v1',
     adaptation_id: 'adaptation-jev-dashboard',
     generated_at: '2026-06-24T15:00:00.000Z',
     input_version: inputVersion,
@@ -142,55 +131,65 @@ function artifactVideoAdaptationRequest() {
       rights_receipt_id: 'receipt-rights',
       approved_use: 'Customer-facing teaching walkthrough of the visible, redacted operator path.',
     }],
-    draft: {
-      title_options: [
-        { title: 'What the Jev dashboard teaches operators', targets: ['youtube_long_form'], promise: 'Walk through the evidence and decision path.', claim_ids: ['claim-jev-value'] },
-        { title: 'The receipt trail behind an operator decision', targets: ['youtube_long_form'], promise: 'See the artifact, process, and bounded value.', claim_ids: ['claim-jev-value'] },
-      ],
-      format_adaptations: [{
-        target: 'youtube_long_form',
-        opening_hook: 'A polished dashboard can still hide who owns the decision and what the evidence actually supports.',
-        full_spoken_script: [
-          'A polished dashboard can still hide who owns the decision and what the evidence actually supports.',
-          'The Jev operator dashboard gives us a concrete artifact to inspect. We can start with the visible source evidence instead of making a generic claim about automation.',
-          'The next region records the bounded operator decision. It separates what the system observed from what a human still needs to judge before any provider or public action.',
-          'Now follow the review path into the next-action boundary. The dashboard does not claim live model quality, production activation, or autonomous execution. It makes those limits inspectable.',
-          'That matters because teams lose time when they must reconstruct why a decision was made across separate notes, tools, and private conversations.',
-          'The practical value is a repeatable review sequence: inspect the source, name the decision, verify the owner, and confirm the action that remains blocked.',
-          'The motion follows that operating logic. We begin with the full artifact, move to the evidence region, pause on the decision, and finish on the receipt trail.',
-          'Use the same test in your own workflow. If the artifact cannot show what supports the claim and who owns the next step, it is not ready to carry the story.',
-        ].join('\n\n'),
-        target_duration_seconds: 420,
-        adaptation_rationale: 'Long form gives the viewer enough time to inspect the approved dashboard, understand the operating sequence, and distinguish proof from activation.',
-      }],
+    artifact_semantics: {
+      product_label: 'Jev',
+      subject_label: 'Jev operator dashboard',
+      audience_problem: 'Operators lose time when evidence, decisions, and next-action boundaries are scattered across separate tools and private notes.',
+      operating_tension: 'A polished dashboard can still hide who owns the decision and what the evidence actually supports.',
       practical_value: 'The walkthrough gives operators a repeatable way to inspect evidence, ownership, and next-action clarity.',
       why_artifact_matters: 'The approved dashboard turns an abstract governance claim into a visible operating sequence.',
-      scenes,
-      shot_plan: scenes.map((scene, index) => ({
-        shot_id: `jev-shot-${index + 1}`,
-        scene_id: scene.scene_id,
-        artifact_id: 'jev-operator-dashboard',
-        framing: index === 0 ? 'Full dashboard establishing frame' : 'Cropped dashboard region with surrounding context retained',
-        action: 'Move to the exact proof region named in narration and pause for inspection.',
-        source_receipt_ids: ['receipt-source', 'receipt-visual'],
-        privacy_boundary: 'Show only the approved redacted capture; exclude private names, messages, tokens, and account state.',
-      })),
-      thumbnail_brief: {
-        headline: 'Show the decision trail',
-        visual_subject: 'One legible crop of the approved Jev dashboard with its evidence-to-decision path highlighted.',
-        artifact_ids: ['jev-operator-dashboard'],
-        claim_ids: ['claim-jev-value'],
-        source_receipt_ids: ['receipt-source', 'receipt-visual'],
-        composition: 'Dashboard-first composition with one highlighted decision path and no generic three-box overlay.',
-        mobile_readability_note: 'Keep the dashboard recognizable at phone size and limit the headline to four words.',
-      },
-      composition_rationale: {
-        dominant_composition: 'jev-operator-dashboard-walkthrough',
-        why_this_structure: 'The dashboard already contains the operating sequence, so the camera follows its evidence path instead of imposing a generic template.',
-        motion_rationale: 'Motion directs attention from source to decision to receipt and pauses for inspection at each proof point.',
-        recent_approved_compositions: ['generic-three-box', 'quote-card'],
-      },
-      traceability_summary: 'Every title, scene, shot, claim, and thumbnail reference resolves to current source, visual, privacy, rights, challenger, and script-quality receipts.',
+      closing_principle: 'If an artifact cannot show what supports the claim and who owns the next step, it is not ready to carry the public story.',
+      thumbnail_promise: 'Show the decision trail',
+      evidence_regions: [
+        {
+          region_id: 'source-evidence',
+          asset_id: 'jev-operator-dashboard',
+          label: 'source evidence region',
+          description: 'The visible input evidence that grounds the operator review.',
+          claim_ids: ['claim-jev-value'],
+          on_screen_text: '1. Inspect the source',
+        },
+        {
+          region_id: 'operator-decision',
+          asset_id: 'jev-operator-dashboard',
+          label: 'operator decision region',
+          description: 'The bounded human judgment recorded beside the evidence.',
+          claim_ids: ['claim-jev-value'],
+          on_screen_text: '2. Name the decision',
+        },
+        {
+          region_id: 'next-action-boundary',
+          asset_id: 'jev-operator-dashboard',
+          label: 'next-action boundary',
+          description: 'The visible boundary separating review from provider or public action.',
+          claim_ids: ['claim-jev-value'],
+          on_screen_text: '3. Keep action gated',
+        },
+      ],
+      process_steps: [
+        {
+          step_id: 'inspect-source',
+          label: 'Inspect the source evidence',
+          description: 'Begin with the approved evidence shown in the dashboard instead of inferring capability from a polished result.',
+          claim_ids: ['claim-jev-value'],
+          evidence_region_ids: ['source-evidence'],
+        },
+        {
+          step_id: 'record-decision',
+          label: 'Record the operator decision',
+          description: 'Keep the accountable human judgment visible beside the evidence that supports it.',
+          claim_ids: ['claim-jev-value'],
+          evidence_region_ids: ['operator-decision'],
+        },
+        {
+          step_id: 'verify-boundary',
+          label: 'Verify the next-action boundary',
+          description: 'Distinguish the demonstrated review flow from provider calls, production activation, and public action.',
+          claim_ids: ['claim-jev-value'],
+          evidence_region_ids: ['next-action-boundary'],
+        },
+      ],
+      recent_approved_compositions: ['generic-three-box', 'quote-card'],
     },
   }
 }
@@ -729,7 +728,7 @@ describe('/api/admin/agents/work-items/[id]/social-channels/prepare-review-draft
   it('carries an approved Jev artifact packet through the canonical channel-review boundary into the provider-free Video Generation handoff', async () => {
     const workItem = cloneBaseWorkItem()
     Object.assign(workItem.metadata, {
-      artifact_video_adaptation_request: artifactVideoAdaptationRequest(),
+      artifact_video_adaptation_source: artifactVideoAdaptationSource(),
     })
     mocks.getAgentWorkItem.mockResolvedValue(workItem)
 
@@ -760,9 +759,19 @@ describe('/api/admin/agents/work-items/[id]/social-channels/prepare-review-draft
     expect(body.drafts.youtube.fields.artifact_video_adaptation).toMatchObject({
       adaptation_id: 'adaptation-jev-dashboard',
       draft: {
+        format_adaptations: [expect.objectContaining({
+          target: 'youtube_long_form',
+          full_spoken_script: expect.stringContaining('Inspect the source evidence'),
+        })],
         scenes: expect.arrayContaining([
-          expect.objectContaining({ artifact_ids: ['jev-operator-dashboard'] }),
+          expect.objectContaining({
+            scene_id: 'long-inspect-source',
+            artifact_ids: ['jev-operator-dashboard'],
+          }),
         ]),
+        composition_rationale: expect.objectContaining({
+          dominant_composition: 'dashboard_evidence_path',
+        }),
       },
     })
     expect(body.drafts.youtube.fields.video_generation_bridge).toMatchObject({
@@ -785,9 +794,9 @@ describe('/api/admin/agents/work-items/[id]/social-channels/prepare-review-draft
 
   it('blocks a receipt-incomplete artifact packet before channel metadata persistence', async () => {
     const workItem = cloneBaseWorkItem()
-    const adaptation = artifactVideoAdaptationRequest()
+    const adaptation = artifactVideoAdaptationSource()
     delete adaptation.receipts.rights
-    Object.assign(workItem.metadata, { artifact_video_adaptation_request: adaptation })
+    Object.assign(workItem.metadata, { artifact_video_adaptation_source: adaptation })
     mocks.getAgentWorkItem.mockResolvedValue(workItem)
 
     const response = await POST(request() as never, { params: { id: 'work-1' } })

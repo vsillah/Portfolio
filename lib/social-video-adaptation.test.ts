@@ -4,7 +4,9 @@ import {
   SocialVideoAdaptationError,
   buildSocialVideoAdaptationPacket,
   evaluateSocialVideoAdaptation,
+  produceSocialVideoAdaptationInput,
   type SocialVideoAdaptationInput,
+  type SocialVideoAdaptationSourceInput,
   type SocialVideoTarget,
 } from './social-video-adaptation'
 
@@ -199,20 +201,49 @@ describe('social video artifact adaptation', () => {
   })
 
   it('uses real Dark Castle gameplay evidence for process, value, and traceability in both formats', () => {
-    const packet = buildSocialVideoAdaptationPacket(fixture({
+    const prepared = fixture({
       productId: 'dark-castle-chess',
       productLabel: 'Dark Castle Chess',
       assetType: 'gameplay_capture',
       assetId: 'dark-castle-gameplay-turn',
       targetDecision: 'both',
-    }))
+    })
+    const { draft: _preparedDraft, ...approvedSource } = prepared
+    const produced = produceSocialVideoAdaptationInput({
+      ...approvedSource,
+      source_version: 'social_video_adaptation_source_v1',
+      artifact_semantics: {
+        product_label: 'Dark Castle Chess',
+        subject_label: 'Dark Castle gameplay decision',
+        audience_problem: 'A gameplay clip can show a move without helping a learner understand the decision, response, and traceable lesson behind it.',
+        operating_tension: 'The board position looks simple until the player must explain why one move teaches more than another.',
+        practical_value: 'The adaptation lets a learner inspect the position, follow the product response, and connect the move to a repeatable decision principle.',
+        why_artifact_matters: 'The real gameplay capture proves the teaching sequence through visible interaction instead of substituting a logo or promotional poster.',
+        closing_principle: 'Gameplay earns attention when the viewer can trace the position, decision, response, and lesson without invented outcomes.',
+        thumbnail_promise: 'See the decision, not only the move',
+        evidence_regions: [
+          { region_id: 'board-position', asset_id: 'dark-castle-gameplay-turn', label: 'starting board position', description: 'The visible position before the learner commits to a move.', claim_ids: ['claim-value'], on_screen_text: '1. Read the position' },
+          { region_id: 'decision-response', asset_id: 'dark-castle-gameplay-turn', label: 'decision and product response', description: 'The recorded move and the product feedback that follows it.', claim_ids: ['claim-value'], on_screen_text: '2. Inspect the response' },
+          { region_id: 'learning-trace', asset_id: 'dark-castle-gameplay-turn', label: 'traceable learning outcome', description: 'The visible connection between the move, feedback, and reusable lesson.', claim_ids: ['claim-value'], on_screen_text: '3. Carry the lesson forward' },
+        ],
+        process_steps: [
+          { step_id: 'read-position', label: 'Read the position', description: 'Establish the real board state and the choice the learner faces before explaining the system response.', claim_ids: ['claim-value'], evidence_region_ids: ['board-position'] },
+          { step_id: 'inspect-response', label: 'Inspect the decision response', description: 'Follow the recorded move into the visible product feedback without inventing gameplay or outcome claims.', claim_ids: ['claim-value'], evidence_region_ids: ['decision-response'] },
+          { step_id: 'trace-lesson', label: 'Trace the learning value', description: 'Connect the visible response to the repeatable decision principle the learner can use in a future position.', claim_ids: ['claim-value'], evidence_region_ids: ['learning-trace'] },
+        ],
+        recent_approved_compositions: ['dashboard_evidence_path', 'generic-three-box'],
+      },
+    } satisfies SocialVideoAdaptationSourceInput)
+    const packet = buildSocialVideoAdaptationPacket(produced)
 
     expect(packet.targets).toEqual(['youtube_long_form', 'youtube_shorts'])
     expect(packet.evidence_assets[0]).toMatchObject({ asset_type: 'gameplay_capture', asset_id: 'dark-castle-gameplay-turn' })
-    expect(packet.draft.scenes.filter((scene) => scene.target === 'youtube_long_form')).toHaveLength(4)
+    expect(packet.draft.scenes.filter((scene) => scene.target === 'youtube_long_form')).toHaveLength(6)
     expect(packet.draft.scenes.filter((scene) => scene.target === 'youtube_shorts')).toHaveLength(3)
-    expect(packet.draft.practical_value).toContain('repeatable test')
-    expect(packet.draft.traceability_summary).toContain('Every title, scene, shot, claim, and thumbnail')
+    expect(packet.draft.composition_rationale.dominant_composition).toBe('gameplay_decision_sequence')
+    expect(packet.draft.format_adaptations.find((item) => item.target === 'youtube_long_form')?.full_spoken_script).toContain('Inspect the decision response')
+    expect(packet.draft.practical_value).toContain('learner')
+    expect(packet.draft.traceability_summary).toContain('approved source identities')
   })
 
   it('rejects a packet that merely reformats its LinkedIn copy', () => {
