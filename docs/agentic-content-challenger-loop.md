@@ -56,6 +56,12 @@ approval_status: not_ready # not_ready | human_review_ready | approved | revise 
 
 - `pass_to_human=true` only when unsupported claims, source conflicts, critical privacy flags, and implementation drift are resolved or explicitly marked as residual human decisions.
 - `approval_status=human_review_ready` only when `challenger_status=passed`.
+- Visual Human QA remains fail-closed until the `consulting_reference_v1` quality evaluator passes real-subject evidence, information density, visible value and traceability, template novelty, and responsive legibility.
+- Product-centered visuals must use privacy-safe screenshots, gameplay, workflow evidence, or another inspectable product view when available. A logo or poster may support the composition but cannot be the subject substitute.
+- A visual should earn attention as a reference artifact: one clear subject, at least three substantive detail sections, an explicit value statement, and field-level source bindings.
+- Do not reuse a recently approved dominant composition without recording why that structure is uniquely appropriate for the new content.
+- The operating target is approval in the first or second visual round. A candidate that fails these checks stays with Amina for revision instead of consuming Vambah's Human QA attention.
+- The Jev reference-dashboard and Dark Castle gameplay-plus-process compositions are acceptance examples, not templates to copy. Preserve their information richness while choosing a visual grammar specific to each subject.
 - Provider work for HeyGen, ElevenLabs, Remotion, HyperFrames, or publishing remains blocked until both challenger clearance and the existing render or publishing approval packet are complete.
 - Private source material can shape voice and structure, but it should not appear in public copy unless Vambah explicitly approves it.
 - If a draft duplicates an existing PRD, brief, LinkedIn draft, or script, create an adaptation note instead of a new content item.
@@ -78,6 +84,10 @@ Find:
 - duplicated work that should be adapted instead
 - channel mismatch
 - weak logic or unclear value framing
+- product visuals that substitute a logo, icon, or atmospheric poster for inspectable product evidence
+- thin visuals that repeat the post headline without adding a useful process, comparison, decision model, or worked example
+- repeated dominant compositions that lack a content-specific reuse rationale
+- missing field-level traceability, practical-value framing, or desktop/mobile legibility receipts
 - provider/render/publishing steps that need approval first
 
 Return:

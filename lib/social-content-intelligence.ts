@@ -8,6 +8,92 @@ import type { TopicTriggerCandidate, TopicTriggerPacket } from '@/lib/social-top
 
 export const SOCIAL_TOPIC_TRIGGER_SOURCE_TYPE = 'social_topic_trigger'
 
+export const SOCIAL_VISUAL_QUALITY_STANDARD_VERSION = 'consulting_reference_v1'
+
+export type SocialVisualQualityCandidate = {
+  subject_kind: 'product' | 'framework' | 'story' | 'other'
+  public_subject_assets: Array<{
+    asset_id: string
+    asset_type: 'product_screenshot' | 'gameplay_capture' | 'workflow_capture' | 'product_image' | 'logo' | 'icon' | 'poster'
+  }>
+  detail_sections: string[]
+  value_statement: string
+  required_customer_facing_fields: string[]
+  source_bindings: Array<{ field: string; source_id: string; boundary: string }>
+  dominant_composition: string
+  recent_approved_compositions: string[]
+  composition_reuse_rationale?: string | null
+  desktop_legibility_verified: boolean
+  mobile_legibility_verified: boolean
+}
+
+export type SocialVisualQualityEvaluation = {
+  standard_version: typeof SOCIAL_VISUAL_QUALITY_STANDARD_VERSION
+  status: 'passed' | 'blocked'
+  pass_to_human: boolean
+  blockers: string[]
+}
+
+export function evaluateSocialVisualQualityCandidate(
+  candidate: SocialVisualQualityCandidate,
+): SocialVisualQualityEvaluation {
+  const blockers: string[] = []
+  const inspectableProductAssetTypes = new Set([
+    'product_screenshot',
+    'gameplay_capture',
+    'workflow_capture',
+    'product_image',
+  ])
+  const sourceBoundFields = new Set(candidate.source_bindings
+    .filter((binding) => binding.source_id.trim() && binding.boundary.trim())
+    .map((binding) => binding.field.trim())
+    .filter(Boolean))
+  const unboundFields = candidate.required_customer_facing_fields
+    .map((field) => field.trim())
+    .filter((field) => field && !sourceBoundFields.has(field))
+
+  if (
+    candidate.subject_kind === 'product'
+    && !candidate.public_subject_assets.some((asset) => (
+      asset.asset_id.trim() && inspectableProductAssetTypes.has(asset.asset_type)
+    ))
+  ) {
+    blockers.push('Product-centered visuals require at least one privacy-safe screenshot, gameplay capture, or inspectable product image; a logo or icon is not sufficient.')
+  }
+  if (candidate.detail_sections.length < 3) {
+    blockers.push('Visuals require at least three substantive detail sections so the asset is useful beyond a headline.')
+  }
+  if (!candidate.value_statement.trim()) {
+    blockers.push('The practical value must be stated explicitly.')
+  }
+  if (
+    candidate.required_customer_facing_fields.length === 0
+    || candidate.source_bindings.length === 0
+    || candidate.source_bindings.some((binding) => (
+      !binding.field.trim() || !binding.source_id.trim() || !binding.boundary.trim()
+    ))
+    || unboundFields.length > 0
+  ) {
+    blockers.push('Every customer-facing section requires a field-level source binding and claim boundary.')
+  }
+  if (
+    candidate.recent_approved_compositions.includes(candidate.dominant_composition)
+    && !candidate.composition_reuse_rationale?.trim()
+  ) {
+    blockers.push('A recently approved dominant composition cannot be reused without a content-specific rationale.')
+  }
+  if (!candidate.desktop_legibility_verified || !candidate.mobile_legibility_verified) {
+    blockers.push('Desktop and mobile legibility evidence is required before Human QA.')
+  }
+
+  return {
+    standard_version: SOCIAL_VISUAL_QUALITY_STANDARD_VERSION,
+    status: blockers.length ? 'blocked' : 'passed',
+    pass_to_human: blockers.length === 0,
+    blockers,
+  }
+}
+
 export const SOCIAL_CONTENT_INTELLIGENCE_CHANNELS = [
   'linkedin',
   'youtube',
@@ -114,6 +200,16 @@ export type SocialChannelReviewDraftPacket = {
       portfolio_snapshots: string[]
       illustration_direction: string
       privacy_notes: string[]
+      quality_standard: {
+        version: typeof SOCIAL_VISUAL_QUALITY_STANDARD_VERSION
+        approval_round_target: 'first_or_second_round'
+        objective: string
+        required_checks: string[]
+        required_receipts: string[]
+        template_policy: string
+        product_evidence_policy: string
+        gate_status: 'required_before_visual_human_review'
+      }
     }
   }
   source_research_patterns: Array<Record<string, unknown>>
@@ -1181,6 +1277,28 @@ function channelOrchestrationEvidence(input: {
     'Redact private names, client data, tokens, raw Chronicle notes, and personal account details.',
     'Provider generation, upload, scheduling, and publishing remain separate approval gates.',
   ]
+  const visualQualityStandard = {
+    version: SOCIAL_VISUAL_QUALITY_STANDARD_VERSION as typeof SOCIAL_VISUAL_QUALITY_STANDARD_VERSION,
+    approval_round_target: 'first_or_second_round' as const,
+    objective: 'Create a source-bound, consulting-grade visual that is useful enough to save, bookmark, or reuse as a reference.',
+    required_checks: [
+      'The subject is inspectable: use real product, gameplay, workflow, or proof imagery when the content centers an owned product.',
+      'The asset includes a clear subject plus at least three substantive detail, process, comparison, or decision sections.',
+      'The practical value and field-level traceability are visible without requiring the reviewer to infer them.',
+      'The dominant composition is distinct from recent approved assets unless a content-specific reuse rationale is recorded.',
+      'Desktop and mobile evidence proves legibility, hierarchy, contrast, and overflow behavior.',
+    ],
+    required_receipts: [
+      'subject_asset_receipt',
+      'field_source_binding_receipt',
+      'template_novelty_receipt',
+      'desktop_legibility_receipt',
+      'mobile_legibility_receipt',
+    ],
+    template_policy: 'Templates are structural starting points, not repeated finished compositions. Vary the visual grammar to fit the subject, evidence, and reader utility.',
+    product_evidence_policy: 'A logo, icon, or atmospheric poster cannot stand in for the product when privacy-safe screenshots, gameplay, or inspectable product imagery are available.',
+    gate_status: 'required_before_visual_human_review' as const,
+  }
   const channelDetails: Record<SocialContentIntelligenceChannel, {
     format: string
     structure: string[]
@@ -1400,6 +1518,7 @@ function channelOrchestrationEvidence(input: {
       portfolio_snapshots: detail.portfolio_snapshots,
       illustration_direction: detail.illustration_direction,
       privacy_notes: sharedPrivacyNotes,
+      quality_standard: visualQualityStandard,
     },
   }
 }

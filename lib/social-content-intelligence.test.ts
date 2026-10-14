@@ -1,9 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import {
   SOCIAL_RESEARCH_ACTORS,
+  SOCIAL_VISUAL_QUALITY_STANDARD_VERSION,
   buildLinkedInYoutubeReviewDrafts,
   classifySocialResearchDecisionWindow,
   defaultSocialChannelLanes,
+  evaluateSocialVisualQualityCandidate,
   normalizeResearchActorKey,
   normalizeSocialChannelLanes,
   researchPacketDraftFromApifyItem,
@@ -14,6 +16,69 @@ import {
 import type { AgentWorkItem } from './agent-work-items'
 
 describe('social-content-intelligence', () => {
+  it('passes a source-bound consulting reference visual with inspectable product evidence', () => {
+    expect(evaluateSocialVisualQualityCandidate({
+      subject_kind: 'product',
+      public_subject_assets: [
+        { asset_id: 'dark-castle-gameplay-1', asset_type: 'gameplay_capture' },
+        { asset_id: 'dark-castle-mark', asset_type: 'logo' },
+      ],
+      detail_sections: ['Position setup', 'Decision sequence', 'Traceable outcome'],
+      value_statement: 'Lets a player inspect how the product teaches a decision.',
+      required_customer_facing_fields: ['headline', 'position_setup', 'decision_sequence', 'traceable_outcome', 'value_statement'],
+      source_bindings: [
+        { field: 'headline', source_id: 'product-dark-castle', boundary: 'approved public product claim' },
+        { field: 'position_setup', source_id: 'gameplay-capture-1', boundary: 'visible board state only' },
+        { field: 'decision_sequence', source_id: 'gameplay-capture-1', boundary: 'bounded paraphrase of visible interaction' },
+        { field: 'traceable_outcome', source_id: 'product-receipt-1', boundary: 'approved product evidence' },
+        { field: 'value_statement', source_id: 'product-dark-castle', boundary: 'approved public value statement' },
+      ],
+      dominant_composition: 'gameplay_with_process_rail',
+      recent_approved_compositions: ['operator_dashboard'],
+      desktop_legibility_verified: true,
+      mobile_legibility_verified: true,
+    })).toEqual({
+      standard_version: SOCIAL_VISUAL_QUALITY_STANDARD_VERSION,
+      status: 'passed',
+      pass_to_human: true,
+      blockers: [],
+    })
+  })
+
+  it('blocks thin, repeated product visuals that lack inspectable evidence and complete lineage', () => {
+    const evaluation = evaluateSocialVisualQualityCandidate({
+      subject_kind: 'product',
+      public_subject_assets: [
+        { asset_id: 'product-icon', asset_type: 'icon' },
+        { asset_id: 'launch-poster', asset_type: 'poster' },
+      ],
+      detail_sections: ['One headline restatement'],
+      value_statement: ' ',
+      required_customer_facing_fields: ['headline', 'process', 'value_statement'],
+      source_bindings: [
+        { field: 'headline', source_id: 'source-1', boundary: 'approved public claim' },
+      ],
+      dominant_composition: 'generic_three_box_template',
+      recent_approved_compositions: ['generic_three_box_template'],
+      desktop_legibility_verified: true,
+      mobile_legibility_verified: false,
+    })
+
+    expect(evaluation).toMatchObject({
+      standard_version: SOCIAL_VISUAL_QUALITY_STANDARD_VERSION,
+      status: 'blocked',
+      pass_to_human: false,
+    })
+    expect(evaluation.blockers).toEqual(expect.arrayContaining([
+      expect.stringContaining('screenshot, gameplay capture, or inspectable product image'),
+      expect.stringContaining('at least three substantive detail sections'),
+      expect.stringContaining('practical value'),
+      expect.stringContaining('field-level source binding'),
+      expect.stringContaining('recently approved dominant composition'),
+      expect.stringContaining('Desktop and mobile legibility evidence'),
+    ]))
+  })
+
   it('classifies public research decision windows without promoting weak signals', () => {
     expect(classifySocialResearchDecisionWindow({
       observedAt: '2026-08-05T08:00:00.000Z',
@@ -335,6 +400,25 @@ describe('social-content-intelligence', () => {
       }),
       visual_reinforcement: expect.objectContaining({
         recommended_assets: expect.arrayContaining(['Framework illustration', 'App screenshot carousel']),
+        quality_standard: expect.objectContaining({
+          version: SOCIAL_VISUAL_QUALITY_STANDARD_VERSION,
+          approval_round_target: 'first_or_second_round',
+          required_checks: expect.arrayContaining([
+            expect.stringContaining('real product, gameplay, workflow, or proof imagery'),
+            expect.stringContaining('three substantive detail'),
+            expect.stringContaining('field-level traceability'),
+            expect.stringContaining('distinct from recent approved assets'),
+            expect.stringContaining('Desktop and mobile evidence'),
+          ]),
+          required_receipts: [
+            'subject_asset_receipt',
+            'field_source_binding_receipt',
+            'template_novelty_receipt',
+            'desktop_legibility_receipt',
+            'mobile_legibility_receipt',
+          ],
+          gate_status: 'required_before_visual_human_review',
+        }),
       }),
     })
     expect(drafts.youtube.fields).toMatchObject({

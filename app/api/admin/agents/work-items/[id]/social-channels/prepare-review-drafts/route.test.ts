@@ -277,6 +277,13 @@ describe('/api/admin/agents/work-items/[id]/social-channels/prepare-review-draft
             status: 'passed',
             ruleset: 'social-content-final-copy-quality',
           }),
+          visual_quality_gate: {
+            standard_version: 'consulting_reference_v1',
+            status: 'required_before_visual_human_review',
+            evaluator: 'evaluateSocialVisualQualityCandidate',
+            pass_to_human: false,
+            blocker: 'A visual candidate must supply subject, source-binding, template-novelty, and responsive-legibility receipts before visual Human QA.',
+          },
         }),
         channel_lanes: expect.objectContaining({
           linkedin: expect.objectContaining({
