@@ -1,6 +1,6 @@
 import { screenVideoEditorial } from './video-editorial-quality'
 export const VIDEO_SCRIPT_TEMPLATE_CONTRACT_VERSION = 'video_script_template_v1' as const
-export const VIDEO_SCRIPT_TEMPLATE_RUN_RECEIPT_VERSION = 'video_script_template_run_receipt_v1' as const
+export const VIDEO_SCRIPT_TEMPLATE_RUN_RECEIPT_VERSION = 'video_script_template_run_receipt_v2' as const
 export type VideoScriptTemplateSourceType = 'seeded' | 'creator_pattern' | 'amadutown_performance'
 
 export type VideoScriptTemplateOutline = {
@@ -70,6 +70,8 @@ export type VideoScriptTemplateRunReceipt = {
     practical_value: string
     cta: string
     closing_principle: string
+    conclusion: string
+    channel_cta: string
   }
   script: {
     text: string
@@ -212,6 +214,23 @@ function scorePresence(value: string, strongLength = 80) {
 function includesAny(text: string, terms: string[]) {
   const lower = text.toLowerCase()
   return terms.some((term) => lower.includes(term))
+}
+
+function normalizedText(value: string) {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()
+}
+
+function containsInOrder(text: string, values: string[]) {
+  const haystack = normalizedText(text)
+  let offset = 0
+  for (const value of values) {
+    const needle = normalizedText(value)
+    if (!needle) return false
+    const found = haystack.indexOf(needle, offset)
+    if (found < 0) return false
+    offset = found + needle.length
+  }
+  return true
 }
 
 export function normalizeVideoScriptTemplate(row: Record<string, unknown>): VideoScriptTemplate {
@@ -389,9 +408,18 @@ export function evaluateVideoScriptTemplateRun(input: {
     narrative.practical_value,
     narrative.cta,
     narrative.closing_principle,
+    narrative.conclusion,
+    narrative.channel_cta,
   ]
   if (mappedSections.some((section) => !section.trim())) blockers.push('Every required template section must map to approved spoken copy.')
   if (narrative.explanatory_progression.length < 2) blockers.push('Template run needs at least two explanatory progression beats.')
+  if (!containsInOrder(receipt.script.text, [narrative.conclusion, narrative.channel_cta])) {
+    blockers.push('YouTube script must contain a substantive conclusion followed by the bounded channel CTA.')
+  }
+  const scriptWords = normalizedText(receipt.script.text).split(/\s+/).filter(Boolean)
+  const ctaWords = normalizedText(narrative.channel_cta).split(/\s+/).filter(Boolean)
+  const tailWords = scriptWords.slice(-Math.max(35, ctaWords.length + 8)).join(' ')
+  if (!ctaWords.length || !tailWords.includes(ctaWords.join(' '))) blockers.push('Bounded channel CTA must appear at the end of the YouTube script.')
 
   const words = receipt.script.text.trim().split(/\s+/).filter(Boolean)
   if (!receipt.script.sha256.startsWith('sha256:')) blockers.push('Template-run script requires a SHA-256 binding.')

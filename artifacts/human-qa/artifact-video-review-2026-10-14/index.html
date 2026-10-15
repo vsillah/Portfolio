@@ -25,7 +25,11 @@
     .meta { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0; }
     .meta span { border: 1px solid #49617d; padding: 7px 10px; color: #d9e4f0; font-size: 13px; }
     .safe { border-color: #2f9f82 !important; color: #7ee0c3 !important; }
+    .package-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, .65fr); gap: 20px; align-items: start; margin-top: 18px; }
+    .package-grid img { width: 100%; border: 1px solid #49617d; border-radius: 12px; }
+    .title-list { margin: 0; padding-left: 20px; color: #d9e4f0; line-height: 1.55; }
     @media (max-width: 640px) { main { padding: 18px; } section { padding: 14px; } }
+    @media (max-width: 860px) { .package-grid { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
@@ -37,22 +41,33 @@
     </header>
     <section id="jev">
       <h2>Jev</h2>
-      <p>Human QA is ready. Review the corrected Killer-script composite: the presenter is immediately visible, alternates with the decision graphics, and retains the native Mad Hadda cadence and audio.</p>
-      <div class="media-label">Human-QA review artifact</div>
-      <video controls preload="metadata" poster="jev-avatar-motion-human-qa.png?v=35cf7ee4" src="jev-avatar-motion-v3-mad-hadda-v3-api-credit/jev-avatar-motion-review.mp4?v=d567a263"></video>
+      <p>Review the presenter-first YouTube package. The approved native presenter opens the Short, five evidence regions change with the spoken point, the presenter never covers the field guide, and the conclusion leads into a bounded channel CTA.</p>
+      <div class="media-label">Presenter-first Human-QA artifact</div>
+      <video controls preload="metadata" poster="jev-youtube-presenter-first/jev-youtube-presenter-first-poster.png?v=d8c5c940" src="jev-youtube-presenter-first/jev-youtube-presenter-first-review.mp4?v=ed9bc332"></video>
+      <div class="package-grid">
+        <img src="jev-youtube-presenter-first/jev-youtube-thumbnail.png?v=209eb167" alt="Jev YouTube thumbnail reading Who owns the decision? with the presenter and a worked probability return">
+        <div>
+          <div class="eyebrow">Research-bound title package</div>
+          <ol class="title-list">
+            <li>AI Gave You a Score. Who Owns the Decision?</li>
+            <li>A Score Is Not a Decision: Inside Jev’s Governance Layer</li>
+            <li>Jev Makes AI Uncertainty Visible</li>
+          </ol>
+          <p><a href="jev-youtube-presenter-first/jev-youtube-title-subject-package.json">Open the title, subject, promise, and receipt bindings</a></p>
+        </div>
+      </div>
       <details>
         <summary>QA evidence</summary>
         <div class="evidence">
-          <div class="meta"><span>74.3 seconds</span><span>1080 × 1920</span><span>30 fps H.264 / stereo AAC</span><span class="safe">Native MP4 composite</span></div>
-          <p><strong>Provenance:</strong> approved Jev decision-interface motion master plus the exact completed HeyGen Red V-Neck presenter MP4 and its native Mad Hadda audio.</p>
+          <div class="meta"><span>71.28 seconds</span><span>1080 × 1920</span><span>25 fps H.264 / stereo AAC</span><span class="safe">Provider-free local composite</span></div>
+          <p><strong>Provenance:</strong> approved Jev operator field guide plus the exact completed HeyGen Red V-Neck presenter MP4 and its native Mad Hadda audio.</p>
           <p><strong>Version:</strong> input prefix <code>e6fc9ae4</code>.</p>
-          <p><strong>Template gate:</strong> the exact 150-word, SHA-bound script and its section, source, claim, and field-guide bindings are preserved in the <a href="inputs/jev-killer-script-template-run-v1.json">Killer script template-run receipt</a>. The earlier insufficient-credit attempt remains preserved separately and was never retried.</p>
-          <p><strong>API-credit evidence:</strong> a one-time US$5.31 HeyGen top-up moved the authenticated API balance from US$5.38 to US$10.38 with auto-reload still off. The privacy-safe <a href="jev-avatar-motion-v3-mad-hadda-v2-template/heygen-api-credit-top-up.receipt.json">expense receipt</a> stores totals and account state without payment details.</p>
-          <p><strong>Receipts:</strong> job <code>c051d4c479011ba54c84c99ebd128a29</code>, the native-source hash, 623→299 quota record, conservative US$5.416 cost estimate, avatar/voice bindings, and reproducible composite command are preserved in the <a href="jev-avatar-motion-v3-mad-hadda-v3-api-credit/jev-heygen-presenter-native.receipt.json">provider receipt</a> and <a href="jev-avatar-motion-v3-mad-hadda-v3-api-credit/jev-avatar-motion-review.manifest.json">final manifest</a>.</p>
-          <p><strong>Traceability:</strong> the presenter is immediately visible at 760–900 pixels wide in six sequential windows, with 1.2-second motion-only transitions. The motion master preserves the worked score, policy bands, ownership map, exception routing, and closing principle.</p>
-          <p><strong>Source comparison:</strong> the <a href="jev-avatar-motion-source-final-comparison.png">source/final frame comparison</a> confirms that only the green background and blank edge pixels were removed; the face, microphone, clothing, and native source framing remain visible.</p>
-          <p><strong>Execution boundary:</strong> the fresh authorization created exactly one new job and zero retries. Its 67.28-second native source stayed below the 111-second and US$9 bounds. No upload, platform draft, scheduling, publishing, external send, credential change, migration, or unrelated/shared production-data mutation occurred.</p>
-          <p><strong>Validation:</strong> full decode, 2,229-frame count, 74.300-second duration, stereo audio, source and output hashes, native-audio transition alignment, content/rights receipts, source/final frame comparison, mobile-portrait review, and eight-timestamp visual inspection passed.</p>
+          <p><strong>Template gate:</strong> the exact 162-word, SHA-bound script now requires both a substantive conclusion and a channel CTA. The <a href="inputs/jev-killer-script-template-run-v2-presenter-first.json">v2 template-run receipt</a> preserves the script, genre decision, source claims, and provider-off boundary.</p>
+          <p><strong>Receipts:</strong> the <a href="inputs/jev-youtube-presenter-package-v1.json">presenter package</a> binds every cue, crop, layout region, title, thumbnail, and receipt. The <a href="jev-youtube-presenter-first/jev-youtube-presenter-first.receipt.json">render receipt</a> binds the final MP4, native-source job and hash, thumbnail hash, probe, and zero-external-call declaration.</p>
+          <p><strong>Traceability:</strong> the presenter owns the opening frame. Score, policy, ownership, receipt, and provider-hold regions each appear once beside the presenter and only during the matching spoken point. Presenter and evidence rectangles are disjoint; no screenshot loop is used.</p>
+          <p><strong>CTA boundary:</strong> the approved native audio ends with the substantive conclusion. Because this phase authorizes no provider call, the channel CTA is a four-second silent end card for review. A release-ready render remains fail-closed until a spoken CTA is generated under fresh authority.</p>
+          <p><strong>Execution boundary:</strong> local deterministic composition only. No provider call, spend, upload, platform draft, schedule, publish, send, credential change, migration, or production mutation occurred.</p>
+          <p><strong>Validation:</strong> reusable fail-closed package tests, full MP4 decode, 1,782-frame count, 71.280-second duration, stereo audio, source and output hashes, eight-timestamp visual inspection, thumbnail inspection, and responsive review-page checks passed.</p>
         </div>
       </details>
     </section>

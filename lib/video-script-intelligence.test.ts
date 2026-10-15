@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import jevTemplateRun from '../artifacts/human-qa/artifact-video-review-2026-10-14/inputs/jev-killer-script-template-run-v1.json'
+import jevTemplateRun from '../artifacts/human-qa/artifact-video-review-2026-10-14/inputs/jev-killer-script-template-run-v2-presenter-first.json'
 import {
   evaluateVideoScript,
   evaluateVideoScriptTemplateRun,
@@ -65,9 +65,10 @@ describe('video-script-intelligence', () => {
   })
 
   it('passes a version-bound Jev Shorts template run while keeping provider execution blocked', () => {
+    const passingScript = 'The problem is that a fluent answer can sound certain even when the model is guessing. Jev uses typed probabilities for a bounded decision. In the Portfolio evaluation workflow I built, the receipt makes the real work visible. Inspect the score, apply the policy, and keep a human owner for exceptions. Operators can review the threshold, owner, and evidence behind the handoff. Use the field guide before a score moves work. Governed automation begins when uncertainty is visible enough to route, review, and refuse. Subscribe to the channel for more practical ways to govern AI decisions.'
     const receipt: VideoScriptTemplateRunReceipt = {
-      receipt_version: 'video_script_template_run_receipt_v1',
-      receipt_id: 'template-run:jev:killer-script:youtube-shorts:v1:20261014',
+      receipt_version: 'video_script_template_run_receipt_v2',
+      receipt_id: 'template-run:jev:killer-script:youtube-shorts:v2:20261014',
       status: 'passed',
       input_version: 'sha256:jev-source-v1',
       generated_at: '2026-10-14T22:43:22.000Z',
@@ -94,12 +95,14 @@ describe('video-script-intelligence', () => {
         practical_value: 'Operators can inspect the score, threshold, owner, and evidence behind the handoff.',
         cta: 'Use the field guide to review the threshold, owner, and retained receipt before a score moves work.',
         closing_principle: 'Governed automation begins when uncertainty is visible enough to route, review, and refuse.',
+        conclusion: 'Governed automation begins when uncertainty is visible enough to route, review, and refuse.',
+        channel_cta: 'Subscribe to the channel for more practical ways to govern AI decisions.',
       },
       script: {
-        text: 'The problem is that a fluent answer can sound certain even when the model is guessing. Jev uses typed probabilities for a bounded decision. In the Portfolio evaluation workflow I built, the receipt makes the real work visible. Inspect the score, apply the policy, and keep a human owner for exceptions. Operators can review the threshold, owner, and evidence behind the handoff. Use the field guide before a score moves work. Governed automation begins when uncertainty is visible enough to route, review, and refuse.',
+        text: passingScript,
         sha256: 'sha256:current-script',
-        word_count: 84,
-        expected_duration_seconds: 38,
+        word_count: passingScript.split(/\s+/).length,
+        expected_duration_seconds: 44,
       },
       prior_script: {
         text: 'A score is not a decision.',
@@ -134,7 +137,7 @@ describe('video-script-intelligence', () => {
   it('fails closed when a template receipt is stale, unbound, too short, or provider-ready', () => {
     const template = SEEDED_VIDEO_SCRIPT_TEMPLATES[0]
     const receipt = {
-      receipt_version: 'video_script_template_run_receipt_v1',
+      receipt_version: 'video_script_template_run_receipt_v2',
       receipt_id: 'template-run:jev:stale',
       status: 'passed',
       input_version: 'sha256:old',
@@ -154,7 +157,7 @@ describe('video-script-intelligence', () => {
       },
       narrative_map: {
         pain_point: '', hook: '', open_loop: '', frame: '', practitioner_proof: '',
-        explanatory_progression: ['Only one beat.'], practical_value: '', cta: '', closing_principle: '',
+        explanatory_progression: ['Only one beat.'], practical_value: '', cta: '', closing_principle: '', conclusion: '', channel_cta: '',
       },
       script: { text: 'Too short.', sha256: 'missing-prefix', word_count: 3, expected_duration_seconds: 9 },
       prior_script: { text: 'Prior.', sha256: 'missing-prefix', disposition: 'superseded_draft_evidence' },
@@ -193,7 +196,7 @@ describe('video-script-intelligence', () => {
       receipt: jevTemplateRun as VideoScriptTemplateRunReceipt,
       template: SEEDED_VIDEO_SCRIPT_TEMPLATES.find((template) => template.key === 'killer_script') ?? null,
       expectedInputVersion: 'sha256:e6fc9ae4aadd61e3a871e8f7af2dd0a2d424d5c20ae6a8d0eac861b16e796bd5',
-      expectedScriptSha256: 'sha256:732a517ca9e98ab15bb3caa5196e4982e4c24a16f7885557fb37247f55b0f77f',
+      expectedScriptSha256: jevTemplateRun.script.sha256,
       approvedSourceReceiptIds: ['source:jev:approved-composite-20261014'],
       approvedClaimIds: ['jev-typed-probabilities', 'jev-policy-boundary'],
       approvedEvidenceAssetIds: ['jev-operator-field-guide'],
