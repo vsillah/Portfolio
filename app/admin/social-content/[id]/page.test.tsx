@@ -158,6 +158,15 @@ describe('SocialContentDetailRoute visual production review', () => {
     return render(<SocialContentDetailRoute />)
   }
 
+  it('extends the existing context workflow with the outlier evidence scorecard', async () => {
+    renderAtStep('context&outlierQa=ready')
+
+    expect(await screen.findByRole('heading', { name: 'Outlier evidence scorecard' })).toBeVisible()
+    expect(screen.getByText('outlier-evidence-calibration-v1')).toBeVisible()
+    expect(screen.getByText(/Privacy-safe local QA fixture · ready/)).toBeVisible()
+    expect(screen.getByRole('button', { name: /Product evidence/ })).toHaveTextContent(/\d+/)
+  })
+
   it('renders a YouTube Shorts review packet with channel-native copy guidance and no LinkedIn preview', async () => {
     mocks.search = 'step=copy&qa_fixture=channel_native_video_v2'
     const youtubeItem = {

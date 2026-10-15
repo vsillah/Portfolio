@@ -1,0 +1,50 @@
+{
+  "route": "http://localhost:3000/admin/social-content/f966123f-05eb-48ec-a7c2-970afce642ef?step=context&qa_fixture=channel_native_video_v2&outlierQa=ready",
+  "states_reviewed": [
+    "ready",
+    "missing",
+    "stale",
+    "unauthorized"
+  ],
+  "viewports": [
+    "1440x900",
+    "390x844"
+  ],
+  "themes": [
+    "dark",
+    "light"
+  ],
+  "interactions": [
+    "product evidence drill-in",
+    "originality risk drill-in",
+    "source disclosure",
+    "source links"
+  ],
+  "side_effects": {
+    "provider_generation": false,
+    "upload": false,
+    "platform_draft": false,
+    "schedule": false,
+    "publish": false,
+    "external_send": false
+  },
+  "mp4": "public/review-assets/social-content/outlier-evidence-calibration-responsive-walkthrough.mp4",
+  "mp4_sha256": "bc03f8740148ba01d1f498e6d60ec4130cacf98023c7f9eb31f8b00072a8468d",
+  "probe": {
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "width": 1440,
+        "height": 900,
+        "avg_frame_rate": "25/1",
+        "nb_frames": "458"
+      }
+    ],
+    "format": {
+      "duration": "18.320000",
+      "size": "1621182"
+    }
+  }
+}
