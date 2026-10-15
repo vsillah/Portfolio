@@ -3,6 +3,12 @@ import darkCastleReceipt from '@/artifacts/human-qa/artifact-video-review-2026-1
 import jevPacket from '@/artifacts/human-qa/artifact-video-review-2026-10-14/inputs/jev.json'
 import jevReceipt from '@/artifacts/human-qa/artifact-video-review-2026-10-14/jev-provider-none-review.receipt.json'
 import jevSocialVideoReviewPackage from '@/artifacts/human-qa/artifact-video-review-2026-10-14/inputs/jev-social-video-review-package-v1.json'
+import type {
+  ArtifactEvaluationDimension,
+  ArtifactEvaluationDimensionKey,
+  ArtifactEvaluationKind,
+  ArtifactEvaluationReceipt,
+} from '@/lib/artifact-evidence-evaluation'
 import type { ArtifactEvidenceCategory, ArtifactEvidenceManifest } from '@/lib/artifact-evidence-manifest'
 
 const QA_FIXTURES = {
@@ -36,12 +42,114 @@ function artifactEvidenceManifest(input: {
   previewAlt: string
   outputSha256: string
   musicReady: boolean
+  sourceReceiptId: string
+  researchPacketId: string | null
+  sourceReviewedAt: string
+  voiceReceiptId: string
+  visualReceiptId: string
+  challengerReceiptId: string
+  supportedClaimCount: number
+  totalClaimCount: number
+  approvedProductEvidenceCount: number
+  requiredProductEvidenceCount: number
 }): ArtifactEvidenceManifest {
   const manifestId = `artifact-manifest:${input.productId}:youtube-shorts:v1`
-  const sourceHref = `/admin/agents/content-intelligence?section=research&packet=${encodeURIComponent(`${input.productId}-artifact-video-source`)}`
+  const researchReceiptId = input.researchPacketId ? `research_packet:${input.researchPacketId}` : input.sourceReceiptId
+  const sourceHref = input.researchPacketId
+    ? `/admin/agents/content-intelligence?section=research&packet=${encodeURIComponent(input.researchPacketId)}`
+    : `/admin/source-protocol?receipt=${encodeURIComponent(input.sourceReceiptId)}`
   const decisionHref = `/admin/agents/coordination?proposal=${encodeURIComponent(`${input.productId}-artifact-video-review`)}`
   const privacyReceipt = `privacy:${input.productId}:public-safe-20261014`
   const rightsReceipt = `rights:${input.productId}:owned-public-assets-20261014`
+  const evaluationKindByCategory: Partial<Record<ArtifactEvidenceCategory, ArtifactEvaluationKind>> = {
+    copy_script: 'script_message',
+    visual_field: 'headline_hook',
+    visual_template: 'visual_concept',
+    thumbnail: 'thumbnail',
+    title: 'title_subject',
+    description: 'description',
+    cta: 'cta',
+  }
+  const receiptLink = (receiptId: string) => ({ receipt_id: receiptId, href: `/admin/source-protocol?receipt=${encodeURIComponent(receiptId)}` })
+  const researchLink = { receipt_id: researchReceiptId, href: sourceHref }
+  const sourceLink = receiptLink(input.sourceReceiptId)
+  const voiceLink = receiptLink(input.voiceReceiptId)
+  const visualLink = receiptLink(input.visualReceiptId)
+  const challengerLink = receiptLink(input.challengerReceiptId)
+  const measured = (score: number, weight: number, threshold: number, rationale: string, inputs: ArtifactEvaluationDimension['deterministic_inputs'], source_receipts: ArtifactEvaluationDimension['source_receipts']): ArtifactEvaluationDimension => ({
+    status: 'scored',
+    score,
+    basis: 'measured',
+    direction: 'higher_is_better',
+    weight,
+    threshold,
+    percentile: null,
+    rank: null,
+    deterministic_inputs: inputs,
+    source_receipts,
+    rationale,
+  })
+  const unscored = (weight: number, threshold: number, direction: ArtifactEvaluationDimension['direction'], rationale: string, source_receipts: ArtifactEvaluationDimension['source_receipts']): ArtifactEvaluationDimension => ({
+    status: 'unscored',
+    score: null,
+    basis: 'unavailable',
+    direction,
+    weight,
+    threshold,
+    percentile: null,
+    rank: null,
+    deterministic_inputs: [],
+    source_receipts,
+    rationale,
+  })
+  const sourceSupportScore = input.totalClaimCount > 0 ? Math.round((input.supportedClaimCount / input.totalClaimCount) * 100) : 0
+  const evidenceFitScore = input.requiredProductEvidenceCount > 0 ? Math.round((input.approvedProductEvidenceCount / input.requiredProductEvidenceCount) * 100) : 0
+  const ageDays = Math.max(0, (Date.parse(input.contentVersion) - Date.parse(input.sourceReviewedAt)) / 86_400_000)
+  const timelinessScore = Math.round(Math.max(0, 100 - (ageDays / 14) * 100))
+  const evaluationReceipt = (kind: ArtifactEvaluationKind, elementId: string): ArtifactEvaluationReceipt => ({
+    version: 'artifact-evaluation-scorecard/v1',
+    receipt_id: `evaluation:${input.productId}:${kind}:${elementId}:20261015`,
+    evaluation_kind: kind,
+    content_version: input.contentVersion,
+    evaluated_at: input.contentVersion,
+    weighting_version: 'artifact-evaluation-weights/v1',
+    benchmark_cohort: {
+      cohort_id: null,
+      status: 'missing',
+      sample_size: null,
+      observed_from: null,
+      observed_to: null,
+      fresh_until: null,
+      source_receipts: [researchLink],
+    },
+    dimensions: {
+      outlier_pattern_fit: unscored(25, 70, 'higher_is_better', 'Unscored: the approved research packet has no comparable-creator cohort, sample size, percentile, or rank.', [researchLink]),
+      source_support: measured(sourceSupportScore, 20, 80, 'Measured from source-bound customer claims in the approved artifact packet.', [
+        { name: 'supported_claims', value: String(input.supportedClaimCount), receipt_id: input.sourceReceiptId },
+        { name: 'total_claims', value: String(input.totalClaimCount), receipt_id: input.sourceReceiptId },
+      ], [sourceLink]),
+      core_audience_fit: unscored(15, 70, 'higher_is_better', 'Unscored: the approved voice receipt has no element-level audience-fit value.', [voiceLink]),
+      timeliness: measured(timelinessScore, 10, 65, 'Measured from the approved source-review date against this artifact content version using a 14-day freshness window.', [
+        { name: 'source_reviewed_at', value: input.sourceReviewedAt, receipt_id: input.sourceReceiptId },
+        { name: 'artifact_content_version', value: input.contentVersion, receipt_id: input.sourceReceiptId },
+        { name: 'freshness_window_days', value: '14', receipt_id: input.sourceReceiptId },
+      ], [sourceLink]),
+      product_work_evidence_fit: measured(evidenceFitScore, 20, 80, 'Measured from approved first-party product evidence coverage.', [
+        { name: 'approved_product_evidence', value: String(input.approvedProductEvidenceCount), receipt_id: input.visualReceiptId },
+        { name: 'required_product_evidence', value: String(input.requiredProductEvidenceCount), receipt_id: input.visualReceiptId },
+      ], [visualLink]),
+      originality_repetition_risk: unscored(10, 35, 'lower_is_better', 'Unscored: the approved challenger receipt does not contain an element-level repetition-risk value.', [challengerLink]),
+    } satisfies Record<ArtifactEvaluationDimensionKey, ArtifactEvaluationDimension>,
+    overall: {
+      score: null,
+      threshold: 75,
+      recommendation: 'hold',
+      confidence_score: null,
+      confidence_label: 'unscored',
+      rationale: 'Hold advancement until comparable outlier evidence, audience-fit judgment, and originality/repetition evidence are attached.',
+      source_receipts: [sourceLink, voiceLink, visualLink, challengerLink],
+    },
+  })
   const element = (category: ArtifactEvidenceCategory, id: string, label: string, excerpt: string, options: Partial<ArtifactEvidenceManifest['elements'][number]> = {}): ArtifactEvidenceManifest['elements'][number] => ({
     id,
     category,
@@ -59,13 +167,17 @@ function artifactEvidenceManifest(input: {
     rights_privacy_status: 'passed',
     rights_privacy_receipt_ids: [rightsReceipt, privacyReceipt],
     transformation_step: 'Bound into the versioned channel-native review packet without provider execution.',
+    ...(evaluationKindByCategory[category] ? {
+      evaluation_kind: evaluationKindByCategory[category],
+      evaluation_receipt: evaluationReceipt(evaluationKindByCategory[category]!, id),
+    } : {}),
     ...options,
   })
   const elements = [
     element('copy_script', 'script', 'Spoken script', 'The artifact makes the evidence and decision trail visible.', { region: { x: 50, y: 50 } }),
-    element('visual_field', 'visual-proof', 'Visible proof field', 'Evidence → decision → bounded next action', { region: { x: 48, y: 42 } }),
+    element('visual_field', 'visual-proof', 'Headline / hook', 'Evidence → decision → bounded next action', { region: { x: 48, y: 42 } }),
     element('product_screenshot', 'product-capture', 'Product screenshot', 'Approved product interface capture', { region: { x: 28, y: 56 } }),
-    element('visual_template', 'visual-recipe', 'Visual template and recipe', 'Channel-native evidence walkthrough with restrained motion.'),
+    element('visual_template', 'visual-recipe', 'Visual concept and recipe', 'Channel-native evidence walkthrough with restrained motion.'),
     element('presenter_avatar', 'presenter', 'Presenter/avatar', 'No generated presenter; artifact-led provider-none composition.', { customer_facing: false, review_only: true }),
     element('voice_narration', 'voice', 'Voice and narration', 'Approved narration mixed from the version-bound source track.'),
     element('music', 'music', 'Music bed', 'The Stream V2 instrumental bed.', input.musicReady ? {} : {
@@ -89,8 +201,8 @@ function artifactEvidenceManifest(input: {
     element('final_output', 'output', 'Final MP4 output', `SHA-256 ${input.outputSha256}`, { authoritative_href: decisionHref }),
   ]
   return {
-    version: 'artifact-evidence-manifest/v1',
-    manifest_id: manifestId,
+    version: 'artifact-evidence-manifest/v2',
+    manifest_id: manifestId.replace(':v1', ':v2'),
     manifest_hash: input.productId === 'jev'
       ? 'sha256:7e13a46b2ad2c8757c79c35b6a44e69f7d55d43c47db2c459411eefdd70c5d0e'
       : 'sha256:1c67d5f36ac30e66ca78fa075d8508197e899e3c944a4601c595ff4de70a4f7e',
@@ -119,6 +231,16 @@ export function channelNativeVideoQaFixture(id: ChannelNativeVideoQaFixtureId, v
     previewAlt: `${packet.identity.product_id === 'jev' ? 'Jev' : 'Dark Castle Chess'} customer-facing video poster with traceable evidence regions`,
     outputSha256: receipt.output.sha256,
     musicReady: videoPackageState === 'ready',
+    sourceReceiptId: packet.receipts.source.receipt_id,
+    researchPacketId: packet.identity.source_ids.find((sourceId) => sourceId.startsWith('research_packet:'))?.slice('research_packet:'.length) ?? null,
+    sourceReviewedAt: packet.receipts.source.reviewed_at,
+    voiceReceiptId: packet.receipts.voice.receipt_id,
+    visualReceiptId: packet.receipts.visual.receipt_id,
+    challengerReceiptId: packet.receipts.challenger.receipt_id,
+    supportedClaimCount: packet.claims.filter((claim) => claim.source_receipt_ids.length > 0).length,
+    totalClaimCount: packet.claims.length,
+    approvedProductEvidenceCount: packet.evidence_assets.filter((asset) => asset.source_receipt_ids.length > 0 && asset.privacy_receipt_id && asset.rights_receipt_id).length,
+    requiredProductEvidenceCount: Math.max(1, packet.evidence_assets.length),
   })
 
   return {

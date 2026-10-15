@@ -4,7 +4,9 @@ import { useMemo, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { AlertTriangle, CheckCircle2, ExternalLink, FileSearch, ShieldCheck, X } from 'lucide-react'
+import { ARTIFACT_EVALUATION_DIMENSIONS, type ArtifactEvaluationDimensionKey } from '@/lib/artifact-evidence-evaluation'
 import {
+  artifactManifestSnapshot,
   validateArtifactEvidenceManifest,
   type ArtifactEvidenceElement,
   type ArtifactEvidenceManifest,
@@ -12,6 +14,71 @@ import {
 
 function compactHash(value: string) {
   return value.length > 28 ? `${value.slice(0, 18)}…${value.slice(-8)}` : value
+}
+
+const DIMENSION_LABELS: Record<ArtifactEvaluationDimensionKey, string> = {
+  outlier_pattern_fit: 'Outlier-pattern fit',
+  source_support: 'Source support',
+  core_audience_fit: 'Core-audience fit',
+  timeliness: 'Timeliness',
+  product_work_evidence_fit: 'Product/work evidence fit',
+  originality_repetition_risk: 'Originality / repetition risk',
+}
+
+function ElementEvaluationScorecard({ element }: { element: ArtifactEvidenceElement }) {
+  const receipt = element.evaluation_receipt
+  if (!receipt) return null
+  return (
+    <section aria-label={`${element.label} numerical evaluation`} className="mt-3 rounded-lg border border-sky-600/30 bg-sky-500/5 p-3">
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <div>
+          <p className="text-[0.65rem] font-semibold uppercase tracking-[0.1em] text-sky-800 dark:text-sky-200">Numerical evaluation</p>
+          <p className="mt-1 text-xs text-muted-foreground">{receipt.weighting_version} · {receipt.version}</p>
+        </div>
+        <span className={`rounded-full border px-2 py-1 text-[10px] font-semibold uppercase ${receipt.overall.score == null ? 'border-amber-600/35 bg-amber-500/10 text-amber-900 dark:text-amber-100' : 'border-emerald-600/35 bg-emerald-500/10 text-emerald-900 dark:text-emerald-100'}`}>
+          {receipt.overall.score == null ? 'Unscored · hold' : `${receipt.overall.score}/100 · ${receipt.overall.recommendation}`}
+        </span>
+      </div>
+      <p className="mt-2 text-xs leading-5 text-muted-foreground">{receipt.overall.rationale}</p>
+      <div className="mt-2 flex flex-wrap gap-2">{receipt.overall.source_receipts.map((source) => <Link key={source.receipt_id} href={source.href} className="inline-flex min-h-8 items-center gap-1 rounded-md border border-sky-600/30 px-2 py-1 text-[10px] font-semibold text-sky-900 hover:bg-sky-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:text-sky-100"><ExternalLink className="h-3 w-3" /> {source.receipt_id}</Link>)}</div>
+      <div className="mt-3 space-y-2">
+        {ARTIFACT_EVALUATION_DIMENSIONS.map((key) => {
+          const dimension = receipt.dimensions[key]
+          return (
+            <details key={key} className="rounded-md border border-border bg-background p-2.5">
+              <summary className="cursor-pointer list-none">
+                <span className="flex items-center justify-between gap-3">
+                  <span className="text-xs font-semibold text-foreground">{DIMENSION_LABELS[key]}</span>
+                  <span className={`shrink-0 text-xs font-bold ${dimension.score == null ? 'text-amber-700 dark:text-amber-200' : 'text-foreground'}`}>
+                    {dimension.score == null ? 'Unscored' : `${dimension.score}/100`}
+                  </span>
+                </span>
+                <span className="mt-1 block text-[10px] text-muted-foreground">{dimension.basis.replaceAll('_', ' ')} · weight {dimension.weight}% · threshold {dimension.threshold} · {dimension.direction.replaceAll('_', ' ')}</span>
+              </summary>
+              <div className="mt-2 space-y-2 border-t border-border pt-2 text-[11px] leading-5 text-muted-foreground">
+                <p>{dimension.rationale}</p>
+                <p>Percentile: <span className="font-medium text-foreground">{dimension.percentile ?? 'Unavailable'}</span> · Rank: <span className="font-medium text-foreground">{dimension.rank ? `${dimension.rank.position} of ${dimension.rank.total}` : 'Unavailable'}</span></p>
+                {dimension.deterministic_inputs.length > 0 && (
+                  <div><p className="font-semibold text-foreground">Deterministic inputs</p><ul>{dimension.deterministic_inputs.map((input) => <li key={`${input.name}-${input.receipt_id}`}>{input.name}: {input.value} · <span className="font-mono">{input.receipt_id}</span></li>)}</ul></div>
+                )}
+                {dimension.source_receipts.length > 0 && (
+                  <div className="flex flex-wrap gap-2">{dimension.source_receipts.map((source) => <Link key={source.receipt_id} href={source.href} className="inline-flex min-h-9 items-center gap-1 rounded-md border border-sky-600/35 px-2 py-1 font-semibold text-sky-900 hover:bg-sky-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:text-sky-100"><ExternalLink className="h-3 w-3" /> {source.receipt_id}</Link>)}</div>
+                )}
+              </div>
+            </details>
+          )
+        })}
+      </div>
+      <dl className="mt-3 grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
+        <dt>Cohort</dt><dd className="font-medium text-foreground">{receipt.benchmark_cohort.cohort_id ?? 'Unavailable'} · {receipt.benchmark_cohort.status}</dd>
+        <dt>Sample</dt><dd className="font-medium text-foreground">{receipt.benchmark_cohort.sample_size ?? 'Unavailable'}</dd>
+        <dt>Observed</dt><dd className="font-medium text-foreground">{receipt.benchmark_cohort.observed_from && receipt.benchmark_cohort.observed_to ? `${receipt.benchmark_cohort.observed_from} – ${receipt.benchmark_cohort.observed_to}` : 'Unavailable'}</dd>
+        <dt>Fresh until</dt><dd className="font-medium text-foreground">{receipt.benchmark_cohort.fresh_until ?? 'Unavailable'}</dd>
+        <dt>Confidence</dt><dd className="font-medium text-foreground">{receipt.overall.confidence_score == null ? 'Unscored' : `${receipt.overall.confidence_score}/100`} · {receipt.overall.confidence_label}</dd>
+        <dt>Receipt</dt><dd className="break-all font-mono text-foreground">{receipt.receipt_id}</dd>
+      </dl>
+    </section>
+  )
 }
 
 function SourceLineageDetail({ element, number, onClose }: {
@@ -43,6 +110,7 @@ function SourceLineageDetail({ element, number, onClose }: {
         <dt>Transform</dt><dd className="font-medium text-foreground">{element.transformation_step}</dd>
         <dt>Visibility</dt><dd className="font-medium text-foreground">{element.customer_facing ? 'Customer-facing' : 'Review-only'}{element.redacted ? ' · redacted' : ''}</dd>
       </dl>
+      <ElementEvaluationScorecard element={element} />
       {element.authoritative_href ? (
         <Link href={element.authoritative_href} className="mt-3 inline-flex min-h-10 items-center gap-2 rounded-lg border border-amber-600/45 bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-950 hover:bg-amber-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 dark:bg-amber-300/10 dark:text-amber-100 dark:hover:bg-amber-300/15">
           <ExternalLink className="h-4 w-4" /> Open authoritative evidence
@@ -85,7 +153,7 @@ function VisualSourceTrace({ manifest, selectedId, onSelect }: {
 export default function ArtifactEvidenceTrace({ manifest: rawManifest, currentContentVersion, recordedSnapshot }: {
   manifest: unknown
   currentContentVersion: string
-  recordedSnapshot?: { manifest_id?: string; manifest_hash?: string; content_version?: string } | null
+  recordedSnapshot?: { manifest_id?: string; manifest_hash?: string; content_version?: string; evaluation_receipt_version?: string | null; evaluation_receipt_ids?: string[] } | null
 }) {
   const validation = useMemo(() => validateArtifactEvidenceManifest(rawManifest, currentContentVersion), [currentContentVersion, rawManifest])
   const manifest = validation.manifest
@@ -94,8 +162,12 @@ export default function ArtifactEvidenceTrace({ manifest: rawManifest, currentCo
   if (!manifest) return null
 
   const selected = manifest.elements.find((element) => element.id === selectedId) ?? null
+  const currentSnapshot = artifactManifestSnapshot(manifest)
   const recordedMatches = recordedSnapshot
-    ? recordedSnapshot.manifest_id === manifest.manifest_id && recordedSnapshot.manifest_hash === manifest.manifest_hash
+    ? recordedSnapshot.manifest_id === manifest.manifest_id
+      && recordedSnapshot.manifest_hash === manifest.manifest_hash
+      && recordedSnapshot.evaluation_receipt_version === currentSnapshot?.evaluation_receipt_version
+      && JSON.stringify([...(recordedSnapshot.evaluation_receipt_ids ?? [])].sort()) === JSON.stringify(currentSnapshot?.evaluation_receipt_ids ?? [])
     : null
 
   return (
@@ -129,6 +201,7 @@ export default function ArtifactEvidenceTrace({ manifest: rawManifest, currentCo
         <div className={`mt-4 rounded-lg border p-3 text-xs ${recordedMatches ? 'border-emerald-600/35 bg-emerald-500/10 text-emerald-900 dark:text-emerald-100' : 'border-amber-600/35 bg-amber-500/10 text-amber-950 dark:text-amber-100'}`}>
           <p className="font-semibold">Recorded decision manifest {recordedMatches ? 'matches this artifact' : 'preserved from an earlier content version'}</p>
           <p className="mt-1 break-all font-mono">{recordedSnapshot.manifest_id} · {compactHash(recordedSnapshot.manifest_hash || '')} · {recordedSnapshot.content_version}</p>
+          {recordedSnapshot.evaluation_receipt_version && <p className="mt-1 break-all font-mono">{recordedSnapshot.evaluation_receipt_version} · {(recordedSnapshot.evaluation_receipt_ids ?? []).join(' · ') || 'no evaluation receipt ids'}</p>}
         </div>
       )}
 
@@ -158,6 +231,7 @@ export default function ArtifactEvidenceTrace({ manifest: rawManifest, currentCo
               >
                 <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white ${element.rights_privacy_status === 'passed' ? 'bg-emerald-600' : 'bg-red-600'}`}>{index + 1}</span>
                 <span className="min-w-0 flex-1"><span className="block truncate text-sm font-semibold text-foreground">{element.label}</span><span className="block text-[11px] capitalize text-muted-foreground">{element.category.replaceAll('_', ' ')} · {element.customer_facing ? 'customer-facing' : 'review-only'}</span></span>
+                {element.evaluation_receipt && <span className="shrink-0 text-[10px] font-semibold text-muted-foreground">{element.evaluation_receipt.overall.score == null ? 'Unscored' : `${element.evaluation_receipt.overall.score}/100`}</span>}
               </button>
             ))}
           </div>

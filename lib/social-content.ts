@@ -143,6 +143,8 @@ export interface SocialContentItem {
       manifest_id: string
       manifest_hash: string
       content_version: string
+      evaluation_receipt_version: string | null
+      evaluation_receipt_ids: string[]
     } | null
   } | null
 }

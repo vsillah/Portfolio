@@ -1,49 +1,58 @@
 import { describe, expect, it } from 'vitest'
 import {
-  ARTIFACT_EVIDENCE_CATEGORIES,
   validateArtifactEvidenceManifest,
-  type ArtifactEvidenceManifest,
 } from '@/lib/artifact-evidence-manifest'
+import { completeArtifactEvidenceManifest } from '@/lib/__tests__/artifact-evidence-fixture'
 
 const VERSION = '2026-10-15T12:00:00.000Z'
 
-function manifest(): ArtifactEvidenceManifest {
-  return {
-    version: 'artifact-evidence-manifest/v1',
-    manifest_id: 'artifact-manifest:test:v1',
-    manifest_hash: `sha256:${'a'.repeat(64)}`,
-    content_version: VERSION,
-    artifact_label: 'Test artifact',
-    preview_url: '/review-assets/social-content/test.png',
-    preview_alt: 'Test artifact preview',
-    final_output_hashes: [{ label: 'MP4', sha256: 'b'.repeat(64) }],
-    elements: ARTIFACT_EVIDENCE_CATEGORIES.map((category, index) => ({
-      id: `${category}-${index}`,
-      category,
-      label: category,
-      input_excerpt: `Bounded ${category} input`,
-      customer_facing: category !== 'source_research' && category !== 'transformation',
-      review_only: category === 'source_research' || category === 'transformation',
-      redacted: category === 'source_research',
-      source_identity: `source:${category}`,
-      source_record_type: category === 'source_research' ? 'open_brain_approved_memory' : 'portfolio_source_record',
-      authoritative_href: `/admin/source-protocol?receipt=${category}`,
-      evidence_receipt_ids: [`evidence:${category}`],
-      version_hash: `sha256:${'c'.repeat(64)}`,
-      content_version: VERSION,
-      rights_privacy_status: 'passed',
-      rights_privacy_receipt_ids: [`rights:${category}`],
-      transformation_step: `Bind ${category} into the final artifact.`,
-      ...(index < 3 ? { region: { x: 20 + index * 20, y: 30 } } : {}),
-    })),
-  }
-}
+const manifest = () => completeArtifactEvidenceManifest(VERSION)
 
 describe('artifact evidence manifest', () => {
   it('accepts a complete version-bound manifest spanning every required artifact input', () => {
     const result = validateArtifactEvidenceManifest(manifest(), VERSION)
     expect(result.ready).toBe(true)
     expect(result.blockers).toEqual([])
+  })
+
+  it('accepts complete 0-100 scoring with measured, heuristic, and model-judgment dimensions', () => {
+    const result = validateArtifactEvidenceManifest(manifest(), VERSION)
+    const receipt = result.manifest?.elements.find((element) => element.category === 'copy_script')?.evaluation_receipt
+    expect(result.ready).toBe(true)
+    expect(receipt?.overall).toMatchObject({ score: 88.8, recommendation: 'advance', confidence_score: 91 })
+    expect(new Set(Object.values(receipt!.dimensions).map((dimension) => dimension.basis))).toEqual(new Set(['measured', 'heuristic', 'model_judgment']))
+  })
+
+  it('keeps missing benchmark evidence Unscored and blocks advancement without treating it as zero', () => {
+    const candidate = manifest()
+    const receipt = candidate.elements.find((element) => element.category === 'copy_script')!.evaluation_receipt!
+    receipt.benchmark_cohort = { cohort_id: null, status: 'missing', sample_size: null, observed_from: null, observed_to: null, fresh_until: null, source_receipts: [] }
+    receipt.dimensions.outlier_pattern_fit = { ...receipt.dimensions.outlier_pattern_fit, status: 'unscored', score: null, basis: 'unavailable', deterministic_inputs: [], rationale: 'Unscored: the linked research receipt has no approved comparable cohort.' }
+    receipt.overall = { score: null, threshold: 75, recommendation: 'hold', confidence_score: null, confidence_label: 'unscored', rationale: 'Hold until the benchmark cohort is approved.', source_receipts: receipt.overall.source_receipts }
+
+    const result = validateArtifactEvidenceManifest(candidate, VERSION)
+    expect(result.ready).toBe(false)
+    expect(receipt.dimensions.outlier_pattern_fit.score).toBeNull()
+    expect(result.blockers.join(' ')).toMatch(/Unscored dimensions/i)
+  })
+
+  it('fails closed when a scored benchmark cohort is stale', () => {
+    const candidate = manifest()
+    const receipt = candidate.elements.find((element) => element.category === 'title')!.evaluation_receipt!
+    receipt.benchmark_cohort.status = 'stale'
+    receipt.benchmark_cohort.fresh_until = '2026-10-14T00:00:00.000Z'
+    const result = validateArtifactEvidenceManifest(candidate, VERSION)
+    expect(result.ready).toBe(false)
+    expect(result.blockers.join(' ')).toMatch(/current approved benchmark cohort/i)
+  })
+
+  it('requires every deterministic score input to link to an exact safe receipt', () => {
+    const candidate = manifest()
+    const receipt = candidate.elements.find((element) => element.category === 'cta')!.evaluation_receipt!
+    receipt.dimensions.source_support.deterministic_inputs[0].receipt_id = 'missing-receipt-link'
+    const result = validateArtifactEvidenceManifest(candidate, VERSION)
+    expect(result.ready).toBe(false)
+    expect(result.blockers.join(' ')).toMatch(/not linked to an exact source receipt/i)
   })
 
   it('fails closed when a customer-facing field loses its source, evidence, or rights binding', () => {

@@ -3,7 +3,8 @@ import {
   getSocialContentDecisionReadiness,
   socialContentDecisionIdempotencyKey,
 } from '@/lib/social-content-decision-receipts'
-import { ARTIFACT_EVIDENCE_CATEGORIES } from '@/lib/artifact-evidence-manifest'
+import { artifactManifestSnapshot } from '@/lib/artifact-evidence-manifest'
+import { completeArtifactEvidenceManifest } from '@/lib/__tests__/artifact-evidence-fixture'
 
 const VERSION = '2026-10-12T18:30:00.000Z'
 
@@ -16,34 +17,7 @@ function receipt(status = 'approved', version = VERSION) {
 }
 
 function artifactManifest() {
-  return {
-    version: 'artifact-evidence-manifest/v1',
-    manifest_id: 'artifact-manifest:social:v1',
-    manifest_hash: `sha256:${'a'.repeat(64)}`,
-    content_version: VERSION,
-    artifact_label: 'Social artifact',
-    preview_url: '/review-assets/social-content/social.png',
-    preview_alt: 'Social artifact preview',
-    final_output_hashes: [{ label: 'MP4', sha256: 'b'.repeat(64) }],
-    elements: ARTIFACT_EVIDENCE_CATEGORIES.map((category) => ({
-      id: category,
-      category,
-      label: category,
-      input_excerpt: category,
-      customer_facing: true,
-      review_only: false,
-      redacted: false,
-      source_identity: `source:${category}`,
-      source_record_type: 'portfolio_source_record',
-      authoritative_href: `/admin/source-protocol?receipt=${category}`,
-      evidence_receipt_ids: [`evidence:${category}`],
-      version_hash: `sha256:${'c'.repeat(64)}`,
-      content_version: VERSION,
-      rights_privacy_status: 'passed',
-      rights_privacy_receipt_ids: [`rights:${category}`],
-      transformation_step: `Bind ${category}.`,
-    })),
-  }
+  return completeArtifactEvidenceManifest(VERSION)
 }
 
 function item(overrides: Record<string, unknown> = {}) {
@@ -181,16 +155,12 @@ describe('Social Content mobile decision readiness', () => {
     const manifest = artifactManifest()
     Object.assign(candidate.rag_context, { artifact_evidence_manifest: manifest })
     Object.assign(candidate.rag_context.mobile_decision_review.candidate_projection, {
-      artifact_evidence_manifest: {
-        manifest_id: manifest.manifest_id,
-        manifest_hash: manifest.manifest_hash,
-        content_version: manifest.content_version,
-      },
+      artifact_evidence_manifest: artifactManifestSnapshot(manifest),
     })
 
     expect(getSocialContentDecisionReadiness(candidate as never).ready).toBe(true)
 
-    const projection = candidate.rag_context.mobile_decision_review.candidate_projection as Record<string, Record<string, string>>
+    const projection = candidate.rag_context.mobile_decision_review.candidate_projection as unknown as { artifact_evidence_manifest: { manifest_hash: string } }
     projection.artifact_evidence_manifest.manifest_hash = `sha256:${'d'.repeat(64)}`
     const blocked = getSocialContentDecisionReadiness(candidate as never)
     expect(blocked.ready).toBe(false)

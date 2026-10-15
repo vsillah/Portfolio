@@ -54,9 +54,17 @@ async function recordScenario(browser, { label, viewport, colorScheme }) {
   await firstRegion.focus()
   await firstRegion.press('Enter')
   await trace.getByLabel('Trace 1 evidence detail').waitFor({ state: 'visible' })
-  await trace.getByLabel('Trace 1 evidence detail').scrollIntoViewIfNeeded()
+  const detail = trace.getByLabel('Trace 1 evidence detail')
+  await detail.scrollIntoViewIfNeeded()
   await page.waitForTimeout(700)
   await page.screenshot({ path: path.join(outputDir, `${label}-detail.png`) })
+
+  const sourceSupport = detail.getByText('Source support', { exact: true })
+  await sourceSupport.click()
+  const numericalEvaluation = detail.getByLabel(/numerical evaluation$/)
+  await numericalEvaluation.scrollIntoViewIfNeeded()
+  await page.waitForTimeout(700)
+  await page.screenshot({ path: path.join(outputDir, `${label}-evaluation.png`) })
 
   const sourceLink = trace.getByRole('link', { name: 'Open authoritative evidence' })
   const href = await sourceLink.getAttribute('href')
@@ -97,7 +105,8 @@ console.log(JSON.stringify({
   viewports: ['1440x900', '390x844'],
   screenshots: [
     'desktop-1440-clean.png', 'desktop-1440-trace.png', 'desktop-1440-detail.png',
-    'mobile-390-clean.png', 'mobile-390-trace.png', 'mobile-390-detail.png',
+    'desktop-1440-evaluation.png', 'mobile-390-clean.png', 'mobile-390-trace.png',
+    'mobile-390-detail.png', 'mobile-390-evaluation.png',
   ].map((file) => path.join(outputDir, file)),
   mp4Path,
   externalRequests: [],

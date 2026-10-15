@@ -14,6 +14,8 @@ export type VerifiedSocialContentDecisionReceipt = {
     manifest_id: string
     manifest_hash: string
     content_version: string
+    evaluation_receipt_version: string | null
+    evaluation_receipt_ids: string[]
   } | null
 }
 
@@ -40,6 +42,10 @@ function asRecord(value: unknown): Record<string, unknown> | null {
 
 function asString(value: unknown): string {
   return typeof value === 'string' ? value.trim() : ''
+}
+
+function asStringArray(value: unknown): string[] {
+  return Array.isArray(value) ? value.filter((entry): entry is string => typeof entry === 'string').sort() : []
 }
 
 function normalizedTimestamp(value: unknown): string | null {
@@ -96,6 +102,8 @@ export async function readVerifiedSocialContentDecisionReceipt(
     || asString(rowManifest?.manifest_id) !== asString(packetManifest?.manifest_id)
     || asString(rowManifest?.manifest_hash) !== asString(packetManifest?.manifest_hash)
     || normalizedTimestamp(rowManifest?.content_version) !== normalizedTimestamp(packetManifest?.content_version)
+    || asString(rowManifest?.evaluation_receipt_version) !== asString(packetManifest?.evaluation_receipt_version)
+    || JSON.stringify(asStringArray(rowManifest?.evaluation_receipt_ids)) !== JSON.stringify(asStringArray(packetManifest?.evaluation_receipt_ids))
   ) {
     return null
   }
@@ -110,6 +118,8 @@ export async function readVerifiedSocialContentDecisionReceipt(
       manifest_id: asString(packetManifest.manifest_id),
       manifest_hash: asString(packetManifest.manifest_hash),
       content_version: asString(packetManifest.content_version),
+      evaluation_receipt_version: asString(packetManifest.evaluation_receipt_version) || null,
+      evaluation_receipt_ids: asStringArray(packetManifest.evaluation_receipt_ids),
     } : null,
   }
 }

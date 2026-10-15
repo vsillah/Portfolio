@@ -1,5 +1,5 @@
 import type { SocialContentItem } from '@/lib/social-content'
-import { artifactManifestSnapshot, validateArtifactEvidenceManifest } from '@/lib/artifact-evidence-manifest'
+import { artifactManifestSnapshot, validateArtifactEvidenceManifest, type ArtifactManifestSnapshot } from '@/lib/artifact-evidence-manifest'
 
 export const SOCIAL_CONTENT_DECISION_RECEIPT_KEYS = [
   'source',
@@ -52,6 +52,8 @@ export type SocialContentRecordedDecision = {
     manifest_id: string
     manifest_hash: string
     content_version: string
+    evaluation_receipt_version: string | null
+    evaluation_receipt_ids: string[]
   } | null
 }
 
@@ -63,6 +65,18 @@ function recordValue(value: unknown): Record<string, unknown> | null {
 
 function stringValue(value: unknown): string {
   return typeof value === 'string' ? value.trim() : ''
+}
+
+function stringArray(value: unknown): string[] {
+  return Array.isArray(value) ? value.filter((entry): entry is string => typeof entry === 'string').sort() : []
+}
+
+function manifestSnapshotMatches(value: Record<string, unknown> | null, expected: ArtifactManifestSnapshot): boolean {
+  return stringValue(value?.manifest_id) === expected.manifest_id
+    && stringValue(value?.manifest_hash) === expected.manifest_hash
+    && normalizeTimestamp(stringValue(value?.content_version)) === normalizeTimestamp(expected.content_version)
+    && stringValue(value?.evaluation_receipt_version) === stringValue(expected.evaluation_receipt_version)
+    && JSON.stringify(stringArray(value?.evaluation_receipt_ids)) === JSON.stringify([...expected.evaluation_receipt_ids].sort())
 }
 
 function requiresArtifactEvidenceManifest(
@@ -191,11 +205,7 @@ export function getSocialContentDecisionReadiness(
   const expectedManifestSnapshot = rawManifest != null ? artifactManifestSnapshot(rawManifest) : null
   if (manifestValidation && !manifestValidation.ready) blockers.push(...manifestValidation.blockers)
   if (expectedManifestSnapshot) {
-    if (
-      stringValue(packetManifestSnapshot?.manifest_id) !== expectedManifestSnapshot.manifest_id
-      || stringValue(packetManifestSnapshot?.manifest_hash) !== expectedManifestSnapshot.manifest_hash
-      || normalizeTimestamp(stringValue(packetManifestSnapshot?.content_version)) !== normalizeTimestamp(expectedManifestSnapshot.content_version)
-    ) {
+    if (!manifestSnapshotMatches(packetManifestSnapshot, expectedManifestSnapshot)) {
       blockers.push('The Decision Queue packet does not snapshot the current artifact manifest identity and hash.')
     }
   }
@@ -244,6 +254,8 @@ export function getSocialContentDecisionReadiness(
           manifest_id: stringValue(verifiedManifestSnapshot.manifest_id),
           manifest_hash: stringValue(verifiedManifestSnapshot.manifest_hash),
           content_version: stringValue(verifiedManifestSnapshot.content_version),
+          evaluation_receipt_version: stringValue(verifiedManifestSnapshot.evaluation_receipt_version) || null,
+          evaluation_receipt_ids: stringArray(verifiedManifestSnapshot.evaluation_receipt_ids),
         } : null,
       }
     : null

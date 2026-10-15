@@ -1,4 +1,11 @@
-export const ARTIFACT_EVIDENCE_MANIFEST_VERSION = 'artifact-evidence-manifest/v1' as const
+import {
+  parseArtifactEvaluationReceipt,
+  validateArtifactEvaluationReceipt,
+  type ArtifactEvaluationKind,
+  type ArtifactEvaluationReceipt,
+} from '@/lib/artifact-evidence-evaluation'
+
+export const ARTIFACT_EVIDENCE_MANIFEST_VERSION = 'artifact-evidence-manifest/v2' as const
 
 export const ARTIFACT_EVIDENCE_CATEGORIES = [
   'copy_script',
@@ -41,6 +48,8 @@ export type ArtifactEvidenceElement = {
   rights_privacy_status: 'passed' | 'blocked' | 'missing'
   rights_privacy_receipt_ids: string[]
   transformation_step: string
+  evaluation_kind?: ArtifactEvaluationKind
+  evaluation_receipt?: ArtifactEvaluationReceipt
   region?: ArtifactEvidenceRegion
 }
 
@@ -61,6 +70,14 @@ export type ArtifactEvidenceManifestValidation = {
   ready: boolean
   stale: boolean
   blockers: string[]
+}
+
+export type ArtifactManifestSnapshot = {
+  manifest_id: string
+  manifest_hash: string
+  content_version: string
+  evaluation_receipt_version: string | null
+  evaluation_receipt_ids: string[]
 }
 
 function record(value: unknown): Record<string, unknown> | null {
@@ -85,6 +102,16 @@ function safeAuthoritativeHref(value: unknown): string | null {
   if (!href) return null
   if (!href.startsWith('/admin/') || href.includes('://') || href.includes('..')) return null
   return href
+}
+
+const EVALUATION_KIND_BY_CATEGORY: Partial<Record<ArtifactEvidenceCategory, ArtifactEvaluationKind>> = {
+  copy_script: 'script_message',
+  visual_field: 'headline_hook',
+  visual_template: 'visual_concept',
+  thumbnail: 'thumbnail',
+  title: 'title_subject',
+  description: 'description',
+  cta: 'cta',
 }
 
 function parseElement(value: unknown): ArtifactEvidenceElement | null {
@@ -116,6 +143,8 @@ function parseElement(value: unknown): ArtifactEvidenceElement | null {
     rights_privacy_status: status as ArtifactEvidenceElement['rights_privacy_status'],
     rights_privacy_receipt_ids: strings(candidate.rights_privacy_receipt_ids),
     transformation_step: text(candidate.transformation_step),
+    ...(text(candidate.evaluation_kind) ? { evaluation_kind: text(candidate.evaluation_kind) as ArtifactEvaluationKind } : {}),
+    ...(candidate.evaluation_receipt ? { evaluation_receipt: parseArtifactEvaluationReceipt(candidate.evaluation_receipt) ?? undefined } : {}),
     ...(region ? { region } : {}),
   }
 }
@@ -181,17 +210,32 @@ export function validateArtifactEvidenceManifest(value: unknown, currentContentV
       if (element.rights_privacy_status !== 'passed' || !element.rights_privacy_receipt_ids.length) blockers.push(`${element.label || element.id} is customer-facing but lacks a passing rights/privacy receipt.`)
       if (element.redacted) blockers.push(`${element.label || element.id} cannot be both customer-facing and redacted.`)
     }
+    const expectedEvaluationKind = EVALUATION_KIND_BY_CATEGORY[element.category]
+    if (element.customer_facing && expectedEvaluationKind) {
+      if (element.evaluation_kind !== expectedEvaluationKind || !element.evaluation_receipt) {
+        blockers.push(`${element.label || element.id} is missing its versioned ${expectedEvaluationKind.replaceAll('_', ' ')} evaluation receipt.`)
+      } else {
+        const evaluation = validateArtifactEvaluationReceipt(element.evaluation_receipt, manifest.content_version)
+        if (element.evaluation_receipt.evaluation_kind !== expectedEvaluationKind) blockers.push(`${element.label || element.id} has the wrong evaluation kind.`)
+        if (!evaluation.ready) blockers.push(...evaluation.blockers.map((blocker) => `${element.label || element.id}: ${blocker}`))
+      }
+    }
   }
 
   return { manifest, ready: blockers.length === 0, stale, blockers: [...new Set(blockers)] }
 }
 
-export function artifactManifestSnapshot(value: unknown): { manifest_id: string; manifest_hash: string; content_version: string } | null {
+export function artifactManifestSnapshot(value: unknown): ArtifactManifestSnapshot | null {
   const manifest = parseArtifactEvidenceManifest(value)
   if (!manifest?.manifest_id || !manifest.manifest_hash || !manifest.content_version) return null
+  const evaluationReceipts = manifest.elements
+    .map((element) => element.evaluation_receipt)
+    .filter((receipt): receipt is ArtifactEvaluationReceipt => Boolean(receipt))
   return {
     manifest_id: manifest.manifest_id,
     manifest_hash: manifest.manifest_hash,
     content_version: manifest.content_version,
+    evaluation_receipt_version: evaluationReceipts[0]?.version ?? null,
+    evaluation_receipt_ids: evaluationReceipts.map((receipt) => receipt.receipt_id).sort(),
   }
 }
