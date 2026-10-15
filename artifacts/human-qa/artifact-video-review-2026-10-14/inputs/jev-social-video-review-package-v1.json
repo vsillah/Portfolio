@@ -1,0 +1,158 @@
+{
+  "version": "social_video_review_package_v2",
+  "package_id": "social-video-review:jev:20261015:v2",
+  "status": "ready",
+  "input_version": "sha256:e6fc9ae4aadd61e3a871e8f7af2dd0a2d424d5c20ae6a8d0eac861b16e796bd5",
+  "duration_seconds": 67.28,
+  "fps": 25,
+  "source_assets": [
+    {
+      "asset_id": "jev-operator-field-guide",
+      "path": "artifacts/human-qa/artifact-video-review-2026-10-14/inputs/jev-operator-field-guide.png",
+      "sha256": "sha256:7e123f1c11a156e86b36e0d2306ad1f42d97d3c63dac335588e804f6bc74f8e9",
+      "width": 1142,
+      "height": 705,
+      "source_receipt_id": "source:jev:approved-composite-20261014",
+      "rights_receipt_id": "rights:jev:owned-public-assets-20261014"
+    }
+  ],
+  "asset_coverage": {
+    "minimum_distinct_source_assets": 1,
+    "minimum_distinct_views": 6,
+    "maximum_consecutive_repeated_views": 0,
+    "ledger": [
+      { "asset_id": "jev-operator-field-guide", "disposition": "used", "cue_ids": ["presenter-open", "inspect-score", "apply-policy", "retain-ownership", "retain-receipt", "hold-the-boundary"], "view_ids": ["full-guide-orientation", "score-crop", "policy-crop", "ownership-crop", "receipt-crop", "boundary-crop"] },
+      { "asset_id": "jev-youtube-thumbnail", "disposition": "omitted", "cue_ids": [], "view_ids": [], "reason": "Packaging-only derivative duplicates the presenter and headline; using it in-story would be filler." },
+      { "asset_id": "qa-captures", "disposition": "omitted", "cue_ids": [], "view_ids": [], "reason": "QA evidence is not approved story evidence and could expose review chrome." }
+    ]
+  },
+  "motion_provenance": {
+    "current_source_mode": "native_teaching_scene_clips_with_native_presenter_and_remotion_cta",
+    "prior_motion_source": {
+      "path": "artifacts/human-qa/artifact-video-review-2026-10-14/jev-template-v2-motion-master.mp4",
+      "sha256": "sha256:17bd925703c0f670046a3cd017a081c9547fbae5a7a5fc9d444721d4721e23b2",
+      "media_type": "native_video"
+    },
+    "native_motion_preserved": true,
+    "reduced_motion_fallback": "settled_end_state",
+    "cue_bindings": [
+      { "cue_id": "inspect-score", "source_field": "worked_return.route_a/human_review/refuse", "animation": "three score indicators resolve to their approved values", "fallback": "settled_end_state" },
+      { "cue_id": "apply-policy", "source_field": "policy_bands.route/review/stop", "animation": "threshold marker traverses the approved policy bands", "fallback": "settled_end_state" },
+      { "cue_id": "retain-ownership", "source_field": "system_ownership.model/policy_layer/human/receipt", "animation": "handoff path advances through the four approved owners", "fallback": "settled_end_state" },
+      { "cue_id": "retain-receipt", "source_field": "receipt.evidence/version/outcome", "animation": "receipt line completes and resolves with a retained check", "fallback": "settled_end_state" },
+      { "cue_id": "hold-the-boundary", "source_field": "evidence_boundary.live_provider_hold", "animation": "boundary closes around the approved hold statement", "fallback": "settled_end_state" }
+    ],
+    "scene_inventory": [
+      { "scene_id": "score-dial", "source_hash": "sha256:17bd925703c0f670046a3cd017a081c9547fbae5a7a5fc9d444721d4721e23b2", "disposition": "restored_once" },
+      { "scene_id": "read-the-signal-bars", "source_hash": "sha256:17bd925703c0f670046a3cd017a081c9547fbae5a7a5fc9d444721d4721e23b2", "disposition": "restored_once" },
+      { "scene_id": "apply-policy-bands", "source_hash": "sha256:17bd925703c0f670046a3cd017a081c9547fbae5a7a5fc9d444721d4721e23b2", "disposition": "restored_once" },
+      { "scene_id": "ownership-handoff", "source_hash": "sha256:17bd925703c0f670046a3cd017a081c9547fbae5a7a5fc9d444721d4721e23b2", "disposition": "restored_once" },
+      { "scene_id": "exception-routing", "source_hash": "sha256:17bd925703c0f670046a3cd017a081c9547fbae5a7a5fc9d444721d4721e23b2", "disposition": "restored_once" },
+      { "scene_id": "uncertainty-summary", "source_hash": "sha256:17bd925703c0f670046a3cd017a081c9547fbae5a7a5fc9d444721d4721e23b2", "disposition": "restored_once" }
+    ]
+  },
+  "vocal_treatment": {
+    "source_presenter_sha256": "sha256:c9b0949da45208fd8fa84cd614c7c2c5c8667d548e74e4ef25975a9d0e29494d",
+    "production_default": "original",
+    "naturalized_mode": "local_sample_synchronous_review_only",
+    "timing_edits_applied": false,
+    "lip_sync_tolerance_ms": 40,
+    "provider_calls": 0
+  },
+  "music_bed": {
+    "version": "youtube_music_bed_v1",
+    "status": "approved",
+    "input_version": "sha256:e6fc9ae4aadd61e3a871e8f7af2dd0a2d424d5c20ae6a8d0eac861b16e796bd5",
+    "track": {
+      "track_id": "mad-hadda-the-stream-beat-stem-v2",
+      "title": "The Stream 2.0 beat stem",
+      "style_tags": ["lo-fi", "jazz", "hip-hop"],
+      "instrumental": true,
+      "vocals": false,
+      "source_reference": "AmaduTown YouTube Assets/Music plus matching Mad Hadda/The UnLearning source-stem location",
+      "staged_path": "local-private/youtube-music/the-stream-v2.wav",
+      "sha256": "sha256:7842628c35c5375cefaffc1b7d9425e354e840f5d46dfab65612d8f86a67158d",
+      "duration_seconds": 180.816168,
+      "source_receipt": { "receipt_id": "source:music:the-stream-v2:20261014", "status": "passed", "input_version": "sha256:e6fc9ae4aadd61e3a871e8f7af2dd0a2d424d5c20ae6a8d0eac861b16e796bd5" },
+      "rights_receipt": { "receipt_id": "rights:music:the-stream-v2:20261014", "status": "approved", "input_version": "sha256:e6fc9ae4aadd61e3a871e8f7af2dd0a2d424d5c20ae6a8d0eac861b16e796bd5" }
+    },
+    "timing": {
+      "source_start_seconds": 8,
+      "timeline_start_seconds": 0,
+      "timeline_end_seconds": 67.28,
+      "loop": { "enabled": false, "crossfade_seconds": 0, "seam_validation_receipt": null }
+    },
+    "mix": {
+      "preset": "moderate_narration_bed",
+      "target_music_lufs": -28,
+      "target_final_lufs": -16,
+      "maximum_true_peak_dbfs": -1.5,
+      "speech_ducking": { "enabled": true, "threshold_dbfs": -34.89, "ratio": 4, "attack_ms": 45, "release_ms": 520, "minimum_reduction_db": 4, "maximum_reduction_db": 8 },
+      "fade_in_seconds": 1.5,
+      "fade_out_seconds": 2
+    },
+    "final_audio_validation": {
+      "receipt_id": "audio-validation:jev:the-stream-v2:moderate:20261015",
+      "status": "passed",
+      "input_version": "sha256:e6fc9ae4aadd61e3a871e8f7af2dd0a2d424d5c20ae6a8d0eac861b16e796bd5",
+      "output_sha256": "sha256:acc06098ef80753acd771d1bb6995090fdf6642da1c65f34b05bf84ddbddc337",
+      "baseline_sha256": "sha256:362bef78ff05866ffd65e688d9373a10825a184068194b0e4dbb1c37162b1485",
+      "measured_integrated_lufs": -16.1,
+      "measured_true_peak_dbfs": -2,
+      "baseline_dialogue_lufs": -16.1,
+      "mixed_dialogue_lufs": -16,
+      "dialogue_lufs_delta": 0.1,
+      "clipping_sample_count": 0,
+      "observed_duck_reduction_db": 6.3,
+      "fade_boundary_passed": true,
+      "loop_seam_passed": true
+    }
+  },
+  "script_cues": [
+    { "cue_id": "presenter-open", "start_seconds": 0, "end_seconds": 16.279 },
+    { "cue_id": "inspect-score", "start_seconds": 16.279, "end_seconds": 26.593 },
+    { "cue_id": "apply-policy", "start_seconds": 26.593, "end_seconds": 35.431 },
+    { "cue_id": "retain-ownership", "start_seconds": 35.431, "end_seconds": 42.113 },
+    { "cue_id": "retain-receipt", "start_seconds": 42.113, "end_seconds": 51.347 },
+    { "cue_id": "hold-the-boundary", "start_seconds": 51.347, "end_seconds": 61.434 },
+    { "cue_id": "channel-cta", "start_seconds": 61.434, "end_seconds": 67.28, "spoken_track": "approved_native_conclusion" }
+  ],
+  "motion_recipe": {
+    "recipe_id": "motion:restrained-editorial:jev:v2",
+    "preset": "restrained_editorial",
+    "reduced_motion_recipe_id": "motion:restrained-editorial:jev:reduced:v2",
+    "layout_preset": {
+      "preset_id": "presenter_asset_choreography_v1",
+      "presenter_prominence": "full_height_left",
+      "presenter_min_width_px": 480,
+      "asset_detail_min_width_px": 880,
+      "panel_gap_px": 40,
+      "safe_area": { "top": 96, "right": 64, "bottom": 144, "left": 64 }
+    },
+    "transition_policy": {
+      "preset_id": "matched_move_crossfade_v1",
+      "easing": "in_out_cubic",
+      "minimum_frames": 8,
+      "maximum_frames": 20,
+      "positional_continuity": true,
+      "hard_cuts": false
+    },
+    "cues": [
+      { "cue_id": "presenter-open", "start_seconds": 0, "end_seconds": 16.279, "scene_role": "presenter_led", "asset_id": "jev-operator-field-guide", "reveal": "fade", "scale_from": 1, "scale_to": 1.02, "pan_x_px": 0, "pan_y_px": 0, "transition_frames": 12, "safe_area": { "top": 96, "right": 64, "bottom": 144, "left": 64 }, "source_crop": { "x": 0, "y": 0, "width": 1142, "height": 705 }, "evidence_region": { "x": 570, "y": 470, "width": 450, "height": 780 }, "text_box": { "x": 250, "y": 1676, "width": 580, "height": 74 }, "loop": false },
+      { "cue_id": "inspect-score", "start_seconds": 16.279, "end_seconds": 26.593, "scene_role": "split_screen", "asset_id": "jev-operator-field-guide", "reveal": "focus_frame", "scale_from": 1, "scale_to": 1.018, "pan_x_px": -10, "pan_y_px": 0, "transition_frames": 12, "safe_area": { "top": 96, "right": 64, "bottom": 144, "left": 64 }, "source_crop": { "x": 33, "y": 212, "width": 297, "height": 325 }, "evidence_region": { "x": 520, "y": 562, "width": 500, "height": 596 }, "text_box": { "x": 610, "y": 1676, "width": 406, "height": 74 }, "loop": false },
+      { "cue_id": "apply-policy", "start_seconds": 26.593, "end_seconds": 35.431, "scene_role": "asset_detail", "asset_id": "jev-operator-field-guide", "reveal": "slide_up", "scale_from": 1, "scale_to": 1.018, "pan_x_px": 8, "pan_y_px": -8, "transition_frames": 12, "safe_area": { "top": 96, "right": 64, "bottom": 144, "left": 64 }, "source_crop": { "x": 344, "y": 212, "width": 437, "height": 325 }, "evidence_region": { "x": 60, "y": 489, "width": 960, "height": 762 }, "text_box": { "x": 330, "y": 1676, "width": 420, "height": 74 }, "loop": false },
+      { "cue_id": "retain-ownership", "start_seconds": 35.431, "end_seconds": 42.113, "scene_role": "split_screen", "asset_id": "jev-operator-field-guide", "reveal": "focus_frame", "scale_from": 1, "scale_to": 1.018, "pan_x_px": 10, "pan_y_px": 0, "transition_frames": 12, "safe_area": { "top": 96, "right": 64, "bottom": 144, "left": 64 }, "source_crop": { "x": 796, "y": 212, "width": 313, "height": 325 }, "evidence_region": { "x": 520, "y": 576, "width": 500, "height": 568 }, "text_box": { "x": 590, "y": 1676, "width": 426, "height": 74 }, "loop": false },
+      { "cue_id": "retain-receipt", "start_seconds": 42.113, "end_seconds": 51.347, "scene_role": "asset_detail", "asset_id": "jev-operator-field-guide", "reveal": "fade", "scale_from": 1, "scale_to": 1.018, "pan_x_px": 0, "pan_y_px": -6, "transition_frames": 12, "safe_area": { "top": 96, "right": 64, "bottom": 144, "left": 64 }, "source_crop": { "x": 796, "y": 446, "width": 313, "height": 91 }, "evidence_region": { "x": 60, "y": 706, "width": 960, "height": 328 }, "text_box": { "x": 330, "y": 1676, "width": 420, "height": 74 }, "loop": false },
+      { "cue_id": "hold-the-boundary", "start_seconds": 51.347, "end_seconds": 61.434, "scene_role": "split_screen", "asset_id": "jev-operator-field-guide", "reveal": "focus_frame", "scale_from": 1, "scale_to": 1.018, "pan_x_px": 0, "pan_y_px": 8, "transition_frames": 12, "safe_area": { "top": 96, "right": 64, "bottom": 144, "left": 64 }, "source_crop": { "x": 714, "y": 88, "width": 395, "height": 92 }, "evidence_region": { "x": 520, "y": 778, "width": 500, "height": 165 }, "text_box": { "x": 560, "y": 1676, "width": 456, "height": 74 }, "loop": false },
+      { "cue_id": "channel-cta", "start_seconds": 61.434, "end_seconds": 67.28, "scene_role": "cta", "spoken_track": "approved_native_conclusion", "presenter_forward": true, "reveal": "fade", "scale_from": 1, "scale_to": 1, "pan_x_px": 0, "pan_y_px": 0, "transition_frames": 12, "safe_area": { "top": 96, "right": 48, "bottom": 144, "left": 48 }, "text_box": { "x": 500, "y": 520, "width": 532, "height": 560 }, "loop": false }
+    ]
+  },
+  "outputs": {
+    "baseline_path": "public/review-assets/social-content/jev-youtube-no-music-review.mp4",
+    "enhanced_path": "public/review-assets/social-content/jev-youtube-motion-review.mp4",
+    "poster_path": "public/review-assets/social-content/jev-youtube-motion-review.png",
+    "render_receipt_id": "render:jev:remotion-motion:v2:20261015",
+    "render_input_version": "sha256:e6fc9ae4aadd61e3a871e8f7af2dd0a2d424d5c20ae6a8d0eac861b16e796bd5",
+    "enhanced_sha256": "sha256:acc06098ef80753acd771d1bb6995090fdf6642da1c65f34b05bf84ddbddc337"
+  }
+}

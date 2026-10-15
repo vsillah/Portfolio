@@ -36,6 +36,7 @@ yarn-error.log*
 
 # local-private client/source artifacts; preserve locally, never commit
 /local-private/
+/public/review-assets/social-content/.render-inputs/
 /docs/client-followups/
 /docs/runbooks/kmb-firespring-neil-meeting-*.md
 /docs/runbooks/kmb-firespring-proof-review-*.pptx

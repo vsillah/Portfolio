@@ -142,6 +142,18 @@ describe('GET /api/admin/social-content/[id] channel-native video fallback', () 
     expect(mocks.from).not.toHaveBeenCalled()
     expect(mocks.update).not.toHaveBeenCalled()
   })
+
+  it('projects the explicit missing-rights blocker without touching shared data', async () => {
+    const id = 'f966123f-05eb-48ec-a7c2-970afce642ef'
+    const response = await GET(new NextRequest(`http://localhost/api/admin/social-content/${id}?qa_fixture=channel_native_video_v2&video_package_state=blocked`) as never, { params: { id } })
+    const body = await response.json()
+
+    expect(body.fixture_state).toBe('repository_bound_review_blocked')
+    expect(body.item.rag_context.social_video_review_fixture_state).toBe('blocked')
+    expect(body.item.rag_context.social_video_review_rights_receipt_ids).not.toContain('rights:music:the-stream-v2:20261014')
+    expect(mocks.from).not.toHaveBeenCalled()
+    expect(mocks.update).not.toHaveBeenCalled()
+  })
 })
 
 describe('PUT /api/admin/social-content/[id]', () => {

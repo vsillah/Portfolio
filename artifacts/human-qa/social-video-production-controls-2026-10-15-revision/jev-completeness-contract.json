@@ -1,0 +1,83 @@
+{
+  "version": "jev_social_video_completeness_contract_v1",
+  "status": "passed_with_accepted_artifact_exception",
+  "artifact_id": "social-video-review:jev:20261015:v2",
+  "input_version": "sha256:e6fc9ae4aadd61e3a871e8f7af2dd0a2d424d5c20ae6a8d0eac861b16e796bd5",
+  "canvas": { "width": 1080, "height": 1920, "fps": 25, "duration_seconds": 67.28, "frame_count": 1682 },
+  "source_bindings": {
+    "presenter_sha256": "sha256:c9b0949da45208fd8fa84cd614c7c2c5c8667d548e74e4ef25975a9d0e29494d",
+    "native_motion_template_sha256": "sha256:17bd925703c0f670046a3cd017a081c9547fbae5a7a5fc9d444721d4721e23b2",
+    "music_sha256": "sha256:7842628c35c5375cefaffc1b7d9425e354e840f5d46dfab65612d8f86a67158d",
+    "script_sha256": "sha256:8200b4db75e47a66a8d807fe9fd6954979c06ef2b7585bed84aaf8155073bdd7"
+  },
+  "layout": {
+    "presenter_forward_width_px": 1040,
+    "split_presenter_width_px": 540,
+    "split_presenter_region": { "x": -28, "y": 1040, "width": 540, "height": 406 },
+    "native_artifact_region": { "x": 520, "y": 430, "width": 520, "height": 924 },
+    "regions_overlap": false,
+    "safe_area_passed": true
+  },
+  "native_scene_bindings": [
+    { "scene_id": "score-dial", "source_start_seconds": 0, "source_duration_seconds": 3.4, "timeline_start_seconds": 10, "timeline_end_seconds": 16.279, "appearance_count": 1, "loop": false, "extension": "final_frame_hold" },
+    { "scene_id": "read-the-signal-bars", "source_start_seconds": 4, "source_duration_seconds": 3.3, "timeline_start_seconds": 16.279, "timeline_end_seconds": 26.593, "appearance_count": 1, "loop": false, "extension": "final_frame_hold" },
+    { "scene_id": "apply-policy-bands", "source_start_seconds": 8, "source_duration_seconds": 3.3, "timeline_start_seconds": 26.593, "timeline_end_seconds": 35.431, "appearance_count": 1, "loop": false, "extension": "final_frame_hold" },
+    { "scene_id": "ownership-handoff", "source_start_seconds": 12, "source_duration_seconds": 3.3, "timeline_start_seconds": 35.431, "timeline_end_seconds": 42.113, "appearance_count": 1, "loop": false, "extension": "final_frame_hold" },
+    { "scene_id": "uncertainty-summary", "source_start_seconds": 20, "source_duration_seconds": 1.7, "timeline_start_seconds": 42.113, "timeline_end_seconds": 51.347, "appearance_count": 1, "loop": false, "extension": "final_frame_hold" },
+    { "scene_id": "exception-routing", "source_start_seconds": 16, "source_duration_seconds": 3.2, "source_exclusive_end_seconds": 19.2, "timeline_start_seconds": 51.347, "timeline_end_seconds": 61.434, "appearance_count": 1, "loop": false, "extension": "final_frame_hold" }
+  ],
+  "story": {
+    "presenter_forward_windows": [[0, 10], [61.434, 67.28]],
+    "conclusion_present": true,
+    "subscribe_cta_window": [61.434, 67.28],
+    "cta_requires_spoken_track": true,
+    "cta_requires_semantic_transcript_match": true,
+    "approved_cta_text": "Subscribe to the channel for more practical ways to govern AI decisions.",
+    "last_spoken_sentence": "Governed automation begins when uncertainty is visible enough to route, review, and refuse.",
+    "cta_semantic_transcript_present": false,
+    "internal_operator_copy_present": false
+  },
+  "visual_ownership": {
+    "max_concurrent_teaching_assets": 1,
+    "frame_by_frame_validation": true,
+    "validated_frames": 1682,
+    "prior_overlap_range_seconds": [54.6, 61.4],
+    "prior_overlap_range_frames": [1365, 1535],
+    "cause": "The exception-routing extraction extended into the native master transition beginning after source second 19.2 and then held that blended frame.",
+    "correction": "The exception-routing extraction now ends at its exclusive ownership boundary of source second 19.2 before final-frame hold."
+  },
+  "audio": {
+    "track": "The Stream 2.0 beat stem",
+    "loop": false,
+    "fade_in_seconds": 1.5,
+    "fade_out_seconds": 2,
+    "observed_duck_reduction_db": 6.3,
+    "mixed_speech_window_lufs": -16,
+    "clipping_sample_count": 0,
+    "cta_voice_integrated_lufs": -16,
+    "cta_audio_non_silent": true,
+    "cta_spoken_track_passed": false,
+    "audible_music_passed": true
+  },
+  "packaging_receipts": {
+    "killer_script": "template-run:jev:killer-script:youtube-shorts:v2:20261014",
+    "research": "research_packet:68dfaed1-b319-4a82-98c0-b9caea34835e",
+    "thumbnail": "thumbnail:jev:youtube-presenter:20261014:v1",
+    "privacy": "privacy:jev:public-safe-20261014",
+    "rights": "rights:jev:owned-public-assets-20261014",
+    "original_naturalized_ab": true,
+    "future_avatar_rotation_preserved": true
+  },
+  "accepted_exceptions": [
+    {
+      "artifact_id": "social-video-review:jev:20261015:v2",
+      "input_version": "sha256:e6fc9ae4aadd61e3a871e8f7af2dd0a2d424d5c20ae6a8d0eac861b16e796bd5",
+      "rule_id": "script.semantic_spoken_cta",
+      "accepted_by_user": true,
+      "visual_cta_present": true,
+      "reason": "Vambah accepted the completed Jev master and declined commissioning new audio solely for the missing spoken CTA.",
+      "weakens_future_default": false
+    }
+  ],
+  "execution_boundary": "Local render and review evidence only. No providers, spend, upload, platform drafts, schedule, publish, send, credentials, migrations, or production mutation."
+}

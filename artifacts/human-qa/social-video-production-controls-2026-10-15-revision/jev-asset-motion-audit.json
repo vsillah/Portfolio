@@ -1,0 +1,30 @@
+{
+  "audit_version": "jev_asset_motion_audit_v1",
+  "method": "FFmpeg decoded-frame difference over evidence-only regions; active frame threshold YAVG > 0.15. Presenter pixels were excluded from presenter-first and Remotion measurements.",
+  "sources": {
+    "template_motion": { "path": "artifacts/human-qa/artifact-video-review-2026-10-14/jev-template-v2-motion-master.mp4", "sha256": "sha256:17bd925703c0f670046a3cd017a081c9547fbae5a7a5fc9d444721d4721e23b2", "media_type": "native_video", "motion_provenance": "animated_template_composition" },
+    "pre_remotion_presenter_first": { "path": "artifacts/human-qa/artifact-video-review-2026-10-14/jev-youtube-presenter-first/jev-youtube-presenter-first-music-review.mp4", "sha256": "sha256:9a5182f5a6e3ce87da3c6eb5bd28fff551d0d31c6efaae5499cf1c856a2cb061", "media_type": "native_video", "motion_provenance": "static Sharp PNG cards over native presenter" },
+    "first_remotion": { "git_commit": "f1d97a5a", "path": "public/review-assets/social-content/jev-youtube-motion-review.mp4", "media_type": "native_video", "motion_provenance": "static deterministic PNG crops plus composition transitions" },
+    "audited_current": { "git_commit": "9e9cedb6", "path": "public/review-assets/social-content/jev-youtube-motion-review.mp4", "media_type": "native_video", "motion_provenance": "static deterministic PNG crops plus composition transitions" }
+  },
+  "cue_metrics": [
+    { "cue_id": "inspect-score", "template_active_ratio": 0.7238, "pre_remotion_active_ratio": 0.005, "first_remotion_active_ratio": 0.005, "audited_current_active_ratio": 0.005, "revised_active_ratio": 0.005 },
+    { "cue_id": "apply-policy", "template_active_ratio": 0.3254, "pre_remotion_active_ratio": 0.0057, "first_remotion_active_ratio": 0.0172, "audited_current_active_ratio": 0.0172, "revised_active_ratio": 0.2874 },
+    { "cue_id": "retain-ownership", "template_active_ratio": 0.6577, "pre_remotion_active_ratio": 0.0081, "first_remotion_active_ratio": 0.0081, "audited_current_active_ratio": 0.0081, "revised_active_ratio": 0.0081 },
+    { "cue_id": "retain-receipt", "template_active_ratio": 0.6459, "pre_remotion_active_ratio": 0.0, "first_remotion_active_ratio": 0.0, "audited_current_active_ratio": 0.0, "revised_active_ratio": 0.0 },
+    { "cue_id": "hold-the-boundary", "template_active_ratio": 0.5523, "pre_remotion_active_ratio": 0.0, "first_remotion_active_ratio": 0.0, "audited_current_active_ratio": 0.0, "revised_active_ratio": 0.1307 }
+  ],
+  "finding": "The semantic animation was flattened by the presenter-first Sharp PNG evidence-card stage before Remotion. The clean approved native motion master supplies each original teaching scene once while the separate native presenter remains synchronized and materially larger at left.",
+  "final_correction": {
+    "source_path": "artifacts/human-qa/artifact-video-review-2026-10-14/jev-template-v2-motion-master.mp4",
+    "source_sha256": "sha256:17bd925703c0f670046a3cd017a081c9547fbae5a7a5fc9d444721d4721e23b2",
+    "native_seconds_preserved": [[0, 3.4], [4, 7.3], [8, 11.3], [12, 15.3], [16, 19.3], [20, 21.7]],
+    "appearance_count_per_scene": 1,
+    "native_audio_similarity_psnr_db": 171.963,
+    "flattened": false,
+    "retimed": false,
+    "extension_policy": "final frame hold only",
+    "looped": false
+  },
+  "execution_boundary": "Read-only local media analysis. Zero provider calls, spend, upload, platform draft, schedule, publish, send, credential change, migration, or production/shared-data mutation."
+}

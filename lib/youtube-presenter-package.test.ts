@@ -29,15 +29,15 @@ function musicBed(): YouTubeMusicBedContract {
     },
     timing: { source_start_seconds: 4, timeline_start_seconds: 0, timeline_end_seconds: 20, loop: { enabled: false, crossfade_seconds: 0, seam_validation_receipt: null } },
     mix: {
-      target_music_lufs: -32, target_final_lufs: -16, maximum_true_peak_dbfs: -1.5,
-      speech_ducking: { enabled: true, threshold_dbfs: -30, ratio: 8, attack_ms: 35, release_ms: 420, minimum_reduction_db: 12 },
+      preset: 'moderate_narration_bed', target_music_lufs: -28, target_final_lufs: -16, maximum_true_peak_dbfs: -1.5,
+      speech_ducking: { enabled: true, threshold_dbfs: -30, ratio: 4, attack_ms: 45, release_ms: 520, minimum_reduction_db: 4, maximum_reduction_db: 8 },
       fade_in_seconds: 1, fade_out_seconds: 1,
     },
     final_audio_validation: {
       receipt_id: 'audio-validation:music:v1', status: 'passed', input_version: inputVersion,
       output_sha256: 'sha256:mixed', baseline_sha256: 'sha256:baseline', measured_integrated_lufs: -16.2,
       measured_true_peak_dbfs: -1.7, baseline_dialogue_lufs: -16.1, mixed_dialogue_lufs: -16.3,
-      dialogue_lufs_delta: -0.2, clipping_sample_count: 0, observed_duck_reduction_db: 12.5,
+      dialogue_lufs_delta: -0.2, clipping_sample_count: 0, observed_duck_reduction_db: 6.4,
       fade_boundary_passed: true, loop_seam_passed: true,
     },
   }

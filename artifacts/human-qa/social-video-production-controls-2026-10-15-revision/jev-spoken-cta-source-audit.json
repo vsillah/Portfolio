@@ -1,0 +1,53 @@
+{
+  "version": "jev_spoken_cta_source_audit_v1",
+  "status": "accepted_artifact_exception_no_new_audio",
+  "audit_scope": "All repository-visible approved Jev presenter clips, prior masters, audio-bearing derivatives, scripts, HeyGen outputs, receipts, manifests, provider states, superseded review evidence, and Git history paths.",
+  "final_ten_seconds": {
+    "native_source_path": "artifacts/human-qa/artifact-video-review-2026-10-14/jev-avatar-motion-v3-mad-hadda-v3-api-credit/jev-heygen-presenter-native.mp4",
+    "native_source_sha256": "sha256:c9b0949da45208fd8fa84cd614c7c2c5c8667d548e74e4ef25975a9d0e29494d",
+    "window_seconds": [57.28, 67.28],
+    "diagnostic_audio_path": "artifacts/human-qa/social-video-production-controls-2026-10-15-revision/jev-final-10s-native-audio-audit.wav",
+    "diagnostic_audio_sha256": "sha256:974975d361887d309aba4125fb0129159c2fde78aa5343500fbc42eaa4718e5c",
+    "transcript_method": "Exact provider source-script binding verified against the native-presenter receipt and final-window silence boundaries; no third-party transcription or provider call.",
+    "last_spoken_sentence": "Governed automation begins when uncertainty is visible enough to route, review, and refuse.",
+    "approved_cta_text": "Subscribe to the channel for more practical ways to govern AI decisions.",
+    "approved_cta_present": false
+  },
+  "source_inventory": [
+    {
+      "source": "v3 native presenter and every derivative master",
+      "source_script_sha256": "sha256:732a517ca9e98ab15bb3caa5196e4982e4c24a16f7885557fb37247f55b0f77f",
+      "finding": "The approved script ends with the governed-automation conclusion and contains no subscribe CTA."
+    },
+    {
+      "source": "v1 native presenter and short composites",
+      "native_sha256": "sha256:eca8e916fc3ce60790f683e53575569128229dc6b8be64f1d9b548afa07ed414",
+      "source_script_sha256": "sha256:8cf8e227d8709b5cddc7afff54d55adc1a5e1c5b49a6bbd2dd7f9b7b65efbf4a",
+      "finding": "The short approved script contains no subscribe CTA and is not the full presenter narration."
+    },
+    {
+      "source": "71.28-second presenter-first masters and music derivatives",
+      "finding": "They reuse the v3 native presenter audio followed by a silent four-second visual CTA; the source map explicitly records release_spoken_cta_pending."
+    },
+    {
+      "source": "template, music stems, A/B clips, walkthroughs, and visual-only derivatives",
+      "finding": "No rights-cleared, version-bound spoken subscribe line exists; visual-only or music-only files cannot satisfy the semantic CTA gate."
+    },
+    {
+      "source": "Git history inventory",
+      "finding": "No deleted or superseded Jev presenter/audio asset with a different approved spoken CTA was found."
+    }
+  ],
+  "prior_evidence": {
+    "path": "artifacts/human-qa/artifact-video-review-2026-10-14/source-map.md",
+    "finding": "The approved source audio predates the CTA requirement; release remains blocked until a spoken CTA is generated under fresh, hash-bound action-time authority."
+  },
+  "why_local_dsp_cannot_fix_it": "Filtering, gain, timing, ducking, splicing, or pitch processing can only modify recorded phonemes. The required subscribe sentence was never recorded in the approved voice. Constructing it from unrelated words would be deceptive and would not provide continuous presenter lip sync.",
+  "user_decision": {
+    "decision": "Accept the current Jev master with a visual-only CTA and do not generate or rerecord audio solely for this line.",
+    "scope": "social-video-review:jev:20261015:v2 at input sha256:e6fc9ae4aadd61e3a871e8f7af2dd0a2d424d5c20ae6a8d0eac861b16e796bd5 only",
+    "future_default_unchanged": true,
+    "provider_or_rerecord_path": "stopped"
+  },
+  "external_actions_enabled": 0
+}

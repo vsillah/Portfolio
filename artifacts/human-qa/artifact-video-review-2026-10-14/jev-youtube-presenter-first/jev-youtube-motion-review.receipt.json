@@ -1,0 +1,127 @@
+{
+  "receipt_version": "social_video_motion_render_v2",
+  "receipt_id": "render:jev:remotion-motion:v2:20261015",
+  "status": "passed",
+  "input_version": "sha256:e6fc9ae4aadd61e3a871e8f7af2dd0a2d424d5c20ae6a8d0eac861b16e796bd5",
+  "source_presenter": {
+    "path": "artifacts/human-qa/artifact-video-review-2026-10-14/jev-avatar-motion-v3-mad-hadda-v3-api-credit/jev-heygen-presenter-native.mp4",
+    "sha256": "sha256:c9b0949da45208fd8fa84cd614c7c2c5c8667d548e74e4ef25975a9d0e29494d"
+  },
+  "source_native_animated_composite": {
+    "path": "artifacts/human-qa/artifact-video-review-2026-10-14/jev-avatar-motion-v3-mad-hadda-v3-api-credit/jev-avatar-motion-review.mp4",
+    "sha256": "sha256:d567a263d31be2fe5c39190b977fe04461eb61f1ecf34db5599a2749a5b5a85a",
+    "disposition": "visual_reference_and_audio_similarity_baseline",
+    "audio_similarity_psnr_db": 171.963
+  },
+  "source_native_motion_template": {
+    "path": "artifacts/human-qa/artifact-video-review-2026-10-14/jev-template-v2-motion-master.mp4",
+    "sha256": "sha256:17bd925703c0f670046a3cd017a081c9547fbae5a7a5fc9d444721d4721e23b2",
+    "extraction_policy": "six original native scene windows, once each, no loops, final-frame hold only",
+    "scenes": [
+      {
+        "id": "score-dial",
+        "sourceStart": 0,
+        "sourceDuration": 3.4,
+        "targetDuration": 6.279
+      },
+      {
+        "id": "read-the-signal-bars",
+        "sourceStart": 4,
+        "sourceDuration": 3.3,
+        "targetDuration": 10.314
+      },
+      {
+        "id": "apply-policy-bands",
+        "sourceStart": 8,
+        "sourceDuration": 3.3,
+        "targetDuration": 8.838
+      },
+      {
+        "id": "ownership-handoff",
+        "sourceStart": 12,
+        "sourceDuration": 3.3,
+        "targetDuration": 6.682
+      },
+      {
+        "id": "uncertainty-summary",
+        "sourceStart": 20,
+        "sourceDuration": 1.7,
+        "targetDuration": 9.234
+      },
+      {
+        "id": "exception-routing",
+        "sourceStart": 16,
+        "sourceDuration": 3.2,
+        "targetDuration": 10.087,
+        "sourceExclusiveEnd": 19.2
+      }
+    ]
+  },
+  "source_music": {
+    "path": "local-private/youtube-music/the-stream-v2.wav",
+    "sha256": "sha256:7842628c35c5375cefaffc1b7d9425e354e840f5d46dfab65612d8f86a67158d",
+    "source_receipt_id": "source:music:the-stream-v2:20261014",
+    "rights_receipt_id": "rights:music:the-stream-v2:20261014"
+  },
+  "choreography": {
+    "preset_id": "presenter_asset_choreography_v1",
+    "transition_policy": "matched_move_crossfade_v1",
+    "internal_motion_policy": "source_bound_semantic_motion_v1",
+    "prior_motion_source_sha256": "sha256:17bd925703c0f670046a3cd017a081c9547fbae5a7a5fc9d444721d4721e23b2",
+    "reduced_motion_fallback": "settled_end_state",
+    "scene_roles": [
+      "presenter_led",
+      "split_screen",
+      "asset_detail",
+      "return_to_presenter",
+      "cta"
+    ],
+    "hard_cuts": false,
+    "source_loops": false
+  },
+  "output": {
+    "path": "public/review-assets/social-content/jev-youtube-motion-review.mp4",
+    "sha256": "sha256:acc06098ef80753acd771d1bb6995090fdf6642da1c65f34b05bf84ddbddc337",
+    "probe": {
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "index": 0,
+          "codec_name": "h264",
+          "codec_type": "video",
+          "width": 1080,
+          "height": 1920,
+          "r_frame_rate": "25/1",
+          "avg_frame_rate": "25/1",
+          "nb_frames": "1682"
+        },
+        {
+          "index": 1,
+          "codec_name": "aac",
+          "codec_type": "audio",
+          "sample_rate": "48000",
+          "channels": 2,
+          "r_frame_rate": "0/0",
+          "avg_frame_rate": "0/0",
+          "nb_frames": "3153"
+        }
+      ],
+      "format": {
+        "duration": "67.280000",
+        "size": "8723391"
+      }
+    }
+  },
+  "no_music_ab": {
+    "path": "public/review-assets/social-content/jev-youtube-no-music-review.mp4",
+    "sha256": "sha256:362bef78ff05866ffd65e688d9373a10825a184068194b0e4dbb1c37162b1485"
+  },
+  "poster": {
+    "path": "public/review-assets/social-content/jev-youtube-motion-review.png",
+    "sha256": "sha256:ad7605de135592e4677563a34af2cafa7fb9c37d7702813ead94dc2d04c39a08"
+  },
+  "audio_validation_receipt_id": "audio-validation:jev:the-stream-v2:moderate:20261015",
+  "external_actions_enabled": 0,
+  "execution_boundary": "Local composition and review evidence only. Zero provider calls, spend, upload, platform draft, schedule, publish, external send, credential change, migration, or production/shared-data mutation."
+}

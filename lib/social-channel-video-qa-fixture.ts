@@ -2,6 +2,7 @@ import darkCastlePacket from '@/artifacts/human-qa/artifact-video-review-2026-10
 import darkCastleReceipt from '@/artifacts/human-qa/artifact-video-review-2026-10-14/dark-castle-provider-none-review.receipt.json'
 import jevPacket from '@/artifacts/human-qa/artifact-video-review-2026-10-14/inputs/jev.json'
 import jevReceipt from '@/artifacts/human-qa/artifact-video-review-2026-10-14/jev-provider-none-review.receipt.json'
+import jevSocialVideoReviewPackage from '@/artifacts/human-qa/artifact-video-review-2026-10-14/inputs/jev-social-video-review-package-v1.json'
 
 const QA_FIXTURES = {
   'f966123f-05eb-48ec-a7c2-970afce642ef': {
@@ -26,7 +27,7 @@ export function isChannelNativeVideoQaFixtureId(id: string): id is ChannelNative
   return Object.prototype.hasOwnProperty.call(QA_FIXTURES, id)
 }
 
-export function channelNativeVideoQaFixture(id: ChannelNativeVideoQaFixtureId) {
+export function channelNativeVideoQaFixture(id: ChannelNativeVideoQaFixtureId, videoPackageState: 'ready' | 'blocked' = 'ready') {
   const fixture = QA_FIXTURES[id]
   const packet = fixture.packet
   const receipt = fixture.receipt
@@ -98,6 +99,18 @@ export function channelNativeVideoQaFixture(id: ChannelNativeVideoQaFixtureId) {
         fps: receipt.output.probe.streams[0]?.r_frame_rate,
         repository_commit: '6fca0c17d16dfdf34cdd584d020d73f344bcab8e',
       },
+      ...(packet.identity.product_id === 'jev' ? {
+        social_video_review_package: jevSocialVideoReviewPackage,
+        social_video_review_source_receipt_ids: [
+          'source:jev:approved-composite-20261014',
+          'source:music:the-stream-v2:20261014',
+        ],
+        social_video_review_rights_receipt_ids: [
+          'rights:jev:owned-public-assets-20261014',
+          ...(videoPackageState === 'ready' ? ['rights:music:the-stream-v2:20261014'] : []),
+        ],
+        social_video_review_fixture_state: videoPackageState,
+      } : {}),
       qa_fixture: {
         kind: 'channel_native_video_review',
         read_only: true,

@@ -9,6 +9,100 @@ import {
 
 export const SOCIAL_VIDEO_PRODUCTION_VERSION = 'social_video_production_v1'
 export const SOCIAL_VIDEO_PRODUCTION_SOURCE = 'youtube_social_content_heygen_bridge'
+export const SOCIAL_VIDEO_GENERATION_CONTRACT_VERSION = 'social_video_generation_contract_v1' as const
+
+export const SOCIAL_VIDEO_GENERATION_CONTRACT = {
+  version: SOCIAL_VIDEO_GENERATION_CONTRACT_VERSION,
+  rule_ids: [
+    'research.source_outlier_alignment',
+    'script.youtube_template_first',
+    'script.practitioner_specific',
+    'script.complete_conclusion',
+    'script.semantic_spoken_cta',
+    'frames.customer_facing_only',
+    'avatar.approved_identity_voice_rights',
+    'avatar.rotate_approved_looks',
+    'avatar.native_mp4_visual_truth',
+    'layout.presenter_forward_bookends',
+    'layout.presenter_left_assets_right',
+    'motion.preserve_native_animation',
+    'motion.reduced_motion_fallback',
+    'assets.once_cue_bound_no_loop',
+    'assets.max_one_per_frame',
+    'assets.complete_inventory_or_omission',
+    'layout.synchronized_safe_uncrowded',
+    'music.rights_cleared_instrumental',
+    'music.audible_moderate_duck_no_loop',
+    'voice.preserve_timing_lip_sync',
+    'voice.no_deceptive_word_splicing',
+    'packaging.shared_version_bound_evidence',
+    'provenance.reviewable_outside_media',
+    'validation.exact_output_and_semantics',
+    'validation.fail_closed',
+    'gates.external_actions_separate',
+    'human_qa.complete_review_packet',
+    'exceptions.artifact_only_no_default_drift',
+  ],
+  customer_facing_forbidden_content: ['prompt', 'code_logic', 'receipt', 'qa_label', 'operator_note'],
+  separate_explicit_gates: ['render', 'provider', 'upload', 'platform_draft', 'schedule', 'publish', 'external_send'],
+  prospective_defaults: {
+    spoken_cta_required: true,
+    teaching_asset_appearance_count: 1,
+    max_concurrent_teaching_assets: 1,
+    music_vocals_allowed: false,
+    music_loop_allowed: false,
+    avatar_look_rotation_required: true,
+    native_motion_flattening_allowed: false,
+    deceptive_word_splicing_allowed: false,
+  },
+} as const
+
+export interface SocialVideoGenerationEvidence {
+  contract_version: typeof SOCIAL_VIDEO_GENERATION_CONTRACT_VERSION
+  artifact_id: string
+  input_version: string
+  research: { sources_current: boolean; outlier_evidence_bound: boolean; topic_title_thumbnail_description_script_aligned: boolean }
+  script: { youtube_template_run_passed: boolean; practitioner_specific: boolean; complete_conclusion: boolean; approved_cta_text: string; spoken_cta_transcript_present: boolean }
+  customer_facing: { internal_text_leakage: string[] }
+  avatar: { approved_avatar_id: string; approved_voice_id: string; rights_receipt_id: string; look_rotation_receipt_id: string; repeats_prior_look_without_exception: boolean; native_source_mp4_bound: boolean; native_composite_used_when_required: boolean }
+  presentation: { presenter_forward_opening: boolean; presenter_forward_conclusion: boolean; presenter_large_left_during_evidence: boolean; assets_right: boolean; smooth_transitions: boolean }
+  motion: { native_animation_preserved: boolean; source_hashes_bound: boolean; reduced_motion_fallback: boolean; lost_or_substituted_scene_ids: string[] }
+  assets: { inventory_complete: boolean; every_used_once: boolean; every_asset_cue_bound: boolean; loops_or_repeats: boolean; max_concurrent_visible: number; omissions_have_receipts: boolean }
+  layout: { timing_synchronized: boolean; safe_areas_passed: boolean; padding_passed: boolean; overlap_or_crowding: boolean; top_stacking_or_clipping: boolean }
+  music: { rights_receipt_id: string; instrumental: boolean; audible_under_speech: boolean; moderate_ducking_passed: boolean; vocals: boolean; loop: boolean; bounded_fades: boolean }
+  voice: { timing_preserved: boolean; lip_sync_passed: boolean; dsp_scope: 'none' | 'eq_dynamics_only'; claims_new_prosody: boolean; deceptive_word_splicing: boolean }
+  packaging: { shared_research_version_bound: boolean; title_receipt_id: string; thumbnail_receipt_id: string; description_receipt_id: string; script_receipt_id: string }
+  provenance: { source_receipts_current: boolean; rights_receipts_current: boolean; privacy_receipt_id: string; field_level_proof_reviewable: boolean; excluded_from_customer_frames: boolean }
+  validation: { duration_passed: boolean; frame_count_passed: boolean; full_decode_passed: boolean; av_sync_passed: boolean; speech_audibility_passed: boolean; cta_semantics_passed: boolean; clipping_samples: number; green_spill_passed: boolean; motion_preservation_passed: boolean; no_repeats_passed: boolean; overlap_safe_area_passed: boolean }
+  gate_authorizations: Record<(typeof SOCIAL_VIDEO_GENERATION_CONTRACT.separate_explicit_gates)[number], boolean>
+  human_qa: { exact_route: string; screenshot_path: string; playable_mp4_path: string; what_changed: string; value: string; review_script: string; next_authorization: string }
+  accepted_exceptions: Array<{ artifact_id: string; input_version: string; rule_id: 'script.semantic_spoken_cta'; accepted_by_user: true; visual_cta_present: true; reason: string; weakens_future_default: false }>
+}
+
+export function evaluateSocialVideoGenerationContract(value: SocialVideoGenerationEvidence) {
+  const blockers: string[] = []
+  const exception = value.accepted_exceptions.find((entry) => entry.artifact_id === value.artifact_id && entry.input_version === value.input_version && entry.rule_id === 'script.semantic_spoken_cta' && entry.accepted_by_user && entry.visual_cta_present && entry.weakens_future_default === false)
+  if (value.contract_version !== SOCIAL_VIDEO_GENERATION_CONTRACT_VERSION) blockers.push('Social Video Generation Contract version is missing or stale.')
+  if (!value.research.sources_current || !value.research.outlier_evidence_bound || !value.research.topic_title_thumbnail_description_script_aligned) blockers.push('Topic and packaging must share current source and outlier evidence.')
+  if (!value.script.youtube_template_run_passed || !value.script.practitioner_specific || !value.script.complete_conclusion) blockers.push('The YouTube template must produce practitioner-specific copy and a complete conclusion before media generation.')
+  if (!value.script.spoken_cta_transcript_present && !exception) blockers.push(`Spoken CTA transcript is missing: ${value.script.approved_cta_text}`)
+  if (value.customer_facing.internal_text_leakage.length) blockers.push('Customer-facing frames contain internal prompts, logic, receipts, QA labels, or operator notes.')
+  if (!value.avatar.approved_avatar_id || !value.avatar.approved_voice_id || !value.avatar.rights_receipt_id || !value.avatar.look_rotation_receipt_id || value.avatar.repeats_prior_look_without_exception || !value.avatar.native_source_mp4_bound || !value.avatar.native_composite_used_when_required) blockers.push('Avatar identity, voice, rights, look rotation, or native-source fidelity is incomplete.')
+  if (!value.presentation.presenter_forward_opening || !value.presentation.presenter_forward_conclusion || !value.presentation.presenter_large_left_during_evidence || !value.presentation.assets_right || !value.presentation.smooth_transitions) blockers.push('Presenter and teaching-asset choreography is incomplete.')
+  if (!value.motion.native_animation_preserved || !value.motion.source_hashes_bound || !value.motion.reduced_motion_fallback || value.motion.lost_or_substituted_scene_ids.length) blockers.push('Approved native motion, provenance, or reduced-motion coverage is incomplete.')
+  if (!value.assets.inventory_complete || !value.assets.every_used_once || !value.assets.every_asset_cue_bound || value.assets.loops_or_repeats || value.assets.max_concurrent_visible > 1 || !value.assets.omissions_have_receipts) blockers.push('Teaching assets must be inventoried, cue-bound, shown once, and mutually exclusive per frame.')
+  if (!value.layout.timing_synchronized || !value.layout.safe_areas_passed || !value.layout.padding_passed || value.layout.overlap_or_crowding || value.layout.top_stacking_or_clipping) blockers.push('Layout timing, safe areas, padding, or collision checks failed.')
+  if (!value.music.rights_receipt_id || !value.music.instrumental || !value.music.audible_under_speech || !value.music.moderate_ducking_passed || value.music.vocals || value.music.loop || !value.music.bounded_fades) blockers.push('Music must be rights-cleared, instrumental, audible, moderately ducked, non-looping, and bounded by fades.')
+  if (!value.voice.timing_preserved || !value.voice.lip_sync_passed || !['none', 'eq_dynamics_only'].includes(value.voice.dsp_scope) || value.voice.claims_new_prosody || value.voice.deceptive_word_splicing) blockers.push('Voice treatment must preserve timing and lip sync without invented prosody or deceptive word splicing.')
+  if (!value.packaging.shared_research_version_bound || !value.packaging.title_receipt_id || !value.packaging.thumbnail_receipt_id || !value.packaging.description_receipt_id || !value.packaging.script_receipt_id) blockers.push('Title, thumbnail, description, and script must remain version-bound to the same approved evidence.')
+  if (!value.provenance.source_receipts_current || !value.provenance.rights_receipts_current || !value.provenance.privacy_receipt_id || !value.provenance.field_level_proof_reviewable || !value.provenance.excluded_from_customer_frames) blockers.push('Source, rights, privacy, and field-level proof must remain reviewable outside customer-facing media.')
+  const validation = value.validation
+  if (!validation.duration_passed || !validation.frame_count_passed || !validation.full_decode_passed || !validation.av_sync_passed || !validation.speech_audibility_passed || (!validation.cta_semantics_passed && !exception) || validation.clipping_samples !== 0 || !validation.green_spill_passed || !validation.motion_preservation_passed || !validation.no_repeats_passed || !validation.overlap_safe_area_passed) blockers.push('Exact output validation is incomplete or failed.')
+  if (!Object.keys(value.gate_authorizations).every((key) => SOCIAL_VIDEO_GENERATION_CONTRACT.separate_explicit_gates.includes(key as never))) blockers.push('External actions must remain separate explicit gates.')
+  if (!value.human_qa.exact_route || !value.human_qa.screenshot_path || !value.human_qa.playable_mp4_path || !value.human_qa.what_changed || !value.human_qa.value || !value.human_qa.review_script || !value.human_qa.next_authorization) blockers.push('Human QA requires the exact route, screenshot, playable MP4, change/value summary, review script, and next authorization.')
+  if (value.accepted_exceptions.some((entry) => entry.artifact_id !== value.artifact_id || entry.input_version !== value.input_version || entry.weakens_future_default !== false)) blockers.push('Accepted exceptions must remain artifact- and version-bound without weakening future defaults.')
+  return { ready: blockers.length === 0, blockers: [...new Set(blockers)], acceptedExceptionRuleIds: exception ? [exception.rule_id] : [] }
+}
 
 export type SocialVideoProductionStatus =
   | 'not_started'
