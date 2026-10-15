@@ -1,0 +1,135 @@
+{
+  "version": "jev_avatar_motion_human_qa_v2",
+  "status": "pending_human_qa",
+  "created_at": "2026-10-14T23:20:00.000Z",
+  "review_route": "#jev",
+  "video": {
+    "path": "jev-avatar-motion-v3-mad-hadda-v3-api-credit/jev-avatar-motion-review.mp4",
+    "sha256": "d567a263d31be2fe5c39190b977fe04461eb61f1ecf34db5599a2749a5b5a85a",
+    "duration_seconds": 74.3,
+    "width": 1080,
+    "height": 1920,
+    "fps": 30,
+    "frame_count": 2229,
+    "video_codec": "h264",
+    "audio_codec": "aac",
+    "audio_channels": 2
+  },
+  "screenshot": {
+    "path": "jev-avatar-motion-human-qa.png",
+    "sha256": "35cf7ee497ff590c0a3297c010d954faaa0eba39978467587a0306d3a47ae252",
+    "captured_at_seconds": 10,
+    "width": 1080,
+    "height": 1920
+  },
+  "source_final_comparison": {
+    "path": "jev-avatar-motion-source-final-comparison.png",
+    "sha256": "6820f4857d2aa9ae10011c1dada1167b2a7df7f14efb3f95253d35a967609383",
+    "source_timestamp_seconds": 10,
+    "final_timestamp_seconds": 10
+  },
+  "template_run": {
+    "receipt_id": "template-run:jev:killer-script:youtube-shorts:v1:20261014",
+    "path": "inputs/jev-killer-script-template-run-v1.json",
+    "template_contract_version": "video_script_template_v1",
+    "template_id": "seed-killer-script",
+    "script_sha256": "sha256:732a517ca9e98ab15bb3caa5196e4982e4c24a16f7885557fb37247f55b0f77f",
+    "expected_duration_seconds": 68,
+    "provider_execution": "completed"
+  },
+  "preserved_attempts": [
+    {
+      "status": "completed_superseded_short_script",
+      "provider_job_id": "23ae7d28cc31ed24c93424cd568e0e09",
+      "output": "jev-avatar-motion-v3-mad-hadda-v1/jev-avatar-motion-review.mp4"
+    },
+    {
+      "status": "failed_no_retry",
+      "packet": "inputs/jev-avatar-motion-v3-mad-hadda-v2-template.json",
+      "failure_receipt": "jev-avatar-motion-v3-mad-hadda-v2-template/provider-failure.receipt.json",
+      "provider_job_id": "59486d96b12ed3613ff8090324b08184",
+      "idempotency_key": "social-avatar-motion:5086cf2b506cd0c893e5c46aca70daafba7c3f55f48183d987d803f90881cc32",
+      "failure": "Insufficient credit. This operation requires 'api' credits.",
+      "quota_before": 323,
+      "quota_after": 323,
+      "retries": 0
+    }
+  ],
+  "api_credit_top_up": {
+    "status": "paid_observed",
+    "receipt": "jev-avatar-motion-v3-mad-hadda-v2-template/heygen-api-credit-top-up.receipt.json",
+    "vendor": "HeyGen",
+    "total_paid_usd": 5.31,
+    "api_balance_before_usd": 5.38,
+    "api_balance_after_usd": 10.38,
+    "auto_reload": false
+  },
+  "provider": {
+    "name": "heygen",
+    "api_version": "v3",
+    "job_id": "c051d4c479011ba54c84c99ebd128a29",
+    "idempotency_key": "social-avatar-motion:a6977d1fd2804cc8f50d9e2b5f2b94f1cd2bccabfe9b8cd398d18b27705565e4",
+    "packet": "inputs/jev-avatar-motion-v3-mad-hadda-v3-api-credit.json",
+    "look_id": "3feb738b9af64f7b8f91cc8e4ffcdc45",
+    "voice_id": "3bed25c167534fd6ac5becdec4516ec7",
+    "avatar_engine": "avatar_iv",
+    "voice_engine": "elevenlabs",
+    "native_source_sha256": "c9b0949da45208fd8fa84cd614c7c2c5c8667d548e74e4ef25975a9d0e29494d",
+    "native_duration_seconds": 67.28,
+    "native_fps": 25,
+    "native_frame_count": 1682,
+    "quota_before": 623,
+    "quota_after": 299,
+    "quota_delta": 324,
+    "conservative_rate_usd_per_minute": 4.83,
+    "conservative_cost_estimate_usd": 5.416,
+    "authorized_max_duration_seconds": 111,
+    "authorized_cost_cap_usd": 9,
+    "jobs_created_under_this_authorization": 1,
+    "retries": 0
+  },
+  "receipts": {
+    "consent_rights": "rights:jev:red-v-neck-mad-hadda-killer-script-api-credit-v3-one-review-20261014",
+    "privacy": "privacy:jev:public-safe-20261014",
+    "source": "source:jev:approved-composite-20261014",
+    "catalog": "provider-catalog:heygen:v3-avatar-voice-compatibility:20261014"
+  },
+  "validation": {
+    "full_decode": "passed",
+    "duration": "passed",
+    "frame_count": "passed",
+    "audio_stream": "passed",
+    "native_source_hash": "passed",
+    "output_hash": "passed",
+    "rights_and_source_bindings": "passed",
+    "customer_facing_text": "passed",
+    "visual_contact_sheet": "passed at 0.5, 10, 13, 25, 38, 50, 63, and 72 seconds",
+    "presenter_green_removal": "passed",
+    "source_final_frame_comparison": "passed",
+    "presenter_visibility": "passed; immediately visible and 760 to 900 pixels wide during six sequential presenter windows",
+    "motion_graphic_occlusion": "passed; no essential text covered in the eight-timestamp visual review",
+    "native_audio_continuity": "passed; source-order audio preserved with five deliberate 1.2-second graphics-only transitions",
+    "integrated_browser_playback": "passed; exact #jev route, duration 74.3 seconds, ready state 4, 1080 by 1920 media",
+    "mobile_portrait_review": "passed at 390 by 844 viewport; 390-pixel document width, 324-pixel video width, no horizontal overflow",
+    "presenter_windows": [
+      { "output_start": 0, "output_end": 11.213 },
+      { "output_start": 12.413, "output_end": 23.627 },
+      { "output_start": 24.827, "output_end": 36.04 },
+      { "output_start": 37.24, "output_end": 48.453 },
+      { "output_start": 49.653, "output_end": 60.867 },
+      { "output_start": 62.067, "output_end": 73.28 }
+    ]
+  },
+  "side_effects": {
+    "provider_jobs_created_under_fresh_authorization": 1,
+    "provider_retries": 0,
+    "uploads": 0,
+    "platform_drafts": 0,
+    "scheduled_posts": 0,
+    "published_posts": 0,
+    "external_sends": 0,
+    "credential_changes": 0,
+    "migrations": 0,
+    "shared_production_mutations": 0
+  }
+}

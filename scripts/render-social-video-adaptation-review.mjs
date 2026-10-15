@@ -7,7 +7,9 @@ import { dirname, resolve } from 'node:path'
 import sharp from 'sharp'
 import {
   assertSocialVideoClientFacingText,
+  buildJevMotionFrameSvg,
   buildSocialVideoClientFrameSvg,
+  JEV_MOTION_TIMELINE,
 } from '../lib/social-video-client-frame.mjs'
 
 const REQUIRED_RECEIPTS = [
@@ -97,6 +99,53 @@ async function renderFrame({ packet, scene, assetPath, framePath, brandLogoPath,
     .toFile(framePath)
 }
 
+async function renderJevMotion({ outputPath, posterOutputPath, workDir, brandLogoPath, fps = 30, duration = 22 }) {
+  const frameCount = Math.round(fps * duration)
+  const logo = await sharp(brandLogoPath)
+    .rotate()
+    .resize({ width: 74, height: 88, fit: 'contain' })
+    .png()
+    .toBuffer()
+
+  const renderOne = async (index) => {
+    const framePath = resolve(workDir, `${String(index + 1).padStart(5, '0')}.jpg`)
+    const svg = Buffer.from(buildJevMotionFrameSvg({ frame: index, fps, duration }))
+    await sharp(svg)
+      .composite([{ input: logo, left: 48, top: 18 }])
+      .jpeg({ quality: 92, chromaSubsampling: '4:4:4' })
+      .toFile(framePath)
+    return framePath
+  }
+
+  const framePaths = []
+  for (let offset = 0; offset < frameCount; offset += 12) {
+    const batch = Array.from({ length: Math.min(12, frameCount - offset) }, (_, index) => offset + index)
+    framePaths.push(...await Promise.all(batch.map(renderOne)))
+  }
+
+  execFileSync('ffmpeg', [
+    '-y',
+    '-framerate', String(fps),
+    '-i', resolve(workDir, '%05d.jpg'),
+    '-f', 'lavfi',
+    '-i', 'anullsrc=channel_layout=stereo:sample_rate=48000',
+    '-t', String(duration),
+    '-c:v', 'libx264',
+    '-preset', 'medium',
+    '-crf', '18',
+    '-pix_fmt', 'yuv420p',
+    '-c:a', 'aac',
+    '-b:a', '128k',
+    '-shortest',
+    '-movflags', '+faststart',
+    outputPath,
+  ], { stdio: 'inherit' })
+
+  const posterFrame = framePaths[Math.min(framePaths.length - 1, Math.round(4.6 * fps))]
+  await sharp(posterFrame).png().toFile(posterOutputPath)
+  return { frameCount, fps, duration, posterOutputPath }
+}
+
 const packetPath = resolve(argument('packet'))
 const assetMapPath = resolve(argument('asset-map'))
 const outputPath = resolve(argument('output'))
@@ -104,6 +153,7 @@ const expectedPrefix = argument('expected-prefix')
 const target = argument('target', 'youtube_shorts')
 const frameSeconds = Number(argument('frame-seconds', '4'))
 const brandLogoPath = resolve(argument('brand-logo', 'public/amadutown-logo-upscaled.png'))
+const posterOutputPath = resolve(argument('poster-output', outputPath.replace(/\.mp4$/i, '-poster.png')))
 if (!packetPath || !assetMapPath || !outputPath || !expectedPrefix) fail('Required arguments: --packet, --asset-map, --output, --expected-prefix.')
 if (!Number.isFinite(frameSeconds) || frameSeconds < 2 || frameSeconds > 12) fail('frame-seconds must be between 2 and 12.')
 
@@ -118,41 +168,46 @@ rmSync(workDir, { recursive: true, force: true })
 mkdirSync(workDir, { recursive: true })
 mkdirSync(dirname(outputPath), { recursive: true })
 
-const framePaths = []
-for (const [index, shot] of orderedShots.entries()) {
-  const scene = sceneMap.get(shot.scene_id)
-  const asset = assets.get(shot.artifact_id)
-  if (!scene || !asset) fail(`Shot ${shot.shot_id} references an unknown scene or asset.`)
-  const mapped = assetMap[shot.artifact_id]
-  if (!mapped) fail(`Local asset map is missing ${shot.artifact_id}.`)
-  const assetPath = resolve(dirname(assetMapPath), mapped)
-  const framePath = resolve(workDir, `${String(index + 1).padStart(2, '0')}-${shot.shot_id}.png`)
-  await renderFrame({ packet, scene, assetPath, framePath, brandLogoPath, index, total: orderedShots.length })
-  framePaths.push(framePath)
+let motionRender = null
+if (packet.identity?.product_id === 'jev' && target === 'youtube_shorts') {
+  motionRender = await renderJevMotion({ outputPath, posterOutputPath, workDir, brandLogoPath })
+} else {
+  const framePaths = []
+  for (const [index, shot] of orderedShots.entries()) {
+    const scene = sceneMap.get(shot.scene_id)
+    const asset = assets.get(shot.artifact_id)
+    if (!scene || !asset) fail(`Shot ${shot.shot_id} references an unknown scene or asset.`)
+    const mapped = assetMap[shot.artifact_id]
+    if (!mapped) fail(`Local asset map is missing ${shot.artifact_id}.`)
+    const assetPath = resolve(dirname(assetMapPath), mapped)
+    const framePath = resolve(workDir, `${String(index + 1).padStart(2, '0')}-${shot.shot_id}.png`)
+    await renderFrame({ packet, scene, assetPath, framePath, brandLogoPath, index, total: orderedShots.length })
+    framePaths.push(framePath)
+  }
+
+  const concatPath = resolve(workDir, 'frames.txt')
+  const concatLines = framePaths.flatMap((path) => [`file '${path.replaceAll("'", "'\\''")}'`, `duration ${frameSeconds}`])
+  concatLines.push(`file '${framePaths[framePaths.length - 1].replaceAll("'", "'\\''")}'`)
+  writeFileSync(concatPath, `${concatLines.join('\n')}\n`)
+
+  execFileSync('ffmpeg', [
+    '-y',
+    '-f', 'concat',
+    '-safe', '0',
+    '-i', concatPath,
+    '-f', 'lavfi',
+    '-i', 'anullsrc=channel_layout=stereo:sample_rate=48000',
+    '-vf', 'fps=30,format=yuv420p',
+    '-c:v', 'libx264',
+    '-preset', 'medium',
+    '-crf', '20',
+    '-c:a', 'aac',
+    '-b:a', '128k',
+    '-shortest',
+    '-movflags', '+faststart',
+    outputPath,
+  ], { stdio: 'inherit' })
 }
-
-const concatPath = resolve(workDir, 'frames.txt')
-const concatLines = framePaths.flatMap((path) => [`file '${path.replaceAll("'", "'\\''")}'`, `duration ${frameSeconds}`])
-concatLines.push(`file '${framePaths[framePaths.length - 1].replaceAll("'", "'\\''")}'`)
-writeFileSync(concatPath, `${concatLines.join('\n')}\n`)
-
-execFileSync('ffmpeg', [
-  '-y',
-  '-f', 'concat',
-  '-safe', '0',
-  '-i', concatPath,
-  '-f', 'lavfi',
-  '-i', 'anullsrc=channel_layout=stereo:sample_rate=48000',
-  '-vf', 'fps=30,format=yuv420p',
-  '-c:v', 'libx264',
-  '-preset', 'medium',
-  '-crf', '20',
-  '-c:a', 'aac',
-  '-b:a', '128k',
-  '-shortest',
-  '-movflags', '+faststart',
-  outputPath,
-], { stdio: 'inherit' })
 
 const probe = JSON.parse(execFileSync('ffprobe', [
   '-v', 'error',
@@ -162,7 +217,7 @@ const probe = JSON.parse(execFileSync('ffprobe', [
 ], { encoding: 'utf8' }))
 const receiptPath = outputPath.replace(/\.mp4$/i, '.receipt.json')
 const receipt = {
-  version: 'social_video_adaptation_local_render_v1',
+  version: motionRender ? 'social_video_adaptation_local_render_v2' : 'social_video_adaptation_local_render_v1',
   rendered_at: new Date().toISOString(),
   packet: packetPath,
   packet_adaptation_id: packet.adaptation_id,
@@ -173,8 +228,31 @@ const receipt = {
   shot_ids: orderedShots.map((shot) => shot.shot_id),
   asset_ids: [...new Set(orderedShots.map((shot) => shot.artifact_id))],
   receipt_ids: Object.fromEntries(REQUIRED_RECEIPTS.map((kind) => [kind, packet.receipts[kind].receipt_id])),
-  authority: 'Phase 4 delegated local review render only',
+  authority: motionRender
+    ? 'Human QA repair render for review only; approval remains pending'
+    : 'Phase 4 delegated local review render only',
+  human_qa_status: motionRender ? 'pending' : 'approved_source_packet',
   provider: 'none',
+  composition: motionRender ? {
+    kind: 'provider_none_motion_graphics',
+    motion_profile: 'jev_decision_flow_v2',
+    width: 1080,
+    height: 1920,
+    fps: motionRender.fps,
+    duration_seconds: motionRender.duration,
+    frame_count: motionRender.frameCount,
+    timeline: JEV_MOTION_TIMELINE,
+    temporal_changes: [
+      'probability values and bars animate into view',
+      'policy thresholds reveal around the approved score',
+      'ownership handoffs advance through distinct states',
+      'the exception path resolves into route, review, or refusal',
+    ],
+    avatar_source: {
+      status: 'not_bound',
+      reason: 'No clip-level consent and rights receipt binds an existing presenter asset to this Jev packet.',
+    },
+  } : null,
   network_calls: 0,
   external_calls: 0,
   side_effects: {
@@ -190,6 +268,8 @@ const receipt = {
   output: {
     path: outputPath,
     sha256: sha256(outputPath),
+    poster_path: motionRender ? posterOutputPath : null,
+    poster_sha256: motionRender ? sha256(posterOutputPath) : null,
     probe,
   },
 }

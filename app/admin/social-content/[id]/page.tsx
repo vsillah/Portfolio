@@ -48,6 +48,7 @@ import MobileWorkflowSummary from '@/components/admin/MobileWorkflowSummary'
 import PractitionerContentReview from '@/components/admin/PractitionerContentReview'
 import CompactPostPreview from '@/components/admin/CompactPostPreview'
 import AutoSizingScriptTextarea from '@/components/admin/AutoSizingScriptTextarea'
+import ChannelNativeVideoReview, { getChannelVideoPacket } from '@/components/admin/ChannelNativeVideoReview'
 import { getCurrentSession } from '@/lib/auth'
 import {
   STATUS_CONFIG,
@@ -752,6 +753,7 @@ function SocialContentDetailPage() {
   const backUrl = getBackUrl(searchParams, '/admin/social-content')
   const rawRecoveryStep = searchParams.get('step')
   const deterministicVisualQaState = searchParams.get('qa_state')
+  const channelNativeQaFixture = searchParams.get('qa_fixture') === 'channel_native_video_v2'
   const recoveryStep: ApprovalStep = isApprovalStep(rawRecoveryStep) ? rawRecoveryStep : 'copy'
   const recoveryStepParams = new URLSearchParams(searchParams.toString())
   recoveryStepParams.set('step', recoveryStep)
@@ -1023,7 +1025,9 @@ function SocialContentDetailPage() {
 
       const detailQuery = id === DETERMINISTIC_VISUAL_BINDING_QA_ID && deterministicVisualQaState
         ? `?qa_state=${encodeURIComponent(deterministicVisualQaState)}`
-        : ''
+        : channelNativeQaFixture
+          ? '?qa_fixture=channel_native_video_v2'
+          : ''
       const res = await fetch(`/api/admin/social-content/${id}${detailQuery}`, {
         cache: 'no-store',
         headers: { Authorization: `Bearer ${session.access_token}` },
@@ -1080,7 +1084,8 @@ function SocialContentDetailPage() {
       })
       setSelectedComparisonReferenceIds(asStringArray(operatorFeedback?.comparison_reference_ids))
       setCopyRevisionRequest(asString(operatorFeedback?.revision_request))
-      if (id === DETERMINISTIC_VISUAL_BINDING_QA_ID) {
+      const fixture = asRecord(rag?.qa_fixture)
+      if (id === DETERMINISTIC_VISUAL_BINDING_QA_ID || fixture?.read_only === true) {
         setReviewQueueItems([i])
         setCommentInboxItems([])
       } else {
@@ -1095,7 +1100,7 @@ function SocialContentDetailPage() {
     } finally {
       if (!options.silent) setLoading(false)
     }
-  }, [deterministicVisualQaState, fetchCommentInboxItems, fetchReviewQueue, id])
+  }, [channelNativeQaFixture, deterministicVisualQaState, fetchCommentInboxItems, fetchReviewQueue, id])
 
   useEffect(() => {
     fetchItem()
@@ -2945,6 +2950,11 @@ function SocialContentDetailPage() {
   const redactionGate = getVideoRedactionGate(productionAssets)
   const socialVideoProduction = item.social_video_production
   const isYouTubeTarget = item.platform === 'youtube' || targetPlatforms.includes('youtube')
+  const channelVideoPacket = getChannelVideoPacket(item)
+  const copyFieldLabel = channelVideoPacket ? 'Video Script' : 'Post Text'
+  const copyLengthGuidance = channelVideoPacket
+    ? `${channelVideoPacket.channelLabel} review: confirm the full spoken script against the bound duration and receipt version`
+    : 'LinkedIn optimal: 150-300 words'
   const agentifiedVisualQaPacket = getAgentifiedVisualStrategyQaBySocialContentId(item.id)
   const agentifiedVisualQaReady = Boolean(agentifiedVisualQaPacket?.allQaPassed)
   const agentifiedVisualPrivacyReady = Boolean(agentifiedVisualQaPacket?.privacyRightsFinding?.result === 'pass')
@@ -4879,7 +4889,7 @@ function SocialContentDetailPage() {
         {/* SECTION 1: Content (two-col on lg: edit fields + preview)        */}
         {/* ================================================================ */}
 	        {(activeApprovalStep === 'copy' || activeApprovalStep === 'visuals') && (
-	        <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(22rem,0.45fr)]">
+	        <div className={channelVideoPacket ? 'grid grid-cols-1 gap-6' : 'grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(22rem,0.45fr)]'}>
 	          <div className="min-w-0 space-y-4">
 	            {/* Post text */}
 	            {activeApprovalStep === 'copy' && (
@@ -5078,7 +5088,7 @@ function SocialContentDetailPage() {
                   )}
                 </div>
               )}
-              <label htmlFor="social-final-post-text" className="mb-2 block text-sm font-medium text-gray-400">Post Text</label>
+              <label htmlFor="social-final-post-text" className="mb-2 block text-sm font-medium text-gray-400">{copyFieldLabel}</label>
               <AutoSizingScriptTextarea
                 id="social-final-post-text"
                 data-social-script-editor="post-text"
@@ -5089,7 +5099,7 @@ function SocialContentDetailPage() {
               />
               <div className="flex justify-between mt-1">
                 <span className="text-xs text-gray-500">{postText.length} characters</span>
-                <span className="text-xs text-gray-500">LinkedIn optimal: 150-300 words</span>
+                <span className="text-right text-xs text-gray-500">{copyLengthGuidance}</span>
               </div>
               {item.copy_revision && (item.copy_revision.release_locked || item.status === 'approved') && (
                 <button type="button" onClick={() => handleReviewGateJump('submit')} className="mt-3 rounded-lg border border-amber-400/40 px-3 py-2 text-sm text-amber-100">
@@ -6174,8 +6184,12 @@ function SocialContentDetailPage() {
 
           {/* Right column: Preview */}
           <div className="min-w-0 space-y-4">
-            <LinkedInReviewSurface item={item} hasUnsavedChanges={hasUnsavedCopyChanges} onRefresh={() => fetchItem({ silent: true })} />
-            <div data-theme-surface="linkedin-preview-chrome" className="min-w-0 rounded-xl border border-border bg-card p-4 text-card-foreground shadow-sm">
+            {channelVideoPacket ? (
+              <ChannelNativeVideoReview item={{ ...item, post_text: postText, voiceover_text: voiceoverText }} />
+            ) : (
+              <>
+              <LinkedInReviewSurface item={item} hasUnsavedChanges={hasUnsavedCopyChanges} onRefresh={() => fetchItem({ silent: true })} />
+              <div data-theme-surface="linkedin-preview-chrome" className="min-w-0 rounded-xl border border-border bg-card p-4 text-card-foreground shadow-sm">
               <h3 className="mb-3 flex flex-wrap items-center gap-2 text-sm font-medium text-muted-foreground">
 	                <Linkedin className="h-4 w-4 text-blue-700 dark:text-blue-300" /> LinkedIn Preview
                   <span className="ml-auto rounded-full border border-border bg-muted px-2 py-0.5 text-[10px] font-semibold text-foreground">Follows Portfolio theme</span>
@@ -6209,6 +6223,8 @@ function SocialContentDetailPage() {
                 ) : null}
               </div>
             </div>
+              </>
+            )}
           </div>
 	        </div>
 	        )}

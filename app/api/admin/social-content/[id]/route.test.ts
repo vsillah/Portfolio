@@ -65,6 +65,85 @@ describe('GET /api/admin/social-content/[id] practitioner QA fixture', () => {
   })
 })
 
+describe('GET /api/admin/social-content/[id] channel-native video fallback', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mocks.verifyAdmin.mockResolvedValue({ user: { id: 'admin-1' }, isAdmin: true })
+    mocks.isAuthError.mockReturnValue(false)
+    mocks.single.mockResolvedValue({ data: null, error: { message: 'not found' } })
+    mocks.select.mockReturnValue({ eq: mocks.eq })
+    mocks.eq.mockReturnValue({ single: mocks.single })
+    mocks.from.mockReturnValue({ select: mocks.select })
+  })
+
+  it.each([
+    ['f966123f-05eb-48ec-a7c2-970afce642ef', 'jev-provider-none-review.mp4'],
+    ['21c492c2-9279-4e08-afc9-49207935a681', 'dark-castle-provider-none-review.mp4'],
+  ])('returns the read-only repository packet when %s is absent from the bound preview database', async (id, videoName) => {
+    const response = await GET(new NextRequest(`http://localhost/api/admin/social-content/${id}`) as never, { params: { id } })
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(body).toMatchObject({ fixture: true, fixture_state: 'repository_bound_review' })
+    expect(body.item.id).toBe(id)
+    expect(body.item.rag_context.approved_video_packet.video_path).toContain(videoName)
+    expect(body.item.rag_context.approved_video_packet.provider).toBe('none')
+    expect(body.item.rag_context.qa_fixture).toMatchObject({ read_only: true, kind: 'channel_native_video_review' })
+    expect(body.item.rag_context.side_effects).toEqual(expect.objectContaining({
+      provider_generation: false,
+      upload: false,
+      platform_draft: false,
+      schedule: false,
+      publish: false,
+      external_send: false,
+    }))
+    expect(mocks.update).not.toHaveBeenCalled()
+  })
+
+  it('binds Jev to the motion-graphics v2 receipt while leaving external execution closed', async () => {
+    const id = 'f966123f-05eb-48ec-a7c2-970afce642ef'
+    const response = await GET(new NextRequest(`http://localhost/api/admin/social-content/${id}`) as never, { params: { id } })
+    const body = await response.json()
+    const video = body.item.rag_context.approved_video_packet
+
+    expect(video).toMatchObject({
+      video_sha256: '191d1d99c00688aba025c13bfbace887c647e36cc67e47dcbaaa0902614ca92e',
+      poster_sha256: '7709869d1d3f6d219128d5f47d0e5c3701c39a5079c4cf9378d2f958cd124a97',
+      render_version: 'social_video_adaptation_local_render_v2',
+      motion_profile: 'jev_decision_flow_v2',
+      duration_seconds: 22,
+      width: 1080,
+      height: 1920,
+      provider: 'none',
+    })
+    expect(body.item.rag_context.side_effects).toEqual(expect.objectContaining({
+      provider_generation: false,
+      upload: false,
+      platform_draft: false,
+      schedule: false,
+      publish: false,
+      external_send: false,
+      credential_change: false,
+      spending: false,
+    }))
+  })
+
+  it('uses the explicit read-only Jev QA binding even when the shared row exists', async () => {
+    const id = 'f966123f-05eb-48ec-a7c2-970afce642ef'
+    mocks.single.mockResolvedValue({ data: { id, rag_context: { source_type: 'stale-shared-row' } }, error: null })
+    const response = await GET(new NextRequest(`http://localhost/api/admin/social-content/${id}?qa_fixture=channel_native_video_v2`) as never, { params: { id } })
+    const body = await response.json()
+
+    expect(body).toMatchObject({ fixture: true, fixture_state: 'repository_bound_review' })
+    expect(body.item.rag_context.approved_video_packet).toMatchObject({
+      video_sha256: '191d1d99c00688aba025c13bfbace887c647e36cc67e47dcbaaa0902614ca92e',
+      render_version: 'social_video_adaptation_local_render_v2',
+    })
+    expect(mocks.from).not.toHaveBeenCalled()
+    expect(mocks.update).not.toHaveBeenCalled()
+  })
+})
+
 describe('PUT /api/admin/social-content/[id]', () => {
   beforeEach(() => {
     vi.clearAllMocks()

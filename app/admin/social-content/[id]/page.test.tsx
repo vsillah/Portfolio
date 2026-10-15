@@ -157,6 +157,73 @@ describe('SocialContentDetailRoute visual production review', () => {
     return render(<SocialContentDetailRoute />)
   }
 
+  it('renders a YouTube Shorts review packet with channel-native copy guidance and no LinkedIn preview', async () => {
+    mocks.search = 'step=copy&qa_fixture=channel_native_video_v2'
+    const youtubeItem = {
+      ...baseItem,
+      id: 'f966123f-05eb-48ec-a7c2-970afce642ef',
+      platform: 'youtube' as const,
+      target_platforms: ['youtube' as const],
+      status: 'draft' as const,
+      post_text: 'The bound spoken script.',
+      voiceover_text: 'The bound spoken script.',
+      youtube_title: null,
+      youtube_description: null,
+      rag_context: {
+        source: 'human_qa_approved_artifact_video_packet',
+        source_type: 'version_bound_provider_none_mp4',
+        publish_gate: 'draft_only',
+        workflow_state: 'human_review_required',
+        input_version: 'sha256:e6fc9ae4',
+        work_item_id: '24651a05-c8e5-4dd7-82fb-682e0223ee97',
+        source_ids: ['docs/jev-shadow/README.md'],
+        channel_packet_ids: ['work-item:jev'],
+        traceability_summary: 'Every claim remains receipt-bound.',
+        approved_title_options: [{ title: 'Jev: what the artifact makes visible' }],
+        approved_description: {
+          practical_value: 'A practical operator field guide.',
+          why_artifact_matters: 'The evidence remains inspectable.',
+        },
+        approved_video_packet: {
+          target: 'youtube_shorts',
+          provider: 'none',
+          video_path: 'artifacts/human-qa/artifact-video-review-2026-10-14/jev-provider-none-review.mp4',
+          poster_path: 'artifacts/human-qa/artifact-video-review-2026-10-14/jev-customer-facing-poster.png',
+          duration_seconds: 22,
+          width: 1080,
+          height: 1920,
+          video_sha256: '191d1d99c00688aba025c13bfbace887c647e36cc67e47dcbaaa0902614ca92e',
+        },
+        receipts: {
+          source: { status: 'passed', receipt_id: 'source:jev:approved' },
+          privacy: { status: 'passed', receipt_id: 'privacy:jev:public-safe' },
+        },
+        claims: [{ claim_id: 'jev-boundary', text: 'A human owns the exception.', privacy_boundary: 'Use only the public-safe field guide.' }],
+        side_effects: { provider_generation: false, upload: false, platform_draft: false, schedule: false, publish: false, external_send: false },
+      },
+    }
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => ({
+      ok: true,
+      json: async () => String(input).includes('/topic-backlog') ? { items: [] } : { item: youtubeItem },
+    } as Response)))
+
+    render(<SocialContentDetailRoute />)
+
+    expect(await screen.findByLabelText('YouTube Shorts channel-native video review')).toBeVisible()
+    expect(screen.getByText('Video Script')).toBeVisible()
+    expect(screen.getByText(/YouTube Shorts review: confirm the full spoken script/i)).toBeVisible()
+    expect(screen.getByLabelText('YouTube Shorts review video')).toHaveAttribute('poster', '/review-assets/social-content/jev-customer-facing-poster.png')
+    expect(screen.getByLabelText('YouTube Shorts review video')).toHaveClass('aspect-[9/16]')
+    expect(screen.queryByText('LinkedIn Preview')).not.toBeInTheDocument()
+    expect(screen.queryByLabelText('LinkedIn post preview')).not.toBeInTheDocument()
+    expect(screen.queryByText('LinkedIn optimal: 150-300 words')).not.toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Open canonical Decision Queue' })).toHaveAttribute('href', '/admin/agents/coordination?proposal=24651a05-c8e5-4dd7-82fb-682e0223ee97')
+    expect(fetch).toHaveBeenCalledWith(
+      '/api/admin/social-content/social-1?qa_fixture=channel_native_video_v2',
+      expect.objectContaining({ cache: 'no-store' }),
+    )
+  })
+
   it('renders a synthetic source-coverage fixture as evidence-only with no publishable affordances', async () => {
     const fixtureItem = topicSourceCoverageQaFixture('ready')
     vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => ({

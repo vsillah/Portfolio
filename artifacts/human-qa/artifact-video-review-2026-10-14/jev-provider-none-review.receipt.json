@@ -1,7 +1,7 @@
 {
-  "version": "social_video_adaptation_local_render_v1",
-  "rendered_at": "2026-10-14T12:17:50.475Z",
-  "packet": "/Users/vambahsillah/.codex/worktrees/d01f/Portfolio/artifacts/human-qa/artifact-video-review-2026-10-14/inputs/jev.json",
+  "version": "social_video_adaptation_local_render_v2",
+  "rendered_at": "2026-10-14T20:22:15.732Z",
+  "packet": "/Users/vambahsillah/.codex/worktrees/e6d7/Portfolio/artifacts/human-qa/artifact-video-review-2026-10-14/inputs/jev.json",
   "packet_adaptation_id": "jev-artifact-video-20261014-rev1",
   "input_version": "sha256:e6fc9ae4aadd61e3a871e8f7af2dd0a2d424d5c20ae6a8d0eac861b16e796bd5",
   "expected_input_version_prefix": "e6fc9ae4",
@@ -29,8 +29,66 @@
     "challenger": "challenger:jev:amina-passed-20261014",
     "script_quality": "script-quality:jev:artifact-video-v1-20261014"
   },
-  "authority": "Phase 4 delegated local review render only",
+  "authority": "Human QA repair render for review only; approval remains pending",
+  "human_qa_status": "pending",
   "provider": "none",
+  "composition": {
+    "kind": "provider_none_motion_graphics",
+    "motion_profile": "jev_decision_flow_v2",
+    "width": 1080,
+    "height": 1920,
+    "fps": 30,
+    "duration_seconds": 22,
+    "frame_count": 660,
+    "timeline": [
+      {
+        "id": "hook",
+        "start": 0,
+        "end": 3.8,
+        "label": "A score is not a decision"
+      },
+      {
+        "id": "signal",
+        "start": 3.4,
+        "end": 7.5,
+        "label": "Read the signal"
+      },
+      {
+        "id": "policy",
+        "start": 7.1,
+        "end": 11.7,
+        "label": "Apply the policy"
+      },
+      {
+        "id": "ownership",
+        "start": 11.3,
+        "end": 15.9,
+        "label": "Keep ownership visible"
+      },
+      {
+        "id": "exception",
+        "start": 15.5,
+        "end": 19.6,
+        "label": "Who owns the exception?"
+      },
+      {
+        "id": "close",
+        "start": 19.2,
+        "end": 22,
+        "label": "Make uncertainty visible"
+      }
+    ],
+    "temporal_changes": [
+      "probability values and bars animate into view",
+      "policy thresholds reveal around the approved score",
+      "ownership handoffs advance through distinct states",
+      "the exception path resolves into route, review, or refusal"
+    ],
+    "avatar_source": {
+      "status": "not_bound",
+      "reason": "No clip-level consent and rights receipt binds an existing presenter asset to this Jev packet."
+    }
+  },
   "network_calls": 0,
   "external_calls": 0,
   "side_effects": {
@@ -44,16 +102,18 @@
     "spending": false
   },
   "output": {
-    "path": "/Users/vambahsillah/.codex/worktrees/d01f/Portfolio/artifacts/human-qa/artifact-video-review-2026-10-14/jev-provider-none-review.mp4",
-    "sha256": "f4e1fd76615e7cb4d6d5acef0cb0c6120134a85df000b465f7c1093f65fd6e70",
+    "path": "/Users/vambahsillah/.codex/worktrees/e6d7/Portfolio/artifacts/human-qa/artifact-video-review-2026-10-14/jev-provider-none-review.mp4",
+    "sha256": "191d1d99c00688aba025c13bfbace887c647e36cc67e47dcbaaa0902614ca92e",
+    "poster_path": "/Users/vambahsillah/.codex/worktrees/e6d7/Portfolio/artifacts/human-qa/artifact-video-review-2026-10-14/jev-customer-facing-poster.png",
+    "poster_sha256": "7709869d1d3f6d219128d5f47d0e5c3701c39a5079c4cf9378d2f958cd124a97",
     "probe": {
       "programs": [],
       "stream_groups": [],
       "streams": [
         {
           "codec_name": "h264",
-          "width": 1920,
-          "height": 1080,
+          "width": 1080,
+          "height": 1920,
           "r_frame_rate": "30/1"
         },
         {
@@ -62,8 +122,8 @@
         }
       ],
       "format": {
-        "duration": "16.000000",
-        "size": "409901"
+        "duration": "22.000000",
+        "size": "2445942"
       }
     }
   }

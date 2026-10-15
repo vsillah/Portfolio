@@ -1,0 +1,80 @@
+{
+  "version": "social_avatar_motion_composite_v1",
+  "socialContentId": "f966123f-05eb-48ec-a7c2-970afce642ef",
+  "contentVersion": "sha256:e6fc9ae4aadd61e3a871e8f7af2dd0a2d424d5c20ae6a8d0eac861b16e796bd5",
+  "target": "youtube_shorts",
+  "aspectRatio": "9:16",
+  "script": {
+    "text": "A score is not a decision. Read the signal, apply the policy, and keep a human owner visible. Route the exception. Make uncertainty visible enough to act.",
+    "sha256": "sha256:8cf8e227d8709b5cddc7afff54d55adc1a5e1c5b49a6bbd2dd7f9b7b65efbf4a",
+    "status": "approved"
+  },
+  "avatar": {
+    "id": "3feb738b9af64f7b8f91cc8e4ffcdc45",
+    "version": "2026-04-15T17:12:17.105Z",
+    "name": "Vambah Sillah (Mad Hadda)",
+    "status": "approved"
+  },
+  "voice": {
+    "id": "17c1834716ca4e27b32de949a72f2b5d",
+    "version": "2026-04-15T17:12:22.866Z",
+    "name": "Young Black CEO Voice",
+    "status": "approved"
+  },
+  "receipts": {
+    "consentRights": {
+      "receiptId": "rights:jev:vambah-avatar-voice-one-review-20261014",
+      "status": "approved",
+      "inputVersion": "sha256:e6fc9ae4aadd61e3a871e8f7af2dd0a2d424d5c20ae6a8d0eac861b16e796bd5",
+      "reviewedAt": "2026-10-14T21:16:36.000Z",
+      "validUntil": "2026-10-15T21:16:36.000Z",
+      "avatarId": "3feb738b9af64f7b8f91cc8e4ffcdc45",
+      "voiceId": "17c1834716ca4e27b32de949a72f2b5d",
+      "authorizationScope": "Exactly one review-only HeyGen presenter clip for the Jev YouTube Social Content record; no upload, platform draft, schedule, publish, external send, credential change, or unrelated data mutation."
+    },
+    "privacy": {
+      "receiptId": "privacy:jev:public-safe-20261014",
+      "status": "passed",
+      "inputVersion": "sha256:e6fc9ae4aadd61e3a871e8f7af2dd0a2d424d5c20ae6a8d0eac861b16e796bd5",
+      "reviewedAt": "2026-10-14T09:00:12.552Z",
+      "validUntil": "2026-10-21T23:59:59.000Z"
+    },
+    "source": {
+      "receiptId": "source:jev:approved-composite-20261014",
+      "status": "passed",
+      "inputVersion": "sha256:e6fc9ae4aadd61e3a871e8f7af2dd0a2d424d5c20ae6a8d0eac861b16e796bd5",
+      "reviewedAt": "2026-10-14T09:00:12.552Z",
+      "validUntil": "2026-10-21T23:59:59.000Z"
+    }
+  },
+  "motionMaster": {
+    "path": "artifacts/human-qa/artifact-video-review-2026-10-14/jev-provider-none-review.mp4",
+    "sha256": "191d1d99c00688aba025c13bfbace887c647e36cc67e47dcbaaa0902614ca92e",
+    "status": "approved",
+    "durationSeconds": 22,
+    "width": 1080,
+    "height": 1920,
+    "fps": 30
+  },
+  "providerAuthorization": {
+    "provider": "heygen",
+    "authorizationId": "jev-heygen-one-job-20261014",
+    "status": "approved",
+    "approvedAt": "2026-10-14T21:16:36.000Z",
+    "expiresAt": "2026-10-15T21:16:36.000Z",
+    "maxCostUsd": 9,
+    "worstCaseRateUsdPerMinute": 4,
+    "maxBillableSeconds": 120,
+    "maxProviderJobs": 1,
+    "maxScriptCharacters": 180,
+    "pricingBasis": "HeyGen API Avatar IV worst-case published rate of US$4/minute; this run uses the standard avatar endpoint and a 154-character script."
+  },
+  "customerFacingText": [
+    "A score is not a decision.",
+    "Read the signal.",
+    "Apply the policy.",
+    "Keep a human owner visible.",
+    "Route the exception.",
+    "Make uncertainty visible enough to act."
+  ]
+}

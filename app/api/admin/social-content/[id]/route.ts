@@ -36,6 +36,10 @@ import {
   parseDeterministicVisualQaState,
 } from '@/lib/social-deterministic-visual-qa-fixture'
 import {
+  channelNativeVideoQaFixture,
+  isChannelNativeVideoQaFixtureId,
+} from '@/lib/social-channel-video-qa-fixture'
+import {
   buildDeterministicVisualRecipePatch,
   DeterministicVisualRenderError,
   projectDeterministicVisualRender,
@@ -165,11 +169,29 @@ export async function GET(
 
     const { id } = params
 
+    if (request.nextUrl.searchParams.get('qa_fixture') === 'channel_native_video_v2' && isChannelNativeVideoQaFixtureId(id)) {
+      return NextResponse.json({
+        item: channelNativeVideoQaFixture(id),
+        fixture: true,
+        fixture_state: 'repository_bound_review',
+        integration_note: 'Explicit read-only Human-QA binding to the repository video packet. It does not write shared data, call providers, upload media, create platform drafts, schedule, publish, send externally, change credentials, or spend money.',
+      })
+    }
+
     const { data, error } = await supabaseAdmin
       .from('social_content_queue')
       .select('*')
       .eq('id', id)
       .single()
+
+    if ((error || !data) && isChannelNativeVideoQaFixtureId(id)) {
+      return NextResponse.json({
+        item: channelNativeVideoQaFixture(id),
+        fixture: true,
+        fixture_state: 'repository_bound_review',
+        integration_note: 'Production-equivalent read-only fallback for the approved repository video packet. It does not write shared data, call providers, upload media, create platform drafts, schedule, publish, send externally, change credentials, or spend money.',
+      })
+    }
 
     if (error || !data) {
       return NextResponse.json({ error: 'Content not found' }, { status: 404 })

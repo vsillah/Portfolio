@@ -1,4 +1,6 @@
 import { screenVideoEditorial } from './video-editorial-quality'
+export const VIDEO_SCRIPT_TEMPLATE_CONTRACT_VERSION = 'video_script_template_v1' as const
+export const VIDEO_SCRIPT_TEMPLATE_RUN_RECEIPT_VERSION = 'video_script_template_run_receipt_v1' as const
 export type VideoScriptTemplateSourceType = 'seeded' | 'creator_pattern' | 'amadutown_performance'
 
 export type VideoScriptTemplateOutline = {
@@ -37,6 +39,63 @@ export type VideoScriptScorecard = {
   blockers: string[]
   warnings: string[]
   notes: string[]
+}
+
+export type VideoScriptTemplateRunReceipt = {
+  receipt_version: typeof VIDEO_SCRIPT_TEMPLATE_RUN_RECEIPT_VERSION
+  receipt_id: string
+  status: 'passed' | 'blocked'
+  input_version: string
+  generated_at: string
+  target: 'youtube_shorts' | 'youtube_long_form'
+  template_binding: {
+    contract_version: typeof VIDEO_SCRIPT_TEMPLATE_CONTRACT_VERSION
+    template_id: string
+    template_key: string
+    template_name: string
+  }
+  source_binding: {
+    source_receipt_id: string
+    claim_ids: string[]
+    evidence_asset_ids: string[]
+    approved_copy_reference: string
+  }
+  narrative_map: {
+    pain_point: string
+    hook: string
+    open_loop: string
+    frame: string
+    practitioner_proof: string
+    explanatory_progression: string[]
+    practical_value: string
+    cta: string
+    closing_principle: string
+  }
+  script: {
+    text: string
+    sha256: string
+    word_count: number
+    expected_duration_seconds: number
+  }
+  prior_script: {
+    text: string
+    sha256: string
+    disposition: 'superseded_draft_evidence'
+  }
+  provider_execution: {
+    status: 'blocked_pending_explicit_approval'
+    max_provider_jobs: 1
+    no_retry: true
+    cost_ceiling_usd: number
+    expected_cost_usd: number
+    approval_wording: string
+  }
+}
+
+export type VideoScriptTemplateRunReadiness = {
+  ready: boolean
+  blockers: string[]
+  scorecard: VideoScriptScorecard
 }
 
 export const SCRIPT_INTELLIGENCE_SIDE_EFFECTS = {
@@ -273,6 +332,106 @@ export function evaluateVideoScript(input: {
     warnings,
     notes,
   }
+}
+
+function uniqueStrings(values: string[]) {
+  return [...new Set(values.map((value) => value.trim()).filter(Boolean))]
+}
+
+/**
+ * Validates a saved template run against the same seeded template and script
+ * scorecard used by the Video Generation workspace. This is a drafting gate;
+ * it never authorizes or calls a provider.
+ */
+export function evaluateVideoScriptTemplateRun(input: {
+  receipt: VideoScriptTemplateRunReceipt
+  template: VideoScriptTemplate | null
+  expectedInputVersion: string
+  expectedScriptSha256: string
+  approvedSourceReceiptIds: string[]
+  approvedClaimIds: string[]
+  approvedEvidenceAssetIds: string[]
+}): VideoScriptTemplateRunReadiness {
+  const { receipt, template } = input
+  const blockers: string[] = []
+  const binding = receipt.template_binding
+  const narrative = receipt.narrative_map
+
+  if (receipt.receipt_version !== VIDEO_SCRIPT_TEMPLATE_RUN_RECEIPT_VERSION) blockers.push('Template-run receipt version is missing or unsupported.')
+  if (receipt.status !== 'passed') blockers.push('Template-run receipt has not passed.')
+  if (receipt.input_version !== input.expectedInputVersion) blockers.push('Template-run receipt is stale for the approved source input.')
+  if (!Number.isFinite(Date.parse(receipt.generated_at))) blockers.push('Template-run receipt requires a valid generated timestamp.')
+  if (!template || template.status !== 'active') blockers.push('Selected script template is missing or inactive.')
+  if (template && (
+    binding.contract_version !== VIDEO_SCRIPT_TEMPLATE_CONTRACT_VERSION
+    || binding.template_id !== template.id
+    || binding.template_key !== template.key
+    || binding.template_name !== template.name
+  )) blockers.push('Template-run receipt does not match the selected version-bound template.')
+
+  const sourceIds = new Set(input.approvedSourceReceiptIds)
+  if (!sourceIds.has(receipt.source_binding.source_receipt_id)) blockers.push('Template run is not bound to an approved source receipt.')
+  if (!receipt.source_binding.approved_copy_reference.trim()) blockers.push('Template run requires an approved source-copy reference.')
+  if (!receipt.source_binding.claim_ids.length || receipt.source_binding.claim_ids.some((id) => !input.approvedClaimIds.includes(id))) {
+    blockers.push('Template run contains missing or unapproved claim bindings.')
+  }
+  if (!receipt.source_binding.evidence_asset_ids.length || receipt.source_binding.evidence_asset_ids.some((id) => !input.approvedEvidenceAssetIds.includes(id))) {
+    blockers.push('Template run contains missing or unapproved evidence bindings.')
+  }
+
+  const mappedSections = [
+    narrative.pain_point,
+    narrative.hook,
+    narrative.open_loop,
+    narrative.frame,
+    narrative.practitioner_proof,
+    ...narrative.explanatory_progression,
+    narrative.practical_value,
+    narrative.cta,
+    narrative.closing_principle,
+  ]
+  if (mappedSections.some((section) => !section.trim())) blockers.push('Every required template section must map to approved spoken copy.')
+  if (narrative.explanatory_progression.length < 2) blockers.push('Template run needs at least two explanatory progression beats.')
+
+  const words = receipt.script.text.trim().split(/\s+/).filter(Boolean)
+  if (!receipt.script.sha256.startsWith('sha256:')) blockers.push('Template-run script requires a SHA-256 binding.')
+  if (receipt.script.sha256 !== input.expectedScriptSha256) blockers.push('Template-run script hash does not match the reviewed spoken copy.')
+  if (receipt.script.word_count !== words.length) blockers.push('Template-run word count does not match the saved script.')
+  const duration = receipt.script.expected_duration_seconds
+  if (!Number.isFinite(duration) || (receipt.target === 'youtube_shorts' && (duration < 22 || duration > 120))) {
+    blockers.push('YouTube Shorts template run must target 22 to 120 seconds.')
+  }
+  if (receipt.prior_script.disposition !== 'superseded_draft_evidence' || !receipt.prior_script.sha256.startsWith('sha256:')) {
+    blockers.push('Prior generated presenter copy must remain bound as superseded draft evidence.')
+  }
+  if (receipt.provider_execution.status !== 'blocked_pending_explicit_approval'
+    || receipt.provider_execution.max_provider_jobs !== 1
+    || receipt.provider_execution.no_retry !== true) {
+    blockers.push('Provider execution must remain blocked, single-job, and no-retry.')
+  }
+  if (!Number.isFinite(receipt.provider_execution.cost_ceiling_usd)
+    || receipt.provider_execution.cost_ceiling_usd >= 10
+    || receipt.provider_execution.expected_cost_usd > receipt.provider_execution.cost_ceiling_usd) {
+    blockers.push('Provider cost must remain below the authorized ceiling and below US$10.')
+  }
+  if (!receipt.provider_execution.approval_wording.trim()) blockers.push('Exact provider approval wording is required before execution.')
+
+  const outline: VideoScriptTemplateOutline = {
+    pain_point: narrative.pain_point,
+    hook: narrative.hook,
+    open_loop: narrative.open_loop,
+    frame: narrative.frame,
+    proof_demo: narrative.practitioner_proof,
+    teaching_beats: uniqueStrings(narrative.explanatory_progression),
+    cta: narrative.cta,
+    closing_question: narrative.closing_principle,
+    thumbnail_promise: template?.outline.thumbnail_promise ?? '',
+    source_distance_notes: template?.outline.source_distance_notes ?? '',
+  }
+  const scorecard = evaluateVideoScript({ scriptText: receipt.script.text, outline, template })
+  blockers.push(...scorecard.blockers)
+
+  return { ready: uniqueStrings(blockers).length === 0, blockers: uniqueStrings(blockers), scorecard }
 }
 
 export function scriptTemplatePromptBlock(template: VideoScriptTemplate | null, researchPackets: Array<Record<string, unknown>> = []) {

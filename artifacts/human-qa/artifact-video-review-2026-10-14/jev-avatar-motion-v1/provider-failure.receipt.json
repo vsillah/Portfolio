@@ -1,0 +1,61 @@
+{
+  "version": "social_avatar_motion_composite_v1",
+  "social_content_id": "f966123f-05eb-48ec-a7c2-970afce642ef",
+  "idempotency_key": "social-avatar-motion:0121e25ff316b87d90f85007ba8e7ad38bc2048cf465ad3467a4ba653ffb0457",
+  "provider": "heygen",
+  "provider_job_id": "cf25007cd3d34be9adedf747df28577f",
+  "status": "failed",
+  "error": {
+    "code": "VOICE_CONFIG_ERROR",
+    "message": "Voice validation failed for 1 voice(s)"
+  },
+  "avatar_id": "3feb738b9af64f7b8f91cc8e4ffcdc45",
+  "avatar_version": "2026-04-15T17:12:17.105Z",
+  "voice_id": "17c1834716ca4e27b32de949a72f2b5d",
+  "voice_version": "2026-04-15T17:12:22.866Z",
+  "content_version": "sha256:e6fc9ae4aadd61e3a871e8f7af2dd0a2d424d5c20ae6a8d0eac861b16e796bd5",
+  "script_sha256": "sha256:8cf8e227d8709b5cddc7afff54d55adc1a5e1c5b49a6bbd2dd7f9b7b65efbf4a",
+  "motion_master_sha256": "191d1d99c00688aba025c13bfbace887c647e36cc67e47dcbaaa0902614ca92e",
+  "authorization": {
+    "authorization_id": "jev-heygen-one-job-20261014",
+    "max_provider_jobs": 1,
+    "max_cost_usd": 9,
+    "worst_case_bound_usd": 8
+  },
+  "cost": {
+    "quota_before": 367,
+    "quota_after": 367,
+    "quota_delta": 0,
+    "provider_cost_usd": 0
+  },
+  "compatibility_evidence": {
+    "studio_avatar": "Vambah Red V-Neck Sweater",
+    "studio_voice": "Vambah Sillah (Mad Hadda)",
+    "studio_voice_relationship": "Default for this avatar",
+    "studio_preview": "playable",
+    "v2_voice_allowed_engines": [],
+    "finding": "Studio preview compatibility does not establish v2 API generation compatibility. The failed v2 job and empty allowed-engines catalog require fail-closed recovery."
+  },
+  "v3_recovery_evidence": {
+    "catalog_receipt_id": "provider-catalog:heygen:v3-avatar-voice-compatibility:20261014",
+    "evidence_path": "artifacts/human-qa/artifact-video-review-2026-10-14/inputs/heygen-v3-avatar-voice-compatibility-v1.json",
+    "endpoint": "/v3/videos",
+    "selected_look_supported_api_engines": ["avatar_v", "avatar_iv", "avatar_iii"],
+    "consumed_packet_voice_id": "17c1834716ca4e27b32de949a72f2b5d",
+    "consumed_packet_voice_available_engines": ["elevenlabs", "elevenlabs_v3"],
+    "red_v_neck_default_voice_id": "3bed25c167534fd6ac5becdec4516ec7",
+    "red_v_neck_default_voice_name": "Vambah Sillah (Mad Hadda)",
+    "finding": "Read-only v3 metadata establishes a supported migration contract. It does not alter, retry, or supersede the historical failed job and does not authorize a voice substitution or new generation."
+  },
+  "side_effects": {
+    "provider_jobs_created": 1,
+    "provider_outputs_completed": 0,
+    "youtube_upload": false,
+    "platform_draft": false,
+    "schedule": false,
+    "publish": false,
+    "external_send": false,
+    "shared_row_mutation": false
+  },
+  "recovery_gate": "Do not retry this idempotency key. Bind the validated v3 endpoint, exact avatar and voice IDs, avatar_iv and elevenlabs engines, catalog receipt, newly approved provider authorization, and content packet to a new version-fenced idempotency key. Any change from Young Black CEO Voice to the Red V-Neck default Vambah Sillah (Mad Hadda) voice requires explicit selection and approval."
+}
