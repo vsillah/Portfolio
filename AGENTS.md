@@ -125,6 +125,17 @@ When developing Portfolio admin, agent-ops, content, outreach, review, or approv
 - During captain review, treat excessive static copy, unclear call-to-action placement, hidden recovery paths, repeated explanatory cards, non-actionable pseudo-controls, clipped pills, label bleed-through, line-height collisions, or evidence-recorder layout artifacts as UX defects that must be resolved before Human QA.
 - Public-facing copy written in Vambah's voice must not refer to Vambah by name or in the third person. Normalize authored messaging to first person or fail messaging QA before Human QA. Internal provenance, audit, and reviewer-trace fields may retain the original source wording.
 
+## First-Party Product Evidence Rule
+
+When social posts or videos discuss Vambah's products, applications, books, prototypes, or active project work, ground the customer-facing explanation in approved first-party visual evidence.
+
+- Prefer current product screenshots, gameplay captures, interface recordings, diagrams derived from the product, book or course pages, and other owned artifacts over generic illustrations.
+- Bind each first-party visual to the exact customer-facing claim, script passage, and scene timing it supports. A screenshot appearing somewhere in the package is not sufficient evidence.
+- Use product evidence to move the narrative from theory to demonstrated practice: show what was built, what the operator or customer sees, and how the visible behavior supports the lesson.
+- Preserve source path, capture date, product identity, version or commit when available, privacy/redaction status, rights status, and a stable asset hash in the review packet.
+- Fail closed when a product-linked topic lacks approved visual evidence. An explicit omission receipt may allow review only when no safe, current capture exists; it must explain the gap and cannot silently substitute generic graphics.
+- Keep internal admin data, private customer information, credentials, unreleased sensitive features, and unrelated browser state out of customer-facing captures.
+
 ## Human QA Video Evidence Rule
 
 Whenever a Portfolio change reaches Vambah's human QA gate for changed product behavior, the captain handoff must include a short video walkthrough or equivalent screen-recorded test artifact showing the exact operator path being reviewed.

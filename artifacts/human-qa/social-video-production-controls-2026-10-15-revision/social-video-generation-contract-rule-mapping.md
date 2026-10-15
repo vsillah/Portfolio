@@ -5,6 +5,7 @@ The durable contract is `SOCIAL_VIDEO_GENERATION_CONTRACT` in `lib/social-video-
 | Learned requirement | Durable rule ID |
 |---|---|
 | Source research, outlier selection, topic, title, thumbnail, description, and script share evidence | `research.source_outlier_alignment`, `packaging.shared_version_bound_evidence` |
+| When a topic references Vambah's products or projects, show approved, current first-party screenshots or comparable product captures and bind each visual to the exact claim and narration cue; abstract substitute graphics require an explicit omission reason | `evidence.first_party_product_visuals` |
 | Run the YouTube template before media; use specific practitioner copy, conclusion, and spoken CTA | `script.youtube_template_first`, `script.practitioner_specific`, `script.complete_conclusion`, `script.semantic_spoken_cta` |
 | Keep prompts, code logic, receipts, QA labels, and operator notes out of customer frames | `frames.customer_facing_only` |
 | Bind approved avatar, voice, and rights; rotate approved looks | `avatar.approved_identity_voice_rights`, `avatar.rotate_approved_looks` |
