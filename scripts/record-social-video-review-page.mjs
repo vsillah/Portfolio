@@ -76,7 +76,7 @@ try {
   await page.locator('#jev .package-grid').scrollIntoViewIfNeeded()
   await page.waitForTimeout(1200)
   await page.setViewportSize({ width: 390, height: 844 })
-  await page.locator('#jev').scrollIntoViewIfNeeded()
+  await page.locator('#jev .blocked').scrollIntoViewIfNeeded()
   await page.screenshot({ path: mobileScreenshotPath, fullPage: false })
   await page.waitForTimeout(900)
 } finally {

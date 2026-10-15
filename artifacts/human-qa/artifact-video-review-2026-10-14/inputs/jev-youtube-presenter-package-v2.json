@@ -1,6 +1,6 @@
 {
-  "version": "youtube_presenter_package_v1",
-  "package_id": "youtube-presenter:jev:20261014:v1",
+  "version": "youtube_presenter_package_v2",
+  "package_id": "youtube-presenter:jev:20261014:v2",
   "target": "youtube_shorts",
   "review_only": true,
   "input_version": "sha256:e6fc9ae4aadd61e3a871e8f7af2dd0a2d424d5c20ae6a8d0eac861b16e796bd5",
@@ -39,6 +39,54 @@
         "rights_receipt_id": "rights:jev:owned-public-assets-20261014"
       }
     ]
+  },
+  "music_bed": {
+    "version": "youtube_music_bed_v1",
+    "status": "pending_rights",
+    "input_version": "sha256:e6fc9ae4aadd61e3a871e8f7af2dd0a2d424d5c20ae6a8d0eac861b16e796bd5",
+    "track": {
+      "track_id": "mad-hadda-the-stream-beat-stem-v2",
+      "title": "The Stream 2.0 beat stem (candidate only)",
+      "style_tags": ["hip-hop", "instrumental-candidate"],
+      "instrumental": true,
+      "vocals": false,
+      "source_reference": "AmaduTown YouTube Assets/Music plus matching Mad Hadda/The UnLearning source-stem location",
+      "staged_path": "",
+      "sha256": "sha256:7842628c35c5375cefaffc1b7d9425e354e840f5d46dfab65612d8f86a67158d",
+      "duration_seconds": 180.816168,
+      "source_receipt": {
+        "receipt_id": "source:music:the-stream-stem-observed-20261014",
+        "status": "observed",
+        "input_version": "sha256:e6fc9ae4aadd61e3a871e8f7af2dd0a2d424d5c20ae6a8d0eac861b16e796bd5"
+      },
+      "rights_receipt": {
+        "receipt_id": "rights:music:pending-selection-20261014",
+        "status": "pending",
+        "input_version": "sha256:e6fc9ae4aadd61e3a871e8f7af2dd0a2d424d5c20ae6a8d0eac861b16e796bd5"
+      }
+    },
+    "timing": {
+      "source_start_seconds": 8,
+      "timeline_start_seconds": 0,
+      "timeline_end_seconds": 71.28,
+      "loop": { "enabled": false, "crossfade_seconds": 0, "seam_validation_receipt": null }
+    },
+    "mix": {
+      "target_music_lufs": -32,
+      "target_final_lufs": -16,
+      "maximum_true_peak_dbfs": -1.5,
+      "speech_ducking": {
+        "enabled": true,
+        "threshold_dbfs": -30,
+        "ratio": 8,
+        "attack_ms": 35,
+        "release_ms": 420,
+        "minimum_reduction_db": 12
+      },
+      "fade_in_seconds": 1.5,
+      "fade_out_seconds": 2
+    },
+    "final_audio_validation": null
   },
   "timeline": [
     {

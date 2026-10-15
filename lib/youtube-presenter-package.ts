@@ -1,4 +1,9 @@
-export const YOUTUBE_PRESENTER_PACKAGE_VERSION = 'youtube_presenter_package_v1' as const
+import {
+  evaluateYouTubeMusicBed,
+  type YouTubeMusicBedContract,
+} from './youtube-music-bed'
+
+export const YOUTUBE_PRESENTER_PACKAGE_VERSION = 'youtube_presenter_package_v2' as const
 
 export type YouTubePresenterTarget = 'youtube_long_form' | 'youtube_shorts'
 export type YouTubePresenterLayout = 'presenter_primary' | 'side_evidence' | 'conclusion' | 'cta'
@@ -74,6 +79,7 @@ export type YouTubePresenterPackage = {
     }
     evidence_assets: YouTubeEvidenceAsset[]
   }
+  music_bed: YouTubeMusicBedContract | null
   timeline: YouTubePresenterCue[]
   packaging: {
     research_receipt_ids: string[]
@@ -159,6 +165,10 @@ export function evaluateYouTubePresenterPackage(input: {
   approvedClaimIds: string[]
   approvedPrivacyReceiptIds: string[]
   approvedRightsReceiptIds: string[]
+  approvedMusicSourceReceiptIds: string[]
+  approvedMusicRightsReceiptIds: string[]
+  approvedMusicTrackSha256ById: Record<string, string>
+  requireFinalAudioValidation?: boolean
 }): YouTubePresenterReadiness {
   const value = input.package
   if (value.target === 'linkedin' || value.target === 'non_video') {
@@ -252,6 +262,17 @@ export function evaluateYouTubePresenterPackage(input: {
   if (ctaCue?.delivery !== 'spoken' && !(value.review_only && ctaCue?.delivery === 'on_screen_end_card')) {
     blockers.push('Release-ready YouTube output requires a spoken CTA; on-screen-only CTA is allowed only for a review artifact.')
   }
+
+  const videoDurationSeconds = cues.length ? Math.max(...cues.map((cue) => cue.end_seconds)) : 0
+  blockers.push(...evaluateYouTubeMusicBed({
+    musicBed: value.music_bed,
+    expectedInputVersion: value.input_version,
+    videoDurationSeconds,
+    approvedSourceReceiptIds: input.approvedMusicSourceReceiptIds,
+    approvedRightsReceiptIds: input.approvedMusicRightsReceiptIds,
+    approvedTrackSha256ById: input.approvedMusicTrackSha256ById,
+    requireFinalAudioValidation: input.requireFinalAudioValidation,
+  }).blockers)
 
   const packageReceipts = value.packaging
   if (!sameSet(packageReceipts.research_receipt_ids, input.approvedResearchReceiptIds)) blockers.push('YouTube packaging research receipts are missing, stale, or mismatched.')

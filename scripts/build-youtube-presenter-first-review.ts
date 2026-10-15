@@ -15,7 +15,7 @@ const args = new Map<string, string>()
 for (let index = 2; index < process.argv.length; index += 2) args.set(process.argv[index], process.argv[index + 1])
 
 const mode = args.get('--mode') ?? 'validate'
-const packagePath = resolve(args.get('--package') ?? 'artifacts/human-qa/artifact-video-review-2026-10-14/inputs/jev-youtube-presenter-package-v1.json')
+const packagePath = resolve(args.get('--package') ?? 'artifacts/human-qa/artifact-video-review-2026-10-14/inputs/jev-youtube-presenter-package-v2.json')
 const outputDir = resolve(args.get('--output-dir') ?? 'artifacts/human-qa/artifact-video-review-2026-10-14/jev-youtube-presenter-first')
 const videoPath = resolve(outputDir, 'jev-youtube-presenter-first-review.mp4')
 const thumbnailPath = resolve(outputDir, 'jev-youtube-thumbnail.png')
@@ -133,7 +133,19 @@ async function makeThumbnail(packageValue: YouTubePresenterPackage) {
   console.log(JSON.stringify({ status: 'thumbnail_created', path: thumbnailPath, sha256: sha256(thumbnailPath), width: 1280, height: 720 }, null, 2))
 }
 
-function validate(packageValue: YouTubePresenterPackage) {
+function musicApprovals(packageValue: YouTubePresenterPackage) {
+  const source = args.get('--approved-music-source-receipt')
+  const rights = args.get('--approved-music-rights-receipt')
+  const hash = args.get('--approved-music-sha256')
+  const trackId = packageValue.music_bed?.track.track_id
+  return {
+    approvedMusicSourceReceiptIds: source ? [source] : [],
+    approvedMusicRightsReceiptIds: rights ? [rights] : [],
+    approvedMusicTrackSha256ById: trackId && hash ? { [trackId]: hash } : {},
+  }
+}
+
+function validate(packageValue: YouTubePresenterPackage, requireFinalAudioValidation = true) {
   const readiness = evaluateYouTubePresenterPackage({
     package: packageValue,
     expectedInputVersion: packageValue.input_version,
@@ -142,17 +154,21 @@ function validate(packageValue: YouTubePresenterPackage) {
     approvedClaimIds: ['jev-typed-probabilities', 'jev-policy-boundary'],
     approvedPrivacyReceiptIds: ['privacy:jev:public-safe-20261014'],
     approvedRightsReceiptIds: ['rights:jev:owned-public-assets-20261014'],
+    ...musicApprovals(packageValue),
+    requireFinalAudioValidation,
   })
   if (!readiness.ready) throw new Error(`Presenter package failed:\n- ${readiness.blockers.join('\n- ')}`)
   hashMatches(resolve(packageValue.native_presenter.path), packageValue.native_presenter.sha256)
   hashMatches(resolve(packageValue.render_contract.brand_logo.path), packageValue.render_contract.brand_logo.sha256)
   for (const asset of packageValue.render_contract.evidence_assets) hashMatches(resolve(asset.path), asset.sha256)
   hashMatches(resolve(packageValue.packaging.thumbnail_receipt.path), packageValue.packaging.thumbnail_receipt.sha256)
+  if (packageValue.music_bed) hashMatches(resolve(packageValue.music_bed.track.staged_path), packageValue.music_bed.track.sha256)
   return readiness
 }
 
 async function compose(packageValue: YouTubePresenterPackage) {
-  validate(packageValue)
+  validate(packageValue, false)
+  if (!packageValue.music_bed) throw new Error('Approved music-bed contract is required for composition.')
   await mkdir(outputDir, { recursive: true })
   const basePath = resolve(outputDir, '.base.png')
   const ctaPath = resolve(outputDir, '.cta.png')
@@ -171,6 +187,8 @@ async function compose(packageValue: YouTubePresenterPackage) {
   const inputArgs = ['-i', resolve(packageValue.native_presenter.path), '-loop', '1', '-i', basePath]
   for (const path of evidencePaths) inputArgs.push('-loop', '1', '-i', path)
   inputArgs.push('-loop', '1', '-i', ctaPath)
+  const musicInputIndex = evidenceCues.length + 3
+  inputArgs.push('-i', resolve(packageValue.music_bed.track.staged_path))
   const evidenceSplits = evidenceCues.map((_, index) => `[${index + 2}:v]format=rgba[e${index}]`).join(';')
   let overlays = `[1:v]format=rgba[base];[0:v]crop=714:406:3:437,colorkey=0x00e856:0.30:0.08,format=rgba,split=2[p1][p2];[p1]scale=940:-1[pfull];[p2]scale=390:-1[pside];[base][pfull]overlay=(W-w)/2:H-h-120:enable='between(t,0,16.279)+between(t,${conclusion.start_seconds},${conclusion.end_seconds})'[v0];[v0][pside]overlay=40:500:enable='between(t,16.279,${conclusion.start_seconds})'[v1]`
   evidenceCues.forEach((cue, index) => {
@@ -178,10 +196,16 @@ async function compose(packageValue: YouTubePresenterPackage) {
   })
   const last = evidenceCues.length + 1
   overlays += `;[${evidenceCues.length + 2}:v]format=rgba[cta];[v${last}][cta]overlay=0:0:enable='between(t,${cta.start_seconds},${cta.end_seconds})',format=yuv420p[outv]`
-  const filter = `${evidenceSplits};${overlays}`
+  const bed = packageValue.music_bed
+  const bedDuration = bed.timing.timeline_end_seconds - bed.timing.timeline_start_seconds
+  const fadeOutStart = bedDuration - bed.mix.fade_out_seconds
+  const delayMs = Math.round(bed.timing.timeline_start_seconds * 1000)
+  const thresholdLinear = Math.pow(10, bed.mix.speech_ducking.threshold_dbfs / 20).toFixed(6)
+  const peakLinear = Math.pow(10, bed.mix.maximum_true_peak_dbfs / 20).toFixed(6)
+  const audio = `[0:a]apad=pad_dur=${Math.max(0, finalDuration - conclusion.end_seconds).toFixed(3)},atrim=duration=${finalDuration.toFixed(3)},asplit=2[speech][sidechain];[${musicInputIndex}:a]atrim=start=${bed.timing.source_start_seconds}:duration=${bedDuration.toFixed(3)},asetpts=PTS-STARTPTS,loudnorm=I=${bed.mix.target_music_lufs}:TP=-3:LRA=7,afade=t=in:st=0:d=${bed.mix.fade_in_seconds},afade=t=out:st=${fadeOutStart.toFixed(3)}:d=${bed.mix.fade_out_seconds},adelay=${delayMs}|${delayMs}[music];[music][sidechain]sidechaincompress=threshold=${thresholdLinear}:ratio=${bed.mix.speech_ducking.ratio}:attack=${bed.mix.speech_ducking.attack_ms}:release=${bed.mix.speech_ducking.release_ms}[ducked];[speech][ducked]amix=inputs=2:duration=longest:dropout_transition=0,loudnorm=I=${bed.mix.target_final_lufs}:TP=${bed.mix.maximum_true_peak_dbfs}:LRA=7,alimiter=limit=${peakLinear}[mixout]`
+  const filter = `${evidenceSplits};${overlays};${audio}`
   run('ffmpeg', [
-    '-y', ...inputArgs, '-filter_complex', filter, '-map', '[outv]', '-map', '0:a:0',
-    '-af', `apad=pad_dur=${Math.max(0, finalDuration - conclusion.end_seconds).toFixed(3)}`,
+    '-y', ...inputArgs, '-filter_complex', filter, '-map', '[outv]', '-map', '[mixout]',
     '-t', finalDuration.toFixed(3), '-r', String(packageValue.render_contract.fps),
     '-c:v', 'libx264', '-preset', 'medium', '-crf', '18', '-pix_fmt', 'yuv420p',
     '-c:a', 'aac', '-b:a', '192k', '-movflags', '+faststart', videoPath,
@@ -203,7 +227,9 @@ async function compose(packageValue: YouTubePresenterPackage) {
       synchronized_side_evidence: true,
       disjoint_presenter_and_evidence_regions: true,
       evidence_loop: false,
-      native_audio_preserved: true,
+      native_dialogue_preserved: true,
+      rights_cleared_music_bed_mixed: true,
+      speech_aware_ducking_applied: true,
       conclusion_present: true,
       review_only_visual_cta_present: true,
       release_spoken_cta_pending: true,
@@ -234,6 +260,21 @@ async function main() {
   if (!existsSync(fontRegular) || !existsSync(fontBold)) throw new Error('Required deterministic system fonts are missing.')
   if (mode === 'thumbnail') return makeThumbnail(packageValue)
   if (mode === 'compose') return compose(packageValue)
+  if (mode === 'audit-music') {
+    const readiness = evaluateYouTubePresenterPackage({
+      package: packageValue,
+      expectedInputVersion: packageValue.input_version,
+      approvedResearchReceiptIds: ['research_packet:68dfaed1-b319-4a82-98c0-b9caea34835e'],
+      approvedSourceReceiptIds: ['source:jev:approved-composite-20261014'],
+      approvedClaimIds: ['jev-typed-probabilities', 'jev-policy-boundary'],
+      approvedPrivacyReceiptIds: ['privacy:jev:public-safe-20261014'],
+      approvedRightsReceiptIds: ['rights:jev:owned-public-assets-20261014'],
+      ...musicApprovals(packageValue),
+    })
+    console.log(JSON.stringify({ status: readiness.ready ? 'ready' : 'blocked', package: packagePath, readiness }, null, 2))
+    if (readiness.ready) throw new Error('Music audit unexpectedly passed without a deliberate compose/validation round.')
+    return
+  }
   const readiness = validate(packageValue)
   console.log(JSON.stringify({ status: 'ready', package: packagePath, thumbnail: thumbnailPath, readiness }, null, 2))
 }
