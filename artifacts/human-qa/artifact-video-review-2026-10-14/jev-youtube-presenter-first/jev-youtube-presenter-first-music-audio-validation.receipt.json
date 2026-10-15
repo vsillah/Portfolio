@@ -1,0 +1,63 @@
+{
+  "receipt_version": "youtube_music_audio_validation_v1",
+  "receipt_id": "audio-validation:jev:the-stream-v2:20261014",
+  "status": "passed",
+  "input_version": "sha256:e6fc9ae4aadd61e3a871e8f7af2dd0a2d424d5c20ae6a8d0eac861b16e796bd5",
+  "music_contract_version": "youtube_music_bed_v1",
+  "track": {
+    "track_id": "mad-hadda-the-stream-beat-stem-v2",
+    "sha256": "sha256:7842628c35c5375cefaffc1b7d9425e354e840f5d46dfab65612d8f86a67158d",
+    "source_receipt_id": "source:music:the-stream-v2:20261014",
+    "rights_receipt_id": "rights:music:the-stream-v2:20261014"
+  },
+  "outputs": {
+    "no_music_master": {
+      "path": "jev-youtube-presenter-first-review.mp4",
+      "sha256": "sha256:ed9bc332f9c337770ab1a697c44ae913e41654858380a2b2ced3d257c3f32a06",
+      "integrated_lufs": -22.6,
+      "true_peak_dbfs": -6.48,
+      "preserved_unchanged": true
+    },
+    "no_music_loudness_reference": {
+      "path": "jev-youtube-presenter-first-no-music-loudness-reference.mp4",
+      "sha256": "sha256:e979d9b9b43a48b9b90c60a110233cc858f6fc46801b1df3219658a09ae01c92",
+      "speech_window_lufs": -16.14,
+      "true_peak_dbfs": -2,
+      "purpose": "Level-matched A/B reference derived from, but not replacing, the untouched no-music master."
+    },
+    "music_mix": {
+      "path": "jev-youtube-presenter-first-music-review.mp4",
+      "sha256": "sha256:9a5182f5a6e3ce87da3c6eb5bd28fff551d0d31c6efaae5499cf1c856a2cb061",
+      "duration_seconds": 71.28,
+      "width": 1080,
+      "height": 1920,
+      "fps": 25,
+      "video_frames": 1782,
+      "audio_codec": "aac",
+      "audio_channels": 2,
+      "audio_sample_rate_hz": 96000,
+      "integrated_lufs": -16.34,
+      "true_peak_dbfs": -2,
+      "speech_window_lufs": -16.14,
+      "full_decode_passed": true
+    }
+  },
+  "mix_validation": {
+    "target_music_lufs": -32,
+    "measured_preduck_music_lufs": -31.25,
+    "measured_ducked_music_lufs_during_speech": -46.13,
+    "observed_duck_reduction_db": 14.88,
+    "minimum_required_duck_reduction_db": 12,
+    "speech_level_delta_vs_loudness_matched_baseline_db": 0,
+    "clipping_sample_count": 0,
+    "fade_in_first_100ms_mean_db": -65.2,
+    "fade_in_first_100ms_max_db": -52.4,
+    "fade_out_last_100ms_mean_db": -68.2,
+    "fade_out_last_100ms_max_db": -57.1,
+    "fade_boundary_passed": true,
+    "loop_enabled": false,
+    "loop_seam_passed": true
+  },
+  "validation_method": "FFmpeg loudnorm analysis for integrated loudness and true peak; level-matched 0-67.28 second speech-window comparison; separate pre-duck and sidechain-ducked PCM stems for reduction measurement; first/last 100 ms boundary analysis; full output decode.",
+  "execution_boundary": "Local composition and review evidence only. Zero provider calls, spend, upload, platform draft, schedule, publish, external send, credential change, migration, or production/shared-data mutation."
+}

@@ -25,8 +25,10 @@
     .meta { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0; }
     .meta span { border: 1px solid #49617d; padding: 7px 10px; color: #d9e4f0; font-size: 13px; }
     .safe { border-color: #2f9f82 !important; color: #7ee0c3 !important; }
-    .blocked { border: 1px solid #d8a52a; background: #221b0b; padding: 16px; margin: 16px 0; border-radius: 12px; }
-    .blocked strong { color: #ffd760; }
+    .approved { border: 1px solid #2f9f82; background: #09251f; padding: 16px; margin: 16px 0; border-radius: 12px; }
+    .approved strong { color: #7ee0c3; }
+    .comparison { margin-top: 22px; padding-top: 18px; border-top: 1px solid #49617d; }
+    .comparison video { max-height: 58vh; }
     .package-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, .65fr); gap: 20px; align-items: start; margin-top: 18px; }
     .package-grid img { width: 100%; border: 1px solid #49617d; border-radius: 12px; }
     .title-list { margin: 0; padding-left: 20px; color: #d9e4f0; line-height: 1.55; }
@@ -44,13 +46,18 @@
     <section id="jev">
       <h2>Jev</h2>
       <p>Review the presenter-first YouTube package. The approved native presenter opens the Short, five evidence regions change with the spoken point, the presenter never covers the field guide, and the conclusion leads into a bounded channel CTA.</p>
-      <div class="blocked" role="status">
-        <strong>Background music: blocked at the rights gate</strong>
-        <p>The existing MP4 below remains the no-music master. A local search found “The Stream 2.0” beat stem as a possible instrumental source, but found no track-specific composition, master, synchronization-use, or classification receipt. Nothing was mixed, downloaded, uploaded, or published.</p>
-        <p><a href="inputs/jev-youtube-music-source-audit-v1.json">Open the source and rights audit</a>. The next valid action is to select an exact track and approve source, rights, style, and SHA-256 bindings before a local A/B render can run.</p>
+      <div class="approved" role="status">
+        <strong>Background music: ready for music-specific Human QA</strong>
+        <p>“The Stream 2.0” is now bound to the approved composition/master-rights authorization, lo-fi jazz hip-hop classification, and exact SHA-256. The mix keeps the instrumental at −32 LUFS before ducking and reduces it 14.88 dB during speech.</p>
+        <p><a href="inputs/jev-youtube-music-rights-receipt-v1.json">Open the rights receipt</a> · <a href="jev-youtube-presenter-first/jev-youtube-presenter-first-music-audio-validation.receipt.json">Open final audio validation</a></p>
       </div>
-      <div class="media-label">Presenter-first Human-QA artifact</div>
-      <video controls preload="metadata" poster="jev-youtube-presenter-first/jev-youtube-presenter-first-poster.png?v=d8c5c940" src="jev-youtube-presenter-first/jev-youtube-presenter-first-review.mp4?v=ed9bc332"></video>
+      <div class="media-label">A • Approved music mix</div>
+      <video controls preload="metadata" poster="jev-youtube-presenter-first/jev-youtube-presenter-first-music-poster.png?v=9a5182f5" src="jev-youtube-presenter-first/jev-youtube-presenter-first-music-review.mp4?v=9a5182f5"></video>
+      <div class="comparison">
+        <div class="media-label">B • Loudness-matched no-music reference</div>
+        <p>Use the same listening volume. This reference is derived from the untouched no-music master so the comparison isolates what the music adds.</p>
+        <video controls preload="metadata" poster="jev-youtube-presenter-first/jev-youtube-presenter-first-poster.png?v=d8c5c940" src="jev-youtube-presenter-first/jev-youtube-presenter-first-no-music-loudness-reference.mp4?v=e979d9b9"></video>
+      </div>
       <div class="package-grid">
         <img src="jev-youtube-presenter-first/jev-youtube-thumbnail.png?v=209eb167" alt="Jev YouTube thumbnail reading Who owns the decision? with the presenter and a worked probability return">
         <div>
@@ -70,12 +77,13 @@
           <p><strong>Provenance:</strong> approved Jev operator field guide plus the exact completed HeyGen Red V-Neck presenter MP4 and its native Mad Hadda audio.</p>
           <p><strong>Version:</strong> input prefix <code>e6fc9ae4</code>.</p>
           <p><strong>Template gate:</strong> the exact 162-word, SHA-bound script now requires both a substantive conclusion and a channel CTA. The <a href="inputs/jev-killer-script-template-run-v2-presenter-first.json">v2 template-run receipt</a> preserves the script, genre decision, source claims, and provider-off boundary.</p>
-          <p><strong>Receipts:</strong> the <a href="inputs/jev-youtube-presenter-package-v2.json">presenter package</a> now adds a reusable music contract for identity, source and rights receipts, hash, timing, loudness, ducking, fades, looping, and final validation. It remains blocked. The <a href="jev-youtube-presenter-first/jev-youtube-presenter-first.receipt.json">existing render receipt</a> still binds the unchanged no-music master.</p>
+          <p><strong>Receipts:</strong> the <a href="inputs/jev-youtube-presenter-package-v2.json">presenter package</a> binds identity, source and rights receipts, hash, timing, loudness, ducking, fades, looping, and final validation. The original <a href="jev-youtube-presenter-first/jev-youtube-presenter-first.receipt.json">no-music receipt</a> and new <a href="jev-youtube-presenter-first/jev-youtube-presenter-first-music.receipt.json">music render receipt</a> remain separate.</p>
           <p><strong>Traceability:</strong> the presenter owns the opening frame. Score, policy, ownership, receipt, and provider-hold regions each appear once beside the presenter and only during the matching spoken point. Presenter and evidence rectangles are disjoint; no screenshot loop is used.</p>
           <p><strong>CTA boundary:</strong> the approved native audio ends with the substantive conclusion. Because this phase authorizes no provider call, the channel CTA is a four-second silent end card for review. A release-ready render remains fail-closed until a spoken CTA is generated under fresh authority.</p>
-          <p><strong>Music boundary:</strong> candidate placement alone is not rights proof. The package will reject missing or stale source and rights receipts, hash drift, excessive level, clipping, weak or absent speech ducking, broken fades or loop seams, and missing final audio validation. The intended local mix is −32 LUFS music under speech, a −16 LUFS program target, −1.5 dBFS true-peak ceiling, and at least 12 dB speech-aware reduction.</p>
+          <p><strong>Music choice:</strong> “The Stream 2.0” adds a restrained lo-fi jazz hip-hop pulse without changing the script, presenter, evidence timing, title package, or thumbnail. The rights controller confirmed composition and master control plus AmaduTown YouTube use; the receipt is bound to track SHA-256 <code>7842628c…a67158d</code>.</p>
+          <p><strong>Mix:</strong> −31.25 LUFS measured pre-duck music, 14.88 dB measured speech-aware reduction, −16.34 LUFS final program, −2.00 dB true peak, zero clipping, 1.5/2-second fades, and no loop. Dialogue measured −16.14 LUFS in both the mix and loudness-matched no-music reference.</p>
           <p><strong>Execution boundary:</strong> local deterministic composition only. No provider call, spend, upload, platform draft, schedule, publish, send, credential change, migration, or production mutation occurred.</p>
-          <p><strong>Validation:</strong> reusable fail-closed package tests, full MP4 decode, 1,782-frame count, 71.280-second duration, stereo audio, source and output hashes, eight-timestamp visual inspection, thumbnail inspection, and responsive review-page checks passed.</p>
+          <p><strong>Validation:</strong> reusable fail-closed package tests, full MP4 decode, 1,782-frame count, 71.280-second duration, stereo audio, source/output hashes, loudness, true peak, clipping, ducking, fade-boundary, no-loop, dialogue-level, and responsive review-page checks passed.</p>
         </div>
       </details>
     </section>

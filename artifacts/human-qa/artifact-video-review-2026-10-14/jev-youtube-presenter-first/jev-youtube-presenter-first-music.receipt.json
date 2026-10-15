@@ -1,0 +1,239 @@
+{
+  "receipt_version": "youtube_presenter_review_receipt_v1",
+  "package_id": "youtube-presenter:jev:20261014:v2",
+  "status": "passed",
+  "review_only": true,
+  "input_version": "sha256:e6fc9ae4aadd61e3a871e8f7af2dd0a2d424d5c20ae6a8d0eac861b16e796bd5",
+  "output": {
+    "path": "artifacts/human-qa/artifact-video-review-2026-10-14/jev-youtube-presenter-first/jev-youtube-presenter-first-music-review.mp4",
+    "sha256": "sha256:9a5182f5a6e3ce87da3c6eb5bd28fff551d0d31c6efaae5499cf1c856a2cb061",
+    "probe": {
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "index": 0,
+          "codec_name": "h264",
+          "codec_type": "video",
+          "width": 1080,
+          "height": 1920,
+          "r_frame_rate": "25/1",
+          "nb_frames": "1782"
+        },
+        {
+          "index": 1,
+          "codec_name": "aac",
+          "codec_type": "audio",
+          "sample_rate": "96000",
+          "channels": 2,
+          "r_frame_rate": "0/0",
+          "nb_frames": "6681"
+        }
+      ],
+      "format": {
+        "duration": "71.280000",
+        "size": "5173461"
+      }
+    }
+  },
+  "thumbnail": {
+    "path": "artifacts/human-qa/artifact-video-review-2026-10-14/jev-youtube-presenter-first/jev-youtube-thumbnail.png",
+    "sha256": "sha256:209eb1676268848b540076b8d9b1fa97c289c1c9c2d4c840b0c98873b3552f2e"
+  },
+  "source_presenter": {
+    "path": "artifacts/human-qa/artifact-video-review-2026-10-14/jev-avatar-motion-v3-mad-hadda-v3-api-credit/jev-heygen-presenter-native.mp4",
+    "sha256": "sha256:c9b0949da45208fd8fa84cd614c7c2c5c8667d548e74e4ef25975a9d0e29494d",
+    "provider_job_id": "c051d4c479011ba54c84c99ebd128a29"
+  },
+  "timeline": [
+    {
+      "cue_id": "presenter-open",
+      "layout": "presenter_primary",
+      "start_seconds": 0,
+      "end_seconds": 16.279,
+      "spoken_text": "A fluent answer can sound certain even when the model is guessing. Jev takes a different route: typed probabilities for a bounded decision. In the evaluation harness I have been building, that makes the real work visible."
+    },
+    {
+      "cue_id": "inspect-score",
+      "layout": "side_evidence",
+      "start_seconds": 16.279,
+      "end_seconds": 26.593,
+      "spoken_text": "First, inspect the score. A 0.81 result can route differently from one at 0.54.",
+      "evidence_asset_id": "jev-operator-field-guide",
+      "evidence_region_id": "score",
+      "source_crop": {
+        "x": 33,
+        "y": 212,
+        "width": 297,
+        "height": 325
+      },
+      "presenter_region": {
+        "x": 40,
+        "y": 500,
+        "width": 390,
+        "height": 693
+      },
+      "evidence_region": {
+        "x": 470,
+        "y": 430,
+        "width": 570,
+        "height": 850
+      },
+      "on_screen_text": "INSPECT THE SCORE",
+      "loop": false,
+      "delivery": "spoken"
+    },
+    {
+      "cue_id": "apply-policy",
+      "layout": "side_evidence",
+      "start_seconds": 26.593,
+      "end_seconds": 35.431,
+      "spoken_text": "Then apply a pre-authorized policy: route, review, or stop.",
+      "evidence_asset_id": "jev-operator-field-guide",
+      "evidence_region_id": "policy",
+      "source_crop": {
+        "x": 344,
+        "y": 212,
+        "width": 437,
+        "height": 325
+      },
+      "presenter_region": {
+        "x": 40,
+        "y": 500,
+        "width": 390,
+        "height": 693
+      },
+      "evidence_region": {
+        "x": 470,
+        "y": 430,
+        "width": 570,
+        "height": 850
+      },
+      "on_screen_text": "APPLY THE POLICY",
+      "loop": false,
+      "delivery": "spoken"
+    },
+    {
+      "cue_id": "retain-ownership",
+      "layout": "side_evidence",
+      "start_seconds": 35.431,
+      "end_seconds": 42.113,
+      "spoken_text": "Finally, keep exceptions and irreversible actions with a person, and retain the versioned receipt.",
+      "evidence_asset_id": "jev-operator-field-guide",
+      "evidence_region_id": "ownership",
+      "source_crop": {
+        "x": 796,
+        "y": 212,
+        "width": 313,
+        "height": 325
+      },
+      "presenter_region": {
+        "x": 40,
+        "y": 500,
+        "width": 390,
+        "height": 693
+      },
+      "evidence_region": {
+        "x": 470,
+        "y": 430,
+        "width": 570,
+        "height": 850
+      },
+      "on_screen_text": "RETAIN OWNERSHIP",
+      "loop": false,
+      "delivery": "spoken"
+    },
+    {
+      "cue_id": "retain-receipt",
+      "layout": "side_evidence",
+      "start_seconds": 42.113,
+      "end_seconds": 51.347,
+      "spoken_text": "The value is practical: operators can see the score, the threshold, the owner, and the evidence behind the handoff.",
+      "evidence_asset_id": "jev-operator-field-guide",
+      "evidence_region_id": "receipt",
+      "source_crop": {
+        "x": 796,
+        "y": 446,
+        "width": 313,
+        "height": 91
+      },
+      "presenter_region": {
+        "x": 40,
+        "y": 500,
+        "width": 390,
+        "height": 693
+      },
+      "evidence_region": {
+        "x": 470,
+        "y": 430,
+        "width": 570,
+        "height": 850
+      },
+      "on_screen_text": "KEEP THE RECEIPT",
+      "loop": false,
+      "delivery": "spoken"
+    },
+    {
+      "cue_id": "hold-the-boundary",
+      "layout": "side_evidence",
+      "start_seconds": 51.347,
+      "end_seconds": 61.434,
+      "spoken_text": "Jev’s launch does not prove production reliability, and my current harness remains mock-qualified with live provider use on hold. Use the field guide as a review test. Before any score moves work, ask what threshold applies, who owns the exception, and which receipt remains.",
+      "evidence_asset_id": "jev-operator-field-guide",
+      "evidence_region_id": "boundary",
+      "source_crop": {
+        "x": 714,
+        "y": 88,
+        "width": 395,
+        "height": 92
+      },
+      "presenter_region": {
+        "x": 40,
+        "y": 500,
+        "width": 390,
+        "height": 693
+      },
+      "evidence_region": {
+        "x": 470,
+        "y": 430,
+        "width": 570,
+        "height": 850
+      },
+      "on_screen_text": "LIVE PROVIDER USE: HOLD",
+      "loop": false,
+      "delivery": "spoken"
+    },
+    {
+      "cue_id": "conclusion",
+      "layout": "conclusion",
+      "start_seconds": 61.434,
+      "end_seconds": 67.28,
+      "spoken_text": "Governed automation begins when uncertainty is visible enough to route, review, and refuse.",
+      "delivery": "spoken"
+    },
+    {
+      "cue_id": "channel-cta",
+      "layout": "cta",
+      "start_seconds": 67.28,
+      "end_seconds": 71.28,
+      "spoken_text": "Subscribe to the channel for more practical ways to govern AI decisions.",
+      "on_screen_text": "SUBSCRIBE FOR PRACTICAL AI GOVERNANCE",
+      "delivery": "on_screen_end_card"
+    }
+  ],
+  "validations": {
+    "presenter_first": true,
+    "synchronized_side_evidence": true,
+    "disjoint_presenter_and_evidence_regions": true,
+    "evidence_loop": false,
+    "native_dialogue_preserved": true,
+    "rights_cleared_music_bed_mixed": true,
+    "speech_aware_ducking_applied": true,
+    "conclusion_present": true,
+    "review_only_visual_cta_present": true,
+    "release_spoken_cta_pending": true,
+    "external_provider_calls": 0,
+    "platform_uploads_or_drafts": 0
+  },
+  "execution_boundary": "Local deterministic composition only. No provider call, spend, upload, platform draft, schedule, publish, send, credential change, migration, or production mutation."
+}

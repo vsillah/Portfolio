@@ -17,10 +17,10 @@ for (let index = 2; index < process.argv.length; index += 2) args.set(process.ar
 const mode = args.get('--mode') ?? 'validate'
 const packagePath = resolve(args.get('--package') ?? 'artifacts/human-qa/artifact-video-review-2026-10-14/inputs/jev-youtube-presenter-package-v2.json')
 const outputDir = resolve(args.get('--output-dir') ?? 'artifacts/human-qa/artifact-video-review-2026-10-14/jev-youtube-presenter-first')
-const videoPath = resolve(outputDir, 'jev-youtube-presenter-first-review.mp4')
+const videoPath = resolve(outputDir, 'jev-youtube-presenter-first-music-review.mp4')
 const thumbnailPath = resolve(outputDir, 'jev-youtube-thumbnail.png')
-const posterPath = resolve(outputDir, 'jev-youtube-presenter-first-poster.png')
-const receiptPath = resolve(outputDir, 'jev-youtube-presenter-first.receipt.json')
+const posterPath = resolve(outputDir, 'jev-youtube-presenter-first-music-poster.png')
+const receiptPath = resolve(outputDir, 'jev-youtube-presenter-first-music.receipt.json')
 const titlePackagePath = resolve(outputDir, 'jev-youtube-title-subject-package.json')
 const fontRegular = '/System/Library/Fonts/Supplemental/Arial.ttf'
 const fontBold = '/System/Library/Fonts/Supplemental/Arial Bold.ttf'
@@ -201,8 +201,10 @@ async function compose(packageValue: YouTubePresenterPackage) {
   const fadeOutStart = bedDuration - bed.mix.fade_out_seconds
   const delayMs = Math.round(bed.timing.timeline_start_seconds * 1000)
   const thresholdLinear = Math.pow(10, bed.mix.speech_ducking.threshold_dbfs / 20).toFixed(6)
-  const peakLinear = Math.pow(10, bed.mix.maximum_true_peak_dbfs / 20).toFixed(6)
-  const audio = `[0:a]apad=pad_dur=${Math.max(0, finalDuration - conclusion.end_seconds).toFixed(3)},atrim=duration=${finalDuration.toFixed(3)},asplit=2[speech][sidechain];[${musicInputIndex}:a]atrim=start=${bed.timing.source_start_seconds}:duration=${bedDuration.toFixed(3)},asetpts=PTS-STARTPTS,loudnorm=I=${bed.mix.target_music_lufs}:TP=-3:LRA=7,afade=t=in:st=0:d=${bed.mix.fade_in_seconds},afade=t=out:st=${fadeOutStart.toFixed(3)}:d=${bed.mix.fade_out_seconds},adelay=${delayMs}|${delayMs}[music];[music][sidechain]sidechaincompress=threshold=${thresholdLinear}:ratio=${bed.mix.speech_ducking.ratio}:attack=${bed.mix.speech_ducking.attack_ms}:release=${bed.mix.speech_ducking.release_ms}[ducked];[speech][ducked]amix=inputs=2:duration=longest:dropout_transition=0,loudnorm=I=${bed.mix.target_final_lufs}:TP=${bed.mix.maximum_true_peak_dbfs}:LRA=7,alimiter=limit=${peakLinear}[mixout]`
+  // Leave 0.5 dB of codec headroom so the decoded AAC true peak stays under the contract ceiling.
+  const renderPeakDbfs = bed.mix.maximum_true_peak_dbfs - 0.5
+  const peakLinear = Math.pow(10, renderPeakDbfs / 20).toFixed(6)
+  const audio = `[0:a]apad=pad_dur=${Math.max(0, finalDuration - conclusion.end_seconds).toFixed(3)},atrim=duration=${finalDuration.toFixed(3)},asplit=2[speech][sidechain];[${musicInputIndex}:a]atrim=start=${bed.timing.source_start_seconds}:duration=${bedDuration.toFixed(3)},asetpts=PTS-STARTPTS,loudnorm=I=${bed.mix.target_music_lufs}:TP=-3:LRA=7,afade=t=in:st=0:d=${bed.mix.fade_in_seconds},afade=t=out:st=${fadeOutStart.toFixed(3)}:d=${bed.mix.fade_out_seconds},adelay=${delayMs}|${delayMs}[music];[music][sidechain]sidechaincompress=threshold=${thresholdLinear}:ratio=${bed.mix.speech_ducking.ratio}:attack=${bed.mix.speech_ducking.attack_ms}:release=${bed.mix.speech_ducking.release_ms}[ducked];[speech][ducked]amix=inputs=2:duration=longest:dropout_transition=0,loudnorm=I=${bed.mix.target_final_lufs}:TP=${renderPeakDbfs}:LRA=7,alimiter=limit=${peakLinear}:level=false[mixout]`
   const filter = `${evidenceSplits};${overlays};${audio}`
   run('ffmpeg', [
     '-y', ...inputArgs, '-filter_complex', filter, '-map', '[outv]', '-map', '[mixout]',

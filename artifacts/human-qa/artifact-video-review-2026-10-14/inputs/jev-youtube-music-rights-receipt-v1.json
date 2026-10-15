@@ -1,0 +1,31 @@
+{
+  "receipt_version": "youtube_music_rights_receipt_v1",
+  "receipt_id": "rights:music:the-stream-v2:20261014",
+  "status": "approved",
+  "approved_at": "2026-10-14T22:58:00-04:00",
+  "approved_by": "AmaduTown rights controller via direct user authorization",
+  "authorization_scope": {
+    "track_id": "mad-hadda-the-stream-beat-stem-v2",
+    "title": "The Stream 2.0 beat stem",
+    "composition_rights_control_confirmed": true,
+    "master_rights_control_confirmed": true,
+    "approved_use": "Background music in AmaduTown YouTube videos",
+    "classification": ["lo-fi", "jazz", "hip-hop", "instrumental"],
+    "sha256": "sha256:7842628c35c5375cefaffc1b7d9425e354e840f5d46dfab65612d8f86a67158d"
+  },
+  "authorization_text": "I confirm that I control the composition and master rights for ‘The Stream 2.0’ beat stem and authorize its use as background music in AmaduTown YouTube videos. Bind that authorization to SHA-256 7842628c35c5375cefaffc1b7d9425e354e840f5d46dfab65612d8f86a67158d. I also approve its classification as lo-fi jazz hip-hop.",
+  "authorization_text_sha256": "sha256:00834b699707840604222ead1492631cae9277d6b869e5ce63e19f5b4a386bc8",
+  "source_binding": {
+    "receipt_id": "source:music:the-stream-v2:20261014",
+    "status": "passed",
+    "observed_locations": [
+      "AmaduTown YouTube Channel/Assets/Music",
+      "Mad Hadda/The UnLearning/4. The Stream 2.0/Stems"
+    ],
+    "matching_sha256_at_both_locations": true,
+    "staged_local_path": "local-private/youtube-music/the-stream-v2.wav",
+    "staged_file_is_git_ignored": true
+  },
+  "input_version": "sha256:e6fc9ae4aadd61e3a871e8f7af2dd0a2d424d5c20ae6a8d0eac861b16e796bd5",
+  "execution_boundary": "Local A/B composition and validation only. No provider call, spend, upload, platform draft, schedule, publish, external send, credential change, migration, or production/shared-data mutation."
+}

@@ -67,16 +67,16 @@ try {
   await page.locator('#jev summary').click()
   await page.waitForTimeout(900)
   await page.screenshot({ path: evidenceScreenshotPath, fullPage: true })
-  await page.locator('#jev video').evaluate(async (element) => {
+  await page.locator('#jev video').first().evaluate(async (element) => {
     element.muted = true
     await element.play()
   })
   await page.waitForTimeout(3200)
-  await page.locator('#jev video').evaluate((element) => element.pause())
+  await page.locator('#jev video').first().evaluate((element) => element.pause())
   await page.locator('#jev .package-grid').scrollIntoViewIfNeeded()
   await page.waitForTimeout(1200)
   await page.setViewportSize({ width: 390, height: 844 })
-  await page.locator('#jev .blocked').scrollIntoViewIfNeeded()
+  await page.locator('#jev .approved').scrollIntoViewIfNeeded()
   await page.screenshot({ path: mobileScreenshotPath, fullPage: false })
   await page.waitForTimeout(900)
 } finally {

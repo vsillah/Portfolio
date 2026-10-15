@@ -134,7 +134,7 @@ function evaluate(value: YouTubePresenterPackage) {
 }
 
 describe('youtube-presenter-package', () => {
-  it('fails the checked-in Jev package closed at the explicit music rights gate', () => {
+  it('fails the checked-in Jev package without external approvals and passes with the exact music bindings', () => {
     const value = jevPresenterPackage as YouTubePresenterPackage
     expect(evaluateYouTubePresenterPackage({
       package: value,
@@ -148,11 +148,24 @@ describe('youtube-presenter-package', () => {
       approvedMusicRightsReceiptIds: [],
       approvedMusicTrackSha256ById: {},
     }).blockers).toEqual(expect.arrayContaining([
-      'Background-music track selection remains blocked until source and rights receipts are approved.',
+      'Background-music input hash is missing, stale, or unapproved.',
       'Background-music source receipt is missing, stale, or unapproved.',
       'Background-music rights receipt is missing, stale, or unapproved.',
-      'A passed, version-bound final audio validation receipt is required.',
     ]))
+    expect(evaluateYouTubePresenterPackage({
+      package: value,
+      expectedInputVersion: value.input_version,
+      approvedResearchReceiptIds: ['research_packet:68dfaed1-b319-4a82-98c0-b9caea34835e'],
+      approvedSourceReceiptIds: ['source:jev:approved-composite-20261014'],
+      approvedClaimIds: ['jev-typed-probabilities', 'jev-policy-boundary'],
+      approvedPrivacyReceiptIds: ['privacy:jev:public-safe-20261014'],
+      approvedRightsReceiptIds: ['rights:jev:owned-public-assets-20261014'],
+      approvedMusicSourceReceiptIds: ['source:music:the-stream-v2:20261014'],
+      approvedMusicRightsReceiptIds: ['rights:music:the-stream-v2:20261014'],
+      approvedMusicTrackSha256ById: {
+        'mad-hadda-the-stream-beat-stem-v2': 'sha256:7842628c35c5375cefaffc1b7d9425e354e840f5d46dfab65612d8f86a67158d',
+      },
+    })).toEqual({ applicable: true, ready: true, blockers: [] })
   })
 
   it('passes presenter-first composition with separate synchronized evidence, conclusion, titles, and thumbnail', () => {
