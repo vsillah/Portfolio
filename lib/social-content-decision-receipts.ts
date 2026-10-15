@@ -65,6 +65,21 @@ function stringValue(value: unknown): string {
   return typeof value === 'string' ? value.trim() : ''
 }
 
+function requiresArtifactEvidenceManifest(
+  ragContext: Record<string, unknown> | null,
+  packetManifestSnapshot: Record<string, unknown> | null,
+): boolean {
+  const qaFixture = recordValue(ragContext?.qa_fixture)
+  return Boolean(
+    packetManifestSnapshot
+    || ragContext?.artifact_evidence_required === true
+    || stringValue(ragContext?.artifact_video_adaptation_id)
+    || recordValue(ragContext?.approved_video_packet)
+    || recordValue(ragContext?.social_video_review_package)
+    || stringValue(qaFixture?.kind) === 'channel_native_video_review',
+  )
+}
+
 function normalizeTimestamp(value: string): string | null {
   const timestamp = Date.parse(value)
   return Number.isFinite(timestamp) ? new Date(timestamp).toISOString() : null
@@ -167,12 +182,13 @@ export function getSocialContentDecisionReadiness(
   const stale = packet.content_id !== item.id || !itemVersion || !packetVersion || itemVersion !== packetVersion
   if (packet.content_id !== item.id) blockers.push('The packet is bound to a different Social Content item.')
 
+  const packetManifestSnapshot = recordValue(packet.candidate_projection?.artifact_evidence_manifest)
   const rawManifest = ragContext?.artifact_evidence_manifest
-  const manifestValidation = rawManifest
+  const artifactManifestRequired = requiresArtifactEvidenceManifest(ragContext, packetManifestSnapshot)
+  const manifestValidation = artifactManifestRequired || rawManifest != null
     ? validateArtifactEvidenceManifest(rawManifest, item.updated_at)
     : null
-  const expectedManifestSnapshot = rawManifest ? artifactManifestSnapshot(rawManifest) : null
-  const packetManifestSnapshot = recordValue(packet.candidate_projection?.artifact_evidence_manifest)
+  const expectedManifestSnapshot = rawManifest != null ? artifactManifestSnapshot(rawManifest) : null
   if (manifestValidation && !manifestValidation.ready) blockers.push(...manifestValidation.blockers)
   if (expectedManifestSnapshot) {
     if (

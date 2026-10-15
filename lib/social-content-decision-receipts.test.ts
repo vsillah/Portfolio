@@ -76,7 +76,7 @@ function item(overrides: Record<string, unknown> = {}) {
 }
 
 describe('Social Content mobile decision readiness', () => {
-  it('accepts a version-bound packet only when every required receipt passed', () => {
+  it('keeps a non-artifact record compatible when every required receipt passed', () => {
     const readiness = getSocialContentDecisionReadiness(item() as never)
 
     expect(readiness.ready).toBe(true)
@@ -84,6 +84,20 @@ describe('Social Content mobile decision readiness', () => {
     expect(readiness.recorded_decision).toBeNull()
     expect(readiness.packet?.next_gate).toBe('visual_review')
     expect(readiness.packet?.candidate_projection).toEqual({ headline: 'Read-only candidate' })
+  })
+
+  it.each([
+    ['channel-native review fixture', { qa_fixture: { kind: 'channel_native_video_review', read_only: true } }],
+    ['approved customer-facing video packet', { approved_video_packet: { status: 'human_qa_pending', video_path: 'artifacts/review/jev.mp4' } }],
+  ])('fails closed when a %s has no evidence manifest', (_label, artifactContext) => {
+    const candidate = item()
+    Object.assign(candidate.rag_context, artifactContext)
+
+    const readiness = getSocialContentDecisionReadiness(candidate as never)
+
+    expect(readiness.ready).toBe(false)
+    expect(readiness.recorded_decision).toBeNull()
+    expect(readiness.blockers).toContain('The artifact evidence manifest is missing or malformed.')
   })
 
   it('fails closed when the central Decision Queue packet is missing', () => {
