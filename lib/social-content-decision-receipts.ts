@@ -1,4 +1,5 @@
 import type { SocialContentItem } from '@/lib/social-content'
+import { artifactManifestSnapshot, validateArtifactEvidenceManifest, type ArtifactManifestSnapshot } from '@/lib/artifact-evidence-manifest'
 
 export const SOCIAL_CONTENT_DECISION_RECEIPT_KEYS = [
   'source',
@@ -47,6 +48,13 @@ export type SocialContentRecordedDecision = {
   reviewed_content_updated_at: string
   current_content_updated_at: string
   next_gate: string
+  artifact_manifest_snapshot?: {
+    manifest_id: string
+    manifest_hash: string
+    content_version: string
+    evaluation_receipt_version: string | null
+    evaluation_receipt_ids: string[]
+  } | null
 }
 
 function recordValue(value: unknown): Record<string, unknown> | null {
@@ -57,6 +65,33 @@ function recordValue(value: unknown): Record<string, unknown> | null {
 
 function stringValue(value: unknown): string {
   return typeof value === 'string' ? value.trim() : ''
+}
+
+function stringArray(value: unknown): string[] {
+  return Array.isArray(value) ? value.filter((entry): entry is string => typeof entry === 'string').sort() : []
+}
+
+function manifestSnapshotMatches(value: Record<string, unknown> | null, expected: ArtifactManifestSnapshot): boolean {
+  return stringValue(value?.manifest_id) === expected.manifest_id
+    && stringValue(value?.manifest_hash) === expected.manifest_hash
+    && normalizeTimestamp(stringValue(value?.content_version)) === normalizeTimestamp(expected.content_version)
+    && stringValue(value?.evaluation_receipt_version) === stringValue(expected.evaluation_receipt_version)
+    && JSON.stringify(stringArray(value?.evaluation_receipt_ids)) === JSON.stringify([...expected.evaluation_receipt_ids].sort())
+}
+
+function requiresArtifactEvidenceManifest(
+  ragContext: Record<string, unknown> | null,
+  packetManifestSnapshot: Record<string, unknown> | null,
+): boolean {
+  const qaFixture = recordValue(ragContext?.qa_fixture)
+  return Boolean(
+    packetManifestSnapshot
+    || ragContext?.artifact_evidence_required === true
+    || stringValue(ragContext?.artifact_video_adaptation_id)
+    || recordValue(ragContext?.approved_video_packet)
+    || recordValue(ragContext?.social_video_review_package)
+    || stringValue(qaFixture?.kind) === 'channel_native_video_review',
+  )
 }
 
 function normalizeTimestamp(value: string): string | null {
@@ -130,6 +165,7 @@ export function getSocialContentDecisionReviewPacket(
 
 export function getSocialContentDecisionReadiness(
   item: Pick<SocialContentItem, 'id' | 'updated_at' | 'rag_context' | 'recorded_internal_decision_receipt'>,
+  evaluationAsOf: string = new Date().toISOString(),
 ): SocialContentDecisionReadiness {
   const ragContext = recordValue(item.rag_context)
   const rawPacket = recordValue(ragContext?.mobile_decision_review)
@@ -161,6 +197,20 @@ export function getSocialContentDecisionReadiness(
   const stale = packet.content_id !== item.id || !itemVersion || !packetVersion || itemVersion !== packetVersion
   if (packet.content_id !== item.id) blockers.push('The packet is bound to a different Social Content item.')
 
+  const packetManifestSnapshot = recordValue(packet.candidate_projection?.artifact_evidence_manifest)
+  const rawManifest = ragContext?.artifact_evidence_manifest
+  const artifactManifestRequired = requiresArtifactEvidenceManifest(ragContext, packetManifestSnapshot)
+  const manifestValidation = artifactManifestRequired || rawManifest != null
+    ? validateArtifactEvidenceManifest(rawManifest, item.updated_at, evaluationAsOf)
+    : null
+  const expectedManifestSnapshot = rawManifest != null ? artifactManifestSnapshot(rawManifest) : null
+  if (manifestValidation && !manifestValidation.ready) blockers.push(...manifestValidation.blockers)
+  if (expectedManifestSnapshot) {
+    if (!manifestSnapshotMatches(packetManifestSnapshot, expectedManifestSnapshot)) {
+      blockers.push('The Decision Queue packet does not snapshot the current artifact manifest identity and hash.')
+    }
+  }
+
   for (const key of SOCIAL_CONTENT_DECISION_RECEIPT_KEYS) {
     const receipt = packet.receipts[key]
     if (!['approved', 'passed', 'complete'].includes(receipt.status)) {
@@ -180,6 +230,7 @@ export function getSocialContentDecisionReadiness(
   const verifiedDecision = stringValue(verifiedReceipt?.decision)
   const verifiedReviewedVersion = normalizeTimestamp(stringValue(verifiedReceipt?.reviewed_content_updated_at))
   const verifiedNextGate = stringValue(verifiedReceipt?.next_gate)
+  const verifiedManifestSnapshot = recordValue(verifiedReceipt?.artifact_manifest_snapshot)
   const expectedRecordedGate = latestDecision === 'approve'
     ? packet.next_gate
     : packet.current_gate
@@ -200,6 +251,13 @@ export function getSocialContentDecisionReadiness(
         reviewed_content_updated_at: packetVersion!,
         current_content_updated_at: itemVersion!,
         next_gate: currentGate,
+        artifact_manifest_snapshot: verifiedManifestSnapshot ? {
+          manifest_id: stringValue(verifiedManifestSnapshot.manifest_id),
+          manifest_hash: stringValue(verifiedManifestSnapshot.manifest_hash),
+          content_version: stringValue(verifiedManifestSnapshot.content_version),
+          evaluation_receipt_version: stringValue(verifiedManifestSnapshot.evaluation_receipt_version) || null,
+          evaluation_receipt_ids: stringArray(verifiedManifestSnapshot.evaluation_receipt_ids),
+        } : null,
       }
     : null
 

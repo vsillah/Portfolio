@@ -10,6 +10,13 @@ export type VerifiedSocialContentDecisionReceipt = {
   reviewed_content_updated_at: string
   next_gate: string
   verified: true
+  artifact_manifest_snapshot: {
+    manifest_id: string
+    manifest_hash: string
+    content_version: string
+    evaluation_receipt_version: string | null
+    evaluation_receipt_ids: string[]
+  } | null
 }
 
 type ReceiptQueryResult = {
@@ -35,6 +42,10 @@ function asRecord(value: unknown): Record<string, unknown> | null {
 
 function asString(value: unknown): string {
   return typeof value === 'string' ? value.trim() : ''
+}
+
+function asStringArray(value: unknown): string[] {
+  return Array.isArray(value) ? value.filter((entry): entry is string => typeof entry === 'string').sort() : []
 }
 
 function normalizedTimestamp(value: unknown): string | null {
@@ -66,7 +77,7 @@ export async function readVerifiedSocialContentDecisionReceipt(
 
   const { data, error } = await reader
     .from('social_content_decision_receipts')
-    .select('id, social_content_id, agent_run_id, agent_approval_id, agent_work_item_id, content_updated_at, decision, current_gate, next_internal_gate')
+    .select('id, social_content_id, agent_run_id, agent_approval_id, agent_work_item_id, content_updated_at, decision, current_gate, next_internal_gate, candidate_projection')
     .eq('id', receiptId)
     .maybeSingle()
   const row = asRecord(data)
@@ -74,6 +85,10 @@ export async function readVerifiedSocialContentDecisionReceipt(
 
   const rowDecision = asString(row.decision)
   const rowVersion = normalizedTimestamp(row.content_updated_at)
+  const packetProjection = asRecord(packet.candidate_projection)
+  const packetManifest = asRecord(packetProjection?.artifact_evidence_manifest)
+  const rowProjection = asRecord(row.candidate_projection)
+  const rowManifest = asRecord(rowProjection?.artifact_evidence_manifest)
   if (
     asString(row.id) !== receiptId
     || asString(row.social_content_id) !== item.id
@@ -84,6 +99,11 @@ export async function readVerifiedSocialContentDecisionReceipt(
     || rowDecision !== recordedDecision
     || asString(row.current_gate) !== packet.current_gate
     || asString(row.next_internal_gate) !== currentGate
+    || asString(rowManifest?.manifest_id) !== asString(packetManifest?.manifest_id)
+    || asString(rowManifest?.manifest_hash) !== asString(packetManifest?.manifest_hash)
+    || normalizedTimestamp(rowManifest?.content_version) !== normalizedTimestamp(packetManifest?.content_version)
+    || asString(rowManifest?.evaluation_receipt_version) !== asString(packetManifest?.evaluation_receipt_version)
+    || JSON.stringify(asStringArray(rowManifest?.evaluation_receipt_ids)) !== JSON.stringify(asStringArray(packetManifest?.evaluation_receipt_ids))
   ) {
     return null
   }
@@ -94,5 +114,12 @@ export async function readVerifiedSocialContentDecisionReceipt(
     reviewed_content_updated_at: packetVersion,
     next_gate: currentGate,
     verified: true,
+    artifact_manifest_snapshot: packetManifest ? {
+      manifest_id: asString(packetManifest.manifest_id),
+      manifest_hash: asString(packetManifest.manifest_hash),
+      content_version: asString(packetManifest.content_version),
+      evaluation_receipt_version: asString(packetManifest.evaluation_receipt_version) || null,
+      evaluation_receipt_ids: asStringArray(packetManifest.evaluation_receipt_ids),
+    } : null,
   }
 }

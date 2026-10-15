@@ -38,6 +38,7 @@ function item() {
           visual: evidenceReceipt('visual'),
           challenger: evidenceReceipt('challenger'),
         },
+        candidate_projection: null,
       },
     },
   }
@@ -78,6 +79,7 @@ describe('recorded Social Content decision receipt read model', () => {
       reviewed_content_updated_at: REVIEWED_VERSION,
       next_gate: 'asset_packet',
       verified: true,
+      artifact_manifest_snapshot: null,
     })
     expect(mocks.from).toHaveBeenCalledWith('social_content_decision_receipts')
     expect(mocks.eq).toHaveBeenCalledWith('id', RECEIPT_ID)
@@ -108,5 +110,59 @@ describe('recorded Social Content decision receipt read model', () => {
 
     await expect(readVerifiedSocialContentDecisionReceipt(mocks.client, candidate as never)).resolves.toBeNull()
     expect(mocks.from).not.toHaveBeenCalled()
+  })
+
+  it('preserves and verifies the artifact manifest snapshot after content advances', async () => {
+    const candidate = item()
+    const snapshot = {
+      manifest_id: 'artifact-manifest:social:v2',
+      manifest_hash: `sha256:${'a'.repeat(64)}`,
+      content_version: REVIEWED_VERSION,
+      evaluation_receipt_version: 'artifact-evaluation-scorecard/v1',
+      evaluation_receipt_ids: ['evaluation:script:v1', 'evaluation:title:v1'],
+    }
+    ;(candidate.rag_context.mobile_decision_review as Record<string, unknown>).candidate_projection = {
+      artifact_evidence_manifest: snapshot,
+    }
+    const mocks = reader({ data: receiptRow({ candidate_projection: { artifact_evidence_manifest: snapshot } }), error: null })
+
+    await expect(readVerifiedSocialContentDecisionReceipt(mocks.client, candidate as never)).resolves.toMatchObject({
+      artifact_manifest_snapshot: snapshot,
+      verified: true,
+    })
+  })
+
+  it('fails closed when the immutable manifest hash differs from the reviewed packet', async () => {
+    const candidate = item()
+    const snapshot = {
+      manifest_id: 'artifact-manifest:social:v2',
+      manifest_hash: `sha256:${'a'.repeat(64)}`,
+      content_version: REVIEWED_VERSION,
+      evaluation_receipt_version: 'artifact-evaluation-scorecard/v1',
+      evaluation_receipt_ids: ['evaluation:script:v1', 'evaluation:title:v1'],
+    }
+    ;(candidate.rag_context.mobile_decision_review as Record<string, unknown>).candidate_projection = {
+      artifact_evidence_manifest: snapshot,
+    }
+    const mocks = reader({ data: receiptRow({ candidate_projection: { artifact_evidence_manifest: { ...snapshot, manifest_hash: `sha256:${'b'.repeat(64)}` } } }), error: null })
+
+    await expect(readVerifiedSocialContentDecisionReceipt(mocks.client, candidate as never)).resolves.toBeNull()
+  })
+
+  it('fails closed when the immutable evaluation receipt set differs from the reviewed manifest snapshot', async () => {
+    const candidate = item()
+    const snapshot = {
+      manifest_id: 'artifact-manifest:social:v2',
+      manifest_hash: `sha256:${'a'.repeat(64)}`,
+      content_version: REVIEWED_VERSION,
+      evaluation_receipt_version: 'artifact-evaluation-scorecard/v1',
+      evaluation_receipt_ids: ['evaluation:script:v1', 'evaluation:title:v1'],
+    }
+    ;(candidate.rag_context.mobile_decision_review as Record<string, unknown>).candidate_projection = {
+      artifact_evidence_manifest: snapshot,
+    }
+    const mocks = reader({ data: receiptRow({ candidate_projection: { artifact_evidence_manifest: { ...snapshot, evaluation_receipt_ids: ['evaluation:title:v1'] } } }), error: null })
+
+    await expect(readVerifiedSocialContentDecisionReceipt(mocks.client, candidate as never)).resolves.toBeNull()
   })
 })
