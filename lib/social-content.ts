@@ -139,6 +139,11 @@ export interface SocialContentItem {
     reviewed_content_updated_at: string
     next_gate: string
     verified: true
+    artifact_manifest_snapshot: {
+      manifest_id: string
+      manifest_hash: string
+      content_version: string
+    } | null
   } | null
 }
 

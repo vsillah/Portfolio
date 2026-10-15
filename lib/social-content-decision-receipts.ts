@@ -1,4 +1,5 @@
 import type { SocialContentItem } from '@/lib/social-content'
+import { artifactManifestSnapshot, validateArtifactEvidenceManifest } from '@/lib/artifact-evidence-manifest'
 
 export const SOCIAL_CONTENT_DECISION_RECEIPT_KEYS = [
   'source',
@@ -47,6 +48,11 @@ export type SocialContentRecordedDecision = {
   reviewed_content_updated_at: string
   current_content_updated_at: string
   next_gate: string
+  artifact_manifest_snapshot?: {
+    manifest_id: string
+    manifest_hash: string
+    content_version: string
+  } | null
 }
 
 function recordValue(value: unknown): Record<string, unknown> | null {
@@ -161,6 +167,23 @@ export function getSocialContentDecisionReadiness(
   const stale = packet.content_id !== item.id || !itemVersion || !packetVersion || itemVersion !== packetVersion
   if (packet.content_id !== item.id) blockers.push('The packet is bound to a different Social Content item.')
 
+  const rawManifest = ragContext?.artifact_evidence_manifest
+  const manifestValidation = rawManifest
+    ? validateArtifactEvidenceManifest(rawManifest, item.updated_at)
+    : null
+  const expectedManifestSnapshot = rawManifest ? artifactManifestSnapshot(rawManifest) : null
+  const packetManifestSnapshot = recordValue(packet.candidate_projection?.artifact_evidence_manifest)
+  if (manifestValidation && !manifestValidation.ready) blockers.push(...manifestValidation.blockers)
+  if (expectedManifestSnapshot) {
+    if (
+      stringValue(packetManifestSnapshot?.manifest_id) !== expectedManifestSnapshot.manifest_id
+      || stringValue(packetManifestSnapshot?.manifest_hash) !== expectedManifestSnapshot.manifest_hash
+      || normalizeTimestamp(stringValue(packetManifestSnapshot?.content_version)) !== normalizeTimestamp(expectedManifestSnapshot.content_version)
+    ) {
+      blockers.push('The Decision Queue packet does not snapshot the current artifact manifest identity and hash.')
+    }
+  }
+
   for (const key of SOCIAL_CONTENT_DECISION_RECEIPT_KEYS) {
     const receipt = packet.receipts[key]
     if (!['approved', 'passed', 'complete'].includes(receipt.status)) {
@@ -180,6 +203,7 @@ export function getSocialContentDecisionReadiness(
   const verifiedDecision = stringValue(verifiedReceipt?.decision)
   const verifiedReviewedVersion = normalizeTimestamp(stringValue(verifiedReceipt?.reviewed_content_updated_at))
   const verifiedNextGate = stringValue(verifiedReceipt?.next_gate)
+  const verifiedManifestSnapshot = recordValue(verifiedReceipt?.artifact_manifest_snapshot)
   const expectedRecordedGate = latestDecision === 'approve'
     ? packet.next_gate
     : packet.current_gate
@@ -200,6 +224,11 @@ export function getSocialContentDecisionReadiness(
         reviewed_content_updated_at: packetVersion!,
         current_content_updated_at: itemVersion!,
         next_gate: currentGate,
+        artifact_manifest_snapshot: verifiedManifestSnapshot ? {
+          manifest_id: stringValue(verifiedManifestSnapshot.manifest_id),
+          manifest_hash: stringValue(verifiedManifestSnapshot.manifest_hash),
+          content_version: stringValue(verifiedManifestSnapshot.content_version),
+        } : null,
       }
     : null
 

@@ -9,6 +9,7 @@ import {
 import { buildDeterministicVisualRecipePatch, projectDeterministicVisualRender } from '@/lib/social-deterministic-visual'
 import { socialCopyVersion } from '@/lib/social-copy-revision'
 import { topicSourceCoverageQaFixture } from '@/lib/social-topic-source-coverage-qa-fixture'
+import { channelNativeVideoQaFixture } from '@/lib/social-channel-video-qa-fixture'
 
 const mocks = vi.hoisted(() => ({
   push: vi.fn(),
@@ -222,6 +223,36 @@ describe('SocialContentDetailRoute visual production review', () => {
       '/api/admin/social-content/social-1?qa_fixture=channel_native_video_v2&video_package_state=ready',
       expect.objectContaining({ cache: 'no-store' }),
     )
+  })
+
+  it('adds traceability to the existing protected artifact review without creating a parallel decision surface', async () => {
+    mocks.id = 'f966123f-05eb-48ec-a7c2-970afce642ef'
+    mocks.search = 'step=copy&qa_fixture=channel_native_video_v2'
+    const youtubeItem = channelNativeVideoQaFixture('f966123f-05eb-48ec-a7c2-970afce642ef', 'ready')
+    vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, json: async () => ({ item: youtubeItem }) } as Response)))
+
+    render(<SocialContentDetailRoute />)
+
+    expect(await screen.findByLabelText('YouTube Shorts channel-native video review')).toBeVisible()
+    expect(screen.getByTestId('artifact-evidence-trace')).toBeVisible()
+    expect(screen.getByRole('button', { name: /Trace evidence/i })).toHaveAttribute('aria-pressed', 'false')
+    expect(screen.getAllByRole('link', { name: 'Open canonical Decision Queue' })).toHaveLength(1)
+    expect(screen.queryByLabelText('Artifact trace list')).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: /Trace evidence/i }))
+    expect(screen.getByLabelText('Artifact trace list')).toBeVisible()
+  })
+
+  it('fails the artifact evidence gate with an actionable music-rights recovery reason', async () => {
+    mocks.id = 'f966123f-05eb-48ec-a7c2-970afce642ef'
+    mocks.search = 'step=copy&qa_fixture=channel_native_video_v2&video_package_state=blocked'
+    const youtubeItem = channelNativeVideoQaFixture('f966123f-05eb-48ec-a7c2-970afce642ef', 'blocked')
+    vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, json: async () => ({ item: youtubeItem }) } as Response)))
+
+    render(<SocialContentDetailRoute />)
+
+    const trace = await screen.findByTestId('artifact-evidence-trace')
+    const alert = within(trace).getByRole('alert')
+    expect(alert).toHaveTextContent(/Music bed is customer-facing but lacks a passing rights\/privacy receipt/i)
   })
 
   it('renders a synthetic source-coverage fixture as evidence-only with no publishable affordances', async () => {

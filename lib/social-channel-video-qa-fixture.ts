@@ -3,6 +3,7 @@ import darkCastleReceipt from '@/artifacts/human-qa/artifact-video-review-2026-1
 import jevPacket from '@/artifacts/human-qa/artifact-video-review-2026-10-14/inputs/jev.json'
 import jevReceipt from '@/artifacts/human-qa/artifact-video-review-2026-10-14/jev-provider-none-review.receipt.json'
 import jevSocialVideoReviewPackage from '@/artifacts/human-qa/artifact-video-review-2026-10-14/inputs/jev-social-video-review-package-v1.json'
+import type { ArtifactEvidenceCategory, ArtifactEvidenceManifest } from '@/lib/artifact-evidence-manifest'
 
 const QA_FIXTURES = {
   'f966123f-05eb-48ec-a7c2-970afce642ef': {
@@ -27,6 +28,81 @@ export function isChannelNativeVideoQaFixtureId(id: string): id is ChannelNative
   return Object.prototype.hasOwnProperty.call(QA_FIXTURES, id)
 }
 
+function artifactEvidenceManifest(input: {
+  productId: string
+  contentVersion: string
+  inputVersion: string
+  previewUrl: string
+  previewAlt: string
+  outputSha256: string
+  musicReady: boolean
+}): ArtifactEvidenceManifest {
+  const manifestId = `artifact-manifest:${input.productId}:youtube-shorts:v1`
+  const sourceHref = `/admin/agents/content-intelligence?section=research&packet=${encodeURIComponent(`${input.productId}-artifact-video-source`)}`
+  const decisionHref = `/admin/agents/coordination?proposal=${encodeURIComponent(`${input.productId}-artifact-video-review`)}`
+  const privacyReceipt = `privacy:${input.productId}:public-safe-20261014`
+  const rightsReceipt = `rights:${input.productId}:owned-public-assets-20261014`
+  const element = (category: ArtifactEvidenceCategory, id: string, label: string, excerpt: string, options: Partial<ArtifactEvidenceManifest['elements'][number]> = {}): ArtifactEvidenceManifest['elements'][number] => ({
+    id,
+    category,
+    label,
+    input_excerpt: excerpt,
+    customer_facing: true,
+    review_only: false,
+    redacted: false,
+    source_identity: `source:${input.productId}:approved-artifact-packet`,
+    source_record_type: 'portfolio_research_packet',
+    authoritative_href: sourceHref,
+    evidence_receipt_ids: [`source:${input.productId}:approved-composite-20261014`],
+    version_hash: input.inputVersion,
+    content_version: input.contentVersion,
+    rights_privacy_status: 'passed',
+    rights_privacy_receipt_ids: [rightsReceipt, privacyReceipt],
+    transformation_step: 'Bound into the versioned channel-native review packet without provider execution.',
+    ...options,
+  })
+  const elements = [
+    element('copy_script', 'script', 'Spoken script', 'The artifact makes the evidence and decision trail visible.', { region: { x: 50, y: 50 } }),
+    element('visual_field', 'visual-proof', 'Visible proof field', 'Evidence → decision → bounded next action', { region: { x: 48, y: 42 } }),
+    element('product_screenshot', 'product-capture', 'Product screenshot', 'Approved product interface capture', { region: { x: 28, y: 56 } }),
+    element('visual_template', 'visual-recipe', 'Visual template and recipe', 'Channel-native evidence walkthrough with restrained motion.'),
+    element('presenter_avatar', 'presenter', 'Presenter/avatar', 'No generated presenter; artifact-led provider-none composition.', { customer_facing: false, review_only: true }),
+    element('voice_narration', 'voice', 'Voice and narration', 'Approved narration mixed from the version-bound source track.'),
+    element('music', 'music', 'Music bed', 'The Stream V2 instrumental bed.', input.musicReady ? {} : {
+      rights_privacy_status: 'missing',
+      rights_privacy_receipt_ids: [],
+    }),
+    element('thumbnail', 'thumbnail', 'Thumbnail', 'Customer-facing artifact poster.', { region: { x: 72, y: 34 } }),
+    element('title', 'title', 'Title', `${input.productId}: what the artifact makes visible`, { region: { x: 48, y: 16 } }),
+    element('description', 'description', 'Description', 'A practical walkthrough of the artifact, its proof, and its bounded value.'),
+    element('cta', 'cta', 'Call to action', 'Inspect the receipt trail before approving the next gate.', { region: { x: 51, y: 83 } }),
+    element('source_research', 'research', 'Source research', 'Approved public-safe research summary.', {
+      customer_facing: false,
+      review_only: true,
+      redacted: true,
+      input_excerpt: '[Private source withheld — approved summary only]',
+      source_identity: `open-brain:memory:${input.productId}:approved-summary`,
+      source_record_type: 'open_brain_approved_memory',
+      authoritative_href: '/admin/agents/open-brain?view=approved',
+    }),
+    element('transformation', 'transform', 'Transformation recipe', 'Native source → edit timeline → privacy-safe composite → SHA-256 verification.', { customer_facing: false, review_only: true, authoritative_href: decisionHref }),
+    element('final_output', 'output', 'Final MP4 output', `SHA-256 ${input.outputSha256}`, { authoritative_href: decisionHref }),
+  ]
+  return {
+    version: 'artifact-evidence-manifest/v1',
+    manifest_id: manifestId,
+    manifest_hash: input.productId === 'jev'
+      ? 'sha256:7e13a46b2ad2c8757c79c35b6a44e69f7d55d43c47db2c459411eefdd70c5d0e'
+      : 'sha256:1c67d5f36ac30e66ca78fa075d8508197e899e3c944a4601c595ff4de70a4f7e',
+    content_version: input.contentVersion,
+    artifact_label: `${input.productId === 'jev' ? 'Jev' : 'Dark Castle Chess'} customer-facing video`,
+    preview_url: input.previewUrl,
+    preview_alt: input.previewAlt,
+    final_output_hashes: [{ label: 'Final MP4', sha256: input.outputSha256 }],
+    elements,
+  }
+}
+
 export function channelNativeVideoQaFixture(id: ChannelNativeVideoQaFixtureId, videoPackageState: 'ready' | 'blocked' = 'ready') {
   const fixture = QA_FIXTURES[id]
   const packet = fixture.packet
@@ -35,6 +111,15 @@ export function channelNativeVideoQaFixture(id: ChannelNativeVideoQaFixtureId, v
   if (!shorts) throw new Error(`Channel-native video QA packet ${id} is missing its YouTube Shorts adaptation.`)
 
   const traceabilitySummary = `Every customer-facing claim in this adaptation remains bound to ${packet.identity.source_ids.length} approved source identities, ${packet.evidence_assets.length} cleared artifact${packet.evidence_assets.length === 1 ? '' : 's'}, and the current privacy, rights, challenger, and script-quality receipts.`
+  const manifest = artifactEvidenceManifest({
+    productId: packet.identity.product_id,
+    contentVersion: packet.generated_at,
+    inputVersion: packet.input_version,
+    previewUrl: `/review-assets/social-content/${fixture.posterPath.split('/').at(-1)}`,
+    previewAlt: `${packet.identity.product_id === 'jev' ? 'Jev' : 'Dark Castle Chess'} customer-facing video poster with traceable evidence regions`,
+    outputSha256: receipt.output.sha256,
+    musicReady: videoPackageState === 'ready',
+  })
 
   return {
     id,
@@ -74,6 +159,7 @@ export function channelNativeVideoQaFixture(id: ChannelNativeVideoQaFixtureId, v
       },
       approved_thumbnail_brief: packet.draft.thumbnail_brief,
       traceability_summary: traceabilitySummary,
+      artifact_evidence_manifest: manifest,
       workflow_state: 'human_review_required',
       publish_gate: 'draft_only',
       provider_actions_enabled: false,

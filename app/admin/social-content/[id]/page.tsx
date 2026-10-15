@@ -50,6 +50,7 @@ import CompactPostPreview from '@/components/admin/CompactPostPreview'
 import AutoSizingScriptTextarea from '@/components/admin/AutoSizingScriptTextarea'
 import ChannelNativeVideoReview, { getChannelVideoPacket } from '@/components/admin/ChannelNativeVideoReview'
 import SocialVideoProductionControls from '@/components/admin/SocialVideoProductionControls'
+import ArtifactEvidenceTrace from '@/components/admin/ArtifactEvidenceTrace'
 import type { SocialVideoReviewPackage } from '@/lib/social-video-review-package'
 import { getCurrentSession } from '@/lib/auth'
 import {
@@ -2893,6 +2894,7 @@ function SocialContentDetailPage() {
   const previewFixtureNextAction = asString(qaFixture?.next_action) || 'Review the evidence, then return to Social Content or the PR handoff.'
   const mobileDecisionReadiness = getSocialContentDecisionReadiness(item)
   const recordedMobileDecision = mobileDecisionReadiness.recorded_decision
+  const artifactEvidenceManifest = ragContext?.artifact_evidence_manifest
   const rawMobileDecisionPacket = asRecord(ragContext?.mobile_decision_review)
   const mobileDecisionMode = isBoundSocialContentDecisionRoute({
     review: searchParams.get('review'),
@@ -6191,7 +6193,16 @@ function SocialContentDetailPage() {
           {/* Right column: Preview */}
           <div className="min-w-0 space-y-4">
             {channelVideoPacket ? (
-              <ChannelNativeVideoReview item={{ ...item, post_text: postText, voiceover_text: voiceoverText }} />
+              <>
+                <ChannelNativeVideoReview item={{ ...item, post_text: postText, voiceover_text: voiceoverText }} />
+                {Boolean(artifactEvidenceManifest) && !previewFixtureReadOnly ? (
+                  <ArtifactEvidenceTrace
+                    manifest={artifactEvidenceManifest}
+                    currentContentVersion={item.updated_at}
+                    recordedSnapshot={recordedMobileDecision?.artifact_manifest_snapshot ?? item.recorded_internal_decision_receipt?.artifact_manifest_snapshot}
+                  />
+                ) : null}
+              </>
             ) : (
               <>
               <LinkedInReviewSurface item={item} hasUnsavedChanges={hasUnsavedCopyChanges} onRefresh={() => fetchItem({ silent: true })} />
@@ -7498,6 +7509,15 @@ function SocialContentDetailPage() {
         )}
       </AnimatePresence>
       </fieldset>
+      {previewFixtureReadOnly && Boolean(artifactEvidenceManifest) && (
+        <div className="mx-auto w-[calc(100%-2rem)] max-w-[90rem] pb-8 sm:w-[calc(100%-3rem)]">
+          <ArtifactEvidenceTrace
+            manifest={artifactEvidenceManifest}
+            currentContentVersion={item.updated_at}
+            recordedSnapshot={recordedMobileDecision?.artifact_manifest_snapshot ?? item.recorded_internal_decision_receipt?.artifact_manifest_snapshot}
+          />
+        </div>
+      )}
       {channelVideoPacket && socialVideoReviewPackage && (
         <div className="mx-auto w-[calc(100%-2rem)] max-w-[90rem] pb-8 sm:w-[calc(100%-3rem)]">
           <SocialVideoProductionControls
