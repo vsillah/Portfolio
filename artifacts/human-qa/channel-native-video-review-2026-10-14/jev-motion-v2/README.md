@@ -26,4 +26,3 @@ Human QA remains pending. This packet replaces the rejected static-timeline evid
 - No synthesis provider, upload, platform draft, scheduling, publishing, external send, database mutation, or shared-row write occurred.
 - All six execution controls remain disabled on the deployed route.
 - Dark Castle assets were not changed.
-
