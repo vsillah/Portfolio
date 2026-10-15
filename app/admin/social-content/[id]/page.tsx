@@ -51,6 +51,7 @@ import AutoSizingScriptTextarea from '@/components/admin/AutoSizingScriptTextare
 import ChannelNativeVideoReview, { getChannelVideoPacket } from '@/components/admin/ChannelNativeVideoReview'
 import SocialVideoProductionControls from '@/components/admin/SocialVideoProductionControls'
 import ArtifactEvidenceTrace from '@/components/admin/ArtifactEvidenceTrace'
+import OutlierEvidenceScorecard from '@/components/admin/OutlierEvidenceScorecard'
 import type { SocialVideoReviewPackage } from '@/lib/social-video-review-package'
 import { getCurrentSession } from '@/lib/auth'
 import {
@@ -119,6 +120,7 @@ import {
 } from '@/lib/social-deterministic-visual-recipe'
 import type { SocialCommentInboxItem } from '@/lib/social-comment-inbox-ui'
 import type { SocialContentCalibrationReference } from '@/lib/social-content-calibration-library'
+import { outlierEvidenceCalibrationQaFixture } from '@/lib/social-outlier-evidence-calibration'
 import Link from 'next/link'
 
 const PLATFORM_ICONS: Record<string, React.ReactNode> = {
@@ -2916,6 +2918,16 @@ function SocialContentDetailPage() {
   const agentPilotPassToHuman = ragContext?.pass_to_human === true
   const agentPilotRequiredFixes = asStringArray(ragContext?.required_fixes)
   const agentPilotCalibration = asRecord(ragContext?.content_calibration)
+  const outlierQaStateParam = searchParams.get('outlierQa')
+  const outlierQaState = (
+    outlierQaStateParam === 'ready'
+    || outlierQaStateParam === 'missing'
+    || outlierQaStateParam === 'stale'
+    || outlierQaStateParam === 'unauthorized'
+  ) ? outlierQaStateParam : null
+  const outlierEvidencePacket = outlierQaState
+    ? outlierEvidenceCalibrationQaFixture(outlierQaState)
+    : agentPilotCalibration?.outlier_evidence_calibration
   const agentPilotReferenceCuration = asRecord(agentPilotCalibration?.reference_curation)
   const isGoldStandardCalibrationReference = agentPilotReferenceCuration?.gold_standard === true || agentPilotCalibration?.gold_standard === true
   const agentPilotCalibrationStatus = asString(agentPilotCalibration?.status)
@@ -3977,6 +3989,12 @@ function SocialContentDetailPage() {
         </section>
       )}
 
+      {previewFixtureReadOnly && Boolean(outlierQaState || outlierEvidencePacket) && (
+        <div className="mx-auto w-[calc(100%-2rem)] max-w-[90rem] sm:w-[calc(100%-3rem)]">
+          <OutlierEvidenceScorecard packet={outlierEvidencePacket} qaState={outlierQaState} />
+        </div>
+      )}
+
       <fieldset
         disabled={previewFixtureReadOnly}
         aria-describedby={previewFixtureReadOnly ? 'preview-fixture-read-only-notice' : undefined}
@@ -4774,6 +4792,10 @@ function SocialContentDetailPage() {
 	            )}
 	          </section>
 	        )}
+
+          {!previewFixtureReadOnly && Boolean(isAgentSocialPilot || outlierQaState || outlierEvidencePacket) && (
+            <OutlierEvidenceScorecard packet={outlierEvidencePacket} qaState={outlierQaState} />
+          )}
 
 	        {isDraftOnlyPilot && (
 	          <section data-theme-surface="campaign-copy-review" className="admin-console-card rounded-xl border border-amber-500/25 p-4">
