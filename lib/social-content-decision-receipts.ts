@@ -165,6 +165,7 @@ export function getSocialContentDecisionReviewPacket(
 
 export function getSocialContentDecisionReadiness(
   item: Pick<SocialContentItem, 'id' | 'updated_at' | 'rag_context' | 'recorded_internal_decision_receipt'>,
+  evaluationAsOf: string = new Date().toISOString(),
 ): SocialContentDecisionReadiness {
   const ragContext = recordValue(item.rag_context)
   const rawPacket = recordValue(ragContext?.mobile_decision_review)
@@ -200,7 +201,7 @@ export function getSocialContentDecisionReadiness(
   const rawManifest = ragContext?.artifact_evidence_manifest
   const artifactManifestRequired = requiresArtifactEvidenceManifest(ragContext, packetManifestSnapshot)
   const manifestValidation = artifactManifestRequired || rawManifest != null
-    ? validateArtifactEvidenceManifest(rawManifest, item.updated_at)
+    ? validateArtifactEvidenceManifest(rawManifest, item.updated_at, evaluationAsOf)
     : null
   const expectedManifestSnapshot = rawManifest != null ? artifactManifestSnapshot(rawManifest) : null
   if (manifestValidation && !manifestValidation.ready) blockers.push(...manifestValidation.blockers)

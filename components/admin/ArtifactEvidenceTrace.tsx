@@ -150,12 +150,13 @@ function VisualSourceTrace({ manifest, selectedId, onSelect }: {
   )
 }
 
-export default function ArtifactEvidenceTrace({ manifest: rawManifest, currentContentVersion, recordedSnapshot }: {
+export default function ArtifactEvidenceTrace({ manifest: rawManifest, currentContentVersion, recordedSnapshot, evaluationAsOf }: {
   manifest: unknown
   currentContentVersion: string
+  evaluationAsOf?: string
   recordedSnapshot?: { manifest_id?: string; manifest_hash?: string; content_version?: string; evaluation_receipt_version?: string | null; evaluation_receipt_ids?: string[] } | null
 }) {
-  const validation = useMemo(() => validateArtifactEvidenceManifest(rawManifest, currentContentVersion), [currentContentVersion, rawManifest])
+  const validation = useMemo(() => validateArtifactEvidenceManifest(rawManifest, currentContentVersion, evaluationAsOf), [currentContentVersion, evaluationAsOf, rawManifest])
   const manifest = validation.manifest
   const [traceEnabled, setTraceEnabled] = useState(false)
   const [selectedId, setSelectedId] = useState<string | null>(null)

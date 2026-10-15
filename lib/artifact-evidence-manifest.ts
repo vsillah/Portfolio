@@ -174,7 +174,11 @@ export function parseArtifactEvidenceManifest(value: unknown): ArtifactEvidenceM
   }
 }
 
-export function validateArtifactEvidenceManifest(value: unknown, currentContentVersion: string): ArtifactEvidenceManifestValidation {
+export function validateArtifactEvidenceManifest(
+  value: unknown,
+  currentContentVersion: string,
+  evaluationAsOf: string = new Date().toISOString(),
+): ArtifactEvidenceManifestValidation {
   const manifest = parseArtifactEvidenceManifest(value)
   if (!manifest) return { manifest: null, ready: false, stale: false, blockers: ['The artifact evidence manifest is missing or malformed.'] }
 
@@ -215,7 +219,7 @@ export function validateArtifactEvidenceManifest(value: unknown, currentContentV
       if (element.evaluation_kind !== expectedEvaluationKind || !element.evaluation_receipt) {
         blockers.push(`${element.label || element.id} is missing its versioned ${expectedEvaluationKind.replaceAll('_', ' ')} evaluation receipt.`)
       } else {
-        const evaluation = validateArtifactEvaluationReceipt(element.evaluation_receipt, manifest.content_version)
+        const evaluation = validateArtifactEvaluationReceipt(element.evaluation_receipt, manifest.content_version, evaluationAsOf)
         if (element.evaluation_receipt.evaluation_kind !== expectedEvaluationKind) blockers.push(`${element.label || element.id} has the wrong evaluation kind.`)
         if (!evaluation.ready) blockers.push(...evaluation.blockers.map((blocker) => `${element.label || element.id}: ${blocker}`))
       }

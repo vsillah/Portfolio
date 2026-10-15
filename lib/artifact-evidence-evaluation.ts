@@ -207,16 +207,22 @@ export function calculateArtifactEvaluationOverall(receipt: Pick<ArtifactEvaluat
   return Number((weighted / 100).toFixed(2))
 }
 
-export function validateArtifactEvaluationReceipt(value: unknown, currentContentVersion: string): ArtifactEvaluationValidation {
+export function validateArtifactEvaluationReceipt(
+  value: unknown,
+  currentContentVersion: string,
+  evaluationAsOf: string = new Date().toISOString(),
+): ArtifactEvaluationValidation {
   const receipt = parseArtifactEvaluationReceipt(value)
   if (!receipt) return { receipt: null, ready: false, stale: false, blockers: ['The artifact evaluation receipt is missing or malformed.'] }
   const blockers: string[] = []
   const currentVersion = timestamp(currentContentVersion)
   const receiptVersion = timestamp(receipt.content_version)
   const evaluatedAt = timestamp(receipt.evaluated_at)
+  const asOf = timestamp(evaluationAsOf)
   const stale = !currentVersion || !receiptVersion || currentVersion !== receiptVersion
 
   if (!receipt.receipt_id || !receipt.weighting_version || !evaluatedAt) blockers.push('The evaluation receipt identity, weighting version, or evaluation date is missing.')
+  if (!asOf) blockers.push('The evaluation as-of time is missing or invalid.')
   if (stale) blockers.push('The artifact evaluation receipt is stale for the current content version.')
   if (!Number.isFinite(receipt.overall.threshold) || receipt.overall.threshold < 0 || receipt.overall.threshold > 100) blockers.push('The overall recommendation threshold must be between 0 and 100.')
   if (!receipt.overall.rationale || receipt.overall.rationale.length > 320) blockers.push('The overall evaluation needs a bounded rationale of 320 characters or fewer.')
@@ -259,10 +265,13 @@ export function validateArtifactEvaluationReceipt(value: unknown, currentContent
     && Number(cohort.sample_size) > 0
     && Boolean(timestamp(cohort.observed_from))
     && Boolean(timestamp(cohort.observed_to))
-    && Boolean(freshUntil && currentVersion && freshUntil >= currentVersion)
+    && Boolean(freshUntil && asOf && freshUntil >= asOf)
     && cohort.source_receipts.length > 0
     && cohort.source_receipts.every((link) => link.receipt_id && link.href)
   const outlier = receipt.dimensions.outlier_pattern_fit
+  if (cohort.status === 'approved' && freshUntil && asOf && freshUntil < asOf) {
+    blockers.push(`The approved benchmark cohort expired before the evaluation as-of time ${asOf}.`)
+  }
   if (outlier.status === 'scored' && !cohortCurrent) blockers.push('Outlier-pattern fit cannot be scored without a current approved benchmark cohort and safe receipt links.')
   if (!cohortCurrent && outlier.status !== 'unscored') blockers.push('Missing, stale, or unapproved benchmark evidence must remain Unscored.')
 

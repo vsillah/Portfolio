@@ -5,12 +5,13 @@ import { ARTIFACT_EVIDENCE_CATEGORIES } from '@/lib/artifact-evidence-manifest'
 import { completeArtifactEvidenceManifest } from '@/lib/__tests__/artifact-evidence-fixture'
 
 const VERSION = '2026-10-15T12:00:00.000Z'
+const EVALUATION_AS_OF = '2026-10-16T12:00:00.000Z'
 
 const manifest = () => completeArtifactEvidenceManifest(VERSION)
 
 describe('ArtifactEvidenceTrace', () => {
   it('keeps the artifact clean by default and maps overlay numbers exactly to the trace list when enabled', () => {
-    render(<ArtifactEvidenceTrace manifest={manifest()} currentContentVersion={VERSION} />)
+    render(<ArtifactEvidenceTrace manifest={manifest()} currentContentVersion={VERSION} evaluationAsOf={EVALUATION_AS_OF} />)
     expect(screen.queryByLabelText('Artifact trace list')).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /Trace 1:/ })).not.toBeInTheDocument()
 
@@ -23,7 +24,7 @@ describe('ArtifactEvidenceTrace', () => {
   })
 
   it('opens compact proof from keyboard-operable controls and exposes the exact safe deep link', () => {
-    render(<ArtifactEvidenceTrace manifest={manifest()} currentContentVersion={VERSION} />)
+    render(<ArtifactEvidenceTrace manifest={manifest()} currentContentVersion={VERSION} evaluationAsOf={EVALUATION_AS_OF} />)
     fireEvent.click(screen.getByRole('button', { name: /Trace evidence/i }))
     const trace = screen.getByRole('button', { name: /Trace 1: copy_script evidence/i })
     trace.focus()
@@ -35,7 +36,7 @@ describe('ArtifactEvidenceTrace', () => {
   })
 
   it('keeps numerical evaluation inside selected proof and links dimensions to exact receipts', () => {
-    render(<ArtifactEvidenceTrace manifest={manifest()} currentContentVersion={VERSION} />)
+    render(<ArtifactEvidenceTrace manifest={manifest()} currentContentVersion={VERSION} evaluationAsOf={EVALUATION_AS_OF} />)
     fireEvent.click(screen.getByRole('button', { name: /Trace evidence/i }))
     fireEvent.click(within(screen.getByLabelText('Artifact trace list')).getByRole('button', { name: /copy_script evidence/i }))
 
@@ -50,7 +51,7 @@ describe('ArtifactEvidenceTrace', () => {
 
   it('remains usable at mobile width and never reveals a private source excerpt', () => {
     Object.defineProperty(window, 'innerWidth', { configurable: true, value: 390 })
-    render(<ArtifactEvidenceTrace manifest={manifest()} currentContentVersion={VERSION} />)
+    render(<ArtifactEvidenceTrace manifest={manifest()} currentContentVersion={VERSION} evaluationAsOf={EVALUATION_AS_OF} />)
     fireEvent.click(screen.getByRole('button', { name: /Trace evidence/i }))
     fireEvent.click(screen.getByRole('button', { name: /Private research summary/i }))
     expect(screen.getByText('[Private source withheld — approved summary only]')).toBeVisible()
@@ -58,7 +59,7 @@ describe('ArtifactEvidenceTrace', () => {
   })
 
   it('shows a readable historical manifest receipt after the content version advances', () => {
-    render(<ArtifactEvidenceTrace manifest={manifest()} currentContentVersion={VERSION} recordedSnapshot={{ manifest_id: 'artifact-manifest:old:v1', manifest_hash: `sha256:${'d'.repeat(64)}`, content_version: '2026-10-14T12:00:00.000Z' }} />)
+    render(<ArtifactEvidenceTrace manifest={manifest()} currentContentVersion={VERSION} evaluationAsOf={EVALUATION_AS_OF} recordedSnapshot={{ manifest_id: 'artifact-manifest:old:v1', manifest_hash: `sha256:${'d'.repeat(64)}`, content_version: '2026-10-14T12:00:00.000Z' }} />)
     expect(screen.getByText(/preserved from an earlier content version/i)).toBeVisible()
     expect(screen.getByText(/artifact-manifest:old:v1/i)).toBeVisible()
   })
