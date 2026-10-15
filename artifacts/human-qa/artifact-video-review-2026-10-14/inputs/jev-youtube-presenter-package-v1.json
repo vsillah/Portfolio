@@ -1,0 +1,198 @@
+{
+  "version": "youtube_presenter_package_v1",
+  "package_id": "youtube-presenter:jev:20261014:v1",
+  "target": "youtube_shorts",
+  "review_only": true,
+  "input_version": "sha256:e6fc9ae4aadd61e3a871e8f7af2dd0a2d424d5c20ae6a8d0eac861b16e796bd5",
+  "script": {
+    "template_receipt_id": "template-run:jev:killer-script:youtube-shorts:v2:20261014",
+    "template_receipt_version": "video_script_template_run_receipt_v2",
+    "text": "A fluent answer can sound certain even when the model is guessing. Jev takes a different route: typed probabilities for a bounded decision. In the evaluation harness I have been building, that makes the real work visible. First, inspect the score. A 0.81 result can route differently from one at 0.54. Then apply a pre-authorized policy: route, review, or stop. Finally, keep exceptions and irreversible actions with a person, and retain the versioned receipt. The value is practical: operators can see the score, the threshold, the owner, and the evidence behind the handoff. Jev’s launch does not prove production reliability, and my current harness remains mock-qualified with live provider use on hold. Use the field guide as a review test. Before any score moves work, ask what threshold applies, who owns the exception, and which receipt remains. Governed automation begins when uncertainty is visible enough to route, review, and refuse. Subscribe to the channel for more practical ways to govern AI decisions.",
+    "sha256": "sha256:8200b4db75e47a66a8d807fe9fd6954979c06ef2b7585bed84aaf8155073bdd7",
+    "conclusion": "Governed automation begins when uncertainty is visible enough to route, review, and refuse.",
+    "channel_cta": "Subscribe to the channel for more practical ways to govern AI decisions."
+  },
+  "native_presenter": {
+    "path": "artifacts/human-qa/artifact-video-review-2026-10-14/jev-avatar-motion-v3-mad-hadda-v3-api-credit/jev-heygen-presenter-native.mp4",
+    "sha256": "sha256:c9b0949da45208fd8fa84cd614c7c2c5c8667d548e74e4ef25975a9d0e29494d",
+    "provider_job_id": "c051d4c479011ba54c84c99ebd128a29",
+    "rights_receipt_id": "rights:jev:owned-public-assets-20261014",
+    "source_script_sha256": "sha256:732a517ca9e98ab15bb3caa5196e4982e4c24a16f7885557fb37247f55b0f77f"
+  },
+  "render_contract": {
+    "width": 1080,
+    "height": 1920,
+    "fps": 25,
+    "background_color": "#081525",
+    "brand_logo": {
+      "path": "public/amadutown-logo-upscaled.png",
+      "sha256": "sha256:42ea112b3079301524e102696a6d7db0d8700323fe924b6725ad8badee32a165"
+    },
+    "evidence_assets": [
+      {
+        "asset_id": "jev-operator-field-guide",
+        "path": "artifacts/human-qa/artifact-video-review-2026-10-14/inputs/jev-operator-field-guide.png",
+        "sha256": "sha256:7e123f1c11a156e86b36e0d2306ad1f42d97d3c63dac335588e804f6bc74f8e9",
+        "width": 1142,
+        "height": 705,
+        "source_receipt_id": "source:jev:approved-composite-20261014",
+        "rights_receipt_id": "rights:jev:owned-public-assets-20261014"
+      }
+    ]
+  },
+  "timeline": [
+    {
+      "cue_id": "presenter-open",
+      "layout": "presenter_primary",
+      "start_seconds": 0,
+      "end_seconds": 16.279,
+      "spoken_text": "A fluent answer can sound certain even when the model is guessing. Jev takes a different route: typed probabilities for a bounded decision. In the evaluation harness I have been building, that makes the real work visible."
+    },
+    {
+      "cue_id": "inspect-score",
+      "layout": "side_evidence",
+      "start_seconds": 16.279,
+      "end_seconds": 26.593,
+      "spoken_text": "First, inspect the score. A 0.81 result can route differently from one at 0.54.",
+      "evidence_asset_id": "jev-operator-field-guide",
+      "evidence_region_id": "score",
+      "source_crop": { "x": 33, "y": 212, "width": 297, "height": 325 },
+      "presenter_region": { "x": 40, "y": 500, "width": 390, "height": 693 },
+      "evidence_region": { "x": 470, "y": 430, "width": 570, "height": 850 },
+      "on_screen_text": "INSPECT THE SCORE",
+      "loop": false,
+      "delivery": "spoken"
+    },
+    {
+      "cue_id": "apply-policy",
+      "layout": "side_evidence",
+      "start_seconds": 26.593,
+      "end_seconds": 35.431,
+      "spoken_text": "Then apply a pre-authorized policy: route, review, or stop.",
+      "evidence_asset_id": "jev-operator-field-guide",
+      "evidence_region_id": "policy",
+      "source_crop": { "x": 344, "y": 212, "width": 437, "height": 325 },
+      "presenter_region": { "x": 40, "y": 500, "width": 390, "height": 693 },
+      "evidence_region": { "x": 470, "y": 430, "width": 570, "height": 850 },
+      "on_screen_text": "APPLY THE POLICY",
+      "loop": false,
+      "delivery": "spoken"
+    },
+    {
+      "cue_id": "retain-ownership",
+      "layout": "side_evidence",
+      "start_seconds": 35.431,
+      "end_seconds": 42.113,
+      "spoken_text": "Finally, keep exceptions and irreversible actions with a person, and retain the versioned receipt.",
+      "evidence_asset_id": "jev-operator-field-guide",
+      "evidence_region_id": "ownership",
+      "source_crop": { "x": 796, "y": 212, "width": 313, "height": 325 },
+      "presenter_region": { "x": 40, "y": 500, "width": 390, "height": 693 },
+      "evidence_region": { "x": 470, "y": 430, "width": 570, "height": 850 },
+      "on_screen_text": "RETAIN OWNERSHIP",
+      "loop": false,
+      "delivery": "spoken"
+    },
+    {
+      "cue_id": "retain-receipt",
+      "layout": "side_evidence",
+      "start_seconds": 42.113,
+      "end_seconds": 51.347,
+      "spoken_text": "The value is practical: operators can see the score, the threshold, the owner, and the evidence behind the handoff.",
+      "evidence_asset_id": "jev-operator-field-guide",
+      "evidence_region_id": "receipt",
+      "source_crop": { "x": 796, "y": 446, "width": 313, "height": 91 },
+      "presenter_region": { "x": 40, "y": 500, "width": 390, "height": 693 },
+      "evidence_region": { "x": 470, "y": 430, "width": 570, "height": 850 },
+      "on_screen_text": "KEEP THE RECEIPT",
+      "loop": false,
+      "delivery": "spoken"
+    },
+    {
+      "cue_id": "hold-the-boundary",
+      "layout": "side_evidence",
+      "start_seconds": 51.347,
+      "end_seconds": 61.434,
+      "spoken_text": "Jev’s launch does not prove production reliability, and my current harness remains mock-qualified with live provider use on hold. Use the field guide as a review test. Before any score moves work, ask what threshold applies, who owns the exception, and which receipt remains.",
+      "evidence_asset_id": "jev-operator-field-guide",
+      "evidence_region_id": "boundary",
+      "source_crop": { "x": 714, "y": 88, "width": 395, "height": 92 },
+      "presenter_region": { "x": 40, "y": 500, "width": 390, "height": 693 },
+      "evidence_region": { "x": 470, "y": 430, "width": 570, "height": 850 },
+      "on_screen_text": "LIVE PROVIDER USE: HOLD",
+      "loop": false,
+      "delivery": "spoken"
+    },
+    {
+      "cue_id": "conclusion",
+      "layout": "conclusion",
+      "start_seconds": 61.434,
+      "end_seconds": 67.28,
+      "spoken_text": "Governed automation begins when uncertainty is visible enough to route, review, and refuse.",
+      "delivery": "spoken"
+    },
+    {
+      "cue_id": "channel-cta",
+      "layout": "cta",
+      "start_seconds": 67.28,
+      "end_seconds": 71.28,
+      "spoken_text": "Subscribe to the channel for more practical ways to govern AI decisions.",
+      "on_screen_text": "SUBSCRIBE FOR PRACTICAL AI GOVERNANCE",
+      "delivery": "on_screen_end_card"
+    }
+  ],
+  "packaging": {
+    "research_receipt_ids": ["research_packet:68dfaed1-b319-4a82-98c0-b9caea34835e"],
+    "source_receipt_ids": ["source:jev:approved-composite-20261014"],
+    "claim_ids": ["jev-typed-probabilities", "jev-policy-boundary"],
+    "privacy_receipt_id": "privacy:jev:public-safe-20261014",
+    "rights_receipt_id": "rights:jev:owned-public-assets-20261014",
+    "title_subject_receipt": {
+      "receipt_id": "title-subject:jev:youtube-presenter:20261014:v1",
+      "status": "passed",
+      "input_version": "sha256:e6fc9ae4aadd61e3a871e8f7af2dd0a2d424d5c20ae6a8d0eac861b16e796bd5",
+      "subject": "A visible model score still needs policy, a human owner, and a retained receipt before it becomes a decision.",
+      "candidates": [
+        {
+          "candidate_id": "jev-title-1",
+          "title": "AI Gave You a Score. Who Owns the Decision?",
+          "promise": "See how score, policy, human ownership, and evidence form one governed handoff.",
+          "research_receipt_ids": ["research_packet:68dfaed1-b319-4a82-98c0-b9caea34835e"],
+          "source_receipt_ids": ["source:jev:approved-composite-20261014"],
+          "claim_ids": ["jev-typed-probabilities", "jev-policy-boundary"]
+        },
+        {
+          "candidate_id": "jev-title-2",
+          "title": "A Score Is Not a Decision: Inside Jev’s Governance Layer",
+          "promise": "Walk through the field guide that separates model confidence from operating authority.",
+          "research_receipt_ids": ["research_packet:68dfaed1-b319-4a82-98c0-b9caea34835e"],
+          "source_receipt_ids": ["source:jev:approved-composite-20261014"],
+          "claim_ids": ["jev-typed-probabilities", "jev-policy-boundary"]
+        },
+        {
+          "candidate_id": "jev-title-3",
+          "title": "Jev Makes AI Uncertainty Visible",
+          "promise": "Learn the practical review questions to ask before a model score moves work.",
+          "research_receipt_ids": ["research_packet:68dfaed1-b319-4a82-98c0-b9caea34835e"],
+          "source_receipt_ids": ["source:jev:approved-composite-20261014"],
+          "claim_ids": ["jev-typed-probabilities", "jev-policy-boundary"]
+        }
+      ]
+    },
+    "thumbnail_receipt": {
+      "receipt_id": "thumbnail:jev:youtube-presenter:20261014:v1",
+      "status": "passed",
+      "input_version": "sha256:e6fc9ae4aadd61e3a871e8f7af2dd0a2d424d5c20ae6a8d0eac861b16e796bd5",
+      "path": "artifacts/human-qa/artifact-video-review-2026-10-14/jev-youtube-presenter-first/jev-youtube-thumbnail.png",
+      "sha256": "sha256:209eb1676268848b540076b8d9b1fa97c289c1c9c2d4c840b0c98873b3552f2e",
+      "width": 1280,
+      "height": 720,
+      "headline": "WHO OWNS THE DECISION?",
+      "research_receipt_ids": ["research_packet:68dfaed1-b319-4a82-98c0-b9caea34835e"],
+      "source_receipt_ids": ["source:jev:approved-composite-20261014"],
+      "claim_ids": ["jev-typed-probabilities", "jev-policy-boundary"],
+      "privacy_receipt_id": "privacy:jev:public-safe-20261014",
+      "rights_receipt_id": "rights:jev:owned-public-assets-20261014"
+    }
+  }
+}

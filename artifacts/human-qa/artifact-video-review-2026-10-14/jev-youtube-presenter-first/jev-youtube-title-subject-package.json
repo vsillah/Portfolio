@@ -1,0 +1,86 @@
+{
+  "package_id": "youtube-presenter:jev:20261014:v1",
+  "input_version": "sha256:e6fc9ae4aadd61e3a871e8f7af2dd0a2d424d5c20ae6a8d0eac861b16e796bd5",
+  "research_receipt_ids": [
+    "research_packet:68dfaed1-b319-4a82-98c0-b9caea34835e"
+  ],
+  "source_receipt_ids": [
+    "source:jev:approved-composite-20261014"
+  ],
+  "claim_ids": [
+    "jev-typed-probabilities",
+    "jev-policy-boundary"
+  ],
+  "privacy_receipt_id": "privacy:jev:public-safe-20261014",
+  "rights_receipt_id": "rights:jev:owned-public-assets-20261014",
+  "subject": "A visible model score still needs policy, a human owner, and a retained receipt before it becomes a decision.",
+  "title_candidates": [
+    {
+      "candidate_id": "jev-title-1",
+      "title": "AI Gave You a Score. Who Owns the Decision?",
+      "promise": "See how score, policy, human ownership, and evidence form one governed handoff.",
+      "research_receipt_ids": [
+        "research_packet:68dfaed1-b319-4a82-98c0-b9caea34835e"
+      ],
+      "source_receipt_ids": [
+        "source:jev:approved-composite-20261014"
+      ],
+      "claim_ids": [
+        "jev-typed-probabilities",
+        "jev-policy-boundary"
+      ]
+    },
+    {
+      "candidate_id": "jev-title-2",
+      "title": "A Score Is Not a Decision: Inside Jev’s Governance Layer",
+      "promise": "Walk through the field guide that separates model confidence from operating authority.",
+      "research_receipt_ids": [
+        "research_packet:68dfaed1-b319-4a82-98c0-b9caea34835e"
+      ],
+      "source_receipt_ids": [
+        "source:jev:approved-composite-20261014"
+      ],
+      "claim_ids": [
+        "jev-typed-probabilities",
+        "jev-policy-boundary"
+      ]
+    },
+    {
+      "candidate_id": "jev-title-3",
+      "title": "Jev Makes AI Uncertainty Visible",
+      "promise": "Learn the practical review questions to ask before a model score moves work.",
+      "research_receipt_ids": [
+        "research_packet:68dfaed1-b319-4a82-98c0-b9caea34835e"
+      ],
+      "source_receipt_ids": [
+        "source:jev:approved-composite-20261014"
+      ],
+      "claim_ids": [
+        "jev-typed-probabilities",
+        "jev-policy-boundary"
+      ]
+    }
+  ],
+  "thumbnail": {
+    "receipt_id": "thumbnail:jev:youtube-presenter:20261014:v1",
+    "status": "passed",
+    "input_version": "sha256:e6fc9ae4aadd61e3a871e8f7af2dd0a2d424d5c20ae6a8d0eac861b16e796bd5",
+    "path": "artifacts/human-qa/artifact-video-review-2026-10-14/jev-youtube-presenter-first/jev-youtube-thumbnail.png",
+    "sha256": "sha256:209eb1676268848b540076b8d9b1fa97c289c1c9c2d4c840b0c98873b3552f2e",
+    "width": 1280,
+    "height": 720,
+    "headline": "WHO OWNS THE DECISION?",
+    "research_receipt_ids": [
+      "research_packet:68dfaed1-b319-4a82-98c0-b9caea34835e"
+    ],
+    "source_receipt_ids": [
+      "source:jev:approved-composite-20261014"
+    ],
+    "claim_ids": [
+      "jev-typed-probabilities",
+      "jev-policy-boundary"
+    ],
+    "privacy_receipt_id": "privacy:jev:public-safe-20261014",
+    "rights_receipt_id": "rights:jev:owned-public-assets-20261014"
+  }
+}

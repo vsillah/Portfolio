@@ -16,6 +16,7 @@ function argument(name, fallback = '') {
 const root = resolve(argument('root', 'artifacts/human-qa/artifact-video-review-2026-10-14'))
 const screenshotPath = resolve(root, argument('screenshot', 'review-page.png'))
 const evidenceScreenshotPath = resolve(root, argument('evidence-screenshot', 'review-page-qa-evidence.png'))
+const mobileScreenshotPath = resolve(root, argument('mobile-screenshot', 'review-page-mobile.png'))
 const walkthroughPath = resolve(root, argument('walkthrough', 'review-page-walkthrough.mp4'))
 const mime = {
   '.html': 'text/html; charset=utf-8',
@@ -65,13 +66,19 @@ try {
   await page.waitForTimeout(900)
   await page.locator('#jev summary').click()
   await page.waitForTimeout(900)
-  await page.locator('#castle').scrollIntoViewIfNeeded()
-  await page.waitForTimeout(1000)
-  await page.locator('#castle summary').click()
-  await page.waitForTimeout(900)
   await page.screenshot({ path: evidenceScreenshotPath, fullPage: true })
-  await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'smooth' }))
+  await page.locator('#jev video').evaluate(async (element) => {
+    element.muted = true
+    await element.play()
+  })
+  await page.waitForTimeout(3200)
+  await page.locator('#jev video').evaluate((element) => element.pause())
+  await page.locator('#jev .package-grid').scrollIntoViewIfNeeded()
   await page.waitForTimeout(1200)
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.locator('#jev').scrollIntoViewIfNeeded()
+  await page.screenshot({ path: mobileScreenshotPath, fullPage: false })
+  await page.waitForTimeout(900)
 } finally {
   await context.close()
   await browser.close()
@@ -90,4 +97,4 @@ execFileSync('ffmpeg', [
   walkthroughPath,
 ], { stdio: 'inherit' })
 
-console.log(JSON.stringify({ screenshotPath, evidenceScreenshotPath, walkthroughPath }, null, 2))
+console.log(JSON.stringify({ screenshotPath, evidenceScreenshotPath, mobileScreenshotPath, walkthroughPath }, null, 2))
