@@ -49,6 +49,8 @@ import PractitionerContentReview from '@/components/admin/PractitionerContentRev
 import CompactPostPreview from '@/components/admin/CompactPostPreview'
 import AutoSizingScriptTextarea from '@/components/admin/AutoSizingScriptTextarea'
 import ChannelNativeVideoReview, { getChannelVideoPacket } from '@/components/admin/ChannelNativeVideoReview'
+import SocialVideoProductionControls from '@/components/admin/SocialVideoProductionControls'
+import type { SocialVideoReviewPackage } from '@/lib/social-video-review-package'
 import { getCurrentSession } from '@/lib/auth'
 import {
   STATUS_CONFIG,
@@ -754,6 +756,7 @@ function SocialContentDetailPage() {
   const rawRecoveryStep = searchParams.get('step')
   const deterministicVisualQaState = searchParams.get('qa_state')
   const channelNativeQaFixture = searchParams.get('qa_fixture') === 'channel_native_video_v2'
+  const videoPackageQaState = searchParams.get('video_package_state') === 'blocked' ? 'blocked' : 'ready'
   const recoveryStep: ApprovalStep = isApprovalStep(rawRecoveryStep) ? rawRecoveryStep : 'copy'
   const recoveryStepParams = new URLSearchParams(searchParams.toString())
   recoveryStepParams.set('step', recoveryStep)
@@ -1026,7 +1029,7 @@ function SocialContentDetailPage() {
       const detailQuery = id === DETERMINISTIC_VISUAL_BINDING_QA_ID && deterministicVisualQaState
         ? `?qa_state=${encodeURIComponent(deterministicVisualQaState)}`
         : channelNativeQaFixture
-          ? '?qa_fixture=channel_native_video_v2'
+          ? `?qa_fixture=channel_native_video_v2&video_package_state=${videoPackageQaState}`
           : ''
       const res = await fetch(`/api/admin/social-content/${id}${detailQuery}`, {
         cache: 'no-store',
@@ -1100,7 +1103,7 @@ function SocialContentDetailPage() {
     } finally {
       if (!options.silent) setLoading(false)
     }
-  }, [channelNativeQaFixture, deterministicVisualQaState, fetchCommentInboxItems, fetchReviewQueue, id])
+  }, [channelNativeQaFixture, deterministicVisualQaState, fetchCommentInboxItems, fetchReviewQueue, id, videoPackageQaState])
 
   useEffect(() => {
     fetchItem()
@@ -2951,6 +2954,9 @@ function SocialContentDetailPage() {
   const socialVideoProduction = item.social_video_production
   const isYouTubeTarget = item.platform === 'youtube' || targetPlatforms.includes('youtube')
   const channelVideoPacket = getChannelVideoPacket(item)
+  const socialVideoReviewPackage = asRecord(ragContext?.social_video_review_package) as SocialVideoReviewPackage | null
+  const socialVideoReviewSourceReceiptIds = asStringArray(ragContext?.social_video_review_source_receipt_ids)
+  const socialVideoReviewRightsReceiptIds = asStringArray(ragContext?.social_video_review_rights_receipt_ids)
   const copyFieldLabel = channelVideoPacket ? 'Video Script' : 'Post Text'
   const copyLengthGuidance = channelVideoPacket
     ? `${channelVideoPacket.channelLabel} review: confirm the full spoken script against the bound duration and receipt version`
@@ -7492,6 +7498,15 @@ function SocialContentDetailPage() {
         )}
       </AnimatePresence>
       </fieldset>
+      {channelVideoPacket && socialVideoReviewPackage && (
+        <div className="mx-auto w-[calc(100%-2rem)] max-w-[90rem] pb-8 sm:w-[calc(100%-3rem)]">
+          <SocialVideoProductionControls
+            reviewPackage={socialVideoReviewPackage}
+            approvedSourceReceiptIds={socialVideoReviewSourceReceiptIds}
+            approvedRightsReceiptIds={socialVideoReviewRightsReceiptIds}
+          />
+        </div>
+      )}
     </div>
   )
 }

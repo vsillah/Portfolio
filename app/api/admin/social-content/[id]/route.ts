@@ -170,10 +170,11 @@ export async function GET(
     const { id } = params
 
     if (request.nextUrl.searchParams.get('qa_fixture') === 'channel_native_video_v2' && isChannelNativeVideoQaFixtureId(id)) {
+      const videoPackageState = request.nextUrl.searchParams.get('video_package_state') === 'blocked' ? 'blocked' : 'ready'
       return NextResponse.json({
-        item: channelNativeVideoQaFixture(id),
+        item: channelNativeVideoQaFixture(id, videoPackageState),
         fixture: true,
-        fixture_state: 'repository_bound_review',
+        fixture_state: videoPackageState === 'blocked' ? 'repository_bound_review_blocked' : 'repository_bound_review',
         integration_note: 'Explicit read-only Human-QA binding to the repository video packet. It does not write shared data, call providers, upload media, create platform drafts, schedule, publish, send externally, change credentials, or spend money.',
       })
     }

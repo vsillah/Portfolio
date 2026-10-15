@@ -1,0 +1,39 @@
+{
+  "receipt_version": "jev_native_scene_inventory_v1",
+  "status": "passed",
+  "source": {
+    "path": "artifacts/human-qa/artifact-video-review-2026-10-14/jev-avatar-motion-v3-mad-hadda-v3-api-credit/jev-avatar-motion-review.mp4",
+    "sha256": "sha256:d567a263d31be2fe5c39190b977fe04461eb61f1ecf34db5599a2749a5b5a85a",
+    "duration_seconds": 74.3,
+    "fps": 30,
+    "source_role": "approved native animated presenter composite"
+  },
+  "integration": {
+    "native_source_seconds": [0, 67.28],
+    "cta_seconds": [67.28, 71.28],
+    "native_visual_ssim": 0.998938,
+    "native_audio_similarity_psnr_db": 171.963,
+    "reduced_motion_fallback_contact_sheet": {
+      "path": "artifacts/human-qa/social-video-production-controls-2026-10-15-revision/jev-native-scene-contact-sheet.png",
+      "sha256": "sha256:f7c35dc5b895a99fe60a7e017db88056947fd055479059950db3b75357ca6d10"
+    },
+    "retimed": false,
+    "looped": false,
+    "flattened": false
+  },
+  "scenes": [
+    { "scene_id": "score-dial", "states": ["0.81", "0.38", "0.05"], "motion": "probability dial resolves while preserving typed-probability label", "disposition": "restored", "source_sha256": "sha256:d567a263d31be2fe5c39190b977fe04461eb61f1ecf34db5599a2749a5b5a85a" },
+    { "scene_id": "read-the-signal-bars", "states": ["Route A 0.81", "Human review 0.14", "Refuse 0.05"], "motion": "three native bars reveal and resolve", "disposition": "restored", "source_sha256": "sha256:d567a263d31be2fe5c39190b977fe04461eb61f1ecf34db5599a2749a5b5a85a" },
+    { "scene_id": "apply-policy-bands", "states": ["STOP", "REVIEW", "ROUTE", "0.81 marker"], "motion": "native policy marker and bands animate", "disposition": "restored", "source_sha256": "sha256:d567a263d31be2fe5c39190b977fe04461eb61f1ecf34db5599a2749a5b5a85a" },
+    { "scene_id": "ownership-handoff", "states": ["Model", "Policy layer", "Human owner", "Decision record"], "motion": "native handoff path and owner cards reveal", "disposition": "restored", "source_sha256": "sha256:d567a263d31be2fe5c39190b977fe04461eb61f1ecf34db5599a2749a5b5a85a" },
+    { "scene_id": "exception-routing", "states": ["Human owner", "Route", "Review", "Refuse"], "motion": "native exception-routing branches resolve", "disposition": "restored", "source_sha256": "sha256:d567a263d31be2fe5c39190b977fe04461eb61f1ecf34db5599a2749a5b5a85a" },
+    { "scene_id": "uncertainty-summary", "states": ["Score", "Policy", "Human owner", "Decision record"], "motion": "native summary stack reveals", "disposition": "restored", "source_sha256": "sha256:d567a263d31be2fe5c39190b977fe04461eb61f1ecf34db5599a2749a5b5a85a" }
+  ],
+  "superseded_derivatives": [
+    { "asset": "jev-operator-field-guide.png crops", "disposition": "omitted", "reason": "Static derivative flattened the approved native scene animation and is no longer used in the spoken master." },
+    { "asset": "jev-template-v2-motion-master.mp4", "disposition": "superseded", "reason": "The approved v3 native composite contains its complete teaching scene system plus the synchronized presenter." },
+    { "asset": "jev-avatar-motion-v3-mad-hadda-v1/jev-avatar-motion-review.mp4", "disposition": "superseded", "reason": "This 22-second partial composite contains no scene absent from the complete v3 native composite." }
+  ],
+  "unexplained_losses": [],
+  "execution_boundary": "Local deterministic native composite and review evidence only. Zero provider calls, spend, upload, platform draft, schedule, publish, send, credential change, migration, or production/shared-data mutation."
+}

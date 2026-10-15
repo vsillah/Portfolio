@@ -36,6 +36,7 @@ export type YouTubeMusicBedContract = {
     }
   }
   mix: {
+    preset: 'moderate_narration_bed'
     target_music_lufs: number
     target_final_lufs: number
     maximum_true_peak_dbfs: number
@@ -46,6 +47,7 @@ export type YouTubeMusicBedContract = {
       attack_ms: number
       release_ms: number
       minimum_reduction_db: number
+      maximum_reduction_db: number
     }
     fade_in_seconds: number
     fade_out_seconds: number
@@ -142,9 +144,18 @@ export function evaluateYouTubeMusicBed(input: {
   if (mix.target_music_lufs > -26 || mix.target_music_lufs < -42) blockers.push('Background-music target loudness must remain between -42 and -26 LUFS.')
   if (mix.target_final_lufs > -14 || mix.target_final_lufs < -24) blockers.push('Final program loudness target must remain between -24 and -14 LUFS.')
   if (mix.maximum_true_peak_dbfs > -1 || mix.maximum_true_peak_dbfs < -6) blockers.push('Final true-peak ceiling must remain between -6 and -1 dBFS.')
-  if (!mix.speech_ducking.enabled || mix.speech_ducking.minimum_reduction_db < 10
-    || mix.speech_ducking.ratio < 4 || mix.speech_ducking.attack_ms <= 0 || mix.speech_ducking.release_ms < 100) {
-    blockers.push('Speech-aware ducking must be enabled with at least 10 dB reduction, 4:1 ratio, positive attack, and 100 ms release.')
+  if (mix.preset !== 'moderate_narration_bed'
+    || !mix.speech_ducking.enabled
+    || mix.speech_ducking.minimum_reduction_db < 4
+    || mix.speech_ducking.maximum_reduction_db > 9
+    || mix.speech_ducking.maximum_reduction_db < mix.speech_ducking.minimum_reduction_db
+    || mix.speech_ducking.ratio < 3
+    || mix.speech_ducking.ratio > 8
+    || mix.speech_ducking.attack_ms < 20
+    || mix.speech_ducking.attack_ms > 100
+    || mix.speech_ducking.release_ms < 200
+    || mix.speech_ducking.release_ms > 800) {
+    blockers.push('Speech-aware ducking must use the moderate narration preset: 4–9 dB reduction, 3:1–8:1 ratio, 20–100 ms attack, and 200–800 ms release.')
   }
   if (mix.fade_in_seconds < 0.5 || mix.fade_out_seconds < 0.5
     || mix.fade_in_seconds + mix.fade_out_seconds >= bedDuration) {
@@ -169,8 +180,9 @@ export function evaluateYouTubeMusicBed(input: {
         || Math.abs(validation.mixed_dialogue_lufs - validation.baseline_dialogue_lufs) > 1.5) {
         blockers.push('Mixed speech level diverges too far from the no-music master.')
       }
-      if (validation.observed_duck_reduction_db < mix.speech_ducking.minimum_reduction_db) {
-        blockers.push('Final audio validation did not observe the required speech ducking reduction.')
+      if (validation.observed_duck_reduction_db < mix.speech_ducking.minimum_reduction_db
+        || validation.observed_duck_reduction_db > mix.speech_ducking.maximum_reduction_db) {
+        blockers.push('Final audio validation did not observe the approved moderate speech-ducking range.')
       }
       if (!validation.fade_boundary_passed) blockers.push('Final audio validation did not pass the music fade boundaries.')
       if (timing.loop.enabled && !validation.loop_seam_passed) blockers.push('Final audio validation did not pass the loop seam boundary.')

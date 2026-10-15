@@ -219,7 +219,7 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(screen.queryByText('LinkedIn optimal: 150-300 words')).not.toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Open canonical Decision Queue' })).toHaveAttribute('href', '/admin/agents/coordination?proposal=24651a05-c8e5-4dd7-82fb-682e0223ee97')
     expect(fetch).toHaveBeenCalledWith(
-      '/api/admin/social-content/social-1?qa_fixture=channel_native_video_v2',
+      '/api/admin/social-content/social-1?qa_fixture=channel_native_video_v2&video_package_state=ready',
       expect.objectContaining({ cache: 'no-store' }),
     )
   })

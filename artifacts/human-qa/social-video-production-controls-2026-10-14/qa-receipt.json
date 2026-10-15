@@ -1,0 +1,53 @@
+{
+  "version": "social_video_production_controls_qa_v1",
+  "status": "passed",
+  "route": "http://127.0.0.1:5318/admin/social-content/f966123f-05eb-48ec-a7c2-970afce642ef?step=copy&qa_fixture=channel_native_video_v2",
+  "fixture": "jev",
+  "enhanced_media": {
+    "path": "public/review-assets/social-content/jev-youtube-motion-review.mp4",
+    "width": 1080,
+    "height": 1920,
+    "fps": 25,
+    "duration_seconds": 71.28,
+    "sha256": "sha256:b3a84e8da4ce4c109b29dcb046276a525b8a885c6da049977f770e5af105914e"
+  },
+  "walkthrough": {
+    "path": "artifacts/human-qa/social-video-production-controls-2026-10-14/jev-social-video-production-walkthrough.mp4",
+    "sha256": "sha256:0f5a2d80d0b2ec77b5d6a35922e43a4b7391242440955a55c85f9b3252f12be0",
+    "duration_seconds": 10.84,
+    "codec": "h264",
+    "width": 1440,
+    "height": 900,
+    "fps": 25
+  },
+  "viewports": [
+    { "width": 1440, "height": 900, "theme": "dark", "state": "ready" },
+    { "width": 820, "height": 900, "theme": "light", "state": "ready" },
+    { "width": 390, "height": 844, "theme": "dark", "state": "reduced_motion_dirty" },
+    { "width": 390, "height": 844, "theme": "dark", "state": "rights_blocked" }
+  ],
+  "assertions": {
+    "a_b_source_switch": "passed",
+    "dirty_render_invalidation": "passed",
+    "approved_reset": "passed",
+    "cue_disclosure": "passed",
+    "reduced_motion_selection": "passed",
+    "rights_blocker": "passed",
+    "render_action_disabled": "passed",
+    "decision_action_disabled": "passed",
+    "horizontal_overflow": "none",
+    "external_actions_enabled": 0
+  },
+  "side_effects": {
+    "provider_generation": false,
+    "upload": false,
+    "platform_draft": false,
+    "schedule": false,
+    "publish": false,
+    "external_send": false,
+    "credential_change": false,
+    "migration": false,
+    "shared_data_mutation": false,
+    "spend": false
+  }
+}

@@ -34,16 +34,18 @@ function fixture(): YouTubeMusicBedContract {
       loop: { enabled: false, crossfade_seconds: 0, seam_validation_receipt: null },
     },
     mix: {
-      target_music_lufs: -32,
+      preset: 'moderate_narration_bed',
+      target_music_lufs: -28,
       target_final_lufs: -16,
       maximum_true_peak_dbfs: -1.5,
       speech_ducking: {
         enabled: true,
         threshold_dbfs: -30,
-        ratio: 8,
-        attack_ms: 35,
-        release_ms: 420,
-        minimum_reduction_db: 12,
+        ratio: 4,
+        attack_ms: 45,
+        release_ms: 520,
+        minimum_reduction_db: 4,
+        maximum_reduction_db: 8,
       },
       fade_in_seconds: 1.5,
       fade_out_seconds: 2,
@@ -60,7 +62,7 @@ function fixture(): YouTubeMusicBedContract {
       mixed_dialogue_lufs: -16.5,
       dialogue_lufs_delta: -0.3,
       clipping_sample_count: 0,
-      observed_duck_reduction_db: 13.1,
+      observed_duck_reduction_db: 5.8,
       fade_boundary_passed: true,
       loop_seam_passed: true,
     },
@@ -113,8 +115,8 @@ describe('youtube-music-bed', () => {
   it('fails when speech ducking is absent or too weak', () => {
     const value = fixture()
     value.mix.speech_ducking.enabled = false
-    value.mix.speech_ducking.minimum_reduction_db = 4
-    expect(evaluate(value).blockers).toContain('Speech-aware ducking must be enabled with at least 10 dB reduction, 4:1 ratio, positive attack, and 100 ms release.')
+    value.mix.speech_ducking.minimum_reduction_db = 2
+    expect(evaluate(value).blockers).toContain('Speech-aware ducking must use the moderate narration preset: 4–9 dB reduction, 3:1–8:1 ratio, 20–100 ms attack, and 200–800 ms release.')
   })
 
   it('fails bad fade and loop seam boundaries', () => {
@@ -148,7 +150,7 @@ describe('youtube-music-bed', () => {
     expect(evaluate(value).blockers).toEqual(expect.arrayContaining([
       'Final audio validation detected clipping or a true peak above the approved ceiling.',
       'Mixed speech level diverges too far from the no-music master.',
-      'Final audio validation did not observe the required speech ducking reduction.',
+      'Final audio validation did not observe the approved moderate speech-ducking range.',
       'Final audio validation did not pass the music fade boundaries.',
     ]))
   })
