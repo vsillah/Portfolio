@@ -15,6 +15,7 @@ export const SOCIAL_VIDEO_GENERATION_CONTRACT = {
   version: SOCIAL_VIDEO_GENERATION_CONTRACT_VERSION,
   rule_ids: [
     'research.source_outlier_alignment',
+    'evidence.first_party_product_visuals',
     'script.youtube_template_first',
     'script.practitioner_specific',
     'script.complete_conclusion',
@@ -54,6 +55,7 @@ export const SOCIAL_VIDEO_GENERATION_CONTRACT = {
     avatar_look_rotation_required: true,
     native_motion_flattening_allowed: false,
     deceptive_word_splicing_allowed: false,
+    first_party_product_evidence_required_when_applicable: true,
   },
 } as const
 
@@ -62,6 +64,15 @@ export interface SocialVideoGenerationEvidence {
   artifact_id: string
   input_version: string
   research: { sources_current: boolean; outlier_evidence_bound: boolean; topic_title_thumbnail_description_script_aligned: boolean }
+  product_evidence: {
+    topic_references_owned_product: boolean
+    approved_first_party_asset_ids: string[]
+    screenshots_current: boolean
+    privacy_and_rights_cleared: boolean
+    visual_claim_bindings_complete: boolean
+    narration_cue_bindings_complete: boolean
+    omission_reason: string
+  }
   script: { youtube_template_run_passed: boolean; practitioner_specific: boolean; complete_conclusion: boolean; approved_cta_text: string; spoken_cta_transcript_present: boolean }
   customer_facing: { internal_text_leakage: string[] }
   avatar: { approved_avatar_id: string; approved_voice_id: string; rights_receipt_id: string; look_rotation_receipt_id: string; repeats_prior_look_without_exception: boolean; native_source_mp4_bound: boolean; native_composite_used_when_required: boolean }
@@ -84,6 +95,13 @@ export function evaluateSocialVideoGenerationContract(value: SocialVideoGenerati
   const exception = value.accepted_exceptions.find((entry) => entry.artifact_id === value.artifact_id && entry.input_version === value.input_version && entry.rule_id === 'script.semantic_spoken_cta' && entry.accepted_by_user && entry.visual_cta_present && entry.weakens_future_default === false)
   if (value.contract_version !== SOCIAL_VIDEO_GENERATION_CONTRACT_VERSION) blockers.push('Social Video Generation Contract version is missing or stale.')
   if (!value.research.sources_current || !value.research.outlier_evidence_bound || !value.research.topic_title_thumbnail_description_script_aligned) blockers.push('Topic and packaging must share current source and outlier evidence.')
+  if (value.product_evidence.topic_references_owned_product) {
+    const hasApprovedEvidence = value.product_evidence.approved_first_party_asset_ids.length > 0
+    const hasValidOmission = Boolean(value.product_evidence.omission_reason.trim())
+    if ((!hasApprovedEvidence && !hasValidOmission) || (hasApprovedEvidence && (!value.product_evidence.screenshots_current || !value.product_evidence.privacy_and_rights_cleared || !value.product_evidence.visual_claim_bindings_complete || !value.product_evidence.narration_cue_bindings_complete))) {
+      blockers.push('Owned-product topics require approved first-party screenshots or comparable product evidence bound to the exact claims and narration cues, or an explicit omission reason.')
+    }
+  }
   if (!value.script.youtube_template_run_passed || !value.script.practitioner_specific || !value.script.complete_conclusion) blockers.push('The YouTube template must produce practitioner-specific copy and a complete conclusion before media generation.')
   if (!value.script.spoken_cta_transcript_present && !exception) blockers.push(`Spoken CTA transcript is missing: ${value.script.approved_cta_text}`)
   if (value.customer_facing.internal_text_leakage.length) blockers.push('Customer-facing frames contain internal prompts, logic, receipts, QA labels, or operator notes.')

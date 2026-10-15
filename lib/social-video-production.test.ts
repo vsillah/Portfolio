@@ -15,6 +15,7 @@ function validGenerationEvidence(): SocialVideoGenerationEvidence {
     artifact_id: 'future-video-v1',
     input_version: 'sha256:future-v1',
     research: { sources_current: true, outlier_evidence_bound: true, topic_title_thumbnail_description_script_aligned: true },
+    product_evidence: { topic_references_owned_product: true, approved_first_party_asset_ids: ['dark-castle-gameplay-1'], screenshots_current: true, privacy_and_rights_cleared: true, visual_claim_bindings_complete: true, narration_cue_bindings_complete: true, omission_reason: '' },
     script: { youtube_template_run_passed: true, practitioner_specific: true, complete_conclusion: true, approved_cta_text: 'Subscribe to the channel for more practical ways to govern AI decisions.', spoken_cta_transcript_present: true },
     customer_facing: { internal_text_leakage: [] },
     avatar: { approved_avatar_id: 'avatar-2', approved_voice_id: 'voice-1', rights_receipt_id: 'rights-1', look_rotation_receipt_id: 'rotation-1', repeats_prior_look_without_exception: false, native_source_mp4_bound: true, native_composite_used_when_required: true },
@@ -35,8 +36,8 @@ function validGenerationEvidence(): SocialVideoGenerationEvidence {
 
 describe('Social Video Generation Contract', () => {
   it('codifies the complete prospective generation rule set', () => {
-    expect(SOCIAL_VIDEO_GENERATION_CONTRACT.rule_ids).toHaveLength(28)
-    expect(SOCIAL_VIDEO_GENERATION_CONTRACT.prospective_defaults).toMatchObject({ spoken_cta_required: true, teaching_asset_appearance_count: 1, max_concurrent_teaching_assets: 1, avatar_look_rotation_required: true, native_motion_flattening_allowed: false, deceptive_word_splicing_allowed: false })
+    expect(SOCIAL_VIDEO_GENERATION_CONTRACT.rule_ids).toHaveLength(29)
+    expect(SOCIAL_VIDEO_GENERATION_CONTRACT.prospective_defaults).toMatchObject({ spoken_cta_required: true, teaching_asset_appearance_count: 1, max_concurrent_teaching_assets: 1, avatar_look_rotation_required: true, native_motion_flattening_allowed: false, deceptive_word_splicing_allowed: false, first_party_product_evidence_required_when_applicable: true })
     expect(evaluateSocialVideoGenerationContract(validGenerationEvidence())).toEqual({ ready: true, blockers: [], acceptedExceptionRuleIds: [] })
   })
 
@@ -65,6 +66,30 @@ describe('Social Video Generation Contract', () => {
     value.accepted_exceptions = [{ artifact_id: value.artifact_id, input_version: value.input_version, rule_id: 'script.semantic_spoken_cta', accepted_by_user: true, visual_cta_present: true, reason: 'Vambah accepted this completed Jev master without commissioning new audio.', weakens_future_default: false }]
     expect(evaluateSocialVideoGenerationContract(value)).toEqual({ ready: true, blockers: [], acceptedExceptionRuleIds: ['script.semantic_spoken_cta'] })
     expect(SOCIAL_VIDEO_GENERATION_CONTRACT.prospective_defaults.spoken_cta_required).toBe(true)
+  })
+
+  it('fails owned-product topics without approved first-party visual evidence or an omission reason', () => {
+    const value = validGenerationEvidence()
+    value.product_evidence.approved_first_party_asset_ids = []
+    expect(evaluateSocialVideoGenerationContract(value)).toEqual(expect.objectContaining({
+      ready: false,
+      blockers: expect.arrayContaining([
+        'Owned-product topics require approved first-party screenshots or comparable product evidence bound to the exact claims and narration cues, or an explicit omission reason.',
+      ]),
+    }))
+  })
+
+  it('fails owned-product evidence that is stale, uncleared, or disconnected from narration', () => {
+    const value = validGenerationEvidence()
+    value.product_evidence.screenshots_current = false
+    value.product_evidence.narration_cue_bindings_complete = false
+    expect(evaluateSocialVideoGenerationContract(value).ready).toBe(false)
+  })
+
+  it('does not require product screenshots for topics that do not reference an owned product', () => {
+    const value = validGenerationEvidence()
+    value.product_evidence = { topic_references_owned_product: false, approved_first_party_asset_ids: [], screenshots_current: false, privacy_and_rights_cleared: false, visual_claim_bindings_complete: false, narration_cue_bindings_complete: false, omission_reason: '' }
+    expect(evaluateSocialVideoGenerationContract(value).ready).toBe(true)
   })
 })
 
