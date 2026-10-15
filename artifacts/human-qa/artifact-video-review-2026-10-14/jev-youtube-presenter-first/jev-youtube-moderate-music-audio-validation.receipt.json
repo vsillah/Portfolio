@@ -13,29 +13,29 @@
   "outputs": {
     "no_music_master": {
       "path": "public/review-assets/social-content/jev-youtube-no-music-review.mp4",
-      "sha256": "sha256:eaedb7265ec4bdb6e0bac0a536d39084e9d7d847d1b776f43f0b839b396eac09",
+      "sha256": "sha256:362bef78ff05866ffd65e688d9373a10825a184068194b0e4dbb1c37162b1485",
       "integrated_lufs": -16.1,
       "true_peak_dbfs": -2,
       "full_decode_passed": true
     },
     "music_mix": {
       "path": "public/review-assets/social-content/jev-youtube-motion-review.mp4",
-      "sha256": "sha256:59db70c9e4801ca111fe08b854398ad4f9d5f551b43c50153342fb44f965cc1d",
-      "integrated_lufs": -16.1,
+      "sha256": "sha256:acc06098ef80753acd771d1bb6995090fdf6642da1c65f34b05bf84ddbddc337",
+      "integrated_lufs": -16,
       "true_peak_dbfs": -2,
-      "duration_seconds": 71.28,
+      "duration_seconds": 67.28,
       "width": 1080,
       "height": 1920,
       "fps": "25/1",
-      "video_frames": 1782,
+      "video_frames": 1682,
       "full_decode_passed": true
     }
   },
   "mix_validation": {
     "target_music_lufs": -28,
-    "measured_preduck_music_lufs_during_speech": -27.2,
+    "measured_preduck_music_lufs_during_speech": -27.3,
     "measured_ducked_music_lufs_during_speech": -33.6,
-    "observed_duck_reduction_db": 6.4,
+    "observed_duck_reduction_db": 6.3,
     "approved_duck_reduction_range_db": [
       4,
       8
@@ -46,7 +46,17 @@
     "clipping_sample_count": 0,
     "speech_intelligibility_passed": true,
     "fade_boundary_passed": true,
-    "loop_enabled": false
+    "loop_enabled": false,
+    "cta_window_seconds": [
+      61.434,
+      67.28
+    ],
+    "cta_voice_integrated_lufs": -16,
+    "cta_requires_spoken_track": true,
+    "cta_audio_non_silent": true,
+    "cta_semantic_transcript_present": false,
+    "cta_spoken_track_passed": false,
+    "cta_blocker": "The audible line is the approved conclusion, not the required subscribe CTA."
   },
   "validation_method": "FFmpeg ebur128 integrated loudness and true-peak analysis; full PCM decode with sample-level clipping count; matched 0–67.28 second speech-window A/B comparison; separate pre-duck and sidechain-ducked stems; full output decode.",
   "execution_boundary": "Local composition and review evidence only. Zero provider calls, spend, upload, platform draft, schedule, publish, external send, credential change, migration, or production/shared-data mutation."

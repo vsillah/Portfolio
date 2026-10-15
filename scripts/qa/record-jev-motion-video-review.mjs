@@ -54,7 +54,7 @@ await enhanced.evaluate((element) => new Promise((resolve, reject) => {
   element.addEventListener('error', () => reject(new Error('Enhanced video metadata failed to load.')), { once: true })
 }))
 const media = await enhanced.evaluate((video) => ({ width: video.videoWidth, height: video.videoHeight, duration: video.duration }))
-if (media.width !== 1080 || media.height !== 1920 || Math.abs(media.duration - 71.28) > 0.1) throw new Error(`Unexpected enhanced media: ${JSON.stringify(media)}`)
+if (media.width !== 1080 || media.height !== 1920 || Math.abs(media.duration - 67.28) > 0.1) throw new Error(`Unexpected enhanced media: ${JSON.stringify(media)}`)
 await page.screenshot({ path: path.join(outputDir, 'jev-desktop-dark-ready.png'), fullPage: true })
 
 await activate(controls.getByRole('button', { name: 'A · No music' }))

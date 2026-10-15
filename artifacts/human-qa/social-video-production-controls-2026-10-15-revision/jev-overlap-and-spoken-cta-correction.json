@@ -1,0 +1,32 @@
+{
+  "version": "jev_overlap_spoken_cta_correction_v1",
+  "status": "passed_with_accepted_artifact_exception",
+  "prior_overlap": {
+    "output_seconds": [54.6, 61.4],
+    "output_frames": [1365, 1535],
+    "cause": "The exception-routing extraction ended at source second 19.3, after the native master began its dissolve into uncertainty-summary immediately after source second 19.2. The blended terminal frame was then held through the remainder of the cue."
+  },
+  "correction": {
+    "exception_source_window_seconds": [16, 19.2],
+    "source_boundary_policy": "exclusive end before the next native teaching scene begins",
+    "transition_policy": "teaching asset exits before presenter-forward CTA enters",
+    "max_concurrent_teaching_assets": 1,
+    "frames_checked": 1682
+  },
+  "spoken_cta": {
+    "window_seconds": [61.434, 67.28],
+    "source": "approved native presenter conclusion audio; this is not the subscribe CTA",
+    "source_modified": false,
+    "integrated_lufs": -16,
+    "semantic_cta_present": false,
+    "visual_copy": "SUBSCRIBE FOR PRACTICAL AI GOVERNANCE",
+    "silent_tail_removed_seconds": 4
+  },
+  "evidence": {
+    "before_after_path": "artifacts/human-qa/social-video-production-controls-2026-10-15-revision/jev-overlap-cta-before-after.mp4",
+    "before_after_sha256": "sha256:0643c9a1afcbee25bd75032a116afcbae46fba60b5fc6b69c0498e1477b06d78",
+    "corrected_range_screenshot": "artifacts/human-qa/social-video-production-controls-2026-10-15-revision/jev-corrected-overlap-range.png",
+    "spoken_cta_screenshot": "artifacts/human-qa/social-video-production-controls-2026-10-15-revision/jev-spoken-cta.png",
+    "walkthrough_sha256": "sha256:684baa5c3a0ee128e190b15b8b46b1d683d5fae6151e86e0c58419868dc6a53e"
+  }
+}

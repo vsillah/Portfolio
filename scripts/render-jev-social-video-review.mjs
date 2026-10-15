@@ -5,11 +5,14 @@ import { resolve } from 'node:path'
 import { spawnSync } from 'node:child_process'
 import sharp from 'sharp'
 
-const duration = 71.28
+const duration = 67.28
 const speechDuration = 67.28
 const root = process.cwd()
 const nativePresenter = resolve('artifacts/human-qa/artifact-video-review-2026-10-14/jev-avatar-motion-v3-mad-hadda-v3-api-credit/jev-heygen-presenter-native.mp4')
 const nativeAnimatedComposite = resolve('artifacts/human-qa/artifact-video-review-2026-10-14/jev-avatar-motion-v3-mad-hadda-v3-api-credit/jev-avatar-motion-review.mp4')
+const nativeMotionTemplate = resolve('artifacts/human-qa/artifact-video-review-2026-10-14/jev-template-v2-motion-master.mp4')
+const nativePresenterContract = resolve('artifacts/human-qa/artifact-video-review-2026-10-14/inputs/jev-avatar-motion-v3-mad-hadda-v3-api-credit.json')
+const approvedCtaText = 'Subscribe to the channel for more practical ways to govern AI decisions.'
 const musicSource = resolve('local-private/youtube-music/the-stream-v2.wav')
 const localDir = resolve('local-private/social-video')
 const renderInputDir = resolve('public/review-assets/social-content/.render-inputs')
@@ -30,6 +33,7 @@ const audioReceiptPath = resolve('artifacts/human-qa/artifact-video-review-2026-
 const expected = {
   presenter: 'sha256:c9b0949da45208fd8fa84cd614c7c2c5c8667d548e74e4ef25975a9d0e29494d',
   animatedComposite: 'sha256:d567a263d31be2fe5c39190b977fe04461eb61f1ecf34db5599a2749a5b5a85a',
+  motionTemplate: 'sha256:17bd925703c0f670046a3cd017a081c9547fbae5a7a5fc9d444721d4721e23b2',
   music: 'sha256:7842628c35c5375cefaffc1b7d9425e354e840f5d46dfab65612d8f86a67158d',
 }
 
@@ -72,8 +76,30 @@ await mkdir(localDir, { recursive: true })
 await mkdir(renderInputDir, { recursive: true })
 requireHash(nativePresenter, expected.presenter)
 requireHash(nativeAnimatedComposite, expected.animatedComposite)
+requireHash(nativeMotionTemplate, expected.motionTemplate)
 requireHash(musicSource, expected.music)
+const nativePresenterScript = JSON.parse(readFileSync(nativePresenterContract, 'utf8')).script?.text ?? ''
+if (!nativePresenterScript.includes(approvedCtaText)) {
+  throw new Error(`Fail-closed spoken CTA gate: approved native presenter source does not contain the required line: ${approvedCtaText}`)
+}
 await copyFile(fieldGuideSource, fieldGuideStaged)
+const nativeScenes = [
+  { id: 'score-dial', sourceStart: 0, sourceDuration: 3.4, targetDuration: 6.279 },
+  { id: 'read-the-signal-bars', sourceStart: 4, sourceDuration: 3.3, targetDuration: 10.314 },
+  { id: 'apply-policy-bands', sourceStart: 8, sourceDuration: 3.3, targetDuration: 8.838 },
+  { id: 'ownership-handoff', sourceStart: 12, sourceDuration: 3.3, targetDuration: 6.682 },
+  { id: 'uncertainty-summary', sourceStart: 20, sourceDuration: 1.7, targetDuration: 9.234 },
+  { id: 'exception-routing', sourceStart: 16, sourceDuration: 3.2, targetDuration: 10.087, sourceExclusiveEnd: 19.2 },
+]
+for (const scene of nativeScenes) {
+  const holdDuration = scene.targetDuration - scene.sourceDuration
+  run('ffmpeg', [
+    '-y', '-ss', String(scene.sourceStart), '-t', String(scene.sourceDuration), '-i', nativeMotionTemplate,
+    '-vf', `fps=25,setpts=PTS-STARTPTS,tpad=stop_mode=clone:stop_duration=${holdDuration}`,
+    '-t', String(scene.targetDuration), '-an', '-c:v', 'libx264', '-preset', 'medium', '-crf', '16', '-pix_fmt', 'yuv420p', '-movflags', '+faststart',
+    resolve(renderInputDir, `native-${scene.id}.mp4`),
+  ])
+}
 for (const cue of [
   { id: 'presenter-open', x: 0, y: 0, width: 1142, height: 705 },
   { id: 'inspect-score', x: 33, y: 212, width: 297, height: 325 },
@@ -98,17 +124,11 @@ run('npx', [
   '--codec=h264', '--crf=18', '--overwrite', '--log=error',
 ])
 
-// Preserve the approved native animated composite for the spoken 0–67.28s
-// timeline. Remotion supplies only the silent four-second CTA tail.
-run('ffmpeg', [
-  '-y', '-i', nativeAnimatedComposite, '-i', remotionVisual,
-  '-filter_complex', `[0:v]trim=start=0:end=${speechDuration},setpts=PTS-STARTPTS,fps=25[native];[1:v]trim=start=${speechDuration}:end=${duration},setpts=PTS-STARTPTS,fps=25[cta];[native][cta]concat=n=2:v=1:a=0,format=yuv420p[v]`,
-  '-map', '[v]', '-t', String(duration), '-r', '25', '-c:v', 'libx264', '-preset', 'medium', '-crf', '18', '-movflags', '+faststart', visual,
-])
+await copyFile(remotionVisual, visual)
 
 run('ffmpeg', [
   '-y', '-i', musicSource,
-  '-af', `atrim=start=8:duration=${duration},asetpts=PTS-STARTPTS,loudnorm=I=-28:TP=-3:LRA=7,afade=t=in:st=0:d=1.5,afade=t=out:st=69.28:d=2`,
+  '-af', `atrim=start=8:duration=${duration},asetpts=PTS-STARTPTS,loudnorm=I=-28:TP=-3:LRA=7,afade=t=in:st=0:d=1.5,afade=t=out:st=${duration - 2}:d=2`,
   '-ar', '48000', '-ac', '2', '-c:a', 'pcm_s24le', preduck,
 ])
 
@@ -148,6 +168,7 @@ const duckedMetrics = loudness(ducked, 0, speechDuration)
 const noMusicMetrics = loudness(noMusic, 0, speechDuration)
 const enhancedSpeechMetrics = loudness(enhanced, 0, speechDuration)
 const enhancedMetrics = loudness(enhanced)
+const ctaVoiceMetrics = loudness(noMusic, 61.434, duration - 61.434)
 const observedDuck = Number((preduckMetrics.integrated_lufs - duckedMetrics.integrated_lufs).toFixed(2))
 const dialogueDelta = Number((enhancedSpeechMetrics.integrated_lufs - noMusicMetrics.integrated_lufs).toFixed(2))
 const clipping = clippedSamples(enhanced)
@@ -178,6 +199,10 @@ const validation = {
     speech_intelligibility_passed: Math.abs(dialogueDelta) <= 1.5 && clipping === 0 && enhancedMetrics.true_peak_dbfs <= -1.5,
     fade_boundary_passed: true,
     loop_enabled: false,
+    cta_window_seconds: [61.434, duration],
+    cta_voice_integrated_lufs: ctaVoiceMetrics.integrated_lufs,
+    cta_requires_spoken_track: true,
+    cta_spoken_track_passed: ctaVoiceMetrics.integrated_lufs > -35,
   },
   validation_method: 'FFmpeg ebur128 integrated loudness and true-peak analysis; full PCM decode with sample-level clipping count; matched 0–67.28 second speech-window A/B comparison; separate pre-duck and sidechain-ducked stems; full output decode.',
   execution_boundary: 'Local composition and review evidence only. Zero provider calls, spend, upload, platform draft, schedule, publish, external send, credential change, migration, or production/shared-data mutation.',
@@ -185,7 +210,8 @@ const validation = {
 
 if (observedDuck < 4 || observedDuck > 8) throw new Error(`Observed duck reduction ${observedDuck} dB is outside the approved moderate range.`)
 if (!validation.mix_validation.speech_intelligibility_passed) throw new Error(`Audio validation failed: ${JSON.stringify(validation.mix_validation)}`)
-if (Number(probe.format.duration) !== duration || Number(videoStream.nb_frames) !== 1782) throw new Error(`Output duration/frame mismatch: ${JSON.stringify(probe)}`)
+if (!validation.mix_validation.cta_spoken_track_passed) throw new Error(`CTA spoken-track validation failed: ${JSON.stringify(validation.mix_validation)}`)
+if (Number(probe.format.duration) !== duration || Number(videoStream.nb_frames) !== 1682) throw new Error(`Output duration/frame mismatch: ${JSON.stringify(probe)}`)
 
 await writeFile(audioReceiptPath, `${JSON.stringify(validation, null, 2)}\n`)
 await writeFile(receiptPath, `${JSON.stringify({
@@ -194,7 +220,8 @@ await writeFile(receiptPath, `${JSON.stringify({
   status: 'passed',
   input_version: validation.input_version,
   source_presenter: { path: nativePresenter.replace(`${root}/`, ''), sha256: expected.presenter },
-  source_native_animated_composite: { path: nativeAnimatedComposite.replace(`${root}/`, ''), sha256: expected.animatedComposite, used_seconds: [0, speechDuration], audio_similarity_psnr_db: 171.963 },
+  source_native_animated_composite: { path: nativeAnimatedComposite.replace(`${root}/`, ''), sha256: expected.animatedComposite, disposition: 'visual_reference_and_audio_similarity_baseline', audio_similarity_psnr_db: 171.963 },
+  source_native_motion_template: { path: nativeMotionTemplate.replace(`${root}/`, ''), sha256: expected.motionTemplate, extraction_policy: 'six original native scene windows, once each, no loops, final-frame hold only', scenes: nativeScenes },
   source_music: { path: 'local-private/youtube-music/the-stream-v2.wav', sha256: expected.music, source_receipt_id: validation.track.source_receipt_id, rights_receipt_id: validation.track.rights_receipt_id },
   choreography: { preset_id: 'presenter_asset_choreography_v1', transition_policy: 'matched_move_crossfade_v1', internal_motion_policy: 'source_bound_semantic_motion_v1', prior_motion_source_sha256: 'sha256:17bd925703c0f670046a3cd017a081c9547fbae5a7a5fc9d444721d4721e23b2', reduced_motion_fallback: 'settled_end_state', scene_roles: ['presenter_led', 'split_screen', 'asset_detail', 'return_to_presenter', 'cta'], hard_cuts: false, source_loops: false },
   output: { path: enhanced.replace(`${root}/`, ''), sha256: sha256(enhanced), probe },

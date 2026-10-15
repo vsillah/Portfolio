@@ -10,11 +10,52 @@
   "source_native_animated_composite": {
     "path": "artifacts/human-qa/artifact-video-review-2026-10-14/jev-avatar-motion-v3-mad-hadda-v3-api-credit/jev-avatar-motion-review.mp4",
     "sha256": "sha256:d567a263d31be2fe5c39190b977fe04461eb61f1ecf34db5599a2749a5b5a85a",
-    "used_seconds": [
-      0,
-      67.28
-    ],
+    "disposition": "visual_reference_and_audio_similarity_baseline",
     "audio_similarity_psnr_db": 171.963
+  },
+  "source_native_motion_template": {
+    "path": "artifacts/human-qa/artifact-video-review-2026-10-14/jev-template-v2-motion-master.mp4",
+    "sha256": "sha256:17bd925703c0f670046a3cd017a081c9547fbae5a7a5fc9d444721d4721e23b2",
+    "extraction_policy": "six original native scene windows, once each, no loops, final-frame hold only",
+    "scenes": [
+      {
+        "id": "score-dial",
+        "sourceStart": 0,
+        "sourceDuration": 3.4,
+        "targetDuration": 6.279
+      },
+      {
+        "id": "read-the-signal-bars",
+        "sourceStart": 4,
+        "sourceDuration": 3.3,
+        "targetDuration": 10.314
+      },
+      {
+        "id": "apply-policy-bands",
+        "sourceStart": 8,
+        "sourceDuration": 3.3,
+        "targetDuration": 8.838
+      },
+      {
+        "id": "ownership-handoff",
+        "sourceStart": 12,
+        "sourceDuration": 3.3,
+        "targetDuration": 6.682
+      },
+      {
+        "id": "uncertainty-summary",
+        "sourceStart": 20,
+        "sourceDuration": 1.7,
+        "targetDuration": 9.234
+      },
+      {
+        "id": "exception-routing",
+        "sourceStart": 16,
+        "sourceDuration": 3.2,
+        "targetDuration": 10.087,
+        "sourceExclusiveEnd": 19.2
+      }
+    ]
   },
   "source_music": {
     "path": "local-private/youtube-music/the-stream-v2.wav",
@@ -40,7 +81,7 @@
   },
   "output": {
     "path": "public/review-assets/social-content/jev-youtube-motion-review.mp4",
-    "sha256": "sha256:59db70c9e4801ca111fe08b854398ad4f9d5f551b43c50153342fb44f965cc1d",
+    "sha256": "sha256:acc06098ef80753acd771d1bb6995090fdf6642da1c65f34b05bf84ddbddc337",
     "probe": {
       "programs": [],
       "stream_groups": [],
@@ -53,7 +94,7 @@
           "height": 1920,
           "r_frame_rate": "25/1",
           "avg_frame_rate": "25/1",
-          "nb_frames": "1782"
+          "nb_frames": "1682"
         },
         {
           "index": 1,
@@ -63,22 +104,22 @@
           "channels": 2,
           "r_frame_rate": "0/0",
           "avg_frame_rate": "0/0",
-          "nb_frames": "3340"
+          "nb_frames": "3153"
         }
       ],
       "format": {
-        "duration": "71.280000",
-        "size": "13727945"
+        "duration": "67.280000",
+        "size": "8723391"
       }
     }
   },
   "no_music_ab": {
     "path": "public/review-assets/social-content/jev-youtube-no-music-review.mp4",
-    "sha256": "sha256:eaedb7265ec4bdb6e0bac0a536d39084e9d7d847d1b776f43f0b839b396eac09"
+    "sha256": "sha256:362bef78ff05866ffd65e688d9373a10825a184068194b0e4dbb1c37162b1485"
   },
   "poster": {
     "path": "public/review-assets/social-content/jev-youtube-motion-review.png",
-    "sha256": "sha256:a52651cb46448c1132623b9d7d0dd4a838e2ba5463bdd1beba31fb0dc4eaabc0"
+    "sha256": "sha256:ad7605de135592e4677563a34af2cafa7fb9c37d7702813ead94dc2d04c39a08"
   },
   "audio_validation_receipt_id": "audio-validation:jev:the-stream-v2:moderate:20261015",
   "external_actions_enabled": 0,

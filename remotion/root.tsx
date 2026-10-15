@@ -6,7 +6,7 @@ export function Root() {
     <Composition
       id="JevSocialVideoMotion"
       component={JevSocialVideoMotion}
-      durationInFrames={1782}
+      durationInFrames={1682}
       fps={25}
       width={1080}
       height={1920}

@@ -47,13 +47,13 @@ export type SocialVideoReviewPackage = {
     ledger: Array<{ asset_id: string; disposition: 'used' | 'omitted'; cue_ids: string[]; view_ids: string[]; reason?: string }>
   }
   motion_provenance: {
-    current_source_mode: 'native_animated_composite_with_remotion_cta'
+    current_source_mode: 'native_animated_composite_with_remotion_cta' | 'native_teaching_scene_clips_with_native_presenter_and_remotion_cta'
     prior_motion_source: { path: string; sha256: string; media_type: 'native_video' }
     native_motion_preserved: boolean
     flattening_reason?: string
     reduced_motion_fallback: 'settled_end_state'
     cue_bindings: Array<{ cue_id: string; source_field: string; animation: string; fallback: 'settled_end_state' }>
-    scene_inventory: Array<{ scene_id: string; source_hash: string; disposition: 'restored' | 'omitted' | 'blocked'; omission_receipt?: string }>
+    scene_inventory: Array<{ scene_id: string; source_hash: string; disposition: 'restored' | 'restored_once' | 'omitted' | 'blocked'; omission_receipt?: string }>
   }
   vocal_treatment: {
     source_presenter_sha256: string
@@ -141,12 +141,13 @@ export function evaluateSocialVideoReviewPackage(input: {
   if (usedCoverage.some((entry) => entry.cue_ids.length === 0 || entry.view_ids.length === 0) || value.asset_coverage?.ledger.some((entry) => entry.disposition === 'omitted' && !entry.reason?.trim())) blockers.push('Every approved asset requires cue-bound use or an explicit omission reason.')
   if (value.asset_coverage?.maximum_consecutive_repeated_views !== 0) blockers.push('Asset coverage must prohibit consecutive repeated views.')
   const provenance = value.motion_provenance
-  if (!provenance || provenance.current_source_mode !== 'native_animated_composite_with_remotion_cta' || provenance.prior_motion_source.media_type !== 'native_video' || !provenance.prior_motion_source.sha256.startsWith('sha256:')) blockers.push('Motion provenance must bind the prior native motion source and current render mode.')
+  const acceptedMotionModes = ['native_animated_composite_with_remotion_cta', 'native_teaching_scene_clips_with_native_presenter_and_remotion_cta']
+  if (!provenance || !acceptedMotionModes.includes(provenance.current_source_mode) || provenance.prior_motion_source.media_type !== 'native_video' || !provenance.prior_motion_source.sha256.startsWith('sha256:')) blockers.push('Motion provenance must bind the prior native motion source and current render mode.')
   if (provenance && !provenance.native_motion_preserved && !provenance.flattening_reason?.trim()) blockers.push('An animated source cannot be flattened without an explicit reason.')
   if (provenance?.reduced_motion_fallback !== 'settled_end_state' || provenance?.cue_bindings.some((binding) => !binding.cue_id.trim() || !binding.source_field.trim() || !binding.animation.trim() || binding.fallback !== 'settled_end_state')) blockers.push('Internal motion requires cue/source bindings and a settled reduced-motion fallback.')
   const evidenceCueIds = new Set(['inspect-score', 'apply-policy', 'retain-ownership', 'retain-receipt', 'hold-the-boundary'])
   if (provenance && new Set(provenance.cue_bindings.map((binding) => binding.cue_id).filter((id) => evidenceCueIds.has(id))).size !== evidenceCueIds.size) blockers.push('Every evidence cue requires a source-bound internal-motion contract.')
-  if (!provenance?.native_motion_preserved || provenance.scene_inventory.length < 6 || provenance.scene_inventory.some((scene) => !scene.source_hash.startsWith('sha256:') || (scene.disposition !== 'restored' && !scene.omission_receipt?.trim()))) blockers.push('Approved prior scenes must be restored or carry a version-bound omission receipt.')
+  if (!provenance?.native_motion_preserved || provenance.scene_inventory.length < 6 || provenance.scene_inventory.some((scene) => !scene.source_hash.startsWith('sha256:') || (!['restored', 'restored_once'].includes(scene.disposition) && !scene.omission_receipt?.trim()))) blockers.push('Approved prior scenes must be restored or carry a version-bound omission receipt.')
   const vocal = value.vocal_treatment
   if (!vocal || vocal.production_default !== 'original' || vocal.naturalized_mode !== 'local_sample_synchronous_review_only' || vocal.timing_edits_applied !== false || vocal.lip_sync_tolerance_ms > 40 || vocal.provider_calls !== 0 || !vocal.source_presenter_sha256.startsWith('sha256:')) blockers.push('Vocal treatment must remain local-only, sample-synchronous, original-default, and inside the lip-sync tolerance.')
 

@@ -14,15 +14,16 @@
     { "cue_id": "retain-receipt", "template_active_ratio": 0.6459, "pre_remotion_active_ratio": 0.0, "first_remotion_active_ratio": 0.0, "audited_current_active_ratio": 0.0, "revised_active_ratio": 0.0 },
     { "cue_id": "hold-the-boundary", "template_active_ratio": 0.5523, "pre_remotion_active_ratio": 0.0, "first_remotion_active_ratio": 0.0, "audited_current_active_ratio": 0.0, "revised_active_ratio": 0.1307 }
   ],
-  "finding": "The semantic animation was flattened by the presenter-first Sharp PNG evidence-card stage before Remotion. The complete approved native scene system remained available in the v3 native presenter composite and is now reused directly rather than reconstructed.",
+  "finding": "The semantic animation was flattened by the presenter-first Sharp PNG evidence-card stage before Remotion. The clean approved native motion master supplies each original teaching scene once while the separate native presenter remains synchronized and materially larger at left.",
   "final_correction": {
-    "source_path": "artifacts/human-qa/artifact-video-review-2026-10-14/jev-avatar-motion-v3-mad-hadda-v3-api-credit/jev-avatar-motion-review.mp4",
-    "source_sha256": "sha256:d567a263d31be2fe5c39190b977fe04461eb61f1ecf34db5599a2749a5b5a85a",
-    "native_seconds_preserved": [0, 67.28],
-    "native_visual_ssim": 0.998938,
+    "source_path": "artifacts/human-qa/artifact-video-review-2026-10-14/jev-template-v2-motion-master.mp4",
+    "source_sha256": "sha256:17bd925703c0f670046a3cd017a081c9547fbae5a7a5fc9d444721d4721e23b2",
+    "native_seconds_preserved": [[0, 3.4], [4, 7.3], [8, 11.3], [12, 15.3], [16, 19.3], [20, 21.7]],
+    "appearance_count_per_scene": 1,
     "native_audio_similarity_psnr_db": 171.963,
     "flattened": false,
     "retimed": false,
+    "extension_policy": "final frame hold only",
     "looped": false
   },
   "execution_boundary": "Read-only local media analysis. Zero provider calls, spend, upload, platform draft, schedule, publish, send, credential change, migration, or production/shared-data mutation."

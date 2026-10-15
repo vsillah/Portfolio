@@ -14,7 +14,13 @@ const evaluate = (value: SocialVideoReviewPackage) => evaluateSocialVideoReviewP
 })
 
 describe('social-video-review-package', () => {
-  it('accepts the version-bound Jev music and motion review package', () => {
+  it('accepts the version-bound Jev music and motion structure when its release gate is ready', () => {
+    const value = packet()
+    value.status = 'ready'
+    expect(evaluate(value)).toEqual({ ready: true, blockers: [] })
+  })
+
+  it('keeps the accepted Jev package structurally ready while the exact CTA exception is validated separately', () => {
     expect(evaluate(packet())).toEqual({ ready: true, blockers: [] })
   })
 
