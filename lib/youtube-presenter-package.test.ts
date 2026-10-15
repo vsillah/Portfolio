@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import jevPresenterPackage from '../artifacts/human-qa/artifact-video-review-2026-10-14/inputs/jev-youtube-presenter-package-v1.json'
+import jevPresenterPackage from '../artifacts/human-qa/artifact-video-review-2026-10-14/inputs/jev-youtube-presenter-package-v2.json'
 import {
   evaluateYouTubePresenterPackage,
   type YouTubePresenterPackage,
 } from './youtube-presenter-package'
+import type { YouTubeMusicBedContract } from './youtube-music-bed'
 
 const inputVersion = 'sha256:jev-content-v2'
 const researchIds = ['research_packet:outlier-1']
@@ -11,13 +12,43 @@ const sourceIds = ['source:jev:approved']
 const claimIds = ['jev-score', 'jev-policy']
 const privacyIds = ['privacy:jev:public-safe']
 const rightsIds = ['rights:jev:owned-media']
+const musicSourceIds = ['source:music:approved']
+const musicRightsIds = ['rights:music:approved']
+const musicTrackHash = 'sha256:approved-music'
+
+function musicBed(): YouTubeMusicBedContract {
+  return {
+    version: 'youtube_music_bed_v1', status: 'approved', input_version: inputVersion,
+    track: {
+      track_id: 'track:lofi-jazz:v1', title: 'Approved instrumental',
+      style_tags: ['lo-fi', 'jazz', 'hip-hop'], instrumental: true, vocals: false,
+      source_reference: 'drive://approved.wav', staged_path: 'artifacts/audio/approved.wav',
+      sha256: musicTrackHash, duration_seconds: 120,
+      source_receipt: { receipt_id: musicSourceIds[0], status: 'passed', input_version: inputVersion },
+      rights_receipt: { receipt_id: musicRightsIds[0], status: 'approved', input_version: inputVersion },
+    },
+    timing: { source_start_seconds: 4, timeline_start_seconds: 0, timeline_end_seconds: 20, loop: { enabled: false, crossfade_seconds: 0, seam_validation_receipt: null } },
+    mix: {
+      target_music_lufs: -32, target_final_lufs: -16, maximum_true_peak_dbfs: -1.5,
+      speech_ducking: { enabled: true, threshold_dbfs: -30, ratio: 8, attack_ms: 35, release_ms: 420, minimum_reduction_db: 12 },
+      fade_in_seconds: 1, fade_out_seconds: 1,
+    },
+    final_audio_validation: {
+      receipt_id: 'audio-validation:music:v1', status: 'passed', input_version: inputVersion,
+      output_sha256: 'sha256:mixed', baseline_sha256: 'sha256:baseline', measured_integrated_lufs: -16.2,
+      measured_true_peak_dbfs: -1.7, baseline_dialogue_lufs: -16.1, mixed_dialogue_lufs: -16.3,
+      dialogue_lufs_delta: -0.2, clipping_sample_count: 0, observed_duck_reduction_db: 12.5,
+      fade_boundary_passed: true, loop_seam_passed: true,
+    },
+  }
+}
 
 function fixture(): YouTubePresenterPackage {
   const conclusion = 'Governed automation begins when uncertainty is visible enough to route, review, and refuse.'
   const cta = 'Subscribe to the channel for more practical ways to govern AI decisions.'
   return {
-    version: 'youtube_presenter_package_v1',
-    package_id: 'youtube-presenter:jev:v1',
+    version: 'youtube_presenter_package_v2',
+    package_id: 'youtube-presenter:jev:v2',
     target: 'youtube_shorts',
     review_only: true,
     input_version: inputVersion,
@@ -47,6 +78,7 @@ function fixture(): YouTubePresenterPackage {
         source_receipt_id: sourceIds[0], rights_receipt_id: rightsIds[0],
       }],
     },
+    music_bed: musicBed(),
     timeline: [
       { cue_id: 'presenter-open', layout: 'presenter_primary', start_seconds: 0, end_seconds: 4, spoken_text: 'The problem is fluent certainty.' },
       {
@@ -95,11 +127,14 @@ function evaluate(value: YouTubePresenterPackage) {
     approvedClaimIds: claimIds,
     approvedPrivacyReceiptIds: privacyIds,
     approvedRightsReceiptIds: rightsIds,
+    approvedMusicSourceReceiptIds: musicSourceIds,
+    approvedMusicRightsReceiptIds: musicRightsIds,
+    approvedMusicTrackSha256ById: { 'track:lofi-jazz:v1': musicTrackHash },
   })
 }
 
 describe('youtube-presenter-package', () => {
-  it('passes the checked-in Jev package against its approved receipt set', () => {
+  it('fails the checked-in Jev package without external approvals and passes with the exact music bindings', () => {
     const value = jevPresenterPackage as YouTubePresenterPackage
     expect(evaluateYouTubePresenterPackage({
       package: value,
@@ -109,6 +144,27 @@ describe('youtube-presenter-package', () => {
       approvedClaimIds: ['jev-typed-probabilities', 'jev-policy-boundary'],
       approvedPrivacyReceiptIds: ['privacy:jev:public-safe-20261014'],
       approvedRightsReceiptIds: ['rights:jev:owned-public-assets-20261014'],
+      approvedMusicSourceReceiptIds: [],
+      approvedMusicRightsReceiptIds: [],
+      approvedMusicTrackSha256ById: {},
+    }).blockers).toEqual(expect.arrayContaining([
+      'Background-music input hash is missing, stale, or unapproved.',
+      'Background-music source receipt is missing, stale, or unapproved.',
+      'Background-music rights receipt is missing, stale, or unapproved.',
+    ]))
+    expect(evaluateYouTubePresenterPackage({
+      package: value,
+      expectedInputVersion: value.input_version,
+      approvedResearchReceiptIds: ['research_packet:68dfaed1-b319-4a82-98c0-b9caea34835e'],
+      approvedSourceReceiptIds: ['source:jev:approved-composite-20261014'],
+      approvedClaimIds: ['jev-typed-probabilities', 'jev-policy-boundary'],
+      approvedPrivacyReceiptIds: ['privacy:jev:public-safe-20261014'],
+      approvedRightsReceiptIds: ['rights:jev:owned-public-assets-20261014'],
+      approvedMusicSourceReceiptIds: ['source:music:the-stream-v2:20261014'],
+      approvedMusicRightsReceiptIds: ['rights:music:the-stream-v2:20261014'],
+      approvedMusicTrackSha256ById: {
+        'mad-hadda-the-stream-beat-stem-v2': 'sha256:7842628c35c5375cefaffc1b7d9425e354e840f5d46dfab65612d8f86a67158d',
+      },
     })).toEqual({ applicable: true, ready: true, blockers: [] })
   })
 

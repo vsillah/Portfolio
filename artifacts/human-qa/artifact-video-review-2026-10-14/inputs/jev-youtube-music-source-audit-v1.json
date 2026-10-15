@@ -1,0 +1,38 @@
+{
+  "receipt_version": "youtube_music_source_audit_v1",
+  "receipt_id": "source-audit:jev:youtube-music:20261014",
+  "status": "blocked_pending_rights",
+  "input_version": "sha256:e6fc9ae4aadd61e3a871e8f7af2dd0a2d424d5c20ae6a8d0eac861b16e796bd5",
+  "search_scope": [
+    "Portfolio local assets and documentation",
+    "AmaduTown Advisory Solutions Google Drive company materials",
+    "AmaduTown YouTube Channel/Assets/Music",
+    "matching Mad Hadda source-stem folders"
+  ],
+  "candidate": {
+    "track_id": "mad-hadda-the-stream-beat-stem-v2",
+    "title": "The Stream 2.0 beat stem",
+    "source_reference": "AmaduTown YouTube Assets/Music plus matching Mad Hadda/The UnLearning source-stem location",
+    "sha256": "sha256:7842628c35c5375cefaffc1b7d9425e354e840f5d46dfab65612d8f86a67158d",
+    "duration_seconds": 180.816168,
+    "observed_properties": ["WAV", "beat stem", "no embedded artist, composer, copyright, license, genre, or title tags"],
+    "unverified_properties": ["lo-fi classification", "jazz classification", "AmaduTown reuse rights", "YouTube synchronization rights", "composition ownership", "master ownership"]
+  },
+  "rights_search_result": "No track-specific license, ownership declaration, composer split, master-rights receipt, release, invoice, or synchronization-use grant was found in the approved search scope.",
+  "decision": "Do not stage, mix, render, upload, or publish the candidate until a track-specific source receipt and rights receipt are approved and bound to the exact SHA-256.",
+  "baseline": {
+    "path": "jev-youtube-presenter-first/jev-youtube-presenter-first-review.mp4",
+    "sha256": "sha256:ed9bc332f9c337770ab1a697c44ae913e41654858380a2b2ced3d257c3f32a06",
+    "role": "preserved no-music master for future A/B audio validation"
+  },
+  "execution": {
+    "external_provider_calls": 0,
+    "downloads": 0,
+    "spend_usd": 0,
+    "uploads_or_platform_drafts": 0,
+    "schedules_or_publishes": 0,
+    "messages_or_sends": 0,
+    "credential_changes": 0,
+    "production_mutations": 0
+  }
+}
