@@ -1,0 +1,103 @@
+{
+  "revision": "da78d3f0",
+  "fixture": null,
+  "source_mode": "persisted_production_row_via_read_only_localhost_proxy",
+  "record_ids": [
+    "1f3cec8c-afcb-4551-90fa-b8d4f9dabe2f",
+    "e06ab168-56aa-45f5-9672-619215df3ce7",
+    "2d96e662-5e7e-4761-8a87-85128e20a559"
+  ],
+  "record_variants": [
+    {
+      "id": "1f3cec8c-afcb-4551-90fa-b8d4f9dabe2f",
+      "variant": "licenses-yt-a",
+      "channel": "youtube"
+    },
+    {
+      "id": "e06ab168-56aa-45f5-9672-619215df3ce7",
+      "variant": "pm-os-yt-b",
+      "channel": "youtube"
+    },
+    {
+      "id": "2d96e662-5e7e-4761-8a87-85128e20a559",
+      "variant": "harness-yt-b",
+      "channel": "youtube"
+    }
+  ],
+  "exact_routes": [
+    "http://127.0.0.1:3107/admin/social-content/1f3cec8c-afcb-4551-90fa-b8d4f9dabe2f?step=copy&rev=da78d3f0",
+    "http://127.0.0.1:3107/admin/social-content/e06ab168-56aa-45f5-9672-619215df3ce7?step=copy&rev=da78d3f0",
+    "http://127.0.0.1:3107/admin/social-content/2d96e662-5e7e-4761-8a87-85128e20a559?step=copy&rev=da78d3f0"
+  ],
+  "viewports": [
+    "1440x900",
+    "390x844"
+  ],
+  "routes_reviewed": 6,
+  "screenshots": [
+    "desktop-1440-licenses-yt-a-1f3cec8c-afcb-4551-90fa-b8d4f9dabe2f-route.png",
+    "desktop-1440-licenses-yt-a-1f3cec8c-afcb-4551-90fa-b8d4f9dabe2f-review.png",
+    "desktop-1440-pm-os-yt-b-e06ab168-56aa-45f5-9672-619215df3ce7-route.png",
+    "desktop-1440-pm-os-yt-b-e06ab168-56aa-45f5-9672-619215df3ce7-review.png",
+    "desktop-1440-harness-yt-b-2d96e662-5e7e-4761-8a87-85128e20a559-route.png",
+    "desktop-1440-harness-yt-b-2d96e662-5e7e-4761-8a87-85128e20a559-review.png",
+    "mobile-390-licenses-yt-a-1f3cec8c-afcb-4551-90fa-b8d4f9dabe2f-route.png",
+    "mobile-390-licenses-yt-a-1f3cec8c-afcb-4551-90fa-b8d4f9dabe2f-review.png",
+    "mobile-390-pm-os-yt-b-e06ab168-56aa-45f5-9672-619215df3ce7-route.png",
+    "mobile-390-pm-os-yt-b-e06ab168-56aa-45f5-9672-619215df3ce7-review.png",
+    "mobile-390-harness-yt-b-2d96e662-5e7e-4761-8a87-85128e20a559-route.png",
+    "mobile-390-harness-yt-b-2d96e662-5e7e-4761-8a87-85128e20a559-review.png"
+  ],
+  "assertions": [
+    "title",
+    "description",
+    "opening hook",
+    "episode outline",
+    "thumbnail brief",
+    "evidence lineage",
+    "product-proof requirements",
+    "Unscored state",
+    "no LinkedIn preview guidance",
+    "no generic copy approval gate",
+    "no copy rejection action",
+    "no draft mutation actions",
+    "ordinary LinkedIn preview and copy guidance preserved for LinkedIn controls",
+    "specialized YouTube review withheld from LinkedIn controls",
+    "channel-specific read-only notice"
+  ],
+  "side_effects": {
+    "production_social_content_reads": true,
+    "production_writes": false,
+    "provider_calls": false,
+    "rendering": false,
+    "upload": false,
+    "platform_draft": false,
+    "schedule": false,
+    "publish": false,
+    "external_send": false
+  },
+  "network": {
+    "unexpected_external_requests": 0,
+    "allowed_auth_requests": 8,
+    "blocked_expected_analytics_requests": 0
+  },
+  "mp4": "artifacts/human-qa/production-youtube-experiment-detail-2026-10-16/production-youtube-experiment-detail-walkthrough.mp4",
+  "mp4_sha256": "1e225ed2686ec20ac0a309a8f8e4f860a35c0947e0323c4f4bb887793b56b576",
+  "probe": {
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "width": 1440,
+        "height": 900,
+        "avg_frame_rate": "25/1",
+        "nb_frames": "397"
+      }
+    ],
+    "format": {
+      "duration": "15.880000",
+      "size": "1918732"
+    }
+  }
+}

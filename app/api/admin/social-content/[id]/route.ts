@@ -55,6 +55,7 @@ import {
   createSupabaseSocialScheduleRecoveryRepository,
 } from '@/lib/social-schedule-recovery'
 import { readVerifiedSocialContentDecisionReceipt } from '@/lib/social-content-recorded-decision'
+import { persistedChannelExperimentReviewForItem } from '@/lib/channel-experiment-review'
 
 export const dynamic = 'force-dynamic'
 
@@ -214,6 +215,15 @@ export async function GET(
 
     if (error || !data) {
       return NextResponse.json({ error: 'Content not found' }, { status: 404 })
+    }
+
+    if (persistedChannelExperimentReviewForItem(data)) {
+      return NextResponse.json({
+        item: data,
+        fixture: false,
+        fixture_state: 'persisted_review_only_youtube_experiment',
+        integration_note: 'Persisted review-only YouTube experiment projection. It reads the authorized Social Content row but does not load provider configuration, write shared data, render or upload media, create a platform draft, schedule, publish, send externally, change credentials, or spend money.',
+      })
     }
 
     const recordedInternalDecisionReceipt = await readVerifiedSocialContentDecisionReceipt(
@@ -435,6 +445,14 @@ export async function PUT(
 
       if (currentError || !currentItem) {
         return NextResponse.json({ error: 'Content not found' }, { status: 404 })
+      }
+
+      if (persistedChannelExperimentReviewForItem(currentItem)) {
+        return NextResponse.json({
+          error: 'This channel-native YouTube experiment is review-only.',
+          blocked: true,
+          persisted: false,
+        }, { status: 409 })
       }
 
       if (body.attach_existing_image === true && !isCalendarSocialCopy(currentItem)) return NextResponse.json({error:'Existing-image attachment requires a calendar draft.'},{status:400})

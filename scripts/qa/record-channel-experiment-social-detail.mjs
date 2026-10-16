@@ -7,10 +7,13 @@ import { chromium } from 'playwright'
 const root = process.cwd()
 const baseUrl = process.env.QA_BASE_URL || 'http://127.0.0.1:3107'
 const revision = process.env.QA_REVISION || 'working-tree'
+const persistedMode = process.env.QA_PERSISTED_RECORDS === '1'
 const authStatePath = process.env.PLAYWRIGHT_AUTH_STATE || '/Users/vambahsillah/Projects/Portfolio/.auth/portfolio-admin-storage-state.json'
-const outputDir = path.resolve(process.env.QA_OUTPUT_DIR || 'artifacts/human-qa/channel-experiment-social-detail-2026-10-16')
-const rawDir = path.join(root, 'test-results', 'channel-experiment-social-detail-video')
-const finalMp4 = path.join(outputDir, 'channel-experiment-social-detail-walkthrough.mp4')
+const outputDir = path.resolve(process.env.QA_OUTPUT_DIR || (persistedMode
+  ? 'artifacts/human-qa/production-youtube-experiment-detail-2026-10-16'
+  : 'artifacts/human-qa/channel-experiment-social-detail-2026-10-16'))
+const rawDir = path.join(root, 'test-results', persistedMode ? 'production-youtube-experiment-detail-video' : 'channel-experiment-social-detail-video')
+const finalMp4 = path.join(outputDir, persistedMode ? 'production-youtube-experiment-detail-walkthrough.mp4' : 'channel-experiment-social-detail-walkthrough.mp4')
 const records = [
   { id: '26a4a7c9-2325-4ef7-a2ee-a83a366d4146', variant: 'licenses-li-b', channel: 'linkedin', expectedText: 'Monday morning. The AI pilot is live. Nobody can explain what happens when the agent is wrong.' },
   { id: '1f3cec8c-afcb-4551-90fa-b8d4f9dabe2f', variant: 'licenses-yt-a', channel: 'youtube', expectedText: 'Stop Counting AI Licenses: Build a Readiness Scorecard That Shows the Work' },
@@ -18,7 +21,7 @@ const records = [
   { id: 'e06ab168-56aa-45f5-9672-619215df3ce7', variant: 'pm-os-yt-b', channel: 'youtube', expectedText: 'I Built the Product Brief With AI. Then I Audited Every Decision.' },
   { id: '03f9e0ed-3fee-4d5b-815c-602b6e0e917b', variant: 'harness-li-b', channel: 'linkedin', expectedText: 'I trust an agent more when I can see what it was forbidden to do.' },
   { id: '2d96e662-5e7e-4761-8a87-85128e20a559', variant: 'harness-yt-b', channel: 'youtube', expectedText: 'Can You Reconstruct What Your AI Agent Did? A Receipt Test' },
-]
+].filter(record => !persistedMode || record.channel === 'youtube')
 
 mkdirSync(outputDir, { recursive: true })
 rmSync(rawDir, { recursive: true, force: true })
@@ -33,9 +36,9 @@ const storageState = {
 function route(record) {
   const params = new URLSearchParams({
     step: 'copy',
-    qa_fixture: 'channel_experiment_social_detail_v1',
     rev: revision,
   })
+  if (!persistedMode) params.set('qa_fixture', 'channel_experiment_social_detail_v1')
   return `${baseUrl}/admin/social-content/${record.id}?${params.toString()}`
 }
 
@@ -90,9 +93,13 @@ async function recordViewport(browser, { label, viewport }) {
       if (await page.getByText('LinkedIn optimal: 150-300 words', { exact: true }).count()) throw new Error(`${label} ${record.id} rendered LinkedIn copy guidance.`)
       if (await page.getByRole('region', { name: 'Copy review decision gate' }).count()) throw new Error(`${label} ${record.id} rendered the generic copy approval gate.`)
       if (await page.getByRole('button', { name: /Approve Copy/i }).count()) throw new Error(`${label} ${record.id} exposed a copy approval action.`)
+      if (await page.getByRole('button', { name: /^Reject$/i }).count()) throw new Error(`${label} ${record.id} exposed a copy rejection action.`)
       if (await page.getByRole('button', { name: /Save Draft/i }).count()) throw new Error(`${label} ${record.id} exposed a draft mutation action.`)
       if (!await surface.getByText('Unscored', { exact: true }).count()) throw new Error(`${label} ${record.id} did not expose the Unscored state.`)
-      if (!await page.getByText('Privacy-safe channel-native YouTube experiment fixture. Review only.', { exact: true }).count()) throw new Error(`${label} ${record.id} did not expose the YouTube read-only fixture notice.`)
+      const expectedNotice = persistedMode
+        ? 'Persisted channel-native YouTube experiment. Review only.'
+        : 'Privacy-safe channel-native YouTube experiment fixture. Review only.'
+      if (!await page.getByText(expectedNotice, { exact: true }).count()) throw new Error(`${label} ${record.id} did not expose the YouTube read-only notice.`)
     } else {
       const preview = page.getByLabel('LinkedIn post preview')
       await preview.waitFor({ state: 'visible', timeout: 30_000 })
@@ -190,7 +197,8 @@ for (const receipt of [...desktop.routeReceipts, ...mobile.routeReceipts]) {
 
 const receipt = {
   revision,
-  fixture: 'channel_experiment_social_detail_v1',
+  fixture: persistedMode ? null : 'channel_experiment_social_detail_v1',
+  source_mode: persistedMode ? 'persisted_production_row_via_read_only_localhost_proxy' : 'synthetic_read_only_fixture',
   record_ids: records.map(record => record.id),
   record_variants: records.map(record => ({ id: record.id, variant: record.variant, channel: record.channel })),
   exact_routes: desktop.routeReceipts.map(item => item.url),
@@ -208,13 +216,14 @@ const receipt = {
     'Unscored state',
     'no LinkedIn preview guidance',
     'no generic copy approval gate',
+    'no copy rejection action',
     'no draft mutation actions',
     'ordinary LinkedIn preview and copy guidance preserved for LinkedIn controls',
     'specialized YouTube review withheld from LinkedIn controls',
     'channel-specific read-only notice',
   ],
   side_effects: {
-    production_social_content_reads: false,
+    production_social_content_reads: persistedMode,
     production_writes: false,
     provider_calls: false,
     rendering: false,
