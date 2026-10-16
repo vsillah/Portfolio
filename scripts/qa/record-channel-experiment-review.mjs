@@ -47,6 +47,14 @@ async function openPacket(page, packet) {
   await page.getByRole('region', { name: `Channel experiments for ${packet.title}` }).waitFor({ state: 'visible' })
 }
 
+async function navigateToPacket(page, packet) {
+  await Promise.all([
+    page.waitForURL(route(packet.id)),
+    page.getByRole('link', { name: packet.title, exact: true }).click(),
+  ])
+  await page.getByRole('region', { name: `Channel experiments for ${packet.title}` }).waitFor({ state: 'visible' })
+}
+
 async function recordScenario(browser, { label, viewport }) {
   const videoDir = path.join(rawDir, label)
   mkdirSync(videoDir, { recursive: true })
@@ -59,13 +67,15 @@ async function recordScenario(browser, { label, viewport }) {
   const { page, externalRequests, blockedExpectedRequests } = await preparePage(context)
 
   for (const [index, packet] of packets.entries()) {
-    await openPacket(page, packet)
+    if (index === 0) await openPacket(page, packet)
+    else await navigateToPacket(page, packet)
     if (index === 0) await page.screenshot({ path: path.join(outputDir, `${label}-linkedin-dark.png`), fullPage: false })
     await page.getByRole('button', { name: 'youtube', exact: true }).click()
     await page.getByRole('button', { name: /Variant B/ }).click()
     await page.getByText(packet.youtubeB, { exact: true }).scrollIntoViewIfNeeded()
     await page.waitForTimeout(600)
     if (index === 0) await page.screenshot({ path: path.join(outputDir, `${label}-youtube-b-dark.png`), fullPage: false })
+    if (index === 1) await page.screenshot({ path: path.join(outputDir, `${label}-product-manager-youtube-b-dark.png`), fullPage: false })
   }
 
   const video = page.video()
@@ -128,9 +138,11 @@ const probe = JSON.parse(execFileSync('ffprobe', [
 const screenshots = [
   'desktop-1440-linkedin-dark.png',
   'desktop-1440-youtube-b-dark.png',
+  'desktop-1440-product-manager-youtube-b-dark.png',
   'desktop-1440-linkedin-light.png',
   'mobile-390-linkedin-dark.png',
   'mobile-390-youtube-b-dark.png',
+  'mobile-390-product-manager-youtube-b-dark.png',
   'mobile-390-linkedin-light.png',
 ]
 for (const screenshot of screenshots) {
