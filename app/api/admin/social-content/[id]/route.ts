@@ -178,11 +178,12 @@ export async function GET(
       request.nextUrl.searchParams.get('qa_fixture') === CHANNEL_EXPERIMENT_SOCIAL_DETAIL_FIXTURE
       && isChannelExperimentSocialContentId(id)
     ) {
+      const item = channelExperimentSocialContentQaFixture(id)
       return NextResponse.json({
-        item: channelExperimentSocialContentQaFixture(id),
+        item,
         fixture: true,
-        fixture_state: 'review_only_youtube_experiment',
-        integration_note: 'Privacy-safe read-only YouTube experiment projection. It does not read or write a production Social Content row, call providers, render or upload media, create platform drafts, schedule, publish, send externally, change credentials, or spend money.',
+        fixture_state: item.platform === 'youtube' ? 'review_only_youtube_experiment' : 'review_only_linkedin_control',
+        integration_note: `Privacy-safe read-only ${item.platform === 'youtube' ? 'YouTube experiment projection' : 'LinkedIn control projection'}. It does not read or write a production Social Content row, call providers, render or upload media, create platform drafts, schedule, publish, send externally, change credentials, or spend money.`,
       })
     }
 

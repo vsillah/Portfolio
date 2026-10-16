@@ -54,6 +54,7 @@ function LinkedInVariant({ variant }: { variant: LinkedInExperiment }) {
 }
 
 function YouTubeVariant({ variant, revision }: { variant: YouTubeExperiment; revision?: string }) {
+  const socialContentHref = channelExperimentSocialContentHref(variant.id, revision)
   return <div className="space-y-4" data-testid={`experiment-${variant.id}`}>
     <div>
       <p className="text-xs font-semibold uppercase tracking-[0.16em] text-red-700 dark:text-red-200">Test hypothesis</p>
@@ -82,12 +83,12 @@ function YouTubeVariant({ variant, revision }: { variant: YouTubeExperiment; rev
         {variant.visualEvidence.map(item => <li key={item}>• {item}</li>)}
       </ul>
     </div>
-    <a
-      href={channelExperimentSocialContentHref(variant.id, revision)}
+    {socialContentHref ? <a
+      href={socialContentHref}
       className="inline-flex min-h-11 items-center justify-center rounded-lg border border-red-500/35 bg-red-500/10 px-3 py-2 text-sm font-semibold text-red-800 transition-colors hover:bg-red-500/15 dark:text-red-100"
     >
       Open YouTube Social Content review
-    </a>
+    </a> : null}
   </div>
 }
 

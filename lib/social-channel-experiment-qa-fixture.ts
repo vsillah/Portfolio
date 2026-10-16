@@ -1,5 +1,6 @@
 import {
-  channelExperimentReviewForSocialContentId,
+  channelExperimentReviewForPacket,
+  channelExperimentSocialContentRecord,
   type YouTubeExperimentReviewRecord,
 } from '@/lib/channel-experiment-review'
 import type { SocialContentItem } from '@/lib/social-content'
@@ -7,7 +8,7 @@ import type { SocialContentItem } from '@/lib/social-content'
 export const CHANNEL_EXPERIMENT_SOCIAL_DETAIL_FIXTURE = 'channel_experiment_social_detail_v1'
 
 export function isChannelExperimentSocialContentId(id: string): boolean {
-  return channelExperimentReviewForSocialContentId(id) !== null
+  return channelExperimentSocialContentRecord(id) !== null
 }
 
 function experimentOutline(record: YouTubeExperimentReviewRecord): string {
@@ -19,10 +20,95 @@ function experimentOutline(record: YouTubeExperimentReviewRecord): string {
 }
 
 export function channelExperimentSocialContentQaFixture(id: string): SocialContentItem {
-  const record = channelExperimentReviewForSocialContentId(id)
-  if (!record) throw new Error(`Unknown channel experiment Social Content fixture: ${id}`)
+  const binding = channelExperimentSocialContentRecord(id)
+  if (!binding) throw new Error(`Unknown channel experiment Social Content fixture: ${id}`)
+  const review = channelExperimentReviewForPacket(binding.packetId)
+  if (!review) throw new Error(`Unknown channel experiment packet: ${binding.packetId}`)
 
-  const { review, variant } = record
+  const sideEffects = {
+    production_read: false,
+    production_write: false,
+    provider_generation: false,
+    rendering: false,
+    upload: false,
+    platform_draft: false,
+    schedule: false,
+    publish: false,
+    external_send: false,
+  }
+
+  if (binding.channel === 'linkedin') {
+    const variant = review.linkedin.find(candidate => candidate.id === binding.variantId)
+    if (!variant) throw new Error(`Unknown LinkedIn experiment variant: ${binding.variantId}`)
+    return {
+      id,
+      meeting_record_id: null,
+      platform: 'linkedin',
+      status: 'draft',
+      post_text: [variant.hook, '', ...variant.bodyStructure, '', variant.cta].join('\n\n'),
+      cta_text: variant.cta,
+      cta_url: null,
+      hashtags: [],
+      image_url: null,
+      image_prompt: variant.visualBrief,
+      framework_visual_type: null,
+      voiceover_url: null,
+      voiceover_text: null,
+      video_url: null,
+      topic_extracted: null,
+      hormozi_framework: null,
+      rag_context: {
+        source: 'channel_experiment_linkedin_control_fixture',
+        source_type: 'review_only_linkedin_control',
+        source_packet: review.packetId,
+        campaign_name: review.campaignTitle,
+        platform: 'linkedin',
+        approval_boundary: review.evidenceBoundary.join(' '),
+        workflow_state: 'human_review_required',
+        publish_gate: 'review_only',
+        provider_actions_enabled: false,
+        platform_draft_enabled: false,
+        external_execution_enabled: false,
+        experiment_variant: {
+          variant_id: variant.id,
+          variant_label: variant.label,
+          hypothesis: variant.hypothesis,
+          product_tie_in: variant.productTieIn,
+          visual_brief: variant.visualBrief,
+        },
+        side_effects: sideEffects,
+        qa_fixture: {
+          kind: 'channel_experiment_linkedin_control',
+          read_only: true,
+          reason: 'Privacy-safe LinkedIn control fixture. Review only.',
+          next_action: 'Verify this record still uses the ordinary LinkedIn review experience; all execution gates remain closed.',
+        },
+      },
+      scheduled_for: null,
+      published_at: null,
+      platform_post_id: null,
+      admin_notes: null,
+      reviewed_by: null,
+      target_platforms: ['linkedin'],
+      video_generation_method: 'none',
+      youtube_title: null,
+      youtube_description: null,
+      content_format: 'single_image',
+      content_pillar: null,
+      companion_post_text: null,
+      carousel_slides: null,
+      carousel_pdf_url: null,
+      carousel_slide_urls: null,
+      created_at: '2026-10-16T12:00:00.000Z',
+      updated_at: '2026-10-16T12:00:00.000Z',
+      publishes: [],
+    }
+  }
+
+  const variant = review.youtube.find(candidate => candidate.id === binding.variantId)
+  if (!variant) throw new Error(`Unknown YouTube experiment variant: ${binding.variantId}`)
+  const record: YouTubeExperimentReviewRecord = { review, variant }
+
   return {
     id,
     meeting_record_id: null,
@@ -73,17 +159,7 @@ export function channelExperimentSocialContentQaFixture(id: string): SocialConte
         scores: review.scores,
         missing_evidence: review.missingEvidence,
       },
-      side_effects: {
-        production_read: false,
-        production_write: false,
-        provider_generation: false,
-        rendering: false,
-        upload: false,
-        platform_draft: false,
-        schedule: false,
-        publish: false,
-        external_send: false,
-      },
+      side_effects: sideEffects,
       qa_fixture: {
         kind: 'channel_experiment_social_detail_review',
         read_only: true,

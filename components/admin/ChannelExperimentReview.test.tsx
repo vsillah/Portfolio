@@ -28,13 +28,14 @@ describe('ChannelExperimentReview', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'youtube' }))
     expect(screen.getByText('Stop Counting AI Licenses: Build a Readiness Scorecard That Shows the Work')).toBeVisible()
+    expect(screen.getByRole('link', { name: 'Open YouTube Social Content review' })).toHaveAttribute(
+      'href',
+      '/admin/social-content/1f3cec8c-afcb-4551-90fa-b8d4f9dabe2f?step=copy&qa_fixture=channel_experiment_social_detail_v1&rev=test-commit',
+    )
     fireEvent.click(screen.getByRole('button', { name: 'Variant B · Failed handoff story' }))
     expect(screen.getByText('Your AI Pilot Worked. Then the Handoff Broke.')).toBeVisible()
     expect(screen.getByText('Proposed visual evidence')).toBeVisible()
-    expect(screen.getByRole('link', { name: 'Open YouTube Social Content review' })).toHaveAttribute(
-      'href',
-      '/admin/social-content/licenses-yt-b?step=copy&qa_fixture=channel_experiment_social_detail_v1&rev=test-commit',
-    )
+    expect(screen.queryByRole('link', { name: 'Open YouTube Social Content review' })).not.toBeInTheDocument()
   })
 
   it('keeps LinkedIn variants on the existing packet route without a YouTube detail link', () => {

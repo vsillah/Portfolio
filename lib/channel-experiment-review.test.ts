@@ -2,6 +2,9 @@ import { describe, expect, it } from 'vitest'
 import {
   CHANNEL_EXPERIMENT_PACKET_IDS,
   CHANNEL_EXPERIMENT_REVIEWS,
+  CHANNEL_EXPERIMENT_LINKEDIN_RECORD_IDS,
+  CHANNEL_EXPERIMENT_SOCIAL_CONTENT_RECORD_IDS,
+  CHANNEL_EXPERIMENT_SOCIAL_CONTENT_RECORDS,
   CHANNEL_EXPERIMENT_YOUTUBE_RECORD_IDS,
   channelExperimentReviewForPacket,
   channelExperimentReviewForSocialContentId,
@@ -42,16 +45,23 @@ describe('channel experiment review packets', () => {
     expect(channelExperimentReviewForPacket('packet-outside-approved-scope')).toBeNull()
   })
 
-  it('binds all six YouTube variants to exact read-only Social Content review routes', () => {
-    expect(CHANNEL_EXPERIMENT_YOUTUBE_RECORD_IDS).toHaveLength(6)
-    expect(new Set(CHANNEL_EXPERIMENT_YOUTUBE_RECORD_IDS).size).toBe(6)
+  it('binds the exact six authorized Social Content identities while specializing only the three YouTube records', () => {
+    expect(CHANNEL_EXPERIMENT_SOCIAL_CONTENT_RECORD_IDS).toHaveLength(6)
+    expect(CHANNEL_EXPERIMENT_LINKEDIN_RECORD_IDS).toHaveLength(3)
+    expect(CHANNEL_EXPERIMENT_YOUTUBE_RECORD_IDS).toHaveLength(3)
+    expect(new Set(CHANNEL_EXPERIMENT_SOCIAL_CONTENT_RECORD_IDS).size).toBe(6)
 
-    for (const id of CHANNEL_EXPERIMENT_YOUTUBE_RECORD_IDS) {
-      expect(channelExperimentReviewForSocialContentId(id)?.variant.id).toBe(id)
-      expect(channelExperimentSocialContentHref(id, 'test-commit')).toBe(
-        `/admin/social-content/${id}?step=copy&qa_fixture=channel_experiment_social_detail_v1&rev=test-commit`,
-      )
+    for (const record of CHANNEL_EXPERIMENT_SOCIAL_CONTENT_RECORDS) {
+      if (record.channel === 'youtube') {
+        expect(channelExperimentReviewForSocialContentId(record.id)?.variant.id).toBe(record.variantId)
+        expect(channelExperimentSocialContentHref(record.variantId, 'test-commit')).toBe(
+          `/admin/social-content/${record.id}?step=copy&qa_fixture=channel_experiment_social_detail_v1&rev=test-commit`,
+        )
+      } else {
+        expect(channelExperimentReviewForSocialContentId(record.id)).toBeNull()
+      }
     }
-    expect(channelExperimentReviewForSocialContentId('licenses-li-a')).toBeNull()
+    expect(channelExperimentReviewForSocialContentId('licenses-yt-a')).toBeNull()
+    expect(channelExperimentSocialContentHref('licenses-yt-b', 'test-commit')).toBeNull()
   })
 })

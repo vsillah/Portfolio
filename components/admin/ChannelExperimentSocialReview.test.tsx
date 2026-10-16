@@ -5,7 +5,7 @@ import ChannelExperimentSocialReview, { getChannelExperimentSocialReview } from 
 
 describe('ChannelExperimentSocialReview', () => {
   it('shows the channel-native YouTube record and evidence requirements without execution actions', () => {
-    const item = channelExperimentSocialContentQaFixture('licenses-yt-a')
+    const item = channelExperimentSocialContentQaFixture('1f3cec8c-afcb-4551-90fa-b8d4f9dabe2f')
     render(<ChannelExperimentSocialReview item={item} />)
 
     const review = screen.getByRole('region', { name: `YouTube experiment review: ${item.youtube_title}` })

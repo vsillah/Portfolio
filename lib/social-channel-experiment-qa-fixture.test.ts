@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { CHANNEL_EXPERIMENT_YOUTUBE_RECORD_IDS } from './channel-experiment-review'
+import {
+  CHANNEL_EXPERIMENT_LINKEDIN_RECORD_IDS,
+  CHANNEL_EXPERIMENT_YOUTUBE_RECORD_IDS,
+} from './channel-experiment-review'
 import {
   channelExperimentSocialContentQaFixture,
   isChannelExperimentSocialContentId,
@@ -32,8 +35,29 @@ describe('channel experiment Social Content QA fixture', () => {
     }))
   })
 
-  it('does not capture LinkedIn variants or unrelated Social Content rows', () => {
-    expect(isChannelExperimentSocialContentId('licenses-li-a')).toBe(false)
+  it.each(CHANNEL_EXPERIMENT_LINKEDIN_RECORD_IDS)('projects %s through the ordinary read-only LinkedIn control path', (id) => {
+    const item = channelExperimentSocialContentQaFixture(id)
+    expect(item).toMatchObject({ id, platform: 'linkedin', status: 'draft', target_platforms: ['linkedin'] })
+    expect(item.youtube_title).toBeNull()
+    expect(item.youtube_description).toBeNull()
+    expect(item.rag_context?.qa_fixture).toMatchObject({ read_only: true, kind: 'channel_experiment_linkedin_control' })
+    expect(item.rag_context?.channel_experiment_review).toBeUndefined()
+    expect(item.rag_context?.side_effects).toEqual(expect.objectContaining({
+      production_read: false,
+      production_write: false,
+      provider_generation: false,
+      rendering: false,
+      upload: false,
+      platform_draft: false,
+      schedule: false,
+      publish: false,
+      external_send: false,
+    }))
+  })
+
+  it('does not capture variant slugs or unrelated Social Content rows', () => {
+    expect(isChannelExperimentSocialContentId('licenses-li-b')).toBe(false)
+    expect(isChannelExperimentSocialContentId('licenses-yt-a')).toBe(false)
     expect(isChannelExperimentSocialContentId('social-1')).toBe(false)
   })
 })

@@ -12,12 +12,12 @@ const outputDir = path.resolve(process.env.QA_OUTPUT_DIR || 'artifacts/human-qa/
 const rawDir = path.join(root, 'test-results', 'channel-experiment-social-detail-video')
 const finalMp4 = path.join(outputDir, 'channel-experiment-social-detail-walkthrough.mp4')
 const records = [
-  { id: 'licenses-yt-a', title: 'Stop Counting AI Licenses: Build a Readiness Scorecard That Shows the Work' },
-  { id: 'licenses-yt-b', title: 'Your AI Pilot Worked. Then the Handoff Broke.' },
-  { id: 'pm-os-yt-a', title: "The Product Manager's New Operating System: The SAM Loop for AI Work" },
-  { id: 'pm-os-yt-b', title: 'I Built the Product Brief With AI. Then I Audited Every Decision.' },
-  { id: 'harness-yt-a', title: 'The Agent Harness Is the Product: 7 Systems Your Demo Still Needs' },
-  { id: 'harness-yt-b', title: 'Can You Reconstruct What Your AI Agent Did? A Receipt Test' },
+  { id: '26a4a7c9-2325-4ef7-a2ee-a83a366d4146', variant: 'licenses-li-b', channel: 'linkedin', expectedText: 'Monday morning. The AI pilot is live. Nobody can explain what happens when the agent is wrong.' },
+  { id: '1f3cec8c-afcb-4551-90fa-b8d4f9dabe2f', variant: 'licenses-yt-a', channel: 'youtube', expectedText: 'Stop Counting AI Licenses: Build a Readiness Scorecard That Shows the Work' },
+  { id: '6b499ed2-edcb-4782-98c8-d59be644df50', variant: 'pm-os-li-b', channel: 'linkedin', expectedText: 'I can move from an idea to a working product before the meeting that requested it ends. That speed changes the PM job.' },
+  { id: 'e06ab168-56aa-45f5-9672-619215df3ce7', variant: 'pm-os-yt-b', channel: 'youtube', expectedText: 'I Built the Product Brief With AI. Then I Audited Every Decision.' },
+  { id: '03f9e0ed-3fee-4d5b-815c-602b6e0e917b', variant: 'harness-li-b', channel: 'linkedin', expectedText: 'I trust an agent more when I can see what it was forbidden to do.' },
+  { id: '2d96e662-5e7e-4761-8a87-85128e20a559', variant: 'harness-yt-b', channel: 'youtube', expectedText: 'Can You Reconstruct What Your AI Agent Did? A Receipt Test' },
 ]
 
 mkdirSync(outputDir, { recursive: true })
@@ -78,22 +78,35 @@ async function recordViewport(browser, { label, viewport }) {
   for (const record of records) {
     const url = route(record)
     await page.goto(url, { waitUntil: 'domcontentloaded' })
-    const surface = page.getByRole('region', { name: `YouTube experiment review: ${record.title}` })
-    await surface.waitFor({ state: 'visible', timeout: 30_000 })
-    await surface.getByText(record.title, { exact: true }).waitFor({ state: 'visible' })
-    for (const heading of ['Opening hook', 'Episode outline', 'Thumbnail brief', 'Evidence lineage', 'Product-proof requirements']) {
-      await surface.getByText(heading, { exact: true }).waitFor({ state: 'visible' })
+    let surface
+    if (record.channel === 'youtube') {
+      surface = page.getByRole('region', { name: `YouTube experiment review: ${record.expectedText}` })
+      await surface.waitFor({ state: 'visible', timeout: 30_000 })
+      await surface.getByText(record.expectedText, { exact: true }).waitFor({ state: 'visible' })
+      for (const heading of ['Opening hook', 'Episode outline', 'Thumbnail brief', 'Evidence lineage', 'Product-proof requirements']) {
+        await surface.getByText(heading, { exact: true }).waitFor({ state: 'visible' })
+      }
+      if (await page.getByText('LinkedIn Preview', { exact: true }).count()) throw new Error(`${label} ${record.id} rendered LinkedIn preview guidance.`)
+      if (await page.getByText('LinkedIn optimal: 150-300 words', { exact: true }).count()) throw new Error(`${label} ${record.id} rendered LinkedIn copy guidance.`)
+      if (await page.getByRole('region', { name: 'Copy review decision gate' }).count()) throw new Error(`${label} ${record.id} rendered the generic copy approval gate.`)
+      if (await page.getByRole('button', { name: /Approve Copy/i }).count()) throw new Error(`${label} ${record.id} exposed a copy approval action.`)
+      if (await page.getByRole('button', { name: /Save Draft/i }).count()) throw new Error(`${label} ${record.id} exposed a draft mutation action.`)
+      if (!await surface.getByText('Unscored', { exact: true }).count()) throw new Error(`${label} ${record.id} did not expose the Unscored state.`)
+      if (!await page.getByText('Privacy-safe channel-native YouTube experiment fixture. Review only.', { exact: true }).count()) throw new Error(`${label} ${record.id} did not expose the YouTube read-only fixture notice.`)
+    } else {
+      const preview = page.getByLabel('LinkedIn post preview')
+      await preview.waitFor({ state: 'visible', timeout: 30_000 })
+      await preview.getByText(record.expectedText, { exact: true }).waitFor({ state: 'visible' })
+      surface = page.getByRole('region', { name: 'Copy review decision gate' })
+      await surface.waitFor({ state: 'visible', timeout: 30_000 })
+      if (!await page.getByText('LinkedIn Preview', { exact: true }).count()) throw new Error(`${label} ${record.id} did not render the ordinary LinkedIn preview.`)
+      if (!await page.getByText('LinkedIn optimal: 150-300 words', { exact: true }).count()) throw new Error(`${label} ${record.id} did not preserve LinkedIn copy guidance.`)
+      if (await page.getByTestId('channel-experiment-social-review').count()) throw new Error(`${label} ${record.id} incorrectly rendered the specialized YouTube review.`)
+      if (!await page.getByText('Privacy-safe LinkedIn control fixture. Review only.', { exact: true }).count()) throw new Error(`${label} ${record.id} did not expose the LinkedIn control notice.`)
     }
-    if (await page.getByText('LinkedIn Preview', { exact: true }).count()) throw new Error(`${label} ${record.id} rendered LinkedIn preview guidance.`)
-    if (await page.getByText('LinkedIn optimal: 150-300 words', { exact: true }).count()) throw new Error(`${label} ${record.id} rendered LinkedIn copy guidance.`)
-    if (await page.getByRole('region', { name: 'Copy review decision gate' }).count()) throw new Error(`${label} ${record.id} rendered the generic copy approval gate.`)
-    if (await page.getByRole('button', { name: /Approve Copy/i }).count()) throw new Error(`${label} ${record.id} exposed a copy approval action.`)
-    if (await page.getByRole('button', { name: /Save Draft/i }).count()) throw new Error(`${label} ${record.id} exposed a draft mutation action.`)
-    if (!await surface.getByText('Unscored', { exact: true }).count()) throw new Error(`${label} ${record.id} did not expose the Unscored state.`)
-    if (!await page.getByText('Privacy-safe channel-native YouTube experiment fixture. Review only.', { exact: true }).count()) throw new Error(`${label} ${record.id} did not expose the read-only fixture notice.`)
 
-    const routeScreenshot = `${label}-${record.id}-route.png`
-    const reviewScreenshot = `${label}-${record.id}-review.png`
+    const routeScreenshot = `${label}-${record.variant}-${record.id}-route.png`
+    const reviewScreenshot = `${label}-${record.variant}-${record.id}-review.png`
     await page.screenshot({ path: path.join(outputDir, routeScreenshot), fullPage: false })
 
     await page.locator('[data-social-detail-header]').evaluate(element => {
@@ -109,12 +122,17 @@ async function recordViewport(browser, { label, viewport }) {
     await page.waitForTimeout(350)
     await page.screenshot({ path: path.join(outputDir, reviewScreenshot), fullPage: false })
 
-    await surface.getByText('Score inputs and Unscored evidence', { exact: true }).scrollIntoViewIfNeeded()
-    await page.waitForTimeout(250)
-    await surface.getByText('Evidence boundaries and execution gates', { exact: true }).scrollIntoViewIfNeeded()
-    await page.waitForTimeout(250)
+    if (record.channel === 'youtube') {
+      await surface.getByText('Score inputs and Unscored evidence', { exact: true }).scrollIntoViewIfNeeded()
+      await page.waitForTimeout(250)
+      await surface.getByText('Evidence boundaries and execution gates', { exact: true }).scrollIntoViewIfNeeded()
+      await page.waitForTimeout(250)
+    } else {
+      await page.getByLabel('LinkedIn post preview').scrollIntoViewIfNeeded()
+      await page.waitForTimeout(500)
+    }
 
-    routeReceipts.push({ id: record.id, url, screenshots: [routeScreenshot, reviewScreenshot] })
+    routeReceipts.push({ id: record.id, variant: record.variant, channel: record.channel, url, screenshots: [routeScreenshot, reviewScreenshot] })
   }
 
   const video = page.video()
@@ -172,6 +190,7 @@ const receipt = {
   revision,
   fixture: 'channel_experiment_social_detail_v1',
   record_ids: records.map(record => record.id),
+  record_variants: records.map(record => ({ id: record.id, variant: record.variant, channel: record.channel })),
   exact_routes: desktop.routeReceipts.map(item => item.url),
   viewports: ['1440x900', '390x844'],
   routes_reviewed: desktop.routeReceipts.length + mobile.routeReceipts.length,
@@ -188,7 +207,9 @@ const receipt = {
     'no LinkedIn preview guidance',
     'no generic copy approval gate',
     'no draft mutation actions',
-    'read-only notice',
+    'ordinary LinkedIn preview and copy guidance preserved for LinkedIn controls',
+    'specialized YouTube review withheld from LinkedIn controls',
+    'channel-specific read-only notice',
   ],
   side_effects: {
     production_social_content_reads: false,
