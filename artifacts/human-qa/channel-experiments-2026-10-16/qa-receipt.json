@@ -1,0 +1,72 @@
+{
+  "revision": "51e21480",
+  "route": "http://127.0.0.1:3107/admin/agents/content-intelligence?section=research&packet=407df879-a539-40a1-a20e-75de31b9c494&qa_fixture=channel_experiments_v1&rev=51e21480",
+  "packet_ids": [
+    "407df879-a539-40a1-a20e-75de31b9c494",
+    "61d0ab8a-29fa-40de-aa7a-49b15c74cafa",
+    "048a80bb-bcfa-48d7-9d90-ce66d36f4523"
+  ],
+  "viewports": [
+    "1440x900",
+    "390x844"
+  ],
+  "themes": [
+    "dark",
+    "light"
+  ],
+  "interactions": [
+    "fresh direct entry",
+    "campaign navigation",
+    "browser back and forward",
+    "LinkedIn variant A",
+    "YouTube channel switch",
+    "YouTube variant B"
+  ],
+  "screenshots": [
+    "desktop-1440-linkedin-dark.png",
+    "desktop-1440-youtube-b-dark.png",
+    "desktop-1440-product-manager-youtube-b-dark.png",
+    "desktop-1440-linkedin-light.png",
+    "mobile-390-linkedin-dark.png",
+    "mobile-390-youtube-b-dark.png",
+    "mobile-390-product-manager-youtube-b-dark.png",
+    "mobile-390-linkedin-light.png"
+  ],
+  "side_effects": {
+    "production_reads": false,
+    "production_writes": false,
+    "provider_calls": false,
+    "media_render": false,
+    "upload": false,
+    "platform_draft": false,
+    "schedule": false,
+    "publish": false,
+    "external_send": false
+  },
+  "network": {
+    "completed_external_requests": 0,
+    "blocked_expected_analytics_requests": 2,
+    "blocked_expected_hosts": [
+      "va.vercel-scripts.com"
+    ]
+  },
+  "mp4": "artifacts/human-qa/channel-experiments-2026-10-16/channel-experiment-review-walkthrough.mp4",
+  "mp4_sha256": "de7df427c01d44a952d3f6ef99a3386eb497feeb44f7f2ebaf9916db4fea16ae",
+  "probe": {
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "width": 1440,
+        "height": 900,
+        "avg_frame_rate": "25/1",
+        "nb_frames": "188"
+      }
+    ],
+    "format": {
+      "duration": "7.520000",
+      "size": "1382301"
+    }
+  }
+}

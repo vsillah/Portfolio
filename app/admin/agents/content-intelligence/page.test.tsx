@@ -3,8 +3,13 @@ import type { ReactNode } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import ContentIntelligencePage from './page'
 
+const protectedRouteSpy = vi.hoisted(() => vi.fn())
+
 vi.mock('@/components/ProtectedRoute', () => ({
-  default: ({ children }: { children: ReactNode }) => <>{children}</>,
+  default: ({ children }: { children: ReactNode }) => {
+    protectedRouteSpy()
+    return <>{children}</>
+  },
 }))
 
 vi.mock('@/components/admin/Breadcrumbs', () => ({
@@ -1152,6 +1157,32 @@ describe('ContentIntelligencePage', () => {
     expect(packetRow).toBeInTheDocument()
     expect(packetRow?.className).toContain('outline-amber-400/80')
     expect(screen.getByText('Outlier research process')).toBeVisible()
+  })
+
+  it('renders the development-only channel experiment fixture on the existing research route', async () => {
+    render(<ContentIntelligencePage searchParams={{
+      section: 'research',
+      packet: '407df879-a539-40a1-a20e-75de31b9c494',
+      qa_fixture: 'channel_experiments_v1',
+      rev: 'test-commit',
+    }} />)
+
+    expect(screen.getByText('Privacy-safe local QA fixture')).toBeVisible()
+    expect(protectedRouteSpy).not.toHaveBeenCalled()
+    expect(screen.getByText('test-commit')).toBeVisible()
+    expect(screen.getByText('Review-ready source · no mutation')).toBeVisible()
+    expect(screen.getByRole('region', { name: 'Channel experiments for Stop Counting AI Licenses' })).toBeVisible()
+    const productManagerCampaign = screen.getByRole('link', { name: "The Product Manager's New Operating System" })
+    expect(productManagerCampaign).toHaveAttribute('href', expect.stringContaining('qa_fixture=channel_experiments_v1'))
+    expect(screen.getByRole('link', { name: 'The Agent Harness Is the Product' })).toHaveAttribute('href', expect.stringContaining('qa_fixture=channel_experiments_v1'))
+
+    productManagerCampaign.addEventListener('click', event => event.preventDefault(), { once: true })
+    fireEvent.click(productManagerCampaign)
+
+    expect(await screen.findByRole('region', { name: "Channel experiments for The Product Manager's New Operating System" })).toBeVisible()
+    expect(screen.queryByRole('region', { name: 'Channel experiments for Stop Counting AI Licenses' })).not.toBeInTheDocument()
+    expect(productManagerCampaign).toHaveAttribute('aria-current', 'page')
+    expect(screen.getByText('61d0ab8a-29fa-40de-aa7a-49b15c74cafa')).toBeVisible()
   })
 
   it('filters release calendar rows by content title and linked work item', async () => {
