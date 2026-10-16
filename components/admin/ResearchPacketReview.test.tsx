@@ -9,16 +9,27 @@ const evidence = {
   action_taken: 'The practitioner introduced a short evidence review before assignment.',
   observed_outcome: 'The team caught missing context earlier and reduced repeated follow-up.',
   limitations: 'Observed in one bounded workflow; no causal claim is made.',
-  public_use_boundary: 'framework_only',
+  public_use_boundary: 'anonymized_public_summary',
   redaction_receipt: { direct_identifiers_removed: true, indirect_identifiers_reviewed: true, sensitive_details_removed: true, review_note: 'Names and unique organizational details were generalized.' },
   framework_receipt: { selected_framework_key: 'framework', application_note: 'Apply the scene-to-lesson structure without using source language.', source_use_confirmed: true },
   revision_note: 'Added privacy-safe practitioner evidence.',
 }
 const packet = { id: 'packet', status: 'review_ready', updated_at: '2026-10-06T12:00:00Z', pattern_status: 'usable_framework', source_url: 'https://example.com/source', actor_metadata: { practitioner_evidence: evidence }, pattern_packet: { framework: 'Scene to lesson' }, privacy_notes: 'Public source only' }
+const frameworkOnlyEvidence = {
+  ...evidence,
+  role_context: '',
+  situation: '',
+  action_taken: '',
+  observed_outcome: '',
+  limitations: '',
+  public_use_boundary: 'framework_only',
+  redaction_receipt: { direct_identifiers_removed: false, indirect_identifiers_reviewed: false, sensitive_details_removed: false, review_note: '' },
+  revision_note: 'Bound approved public trend evidence.',
+}
 describe('ResearchPacketReview', () => {
   it('requires a note, shows evidence, and submits approval', async () => {
     const onReview = vi.fn().mockResolvedValue(undefined)
-    render(<ResearchPacketReview packet={packet} onReview={onReview} />)
+    render(<ResearchPacketReview packet={{ ...packet, actor_metadata: { practitioner_evidence: frameworkOnlyEvidence } }} onReview={onReview} />)
     fireEvent.click(screen.getByText('Review packet'))
     expect(screen.getByText(/Scene to lesson/)).toBeTruthy()
     expect((screen.getByText('Approve framework') as HTMLButtonElement).disabled).toBe(true)
@@ -26,6 +37,14 @@ describe('ResearchPacketReview', () => {
     fireEvent.click(screen.getByText('Approve framework'))
     await waitFor(() => expect(onReview).toHaveBeenCalledWith('approved', 'Original pattern'))
     await waitFor(() => expect(screen.queryByText('Close review')).toBeNull())
+  })
+  it('uses the public framework path without collecting practitioner or redaction fields', () => {
+    render(<ResearchPacketReview packet={{ ...packet, actor_metadata: { practitioner_evidence: frameworkOnlyEvidence } }} onReview={vi.fn()} />)
+    fireEvent.click(screen.getByText('Review packet'))
+    expect(screen.getByText(/No practitioner anecdote is collected or included/)).toBeTruthy()
+    expect(screen.queryByLabelText('Practitioner role or context')).toBeNull()
+    expect(screen.queryByText('Privacy and redaction receipt')).toBeNull()
+    expect(screen.queryByText('Add an anonymized practitioner role')).toBeNull()
   })
   it.each(['too_close_to_source', 'not_relevant', 'needs_brand_translation'])('blocks %s while allowing rejection', async pattern_status => {
     const onReview = vi.fn().mockResolvedValue(undefined)
@@ -59,12 +78,12 @@ describe('ResearchPacketReview', () => {
     const onSaveEvidence = vi.fn().mockResolvedValue(undefined)
     render(<ResearchPacketReview packet={{ ...packet, actor_metadata: {} }} onReview={vi.fn()} onSaveEvidence={onSaveEvidence} />)
     fireEvent.click(screen.getByText('Review packet'))
+    fireEvent.change(screen.getByLabelText('Public-use boundary'), { target: { value: evidence.public_use_boundary } })
     fireEvent.change(screen.getByLabelText('Practitioner role or context'), { target: { value: evidence.role_context } })
     fireEvent.change(screen.getByLabelText('Situation'), { target: { value: evidence.situation } })
     fireEvent.change(screen.getByLabelText('Action taken'), { target: { value: evidence.action_taken } })
     fireEvent.change(screen.getByLabelText('Observed outcome'), { target: { value: evidence.observed_outcome } })
     fireEvent.change(screen.getByLabelText('Limitations or evidence boundary'), { target: { value: evidence.limitations } })
-    fireEvent.change(screen.getByLabelText('Public-use boundary'), { target: { value: evidence.public_use_boundary } })
     fireEvent.click(screen.getByText('I removed direct identifiers.'))
     fireEvent.click(screen.getByText('I reviewed indirect identifiers and identifying combinations.'))
     fireEvent.click(screen.getByText('I removed or generalized sensitive details.'))
@@ -75,9 +94,26 @@ describe('ResearchPacketReview', () => {
     fireEvent.change(screen.getByLabelText('Revision note'), { target: { value: evidence.revision_note } })
     fireEvent.click(screen.getByText('Save evidence draft'))
     await waitFor(() => expect(onSaveEvidence).toHaveBeenCalledWith(expect.objectContaining({
-      public_use_boundary: 'framework_only',
+      public_use_boundary: 'anonymized_public_summary',
       redaction_receipt: expect.objectContaining({ direct_identifiers_removed: true }),
       framework_receipt: expect.objectContaining({ selected_framework_key: 'framework', source_use_confirmed: true }),
+    })))
+  })
+  it('clears practitioner data before saving a framework-only receipt', async () => {
+    const onSaveEvidence = vi.fn().mockResolvedValue(undefined)
+    render(<ResearchPacketReview packet={packet} onReview={vi.fn()} onSaveEvidence={onSaveEvidence} />)
+    fireEvent.click(screen.getByText('Review packet'))
+    fireEvent.change(screen.getByLabelText('Public-use boundary'), { target: { value: 'framework_only' } })
+    fireEvent.change(screen.getByLabelText('Revision note'), { target: { value: 'Use approved public trend evidence only.' } })
+    fireEvent.click(screen.getByText('Save evidence draft'))
+    await waitFor(() => expect(onSaveEvidence).toHaveBeenCalledWith(expect.objectContaining({
+      public_use_boundary: 'framework_only',
+      role_context: '',
+      situation: '',
+      action_taken: '',
+      observed_outcome: '',
+      limitations: '',
+      redaction_receipt: { direct_identifiers_removed: false, indirect_identifiers_reviewed: false, sensitive_details_removed: false, review_note: '' },
     })))
   })
   it('shows actionable blockers and prevents approval for internal-only evidence', () => {
