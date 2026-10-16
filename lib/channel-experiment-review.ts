@@ -45,6 +45,11 @@ export type YouTubeExperiment = {
   visualEvidence: string[]
 }
 
+export type YouTubeExperimentReviewRecord = {
+  review: ChannelExperimentReview
+  variant: YouTubeExperiment
+}
+
 export type ChannelExperimentReview = {
   packetId: ChannelExperimentPacketId
   campaignTitle: string
@@ -360,4 +365,24 @@ export const CHANNEL_EXPERIMENT_REVIEWS: Record<ChannelExperimentPacketId, Chann
 
 export function channelExperimentReviewForPacket(packetId: string): ChannelExperimentReview | null {
   return CHANNEL_EXPERIMENT_REVIEWS[packetId as ChannelExperimentPacketId] ?? null
+}
+
+export const CHANNEL_EXPERIMENT_YOUTUBE_RECORD_IDS = Object.values(CHANNEL_EXPERIMENT_REVIEWS)
+  .flatMap(review => review.youtube.map(variant => variant.id))
+
+export function channelExperimentReviewForSocialContentId(id: string): YouTubeExperimentReviewRecord | null {
+  for (const review of Object.values(CHANNEL_EXPERIMENT_REVIEWS)) {
+    const variant = review.youtube.find(candidate => candidate.id === id)
+    if (variant) return { review, variant }
+  }
+  return null
+}
+
+export function channelExperimentSocialContentHref(id: string, revision?: string): string {
+  const params = new URLSearchParams({
+    step: 'copy',
+    qa_fixture: 'channel_experiment_social_detail_v1',
+  })
+  if (revision) params.set('rev', revision)
+  return `/admin/social-content/${encodeURIComponent(id)}?${params.toString()}`
 }

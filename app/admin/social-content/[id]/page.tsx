@@ -49,6 +49,7 @@ import PractitionerContentReview from '@/components/admin/PractitionerContentRev
 import CompactPostPreview from '@/components/admin/CompactPostPreview'
 import AutoSizingScriptTextarea from '@/components/admin/AutoSizingScriptTextarea'
 import ChannelNativeVideoReview, { getChannelVideoPacket } from '@/components/admin/ChannelNativeVideoReview'
+import ChannelExperimentSocialReview, { getChannelExperimentSocialReview } from '@/components/admin/ChannelExperimentSocialReview'
 import SocialVideoProductionControls from '@/components/admin/SocialVideoProductionControls'
 import ArtifactEvidenceTrace from '@/components/admin/ArtifactEvidenceTrace'
 import OutlierEvidenceScorecard from '@/components/admin/OutlierEvidenceScorecard'
@@ -121,6 +122,7 @@ import {
 import type { SocialCommentInboxItem } from '@/lib/social-comment-inbox-ui'
 import type { SocialContentCalibrationReference } from '@/lib/social-content-calibration-library'
 import { outlierEvidenceCalibrationQaFixture } from '@/lib/social-outlier-evidence-calibration'
+import { CHANNEL_EXPERIMENT_SOCIAL_DETAIL_FIXTURE } from '@/lib/social-channel-experiment-qa-fixture'
 import Link from 'next/link'
 
 const PLATFORM_ICONS: Record<string, React.ReactNode> = {
@@ -759,6 +761,7 @@ function SocialContentDetailPage() {
   const rawRecoveryStep = searchParams.get('step')
   const deterministicVisualQaState = searchParams.get('qa_state')
   const channelNativeQaFixture = searchParams.get('qa_fixture') === 'channel_native_video_v2'
+  const channelExperimentQaFixture = searchParams.get('qa_fixture') === CHANNEL_EXPERIMENT_SOCIAL_DETAIL_FIXTURE
   const videoPackageQaState = searchParams.get('video_package_state') === 'blocked' ? 'blocked' : 'ready'
   const recoveryStep: ApprovalStep = isApprovalStep(rawRecoveryStep) ? rawRecoveryStep : 'copy'
   const recoveryStepParams = new URLSearchParams(searchParams.toString())
@@ -865,7 +868,7 @@ function SocialContentDetailPage() {
   const fetchTopicBacklog = useCallback(async () => {
     setLoadingTopicBacklog(true)
     try {
-      if (id === TOPIC_SOURCE_COVERAGE_QA_ID || id === DETERMINISTIC_VISUAL_BINDING_QA_ID) {
+      if (id === TOPIC_SOURCE_COVERAGE_QA_ID || id === DETERMINISTIC_VISUAL_BINDING_QA_ID || channelExperimentQaFixture) {
         setTopicBacklogItems([])
         setTopicBacklogUnavailable(false)
         setTopicBacklogCoverageReport(null)
@@ -887,7 +890,7 @@ function SocialContentDetailPage() {
     } finally {
       setLoadingTopicBacklog(false)
     }
-  }, [id])
+  }, [channelExperimentQaFixture, id])
 
   const fetchCalibrationLibrary = useCallback(async () => {
     setLoadingCalibrationLibrary(true)
@@ -915,7 +918,7 @@ function SocialContentDetailPage() {
 
   const fetchPlatformConfigs = useCallback(async () => {
     try {
-      if (id === DETERMINISTIC_VISUAL_BINDING_QA_ID) {
+      if (id === DETERMINISTIC_VISUAL_BINDING_QA_ID || channelExperimentQaFixture) {
         setPlatformConfigs([])
         return
       }
@@ -932,7 +935,7 @@ function SocialContentDetailPage() {
     } catch (err) {
       console.error('Failed to fetch social platform config:', err)
     }
-  }, [id])
+  }, [channelExperimentQaFixture, id])
 
   const fetchReviewQueue = useCallback(async (currentItem: SocialContentItem) => {
     const currentGroupKey = getReviewQueueGroupKey(currentItem)
@@ -1031,6 +1034,8 @@ function SocialContentDetailPage() {
 
       const detailQuery = id === DETERMINISTIC_VISUAL_BINDING_QA_ID && deterministicVisualQaState
         ? `?qa_state=${encodeURIComponent(deterministicVisualQaState)}`
+        : channelExperimentQaFixture
+          ? `?qa_fixture=${CHANNEL_EXPERIMENT_SOCIAL_DETAIL_FIXTURE}`
         : channelNativeQaFixture
           ? `?qa_fixture=channel_native_video_v2&video_package_state=${videoPackageQaState}`
           : ''
@@ -1106,7 +1111,7 @@ function SocialContentDetailPage() {
     } finally {
       if (!options.silent) setLoading(false)
     }
-  }, [channelNativeQaFixture, deterministicVisualQaState, fetchCommentInboxItems, fetchReviewQueue, id, videoPackageQaState])
+  }, [channelExperimentQaFixture, channelNativeQaFixture, deterministicVisualQaState, fetchCommentInboxItems, fetchReviewQueue, id, videoPackageQaState])
 
   useEffect(() => {
     fetchItem()
@@ -2968,12 +2973,15 @@ function SocialContentDetailPage() {
   const socialVideoProduction = item.social_video_production
   const isYouTubeTarget = item.platform === 'youtube' || targetPlatforms.includes('youtube')
   const channelVideoPacket = getChannelVideoPacket(item)
+  const channelExperimentReview = getChannelExperimentSocialReview(item)
   const socialVideoReviewPackage = asRecord(ragContext?.social_video_review_package) as SocialVideoReviewPackage | null
   const socialVideoReviewSourceReceiptIds = asStringArray(ragContext?.social_video_review_source_receipt_ids)
   const socialVideoReviewRightsReceiptIds = asStringArray(ragContext?.social_video_review_rights_receipt_ids)
-  const copyFieldLabel = channelVideoPacket ? 'Video Script' : 'Post Text'
+  const copyFieldLabel = channelExperimentReview ? 'YouTube Experiment Outline' : channelVideoPacket ? 'Video Script' : 'Post Text'
   const copyLengthGuidance = channelVideoPacket
     ? `${channelVideoPacket.channelLabel} review: confirm the full spoken script against the bound duration and receipt version`
+    : channelExperimentReview
+      ? 'YouTube experiment review: assess the opening hook and episode outline against the linked evidence and product-proof requirements'
     : 'LinkedIn optimal: 150-300 words'
   const agentifiedVisualQaPacket = getAgentifiedVisualStrategyQaBySocialContentId(item.id)
   const agentifiedVisualQaReady = Boolean(agentifiedVisualQaPacket?.allQaPassed)
@@ -3056,7 +3064,7 @@ function SocialContentDetailPage() {
   const canApproveAgentPilot = !isAgentSocialPilot || agentPilotPassToHuman
   const videoPrivacyBlocked = Boolean(productionAssets && !redactionGate.ready)
   const acronymClarityIssues = getAcronymClarityIssues([postText, ctaText].filter(Boolean).join('\n'))
-  const copyHasBlockingAcronymIssues = acronymClarityIssues.some((issue) => issue.status === 'needs_expansion')
+  const copyHasBlockingAcronymIssues = !channelExperimentReview && acronymClarityIssues.some((issue) => issue.status === 'needs_expansion')
   const copyQualityGate = validateSocialContentFinalCopyQuality({
     ...item,
     post_text: postText,
@@ -3070,11 +3078,11 @@ function SocialContentDetailPage() {
     cta_text: ctaText || null,
     voiceover_text: voiceoverText || null,
   })
-  const practitionerQualityBlocksReview = practitionerQualityGate.status === 'blocked'
+  const practitionerQualityBlocksReview = !channelExperimentReview && practitionerQualityGate.status === 'blocked'
   const copyGateRejected = item.status === 'rejected'
     || agentPilotCalibrationStatus === 'revision_requested'
     || Boolean(asRecord(agentPilotCalibration?.approval_rejection))
-  const copyQualityBlocksReview = copyHasPromptLeakage && !copyGateRejected
+  const copyQualityBlocksReview = !channelExperimentReview && copyHasPromptLeakage && !copyGateRejected
   const canApproveCurrentDraft = !item.copy_revision?.release_locked
     && canApproveAgentPilot
     && !copyHasBlockingAcronymIssues
@@ -3939,6 +3947,51 @@ function SocialContentDetailPage() {
         reason={previewFixtureReason}
         nextAction={previewFixtureNextAction}
       />
+    )
+  }
+
+  if (channelExperimentReview && previewFixtureReadOnly) {
+    return (
+      <div className="min-h-screen bg-background text-foreground" data-testid="social-content-detail">
+        <section
+          id="preview-fixture-read-only-notice"
+          role="status"
+          className="mx-auto mt-4 w-[calc(100%-2rem)] max-w-[90rem] rounded-xl border border-amber-600/40 bg-amber-50 p-4 text-amber-950 sm:w-[calc(100%-3rem)] dark:border-amber-400/40 dark:bg-amber-400/10 dark:text-amber-50"
+        >
+          <p className="font-semibold">{previewFixtureReason}</p>
+          <p className="mt-1 text-sm leading-6 text-amber-900/90 dark:text-amber-100/90">
+            No changes, approvals, or rejection decisions can be saved from this route. {previewFixtureNextAction}
+          </p>
+          <Link href={backUrl} className="mt-3 inline-flex min-h-11 items-center rounded-lg border border-amber-700/45 px-3 py-2 text-sm font-semibold text-amber-950 transition-colors hover:bg-amber-200/60 dark:border-amber-300/45 dark:text-amber-50 dark:hover:bg-amber-300/10">
+            Back to Social Content
+          </Link>
+        </section>
+
+        <header data-social-detail-header data-theme-surface="sticky-header" className="sticky top-0 z-40 mt-4 border-b border-border bg-card/95 px-4 py-3 text-card-foreground shadow-sm backdrop-blur sm:px-6 lg:px-8">
+          <div className="mx-auto flex w-full max-w-[90rem] flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex min-w-0 flex-wrap items-center gap-2 sm:gap-3">
+              <Link href={backUrl} aria-label="Back to Social Content" className="shrink-0 rounded-lg border border-border bg-muted p-2 text-foreground transition-colors hover:bg-muted/70">
+                <ArrowLeft className="h-4 w-4" />
+              </Link>
+              <div className="min-w-0 [&_nav]:mb-0 [&_nav]:flex-wrap">
+                <Breadcrumbs items={[
+                  { label: 'Admin', href: '/admin' },
+                  { label: 'Social Content', href: '/admin/social-content' },
+                  { label: 'YouTube Experiment Review' },
+                ]} />
+              </div>
+            </div>
+            <div aria-label="YouTube experiment review state" className="flex flex-wrap items-center gap-2 text-xs">
+              <span className="rounded-full border border-emerald-600/35 bg-emerald-500/10 px-2.5 py-1 font-semibold text-emerald-800 dark:text-emerald-100">Review only</span>
+              <span className="rounded-full border border-amber-500/35 bg-amber-500/10 px-2.5 py-1 font-semibold text-amber-900 dark:text-amber-100">Unscored</span>
+            </div>
+          </div>
+        </header>
+
+        <main data-social-detail-content className="mx-auto w-full max-w-[90rem] px-4 py-6 sm:px-6 lg:px-8">
+          <ChannelExperimentSocialReview item={item} />
+        </main>
+      </div>
     )
   }
 
@@ -6214,7 +6267,9 @@ function SocialContentDetailPage() {
 
           {/* Right column: Preview */}
           <div className="min-w-0 space-y-4">
-            {channelVideoPacket ? (
+            {channelExperimentReview ? (
+              <ChannelExperimentSocialReview item={item} />
+            ) : channelVideoPacket ? (
               <>
                 <ChannelNativeVideoReview item={{ ...item, post_text: postText, voiceover_text: voiceoverText }} />
                 {Boolean(artifactEvidenceManifest) && !previewFixtureReadOnly ? (

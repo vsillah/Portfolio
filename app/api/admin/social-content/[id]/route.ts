@@ -40,6 +40,11 @@ import {
   isChannelNativeVideoQaFixtureId,
 } from '@/lib/social-channel-video-qa-fixture'
 import {
+  CHANNEL_EXPERIMENT_SOCIAL_DETAIL_FIXTURE,
+  channelExperimentSocialContentQaFixture,
+  isChannelExperimentSocialContentId,
+} from '@/lib/social-channel-experiment-qa-fixture'
+import {
   buildDeterministicVisualRecipePatch,
   DeterministicVisualRenderError,
   projectDeterministicVisualRender,
@@ -168,6 +173,18 @@ export async function GET(
     }
 
     const { id } = params
+
+    if (
+      request.nextUrl.searchParams.get('qa_fixture') === CHANNEL_EXPERIMENT_SOCIAL_DETAIL_FIXTURE
+      && isChannelExperimentSocialContentId(id)
+    ) {
+      return NextResponse.json({
+        item: channelExperimentSocialContentQaFixture(id),
+        fixture: true,
+        fixture_state: 'review_only_youtube_experiment',
+        integration_note: 'Privacy-safe read-only YouTube experiment projection. It does not read or write a production Social Content row, call providers, render or upload media, create platform drafts, schedule, publish, send externally, change credentials, or spend money.',
+      })
+    }
 
     if (request.nextUrl.searchParams.get('qa_fixture') === 'channel_native_video_v2' && isChannelNativeVideoQaFixtureId(id)) {
       const videoPackageState = request.nextUrl.searchParams.get('video_package_state') === 'blocked' ? 'blocked' : 'ready'

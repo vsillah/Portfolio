@@ -20,7 +20,7 @@ describe('ChannelExperimentReview', () => {
   })
 
   it('switches between differentiated LinkedIn and YouTube variants', () => {
-    render(<ChannelExperimentReview packetId={packetId} defaultOpen />)
+    render(<ChannelExperimentReview packetId={packetId} defaultOpen revision="test-commit" />)
 
     expect(screen.getByText('Your AI dashboard says 312 licenses are active. What decision got better?')).toBeVisible()
     fireEvent.click(screen.getByRole('button', { name: 'Variant B · Monday morning test' }))
@@ -31,6 +31,16 @@ describe('ChannelExperimentReview', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Variant B · Failed handoff story' }))
     expect(screen.getByText('Your AI Pilot Worked. Then the Handoff Broke.')).toBeVisible()
     expect(screen.getByText('Proposed visual evidence')).toBeVisible()
+    expect(screen.getByRole('link', { name: 'Open YouTube Social Content review' })).toHaveAttribute(
+      'href',
+      '/admin/social-content/licenses-yt-b?step=copy&qa_fixture=channel_experiment_social_detail_v1&rev=test-commit',
+    )
+  })
+
+  it('keeps LinkedIn variants on the existing packet route without a YouTube detail link', () => {
+    render(<ChannelExperimentReview packetId={packetId} defaultOpen />)
+    expect(screen.getByText('Your AI dashboard says 312 licenses are active. What decision got better?')).toBeVisible()
+    expect(screen.queryByRole('link', { name: 'Open YouTube Social Content review' })).not.toBeInTheDocument()
   })
 
   it('stays hidden for packets outside the approved three-packet scope', () => {

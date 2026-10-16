@@ -24,6 +24,7 @@ vi.mock('@/lib/supabase', () => ({
 
 import { GET, PUT } from './route'
 import { socialCopyVersion, withSocialCopyRevision } from '@/lib/social-copy-revision'
+import { CHANNEL_EXPERIMENT_YOUTUBE_RECORD_IDS } from '@/lib/channel-experiment-review'
 
 function request(body: unknown) {
   return new NextRequest('http://localhost/api/admin/social-content/social-1', {
@@ -62,6 +63,36 @@ describe('GET /api/admin/social-content/[id] practitioner QA fixture', () => {
 
     expect(body.fixture_script_size).toBe('complete')
     expect(body.item.post_text.length).toBeGreaterThanOrEqual(1800)
+  })
+})
+
+describe('GET /api/admin/social-content/[id] channel experiment review fixture', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mocks.verifyAdmin.mockResolvedValue({ user: { id: 'admin-1' }, isAdmin: true })
+    mocks.isAuthError.mockReturnValue(false)
+  })
+
+  it.each(CHANNEL_EXPERIMENT_YOUTUBE_RECORD_IDS)('returns %s without reading or mutating shared Social Content data', async (id) => {
+    const response = await GET(new NextRequest(`http://localhost/api/admin/social-content/${id}?qa_fixture=channel_experiment_social_detail_v1`) as never, { params: { id } })
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(body).toMatchObject({ fixture: true, fixture_state: 'review_only_youtube_experiment' })
+    expect(body.item).toMatchObject({ id, platform: 'youtube', target_platforms: ['youtube'] })
+    expect(body.item.rag_context.qa_fixture).toMatchObject({ read_only: true, kind: 'channel_experiment_social_detail_review' })
+    expect(body.item.rag_context.channel_experiment_review).toEqual(expect.objectContaining({
+      title: expect.any(String),
+      description: expect.any(String),
+      opening_hook: expect.any(String),
+      outline: expect.any(Array),
+      thumbnail_brief: expect.any(String),
+      evidence_lineage: expect.any(Array),
+      product_proof_requirements: expect.any(Array),
+      scores: expect.arrayContaining([expect.objectContaining({ label: 'Variant performance', value: null })]),
+    }))
+    expect(mocks.from).not.toHaveBeenCalled()
+    expect(mocks.update).not.toHaveBeenCalled()
   })
 })
 

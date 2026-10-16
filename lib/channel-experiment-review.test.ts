@@ -2,7 +2,10 @@ import { describe, expect, it } from 'vitest'
 import {
   CHANNEL_EXPERIMENT_PACKET_IDS,
   CHANNEL_EXPERIMENT_REVIEWS,
+  CHANNEL_EXPERIMENT_YOUTUBE_RECORD_IDS,
   channelExperimentReviewForPacket,
+  channelExperimentReviewForSocialContentId,
+  channelExperimentSocialContentHref,
 } from './channel-experiment-review'
 
 describe('channel experiment review packets', () => {
@@ -37,5 +40,18 @@ describe('channel experiment review packets', () => {
 
   it('does not expose packets outside the approved scope', () => {
     expect(channelExperimentReviewForPacket('packet-outside-approved-scope')).toBeNull()
+  })
+
+  it('binds all six YouTube variants to exact read-only Social Content review routes', () => {
+    expect(CHANNEL_EXPERIMENT_YOUTUBE_RECORD_IDS).toHaveLength(6)
+    expect(new Set(CHANNEL_EXPERIMENT_YOUTUBE_RECORD_IDS).size).toBe(6)
+
+    for (const id of CHANNEL_EXPERIMENT_YOUTUBE_RECORD_IDS) {
+      expect(channelExperimentReviewForSocialContentId(id)?.variant.id).toBe(id)
+      expect(channelExperimentSocialContentHref(id, 'test-commit')).toBe(
+        `/admin/social-content/${id}?step=copy&qa_fixture=channel_experiment_social_detail_v1&rev=test-commit`,
+      )
+    }
+    expect(channelExperimentReviewForSocialContentId('licenses-li-a')).toBeNull()
   })
 })
