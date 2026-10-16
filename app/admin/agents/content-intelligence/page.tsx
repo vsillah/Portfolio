@@ -47,6 +47,12 @@ import type {
 } from '@/lib/cross-channel-autoresearch-backlog'
 
 import { ResearchPacketReview, type ReviewableResearchPacket } from '@/components/admin/ResearchPacketReview'
+import ChannelExperimentReview from '@/components/admin/ChannelExperimentReview'
+import {
+  CHANNEL_EXPERIMENT_PACKET_IDS,
+  CHANNEL_EXPERIMENT_REVIEWS,
+  type ChannelExperimentPacketId,
+} from '@/lib/channel-experiment-review'
 
 type ResearchPacket = ReviewableResearchPacket & {
   id: string
@@ -912,6 +918,57 @@ async function readJsonResponse(response: Response): Promise<unknown> {
 }
 
 export default function ContentIntelligencePage() {
+  const [channelExperimentQa, setChannelExperimentQa] = useState<ChannelExperimentPacketId | null>(null)
+
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'production') return
+    const searchParams = currentUrlSearchParams()
+    const packetId = searchParams.get('packet') as ChannelExperimentPacketId | null
+    if (searchParams.get('qa_fixture') === 'channel_experiments_v1' && packetId && CHANNEL_EXPERIMENT_PACKET_IDS.includes(packetId)) {
+      setChannelExperimentQa(packetId)
+    }
+  }, [])
+
+  if (channelExperimentQa) {
+    const revision = currentUrlSearchParams().get('rev') ?? 'working-tree'
+    return <main id="admin-main" className="min-h-screen bg-background px-4 py-8 text-foreground sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl">
+        <div className="flex flex-col gap-3 border-b border-border pb-5 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-700 dark:text-cyan-200">Privacy-safe local QA fixture</p>
+            <h1 className="mt-2 text-2xl font-semibold">Research and Shaka insight queue</h1>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">The same channel experiment component used inside each Content Intelligence research packet. Static approved-packet summaries replace production reads; all external actions remain unavailable.</p>
+          </div>
+          <div className="rounded-lg border border-border bg-card px-3 py-2 text-xs text-card-foreground">
+            <p className="font-semibold">Commit-bound review</p>
+            <p className="mt-1 font-mono text-muted-foreground">{revision}</p>
+          </div>
+        </div>
+
+        <nav className="mt-5 grid gap-2 md:grid-cols-3" aria-label="Campaign experiment fixtures">
+          {CHANNEL_EXPERIMENT_PACKET_IDS.map(packetId => {
+            const campaign = CHANNEL_EXPERIMENT_REVIEWS[packetId]
+            const active = packetId === channelExperimentQa
+            return <Link
+              key={packetId}
+              href={`/admin/agents/content-intelligence?section=research&packet=${packetId}&qa_fixture=channel_experiments_v1&rev=${encodeURIComponent(revision)}`}
+              aria-current={active ? 'page' : undefined}
+              className={`rounded-lg border p-3 text-sm font-semibold ${active ? 'border-cyan-500/70 bg-cyan-500/10 text-foreground' : 'border-border bg-card text-muted-foreground hover:text-foreground'}`}
+            >{campaign.campaignTitle}</Link>
+          })}
+        </nav>
+
+        <section className="mt-5 rounded-xl border border-border bg-card p-3 text-card-foreground sm:p-5">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div><p className="text-xs text-muted-foreground">Research packet</p><p className="mt-1 font-mono text-xs text-foreground">{channelExperimentQa}</p></div>
+            <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-2.5 py-1 text-xs font-semibold text-amber-900 dark:text-amber-100">Review-ready source · no mutation</span>
+          </div>
+          <ChannelExperimentReview packetId={channelExperimentQa} defaultOpen />
+        </section>
+      </div>
+    </main>
+  }
+
   return (
     <ProtectedRoute requireAdmin>
       <ContentIntelligenceContent />
@@ -3118,6 +3175,7 @@ function ContentIntelligenceContent() {
                               if (!response.ok) throw new Error(body.error || 'Unable to save practitioner evidence.')
                               setPackets(current => current.map(item => item.id === packet.id ? body.packet : item))
                             }} />
+                            <ChannelExperimentReview packetId={packet.id} defaultOpen={focusedResearchPacketId === packet.id} />
                           </td>
                         </tr>
                         </Fragment>

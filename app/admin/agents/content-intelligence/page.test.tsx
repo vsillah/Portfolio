@@ -1154,6 +1154,19 @@ describe('ContentIntelligencePage', () => {
     expect(screen.getByText('Outlier research process')).toBeVisible()
   })
 
+  it('renders the development-only channel experiment fixture on the existing research route', async () => {
+    window.history.replaceState({}, '', '/admin/agents/content-intelligence?section=research&packet=407df879-a539-40a1-a20e-75de31b9c494&qa_fixture=channel_experiments_v1&rev=test-commit')
+
+    render(<ContentIntelligencePage />)
+
+    expect(await screen.findByText('Privacy-safe local QA fixture')).toBeVisible()
+    expect(screen.getByText('test-commit')).toBeVisible()
+    expect(screen.getByText('Review-ready source · no mutation')).toBeVisible()
+    expect(screen.getByRole('region', { name: 'Channel experiments for Stop Counting AI Licenses' })).toBeVisible()
+    expect(screen.getByRole('link', { name: "The Product Manager's New Operating System" })).toHaveAttribute('href', expect.stringContaining('qa_fixture=channel_experiments_v1'))
+    expect(screen.getByRole('link', { name: 'The Agent Harness Is the Product' })).toHaveAttribute('href', expect.stringContaining('qa_fixture=channel_experiments_v1'))
+  })
+
   it('filters release calendar rows by content title and linked work item', async () => {
     render(<ContentIntelligencePage />)
 
