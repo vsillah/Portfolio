@@ -56,7 +56,7 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
     ? packet.pattern_packet as Record<string, unknown> : {}
   const storedEvidence = {
     ...evidence,
-    redaction_receipt: {
+    redaction_receipt: evidence.public_use_boundary === 'framework_only' ? evidence.redaction_receipt : {
       ...evidence.redaction_receipt,
       reviewed_at: recordedAt,
       reviewed_by: auth.user.id,
@@ -127,7 +127,7 @@ export async function POST(request: NextRequest, context: { params: Promise<{ id
     const validation = practitionerEvidenceValidation((metadata as Record<string, unknown>).practitioner_evidence, packet.pattern_packet)
     if (!validation.valid) {
       return NextResponse.json({
-        error: 'Complete practitioner evidence and privacy review before approval.',
+        error: 'Complete the evidence boundary, privacy, and framework review before approval.',
         issues: validation.issues,
       }, { status: 422 })
     }

@@ -33,6 +33,58 @@ describe('practitioner evidence authoring', () => {
     ]))
   })
 
+  it('accepts a public framework receipt without fabricated practitioner evidence', () => {
+    const result = practitionerEvidenceValidation({
+      role_context: '',
+      situation: '',
+      action_taken: '',
+      observed_outcome: '',
+      limitations: '',
+      public_use_boundary: 'framework_only',
+      redaction_receipt: {
+        direct_identifiers_removed: false,
+        indirect_identifiers_reviewed: false,
+        sensitive_details_removed: false,
+        review_note: '',
+      },
+      framework_receipt: valid.framework_receipt,
+      revision_note: 'Bound approved public trend evidence.',
+    }, { framework: 'Scene to lesson' })
+    expect(result).toEqual({ valid: true, issues: [] })
+  })
+
+  it('strips practitioner narrative and redaction claims from framework-only evidence', () => {
+    const normalized = normalizePractitionerEvidence({
+      ...valid,
+      public_use_boundary: 'framework_only',
+    })
+    expect(normalized).toMatchObject({
+      role_context: '',
+      situation: '',
+      action_taken: '',
+      observed_outcome: '',
+      limitations: '',
+      redaction_receipt: {
+        direct_identifiers_removed: false,
+        indirect_identifiers_reviewed: false,
+        sensitive_details_removed: false,
+        review_note: '',
+      },
+    })
+  })
+
+  it('keeps practitioner and redaction receipts mandatory for anonymized summaries', () => {
+    const result = practitionerEvidenceValidation({
+      ...valid,
+      role_context: '',
+      redaction_receipt: { ...valid.redaction_receipt, direct_identifiers_removed: false },
+    }, { framework: 'Scene to lesson' })
+    expect(result.issues).toEqual(expect.arrayContaining([
+      expect.stringContaining('practitioner role'),
+      expect.stringContaining('direct identifiers'),
+    ]))
+  })
+
   it('normalizes unknown input without retaining arbitrary private fields', () => {
     const normalized = normalizePractitionerEvidence({ ...valid, private_name: 'must not survive' })
     expect(normalized).not.toHaveProperty('private_name')

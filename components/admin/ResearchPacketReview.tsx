@@ -82,29 +82,39 @@ export function ResearchPacketReview({ packet, onReview, onSaveEvidence }: {
       {packet.privacy_notes && <p>{packet.privacy_notes}</p>}
       {canEdit ? <>
         <fieldset className="space-y-2 rounded border border-silicon-slate/70 p-3" disabled={busy}>
-          <legend className="px-1 font-semibold">Anonymized practitioner evidence</legend>
-          <p className="text-muted-foreground">Describe the practice without names, organizations, locations, dates, account details, or uniquely identifying combinations.</p>
-          <label className="block">Practitioner role or context
-            <input className="mt-1 block w-full rounded border border-silicon-slate bg-background p-2" maxLength={120} value={evidence.role_context} onChange={event => changeEvidence({ role_context: event.target.value })} placeholder="Example: nonprofit operations lead" />
-          </label>
-          {([
-            ['Situation', 'situation'],
-            ['Action taken', 'action_taken'],
-            ['Observed outcome', 'observed_outcome'],
-            ['Limitations or evidence boundary', 'limitations'],
-          ] as const).map(([label, key]) => <label className="block" key={key}>{label}
-            <textarea className="mt-1 block w-full rounded border border-silicon-slate bg-background p-2" rows={2} maxLength={1200} value={evidence[key]} onChange={event => changeEvidence({ [key]: event.target.value })} />
-          </label>)}
+          <legend className="px-1 font-semibold">Evidence boundary</legend>
           <label className="block">Public-use boundary
-            <select className="mt-1 block w-full rounded border border-silicon-slate bg-background p-2" value={evidence.public_use_boundary} onChange={event => changeEvidence({ public_use_boundary: event.target.value as PractitionerEvidenceAuthoring['public_use_boundary'] })}>
+            <select className="mt-1 block w-full rounded border border-silicon-slate bg-background p-2" value={evidence.public_use_boundary} onChange={event => {
+              const publicUseBoundary = event.target.value as PractitionerEvidenceAuthoring['public_use_boundary']
+              changeEvidence(publicUseBoundary === 'framework_only' ? {
+                public_use_boundary: publicUseBoundary,
+                role_context: '', situation: '', action_taken: '', observed_outcome: '', limitations: '',
+                redaction_receipt: { direct_identifiers_removed: false, indirect_identifiers_reviewed: false, sensitive_details_removed: false, review_note: '' },
+              } : { public_use_boundary: publicUseBoundary })
+            }}>
               <option value="">Choose a boundary</option>
               <option value="framework_only">Framework only — no practitioner narrative</option>
               <option value="anonymized_public_summary">Anonymized public summary</option>
               <option value="internal_only">Internal only — cannot be approved for Social Insights</option>
             </select>
           </label>
+          {evidence.public_use_boundary === 'framework_only' && <p role="status" className="rounded border border-emerald-400/40 bg-emerald-400/5 p-3 text-muted-foreground">Public framework path: only the approved source, selected framework, and originality receipt are used. No practitioner anecdote is collected or included.</p>}
+          {evidence.public_use_boundary && evidence.public_use_boundary !== 'framework_only' && <>
+            <p className="text-muted-foreground">Describe the practice without names, organizations, locations, dates, account details, or uniquely identifying combinations.</p>
+            <label className="block">Practitioner role or context
+              <input className="mt-1 block w-full rounded border border-silicon-slate bg-background p-2" maxLength={120} value={evidence.role_context} onChange={event => changeEvidence({ role_context: event.target.value })} placeholder="Example: nonprofit operations lead" />
+            </label>
+            {([
+              ['Situation', 'situation'],
+              ['Action taken', 'action_taken'],
+              ['Observed outcome', 'observed_outcome'],
+              ['Limitations or evidence boundary', 'limitations'],
+            ] as const).map(([label, key]) => <label className="block" key={key}>{label}
+              <textarea className="mt-1 block w-full rounded border border-silicon-slate bg-background p-2" rows={2} maxLength={1200} value={evidence[key]} onChange={event => changeEvidence({ [key]: event.target.value })} />
+            </label>)}
+          </>}
         </fieldset>
-        <fieldset className="space-y-2 rounded border border-silicon-slate/70 p-3" disabled={busy}>
+        {evidence.public_use_boundary && evidence.public_use_boundary !== 'framework_only' && <fieldset className="space-y-2 rounded border border-silicon-slate/70 p-3" disabled={busy}>
           <legend className="px-1 font-semibold">Privacy and redaction receipt</legend>
           {([
             ['I removed direct identifiers.', 'direct_identifiers_removed'],
@@ -117,7 +127,7 @@ export function ResearchPacketReview({ packet, onReview, onSaveEvidence }: {
           <label className="block">Redaction receipt note
             <textarea className="mt-1 block w-full rounded border border-silicon-slate bg-background p-2" rows={2} maxLength={1000} value={evidence.redaction_receipt.review_note} onChange={event => changeEvidence({ redaction_receipt: { ...evidence.redaction_receipt, review_note: event.target.value } })} placeholder="What was removed or generalized; do not repeat the private detail." />
           </label>
-        </fieldset>
+        </fieldset>}
         <fieldset className="space-y-2 rounded border border-silicon-slate/70 p-3" disabled={busy}>
           <legend className="px-1 font-semibold">Framework receipt</legend>
           <label className="block">Selected packet framework

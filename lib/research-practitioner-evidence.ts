@@ -68,7 +68,7 @@ export function normalizePractitionerEvidence(value: unknown): PractitionerEvide
   const redaction = record(input.redaction_receipt)
   const framework = record(input.framework_receipt)
   const boundary = text(input.public_use_boundary)
-  return {
+  const normalized: PractitionerEvidenceAuthoring = {
     role_context: text(input.role_context),
     situation: text(input.situation),
     action_taken: text(input.action_taken),
@@ -97,6 +97,23 @@ export function normalizePractitionerEvidence(value: unknown): PractitionerEvide
     saved_at: text(input.saved_at) || undefined,
     saved_by: text(input.saved_by) || undefined,
   }
+  if (normalized.public_use_boundary === 'framework_only') {
+    return {
+      ...normalized,
+      role_context: '',
+      situation: '',
+      action_taken: '',
+      observed_outcome: '',
+      limitations: '',
+      redaction_receipt: {
+        direct_identifiers_removed: false,
+        indirect_identifiers_reviewed: false,
+        sensitive_details_removed: false,
+        review_note: '',
+      },
+    }
+  }
+  return normalized
 }
 
 export function practitionerEvidenceValidation(
@@ -106,23 +123,25 @@ export function practitionerEvidenceValidation(
   const evidence = normalizePractitionerEvidence(value)
   const patterns = record(patternPacket)
   const issues: string[] = []
-  if (evidence.role_context.length < 3) issues.push('Add an anonymized practitioner role or context (at least 3 characters).')
-  if (evidence.role_context.length > 120) issues.push('Keep the practitioner role or context within 120 characters.')
-  if (evidence.situation.length < 20) issues.push('Describe the anonymized situation in at least 20 characters.')
-  if (evidence.situation.length > 1200) issues.push('Keep the anonymized situation within 1,200 characters.')
-  if (evidence.action_taken.length < 20) issues.push('Describe the practitioner action in at least 20 characters.')
-  if (evidence.action_taken.length > 1200) issues.push('Keep the practitioner action within 1,200 characters.')
-  if (evidence.observed_outcome.length < 20) issues.push('Describe the observed outcome in at least 20 characters.')
-  if (evidence.observed_outcome.length > 1200) issues.push('Keep the observed outcome within 1,200 characters.')
-  if (evidence.limitations.length < 10) issues.push('Add a limitation or evidence boundary in at least 10 characters.')
-  if (evidence.limitations.length > 1200) issues.push('Keep the limitation or evidence boundary within 1,200 characters.')
   if (!evidence.public_use_boundary) issues.push('Choose a public-use boundary.')
   if (evidence.public_use_boundary === 'internal_only') issues.push('Internal-only evidence cannot be approved for Social Insights; choose framework-only or anonymized public summary.')
-  if (!evidence.redaction_receipt.direct_identifiers_removed) issues.push('Confirm direct identifiers were removed.')
-  if (!evidence.redaction_receipt.indirect_identifiers_reviewed) issues.push('Confirm indirect identifiers were reviewed.')
-  if (!evidence.redaction_receipt.sensitive_details_removed) issues.push('Confirm sensitive details were removed or generalized.')
-  if (evidence.redaction_receipt.review_note.length < 10) issues.push('Add a redaction receipt note in at least 10 characters.')
-  if (evidence.redaction_receipt.review_note.length > 1000) issues.push('Keep the redaction receipt note within 1,000 characters.')
+  if (evidence.public_use_boundary && evidence.public_use_boundary !== 'framework_only') {
+    if (evidence.role_context.length < 3) issues.push('Add an anonymized practitioner role or context (at least 3 characters).')
+    if (evidence.role_context.length > 120) issues.push('Keep the practitioner role or context within 120 characters.')
+    if (evidence.situation.length < 20) issues.push('Describe the anonymized situation in at least 20 characters.')
+    if (evidence.situation.length > 1200) issues.push('Keep the anonymized situation within 1,200 characters.')
+    if (evidence.action_taken.length < 20) issues.push('Describe the practitioner action in at least 20 characters.')
+    if (evidence.action_taken.length > 1200) issues.push('Keep the practitioner action within 1,200 characters.')
+    if (evidence.observed_outcome.length < 20) issues.push('Describe the observed outcome in at least 20 characters.')
+    if (evidence.observed_outcome.length > 1200) issues.push('Keep the observed outcome within 1,200 characters.')
+    if (evidence.limitations.length < 10) issues.push('Add a limitation or evidence boundary in at least 10 characters.')
+    if (evidence.limitations.length > 1200) issues.push('Keep the limitation or evidence boundary within 1,200 characters.')
+    if (!evidence.redaction_receipt.direct_identifiers_removed) issues.push('Confirm direct identifiers were removed.')
+    if (!evidence.redaction_receipt.indirect_identifiers_reviewed) issues.push('Confirm indirect identifiers were reviewed.')
+    if (!evidence.redaction_receipt.sensitive_details_removed) issues.push('Confirm sensitive details were removed or generalized.')
+    if (evidence.redaction_receipt.review_note.length < 10) issues.push('Add a redaction receipt note in at least 10 characters.')
+    if (evidence.redaction_receipt.review_note.length > 1000) issues.push('Keep the redaction receipt note within 1,000 characters.')
+  }
   const frameworkKey = evidence.framework_receipt.selected_framework_key
   if (!frameworkKey || !Object.prototype.hasOwnProperty.call(patterns, frameworkKey)) issues.push('Select a framework from this research packet.')
   if (evidence.framework_receipt.application_note.length < 20) issues.push('Explain how the framework applies without copying the source (at least 20 characters).')
