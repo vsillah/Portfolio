@@ -86,6 +86,9 @@ async function recordViewport(browser, { label, viewport }) {
     }
     if (await page.getByText('LinkedIn Preview', { exact: true }).count()) throw new Error(`${label} ${record.id} rendered LinkedIn preview guidance.`)
     if (await page.getByText('LinkedIn optimal: 150-300 words', { exact: true }).count()) throw new Error(`${label} ${record.id} rendered LinkedIn copy guidance.`)
+    if (await page.getByRole('region', { name: 'Copy review decision gate' }).count()) throw new Error(`${label} ${record.id} rendered the generic copy approval gate.`)
+    if (await page.getByRole('button', { name: /Approve Copy/i }).count()) throw new Error(`${label} ${record.id} exposed a copy approval action.`)
+    if (await page.getByRole('button', { name: /Save Draft/i }).count()) throw new Error(`${label} ${record.id} exposed a draft mutation action.`)
     if (!await surface.getByText('Unscored', { exact: true }).count()) throw new Error(`${label} ${record.id} did not expose the Unscored state.`)
     if (!await page.getByText('Privacy-safe channel-native YouTube experiment fixture. Review only.', { exact: true }).count()) throw new Error(`${label} ${record.id} did not expose the read-only fixture notice.`)
 
@@ -183,6 +186,8 @@ const receipt = {
     'product-proof requirements',
     'Unscored state',
     'no LinkedIn preview guidance',
+    'no generic copy approval gate',
+    'no draft mutation actions',
     'read-only notice',
   ],
   side_effects: {

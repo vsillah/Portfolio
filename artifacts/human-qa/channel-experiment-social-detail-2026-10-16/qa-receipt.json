@@ -1,0 +1,100 @@
+{
+  "revision": "695b1a5394d8d9b4068180b2e6a4732d4abc25fb",
+  "fixture": "channel_experiment_social_detail_v1",
+  "record_ids": [
+    "licenses-yt-a",
+    "licenses-yt-b",
+    "pm-os-yt-a",
+    "pm-os-yt-b",
+    "harness-yt-a",
+    "harness-yt-b"
+  ],
+  "exact_routes": [
+    "http://127.0.0.1:3107/admin/social-content/licenses-yt-a?step=copy&qa_fixture=channel_experiment_social_detail_v1&rev=695b1a5394d8d9b4068180b2e6a4732d4abc25fb",
+    "http://127.0.0.1:3107/admin/social-content/licenses-yt-b?step=copy&qa_fixture=channel_experiment_social_detail_v1&rev=695b1a5394d8d9b4068180b2e6a4732d4abc25fb",
+    "http://127.0.0.1:3107/admin/social-content/pm-os-yt-a?step=copy&qa_fixture=channel_experiment_social_detail_v1&rev=695b1a5394d8d9b4068180b2e6a4732d4abc25fb",
+    "http://127.0.0.1:3107/admin/social-content/pm-os-yt-b?step=copy&qa_fixture=channel_experiment_social_detail_v1&rev=695b1a5394d8d9b4068180b2e6a4732d4abc25fb",
+    "http://127.0.0.1:3107/admin/social-content/harness-yt-a?step=copy&qa_fixture=channel_experiment_social_detail_v1&rev=695b1a5394d8d9b4068180b2e6a4732d4abc25fb",
+    "http://127.0.0.1:3107/admin/social-content/harness-yt-b?step=copy&qa_fixture=channel_experiment_social_detail_v1&rev=695b1a5394d8d9b4068180b2e6a4732d4abc25fb"
+  ],
+  "viewports": [
+    "1440x900",
+    "390x844"
+  ],
+  "routes_reviewed": 12,
+  "screenshots": [
+    "desktop-1440-licenses-yt-a-route.png",
+    "desktop-1440-licenses-yt-a-review.png",
+    "desktop-1440-licenses-yt-b-route.png",
+    "desktop-1440-licenses-yt-b-review.png",
+    "desktop-1440-pm-os-yt-a-route.png",
+    "desktop-1440-pm-os-yt-a-review.png",
+    "desktop-1440-pm-os-yt-b-route.png",
+    "desktop-1440-pm-os-yt-b-review.png",
+    "desktop-1440-harness-yt-a-route.png",
+    "desktop-1440-harness-yt-a-review.png",
+    "desktop-1440-harness-yt-b-route.png",
+    "desktop-1440-harness-yt-b-review.png",
+    "mobile-390-licenses-yt-a-route.png",
+    "mobile-390-licenses-yt-a-review.png",
+    "mobile-390-licenses-yt-b-route.png",
+    "mobile-390-licenses-yt-b-review.png",
+    "mobile-390-pm-os-yt-a-route.png",
+    "mobile-390-pm-os-yt-a-review.png",
+    "mobile-390-pm-os-yt-b-route.png",
+    "mobile-390-pm-os-yt-b-review.png",
+    "mobile-390-harness-yt-a-route.png",
+    "mobile-390-harness-yt-a-review.png",
+    "mobile-390-harness-yt-b-route.png",
+    "mobile-390-harness-yt-b-review.png"
+  ],
+  "assertions": [
+    "title",
+    "description",
+    "opening hook",
+    "episode outline",
+    "thumbnail brief",
+    "evidence lineage",
+    "product-proof requirements",
+    "Unscored state",
+    "no LinkedIn preview guidance",
+    "no generic copy approval gate",
+    "no draft mutation actions",
+    "read-only notice"
+  ],
+  "side_effects": {
+    "production_social_content_reads": false,
+    "production_writes": false,
+    "provider_calls": false,
+    "rendering": false,
+    "upload": false,
+    "platform_draft": false,
+    "schedule": false,
+    "publish": false,
+    "external_send": false
+  },
+  "network": {
+    "unexpected_external_requests": 0,
+    "allowed_auth_requests": 14,
+    "blocked_expected_analytics_requests": 0
+  },
+  "mp4": "artifacts/human-qa/channel-experiment-social-detail-2026-10-16/channel-experiment-social-detail-walkthrough.mp4",
+  "mp4_sha256": "10b13944cc74e22bad86761a01cb2bbc5a225e5f0636b8de5119bd33553d5e39",
+  "probe": {
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "width": 1440,
+        "height": 900,
+        "avg_frame_rate": "25/1",
+        "nb_frames": "743"
+      }
+    ],
+    "format": {
+      "duration": "29.720000",
+      "size": "3858672"
+    }
+  }
+}
