@@ -270,6 +270,47 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(fetchMock).toHaveBeenCalledTimes(1)
   })
 
+  it('renders the persisted YouTube experiment path without fixture query or mutation controls', async () => {
+    mocks.id = '1f3cec8c-afcb-4551-90fa-b8d4f9dabe2f'
+    mocks.search = 'step=copy&rev=production-smoke'
+    const experimentItem = channelExperimentSocialContentQaFixture(mocks.id)
+    const packet = (experimentItem.rag_context as Record<string, unknown>).channel_experiment_review as Record<string, unknown>
+    experimentItem.rag_context = {
+      source: 'channel_experiment_review',
+      research_packet_id: packet.packet_id,
+      channel_experiment_variant_id: packet.variant_id,
+      review_only: true,
+      provider_actions_enabled: false,
+      platform_draft_enabled: false,
+      external_execution_enabled: false,
+      publish_gate: 'draft_only',
+    }
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) => ({
+      ok: true,
+      json: async () => ({
+        item: experimentItem,
+        fixture: false,
+        fixture_state: 'persisted_review_only_youtube_experiment',
+      }),
+    } as Response))
+    vi.stubGlobal('fetch', fetchMock)
+
+    render(<SocialContentDetailRoute />)
+
+    expect(await screen.findByRole('region', { name: `YouTube experiment review: ${experimentItem.youtube_title}` })).toBeVisible()
+    expect(screen.getByText('Persisted channel-native YouTube experiment. Review only.')).toBeVisible()
+    expect(screen.queryByLabelText('LinkedIn post preview')).not.toBeInTheDocument()
+    expect(screen.queryByText('LinkedIn Preview')).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /Save Draft/i })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /Approve Copy/i })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /Reject/i })).not.toBeInTheDocument()
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/admin/social-content/1f3cec8c-afcb-4551-90fa-b8d4f9dabe2f',
+      expect.objectContaining({ cache: 'no-store' }),
+    )
+    expect(fetchMock.mock.calls.every(([, init]) => !init?.method || init.method === 'GET')).toBe(true)
+  })
+
   it('keeps the authorized LinkedIn control record on the ordinary Social Content review surface', async () => {
     mocks.id = '26a4a7c9-2325-4ef7-a2ee-a83a366d4146'
     mocks.search = 'step=copy&qa_fixture=channel_experiment_social_detail_v1&rev=test-commit'

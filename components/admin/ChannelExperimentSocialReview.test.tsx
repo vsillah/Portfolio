@@ -24,4 +24,43 @@ describe('ChannelExperimentSocialReview', () => {
   it('does not reinterpret an ordinary LinkedIn item as a YouTube experiment', () => {
     expect(getChannelExperimentSocialReview({ id: 'social-1', platform: 'linkedin', rag_context: {} })).toBeNull()
   })
+
+  it('normalizes an exact persisted review-only YouTube row without fixture metadata', () => {
+    const item = channelExperimentSocialContentQaFixture('1f3cec8c-afcb-4551-90fa-b8d4f9dabe2f')
+    const packet = (item.rag_context as Record<string, unknown>).channel_experiment_review as Record<string, unknown>
+    item.rag_context = {
+      source: 'channel_experiment_review',
+      research_packet_id: packet.packet_id,
+      channel_experiment_variant_id: packet.variant_id,
+      review_only: true,
+      provider_actions_enabled: false,
+      platform_draft_enabled: false,
+      external_execution_enabled: false,
+      publish_gate: 'draft_only',
+    }
+
+    const review = getChannelExperimentSocialReview(item)
+    expect(review).toMatchObject({
+      packetId: packet.packet_id,
+      variantId: packet.variant_id,
+      title: item.youtube_title,
+      source: 'persisted',
+    })
+  })
+
+  it('fails closed when a persisted row does not match its authorized variant binding', () => {
+    const item = channelExperimentSocialContentQaFixture('1f3cec8c-afcb-4551-90fa-b8d4f9dabe2f')
+    item.rag_context = {
+      source: 'channel_experiment_review',
+      research_packet_id: '407df879-a539-40a1-a20e-75de31b9c494',
+      channel_experiment_variant_id: 'harness-yt-b',
+      review_only: true,
+      provider_actions_enabled: false,
+      platform_draft_enabled: false,
+      external_execution_enabled: false,
+      publish_gate: 'draft_only',
+    }
+
+    expect(getChannelExperimentSocialReview(item)).toBeNull()
+  })
 })

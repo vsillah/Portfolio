@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { ExternalLink, FlaskConical, ShieldCheck, Youtube } from 'lucide-react'
+import { persistedChannelExperimentReviewForItem } from '@/lib/channel-experiment-review'
 
 type RecordValue = Record<string, unknown>
 
@@ -34,6 +35,34 @@ function strings(value: unknown): string[] {
 export function getChannelExperimentSocialReview(item: ChannelExperimentSocialItem) {
   const ragContext = record(item.rag_context)
   const packet = record(ragContext?.channel_experiment_review)
+  const persisted = persistedChannelExperimentReviewForItem(item)
+
+  if (persisted) {
+    const { review, variant } = persisted
+    return {
+      packetId: review.packetId,
+      campaignTitle: review.campaignTitle,
+      audience: review.audience,
+      variantId: variant.id,
+      variantLabel: variant.label,
+      hypothesis: variant.hypothesis,
+      title: item.youtube_title || variant.title,
+      description: item.youtube_description || variant.description,
+      openingHook: variant.openingHook,
+      outline: variant.outline,
+      thumbnailBrief: variant.thumbnailConcept,
+      cta: variant.cta,
+      productProofRequirements: [variant.productTieIn, ...variant.visualEvidence],
+      evidenceLineage: review.evidenceLinks,
+      approvedClaims: review.approvedClaims,
+      evidenceBoundary: review.evidenceBoundary,
+      formula: review.formula,
+      scores: review.scores,
+      missingEvidence: review.missingEvidence,
+      source: 'persisted' as const,
+    }
+  }
+
   if (!packet || text(ragContext?.source_type) !== 'review_only_youtube_experiment' || item.platform !== 'youtube') return null
 
   const packetId = text(packet.packet_id)
@@ -70,6 +99,7 @@ export function getChannelExperimentSocialReview(item: ChannelExperimentSocialIt
       inputLink: text(entry.inputLink),
     })).filter(entry => entry.label),
     missingEvidence: strings(packet.missing_evidence),
+    source: 'fixture' as const,
   }
 }
 

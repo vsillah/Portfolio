@@ -3950,7 +3950,13 @@ function SocialContentDetailPage() {
     )
   }
 
-  if (channelExperimentReview && previewFixtureReadOnly) {
+  if (channelExperimentReview) {
+    const experimentReviewReason = previewFixtureReadOnly
+      ? previewFixtureReason
+      : 'Persisted channel-native YouTube experiment. Review only.'
+    const experimentReviewNextAction = previewFixtureReadOnly
+      ? previewFixtureNextAction
+      : 'Review the YouTube concept and its evidence requirements. Return to the linked research packet for source decisions; all execution gates remain closed.'
     return (
       <div className="min-h-screen bg-background text-foreground" data-testid="social-content-detail">
         <section
@@ -3958,9 +3964,9 @@ function SocialContentDetailPage() {
           role="status"
           className="mx-auto mt-4 w-[calc(100%-2rem)] max-w-[90rem] rounded-xl border border-amber-600/40 bg-amber-50 p-4 text-amber-950 sm:w-[calc(100%-3rem)] dark:border-amber-400/40 dark:bg-amber-400/10 dark:text-amber-50"
         >
-          <p className="font-semibold">{previewFixtureReason}</p>
+          <p className="font-semibold">{experimentReviewReason}</p>
           <p className="mt-1 text-sm leading-6 text-amber-900/90 dark:text-amber-100/90">
-            No changes, approvals, or rejection decisions can be saved from this route. {previewFixtureNextAction}
+            No changes, approvals, or rejection decisions can be saved from this route. {experimentReviewNextAction}
           </p>
           <Link href={backUrl} className="mt-3 inline-flex min-h-11 items-center rounded-lg border border-amber-700/45 px-3 py-2 text-sm font-semibold text-amber-950 transition-colors hover:bg-amber-200/60 dark:border-amber-300/45 dark:text-amber-50 dark:hover:bg-amber-300/10">
             Back to Social Content

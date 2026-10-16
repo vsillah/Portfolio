@@ -50,6 +50,13 @@ export type YouTubeExperimentReviewRecord = {
   variant: YouTubeExperiment
 }
 
+type PersistedChannelExperimentItem = {
+  id?: unknown
+  platform?: unknown
+  target_platforms?: unknown
+  rag_context?: unknown
+}
+
 export const CHANNEL_EXPERIMENT_SOCIAL_CONTENT_RECORDS = [
   { id: '26a4a7c9-2325-4ef7-a2ee-a83a366d4146', packetId: '407df879-a539-40a1-a20e-75de31b9c494', channel: 'linkedin', variantId: 'licenses-li-b' },
   { id: '1f3cec8c-afcb-4551-90fa-b8d4f9dabe2f', packetId: '407df879-a539-40a1-a20e-75de31b9c494', channel: 'youtube', variantId: 'licenses-yt-a' },
@@ -401,6 +408,43 @@ export function channelExperimentReviewForSocialContentId(id: string): YouTubeEx
   const review = CHANNEL_EXPERIMENT_REVIEWS[record.packetId]
   const variant = review.youtube.find(candidate => candidate.id === record.variantId)
   return variant ? { review, variant } : null
+}
+
+function objectRecord(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === 'object' && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : null
+}
+
+/**
+ * Recognizes only the three persisted, review-only YouTube experiment rows.
+ * Exact row, packet, and variant bindings keep ordinary Social Content records
+ * on their existing editor and approval surfaces.
+ */
+export function persistedChannelExperimentReviewForItem(
+  item: PersistedChannelExperimentItem,
+): YouTubeExperimentReviewRecord | null {
+  const id = typeof item.id === 'string' ? item.id : ''
+  const binding = channelExperimentSocialContentRecord(id)
+  if (!binding || binding.channel !== 'youtube' || item.platform !== 'youtube') return null
+
+  const targets = Array.isArray(item.target_platforms) ? item.target_platforms : []
+  if (!targets.includes('youtube')) return null
+
+  const context = objectRecord(item.rag_context)
+  if (
+    !context
+    || context.source !== 'channel_experiment_review'
+    || context.research_packet_id !== binding.packetId
+    || context.channel_experiment_variant_id !== binding.variantId
+    || context.review_only !== true
+    || context.provider_actions_enabled !== false
+    || context.platform_draft_enabled !== false
+    || context.external_execution_enabled !== false
+    || context.publish_gate !== 'draft_only'
+  ) return null
+
+  return channelExperimentReviewForSocialContentId(id)
 }
 
 export function channelExperimentSocialContentHref(idOrVariantId: string, revision?: string): string | null {
