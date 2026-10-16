@@ -376,6 +376,26 @@ function currentUrlSearchParams() {
   return new URLSearchParams(window.location.search)
 }
 
+type ContentIntelligencePageProps = {
+  searchParams?: Record<string, string | string[] | undefined>
+}
+
+function pageSearchParams(searchParams?: ContentIntelligencePageProps['searchParams']) {
+  if (!searchParams) return currentUrlSearchParams()
+  const values = new URLSearchParams()
+  for (const [key, value] of Object.entries(searchParams)) {
+    if (Array.isArray(value)) value.forEach(item => values.append(key, item))
+    else if (value !== undefined) values.set(key, value)
+  }
+  return values
+}
+
+function channelExperimentFixturePacket(searchParams: URLSearchParams): ChannelExperimentPacketId | null {
+  if (process.env.NODE_ENV === 'production' || searchParams.get('qa_fixture') !== 'channel_experiments_v1') return null
+  const packetId = searchParams.get('packet') as ChannelExperimentPacketId | null
+  return packetId && CHANNEL_EXPERIMENT_PACKET_IDS.includes(packetId) ? packetId : null
+}
+
 function initialActiveSection(): IntelligenceSection {
   const section = currentUrlSearchParams().get('section') as IntelligenceSection | null
   if (section && SECTION_TABS.some((candidate) => candidate.key === section)) return section
@@ -917,28 +937,24 @@ async function readJsonResponse(response: Response): Promise<unknown> {
   }
 }
 
-export default function ContentIntelligencePage() {
-  const [channelExperimentQa, setChannelExperimentQa] = useState<ChannelExperimentPacketId | null>(null)
+export default function ContentIntelligencePage({ searchParams }: ContentIntelligencePageProps) {
+  const routeSearchParams = useMemo(() => pageSearchParams(searchParams), [searchParams])
+  const [channelExperimentQa, setChannelExperimentQa] = useState<ChannelExperimentPacketId | null>(() => channelExperimentFixturePacket(routeSearchParams))
 
   useEffect(() => {
     if (process.env.NODE_ENV === 'production') return
     const syncFixtureFromLocation = () => {
-      const searchParams = currentUrlSearchParams()
-      const packetId = searchParams.get('packet') as ChannelExperimentPacketId | null
-      setChannelExperimentQa(
-        searchParams.get('qa_fixture') === 'channel_experiments_v1' && packetId && CHANNEL_EXPERIMENT_PACKET_IDS.includes(packetId)
-          ? packetId
-          : null,
-      )
+      setChannelExperimentQa(channelExperimentFixturePacket(searchParams ? pageSearchParams(searchParams) : currentUrlSearchParams()))
     }
 
     syncFixtureFromLocation()
+    if (searchParams) return
     window.addEventListener('popstate', syncFixtureFromLocation)
     return () => window.removeEventListener('popstate', syncFixtureFromLocation)
-  }, [])
+  }, [searchParams])
 
   if (channelExperimentQa) {
-    const revision = currentUrlSearchParams().get('rev') ?? 'working-tree'
+    const revision = routeSearchParams.get('rev') ?? currentUrlSearchParams().get('rev') ?? 'working-tree'
     return <main id="admin-main" className="min-h-screen bg-background px-4 py-8 text-foreground sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
         <div className="flex flex-col gap-3 border-b border-border pb-5 lg:flex-row lg:items-end lg:justify-between">
