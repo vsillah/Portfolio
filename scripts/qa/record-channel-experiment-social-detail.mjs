@@ -96,10 +96,12 @@ async function recordViewport(browser, { label, viewport }) {
     } else {
       const preview = page.getByLabel('LinkedIn post preview')
       await preview.waitFor({ state: 'visible', timeout: 30_000 })
-      await preview.getByText(record.expectedText, { exact: true }).waitFor({ state: 'visible' })
-      surface = page.getByRole('region', { name: 'Copy review decision gate' })
-      await surface.waitFor({ state: 'visible', timeout: 30_000 })
-      if (!await page.getByText('LinkedIn Preview', { exact: true }).count()) throw new Error(`${label} ${record.id} did not render the ordinary LinkedIn preview.`)
+      const previewText = await preview.innerText()
+      if (!previewText.includes(record.expectedText)) throw new Error(`${label} ${record.id} did not render the expected LinkedIn ${record.variant} copy.`)
+      const copyGate = page.getByRole('region', { name: 'Copy review decision gate' })
+      await copyGate.waitFor({ state: 'visible', timeout: 30_000 })
+      surface = preview
+      if (await page.locator('[data-theme-surface="linkedin-preview-chrome"]').count() !== 1) throw new Error(`${label} ${record.id} did not render the ordinary LinkedIn preview chrome.`)
       if (!await page.getByText('LinkedIn optimal: 150-300 words', { exact: true }).count()) throw new Error(`${label} ${record.id} did not preserve LinkedIn copy guidance.`)
       if (await page.getByTestId('channel-experiment-social-review').count()) throw new Error(`${label} ${record.id} incorrectly rendered the specialized YouTube review.`)
       if (!await page.getByText('Privacy-safe LinkedIn control fixture. Review only.', { exact: true }).count()) throw new Error(`${label} ${record.id} did not expose the LinkedIn control notice.`)
