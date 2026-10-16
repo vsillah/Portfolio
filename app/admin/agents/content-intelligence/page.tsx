@@ -922,11 +922,19 @@ export default function ContentIntelligencePage() {
 
   useEffect(() => {
     if (process.env.NODE_ENV === 'production') return
-    const searchParams = currentUrlSearchParams()
-    const packetId = searchParams.get('packet') as ChannelExperimentPacketId | null
-    if (searchParams.get('qa_fixture') === 'channel_experiments_v1' && packetId && CHANNEL_EXPERIMENT_PACKET_IDS.includes(packetId)) {
-      setChannelExperimentQa(packetId)
+    const syncFixtureFromLocation = () => {
+      const searchParams = currentUrlSearchParams()
+      const packetId = searchParams.get('packet') as ChannelExperimentPacketId | null
+      setChannelExperimentQa(
+        searchParams.get('qa_fixture') === 'channel_experiments_v1' && packetId && CHANNEL_EXPERIMENT_PACKET_IDS.includes(packetId)
+          ? packetId
+          : null,
+      )
     }
+
+    syncFixtureFromLocation()
+    window.addEventListener('popstate', syncFixtureFromLocation)
+    return () => window.removeEventListener('popstate', syncFixtureFromLocation)
   }, [])
 
   if (channelExperimentQa) {
@@ -952,6 +960,7 @@ export default function ContentIntelligencePage() {
             return <Link
               key={packetId}
               href={`/admin/agents/content-intelligence?section=research&packet=${packetId}&qa_fixture=channel_experiments_v1&rev=${encodeURIComponent(revision)}`}
+              onClick={() => setChannelExperimentQa(packetId)}
               aria-current={active ? 'page' : undefined}
               className={`rounded-lg border p-3 text-sm font-semibold ${active ? 'border-cyan-500/70 bg-cyan-500/10 text-foreground' : 'border-border bg-card text-muted-foreground hover:text-foreground'}`}
             >{campaign.campaignTitle}</Link>

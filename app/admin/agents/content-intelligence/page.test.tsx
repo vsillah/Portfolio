@@ -1163,8 +1163,17 @@ describe('ContentIntelligencePage', () => {
     expect(screen.getByText('test-commit')).toBeVisible()
     expect(screen.getByText('Review-ready source · no mutation')).toBeVisible()
     expect(screen.getByRole('region', { name: 'Channel experiments for Stop Counting AI Licenses' })).toBeVisible()
-    expect(screen.getByRole('link', { name: "The Product Manager's New Operating System" })).toHaveAttribute('href', expect.stringContaining('qa_fixture=channel_experiments_v1'))
+    const productManagerCampaign = screen.getByRole('link', { name: "The Product Manager's New Operating System" })
+    expect(productManagerCampaign).toHaveAttribute('href', expect.stringContaining('qa_fixture=channel_experiments_v1'))
     expect(screen.getByRole('link', { name: 'The Agent Harness Is the Product' })).toHaveAttribute('href', expect.stringContaining('qa_fixture=channel_experiments_v1'))
+
+    productManagerCampaign.addEventListener('click', event => event.preventDefault(), { once: true })
+    fireEvent.click(productManagerCampaign)
+
+    expect(await screen.findByRole('region', { name: "Channel experiments for The Product Manager's New Operating System" })).toBeVisible()
+    expect(screen.queryByRole('region', { name: 'Channel experiments for Stop Counting AI Licenses' })).not.toBeInTheDocument()
+    expect(productManagerCampaign).toHaveAttribute('aria-current', 'page')
+    expect(screen.getByText('61d0ab8a-29fa-40de-aa7a-49b15c74cafa')).toBeVisible()
   })
 
   it('filters release calendar rows by content title and linked work item', async () => {
