@@ -988,7 +988,7 @@ export default function ContentIntelligencePage({ searchParams }: ContentIntelli
             <div><p className="text-xs text-muted-foreground">Research packet</p><p className="mt-1 font-mono text-xs text-foreground">{channelExperimentQa}</p></div>
             <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-2.5 py-1 text-xs font-semibold text-amber-900 dark:text-amber-100">Review-ready source · no mutation</span>
           </div>
-          <ChannelExperimentReview packetId={channelExperimentQa} defaultOpen />
+          <ChannelExperimentReview packetId={channelExperimentQa} defaultOpen revision={revision} />
         </section>
       </div>
     </main>

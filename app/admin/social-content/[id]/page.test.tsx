@@ -10,6 +10,7 @@ import { buildDeterministicVisualRecipePatch, projectDeterministicVisualRender }
 import { socialCopyVersion } from '@/lib/social-copy-revision'
 import { topicSourceCoverageQaFixture } from '@/lib/social-topic-source-coverage-qa-fixture'
 import { channelNativeVideoQaFixture } from '@/lib/social-channel-video-qa-fixture'
+import { channelExperimentSocialContentQaFixture } from '@/lib/social-channel-experiment-qa-fixture'
 
 const mocks = vi.hoisted(() => ({
   push: vi.fn(),
@@ -232,6 +233,63 @@ describe('SocialContentDetailRoute visual production review', () => {
       '/api/admin/social-content/social-1?qa_fixture=channel_native_video_v2&video_package_state=ready',
       expect.objectContaining({ cache: 'no-store' }),
     )
+  })
+
+  it('renders a review-only YouTube experiment record instead of LinkedIn preview guidance', async () => {
+    mocks.id = '1f3cec8c-afcb-4551-90fa-b8d4f9dabe2f'
+    mocks.search = 'step=copy&qa_fixture=channel_experiment_social_detail_v1&rev=test-commit'
+    const experimentItem = channelExperimentSocialContentQaFixture(mocks.id)
+    const fetchMock = vi.fn(async () => ({ ok: true, json: async () => ({ item: experimentItem }) } as Response))
+    vi.stubGlobal('fetch', fetchMock)
+
+    render(<SocialContentDetailRoute />)
+
+    const review = await screen.findByRole('region', { name: `YouTube experiment review: ${experimentItem.youtube_title}` })
+    expect(within(review).getByText(experimentItem.youtube_description!)).toBeVisible()
+    expect(within(review).getByText('Opening hook')).toBeVisible()
+    expect(within(review).getByText('Episode outline')).toBeVisible()
+    expect(within(review).getByText('Thumbnail brief')).toBeVisible()
+    expect(within(review).getByText('Evidence lineage')).toBeVisible()
+    expect(within(review).getByText('Product-proof requirements')).toBeVisible()
+    expect(within(review).getAllByText('Unscored').length).toBeGreaterThan(0)
+    expect(screen.getByLabelText('YouTube experiment review state')).toHaveTextContent('Review onlyUnscored')
+    expect(screen.queryByRole('region', { name: 'Copy review decision gate' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /Approve Copy/i })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /Reject/i })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /Save Draft/i })).not.toBeInTheDocument()
+    expect(screen.queryByText('Copy needs revision')).not.toBeInTheDocument()
+    expect(screen.queryByText('Copy review')).not.toBeInTheDocument()
+    expect(screen.queryByText('Write out known acronyms before approval')).not.toBeInTheDocument()
+    expect(screen.queryByText('LinkedIn Preview')).not.toBeInTheDocument()
+    expect(screen.queryByLabelText('LinkedIn post preview')).not.toBeInTheDocument()
+    expect(screen.queryByText('LinkedIn optimal: 150-300 words')).not.toBeInTheDocument()
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/admin/social-content/1f3cec8c-afcb-4551-90fa-b8d4f9dabe2f?qa_fixture=channel_experiment_social_detail_v1',
+      expect.objectContaining({ cache: 'no-store' }),
+    )
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+  })
+
+  it('keeps the authorized LinkedIn control record on the ordinary Social Content review surface', async () => {
+    mocks.id = '26a4a7c9-2325-4ef7-a2ee-a83a366d4146'
+    mocks.search = 'step=copy&qa_fixture=channel_experiment_social_detail_v1&rev=test-commit'
+    const linkedinItem = channelExperimentSocialContentQaFixture(mocks.id)
+    const fetchMock = vi.fn(async () => ({ ok: true, json: async () => ({ item: linkedinItem }) } as Response))
+    vi.stubGlobal('fetch', fetchMock)
+
+    render(<SocialContentDetailRoute />)
+
+    expect(await screen.findByLabelText('LinkedIn post preview')).toBeVisible()
+    expect(screen.getByText('LinkedIn Preview')).toBeVisible()
+    expect(screen.getByRole('region', { name: 'Copy review decision gate' })).toBeVisible()
+    expect(screen.getByText('LinkedIn optimal: 150-300 words')).toBeVisible()
+    expect(screen.getByText('Privacy-safe LinkedIn control fixture. Review only.')).toBeVisible()
+    expect(screen.queryByTestId('channel-experiment-social-review')).not.toBeInTheDocument()
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/admin/social-content/26a4a7c9-2325-4ef7-a2ee-a83a366d4146?qa_fixture=channel_experiment_social_detail_v1',
+      expect.objectContaining({ cache: 'no-store' }),
+    )
+    expect(fetchMock).toHaveBeenCalledTimes(1)
   })
 
   it('adds traceability to the existing protected artifact review without creating a parallel decision surface', async () => {

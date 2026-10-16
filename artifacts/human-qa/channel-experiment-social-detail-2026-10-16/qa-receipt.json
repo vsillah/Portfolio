@@ -1,0 +1,134 @@
+{
+  "revision": "b7c517ce776b007e18c057f3e1cde5172b93b922",
+  "fixture": "channel_experiment_social_detail_v1",
+  "record_ids": [
+    "26a4a7c9-2325-4ef7-a2ee-a83a366d4146",
+    "1f3cec8c-afcb-4551-90fa-b8d4f9dabe2f",
+    "6b499ed2-edcb-4782-98c8-d59be644df50",
+    "e06ab168-56aa-45f5-9672-619215df3ce7",
+    "03f9e0ed-3fee-4d5b-815c-602b6e0e917b",
+    "2d96e662-5e7e-4761-8a87-85128e20a559"
+  ],
+  "record_variants": [
+    {
+      "id": "26a4a7c9-2325-4ef7-a2ee-a83a366d4146",
+      "variant": "licenses-li-b",
+      "channel": "linkedin"
+    },
+    {
+      "id": "1f3cec8c-afcb-4551-90fa-b8d4f9dabe2f",
+      "variant": "licenses-yt-a",
+      "channel": "youtube"
+    },
+    {
+      "id": "6b499ed2-edcb-4782-98c8-d59be644df50",
+      "variant": "pm-os-li-b",
+      "channel": "linkedin"
+    },
+    {
+      "id": "e06ab168-56aa-45f5-9672-619215df3ce7",
+      "variant": "pm-os-yt-b",
+      "channel": "youtube"
+    },
+    {
+      "id": "03f9e0ed-3fee-4d5b-815c-602b6e0e917b",
+      "variant": "harness-li-b",
+      "channel": "linkedin"
+    },
+    {
+      "id": "2d96e662-5e7e-4761-8a87-85128e20a559",
+      "variant": "harness-yt-b",
+      "channel": "youtube"
+    }
+  ],
+  "exact_routes": [
+    "http://127.0.0.1:3107/admin/social-content/26a4a7c9-2325-4ef7-a2ee-a83a366d4146?step=copy&qa_fixture=channel_experiment_social_detail_v1&rev=b7c517ce776b007e18c057f3e1cde5172b93b922",
+    "http://127.0.0.1:3107/admin/social-content/1f3cec8c-afcb-4551-90fa-b8d4f9dabe2f?step=copy&qa_fixture=channel_experiment_social_detail_v1&rev=b7c517ce776b007e18c057f3e1cde5172b93b922",
+    "http://127.0.0.1:3107/admin/social-content/6b499ed2-edcb-4782-98c8-d59be644df50?step=copy&qa_fixture=channel_experiment_social_detail_v1&rev=b7c517ce776b007e18c057f3e1cde5172b93b922",
+    "http://127.0.0.1:3107/admin/social-content/e06ab168-56aa-45f5-9672-619215df3ce7?step=copy&qa_fixture=channel_experiment_social_detail_v1&rev=b7c517ce776b007e18c057f3e1cde5172b93b922",
+    "http://127.0.0.1:3107/admin/social-content/03f9e0ed-3fee-4d5b-815c-602b6e0e917b?step=copy&qa_fixture=channel_experiment_social_detail_v1&rev=b7c517ce776b007e18c057f3e1cde5172b93b922",
+    "http://127.0.0.1:3107/admin/social-content/2d96e662-5e7e-4761-8a87-85128e20a559?step=copy&qa_fixture=channel_experiment_social_detail_v1&rev=b7c517ce776b007e18c057f3e1cde5172b93b922"
+  ],
+  "viewports": [
+    "1440x900",
+    "390x844"
+  ],
+  "routes_reviewed": 12,
+  "screenshots": [
+    "desktop-1440-licenses-li-b-26a4a7c9-2325-4ef7-a2ee-a83a366d4146-route.png",
+    "desktop-1440-licenses-li-b-26a4a7c9-2325-4ef7-a2ee-a83a366d4146-review.png",
+    "desktop-1440-licenses-yt-a-1f3cec8c-afcb-4551-90fa-b8d4f9dabe2f-route.png",
+    "desktop-1440-licenses-yt-a-1f3cec8c-afcb-4551-90fa-b8d4f9dabe2f-review.png",
+    "desktop-1440-pm-os-li-b-6b499ed2-edcb-4782-98c8-d59be644df50-route.png",
+    "desktop-1440-pm-os-li-b-6b499ed2-edcb-4782-98c8-d59be644df50-review.png",
+    "desktop-1440-pm-os-yt-b-e06ab168-56aa-45f5-9672-619215df3ce7-route.png",
+    "desktop-1440-pm-os-yt-b-e06ab168-56aa-45f5-9672-619215df3ce7-review.png",
+    "desktop-1440-harness-li-b-03f9e0ed-3fee-4d5b-815c-602b6e0e917b-route.png",
+    "desktop-1440-harness-li-b-03f9e0ed-3fee-4d5b-815c-602b6e0e917b-review.png",
+    "desktop-1440-harness-yt-b-2d96e662-5e7e-4761-8a87-85128e20a559-route.png",
+    "desktop-1440-harness-yt-b-2d96e662-5e7e-4761-8a87-85128e20a559-review.png",
+    "mobile-390-licenses-li-b-26a4a7c9-2325-4ef7-a2ee-a83a366d4146-route.png",
+    "mobile-390-licenses-li-b-26a4a7c9-2325-4ef7-a2ee-a83a366d4146-review.png",
+    "mobile-390-licenses-yt-a-1f3cec8c-afcb-4551-90fa-b8d4f9dabe2f-route.png",
+    "mobile-390-licenses-yt-a-1f3cec8c-afcb-4551-90fa-b8d4f9dabe2f-review.png",
+    "mobile-390-pm-os-li-b-6b499ed2-edcb-4782-98c8-d59be644df50-route.png",
+    "mobile-390-pm-os-li-b-6b499ed2-edcb-4782-98c8-d59be644df50-review.png",
+    "mobile-390-pm-os-yt-b-e06ab168-56aa-45f5-9672-619215df3ce7-route.png",
+    "mobile-390-pm-os-yt-b-e06ab168-56aa-45f5-9672-619215df3ce7-review.png",
+    "mobile-390-harness-li-b-03f9e0ed-3fee-4d5b-815c-602b6e0e917b-route.png",
+    "mobile-390-harness-li-b-03f9e0ed-3fee-4d5b-815c-602b6e0e917b-review.png",
+    "mobile-390-harness-yt-b-2d96e662-5e7e-4761-8a87-85128e20a559-route.png",
+    "mobile-390-harness-yt-b-2d96e662-5e7e-4761-8a87-85128e20a559-review.png"
+  ],
+  "assertions": [
+    "title",
+    "description",
+    "opening hook",
+    "episode outline",
+    "thumbnail brief",
+    "evidence lineage",
+    "product-proof requirements",
+    "Unscored state",
+    "no LinkedIn preview guidance",
+    "no generic copy approval gate",
+    "no draft mutation actions",
+    "ordinary LinkedIn preview and copy guidance preserved for LinkedIn controls",
+    "specialized YouTube review withheld from LinkedIn controls",
+    "channel-specific read-only notice"
+  ],
+  "side_effects": {
+    "production_social_content_reads": false,
+    "production_writes": false,
+    "provider_calls": false,
+    "rendering": false,
+    "upload": false,
+    "platform_draft": false,
+    "schedule": false,
+    "publish": false,
+    "external_send": false
+  },
+  "network": {
+    "unexpected_external_requests": 0,
+    "allowed_auth_requests": 14,
+    "blocked_expected_analytics_requests": 0
+  },
+  "mp4": "artifacts/human-qa/channel-experiment-social-detail-2026-10-16/channel-experiment-social-detail-walkthrough.mp4",
+  "mp4_sha256": "9bef96467789fc46c06d60f4ad330e912330d36539782ae20269205dbdd56c37",
+  "probe": {
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "width": 1440,
+        "height": 900,
+        "avg_frame_rate": "25/1",
+        "nb_frames": "691"
+      }
+    ],
+    "format": {
+      "duration": "27.640000",
+      "size": "2753776"
+    }
+  }
+}

@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { ExternalLink, FlaskConical, ShieldCheck } from 'lucide-react'
 import {
   channelExperimentReviewForPacket,
+  channelExperimentSocialContentHref,
   type ExperimentChannel,
   type LinkedInExperiment,
   type YouTubeExperiment,
@@ -52,7 +53,8 @@ function LinkedInVariant({ variant }: { variant: LinkedInExperiment }) {
   </div>
 }
 
-function YouTubeVariant({ variant }: { variant: YouTubeExperiment }) {
+function YouTubeVariant({ variant, revision }: { variant: YouTubeExperiment; revision?: string }) {
+  const socialContentHref = channelExperimentSocialContentHref(variant.id, revision)
   return <div className="space-y-4" data-testid={`experiment-${variant.id}`}>
     <div>
       <p className="text-xs font-semibold uppercase tracking-[0.16em] text-red-700 dark:text-red-200">Test hypothesis</p>
@@ -81,10 +83,16 @@ function YouTubeVariant({ variant }: { variant: YouTubeExperiment }) {
         {variant.visualEvidence.map(item => <li key={item}>• {item}</li>)}
       </ul>
     </div>
+    {socialContentHref ? <a
+      href={socialContentHref}
+      className="inline-flex min-h-11 items-center justify-center rounded-lg border border-red-500/35 bg-red-500/10 px-3 py-2 text-sm font-semibold text-red-800 transition-colors hover:bg-red-500/15 dark:text-red-100"
+    >
+      Open YouTube Social Content review
+    </a> : null}
   </div>
 }
 
-export default function ChannelExperimentReview({ packetId, defaultOpen = false }: { packetId: string; defaultOpen?: boolean }) {
+export default function ChannelExperimentReview({ packetId, defaultOpen = false, revision }: { packetId: string; defaultOpen?: boolean; revision?: string }) {
   const review = channelExperimentReviewForPacket(packetId)
   const [open, setOpen] = useState(defaultOpen)
   const [channel, setChannel] = useState<ExperimentChannel>('linkedin')
@@ -187,7 +195,7 @@ export default function ChannelExperimentReview({ packetId, defaultOpen = false 
 
           {channel === 'linkedin'
             ? <LinkedInVariant variant={variant as LinkedInExperiment} />
-            : <YouTubeVariant variant={variant as YouTubeExperiment} />}
+            : <YouTubeVariant variant={variant as YouTubeExperiment} revision={revision} />}
         </div>
       </div>
     </div> : null}

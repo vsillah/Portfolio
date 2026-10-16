@@ -45,6 +45,27 @@ export type YouTubeExperiment = {
   visualEvidence: string[]
 }
 
+export type YouTubeExperimentReviewRecord = {
+  review: ChannelExperimentReview
+  variant: YouTubeExperiment
+}
+
+export const CHANNEL_EXPERIMENT_SOCIAL_CONTENT_RECORDS = [
+  { id: '26a4a7c9-2325-4ef7-a2ee-a83a366d4146', packetId: '407df879-a539-40a1-a20e-75de31b9c494', channel: 'linkedin', variantId: 'licenses-li-b' },
+  { id: '1f3cec8c-afcb-4551-90fa-b8d4f9dabe2f', packetId: '407df879-a539-40a1-a20e-75de31b9c494', channel: 'youtube', variantId: 'licenses-yt-a' },
+  { id: '6b499ed2-edcb-4782-98c8-d59be644df50', packetId: '61d0ab8a-29fa-40de-aa7a-49b15c74cafa', channel: 'linkedin', variantId: 'pm-os-li-b' },
+  { id: 'e06ab168-56aa-45f5-9672-619215df3ce7', packetId: '61d0ab8a-29fa-40de-aa7a-49b15c74cafa', channel: 'youtube', variantId: 'pm-os-yt-b' },
+  { id: '03f9e0ed-3fee-4d5b-815c-602b6e0e917b', packetId: '048a80bb-bcfa-48d7-9d90-ce66d36f4523', channel: 'linkedin', variantId: 'harness-li-b' },
+  { id: '2d96e662-5e7e-4761-8a87-85128e20a559', packetId: '048a80bb-bcfa-48d7-9d90-ce66d36f4523', channel: 'youtube', variantId: 'harness-yt-b' },
+] as const satisfies ReadonlyArray<{
+  id: string
+  packetId: ChannelExperimentPacketId
+  channel: ExperimentChannel
+  variantId: string
+}>
+
+export type ChannelExperimentSocialContentRecord = (typeof CHANNEL_EXPERIMENT_SOCIAL_CONTENT_RECORDS)[number]
+
 export type ChannelExperimentReview = {
   packetId: ChannelExperimentPacketId
   campaignTitle: string
@@ -360,4 +381,38 @@ export const CHANNEL_EXPERIMENT_REVIEWS: Record<ChannelExperimentPacketId, Chann
 
 export function channelExperimentReviewForPacket(packetId: string): ChannelExperimentReview | null {
   return CHANNEL_EXPERIMENT_REVIEWS[packetId as ChannelExperimentPacketId] ?? null
+}
+
+export const CHANNEL_EXPERIMENT_SOCIAL_CONTENT_RECORD_IDS = CHANNEL_EXPERIMENT_SOCIAL_CONTENT_RECORDS.map(record => record.id)
+export const CHANNEL_EXPERIMENT_LINKEDIN_RECORD_IDS = CHANNEL_EXPERIMENT_SOCIAL_CONTENT_RECORDS
+  .filter(record => record.channel === 'linkedin')
+  .map(record => record.id)
+export const CHANNEL_EXPERIMENT_YOUTUBE_RECORD_IDS = CHANNEL_EXPERIMENT_SOCIAL_CONTENT_RECORDS
+  .filter(record => record.channel === 'youtube')
+  .map(record => record.id)
+
+export function channelExperimentSocialContentRecord(id: string): ChannelExperimentSocialContentRecord | null {
+  return CHANNEL_EXPERIMENT_SOCIAL_CONTENT_RECORDS.find(record => record.id === id) ?? null
+}
+
+export function channelExperimentReviewForSocialContentId(id: string): YouTubeExperimentReviewRecord | null {
+  const record = channelExperimentSocialContentRecord(id)
+  if (!record || record.channel !== 'youtube') return null
+  const review = CHANNEL_EXPERIMENT_REVIEWS[record.packetId]
+  const variant = review.youtube.find(candidate => candidate.id === record.variantId)
+  return variant ? { review, variant } : null
+}
+
+export function channelExperimentSocialContentHref(idOrVariantId: string, revision?: string): string | null {
+  const record = CHANNEL_EXPERIMENT_SOCIAL_CONTENT_RECORDS.find(candidate => (
+    candidate.channel === 'youtube'
+    && (candidate.id === idOrVariantId || candidate.variantId === idOrVariantId)
+  ))
+  if (!record) return null
+  const params = new URLSearchParams({
+    step: 'copy',
+    qa_fixture: 'channel_experiment_social_detail_v1',
+  })
+  if (revision) params.set('rev', revision)
+  return `/admin/social-content/${encodeURIComponent(record.id)}?${params.toString()}`
 }
