@@ -1,6 +1,6 @@
 {
-  "revision": "0ed13344",
-  "route": "http://127.0.0.1:3107/admin/agents/content-intelligence?section=research&packet=407df879-a539-40a1-a20e-75de31b9c494&qa_fixture=channel_experiments_v1&rev=0ed13344",
+  "revision": "51e21480",
+  "route": "http://127.0.0.1:3107/admin/agents/content-intelligence?section=research&packet=407df879-a539-40a1-a20e-75de31b9c494&qa_fixture=channel_experiments_v1&rev=51e21480",
   "packet_ids": [
     "407df879-a539-40a1-a20e-75de31b9c494",
     "61d0ab8a-29fa-40de-aa7a-49b15c74cafa",
@@ -15,7 +15,9 @@
     "light"
   ],
   "interactions": [
+    "fresh direct entry",
     "campaign navigation",
+    "browser back and forward",
     "LinkedIn variant A",
     "YouTube channel switch",
     "YouTube variant B"
@@ -43,13 +45,13 @@
   },
   "network": {
     "completed_external_requests": 0,
-    "blocked_expected_analytics_requests": 4,
+    "blocked_expected_analytics_requests": 2,
     "blocked_expected_hosts": [
       "va.vercel-scripts.com"
     ]
   },
   "mp4": "artifacts/human-qa/channel-experiments-2026-10-16/channel-experiment-review-walkthrough.mp4",
-  "mp4_sha256": "4d3574b5cbbc75d78e8d9d38fd50339889197aa355534ea313995135562775f9",
+  "mp4_sha256": "de7df427c01d44a952d3f6ef99a3386eb497feeb44f7f2ebaf9916db4fea16ae",
   "probe": {
     "programs": [],
     "stream_groups": [],
@@ -59,12 +61,12 @@
         "width": 1440,
         "height": 900,
         "avg_frame_rate": "25/1",
-        "nb_frames": "205"
+        "nb_frames": "188"
       }
     ],
     "format": {
-      "duration": "8.200000",
-      "size": "1184699"
+      "duration": "7.520000",
+      "size": "1382301"
     }
   }
 }

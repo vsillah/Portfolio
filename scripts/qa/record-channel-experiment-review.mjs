@@ -69,6 +69,12 @@ async function recordScenario(browser, { label, viewport }) {
   for (const [index, packet] of packets.entries()) {
     if (index === 0) await openPacket(page, packet)
     else await navigateToPacket(page, packet)
+    if (index === 1) {
+      await page.goBack({ waitUntil: 'domcontentloaded' })
+      await page.getByRole('region', { name: `Channel experiments for ${packets[0].title}` }).waitFor({ state: 'visible' })
+      await page.goForward({ waitUntil: 'domcontentloaded' })
+      await page.getByRole('region', { name: `Channel experiments for ${packet.title}` }).waitFor({ state: 'visible' })
+    }
     if (index === 0) await page.screenshot({ path: path.join(outputDir, `${label}-linkedin-dark.png`), fullPage: false })
     await page.getByRole('button', { name: 'youtube', exact: true }).click()
     await page.getByRole('button', { name: /Variant B/ }).click()
@@ -155,7 +161,7 @@ const receipt = {
   packet_ids: packets.map(packet => packet.id),
   viewports: ['1440x900', '390x844'],
   themes: ['dark', 'light'],
-  interactions: ['campaign navigation', 'LinkedIn variant A', 'YouTube channel switch', 'YouTube variant B'],
+  interactions: ['fresh direct entry', 'campaign navigation', 'browser back and forward', 'LinkedIn variant A', 'YouTube channel switch', 'YouTube variant B'],
   screenshots,
   side_effects: {
     production_reads: false,
