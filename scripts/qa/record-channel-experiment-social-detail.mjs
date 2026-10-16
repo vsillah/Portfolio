@@ -198,7 +198,7 @@ for (const receipt of [...desktop.routeReceipts, ...mobile.routeReceipts]) {
 const receipt = {
   revision,
   fixture: persistedMode ? null : 'channel_experiment_social_detail_v1',
-  source_mode: persistedMode ? 'persisted_production_row_read_only' : 'synthetic_read_only_fixture',
+  source_mode: persistedMode ? 'persisted_production_row_via_read_only_localhost_proxy' : 'synthetic_read_only_fixture',
   record_ids: records.map(record => record.id),
   record_variants: records.map(record => ({ id: record.id, variant: record.variant, channel: record.channel })),
   exact_routes: desktop.routeReceipts.map(item => item.url),
