@@ -1203,7 +1203,7 @@ describe('ContentIntelligencePage', () => {
     expect(screen.getByRole('tab', { name: 'Evidence logic' })).toBeVisible()
     expect(screen.getAllByText('Public evidence snapshot')).toHaveLength(3)
     expect(screen.getAllByRole('link', { name: 'Open exact source' })).toHaveLength(3)
-    expect(screen.getByText(/youtube.com\/watch\?v=KjYCEiBTHFo/)).toBeVisible()
+    expect(screen.getAllByText(/youtube.com\/watch\?v=KjYCEiBTHFo/)[0]).toBeVisible()
     expect(screen.getByAltText(/Thumbnail from AI Product Management/)).toBeVisible()
   })
 

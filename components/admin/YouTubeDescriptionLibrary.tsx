@@ -210,6 +210,7 @@ export default function YouTubeDescriptionLibrary({
                           {sample.publicSnapshot ? <span className="rounded-full border border-cyan-500/40 bg-cyan-500/10 px-2 py-0.5 text-xs font-semibold text-cyan-800 dark:text-cyan-200">Public evidence snapshot</span> : null}
                         </div>
                         <p className="mt-1 text-xs text-muted-foreground">{sample.creator} · Outlier {sample.outlierScore ?? 'Missing'} · {sample.reason}</p>
+                        <p className="mt-1 break-all font-mono text-xs text-muted-foreground">{sample.sourceUrl || 'YouTube URL missing'}</p>
                       </div>
                       {sample.sourceUrl ? (
                         <a href={sample.sourceUrl} target="_blank" rel="noreferrer" className="inline-flex min-h-11 shrink-0 items-center gap-2 self-start rounded-md border border-input px-3 py-2 text-sm font-medium text-foreground hover:bg-accent">
