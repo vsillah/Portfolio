@@ -186,6 +186,20 @@ export async function GET(
       })
     }
 
+    if (
+      process.env.NODE_ENV !== 'production'
+      && request.nextUrl.searchParams.get('qa_fixture') === 'channel_native_video_v2'
+      && isChannelNativeVideoQaFixtureId(id)
+    ) {
+      const videoPackageState = request.nextUrl.searchParams.get('video_package_state') === 'blocked' ? 'blocked' : 'ready'
+      return NextResponse.json({
+        item: channelNativeVideoQaFixture(id, videoPackageState),
+        fixture: true,
+        fixture_state: videoPackageState === 'blocked' ? 'repository_bound_review_blocked' : 'repository_bound_review',
+        integration_note: 'Development-only privacy-safe fixture. It does not read or write production data, call providers, upload media, create platform drafts, schedule, publish, send externally, change credentials, or spend money.',
+      })
+    }
+
     const authResult = await verifyAdmin(request)
     if (isAuthError(authResult)) {
       return NextResponse.json({ error: authResult.error }, { status: authResult.status })

@@ -54,6 +54,7 @@ import SocialVideoProductionControls from '@/components/admin/SocialVideoProduct
 import ArtifactEvidenceTrace from '@/components/admin/ArtifactEvidenceTrace'
 import OutlierEvidenceScorecard from '@/components/admin/OutlierEvidenceScorecard'
 import type { SocialVideoReviewPackage } from '@/lib/social-video-review-package'
+import type { HeyGenLongFormProductionRecipe } from '@/lib/heygen-long-form-production-recipe'
 import { getCurrentSession } from '@/lib/auth'
 import {
   STATUS_CONFIG,
@@ -761,6 +762,7 @@ function SocialContentDetailPage() {
   const rawRecoveryStep = searchParams.get('step')
   const deterministicVisualQaState = searchParams.get('qa_state')
   const channelNativeQaFixture = searchParams.get('qa_fixture') === 'channel_native_video_v2'
+  const readOnlyLocalChannelVideoQaFixture = process.env.NODE_ENV !== 'production' && channelNativeQaFixture
   const channelExperimentQaFixture = searchParams.get('qa_fixture') === CHANNEL_EXPERIMENT_SOCIAL_DETAIL_FIXTURE
   const youtubeDescriptionCompletionQaFixture = searchParams.get('qa_fixture') === YOUTUBE_DESCRIPTION_COMPLETION_FIXTURE
   const readOnlyYouTubeQaFixture = channelExperimentQaFixture || youtubeDescriptionCompletionQaFixture
@@ -1027,8 +1029,8 @@ function SocialContentDetailPage() {
       setLoadError(null)
     }
     try {
-      const session = youtubeDescriptionCompletionQaFixture ? null : await getCurrentSession()
-      if (!session && !youtubeDescriptionCompletionQaFixture) {
+      const session = youtubeDescriptionCompletionQaFixture || readOnlyLocalChannelVideoQaFixture ? null : await getCurrentSession()
+      if (!session && !youtubeDescriptionCompletionQaFixture && !readOnlyLocalChannelVideoQaFixture) {
         setLoadError('Admin session is unavailable for this social content detail.')
         if (!options.silent) setItem(null)
         return
@@ -1115,7 +1117,7 @@ function SocialContentDetailPage() {
     } finally {
       if (!options.silent) setLoading(false)
     }
-  }, [channelExperimentQaFixture, channelNativeQaFixture, deterministicVisualQaState, fetchCommentInboxItems, fetchReviewQueue, id, videoPackageQaState, youtubeDescriptionCompletionQaFixture])
+  }, [channelExperimentQaFixture, channelNativeQaFixture, deterministicVisualQaState, fetchCommentInboxItems, fetchReviewQueue, id, readOnlyLocalChannelVideoQaFixture, videoPackageQaState, youtubeDescriptionCompletionQaFixture])
 
   useEffect(() => {
     fetchItem()
@@ -2979,6 +2981,7 @@ function SocialContentDetailPage() {
   const channelVideoPacket = getChannelVideoPacket(item)
   const channelExperimentReview = getChannelExperimentSocialReview(item)
   const socialVideoReviewPackage = asRecord(ragContext?.social_video_review_package) as SocialVideoReviewPackage | null
+  const heygenLongFormRecipe = asRecord(ragContext?.heygen_long_form_production_recipe) as HeyGenLongFormProductionRecipe | null
   const socialVideoReviewSourceReceiptIds = asStringArray(ragContext?.social_video_review_source_receipt_ids)
   const socialVideoReviewRightsReceiptIds = asStringArray(ragContext?.social_video_review_rights_receipt_ids)
   const copyFieldLabel = channelExperimentReview ? 'YouTube Experiment Outline' : channelVideoPacket ? 'Video Script' : 'Post Text'
@@ -7613,6 +7616,8 @@ function SocialContentDetailPage() {
             reviewPackage={socialVideoReviewPackage}
             approvedSourceReceiptIds={socialVideoReviewSourceReceiptIds}
             approvedRightsReceiptIds={socialVideoReviewRightsReceiptIds}
+            longFormRecipe={heygenLongFormRecipe}
+            expectedContentVersion={item.updated_at}
           />
         </div>
       )}
@@ -7622,10 +7627,10 @@ function SocialContentDetailPage() {
 
 function SocialContentDetailAccessGate() {
   const searchParams = useSearchParams()
-  const readOnlyDescriptionQa = process.env.NODE_ENV !== 'production'
-    && searchParams.get('qa_fixture') === YOUTUBE_DESCRIPTION_COMPLETION_FIXTURE
+  const readOnlyQaFixture = process.env.NODE_ENV !== 'production'
+    && [YOUTUBE_DESCRIPTION_COMPLETION_FIXTURE, 'channel_native_video_v2'].includes(searchParams.get('qa_fixture') ?? '')
 
-  if (readOnlyDescriptionQa) return <SocialContentDetailPage />
+  if (readOnlyQaFixture) return <SocialContentDetailPage />
 
   return (
     <ProtectedRoute requireAdmin>
