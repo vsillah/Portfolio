@@ -38,10 +38,19 @@ async function capture(browser, label, viewport, colorScheme) {
   const screenshot = join(outputDir, `${label}.png`)
   await page.screenshot({ path: screenshot, fullPage: false })
 
-  await selectTab(page, 'Excluded (1)')
+  await page.getByText('Inspect evidence and decision logic').first().click()
+  await page.getByText(/Captured description evidence/).waitFor({ state: 'visible' })
+  await page.waitForTimeout(900)
+  await page.getByRole('button', { name: 'Next sample page' }).click()
+  await page.getByText('No customer-facing YouTube description was captured.').waitFor({ state: 'visible' })
+  await page.waitForTimeout(900)
+  await page.getByRole('button', { name: 'Previous sample page' }).click()
   await page.getByText('Outlier score 42 is below the 65 threshold.').waitFor({ state: 'visible' })
   await page.waitForTimeout(900)
-  await selectTab(page, 'Structure')
+  await selectTab(page, 'Evidence logic')
+  await page.getByText(/matched topic-token ratio × 0.65/).waitFor({ state: 'visible' })
+  await page.waitForTimeout(1100)
+  await selectTab(page, 'Applied structure')
   await page.getByText(/first-party product example or screenshot/).waitFor({ state: 'visible' })
   await page.waitForTimeout(1100)
   await page.getByLabel('Topic to compare').fill('unmatched topic')
@@ -49,7 +58,7 @@ async function capture(browser, label, viewport, colorScheme) {
   await page.waitForTimeout(1000)
   await page.getByLabel('Topic to compare').fill('AI licenses')
   await page.getByText('Ready', { exact: true }).waitFor({ state: 'visible' })
-  await selectTab(page, 'Qualifying sources (3)')
+  await selectTab(page, 'Sample ledger (5)')
   await page.waitForTimeout(900)
 
   if (writes.length) throw new Error(`QA caused an unexpected write request: ${writes.join(' | ')}`)
@@ -77,7 +86,7 @@ async function main() {
       route,
       product_writes: 0,
       viewports: [{ width: 1280, height: 800, theme: 'dark' }, { width: 390, height: 844, theme: 'light' }],
-      verified: ['qualifying sources', 'exact source links', 'exclusion reasons', 'applied aggregate structure', 'unscored fail-closed state', 'responsive light and dark presentation'],
+      verified: ['complete sample ledger', 'captured description evidence', 'sample pagination', 'exclusion reasons', 'exact gate order and ranking formula', 'applied aggregate structure', 'unscored fail-closed state', 'responsive light and dark presentation'],
       screenshots: [basename(desktop.screenshot), basename(mobile.screenshot)],
       output: basename(output),
     }, null, 2) + '\n')

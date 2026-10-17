@@ -1,10 +1,12 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { AlertTriangle, CheckCircle2, ExternalLink, Search, Youtube } from 'lucide-react'
+import { AlertTriangle, CheckCircle2, ChevronLeft, ChevronRight, ExternalLink, Search, Youtube } from 'lucide-react'
 import { buildYouTubeOutlierDescriptionLibrary } from '@/lib/youtube-outlier-description-library'
 
-type View = 'sources' | 'excluded' | 'structure'
+type View = 'samples' | 'structure' | 'logic'
+
+const SAMPLE_PAGE_SIZE = 4
 
 function value(value: unknown) {
   return typeof value === 'string' ? value.trim() : ''
@@ -12,6 +14,21 @@ function value(value: unknown) {
 
 function data(value: unknown): Record<string, unknown> {
   return value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : {}
+}
+
+function numberValue(value: unknown) {
+  if (typeof value === 'number' && Number.isFinite(value)) return value
+  if (typeof value === 'string' && value.trim() && Number.isFinite(Number(value))) return Number(value)
+  return null
+}
+
+function strings(value: unknown) {
+  return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string' && Boolean(item.trim())) : []
+}
+
+function formatDate(valueToFormat: unknown) {
+  const parsed = Date.parse(value(valueToFormat))
+  return Number.isFinite(parsed) ? new Intl.DateTimeFormat('en-US', { dateStyle: 'medium' }).format(parsed) : 'Missing'
 }
 
 export default function YouTubeDescriptionLibrary({
@@ -24,7 +41,8 @@ export default function YouTubeDescriptionLibrary({
   generatedAt: string
 }) {
   const [topic, setTopic] = useState(initialTopic)
-  const [view, setView] = useState<View>('sources')
+  const [view, setView] = useState<View>('samples')
+  const [samplePage, setSamplePage] = useState(1)
   const youtubePackets = useMemo(() => researchPackets.filter((packet) => {
     const platform = value(data(packet).platform)
     return platform === 'youtube' || platform === 'youtube_shorts'
@@ -44,11 +62,52 @@ export default function YouTubeDescriptionLibrary({
     generatedAt,
   }), [generatedAt, researchPackets, topic])
 
+  const sampleRows = useMemo(() => {
+    const includedById = new Map(receipt.sources.map((source) => [source.source_id, source]))
+    const excludedById = new Map(receipt.excluded_sources.map((source) => [source.source_id, source]))
+    return youtubePackets.map((packet) => {
+      const item = data(packet)
+      const id = value(item.id) || value(item.source_url) || value(item.title)
+      const included = includedById.get(id)
+      const excluded = excludedById.get(id)
+      const metrics = data(item.metrics)
+      const metadata = data(item.actor_metadata)
+      const scoreBreakdown = data(item.score_breakdown)
+      const topics = [
+        ...strings(item.topics),
+        ...strings(metadata.topics),
+        ...strings(metadata.topic_ids),
+        ...strings(metadata.entity_identities),
+      ]
+      return {
+        id,
+        title: value(item.title) || 'Untitled YouTube source',
+        creator: value(item.creator_name) || value(item.creator_handle) || 'Unknown creator',
+        sourceUrl: value(item.source_url),
+        description: value(item.caption) || value(data(item.pattern_packet).description),
+        outlierScore: numberValue(item.outlier_score),
+        patternStatus: value(item.pattern_status) || 'Missing',
+        packetStatus: value(item.status) || 'Missing',
+        publishedAt: value(metrics.published_at) || value(item.published_at),
+        retrievedAt: value(item.retrieved_at),
+        audienceSize: numberValue(metrics.follower_count) ?? numberValue(metrics.subscriber_count),
+        topics: [...new Set(topics)],
+        included,
+        reason: excluded?.reason ?? (included ? 'Cleared every gate and was selected for the comparison cohort.' : 'Qualified but fell outside the ranked cohort limit.'),
+        fixture: metadata.qa_fixture === true,
+        scoreBreakdown,
+      }
+    })
+  }, [receipt, youtubePackets])
+  const pageCount = Math.max(1, Math.ceil(sampleRows.length / SAMPLE_PAGE_SIZE))
+  const safeSamplePage = Math.min(samplePage, pageCount)
+  const visibleSamples = sampleRows.slice((safeSamplePage - 1) * SAMPLE_PAGE_SIZE, safeSamplePage * SAMPLE_PAGE_SIZE)
+
   const metrics = [
-    { label: 'YouTube sources', value: youtubePackets.length, target: 'sources' as const },
-    { label: 'Approved descriptions', value: approvedDescriptions, target: 'sources' as const },
-    { label: 'Outlier score 65+', value: scoredDescriptions, target: 'sources' as const },
-    { label: 'Excluded', value: receipt.excluded_sources.length, target: 'excluded' as const },
+    { label: 'All samples', value: youtubePackets.length, target: 'samples' as const },
+    { label: 'Approved descriptions', value: approvedDescriptions, target: 'samples' as const },
+    { label: 'Outlier score 65+', value: scoredDescriptions, target: 'samples' as const },
+    { label: 'Included in cohort', value: receipt.sources.length, target: 'samples' as const },
   ]
 
   return (
@@ -86,7 +145,7 @@ export default function YouTubeDescriptionLibrary({
           <button
             key={metric.label}
             type="button"
-            onClick={() => setView(metric.target)}
+              onClick={() => { setView(metric.target); setSamplePage(1) }}
             className="min-h-20 border-b border-r border-silicon-slate/60 p-3 text-left transition-colors hover:bg-accent/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring lg:border-b-0"
             aria-label={`${metric.label}: ${metric.value}. Show ${metric.target}.`}
           >
@@ -104,7 +163,7 @@ export default function YouTubeDescriptionLibrary({
       ) : (
         <>
           <div className="flex gap-1 overflow-x-auto border-b border-silicon-slate/60 p-2" role="tablist" aria-label="YouTube description library views">
-            {(['sources', 'excluded', 'structure'] as const).map((item) => (
+            {(['samples', 'structure', 'logic'] as const).map((item) => (
               <button
                 key={item}
                 type="button"
@@ -113,43 +172,75 @@ export default function YouTubeDescriptionLibrary({
                 onClick={() => setView(item)}
                 className={`whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium ${view === item ? 'bg-radiant-gold text-slate-950' : 'text-muted-foreground hover:bg-accent hover:text-foreground'}`}
               >
-                {item === 'sources' ? `Qualifying sources (${receipt.sources.length})` : item === 'excluded' ? `Excluded (${receipt.excluded_sources.length})` : 'Structure'}
+                {item === 'samples' ? `Sample ledger (${sampleRows.length})` : item === 'structure' ? 'Applied structure' : 'Evidence logic'}
               </button>
             ))}
           </div>
 
-          {view === 'sources' ? (
-            <div className="divide-y divide-silicon-slate/60">
-              {receipt.sources.length ? receipt.sources.map((source) => (
-                <div key={source.source_id} className="flex flex-col gap-2 p-4 sm:flex-row sm:items-start sm:justify-between">
-                  <div className="min-w-0">
-                    <p className="font-medium text-foreground">{source.source_title}</p>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      Outlier {Math.round(source.outlier_score)} · topic match {Math.round(source.topic_match_score * 100)}% · {source.pattern.opening_style} opening · {source.pattern.proof_style.replace(/_/g, ' ')}
-                    </p>
-                    <p className="mt-1 text-xs text-muted-foreground">Matched: {source.topic_matches.join(', ')}</p>
+          {view === 'samples' ? (
+            <div>
+              <div className="border-b border-silicon-slate/60 bg-muted/25 px-4 py-3 text-xs text-muted-foreground">
+                This ledger shows every YouTube evidence input. Captured wording is inspection-only and is never copied into generated descriptions.
+              </div>
+              <div className="divide-y divide-silicon-slate/60">
+                {visibleSamples.map((sample) => (
+                  <article key={sample.id} className="p-4">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <p className="font-medium text-foreground">{sample.title}</p>
+                          <span className={`rounded-full border px-2 py-0.5 text-xs font-semibold ${sample.included ? 'border-emerald-500/45 bg-emerald-500/10 text-emerald-700 dark:text-emerald-200' : 'border-amber-500/45 bg-amber-500/10 text-amber-800 dark:text-amber-200'}`}>
+                            {sample.included ? 'Included' : 'Excluded'}
+                          </span>
+                          {sample.fixture ? <span className="rounded-full border border-cyan-500/40 bg-cyan-500/10 px-2 py-0.5 text-xs font-semibold text-cyan-800 dark:text-cyan-200">Synthetic QA sample</span> : null}
+                        </div>
+                        <p className="mt-1 text-xs text-muted-foreground">{sample.creator} · Outlier {sample.outlierScore ?? 'Missing'} · {sample.reason}</p>
+                      </div>
+                      {!sample.fixture && sample.sourceUrl ? (
+                        <a href={sample.sourceUrl} target="_blank" rel="noreferrer" className="inline-flex min-h-11 shrink-0 items-center gap-2 self-start rounded-md border border-input px-3 py-2 text-sm font-medium text-foreground hover:bg-accent">
+                          Open exact source <ExternalLink className="h-4 w-4" aria-hidden="true" />
+                        </a>
+                      ) : null}
+                    </div>
+                    <details className="mt-3 rounded-md border border-border bg-card/45">
+                      <summary className="cursor-pointer px-3 py-3 text-sm font-semibold text-foreground">Inspect evidence and decision logic</summary>
+                      <div className="grid gap-4 border-t border-border p-3 lg:grid-cols-2">
+                        <div>
+                          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Captured description evidence</p>
+                          <p className="mt-2 whitespace-pre-line text-sm leading-6 text-foreground">{sample.description || 'No customer-facing description was captured.'}</p>
+                        </div>
+                        <dl className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] gap-x-3 gap-y-2 text-sm">
+                          <dt className="text-muted-foreground">Pattern approval</dt><dd className="break-words text-foreground">{sample.patternStatus}</dd>
+                          <dt className="text-muted-foreground">Packet status</dt><dd className="break-words text-foreground">{sample.packetStatus}</dd>
+                          <dt className="text-muted-foreground">Published</dt><dd className="text-foreground">{formatDate(sample.publishedAt)}</dd>
+                          <dt className="text-muted-foreground">Retrieved</dt><dd className="text-foreground">{formatDate(sample.retrievedAt)}</dd>
+                          <dt className="text-muted-foreground">Audience size</dt><dd className="text-foreground">{sample.audienceSize?.toLocaleString() ?? 'Missing'}</dd>
+                          <dt className="text-muted-foreground">Recorded topics</dt><dd className="break-words text-foreground">{sample.topics.length ? sample.topics.join(', ') : 'Derived from title and pattern fields'}</dd>
+                          <dt className="text-muted-foreground">Matched topic tokens</dt><dd className="break-words text-foreground">{sample.included?.topic_matches.join(', ') || 'None recorded for an included cohort source'}</dd>
+                          <dt className="text-muted-foreground">Description fingerprint</dt><dd className="break-all font-mono text-xs text-foreground">{sample.included?.description_fingerprint ?? 'Not generated for excluded input'}</dd>
+                          <dt className="text-muted-foreground">Topic-match score</dt><dd className="text-foreground">{sample.included ? `${Math.round(sample.included.topic_match_score * 100)}%` : 'Not scored after failed gate'}</dd>
+                          <dt className="text-muted-foreground">Score model</dt><dd className="break-words text-foreground">{value(sample.scoreBreakdown.model) || 'No model label recorded'}</dd>
+                        </dl>
+                        {sample.included ? (
+                          <div className="rounded-md border border-border bg-background/60 p-3 text-sm lg:col-span-2">
+                            <p className="font-semibold text-foreground">Extracted structure</p>
+                            <p className="mt-1 text-muted-foreground">{sample.included.pattern.opening_style} opening · {sample.included.pattern.length_band} length · {sample.included.pattern.paragraph_count} paragraphs · {sample.included.pattern.proof_style.replace(/_/g, ' ')} · {sample.included.pattern.cta_style} CTA · {sample.included.pattern.link_placement} link · {sample.included.pattern.uses_chapters ? 'chapters present' : 'no chapters'} · {sample.included.pattern.hashtag_count} hashtags</p>
+                          </div>
+                        ) : null}
+                      </div>
+                    </details>
+                  </article>
+                ))}
+              </div>
+              {sampleRows.length > SAMPLE_PAGE_SIZE ? (
+                <div className="flex items-center justify-between gap-3 border-t border-silicon-slate/60 p-3">
+                  <p className="text-xs text-muted-foreground">Page {safeSamplePage} of {pageCount} · four records per page</p>
+                  <div className="flex gap-2">
+                    <button type="button" aria-label="Previous sample page" disabled={safeSamplePage === 1} onClick={() => setSamplePage((page) => Math.max(1, page - 1))} className="inline-flex min-h-11 items-center gap-1 rounded-md border border-input px-3 text-sm font-medium text-foreground hover:bg-accent disabled:cursor-not-allowed disabled:opacity-45"><ChevronLeft className="h-4 w-4" aria-hidden="true" />Previous</button>
+                    <button type="button" aria-label="Next sample page" disabled={safeSamplePage === pageCount} onClick={() => setSamplePage((page) => Math.min(pageCount, page + 1))} className="inline-flex min-h-11 items-center gap-1 rounded-md border border-input px-3 text-sm font-medium text-foreground hover:bg-accent disabled:cursor-not-allowed disabled:opacity-45">Next<ChevronRight className="h-4 w-4" aria-hidden="true" /></button>
                   </div>
-                  <a href={source.source_url} target="_blank" rel="noreferrer" className="inline-flex min-h-11 shrink-0 items-center gap-2 self-start rounded-md border border-input px-3 py-2 text-sm font-medium text-foreground hover:bg-accent">
-                    Open source <ExternalLink className="h-4 w-4" aria-hidden="true" />
-                  </a>
                 </div>
-              )) : (
-                <div className="p-4 text-sm text-muted-foreground">No source currently clears every approval, freshness, score, topic, and attribution gate.</div>
-              )}
-            </div>
-          ) : null}
-
-          {view === 'excluded' ? (
-            <div className="divide-y divide-silicon-slate/60">
-              {receipt.excluded_sources.length ? receipt.excluded_sources.map((source) => (
-                <div key={source.source_id} className="flex flex-col gap-2 p-4 sm:flex-row sm:items-start sm:justify-between">
-                  <div>
-                    <p className="font-medium text-foreground">{source.source_title}</p>
-                    <p className="mt-1 text-sm text-muted-foreground">{source.reason}</p>
-                  </div>
-                  {source.source_url ? <a href={source.source_url} target="_blank" rel="noreferrer" className="inline-flex min-h-11 shrink-0 items-center gap-2 self-start rounded-md border border-input px-3 py-2 text-sm font-medium text-foreground hover:bg-accent">Inspect source <ExternalLink className="h-4 w-4" aria-hidden="true" /></a> : null}
-                </div>
-              )) : <div className="p-4 text-sm text-muted-foreground">No YouTube sources were excluded from this comparison.</div>}
+              ) : null}
             </div>
           ) : null}
 
@@ -168,6 +259,31 @@ export default function YouTubeDescriptionLibrary({
                 </div>
               )}
               <p className="mt-4 border-t border-silicon-slate/60 pt-3 text-xs text-muted-foreground">{receipt.originality_boundary}</p>
+            </div>
+          ) : null}
+
+          {view === 'logic' ? (
+            <div className="grid gap-4 p-4 lg:grid-cols-[1.2fr_1fr]">
+              <div>
+                <h4 className="font-semibold text-foreground">Gate order</h4>
+                <ol className="mt-3 space-y-2 text-sm text-foreground">
+                  {[
+                    'Keep only YouTube or YouTube Shorts packets.',
+                    'Require pattern_status usable_framework.',
+                    'Require an attributable HTTP source URL and captured customer-facing description.',
+                    `Require an outlier score of ${receipt.minimum_outlier_score} or higher.`,
+                    `Require a publication or retrieval date inside the ${receipt.freshness_days}-day window.`,
+                    'Require at least one stable topic-token match; apply the audience-size band when one is supplied.',
+                    `Rank the survivors and require at least ${receipt.minimum_source_count} independent samples before applying a structure.`,
+                  ].map((rule, index) => <li key={rule} className="flex gap-3"><span className="font-semibold text-radiant-gold">{index + 1}.</span><span>{rule}</span></li>)}
+                </ol>
+              </div>
+              <div className="rounded-md border border-border bg-card/60 p-4">
+                <h4 className="font-semibold text-foreground">Ranking formula</h4>
+                <p className="mt-2 font-mono text-xs leading-6 text-foreground">topic match = (matched topic-token ratio × 0.65) + (outlier score ÷ 100 × 0.35)</p>
+                <p className="mt-3 text-sm text-muted-foreground">A record that fails an earlier gate is excluded before this ranking formula runs. Missing or stale evidence remains Unscored.</p>
+                <p className="mt-3 border-t border-border pt-3 text-xs text-muted-foreground">{receipt.originality_boundary}</p>
+              </div>
             </div>
           ) : null}
         </>

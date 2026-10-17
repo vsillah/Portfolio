@@ -1197,9 +1197,12 @@ describe('ContentIntelligencePage', () => {
     expect(screen.getByText('test-commit')).toBeVisible()
     expect(screen.getByRole('heading', { name: 'YouTube description patterns' })).toBeVisible()
     expect(screen.getByText('Ready')).toBeVisible()
-    expect(screen.getByRole('button', { name: 'Approved descriptions: 4. Show sources.' })).toBeVisible()
-    expect(screen.getByRole('tab', { name: 'Qualifying sources (3)' })).toBeVisible()
-    expect(screen.getByRole('tab', { name: 'Excluded (1)' })).toBeVisible()
+    expect(screen.getByRole('button', { name: 'Approved descriptions: 4. Show samples.' })).toBeVisible()
+    expect(screen.getByRole('tab', { name: 'Sample ledger (5)' })).toBeVisible()
+    expect(screen.getByRole('tab', { name: 'Applied structure' })).toBeVisible()
+    expect(screen.getByRole('tab', { name: 'Evidence logic' })).toBeVisible()
+    expect(screen.getByRole('button', { name: 'Next sample page' })).toBeVisible()
+    expect(screen.getAllByText('Synthetic QA sample')).toHaveLength(4)
   })
 
   it('filters release calendar rows by content title and linked work item', async () => {

@@ -406,9 +406,10 @@ const YOUTUBE_DESCRIPTION_LIBRARY_FIXTURE = [
   ['library-b', 'Measure AI value before renewal', 87, 'Are AI licenses creating value?\n\nThe dashboard connects adoption to measurable outcomes.\n\nWhat would you measure first?'],
   ['library-c', 'The AI audit your team can run', 82, 'Build an evidence-backed AI audit.\n\nThis case study shows the calculator and its decision path.\n\nOpen the approved resource to compare your system.'],
   ['library-low', 'AI tool roundup', 42, 'A general list of tools without product evidence.'],
+  ['library-empty', 'AI description not captured', 79, ''],
 ].map(([id, title, score, caption]) => ({
   id,
-  source_url: `https://www.youtube.com/watch?v=${id}`,
+  source_url: `https://example.com/privacy-safe-youtube-fixture/${id}`,
   platform: 'youtube',
   creator_name: `Public source ${String(id).at(-1)?.toUpperCase()}`,
   title,
@@ -417,7 +418,7 @@ const YOUTUBE_DESCRIPTION_LIBRARY_FIXTURE = [
   pattern_status: 'usable_framework',
   retrieved_at: '2026-10-12T12:00:00.000Z',
   metrics: { published_at: '2026-10-10T12:00:00.000Z', follower_count: 42_000 },
-  actor_metadata: { topics: ['ai licenses', 'ai adoption', 'audit calculator'] },
+  actor_metadata: { topics: ['ai licenses', 'ai adoption', 'audit calculator'], qa_fixture: true },
 }))
 
 function initialActiveSection(): IntelligenceSection {
@@ -986,7 +987,7 @@ export default function ContentIntelligencePage({ searchParams }: ContentIntelli
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-700 dark:text-cyan-200">Privacy-safe local QA fixture</p>
             <h1 className="mt-2 text-2xl font-semibold">Research and Shaka insight queue</h1>
-            <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">The exact YouTube description-pattern workspace used on the existing Research surface. Public-safe fixtures demonstrate qualifying, excluded, and applied-structure states without production mutation.</p>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">The exact YouTube description-pattern workspace used on the existing Research surface. Clearly labeled synthetic samples demonstrate the complete ledger, exclusion logic, and applied structure without pretending to be real sources or mutating production.</p>
           </div>
           <div className="rounded-lg border border-border bg-card px-3 py-2 text-xs text-card-foreground">
             <p className="font-semibold">Commit-bound review</p>
