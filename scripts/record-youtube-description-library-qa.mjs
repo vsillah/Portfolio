@@ -12,6 +12,13 @@ const rawDir = join(outputDir, 'raw')
 rmSync(rawDir, { recursive: true, force: true })
 mkdirSync(rawDir, { recursive: true })
 
+async function selectTab(page, name) {
+  const tab = page.getByRole('tab', { name })
+  await tab.click()
+  if (await tab.getAttribute('aria-selected') !== 'true') await tab.click()
+  await page.locator(`[role="tab"][aria-selected="true"]`).getByText(name).waitFor({ state: 'visible' })
+}
+
 async function capture(browser, label, viewport, colorScheme) {
   const context = await browser.newContext({
     viewport,
@@ -31,10 +38,10 @@ async function capture(browser, label, viewport, colorScheme) {
   const screenshot = join(outputDir, `${label}.png`)
   await page.screenshot({ path: screenshot, fullPage: false })
 
-  await page.getByRole('tab', { name: 'Excluded (1)' }).click()
+  await selectTab(page, 'Excluded (1)')
   await page.getByText('Outlier score 42 is below the 65 threshold.').waitFor({ state: 'visible' })
   await page.waitForTimeout(900)
-  await page.getByRole('tab', { name: 'Structure' }).click()
+  await selectTab(page, 'Structure')
   await page.getByText(/first-party product example or screenshot/).waitFor({ state: 'visible' })
   await page.waitForTimeout(1100)
   await page.getByLabel('Topic to compare').fill('unmatched topic')
@@ -42,7 +49,7 @@ async function capture(browser, label, viewport, colorScheme) {
   await page.waitForTimeout(1000)
   await page.getByLabel('Topic to compare').fill('AI licenses')
   await page.getByText('Ready', { exact: true }).waitFor({ state: 'visible' })
-  await page.getByRole('tab', { name: 'Qualifying sources (3)' }).click()
+  await selectTab(page, 'Qualifying sources (3)')
   await page.waitForTimeout(900)
 
   if (writes.length) throw new Error(`QA caused an unexpected write request: ${writes.join(' | ')}`)
