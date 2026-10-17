@@ -13,6 +13,7 @@ import {
   type SocialChannelReviewDraftPacket,
 } from '@/lib/social-content-intelligence'
 import { validateSocialPublicCopyFields } from '@/lib/social-content-lifecycle'
+import { supabaseAdmin } from '@/lib/supabase'
 import {
   SOCIAL_VIDEO_ADAPTATION_SOURCE_METADATA_KEY,
   SocialVideoAdaptationError,
@@ -123,10 +124,22 @@ export async function POST(
 
     const now = new Date().toISOString()
     const lanes = normalizeSocialChannelLanes(metadata.channel_lanes)
+    const { data: youtubeDescriptionResearchPackets, error: youtubeDescriptionResearchError } = await supabaseAdmin
+      .from('social_content_research_packets')
+      .select('id, source_url, platform, creator_name, creator_handle, title, caption, metrics, actor_metadata, outlier_score, pattern_packet, pattern_status, retrieved_at')
+      .in('platform', ['youtube', 'youtube_shorts'])
+      .eq('pattern_status', 'usable_framework')
+      .order('outlier_score', { ascending: false })
+      .order('retrieved_at', { ascending: false })
+      .limit(100)
+    if (youtubeDescriptionResearchError) {
+      throw new Error(`Unable to load the YouTube description evidence library: ${youtubeDescriptionResearchError.message}`)
+    }
     const generatedDrafts = buildLinkedInYoutubeReviewDrafts({
       insight,
       generatedAt: now,
       latestFeedback: asRecord(metadata.autoresearch_feedback_latest),
+      youtubeDescriptionResearchPackets: youtubeDescriptionResearchPackets ?? [],
     })
     const drafts = preserveApprovedChannelDrafts(generatedDrafts, lanes)
     const copyQualityGate = validateSocialPublicCopyFields(socialChannelReviewPublicCopyFields(drafts))

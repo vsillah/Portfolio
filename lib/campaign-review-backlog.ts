@@ -398,6 +398,7 @@ function packetReadiness(input: {
   channel: string
   generatedAt: string
   calibrationReferences: SocialContentCalibrationReference[]
+  youtubeDescriptionResearchPackets: Row[]
 }) {
   const enriched = enrichCampaignReviewInsight({ insight: input.insight, metadata: input.metadata })
   const drafts = buildLinkedInYoutubeReviewDrafts({
@@ -405,6 +406,7 @@ function packetReadiness(input: {
     generatedAt: input.generatedAt,
     latestFeedback: record(input.metadata.autoresearch_feedback_latest),
     calibrationReferences: input.calibrationReferences,
+    youtubeDescriptionResearchPackets: input.youtubeDescriptionResearchPackets,
   })
   const copyQualityGate = validateSocialPublicCopyFields(socialChannelReviewPublicCopyFields(drafts))
   const enrichmentReceipt = buildSocialContentEnrichmentReceipt({
@@ -491,7 +493,7 @@ async function load(campaignId: string) {
   const workIds = calendar.map(c => text(record(record(c.metadata).platform_draft_handoff).work_item_id)).filter(Boolean)
   const works = await byIds('agent_work_items', workIds)
   const evidenceIds = works.flatMap(w => Array.isArray(record(w.metadata).research_packet_ids) ? record(w.metadata).research_packet_ids as string[] : []).filter(id => typeof id === 'string')
-  const [evidence, drafts, calibrationResult] = await Promise.all([
+  const [evidence, drafts, calibrationResult, youtubeDescriptionResult] = await Promise.all([
     byIds('social_content_research_packets', evidenceIds),
     byIds('social_content_queue', calendar.map(c => text(c.social_content_id)).filter(Boolean)),
     supabaseAdmin
@@ -500,10 +502,19 @@ async function load(campaignId: string) {
       .in('status', ['published', 'approved'])
       .order('updated_at', { ascending: false })
       .limit(16),
+    supabaseAdmin
+      .from('social_content_research_packets')
+      .select('id, source_url, platform, creator_name, creator_handle, title, caption, metrics, actor_metadata, outlier_score, pattern_packet, pattern_status, retrieved_at')
+      .in('platform', ['youtube', 'youtube_shorts'])
+      .eq('pattern_status', 'usable_framework')
+      .order('outlier_score', { ascending: false })
+      .order('retrieved_at', { ascending: false })
+      .limit(100),
   ])
   const calibrationRows = checked(calibrationResult) as SocialContentCalibrationHistoryRow[]
   const calibrationReferences = selectSocialContentHistoryReferences(calibrationRows, 3)
-  return { campaign, calendar, works, evidence, drafts, calibrationReferences }
+  const youtubeDescriptionResearchPackets = checked(youtubeDescriptionResult) as Row[]
+  return { campaign, calendar, works, evidence, drafts, calibrationReferences, youtubeDescriptionResearchPackets }
 }
 type Snapshot = Awaited<ReturnType<typeof load>>
 function project(s: Snapshot, now: Date): ReviewProjection {
@@ -698,6 +709,7 @@ export async function prepareCampaignReviewBatch(id: string, options: {
       channel: live.channel,
       generatedAt: now.toISOString(),
       calibrationReferences: current.calibrationReferences,
+      youtubeDescriptionResearchPackets: current.youtubeDescriptionResearchPackets,
     })
     if (!readiness.packet || readiness.blockers.length) {
       blockedItems.push({

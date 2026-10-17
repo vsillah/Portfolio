@@ -5,6 +5,7 @@ import {
   type SocialContentCalibrationReference,
 } from '@/lib/social-content-calibration-library'
 import type { TopicTriggerCandidate, TopicTriggerPacket } from '@/lib/social-topic-backlog'
+import { buildYouTubeOutlierDescriptionLibrary } from '@/lib/youtube-outlier-description-library'
 
 export const SOCIAL_TOPIC_TRIGGER_SOURCE_TYPE = 'social_topic_trigger'
 
@@ -1528,6 +1529,7 @@ export function buildLinkedInYoutubeReviewDrafts(input: {
   generatedAt?: string
   latestFeedback?: Record<string, unknown> | null
   calibrationReferences?: SocialContentCalibrationReference[]
+  youtubeDescriptionResearchPackets?: Array<Record<string, unknown>>
 }): LinkedInYoutubeReviewDrafts {
   const insight = input.insight
   const generatedAt = input.generatedAt ?? new Date().toISOString()
@@ -1546,7 +1548,8 @@ export function buildLinkedInYoutubeReviewDrafts(input: {
   )
   const hook = firstString(insight.suggested_hook, contentAngle)
   const claimBoundaries = asStringArray(insight.claim_boundaries)
-  const patterns = asRecordArray(insight.approved_research_patterns).map(compactResearchPattern)
+  const rawPatterns = asRecordArray(insight.approved_research_patterns)
+  const patterns = rawPatterns.map(compactResearchPattern)
   const calibrationReferences = selectCalibrationReferences(input.calibrationReferences)
   const patternPromise = firstString(...patterns.map((pattern) => pattern.promise_value))
   const sourceBoundary = 'Drafts are generated for human review only. Public research patterns are framework inputs, not source copy.'
@@ -1637,6 +1640,30 @@ export function buildLinkedInYoutubeReviewDrafts(input: {
   const thumbnailSourcePatterns = patterns
     .map((pattern) => pattern.thumbnail_pattern || pattern.promise_value || pattern.hook_structure)
     .filter(Boolean)
+  const youtubeDescriptionEvidence = buildYouTubeOutlierDescriptionLibrary({
+    researchPackets: input.youtubeDescriptionResearchPackets?.length
+      ? input.youtubeDescriptionResearchPackets
+      : rawPatterns,
+    targetTopics: [
+      ...asStringArray(insight.topics),
+      ...asStringArray(insight.topic_ids),
+      ...asStringArray(insight.entity_identities),
+      title,
+      contentAngle,
+      triggeringEvent,
+    ],
+    generatedAt,
+    targetAudienceSize: numberOrNull(insight.audience_size),
+  })
+  const youtubeDescriptionCta = youtubeDescriptionEvidence.status === 'ready'
+    ? youtubeDescriptionEvidence.recommended_structure.cta_style === 'subscribe'
+      ? 'Subscribe for more practical breakdowns of governed AI systems and the products behind them.'
+      : youtubeDescriptionEvidence.recommended_structure.cta_style === 'comment'
+        ? 'Tell me which part of your own AI workflow still needs a clearer handoff.'
+        : youtubeDescriptionEvidence.recommended_structure.cta_style === 'question'
+          ? 'Where does your own AI workflow lose trust between draft and public action?'
+          : 'Use this review path to inspect the source, owner, approval gate, and final decision in your own workflow.'
+    : 'Where does your own AI workflow lose trust between draft and public action?'
 
   return {
     linkedin: {
@@ -1686,7 +1713,10 @@ export function buildLinkedInYoutubeReviewDrafts(input: {
           'A practical look at the review path behind trustworthy AI-enabled content: source, owner, approval gate, final asset, and provider boundary.',
           '',
           'The goal is straightforward: make the handoff visible before the work reaches the public.',
+          '',
+          youtubeDescriptionCta,
         ].join('\n'),
+        description_outlier_evidence: youtubeDescriptionEvidence,
         opening_hook: youtubeHook,
         first_30_seconds: firstThirtySeconds,
         full_video_script: fullVideoScript,

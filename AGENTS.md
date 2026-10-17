@@ -145,6 +145,16 @@ Before any video, Short, Reel, TikTok, or narrated social artifact reaches Human
 - When a disclosure must be spoken, rewrite it as a natural sentence that advances the audience's understanding. It must not sound like a pasted note, parenthetical qualification, or internal system message.
 - Validate the final audio transcript after composition, not only the source script. Human QA should receive customer-facing narration with internal production language already removed.
 
+## YouTube Outlier Description Library Rule
+
+Before a new YouTube or YouTube Shorts package reaches Human QA, compare its description structure against a durable library of attributable, high-performing descriptions from the same or closely related topics.
+
+- Build the library from approved public YouTube research packets rather than a parallel catalog. Preserve each source URL, creator, title, publication and retrieval dates, audience size when available, outlier score, topic match, and a stable description fingerprint.
+- Normalize comparable descriptions by channel, format, topic identity, freshness, and audience-size band when subscriber data is available. Deduplicate canonical URLs and require a minimum attributable sample before declaring a pattern usable.
+- Reuse only aggregate structure: opening style, proof placement, length band, chapters, link placement, and CTA style. Never copy source wording, titles, creator identity, claims, links, or calls to action.
+- Bind the resulting description-pattern receipt to the generated YouTube review packet so Vambah can open the exact sources and inspect why the description was structured that way.
+- Keep missing, stale, weak, unauthorized, or undersized cohorts `Unscored`. Do not fabricate confidence or silently substitute generic platform advice.
+
 ## Human QA Video Evidence Rule
 
 Whenever a Portfolio change reaches Vambah's human QA gate for changed product behavior, the captain handoff must include a short video walkthrough or equivalent screen-recorded test artifact showing the exact operator path being reviewed.

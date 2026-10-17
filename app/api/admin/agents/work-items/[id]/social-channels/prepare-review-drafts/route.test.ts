@@ -5,6 +5,7 @@ const mocks = vi.hoisted(() => ({
   isAuthError: vi.fn(),
   getAgentWorkItem: vi.fn(),
   updateAgentWorkItemMetadata: vi.fn(),
+  supabaseFrom: vi.fn(),
 }))
 
 vi.mock('@/lib/auth-server', () => ({
@@ -16,6 +17,25 @@ vi.mock('@/lib/agent-work-items', () => ({
   getAgentWorkItem: mocks.getAgentWorkItem,
   updateAgentWorkItemMetadata: mocks.updateAgentWorkItemMetadata,
 }))
+
+vi.mock('@/lib/supabase', () => ({
+  supabaseAdmin: {
+    from: mocks.supabaseFrom,
+  },
+}))
+
+function researchPacketQuery(
+  packets: Record<string, unknown>[] = [],
+  error: { message: string } | null = null,
+) {
+  const result = { data: packets, error }
+  const query: Record<string, unknown> = {}
+  for (const method of ['select', 'in', 'eq', 'order']) {
+    query[method] = vi.fn(() => query)
+  }
+  query.limit = vi.fn(async () => result)
+  return query
+}
 
 import { POST } from './route'
 import { buildLinkedInYoutubeReviewDrafts } from '@/lib/social-content-intelligence'
@@ -274,6 +294,7 @@ describe('/api/admin/agents/work-items/[id]/social-channels/prepare-review-draft
     mocks.verifyAdmin.mockResolvedValue({ user: { id: 'admin-user', email: 'admin@example.com' } })
     mocks.isAuthError.mockReturnValue(false)
     mocks.getAgentWorkItem.mockResolvedValue(baseWorkItem)
+    mocks.supabaseFrom.mockImplementation(() => researchPacketQuery())
     mocks.updateAgentWorkItemMetadata.mockImplementation(async (input) => ({
       ...baseWorkItem,
       metadata: input.metadata,
@@ -328,6 +349,18 @@ describe('/api/admin/agents/work-items/[id]/social-channels/prepare-review-draft
     expect(response.status).toBe(400)
     expect(await response.json()).toEqual({
       error: 'Link at least one approved research pattern before preparing channel review drafts',
+    })
+    expect(mocks.updateAgentWorkItemMetadata).not.toHaveBeenCalled()
+  })
+
+  it('fails closed when the YouTube description evidence library cannot be loaded', async () => {
+    mocks.supabaseFrom.mockImplementation(() => researchPacketQuery([], { message: 'research packets unavailable' }))
+
+    const response = await POST(request() as never, { params: { id: 'work-1' } })
+
+    expect(response.status).toBe(500)
+    expect(await response.json()).toEqual({
+      error: 'Unable to load the YouTube description evidence library: research packets unavailable',
     })
     expect(mocks.updateAgentWorkItemMetadata).not.toHaveBeenCalled()
   })
