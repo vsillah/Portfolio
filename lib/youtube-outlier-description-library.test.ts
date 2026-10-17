@@ -3,6 +3,7 @@ import { buildLinkedInYoutubeReviewDrafts } from './social-content-intelligence'
 import {
   YOUTUBE_DESCRIPTION_LIBRARY_VERSION,
   buildYouTubeOutlierDescriptionLibrary,
+  routeYouTubeDescriptionRemediation,
 } from './youtube-outlier-description-library'
 
 function packet(input: {
@@ -43,6 +44,21 @@ function packet(input: {
 }
 
 describe('YouTube outlier description library', () => {
+  it('routes source repair to research and artifact structure repair to content architecture', () => {
+    expect(routeYouTubeDescriptionRemediation('source_attribution')).toEqual({
+      designated_owner: 'research-source-register',
+      recovery_action: 'restore_public_source_attribution',
+    })
+    expect(routeYouTubeDescriptionRemediation('freshness').designated_owner).toBe('research-source-register')
+    expect(routeYouTubeDescriptionRemediation('topic_match').designated_owner).toBe('research-source-register')
+    expect(routeYouTubeDescriptionRemediation('cohort_size').designated_owner).toBe('research-source-register')
+    expect(routeYouTubeDescriptionRemediation('artifact_conformance')).toEqual({
+      designated_owner: 'voice-content-architect',
+      recovery_action: 'repair_description_artifact_conformance',
+    })
+    expect(routeYouTubeDescriptionRemediation('description_structure').designated_owner).toBe('voice-content-architect')
+  })
+
   it('builds a source-linked structural library from fresh same-topic outliers', () => {
     const receipt = buildYouTubeOutlierDescriptionLibrary({
       generatedAt: '2026-10-17T12:00:00.000Z',
@@ -177,6 +193,121 @@ describe('YouTube outlier description library', () => {
         ]),
       }),
     ]))
+  })
+
+  it('keeps remediation identity stable and does not retry unchanged evidence', () => {
+    const inputs = {
+      generatedAt: '2026-10-17T12:00:00.000Z',
+      targetTopics: ['AI licenses'],
+      researchPackets: [packet({ id: 'low-score', description: 'AI license proof.', score: 42 })],
+      minimumSourceCount: 2,
+    }
+    const first = buildYouTubeOutlierDescriptionLibrary(inputs)
+    const failed = first.remediation_receipts.find((receipt) => receipt.failed_gate === 'outlier_score')
+    expect(failed).toMatchObject({
+      status: 'open',
+      attempt_count: 0,
+      recheck_result: 'not_run_no_prior_receipt',
+      designated_owner: 'research-source-register',
+      recorder: 'decision-journal',
+    })
+
+    const unchanged = buildYouTubeOutlierDescriptionLibrary({
+      ...inputs,
+      priorRemediationReceipts: first.remediation_receipts,
+    })
+    expect(unchanged.remediation_receipts.find((receipt) => receipt.failed_gate === 'outlier_score')).toMatchObject({
+      receipt_id: failed?.receipt_id,
+      status: 'awaiting_evidence',
+      attempt_count: 0,
+      prior_evidence_fingerprint: failed?.current_evidence_fingerprint,
+      current_evidence_fingerprint: failed?.current_evidence_fingerprint,
+      recheck_result: 'not_run_inputs_unchanged',
+    })
+  })
+
+  it('runs one deterministic recheck after evidence changes and records a failed attempt', () => {
+    const first = buildYouTubeOutlierDescriptionLibrary({
+      generatedAt: '2026-10-17T12:00:00.000Z',
+      targetTopics: ['AI licenses'],
+      researchPackets: [packet({ id: 'score-repair', description: 'AI license proof.', score: 42 })],
+      minimumSourceCount: 2,
+    })
+    const changed = buildYouTubeOutlierDescriptionLibrary({
+      generatedAt: '2026-10-17T12:00:00.000Z',
+      targetTopics: ['AI licenses'],
+      researchPackets: [packet({ id: 'score-repair', description: 'AI license proof with a new public capture.', score: 43 })],
+      minimumSourceCount: 2,
+      priorRemediationReceipts: first.remediation_receipts,
+    })
+
+    const receipt = changed.remediation_receipts.find((candidate) => candidate.failed_gate === 'outlier_score')
+    expect(receipt).toMatchObject({
+      status: 'recheck_failed',
+      attempt_count: 1,
+      recheck_result: 'failed_after_input_change',
+      observed_value: '43',
+      requirement: 'Outlier score at least 65',
+    })
+    expect(receipt?.prior_evidence_fingerprint).not.toBe(receipt?.current_evidence_fingerprint)
+  })
+
+  it('does not waive a failed threshold through remediation configuration', () => {
+    const first = buildYouTubeOutlierDescriptionLibrary({
+      generatedAt: '2026-10-17T12:00:00.000Z',
+      targetTopics: ['AI licenses'],
+      researchPackets: [packet({ id: 'threshold', description: 'AI license proof.', score: 42 })],
+      minimumSourceCount: 2,
+      minimumOutlierScore: 65,
+    })
+    const attemptedWaiver = buildYouTubeOutlierDescriptionLibrary({
+      generatedAt: '2026-10-17T12:00:00.000Z',
+      targetTopics: ['AI licenses'],
+      researchPackets: [packet({ id: 'threshold', description: 'AI license proof.', score: 42 })],
+      minimumSourceCount: 2,
+      minimumOutlierScore: 40,
+      priorRemediationReceipts: first.remediation_receipts,
+    })
+
+    expect(attemptedWaiver.minimum_outlier_score).toBe(65)
+    expect(attemptedWaiver.release_readiness).toBe('blocked')
+    expect(attemptedWaiver.remediation_receipts.find((receipt) => receipt.failed_gate === 'outlier_score')).toMatchObject({
+      status: 'awaiting_evidence',
+      attempt_count: 0,
+      recheck_result: 'not_run_inputs_unchanged',
+    })
+  })
+
+  it('closes the Unscored cohort remediation only after changed evidence makes it ready', () => {
+    const first = buildYouTubeOutlierDescriptionLibrary({
+      generatedAt: '2026-10-17T12:00:00.000Z',
+      targetTopics: ['AI licenses'],
+      researchPackets: [packet({ id: 'a', description: 'AI license proof A.' })],
+      minimumSourceCount: 2,
+    })
+    const cohortReceipt = first.remediation_receipts.find((receipt) => receipt.failed_gate === 'cohort_size')
+    expect(first.release_readiness).toBe('blocked')
+
+    const ready = buildYouTubeOutlierDescriptionLibrary({
+      generatedAt: '2026-10-17T12:00:00.000Z',
+      targetTopics: ['AI licenses'],
+      researchPackets: [
+        packet({ id: 'a', description: 'AI license proof A.' }),
+        packet({ id: 'b', description: 'AI license proof B.' }),
+      ],
+      minimumSourceCount: 2,
+      priorRemediationReceipts: first.remediation_receipts,
+    })
+
+    expect(ready.status).toBe('ready')
+    expect(ready.release_readiness).toBe('ready')
+    expect(ready.remediation_receipts.find((receipt) => receipt.failed_gate === 'cohort_size')).toMatchObject({
+      receipt_id: cohortReceipt?.receipt_id,
+      status: 'resolved',
+      attempt_count: 1,
+      recheck_result: 'passed_after_input_change',
+      release_readiness: 'ready',
+    })
   })
 
   it('attaches and applies the library receipt only to the YouTube draft', () => {

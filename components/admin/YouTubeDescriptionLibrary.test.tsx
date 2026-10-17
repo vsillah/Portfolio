@@ -72,12 +72,18 @@ describe('YouTubeDescriptionLibrary', () => {
     />)
 
     expect(screen.getByText('Unscored')).toBeVisible()
+    expect(screen.getByRole('region', { name: 'Nzinga remediation status' })).toBeVisible()
+    expect(screen.getByText('Release blocked')).toBeVisible()
+    expect(screen.getAllByText('Research-source-register').length).toBeGreaterThanOrEqual(2)
+    expect(screen.getAllByText('Qualify outlier evidence')[0]).toBeVisible()
+    expect(screen.getAllByText('Not run no prior receipt').length).toBeGreaterThanOrEqual(2)
     expect(screen.getByRole('tab', { name: 'Sample ledger (3)' })).toBeVisible()
     expect(screen.getAllByText(/Outlier score 42 is below the 65 threshold/)[0]).toBeVisible()
     expect(screen.getAllByText(/No separately proven public YouTube description was captured/)[0]).toBeVisible()
     fireEvent.click(screen.getAllByText('Inspect evidence and decision logic')[1])
     expect(screen.getAllByText('Failed')[0]).toBeVisible()
     expect(screen.getAllByText('Not evaluated').length).toBeGreaterThanOrEqual(2)
+    expect(screen.getAllByText(/Nzinga remediation/).length).toBeGreaterThanOrEqual(2)
 
     fireEvent.click(screen.getByRole('tab', { name: 'Applied structure' }))
     expect(screen.getByText(/Only 1 fresh, attributable same-topic outlier description/)).toBeVisible()
