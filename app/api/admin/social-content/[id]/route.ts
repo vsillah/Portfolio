@@ -59,6 +59,7 @@ import {
 } from '@/lib/social-schedule-recovery'
 import { readVerifiedSocialContentDecisionReceipt } from '@/lib/social-content-recorded-decision'
 import { persistedChannelExperimentReviewForItem } from '@/lib/channel-experiment-review'
+import { projectSocialCalendarPreparation } from '@/lib/social-calendar-preparation'
 
 export const dynamic = 'force-dynamic'
 
@@ -285,6 +286,18 @@ export async function GET(
       .eq('content_id', id)
       .order('created_at', { ascending: true })
 
+    const { data: linkedCalendarItem, error: linkedCalendarError } = await supabaseAdmin
+      .from('social_content_calendar_items')
+      .select('id, social_content_id, authorization_status, due_status, scheduled_for, metadata, updated_at')
+      .eq('social_content_id', id)
+      .order('updated_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+    if (linkedCalendarError) {
+      console.error('Error loading Social Content calendar preparation projection:', linkedCalendarError)
+    }
+    const calendarPreparation = projectSocialCalendarPreparation(linkedCalendarItem, id)
+
     const recoveryRepository = createSupabaseSocialScheduleRecoveryRepository(supabaseAdmin)
     const scheduleRecovery = buildScheduleRecoveryProjection(
       await recoveryRepository.readRecoveryItems(id),
@@ -326,6 +339,7 @@ export async function GET(
         social_video_production: socialVideoProduction,
         schedule_recovery: scheduleRecovery,
         recorded_internal_decision_receipt: recordedInternalDecisionReceipt,
+        calendar_preparation: calendarPreparation,
       },
     })
   } catch (error) {
