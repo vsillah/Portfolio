@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-10-17T09:36:32.739Z",
-  "commit": "603495c9f5437fcc36ef3c3f2c00e21198bdf2ad",
-  "route": "/admin/agents/content-intelligence?section=research&qa_fixture=youtube_description_library_v1&rev=603495c9",
+  "generated_at": "2026-10-17T09:47:02.878Z",
+  "commit": "c914da94a86e6212ce603abef1a0a0f41e39d9a1",
+  "route": "/admin/agents/content-intelligence?section=research&qa_fixture=youtube_description_library_v1&rev=c914da94",
   "product_writes": 0,
   "viewports": [
     {
