@@ -168,11 +168,12 @@ export default function YouTubeDescriptionLibrary({
                 key={item}
                 type="button"
                 role="tab"
+                aria-label={item === 'structure' ? 'Applied structure' : item === 'logic' ? 'Evidence logic' : undefined}
                 aria-selected={view === item}
                 onClick={() => setView(item)}
                 className={`whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium ${view === item ? 'bg-radiant-gold text-slate-950' : 'text-muted-foreground hover:bg-accent hover:text-foreground'}`}
               >
-                {item === 'samples' ? `Sample ledger (${sampleRows.length})` : item === 'structure' ? 'Applied structure' : 'Evidence logic'}
+                {item === 'samples' ? `Sample ledger (${sampleRows.length})` : item === 'structure' ? 'Structure' : 'Logic'}
               </button>
             ))}
           </div>

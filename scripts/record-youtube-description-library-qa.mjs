@@ -39,9 +39,10 @@ async function capture(browser, label, viewport, colorScheme) {
   await page.screenshot({ path: screenshot, fullPage: false })
 
   await page.getByText('Inspect evidence and decision logic').first().click()
-  await page.getByText(/Captured description evidence/).waitFor({ state: 'visible' })
+  await page.getByText(/Captured description evidence/).first().waitFor({ state: 'visible' })
   await page.waitForTimeout(900)
   await page.getByRole('button', { name: 'Next sample page' }).click()
+  await page.getByText('Inspect evidence and decision logic').click()
   await page.getByText('No customer-facing YouTube description was captured.').waitFor({ state: 'visible' })
   await page.waitForTimeout(900)
   await page.getByRole('button', { name: 'Previous sample page' }).click()
