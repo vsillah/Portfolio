@@ -37,6 +37,30 @@ function researchPacketQuery(
   return query
 }
 
+function youtubeDescriptionPackets(score = 82) {
+  return ['a', 'b', 'c'].map((id, index) => ({
+    id: `youtube-${id}`,
+    source_url: `https://youtube.com/watch?v=review-${id}`,
+    platform: 'youtube',
+    creator_name: `Creator ${id}`,
+    title: `Approval gates create trust ${id}`,
+    caption: `Internal packet summary ${id}`,
+    metrics: {
+      published_at: '2026-06-20T12:00:00.000Z',
+      follower_count: 42_000 + index,
+    },
+    actor_metadata: {
+      topics: ['approval gates', 'trust', 'evidence'],
+      source_description: `Approval gates create trust with visible evidence ${id}.\n\nSee the product review path.\n\nWhat does your team verify?`,
+      description_provenance: 'youtube_watch_short_description',
+    },
+    outlier_score: score + index,
+    pattern_packet: { topics: ['approval gates', 'trust', 'evidence'] },
+    pattern_status: 'usable_framework',
+    retrieved_at: '2026-06-21T12:00:00.000Z',
+  }))
+}
+
 import { POST } from './route'
 import { buildLinkedInYoutubeReviewDrafts } from '@/lib/social-content-intelligence'
 
@@ -294,7 +318,7 @@ describe('/api/admin/agents/work-items/[id]/social-channels/prepare-review-draft
     mocks.verifyAdmin.mockResolvedValue({ user: { id: 'admin-user', email: 'admin@example.com' } })
     mocks.isAuthError.mockReturnValue(false)
     mocks.getAgentWorkItem.mockResolvedValue(baseWorkItem)
-    mocks.supabaseFrom.mockImplementation(() => researchPacketQuery())
+    mocks.supabaseFrom.mockImplementation(() => researchPacketQuery(youtubeDescriptionPackets()))
     mocks.updateAgentWorkItemMetadata.mockImplementation(async (input) => ({
       ...baseWorkItem,
       metadata: input.metadata,
@@ -363,6 +387,84 @@ describe('/api/admin/agents/work-items/[id]/social-channels/prepare-review-draft
       error: 'Unable to load the YouTube description evidence library: research packets unavailable',
     })
     expect(mocks.updateAgentWorkItemMetadata).not.toHaveBeenCalled()
+  })
+
+  it('persists YouTube remediation receipts, skips unchanged retries, and rechecks one changed evidence input once', async () => {
+    const lowEvidence = [youtubeDescriptionPackets(42)[0]]
+    mocks.supabaseFrom.mockImplementation(() => researchPacketQuery(lowEvidence))
+
+    const firstResponse = await POST(request() as never, { params: { id: 'work-1' } })
+    const firstMetadata = mocks.updateAgentWorkItemMetadata.mock.calls[0][0].metadata
+    const firstEvidence = firstMetadata.channel_lanes.youtube.draft_packet.fields.description_outlier_evidence
+    const firstReceipt = firstEvidence.remediation_receipts.find((receipt: Record<string, unknown>) => receipt.failed_gate === 'outlier_score')
+
+    expect(firstResponse.status).toBe(200)
+    expect(firstMetadata.channel_lanes.youtube).toMatchObject({
+      status: 'blocked',
+      review_requested_at: null,
+      draft_packet: {
+        approval_status: 'blocked',
+        fields: {
+          description_evidence_release_gate: {
+            status: 'blocked',
+            recovery_reason: expect.stringContaining('Only 0 fresh, attributable'),
+          },
+        },
+      },
+    })
+    expect(firstMetadata.channel_lanes.linkedin.status).toBe('in_review')
+    expect(firstMetadata.channel_review_workflow).toMatchObject({
+      status: 'partially_human_review_ready',
+      prepared_channels: ['linkedin', 'youtube_shorts', 'instagram_reels', 'tiktok', 'x', 'thumbnail'],
+      blocked_channels: [{ channel: 'youtube', reason: expect.stringContaining('Only 0 fresh, attributable') }],
+    })
+    expect(firstReceipt).toMatchObject({ status: 'open', attempt_count: 0, recheck_result: 'not_run_no_prior_receipt' })
+
+    vi.setSystemTime(new Date('2026-06-24T15:05:00.000Z'))
+    mocks.getAgentWorkItem.mockResolvedValue({ ...baseWorkItem, metadata: firstMetadata })
+    const secondResponse = await POST(request() as never, { params: { id: 'work-1' } })
+    const secondMetadata = mocks.updateAgentWorkItemMetadata.mock.calls[1][0].metadata
+    const secondReceipt = secondMetadata.channel_lanes.youtube.draft_packet.fields.description_outlier_evidence.remediation_receipts
+      .find((receipt: Record<string, unknown>) => receipt.failed_gate === 'outlier_score')
+
+    expect(secondResponse.status).toBe(200)
+    expect(secondReceipt).toMatchObject({
+      receipt_id: firstReceipt.receipt_id,
+      status: 'awaiting_evidence',
+      attempt_count: 0,
+      recheck_result: 'not_run_inputs_unchanged',
+    })
+
+    vi.setSystemTime(new Date('2026-06-24T15:10:00.000Z'))
+    mocks.supabaseFrom.mockImplementation(() => researchPacketQuery([{ ...lowEvidence[0], outlier_score: 43 }]))
+    mocks.getAgentWorkItem.mockResolvedValue({ ...baseWorkItem, metadata: secondMetadata })
+    const thirdResponse = await POST(request() as never, { params: { id: 'work-1' } })
+    const thirdMetadata = mocks.updateAgentWorkItemMetadata.mock.calls[2][0].metadata
+    const thirdReceipt = thirdMetadata.channel_lanes.youtube.draft_packet.fields.description_outlier_evidence.remediation_receipts
+      .find((receipt: Record<string, unknown>) => receipt.failed_gate === 'outlier_score')
+
+    expect(thirdResponse.status).toBe(200)
+    expect(thirdReceipt).toMatchObject({
+      receipt_id: firstReceipt.receipt_id,
+      status: 'recheck_failed',
+      attempt_count: 1,
+      observed_value: '43',
+      recheck_result: 'failed_after_input_change',
+    })
+
+    vi.setSystemTime(new Date('2026-06-24T15:15:00.000Z'))
+    mocks.getAgentWorkItem.mockResolvedValue({ ...baseWorkItem, metadata: thirdMetadata })
+    const fourthResponse = await POST(request() as never, { params: { id: 'work-1' } })
+    const fourthMetadata = mocks.updateAgentWorkItemMetadata.mock.calls[3][0].metadata
+    const fourthReceipt = fourthMetadata.channel_lanes.youtube.draft_packet.fields.description_outlier_evidence.remediation_receipts
+      .find((receipt: Record<string, unknown>) => receipt.failed_gate === 'outlier_score')
+
+    expect(fourthResponse.status).toBe(200)
+    expect(fourthReceipt).toMatchObject({
+      status: 'awaiting_evidence',
+      attempt_count: 1,
+      recheck_result: 'not_run_inputs_unchanged',
+    })
   })
 
   it('fails closed when a non-campaign insight lacks voice and audience calibration', async () => {

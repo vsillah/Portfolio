@@ -2,7 +2,10 @@
 
 import { useMemo, useState } from 'react'
 import { AlertTriangle, CheckCircle2, ChevronLeft, ChevronRight, ExternalLink, Search, Youtube } from 'lucide-react'
-import { buildYouTubeOutlierDescriptionLibrary } from '@/lib/youtube-outlier-description-library'
+import {
+  buildYouTubeOutlierDescriptionLibrary,
+  type YouTubeDescriptionRemediationReceipt,
+} from '@/lib/youtube-outlier-description-library'
 
 type View = 'samples' | 'structure' | 'logic'
 
@@ -31,6 +34,14 @@ function formatDate(valueToFormat: unknown) {
   return Number.isFinite(parsed) ? new Intl.DateTimeFormat('en-US', { dateStyle: 'medium' }).format(parsed) : 'Missing'
 }
 
+function formatKey(valueToFormat: string) {
+  return valueToFormat.replace(/_/g, ' ').replace(/^\w/, (letter) => letter.toUpperCase())
+}
+
+function remediationOwnerName(owner: YouTubeDescriptionRemediationReceipt['designated_owner']) {
+  return owner === 'research-source-register' ? 'Askia Muhammad' : 'Nefertiti'
+}
+
 function capturedDescription(packet: Record<string, unknown>) {
   const metadata = data(packet.actor_metadata)
   const pattern = data(packet.pattern_packet)
@@ -57,10 +68,12 @@ export default function YouTubeDescriptionLibrary({
   researchPackets,
   initialTopic = '',
   generatedAt,
+  priorRemediationReceipts = [],
 }: {
   researchPackets: unknown[]
   initialTopic?: string
   generatedAt: string
+  priorRemediationReceipts?: YouTubeDescriptionRemediationReceipt[]
 }) {
   const [topic, setTopic] = useState(initialTopic)
   const [view, setView] = useState<View>('samples')
@@ -82,7 +95,8 @@ export default function YouTubeDescriptionLibrary({
     researchPackets,
     targetTopics: topic ? [topic] : [],
     generatedAt,
-  }), [generatedAt, researchPackets, topic])
+    priorRemediationReceipts,
+  }), [generatedAt, priorRemediationReceipts, researchPackets, topic])
 
   const sampleRows = useMemo(() => {
     const includedById = new Map(receipt.sources.map((source) => [source.source_id, source]))
@@ -92,6 +106,7 @@ export default function YouTubeDescriptionLibrary({
       const id = value(item.id) || value(item.source_url) || value(item.title)
       const included = includedById.get(id)
       const excluded = excludedById.get(id)
+      const remediation = receipt.remediation_receipts.find((candidate) => candidate.source_id === id && candidate.status !== 'resolved')
       const metrics = data(item.metrics)
       const metadata = data(item.actor_metadata)
       const scoreBreakdown = data(item.score_breakdown)
@@ -119,6 +134,7 @@ export default function YouTubeDescriptionLibrary({
         audienceSize: numberValue(metrics.follower_count) ?? numberValue(metrics.subscriber_count),
         topics: [...new Set(topics)],
         included,
+        remediation,
         gateDecisions: included?.gate_decisions ?? excluded?.gate_decisions ?? [],
         reason: excluded?.reason ?? (included ? 'Cleared every gate and was selected for the comparison cohort.' : 'Qualified but fell outside the ranked cohort limit.'),
         fixture: metadata.qa_fixture === true,
@@ -213,6 +229,34 @@ export default function YouTubeDescriptionLibrary({
             ))}
           </div>
 
+          {receipt.remediation_receipts.length ? (
+            <section aria-label="Nzinga remediation status" className="border-b border-silicon-slate/60 bg-amber-500/5 p-4">
+              <div className="flex flex-wrap items-center gap-2">
+                <h4 className="text-sm font-semibold text-foreground">Nzinga remediation ledger</h4>
+                <span className={`rounded-full border px-2 py-0.5 text-xs font-semibold ${receipt.release_readiness === 'ready' ? 'border-emerald-500/45 bg-emerald-500/10 text-emerald-700 dark:text-emerald-200' : 'border-red-500/45 bg-red-500/10 text-red-800 dark:text-red-200'}`}>
+                  Release {receipt.release_readiness}
+                </span>
+              </div>
+              <p className="mt-1 text-xs text-muted-foreground">Nzinga records and verifies evidence changes. The designated owner repairs the source or structure; Nzinga does not fabricate evidence or lower a gate.</p>
+              <div className="mt-3 grid gap-2 md:grid-cols-2">
+                {receipt.remediation_receipts.map((remediation) => (
+                  <article key={remediation.receipt_id} className="rounded-md border border-border bg-background/60 p-3 text-xs">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="font-semibold text-foreground">{formatKey(remediation.failed_gate)}</span>
+                      <span className="rounded-full border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 font-semibold text-amber-800 dark:text-amber-200">{formatKey(remediation.status)}</span>
+                    </div>
+                    <dl className="mt-2 grid grid-cols-[7rem_minmax(0,1fr)] gap-x-2 gap-y-1 text-muted-foreground">
+                      <dt>Owner</dt><dd className="break-words text-foreground">{remediationOwnerName(remediation.designated_owner)}</dd>
+                      <dt>Recovery</dt><dd className="break-words text-foreground">{formatKey(remediation.recovery_action)}</dd>
+                      <dt>Recheck</dt><dd className="break-words text-foreground">{formatKey(remediation.recheck_result)}</dd>
+                      <dt>Attempts</dt><dd className="text-foreground">{remediation.attempt_count}</dd>
+                    </dl>
+                  </article>
+                ))}
+              </div>
+            </section>
+          ) : null}
+
           {view === 'samples' ? (
             <div>
               <div className="border-b border-silicon-slate/60 bg-muted/25 px-4 py-3 text-xs text-muted-foreground">
@@ -278,6 +322,14 @@ export default function YouTubeDescriptionLibrary({
                         <section className="rounded-md border border-border bg-background/60 p-3">
                           <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Cohort decision</p>
                           <p className="mt-2 text-sm font-medium text-foreground">{sample.included ? 'Included' : 'Excluded'} · {sample.reason}</p>
+                          {sample.remediation ? (
+                            <div className="mt-3 rounded-md border border-amber-500/35 bg-amber-500/10 p-3 text-xs">
+                              <p className="font-semibold text-foreground">Nzinga remediation · {formatKey(sample.remediation.status)}</p>
+                              <p className="mt-1 text-muted-foreground"><span className="font-semibold text-foreground">Owner:</span> {remediationOwnerName(sample.remediation.designated_owner)}</p>
+                              <p className="mt-1 text-muted-foreground"><span className="font-semibold text-foreground">Recovery:</span> {formatKey(sample.remediation.recovery_action)}</p>
+                              <p className="mt-1 text-muted-foreground"><span className="font-semibold text-foreground">Recheck:</span> {formatKey(sample.remediation.recheck_result)}</p>
+                            </div>
+                          ) : null}
                           <ol className="mt-3 space-y-2">
                             {sample.gateDecisions.map((decision, index) => (
                               <li key={decision.gate} className="rounded-md border border-border bg-card/45 p-3">

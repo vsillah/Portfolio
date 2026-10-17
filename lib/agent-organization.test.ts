@@ -114,4 +114,17 @@ describe('agent organization registry', () => {
     expect(riskAgent?.approvalGate).toContain('Read-only exposure assessment')
     expect(sourceRegister?.responsibility).toContain('Collect and classify source-backed evidence')
   })
+
+  it('records Nzinga as the verifier for deterministic YouTube evidence remediation', () => {
+    const nzinga = getAgentByKey('decision-journal')
+
+    expect(nzinga).toMatchObject({
+      name: 'Nzinga (Ndongo/Matamba) - Decision Journal',
+      status: 'partial',
+      primaryRuntime: 'mixed',
+    })
+    expect(nzinga?.responsibility).toContain('deterministic remediation receipts')
+    expect(nzinga?.engagementPath).toContain('YouTube description evidence views')
+    expect(nzinga?.approvalGate).toContain('records and verifies changed evidence only')
+  })
 })

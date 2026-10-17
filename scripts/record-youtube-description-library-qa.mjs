@@ -35,7 +35,17 @@ async function capture(browser, label, viewport, colorScheme) {
   await page.goto(new URL(route, baseUrl).toString(), { waitUntil: 'domcontentloaded' })
   await page.getByRole('heading', { name: 'YouTube description patterns' }).waitFor({ state: 'visible' })
   await page.getByText('Unscored', { exact: true }).waitFor({ state: 'visible' })
-  await page.waitForTimeout(700)
+  const remediation = page.getByRole('region', { name: 'Nzinga remediation status' })
+  await remediation.waitFor({ state: 'visible' })
+  await remediation.getByText('Release blocked', { exact: true }).waitFor({ state: 'visible' })
+  await remediation.getByText('Askia Muhammad', { exact: true }).first().waitFor({ state: 'visible' })
+  await remediation.getByText('Qualify outlier evidence', { exact: true }).first().waitFor({ state: 'visible' })
+  await remediation.getByText('Not run no prior receipt', { exact: true }).first().waitFor({ state: 'visible' })
+  const initialAttempts = remediation.locator('dt:has-text("Attempts") + dd').first()
+  await initialAttempts.waitFor({ state: 'visible' })
+  if (await initialAttempts.textContent() !== '0') throw new Error('Initial Nzinga remediation attempt count was not zero.')
+  await remediation.scrollIntoViewIfNeeded()
+  await page.waitForTimeout(1500)
 
   await page.getByText('Inspect evidence and decision logic').first().click()
   await page.getByText('Why this sample appears').first().waitFor({ state: 'visible' })
@@ -93,7 +103,7 @@ async function main() {
       route,
       product_writes: 0,
       viewports: [{ width: 1280, height: 800, theme: 'dark' }, { width: 390, height: 844, theme: 'light' }],
-      verified: ['real public thumbnails', 'visible YouTube URLs', 'captured public description excerpts and provenance', 'discovery query and dataset receipts', 'per-gate pass, fail, and not-evaluated decisions', 'internal summary separation', 'exclusion reasons', 'exact gate order and ranking formula', 'unscored fail-closed state', 'responsive light and dark presentation'],
+      verified: ['visible Nzinga remediation region', 'release-blocked state', 'Askia Muhammad remediation owner', 'typed recovery action', 'zero initial remediation attempts', 'no-prior-receipt recheck state', 'real public thumbnails', 'visible YouTube URLs', 'captured public description excerpts and provenance', 'discovery query and dataset receipts', 'per-gate pass, fail, and not-evaluated decisions', 'internal summary separation', 'exclusion reasons', 'exact gate order and ranking formula', 'unscored fail-closed state', 'responsive light and dark presentation'],
       screenshots: [basename(desktop.screenshot), basename(mobile.screenshot)],
       output: basename(output),
     }, null, 2) + '\n')

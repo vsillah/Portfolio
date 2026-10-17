@@ -1,4 +1,5 @@
 export const YOUTUBE_DESCRIPTION_LIBRARY_VERSION = 'youtube-outlier-description-library-v1' as const
+export const YOUTUBE_DESCRIPTION_REMEDIATION_VERSION = 'youtube-description-remediation-v1' as const
 
 export type YouTubeDescriptionLibraryStatus = 'ready' | 'unscored'
 
@@ -19,6 +20,47 @@ export type YouTubeDescriptionGateDecision = {
   status: 'passed' | 'failed' | 'not_evaluated' | 'not_applicable'
   requirement: string
   observed: string
+}
+
+export type YouTubeDescriptionRemediationGate =
+  | YouTubeDescriptionGateDecision['gate']
+  | 'cohort_size'
+  | 'artifact_conformance'
+  | 'description_structure'
+
+export type YouTubeDescriptionRecoveryAction =
+  | 'approve_source_framework'
+  | 'restore_public_source_attribution'
+  | 'capture_public_description_with_provenance'
+  | 'qualify_outlier_evidence'
+  | 'refresh_public_evidence'
+  | 'repair_topic_identity'
+  | 'repair_audience_cohort'
+  | 'qualify_additional_cohort_sources'
+  | 'repair_description_artifact_conformance'
+  | 'repair_description_structure'
+
+export type YouTubeDescriptionRemediationOwner = 'research-source-register' | 'voice-content-architect'
+
+export type YouTubeDescriptionRemediationReceipt = {
+  version: typeof YOUTUBE_DESCRIPTION_REMEDIATION_VERSION
+  receipt_id: string
+  scope_fingerprint: string
+  subject_type: 'source' | 'cohort'
+  source_id: string | null
+  source_url: string | null
+  failed_gate: YouTubeDescriptionRemediationGate
+  observed_value: string
+  requirement: string
+  recovery_action: YouTubeDescriptionRecoveryAction
+  designated_owner: YouTubeDescriptionRemediationOwner
+  recorder: 'decision-journal'
+  attempt_count: number
+  prior_evidence_fingerprint: string | null
+  current_evidence_fingerprint: string
+  status: 'open' | 'awaiting_evidence' | 'recheck_failed' | 'resolved'
+  recheck_result: 'not_run_no_prior_receipt' | 'not_run_inputs_unchanged' | 'failed_after_input_change' | 'passed_after_input_change'
+  release_readiness: 'blocked' | 'ready'
 }
 
 export type YouTubeDescriptionLibrarySource = {
@@ -68,6 +110,8 @@ export type YouTubeDescriptionLibraryReceipt = {
     blueprint: string[]
   }
   blockers: string[]
+  release_readiness: 'blocked' | 'ready'
+  remediation_receipts: YouTubeDescriptionRemediationReceipt[]
   originality_boundary: string
   input_fingerprint: string
 }
@@ -139,6 +183,156 @@ function fingerprint(value: unknown) {
     hash = Math.imul(hash, 0x01000193)
   }
   return `fnv1a:${(hash >>> 0).toString(16).padStart(8, '0')}`
+}
+
+export function routeYouTubeDescriptionRemediation(gate: YouTubeDescriptionRemediationGate): {
+  designated_owner: YouTubeDescriptionRemediationOwner
+  recovery_action: YouTubeDescriptionRecoveryAction
+} {
+  switch (gate) {
+    case 'framework_approval':
+      return { designated_owner: 'voice-content-architect', recovery_action: 'approve_source_framework' }
+    case 'artifact_conformance':
+      return { designated_owner: 'voice-content-architect', recovery_action: 'repair_description_artifact_conformance' }
+    case 'description_structure':
+      return { designated_owner: 'voice-content-architect', recovery_action: 'repair_description_structure' }
+    case 'source_attribution':
+      return { designated_owner: 'research-source-register', recovery_action: 'restore_public_source_attribution' }
+    case 'description_capture':
+      return { designated_owner: 'research-source-register', recovery_action: 'capture_public_description_with_provenance' }
+    case 'outlier_score':
+      return { designated_owner: 'research-source-register', recovery_action: 'qualify_outlier_evidence' }
+    case 'freshness':
+      return { designated_owner: 'research-source-register', recovery_action: 'refresh_public_evidence' }
+    case 'topic_match':
+      return { designated_owner: 'research-source-register', recovery_action: 'repair_topic_identity' }
+    case 'audience_band':
+      return { designated_owner: 'research-source-register', recovery_action: 'repair_audience_cohort' }
+    case 'cohort_size':
+      return { designated_owner: 'research-source-register', recovery_action: 'qualify_additional_cohort_sources' }
+  }
+}
+
+function remediationReceiptId(scopeFingerprint: string, subjectType: 'source' | 'cohort', sourceId: string | null, gate: YouTubeDescriptionRemediationGate) {
+  return `youtube-description-remediation:${fingerprint({ gate, scopeFingerprint, sourceId, subjectType }).slice('fnv1a:'.length)}`
+}
+
+export function normalizeYouTubeDescriptionRemediationReceipts(value: unknown): YouTubeDescriptionRemediationReceipt[] {
+  if (!Array.isArray(value)) return []
+  const gates = new Set<YouTubeDescriptionRemediationGate>([
+    'framework_approval', 'source_attribution', 'description_capture', 'outlier_score', 'freshness',
+    'topic_match', 'audience_band', 'cohort_size', 'artifact_conformance', 'description_structure',
+  ])
+  const statuses = new Set<YouTubeDescriptionRemediationReceipt['status']>(['open', 'awaiting_evidence', 'recheck_failed', 'resolved'])
+  const recheckResults = new Set<YouTubeDescriptionRemediationReceipt['recheck_result']>([
+    'not_run_no_prior_receipt', 'not_run_inputs_unchanged', 'failed_after_input_change', 'passed_after_input_change',
+  ])
+  const receipts: YouTubeDescriptionRemediationReceipt[] = []
+  for (const candidate of value) {
+    const item = record(candidate)
+    const gate = text(item.failed_gate) as YouTubeDescriptionRemediationGate
+    const subjectType = text(item.subject_type)
+    const sourceId = item.source_id === null ? null : text(item.source_id)
+    const sourceUrl = item.source_url === null ? null : text(item.source_url)
+    const scopeFingerprint = text(item.scope_fingerprint)
+    const status = text(item.status) as YouTubeDescriptionRemediationReceipt['status']
+    const recheckResult = text(item.recheck_result) as YouTubeDescriptionRemediationReceipt['recheck_result']
+    const attemptCount = number(item.attempt_count)
+    const route = gates.has(gate) ? routeYouTubeDescriptionRemediation(gate) : null
+    if (
+      item.version !== YOUTUBE_DESCRIPTION_REMEDIATION_VERSION
+      || (subjectType !== 'source' && subjectType !== 'cohort')
+      || !gates.has(gate)
+      || !scopeFingerprint.startsWith('fnv1a:')
+      || !text(item.current_evidence_fingerprint).startsWith('fnv1a:')
+      || (item.prior_evidence_fingerprint !== null && !text(item.prior_evidence_fingerprint).startsWith('fnv1a:'))
+      || attemptCount === null
+      || !Number.isInteger(attemptCount)
+      || attemptCount < 0
+      || !statuses.has(status)
+      || !recheckResults.has(recheckResult)
+      || (item.release_readiness !== 'blocked' && item.release_readiness !== 'ready')
+      || !text(item.requirement)
+      || !text(item.observed_value)
+      || !route
+      || item.designated_owner !== route.designated_owner
+      || item.recovery_action !== route.recovery_action
+      || item.recorder !== 'decision-journal'
+      || (subjectType === 'source' && !sourceId)
+      || (subjectType === 'cohort' && sourceId !== null)
+      || text(item.receipt_id) !== remediationReceiptId(scopeFingerprint, subjectType, sourceId, gate)
+    ) continue
+    receipts.push({
+      version: YOUTUBE_DESCRIPTION_REMEDIATION_VERSION,
+      receipt_id: text(item.receipt_id),
+      scope_fingerprint: scopeFingerprint,
+      subject_type: subjectType,
+      source_id: sourceId,
+      source_url: sourceUrl || null,
+      failed_gate: gate,
+      observed_value: text(item.observed_value),
+      requirement: text(item.requirement),
+      recovery_action: route.recovery_action,
+      designated_owner: route.designated_owner,
+      recorder: 'decision-journal',
+      attempt_count: attemptCount,
+      prior_evidence_fingerprint: item.prior_evidence_fingerprint === null ? null : text(item.prior_evidence_fingerprint),
+      current_evidence_fingerprint: text(item.current_evidence_fingerprint),
+      status,
+      recheck_result: recheckResult,
+      release_readiness: item.release_readiness,
+    })
+  }
+  return receipts
+}
+
+function remediationReceipt(input: {
+  subjectType: 'source' | 'cohort'
+  sourceId: string | null
+  sourceUrl: string | null
+  scopeFingerprint: string
+  gate: YouTubeDescriptionRemediationGate
+  observed: string
+  requirement: string
+  evidenceFingerprint: string
+  prior?: YouTubeDescriptionRemediationReceipt
+  resolved?: boolean
+}): YouTubeDescriptionRemediationReceipt {
+  const route = routeYouTubeDescriptionRemediation(input.gate)
+  const inputsChanged = Boolean(input.prior && input.prior.current_evidence_fingerprint !== input.evidenceFingerprint)
+  const resolved = Boolean(input.resolved && inputsChanged)
+  return {
+    version: YOUTUBE_DESCRIPTION_REMEDIATION_VERSION,
+    receipt_id: remediationReceiptId(input.scopeFingerprint, input.subjectType, input.sourceId, input.gate),
+    scope_fingerprint: input.scopeFingerprint,
+    subject_type: input.subjectType,
+    source_id: input.sourceId,
+    source_url: input.sourceUrl,
+    failed_gate: input.gate,
+    observed_value: input.observed,
+    requirement: input.requirement,
+    recovery_action: route.recovery_action,
+    designated_owner: route.designated_owner,
+    recorder: 'decision-journal',
+    attempt_count: (input.prior?.attempt_count ?? 0) + (inputsChanged ? 1 : 0),
+    prior_evidence_fingerprint: input.prior?.current_evidence_fingerprint ?? null,
+    current_evidence_fingerprint: input.evidenceFingerprint,
+    status: resolved
+      ? 'resolved'
+      : !input.prior
+        ? 'open'
+        : inputsChanged
+          ? 'recheck_failed'
+          : 'awaiting_evidence',
+    recheck_result: resolved
+      ? 'passed_after_input_change'
+      : !input.prior
+        ? 'not_run_no_prior_receipt'
+        : inputsChanged
+          ? 'failed_after_input_change'
+          : 'not_run_inputs_unchanged',
+    release_readiness: resolved ? 'ready' : 'blocked',
+  }
 }
 
 function topicTokens(...values: unknown[]): string[] {
@@ -388,18 +582,37 @@ export function buildYouTubeOutlierDescriptionLibrary(input: {
   minimumOutlierScore?: number
   freshnessDays?: number
   maximumSources?: number
+  priorRemediationReceipts?: YouTubeDescriptionRemediationReceipt[]
 }): YouTubeDescriptionLibraryReceipt {
-  const minimumSourceCount = Math.max(2, input.minimumSourceCount ?? 3)
-  const minimumOutlierScore = Math.max(0, Math.min(100, input.minimumOutlierScore ?? 65))
-  const freshnessDays = Math.max(1, input.freshnessDays ?? 180)
-  const maximumSources = Math.max(minimumSourceCount, input.maximumSources ?? 5)
   const generatedAt = Date.parse(input.generatedAt)
   const targetTopics = topicTokens(input.targetTopics)
   const targetAudienceBand = typeof input.targetAudienceSize === 'number' && input.targetAudienceSize >= 0
     ? audienceBand(input.targetAudienceSize)
     : null
+  const scopeFingerprint = fingerprint({ targetAudienceBand, targetTopics })
+  const priorReceipts = normalizeYouTubeDescriptionRemediationReceipts(input.priorRemediationReceipts ?? [])
+    .filter((receipt) => receipt.scope_fingerprint === scopeFingerprint)
+  const priorMinimumSourceCount = Math.max(0, ...priorReceipts
+    .filter((receipt) => receipt.failed_gate === 'cohort_size')
+    .map((receipt) => Number(receipt.requirement.match(/At least (\d+)/)?.[1] ?? 0)))
+  const priorMinimumOutlierScore = Math.max(0, ...priorReceipts
+    .filter((receipt) => receipt.failed_gate === 'outlier_score')
+    .map((receipt) => Number(receipt.requirement.match(/at least (\d+(?:\.\d+)?)/i)?.[1] ?? 0)))
+  const priorFreshnessDays = priorReceipts
+    .filter((receipt) => receipt.failed_gate === 'freshness')
+    .map((receipt) => Number(receipt.requirement.match(/within (\d+) days/i)?.[1] ?? Number.POSITIVE_INFINITY))
+  const minimumSourceCount = Math.max(2, input.minimumSourceCount ?? 3, priorMinimumSourceCount)
+  const minimumOutlierScore = Math.max(priorMinimumOutlierScore, Math.max(0, Math.min(100, input.minimumOutlierScore ?? 65)))
+  const freshnessDays = Math.min(Math.max(1, input.freshnessDays ?? 180), ...priorFreshnessDays)
+  const maximumSources = Math.max(minimumSourceCount, input.maximumSources ?? 5)
   const sources = new Map<string, YouTubeDescriptionLibrarySource>()
   const excludedSources: YouTubeDescriptionLibraryExclusion[] = []
+  const sourceEvaluations = new Map<string, {
+    sourceUrl: string | null
+    evidenceFingerprint: string
+    decisions: YouTubeDescriptionGateDecision[]
+  }>()
+  const priorRemediationReceipts = new Map(priorReceipts.map((receipt) => [receipt.receipt_id, receipt]))
 
   if (Number.isFinite(generatedAt) && targetTopics.length) {
     for (const rawPacket of input.researchPackets) {
@@ -417,6 +630,20 @@ export function buildYouTubeOutlierDescriptionLibrary(input: {
       const audienceSize = number(metrics.follower_count) ?? number(metrics.subscriber_count)
       const topics = packetTopics(packet)
       const matches = targetTopics.filter((topic) => topics.includes(topic))
+      const sourceId = text(packet.id) || fingerprint(sourceUrl || text(packet.title))
+      const evidenceFingerprint = fingerprint({
+        audienceSize,
+        description,
+        matches,
+        outlierScore,
+        platform,
+        provenance,
+        publishedAt,
+        retrievedAt,
+        sourceUrl,
+        status,
+        topics,
+      })
       const evaluation = gateDecisions({
         status,
         sourceUrl,
@@ -433,9 +660,17 @@ export function buildYouTubeOutlierDescriptionLibrary(input: {
       })
       const reason = platform === 'youtube' || platform === 'youtube_shorts' ? evaluation.reason : null
 
+      if (platform === 'youtube' || platform === 'youtube_shorts') {
+        sourceEvaluations.set(sourceId, {
+          sourceUrl: validHttpUrl(sourceUrl) ? sourceUrl : null,
+          evidenceFingerprint,
+          decisions: evaluation.decisions,
+        })
+      }
+
       if (reason) {
         excludedSources.push({
-          source_id: text(packet.id) || fingerprint(sourceUrl || text(packet.title)),
+          source_id: sourceId,
           source_url: validHttpUrl(sourceUrl) ? sourceUrl : null,
           source_title: text(packet.title) || 'Untitled YouTube source',
           reason,
@@ -448,7 +683,7 @@ export function buildYouTubeOutlierDescriptionLibrary(input: {
 
       const matchScore = Number(((matches.length / targetTopics.length) * 0.65 + (outlierScore / 100) * 0.35).toFixed(4))
       const source: YouTubeDescriptionLibrarySource = {
-        source_id: text(packet.id) || fingerprint(sourceUrl),
+        source_id: sourceId,
         source_url: sourceUrl,
         source_title: text(packet.title) || 'Untitled YouTube source',
         creator: text(packet.creator_name) || text(packet.creator_handle) || null,
@@ -488,6 +723,94 @@ export function buildYouTubeOutlierDescriptionLibrary(input: {
     ...(Number.isFinite(generatedAt) ? [] : ['The description-library evaluation time is invalid.']),
     ...(ranked.length >= minimumSourceCount ? [] : [`Only ${ranked.length} fresh, attributable same-topic outlier description(s) qualified; ${minimumSourceCount} are required.`]),
   ]
+  const currentRemediations: YouTubeDescriptionRemediationReceipt[] = []
+  for (const excluded of excludedSources) {
+    const failedDecision = excluded.gate_decisions.find((decision) => decision.status === 'failed')
+    const sourceEvaluation = sourceEvaluations.get(excluded.source_id)
+    if (!failedDecision || !sourceEvaluation) continue
+    const receiptId = remediationReceiptId(scopeFingerprint, 'source', excluded.source_id, failedDecision.gate)
+    currentRemediations.push(remediationReceipt({
+      subjectType: 'source',
+      sourceId: excluded.source_id,
+      sourceUrl: excluded.source_url,
+      scopeFingerprint,
+      gate: failedDecision.gate,
+      observed: failedDecision.observed,
+      requirement: failedDecision.requirement,
+      evidenceFingerprint: sourceEvaluation.evidenceFingerprint,
+      prior: priorRemediationReceipts.get(receiptId),
+    }))
+  }
+  const cohortEvidenceFingerprint = fingerprint({
+    sourceEvidence: [...sourceEvaluations.entries()].sort(([left], [right]) => left.localeCompare(right)),
+    targetAudienceBand,
+    targetTopics,
+  })
+  if (status === 'unscored') {
+    const receiptId = remediationReceiptId(scopeFingerprint, 'cohort', null, 'cohort_size')
+    currentRemediations.push(remediationReceipt({
+      subjectType: 'cohort',
+      sourceId: null,
+      sourceUrl: null,
+      scopeFingerprint,
+      gate: 'cohort_size',
+      observed: `${ranked.length} qualified source(s)`,
+      requirement: `At least ${minimumSourceCount} independent qualifying sources`,
+      evidenceFingerprint: cohortEvidenceFingerprint,
+      prior: priorRemediationReceipts.get(receiptId),
+    }))
+  }
+  const currentReceiptIds = new Set(currentRemediations.map((receipt) => receipt.receipt_id))
+  for (const prior of priorRemediationReceipts.values()) {
+    if (currentReceiptIds.has(prior.receipt_id) || prior.status === 'resolved') continue
+    if (prior.scope_fingerprint !== scopeFingerprint) continue
+    if (prior.subject_type === 'cohort' && prior.failed_gate === 'cohort_size') {
+      currentRemediations.push(remediationReceipt({
+        subjectType: 'cohort',
+        sourceId: null,
+        sourceUrl: null,
+        scopeFingerprint,
+        gate: 'cohort_size',
+        observed: `${ranked.length} qualified source(s)`,
+        requirement: prior.requirement,
+        evidenceFingerprint: cohortEvidenceFingerprint,
+        prior,
+        resolved: status === 'ready',
+      }))
+      continue
+    }
+    if (!prior.source_id) continue
+    const sourceEvaluation = sourceEvaluations.get(prior.source_id)
+    if (!sourceEvaluation) {
+      currentRemediations.push(remediationReceipt({
+        subjectType: 'source',
+        sourceId: prior.source_id,
+        sourceUrl: prior.source_url,
+        scopeFingerprint,
+        gate: prior.failed_gate,
+        observed: 'Source missing from current evidence inputs',
+        requirement: prior.requirement,
+        evidenceFingerprint: fingerprint({ sourceId: prior.source_id, sourceMissing: true }),
+        prior,
+      }))
+      continue
+    }
+    const decision = sourceEvaluation?.decisions.find((candidate) => candidate.gate === prior.failed_gate)
+    if (!decision || decision.status !== 'passed') continue
+    currentRemediations.push(remediationReceipt({
+      subjectType: 'source',
+      sourceId: prior.source_id,
+      sourceUrl: sourceEvaluation.sourceUrl,
+      scopeFingerprint,
+      gate: prior.failed_gate,
+      observed: decision.observed,
+      requirement: decision.requirement,
+      evidenceFingerprint: sourceEvaluation.evidenceFingerprint,
+      prior,
+      resolved: true,
+    }))
+  }
+  const remediationReceipts = currentRemediations.sort((left, right) => left.receipt_id.localeCompare(right.receipt_id))
   const result = {
     version: YOUTUBE_DESCRIPTION_LIBRARY_VERSION,
     status,
@@ -501,6 +824,8 @@ export function buildYouTubeOutlierDescriptionLibrary(input: {
     excluded_sources: excludedSources.sort((left, right) => left.source_title.localeCompare(right.source_title)),
     recommended_structure: recommendedStructure,
     blockers,
+    release_readiness: status === 'ready' ? 'ready' as const : 'blocked' as const,
+    remediation_receipts: remediationReceipts,
     originality_boundary: 'Reuse aggregate description structure only. Do not copy source wording, title language, creator identity, links, claims, or calls to action.',
   }
   return { ...result, input_fingerprint: fingerprint(result) }
