@@ -22,13 +22,15 @@ function packet(input: {
     platform: input.platform ?? 'youtube',
     creator_name: `Creator ${input.id}`,
     title: input.title ?? `AI license audit ${input.id}`,
-    caption: input.description,
+    caption: `Internal campaign summary for ${input.id}.`,
     metrics: {
       published_at: input.publishedAt ?? '2026-10-01T12:00:00.000Z',
       follower_count: input.audienceSize ?? 42_000,
     },
     actor_metadata: {
       topics: ['ai licenses', 'audit calculator'],
+      source_description: input.description,
+      description_provenance: 'youtube_watch_short_description',
     },
     outlier_score: input.score ?? 82,
     pattern_packet: {
@@ -79,6 +81,11 @@ describe('YouTube outlier description library', () => {
       source_url: expect.stringContaining('youtube.com/watch'),
       topic_matches: expect.arrayContaining(['licenses', 'audit', 'calculator']),
       description_fingerprint: expect.stringMatching(/^fnv1a:/),
+      gate_decisions: expect.arrayContaining([
+        expect.objectContaining({ gate: 'framework_approval', status: 'passed' }),
+        expect.objectContaining({ gate: 'outlier_score', status: 'passed' }),
+        expect.objectContaining({ gate: 'audience_band', status: 'passed' }),
+      ]),
     })
     expect(receipt.recommended_structure.blueprint).toEqual(expect.arrayContaining([
       expect.stringContaining('first-party product example'),
@@ -137,6 +144,39 @@ describe('YouTube outlier description library', () => {
     expect(receipt.status).toBe('unscored')
     expect(receipt.library_entry_count).toBe(0)
     expect(receipt.sources).toEqual([])
+    expect(receipt.excluded_sources).toEqual(expect.arrayContaining([
+      expect.objectContaining({ source_id: 'unapproved', reason: 'Pattern has not been approved as a usable framework.' }),
+      expect.objectContaining({ source_id: 'no-url', reason: 'Source URL is missing or is not attributable.' }),
+      expect.objectContaining({ source_id: 'wrong-band', reason: expect.stringMatching(/audience/i) }),
+    ]))
+    expect(receipt.excluded_sources).not.toEqual(expect.arrayContaining([
+      expect.objectContaining({ source_id: 'wrong-platform' }),
+    ]))
+  })
+
+  it('does not treat an internal packet caption as public YouTube description evidence', () => {
+    const researchPacket = packet({ id: 'summary-only', description: 'Public description that is deliberately removed.' })
+    researchPacket.actor_metadata.source_description = ''
+    researchPacket.actor_metadata.description_provenance = ''
+
+    const receipt = buildYouTubeOutlierDescriptionLibrary({
+      generatedAt: '2026-10-17T12:00:00.000Z',
+      targetTopics: ['AI licenses'],
+      researchPackets: [researchPacket],
+      minimumSourceCount: 2,
+    })
+
+    expect(receipt.sources).toEqual([])
+    expect(receipt.excluded_sources).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        source_id: 'summary-only',
+        reason: 'No separately proven public YouTube description was captured; the internal packet summary is not description evidence.',
+        gate_decisions: expect.arrayContaining([
+          expect.objectContaining({ gate: 'description_capture', status: 'failed' }),
+          expect.objectContaining({ gate: 'outlier_score', status: 'not_evaluated' }),
+        ]),
+      }),
+    ]))
   })
 
   it('attaches and applies the library receipt only to the YouTube draft', () => {

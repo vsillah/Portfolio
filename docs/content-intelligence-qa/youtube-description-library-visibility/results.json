@@ -1,0 +1,35 @@
+{
+  "generated_at": "2026-10-17T10:43:57.209Z",
+  "commit": "69ffd2092488ab2f5ca982c7a3581f04a6b48194",
+  "route": "/admin/agents/content-intelligence?section=research&qa_fixture=youtube_description_library_v1&rev=69ffd209",
+  "product_writes": 0,
+  "viewports": [
+    {
+      "width": 1280,
+      "height": 800,
+      "theme": "dark"
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "theme": "light"
+    }
+  ],
+  "verified": [
+    "real public thumbnails",
+    "visible YouTube URLs",
+    "captured public description excerpts and provenance",
+    "discovery query and dataset receipts",
+    "per-gate pass, fail, and not-evaluated decisions",
+    "internal summary separation",
+    "exclusion reasons",
+    "exact gate order and ranking formula",
+    "unscored fail-closed state",
+    "responsive light and dark presentation"
+  ],
+  "screenshots": [
+    "desktop-dark-1280x800.png",
+    "mobile-light-390x844.png"
+  ],
+  "output": "youtube-description-library-walkthrough.mp4"
+}

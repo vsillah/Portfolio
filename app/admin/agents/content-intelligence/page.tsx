@@ -48,6 +48,7 @@ import type {
 
 import { ResearchPacketReview, type ReviewableResearchPacket } from '@/components/admin/ResearchPacketReview'
 import ChannelExperimentReview from '@/components/admin/ChannelExperimentReview'
+import YouTubeDescriptionLibrary from '@/components/admin/YouTubeDescriptionLibrary'
 import {
   CHANNEL_EXPERIMENT_PACKET_IDS,
   CHANNEL_EXPERIMENT_REVIEWS,
@@ -395,6 +396,91 @@ function channelExperimentFixturePacket(searchParams: URLSearchParams): ChannelE
   const packetId = searchParams.get('packet') as ChannelExperimentPacketId | null
   return packetId && CHANNEL_EXPERIMENT_PACKET_IDS.includes(packetId) ? packetId : null
 }
+
+function youtubeDescriptionLibraryFixtureEnabled(searchParams: URLSearchParams) {
+  return process.env.NODE_ENV !== 'production' && searchParams.get('qa_fixture') === 'youtube_description_library_v1'
+}
+
+const YOUTUBE_DESCRIPTION_LIBRARY_FIXTURE = [
+  {
+    id: '61d0ab8a-29fa-40de-aa7a-49b15c74cafa',
+    source_url: 'https://www.youtube.com/watch?v=KjYCEiBTHFo',
+    thumbnail_url: 'https://i.ytimg.com/vi/KjYCEiBTHFo/hqdefault.jpg',
+    creator_name: 'HelloPM',
+    title: "Campaign proposal: The product manager's new operating system",
+    caption: 'A review-only Accelerated campaign using strong demand for complete AI product-management education and grounding it in the SAM Loop, the book, and the working Portfolio system.',
+    outlier_score: 59,
+    metrics: { published_at: '2025-11-04T00:00:00Z', follower_count: 44_700 },
+    actor_metadata: {
+      public_evidence_snapshot: true,
+      collector: 'apify_youtube_public_metadata',
+      query: 'AI product management strategy',
+      dataset_id: 'GrjOiooP3ld2RIw32',
+      cohort_size: 5,
+      cohort_median_view_to_follower_ratio: 2.42,
+      observed_at: '2026-10-15T00:00:00Z',
+      public_summary_only: true,
+      source_title: 'AI Product Management - Complete Course - 3.5 hours - Masterclass | AI Agents, RAG, Evals, LLMs.',
+      source_description_excerpt: "Become an AI-First Product Manager. Master AI Agents, RAG, and LLMs in this comprehensive 3.5-hour masterclass. Why This Masterclass? The GenAI revolution is fundamentally changing how products are built. Whether you're an aspiring PM or a seasoned leader, this masterclass provides the end-to-end framework you need to build, scale, and evaluate AI-powered products.",
+      description_provenance: 'Public YouTube watch-page shortDescription captured 2026-10-17',
+      topics: ['ai product management', 'ai agents', 'rag', 'llms'],
+    },
+  },
+  {
+    id: '048a80bb-bcfa-48d7-9d90-ce66d36f4523',
+    source_url: 'https://www.youtube.com/watch?v=_w-jVw8Uhc0',
+    thumbnail_url: 'https://i.ytimg.com/vi/_w-jVw8Uhc0/hqdefault.jpg',
+    creator_name: 'Collaboration Simplified',
+    title: 'Campaign proposal: The agent harness is the product',
+    caption: "A review-only Agentified campaign translating public demand for concrete AI-agent workflows into Vambah's own governed operating-system proof.",
+    outlier_score: 52,
+    metrics: { published_at: '2025-11-15T00:00:00Z', follower_count: 92_000 },
+    actor_metadata: {
+      public_evidence_snapshot: true,
+      collector: 'apify_youtube_public_metadata',
+      query: 'AI agent governance workflow',
+      dataset_id: 'UcERfoELJq8xE7sJs',
+      cohort_size: 5,
+      cohort_median_view_to_follower_ratio: 5.66,
+      observed_at: '2026-10-15T00:00:00Z',
+      public_summary_only: true,
+      source_title: 'NEW Copilot Workflows Agent Will Automate Your Job (Full Tutorial)',
+      source_description_excerpt: 'Learn how to use the new Copilot Workflows Agent in Microsoft 365 Copilot with this clear, step-by-step tutorial. Join Shervin Shaffie, a Copilot Principal Engineer at Microsoft, as he turns simple natural-language prompts into powerful automations you can use immediately across Outlook and Teams.',
+      description_provenance: 'Public YouTube watch-page shortDescription captured 2026-10-17',
+      topics: ['ai agents', 'copilot', 'workflow automation'],
+    },
+  },
+  {
+    id: '407df879-a539-40a1-a20e-75de31b9c494',
+    source_url: 'https://www.youtube.com/watch?v=C4m8LS2Jzqs',
+    thumbnail_url: 'https://i.ytimg.com/vi/C4m8LS2Jzqs/hqdefault.jpg',
+    creator_name: 'Cloud & AI Hub',
+    title: 'Campaign proposal: Stop counting AI licenses',
+    caption: 'A review-only AI Audit Calculator campaign translating demand for practical transformation scorecards into a concrete readiness diagnostic backed by public enterprise adoption signals.',
+    outlier_score: 64,
+    metrics: { published_at: '2026-05-26T00:00:00Z', follower_count: 1_380 },
+    actor_metadata: {
+      public_evidence_snapshot: true,
+      collector: 'apify_youtube_public_metadata',
+      query: 'AI adoption training course business',
+      dataset_id: '6r4ajmu7XGjhXvleo',
+      cohort_size: 5,
+      cohort_median_view_to_follower_ratio: 3.66,
+      observed_at: '2026-10-15T00:00:00Z',
+      public_summary_only: true,
+      source_title: 'AB-731: AI Transformation Leader - All 100 Exam Prep Practice Questions with Answers - Complete Set',
+      source_description_excerpt: 'AB-731: AI Transformation Leader - 100 Practice Questions | 2026 Exam Prep. Who should watch this? Candidates preparing for AB-731 certification, business leaders driving AI transformation initiatives, architects and decision-makers aligning AI with business strategy, and anyone looking to understand enterprise AI adoption and governance.',
+      description_provenance: 'Public YouTube watch-page shortDescription captured 2026-10-17',
+      topics: ['ai transformation', 'ai governance', 'ai leadership'],
+    },
+  },
+].map((packet) => ({
+  ...packet,
+  platform: 'youtube',
+  pattern_status: 'usable_framework',
+  status: 'review_ready',
+  retrieved_at: '2026-10-17T10:00:00.000Z',
+}))
 
 function initialActiveSection(): IntelligenceSection {
   const section = currentUrlSearchParams().get('section') as IntelligenceSection | null
@@ -940,6 +1026,7 @@ async function readJsonResponse(response: Response): Promise<unknown> {
 export default function ContentIntelligencePage({ searchParams }: ContentIntelligencePageProps) {
   const routeSearchParams = useMemo(() => pageSearchParams(searchParams), [searchParams])
   const [channelExperimentQa, setChannelExperimentQa] = useState<ChannelExperimentPacketId | null>(() => channelExperimentFixturePacket(routeSearchParams))
+  const descriptionLibraryQa = youtubeDescriptionLibraryFixtureEnabled(routeSearchParams)
 
   useEffect(() => {
     if (process.env.NODE_ENV === 'production') return
@@ -952,6 +1039,32 @@ export default function ContentIntelligencePage({ searchParams }: ContentIntelli
     window.addEventListener('popstate', syncFixtureFromLocation)
     return () => window.removeEventListener('popstate', syncFixtureFromLocation)
   }, [searchParams])
+
+  if (descriptionLibraryQa) {
+    const revision = routeSearchParams.get('rev') ?? 'working-tree'
+    return <main id="admin-main" className="min-h-screen bg-background px-4 py-8 text-foreground sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-6xl">
+        <div className="flex flex-col gap-3 border-b border-border pb-5 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-700 dark:text-cyan-200">Privacy-safe local QA fixture</p>
+            <h1 className="mt-2 text-2xl font-semibold">Research and Shaka insight queue</h1>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">The exact YouTube description-pattern workspace used on the existing Research surface. Public metadata snapshots expose the real thumbnails, description excerpts, YouTube URLs, score inputs, and gate decisions without mutating production.</p>
+          </div>
+          <div className="rounded-lg border border-border bg-card px-3 py-2 text-xs text-card-foreground">
+            <p className="font-semibold">Commit-bound review</p>
+            <p className="mt-1 font-mono text-muted-foreground">{revision}</p>
+          </div>
+        </div>
+        <div className="mt-5">
+          <YouTubeDescriptionLibrary
+            researchPackets={YOUTUBE_DESCRIPTION_LIBRARY_FIXTURE}
+            initialTopic="AI licenses"
+            generatedAt="2026-10-17T12:00:00.000Z"
+          />
+        </div>
+      </div>
+    </main>
+  }
 
   if (channelExperimentQa) {
     const revision = routeSearchParams.get('rev') ?? currentUrlSearchParams().get('rev') ?? 'working-tree'
@@ -1068,6 +1181,8 @@ function ContentIntelligenceContent() {
   const [researchSort, setResearchSort] = useState<ResearchSortKey>('score')
   const [researchSortDirection, setResearchSortDirection] = useState<SortDirection>('desc')
   const [researchPage, setResearchPage] = useState(1)
+  const [descriptionLibraryTopic] = useState(() => currentUrlSearchParams().get('description_topic') ?? '')
+  const descriptionLibraryGeneratedAt = useRef(new Date().toISOString()).current
   const [templatePage, setTemplatePage] = useState(1)
   const [insightSearch, setInsightSearch] = useState('')
   const [insightStatusFilter, setInsightStatusFilter] = useState('')
@@ -2972,6 +3087,11 @@ function ContentIntelligenceContent() {
               <div className="py-12 text-center text-sm text-muted-foreground">Loading research packets...</div>
             ) : packets.length ? (
               <div className="space-y-4">
+                <YouTubeDescriptionLibrary
+                  researchPackets={packets}
+                  initialTopic={descriptionLibraryTopic}
+                  generatedAt={descriptionLibraryGeneratedAt}
+                />
                 {(
                   <CollapsiblePanel
                     title="Link research patterns"

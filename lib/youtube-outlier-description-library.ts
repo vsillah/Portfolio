@@ -13,11 +13,21 @@ type DescriptionPattern = {
   hashtag_count: number
 }
 
+export type YouTubeDescriptionGateDecision = {
+  gate: 'framework_approval' | 'source_attribution' | 'description_capture' | 'outlier_score' | 'freshness' | 'topic_match' | 'audience_band'
+  label: string
+  status: 'passed' | 'failed' | 'not_evaluated' | 'not_applicable'
+  requirement: string
+  observed: string
+}
+
 export type YouTubeDescriptionLibrarySource = {
   source_id: string
   source_url: string
   source_title: string
   creator: string | null
+  thumbnail_url: string | null
+  description_provenance: string
   outlier_score: number
   published_at: string
   retrieved_at: string
@@ -26,6 +36,15 @@ export type YouTubeDescriptionLibrarySource = {
   topic_match_score: number
   description_fingerprint: string
   pattern: DescriptionPattern
+  gate_decisions: YouTubeDescriptionGateDecision[]
+}
+
+export type YouTubeDescriptionLibraryExclusion = {
+  source_id: string
+  source_url: string | null
+  source_title: string
+  reason: string
+  gate_decisions: YouTubeDescriptionGateDecision[]
 }
 
 export type YouTubeDescriptionLibraryReceipt = {
@@ -38,6 +57,7 @@ export type YouTubeDescriptionLibraryReceipt = {
   freshness_days: number
   library_entry_count: number
   sources: YouTubeDescriptionLibrarySource[]
+  excluded_sources: YouTubeDescriptionLibraryExclusion[]
   recommended_structure: {
     opening_style: DescriptionPattern['opening_style'] | null
     length_band: DescriptionPattern['length_band'] | null
@@ -234,8 +254,133 @@ function packetTopics(packet: Record<string, unknown>) {
   )
 }
 
+function capturedSourceDescription(packet: Record<string, unknown>) {
+  const metadata = record(packet.actor_metadata)
+  const pattern = record(packet.pattern_packet)
+  return text(metadata.source_description)
+    || text(metadata.source_description_excerpt)
+    || text(pattern.source_description)
+}
+
+function descriptionProvenance(packet: Record<string, unknown>) {
+  const metadata = record(packet.actor_metadata)
+  return text(metadata.description_provenance)
+}
+
+function gateDecisions(input: {
+  status: string
+  sourceUrl: string
+  description: string
+  provenance: string
+  outlierScore: number | null
+  minimumOutlierScore: number
+  evidenceTime: number
+  generatedAt: number
+  freshnessDays: number
+  matches: string[]
+  targetAudienceBand: string | null
+  audienceSize: number | null
+}) {
+  const raw: Array<{
+    gate: YouTubeDescriptionGateDecision['gate']
+    label: string
+    pass: boolean
+    notApplicable?: boolean
+    requirement: string
+    observed: string
+    reason: string
+  }> = [
+    {
+      gate: 'framework_approval' as const,
+      label: 'Framework approval',
+      pass: input.status === 'usable_framework',
+      requirement: 'pattern_status must be usable_framework',
+      observed: input.status || 'Missing',
+      reason: 'Pattern has not been approved as a usable framework.',
+    },
+    {
+      gate: 'source_attribution' as const,
+      label: 'Source attribution',
+      pass: validHttpUrl(input.sourceUrl),
+      requirement: 'Attributable HTTP source URL',
+      observed: validHttpUrl(input.sourceUrl) ? input.sourceUrl : 'Missing or invalid URL',
+      reason: 'Source URL is missing or is not attributable.',
+    },
+    {
+      gate: 'description_capture' as const,
+      label: 'Public description capture',
+      pass: Boolean(input.description && input.provenance),
+      requirement: 'Separately captured public description plus provenance',
+      observed: input.description && input.provenance ? input.provenance : 'Description or provenance missing',
+      reason: 'No separately proven public YouTube description was captured; the internal packet summary is not description evidence.',
+    },
+    {
+      gate: 'outlier_score' as const,
+      label: 'Outlier threshold',
+      pass: input.outlierScore !== null && input.outlierScore >= input.minimumOutlierScore,
+      requirement: `Outlier score at least ${input.minimumOutlierScore}`,
+      observed: input.outlierScore === null ? 'Missing' : String(input.outlierScore),
+      reason: input.outlierScore === null ? 'Outlier score is missing.' : `Outlier score ${input.outlierScore} is below the ${input.minimumOutlierScore} threshold.`,
+    },
+    {
+      gate: 'freshness' as const,
+      label: 'Evidence freshness',
+      pass: Number.isFinite(input.evidenceTime)
+        && input.generatedAt - input.evidenceTime >= 0
+        && input.generatedAt - input.evidenceTime <= input.freshnessDays * 86_400_000,
+      requirement: `Evidence dated no later than evaluation and within ${input.freshnessDays} days`,
+      observed: Number.isFinite(input.evidenceTime) ? new Date(input.evidenceTime).toISOString() : 'Missing date',
+      reason: !Number.isFinite(input.evidenceTime)
+        ? 'Publication or retrieval date is missing.'
+        : input.generatedAt - input.evidenceTime < 0
+          ? 'Evidence date is later than the evaluation time.'
+          : `Evidence is older than the ${input.freshnessDays}-day freshness window.`,
+    },
+    {
+      gate: 'topic_match' as const,
+      label: 'Topic identity',
+      pass: input.matches.length > 0,
+      requirement: 'At least one stable topic-token match',
+      observed: input.matches.length ? input.matches.join(', ') : 'No matching topic token',
+      reason: 'No stable topic identity matches the current comparison.',
+    },
+    {
+      gate: 'audience_band' as const,
+      label: 'Audience comparison band',
+      pass: !input.targetAudienceBand || (input.audienceSize !== null && audienceBand(input.audienceSize) === input.targetAudienceBand),
+      notApplicable: !input.targetAudienceBand,
+      requirement: input.targetAudienceBand ? `Audience must be in the ${input.targetAudienceBand} band` : 'No audience-size band requested',
+      observed: input.audienceSize === null ? 'Missing audience size' : `${input.audienceSize} (${audienceBand(input.audienceSize)})`,
+      reason: `Audience size is missing or outside the ${input.targetAudienceBand} comparison band.`,
+    },
+  ]
+  let failed = false
+  const decisions: YouTubeDescriptionGateDecision[] = raw.map((decision) => {
+    const status: YouTubeDescriptionGateDecision['status'] = decision.notApplicable
+      ? 'not_applicable'
+      : failed
+        ? 'not_evaluated'
+        : decision.pass
+          ? 'passed'
+          : 'failed'
+    if (status === 'failed') failed = true
+    return {
+      gate: decision.gate,
+      label: decision.label,
+      status,
+      requirement: decision.requirement,
+      observed: decision.observed,
+    }
+  })
+  const failedIndex = decisions.findIndex((decision) => decision.status === 'failed')
+  return {
+    decisions,
+    reason: failedIndex >= 0 ? raw[failedIndex].reason : null,
+  }
+}
+
 export function buildYouTubeOutlierDescriptionLibrary(input: {
-  researchPackets: Array<Record<string, unknown>>
+  researchPackets: unknown[]
   targetTopics: string[]
   generatedAt: string
   targetAudienceSize?: number | null
@@ -254,13 +399,16 @@ export function buildYouTubeOutlierDescriptionLibrary(input: {
     ? audienceBand(input.targetAudienceSize)
     : null
   const sources = new Map<string, YouTubeDescriptionLibrarySource>()
+  const excludedSources: YouTubeDescriptionLibraryExclusion[] = []
 
   if (Number.isFinite(generatedAt) && targetTopics.length) {
-    for (const packet of input.researchPackets) {
+    for (const rawPacket of input.researchPackets) {
+      const packet = record(rawPacket)
       const platform = text(packet.platform)
       const status = text(packet.pattern_status)
       const sourceUrl = canonicalUrl(text(packet.source_url))
-      const description = text(packet.caption) || text(record(packet.pattern_packet).description)
+      const description = capturedSourceDescription(packet)
+      const provenance = descriptionProvenance(packet)
       const metrics = record(packet.metrics)
       const outlierScore = number(packet.outlier_score) ?? number(record(packet.actor_metadata).score_breakdown && record(record(packet.actor_metadata).score_breakdown).outlier_score)
       const publishedAt = text(metrics.published_at) || text(packet.published_at)
@@ -269,20 +417,34 @@ export function buildYouTubeOutlierDescriptionLibrary(input: {
       const audienceSize = number(metrics.follower_count) ?? number(metrics.subscriber_count)
       const topics = packetTopics(packet)
       const matches = targetTopics.filter((topic) => topics.includes(topic))
+      const evaluation = gateDecisions({
+        status,
+        sourceUrl,
+        description,
+        provenance,
+        outlierScore,
+        minimumOutlierScore,
+        evidenceTime,
+        generatedAt,
+        freshnessDays,
+        matches,
+        targetAudienceBand,
+        audienceSize,
+      })
+      const reason = platform === 'youtube' || platform === 'youtube_shorts' ? evaluation.reason : null
 
-      if (
-        (platform !== 'youtube' && platform !== 'youtube_shorts')
-        || status !== 'usable_framework'
-        || !validHttpUrl(sourceUrl)
-        || !description
-        || outlierScore === null
-        || outlierScore < minimumOutlierScore
-        || !Number.isFinite(evidenceTime)
-        || generatedAt - evidenceTime < 0
-        || generatedAt - evidenceTime > freshnessDays * 86_400_000
-        || !matches.length
-        || (targetAudienceBand && (audienceSize === null || audienceBand(audienceSize) !== targetAudienceBand))
-      ) continue
+      if (reason) {
+        excludedSources.push({
+          source_id: text(packet.id) || fingerprint(sourceUrl || text(packet.title)),
+          source_url: validHttpUrl(sourceUrl) ? sourceUrl : null,
+          source_title: text(packet.title) || 'Untitled YouTube source',
+          reason,
+          gate_decisions: evaluation.decisions,
+        })
+        continue
+      }
+      if (platform !== 'youtube' && platform !== 'youtube_shorts') continue
+      if (outlierScore === null) continue
 
       const matchScore = Number(((matches.length / targetTopics.length) * 0.65 + (outlierScore / 100) * 0.35).toFixed(4))
       const source: YouTubeDescriptionLibrarySource = {
@@ -290,6 +452,8 @@ export function buildYouTubeOutlierDescriptionLibrary(input: {
         source_url: sourceUrl,
         source_title: text(packet.title) || 'Untitled YouTube source',
         creator: text(packet.creator_name) || text(packet.creator_handle) || null,
+        thumbnail_url: validHttpUrl(text(packet.thumbnail_url)) ? text(packet.thumbnail_url) : null,
+        description_provenance: provenance,
         outlier_score: outlierScore,
         published_at: publishedAt || retrievedAt,
         retrieved_at: retrievedAt || publishedAt,
@@ -298,6 +462,7 @@ export function buildYouTubeOutlierDescriptionLibrary(input: {
         topic_match_score: matchScore,
         description_fingerprint: fingerprint(description),
         pattern: descriptionPattern(description),
+        gate_decisions: evaluation.decisions,
       }
       const existing = sources.get(sourceUrl)
       if (!existing || source.topic_match_score > existing.topic_match_score) sources.set(sourceUrl, source)
@@ -333,6 +498,7 @@ export function buildYouTubeOutlierDescriptionLibrary(input: {
     freshness_days: freshnessDays,
     library_entry_count: ranked.length,
     sources: ranked,
+    excluded_sources: excludedSources.sort((left, right) => left.source_title.localeCompare(right.source_title)),
     recommended_structure: recommendedStructure,
     blockers,
     originality_boundary: 'Reuse aggregate description structure only. Do not copy source wording, title language, creator identity, links, claims, or calls to action.',
