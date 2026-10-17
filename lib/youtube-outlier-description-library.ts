@@ -18,6 +18,8 @@ export type YouTubeDescriptionLibrarySource = {
   source_url: string
   source_title: string
   creator: string | null
+  thumbnail_url: string | null
+  description_provenance: string
   outlier_score: number
   published_at: string
   retrieved_at: string
@@ -242,6 +244,19 @@ function packetTopics(packet: Record<string, unknown>) {
   )
 }
 
+function capturedSourceDescription(packet: Record<string, unknown>) {
+  const metadata = record(packet.actor_metadata)
+  const pattern = record(packet.pattern_packet)
+  return text(metadata.source_description)
+    || text(metadata.source_description_excerpt)
+    || text(pattern.source_description)
+}
+
+function descriptionProvenance(packet: Record<string, unknown>) {
+  const metadata = record(packet.actor_metadata)
+  return text(metadata.description_provenance)
+}
+
 export function buildYouTubeOutlierDescriptionLibrary(input: {
   researchPackets: unknown[]
   targetTopics: string[]
@@ -270,7 +285,8 @@ export function buildYouTubeOutlierDescriptionLibrary(input: {
       const platform = text(packet.platform)
       const status = text(packet.pattern_status)
       const sourceUrl = canonicalUrl(text(packet.source_url))
-      const description = text(packet.caption) || text(record(packet.pattern_packet).description)
+      const description = capturedSourceDescription(packet)
+      const provenance = descriptionProvenance(packet)
       const metrics = record(packet.metrics)
       const outlierScore = number(packet.outlier_score) ?? number(record(packet.actor_metadata).score_breakdown && record(record(packet.actor_metadata).score_breakdown).outlier_score)
       const publishedAt = text(metrics.published_at) || text(packet.published_at)
@@ -285,8 +301,8 @@ export function buildYouTubeOutlierDescriptionLibrary(input: {
           ? 'Pattern has not been approved as a usable framework.'
           : !validHttpUrl(sourceUrl)
             ? 'Source URL is missing or is not attributable.'
-            : !description
-              ? 'No customer-facing YouTube description was captured.'
+            : !description || !provenance
+              ? 'No separately proven public YouTube description was captured; the internal packet summary is not description evidence.'
               : outlierScore === null
                 ? 'Outlier score is missing.'
                 : outlierScore < minimumOutlierScore
@@ -321,6 +337,8 @@ export function buildYouTubeOutlierDescriptionLibrary(input: {
         source_url: sourceUrl,
         source_title: text(packet.title) || 'Untitled YouTube source',
         creator: text(packet.creator_name) || text(packet.creator_handle) || null,
+        thumbnail_url: validHttpUrl(text(packet.thumbnail_url)) ? text(packet.thumbnail_url) : null,
+        description_provenance: provenance,
         outlier_score: outlierScore,
         published_at: publishedAt || retrievedAt,
         retrieved_at: retrievedAt || publishedAt,

@@ -34,7 +34,7 @@ async function capture(browser, label, viewport, colorScheme) {
   })
   await page.goto(new URL(route, baseUrl).toString(), { waitUntil: 'domcontentloaded' })
   await page.getByRole('heading', { name: 'YouTube description patterns' }).waitFor({ state: 'visible' })
-  await page.getByText('Ready', { exact: true }).waitFor({ state: 'visible' })
+  await page.getByText('Unscored', { exact: true }).waitFor({ state: 'visible' })
   await page.waitForTimeout(700)
   const screenshot = join(outputDir, `${label}.png`)
   await page.screenshot({ path: screenshot, fullPage: false })
@@ -42,12 +42,9 @@ async function capture(browser, label, viewport, colorScheme) {
   await page.getByText('Inspect evidence and decision logic').first().click()
   await page.getByText(/Captured description evidence/).first().waitFor({ state: 'visible' })
   await page.waitForTimeout(900)
-  await page.getByRole('button', { name: 'Next sample page' }).click()
-  await page.getByText('Inspect evidence and decision logic').click()
-  await page.getByText('No customer-facing YouTube description was captured.').waitFor({ state: 'visible' })
-  await page.waitForTimeout(900)
-  await page.getByRole('button', { name: 'Previous sample page' }).click()
-  await page.getByText('Outlier score 42 is below the 65 threshold.').waitFor({ state: 'visible' })
+  await page.getByText(/youtube.com\/watch\?v=KjYCEiBTHFo/).waitFor({ state: 'visible' })
+  await page.getByAltText(/Thumbnail from AI Product Management/).waitFor({ state: 'visible' })
+  await page.getByText('Outlier score 59 is below the 65 threshold.').waitFor({ state: 'visible' })
   await page.waitForTimeout(900)
   await selectTab(page, 'Evidence logic')
   await page.getByText(/matched topic-token ratio × 0.65/).waitFor({ state: 'visible' })
@@ -59,8 +56,8 @@ async function capture(browser, label, viewport, colorScheme) {
   await page.getByText('Unscored', { exact: true }).waitFor({ state: 'visible' })
   await page.waitForTimeout(1000)
   await page.getByLabel('Topic to compare').fill('AI licenses')
-  await page.getByText('Ready', { exact: true }).waitFor({ state: 'visible' })
-  await selectTab(page, 'Sample ledger (5)')
+  await page.getByText('Unscored', { exact: true }).waitFor({ state: 'visible' })
+  await selectTab(page, 'Sample ledger (3)')
   await page.waitForTimeout(900)
 
   if (writes.length) throw new Error(`QA caused an unexpected write request: ${writes.join(' | ')}`)
@@ -88,7 +85,7 @@ async function main() {
       route,
       product_writes: 0,
       viewports: [{ width: 1280, height: 800, theme: 'dark' }, { width: 390, height: 844, theme: 'light' }],
-      verified: ['complete sample ledger', 'captured description evidence', 'sample pagination', 'exclusion reasons', 'exact gate order and ranking formula', 'applied aggregate structure', 'unscored fail-closed state', 'responsive light and dark presentation'],
+      verified: ['real public thumbnails', 'visible YouTube URLs', 'captured public description excerpts and provenance', 'internal summary separation', 'exclusion reasons', 'exact gate order and ranking formula', 'unscored fail-closed state', 'responsive light and dark presentation'],
       screenshots: [basename(desktop.screenshot), basename(mobile.screenshot)],
       output: basename(output),
     }, null, 2) + '\n')

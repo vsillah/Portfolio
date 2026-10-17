@@ -31,6 +31,14 @@ function formatDate(valueToFormat: unknown) {
   return Number.isFinite(parsed) ? new Intl.DateTimeFormat('en-US', { dateStyle: 'medium' }).format(parsed) : 'Missing'
 }
 
+function capturedDescription(packet: Record<string, unknown>) {
+  const metadata = data(packet.actor_metadata)
+  const pattern = data(packet.pattern_packet)
+  return value(metadata.source_description)
+    || value(metadata.source_description_excerpt)
+    || value(pattern.source_description)
+}
+
 export default function YouTubeDescriptionLibrary({
   researchPackets,
   initialTopic = '',
@@ -50,7 +58,7 @@ export default function YouTubeDescriptionLibrary({
   const approvedDescriptions = useMemo(() => youtubePackets.filter((packet) => {
     const item = data(packet)
     return value(item.pattern_status) === 'usable_framework'
-      && Boolean(value(item.caption) || value(data(item.pattern_packet).description))
+      && Boolean(capturedDescription(item) && value(data(item.actor_metadata).description_provenance))
   }).length, [youtubePackets])
   const scoredDescriptions = useMemo(() => youtubePackets.filter((packet) => {
     const item = data(packet)
@@ -81,10 +89,14 @@ export default function YouTubeDescriptionLibrary({
       ]
       return {
         id,
-        title: value(item.title) || 'Untitled YouTube source',
+        title: value(metadata.source_title) || value(item.title) || 'Untitled YouTube source',
         creator: value(item.creator_name) || value(item.creator_handle) || 'Unknown creator',
         sourceUrl: value(item.source_url),
-        description: value(item.caption) || value(data(item.pattern_packet).description),
+        thumbnailUrl: value(item.thumbnail_url),
+        description: capturedDescription(item),
+        descriptionProvenance: value(metadata.description_provenance),
+        descriptionIsExcerpt: Boolean(value(metadata.source_description_excerpt) && !value(metadata.source_description)),
+        packetSummary: value(item.caption),
         outlierScore: numberValue(item.outlier_score),
         patternStatus: value(item.pattern_status) || 'Missing',
         packetStatus: value(item.status) || 'Missing',
@@ -95,6 +107,7 @@ export default function YouTubeDescriptionLibrary({
         included,
         reason: excluded?.reason ?? (included ? 'Cleared every gate and was selected for the comparison cohort.' : 'Qualified but fell outside the ranked cohort limit.'),
         fixture: metadata.qa_fixture === true,
+        publicSnapshot: metadata.public_evidence_snapshot === true,
         scoreBreakdown,
       }
     })
@@ -194,21 +207,38 @@ export default function YouTubeDescriptionLibrary({
                             {sample.included ? 'Included' : 'Excluded'}
                           </span>
                           {sample.fixture ? <span className="rounded-full border border-cyan-500/40 bg-cyan-500/10 px-2 py-0.5 text-xs font-semibold text-cyan-800 dark:text-cyan-200">Synthetic QA sample</span> : null}
+                          {sample.publicSnapshot ? <span className="rounded-full border border-cyan-500/40 bg-cyan-500/10 px-2 py-0.5 text-xs font-semibold text-cyan-800 dark:text-cyan-200">Public evidence snapshot</span> : null}
                         </div>
                         <p className="mt-1 text-xs text-muted-foreground">{sample.creator} · Outlier {sample.outlierScore ?? 'Missing'} · {sample.reason}</p>
                       </div>
-                      {!sample.fixture && sample.sourceUrl ? (
+                      {sample.sourceUrl ? (
                         <a href={sample.sourceUrl} target="_blank" rel="noreferrer" className="inline-flex min-h-11 shrink-0 items-center gap-2 self-start rounded-md border border-input px-3 py-2 text-sm font-medium text-foreground hover:bg-accent">
                           Open exact source <ExternalLink className="h-4 w-4" aria-hidden="true" />
                         </a>
                       ) : null}
+                    </div>
+                    <div className="mt-3 grid gap-3 sm:grid-cols-[12rem_minmax(0,1fr)]">
+                      <div className="aspect-video overflow-hidden rounded-md border border-border bg-muted">
+                        {sample.thumbnailUrl ? (
+                          // Public evidence thumbnails are rendered exactly as captured from the source packet.
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={sample.thumbnailUrl} alt={`Thumbnail from ${sample.title}`} className="h-full w-full object-cover" />
+                        ) : <div className="flex h-full items-center justify-center px-3 text-center text-xs text-muted-foreground">Thumbnail not captured</div>}
+                      </div>
+                      <div className="min-w-0 rounded-md border border-border bg-card/45 p-3">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Captured public description{sample.descriptionIsExcerpt ? ' excerpt' : ''}</p>
+                        <p className="mt-2 line-clamp-4 whitespace-pre-line text-sm leading-6 text-foreground">{sample.description || 'Not captured. This sample cannot contribute to the description cohort.'}</p>
+                        <p className="mt-2 break-all text-xs text-muted-foreground"><span className="font-semibold text-foreground">YouTube URL:</span> {sample.sourceUrl || 'Missing'}</p>
+                        <p className="mt-1 text-xs text-muted-foreground"><span className="font-semibold text-foreground">Description provenance:</span> {sample.descriptionProvenance || 'Missing'}</p>
+                      </div>
                     </div>
                     <details className="mt-3 rounded-md border border-border bg-card/45">
                       <summary className="cursor-pointer px-3 py-3 text-sm font-semibold text-foreground">Inspect evidence and decision logic</summary>
                       <div className="grid gap-4 border-t border-border p-3 lg:grid-cols-2">
                         <div>
                           <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Captured description evidence</p>
-                          <p className="mt-2 whitespace-pre-line text-sm leading-6 text-foreground">{sample.description || 'No customer-facing description was captured.'}</p>
+                          <p className="mt-2 whitespace-pre-line text-sm leading-6 text-foreground">{sample.description || 'No separately proven public YouTube description was captured.'}</p>
+                          {sample.packetSummary ? <div className="mt-3 rounded-md border border-amber-500/35 bg-amber-500/10 p-3"><p className="text-xs font-semibold uppercase tracking-wide text-amber-800 dark:text-amber-200">Internal packet summary · not source evidence</p><p className="mt-1 text-sm text-foreground">{sample.packetSummary}</p></div> : null}
                         </div>
                         <dl className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] gap-x-3 gap-y-2 text-sm">
                           <dt className="text-muted-foreground">Pattern approval</dt><dd className="break-words text-foreground">{sample.patternStatus}</dd>

@@ -402,23 +402,63 @@ function youtubeDescriptionLibraryFixtureEnabled(searchParams: URLSearchParams) 
 }
 
 const YOUTUBE_DESCRIPTION_LIBRARY_FIXTURE = [
-  ['library-a', 'AI adoption is an operating problem', 91, 'Stop counting seats.\n\nSee the calculator walkthrough and product evidence.\n\nSubscribe for more operating breakdowns.'],
-  ['library-b', 'Measure AI value before renewal', 87, 'Are AI licenses creating value?\n\nThe dashboard connects adoption to measurable outcomes.\n\nWhat would you measure first?'],
-  ['library-c', 'The AI audit your team can run', 82, 'Build an evidence-backed AI audit.\n\nThis case study shows the calculator and its decision path.\n\nOpen the approved resource to compare your system.'],
-  ['library-low', 'AI tool roundup', 42, 'A general list of tools without product evidence.'],
-  ['library-empty', 'AI description not captured', 79, ''],
-].map(([id, title, score, caption]) => ({
-  id,
-  source_url: `https://example.com/privacy-safe-youtube-fixture/${id}`,
+  {
+    id: '61d0ab8a-29fa-40de-aa7a-49b15c74cafa',
+    source_url: 'https://www.youtube.com/watch?v=KjYCEiBTHFo',
+    thumbnail_url: 'https://i.ytimg.com/vi/KjYCEiBTHFo/hqdefault.jpg',
+    creator_name: 'HelloPM',
+    title: "Campaign proposal: The product manager's new operating system",
+    caption: 'A review-only Accelerated campaign using strong demand for complete AI product-management education and grounding it in the SAM Loop, the book, and the working Portfolio system.',
+    outlier_score: 59,
+    metrics: { published_at: '2025-11-04T00:00:00Z', follower_count: 44_700 },
+    actor_metadata: {
+      public_evidence_snapshot: true,
+      source_title: 'AI Product Management - Complete Course - 3.5 hours - Masterclass | AI Agents, RAG, Evals, LLMs.',
+      source_description_excerpt: "Become an AI-First Product Manager. Master AI Agents, RAG, and LLMs in this comprehensive 3.5-hour masterclass. Why This Masterclass? The GenAI revolution is fundamentally changing how products are built. Whether you're an aspiring PM or a seasoned leader, this masterclass provides the end-to-end framework you need to build, scale, and evaluate AI-powered products.",
+      description_provenance: 'Public YouTube watch-page shortDescription captured 2026-10-17',
+      topics: ['ai product management', 'ai agents', 'rag', 'llms'],
+    },
+  },
+  {
+    id: '048a80bb-bcfa-48d7-9d90-ce66d36f4523',
+    source_url: 'https://www.youtube.com/watch?v=_w-jVw8Uhc0',
+    thumbnail_url: 'https://i.ytimg.com/vi/_w-jVw8Uhc0/hqdefault.jpg',
+    creator_name: 'Collaboration Simplified',
+    title: 'Campaign proposal: The agent harness is the product',
+    caption: "A review-only Agentified campaign translating public demand for concrete AI-agent workflows into Vambah's own governed operating-system proof.",
+    outlier_score: 52,
+    metrics: { published_at: '2025-11-15T00:00:00Z', follower_count: 92_000 },
+    actor_metadata: {
+      public_evidence_snapshot: true,
+      source_title: 'NEW Copilot Workflows Agent Will Automate Your Job (Full Tutorial)',
+      source_description_excerpt: 'Learn how to use the new Copilot Workflows Agent in Microsoft 365 Copilot with this clear, step-by-step tutorial. Join Shervin Shaffie, a Copilot Principal Engineer at Microsoft, as he turns simple natural-language prompts into powerful automations you can use immediately across Outlook and Teams.',
+      description_provenance: 'Public YouTube watch-page shortDescription captured 2026-10-17',
+      topics: ['ai agents', 'copilot', 'workflow automation'],
+    },
+  },
+  {
+    id: '407df879-a539-40a1-a20e-75de31b9c494',
+    source_url: 'https://www.youtube.com/watch?v=C4m8LS2Jzqs',
+    thumbnail_url: 'https://i.ytimg.com/vi/C4m8LS2Jzqs/hqdefault.jpg',
+    creator_name: 'Cloud & AI Hub',
+    title: 'Campaign proposal: Stop counting AI licenses',
+    caption: 'A review-only AI Audit Calculator campaign translating demand for practical transformation scorecards into a concrete readiness diagnostic backed by public enterprise adoption signals.',
+    outlier_score: 64,
+    metrics: { published_at: '2026-05-26T00:00:00Z', follower_count: 1_380 },
+    actor_metadata: {
+      public_evidence_snapshot: true,
+      source_title: 'AB-731: AI Transformation Leader - All 100 Exam Prep Practice Questions with Answers - Complete Set',
+      source_description_excerpt: 'AB-731: AI Transformation Leader - 100 Practice Questions | 2026 Exam Prep. Who should watch this? Candidates preparing for AB-731 certification, business leaders driving AI transformation initiatives, architects and decision-makers aligning AI with business strategy, and anyone looking to understand enterprise AI adoption and governance.',
+      description_provenance: 'Public YouTube watch-page shortDescription captured 2026-10-17',
+      topics: ['ai transformation', 'ai governance', 'ai leadership'],
+    },
+  },
+].map((packet) => ({
+  ...packet,
   platform: 'youtube',
-  creator_name: `Public source ${String(id).at(-1)?.toUpperCase()}`,
-  title,
-  caption,
-  outlier_score: score,
   pattern_status: 'usable_framework',
-  retrieved_at: '2026-10-12T12:00:00.000Z',
-  metrics: { published_at: '2026-10-10T12:00:00.000Z', follower_count: 42_000 },
-  actor_metadata: { topics: ['ai licenses', 'ai adoption', 'audit calculator'], qa_fixture: true },
+  status: 'review_ready',
+  retrieved_at: '2026-10-17T10:00:00.000Z',
 }))
 
 function initialActiveSection(): IntelligenceSection {
@@ -987,7 +1027,7 @@ export default function ContentIntelligencePage({ searchParams }: ContentIntelli
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-700 dark:text-cyan-200">Privacy-safe local QA fixture</p>
             <h1 className="mt-2 text-2xl font-semibold">Research and Shaka insight queue</h1>
-            <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">The exact YouTube description-pattern workspace used on the existing Research surface. Clearly labeled synthetic samples demonstrate the complete ledger, exclusion logic, and applied structure without pretending to be real sources or mutating production.</p>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">The exact YouTube description-pattern workspace used on the existing Research surface. Public metadata snapshots expose the real thumbnails, description excerpts, YouTube URLs, score inputs, and gate decisions without mutating production.</p>
           </div>
           <div className="rounded-lg border border-border bg-card px-3 py-2 text-xs text-card-foreground">
             <p className="font-semibold">Commit-bound review</p>

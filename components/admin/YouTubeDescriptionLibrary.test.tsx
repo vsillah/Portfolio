@@ -14,7 +14,12 @@ function packet(id: string, overrides: Record<string, unknown> = {}) {
     pattern_status: 'usable_framework',
     retrieved_at: '2026-10-10T12:00:00.000Z',
     metrics: { published_at: '2026-10-09T12:00:00.000Z', follower_count: 40_000 },
-    actor_metadata: { topics: ['ai licenses', 'audit calculator'] },
+    thumbnail_url: `https://i.ytimg.com/vi/${id}/hqdefault.jpg`,
+    actor_metadata: {
+      topics: ['ai licenses', 'audit calculator'],
+      source_description: 'Stop counting seats.\n\nSee the calculator product walkthrough.\n\nSubscribe for more operating breakdowns.',
+      description_provenance: 'youtube_watch_short_description',
+    },
     ...overrides,
   }
 }
@@ -46,7 +51,7 @@ describe('YouTubeDescriptionLibrary', () => {
       researchPackets={[
         packet('approved'),
         packet('low-score', { outlier_score: 42 }),
-        packet('missing-description', { caption: '' }),
+        packet('missing-description', { actor_metadata: { topics: ['ai licenses'], source_description: '', description_provenance: '' } }),
       ]}
       initialTopic="AI licenses"
       generatedAt="2026-10-17T12:00:00.000Z"
@@ -55,7 +60,7 @@ describe('YouTubeDescriptionLibrary', () => {
     expect(screen.getByText('Unscored')).toBeVisible()
     expect(screen.getByRole('tab', { name: 'Sample ledger (3)' })).toBeVisible()
     expect(screen.getByText(/Outlier score 42 is below the 65 threshold/)).toBeVisible()
-    expect(screen.getByText(/No customer-facing YouTube description was captured/)).toBeVisible()
+    expect(screen.getAllByText(/No separately proven public YouTube description was captured/)[0]).toBeVisible()
 
     fireEvent.click(screen.getByRole('tab', { name: 'Applied structure' }))
     expect(screen.getByText(/Only 1 fresh, attributable same-topic outlier description/)).toBeVisible()
