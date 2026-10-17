@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-10-17T10:28:42.198Z",
-  "commit": "193c16a0bb6d8f27b1f26075941f316e334ed0dd",
-  "route": "/admin/agents/content-intelligence?section=research&qa_fixture=youtube_description_library_v1&rev=193c16a0",
+  "generated_at": "2026-10-17T10:43:57.209Z",
+  "commit": "69ffd2092488ab2f5ca982c7a3581f04a6b48194",
+  "route": "/admin/agents/content-intelligence?section=research&qa_fixture=youtube_description_library_v1&rev=69ffd209",
   "product_writes": 0,
   "viewports": [
     {
@@ -19,6 +19,8 @@
     "real public thumbnails",
     "visible YouTube URLs",
     "captured public description excerpts and provenance",
+    "discovery query and dataset receipts",
+    "per-gate pass, fail, and not-evaluated decisions",
     "internal summary separation",
     "exclusion reasons",
     "exact gate order and ranking formula",
