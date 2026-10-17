@@ -92,8 +92,11 @@ import {
 } from '@/lib/social-content-decision-receipts'
 import {
   isBoundSocialContentDecisionRoute,
+  isSocialContentCanonicalGate,
+  socialContentGateAnchor,
   socialContentGateStep,
 } from '@/lib/social-content-decision-routing'
+import type { SocialCalendarPreparationProjection } from '@/lib/social-calendar-preparation'
 import {
   derivePublicationProjection,
   reconcilePublicationProjectionWithLifecycle,
@@ -148,7 +151,10 @@ const PLATFORM_COLORS: Record<string, { active: string; inactive: string }> = {
 
 const FINAL_GATE_ONLY_PLATFORMS = new Set<SocialPlatform>(['youtube', 'instagram'])
 
-type SocialContentItem = BaseSocialContentItem & { copy_revision?: { current_version: string; state: 'needs_review' | 'blocked' | 'ready'; feedback: string | null; worker: 'not_configured'; release_locked?: boolean; has_saved_revision?: boolean } }
+type SocialContentItem = BaseSocialContentItem & {
+  copy_revision?: { current_version: string; state: 'needs_review' | 'blocked' | 'ready'; feedback: string | null; worker: 'not_configured'; release_locked?: boolean; has_saved_revision?: boolean }
+  calendar_preparation?: SocialCalendarPreparationProjection | null
+}
 
 type GateState = 'approved' | 'in_review' | 'pending' | 'blocked' | 'rejected'
 type SectionGateKey = 'visual_assets' | 'asset_packet' | 'privacy' | 'linkedin_draft'
@@ -2984,6 +2990,12 @@ function SocialContentDetailPage() {
   const heygenLongFormRecipe = asRecord(ragContext?.heygen_long_form_production_recipe) as HeyGenLongFormProductionRecipe | null
   const socialVideoReviewSourceReceiptIds = asStringArray(ragContext?.social_video_review_source_receipt_ids)
   const socialVideoReviewRightsReceiptIds = asStringArray(ragContext?.social_video_review_rights_receipt_ids)
+  const persistedCurrentGate = asString(ragContext?.current_gate)
+  const persistedCurrentGateStep = isSocialContentCanonicalGate(persistedCurrentGate)
+    ? socialContentGateStep(persistedCurrentGate)
+    : null
+  const calendarPreparation = item.calendar_preparation ?? null
+  const calendarPreparationReady = calendarPreparation?.state === 'ready'
   const copyFieldLabel = channelExperimentReview ? 'YouTube Experiment Outline' : channelVideoPacket ? 'Video Script' : 'Post Text'
   const copyLengthGuidance = channelVideoPacket
     ? `${channelVideoPacket.channelLabel} review: confirm the full spoken script against the bound duration and receipt version`
@@ -3312,6 +3324,7 @@ function SocialContentDetailPage() {
     || agentPilotPacketId
     || agentPilotGoalId
     || agentPilotProvenance.length
+    || channelVideoPacket?.sourceIds.length
     || asString(ragContext?.launch_draft_asset_id)
     || asString(ragContext?.calendar_item_id)
   )
@@ -3321,12 +3334,14 @@ function SocialContentDetailPage() {
     || asString(ragContext?.channel)
     || asString(ragContext?.platform)
     || targetPlatforms.length
+    || channelVideoPacket?.channelPacketIds.length
   )
   const contextClaimsRecorded = Boolean(
     agentPilotApprovalChecklist.length
     || agentPilotRequiredFixes.length
     || agentPilotChallengerStatus
     || asString(ragContext?.approval_boundary)
+    || channelVideoPacket?.claims.length
   )
   const contextRecorded = contextSourceRecorded && (contextCalibrationRecorded || contextClaimsRecorded || agentPilotPassToHuman)
   const contextMissingAfterCopyApproval = copyGateRawState === 'approved' && !contextRecorded
@@ -3359,12 +3374,16 @@ function SocialContentDetailPage() {
       : supportingContextDetails.some((gate) => gate.state === 'in_review')
         ? 'in_review'
         : 'pending'
-  const visualAssetReady = !visualFormatDirty && !hasUnsavedVisualConfiguration && (isCarouselFormat
+  const approvedChannelVideoPacket = Boolean(
+    channelVideoPacket
+    && asString(channelVideoPacket.packet.status) === 'human_qa_approved'
+  )
+  const visualAssetReady = !visualFormatDirty && !hasUnsavedVisualConfiguration && (approvedChannelVideoPacket || (isCarouselFormat
     ? Boolean(carouselSlideUrls.length)
     : hasDeterministicVisualContract
       ? deterministicVisualRender?.state === 'current'
-      : Boolean(visualPreviewImageUrl))
-  const visualAssetsBaseGateState: GateState = visualAssetReady ? 'in_review' : 'pending'
+      : Boolean(visualPreviewImageUrl)))
+  const visualAssetsBaseGateState: GateState = approvedChannelVideoPacket ? 'approved' : visualAssetReady ? 'in_review' : 'pending'
   const visualAssetsGateState: GateState = visualFormatDirty || hasUnsavedVisualConfiguration
     ? 'pending'
     : getExplicitSectionGateState('visual_assets', visualAssetsBaseGateState)
@@ -3386,7 +3405,7 @@ function SocialContentDetailPage() {
       && deterministicVisualOperatorState !== 'rendered_current'
       && !deterministicVisualRender?.can_render
     )
-  const assetPacketBaseGateState: GateState = productionAssets || agentifiedVisualQaPacket ? 'in_review' : 'pending'
+  const assetPacketBaseGateState: GateState = productionAssets || agentifiedVisualQaPacket || channelVideoPacket ? 'in_review' : 'pending'
   const assetPacketGateState: GateState = getExplicitSectionGateState('asset_packet', assetPacketBaseGateState)
   const assetPacketRejected = assetPacketGateState === 'rejected'
   const privacyBaseGateState: GateState = productionAssets
@@ -3396,8 +3415,10 @@ function SocialContentDetailPage() {
       : 'pending'
   const privacyGateState: GateState = getExplicitSectionGateState('privacy', privacyBaseGateState)
   const privacyRejected = privacyGateState === 'rejected'
-  const assetPacketReady = Boolean(productionAssets || agentifiedVisualQaPacket)
-  const visualPrivacyReady = productionAssets ? redactionGate.ready : agentifiedVisualPrivacyReady
+  const assetPacketReady = Boolean(productionAssets || agentifiedVisualQaPacket || channelVideoPacket)
+  const channelVideoPrivacyReceipt = asRecord(asRecord(channelVideoPacket?.receipts)?.privacy)
+  const channelVideoPrivacyReady = asString(channelVideoPrivacyReceipt?.status) === 'passed'
+  const visualPrivacyReady = productionAssets ? redactionGate.ready : channelVideoPacket ? channelVideoPrivacyReady : agentifiedVisualPrivacyReady
   const linkedinDraftHandoff = asRecord(ragContext?.linkedin_draft_handoff)
   const linkedinDraftWorkItem = asRecord(linkedinDraftHandoff?.work_item) ?? {}
   const linkedinDraftBlockers = [
@@ -3561,7 +3582,28 @@ function SocialContentDetailPage() {
   const nextReviewGate = reviewGateSummary.find((gate) => gate.state !== 'approved')
   const rawApprovalStep = searchParams.get('step')
   const requestedApprovalStep: ApprovalStep | null = isApprovalStep(rawApprovalStep) ? rawApprovalStep : null
-  const activeApprovalStep: ApprovalStep = requestedApprovalStep ?? nextReviewGate?.step ?? 'copy'
+  const requestedGateState = requestedApprovalStep === 'context'
+    ? effectiveSupportingContextGateState
+    : requestedApprovalStep === 'copy'
+      ? copyGateState
+      : requestedApprovalStep === 'visuals'
+        ? effectiveVisualWorkflowGateState
+        : requestedApprovalStep === 'draft'
+          ? effectiveDraftGateState
+          : requestedApprovalStep === 'submit'
+            ? effectivePlatformSubmissionGateState
+            : requestedApprovalStep === 'status'
+              ? effectiveStatusGateState
+              : null
+  const staleCalendarReviewStep = searchParams.get('review') === 'mobile'
+    && !mobileDecisionMode
+    && requestedApprovalStep
+    && requestedGateState === 'approved'
+    && persistedCurrentGateStep
+    && requestedApprovalStep !== persistedCurrentGateStep
+  const activeApprovalStep: ApprovalStep = staleCalendarReviewStep
+    ? persistedCurrentGateStep
+    : requestedApprovalStep ?? persistedCurrentGateStep ?? nextReviewGate?.step ?? 'copy'
   const copyRejectActionLabel = activeApprovalStep === 'copy'
     ? 'Reject'
     : 'Reject'
@@ -3590,6 +3632,8 @@ function SocialContentDetailPage() {
       label: 'Amina Visuals',
       description: currentDeterministicVisualApproved
         ? 'Current visual approved'
+        : persistedCurrentGate === 'asset_packet'
+          ? 'Asset packet current gate'
         : effectiveVisualWorkflowGateState === 'pending'
           ? 'Strategy not started'
           : 'Strategy, QA, privacy',
@@ -3680,6 +3724,8 @@ function SocialContentDetailPage() {
     },
     visuals: {
       title: lifecycleBlockedDetail('visuals') ? 'Visual lifecycle mismatch'
+        : persistedCurrentGate === 'asset_packet'
+        ? 'Asset packet review'
         : currentDeterministicVisualApproved
         ? 'Visual asset approved'
         : effectiveVisualWorkflowGateState === 'approved'
@@ -3689,7 +3735,9 @@ function SocialContentDetailPage() {
           : agentifiedVisualQaPacket
             ? 'Amina visual strategy ready for human review'
             : 'Amina visual strategy in progress',
-      body: lifecycleBlockedDetail('visuals') ?? (currentDeterministicVisualApproved
+      body: lifecycleBlockedDetail('visuals') ?? (persistedCurrentGate === 'asset_packet' && approvedChannelVideoPacket
+        ? `The approved, version-bound channel video packet is ready for asset-packet review${calendarPreparationReady ? ', and the linked calendar preparation is ready' : ''}. Provider generation, upload, platform-draft, scheduling, publishing, and external-send authority remain disabled.`
+        : currentDeterministicVisualApproved
         ? `The current version-bound provider-none asset is approved under receipt ${asString(deterministicProviderReceipt?.receipt_id) || 'recorded'}. Media packaging and privacy remain separate downstream gates.`
         : agentifiedVisualQaPacket
         ? `${agentifiedVisualQaPacket.ownerDisplayName} selected ${agentifiedVisualQaPacket.selectedForm}, attached source provenance, drafted alt text, and passed agent QA for human visual/privacy review.`
@@ -3702,7 +3750,9 @@ function SocialContentDetailPage() {
         : productionAssets
           ? new Date(item.updated_at).toLocaleString()
           : 'No asset packet recorded',
-      nextAction: lifecycleMismatchByStep.visuals.mismatch?.recoveryAction ?? (currentDeterministicVisualApproved
+      nextAction: lifecycleMismatchByStep.visuals.mismatch?.recoveryAction ?? (persistedCurrentGate === 'asset_packet'
+        ? 'Review the approved packet, receipt lineage, privacy boundary, and disabled external actions. Record any decision only through the canonical Decision Queue.'
+        : currentDeterministicVisualApproved
         ? assetPacketGateState !== 'approved'
           ? 'The current visual is approved. Complete the media package gate before platform draft handoff.'
           : privacyGateState !== 'approved'
@@ -3713,7 +3763,9 @@ function SocialContentDetailPage() {
         : agentifiedVisualQaPacket
           ? 'Review the candidate, rationale, provenance, QA findings, and privacy/rights result below, then approve or reject each visual gate.'
           : 'Use the canonical Kanban view to track source research, candidate creation, QA, blockers, and final review readiness.'),
-      waitingOnYou: lifecycleMismatchByStep.visuals.mismatch || [visualAssetsGateState, assetPacketGateState, privacyGateState].some((state) => state === 'blocked' || state === 'rejected')
+      waitingOnYou: persistedCurrentGate === 'asset_packet'
+        ? 'Yes - asset packet review'
+        : lifecycleMismatchByStep.visuals.mismatch || [visualAssetsGateState, assetPacketGateState, privacyGateState].some((state) => state === 'blocked' || state === 'rejected')
         ? 'Yes - visual/privacy exception'
         : 'No',
     },
@@ -3765,10 +3817,17 @@ function SocialContentDetailPage() {
       : null
   const activeStepParams = new URLSearchParams(searchParams.toString())
   activeStepParams.set('step', activeApprovalStep)
-  const activeStepHref = `/admin/social-content/${id}?${activeStepParams.toString()}#${APPROVAL_STEP_SECTION_IDS[activeApprovalStep]}`
+  const activeStepAnchor = persistedCurrentGateStep === activeApprovalStep && isSocialContentCanonicalGate(persistedCurrentGate)
+    ? socialContentGateAnchor(persistedCurrentGate)
+    : APPROVAL_STEP_SECTION_IDS[activeApprovalStep]
+  const activeStepHref = `/admin/social-content/${id}?${activeStepParams.toString()}#${activeStepAnchor}`
   const setApprovalStep = (step: ApprovalStep) => {
     const params = new URLSearchParams(searchParams.toString())
     params.set('step', step)
+    if (step !== persistedCurrentGateStep) {
+      params.delete('review')
+      params.delete('proposal')
+    }
     const query = params.toString()
     router.replace(`/admin/social-content/${id}${query ? `?${query}` : ''}`, { scroll: false })
   }
@@ -4110,7 +4169,7 @@ function SocialContentDetailPage() {
           <span className="text-muted-foreground" data-contrast-audit="current-review-state">{mobileSummaryState}</span>
           <a href={activeStepHref} onClick={(event) => {
             if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
-            const target = document.getElementById(APPROVAL_STEP_SECTION_IDS[activeApprovalStep])
+            const target = document.getElementById(activeStepAnchor)
             event.preventDefault()
             if (target) {
               if (target instanceof HTMLDetailsElement) target.open = true
@@ -4133,7 +4192,7 @@ function SocialContentDetailPage() {
       </div>
 
       <div data-social-detail-content className="mx-auto w-full max-w-[90rem] space-y-6 px-4 py-6 sm:px-6 lg:px-8">
-        <SocialGateDeepLinkLanding routeId={id} itemId={item.id} gateId={APPROVAL_STEP_SECTION_IDS[activeApprovalStep]} completed={completedGateLandings} />
+        <SocialGateDeepLinkLanding routeId={id} itemId={item.id} gateId={activeStepAnchor} completed={completedGateLandings} />
 
 	        {activeApprovalStep === 'copy' && !mobileDecisionMode && (
 	          <section
@@ -5684,7 +5743,7 @@ function SocialContentDetailPage() {
                         notePlaceholder: 'What must change before the visual assets are approved?',
                       })}
                     </div>
-                    <details id="social-asset-packet-gate" className="mt-4 scroll-mt-64 rounded-lg border border-border bg-background p-3">
+                    <details id={channelVideoPacket ? undefined : 'social-asset-packet-gate'} className="mt-4 scroll-mt-64 rounded-lg border border-border bg-background p-3">
                       <summary className="flex cursor-pointer list-none flex-wrap items-center justify-between gap-2 text-sm font-semibold text-foreground">
                         <span>Next: media package</span>
                         <span className="flex flex-wrap gap-2">
@@ -6285,7 +6344,26 @@ function SocialContentDetailPage() {
             {channelExperimentReview ? (
               <ChannelExperimentSocialReview item={item} />
             ) : channelVideoPacket ? (
-              <>
+              <div
+                id={persistedCurrentGate === 'asset_packet' ? socialContentGateAnchor(persistedCurrentGate) : undefined}
+                className="scroll-mt-64 space-y-4"
+              >
+                {persistedCurrentGate === 'asset_packet' && (
+                  <section aria-label="Jev asset packet current gate" className="rounded-xl border border-blue-600/35 bg-blue-500/10 p-4 text-blue-950 dark:border-blue-400/35 dark:text-blue-50">
+                    <p className="text-xs font-semibold uppercase tracking-[0.14em]">Current internal review</p>
+                    <h2 className="mt-1 text-lg font-semibold">Asset packet review</h2>
+                    <div className="mt-3 flex flex-wrap gap-2 text-xs">
+                      <span className="rounded-full border border-emerald-600/40 bg-emerald-500/10 px-2.5 py-1 font-semibold text-emerald-900 dark:text-emerald-100">Social Content: approved</span>
+                      <span className={`rounded-full border px-2.5 py-1 font-semibold ${calendarPreparationReady ? 'border-emerald-600/40 bg-emerald-500/10 text-emerald-900 dark:text-emerald-100' : 'border-amber-600/40 bg-amber-500/10 text-amber-950 dark:text-amber-100'}`}>
+                        Calendar preparation: {calendarPreparationReady ? 'ready' : 'pending'}
+                      </span>
+                      <span className="rounded-full border border-blue-600/40 bg-blue-500/10 px-2.5 py-1 font-semibold text-blue-950 dark:text-blue-100">Current gate: asset packet</span>
+                    </div>
+                    <p className="mt-3 text-sm leading-6 text-blue-900/85 dark:text-blue-100/80">
+                      The approved, version-bound Jev package and linked calendar preparation are ready for internal review. This state does not enable providers, uploads, platform drafts, scheduling, publishing, credential changes, privacy-boundary changes, or external sends.
+                    </p>
+                  </section>
+                )}
                 <ChannelNativeVideoReview item={{ ...item, post_text: postText, voiceover_text: voiceoverText }} />
                 {Boolean(artifactEvidenceManifest) && !previewFixtureReadOnly ? (
                   <ArtifactEvidenceTrace
@@ -6294,7 +6372,7 @@ function SocialContentDetailPage() {
                     recordedSnapshot={recordedMobileDecision?.artifact_manifest_snapshot ?? item.recorded_internal_decision_receipt?.artifact_manifest_snapshot}
                   />
                 ) : null}
-              </>
+              </div>
             ) : (
               <>
               <LinkedInReviewSurface item={item} hasUnsavedChanges={hasUnsavedCopyChanges} onRefresh={() => fetchItem({ silent: true })} />

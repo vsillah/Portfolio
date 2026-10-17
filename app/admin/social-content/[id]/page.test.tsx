@@ -381,6 +381,47 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(screen.getByLabelText('Artifact trace list')).toBeVisible()
   })
 
+  it('reconciles the stale Jev copy-review link to the persisted asset-packet gate and ready calendar preparation', async () => {
+    mocks.id = 'f966123f-05eb-48ec-a7c2-970afce642ef'
+    mocks.search = 'step=copy&review=mobile&qa_fixture=channel_native_video_v2&rev=review-commit'
+    const youtubeItem = channelNativeVideoQaFixture('f966123f-05eb-48ec-a7c2-970afce642ef', 'ready')
+    const fetchMock = vi.fn(async () => ({ ok: true, json: async () => ({ item: youtubeItem }) } as Response))
+    vi.stubGlobal('fetch', fetchMock)
+
+    render(<SocialContentDetailRoute />)
+
+    const currentReview = await screen.findByLabelText('Current review action')
+    expect(within(currentReview).getByText('Asset packet review')).toBeVisible()
+    expect(within(currentReview).getByText('In review')).toBeVisible()
+    expect(within(currentReview).getByRole('link', { name: 'Open current decision' })).toHaveAttribute(
+      'href',
+      expect.stringContaining('#social-asset-packet-gate'),
+    )
+
+    const process = screen.getByLabelText('Social content approval process')
+    expect(within(process).getByRole('button', { name: 'Approval step 2: Copy' })).toHaveTextContent('Approved')
+    const visualStep = within(process).getByRole('button', { name: 'Approval step 3: Amina Visuals' })
+    expect(visualStep).toHaveAttribute('aria-current', 'step')
+    expect(visualStep).toHaveTextContent('Asset packet current gate')
+    expect(visualStep).toHaveTextContent('In review')
+
+    const assetPacketGate = screen.getByLabelText('Jev asset packet current gate')
+    expect(document.querySelectorAll('#social-asset-packet-gate')).toHaveLength(1)
+    expect(assetPacketGate).toHaveTextContent('Social Content: approved')
+    expect(assetPacketGate).toHaveTextContent('Calendar preparation: ready')
+    expect(assetPacketGate).toHaveTextContent('Current gate: asset packet')
+
+    const channelReview = screen.getByLabelText('YouTube Shorts channel-native video review')
+    for (const action of ['Provider generation', 'Provider upload', 'Platform draft', 'Scheduling', 'Publishing', 'External send']) {
+      expect(within(channelReview).getByRole('button', { name: `${action}: disabled` })).toBeDisabled()
+    }
+    expect(screen.queryByRole('region', { name: 'Copy review decision gate' })).not.toBeInTheDocument()
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/admin/social-content/f966123f-05eb-48ec-a7c2-970afce642ef?qa_fixture=channel_native_video_v2&video_package_state=ready',
+      expect.objectContaining({ cache: 'no-store' }),
+    )
+  })
+
   it('fails the artifact evidence gate with an actionable music-rights recovery reason', async () => {
     mocks.id = 'f966123f-05eb-48ec-a7c2-970afce642ef'
     mocks.search = 'step=copy&qa_fixture=channel_native_video_v2&video_package_state=blocked'
