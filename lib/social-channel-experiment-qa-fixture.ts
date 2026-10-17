@@ -33,7 +33,13 @@ export function youtubeDescriptionCompletionQaFixture(id: string): SocialContent
     voiceover_url: null,
     voiceover_text: null,
     video_url: null,
-    topic_extracted: 'Jev agent harness governance',
+    topic_extracted: {
+      topic: 'Jev agent harness governance',
+      angle: 'The model won after the harness changed.',
+      key_insight: 'The model can choose, but the surrounding system owns the outcome.',
+      personal_tie_in: 'AmaduTown applies the same pattern through source receipts, policy boundaries, and visible human ownership.',
+      framework_visual: 'architecture',
+    },
     hormozi_framework: null,
     rag_context: {
       source: 'human_qa_approved_jit_campaign_packet',
