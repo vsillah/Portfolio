@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-10-17T10:13:17.318Z",
-  "commit": "9fe087455472465b564a38b44b0393b2b035ad51",
-  "route": "/admin/agents/content-intelligence?section=research&qa_fixture=youtube_description_library_v1&rev=9fe08745",
+  "generated_at": "2026-10-17T10:28:42.198Z",
+  "commit": "193c16a0bb6d8f27b1f26075941f316e334ed0dd",
+  "route": "/admin/agents/content-intelligence?section=research&qa_fixture=youtube_description_library_v1&rev=193c16a0",
   "product_writes": 0,
   "viewports": [
     {
@@ -16,12 +16,12 @@
     }
   ],
   "verified": [
-    "complete sample ledger",
-    "captured description evidence",
-    "sample pagination",
+    "real public thumbnails",
+    "visible YouTube URLs",
+    "captured public description excerpts and provenance",
+    "internal summary separation",
     "exclusion reasons",
     "exact gate order and ranking formula",
-    "applied aggregate structure",
     "unscored fail-closed state",
     "responsive light and dark presentation"
   ],
