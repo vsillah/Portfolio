@@ -16,7 +16,8 @@ async function selectTab(page, name) {
   const tab = page.getByRole('tab', { name })
   await tab.click()
   if (await tab.getAttribute('aria-selected') !== 'true') await tab.click()
-  await page.locator(`[role="tab"][aria-selected="true"]`).getByText(name).waitFor({ state: 'visible' })
+  await tab.waitFor({ state: 'visible' })
+  if (await tab.getAttribute('aria-selected') !== 'true') throw new Error(`${name} did not become selected.`)
 }
 
 async function capture(browser, label, viewport, colorScheme) {
