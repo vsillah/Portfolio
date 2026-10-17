@@ -10,6 +10,12 @@ import type {
   ArtifactEvaluationReceipt,
 } from '@/lib/artifact-evidence-evaluation'
 import type { ArtifactEvidenceCategory, ArtifactEvidenceManifest } from '@/lib/artifact-evidence-manifest'
+import {
+  HEYGEN_CAPABILITY_SNAPSHOT_VERSION,
+  HEYGEN_LONG_FORM_RECIPE_VERSION,
+  selectDeterministicRotationOption,
+  type HeyGenLongFormProductionRecipe,
+} from '@/lib/heygen-long-form-production-recipe'
 
 const QA_FIXTURES = {
   'f966123f-05eb-48ec-a7c2-970afce642ef': {
@@ -32,6 +38,110 @@ export type ChannelNativeVideoQaFixtureId = keyof typeof QA_FIXTURES
 
 export function isChannelNativeVideoQaFixtureId(id: string): id is ChannelNativeVideoQaFixtureId {
   return Object.prototype.hasOwnProperty.call(QA_FIXTURES, id)
+}
+
+function heygenLongFormQaRecipe(contentVersion: string): HeyGenLongFormProductionRecipe {
+  const seed = `jev-youtube-long-form:${contentVersion}`
+  const lookPool = [
+    { id: 'look:navy-editorial', label: 'Navy editorial', capability_verified: true },
+    { id: 'look:sand-workshop', label: 'Sand workshop', capability_verified: true },
+    { id: 'look:charcoal-studio', label: 'Charcoal studio', capability_verified: true },
+  ]
+  const environmentPool = [
+    { id: 'environment:quiet-library', label: 'Quiet library', capability_verified: true },
+    { id: 'environment:product-wall', label: 'Product wall', capability_verified: true },
+    { id: 'environment:light-studio', label: 'Light studio', capability_verified: true },
+  ]
+  const proposedLook = selectDeterministicRotationOption({ seed: `${seed}:look`, options: lookPool, previousId: 'look:navy-editorial' })!
+  const proposedEnvironment = selectDeterministicRotationOption({ seed: `${seed}:environment`, options: environmentPool, previousId: 'environment:quiet-library' })!
+  const sourceReceipts = ['source:jev:approved-composite-20261014', 'source:jev:product-dashboard-20261014', 'source:jev:outlier-packet-20261017', 'source:music:the-stream-v2:20261014']
+  const rightsReceipts = ['rights:jev:owned-public-assets-20261014', 'rights:music:the-stream-v2:20261014']
+
+  return {
+    version: HEYGEN_LONG_FORM_RECIPE_VERSION,
+    recipe_id: 'recipe:jev:youtube-long-form:v1',
+    status: 'review_only',
+    campaign: { campaign_id: 'artifact-video-review-2026-10-14', content_id: 'jev-youtube-long-form', content_version: contentVersion },
+    evidence: {
+      packet_id: 'evidence:jev:approved-composite-20261014',
+      packet_version: 'v1',
+      approval_receipt_id: 'approval:jev:approved-composite-20261014',
+      product_proof_required: true,
+      product_screenshots: [{
+        asset_id: 'asset:jev:approval-dashboard',
+        label: 'Jev approval dashboard',
+        sha256: 'sha256:6f7d62e246454e2e1e294e2c033f302d19d7bfca35fe3902a8b17574f4b31560',
+        source_receipt_id: 'source:jev:product-dashboard-20261014',
+        rights_receipt_id: 'rights:jev:owned-public-assets-20261014',
+      }],
+      outlier: {
+        packet_id: 'outlier:youtube:jev:20261017',
+        observed_at: '2026-10-17T12:00:00.000Z',
+        expires_at: '2026-10-24T12:00:00.000Z',
+        source_receipt_id: 'source:jev:outlier-packet-20261017',
+      },
+    },
+    deliverables: {
+      master: {
+        deliverable_id: 'deliverable:jev:youtube-master:v1',
+        channel: 'youtube',
+        aspect_ratio: '16:9',
+        duration_seconds: 600,
+        approval_status: 'pending',
+        script_input_id: 'input:jev:script:v1',
+        title_input_id: 'input:jev:title:v1',
+        description_input_id: 'input:jev:description:v1',
+        thumbnail_input_id: 'input:jev:thumbnail:v1',
+      },
+      derivatives: [
+        { deliverable_id: 'deliverable:jev:youtube-short:v1', channel: 'youtube_shorts', aspect_ratio: '9:16', source_master_id: 'deliverable:jev:youtube-master:v1', source_master_version: contentVersion, inherited_evidence_packet_id: 'evidence:jev:approved-composite-20261014', packaging_input_id: 'input:jev:short-packaging:v1', approval_status: 'pending' },
+        { deliverable_id: 'deliverable:jev:linkedin:v1', channel: 'linkedin', aspect_ratio: '1:1', source_master_id: 'deliverable:jev:youtube-master:v1', source_master_version: contentVersion, inherited_evidence_packet_id: 'evidence:jev:approved-composite-20261014', packaging_input_id: 'input:jev:linkedin-packaging:v1', approval_status: 'pending' },
+      ],
+    },
+    provider: {
+      provider: 'heygen',
+      plan: 'pro',
+      capability_snapshot: {
+        version: HEYGEN_CAPABILITY_SNAPSHOT_VERSION,
+        observed_at: '2026-10-17T12:00:00.000Z',
+        expires_at: '2026-10-24T12:00:00.000Z',
+        account_capability_verified: false,
+        supported_engines: ['avatar_v', 'avatar_iv', 'avatar_iii', 'video_agent'],
+        supported_visual_models: ['heygen_video_1'],
+        duration_verified: false,
+        credits_verified: false,
+      },
+      selected_engine: 'avatar_iv',
+      visual_clip_model: 'heygen_video_1',
+      avatar_v_reference_look_id: null,
+      production_route: 'avatar_video_native_composite',
+      avatar_identity_id: 'avatar:vambah:review-binding',
+      voice_id: 'voice:vambah:review-binding',
+      aspect_ratio: '16:9',
+    },
+    rotation: {
+      seed,
+      previous_look_id: 'look:navy-editorial',
+      previous_environment_id: 'environment:quiet-library',
+      look_pool: lookPool,
+      environment_pool: environmentPool,
+      proposed_look_id: proposedLook.id,
+      proposed_environment_id: proposedEnvironment.id,
+      override_look_id: null,
+      override_environment_id: null,
+    },
+    scene_plan: [
+      { scene_id: 'opening', start_seconds: 0, end_seconds: 75, look_id: proposedLook.id, environment_id: proposedEnvironment.id, role: 'presenter', motion_prompt: 'Open with a steady direct address and restrained camera movement.', product_asset_ids: [], generated_clip: null, native_composite: { required: true, source_media_is_visual_truth: true, preserve_source_fps_and_duration: true, mix_source_audio_at_scene_timestamps: true } },
+      { scene_id: 'product-proof', start_seconds: 75, end_seconds: 360, look_id: proposedLook.id, environment_id: 'environment:product-wall', role: 'product_demo', motion_prompt: 'Reveal the approved dashboard capture at reading pace and hold each evidence region long enough to inspect.', product_asset_ids: ['asset:jev:approval-dashboard'], generated_clip: null, native_composite: { required: true, source_media_is_visual_truth: true, preserve_source_fps_and_duration: true, mix_source_audio_at_scene_timestamps: true } },
+      { scene_id: 'evidence-b-roll', start_seconds: 360, end_seconds: 510, look_id: proposedLook.id, environment_id: 'environment:light-studio', role: 'b_roll', motion_prompt: 'Use a ten-second evidence-bound generated clip only as a cutaway; preserve the native presenter track.', product_asset_ids: ['asset:jev:approval-dashboard'], generated_clip: { model: 'heygen_video_1', duration_seconds: 10 }, native_composite: { required: true, source_media_is_visual_truth: true, preserve_source_fps_and_duration: true, mix_source_audio_at_scene_timestamps: true } },
+      { scene_id: 'close', start_seconds: 510, end_seconds: 600, look_id: proposedLook.id, environment_id: proposedEnvironment.id, role: 'cta', motion_prompt: 'Return to the presenter and finish with the approved practical invitation.', product_asset_ids: [], generated_clip: null, native_composite: { required: true, source_media_is_visual_truth: true, preserve_source_fps_and_duration: true, mix_source_audio_at_scene_timestamps: true } },
+    ],
+    music: { track_id: 'music:the-stream-v2', authorization_receipt_id: 'source:music:the-stream-v2:20261014', rights_receipt_id: 'rights:music:the-stream-v2:20261014' },
+    receipts: { approved_source_receipt_ids: sourceReceipts, approved_rights_receipt_ids: rightsReceipts, privacy_receipt_id: 'privacy:jev:public-safe-20261014' },
+    budget: { estimated_run_credits: 10, per_run_credit_ceiling: 12, aggregate_committed_credits: 20, aggregate_credit_ceiling: 40, estimated_run_usd: 3.5, per_run_usd_ceiling: 5, aggregate_committed_usd: 6, aggregate_usd_ceiling: 15 },
+    execution_boundary: { provider_calls_authorized: false, provider_calls_executed: 0, upload_authorized: false, platform_draft_authorized: false, scheduling_authorized: false, publishing_authorized: false, external_send_authorized: false },
+    customer_artifacts: { internal_prompt_fields: [], governance_text_included: false },
+  }
 }
 
 function artifactEvidenceManifest(input: {
@@ -318,6 +428,7 @@ export function channelNativeVideoQaFixture(id: ChannelNativeVideoQaFixtureId, v
           ...(videoPackageState === 'ready' ? ['rights:music:the-stream-v2:20261014'] : []),
         ],
         social_video_review_fixture_state: videoPackageState,
+        heygen_long_form_production_recipe: heygenLongFormQaRecipe(packet.generated_at),
       } : {}),
       qa_fixture: {
         kind: 'channel_native_video_review',
