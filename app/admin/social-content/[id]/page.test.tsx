@@ -10,7 +10,7 @@ import { buildDeterministicVisualRecipePatch, projectDeterministicVisualRender }
 import { socialCopyVersion } from '@/lib/social-copy-revision'
 import { topicSourceCoverageQaFixture } from '@/lib/social-topic-source-coverage-qa-fixture'
 import { channelNativeVideoQaFixture } from '@/lib/social-channel-video-qa-fixture'
-import { channelExperimentSocialContentQaFixture } from '@/lib/social-channel-experiment-qa-fixture'
+import { YOUTUBE_DESCRIPTION_COMPLETION_QA_ID, channelExperimentSocialContentQaFixture, youtubeDescriptionCompletionQaFixture } from '@/lib/social-channel-experiment-qa-fixture'
 
 const mocks = vi.hoisted(() => ({
   push: vi.fn(),
@@ -265,6 +265,31 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(screen.queryByText('LinkedIn optimal: 150-300 words')).not.toBeInTheDocument()
     expect(fetchMock).toHaveBeenCalledWith(
       '/api/admin/social-content/1f3cec8c-afcb-4551-90fa-b8d4f9dabe2f?qa_fixture=channel_experiment_social_detail_v1',
+      expect.objectContaining({ cache: 'no-store' }),
+    )
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+  })
+
+  it('renders the repaired Jev description with its qualifying evidence and no LinkedIn preview', async () => {
+    mocks.id = YOUTUBE_DESCRIPTION_COMPLETION_QA_ID
+    mocks.search = 'step=copy&qa_fixture=youtube_description_completion_v1&rev=test-commit'
+    const item = youtubeDescriptionCompletionQaFixture(mocks.id)
+    const fetchMock = vi.fn(async () => ({ ok: true, json: async () => ({ item }) } as Response))
+    vi.stubGlobal('fetch', fetchMock)
+
+    render(<SocialContentDetailRoute />)
+
+    const review = await screen.findByRole('region', { name: `YouTube campaign review: ${item.youtube_title}` })
+    expect(within(review).getByText(/The model kept choosing\. The harness had to learn when to slow it down\./)).toBeVisible()
+    expect(within(review).getByText('Evidence ready')).toBeVisible()
+    expect(within(review).getByText(/3 qualifying sources; minimum 3; outlier threshold 65/)).toBeVisible()
+    expect(within(review).getByText(/Proposed CTA:/).parentElement).toHaveTextContent('Where does your own agent workflow need a stronger harness?')
+    expect(within(review).getByRole('link', { name: /What is Jev/ })).toHaveAttribute('href', 'https://www.youtube.com/watch?v=voYpgIg0m0k')
+    expect(screen.getByLabelText('YouTube campaign review state')).toHaveTextContent('Review onlyEvidence ready')
+    expect(screen.queryByText('LinkedIn Preview')).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /Approve Copy/i })).not.toBeInTheDocument()
+    expect(fetchMock).toHaveBeenCalledWith(
+      `/api/admin/social-content/${YOUTUBE_DESCRIPTION_COMPLETION_QA_ID}?qa_fixture=youtube_description_completion_v1`,
       expect.objectContaining({ cache: 'no-store' }),
     )
     expect(fetchMock).toHaveBeenCalledTimes(1)

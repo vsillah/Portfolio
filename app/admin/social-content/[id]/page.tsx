@@ -122,7 +122,7 @@ import {
 import type { SocialCommentInboxItem } from '@/lib/social-comment-inbox-ui'
 import type { SocialContentCalibrationReference } from '@/lib/social-content-calibration-library'
 import { outlierEvidenceCalibrationQaFixture } from '@/lib/social-outlier-evidence-calibration'
-import { CHANNEL_EXPERIMENT_SOCIAL_DETAIL_FIXTURE } from '@/lib/social-channel-experiment-qa-fixture'
+import { CHANNEL_EXPERIMENT_SOCIAL_DETAIL_FIXTURE, YOUTUBE_DESCRIPTION_COMPLETION_FIXTURE } from '@/lib/social-channel-experiment-qa-fixture'
 import Link from 'next/link'
 
 const PLATFORM_ICONS: Record<string, React.ReactNode> = {
@@ -762,6 +762,8 @@ function SocialContentDetailPage() {
   const deterministicVisualQaState = searchParams.get('qa_state')
   const channelNativeQaFixture = searchParams.get('qa_fixture') === 'channel_native_video_v2'
   const channelExperimentQaFixture = searchParams.get('qa_fixture') === CHANNEL_EXPERIMENT_SOCIAL_DETAIL_FIXTURE
+  const youtubeDescriptionCompletionQaFixture = searchParams.get('qa_fixture') === YOUTUBE_DESCRIPTION_COMPLETION_FIXTURE
+  const readOnlyYouTubeQaFixture = channelExperimentQaFixture || youtubeDescriptionCompletionQaFixture
   const videoPackageQaState = searchParams.get('video_package_state') === 'blocked' ? 'blocked' : 'ready'
   const recoveryStep: ApprovalStep = isApprovalStep(rawRecoveryStep) ? rawRecoveryStep : 'copy'
   const recoveryStepParams = new URLSearchParams(searchParams.toString())
@@ -868,7 +870,7 @@ function SocialContentDetailPage() {
   const fetchTopicBacklog = useCallback(async () => {
     setLoadingTopicBacklog(true)
     try {
-      if (id === TOPIC_SOURCE_COVERAGE_QA_ID || id === DETERMINISTIC_VISUAL_BINDING_QA_ID || channelExperimentQaFixture) {
+      if (id === TOPIC_SOURCE_COVERAGE_QA_ID || id === DETERMINISTIC_VISUAL_BINDING_QA_ID || readOnlyYouTubeQaFixture) {
         setTopicBacklogItems([])
         setTopicBacklogUnavailable(false)
         setTopicBacklogCoverageReport(null)
@@ -890,7 +892,7 @@ function SocialContentDetailPage() {
     } finally {
       setLoadingTopicBacklog(false)
     }
-  }, [channelExperimentQaFixture, id])
+  }, [id, readOnlyYouTubeQaFixture])
 
   const fetchCalibrationLibrary = useCallback(async () => {
     setLoadingCalibrationLibrary(true)
@@ -918,7 +920,7 @@ function SocialContentDetailPage() {
 
   const fetchPlatformConfigs = useCallback(async () => {
     try {
-      if (id === DETERMINISTIC_VISUAL_BINDING_QA_ID || channelExperimentQaFixture) {
+      if (id === DETERMINISTIC_VISUAL_BINDING_QA_ID || readOnlyYouTubeQaFixture) {
         setPlatformConfigs([])
         return
       }
@@ -935,7 +937,7 @@ function SocialContentDetailPage() {
     } catch (err) {
       console.error('Failed to fetch social platform config:', err)
     }
-  }, [channelExperimentQaFixture, id])
+  }, [id, readOnlyYouTubeQaFixture])
 
   const fetchReviewQueue = useCallback(async (currentItem: SocialContentItem) => {
     const currentGroupKey = getReviewQueueGroupKey(currentItem)
@@ -1025,8 +1027,8 @@ function SocialContentDetailPage() {
       setLoadError(null)
     }
     try {
-      const session = await getCurrentSession()
-      if (!session) {
+      const session = youtubeDescriptionCompletionQaFixture ? null : await getCurrentSession()
+      if (!session && !youtubeDescriptionCompletionQaFixture) {
         setLoadError('Admin session is unavailable for this social content detail.')
         if (!options.silent) setItem(null)
         return
@@ -1036,12 +1038,14 @@ function SocialContentDetailPage() {
         ? `?qa_state=${encodeURIComponent(deterministicVisualQaState)}`
         : channelExperimentQaFixture
           ? `?qa_fixture=${CHANNEL_EXPERIMENT_SOCIAL_DETAIL_FIXTURE}`
+        : youtubeDescriptionCompletionQaFixture
+          ? `?qa_fixture=${YOUTUBE_DESCRIPTION_COMPLETION_FIXTURE}`
         : channelNativeQaFixture
           ? `?qa_fixture=channel_native_video_v2&video_package_state=${videoPackageQaState}`
           : ''
       const res = await fetch(`/api/admin/social-content/${id}${detailQuery}`, {
         cache: 'no-store',
-        headers: { Authorization: `Bearer ${session.access_token}` },
+        headers: session ? { Authorization: `Bearer ${session.access_token}` } : undefined,
       })
       const data = await res.json().catch(() => ({}))
 
@@ -1111,7 +1115,7 @@ function SocialContentDetailPage() {
     } finally {
       if (!options.silent) setLoading(false)
     }
-  }, [channelExperimentQaFixture, channelNativeQaFixture, deterministicVisualQaState, fetchCommentInboxItems, fetchReviewQueue, id, videoPackageQaState])
+  }, [channelExperimentQaFixture, channelNativeQaFixture, deterministicVisualQaState, fetchCommentInboxItems, fetchReviewQueue, id, videoPackageQaState, youtubeDescriptionCompletionQaFixture])
 
   useEffect(() => {
     fetchItem()
@@ -3983,13 +3987,15 @@ function SocialContentDetailPage() {
                 <Breadcrumbs items={[
                   { label: 'Admin', href: '/admin' },
                   { label: 'Social Content', href: '/admin/social-content' },
-                  { label: 'YouTube Experiment Review' },
+                  { label: channelExperimentReview.reviewLabel },
                 ]} />
               </div>
             </div>
-            <div aria-label="YouTube experiment review state" className="flex flex-wrap items-center gap-2 text-xs">
+            <div aria-label={`${channelExperimentReview.reviewLabel} state`} className="flex flex-wrap items-center gap-2 text-xs">
               <span className="rounded-full border border-emerald-600/35 bg-emerald-500/10 px-2.5 py-1 font-semibold text-emerald-800 dark:text-emerald-100">Review only</span>
-              <span className="rounded-full border border-amber-500/35 bg-amber-500/10 px-2.5 py-1 font-semibold text-amber-900 dark:text-amber-100">Unscored</span>
+              <span className={`rounded-full border px-2.5 py-1 font-semibold ${channelExperimentReview.evidenceStatus === 'ready' ? 'border-emerald-600/35 bg-emerald-500/10 text-emerald-800 dark:text-emerald-100' : channelExperimentReview.evidenceStatus === 'blocked' ? 'border-red-600/35 bg-red-500/10 text-red-800 dark:text-red-100' : 'border-amber-500/35 bg-amber-500/10 text-amber-900 dark:text-amber-100'}`}>
+                {channelExperimentReview.evidenceStatus === 'ready' ? 'Evidence ready' : channelExperimentReview.evidenceStatus === 'blocked' ? 'Description blocked' : 'Unscored'}
+              </span>
             </div>
           </div>
         </header>
@@ -7614,12 +7620,24 @@ function SocialContentDetailPage() {
   )
 }
 
-export default function SocialContentDetailRoute() {
+function SocialContentDetailAccessGate() {
+  const searchParams = useSearchParams()
+  const readOnlyDescriptionQa = process.env.NODE_ENV !== 'production'
+    && searchParams.get('qa_fixture') === YOUTUBE_DESCRIPTION_COMPLETION_FIXTURE
+
+  if (readOnlyDescriptionQa) return <SocialContentDetailPage />
+
   return (
     <ProtectedRoute requireAdmin>
-      <Suspense fallback={<SocialContentDetailLoadingState />}>
-        <SocialContentDetailPage />
-      </Suspense>
+      <SocialContentDetailPage />
     </ProtectedRoute>
+  )
+}
+
+export default function SocialContentDetailRoute() {
+  return (
+    <Suspense fallback={<SocialContentDetailLoadingState />}>
+      <SocialContentDetailAccessGate />
+    </Suspense>
   )
 }

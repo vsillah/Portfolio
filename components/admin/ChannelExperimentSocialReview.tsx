@@ -70,6 +70,9 @@ export function getChannelExperimentSocialReview(item: ChannelExperimentSocialIt
     const evidence = record(ragContext?.description_outlier_evidence)
     const releaseGate = record(ragContext?.description_evidence_release_gate)
     const description = text(item.youtube_description)
+    const descriptionLines = description.split(/\n+/).map((line) => line.trim()).filter(Boolean)
+    const sourcesIndex = descriptionLines.findIndex((line) => /^sources:?$/i.test(line))
+    const ctaCandidates = sourcesIndex >= 0 ? descriptionLines.slice(0, sourcesIndex) : descriptionLines
     const sourceLineage = strings(ragContext?.source_lineage)
     const evidenceSources = records(evidence?.sources)
     const remediationReceipts = records(evidence?.remediation_receipts)
@@ -95,7 +98,7 @@ export function getChannelExperimentSocialReview(item: ChannelExperimentSocialIt
       openingHook: text(item.post_text).split(/\n+/)[0] || text(ragContext?.campaign_title),
       outline: strings(ragContext?.storyboard),
       thumbnailBrief: text(ragContext?.thumbnail_direction),
-      cta: description.split(/\n+/).map((line) => line.trim()).filter(Boolean).at(-3) || '',
+      cta: [...ctaCandidates].reverse().find((line) => /[?!]$/.test(line)) || '',
       productProofRequirements: strings(ragContext?.product_sources),
       evidenceLineage: [
         ...evidenceSources.map((source) => ({
