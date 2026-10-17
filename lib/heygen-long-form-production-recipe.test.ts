@@ -198,4 +198,24 @@ describe('evaluateHeyGenLongFormRecipe', () => {
     recipe.scene_plan[1].native_composite.source_media_is_visual_truth = false
     expect(evaluate(recipe).blockers).toContain('Native presenter and media composites must preserve source visuals, frame rate, duration, and timestamped audio.')
   })
+
+  it('fails when the first scene starts after the master timeline origin', () => {
+    const recipe = makeHeyGenLongFormRecipe()
+    recipe.scene_plan[0].start_seconds = 5
+    expect(evaluate(recipe).blockers).toContain('The first scene must start at 0 seconds.')
+  })
+
+  it('fails scene look and environment bindings that are absent or capability-unverified', () => {
+    const recipe = makeHeyGenLongFormRecipe()
+    recipe.scene_plan[1].look_id = 'look-missing'
+    recipe.rotation.environment_pool.find((option) => option.id === 'env-product')!.capability_verified = false
+    expect(evaluate(recipe).blockers).toContain('Every scene avatar look must resolve to a capability-verified rotation entry.')
+    expect(evaluate(recipe).blockers).toContain('Every scene environment must resolve to a capability-verified rotation entry.')
+  })
+
+  it('fails scene product assets that are not approved screenshot evidence', () => {
+    const recipe = makeHeyGenLongFormRecipe()
+    recipe.scene_plan[1].product_asset_ids = ['asset-unbound']
+    expect(evaluate(recipe).blockers).toContain('Every scene product asset must resolve to an approved product screenshot with passing source and rights receipts.')
+  })
 })

@@ -218,6 +218,12 @@ export function evaluateHeyGenLongFormRecipe(input: {
   if (!value.evidence.packet_id.trim() || !value.evidence.packet_version.trim() || !value.evidence.approval_receipt_id.trim()) blockers.push('An approved, versioned evidence packet is required.')
 
   if (value.evidence.product_proof_required && value.evidence.product_screenshots.length === 0) blockers.push('Product screenshots are required when the topic references Vambah’s work.')
+  const approvedProductAssetIds = new Set(value.evidence.product_screenshots
+    .filter((asset) => asset.asset_id.trim()
+      && asset.sha256.startsWith('sha256:')
+      && hasApprovedReceipt(asset.source_receipt_id, value.receipts.approved_source_receipt_ids)
+      && hasApprovedReceipt(asset.rights_receipt_id, value.receipts.approved_rights_receipt_ids))
+    .map((asset) => asset.asset_id))
   for (const asset of value.evidence.product_screenshots) {
     if (!asset.asset_id.trim() || !asset.sha256.startsWith('sha256:')) blockers.push('Every product screenshot needs an exact asset and SHA-256 binding.')
     if (!hasApprovedReceipt(asset.source_receipt_id, value.receipts.approved_source_receipt_ids)) blockers.push('A product screenshot source receipt is missing or unapproved.')
@@ -252,14 +258,20 @@ export function evaluateHeyGenLongFormRecipe(input: {
   if (!value.rotation.environment_pool.some((option) => option.id === selectedEnvironmentId && option.capability_verified)) blockers.push('The selected environment is unavailable or unverified.')
   if (selectedLookId === value.rotation.previous_look_id) blockers.push('The selected avatar look repeats the previous production.')
   if (selectedEnvironmentId === value.rotation.previous_environment_id) blockers.push('The selected environment repeats the previous production.')
+  const verifiedLookIds = new Set(value.rotation.look_pool.filter((option) => option.capability_verified).map((option) => option.id))
+  const verifiedEnvironmentIds = new Set(value.rotation.environment_pool.filter((option) => option.capability_verified).map((option) => option.id))
 
   let previousEnd = 0
   let hasProductDemo = false
   let hasBroll = false
   for (const [index, scene] of value.scene_plan.entries()) {
+    if (index === 0 && Math.abs(scene.start_seconds) > 0.001) blockers.push('The first scene must start at 0 seconds.')
     if (!scene.scene_id.trim() || !scene.motion_prompt.trim() || scene.end_seconds <= scene.start_seconds || scene.start_seconds < previousEnd || scene.end_seconds > master.duration_seconds) blockers.push('Every scene needs ordered timing and a motion prompt inside the master duration.')
     if (index > 0 && Math.abs(scene.start_seconds - previousEnd) > 0.05) blockers.push('The scene plan contains an unbound timing gap.')
     previousEnd = scene.end_seconds
+    if (!verifiedLookIds.has(scene.look_id)) blockers.push('Every scene avatar look must resolve to a capability-verified rotation entry.')
+    if (!verifiedEnvironmentIds.has(scene.environment_id)) blockers.push('Every scene environment must resolve to a capability-verified rotation entry.')
+    if (scene.product_asset_ids.some((assetId) => !approvedProductAssetIds.has(assetId))) blockers.push('Every scene product asset must resolve to an approved product screenshot with passing source and rights receipts.')
     if (scene.role === 'product_demo') hasProductDemo = true
     if (scene.role === 'b_roll') hasBroll = true
     if ((scene.role === 'product_demo' || scene.role === 'b_roll') && scene.product_asset_ids.length === 0) blockers.push('Product-demo and B-roll scenes require bound visual assets.')
