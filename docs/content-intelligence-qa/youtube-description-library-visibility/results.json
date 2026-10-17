@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-10-17T10:43:57.209Z",
-  "commit": "69ffd2092488ab2f5ca982c7a3581f04a6b48194",
-  "route": "/admin/agents/content-intelligence?section=research&qa_fixture=youtube_description_library_v1&rev=69ffd209",
+  "generated_at": "2026-10-17T11:55:02.836Z",
+  "commit": "a1233b69059ce7cde9a33751f1fa5c38532a3696",
+  "route": "/admin/agents/content-intelligence?section=research&qa_fixture=youtube_description_library_v1&rev=a1233b69",
   "product_writes": 0,
   "viewports": [
     {
@@ -16,6 +16,12 @@
     }
   ],
   "verified": [
+    "visible Nzinga remediation region",
+    "release-blocked state",
+    "Askia Muhammad remediation owner",
+    "typed recovery action",
+    "zero initial remediation attempts",
+    "no-prior-receipt recheck state",
     "real public thumbnails",
     "visible YouTube URLs",
     "captured public description excerpts and provenance",
