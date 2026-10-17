@@ -3,6 +3,7 @@ import { buildLinkedInYoutubeReviewDrafts } from './social-content-intelligence'
 import {
   YOUTUBE_DESCRIPTION_LIBRARY_VERSION,
   buildYouTubeOutlierDescriptionLibrary,
+  normalizeYouTubeDescriptionRemediationReceipts,
   routeYouTubeDescriptionRemediation,
 } from './youtube-outlier-description-library'
 
@@ -226,6 +227,22 @@ describe('YouTube outlier description library', () => {
     })
   })
 
+  it('normalizes persisted receipts and rejects malformed or tampered entries', () => {
+    const receipt = buildYouTubeOutlierDescriptionLibrary({
+      generatedAt: '2026-10-17T12:00:00.000Z',
+      targetTopics: ['AI licenses'],
+      researchPackets: [packet({ id: 'normalize', description: 'AI license proof.', score: 42 })],
+      minimumSourceCount: 2,
+    }).remediation_receipts[0]
+
+    expect(normalizeYouTubeDescriptionRemediationReceipts([
+      receipt,
+      { ...receipt, designated_owner: 'decision-journal' },
+      { ...receipt, receipt_id: 'tampered' },
+      { version: 'unknown' },
+    ])).toEqual([receipt])
+  })
+
   it('runs one deterministic recheck after evidence changes and records a failed attempt', () => {
     const first = buildYouTubeOutlierDescriptionLibrary({
       generatedAt: '2026-10-17T12:00:00.000Z',
@@ -274,6 +291,68 @@ describe('YouTube outlier description library', () => {
     expect(attemptedWaiver.remediation_receipts.find((receipt) => receipt.failed_gate === 'outlier_score')).toMatchObject({
       status: 'awaiting_evidence',
       attempt_count: 0,
+      recheck_result: 'not_run_inputs_unchanged',
+    })
+  })
+
+  it('does not import thresholds or receipts from a different topic scope', () => {
+    const first = buildYouTubeOutlierDescriptionLibrary({
+      generatedAt: '2026-10-17T12:00:00.000Z',
+      targetTopics: ['AI licenses'],
+      researchPackets: [packet({ id: 'scope-source', description: 'AI license proof.', score: 42 })],
+      minimumSourceCount: 2,
+      minimumOutlierScore: 65,
+    })
+    const differentScope = buildYouTubeOutlierDescriptionLibrary({
+      generatedAt: '2026-10-17T12:00:00.000Z',
+      targetTopics: ['Garden planning'],
+      researchPackets: [packet({ id: 'scope-source', description: 'Garden planning proof.', title: 'Garden planning', score: 42 })],
+      minimumSourceCount: 2,
+      minimumOutlierScore: 40,
+      priorRemediationReceipts: first.remediation_receipts,
+    })
+
+    expect(differentScope.minimum_outlier_score).toBe(40)
+    expect(differentScope.remediation_receipts).not.toEqual(expect.arrayContaining([
+      expect.objectContaining({ receipt_id: first.remediation_receipts[0].receipt_id }),
+    ]))
+  })
+
+  it('retains a blocked receipt when its previously failed source disappears', () => {
+    const first = buildYouTubeOutlierDescriptionLibrary({
+      generatedAt: '2026-10-17T12:00:00.000Z',
+      targetTopics: ['AI licenses'],
+      researchPackets: [packet({ id: 'missing-next', description: 'AI license proof.', score: 42 })],
+      minimumSourceCount: 2,
+    })
+    const firstReceipt = first.remediation_receipts.find((receipt) => receipt.failed_gate === 'outlier_score')!
+    const disappeared = buildYouTubeOutlierDescriptionLibrary({
+      generatedAt: '2026-10-17T12:00:00.000Z',
+      targetTopics: ['AI licenses'],
+      researchPackets: [],
+      minimumSourceCount: 2,
+      priorRemediationReceipts: first.remediation_receipts,
+    })
+    const retained = disappeared.remediation_receipts.find((receipt) => receipt.receipt_id === firstReceipt.receipt_id)
+
+    expect(retained).toMatchObject({
+      status: 'recheck_failed',
+      attempt_count: 1,
+      observed_value: 'Source missing from current evidence inputs',
+      recheck_result: 'failed_after_input_change',
+      release_readiness: 'blocked',
+    })
+
+    const stillMissing = buildYouTubeOutlierDescriptionLibrary({
+      generatedAt: '2026-10-17T12:00:00.000Z',
+      targetTopics: ['AI licenses'],
+      researchPackets: [],
+      minimumSourceCount: 2,
+      priorRemediationReceipts: disappeared.remediation_receipts,
+    })
+    expect(stillMissing.remediation_receipts.find((receipt) => receipt.receipt_id === firstReceipt.receipt_id)).toMatchObject({
+      status: 'awaiting_evidence',
+      attempt_count: 1,
       recheck_result: 'not_run_inputs_unchanged',
     })
   })

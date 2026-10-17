@@ -5,7 +5,10 @@ import {
   type SocialContentCalibrationReference,
 } from '@/lib/social-content-calibration-library'
 import type { TopicTriggerCandidate, TopicTriggerPacket } from '@/lib/social-topic-backlog'
-import { buildYouTubeOutlierDescriptionLibrary } from '@/lib/youtube-outlier-description-library'
+import {
+  buildYouTubeOutlierDescriptionLibrary,
+  type YouTubeDescriptionRemediationReceipt,
+} from '@/lib/youtube-outlier-description-library'
 
 export const SOCIAL_TOPIC_TRIGGER_SOURCE_TYPE = 'social_topic_trigger'
 
@@ -1530,6 +1533,7 @@ export function buildLinkedInYoutubeReviewDrafts(input: {
   latestFeedback?: Record<string, unknown> | null
   calibrationReferences?: SocialContentCalibrationReference[]
   youtubeDescriptionResearchPackets?: Array<Record<string, unknown>>
+  priorYoutubeDescriptionRemediationReceipts?: YouTubeDescriptionRemediationReceipt[]
 }): LinkedInYoutubeReviewDrafts {
   const insight = input.insight
   const generatedAt = input.generatedAt ?? new Date().toISOString()
@@ -1654,7 +1658,11 @@ export function buildLinkedInYoutubeReviewDrafts(input: {
     ],
     generatedAt,
     targetAudienceSize: numberOrNull(insight.audience_size),
+    priorRemediationReceipts: input.priorYoutubeDescriptionRemediationReceipts,
   })
+  const youtubeDescriptionBlocked = youtubeDescriptionEvidence.release_readiness === 'blocked'
+  const youtubeDescriptionRecoveryReason = youtubeDescriptionEvidence.blockers[0]
+    ?? 'YouTube description evidence must pass its remediation gate before Human QA.'
   const youtubeDescriptionCta = youtubeDescriptionEvidence.status === 'ready'
     ? youtubeDescriptionEvidence.recommended_structure.cta_style === 'subscribe'
       ? 'Subscribe for more practical breakdowns of governed AI systems and the products behind them.'
@@ -1697,7 +1705,8 @@ export function buildLinkedInYoutubeReviewDrafts(input: {
     youtube: {
       channel: 'youtube',
       generated_at: generatedAt,
-      approval_status: 'in_review',
+      approval_status: youtubeDescriptionBlocked ? 'blocked' : 'in_review',
+      decision_note: youtubeDescriptionBlocked ? youtubeDescriptionRecoveryReason : null,
       shared_source: sharedSource,
       source_insight_title: title,
       source_use_boundary: sourceBoundary,
@@ -1717,6 +1726,10 @@ export function buildLinkedInYoutubeReviewDrafts(input: {
           youtubeDescriptionCta,
         ].join('\n'),
         description_outlier_evidence: youtubeDescriptionEvidence,
+        description_evidence_release_gate: {
+          status: youtubeDescriptionBlocked ? 'blocked' : 'ready',
+          recovery_reason: youtubeDescriptionBlocked ? youtubeDescriptionRecoveryReason : null,
+        },
         opening_hook: youtubeHook,
         first_30_seconds: firstThirtySeconds,
         full_video_script: fullVideoScript,

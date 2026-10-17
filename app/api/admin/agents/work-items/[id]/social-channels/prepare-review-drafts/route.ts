@@ -14,6 +14,7 @@ import {
 } from '@/lib/social-content-intelligence'
 import { validateSocialPublicCopyFields } from '@/lib/social-content-lifecycle'
 import { supabaseAdmin } from '@/lib/supabase'
+import { normalizeYouTubeDescriptionRemediationReceipts } from '@/lib/youtube-outlier-description-library'
 import {
   SOCIAL_VIDEO_ADAPTATION_SOURCE_METADATA_KEY,
   SocialVideoAdaptationError,
@@ -69,7 +70,7 @@ function preserveApprovedChannelDrafts(
   const drafts = structuredClone(generated)
   for (const channel of SOCIAL_CONTENT_INTELLIGENCE_CHANNELS) {
     const approved = approvedDraftPacket(lanes, channel)
-    if (approved) drafts[channel] = approved
+    if (approved && !(channel === 'youtube' && generated.youtube.approval_status === 'blocked')) drafts[channel] = approved
   }
   return drafts
 }
@@ -83,15 +84,24 @@ function updateLaneWithPreparedDraft(input: {
   const existing = input.lanes[input.channel]
   const preserveApproval = existing.status === 'approved'
     && existing.draft_packet?.approval_status === 'approved'
+    && input.draft.approval_status !== 'blocked'
+  const blocked = input.draft.approval_status === 'blocked'
 
   input.lanes[input.channel] = {
     ...existing,
-    status: preserveApproval ? 'approved' : 'in_review',
+    status: preserveApproval ? 'approved' : blocked ? 'blocked' : 'in_review',
     draft_packet: input.draft,
-    decision_note: preserveApproval ? existing.decision_note : null,
-    review_requested_at: preserveApproval ? existing.review_requested_at : input.now,
+    decision_note: preserveApproval ? existing.decision_note : blocked ? input.draft.decision_note ?? 'Evidence remediation is required.' : null,
+    review_requested_at: preserveApproval ? existing.review_requested_at : blocked ? null : input.now,
     updated_at: input.now,
   }
+}
+
+function priorYoutubeDescriptionRemediationReceipts(lanes: SocialChannelLanes) {
+  const draft = asRecord(lanes.youtube.draft_packet)
+  const fields = asRecord(draft.fields)
+  const evidence = asRecord(fields.description_outlier_evidence)
+  return normalizeYouTubeDescriptionRemediationReceipts(evidence.remediation_receipts)
 }
 
 export async function POST(
@@ -140,6 +150,7 @@ export async function POST(
       generatedAt: now,
       latestFeedback: asRecord(metadata.autoresearch_feedback_latest),
       youtubeDescriptionResearchPackets: youtubeDescriptionResearchPackets ?? [],
+      priorYoutubeDescriptionRemediationReceipts: priorYoutubeDescriptionRemediationReceipts(lanes),
     })
     const drafts = preserveApprovedChannelDrafts(generatedDrafts, lanes)
     const copyQualityGate = validateSocialPublicCopyFields(socialChannelReviewPublicCopyFields(drafts))
@@ -216,6 +227,10 @@ export async function POST(
     for (const channel of SOCIAL_CONTENT_INTELLIGENCE_CHANNELS) {
       updateLaneWithPreparedDraft({ lanes, channel, draft: drafts[channel], now })
     }
+    const preparedChannels = SOCIAL_CONTENT_INTELLIGENCE_CHANNELS.filter((channel) => lanes[channel].status !== 'blocked')
+    const blockedChannels = SOCIAL_CONTENT_INTELLIGENCE_CHANNELS
+      .filter((channel) => lanes[channel].status === 'blocked')
+      .map((channel) => ({ channel, reason: lanes[channel].decision_note ?? 'Channel is blocked.' }))
 
     const updated = await updateAgentWorkItemMetadata({
       id: workItem.id,
@@ -223,8 +238,9 @@ export async function POST(
         ...metadata,
         channel_lanes: lanes,
         channel_review_workflow: {
-          status: 'human_review_ready',
-          prepared_channels: ['linkedin', 'youtube', 'youtube_shorts', 'instagram_reels', 'tiktok', 'x', 'thumbnail'],
+          status: blockedChannels.length ? 'partially_human_review_ready' : 'human_review_ready',
+          prepared_channels: preparedChannels,
+          blocked_channels: blockedChannels,
           prepared_at: now,
           source_use_boundary: drafts.linkedin.source_use_boundary,
           copy_quality_gate: {

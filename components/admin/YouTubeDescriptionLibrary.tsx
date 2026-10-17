@@ -38,6 +38,10 @@ function formatKey(valueToFormat: string) {
   return valueToFormat.replace(/_/g, ' ').replace(/^\w/, (letter) => letter.toUpperCase())
 }
 
+function remediationOwnerName(owner: YouTubeDescriptionRemediationReceipt['designated_owner']) {
+  return owner === 'research-source-register' ? 'Askia Muhammad' : 'Nefertiti'
+}
+
 function capturedDescription(packet: Record<string, unknown>) {
   const metadata = data(packet.actor_metadata)
   const pattern = data(packet.pattern_packet)
@@ -242,7 +246,7 @@ export default function YouTubeDescriptionLibrary({
                       <span className="rounded-full border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 font-semibold text-amber-800 dark:text-amber-200">{formatKey(remediation.status)}</span>
                     </div>
                     <dl className="mt-2 grid grid-cols-[7rem_minmax(0,1fr)] gap-x-2 gap-y-1 text-muted-foreground">
-                      <dt>Owner</dt><dd className="break-words text-foreground">{formatKey(remediation.designated_owner)}</dd>
+                      <dt>Owner</dt><dd className="break-words text-foreground">{remediationOwnerName(remediation.designated_owner)}</dd>
                       <dt>Recovery</dt><dd className="break-words text-foreground">{formatKey(remediation.recovery_action)}</dd>
                       <dt>Recheck</dt><dd className="break-words text-foreground">{formatKey(remediation.recheck_result)}</dd>
                       <dt>Attempts</dt><dd className="text-foreground">{remediation.attempt_count}</dd>
@@ -321,7 +325,7 @@ export default function YouTubeDescriptionLibrary({
                           {sample.remediation ? (
                             <div className="mt-3 rounded-md border border-amber-500/35 bg-amber-500/10 p-3 text-xs">
                               <p className="font-semibold text-foreground">Nzinga remediation · {formatKey(sample.remediation.status)}</p>
-                              <p className="mt-1 text-muted-foreground"><span className="font-semibold text-foreground">Owner:</span> {formatKey(sample.remediation.designated_owner)}</p>
+                              <p className="mt-1 text-muted-foreground"><span className="font-semibold text-foreground">Owner:</span> {remediationOwnerName(sample.remediation.designated_owner)}</p>
                               <p className="mt-1 text-muted-foreground"><span className="font-semibold text-foreground">Recovery:</span> {formatKey(sample.remediation.recovery_action)}</p>
                               <p className="mt-1 text-muted-foreground"><span className="font-semibold text-foreground">Recheck:</span> {formatKey(sample.remediation.recheck_result)}</p>
                             </div>

@@ -85,6 +85,8 @@ describe('social content intelligence research-to-channel-approval workflow', ()
           triggering_event: 'The Social Content review flow made the gate visible.',
           why_vambah_can_speak: 'Vambah is building and reviewing the system directly.',
           evidence_summary: 'Review path and visual gate work shipped locally.',
+          audience: 'Product leaders and operators evaluating agentic AI.',
+          brand_goal: 'Show AmaduTown\'s governed AI operating model.',
           content_angle: 'AI should reduce burden, but only when authority and evidence are separated.',
           suggested_hook: 'AI should reduce burden.',
           claim_boundaries: ['Do not imply publishing is automated.'],
@@ -112,9 +114,29 @@ describe('social content intelligence research-to-channel-approval workflow', ()
     mocks.from.mockImplementation((table: string) => {
       if (table !== 'social_content_research_packets') throw new Error(`Unexpected table ${table}`)
       return {
-        select: vi.fn(() => ({
-          in: vi.fn(async () => ({ data: [researchPacket], error: null })),
-        })),
+        select: vi.fn((columns: string) => {
+          if (!columns.includes('actor_metadata')) {
+            return { in: vi.fn(async () => ({ data: [researchPacket], error: null })) }
+          }
+          const evidence = ['a', 'b', 'c'].map((id, index) => ({
+            ...researchPacket,
+            id: `description-${id}`,
+            source_url: `https://youtube.com/watch?v=description-${id}`,
+            title: `Approval gates create trust ${id}`,
+            pattern_status: 'usable_framework',
+            outlier_score: 85 + index,
+            metrics: { published_at: '2026-06-20T12:00:00.000Z', follower_count: 40_000 + index },
+            actor_metadata: {
+              topics: ['approval gates', 'trust'],
+              source_description: `Approval gates create trust ${id}.\n\nInspect the product review path.\n\nWhat would your team verify?`,
+              description_provenance: 'youtube_watch_short_description',
+            },
+          }))
+          const query: Record<string, unknown> = {}
+          for (const method of ['in', 'eq', 'order']) query[method] = vi.fn(() => query)
+          query.limit = vi.fn(async () => ({ data: evidence, error: null }))
+          return query
+        }),
         update: vi.fn(() => ({
           in: vi.fn(async () => ({ error: null })),
         })),

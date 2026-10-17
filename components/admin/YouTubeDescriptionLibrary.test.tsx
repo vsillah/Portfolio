@@ -66,6 +66,7 @@ describe('YouTubeDescriptionLibrary', () => {
         packet('approved'),
         packet('low-score', { outlier_score: 42 }),
         packet('missing-description', { actor_metadata: { topics: ['ai licenses'], source_description: '', description_provenance: '' } }),
+        packet('unapproved', { pattern_status: 'needs_brand_translation' }),
       ]}
       initialTopic="AI licenses"
       generatedAt="2026-10-17T12:00:00.000Z"
@@ -74,10 +75,11 @@ describe('YouTubeDescriptionLibrary', () => {
     expect(screen.getByText('Unscored')).toBeVisible()
     expect(screen.getByRole('region', { name: 'Nzinga remediation status' })).toBeVisible()
     expect(screen.getByText('Release blocked')).toBeVisible()
-    expect(screen.getAllByText('Research-source-register').length).toBeGreaterThanOrEqual(2)
+    expect(screen.getAllByText('Askia Muhammad').length).toBeGreaterThanOrEqual(2)
+    expect(screen.getAllByText('Nefertiti').length).toBeGreaterThanOrEqual(1)
     expect(screen.getAllByText('Qualify outlier evidence')[0]).toBeVisible()
     expect(screen.getAllByText('Not run no prior receipt').length).toBeGreaterThanOrEqual(2)
-    expect(screen.getByRole('tab', { name: 'Sample ledger (3)' })).toBeVisible()
+    expect(screen.getByRole('tab', { name: 'Sample ledger (4)' })).toBeVisible()
     expect(screen.getAllByText(/Outlier score 42 is below the 65 threshold/)[0]).toBeVisible()
     expect(screen.getAllByText(/No separately proven public YouTube description was captured/)[0]).toBeVisible()
     fireEvent.click(screen.getAllByText('Inspect evidence and decision logic')[1])
