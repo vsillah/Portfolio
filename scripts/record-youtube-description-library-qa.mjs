@@ -40,6 +40,13 @@ async function capture(browser, label, viewport, colorScheme) {
   await page.screenshot({ path: screenshot, fullPage: false })
 
   await page.getByText('Inspect evidence and decision logic').first().click()
+  await page.getByText('Why this sample appears').first().waitFor({ state: 'visible' })
+  await page.getByText('AI product management strategy').waitFor({ state: 'visible' })
+  await page.getByText('GrjOiooP3ld2RIw32').waitFor({ state: 'visible' })
+  await page.getByText('Cohort decision').first().waitFor({ state: 'visible' })
+  await page.getByText('Outlier threshold').first().waitFor({ state: 'visible' })
+  await page.getByText('Failed').first().waitFor({ state: 'visible' })
+  await page.getByText('Not evaluated').first().waitFor({ state: 'visible' })
   await page.getByText(/Captured description evidence/).first().waitFor({ state: 'visible' })
   await page.waitForTimeout(900)
   await page.getByText(/youtube.com\/watch\?v=KjYCEiBTHFo/).first().waitFor({ state: 'visible' })
@@ -85,7 +92,7 @@ async function main() {
       route,
       product_writes: 0,
       viewports: [{ width: 1280, height: 800, theme: 'dark' }, { width: 390, height: 844, theme: 'light' }],
-      verified: ['real public thumbnails', 'visible YouTube URLs', 'captured public description excerpts and provenance', 'internal summary separation', 'exclusion reasons', 'exact gate order and ranking formula', 'unscored fail-closed state', 'responsive light and dark presentation'],
+      verified: ['real public thumbnails', 'visible YouTube URLs', 'captured public description excerpts and provenance', 'discovery query and dataset receipts', 'per-gate pass, fail, and not-evaluated decisions', 'internal summary separation', 'exclusion reasons', 'exact gate order and ranking formula', 'unscored fail-closed state', 'responsive light and dark presentation'],
       screenshots: [basename(desktop.screenshot), basename(mobile.screenshot)],
       output: basename(output),
     }, null, 2) + '\n')

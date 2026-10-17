@@ -19,6 +19,13 @@ function packet(id: string, overrides: Record<string, unknown> = {}) {
       topics: ['ai licenses', 'audit calculator'],
       source_description: 'Stop counting seats.\n\nSee the calculator product walkthrough.\n\nSubscribe for more operating breakdowns.',
       description_provenance: 'youtube_watch_short_description',
+      collector: 'apify_youtube_public_metadata',
+      query: 'AI license measurement',
+      dataset_id: 'dataset-test-123',
+      cohort_size: 5,
+      cohort_median_view_to_follower_ratio: 2.42,
+      observed_at: '2026-10-10T12:00:00.000Z',
+      public_summary_only: true,
     },
     ...overrides,
   }
@@ -38,6 +45,13 @@ describe('YouTubeDescriptionLibrary', () => {
     expect(screen.getAllByRole('link', { name: 'Open exact source' })).toHaveLength(3)
     expect(screen.getByRole('tab', { name: 'Sample ledger (3)' })).toHaveAttribute('aria-selected', 'true')
     fireEvent.click(screen.getAllByText('Inspect evidence and decision logic')[0])
+    expect(screen.getAllByText('Why this sample appears')[0]).toBeVisible()
+    expect(screen.getAllByText('AI license measurement')[0]).toBeVisible()
+    expect(screen.getAllByText('dataset-test-123')[0]).toBeVisible()
+    expect(screen.getAllByText('Cohort decision')[0]).toBeVisible()
+    expect(screen.getAllByText('Outlier threshold')[0]).toBeVisible()
+    expect(screen.getAllByText('Passed').length).toBeGreaterThanOrEqual(6)
+    expect(screen.getAllByText('Not applicable')[0]).toBeVisible()
     expect(screen.getAllByText(/Stop counting seats/)[0]).toBeVisible()
     expect(screen.getAllByText('fnv1a:', { exact: false })[0]).toBeVisible()
 
@@ -59,8 +73,11 @@ describe('YouTubeDescriptionLibrary', () => {
 
     expect(screen.getByText('Unscored')).toBeVisible()
     expect(screen.getByRole('tab', { name: 'Sample ledger (3)' })).toBeVisible()
-    expect(screen.getByText(/Outlier score 42 is below the 65 threshold/)).toBeVisible()
+    expect(screen.getAllByText(/Outlier score 42 is below the 65 threshold/)[0]).toBeVisible()
     expect(screen.getAllByText(/No separately proven public YouTube description was captured/)[0]).toBeVisible()
+    fireEvent.click(screen.getAllByText('Inspect evidence and decision logic')[1])
+    expect(screen.getAllByText('Failed')[0]).toBeVisible()
+    expect(screen.getAllByText('Not evaluated').length).toBeGreaterThanOrEqual(2)
 
     fireEvent.click(screen.getByRole('tab', { name: 'Applied structure' }))
     expect(screen.getByText(/Only 1 fresh, attributable same-topic outlier description/)).toBeVisible()

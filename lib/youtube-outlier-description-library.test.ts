@@ -81,6 +81,11 @@ describe('YouTube outlier description library', () => {
       source_url: expect.stringContaining('youtube.com/watch'),
       topic_matches: expect.arrayContaining(['licenses', 'audit', 'calculator']),
       description_fingerprint: expect.stringMatching(/^fnv1a:/),
+      gate_decisions: expect.arrayContaining([
+        expect.objectContaining({ gate: 'framework_approval', status: 'passed' }),
+        expect.objectContaining({ gate: 'outlier_score', status: 'passed' }),
+        expect.objectContaining({ gate: 'audience_band', status: 'passed' }),
+      ]),
     })
     expect(receipt.recommended_structure.blueprint).toEqual(expect.arrayContaining([
       expect.stringContaining('first-party product example'),
@@ -166,6 +171,10 @@ describe('YouTube outlier description library', () => {
       expect.objectContaining({
         source_id: 'summary-only',
         reason: 'No separately proven public YouTube description was captured; the internal packet summary is not description evidence.',
+        gate_decisions: expect.arrayContaining([
+          expect.objectContaining({ gate: 'description_capture', status: 'failed' }),
+          expect.objectContaining({ gate: 'outlier_score', status: 'not_evaluated' }),
+        ]),
       }),
     ]))
   })

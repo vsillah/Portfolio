@@ -39,6 +39,20 @@ function capturedDescription(packet: Record<string, unknown>) {
     || value(pattern.source_description)
 }
 
+const decisionStyles = {
+  passed: 'border-emerald-500/40 bg-emerald-500/10 text-emerald-800 dark:text-emerald-200',
+  failed: 'border-red-500/40 bg-red-500/10 text-red-800 dark:text-red-200',
+  not_evaluated: 'border-slate-500/40 bg-slate-500/10 text-slate-700 dark:text-slate-200',
+  not_applicable: 'border-slate-500/40 bg-slate-500/10 text-slate-700 dark:text-slate-200',
+} as const
+
+const decisionLabels = {
+  passed: 'Passed',
+  failed: 'Failed',
+  not_evaluated: 'Not evaluated',
+  not_applicable: 'Not applicable',
+} as const
+
 export default function YouTubeDescriptionLibrary({
   researchPackets,
   initialTopic = '',
@@ -105,9 +119,17 @@ export default function YouTubeDescriptionLibrary({
         audienceSize: numberValue(metrics.follower_count) ?? numberValue(metrics.subscriber_count),
         topics: [...new Set(topics)],
         included,
+        gateDecisions: included?.gate_decisions ?? excluded?.gate_decisions ?? [],
         reason: excluded?.reason ?? (included ? 'Cleared every gate and was selected for the comparison cohort.' : 'Qualified but fell outside the ranked cohort limit.'),
         fixture: metadata.qa_fixture === true,
         publicSnapshot: metadata.public_evidence_snapshot === true,
+        collector: value(metadata.collector),
+        discoveryQuery: value(metadata.query),
+        datasetId: value(metadata.dataset_id),
+        observedAt: value(metadata.observed_at),
+        cohortSize: numberValue(metadata.cohort_size),
+        cohortMedian: numberValue(metadata.cohort_median_view_to_follower_ratio),
+        publicSummaryOnly: metadata.public_summary_only === true,
         scoreBreakdown,
       }
     })
@@ -236,6 +258,40 @@ export default function YouTubeDescriptionLibrary({
                     <details className="mt-3 rounded-md border border-border bg-card/45">
                       <summary className="cursor-pointer px-3 py-3 text-sm font-semibold text-foreground">Inspect evidence and decision logic</summary>
                       <div className="grid gap-4 border-t border-border p-3 lg:grid-cols-2">
+                        <section className="rounded-md border border-border bg-background/60 p-3">
+                          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Why this sample appears</p>
+                          <p className="mt-2 text-sm text-foreground">
+                            {sample.collector && sample.discoveryQuery
+                              ? `Collected by ${sample.collector} for the public discovery query “${sample.discoveryQuery}” and stored as a research evidence packet.`
+                              : 'Present in the approved Content Intelligence research packet set for this topic comparison.'}
+                          </p>
+                          <dl className="mt-3 grid grid-cols-[minmax(0,0.8fr)_minmax(0,1.4fr)] gap-x-3 gap-y-2 text-sm">
+                            <dt className="text-muted-foreground">Discovery query</dt><dd className="break-words text-foreground">{sample.discoveryQuery || 'Not recorded'}</dd>
+                            <dt className="text-muted-foreground">Collector</dt><dd className="break-words font-mono text-xs text-foreground">{sample.collector || 'Not recorded'}</dd>
+                            <dt className="text-muted-foreground">Dataset receipt</dt><dd className="break-all font-mono text-xs text-foreground">{sample.datasetId || 'Not recorded'}</dd>
+                            <dt className="text-muted-foreground">Observed</dt><dd className="text-foreground">{formatDate(sample.observedAt)}</dd>
+                            <dt className="text-muted-foreground">Source cohort</dt><dd className="text-foreground">{sample.cohortSize === null ? 'Not recorded' : `${sample.cohortSize} samples`}</dd>
+                            <dt className="text-muted-foreground">Cohort median</dt><dd className="text-foreground">{sample.cohortMedian === null ? 'Not recorded' : `${sample.cohortMedian.toFixed(2)} view/follower ratio`}</dd>
+                            <dt className="text-muted-foreground">Privacy boundary</dt><dd className="text-foreground">{sample.publicSummaryOnly ? 'Public summary only' : 'Not recorded'}</dd>
+                          </dl>
+                        </section>
+                        <section className="rounded-md border border-border bg-background/60 p-3">
+                          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Cohort decision</p>
+                          <p className="mt-2 text-sm font-medium text-foreground">{sample.included ? 'Included' : 'Excluded'} · {sample.reason}</p>
+                          <ol className="mt-3 space-y-2">
+                            {sample.gateDecisions.map((decision, index) => (
+                              <li key={decision.gate} className="rounded-md border border-border bg-card/45 p-3">
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <span className="text-xs font-semibold text-muted-foreground">{index + 1}</span>
+                                  <span className="text-sm font-semibold text-foreground">{decision.label}</span>
+                                  <span className={`rounded-full border px-2 py-0.5 text-xs font-semibold ${decisionStyles[decision.status]}`}>{decisionLabels[decision.status]}</span>
+                                </div>
+                                <p className="mt-2 text-xs text-muted-foreground"><span className="font-semibold text-foreground">Required:</span> {decision.requirement}</p>
+                                <p className="mt-1 break-all text-xs text-muted-foreground"><span className="font-semibold text-foreground">Observed:</span> {decision.observed}</p>
+                              </li>
+                            ))}
+                          </ol>
+                        </section>
                         <div>
                           <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Captured description evidence</p>
                           <p className="mt-2 whitespace-pre-line text-sm leading-6 text-foreground">{sample.description || 'No separately proven public YouTube description was captured.'}</p>
