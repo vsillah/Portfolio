@@ -48,6 +48,7 @@ import type {
 
 import { ResearchPacketReview, type ReviewableResearchPacket } from '@/components/admin/ResearchPacketReview'
 import ChannelExperimentReview from '@/components/admin/ChannelExperimentReview'
+import YouTubeDescriptionLibrary from '@/components/admin/YouTubeDescriptionLibrary'
 import {
   CHANNEL_EXPERIMENT_PACKET_IDS,
   CHANNEL_EXPERIMENT_REVIEWS,
@@ -395,6 +396,29 @@ function channelExperimentFixturePacket(searchParams: URLSearchParams): ChannelE
   const packetId = searchParams.get('packet') as ChannelExperimentPacketId | null
   return packetId && CHANNEL_EXPERIMENT_PACKET_IDS.includes(packetId) ? packetId : null
 }
+
+function youtubeDescriptionLibraryFixtureEnabled(searchParams: URLSearchParams) {
+  return process.env.NODE_ENV !== 'production' && searchParams.get('qa_fixture') === 'youtube_description_library_v1'
+}
+
+const YOUTUBE_DESCRIPTION_LIBRARY_FIXTURE = [
+  ['library-a', 'AI adoption is an operating problem', 91, 'Stop counting seats.\n\nSee the calculator walkthrough and product evidence.\n\nSubscribe for more operating breakdowns.'],
+  ['library-b', 'Measure AI value before renewal', 87, 'Are AI licenses creating value?\n\nThe dashboard connects adoption to measurable outcomes.\n\nWhat would you measure first?'],
+  ['library-c', 'The AI audit your team can run', 82, 'Build an evidence-backed AI audit.\n\nThis case study shows the calculator and its decision path.\n\nOpen the approved resource to compare your system.'],
+  ['library-low', 'AI tool roundup', 42, 'A general list of tools without product evidence.'],
+].map(([id, title, score, caption]) => ({
+  id,
+  source_url: `https://www.youtube.com/watch?v=${id}`,
+  platform: 'youtube',
+  creator_name: `Public source ${String(id).at(-1)?.toUpperCase()}`,
+  title,
+  caption,
+  outlier_score: score,
+  pattern_status: 'usable_framework',
+  retrieved_at: '2026-10-12T12:00:00.000Z',
+  metrics: { published_at: '2026-10-10T12:00:00.000Z', follower_count: 42_000 },
+  actor_metadata: { topics: ['ai licenses', 'ai adoption', 'audit calculator'] },
+}))
 
 function initialActiveSection(): IntelligenceSection {
   const section = currentUrlSearchParams().get('section') as IntelligenceSection | null
@@ -940,6 +964,7 @@ async function readJsonResponse(response: Response): Promise<unknown> {
 export default function ContentIntelligencePage({ searchParams }: ContentIntelligencePageProps) {
   const routeSearchParams = useMemo(() => pageSearchParams(searchParams), [searchParams])
   const [channelExperimentQa, setChannelExperimentQa] = useState<ChannelExperimentPacketId | null>(() => channelExperimentFixturePacket(routeSearchParams))
+  const descriptionLibraryQa = youtubeDescriptionLibraryFixtureEnabled(routeSearchParams)
 
   useEffect(() => {
     if (process.env.NODE_ENV === 'production') return
@@ -952,6 +977,32 @@ export default function ContentIntelligencePage({ searchParams }: ContentIntelli
     window.addEventListener('popstate', syncFixtureFromLocation)
     return () => window.removeEventListener('popstate', syncFixtureFromLocation)
   }, [searchParams])
+
+  if (descriptionLibraryQa) {
+    const revision = routeSearchParams.get('rev') ?? 'working-tree'
+    return <main id="admin-main" className="min-h-screen bg-background px-4 py-8 text-foreground sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-6xl">
+        <div className="flex flex-col gap-3 border-b border-border pb-5 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-700 dark:text-cyan-200">Privacy-safe local QA fixture</p>
+            <h1 className="mt-2 text-2xl font-semibold">Research and Shaka insight queue</h1>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">The exact YouTube description-pattern workspace used on the existing Research surface. Public-safe fixtures demonstrate qualifying, excluded, and applied-structure states without production mutation.</p>
+          </div>
+          <div className="rounded-lg border border-border bg-card px-3 py-2 text-xs text-card-foreground">
+            <p className="font-semibold">Commit-bound review</p>
+            <p className="mt-1 font-mono text-muted-foreground">{revision}</p>
+          </div>
+        </div>
+        <div className="mt-5">
+          <YouTubeDescriptionLibrary
+            researchPackets={YOUTUBE_DESCRIPTION_LIBRARY_FIXTURE}
+            initialTopic="AI licenses"
+            generatedAt="2026-10-17T12:00:00.000Z"
+          />
+        </div>
+      </div>
+    </main>
+  }
 
   if (channelExperimentQa) {
     const revision = routeSearchParams.get('rev') ?? currentUrlSearchParams().get('rev') ?? 'working-tree'
@@ -1068,6 +1119,8 @@ function ContentIntelligenceContent() {
   const [researchSort, setResearchSort] = useState<ResearchSortKey>('score')
   const [researchSortDirection, setResearchSortDirection] = useState<SortDirection>('desc')
   const [researchPage, setResearchPage] = useState(1)
+  const [descriptionLibraryTopic] = useState(() => currentUrlSearchParams().get('description_topic') ?? '')
+  const descriptionLibraryGeneratedAt = useRef(new Date().toISOString()).current
   const [templatePage, setTemplatePage] = useState(1)
   const [insightSearch, setInsightSearch] = useState('')
   const [insightStatusFilter, setInsightStatusFilter] = useState('')
@@ -2972,6 +3025,11 @@ function ContentIntelligenceContent() {
               <div className="py-12 text-center text-sm text-muted-foreground">Loading research packets...</div>
             ) : packets.length ? (
               <div className="space-y-4">
+                <YouTubeDescriptionLibrary
+                  researchPackets={packets}
+                  initialTopic={descriptionLibraryTopic}
+                  generatedAt={descriptionLibraryGeneratedAt}
+                />
                 {(
                   <CollapsiblePanel
                     title="Link research patterns"

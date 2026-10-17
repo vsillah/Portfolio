@@ -137,6 +137,14 @@ describe('YouTube outlier description library', () => {
     expect(receipt.status).toBe('unscored')
     expect(receipt.library_entry_count).toBe(0)
     expect(receipt.sources).toEqual([])
+    expect(receipt.excluded_sources).toEqual(expect.arrayContaining([
+      expect.objectContaining({ source_id: 'unapproved', reason: 'Pattern has not been approved as a usable framework.' }),
+      expect.objectContaining({ source_id: 'no-url', reason: 'Source URL is missing or is not attributable.' }),
+      expect.objectContaining({ source_id: 'wrong-band', reason: expect.stringMatching(/audience/i) }),
+    ]))
+    expect(receipt.excluded_sources).not.toEqual(expect.arrayContaining([
+      expect.objectContaining({ source_id: 'wrong-platform' }),
+    ]))
   })
 
   it('attaches and applies the library receipt only to the YouTube draft', () => {

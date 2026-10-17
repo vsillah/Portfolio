@@ -28,6 +28,13 @@ export type YouTubeDescriptionLibrarySource = {
   pattern: DescriptionPattern
 }
 
+export type YouTubeDescriptionLibraryExclusion = {
+  source_id: string
+  source_url: string | null
+  source_title: string
+  reason: string
+}
+
 export type YouTubeDescriptionLibraryReceipt = {
   version: typeof YOUTUBE_DESCRIPTION_LIBRARY_VERSION
   status: YouTubeDescriptionLibraryStatus
@@ -38,6 +45,7 @@ export type YouTubeDescriptionLibraryReceipt = {
   freshness_days: number
   library_entry_count: number
   sources: YouTubeDescriptionLibrarySource[]
+  excluded_sources: YouTubeDescriptionLibraryExclusion[]
   recommended_structure: {
     opening_style: DescriptionPattern['opening_style'] | null
     length_band: DescriptionPattern['length_band'] | null
@@ -235,7 +243,7 @@ function packetTopics(packet: Record<string, unknown>) {
 }
 
 export function buildYouTubeOutlierDescriptionLibrary(input: {
-  researchPackets: Array<Record<string, unknown>>
+  researchPackets: unknown[]
   targetTopics: string[]
   generatedAt: string
   targetAudienceSize?: number | null
@@ -254,9 +262,11 @@ export function buildYouTubeOutlierDescriptionLibrary(input: {
     ? audienceBand(input.targetAudienceSize)
     : null
   const sources = new Map<string, YouTubeDescriptionLibrarySource>()
+  const excludedSources: YouTubeDescriptionLibraryExclusion[] = []
 
   if (Number.isFinite(generatedAt) && targetTopics.length) {
-    for (const packet of input.researchPackets) {
+    for (const rawPacket of input.researchPackets) {
+      const packet = record(rawPacket)
       const platform = text(packet.platform)
       const status = text(packet.pattern_status)
       const sourceUrl = canonicalUrl(text(packet.source_url))
@@ -269,20 +279,40 @@ export function buildYouTubeOutlierDescriptionLibrary(input: {
       const audienceSize = number(metrics.follower_count) ?? number(metrics.subscriber_count)
       const topics = packetTopics(packet)
       const matches = targetTopics.filter((topic) => topics.includes(topic))
+      const reason = (platform !== 'youtube' && platform !== 'youtube_shorts')
+        ? null
+        : status !== 'usable_framework'
+          ? 'Pattern has not been approved as a usable framework.'
+          : !validHttpUrl(sourceUrl)
+            ? 'Source URL is missing or is not attributable.'
+            : !description
+              ? 'No customer-facing YouTube description was captured.'
+              : outlierScore === null
+                ? 'Outlier score is missing.'
+                : outlierScore < minimumOutlierScore
+                  ? `Outlier score ${outlierScore} is below the ${minimumOutlierScore} threshold.`
+                  : !Number.isFinite(evidenceTime)
+                    ? 'Publication or retrieval date is missing.'
+                    : generatedAt - evidenceTime < 0
+                      ? 'Evidence date is later than the evaluation time.'
+                      : generatedAt - evidenceTime > freshnessDays * 86_400_000
+                        ? `Evidence is older than the ${freshnessDays}-day freshness window.`
+                        : !matches.length
+                          ? 'No stable topic identity matches the current comparison.'
+                          : targetAudienceBand && (audienceSize === null || audienceBand(audienceSize) !== targetAudienceBand)
+                            ? `Audience size is missing or outside the ${targetAudienceBand} comparison band.`
+                            : null
 
-      if (
-        (platform !== 'youtube' && platform !== 'youtube_shorts')
-        || status !== 'usable_framework'
-        || !validHttpUrl(sourceUrl)
-        || !description
-        || outlierScore === null
-        || outlierScore < minimumOutlierScore
-        || !Number.isFinite(evidenceTime)
-        || generatedAt - evidenceTime < 0
-        || generatedAt - evidenceTime > freshnessDays * 86_400_000
-        || !matches.length
-        || (targetAudienceBand && (audienceSize === null || audienceBand(audienceSize) !== targetAudienceBand))
-      ) continue
+      if (reason) {
+        excludedSources.push({
+          source_id: text(packet.id) || fingerprint(sourceUrl || text(packet.title)),
+          source_url: validHttpUrl(sourceUrl) ? sourceUrl : null,
+          source_title: text(packet.title) || 'Untitled YouTube source',
+          reason,
+        })
+        continue
+      }
+      if (platform !== 'youtube' && platform !== 'youtube_shorts') continue
 
       const matchScore = Number(((matches.length / targetTopics.length) * 0.65 + (outlierScore / 100) * 0.35).toFixed(4))
       const source: YouTubeDescriptionLibrarySource = {
@@ -333,6 +363,7 @@ export function buildYouTubeOutlierDescriptionLibrary(input: {
     freshness_days: freshnessDays,
     library_entry_count: ranked.length,
     sources: ranked,
+    excluded_sources: excludedSources.sort((left, right) => left.source_title.localeCompare(right.source_title)),
     recommended_structure: recommendedStructure,
     blockers,
     originality_boundary: 'Reuse aggregate description structure only. Do not copy source wording, title language, creator identity, links, claims, or calls to action.',

@@ -1185,6 +1185,23 @@ describe('ContentIntelligencePage', () => {
     expect(screen.getByText('61d0ab8a-29fa-40de-aa7a-49b15c74cafa')).toBeVisible()
   })
 
+  it('renders the development-only YouTube description library on the existing research route', () => {
+    render(<ContentIntelligencePage searchParams={{
+      section: 'research',
+      qa_fixture: 'youtube_description_library_v1',
+      rev: 'test-commit',
+    }} />)
+
+    expect(screen.getByText('Privacy-safe local QA fixture')).toBeVisible()
+    expect(protectedRouteSpy).not.toHaveBeenCalled()
+    expect(screen.getByText('test-commit')).toBeVisible()
+    expect(screen.getByRole('heading', { name: 'YouTube description patterns' })).toBeVisible()
+    expect(screen.getByText('Ready')).toBeVisible()
+    expect(screen.getByRole('button', { name: 'Approved descriptions: 4. Show sources.' })).toBeVisible()
+    expect(screen.getByRole('tab', { name: 'Qualifying sources (3)' })).toBeVisible()
+    expect(screen.getByRole('tab', { name: 'Excluded (1)' })).toBeVisible()
+  })
+
   it('filters release calendar rows by content title and linked work item', async () => {
     render(<ContentIntelligencePage />)
 
