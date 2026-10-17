@@ -5,6 +5,7 @@ import {
   buildYouTubeOutlierDescriptionLibrary,
   normalizeYouTubeDescriptionRemediationReceipts,
   routeYouTubeDescriptionRemediation,
+  validateYouTubeDescriptionReviewPacket,
 } from './youtube-outlier-description-library'
 
 function packet(input: {
@@ -43,6 +44,80 @@ function packet(input: {
     retrieved_at: '2026-10-02T12:00:00.000Z',
   }
 }
+
+function readyReviewPacket() {
+  const evidence = buildYouTubeOutlierDescriptionLibrary({
+    researchPackets: [
+      packet({ id: 'one', description: 'A product walkthrough with a practical result and one approved resource link.' }),
+      packet({ id: 'two', description: 'A dashboard demonstration with source evidence and a concrete next action.' }),
+      packet({ id: 'three', description: 'A measured case example with a screenshot and a specific audience question.' }),
+    ],
+    targetTopics: ['ai licenses', 'audit calculator'],
+    generatedAt: '2026-10-17T12:00:00.000Z',
+  })
+  return {
+    channel: 'youtube',
+    approval_status: 'in_review',
+    fields: {
+      description: 'Most AI costs never appear in the license line. This review shows the product evidence, operating burden, and decision path behind the total cost. Subscribe for practical operating breakdowns.',
+      description_outlier_evidence: evidence,
+      description_evidence_release_gate: { status: 'ready', recovery_reason: null },
+    },
+  }
+}
+
+describe('YouTube description review readiness', () => {
+  it('passes only a complete description with a ready evidence receipt', () => {
+    expect(validateYouTubeDescriptionReviewPacket(readyReviewPacket())).toEqual({
+      status: 'ready',
+      blockers: [],
+    })
+  })
+
+  it('keeps excluded-source remediation traceable without blocking a ready cohort', () => {
+    const packet = readyReviewPacket()
+    const evidence = packet.fields.description_outlier_evidence
+    evidence.remediation_receipts = [{
+      version: 'youtube-description-remediation-v1',
+      receipt_id: 'youtube-description-remediation:excluded',
+      scope_fingerprint: 'fnv1a:scope',
+      subject_type: 'source',
+      source_id: 'excluded',
+      source_url: 'https://youtube.com/watch?v=excluded',
+      failed_gate: 'topic_match',
+      observed_value: 'No explicit campaign identity match',
+      requirement: 'At least one explicit campaign identity match',
+      recovery_action: 'repair_topic_identity',
+      designated_owner: 'research-source-register',
+      recorder: 'decision-journal',
+      attempt_count: 0,
+      prior_evidence_fingerprint: null,
+      current_evidence_fingerprint: 'fnv1a:excluded',
+      status: 'open',
+      recheck_result: 'not_run_no_prior_receipt',
+      release_readiness: 'blocked',
+    }]
+
+    expect(validateYouTubeDescriptionReviewPacket(packet)).toEqual({
+      status: 'ready',
+      blockers: [],
+    })
+  })
+
+  it('blocks an empty description and missing benchmark receipt', () => {
+    expect(validateYouTubeDescriptionReviewPacket({
+      channel: 'youtube',
+      approval_status: 'in_review',
+      fields: { description: '' },
+    })).toMatchObject({
+      status: 'blocked',
+      blockers: expect.arrayContaining([
+        'Add a complete audience-facing YouTube description before Human QA.',
+        'Attach the current YouTube outlier-description evidence receipt.',
+      ]),
+    })
+  })
+})
 
 describe('YouTube outlier description library', () => {
   it('routes source repair to research and artifact structure repair to content architecture', () => {
@@ -109,6 +184,34 @@ describe('YouTube outlier description library', () => {
     ]))
     expect(receipt.originality_boundary).toContain('Do not copy source wording')
     expect(JSON.stringify(receipt)).not.toContain('Are your AI licenses producing value?')
+  })
+
+  it('does not qualify a cohort from generic contextual overlap without the campaign identity', () => {
+    const receipt = buildYouTubeOutlierDescriptionLibrary({
+      generatedAt: '2026-10-17T12:00:00.000Z',
+      targetTopics: ['audit', 'calculator', 'software'],
+      requiredTopicIdentities: ['audit', 'calculator'],
+      researchPackets: [
+        packet({ id: 'a', title: 'Software decision model', description: 'A software decision model walkthrough.' }),
+        packet({ id: 'b', title: 'Software routing model', description: 'A software routing model benchmark.' }),
+        packet({ id: 'c', title: 'Software policy model', description: 'A software policy model case study.' }),
+      ].map((source) => ({
+        ...source,
+        actor_metadata: { ...source.actor_metadata, topics: ['software'] },
+        pattern_packet: { ...source.pattern_packet, topics: ['software'] },
+      })),
+    })
+
+    expect(receipt).toMatchObject({
+      status: 'unscored',
+      release_readiness: 'blocked',
+      library_entry_count: 0,
+    })
+    expect(receipt.excluded_sources.every((source) =>
+      source.gate_decisions.some((decision) =>
+        decision.gate === 'topic_match'
+          && decision.status === 'failed'
+          && decision.observed === 'No explicit campaign identity match'))).toBe(true)
   })
 
   it('deduplicates canonical URLs and fails closed when the cohort is stale or too small', () => {

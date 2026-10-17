@@ -27,6 +27,14 @@ function request(body: Record<string, unknown>) {
   })
 }
 
+function youtubeRequest(body: Record<string, unknown>) {
+  return new Request('http://localhost/api/admin/agents/work-items/work-1/social-channels/youtube', {
+    method: 'PATCH',
+    headers: { authorization: 'Bearer token', 'content-type': 'application/json' },
+    body: JSON.stringify(body),
+  })
+}
+
 const baseWorkItem = {
   id: 'work-1',
   metadata: {
@@ -193,6 +201,42 @@ describe('/api/admin/agents/work-items/[id]/social-channels/[channel]', () => {
     expect(response.status).toBe(409)
     expect(await response.json()).toEqual({
       error: 'Regenerate the channel review draft with a passing enrichment receipt before approval',
+    })
+    expect(mocks.updateAgentWorkItemMetadata).not.toHaveBeenCalled()
+  })
+
+  it('fails closed when a YouTube lane is missing its description evidence', async () => {
+    mocks.getAgentWorkItem.mockResolvedValue({
+      ...baseWorkItem,
+      metadata: {
+        channel_lanes: {
+          youtube: {
+            status: 'in_review',
+            label: 'YouTube',
+            draft_packet: {
+              channel: 'youtube',
+              enrichment_receipt: { status: 'passed' },
+              fields: {
+                title_variants: ['A governed YouTube draft'],
+                description: '',
+              },
+            },
+          },
+        },
+      },
+    })
+
+    const response = await PATCH(youtubeRequest({ status: 'approved' }) as never, {
+      params: { id: 'work-1', channel: 'youtube' },
+    })
+
+    expect(response.status).toBe(409)
+    expect(await response.json()).toMatchObject({
+      error: 'Complete the evidence-backed YouTube description before approving this lane',
+      blockers: expect.arrayContaining([
+        'Add a complete audience-facing YouTube description before Human QA.',
+        'Attach the current YouTube outlier-description evidence receipt.',
+      ]),
     })
     expect(mocks.updateAgentWorkItemMetadata).not.toHaveBeenCalled()
   })

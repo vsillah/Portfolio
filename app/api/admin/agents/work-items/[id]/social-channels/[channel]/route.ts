@@ -7,6 +7,7 @@ import {
   type SocialChannelReviewDraftPacket,
   type SocialChannelLaneStatus,
 } from '@/lib/social-content-intelligence'
+import { validateYouTubeDescriptionReviewPacket } from '@/lib/youtube-outlier-description-library'
 
 export const dynamic = 'force-dynamic'
 
@@ -97,6 +98,15 @@ export async function PATCH(
         { error: 'Regenerate the channel review draft with a passing enrichment receipt before approval' },
         { status: 409 },
       )
+    }
+    if (nextStatus === 'approved' && params.channel === 'youtube') {
+      const readiness = validateYouTubeDescriptionReviewPacket(lanes.youtube.draft_packet)
+      if (readiness.status === 'blocked') {
+        return NextResponse.json({
+          error: 'Complete the evidence-backed YouTube description before approving this lane',
+          blockers: readiness.blockers,
+        }, { status: 409 })
+      }
     }
 
     const decidedAt = new Date().toISOString()

@@ -25,6 +25,7 @@ import {
   validatePractitionerContentQuality,
 } from '@/lib/social-practitioner-content'
 import { nextReviewWindow, reviewCadence, reviewWindows, REVIEW_SIDE_EFFECTS, type ReviewProjection, type ReviewRow, type ReviewWindow } from '@/lib/campaign-review-cadence'
+import { validateYouTubeDescriptionReviewPacket } from '@/lib/youtube-outlier-description-library'
 
 type Row = Record<string, any> // Database JSON records are validated before preparing a packet.
 const record = parseMetadata
@@ -422,6 +423,9 @@ function packetReadiness(input: {
     return { packet: null, blockers: ['This channel needs a manual Social Content review.'], practitionerGate: null, socialContentUpdate: null, recoveryTarget: 'social_insights' as const }
   }
   const packet = drafts[input.channel]
+  const youtubeDescriptionReadiness = input.channel === 'youtube'
+    ? validateYouTubeDescriptionReviewPacket(packet)
+    : null
   const preparation = buildAutomaticPractitionerContent(input)
   const practitionerGate = preparation.blockers.length
     ? null
@@ -435,6 +439,7 @@ function packetReadiness(input: {
     ...(copyQualityGate.status === 'passed' ? [] : copyQualityGate.findings.map(finding => `${finding.label} in ${finding.field}.`)),
     ...(privacyNotes.length ? [] : ['Privacy and source-use boundary is missing.']),
     ...(Object.values(packet.side_effects).every(value => value === false) ? [] : ['External execution must remain disabled.']),
+    ...(youtubeDescriptionReadiness?.blockers ?? []),
     ...preparation.blockers,
     ...(preparation.blockers.length
       ? []
