@@ -8,6 +8,7 @@ import {
   lifecyclePrerequisiteFailure,
   socialContentFinalCopyQualityFailure,
   validateSocialContentFinalCopyQuality,
+  validateSocialPublicCopyFields,
 } from './social-content-lifecycle'
 
 const completeRagContext = {
@@ -271,6 +272,44 @@ describe('social content lifecycle projection', () => {
       'private_email_address',
       'private_phone_number',
     ]))
+  })
+
+  it('blocks system-style sample-data disclosures in spoken scripts before human review', () => {
+    const qualityGate = validateSocialPublicCopyFields([
+      {
+        field: 'youtube.full_video_script',
+        text: 'The calculator makes the operating gap visible. The AI audit screenshot uses sample data. Now compare the receipts behind each score.',
+      },
+      {
+        field: 'youtube_shorts.script',
+        text: 'For demonstration purposes only, the dashboard uses a placeholder record.',
+      },
+    ])
+
+    expect(qualityGate.status).toBe('blocked')
+    expect(qualityGate.findings).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        code: 'spoken_system_disclosure',
+        field: 'youtube.full_video_script',
+      }),
+      expect.objectContaining({
+        code: 'spoken_system_disclosure',
+        field: 'youtube_shorts.script',
+      }),
+    ]))
+    expect(qualityGate.recoveryAction).toContain('channel metadata')
+  })
+
+  it('allows concise sample-data disclosure in non-spoken channel metadata', () => {
+    const qualityGate = validateSocialPublicCopyFields([
+      {
+        field: 'youtube.description',
+        text: 'The AI Audit Calculator screenshot uses sample data and does not claim a customer outcome.',
+      },
+    ])
+
+    expect(qualityGate.status).toBe('passed')
+    expect(qualityGate.findings).toEqual([])
   })
 })
 

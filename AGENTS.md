@@ -136,6 +136,15 @@ When social posts or videos discuss Vambah's products, applications, books, prot
 - Fail closed when a product-linked topic lacks approved visual evidence. An explicit omission receipt may allow review only when no safe, current capture exists; it must explain the gap and cannot silently substitute generic graphics.
 - Keep internal admin data, private customer information, credentials, unreleased sensitive features, and unrelated browser state out of customer-facing captures.
 
+## Customer-Facing Spoken Copy Rule
+
+Before any video, Short, Reel, TikTok, or narrated social artifact reaches Human QA, review the final rendered transcript as customer-facing speech rather than as a production document.
+
+- Fail closed when spoken copy contains parenthetical or aside-like production language, including sample-data notices, synthetic-fixture caveats, screenshot provenance, QA notes, redaction notes, prompt instructions, source labels, or implementation commentary.
+- Put a required technical, legal, privacy, or data-provenance disclosure in the channel description, caption, receipt, or visible disclosure treatment unless the audience genuinely needs to hear it.
+- When a disclosure must be spoken, rewrite it as a natural sentence that advances the audience's understanding. It must not sound like a pasted note, parenthetical qualification, or internal system message.
+- Validate the final audio transcript after composition, not only the source script. Human QA should receive customer-facing narration with internal production language already removed.
+
 ## Human QA Video Evidence Rule
 
 Whenever a Portfolio change reaches Vambah's human QA gate for changed product behavior, the captain handoff must include a short video walkthrough or equivalent screen-recorded test artifact showing the exact operator path being reviewed.

@@ -195,6 +195,10 @@ const PROMPT_LEAKAGE_PATTERNS: Array<{
   },
 ]
 
+const SPOKEN_CUSTOMER_COPY_FIELD = /^(?:voiceover_text|youtube\.(?:opening_hook|first_30_seconds|full_video_script)|youtube_shorts\.(?:hook|first_30_seconds|script)|instagram_reels\.(?:hook|script)|tiktok\.(?:hook|script))$/
+
+const SPOKEN_SYSTEM_DISCLOSURE_PATTERN = /\b(?:(?:this|the)\s+(?:(?:ai\s+audit|product|interface)\s+)?(?:screenshot|screen|demo|example|walkthrough|calculator)\s+(?:(?:is|was)\s+(?:using|built\s+with|shown\s+with)|uses)\s+(?:sample|synthetic|mock|demo|placeholder|test)\s+data|(?:sample|synthetic|mock|demo|placeholder|test)\s+data\s+(?:is|was|are|were)\s+(?:being\s+)?used|for\s+(?:demo|demonstration|testing)\s+purposes\s+only)\b/i
+
 function collectFinalCopyFields(item: LifecycleItem): Array<{ field: string; text: string }> {
   const fields: Array<{ field: string; text: string }> = []
   const add = (field: string, value: unknown) => {
@@ -235,6 +239,19 @@ export function validateSocialPublicCopyFields(fields: SocialPublicCopyField[]):
         severity: leakagePattern.severity,
       })
     }
+
+    if (SPOKEN_CUSTOMER_COPY_FIELD.test(field.field)) {
+      const disclosureMatch = SPOKEN_SYSTEM_DISCLOSURE_PATTERN.exec(field.text)
+      if (disclosureMatch) {
+        findings.push({
+          code: 'spoken_system_disclosure',
+          label: 'Production disclosure leaked into spoken customer copy',
+          field: field.field,
+          excerpt: excerptAround(field.text, disclosureMatch.index, disclosureMatch[0].length),
+          severity: 'high',
+        })
+      }
+    }
   }
 
   return {
@@ -242,10 +259,10 @@ export function validateSocialPublicCopyFields(fields: SocialPublicCopyField[]):
     findings,
     checkedFields: fields.map((field) => field.field),
     summary: findings.length
-      ? `Final copy quality gate found ${findings.length} prompt/meta-instruction leakage pattern${findings.length === 1 ? '' : 's'}.`
+      ? `Final copy quality gate found ${findings.length} customer-facing copy issue${findings.length === 1 ? '' : 's'}.`
       : 'Final copy quality gate passed.',
     recoveryAction: findings.length
-      ? 'Revise the public copy to remove internal prompts, agent instructions, tool/debug metadata, and planning scaffolding before human approval.'
+      ? 'Revise the public copy to remove internal prompts, production notes, tool/debug metadata, and planning scaffolding. Put required disclosures in channel metadata or rewrite them as natural audience-facing language before human approval.'
       : 'Continue to the normal copy review gate.',
   }
 }

@@ -3091,7 +3091,7 @@ function SocialContentDetailPage() {
   const approveBlockedTitle = videoPrivacyBlocked
     ? 'Video privacy review required before publish readiness'
     : copyQualityBlocksReview
-      ? 'Final copy quality gate found internal prompt or meta-instruction leakage'
+      ? 'Final copy quality gate found internal or production-note leakage'
     : practitionerQualityBlocksReview
       ? practitionerQualityGate.summary
     : copyHasBlockingAcronymIssues
