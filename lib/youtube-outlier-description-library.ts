@@ -313,6 +313,7 @@ export function buildYouTubeOutlierDescriptionLibrary(input: {
         continue
       }
       if (platform !== 'youtube' && platform !== 'youtube_shorts') continue
+      if (outlierScore === null) continue
 
       const matchScore = Number(((matches.length / targetTopics.length) * 0.65 + (outlierScore / 100) * 0.35).toFixed(4))
       const source: YouTubeDescriptionLibrarySource = {
