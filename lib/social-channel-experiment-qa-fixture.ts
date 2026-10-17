@@ -6,9 +6,132 @@ import {
 import type { SocialContentItem } from '@/lib/social-content'
 
 export const CHANNEL_EXPERIMENT_SOCIAL_DETAIL_FIXTURE = 'channel_experiment_social_detail_v1'
+export const YOUTUBE_DESCRIPTION_COMPLETION_FIXTURE = 'youtube_description_completion_v1'
+export const YOUTUBE_DESCRIPTION_COMPLETION_QA_ID = '939b01e3-d1af-42c8-805e-0379f09efd60'
 
 export function isChannelExperimentSocialContentId(id: string): boolean {
   return channelExperimentSocialContentRecord(id) !== null
+}
+
+export function youtubeDescriptionCompletionQaFixture(id: string): SocialContentItem {
+  if (id !== YOUTUBE_DESCRIPTION_COMPLETION_QA_ID) {
+    throw new Error(`Unknown YouTube description completion fixture: ${id}`)
+  }
+
+  return {
+    id,
+    meeting_record_id: null,
+    platform: 'youtube',
+    status: 'draft',
+    post_text: 'Jev kept walking into the same closed entrance. The fix was not a smarter model. The system changed the cadence, policy, and human handoffs around it.',
+    cta_text: 'Where does your own agent workflow need a stronger harness?',
+    cta_url: null,
+    hashtags: [],
+    image_url: null,
+    image_prompt: 'Presenter left; looping game path and decision cadence right; large text: THE MODEL WASN\'T THE FIX',
+    framework_visual_type: null,
+    voiceover_url: null,
+    voiceover_text: null,
+    video_url: null,
+    topic_extracted: {
+      topic: 'Jev agent harness governance',
+      angle: 'The model won after the harness changed.',
+      key_insight: 'The model can choose, but the surrounding system owns the outcome.',
+      personal_tie_in: 'AmaduTown applies the same pattern through source receipts, policy boundaries, and visible human ownership.',
+      framework_visual: 'architecture',
+    },
+    hormozi_framework: null,
+    rag_context: {
+      source: 'human_qa_approved_jit_campaign_packet',
+      channel: 'youtube',
+      jit_score: 85,
+      product_id: 'jev',
+      campaign_title: 'Jev: The Model Won After the Harness Changed',
+      stable_campaign_identity: 'campaign:jev:harness-owns-the-outcome:v1',
+      jit_refresh_receipt_id: 'jit-refresh:next-week-primary-lanes:20261017T150819Z',
+      storyboard: [
+        'Open on the repeated closed-entrance loop',
+        'Show Jev as the bounded decision component',
+        'Animate one-second cadence slowing to six seconds',
+        'Reveal harness, policy, and human layers',
+        'Return to presenter for spoken CTA',
+      ],
+      thumbnail_direction: 'Presenter left; looping game path and decision cadence right; large text: THE MODEL WASN\'T THE FIX',
+      product_sources: ['Approved Jev operator field guide'],
+      claim_boundary: 'Attribute the Pokemon result and harness interventions. Do not imply the model completed the game autonomously or that public attention proves production reliability.',
+      approval_boundary: 'Internal review only. Provider calls, rendering, upload, platform drafts, external scheduling, publishing, and external sends remain separately gated.',
+      source_lineage: [
+        'https://typesafe.ai/',
+        'https://jev-plays-pokemon.standardagents.ai/',
+        'https://arxiv.org/abs/2610.09188',
+      ],
+      description_outlier_evidence: {
+        status: 'ready',
+        release_readiness: 'ready',
+        minimum_source_count: 3,
+        minimum_outlier_score: 65,
+        input_fingerprint: 'fnv1a:8eee8870',
+        blockers: [],
+        remediation_receipts: [],
+        sources: [
+          { source_title: 'A 9B router model just beat its own 27B predecessor', source_url: 'https://www.youtube.com/watch?v=lq1qETh0e0o' },
+          { source_title: 'What is Jev? The AI Model That Decides, While LLMs Write', source_url: 'https://www.youtube.com/watch?v=voYpgIg0m0k' },
+          { source_title: 'What Is JEV AI? The New AI Explained', source_url: 'https://www.youtube.com/watch?v=nxQwVT15KMw' },
+        ],
+      },
+      description_evidence_release_gate: { status: 'ready' },
+      side_effects: {
+        render: false,
+        upload: false,
+        publish: false,
+        schedule: false,
+        external_send: false,
+        provider_call: false,
+        platform_draft: false,
+      },
+      qa_fixture: {
+        kind: 'youtube_description_completion_review',
+        read_only: true,
+        reason: 'Privacy-safe read-only projection of the repaired Jev YouTube review state.',
+      },
+    },
+    scheduled_for: null,
+    published_at: null,
+    platform_post_id: null,
+    admin_notes: null,
+    reviewed_by: null,
+    target_platforms: ['youtube'],
+    video_generation_method: 'none',
+    youtube_title: 'The AI Won After the System Slowed It Down',
+    youtube_description: [
+      'The model kept choosing. The harness had to learn when to slow it down.',
+      '',
+      "This video breaks down how Jev's bounded decisions, a one-second cadence, and human-guided policy changes turned a repeated dead end into progress in Pokemon Red. I connect that experiment to the operating systems I build at AmaduTown: source receipts, explicit policy boundaries, and visible human ownership.",
+      '',
+      "You'll see:",
+      '- where the model stalled',
+      '- why the harness changed from one second to six',
+      '- how tools, policy, and human review divided responsibility',
+      '- what this means for teams building agentic products',
+      '',
+      "Jev's public experiment is the case study. The operating lesson is mine: the model can choose, but the system owns the outcome.",
+      '',
+      'Where does your own agent workflow need a stronger harness?',
+      '',
+      'Sources:',
+      'https://jev-plays-pokemon.standardagents.ai/',
+      'https://arxiv.org/abs/2610.09188',
+    ].join('\n'),
+    content_format: 'single_image',
+    content_pillar: null,
+    companion_post_text: null,
+    carousel_slides: null,
+    carousel_pdf_url: null,
+    carousel_slide_urls: null,
+    created_at: '2026-10-17T15:19:51.642Z',
+    updated_at: '2026-10-17T15:57:57.679Z',
+    publishes: [],
+  }
 }
 
 function experimentOutline(record: YouTubeExperimentReviewRecord): string {

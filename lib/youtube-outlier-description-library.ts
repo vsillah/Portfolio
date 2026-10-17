@@ -116,6 +116,11 @@ export type YouTubeDescriptionLibraryReceipt = {
   input_fingerprint: string
 }
 
+export type YouTubeDescriptionReviewReadiness = {
+  status: 'ready' | 'blocked'
+  blockers: string[]
+}
+
 const TOPIC_STOP_WORDS = new Set([
   'about', 'after', 'again', 'against', 'also', 'because', 'before', 'being', 'between',
   'content', 'could', 'from', 'have', 'into', 'more', 'most', 'other', 'practical',
@@ -128,6 +133,49 @@ function record(value: unknown): Record<string, unknown> {
   return value && typeof value === 'object' && !Array.isArray(value)
     ? value as Record<string, unknown>
     : {}
+}
+
+export function validateYouTubeDescriptionReviewPacket(packetValue: unknown): YouTubeDescriptionReviewReadiness {
+  const packet = record(packetValue)
+  const fields = record(packet.fields)
+  const evidence = record(fields.description_outlier_evidence)
+  const releaseGate = record(fields.description_evidence_release_gate)
+  const description = text(fields.description)
+  const sources = Array.isArray(evidence.sources) ? evidence.sources : []
+  const minimumSourceCount = number(evidence.minimum_source_count)
+  const activeRemediations = Array.isArray(evidence.remediation_receipts)
+    ? evidence.remediation_receipts.filter((value) => record(value).release_readiness === 'blocked')
+    : []
+  const blockers = [
+    ...(packet.approval_status === 'blocked'
+      ? [text(packet.decision_note) || 'The YouTube review packet is blocked.']
+      : []),
+    ...(description.length >= 120
+      ? []
+      : ['Add a complete audience-facing YouTube description before Human QA.']),
+    ...(evidence.version === YOUTUBE_DESCRIPTION_LIBRARY_VERSION
+      ? []
+      : ['Attach the current YouTube outlier-description evidence receipt.']),
+    ...(evidence.status === 'ready' && evidence.release_readiness === 'ready'
+      ? []
+      : ['YouTube description evidence has not passed its outlier benchmark.']),
+    ...(minimumSourceCount !== null && minimumSourceCount >= 3 && sources.length >= minimumSourceCount
+      ? []
+      : ['At least three qualifying same-topic YouTube description sources are required.']),
+    ...(text(evidence.input_fingerprint).startsWith('fnv1a:')
+      ? []
+      : ['The YouTube description evidence input fingerprint is missing.']),
+    ...(releaseGate.status === 'ready'
+      ? []
+      : ['The YouTube description evidence release gate is not ready.']),
+    ...(evidence.release_readiness !== 'ready' && activeRemediations.length
+      ? ['Resolve every active YouTube description remediation receipt before Human QA.']
+      : []),
+  ]
+  return {
+    status: blockers.length ? 'blocked' : 'ready',
+    blockers: [...new Set(blockers)],
+  }
 }
 
 function text(value: unknown) {
@@ -472,6 +520,8 @@ function gateDecisions(input: {
   generatedAt: number
   freshnessDays: number
   matches: string[]
+  identityMatches: string[]
+  requiredTopicIdentities: string[]
   targetAudienceBand: string | null
   audienceSize: number | null
 }) {
@@ -533,10 +583,18 @@ function gateDecisions(input: {
     {
       gate: 'topic_match' as const,
       label: 'Topic identity',
-      pass: input.matches.length > 0,
-      requirement: 'At least one stable topic-token match',
-      observed: input.matches.length ? input.matches.join(', ') : 'No matching topic token',
-      reason: 'No stable topic identity matches the current comparison.',
+      pass: input.requiredTopicIdentities.length
+        ? input.identityMatches.length > 0
+        : input.matches.length > 0,
+      requirement: input.requiredTopicIdentities.length
+        ? `At least one explicit campaign identity match (${input.requiredTopicIdentities.join(', ')})`
+        : 'At least one stable topic-token match',
+      observed: input.requiredTopicIdentities.length
+        ? input.identityMatches.length ? input.identityMatches.join(', ') : 'No explicit campaign identity match'
+        : input.matches.length ? input.matches.join(', ') : 'No matching topic token',
+      reason: input.requiredTopicIdentities.length
+        ? 'No explicit campaign identity matches the current comparison.'
+        : 'No stable topic identity matches the current comparison.',
     },
     {
       gate: 'audience_band' as const,
@@ -576,6 +634,7 @@ function gateDecisions(input: {
 export function buildYouTubeOutlierDescriptionLibrary(input: {
   researchPackets: unknown[]
   targetTopics: string[]
+  requiredTopicIdentities?: string[]
   generatedAt: string
   targetAudienceSize?: number | null
   minimumSourceCount?: number
@@ -586,6 +645,7 @@ export function buildYouTubeOutlierDescriptionLibrary(input: {
 }): YouTubeDescriptionLibraryReceipt {
   const generatedAt = Date.parse(input.generatedAt)
   const targetTopics = topicTokens(input.targetTopics)
+  const requiredTopicIdentities = topicTokens(input.requiredTopicIdentities ?? [])
   const targetAudienceBand = typeof input.targetAudienceSize === 'number' && input.targetAudienceSize >= 0
     ? audienceBand(input.targetAudienceSize)
     : null
@@ -630,11 +690,14 @@ export function buildYouTubeOutlierDescriptionLibrary(input: {
       const audienceSize = number(metrics.follower_count) ?? number(metrics.subscriber_count)
       const topics = packetTopics(packet)
       const matches = targetTopics.filter((topic) => topics.includes(topic))
+      const identityMatches = requiredTopicIdentities.filter((topic) => topics.includes(topic))
       const sourceId = text(packet.id) || fingerprint(sourceUrl || text(packet.title))
       const evidenceFingerprint = fingerprint({
         audienceSize,
         description,
         matches,
+        identityMatches,
+        requiredTopicIdentities,
         outlierScore,
         platform,
         provenance,
@@ -655,6 +718,8 @@ export function buildYouTubeOutlierDescriptionLibrary(input: {
         generatedAt,
         freshnessDays,
         matches,
+        identityMatches,
+        requiredTopicIdentities,
         targetAudienceBand,
         audienceSize,
       })

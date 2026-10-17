@@ -25,6 +25,52 @@ describe('ChannelExperimentSocialReview', () => {
     expect(getChannelExperimentSocialReview({ id: 'social-1', platform: 'linkedin', rag_context: {} })).toBeNull()
   })
 
+  it('shows a JIT YouTube campaign description with its qualified cohort and source links', () => {
+    const item = {
+      id: 'jev-youtube',
+      platform: 'youtube',
+      post_text: 'The model kept choosing. The harness had to learn when to slow it down.',
+      youtube_title: 'The AI Won After the System Slowed It Down',
+      youtube_description: 'The model kept choosing. The harness had to learn when to slow it down.\n\nA practical case study with visible source and policy boundaries.\n\nWhere does your agent need a stronger harness?',
+      rag_context: {
+        source: 'human_qa_approved_jit_campaign_packet',
+        campaign_title: 'Jev: The Model Won After the Harness Changed',
+        stable_campaign_identity: 'campaign:jev:harness-owns-the-outcome:v1',
+        jit_score: 85,
+        jit_refresh_receipt_id: 'jit-refresh:jev',
+        claim_boundary: 'Attribute the result and the harness interventions.',
+        approval_boundary: 'Internal review only.',
+        storyboard: ['Show the loop', 'Reveal the harness'],
+        thumbnail_direction: 'Presenter left; game path right.',
+        product_sources: ['Approved Jev operator field guide'],
+        source_lineage: ['https://jev-plays-pokemon.standardagents.ai/'],
+        description_outlier_evidence: {
+          status: 'ready',
+          release_readiness: 'ready',
+          minimum_source_count: 3,
+          minimum_outlier_score: 65,
+          sources: [
+            { source_title: 'Jev source one', source_url: 'https://youtube.com/watch?v=one' },
+            { source_title: 'Jev source two', source_url: 'https://youtube.com/watch?v=two' },
+            { source_title: 'Jev source three', source_url: 'https://youtube.com/watch?v=three' },
+          ],
+          blockers: [],
+          remediation_receipts: [],
+        },
+        description_evidence_release_gate: { status: 'ready' },
+      },
+    }
+
+    render(<ChannelExperimentSocialReview item={item} />)
+
+    const review = screen.getByRole('region', { name: `YouTube campaign review: ${item.youtube_title}` })
+    expect(within(review).getByText(/A practical case study with visible source and policy boundaries/)).toBeVisible()
+    expect(within(review).getByText('Evidence ready')).toBeVisible()
+    expect(within(review).getByText(/3 qualifying sources; minimum 3; outlier threshold 65/)).toBeVisible()
+    expect(within(review).getByRole('link', { name: /Jev source one/ })).toHaveAttribute('href', 'https://youtube.com/watch?v=one')
+    expect(within(review).queryByText('LinkedIn Preview')).not.toBeInTheDocument()
+  })
+
   it('normalizes an exact persisted review-only YouTube row without fixture metadata', () => {
     const item = channelExperimentSocialContentQaFixture('1f3cec8c-afcb-4551-90fa-b8d4f9dabe2f')
     const packet = (item.rag_context as Record<string, unknown>).channel_experiment_review as Record<string, unknown>

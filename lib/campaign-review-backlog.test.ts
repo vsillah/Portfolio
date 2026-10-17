@@ -85,6 +85,23 @@ function seed(count = 12) {
 }
 describe('campaign rolling review persistence', () => {
   beforeEach(() => seed())
+  it('does not prepare a YouTube calendar packet without a ready description cohort', async () => {
+    db.tables.social_content_calendar_items[0].channel = 'youtube'
+    db.tables.agent_work_items[0].metadata.channel = 'youtube'
+
+    const result = await prepareCampaignReviewBatch('campaign', { now })
+
+    expect(result.prepared_items).not.toEqual(expect.arrayContaining([
+      expect.objectContaining({ calendar_item_id: 'calendar-0' }),
+    ]))
+    expect(result.blocked_items).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        calendar_item_id: 'calendar-0',
+        reason: expect.stringContaining('YouTube description evidence has not passed its outlier benchmark.'),
+      }),
+    ]))
+    expect(db.tables.agent_work_items[0].metadata.channel_lanes?.youtube).toBeUndefined()
+  })
   it('prepares at most five existing channel packets, keeps provenance, and dedupes repeated/concurrent refill', async () => {
     const [a, b] = await Promise.all([prepareCampaignReviewBatch('campaign', { now }), prepareCampaignReviewBatch('campaign', { now })])
     expect(a.prepared_count + b.prepared_count).toBe(5)

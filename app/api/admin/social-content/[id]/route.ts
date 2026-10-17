@@ -41,8 +41,11 @@ import {
 } from '@/lib/social-channel-video-qa-fixture'
 import {
   CHANNEL_EXPERIMENT_SOCIAL_DETAIL_FIXTURE,
+  YOUTUBE_DESCRIPTION_COMPLETION_FIXTURE,
+  YOUTUBE_DESCRIPTION_COMPLETION_QA_ID,
   channelExperimentSocialContentQaFixture,
   isChannelExperimentSocialContentId,
+  youtubeDescriptionCompletionQaFixture,
 } from '@/lib/social-channel-experiment-qa-fixture'
 import {
   buildDeterministicVisualRecipePatch,
@@ -168,12 +171,25 @@ export async function GET(
         integration_note: 'Synthetic preview-only practitioner content fixture. No shared row, provider call, upload, schedule, or publication action is represented.',
       })
     }
+    const { id } = params
+
+    if (
+      process.env.NODE_ENV !== 'production'
+      && request.nextUrl.searchParams.get('qa_fixture') === YOUTUBE_DESCRIPTION_COMPLETION_FIXTURE
+      && id === YOUTUBE_DESCRIPTION_COMPLETION_QA_ID
+    ) {
+      return NextResponse.json({
+        item: youtubeDescriptionCompletionQaFixture(id),
+        fixture: true,
+        fixture_state: 'youtube_description_evidence_ready',
+        integration_note: 'Privacy-safe read-only projection of the repaired Jev YouTube description and its evidence gate. No production read or write, provider call, rendering, upload, platform draft, scheduling, publishing, or external send occurs.',
+      })
+    }
+
     const authResult = await verifyAdmin(request)
     if (isAuthError(authResult)) {
       return NextResponse.json({ error: authResult.error }, { status: authResult.status })
     }
-
-    const { id } = params
 
     if (
       request.nextUrl.searchParams.get('qa_fixture') === CHANNEL_EXPERIMENT_SOCIAL_DETAIL_FIXTURE

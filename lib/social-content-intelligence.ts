@@ -1656,6 +1656,11 @@ export function buildLinkedInYoutubeReviewDrafts(input: {
       contentAngle,
       triggeringEvent,
     ],
+    requiredTopicIdentities: [
+      ...asStringArray(insight.entity_identities),
+      ...asStringArray(insight.topic_ids),
+      ...asStringArray(insight.topics),
+    ],
     generatedAt,
     targetAudienceSize: numberOrNull(insight.audience_size),
     priorRemediationReceipts: input.priorYoutubeDescriptionRemediationReceipts,

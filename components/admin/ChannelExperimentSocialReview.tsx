@@ -9,6 +9,7 @@ type RecordValue = Record<string, unknown>
 type ChannelExperimentSocialItem = {
   id: string
   platform?: string
+  post_text?: string | null
   youtube_title?: string | null
   youtube_description?: string | null
   rag_context?: unknown
@@ -60,6 +61,70 @@ export function getChannelExperimentSocialReview(item: ChannelExperimentSocialIt
       scores: review.scores,
       missingEvidence: review.missingEvidence,
       source: 'persisted' as const,
+      reviewLabel: 'YouTube experiment review',
+      evidenceStatus: 'unscored' as const,
+    }
+  }
+
+  if (item.platform === 'youtube' && text(ragContext?.source) === 'human_qa_approved_jit_campaign_packet') {
+    const evidence = record(ragContext?.description_outlier_evidence)
+    const releaseGate = record(ragContext?.description_evidence_release_gate)
+    const description = text(item.youtube_description)
+    const descriptionLines = description.split(/\n+/).map((line) => line.trim()).filter(Boolean)
+    const sourcesIndex = descriptionLines.findIndex((line) => /^sources:?$/i.test(line))
+    const ctaCandidates = sourcesIndex >= 0 ? descriptionLines.slice(0, sourcesIndex) : descriptionLines
+    const sourceLineage = strings(ragContext?.source_lineage)
+    const evidenceSources = records(evidence?.sources)
+    const remediationReceipts = records(evidence?.remediation_receipts)
+    const evidenceReady = text(evidence?.status) === 'ready'
+      && text(evidence?.release_readiness) === 'ready'
+      && text(releaseGate?.status) === 'ready'
+    const missingEvidence = [
+      ...strings(evidence?.blockers),
+      ...remediationReceipts
+        .filter((receipt) => text(receipt.release_readiness) === 'blocked' && text(receipt.subject_type) === 'cohort')
+        .map((receipt) => `${text(receipt.observed_value)}; ${text(receipt.requirement)}. Owner: ${text(receipt.designated_owner)}.`),
+    ]
+
+    return {
+      packetId: text(ragContext?.stable_campaign_identity) || item.id,
+      campaignTitle: text(ragContext?.campaign_title),
+      audience: '',
+      variantId: text(ragContext?.stable_campaign_identity) || item.id,
+      variantLabel: 'Just-in-time campaign review',
+      hypothesis: text(ragContext?.claim_boundary),
+      title: item.youtube_title || text(ragContext?.campaign_title),
+      description: description || 'No audience-facing YouTube description is ready for review.',
+      openingHook: text(item.post_text).split(/\n+/)[0] || text(ragContext?.campaign_title),
+      outline: strings(ragContext?.storyboard),
+      thumbnailBrief: text(ragContext?.thumbnail_direction),
+      cta: [...ctaCandidates].reverse().find((line) => /[?!]$/.test(line)) || '',
+      productProofRequirements: strings(ragContext?.product_sources),
+      evidenceLineage: [
+        ...evidenceSources.map((source) => ({
+          label: text(source.source_title) || text(source.source_url),
+          href: text(source.source_url),
+          kind: 'qualified-description-source',
+        })),
+        ...sourceLineage
+          .filter((href) => !evidenceSources.some((source) => text(source.source_url) === href))
+          .map((href, index) => ({ label: `Campaign source ${index + 1}`, href, kind: 'campaign-source' })),
+      ].filter((entry) => entry.label && entry.href),
+      approvedClaims: [],
+      evidenceBoundary: [text(ragContext?.claim_boundary), text(ragContext?.approval_boundary)].filter(Boolean),
+      formula: evidenceReady
+        ? `${evidenceSources.length} qualifying sources; minimum ${String(evidence?.minimum_source_count ?? 3)}; outlier threshold ${String(evidence?.minimum_outlier_score ?? 65)}.`
+        : '',
+      scores: [{
+        label: 'JIT relevance',
+        value: typeof ragContext?.jit_score === 'number' ? ragContext.jit_score : null,
+        input: text(ragContext?.jit_refresh_receipt_id),
+        inputLink: '',
+      }],
+      missingEvidence,
+      source: 'jit_campaign' as const,
+      reviewLabel: 'YouTube campaign review',
+      evidenceStatus: evidenceReady ? 'ready' as const : 'blocked' as const,
     }
   }
 
@@ -100,6 +165,8 @@ export function getChannelExperimentSocialReview(item: ChannelExperimentSocialIt
     })).filter(entry => entry.label),
     missingEvidence: strings(packet.missing_evidence),
     source: 'fixture' as const,
+    reviewLabel: 'YouTube experiment review',
+    evidenceStatus: 'unscored' as const,
   }
 }
 
@@ -119,21 +186,23 @@ export default function ChannelExperimentSocialReview({ item }: { item: ChannelE
 
   return (
     <section
-      aria-label={`YouTube experiment review: ${review.title}`}
+      aria-label={`${review.reviewLabel}: ${review.title}`}
       data-testid="channel-experiment-social-review"
       className="min-w-0 space-y-4 rounded-xl border border-red-500/30 bg-card p-4 text-card-foreground shadow-sm sm:p-5"
     >
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-red-700 dark:text-red-200">
-            <Youtube className="h-4 w-4" aria-hidden="true" /> YouTube experiment review
+            <Youtube className="h-4 w-4" aria-hidden="true" /> {review.reviewLabel}
           </p>
           <h2 className="mt-2 break-words text-xl font-semibold leading-7 text-foreground">{review.title}</h2>
           <p className="mt-2 text-sm leading-6 text-muted-foreground">{review.description}</p>
         </div>
         <div className="flex shrink-0 flex-wrap gap-2 text-xs">
           <span className="rounded-full border border-emerald-600/35 bg-emerald-500/10 px-2.5 py-1 font-semibold text-emerald-800 dark:text-emerald-100">Review only</span>
-          <span className="rounded-full border border-amber-500/35 bg-amber-500/10 px-2.5 py-1 font-semibold text-amber-900 dark:text-amber-100">Unscored</span>
+          <span className={`rounded-full border px-2.5 py-1 font-semibold ${review.evidenceStatus === 'ready' ? 'border-emerald-600/35 bg-emerald-500/10 text-emerald-800 dark:text-emerald-100' : review.evidenceStatus === 'blocked' ? 'border-red-600/35 bg-red-500/10 text-red-800 dark:text-red-100' : 'border-amber-500/35 bg-amber-500/10 text-amber-900 dark:text-amber-100'}`}>
+            {review.evidenceStatus === 'ready' ? 'Evidence ready' : review.evidenceStatus === 'blocked' ? 'Description blocked' : 'Unscored'}
+          </span>
         </div>
       </div>
 

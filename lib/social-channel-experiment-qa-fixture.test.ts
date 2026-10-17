@@ -4,8 +4,10 @@ import {
   CHANNEL_EXPERIMENT_YOUTUBE_RECORD_IDS,
 } from './channel-experiment-review'
 import {
+  YOUTUBE_DESCRIPTION_COMPLETION_QA_ID,
   channelExperimentSocialContentQaFixture,
   isChannelExperimentSocialContentId,
+  youtubeDescriptionCompletionQaFixture,
 } from './social-channel-experiment-qa-fixture'
 
 describe('channel experiment Social Content QA fixture', () => {
@@ -59,5 +61,25 @@ describe('channel experiment Social Content QA fixture', () => {
     expect(isChannelExperimentSocialContentId('licenses-li-b')).toBe(false)
     expect(isChannelExperimentSocialContentId('licenses-yt-a')).toBe(false)
     expect(isChannelExperimentSocialContentId('social-1')).toBe(false)
+  })
+
+  it('projects the repaired Jev description and evidence as a read-only QA record', () => {
+    const item = youtubeDescriptionCompletionQaFixture(YOUTUBE_DESCRIPTION_COMPLETION_QA_ID)
+    const evidence = item.rag_context?.description_outlier_evidence as Record<string, unknown>
+
+    expect(item).toMatchObject({ platform: 'youtube', status: 'draft', target_platforms: ['youtube'] })
+    expect(item.youtube_description).toContain('The model kept choosing.')
+    expect(evidence).toMatchObject({ status: 'ready', release_readiness: 'ready', minimum_source_count: 3, minimum_outlier_score: 65 })
+    expect(evidence.sources).toHaveLength(3)
+    expect(item.rag_context?.qa_fixture).toMatchObject({ read_only: true, kind: 'youtube_description_completion_review' })
+    expect(item.rag_context?.side_effects).toEqual(expect.objectContaining({
+      provider_call: false,
+      render: false,
+      upload: false,
+      platform_draft: false,
+      schedule: false,
+      publish: false,
+      external_send: false,
+    }))
   })
 })
