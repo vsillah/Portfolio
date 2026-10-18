@@ -177,7 +177,7 @@
           "7rNk2vPHzVc"
         ],
         "exact_view_counts": [
-          202,
+          212,
           214,
           66,
           84,
@@ -492,15 +492,15 @@
           "ahK9hZ7L-Kc"
         ],
         "exact_view_counts": [
-          4267,
+          4287,
           13158,
           8028,
-          9420,
-          5390,
+          9426,
+          5392,
           6730,
           7642,
           6379,
-          4183
+          4184
         ],
         "median_view_count": 6730
       },
@@ -654,21 +654,21 @@
           "uaMXflxOZdA"
         ],
         "exact_view_counts": [
-          72,
-          790,
-          1180,
-          1264,
+          131,
+          829,
+          1203,
+          1277,
           682,
           1608,
           1161,
           1035,
           1205,
-          1383
+          1449
         ],
-        "median_view_count": 1170.5
+        "median_view_count": 1182
       },
       "age_days": 11.59,
-      "channel_relative_ratio": 1.0671,
+      "channel_relative_ratio": 1.0567,
       "audience_view_ratio": 0.0012,
       "recency_adjusted_views_per_day": 107.7653,
       "source_thumbnail_sha256": "sha256:d41ca98cfe65aa3186261714e0397ca68f24c0076a877e72b2ef5ac26d416a20",
@@ -792,7 +792,7 @@
   ],
   "adopted_traits": [
     "Keep the exact title and thumbnail hook visibly bound as one customer-facing pair.",
-    "Use a conservative near-duplicate semantic relationship while the distinct-versus-repeated heuristic remains Unscored."
+    "A distinct question may be tested as a review-only editorial hypothesis while the distinct-versus-repeated performance heuristic remains Unscored."
   ],
   "rejected_traits": [
     "Do not copy source wording, creator likenesses, source brand colors, or source layouts.",
@@ -800,5 +800,5 @@
     "Reject classroom diagrams, subscribe/follow furniture, split-screen interview layouts, and multi-panel field-guide density.",
     "Reject a claim that distinct complementary copy performs better until both relationship groups meet the recorded minimum sample size."
   ],
-  "composition_decision": "Keep the Jev title and thumbnail non-identical at the string level but near-duplicate in meaning. The cohort does not support a distinct complementary-teaser strategy; first-party evidence continues to govern subject, 9:16 aspect ratio, and brand treatment."
+  "composition_decision": "The cohort does not support a performance claim for distinct complementary copy. A single contrasting-question variant may enter review as an editorial hypothesis when its exact public examples and Unscored boundary remain visible. First-party evidence continues to govern subject, 9:16 aspect ratio, and brand treatment."
 }

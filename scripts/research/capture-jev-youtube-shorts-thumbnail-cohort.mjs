@@ -309,7 +309,7 @@ const packet = {
   ],
   adopted_traits: [
     'Keep the exact title and thumbnail hook visibly bound as one customer-facing pair.',
-    'Use a conservative near-duplicate semantic relationship while the distinct-versus-repeated heuristic remains Unscored.',
+    'A distinct question may be tested as a review-only editorial hypothesis while the distinct-versus-repeated performance heuristic remains Unscored.',
   ],
   rejected_traits: [
     'Do not copy source wording, creator likenesses, source brand colors, or source layouts.',
@@ -317,7 +317,7 @@ const packet = {
     'Reject classroom diagrams, subscribe/follow furniture, split-screen interview layouts, and multi-panel field-guide density.',
     'Reject a claim that distinct complementary copy performs better until both relationship groups meet the recorded minimum sample size.',
   ],
-  composition_decision: 'Keep the Jev title and thumbnail non-identical at the string level but near-duplicate in meaning. The cohort does not support a distinct complementary-teaser strategy; first-party evidence continues to govern subject, 9:16 aspect ratio, and brand treatment.',
+  composition_decision: 'The cohort does not support a performance claim for distinct complementary copy. A single contrasting-question variant may enter review as an editorial hypothesis when its exact public examples and Unscored boundary remain visible. First-party evidence continues to govern subject, 9:16 aspect ratio, and brand treatment.',
 }
 
 await writeFile(path.join(outputRoot, 'cohort.json'), `${JSON.stringify(packet, null, 2)}\n`)

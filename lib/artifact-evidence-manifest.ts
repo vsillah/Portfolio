@@ -97,6 +97,8 @@ export type ThumbnailCandidateCopyPair = {
   relationship: ThumbnailCopyRelationship
   exact_strings_are_distinct: boolean
   strategy_status: string
+  support_scope: 'editorial_hypothesis_only' | 'performance_supported'
+  performance_claim: 'unscored' | 'supported'
   rationale: string
   source_example_video_ids: string[]
 }
@@ -413,6 +415,8 @@ function parseResearchCohort(value: unknown): ThumbnailResearchCohort | undefine
       relationship: copyRelationship(rawCandidatePair.relationship),
       exact_strings_are_distinct: rawCandidatePair.exact_strings_are_distinct === true,
       strategy_status: text(rawCandidatePair.strategy_status),
+      support_scope: rawCandidatePair.support_scope === 'performance_supported' ? 'performance_supported' : 'editorial_hypothesis_only',
+      performance_claim: rawCandidatePair.performance_claim === 'supported' ? 'supported' : 'unscored',
       rationale: text(rawCandidatePair.rationale),
       source_example_video_ids: strings(rawCandidatePair.source_example_video_ids),
     },
@@ -548,6 +552,11 @@ function packagingElementIssues(
       blockers.push('Copy-pair performance group sample sizes do not match the classified live sources.')
       recoveryActions.push('Recalculate copy-pair groups directly from the included source classifications.')
     }
+    const sameIds = (expected: string[], actual: string[]) => expected.length === actual.length && expected.every((videoId) => actual.includes(videoId))
+    if (!sameIds(analysis.repeated_group.video_ids, repeated.map((sample) => sample.video_id)) || !sameIds(analysis.distinct_group.video_ids, distinct.map((sample) => sample.video_id))) {
+      blockers.push('Copy-pair performance group membership does not match the classified live sources.')
+      recoveryActions.push('Rebuild both comparison groups from the exact included source classifications before review.')
+    }
     const sufficient = repeated.length >= analysis.repeated_group.minimum_sample_size && distinct.length >= analysis.distinct_group.minimum_sample_size
     if (!sufficient && (analysis.status !== 'unscored' || analysis.conclusion !== 'unscored_insufficient_group_samples')) {
       blockers.push('The copy-pair heuristic claims a scored conclusion without sufficient samples in both comparison groups.')
@@ -558,9 +567,17 @@ function packagingElementIssues(
       blockers.push('The candidate title and thumbnail hook must be bound as two non-identical exact strings.')
       recoveryActions.push('Bind the exact customer-facing title and exact thumbnail hook side by side, and keep their wording distinct.')
     }
-    if (['complementary_teaser', 'contrasting_question'].includes(candidatePair.relationship) && (analysis.status !== 'scored' || analysis.conclusion !== 'supports_distinct_pair')) {
-      blockers.push('The candidate claims a distinct copy-pair strategy that the live cohort does not support.')
-      recoveryActions.push('Use a conservative relationship classification or collect enough attributable live samples to support the distinct-pair conclusion.')
+    const claimsDistinctPair = ['complementary_teaser', 'contrasting_question'].includes(candidatePair.relationship)
+    const includedById = new Map(included.map((sample) => [sample.video_id, sample]))
+    const editorialSupportIsBound = candidatePair.source_example_video_ids.length > 0 && candidatePair.source_example_video_ids.every((videoId) => {
+      const sample = includedById.get(videoId)
+      return Boolean(sample && sample.link_status === 'verified_openable' && ['complementary_teaser', 'contrasting_question'].includes(sample.title_thumbnail_relationship))
+    })
+    const distinctPerformanceIsSupported = analysis.status === 'scored' && analysis.conclusion === 'supports_distinct_pair' && candidatePair.support_scope === 'performance_supported' && candidatePair.performance_claim === 'supported'
+    const distinctReviewVariantIsBounded = analysis.status === 'unscored' && analysis.conclusion === 'unscored_insufficient_group_samples' && candidatePair.strategy_status === 'review_only_unscored' && candidatePair.support_scope === 'editorial_hypothesis_only' && candidatePair.performance_claim === 'unscored' && editorialSupportIsBound
+    if (claimsDistinctPair && !distinctPerformanceIsSupported && !distinctReviewVariantIsBounded) {
+      blockers.push('The candidate distinct copy-pair strategy is not bound to either supported performance evidence or a review-only Unscored editorial hypothesis.')
+      recoveryActions.push('Bind the distinct variant to classified editorial examples and keep performance Unscored, or collect enough attributable live samples for a supported performance claim.')
     }
   }
   if (!element.evaluation_receipt) {

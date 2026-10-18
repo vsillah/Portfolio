@@ -161,6 +161,7 @@ function metric(value: number | null, suffix = '') {
 
 function ThumbnailResearchEvidence({ cohort }: { cohort: NonNullable<ArtifactEvidenceElement['research_cohort']> }) {
   const publicSources = cohort.samples.filter((sample) => sample.decision === 'included')
+  const copyPairSources = publicSources.filter((sample) => cohort.candidate_copy_pair.source_example_video_ids.includes(sample.video_id))
   const excluded = cohort.samples.filter((sample) => sample.decision === 'excluded')
   const neighborCard = (neighbor: NonNullable<typeof cohort.candidate>, role: string) => (
     <article key={neighbor.id} className="overflow-hidden rounded-lg border border-border bg-background">
@@ -200,8 +201,12 @@ function ThumbnailResearchEvidence({ cohort }: { cohort: NonNullable<ArtifactEvi
             <div className="rounded-md border border-border p-2"><p className="text-[10px] font-semibold uppercase text-muted-foreground">Thumbnail hook</p><p className="mt-1 font-semibold text-foreground">{cohort.candidate_copy_pair.thumbnail_hook}</p></div>
           </div>
           <p className="mt-2">Exact strings distinct: <span className="font-semibold text-foreground">{cohort.candidate_copy_pair.exact_strings_are_distinct ? 'Yes' : 'No'}</span> · strategy status: {cohort.candidate_copy_pair.strategy_status.replaceAll('_', ' ')}</p>
+          <p className="mt-1">Support scope: <span className="font-semibold text-foreground">{cohort.candidate_copy_pair.support_scope.replaceAll('_', ' ')}</span> · performance claim: <span className="font-semibold text-foreground">{cohort.candidate_copy_pair.performance_claim}</span></p>
           <p className="mt-1">{cohort.candidate_copy_pair.rationale}</p>
-          <p className="mt-1 text-[10px] text-muted-foreground">Source examples: {cohort.candidate_copy_pair.source_example_video_ids.join(', ')}</p>
+          <div className="mt-2 rounded-md border border-border p-2">
+            <p className="text-[10px] font-semibold uppercase text-muted-foreground">Editorial hypothesis sources only</p>
+            <ul className="mt-1 space-y-2">{copyPairSources.map((sample) => <li key={sample.video_id}><AbsoluteEvidenceLink href={sample.youtube_url} label={`${sample.creator}: ${sample.title}`} status={sample.link_status} /><span className="block">{sample.title_thumbnail_relationship.replaceAll('_', ' ')} · thumbnail text: {sample.thumbnail_text.join(' / ') || 'unreadable'}</span></li>)}</ul>
+          </div>
         </div>
         <div className="rounded-md border border-amber-600/35 bg-amber-500/10 p-3" data-testid="copy-pair-analysis">
           <div className="flex flex-wrap items-center justify-between gap-2"><p className="font-semibold text-foreground">Copy-pair heuristic</p><span className="rounded-full border border-amber-700/40 px-2 py-1 text-[10px] font-semibold uppercase text-amber-950 dark:text-amber-100">{cohort.copy_pair_analysis.status}</span></div>

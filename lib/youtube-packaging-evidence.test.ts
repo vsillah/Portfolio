@@ -77,12 +77,19 @@ describe('YouTube packaging evidence validation', () => {
     expect(research?.element_bindings.map((binding) => binding.element).sort()).toEqual(['aspect_ratio', 'brand_treatment', 'hook', 'product_proof', 'subject'])
     expect(research?.element_bindings.every((binding) => binding.support === 'supports' && binding.link_status === 'verified_openable')).toBe(true)
     expect(research?.samples.every((sample) => sample.youtube_url.startsWith('https://') && sample.source_thumbnail_url?.startsWith('https://'))).toBe(true)
-    expect(research?.candidate_copy_pair).toMatchObject({ relationship: 'near_duplicate', exact_strings_are_distinct: true })
+    expect(research?.candidate_copy_pair).toMatchObject({
+      relationship: 'contrasting_question',
+      exact_strings_are_distinct: true,
+      strategy_status: 'review_only_unscored',
+      support_scope: 'editorial_hypothesis_only',
+      performance_claim: 'unscored',
+    })
     expect(research?.candidate_copy_pair.title).toBe(result.title?.input_excerpt)
     expect(research?.candidate_copy_pair.thumbnail_hook).toBe(result.thumbnail?.input_excerpt)
     expect(research?.candidate_copy_pair.title).not.toBe(research?.candidate_copy_pair.thumbnail_hook)
     expect(research?.copy_pair_analysis).toMatchObject({ status: 'unscored', conclusion: 'unscored_insufficient_group_samples' })
     expect(research?.copy_pair_analysis.distinct_group).toMatchObject({ sample_size: 2, minimum_sample_size: 3 })
+    expect(research?.candidate_copy_pair.source_example_video_ids.every((videoId) => research.copy_pair_analysis.distinct_group.video_ids.includes(videoId))).toBe(true)
     expect(research?.samples.filter((sample) => sample.decision === 'included').every((sample) => sample.transcription_provenance && sample.hook_type && sample.channel_baseline_size)).toBe(true)
   })
 
@@ -129,8 +136,34 @@ describe('YouTube packaging evidence validation', () => {
       'Copy-pair performance group sample sizes do not match the classified live sources.',
       'The copy-pair heuristic claims a scored conclusion without sufficient samples in both comparison groups.',
       'The candidate title and thumbnail hook must be bound as two non-identical exact strings.',
+      'The candidate distinct copy-pair strategy is not bound to either supported performance evidence or a review-only Unscored editorial hypothesis.',
       'The candidate copy-pair binding does not match the current title and thumbnail hook.',
     ]))
+  })
+
+  it('fails closed when a review-only distinct variant claims supported performance', () => {
+    const fixture = channelNativeVideoQaFixture('f966123f-05eb-48ec-a7c2-970afce642ef')
+    const manifest = structuredClone(fixture.rag_context.artifact_evidence_manifest)
+    const pair = manifest.elements.find((element) => element.category === 'thumbnail')!.research_cohort!.candidate_copy_pair
+    pair.performance_claim = 'supported'
+    pair.support_scope = 'performance_supported'
+
+    const result = validateYouTubePackagingEvidence(manifest, fixture.updated_at, 'youtube_shorts', '2026-10-18T20:00:00.000Z')
+
+    expect(result.ready).toBe(false)
+    expect(result.blockers).toContain('The candidate distinct copy-pair strategy is not bound to either supported performance evidence or a review-only Unscored editorial hypothesis.')
+  })
+
+  it('fails closed when a review-only distinct variant cites an unclassified editorial source', () => {
+    const fixture = channelNativeVideoQaFixture('f966123f-05eb-48ec-a7c2-970afce642ef')
+    const manifest = structuredClone(fixture.rag_context.artifact_evidence_manifest)
+    const pair = manifest.elements.find((element) => element.category === 'thumbnail')!.research_cohort!.candidate_copy_pair
+    pair.source_example_video_ids = ['not-in-cohort']
+
+    const result = validateYouTubePackagingEvidence(manifest, fixture.updated_at, 'youtube_shorts', '2026-10-18T20:00:00.000Z')
+
+    expect(result.ready).toBe(false)
+    expect(result.blockers).toContain('The candidate distinct copy-pair strategy is not bound to either supported performance evidence or a review-only Unscored editorial hypothesis.')
   })
 
   it('fails closed rather than inferring text from an unreadable thumbnail', () => {
