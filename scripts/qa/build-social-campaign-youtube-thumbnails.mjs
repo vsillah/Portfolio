@@ -23,7 +23,7 @@ const jobs = [
     hook: ['REMEMBER THE WHY'],
     hookExact: 'REMEMBER THE WHY',
     accent: '#F5C518',
-    output: 'dark-castle-remember-the-why.png',
+    output: 'dark-castle-remember-the-why-v2.png',
     receipt: 'dark-castle-thumbnail-selection-receipt.json',
     composition: {
       version: 'youtube-thumbnail-composition/v1',
@@ -49,7 +49,7 @@ const jobs = [
     hook: ['WHO OWNS', 'THE CLEANUP?'],
     hookExact: 'WHO OWNS THE CLEANUP?',
     accent: '#E0B52F',
-    output: 'ai-audit-who-owns-the-cleanup.png',
+    output: 'ai-audit-who-owns-the-cleanup-v2.png',
     receipt: 'ai-audit-thumbnail-selection-receipt.json',
     stageSourceAs: path.resolve(sourceProofRoot, 'ai-audit-calculator.png'),
     composition: {

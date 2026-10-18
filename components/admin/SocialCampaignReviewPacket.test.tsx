@@ -23,7 +23,7 @@ describe('SocialCampaignReviewPacket', () => {
     expect(within(gate).getByText(/No qualifying description cohort is attached/)).toBeVisible()
     expect(screen.getByText('Final video blocked')).toBeVisible()
     expect(screen.getByText('WHO OWNS THE CLEANUP?')).toBeVisible()
-    expect(screen.getByRole('img', { name: 'Evidence-ready thumbnail reading WHO OWNS THE CLEANUP?' })).toHaveAttribute('src', expect.stringContaining('ai-audit-who-owns-the-cleanup.png'))
+    expect(screen.getByRole('img', { name: 'Evidence-ready thumbnail reading WHO OWNS THE CLEANUP?' })).toHaveAttribute('src', expect.stringContaining('ai-audit-who-owns-the-cleanup-v2.png'))
     expect(screen.getByText(/Canonical thumbnail receipt: thumbnail:ai-audit:youtube-long-form:20261018:v2/)).toBeVisible()
     expect(screen.getByText('Thumbnail evidence: Ready')).toBeVisible()
     expect(screen.getByText(/93.5\/100/)).toBeVisible()
@@ -36,7 +36,7 @@ describe('SocialCampaignReviewPacket', () => {
     const packet = getSocialCampaignReviewPacket(SOCIAL_CAMPAIGN_REVIEW_IDS.darkCastleYouTube)!
     render(<SocialCampaignReviewPacket packet={packet} />)
 
-    expect(screen.getByRole('img', { name: 'Evidence-ready thumbnail reading REMEMBER THE WHY' })).toHaveAttribute('src', expect.stringContaining('dark-castle-remember-the-why.png'))
+    expect(screen.getByRole('img', { name: 'Evidence-ready thumbnail reading REMEMBER THE WHY' })).toHaveAttribute('src', expect.stringContaining('dark-castle-remember-the-why-v2.png'))
     expect(screen.getByRole('region', { name: 'YouTube thumbnail evidence gate' })).toHaveTextContent('16:9 long-form')
     expect(screen.getByText('Description evidence: Unscored')).toBeVisible()
     expect(screen.getByText('0/3 qualifying descriptions')).toBeVisible()
