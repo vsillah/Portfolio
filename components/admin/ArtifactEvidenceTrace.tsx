@@ -139,7 +139,7 @@ function YouTubePackagingReview({ validation }: { validation: YouTubePackagingEv
     <section aria-label={`${label} packaging evidence`} className={`mt-4 rounded-xl border p-4 ${validation.ready ? 'border-emerald-600/35 bg-emerald-500/5' : 'border-amber-600/40 bg-amber-500/5'}`}>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-red-700 dark:text-red-200">{label} asset-package review</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">{label} asset-package review</p>
           <h3 className="mt-1 text-lg font-semibold text-foreground">Customer-facing title and bound thumbnail</h3>
           <p className="mt-1 text-sm leading-6 text-muted-foreground">Review the words and the actual image together. Evidence details stay collapsed until needed.</p>
         </div>

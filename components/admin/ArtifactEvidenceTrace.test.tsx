@@ -81,6 +81,8 @@ describe('ArtifactEvidenceTrace', () => {
     expect(within(packaging).getAllByText('AI Gave You a Score. Who Owns the Decision?')[0]).toBeVisible()
     expect(within(packaging).getAllByText('WHO OWNS THE DECISION?')[0]).toBeVisible()
     expect(within(packaging).getByRole('status')).toHaveTextContent('Asset-package evidence ready')
+    expect(within(packaging).getByText('YouTube Shorts asset-package review')).toHaveClass('text-muted-foreground')
+    expect(within(packaging).getByText('YouTube Shorts asset-package review')).not.toHaveClass('text-red-700')
     expect(within(packaging).getByAltText(/YouTube Shorts bound thumbnail/i)).toHaveAttribute('src', expect.stringContaining('jev-youtube-thumbnail.png'))
 
     const titleEvidence = within(packaging).getByText('Title evidence').closest('details')!
