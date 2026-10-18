@@ -38,7 +38,7 @@ async function noOverflow(label) {
 }
 
 async function load(url, expectedStatus) {
-  await page.goto(url, { waitUntil: 'networkidle' })
+  await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60_000 })
   const packaging = page.getByLabel('YouTube Shorts packaging evidence')
   await packaging.waitFor({ state: 'visible' })
   await packaging.scrollIntoViewIfNeeded()
