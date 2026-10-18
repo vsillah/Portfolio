@@ -57,7 +57,7 @@ describe('YouTube packaging evidence validation', () => {
       { id: 'dark-castle', manifest: darkCastle.thumbnailEvidenceManifest },
       { id: 'ai-audit', manifest: aiAudit.thumbnailEvidenceManifest },
     ])
-    expect(distinct).toMatchObject({ ready: true, candidateCount: 2, batchIdentity: 'social-campaign-youtube:20261018:v4' })
+    expect(distinct).toMatchObject({ ready: true, candidateCount: 2, batchIdentity: 'social-campaign-youtube:20261018:v5' })
     expect(new Set(distinct.layoutFamilies).size).toBe(2)
     expect(new Set(distinct.compositionSignatures).size).toBe(2)
 

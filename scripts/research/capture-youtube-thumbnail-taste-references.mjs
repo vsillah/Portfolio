@@ -1,7 +1,7 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import sharp from 'sharp'
-import { analyzeThumbnailRaster, sha256 } from '../qa/youtube-thumbnail-quality-contract.mjs'
+import { analyzeSpatialLayout, analyzeThumbnailRaster, sha256 } from '../qa/youtube-thumbnail-quality-contract.mjs'
 
 const root = process.cwd()
 const decisionPath = path.resolve(root, 'artifacts/research/dark-castle-chess-youtube-thumbnail-cohort-2026-10-18/thumbnail-decision-receipt.json')
@@ -13,13 +13,17 @@ await mkdir(outputRoot, { recursive: true })
 
 const references = []
 for (const item of preference.item_identities) {
-  const sourceUrl = `https://i.ytimg.com/vi/${item.video_id}/hqdefault.jpg`
-  const response = await fetch(sourceUrl)
-  if (!response.ok) throw new Error(`${item.video_id}: playlist thumbnail capture failed with ${response.status}`)
-  const sourceBytes = Buffer.from(await response.arrayBuffer())
-  const imageBytes = await sharp(sourceBytes).resize(640, 360, { fit: 'cover' }).jpeg({ quality: 90 }).toBuffer()
   const artifactPath = path.join(outputRoot, `${item.video_id}.jpg`)
-  await writeFile(artifactPath, imageBytes)
+  const sourceUrl = `https://i.ytimg.com/vi/${item.video_id}/hqdefault.jpg`
+  let imageBytes
+  if (process.env.REUSE_CAPTURE === '1') imageBytes = await readFile(artifactPath)
+  else {
+    const response = await fetch(sourceUrl)
+    if (!response.ok) throw new Error(`${item.video_id}: playlist thumbnail capture failed with ${response.status}`)
+    const sourceBytes = Buffer.from(await response.arrayBuffer())
+    imageBytes = await sharp(sourceBytes).resize(640, 360, { fit: 'cover' }).jpeg({ quality: 90 }).toBuffer()
+    await writeFile(artifactPath, imageBytes)
+  }
   references.push({
     video_id: item.video_id,
     source_url: item.source_url,
@@ -27,14 +31,15 @@ for (const item of preference.item_identities) {
     artifact_path: path.relative(root, artifactPath),
     sha256: sha256(imageBytes),
     metrics: await analyzeThumbnailRaster(imageBytes),
+    spatial_layout: await analyzeSpatialLayout(imageBytes),
   })
 }
 
 const observedAt = process.env.OBSERVED_AT ?? new Date().toISOString()
 const freshUntil = new Date(Date.parse(observedAt) + (14 * 24 * 60 * 60 * 1000)).toISOString()
 const payload = {
-  version: 'youtube-thumbnail-taste-reference/v1',
-  receipt_id: 'taste:youtube-thumbnail:curated-playlist:20261018:v1',
+  version: 'youtube-thumbnail-taste-reference/v2',
+  receipt_id: 'taste:youtube-thumbnail:curated-playlist:20261018:v2',
   source_url: preference.source_url,
   captured_at: observedAt,
   fresh_until: freshUntil,

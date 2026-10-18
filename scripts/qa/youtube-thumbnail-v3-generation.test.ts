@@ -16,7 +16,7 @@ const selections = [
   JSON.parse(readFileSync(path.join(root, 'artifacts/research/ai-audit-calculator-youtube-thumbnail-cohort-2026-10-18/ai-audit-thumbnail-selection-receipt.json'), 'utf8')),
 ]
 
-describe('YouTube thumbnail v4 generation contract', () => {
+describe('YouTube thumbnail v5 generation contract', () => {
   it('keeps both live decisions canonically fingerprinted and playlist calibration at zero performance weight', () => {
     for (const decision of decisions) {
       const { version: _version, receipt_id: _receiptId, route: _route, input_version: inputVersion, output_version: _outputVersion, selection: _selection, ...canonicalInput } = decision
@@ -56,11 +56,11 @@ describe('YouTube thumbnail v4 generation contract', () => {
     expect(result.stderr).toContain('fresh preflight-approved HeyGen Pro identity remix is required')
   })
 
-  it('binds each final v4 output to a distinct fresh HeyGen primary and passing inspection', () => {
+  it('binds each final v5 output to a distinct fresh HeyGen primary and passing color-polish inspection', () => {
     for (const selection of selections) {
-      expect(selection.version).toBe('youtube-thumbnail-selection/v4')
-      expect(selection.receipt_id).toMatch(/^thumbnail:.+:youtube-long-form:20261018:v4$/)
-      expect(selection.supersedes_failed_receipt_id).toMatch(/:v3$/)
+      expect(selection.version).toBe('youtube-thumbnail-selection/v5')
+      expect(selection.receipt_id).toMatch(/^thumbnail:.+:youtube-long-form:20261018:v5$/)
+      expect(selection.supersedes_failed_receipt_id).toMatch(/:v4$/)
       expect(selection.identity_remix_rotation).toMatchObject({ provider: 'heygen_pro', included_credit_count: 1 })
       expect(selection.identity_remix_rotation.primary.source_url).toMatch(/^https:\/\/dynamic\.heygen\.ai\//)
       expect(selection.identity_remix_rotation.primary.role).toBe('selected_primary')
@@ -68,6 +68,8 @@ describe('YouTube thumbnail v4 generation contract', () => {
       expect(selection.first_party_supporting_sources[0]).toMatchObject({ rights_status: 'approved_identity_remix_review_only' })
       expect(selection.final_quality_gate).toMatchObject({ status: 'passed' })
       expect(selection.final_quality_gate.inspection_receipt_id).toMatch(/^inspection:/)
+      expect(selection.final_quality_gate.color_polish.text_panel_contrast_ratio).toBeGreaterThanOrEqual(4.5)
+      expect(selection.final_quality_gate.color_polish.background_edge_density).toBeLessThanOrEqual(0.035)
       expect(selection.provider_generation).toMatchObject({ occurred: true, future_calls_authorized: false })
       expect(selection.external_gates).toMatchObject({ provider_generation: false, upload: false, platform_draft: false, publish: false })
       const outputPath = path.join(root, 'public', selection.output.artifact_url)

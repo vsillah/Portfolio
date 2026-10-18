@@ -18,7 +18,7 @@ const jobs = [
 let blocked = false
 for (const job of jobs) {
   const directory = path.resolve(root, job.directory)
-  const brief = JSON.parse(await readFile(path.join(directory, 'thumbnail-generation-brief-v4.json'), 'utf8'))
+  const brief = JSON.parse(await readFile(path.join(directory, 'thumbnail-generation-brief-v5.json'), 'utf8'))
   const decision = JSON.parse(await readFile(path.join(directory, 'thumbnail-decision-receipt.json'), 'utf8'))
   const validation = validateGenerationBrief({ brief, decision, tasteReceipt })
   const receipt = {
@@ -42,7 +42,7 @@ for (const job of jobs) {
     teaser_word_count: validation.teaser_word_count,
     heygen_generation_allowed: validation.status === 'passed',
   }
-  await writeFile(path.join(directory, 'thumbnail-generation-preflight-v4.json'), `${JSON.stringify(receipt, null, 2)}\n`)
+  await writeFile(path.join(directory, 'thumbnail-generation-preflight-v5.json'), `${JSON.stringify(receipt, null, 2)}\n`)
   console.log(JSON.stringify({ campaign: job.campaign, status: receipt.status, failures: receipt.failures, receipt_id: receipt.receipt_id }))
   if (receipt.status !== 'passed') blocked = true
 }

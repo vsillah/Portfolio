@@ -1,0 +1,48 @@
+{
+  "version": "youtube-thumbnail-post-generation-inspection/v1",
+  "receipt_id": "inspection:ai-audit:youtube-thumbnail:20261018:v5",
+  "status": "passed",
+  "inspection_source": "independent_post_render_visual_inspection",
+  "campaign_id": "ai-audit",
+  "content_version": "2026-10-18T22:42:00.000Z",
+  "source_image_sha256": "sha256:c74e55c219b2c6e941bec39ef5de0b5f40aca7f1480796d61fd0d4f82da016d5",
+  "final_output_sha256": "sha256:b6c040485fd01e31744accbf8094fc585c86e165f531667aecffcbac043812af",
+  "feed_preview_sha256": "sha256:3058ab8a1ac38f496a61a9c75c937d529aff68c4a00ce3c2a7101cb84d6d8ba0",
+  "face_assessment": {
+    "method": "post_render_visual_inspection/v1",
+    "area_ratio": 0.21,
+    "visible_eye_count": 2,
+    "eyes_unobstructed": true,
+    "expression_label": "wide-eyed open-mouth surprise with an emphatic presenting gesture",
+    "campaign_relevance": "The reaction makes the hidden cleanup cost feel immediate and points back to the owned score proof."
+  },
+  "feed_copy_inspection": {
+    "method": "rendered_320x180_visual_transcription",
+    "legible": true,
+    "transcribed_text": "WHO OWNS THE CLEANUP?"
+  },
+  "feed_focal_hierarchy": {
+    "status": "passed",
+    "method": "rendered_320x180_visual_inspection",
+    "ordered_roles": ["four-word ownership question", "expressive audit reaction", "owned 5/10 audit proof"]
+  },
+  "color_polish_regions": {
+    "foreground": { "x": 900, "y": 128, "width": 112, "height": 112 },
+    "background": { "x": 300, "y": 300, "width": 220, "height": 100 },
+    "text_foreground": { "x": 66, "y": 126, "width": 14, "height": 36 },
+    "text_panel_background": { "x": 600, "y": 100, "width": 70, "height": 120 },
+    "subject": { "x": 900, "y": 128, "width": 112, "height": 112 },
+    "subject_background": { "x": 706, "y": 280, "width": 14, "height": 180 },
+    "product_proof": { "x": 100, "y": 530, "width": 480, "height": 90 },
+    "product_background": { "x": 56, "y": 526, "width": 14, "height": 96 },
+    "dominant_field": { "x": 706, "y": 280, "width": 14, "height": 180 },
+    "accent": { "x": 62, "y": 64, "width": 108, "height": 8 }
+  },
+  "face_bounding_box": { "x": 842, "y": 45, "width": 300, "height": 310 },
+  "face_clearance_padding_px": 24,
+  "overlay_bounding_boxes": [
+    { "role": "teaser", "x": 58, "y": 102, "width": 560, "height": 164 },
+    { "role": "product_proof", "x": 54, "y": 484, "width": 600, "height": 182 },
+    { "role": "logo", "x": 1180, "y": 622, "width": 68, "height": 68 }
+  ]
+}

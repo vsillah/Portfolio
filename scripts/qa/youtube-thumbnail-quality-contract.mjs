@@ -2,13 +2,12 @@ import { createHash } from 'node:crypto'
 import { readFile } from 'node:fs/promises'
 import sharp from 'sharp'
 
-export const QUALITY_CONTRACT_VERSION = 'youtube-thumbnail-pre-human-qa/v1'
+export const QUALITY_CONTRACT_VERSION = 'youtube-thumbnail-pre-human-qa/v2'
 export const QUALITY_THRESHOLDS = Object.freeze({
   brightness_min: 0.36,
   saturation_min: 0.16,
   local_contrast_min: 0.12,
   vibrancy_min: 0.075,
-  edge_density_min: 0.045,
   playlist_similarity_min: 0.52,
   face_area_ratio_min: 0.12,
   face_area_ratio_max: 0.46,
@@ -16,6 +15,16 @@ export const QUALITY_THRESHOLDS = Object.freeze({
   teaser_word_count_max: 5,
   feed_preview_width: 320,
   feed_preview_height: 180,
+  foreground_background_distance_min: 0.18,
+  text_panel_contrast_ratio_min: 4.5,
+  subject_background_distance_min: 0.16,
+  product_background_distance_min: 0.14,
+  accent_saturation_min: 0.42,
+  dominant_field_saturation_min: 0.34,
+  controlled_palette_min: 3,
+  controlled_palette_max: 18,
+  background_edge_density_max: 0.035,
+  spatial_playlist_similarity_min: 0.56,
 })
 
 export function sha256(value) {
@@ -73,18 +82,115 @@ export async function analyzeThumbnailRaster(input) {
   }
 }
 
-export function playlistStyleSimilarity(metrics, references) {
+function regionPixels(data, info, box) {
+  const left = Math.max(0, Math.floor(box.x))
+  const top = Math.max(0, Math.floor(box.y))
+  const right = Math.min(info.width, Math.ceil(box.x + box.width))
+  const bottom = Math.min(info.height, Math.ceil(box.y + box.height))
+  const pixels = []
+  for (let y = top; y < bottom; y += 1) {
+    for (let x = left; x < right; x += 1) {
+      const offset = ((y * info.width) + x) * info.channels
+      pixels.push([data[offset] / 255, data[offset + 1] / 255, data[offset + 2] / 255])
+    }
+  }
+  return { pixels, width: right - left, height: bottom - top }
+}
+
+function summarizePixels(sample) {
+  const { pixels, width, height } = sample
+  if (!pixels.length) return { mean_rgb: [0, 0, 0], luminance: 0, saturation: 0, edge_density: 0 }
+  const totals = [0, 0, 0]
+  let luminanceTotal = 0
+  let saturationTotal = 0
+  const luminance = new Float32Array(pixels.length)
+  for (let index = 0; index < pixels.length; index += 1) {
+    const [r, g, b] = pixels[index]
+    totals[0] += r; totals[1] += g; totals[2] += b
+    const linear = [r, g, b].map((channel) => channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4)
+    const l = (0.2126 * linear[0]) + (0.7152 * linear[1]) + (0.0722 * linear[2])
+    luminance[index] = l
+    luminanceTotal += l
+    saturationTotal += Math.max(r, g, b) - Math.min(r, g, b)
+  }
+  let edgeTotal = 0
+  for (let y = 1; y < height; y += 1) {
+    for (let x = 1; x < width; x += 1) {
+      const index = (y * width) + x
+      edgeTotal += Math.abs(luminance[index] - luminance[index - 1]) + Math.abs(luminance[index] - luminance[index - width])
+    }
+  }
+  return {
+    mean_rgb: totals.map((value) => Number((value / pixels.length).toFixed(4))),
+    luminance: Number((luminanceTotal / pixels.length).toFixed(4)),
+    saturation: Number((saturationTotal / pixels.length).toFixed(4)),
+    edge_density: Number((edgeTotal / Math.max(1, (width - 1) * (height - 1) * 2)).toFixed(4)),
+  }
+}
+
+function colorDistance(a, b) {
+  return Number((Math.sqrt(a.reduce((total, value, index) => total + ((value - b[index]) ** 2), 0)) / Math.sqrt(3)).toFixed(4))
+}
+
+function contrastRatio(a, b) {
+  const high = Math.max(a, b)
+  const low = Math.min(a, b)
+  return Number(((high + 0.05) / (low + 0.05)).toFixed(2))
+}
+
+export async function analyzeSpatialLayout(input) {
+  const { data, info } = await sharp(input).resize(320, 180, { fit: 'cover' }).removeAlpha().raw().toBuffer({ resolveWithObject: true })
+  const boxes = [
+    { x: 0, y: 0, width: 160, height: 90 }, { x: 160, y: 0, width: 160, height: 90 },
+    { x: 0, y: 90, width: 160, height: 90 }, { x: 160, y: 90, width: 160, height: 90 },
+  ]
+  const quadrants = boxes.map((box) => summarizePixels(regionPixels(data, info, box)))
+  const separations = [[0, 1], [0, 2], [1, 3], [2, 3]].map(([a, b]) => colorDistance(quadrants[a].mean_rgb, quadrants[b].mean_rgb))
+  return {
+    quadrants,
+    mean_adjacent_color_separation: Number((separations.reduce((sum, value) => sum + value, 0) / separations.length).toFixed(4)),
+    luminance_range: Number((Math.max(...quadrants.map((item) => item.luminance)) - Math.min(...quadrants.map((item) => item.luminance))).toFixed(4)),
+  }
+}
+
+export async function analyzeColorPolish(input, regions) {
+  const { data, info } = await sharp(input).removeAlpha().raw().toBuffer({ resolveWithObject: true })
+  const summaries = Object.fromEntries(Object.entries(regions ?? {}).map(([name, box]) => [name, summarizePixels(regionPixels(data, info, box))]))
+  const quantized = new Map()
+  for (let offset = 0; offset < data.length; offset += info.channels) {
+    const key = `${data[offset] >> 5}-${data[offset + 1] >> 5}-${data[offset + 2] >> 5}`
+    quantized.set(key, (quantized.get(key) ?? 0) + 1)
+  }
+  const minimumCount = (data.length / info.channels) * 0.01
+  const controlledPaletteCount = [...quantized.values()].filter((count) => count >= minimumCount).length
+  return {
+    region_summaries: summaries,
+    foreground_background_distance: colorDistance(summaries.foreground?.mean_rgb ?? [0, 0, 0], summaries.background?.mean_rgb ?? [0, 0, 0]),
+    text_panel_contrast_ratio: contrastRatio(summaries.text_foreground?.luminance ?? 0, summaries.text_panel_background?.luminance ?? 0),
+    subject_background_distance: colorDistance(summaries.subject?.mean_rgb ?? [0, 0, 0], summaries.subject_background?.mean_rgb ?? [0, 0, 0]),
+    product_background_distance: colorDistance(summaries.product_proof?.mean_rgb ?? [0, 0, 0], summaries.product_background?.mean_rgb ?? [0, 0, 0]),
+    dominant_field_saturation: summaries.dominant_field?.saturation ?? 0,
+    accent_saturation: summaries.accent?.saturation ?? 0,
+    background_edge_density: summaries.background?.edge_density ?? 1,
+    controlled_palette_count: controlledPaletteCount,
+  }
+}
+
+export function playlistStyleSimilarity(metrics, spatial, references) {
   const keys = ['brightness', 'saturation', 'local_contrast', 'edge_density', 'vibrancy']
   const scales = { brightness: 0.5, saturation: 0.45, local_contrast: 0.3, edge_density: 0.25, vibrancy: 0.35 }
   const scores = references.map((reference) => {
     const meanDistance = keys.reduce((total, key) => total + clamp(Math.abs(metrics[key] - reference.metrics[key]) / scales[key]), 0) / keys.length
-    return Number(clamp(1 - meanDistance).toFixed(4))
+    const referenceSpatial = reference.spatial_layout
+    const spatialDistance = referenceSpatial
+      ? (clamp(Math.abs(spatial.mean_adjacent_color_separation - referenceSpatial.mean_adjacent_color_separation) / 0.5) + clamp(Math.abs(spatial.luminance_range - referenceSpatial.luminance_range) / 0.7)) / 2
+      : 1
+    return Number(clamp((1 - meanDistance) * 0.4 + (1 - spatialDistance) * 0.6).toFixed(4))
   })
-  const sorted = [...scores].sort((a, b) => a - b)
-  const median = sorted.length % 2 === 0
-    ? (sorted[(sorted.length / 2) - 1] + sorted[sorted.length / 2]) / 2
-    : sorted[Math.floor(sorted.length / 2)]
-  return { score: Number(median.toFixed(4)), sample_count: scores.length, individual_scores: scores }
+  const sorted = [...scores].sort((a, b) => b - a)
+  const topQuartile = sorted.slice(0, Math.max(1, Math.ceil(sorted.length / 4)))
+  const score = topQuartile.reduce((sum, value) => sum + value, 0) / topQuartile.length
+  return { score: Number(score.toFixed(4)), method: 'top_quartile_spatial_palette_similarity/v2', sample_count: scores.length, individual_scores: scores }
 }
 
 export function validateGenerationBrief({ brief, decision, tasteReceipt, now = Date.now() }) {
@@ -98,6 +204,7 @@ export function validateGenerationBrief({ brief, decision, tasteReceipt, now = D
     ['teaser copy', brief.teaser_copy],
     ['title-copy contrast', brief.title_copy_contrast?.relationship],
     ['product proof', brief.product_proof?.receipt_id],
+    ['color polish plan', brief.color_polish_plan?.dominant_field],
   ]
   for (const [label, value] of requiredText) if (!value) failures.push(`missing ${label}`)
   const words = String(brief.teaser_copy ?? '').trim().split(/\s+/).filter(Boolean)
@@ -116,6 +223,8 @@ export function validateGenerationBrief({ brief, decision, tasteReceipt, now = D
   if (!preference || preference.performance_weight !== 0 || preference.evidence_role !== 'taste_calibration_only' || preference.performance_status !== 'unscored') failures.push('playlist crossed the taste-calibration-only boundary')
   if (binding.playlist_receipt_id !== tasteReceipt.receipt_id || binding.playlist_input_version !== tasteReceipt.input_version || tasteReceipt.status !== 'ready' || tasteReceipt.references?.length !== preference?.item_identities?.length) failures.push('playlist visual reference receipt is missing or stale')
   if (brief.provider?.name !== 'heygen_pro' || brief.provider?.model !== 'heygen-image-1' || brief.provider?.mode !== 'identity_remix' || !brief.provider?.identity_url || !brief.provider?.reference_url) failures.push('HeyGen provider binding is incomplete')
+  if (brief.provider?.new_call_authorized !== false) failures.push('provider-call gate is not explicitly closed')
+  if (!brief.color_polish_plan?.accent_family || !brief.color_polish_plan?.contrast_field || !brief.color_polish_plan?.subject_separation || !brief.color_polish_plan?.product_separation || !brief.color_polish_plan?.background_complexity) failures.push('color-polish plan is incomplete')
   return { status: failures.length === 0 ? 'passed' : 'blocked', failures, teaser_word_count: words.length }
 }
 
@@ -133,7 +242,9 @@ export async function buildFinalQualityReceipt({ brief, decision, tasteReceipt, 
   const feedBytes = await readFile(feedPreviewPath)
   const sourceBytes = await readFile(sourceImagePath)
   const metrics = await analyzeThumbnailRaster(bytes)
-  const similarity = playlistStyleSimilarity(metrics, tasteReceipt.references)
+  const spatialLayout = await analyzeSpatialLayout(bytes)
+  const colorPolish = await analyzeColorPolish(bytes, inspectionReceipt?.color_polish_regions)
+  const similarity = playlistStyleSimilarity(metrics, spatialLayout, tasteReceipt.references)
   const outputSha256 = sha256(bytes)
   const feedPreviewSha256 = sha256(feedBytes)
   const sourceImageSha256 = sha256(sourceBytes)
@@ -143,8 +254,15 @@ export async function buildFinalQualityReceipt({ brief, decision, tasteReceipt, 
   if (metrics.saturation < QUALITY_THRESHOLDS.saturation_min) failures.push('final raster is too desaturated')
   if (metrics.local_contrast < QUALITY_THRESHOLDS.local_contrast_min) failures.push('final raster lacks local contrast')
   if (metrics.vibrancy < QUALITY_THRESHOLDS.vibrancy_min) failures.push('final raster lacks vibrancy')
-  if (metrics.edge_density < QUALITY_THRESHOLDS.edge_density_min) failures.push('final raster lacks feed-size edge definition')
-  if (similarity.score < QUALITY_THRESHOLDS.playlist_similarity_min) failures.push('playlist visual similarity is below threshold')
+  if (similarity.score < QUALITY_THRESHOLDS.spatial_playlist_similarity_min) failures.push('spatial playlist visual similarity is below threshold')
+  if (colorPolish.foreground_background_distance < QUALITY_THRESHOLDS.foreground_background_distance_min) failures.push('foreground and background color separation is too weak')
+  if (colorPolish.text_panel_contrast_ratio < QUALITY_THRESHOLDS.text_panel_contrast_ratio_min) failures.push('text-panel contrast is too weak')
+  if (colorPolish.subject_background_distance < QUALITY_THRESHOLDS.subject_background_distance_min) failures.push('subject/background separation is too weak')
+  if (colorPolish.product_background_distance < QUALITY_THRESHOLDS.product_background_distance_min) failures.push('product-proof separation is too weak')
+  if (colorPolish.accent_saturation < QUALITY_THRESHOLDS.accent_saturation_min || colorPolish.dominant_field_saturation < QUALITY_THRESHOLDS.dominant_field_saturation_min) failures.push('dominant or accent palette lacks strength')
+  if (colorPolish.controlled_palette_count < QUALITY_THRESHOLDS.controlled_palette_min || colorPolish.controlled_palette_count > QUALITY_THRESHOLDS.controlled_palette_max) failures.push('palette is not sufficiently controlled')
+  if (colorPolish.background_edge_density > QUALITY_THRESHOLDS.background_edge_density_max) failures.push('background is visually busy')
+  if (inspectionReceipt?.feed_focal_hierarchy?.status !== 'passed' || inspectionReceipt?.feed_focal_hierarchy?.ordered_roles?.length < 3) failures.push('feed-size focal hierarchy inspection is missing or failed')
   if (faceAssessment?.area_ratio < QUALITY_THRESHOLDS.face_area_ratio_min || faceAssessment?.area_ratio > QUALITY_THRESHOLDS.face_area_ratio_max) failures.push('face prominence is outside the accepted range')
   if (faceAssessment?.visible_eye_count !== QUALITY_THRESHOLDS.visible_eye_count || faceAssessment?.eyes_unobstructed !== true) failures.push('both eyes are not clearly visible')
   if (!faceAssessment?.expression_label || /neutral|calm|reserved/i.test(faceAssessment.expression_label) || faceAssessment?.campaign_relevance?.length < 12) failures.push('facial expression is neutral or not campaign-relevant')
@@ -184,6 +302,8 @@ export async function buildFinalQualityReceipt({ brief, decision, tasteReceipt, 
     metrics,
     thresholds: QUALITY_THRESHOLDS,
     playlist_visual_similarity: similarity,
+    spatial_layout: spatialLayout,
+    color_polish: colorPolish,
     face_assessment: faceAssessment,
     post_generation_inspection_receipt_id: inspectionReceipt?.receipt_id ?? null,
     feed_copy_inspection: inspectionReceipt?.feed_copy_inspection ?? null,

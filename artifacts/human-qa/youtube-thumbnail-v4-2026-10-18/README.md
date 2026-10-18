@@ -1,6 +1,8 @@
 # YouTube thumbnail v4 Human QA
 
-Status: `PENDING VAMBAH HUMAN QA`
+Status: `REJECTED / SUPERSEDED`
+
+Vambah rejected this v4 review round because the pale-cyan treatment, muted proof treatment, and weak focal separation did not meet the curated visual bar. The passing v4 global-average receipt is preserved as failure evidence; it is not Human-QA approval. v5 replaces this packet with a spatial, semantic color-polish gate.
 
 Implementation commit: `04dad92c`
 

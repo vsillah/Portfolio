@@ -1,13 +1,13 @@
 {
-  "version": "youtube-thumbnail-selection/v4",
-  "receipt_id": "thumbnail:ai-audit:youtube-long-form:20261018:v4",
-  "supersedes_failed_receipt_id": "thumbnail:ai-audit:youtube-long-form:20261018:v3",
-  "decision_receipt_id": "decision:thumbnail:ai-audit:20261018:v3",
-  "decision_input_version": "sha256:3fbeb640d54ae863937434b615f824656ef5e3804c9bdfada5e16e5395c709c5",
-  "decision_output_version": "decision:ai-audit:20261018:v3",
-  "content_version": "2026-10-18T20:05:00.000Z",
+  "version": "youtube-thumbnail-selection/v5",
+  "receipt_id": "thumbnail:ai-audit:youtube-long-form:20261018:v5",
+  "supersedes_failed_receipt_id": "thumbnail:ai-audit:youtube-long-form:20261018:v4",
+  "decision_receipt_id": "decision:thumbnail:ai-audit:20261018:v4",
+  "decision_input_version": "sha256:4a0a679572287fffb6503bb92eb7e27ee018714faf8ac8d82b079da417fdb53e",
+  "decision_output_version": "decision:ai-audit:20261018:v4",
+  "content_version": "2026-10-18T22:42:00.000Z",
   "cohort_id": "cohort:youtube:ai-cost-audit-roi:20261018:v1",
-  "observed_at": "2026-10-18T20:18:00.000Z",
+  "observed_at": "2026-10-18T22:42:00.000Z",
   "title": "The AI Cost That Never Appears on the Invoice",
   "thumbnail_hook": "WHO OWNS THE CLEANUP?",
   "target": {
@@ -63,7 +63,7 @@
       "performance_status": "unscored"
     }
   ],
-  "selection_rationale": "A bright, surprised audit reaction and the four-word ownership question form the first read. One owned 5/10 score supplies proof. Public examples bound editorial taste only and carry zero performance weight.",
+  "selection_rationale": "A crisp ink and cyan composition separates the near-white ownership question, expressive audit reaction, and gold-framed owned score proof. Public examples bind taste only and carry zero performance weight.",
   "first_party_source": {
     "label": "AI Audit Calculator result screen",
     "artifact_url": "/review-assets/social-content/source-proof/ai-audit-calculator.png",
@@ -99,58 +99,217 @@
   },
   "composition": {
     "version": "youtube-thumbnail-composition/v1",
-    "layout_family": "bright-auditor-score-reaction",
-    "dominant_subject": "Wide-eyed Vambah audit reaction facing the owned 5/10 urgency result",
+    "layout_family": "ink-auditor-cyan-score",
+    "dominant_subject": "Wide-eyed Vambah audit reaction in a cyan-bordered card facing one gold-framed owned 5/10 result",
     "focal_hierarchy": [
+      "four-word near-white accountability question",
       "expressive audit reaction",
-      "four-word accountability question",
-      "owned 5/10 score proof"
+      "gold-framed owned 5/10 score proof"
     ],
-    "text_placement": "upper left in bright cyan field",
-    "batch_identity": "social-campaign-youtube:20261018:v4",
-    "composition_signature": "question-left|score-left|reaction-right|bright-v4",
+    "text_placement": "upper left on a solid ink field",
+    "batch_identity": "social-campaign-youtube:20261018:v5",
+    "composition_signature": "dark-copy-left|gold-score-left|cyan-reaction-right|polished-v5",
     "exception_basis": "none",
     "exception_receipt_ids": []
   },
   "generation_preflight": {
-    "receipt_id": "preflight:ai-audit:youtube-thumbnail:2026-10-18T20:05:00.000Z:v1",
+    "receipt_id": "preflight:ai-audit:youtube-thumbnail:2026-10-18T22:42:00.000Z:v1",
     "status": "passed",
-    "brief_input_version": "sha256:197d0c0031118695a1250b261c7c9719b22d205c729ddf2c8a933b2a5816505d"
+    "brief_input_version": "sha256:2b8ea57b4b685e3fae3b0811d8395ebfef682d91e4357e64485c223020610847"
   },
   "final_quality_gate": {
-    "receipt_id": "quality:ai-audit:youtube-thumbnail:2026-10-18T20:05:00.000Z:v1",
+    "receipt_id": "quality:ai-audit:youtube-thumbnail:2026-10-18T22:42:00.000Z:v1",
     "status": "passed",
-    "output_sha256": "sha256:176590e0aa890367efe69065cba065b87ac6d3f8bb94c38f7a798e6b53bc4524",
-    "feed_preview_sha256": "sha256:83b4fca796a3adbc7caba53560e731ec9aa44006210da6492fbd28cd4b9efa76",
-    "inspection_receipt_id": "inspection:ai-audit:youtube-thumbnail:20261018:v4",
+    "output_sha256": "sha256:b6c040485fd01e31744accbf8094fc585c86e165f531667aecffcbac043812af",
+    "feed_preview_sha256": "sha256:3058ab8a1ac38f496a61a9c75c937d529aff68c4a00ce3c2a7101cb84d6d8ba0",
+    "inspection_receipt_id": "inspection:ai-audit:youtube-thumbnail:20261018:v5",
     "metrics": {
       "sample_width": 320,
       "sample_height": 180,
-      "brightness": 0.6415,
-      "saturation": 0.2454,
-      "local_contrast": 0.2699,
-      "edge_density": 0.0463,
-      "vibrancy": 0.2135
+      "brightness": 0.3695,
+      "saturation": 0.1913,
+      "local_contrast": 0.321,
+      "edge_density": 0.0404,
+      "vibrancy": 0.1762
     },
     "playlist_visual_similarity": {
-      "score": 0.7726,
+      "score": 0.8849,
+      "method": "top_quartile_spatial_palette_similarity/v2",
       "sample_count": 14,
       "individual_scores": [
-        0.7724,
-        0.7294,
-        0.8559,
-        0.8447,
-        0.764,
-        0.7727,
-        0.8201,
-        0.7158,
-        0.9237,
-        0.7455,
-        0.7294,
-        0.838,
-        0.7462,
-        0.8844
+        0.8479,
+        0.7818,
+        0.7243,
+        0.8917,
+        0.8183,
+        0.9123,
+        0.7396,
+        0.68,
+        0.7544,
+        0.8877,
+        0.7563,
+        0.7401,
+        0.7859,
+        0.7965
       ]
+    },
+    "color_polish": {
+      "region_summaries": {
+        "foreground": {
+          "mean_rgb": [
+            0.9304,
+            0.6947,
+            0.5944
+          ],
+          "luminance": 0.5419,
+          "saturation": 0.3373,
+          "edge_density": 0.0375
+        },
+        "background": {
+          "mean_rgb": [
+            0.0235,
+            0.0784,
+            0.149
+          ],
+          "luminance": 0.0068,
+          "saturation": 0.1255,
+          "edge_density": 0
+        },
+        "text_foreground": {
+          "mean_rgb": [
+            0.5794,
+            0.6067,
+            0.6405
+          ],
+          "luminance": 0.5455,
+          "saturation": 0.0612,
+          "edge_density": 0.0559
+        },
+        "text_panel_background": {
+          "mean_rgb": [
+            0.0371,
+            0.0914,
+            0.1611
+          ],
+          "luminance": 0.0199,
+          "saturation": 0.1239,
+          "edge_density": 0.0015
+        },
+        "subject": {
+          "mean_rgb": [
+            0.9304,
+            0.6947,
+            0.5944
+          ],
+          "luminance": 0.5419,
+          "saturation": 0.3373,
+          "edge_density": 0.0375
+        },
+        "subject_background": {
+          "mean_rgb": [
+            0.251,
+            0.7182,
+            0.6605
+          ],
+          "luminance": 0.4209,
+          "saturation": 0.8062,
+          "edge_density": 0.0038
+        },
+        "product_proof": {
+          "mean_rgb": [
+            0.087,
+            0.1321,
+            0.1947
+          ],
+          "luminance": 0.0357,
+          "saturation": 0.1077,
+          "edge_density": 0.0149
+        },
+        "product_background": {
+          "mean_rgb": [
+            0.9524,
+            0.9224,
+            0.816
+          ],
+          "luminance": 0.8544,
+          "saturation": 0.1611,
+          "edge_density": 0.0178
+        },
+        "dominant_field": {
+          "mean_rgb": [
+            0.251,
+            0.7182,
+            0.6605
+          ],
+          "luminance": 0.4209,
+          "saturation": 0.8062,
+          "edge_density": 0.0038
+        },
+        "accent": {
+          "mean_rgb": [
+            0.8784,
+            0.7098,
+            0.1843
+          ],
+          "luminance": 0.491,
+          "saturation": 0.6941,
+          "edge_density": 0
+        }
+      },
+      "foreground_background_distance": 0.6833,
+      "text_panel_contrast_ratio": 8.52,
+      "subject_background_distance": 0.3943,
+      "product_background_distance": 0.7658,
+      "dominant_field_saturation": 0.8062,
+      "accent_saturation": 0.6941,
+      "background_edge_density": 0,
+      "controlled_palette_count": 13
+    },
+    "spatial_layout": {
+      "quadrants": [
+        {
+          "mean_rgb": [
+            0.1308,
+            0.1776,
+            0.2376
+          ],
+          "luminance": 0.097,
+          "saturation": 0.115,
+          "edge_density": 0.0503
+        },
+        {
+          "mean_rgb": [
+            0.5539,
+            0.6688,
+            0.6679
+          ],
+          "luminance": 0.5027,
+          "saturation": 0.2979,
+          "edge_density": 0.0434
+        },
+        {
+          "mean_rgb": [
+            0.1841,
+            0.217,
+            0.2414
+          ],
+          "luminance": 0.12,
+          "saturation": 0.1435,
+          "edge_density": 0.0343
+        },
+        {
+          "mean_rgb": [
+            0.4108,
+            0.4655,
+            0.4106
+          ],
+          "luminance": 0.2211,
+          "saturation": 0.2089,
+          "edge_density": 0.0329
+        }
+      ],
+      "mean_adjacent_color_separation": 0.2279,
+      "luminance_range": 0.4057
     },
     "face_assessment": {
       "method": "post_render_visual_inspection/v1",
@@ -158,7 +317,7 @@
       "visible_eye_count": 2,
       "eyes_unobstructed": true,
       "expression_label": "wide-eyed open-mouth surprise with an emphatic presenting gesture",
-      "campaign_relevance": "The visible reaction makes the hidden cleanup cost feel immediate and points back to the owned score proof."
+      "campaign_relevance": "The reaction makes the hidden cleanup cost feel immediate and points back to the owned score proof."
     },
     "feed_copy_inspection": {
       "method": "rendered_320x180_visual_transcription",
@@ -167,17 +326,17 @@
     }
   },
   "output": {
-    "artifact_url": "/review-assets/social-content/youtube-packaging/ai-audit-who-owns-the-cleanup-v4.png",
+    "artifact_url": "/review-assets/social-content/youtube-packaging/ai-audit-who-owns-the-cleanup-v5.png",
     "width": 1280,
     "height": 720,
     "aspect_ratio": "16:9",
-    "sha256": "sha256:176590e0aa890367efe69065cba065b87ac6d3f8bb94c38f7a798e6b53bc4524"
+    "sha256": "sha256:b6c040485fd01e31744accbf8094fc585c86e165f531667aecffcbac043812af"
   },
   "feed_size_preview": {
-    "artifact_url": "/review-assets/social-content/youtube-packaging/ai-audit-who-owns-the-cleanup-v4-feed-320x180.png",
+    "artifact_url": "/review-assets/social-content/youtube-packaging/ai-audit-who-owns-the-cleanup-v5-feed-320x180.png",
     "width": 320,
     "height": 180,
-    "sha256": "sha256:83b4fca796a3adbc7caba53560e731ec9aa44006210da6492fbd28cd4b9efa76",
+    "sha256": "sha256:3058ab8a1ac38f496a61a9c75c937d529aff68c4a00ce3c2a7101cb84d6d8ba0",
     "status": "passed"
   },
   "provider_generation": {

@@ -1,21 +1,21 @@
 {
   "version": "youtube-thumbnail-decision-receipt/v1",
-  "receipt_id": "decision:thumbnail:ai-audit:20261018:v3",
+  "receipt_id": "decision:thumbnail:ai-audit:20261018:v4",
   "route": "social-content-outlier-decision/v1",
   "content_version": "2026-10-18T00:00:00.000Z",
-  "input_version": "sha256:3fbeb640d54ae863937434b615f824656ef5e3804c9bdfada5e16e5395c709c5",
-  "output_version": "decision:ai-audit:20261018:v3",
+  "input_version": "sha256:4a0a679572287fffb6503bb92eb7e27ee018714faf8ac8d82b079da417fdb53e",
+  "output_version": "decision:ai-audit:20261018:v4",
   "candidate_identity": {
     "content_id": "3dad4cca-72b7-4705-8fb6-273bf7500ce6",
     "title": "The AI Cost That Never Appears on the Invoice",
     "thumbnail_hook": "WHO OWNS THE CLEANUP?",
     "product_proof_receipt_id": "sha256:bef9eeb1d8d15f7b4197bb03240c27a3b6b96fe114ce06f4c7027690c3e49b97",
-    "composition_signature": "question-left|score-left|reaction-right|bright-v4"
+    "composition_signature": "dark-copy-left|gold-score-left|cyan-reaction-right|polished-v5"
   },
   "live_evidence": {
     "cohort_id": "cohort:youtube:ai-cost-audit-roi:20261018:v1",
-    "observed_at": "2026-10-18T20:18:00.000Z",
-    "fresh_until": "2026-11-01T20:18:00.000Z",
+    "observed_at": "2026-10-18T22:42:00.000Z",
+    "fresh_until": "2026-11-01T22:42:00.000Z",
     "minimum_sample_size": 6,
     "normalization_formula": [
       "source exact views / same-channel recent long-form median exact views",
@@ -33,7 +33,7 @@
         "view_count": 555,
         "subscriber_count": 15,
         "published_at": "2026-07-09T13:23:56.000Z",
-        "observed_at": "2026-10-18T20:18:00.000Z",
+        "observed_at": "2026-10-18T22:42:00.000Z",
         "channel_baseline_size": 4,
         "normalized_performance_score": 85,
         "outlier_qualified": true
@@ -46,7 +46,7 @@
         "view_count": 2098,
         "subscriber_count": 1930,
         "published_at": "2026-02-12T22:59:25.000Z",
-        "observed_at": "2026-10-18T20:18:00.000Z",
+        "observed_at": "2026-10-18T22:42:00.000Z",
         "channel_baseline_size": 10,
         "normalized_performance_score": 70,
         "outlier_qualified": false
@@ -59,7 +59,7 @@
         "view_count": 29,
         "subscriber_count": 1,
         "published_at": "2026-09-05T02:05:58.000Z",
-        "observed_at": "2026-10-18T20:18:00.000Z",
+        "observed_at": "2026-10-18T22:42:00.000Z",
         "channel_baseline_size": 5,
         "normalized_performance_score": 56.66,
         "outlier_qualified": false
@@ -72,7 +72,7 @@
         "view_count": 37698,
         "subscriber_count": 1080000,
         "published_at": "2025-11-30T14:02:50.000Z",
-        "observed_at": "2026-10-18T20:18:00.000Z",
+        "observed_at": "2026-10-18T22:42:00.000Z",
         "channel_baseline_size": 10,
         "normalized_performance_score": 38.33,
         "outlier_qualified": false
@@ -85,7 +85,7 @@
         "view_count": 38,
         "subscriber_count": 2370,
         "published_at": "2026-09-20T17:06:08.000Z",
-        "observed_at": "2026-10-18T20:18:00.000Z",
+        "observed_at": "2026-10-18T22:42:00.000Z",
         "channel_baseline_size": 10,
         "normalized_performance_score": 31.67,
         "outlier_qualified": false
@@ -98,7 +98,7 @@
         "view_count": 2,
         "subscriber_count": 3,
         "published_at": "2026-09-18T16:00:15.000Z",
-        "observed_at": "2026-10-18T20:18:00.000Z",
+        "observed_at": "2026-10-18T22:42:00.000Z",
         "channel_baseline_size": 10,
         "normalized_performance_score": 18.33,
         "outlier_qualified": false
@@ -111,7 +111,7 @@
         "view_count": 41,
         "subscriber_count": 3,
         "published_at": "2026-09-28T16:50:45.000Z",
-        "observed_at": "2026-10-18T20:18:00.000Z",
+        "observed_at": "2026-10-18T22:42:00.000Z",
         "channel_baseline_size": null,
         "normalized_performance_score": null,
         "outlier_qualified": false
@@ -124,7 +124,7 @@
         "view_count": 2,
         "subscriber_count": null,
         "published_at": "2026-09-20T23:15:15.000Z",
-        "observed_at": "2026-10-18T20:18:00.000Z",
+        "observed_at": "2026-10-18T22:42:00.000Z",
         "channel_baseline_size": null,
         "normalized_performance_score": null,
         "outlier_qualified": false
@@ -137,7 +137,7 @@
         "view_count": 2,
         "subscriber_count": 2,
         "published_at": "2026-09-21T00:00:38.000Z",
-        "observed_at": "2026-10-18T20:18:00.000Z",
+        "observed_at": "2026-10-18T22:42:00.000Z",
         "channel_baseline_size": 10,
         "normalized_performance_score": null,
         "outlier_qualified": false
@@ -261,7 +261,7 @@
   ],
   "selection": {
     "status": "ready",
-    "selected_composition": "bright-auditor-score-reaction",
+    "selected_composition": "ink-auditor-cyan-score",
     "title_thumbnail_relationship": "contrasting_question",
     "product_proof_binding": "sha256:bef9eeb1d8d15f7b4197bb03240c27a3b6b96fe114ce06f4c7027690c3e49b97",
     "rationale": "Live topic evidence controls qualification and threshold status. The saved playlist contributes taste calibration only, with zero performance weight. First-party product proof controls the selected composition."

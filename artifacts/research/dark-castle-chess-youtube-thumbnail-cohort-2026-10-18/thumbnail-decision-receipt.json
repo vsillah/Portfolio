@@ -1,21 +1,21 @@
 {
   "version": "youtube-thumbnail-decision-receipt/v1",
-  "receipt_id": "decision:thumbnail:dark-castle:20261018:v3",
+  "receipt_id": "decision:thumbnail:dark-castle:20261018:v4",
   "route": "social-content-outlier-decision/v1",
   "content_version": "2026-10-18T00:00:00.000Z",
-  "input_version": "sha256:f6fd330206382219000b8f08f85d363103ecb2a764b1b13d32f808f082f62c41",
-  "output_version": "decision:dark-castle:20261018:v3",
+  "input_version": "sha256:f8c45b1d0e4a369498b560489b576d7c4732a8e50518646a157a799a50bd4b20",
+  "output_version": "decision:dark-castle:20261018:v4",
   "candidate_identity": {
     "content_id": "c12378f2-36de-4bf7-8c5d-0ce754e727eb",
     "title": "I Rebuilt the Chess Lesson Around the Decision",
     "thumbnail_hook": "REMEMBER THE WHY",
     "product_proof_receipt_id": "sha256:e15d744685990933555575d6a3c7bc18100af901a766c9a81d4ab9b1cc827d78",
-    "composition_signature": "teacher-left|board-right|hook-upper-right|bright-v4b"
+    "composition_signature": "teacher-card-left|navy-hook-top-right|gold-board-proof-bottom-right|polished-v5"
   },
   "live_evidence": {
     "cohort_id": "cohort:youtube:chess-decision-learning:20261018:v1",
-    "observed_at": "2026-10-18T20:18:00.000Z",
-    "fresh_until": "2026-11-01T20:18:00.000Z",
+    "observed_at": "2026-10-18T22:42:00.000Z",
+    "fresh_until": "2026-11-01T22:42:00.000Z",
     "minimum_sample_size": 6,
     "normalization_formula": [
       "source exact views / same-channel recent long-form median exact views",
@@ -33,7 +33,7 @@
         "view_count": 883018,
         "subscriber_count": 14600,
         "published_at": "2025-12-17T13:49:14.000Z",
-        "observed_at": "2026-10-18T20:18:00.000Z",
+        "observed_at": "2026-10-18T22:42:00.000Z",
         "channel_baseline_size": 10,
         "normalized_performance_score": 88.75,
         "outlier_qualified": true
@@ -46,7 +46,7 @@
         "view_count": 4060677,
         "subscriber_count": 87600,
         "published_at": "2024-06-30T16:00:20.000Z",
-        "observed_at": "2026-10-18T20:18:00.000Z",
+        "observed_at": "2026-10-18T22:42:00.000Z",
         "channel_baseline_size": 10,
         "normalized_performance_score": 83.75,
         "outlier_qualified": true
@@ -59,7 +59,7 @@
         "view_count": 23606,
         "subscriber_count": 722,
         "published_at": "2026-10-09T18:15:03.000Z",
-        "observed_at": "2026-10-18T20:18:00.000Z",
+        "observed_at": "2026-10-18T22:42:00.000Z",
         "channel_baseline_size": 10,
         "normalized_performance_score": 66.25,
         "outlier_qualified": false
@@ -72,7 +72,7 @@
         "view_count": 574075,
         "subscriber_count": 19000,
         "published_at": "2026-05-03T14:45:47.000Z",
-        "observed_at": "2026-10-18T20:18:00.000Z",
+        "observed_at": "2026-10-18T22:42:00.000Z",
         "channel_baseline_size": 10,
         "normalized_performance_score": 48.75,
         "outlier_qualified": false
@@ -85,7 +85,7 @@
         "view_count": 876688,
         "subscriber_count": 992000,
         "published_at": "2025-03-03T13:56:26.000Z",
-        "observed_at": "2026-10-18T20:18:00.000Z",
+        "observed_at": "2026-10-18T22:42:00.000Z",
         "channel_baseline_size": 10,
         "normalized_performance_score": 42.5,
         "outlier_qualified": false
@@ -98,7 +98,7 @@
         "view_count": 70995,
         "subscriber_count": 14600,
         "published_at": "2025-10-01T05:44:50.000Z",
-        "observed_at": "2026-10-18T20:18:00.000Z",
+        "observed_at": "2026-10-18T22:42:00.000Z",
         "channel_baseline_size": 10,
         "normalized_performance_score": 38.75,
         "outlier_qualified": false
@@ -111,7 +111,7 @@
         "view_count": 60982,
         "subscriber_count": 19000,
         "published_at": "2026-04-24T19:22:04.000Z",
-        "observed_at": "2026-10-18T20:18:00.000Z",
+        "observed_at": "2026-10-18T22:42:00.000Z",
         "channel_baseline_size": 10,
         "normalized_performance_score": 18.75,
         "outlier_qualified": false
@@ -124,7 +124,7 @@
         "view_count": 71090,
         "subscriber_count": 992000,
         "published_at": "2025-07-04T13:45:07.000Z",
-        "observed_at": "2026-10-18T20:18:00.000Z",
+        "observed_at": "2026-10-18T22:42:00.000Z",
         "channel_baseline_size": 10,
         "normalized_performance_score": 12.5,
         "outlier_qualified": false
@@ -247,7 +247,7 @@
   ],
   "selection": {
     "status": "ready",
-    "selected_composition": "bright-teacher-decision-point",
+    "selected_composition": "navy-teacher-gold-decision",
     "title_thumbnail_relationship": "complementary_teaser",
     "product_proof_binding": "sha256:e15d744685990933555575d6a3c7bc18100af901a766c9a81d4ab9b1cc827d78",
     "rationale": "Live topic evidence controls qualification and threshold status. The saved playlist contributes taste calibration only, with zero performance weight. First-party product proof controls the selected composition."
