@@ -53,6 +53,7 @@ import ChannelExperimentSocialReview, { getChannelExperimentSocialReview } from 
 import SocialVideoProductionControls from '@/components/admin/SocialVideoProductionControls'
 import ArtifactEvidenceTrace from '@/components/admin/ArtifactEvidenceTrace'
 import OutlierEvidenceScorecard from '@/components/admin/OutlierEvidenceScorecard'
+import { validateYouTubePackagingEvidence, type YouTubePackagingTarget } from '@/lib/artifact-evidence-manifest'
 import type { SocialVideoReviewPackage } from '@/lib/social-video-review-package'
 import type { HeyGenLongFormProductionRecipe } from '@/lib/heygen-long-form-production-recipe'
 import { getCurrentSession } from '@/lib/auth'
@@ -773,6 +774,7 @@ function SocialContentDetailPage() {
   const youtubeDescriptionCompletionQaFixture = searchParams.get('qa_fixture') === YOUTUBE_DESCRIPTION_COMPLETION_FIXTURE
   const readOnlyYouTubeQaFixture = channelExperimentQaFixture || youtubeDescriptionCompletionQaFixture
   const videoPackageQaState = searchParams.get('video_package_state') === 'blocked' ? 'blocked' : 'ready'
+  const packagingQaState = searchParams.get('packaging_state') === 'missing_thumbnail' ? 'missing_thumbnail' : 'bound'
   const recoveryStep: ApprovalStep = isApprovalStep(rawRecoveryStep) ? rawRecoveryStep : 'copy'
   const recoveryStepParams = new URLSearchParams(searchParams.toString())
   recoveryStepParams.set('step', recoveryStep)
@@ -1049,7 +1051,7 @@ function SocialContentDetailPage() {
         : youtubeDescriptionCompletionQaFixture
           ? `?qa_fixture=${YOUTUBE_DESCRIPTION_COMPLETION_FIXTURE}`
         : channelNativeQaFixture
-          ? `?qa_fixture=channel_native_video_v2&video_package_state=${videoPackageQaState}`
+          ? `?qa_fixture=channel_native_video_v2&video_package_state=${videoPackageQaState}&packaging_state=${packagingQaState}`
           : ''
       const res = await fetch(`/api/admin/social-content/${id}${detailQuery}`, {
         cache: 'no-store',
@@ -1123,7 +1125,7 @@ function SocialContentDetailPage() {
     } finally {
       if (!options.silent) setLoading(false)
     }
-  }, [channelExperimentQaFixture, channelNativeQaFixture, deterministicVisualQaState, fetchCommentInboxItems, fetchReviewQueue, id, readOnlyLocalChannelVideoQaFixture, videoPackageQaState, youtubeDescriptionCompletionQaFixture])
+  }, [channelExperimentQaFixture, channelNativeQaFixture, deterministicVisualQaState, fetchCommentInboxItems, fetchReviewQueue, id, packagingQaState, readOnlyLocalChannelVideoQaFixture, videoPackageQaState, youtubeDescriptionCompletionQaFixture])
 
   useEffect(() => {
     fetchItem()
@@ -2985,6 +2987,12 @@ function SocialContentDetailPage() {
   const socialVideoProduction = item.social_video_production
   const isYouTubeTarget = item.platform === 'youtube' || targetPlatforms.includes('youtube')
   const channelVideoPacket = getChannelVideoPacket(item)
+  const youtubePackagingTarget: YouTubePackagingTarget | null = channelVideoPacket
+    ? channelVideoPacket.channelLabel === 'YouTube Shorts' ? 'youtube_shorts' : 'youtube'
+    : null
+  const youtubePackagingEvidence = youtubePackagingTarget
+    ? validateYouTubePackagingEvidence(artifactEvidenceManifest, item.updated_at, youtubePackagingTarget)
+    : null
   const channelExperimentReview = getChannelExperimentSocialReview(item)
   const socialVideoReviewPackage = asRecord(ragContext?.social_video_review_package) as SocialVideoReviewPackage | null
   const heygenLongFormRecipe = asRecord(ragContext?.heygen_long_form_production_recipe) as HeyGenLongFormProductionRecipe | null
@@ -3405,8 +3413,12 @@ function SocialContentDetailPage() {
       && deterministicVisualOperatorState !== 'rendered_current'
       && !deterministicVisualRender?.can_render
     )
-  const assetPacketBaseGateState: GateState = productionAssets || agentifiedVisualQaPacket || channelVideoPacket ? 'in_review' : 'pending'
-  const assetPacketGateState: GateState = getExplicitSectionGateState('asset_packet', assetPacketBaseGateState)
+  const assetPacketBaseGateState: GateState = channelVideoPacket && !youtubePackagingEvidence?.ready
+    ? 'blocked'
+    : productionAssets || agentifiedVisualQaPacket || channelVideoPacket ? 'in_review' : 'pending'
+  const assetPacketGateState: GateState = channelVideoPacket && !youtubePackagingEvidence?.ready
+    ? 'blocked'
+    : getExplicitSectionGateState('asset_packet', assetPacketBaseGateState)
   const assetPacketRejected = assetPacketGateState === 'rejected'
   const privacyBaseGateState: GateState = productionAssets
     ? (redactionGate.ready ? 'in_review' : 'blocked')
@@ -3416,6 +3428,7 @@ function SocialContentDetailPage() {
   const privacyGateState: GateState = getExplicitSectionGateState('privacy', privacyBaseGateState)
   const privacyRejected = privacyGateState === 'rejected'
   const assetPacketReady = Boolean(productionAssets || agentifiedVisualQaPacket || channelVideoPacket)
+    && (!channelVideoPacket || youtubePackagingEvidence?.ready === true)
   const channelVideoPrivacyReceipt = asRecord(asRecord(channelVideoPacket?.receipts)?.privacy)
   const channelVideoPrivacyReady = asString(channelVideoPrivacyReceipt?.status) === 'passed'
   const visualPrivacyReady = productionAssets ? redactionGate.ready : channelVideoPacket ? channelVideoPrivacyReady : agentifiedVisualPrivacyReady
@@ -6349,7 +6362,7 @@ function SocialContentDetailPage() {
                 className="scroll-mt-64 space-y-4"
               >
                 {persistedCurrentGate === 'asset_packet' && (
-                  <section aria-label="Jev asset packet current gate" className="rounded-xl border border-blue-600/35 bg-blue-500/10 p-4 text-blue-950 dark:border-blue-400/35 dark:text-blue-50">
+                  <section aria-label="Jev asset packet current gate" className={`rounded-xl border p-4 ${youtubePackagingEvidence?.ready ? 'border-blue-600/35 bg-blue-500/10 text-blue-950 dark:border-blue-400/35 dark:text-blue-50' : 'border-red-600/35 bg-red-500/10 text-red-950 dark:border-red-400/35 dark:text-red-50'}`}>
                     <p className="text-xs font-semibold uppercase tracking-[0.14em]">Current internal review</p>
                     <h2 className="mt-1 text-lg font-semibold">Asset packet review</h2>
                     <div className="mt-3 flex flex-wrap gap-2 text-xs">
@@ -6357,10 +6370,12 @@ function SocialContentDetailPage() {
                       <span className={`rounded-full border px-2.5 py-1 font-semibold ${calendarPreparationReady ? 'border-emerald-600/40 bg-emerald-500/10 text-emerald-900 dark:text-emerald-100' : 'border-amber-600/40 bg-amber-500/10 text-amber-950 dark:text-amber-100'}`}>
                         Calendar preparation: {calendarPreparationReady ? 'ready' : 'pending'}
                       </span>
-                      <span className="rounded-full border border-blue-600/40 bg-blue-500/10 px-2.5 py-1 font-semibold text-blue-950 dark:text-blue-100">Current gate: asset packet</span>
+                      <span className={`rounded-full border px-2.5 py-1 font-semibold ${youtubePackagingEvidence?.ready ? 'border-blue-600/40 bg-blue-500/10 text-blue-950 dark:text-blue-100' : 'border-red-600/40 bg-red-500/10 text-red-950 dark:text-red-100'}`}>Current gate: asset packet · {youtubePackagingEvidence?.ready ? 'evidence ready' : 'blocked'}</span>
                     </div>
-                    <p className="mt-3 text-sm leading-6 text-blue-900/85 dark:text-blue-100/80">
-                      The approved, version-bound Jev package and linked calendar preparation are ready for internal review. This state does not enable providers, uploads, platform drafts, scheduling, publishing, credential changes, privacy-boundary changes, or external sends.
+                    <p className="mt-3 text-sm leading-6">
+                      {youtubePackagingEvidence?.ready
+                        ? 'The version-bound Jev title and actual thumbnail have current scored evidence for internal review.'
+                        : 'The Jev package remains on hold until the title and actual thumbnail both have current, attributable, fully scored evidence.'} This state does not enable providers, uploads, platform drafts, scheduling, publishing, credential changes, privacy-boundary changes, or external sends.
                     </p>
                   </section>
                 )}
@@ -6369,6 +6384,7 @@ function SocialContentDetailPage() {
                   <ArtifactEvidenceTrace
                     manifest={artifactEvidenceManifest}
                     currentContentVersion={item.updated_at}
+                    packagingTarget={youtubePackagingTarget ?? undefined}
                     recordedSnapshot={recordedMobileDecision?.artifact_manifest_snapshot ?? item.recorded_internal_decision_receipt?.artifact_manifest_snapshot}
                   />
                 ) : null}
@@ -7684,6 +7700,7 @@ function SocialContentDetailPage() {
           <ArtifactEvidenceTrace
             manifest={artifactEvidenceManifest}
             currentContentVersion={item.updated_at}
+            packagingTarget={youtubePackagingTarget ?? undefined}
             recordedSnapshot={recordedMobileDecision?.artifact_manifest_snapshot ?? item.recorded_internal_decision_receipt?.artifact_manifest_snapshot}
           />
         </div>

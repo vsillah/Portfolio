@@ -230,7 +230,7 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(screen.queryByText('LinkedIn optimal: 150-300 words')).not.toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Open canonical Decision Queue' })).toHaveAttribute('href', '/admin/agents/coordination?proposal=24651a05-c8e5-4dd7-82fb-682e0223ee97')
     expect(fetch).toHaveBeenCalledWith(
-      '/api/admin/social-content/social-1?qa_fixture=channel_native_video_v2&video_package_state=ready',
+      '/api/admin/social-content/social-1?qa_fixture=channel_native_video_v2&video_package_state=ready&packaging_state=bound',
       expect.objectContaining({ cache: 'no-store' }),
     )
   })
@@ -409,7 +409,14 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(document.querySelectorAll('#social-asset-packet-gate')).toHaveLength(1)
     expect(assetPacketGate).toHaveTextContent('Social Content: approved')
     expect(assetPacketGate).toHaveTextContent('Calendar preparation: ready')
-    expect(assetPacketGate).toHaveTextContent('Current gate: asset packet')
+    expect(assetPacketGate).toHaveTextContent('Current gate: asset packet · evidence ready')
+    expect(assetPacketGate).toHaveTextContent('current scored evidence for internal review')
+
+    const packaging = screen.getByLabelText('YouTube Shorts packaging evidence')
+    expect(within(packaging).getAllByText('AI Scored It. Who Makes the Call?')[0]).toBeVisible()
+    expect(within(packaging).getAllByText('WHEN SHOULD AI STOP?')[0]).toBeVisible()
+    expect(within(packaging).getByAltText(/YouTube Shorts bound thumbnail/i)).toHaveAttribute('src', expect.stringContaining('jev-youtube-short-thumbnail-v5.png'))
+    expect(within(packaging).getByRole('status')).toHaveTextContent('Asset-package evidence ready')
 
     const channelReview = screen.getByLabelText('YouTube Shorts channel-native video review')
     for (const action of ['Provider generation', 'Provider upload', 'Platform draft', 'Scheduling', 'Publishing', 'External send']) {
@@ -417,9 +424,26 @@ describe('SocialContentDetailRoute visual production review', () => {
     }
     expect(screen.queryByRole('region', { name: 'Copy review decision gate' })).not.toBeInTheDocument()
     expect(fetchMock).toHaveBeenCalledWith(
-      '/api/admin/social-content/f966123f-05eb-48ec-a7c2-970afce642ef?qa_fixture=channel_native_video_v2&video_package_state=ready',
+      '/api/admin/social-content/f966123f-05eb-48ec-a7c2-970afce642ef?qa_fixture=channel_native_video_v2&video_package_state=ready&packaging_state=bound',
       expect.objectContaining({ cache: 'no-store' }),
     )
+  })
+
+  it('fails the Jev asset-package review closed when the actual thumbnail binding is absent', async () => {
+    mocks.id = 'f966123f-05eb-48ec-a7c2-970afce642ef'
+    mocks.search = 'step=visuals&review=mobile&qa_fixture=channel_native_video_v2&packaging_state=missing_thumbnail'
+    const youtubeItem = channelNativeVideoQaFixture('f966123f-05eb-48ec-a7c2-970afce642ef', 'ready', 'missing_thumbnail')
+    vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, json: async () => ({ item: youtubeItem }) } as Response)))
+
+    render(<SocialContentDetailRoute />)
+
+    const gate = await screen.findByLabelText('Jev asset packet current gate')
+    expect(gate).toHaveTextContent('Current gate: asset packet · blocked')
+    const packaging = screen.getByLabelText('YouTube Shorts packaging evidence')
+    expect(within(packaging).getByRole('status')).toHaveTextContent('Asset package blocked')
+    expect(within(packaging).getByRole('img', { name: 'YouTube Shorts thumbnail missing' })).toBeVisible()
+    expect(within(packaging).getByRole('alert')).toHaveTextContent('Thumbnail evidence is missing its actual bound review asset.')
+    expect(within(packaging).getByRole('alert')).toHaveTextContent('A brief or poster alone is not sufficient.')
   })
 
   it('fails the artifact evidence gate with an actionable music-rights recovery reason', async () => {
@@ -431,7 +455,8 @@ describe('SocialContentDetailRoute visual production review', () => {
     render(<SocialContentDetailRoute />)
 
     const trace = await screen.findByTestId('artifact-evidence-trace')
-    const alert = within(trace).getByRole('alert')
+    const alert = within(trace).getByText('Evidence gate blocked').closest('[role="alert"]')
+    expect(alert).not.toBeNull()
     expect(alert).toHaveTextContent(/Music bed is customer-facing but lacks a passing rights\/privacy receipt/i)
   })
 

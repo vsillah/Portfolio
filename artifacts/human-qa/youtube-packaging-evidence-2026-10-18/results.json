@@ -1,0 +1,19 @@
+{
+  "revision": "dcbcb091",
+  "baseUrl": "http://127.0.0.1:3128",
+  "boundUrl": "http://127.0.0.1:3128/admin/social-content/f966123f-05eb-48ec-a7c2-970afce642ef?step=visuals&review=mobile&qa_fixture=channel_native_video_v2&video_package_state=ready&rev=dcbcb091&packaging_state=bound",
+  "missingUrl": "http://127.0.0.1:3128/admin/social-content/f966123f-05eb-48ec-a7c2-970afce642ef?step=visuals&review=mobile&qa_fixture=channel_native_video_v2&video_package_state=ready&rev=dcbcb091&packaging_state=missing_thumbnail",
+  "screenshots": [
+    "jev-packaging-bound-desktop-1440.png",
+    "jev-packaging-cohort-desktop-1440.png",
+    "jev-packaging-missing-thumbnail-desktop-1440.png",
+    "jev-packaging-bound-mobile-390.png",
+    "jev-packaging-missing-thumbnail-mobile-390.png"
+  ],
+  "mp4": "youtube-packaging-evidence-walkthrough.mp4",
+  "viewports": [
+    "1440x900",
+    "390x844"
+  ],
+  "externalActionsEnabled": 0
+}

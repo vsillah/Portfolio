@@ -193,10 +193,13 @@ export async function GET(
       && isChannelNativeVideoQaFixtureId(id)
     ) {
       const videoPackageState = request.nextUrl.searchParams.get('video_package_state') === 'blocked' ? 'blocked' : 'ready'
+      const packagingState = request.nextUrl.searchParams.get('packaging_state') === 'missing_thumbnail' ? 'missing_thumbnail' : 'bound'
       return NextResponse.json({
-        item: channelNativeVideoQaFixture(id, videoPackageState),
+        item: channelNativeVideoQaFixture(id, videoPackageState, packagingState),
         fixture: true,
-        fixture_state: videoPackageState === 'blocked' ? 'repository_bound_review_blocked' : 'repository_bound_review',
+        fixture_state: packagingState === 'missing_thumbnail'
+          ? 'repository_bound_review_missing_thumbnail'
+          : videoPackageState === 'blocked' ? 'repository_bound_review_blocked' : 'repository_bound_review',
         integration_note: 'Development-only privacy-safe fixture. It does not read or write production data, call providers, upload media, create platform drafts, schedule, publish, send externally, change credentials, or spend money.',
       })
     }
@@ -221,10 +224,13 @@ export async function GET(
 
     if (request.nextUrl.searchParams.get('qa_fixture') === 'channel_native_video_v2' && isChannelNativeVideoQaFixtureId(id)) {
       const videoPackageState = request.nextUrl.searchParams.get('video_package_state') === 'blocked' ? 'blocked' : 'ready'
+      const packagingState = request.nextUrl.searchParams.get('packaging_state') === 'missing_thumbnail' ? 'missing_thumbnail' : 'bound'
       return NextResponse.json({
-        item: channelNativeVideoQaFixture(id, videoPackageState),
+        item: channelNativeVideoQaFixture(id, videoPackageState, packagingState),
         fixture: true,
-        fixture_state: videoPackageState === 'blocked' ? 'repository_bound_review_blocked' : 'repository_bound_review',
+        fixture_state: packagingState === 'missing_thumbnail'
+          ? 'repository_bound_review_missing_thumbnail'
+          : videoPackageState === 'blocked' ? 'repository_bound_review_blocked' : 'repository_bound_review',
         integration_note: 'Explicit read-only Human-QA binding to the repository video packet. It does not write shared data, call providers, upload media, create platform drafts, schedule, publish, send externally, change credentials, or spend money.',
       })
     }

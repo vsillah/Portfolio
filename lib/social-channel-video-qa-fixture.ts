@@ -3,13 +3,16 @@ import darkCastleReceipt from '@/artifacts/human-qa/artifact-video-review-2026-1
 import jevPacket from '@/artifacts/human-qa/artifact-video-review-2026-10-14/inputs/jev.json'
 import jevReceipt from '@/artifacts/human-qa/artifact-video-review-2026-10-14/jev-provider-none-review.receipt.json'
 import jevSocialVideoReviewPackage from '@/artifacts/human-qa/artifact-video-review-2026-10-14/inputs/jev-social-video-review-package-v1.json'
+import jevYouTubeTitlePackage from '@/artifacts/human-qa/artifact-video-review-2026-10-14/jev-youtube-presenter-first/jev-youtube-title-subject-package.json'
+import jevThumbnailCohort from '@/artifacts/research/jev-youtube-shorts-thumbnail-cohort-2026-10-18/cohort.json'
+import jevThumbnailSelection from '@/artifacts/research/jev-youtube-shorts-thumbnail-cohort-2026-10-18/thumbnail-selection-receipt.json'
 import type {
   ArtifactEvaluationDimension,
   ArtifactEvaluationDimensionKey,
   ArtifactEvaluationKind,
   ArtifactEvaluationReceipt,
 } from '@/lib/artifact-evidence-evaluation'
-import type { ArtifactEvidenceCategory, ArtifactEvidenceManifest } from '@/lib/artifact-evidence-manifest'
+import type { ArtifactEvidenceCategory, ArtifactEvidenceManifest, ThumbnailResearchCohort } from '@/lib/artifact-evidence-manifest'
 import {
   HEYGEN_CAPABILITY_SNAPSHOT_VERSION,
   HEYGEN_LONG_FORM_RECIPE_VERSION,
@@ -162,6 +165,9 @@ function artifactEvidenceManifest(input: {
   totalClaimCount: number
   approvedProductEvidenceCount: number
   requiredProductEvidenceCount: number
+  packagingTitle: string
+  packagingHeadline: string
+  packagingThumbnailUrl: string | null
 }): ArtifactEvidenceManifest {
   const manifestId = `artifact-manifest:${input.productId}:youtube-shorts:v1`
   const researchReceiptId = input.researchPacketId ? `research_packet:${input.researchPacketId}` : input.sourceReceiptId
@@ -260,6 +266,184 @@ function artifactEvidenceManifest(input: {
       source_receipts: [sourceLink, voiceLink, visualLink, challengerLink],
     },
   })
+  const cohortLink = { receipt_id: jevThumbnailCohort.cohort_id, href: `/admin/agents/content-intelligence?section=research&packet=${encodeURIComponent(jevThumbnailCohort.cohort_id)}` }
+  const baselineLink = { receipt_id: jevThumbnailSelection.baseline_receipt_id, href: `/admin/social-content?section=evidence&receipt=${encodeURIComponent(jevThumbnailSelection.baseline_receipt_id)}` }
+  const selectionLink = { receipt_id: jevThumbnailSelection.receipt_id, href: decisionHref }
+  const packagingResearchCohort = (): ThumbnailResearchCohort => ({
+    cohort_id: jevThumbnailCohort.cohort_id,
+    target: 'YouTube Shorts · AI governance / human decision ownership · 15–60 seconds',
+    observed_at: jevThumbnailCohort.observed_at,
+    sample_size: jevThumbnailCohort.selection_gate.qualified_sample_size,
+    minimum_sample_size: jevThumbnailCohort.selection_gate.minimum_sample_size,
+    outlier_rule: jevThumbnailCohort.outlier_qualification.rule,
+    outlier_sample_size: jevThumbnailCohort.outlier_qualification.qualified_sample_size,
+    formula: Object.values(jevThumbnailCohort.formula),
+    recurring_visual_traits: jevThumbnailCohort.recurring_visual_traits,
+    adopted_traits: [
+      'Approved expressive Vambah subject as the dominant human anchor.',
+      'Short governance-boundary hook: WHEN SHOULD AI STOP?',
+      'One approved Jev interface crop as concrete product proof.',
+      '1080×1920 9:16 Short frame with AmaduTown navy, yellow, coral, depth, and portrait logo treatment.',
+    ],
+    rejected_traits: [
+      'No composition trait is attributed to the two visually dissimilar public outliers.',
+      'No copied public-source pixels, wording, creator likenesses, or layouts.',
+      'No generic AI imagery, internal labels, methodology copy, receipt language, or candidate-performance claim.',
+    ],
+    composition_decision: 'Use first-party assets for subject, product proof, aspect ratio, and brand treatment. Use the live topic cohort only for attributable contemporary copy-pair context. Present WHEN SHOULD AI STOP? as one review-only contrasting question; keep its performance effect Unscored.',
+    public_outlier_boundary: 'All eight included public Shorts are topic-specific copy-pair evidence and performance context only. They contribute zero brand, subject, aspect-ratio, or candidate design-fit authority.',
+    first_party_neighbors: [
+      { id: 'first-party-short', label: 'Approved AmaduTown Short baseline', artifact_url: '/review-assets/social-content/jev-first-party-baselines/approved-short-baseline.png', source_url: '/review-assets/social-content/jev-first-party-baselines/approved-short-baseline.png', link_status: 'verified_openable', supports_candidate_composition: true, support_reason: 'Supports the 9:16 frame, expressive subject, short tension hook, one product object, and AmaduTown contrast treatment.', width: 1080, height: 1920, aspect_ratio: '9:16' },
+      { id: 'first-party-steal', label: 'Steal This first-party thumbnail', artifact_url: '/review-assets/social-content/jev-first-party-baselines/steal-this.png', source_url: '/review-assets/social-content/jev-first-party-baselines/steal-this.png', link_status: 'verified_openable', supports_candidate_composition: true, support_reason: 'Supports the large human anchor, concise hook, and visible workflow proof.', width: null, height: null, aspect_ratio: null },
+      { id: 'first-party-struggle', label: 'Struggle to System first-party thumbnail', artifact_url: '/review-assets/social-content/jev-first-party-baselines/struggle-to-system.png', source_url: '/review-assets/social-content/jev-first-party-baselines/struggle-to-system.png', link_status: 'verified_openable', supports_candidate_composition: true, support_reason: 'Supports the bold tension-led headline and AmaduTown brand contrast; it does not determine the Short aspect ratio.', width: null, height: null, aspect_ratio: null },
+    ],
+    candidate: { id: 'jev-candidate-v5', label: 'Jev 9:16 complementary variant', artifact_url: jevThumbnailSelection.output.public_path, source_url: jevThumbnailSelection.output.public_path, link_status: 'verified_openable', supports_candidate_composition: true, support_reason: 'Review-only contrasting-question variant bound to the v5 receipt at 1080×1920.', width: jevThumbnailSelection.output.width, height: jevThumbnailSelection.output.height, aspect_ratio: jevThumbnailSelection.output.aspect_ratio },
+    element_bindings: [
+      { element: 'subject', source_label: 'Approved Vambah subject', source_url: '/review-assets/social-content/jev-first-party-baselines/approved-short-baseline.png', link_status: 'verified_openable', support: 'supports', limitation: 'Supports the human anchor only; it does not support the exact hook, Jev claim, or public performance.' },
+      { element: 'hook', source_label: 'Live guardrail and breach examples plus first-party voice', source_url: 'https://www.youtube.com/shorts/usE8BPWET3M', link_status: 'verified_openable', support: 'supports', limitation: 'Supports the editorial hypothesis behind WHEN SHOULD AI STOP? only. It does not support a performance prediction, brand treatment, or copied wording.' },
+      { element: 'product_proof', source_label: 'Jev product lineage', source_url: sourceHref, link_status: 'verified_openable', support: 'supports', limitation: 'Supports the visible score, policy-band, and human-ownership interface only; it does not support audience performance.' },
+      { element: 'aspect_ratio', source_label: 'Approved 9:16 Short baseline', source_url: '/review-assets/social-content/jev-first-party-baselines/approved-short-baseline.png', link_status: 'verified_openable', support: 'supports', limitation: 'Supports 1080×1920 9:16. Landscape treatment is not approved for this 22-second Short.' },
+      { element: 'brand_treatment', source_label: 'AmaduTown first-party baselines', source_url: '/review-assets/social-content/jev-first-party-baselines/steal-this.png', link_status: 'verified_openable', support: 'supports', limitation: 'Supports navy, yellow, coral, portrait logo, and depth treatment; it does not support a public-outlier claim.' },
+    ],
+    copy_pair_analysis: jevThumbnailCohort.copy_pair_analysis as ThumbnailResearchCohort['copy_pair_analysis'],
+    candidate_copy_pair: jevThumbnailSelection.copy_pair as ThumbnailResearchCohort['candidate_copy_pair'],
+    samples: [
+      ...jevThumbnailCohort.included.map((sample) => ({
+        video_id: sample.video_id,
+        youtube_url: sample.youtube_url,
+        title: sample.title,
+        creator: sample.creator,
+        thumbnail_path: sample.thumbnail_path,
+        source_thumbnail_url: sample.source_thumbnail_url,
+        link_status: 'verified_openable' as const,
+        view_count: sample.view_count,
+        subscriber_count: sample.subscriber_count,
+        duration_seconds: sample.duration_seconds,
+        published_at: sample.published_at,
+        observed_at: sample.observed_at,
+        description_opening: sample.description_opening,
+        description_opening_truncated: sample.description_opening_truncated,
+        thumbnail_text: sample.thumbnail_text,
+        thumbnail_text_transcription_status: sample.thumbnail_text_transcription_status as 'verified' | 'unreadable',
+        title_thumbnail_relationship: sample.title_thumbnail_relationship as ThumbnailResearchCohort['samples'][number]['title_thumbnail_relationship'],
+        thumbnail_text_length: sample.thumbnail_text_length,
+        hook_type: sample.hook_type,
+        transcription_provenance: sample.transcription_provenance,
+        channel_baseline_size: sample.channel_baseline.sample_size,
+        decision: 'included' as const,
+        decision_reason: sample.inclusion_reason,
+        channel_relative_ratio: sample.channel_relative_ratio,
+        audience_view_ratio: sample.audience_view_ratio,
+        recency_adjusted_views_per_day: sample.recency_adjusted_views_per_day,
+        normalized_performance_score: sample.normalized_performance_score,
+        outlier_qualified: sample.outlier_qualified,
+        supports_candidate_composition: false,
+        composition_support_reason: sample.outlier_qualified ? 'Formula-qualified for normalized public performance, but its visible frame does not support the candidate layout, subject treatment, product proof, or brand treatment.' : 'Topical baseline only; it is not used as candidate design support.',
+        visual_traits: sample.visual_traits,
+      })),
+      ...jevThumbnailCohort.excluded.map((sample) => ({
+        video_id: sample.video_id,
+        youtube_url: sample.youtube_url,
+        title: sample.title,
+        creator: sample.creator,
+        thumbnail_path: null,
+        source_thumbnail_url: sample.source_thumbnail_url,
+        link_status: 'verified_openable' as const,
+        view_count: sample.view_count,
+        subscriber_count: sample.subscriber_count,
+        duration_seconds: sample.duration_seconds,
+        published_at: sample.published_at,
+        observed_at: sample.observed_at,
+        description_opening: null,
+        description_opening_truncated: false,
+        thumbnail_text: [],
+        thumbnail_text_transcription_status: 'unreadable' as const,
+        title_thumbnail_relationship: 'unreadable' as const,
+        thumbnail_text_length: 0,
+        hook_type: 'excluded',
+        transcription_provenance: null,
+        channel_baseline_size: null,
+        decision: 'excluded' as const,
+        decision_reason: sample.exclusion_reason,
+        channel_relative_ratio: null,
+        audience_view_ratio: null,
+        recency_adjusted_views_per_day: null,
+        normalized_performance_score: null,
+        outlier_qualified: false,
+        supports_candidate_composition: false,
+        composition_support_reason: 'Excluded from scoring and candidate design support.',
+        visual_traits: {},
+      })),
+    ],
+  })
+  const scoredPackagingReceipt = (kind: 'title_subject' | 'thumbnail', elementId: string): ArtifactEvaluationReceipt => {
+    const links = [baselineLink, selectionLink, sourceLink, cohortLink]
+    const percent = (passed: number, total: number) => Number(((passed / total) * 100).toFixed(2))
+    const firstPartyRuleTotal = kind === 'thumbnail' ? 5 : 2
+    const firstPartyRuleMatches = firstPartyRuleTotal
+    const linkedReceiptCount = links.length
+    const requiredReceiptCount = 4
+    const titleWordCount = jevThumbnailSelection.title.split(/\s+/).length
+    const mobileReadabilityChecks = kind === 'thumbnail' ? 4 : 1
+    const mobileReadabilityTotal = kind === 'thumbnail' ? 4 : 1
+    const audienceScore = kind === 'thumbnail' ? percent(mobileReadabilityChecks, mobileReadabilityTotal) : Math.max(0, 100 - (Math.max(0, titleWordCount - 6) * 5))
+    const observedAgeDays = Math.max(0, (Date.parse(jevThumbnailSelection.observed_at) - Date.parse(jevThumbnailCohort.observed_at)) / 86_400_000)
+    const timelinessScore = Number(Math.max(0, 100 - ((observedAgeDays / 14) * 100)).toFixed(2))
+    const productProofChecks = 2
+    const requiredProductProofChecks = 2
+    const originalityViolations = 0
+    const confidenceScore = kind === 'thumbnail' ? 90 : 85
+    const scores: Record<ArtifactEvaluationDimensionKey, number> = {
+      outlier_pattern_fit: percent(firstPartyRuleMatches, firstPartyRuleTotal),
+      source_support: percent(linkedReceiptCount, requiredReceiptCount),
+      core_audience_fit: audienceScore,
+      timeliness: timelinessScore,
+      product_work_evidence_fit: percent(productProofChecks, requiredProductProofChecks),
+      originality_repetition_risk: Math.min(100, originalityViolations * 50),
+    }
+    const scored = (key: ArtifactEvaluationDimensionKey, weight: number, threshold: number, direction: ArtifactEvaluationDimension['direction'], basis: ArtifactEvaluationDimension['basis'], rationale: string, inputs: ArtifactEvaluationDimension['deterministic_inputs']): ArtifactEvaluationDimension => ({
+      status: 'scored', score: scores[key], basis, direction, weight, threshold, percentile: null, rank: null, deterministic_inputs: inputs, source_receipts: links, rationale,
+    })
+    const dimensions = {
+      outlier_pattern_fit: scored('outlier_pattern_fit', 25, 70, 'higher_is_better', 'measured', 'First-party baseline fit only. Formula: candidate matches / applicable approved AmaduTown rules × 100. The public outliers contribute zero design-fit points.', [
+        { name: 'candidate_first_party_rule_matches', value: String(firstPartyRuleMatches), receipt_id: selectionLink.receipt_id },
+        { name: 'applicable_first_party_rules', value: String(firstPartyRuleTotal), receipt_id: baselineLink.receipt_id },
+        { name: 'public_outlier_design_support_count', value: '0', receipt_id: cohortLink.receipt_id },
+      ]),
+      source_support: scored('source_support', 20, 80, 'higher_is_better', 'measured', 'Formula: linked required receipts / four required receipts × 100.', [
+        { name: 'linked_required_receipts', value: String(linkedReceiptCount), receipt_id: selectionLink.receipt_id },
+        { name: 'required_receipts', value: String(requiredReceiptCount), receipt_id: sourceLink.receipt_id },
+      ]),
+      core_audience_fit: scored('core_audience_fit', 15, 70, 'higher_is_better', 'measured', kind === 'thumbnail' ? 'Formula: passed phone-readability checks / four checks × 100 (six-word hook, high contrast, mobile no-overflow, one decision question).' : 'Formula: 100 − max(0, title words − 6) × 5.', [
+        { name: kind === 'thumbnail' ? 'passed_mobile_readability_checks' : 'title_word_count', value: String(kind === 'thumbnail' ? mobileReadabilityChecks : titleWordCount), receipt_id: selectionLink.receipt_id },
+        { name: kind === 'thumbnail' ? 'required_mobile_readability_checks' : 'preferred_title_word_count', value: String(kind === 'thumbnail' ? mobileReadabilityTotal : 6), receipt_id: selectionLink.receipt_id },
+      ]),
+      timeliness: scored('timeliness', 10, 65, 'higher_is_better', 'measured', 'Formula: max(0, 100 − cohort age days / 14 × 100).', [
+        { name: 'cohort_age_days', value: String(observedAgeDays), receipt_id: cohortLink.receipt_id },
+        { name: 'freshness_window_days', value: '14', receipt_id: cohortLink.receipt_id },
+      ]),
+      product_work_evidence_fit: scored('product_work_evidence_fit', 20, 80, 'higher_is_better', 'measured', 'Formula: passed Jev proof checks / two required checks × 100 (approved 81% score plus human-decision boundary).', [
+        { name: 'passed_product_proof_checks', value: String(productProofChecks), receipt_id: sourceLink.receipt_id },
+        { name: 'required_product_proof_checks', value: String(requiredProductProofChecks), receipt_id: sourceLink.receipt_id },
+      ]),
+      originality_repetition_risk: scored('originality_repetition_risk', 10, 35, 'lower_is_better', 'measured', 'Formula: min(100, attributable reuse violations × 50). No cohort pixels or source phrases were reused.', [
+        { name: 'attributable_reuse_violations', value: String(originalityViolations), receipt_id: selectionLink.receipt_id },
+        { name: 'penalty_per_violation', value: '50', receipt_id: selectionLink.receipt_id },
+      ]),
+    } satisfies Record<ArtifactEvaluationDimensionKey, ArtifactEvaluationDimension>
+    const overallScore = Number((Object.values(dimensions).reduce((total, dimension) => total + (dimension.direction === 'lower_is_better' ? 100 - dimension.score! : dimension.score!) * dimension.weight, 0) / 100).toFixed(2))
+    return {
+      version: 'artifact-evaluation-scorecard/v1',
+      receipt_id: `evaluation:jev:${kind}:${elementId}:20261018`,
+      evaluation_kind: kind,
+      content_version: input.contentVersion,
+      evaluated_at: jevThumbnailCohort.observed_at,
+      weighting_version: 'artifact-evaluation-weights/v1',
+      benchmark_cohort: { cohort_id: jevThumbnailSelection.baseline_receipt_id, status: 'approved', sample_size: 3, observed_from: '2026-10-16T00:00:00.000Z', observed_to: jevThumbnailSelection.observed_at, fresh_until: '2026-11-01T00:00:00.000Z', source_receipts: [baselineLink] },
+      dimensions,
+      overall: { score: overallScore, threshold: 75, recommendation: overallScore >= 75 ? 'advance' : 'revise', confidence_score: confidenceScore, confidence_label: confidenceScore >= 80 ? 'high' : confidenceScore >= 60 ? 'medium' : 'low', rationale: `Advance to human QA: every design-fit score is reproduced from approved first-party baselines, Jev product proof, and the v3 binding receipt. Public outlier visuals are comparison-only and contribute zero design-fit points.`, source_receipts: links },
+    }
+  }
   const element = (category: ArtifactEvidenceCategory, id: string, label: string, excerpt: string, options: Partial<ArtifactEvidenceManifest['elements'][number]> = {}): ArtifactEvidenceManifest['elements'][number] => ({
     id,
     category,
@@ -294,8 +478,23 @@ function artifactEvidenceManifest(input: {
       rights_privacy_status: 'missing',
       rights_privacy_receipt_ids: [],
     }),
-    element('thumbnail', 'thumbnail', 'Thumbnail', 'Customer-facing artifact poster.', { region: { x: 72, y: 34 } }),
-    element('title', 'title', 'Title', `${input.productId}: what the artifact makes visible`, { region: { x: 48, y: 16 } }),
+    element('thumbnail', 'thumbnail', 'Thumbnail', input.packagingHeadline, {
+      region: { x: 72, y: 34 },
+      artifact_url: input.packagingThumbnailUrl,
+      source_identity: input.productId === 'jev' ? jevThumbnailSelection.receipt_id : `source:${input.productId}:approved-artifact-packet`,
+      evidence_receipt_ids: input.productId === 'jev'
+        ? [jevThumbnailSelection.receipt_id, jevThumbnailSelection.baseline_receipt_id, ...jevYouTubeTitlePackage.thumbnail.source_receipt_ids]
+        : [`source:${input.productId}:approved-composite-20261014`],
+      ...(input.productId === 'jev' ? { evaluation_receipt: scoredPackagingReceipt('thumbnail', 'thumbnail'), research_cohort: packagingResearchCohort() } : {}),
+    }),
+    element('title', 'title', 'Title', input.packagingTitle, {
+      region: { x: 48, y: 16 },
+      source_identity: input.productId === 'jev' ? jevThumbnailSelection.receipt_id : `source:${input.productId}:approved-artifact-packet`,
+      evidence_receipt_ids: input.productId === 'jev'
+        ? [jevThumbnailSelection.receipt_id, jevThumbnailSelection.baseline_receipt_id, ...jevYouTubeTitlePackage.source_receipt_ids]
+        : [`source:${input.productId}:approved-composite-20261014`],
+      ...(input.productId === 'jev' ? { evaluation_receipt: scoredPackagingReceipt('title_subject', 'title') } : {}),
+    }),
     element('description', 'description', 'Description', 'A practical walkthrough of the artifact, its proof, and its bounded value.'),
     element('cta', 'cta', 'Call to action', 'Inspect the receipt trail before approving the next gate.', { region: { x: 51, y: 83 } }),
     element('source_research', 'research', 'Source research', 'Approved public-safe research summary.', {
@@ -325,7 +524,11 @@ function artifactEvidenceManifest(input: {
   }
 }
 
-export function channelNativeVideoQaFixture(id: ChannelNativeVideoQaFixtureId, videoPackageState: 'ready' | 'blocked' = 'ready') {
+export function channelNativeVideoQaFixture(
+  id: ChannelNativeVideoQaFixtureId,
+  videoPackageState: 'ready' | 'blocked' = 'ready',
+  packagingState: 'bound' | 'missing_thumbnail' = 'bound',
+) {
   const fixture = QA_FIXTURES[id]
   const packet = fixture.packet
   const receipt = fixture.receipt
@@ -351,6 +554,15 @@ export function channelNativeVideoQaFixture(id: ChannelNativeVideoQaFixtureId, v
     totalClaimCount: packet.claims.length,
     approvedProductEvidenceCount: packet.evidence_assets.filter((asset) => asset.source_receipt_ids.length > 0 && asset.privacy_receipt_id && asset.rights_receipt_id).length,
     requiredProductEvidenceCount: Math.max(1, packet.evidence_assets.length),
+    packagingTitle: packet.identity.product_id === 'jev'
+      ? jevThumbnailSelection.title
+      : packet.draft.title_options[0]?.title ?? `${packet.identity.product_id}: what the artifact makes visible`,
+    packagingHeadline: packet.identity.product_id === 'jev'
+      ? jevThumbnailSelection.headline
+      : packet.draft.thumbnail_brief.headline,
+    packagingThumbnailUrl: packet.identity.product_id === 'jev' && packagingState === 'bound'
+      ? jevThumbnailSelection.output.public_path
+      : null,
   })
 
   return {

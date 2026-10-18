@@ -3,11 +3,22 @@ import { describe, expect, it } from 'vitest'
 import ArtifactEvidenceTrace from '@/components/admin/ArtifactEvidenceTrace'
 import { ARTIFACT_EVIDENCE_CATEGORIES } from '@/lib/artifact-evidence-manifest'
 import { completeArtifactEvidenceManifest } from '@/lib/__tests__/artifact-evidence-fixture'
+import { channelNativeVideoQaFixture } from '@/lib/social-channel-video-qa-fixture'
 
 const VERSION = '2026-10-15T12:00:00.000Z'
 const EVALUATION_AS_OF = '2026-10-16T12:00:00.000Z'
 
 const manifest = () => completeArtifactEvidenceManifest(VERSION)
+
+const packagingManifest = () => {
+  const value = manifest()
+  const title = value.elements.find((element) => element.category === 'title')!
+  const thumbnail = value.elements.find((element) => element.category === 'thumbnail')!
+  title.input_excerpt = 'AI Gave You a Score. Who Owns the Decision?'
+  thumbnail.input_excerpt = 'WHO OWNS THE DECISION?'
+  thumbnail.artifact_url = '/review-assets/social-content/jev-youtube-thumbnail.png'
+  return value
+}
 
 describe('ArtifactEvidenceTrace', () => {
   it('keeps the artifact clean by default and maps overlay numbers exactly to the trace list when enabled', () => {
@@ -42,7 +53,7 @@ describe('ArtifactEvidenceTrace', () => {
 
     const evaluation = screen.getByLabelText('copy_script evidence numerical evaluation')
     expect(within(evaluation).getByText('88.8/100 · advance')).toBeVisible()
-    expect(within(evaluation).getByText('Outlier-pattern fit')).toBeVisible()
+    expect(within(evaluation).getByText('Reference-pattern fit')).toBeVisible()
     fireEvent.click(within(evaluation).getByText('Source support'))
     for (const link of within(evaluation).getAllByRole('link', { name: /evidence:copy_script-0:source_support/i })) {
       expect(link).toHaveAttribute('href', expect.stringContaining('/admin/source-protocol'))
@@ -62,5 +73,75 @@ describe('ArtifactEvidenceTrace', () => {
     render(<ArtifactEvidenceTrace manifest={manifest()} currentContentVersion={VERSION} evaluationAsOf={EVALUATION_AS_OF} recordedSnapshot={{ manifest_id: 'artifact-manifest:old:v1', manifest_hash: `sha256:${'d'.repeat(64)}`, content_version: '2026-10-14T12:00:00.000Z' }} />)
     expect(screen.getByText(/preserved from an earlier content version/i)).toBeVisible()
     expect(screen.getByText(/artifact-manifest:old:v1/i)).toBeVisible()
+  })
+
+  it('shows the YouTube title and actual bound thumbnail together with progressive evidence details', () => {
+    render(<ArtifactEvidenceTrace manifest={packagingManifest()} currentContentVersion={VERSION} evaluationAsOf={EVALUATION_AS_OF} packagingTarget="youtube_shorts" />)
+
+    const packaging = screen.getByLabelText('YouTube Shorts packaging evidence')
+    expect(within(packaging).getAllByText('AI Gave You a Score. Who Owns the Decision?')[0]).toBeVisible()
+    expect(within(packaging).getAllByText('WHO OWNS THE DECISION?')[0]).toBeVisible()
+    expect(within(packaging).getByRole('status')).toHaveTextContent('Asset-package evidence ready')
+    expect(within(packaging).getByText('YouTube Shorts asset-package review')).toHaveClass('text-muted-foreground')
+    expect(within(packaging).getByText('YouTube Shorts asset-package review')).not.toHaveClass('text-red-700')
+    expect(within(packaging).getByAltText(/YouTube Shorts bound thumbnail/i)).toHaveAttribute('src', expect.stringContaining('jev-youtube-thumbnail.png'))
+
+    const titleEvidence = within(packaging).getByText('Title evidence').closest('details')!
+    fireEvent.click(within(titleEvidence).getByText('Title evidence'))
+    expect(within(titleEvidence).getByText('Evidence-fit score')).toBeVisible()
+    expect(within(titleEvidence).getByText(/does not predict click-through rate, views, or platform performance/i)).toBeVisible()
+    expect(within(titleEvidence).getByText('Cohort identity')).toBeVisible()
+    expect(within(titleEvidence).getByText('Formula and decision logic')).toBeVisible()
+    expect(within(titleEvidence).getByRole('link', { name: /Product\/source lineage:/ })).toHaveAttribute('href', 'http://localhost:3000/admin/source-protocol?receipt=title')
+  })
+
+  it('shows a missing-thumbnail recovery state and never calls the packet ready', () => {
+    const value = packagingManifest()
+    value.elements.find((element) => element.category === 'thumbnail')!.artifact_url = null
+    render(<ArtifactEvidenceTrace manifest={value} currentContentVersion={VERSION} evaluationAsOf={EVALUATION_AS_OF} packagingTarget="youtube" />)
+
+    const packaging = screen.getByLabelText('YouTube packaging evidence')
+    expect(within(packaging).getByRole('status')).toHaveTextContent('Asset package blocked')
+    expect(within(packaging).getByRole('img', { name: 'YouTube thumbnail missing' })).toBeVisible()
+    expect(within(packaging).getByRole('alert')).toHaveTextContent('Thumbnail evidence is missing its actual bound review asset.')
+    expect(within(packaging).getByRole('alert')).toHaveTextContent('A brief or poster alone is not sufficient.')
+    expect(within(packaging).queryByText('Asset-package evidence ready')).not.toBeInTheDocument()
+  })
+
+  it('keeps the Jev Shorts cohort, public thumbnails, metrics, formulas, and selection logic inspectable on the evidence surface', () => {
+    const fixture = channelNativeVideoQaFixture('f966123f-05eb-48ec-a7c2-970afce642ef')
+    const artifactManifest = fixture.rag_context.artifact_evidence_manifest
+    render(<ArtifactEvidenceTrace manifest={artifactManifest} currentContentVersion={fixture.updated_at} evaluationAsOf="2026-10-18T16:00:00.000Z" packagingTarget="youtube_shorts" />)
+
+    const packaging = screen.getByLabelText('YouTube Shorts packaging evidence')
+    expect(within(packaging).getByRole('status')).toHaveTextContent('Asset-package evidence ready')
+    expect(within(packaging).getAllByText('AI Scored It. Who Makes the Call?')[0]).toBeVisible()
+    expect(within(packaging).getAllByText('WHEN SHOULD AI STOP?')[0]).toBeVisible()
+    const thumbnailEvidence = within(packaging).getByText('Thumbnail evidence').closest('details')!
+    fireEvent.click(within(thumbnailEvidence).getByText('Thumbnail evidence'))
+    expect(within(thumbnailEvidence).getByText('Evidence-fit score')).toBeVisible()
+    expect(within(thumbnailEvidence).getByText(/does not predict click-through rate, views, or platform performance/i)).toBeVisible()
+    const cohort = within(thumbnailEvidence).getByTestId('youtube-thumbnail-research-cohort')
+    fireEvent.click(within(cohort).getByText('Visual-neighbor comparison and source map'))
+    expect(within(cohort).getByText('9:16 candidate · 3 first-party · 8 live topic sources')).toBeVisible()
+    expect(within(cohort).getByText(/normalized_performance_score >= 75/i)).toBeVisible()
+    expect(within(cohort).getByText(/source exact views \/ same-channel recent-Short median exact views/i)).toBeVisible()
+    expect(within(cohort).getByText('Candidate title + thumbnail copy pair')).toBeVisible()
+    expect(within(cohort).getByText('contrasting question')).toBeVisible()
+    expect(within(cohort).getByText(/editorial hypothesis only/i)).toBeVisible()
+    expect(within(cohort).getByText(/performance claim:/i)).toHaveTextContent('unscored')
+    expect(within(cohort).getByText('Editorial hypothesis sources only')).toBeVisible()
+    expect(within(cohort).getByRole('link', { name: /Cyber Brief Bites:/ })).toHaveAttribute('href', 'https://www.youtube.com/shorts/usE8BPWET3M')
+    expect(within(cohort).getByRole('link', { name: /Digital Transformation with Eric Kimberling:/ })).toHaveAttribute('href', 'https://www.youtube.com/shorts/DVEOS9t_DHM')
+    expect(within(cohort).getByText('Copy-pair heuristic')).toBeVisible()
+    expect(within(cohort).getByText(/both relationship groups require at least 3 attributable samples/i)).toBeVisible()
+    expect(within(cohort).getByText('Live topic copy-pair sources (8)')).toBeVisible()
+    expect(within(cohort).getAllByRole('link', { name: /Public Short:/ })).toHaveLength(8)
+    expect(within(cohort).getAllByText('Does not support candidate composition')).toHaveLength(8)
+    expect(within(cohort).getByText('Unreadable — not inferred')).toBeVisible()
+    expect(within(cohort).getByText('Candidate element bindings')).toBeVisible()
+    expect(within(cohort).getAllByText('1080×1920 · 9:16')).toHaveLength(2)
+    for (const link of within(cohort).getAllByRole('link')) expect(link.getAttribute('href')).toMatch(/^https?:\/\//)
+    expect(within(cohort).getByText('Excluded sources (6)')).toBeVisible()
   })
 })
