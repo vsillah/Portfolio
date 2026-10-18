@@ -1,8 +1,8 @@
 {
-  "revision": "ccb59dc1703a91ddd174490479409d907fed17f4",
+  "revision": "f1b139d8",
   "baseUrl": "http://127.0.0.1:3128",
-  "boundUrl": "http://127.0.0.1:3128/admin/social-content/f966123f-05eb-48ec-a7c2-970afce642ef?step=visuals&review=mobile&qa_fixture=channel_native_video_v2&video_package_state=ready&rev=ccb59dc1703a91ddd174490479409d907fed17f4&packaging_state=bound",
-  "missingUrl": "http://127.0.0.1:3128/admin/social-content/f966123f-05eb-48ec-a7c2-970afce642ef?step=visuals&review=mobile&qa_fixture=channel_native_video_v2&video_package_state=ready&rev=ccb59dc1703a91ddd174490479409d907fed17f4&packaging_state=missing_thumbnail",
+  "boundUrl": "http://127.0.0.1:3128/admin/social-content/f966123f-05eb-48ec-a7c2-970afce642ef?step=visuals&review=mobile&qa_fixture=channel_native_video_v2&video_package_state=ready&rev=f1b139d8&packaging_state=bound",
+  "missingUrl": "http://127.0.0.1:3128/admin/social-content/f966123f-05eb-48ec-a7c2-970afce642ef?step=visuals&review=mobile&qa_fixture=channel_native_video_v2&video_package_state=ready&rev=f1b139d8&packaging_state=missing_thumbnail",
   "screenshots": [
     "jev-packaging-bound-desktop-1440.png",
     "jev-packaging-cohort-desktop-1440.png",
