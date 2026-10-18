@@ -137,21 +137,20 @@ export default function SocialCampaignReviewPacket({ packet }: { packet: SocialC
                     <div><dt className="font-semibold text-foreground">Output version</dt><dd className="mt-1 break-all font-mono text-muted-foreground">{thumbnailDecision.output_version}</dd></div>
                   </dl>
                   <p className="mt-3 text-xs leading-5 text-muted-foreground">{thumbnailDecision.selection.rationale}</p>
-                  <div className="mt-3 overflow-x-auto">
-                    <table className="min-w-full text-left text-xs">
-                      <thead className="text-muted-foreground"><tr><th className="pb-2 pr-3">Comparison</th><th className="pb-2 pr-3">Decision</th><th className="pb-2 pr-3">Normalized</th><th className="pb-2">Why</th></tr></thead>
-                      <tbody className="divide-y divide-border">
-                        {thumbnailDecision.live_evidence.comparisons.map((comparison) => (
-                          <tr key={`${comparison.video_id}:${comparison.decision}`}>
-                            <td className="py-2 pr-3"><Link href={comparison.source_url} target="_blank" rel="noreferrer" className="font-semibold text-foreground underline decoration-radiant-gold/60 underline-offset-4">{comparison.video_id}</Link></td>
-                            <td className="py-2 pr-3 text-muted-foreground">{comparison.decision}{comparison.outlier_qualified ? ' · outlier qualified' : ''}</td>
-                            <td className="py-2 pr-3 text-muted-foreground">{comparison.normalized_performance_score ?? 'Unscored'}</td>
-                            <td className="py-2 text-muted-foreground">{comparison.decision_reason}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+                  <ul className="mt-3 grid gap-2 lg:grid-cols-2" aria-label="Live comparison decisions">
+                    {thumbnailDecision.live_evidence.comparisons.map((comparison) => (
+                      <li key={`${comparison.video_id}:${comparison.decision}`} className="rounded-md border border-border bg-background p-3 text-xs">
+                        <div className="flex flex-wrap items-start justify-between gap-2">
+                          <Link href={comparison.source_url} target="_blank" rel="noreferrer" className="font-semibold text-foreground underline decoration-radiant-gold/60 underline-offset-4">{comparison.video_id}</Link>
+                          <span className={`rounded-full border px-2 py-0.5 font-semibold ${comparison.outlier_qualified ? 'border-emerald-500/35 text-emerald-700 dark:text-emerald-200' : comparison.decision === 'excluded' ? 'border-amber-500/35 text-amber-800 dark:text-amber-100' : 'border-border text-muted-foreground'}`}>
+                            {comparison.decision}{comparison.outlier_qualified ? ' · outlier qualified' : ''}
+                          </span>
+                        </div>
+                        <p className="mt-2 font-semibold text-foreground">Normalized: {comparison.normalized_performance_score ?? 'Unscored'}</p>
+                        <p className="mt-1 leading-5 text-muted-foreground">{comparison.decision_reason}</p>
+                      </li>
+                    ))}
+                  </ul>
                   <p className="mt-3 rounded-md border border-border bg-background p-2 text-xs leading-5 text-muted-foreground">Normalization: {thumbnailDecision.live_evidence.normalization_formula.join(' · ')}</p>
                   <div className="mt-3 space-y-2">
                     <p className="text-xs font-semibold text-foreground">User-curated taste signals</p>

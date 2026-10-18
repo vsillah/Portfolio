@@ -5071,7 +5071,7 @@ function SocialContentDetailPage() {
         {/* SECTION 1: Content (two-col on lg: edit fields + preview)        */}
         {/* ================================================================ */}
 	        {(activeApprovalStep === 'copy' || activeApprovalStep === 'visuals') && (
-	        <div className={channelVideoPacket ? 'grid grid-cols-1 gap-6' : 'grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(22rem,0.45fr)]'}>
+	        <div className={channelVideoPacket || campaignReviewPacket?.channel === 'youtube' ? 'grid grid-cols-1 gap-6' : 'grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(22rem,0.45fr)]'}>
 	          <div className="min-w-0 space-y-4">
 	            {/* Post text */}
 	            {activeApprovalStep === 'copy' && (
