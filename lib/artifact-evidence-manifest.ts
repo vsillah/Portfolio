@@ -31,6 +31,39 @@ export type ArtifactEvidenceRegion = {
   y: number
 }
 
+export type ThumbnailResearchSample = {
+  video_id: string
+  youtube_url: string
+  title: string
+  creator: string
+  thumbnail_path: string | null
+  view_count: number | null
+  subscriber_count: number | null
+  duration_seconds: number | null
+  published_at: string | null
+  observed_at: string
+  decision: 'included' | 'excluded'
+  decision_reason: string
+  channel_relative_ratio: number | null
+  audience_view_ratio: number | null
+  recency_adjusted_views_per_day: number | null
+  normalized_performance_score: number | null
+}
+
+export type ThumbnailResearchCohort = {
+  cohort_id: string
+  target: string
+  observed_at: string
+  sample_size: number
+  minimum_sample_size: number
+  formula: string[]
+  recurring_visual_traits: string[]
+  adopted_traits: string[]
+  rejected_traits: string[]
+  composition_decision: string
+  samples: ThumbnailResearchSample[]
+}
+
 export type ArtifactEvidenceElement = {
   id: string
   category: ArtifactEvidenceCategory
@@ -51,6 +84,7 @@ export type ArtifactEvidenceElement = {
   transformation_step: string
   evaluation_kind?: ArtifactEvaluationKind
   evaluation_receipt?: ArtifactEvaluationReceipt
+  research_cohort?: ThumbnailResearchCohort
   region?: ArtifactEvidenceRegion
 }
 
@@ -124,6 +158,61 @@ function safeArtifactUrl(value: unknown): string | null {
   return href
 }
 
+function safeYouTubeUrl(value: unknown): string {
+  const href = text(value)
+  try {
+    const parsed = new URL(href)
+    return parsed.protocol === 'https:' && ['www.youtube.com', 'youtube.com'].includes(parsed.hostname) ? href : ''
+  } catch {
+    return ''
+  }
+}
+
+function nullableNumber(value: unknown): number | null {
+  return typeof value === 'number' && Number.isFinite(value) ? value : null
+}
+
+function parseResearchCohort(value: unknown): ThumbnailResearchCohort | undefined {
+  const candidate = record(value)
+  if (!candidate) return undefined
+  const samples = Array.isArray(candidate.samples) ? candidate.samples.map((value) => {
+    const sample = record(value)
+    if (!sample) return null
+    const decision = sample.decision === 'excluded' ? 'excluded' : 'included'
+    return {
+      video_id: text(sample.video_id),
+      youtube_url: safeYouTubeUrl(sample.youtube_url),
+      title: text(sample.title),
+      creator: text(sample.creator),
+      thumbnail_path: safeArtifactUrl(sample.thumbnail_path),
+      view_count: nullableNumber(sample.view_count),
+      subscriber_count: nullableNumber(sample.subscriber_count),
+      duration_seconds: nullableNumber(sample.duration_seconds),
+      published_at: text(sample.published_at) || null,
+      observed_at: text(sample.observed_at),
+      decision,
+      decision_reason: text(sample.decision_reason),
+      channel_relative_ratio: nullableNumber(sample.channel_relative_ratio),
+      audience_view_ratio: nullableNumber(sample.audience_view_ratio),
+      recency_adjusted_views_per_day: nullableNumber(sample.recency_adjusted_views_per_day),
+      normalized_performance_score: nullableNumber(sample.normalized_performance_score),
+    } satisfies ThumbnailResearchSample
+  }).filter((sample): sample is ThumbnailResearchSample => Boolean(sample?.video_id && sample.youtube_url)) : []
+  return {
+    cohort_id: text(candidate.cohort_id),
+    target: text(candidate.target),
+    observed_at: text(candidate.observed_at),
+    sample_size: Number(candidate.sample_size),
+    minimum_sample_size: Number(candidate.minimum_sample_size),
+    formula: strings(candidate.formula),
+    recurring_visual_traits: strings(candidate.recurring_visual_traits),
+    adopted_traits: strings(candidate.adopted_traits),
+    rejected_traits: strings(candidate.rejected_traits),
+    composition_decision: text(candidate.composition_decision),
+    samples,
+  }
+}
+
 const EVALUATION_KIND_BY_CATEGORY: Partial<Record<ArtifactEvidenceCategory, ArtifactEvaluationKind>> = {
   copy_script: 'script_message',
   visual_field: 'headline_hook',
@@ -166,6 +255,7 @@ function parseElement(value: unknown): ArtifactEvidenceElement | null {
     transformation_step: text(candidate.transformation_step),
     ...(text(candidate.evaluation_kind) ? { evaluation_kind: text(candidate.evaluation_kind) as ArtifactEvaluationKind } : {}),
     ...(candidate.evaluation_receipt ? { evaluation_receipt: parseArtifactEvaluationReceipt(candidate.evaluation_receipt) ?? undefined } : {}),
+    ...(candidate.research_cohort ? { research_cohort: parseResearchCohort(candidate.research_cohort) } : {}),
     ...(region ? { region } : {}),
   }
 }

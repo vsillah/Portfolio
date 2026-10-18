@@ -392,7 +392,7 @@ describe('SocialContentDetailRoute visual production review', () => {
 
     const currentReview = await screen.findByLabelText('Current review action')
     expect(within(currentReview).getByText('Asset packet review')).toBeVisible()
-    expect(within(currentReview).getByText('Blocked')).toBeVisible()
+    expect(within(currentReview).getByText('In review')).toBeVisible()
     expect(within(currentReview).getByRole('link', { name: 'Open current decision' })).toHaveAttribute(
       'href',
       expect.stringContaining('#social-asset-packet-gate'),
@@ -403,20 +403,20 @@ describe('SocialContentDetailRoute visual production review', () => {
     const visualStep = within(process).getByRole('button', { name: 'Approval step 3: Amina Visuals' })
     expect(visualStep).toHaveAttribute('aria-current', 'step')
     expect(visualStep).toHaveTextContent('Asset packet current gate')
-    expect(visualStep).toHaveTextContent('Blocked')
+    expect(visualStep).toHaveTextContent('In review')
 
     const assetPacketGate = screen.getByLabelText('Jev asset packet current gate')
     expect(document.querySelectorAll('#social-asset-packet-gate')).toHaveLength(1)
     expect(assetPacketGate).toHaveTextContent('Social Content: approved')
     expect(assetPacketGate).toHaveTextContent('Calendar preparation: ready')
-    expect(assetPacketGate).toHaveTextContent('Current gate: asset packet · blocked')
-    expect(assetPacketGate).toHaveTextContent('current, attributable, fully scored evidence')
+    expect(assetPacketGate).toHaveTextContent('Current gate: asset packet · evidence ready')
+    expect(assetPacketGate).toHaveTextContent('current scored evidence for internal review')
 
     const packaging = screen.getByLabelText('YouTube Shorts packaging evidence')
-    expect(within(packaging).getAllByText('AI Gave You a Score. Who Owns the Decision?')[0]).toBeVisible()
-    expect(within(packaging).getAllByText('WHO OWNS THE DECISION?')[0]).toBeVisible()
-    expect(within(packaging).getByAltText(/YouTube Shorts bound thumbnail/i)).toHaveAttribute('src', expect.stringContaining('jev-youtube-thumbnail.png'))
-    expect(within(packaging).getByRole('status')).toHaveTextContent('Pair binding passed · scoring hold')
+    expect(within(packaging).getAllByText('AI Scored It 81%. Who Makes the Call?')[0]).toBeVisible()
+    expect(within(packaging).getAllByText('AI SCORED IT 81% / WHO DECIDES?')[0]).toBeVisible()
+    expect(within(packaging).getByAltText(/YouTube Shorts bound thumbnail/i)).toHaveAttribute('src', expect.stringContaining('jev-youtube-thumbnail-v2.png'))
+    expect(within(packaging).getByRole('status')).toHaveTextContent('Asset-package evidence ready')
 
     const channelReview = screen.getByLabelText('YouTube Shorts channel-native video review')
     for (const action of ['Provider generation', 'Provider upload', 'Platform draft', 'Scheduling', 'Publishing', 'External send']) {

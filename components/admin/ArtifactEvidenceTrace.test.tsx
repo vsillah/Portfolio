@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import ArtifactEvidenceTrace from '@/components/admin/ArtifactEvidenceTrace'
 import { ARTIFACT_EVIDENCE_CATEGORIES } from '@/lib/artifact-evidence-manifest'
 import { completeArtifactEvidenceManifest } from '@/lib/__tests__/artifact-evidence-fixture'
+import { channelNativeVideoQaFixture } from '@/lib/social-channel-video-qa-fixture'
 
 const VERSION = '2026-10-15T12:00:00.000Z'
 const EVALUATION_AS_OF = '2026-10-16T12:00:00.000Z'
@@ -104,5 +105,25 @@ describe('ArtifactEvidenceTrace', () => {
     expect(within(packaging).getByRole('alert')).toHaveTextContent('Thumbnail evidence is missing its actual bound review asset.')
     expect(within(packaging).getByRole('alert')).toHaveTextContent('A brief or poster alone is not sufficient.')
     expect(within(packaging).queryByText('Asset-package evidence ready')).not.toBeInTheDocument()
+  })
+
+  it('keeps the Jev Shorts cohort, public thumbnails, metrics, formulas, and selection logic inspectable on the evidence surface', () => {
+    const fixture = channelNativeVideoQaFixture('f966123f-05eb-48ec-a7c2-970afce642ef')
+    const artifactManifest = fixture.rag_context.artifact_evidence_manifest
+    render(<ArtifactEvidenceTrace manifest={artifactManifest} currentContentVersion={fixture.updated_at} evaluationAsOf="2026-10-18T16:00:00.000Z" packagingTarget="youtube_shorts" />)
+
+    const packaging = screen.getByLabelText('YouTube Shorts packaging evidence')
+    expect(within(packaging).getByRole('status')).toHaveTextContent('Asset-package evidence ready')
+    expect(within(packaging).getAllByText('AI Scored It 81%. Who Makes the Call?')[0]).toBeVisible()
+    expect(within(packaging).getAllByText('AI SCORED IT 81% / WHO DECIDES?')[0]).toBeVisible()
+    const thumbnailEvidence = within(packaging).getByText('Thumbnail evidence').closest('details')!
+    fireEvent.click(within(thumbnailEvidence).getByText('Thumbnail evidence'))
+    const cohort = within(thumbnailEvidence).getByTestId('youtube-thumbnail-research-cohort')
+    fireEvent.click(within(cohort).getByText('Inspectable Shorts research cohort'))
+    expect(within(cohort).getByText('8 qualified · minimum 6')).toBeVisible()
+    expect(within(cohort).getByText(/source exact views \/ same-channel recent-Short median exact views/i)).toBeVisible()
+    expect(within(cohort).getByText('Qualified source thumbnails')).toBeVisible()
+    expect(within(cohort).getAllByRole('link', { name: 'Open public Short' })).toHaveLength(8)
+    expect(within(cohort).getByText('Excluded sources (6)')).toBeVisible()
   })
 })

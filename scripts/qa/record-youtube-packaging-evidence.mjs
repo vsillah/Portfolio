@@ -8,7 +8,7 @@ const execFileAsync = promisify(execFile)
 const baseUrl = process.env.QA_BASE_URL || 'http://127.0.0.1:3128'
 const revision = process.env.QA_REVISION || 'working-tree'
 const authState = process.env.PLAYWRIGHT_AUTH_STATE || '/Users/vambahsillah/Projects/Portfolio/.auth/portfolio-admin-storage-state.json'
-const outputDir = path.resolve(process.env.QA_OUTPUT_DIR || 'artifacts/human-qa/youtube-packaging-evidence-2026-10-17')
+const outputDir = path.resolve(process.env.QA_OUTPUT_DIR || 'artifacts/human-qa/youtube-packaging-evidence-2026-10-18')
 const rawVideoDir = path.join(outputDir, 'raw-video')
 const mp4Path = path.join(outputDir, 'youtube-packaging-evidence-walkthrough.mp4')
 const route = '/admin/social-content/f966123f-05eb-48ec-a7c2-970afce642ef'
@@ -48,15 +48,21 @@ async function load(url, expectedStatus) {
   return packaging
 }
 
-let packaging = await load(boundUrl, 'Pair binding passed · scoring hold')
+let packaging = await load(boundUrl, 'Asset-package evidence ready')
 await noOverflow('desktop bound')
-await packaging.getByText('AI Gave You a Score. Who Owns the Decision?', { exact: true }).first().waitFor({ state: 'visible' })
-await packaging.getByText('WHO OWNS THE DECISION?', { exact: true }).first().waitFor({ state: 'visible' })
+await packaging.getByText('AI Scored It 81%. Who Makes the Call?', { exact: true }).first().waitFor({ state: 'visible' })
+await packaging.getByText('AI SCORED IT 81% / WHO DECIDES?', { exact: true }).first().waitFor({ state: 'visible' })
 await packaging.getByAltText(/YouTube Shorts bound thumbnail/).waitFor({ state: 'visible' })
 await page.screenshot({ path: path.join(outputDir, 'jev-packaging-bound-desktop-1440.png'), fullPage: true })
 
 await packaging.getByText('Title evidence', { exact: true }).click()
 await packaging.getByText('Formula and decision logic', { exact: true }).first().waitFor({ state: 'visible' })
+await packaging.getByText('Thumbnail evidence', { exact: true }).click()
+await packaging.getByText('Inspectable Shorts research cohort', { exact: true }).click()
+const cohort = packaging.getByTestId('youtube-thumbnail-research-cohort')
+await cohort.getByText('8 qualified · minimum 6', { exact: true }).waitFor({ state: 'visible' })
+if (await cohort.getByRole('link', { name: 'Open public Short' }).count() !== 8) throw new Error('The rendered scoring cohort did not expose exactly eight public Short links.')
+await page.screenshot({ path: path.join(outputDir, 'jev-packaging-cohort-desktop-1440.png'), fullPage: true })
 await page.waitForTimeout(700)
 
 packaging = await load(missingUrl, 'Asset package blocked')
@@ -70,7 +76,7 @@ await page.screenshot({ path: path.join(outputDir, 'jev-packaging-missing-thumbn
 await page.waitForTimeout(700)
 
 await page.setViewportSize({ width: 390, height: 844 })
-packaging = await load(boundUrl, 'Pair binding passed · scoring hold')
+packaging = await load(boundUrl, 'Asset-package evidence ready')
 await noOverflow('mobile bound')
 await page.screenshot({ path: path.join(outputDir, 'jev-packaging-bound-mobile-390.png'), fullPage: true })
 await page.waitForTimeout(700)
@@ -97,6 +103,7 @@ const results = {
   missingUrl,
   screenshots: [
     'jev-packaging-bound-desktop-1440.png',
+    'jev-packaging-cohort-desktop-1440.png',
     'jev-packaging-missing-thumbnail-desktop-1440.png',
     'jev-packaging-bound-mobile-390.png',
     'jev-packaging-missing-thumbnail-mobile-390.png',

@@ -1,0 +1,47 @@
+{
+  "version": "jev-thumbnail-selection/v2",
+  "receipt_id": "thumbnail:jev:youtube-shorts:20261018:v2",
+  "cohort_id": "cohort:youtube_shorts:ai-governance-decision:20261018:v1",
+  "observed_at": "2026-10-18T16:00:00.000Z",
+  "title": "AI Scored It 81%. Who Makes the Call?",
+  "headline": "AI SCORED IT 81% / WHO DECIDES?",
+  "decision": "advance_for_human_qa",
+  "composition": "Presenter-led AmaduTown/Jev composition with one concrete score, one decision question, and one approved score-panel proof crop.",
+  "source_assets": [
+    {
+      "path": "artifacts/human-qa/artifact-video-review-2026-10-14/jev-youtube-presenter-first/jev-youtube-presenter-first-poster.png",
+      "sha256": "sha256:d8c5c94029b5d4ec68b1aa0a0bfddcf33a0fe10aa79e95dc97c3b867c8459f28",
+      "use": "approved presenter crop"
+    },
+    {
+      "path": "artifacts/human-qa/artifact-video-review-2026-10-14/inputs/jev-operator-field-guide.png",
+      "sha256": "sha256:7e123f1c11a156e86b36e0d2306ad1f42d97d3c63dac335588e804f6bc74f8e9",
+      "use": "approved Jev score-panel proof crop"
+    }
+  ],
+  "research_influence": {
+    "adopted": [
+      "dominant human anchor",
+      "short high-contrast hook",
+      "concrete decision tension",
+      "single product-proof object"
+    ],
+    "rejected": [
+      "copied source wording or pixels",
+      "generic AI imagery",
+      "multi-panel explainer density",
+      "candidate performance claims"
+    ]
+  },
+  "output": {
+    "width": 1280,
+    "height": 720,
+    "sha256": "sha256:92d99b0789dbc459eb1abf7ab91b351f4946ecd5583bb89b122d2d179d9c9246",
+    "public_path": "/review-assets/social-content/jev-youtube-thumbnail-v2.png"
+  },
+  "rights_receipts": [
+    "rights:jev:owned-public-assets-20261014"
+  ],
+  "privacy_receipt": "privacy:jev:public-safe-20261014",
+  "provider_calls_executed": 0
+}

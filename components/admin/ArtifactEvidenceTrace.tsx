@@ -128,6 +128,64 @@ function PackagingArtifactEvidence({ element, label }: { element: ArtifactEviden
           {element.authoritative_href && <Link href={element.authoritative_href} className="inline-flex min-h-9 items-center gap-1 rounded-md border border-sky-600/35 px-2 py-1 font-semibold text-sky-900 hover:bg-sky-500/10 dark:text-sky-100"><ExternalLink className="h-3 w-3" /> Open product/source lineage</Link>}
           {receipt?.overall.source_receipts.map((source) => <Link key={source.receipt_id} href={source.href} className="inline-flex min-h-9 items-center gap-1 rounded-md border border-sky-600/35 px-2 py-1 font-semibold text-sky-900 hover:bg-sky-500/10 dark:text-sky-100"><ExternalLink className="h-3 w-3" /> {source.receipt_id}</Link>)}
         </div>
+        {element.research_cohort && <ThumbnailResearchEvidence cohort={element.research_cohort} />}
+      </div>
+    </details>
+  )
+}
+
+function metric(value: number | null, suffix = '') {
+  return value == null ? 'Unavailable' : `${value.toLocaleString(undefined, { maximumFractionDigits: 4 })}${suffix}`
+}
+
+function ThumbnailResearchEvidence({ cohort }: { cohort: NonNullable<ArtifactEvidenceElement['research_cohort']> }) {
+  const included = cohort.samples.filter((sample) => sample.decision === 'included')
+  const excluded = cohort.samples.filter((sample) => sample.decision === 'excluded')
+  return (
+    <details className="rounded-lg border border-violet-600/30 bg-violet-500/5 p-3" data-testid="youtube-thumbnail-research-cohort">
+      <summary className="cursor-pointer list-none">
+        <span className="flex flex-wrap items-center justify-between gap-2">
+          <span className="font-semibold text-foreground">Inspectable Shorts research cohort</span>
+          <span className="rounded-full border border-violet-600/30 px-2 py-1 text-[10px] font-semibold uppercase text-violet-900 dark:text-violet-100">{cohort.sample_size} qualified · minimum {cohort.minimum_sample_size}</span>
+        </span>
+        <span className="mt-1 block text-[11px] text-muted-foreground">{cohort.target} · observed {cohort.observed_at}</span>
+      </summary>
+      <div className="mt-3 space-y-4 border-t border-border pt-3">
+        <div>
+          <p className="font-semibold text-foreground">Exact calculations</p>
+          <ul className="mt-1 space-y-1">{cohort.formula.map((formula) => <li key={formula}>• {formula}</li>)}</ul>
+        </div>
+        <div className="grid gap-3 md:grid-cols-2">
+          <div><p className="font-semibold text-foreground">Recurring traits</p><ul className="mt-1 space-y-1">{cohort.recurring_visual_traits.map((trait) => <li key={trait}>• {trait}</li>)}</ul></div>
+          <div><p className="font-semibold text-foreground">Composition decision</p><p className="mt-1">{cohort.composition_decision}</p></div>
+          <div><p className="font-semibold text-emerald-800 dark:text-emerald-200">Adopted</p><ul className="mt-1 space-y-1">{cohort.adopted_traits.map((trait) => <li key={trait}>• {trait}</li>)}</ul></div>
+          <div><p className="font-semibold text-red-800 dark:text-red-200">Rejected</p><ul className="mt-1 space-y-1">{cohort.rejected_traits.map((trait) => <li key={trait}>• {trait}</li>)}</ul></div>
+        </div>
+        <div>
+          <p className="font-semibold text-foreground">Qualified source thumbnails</p>
+          <div className="mt-2 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            {included.map((sample) => (
+              <article key={sample.video_id} className="overflow-hidden rounded-lg border border-border bg-background">
+                {sample.thumbnail_path && <div className="relative aspect-[9/16] bg-slate-950"><Image src={sample.thumbnail_path} alt={`Public YouTube Short thumbnail from ${sample.creator}: ${sample.title}`} fill sizes="(max-width: 640px) 50vw, 220px" className="object-cover" /></div>}
+                <div className="space-y-1.5 p-2.5">
+                  <p className="font-semibold text-foreground">{sample.creator}</p>
+                  <p className="line-clamp-2">{sample.title}</p>
+                  <p>{metric(sample.view_count)} views · {metric(sample.subscriber_count)} subscribers · {metric(sample.duration_seconds, 's')}</p>
+                  <p>Channel relative {metric(sample.channel_relative_ratio, '×')} · audience/view {metric(sample.audience_view_ratio)} · views/day {metric(sample.recency_adjusted_views_per_day)}</p>
+                  <p>Normalized score <span className="font-semibold text-foreground">{metric(sample.normalized_performance_score)}/100</span></p>
+                  <p>{sample.decision_reason}</p>
+                  <p>Published {sample.published_at || 'Unavailable'} · observed {sample.observed_at}</p>
+                  <a href={sample.youtube_url} target="_blank" rel="noreferrer" className="inline-flex min-h-9 items-center gap-1 font-semibold text-sky-900 underline-offset-4 hover:underline dark:text-sky-100"><ExternalLink className="h-3 w-3" /> Open public Short</a>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+        <details className="rounded-md border border-border bg-background p-2.5">
+          <summary className="cursor-pointer font-semibold text-foreground">Excluded sources ({excluded.length})</summary>
+          <ul className="mt-2 space-y-2">{excluded.map((sample) => <li key={sample.video_id}><a href={sample.youtube_url} target="_blank" rel="noreferrer" className="font-semibold text-sky-900 hover:underline dark:text-sky-100">{sample.creator} · {sample.title}</a><span className="block">{sample.decision_reason} · {metric(sample.duration_seconds, 's')} · {metric(sample.view_count)} views · observed {sample.observed_at}</span></li>)}</ul>
+        </details>
+        <p className="break-all font-mono text-[10px] text-muted-foreground">{cohort.cohort_id}</p>
       </div>
     </details>
   )
