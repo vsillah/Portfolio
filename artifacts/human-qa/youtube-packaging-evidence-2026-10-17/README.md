@@ -1,6 +1,6 @@
 # YouTube packaging evidence QA
 
-- UI revision: `4fdb2ee8e34993c34a52e69331e253013351e507`
+- UI revision: `d94d75eed7d7661883b24f6860eec174f9d5bae2`
 - Route: `/admin/social-content/f966123f-05eb-48ec-a7c2-970afce642ef`
 - Fixture: `qa_fixture=channel_native_video_v2`
 - Viewports: desktop `1440x900`; mobile `390x844`
