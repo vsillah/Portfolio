@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { completeArtifactEvidenceManifest } from '@/lib/__tests__/artifact-evidence-fixture'
-import { validateYouTubePackagingEvidence } from '@/lib/artifact-evidence-manifest'
+import { validateYouTubePackagingEvidence, validateYouTubeThumbnailBatchDiversity } from '@/lib/artifact-evidence-manifest'
 import { channelNativeVideoQaFixture } from '@/lib/social-channel-video-qa-fixture'
 import { getSocialCampaignReviewPacket, SOCIAL_CAMPAIGN_REVIEW_IDS } from '@/lib/social-campaign-review-assets'
 
@@ -43,6 +43,47 @@ describe('YouTube packaging evidence validation', () => {
     if (!darkCastle || darkCastle.kind !== 'youtube_packaging') return
     expect(darkCastle.thumbnailEvidence).toMatchObject({ ready: true, target: 'youtube' })
     expect(darkCastle.thumbnailEvidence?.thumbnail?.research_cohort?.candidate).toMatchObject({ width: 1280, height: 720, aspect_ratio: '16:9' })
+  })
+
+  it('requires materially distinct composition signatures across the current campaign batch', () => {
+    const darkCastle = getSocialCampaignReviewPacket(SOCIAL_CAMPAIGN_REVIEW_IDS.darkCastleYouTube)
+    const aiAudit = getSocialCampaignReviewPacket(SOCIAL_CAMPAIGN_REVIEW_IDS.auditYouTube)
+    expect(darkCastle?.kind).toBe('youtube_packaging')
+    expect(aiAudit?.kind).toBe('youtube_packaging')
+    if (!darkCastle || darkCastle.kind !== 'youtube_packaging' || !darkCastle.thumbnailEvidenceManifest) return
+    if (!aiAudit || aiAudit.kind !== 'youtube_packaging' || !aiAudit.thumbnailEvidenceManifest) return
+
+    const distinct = validateYouTubeThumbnailBatchDiversity([
+      { id: 'dark-castle', manifest: darkCastle.thumbnailEvidenceManifest },
+      { id: 'ai-audit', manifest: aiAudit.thumbnailEvidenceManifest },
+    ])
+    expect(distinct).toMatchObject({ ready: true, candidateCount: 2, batchIdentity: 'social-campaign-youtube:20261018:v2' })
+    expect(new Set(distinct.layoutFamilies).size).toBe(2)
+    expect(new Set(distinct.compositionSignatures).size).toBe(2)
+
+    const duplicate = structuredClone(aiAudit.thumbnailEvidenceManifest)
+    const duplicateComposition = duplicate.elements.find((element) => element.category === 'thumbnail')!.research_cohort!.composition!
+    const darkComposition = darkCastle.thumbnailEvidenceManifest.elements.find((element) => element.category === 'thumbnail')!.research_cohort!.composition!
+    duplicateComposition.layout_family = darkComposition.layout_family
+    duplicateComposition.composition_signature = darkComposition.composition_signature
+    const rejected = validateYouTubeThumbnailBatchDiversity([
+      { id: 'dark-castle', manifest: darkCastle.thumbnailEvidenceManifest },
+      { id: 'ai-audit', manifest: duplicate },
+    ])
+    expect(rejected.ready).toBe(false)
+    expect(rejected.blockers).toEqual(expect.arrayContaining([
+      expect.stringContaining('repeats the layout family'),
+      expect.stringContaining('repeats the composition signature'),
+    ]))
+
+    const generic = structuredClone(aiAudit.thumbnailEvidenceManifest)
+    generic.elements.find((element) => element.category === 'thumbnail')!.research_cohort!.composition!.composition_signature = 'left-copy-right-product|generic-fallback'
+    const genericRejected = validateYouTubeThumbnailBatchDiversity([
+      { id: 'dark-castle', manifest: darkCastle.thumbnailEvidenceManifest },
+      { id: 'ai-audit', manifest: generic },
+    ])
+    expect(genericRejected.ready).toBe(false)
+    expect(genericRejected.blockers).toContain('ai-audit: repeated generic fallback composition signatures are prohibited.')
   })
 
   it('fails closed with a specific recovery action when the actual thumbnail is absent', () => {

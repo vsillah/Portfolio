@@ -1,6 +1,6 @@
 {
-  "version": "youtube-thumbnail-selection/v1",
-  "receipt_id": "thumbnail:dark-castle:youtube-long-form:20261018:v1",
+  "version": "youtube-thumbnail-selection/v2",
+  "receipt_id": "thumbnail:dark-castle:youtube-long-form:20261018:v2",
   "cohort_id": "cohort:youtube:chess-decision-learning:20261018:v1",
   "observed_at": "2026-10-18T17:30:00.000Z",
   "title": "I Rebuilt the Chess Lesson Around the Decision",
@@ -37,19 +37,35 @@
     "copied creator faces or source branding",
     "claims that the public style caused performance"
   ],
-  "selection_rationale": "One first-party product idea carries the image. The short hook adds tension without repeating the title. Public examples bound the editorial pattern; they do not supply the composition or a causal performance claim.",
+  "selection_rationale": "The owned board is the first-read object. A highlighted decision square and consequence arrow make the lesson visible before the bottom-band hook. Public examples bound the editorial pattern; they do not supply the composition or a causal performance claim.",
   "first_party_source": {
     "label": "Dark Castle gameplay proof",
     "artifact_url": "/review-assets/social-content/dark-castle-customer-facing-poster.png",
     "receipt_id": "sha256:e15d744685990933555575d6a3c7bc18100af901a766c9a81d4ab9b1cc827d78",
     "rights_status": "owned_product_proof"
   },
+  "first_party_supporting_sources": [],
+  "composition": {
+    "version": "youtube-thumbnail-composition/v1",
+    "layout_family": "full-bleed-decision-board-bottom-hook",
+    "dominant_subject": "Owned Dark Castle board position with the decision square highlighted",
+    "focal_hierarchy": [
+      "board position",
+      "highlighted decision square and consequence arrow",
+      "bottom-band hook"
+    ],
+    "text_placement": "bottom band spanning the board",
+    "batch_identity": "social-campaign-youtube:20261018:v2",
+    "composition_signature": "board-full-bleed|decision-ring|hook-bottom-band",
+    "exception_basis": "none",
+    "exception_receipt_ids": []
+  },
   "output": {
     "artifact_url": "/review-assets/social-content/youtube-packaging/dark-castle-remember-the-why.png",
     "width": 1280,
     "height": 720,
     "aspect_ratio": "16:9",
-    "sha256": "sha256:ff7b06f0d04c101768ac4cce4ecc29caeb69620b08885bf432399ad05291b23d"
+    "sha256": "sha256:80931c2387a251ed537e1ee0b769748ffeced72fc6b151c5ab6f0e22f4d90f64"
   },
   "external_gates": {
     "provider_generation": false,

@@ -7,6 +7,8 @@ const root = process.cwd()
 const outputRoot = path.resolve(root, 'public/review-assets/social-content/youtube-packaging')
 const sourceProofRoot = path.resolve(root, 'public/review-assets/social-content/source-proof')
 const logoPath = path.resolve(root, 'public/amadutown-logo-upscaled.png')
+const vambahPortraitPath = path.resolve(root, 'public/Profile_Photo_1.jpg')
+const batchIdentity = 'social-campaign-youtube:20261018:v2'
 
 const jobs = [
   {
@@ -18,12 +20,22 @@ const jobs = [
     sourceReceipt: 'sha256:e15d744685990933555575d6a3c7bc18100af901a766c9a81d4ab9b1cc827d78',
     sourceLabel: 'Dark Castle gameplay proof',
     title: 'I Rebuilt the Chess Lesson Around the Decision',
-    hook: ['REMEMBER', 'THE WHY'],
+    hook: ['REMEMBER THE WHY'],
     hookExact: 'REMEMBER THE WHY',
     accent: '#F5C518',
-    crop: { left: 125, top: 150, width: 990, height: 765 },
     output: 'dark-castle-remember-the-why.png',
     receipt: 'dark-castle-thumbnail-selection-receipt.json',
+    composition: {
+      version: 'youtube-thumbnail-composition/v1',
+      layout_family: 'full-bleed-decision-board-bottom-hook',
+      dominant_subject: 'Owned Dark Castle board position with the decision square highlighted',
+      focal_hierarchy: ['board position', 'highlighted decision square and consequence arrow', 'bottom-band hook'],
+      text_placement: 'bottom band spanning the board',
+      batch_identity: batchIdentity,
+      composition_signature: 'board-full-bleed|decision-ring|hook-bottom-band',
+      exception_basis: 'none',
+      exception_receipt_ids: [],
+    },
   },
   {
     id: 'ai-audit',
@@ -37,10 +49,20 @@ const jobs = [
     hook: ['WHO OWNS', 'THE CLEANUP?'],
     hookExact: 'WHO OWNS THE CLEANUP?',
     accent: '#E0B52F',
-    crop: { left: 35, top: 120, width: 1335, height: 1030 },
     output: 'ai-audit-who-owns-the-cleanup.png',
     receipt: 'ai-audit-thumbnail-selection-receipt.json',
     stageSourceAs: path.resolve(sourceProofRoot, 'ai-audit-calculator.png'),
+    composition: {
+      version: 'youtube-thumbnail-composition/v1',
+      layout_family: 'human-anchor-tilted-calculator-question',
+      dominant_subject: 'Approved first-party Vambah portrait confronting the owned calculator result',
+      focal_hierarchy: ['human anchor', 'ownership question', 'tilted calculator result'],
+      text_placement: 'upper center between portrait and calculator',
+      batch_identity: batchIdentity,
+      composition_signature: 'human-left|question-upper-center|calculator-tilted-right',
+      exception_basis: 'none',
+      exception_receipt_ids: [],
+    },
   },
 ]
 
@@ -61,47 +83,87 @@ function assertCanonicalInputs(job, cohort) {
   if (cohort.candidate_copy_pair?.performance_claim !== 'unscored' || cohort.candidate_copy_pair?.support_scope !== 'editorial_hypothesis_only') throw new Error(`${job.id}: unsupported copy-pair performance claim.`)
 }
 
-function overlay(job) {
-  const lineHeight = job.id === 'ai-audit' ? 90 : 104
-  const firstY = job.id === 'ai-audit' ? 290 : 280
-  const fontSize = job.id === 'ai-audit' ? 76 : 88
-  const lines = job.hook.map((line, index) => `<tspan x="62" dy="${index === 0 ? 0 : lineHeight}">${escapeXml(line)}</tspan>`).join('')
+function darkCastleOverlay(job) {
   return Buffer.from(`<svg width="1280" height="720" xmlns="http://www.w3.org/2000/svg">
-    <defs><linearGradient id="panel" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#061426" stop-opacity="1"/><stop offset="0.78" stop-color="#061426" stop-opacity="0.98"/><stop offset="1" stop-color="#061426" stop-opacity="0"/></linearGradient></defs>
-    <rect width="690" height="720" fill="url(#panel)"/>
-    <rect x="62" y="${firstY - 86}" width="98" height="8" rx="4" fill="${job.accent}"/>
-    <text x="62" y="${firstY}" fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif" font-size="${fontSize}" font-weight="900" letter-spacing="-2">${lines}</text>
+    <defs>
+      <linearGradient id="bottom" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#061426" stop-opacity="0"/><stop offset="0.34" stop-color="#061426" stop-opacity="0.9"/><stop offset="1" stop-color="#061426"/></linearGradient>
+      <filter id="glow"><feGaussianBlur stdDeviation="8" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    </defs>
+    <rect y="430" width="1280" height="290" fill="url(#bottom)"/>
+    <circle cx="651" cy="323" r="63" fill="none" stroke="${job.accent}" stroke-width="12" filter="url(#glow)"/>
+    <path d="M 713 326 C 830 332, 892 395, 961 470" fill="none" stroke="${job.accent}" stroke-width="10" stroke-linecap="round"/>
+    <path d="M 950 438 L 967 474 L 928 465" fill="${job.accent}"/>
+    <rect x="64" y="559" width="150" height="9" rx="4.5" fill="${job.accent}"/>
+    <text x="64" y="650" fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif" font-size="82" font-weight="900" letter-spacing="-2">${escapeXml(job.hookExact)}</text>
+    <text x="1000" y="690" fill="#FFFFFF" opacity="0.72" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700">MOVE → CONSEQUENCE</text>
   </svg>`)
+}
+
+function aiAuditOverlay(job) {
+  const lines = job.hook.map((line, index) => `<tspan x="520" dy="${index === 0 ? 0 : 78}">${escapeXml(line)}</tspan>`).join('')
+  return Buffer.from(`<svg width="1280" height="720" xmlns="http://www.w3.org/2000/svg">
+    <defs><linearGradient id="shade" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#061426" stop-opacity="0.05"/><stop offset="0.42" stop-color="#061426" stop-opacity="0.32"/><stop offset="0.5" stop-color="#061426" stop-opacity="0.9"/><stop offset="1" stop-color="#061426"/></linearGradient></defs>
+    <rect width="1280" height="720" fill="url(#shade)"/>
+    <rect x="482" width="8" height="720" fill="${job.accent}"/>
+    <circle cx="1132" cy="102" r="58" fill="${job.accent}"/>
+    <text x="1132" y="112" text-anchor="middle" fill="#061426" font-family="Arial, Helvetica, sans-serif" font-size="27" font-weight="900" letter-spacing="1">COST</text>
+    <rect x="520" y="126" width="106" height="9" rx="4.5" fill="${job.accent}"/>
+    <text x="520" y="214" fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif" font-size="66" font-weight="900" letter-spacing="-2">${lines}</text>
+  </svg>`)
+}
+
+async function renderThumbnail(job, outputPath) {
+  const logo = await sharp(logoPath).resize({ height: job.id === 'dark-castle' ? 76 : 68 }).png().toBuffer()
+  if (job.id === 'dark-castle') {
+    const board = await sharp(job.sourcePath).extract({ left: 238, top: 298, width: 505, height: 505 }).resize(720, 720).sharpen().png().toBuffer()
+    const ambient = await sharp(board).resize(1280, 720, { fit: 'cover' }).modulate({ brightness: 0.28, saturation: 0.62 }).blur(18).png().toBuffer()
+    await sharp({ create: { width: 1280, height: 720, channels: 4, background: '#061426' } })
+      .composite([
+        { input: ambient, left: 0, top: 0 },
+        { input: board, left: 280, top: 0 },
+        { input: darkCastleOverlay(job), left: 0, top: 0 },
+        { input: logo, left: 1152, top: 30 },
+      ])
+      .png({ compressionLevel: 9 })
+      .toFile(outputPath)
+    return
+  }
+
+  const portrait = await sharp(vambahPortraitPath).extract({ left: 430, top: 0, width: 1050, height: 1800 }).resize(490, 720, { fit: 'cover', position: 'north' }).modulate({ brightness: 0.86, saturation: 0.88 }).png().toBuffer()
+  const calculator = await sharp(job.sourcePath).extract({ left: 35, top: 120, width: 1335, height: 1030 }).resize(610, 350, { fit: 'cover' }).sharpen().png().toBuffer()
+  const calculatorCard = await sharp({ create: { width: 638, height: 378, channels: 4, background: '#F5C518' } })
+    .composite([{ input: calculator, left: 14, top: 14 }])
+    .rotate(-3, { background: '#061426' })
+    .png()
+    .toBuffer()
+  await sharp({ create: { width: 1280, height: 720, channels: 4, background: '#061426' } })
+    .composite([
+      { input: portrait, left: 0, top: 0 },
+      { input: aiAuditOverlay(job), left: 0, top: 0 },
+      { input: calculatorCard, left: 620, top: 342 },
+      { input: logo, left: 1190, top: 630 },
+    ])
+    .png({ compressionLevel: 9 })
+    .toFile(outputPath)
 }
 
 await mkdir(outputRoot, { recursive: true })
 await mkdir(sourceProofRoot, { recursive: true })
+await copyFile(vambahPortraitPath, path.resolve(sourceProofRoot, 'vambah-approved-profile.jpg'))
 
 for (const job of jobs) {
   const cohort = JSON.parse(await readFile(job.cohortPath, 'utf8'))
   assertCanonicalInputs(job, cohort)
   if (job.stageSourceAs) await copyFile(job.sourcePath, job.stageSourceAs)
 
-  const background = await sharp(job.sourcePath).resize(1280, 720, { fit: 'cover' }).modulate({ brightness: 0.34, saturation: 0.78 }).blur(11).png().toBuffer()
-  const product = await sharp(job.sourcePath).extract(job.crop).resize(760, 620, { fit: 'cover', position: 'centre' }).sharpen().png().toBuffer()
-  const logo = await sharp(logoPath).resize({ height: 108 }).png().toBuffer()
   const outputPath = path.join(outputRoot, job.output)
-
-  await sharp({ create: { width: 1280, height: 720, channels: 4, background: '#061426' } })
-    .composite([
-      { input: background, left: 0, top: 0 },
-      { input: product, left: 520, top: 50 },
-      { input: overlay(job), left: 0, top: 0 },
-      { input: logo, left: 62, top: 54 },
-    ])
-    .png({ compressionLevel: 9 })
-    .toFile(outputPath)
+  await renderThumbnail(job, outputPath)
 
   const outputBytes = await readFile(outputPath)
   const outputPublicPath = `/review-assets/social-content/youtube-packaging/${job.output}`
   const receipt = {
-    version: 'youtube-thumbnail-selection/v1',
-    receipt_id: `thumbnail:${job.id}:youtube-long-form:20261018:v1`,
+    version: 'youtube-thumbnail-selection/v2',
+    receipt_id: `thumbnail:${job.id}:youtube-long-form:20261018:v2`,
     cohort_id: cohort.cohort_id,
     observed_at: cohort.observed_at,
     title: job.title,
@@ -110,8 +172,12 @@ for (const job of jobs) {
     candidate_copy_pair: cohort.candidate_copy_pair,
     adopted_traits: cohort.adopted_traits,
     rejected_traits: cohort.rejected_traits,
-    selection_rationale: 'One first-party product idea carries the image. The short hook adds tension without repeating the title. Public examples bound the editorial pattern; they do not supply the composition or a causal performance claim.',
+    selection_rationale: job.id === 'dark-castle'
+      ? 'The owned board is the first-read object. A highlighted decision square and consequence arrow make the lesson visible before the bottom-band hook. Public examples bound the editorial pattern; they do not supply the composition or a causal performance claim.'
+      : 'The approved first-party human anchor faces the owned calculator result. The ownership question sits above the product proof instead of reusing the board candidate’s full-bleed layout. Public examples bound the editorial pattern; they do not supply the composition or a causal performance claim.',
     first_party_source: { label: job.sourceLabel, artifact_url: job.sourcePublicPath, receipt_id: job.sourceReceipt, rights_status: 'owned_product_proof' },
+    first_party_supporting_sources: job.id === 'ai-audit' ? [{ label: 'Approved Vambah profile portrait', artifact_url: '/review-assets/social-content/source-proof/vambah-approved-profile.jpg', receipt_id: 'sha256:2731bee4ee0b356fcb957ae84142d89cc0b6a35f49778aef5fb0f19a8d45c6ed', rights_status: 'approved_first_party_portrait' }] : [],
+    composition: job.composition,
     output: { artifact_url: outputPublicPath, width: 1280, height: 720, aspect_ratio: '16:9', sha256: sha256(outputBytes) },
     external_gates: { provider_generation: false, upload: false, platform_draft: false, schedule: false, publish: false, external_send: false, production_write: false },
   }

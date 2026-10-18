@@ -90,6 +90,25 @@ export default function SocialCampaignReviewPacket({ packet }: { packet: SocialC
                 Canonical thumbnail receipt: {packet.thumbnailReceipt}
               </p>
               <p className="mt-3 text-sm leading-6 text-foreground">Why selected: {thumbnailResearch?.candidate?.support_reason}</p>
+              {thumbnailResearch?.composition ? (
+                <section aria-label="YouTube thumbnail composition diversity" className="mt-3 rounded-lg border border-border bg-background p-3">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <p className="text-sm font-semibold text-foreground">Composition decision</p>
+                    <span className={`rounded-full border px-2 py-0.5 text-xs font-semibold ${packet.thumbnailDiversity?.ready ? 'border-emerald-500/35 text-emerald-700 dark:text-emerald-200' : 'border-red-500/40 text-red-800 dark:text-red-100'}`}>
+                      Batch diversity: {packet.thumbnailDiversity?.ready ? 'Distinct' : 'Blocked'}
+                    </span>
+                  </div>
+                  <dl className="mt-3 grid gap-2 text-xs sm:grid-cols-2">
+                    <div><dt className="font-semibold text-foreground">Layout family</dt><dd className="mt-1 text-muted-foreground">{thumbnailResearch.composition.layout_family}</dd></div>
+                    <div><dt className="font-semibold text-foreground">Dominant subject</dt><dd className="mt-1 text-muted-foreground">{thumbnailResearch.composition.dominant_subject}</dd></div>
+                    <div><dt className="font-semibold text-foreground">Text placement</dt><dd className="mt-1 text-muted-foreground">{thumbnailResearch.composition.text_placement}</dd></div>
+                    <div><dt className="font-semibold text-foreground">Batch identity</dt><dd className="mt-1 break-all font-mono text-muted-foreground">{thumbnailResearch.composition.batch_identity}</dd></div>
+                  </dl>
+                  <p className="mt-3 text-xs font-semibold text-foreground">Focal hierarchy</p>
+                  <ol className="mt-1 flex flex-wrap gap-2 text-xs text-muted-foreground">{thumbnailResearch.composition.focal_hierarchy.map((item, index) => <li key={item} className="rounded-full border border-border px-2 py-1">{index + 1}. {item}</li>)}</ol>
+                  {packet.thumbnailDiversity?.blockers.map((blocker) => <p key={blocker} className="mt-2 text-xs text-red-800 dark:text-red-100">{blocker}</p>)}
+                </section>
+              ) : null}
             </>
           ) : (
             <div className="mt-3 space-y-2">

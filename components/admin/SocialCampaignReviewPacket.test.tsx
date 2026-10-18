@@ -24,9 +24,12 @@ describe('SocialCampaignReviewPacket', () => {
     expect(screen.getByText('Final video blocked')).toBeVisible()
     expect(screen.getByText('WHO OWNS THE CLEANUP?')).toBeVisible()
     expect(screen.getByRole('img', { name: 'Evidence-ready thumbnail reading WHO OWNS THE CLEANUP?' })).toHaveAttribute('src', expect.stringContaining('ai-audit-who-owns-the-cleanup.png'))
-    expect(screen.getByText(/Canonical thumbnail receipt: thumbnail:ai-audit:youtube-long-form:20261018:v1/)).toBeVisible()
+    expect(screen.getByText(/Canonical thumbnail receipt: thumbnail:ai-audit:youtube-long-form:20261018:v2/)).toBeVisible()
     expect(screen.getByText('Thumbnail evidence: Ready')).toBeVisible()
     expect(screen.getByText(/93.5\/100/)).toBeVisible()
+    const diversity = screen.getByRole('region', { name: 'YouTube thumbnail composition diversity' })
+    expect(within(diversity).getByText('Batch diversity: Distinct')).toBeVisible()
+    expect(within(diversity).getByText('human-anchor-tilted-calculator-question')).toBeVisible()
   })
 
   it('shows a source-bound Dark Castle thumbnail without clearing the description blocker', () => {
@@ -39,6 +42,7 @@ describe('SocialCampaignReviewPacket', () => {
     expect(screen.getByText('0/3 qualifying descriptions')).toBeVisible()
     expect(screen.getByText('Final video blocked')).toBeVisible()
     expect(screen.getByText(/every external execution gate remain closed/)).toBeVisible()
+    expect(screen.getByText('full-bleed-decision-board-bottom-hook')).toBeVisible()
   })
 
   it('renders the approved Jev package as reuse rather than a new generated pair', () => {

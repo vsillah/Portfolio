@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { validateYouTubePackagingEvidence } from './artifact-evidence-manifest'
-import { getSocialCampaignReviewPacket, SOCIAL_CAMPAIGN_REVIEW_IDS, socialCampaignReviewQaFixture } from './social-campaign-review-assets'
+import { getSocialCampaignReviewPacket, SOCIAL_CAMPAIGN_REVIEW_IDS, SOCIAL_CAMPAIGN_YOUTUBE_THUMBNAIL_DIVERSITY, socialCampaignReviewQaFixture } from './social-campaign-review-assets'
 
 describe('social campaign review asset projection', () => {
   it('keeps the LinkedIn generator scoped to the three unchanged LinkedIn outputs', () => {
@@ -44,12 +44,20 @@ describe('social campaign review asset projection', () => {
     expect(packet.descriptionEvidence).toMatchObject({ state: 'unscored', qualified: 0, required: 3, attribution: [] })
     expect(packet.title).not.toBe(packet.thumbnailTeaser)
     expect(packet.thumbnailPath).toMatch(/^\/review-assets\/social-content\/youtube-packaging\/.+\.png$/)
-    expect(packet.thumbnailReceipt).toMatch(/^thumbnail:.+:youtube-long-form:20261018:v1$/)
+    expect(packet.thumbnailReceipt).toMatch(/^thumbnail:.+:youtube-long-form:20261018:v2$/)
     expect(packet.thumbnailEvidence).toMatchObject({ ready: true, target: 'youtube', pairBound: true })
     expect(packet.thumbnailEvidence?.thumbnail?.research_cohort).toMatchObject({ minimum_sample_size: 6 })
+    expect(packet.thumbnailEvidence?.thumbnail?.research_cohort?.composition).toMatchObject({ version: 'youtube-thumbnail-composition/v1', batch_identity: 'social-campaign-youtube:20261018:v2' })
+    expect(packet.thumbnailDiversity).toMatchObject({ ready: true, candidateCount: 2 })
     expect(packet.storyboard.length).toBeGreaterThanOrEqual(4)
     expect(packet.productProof.length).toBeGreaterThan(0)
     expect(packet.externalGates).toBe('closed')
+  })
+
+  it('keeps the two YouTube candidates in distinct source-bound composition families', () => {
+    expect(SOCIAL_CAMPAIGN_YOUTUBE_THUMBNAIL_DIVERSITY).toMatchObject({ ready: true, candidateCount: 2 })
+    expect(new Set(SOCIAL_CAMPAIGN_YOUTUBE_THUMBNAIL_DIVERSITY.layoutFamilies).size).toBe(2)
+    expect(new Set(SOCIAL_CAMPAIGN_YOUTUBE_THUMBNAIL_DIVERSITY.compositionSignatures).size).toBe(2)
   })
 
   it('does not expose a thumbnail when a copied manifest has only the PNG, SHA, and no cohort binding', () => {
