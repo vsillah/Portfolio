@@ -476,6 +476,7 @@ function packagingElementIssues(
   label: 'Title' | 'Thumbnail',
   currentContentVersion: string,
   evaluationAsOf: string,
+  target: YouTubePackagingTarget,
 ): { blockers: string[]; recoveryActions: string[] } {
   const blockers: string[] = []
   const recoveryActions: string[] = []
@@ -496,12 +497,19 @@ function packagingElementIssues(
     blockers.push('Thumbnail evidence is missing its actual bound review asset.')
     recoveryActions.push('Restore the versioned thumbnail file and receipt binding, then rebuild the asset-package review. A brief or poster alone is not sufficient.')
   }
+  if (label === 'Thumbnail' && !element.research_cohort) {
+    blockers.push('Thumbnail evidence is missing its attributable research cohort and candidate bindings.')
+    recoveryActions.push('Attach a fresh same-topic public cohort, first-party element bindings, and the exact candidate record before review.')
+  }
   if (label === 'Thumbnail' && element.research_cohort) {
     const research = element.research_cohort
     const candidate = research.candidate
-    if (!candidate || candidate.width !== 1080 || candidate.height !== 1920 || candidate.aspect_ratio !== '9:16') {
-      blockers.push('YouTube Short thumbnail evidence must bind an exact 1080×1920 9:16 candidate.')
-      recoveryActions.push('Rebuild and bind the candidate as a 1080×1920 9:16 asset before review.')
+    const requiredCandidate = target === 'youtube_shorts'
+      ? { width: 1080, height: 1920, aspectRatio: '9:16', label: 'YouTube Short' }
+      : { width: 1280, height: 720, aspectRatio: '16:9', label: 'YouTube long-form' }
+    if (!candidate || candidate.width !== requiredCandidate.width || candidate.height !== requiredCandidate.height || candidate.aspect_ratio !== requiredCandidate.aspectRatio) {
+      blockers.push(`${requiredCandidate.label} thumbnail evidence must bind an exact ${requiredCandidate.width}×${requiredCandidate.height} ${requiredCandidate.aspectRatio} candidate.`)
+      recoveryActions.push(`Rebuild and bind the candidate as a ${requiredCandidate.width}×${requiredCandidate.height} ${requiredCandidate.aspectRatio} asset before review.`)
     }
     const requiredBindings: ThumbnailElementBinding['element'][] = ['subject', 'hook', 'product_proof', 'aspect_ratio', 'brand_treatment']
     const validBindings = new Set(research.element_bindings.filter((binding) => binding.support === 'supports' && binding.link_status === 'verified_openable').map((binding) => binding.element))
@@ -628,12 +636,12 @@ export function validateYouTubePackagingEvidence(
   const title = titles.length === 1 ? titles[0] : null
   const thumbnail = thumbnails.length === 1 ? thumbnails[0] : null
   if (title) {
-    const issues = packagingElementIssues(title, 'Title', currentContentVersion, evaluationAsOf)
+    const issues = packagingElementIssues(title, 'Title', currentContentVersion, evaluationAsOf, target)
     blockers.push(...issues.blockers)
     recoveryActions.push(...issues.recoveryActions)
   }
   if (thumbnail) {
-    const issues = packagingElementIssues(thumbnail, 'Thumbnail', currentContentVersion, evaluationAsOf)
+    const issues = packagingElementIssues(thumbnail, 'Thumbnail', currentContentVersion, evaluationAsOf, target)
     blockers.push(...issues.blockers)
     recoveryActions.push(...issues.recoveryActions)
   }
