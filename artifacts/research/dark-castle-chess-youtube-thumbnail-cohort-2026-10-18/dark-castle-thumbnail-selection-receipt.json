@@ -1,6 +1,10 @@
 {
-  "version": "youtube-thumbnail-selection/v2",
+  "version": "youtube-thumbnail-selection/v3",
   "receipt_id": "thumbnail:dark-castle:youtube-long-form:20261018:v2",
+  "decision_receipt_id": "decision:thumbnail:dark-castle:20261018:v1",
+  "decision_input_version": "sha256:f045f04ca27f124cb06182e08122f872bb990cbb001395bc587f57107c8e7c1f",
+  "decision_output_version": "decision:dark-castle:20261018:v1",
+  "content_version": "2026-10-18T00:00:00.000Z",
   "cohort_id": "cohort:youtube:chess-decision-learning:20261018:v1",
   "observed_at": "2026-10-18T17:30:00.000Z",
   "title": "I Rebuilt the Chess Lesson Around the Decision",
@@ -37,6 +41,7 @@
     "copied creator faces or source branding",
     "claims that the public style caused performance"
   ],
+  "user_preference_contribution": [],
   "selection_rationale": "The owned board is the first-read object. A highlighted decision square and consequence arrow make the lesson visible before the bottom-band hook. Public examples bound the editorial pattern; they do not supply the composition or a causal performance claim.",
   "first_party_source": {
     "label": "Dark Castle gameplay proof",

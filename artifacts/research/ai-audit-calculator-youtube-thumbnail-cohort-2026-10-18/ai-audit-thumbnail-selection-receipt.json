@@ -1,6 +1,10 @@
 {
-  "version": "youtube-thumbnail-selection/v2",
+  "version": "youtube-thumbnail-selection/v3",
   "receipt_id": "thumbnail:ai-audit:youtube-long-form:20261018:v2",
+  "decision_receipt_id": "decision:thumbnail:ai-audit:20261018:v1",
+  "decision_input_version": "sha256:9c9099a1b992c20e926a36f2debe9deacb6d3559f3a12aa9a4a299a6af46941d",
+  "decision_output_version": "decision:ai-audit:20261018:v1",
+  "content_version": "2026-10-18T00:00:00.000Z",
   "cohort_id": "cohort:youtube:ai-cost-audit-roi:20261018:v1",
   "observed_at": "2026-10-18T17:30:00.000Z",
   "title": "The AI Cost That Never Appears on the Invoice",
@@ -36,6 +40,21 @@
     "neon robot or circuit-board filler",
     "dashboard grids and proof-chip rows",
     "copied creator faces or source branding"
+  ],
+  "user_preference_contribution": [
+    {
+      "source_url": "https://www.youtube.com/playlist?list=PLbfxkgOJ1hVc-9Gcleyt0iK7kW9MFpynh",
+      "captured_at": "2026-10-18T19:00:00.000Z",
+      "item_count": 14,
+      "applied_traits": [
+        "one dominant human-plus-product idea",
+        "short plain-language ownership question",
+        "visible first-party result proof"
+      ],
+      "evidence_role": "taste_calibration_only",
+      "performance_weight": 0,
+      "performance_status": "unscored"
+    }
   ],
   "selection_rationale": "The approved first-party human anchor faces the owned calculator result. The ownership question sits above the product proof instead of reusing the board candidate’s full-bleed layout. Public examples bound the editorial pattern; they do not supply the composition or a causal performance claim.",
   "first_party_source": {

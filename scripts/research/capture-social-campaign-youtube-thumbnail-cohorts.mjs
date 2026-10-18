@@ -7,12 +7,44 @@ const observedAt = process.env.OBSERVED_AT || new Date().toISOString()
 const observedAtMs = Date.parse(observedAt)
 const minimumSampleSize = 6
 const minimumChannelBaselineSize = 4
+const contentVersion = '2026-10-18T00:00:00.000Z'
+const userCuratedAiBusinessPreference = {
+  version: 'youtube-thumbnail-user-preference/v1',
+  signal_type: 'user_curated_saved_playlist',
+  source_url: 'https://www.youtube.com/playlist?list=PLbfxkgOJ1hVc-9Gcleyt0iK7kW9MFpynh',
+  captured_at: '2026-10-18T19:00:00.000Z',
+  item_identities: [
+    '1Rg9N6AC9Cs', '43MdhyYl2hY', 'h9Pk5iNDXMk', 'JSmGZ8vTEFQ', 'fIWUAodAgJw', 'IGgg397XB90', 'C2NZs1fCLfo',
+    'O8-UsCW3_1Y', 'GTWWNZyIsSc', 'iXkfIS0dJqQ', 'j7CaMx2c56M', '1L0ghc5ofLo', '-M_026Esvf0', 'lDHrmDAD9y4',
+  ].map((video_id) => ({ video_id, source_url: `https://www.youtube.com/watch?v=${video_id}` })),
+  extracted_visual_traits: [
+    'one dominant human or product anchor',
+    'large high-contrast hook readable before the supporting detail',
+    'visible proof prop such as a product screen, result, or revenue figure',
+  ],
+  extracted_copy_traits: [
+    'specific how-to, full-course, pricing, or step-by-step promise',
+    'plain-language outcome or tension rather than an abstract category label',
+    'selective use of concrete numbers, timeframes, and result evidence',
+  ],
+  applied_traits: ['one dominant human-plus-product idea', 'short plain-language ownership question', 'visible first-party result proof'],
+  performance_weight: 0,
+  evidence_role: 'taste_calibration_only',
+  performance_status: 'unscored',
+}
 
 const cohorts = [
   {
     slug: 'dark-castle-chess-youtube-thumbnail-cohort-2026-10-18',
     publicSlug: 'dark-castle-youtube-thumbnail-cohort',
     cohortId: 'cohort:youtube:chess-decision-learning:20261018:v1',
+    contentId: 'c12378f2-36de-4bf7-8c5d-0ce754e727eb',
+    decisionReceiptId: 'decision:thumbnail:dark-castle:20261018:v1',
+    outputVersion: 'decision:dark-castle:20261018:v1',
+    productProofReceiptId: 'sha256:e15d744685990933555575d6a3c7bc18100af901a766c9a81d4ab9b1cc827d78',
+    compositionSignature: 'board-full-bleed|decision-ring|hook-bottom-band',
+    selectedComposition: 'full-bleed-decision-board-bottom-hook',
+    preferenceSignals: [],
     topicIdentity: 'chess_decision_learning_from_mistakes',
     candidates: [
       ['ohSRdSZFnSQ', 'Same-topic chess-mistake explainer with current public metadata.'],
@@ -53,6 +85,13 @@ const cohorts = [
     slug: 'ai-audit-calculator-youtube-thumbnail-cohort-2026-10-18',
     publicSlug: 'ai-audit-youtube-thumbnail-cohort',
     cohortId: 'cohort:youtube:ai-cost-audit-roi:20261018:v1',
+    contentId: '3dad4cca-72b7-4705-8fb6-273bf7500ce6',
+    decisionReceiptId: 'decision:thumbnail:ai-audit:20261018:v1',
+    outputVersion: 'decision:ai-audit:20261018:v1',
+    productProofReceiptId: 'sha256:bef9eeb1d8d15f7b4197bb03240c27a3b6b96fe114ce06f4c7027690c3e49b97',
+    compositionSignature: 'human-left|question-upper-center|calculator-tilted-right',
+    selectedComposition: 'human-anchor-tilted-calculator-question',
+    preferenceSignals: [userCuratedAiBusinessPreference],
     topicIdentity: 'ai_tool_cost_audit_workflow_roi',
     candidates: [
       ['axNuaPmBjLg', 'Same-topic AI workflow ROI measurement example.'],
@@ -389,6 +428,75 @@ for (const cohort of cohorts) {
     annotation_boundary: 'Thumbnail text was transcribed from captured pixels. Unreadable text remains unreadable.',
   }
   await writeFile(path.join(outputRoot, 'cohort.json'), `${JSON.stringify(packet, null, 2)}\n`)
+
+  const comparisons = [
+    ...packet.included.map((sample) => ({
+      video_id: sample.video_id,
+      source_url: sample.youtube_url,
+      decision: 'included',
+      decision_reason: sample.decision_reason,
+      view_count: sample.view_count,
+      subscriber_count: sample.subscriber_count,
+      published_at: sample.published_at,
+      observed_at: sample.observed_at,
+      channel_baseline_size: sample.channel_baseline_size,
+      normalized_performance_score: sample.normalized_performance_score,
+      outlier_qualified: sample.outlier_qualified,
+    })),
+    ...packet.excluded.map((sample) => ({
+      video_id: sample.video_id,
+      source_url: sample.youtube_url,
+      decision: 'excluded',
+      decision_reason: sample.exclusion_reason,
+      view_count: Number.isFinite(sample.view_count) ? sample.view_count : null,
+      subscriber_count: Number.isFinite(sample.subscriber_count) ? sample.subscriber_count : null,
+      published_at: sample.published_at || null,
+      observed_at: observedAt,
+      channel_baseline_size: sample.channel_baseline?.sample_size ?? null,
+      normalized_performance_score: null,
+      outlier_qualified: false,
+    })),
+  ]
+  const decisionInput = {
+    content_version: contentVersion,
+    candidate_identity: {
+      content_id: cohort.contentId,
+      title: cohort.candidatePair.title,
+      thumbnail_hook: cohort.candidatePair.thumbnail_hook,
+      product_proof_receipt_id: cohort.productProofReceiptId,
+      composition_signature: cohort.compositionSignature,
+    },
+    live_evidence: {
+      cohort_id: packet.cohort_id,
+      observed_at: packet.observed_at,
+      fresh_until: packet.fresh_until,
+      minimum_sample_size: packet.selection_gate.minimum_sample_size,
+      normalization_formula: Object.values(packet.formula),
+      outlier_threshold: packet.outlier_qualification.threshold,
+      comparisons,
+    },
+    candidate_copy_pair: packet.candidate_copy_pair,
+    adopted_traits: packet.adopted_traits,
+    rejected_traits: packet.rejected_traits,
+    user_preference_signals: cohort.preferenceSignals,
+  }
+  const decisionReceipt = {
+    version: 'youtube-thumbnail-decision-receipt/v1',
+    receipt_id: cohort.decisionReceiptId,
+    route: 'social-content-outlier-decision/v1',
+    content_version: contentVersion,
+    input_version: `sha256:${createHash('sha256').update(JSON.stringify(decisionInput)).digest('hex')}`,
+    output_version: cohort.outputVersion,
+    ...decisionInput,
+    selection: {
+      status: packet.selection_gate.ready && packet.outlier_qualification.qualified_sample_size > 0 ? 'ready' : 'unscored',
+      selected_composition: cohort.selectedComposition,
+      title_thumbnail_relationship: cohort.candidatePair.relationship,
+      product_proof_binding: cohort.productProofReceiptId,
+      rationale: 'Live topic evidence controls qualification and threshold status. The saved playlist contributes taste calibration only, with zero performance weight. First-party product proof controls the selected composition.',
+    },
+  }
+  await writeFile(path.join(outputRoot, 'thumbnail-decision-receipt.json'), `${JSON.stringify(decisionReceipt, null, 2)}\n`)
 
   const cards = await Promise.all(packet.included.map(async (sample, index) => {
     const image = await sharp(path.join(publicRoot, `${sample.video_id}.jpg`)).resize({ width: 320, height: 180, fit: 'cover' }).toBuffer()

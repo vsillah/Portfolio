@@ -30,6 +30,11 @@ describe('SocialCampaignReviewPacket', () => {
     const diversity = screen.getByRole('region', { name: 'YouTube thumbnail composition diversity' })
     expect(within(diversity).getByText('Batch diversity: Distinct')).toBeVisible()
     expect(within(diversity).getByText('human-anchor-tilted-calculator-question')).toBeVisible()
+    const decisionRoute = screen.getByRole('region', { name: 'Thumbnail decision route' })
+    expect(within(decisionRoute).getByText('Receipt-backed Ready')).toBeVisible()
+    expect(within(decisionRoute).getByText('Saved playlist · 14 captured items')).toBeVisible()
+    expect(within(decisionRoute).getByText(/Taste calibration only · performance weight 0 · unscored/)).toBeVisible()
+    expect(within(decisionRoute).getByText(/decision:ai-audit:20261018:v1/)).toBeVisible()
   })
 
   it('shows a source-bound Dark Castle thumbnail without clearing the description blocker', () => {
@@ -42,7 +47,8 @@ describe('SocialCampaignReviewPacket', () => {
     expect(screen.getByText('0/3 qualifying descriptions')).toBeVisible()
     expect(screen.getByText('Final video blocked')).toBeVisible()
     expect(screen.getByText(/every external execution gate remain closed/)).toBeVisible()
-    expect(screen.getByText('full-bleed-decision-board-bottom-hook')).toBeVisible()
+    expect(screen.getAllByText('full-bleed-decision-board-bottom-hook').length).toBeGreaterThanOrEqual(1)
+    expect(screen.getByRole('region', { name: 'Thumbnail decision route' })).toHaveTextContent('No user-curated preference signal contributed to this selection.')
   })
 
   it('renders the approved Jev package as reuse rather than a new generated pair', () => {

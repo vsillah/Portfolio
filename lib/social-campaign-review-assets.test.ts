@@ -19,6 +19,14 @@ describe('social campaign review asset projection', () => {
     }
   })
 
+  it('renders YouTube thumbnails only from version-bound upstream decision receipts', () => {
+    const generator = readFileSync('scripts/qa/build-social-campaign-youtube-thumbnails.mjs', 'utf8')
+    expect(generator).toContain('decisionReceiptPath')
+    expect(generator).toContain('youtube-thumbnail-decision-receipt/v1')
+    expect(generator).toContain('social-content-outlier-decision/v1')
+    expect(generator).not.toContain('cohortPath:')
+  })
+
   it.each([
     SOCIAL_CAMPAIGN_REVIEW_IDS.jevLinkedIn,
     SOCIAL_CAMPAIGN_REVIEW_IDS.darkCastleLinkedIn,
@@ -72,6 +80,64 @@ describe('social campaign review asset projection', () => {
     expect(validation.ready).toBe(false)
     expect(validation.pairBound).toBe(true)
     expect(validation.blockers).toContain('Thumbnail evidence is missing its attributable research cohort and candidate bindings.')
+  })
+
+  it('fails closed when a manual cohort is injected without the upstream Social Content decision receipt', () => {
+    const packet = getSocialCampaignReviewPacket(SOCIAL_CAMPAIGN_REVIEW_IDS.darkCastleYouTube)
+    expect(packet?.kind).toBe('youtube_packaging')
+    if (!packet || packet.kind !== 'youtube_packaging' || !packet.thumbnailEvidenceManifest) return
+    const manifest = structuredClone(packet.thumbnailEvidenceManifest)
+    delete manifest.elements.find((element) => element.category === 'thumbnail')!.research_cohort!.decision_receipt
+
+    const validation = validateYouTubePackagingEvidence(manifest, packet.contentVersion, 'youtube', '2026-10-18T20:00:00.000Z')
+
+    expect(validation.ready).toBe(false)
+    expect(validation.blockers).toContain('Thumbnail evidence is not bound to a versioned Social Content outlier decision receipt.')
+  })
+
+  it('keeps playlist-only taste evidence Unscored when live topic evidence is absent', () => {
+    const packet = getSocialCampaignReviewPacket(SOCIAL_CAMPAIGN_REVIEW_IDS.auditYouTube)
+    expect(packet?.kind).toBe('youtube_packaging')
+    if (!packet || packet.kind !== 'youtube_packaging' || !packet.thumbnailEvidenceManifest) return
+    const manifest = structuredClone(packet.thumbnailEvidenceManifest)
+    const research = manifest.elements.find((element) => element.category === 'thumbnail')!.research_cohort!
+    research.samples = []
+    research.decision_receipt!.live_evidence.comparisons = []
+    research.decision_receipt!.selection.status = 'unscored'
+
+    const validation = validateYouTubePackagingEvidence(manifest, packet.contentVersion, 'youtube', '2026-10-18T20:00:00.000Z')
+
+    expect(research.decision_receipt!.user_preference_signals[0]).toMatchObject({ evidence_role: 'taste_calibration_only', performance_weight: 0, performance_status: 'unscored' })
+    expect(validation.ready).toBe(false)
+    expect(validation.blockers).toContain('The decision receipt does not contain a qualifying normalized live cohort and declared minimum sample size.')
+    expect(validation.blockers).toContain('The live decision receipt has no qualifying outlier at its declared numerical threshold.')
+  })
+
+  it('fails closed when the receipt-backed live cohort is stale', () => {
+    const packet = getSocialCampaignReviewPacket(SOCIAL_CAMPAIGN_REVIEW_IDS.auditYouTube)
+    expect(packet?.kind).toBe('youtube_packaging')
+    if (!packet || packet.kind !== 'youtube_packaging' || !packet.thumbnailEvidenceManifest) return
+    const manifest = structuredClone(packet.thumbnailEvidenceManifest)
+    manifest.elements.find((element) => element.category === 'thumbnail')!.research_cohort!.decision_receipt!.live_evidence.fresh_until = '2026-10-17T00:00:00.000Z'
+
+    const validation = validateYouTubePackagingEvidence(manifest, packet.contentVersion, 'youtube', '2026-10-18T20:00:00.000Z')
+
+    expect(validation.ready).toBe(false)
+    expect(validation.blockers).toContain('The live comparable-content evidence is missing or stale for this decision receipt.')
+  })
+
+  it('advances a fully receipt-backed live path while keeping playlist taste evidence non-performance', () => {
+    const packet = getSocialCampaignReviewPacket(SOCIAL_CAMPAIGN_REVIEW_IDS.auditYouTube)
+    expect(packet?.kind).toBe('youtube_packaging')
+    if (!packet || packet.kind !== 'youtube_packaging') return
+
+    expect(packet.thumbnailEvidence?.ready).toBe(true)
+    expect(packet.thumbnailEvidence?.thumbnail?.research_cohort?.decision_receipt).toMatchObject({
+      route: 'social-content-outlier-decision/v1',
+      selection: { status: 'ready' },
+      user_preference_signals: [{ evidence_role: 'taste_calibration_only', performance_weight: 0, performance_status: 'unscored' }],
+    })
+    expect(packet.descriptionEvidence).toMatchObject({ state: 'unscored', qualified: 0, required: 3 })
   })
 
   it('reuses the exact approved Jev title-thumbnail pair without changing its Unscored performance boundary', () => {

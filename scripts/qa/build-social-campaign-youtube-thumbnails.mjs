@@ -13,7 +13,8 @@ const batchIdentity = 'social-campaign-youtube:20261018:v2'
 const jobs = [
   {
     id: 'dark-castle',
-    cohortPath: path.resolve(root, 'artifacts/research/dark-castle-chess-youtube-thumbnail-cohort-2026-10-18/cohort.json'),
+    decisionReceiptPath: path.resolve(root, 'artifacts/research/dark-castle-chess-youtube-thumbnail-cohort-2026-10-18/thumbnail-decision-receipt.json'),
+    expectedDecisionReceiptId: 'decision:thumbnail:dark-castle:20261018:v1',
     expectedCohortId: 'cohort:youtube:chess-decision-learning:20261018:v1',
     sourcePath: path.resolve(root, 'public/review-assets/social-content/dark-castle-customer-facing-poster.png'),
     sourcePublicPath: '/review-assets/social-content/dark-castle-customer-facing-poster.png',
@@ -39,7 +40,8 @@ const jobs = [
   },
   {
     id: 'ai-audit',
-    cohortPath: path.resolve(root, 'artifacts/research/ai-audit-calculator-youtube-thumbnail-cohort-2026-10-18/cohort.json'),
+    decisionReceiptPath: path.resolve(root, 'artifacts/research/ai-audit-calculator-youtube-thumbnail-cohort-2026-10-18/thumbnail-decision-receipt.json'),
+    expectedDecisionReceiptId: 'decision:thumbnail:ai-audit:20261018:v1',
     expectedCohortId: 'cohort:youtube:ai-cost-audit-roi:20261018:v1',
     sourcePath: path.resolve(root, 'public/audit_calculator_img.png'),
     sourcePublicPath: '/review-assets/social-content/source-proof/ai-audit-calculator.png',
@@ -74,13 +76,24 @@ function escapeXml(value) {
   return String(value).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;')
 }
 
-function assertCanonicalInputs(job, cohort) {
-  if (cohort.status !== 'approved' || cohort.cohort_id !== job.expectedCohortId) throw new Error(`${job.id}: cohort is not the expected approved receipt.`)
-  if (cohort.target?.format !== 'long_form' || cohort.target?.aspect_ratio !== '16:9') throw new Error(`${job.id}: cohort is not bound to long-form 16:9 YouTube.`)
-  if (cohort.selection_gate?.ready !== true || cohort.selection_gate.qualified_sample_size < cohort.selection_gate.minimum_sample_size) throw new Error(`${job.id}: cohort did not meet its declared sample gate.`)
-  if (!cohort.included?.every((sample) => sample.youtube_url && sample.source_thumbnail_url && sample.thumbnail_path && sample.transcription_provenance && sample.channel_baseline_size >= 4 && Number.isFinite(sample.normalized_performance_score))) throw new Error(`${job.id}: at least one live sample lacks source, capture, transcription, channel baseline, or numerical evidence.`)
-  if (cohort.candidate_copy_pair?.title !== job.title || cohort.candidate_copy_pair?.thumbnail_hook !== job.hookExact || cohort.candidate_copy_pair?.exact_strings_are_distinct !== true) throw new Error(`${job.id}: exact title-thumbnail copy binding is missing or stale.`)
-  if (cohort.candidate_copy_pair?.performance_claim !== 'unscored' || cohort.candidate_copy_pair?.support_scope !== 'editorial_hypothesis_only') throw new Error(`${job.id}: unsupported copy-pair performance claim.`)
+function assertCanonicalInputs(job, decision) {
+  if (decision.version !== 'youtube-thumbnail-decision-receipt/v1' || decision.route !== 'social-content-outlier-decision/v1' || decision.receipt_id !== job.expectedDecisionReceiptId) throw new Error(`${job.id}: input is not the expected Social Content decision receipt.`)
+  if (decision.content_version !== '2026-10-18T00:00:00.000Z' || !/^decision:[a-z0-9:-]+:v\d+$/.test(decision.output_version)) throw new Error(`${job.id}: decision receipt is not version-bound to the current content.`)
+  const { version, receipt_id, route, input_version, output_version, selection, ...decisionInput } = decision
+  if (input_version !== sha256(Buffer.from(JSON.stringify(decisionInput)))) throw new Error(`${job.id}: decision receipt input fingerprint does not match its evidence payload.`)
+  const live = decision.live_evidence
+  if (live?.cohort_id !== job.expectedCohortId || !Array.isArray(live.normalization_formula) || live.normalization_formula.length === 0) throw new Error(`${job.id}: decision receipt lacks the expected normalized live cohort.`)
+  if (!Date.parse(live.observed_at) || !Date.parse(live.fresh_until) || Date.parse(live.fresh_until) < Date.now()) throw new Error(`${job.id}: live topic evidence is missing or stale.`)
+  const included = live.comparisons?.filter((sample) => sample.decision === 'included') ?? []
+  const qualified = included.filter((sample) => sample.outlier_qualified)
+  if (included.length < live.minimum_sample_size) throw new Error(`${job.id}: live cohort did not meet its declared sample gate.`)
+  if (!included.every((sample) => sample.source_url && sample.decision_reason && Number.isFinite(sample.view_count) && Number.isFinite(sample.subscriber_count) && sample.published_at && sample.observed_at && sample.channel_baseline_size >= 4 && Number.isFinite(sample.normalized_performance_score))) throw new Error(`${job.id}: at least one live comparison lacks source, metrics, normalization, or decision evidence.`)
+  if (!Number.isFinite(live.outlier_threshold) || qualified.length === 0 || qualified.some((sample) => sample.normalized_performance_score < live.outlier_threshold)) throw new Error(`${job.id}: live evidence does not satisfy the declared outlier threshold.`)
+  if (decision.candidate_identity?.title !== job.title || decision.candidate_identity?.thumbnail_hook !== job.hookExact || decision.candidate_identity?.composition_signature !== job.composition.composition_signature) throw new Error(`${job.id}: exact candidate identity or selected composition is missing or stale.`)
+  if (decision.candidate_copy_pair?.title !== job.title || decision.candidate_copy_pair?.thumbnail_hook !== job.hookExact || decision.candidate_copy_pair?.exact_strings_are_distinct !== true) throw new Error(`${job.id}: exact title-thumbnail copy binding is missing or stale.`)
+  if (decision.candidate_copy_pair?.performance_claim !== 'unscored' || decision.candidate_copy_pair?.support_scope !== 'editorial_hypothesis_only') throw new Error(`${job.id}: unsupported copy-pair performance claim.`)
+  if ((decision.user_preference_signals ?? []).some((signal) => signal.performance_weight !== 0 || signal.evidence_role !== 'taste_calibration_only' || signal.performance_status !== 'unscored' || !signal.captured_at || !signal.item_identities?.length)) throw new Error(`${job.id}: user preference evidence crossed its taste-calibration-only boundary.`)
+  if (selection?.status !== 'ready' || selection.selected_composition !== job.composition.layout_family || selection.product_proof_binding !== decision.candidate_identity.product_proof_receipt_id) throw new Error(`${job.id}: upstream selection is not Ready for this exact composition and product proof.`)
 }
 
 function darkCastleOverlay(job) {
@@ -152,8 +165,8 @@ await mkdir(sourceProofRoot, { recursive: true })
 await copyFile(vambahPortraitPath, path.resolve(sourceProofRoot, 'vambah-approved-profile.jpg'))
 
 for (const job of jobs) {
-  const cohort = JSON.parse(await readFile(job.cohortPath, 'utf8'))
-  assertCanonicalInputs(job, cohort)
+  const decision = JSON.parse(await readFile(job.decisionReceiptPath, 'utf8'))
+  assertCanonicalInputs(job, decision)
   if (job.stageSourceAs) await copyFile(job.sourcePath, job.stageSourceAs)
 
   const outputPath = path.join(outputRoot, job.output)
@@ -162,16 +175,29 @@ for (const job of jobs) {
   const outputBytes = await readFile(outputPath)
   const outputPublicPath = `/review-assets/social-content/youtube-packaging/${job.output}`
   const receipt = {
-    version: 'youtube-thumbnail-selection/v2',
+    version: 'youtube-thumbnail-selection/v3',
     receipt_id: `thumbnail:${job.id}:youtube-long-form:20261018:v2`,
-    cohort_id: cohort.cohort_id,
-    observed_at: cohort.observed_at,
+    decision_receipt_id: decision.receipt_id,
+    decision_input_version: decision.input_version,
+    decision_output_version: decision.output_version,
+    content_version: decision.content_version,
+    cohort_id: decision.live_evidence.cohort_id,
+    observed_at: decision.live_evidence.observed_at,
     title: job.title,
     thumbnail_hook: job.hookExact,
     target: { channel: 'youtube', format: 'long_form', width: 1280, height: 720, aspect_ratio: '16:9' },
-    candidate_copy_pair: cohort.candidate_copy_pair,
-    adopted_traits: cohort.adopted_traits,
-    rejected_traits: cohort.rejected_traits,
+    candidate_copy_pair: decision.candidate_copy_pair,
+    adopted_traits: decision.adopted_traits,
+    rejected_traits: decision.rejected_traits,
+    user_preference_contribution: decision.user_preference_signals.map((signal) => ({
+      source_url: signal.source_url,
+      captured_at: signal.captured_at,
+      item_count: signal.item_identities.length,
+      applied_traits: signal.applied_traits,
+      evidence_role: signal.evidence_role,
+      performance_weight: signal.performance_weight,
+      performance_status: signal.performance_status,
+    })),
     selection_rationale: job.id === 'dark-castle'
       ? 'The owned board is the first-read object. A highlighted decision square and consequence arrow make the lesson visible before the bottom-band hook. Public examples bound the editorial pattern; they do not supply the composition or a causal performance claim.'
       : 'The approved first-party human anchor faces the owned calculator result. The ownership question sits above the product proof instead of reusing the board candidate’s full-bleed layout. Public examples bound the editorial pattern; they do not supply the composition or a causal performance claim.',
@@ -181,6 +207,6 @@ for (const job of jobs) {
     output: { artifact_url: outputPublicPath, width: 1280, height: 720, aspect_ratio: '16:9', sha256: sha256(outputBytes) },
     external_gates: { provider_generation: false, upload: false, platform_draft: false, schedule: false, publish: false, external_send: false, production_write: false },
   }
-  await writeFile(path.join(path.dirname(job.cohortPath), job.receipt), `${JSON.stringify(receipt, null, 2)}\n`)
+  await writeFile(path.join(path.dirname(job.decisionReceiptPath), job.receipt), `${JSON.stringify(receipt, null, 2)}\n`)
   console.log(JSON.stringify({ receipt_id: receipt.receipt_id, output: outputPublicPath, sha256: receipt.output.sha256 }))
 }
