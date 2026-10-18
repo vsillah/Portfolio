@@ -582,21 +582,18 @@
   ],
   "long_form_reference_policy": "Long-form videos may inform non-scoring composition notes only. They are excluded from the Shorts performance calculation.",
   "recurring_visual_traits": [
-    "Both qualified outliers use one dominant person or concrete object.",
-    "Both qualified outliers use a short, high-contrast on-frame hook.",
-    "One of two qualified outliers makes the missing-guardrail consequence explicit; the candidate strengthens this into a direct human-decision question."
+    "The two formula-qualified public examples have visibly different compositions from the Jev candidate.",
+    "Their performance measurements remain attributable public observations.",
+    "Their visible frames do not support the candidate subject, hook, product-proof, aspect-ratio, or brand decisions."
   ],
   "adopted_traits": [
-    "Use the approved presenter as the dominant human anchor.",
-    "Reduce the hook to the concrete score and one decision question: AI SCORED IT 81% / WHO DECIDES?",
-    "Keep one approved Jev score panel as product proof instead of adding abstract AI imagery.",
-    "Use AmaduTown navy, white, and yellow with a single coral decision accent for mobile contrast."
+    "No candidate composition trait is adopted from the public outlier visuals."
   ],
   "rejected_traits": [
     "Do not copy source wording, creator likenesses, source brand colors, or source layouts.",
     "Reject generic robot, circuit-board, glowing-server, and synthetic dashboard imagery.",
     "Reject classroom diagrams, subscribe/follow furniture, split-screen interview layouts, and multi-panel field-guide density.",
-    "Reject performance claims about the unposted Jev candidate; cohort scores describe the public sources, while Jev scoring measures reproducible trait matches."
+    "Reject performance claims about the unposted Jev candidate; cohort scores describe the public sources only."
   ],
-  "composition_decision": "Create an original 1280x720 AmaduTown/Jev thumbnail from owned approved assets only: a presenter-led left-to-right scan, a large 81% score as the concrete tension, the question WHO DECIDES?, and one cropped Jev score panel as proof. No cohort thumbnail pixels are reused in the candidate."
+  "composition_decision": "Use this public cohort for performance context and visual comparison only. Build and score the 1080x1920 Jev Short composition from approved first-party AmaduTown baselines and owned Jev evidence. No cohort thumbnail pixels, wording, or unsupported visual claims are reused."
 }

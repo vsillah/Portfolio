@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { completeArtifactEvidenceManifest } from '@/lib/__tests__/artifact-evidence-fixture'
 import { validateYouTubePackagingEvidence } from '@/lib/artifact-evidence-manifest'
+import { channelNativeVideoQaFixture } from '@/lib/social-channel-video-qa-fixture'
 
 const VERSION = '2026-10-15T12:00:00.000Z'
 const AS_OF = '2026-10-16T12:00:00.000Z'
@@ -63,6 +64,39 @@ describe('YouTube packaging evidence validation', () => {
     expect(result.recoveryActions).toEqual(expect.arrayContaining([
       expect.stringContaining('exactly one current customer-facing title'),
       expect.stringContaining('thumbnail scorecard blockers'),
+    ]))
+  })
+
+  it('accepts only the verified 9:16 Jev candidate with complete first-party element bindings', () => {
+    const fixture = channelNativeVideoQaFixture('f966123f-05eb-48ec-a7c2-970afce642ef')
+    const result = validateYouTubePackagingEvidence(fixture.rag_context.artifact_evidence_manifest, fixture.updated_at, 'youtube_shorts', '2026-10-18T20:00:00.000Z')
+    const research = result.thumbnail?.research_cohort
+
+    expect(result.ready).toBe(true)
+    expect(research?.candidate).toMatchObject({ width: 1080, height: 1920, aspect_ratio: '9:16', link_status: 'verified_openable' })
+    expect(research?.element_bindings.map((binding) => binding.element).sort()).toEqual(['aspect_ratio', 'brand_treatment', 'hook', 'product_proof', 'subject'])
+    expect(research?.element_bindings.every((binding) => binding.support === 'supports' && binding.link_status === 'verified_openable')).toBe(true)
+    expect(research?.samples.every((sample) => sample.youtube_url.startsWith('https://') && sample.source_thumbnail_url?.startsWith('https://'))).toBe(true)
+  })
+
+  it('fails closed for landscape candidates, broken evidence links, missing bindings, or unsupported public-outlier claims', () => {
+    const fixture = channelNativeVideoQaFixture('f966123f-05eb-48ec-a7c2-970afce642ef')
+    const manifest = structuredClone(fixture.rag_context.artifact_evidence_manifest)
+    const thumbnail = manifest.elements.find((element) => element.category === 'thumbnail')!
+    const research = thumbnail.research_cohort!
+    research.candidate = { ...research.candidate!, width: 1280, height: 720, aspect_ratio: '16:9' }
+    research.element_bindings = research.element_bindings.filter((binding) => binding.element !== 'product_proof')
+    research.first_party_neighbors[0].link_status = 'blocked'
+    research.samples.find((sample) => sample.outlier_qualified)!.supports_candidate_composition = true
+
+    const result = validateYouTubePackagingEvidence(manifest, fixture.updated_at, 'youtube_shorts', '2026-10-18T20:00:00.000Z')
+
+    expect(result.ready).toBe(false)
+    expect(result.blockers).toEqual(expect.arrayContaining([
+      'YouTube Short thumbnail evidence must bind an exact 1080×1920 9:16 candidate.',
+      'Thumbnail evidence is missing verified supporting bindings for: product_proof.',
+      expect.stringContaining('blocked or missing source links'),
+      'A qualified public outlier is incorrectly marked as supporting the candidate composition.',
     ]))
   })
 })

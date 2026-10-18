@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { AlertTriangle, CheckCircle2, ExternalLink, FileSearch, ShieldCheck, X } from 'lucide-react'
@@ -20,12 +20,32 @@ function compactHash(value: string) {
 }
 
 const DIMENSION_LABELS: Record<ArtifactEvaluationDimensionKey, string> = {
-  outlier_pattern_fit: 'Outlier-pattern fit',
+  outlier_pattern_fit: 'Reference-pattern fit',
   source_support: 'Source support',
   core_audience_fit: 'Core-audience fit',
   timeliness: 'Timeliness',
   product_work_evidence_fit: 'Product/work evidence fit',
   originality_repetition_risk: 'Originality / repetition risk',
+}
+
+function AbsoluteEvidenceLink({ href, label, status = 'verified_openable' }: { href: string; label: string; status?: 'verified_openable' | 'blocked' }) {
+  const [absoluteHref, setAbsoluteHref] = useState(href.startsWith('https://') ? href : '')
+  useEffect(() => {
+    try {
+      setAbsoluteHref(new URL(href, window.location.origin).toString())
+    } catch {
+      setAbsoluteHref('')
+    }
+  }, [href])
+  const verified = status === 'verified_openable' && Boolean(absoluteHref)
+  return (
+    <div className="space-y-1">
+      <span className={`inline-flex rounded-full border px-2 py-0.5 text-[9px] font-bold uppercase ${verified ? 'border-emerald-600/35 bg-emerald-500/10 text-emerald-900 dark:text-emerald-100' : 'border-red-600/35 bg-red-500/10 text-red-900 dark:text-red-100'}`}>
+        {verified ? 'Verified / openable' : 'Blocked / not openable'}
+      </span>
+      {verified ? <a href={absoluteHref} target="_blank" rel="noreferrer" className="block break-all font-semibold text-sky-900 underline-offset-4 hover:underline dark:text-sky-100"><ExternalLink className="mr-1 inline h-3 w-3" />{label}: {absoluteHref}</a> : <p className="break-all text-red-800 dark:text-red-200">{label}: {href || 'Missing URL'}</p>}
+    </div>
+  )
 }
 
 function ElementEvaluationScorecard({ element }: { element: ArtifactEvidenceElement }) {
@@ -43,7 +63,7 @@ function ElementEvaluationScorecard({ element }: { element: ArtifactEvidenceElem
         </span>
       </div>
       <p className="mt-2 text-xs leading-5 text-muted-foreground">{receipt.overall.rationale}</p>
-      <div className="mt-2 flex flex-wrap gap-2">{receipt.overall.source_receipts.map((source) => <Link key={source.receipt_id} href={source.href} className="inline-flex min-h-8 items-center gap-1 rounded-md border border-sky-600/30 px-2 py-1 text-[10px] font-semibold text-sky-900 hover:bg-sky-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:text-sky-100"><ExternalLink className="h-3 w-3" /> {source.receipt_id}</Link>)}</div>
+      <div className="mt-2 grid gap-2">{receipt.overall.source_receipts.map((source) => <AbsoluteEvidenceLink key={source.receipt_id} href={source.href} label={source.receipt_id} />)}</div>
       <div className="mt-3 space-y-2">
         {ARTIFACT_EVALUATION_DIMENSIONS.map((key) => {
           const dimension = receipt.dimensions[key]
@@ -65,7 +85,7 @@ function ElementEvaluationScorecard({ element }: { element: ArtifactEvidenceElem
                   <div><p className="font-semibold text-foreground">Deterministic inputs</p><ul>{dimension.deterministic_inputs.map((input) => <li key={`${input.name}-${input.receipt_id}`}>{input.name}: {input.value} · <span className="font-mono">{input.receipt_id}</span></li>)}</ul></div>
                 )}
                 {dimension.source_receipts.length > 0 && (
-                  <div className="flex flex-wrap gap-2">{dimension.source_receipts.map((source) => <Link key={source.receipt_id} href={source.href} className="inline-flex min-h-9 items-center gap-1 rounded-md border border-sky-600/35 px-2 py-1 font-semibold text-sky-900 hover:bg-sky-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 dark:text-sky-100"><ExternalLink className="h-3 w-3" /> {source.receipt_id}</Link>)}</div>
+                  <div className="grid gap-2">{dimension.source_receipts.map((source) => <AbsoluteEvidenceLink key={source.receipt_id} href={source.href} label={source.receipt_id} />)}</div>
                 )}
               </div>
             </details>
@@ -125,9 +145,9 @@ function PackagingArtifactEvidence({ element, label }: { element: ArtifactEviden
             <ul className="mt-1 space-y-1">{observedInputs.map((input, index) => <li key={`${input.receipt_id}-${input.name}-${index}`}>{input.name}: <span className="font-medium text-foreground">{input.value}</span> · <span className="font-mono text-[11px]">{input.receipt_id}</span></li>)}</ul>
           ) : <p className="mt-1">No scored deterministic observations are attached.</p>}
         </div>
-        <div className="flex flex-wrap gap-2">
-          {element.authoritative_href && <Link href={element.authoritative_href} className="inline-flex min-h-9 items-center gap-1 rounded-md border border-sky-600/35 px-2 py-1 font-semibold text-sky-900 hover:bg-sky-500/10 dark:text-sky-100"><ExternalLink className="h-3 w-3" /> Open product/source lineage</Link>}
-          {receipt?.overall.source_receipts.map((source) => <Link key={source.receipt_id} href={source.href} className="inline-flex min-h-9 items-center gap-1 rounded-md border border-sky-600/35 px-2 py-1 font-semibold text-sky-900 hover:bg-sky-500/10 dark:text-sky-100"><ExternalLink className="h-3 w-3" /> {source.receipt_id}</Link>)}
+        <div className="grid gap-2">
+          {element.authoritative_href && <AbsoluteEvidenceLink href={element.authoritative_href} label="Product/source lineage" />}
+          {receipt?.overall.source_receipts.map((source) => <AbsoluteEvidenceLink key={source.receipt_id} href={source.href} label={source.receipt_id} />)}
         </div>
         {element.research_cohort && <ThumbnailResearchEvidence cohort={element.research_cohort} />}
       </div>
@@ -140,33 +160,47 @@ function metric(value: number | null, suffix = '') {
 }
 
 function ThumbnailResearchEvidence({ cohort }: { cohort: NonNullable<ArtifactEvidenceElement['research_cohort']> }) {
-  const included = cohort.samples.filter((sample) => sample.decision === 'included')
+  const publicOutliers = cohort.samples.filter((sample) => sample.decision === 'included' && sample.outlier_qualified)
   const excluded = cohort.samples.filter((sample) => sample.decision === 'excluded')
+  const neighborCard = (neighbor: NonNullable<typeof cohort.candidate>, role: string) => (
+    <article key={neighbor.id} className="overflow-hidden rounded-lg border border-border bg-background">
+      <div className="relative aspect-[9/16] bg-slate-950"><Image src={neighbor.artifact_url} alt={`${role}: ${neighbor.label}`} fill sizes="(max-width: 640px) 50vw, 240px" className="object-contain" /></div>
+      <div className="space-y-2 p-2.5">
+        <p className="font-semibold text-foreground">{neighbor.label}</p>
+        {neighbor.width && neighbor.height && <p>{neighbor.width}×{neighbor.height} · {neighbor.aspect_ratio ?? 'ratio unavailable'}</p>}
+        <p className={`font-semibold ${neighbor.supports_candidate_composition ? 'text-emerald-800 dark:text-emerald-200' : 'text-red-800 dark:text-red-200'}`}>{neighbor.supports_candidate_composition ? 'Supports candidate composition' : 'Does not support candidate composition'}</p>
+        <p>{neighbor.support_reason}</p>
+        <AbsoluteEvidenceLink href={neighbor.source_url} label="Open source" status={neighbor.link_status} />
+      </div>
+    </article>
+  )
   return (
     <details className="rounded-lg border border-violet-600/30 bg-violet-500/5 p-3" data-testid="youtube-thumbnail-research-cohort">
       <summary className="cursor-pointer list-none">
         <span className="flex flex-wrap items-center justify-between gap-2">
-          <span className="font-semibold text-foreground">Inspectable Shorts research cohort</span>
-          <span className="rounded-full border border-violet-600/30 px-2 py-1 text-[10px] font-semibold uppercase text-violet-900 dark:text-violet-100">{cohort.sample_size} topical · {cohort.outlier_sample_size} outliers · minimum {cohort.minimum_sample_size}</span>
+          <span className="font-semibold text-foreground">Visual-neighbor comparison and source map</span>
+          <span className="rounded-full border border-violet-600/30 px-2 py-1 text-[10px] font-semibold uppercase text-violet-900 dark:text-violet-100">9:16 candidate · {cohort.first_party_neighbors.length} first-party · {cohort.outlier_sample_size} public comparators</span>
         </span>
         <span className="mt-1 block text-[11px] text-muted-foreground">{cohort.target} · observed {cohort.observed_at}</span>
       </summary>
       <div className="mt-3 space-y-4 border-t border-border pt-3">
-        <div>
-          <p className="font-semibold text-foreground">Exact calculations</p>
-          <p className="mt-1">Outlier rule: <span className="font-mono text-foreground">{cohort.outlier_rule}</span>. Only those sources determine adopted visual traits; the rest remain topical baselines.</p>
+        <div className="rounded-md border border-amber-600/35 bg-amber-500/10 p-3">
+          <p className="font-semibold text-amber-950 dark:text-amber-100">Evidence boundary</p>
+          <p className="mt-1">{cohort.public_outlier_boundary}</p>
+          <p className="mt-2">Public outlier rule: <span className="font-mono text-foreground">{cohort.outlier_rule}</span>.</p>
           <ul className="mt-1 space-y-1">{cohort.formula.map((formula) => <li key={formula}>• {formula}</li>)}</ul>
         </div>
-        <div className="grid gap-3 md:grid-cols-2">
-          <div><p className="font-semibold text-foreground">Recurring traits</p><ul className="mt-1 space-y-1">{cohort.recurring_visual_traits.map((trait) => <li key={trait}>• {trait}</li>)}</ul></div>
-          <div><p className="font-semibold text-foreground">Composition decision</p><p className="mt-1">{cohort.composition_decision}</p></div>
-          <div><p className="font-semibold text-emerald-800 dark:text-emerald-200">Adopted</p><ul className="mt-1 space-y-1">{cohort.adopted_traits.map((trait) => <li key={trait}>• {trait}</li>)}</ul></div>
-          <div><p className="font-semibold text-red-800 dark:text-red-200">Rejected</p><ul className="mt-1 space-y-1">{cohort.rejected_traits.map((trait) => <li key={trait}>• {trait}</li>)}</ul></div>
+        <div>
+          <p className="font-semibold text-foreground">Side-by-side visual neighbors</p>
+          <div className="mt-2 grid gap-3 sm:grid-cols-2">
+            {cohort.first_party_neighbors.map((neighbor) => neighborCard(neighbor, 'Approved first-party baseline'))}
+            {cohort.candidate && neighborCard(cohort.candidate, 'Current candidate')}
+          </div>
         </div>
         <div>
-          <p className="font-semibold text-foreground">Qualified source thumbnails</p>
-          <div className="mt-2 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            {included.map((sample) => (
+          <p className="font-semibold text-foreground">Qualified public outliers · comparison only</p>
+          <div className="mt-2 grid gap-3 sm:grid-cols-2">
+            {publicOutliers.map((sample) => (
               <article key={sample.video_id} className="overflow-hidden rounded-lg border border-border bg-background">
                 {sample.thumbnail_path && <div className="relative aspect-[9/16] bg-slate-950"><Image src={sample.thumbnail_path} alt={`Public YouTube Short thumbnail from ${sample.creator}: ${sample.title}`} fill sizes="(max-width: 640px) 50vw, 220px" className="object-cover" /></div>}
                 <div className="space-y-1.5 p-2.5">
@@ -175,19 +209,38 @@ function ThumbnailResearchEvidence({ cohort }: { cohort: NonNullable<ArtifactEvi
                   <p>{metric(sample.view_count)} views · {metric(sample.subscriber_count)} subscribers · {metric(sample.duration_seconds, 's')}</p>
                   <p>Channel relative {metric(sample.channel_relative_ratio, '×')} · audience/view {metric(sample.audience_view_ratio)} · views/day {metric(sample.recency_adjusted_views_per_day)}</p>
                   <p>Normalized score <span className="font-semibold text-foreground">{metric(sample.normalized_performance_score)}/100</span></p>
-                  <p className="font-semibold text-foreground">{sample.outlier_qualified ? 'Qualified outlier' : 'Topical baseline'}</p>
+                  <p className="font-semibold text-red-800 dark:text-red-200">Does not support candidate composition</p>
+                  <p>{sample.composition_support_reason}</p>
                   <p>Traits: {Object.entries(sample.visual_traits).map(([name, value]) => `${name.replaceAll('_', ' ')}=${value ? 'yes' : 'no'}`).join(' · ')}</p>
                   <p>{sample.decision_reason}</p>
                   <p>Published {sample.published_at || 'Unavailable'} · observed {sample.observed_at}</p>
-                  <a href={sample.youtube_url} target="_blank" rel="noreferrer" className="inline-flex min-h-9 items-center gap-1 font-semibold text-sky-900 underline-offset-4 hover:underline dark:text-sky-100"><ExternalLink className="h-3 w-3" /> Open public Short</a>
+                  <AbsoluteEvidenceLink href={sample.youtube_url} label="Public Short" status={sample.link_status} />
+                  {sample.source_thumbnail_url && <AbsoluteEvidenceLink href={sample.source_thumbnail_url} label="Source thumbnail" status={sample.link_status} />}
                 </div>
               </article>
             ))}
           </div>
         </div>
+        <div>
+          <p className="font-semibold text-foreground">Candidate element bindings</p>
+          <div className="mt-2 overflow-x-auto rounded-md border border-border bg-background">
+            <table className="min-w-full text-left text-[11px]">
+              <thead className="border-b border-border bg-muted/40 text-foreground"><tr><th className="p-2">Element</th><th className="p-2">Source</th><th className="p-2">Support</th><th className="p-2">Boundary</th></tr></thead>
+              <tbody>{cohort.element_bindings.map((binding) => <tr key={binding.element} className="border-b border-border last:border-0"><td className="p-2 font-semibold text-foreground">{binding.element.replaceAll('_', ' ')}</td><td className="p-2"><AbsoluteEvidenceLink href={binding.source_url} label={binding.source_label} status={binding.link_status} /></td><td className={`p-2 font-semibold ${binding.support === 'supports' ? 'text-emerald-800 dark:text-emerald-200' : 'text-red-800 dark:text-red-200'}`}>{binding.support.replaceAll('_', ' ')}</td><td className="p-2">{binding.limitation}</td></tr>)}</tbody>
+            </table>
+          </div>
+        </div>
+        <details className="rounded-md border border-border bg-background p-2.5">
+          <summary className="cursor-pointer font-semibold text-foreground">First-party design decision</summary>
+          <div className="mt-2 grid gap-3 md:grid-cols-2">
+            <div><p className="font-semibold text-foreground">Supported traits</p><ul className="mt-1 space-y-1">{cohort.adopted_traits.map((trait) => <li key={trait}>• {trait}</li>)}</ul></div>
+            <div><p className="font-semibold text-foreground">Unsupported or rejected</p><ul className="mt-1 space-y-1">{cohort.rejected_traits.map((trait) => <li key={trait}>• {trait}</li>)}</ul></div>
+          </div>
+          <p className="mt-3">{cohort.composition_decision}</p>
+        </details>
         <details className="rounded-md border border-border bg-background p-2.5">
           <summary className="cursor-pointer font-semibold text-foreground">Excluded sources ({excluded.length})</summary>
-          <ul className="mt-2 space-y-2">{excluded.map((sample) => <li key={sample.video_id}><a href={sample.youtube_url} target="_blank" rel="noreferrer" className="font-semibold text-sky-900 hover:underline dark:text-sky-100">{sample.creator} · {sample.title}</a><span className="block">{sample.decision_reason} · {metric(sample.duration_seconds, 's')} · {metric(sample.view_count)} views · observed {sample.observed_at}</span></li>)}</ul>
+          <ul className="mt-2 space-y-2">{excluded.map((sample) => <li key={sample.video_id}><AbsoluteEvidenceLink href={sample.youtube_url} label={`${sample.creator} · ${sample.title}`} status={sample.link_status} /><span className="block">{sample.decision_reason} · {metric(sample.duration_seconds, 's')} · {metric(sample.view_count)} views · observed {sample.observed_at}</span></li>)}</ul>
         </details>
         <p className="break-all font-mono text-[10px] text-muted-foreground">{cohort.cohort_id}</p>
       </div>
@@ -218,7 +271,7 @@ function YouTubePackagingReview({ validation }: { validation: YouTubePackagingEv
           <p className="mt-1 text-base font-bold text-foreground">{validation.thumbnail?.input_excerpt || 'Headline missing'}</p>
         </div>
         {validation.thumbnail?.artifact_url ? (
-          <div className="relative aspect-video overflow-hidden rounded-lg border border-border bg-slate-950" data-testid="youtube-packaging-thumbnail">
+          <div className={`relative mx-auto w-full overflow-hidden rounded-lg border border-border bg-slate-950 ${validation.target === 'youtube_shorts' ? 'max-w-sm aspect-[9/16]' : 'aspect-video'}`} data-testid="youtube-packaging-thumbnail">
             <Image src={validation.thumbnail.artifact_url} alt={`${label} bound thumbnail: ${validation.thumbnail.input_excerpt}`} fill sizes="(max-width: 1024px) 100vw, 640px" className="object-contain" />
           </div>
         ) : (

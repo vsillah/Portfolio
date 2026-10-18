@@ -1,43 +1,79 @@
 {
-  "version": "jev-thumbnail-selection/v2",
-  "receipt_id": "thumbnail:jev:youtube-shorts:20261018:v2",
-  "cohort_id": "cohort:youtube_shorts:ai-governance-decision:20261018:v1",
-  "observed_at": "2026-10-18T16:00:00.000Z",
-  "title": "AI Scored It 81%. Who Makes the Call?",
-  "headline": "AI SCORED IT 81% / WHO DECIDES?",
+  "version": "jev-thumbnail-selection/v3",
+  "receipt_id": "thumbnail:jev:youtube-shorts:20261018:v3",
+  "baseline_receipt_id": "thumbnail-outlier-review/2026-10-16",
+  "public_cohort_id": "cohort:youtube_shorts:ai-governance-decision:20261018:v1",
+  "observed_at": "2026-10-18T20:00:00.000Z",
+  "title": "AI Scored It. Who Makes the Call?",
+  "headline": "AI SCORED IT. / WHO DECIDES?",
   "decision": "advance_for_human_qa",
-  "composition": "Presenter-led AmaduTown/Jev composition with one concrete score, one decision question, and one approved score-panel proof crop.",
+  "composition": "A 9:16 first-party AmaduTown Shorts composition: approved Vambah subject, short tension hook, one Jev product-proof object, and established navy/yellow/coral brand treatment.",
+  "aspect_ratio": "9:16",
   "source_assets": [
     {
-      "path": "artifacts/human-qa/artifact-video-review-2026-10-14/jev-youtube-presenter-first/jev-youtube-presenter-first-poster.png",
-      "sha256": "sha256:d8c5c94029b5d4ec68b1aa0a0bfddcf33a0fe10aa79e95dc97c3b867c8459f28",
-      "use": "approved presenter crop"
+      "path": "/Users/vambahsillah/Library/CloudStorage/GoogleDrive-vsillah@gmail.com/My Drive/2. AmaduTown Advisory Solutions/Artifacts /Promotional /1. ATAS YouTube Channel/Assets/Thumbnails/V Subject/V YT Thumbnail Curious.jpg",
+      "sha256": "sha256:b74a933c73cdc1ee336d951b7e6d20ea7737c214c5390805ce3c149068ec9e90",
+      "use": "approved Vambah subject",
+      "status": "verified_openable"
     },
     {
-      "path": "artifacts/human-qa/artifact-video-review-2026-10-14/inputs/jev-operator-field-guide.png",
+      "path": "/Users/vambahsillah/.codex/worktrees/fbcd/Portfolio/artifacts/human-qa/artifact-video-review-2026-10-14/inputs/jev-operator-field-guide.png",
       "sha256": "sha256:7e123f1c11a156e86b36e0d2306ad1f42d97d3c63dac335588e804f6bc74f8e9",
-      "use": "approved Jev score-panel proof crop"
+      "use": "approved Jev product proof",
+      "status": "verified_openable"
+    },
+    {
+      "path": "/Users/vambahsillah/.codex/worktrees/fbcd/Portfolio/public/amadutown-logo-upscaled.png",
+      "sha256": "sha256:42ea112b3079301524e102696a6d7db0d8700323fe924b6725ad8badee32a165",
+      "use": "AmaduTown brand treatment",
+      "status": "verified_openable"
+    },
+    {
+      "path": "/Users/vambahsillah/Projects/Portfolio.worktrees/stop-counting-ai-licenses-media/artifacts/human-qa/stop-counting-ai-licenses-2026-10-16/short-thumbnail-baseline.png",
+      "sha256": "sha256:947fea1c6c14aa997f2a2233b02e79db62dba4c9033e04f9c155c27156f1825e",
+      "use": "approved 9:16 Shorts structure",
+      "status": "verified_openable"
     }
   ],
-  "research_influence": {
-    "adopted": [
-      "dominant human anchor",
-      "short high-contrast hook",
-      "concrete decision tension",
-      "single product-proof object"
-    ],
-    "rejected": [
-      "copied source wording or pixels",
-      "generic AI imagery",
-      "multi-panel explainer density",
-      "candidate performance claims"
-    ]
-  },
+  "element_bindings": [
+    {
+      "element": "subject",
+      "source": "V YT Thumbnail Curious.jpg",
+      "support": "supports",
+      "limitation": "Does not support the exact hook, product claim, or public performance."
+    },
+    {
+      "element": "hook",
+      "source": "approved first-party thumbnail library",
+      "support": "supports",
+      "limitation": "Supports short tension-led treatment, not the exact wording."
+    },
+    {
+      "element": "product_proof",
+      "source": "Jev operator field guide",
+      "support": "supports",
+      "limitation": "Does not support audience or platform-performance claims."
+    },
+    {
+      "element": "aspect_ratio",
+      "source": "approved Short baseline receipt",
+      "support": "supports",
+      "limitation": "Supports 1080×1920 9:16 only."
+    },
+    {
+      "element": "brand_treatment",
+      "source": "AmaduTown first-party baselines and logo",
+      "support": "supports",
+      "limitation": "Does not support public-outlier claims."
+    }
+  ],
+  "public_outlier_boundary": "The two score-qualified public examples are comparison neighbors only. Their visual compositions do not support the candidate composition, and they contribute zero candidate design-fit points.",
   "output": {
-    "width": 1280,
-    "height": 720,
-    "sha256": "sha256:92d99b0789dbc459eb1abf7ab91b351f4946ecd5583bb89b122d2d179d9c9246",
-    "public_path": "/review-assets/social-content/jev-youtube-thumbnail-v2.png"
+    "width": 1080,
+    "height": 1920,
+    "aspect_ratio": "9:16",
+    "sha256": "sha256:4703d23ab8f6f70e23766423f33cfa231fff141e6a254531e92dd54ef96659d8",
+    "public_path": "/review-assets/social-content/jev-youtube-short-thumbnail-v3.png"
   },
   "rights_receipts": [
     "rights:jev:owned-public-assets-20261014"

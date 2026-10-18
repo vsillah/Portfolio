@@ -413,9 +413,9 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(assetPacketGate).toHaveTextContent('current scored evidence for internal review')
 
     const packaging = screen.getByLabelText('YouTube Shorts packaging evidence')
-    expect(within(packaging).getAllByText('AI Scored It 81%. Who Makes the Call?')[0]).toBeVisible()
-    expect(within(packaging).getAllByText('AI SCORED IT 81% / WHO DECIDES?')[0]).toBeVisible()
-    expect(within(packaging).getByAltText(/YouTube Shorts bound thumbnail/i)).toHaveAttribute('src', expect.stringContaining('jev-youtube-thumbnail-v2.png'))
+    expect(within(packaging).getAllByText('AI Scored It. Who Makes the Call?')[0]).toBeVisible()
+    expect(within(packaging).getAllByText('AI SCORED IT. / WHO DECIDES?')[0]).toBeVisible()
+    expect(within(packaging).getByAltText(/YouTube Shorts bound thumbnail/i)).toHaveAttribute('src', expect.stringContaining('jev-youtube-short-thumbnail-v3.png'))
     expect(within(packaging).getByRole('status')).toHaveTextContent('Asset-package evidence ready')
 
     const channelReview = screen.getByLabelText('YouTube Shorts channel-native video review')

@@ -37,6 +37,8 @@ export type ThumbnailResearchSample = {
   title: string
   creator: string
   thumbnail_path: string | null
+  source_thumbnail_url: string | null
+  link_status: 'verified_openable' | 'blocked'
   view_count: number | null
   subscriber_count: number | null
   duration_seconds: number | null
@@ -49,7 +51,31 @@ export type ThumbnailResearchSample = {
   recency_adjusted_views_per_day: number | null
   normalized_performance_score: number | null
   outlier_qualified: boolean
+  supports_candidate_composition: boolean
+  composition_support_reason: string
   visual_traits: Record<string, boolean>
+}
+
+export type ThumbnailVisualNeighbor = {
+  id: string
+  label: string
+  artifact_url: string
+  source_url: string
+  link_status: 'verified_openable' | 'blocked'
+  supports_candidate_composition: boolean
+  support_reason: string
+  width: number | null
+  height: number | null
+  aspect_ratio: string | null
+}
+
+export type ThumbnailElementBinding = {
+  element: 'subject' | 'hook' | 'product_proof' | 'aspect_ratio' | 'brand_treatment'
+  source_label: string
+  source_url: string
+  link_status: 'verified_openable' | 'blocked'
+  support: 'supports' | 'does_not_support'
+  limitation: string
 }
 
 export type ThumbnailResearchCohort = {
@@ -65,6 +91,10 @@ export type ThumbnailResearchCohort = {
   adopted_traits: string[]
   rejected_traits: string[]
   composition_decision: string
+  public_outlier_boundary: string
+  first_party_neighbors: ThumbnailVisualNeighbor[]
+  candidate: ThumbnailVisualNeighbor | null
+  element_bindings: ThumbnailElementBinding[]
   samples: ThumbnailResearchSample[]
 }
 
@@ -172,6 +202,37 @@ function safeYouTubeUrl(value: unknown): string {
   }
 }
 
+function safeHttpsUrl(value: unknown): string {
+  const href = text(value)
+  try {
+    const parsed = new URL(href)
+    return parsed.protocol === 'https:' ? href : ''
+  } catch {
+    return ''
+  }
+}
+
+function parseVisualNeighbor(value: unknown): ThumbnailVisualNeighbor | null {
+  const candidate = record(value)
+  if (!candidate) return null
+  const artifactUrl = safeArtifactUrl(candidate.artifact_url)
+  const sourceUrl = text(candidate.source_url)
+  const sourceIsSafe = safeHttpsUrl(sourceUrl) || safeArtifactUrl(sourceUrl)
+  if (!text(candidate.id) || !artifactUrl || !sourceIsSafe) return null
+  return {
+    id: text(candidate.id),
+    label: text(candidate.label),
+    artifact_url: artifactUrl,
+    source_url: sourceIsSafe,
+    link_status: candidate.link_status === 'verified_openable' ? 'verified_openable' : 'blocked',
+    supports_candidate_composition: candidate.supports_candidate_composition === true,
+    support_reason: text(candidate.support_reason),
+    width: nullableNumber(candidate.width),
+    height: nullableNumber(candidate.height),
+    aspect_ratio: text(candidate.aspect_ratio) || null,
+  }
+}
+
 function nullableNumber(value: unknown): number | null {
   return typeof value === 'number' && Number.isFinite(value) ? value : null
 }
@@ -190,6 +251,8 @@ function parseResearchCohort(value: unknown): ThumbnailResearchCohort | undefine
       title: text(sample.title),
       creator: text(sample.creator),
       thumbnail_path: safeArtifactUrl(sample.thumbnail_path),
+      source_thumbnail_url: safeHttpsUrl(sample.source_thumbnail_url) || null,
+      link_status: sample.link_status === 'verified_openable' ? 'verified_openable' : 'blocked',
       view_count: nullableNumber(sample.view_count),
       subscriber_count: nullableNumber(sample.subscriber_count),
       duration_seconds: nullableNumber(sample.duration_seconds),
@@ -202,9 +265,31 @@ function parseResearchCohort(value: unknown): ThumbnailResearchCohort | undefine
       recency_adjusted_views_per_day: nullableNumber(sample.recency_adjusted_views_per_day),
       normalized_performance_score: nullableNumber(sample.normalized_performance_score),
       outlier_qualified: sample.outlier_qualified === true,
+      supports_candidate_composition: sample.supports_candidate_composition === true,
+      composition_support_reason: text(sample.composition_support_reason),
       visual_traits: Object.fromEntries(Object.entries(rawTraits).filter((entry): entry is [string, boolean] => typeof entry[1] === 'boolean')),
     } satisfies ThumbnailResearchSample
   }).filter((sample): sample is ThumbnailResearchSample => Boolean(sample?.video_id && sample.youtube_url)) : []
+  const firstPartyNeighbors = Array.isArray(candidate.first_party_neighbors)
+    ? candidate.first_party_neighbors.map(parseVisualNeighbor).filter((neighbor): neighbor is ThumbnailVisualNeighbor => Boolean(neighbor))
+    : []
+  const candidateNeighbor = parseVisualNeighbor(candidate.candidate)
+  const elementBindings = Array.isArray(candidate.element_bindings) ? candidate.element_bindings.map((value) => {
+    const binding = record(value)
+    if (!binding) return null
+    const element = text(binding.element)
+    const sourceUrl = text(binding.source_url)
+    const safeSourceUrl = safeHttpsUrl(sourceUrl) || safeArtifactUrl(sourceUrl) || safeAuthoritativeHref(sourceUrl)
+    if (!['subject', 'hook', 'product_proof', 'aspect_ratio', 'brand_treatment'].includes(element) || !safeSourceUrl) return null
+    return {
+      element: element as ThumbnailElementBinding['element'],
+      source_label: text(binding.source_label),
+      source_url: safeSourceUrl,
+      link_status: binding.link_status === 'verified_openable' ? 'verified_openable' as const : 'blocked' as const,
+      support: binding.support === 'supports' ? 'supports' as const : 'does_not_support' as const,
+      limitation: text(binding.limitation),
+    }
+  }).filter((binding): binding is ThumbnailElementBinding => Boolean(binding)) : []
   return {
     cohort_id: text(candidate.cohort_id),
     target: text(candidate.target),
@@ -218,6 +303,10 @@ function parseResearchCohort(value: unknown): ThumbnailResearchCohort | undefine
     adopted_traits: strings(candidate.adopted_traits),
     rejected_traits: strings(candidate.rejected_traits),
     composition_decision: text(candidate.composition_decision),
+    public_outlier_boundary: text(candidate.public_outlier_boundary),
+    first_party_neighbors: firstPartyNeighbors,
+    candidate: candidateNeighbor,
+    element_bindings: elementBindings,
     samples,
   }
 }
@@ -293,6 +382,34 @@ function packagingElementIssues(
   if (label === 'Thumbnail' && !element.artifact_url) {
     blockers.push('Thumbnail evidence is missing its actual bound review asset.')
     recoveryActions.push('Restore the versioned thumbnail file and receipt binding, then rebuild the asset-package review. A brief or poster alone is not sufficient.')
+  }
+  if (label === 'Thumbnail' && element.research_cohort) {
+    const research = element.research_cohort
+    const candidate = research.candidate
+    if (!candidate || candidate.width !== 1080 || candidate.height !== 1920 || candidate.aspect_ratio !== '9:16') {
+      blockers.push('YouTube Short thumbnail evidence must bind an exact 1080×1920 9:16 candidate.')
+      recoveryActions.push('Rebuild and bind the candidate as a 1080×1920 9:16 asset before review.')
+    }
+    const requiredBindings: ThumbnailElementBinding['element'][] = ['subject', 'hook', 'product_proof', 'aspect_ratio', 'brand_treatment']
+    const validBindings = new Set(research.element_bindings.filter((binding) => binding.support === 'supports' && binding.link_status === 'verified_openable').map((binding) => binding.element))
+    const missingBindings = requiredBindings.filter((binding) => !validBindings.has(binding))
+    if (missingBindings.length) {
+      blockers.push(`Thumbnail evidence is missing verified supporting bindings for: ${missingBindings.join(', ')}.`)
+      recoveryActions.push('Attach an openable attributable source for every candidate element or leave that design choice Unscored.')
+    }
+    const blockedLinks = [
+      ...research.first_party_neighbors.filter((neighbor) => neighbor.link_status !== 'verified_openable').map((neighbor) => neighbor.label),
+      ...research.samples.filter((sample) => sample.link_status !== 'verified_openable' || !sample.source_thumbnail_url).map((sample) => sample.title),
+    ]
+    if (blockedLinks.length) {
+      blockers.push(`Thumbnail evidence contains blocked or missing source links: ${blockedLinks.join(', ')}.`)
+      recoveryActions.push('Restore absolute, openable public and first-party evidence links before review.')
+    }
+    const unsupportedPublicClaims = research.samples.filter((sample) => sample.outlier_qualified && sample.supports_candidate_composition)
+    if (unsupportedPublicClaims.length) {
+      blockers.push('A qualified public outlier is incorrectly marked as supporting the candidate composition.')
+      recoveryActions.push('Mark visually dissimilar public outliers as comparison-only and recalculate design fit from attributable first-party inputs.')
+    }
   }
   if (!element.evaluation_receipt) {
     blockers.push(`${label} evidence has no numerical evaluation receipt.`)
