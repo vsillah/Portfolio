@@ -1,0 +1,20 @@
+{
+  "revision": "a9f52351",
+  "base_url": "http://127.0.0.1:5318",
+  "routes": [
+    "http://127.0.0.1:5318/admin/social-content/c12378f2-36de-4bf7-8c5d-0ce754e727eb?step=copy&qa_fixture=social_campaign_review_assets_v1&rev=a9f52351",
+    "http://127.0.0.1:5318/admin/social-content/3dad4cca-72b7-4705-8fb6-273bf7500ce6?step=copy&qa_fixture=social_campaign_review_assets_v1&rev=a9f52351"
+  ],
+  "viewports": [
+    "1440x1000",
+    "390x844"
+  ],
+  "screenshots": [
+    "screenshots/dark-castle-desktop-1440.png",
+    "screenshots/dark-castle-mobile-390.png",
+    "screenshots/ai-audit-desktop-1440.png",
+    "screenshots/ai-audit-mobile-390.png"
+  ],
+  "mp4": "video/youtube-review-thumbnails-walkthrough.mp4",
+  "external_actions_enabled": 0
+}
