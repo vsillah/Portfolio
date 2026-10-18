@@ -8,8 +8,11 @@ import { ARTIFACT_EVALUATION_DIMENSIONS, type ArtifactEvaluationDimensionKey } f
 import {
   artifactManifestSnapshot,
   validateArtifactEvidenceManifest,
+  validateYouTubePackagingEvidence,
   type ArtifactEvidenceElement,
   type ArtifactEvidenceManifest,
+  type YouTubePackagingEvidenceValidation,
+  type YouTubePackagingTarget,
 } from '@/lib/artifact-evidence-manifest'
 
 function compactHash(value: string) {
@@ -77,6 +80,109 @@ function ElementEvaluationScorecard({ element }: { element: ArtifactEvidenceElem
         <dt>Confidence</dt><dd className="font-medium text-foreground">{receipt.overall.confidence_score == null ? 'Unscored' : `${receipt.overall.confidence_score}/100`} · {receipt.overall.confidence_label}</dd>
         <dt>Receipt</dt><dd className="break-all font-mono text-foreground">{receipt.receipt_id}</dd>
       </dl>
+    </section>
+  )
+}
+
+function PackagingArtifactEvidence({ element, label }: { element: ArtifactEvidenceElement; label: 'Title' | 'Thumbnail' }) {
+  const receipt = element.evaluation_receipt
+  const observedInputs = receipt
+    ? ARTIFACT_EVALUATION_DIMENSIONS.flatMap((key) => receipt.dimensions[key].deterministic_inputs)
+    : []
+  return (
+    <details className="rounded-lg border border-border bg-background p-3">
+      <summary className="cursor-pointer list-none">
+        <span className="flex flex-wrap items-center justify-between gap-2">
+          <span className="text-sm font-semibold text-foreground">{label} evidence</span>
+          <span className={`rounded-full border px-2 py-1 text-[10px] font-semibold uppercase ${receipt?.overall.score == null ? 'border-amber-600/35 bg-amber-500/10 text-amber-900 dark:text-amber-100' : 'border-emerald-600/35 bg-emerald-500/10 text-emerald-900 dark:text-emerald-100'}`}>
+            {receipt?.overall.score == null ? 'Unscored · hold' : `${receipt.overall.score}/100 · threshold ${receipt.overall.threshold}`}
+          </span>
+        </span>
+        <span className="mt-1 block break-words text-xs text-muted-foreground">{element.input_excerpt || `${label} value missing`}</span>
+      </summary>
+      <div className="mt-3 space-y-3 border-t border-border pt-3 text-xs leading-5 text-muted-foreground">
+        <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-1.5">
+          <dt>Normalized score</dt><dd className="font-semibold text-foreground">{receipt?.overall.score == null ? 'Unscored' : `${receipt.overall.score}/100`}</dd>
+          <dt>Required threshold</dt><dd className="font-semibold text-foreground">{receipt ? `${receipt.overall.threshold}/100` : 'Missing'}</dd>
+          <dt>Cohort identity</dt><dd className="break-all font-mono text-[11px] text-foreground">{receipt?.benchmark_cohort.cohort_id ?? 'Missing'}</dd>
+          <dt>Sample size</dt><dd className="font-medium text-foreground">{receipt?.benchmark_cohort.sample_size ?? 'Missing'}</dd>
+          <dt>Observed window</dt><dd className="font-medium text-foreground">{receipt?.benchmark_cohort.observed_from && receipt.benchmark_cohort.observed_to ? `${receipt.benchmark_cohort.observed_from} – ${receipt.benchmark_cohort.observed_to}` : 'Missing'}</dd>
+          <dt>Fresh until</dt><dd className="font-medium text-foreground">{receipt?.benchmark_cohort.fresh_until ?? 'Missing'}</dd>
+          <dt>Receipt identity</dt><dd className="break-all font-mono text-[11px] text-foreground">{receipt?.receipt_id || 'Missing'}</dd>
+          <dt>Content version</dt><dd className="break-all font-mono text-[11px] text-foreground">{element.content_version || 'Missing'}</dd>
+          <dt>Version hash</dt><dd className="break-all font-mono text-[11px] text-foreground">{element.version_hash || 'Missing'}</dd>
+          <dt>Product proof</dt><dd className="font-medium text-foreground">{element.source_identity || 'Missing'} · {element.source_record_type.replaceAll('_', ' ') || 'source type missing'}</dd>
+        </dl>
+        <div className="rounded-md border border-border bg-muted/30 p-2.5">
+          <p className="font-semibold text-foreground">Formula and decision logic</p>
+          <p className="mt-1">Weighted normalized score = Σ(direction-normalized dimension score × weight) ÷ 100. Advance only when every dimension is scored, the cohort is current and attributable, and the result meets the recorded threshold.</p>
+          <p className="mt-1">{receipt?.overall.rationale || 'No versioned decision rationale is attached.'}</p>
+        </div>
+        <div>
+          <p className="font-semibold text-foreground">Observed values</p>
+          {observedInputs.length ? (
+            <ul className="mt-1 space-y-1">{observedInputs.map((input, index) => <li key={`${input.receipt_id}-${input.name}-${index}`}>{input.name}: <span className="font-medium text-foreground">{input.value}</span> · <span className="font-mono text-[11px]">{input.receipt_id}</span></li>)}</ul>
+          ) : <p className="mt-1">No scored deterministic observations are attached.</p>}
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {element.authoritative_href && <Link href={element.authoritative_href} className="inline-flex min-h-9 items-center gap-1 rounded-md border border-sky-600/35 px-2 py-1 font-semibold text-sky-900 hover:bg-sky-500/10 dark:text-sky-100"><ExternalLink className="h-3 w-3" /> Open product/source lineage</Link>}
+          {receipt?.overall.source_receipts.map((source) => <Link key={source.receipt_id} href={source.href} className="inline-flex min-h-9 items-center gap-1 rounded-md border border-sky-600/35 px-2 py-1 font-semibold text-sky-900 hover:bg-sky-500/10 dark:text-sky-100"><ExternalLink className="h-3 w-3" /> {source.receipt_id}</Link>)}
+        </div>
+      </div>
+    </details>
+  )
+}
+
+function YouTubePackagingReview({ validation }: { validation: YouTubePackagingEvidenceValidation }) {
+  const label = validation.target === 'youtube_shorts' ? 'YouTube Shorts' : 'YouTube'
+  return (
+    <section aria-label={`${label} packaging evidence`} className={`mt-4 rounded-xl border p-4 ${validation.ready ? 'border-emerald-600/35 bg-emerald-500/5' : 'border-amber-600/40 bg-amber-500/5'}`}>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-red-700 dark:text-red-200">{label} asset-package review</p>
+          <h3 className="mt-1 text-lg font-semibold text-foreground">Customer-facing title and bound thumbnail</h3>
+          <p className="mt-1 text-sm leading-6 text-muted-foreground">Review the words and the actual image together. Evidence details stay collapsed until needed.</p>
+        </div>
+        <span role="status" className={`rounded-full border px-2.5 py-1 text-xs font-semibold ${validation.ready ? 'border-emerald-600/35 bg-emerald-500/10 text-emerald-900 dark:text-emerald-100' : validation.pairBound ? 'border-amber-600/35 bg-amber-500/10 text-amber-950 dark:text-amber-100' : 'border-red-600/35 bg-red-500/10 text-red-900 dark:text-red-100'}`}>
+          {validation.ready ? 'Asset-package evidence ready' : validation.pairBound ? 'Pair binding passed · scoring hold' : 'Asset package blocked'}
+        </span>
+      </div>
+
+      <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,0.82fr)_minmax(320px,1.18fr)] lg:items-start">
+        <div className="rounded-lg border border-border bg-background p-3">
+          <p className="text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-muted-foreground">Customer-facing title</p>
+          <p className="mt-2 text-xl font-semibold leading-7 text-foreground">{validation.title?.input_excerpt || 'Title missing'}</p>
+          <p className="mt-4 text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-muted-foreground">Thumbnail headline</p>
+          <p className="mt-1 text-base font-bold text-foreground">{validation.thumbnail?.input_excerpt || 'Headline missing'}</p>
+        </div>
+        {validation.thumbnail?.artifact_url ? (
+          <div className="relative aspect-video overflow-hidden rounded-lg border border-border bg-slate-950" data-testid="youtube-packaging-thumbnail">
+            <Image src={validation.thumbnail.artifact_url} alt={`${label} bound thumbnail: ${validation.thumbnail.input_excerpt}`} fill sizes="(max-width: 1024px) 100vw, 640px" className="object-contain" />
+          </div>
+        ) : (
+          <div role="img" aria-label={`${label} thumbnail missing`} className="flex aspect-video items-center justify-center rounded-lg border border-dashed border-red-500/45 bg-red-500/5 p-5 text-center text-sm font-semibold text-red-900 dark:text-red-100">
+            No actual thumbnail is bound. The packet cannot be asset-package ready.
+          </div>
+        )}
+      </div>
+
+      {!validation.ready && (
+        <div role="alert" className="mt-4 grid gap-3 lg:grid-cols-2">
+          <div className="rounded-lg border border-red-500/35 bg-red-500/10 p-3">
+            <p className="text-sm font-semibold text-red-900 dark:text-red-100">Specific blockers</p>
+            <ul className="mt-2 space-y-1 text-xs leading-5 text-red-900/90 dark:text-red-100/90">{validation.blockers.map((blocker) => <li key={blocker}>• {blocker}</li>)}</ul>
+          </div>
+          <div className="rounded-lg border border-amber-500/35 bg-amber-500/10 p-3">
+            <p className="text-sm font-semibold text-amber-950 dark:text-amber-100">Recovery actions</p>
+            <ul className="mt-2 space-y-1 text-xs leading-5 text-amber-950/90 dark:text-amber-100/90">{validation.recoveryActions.map((action) => <li key={action}>• {action}</li>)}</ul>
+          </div>
+        </div>
+      )}
+
+      <div className="mt-4 grid gap-3 lg:grid-cols-2">
+        {validation.title && <PackagingArtifactEvidence element={validation.title} label="Title" />}
+        {validation.thumbnail && <PackagingArtifactEvidence element={validation.thumbnail} label="Thumbnail" />}
+      </div>
     </section>
   )
 }
@@ -150,14 +256,19 @@ function VisualSourceTrace({ manifest, selectedId, onSelect }: {
   )
 }
 
-export default function ArtifactEvidenceTrace({ manifest: rawManifest, currentContentVersion, recordedSnapshot, evaluationAsOf }: {
+export default function ArtifactEvidenceTrace({ manifest: rawManifest, currentContentVersion, recordedSnapshot, evaluationAsOf, packagingTarget }: {
   manifest: unknown
   currentContentVersion: string
   evaluationAsOf?: string
+  packagingTarget?: YouTubePackagingTarget
   recordedSnapshot?: { manifest_id?: string; manifest_hash?: string; content_version?: string; evaluation_receipt_version?: string | null; evaluation_receipt_ids?: string[] } | null
 }) {
   const validation = useMemo(() => validateArtifactEvidenceManifest(rawManifest, currentContentVersion, evaluationAsOf), [currentContentVersion, evaluationAsOf, rawManifest])
   const manifest = validation.manifest
+  const packagingValidation = useMemo(
+    () => packagingTarget ? validateYouTubePackagingEvidence(rawManifest, currentContentVersion, packagingTarget, evaluationAsOf) : null,
+    [currentContentVersion, evaluationAsOf, packagingTarget, rawManifest],
+  )
   const [traceEnabled, setTraceEnabled] = useState(false)
   const [selectedId, setSelectedId] = useState<string | null>(null)
   if (!manifest) return null
@@ -205,6 +316,8 @@ export default function ArtifactEvidenceTrace({ manifest: rawManifest, currentCo
           {recordedSnapshot.evaluation_receipt_version && <p className="mt-1 break-all font-mono">{recordedSnapshot.evaluation_receipt_version} · {(recordedSnapshot.evaluation_receipt_ids ?? []).join(' · ') || 'no evaluation receipt ids'}</p>}
         </div>
       )}
+
+      {packagingValidation && <YouTubePackagingReview validation={packagingValidation} />}
 
       {manifest.preview_url && (
         <div className="relative mt-4 aspect-video w-full overflow-hidden rounded-lg border border-border bg-slate-950" data-testid="artifact-trace-canvas">

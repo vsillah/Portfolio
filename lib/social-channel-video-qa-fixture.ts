@@ -3,6 +3,7 @@ import darkCastleReceipt from '@/artifacts/human-qa/artifact-video-review-2026-1
 import jevPacket from '@/artifacts/human-qa/artifact-video-review-2026-10-14/inputs/jev.json'
 import jevReceipt from '@/artifacts/human-qa/artifact-video-review-2026-10-14/jev-provider-none-review.receipt.json'
 import jevSocialVideoReviewPackage from '@/artifacts/human-qa/artifact-video-review-2026-10-14/inputs/jev-social-video-review-package-v1.json'
+import jevYouTubeTitlePackage from '@/artifacts/human-qa/artifact-video-review-2026-10-14/jev-youtube-presenter-first/jev-youtube-title-subject-package.json'
 import type {
   ArtifactEvaluationDimension,
   ArtifactEvaluationDimensionKey,
@@ -162,6 +163,9 @@ function artifactEvidenceManifest(input: {
   totalClaimCount: number
   approvedProductEvidenceCount: number
   requiredProductEvidenceCount: number
+  packagingTitle: string
+  packagingHeadline: string
+  packagingThumbnailUrl: string | null
 }): ArtifactEvidenceManifest {
   const manifestId = `artifact-manifest:${input.productId}:youtube-shorts:v1`
   const researchReceiptId = input.researchPacketId ? `research_packet:${input.researchPacketId}` : input.sourceReceiptId
@@ -294,8 +298,21 @@ function artifactEvidenceManifest(input: {
       rights_privacy_status: 'missing',
       rights_privacy_receipt_ids: [],
     }),
-    element('thumbnail', 'thumbnail', 'Thumbnail', 'Customer-facing artifact poster.', { region: { x: 72, y: 34 } }),
-    element('title', 'title', 'Title', `${input.productId}: what the artifact makes visible`, { region: { x: 48, y: 16 } }),
+    element('thumbnail', 'thumbnail', 'Thumbnail', input.packagingHeadline, {
+      region: { x: 72, y: 34 },
+      artifact_url: input.packagingThumbnailUrl,
+      source_identity: input.productId === 'jev' ? jevYouTubeTitlePackage.thumbnail.receipt_id : `source:${input.productId}:approved-artifact-packet`,
+      evidence_receipt_ids: input.productId === 'jev'
+        ? [jevYouTubeTitlePackage.thumbnail.receipt_id, ...jevYouTubeTitlePackage.thumbnail.source_receipt_ids]
+        : [`source:${input.productId}:approved-composite-20261014`],
+    }),
+    element('title', 'title', 'Title', input.packagingTitle, {
+      region: { x: 48, y: 16 },
+      source_identity: input.productId === 'jev' ? jevYouTubeTitlePackage.package_id : `source:${input.productId}:approved-artifact-packet`,
+      evidence_receipt_ids: input.productId === 'jev'
+        ? [jevYouTubeTitlePackage.package_id, ...jevYouTubeTitlePackage.source_receipt_ids]
+        : [`source:${input.productId}:approved-composite-20261014`],
+    }),
     element('description', 'description', 'Description', 'A practical walkthrough of the artifact, its proof, and its bounded value.'),
     element('cta', 'cta', 'Call to action', 'Inspect the receipt trail before approving the next gate.', { region: { x: 51, y: 83 } }),
     element('source_research', 'research', 'Source research', 'Approved public-safe research summary.', {
@@ -325,7 +342,11 @@ function artifactEvidenceManifest(input: {
   }
 }
 
-export function channelNativeVideoQaFixture(id: ChannelNativeVideoQaFixtureId, videoPackageState: 'ready' | 'blocked' = 'ready') {
+export function channelNativeVideoQaFixture(
+  id: ChannelNativeVideoQaFixtureId,
+  videoPackageState: 'ready' | 'blocked' = 'ready',
+  packagingState: 'bound' | 'missing_thumbnail' = 'bound',
+) {
   const fixture = QA_FIXTURES[id]
   const packet = fixture.packet
   const receipt = fixture.receipt
@@ -351,6 +372,15 @@ export function channelNativeVideoQaFixture(id: ChannelNativeVideoQaFixtureId, v
     totalClaimCount: packet.claims.length,
     approvedProductEvidenceCount: packet.evidence_assets.filter((asset) => asset.source_receipt_ids.length > 0 && asset.privacy_receipt_id && asset.rights_receipt_id).length,
     requiredProductEvidenceCount: Math.max(1, packet.evidence_assets.length),
+    packagingTitle: packet.identity.product_id === 'jev'
+      ? jevYouTubeTitlePackage.title_candidates[0].title
+      : packet.draft.title_options[0]?.title ?? `${packet.identity.product_id}: what the artifact makes visible`,
+    packagingHeadline: packet.identity.product_id === 'jev'
+      ? jevYouTubeTitlePackage.thumbnail.headline
+      : packet.draft.thumbnail_brief.headline,
+    packagingThumbnailUrl: packet.identity.product_id === 'jev' && packagingState === 'bound'
+      ? '/review-assets/social-content/jev-youtube-thumbnail.png'
+      : null,
   })
 
   return {

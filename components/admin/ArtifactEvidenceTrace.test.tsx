@@ -9,6 +9,16 @@ const EVALUATION_AS_OF = '2026-10-16T12:00:00.000Z'
 
 const manifest = () => completeArtifactEvidenceManifest(VERSION)
 
+const packagingManifest = () => {
+  const value = manifest()
+  const title = value.elements.find((element) => element.category === 'title')!
+  const thumbnail = value.elements.find((element) => element.category === 'thumbnail')!
+  title.input_excerpt = 'AI Gave You a Score. Who Owns the Decision?'
+  thumbnail.input_excerpt = 'WHO OWNS THE DECISION?'
+  thumbnail.artifact_url = '/review-assets/social-content/jev-youtube-thumbnail.png'
+  return value
+}
+
 describe('ArtifactEvidenceTrace', () => {
   it('keeps the artifact clean by default and maps overlay numbers exactly to the trace list when enabled', () => {
     render(<ArtifactEvidenceTrace manifest={manifest()} currentContentVersion={VERSION} evaluationAsOf={EVALUATION_AS_OF} />)
@@ -62,5 +72,35 @@ describe('ArtifactEvidenceTrace', () => {
     render(<ArtifactEvidenceTrace manifest={manifest()} currentContentVersion={VERSION} evaluationAsOf={EVALUATION_AS_OF} recordedSnapshot={{ manifest_id: 'artifact-manifest:old:v1', manifest_hash: `sha256:${'d'.repeat(64)}`, content_version: '2026-10-14T12:00:00.000Z' }} />)
     expect(screen.getByText(/preserved from an earlier content version/i)).toBeVisible()
     expect(screen.getByText(/artifact-manifest:old:v1/i)).toBeVisible()
+  })
+
+  it('shows the YouTube title and actual bound thumbnail together with progressive evidence details', () => {
+    render(<ArtifactEvidenceTrace manifest={packagingManifest()} currentContentVersion={VERSION} evaluationAsOf={EVALUATION_AS_OF} packagingTarget="youtube_shorts" />)
+
+    const packaging = screen.getByLabelText('YouTube Shorts packaging evidence')
+    expect(within(packaging).getAllByText('AI Gave You a Score. Who Owns the Decision?')[0]).toBeVisible()
+    expect(within(packaging).getAllByText('WHO OWNS THE DECISION?')[0]).toBeVisible()
+    expect(within(packaging).getByRole('status')).toHaveTextContent('Asset-package evidence ready')
+    expect(within(packaging).getByAltText(/YouTube Shorts bound thumbnail/i)).toHaveAttribute('src', expect.stringContaining('jev-youtube-thumbnail.png'))
+
+    const titleEvidence = within(packaging).getByText('Title evidence').closest('details')!
+    fireEvent.click(within(titleEvidence).getByText('Title evidence'))
+    expect(within(titleEvidence).getByText('Normalized score')).toBeVisible()
+    expect(within(titleEvidence).getByText('Cohort identity')).toBeVisible()
+    expect(within(titleEvidence).getByText('Formula and decision logic')).toBeVisible()
+    expect(within(titleEvidence).getByRole('link', { name: 'Open product/source lineage' })).toHaveAttribute('href', '/admin/source-protocol?receipt=title')
+  })
+
+  it('shows a missing-thumbnail recovery state and never calls the packet ready', () => {
+    const value = packagingManifest()
+    value.elements.find((element) => element.category === 'thumbnail')!.artifact_url = null
+    render(<ArtifactEvidenceTrace manifest={value} currentContentVersion={VERSION} evaluationAsOf={EVALUATION_AS_OF} packagingTarget="youtube" />)
+
+    const packaging = screen.getByLabelText('YouTube packaging evidence')
+    expect(within(packaging).getByRole('status')).toHaveTextContent('Asset package blocked')
+    expect(within(packaging).getByRole('img', { name: 'YouTube thumbnail missing' })).toBeVisible()
+    expect(within(packaging).getByRole('alert')).toHaveTextContent('Thumbnail evidence is missing its actual bound review asset.')
+    expect(within(packaging).getByRole('alert')).toHaveTextContent('A brief or poster alone is not sufficient.')
+    expect(within(packaging).queryByText('Asset-package evidence ready')).not.toBeInTheDocument()
   })
 })
