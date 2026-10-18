@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto'
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import sharp from 'sharp'
+import { deterministicSha256Hex } from '../../lib/deterministic-sha256.mjs'
 
 const observedAt = process.env.OBSERVED_AT || new Date().toISOString()
 const observedAtMs = Date.parse(observedAt)
@@ -485,7 +486,7 @@ for (const cohort of cohorts) {
     receipt_id: cohort.decisionReceiptId,
     route: 'social-content-outlier-decision/v1',
     content_version: contentVersion,
-    input_version: `sha256:${createHash('sha256').update(JSON.stringify(decisionInput)).digest('hex')}`,
+    input_version: `sha256:${deterministicSha256Hex(JSON.stringify(decisionInput))}`,
     output_version: cohort.outputVersion,
     ...decisionInput,
     selection: {

@@ -4,6 +4,7 @@ import {
   type ArtifactEvaluationKind,
   type ArtifactEvaluationReceipt,
 } from '@/lib/artifact-evidence-evaluation'
+import { deterministicSha256Hex } from '@/lib/deterministic-sha256.mjs'
 
 export const ARTIFACT_EVIDENCE_MANIFEST_VERSION = 'artifact-evidence-manifest/v2' as const
 
@@ -188,6 +189,9 @@ export type ThumbnailDecisionReceipt = {
     outlier_threshold: number
     comparisons: ThumbnailDecisionComparison[]
   }
+  candidate_copy_pair: ThumbnailCandidateCopyPair
+  adopted_traits: string[]
+  rejected_traits: string[]
   user_preference_signals: ThumbnailPreferenceSignal[]
   selection: {
     status: 'ready' | 'unscored'
@@ -394,6 +398,7 @@ function parseThumbnailDecisionReceipt(value: unknown): ThumbnailDecisionReceipt
   if (!candidate || candidate.version !== 'youtube-thumbnail-decision-receipt/v1' || candidate.route !== 'social-content-outlier-decision/v1') return undefined
   const rawIdentity = record(candidate.candidate_identity) ?? {}
   const rawLiveEvidence = record(candidate.live_evidence) ?? {}
+  const rawCandidatePair = record(candidate.candidate_copy_pair) ?? {}
   const rawSelection = record(candidate.selection) ?? {}
   const comparisons = Array.isArray(rawLiveEvidence.comparisons) ? rawLiveEvidence.comparisons.map((value) => {
     const comparison = record(value)
@@ -462,6 +467,19 @@ function parseThumbnailDecisionReceipt(value: unknown): ThumbnailDecisionReceipt
       outlier_threshold: Number(rawLiveEvidence.outlier_threshold),
       comparisons,
     },
+    candidate_copy_pair: {
+      title: text(rawCandidatePair.title),
+      thumbnail_hook: text(rawCandidatePair.thumbnail_hook),
+      relationship: copyRelationship(rawCandidatePair.relationship),
+      exact_strings_are_distinct: rawCandidatePair.exact_strings_are_distinct === true,
+      strategy_status: text(rawCandidatePair.strategy_status),
+      support_scope: rawCandidatePair.support_scope === 'performance_supported' ? 'performance_supported' : 'editorial_hypothesis_only',
+      performance_claim: rawCandidatePair.performance_claim === 'supported' ? 'supported' : 'unscored',
+      rationale: text(rawCandidatePair.rationale),
+      source_example_video_ids: strings(rawCandidatePair.source_example_video_ids),
+    },
+    adopted_traits: strings(candidate.adopted_traits),
+    rejected_traits: strings(candidate.rejected_traits),
     user_preference_signals: userPreferenceSignals,
     selection: {
       status: rawSelection.status === 'ready' ? 'ready' : 'unscored',
@@ -695,12 +713,26 @@ function packagingElementIssues(
       const includedComparisons = liveEvidence.comparisons.filter((comparison) => comparison.decision === 'included')
       const qualifiedComparisons = includedComparisons.filter((comparison) => comparison.outlier_qualified)
       const comparisonById = new Map(includedComparisons.map((comparison) => [comparison.video_id, comparison]))
+      const canonicalDecisionInput = {
+        content_version: decisionReceipt.content_version,
+        candidate_identity: decisionReceipt.candidate_identity,
+        live_evidence: decisionReceipt.live_evidence,
+        candidate_copy_pair: decisionReceipt.candidate_copy_pair,
+        adopted_traits: decisionReceipt.adopted_traits,
+        rejected_traits: decisionReceipt.rejected_traits,
+        user_preference_signals: decisionReceipt.user_preference_signals,
+      }
+      const expectedInputVersion = `sha256:${deterministicSha256Hex(JSON.stringify(canonicalDecisionInput))}`
       const receiptIsVersionBound = decisionReceipt.content_version === currentVersion
         && /^sha256:[a-f0-9]{64}$/.test(decisionReceipt.input_version)
         && /^decision:[a-z0-9:-]+:v\d+$/.test(decisionReceipt.output_version)
       if (!decisionReceipt.receipt_id || !receiptIsVersionBound) {
         blockers.push('The Social Content thumbnail decision receipt is missing exact input/output versions or is stale for the current content.')
         recoveryActions.push('Re-run candidate selection from the current versioned Social Content evidence packet and issue a fresh decision receipt.')
+      }
+      if (decisionReceipt.input_version !== expectedInputVersion) {
+        blockers.push('The Social Content thumbnail decision receipt input fingerprint does not match its canonical evidence payload.')
+        recoveryActions.push('Regenerate the input fingerprint from the exact candidate, live cohort, copy-pair, trait, and user-preference payload before review.')
       }
       if (
         decisionReceipt.candidate_identity.title !== research.candidate_copy_pair.title

@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
-import { validateYouTubePackagingEvidence } from './artifact-evidence-manifest'
+import { validateYouTubePackagingEvidence, type ThumbnailDecisionReceipt } from './artifact-evidence-manifest'
 import { getSocialCampaignReviewPacket, SOCIAL_CAMPAIGN_REVIEW_IDS, SOCIAL_CAMPAIGN_YOUTUBE_THUMBNAIL_DIVERSITY, socialCampaignReviewQaFixture } from './social-campaign-review-assets'
 
 describe('social campaign review asset projection', () => {
@@ -124,6 +124,41 @@ describe('social campaign review asset projection', () => {
 
     expect(validation.ready).toBe(false)
     expect(validation.blockers).toContain('The live comparable-content evidence is missing or stale for this decision receipt.')
+  })
+
+  it('fails review readiness when canonical decision inputs are tampered without regenerating input_version', () => {
+    const packet = getSocialCampaignReviewPacket(SOCIAL_CAMPAIGN_REVIEW_IDS.auditYouTube)
+    expect(packet?.kind).toBe('youtube_packaging')
+    if (!packet || packet.kind !== 'youtube_packaging' || !packet.thumbnailEvidenceManifest) return
+    const tamperCases: Array<{ label: string; mutate: (receipt: ThumbnailDecisionReceipt) => void }> = [
+      {
+        label: 'live cohort metric',
+        mutate: (receipt) => { receipt.live_evidence.comparisons[0].view_count! += 1 },
+      },
+      {
+        label: 'playlist preference trait',
+        mutate: (receipt) => { receipt.user_preference_signals[0].applied_traits.push('tampered trait') },
+      },
+      {
+        label: 'candidate identity',
+        mutate: (receipt) => { receipt.candidate_identity.content_id = 'tampered-content-id' },
+      },
+      {
+        label: 'product-proof binding',
+        mutate: (receipt) => { receipt.candidate_identity.product_proof_receipt_id = 'sha256:tampered' },
+      },
+    ]
+
+    for (const tamperCase of tamperCases) {
+      const manifest = structuredClone(packet.thumbnailEvidenceManifest)
+      const receipt = manifest.elements.find((element) => element.category === 'thumbnail')!.research_cohort!.decision_receipt!
+      tamperCase.mutate(receipt)
+
+      const validation = validateYouTubePackagingEvidence(manifest, packet.contentVersion, 'youtube', '2026-10-18T20:00:00.000Z')
+
+      expect(validation.ready, tamperCase.label).toBe(false)
+      expect(validation.blockers, tamperCase.label).toContain('The Social Content thumbnail decision receipt input fingerprint does not match its canonical evidence payload.')
+    }
   })
 
   it('advances a fully receipt-backed live path while keeping playlist taste evidence non-performance', () => {
