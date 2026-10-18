@@ -1,0 +1,238 @@
+{
+  "version": "youtube-thumbnail-taste-reference/v1",
+  "receipt_id": "taste:youtube-thumbnail:curated-playlist:20261018:v1",
+  "source_url": "https://www.youtube.com/playlist?list=PLbfxkgOJ1hVc-9Gcleyt0iK7kW9MFpynh",
+  "captured_at": "2026-10-18T20:05:00.000Z",
+  "fresh_until": "2026-11-01T20:05:00.000Z",
+  "status": "ready",
+  "evidence_role": "taste_calibration_only",
+  "performance_weight": 0,
+  "performance_status": "unscored",
+  "references": [
+    {
+      "video_id": "1Rg9N6AC9Cs",
+      "source_url": "https://www.youtube.com/watch?v=1Rg9N6AC9Cs",
+      "thumbnail_source_url": "https://i.ytimg.com/vi/1Rg9N6AC9Cs/hqdefault.jpg",
+      "artifact_path": "artifacts/research/youtube-thumbnail-taste-reference-2026-10-18/1Rg9N6AC9Cs.jpg",
+      "sha256": "sha256:7176335b23e00cf7e8e88acc944be371a19cea3fa6fc8eb696c645380dba7c42",
+      "metrics": {
+        "sample_width": 320,
+        "sample_height": 180,
+        "brightness": 0.3891,
+        "saturation": 0.1491,
+        "local_contrast": 0.3231,
+        "edge_density": 0.0525,
+        "vibrancy": 0.1376
+      }
+    },
+    {
+      "video_id": "43MdhyYl2hY",
+      "source_url": "https://www.youtube.com/watch?v=43MdhyYl2hY",
+      "thumbnail_source_url": "https://i.ytimg.com/vi/43MdhyYl2hY/hqdefault.jpg",
+      "artifact_path": "artifacts/research/youtube-thumbnail-taste-reference-2026-10-18/43MdhyYl2hY.jpg",
+      "sha256": "sha256:bd99401eda560fd4c605aeeaa29a39fd53cebe4be26c69a334d1dabbcb013615",
+      "metrics": {
+        "sample_width": 320,
+        "sample_height": 180,
+        "brightness": 0.3584,
+        "saturation": 0.3766,
+        "local_contrast": 0.2223,
+        "edge_density": 0.0309,
+        "vibrancy": 0.3097
+      }
+    },
+    {
+      "video_id": "h9Pk5iNDXMk",
+      "source_url": "https://www.youtube.com/watch?v=h9Pk5iNDXMk",
+      "thumbnail_source_url": "https://i.ytimg.com/vi/h9Pk5iNDXMk/hqdefault.jpg",
+      "artifact_path": "artifacts/research/youtube-thumbnail-taste-reference-2026-10-18/h9Pk5iNDXMk.jpg",
+      "sha256": "sha256:2e0c7801089d6edb054084598cc3c9355d9ef4a79f8e3ad1217d21116d4dbbc6",
+      "metrics": {
+        "sample_width": 320,
+        "sample_height": 180,
+        "brightness": 0.6775,
+        "saturation": 0.114,
+        "local_contrast": 0.2769,
+        "edge_density": 0.0441,
+        "vibrancy": 0.0999
+      }
+    },
+    {
+      "video_id": "JSmGZ8vTEFQ",
+      "source_url": "https://www.youtube.com/watch?v=JSmGZ8vTEFQ",
+      "thumbnail_source_url": "https://i.ytimg.com/vi/JSmGZ8vTEFQ/hqdefault.jpg",
+      "artifact_path": "artifacts/research/youtube-thumbnail-taste-reference-2026-10-18/JSmGZ8vTEFQ.jpg",
+      "sha256": "sha256:3ddb588046c0d55b6c3263b8e9cd3ad14f7f4a19081dc14c1f9ffecd9bf9d622",
+      "metrics": {
+        "sample_width": 320,
+        "sample_height": 180,
+        "brightness": 0.61,
+        "saturation": 0.1357,
+        "local_contrast": 0.3303,
+        "edge_density": 0.0415,
+        "vibrancy": 0.1263
+      }
+    },
+    {
+      "video_id": "fIWUAodAgJw",
+      "source_url": "https://www.youtube.com/watch?v=fIWUAodAgJw",
+      "thumbnail_source_url": "https://i.ytimg.com/vi/fIWUAodAgJw/hqdefault.jpg",
+      "artifact_path": "artifacts/research/youtube-thumbnail-taste-reference-2026-10-18/fIWUAodAgJw.jpg",
+      "sha256": "sha256:ca7dbe3db72076572f21a8b69949035f22335ef67ee17702898a8a1919117fa0",
+      "metrics": {
+        "sample_width": 320,
+        "sample_height": 180,
+        "brightness": 0.2837,
+        "saturation": 0.1704,
+        "local_contrast": 0.2529,
+        "edge_density": 0.0347,
+        "vibrancy": 0.1454
+      }
+    },
+    {
+      "video_id": "IGgg397XB90",
+      "source_url": "https://www.youtube.com/watch?v=IGgg397XB90",
+      "thumbnail_source_url": "https://i.ytimg.com/vi/IGgg397XB90/hqdefault.jpg",
+      "artifact_path": "artifacts/research/youtube-thumbnail-taste-reference-2026-10-18/IGgg397XB90.jpg",
+      "sha256": "sha256:ed4d9a099abb65f6f5bcb504e752909390284b441ba186c18898c162dfbf8046",
+      "metrics": {
+        "sample_width": 320,
+        "sample_height": 180,
+        "brightness": 0.3703,
+        "saturation": 0.1711,
+        "local_contrast": 0.3437,
+        "edge_density": 0.0378,
+        "vibrancy": 0.1614
+      }
+    },
+    {
+      "video_id": "C2NZs1fCLfo",
+      "source_url": "https://www.youtube.com/watch?v=C2NZs1fCLfo",
+      "thumbnail_source_url": "https://i.ytimg.com/vi/C2NZs1fCLfo/hqdefault.jpg",
+      "artifact_path": "artifacts/research/youtube-thumbnail-taste-reference-2026-10-18/C2NZs1fCLfo.jpg",
+      "sha256": "sha256:d5eb465eee4ee665a2c28054ed91da689600d3f7bbf294a7392d3be5665524d8",
+      "metrics": {
+        "sample_width": 320,
+        "sample_height": 180,
+        "brightness": 0.7223,
+        "saturation": 0.1085,
+        "local_contrast": 0.2881,
+        "edge_density": 0.0559,
+        "vibrancy": 0.0963
+      }
+    },
+    {
+      "video_id": "O8-UsCW3_1Y",
+      "source_url": "https://www.youtube.com/watch?v=O8-UsCW3_1Y",
+      "thumbnail_source_url": "https://i.ytimg.com/vi/O8-UsCW3_1Y/hqdefault.jpg",
+      "artifact_path": "artifacts/research/youtube-thumbnail-taste-reference-2026-10-18/O8-UsCW3_1Y.jpg",
+      "sha256": "sha256:ed6824a39eb83f02488a01a9daa69df4f67a5cb54fff12f1b2ca89d593436f77",
+      "metrics": {
+        "sample_width": 320,
+        "sample_height": 180,
+        "brightness": 0.235,
+        "saturation": 0.1258,
+        "local_contrast": 0.2624,
+        "edge_density": 0.042,
+        "vibrancy": 0.1085
+      }
+    },
+    {
+      "video_id": "GTWWNZyIsSc",
+      "source_url": "https://www.youtube.com/watch?v=GTWWNZyIsSc",
+      "thumbnail_source_url": "https://i.ytimg.com/vi/GTWWNZyIsSc/hqdefault.jpg",
+      "artifact_path": "artifacts/research/youtube-thumbnail-taste-reference-2026-10-18/GTWWNZyIsSc.jpg",
+      "sha256": "sha256:6e2eee0c58269dc67915fe4bb38e3e949c87d44e683d9cd3256b228a68d7ce3b",
+      "metrics": {
+        "sample_width": 320,
+        "sample_height": 180,
+        "brightness": 0.7283,
+        "saturation": 0.2134,
+        "local_contrast": 0.2873,
+        "edge_density": 0.0488,
+        "vibrancy": 0.1894
+      }
+    },
+    {
+      "video_id": "iXkfIS0dJqQ",
+      "source_url": "https://www.youtube.com/watch?v=iXkfIS0dJqQ",
+      "thumbnail_source_url": "https://i.ytimg.com/vi/iXkfIS0dJqQ/hqdefault.jpg",
+      "artifact_path": "artifacts/research/youtube-thumbnail-taste-reference-2026-10-18/iXkfIS0dJqQ.jpg",
+      "sha256": "sha256:4ef8908be4d42089ef9b22d39f43416b58bfda4079bea5deff88d8291cd6a73d",
+      "metrics": {
+        "sample_width": 320,
+        "sample_height": 180,
+        "brightness": 0.4959,
+        "saturation": 0.111,
+        "local_contrast": 0.3796,
+        "edge_density": 0.0419,
+        "vibrancy": 0.1087
+      }
+    },
+    {
+      "video_id": "j7CaMx2c56M",
+      "source_url": "https://www.youtube.com/watch?v=j7CaMx2c56M",
+      "thumbnail_source_url": "https://i.ytimg.com/vi/j7CaMx2c56M/hqdefault.jpg",
+      "artifact_path": "artifacts/research/youtube-thumbnail-taste-reference-2026-10-18/j7CaMx2c56M.jpg",
+      "sha256": "sha256:783a8b50cdb8b9423ffddbafdabb83ec18faed32ba9646704aac1cc49a47c106",
+      "metrics": {
+        "sample_width": 320,
+        "sample_height": 180,
+        "brightness": 0.4246,
+        "saturation": 0.1158,
+        "local_contrast": 0.3629,
+        "edge_density": 0.0389,
+        "vibrancy": 0.1115
+      }
+    },
+    {
+      "video_id": "1L0ghc5ofLo",
+      "source_url": "https://www.youtube.com/watch?v=1L0ghc5ofLo",
+      "thumbnail_source_url": "https://i.ytimg.com/vi/1L0ghc5ofLo/hqdefault.jpg",
+      "artifact_path": "artifacts/research/youtube-thumbnail-taste-reference-2026-10-18/1L0ghc5ofLo.jpg",
+      "sha256": "sha256:a009ab23c938776ca55a1937ba7bb256bc08ccf073c8be016eec2b020d0abc38",
+      "metrics": {
+        "sample_width": 320,
+        "sample_height": 180,
+        "brightness": 0.6474,
+        "saturation": 0.0987,
+        "local_contrast": 0.2906,
+        "edge_density": 0.0352,
+        "vibrancy": 0.0879
+      }
+    },
+    {
+      "video_id": "-M_026Esvf0",
+      "source_url": "https://www.youtube.com/watch?v=-M_026Esvf0",
+      "thumbnail_source_url": "https://i.ytimg.com/vi/-M_026Esvf0/hqdefault.jpg",
+      "artifact_path": "artifacts/research/youtube-thumbnail-taste-reference-2026-10-18/-M_026Esvf0.jpg",
+      "sha256": "sha256:8bea003b15dacc350d96743f778bae0875f14bef82ee323429cb25c6b302d518",
+      "metrics": {
+        "sample_width": 320,
+        "sample_height": 180,
+        "brightness": 0.6501,
+        "saturation": 0.0519,
+        "local_contrast": 0.3344,
+        "edge_density": 0.0125,
+        "vibrancy": 0.0485
+      }
+    },
+    {
+      "video_id": "lDHrmDAD9y4",
+      "source_url": "https://www.youtube.com/watch?v=lDHrmDAD9y4",
+      "thumbnail_source_url": "https://i.ytimg.com/vi/lDHrmDAD9y4/hqdefault.jpg",
+      "artifact_path": "artifacts/research/youtube-thumbnail-taste-reference-2026-10-18/lDHrmDAD9y4.jpg",
+      "sha256": "sha256:fec022befce9ec3047b1d10592a60ce80b3a1d37da200d2450215e116a5b0d0e",
+      "metrics": {
+        "sample_width": 320,
+        "sample_height": 180,
+        "brightness": 0.4858,
+        "saturation": 0.2047,
+        "local_contrast": 0.2922,
+        "edge_density": 0.0429,
+        "vibrancy": 0.1826
+      }
+    }
+  ],
+  "input_version": "sha256:aac2c0e884e504d69da84cb33e7574d43cebc848c5d8542c55adc412fd3152ae"
+}

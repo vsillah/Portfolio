@@ -1,4 +1,6 @@
-# YouTube thumbnail v3 Human QA
+# YouTube thumbnail v3 Human QA — rejected and superseded
+
+Status: `REJECTED / SUPERSEDED`. Vambah rejected this visual direction on 2026-10-18. This directory is retained as failed historical evidence only. Its screenshots, MP4, receipts, and earlier `Ready` labels are not approval proof and must not be reused as a passing Human-QA packet.
 
 ## Review binding
 

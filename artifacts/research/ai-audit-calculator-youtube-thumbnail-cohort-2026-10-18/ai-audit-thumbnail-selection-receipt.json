@@ -1,12 +1,13 @@
 {
-  "version": "youtube-thumbnail-selection/v3",
-  "receipt_id": "thumbnail:ai-audit:youtube-long-form:20261018:v3",
-  "decision_receipt_id": "decision:thumbnail:ai-audit:20261018:v2",
-  "decision_input_version": "sha256:ec9194b80a3c0a64e74238177d7a9bcacf1444ace28e42ee4a9f952d47b54a3a",
-  "decision_output_version": "decision:ai-audit:20261018:v2",
-  "content_version": "2026-10-18T00:00:00.000Z",
+  "version": "youtube-thumbnail-selection/v4",
+  "receipt_id": "thumbnail:ai-audit:youtube-long-form:20261018:v4",
+  "supersedes_failed_receipt_id": "thumbnail:ai-audit:youtube-long-form:20261018:v3",
+  "decision_receipt_id": "decision:thumbnail:ai-audit:20261018:v3",
+  "decision_input_version": "sha256:3fbeb640d54ae863937434b615f824656ef5e3804c9bdfada5e16e5395c709c5",
+  "decision_output_version": "decision:ai-audit:20261018:v3",
+  "content_version": "2026-10-18T20:05:00.000Z",
   "cohort_id": "cohort:youtube:ai-cost-audit-roi:20261018:v1",
-  "observed_at": "2026-10-18T19:22:39.000Z",
+  "observed_at": "2026-10-18T20:18:00.000Z",
   "title": "The AI Cost That Never Appears on the Invoice",
   "thumbnail_hook": "WHO OWNS THE CLEANUP?",
   "target": {
@@ -62,7 +63,7 @@
       "performance_status": "unscored"
     }
   ],
-  "selection_rationale": "The ownership question and approved first-party human anchor form the first read. One cropped owned score card supplies product proof without turning the thumbnail into a dashboard. Public examples bound the editorial pattern; they do not supply the composition or a causal performance claim.",
+  "selection_rationale": "A bright, surprised audit reaction and the four-word ownership question form the first read. One owned 5/10 score supplies proof. Public examples bound editorial taste only and carry zero performance weight.",
   "first_party_source": {
     "label": "AI Audit Calculator result screen",
     "artifact_url": "/review-assets/social-content/source-proof/ai-audit-calculator.png",
@@ -72,59 +73,118 @@
   "first_party_supporting_sources": [
     {
       "label": "Fresh HeyGen Pro identity remix for AI Audit Calculator",
-      "artifact_url": "/review-assets/social-content/source-proof/ai-audit-heygen-identity-v3.png",
-      "source_url": "https://dynamic.heygen.ai/tr:ar-4-3,h-720,fo-auto,f-auto/talking_photo/987bba1d07934e41af70f923d7b78e35/c13396578c9847e0b1956490f44ee4b7.WEBP",
-      "receipt_id": "heygen:identity-remix:ai-audit:20261018:v1",
+      "artifact_url": "/review-assets/social-content/source-proof/ai-audit-heygen-identity-v4.png",
+      "source_url": "https://dynamic.heygen.ai/tr:ar-4-3,h-720,fo-auto,f-auto/talking_photo/2c476f009ca94d8ea8a93d15cb101a00/57a5544fceac45c6b8f3d5043b0e3e47.WEBP",
+      "receipt_id": "heygen:identity-remix:ai-audit:20261018:v4",
       "rights_status": "approved_identity_remix_review_only",
-      "look_id": "talking_photo:c13396578c9847e0b1956490f44ee4b7",
-      "background_environment": "professional office",
-      "sha256": "sha256:9d63bc870c976f903a1a2eb246be33cc96085536c30e4b39457deaae895b6912"
+      "look_id": "talking_photo:57a5544fceac45c6b8f3d5043b0e3e47",
+      "background_environment": "bright cyan audit office",
+      "expression_label": "wide-eyed open-mouth surprise with an emphatic presenting gesture",
+      "sha256": "sha256:c74e55c219b2c6e941bec39ef5de0b5f40aca7f1480796d61fd0d4f82da016d5"
     }
   ],
   "identity_remix_rotation": {
     "provider": "heygen_pro",
-    "generation_receipt_id": "heygen:identity-remix:ai-audit:20261018:v1",
+    "generation_receipt_id": "heygen:identity-remix:ai-audit:20261018:v4",
     "included_credit_count": 1,
     "primary": {
-      "artifact_url": "/review-assets/social-content/source-proof/ai-audit-heygen-identity-v3.png",
-      "source_url": "https://dynamic.heygen.ai/tr:ar-4-3,h-720,fo-auto,f-auto/talking_photo/987bba1d07934e41af70f923d7b78e35/c13396578c9847e0b1956490f44ee4b7.WEBP",
-      "look_id": "talking_photo:c13396578c9847e0b1956490f44ee4b7",
-      "background_environment": "professional office",
-      "sha256": "sha256:9d63bc870c976f903a1a2eb246be33cc96085536c30e4b39457deaae895b6912",
+      "artifact_url": "/review-assets/social-content/source-proof/ai-audit-heygen-identity-v4.png",
+      "source_url": "https://dynamic.heygen.ai/tr:ar-4-3,h-720,fo-auto,f-auto/talking_photo/2c476f009ca94d8ea8a93d15cb101a00/57a5544fceac45c6b8f3d5043b0e3e47.WEBP",
+      "look_id": "talking_photo:57a5544fceac45c6b8f3d5043b0e3e47",
+      "background_environment": "bright cyan audit office",
+      "sha256": "sha256:c74e55c219b2c6e941bec39ef5de0b5f40aca7f1480796d61fd0d4f82da016d5",
       "role": "selected_primary"
     },
-    "alternates": [
-      {
-        "artifact_url": "/review-assets/social-content/source-proof/ai-audit-heygen-identity-alternate-v3.png",
-        "source_url": "https://dynamic.heygen.ai/tr:ar-4-3,h-720,fo-auto,f-auto/talking_photo/e7093b0c22154d7aac997631dfc16c6e/19a82fa0b6714b0a885886ade0d85752.WEBP",
-        "look_id": "talking_photo:19a82fa0b6714b0a885886ade0d85752",
-        "background_environment": "navy analytics studio",
-        "sha256": "sha256:0af979868d240e75216b7b84768b3eef13b3e7cb984240a37782e015db284a9e",
-        "role": "governed_rotation_input"
-      }
-    ]
+    "alternates": []
   },
   "composition": {
     "version": "youtube-thumbnail-composition/v1",
-    "layout_family": "human-anchor-simplified-score-proof",
-    "dominant_subject": "Fresh campaign-specific approved Vambah identity remix confronting the owned calculator result",
+    "layout_family": "bright-auditor-score-reaction",
+    "dominant_subject": "Wide-eyed Vambah audit reaction facing the owned 5/10 urgency result",
     "focal_hierarchy": [
-      "ownership question",
-      "approved human anchor",
-      "simplified owned score card"
+      "expressive audit reaction",
+      "four-word accountability question",
+      "owned 5/10 score proof"
     ],
-    "text_placement": "left field above the score proof",
-    "batch_identity": "social-campaign-youtube:20261018:v3",
-    "composition_signature": "question-left|score-card-left|portrait-right",
+    "text_placement": "upper left in bright cyan field",
+    "batch_identity": "social-campaign-youtube:20261018:v4",
+    "composition_signature": "question-left|score-left|reaction-right|bright-v4",
     "exception_basis": "none",
     "exception_receipt_ids": []
   },
+  "generation_preflight": {
+    "receipt_id": "preflight:ai-audit:youtube-thumbnail:2026-10-18T20:05:00.000Z:v1",
+    "status": "passed",
+    "brief_input_version": "sha256:197d0c0031118695a1250b261c7c9719b22d205c729ddf2c8a933b2a5816505d"
+  },
+  "final_quality_gate": {
+    "receipt_id": "quality:ai-audit:youtube-thumbnail:2026-10-18T20:05:00.000Z:v1",
+    "status": "passed",
+    "output_sha256": "sha256:176590e0aa890367efe69065cba065b87ac6d3f8bb94c38f7a798e6b53bc4524",
+    "feed_preview_sha256": "sha256:83b4fca796a3adbc7caba53560e731ec9aa44006210da6492fbd28cd4b9efa76",
+    "inspection_receipt_id": "inspection:ai-audit:youtube-thumbnail:20261018:v4",
+    "metrics": {
+      "sample_width": 320,
+      "sample_height": 180,
+      "brightness": 0.6415,
+      "saturation": 0.2454,
+      "local_contrast": 0.2699,
+      "edge_density": 0.0463,
+      "vibrancy": 0.2135
+    },
+    "playlist_visual_similarity": {
+      "score": 0.7726,
+      "sample_count": 14,
+      "individual_scores": [
+        0.7724,
+        0.7294,
+        0.8559,
+        0.8447,
+        0.764,
+        0.7727,
+        0.8201,
+        0.7158,
+        0.9237,
+        0.7455,
+        0.7294,
+        0.838,
+        0.7462,
+        0.8844
+      ]
+    },
+    "face_assessment": {
+      "method": "post_render_visual_inspection/v1",
+      "area_ratio": 0.21,
+      "visible_eye_count": 2,
+      "eyes_unobstructed": true,
+      "expression_label": "wide-eyed open-mouth surprise with an emphatic presenting gesture",
+      "campaign_relevance": "The visible reaction makes the hidden cleanup cost feel immediate and points back to the owned score proof."
+    },
+    "feed_copy_inspection": {
+      "method": "rendered_320x180_visual_transcription",
+      "legible": true,
+      "transcribed_text": "WHO OWNS THE CLEANUP?"
+    }
+  },
   "output": {
-    "artifact_url": "/review-assets/social-content/youtube-packaging/ai-audit-who-owns-the-cleanup-v3.png",
+    "artifact_url": "/review-assets/social-content/youtube-packaging/ai-audit-who-owns-the-cleanup-v4.png",
     "width": 1280,
     "height": 720,
     "aspect_ratio": "16:9",
-    "sha256": "sha256:58e637ecce3597ec142c2573a850aad004b9ea3a298b53c6c86226a1951400df"
+    "sha256": "sha256:176590e0aa890367efe69065cba065b87ac6d3f8bb94c38f7a798e6b53bc4524"
+  },
+  "feed_size_preview": {
+    "artifact_url": "/review-assets/social-content/youtube-packaging/ai-audit-who-owns-the-cleanup-v4-feed-320x180.png",
+    "width": 320,
+    "height": 180,
+    "sha256": "sha256:83b4fca796a3adbc7caba53560e731ec9aa44006210da6492fbd28cd4b9efa76",
+    "status": "passed"
+  },
+  "provider_generation": {
+    "provider": "heygen_pro",
+    "occurred": true,
+    "receipt_id": "heygen:identity-remix:ai-audit:20261018:v4",
+    "future_calls_authorized": false
   },
   "external_gates": {
     "provider_generation": false,

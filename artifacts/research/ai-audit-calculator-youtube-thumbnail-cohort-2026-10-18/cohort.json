@@ -19,8 +19,8 @@
     "audience_normalization": "view_count / public subscriber_count",
     "channel_normalization": "view_count / median exact view count for up to 10 recent long-form videos on the same channel"
   },
-  "observed_at": "2026-10-18T19:22:39.000Z",
-  "fresh_until": "2026-11-01T19:22:39.000Z",
+  "observed_at": "2026-10-18T20:18:00.000Z",
+  "fresh_until": "2026-11-01T20:18:00.000Z",
   "formula": {
     "channel_relative_ratio": "source exact views / same-channel recent long-form median exact views",
     "audience_view_ratio": "source exact views / public channel subscriber count",
@@ -55,10 +55,10 @@
       "minimum_sample_size": 3,
       "median_normalized_performance_score": 35,
       "video_ids": [
-        "qf31-dcBeE4",
+        "fSAazWLuDyQ",
         "wIcw0T9NhZM",
-        "w8dvgEOh3tc",
-        "fSAazWLuDyQ"
+        "qf31-dcBeE4",
+        "w8dvgEOh3tc"
       ]
     },
     "distinct_group": {
@@ -70,8 +70,8 @@
       "minimum_sample_size": 3,
       "median_normalized_performance_score": 63.33,
       "video_ids": [
-        "axNuaPmBjLg",
-        "oGaSfa3lJ8o"
+        "oGaSfa3lJ8o",
+        "axNuaPmBjLg"
       ]
     },
     "observed_difference": 28.33,
@@ -123,10 +123,10 @@
         ],
         "median_view_count": 10
       },
-      "age_days": 101.25,
+      "age_days": 101.17,
       "channel_relative_ratio": 55.5,
       "audience_view_ratio": 37,
-      "recency_adjusted_views_per_day": 5.4815,
+      "recency_adjusted_views_per_day": 5.4858,
       "source_thumbnail_sha256": "sha256:fee34546d50fbd1385a1e7b0ef440d3d009e951f9a5823a3a9866d02d09fbe6a",
       "thumbnail_path": "/review-assets/social-content/ai-audit-youtube-thumbnail-cohort/fSAazWLuDyQ.jpg",
       "performance_components": {
@@ -136,7 +136,7 @@
       },
       "normalized_performance_score": 85,
       "outlier_qualified": true,
-      "observed_at": "2026-10-18T19:22:39.000Z",
+      "observed_at": "2026-10-18T20:18:00.000Z",
       "decision": "included",
       "link_status": "verified_openable",
       "channel_baseline_size": 4,
@@ -204,10 +204,10 @@
         ],
         "median_view_count": 48
       },
-      "age_days": 247.85,
+      "age_days": 247.77,
       "channel_relative_ratio": 43.7083,
       "audience_view_ratio": 1.087,
-      "recency_adjusted_views_per_day": 8.4648,
+      "recency_adjusted_views_per_day": 8.4675,
       "source_thumbnail_sha256": "sha256:e98aa5cf26e41522e9ad3c725276537f9251536d9214cc46ddf2c718d44b3978",
       "thumbnail_path": "/review-assets/social-content/ai-audit-youtube-thumbnail-cohort/oGaSfa3lJ8o.jpg",
       "performance_components": {
@@ -217,7 +217,7 @@
       },
       "normalized_performance_score": 70,
       "outlier_qualified": false,
-      "observed_at": "2026-10-18T19:22:39.000Z",
+      "observed_at": "2026-10-18T20:18:00.000Z",
       "decision": "included",
       "link_status": "verified_openable",
       "channel_baseline_size": 10,
@@ -277,10 +277,10 @@
         ],
         "median_view_count": 13
       },
-      "age_days": 43.72,
+      "age_days": 43.64,
       "channel_relative_ratio": 2.2308,
       "audience_view_ratio": 29,
-      "recency_adjusted_views_per_day": 0.6633,
+      "recency_adjusted_views_per_day": 0.6645,
       "source_thumbnail_sha256": "sha256:2113b47a4b5fcb4231c4fbf4c5455b16f5954e8911372c1337bc51b59d9c2fe7",
       "thumbnail_path": "/review-assets/social-content/ai-audit-youtube-thumbnail-cohort/axNuaPmBjLg.jpg",
       "performance_components": {
@@ -290,7 +290,7 @@
       },
       "normalized_performance_score": 56.66,
       "outlier_qualified": false,
-      "observed_at": "2026-10-18T19:22:39.000Z",
+      "observed_at": "2026-10-18T20:18:00.000Z",
       "decision": "included",
       "link_status": "verified_openable",
       "channel_baseline_size": 5,
@@ -346,23 +346,23 @@
           "9hetShMMp2s"
         ],
         "exact_view_counts": [
-          210447,
-          83537,
-          189146,
-          75937,
-          258142,
-          124766,
+          204142,
+          83091,
+          188103,
+          75497,
+          256719,
+          124545,
           110874,
           73862,
-          82820,
-          245134
+          82675,
+          245003
         ],
-        "median_view_count": 117820
+        "median_view_count": 117709.5
       },
-      "age_days": 322.22,
-      "channel_relative_ratio": 0.32,
+      "age_days": 322.14,
+      "channel_relative_ratio": 0.3203,
       "audience_view_ratio": 0.0349,
-      "recency_adjusted_views_per_day": 116.9946,
+      "recency_adjusted_views_per_day": 117.0237,
       "source_thumbnail_sha256": "sha256:0fceae8b7243ffe46401b1fce2f934e1ac796c8e890edf4a286c1dd4300b1ffa",
       "thumbnail_path": "/review-assets/social-content/ai-audit-youtube-thumbnail-cohort/wIcw0T9NhZM.jpg",
       "performance_components": {
@@ -372,7 +372,7 @@
       },
       "normalized_performance_score": 38.33,
       "outlier_qualified": false,
-      "observed_at": "2026-10-18T19:22:39.000Z",
+      "observed_at": "2026-10-18T20:18:00.000Z",
       "decision": "included",
       "link_status": "verified_openable",
       "channel_baseline_size": 10,
@@ -440,10 +440,10 @@
         ],
         "median_view_count": 46.5
       },
-      "age_days": 28.09,
+      "age_days": 28.02,
       "channel_relative_ratio": 0.8172,
       "audience_view_ratio": 0.016,
-      "recency_adjusted_views_per_day": 1.3528,
+      "recency_adjusted_views_per_day": 1.3562,
       "source_thumbnail_sha256": "sha256:2e1e1696981bd40bbfaff5c4470b241a0897828252c8f04cd2fa6a3e4e652871",
       "thumbnail_path": "/review-assets/social-content/ai-audit-youtube-thumbnail-cohort/qf31-dcBeE4.jpg",
       "performance_components": {
@@ -453,7 +453,7 @@
       },
       "normalized_performance_score": 31.67,
       "outlier_qualified": false,
-      "observed_at": "2026-10-18T19:22:39.000Z",
+      "observed_at": "2026-10-18T20:18:00.000Z",
       "decision": "included",
       "link_status": "verified_openable",
       "channel_baseline_size": 10,
@@ -522,10 +522,10 @@
         ],
         "median_view_count": 7
       },
-      "age_days": 30.14,
+      "age_days": 30.06,
       "channel_relative_ratio": 0.2857,
       "audience_view_ratio": 0.6667,
-      "recency_adjusted_views_per_day": 0.0664,
+      "recency_adjusted_views_per_day": 0.0665,
       "source_thumbnail_sha256": "sha256:b35e8ab458ef1ee0ee8d88842409157d3029599e1f1c2168c527697b2aff7d36",
       "thumbnail_path": "/review-assets/social-content/ai-audit-youtube-thumbnail-cohort/w8dvgEOh3tc.jpg",
       "performance_components": {
@@ -535,7 +535,7 @@
       },
       "normalized_performance_score": 18.33,
       "outlier_qualified": false,
-      "observed_at": "2026-10-18T19:22:39.000Z",
+      "observed_at": "2026-10-18T20:18:00.000Z",
       "decision": "included",
       "link_status": "verified_openable",
       "channel_baseline_size": 10,
@@ -613,6 +613,48 @@
       "description_opening": "AI tools can accelerate isolated tasks while making the complete workflow more fragmented. This video explains context switching, task packets,",
       "description_opening_truncated": true,
       "decision_reason": "Exact-topic hidden cost of multiple AI tools example.",
+      "channel_baseline": {
+        "sample_size": 10,
+        "video_ids": [
+          "rNh-i6WIQ-4",
+          "zu8xRimXxMM",
+          "LQi30xfLV7w",
+          "g2r4xDNyjPw",
+          "v4o69xeV2yU",
+          "VqKitYmQmYA",
+          "dRc-07vzue8",
+          "xLz0mZKLIZE",
+          "rGrnmv8Ba68",
+          "9fJhgP-3j_U"
+        ],
+        "exact_view_counts": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          17,
+          3,
+          4,
+          7
+        ],
+        "median_view_count": 0
+      },
+      "age_days": 27.73,
+      "channel_relative_ratio": null,
+      "audience_view_ratio": 1,
+      "recency_adjusted_views_per_day": 0.0721,
+      "source_thumbnail_sha256": "sha256:6d3bcd22fed2eba7a7d1f74711e79ad15fd679ccf221e643893d6471b5d58c6a",
+      "thumbnail_path": "/review-assets/social-content/ai-audit-youtube-thumbnail-cohort/ZJ11yOsNIiA.jpg",
+      "performance_components": {
+        "channel_relative_percentile": 92.86,
+        "audience_view_percentile": 50,
+        "recency_rate_percentile": 21.43
+      },
+      "normalized_performance_score": 65.72,
+      "outlier_qualified": false,
+      "observed_at": "2026-10-18T17:30:00.000Z",
       "decision": "excluded",
       "exclusion_reason": "The same-channel median was zero, so channel-relative normalization is not reproducible."
     }

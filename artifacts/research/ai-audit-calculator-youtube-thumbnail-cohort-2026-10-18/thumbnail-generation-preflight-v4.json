@@ -1,0 +1,21 @@
+{
+  "version": "youtube-thumbnail-generation-preflight/v1",
+  "receipt_id": "preflight:ai-audit:youtube-thumbnail:2026-10-18T20:05:00.000Z:v1",
+  "status": "passed",
+  "failures": [],
+  "campaign_id": "ai-audit",
+  "content_version": "2026-10-18T20:05:00.000Z",
+  "brief_id": "brief:thumbnail:ai-audit:20261018:v4",
+  "brief_input_version": "sha256:197d0c0031118695a1250b261c7c9719b22d205c729ddf2c8a933b2a5816505d",
+  "decision_receipt_id": "decision:thumbnail:ai-audit:20261018:v3",
+  "decision_input_version": "sha256:3fbeb640d54ae863937434b615f824656ef5e3804c9bdfada5e16e5395c709c5",
+  "decision_output_version": "decision:ai-audit:20261018:v3",
+  "live_cohort_id": "cohort:youtube:ai-cost-audit-roi:20261018:v1",
+  "live_evidence_fresh_until": "2026-11-01T20:18:00.000Z",
+  "playlist_receipt_id": "taste:youtube-thumbnail:curated-playlist:20261018:v1",
+  "playlist_input_version": "sha256:aac2c0e884e504d69da84cb33e7574d43cebc848c5d8542c55adc412fd3152ae",
+  "playlist_performance_weight": 0,
+  "playlist_performance_status": "unscored",
+  "teaser_word_count": 4,
+  "heygen_generation_allowed": true
+}

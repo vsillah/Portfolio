@@ -16,7 +16,7 @@ const selections = [
   JSON.parse(readFileSync(path.join(root, 'artifacts/research/ai-audit-calculator-youtube-thumbnail-cohort-2026-10-18/ai-audit-thumbnail-selection-receipt.json'), 'utf8')),
 ]
 
-describe('YouTube thumbnail v3 generation contract', () => {
+describe('YouTube thumbnail v4 generation contract', () => {
   it('keeps both live decisions canonically fingerprinted and playlist calibration at zero performance weight', () => {
     for (const decision of decisions) {
       const { version: _version, receipt_id: _receiptId, route: _route, input_version: inputVersion, output_version: _outputVersion, selection: _selection, ...canonicalInput } = decision
@@ -53,19 +53,23 @@ describe('YouTube thumbnail v3 generation contract', () => {
     }
     const result = spawnSync(process.execPath, [buildScriptPath], { cwd: root, env: environment, encoding: 'utf8' })
     expect(result.status).not.toBe(0)
-    expect(result.stderr).toContain('fresh HeyGen Pro identity remix is required')
+    expect(result.stderr).toContain('fresh preflight-approved HeyGen Pro identity remix is required')
   })
 
-  it('binds each final v3 output to a distinct HeyGen primary and governed alternate', () => {
+  it('binds each final v4 output to a distinct fresh HeyGen primary and passing inspection', () => {
     for (const selection of selections) {
-      expect(selection.receipt_id).toMatch(/^thumbnail:.+:youtube-long-form:20261018:v3$/)
+      expect(selection.version).toBe('youtube-thumbnail-selection/v4')
+      expect(selection.receipt_id).toMatch(/^thumbnail:.+:youtube-long-form:20261018:v4$/)
+      expect(selection.supersedes_failed_receipt_id).toMatch(/:v3$/)
       expect(selection.identity_remix_rotation).toMatchObject({ provider: 'heygen_pro', included_credit_count: 1 })
       expect(selection.identity_remix_rotation.primary.source_url).toMatch(/^https:\/\/dynamic\.heygen\.ai\//)
       expect(selection.identity_remix_rotation.primary.role).toBe('selected_primary')
-      expect(selection.identity_remix_rotation.alternates).toHaveLength(1)
-      expect(selection.identity_remix_rotation.alternates[0]).toMatchObject({ role: 'governed_rotation_input' })
-      expect(selection.identity_remix_rotation.alternates[0].source_url).not.toBe(selection.identity_remix_rotation.primary.source_url)
+      expect(selection.identity_remix_rotation.alternates).toHaveLength(0)
       expect(selection.first_party_supporting_sources[0]).toMatchObject({ rights_status: 'approved_identity_remix_review_only' })
+      expect(selection.final_quality_gate).toMatchObject({ status: 'passed' })
+      expect(selection.final_quality_gate.inspection_receipt_id).toMatch(/^inspection:/)
+      expect(selection.provider_generation).toMatchObject({ occurred: true, future_calls_authorized: false })
+      expect(selection.external_gates).toMatchObject({ provider_generation: false, upload: false, platform_draft: false, publish: false })
       const outputPath = path.join(root, 'public', selection.output.artifact_url)
       expect(selection.output.sha256).toBe(`sha256:${createHash('sha256').update(readFileSync(outputPath)).digest('hex')}`)
     }
@@ -79,5 +83,7 @@ describe('YouTube thumbnail v3 generation contract', () => {
     expect(script).not.toContain('Profile_Photo_1.jpg')
     expect(script).not.toContain('vambah-approved-profile.jpg')
     expect(script).toContain('approved_identity_remix_review_only')
+    expect(script).not.toContain('faceAssessment:')
+    expect(script).not.toContain('alternateSourceUrl')
   })
 })
