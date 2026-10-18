@@ -1,12 +1,12 @@
 {
   "version": "youtube-thumbnail-selection/v3",
-  "receipt_id": "thumbnail:dark-castle:youtube-long-form:20261018:v2",
-  "decision_receipt_id": "decision:thumbnail:dark-castle:20261018:v1",
-  "decision_input_version": "sha256:f045f04ca27f124cb06182e08122f872bb990cbb001395bc587f57107c8e7c1f",
-  "decision_output_version": "decision:dark-castle:20261018:v1",
+  "receipt_id": "thumbnail:dark-castle:youtube-long-form:20261018:v3",
+  "decision_receipt_id": "decision:thumbnail:dark-castle:20261018:v2",
+  "decision_input_version": "sha256:d7be990d0ec5059c7360371cd34808e32c8e585bf109b7b286961f5553aac322",
+  "decision_output_version": "decision:dark-castle:20261018:v2",
   "content_version": "2026-10-18T00:00:00.000Z",
   "cohort_id": "cohort:youtube:chess-decision-learning:20261018:v1",
-  "observed_at": "2026-10-18T17:30:00.000Z",
+  "observed_at": "2026-10-18T19:22:39.000Z",
   "title": "I Rebuilt the Chess Lesson Around the Decision",
   "thumbnail_hook": "REMEMBER THE WHY",
   "target": {
@@ -31,9 +31,11 @@
     ]
   },
   "adopted_traits": [
-    "one dominant product or lesson idea",
-    "short high-contrast tension hook",
-    "clear 16:9 hierarchy"
+    "one dominant product proof object",
+    "one-second comprehension",
+    "short large teaser copy",
+    "clear title-thumbnail contrast",
+    "strong feed-size contrast"
   ],
   "rejected_traits": [
     "dense icon grids",
@@ -41,36 +43,87 @@
     "copied creator faces or source branding",
     "claims that the public style caused performance"
   ],
-  "user_preference_contribution": [],
-  "selection_rationale": "The owned board is the first-read object. A highlighted decision square and consequence arrow make the lesson visible before the bottom-band hook. Public examples bound the editorial pattern; they do not supply the composition or a causal performance claim.",
+  "user_preference_contribution": [
+    {
+      "source_url": "https://www.youtube.com/playlist?list=PLbfxkgOJ1hVc-9Gcleyt0iK7kW9MFpynh",
+      "captured_at": "2026-10-18T19:00:00.000Z",
+      "item_count": 14,
+      "applied_traits": [
+        "one dominant human or product focal object",
+        "one-second comprehension",
+        "short large teaser copy",
+        "clear title-thumbnail contrast",
+        "strong feed-size contrast",
+        "one simplified first-party proof object"
+      ],
+      "evidence_role": "taste_calibration_only",
+      "performance_weight": 0,
+      "performance_status": "unscored"
+    }
+  ],
+  "selection_rationale": "The short learning hook and owned board position read as one idea at feed size. One highlighted decision square supplies the proof object. Public examples bound the editorial pattern; they do not supply the composition or a causal performance claim.",
   "first_party_source": {
     "label": "Dark Castle gameplay proof",
     "artifact_url": "/review-assets/social-content/dark-castle-customer-facing-poster.png",
     "receipt_id": "sha256:e15d744685990933555575d6a3c7bc18100af901a766c9a81d4ab9b1cc827d78",
     "rights_status": "owned_product_proof"
   },
-  "first_party_supporting_sources": [],
+  "first_party_supporting_sources": [
+    {
+      "label": "Fresh HeyGen Pro identity remix for Dark Castle Chess",
+      "artifact_url": "/review-assets/social-content/source-proof/dark-castle-heygen-identity-v3.png",
+      "source_url": "https://dynamic.heygen.ai/tr:ar-4-3,h-720,fo-auto,f-auto/talking_photo/291c68f167c84aaf9f65689fc22a6438/59113e68d51b4de18714eec77c411aae.WEBP",
+      "receipt_id": "heygen:identity-remix:dark-castle:20261018:v1",
+      "rights_status": "approved_identity_remix_review_only",
+      "look_id": "talking_photo:59113e68d51b4de18714eec77c411aae",
+      "background_environment": "warm chess library",
+      "sha256": "sha256:7a7130f1f74401376b8b244c8048d4476740d470d82f49d42fe74450a1b16a7c"
+    }
+  ],
+  "identity_remix_rotation": {
+    "provider": "heygen_pro",
+    "generation_receipt_id": "heygen:identity-remix:dark-castle:20261018:v1",
+    "included_credit_count": 1,
+    "primary": {
+      "artifact_url": "/review-assets/social-content/source-proof/dark-castle-heygen-identity-v3.png",
+      "source_url": "https://dynamic.heygen.ai/tr:ar-4-3,h-720,fo-auto,f-auto/talking_photo/291c68f167c84aaf9f65689fc22a6438/59113e68d51b4de18714eec77c411aae.WEBP",
+      "look_id": "talking_photo:59113e68d51b4de18714eec77c411aae",
+      "background_environment": "warm chess library",
+      "sha256": "sha256:7a7130f1f74401376b8b244c8048d4476740d470d82f49d42fe74450a1b16a7c",
+      "role": "selected_primary"
+    },
+    "alternates": [
+      {
+        "artifact_url": "/review-assets/social-content/source-proof/dark-castle-heygen-identity-alternate-v3.png",
+        "source_url": "https://dynamic.heygen.ai/tr:ar-4-3,h-720,fo-auto,f-auto/talking_photo/54f5c62b071845ca801c06859ac4c376/8049960a4be643faa8cc9350263e0649.WEBP",
+        "look_id": "talking_photo:8049960a4be643faa8cc9350263e0649",
+        "background_environment": "dark chess studio",
+        "sha256": "sha256:48acf218b72fda72fbdb0f36034f77dd3f7a969632b3d0d4286e86c0886aa618",
+        "role": "governed_rotation_input"
+      }
+    ]
+  },
   "composition": {
     "version": "youtube-thumbnail-composition/v1",
-    "layout_family": "full-bleed-decision-board-bottom-hook",
-    "dominant_subject": "Owned Dark Castle board position with the decision square highlighted",
+    "layout_family": "teacher-board-proof-split",
+    "dominant_subject": "Fresh campaign-specific approved Vambah identity remix teaching beside the owned Dark Castle board proof",
     "focal_hierarchy": [
-      "board position",
-      "highlighted decision square and consequence arrow",
-      "bottom-band hook"
+      "approved human anchor",
+      "owned board position",
+      "short learning hook"
     ],
-    "text_placement": "bottom band spanning the board",
-    "batch_identity": "social-campaign-youtube:20261018:v2",
-    "composition_signature": "board-full-bleed|decision-ring|hook-bottom-band",
+    "text_placement": "bottom left over the identity environment",
+    "batch_identity": "social-campaign-youtube:20261018:v3",
+    "composition_signature": "identity-left|board-right|hook-bottom-left",
     "exception_basis": "none",
     "exception_receipt_ids": []
   },
   "output": {
-    "artifact_url": "/review-assets/social-content/youtube-packaging/dark-castle-remember-the-why-v2.png",
+    "artifact_url": "/review-assets/social-content/youtube-packaging/dark-castle-remember-the-why-v3.png",
     "width": 1280,
     "height": 720,
     "aspect_ratio": "16:9",
-    "sha256": "sha256:80931c2387a251ed537e1ee0b769748ffeced72fc6b151c5ab6f0e22f4d90f64"
+    "sha256": "sha256:c8f0054e97474804664150e9429221207b9e37910fb571237767fcff7492de74"
   },
   "external_gates": {
     "provider_generation": false,
