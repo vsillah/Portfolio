@@ -37,6 +37,23 @@ async function noOverflow(label) {
   if (result.scroll > result.client + 1) throw new Error(`${label} has horizontal overflow: ${JSON.stringify(result)}`)
 }
 
+async function ensureImagesLoaded(scope, label) {
+  const images = scope.getByRole('img')
+  const count = await images.count()
+  for (let index = 0; index < count; index += 1) {
+    const image = images.nth(index)
+    await image.scrollIntoViewIfNeeded()
+    await image.evaluate(async (node) => {
+      if (!(node instanceof HTMLImageElement)) return
+      if (!node.complete) await new Promise((resolve, reject) => {
+        node.addEventListener('load', resolve, { once: true })
+        node.addEventListener('error', reject, { once: true })
+      })
+      await node.decode()
+    }).catch((error) => { throw new Error(`${label} image ${index + 1} did not decode: ${error.message}`) })
+  }
+}
+
 async function load(url, expectedStatus) {
   await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60_000 })
   const packaging = page.getByLabel('YouTube Shorts packaging evidence')
@@ -53,6 +70,7 @@ await noOverflow('desktop bound')
 await packaging.getByText('AI Scored It. Who Makes the Call?', { exact: true }).first().waitFor({ state: 'visible' })
 await packaging.getByText('AI SCORED IT. / WHO DECIDES?', { exact: true }).first().waitFor({ state: 'visible' })
 await packaging.getByAltText(/YouTube Shorts bound thumbnail/).waitFor({ state: 'visible' })
+await ensureImagesLoaded(packaging, 'desktop bound')
 await page.screenshot({ path: path.join(outputDir, 'jev-packaging-bound-desktop-1440.png'), fullPage: true })
 
 await packaging.getByText('Title evidence', { exact: true }).click()
@@ -68,6 +86,7 @@ await cohort.getByText(/both relationship groups require at least 3 attributable
 if (await cohort.getByRole('link', { name: /Public Short:/ }).count() !== 8) throw new Error('The rendered comparison did not expose exactly eight attributable public Short links.')
 if (await cohort.getByText(/Exact title:/).count() !== 8) throw new Error('Every live topic source must expose its exact published title.')
 if (await cohort.getByText(/Exact thumbnail text:/).count() !== 8) throw new Error('Every live topic source must expose its verified thumbnail transcription or unreadable status.')
+await ensureImagesLoaded(cohort, 'desktop cohort')
 const evidenceHrefs = await cohort.getByRole('link').evaluateAll((links) => links.map((link) => link.getAttribute('href')))
 if (evidenceHrefs.some((href) => !href || !/^https?:\/\//.test(href))) throw new Error(`Evidence links must be absolute and openable: ${JSON.stringify(evidenceHrefs)}`)
 await page.screenshot({ path: path.join(outputDir, 'jev-packaging-cohort-desktop-1440.png'), fullPage: true })
@@ -86,6 +105,7 @@ await page.waitForTimeout(700)
 await page.setViewportSize({ width: 390, height: 844 })
 packaging = await load(boundUrl, 'Asset-package evidence ready')
 await noOverflow('mobile bound')
+await ensureImagesLoaded(packaging, 'mobile bound')
 await page.screenshot({ path: path.join(outputDir, 'jev-packaging-bound-mobile-390.png'), fullPage: true })
 await page.waitForTimeout(700)
 
