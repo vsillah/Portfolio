@@ -50,6 +50,7 @@ import CompactPostPreview from '@/components/admin/CompactPostPreview'
 import AutoSizingScriptTextarea from '@/components/admin/AutoSizingScriptTextarea'
 import ChannelNativeVideoReview, { getChannelVideoPacket } from '@/components/admin/ChannelNativeVideoReview'
 import ChannelExperimentSocialReview, { getChannelExperimentSocialReview } from '@/components/admin/ChannelExperimentSocialReview'
+import SocialCampaignReviewPacket from '@/components/admin/SocialCampaignReviewPacket'
 import SocialVideoProductionControls from '@/components/admin/SocialVideoProductionControls'
 import ArtifactEvidenceTrace from '@/components/admin/ArtifactEvidenceTrace'
 import OutlierEvidenceScorecard from '@/components/admin/OutlierEvidenceScorecard'
@@ -128,6 +129,7 @@ import type { SocialCommentInboxItem } from '@/lib/social-comment-inbox-ui'
 import type { SocialContentCalibrationReference } from '@/lib/social-content-calibration-library'
 import { outlierEvidenceCalibrationQaFixture } from '@/lib/social-outlier-evidence-calibration'
 import { CHANNEL_EXPERIMENT_SOCIAL_DETAIL_FIXTURE, YOUTUBE_DESCRIPTION_COMPLETION_FIXTURE } from '@/lib/social-channel-experiment-qa-fixture'
+import { getSocialCampaignReviewPacket } from '@/lib/social-campaign-review-assets'
 import Link from 'next/link'
 
 const PLATFORM_ICONS: Record<string, React.ReactNode> = {
@@ -2987,6 +2989,7 @@ function SocialContentDetailPage() {
   const socialVideoProduction = item.social_video_production
   const isYouTubeTarget = item.platform === 'youtube' || targetPlatforms.includes('youtube')
   const channelVideoPacket = getChannelVideoPacket(item)
+  const campaignReviewPacket = getSocialCampaignReviewPacket(item.id)
   const youtubePackagingTarget: YouTubePackagingTarget | null = channelVideoPacket
     ? channelVideoPacket.channelLabel === 'YouTube Shorts' ? 'youtube_shorts' : 'youtube'
     : null
@@ -3004,9 +3007,11 @@ function SocialContentDetailPage() {
     : null
   const calendarPreparation = item.calendar_preparation ?? null
   const calendarPreparationReady = calendarPreparation?.state === 'ready'
-  const copyFieldLabel = channelExperimentReview ? 'YouTube Experiment Outline' : channelVideoPacket ? 'Video Script' : 'Post Text'
+  const copyFieldLabel = channelExperimentReview ? 'YouTube Experiment Outline' : channelVideoPacket || campaignReviewPacket?.channel === 'youtube' ? 'Video Script' : 'Post Text'
   const copyLengthGuidance = channelVideoPacket
     ? `${channelVideoPacket.channelLabel} review: confirm the full spoken script against the bound duration and receipt version`
+    : campaignReviewPacket?.channel === 'youtube'
+      ? 'YouTube packaging review: confirm the source-bound hook, storyboard, conclusion, and spoken CTA; final generation remains blocked until every evidence gate passes'
     : channelExperimentReview
       ? 'YouTube experiment review: assess the opening hook and episode outline against the linked evidence and product-proof requirements'
     : 'LinkedIn optimal: 150-300 words'
@@ -3300,11 +3305,15 @@ function SocialContentDetailPage() {
       : []
   const visualPreviewImageUrl = versionAssetUrl(
     isSingleImageFormat
-      ? item.image_url || agentifiedVisualQaPacket?.primaryCandidateUrl || ''
+      ? campaignReviewPacket?.kind === 'linkedin_visual'
+        ? campaignReviewPacket.visual.publicPath
+        : item.image_url || agentifiedVisualQaPacket?.primaryCandidateUrl || ''
       : '',
     item.updated_at,
   )
-  const visualPreviewAlt = item.image_url
+  const visualPreviewAlt = campaignReviewPacket?.kind === 'linkedin_visual'
+    ? campaignReviewPacket.visual.alt
+    : item.image_url
     ? 'Deterministic AmaduTown review asset'
     : agentifiedVisualQaPacket?.altText || 'Amina visual QA candidate'
   const carouselActionLabel = persistedVisualFormat === 'carousel'
@@ -6356,7 +6365,7 @@ function SocialContentDetailPage() {
           <div className="min-w-0 space-y-4">
             {channelExperimentReview ? (
               <ChannelExperimentSocialReview item={item} />
-            ) : channelVideoPacket ? (
+            ) : campaignReviewPacket?.channel === 'youtube' || channelVideoPacket ? (
               <div
                 id={persistedCurrentGate === 'asset_packet' ? socialContentGateAnchor(persistedCurrentGate) : undefined}
                 className="scroll-mt-64 space-y-4"
@@ -6379,6 +6388,7 @@ function SocialContentDetailPage() {
                     </p>
                   </section>
                 )}
+                {campaignReviewPacket?.channel === 'youtube' ? <SocialCampaignReviewPacket packet={campaignReviewPacket} /> : null}
                 <ChannelNativeVideoReview item={{ ...item, post_text: postText, voiceover_text: voiceoverText }} />
                 {Boolean(artifactEvidenceManifest) && !previewFixtureReadOnly ? (
                   <ArtifactEvidenceTrace
@@ -6391,8 +6401,9 @@ function SocialContentDetailPage() {
               </div>
             ) : (
               <>
-              <LinkedInReviewSurface item={item} hasUnsavedChanges={hasUnsavedCopyChanges} onRefresh={() => fetchItem({ silent: true })} />
-              <div data-theme-surface="linkedin-preview-chrome" className="min-w-0 rounded-xl border border-border bg-card p-4 text-card-foreground shadow-sm">
+                {campaignReviewPacket?.channel === 'linkedin' ? <SocialCampaignReviewPacket packet={campaignReviewPacket} /> : null}
+                <LinkedInReviewSurface item={item} hasUnsavedChanges={hasUnsavedCopyChanges} onRefresh={() => fetchItem({ silent: true })} />
+                <div data-theme-surface="linkedin-preview-chrome" className="min-w-0 rounded-xl border border-border bg-card p-4 text-card-foreground shadow-sm">
               <h3 className="mb-3 flex flex-wrap items-center gap-2 text-sm font-medium text-muted-foreground">
 	                <Linkedin className="h-4 w-4 text-blue-700 dark:text-blue-300" /> LinkedIn Preview
                   <span className="ml-auto rounded-full border border-border bg-muted px-2 py-0.5 text-[10px] font-semibold text-foreground">Follows Portfolio theme</span>
