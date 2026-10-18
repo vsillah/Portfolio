@@ -1,0 +1,86 @@
+{
+  "version": "youtube-thumbnail-selection/v2",
+  "receipt_id": "thumbnail:ai-audit:youtube-long-form:20261018:v2",
+  "cohort_id": "cohort:youtube:ai-cost-audit-roi:20261018:v1",
+  "observed_at": "2026-10-18T17:30:00.000Z",
+  "title": "The AI Cost That Never Appears on the Invoice",
+  "thumbnail_hook": "WHO OWNS THE CLEANUP?",
+  "target": {
+    "channel": "youtube",
+    "format": "long_form",
+    "width": 1280,
+    "height": 720,
+    "aspect_ratio": "16:9"
+  },
+  "candidate_copy_pair": {
+    "title": "The AI Cost That Never Appears on the Invoice",
+    "thumbnail_hook": "WHO OWNS THE CLEANUP?",
+    "relationship": "contrasting_question",
+    "exact_strings_are_distinct": true,
+    "strategy_status": "review_only_unscored",
+    "support_scope": "editorial_hypothesis_only",
+    "performance_claim": "unscored",
+    "rationale": "The title names the hidden cost. The thumbnail asks who absorbs the operational burden. Public examples support the editorial tension only; they do not establish causal performance.",
+    "source_example_video_ids": [
+      "oGaSfa3lJ8o",
+      "axNuaPmBjLg"
+    ]
+  },
+  "adopted_traits": [
+    "one dominant calculator result",
+    "short ownership question",
+    "clear 16:9 hierarchy"
+  ],
+  "rejected_traits": [
+    "generic synthetic business people",
+    "neon robot or circuit-board filler",
+    "dashboard grids and proof-chip rows",
+    "copied creator faces or source branding"
+  ],
+  "selection_rationale": "The approved first-party human anchor faces the owned calculator result. The ownership question sits above the product proof instead of reusing the board candidate’s full-bleed layout. Public examples bound the editorial pattern; they do not supply the composition or a causal performance claim.",
+  "first_party_source": {
+    "label": "AI Audit Calculator result screen",
+    "artifact_url": "/review-assets/social-content/source-proof/ai-audit-calculator.png",
+    "receipt_id": "sha256:bef9eeb1d8d15f7b4197bb03240c27a3b6b96fe114ce06f4c7027690c3e49b97",
+    "rights_status": "owned_product_proof"
+  },
+  "first_party_supporting_sources": [
+    {
+      "label": "Approved Vambah profile portrait",
+      "artifact_url": "/review-assets/social-content/source-proof/vambah-approved-profile.jpg",
+      "receipt_id": "sha256:2731bee4ee0b356fcb957ae84142d89cc0b6a35f49778aef5fb0f19a8d45c6ed",
+      "rights_status": "approved_first_party_portrait"
+    }
+  ],
+  "composition": {
+    "version": "youtube-thumbnail-composition/v1",
+    "layout_family": "human-anchor-tilted-calculator-question",
+    "dominant_subject": "Approved first-party Vambah portrait confronting the owned calculator result",
+    "focal_hierarchy": [
+      "human anchor",
+      "ownership question",
+      "tilted calculator result"
+    ],
+    "text_placement": "upper center between portrait and calculator",
+    "batch_identity": "social-campaign-youtube:20261018:v2",
+    "composition_signature": "human-left|question-upper-center|calculator-tilted-right",
+    "exception_basis": "none",
+    "exception_receipt_ids": []
+  },
+  "output": {
+    "artifact_url": "/review-assets/social-content/youtube-packaging/ai-audit-who-owns-the-cleanup-v2.png",
+    "width": 1280,
+    "height": 720,
+    "aspect_ratio": "16:9",
+    "sha256": "sha256:b511ecbdc3a32db29a784d789ebd20b8cb4f73413ec380915b4dcbf8cc7c9091"
+  },
+  "external_gates": {
+    "provider_generation": false,
+    "upload": false,
+    "platform_draft": false,
+    "schedule": false,
+    "publish": false,
+    "external_send": false,
+    "production_write": false
+  }
+}

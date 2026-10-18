@@ -49,6 +49,9 @@ export default function SocialCampaignReviewPacket({ packet }: { packet: SocialC
   }
 
   const blocked = packet.status === 'blocked_missing_description_evidence'
+  const thumbnailEvidence = packet.thumbnailEvidence
+  const thumbnailResearch = thumbnailEvidence?.thumbnail?.research_cohort
+  const thumbnailScore = thumbnailEvidence?.thumbnail?.evaluation_receipt?.overall
   return (
     <section aria-label={`${packet.campaign} YouTube packaging packet`} className={`rounded-xl border p-4 text-card-foreground shadow-sm sm:p-5 ${blocked ? 'border-red-500/35 bg-red-500/5' : 'border-emerald-500/30 bg-card'}`}>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -72,7 +75,74 @@ export default function SocialCampaignReviewPacket({ packet }: { packet: SocialC
           <p className="mt-1 text-sm font-semibold text-foreground">{packet.thumbnailTeaser}</p>
         </div>
       </div>
-      {packet.thumbnailPath ? <Image src={packet.thumbnailPath} alt={`Approved thumbnail reading ${packet.thumbnailTeaser}`} width={1080} height={1920} className="mx-auto mt-4 max-h-[38rem] w-auto rounded-lg border border-border bg-black object-contain" /> : null}
+      {thumbnailEvidence ? (
+        <section aria-label="YouTube thumbnail evidence gate" className={`mt-4 rounded-lg border p-3 ${thumbnailEvidence.ready ? 'border-emerald-500/35 bg-emerald-500/10' : 'border-red-500/40 bg-red-500/10'}`}>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <p className="text-sm font-semibold text-foreground">Thumbnail evidence: {thumbnailEvidence.ready ? 'Ready' : 'Blocked'}</p>
+            <span className="rounded-full border border-current/20 px-2 py-0.5 text-xs font-semibold">
+              {thumbnailScore?.score == null ? 'Unscored' : `${thumbnailScore.score}/100`} · {packet.packagingTarget === 'youtube' ? '16:9 long-form' : '9:16 Shorts'}
+            </span>
+          </div>
+          {thumbnailEvidence.ready && packet.thumbnailPath ? (
+            <>
+              <Image src={packet.thumbnailPath} alt={`Evidence-ready thumbnail reading ${packet.thumbnailTeaser}`} width={1280} height={720} className="mt-3 w-full rounded-lg border border-border bg-black object-contain" />
+              <p className="mt-2 break-all rounded-md border border-border bg-background px-3 py-2 font-mono text-[10px] text-muted-foreground">
+                Canonical thumbnail receipt: {packet.thumbnailReceipt}
+              </p>
+              <p className="mt-3 text-sm leading-6 text-foreground">Why selected: {thumbnailResearch?.candidate?.support_reason}</p>
+              {thumbnailResearch?.composition ? (
+                <section aria-label="YouTube thumbnail composition diversity" className="mt-3 rounded-lg border border-border bg-background p-3">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <p className="text-sm font-semibold text-foreground">Composition decision</p>
+                    <span className={`rounded-full border px-2 py-0.5 text-xs font-semibold ${packet.thumbnailDiversity?.ready ? 'border-emerald-500/35 text-emerald-700 dark:text-emerald-200' : 'border-red-500/40 text-red-800 dark:text-red-100'}`}>
+                      Batch diversity: {packet.thumbnailDiversity?.ready ? 'Distinct' : 'Blocked'}
+                    </span>
+                  </div>
+                  <dl className="mt-3 grid gap-2 text-xs sm:grid-cols-2">
+                    <div><dt className="font-semibold text-foreground">Layout family</dt><dd className="mt-1 text-muted-foreground">{thumbnailResearch.composition.layout_family}</dd></div>
+                    <div><dt className="font-semibold text-foreground">Dominant subject</dt><dd className="mt-1 text-muted-foreground">{thumbnailResearch.composition.dominant_subject}</dd></div>
+                    <div><dt className="font-semibold text-foreground">Text placement</dt><dd className="mt-1 text-muted-foreground">{thumbnailResearch.composition.text_placement}</dd></div>
+                    <div><dt className="font-semibold text-foreground">Batch identity</dt><dd className="mt-1 break-all font-mono text-muted-foreground">{thumbnailResearch.composition.batch_identity}</dd></div>
+                  </dl>
+                  <p className="mt-3 text-xs font-semibold text-foreground">Focal hierarchy</p>
+                  <ol className="mt-1 flex flex-wrap gap-2 text-xs text-muted-foreground">{thumbnailResearch.composition.focal_hierarchy.map((item, index) => <li key={item} className="rounded-full border border-border px-2 py-1">{index + 1}. {item}</li>)}</ol>
+                  {packet.thumbnailDiversity?.blockers.map((blocker) => <p key={blocker} className="mt-2 text-xs text-red-800 dark:text-red-100">{blocker}</p>)}
+                </section>
+              ) : null}
+            </>
+          ) : (
+            <div className="mt-3 space-y-2">
+              {thumbnailEvidence.blockers.map((blocker) => <p key={blocker} className="text-sm text-red-900 dark:text-red-100">{blocker}</p>)}
+              {thumbnailEvidence.recoveryActions.map((action) => <p key={action} className="rounded-md border border-red-500/25 bg-background/70 p-2 text-xs text-muted-foreground">Recovery: {action}</p>)}
+            </div>
+          )}
+          {thumbnailResearch ? (
+            <details className="mt-3 rounded-lg border border-border bg-background p-3" open>
+              <summary className="cursor-pointer text-sm font-semibold text-foreground">Cohort examples and selection boundaries</summary>
+              <div className="mt-3 grid gap-3 md:grid-cols-2">
+                {thumbnailResearch.samples.map((sample) => (
+                  <article key={sample.video_id} className="rounded-lg border border-border bg-card p-2">
+                    {sample.thumbnail_path ? <Image src={sample.thumbnail_path} alt={`Captured public thumbnail for ${sample.title}`} width={640} height={360} className="aspect-video w-full rounded-md border border-border object-cover" /> : null}
+                    <Link href={sample.youtube_url} target="_blank" rel="noreferrer" className="mt-2 block text-xs font-semibold text-foreground underline decoration-radiant-gold/60 underline-offset-4">{sample.title}</Link>
+                    <p className="mt-1 text-[11px] leading-5 text-muted-foreground">{sample.creator} · score {sample.normalized_performance_score ?? 'Unscored'} · channel {sample.channel_relative_ratio ?? 'Unscored'}×</p>
+                    <p className="text-[11px] leading-5 text-muted-foreground">Thumbnail text: {sample.thumbnail_text.length ? sample.thumbnail_text.join(' / ') : 'Unreadable'}</p>
+                  </article>
+                ))}
+              </div>
+              <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                <div className="rounded-md border border-emerald-500/25 bg-emerald-500/5 p-3"><p className="text-xs font-semibold text-foreground">Adopted traits</p><ul className="mt-2 space-y-1 text-xs text-muted-foreground">{thumbnailResearch.adopted_traits.map((trait) => <li key={trait}>· {trait}</li>)}</ul></div>
+                <div className="rounded-md border border-red-500/25 bg-red-500/5 p-3"><p className="text-xs font-semibold text-foreground">Rejected traits</p><ul className="mt-2 space-y-1 text-xs text-muted-foreground">{thumbnailResearch.rejected_traits.map((trait) => <li key={trait}>· {trait}</li>)}</ul></div>
+              </div>
+              <p className="mt-3 text-xs leading-5 text-muted-foreground">{thumbnailResearch.public_outlier_boundary}</p>
+            </details>
+          ) : null}
+        </section>
+      ) : packet.thumbnailPath ? (
+        <div className="mt-4">
+          <Image src={packet.thumbnailPath} alt={`Approved thumbnail reading ${packet.thumbnailTeaser}`} width={1280} height={720} className="w-full rounded-lg border border-border bg-black object-contain" />
+          <p className="mt-2 break-all rounded-md border border-border bg-background px-3 py-2 font-mono text-[10px] text-muted-foreground">Canonical thumbnail receipt: {packet.thumbnailReceipt}</p>
+        </div>
+      ) : null}
       <div className="mt-3 rounded-lg border border-border bg-background p-3">
         <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Thumbnail concept</p>
         <p className="mt-1 text-sm leading-6 text-foreground">{packet.thumbnailConcept}</p>

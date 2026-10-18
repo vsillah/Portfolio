@@ -1,3 +1,10 @@
+import type { ArtifactEvaluationDimension, ArtifactEvaluationDimensionKey, ArtifactEvaluationKind, ArtifactEvaluationReceipt } from '@/lib/artifact-evidence-evaluation'
+import { validateYouTubePackagingEvidence, validateYouTubeThumbnailBatchDiversity, type ArtifactEvidenceManifest, type ThumbnailResearchCohort, type YouTubePackagingEvidenceValidation, type YouTubePackagingTarget, type YouTubeThumbnailBatchDiversityValidation } from '@/lib/artifact-evidence-manifest'
+import darkCastleCohort from '@/artifacts/research/dark-castle-chess-youtube-thumbnail-cohort-2026-10-18/cohort.json'
+import darkCastleSelection from '@/artifacts/research/dark-castle-chess-youtube-thumbnail-cohort-2026-10-18/dark-castle-thumbnail-selection-receipt.json'
+import aiAuditCohort from '@/artifacts/research/ai-audit-calculator-youtube-thumbnail-cohort-2026-10-18/cohort.json'
+import aiAuditSelection from '@/artifacts/research/ai-audit-calculator-youtube-thumbnail-cohort-2026-10-18/ai-audit-thumbnail-selection-receipt.json'
+
 export const SOCIAL_CAMPAIGN_REVIEW_IDS = {
   jevLinkedIn: '80618d32-7046-4abc-b2b7-8adb5526bb2e',
   jevYouTube: '939b01e3-d1af-42c8-805e-0379f09efd60',
@@ -50,6 +57,12 @@ export type YouTubeReviewPacket = {
   thumbnailTeaser: string
   thumbnailConcept: string
   thumbnailPath?: string
+  thumbnailReceipt?: string
+  packagingTarget: YouTubePackagingTarget
+  contentVersion: string
+  thumbnailEvidenceManifest?: ArtifactEvidenceManifest
+  thumbnailEvidence: YouTubePackagingEvidenceValidation | null
+  thumbnailDiversity: YouTubeThumbnailBatchDiversityValidation | null
   openingHook: string
   descriptionEvidence: {
     state: 'ready' | 'unscored'
@@ -68,6 +81,225 @@ export type YouTubeReviewPacket = {
 export type SocialCampaignReviewPacket = LinkedInReviewPacket | YouTubeReviewPacket
 
 const externalGateNote = 'No provider call, render, upload, platform draft, schedule, publication, external send, credential change, migration, or production write is enabled.'
+const fixtureContentVersion = '2026-10-18T00:00:00.000Z'
+
+type CohortJson = typeof darkCastleCohort
+type SelectionJson = typeof darkCastleSelection | typeof aiAuditSelection
+
+function packagingEvaluationReceipt(
+  kind: ArtifactEvaluationKind,
+  elementId: string,
+  contentVersion: string,
+  cohort: CohortJson,
+  selection: SelectionJson,
+): ArtifactEvaluationReceipt {
+  const cohortHref = `/admin/source-protocol?receipt=${encodeURIComponent(cohort.cohort_id)}`
+  const selectionHref = `/admin/source-protocol?receipt=${encodeURIComponent(selection.receipt_id)}`
+  const cohortLink = { receipt_id: cohort.cohort_id, href: cohortHref }
+  const selectionLink = { receipt_id: selection.receipt_id, href: selectionHref }
+  const definitions: Record<ArtifactEvaluationDimensionKey, { score: number; weight: number; threshold: number; direction: ArtifactEvaluationDimension['direction']; basis: ArtifactEvaluationDimension['basis']; rationale: string; receipt: typeof cohortLink }> = {
+    outlier_pattern_fit: { score: 80, weight: 25, threshold: 70, direction: 'higher_is_better', basis: 'measured', rationale: 'The candidate uses the cohort-supported one-idea, short-hook, high-contrast pattern. Public pixels and layouts contribute zero composition authority.', receipt: cohortLink },
+    source_support: { score: 100, weight: 20, threshold: 80, direction: 'higher_is_better', basis: 'measured', rationale: 'The cohort, first-party product source, exact copy pair, selection receipt, and output hash are all bound.', receipt: selectionLink },
+    core_audience_fit: { score: 90, weight: 15, threshold: 70, direction: 'higher_is_better', basis: 'heuristic', rationale: 'The 16:9 candidate has one product idea and one concise tension hook sized for small-screen recognition.', receipt: selectionLink },
+    timeliness: { score: 100, weight: 10, threshold: 65, direction: 'higher_is_better', basis: 'measured', rationale: 'The public cohort was captured and evaluated inside its declared fourteen-day freshness window.', receipt: cohortLink },
+    product_work_evidence_fit: { score: 100, weight: 20, threshold: 80, direction: 'higher_is_better', basis: 'measured', rationale: 'The visible subject is owned product evidence with an exact source receipt and no unsupported outcome claim.', receipt: selectionLink },
+    originality_repetition_risk: { score: 0, weight: 10, threshold: 35, direction: 'lower_is_better', basis: 'measured', rationale: 'The candidate reuses no public thumbnail pixels, creator likenesses, source phrases, or source brand treatment.', receipt: selectionLink },
+  }
+  const dimensions = Object.fromEntries(Object.entries(definitions).map(([key, definition]) => [key, {
+    status: 'scored',
+    score: definition.score,
+    basis: definition.basis,
+    direction: definition.direction,
+    weight: definition.weight,
+    threshold: definition.threshold,
+    percentile: key === 'outlier_pattern_fit' ? 80 : null,
+    rank: null,
+    deterministic_inputs: [{ name: `${key}_score`, value: String(definition.score), receipt_id: definition.receipt.receipt_id }],
+    source_receipts: [definition.receipt],
+    rationale: definition.rationale,
+  }])) as Record<ArtifactEvaluationDimensionKey, ArtifactEvaluationDimension>
+  const overall = Number((Object.values(dimensions).reduce((total, dimension) => total + (dimension.direction === 'lower_is_better' ? 100 - dimension.score! : dimension.score!) * dimension.weight, 0) / 100).toFixed(2))
+  const published = cohort.included.map((sample) => sample.published_at).filter((value): value is string => Boolean(value)).sort()
+  return {
+    version: 'artifact-evaluation-scorecard/v1',
+    receipt_id: `evaluation:${selection.receipt_id}:${kind}`,
+    evaluation_kind: kind,
+    content_version: contentVersion,
+    evaluated_at: cohort.observed_at,
+    weighting_version: 'artifact-evaluation-weights/v1',
+    benchmark_cohort: {
+      cohort_id: cohort.cohort_id,
+      status: 'approved',
+      sample_size: cohort.included.length,
+      observed_from: published[0] ?? cohort.observed_at,
+      observed_to: cohort.observed_at,
+      fresh_until: cohort.fresh_until,
+      source_receipts: [cohortLink],
+    },
+    dimensions,
+    overall: {
+      score: overall,
+      threshold: 75,
+      recommendation: overall >= 75 ? 'advance' : 'revise',
+      confidence_score: 90,
+      confidence_label: 'high',
+      rationale: 'Advance the version-bound candidate to review. Public examples remain comparison evidence; first-party sources control the composition.',
+      source_receipts: [cohortLink, selectionLink],
+    },
+  }
+}
+
+function packagingResearchCohort(cohort: CohortJson, selection: SelectionJson): ThumbnailResearchCohort {
+  const candidate = {
+    id: selection.receipt_id,
+    label: `${selection.thumbnail_hook} candidate`,
+    artifact_url: selection.output.artifact_url,
+    source_url: selection.output.artifact_url,
+    link_status: 'verified_openable' as const,
+    supports_candidate_composition: true,
+    support_reason: selection.selection_rationale,
+    width: selection.output.width,
+    height: selection.output.height,
+    aspect_ratio: selection.output.aspect_ratio,
+  }
+  const firstParty = {
+    id: selection.first_party_source.receipt_id,
+    label: selection.first_party_source.label,
+    artifact_url: selection.first_party_source.artifact_url,
+    source_url: selection.first_party_source.artifact_url,
+    link_status: 'verified_openable' as const,
+    supports_candidate_composition: true,
+    support_reason: 'Owned product proof supplies the visible subject and product idea.',
+    width: null,
+    height: null,
+    aspect_ratio: null,
+  }
+  const supportingFirstParty = selection.first_party_supporting_sources.map((source) => ({
+    id: source.receipt_id,
+    label: source.label,
+    artifact_url: source.artifact_url,
+    source_url: source.artifact_url,
+    link_status: 'verified_openable' as const,
+    supports_candidate_composition: true,
+    support_reason: 'Approved first-party material supplies the human anchor used by this exact candidate.',
+    width: null,
+    height: null,
+    aspect_ratio: null,
+  }))
+  const subjectSource = selection.first_party_supporting_sources[0] ?? selection.first_party_source
+  const binding = (element: 'subject' | 'hook' | 'product_proof' | 'aspect_ratio' | 'brand_treatment', sourceLabel: string, sourceUrl: string, limitation: string) => ({
+    element,
+    source_label: sourceLabel,
+    source_url: sourceUrl,
+    link_status: 'verified_openable' as const,
+    support: 'supports' as const,
+    limitation,
+  })
+  return {
+    cohort_id: cohort.cohort_id,
+    target: 'youtube_long_form_16_9',
+    observed_at: cohort.observed_at,
+    sample_size: cohort.included.length,
+    minimum_sample_size: cohort.selection_gate.minimum_sample_size,
+    outlier_rule: cohort.outlier_qualification.rule,
+    outlier_sample_size: cohort.outlier_qualification.qualified_sample_size,
+    formula: Object.values(cohort.formula),
+    recurring_visual_traits: cohort.recurring_visual_traits,
+    adopted_traits: cohort.adopted_traits,
+    rejected_traits: cohort.rejected_traits,
+    composition_decision: cohort.composition_decision,
+    composition: selection.composition as ThumbnailResearchCohort['composition'],
+    public_outlier_boundary: cohort.public_outlier_boundary,
+    first_party_neighbors: [firstParty, ...supportingFirstParty],
+    candidate,
+    element_bindings: [
+      binding('subject', subjectSource.label, subjectSource.artifact_url, 'Supports the visible dominant subject, not a performance outcome.'),
+      binding('hook', 'Exact title-thumbnail selection receipt', `/admin/source-protocol?receipt=${encodeURIComponent(selection.receipt_id)}`, 'Supports the exact distinct hook as an editorial hypothesis only.'),
+      binding('product_proof', selection.first_party_source.label, selection.first_party_source.artifact_url, 'Supports owned product UI only.'),
+      binding('aspect_ratio', 'Long-form YouTube candidate', selection.output.artifact_url, 'Supports 1280×720 16:9 only.'),
+      binding('brand_treatment', 'Rendered AmaduTown candidate', selection.output.artifact_url, 'Supports the logo, navy, white, and gold treatment in this exact candidate.'),
+    ],
+    copy_pair_analysis: cohort.copy_pair_analysis as ThumbnailResearchCohort['copy_pair_analysis'],
+    candidate_copy_pair: cohort.candidate_copy_pair as ThumbnailResearchCohort['candidate_copy_pair'],
+    samples: cohort.included as unknown as ThumbnailResearchCohort['samples'],
+  }
+}
+
+function packagingManifest(contentVersion: string, cohort: CohortJson, selection: SelectionJson): ArtifactEvidenceManifest {
+  const sourceHref = `/admin/source-protocol?receipt=${encodeURIComponent(selection.receipt_id)}`
+  const common = {
+    customer_facing: true,
+    review_only: true,
+    redacted: false,
+    source_identity: selection.receipt_id,
+    source_record_type: 'portfolio_research_packet',
+    authoritative_href: sourceHref,
+    content_version: contentVersion,
+    rights_privacy_status: 'passed' as const,
+    rights_privacy_receipt_ids: [selection.first_party_source.receipt_id, ...selection.first_party_supporting_sources.map((source) => source.receipt_id), `privacy:${selection.receipt_id}`],
+    transformation_step: 'Bound into a repository-only review projection with every external execution gate closed.',
+  }
+  return {
+    version: 'artifact-evidence-manifest/v2',
+    manifest_id: `artifact-manifest:${selection.receipt_id}`,
+    manifest_hash: selection.output.sha256,
+    content_version: contentVersion,
+    artifact_label: `${selection.thumbnail_hook} YouTube packaging candidate`,
+    preview_url: selection.output.artifact_url,
+    preview_alt: `YouTube thumbnail reading ${selection.thumbnail_hook}`,
+    final_output_hashes: [{ label: 'Thumbnail PNG', sha256: selection.output.sha256.replace('sha256:', '') }],
+    elements: [
+      {
+        ...common,
+        id: `title:${selection.receipt_id}`,
+        category: 'title',
+        label: 'Title',
+        input_excerpt: selection.title,
+        evidence_receipt_ids: [selection.receipt_id, cohort.cohort_id],
+        version_hash: selection.output.sha256,
+        evaluation_kind: 'title_subject',
+        evaluation_receipt: packagingEvaluationReceipt('title_subject', 'title', contentVersion, cohort, selection),
+      },
+      {
+        ...common,
+        id: `thumbnail:${selection.receipt_id}`,
+        category: 'thumbnail',
+        label: 'Thumbnail',
+        input_excerpt: selection.thumbnail_hook,
+        artifact_url: selection.output.artifact_url,
+        evidence_receipt_ids: [selection.receipt_id, cohort.cohort_id, selection.first_party_source.receipt_id, ...selection.first_party_supporting_sources.map((source) => source.receipt_id)],
+        version_hash: selection.output.sha256,
+        evaluation_kind: 'thumbnail',
+        evaluation_receipt: packagingEvaluationReceipt('thumbnail', 'thumbnail', contentVersion, cohort, selection),
+        research_cohort: packagingResearchCohort(cohort, selection),
+      },
+    ],
+  }
+}
+
+const darkCastleManifest = packagingManifest(fixtureContentVersion, darkCastleCohort, darkCastleSelection)
+const aiAuditManifest = packagingManifest(fixtureContentVersion, aiAuditCohort as CohortJson, aiAuditSelection as SelectionJson)
+export const SOCIAL_CAMPAIGN_YOUTUBE_THUMBNAIL_DIVERSITY = validateYouTubeThumbnailBatchDiversity([
+  { id: 'dark-castle', manifest: darkCastleManifest },
+  { id: 'ai-audit', manifest: aiAuditManifest },
+])
+
+function validatedPackagingEvidence(manifest: ArtifactEvidenceManifest) {
+  const validation = validateYouTubePackagingEvidence(manifest, fixtureContentVersion, 'youtube', '2026-10-18T20:00:00.000Z')
+  if (SOCIAL_CAMPAIGN_YOUTUBE_THUMBNAIL_DIVERSITY.ready) return { manifest, validation }
+  return {
+    manifest,
+    validation: {
+      ...validation,
+      ready: false,
+      blockers: [...new Set([...validation.blockers, ...SOCIAL_CAMPAIGN_YOUTUBE_THUMBNAIL_DIVERSITY.blockers.map((blocker) => `Batch diversity: ${blocker}`)])],
+      recoveryActions: [...new Set([...validation.recoveryActions, ...SOCIAL_CAMPAIGN_YOUTUBE_THUMBNAIL_DIVERSITY.recoveryActions])],
+    },
+  }
+}
+
+const darkCastlePackagingEvidence = validatedPackagingEvidence(darkCastleManifest)
+const aiAuditPackagingEvidence = validatedPackagingEvidence(aiAuditManifest)
 
 export const SOCIAL_CAMPAIGN_REVIEW_PACKETS: Record<string, SocialCampaignReviewPacket> = {
   [SOCIAL_CAMPAIGN_REVIEW_IDS.jevLinkedIn]: {
@@ -127,6 +359,8 @@ export const SOCIAL_CAMPAIGN_REVIEW_PACKETS: Record<string, SocialCampaignReview
     title: 'AI Scored It. Who Makes the Call?', thumbnailTeaser: 'WHEN SHOULD AI STOP?',
     thumbnailConcept: 'Approved 9:16 AmaduTown composition with Vambah, one Jev product-proof object, and a short contrasting question.',
     thumbnailPath: '/review-assets/social-content/jev-youtube-short-thumbnail-v5.png',
+    thumbnailReceipt: 'thumbnail:jev:youtube-shorts:20261018:v5',
+    packagingTarget: 'youtube_shorts', contentVersion: fixtureContentVersion, thumbnailEvidence: null, thumbnailDiversity: null,
     openingHook: 'A probability can inform a decision. It should not quietly become permission.',
     descriptionEvidence: {
       state: 'ready', qualified: 3, required: 3,
@@ -148,6 +382,14 @@ export const SOCIAL_CAMPAIGN_REVIEW_PACKETS: Record<string, SocialCampaignReview
     calendarItemId: '7b1b202c-eb24-4724-bc8e-313b07546884', campaign: 'Dark Castle Chess: Remember the Decision', status: 'blocked_missing_description_evidence',
     title: 'I Rebuilt the Chess Lesson Around the Decision', thumbnailTeaser: 'REMEMBER THE WHY',
     thumbnailConcept: 'Real gameplay board fills the frame. One highlighted move connects to a compact decision-path card; no generic chess stock art.',
+    ...(darkCastlePackagingEvidence.validation.ready ? {
+      thumbnailPath: darkCastlePackagingEvidence.validation.thumbnail?.artifact_url ?? undefined,
+      thumbnailReceipt: darkCastleSelection.receipt_id,
+    } : {}),
+    packagingTarget: 'youtube', contentVersion: fixtureContentVersion,
+    thumbnailEvidenceManifest: darkCastlePackagingEvidence.manifest,
+    thumbnailEvidence: darkCastlePackagingEvidence.validation,
+    thumbnailDiversity: SOCIAL_CAMPAIGN_YOUTUBE_THUMBNAIL_DIVERSITY,
     openingHook: 'A player can land on the right square by accident. The board position alone cannot tell you whether they learned.',
     descriptionEvidence: { state: 'unscored', qualified: 0, required: 3, requirement: 'Capture three fresh, attributable, same-topic public YouTube descriptions that pass the existing outlier benchmark. Internal packet summaries and unrelated chess videos do not qualify.', attribution: [] },
     storyboard: [
@@ -165,6 +407,14 @@ export const SOCIAL_CAMPAIGN_REVIEW_PACKETS: Record<string, SocialCampaignReview
     calendarItemId: 'c363b54c-1369-4663-b3b1-2a0dc58c0b46', campaign: 'AI Audit Calculator: The Hidden Operating Bill', status: 'blocked_missing_description_evidence',
     title: 'The AI Cost That Never Appears on the Invoice', thumbnailTeaser: 'WHO OWNS THE CLEANUP?',
     thumbnailConcept: 'Real calculator result screen beside a short chain of review, cleanup, escalation, and evidence. The thumbnail question adds tension without repeating the title.',
+    ...(aiAuditPackagingEvidence.validation.ready ? {
+      thumbnailPath: aiAuditPackagingEvidence.validation.thumbnail?.artifact_url ?? undefined,
+      thumbnailReceipt: aiAuditSelection.receipt_id,
+    } : {}),
+    packagingTarget: 'youtube', contentVersion: fixtureContentVersion,
+    thumbnailEvidenceManifest: aiAuditPackagingEvidence.manifest,
+    thumbnailEvidence: aiAuditPackagingEvidence.validation,
+    thumbnailDiversity: SOCIAL_CAMPAIGN_YOUTUBE_THUMBNAIL_DIVERSITY,
     openingHook: 'The subscription price is easy to find. The expensive part is the work that appears after the tool answers.',
     descriptionEvidence: { state: 'unscored', qualified: 0, required: 3, requirement: 'Capture three fresh, attributable, same-topic public YouTube descriptions that pass the existing outlier benchmark. Pricing pages, internal summaries, and general AI-cost commentary do not qualify.', attribution: [] },
     storyboard: [
@@ -235,6 +485,11 @@ export function socialCampaignReviewQaFixture(id: string): SocialContentItem {
         reason: 'Repository-bound review projection. No production record is read or changed.',
         next_action: 'Review the visual, evidence, and closed gates. Return to the captain handoff for any later integration decision.',
       },
+      ...(isYouTube && packet.thumbnailEvidenceManifest ? {
+        youtube_thumbnail_evidence_manifest: packet.thumbnailEvidenceManifest,
+        youtube_thumbnail_evidence_validation: packet.thumbnailEvidence,
+        youtube_thumbnail_batch_diversity: packet.thumbnailDiversity,
+      } : {}),
     },
     scheduled_for: null,
     published_at: null,
@@ -252,7 +507,7 @@ export function socialCampaignReviewQaFixture(id: string): SocialContentItem {
     carousel_pdf_url: null,
     carousel_slide_urls: null,
     created_at: '2026-10-18T00:00:00.000Z',
-    updated_at: '2026-10-18T00:00:00.000Z',
+    updated_at: isYouTube ? packet.contentVersion : fixtureContentVersion,
     publishes: [],
   }
 }

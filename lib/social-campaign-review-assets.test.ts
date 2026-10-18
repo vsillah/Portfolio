@@ -1,7 +1,24 @@
+import { createHash } from 'node:crypto'
+import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
-import { getSocialCampaignReviewPacket, SOCIAL_CAMPAIGN_REVIEW_IDS, socialCampaignReviewQaFixture } from './social-campaign-review-assets'
+import { validateYouTubePackagingEvidence } from './artifact-evidence-manifest'
+import { getSocialCampaignReviewPacket, SOCIAL_CAMPAIGN_REVIEW_IDS, SOCIAL_CAMPAIGN_YOUTUBE_THUMBNAIL_DIVERSITY, socialCampaignReviewQaFixture } from './social-campaign-review-assets'
 
 describe('social campaign review asset projection', () => {
+  it('keeps the LinkedIn generator scoped to the three unchanged LinkedIn outputs', () => {
+    const generator = readFileSync('scripts/generate-social-campaign-review-visuals.mjs', 'utf8')
+    expect(generator).not.toContain('youtubeJobs')
+    expect(generator).not.toContain('youtubeOverlaySvg')
+    const expected = new Map([
+      ['jev-linkedin-decision-system.png', '5927f3b90b7895145464fb3c95d3c0d962214c2257379766bc892e43aa7bb141'],
+      ['dark-castle-linkedin-remember-why.png', 'f31f4dd07484c769c7dfd3b43c95269540facd387ca82a02fea2a15ff19c8334'],
+      ['ai-audit-linkedin-hidden-bill.png', '73263abe49dc749383050e91cf10cab3266451eba866bf0b661d8bb88aa9efd5'],
+    ])
+    for (const [name, digest] of expected) {
+      expect(createHash('sha256').update(readFileSync(`public/review-assets/social-content/campaign-review/${name}`)).digest('hex')).toBe(digest)
+    }
+  })
+
   it.each([
     SOCIAL_CAMPAIGN_REVIEW_IDS.jevLinkedIn,
     SOCIAL_CAMPAIGN_REVIEW_IDS.darkCastleLinkedIn,
@@ -26,9 +43,35 @@ describe('social campaign review asset projection', () => {
     expect(packet.status).toBe('blocked_missing_description_evidence')
     expect(packet.descriptionEvidence).toMatchObject({ state: 'unscored', qualified: 0, required: 3, attribution: [] })
     expect(packet.title).not.toBe(packet.thumbnailTeaser)
+    expect(packet.thumbnailPath).toMatch(/^\/review-assets\/social-content\/youtube-packaging\/.+\.png$/)
+    expect(packet.thumbnailReceipt).toMatch(/^thumbnail:.+:youtube-long-form:20261018:v2$/)
+    expect(packet.thumbnailEvidence).toMatchObject({ ready: true, target: 'youtube', pairBound: true })
+    expect(packet.thumbnailEvidence?.thumbnail?.research_cohort).toMatchObject({ minimum_sample_size: 6 })
+    expect(packet.thumbnailEvidence?.thumbnail?.research_cohort?.composition).toMatchObject({ version: 'youtube-thumbnail-composition/v1', batch_identity: 'social-campaign-youtube:20261018:v2' })
+    expect(packet.thumbnailDiversity).toMatchObject({ ready: true, candidateCount: 2 })
     expect(packet.storyboard.length).toBeGreaterThanOrEqual(4)
     expect(packet.productProof.length).toBeGreaterThan(0)
     expect(packet.externalGates).toBe('closed')
+  })
+
+  it('keeps the two YouTube candidates in distinct source-bound composition families', () => {
+    expect(SOCIAL_CAMPAIGN_YOUTUBE_THUMBNAIL_DIVERSITY).toMatchObject({ ready: true, candidateCount: 2 })
+    expect(new Set(SOCIAL_CAMPAIGN_YOUTUBE_THUMBNAIL_DIVERSITY.layoutFamilies).size).toBe(2)
+    expect(new Set(SOCIAL_CAMPAIGN_YOUTUBE_THUMBNAIL_DIVERSITY.compositionSignatures).size).toBe(2)
+  })
+
+  it('does not expose a thumbnail when a copied manifest has only the PNG, SHA, and no cohort binding', () => {
+    const packet = getSocialCampaignReviewPacket(SOCIAL_CAMPAIGN_REVIEW_IDS.darkCastleYouTube)
+    expect(packet?.kind).toBe('youtube_packaging')
+    if (!packet || packet.kind !== 'youtube_packaging' || !packet.thumbnailEvidenceManifest) return
+    const manifest = structuredClone(packet.thumbnailEvidenceManifest)
+    delete manifest.elements.find((element) => element.category === 'thumbnail')!.research_cohort
+
+    const validation = validateYouTubePackagingEvidence(manifest, packet.contentVersion, 'youtube', '2026-10-18T20:00:00.000Z')
+
+    expect(validation.ready).toBe(false)
+    expect(validation.pairBound).toBe(true)
+    expect(validation.blockers).toContain('Thumbnail evidence is missing its attributable research cohort and candidate bindings.')
   })
 
   it('reuses the exact approved Jev title-thumbnail pair without changing its Unscored performance boundary', () => {
@@ -39,6 +82,7 @@ describe('social campaign review asset projection', () => {
       title: 'AI Scored It. Who Makes the Call?',
       thumbnailTeaser: 'WHEN SHOULD AI STOP?',
       thumbnailPath: '/review-assets/social-content/jev-youtube-short-thumbnail-v5.png',
+      thumbnailReceipt: 'thumbnail:jev:youtube-shorts:20261018:v5',
       externalGates: 'closed',
     })
     if (!packet || packet.kind !== 'youtube_packaging') return

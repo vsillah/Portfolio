@@ -1,0 +1,681 @@
+{
+  "version": "youtube-thumbnail-long-form-cohort/v1",
+  "cohort_id": "cohort:youtube:ai-cost-audit-roi:20261018:v1",
+  "status": "approved",
+  "target": {
+    "channel": "youtube",
+    "format": "long_form",
+    "aspect_ratio": "16:9",
+    "output_dimensions": {
+      "width": 1280,
+      "height": 720
+    },
+    "topic_identity": "ai_tool_cost_audit_workflow_roi",
+    "qualifying_duration_seconds": {
+      "minimum": 180
+    },
+    "minimum_sample_size": 6,
+    "minimum_channel_baseline_size": 4,
+    "audience_normalization": "view_count / public subscriber_count",
+    "channel_normalization": "view_count / median exact view count for up to 10 recent long-form videos on the same channel"
+  },
+  "observed_at": "2026-10-18T17:30:00.000Z",
+  "fresh_until": "2026-11-01T17:30:00.000Z",
+  "formula": {
+    "channel_relative_ratio": "source exact views / same-channel recent long-form median exact views",
+    "audience_view_ratio": "source exact views / public channel subscriber count",
+    "recency_adjusted_views_per_day": "source exact views / max(age in days at observation, 1)",
+    "normalized_performance_score": "(channel-relative percentile × 0.50) + (audience-view percentile × 0.30) + (recency-rate percentile × 0.20)"
+  },
+  "selection_gate": {
+    "ready": true,
+    "qualified_sample_size": 6,
+    "minimum_sample_size": 6,
+    "decision": "qualifying_cohort_ready"
+  },
+  "outlier_qualification": {
+    "rule": "normalized_performance_score >= 75",
+    "threshold": 75,
+    "qualified_sample_size": 1,
+    "qualified_video_ids": [
+      "fSAazWLuDyQ"
+    ],
+    "role": "Performance context only. Public visual composition is not first-party brand authority."
+  },
+  "copy_pair_analysis": {
+    "status": "unscored",
+    "hypothesis": "Distinct complementary thumbnail hooks outperform duplicated or near-duplicated title wording for topic-matched YouTube long-form videos.",
+    "comparison_formula": "median normalized performance score for complementary_teaser + contrasting_question minus median normalized performance score for duplicate + near_duplicate",
+    "repeated_group": {
+      "relationships": [
+        "duplicate",
+        "near_duplicate"
+      ],
+      "sample_size": 4,
+      "minimum_sample_size": 3,
+      "median_normalized_performance_score": 35,
+      "video_ids": [
+        "fSAazWLuDyQ",
+        "wIcw0T9NhZM",
+        "qf31-dcBeE4",
+        "w8dvgEOh3tc"
+      ]
+    },
+    "distinct_group": {
+      "relationships": [
+        "complementary_teaser",
+        "contrasting_question"
+      ],
+      "sample_size": 2,
+      "minimum_sample_size": 3,
+      "median_normalized_performance_score": 63.33,
+      "video_ids": [
+        "oGaSfa3lJ8o",
+        "axNuaPmBjLg"
+      ]
+    },
+    "observed_difference": 28.33,
+    "conclusion": "unscored_insufficient_group_samples",
+    "limitation": "Unscored: both relationship groups require at least 3 attributable samples."
+  },
+  "candidate_copy_pair": {
+    "title": "The AI Cost That Never Appears on the Invoice",
+    "thumbnail_hook": "WHO OWNS THE CLEANUP?",
+    "relationship": "contrasting_question",
+    "exact_strings_are_distinct": true,
+    "strategy_status": "review_only_unscored",
+    "support_scope": "editorial_hypothesis_only",
+    "performance_claim": "unscored",
+    "rationale": "The title names the hidden cost. The thumbnail asks who absorbs the operational burden. Public examples support the editorial tension only; they do not establish causal performance.",
+    "source_example_video_ids": [
+      "oGaSfa3lJ8o",
+      "axNuaPmBjLg"
+    ]
+  },
+  "included": [
+    {
+      "video_id": "fSAazWLuDyQ",
+      "youtube_url": "https://www.youtube.com/watch?v=fSAazWLuDyQ",
+      "title": "I Built an AI Audit That Replaces a $50,000 Consultant",
+      "creator": "company in progress",
+      "channel_id": "UCMSnfMLyNKl_W1jh2XTab7w",
+      "view_count": 555,
+      "subscriber_count": 15,
+      "published_at": "2026-07-09T13:23:56.000Z",
+      "duration_seconds": 997,
+      "source_thumbnail_url": "https://i.ytimg.com/vi/fSAazWLuDyQ/maxresdefault.jpg",
+      "description_opening": "Most companies know they should be using AI. Very few know where to start. That's exactly why I built Orcas.",
+      "description_opening_truncated": true,
+      "decision_reason": "Same-topic AI audit product example with current public metadata.",
+      "channel_baseline": {
+        "sample_size": 4,
+        "video_ids": [
+          "fSAazWLuDyQ",
+          "ToNJ7Oi6zU4",
+          "V-9rzjRYZ-c",
+          "axbXo43tQD0"
+        ],
+        "exact_view_counts": [
+          555,
+          10,
+          10,
+          9
+        ],
+        "median_view_count": 10
+      },
+      "age_days": 101.17,
+      "channel_relative_ratio": 55.5,
+      "audience_view_ratio": 37,
+      "recency_adjusted_views_per_day": 5.4858,
+      "source_thumbnail_sha256": "sha256:fee34546d50fbd1385a1e7b0ef440d3d009e951f9a5823a3a9866d02d09fbe6a",
+      "thumbnail_path": "/review-assets/social-content/ai-audit-youtube-thumbnail-cohort/fSAazWLuDyQ.jpg",
+      "performance_components": {
+        "channel_relative_percentile": 91.67,
+        "audience_view_percentile": 91.67,
+        "recency_rate_percentile": 58.33
+      },
+      "normalized_performance_score": 85,
+      "outlier_qualified": true,
+      "observed_at": "2026-10-18T17:30:00.000Z",
+      "decision": "included",
+      "link_status": "verified_openable",
+      "channel_baseline_size": 4,
+      "thumbnail_text": [
+        "I BUILT AN AI AUDIT THAT REPLACES A $50,000 CONSULTANT"
+      ],
+      "thumbnail_text_transcription_status": "verified",
+      "title_thumbnail_relationship": "near_duplicate",
+      "thumbnail_text_length": 54,
+      "hook_type": "audit_value_claim",
+      "transcription_provenance": {
+        "source_thumbnail_url": "https://i.ytimg.com/vi/fSAazWLuDyQ/maxresdefault.jpg",
+        "captured_thumbnail_path": "/review-assets/social-content/ai-audit-youtube-thumbnail-cohort/fSAazWLuDyQ.jpg",
+        "captured_thumbnail_sha256": "sha256:fee34546d50fbd1385a1e7b0ef440d3d009e951f9a5823a3a9866d02d09fbe6a",
+        "method": "human transcription from the captured public source image; unreadable text is not inferred"
+      },
+      "supports_candidate_composition": false,
+      "composition_support_reason": "Public thumbnail is comparison context only. First-party evidence controls subject, product proof, and brand treatment.",
+      "visual_traits": {
+        "dominant_subject": true,
+        "short_hook": true,
+        "high_contrast_text": true,
+        "minimal_secondary_copy": true
+      }
+    },
+    {
+      "video_id": "oGaSfa3lJ8o",
+      "youtube_url": "https://www.youtube.com/watch?v=oGaSfa3lJ8o",
+      "title": "How I automated my AI Audit Process (How you can do it too)",
+      "creator": "AI with Vlad",
+      "channel_id": "UC9KRqj_LATYjj5l8jxbHLnQ",
+      "view_count": 2098,
+      "subscriber_count": 1930,
+      "published_at": "2026-02-12T22:59:25.000Z",
+      "duration_seconds": 463,
+      "source_thumbnail_url": "https://i.ytimg.com/vi/oGaSfa3lJ8o/maxresdefault.jpg",
+      "description_opening": "Stop guessing which AI tools to build. Most AI initiatives fail because they aren't tied to KPIs, lack accountability, or",
+      "description_opening_truncated": true,
+      "decision_reason": "Same-topic AI audit workflow example with current public metadata.",
+      "channel_baseline": {
+        "sample_size": 10,
+        "video_ids": [
+          "v0eruAaxqaQ",
+          "63hO653iOEs",
+          "vlEDhjzJwV0",
+          "5hT_LGcgZXI",
+          "hPA0PijcYAs",
+          "j-cZpGHEvFE",
+          "MEmtvUmeMmQ",
+          "s-dIBn4BpTs",
+          "68QPmgAlFDM",
+          "I0zDqnq_dBo"
+        ],
+        "exact_view_counts": [
+          42,
+          308,
+          238,
+          19,
+          40,
+          45,
+          38,
+          74,
+          51,
+          129
+        ],
+        "median_view_count": 48
+      },
+      "age_days": 247.77,
+      "channel_relative_ratio": 43.7083,
+      "audience_view_ratio": 1.087,
+      "recency_adjusted_views_per_day": 8.4675,
+      "source_thumbnail_sha256": "sha256:e98aa5cf26e41522e9ad3c725276537f9251536d9214cc46ddf2c718d44b3978",
+      "thumbnail_path": "/review-assets/social-content/ai-audit-youtube-thumbnail-cohort/oGaSfa3lJ8o.jpg",
+      "performance_components": {
+        "channel_relative_percentile": 75,
+        "audience_view_percentile": 58.33,
+        "recency_rate_percentile": 75
+      },
+      "normalized_performance_score": 70,
+      "outlier_qualified": false,
+      "observed_at": "2026-10-18T17:30:00.000Z",
+      "decision": "included",
+      "link_status": "verified_openable",
+      "channel_baseline_size": 10,
+      "thumbnail_text": [
+        "WEEKS",
+        "MINUTES",
+        "Audit Automated"
+      ],
+      "thumbnail_text_transcription_status": "verified",
+      "title_thumbnail_relationship": "complementary_teaser",
+      "thumbnail_text_length": 29,
+      "hook_type": "time_reduction_contrast",
+      "transcription_provenance": {
+        "source_thumbnail_url": "https://i.ytimg.com/vi/oGaSfa3lJ8o/maxresdefault.jpg",
+        "captured_thumbnail_path": "/review-assets/social-content/ai-audit-youtube-thumbnail-cohort/oGaSfa3lJ8o.jpg",
+        "captured_thumbnail_sha256": "sha256:e98aa5cf26e41522e9ad3c725276537f9251536d9214cc46ddf2c718d44b3978",
+        "method": "human transcription from the captured public source image; unreadable text is not inferred"
+      },
+      "supports_candidate_composition": false,
+      "composition_support_reason": "Public thumbnail is comparison context only. First-party evidence controls subject, product proof, and brand treatment.",
+      "visual_traits": {
+        "dominant_subject": true,
+        "short_hook": true,
+        "high_contrast_text": true,
+        "minimal_secondary_copy": true
+      }
+    },
+    {
+      "video_id": "axNuaPmBjLg",
+      "youtube_url": "https://www.youtube.com/watch?v=axNuaPmBjLg",
+      "title": "Can One AI Workflow Actually Save Money? I Measured the ROI",
+      "creator": "Synapse-X AI",
+      "channel_id": "UC3DCyqwFdEVV3zzo9IIchCA",
+      "view_count": 29,
+      "subscriber_count": 1,
+      "published_at": "2026-09-05T02:05:58.000Z",
+      "duration_seconds": 247,
+      "source_thumbnail_url": "https://i.ytimg.com/vi/axNuaPmBjLg/maxresdefault.jpg",
+      "description_opening": "Can one AI workflow actually save money after we count software cost, review time, and revisions? In this CreatorOS experiment,",
+      "description_opening_truncated": true,
+      "decision_reason": "Same-topic AI workflow ROI measurement example.",
+      "channel_baseline": {
+        "sample_size": 5,
+        "video_ids": [
+          "axNuaPmBjLg",
+          "nGBUJDIckNk",
+          "vUzzHEnUBfQ",
+          "RkZyo2MiCW0",
+          "dskANut62S8"
+        ],
+        "exact_view_counts": [
+          29,
+          7,
+          15,
+          13,
+          3
+        ],
+        "median_view_count": 13
+      },
+      "age_days": 43.64,
+      "channel_relative_ratio": 2.2308,
+      "audience_view_ratio": 29,
+      "recency_adjusted_views_per_day": 0.6645,
+      "source_thumbnail_sha256": "sha256:2113b47a4b5fcb4231c4fbf4c5455b16f5954e8911372c1337bc51b59d9c2fe7",
+      "thumbnail_path": "/review-assets/social-content/ai-audit-youtube-thumbnail-cohort/axNuaPmBjLg.jpg",
+      "performance_components": {
+        "channel_relative_percentile": 58.33,
+        "audience_view_percentile": 75,
+        "recency_rate_percentile": 25
+      },
+      "normalized_performance_score": 56.66,
+      "outlier_qualified": false,
+      "observed_at": "2026-10-18T17:30:00.000Z",
+      "decision": "included",
+      "link_status": "verified_openable",
+      "channel_baseline_size": 5,
+      "thumbnail_text": [
+        "WORTH IT?",
+        "AI ROI TEST"
+      ],
+      "thumbnail_text_transcription_status": "verified",
+      "title_thumbnail_relationship": "complementary_teaser",
+      "thumbnail_text_length": 21,
+      "hook_type": "roi_question",
+      "transcription_provenance": {
+        "source_thumbnail_url": "https://i.ytimg.com/vi/axNuaPmBjLg/maxresdefault.jpg",
+        "captured_thumbnail_path": "/review-assets/social-content/ai-audit-youtube-thumbnail-cohort/axNuaPmBjLg.jpg",
+        "captured_thumbnail_sha256": "sha256:2113b47a4b5fcb4231c4fbf4c5455b16f5954e8911372c1337bc51b59d9c2fe7",
+        "method": "human transcription from the captured public source image; unreadable text is not inferred"
+      },
+      "supports_candidate_composition": false,
+      "composition_support_reason": "Public thumbnail is comparison context only. First-party evidence controls subject, product proof, and brand treatment.",
+      "visual_traits": {
+        "dominant_subject": true,
+        "short_hook": true,
+        "high_contrast_text": true,
+        "minimal_secondary_copy": true
+      }
+    },
+    {
+      "video_id": "wIcw0T9NhZM",
+      "youtube_url": "https://www.youtube.com/watch?v=wIcw0T9NhZM",
+      "title": "How to Price AI Workflows (Without Losing Clients)",
+      "creator": "Nate Herk | AI Automation",
+      "channel_id": "UC2ojq-nuP8ceeHqiroeKhBA",
+      "view_count": 37698,
+      "subscriber_count": 1080000,
+      "published_at": "2025-11-30T14:02:50.000Z",
+      "duration_seconds": 1236,
+      "source_thumbnail_url": "https://i.ytimg.com/vi/wIcw0T9NhZM/maxresdefault.jpg",
+      "description_opening": "My FREE AI OS Course: https://www.skool.com/ai-automation-society/about?el=how-to-price-ai-workflows-without-losing-clients&hcategory=youtube-videos&utm_campaign=free-group Full courses + unlimited support: https://www.skool.com/ai-automation-society-plus/about?el=how-to-price-ai-workflows-without-losing-clients&hcategory=youtube-videos&utm_campaign=ais-plus Apply for my YT podcast: https://podcast.nateherk.com/apply Work with",
+      "description_opening_truncated": true,
+      "decision_reason": "Adjacent AI workflow economics example with current public metadata.",
+      "channel_baseline": {
+        "sample_size": 10,
+        "video_ids": [
+          "Z8lf5oWKfj0",
+          "KZiF2J83zaY",
+          "rL5tw6h78zo",
+          "nRXHWckVxoM",
+          "HhZdNYI4pJs",
+          "MgvwZaDPCs4",
+          "oz2CwrPV2Rg",
+          "bvGptCLDhyo",
+          "DFlELTiSPk8",
+          "9hetShMMp2s"
+        ],
+        "exact_view_counts": [
+          204142,
+          83091,
+          188103,
+          75497,
+          256719,
+          124545,
+          110874,
+          73862,
+          82675,
+          245003
+        ],
+        "median_view_count": 117709.5
+      },
+      "age_days": 322.14,
+      "channel_relative_ratio": 0.3203,
+      "audience_view_ratio": 0.0349,
+      "recency_adjusted_views_per_day": 117.0237,
+      "source_thumbnail_sha256": "sha256:0fceae8b7243ffe46401b1fce2f934e1ac796c8e890edf4a286c1dd4300b1ffa",
+      "thumbnail_path": "/review-assets/social-content/ai-audit-youtube-thumbnail-cohort/wIcw0T9NhZM.jpg",
+      "performance_components": {
+        "channel_relative_percentile": 25,
+        "audience_view_percentile": 25,
+        "recency_rate_percentile": 91.67
+      },
+      "normalized_performance_score": 38.33,
+      "outlier_qualified": false,
+      "observed_at": "2026-10-18T17:30:00.000Z",
+      "decision": "included",
+      "link_status": "verified_openable",
+      "channel_baseline_size": 10,
+      "thumbnail_text": [
+        "FULL AI WORKFLOWS PRICING GUIDE"
+      ],
+      "thumbnail_text_transcription_status": "verified",
+      "title_thumbnail_relationship": "near_duplicate",
+      "thumbnail_text_length": 31,
+      "hook_type": "pricing_guide_label",
+      "transcription_provenance": {
+        "source_thumbnail_url": "https://i.ytimg.com/vi/wIcw0T9NhZM/maxresdefault.jpg",
+        "captured_thumbnail_path": "/review-assets/social-content/ai-audit-youtube-thumbnail-cohort/wIcw0T9NhZM.jpg",
+        "captured_thumbnail_sha256": "sha256:0fceae8b7243ffe46401b1fce2f934e1ac796c8e890edf4a286c1dd4300b1ffa",
+        "method": "human transcription from the captured public source image; unreadable text is not inferred"
+      },
+      "supports_candidate_composition": false,
+      "composition_support_reason": "Public thumbnail is comparison context only. First-party evidence controls subject, product proof, and brand treatment.",
+      "visual_traits": {
+        "dominant_subject": true,
+        "short_hook": true,
+        "high_contrast_text": true,
+        "minimal_secondary_copy": true
+      }
+    },
+    {
+      "video_id": "qf31-dcBeE4",
+      "youtube_url": "https://www.youtube.com/watch?v=qf31-dcBeE4",
+      "title": "What AI Really Costs a Practice — An Audit Partner's ROI",
+      "creator": "Chan Wei Khjan",
+      "channel_id": "UCpuRm01IEznTjCxx33YtKQA",
+      "view_count": 38,
+      "subscriber_count": 2370,
+      "published_at": "2026-09-20T17:06:08.000Z",
+      "duration_seconds": 738,
+      "source_thumbnail_url": "https://i.ytimg.com/vi/qf31-dcBeE4/maxresdefault.jpg",
+      "description_opening": "The honest part. Asked whether the monthly AI token cost is reasonable, he gives the unvarnished answer: after three months",
+      "description_opening_truncated": true,
+      "decision_reason": "Same-topic AI cost and audit ROI example.",
+      "channel_baseline": {
+        "sample_size": 10,
+        "video_ids": [
+          "-kUJPDcQ6Pg",
+          "qf31-dcBeE4",
+          "KfixyE-X2DU",
+          "VkaEhnYDSCQ",
+          "VyjE9ioHXGQ",
+          "1Hy2S1fgfzI",
+          "KOsx8qwfQgI",
+          "1hEnh43GQV0",
+          "hP5LHe8eqq4",
+          "OSulGQYppkM"
+        ],
+        "exact_view_counts": [
+          47,
+          38,
+          278,
+          59,
+          46,
+          36,
+          46,
+          30,
+          100,
+          89
+        ],
+        "median_view_count": 46.5
+      },
+      "age_days": 28.02,
+      "channel_relative_ratio": 0.8172,
+      "audience_view_ratio": 0.016,
+      "recency_adjusted_views_per_day": 1.3562,
+      "source_thumbnail_sha256": "sha256:2e1e1696981bd40bbfaff5c4470b241a0897828252c8f04cd2fa6a3e4e652871",
+      "thumbnail_path": "/review-assets/social-content/ai-audit-youtube-thumbnail-cohort/qf31-dcBeE4.jpg",
+      "performance_components": {
+        "channel_relative_percentile": 41.67,
+        "audience_view_percentile": 8.33,
+        "recency_rate_percentile": 41.67
+      },
+      "normalized_performance_score": 31.67,
+      "outlier_qualified": false,
+      "observed_at": "2026-10-18T17:30:00.000Z",
+      "decision": "included",
+      "link_status": "verified_openable",
+      "channel_baseline_size": 10,
+      "thumbnail_text": [
+        "WHAT AI REALLY COSTS",
+        "AN AUDIT PARTNER'S HONEST ROI"
+      ],
+      "thumbnail_text_transcription_status": "verified",
+      "title_thumbnail_relationship": "near_duplicate",
+      "thumbnail_text_length": 50,
+      "hook_type": "cost_roi_label",
+      "transcription_provenance": {
+        "source_thumbnail_url": "https://i.ytimg.com/vi/qf31-dcBeE4/maxresdefault.jpg",
+        "captured_thumbnail_path": "/review-assets/social-content/ai-audit-youtube-thumbnail-cohort/qf31-dcBeE4.jpg",
+        "captured_thumbnail_sha256": "sha256:2e1e1696981bd40bbfaff5c4470b241a0897828252c8f04cd2fa6a3e4e652871",
+        "method": "human transcription from the captured public source image; unreadable text is not inferred"
+      },
+      "supports_candidate_composition": false,
+      "composition_support_reason": "Public thumbnail is comparison context only. First-party evidence controls subject, product proof, and brand treatment.",
+      "visual_traits": {
+        "dominant_subject": true,
+        "short_hook": true,
+        "high_contrast_text": true,
+        "minimal_secondary_copy": true
+      }
+    },
+    {
+      "video_id": "w8dvgEOh3tc",
+      "youtube_url": "https://www.youtube.com/watch?v=w8dvgEOh3tc",
+      "title": "The Hidden Costs Affecting Your AI ROI",
+      "creator": "AI ROI Playbook",
+      "channel_id": "UCWtvLpThTRTX7HwrIV76PEg",
+      "view_count": 2,
+      "subscriber_count": 3,
+      "published_at": "2026-09-18T16:00:15.000Z",
+      "duration_seconds": 276,
+      "source_thumbnail_url": "https://i.ytimg.com/vi/w8dvgEOh3tc/maxresdefault.jpg",
+      "description_opening": "The Hidden Costs Affecting Your AI ROI explores Identifying the unseen costs associated with AI implementations that impact ROI. In",
+      "description_opening_truncated": true,
+      "decision_reason": "Exact-topic hidden AI cost and ROI example.",
+      "channel_baseline": {
+        "sample_size": 10,
+        "video_ids": [
+          "wr2X7Uw-Ets",
+          "NupZKRewz-E",
+          "NiAgKRsnOCM",
+          "vVcJU907u4I",
+          "GrPhEeQr9iw",
+          "V-L6QlPN1Ow",
+          "022ZyvbdiTQ",
+          "l9-OSrnqG_g",
+          "vjLCcmiXELo",
+          "P11aHKwnKpI"
+        ],
+        "exact_view_counts": [
+          7,
+          10,
+          5,
+          10,
+          1,
+          62,
+          4,
+          2,
+          7,
+          12
+        ],
+        "median_view_count": 7
+      },
+      "age_days": 30.06,
+      "channel_relative_ratio": 0.2857,
+      "audience_view_ratio": 0.6667,
+      "recency_adjusted_views_per_day": 0.0665,
+      "source_thumbnail_sha256": "sha256:b35e8ab458ef1ee0ee8d88842409157d3029599e1f1c2168c527697b2aff7d36",
+      "thumbnail_path": "/review-assets/social-content/ai-audit-youtube-thumbnail-cohort/w8dvgEOh3tc.jpg",
+      "performance_components": {
+        "channel_relative_percentile": 8.33,
+        "audience_view_percentile": 41.67,
+        "recency_rate_percentile": 8.33
+      },
+      "normalized_performance_score": 18.33,
+      "outlier_qualified": false,
+      "observed_at": "2026-10-18T17:30:00.000Z",
+      "decision": "included",
+      "link_status": "verified_openable",
+      "channel_baseline_size": 10,
+      "thumbnail_text": [
+        "HIDDEN COSTS",
+        "TIME SAVED",
+        "ROI?"
+      ],
+      "thumbnail_text_transcription_status": "verified",
+      "title_thumbnail_relationship": "near_duplicate",
+      "thumbnail_text_length": 28,
+      "hook_type": "cost_roi_labels",
+      "transcription_provenance": {
+        "source_thumbnail_url": "https://i.ytimg.com/vi/w8dvgEOh3tc/maxresdefault.jpg",
+        "captured_thumbnail_path": "/review-assets/social-content/ai-audit-youtube-thumbnail-cohort/w8dvgEOh3tc.jpg",
+        "captured_thumbnail_sha256": "sha256:b35e8ab458ef1ee0ee8d88842409157d3029599e1f1c2168c527697b2aff7d36",
+        "method": "human transcription from the captured public source image; unreadable text is not inferred"
+      },
+      "supports_candidate_composition": false,
+      "composition_support_reason": "Public thumbnail is comparison context only. First-party evidence controls subject, product proof, and brand treatment.",
+      "visual_traits": {
+        "dominant_subject": true,
+        "short_hook": true,
+        "high_contrast_text": true,
+        "minimal_secondary_copy": true
+      }
+    }
+  ],
+  "excluded": [
+    {
+      "video_id": "mHwmgffGgQQ",
+      "youtube_url": "https://www.youtube.com/watch?v=mHwmgffGgQQ",
+      "title": "63,000% ROI from an AI Workflow?? Here's how to see if your automation is worth it",
+      "creator": "Gianni Newman",
+      "channel_id": "UCxp9MAcnss7D5X5f9ETsbuw",
+      "view_count": 41,
+      "subscriber_count": 3,
+      "published_at": "2026-09-28T16:50:45.000Z",
+      "duration_seconds": 1111,
+      "source_thumbnail_url": "https://i.ytimg.com/vi/mHwmgffGgQQ/maxresdefault.jpg",
+      "description_opening": "In this example, I show how you can build a skill within Claude Code that acts as a solutions architect",
+      "description_opening_truncated": true,
+      "decision_reason": "Same-topic AI workflow ROI example with current public metadata.",
+      "decision": "excluded",
+      "exclusion_reason": "Only 2 attributable recent long-form videos were available; 4 are required."
+    },
+    {
+      "video_id": "1LdvOwADmaM",
+      "youtube_url": "https://www.youtube.com/watch?v=1LdvOwADmaM",
+      "title": "The AI ROI Audit  Workflows for Small Business",
+      "creator": "WORKFLOW MONEY",
+      "channel_id": "UC7He2ram0IErLrCMRtGQTtg",
+      "view_count": 2,
+      "subscriber_count": null,
+      "published_at": "2026-09-20T23:15:15.000Z",
+      "duration_seconds": 360,
+      "source_thumbnail_url": "https://i.ytimg.com/vi/1LdvOwADmaM/maxresdefault.jpg",
+      "description_opening": "In this video, we break down 7 practical AI automations that can help small businesses reduce repetitive work, respond to",
+      "description_opening_truncated": true,
+      "decision_reason": "Same-topic small-business AI ROI audit example.",
+      "decision": "excluded",
+      "exclusion_reason": "Public subscriber count is unavailable, so audience normalization cannot be reproduced."
+    },
+    {
+      "video_id": "ZJ11yOsNIiA",
+      "youtube_url": "https://www.youtube.com/watch?v=ZJ11yOsNIiA",
+      "title": "The Hidden Cost of Too Many AI Tools at Work",
+      "creator": "AI / Future of Work",
+      "channel_id": "UCm6Q-A6qhRkkgPeaBGeuZ3w",
+      "view_count": 2,
+      "subscriber_count": 2,
+      "published_at": "2026-09-21T00:00:38.000Z",
+      "duration_seconds": 790,
+      "source_thumbnail_url": "https://i.ytimg.com/vi/ZJ11yOsNIiA/maxresdefault.jpg?sqp=-oaymwEmCIAKENAF8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGH8gEygkMA8=&rs=AOn4CLAtKN6BiCs-dURsJzX_SurnY-icDg",
+      "description_opening": "AI tools can accelerate isolated tasks while making the complete workflow more fragmented. This video explains context switching, task packets,",
+      "description_opening_truncated": true,
+      "decision_reason": "Exact-topic hidden cost of multiple AI tools example.",
+      "channel_baseline": {
+        "sample_size": 10,
+        "video_ids": [
+          "rNh-i6WIQ-4",
+          "zu8xRimXxMM",
+          "LQi30xfLV7w",
+          "g2r4xDNyjPw",
+          "v4o69xeV2yU",
+          "VqKitYmQmYA",
+          "dRc-07vzue8",
+          "xLz0mZKLIZE",
+          "rGrnmv8Ba68",
+          "9fJhgP-3j_U"
+        ],
+        "exact_view_counts": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          17,
+          3,
+          4,
+          7
+        ],
+        "median_view_count": 0
+      },
+      "age_days": 27.73,
+      "channel_relative_ratio": null,
+      "audience_view_ratio": 1,
+      "recency_adjusted_views_per_day": 0.0721,
+      "source_thumbnail_sha256": "sha256:6d3bcd22fed2eba7a7d1f74711e79ad15fd679ccf221e643893d6471b5d58c6a",
+      "thumbnail_path": "/review-assets/social-content/ai-audit-youtube-thumbnail-cohort/ZJ11yOsNIiA.jpg",
+      "performance_components": {
+        "channel_relative_percentile": 92.86,
+        "audience_view_percentile": 50,
+        "recency_rate_percentile": 21.43
+      },
+      "normalized_performance_score": 65.72,
+      "outlier_qualified": false,
+      "observed_at": "2026-10-18T17:30:00.000Z",
+      "decision": "excluded",
+      "exclusion_reason": "The same-channel median was zero, so channel-relative normalization is not reproducible."
+    }
+  ],
+  "recurring_visual_traits": [
+    "one dominant ROI or audit question",
+    "short high-contrast hook",
+    "single person or single product idea"
+  ],
+  "adopted_traits": [
+    "one dominant calculator result",
+    "short ownership question",
+    "clear 16:9 hierarchy"
+  ],
+  "rejected_traits": [
+    "generic synthetic business people",
+    "neon robot or circuit-board filler",
+    "dashboard grids and proof-chip rows",
+    "copied creator faces or source branding"
+  ],
+  "composition_decision": "Use public examples only to bound the editorial pattern. Build the candidate from one first-party product idea, the exact distinct hook, AmaduTown treatment, and a 1280×720 16:9 canvas.",
+  "public_outlier_boundary": "Public thumbnails supply topic, copy-pair, recency, and normalized-performance context only. They do not authorize source likenesses, layouts, brand colors, or causal performance claims.",
+  "annotation_boundary": "Thumbnail text was transcribed from captured pixels. Unreadable text remains unreadable."
+}

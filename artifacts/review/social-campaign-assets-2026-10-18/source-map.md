@@ -19,8 +19,12 @@ The documented AmaduTown Drive roots were searched for Jev, audit-calculator, Da
 ## YouTube packaging
 
 - Jev reuses `thumbnail:jev:youtube-shorts:20261018:v5` exactly: title `AI Scored It. Who Makes the Call?`, thumbnail hook `WHEN SHOULD AI STOP?`, and `/review-assets/social-content/jev-youtube-short-thumbnail-v5.png`. Its distinct-copy performance claim remains Unscored.
-- Dark Castle Chess has zero qualifying same-topic public description examples. The required cohort is three. The packaging packet is reviewable; final generation stays blocked.
-- AI Audit Calculator has zero qualifying same-topic public description examples. The required cohort is three. The packaging packet is reviewable; final generation stays blocked.
+- Dark Castle Chess binds `cohort:youtube:chess-decision-learning:20261018:v1` to `thumbnail:dark-castle:youtube-long-form:20261018:v2`. Eight public long-form examples qualified. The candidate `/review-assets/social-content/youtube-packaging/dark-castle-remember-the-why-v2.png` uses the `full-bleed-decision-board-bottom-hook` family: the owned board is dominant, the decision square and consequence path are highlighted, and the hook occupies a bottom band. Its source, scores, copy pair, composition signature, adopted traits, rejected traits, and candidate hash live in `artifacts/research/dark-castle-chess-youtube-thumbnail-cohort-2026-10-18/`.
+- AI Audit Calculator binds `cohort:youtube:ai-cost-audit-roi:20261018:v1` to `thumbnail:ai-audit:youtube-long-form:20261018:v2`. Six public long-form examples qualified. Three were excluded because their subscriber count or same-channel baseline could not support reproducible normalization. The candidate `/review-assets/social-content/youtube-packaging/ai-audit-who-owns-the-cleanup-v2.png` uses the distinct `human-anchor-tilted-calculator-question` family: an approved first-party Vambah portrait anchors the left side, the ownership question leads, and the owned calculator result is tilted on the right. Its source, scores, copy pair, composition signature, adopted traits, rejected traits, and candidate hash live in `artifacts/research/ai-audit-calculator-youtube-thumbnail-cohort-2026-10-18/`.
+
+Both v2 receipts bind to batch `social-campaign-youtube:20261018:v2`. The canonical batch validator rejects duplicate layout families or composition signatures unless every repeated candidate cites the same explicit evidence-required exception receipt. Generic fallback signatures fail closed.
+- Both title-thumbnail relationships remain editorial hypotheses. Their performance state is Unscored. A product-proof PNG and SHA receipt alone do not qualify as YouTube packaging evidence.
+- Each review projection exposes a thumbnail only after its version-bound `ArtifactEvidenceManifest` passes `validateYouTubePackagingEvidence`. The descriptions remain independently Unscored at 0/3, so final video generation stays blocked.
 
 ## Production read receipt
 

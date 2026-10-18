@@ -125,6 +125,18 @@ export type ThumbnailElementBinding = {
   limitation: string
 }
 
+export type ThumbnailCompositionDecision = {
+  version: 'youtube-thumbnail-composition/v1'
+  layout_family: string
+  dominant_subject: string
+  focal_hierarchy: string[]
+  text_placement: string
+  batch_identity: string
+  composition_signature: string
+  exception_basis: 'none' | 'evidence_required'
+  exception_receipt_ids: string[]
+}
+
 export type ThumbnailResearchCohort = {
   cohort_id: string
   target: string
@@ -138,6 +150,7 @@ export type ThumbnailResearchCohort = {
   adopted_traits: string[]
   rejected_traits: string[]
   composition_decision: string
+  composition?: ThumbnailCompositionDecision | null
   public_outlier_boundary: string
   first_party_neighbors: ThumbnailVisualNeighbor[]
   candidate: ThumbnailVisualNeighbor | null
@@ -198,6 +211,16 @@ export type YouTubePackagingEvidenceValidation = {
   target: YouTubePackagingTarget
   title: ArtifactEvidenceElement | null
   thumbnail: ArtifactEvidenceElement | null
+  blockers: string[]
+  recoveryActions: string[]
+}
+
+export type YouTubeThumbnailBatchDiversityValidation = {
+  ready: boolean
+  batchIdentity: string | null
+  candidateCount: number
+  layoutFamilies: string[]
+  compositionSignatures: string[]
   blockers: string[]
   recoveryActions: string[]
 }
@@ -380,6 +403,18 @@ function parseResearchCohort(value: unknown): ThumbnailResearchCohort | undefine
   }).filter((binding): binding is ThumbnailElementBinding => Boolean(binding)) : []
   const rawAnalysis = record(candidate.copy_pair_analysis) ?? {}
   const rawCandidatePair = record(candidate.candidate_copy_pair) ?? {}
+  const rawComposition = record(candidate.composition)
+  const composition = rawComposition?.version === 'youtube-thumbnail-composition/v1' ? {
+    version: 'youtube-thumbnail-composition/v1' as const,
+    layout_family: text(rawComposition.layout_family),
+    dominant_subject: text(rawComposition.dominant_subject),
+    focal_hierarchy: strings(rawComposition.focal_hierarchy),
+    text_placement: text(rawComposition.text_placement),
+    batch_identity: text(rawComposition.batch_identity),
+    composition_signature: text(rawComposition.composition_signature),
+    exception_basis: rawComposition.exception_basis === 'evidence_required' ? 'evidence_required' as const : 'none' as const,
+    exception_receipt_ids: strings(rawComposition.exception_receipt_ids),
+  } : null
   return {
     cohort_id: text(candidate.cohort_id),
     target: text(candidate.target),
@@ -393,6 +428,7 @@ function parseResearchCohort(value: unknown): ThumbnailResearchCohort | undefine
     adopted_traits: strings(candidate.adopted_traits),
     rejected_traits: strings(candidate.rejected_traits),
     composition_decision: text(candidate.composition_decision),
+    composition,
     public_outlier_boundary: text(candidate.public_outlier_boundary),
     first_party_neighbors: firstPartyNeighbors,
     candidate: candidateNeighbor,
@@ -476,6 +512,7 @@ function packagingElementIssues(
   label: 'Title' | 'Thumbnail',
   currentContentVersion: string,
   evaluationAsOf: string,
+  target: YouTubePackagingTarget,
 ): { blockers: string[]; recoveryActions: string[] } {
   const blockers: string[] = []
   const recoveryActions: string[] = []
@@ -496,12 +533,19 @@ function packagingElementIssues(
     blockers.push('Thumbnail evidence is missing its actual bound review asset.')
     recoveryActions.push('Restore the versioned thumbnail file and receipt binding, then rebuild the asset-package review. A brief or poster alone is not sufficient.')
   }
+  if (label === 'Thumbnail' && !element.research_cohort) {
+    blockers.push('Thumbnail evidence is missing its attributable research cohort and candidate bindings.')
+    recoveryActions.push('Attach a fresh same-topic public cohort, first-party element bindings, and the exact candidate record before review.')
+  }
   if (label === 'Thumbnail' && element.research_cohort) {
     const research = element.research_cohort
     const candidate = research.candidate
-    if (!candidate || candidate.width !== 1080 || candidate.height !== 1920 || candidate.aspect_ratio !== '9:16') {
-      blockers.push('YouTube Short thumbnail evidence must bind an exact 1080×1920 9:16 candidate.')
-      recoveryActions.push('Rebuild and bind the candidate as a 1080×1920 9:16 asset before review.')
+    const requiredCandidate = target === 'youtube_shorts'
+      ? { width: 1080, height: 1920, aspectRatio: '9:16', label: 'YouTube Short' }
+      : { width: 1280, height: 720, aspectRatio: '16:9', label: 'YouTube long-form' }
+    if (!candidate || candidate.width !== requiredCandidate.width || candidate.height !== requiredCandidate.height || candidate.aspect_ratio !== requiredCandidate.aspectRatio) {
+      blockers.push(`${requiredCandidate.label} thumbnail evidence must bind an exact ${requiredCandidate.width}×${requiredCandidate.height} ${requiredCandidate.aspectRatio} candidate.`)
+      recoveryActions.push(`Rebuild and bind the candidate as a ${requiredCandidate.width}×${requiredCandidate.height} ${requiredCandidate.aspectRatio} asset before review.`)
     }
     const requiredBindings: ThumbnailElementBinding['element'][] = ['subject', 'hook', 'product_proof', 'aspect_ratio', 'brand_treatment']
     const validBindings = new Set(research.element_bindings.filter((binding) => binding.support === 'supports' && binding.link_status === 'verified_openable').map((binding) => binding.element))
@@ -628,12 +672,12 @@ export function validateYouTubePackagingEvidence(
   const title = titles.length === 1 ? titles[0] : null
   const thumbnail = thumbnails.length === 1 ? thumbnails[0] : null
   if (title) {
-    const issues = packagingElementIssues(title, 'Title', currentContentVersion, evaluationAsOf)
+    const issues = packagingElementIssues(title, 'Title', currentContentVersion, evaluationAsOf, target)
     blockers.push(...issues.blockers)
     recoveryActions.push(...issues.recoveryActions)
   }
   if (thumbnail) {
-    const issues = packagingElementIssues(thumbnail, 'Thumbnail', currentContentVersion, evaluationAsOf)
+    const issues = packagingElementIssues(thumbnail, 'Thumbnail', currentContentVersion, evaluationAsOf, target)
     blockers.push(...issues.blockers)
     recoveryActions.push(...issues.recoveryActions)
   }
@@ -660,6 +704,83 @@ export function validateYouTubePackagingEvidence(
     target,
     title,
     thumbnail,
+    blockers: [...new Set(blockers)],
+    recoveryActions: [...new Set(recoveryActions)],
+  }
+}
+
+export function validateYouTubeThumbnailBatchDiversity(
+  candidates: Array<{ id: string; manifest: unknown }>,
+): YouTubeThumbnailBatchDiversityValidation {
+  const blockers: string[] = []
+  const recoveryActions: string[] = []
+  const parsed = candidates.map(({ id, manifest }) => {
+    const parsedManifest = parseArtifactEvidenceManifest(manifest)
+    const thumbnails = parsedManifest?.elements.filter((element) => element.category === 'thumbnail' && element.customer_facing) ?? []
+    const composition = thumbnails.length === 1 ? thumbnails[0].research_cohort?.composition ?? null : null
+    if (!parsedManifest || thumbnails.length !== 1 || !composition) {
+      blockers.push(`${id}: thumbnail composition metadata is missing or ambiguous.`)
+      recoveryActions.push(`${id}: bind one versioned youtube-thumbnail-composition/v1 decision to the current thumbnail receipt.`)
+    }
+    return { id, composition }
+  })
+
+  if (candidates.length < 2) {
+    blockers.push('Thumbnail batch diversity requires at least two current candidates.')
+    recoveryActions.push('Evaluate the complete campaign thumbnail batch together before review.')
+  }
+
+  const compositions = parsed.flatMap(({ id, composition }) => composition ? [{ id, composition }] : [])
+  for (const { id, composition } of compositions) {
+    const complete = composition.layout_family
+      && composition.dominant_subject
+      && composition.focal_hierarchy.length >= 3
+      && composition.text_placement
+      && composition.batch_identity
+      && composition.composition_signature
+    if (!complete) {
+      blockers.push(`${id}: thumbnail composition metadata is incomplete.`)
+      recoveryActions.push(`${id}: record layout family, dominant subject, three-step focal hierarchy, text placement, batch identity, and composition signature.`)
+    }
+    const genericSignature = `${composition.layout_family}|${composition.composition_signature}`.toLowerCase()
+    if (['generic-fallback', 'left-copy-right-product', 'shared-template'].some((token) => genericSignature.includes(token))) {
+      blockers.push(`${id}: repeated generic fallback composition signatures are prohibited.`)
+      recoveryActions.push(`${id}: replace the generic fallback with a source-bound, campaign-specific composition family.`)
+    }
+  }
+
+  const batchIdentities = [...new Set(compositions.map(({ composition }) => composition.batch_identity).filter(Boolean))]
+  if (batchIdentities.length !== 1) {
+    blockers.push('Current thumbnail candidates are not bound to one versioned batch identity.')
+    recoveryActions.push('Bind every current campaign thumbnail to the same batch identity before evaluating diversity.')
+  }
+
+  const duplicateIssue = (field: 'layout_family' | 'composition_signature', label: string) => {
+    const groups = new Map<string, typeof compositions>()
+    for (const entry of compositions) {
+      const key = entry.composition[field]
+      groups.set(key, [...(groups.get(key) ?? []), entry])
+    }
+    for (const [value, entries] of groups) {
+      if (!value || entries.length < 2) continue
+      const receiptSets = entries.map(({ composition }) => new Set(composition.exception_receipt_ids))
+      const sharedReceipts = [...(receiptSets[0] ?? [])].filter((receipt) => receiptSets.every((set) => set.has(receipt)))
+      const attributableException = entries.every(({ composition }) => composition.exception_basis === 'evidence_required') && sharedReceipts.length > 0
+      if (!attributableException) {
+        blockers.push(`Thumbnail batch repeats the ${label} "${value}" without an attributable evidence-required exception.`)
+        recoveryActions.push(`Give each candidate a materially distinct ${label}, or attach the same explicit evidence receipt requiring the shared composition.`)
+      }
+    }
+  }
+  duplicateIssue('layout_family', 'layout family')
+  duplicateIssue('composition_signature', 'composition signature')
+
+  return {
+    ready: blockers.length === 0 && compositions.length === candidates.length,
+    batchIdentity: batchIdentities.length === 1 ? batchIdentities[0] : null,
+    candidateCount: candidates.length,
+    layoutFamilies: compositions.map(({ composition }) => composition.layout_family),
+    compositionSignatures: compositions.map(({ composition }) => composition.composition_signature),
     blockers: [...new Set(blockers)],
     recoveryActions: [...new Set(recoveryActions)],
   }

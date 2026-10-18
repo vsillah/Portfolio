@@ -43,7 +43,6 @@ const jobs = [
 function escapeXml(value) {
   return value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
 }
-
 function overlaySvg(job) {
   const chips = job.proof.map((label, index) => {
     const x = 80 + (index * 265)
