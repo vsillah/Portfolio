@@ -182,3 +182,77 @@ export const SOCIAL_CAMPAIGN_REVIEW_PACKETS: Record<string, SocialCampaignReview
 export function getSocialCampaignReviewPacket(id: string | null | undefined): SocialCampaignReviewPacket | null {
   return id ? SOCIAL_CAMPAIGN_REVIEW_PACKETS[id] ?? null : null
 }
+import type { SocialContentItem } from '@/lib/social-content'
+
+export const SOCIAL_CAMPAIGN_REVIEW_FIXTURE = 'social_campaign_review_assets_v1'
+
+
+export function socialCampaignReviewQaFixture(id: string): SocialContentItem {
+  const packet = getSocialCampaignReviewPacket(id)
+  if (!packet) throw new Error(`Unknown social campaign review fixture: ${id}`)
+
+  const isYouTube = packet.kind === 'youtube_packaging'
+  const postText = isYouTube
+    ? [packet.openingHook, ...packet.storyboard.map(({ beat }) => beat), packet.conclusion, packet.spokenCta].join('\n\n')
+    : [packet.visual.headline, packet.practicalValue, packet.visual.proofLine].join('\n\n')
+
+  return {
+    id,
+    meeting_record_id: null,
+    platform: packet.channel,
+    status: 'draft',
+    post_text: postText,
+    cta_text: isYouTube ? packet.spokenCta : 'Review the decision system behind the result.',
+    cta_url: null,
+    hashtags: [],
+    image_url: packet.kind === 'linkedin_visual' ? packet.visual.publicPath : packet.thumbnailPath ?? null,
+    image_prompt: isYouTube ? packet.thumbnailConcept : packet.visual.alt,
+    framework_visual_type: null,
+    voiceover_url: null,
+    voiceover_text: isYouTube ? postText : null,
+    video_url: null,
+    topic_extracted: null,
+    hormozi_framework: null,
+    rag_context: {
+      source: 'repository_bound_social_campaign_review',
+      campaign_name: packet.campaign,
+      calendar_item_id: packet.calendarItemId,
+      approval_boundary: externalGateNote,
+      side_effects: {
+        production_read: false,
+        production_write: false,
+        provider_generation: false,
+        rendering: false,
+        upload: false,
+        platform_draft: false,
+        schedule: false,
+        publish: false,
+        external_send: false,
+      },
+      qa_fixture: {
+        kind: 'social_campaign_review_assets',
+        read_only: true,
+        reason: 'Repository-bound review projection. No production record is read or changed.',
+        next_action: 'Review the visual, evidence, and closed gates. Return to the captain handoff for any later integration decision.',
+      },
+    },
+    scheduled_for: null,
+    published_at: null,
+    platform_post_id: null,
+    admin_notes: null,
+    reviewed_by: null,
+    target_platforms: [packet.channel],
+    video_generation_method: 'none',
+    youtube_title: isYouTube ? packet.title : null,
+    youtube_description: null,
+    content_format: 'single_image',
+    content_pillar: null,
+    companion_post_text: null,
+    carousel_slides: null,
+    carousel_pdf_url: null,
+    carousel_slide_urls: null,
+    created_at: '2026-10-18T00:00:00.000Z',
+    updated_at: '2026-10-18T00:00:00.000Z',
+    publishes: [],
+  }
+}

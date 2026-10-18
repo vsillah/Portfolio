@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { getSocialCampaignReviewPacket, SOCIAL_CAMPAIGN_REVIEW_IDS } from './social-campaign-review-assets'
+import { getSocialCampaignReviewPacket, SOCIAL_CAMPAIGN_REVIEW_IDS, socialCampaignReviewQaFixture } from './social-campaign-review-assets'
 
 describe('social campaign review asset projection', () => {
   it.each([
@@ -44,5 +44,21 @@ describe('social campaign review asset projection', () => {
     if (!packet || packet.kind !== 'youtube_packaging') return
     expect(packet.descriptionEvidence.attribution[0]?.receipt).toBe('thumbnail:jev:youtube-shorts:20261018:v5')
     expect(packet.descriptionEvidence.attribution[0]?.limitation).toContain('no comparative performance claim')
+  })
+
+  it.each(Object.values(SOCIAL_CAMPAIGN_REVIEW_IDS))('builds a read-only repository fixture for %s', (id) => {
+    const fixture = socialCampaignReviewQaFixture(id)
+    expect(fixture.id).toBe(id)
+    expect(fixture.rag_context?.qa_fixture).toMatchObject({
+      kind: 'social_campaign_review_assets',
+      read_only: true,
+    })
+    expect(fixture.rag_context?.side_effects).toMatchObject({
+      production_write: false,
+      provider_generation: false,
+      platform_draft: false,
+      publish: false,
+      external_send: false,
+    })
   })
 })

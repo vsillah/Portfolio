@@ -129,7 +129,7 @@ import type { SocialCommentInboxItem } from '@/lib/social-comment-inbox-ui'
 import type { SocialContentCalibrationReference } from '@/lib/social-content-calibration-library'
 import { outlierEvidenceCalibrationQaFixture } from '@/lib/social-outlier-evidence-calibration'
 import { CHANNEL_EXPERIMENT_SOCIAL_DETAIL_FIXTURE, YOUTUBE_DESCRIPTION_COMPLETION_FIXTURE } from '@/lib/social-channel-experiment-qa-fixture'
-import { getSocialCampaignReviewPacket } from '@/lib/social-campaign-review-assets'
+import { SOCIAL_CAMPAIGN_REVIEW_FIXTURE, getSocialCampaignReviewPacket } from '@/lib/social-campaign-review-assets'
 import Link from 'next/link'
 
 const PLATFORM_ICONS: Record<string, React.ReactNode> = {
@@ -774,6 +774,7 @@ function SocialContentDetailPage() {
   const readOnlyLocalChannelVideoQaFixture = process.env.NODE_ENV !== 'production' && channelNativeQaFixture
   const channelExperimentQaFixture = searchParams.get('qa_fixture') === CHANNEL_EXPERIMENT_SOCIAL_DETAIL_FIXTURE
   const youtubeDescriptionCompletionQaFixture = searchParams.get('qa_fixture') === YOUTUBE_DESCRIPTION_COMPLETION_FIXTURE
+  const socialCampaignReviewQaFixture = searchParams.get('qa_fixture') === SOCIAL_CAMPAIGN_REVIEW_FIXTURE
   const readOnlyYouTubeQaFixture = channelExperimentQaFixture || youtubeDescriptionCompletionQaFixture
   const videoPackageQaState = searchParams.get('video_package_state') === 'blocked' ? 'blocked' : 'ready'
   const packagingQaState = searchParams.get('packaging_state') === 'missing_thumbnail' ? 'missing_thumbnail' : 'bound'
@@ -1039,8 +1040,8 @@ function SocialContentDetailPage() {
       setLoadError(null)
     }
     try {
-      const session = youtubeDescriptionCompletionQaFixture || readOnlyLocalChannelVideoQaFixture ? null : await getCurrentSession()
-      if (!session && !youtubeDescriptionCompletionQaFixture && !readOnlyLocalChannelVideoQaFixture) {
+      const session = youtubeDescriptionCompletionQaFixture || readOnlyLocalChannelVideoQaFixture || socialCampaignReviewQaFixture ? null : await getCurrentSession()
+      if (!session && !youtubeDescriptionCompletionQaFixture && !readOnlyLocalChannelVideoQaFixture && !socialCampaignReviewQaFixture) {
         setLoadError('Admin session is unavailable for this social content detail.')
         if (!options.silent) setItem(null)
         return
@@ -1054,6 +1055,8 @@ function SocialContentDetailPage() {
           ? `?qa_fixture=${YOUTUBE_DESCRIPTION_COMPLETION_FIXTURE}`
         : channelNativeQaFixture
           ? `?qa_fixture=channel_native_video_v2&video_package_state=${videoPackageQaState}&packaging_state=${packagingQaState}`
+        : socialCampaignReviewQaFixture
+          ? `?qa_fixture=${SOCIAL_CAMPAIGN_REVIEW_FIXTURE}`
           : ''
       const res = await fetch(`/api/admin/social-content/${id}${detailQuery}`, {
         cache: 'no-store',
@@ -1127,7 +1130,7 @@ function SocialContentDetailPage() {
     } finally {
       if (!options.silent) setLoading(false)
     }
-  }, [channelExperimentQaFixture, channelNativeQaFixture, deterministicVisualQaState, fetchCommentInboxItems, fetchReviewQueue, id, packagingQaState, readOnlyLocalChannelVideoQaFixture, videoPackageQaState, youtubeDescriptionCompletionQaFixture])
+  }, [channelExperimentQaFixture, channelNativeQaFixture, deterministicVisualQaState, fetchCommentInboxItems, fetchReviewQueue, id, packagingQaState, readOnlyLocalChannelVideoQaFixture, socialCampaignReviewQaFixture, videoPackageQaState, youtubeDescriptionCompletionQaFixture])
 
   useEffect(() => {
     fetchItem()
@@ -7734,7 +7737,7 @@ function SocialContentDetailPage() {
 function SocialContentDetailAccessGate() {
   const searchParams = useSearchParams()
   const readOnlyQaFixture = process.env.NODE_ENV !== 'production'
-    && [YOUTUBE_DESCRIPTION_COMPLETION_FIXTURE, 'channel_native_video_v2'].includes(searchParams.get('qa_fixture') ?? '')
+    && [YOUTUBE_DESCRIPTION_COMPLETION_FIXTURE, SOCIAL_CAMPAIGN_REVIEW_FIXTURE, 'channel_native_video_v2'].includes(searchParams.get('qa_fixture') ?? '')
 
   if (readOnlyQaFixture) return <SocialContentDetailPage />
 

@@ -48,6 +48,11 @@ import {
   youtubeDescriptionCompletionQaFixture,
 } from '@/lib/social-channel-experiment-qa-fixture'
 import {
+  SOCIAL_CAMPAIGN_REVIEW_FIXTURE,
+  getSocialCampaignReviewPacket,
+  socialCampaignReviewQaFixture,
+} from '@/lib/social-campaign-review-assets'
+import {
   buildDeterministicVisualRecipePatch,
   DeterministicVisualRenderError,
   projectDeterministicVisualRender,
@@ -173,6 +178,19 @@ export async function GET(
       })
     }
     const { id } = params
+
+    if (
+      process.env.NODE_ENV !== 'production'
+      && request.nextUrl.searchParams.get('qa_fixture') === SOCIAL_CAMPAIGN_REVIEW_FIXTURE
+      && getSocialCampaignReviewPacket(id)
+    ) {
+      return NextResponse.json({
+        item: socialCampaignReviewQaFixture(id),
+        fixture: true,
+        fixture_state: 'repository_bound_review',
+        integration_note: 'Development-only repository projection. It does not read or write production data, call providers, render or upload media, create platform drafts, schedule, publish, send externally, change credentials, or spend money.',
+      })
+    }
 
     if (
       process.env.NODE_ENV !== 'production'
