@@ -19,8 +19,8 @@ The documented AmaduTown Drive roots were searched for Jev, audit-calculator, Da
 ## YouTube packaging
 
 - Jev reuses `thumbnail:jev:youtube-shorts:20261018:v5` exactly: title `AI Scored It. Who Makes the Call?`, thumbnail hook `WHEN SHOULD AI STOP?`, and `/review-assets/social-content/jev-youtube-short-thumbnail-v5.png`. Its distinct-copy performance claim remains Unscored.
-- Dark Castle Chess has zero qualifying same-topic public description examples. The required cohort is three. The packaging packet is reviewable; final generation stays blocked.
-- AI Audit Calculator has zero qualifying same-topic public description examples. The required cohort is three. The packaging packet is reviewable; final generation stays blocked.
+- Dark Castle Chess uses `public/review-assets/social-content/campaign-review/dark-castle-youtube-remember-the-why.png` (`sha256:4cc752dc6e18f08611aaab68984ca4c353d02b4fb6f8e7bc4781745176659a31`). It is composed locally from the owned gameplay poster receipt `sha256:e15d744685990933555575d6a3c7bc18100af901a766c9a81d4ab9b1cc827d78`. The thumbnail is reviewable, but the record still has zero of three qualifying same-topic public description examples; final generation stays blocked.
+- AI Audit Calculator uses `public/review-assets/social-content/campaign-review/ai-audit-youtube-who-owns-the-cleanup.png` (`sha256:b9e82b81d04b4010d8574c08cf14b68691b1c3c89aa010ed4541e7f3a3229926`). It is composed locally from the owned calculator screen receipt `sha256:bef9eeb1d8d15f7b4197bb03240c27a3b6b96fe114ce06f4c7027690c3e49b97`. The thumbnail is reviewable, but the record still has zero of three qualifying same-topic public description examples; final generation stays blocked.
 
 ## Production read receipt
 

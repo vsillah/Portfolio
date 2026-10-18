@@ -50,6 +50,7 @@ export type YouTubeReviewPacket = {
   thumbnailTeaser: string
   thumbnailConcept: string
   thumbnailPath?: string
+  thumbnailReceipt?: string
   openingHook: string
   descriptionEvidence: {
     state: 'ready' | 'unscored'
@@ -127,6 +128,7 @@ export const SOCIAL_CAMPAIGN_REVIEW_PACKETS: Record<string, SocialCampaignReview
     title: 'AI Scored It. Who Makes the Call?', thumbnailTeaser: 'WHEN SHOULD AI STOP?',
     thumbnailConcept: 'Approved 9:16 AmaduTown composition with Vambah, one Jev product-proof object, and a short contrasting question.',
     thumbnailPath: '/review-assets/social-content/jev-youtube-short-thumbnail-v5.png',
+    thumbnailReceipt: 'thumbnail:jev:youtube-shorts:20261018:v5',
     openingHook: 'A probability can inform a decision. It should not quietly become permission.',
     descriptionEvidence: {
       state: 'ready', qualified: 3, required: 3,
@@ -148,6 +150,8 @@ export const SOCIAL_CAMPAIGN_REVIEW_PACKETS: Record<string, SocialCampaignReview
     calendarItemId: '7b1b202c-eb24-4724-bc8e-313b07546884', campaign: 'Dark Castle Chess: Remember the Decision', status: 'blocked_missing_description_evidence',
     title: 'I Rebuilt the Chess Lesson Around the Decision', thumbnailTeaser: 'REMEMBER THE WHY',
     thumbnailConcept: 'Real gameplay board fills the frame. One highlighted move connects to a compact decision-path card; no generic chess stock art.',
+    thumbnailPath: '/review-assets/social-content/campaign-review/dark-castle-youtube-remember-the-why.png',
+    thumbnailReceipt: 'sha256:4cc752dc6e18f08611aaab68984ca4c353d02b4fb6f8e7bc4781745176659a31',
     openingHook: 'A player can land on the right square by accident. The board position alone cannot tell you whether they learned.',
     descriptionEvidence: { state: 'unscored', qualified: 0, required: 3, requirement: 'Capture three fresh, attributable, same-topic public YouTube descriptions that pass the existing outlier benchmark. Internal packet summaries and unrelated chess videos do not qualify.', attribution: [] },
     storyboard: [
@@ -165,6 +169,8 @@ export const SOCIAL_CAMPAIGN_REVIEW_PACKETS: Record<string, SocialCampaignReview
     calendarItemId: 'c363b54c-1369-4663-b3b1-2a0dc58c0b46', campaign: 'AI Audit Calculator: The Hidden Operating Bill', status: 'blocked_missing_description_evidence',
     title: 'The AI Cost That Never Appears on the Invoice', thumbnailTeaser: 'WHO OWNS THE CLEANUP?',
     thumbnailConcept: 'Real calculator result screen beside a short chain of review, cleanup, escalation, and evidence. The thumbnail question adds tension without repeating the title.',
+    thumbnailPath: '/review-assets/social-content/campaign-review/ai-audit-youtube-who-owns-the-cleanup.png',
+    thumbnailReceipt: 'sha256:b9e82b81d04b4010d8574c08cf14b68691b1c3c89aa010ed4541e7f3a3229926',
     openingHook: 'The subscription price is easy to find. The expensive part is the work that appears after the tool answers.',
     descriptionEvidence: { state: 'unscored', qualified: 0, required: 3, requirement: 'Capture three fresh, attributable, same-topic public YouTube descriptions that pass the existing outlier benchmark. Pricing pages, internal summaries, and general AI-cost commentary do not qualify.', attribution: [] },
     storyboard: [

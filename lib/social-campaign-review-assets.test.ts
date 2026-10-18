@@ -26,6 +26,8 @@ describe('social campaign review asset projection', () => {
     expect(packet.status).toBe('blocked_missing_description_evidence')
     expect(packet.descriptionEvidence).toMatchObject({ state: 'unscored', qualified: 0, required: 3, attribution: [] })
     expect(packet.title).not.toBe(packet.thumbnailTeaser)
+    expect(packet.thumbnailPath).toMatch(/^\/review-assets\/social-content\/campaign-review\/.+\.png$/)
+    expect(packet.thumbnailReceipt).toMatch(/^sha256:[a-f0-9]{64}$/)
     expect(packet.storyboard.length).toBeGreaterThanOrEqual(4)
     expect(packet.productProof.length).toBeGreaterThan(0)
     expect(packet.externalGates).toBe('closed')
@@ -39,6 +41,7 @@ describe('social campaign review asset projection', () => {
       title: 'AI Scored It. Who Makes the Call?',
       thumbnailTeaser: 'WHEN SHOULD AI STOP?',
       thumbnailPath: '/review-assets/social-content/jev-youtube-short-thumbnail-v5.png',
+      thumbnailReceipt: 'thumbnail:jev:youtube-shorts:20261018:v5',
       externalGates: 'closed',
     })
     if (!packet || packet.kind !== 'youtube_packaging') return

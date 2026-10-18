@@ -72,7 +72,14 @@ export default function SocialCampaignReviewPacket({ packet }: { packet: SocialC
           <p className="mt-1 text-sm font-semibold text-foreground">{packet.thumbnailTeaser}</p>
         </div>
       </div>
-      {packet.thumbnailPath ? <Image src={packet.thumbnailPath} alt={`Approved thumbnail reading ${packet.thumbnailTeaser}`} width={1080} height={1920} className="mx-auto mt-4 max-h-[38rem] w-auto rounded-lg border border-border bg-black object-contain" /> : null}
+      {packet.thumbnailPath ? (
+        <div className="mt-4">
+          <Image src={packet.thumbnailPath} alt={`${blocked ? 'Review' : 'Approved'} thumbnail reading ${packet.thumbnailTeaser}`} width={1280} height={720} className="w-full rounded-lg border border-border bg-black object-contain" />
+          <p className="mt-2 break-all rounded-md border border-border bg-background px-3 py-2 font-mono text-[10px] text-muted-foreground">
+            Thumbnail source receipt: {packet.thumbnailReceipt ?? packet.productProof[0]?.receipt}
+          </p>
+        </div>
+      ) : null}
       <div className="mt-3 rounded-lg border border-border bg-background p-3">
         <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Thumbnail concept</p>
         <p className="mt-1 text-sm leading-6 text-foreground">{packet.thumbnailConcept}</p>
