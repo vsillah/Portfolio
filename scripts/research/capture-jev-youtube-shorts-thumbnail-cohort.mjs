@@ -10,14 +10,14 @@ const outputRoot = path.resolve('artifacts/research/jev-youtube-shorts-thumbnail
 const publicRoot = path.resolve('public/review-assets/social-content/jev-thumbnail-cohort')
 
 const candidates = [
-  { id: 'gTHQpAkgjy4', decision: 'include', reason: 'AI-governance decision tension; 54-second Short with attributable channel and metrics.' },
-  { id: '_ODSVV3SIEI', decision: 'include', reason: 'AI-governance framework explainer; 39-second Short with attributable channel and metrics.' },
-  { id: 'sA6UA2fMNHg', decision: 'include', reason: 'AI-governance importance explainer; 45-second Short with attributable channel and metrics.' },
-  { id: 'SQEMkQu0b6o', decision: 'include', reason: 'AI-governance consequence framing; 21-second Short close to the Jev runtime.' },
-  { id: 'ZAdGsLGaGSU', decision: 'include', reason: 'Presenter-led AI-governance choice framing; 51-second Short with attributable metrics.' },
-  { id: 'DVEOS9t_DHM', decision: 'include', reason: 'Concrete governance-risk hook; 32-second Short with attributable metrics.' },
-  { id: 'ojpZ-TJv918', decision: 'include', reason: 'Direct AI-governance promise; 29-second Short with attributable metrics.' },
-  { id: 'usE8BPWET3M', decision: 'include', reason: 'Short-form AI-governance hook; 18-second Short close to the Jev runtime.' },
+  { id: 'gTHQpAkgjy4', decision: 'include', reason: 'AI-governance decision tension; 54-second Short with attributable channel and metrics.', traits: { dominant_subject: true, short_hook: true, high_contrast_text: true, decision_consequence: false } },
+  { id: '_ODSVV3SIEI', decision: 'include', reason: 'AI-governance framework explainer; 39-second Short with attributable channel and metrics.', traits: { dominant_subject: true, short_hook: true, high_contrast_text: false, decision_consequence: false } },
+  { id: 'sA6UA2fMNHg', decision: 'include', reason: 'AI-governance importance explainer; 45-second Short with attributable channel and metrics.', traits: { dominant_subject: true, short_hook: false, high_contrast_text: true, decision_consequence: false } },
+  { id: 'SQEMkQu0b6o', decision: 'include', reason: 'AI-governance consequence framing; 21-second Short close to the Jev runtime.', traits: { dominant_subject: true, short_hook: true, high_contrast_text: true, decision_consequence: false } },
+  { id: 'ZAdGsLGaGSU', decision: 'include', reason: 'Presenter-led AI-governance choice framing; 51-second Short with attributable metrics.', traits: { dominant_subject: true, short_hook: false, high_contrast_text: true, decision_consequence: false } },
+  { id: 'DVEOS9t_DHM', decision: 'include', reason: 'Concrete governance-risk hook; 32-second Short with attributable metrics.', traits: { dominant_subject: true, short_hook: true, high_contrast_text: true, decision_consequence: true } },
+  { id: 'ojpZ-TJv918', decision: 'include', reason: 'Direct AI-governance promise; 29-second Short with attributable metrics.', traits: { dominant_subject: true, short_hook: false, high_contrast_text: true, decision_consequence: false } },
+  { id: 'usE8BPWET3M', decision: 'include', reason: 'Short-form AI-governance hook; 18-second Short close to the Jev runtime.', traits: { dominant_subject: true, short_hook: true, high_contrast_text: true, decision_consequence: true } },
   { id: 'Wcf3Caq4AiE', decision: 'exclude', reason: '107 seconds exceeds the primary 15–60 second comparison band.' },
   { id: '_ls2rOTyGtU', decision: 'exclude', reason: '63 seconds exceeds the primary 15–60 second comparison band.' },
   { id: 'LWs4FNziL4Y', decision: 'exclude', reason: '64 seconds exceeds the primary 15–60 second comparison band.' },
@@ -184,6 +184,9 @@ for (const sample of included) {
     + (sample.performance_components.audience_view_percentile * 0.3)
     + (sample.performance_components.recency_rate_percentile * 0.2)
   ).toFixed(2))
+  sample.outlier_qualified = sample.normalized_performance_score >= 75
+  sample.visual_traits = sample.traits
+  delete sample.traits
   sample.inclusion_reason = sample.reason
   sample.observed_at = observedAt
 }
@@ -233,13 +236,34 @@ const packet = {
     minimum_sample_size: minimumSampleSize,
     decision: included.length >= minimumSampleSize ? 'qualifying_cohort_ready' : 'fail_closed',
   },
+  outlier_qualification: {
+    rule: 'normalized_performance_score >= 75',
+    threshold: 75,
+    qualified_sample_size: included.filter((sample) => sample.outlier_qualified).length,
+    qualified_video_ids: included.filter((sample) => sample.outlier_qualified).map((sample) => sample.video_id),
+    role: 'Only qualified outliers determine adopted visual traits. The remaining topical sources are comparison baselines.',
+  },
   included: included.sort((left, right) => right.normalized_performance_score - left.normalized_performance_score),
   excluded: exclusions,
   long_form_reference_policy: 'Long-form videos may inform non-scoring composition notes only. They are excluded from the Shorts performance calculation.',
-  recurring_visual_traits: [],
-  adopted_traits: [],
-  rejected_traits: [],
-  composition_decision: '',
+  recurring_visual_traits: [
+    'Both qualified outliers use one dominant person or concrete object.',
+    'Both qualified outliers use a short, high-contrast on-frame hook.',
+    'One of two qualified outliers makes the missing-guardrail consequence explicit; the candidate strengthens this into a direct human-decision question.',
+  ],
+  adopted_traits: [
+    'Use the approved presenter as the dominant human anchor.',
+    'Reduce the hook to the concrete score and one decision question: AI SCORED IT 81% / WHO DECIDES?',
+    'Keep one approved Jev score panel as product proof instead of adding abstract AI imagery.',
+    'Use AmaduTown navy, white, and yellow with a single coral decision accent for mobile contrast.',
+  ],
+  rejected_traits: [
+    'Do not copy source wording, creator likenesses, source brand colors, or source layouts.',
+    'Reject generic robot, circuit-board, glowing-server, and synthetic dashboard imagery.',
+    'Reject classroom diagrams, subscribe/follow furniture, split-screen interview layouts, and multi-panel field-guide density.',
+    'Reject performance claims about the unposted Jev candidate; cohort scores describe the public sources, while Jev scoring measures reproducible trait matches.',
+  ],
+  composition_decision: 'Create an original 1280x720 AmaduTown/Jev thumbnail from owned approved assets only: a presenter-led left-to-right scan, a large 81% score as the concrete tension, the question WHO DECIDES?, and one cropped Jev score panel as proof. No cohort thumbnail pixels are reused in the candidate.',
 }
 
 await writeFile(path.join(outputRoot, 'cohort.json'), `${JSON.stringify(packet, null, 2)}\n`)

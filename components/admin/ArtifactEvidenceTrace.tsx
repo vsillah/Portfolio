@@ -146,13 +146,14 @@ function ThumbnailResearchEvidence({ cohort }: { cohort: NonNullable<ArtifactEvi
       <summary className="cursor-pointer list-none">
         <span className="flex flex-wrap items-center justify-between gap-2">
           <span className="font-semibold text-foreground">Inspectable Shorts research cohort</span>
-          <span className="rounded-full border border-violet-600/30 px-2 py-1 text-[10px] font-semibold uppercase text-violet-900 dark:text-violet-100">{cohort.sample_size} qualified · minimum {cohort.minimum_sample_size}</span>
+          <span className="rounded-full border border-violet-600/30 px-2 py-1 text-[10px] font-semibold uppercase text-violet-900 dark:text-violet-100">{cohort.sample_size} topical · {cohort.outlier_sample_size} outliers · minimum {cohort.minimum_sample_size}</span>
         </span>
         <span className="mt-1 block text-[11px] text-muted-foreground">{cohort.target} · observed {cohort.observed_at}</span>
       </summary>
       <div className="mt-3 space-y-4 border-t border-border pt-3">
         <div>
           <p className="font-semibold text-foreground">Exact calculations</p>
+          <p className="mt-1">Outlier rule: <span className="font-mono text-foreground">{cohort.outlier_rule}</span>. Only those sources determine adopted visual traits; the rest remain topical baselines.</p>
           <ul className="mt-1 space-y-1">{cohort.formula.map((formula) => <li key={formula}>• {formula}</li>)}</ul>
         </div>
         <div className="grid gap-3 md:grid-cols-2">
@@ -173,6 +174,8 @@ function ThumbnailResearchEvidence({ cohort }: { cohort: NonNullable<ArtifactEvi
                   <p>{metric(sample.view_count)} views · {metric(sample.subscriber_count)} subscribers · {metric(sample.duration_seconds, 's')}</p>
                   <p>Channel relative {metric(sample.channel_relative_ratio, '×')} · audience/view {metric(sample.audience_view_ratio)} · views/day {metric(sample.recency_adjusted_views_per_day)}</p>
                   <p>Normalized score <span className="font-semibold text-foreground">{metric(sample.normalized_performance_score)}/100</span></p>
+                  <p className="font-semibold text-foreground">{sample.outlier_qualified ? 'Qualified outlier' : 'Topical baseline'}</p>
+                  <p>Traits: {Object.entries(sample.visual_traits).map(([name, value]) => `${name.replaceAll('_', ' ')}=${value ? 'yes' : 'no'}`).join(' · ')}</p>
                   <p>{sample.decision_reason}</p>
                   <p>Published {sample.published_at || 'Unavailable'} · observed {sample.observed_at}</p>
                   <a href={sample.youtube_url} target="_blank" rel="noreferrer" className="inline-flex min-h-9 items-center gap-1 font-semibold text-sky-900 underline-offset-4 hover:underline dark:text-sky-100"><ExternalLink className="h-3 w-3" /> Open public Short</a>

@@ -32,6 +32,16 @@
     "minimum_sample_size": 6,
     "decision": "qualifying_cohort_ready"
   },
+  "outlier_qualification": {
+    "rule": "normalized_performance_score >= 75",
+    "threshold": 75,
+    "qualified_sample_size": 2,
+    "qualified_video_ids": [
+      "gTHQpAkgjy4",
+      "usE8BPWET3M"
+    ],
+    "role": "Only qualified outliers determine adopted visual traits. The remaining topical sources are comparison baselines."
+  },
   "included": [
     {
       "id": "gTHQpAkgjy4",
@@ -78,6 +88,8 @@
         "recency_rate_percentile": 56.25
       },
       "normalized_performance_score": 78.75,
+      "outlier_qualified": true,
+      "visual_traits": { "dominant_subject": true, "short_hook": true, "high_contrast_text": true, "decision_consequence": false },
       "inclusion_reason": "AI-governance decision tension; 54-second Short with attributable channel and metrics.",
       "observed_at": "2026-10-18T16:00:00.000Z"
     },
@@ -128,6 +140,8 @@
         "recency_rate_percentile": 93.75
       },
       "normalized_performance_score": 77.5,
+      "outlier_qualified": true,
+      "visual_traits": { "dominant_subject": true, "short_hook": true, "high_contrast_text": true, "decision_consequence": true },
       "inclusion_reason": "Short-form AI-governance hook; 18-second Short close to the Jev runtime.",
       "observed_at": "2026-10-18T16:00:00.000Z"
     },
@@ -182,6 +196,8 @@
         "recency_rate_percentile": 18.75
       },
       "normalized_performance_score": 72.5,
+      "outlier_qualified": false,
+      "visual_traits": { "dominant_subject": true, "short_hook": true, "high_contrast_text": false, "decision_consequence": false },
       "inclusion_reason": "AI-governance framework explainer; 39-second Short with attributable channel and metrics.",
       "observed_at": "2026-10-18T16:00:00.000Z"
     },
@@ -240,6 +256,8 @@
         "recency_rate_percentile": 81.25
       },
       "normalized_performance_score": 51.25,
+      "outlier_qualified": false,
+      "visual_traits": { "dominant_subject": true, "short_hook": false, "high_contrast_text": true, "decision_consequence": false },
       "inclusion_reason": "Presenter-led AI-governance choice framing; 51-second Short with attributable metrics.",
       "observed_at": "2026-10-18T16:00:00.000Z"
     },
@@ -298,6 +316,8 @@
         "recency_rate_percentile": 6.25
       },
       "normalized_performance_score": 38.75,
+      "outlier_qualified": false,
+      "visual_traits": { "dominant_subject": true, "short_hook": false, "high_contrast_text": true, "decision_consequence": false },
       "inclusion_reason": "Direct AI-governance promise; 29-second Short with attributable metrics.",
       "observed_at": "2026-10-18T16:00:00.000Z"
     },
@@ -354,6 +374,8 @@
         "recency_rate_percentile": 43.75
       },
       "normalized_performance_score": 30,
+      "outlier_qualified": false,
+      "visual_traits": { "dominant_subject": true, "short_hook": false, "high_contrast_text": true, "decision_consequence": false },
       "inclusion_reason": "AI-governance importance explainer; 45-second Short with attributable channel and metrics.",
       "observed_at": "2026-10-18T16:00:00.000Z"
     },
@@ -412,6 +434,8 @@
         "recency_rate_percentile": 31.25
       },
       "normalized_performance_score": 26.25,
+      "outlier_qualified": false,
+      "visual_traits": { "dominant_subject": true, "short_hook": true, "high_contrast_text": true, "decision_consequence": false },
       "inclusion_reason": "AI-governance consequence framing; 21-second Short close to the Jev runtime.",
       "observed_at": "2026-10-18T16:00:00.000Z"
     },
@@ -470,6 +494,8 @@
         "recency_rate_percentile": 68.75
       },
       "normalized_performance_score": 25,
+      "outlier_qualified": false,
+      "visual_traits": { "dominant_subject": true, "short_hook": true, "high_contrast_text": true, "decision_consequence": true },
       "inclusion_reason": "Concrete governance-risk hook; 32-second Short with attributable metrics.",
       "observed_at": "2026-10-18T16:00:00.000Z"
     }
@@ -556,10 +582,9 @@
   ],
   "long_form_reference_policy": "Long-form videos may inform non-scoring composition notes only. They are excluded from the Shorts performance calculation.",
   "recurring_visual_traits": [
-    "A single presenter, person, or concrete object occupies most of the vertical frame in six of eight qualified Shorts.",
-    "On-frame hooks use one short phrase or one dominant topic label rather than a paragraph or full diagram.",
-    "High-contrast white, yellow, or red text is separated from the subject and remains legible at phone size.",
-    "The stronger decision- and risk-led entries create tension through a consequence, missing guardrail, or explicit choice instead of generic technology imagery."
+    "Both qualified outliers use one dominant person or concrete object.",
+    "Both qualified outliers use a short, high-contrast on-frame hook.",
+    "One of two qualified outliers makes the missing-guardrail consequence explicit; the candidate strengthens this into a direct human-decision question."
   ],
   "adopted_traits": [
     "Use the approved presenter as the dominant human anchor.",
@@ -571,7 +596,7 @@
     "Do not copy source wording, creator likenesses, source brand colors, or source layouts.",
     "Reject generic robot, circuit-board, glowing-server, and synthetic dashboard imagery.",
     "Reject classroom diagrams, subscribe/follow furniture, split-screen interview layouts, and multi-panel field-guide density.",
-    "Reject performance claims about the unposted Jev candidate; cohort scores describe the public sources, while Jev scoring measures evidence-backed pattern fit."
+    "Reject performance claims about the unposted Jev candidate; cohort scores describe the public sources, while Jev scoring measures reproducible trait matches."
   ],
   "composition_decision": "Create an original 1280x720 AmaduTown/Jev thumbnail from owned approved assets only: a presenter-led left-to-right scan, a large 81% score as the concrete tension, the question WHO DECIDES?, and one cropped Jev score panel as proof. No cohort thumbnail pixels are reused in the candidate."
 }

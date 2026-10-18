@@ -48,6 +48,8 @@ export type ThumbnailResearchSample = {
   audience_view_ratio: number | null
   recency_adjusted_views_per_day: number | null
   normalized_performance_score: number | null
+  outlier_qualified: boolean
+  visual_traits: Record<string, boolean>
 }
 
 export type ThumbnailResearchCohort = {
@@ -56,6 +58,8 @@ export type ThumbnailResearchCohort = {
   observed_at: string
   sample_size: number
   minimum_sample_size: number
+  outlier_rule: string
+  outlier_sample_size: number
   formula: string[]
   recurring_visual_traits: string[]
   adopted_traits: string[]
@@ -179,6 +183,7 @@ function parseResearchCohort(value: unknown): ThumbnailResearchCohort | undefine
     const sample = record(value)
     if (!sample) return null
     const decision = sample.decision === 'excluded' ? 'excluded' : 'included'
+    const rawTraits = record(sample.visual_traits) ?? {}
     return {
       video_id: text(sample.video_id),
       youtube_url: safeYouTubeUrl(sample.youtube_url),
@@ -196,6 +201,8 @@ function parseResearchCohort(value: unknown): ThumbnailResearchCohort | undefine
       audience_view_ratio: nullableNumber(sample.audience_view_ratio),
       recency_adjusted_views_per_day: nullableNumber(sample.recency_adjusted_views_per_day),
       normalized_performance_score: nullableNumber(sample.normalized_performance_score),
+      outlier_qualified: sample.outlier_qualified === true,
+      visual_traits: Object.fromEntries(Object.entries(rawTraits).filter((entry): entry is [string, boolean] => typeof entry[1] === 'boolean')),
     } satisfies ThumbnailResearchSample
   }).filter((sample): sample is ThumbnailResearchSample => Boolean(sample?.video_id && sample.youtube_url)) : []
   return {
@@ -204,6 +211,8 @@ function parseResearchCohort(value: unknown): ThumbnailResearchCohort | undefine
     observed_at: text(candidate.observed_at),
     sample_size: Number(candidate.sample_size),
     minimum_sample_size: Number(candidate.minimum_sample_size),
+    outlier_rule: text(candidate.outlier_rule),
+    outlier_sample_size: Number(candidate.outlier_sample_size),
     formula: strings(candidate.formula),
     recurring_visual_traits: strings(candidate.recurring_visual_traits),
     adopted_traits: strings(candidate.adopted_traits),
