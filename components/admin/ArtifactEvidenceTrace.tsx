@@ -102,7 +102,7 @@ function PackagingArtifactEvidence({ element, label }: { element: ArtifactEviden
       </summary>
       <div className="mt-3 space-y-3 border-t border-border pt-3 text-xs leading-5 text-muted-foreground">
         <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-1.5">
-          <dt>Normalized score</dt><dd className="font-semibold text-foreground">{receipt?.overall.score == null ? 'Unscored' : `${receipt.overall.score}/100`}</dd>
+          <dt>Evidence-fit score</dt><dd className="font-semibold text-foreground">{receipt?.overall.score == null ? 'Unscored' : `${receipt.overall.score}/100`}</dd>
           <dt>Required threshold</dt><dd className="font-semibold text-foreground">{receipt ? `${receipt.overall.threshold}/100` : 'Missing'}</dd>
           <dt>Cohort identity</dt><dd className="break-all font-mono text-[11px] text-foreground">{receipt?.benchmark_cohort.cohort_id ?? 'Missing'}</dd>
           <dt>Sample size</dt><dd className="font-medium text-foreground">{receipt?.benchmark_cohort.sample_size ?? 'Missing'}</dd>
@@ -113,6 +113,7 @@ function PackagingArtifactEvidence({ element, label }: { element: ArtifactEviden
           <dt>Version hash</dt><dd className="break-all font-mono text-[11px] text-foreground">{element.version_hash || 'Missing'}</dd>
           <dt>Product proof</dt><dd className="font-medium text-foreground">{element.source_identity || 'Missing'} · {element.source_record_type.replaceAll('_', ' ') || 'source type missing'}</dd>
         </dl>
+        <p className="rounded-md border border-border bg-muted/30 p-2.5">This score measures conformance to the recorded evidence-backed packaging criteria. It does not predict click-through rate, views, or platform performance.</p>
         <div className="rounded-md border border-border bg-muted/30 p-2.5">
           <p className="font-semibold text-foreground">Formula and decision logic</p>
           <p className="mt-1">Weighted normalized score = Σ(direction-normalized dimension score × weight) ÷ 100. Advance only when every dimension is scored, the cohort is current and attributable, and the result meets the recorded threshold.</p>

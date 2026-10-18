@@ -88,7 +88,8 @@ describe('ArtifactEvidenceTrace', () => {
 
     const titleEvidence = within(packaging).getByText('Title evidence').closest('details')!
     fireEvent.click(within(titleEvidence).getByText('Title evidence'))
-    expect(within(titleEvidence).getByText('Normalized score')).toBeVisible()
+    expect(within(titleEvidence).getByText('Evidence-fit score')).toBeVisible()
+    expect(within(titleEvidence).getByText(/does not predict click-through rate, views, or platform performance/i)).toBeVisible()
     expect(within(titleEvidence).getByText('Cohort identity')).toBeVisible()
     expect(within(titleEvidence).getByText('Formula and decision logic')).toBeVisible()
     expect(within(titleEvidence).getByRole('link', { name: 'Open product/source lineage' })).toHaveAttribute('href', '/admin/source-protocol?receipt=title')
@@ -118,6 +119,8 @@ describe('ArtifactEvidenceTrace', () => {
     expect(within(packaging).getAllByText('AI SCORED IT 81% / WHO DECIDES?')[0]).toBeVisible()
     const thumbnailEvidence = within(packaging).getByText('Thumbnail evidence').closest('details')!
     fireEvent.click(within(thumbnailEvidence).getByText('Thumbnail evidence'))
+    expect(within(thumbnailEvidence).getByText('Evidence-fit score')).toBeVisible()
+    expect(within(thumbnailEvidence).getByText(/does not predict click-through rate, views, or platform performance/i)).toBeVisible()
     const cohort = within(thumbnailEvidence).getByTestId('youtube-thumbnail-research-cohort')
     fireEvent.click(within(cohort).getByText('Inspectable Shorts research cohort'))
     expect(within(cohort).getByText('8 topical · 2 outliers · minimum 6')).toBeVisible()
