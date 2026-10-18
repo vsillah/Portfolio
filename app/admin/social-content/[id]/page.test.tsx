@@ -415,7 +415,7 @@ describe('SocialContentDetailRoute visual production review', () => {
     const packaging = screen.getByLabelText('YouTube Shorts packaging evidence')
     expect(within(packaging).getAllByText('AI Scored It. Who Makes the Call?')[0]).toBeVisible()
     expect(within(packaging).getAllByText('AI SCORED IT. / WHO DECIDES?')[0]).toBeVisible()
-    expect(within(packaging).getByAltText(/YouTube Shorts bound thumbnail/i)).toHaveAttribute('src', expect.stringContaining('jev-youtube-short-thumbnail-v3.png'))
+    expect(within(packaging).getByAltText(/YouTube Shorts bound thumbnail/i)).toHaveAttribute('src', expect.stringContaining('jev-youtube-short-thumbnail-v4.png'))
     expect(within(packaging).getByRole('status')).toHaveTextContent('Asset-package evidence ready')
 
     const channelReview = screen.getByLabelText('YouTube Shorts channel-native video review')

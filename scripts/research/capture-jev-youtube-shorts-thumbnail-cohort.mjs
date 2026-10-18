@@ -5,7 +5,8 @@ import sharp from 'sharp'
 
 const observedAt = process.env.OBSERVED_AT || new Date().toISOString()
 const minimumSampleSize = 6
-const cohortId = 'cohort:youtube_shorts:ai-governance-decision:20261018:v1'
+const minimumChannelBaselineSize = 4
+const cohortId = 'cohort:youtube_shorts:ai-governance-copy-pair:20261018:v2'
 const outputRoot = path.resolve('artifacts/research/jev-youtube-shorts-thumbnail-cohort-2026-10-18')
 const publicRoot = path.resolve('public/review-assets/social-content/jev-thumbnail-cohort')
 
@@ -25,6 +26,24 @@ const candidates = [
   { id: '0wXsV5azxT8', decision: 'exclude', reason: 'Public subscriber count was unavailable, so audience normalization could not be reproduced.' },
   { id: 'WuQTCnhdrqE', decision: 'exclude', reason: 'Observed less than 24 hours after publication; distribution was too immature for comparison.' },
 ]
+
+const copyPairAnnotations = {
+  gTHQpAkgjy4: { thumbnail_text: ['AI Governance', 'Example 2'], transcription_status: 'verified', relationship: 'near_duplicate', hook_type: 'topic_label_example' },
+  usE8BPWET3M: { thumbnail_text: ['SUBSCRIBE', 'AI system without guardrails', 'FOLLOW US'], transcription_status: 'verified', relationship: 'complementary_teaser', hook_type: 'risk_consequence' },
+  _ODSVV3SIEI: { thumbnail_text: [], transcription_status: 'unreadable', relationship: 'unreadable', hook_type: 'unreadable' },
+  ZAdGsLGaGSU: { thumbnail_text: ['Montreal, Canada', 'TEMITOPE BOLAJI', 'Melbourne, Australia', 'LATHA KARTHIGAA'], transcription_status: 'verified', relationship: 'no_thumbnail_text', hook_type: 'speaker_identification' },
+  'ojpZ-TJv918': { thumbnail_text: ['monitoring and adjusting is exactly'], transcription_status: 'verified', relationship: 'unreadable', hook_type: 'incomplete_caption' },
+  sA6UA2fMNHg: { thumbnail_text: ['IMPORTANCE OF AI GOVERNANCE', 'rules', 'standards', 'processes'], transcription_status: 'verified', relationship: 'near_duplicate', hook_type: 'topic_label_framework' },
+  SQEMkQu0b6o: { thumbnail_text: ['GOVERNANCE.'], transcription_status: 'verified', relationship: 'near_duplicate', hook_type: 'topic_label' },
+  DVEOS9t_DHM: { thumbnail_text: ['SANDBOX BREACH DETECTED', 'A HUGGING FACE TYPE'], transcription_status: 'verified', relationship: 'complementary_teaser', hook_type: 'risk_visual_teaser' },
+}
+
+function firstWords(value, limit = 20) {
+  const normalized = String(value || '').replace(/\s+/g, ' ').trim()
+  if (!normalized) return { text: null, truncated: false }
+  const words = normalized.split(' ')
+  return { text: words.slice(0, limit).join(' '), truncated: words.length > limit }
+}
 
 function extractObject(source, marker) {
   const markerIndex = source.indexOf(marker)
@@ -111,6 +130,8 @@ async function fetchVideo(videoId) {
     published_at: microformat?.publishDate ? new Date(microformat.publishDate).toISOString() : null,
     duration_seconds: Number(details?.lengthSeconds),
     source_thumbnail_url: thumbnail || null,
+    description_opening: firstWords(details?.shortDescription).text,
+    description_opening_truncated: firstWords(details?.shortDescription).truncated,
   }
 }
 
@@ -148,7 +169,7 @@ for (const sample of included) {
   const baseline = (await mapWithConcurrency(baselineIds, 5, fetchVideo))
     .filter((entry) => entry.duration_seconds >= 15 && entry.duration_seconds <= 60 && entry.view_count >= 0)
     .slice(0, 10)
-  if (baseline.length < 5) throw new Error(`${sample.creator} has only ${baseline.length} attributable recent Shorts in the normalized duration band.`)
+  if (baseline.length < minimumChannelBaselineSize) throw new Error(`${sample.creator} has only ${baseline.length} attributable recent Shorts in the normalized duration band; ${minimumChannelBaselineSize} are required.`)
   sample.channel_baseline = {
     sample_size: baseline.length,
     video_ids: baseline.map((entry) => entry.video_id),
@@ -185,6 +206,19 @@ for (const sample of included) {
     + (sample.performance_components.recency_rate_percentile * 0.2)
   ).toFixed(2))
   sample.outlier_qualified = sample.normalized_performance_score >= 75
+  const annotation = copyPairAnnotations[sample.video_id]
+  if (!annotation) throw new Error(`Copy-pair annotation is missing for ${sample.video_id}.`)
+  sample.thumbnail_text = annotation.thumbnail_text
+  sample.thumbnail_text_transcription_status = annotation.transcription_status
+  sample.title_thumbnail_relationship = annotation.relationship
+  sample.thumbnail_text_length = annotation.thumbnail_text.join(' ').length
+  sample.hook_type = annotation.hook_type
+  sample.transcription_provenance = {
+    source_thumbnail_url: sample.source_thumbnail_url,
+    captured_thumbnail_path: sample.thumbnail_path,
+    captured_thumbnail_sha256: sample.source_thumbnail_sha256,
+    method: 'human transcription from the captured public source image; unreadable text is not inferred',
+  }
   sample.visual_traits = sample.traits
   delete sample.traits
   sample.inclusion_reason = sample.reason
@@ -205,8 +239,28 @@ const exclusions = snapshots.filter((candidate) => candidate.decision === 'exclu
   exclusion_reason: candidate.reason,
 }))
 
+const repeatedRelationships = new Set(['duplicate', 'near_duplicate'])
+const distinctRelationships = new Set(['complementary_teaser', 'contrasting_question'])
+const analyzablePairs = included.filter((sample) => repeatedRelationships.has(sample.title_thumbnail_relationship) || distinctRelationships.has(sample.title_thumbnail_relationship))
+const repeatedPairs = analyzablePairs.filter((sample) => repeatedRelationships.has(sample.title_thumbnail_relationship))
+const distinctPairs = analyzablePairs.filter((sample) => distinctRelationships.has(sample.title_thumbnail_relationship))
+const minimumPairGroupSize = 3
+const repeatedMedian = median(repeatedPairs.map((sample) => sample.normalized_performance_score))
+const distinctMedian = median(distinctPairs.map((sample) => sample.normalized_performance_score))
+const copyPairReady = repeatedPairs.length >= minimumPairGroupSize && distinctPairs.length >= minimumPairGroupSize
+const copyPairAnalysis = {
+  status: copyPairReady ? 'scored' : 'unscored',
+  hypothesis: 'Distinct complementary thumbnail hooks outperform duplicated or near-duplicated title wording for topic-matched YouTube Shorts.',
+  comparison_formula: 'median normalized performance score for complementary_teaser + contrasting_question minus median normalized performance score for duplicate + near_duplicate',
+  repeated_group: { relationships: [...repeatedRelationships], sample_size: repeatedPairs.length, minimum_sample_size: minimumPairGroupSize, median_normalized_performance_score: repeatedMedian, video_ids: repeatedPairs.map((sample) => sample.video_id) },
+  distinct_group: { relationships: [...distinctRelationships], sample_size: distinctPairs.length, minimum_sample_size: minimumPairGroupSize, median_normalized_performance_score: distinctMedian, video_ids: distinctPairs.map((sample) => sample.video_id) },
+  observed_difference: repeatedMedian == null || distinctMedian == null ? null : Number((distinctMedian - repeatedMedian).toFixed(2)),
+  conclusion: copyPairReady ? (distinctMedian > repeatedMedian ? 'supports_distinct_pair' : 'does_not_support_distinct_pair') : 'unscored_insufficient_group_samples',
+  limitation: copyPairReady ? 'Observed association only; this cohort does not establish causation.' : `Unscored: both relationship groups require at least ${minimumPairGroupSize} attributable samples.`,
+}
+
 const packet = {
-  version: 'youtube-thumbnail-cohort/v1',
+  version: 'youtube-thumbnail-copy-pair-cohort/v2',
   cohort_id: cohortId,
   status: 'approved',
   target: {
@@ -217,6 +271,7 @@ const packet = {
     topic_identity: 'ai_governance_human_decision_ownership',
     recency_window_days: 730,
     minimum_sample_size: minimumSampleSize,
+    minimum_channel_baseline_size: minimumChannelBaselineSize,
     audience_normalization: 'view_count / public subscriber_count',
     channel_normalization: 'view_count / median exact view count for up to 10 recent 15–60 second Shorts on the same channel',
   },
@@ -241,29 +296,28 @@ const packet = {
     threshold: 75,
     qualified_sample_size: included.filter((sample) => sample.outlier_qualified).length,
     qualified_video_ids: included.filter((sample) => sample.outlier_qualified).map((sample) => sample.video_id),
-    role: 'Only qualified outliers determine adopted visual traits. The remaining topical sources are comparison baselines.',
+    role: 'Performance context only. Public visual composition is not used as first-party brand authority.',
   },
+  copy_pair_analysis: copyPairAnalysis,
   included: included.sort((left, right) => right.normalized_performance_score - left.normalized_performance_score),
   excluded: exclusions,
   long_form_reference_policy: 'Long-form videos may inform non-scoring composition notes only. They are excluded from the Shorts performance calculation.',
   recurring_visual_traits: [
-    'Both qualified outliers use one dominant person or concrete object.',
-    'Both qualified outliers use a short, high-contrast on-frame hook.',
-    'One of two qualified outliers makes the missing-guardrail consequence explicit; the candidate strengthens this into a direct human-decision question.',
+    'The captured public frames provide contemporary topic and copy-pair evidence only.',
+    'Unreadable or absent thumbnail copy is excluded from the title-thumbnail performance comparison.',
+    'First-party AmaduTown evidence remains the authority for subject, aspect ratio, and brand treatment.',
   ],
   adopted_traits: [
-    'Use the approved presenter as the dominant human anchor.',
-    'Reduce the hook to the concrete score and one decision question: AI SCORED IT 81% / WHO DECIDES?',
-    'Keep one approved Jev score panel as product proof instead of adding abstract AI imagery.',
-    'Use AmaduTown navy, white, and yellow with a single coral decision accent for mobile contrast.',
+    'Keep the exact title and thumbnail hook visibly bound as one customer-facing pair.',
+    'Use a conservative near-duplicate semantic relationship while the distinct-versus-repeated heuristic remains Unscored.',
   ],
   rejected_traits: [
     'Do not copy source wording, creator likenesses, source brand colors, or source layouts.',
     'Reject generic robot, circuit-board, glowing-server, and synthetic dashboard imagery.',
     'Reject classroom diagrams, subscribe/follow furniture, split-screen interview layouts, and multi-panel field-guide density.',
-    'Reject performance claims about the unposted Jev candidate; cohort scores describe the public sources, while Jev scoring measures reproducible trait matches.',
+    'Reject a claim that distinct complementary copy performs better until both relationship groups meet the recorded minimum sample size.',
   ],
-  composition_decision: 'Create an original 1280x720 AmaduTown/Jev thumbnail from owned approved assets only: a presenter-led left-to-right scan, a large 81% score as the concrete tension, the question WHO DECIDES?, and one cropped Jev score panel as proof. No cohort thumbnail pixels are reused in the candidate.',
+  composition_decision: 'Keep the Jev title and thumbnail non-identical at the string level but near-duplicate in meaning. The cohort does not support a distinct complementary-teaser strategy; first-party evidence continues to govern subject, 9:16 aspect ratio, and brand treatment.',
 }
 
 await writeFile(path.join(outputRoot, 'cohort.json'), `${JSON.stringify(packet, null, 2)}\n`)

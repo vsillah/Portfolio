@@ -77,6 +77,13 @@ describe('YouTube packaging evidence validation', () => {
     expect(research?.element_bindings.map((binding) => binding.element).sort()).toEqual(['aspect_ratio', 'brand_treatment', 'hook', 'product_proof', 'subject'])
     expect(research?.element_bindings.every((binding) => binding.support === 'supports' && binding.link_status === 'verified_openable')).toBe(true)
     expect(research?.samples.every((sample) => sample.youtube_url.startsWith('https://') && sample.source_thumbnail_url?.startsWith('https://'))).toBe(true)
+    expect(research?.candidate_copy_pair).toMatchObject({ relationship: 'near_duplicate', exact_strings_are_distinct: true })
+    expect(research?.candidate_copy_pair.title).toBe(result.title?.input_excerpt)
+    expect(research?.candidate_copy_pair.thumbnail_hook).toBe(result.thumbnail?.input_excerpt)
+    expect(research?.candidate_copy_pair.title).not.toBe(research?.candidate_copy_pair.thumbnail_hook)
+    expect(research?.copy_pair_analysis).toMatchObject({ status: 'unscored', conclusion: 'unscored_insufficient_group_samples' })
+    expect(research?.copy_pair_analysis.distinct_group).toMatchObject({ sample_size: 2, minimum_sample_size: 3 })
+    expect(research?.samples.filter((sample) => sample.decision === 'included').every((sample) => sample.transcription_provenance && sample.hook_type && sample.channel_baseline_size)).toBe(true)
   })
 
   it('fails closed for landscape candidates, broken evidence links, missing bindings, or unsupported public-outlier claims', () => {
@@ -98,5 +105,43 @@ describe('YouTube packaging evidence validation', () => {
       expect.stringContaining('blocked or missing source links'),
       'A qualified public outlier is incorrectly marked as supporting the candidate composition.',
     ]))
+  })
+
+  it('fails closed for identical copy bindings, missing transcription provenance, and unsupported distinct-pair conclusions', () => {
+    const fixture = channelNativeVideoQaFixture('f966123f-05eb-48ec-a7c2-970afce642ef')
+    const manifest = structuredClone(fixture.rag_context.artifact_evidence_manifest)
+    const thumbnail = manifest.elements.find((element) => element.category === 'thumbnail')!
+    const research = thumbnail.research_cohort!
+    research.candidate_copy_pair.thumbnail_hook = research.candidate_copy_pair.title
+    research.candidate_copy_pair.exact_strings_are_distinct = false
+    research.candidate_copy_pair.relationship = 'complementary_teaser'
+    research.copy_pair_analysis.status = 'scored'
+    research.copy_pair_analysis.conclusion = 'supports_distinct_pair'
+    const firstIncluded = research.samples.find((sample) => sample.decision === 'included')!
+    firstIncluded.transcription_provenance = null
+    firstIncluded.title_thumbnail_relationship = undefined as never
+
+    const result = validateYouTubePackagingEvidence(manifest, fixture.updated_at, 'youtube_shorts', '2026-10-18T20:00:00.000Z')
+
+    expect(result.ready).toBe(false)
+    expect(result.blockers).toEqual(expect.arrayContaining([
+      expect.stringContaining('missing required copy-pair evidence'),
+      'Copy-pair performance group sample sizes do not match the classified live sources.',
+      'The copy-pair heuristic claims a scored conclusion without sufficient samples in both comparison groups.',
+      'The candidate title and thumbnail hook must be bound as two non-identical exact strings.',
+      'The candidate copy-pair binding does not match the current title and thumbnail hook.',
+    ]))
+  })
+
+  it('fails closed rather than inferring text from an unreadable thumbnail', () => {
+    const fixture = channelNativeVideoQaFixture('f966123f-05eb-48ec-a7c2-970afce642ef')
+    const manifest = structuredClone(fixture.rag_context.artifact_evidence_manifest)
+    const sample = manifest.elements.find((element) => element.category === 'thumbnail')!.research_cohort!.samples.find((entry) => entry.thumbnail_text_transcription_status === 'unreadable')!
+    sample.thumbnail_text = ['guessed copy']
+
+    const result = validateYouTubePackagingEvidence(manifest, fixture.updated_at, 'youtube_shorts', '2026-10-18T20:00:00.000Z')
+
+    expect(result.ready).toBe(false)
+    expect(result.blockers).toContain(`Unreadable thumbnail copy was inferred for: ${sample.video_id}.`)
   })
 })

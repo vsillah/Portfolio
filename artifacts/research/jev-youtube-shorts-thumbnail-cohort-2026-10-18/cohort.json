@@ -1,6 +1,6 @@
 {
-  "version": "youtube-thumbnail-cohort/v1",
-  "cohort_id": "cohort:youtube_shorts:ai-governance-decision:20261018:v1",
+  "version": "youtube-thumbnail-copy-pair-cohort/v2",
+  "cohort_id": "cohort:youtube_shorts:ai-governance-copy-pair:20261018:v2",
   "status": "approved",
   "target": {
     "channel": "youtube",
@@ -13,13 +13,14 @@
     "topic_identity": "ai_governance_human_decision_ownership",
     "recency_window_days": 730,
     "minimum_sample_size": 6,
+    "minimum_channel_baseline_size": 4,
     "audience_normalization": "view_count / public subscriber_count",
     "channel_normalization": "view_count / median exact view count for up to 10 recent 15–60 second Shorts on the same channel"
   },
-  "observed_at": "2026-10-18T16:00:00.000Z",
+  "observed_at": "2026-10-18T12:00:00.000Z",
   "observed_from": "2024-11-28T17:17:47.000Z",
-  "observed_to": "2026-10-18T16:00:00.000Z",
-  "fresh_until": "2026-11-01T16:00:00.000Z",
+  "observed_to": "2026-10-18T12:00:00.000Z",
+  "fresh_until": "2026-11-01T12:00:00.000Z",
   "formula": {
     "channel_relative_ratio": "source exact views / same-channel recent-Short median exact views",
     "audience_view_ratio": "source exact views / public channel subscriber count",
@@ -40,7 +41,42 @@
       "gTHQpAkgjy4",
       "usE8BPWET3M"
     ],
-    "role": "Only qualified outliers determine adopted visual traits. The remaining topical sources are comparison baselines."
+    "role": "Performance context only. Public visual composition is not used as first-party brand authority."
+  },
+  "copy_pair_analysis": {
+    "status": "unscored",
+    "hypothesis": "Distinct complementary thumbnail hooks outperform duplicated or near-duplicated title wording for topic-matched YouTube Shorts.",
+    "comparison_formula": "median normalized performance score for complementary_teaser + contrasting_question minus median normalized performance score for duplicate + near_duplicate",
+    "repeated_group": {
+      "relationships": [
+        "duplicate",
+        "near_duplicate"
+      ],
+      "sample_size": 3,
+      "minimum_sample_size": 3,
+      "median_normalized_performance_score": 30,
+      "video_ids": [
+        "gTHQpAkgjy4",
+        "sA6UA2fMNHg",
+        "SQEMkQu0b6o"
+      ]
+    },
+    "distinct_group": {
+      "relationships": [
+        "complementary_teaser",
+        "contrasting_question"
+      ],
+      "sample_size": 2,
+      "minimum_sample_size": 3,
+      "median_normalized_performance_score": 51.25,
+      "video_ids": [
+        "DVEOS9t_DHM",
+        "usE8BPWET3M"
+      ]
+    },
+    "observed_difference": 21.25,
+    "conclusion": "unscored_insufficient_group_samples",
+    "limitation": "Unscored: both relationship groups require at least 3 attributable samples."
   },
   "included": [
     {
@@ -53,33 +89,33 @@
       "title": "\"AI Governance\" Explained: Too Late for AI Rules?",
       "creator": "All Business Basics",
       "channel_id": "UCIdKG8UrW1PcTQF7ncmHpKw",
-      "view_count": 28920,
+      "view_count": 28926,
       "subscriber_count": 1920,
       "published_at": "2025-04-18T12:01:22.000Z",
       "duration_seconds": 54,
       "source_thumbnail_url": "https://i.ytimg.com/vi/gTHQpAkgjy4/maxres2.jpg?sqp=-oaymwEoCIAKENAF8quKqQMcGADwAQH4AbYIgAKAD4oCDAgAEAEYKyBXKH8wDw==&rs=AOn4CLANl_ek6hgQh3WMAtAX2-QIL21k8A",
+      "description_opening": "Understanding AI governance is critical for staying fair, safe, and legal at work. Learn the real-world rules, policies, and guardrails",
+      "description_opening_truncated": true,
       "channel_baseline": {
-        "sample_size": 5,
+        "sample_size": 4,
         "video_ids": [
           "TgF8caFJxng",
           "2CSn71DWASE",
           "3Y4T1dKLMjs",
-          "6nbWUJ4BOU0",
-          "5rZcRtkNxM8"
+          "6nbWUJ4BOU0"
         ],
         "exact_view_counts": [
           417,
           1416,
           160,
-          286,
-          1717
+          286
         ],
-        "median_view_count": 417
+        "median_view_count": 351.5
       },
-      "age_days": 548.17,
-      "channel_relative_ratio": 69.3525,
-      "audience_view_ratio": 15.0625,
-      "recency_adjusted_views_per_day": 52.7574,
+      "age_days": 548,
+      "channel_relative_ratio": 82.293,
+      "audience_view_ratio": 15.0656,
+      "recency_adjusted_views_per_day": 52.7847,
       "source_thumbnail_sha256": "sha256:57df1ac8391729f7c387ae6ae3c58649c2c2fa90bc84f69bf4fce5e44d261d20",
       "thumbnail_path": "/review-assets/social-content/jev-thumbnail-cohort/gTHQpAkgjy4.jpg",
       "performance_components": {
@@ -89,9 +125,28 @@
       },
       "normalized_performance_score": 78.75,
       "outlier_qualified": true,
-      "visual_traits": { "dominant_subject": true, "short_hook": true, "high_contrast_text": true, "decision_consequence": false },
+      "thumbnail_text": [
+        "AI Governance",
+        "Example 2"
+      ],
+      "thumbnail_text_transcription_status": "verified",
+      "title_thumbnail_relationship": "near_duplicate",
+      "thumbnail_text_length": 23,
+      "hook_type": "topic_label_example",
+      "transcription_provenance": {
+        "source_thumbnail_url": "https://i.ytimg.com/vi/gTHQpAkgjy4/maxres2.jpg?sqp=-oaymwEoCIAKENAF8quKqQMcGADwAQH4AbYIgAKAD4oCDAgAEAEYKyBXKH8wDw==&rs=AOn4CLANl_ek6hgQh3WMAtAX2-QIL21k8A",
+        "captured_thumbnail_path": "/review-assets/social-content/jev-thumbnail-cohort/gTHQpAkgjy4.jpg",
+        "captured_thumbnail_sha256": "sha256:57df1ac8391729f7c387ae6ae3c58649c2c2fa90bc84f69bf4fce5e44d261d20",
+        "method": "human transcription from the captured public source image; unreadable text is not inferred"
+      },
+      "visual_traits": {
+        "dominant_subject": true,
+        "short_hook": true,
+        "high_contrast_text": true,
+        "decision_consequence": false
+      },
       "inclusion_reason": "AI-governance decision tension; 54-second Short with attributable channel and metrics.",
-      "observed_at": "2026-10-18T16:00:00.000Z"
+      "observed_at": "2026-10-18T12:00:00.000Z"
     },
     {
       "id": "usE8BPWET3M",
@@ -103,14 +158,17 @@
       "title": "Why AI Governance is must??? #cyberbriefbites #cyberhygiene #ai #aigovernance #shorts",
       "creator": "Cyber Brief Bites",
       "channel_id": "UC0O0NkJFTSufNGiYEMXbSWg",
-      "view_count": 7314,
-      "subscriber_count": 33,
+      "view_count": 7316,
+      "subscriber_count": 35,
       "published_at": "2026-10-04T02:33:08.000Z",
       "duration_seconds": 18,
       "source_thumbnail_url": "https://i.ytimg.com/vi/usE8BPWET3M/maxres2.jpg?sqp=-oaymwEoCIAKENAF8quKqQMcGADwAQH4AbYIgAKAD4oCDAgAEAEYSyBYKGUwDw==&rs=AOn4CLCsaFT18t2X0YD2LprCjIo-FlMCsQ",
+      "description_opening": "Why AI Governance is must??? #cyberbriefbites #cyberhygiene #ai #aigovernance #shorts",
+      "description_opening_truncated": false,
       "channel_baseline": {
-        "sample_size": 6,
+        "sample_size": 7,
         "video_ids": [
+          "MTKbBmki_Us",
           "35H3Hqp53lE",
           "cox61qKRSfk",
           "s9J3lF9kKWU",
@@ -119,19 +177,20 @@
           "7rNk2vPHzVc"
         ],
         "exact_view_counts": [
-          213,
-          65,
-          82,
+          202,
+          214,
+          66,
+          84,
           1251,
-          7314,
+          7316,
           260
         ],
-        "median_view_count": 236.5
+        "median_view_count": 214
       },
-      "age_days": 14.56,
-      "channel_relative_ratio": 30.926,
-      "audience_view_ratio": 221.6364,
-      "recency_adjusted_views_per_day": 502.3352,
+      "age_days": 14.39,
+      "channel_relative_ratio": 34.1869,
+      "audience_view_ratio": 209.0286,
+      "recency_adjusted_views_per_day": 508.4086,
       "source_thumbnail_sha256": "sha256:f0bb02391e56098d917f2ea6baa197670b901b6131e667619302b70813a21cf5",
       "thumbnail_path": "/review-assets/social-content/jev-thumbnail-cohort/usE8BPWET3M.jpg",
       "performance_components": {
@@ -141,9 +200,29 @@
       },
       "normalized_performance_score": 77.5,
       "outlier_qualified": true,
-      "visual_traits": { "dominant_subject": true, "short_hook": true, "high_contrast_text": true, "decision_consequence": true },
+      "thumbnail_text": [
+        "SUBSCRIBE",
+        "AI system without guardrails",
+        "FOLLOW US"
+      ],
+      "thumbnail_text_transcription_status": "verified",
+      "title_thumbnail_relationship": "complementary_teaser",
+      "thumbnail_text_length": 48,
+      "hook_type": "risk_consequence",
+      "transcription_provenance": {
+        "source_thumbnail_url": "https://i.ytimg.com/vi/usE8BPWET3M/maxres2.jpg?sqp=-oaymwEoCIAKENAF8quKqQMcGADwAQH4AbYIgAKAD4oCDAgAEAEYSyBYKGUwDw==&rs=AOn4CLCsaFT18t2X0YD2LprCjIo-FlMCsQ",
+        "captured_thumbnail_path": "/review-assets/social-content/jev-thumbnail-cohort/usE8BPWET3M.jpg",
+        "captured_thumbnail_sha256": "sha256:f0bb02391e56098d917f2ea6baa197670b901b6131e667619302b70813a21cf5",
+        "method": "human transcription from the captured public source image; unreadable text is not inferred"
+      },
+      "visual_traits": {
+        "dominant_subject": true,
+        "short_hook": true,
+        "high_contrast_text": true,
+        "decision_consequence": true
+      },
       "inclusion_reason": "Short-form AI-governance hook; 18-second Short close to the Jev runtime.",
-      "observed_at": "2026-10-18T16:00:00.000Z"
+      "observed_at": "2026-10-18T12:00:00.000Z"
     },
     {
       "id": "_ODSVV3SIEI",
@@ -155,11 +234,13 @@
       "title": "AI Governance Framework Explained Simply!",
       "creator": "Absolute Ai",
       "channel_id": "UCV8Ukjbe-7VpMSbtTXjh0_Q",
-      "view_count": 5787,
+      "view_count": 5788,
       "subscriber_count": 25,
       "published_at": "2024-11-28T17:17:47.000Z",
       "duration_seconds": 39,
       "source_thumbnail_url": "https://i.ytimg.com/vi/_ODSVV3SIEI/maxres2.jpg?sqp=-oaymwEoCIAKENAF8quKqQMcGADwAQH4AbYIgAKAD4oCDAgAEAEYESBjKHIwDw==&rs=AOn4CLArTLuCJh3opTG25msr7zI-J4VXsg",
+      "description_opening": "In this video, we break down the concept of an AI Governance Framework in a simple and straightforward manner! Discover",
+      "description_opening_truncated": true,
       "channel_baseline": {
         "sample_size": 8,
         "video_ids": [
@@ -178,16 +259,16 @@
           115,
           108,
           12,
-          5787,
+          5788,
           99,
           26
         ],
         "median_view_count": 103.5
       },
-      "age_days": 688.95,
-      "channel_relative_ratio": 55.913,
-      "audience_view_ratio": 231.48,
-      "recency_adjusted_views_per_day": 8.3997,
+      "age_days": 688.78,
+      "channel_relative_ratio": 55.9227,
+      "audience_view_ratio": 231.52,
+      "recency_adjusted_views_per_day": 8.4033,
       "source_thumbnail_sha256": "sha256:5e484ccb450350566742b9729de93151431c52200fa118d94cf5117044cd77a3",
       "thumbnail_path": "/review-assets/social-content/jev-thumbnail-cohort/_ODSVV3SIEI.jpg",
       "performance_components": {
@@ -197,9 +278,25 @@
       },
       "normalized_performance_score": 72.5,
       "outlier_qualified": false,
-      "visual_traits": { "dominant_subject": true, "short_hook": true, "high_contrast_text": false, "decision_consequence": false },
+      "thumbnail_text": [],
+      "thumbnail_text_transcription_status": "unreadable",
+      "title_thumbnail_relationship": "unreadable",
+      "thumbnail_text_length": 0,
+      "hook_type": "unreadable",
+      "transcription_provenance": {
+        "source_thumbnail_url": "https://i.ytimg.com/vi/_ODSVV3SIEI/maxres2.jpg?sqp=-oaymwEoCIAKENAF8quKqQMcGADwAQH4AbYIgAKAD4oCDAgAEAEYESBjKHIwDw==&rs=AOn4CLArTLuCJh3opTG25msr7zI-J4VXsg",
+        "captured_thumbnail_path": "/review-assets/social-content/jev-thumbnail-cohort/_ODSVV3SIEI.jpg",
+        "captured_thumbnail_sha256": "sha256:5e484ccb450350566742b9729de93151431c52200fa118d94cf5117044cd77a3",
+        "method": "human transcription from the captured public source image; unreadable text is not inferred"
+      },
+      "visual_traits": {
+        "dominant_subject": true,
+        "short_hook": true,
+        "high_contrast_text": false,
+        "decision_consequence": false
+      },
       "inclusion_reason": "AI-governance framework explainer; 39-second Short with attributable channel and metrics.",
-      "observed_at": "2026-10-18T16:00:00.000Z"
+      "observed_at": "2026-10-18T12:00:00.000Z"
     },
     {
       "id": "ZAdGsLGaGSU",
@@ -211,11 +308,13 @@
       "title": "Why Did Julie Dimmick Choose AI Governance? | #Shorts",
       "creator": "Global AI Certification Council (GAICC)",
       "channel_id": "UC5Vw2SKzV0o7sMyR24q2D_g",
-      "view_count": 382,
+      "view_count": 383,
       "subscriber_count": 64,
       "published_at": "2026-10-17T07:00:11.000Z",
       "duration_seconds": 51,
       "source_thumbnail_url": "https://i.ytimg.com/vi/ZAdGsLGaGSU/maxres2.jpg?sqp=-oaymwEoCIAKENAF8quKqQMcGADwAQH4AbYIgAKAD4oCDAgAEAEYZSBQKEYwDw==&rs=AOn4CLB7bmg3KZZejLG7tC15AmtrVbYm_A",
+      "description_opening": "In this GAICC podcast clip, Latha Karthigaa and Julie Dimmick discuss why did julie dimmick choose ai governance. Watch the",
+      "description_opening_truncated": true,
       "channel_baseline": {
         "sample_size": 10,
         "video_ids": [
@@ -231,8 +330,8 @@
           "-8PcwNPWU5Q"
         ],
         "exact_view_counts": [
-          37,
-          382,
+          39,
+          383,
           674,
           170,
           271,
@@ -242,12 +341,12 @@
           62,
           18
         ],
-        "median_view_count": 49.5
+        "median_view_count": 50.5
       },
-      "age_days": 1.37,
-      "channel_relative_ratio": 7.7172,
-      "audience_view_ratio": 5.9688,
-      "recency_adjusted_views_per_day": 278.8321,
+      "age_days": 1.21,
+      "channel_relative_ratio": 7.5842,
+      "audience_view_ratio": 5.9844,
+      "recency_adjusted_views_per_day": 316.5289,
       "source_thumbnail_sha256": "sha256:93123d5697b8635c8462b4f5ff2b42852a35c3d8ca07342e7689afcd74fadd12",
       "thumbnail_path": "/review-assets/social-content/jev-thumbnail-cohort/ZAdGsLGaGSU.jpg",
       "performance_components": {
@@ -257,9 +356,30 @@
       },
       "normalized_performance_score": 51.25,
       "outlier_qualified": false,
-      "visual_traits": { "dominant_subject": true, "short_hook": false, "high_contrast_text": true, "decision_consequence": false },
+      "thumbnail_text": [
+        "Montreal, Canada",
+        "TEMITOPE BOLAJI",
+        "Melbourne, Australia",
+        "LATHA KARTHIGAA"
+      ],
+      "thumbnail_text_transcription_status": "verified",
+      "title_thumbnail_relationship": "no_thumbnail_text",
+      "thumbnail_text_length": 69,
+      "hook_type": "speaker_identification",
+      "transcription_provenance": {
+        "source_thumbnail_url": "https://i.ytimg.com/vi/ZAdGsLGaGSU/maxres2.jpg?sqp=-oaymwEoCIAKENAF8quKqQMcGADwAQH4AbYIgAKAD4oCDAgAEAEYZSBQKEYwDw==&rs=AOn4CLB7bmg3KZZejLG7tC15AmtrVbYm_A",
+        "captured_thumbnail_path": "/review-assets/social-content/jev-thumbnail-cohort/ZAdGsLGaGSU.jpg",
+        "captured_thumbnail_sha256": "sha256:93123d5697b8635c8462b4f5ff2b42852a35c3d8ca07342e7689afcd74fadd12",
+        "method": "human transcription from the captured public source image; unreadable text is not inferred"
+      },
+      "visual_traits": {
+        "dominant_subject": true,
+        "short_hook": false,
+        "high_contrast_text": true,
+        "decision_consequence": false
+      },
       "inclusion_reason": "Presenter-led AI-governance choice framing; 51-second Short with attributable metrics.",
-      "observed_at": "2026-10-18T16:00:00.000Z"
+      "observed_at": "2026-10-18T12:00:00.000Z"
     },
     {
       "id": "ojpZ-TJv918",
@@ -276,6 +396,8 @@
       "published_at": "2026-07-14T02:56:21.000Z",
       "duration_seconds": 29,
       "source_thumbnail_url": "https://i.ytimg.com/vi/ojpZ-TJv918/maxres2.jpg?sqp=-oaymwEoCIAKENAF8quKqQMcGADwAQH4AbYIgAKAD4oCDAgAEAEYSyBlKGQwDw==&rs=AOn4CLDbn3v8e3NxnIDgMgmfMjJhF6sWbw",
+      "description_opening": "Are you implementing AI without clear governance? Learn why essential documents and security protocols are crucial for responsible AI usage.",
+      "description_opening_truncated": true,
       "channel_baseline": {
         "sample_size": 10,
         "video_ids": [
@@ -304,10 +426,10 @@
         ],
         "median_view_count": 28
       },
-      "age_days": 96.54,
+      "age_days": 96.38,
       "channel_relative_ratio": 25.3929,
       "audience_view_ratio": 0.5228,
-      "recency_adjusted_views_per_day": 7.3648,
+      "recency_adjusted_views_per_day": 7.377,
       "source_thumbnail_sha256": "sha256:514dd13459ee5484eb63739b4da095c4841581dad6b62222b08dd412974af56b",
       "thumbnail_path": "/review-assets/social-content/jev-thumbnail-cohort/ojpZ-TJv918.jpg",
       "performance_components": {
@@ -317,9 +439,27 @@
       },
       "normalized_performance_score": 38.75,
       "outlier_qualified": false,
-      "visual_traits": { "dominant_subject": true, "short_hook": false, "high_contrast_text": true, "decision_consequence": false },
+      "thumbnail_text": [
+        "monitoring and adjusting is exactly"
+      ],
+      "thumbnail_text_transcription_status": "verified",
+      "title_thumbnail_relationship": "unreadable",
+      "thumbnail_text_length": 35,
+      "hook_type": "incomplete_caption",
+      "transcription_provenance": {
+        "source_thumbnail_url": "https://i.ytimg.com/vi/ojpZ-TJv918/maxres2.jpg?sqp=-oaymwEoCIAKENAF8quKqQMcGADwAQH4AbYIgAKAD4oCDAgAEAEYSyBlKGQwDw==&rs=AOn4CLDbn3v8e3NxnIDgMgmfMjJhF6sWbw",
+        "captured_thumbnail_path": "/review-assets/social-content/jev-thumbnail-cohort/ojpZ-TJv918.jpg",
+        "captured_thumbnail_sha256": "sha256:514dd13459ee5484eb63739b4da095c4841581dad6b62222b08dd412974af56b",
+        "method": "human transcription from the captured public source image; unreadable text is not inferred"
+      },
+      "visual_traits": {
+        "dominant_subject": true,
+        "short_hook": false,
+        "high_contrast_text": true,
+        "decision_consequence": false
+      },
       "inclusion_reason": "Direct AI-governance promise; 29-second Short with attributable metrics.",
-      "observed_at": "2026-10-18T16:00:00.000Z"
+      "observed_at": "2026-10-18T12:00:00.000Z"
     },
     {
       "id": "sA6UA2fMNHg",
@@ -331,11 +471,13 @@
       "title": "Why is AI Governance Important?",
       "creator": "IBM Technology",
       "channel_id": "UCKWaEZ-_VweaEx1j62do_vQ",
-      "view_count": 16004,
+      "view_count": 16008,
       "subscriber_count": 1820000,
       "published_at": "2025-02-22T13:01:15.000Z",
       "duration_seconds": 45,
       "source_thumbnail_url": "https://i.ytimg.com/vi/sA6UA2fMNHg/maxres2.jpg?sqp=-oaymwEoCIAKENAF8quKqQMcGADwAQH4AbYIgAKAD4oCDAgAEAEYciBAKDwwDw==&rs=AOn4CLBFMCd-Ofs3RtR8UyayB17V00hUDg",
+      "description_opening": "Learn more about AI Governance here → https://www.ibm.com/think/topics/ai-governance Is your AI ethical and reliable? 🌟 Learn how AI governance mitigates",
+      "description_opening_truncated": true,
       "channel_baseline": {
         "sample_size": 9,
         "video_ids": [
@@ -350,22 +492,22 @@
           "ahK9hZ7L-Kc"
         ],
         "exact_view_counts": [
-          3778,
-          13062,
-          8022,
+          4267,
+          13158,
+          8028,
           9420,
-          5389,
-          6729,
-          7634,
-          6378,
-          4182
+          5390,
+          6730,
+          7642,
+          6379,
+          4183
         ],
-        "median_view_count": 6729
+        "median_view_count": 6730
       },
-      "age_days": 603.12,
-      "channel_relative_ratio": 2.3784,
+      "age_days": 602.96,
+      "channel_relative_ratio": 2.3786,
       "audience_view_ratio": 0.0088,
-      "recency_adjusted_views_per_day": 26.5353,
+      "recency_adjusted_views_per_day": 26.549,
       "source_thumbnail_sha256": "sha256:6bd6c2acb086bda04cbe70c9fdfc620472627bdd94cac68bce00ecb9d8358ca9",
       "thumbnail_path": "/review-assets/social-content/jev-thumbnail-cohort/sA6UA2fMNHg.jpg",
       "performance_components": {
@@ -375,9 +517,30 @@
       },
       "normalized_performance_score": 30,
       "outlier_qualified": false,
-      "visual_traits": { "dominant_subject": true, "short_hook": false, "high_contrast_text": true, "decision_consequence": false },
+      "thumbnail_text": [
+        "IMPORTANCE OF AI GOVERNANCE",
+        "rules",
+        "standards",
+        "processes"
+      ],
+      "thumbnail_text_transcription_status": "verified",
+      "title_thumbnail_relationship": "near_duplicate",
+      "thumbnail_text_length": 53,
+      "hook_type": "topic_label_framework",
+      "transcription_provenance": {
+        "source_thumbnail_url": "https://i.ytimg.com/vi/sA6UA2fMNHg/maxres2.jpg?sqp=-oaymwEoCIAKENAF8quKqQMcGADwAQH4AbYIgAKAD4oCDAgAEAEYciBAKDwwDw==&rs=AOn4CLBFMCd-Ofs3RtR8UyayB17V00hUDg",
+        "captured_thumbnail_path": "/review-assets/social-content/jev-thumbnail-cohort/sA6UA2fMNHg.jpg",
+        "captured_thumbnail_sha256": "sha256:6bd6c2acb086bda04cbe70c9fdfc620472627bdd94cac68bce00ecb9d8358ca9",
+        "method": "human transcription from the captured public source image; unreadable text is not inferred"
+      },
+      "visual_traits": {
+        "dominant_subject": true,
+        "short_hook": false,
+        "high_contrast_text": true,
+        "decision_consequence": false
+      },
       "inclusion_reason": "AI-governance importance explainer; 45-second Short with attributable channel and metrics.",
-      "observed_at": "2026-10-18T16:00:00.000Z"
+      "observed_at": "2026-10-18T12:00:00.000Z"
     },
     {
       "id": "SQEMkQu0b6o",
@@ -394,6 +557,8 @@
       "published_at": "2026-09-08T15:47:57.000Z",
       "duration_seconds": 21,
       "source_thumbnail_url": "https://i.ytimg.com/vi/SQEMkQu0b6o/maxresdefault.jpg?sqp=-oaymwEoCIAKENAF8quKqQMcGADwAQH4AbYIgAKAD4oCDAgAEAEYZSBNKEgwDw==&rs=AOn4CLDRyPZCZ4YNKHw5nwgb0lJxPRhjkA",
+      "description_opening": "Governance in AI is at an all-time high level of importance.",
+      "description_opening_truncated": false,
       "channel_baseline": {
         "sample_size": 10,
         "video_ids": [
@@ -422,10 +587,10 @@
         ],
         "median_view_count": 1343.5
       },
-      "age_days": 40.01,
+      "age_days": 39.84,
       "channel_relative_ratio": 0.6758,
       "audience_view_ratio": 10.8095,
-      "recency_adjusted_views_per_day": 22.6943,
+      "recency_adjusted_views_per_day": 22.7912,
       "source_thumbnail_sha256": "sha256:b21be2ae90c500edce04aa894998ec78ab54d3a7c7fdfbc377ed6166b80c9a23",
       "thumbnail_path": "/review-assets/social-content/jev-thumbnail-cohort/SQEMkQu0b6o.jpg",
       "performance_components": {
@@ -435,9 +600,27 @@
       },
       "normalized_performance_score": 26.25,
       "outlier_qualified": false,
-      "visual_traits": { "dominant_subject": true, "short_hook": true, "high_contrast_text": true, "decision_consequence": false },
+      "thumbnail_text": [
+        "GOVERNANCE."
+      ],
+      "thumbnail_text_transcription_status": "verified",
+      "title_thumbnail_relationship": "near_duplicate",
+      "thumbnail_text_length": 11,
+      "hook_type": "topic_label",
+      "transcription_provenance": {
+        "source_thumbnail_url": "https://i.ytimg.com/vi/SQEMkQu0b6o/maxresdefault.jpg?sqp=-oaymwEoCIAKENAF8quKqQMcGADwAQH4AbYIgAKAD4oCDAgAEAEYZSBNKEgwDw==&rs=AOn4CLDRyPZCZ4YNKHw5nwgb0lJxPRhjkA",
+        "captured_thumbnail_path": "/review-assets/social-content/jev-thumbnail-cohort/SQEMkQu0b6o.jpg",
+        "captured_thumbnail_sha256": "sha256:b21be2ae90c500edce04aa894998ec78ab54d3a7c7fdfbc377ed6166b80c9a23",
+        "method": "human transcription from the captured public source image; unreadable text is not inferred"
+      },
+      "visual_traits": {
+        "dominant_subject": true,
+        "short_hook": true,
+        "high_contrast_text": true,
+        "decision_consequence": false
+      },
       "inclusion_reason": "AI-governance consequence framing; 21-second Short close to the Jev runtime.",
-      "observed_at": "2026-10-18T16:00:00.000Z"
+      "observed_at": "2026-10-18T12:00:00.000Z"
     },
     {
       "id": "DVEOS9t_DHM",
@@ -449,14 +632,18 @@
       "title": "AI Governance Risk: Companies Skipping Policies #shorts",
       "creator": "Digital Transformation with Eric Kimberling",
       "channel_id": "UCJ3oB3ghEUdGhHnXZD4Dx3g",
-      "view_count": 1247,
+      "view_count": 1249,
       "subscriber_count": 1000000,
       "published_at": "2026-10-06T21:49:28.000Z",
       "duration_seconds": 32,
       "source_thumbnail_url": "https://i.ytimg.com/vi/DVEOS9t_DHM/maxres2.jpg?sqp=-oaymwEoCIAKENAF8quKqQMcGADwAQH4AbYIgAKAD4oCDAgAEAEYFSA7KH8wDw==&rs=AOn4CLDgaem8k8CnXAlMXaU9clBmxffPaA",
+      "description_opening": "A surprising 47% of companies have skipped their AI governance policies, revealing struggles with control and visibility at the organizational",
+      "description_opening_truncated": true,
       "channel_baseline": {
         "sample_size": 10,
         "video_ids": [
+          "bcvol7bKmEs",
+          "n3rCp8cOVpM",
           "vsUzO35uuIU",
           "Y4_o_oQ8iYg",
           "emmcemwpNqw",
@@ -464,28 +651,26 @@
           "2Il35baDbTE",
           "Af86lcwEASc",
           "yqGDnhG1p0s",
-          "uaMXflxOZdA",
-          "-oN7EhZ2qJA",
-          "-OBgDjZW3AY"
+          "uaMXflxOZdA"
         ],
         "exact_view_counts": [
-          104,
-          526,
-          320,
-          978,
-          691,
-          612,
-          1139,
-          1307,
-          1569,
-          1367
+          72,
+          790,
+          1180,
+          1264,
+          682,
+          1608,
+          1161,
+          1035,
+          1205,
+          1383
         ],
-        "median_view_count": 834.5
+        "median_view_count": 1170.5
       },
-      "age_days": 11.76,
-      "channel_relative_ratio": 1.4943,
+      "age_days": 11.59,
+      "channel_relative_ratio": 1.0671,
       "audience_view_ratio": 0.0012,
-      "recency_adjusted_views_per_day": 106.0374,
+      "recency_adjusted_views_per_day": 107.7653,
       "source_thumbnail_sha256": "sha256:d41ca98cfe65aa3186261714e0397ca68f24c0076a877e72b2ef5ac26d416a20",
       "thumbnail_path": "/review-assets/social-content/jev-thumbnail-cohort/DVEOS9t_DHM.jpg",
       "performance_components": {
@@ -495,9 +680,28 @@
       },
       "normalized_performance_score": 25,
       "outlier_qualified": false,
-      "visual_traits": { "dominant_subject": true, "short_hook": true, "high_contrast_text": true, "decision_consequence": true },
+      "thumbnail_text": [
+        "SANDBOX BREACH DETECTED",
+        "A HUGGING FACE TYPE"
+      ],
+      "thumbnail_text_transcription_status": "verified",
+      "title_thumbnail_relationship": "complementary_teaser",
+      "thumbnail_text_length": 43,
+      "hook_type": "risk_visual_teaser",
+      "transcription_provenance": {
+        "source_thumbnail_url": "https://i.ytimg.com/vi/DVEOS9t_DHM/maxres2.jpg?sqp=-oaymwEoCIAKENAF8quKqQMcGADwAQH4AbYIgAKAD4oCDAgAEAEYFSA7KH8wDw==&rs=AOn4CLDgaem8k8CnXAlMXaU9clBmxffPaA",
+        "captured_thumbnail_path": "/review-assets/social-content/jev-thumbnail-cohort/DVEOS9t_DHM.jpg",
+        "captured_thumbnail_sha256": "sha256:d41ca98cfe65aa3186261714e0397ca68f24c0076a877e72b2ef5ac26d416a20",
+        "method": "human transcription from the captured public source image; unreadable text is not inferred"
+      },
+      "visual_traits": {
+        "dominant_subject": true,
+        "short_hook": true,
+        "high_contrast_text": true,
+        "decision_consequence": true
+      },
       "inclusion_reason": "Concrete governance-risk hook; 32-second Short with attributable metrics.",
-      "observed_at": "2026-10-18T16:00:00.000Z"
+      "observed_at": "2026-10-18T12:00:00.000Z"
     }
   ],
   "excluded": [
@@ -507,11 +711,11 @@
       "title": "Approved isn't governed. Introducing Remit, AI governance platform #Shorts",
       "creator": "Remit · AI governance platform",
       "duration_seconds": 107,
-      "view_count": 37410,
-      "subscriber_count": 915,
+      "view_count": 37411,
+      "subscriber_count": 914,
       "published_at": "2026-09-26T16:05:01.000Z",
       "source_thumbnail_url": "https://i.ytimg.com/vi/Wcf3Caq4AiE/maxresdefault.jpg",
-      "observed_at": "2026-10-18T16:00:00.000Z",
+      "observed_at": "2026-10-18T12:00:00.000Z",
       "exclusion_reason": "107 seconds exceeds the primary 15–60 second comparison band."
     },
     {
@@ -524,7 +728,7 @@
       "subscriber_count": 63,
       "published_at": "2026-01-21T22:04:19.000Z",
       "source_thumbnail_url": "https://i.ytimg.com/vi/_ls2rOTyGtU/maxresdefault.jpg?sqp=-oaymwEmCIAKENAF8quKqQMa8AEB-AG2CIACgA-KAgwIABABGHIgQShfMA8=&rs=AOn4CLDEboJ324Tyz3FPYROckBUu9EkYZg",
-      "observed_at": "2026-10-18T16:00:00.000Z",
+      "observed_at": "2026-10-18T12:00:00.000Z",
       "exclusion_reason": "63 seconds exceeds the primary 15–60 second comparison band."
     },
     {
@@ -533,11 +737,11 @@
       "title": "Why This AI Governance Conversation Matters | #Shorts",
       "creator": "Global AI Certification Council (GAICC)",
       "duration_seconds": 64,
-      "view_count": 598,
+      "view_count": 599,
       "subscriber_count": 64,
       "published_at": "2026-10-16T01:56:00.000Z",
       "source_thumbnail_url": "https://i.ytimg.com/vi/LWs4FNziL4Y/maxresdefault.jpg?sqp=-oaymwEmCIAKENAF8quKqQMa8AEB-AG2CIACgA-KAgwIABABGGUgWChJMA8=&rs=AOn4CLB1NxnS-FeQiGTzFVx-UDCn4Len6w",
-      "observed_at": "2026-10-18T16:00:00.000Z",
+      "observed_at": "2026-10-18T12:00:00.000Z",
       "exclusion_reason": "64 seconds exceeds the primary 15–60 second comparison band."
     },
     {
@@ -550,7 +754,7 @@
       "subscriber_count": 20300,
       "published_at": "2026-10-14T14:45:22.000Z",
       "source_thumbnail_url": "https://i.ytimg.com/vi/5xpD26tHkao/maxres2.jpg?sqp=-oaymwEoCIAKENAF8quKqQMcGADwAQH4Ac4FgAKACooCDAgAEAEYQyBdKGUwDw==&rs=AOn4CLBBCqrwU5XHSus9J5OqQbWrC-sFeA",
-      "observed_at": "2026-10-18T16:00:00.000Z",
+      "observed_at": "2026-10-18T12:00:00.000Z",
       "exclusion_reason": "10 seconds is below the primary 15–60 second comparison band."
     },
     {
@@ -563,7 +767,7 @@
       "subscriber_count": null,
       "published_at": "2026-10-09T11:35:11.000Z",
       "source_thumbnail_url": "https://i.ytimg.com/vi/0wXsV5azxT8/maxres2.jpg?sqp=-oaymwEoCIAKENAF8quKqQMcGADwAQH4AbYIgAKAD4oCDAgAEAEYZSBlKGUwDw==&rs=AOn4CLA0nQWUMtvCVk5P3wTYWGcRTcx9qA",
-      "observed_at": "2026-10-18T16:00:00.000Z",
+      "observed_at": "2026-10-18T12:00:00.000Z",
       "exclusion_reason": "Public subscriber count was unavailable, so audience normalization could not be reproduced."
     },
     {
@@ -572,28 +776,29 @@
       "title": "Why AI Governance Is More Than Just Policies",
       "creator": "GoDarior",
       "duration_seconds": 48,
-      "view_count": 197,
+      "view_count": 212,
       "subscriber_count": 1,
       "published_at": "2026-10-17T20:26:54.000Z",
       "source_thumbnail_url": "https://i.ytimg.com/vi/WuQTCnhdrqE/maxres2.jpg?sqp=-oaymwEoCIAKENAF8quKqQMcGADwAQH4AbYIgAKAD4oCDAgAEAEYVSBgKGUwDw==&rs=AOn4CLBL-LAK1iHqgP9Tdzeikd_ehlC1bQ",
-      "observed_at": "2026-10-18T16:00:00.000Z",
+      "observed_at": "2026-10-18T12:00:00.000Z",
       "exclusion_reason": "Observed less than 24 hours after publication; distribution was too immature for comparison."
     }
   ],
   "long_form_reference_policy": "Long-form videos may inform non-scoring composition notes only. They are excluded from the Shorts performance calculation.",
   "recurring_visual_traits": [
-    "The two formula-qualified public examples have visibly different compositions from the Jev candidate.",
-    "Their performance measurements remain attributable public observations.",
-    "Their visible frames do not support the candidate subject, hook, product-proof, aspect-ratio, or brand decisions."
+    "The captured public frames provide contemporary topic and copy-pair evidence only.",
+    "Unreadable or absent thumbnail copy is excluded from the title-thumbnail performance comparison.",
+    "First-party AmaduTown evidence remains the authority for subject, aspect ratio, and brand treatment."
   ],
   "adopted_traits": [
-    "No candidate composition trait is adopted from the public outlier visuals."
+    "Keep the exact title and thumbnail hook visibly bound as one customer-facing pair.",
+    "Use a conservative near-duplicate semantic relationship while the distinct-versus-repeated heuristic remains Unscored."
   ],
   "rejected_traits": [
     "Do not copy source wording, creator likenesses, source brand colors, or source layouts.",
     "Reject generic robot, circuit-board, glowing-server, and synthetic dashboard imagery.",
     "Reject classroom diagrams, subscribe/follow furniture, split-screen interview layouts, and multi-panel field-guide density.",
-    "Reject performance claims about the unposted Jev candidate; cohort scores describe the public sources only."
+    "Reject a claim that distinct complementary copy performs better until both relationship groups meet the recorded minimum sample size."
   ],
-  "composition_decision": "Use this public cohort for performance context and visual comparison only. Build and score the 1080x1920 Jev Short composition from approved first-party AmaduTown baselines and owned Jev evidence. No cohort thumbnail pixels, wording, or unsupported visual claims are reused."
+  "composition_decision": "Keep the Jev title and thumbnail non-identical at the string level but near-duplicate in meaning. The cohort does not support a distinct complementary-teaser strategy; first-party evidence continues to govern subject, 9:16 aspect ratio, and brand treatment."
 }

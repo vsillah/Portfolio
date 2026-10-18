@@ -160,7 +160,7 @@ function metric(value: number | null, suffix = '') {
 }
 
 function ThumbnailResearchEvidence({ cohort }: { cohort: NonNullable<ArtifactEvidenceElement['research_cohort']> }) {
-  const publicOutliers = cohort.samples.filter((sample) => sample.decision === 'included' && sample.outlier_qualified)
+  const publicSources = cohort.samples.filter((sample) => sample.decision === 'included')
   const excluded = cohort.samples.filter((sample) => sample.decision === 'excluded')
   const neighborCard = (neighbor: NonNullable<typeof cohort.candidate>, role: string) => (
     <article key={neighbor.id} className="overflow-hidden rounded-lg border border-border bg-background">
@@ -179,7 +179,7 @@ function ThumbnailResearchEvidence({ cohort }: { cohort: NonNullable<ArtifactEvi
       <summary className="cursor-pointer list-none">
         <span className="flex flex-wrap items-center justify-between gap-2">
           <span className="font-semibold text-foreground">Visual-neighbor comparison and source map</span>
-          <span className="rounded-full border border-violet-600/30 px-2 py-1 text-[10px] font-semibold uppercase text-violet-900 dark:text-violet-100">9:16 candidate · {cohort.first_party_neighbors.length} first-party · {cohort.outlier_sample_size} public comparators</span>
+          <span className="rounded-full border border-violet-600/30 px-2 py-1 text-[10px] font-semibold uppercase text-violet-900 dark:text-violet-100">9:16 candidate · {cohort.first_party_neighbors.length} first-party · {publicSources.length} live topic sources</span>
         </span>
         <span className="mt-1 block text-[11px] text-muted-foreground">{cohort.target} · observed {cohort.observed_at}</span>
       </summary>
@@ -190,6 +190,30 @@ function ThumbnailResearchEvidence({ cohort }: { cohort: NonNullable<ArtifactEvi
           <p className="mt-2">Public outlier rule: <span className="font-mono text-foreground">{cohort.outlier_rule}</span>.</p>
           <ul className="mt-1 space-y-1">{cohort.formula.map((formula) => <li key={formula}>• {formula}</li>)}</ul>
         </div>
+        <div className="rounded-md border border-violet-600/30 bg-background p-3">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <p className="font-semibold text-foreground">Candidate title + thumbnail copy pair</p>
+            <span className="rounded-full border border-border px-2 py-1 text-[10px] font-semibold uppercase text-foreground">{cohort.candidate_copy_pair.relationship.replaceAll('_', ' ')}</span>
+          </div>
+          <div className="mt-2 grid gap-2 sm:grid-cols-2">
+            <div className="rounded-md border border-border p-2"><p className="text-[10px] font-semibold uppercase text-muted-foreground">Published title</p><p className="mt-1 font-semibold text-foreground">{cohort.candidate_copy_pair.title}</p></div>
+            <div className="rounded-md border border-border p-2"><p className="text-[10px] font-semibold uppercase text-muted-foreground">Thumbnail hook</p><p className="mt-1 font-semibold text-foreground">{cohort.candidate_copy_pair.thumbnail_hook}</p></div>
+          </div>
+          <p className="mt-2">Exact strings distinct: <span className="font-semibold text-foreground">{cohort.candidate_copy_pair.exact_strings_are_distinct ? 'Yes' : 'No'}</span> · strategy status: {cohort.candidate_copy_pair.strategy_status.replaceAll('_', ' ')}</p>
+          <p className="mt-1">{cohort.candidate_copy_pair.rationale}</p>
+          <p className="mt-1 text-[10px] text-muted-foreground">Source examples: {cohort.candidate_copy_pair.source_example_video_ids.join(', ')}</p>
+        </div>
+        <div className="rounded-md border border-amber-600/35 bg-amber-500/10 p-3" data-testid="copy-pair-analysis">
+          <div className="flex flex-wrap items-center justify-between gap-2"><p className="font-semibold text-foreground">Copy-pair heuristic</p><span className="rounded-full border border-amber-700/40 px-2 py-1 text-[10px] font-semibold uppercase text-amber-950 dark:text-amber-100">{cohort.copy_pair_analysis.status}</span></div>
+          <p className="mt-1">{cohort.copy_pair_analysis.hypothesis}</p>
+          <p className="mt-2 font-mono text-[10px] text-foreground">{cohort.copy_pair_analysis.comparison_formula}</p>
+          <div className="mt-2 grid gap-2 sm:grid-cols-2">
+            <div className="rounded-md border border-border bg-background p-2"><p className="font-semibold text-foreground">Duplicate / near-duplicate</p><p>n={cohort.copy_pair_analysis.repeated_group.sample_size}; minimum={cohort.copy_pair_analysis.repeated_group.minimum_sample_size}; median score={metric(cohort.copy_pair_analysis.repeated_group.median_normalized_performance_score)}</p></div>
+            <div className="rounded-md border border-border bg-background p-2"><p className="font-semibold text-foreground">Distinct complementary</p><p>n={cohort.copy_pair_analysis.distinct_group.sample_size}; minimum={cohort.copy_pair_analysis.distinct_group.minimum_sample_size}; median score={metric(cohort.copy_pair_analysis.distinct_group.median_normalized_performance_score)}</p></div>
+          </div>
+          <p className="mt-2">Observed median difference: {metric(cohort.copy_pair_analysis.observed_difference)} points <span className="font-semibold text-amber-950 dark:text-amber-100">(descriptive only)</span>.</p>
+          <p className="mt-1 font-semibold text-foreground">{cohort.copy_pair_analysis.limitation}</p>
+        </div>
         <div>
           <p className="font-semibold text-foreground">Side-by-side visual neighbors</p>
           <div className="mt-2 grid gap-3 sm:grid-cols-2">
@@ -198,22 +222,26 @@ function ThumbnailResearchEvidence({ cohort }: { cohort: NonNullable<ArtifactEvi
           </div>
         </div>
         <div>
-          <p className="font-semibold text-foreground">Qualified public outliers · comparison only</p>
+          <p className="font-semibold text-foreground">Live topic copy-pair sources ({publicSources.length})</p>
           <div className="mt-2 grid gap-3 sm:grid-cols-2">
-            {publicOutliers.map((sample) => (
+            {publicSources.map((sample) => (
               <article key={sample.video_id} className="overflow-hidden rounded-lg border border-border bg-background">
                 {sample.thumbnail_path && <div className="relative aspect-[9/16] bg-slate-950"><Image src={sample.thumbnail_path} alt={`Public YouTube Short thumbnail from ${sample.creator}: ${sample.title}`} fill sizes="(max-width: 640px) 50vw, 220px" className="object-cover" /></div>}
                 <div className="space-y-1.5 p-2.5">
                   <p className="font-semibold text-foreground">{sample.creator}</p>
-                  <p className="line-clamp-2">{sample.title}</p>
+                  <p><span className="font-semibold text-foreground">Exact title:</span> {sample.title}</p>
+                  <p><span className="font-semibold text-foreground">Exact thumbnail text:</span> {sample.thumbnail_text_transcription_status === 'verified' ? sample.thumbnail_text.join(' / ') || 'No visible thumbnail text' : 'Unreadable — not inferred'}</p>
+                  {sample.description_opening && <p><span className="font-semibold text-foreground">Description opening:</span> {sample.description_opening}{sample.description_opening_truncated ? '…' : ''}</p>}
+                  <p>Relationship: <span className="font-semibold text-foreground">{sample.title_thumbnail_relationship.replaceAll('_', ' ')}</span> · text length {sample.thumbnail_text_length} · hook {sample.hook_type.replaceAll('_', ' ')}</p>
                   <p>{metric(sample.view_count)} views · {metric(sample.subscriber_count)} subscribers · {metric(sample.duration_seconds, 's')}</p>
-                  <p>Channel relative {metric(sample.channel_relative_ratio, '×')} · audience/view {metric(sample.audience_view_ratio)} · views/day {metric(sample.recency_adjusted_views_per_day)}</p>
+                  <p>Channel baseline n={metric(sample.channel_baseline_size)} · relative {metric(sample.channel_relative_ratio, '×')} · audience/view {metric(sample.audience_view_ratio)} · views/day {metric(sample.recency_adjusted_views_per_day)}</p>
                   <p>Normalized score <span className="font-semibold text-foreground">{metric(sample.normalized_performance_score)}/100</span></p>
                   <p className="font-semibold text-red-800 dark:text-red-200">Does not support candidate composition</p>
                   <p>{sample.composition_support_reason}</p>
                   <p>Traits: {Object.entries(sample.visual_traits).map(([name, value]) => `${name.replaceAll('_', ' ')}=${value ? 'yes' : 'no'}`).join(' · ')}</p>
                   <p>{sample.decision_reason}</p>
                   <p>Published {sample.published_at || 'Unavailable'} · observed {sample.observed_at}</p>
+                  {sample.transcription_provenance && <p className="break-all text-[10px] text-muted-foreground">Transcription: {sample.transcription_provenance.method} · {sample.transcription_provenance.captured_thumbnail_sha256}</p>}
                   <AbsoluteEvidenceLink href={sample.youtube_url} label="Public Short" status={sample.link_status} />
                   {sample.source_thumbnail_url && <AbsoluteEvidenceLink href={sample.source_thumbnail_url} label="Source thumbnail" status={sample.link_status} />}
                 </div>

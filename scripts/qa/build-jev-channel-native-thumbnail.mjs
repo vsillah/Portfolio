@@ -9,19 +9,20 @@ const struggleSource = path.join(driveRoot, 'Video Collections/0. ATAS Zero Seri
 const stealSource = path.join(driveRoot, 'Video Collections/1. ATAS First Series Tools/V1.3 Make.com Tool Explainer /Stills/StealThis_VThumbnail.png')
 const shortsBaselineSource = '/Users/vambahsillah/Projects/Portfolio.worktrees/stop-counting-ai-licenses-media/artifacts/human-qa/stop-counting-ai-licenses-2026-10-16/short-thumbnail-baseline.png'
 const fieldGuide = path.resolve('artifacts/human-qa/artifact-video-review-2026-10-14/inputs/jev-operator-field-guide.png')
+const liveCohortSource = path.resolve('artifacts/research/jev-youtube-shorts-thumbnail-cohort-2026-10-18/cohort.json')
 const logoSource = path.resolve('public/amadutown-logo-upscaled.png')
 const publicRoot = path.resolve('public/review-assets/social-content')
 const baselineRoot = path.join(publicRoot, 'jev-first-party-baselines')
-const output = path.join(publicRoot, 'jev-youtube-short-thumbnail-v3.png')
-const artifactOutput = path.resolve('artifacts/research/jev-youtube-shorts-thumbnail-cohort-2026-10-18/jev-youtube-short-thumbnail-v3.png')
+const output = path.join(publicRoot, 'jev-youtube-short-thumbnail-v4.png')
+const artifactOutput = path.resolve('artifacts/research/jev-youtube-shorts-thumbnail-cohort-2026-10-18/jev-youtube-short-thumbnail-v4.png')
 const receiptOutput = path.resolve('artifacts/research/jev-youtube-shorts-thumbnail-cohort-2026-10-18/thumbnail-selection-receipt.json')
 
 function hash(bytes) {
   return `sha256:${createHash('sha256').update(bytes).digest('hex')}`
 }
 
-const [subjectBytes, fieldBytes, logoBytes, struggleBytes, stealBytes, shortsBaselineBytes] = await Promise.all([
-  readFile(subjectSource), readFile(fieldGuide), readFile(logoSource), readFile(struggleSource), readFile(stealSource), readFile(shortsBaselineSource),
+const [subjectBytes, fieldBytes, logoBytes, struggleBytes, stealBytes, shortsBaselineBytes, liveCohortBytes] = await Promise.all([
+  readFile(subjectSource), readFile(fieldGuide), readFile(logoSource), readFile(struggleSource), readFile(stealSource), readFile(shortsBaselineSource), readFile(liveCohortSource),
 ])
 
 const subject = await sharp(subjectBytes)
@@ -76,21 +77,31 @@ await Promise.all([
 ])
 
 const receipt = {
-  version: 'jev-thumbnail-selection/v3',
-  receipt_id: 'thumbnail:jev:youtube-shorts:20261018:v3',
+  version: 'jev-thumbnail-selection/v4',
+  receipt_id: 'thumbnail:jev:youtube-shorts:20261018:v4',
   baseline_receipt_id: 'thumbnail-outlier-review/2026-10-16',
-  public_cohort_id: 'cohort:youtube_shorts:ai-governance-decision:20261018:v1',
-  observed_at: '2026-10-18T20:00:00.000Z',
+  public_cohort_id: 'cohort:youtube_shorts:ai-governance-copy-pair:20261018:v2',
+  observed_at: '2026-10-18T12:00:00.000Z',
   title: 'AI Scored It. Who Makes the Call?',
   headline: 'AI SCORED IT. / WHO DECIDES?',
   decision: 'advance_for_human_qa',
   composition: 'A 9:16 first-party AmaduTown Shorts composition: approved Vambah subject, short tension hook, one Jev product-proof object, and established navy/yellow/coral brand treatment.',
   aspect_ratio: '9:16',
+  copy_pair: {
+    title: 'AI Scored It. Who Makes the Call?',
+    thumbnail_hook: 'AI SCORED IT. / WHO DECIDES?',
+    relationship: 'near_duplicate',
+    exact_strings_are_distinct: true,
+    strategy_status: 'conservative_unscored',
+    rationale: 'The strings are different but preserve the same decision-ownership promise. The live cohort does not have enough distinct-pair samples to support a complementary-teaser performance claim.',
+    source_example_video_ids: ['gTHQpAkgjy4', 'sA6UA2fMNHg', 'SQEMkQu0b6o'],
+  },
   source_assets: [
     { path: subjectSource, sha256: hash(subjectBytes), use: 'approved Vambah subject', status: 'verified_openable' },
     { path: fieldGuide, sha256: hash(fieldBytes), use: 'approved Jev product proof', status: 'verified_openable' },
     { path: logoSource, sha256: hash(logoBytes), use: 'AmaduTown brand treatment', status: 'verified_openable' },
     { path: shortsBaselineSource, sha256: hash(shortsBaselineBytes), use: 'approved 9:16 Shorts structure', status: 'verified_openable' },
+    { path: liveCohortSource, sha256: hash(liveCohortBytes), use: 'fresh topic-specific copy-pair evidence', status: 'verified_openable' },
   ],
   element_bindings: [
     { element: 'subject', source: 'V YT Thumbnail Curious.jpg', support: 'supports', limitation: 'Does not support the exact hook, product claim, or public performance.' },
@@ -99,8 +110,8 @@ const receipt = {
     { element: 'aspect_ratio', source: 'approved Short baseline receipt', support: 'supports', limitation: 'Supports 1080×1920 9:16 only.' },
     { element: 'brand_treatment', source: 'AmaduTown first-party baselines and logo', support: 'supports', limitation: 'Does not support public-outlier claims.' },
   ],
-  public_outlier_boundary: 'The two score-qualified public examples are comparison neighbors only. Their visual compositions do not support the candidate composition, and they contribute zero candidate design-fit points.',
-  output: { width: 1080, height: 1920, aspect_ratio: '9:16', sha256: hash(rendered), public_path: '/review-assets/social-content/jev-youtube-short-thumbnail-v3.png' },
+  public_outlier_boundary: 'The eight included public Shorts are topic-specific copy-pair and normalized-performance context only. They do not provide brand, subject, aspect-ratio, or candidate design-fit authority.',
+  output: { width: 1080, height: 1920, aspect_ratio: '9:16', sha256: hash(rendered), public_path: '/review-assets/social-content/jev-youtube-short-thumbnail-v4.png' },
   rights_receipts: ['rights:jev:owned-public-assets-20261014'],
   privacy_receipt: 'privacy:jev:public-safe-20261014',
   provider_calls_executed: 0,

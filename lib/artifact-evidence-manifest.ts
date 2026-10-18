@@ -44,6 +44,20 @@ export type ThumbnailResearchSample = {
   duration_seconds: number | null
   published_at: string | null
   observed_at: string
+  description_opening: string | null
+  description_opening_truncated: boolean
+  thumbnail_text: string[]
+  thumbnail_text_transcription_status: 'verified' | 'unreadable'
+  title_thumbnail_relationship: ThumbnailCopyRelationship
+  thumbnail_text_length: number
+  hook_type: string
+  transcription_provenance: {
+    source_thumbnail_url: string
+    captured_thumbnail_path: string
+    captured_thumbnail_sha256: string
+    method: string
+  } | null
+  channel_baseline_size: number | null
   decision: 'included' | 'excluded'
   decision_reason: string
   channel_relative_ratio: number | null
@@ -54,6 +68,37 @@ export type ThumbnailResearchSample = {
   supports_candidate_composition: boolean
   composition_support_reason: string
   visual_traits: Record<string, boolean>
+}
+
+export type ThumbnailCopyRelationship = 'duplicate' | 'near_duplicate' | 'complementary_teaser' | 'contrasting_question' | 'no_thumbnail_text' | 'unreadable'
+
+export type ThumbnailCopyPairGroup = {
+  relationships: ThumbnailCopyRelationship[]
+  sample_size: number
+  minimum_sample_size: number
+  median_normalized_performance_score: number | null
+  video_ids: string[]
+}
+
+export type ThumbnailCopyPairAnalysis = {
+  status: 'scored' | 'unscored'
+  hypothesis: string
+  comparison_formula: string
+  repeated_group: ThumbnailCopyPairGroup
+  distinct_group: ThumbnailCopyPairGroup
+  observed_difference: number | null
+  conclusion: 'supports_distinct_pair' | 'does_not_support_distinct_pair' | 'unscored_insufficient_group_samples'
+  limitation: string
+}
+
+export type ThumbnailCandidateCopyPair = {
+  title: string
+  thumbnail_hook: string
+  relationship: ThumbnailCopyRelationship
+  exact_strings_are_distinct: boolean
+  strategy_status: string
+  rationale: string
+  source_example_video_ids: string[]
 }
 
 export type ThumbnailVisualNeighbor = {
@@ -95,6 +140,8 @@ export type ThumbnailResearchCohort = {
   first_party_neighbors: ThumbnailVisualNeighbor[]
   candidate: ThumbnailVisualNeighbor | null
   element_bindings: ThumbnailElementBinding[]
+  copy_pair_analysis: ThumbnailCopyPairAnalysis
+  candidate_copy_pair: ThumbnailCandidateCopyPair
   samples: ThumbnailResearchSample[]
 }
 
@@ -237,6 +284,24 @@ function nullableNumber(value: unknown): number | null {
   return typeof value === 'number' && Number.isFinite(value) ? value : null
 }
 
+const THUMBNAIL_COPY_RELATIONSHIPS: ThumbnailCopyRelationship[] = ['duplicate', 'near_duplicate', 'complementary_teaser', 'contrasting_question', 'no_thumbnail_text', 'unreadable']
+
+function copyRelationship(value: unknown): ThumbnailCopyRelationship {
+  const candidate = text(value) as ThumbnailCopyRelationship
+  return THUMBNAIL_COPY_RELATIONSHIPS.includes(candidate) ? candidate : 'unreadable'
+}
+
+function parseCopyPairGroup(value: unknown): ThumbnailCopyPairGroup {
+  const candidate = record(value) ?? {}
+  return {
+    relationships: strings(candidate.relationships).map(copyRelationship),
+    sample_size: Number(candidate.sample_size),
+    minimum_sample_size: Number(candidate.minimum_sample_size),
+    median_normalized_performance_score: nullableNumber(candidate.median_normalized_performance_score),
+    video_ids: strings(candidate.video_ids),
+  }
+}
+
 function parseResearchCohort(value: unknown): ThumbnailResearchCohort | undefined {
   const candidate = record(value)
   if (!candidate) return undefined
@@ -258,6 +323,27 @@ function parseResearchCohort(value: unknown): ThumbnailResearchCohort | undefine
       duration_seconds: nullableNumber(sample.duration_seconds),
       published_at: text(sample.published_at) || null,
       observed_at: text(sample.observed_at),
+      description_opening: text(sample.description_opening) || null,
+      description_opening_truncated: sample.description_opening_truncated === true,
+      thumbnail_text: strings(sample.thumbnail_text),
+      thumbnail_text_transcription_status: sample.thumbnail_text_transcription_status === 'verified' ? 'verified' : 'unreadable',
+      title_thumbnail_relationship: copyRelationship(sample.title_thumbnail_relationship),
+      thumbnail_text_length: Number(sample.thumbnail_text_length),
+      hook_type: text(sample.hook_type),
+      transcription_provenance: (() => {
+        const provenance = record(sample.transcription_provenance)
+        if (!provenance) return null
+        const sourceThumbnailUrl = safeHttpsUrl(provenance.source_thumbnail_url)
+        const capturedThumbnailPath = safeArtifactUrl(provenance.captured_thumbnail_path)
+        if (!sourceThumbnailUrl || !capturedThumbnailPath) return null
+        return {
+          source_thumbnail_url: sourceThumbnailUrl,
+          captured_thumbnail_path: capturedThumbnailPath,
+          captured_thumbnail_sha256: text(provenance.captured_thumbnail_sha256),
+          method: text(provenance.method),
+        }
+      })(),
+      channel_baseline_size: nullableNumber(sample.channel_baseline_size),
       decision,
       decision_reason: text(sample.decision_reason),
       channel_relative_ratio: nullableNumber(sample.channel_relative_ratio),
@@ -290,6 +376,8 @@ function parseResearchCohort(value: unknown): ThumbnailResearchCohort | undefine
       limitation: text(binding.limitation),
     }
   }).filter((binding): binding is ThumbnailElementBinding => Boolean(binding)) : []
+  const rawAnalysis = record(candidate.copy_pair_analysis) ?? {}
+  const rawCandidatePair = record(candidate.candidate_copy_pair) ?? {}
   return {
     cohort_id: text(candidate.cohort_id),
     target: text(candidate.target),
@@ -307,6 +395,27 @@ function parseResearchCohort(value: unknown): ThumbnailResearchCohort | undefine
     first_party_neighbors: firstPartyNeighbors,
     candidate: candidateNeighbor,
     element_bindings: elementBindings,
+    copy_pair_analysis: {
+      status: rawAnalysis.status === 'scored' ? 'scored' : 'unscored',
+      hypothesis: text(rawAnalysis.hypothesis),
+      comparison_formula: text(rawAnalysis.comparison_formula),
+      repeated_group: parseCopyPairGroup(rawAnalysis.repeated_group),
+      distinct_group: parseCopyPairGroup(rawAnalysis.distinct_group),
+      observed_difference: nullableNumber(rawAnalysis.observed_difference),
+      conclusion: ['supports_distinct_pair', 'does_not_support_distinct_pair'].includes(text(rawAnalysis.conclusion))
+        ? text(rawAnalysis.conclusion) as ThumbnailCopyPairAnalysis['conclusion']
+        : 'unscored_insufficient_group_samples',
+      limitation: text(rawAnalysis.limitation),
+    },
+    candidate_copy_pair: {
+      title: text(rawCandidatePair.title),
+      thumbnail_hook: text(rawCandidatePair.thumbnail_hook),
+      relationship: copyRelationship(rawCandidatePair.relationship),
+      exact_strings_are_distinct: rawCandidatePair.exact_strings_are_distinct === true,
+      strategy_status: text(rawCandidatePair.strategy_status),
+      rationale: text(rawCandidatePair.rationale),
+      source_example_video_ids: strings(rawCandidatePair.source_example_video_ids),
+    },
     samples,
   }
 }
@@ -410,6 +519,49 @@ function packagingElementIssues(
       blockers.push('A qualified public outlier is incorrectly marked as supporting the candidate composition.')
       recoveryActions.push('Mark visually dissimilar public outliers as comparison-only and recalculate design fit from attributable first-party inputs.')
     }
+    const included = research.samples.filter((sample) => sample.decision === 'included')
+    const incompleteSources = included.filter((sample) => (
+      !sample.title
+      || !sample.hook_type
+      || !Number.isFinite(sample.thumbnail_text_length)
+      || sample.normalized_performance_score == null
+      || sample.channel_relative_ratio == null
+      || sample.audience_view_ratio == null
+      || sample.recency_adjusted_views_per_day == null
+      || sample.channel_baseline_size == null
+      || !sample.transcription_provenance
+    ))
+    if (incompleteSources.length) {
+      blockers.push(`Live topic sources are missing required copy-pair evidence: ${incompleteSources.map((sample) => sample.video_id).join(', ')}.`)
+      recoveryActions.push('Restore exact titles, attributable description openings when available, transcription provenance, relationship classes, hook types, and normalized performance inputs for every included source.')
+    }
+    const inferredUnreadable = included.filter((sample) => sample.thumbnail_text_transcription_status === 'unreadable' && sample.thumbnail_text.length > 0)
+    if (inferredUnreadable.length) {
+      blockers.push(`Unreadable thumbnail copy was inferred for: ${inferredUnreadable.map((sample) => sample.video_id).join(', ')}.`)
+      recoveryActions.push('Remove inferred text and mark the captured thumbnail unreadable until a human can verify the visible copy.')
+    }
+    const analysis = research.copy_pair_analysis
+    const repeated = included.filter((sample) => ['duplicate', 'near_duplicate'].includes(sample.title_thumbnail_relationship))
+    const distinct = included.filter((sample) => ['complementary_teaser', 'contrasting_question'].includes(sample.title_thumbnail_relationship))
+    const sampleCountsMatch = repeated.length === analysis.repeated_group.sample_size && distinct.length === analysis.distinct_group.sample_size
+    if (!sampleCountsMatch) {
+      blockers.push('Copy-pair performance group sample sizes do not match the classified live sources.')
+      recoveryActions.push('Recalculate copy-pair groups directly from the included source classifications.')
+    }
+    const sufficient = repeated.length >= analysis.repeated_group.minimum_sample_size && distinct.length >= analysis.distinct_group.minimum_sample_size
+    if (!sufficient && (analysis.status !== 'unscored' || analysis.conclusion !== 'unscored_insufficient_group_samples')) {
+      blockers.push('The copy-pair heuristic claims a scored conclusion without sufficient samples in both comparison groups.')
+      recoveryActions.push('Leave the heuristic Unscored until both repeated and distinct groups meet their declared minimum sample sizes.')
+    }
+    const candidatePair = research.candidate_copy_pair
+    if (!candidatePair.title || !candidatePair.thumbnail_hook || candidatePair.title.trim().toLowerCase() === candidatePair.thumbnail_hook.trim().toLowerCase() || !candidatePair.exact_strings_are_distinct) {
+      blockers.push('The candidate title and thumbnail hook must be bound as two non-identical exact strings.')
+      recoveryActions.push('Bind the exact customer-facing title and exact thumbnail hook side by side, and keep their wording distinct.')
+    }
+    if (['complementary_teaser', 'contrasting_question'].includes(candidatePair.relationship) && (analysis.status !== 'scored' || analysis.conclusion !== 'supports_distinct_pair')) {
+      blockers.push('The candidate claims a distinct copy-pair strategy that the live cohort does not support.')
+      recoveryActions.push('Use a conservative relationship classification or collect enough attributable live samples to support the distinct-pair conclusion.')
+    }
   }
   if (!element.evaluation_receipt) {
     blockers.push(`${label} evidence has no numerical evaluation receipt.`)
@@ -467,6 +619,13 @@ export function validateYouTubePackagingEvidence(
     const issues = packagingElementIssues(thumbnail, 'Thumbnail', currentContentVersion, evaluationAsOf)
     blockers.push(...issues.blockers)
     recoveryActions.push(...issues.recoveryActions)
+  }
+  if (title && thumbnail?.research_cohort) {
+    const pair = thumbnail.research_cohort.candidate_copy_pair
+    if (pair.title !== title.input_excerpt || pair.thumbnail_hook !== thumbnail.input_excerpt) {
+      blockers.push('The candidate copy-pair binding does not match the current title and thumbnail hook.')
+      recoveryActions.push('Rebuild the copy-pair receipt from the exact current customer-facing title and thumbnail hook.')
+    }
   }
 
   const pairBound = Boolean(
