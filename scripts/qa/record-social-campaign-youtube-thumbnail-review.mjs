@@ -21,6 +21,7 @@ const routes = [
     title: 'I Rebuilt the Chess Lesson Around the Decision',
     hook: 'REMEMBER THE WHY',
     samples: 8,
+    layoutFamily: 'full-bleed-decision-board-bottom-hook',
   },
   {
     key: 'ai-audit',
@@ -29,6 +30,7 @@ const routes = [
     title: 'The AI Cost That Never Appears on the Invoice',
     hook: 'WHO OWNS THE CLEANUP?',
     samples: 6,
+    layoutFamily: 'human-anchor-tilted-calculator-question',
   },
 ]
 
@@ -81,6 +83,8 @@ for (const route of routes) {
   await packet.getByText(route.hook, { exact: true }).first().waitFor({ state: 'visible' })
   await packet.getByText('Thumbnail evidence: Ready', { exact: true }).waitFor({ state: 'visible' })
   await packet.getByText('93.5/100 · 16:9 long-form', { exact: true }).waitFor({ state: 'visible' })
+  await packet.getByText('Batch diversity: Distinct', { exact: true }).waitFor({ state: 'visible' })
+  await packet.getByText(route.layoutFamily, { exact: true }).waitFor({ state: 'visible' })
   await packet.getByText('Description evidence: Unscored', { exact: true }).waitFor({ state: 'visible' })
   await packet.getByText('0/3 qualifying descriptions', { exact: true }).waitFor({ state: 'visible' })
   await ensureImagesLoaded(packet, `${route.key} desktop`)
@@ -95,16 +99,20 @@ for (const route of routes) {
 
 await page.setViewportSize({ width: 390, height: 844 })
 for (const route of routes) {
+  await page.setViewportSize({ width: 390, height: 844 })
   await page.goto(url(route), { waitUntil: 'domcontentloaded', timeout: 60_000 })
   const packet = page.getByLabel(route.packetLabel)
   await packet.waitFor({ state: 'visible' })
   await packet.scrollIntoViewIfNeeded()
   await page.waitForTimeout(500)
+  await packet.getByText('Batch diversity: Distinct', { exact: true }).waitFor({ state: 'visible' })
+  await packet.getByText(route.layoutFamily, { exact: true }).waitFor({ state: 'visible' })
   await ensureImagesLoaded(packet, `${route.key} mobile`)
   await assertNoOverflow(packet, `${route.key} mobile packet`)
   const mobileCohort = packet.getByText('Cohort examples and selection boundaries', { exact: true }).locator('..')
   await mobileCohort.evaluate((node) => { if (node instanceof HTMLDetailsElement) node.open = false })
   const mobileThumbnailGate = packet.getByLabel('YouTube thumbnail evidence gate')
+  await page.setViewportSize({ width: 390, height: 1200 })
   await mobileThumbnailGate.scrollIntoViewIfNeeded()
   await page.waitForTimeout(200)
   await mobileThumbnailGate.screenshot({
