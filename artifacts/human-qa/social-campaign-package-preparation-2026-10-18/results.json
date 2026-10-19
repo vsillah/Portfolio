@@ -1,6 +1,6 @@
 {
-  "revision": "6d33a114",
-  "route": "http://127.0.0.1:3098/admin/social-content?campaignQa=campaign-package-preparation-v1&rev=6d33a114",
+  "revision": "b9fcbac3",
+  "route": "http://127.0.0.1:3098/admin/social-content?campaignQa=campaign-package-preparation-v1&rev=b9fcbac3",
   "screenshots": [
     "desktop-1440-ready-sealed.png",
     "desktop-1440-reversr-blocked.png",

@@ -1,7 +1,7 @@
 # Campaign package preparation Human QA
 
-- Application commit: `6d33a114`
-- Exact route: `http://127.0.0.1:3098/admin/social-content?campaignQa=campaign-package-preparation-v1&rev=6d33a114`
+- Application commit: `b9fcbac3`
+- Exact route: `http://127.0.0.1:3098/admin/social-content?campaignQa=campaign-package-preparation-v1&rev=b9fcbac3`
 - Desktop viewport: 1440 × 1000
 - Mobile viewport: 390 × 844
 - Fixture: synthetic, privacy-safe, development-only
@@ -24,5 +24,5 @@ The recorder observed no provider, paid-generation, upload, platform-draft, sche
 Regenerate with:
 
 ```bash
-QA_REVISION=6d33a114 node scripts/qa/record-social-campaign-package-preparation.mjs
+QA_REVISION=b9fcbac3 node scripts/qa/record-social-campaign-package-preparation.mjs
 ```

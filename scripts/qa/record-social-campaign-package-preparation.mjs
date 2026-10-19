@@ -9,7 +9,7 @@ dotenv.config({ path: '.env.local', quiet: true })
 
 const execFileAsync = promisify(execFile)
 const baseUrl = process.env.QA_BASE_URL || 'http://127.0.0.1:3098'
-const revision = process.env.QA_REVISION || '6d33a114'
+const revision = process.env.QA_REVISION || 'b9fcbac3'
 const authState = process.env.PLAYWRIGHT_AUTH_STATE || '/Users/vambahsillah/Projects/Portfolio/.auth/portfolio-admin-storage-state.json'
 const outputDir = path.resolve(process.env.QA_OUTPUT_DIR || 'artifacts/human-qa/social-campaign-package-preparation-2026-10-18')
 const rawVideoDir = path.join(outputDir, 'raw-video')
