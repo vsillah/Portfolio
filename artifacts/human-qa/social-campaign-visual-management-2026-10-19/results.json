@@ -1,6 +1,6 @@
 {
-  "revision": "fa9fa6df",
-  "route": "http://127.0.0.1:3210/admin/social-content?campaignQa=campaign-package-preparation-v1&rev=fa9fa6df",
+  "revision": "aac82753eea4ea33d95fc92b0cf67e38e9657e67",
+  "route": "http://127.0.0.1:3210/admin/social-content?campaignQa=campaign-package-preparation-v1&rev=aac82753eea4ea33d95fc92b0cf67e38e9657e67",
   "viewports": [
     {
       "width": 1440,
@@ -14,9 +14,11 @@
   "screenshots": [
     "desktop-1440-clean-assets.png",
     "desktop-1440-trace-and-evaluation.png",
+    "desktop-1440-benchmark-receipt.png",
     "desktop-1440-blocked-recovery.png",
     "mobile-390-clean-assets.png",
     "mobile-390-trace-and-evaluation.png",
+    "mobile-390-benchmark-receipt.png",
     "mobile-390-blocked-recovery.png"
   ],
   "video": "social-campaign-visual-management-walkthrough.mp4",
@@ -26,6 +28,18 @@
     "prepared": 1,
     "blocked": 11,
     "remaining": 0
+  },
+  "scoring": {
+    "dimensions": 10,
+    "formulas_visible": true,
+    "playlist_similarity": "unscored_no_attributable_receipt"
+  },
+  "blocked_backlog": {
+    "page_size": 4,
+    "searchable": true,
+    "grouped": true,
+    "collapsed_by_default": true,
+    "pagination_pages": 3
   },
   "external_requests": [],
   "blocked_development_telemetry": [
