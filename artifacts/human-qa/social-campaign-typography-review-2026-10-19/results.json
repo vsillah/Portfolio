@@ -1,7 +1,7 @@
 {
   "version": "kicklab-typography-review-evidence/v1",
-  "reviewed_commit": "eca8afd3",
-  "route": "http://127.0.0.1:3210/admin/social-content?campaignQa=campaign-package-preparation-v1&rev=eca8afd3",
+  "reviewed_commit": "80009b7e",
+  "route": "http://127.0.0.1:3210/admin/social-content?campaignQa=campaign-package-preparation-v1&rev=80009b7e",
   "fixture": "campaign-package-preparation-v1 (synthetic local fixture)",
   "visual_batch": {
     "total": 12,
@@ -12,7 +12,7 @@
   },
   "observed_states": [
     "Raster thumbnail is visible as a review direction only.",
-    "Typography style evidence is Unscored; same-channel matched-style sample is 0 of 4 and no baseline or normalized result is available.",
+    "Typography style evidence is Unscored; zero-weight topic/audience comparables are context-only, while approval requires at least four performance-weight-1 matched-style examples and a normalized cohort result.",
     "Recovery action is visible; package readiness warning explicitly separates package inputs from thumbnail approval.",
     "Visual and external provider gates remain closed; no production, platform, upload, scheduling, or publish action was performed."
   ],
@@ -44,10 +44,8 @@
     "https://xxissfhcdjivuhxwjyhv.supabase.co"
   ],
   "permitted_external_use": "Portfolio Supabase Auth session validation only; provider, campaign, and publishing origins remain blocked.",
-  "desktop_video_source": "artifacts/human-qa/social-campaign-typography-review-2026-10-19/e95f2b32e85eda08aebb8b670e527218.webm",
+  "desktop_video_source": "artifacts/human-qa/social-campaign-typography-review-2026-10-19/b9deeb9e1c848b7f124a4b515b834cc1.webm",
   "desktop_video_mp4": "artifacts/human-qa/social-campaign-typography-review-2026-10-19/social-campaign-typography-review.mp4",
-  "thumbnail_feed_preview": "artifacts/human-qa/social-campaign-typography-review-2026-10-19/thumbnail-feed-320x180.png",
-  "integrated_browser_status": "Exact latest revision loaded in the Codex in-app Browser; the visual batch action returned 0 prepared / 12 blocked and the Unscored typography receipt was visible.",
   "screenshots": [
     "desktop-1440-initial.png",
     "desktop-1440-kicklab-review.png",

@@ -72,7 +72,7 @@ for (const viewport of [{ width: 768, height: 1024, label: 'tablet-768' }, { wid
   await page.getByText('12 total · 12 scanned · 0 prepared · 12 blocked · 0 remaining · 2 chunks', { exact: true }).waitFor({ state: 'visible' })
   await page.getByText('Typography Unscored · review direction only', { exact: true }).scrollIntoViewIfNeeded()
   await page.screenshot({ path: path.join(outputDir, `${viewport.label}-kicklab-review.png`) })
-  await page.getByText('Typography performance: Unscored · performance weight 0', { exact: true }).scrollIntoViewIfNeeded()
+  await page.getByText(/Typography performance: Unscored/).scrollIntoViewIfNeeded()
   await page.screenshot({ path: path.join(outputDir, `${viewport.label}-typography-receipt.png`) })
   const overflow = await page.evaluate(() => ({
     viewportWidth: window.innerWidth,
@@ -93,7 +93,7 @@ const results = {
   visual_batch: { total: 12, scanned: 12, prepared: 0, blocked: 12, remaining: 0 },
   observed_states: [
     'Raster thumbnail is visible as a review direction only.',
-    'Typography style evidence is Unscored; same-channel matched-style sample is 0 of 4 and no baseline or normalized result is available.',
+    'Typography style evidence is Unscored; zero-weight topic/audience comparables are context-only, while approval requires at least four performance-weight-1 matched-style examples and a normalized cohort result.',
     'Recovery action is visible; package readiness warning explicitly separates package inputs from thumbnail approval.',
     'Visual and external provider gates remain closed; no production, platform, upload, scheduling, or publish action was performed.',
   ],
@@ -103,6 +103,7 @@ const results = {
   external_origins_allowed: [supabaseOrigin],
   permitted_external_use: 'Portfolio Supabase Auth session validation only; provider, campaign, and publishing origins remain blocked.',
   desktop_video_source: path.relative(root, desktopWebm),
+  desktop_video_mp4: 'artifacts/human-qa/social-campaign-typography-review-2026-10-19/social-campaign-typography-review.mp4',
   screenshots: [
     'desktop-1440-initial.png',
     'desktop-1440-kicklab-review.png',
@@ -114,4 +115,4 @@ const results = {
   ],
 }
 await writeFile(path.join(outputDir, 'results.json'), `${JSON.stringify(results, null, 2)}\n`)
-console.log(JSON.stringify({ route, outputDir: path.relative(root, outputDir), screenshots: results.screenshots, viewport_overflow_checks: results.viewport_overflow_checks, external_origins_allowed: 0 }))
+console.log(JSON.stringify({ route, outputDir: path.relative(root, outputDir), screenshots: results.screenshots, viewport_overflow_checks: results.viewport_overflow_checks, external_origins_allowed: results.external_origins_allowed }))
