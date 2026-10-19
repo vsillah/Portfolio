@@ -53,6 +53,7 @@ describe('SocialCampaignPackagePreparation', () => {
   it('prepares a ready package, exposes its receipt history, and keeps approval in Decision Queue', async () => {
     render(<SocialCampaignPackagePreparation qaFixture={SOCIAL_CAMPAIGN_PACKAGE_QA_FIXTURE} />)
     const button = await screen.findByRole('button', { name: /Prepare review package/i })
+    expect(screen.getByText(/Package inputs pass; thumbnail approval remains Unscored/i)).toBeInTheDocument()
     expect(screen.getByText(/deliverables remain sealed/i)).toBeInTheDocument()
     fireEvent.click(button)
     expect(await screen.findByText(/Review package prepared/i)).toBeInTheDocument()
