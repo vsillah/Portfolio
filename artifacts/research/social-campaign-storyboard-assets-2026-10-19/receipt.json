@@ -1,0 +1,68 @@
+{
+  "version": "social-campaign-storyboard-asset-receipt/v1",
+  "receipt_id": "receipt:social-campaign-storyboard-assets:20261019:v1",
+  "generated_at": "2026-10-19T20:30:00.000Z",
+  "generator": "scripts/qa/build-social-campaign-storyboard-assets.mjs",
+  "provider_calls": 0,
+  "paid_media_generations": 0,
+  "external_writes": 0,
+  "logo": {
+    "public_path": "/amadutown-logo-upscaled.png",
+    "placement_rule": "Natural portrait aspect ratio preserved; height constrained and width derived automatically."
+  },
+  "assets": [
+    {
+      "asset_id": "asset:jev:provider-none-thumbnail:20261019:v1",
+      "campaign_identity": "jev",
+      "role": "youtube_thumbnail_review",
+      "public_path": "/review-assets/social-content/storyboard-review/jev-when-should-ai-stop-provider-none.png",
+      "width": 1280,
+      "height": 720,
+      "aspect_ratio": "16:9",
+      "title": "AI Scored It. Who Makes the Call?",
+      "teaser": "WHEN SHOULD AI STOP?",
+      "focal_subject": "Owned Jev operator field guide",
+      "focal_hierarchy": [
+        "short decision question",
+        "owned operator field guide",
+        "AmaduTown shield"
+      ],
+      "product_proof_path": "/review-assets/social-content/source-proof/jev-operator-field-guide.png",
+      "source_receipt_ids": [
+        "source:jev:approved-composite-20261014",
+        "privacy:jev:public-safe-20261014",
+        "rights:jev:owned-public-assets-20261014"
+      ],
+      "provider": "none",
+      "review_only": true,
+      "sha256": "sha256:7e3e6839cabcc174d15a36d9585278d84848cc5cd8e433a856234b97708d7b3e"
+    },
+    {
+      "asset_id": "asset:dark-castle:provider-none-thumbnail:20261019:v1",
+      "campaign_identity": "dark-castle-chess",
+      "role": "youtube_thumbnail_review",
+      "public_path": "/review-assets/social-content/storyboard-review/dark-castle-remember-the-why-provider-none.png",
+      "width": 1280,
+      "height": 720,
+      "aspect_ratio": "16:9",
+      "title": "I Rebuilt the Chess Lesson Around the Decision",
+      "teaser": "REMEMBER THE WHY",
+      "focal_subject": "Owned Dark Castle Chess Explore position",
+      "focal_hierarchy": [
+        "owned gameplay position",
+        "three-word learning tension",
+        "AmaduTown shield"
+      ],
+      "product_proof_path": "/review-assets/social-content/dark-castle-customer-facing-poster.png",
+      "source_receipt_ids": [
+        "source:dark-castle-chess:approved-composite-20261014",
+        "privacy:dark-castle-chess:public-safe-20261014",
+        "rights:dark-castle-chess:owned-public-assets-20261014"
+      ],
+      "provider": "none",
+      "review_only": true,
+      "sha256": "sha256:75f73cc8963006ca0361437ddbe4d52ffa6891e1b5a46bba8fb234fba3eb0a8a"
+    }
+  ],
+  "boundary": "Repository-local review assets only. No provider, production record, upload, platform draft, schedule, publication, credential change, spending, or external send was used."
+}
