@@ -119,10 +119,10 @@ export function socialCampaignPackageQaCandidates() {
     label: `KickLab physics learning comparison ${entry.id.split(':').at(-1)}`,
   }))
   kicklab.deliverables.youtube.title = 'Can a Game Make Physics Feel Obvious? Inside KickLab'
-  kicklab.deliverables.youtube.thumbnail_teaser = 'FEEL THE MATH'
-  kicklab.deliverables.linkedin.visual_href = '/review-assets/kicklab-product-proof.svg'
-  kicklab.deliverables.linkedin.visual_alt = 'KickLab Fight, Race, and Kick product evidence dashboard showing momentum, grip, and vector results.'
-  kicklab.deliverables.youtube.thumbnail_href = '/review-assets/kicklab-youtube-thumbnail.svg'
+  kicklab.deliverables.youtube.thumbnail_teaser = 'MATH IN THE MOVE'
+  kicklab.deliverables.linkedin.visual_href = '/review-assets/social-content/source-proof/kicklab-gameplay-capture-2026-10-17.jpg'
+  kicklab.deliverables.linkedin.visual_alt = 'Owned KickLab free-kick gameplay capture showing the field, challenge, coach prompt, kick controls, and manual physics sliders.'
+  kicklab.deliverables.youtube.thumbnail_href = '/review-assets/kicklab-youtube-thumbnail.png'
   const reversr = base('reversr', 'ReversR rebuild')
   reversr.status = 'blocked'
   reversr.receipts.evidence.fresh_until = '2026-10-18T13:00:00.000Z'

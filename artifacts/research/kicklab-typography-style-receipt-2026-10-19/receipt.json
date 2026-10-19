@@ -1,0 +1,111 @@
+{
+  "version": "campaign-typography-style-receipt/v1",
+  "receipt_id": "typography-style:kicklab-youtube:20261019:v1",
+  "captured_at": "2026-10-19",
+  "expires_at": "2026-11-02",
+  "topic": "football, sports science, and physics learning through gameplay",
+  "audience": "young sports-curious learners (9–15), parents, and educators",
+  "channel": "youtube_thumbnail",
+  "comparables": [
+    {
+      "comparable_id": "mark-rober-ronaldo-goalie-robot",
+      "source_url": "https://www.youtube.com/watch?v=jjpjjcMeujM",
+      "thumbnail_url": "https://img.youtube.com/vi/jjpjjcMeujM/maxresdefault.jpg",
+      "title": "Ronaldo vs My Unbeatable Goalie Robot",
+      "channel": "Mark Rober",
+      "published_at": "2025-11-28",
+      "captured_at": "2026-10-19",
+      "age_days_at_capture": 325,
+      "views_at_capture": 49152957,
+      "likes_at_capture": null,
+      "likes_display_at_capture": "814K (rounded display)",
+      "audience_source_urls": [
+        "https://www.commonsensemedia.org/youtube-reviews/mark-rober"
+      ],
+      "channel_baseline_views": null,
+      "normalized_performance": null,
+      "matched_style": false,
+      "audience_fit": "Official science-and-engineering creator; family and student audience is supported by the channel subject and independent 8+ audience guidance.",
+      "topic_fit": "Football action joined to a real engineering demonstration; direct subject overlap with football and physics learning.",
+      "observed_type_traits": [
+        "No added display lettering visible in the inspected thumbnail.",
+        "Real athlete and physical robot provide the hierarchy.",
+        "Natural stadium colors and photo detail; no drawn arrow or glow treatment."
+      ],
+      "feed_size_behavior": "At 320x180 the player/robot contrast and central physical subject remain legible; there is no small headline to decode.",
+      "decision": "selected",
+      "decision_reason": "Use as a topic-native composition and restraint comparator, not as evidence that any particular font or copy performs.",
+      "performance_weight": 0
+    },
+    {
+      "comparable_id": "dude-perfect-trick-shot-contest",
+      "source_url": "https://www.youtube.com/watch?v=jvUX3ocBSCk",
+      "thumbnail_url": "https://img.youtube.com/vi/jvUX3ocBSCk/maxresdefault.jpg",
+      "title": "20 YouTubers Compete in Biggest Trick Shot Contest Ever! | TSWC ’25",
+      "channel": "Dude Perfect",
+      "published_at": "2025-02-22",
+      "captured_at": "2026-10-19",
+      "age_days_at_capture": 604,
+      "views_at_capture": 17046978,
+      "likes_at_capture": null,
+      "likes_display_at_capture": "172K (rounded display)",
+      "audience_source_urls": [
+        "https://dudeperfect.com/videos"
+      ],
+      "channel_baseline_views": null,
+      "normalized_performance": null,
+      "matched_style": false,
+      "audience_fit": "Official family-friendly sports-entertainment channel; directly relevant to youth sports viewing.",
+      "topic_fit": "Football-adjacent physical challenge and trick-shot competition; strong audience context, looser physics-learning fit.",
+      "observed_type_traits": [
+        "No added display lettering visible in the inspected thumbnail.",
+        "Real people and target activity carry the story.",
+        "Natural photo treatment and clear subject hierarchy; no procedural arrow."
+      ],
+      "feed_size_behavior": "At 320x180 the face and action grouping remain recognizable; the image does not depend on fine text.",
+      "decision": "selected",
+      "decision_reason": "Use as a youth-sports audience and scene-first comparator; do not transfer the group collage or creator identity.",
+      "performance_weight": 0
+    }
+  ],
+  "selected_style": {
+    "display_copy": "MATH IN THE MOVE",
+    "family": "Inter, a contemporary neutral sans-serif already bundled with Portfolio",
+    "weight": "800; one line; restrained tracking; four words maximum",
+    "case": "uppercase for short-form scanability, without condensed or arcade letterforms",
+    "color": "warm white over the calm navy dusk region; no gradient fill",
+    "effects": "no outline, glow, bevel, extrusion, trajectory, arrow, or decorative curve; only a small soft shadow for local contrast",
+    "placement": "upper-left calm sky, outside the actual gameplay proof and player/ball focal area"
+  },
+  "rejected_styles": [
+    {
+      "style": "condensed black arcade display with gold-orange gradient, stroke, glow, rings, and impact vectors",
+      "reason": "No matching type treatment appears in either current topic comparator; it would repeat the rejected dated game-poster direction and compete with real product proof."
+    },
+    {
+      "style": "default-font caption pasted beside a rectangular screenshot",
+      "reason": "Creates a generic split-card template and separates the teaching idea from the action."
+    },
+    {
+      "style": "creator-logo, reaction face, fabricated score, or drawn trajectory",
+      "reason": "Not needed to explain the actual product pixels and risks implying evidence or identity that is not present."
+    }
+  ],
+  "selection_logic": "Both selected official YouTube comparables are topic/audience adjacent and omit added display text. Their common signal is that real activity carries the thumbnail at feed size. The selected four-word neutral-sans line is a deliberately restrained editorial cue, not a claimed winning font; the real KickLab screenshot remains the sole product-proof layer. Comparable views and likes are captured context only and have zero typography-performance weight.",
+  "performance_evidence": {
+    "status": "unscored",
+    "sample_size": 2,
+    "required_sample_size": 4,
+    "matched_style_sample_size": 0,
+    "baseline_method": "Required baseline: median 30-day views for at least four recent standard-length videos on the same channel, normalized by each video age and matched for topic/audience; exclude Shorts and sponsored outliers.",
+    "baseline_video_urls": [],
+    "channel_baseline_views": null,
+    "normalized_threshold": 1.5,
+    "observed_normalized_performance": null,
+    "formula": "matched-style comparable views normalized per day / same-channel baseline views normalized per day; require at least 4 matched-style examples and ratio >= 1.5",
+    "limitation": "Available public view/like counts do not isolate typography from topic, title, audience, or production, and the inspected thumbnails contain no display lettering. Therefore no font-style performance conclusion is attributable."
+  },
+  "performance_weight": 0,
+  "recovery_action": "Collect at least four current topic/audience-matched thumbnails using the proposed neutral sans treatment, record each exact public video URL and capture date, then compare age-normalized views with a current same-channel baseline. If no defensible sample exists, retain Unscored.",
+  "deterministic_verdict": "unscored"
+}

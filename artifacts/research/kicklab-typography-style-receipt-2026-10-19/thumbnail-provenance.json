@@ -1,0 +1,53 @@
+{
+  "version": "kicklab-raster-thumbnail-provenance/v1",
+  "output": "/review-assets/kicklab-youtube-thumbnail.png",
+  "output_sha256": "sha256:1e10fb399b2591f2ccbad9f6922d71af79af92c3a6587c5a2747899f7d7924ab",
+  "dimensions": {
+    "width": 1280,
+    "height": 720,
+    "format": "png"
+  },
+  "generated_at": "2026-10-19",
+  "backdrop": {
+    "asset": "/review-assets/social-content/source-proof/kicklab-football-photo-backdrop-2026-10-19.png",
+    "sha256": "sha256:228fda45a7a693d172def9d3c89fd735c6d90299ca8cdb3be18381a8e53b27c7",
+    "provenance": "ImageGen photo backdrop; generated 2026-10-19. Reference image was used only to guide contemporary lighting/cohesion; no reference-image interface, text, brand, or claims were reproduced.",
+    "proof_boundary": "Photographic background only; not evidence of KickLab product behavior or an actual athlete identity."
+  },
+  "product_proof": {
+    "asset": "/review-assets/social-content/source-proof/kicklab-gameplay-capture-2026-10-17.jpg",
+    "sha256": "sha256:6364edd61aabb6e1e27752747b6208a216347a9b872d8d4b532115b6b80d31d6",
+    "original_source": "/Users/vambahsillah/Projects/Portfolio/artifacts/human-qa/next-week-campaign-batch-2026-10-17/assets/kicklab.png",
+    "source_note": "Owned KickLab gameplay capture, documented in the 2026-10-17 Human-QA packet. Used as unmodified native UI pixels apart from crop, scale, and raster sharpening.",
+    "generated_ui": false,
+    "fabricated_results": false
+  },
+  "typography_receipt": "typography-style:kicklab-youtube:20261019:v1",
+  "composition": {
+    "source_canvas": "1280x720",
+    "display_copy": "MATH IN THE MOVE",
+    "font": "Bundled Inter variable font; weight 800; warm white; no outline, glow, bevel, or extrusion.",
+    "prohibited_elements_absent": [
+      "SVG output",
+      "generated arrows or trajectory graphics",
+      "fake score/result",
+      "generated interface",
+      "brand logo"
+    ],
+    "source_native_elements_retained": [
+      "KickLab screenshot includes its real gameplay trajectory and native controls; these are original product pixels, not added thumbnail graphics."
+    ]
+  },
+  "self_evaluation": {
+    "status": "direction_review_only",
+    "dated_arcade_type": "rejected; no condensed arcade face, gradient, stroke, or glow used",
+    "generic_default_type": "rejected; bundled Inter is deliberately art-directed, and performance support remains Unscored",
+    "procedural_svg_or_arrows": "pass; final is PNG, no generated arrows or SVG illustration; native in-product path remains visible in source screenshot",
+    "cohesion": "pass for photographic color grade and evidence placement; human visual review still required",
+    "overlap": "pass by layout; headline clears player/ball and proof pixels",
+    "feed_legibility": "directional pass for four-word headline at 320x180; screenshot detail is intentionally evidentiary, not a claim that all UI text is readable at feed size",
+    "typography_performance": "Unscored; public view counts do not isolate font treatment, no same-channel matched-style baseline is recorded, and matched-style sample size is 0 of required 4",
+    "recovery_action": "Complete a four-example matched-style cohort and same-channel age-normalized baseline before treating typography as approval-ready."
+  },
+  "review_gate": "Human QA pending; preview composition and feed-size readability before any release or publication."
+}

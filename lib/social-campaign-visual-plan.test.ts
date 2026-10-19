@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { readFileSync } from 'node:fs'
 import { socialCampaignLongFormBatchQaCandidates, socialCampaignPackageQaCandidates } from './social-campaign-package-qa-fixture'
 import {
   buildCampaignVisualPlan,
@@ -19,22 +20,67 @@ function passingPlan() {
 }
 
 describe('evidence-backed social visual plan', () => {
-  it('builds a version-bound, channel-native KickLab plan with twelve inspectable dimensions', () => {
+  it('builds a version-bound raster KickLab plan and keeps unsupported typography performance Unscored', () => {
     const projection = projectCampaignVisualPlan(socialCampaignPackageQaCandidates()[0], NOW)
-    expect(projection.ready).toBe(true)
+    expect(projection.ready).toBe(false)
+    expect(projection.state).toBe('unscored')
     expect(projection.plan?.beats.map((beat) => beat.channel)).toEqual(expect.arrayContaining(['linkedin', 'youtube_thumbnail', 'youtube_long_form', 'short_form']))
     expect(projection.plan?.beats.every((beat) => beat.copy_section_id && beat.copy_excerpt && beat.source_ids.length && beat.intended_takeaway)).toBe(true)
     expect(projection.plan?.exact_sources.some((source) => source.kind === 'owned_product_screenshot')).toBe(true)
     expect(projection.plan?.benchmark_logic).toMatchObject({ playlist_role: 'taste_only_zero_performance_weight', playlist_similarity: { status: 'unscored', score: null, receipt_id: null }, live_topic_score: 84, live_topic_threshold: 75 })
-    expect(projection.evaluation).toMatchObject({ status: 'passed', approval_ready: true })
-    expect(projection.evaluation.dimensions).toHaveLength(12)
-    expect(projection.evaluation.dimensions.every((dimension) => dimension.status === 'passed' && typeof dimension.score === 'number')).toBe(true)
-    expect(projection.evaluation.dimensions.every((dimension) => dimension.score === Math.round((dimension.calculation.numerator! / dimension.calculation.denominator!) * 100))).toBe(true)
-    expect(projection.evaluation.overall_score).toBe(Math.round(projection.evaluation.dimensions.reduce((sum, dimension) => sum + dimension.score!, 0) / projection.evaluation.dimensions.length))
+    expect(projection.evaluation).toMatchObject({ status: 'unscored', approval_ready: false, overall_score: null })
+    expect(projection.evaluation.dimensions).toHaveLength(13)
+    expect(projection.evaluation.dimensions.filter((dimension) => dimension.status === 'passed')).toHaveLength(12)
+    expect(projection.evaluation.dimensions.every((dimension) => dimension.status === 'unscored' || dimension.score === Math.round((dimension.calculation.numerator! / dimension.calculation.denominator!) * 100))).toBe(true)
     expect(new Set(Object.values(projection.plan!.external_gates))).toEqual(new Set([false]))
     expect(projection.plan?.beats.filter((beat) => ['youtube_long_form', 'short_form'].includes(beat.channel)).every((beat) => beat.cinematography?.contract_version === 'campaign-scene-cinematography/v1')).toBe(true)
     expect(projection.plan?.beats.every((beat) => beat.typography.contract_version === 'campaign-typography-compositing/v1')).toBe(true)
-    expect(projection.plan?.thumbnails[0]).toMatchObject({ href: '/review-assets/kicklab-youtube-thumbnail.svg', typography: { integrated_with_focal_subject: true } })
+    expect(projection.plan?.thumbnails[0]).toMatchObject({ href: '/review-assets/kicklab-youtube-thumbnail.png', typography: { integrated_with_focal_subject: true } })
+    expect(projection.plan?.typography_style_receipt).toMatchObject({ deterministic_verdict: 'unscored', performance_weight: 0, performance_evidence: { status: 'unscored', sample_size: 2, required_sample_size: 4, matched_style_sample_size: 0, channel_baseline_views: null, observed_normalized_performance: null } })
+    expect(projection.plan?.typography_style_receipt).toEqual(JSON.parse(readFileSync('artifacts/research/kicklab-typography-style-receipt-2026-10-19/receipt.json', 'utf8')))
+    expect(projection.evaluation.dimensions.find((dimension) => dimension.key === 'typography_style_evidence')).toMatchObject({ status: 'unscored', score: null })
+    expect(projection.evaluation.blockers.map((item) => item.code)).toContain('visual_typography_style_unscored')
+  })
+
+  it('uses a raster thumbnail bound to the owned gameplay capture and photographic provenance', () => {
+    const bytes = readFileSync('public/review-assets/kicklab-youtube-thumbnail.png')
+    expect(bytes.subarray(0, 8).toString('hex')).toBe('89504e470d0a1a0a')
+    expect(() => readFileSync('public/review-assets/kicklab-youtube-thumbnail.svg')).toThrow()
+    const provenance = JSON.parse(readFileSync('artifacts/research/kicklab-typography-style-receipt-2026-10-19/thumbnail-provenance.json', 'utf8'))
+    expect(provenance.product_proof).toMatchObject({
+      asset: '/review-assets/social-content/source-proof/kicklab-gameplay-capture-2026-10-17.jpg',
+      generated_ui: false,
+      fabricated_results: false,
+    })
+    expect(provenance.self_evaluation).toMatchObject({
+      status: 'direction_review_only',
+      dated_arcade_type: expect.stringContaining('rejected'),
+      typography_performance: expect.stringContaining('Unscored'),
+    })
+  })
+
+  it('rejects customer-facing SVG thumbnails and dated arcade typography', () => {
+    const plan = passingPlan()
+    plan.thumbnails[0].href = '/review-assets/kicklab-youtube-thumbnail.svg'
+    plan.typography_style_receipt!.selected_style.family = 'KickLab Impact arcade condensed black'
+    plan.typography_style_receipt!.performance_evidence.status = 'scored'
+    plan.typography_style_receipt!.performance_evidence.sample_size = 4
+    plan.typography_style_receipt!.performance_evidence.matched_style_sample_size = 4
+    plan.typography_style_receipt!.performance_evidence.baseline_video_urls = ['https://www.youtube.com/watch?v=baseline']
+    plan.typography_style_receipt!.performance_evidence.channel_baseline_views = 100000
+    plan.typography_style_receipt!.performance_evidence.observed_normalized_performance = 2
+    plan.typography_style_receipt!.deterministic_verdict = 'approved'
+    const evaluation = evaluateCampaignVisualPlan(plan, NOW)
+    expect(evaluation.blockers.map((item) => item.code)).toContain('visual_thumbnail_svg_prohibited')
+    expect(evaluation.blockers.map((item) => item.code)).toContain('visual_typography_style_rejected')
+  })
+
+  it('fails typography style evidence closed when its expiry passes', () => {
+    const plan = passingPlan()
+    plan.typography_style_receipt!.expires_at = '2026-10-19T11:59:59.000Z'
+    const evaluation = evaluateCampaignVisualPlan(plan, NOW)
+    expect(evaluation).toMatchObject({ status: 'unscored', approval_ready: false })
+    expect(evaluation.blockers.map((item) => item.code)).toContain('visual_typography_style_unscored')
   })
 
   it('blocks a generic repeated template', () => {
@@ -129,9 +175,9 @@ describe('evidence-backed social visual plan', () => {
     const candidates = socialCampaignLongFormBatchQaCandidates()
     const first = projectCampaignVisualBatch(candidates, NOW)
     const second = projectCampaignVisualBatch([...candidates].reverse(), NOW)
-    expect(first).toMatchObject({ total: 12, scanned: 12, prepared_count: 1, blocked_count: 11, remaining: 0, chunks_processed: 2 })
-    expect(first.prepared.map((entry) => entry.campaign_identity)).toEqual(['kicklab'])
-    expect(first.blocked.map((entry) => entry.campaign_identity)).toEqual(expect.arrayContaining(['reversr', 'kinflo']))
+    expect(first).toMatchObject({ total: 12, scanned: 12, prepared_count: 0, blocked_count: 12, remaining: 0, chunks_processed: 2 })
+    expect(first.prepared).toEqual([])
+    expect(first.blocked.map((entry) => entry.campaign_identity)).toEqual(expect.arrayContaining(['kicklab', 'reversr', 'kinflo']))
     expect(first.batch_id).toBe(second.batch_id)
     expect(campaignVisualBatchIdempotencyKey(first)).toBe(campaignVisualBatchIdempotencyKey(second))
   })

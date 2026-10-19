@@ -88,7 +88,7 @@ describe('campaign review package route', () => {
     expect(body.candidates[0].evaluation.package).toBeNull()
     expect(body.visual_inventory).toHaveLength(12)
     expect(body.visual_inventory.slice(0, 3).map((entry: any) => [entry.product_label, entry.state])).toEqual([
-      ['KickLab', 'ready'],
+      ['KickLab', 'unscored'],
       ['ReversR rebuild', 'blocked'],
       ['KinFlo', 'blocked'],
     ])
@@ -121,18 +121,19 @@ describe('campaign review package route', () => {
     expect(mocks.endAgentRun).not.toHaveBeenCalled()
   })
 
-  it('prepares the complete visual backlog with one evidence-complete plan and visible blocked recovery', async () => {
+  it('keeps the full visual backlog reviewable but blocks readiness while typography performance is unscored', async () => {
     const response = await POST(batchPost(url, 'prepare_visual_batch'))
     expect(response.status).toBe(200)
     const body = await response.json()
     const batch = body.run.metadata.visual_batch
-    expect(batch).toMatchObject({ total: 12, scanned: 12, prepared_count: 1, blocked_count: 11, remaining: 0, chunks_processed: 2 })
-    expect(batch.prepared[0]).toMatchObject({ campaign_identity: 'kicklab', ready: true, evaluation: { status: 'passed', approval_ready: true } })
-    expect(batch.prepared[0].plan.beats.map((beat: any) => beat.channel)).toEqual(expect.arrayContaining(['linkedin', 'youtube_thumbnail', 'youtube_long_form', 'short_form']))
-    expect(batch.prepared[0].evaluation.dimensions).toHaveLength(12)
-    expect(batch.prepared[0].evaluation.dimensions).toEqual(expect.arrayContaining([
+    expect(batch).toMatchObject({ total: 12, scanned: 12, prepared_count: 0, blocked_count: 12, remaining: 0, chunks_processed: 2 })
+    expect(batch.blocked[0]).toMatchObject({ campaign_identity: 'kicklab', ready: false, evaluation: { status: 'unscored', approval_ready: false } })
+    expect(batch.blocked[0].plan.beats.map((beat: any) => beat.channel)).toEqual(expect.arrayContaining(['linkedin', 'youtube_thumbnail', 'youtube_long_form', 'short_form']))
+    expect(batch.blocked[0].evaluation.dimensions).toHaveLength(13)
+    expect(batch.blocked[0].evaluation.dimensions).toEqual(expect.arrayContaining([
       expect.objectContaining({ key: 'scene_cinematography', status: 'passed' }),
       expect.objectContaining({ key: 'typography_compositing', status: 'passed' }),
+      expect.objectContaining({ key: 'typography_style_evidence', status: 'unscored', score: null }),
     ]))
     expect(batch.blocked).toEqual(expect.arrayContaining([expect.objectContaining({ campaign_identity: 'reversr', ready: false })]))
     expect(new Set(Object.values(batch.external_gates))).toEqual(new Set([false]))

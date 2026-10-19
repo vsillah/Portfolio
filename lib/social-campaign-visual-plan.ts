@@ -6,8 +6,8 @@ import {
   type CampaignPreparationCandidate,
 } from '@/lib/social-campaign-package-preparation'
 
-export const SOCIAL_CAMPAIGN_VISUAL_PLAN_VERSION = 'social-campaign-visual-plan/v2' as const
-export const SOCIAL_CAMPAIGN_VISUAL_EVALUATION_VERSION = 'social-campaign-visual-evaluation/v2' as const
+export const SOCIAL_CAMPAIGN_VISUAL_PLAN_VERSION = 'social-campaign-visual-plan/v3' as const
+export const SOCIAL_CAMPAIGN_VISUAL_EVALUATION_VERSION = 'social-campaign-visual-evaluation/v3' as const
 export const SOCIAL_CAMPAIGN_VISUAL_BATCH_VERSION = 'social-campaign-visual-batch/v1' as const
 export const SOCIAL_CAMPAIGN_VISUAL_BATCH_KIND = 'social_campaign_visual_batch'
 export const SOCIAL_CAMPAIGN_VISUAL_CHUNK_SIZE = 10
@@ -45,6 +45,69 @@ export type CampaignVisualTypography = {
   text_safe_area: string
   compositing_rationale: string
   integrated_with_focal_subject: boolean
+}
+
+export type CampaignTypographyComparable = {
+  comparable_id: string
+  source_url: string
+  thumbnail_url: string
+  title: string
+  channel: string
+  published_at: string
+  captured_at: string
+  age_days_at_capture: number
+  views_at_capture: number
+  likes_at_capture: number | null
+  likes_display_at_capture: string
+  audience_source_urls: string[]
+  channel_baseline_views: number | null
+  normalized_performance: number | null
+  matched_style: boolean
+  audience_fit: string
+  topic_fit: string
+  observed_type_traits: string[]
+  feed_size_behavior: string
+  decision: 'selected' | 'rejected'
+  decision_reason: string
+  performance_weight: 0 | 1
+}
+
+export type CampaignTypographyStyleReceipt = {
+  version: 'campaign-typography-style-receipt/v1'
+  receipt_id: string
+  captured_at: string
+  expires_at: string
+  topic: string
+  audience: string
+  channel: 'youtube_thumbnail'
+  comparables: CampaignTypographyComparable[]
+  selected_style: {
+    display_copy: string
+    family: string
+    weight: string
+    case: string
+    color: string
+    effects: string
+    placement: string
+  }
+  rejected_styles: Array<{ style: string; reason: string }>
+  selection_logic: string
+  performance_evidence: {
+    status: 'scored' | 'unscored'
+    sample_size: number
+    required_sample_size: number
+    matched_style_sample_size: number
+    baseline_method: string
+    baseline_video_urls: string[]
+    channel_baseline_views: number | null
+    normalized_threshold: number
+    observed_normalized_performance: number | null
+    formula: string
+    limitation: string
+  }
+  performance_weight: 0 | 1
+  recovery_action: string
+  deterministic_verdict: 'approved' | 'rejected' | 'unscored'
 }
 
 export type CampaignVisualSource = {
@@ -106,6 +169,7 @@ export type CampaignVisualPlan = {
     composition: string
     typography: CampaignVisualTypography
   }>
+  typography_style_receipt: CampaignTypographyStyleReceipt | null
   rejected_alternatives: Array<{ alternative: string; reason: string; recovery_action: string }>
   benchmark_logic: {
     playlist_role: 'taste_only_zero_performance_weight'
@@ -139,6 +203,7 @@ export const CAMPAIGN_VISUAL_DIMENSIONS = [
   ['motion_synchronization', 'Motion / synchronization'],
   ['scene_cinematography', 'Scene cinematography / variation'],
   ['typography_compositing', 'Typography / compositing'],
+  ['typography_style_evidence', 'Typography style evidence'],
   ['privacy', 'Privacy'],
   ['copy_purity', 'Customer-facing copy purity'],
 ] as const
@@ -269,10 +334,156 @@ function kickLabTakeaway(beatId: string) {
   return 'The viewer leaves with one practical experiment to try in the product.'
 }
 
+function kickLabTypographyReceipt(): CampaignTypographyStyleReceipt {
+  return {
+    version: 'campaign-typography-style-receipt/v1',
+    receipt_id: 'typography-style:kicklab-youtube:20261019:v1',
+    captured_at: '2026-10-19',
+    expires_at: '2026-11-02',
+    topic: 'football, sports science, and physics learning through gameplay',
+    audience: 'young sports-curious learners (9–15), parents, and educators',
+    channel: 'youtube_thumbnail',
+    comparables: [
+      {
+        comparable_id: 'mark-rober-ronaldo-goalie-robot',
+        source_url: 'https://www.youtube.com/watch?v=jjpjjcMeujM',
+        thumbnail_url: 'https://img.youtube.com/vi/jjpjjcMeujM/maxresdefault.jpg',
+        title: 'Ronaldo vs My Unbeatable Goalie Robot',
+        channel: 'Mark Rober',
+        published_at: '2025-11-28',
+        captured_at: '2026-10-19',
+        age_days_at_capture: 325,
+        views_at_capture: 49152957,
+        likes_at_capture: null,
+        likes_display_at_capture: '814K (rounded display)',
+        audience_source_urls: ['https://www.commonsensemedia.org/youtube-reviews/mark-rober'],
+        channel_baseline_views: null,
+        normalized_performance: null,
+        matched_style: false,
+        audience_fit: 'Official science-and-engineering creator; family and student audience is supported by the channel subject and independent 8+ audience guidance.',
+        topic_fit: 'Football action joined to a real engineering demonstration; direct subject overlap with football and physics learning.',
+        observed_type_traits: ['No added display lettering visible in the inspected thumbnail.', 'Real athlete and physical robot provide the hierarchy.', 'Natural stadium colors and photo detail; no drawn arrow or glow treatment.'],
+        feed_size_behavior: 'At 320x180 the player/robot contrast and central physical subject remain legible; there is no small headline to decode.',
+        decision: 'selected',
+        decision_reason: 'Use as a topic-native composition and restraint comparator, not as evidence that any particular font or copy performs.',
+        performance_weight: 0,
+      },
+      {
+        comparable_id: 'dude-perfect-trick-shot-contest',
+        source_url: 'https://www.youtube.com/watch?v=jvUX3ocBSCk',
+        thumbnail_url: 'https://img.youtube.com/vi/jvUX3ocBSCk/maxresdefault.jpg',
+        title: '20 YouTubers Compete in Biggest Trick Shot Contest Ever! | TSWC ’25',
+        channel: 'Dude Perfect',
+        published_at: '2025-02-22',
+        captured_at: '2026-10-19',
+        age_days_at_capture: 604,
+        views_at_capture: 17046978,
+        likes_at_capture: null,
+        likes_display_at_capture: '172K (rounded display)',
+        audience_source_urls: ['https://dudeperfect.com/videos'],
+        channel_baseline_views: null,
+        normalized_performance: null,
+        matched_style: false,
+        audience_fit: 'Official family-friendly sports-entertainment channel; directly relevant to youth sports viewing.',
+        topic_fit: 'Football-adjacent physical challenge and trick-shot competition; strong audience context, looser physics-learning fit.',
+        observed_type_traits: ['No added display lettering visible in the inspected thumbnail.', 'Real people and target activity carry the story.', 'Natural photo treatment and clear subject hierarchy; no procedural arrow.'],
+        feed_size_behavior: 'At 320x180 the face and action grouping remain recognizable; the image does not depend on fine text.',
+        decision: 'selected',
+        decision_reason: 'Use as a youth-sports audience and scene-first comparator; do not transfer the group collage or creator identity.',
+        performance_weight: 0,
+      },
+    ],
+    selected_style: {
+      display_copy: 'MATH IN THE MOVE',
+      family: 'Inter, a contemporary neutral sans-serif already bundled with Portfolio',
+      weight: '800; one line; restrained tracking; four words maximum',
+      case: 'uppercase for short-form scanability, without condensed or arcade letterforms',
+      color: 'warm white over the calm navy dusk region; no gradient fill',
+      effects: 'no outline, glow, bevel, extrusion, trajectory, arrow, or decorative curve; only a small soft shadow for local contrast',
+      placement: 'upper-left calm sky, outside the actual gameplay proof and player/ball focal area',
+    },
+    rejected_styles: [
+      { style: 'condensed black arcade display with gold-orange gradient, stroke, glow, rings, and impact vectors', reason: 'No matching type treatment appears in either current topic comparator; it would repeat the rejected dated game-poster direction and compete with real product proof.' },
+      { style: 'default-font caption pasted beside a rectangular screenshot', reason: 'Creates a generic split-card template and separates the teaching idea from the action.' },
+      { style: 'creator-logo, reaction face, fabricated score, or drawn trajectory', reason: 'Not needed to explain the actual product pixels and risks implying evidence or identity that is not present.' },
+    ],
+    selection_logic: 'Both selected official YouTube comparables are topic/audience adjacent and omit added display text. Their common signal is that real activity carries the thumbnail at feed size. The selected four-word neutral-sans line is a deliberately restrained editorial cue, not a claimed winning font; the real KickLab screenshot remains the sole product-proof layer. Comparable views and likes are captured context only and have zero typography-performance weight.',
+    performance_evidence: {
+      status: 'unscored',
+      sample_size: 2,
+      required_sample_size: 4,
+      matched_style_sample_size: 0,
+      baseline_method: 'Required baseline: median 30-day views for at least four recent standard-length videos on the same channel, normalized by each video age and matched for topic/audience; exclude Shorts and sponsored outliers.',
+      baseline_video_urls: [],
+      channel_baseline_views: null,
+      normalized_threshold: 1.5,
+      observed_normalized_performance: null,
+      formula: 'matched-style comparable views normalized per day / same-channel baseline views normalized per day; require at least 4 matched-style examples and ratio >= 1.5',
+      limitation: 'Available public view/like counts do not isolate typography from topic, title, audience, or production, and the inspected thumbnails contain no display lettering. Therefore no font-style performance conclusion is attributable.',
+    },
+    performance_weight: 0,
+    recovery_action: 'Collect at least four current topic/audience-matched thumbnails using the proposed neutral sans treatment, record each exact public video URL and capture date, then compare age-normalized views with a current same-channel baseline. If no defensible sample exists, retain Unscored.',
+    deterministic_verdict: 'unscored',
+  }
+}
+
+function evaluateTypographyReceipt(receipt: CampaignTypographyStyleReceipt | null, now: Date) {
+  if (!receipt) return 'unscored' as const
+  const unsafeType = /arcade|impact outline|neon glow|generic default/i.test(`${receipt.selected_style.family} ${receipt.selected_style.effects}`)
+  if (unsafeType) return 'rejected' as const
+  const complete = receipt.version === 'campaign-typography-style-receipt/v1'
+    && receipt.receipt_id
+    && Number.isFinite(Date.parse(receipt.captured_at))
+    && Date.parse(receipt.expires_at) > now.getTime()
+    && receipt.topic
+    && receipt.audience
+    && receipt.channel === 'youtube_thumbnail'
+    && receipt.comparables.length >= 2
+    && receipt.comparables.every((item) => /^https:\/\/www\.youtube\.com\/watch\?v=/.test(item.source_url)
+      && /^https:\/\/img\.youtube\.com\/vi\//.test(item.thumbnail_url)
+      && item.channel && item.title && item.topic_fit && item.audience_fit
+      && item.observed_type_traits.length > 0 && item.feed_size_behavior
+      && Number.isFinite(Date.parse(item.captured_at)) && Number.isFinite(Date.parse(item.published_at))
+      && item.age_days_at_capture > 0 && item.views_at_capture > 0
+      && item.likes_display_at_capture && (item.likes_at_capture == null || item.likes_at_capture >= 0)
+      && item.audience_source_urls.length > 0 && item.audience_source_urls.every((href) => /^https:\/\//.test(href))
+      && (item.performance_weight === 0 || item.performance_weight === 1))
+    && receipt.selected_style.display_copy.trim().split(/\s+/).length <= 4
+    && /Inter|grotesk|sans-serif/i.test(receipt.selected_style.family)
+    && /no outline|no .*glow/i.test(receipt.selected_style.effects)
+    && receipt.selected_style.placement
+    && receipt.rejected_styles.length >= 3
+    && receipt.selection_logic
+    && receipt.performance_evidence
+    && receipt.performance_evidence.sample_size >= 0
+    && receipt.performance_evidence.required_sample_size >= 4
+    && receipt.performance_evidence.baseline_method
+    && receipt.performance_evidence.formula
+    && receipt.performance_evidence.limitation
+    && receipt.performance_evidence.normalized_threshold > 1
+    && receipt.recovery_action
+    && (receipt.performance_weight === 0 || receipt.performance_weight === 1)
+  if (!complete) return 'unscored' as const
+  const performance = receipt.performance_evidence
+  if (performance.status !== 'scored'
+    || performance.sample_size < performance.required_sample_size
+    || performance.matched_style_sample_size < performance.required_sample_size
+    || receipt.comparables.filter((item) => item.matched_style && item.performance_weight === 1 && item.channel_baseline_views && item.normalized_performance != null).length < performance.required_sample_size
+    || !performance.baseline_video_urls.length
+    || !performance.channel_baseline_views
+    || performance.observed_normalized_performance == null
+    || performance.observed_normalized_performance < performance.normalized_threshold
+    || receipt.performance_weight !== 1
+    || receipt.deterministic_verdict !== 'approved') return 'unscored' as const
+  return 'approved' as const
+}
+
 function typographyContract(channel: VisualChannel, campaignIdentity: string): CampaignVisualTypography {
   const isKickLab = campaignIdentity === 'kicklab'
   const placement = channel === 'youtube_thumbnail'
-    ? 'Staggered display lockup follows the impact vector and overlaps the atmospheric field without covering the product result.'
+    ? campaignIdentity === 'kicklab'
+      ? 'Single-line display cue uses the calm upper-left sky, clear of gameplay proof, player, and ball.'
+      : 'Staggered display lockup follows the focal action without covering the product result.'
     : channel === 'short_form'
       ? 'Captions occupy the center-safe lower third and step around the active product highlight.'
       : channel === 'youtube_long_form'
@@ -280,11 +491,11 @@ function typographyContract(channel: VisualChannel, campaignIdentity: string): C
         : 'Headline, diagram, and proof form one editorial grid rather than separate text and image columns.'
   return {
     contract_version: 'campaign-typography-compositing/v1',
-    type_system: isKickLab ? 'KickLab Impact: condensed black display face paired with a neutral grotesk evidence label.' : 'Campaign Editorial: expressive display face paired with a neutral grotesk evidence label.',
+    type_system: isKickLab ? 'KickLab Editorial: restrained contemporary Inter sans-serif paired with the native product-interface type.' : 'Campaign Editorial: expressive display face paired with a neutral grotesk evidence label.',
     scale_hierarchy: 'One dominant 1.0x display phrase, one 0.28x evidence label, and no competing headline tier.',
-    color_contrast: isKickLab ? 'Warm gold-to-orange display fill against midnight navy with white evidence copy at WCAG-readable contrast.' : 'Campaign brand display colors against a darkened or lightened proof field with WCAG-readable evidence copy.',
-    depth_treatment: 'Two-pixel midnight stroke, directional shadow, warm outer glow, and selective highlight edge.',
-    shape_interaction: 'The display lockup intersects the motion vector and energy ring so type belongs to the action plane.',
+    color_contrast: isKickLab ? 'Warm white display type against a calm navy dusk field; retain source-image colors and local contrast.' : 'Campaign brand display colors against a darkened or lightened proof field with WCAG-readable evidence copy.',
+    depth_treatment: isKickLab ? 'No stroke, glow, bevel, or extrusion; use only a small soft shadow where required for local contrast.' : 'Restrained directional shadow and selective highlight edge.',
+    shape_interaction: isKickLab ? 'Type uses negative space in the photograph and stays clear of real gameplay pixels, player, and ball; no drawn path or arrow.' : 'The display lockup integrates with the focal subject without obscuring evidence.',
     composition_placement: placement,
     text_safe_area: channel === 'short_form' ? 'Keep 12% side gutters and the lower 20% clear of platform controls.' : 'Keep a 7% perimeter and preserve the focal product result and any face clearance.',
     compositing_rationale: 'Typography carries the energy of the product action while the proof remains the first readable object.',
@@ -459,13 +670,16 @@ export function buildCampaignVisualPlan(candidate: CampaignPreparationCandidate,
       href: candidate.deliverables.youtube.thumbnail_href,
       title: candidate.deliverables.youtube.title,
       teaser: candidate.deliverables.youtube.thumbnail_teaser,
-      focal_subject: candidate.campaign_identity === 'kicklab' ? 'KickLab Fight impact result with an expressive learner reaction' : `${candidate.product_label} product proof`,
+      focal_subject: candidate.campaign_identity === 'kicklab' ? 'Actual KickLab free-kick gameplay capture integrated with documentary football photography' : `${candidate.product_label} product proof`,
       text_words: candidate.deliverables.youtube.thumbnail_teaser.trim().split(/\s+/),
       face_text_overlap: false,
       feed_size_legible: candidate.thumbnail_checklist['Actual-feed-size legibility'] === true,
-      composition: 'One integrated, high-contrast action plane: product result, motion vector, energy ring, and staggered type lockup share depth and direction; no side-by-side pasted-image treatment.',
+      composition: candidate.campaign_identity === 'kicklab'
+        ? 'One integrated documentary action plane: real gameplay evidence sits in the calm left field, the photographed player and ball remain visible on the right, and a short neutral-sans line uses open sky; no added diagram or trajectory.'
+        : 'One integrated, high-contrast action plane: product result and focal type share depth and direction; no side-by-side pasted-image treatment.',
       typography: typographyContract('youtube_thumbnail', candidate.campaign_identity),
     }],
+    typography_style_receipt: candidate.campaign_identity === 'kicklab' ? kickLabTypographyReceipt() : null,
     rejected_alternatives: [
       { alternative: 'Generic quote-card template', reason: 'It hides the owned product proof and repeats a standard social composition.', recovery_action: 'Lead with the exact product screenshot and rebuild the hierarchy around one takeaway.' },
       { alternative: 'Title repeated as thumbnail copy', reason: 'It wastes the thumbnail and fails the complementary-teaser contract.', recovery_action: 'Keep the title explanatory and the thumbnail teaser short, distinct, and curiosity-led.' },
@@ -573,6 +787,7 @@ export function evaluateCampaignVisualPlan(plan: CampaignVisualPlan, now = new D
 
   const thumbnail = plan.thumbnails[0]
   if (!thumbnail || !thumbnail.href || thumbnail.title.trim().toLowerCase() === thumbnail.teaser.trim().toLowerCase()) blockers.push(blocker('visual_thumbnail_copy_duplicate', 'The thumbnail needs a current asset and teaser copy distinct from the video title.', 'Rewrite thumbnail teaser', plan.recovery_actions.at(-1)?.href || '/admin/social-content'))
+  if (thumbnail?.href && /\.svg(?:$|\?)/i.test(thumbnail.href)) blockers.push(blocker('visual_thumbnail_svg_prohibited', 'Customer-facing thumbnails must be delivered as raster artwork, not hand-authored SVG.', 'Replace thumbnail with raster artwork', plan.recovery_actions.at(-1)?.href || '/admin/social-content'))
   if (thumbnail && (thumbnail.face_text_overlap || !thumbnail.feed_size_legible || thumbnail.text_words.length > 5 || /pasted side[- ]by[- ]side|split[- ]card layout/i.test(thumbnail.composition))) blockers.push(blocker('visual_thumbnail_composition', 'Thumbnail focal hierarchy, face clearance, feed-size readability, or integrated composition failed.', 'Revise thumbnail composition', plan.recovery_actions.at(-1)?.href || '/admin/social-content'))
 
   const typographyPasses = (typography: CampaignVisualTypography | undefined) => Boolean(
@@ -593,6 +808,9 @@ export function evaluateCampaignVisualPlan(plan: CampaignVisualPlan, now = new D
   const typographyRegions = [...plan.beats.map((beat) => ({ id: beat.beat_id, typography: beat.typography })), ...(thumbnail ? [{ id: thumbnail.variant_id, typography: thumbnail.typography }] : [])]
   const passingTypographyRegions = typographyRegions.filter((region) => typographyPasses(region.typography))
   if (passingTypographyRegions.length !== typographyRegions.length) blockers.push(blocker('visual_typography_compositing', 'Every customer-facing visual needs an expressive type system, deliberate hierarchy and contrast, depth treatment, composition-aware placement, and integration with the focal subject.', 'Art-direct typography and compositing', plan.recovery_actions.at(-1)?.href || '/admin/social-content'))
+  const typographyReceiptVerdict = evaluateTypographyReceipt(plan.typography_style_receipt, now)
+  if (plan.typography_style_receipt && typographyReceiptVerdict === 'rejected') blockers.push(blocker('visual_typography_style_rejected', 'The selected display style fails the deterministic typography safety rules.', 'Re-art-direct typography', plan.recovery_actions.at(-1)?.href || '/admin/social-content'))
+  if (plan.typography_style_receipt && typographyReceiptVerdict === 'unscored') blockers.push(blocker('visual_typography_style_unscored', 'The typography-style receipt is incomplete, stale, unattributable, or carries a prohibited performance weight.', 'Refresh typography comparables', plan.recovery_actions.at(-1)?.href || '/admin/social-content'))
 
   const videoBeats = plan.beats.filter((beat) => beat.channel === 'youtube_long_form' || beat.channel === 'short_form')
   const timingFailure = videoBeats.some((beat) => beat.start_seconds == null || beat.end_seconds == null || beat.end_seconds <= beat.start_seconds || !beat.motion || !beat.transition || !beat.presenter_safe_area)
@@ -682,6 +900,7 @@ export function evaluateCampaignVisualPlan(plan: CampaignVisualPlan, now = new D
     dimension({ key: 'motion_synchronization', numerator: motionPasses.length, denominator: videoBeats.length, unit: 'regions', formula: 'timed video regions with motion + transition + presenter clearance + justified reuse / all timed video regions', evidenceIds: videoBeats.map((beat) => beat.beat_id), explanation: 'Scene timing, native motion, transitions, and presenter-safe framing remain inspectable.' }),
     dimension({ key: 'scene_cinematography', numerator: cinematographyPasses.length + (variationPasses ? 1 : 0), denominator: videoBeats.length + 1, unit: 'checks', formula: 'video scenes with complete non-generic shot contracts plus one sequence-level variation check / all video scenes plus variation check', evidenceIds: videoBeats.map((beat) => beat.beat_id), explanation: `Every scene records shot, framing, angle, movement, environment, blocking, choreography, entrance/exit, rationale, duration, continuity, and pattern-interrupt intent; ${uniqueVisualSignatures.size}/${requiredVisualSignatures} required visual signatures observed.` }),
     dimension({ key: 'typography_compositing', numerator: passingTypographyRegions.length, denominator: typographyRegions.length, unit: 'regions', formula: 'customer-facing regions with approved type system + hierarchy + contrast + depth + shape interaction + safe placement + focal integration / all customer-facing regions', evidenceIds: typographyRegions.map((region) => region.id), explanation: 'Display text must be art-directed into the focal composition rather than pasted beside it as a default-font block.' }),
+    dimension({ key: 'typography_style_evidence', numerator: typographyReceiptVerdict === 'approved' ? 1 : 0, denominator: 1, unit: 'checks', formula: 'complete current attributable channel/topic typography receipt with zero performance weight and approved deterministic verdict / one required receipt', evidenceIds: plan.typography_style_receipt ? [plan.typography_style_receipt.receipt_id, ...plan.typography_style_receipt.comparables.map((item) => item.comparable_id)] : [], explanation: 'The receipt binds current topic/channel comparables, captured type and feed-size observations, selection and rejection logic, a two-week expiry, and zero performance weight.', unscored: typographyReceiptVerdict === 'unscored' }),
     dimension({ key: 'privacy', numerator: privacyChecks.filter(Boolean).length, denominator: privacyChecks.length, unit: 'checks', formula: 'visual regions and exact sources with a valid privacy boundary / all visual regions and exact sources', evidenceIds: plan.exact_sources.map((source) => source.source_id), explanation: 'Only public-safe, owned, or synthetic evidence is permitted.' }),
     dimension({ key: 'copy_purity', numerator: pureCopyBeats.length, denominator: plan.beats.length, unit: 'regions', formula: 'visual regions without internal workflow or implementation language / all visual regions', evidenceIds: plan.beats.map((beat) => beat.beat_id), explanation: 'Customer-facing copy is scanned for internal workflow and implementation language.' }),
   ]
