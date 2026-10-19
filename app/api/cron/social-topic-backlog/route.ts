@@ -36,6 +36,7 @@ async function runBacklogRefresh(request: NextRequest) {
       backlog_item_count: result.backlogItems.length,
       source_counts: result.sourceCounts,
       coverage_report: result.coverageReport,
+      campaign_candidates: result.campaignCandidates,
       side_effects: {
         provider_generation: false,
         publish: false,

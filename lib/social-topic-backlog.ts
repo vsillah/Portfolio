@@ -9,6 +9,7 @@ import {
   SOCIAL_TOPIC_TRIGGER_SOURCE_TYPE,
 } from '@/lib/social-content-intelligence'
 import { supabaseAdmin } from '@/lib/supabase'
+import { reconcileCampaignPreparationCandidatesSafely } from '@/lib/social-campaign-preparation-producer'
 import {
   collectApprovedTrendWorkRelevance,
   evaluateSocialCandidateReceiptPolicy,
@@ -1190,11 +1191,15 @@ export async function runSocialTopicBacklogDiscovery(options: {
     operation: 'social_topic_backlog_discovery',
   })
   const backlogItems = await upsertSocialTopicBacklog(packet, options.triggerSource)
+  const campaignCandidates = await reconcileCampaignPreparationCandidatesSafely({
+    triggerSource: options.triggerSource,
+  })
   return {
     packet,
     signals,
     backlogItems,
     sourceCounts: packet.source_counts,
     coverageReport: packet.coverage_report,
+    campaignCandidates,
   }
 }
