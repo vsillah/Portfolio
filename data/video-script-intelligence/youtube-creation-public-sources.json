@@ -1,0 +1,122 @@
+{
+  "register_version": "youtube-creation-public-sources-v1",
+  "playlist": {
+    "id": "youtube-creation-playlist",
+    "title": "YouTube Creation",
+    "url": "https://youtube.com/playlist?list=PLbfxkgOJ1hVfHsYetjs9aXvV7UysKoujZ",
+    "observed_at": "2026-10-18T23:00:00.000Z",
+    "evidence_boundary": "Playlist membership, public title, public description, public chapter labels, creator attribution, publication date, and public page metadata only. No transcript claim is inferred."
+  },
+  "sources": [
+    {
+      "id": "oscar-owen-killer-script-2024",
+      "creator": "Oscar Owen",
+      "title": "How To Write A Killer YouTube Script (2025 Algorithm)",
+      "url": "https://youtu.be/IUE8o_e4uCY",
+      "source_kind": "playlist_video",
+      "published_at": "2024-01-20T13:34:43.000Z",
+      "observed_at": "2026-10-18T23:00:00.000Z",
+      "public_evidence": "The public description identifies a five-step script formula. Its public chapters place an example immediately after the intro, followed by five sequential steps.",
+      "evidence_fields": ["title", "description", "chapters", "creator", "publication_date"]
+    },
+    {
+      "id": "vanessa-lau-channel-blueprint-2025",
+      "creator": "Vanessa Lau",
+      "title": "If I Started a YouTube Channel in 2025, This Is My EXACT Blueprint to Grow.",
+      "url": "https://youtu.be/RagRPz6DI6U",
+      "source_kind": "playlist_video",
+      "published_at": "2025-06-19T13:00:59.000Z",
+      "observed_at": "2026-10-18T23:00:00.000Z",
+      "public_evidence": "The public description promises a complete beginner blueprint and names hooks, watch time, content planning, scripting, click-through rate, and sustainable posting as covered topics.",
+      "evidence_fields": ["title", "description", "creator", "publication_date"]
+    },
+    {
+      "id": "vanessa-lau-analytics-beginners-2021",
+      "creator": "Vanessa Lau",
+      "title": "YouTube Analytics Explained: How to Read Your Analytics FOR BEGINNERS!",
+      "url": "https://youtu.be/Bp5v3cBKLKQ",
+      "source_kind": "playlist_video",
+      "published_at": "2021-08-08T16:00:10.000Z",
+      "observed_at": "2026-10-18T23:00:00.000Z",
+      "public_evidence": "The public title frames the lesson for beginners and makes the practical outcome explicit: reading YouTube analytics.",
+      "evidence_fields": ["title", "creator", "publication_date"]
+    },
+    {
+      "id": "katie-steckly-broll-guide-2025",
+      "creator": "Katie Steckly",
+      "title": "The Ultimate Guide to Editing B-Roll For YouTube (FREE!)",
+      "url": "https://youtu.be/pW4WBaIGqqg",
+      "source_kind": "playlist_video",
+      "published_at": "2025-02-12T15:01:12.000Z",
+      "observed_at": "2026-10-18T23:00:00.000Z",
+      "public_evidence": "The public description and chapters cover matching B-roll to A-roll or voiceover, clip selection, timing, slow motion, cinematic edits, and music.",
+      "evidence_fields": ["title", "description", "chapters", "creator", "publication_date"]
+    },
+    {
+      "id": "liam-ottley-proof-systems-2025",
+      "creator": "Liam Ottley",
+      "title": "16 Insane AI Lead Generation Systems for 2025 (with PROOF!)",
+      "url": "https://youtu.be/HBmBmnmoLOk",
+      "source_kind": "playlist_video",
+      "published_at": "2025-02-27T08:16:09.000Z",
+      "observed_at": "2026-10-18T23:00:00.000Z",
+      "public_evidence": "The public title binds the promise to a concrete count and explicitly promises proof. The description links a detailed writeup for the demonstrated solutions.",
+      "evidence_fields": ["title", "description", "creator", "publication_date"]
+    },
+    {
+      "id": "vanessa-lau-thumbnail-process-2024",
+      "creator": "Vanessa Lau",
+      "title": "How to Make Thumbnails That Get Views (NO EXPERIENCE NEEDED)",
+      "url": "https://youtu.be/AR1RjNQdpzc",
+      "source_kind": "playlist_video",
+      "published_at": "2024-11-27T13:31:34.000Z",
+      "observed_at": "2026-10-18T23:00:00.000Z",
+      "public_evidence": "The public chapters move from inspiration and construction through a mobile test, channel mockup, outsourcing, and A/B testing.",
+      "evidence_fields": ["title", "description", "chapters", "creator", "publication_date"]
+    },
+    {
+      "id": "alex-hormozi-value-equation-2024",
+      "creator": "Alex Hormozi",
+      "title": "The Value Equation",
+      "url": "https://www.youtube.com/watch?v=joF2fMj3XKk",
+      "source_kind": "approved_public_creator_source",
+      "published_at": "2024-03-11T02:00:28.000Z",
+      "observed_at": "2026-10-18T23:00:00.000Z",
+      "public_evidence": "The creator-published source names the Value Equation. Acquisition.com's public journal depicts value as dream outcome and perceived likelihood relative to time delay and effort or sacrifice.",
+      "evidence_fields": ["title", "creator", "publication_date", "creator_published_framework"]
+    },
+    {
+      "id": "alex-hormozi-value-equation-journal",
+      "creator": "Alex Hormozi",
+      "title": "$100M Journal: Value Equation",
+      "url": "https://www.acquisition.com/hubfs/%24100M%20Journal.pdf",
+      "source_kind": "approved_public_creator_source",
+      "published_at": "2023-01-01T00:00:00.000Z",
+      "observed_at": "2026-10-18T23:00:00.000Z",
+      "public_evidence": "The creator-published journal visually defines the four variables used by the Value Equation.",
+      "evidence_fields": ["creator_published_framework"]
+    },
+    {
+      "id": "nick-saraev-next-leg-2026",
+      "creator": "Nick Saraev",
+      "title": "The next leg",
+      "url": "https://nicksaraev.com/the-next-leg/",
+      "source_kind": "approved_public_creator_source",
+      "published_at": "2026-03-29T00:00:00.000Z",
+      "observed_at": "2026-10-18T23:00:00.000Z",
+      "public_evidence": "The creator-published article describes using current search demand, topic timing, performance spikes, and longer authoritative courses to guide content selection.",
+      "evidence_fields": ["creator_published_article", "publication_date"]
+    },
+    {
+      "id": "nick-saraev-home-2026",
+      "creator": "Nick Saraev",
+      "title": "Nick Saraev / Writer, AI Automation",
+      "url": "https://nicksaraev.com/",
+      "source_kind": "approved_public_creator_source",
+      "published_at": null,
+      "observed_at": "2026-10-18T23:00:00.000Z",
+      "public_evidence": "The creator's public site presents a repeatable roadmap and a library of AI automation education across articles, products, and YouTube resources.",
+      "evidence_fields": ["creator_site", "public_product_index"]
+    }
+  ]
+}

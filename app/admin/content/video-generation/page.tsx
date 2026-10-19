@@ -13,6 +13,7 @@ import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import AssetPicker from '@/components/admin/AssetPicker'
 import AgenticContentReviewPacketCard from '@/components/admin/AgenticContentReviewPacketCard'
+import LongFormScriptIntelligenceReview from '@/components/admin/LongFormScriptIntelligenceReview'
 import { ExtractionStatusChip } from '@/components/admin/ExtractionStatusChip'
 import { useWorkflowStatus } from '@/lib/hooks/useWorkflowStatus'
 import ProgressPanel, { type ProgressStep } from '@/components/admin/ProgressPanel'
@@ -2000,6 +2001,8 @@ export default function VideoGenerationPage() {
             <Video className="w-7 h-7" />
             Video Generation
           </h1>
+
+          <LongFormScriptIntelligenceReview />
 
           <div className={cardCls + ' mb-6'}>
             <div className="flex flex-wrap items-start justify-between gap-3">
