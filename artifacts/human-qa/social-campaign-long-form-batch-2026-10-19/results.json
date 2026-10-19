@@ -1,6 +1,6 @@
 {
-  "revision": "e48c1eaafa5c7a287e551f2c39844a78fedfdbda",
-  "route": "http://127.0.0.1:5327/admin/social-content?campaignQa=campaign-package-preparation-v1&rev=e48c1eaafa5c7a287e551f2c39844a78fedfdbda",
+  "revision": "9241018a68fcf3054b711bbf1477b264be51aa4e",
+  "route": "http://127.0.0.1:5327/admin/social-content?campaignQa=campaign-package-preparation-v1&rev=9241018a68fcf3054b711bbf1477b264be51aa4e",
   "screenshots": [
     "desktop-1440-batch-sealed.png",
     "desktop-1440-batch-prepared.png",
