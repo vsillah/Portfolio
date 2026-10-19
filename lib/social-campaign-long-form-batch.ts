@@ -4,6 +4,7 @@ import {
   LONG_FORM_FRAMEWORK_LIBRARY_VERSION,
   LONG_FORM_SCRIPT_INTELLIGENCE_VERSION,
   evaluateLongFormScriptIntelligence,
+  kickLabLongFormQaBeats,
   type LongFormScriptBeat,
   type LongFormScriptReview,
   type LongFormScriptReviewInput,
@@ -158,13 +159,15 @@ function frameworkBlockers(candidate: CampaignPreparationCandidate, receipt: Cam
   if (receipt.framework_library_version !== LONG_FORM_FRAMEWORK_LIBRARY_VERSION) blockers.push(blocker('long_form_library_version', 'The framework receipt does not use the canonical long-form library version.', 'Re-run canonical Script Intelligence', recovery))
   const requiredRules = LONG_FORM_FRAMEWORK_LIBRARY.rules.map((rule) => rule.id)
   if (requiredRules.some((rule) => !receipt.framework_rule_ids.includes(rule))) blockers.push(blocker('long_form_framework_rules', 'The framework receipt is missing one or more canonical derived rules.', 'Complete framework rule binding', recovery))
-  if (!receipt.topic.trim() || !receipt.promise.trim() || receipt.expected_duration_seconds < 180) blockers.push(blocker('long_form_script_contract', 'Topic, promise, and a duration of at least three minutes are required.', 'Complete script contract', recovery))
+  if (!receipt.topic.trim() || !receipt.promise.trim() || receipt.expected_duration_seconds < 480 || receipt.expected_duration_seconds > 720 || receipt.delivery_words_per_minute < 120 || receipt.delivery_words_per_minute > 180) blockers.push(blocker('long_form_script_contract', 'Topic, promise, an 8-12 minute duration, and a delivery rate between 120 and 180 WPM are required.', 'Complete script contract', recovery))
+  if (receipt.product_evidence_ids.length < 3) blockers.push(blocker('long_form_product_evidence', 'At least three campaign-specific product evidence bindings are required.', 'Bind product evidence', recovery))
   if (receipt.topic_outlier_evidence.length < 3) blockers.push(blocker('long_form_topic_evidence', 'At least three attributable current same-topic comparisons are required.', 'Expand live topic evidence', recovery))
   if (receipt.creator_distance.status !== 'passed' || receipt.creator_distance.voice_profile !== 'vambah-approved') blockers.push(blocker('long_form_creator_distance', 'A passed creator-distance and approved voice receipt is required.', 'Complete originality distance', recovery))
   return blockers
 }
 
 function scriptBeats(candidate: CampaignPreparationCandidate, receipt: CampaignLongFormScriptInputReceipt): LongFormScriptBeat[] {
+  if (candidate.campaign_identity === 'kicklab') return kickLabLongFormQaBeats()
   const topic = receipt.topic
   const promise = receipt.promise
   const product = candidate.product_label
@@ -247,6 +250,8 @@ export function projectCampaignLongFormDraft(candidate: CampaignPreparationCandi
     promise: receipt.promise,
     evaluated_at: receipt.observed_at,
     expected_duration_seconds: receipt.expected_duration_seconds,
+    delivery_words_per_minute: receipt.delivery_words_per_minute,
+    product_evidence_ids: receipt.product_evidence_ids,
     beats,
     topic_outlier_evidence: receipt.topic_outlier_evidence,
     creator_distance: receipt.creator_distance,

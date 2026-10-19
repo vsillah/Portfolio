@@ -69,6 +69,8 @@ export type CampaignLongFormScriptInputReceipt = {
   topic: string
   promise: string
   expected_duration_seconds: number
+  delivery_words_per_minute: number
+  product_evidence_ids: string[]
   topic_outlier_evidence: TopicOutlierEvidence[]
   creator_distance: CreatorDistanceReceipt
 }

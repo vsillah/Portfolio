@@ -78,7 +78,7 @@ describe('campaign review package route', () => {
     expect(body.long_form_inventory.slice(0, 3).map((entry: any) => [entry.product_label, entry.state])).toEqual([
       ['KickLab', 'ready'],
       ['ReversR rebuild', 'blocked'],
-      ['KinFlo', 'ready'],
+      ['KinFlo', 'blocked'],
     ])
     expect(body.long_form_inventory).toHaveLength(12)
     expect(body.long_form_inventory.every((entry: any) => entry.packet === null)).toBe(true)
@@ -98,9 +98,12 @@ describe('campaign review package route', () => {
     expect(response.status).toBe(200)
     const body = await response.json()
     const batch = body.run.metadata.long_form_batch
-    expect(batch).toMatchObject({ total: 12, scanned: 12, chunk_size: 10, chunks_processed: 2, prepared_count: 11, blocked_count: 1, deferred_count: 0, remaining: 0 })
+    expect(batch).toMatchObject({ total: 12, scanned: 12, chunk_size: 10, chunks_processed: 2, prepared_count: 1, blocked_count: 11, deferred_count: 0, remaining: 0 })
     expect(batch.prepared.map((packet: any) => packet.campaign_identity)).toEqual(projectCampaignLongFormBatch(socialCampaignLongFormBatchQaCandidates(), new Date('2026-10-19T12:00:00.000Z')).prepared.map((packet) => packet.campaign_identity))
-    expect(batch.blocked).toEqual([expect.objectContaining({ campaign_identity: 'reversr', packet: null })])
+    expect(batch.blocked).toEqual(expect.arrayContaining([
+      expect.objectContaining({ campaign_identity: 'reversr', packet: null }),
+      expect.objectContaining({ campaign_identity: 'kinflo', packet: null }),
+    ]))
     expect(batch.prepared.every((packet: any) => packet.evaluation_receipt.approval_ready)).toBe(true)
     expect(batch.prepared.every((packet: any) => packet.evaluation_receipt.topic_evidence.status === 'passed')).toBe(true)
     expect(batch.prepared.every((packet: any) => packet.evaluation_receipt.originality.status === 'passed')).toBe(true)

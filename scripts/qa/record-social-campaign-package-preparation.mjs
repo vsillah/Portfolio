@@ -83,7 +83,7 @@ async function recordScenario(browser, storageState, { label, viewport, colorSch
   await prepareBatch.waitFor()
   if (!(await prepareBatch.isEnabled())) throw new Error(`${label} long-form batch preparation was disabled.`)
   await prepareBatch.click()
-  await panel.getByText('12 total · 12 scanned · 11 prepared · 1 blocked · 0 deferred · 0 remaining · 2 chunks', { exact: true }).waitFor()
+  await panel.getByText('12 total · 12 scanned · 1 prepared · 11 blocked · 0 deferred · 0 remaining · 2 chunks', { exact: true }).waitFor()
   await panel.getByText('ReversR rebuild · Blocked', { exact: true }).waitFor()
   await assertNoOverflow(page, `${label} prepared batch`)
   await page.screenshot({ path: path.join(outputDir, `${label}-batch-prepared.png`), fullPage: true })

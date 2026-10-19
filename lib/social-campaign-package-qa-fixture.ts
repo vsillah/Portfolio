@@ -80,7 +80,9 @@ function base(product: 'kicklab' | 'reversr' | 'kinflo', label: string): Campaig
       framework_rule_ids: LONG_FORM_FRAMEWORK_LIBRARY.rules.map((rule) => rule.id),
       topic,
       promise: `a clear ${label} product proof review built from current topic evidence`,
-      expected_duration_seconds: 180,
+      expected_duration_seconds: 600,
+      delivery_words_per_minute: 145,
+      product_evidence_ids: [`${product}-owned-proof-1`, `${product}-owned-proof-2`, `${product}-owned-proof-3`],
       topic_outlier_evidence: [2.4, 1.8, 2].map((ratio, index) => ({
         id: `topic:${product}:${index + 1}`,
         label: `${label} current topic comparison ${index + 1}`,
@@ -108,6 +110,16 @@ function base(product: 'kicklab' | 'reversr' | 'kinflo', label: string): Campaig
 
 export function socialCampaignPackageQaCandidates() {
   const kicklab = base('kicklab', 'KickLab')
+  kicklab.long_form_script_input!.topic = 'KickLab physics learning through playable Fight Race and Kick experiments'
+  kicklab.long_form_script_input!.promise = 'show how KickLab turns a player choice into a visible physics result and an explanation across Fight Race and Kick'
+  kicklab.long_form_script_input!.product_evidence_ids = ['kicklab-fight-momentum', 'kicklab-race-grip', 'kicklab-kick-vectors', 'kicklab-local-progress']
+  kicklab.long_form_script_input!.topic_outlier_evidence = kicklab.long_form_script_input!.topic_outlier_evidence.map((entry) => ({
+    ...entry,
+    topic: kicklab.long_form_script_input!.topic,
+    label: `KickLab physics learning comparison ${entry.id.split(':').at(-1)}`,
+  }))
+  kicklab.deliverables.youtube.title = 'Can a Game Make Physics Feel Obvious? Inside KickLab'
+  kicklab.deliverables.youtube.thumbnail_teaser = 'FEEL THE MATH'
   const reversr = base('reversr', 'ReversR rebuild')
   reversr.status = 'blocked'
   reversr.receipts.evidence.fresh_until = '2026-10-18T13:00:00.000Z'

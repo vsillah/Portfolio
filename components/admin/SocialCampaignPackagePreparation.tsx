@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { AlertTriangle, CheckCircle2, FileCheck2, History, Loader2, LockKeyhole, Play, RotateCcw } from 'lucide-react'
 import { getCurrentSession } from '@/lib/auth'
 import type { CampaignPreparationCandidate, CampaignPreparationResult, CampaignReviewPackage } from '@/lib/social-campaign-package-preparation'
-import type { CampaignLongFormBatch, CampaignLongFormProjection } from '@/lib/social-campaign-long-form-batch'
+import type { CampaignLongFormBatch, CampaignLongFormDraftPacket, CampaignLongFormProjection } from '@/lib/social-campaign-long-form-batch'
 
 type CandidateProjection = { candidate: CampaignPreparationCandidate; evaluation: CampaignPreparationResult }
 type Run = {
@@ -34,6 +34,45 @@ type Payload = {
 
 function pretty(value: string) {
   return value.replaceAll('_', ' ').replace(/\b\w/g, (letter) => letter.toUpperCase())
+}
+
+function LongFormPacketDetails({ packet }: { packet: CampaignLongFormDraftPacket }) {
+  const contract = packet.evaluation_receipt.script_contract
+
+  return (
+    <details className="rounded-md border border-emerald-500/30 bg-emerald-500/5 p-3 md:col-span-2">
+      <summary className="cursor-pointer text-sm font-semibold text-foreground">{packet.title}</summary>
+      <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+        <p className="rounded-md border border-border bg-background p-2 text-xs text-muted-foreground"><strong className="block text-foreground">Contract</strong>{Math.round(contract.duration_seconds / 60)} min · {contract.word_count} words</p>
+        <p className="rounded-md border border-border bg-background p-2 text-xs text-muted-foreground"><strong className="block text-foreground">Delivery</strong>{contract.minimum_word_count}-{contract.maximum_word_count} words · {contract.delivery_words_per_minute} WPM</p>
+        <p className="rounded-md border border-border bg-background p-2 text-xs text-muted-foreground"><strong className="block text-foreground">Evaluation</strong>Score {packet.evaluation_receipt.overall_score ?? 'Unscored'} · {packet.evaluation_receipt.dimensions.length} dimensions</p>
+        <p className="rounded-md border border-border bg-background p-2 text-xs text-muted-foreground"><strong className="block text-foreground">Evidence gates</strong>Topic {packet.evaluation_receipt.topic_evidence.status} · originality {packet.evaluation_receipt.originality.status}</p>
+      </div>
+      <ul className="mt-3 grid gap-1 sm:grid-cols-2 lg:grid-cols-3" aria-label="Passed long-form dimensions">
+        {packet.evaluation_receipt.dimensions.map((dimension) => <li key={dimension.key} className="text-[11px] text-muted-foreground"><CheckCircle2 className="mr-1 inline h-3 w-3 text-emerald-600" />{dimension.label}</li>)}
+      </ul>
+      <div className="mt-4">
+        <h4 className="text-sm font-semibold text-foreground">Full chaptered script</h4>
+        <p className="mt-1 text-xs text-muted-foreground">Every spoken beat, owned-evidence cue, and framework change remains inspectable before approval.</p>
+        <ol className="mt-3 space-y-3" aria-label="Full chaptered long-form script">
+          {packet.beats.map((beat) => (
+            <li key={beat.id} className="rounded-md border border-border bg-background p-3">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <h5 className="text-xs font-semibold text-foreground">{pretty(beat.chapter_id ?? beat.role)} · {pretty(beat.role)}</h5>
+                <span className="font-mono text-[10px] text-muted-foreground">{beat.start_seconds}s-{beat.end_seconds}s · {beat.id}</span>
+              </div>
+              <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-foreground">{beat.text}</p>
+              <p className="mt-2 text-xs leading-5 text-muted-foreground"><strong className="text-foreground">B-roll:</strong> {beat.broll_cue}</p>
+              {beat.pattern_interrupt ? <p className="mt-1 text-xs leading-5 text-muted-foreground"><strong className="text-foreground">Pattern interrupt:</strong> {beat.pattern_interrupt}</p> : null}
+              {(beat.framework_applications ?? []).length ? <ul className="mt-2 space-y-1" aria-label={`Framework changes for ${beat.id}`}>{beat.framework_applications?.map((application) => <li key={`${application.rule_id}-${application.change}`} className="rounded border border-violet-500/20 bg-violet-500/5 p-2 text-[11px] leading-5 text-muted-foreground"><strong className="text-foreground">{application.source_creators.join(' + ')}:</strong> {application.change}</li>)}</ul> : null}
+              {beat.primary_cta ? <p className="mt-2 text-xs leading-5 text-emerald-800 dark:text-emerald-100"><strong>Primary CTA:</strong> {beat.primary_cta.action} · <a href={beat.primary_cta.destination_url} target="_blank" rel="noreferrer" className="underline">{beat.primary_cta.destination_label}</a></p> : null}
+            </li>
+          ))}
+        </ol>
+      </div>
+      <p className="mt-3 break-all font-mono text-[10px] text-muted-foreground">{packet.packet_id}</p>
+    </details>
+  )
 }
 
 export default function SocialCampaignPackagePreparation({ qaFixture }: { qaFixture?: string }) {
@@ -132,7 +171,7 @@ export default function SocialCampaignPackagePreparation({ qaFixture }: { qaFixt
         <div className="flex flex-wrap items-center justify-between gap-2"><div><h3 className="text-sm font-semibold text-foreground">Long-form Script Intelligence batch</h3><p className="mt-1 text-xs text-muted-foreground">{data?.long_form_inventory.length ?? 0} total · {data?.long_form_inventory.filter((entry) => entry.ready).length ?? 0} ready · {data?.long_form_inventory.filter((entry) => !entry.ready).length ?? 0} blocked · processed in deterministic chunks of 10</p></div><span className="rounded-full border border-violet-500/30 bg-violet-500/10 px-2.5 py-1 text-[11px] font-semibold text-foreground">Review only</span></div>
         {!latestLongFormBatch ? <p className="mt-3 text-xs leading-5 text-muted-foreground">Long-form draft scripts remain sealed until the bounded batch action validates current source, product proof, live topic evidence, originality, privacy, title/thumbnail distinction, and canonical framework receipts.</p> : <div className="mt-3 space-y-3">
           <p className="text-xs font-semibold text-foreground">{latestLongFormBatch.total} total · {latestLongFormBatch.scanned} scanned · {latestLongFormBatch.prepared_count} prepared · {latestLongFormBatch.blocked_count} blocked · {latestLongFormBatch.deferred_count} deferred · {latestLongFormBatch.remaining} remaining · {latestLongFormBatch.chunks_processed} chunks</p>
-          <div className="grid gap-2 md:grid-cols-2">{latestLongFormBatch.prepared.map((packet) => <details key={packet.packet_id} className="rounded-md border border-emerald-500/30 bg-emerald-500/5 p-3"><summary className="cursor-pointer text-sm font-semibold text-foreground">{packet.title}</summary><p className="mt-2 text-xs text-muted-foreground">Score {packet.evaluation_receipt.overall_score ?? 'Unscored'} · {packet.evaluation_receipt.dimensions.length} dimensions · topic evidence {packet.evaluation_receipt.topic_evidence.status} · creator distance {packet.evaluation_receipt.originality.status}</p><ul className="mt-2 grid gap-1 sm:grid-cols-2">{packet.evaluation_receipt.dimensions.map((dimension) => <li key={dimension.key} className="text-[11px] text-muted-foreground"><CheckCircle2 className="mr-1 inline h-3 w-3 text-emerald-600" />{dimension.label}</li>)}</ul><p className="mt-2 line-clamp-3 text-xs leading-5 text-muted-foreground">{packet.script_text}</p><p className="mt-2 break-all font-mono text-[10px] text-muted-foreground">{packet.packet_id}</p></details>)}</div>
+          <div className="grid gap-2 md:grid-cols-2">{latestLongFormBatch.prepared.map((packet) => <LongFormPacketDetails key={packet.packet_id} packet={packet} />)}</div>
           {latestLongFormBatch.blocked.length ? <div className="space-y-2">{latestLongFormBatch.blocked.map((entry) => <div key={entry.candidate_id} className="rounded-md border border-amber-500/30 bg-amber-500/5 p-3"><p className="text-sm font-semibold text-foreground">{entry.product_label} · Blocked</p>{entry.blockers.slice(0, 3).map((item) => <p key={item.code} className="mt-1 text-xs leading-5 text-muted-foreground">{item.message} <Link href={item.recovery_href} className="font-semibold text-blue-700 underline dark:text-blue-200">{item.recovery_label}</Link></p>)}</div>)}</div> : null}
         </div>}
       </section>

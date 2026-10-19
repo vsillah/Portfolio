@@ -13,9 +13,12 @@ describe('campaign long-form script batch', () => {
   it('prepares only eligible items in a mixed backlog and keeps blocked items visible without draft text', () => {
     const batch = projectCampaignLongFormBatch(socialCampaignPackageQaCandidates(), NOW)
     expect(batch.scanned).toBe(3)
-    expect(batch.prepared.map((packet) => packet.campaign_identity)).toEqual(['kicklab', 'kinflo'])
-    expect(batch.blocked).toEqual([expect.objectContaining({ campaign_identity: 'reversr', ready: false, packet: null })])
-    expect(batch.blocked[0].blockers).toContainEqual(expect.objectContaining({ code: 'evidence_stale', recovery_label: 'Refresh evidence' }))
+    expect(batch.prepared.map((packet) => packet.campaign_identity)).toEqual(['kicklab'])
+    expect(batch.blocked).toEqual(expect.arrayContaining([
+      expect.objectContaining({ campaign_identity: 'reversr', ready: false, packet: null }),
+      expect.objectContaining({ campaign_identity: 'kinflo', ready: false, packet: null }),
+    ]))
+    expect(batch.blocked.find((entry) => entry.campaign_identity === 'reversr')?.blockers).toContainEqual(expect.objectContaining({ code: 'evidence_stale', recovery_label: 'Refresh evidence' }))
     expect(JSON.stringify(batch.blocked)).not.toContain('script_text')
     expect(batch.prepared.every((packet) => packet.evaluation_receipt.approval_ready)).toBe(true)
     expect(batch.prepared.every((packet) => packet.evaluation_receipt.dimensions.map((dimension) => dimension.key).includes('first_30_seconds'))).toBe(true)
@@ -33,7 +36,7 @@ describe('campaign long-form script batch', () => {
 
   it('processes every item beyond the first chunk and reports complete backlog coverage', () => {
     const batch = projectCampaignLongFormBatch(socialCampaignLongFormBatchQaCandidates(), NOW)
-    expect(batch).toMatchObject({ total: 12, scanned: 12, chunk_size: 10, chunks_processed: 2, prepared_count: 11, blocked_count: 1, deferred_count: 0, remaining: 0 })
+    expect(batch).toMatchObject({ total: 12, scanned: 12, chunk_size: 10, chunks_processed: 2, prepared_count: 1, blocked_count: 11, deferred_count: 0, remaining: 0 })
     expect(batch.chunks.map((chunk) => chunk.scanned)).toEqual([10, 2])
     expect(new Set([...batch.prepared.map((packet) => packet.candidate_id), ...batch.blocked.map((entry) => entry.candidate_id)]).size).toBe(12)
     expect(batch.chunks.flatMap((chunk) => chunk.candidate_ids)).toHaveLength(12)
@@ -77,6 +80,9 @@ describe('campaign long-form script batch', () => {
       'payoff',
       'spoken_conclusion',
       'delivered_cta',
+      'chapter_development',
+      'campaign_specificity',
+      'framework_mapping',
     ])
     expect(receipt.topic_evidence.status).toBe('passed')
     expect(receipt.originality.status).toBe('passed')
