@@ -15,6 +15,7 @@ const logoPath = path.join(root, 'public/amadutown-logo-upscaled.png')
 const fontPath = path.join(root, 'public/fonts/inter-latin-variable.ttf')
 const cohortPath = path.join(root, 'artifacts/research/jev-youtube-thumbnail-cohort-2026-10-19/cohort.json')
 const decisionPath = path.join(root, 'artifacts/research/jev-youtube-thumbnail-cohort-2026-10-19/thumbnail-decision-receipt.json')
+const internalWorkflowMarker = /\b(review only|draft|fixture|sample data|operator|internal|prompt|qa)\b/i
 
 await mkdir(sourceRoot, { recursive: true })
 await mkdir(artifactRoot, { recursive: true })
@@ -50,6 +51,7 @@ const variants = [
     filename: 'jev-when-should-ai-stop-hero-v1.png',
     feed_filename: 'jev-when-should-ai-stop-hero-v1-feed-320x180.png',
     teaser: 'WHEN SHOULD AI STOP?',
+    customer_facing_copy: ['JEV · HUMAN DECISION OWNERSHIP', 'WHEN SHOULD', 'AI STOP?', 'A score can inform the call.', 'A person still owns it.', 'AMADUTOWN'],
     direction: 'Expressive human question',
     layout_family: 'human-right-question-left',
     composition_signature: 'jev-curious-human-right|question-left|yellow-coral-decision-line|hero-v1',
@@ -75,7 +77,7 @@ const variants = [
       <text x="72" y="474" class="support" font-size="26" fill="#d9e7f5">A score can inform the call.</text>
       <text x="72" y="513" class="support" font-size="29" fill="#ffffff">A person still owns it.</text>
       <rect x="72" y="578" width="182" height="6" rx="3" fill="#61d5cc"/>
-      <text x="72" y="620" class="eyebrow" font-size="16" fill="#9fc0da">AMADUTOWN · REVIEW ONLY</text>
+      <text x="72" y="620" class="eyebrow" font-size="16" fill="#9fc0da">AMADUTOWN</text>
     `),
     hero_left: 560,
   },
@@ -84,6 +86,7 @@ const variants = [
     filename: 'jev-score-isnt-the-call-hero-v1.png',
     feed_filename: 'jev-score-isnt-the-call-hero-v1-feed-320x180.png',
     teaser: "THE SCORE ISN'T THE CALL",
+    customer_facing_copy: ['JEV · DECISION BOUNDARY', 'THE SCORE', "ISN'T THE", 'CALL', 'Model score. Human authority.', 'AMADUTOWN'],
     direction: 'Human ownership contrast',
     layout_family: 'human-left-contrast-right',
     composition_signature: 'jev-curious-human-left|contrast-right|cyan-yellow-boundary|hero-v1',
@@ -108,7 +111,7 @@ const variants = [
       <rect x="680" y="380" width="520" height="112" rx="24" fill="#ff7167"/>
       <text x="716" y="464" class="headline" font-size="80" fill="#06182d">CALL</text>
       <text x="690" y="552" class="support" font-size="27" fill="#d9e7f5">Model score. Human authority.</text>
-      <text x="690" y="620" class="eyebrow" font-size="16" fill="#9fc0da">AMADUTOWN · REVIEW ONLY</text>
+      <text x="690" y="620" class="eyebrow" font-size="16" fill="#9fc0da">AMADUTOWN</text>
     `),
     hero_left: 0,
   },
@@ -116,6 +119,8 @@ const variants = [
 
 const candidateRecords = []
 for (const variant of variants) {
+  const internalCopy = variant.customer_facing_copy.find((copy) => internalWorkflowMarker.test(copy))
+  if (internalCopy) throw new Error(`Customer-facing thumbnail copy contains an internal workflow marker: ${internalCopy}`)
   const output = path.join(publicRoot, variant.filename)
   const feedOutput = path.join(publicRoot, variant.feed_filename)
   await sharp({ create: { width: 1280, height: 720, channels: 4, background: '#06182d' } })
@@ -134,6 +139,7 @@ for (const variant of variants) {
     content_version: decision.content_version,
     title: decision.candidate_copy_pair.title,
     teaser: variant.teaser,
+    customer_facing_copy: variant.customer_facing_copy,
     direction: variant.direction,
     public_path: `/review-assets/social-content/jev-hero-thumbnail-review/${variant.filename}`,
     sha256: outputSha256,

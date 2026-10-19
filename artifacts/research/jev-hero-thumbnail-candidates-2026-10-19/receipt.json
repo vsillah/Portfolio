@@ -74,14 +74,22 @@
       "content_version": "sha256:392b3e2a92c5ab65e4cc93706571df761bac7ea38631bf06002fd6b89f3302a2",
       "title": "AI Scored It. Who Makes the Call?",
       "teaser": "WHEN SHOULD AI STOP?",
+      "customer_facing_copy": [
+        "JEV · HUMAN DECISION OWNERSHIP",
+        "WHEN SHOULD",
+        "AI STOP?",
+        "A score can inform the call.",
+        "A person still owns it.",
+        "AMADUTOWN"
+      ],
       "direction": "Expressive human question",
       "public_path": "/review-assets/social-content/jev-hero-thumbnail-review/jev-when-should-ai-stop-hero-v1.png",
-      "sha256": "sha256:cac2bc8c27dcd8ab64daf5189c2b4ff4cfabaf2bef83c481a9fe61f99cb105fc",
+      "sha256": "sha256:d55dc5569c9a28c716bcd5ab75e8f416aee8595a31f389557f6093d6aebc69ee",
       "width": 1280,
       "height": 720,
       "aspect_ratio": "16:9",
       "feed_preview_path": "/review-assets/social-content/jev-hero-thumbnail-review/jev-when-should-ai-stop-hero-v1-feed-320x180.png",
-      "feed_preview_sha256": "sha256:24056449c7773e310f6fcf1604f01ffcf3497ec5acaed7d6ae95964ddea8f5f8",
+      "feed_preview_sha256": "sha256:70e7ce3035c6392d0978b22f458aaf70036d4b2e750fc5ddeb390a50c5e5e073",
       "feed_preview_width": 320,
       "feed_preview_height": 180,
       "focal_subject": "Vambah in an approved curious, decision-making pose with visible eye direction and a clean face-safe field.",
@@ -109,7 +117,7 @@
       "hero_binding": {
         "hero_asset_id": "hero:jev:vambah-curious:20261019:v1",
         "hero_source_sha256": "sha256:b74a933c73cdc1ee336d951b7e6d20ea7737c214c5390805ce3c149068ec9e90",
-        "output_sha256": "sha256:cac2bc8c27dcd8ab64daf5189c2b4ff4cfabaf2bef83c481a9fe61f99cb105fc"
+        "output_sha256": "sha256:d55dc5569c9a28c716bcd5ab75e8f416aee8595a31f389557f6093d6aebc69ee"
       },
       "evidence_trace": [
         {
@@ -180,14 +188,22 @@
       "content_version": "sha256:392b3e2a92c5ab65e4cc93706571df761bac7ea38631bf06002fd6b89f3302a2",
       "title": "AI Scored It. Who Makes the Call?",
       "teaser": "THE SCORE ISN'T THE CALL",
+      "customer_facing_copy": [
+        "JEV · DECISION BOUNDARY",
+        "THE SCORE",
+        "ISN'T THE",
+        "CALL",
+        "Model score. Human authority.",
+        "AMADUTOWN"
+      ],
       "direction": "Human ownership contrast",
       "public_path": "/review-assets/social-content/jev-hero-thumbnail-review/jev-score-isnt-the-call-hero-v1.png",
-      "sha256": "sha256:e98144472d46a55b8d2c187c4a94fa348ee991a1a2cdf05bc6f3da77ac70540d",
+      "sha256": "sha256:c73917798afdd5c1b726c7866aec15669c794494d89999e41776a713bcafbcf4",
       "width": 1280,
       "height": 720,
       "aspect_ratio": "16:9",
       "feed_preview_path": "/review-assets/social-content/jev-hero-thumbnail-review/jev-score-isnt-the-call-hero-v1-feed-320x180.png",
-      "feed_preview_sha256": "sha256:a0762bfdb52dc59a4708510939c6a2f0810aaa9d90068476b7ae0e17493de011",
+      "feed_preview_sha256": "sha256:82aae025c929dcb424b51b6fbb9557cd135a2e014742e84b59fb974c561c1ea2",
       "feed_preview_width": 320,
       "feed_preview_height": 180,
       "focal_subject": "Vambah in an approved curious pose looking toward the score-versus-decision contrast, with the face isolated from copy.",
@@ -215,7 +231,7 @@
       "hero_binding": {
         "hero_asset_id": "hero:jev:vambah-curious:20261019:v1",
         "hero_source_sha256": "sha256:b74a933c73cdc1ee336d951b7e6d20ea7737c214c5390805ce3c149068ec9e90",
-        "output_sha256": "sha256:e98144472d46a55b8d2c187c4a94fa348ee991a1a2cdf05bc6f3da77ac70540d"
+        "output_sha256": "sha256:c73917798afdd5c1b726c7866aec15669c794494d89999e41776a713bcafbcf4"
       },
       "evidence_trace": [
         {

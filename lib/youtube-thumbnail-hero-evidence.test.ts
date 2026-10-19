@@ -59,4 +59,15 @@ describe('YouTube thumbnail hero evidence', () => {
     expect(result.ready).toBe(false)
     expect(result.blockers).toContain('thumbnail:jev:hero-question:20261019:v1 is not bound to the exact hero source and output hash.')
   })
+
+  it.each(['REVIEW ONLY', 'draft', 'fixture', 'sample data', 'operator', 'internal', 'prompt', 'QA'])(
+    'fails closed when exported customer-facing copy contains the internal marker %s',
+    (marker) => {
+      const value = receipt() as any
+      value.candidates[0].customer_facing_copy.push(marker)
+      const result = validateYouTubeThumbnailHeroEvidence(value, CONTENT_VERSION, AS_OF)
+      expect(result.ready).toBe(false)
+      expect(result.blockers).toContain('thumbnail:jev:hero-question:20261019:v1 is missing a clean customer-facing copy manifest or contains an internal workflow marker.')
+    },
+  )
 })

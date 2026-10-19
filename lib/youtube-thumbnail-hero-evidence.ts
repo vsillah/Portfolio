@@ -9,6 +9,17 @@ export const YOUTUBE_THUMBNAIL_CREATIVE_DECISIONS = [
   'visual_style',
 ] as const
 
+export const YOUTUBE_THUMBNAIL_INTERNAL_WORKFLOW_MARKERS = [
+  'review only',
+  'draft',
+  'fixture',
+  'sample data',
+  'operator',
+  'internal',
+  'prompt',
+  'qa',
+] as const
+
 export type YouTubeThumbnailCreativeDecision = (typeof YOUTUBE_THUMBNAIL_CREATIVE_DECISIONS)[number]
 
 export type YouTubeThumbnailHeroEvidenceValidation = {
@@ -61,6 +72,11 @@ function candidateLooksGeneric(candidate: UnknownRecord) {
     'synthetic-office',
     'generic-portrait',
   ].some((token) => signature.includes(token))
+}
+
+function containsInternalWorkflowMarker(copy: string[]) {
+  const normalized = copy.join(' ').toLowerCase()
+  return YOUTUBE_THUMBNAIL_INTERNAL_WORKFLOW_MARKERS.some((marker) => new RegExp(`\\b${marker.replace(' ', '\\s+')}\\b`, 'i').test(normalized))
 }
 
 export function validateYouTubeThumbnailHeroEvidence(
@@ -173,6 +189,10 @@ export function validateYouTubeThumbnailHeroEvidence(
     const teaserWords = Number(candidate.text_word_count)
     if (!text(candidate.title) || !text(candidate.teaser) || text(candidate.title).toLowerCase() === text(candidate.teaser).toLowerCase() || teaserWords < 1 || teaserWords > 5) {
       block(`${candidateId} does not keep a short thumbnail teaser distinct from the title.`, 'Use one to five large teaser words that add tension without repeating the title.')
+    }
+    const customerFacingCopy = strings(candidate.customer_facing_copy)
+    if (!customerFacingCopy.length || containsInternalWorkflowMarker(customerFacingCopy)) {
+      block(`${candidateId} is missing a clean customer-facing copy manifest or contains an internal workflow marker.`, 'Remove review, draft, fixture, sample-data, operator, internal, prompt, and QA labels from exported pixels; keep workflow state in UI chrome and evidence metadata.')
     }
     if (!text(candidate.focal_subject) || candidate.face_text_overlap !== false || candidate.feed_size_legible !== true) {
       block(`${candidateId} fails focal-subject, face-clearance, or feed-legibility requirements.`, 'Restore one dominant focal subject, keep text off the face, and verify the 320×180 preview.')
