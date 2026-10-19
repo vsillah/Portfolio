@@ -89,7 +89,7 @@ async function recordScenario(browser, storageState, { label, viewport, colorSch
   await page.screenshot({ path: path.join(outputDir, `${label}-batch-prepared.png`), fullPage: true })
 
   await panel.getByText('Can a Game Make Physics Feel Obvious? Inside KickLab', { exact: true }).click()
-  await panel.getByText('10 min · 1488 words', { exact: true }).waitFor()
+  await panel.locator('p').filter({ hasText: '10 min · 1488 words' }).waitFor()
   await panel.getByText('First 30 seconds', { exact: true }).first().waitFor()
   await panel.getByText('Delivered CTA', { exact: true }).first().waitFor()
   await panel.getByRole('heading', { name: 'Full chaptered script' }).waitFor()
