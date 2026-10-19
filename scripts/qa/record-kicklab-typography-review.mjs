@@ -46,11 +46,12 @@ await desktop.locator('[data-testid="visual-plan-details"]').scrollIntoViewIfNee
 await desktop.screenshot({ path: path.join(outputDir, 'desktop-1440-kicklab-review.png') })
 await desktop.getByText('Typography evidence · unscored', { exact: true }).scrollIntoViewIfNeeded()
 await desktop.screenshot({ path: path.join(outputDir, 'desktop-1440-typography-receipt.png') })
-await desktop.getByText(/Public evidence audit · How Ridiculous/).click()
-await desktop.getByText(/0\/4 matched-style examples · normalization result not calculable/).waitFor({ state: 'visible' })
-await desktop.screenshot({ path: path.join(outputDir, 'desktop-1440-public-evidence-audit.png') })
-await desktop.getByText(/Public evidence located in the nearest topic\/audience channel/).scrollIntoViewIfNeeded()
-await desktop.screenshot({ path: path.join(outputDir, 'desktop-1440-public-evidence-audit-conclusion.png') })
+await desktop.getByText(/Expanded public channel scan · 9 channels · 11 exact candidate videos/).click()
+await desktop.getByText(/Khan Academy · physics education \/ youth STEM/).waitFor({ state: 'visible' })
+await desktop.getByText(/rounded\/heavy white sentence-case lesson lettering/i).waitFor({ state: 'visible' })
+await desktop.getByText(/30-day median 53,950 views/).waitFor({ state: 'visible' })
+await desktop.getByText(/0 of 4 exact-style matched examples/).waitFor({ state: 'visible' })
+await desktop.screenshot({ path: path.join(outputDir, 'desktop-1440-expanded-channel-scan.png') })
 
 const desktopOverflow = await desktop.evaluate(() => ({
   viewportWidth: window.innerWidth,
@@ -99,17 +100,19 @@ const results = {
   observed_states: [
     'Raster thumbnail is visible as a review direction only.',
     'Typography style evidence is Unscored; zero-weight topic/audience comparables are context-only, while approval requires at least four performance-weight-1 matched-style examples and a normalized cohort result.',
-    'Public audit inspected seven exact How Ridiculous videos: zero of four style matches and zero eligible baseline videos in the inspected sample; the normalized result remains null.',
-    'Nearest lettering examples use outlined/condensed display type and include sponsorship/ad promotion; recent baseline candidates include paid, gifted-product, hosted-travel, or out-of-window exclusions.',
+    'Expanded read-only public audit screened nine channels across sports science, physics education, youth STEM, and gameplay learning; zero of four exact-style matches and the normalized result remains null.',
+    'Five current Khan Academy AP Physics uploads are eligible as same-channel baseline candidates; their rounded/heavy sentence-case lesson lettering is recorded as a style non-match, so no candidate cohort is inferred.',
+    'Eleven exact candidate records include public watch URLs, thumbnail URLs, publish/capture dates, views, duration, promotion status, type observations, and exclusion reasons; the original How Ridiculous exclusions remain preserved.',
     'Recovery action is visible; package readiness warning explicitly separates package inputs from thumbnail approval.',
     'Visual and external provider gates remain closed; no production, platform, upload, scheduling, publishing, external write, or external-send action was performed.',
   ],
   public_evidence_audit: {
-    channel: 'How Ridiculous',
-    channel_sample_size: 7,
+    channels_screened: 9,
+    candidate_videos: 11,
+    eligible_same_channel_baseline_observed: 5,
+    eligible_same_channel_baseline_median_30_day_views: 53950,
     matched_style_observed: 0,
     matched_style_required: 4,
-    eligible_same_channel_baseline_observed: 0,
     eligible_same_channel_baseline_required: 4,
     normalization_result: null,
     verdict: 'unscored',
@@ -127,8 +130,7 @@ const results = {
     'desktop-1440-initial.png',
     'desktop-1440-kicklab-review.png',
     'desktop-1440-typography-receipt.png',
-    'desktop-1440-public-evidence-audit.png',
-    'desktop-1440-public-evidence-audit-conclusion.png',
+    'desktop-1440-expanded-channel-scan.png',
     'tablet-768-kicklab-review.png',
     'tablet-768-typography-receipt.png',
     'mobile-390-kicklab-review.png',

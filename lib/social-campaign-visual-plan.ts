@@ -1,3 +1,4 @@
+import kickLabTypographyReceiptArtifact from '../artifacts/research/kicklab-typography-style-receipt-2026-10-19/receipt.json'
 import { deterministicSha256Hex } from '@/lib/deterministic-sha256.mjs'
 import { projectCampaignLongFormDraft, type CampaignLongFormDraftPacket } from '@/lib/social-campaign-long-form-batch'
 import {
@@ -111,6 +112,16 @@ export type CampaignTypographyStyleReceipt = {
       channel_sample_size: number
       matched_style_threshold: number
       matched_style_observed: number
+      channels_screened: Array<{
+        channel: string
+        channel_url: string
+        topic_domain: string
+        current_feed_size: string
+        sample_size: number
+        eligible_baseline_count?: number
+        baseline_30_day_median_views?: number | null
+        exact_search_exhaustion: string
+      }>
       nearest_candidates: Array<{
         source_url: string
         thumbnail_url: string
@@ -120,7 +131,10 @@ export type CampaignTypographyStyleReceipt = {
         captured_at: string
         duration_seconds: number
         views_at_capture: number
+        age_days_at_capture?: number
         style_match: false
+        promotion_status: string
+        observed_thumbnail_type: string
         exclusion_reason: string
       }>
       baseline_sample: Array<{
@@ -132,6 +146,8 @@ export type CampaignTypographyStyleReceipt = {
         captured_at: string
         duration_seconds: number
         views_at_capture: number
+        age_days_at_capture?: number
+        normalized_30_day_views?: number | null
         paid_or_hosted_promotion: boolean
         included_in_baseline: boolean
         exclusion_reason: string | null
@@ -456,119 +472,11 @@ function kickLabTypographyReceipt(): CampaignTypographyStyleReceipt {
       normalized_threshold: 1.5,
       observed_normalized_performance: null,
       formula: 'matched-style comparable views normalized per day / same-channel baseline views normalized per day; require at least 4 matched-style examples and ratio >= 1.5',
-      limitation: 'The public channel search found near-matches with outlined/condensed display lettering, not the proposed neutral Inter without outline. The recent same-channel videos inspected also show paid promotion, supplied products, or hosted travel; the eligible same-channel baseline is below four. No font-style performance conclusion is attributable.',
-      public_research_audit: {
-        captured_at: '2026-10-19',
-        channel: 'How Ridiculous',
-        channel_url: 'https://www.youtube.com/@howridiculous/videos',
-        channel_sample_size: 7,
-        matched_style_threshold: 4,
-        matched_style_observed: 0,
-        nearest_candidates: [
-          {
-            source_url: 'https://www.youtube.com/watch?v=OplKmBOugIA',
-            thumbnail_url: 'https://img.youtube.com/vi/OplKmBOugIA/maxresdefault.jpg',
-            title: 'How Far Will Our GIANT Frisbees Fly?',
-            channel: 'How Ridiculous',
-            published_at: '2026-07-02',
-            captured_at: '2026-10-19',
-            duration_seconds: 1836,
-            views_at_capture: 922286,
-            style_match: false,
-            exclusion_reason: 'Closest typographic candidate in the inspected channel: condensed uppercase lettering, but with a thick black outline and “LONGEST WINS” copy rather than neutral Inter without outline. The description explicitly thanks Bambu Lab for sponsoring the video, so it is also excluded from performance comparisons.'
-          },
-          {
-            source_url: 'https://www.youtube.com/watch?v=cvXGWsqhyyo',
-            thumbnail_url: 'https://img.youtube.com/vi/cvXGWsqhyyo/maxresdefault.jpg',
-            title: 'Our Greatest Plane Throw Ever! 200m Cliff Launch',
-            channel: 'How Ridiculous',
-            published_at: '2026-06-25',
-            captured_at: '2026-10-19',
-            duration_seconds: 2142,
-            views_at_capture: 1082446,
-            style_match: false,
-            exclusion_reason: 'Condensed uppercase display lettering has a heavy outline and differs from the proposed no-outline neutral sans. The public description marks an advertisement (Revolut), tags products, and notes hosted travel; exclude from performance comparisons.'
-          }
-        ],
-        baseline_sample: [
-          {
-            source_url: 'https://www.youtube.com/watch?v=XmkoPheiyC0',
-            thumbnail_url: 'https://img.youtube.com/vi/XmkoPheiyC0/maxresdefault.jpg',
-            title: 'Can We Catch An Aerobie Across This 222m Canyon?',
-            channel: 'How Ridiculous',
-            published_at: '2026-09-25',
-            captured_at: '2026-10-19',
-            duration_seconds: 1945,
-            views_at_capture: 1173985,
-            paid_or_hosted_promotion: true,
-            included_in_baseline: false,
-            exclusion_reason: 'Recent and standard-length, but the description thanks Semonkong Lodge for hosting production and promotes the Aerobie product.'
-          },
-          {
-            source_url: 'https://www.youtube.com/watch?v=MiHPitIzIYA',
-            thumbnail_url: 'https://img.youtube.com/vi/MiHPitIzIYA/maxresdefault.jpg',
-            title: 'Extreme Tire Rolling Contest Down A Mountain',
-            channel: 'How Ridiculous',
-            published_at: '2026-08-21',
-            captured_at: '2026-10-19',
-            duration_seconds: 1635,
-            views_at_capture: 1691368,
-            paid_or_hosted_promotion: true,
-            included_in_baseline: false,
-            exclusion_reason: 'Recent and standard-length, but the description promotes a clothing sale and thanks a lodge for hosting the production.'
-          },
-          {
-            source_url: 'https://www.youtube.com/watch?v=GTIwyWvTlm8',
-            thumbnail_url: 'https://img.youtube.com/vi/GTIwyWvTlm8/maxresdefault.jpg',
-            title: 'Giant Chain Whip Vs Bulletproof Glass',
-            channel: 'How Ridiculous',
-            published_at: '2026-09-11',
-            captured_at: '2026-10-19',
-            duration_seconds: 1372,
-            views_at_capture: 2512066,
-            paid_or_hosted_promotion: true,
-            included_in_baseline: false,
-            exclusion_reason: 'YouTube displays an Includes paid promotion notice; the description advertises Shopify.'
-          },
-          {
-            source_url: 'https://www.youtube.com/watch?v=PkQZU-CBwhk',
-            thumbnail_url: 'https://img.youtube.com/vi/PkQZU-CBwhk/maxresdefault.jpg',
-            title: 'This Chain Whip Is Our GREATEST BUILD EVER',
-            channel: 'How Ridiculous',
-            published_at: '2026-08-13',
-            captured_at: '2026-10-19',
-            duration_seconds: 1589,
-            views_at_capture: 1354673,
-            paid_or_hosted_promotion: true,
-            included_in_baseline: false,
-            exclusion_reason: 'The description advertises NordVPN and thanks Clear Ballistics for sending products.'
-          },
-          {
-            source_url: 'https://www.youtube.com/watch?v=5q3rbz1-JfU',
-            thumbnail_url: 'https://img.youtube.com/vi/5q3rbz1-JfU/maxresdefault.jpg',
-            title: 'Our Giant Chain Whip Is SCARY POWERFUL',
-            channel: 'How Ridiculous',
-            published_at: '2026-07-16',
-            captured_at: '2026-10-19',
-            duration_seconds: 1252,
-            views_at_capture: 1773185,
-            paid_or_hosted_promotion: false,
-            included_in_baseline: false,
-            exclusion_reason: 'No paid-promotion label or supplied/hosted production was observed, but it is 95 days old and outside the audit’s 90-day recent-baseline window.'
-          }
-        ],
-        normalization_formula: 'For each eligible video: 30-day-equivalent views = exact observed views / integer calendar age in days at capture × 30. Baseline = median of at least 4 eligible recent standard-length videos from the same channel. Candidate cohort result = median of at least 4 matched-style candidates’ 30-day-equivalent views / same-channel baseline median; approval requires >= 1.5.',
-        normalization_result: null,
-        missing_fields: [
-          'Four current topic/audience-matched thumbnails using the proposed neutral Inter-like sans, without outline, glow, or condensed display treatment (observed 0 of 4).',
-          'Four eligible recent same-channel baseline videos after excluding paid, gifted-product, and hosted-travel promotions (observed 0 of 4 in this inspected sample).',
-          'A defensible candidate-cohort median and same-channel baseline median; normalization result remains null because both required sample sets are incomplete.'
-        ],
-        conclusion: 'Public evidence located in the nearest topic/audience channel does not support the style threshold. The two closest lettering examples materially differ from the selected style and are sponsored/ad-promoted. Preserve Unscored; do not infer typography performance from these examples.'
-      },
+      limitation: 'The expanded scan found five eligible recent Khan Academy AP Physics baseline videos, but zero of four exact-style matched examples. Rounded/heavy sentence-case Khan lesson lettering is adjacent, not the evaluated short uppercase Inter treatment. The baseline cannot create a candidate cohort, so normalization remains null and no font-style performance conclusion is attributable.',
+      public_research_audit: kickLabTypographyReceiptArtifact.performance_evidence.public_research_audit as CampaignTypographyStyleReceipt['performance_evidence']['public_research_audit'],
     },
     performance_weight: 0,
-    recovery_action: 'Collect at least four current topic/audience-matched thumbnails using the proposed neutral sans treatment, record each exact public video URL and capture date, then compare age-normalized views with a current same-channel baseline. If no defensible sample exists, retain Unscored.',
+    recovery_action: 'Future experiment hypothesis: after explicit publishing/experiment authorization, compare the four-word uppercase Inter cue, a no-added-text treatment, and a short sentence-case neutral-sans variant on the same owned KickLab gameplay frame and matched title/topic, using randomized thumbnail exposure and a fixed observation window. Keep typography Unscored until at least four exact-style examples and the unchanged 1.5× age-normalized same-channel threshold are met.',
     deterministic_verdict: 'unscored',
   }
 }

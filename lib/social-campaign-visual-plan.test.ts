@@ -38,9 +38,17 @@ describe('evidence-backed social visual plan', () => {
     expect(projection.plan?.thumbnails[0]).toMatchObject({ href: '/review-assets/kicklab-youtube-thumbnail.png', typography: { integrated_with_focal_subject: true } })
     expect(projection.plan?.typography_style_receipt).toMatchObject({ deterministic_verdict: 'unscored', performance_weight: 0, performance_evidence: { status: 'unscored', sample_size: 2, required_sample_size: 4, matched_style_sample_size: 0, channel_baseline_views: null, observed_normalized_performance: null } })
     expect(projection.plan?.typography_style_receipt?.performance_evidence.public_research_audit).toMatchObject({ channel: 'How Ridiculous', channel_sample_size: 7, matched_style_threshold: 4, matched_style_observed: 0, normalization_result: null })
-    expect(projection.plan?.typography_style_receipt?.performance_evidence.public_research_audit.baseline_sample).toHaveLength(5)
-    expect(projection.plan?.typography_style_receipt?.performance_evidence.public_research_audit.baseline_sample.every((entry) => !entry.included_in_baseline)).toBe(true)
+    expect(projection.plan?.typography_style_receipt?.performance_evidence.public_research_audit.baseline_sample).toHaveLength(10)
+    expect(projection.plan?.typography_style_receipt?.performance_evidence.public_research_audit.baseline_sample.filter((entry) => entry.included_in_baseline)).toHaveLength(5)
     expect(projection.plan?.typography_style_receipt?.performance_evidence.public_research_audit.nearest_candidates.every((entry) => !entry.style_match)).toBe(true)
+    expect(projection.plan?.typography_style_receipt?.performance_evidence.public_research_audit.channels_screened).toHaveLength(9)
+    expect(projection.plan?.typography_style_receipt?.performance_evidence.public_research_audit.channels_screened).toEqual(expect.arrayContaining([
+      expect.objectContaining({ channel: 'Khan Academy', eligible_baseline_count: 5, baseline_30_day_median_views: 53950 }),
+      expect.objectContaining({ channel: 'Science of Sport', topic_domain: 'sports-based STEM' }),
+      expect.objectContaining({ channel: 'Bagz Tech', topic_domain: 'gameplay learning / physics games' }),
+    ]))
+    expect(projection.plan?.typography_style_receipt?.performance_evidence.public_research_audit.nearest_candidates).toHaveLength(11)
+    expect(projection.plan?.typography_style_receipt?.performance_evidence.public_research_audit.nearest_candidates.every((entry) => entry.promotion_status && entry.observed_thumbnail_type)).toBe(true)
     expect(projection.plan?.typography_style_receipt).toEqual(JSON.parse(readFileSync('artifacts/research/kicklab-typography-style-receipt-2026-10-19/receipt.json', 'utf8')))
     expect(projection.evaluation.dimensions.find((dimension) => dimension.key === 'typography_style_evidence')).toMatchObject({ status: 'unscored', score: null })
     expect(projection.evaluation.dimensions.find((dimension) => dimension.key === 'typography_style_evidence')).toMatchObject({ calculation: { formula: expect.stringContaining('zero-weight comparables are context-only') }, explanation: expect.stringContaining('approval requires the scored matched-style cohort') })
