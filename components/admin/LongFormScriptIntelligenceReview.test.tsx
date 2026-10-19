@@ -21,6 +21,8 @@ describe('LongFormScriptIntelligenceReview', () => {
 
     await user.click(screen.getByText('Framework receipts and public-source boundaries'))
     expect(screen.getByText('Live topic demand before approval')).toBeVisible()
+    expect(screen.getByText(/Beat: kicklab-hook/)).toBeVisible()
+    expect(screen.getAllByText(/Oscar Owen \+ Vanessa Lau/)).not.toHaveLength(0)
     expect(screen.getAllByText(/Originality boundary:/)).not.toHaveLength(0)
   })
 
@@ -46,7 +48,7 @@ describe('LongFormScriptIntelligenceReview', () => {
 
     expect(screen.getByText(/First proof starts at/)).toBeVisible()
     expect(screen.getByText(/earlier of 180s or 30%/)).toBeVisible()
-    expect(screen.getByText(/Inputs: beat-proof/)).toBeVisible()
+    expect(screen.getByText(/Inputs: kicklab-fight-proof/)).toBeVisible()
     expect(screen.getByText(/Rules: rule-proof-near-claim/)).toBeVisible()
   })
 })

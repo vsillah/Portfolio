@@ -49,6 +49,9 @@ describe('long-form script intelligence', () => {
       'payoff',
       'spoken_conclusion',
       'delivered_cta',
+      'chapter_development',
+      'campaign_specificity',
+      'framework_mapping',
     ])
     expect(result.dimensions.every((dimension) => (
       dimension.status === 'passed'
@@ -128,7 +131,7 @@ describe('long-form script intelligence', () => {
     const result = evaluateLongFormScriptIntelligence(reordered)
     expect(result.dimensions.find((dimension) => dimension.key === 'delivered_cta')).toMatchObject({
       status: 'blocked',
-      score: 50,
+      score: 35,
     })
     expect(result.blockers.some((blocker) => blocker.startsWith('Delivered CTA:'))).toBe(true)
   })
@@ -141,5 +144,46 @@ describe('long-form script intelligence', () => {
     expect(second.input_fingerprint).toBe(first.input_fingerprint)
     expect(second.overall_score).toBe(first.overall_score)
     expect(second.dimensions).toEqual(first.dimensions)
+  })
+
+  it('rejects the previous three-minute scaffold as not long-form', () => {
+    const packet = longFormScriptQaFixture('ready')
+    packet.expected_duration_seconds = 180
+    for (const beat of packet.beats) {
+      beat.start_seconds = Math.round(beat.start_seconds * 0.3)
+      beat.end_seconds = Math.round(beat.end_seconds * 0.3)
+    }
+    const result = evaluateLongFormScriptIntelligence(packet)
+    expect(result.status).toBe('unscored')
+    expect(result.approval_ready).toBe(false)
+    expect(result.blockers).toEqual(['A valid evaluation time and long-form duration between 480 and 720 seconds are required.'])
+  })
+
+  it('rejects a generic hook even when its timing and topic words are present', () => {
+    const packet = longFormScriptQaFixture('ready')
+    packet.beats.find((beat) => beat.role === 'hook')!.text = 'If you are trying to understand KickLab physics learning, this video will explain the topic.'
+    const result = evaluateLongFormScriptIntelligence(packet)
+    expect(result.approval_ready).toBe(false)
+    expect(result.dimensions.find((dimension) => dimension.key === 'first_30_seconds')).toMatchObject({ status: 'blocked', score: 35 })
+    expect(result.dimensions.find((dimension) => dimension.key === 'hook_promise_alignment')?.observed).toContain('generic=true')
+  })
+
+  it('rejects a generic subscribe CTA without a primary product action', () => {
+    const packet = longFormScriptQaFixture('ready')
+    const cta = packet.beats.find((beat) => beat.role === 'cta')!
+    cta.text = 'Subscribe for more videos like this one.'
+    cta.primary_cta = null
+    const result = evaluateLongFormScriptIntelligence(packet)
+    expect(result.approval_ready).toBe(false)
+    expect(result.dimensions.find((dimension) => dimension.key === 'delivered_cta')).toMatchObject({ status: 'blocked', score: 35 })
+  })
+
+  it('passes a substantive ten-minute KickLab script with mapped chapters, proof, framework applications, and primary CTA', () => {
+    const result = evaluateLongFormScriptIntelligence(longFormScriptQaFixture('ready'))
+    expect(result).toMatchObject({ status: 'passed', approval_ready: true })
+    expect(result.script_contract).toMatchObject({ duration_seconds: 600, delivery_words_per_minute: 145 })
+    expect(result.script_contract.word_count).toBeGreaterThanOrEqual(result.script_contract.minimum_word_count)
+    expect(result.script_contract.word_count).toBeLessThanOrEqual(result.script_contract.maximum_word_count)
+    expect(result.framework_applications.map((entry) => entry.source_creators).flat()).toEqual(expect.arrayContaining(['Oscar Owen', 'Vanessa Lau', 'Liam Ottley', 'Katie Steckly', 'Alex Hormozi', 'Nick Saraev']))
   })
 })

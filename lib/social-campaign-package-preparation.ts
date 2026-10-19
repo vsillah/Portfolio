@@ -1,8 +1,10 @@
 import { deterministicSha256Hex } from '@/lib/deterministic-sha256.mjs'
+import type { CreatorDistanceReceipt, TopicOutlierEvidence } from '@/lib/long-form-script-intelligence'
 
 export const SOCIAL_CAMPAIGN_PACKAGE_KIND = 'social_campaign_review_package'
 export const SOCIAL_CAMPAIGN_PACKAGE_VERSION = 'social-campaign-review-package/v1' as const
 export const SOCIAL_CAMPAIGN_CANDIDATE_VERSION = 'social-campaign-candidate/v1' as const
+export const SOCIAL_CAMPAIGN_LONG_FORM_INPUT_VERSION = 'campaign-long-form-script-input/v1' as const
 export const SOCIAL_CAMPAIGN_THUMBNAIL_CHECKLIST_VERSION = 'youtube-thumbnail-v6' as const
 export const SOCIAL_CAMPAIGN_MAX_ATTEMPTS = 2 as const
 export const SOCIAL_CAMPAIGN_RETRY_LIMIT = SOCIAL_CAMPAIGN_MAX_ATTEMPTS - 1
@@ -47,6 +49,30 @@ export type CampaignGateReceipt = {
   required_value: string | number
   formula: string | null
   sample_size: number | null
+  blocker_code?: string
+  blocker_message?: string
+  recovery_label?: string
+}
+
+export type CampaignLongFormScriptInputReceipt = {
+  version: typeof SOCIAL_CAMPAIGN_LONG_FORM_INPUT_VERSION
+  receipt_id: string
+  status: 'passed' | 'blocked' | 'unscored'
+  campaign_identity: string
+  candidate_id: string
+  content_updated_at: string
+  observed_at: string
+  fresh_until: string
+  source_href: string
+  framework_library_version: string
+  framework_rule_ids: string[]
+  topic: string
+  promise: string
+  expected_duration_seconds: number
+  delivery_words_per_minute: number
+  product_evidence_ids: string[]
+  topic_outlier_evidence: TopicOutlierEvidence[]
+  creator_distance: CreatorDistanceReceipt
 }
 
 export type CampaignPreparationCandidate = {
@@ -87,6 +113,7 @@ export type CampaignPreparationCandidate = {
       thumbnail_href: string
     }
   }
+  long_form_script_input?: CampaignLongFormScriptInputReceipt | null
 }
 
 export type CampaignPreparationBlocker = {
@@ -152,15 +179,15 @@ function receiptBlockers(name: string, receipt: CampaignGateReceipt, now: Date):
   const recoveryHref = receipt.source_href || '/admin/agents/content-intelligence?section=research'
   const label = name.replaceAll('_', ' ')
   if (receipt.status === 'unscored') return [{
-    code: `${name}_unscored`,
-    message: `${label} is Unscored; no review package can be prepared.`,
-    recovery_label: `Complete ${label}`,
+    code: receipt.blocker_code || `${name}_unscored`,
+    message: receipt.blocker_message || `${label} is Unscored; no review package can be prepared.`,
+    recovery_label: receipt.recovery_label || `Complete ${label}`,
     recovery_href: recoveryHref,
   }]
   if (receipt.status !== 'passed') return [{
-    code: `${name}_blocked`,
-    message: `${label} has not passed its required threshold.`,
-    recovery_label: `Resolve ${label} blocker`,
+    code: receipt.blocker_code || `${name}_blocked`,
+    message: receipt.blocker_message || `${label} has not passed its required threshold.`,
+    recovery_label: receipt.recovery_label || `Resolve ${label} blocker`,
     recovery_href: recoveryHref,
   }]
   if (!receipt.receipt_id || !validTimestamp(receipt.observed_at)) return [{

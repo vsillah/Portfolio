@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { AlertTriangle, CheckCircle2, FileCheck2, History, Loader2, LockKeyhole, Play, RotateCcw } from 'lucide-react'
 import { getCurrentSession } from '@/lib/auth'
 import type { CampaignPreparationCandidate, CampaignPreparationResult, CampaignReviewPackage } from '@/lib/social-campaign-package-preparation'
+import type { CampaignLongFormBatch, CampaignLongFormDraftPacket, CampaignLongFormProjection } from '@/lib/social-campaign-long-form-batch'
 
 type CandidateProjection = { candidate: CampaignPreparationCandidate; evaluation: CampaignPreparationResult }
 type Run = {
@@ -13,7 +14,7 @@ type Run = {
   subject_id: string
   subject_label: string
   current_step: string
-  metadata: { package?: CampaignReviewPackage; attempt_number?: number; retry_count?: number; retry_limit?: number; maximum_attempts?: number }
+  metadata: { package?: CampaignReviewPackage; long_form_batch?: CampaignLongFormBatch; attempt_number?: number; retry_count?: number; retry_limit?: number; maximum_attempts?: number }
   outcome?: Record<string, unknown>
   error_message?: string | null
   idempotency_key: string
@@ -23,6 +24,7 @@ type Run = {
 }
 type Payload = {
   candidates: CandidateProjection[]
+  long_form_inventory: CampaignLongFormProjection[]
   runs: Run[]
   retry_policy: { maximum_attempts_per_input_version: number; retry_limit: number; duplicate_records_allowed: false; source_change_requires_new_input_version: true }
   external_gates: Record<string, false>
@@ -34,10 +36,50 @@ function pretty(value: string) {
   return value.replaceAll('_', ' ').replace(/\b\w/g, (letter) => letter.toUpperCase())
 }
 
+function LongFormPacketDetails({ packet }: { packet: CampaignLongFormDraftPacket }) {
+  const contract = packet.evaluation_receipt.script_contract
+
+  return (
+    <details className="rounded-md border border-emerald-500/30 bg-emerald-500/5 p-3 md:col-span-2">
+      <summary className="cursor-pointer text-sm font-semibold text-foreground">{packet.title}</summary>
+      <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+        <p className="rounded-md border border-border bg-background p-2 text-xs text-muted-foreground"><strong className="block text-foreground">Contract</strong>{Math.round(contract.duration_seconds / 60)} min · {contract.word_count} words</p>
+        <p className="rounded-md border border-border bg-background p-2 text-xs text-muted-foreground"><strong className="block text-foreground">Delivery</strong>{contract.minimum_word_count}-{contract.maximum_word_count} words · {contract.delivery_words_per_minute} WPM</p>
+        <p className="rounded-md border border-border bg-background p-2 text-xs text-muted-foreground"><strong className="block text-foreground">Evaluation</strong>Score {packet.evaluation_receipt.overall_score ?? 'Unscored'} · {packet.evaluation_receipt.dimensions.length} dimensions</p>
+        <p className="rounded-md border border-border bg-background p-2 text-xs text-muted-foreground"><strong className="block text-foreground">Evidence gates</strong>Topic {packet.evaluation_receipt.topic_evidence.status} · originality {packet.evaluation_receipt.originality.status}</p>
+      </div>
+      <ul className="mt-3 grid gap-1 sm:grid-cols-2 lg:grid-cols-3" aria-label="Passed long-form dimensions">
+        {packet.evaluation_receipt.dimensions.map((dimension) => <li key={dimension.key} className="text-[11px] text-muted-foreground"><CheckCircle2 className="mr-1 inline h-3 w-3 text-emerald-600" />{dimension.label}</li>)}
+      </ul>
+      <div className="mt-4">
+        <h4 className="text-sm font-semibold text-foreground">Full chaptered script</h4>
+        <p className="mt-1 text-xs text-muted-foreground">Every spoken beat, owned-evidence cue, and framework change remains inspectable before approval.</p>
+        <ol className="mt-3 space-y-3" aria-label="Full chaptered long-form script">
+          {packet.beats.map((beat) => (
+            <li key={beat.id} className="rounded-md border border-border bg-background p-3">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <h5 className="text-xs font-semibold text-foreground">{pretty(beat.chapter_id ?? beat.role)} · {pretty(beat.role)}</h5>
+                <span className="font-mono text-[10px] text-muted-foreground">{beat.start_seconds}s-{beat.end_seconds}s · {beat.id}</span>
+              </div>
+              <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-foreground">{beat.text}</p>
+              <p className="mt-2 text-xs leading-5 text-muted-foreground"><strong className="text-foreground">B-roll:</strong> {beat.broll_cue}</p>
+              {beat.pattern_interrupt ? <p className="mt-1 text-xs leading-5 text-muted-foreground"><strong className="text-foreground">Pattern interrupt:</strong> {beat.pattern_interrupt}</p> : null}
+              {(beat.framework_applications ?? []).length ? <ul className="mt-2 space-y-1" aria-label={`Framework changes for ${beat.id}`}>{beat.framework_applications?.map((application) => <li key={`${application.rule_id}-${application.change}`} className="rounded border border-violet-500/20 bg-violet-500/5 p-2 text-[11px] leading-5 text-muted-foreground"><strong className="text-foreground">{application.source_creators.join(' + ')}:</strong> {application.change}</li>)}</ul> : null}
+              {beat.primary_cta ? <p className="mt-2 text-xs leading-5 text-emerald-800 dark:text-emerald-100"><strong>Primary CTA:</strong> {beat.primary_cta.action} · <a href={beat.primary_cta.destination_url} target="_blank" rel="noreferrer" className="underline">{beat.primary_cta.destination_label}</a></p> : null}
+            </li>
+          ))}
+        </ol>
+      </div>
+      <p className="mt-3 break-all font-mono text-[10px] text-muted-foreground">{packet.packet_id}</p>
+    </details>
+  )
+}
+
 export default function SocialCampaignPackagePreparation({ qaFixture }: { qaFixture?: string }) {
   const [data, setData] = useState<Payload | null>(null)
   const [selectedId, setSelectedId] = useState('')
   const [busy, setBusy] = useState(false)
+  const [batchBusy, setBatchBusy] = useState(false)
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
   const fixtureQuery = qaFixture ? `?qa_fixture=${encodeURIComponent(qaFixture)}` : ''
@@ -53,6 +95,7 @@ export default function SocialCampaignPackagePreparation({ qaFixture }: { qaFixt
       const normalized = {
         ...payload,
         candidates: Array.isArray(payload.candidates) ? payload.candidates : [],
+        long_form_inventory: Array.isArray(payload.long_form_inventory) ? payload.long_form_inventory : [],
         runs: Array.isArray(payload.runs) ? payload.runs : [],
         external_gates: payload.external_gates && typeof payload.external_gates === 'object' ? payload.external_gates : {},
         retry_policy: payload.retry_policy ?? { maximum_attempts_per_input_version: 2, retry_limit: 1, duplicate_records_allowed: false, source_change_requires_new_input_version: true },
@@ -68,6 +111,8 @@ export default function SocialCampaignPackagePreparation({ qaFixture }: { qaFixt
   const selected = useMemo(() => data?.candidates.find((entry) => entry.candidate.candidate_id === selectedId) ?? null, [data, selectedId])
   const packageRuns = useMemo(() => (data?.runs ?? []).filter((run) => run.subject_id === selectedId), [data, selectedId])
   const latestPackage = packageRuns.find((run) => run.metadata?.package)?.metadata.package ?? null
+  const longFormRuns = useMemo(() => (data?.runs ?? []).filter((run) => run.metadata?.long_form_batch), [data])
+  const latestLongFormBatch = longFormRuns[0]?.metadata.long_form_batch ?? null
 
   const prepare = async () => {
     if (!selected) return
@@ -88,6 +133,24 @@ export default function SocialCampaignPackagePreparation({ qaFixture }: { qaFixt
     } finally { setBusy(false) }
   }
 
+  const prepareLongFormBatch = async () => {
+    setBatchBusy(true); setError(''); setNotice('')
+    try {
+      const session = await getCurrentSession()
+      if (!session) throw new Error('Sign in with an authorized Portfolio staff account.')
+      const response = await fetch(`/api/admin/social-content/campaign-packages${fixtureQuery}`, { method: 'POST', headers: { Authorization: `Bearer ${session.access_token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'prepare_long_form_batch' }) })
+      const payload = await response.json()
+      if (!response.ok) throw new Error(payload.error || 'Long-form batch preparation failed.')
+      setData((current) => current ? { ...current, runs: [payload.run, ...current.runs.filter((run) => run.id !== payload.run.id)] } : current)
+      const batch = payload.run?.metadata?.long_form_batch as CampaignLongFormBatch | undefined
+      setNotice(payload.duplicate
+        ? 'The existing long-form batch receipt was returned. No duplicate drafts were created.'
+        : `${batch?.prepared_count ?? 0} long-form script${batch?.prepared_count === 1 ? '' : 's'} prepared for human review; ${batch?.blocked_count ?? 0} blocked; ${batch?.remaining ?? 0} remaining.`)
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'Long-form batch preparation failed. Refresh before a bounded retry.')
+    } finally { setBatchBusy(false) }
+  }
+
   if (!data && !error) return <section aria-label="Campaign package preparation" className="admin-console-card rounded-xl border p-5"><p className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" /> Loading eligible campaigns…</p></section>
 
   return (
@@ -98,11 +161,20 @@ export default function SocialCampaignPackagePreparation({ qaFixture }: { qaFixt
           <h2 className="text-xl font-semibold text-foreground">Prepare a complete campaign package</h2>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">Select an evidence-backed candidate, resolve exact blockers, then prepare LinkedIn and YouTube assets with durable receipts. Only the canonical Decision Queue can approve or advance the result.</p>
         </div>
-        <span className="inline-flex w-fit items-center gap-2 rounded-full border border-slate-500/35 bg-slate-500/10 px-3 py-1 text-xs font-semibold text-foreground"><LockKeyhole className="h-3.5 w-3.5" /> External gates closed</span>
+        <div className="flex flex-col items-start gap-2 lg:items-end"><span className="inline-flex w-fit items-center gap-2 rounded-full border border-slate-500/35 bg-slate-500/10 px-3 py-1 text-xs font-semibold text-foreground"><LockKeyhole className="h-3.5 w-3.5" /> External gates closed</span><button type="button" onClick={() => void prepareLongFormBatch()} disabled={batchBusy || !(data?.long_form_inventory.length)} className="admin-console-button-primary disabled:cursor-not-allowed disabled:opacity-50">{batchBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}{batchBusy ? 'Preparing batch…' : longFormRuns.length ? 'Return existing script batch' : 'Prepare eligible long-form scripts'}</button></div>
       </div>
       {data?.integration_note ? <p className="mt-3 rounded-lg border border-violet-500/30 bg-violet-500/10 p-3 text-xs leading-5 text-muted-foreground">{data.integration_note}</p> : null}
       {error ? <div role="alert" className="mt-3 rounded-lg border border-red-500/35 bg-red-500/10 p-3 text-sm text-red-800 dark:text-red-100">{error} <button type="button" onClick={() => void load()} className="ml-1 underline">Refresh</button></div> : null}
       {notice ? <p role="status" className="mt-3 rounded-lg border border-emerald-500/35 bg-emerald-500/10 p-3 text-sm text-emerald-800 dark:text-emerald-100">{notice}</p> : null}
+
+      <section aria-label="Long-form script batch review" className="mt-4 rounded-lg border border-border bg-background p-3" data-testid="long-form-script-batch">
+        <div className="flex flex-wrap items-center justify-between gap-2"><div><h3 className="text-sm font-semibold text-foreground">Long-form Script Intelligence batch</h3><p className="mt-1 text-xs text-muted-foreground">{data?.long_form_inventory.length ?? 0} total · {data?.long_form_inventory.filter((entry) => entry.ready).length ?? 0} ready · {data?.long_form_inventory.filter((entry) => !entry.ready).length ?? 0} blocked · processed in deterministic chunks of 10</p></div><span className="rounded-full border border-violet-500/30 bg-violet-500/10 px-2.5 py-1 text-[11px] font-semibold text-foreground">Review only</span></div>
+        {!latestLongFormBatch ? <p className="mt-3 text-xs leading-5 text-muted-foreground">Long-form draft scripts remain sealed until the bounded batch action validates current source, product proof, live topic evidence, originality, privacy, title/thumbnail distinction, and canonical framework receipts.</p> : <div className="mt-3 space-y-3">
+          <p className="text-xs font-semibold text-foreground">{latestLongFormBatch.total} total · {latestLongFormBatch.scanned} scanned · {latestLongFormBatch.prepared_count} prepared · {latestLongFormBatch.blocked_count} blocked · {latestLongFormBatch.deferred_count} deferred · {latestLongFormBatch.remaining} remaining · {latestLongFormBatch.chunks_processed} chunks</p>
+          <div className="grid gap-2 md:grid-cols-2">{latestLongFormBatch.prepared.map((packet) => <LongFormPacketDetails key={packet.packet_id} packet={packet} />)}</div>
+          {latestLongFormBatch.blocked.length ? <div className="space-y-2">{latestLongFormBatch.blocked.map((entry) => <div key={entry.candidate_id} className="rounded-md border border-amber-500/30 bg-amber-500/5 p-3"><p className="text-sm font-semibold text-foreground">{entry.product_label} · Blocked</p>{entry.blockers.slice(0, 3).map((item) => <p key={item.code} className="mt-1 text-xs leading-5 text-muted-foreground">{item.message} <Link href={item.recovery_href} className="font-semibold text-blue-700 underline dark:text-blue-200">{item.recovery_label}</Link></p>)}</div>)}</div> : null}
+        </div>}
+      </section>
 
       <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.4fr)]">
         <div>

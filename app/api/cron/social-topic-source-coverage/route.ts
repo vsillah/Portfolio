@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { reconcileCampaignPreparationCandidatesSafely } from '@/lib/social-campaign-preparation-producer'
 import { collectLiveSocialTopicCoverage } from '@/lib/social-topic-source-coverage'
 
 export const dynamic = 'force-dynamic'
@@ -13,6 +14,9 @@ export async function GET(request: NextRequest) {
   if (!authorized(request)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   try {
     const coverage = await collectLiveSocialTopicCoverage({ persist: true })
+    const campaignCandidates = await reconcileCampaignPreparationCandidatesSafely({
+      triggerSource: 'social_topic_source_coverage',
+    })
     return NextResponse.json({
       success: true,
       generated_at: coverage.generated_at,
@@ -26,6 +30,7 @@ export async function GET(request: NextRequest) {
       github_activity_product_identities: [...new Set(coverage.receipts
         .filter((receipt) => receipt.source_group === 'github_development' && receipt.source_kind.startsWith('github_'))
         .map((receipt) => receipt.product_identity))],
+      campaign_candidates: campaignCandidates,
       side_effects: {
         github_write: false,
         provider_generation: false,

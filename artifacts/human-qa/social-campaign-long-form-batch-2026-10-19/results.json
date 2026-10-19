@@ -1,0 +1,20 @@
+{
+  "revision": "c3f76a22436c77e7bd90263d7566e3156cc5ee3e",
+  "route": "http://127.0.0.1:5327/admin/social-content?campaignQa=campaign-package-preparation-v1&rev=c3f76a22436c77e7bd90263d7566e3156cc5ee3e",
+  "screenshots": [
+    "desktop-1440-batch-sealed.png",
+    "desktop-1440-batch-prepared.png",
+    "desktop-1440-batch-evaluation.png",
+    "desktop-1440-reversr-blocked.png",
+    "mobile-390-batch-sealed.png",
+    "mobile-390-batch-prepared.png",
+    "mobile-390-batch-evaluation.png",
+    "mobile-390-reversr-blocked.png"
+  ],
+  "video": "social-campaign-long-form-batch-walkthrough.mp4",
+  "external_requests": [],
+  "blocked_development_telemetry": [
+    "https://va.vercel-scripts.com/v1/speed-insights/script.debug.js"
+  ],
+  "protected_actions_exercised": []
+}

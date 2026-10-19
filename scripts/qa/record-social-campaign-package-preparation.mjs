@@ -11,9 +11,9 @@ const execFileAsync = promisify(execFile)
 const baseUrl = process.env.QA_BASE_URL || 'http://127.0.0.1:3098'
 const revision = process.env.QA_REVISION || 'b9fcbac3'
 const authState = process.env.PLAYWRIGHT_AUTH_STATE || '/Users/vambahsillah/Projects/Portfolio/.auth/portfolio-admin-storage-state.json'
-const outputDir = path.resolve(process.env.QA_OUTPUT_DIR || 'artifacts/human-qa/social-campaign-package-preparation-2026-10-18')
+const outputDir = path.resolve(process.env.QA_OUTPUT_DIR || 'artifacts/human-qa/social-campaign-long-form-batch-2026-10-19')
 const rawVideoDir = path.join(outputDir, 'raw-video')
-const mp4Path = path.join(outputDir, 'social-campaign-package-preparation-walkthrough.mp4')
+const mp4Path = path.join(outputDir, 'social-campaign-long-form-batch-walkthrough.mp4')
 const route = `/admin/social-content?campaignQa=campaign-package-preparation-v1&rev=${encodeURIComponent(revision)}`
 
 await mkdir(rawVideoDir, { recursive: true })
@@ -76,26 +76,36 @@ async function recordScenario(browser, storageState, { label, viewport, colorSch
   await panel.waitFor({ state: 'visible', timeout: 30_000 })
   await panel.getByText('LinkedIn and YouTube deliverables remain sealed', { exact: false }).waitFor()
   await assertNoOverflow(page, `${label} initial`)
-  await page.screenshot({ path: path.join(outputDir, `${label}-ready-sealed.png`), fullPage: true })
+  await panel.getByText('Long-form draft scripts remain sealed', { exact: false }).waitFor()
+  await page.screenshot({ path: path.join(outputDir, `${label}-batch-sealed.png`), fullPage: true })
+
+  const prepareBatch = panel.getByRole('button', { name: 'Prepare eligible long-form scripts' })
+  await prepareBatch.waitFor()
+  if (!(await prepareBatch.isEnabled())) throw new Error(`${label} long-form batch preparation was disabled.`)
+  await prepareBatch.click()
+  await panel.getByText('12 total · 12 scanned · 1 prepared · 11 blocked · 0 deferred · 0 remaining · 2 chunks', { exact: true }).waitFor()
+  await panel.getByText('ReversR rebuild · Blocked', { exact: true }).waitFor()
+  await assertNoOverflow(page, `${label} prepared batch`)
+  await page.screenshot({ path: path.join(outputDir, `${label}-batch-prepared.png`), fullPage: true })
+
+  await panel.getByText('Can a Game Make Physics Feel Obvious? Inside KickLab', { exact: true }).click()
+  await panel.locator('p').filter({ hasText: '10 min · 1488 words' }).waitFor()
+  await panel.getByText('First 30 seconds', { exact: true }).first().waitFor()
+  await panel.getByText('Delivered CTA', { exact: true }).first().waitFor()
+  await panel.getByRole('heading', { name: 'Full chaptered script' }).waitFor()
+  await panel.getByText(/A punch, a corner, and a free kick look unrelated/).scrollIntoViewIfNeeded()
+  await page.waitForTimeout(600)
+  await panel.getByText(/Start in Fight\. The player does not choose/).scrollIntoViewIfNeeded()
+  await page.waitForTimeout(600)
+  await panel.getByText(/Open and run KickLab, then comment with one surprising result/).scrollIntoViewIfNeeded()
+  await page.waitForTimeout(600)
+  await page.screenshot({ path: path.join(outputDir, `${label}-batch-evaluation.png`), fullPage: true })
 
   await panel.getByRole('option', { name: /ReversR rebuild/i }).click()
   await panel.getByText('Preparation blocked', { exact: true }).waitFor()
   await panel.getByText('LinkedIn and YouTube deliverables are withheld', { exact: false }).waitFor()
   await assertNoOverflow(page, `${label} blocked`)
   await page.screenshot({ path: path.join(outputDir, `${label}-reversr-blocked.png`), fullPage: true })
-
-  const readyCandidate = label === 'mobile-390' ? /KinFlo/i : /KickLab/i
-  await panel.getByRole('option', { name: readyCandidate }).click()
-  const prepare = panel.getByRole('button', { name: 'Prepare review package' })
-  await prepare.waitFor()
-  if (!(await prepare.isEnabled())) throw new Error(`${label} ready candidate preparation was disabled.`)
-  await prepare.click()
-  await panel.getByText('Review package prepared.', { exact: false }).waitFor()
-  await panel.getByText('Prepared for canonical Decision Queue review', { exact: true }).waitFor()
-  await panel.getByText('LinkedIn package', { exact: true }).waitFor()
-  await panel.getByText('YouTube package', { exact: true }).waitFor()
-  await panel.getByRole('link', { name: 'Open canonical Decision Queue' }).waitFor()
-  await page.screenshot({ path: path.join(outputDir, `${label}-prepared-receipt.png`), fullPage: true })
 
   await panel.getByText('Evidence, formulas, and comparison trace', { exact: true }).click()
   await panel.getByText('Saved playlist examples: zero performance weight; taste calibration only; Unscored.', { exact: true }).waitFor()
@@ -135,12 +145,14 @@ const result = {
   revision,
   route: `${baseUrl}${route}`,
   screenshots: [
-    'desktop-1440-ready-sealed.png',
+    'desktop-1440-batch-sealed.png',
+    'desktop-1440-batch-prepared.png',
+    'desktop-1440-batch-evaluation.png',
     'desktop-1440-reversr-blocked.png',
-    'desktop-1440-prepared-receipt.png',
-    'mobile-390-ready-sealed.png',
+    'mobile-390-batch-sealed.png',
+    'mobile-390-batch-prepared.png',
+    'mobile-390-batch-evaluation.png',
     'mobile-390-reversr-blocked.png',
-    'mobile-390-prepared-receipt.png',
   ],
   video: path.basename(mp4Path),
   external_requests: [],

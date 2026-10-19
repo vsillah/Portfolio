@@ -26,6 +26,7 @@ import {
 } from '@/lib/social-practitioner-content'
 import { nextReviewWindow, reviewCadence, reviewWindows, REVIEW_SIDE_EFFECTS, type ReviewProjection, type ReviewRow, type ReviewWindow } from '@/lib/campaign-review-cadence'
 import { validateYouTubeDescriptionReviewPacket } from '@/lib/youtube-outlier-description-library'
+import { reconcileCampaignPreparationCandidatesSafely } from '@/lib/social-campaign-preparation-producer'
 
 type Row = Record<string, any> // Database JSON records are validated before preparing a packet.
 const record = parseMetadata
@@ -839,6 +840,11 @@ export async function prepareCampaignReviewBatch(id: string, options: {
       })
     }
   }
+  const campaignCandidates = options.dryRun ? null : await reconcileCampaignPreparationCandidatesSafely({
+    campaignIds: [id],
+    triggerSource: options.scheduled ? 'scheduled_campaign_review_preparation' : 'campaign_review_preparation',
+    now,
+  })
   const after = options.dryRun ? before : await getCampaignReviewBacklog(id, now)
   return {
     ...after,
@@ -848,6 +854,7 @@ export async function prepareCampaignReviewBatch(id: string, options: {
     would_prepare_count: candidates.length,
     window,
     notification: reviewNotification(id, window, preparedItems.map(row => row.calendar_item_id)),
+    campaign_candidates: campaignCandidates,
     side_effects: REVIEW_SIDE_EFFECTS,
   }
 }
