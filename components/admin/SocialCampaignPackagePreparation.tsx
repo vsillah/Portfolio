@@ -2,10 +2,12 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { AlertTriangle, CheckCircle2, FileCheck2, History, Loader2, LockKeyhole, Play, RotateCcw } from 'lucide-react'
 import { getCurrentSession } from '@/lib/auth'
 import type { CampaignPreparationCandidate, CampaignPreparationResult, CampaignReviewPackage } from '@/lib/social-campaign-package-preparation'
 import type { CampaignLongFormBatch, CampaignLongFormDraftPacket, CampaignLongFormProjection } from '@/lib/social-campaign-long-form-batch'
+import type { CampaignVisualBatch, CampaignVisualPlan, CampaignVisualProjection } from '@/lib/social-campaign-visual-plan'
 
 type CandidateProjection = { candidate: CampaignPreparationCandidate; evaluation: CampaignPreparationResult }
 type Run = {
@@ -14,7 +16,7 @@ type Run = {
   subject_id: string
   subject_label: string
   current_step: string
-  metadata: { package?: CampaignReviewPackage; long_form_batch?: CampaignLongFormBatch; attempt_number?: number; retry_count?: number; retry_limit?: number; maximum_attempts?: number }
+  metadata: { package?: CampaignReviewPackage; long_form_batch?: CampaignLongFormBatch; visual_batch?: CampaignVisualBatch; attempt_number?: number; retry_count?: number; retry_limit?: number; maximum_attempts?: number }
   outcome?: Record<string, unknown>
   error_message?: string | null
   idempotency_key: string
@@ -25,11 +27,58 @@ type Run = {
 type Payload = {
   candidates: CandidateProjection[]
   long_form_inventory: CampaignLongFormProjection[]
+  visual_inventory: CampaignVisualProjection[]
   runs: Run[]
   retry_policy: { maximum_attempts_per_input_version: number; retry_limit: number; duplicate_records_allowed: false; source_change_requires_new_input_version: true }
   external_gates: Record<string, false>
   fixture: boolean
   integration_note: string | null
+}
+
+function VisualPlanDetails({ plan, projection }: { plan: CampaignVisualPlan; projection: CampaignVisualProjection }) {
+  const linkedin = plan.beats.filter((beat) => beat.channel === 'linkedin')
+  const thumbnail = plan.thumbnails[0]
+  const timed = plan.beats.filter((beat) => beat.channel === 'youtube_long_form' || beat.channel === 'short_form')
+
+  return (
+    <article className="rounded-lg border border-violet-500/30 bg-violet-500/5 p-3 md:col-span-2" data-testid="visual-plan-details">
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <div><h4 className="text-sm font-semibold text-foreground">{plan.product_label} · channel-native visual plan</h4><p className="mt-1 text-xs text-muted-foreground">Bound to {plan.script_packet_id} and content version {plan.content_version}</p></div>
+        <span className="rounded-full border border-emerald-500/35 bg-emerald-500/10 px-2.5 py-1 text-xs font-semibold text-emerald-800 dark:text-emerald-100">Score {projection.evaluation.overall_score}/100</span>
+      </div>
+
+      <section aria-label="Clean customer-facing asset view" className="mt-3 grid gap-3 lg:grid-cols-2">
+        <div className="overflow-hidden rounded-lg border border-border bg-background">
+          <div className="relative aspect-[4/5] bg-gradient-to-br from-amber-100 via-white to-sky-100 dark:from-amber-950 dark:via-slate-950 dark:to-sky-950">
+            {linkedin[0]?.asset_href ? <Image src={linkedin[0].asset_href} alt={`${plan.product_label} LinkedIn product evidence`} fill sizes="(max-width: 1024px) 100vw, 50vw" className="object-contain p-8" /> : null}
+            <div className="absolute inset-x-4 bottom-4 rounded-lg border border-white/60 bg-slate-950/85 p-3 text-white shadow-xl"><p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-amber-300">LinkedIn · evidence dashboard</p><p className="mt-1 text-base font-bold leading-5">{linkedin[0]?.customer_facing_copy}</p></div>
+          </div>
+          <div className="p-3"><p className="text-xs font-semibold text-foreground">Clean asset view</p><p className="mt-1 text-xs leading-5 text-muted-foreground">4:5 save-worthy consulting pamphlet treatment with the product proof at the center.</p></div>
+        </div>
+        <div className="overflow-hidden rounded-lg border border-border bg-background">
+          <div className="relative aspect-video bg-gradient-to-br from-cyan-950 via-slate-950 to-violet-950">
+            {thumbnail?.href ? <Image src={thumbnail.href} alt={`${plan.product_label} YouTube thumbnail evidence`} fill sizes="(max-width: 1024px) 100vw, 50vw" className="object-contain object-left p-4 pr-[42%]" /> : null}
+            <div className="absolute right-4 top-1/2 w-[42%] -translate-y-1/2"><p className="text-right text-2xl font-black uppercase leading-none tracking-tight text-white drop-shadow-lg sm:text-4xl">{thumbnail?.teaser}</p></div>
+          </div>
+          <div className="p-3"><p className="text-xs font-semibold text-foreground">YouTube thumbnail · distinct from title</p><p className="mt-1 text-xs leading-5 text-muted-foreground">{thumbnail?.title}</p><p className="mt-1 text-[11px] text-muted-foreground">{thumbnail?.composition}</p></div>
+        </div>
+      </section>
+
+      <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-5" aria-label="Visual evaluation dimensions">
+        {projection.evaluation.dimensions.map((item) => <div key={item.key} className="rounded-md border border-border bg-background p-2"><div className="flex items-start justify-between gap-2"><strong className="text-[11px] leading-4 text-foreground">{item.label}</strong><span className="text-xs font-bold text-emerald-700 dark:text-emerald-200">{item.score}</span></div><p className="mt-1 text-[10px] leading-4 text-muted-foreground">{item.explanation}</p></div>)}
+      </div>
+
+      <details className="mt-3 rounded-md border border-border bg-background p-3">
+        <summary className="cursor-pointer text-sm font-semibold text-foreground">Show field-level source trace and visual decisions</summary>
+        <div className="mt-3 grid gap-3 lg:grid-cols-2">
+          <div><h5 className="text-xs font-semibold text-foreground">Exact source deep links</h5><ul className="mt-2 space-y-2">{plan.exact_sources.map((source) => <li key={source.source_id} className="rounded border border-border p-2 text-xs leading-5"><a href={source.href} className="font-semibold text-blue-700 underline dark:text-blue-200">{source.label}</a><p className="text-muted-foreground">{pretty(source.kind)} · {source.privacy_boundary}</p><p className="break-all font-mono text-[10px] text-muted-foreground">{source.source_id}</p></li>)}</ul></div>
+          <div><h5 className="text-xs font-semibold text-foreground">Benchmark logic</h5><p className="mt-2 text-xs leading-5 text-muted-foreground">Playlist similarity {plan.benchmark_logic.playlist_similarity_score}/100 · taste only, zero performance weight. Live topic score {plan.benchmark_logic.live_topic_score} / {plan.benchmark_logic.live_topic_threshold} required.</p><p className="mt-2 text-xs leading-5 text-muted-foreground">{plan.benchmark_logic.explanation}</p><h5 className="mt-4 text-xs font-semibold text-foreground">Rejected alternatives</h5><ul className="mt-2 space-y-2">{plan.rejected_alternatives.map((entry) => <li key={entry.alternative} className="rounded border border-border p-2 text-xs leading-5"><strong className="text-foreground">{entry.alternative}</strong><p className="text-muted-foreground">{entry.reason}</p><p className="text-muted-foreground"><strong>Recovery:</strong> {entry.recovery_action}</p></li>)}</ul></div>
+        </div>
+        <h5 className="mt-4 text-xs font-semibold text-foreground">Script-to-visual storyboard timing</h5>
+        <ol className="mt-2 space-y-2">{timed.map((beat) => <li key={beat.beat_id} className="rounded border border-border p-2 text-xs leading-5"><div className="flex flex-wrap justify-between gap-2"><strong className="text-foreground">{pretty(beat.channel)} · {beat.copy_section_id}</strong><span className="font-mono text-[10px] text-muted-foreground">{beat.start_seconds}s-{beat.end_seconds}s</span></div><p className="mt-1 text-foreground">{beat.intended_takeaway}</p><p className="mt-1 text-muted-foreground"><strong>Copy:</strong> {beat.copy_excerpt}</p><p className="mt-1 text-muted-foreground"><strong>Motion:</strong> {beat.motion} <strong>Transition:</strong> {beat.transition}</p><p className="mt-1 break-all font-mono text-[10px] text-muted-foreground">Sources: {beat.source_ids.join(' · ')}</p></li>)}</ol>
+      </details>
+    </article>
+  )
 }
 
 function pretty(value: string) {
@@ -80,6 +129,7 @@ export default function SocialCampaignPackagePreparation({ qaFixture }: { qaFixt
   const [selectedId, setSelectedId] = useState('')
   const [busy, setBusy] = useState(false)
   const [batchBusy, setBatchBusy] = useState(false)
+  const [visualBatchBusy, setVisualBatchBusy] = useState(false)
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
   const fixtureQuery = qaFixture ? `?qa_fixture=${encodeURIComponent(qaFixture)}` : ''
@@ -96,6 +146,7 @@ export default function SocialCampaignPackagePreparation({ qaFixture }: { qaFixt
         ...payload,
         candidates: Array.isArray(payload.candidates) ? payload.candidates : [],
         long_form_inventory: Array.isArray(payload.long_form_inventory) ? payload.long_form_inventory : [],
+        visual_inventory: Array.isArray(payload.visual_inventory) ? payload.visual_inventory : [],
         runs: Array.isArray(payload.runs) ? payload.runs : [],
         external_gates: payload.external_gates && typeof payload.external_gates === 'object' ? payload.external_gates : {},
         retry_policy: payload.retry_policy ?? { maximum_attempts_per_input_version: 2, retry_limit: 1, duplicate_records_allowed: false, source_change_requires_new_input_version: true },
@@ -113,6 +164,8 @@ export default function SocialCampaignPackagePreparation({ qaFixture }: { qaFixt
   const latestPackage = packageRuns.find((run) => run.metadata?.package)?.metadata.package ?? null
   const longFormRuns = useMemo(() => (data?.runs ?? []).filter((run) => run.metadata?.long_form_batch), [data])
   const latestLongFormBatch = longFormRuns[0]?.metadata.long_form_batch ?? null
+  const visualRuns = useMemo(() => (data?.runs ?? []).filter((run) => run.metadata?.visual_batch), [data])
+  const latestVisualBatch = visualRuns[0]?.metadata.visual_batch ?? null
 
   const prepare = async () => {
     if (!selected) return
@@ -151,6 +204,24 @@ export default function SocialCampaignPackagePreparation({ qaFixture }: { qaFixt
     } finally { setBatchBusy(false) }
   }
 
+  const prepareVisualBatch = async () => {
+    setVisualBatchBusy(true); setError(''); setNotice('')
+    try {
+      const session = await getCurrentSession()
+      if (!session) throw new Error('Sign in with an authorized Portfolio staff account.')
+      const response = await fetch(`/api/admin/social-content/campaign-packages${fixtureQuery}`, { method: 'POST', headers: { Authorization: `Bearer ${session.access_token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'prepare_visual_batch' }) })
+      const payload = await response.json()
+      if (!response.ok) throw new Error(payload.error || 'Visual batch preparation failed.')
+      setData((current) => current ? { ...current, runs: [payload.run, ...current.runs.filter((run) => run.id !== payload.run.id)] } : current)
+      const batch = payload.run?.metadata?.visual_batch as CampaignVisualBatch | undefined
+      setNotice(payload.duplicate
+        ? 'The existing visual batch receipt was returned. No duplicate plan was created.'
+        : `${batch?.prepared_count ?? 0} visual plan${batch?.prepared_count === 1 ? '' : 's'} prepared for human review; ${batch?.blocked_count ?? 0} blocked; ${batch?.remaining ?? 0} remaining.`)
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'Visual batch preparation failed. Refresh before a bounded retry.')
+    } finally { setVisualBatchBusy(false) }
+  }
+
   if (!data && !error) return <section aria-label="Campaign package preparation" className="admin-console-card rounded-xl border p-5"><p className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" /> Loading eligible campaigns…</p></section>
 
   return (
@@ -161,7 +232,7 @@ export default function SocialCampaignPackagePreparation({ qaFixture }: { qaFixt
           <h2 className="text-xl font-semibold text-foreground">Prepare a complete campaign package</h2>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">Select an evidence-backed candidate, resolve exact blockers, then prepare LinkedIn and YouTube assets with durable receipts. Only the canonical Decision Queue can approve or advance the result.</p>
         </div>
-        <div className="flex flex-col items-start gap-2 lg:items-end"><span className="inline-flex w-fit items-center gap-2 rounded-full border border-slate-500/35 bg-slate-500/10 px-3 py-1 text-xs font-semibold text-foreground"><LockKeyhole className="h-3.5 w-3.5" /> External gates closed</span><button type="button" onClick={() => void prepareLongFormBatch()} disabled={batchBusy || !(data?.long_form_inventory.length)} className="admin-console-button-primary disabled:cursor-not-allowed disabled:opacity-50">{batchBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}{batchBusy ? 'Preparing batch…' : longFormRuns.length ? 'Return existing script batch' : 'Prepare eligible long-form scripts'}</button></div>
+        <div className="flex flex-col items-start gap-2 lg:items-end"><span className="inline-flex w-fit items-center gap-2 rounded-full border border-slate-500/35 bg-slate-500/10 px-3 py-1 text-xs font-semibold text-foreground"><LockKeyhole className="h-3.5 w-3.5" /> External gates closed</span><div className="flex flex-wrap gap-2 lg:justify-end"><button type="button" onClick={() => void prepareLongFormBatch()} disabled={batchBusy || !(data?.long_form_inventory.length)} className="admin-console-button-primary disabled:cursor-not-allowed disabled:opacity-50">{batchBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}{batchBusy ? 'Preparing batch…' : longFormRuns.length ? 'Return existing script batch' : 'Prepare eligible long-form scripts'}</button><button type="button" onClick={() => void prepareVisualBatch()} disabled={visualBatchBusy || !(data?.visual_inventory.length)} className="admin-console-button-primary disabled:cursor-not-allowed disabled:opacity-50">{visualBatchBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}{visualBatchBusy ? 'Preparing visuals…' : visualRuns.length ? 'Return existing visual batch' : 'Prepare eligible visual plans'}</button></div></div>
       </div>
       {data?.integration_note ? <p className="mt-3 rounded-lg border border-violet-500/30 bg-violet-500/10 p-3 text-xs leading-5 text-muted-foreground">{data.integration_note}</p> : null}
       {error ? <div role="alert" className="mt-3 rounded-lg border border-red-500/35 bg-red-500/10 p-3 text-sm text-red-800 dark:text-red-100">{error} <button type="button" onClick={() => void load()} className="ml-1 underline">Refresh</button></div> : null}
@@ -173,6 +244,15 @@ export default function SocialCampaignPackagePreparation({ qaFixture }: { qaFixt
           <p className="text-xs font-semibold text-foreground">{latestLongFormBatch.total} total · {latestLongFormBatch.scanned} scanned · {latestLongFormBatch.prepared_count} prepared · {latestLongFormBatch.blocked_count} blocked · {latestLongFormBatch.deferred_count} deferred · {latestLongFormBatch.remaining} remaining · {latestLongFormBatch.chunks_processed} chunks</p>
           <div className="grid gap-2 md:grid-cols-2">{latestLongFormBatch.prepared.map((packet) => <LongFormPacketDetails key={packet.packet_id} packet={packet} />)}</div>
           {latestLongFormBatch.blocked.length ? <div className="space-y-2">{latestLongFormBatch.blocked.map((entry) => <div key={entry.candidate_id} className="rounded-md border border-amber-500/30 bg-amber-500/5 p-3"><p className="text-sm font-semibold text-foreground">{entry.product_label} · Blocked</p>{entry.blockers.slice(0, 3).map((item) => <p key={item.code} className="mt-1 text-xs leading-5 text-muted-foreground">{item.message} <Link href={item.recovery_href} className="font-semibold text-blue-700 underline dark:text-blue-200">{item.recovery_label}</Link></p>)}</div>)}</div> : null}
+        </div>}
+      </section>
+
+      <section aria-label="Visual plan batch review" className="mt-4 rounded-lg border border-border bg-background p-3" data-testid="visual-plan-batch">
+        <div className="flex flex-wrap items-center justify-between gap-2"><div><h3 className="text-sm font-semibold text-foreground">Evidence-backed visual management batch</h3><p className="mt-1 text-xs text-muted-foreground">{data?.visual_inventory.length ?? 0} total · {data?.visual_inventory.filter((entry) => entry.ready).length ?? 0} ready · {data?.visual_inventory.filter((entry) => !entry.ready).length ?? 0} blocked · complete deterministic scan</p></div><span className="rounded-full border border-violet-500/30 bg-violet-500/10 px-2.5 py-1 text-[11px] font-semibold text-foreground">Provider none · review only</span></div>
+        {!latestVisualBatch ? <p className="mt-3 text-xs leading-5 text-muted-foreground">Visual plans remain sealed until the batch action binds every region to approved copy, exact sources, owned product proof, timing, privacy, originality, and channel-native quality checks.</p> : <div className="mt-3 space-y-3">
+          <p className="text-xs font-semibold text-foreground">{latestVisualBatch.total} total · {latestVisualBatch.scanned} scanned · {latestVisualBatch.prepared_count} prepared · {latestVisualBatch.blocked_count} blocked · {latestVisualBatch.remaining} remaining · {latestVisualBatch.chunks_processed} chunks</p>
+          <div className="grid gap-3 md:grid-cols-2">{latestVisualBatch.prepared.map((projection) => projection.plan ? <VisualPlanDetails key={projection.plan.plan_id} plan={projection.plan} projection={projection} /> : null)}</div>
+          {latestVisualBatch.blocked.length ? <div className="space-y-2" aria-label="Blocked visual candidates">{latestVisualBatch.blocked.map((entry) => <div key={entry.candidate_id} className="rounded-md border border-amber-500/30 bg-amber-500/5 p-3"><p className="text-sm font-semibold text-foreground">{entry.product_label} · {entry.state === 'unscored' ? 'Unscored' : 'Blocked'}</p><p className="mt-1 text-xs text-muted-foreground">Numerical visual scoring is withheld until the prerequisite evidence and script contract pass.</p>{entry.evaluation.blockers.slice(0, 3).map((item) => <p key={item.code} className="mt-1 text-xs leading-5 text-muted-foreground">{item.message} <Link href={item.recovery_href} className="font-semibold text-blue-700 underline dark:text-blue-200">{item.recovery_label}</Link></p>)}</div>)}</div> : null}
         </div>}
       </section>
 

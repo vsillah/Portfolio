@@ -4,6 +4,7 @@ import SocialCampaignPackagePreparation from './SocialCampaignPackagePreparation
 import { SOCIAL_CAMPAIGN_PACKAGE_QA_FIXTURE, socialCampaignLongFormBatchQaCandidates, socialCampaignPackageQaCandidates } from '@/lib/social-campaign-package-qa-fixture'
 import { evaluateCampaignPreparationCandidate } from '@/lib/social-campaign-package-preparation'
 import { projectCampaignLongFormBatch, projectCampaignLongFormDraft } from '@/lib/social-campaign-long-form-batch'
+import { projectCampaignVisualBatch, projectCampaignVisualPlan } from '@/lib/social-campaign-visual-plan'
 
 vi.mock('@/lib/auth', () => ({ getCurrentSession: vi.fn(async () => ({ access_token: 'staff-token' })) }))
 
@@ -12,6 +13,7 @@ const longFormCandidates = socialCampaignLongFormBatchQaCandidates()
 const responseBody = () => ({
   candidates: candidates.map((candidate) => ({ candidate, evaluation: evaluateCampaignPreparationCandidate(candidate, new Date('2026-10-19T12:00:00.000Z')) })),
   long_form_inventory: longFormCandidates.map((candidate) => ({ ...projectCampaignLongFormDraft(candidate, new Date('2026-10-19T12:00:00.000Z')), packet: null })),
+  visual_inventory: longFormCandidates.map((candidate) => ({ ...projectCampaignVisualPlan(candidate, new Date('2026-10-19T12:00:00.000Z')), plan: null })),
   runs: [],
   retry_policy: { maximum_attempts_per_input_version: 2, retry_limit: 1, duplicate_records_allowed: false, source_change_requires_new_input_version: true },
   external_gates: { provider_calls: false, uploads: false, scheduling: false, publishing: false },
@@ -27,6 +29,10 @@ describe('SocialCampaignPackagePreparation', () => {
         if (body.action === 'prepare_long_form_batch') {
           const batch = projectCampaignLongFormBatch(longFormCandidates, new Date('2026-10-19T12:00:00.000Z'))
           return { ok: true, json: async () => ({ run: { id: 'qa-long-form-batch', status: 'completed', subject_id: batch.batch_id, subject_label: 'Current campaign backlog', current_step: 'Prepared eligible long-form scripts for human review', metadata: { long_form_batch: batch, attempt_number: 1, retry_count: 0, retry_limit: 1, maximum_attempts: 2 }, outcome: {}, idempotency_key: 'long-form-stable-key', created_at: '2026-10-19T12:00:00.000Z', updated_at: '2026-10-19T12:00:00.000Z', completed_at: '2026-10-19T12:00:00.000Z' }, duplicate: false }) } as Response
+        }
+        if (body.action === 'prepare_visual_batch') {
+          const batch = projectCampaignVisualBatch(longFormCandidates, new Date('2026-10-19T12:00:00.000Z'))
+          return { ok: true, json: async () => ({ run: { id: 'qa-visual-batch', status: 'completed', subject_id: batch.batch_id, subject_label: 'Current campaign visual backlog', current_step: 'Prepared eligible channel-native visual plans for human review', metadata: { visual_batch: batch, attempt_number: 1, retry_count: 0, retry_limit: 1, maximum_attempts: 2 }, outcome: {}, idempotency_key: 'visual-stable-key', created_at: '2026-10-19T12:00:00.000Z', updated_at: '2026-10-19T12:00:00.000Z', completed_at: '2026-10-19T12:00:00.000Z' }, duplicate: false }) } as Response
         }
         return { ok: true, json: async () => ({ run: { id: 'qa-run', status: 'completed', subject_id: 'candidate:kicklab:campaign:v1', subject_label: 'KickLab', current_step: 'Prepared for canonical Decision Queue review', metadata: { package: evaluateCampaignPreparationCandidate(candidates[0], new Date('2026-10-19T12:00:00.000Z')).package, attempt_number: 1, retry_count: 0, retry_limit: 1, maximum_attempts: 2 }, outcome: {}, idempotency_key: 'stable-key', created_at: '2026-10-19T12:00:00.000Z', updated_at: '2026-10-19T12:00:00.000Z', completed_at: '2026-10-19T12:00:00.000Z' }, duplicate: false }) } as Response
       }
@@ -71,6 +77,25 @@ describe('SocialCampaignPackagePreparation', () => {
     expect(screen.getByText(/Open and run KickLab, then comment with one surprising result/)).toBeVisible()
     expect(screen.getAllByText(/Oscar Owen \+ Vanessa Lau:/)).not.toHaveLength(0)
     await waitFor(() => expect(fetch).toHaveBeenCalledWith(expect.stringContaining('qa_fixture'), expect.objectContaining({ method: 'POST', body: JSON.stringify({ action: 'prepare_long_form_batch' }) })))
+  })
+
+  it('prepares the complete visual backlog and exposes clean assets, trace, scoring, and blocked recovery', async () => {
+    render(<SocialCampaignPackagePreparation qaFixture={SOCIAL_CAMPAIGN_PACKAGE_QA_FIXTURE} />)
+    const button = await screen.findByRole('button', { name: 'Prepare eligible visual plans' })
+    expect(screen.getByText(/Visual plans remain sealed/i)).toBeInTheDocument()
+    fireEvent.click(button)
+    expect(await screen.findByText('12 total · 12 scanned · 1 prepared · 11 blocked · 0 remaining · 2 chunks')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /KickLab · channel-native visual plan/i })).toBeVisible()
+    expect(screen.getByLabelText('Clean customer-facing asset view')).toBeVisible()
+    expect(screen.getByText('FEEL THE MATH')).toBeVisible()
+    expect(screen.getAllByText(/ReversR rebuild · Blocked/i).length).toBeGreaterThan(0)
+    const trace = screen.getByText('Show field-level source trace and visual decisions')
+    fireEvent.click(trace)
+    expect(screen.getByText('Exact source deep links')).toBeVisible()
+    expect(screen.getByText('Script-to-visual storyboard timing')).toBeVisible()
+    expect(screen.getByText(/Playlist similarity 82\/100/i)).toBeVisible()
+    expect(screen.getAllByText(/Numerical visual scoring is withheld/i).length).toBeGreaterThan(0)
+    await waitFor(() => expect(fetch).toHaveBeenCalledWith(expect.stringContaining('qa_fixture'), expect.objectContaining({ method: 'POST', body: JSON.stringify({ action: 'prepare_visual_batch' }) })))
   })
 })
 

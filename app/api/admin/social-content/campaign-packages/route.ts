@@ -21,6 +21,12 @@ import {
   projectCampaignLongFormBatch,
   projectCampaignLongFormDraft,
 } from '@/lib/social-campaign-long-form-batch'
+import {
+  SOCIAL_CAMPAIGN_VISUAL_BATCH_KIND,
+  campaignVisualBatchIdempotencyKey,
+  projectCampaignVisualBatch,
+  projectCampaignVisualPlan,
+} from '@/lib/social-campaign-visual-plan'
 
 export const dynamic = 'force-dynamic'
 
@@ -69,7 +75,7 @@ async function loadRuns() {
   const { data, error } = await supabaseAdmin
     .from('agent_runs')
     .select('id,status,subject_id,subject_label,current_step,metadata,outcome,error_message,created_at,updated_at,completed_at,idempotency_key')
-    .in('kind', [SOCIAL_CAMPAIGN_PACKAGE_KIND, SOCIAL_CAMPAIGN_LONG_FORM_BATCH_KIND])
+    .in('kind', [SOCIAL_CAMPAIGN_PACKAGE_KIND, SOCIAL_CAMPAIGN_LONG_FORM_BATCH_KIND, SOCIAL_CAMPAIGN_VISUAL_BATCH_KIND])
     .order('created_at', { ascending: false })
     .limit(50)
   if (error) throw new Error('Campaign preparation history is unavailable.')
@@ -111,6 +117,10 @@ export async function GET(request: NextRequest) {
       long_form_inventory: longFormCandidates.map((candidate) => {
         const projection = projectCampaignLongFormDraft(candidate, evaluationTime)
         return { ...projection, packet: null }
+      }),
+      visual_inventory: longFormCandidates.map((candidate) => {
+        const projection = projectCampaignVisualPlan(candidate, evaluationTime)
+        return { ...projection, plan: null }
       }),
       runs: qaMode(request) ? [] : await loadRuns(),
       retry_policy: { maximum_attempts_per_input_version: SOCIAL_CAMPAIGN_MAX_ATTEMPTS, retry_limit: SOCIAL_CAMPAIGN_MAX_ATTEMPTS - 1, duplicate_records_allowed: false, source_change_requires_new_input_version: true },
@@ -180,6 +190,56 @@ export async function POST(request: NextRequest) {
       await endAgentRun({ runId: started.id, status: 'completed', currentStep: 'Prepared eligible long-form scripts for human review', outcome: { total: batch.total, scanned: batch.scanned, prepared: batch.prepared_count, blocked: batch.blocked_count, deferred: batch.deferred_count, remaining: batch.remaining, batch_id: batch.batch_id, external_gates: SOCIAL_CAMPAIGN_EXTERNAL_GATES } })
       const saved = await supabaseAdmin.from('agent_runs').select(RUN_RECEIPT_COLUMNS).eq('id', started.id).single()
       if (saved.error || !saved.data) throw new Error('Long-form batch completed but its durable receipt could not be re-read.')
+      return NextResponse.json({ run: saved.data, duplicate: false, fixture: false, retry_count: decision.retry_count, retry_limit: decision.retry_limit })
+    }
+    if (action === 'prepare_visual_batch') {
+      const batchCandidates = fixtureMode ? socialCampaignLongFormBatchQaCandidates() : candidates
+      const batch = projectCampaignVisualBatch(batchCandidates, fixtureMode ? new Date('2026-10-19T12:00:00.000Z') : new Date())
+      const baseKey = campaignVisualBatchIdempotencyKey(batch)
+      if (fixtureMode) return NextResponse.json({
+        run: {
+          id: `qa-run-${batch.batch_id}`,
+          status: 'completed',
+          subject_id: batch.batch_id,
+          subject_label: 'Current campaign visual backlog',
+          current_step: 'Prepared eligible channel-native visual plans for human review',
+          metadata: { visual_batch: batch, base_idempotency_key: baseKey, attempt_number: 1, retry_count: 0, retry_limit: 1, maximum_attempts: SOCIAL_CAMPAIGN_MAX_ATTEMPTS },
+          outcome: { total: batch.total, scanned: batch.scanned, prepared: batch.prepared_count, blocked: batch.blocked_count, remaining: batch.remaining, external_gates: SOCIAL_CAMPAIGN_EXTERNAL_GATES },
+          idempotency_key: campaignPreparationAttemptKey(baseKey, 1),
+          created_at: '2026-10-19T12:00:00.000Z',
+          updated_at: '2026-10-19T12:00:00.000Z',
+          completed_at: '2026-10-19T12:00:00.000Z',
+        },
+        duplicate: false,
+        fixture: true,
+      })
+
+      const attemptKeys = [baseKey, campaignPreparationAttemptKey(baseKey, 1), campaignPreparationAttemptKey(baseKey, 2)]
+      const history = await supabaseAdmin.from('agent_runs').select(RUN_RECEIPT_COLUMNS).in('idempotency_key', attemptKeys).order('created_at', { ascending: false })
+      if (history.error) throw new Error('Could not verify visual batch duplicate protection.')
+      const decision = resolveCampaignPreparationAttempt(baseKey, (history.data ?? []) as CampaignPreparationRunSummary[])
+      if (decision.action === 'replay') return NextResponse.json({ run: decision.run, duplicate: true, fixture: false, retry_count: decision.retry_count, retry_limit: decision.retry_limit })
+      if (decision.action === 'blocked') return NextResponse.json({ error: decision.message, code: 'campaign_visual_batch_retry_exhausted', retry_count: decision.retry_count, retry_limit: decision.retry_limit, recovery_label: 'Refresh script and visual evidence', recovery_href: '/admin/social-content?workflow=evidence' }, { status: 409 })
+
+      const preparationClaim = crypto.randomUUID()
+      const started = await startAgentRun({
+        runtime: 'manual',
+        kind: SOCIAL_CAMPAIGN_VISUAL_BATCH_KIND,
+        title: 'Campaign backlog visual-plan preparation',
+        status: 'running',
+        subject: { type: 'social_campaign_visual_batch', id: batch.batch_id, label: 'Current campaign visual backlog' },
+        triggerSource: 'portfolio_social_content',
+        triggeredByUserId: auth.user.id,
+        currentStep: 'Validating complete visual backlog, exact sources, and channel-native plans',
+        idempotencyKey: decision.idempotency_key,
+        metadata: { visual_batch: batch, base_idempotency_key: baseKey, attempt_number: decision.attempt_number, retry_count: decision.retry_count, retry_limit: decision.retry_limit, maximum_attempts: SOCIAL_CAMPAIGN_MAX_ATTEMPTS, preparation_claim: preparationClaim, external_gates: SOCIAL_CAMPAIGN_EXTERNAL_GATES },
+      })
+      const claimed = await supabaseAdmin.from('agent_runs').select(RUN_RECEIPT_COLUMNS).eq('id', started.id).single()
+      if (claimed.error || !claimed.data) throw new Error('Visual batch started but its durable receipt could not be re-read.')
+      if (record(claimed.data.metadata).preparation_claim !== preparationClaim) return NextResponse.json({ run: claimed.data, duplicate: true, fixture: false, retry_count: decision.retry_count, retry_limit: decision.retry_limit })
+      await endAgentRun({ runId: started.id, status: 'completed', currentStep: 'Prepared eligible channel-native visual plans for human review', outcome: { total: batch.total, scanned: batch.scanned, prepared: batch.prepared_count, blocked: batch.blocked_count, remaining: batch.remaining, batch_id: batch.batch_id, external_gates: SOCIAL_CAMPAIGN_EXTERNAL_GATES } })
+      const saved = await supabaseAdmin.from('agent_runs').select(RUN_RECEIPT_COLUMNS).eq('id', started.id).single()
+      if (saved.error || !saved.data) throw new Error('Visual batch completed but its durable receipt could not be re-read.')
       return NextResponse.json({ run: saved.data, duplicate: false, fixture: false, retry_count: decision.retry_count, retry_limit: decision.retry_limit })
     }
     const candidate = candidates.find((entry: CampaignPreparationCandidate) => entry.candidate_id === candidateId)
