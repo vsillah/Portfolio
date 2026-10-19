@@ -1,6 +1,6 @@
 {
-  "revision": "28920065",
-  "route": "http://127.0.0.1:3210/admin/content/video-generation?qa_script_intelligence=ready&rev=28920065#script-intelligence-review",
+  "revision": "865fd29e",
+  "route": "http://127.0.0.1:3210/admin/content/video-generation?qa_script_intelligence=ready&rev=865fd29e",
   "states_reviewed": [
     "passing",
     "stale evidence",
@@ -32,12 +32,12 @@
         "width": 1440,
         "height": 1000,
         "avg_frame_rate": "25/1",
-        "nb_frames": "638"
+        "nb_frames": "867"
       }
     ],
     "format": {
-      "duration": "25.520000",
-      "size": "1608192"
+      "duration": "34.680000",
+      "size": "2740384"
     }
   },
   "external_requests": [],
