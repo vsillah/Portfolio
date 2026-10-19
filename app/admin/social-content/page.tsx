@@ -59,6 +59,7 @@ import type { SocialContentItem, ContentStatus, SocialPlatform } from '@/lib/soc
 import Link from 'next/link'
 import { SOCIAL_CANDIDATE_PROJECTION_QA_FIXTURE } from '@/lib/social-candidate-projection-qa-contract'
 import { SOCIAL_CAMPAIGN_PACKAGE_QA_FIXTURE } from '@/lib/social-campaign-package-qa-fixture'
+import { SOCIAL_CAMPAIGN_APPROVED_ADAPTATION_QA_FIXTURE } from '@/lib/social-campaign-package-qa-fixture'
 
 interface Stats {
   draft: number
@@ -2132,7 +2133,9 @@ function SocialContentQueuePage() {
 export default function SocialContentPage() {
   const searchParams = useSearchParams()
   const candidateQaFixture = initialQueryValue(searchParams, 'candidateQa') === SOCIAL_CANDIDATE_PROJECTION_QA_FIXTURE
-  const campaignPackageQaFixture = initialQueryValue(searchParams, 'campaignQa') === SOCIAL_CAMPAIGN_PACKAGE_QA_FIXTURE
+  const campaignQaValue = initialQueryValue(searchParams, 'campaignQa')
+  const campaignPackageReviewQaFixture = campaignQaValue === SOCIAL_CAMPAIGN_APPROVED_ADAPTATION_QA_FIXTURE
+  const campaignPackageQaFixture = campaignQaValue === SOCIAL_CAMPAIGN_PACKAGE_QA_FIXTURE || campaignPackageReviewQaFixture
 
   return (
     <ProtectedRoute requireAdmin>
@@ -2144,7 +2147,7 @@ export default function SocialContentPage() {
             <h1 className="text-2xl font-bold text-foreground">Evidence-backed campaign preparation</h1>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">A privacy-safe localhost projection of candidate selection, fail-closed recovery, idempotent review-package preparation, receipt history, and closed external gates.</p>
           </div>
-          <SocialCampaignPackagePreparation qaFixture={SOCIAL_CAMPAIGN_PACKAGE_QA_FIXTURE} />
+          <SocialCampaignPackagePreparation qaFixture={campaignPackageReviewQaFixture ? SOCIAL_CAMPAIGN_APPROVED_ADAPTATION_QA_FIXTURE : SOCIAL_CAMPAIGN_PACKAGE_QA_FIXTURE} reviewOnly={campaignPackageReviewQaFixture} />
         </div>
       ) : candidateQaFixture ? (
         <div className="min-h-screen bg-background p-4 text-foreground sm:p-6 lg:p-8" data-testid="social-candidate-qa-page">

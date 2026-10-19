@@ -1,9 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { NextRequest } from 'next/server'
-import { SOCIAL_CAMPAIGN_PACKAGE_QA_FIXTURE } from '@/lib/social-campaign-package-qa-fixture'
+import { SOCIAL_CAMPAIGN_APPROVED_ADAPTATION_QA_FIXTURE, SOCIAL_CAMPAIGN_PACKAGE_QA_FIXTURE } from '@/lib/social-campaign-package-qa-fixture'
 import { campaignPreparationAttemptKey, campaignPreparationIdempotencyKey, SOCIAL_CAMPAIGN_RETRY_EXHAUSTED_MESSAGE } from '@/lib/social-campaign-package-preparation'
 import { socialCampaignLongFormBatchQaCandidates, socialCampaignPackageQaCandidates } from '@/lib/social-campaign-package-qa-fixture'
 import { campaignLongFormBatchIdempotencyKey, projectCampaignLongFormBatch } from '@/lib/social-campaign-long-form-batch'
+import { campaignVisualBatchIdempotencyKey, projectCampaignVisualBatch } from '@/lib/social-campaign-visual-plan'
 
 const mocks = vi.hoisted(() => ({ verifyAdmin: vi.fn(), isAuthError: vi.fn(), from: vi.fn(), startAgentRun: vi.fn(), endAgentRun: vi.fn() }))
 vi.mock('@/lib/auth-server', () => ({ verifyAdmin: mocks.verifyAdmin, isAuthError: mocks.isAuthError }))
@@ -14,14 +15,15 @@ import { GET, POST } from './route'
 
 const url = `http://localhost/api/admin/social-content/campaign-packages?qa_fixture=${SOCIAL_CAMPAIGN_PACKAGE_QA_FIXTURE}`
 const productionUrl = 'http://localhost/api/admin/social-content/campaign-packages'
+const approvedReviewUrl = `${productionUrl}?qa_fixture=${SOCIAL_CAMPAIGN_APPROVED_ADAPTATION_QA_FIXTURE}`
 function post(candidateId: string) {
   return new NextRequest(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ candidate_id: candidateId }) })
 }
 function productionPost(candidateId: string) {
   return new NextRequest(productionUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ candidate_id: candidateId }) })
 }
-function batchPost(target = url) {
-  return new NextRequest(target, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'prepare_long_form_batch' }) })
+function batchPost(target = url, action = 'prepare_long_form_batch') {
+  return new NextRequest(target, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action }) })
 }
 
 function mockProductionReads(history: any[], claimedRun?: (startInput: any) => any, savedRun?: (startInput: any) => any) {
@@ -65,6 +67,28 @@ describe('campaign review package route', () => {
     expect(mocks.from).not.toHaveBeenCalled()
   })
 
+  it('projects approved source storyboards and exact blockers locally without production reads or writes', async () => {
+    const response = await GET(new NextRequest(approvedReviewUrl))
+    expect(response.status).toBe(200)
+    const body = await response.json()
+    expect(body.approved_adaptation_review.adaptations.map((item: any) => [item.social_content_id, item.current_content_version, item.source_input_version, item.status])).toEqual([
+      ['939b01e3-d1af-42c8-805e-0379f09efd60', 'sha256:392b3e2a92c5ab65e4cc93706571df761bac7ea38631bf06002fd6b89f3302a2', 'sha256:e6fc9ae4aadd61e3a871e8f7af2dd0a2d424d5c20ae6a8d0eac861b16e796bd5', 'human_qa_rereview_required'],
+      ['21c492c2-9279-4e08-afc9-49207935a681', 'sha256:4d3bc63ebaeb1aed344d64ed15ebb0ff865772de48b48249526ccce0b2c02e9e', 'sha256:4d3bc63ebaeb1aed344d64ed15ebb0ff865772de48b48249526ccce0b2c02e9e', 'source_ready_capture_pending'],
+    ])
+    expect(body.approved_adaptation_review.adaptations.every((item: any) => item.source_readiness.ready && item.scenes.length >= 9 && item.evidence_assets.length > 0)).toBe(true)
+    expect(body.approved_adaptation_review.blocked_items).toHaveLength(3)
+    expect(body.approved_adaptation_review.human_qa).toEqual({ status: 'pending_new_capture_artifacts', screenshots: [], mp4: null })
+    expect(new Set(Object.values(body.approved_adaptation_review.external_gates))).toEqual(new Set([false]))
+    expect(mocks.from).not.toHaveBeenCalled()
+  })
+
+  it('rejects all POST actions on the approved adaptation projection', async () => {
+    const response = await POST(batchPost(approvedReviewUrl, 'prepare_visual_batch'))
+    expect(response.status).toBe(405)
+    expect(mocks.from).not.toHaveBeenCalled()
+    expect(mocks.startAgentRun).not.toHaveBeenCalled()
+  })
+
   it('projects ready, blocked, and closed-side-effect states without production reads', async () => {
     const response = await GET(new NextRequest(url))
     expect(response.status).toBe(200)
@@ -85,6 +109,13 @@ describe('campaign review package route', () => {
     expect(body.candidates[1].candidate.deliverables.youtube.title).toBe('')
     expect(body.candidates[0].candidate.deliverables.youtube.title).toBe('')
     expect(body.candidates[0].evaluation.package).toBeNull()
+    expect(body.visual_inventory).toHaveLength(12)
+    expect(body.visual_inventory.slice(0, 3).map((entry: any) => [entry.product_label, entry.state])).toEqual([
+      ['KickLab', 'unscored'],
+      ['ReversR rebuild', 'blocked'],
+      ['KinFlo', 'blocked'],
+    ])
+    expect(body.visual_inventory.every((entry: any) => entry.plan === null)).toBe(true)
     const serialized = JSON.stringify(body.candidates[0])
     expect(serialized).not.toContain('What the Product Proof Actually Shows')
     expect(serialized).not.toContain('SHOW THE WORK')
@@ -109,6 +140,38 @@ describe('campaign review package route', () => {
     expect(batch.prepared.every((packet: any) => packet.evaluation_receipt.originality.status === 'passed')).toBe(true)
     expect(batch.prepared.every((packet: any) => packet.customer_facing_copy_receipt.status === 'passed')).toBe(true)
     expect(new Set(Object.values(batch.external_gates))).toEqual(new Set([false]))
+    expect(mocks.startAgentRun).not.toHaveBeenCalled()
+    expect(mocks.endAgentRun).not.toHaveBeenCalled()
+  })
+
+  it('keeps the full visual backlog reviewable but blocks readiness while typography performance is unscored', async () => {
+    const response = await POST(batchPost(url, 'prepare_visual_batch'))
+    expect(response.status).toBe(200)
+    const body = await response.json()
+    const batch = body.run.metadata.visual_batch
+    expect(batch).toMatchObject({ total: 12, scanned: 12, prepared_count: 0, blocked_count: 12, remaining: 0, chunks_processed: 2 })
+    expect(batch.blocked[0]).toMatchObject({ campaign_identity: 'kicklab', ready: false, evaluation: { status: 'unscored', approval_ready: false } })
+    expect(batch.blocked[0].plan.beats.map((beat: any) => beat.channel)).toEqual(expect.arrayContaining(['linkedin', 'youtube_thumbnail', 'youtube_long_form', 'short_form']))
+    expect(batch.blocked[0].evaluation.dimensions).toHaveLength(13)
+    expect(batch.blocked[0].evaluation.dimensions).toEqual(expect.arrayContaining([
+      expect.objectContaining({ key: 'scene_cinematography', status: 'passed' }),
+      expect.objectContaining({ key: 'typography_compositing', status: 'passed' }),
+      expect.objectContaining({ key: 'typography_style_evidence', status: 'unscored', score: null }),
+    ]))
+    expect(batch.blocked).toEqual(expect.arrayContaining([expect.objectContaining({ campaign_identity: 'reversr', ready: false })]))
+    expect(new Set(Object.values(batch.external_gates))).toEqual(new Set([false]))
+    expect(mocks.startAgentRun).not.toHaveBeenCalled()
+    expect(mocks.endAgentRun).not.toHaveBeenCalled()
+  })
+
+  it('replays an existing production visual batch receipt without duplicating it', async () => {
+    const batch = projectCampaignVisualBatch([socialCampaignPackageQaCandidates()[0]], new Date('2026-10-19T12:00:00.000Z'))
+    const baseKey = campaignVisualBatchIdempotencyKey(batch)
+    const existing = { id: 'visual-batch-run', status: 'completed', idempotency_key: campaignPreparationAttemptKey(baseKey, 1), metadata: { attempt_number: 1, visual_batch: batch } }
+    mockProductionReads([existing])
+    const response = await POST(batchPost(productionUrl, 'prepare_visual_batch'))
+    expect(response.status).toBe(200)
+    await expect(response.json()).resolves.toMatchObject({ duplicate: true, run: { id: 'visual-batch-run', status: 'completed' } })
     expect(mocks.startAgentRun).not.toHaveBeenCalled()
     expect(mocks.endAgentRun).not.toHaveBeenCalled()
   })

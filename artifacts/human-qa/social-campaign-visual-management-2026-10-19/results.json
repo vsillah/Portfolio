@@ -1,0 +1,54 @@
+{
+  "revision": "38cb7c3e109bc80d5437274a6571801f8619dad4",
+  "route": "http://127.0.0.1:3210/admin/social-content?campaignQa=campaign-package-preparation-v1&rev=38cb7c3e109bc80d5437274a6571801f8619dad4",
+  "viewports": [
+    {
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "width": 390,
+      "height": 844
+    }
+  ],
+  "screenshots": [
+    "desktop-1440-clean-assets.png",
+    "desktop-1440-trace-and-evaluation.png",
+    "desktop-1440-benchmark-receipt.png",
+    "desktop-1440-cinematography-and-type.png",
+    "desktop-1440-blocked-recovery.png",
+    "mobile-390-clean-assets.png",
+    "mobile-390-trace-and-evaluation.png",
+    "mobile-390-benchmark-receipt.png",
+    "mobile-390-cinematography-and-type.png",
+    "mobile-390-blocked-recovery.png"
+  ],
+  "video": "social-campaign-visual-management-walkthrough.mp4",
+  "batch": {
+    "total": 12,
+    "scanned": 12,
+    "prepared": 1,
+    "blocked": 11,
+    "remaining": 0
+  },
+  "scoring": {
+    "dimensions": 12,
+    "formulas_visible": true,
+    "playlist_similarity": "unscored_no_attributable_receipt",
+    "cinematography_contract": "campaign-scene-cinematography/v1",
+    "typography_contract": "campaign-typography-compositing/v1"
+  },
+  "blocked_backlog": {
+    "page_size": 4,
+    "searchable": true,
+    "grouped": true,
+    "collapsed_by_default": true,
+    "pagination_pages": 3
+  },
+  "external_requests": [],
+  "blocked_development_telemetry": [
+    "https://va.vercel-scripts.com/v1/speed-insights/script.debug.js"
+  ],
+  "protected_actions_exercised": [],
+  "external_gates_closed": true
+}

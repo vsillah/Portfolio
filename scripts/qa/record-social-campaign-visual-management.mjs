@@ -1,0 +1,205 @@
+import { chromium } from '@playwright/test'
+import { execFile } from 'node:child_process'
+import { mkdir, writeFile } from 'node:fs/promises'
+import path from 'node:path'
+import { promisify } from 'node:util'
+import dotenv from 'dotenv'
+
+dotenv.config({ path: '.env.local', quiet: true })
+
+const execFileAsync = promisify(execFile)
+const baseUrl = process.env.QA_BASE_URL || 'http://127.0.0.1:3210'
+const revision = process.env.QA_REVISION || 'fd48ce54'
+const authState = process.env.PLAYWRIGHT_AUTH_STATE || '/Users/vambahsillah/Projects/Portfolio/.auth/portfolio-admin-storage-state.json'
+const outputDir = path.resolve(process.env.QA_OUTPUT_DIR || 'artifacts/human-qa/social-campaign-storyboard-review-2026-10-19')
+const rawVideoDir = path.join(outputDir, 'raw-video')
+const mp4Path = path.join(outputDir, 'social-campaign-visual-management-walkthrough.mp4')
+const route = `/admin/social-content?campaignQa=campaign-package-preparation-v1&rev=${encodeURIComponent(revision)}`
+
+await mkdir(rawVideoDir, { recursive: true })
+
+function watchExternalRequests(page) {
+  const unexpected = []
+  page.on('request', (request) => {
+    const url = new URL(request.url())
+    if (['127.0.0.1', 'localhost'].includes(url.hostname)) return
+    if (/\.supabase\.co$/i.test(url.hostname) && url.pathname.startsWith('/auth/v1/')) return
+    if (url.hostname === 'va.vercel-scripts.com' && url.pathname === '/v1/speed-insights/script.debug.js') return
+    unexpected.push(request.url())
+  })
+  return unexpected
+}
+
+async function assertNoOverflow(page, label) {
+  const dimensions = await page.evaluate(() => ({ client: document.documentElement.clientWidth, scroll: document.documentElement.scrollWidth }))
+  if (dimensions.scroll > dimensions.client + 1) throw new Error(`${label} has horizontal overflow: ${JSON.stringify(dimensions)}`)
+}
+
+async function authenticatedStorageState(browser) {
+  const context = await browser.newContext({ storageState: authState })
+  const page = await context.newPage()
+  await page.goto(`${baseUrl}${route}`, { waitUntil: 'domcontentloaded', timeout: 60_000 })
+  await Promise.race([
+    page.getByTestId('campaign-package-preparation').waitFor({ state: 'visible', timeout: 30_000 }),
+    page.getByLabel('Email', { exact: true }).waitFor({ state: 'visible', timeout: 30_000 }),
+  ])
+  if (await page.getByLabel('Email', { exact: true }).isVisible()) {
+    if (!process.env.ADMIN_E2E_EMAIL || !process.env.ADMIN_E2E_PASSWORD) throw new Error('Local QA admin credentials are unavailable.')
+    await page.getByLabel('Email', { exact: true }).fill(process.env.ADMIN_E2E_EMAIL)
+    await page.getByLabel('Password', { exact: true }).fill(process.env.ADMIN_E2E_PASSWORD)
+    await page.getByRole('button', { name: 'Sign In', exact: true }).click()
+    await page.waitForURL((url) => url.pathname === '/admin/social-content', { timeout: 30_000 })
+  }
+  await page.goto(`${baseUrl}${route}`, { waitUntil: 'domcontentloaded', timeout: 60_000 })
+  await page.getByTestId('campaign-package-preparation').waitFor({ state: 'visible', timeout: 30_000 })
+  const state = await context.storageState({ indexedDB: true })
+  await context.close()
+  return state
+}
+
+async function recordScenario(browser, storageState, { label, viewport }) {
+  const context = await browser.newContext({ storageState, viewport, colorScheme: 'dark', recordVideo: { dir: path.join(rawVideoDir, label), size: viewport } })
+  await context.route('https://va.vercel-scripts.com/**', (requestRoute) => requestRoute.abort('blockedbyclient'))
+  const page = await context.newPage()
+  const unexpectedRequests = watchExternalRequests(page)
+  const video = page.video()
+  await page.goto(`${baseUrl}${route}`, { waitUntil: 'domcontentloaded', timeout: 60_000 })
+  const panel = page.getByTestId('campaign-package-preparation')
+  await panel.waitFor({ state: 'visible', timeout: 30_000 })
+  await panel.getByText('Visual plans remain sealed', { exact: false }).waitFor()
+  await assertNoOverflow(page, `${label} sealed`)
+
+  const prepare = panel.getByRole('button', { name: 'Prepare eligible visual plans' })
+  if (!(await prepare.isEnabled())) throw new Error(`${label} visual batch action was disabled.`)
+  await prepare.click()
+  await panel.getByText('12 total · 12 scanned · 0 prepared · 12 blocked · 0 remaining · 2 chunks', { exact: true }).waitFor()
+  await panel.getByRole('heading', { name: 'KickLab · channel-native visual plan' }).waitFor()
+  await panel.getByAltText(/review direction: MATH IN THE MOVE/i).waitFor()
+  await panel.getByText('YouTube thumbnail · review direction, not approval-ready', { exact: true }).waitFor()
+  const cleanAssetView = panel.getByLabel('Clean customer-facing asset view')
+  await cleanAssetView.scrollIntoViewIfNeeded()
+  await page.waitForTimeout(400)
+  await assertNoOverflow(page, `${label} clean asset view`)
+  await cleanAssetView.screenshot({ path: path.join(outputDir, `${label}-clean-assets.png`) })
+
+  const evaluationDimensions = panel.getByLabel('Visual evaluation dimensions')
+  await evaluationDimensions.scrollIntoViewIfNeeded()
+  await page.waitForTimeout(500)
+  await evaluationDimensions.screenshot({ path: path.join(outputDir, `${label}-trace-and-evaluation.png`) })
+
+  await panel.getByText('Show field-level source trace and visual decisions', { exact: true }).click()
+  await panel.getByText('Exact source deep links', { exact: true }).waitFor()
+  await panel.getByText('Script-to-visual storyboard timing', { exact: true }).waitFor()
+  await panel.getByText(/Playlist similarity Unscored/).waitFor()
+  await panel.getByText(/No attributable similarity receipt supplied/).waitFor()
+  const benchmarkTrace = panel.getByRole('heading', { name: 'Benchmark logic' }).locator('..')
+  await benchmarkTrace.scrollIntoViewIfNeeded()
+  await page.waitForTimeout(500)
+  await benchmarkTrace.screenshot({ path: path.join(outputDir, `${label}-benchmark-receipt.png`) })
+  await panel.getByText('Script-to-visual storyboard timing', { exact: true }).scrollIntoViewIfNeeded()
+  await page.waitForTimeout(500)
+  const firstScene = panel.getByRole('heading', { name: 'Script-to-visual storyboard timing' }).locator('..').locator('ol > li').first()
+  const sceneCount = await panel.getByRole('heading', { name: 'Script-to-visual storyboard timing' }).locator('..').locator('ol > li').count()
+  if (sceneCount < 16) throw new Error(`${label} did not show the complete 16-scene long-form storyboard.`)
+  await firstScene.getByText(/Shot:/).waitFor()
+  await firstScene.getByText(/Pattern interrupt:/).waitFor()
+  await firstScene.getByText(/Typography:/).waitFor()
+  await firstScene.getByText(/Narration:/).waitFor()
+  await firstScene.getByText(/avatar on the left third, owned product capture on the right two-thirds/i).waitFor()
+  await firstScene.getByText(/Music \/ ducking:/).waitFor()
+  await firstScene.scrollIntoViewIfNeeded()
+  await page.waitForTimeout(500)
+  await firstScene.screenshot({ path: path.join(outputDir, `${label}-storyboard-opening.png`) })
+  const finalScene = panel.getByRole('heading', { name: 'Script-to-visual storyboard timing' }).locator('..').locator('ol > li').nth(15)
+  await finalScene.getByText(/Spoken close \/ CTA:/).waitFor()
+  await finalScene.scrollIntoViewIfNeeded()
+  await page.waitForTimeout(400)
+  await finalScene.screenshot({ path: path.join(outputDir, `${label}-storyboard-cta.png`) })
+
+  const blocked = panel.getByLabel('Blocked visual candidates')
+  await blocked.getByText('Page 1 of 3', { exact: true }).waitFor()
+  if (await blocked.locator('details[open]').count()) throw new Error(`${label} blocked details were not collapsed by default.`)
+  await blocked.getByRole('button', { name: 'Next blocked page' }).click()
+  await blocked.getByText('Page 2 of 3', { exact: true }).waitFor()
+  await blocked.getByRole('textbox', { name: 'Search blocked visual candidates' }).fill('ReversR')
+  await blocked.getByText('Page 1 of 1', { exact: true }).waitFor()
+  const reversrBlockedCard = blocked.locator(':scope > div').filter({ hasText: 'ReversR rebuild · Blocked' }).first()
+  await reversrBlockedCard.scrollIntoViewIfNeeded()
+  await blocked.getByRole('link', { name: 'Refresh evidence' }).waitFor()
+  await reversrBlockedCard.getByText(/View \d+ exact blocker/).click()
+  await reversrBlockedCard.getByText('evidence_stale', { exact: false }).waitFor()
+  await assertNoOverflow(page, `${label} blocked recovery`)
+  await reversrBlockedCard.screenshot({ path: path.join(outputDir, `${label}-blocked-recovery.png`) })
+
+  await panel.getByText('Closed in this workflow', { exact: true }).scrollIntoViewIfNeeded()
+  await page.waitForTimeout(700)
+  await context.close()
+  const rawPath = video ? await video.path() : null
+  if (!rawPath) throw new Error(`${label} did not produce a video.`)
+  if (unexpectedRequests.length) throw new Error(`${label} made unexpected external requests: ${unexpectedRequests.join(', ')}`)
+  return rawPath
+}
+
+const browser = await chromium.launch({ headless: true })
+const storageState = await authenticatedStorageState(browser)
+const desktopVideo = await recordScenario(browser, storageState, { label: 'desktop-1440', viewport: { width: 1440, height: 1000 } })
+const tabletVideo = await recordScenario(browser, storageState, { label: 'tablet-768', viewport: { width: 768, height: 1024 } })
+const mobileVideo = await recordScenario(browser, storageState, { label: 'mobile-390', viewport: { width: 390, height: 844 } })
+await browser.close()
+
+await execFileAsync('ffmpeg', [
+  '-y',
+  '-i', desktopVideo,
+  '-i', mobileVideo,
+  '-filter_complex',
+  '[0:v]scale=1440:1000:force_original_aspect_ratio=decrease,pad=1440:1000:(ow-iw)/2:(oh-ih)/2:black,setsar=1[v0];[1:v]scale=1440:1000:force_original_aspect_ratio=decrease,pad=1440:1000:(ow-iw)/2:(oh-ih)/2:black,setsar=1[v1];[2:v]scale=1440:1000:force_original_aspect_ratio=decrease,pad=1440:1000:(ow-iw)/2:(oh-ih)/2:black,setsar=1[v2];[v0][v1][v2]concat=n=3:v=1:a=0[outv]',
+  '-map', '[outv]',
+  '-c:v', 'libx264',
+  '-pix_fmt', 'yuv420p',
+  '-movflags', '+faststart',
+  mp4Path,
+])
+
+const result = {
+  revision,
+  route: `${baseUrl}${route}`,
+  viewports: [{ width: 1440, height: 1000 }, { width: 768, height: 1024 }, { width: 390, height: 844 }],
+  screenshots: [
+    'desktop-1440-clean-assets.png',
+    'desktop-1440-trace-and-evaluation.png',
+    'desktop-1440-benchmark-receipt.png',
+    'desktop-1440-storyboard-opening.png',
+    'desktop-1440-storyboard-cta.png',
+    'desktop-1440-blocked-recovery.png',
+    'tablet-768-storyboard-opening.png',
+    'tablet-768-storyboard-cta.png',
+    'mobile-390-clean-assets.png',
+    'mobile-390-trace-and-evaluation.png',
+    'mobile-390-benchmark-receipt.png',
+    'mobile-390-storyboard-opening.png',
+    'mobile-390-storyboard-cta.png',
+    'mobile-390-blocked-recovery.png',
+  ],
+  video: path.basename(mp4Path),
+  batch: { total: 12, scanned: 12, prepared: 0, blocked: 12, remaining: 0 },
+  scoring: {
+    dimensions: 12,
+    formulas_visible: true,
+    playlist_similarity: 'unscored_no_attributable_receipt',
+    cinematography_contract: 'campaign-scene-cinematography/v1',
+    typography_contract: 'campaign-typography-compositing/v1',
+  },
+  blocked_backlog: {
+    page_size: 4,
+    searchable: true,
+    grouped: true,
+    collapsed_by_default: true,
+    pagination_pages: 3,
+  },
+  external_requests: [],
+  blocked_development_telemetry: ['https://va.vercel-scripts.com/v1/speed-insights/script.debug.js'],
+  protected_actions_exercised: [],
+  external_gates_closed: true,
+}
+await writeFile(path.join(outputDir, 'results.json'), `${JSON.stringify(result, null, 2)}\n`)
+console.log(JSON.stringify(result, null, 2))
