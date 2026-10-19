@@ -133,6 +133,7 @@ describe('POST /api/admin/video-generation/ideas-queue/[id]/generate', () => {
         channel: 'youtube',
         aspectRatio: '16:9',
         templateId: 'template-1',
+        qaScriptIntelligenceState: 'ready',
         renderApproval: buildVideoRenderApproval(true),
       }),
       { params: { id: 'draft-1' } }
@@ -167,6 +168,7 @@ describe('POST /api/admin/video-generation/ideas-queue/[id]/generate', () => {
       makeRequest({
         channel: 'youtube',
         aspectRatio: '16:9',
+        qaScriptIntelligenceState: 'ready',
         renderApproval: buildVideoRenderApproval(true),
       }),
       { params: { id: 'draft-1' } }
@@ -200,6 +202,28 @@ describe('POST /api/admin/video-generation/ideas-queue/[id]/generate', () => {
     expect(body.error).toContain('Script intelligence gate blocked render')
     expect(body.scorecard.blockers.length).toBeGreaterThan(0)
     expect(body.side_effects).toMatchObject({ heygen: false, render: false, publish: false })
+    expect(mocks.createVideo).not.toHaveBeenCalled()
+    expect(mocks.from).toHaveBeenCalledTimes(1)
+  })
+
+  it('blocks the API transition before HeyGen when long-form evidence is stale', async () => {
+    mocks.from.mockReturnValueOnce(queueFetchBuilder())
+
+    const response = await POST(
+      makeRequest({
+        channel: 'youtube',
+        templateId: 'template-1',
+        qaScriptIntelligenceState: 'stale',
+        renderApproval: buildVideoRenderApproval(true),
+      }),
+      { params: { id: 'draft-1' } },
+    )
+    const body = await response.json()
+
+    expect(response.status).toBe(400)
+    expect(body.error).toContain('Long-form script intelligence blocked render')
+    expect(body.longFormScriptReview.status).toBe('unscored')
+    expect(body.side_effects).toMatchObject({ heygen: false, render: false, upload: false })
     expect(mocks.createVideo).not.toHaveBeenCalled()
     expect(mocks.from).toHaveBeenCalledTimes(1)
   })

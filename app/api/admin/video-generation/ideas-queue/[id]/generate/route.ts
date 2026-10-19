@@ -12,6 +12,12 @@ import { channelToAspectRatio } from '@/lib/constants/video-channel'
 import type { VideoChannel, VideoAspectRatio } from '@/lib/constants/video-channel'
 import { videoRenderApprovalError } from '@/lib/video-render-approval'
 import { evaluateVideoScript, SCRIPT_INTELLIGENCE_SIDE_EFFECTS } from '@/lib/video-script-intelligence'
+import {
+  buildLongFormScriptReviewInputFromDraft,
+  evaluateLongFormScriptIntelligence,
+  longFormSelectedDraftQaFixture,
+  type LongFormResearchPacketReceipt,
+} from '@/lib/long-form-script-intelligence'
 
 export const dynamic = 'force-dynamic'
 
@@ -52,7 +58,7 @@ export async function POST(
 
     const { data: queueItem, error: fetchErr } = await supabaseAdmin
       .from('video_ideas_queue')
-      .select('id, title, script_text, storyboard_json, status, source, script_template_id, script_outline, script_scorecard, research_packet_ids')
+      .select('id, title, script_text, storyboard_json, status, source, script_template_id, script_outline, script_scorecard, research_packet_ids, created_at')
       .eq('id', queueId)
       .single()
 
@@ -111,6 +117,41 @@ export async function POST(
         {
           error: `Script intelligence gate blocked render: ${scriptScorecard.blockers.join(' ')}`,
           scorecard: scriptScorecard,
+          side_effects: SCRIPT_INTELLIGENCE_SIDE_EFFECTS,
+        },
+        { status: 400 },
+      )
+    }
+
+    const qaState = process.env.NODE_ENV !== 'production'
+      && ['ready', 'stale', 'missing', 'originality_blocked'].includes(body.qaScriptIntelligenceState)
+      ? body.qaScriptIntelligenceState as 'ready' | 'stale' | 'missing' | 'originality_blocked'
+      : null
+    const qaFixture = qaState ? longFormSelectedDraftQaFixture(qaState) : null
+    const researchPacketIds = Array.isArray(queueItem.research_packet_ids)
+      ? queueItem.research_packet_ids.filter((id: unknown): id is string => typeof id === 'string' && id.trim().length > 0)
+      : []
+    let researchPackets: LongFormResearchPacketReceipt[] = qaFixture?.researchPackets ?? []
+    if (!qaFixture && researchPacketIds.length > 0) {
+      const { data } = await supabaseAdmin
+        .from('social_content_research_packets')
+        .select('id, source_url, creator_name, creator_handle, title, metrics, score_breakdown, status, pattern_status, retrieved_at')
+        .in('id', researchPacketIds)
+      researchPackets = (data ?? []) as LongFormResearchPacketReceipt[]
+    }
+    const longFormScriptReview = evaluateLongFormScriptIntelligence(
+      buildLongFormScriptReviewInputFromDraft({
+        draft: qaFixture
+          ? { ...qaFixture.draft, id: queueItem.id, title: queueItem.title }
+          : queueItem,
+        researchPackets,
+      }),
+    )
+    if (channel === 'youtube' && !longFormScriptReview.approval_ready) {
+      return NextResponse.json(
+        {
+          error: `Long-form script intelligence blocked render: ${longFormScriptReview.blockers[0] ?? 'The review is not approval-ready.'}`,
+          longFormScriptReview,
           side_effects: SCRIPT_INTELLIGENCE_SIDE_EFFECTS,
         },
         { status: 400 },

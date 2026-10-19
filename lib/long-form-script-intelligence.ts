@@ -94,6 +94,30 @@ export type LongFormScriptReviewInput = {
   framework_rule_ids: string[]
 }
 
+export type LongFormDraftReceipt = {
+  id: string
+  title?: string | null
+  script_text?: string | null
+  script_outline?: Record<string, unknown> | null
+  script_scorecard?: Record<string, unknown> | null
+  research_packet_ids?: string[] | null
+  storyboard_json?: { scenes?: Array<{ brollHint?: string | null; description?: string | null }> } | null
+  created_at?: string | null
+}
+
+export type LongFormResearchPacketReceipt = {
+  id: string
+  source_url?: string | null
+  creator_name?: string | null
+  creator_handle?: string | null
+  title?: string | null
+  metrics?: Record<string, unknown> | null
+  score_breakdown?: Record<string, unknown> | null
+  status?: string | null
+  pattern_status?: string | null
+  retrieved_at?: string | null
+}
+
 export type ScriptDimensionEvaluation = {
   key: ScriptDimensionKey
   label: string
@@ -258,6 +282,149 @@ function attributableUrl(value: string) {
 
 function boundedScore(value: number) {
   return Math.max(0, Math.min(100, Math.round(value)))
+}
+
+function text(value: unknown) {
+  return typeof value === 'string' ? value.trim() : ''
+}
+
+function number(value: unknown) {
+  return typeof value === 'number' && Number.isFinite(value) ? value : null
+}
+
+function stringArray(value: unknown) {
+  return Array.isArray(value)
+    ? value.filter((item): item is string => typeof item === 'string' && item.trim().length > 0).map((item) => item.trim())
+    : []
+}
+
+function normalizeCreatorDistance(value: unknown): CreatorDistanceReceipt {
+  const receipt = record(value)
+  const status = receipt.status === 'passed' || receipt.status === 'blocked' || receipt.status === 'unscored'
+    ? receipt.status
+    : 'unscored'
+  return {
+    status,
+    compared_source_ids: stringArray(receipt.compared_source_ids),
+    longest_matching_phrase_words: number(receipt.longest_matching_phrase_words),
+    maximum_allowed_phrase_words: number(receipt.maximum_allowed_phrase_words) ?? 7,
+    copied_phrase_hits: stringArray(receipt.copied_phrase_hits),
+    voice_profile: receipt.voice_profile === 'vambah-approved' ? 'vambah-approved' : 'missing',
+    notes: text(receipt.notes) || 'A persisted creator-distance receipt is required before long-form approval.',
+  }
+}
+
+function normalizePersistedBeats(value: unknown): LongFormScriptBeat[] {
+  if (!Array.isArray(value)) return []
+  const roles = new Set<LongFormScriptBeat['role']>(['hook', 'open_loop', 'frame', 'proof', 'teaching', 'rehook', 'payoff', 'conclusion', 'cta'])
+  return value.flatMap((candidate) => {
+    const beat = record(candidate)
+    const role = roles.has(beat.role as LongFormScriptBeat['role']) ? beat.role as LongFormScriptBeat['role'] : null
+    const start = number(beat.start_seconds)
+    const end = number(beat.end_seconds)
+    const beatText = text(beat.text)
+    if (!role || start === null || end === null || !beatText) return []
+    return [{
+      id: text(beat.id) || `beat-${start}-${role}`,
+      start_seconds: start,
+      end_seconds: end,
+      role,
+      text: beatText,
+      broll_cue: text(beat.broll_cue) || null,
+      pattern_interrupt: text(beat.pattern_interrupt) || null,
+    }]
+  })
+}
+
+function fallbackBeats(draft: LongFormDraftReceipt, duration: number): LongFormScriptBeat[] {
+  const outline = record(draft.script_outline)
+  const storyboard = draft.storyboard_json?.scenes ?? []
+  const script = text(draft.script_text)
+  const teaching = Array.isArray(outline.teaching_beats) ? outline.teaching_beats.map(text).filter(Boolean) : []
+  const candidates = ([
+    { role: 'hook', value: text(outline.hook) },
+    { role: 'open_loop', value: text(outline.open_loop) },
+    { role: 'frame', value: text(outline.frame) },
+    { role: 'proof', value: text(outline.proof_demo) },
+    ...teaching.map((value) => ({ role: 'teaching' as const, value })),
+    { role: 'payoff', value: text(outline.closing_question) || text(outline.frame) },
+    { role: 'conclusion', value: text(outline.source_distance_notes) },
+    { role: 'cta', value: text(outline.cta) },
+  ] as Array<{ role: LongFormScriptBeat['role']; value: string }>).filter((candidate) => candidate.value)
+  if (!candidates.length && script) candidates.push({ role: 'teaching', value: script })
+  const slice = duration / Math.max(1, candidates.length)
+  return candidates.map((candidate, index) => ({
+    id: `derived-${index + 1}-${candidate.role}`,
+    start_seconds: Number((slice * index).toFixed(2)),
+    end_seconds: Number((slice * (index + 1)).toFixed(2)),
+    role: candidate.role,
+    text: candidate.value,
+    broll_cue: text(storyboard[index]?.brollHint) || text(storyboard[index]?.description) || null,
+    pattern_interrupt: text(storyboard[index]?.description) || null,
+  }))
+}
+
+function researchEvidence(packet: LongFormResearchPacketReceipt, topic: string): TopicOutlierEvidence {
+  const metrics = record(packet.metrics)
+  const score = record(packet.score_breakdown)
+  const views = number(metrics.views) ?? 0
+  const relative = number(metrics.channel_relative_performance) ?? number(score.channel_relative_performance)
+  const explicitBaseline = number(metrics.channel_baseline_views)
+  const baseline = explicitBaseline ?? (relative && relative > 0 && views > 0 ? views / relative : 0)
+  const observedAt = text(packet.retrieved_at) || text(metrics.retrieved_at) || text(metrics.observed_at)
+  const publishedAt = text(metrics.published_at)
+  const approved = packet.status === 'approved' && packet.pattern_status === 'usable_framework'
+  const attributable = approved && attributableUrl(text(packet.source_url)) && Boolean(observedAt && publishedAt && views > 0 && baseline > 0)
+  return {
+    id: packet.id,
+    label: text(packet.title) || `Research packet ${packet.id}`,
+    source_url: text(packet.source_url),
+    creator: text(packet.creator_name) || text(packet.creator_handle) || 'Unattributed creator',
+    topic,
+    observed_at: observedAt,
+    published_at: publishedAt,
+    views,
+    channel_baseline_views: baseline,
+    attribution_status: attributable ? 'attributable' : 'missing',
+  }
+}
+
+export function buildLongFormScriptReviewInputFromDraft(args: {
+  draft: LongFormDraftReceipt
+  researchPackets: LongFormResearchPacketReceipt[]
+  evaluatedAt?: string
+}): LongFormScriptReviewInput {
+  const { draft, researchPackets } = args
+  const outline = record(draft.script_outline)
+  const scorecard = record(draft.script_scorecard)
+  const persisted = record(scorecard.long_form_script_intelligence)
+  const script = text(draft.script_text)
+  const wordCount = words(script).length
+  const expectedDuration = number(persisted.expected_duration_seconds) ?? Math.round((wordCount / 140) * 60)
+  const packetObservedTimes = researchPackets.map((packet) => text(packet.retrieved_at)).filter(Boolean).sort()
+  const evaluatedAt = args.evaluatedAt
+    || text(persisted.evaluated_at)
+    || packetObservedTimes[packetObservedTimes.length - 1]
+    || text(draft.created_at)
+    || ''
+  const topic = text(persisted.topic) || text(draft.title) || text(outline.pain_point)
+  const promise = text(persisted.promise) || text(outline.open_loop) || text(outline.frame)
+  const persistedBeats = normalizePersistedBeats(persisted.beats)
+  return {
+    version: LONG_FORM_SCRIPT_INTELLIGENCE_VERSION,
+    script_id: draft.id,
+    script_version: text(persisted.script_version) || fnv1a(stable({ script, outline })),
+    topic,
+    promise,
+    evaluated_at: evaluatedAt,
+    expected_duration_seconds: expectedDuration,
+    beats: persistedBeats.length ? persistedBeats : fallbackBeats(draft, Math.max(1, expectedDuration)),
+    topic_outlier_evidence: researchPackets.map((packet) => researchEvidence(packet, topic)),
+    creator_distance: normalizeCreatorDistance(persisted.creator_distance),
+    framework_rule_ids: stringArray(persisted.framework_rule_ids).length
+      ? stringArray(persisted.framework_rule_ids)
+      : DERIVED_RULES.map((rule) => rule.id),
+  }
 }
 
 function scoredDimension(input: {
@@ -589,5 +756,67 @@ export function longFormScriptQaFixture(state: 'ready' | 'stale' | 'missing' | '
       notes: 'Synthetic QA receipt. The script uses Vambah voice, owned product proof, and original phrasing.',
     },
     framework_rule_ids: DERIVED_RULES.map((rule) => rule.id),
+  }
+}
+
+export function longFormSelectedDraftQaFixture(
+  state: 'ready' | 'stale' | 'missing' | 'originality_blocked' = 'ready',
+): { draft: LongFormDraftReceipt; researchPackets: LongFormResearchPacketReceipt[] } {
+  const input = longFormScriptQaFixture(state)
+  const researchPackets = input.topic_outlier_evidence.map((evidence): LongFormResearchPacketReceipt => ({
+    id: evidence.id,
+    source_url: evidence.source_url,
+    creator_name: evidence.creator,
+    title: evidence.label,
+    status: evidence.attribution_status === 'attributable' ? 'approved' : 'draft',
+    pattern_status: evidence.attribution_status === 'attributable' ? 'usable_framework' : 'needs_brand_translation',
+    retrieved_at: evidence.observed_at,
+    metrics: {
+      views: evidence.views,
+      channel_baseline_views: evidence.channel_baseline_views,
+      published_at: evidence.published_at,
+      retrieved_at: evidence.observed_at,
+    },
+    score_breakdown: {
+      channel_relative_performance: evidence.channel_baseline_views > 0
+        ? evidence.views / evidence.channel_baseline_views
+        : 0,
+    },
+  }))
+  return {
+    draft: {
+      id: input.script_id,
+      title: 'Proof-led YouTube script workflow',
+      script_text: input.beats.map((beat) => beat.text).join(' '),
+      script_outline: {
+        pain_point: input.topic,
+        hook: input.beats.find((beat) => beat.role === 'hook')?.text ?? '',
+        open_loop: input.promise,
+        frame: input.beats.find((beat) => beat.role === 'frame')?.text ?? '',
+        proof_demo: input.beats.find((beat) => beat.role === 'proof')?.text ?? '',
+        teaching_beats: input.beats.filter((beat) => beat.role === 'teaching').map((beat) => beat.text),
+        cta: input.beats.find((beat) => beat.role === 'cta')?.text ?? '',
+        closing_question: input.beats.find((beat) => beat.role === 'payoff')?.text ?? '',
+        source_distance_notes: input.creator_distance.notes,
+      },
+      script_scorecard: {
+        long_form_script_intelligence: {
+          topic: input.topic,
+          promise: input.promise,
+          script_version: input.script_version,
+          evaluated_at: input.evaluated_at,
+          expected_duration_seconds: input.expected_duration_seconds,
+          beats: input.beats,
+          creator_distance: input.creator_distance,
+          framework_rule_ids: input.framework_rule_ids,
+        },
+      },
+      research_packet_ids: researchPackets.map((packet) => packet.id),
+      storyboard_json: {
+        scenes: input.beats.flatMap((beat) => beat.broll_cue ? [{ brollHint: beat.broll_cue }] : []),
+      },
+      created_at: input.evaluated_at,
+    },
+    researchPackets,
   }
 }

@@ -1,4 +1,4 @@
-import { chromium, expect } from '@playwright/test'
+import { chromium } from '@playwright/test'
 import { execFile } from 'node:child_process'
 import { mkdir, rm, writeFile } from 'node:fs/promises'
 import path from 'node:path'
@@ -11,7 +11,7 @@ const authState = process.env.PLAYWRIGHT_AUTH_STATE || '.auth/long-form-script-i
 const outputDir = path.resolve(process.env.QA_OUTPUT_DIR || 'artifacts/human-qa/long-form-script-intelligence-2026-10-18')
 const rawVideoDir = path.join(outputDir, 'raw-video')
 const mp4Path = path.join(outputDir, 'long-form-script-intelligence-walkthrough.mp4')
-const route = `/admin/content/video-generation?qa_script_intelligence=ready&rev=${encodeURIComponent(revision)}#script-intelligence-review`
+const route = (state) => `/admin/content/video-generation?qa_script_intelligence=${encodeURIComponent(state)}&rev=${encodeURIComponent(revision)}`
 
 await rm(rawVideoDir, { recursive: true, force: true })
 await mkdir(rawVideoDir, { recursive: true })
@@ -38,12 +38,17 @@ async function assertNoHorizontalOverflow(page, label) {
   }
 }
 
-async function openReview(page) {
-  await page.goto(`${baseUrl}${route}`, { waitUntil: 'domcontentloaded', timeout: 60_000 })
+async function openReview(page, state) {
+  await page.goto(`${baseUrl}${route(state)}`, { waitUntil: 'domcontentloaded', timeout: 60_000 })
   const review = page.getByTestId('long-form-script-intelligence-review')
   await review.waitFor({ state: 'visible', timeout: 30_000 })
   await review.scrollIntoViewIfNeeded()
-  await page.getByText('Script intelligence passed', { exact: true }).waitFor()
+  const expected = state === 'ready'
+    ? 'Script intelligence passed'
+    : state === 'stale'
+      ? 'Evidence remains Unscored'
+      : 'Script remains blocked'
+  await page.getByText(expected, { exact: true }).waitFor()
   return review
 }
 
@@ -59,7 +64,7 @@ async function recordScenario(browser, { label, viewport, mobile }) {
   await page.route('https://va.vercel-scripts.com/**', (routeRequest) => routeRequest.abort('blockedbyclient'))
   const unexpectedRequests = watchRequests(page)
   const video = page.video()
-  const review = await openReview(page)
+  let review = await openReview(page, 'ready')
 
   await assertNoHorizontalOverflow(page, `${label} passing`)
   if (mobile) {
@@ -77,10 +82,7 @@ async function recordScenario(browser, { label, viewport, mobile }) {
   await review.getByText('Included live sources', { exact: true }).waitFor()
   await page.waitForTimeout(900)
 
-  const staleButton = review.getByRole('button', { name: 'Stale evidence' })
-  await staleButton.click()
-  await expect(staleButton).toHaveAttribute('aria-pressed', 'true')
-  await review.getByText('Evidence remains Unscored', { exact: true }).waitFor()
+  review = await openReview(page, 'stale')
   await assertNoHorizontalOverflow(page, `${label} stale`)
   if (mobile) {
     await page.screenshot({ path: path.join(outputDir, `${label}-stale.png`) })
@@ -89,10 +91,7 @@ async function recordScenario(browser, { label, viewport, mobile }) {
   }
   await page.waitForTimeout(1000)
 
-  const originalityButton = review.getByRole('button', { name: 'Originality blocked' })
-  await originalityButton.click()
-  await expect(originalityButton).toHaveAttribute('aria-pressed', 'true')
-  await review.getByText('Script remains blocked', { exact: true }).waitFor()
+  review = await openReview(page, 'originality_blocked')
   await assertNoHorizontalOverflow(page, `${label} originality blocked`)
   if (mobile) {
     await page.screenshot({ path: path.join(outputDir, `${label}-originality-blocked.png`) })
@@ -152,7 +151,7 @@ await rm(rawVideoDir, { recursive: true, force: true })
 
 const result = {
   revision,
-  route: `${baseUrl}${route}`,
+  route: `${baseUrl}${route('ready')}`,
   states_reviewed: ['passing', 'stale evidence', 'originality blocked'],
   viewports: ['1440x1000', '390x844'],
   interactions: ['dimension drill-in', 'topic evidence trace', 'framework source receipts'],

@@ -3,13 +3,18 @@ import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
 import LongFormScriptIntelligenceReview from './LongFormScriptIntelligenceReview'
+import { evaluateLongFormScriptIntelligence, longFormScriptQaFixture } from '@/lib/long-form-script-intelligence'
+
+const review = (state: 'ready' | 'stale' | 'originality_blocked') => (
+  evaluateLongFormScriptIntelligence(longFormScriptQaFixture(state))
+)
 
 describe('LongFormScriptIntelligenceReview', () => {
   it('keeps the review compact, responsive, and progressively discloses evidence', async () => {
     const user = userEvent.setup()
-    render(<LongFormScriptIntelligenceReview qaState="ready" />)
+    render(<LongFormScriptIntelligenceReview review={review('ready')} subjectLabel="Selected draft" />)
 
-    expect(screen.getByRole('heading', { name: 'Can this script earn the next gate?' })).toBeVisible()
+    expect(screen.getByRole('heading', { name: 'Can this script earn render readiness?' })).toBeVisible()
     expect(screen.getByText('Approval-ready')).toBeVisible()
     expect(screen.getByRole('list', { name: 'Long-form script dimensions' })).toHaveClass('sm:grid-cols-2', 'lg:grid-cols-3')
     expect(screen.getByText('Framework receipts and public-source boundaries').closest('details')).not.toHaveAttribute('open')
@@ -19,16 +24,14 @@ describe('LongFormScriptIntelligenceReview', () => {
     expect(screen.getAllByText(/Originality boundary:/)).not.toHaveLength(0)
   })
 
-  it('switches from a passing packet to stale and originality-blocked states without opening an external gate', async () => {
-    const user = userEvent.setup()
-    render(<LongFormScriptIntelligenceReview qaState="ready" />)
+  it('renders the exact server-returned blocked state without opening an external gate', () => {
+    const { rerender } = render(<LongFormScriptIntelligenceReview review={review('stale')} />)
 
-    await user.click(screen.getByRole('button', { name: 'Stale evidence' }))
     expect(screen.getByText('Approval closed')).toBeVisible()
     expect(screen.getByRole('alert')).toHaveTextContent('Evidence remains Unscored')
     expect(screen.getByRole('link', { name: 'Refresh topic evidence in Content Intelligence' })).toHaveAttribute('href', expect.stringContaining('content-intelligence'))
 
-    await user.click(screen.getByRole('button', { name: 'Originality blocked' }))
+    rerender(<LongFormScriptIntelligenceReview review={review('originality_blocked')} />)
     expect(screen.getByRole('alert')).toHaveTextContent('Creator-distance receipt has not passed')
     expect(screen.getByText('Still closed:').parentElement).toHaveTextContent('Provider')
     expect(screen.getByText('Still closed:').parentElement).toHaveTextContent('Publish')
@@ -36,7 +39,7 @@ describe('LongFormScriptIntelligenceReview', () => {
 
   it('shows an inspectable formula and deterministic inputs for the selected decision', async () => {
     const user = userEvent.setup()
-    render(<LongFormScriptIntelligenceReview qaState="ready" />)
+    render(<LongFormScriptIntelligenceReview review={review('ready')} />)
 
     const decisions = screen.getByRole('list', { name: 'Long-form script dimensions' })
     await user.click(within(decisions).getByRole('button', { name: /Proof placement/ }))

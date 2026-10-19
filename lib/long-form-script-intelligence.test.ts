@@ -2,7 +2,9 @@ import { describe, expect, it } from 'vitest'
 import {
   LONG_FORM_FRAMEWORK_LIBRARY,
   LONG_FORM_FRAMEWORK_LIBRARY_VERSION,
+  buildLongFormScriptReviewInputFromDraft,
   evaluateLongFormScriptIntelligence,
+  longFormSelectedDraftQaFixture,
   longFormScriptQaFixture,
 } from './long-form-script-intelligence'
 
@@ -54,6 +56,33 @@ describe('long-form script intelligence', () => {
       && dimension.formula.length > 0
     ))).toBe(true)
     expect(result.input_fingerprint).toMatch(/^fnv1a:/)
+  })
+
+  it('adapts the selected draft and its bound research receipts into the same deterministic review', () => {
+    const fixture = longFormSelectedDraftQaFixture('ready')
+    const input = buildLongFormScriptReviewInputFromDraft(fixture)
+    const result = evaluateLongFormScriptIntelligence(input)
+
+    expect(input.script_id).toBe(fixture.draft.id)
+    expect(input.topic_outlier_evidence.map((source) => source.id)).toEqual(fixture.draft.research_packet_ids)
+    expect(result.status).toBe('passed')
+    expect(result.approval_ready).toBe(true)
+  })
+
+  it('keeps selected drafts Unscored when persisted creator-distance or research receipts are missing', () => {
+    const fixture = longFormSelectedDraftQaFixture('ready')
+    const scorecard = fixture.draft.script_scorecard as Record<string, unknown>
+    const persisted = scorecard.long_form_script_intelligence as Record<string, unknown>
+    persisted.creator_distance = null
+    fixture.researchPackets = []
+    const result = evaluateLongFormScriptIntelligence(buildLongFormScriptReviewInputFromDraft(fixture))
+
+    expect(result.status).toBe('unscored')
+    expect(result.approval_ready).toBe(false)
+    expect(result.blockers).toEqual(expect.arrayContaining([
+      expect.stringContaining('attributable fresh same-topic sources'),
+      'Creator-distance receipt has not passed.',
+    ]))
   })
 
   it('fails closed when current topic evidence is stale or missing attribution', () => {
