@@ -7,9 +7,9 @@ import {
   type CampaignPreparationCandidate,
 } from '@/lib/social-campaign-package-preparation'
 
-export const SOCIAL_CAMPAIGN_VISUAL_PLAN_VERSION = 'social-campaign-visual-plan/v3' as const
-export const SOCIAL_CAMPAIGN_VISUAL_EVALUATION_VERSION = 'social-campaign-visual-evaluation/v3' as const
-export const SOCIAL_CAMPAIGN_VISUAL_BATCH_VERSION = 'social-campaign-visual-batch/v1' as const
+export const SOCIAL_CAMPAIGN_VISUAL_PLAN_VERSION = 'social-campaign-visual-plan/v4' as const
+export const SOCIAL_CAMPAIGN_VISUAL_EVALUATION_VERSION = 'social-campaign-visual-evaluation/v4' as const
+export const SOCIAL_CAMPAIGN_VISUAL_BATCH_VERSION = 'social-campaign-visual-batch/v2' as const
 export const SOCIAL_CAMPAIGN_VISUAL_BATCH_KIND = 'social_campaign_visual_batch'
 export const SOCIAL_CAMPAIGN_VISUAL_CHUNK_SIZE = 10
 
@@ -193,6 +193,26 @@ export type CampaignVisualBeat = {
   motion: string
   presenter_safe_area: string
   customer_facing_copy: string
+  layout: string
+  presenter_placement: string
+  product_broll_timing: { cue: string; start_seconds: number; end_seconds: number } | null
+  music_ducking_cue: string
+  spoken_conclusion_or_cta: string | null
+  storyboard_traceability: {
+    approved_script_segment_id: string
+    source_receipt_ids: string[]
+    product_proof_receipt_id: string
+    owned_artifact_href: string
+    title_thumbnail_receipt_id: string
+    video_title: string
+    thumbnail_teaser: string
+    title_thumbnail_distinct: true
+    audience_research_receipt_id: string
+    audience_source_urls: string[]
+    audience_outlier_receipt_id: string
+    originality_receipt_id: string
+    privacy_receipt_id: string
+  } | null
   repeated_asset_rationale: string | null
   cinematography: CampaignVisualCinematography | null
   typography: CampaignVisualTypography
@@ -560,11 +580,11 @@ function typographyContract(channel: VisualChannel, campaignIdentity: string): C
 
 function cinematographyContract(channel: 'youtube_long_form' | 'short_form', index: number, duration: number, role: string): CampaignVisualCinematography {
   const longFormShots = [
-    ['impact macro', 'extreme close-up', 'low three-quarter', '18-frame push-in', 'product result centered; presenter enters lower-right'],
-    ['over-shoulder playthrough', 'medium-wide', 'eye-level', 'slow 6% parallax drift', 'player left third; result panel right third'],
-    ['split-depth evidence reveal', 'medium close-up', 'high three-quarter', '12-frame lateral slide', 'product foreground; presenter soft-focus rear plane'],
-    ['reaction-to-result match cut', 'tight close-up', 'slight Dutch return-to-level', 'handheld settle over 1.2 seconds', 'reaction on left eye line; result lands center'],
-    ['top-down experiment table', 'wide insert', 'overhead', 'clockwise 8-degree orbit', 'controls form lower triangle; outcome occupies upper apex'],
+    ['impact macro', 'extreme close-up', 'low three-quarter', '18-frame push-in', 'avatar fixed left; product result fills the right proof pane'],
+    ['over-shoulder playthrough', 'medium-wide', 'eye-level', 'slow 6% parallax drift', 'avatar left third; result panel right two-thirds'],
+    ['split-depth evidence reveal', 'medium close-up', 'high three-quarter', '12-frame lateral slide', 'avatar remains left; owned product capture is foreground on right'],
+    ['reaction-to-result match cut', 'tight close-up', 'slight Dutch return-to-level', 'handheld settle over 1.2 seconds', 'avatar reaction left; exact result lands in right proof pane'],
+    ['top-down experiment table', 'wide insert', 'overhead', 'clockwise 8-degree orbit', 'avatar inset left; controls and outcome stay right'],
   ] as const
   const shortShots = [
     ['vertical impact punch-in', 'tight 9:16 close-up', 'low angle', '10-frame snap zoom', 'active control above lower UI-safe zone'],
@@ -596,6 +616,7 @@ function cinematographyContract(channel: 'youtube_long_form' | 'short_form', ind
 function planBeats(candidate: CampaignPreparationCandidate, script: CampaignLongFormDraftPacket): CampaignVisualBeat[] {
   const proof = sourceId(candidate, 'product-proof')
   const publicSource = candidate.source_trace.find((source) => source.decision === 'selected')?.source_id || candidate.receipts.outlier.receipt_id
+  const audienceResearch = candidate.campaign_identity === 'kicklab' ? kickLabTypographyReceipt() : null
   const shared = {
     originality_boundary: 'Use the campaign evidence and approved voice; borrow no creator wording, artwork, layout, or visual identity.',
     privacy_boundary: 'Use owned, public-safe, or synthetic product evidence only.',
@@ -618,6 +639,12 @@ function planBeats(candidate: CampaignPreparationCandidate, script: CampaignLong
       motion: 'None; diagram and product screenshot remain inspectable.',
       presenter_safe_area: 'No presenter; preserve clean diagram hierarchy.',
       customer_facing_copy: candidate.campaign_identity === 'kicklab' ? 'A choice. A result. A physics lesson you can feel.' : candidate.deliverables.linkedin.copy,
+      layout: 'Static 4:5 editorial page; product proof and one takeaway share a single evidence-led grid.',
+      presenter_placement: 'No presenter.',
+      product_broll_timing: null,
+      music_ducking_cue: 'No music; static review asset.',
+      spoken_conclusion_or_cta: null,
+      storyboard_traceability: null,
       cinematography: null,
       typography: typographyContract('linkedin', candidate.campaign_identity),
     },
@@ -637,6 +664,12 @@ function planBeats(candidate: CampaignPreparationCandidate, script: CampaignLong
       motion: 'None; field-level source trace remains behind the review toggle.',
       presenter_safe_area: 'No presenter; reserve the top third for one concise insight.',
       customer_facing_copy: 'See the move. Read the result. Try the idea again.',
+      layout: 'Static 4:5 evidence panel; source, claim, and product crop remain in one readable grid.',
+      presenter_placement: 'No presenter.',
+      product_broll_timing: null,
+      music_ducking_cue: 'No music; static review asset.',
+      spoken_conclusion_or_cta: null,
+      storyboard_traceability: null,
       cinematography: null,
       typography: typographyContract('linkedin', candidate.campaign_identity),
     },
@@ -657,6 +690,12 @@ function planBeats(candidate: CampaignPreparationCandidate, script: CampaignLong
     motion: 'None.',
     presenter_safe_area: 'Subject occupies the left two-thirds; teaser remains clear of the face and product result.',
     customer_facing_copy: candidate.deliverables.youtube.thumbnail_teaser,
+    layout: 'Static 16:9 integrated thumbnail composition; title stays explanatory while the teaser supplies a distinct hook.',
+    presenter_placement: 'No presenter unless the approved raster already contains one.',
+    product_broll_timing: null,
+    music_ducking_cue: 'No music; static review asset.',
+    spoken_conclusion_or_cta: null,
+    storyboard_traceability: null,
     cinematography: null,
     typography: typographyContract('youtube_thumbnail', candidate.campaign_identity),
   }
@@ -667,15 +706,43 @@ function planBeats(candidate: CampaignPreparationCandidate, script: CampaignLong
     format: index % 3 === 0 ? 'presenter_plus_product_evidence_16x9' : 'owned_product_walkthrough_16x9',
     copy_section_id: beat.id,
     copy_excerpt: safeExcerpt(beat.text),
-    source_ids: beat.role === 'proof' || beat.role === 'teaching' ? [proof, candidate.receipts.product_proof.receipt_id] : [candidate.receipts.evidence.receipt_id],
-    asset_href: candidate.deliverables.linkedin.visual_href || candidate.deliverables.youtube.thumbnail_href,
+    source_ids: [...new Set([
+      proof,
+      candidate.receipts.product_proof.receipt_id,
+      candidate.receipts.evidence.receipt_id,
+      candidate.receipts.outlier.receipt_id,
+      candidate.receipts.originality.receipt_id,
+      candidate.receipts.privacy.receipt_id,
+      ...(candidate.source_trace.find((source) => source.decision === 'selected') ? [candidate.source_trace.find((source) => source.decision === 'selected')!.source_id] : []),
+    ])],
+    asset_href: script.product_evidence_bindings[0]?.artifact_href || candidate.deliverables.linkedin.visual_href || candidate.deliverables.youtube.thumbnail_href,
     start_seconds: beat.start_seconds,
     end_seconds: beat.end_seconds,
     intended_takeaway: candidate.campaign_identity === 'kicklab' ? kickLabTakeaway(beat.id) : `The ${beat.role.replaceAll('_', ' ')} stays tied to the approved ${candidate.product_label} evidence.`,
     transition: index ? 'Eight-frame ease into the next evidence region; preserve source artifact timing.' : 'Open directly on the product result, then reveal the presenter.',
     motion: 'Preserve native product motion; use one purposeful crop or highlight synchronized to the spoken claim.',
-    presenter_safe_area: 'Presenter remains in the lower-right safe area and never obscures the active evidence region.',
+    presenter_safe_area: 'Avatar remains within the left third; never cover the owned product evidence in the right two-thirds.',
     customer_facing_copy: beat.pattern_interrupt || '',
+    layout: '16:9 split screen: avatar on the left third, owned product capture on the right two-thirds; labels sit in padded lower safe area.',
+    presenter_placement: 'Avatar anchored left, waist-up, eye-line toward the evidence on the right; face and hands stay clear of captions.',
+    product_broll_timing: beat.broll_cue ? { cue: beat.broll_cue, start_seconds: beat.start_seconds, end_seconds: beat.end_seconds } : null,
+    music_ducking_cue: 'Low, lyric-free instrumental bed; duck 6 dB under narration and 9 dB during product-proof explanation; no music asset is selected in this review plan.',
+    spoken_conclusion_or_cta: beat.role === 'conclusion' || beat.role === 'cta' ? beat.text : null,
+    storyboard_traceability: {
+      approved_script_segment_id: beat.id,
+      source_receipt_ids: [candidate.receipts.evidence.receipt_id, candidate.receipts.product_proof.receipt_id, candidate.receipts.outlier.receipt_id, candidate.receipts.originality.receipt_id, candidate.receipts.privacy.receipt_id],
+      product_proof_receipt_id: candidate.receipts.product_proof.receipt_id,
+      owned_artifact_href: script.product_evidence_bindings[0]?.artifact_href || candidate.deliverables.linkedin.visual_href || candidate.deliverables.youtube.thumbnail_href,
+      title_thumbnail_receipt_id: script.title_thumbnail_receipt_id,
+      video_title: script.title,
+      thumbnail_teaser: candidate.deliverables.youtube.thumbnail_teaser,
+      title_thumbnail_distinct: script.title_thumbnail_distinct,
+      audience_research_receipt_id: audienceResearch?.receipt_id || '',
+      audience_source_urls: [...new Set(audienceResearch?.comparables.flatMap((item) => item.audience_source_urls) ?? [])],
+      audience_outlier_receipt_id: candidate.receipts.outlier.receipt_id,
+      originality_receipt_id: script.originality_receipt_id,
+      privacy_receipt_id: script.privacy_receipt_id,
+    },
     repeated_asset_rationale: index ? 'Return to the same owned product capture at a different native timestamp because this spoken beat explains a different visible behavior.' : null,
     cinematography: cinematographyContract('youtube_long_form', index, beat.end_seconds - beat.start_seconds, beat.role),
     typography: typographyContract('youtube_long_form', candidate.campaign_identity),
@@ -687,8 +754,8 @@ function planBeats(candidate: CampaignPreparationCandidate, script: CampaignLong
     format: 'vertical_product_story_9x16',
     copy_section_id: beat.id,
     copy_excerpt: safeExcerpt(beat.text),
-    source_ids: beat.role === 'proof' ? [proof] : [candidate.receipts.evidence.receipt_id],
-    asset_href: candidate.deliverables.linkedin.visual_href,
+    source_ids: [...new Set([proof, candidate.receipts.product_proof.receipt_id, candidate.receipts.evidence.receipt_id, candidate.receipts.outlier.receipt_id, candidate.receipts.originality.receipt_id, candidate.receipts.privacy.receipt_id])],
+    asset_href: script.product_evidence_bindings[0]?.artifact_href || candidate.deliverables.linkedin.visual_href,
     start_seconds: index * 8,
     end_seconds: (index + 1) * 8,
     intended_takeaway: `A vertical derivative carries the ${beat.role} without shrinking the long-form frame.`,
@@ -696,6 +763,26 @@ function planBeats(candidate: CampaignPreparationCandidate, script: CampaignLong
     motion: 'Native 9:16 crop with synchronized caption and product highlight.',
     presenter_safe_area: 'Presenter is optional and stays above platform controls without covering proof.',
     customer_facing_copy: beat.pattern_interrupt || '',
+    layout: 'Vertical 9:16 crop; product result stays central with captions in padded UI-safe areas.',
+    presenter_placement: 'Presenter optional; if present, stays above platform controls and outside the product result.',
+    product_broll_timing: beat.broll_cue ? { cue: beat.broll_cue, start_seconds: beat.start_seconds, end_seconds: beat.end_seconds } : null,
+    music_ducking_cue: 'Low, lyric-free instrumental bed; duck 6 dB under narration and 9 dB during product-proof explanation; no music asset is selected in this review plan.',
+    spoken_conclusion_or_cta: beat.role === 'conclusion' || beat.role === 'cta' ? beat.text : null,
+    storyboard_traceability: {
+      approved_script_segment_id: beat.id,
+      source_receipt_ids: [candidate.receipts.evidence.receipt_id, candidate.receipts.product_proof.receipt_id, candidate.receipts.outlier.receipt_id, candidate.receipts.originality.receipt_id, candidate.receipts.privacy.receipt_id],
+      product_proof_receipt_id: candidate.receipts.product_proof.receipt_id,
+      owned_artifact_href: script.product_evidence_bindings[0]?.artifact_href || candidate.deliverables.linkedin.visual_href || candidate.deliverables.youtube.thumbnail_href,
+      title_thumbnail_receipt_id: script.title_thumbnail_receipt_id,
+      video_title: script.title,
+      thumbnail_teaser: candidate.deliverables.youtube.thumbnail_teaser,
+      title_thumbnail_distinct: script.title_thumbnail_distinct,
+      audience_research_receipt_id: audienceResearch?.receipt_id || '',
+      audience_source_urls: [...new Set(audienceResearch?.comparables.flatMap((item) => item.audience_source_urls) ?? [])],
+      audience_outlier_receipt_id: candidate.receipts.outlier.receipt_id,
+      originality_receipt_id: script.originality_receipt_id,
+      privacy_receipt_id: script.privacy_receipt_id,
+    },
     repeated_asset_rationale: index ? 'Reuse the owned product source only for a new vertical crop and a distinct script beat.' : null,
     cinematography: cinematographyContract('short_form', index, 8, beat.role),
     typography: typographyContract('short_form', candidate.campaign_identity),
@@ -869,11 +956,45 @@ export function evaluateCampaignVisualPlan(plan: CampaignVisualPlan, now = new D
 
   const videoBeats = plan.beats.filter((beat) => beat.channel === 'youtube_long_form' || beat.channel === 'short_form')
   const timingFailure = videoBeats.some((beat) => beat.start_seconds == null || beat.end_seconds == null || beat.end_seconds <= beat.start_seconds || !beat.motion || !beat.transition || !beat.presenter_safe_area)
+  const overlappingScenes = ['youtube_long_form', 'short_form'].some((channel) => {
+    const scenes = videoBeats.filter((beat) => beat.channel === channel).sort((left, right) => (left.start_seconds ?? 0) - (right.start_seconds ?? 0))
+    return scenes.some((beat, index) => index > 0 && (scenes[index - 1].end_seconds ?? Infinity) > (beat.start_seconds ?? -Infinity))
+  })
   const adjacentRepeat = videoBeats.some((beat, index) => index > 0
     && beat.channel === videoBeats[index - 1].channel
     && beat.asset_href === videoBeats[index - 1].asset_href
     && !beat.repeated_asset_rationale)
-  if (timingFailure || adjacentRepeat) blockers.push(blocker('visual_motion_sync', 'Video regions need non-overlapping timing, synchronized motion, clear transitions, presenter-safe framing, and justified asset reuse.', 'Repair storyboard timing and assets', plan.recovery_actions.at(-1)?.href || '/admin/social-content'))
+  if (timingFailure || overlappingScenes || adjacentRepeat) blockers.push(blocker('visual_motion_sync', 'Video regions need non-overlapping timing, synchronized motion, clear transitions, presenter-safe framing, and justified asset reuse.', 'Repair storyboard timing and assets', plan.recovery_actions.at(-1)?.href || '/admin/social-content'))
+
+  const longFormScenes = plan.beats.filter((beat) => beat.channel === 'youtube_long_form')
+  const traceabilityComplete = longFormScenes.every((beat) => {
+    const trace = beat.storyboard_traceability
+    return Boolean(
+      beat.layout && beat.presenter_placement && beat.music_ducking_cue
+        && beat.copy_section_id && beat.copy_excerpt && beat.asset_href
+        && trace?.approved_script_segment_id === beat.copy_section_id
+        && trace.owned_artifact_href === beat.asset_href
+        && trace.title_thumbnail_distinct
+        && trace.video_title.trim().toLowerCase() !== trace.thumbnail_teaser.trim().toLowerCase()
+        && trace.audience_research_receipt_id === plan.typography_style_receipt?.receipt_id
+        && trace.audience_source_urls.length > 0
+        && trace.audience_source_urls.every((href) => /^https:\/\//.test(href))
+        && trace.source_receipt_ids.length >= 5
+        && trace.source_receipt_ids.every((id) => plan.source_receipt_ids.includes(id))
+        && trace.source_receipt_ids.includes(trace.product_proof_receipt_id)
+        && trace.source_receipt_ids.includes(trace.audience_outlier_receipt_id)
+        && trace.source_receipt_ids.includes(trace.originality_receipt_id)
+        && trace.source_receipt_ids.includes(trace.privacy_receipt_id)
+        && beat.source_ids.includes(trace.product_proof_receipt_id)
+        && beat.source_ids.includes(trace.privacy_receipt_id)
+        && beat.source_ids.includes(trace.originality_receipt_id)
+        && (!beat.product_broll_timing || (beat.product_broll_timing.cue && beat.start_seconds != null && beat.end_seconds != null && beat.product_broll_timing.start_seconds >= beat.start_seconds && beat.product_broll_timing.end_seconds <= beat.end_seconds && beat.product_broll_timing.end_seconds > beat.product_broll_timing.start_seconds))
+    )
+  })
+  const finalLongFormScene = [...longFormScenes].sort((left, right) => (right.end_seconds ?? 0) - (left.end_seconds ?? 0))[0]
+  const spokenCloseComplete = Boolean(finalLongFormScene?.spoken_conclusion_or_cta?.trim())
+  const splitScreenComplete = longFormScenes.every((beat) => /avatar.*left.*product.*right/i.test(`${beat.layout} ${beat.presenter_placement}`))
+  if (!traceabilityComplete || !spokenCloseComplete || !splitScreenComplete) blockers.push(blocker('visual_storyboard_incomplete', 'Every YouTube scene needs exact script, source, owned-proof, title/thumbnail, audience/outlier, originality, and privacy bindings; the closing narration and split-screen staging must be explicit.', 'Complete scene storyboard bindings', plan.recovery_actions.at(-1)?.href || '/admin/social-content'))
 
   const cinematographyPasses = videoBeats.filter((beat) => {
     const scene = beat.cinematography
@@ -1015,7 +1136,11 @@ export function projectCampaignVisualPlan(candidate: CampaignPreparationCandidat
 export function projectCampaignVisualBatch(candidates: CampaignPreparationCandidate[], now = new Date()): CampaignVisualBatch {
   const ordered = [...candidates].sort((left, right) => left.campaign_identity.localeCompare(right.campaign_identity) || left.candidate_id.localeCompare(right.candidate_id))
   const projections = ordered.map((candidate) => projectCampaignVisualPlan(candidate, now))
-  const inputFingerprint = hash(ordered.map((candidate) => ({ candidate_id: candidate.candidate_id, input_version: candidate.input_version, content_version: candidate.content_version, script_receipt: candidate.long_form_script_input?.receipt_id ?? null })))
+  const inputFingerprint = hash({
+    visual_plan_version: SOCIAL_CAMPAIGN_VISUAL_PLAN_VERSION,
+    visual_evaluation_version: SOCIAL_CAMPAIGN_VISUAL_EVALUATION_VERSION,
+    candidates: ordered.map((candidate) => ({ candidate_id: candidate.candidate_id, input_version: candidate.input_version, content_version: candidate.content_version, script_receipt: candidate.long_form_script_input?.receipt_id ?? null })),
+  })
   const prepared = projections.filter((projection) => projection.ready)
   const blocked = projections.filter((projection) => !projection.ready)
   return {

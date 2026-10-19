@@ -11,7 +11,7 @@ const execFileAsync = promisify(execFile)
 const baseUrl = process.env.QA_BASE_URL || 'http://127.0.0.1:3210'
 const revision = process.env.QA_REVISION || 'fd48ce54'
 const authState = process.env.PLAYWRIGHT_AUTH_STATE || '/Users/vambahsillah/Projects/Portfolio/.auth/portfolio-admin-storage-state.json'
-const outputDir = path.resolve(process.env.QA_OUTPUT_DIR || 'artifacts/human-qa/social-campaign-visual-management-2026-10-19')
+const outputDir = path.resolve(process.env.QA_OUTPUT_DIR || 'artifacts/human-qa/social-campaign-storyboard-review-2026-10-19')
 const rawVideoDir = path.join(outputDir, 'raw-video')
 const mp4Path = path.join(outputDir, 'social-campaign-visual-management-walkthrough.mp4')
 const route = `/admin/social-content?campaignQa=campaign-package-preparation-v1&rev=${encodeURIComponent(revision)}`
@@ -72,10 +72,10 @@ async function recordScenario(browser, storageState, { label, viewport }) {
   const prepare = panel.getByRole('button', { name: 'Prepare eligible visual plans' })
   if (!(await prepare.isEnabled())) throw new Error(`${label} visual batch action was disabled.`)
   await prepare.click()
-  await panel.getByText('12 total · 12 scanned · 1 prepared · 11 blocked · 0 remaining · 2 chunks', { exact: true }).waitFor()
+  await panel.getByText('12 total · 12 scanned · 0 prepared · 12 blocked · 0 remaining · 2 chunks', { exact: true }).waitFor()
   await panel.getByRole('heading', { name: 'KickLab · channel-native visual plan' }).waitFor()
-  await panel.getByAltText(/art-directed FEEL THE MATH display type/i).waitFor()
-  await panel.getByText('YouTube thumbnail · premium integrated type', { exact: true }).waitFor()
+  await panel.getByAltText(/review direction: MATH IN THE MOVE/i).waitFor()
+  await panel.getByText('YouTube thumbnail · review direction, not approval-ready', { exact: true }).waitFor()
   const cleanAssetView = panel.getByLabel('Clean customer-facing asset view')
   await cleanAssetView.scrollIntoViewIfNeeded()
   await page.waitForTimeout(400)
@@ -99,12 +99,22 @@ async function recordScenario(browser, storageState, { label, viewport }) {
   await panel.getByText('Script-to-visual storyboard timing', { exact: true }).scrollIntoViewIfNeeded()
   await page.waitForTimeout(500)
   const firstScene = panel.getByRole('heading', { name: 'Script-to-visual storyboard timing' }).locator('..').locator('ol > li').first()
+  const sceneCount = await panel.getByRole('heading', { name: 'Script-to-visual storyboard timing' }).locator('..').locator('ol > li').count()
+  if (sceneCount < 16) throw new Error(`${label} did not show the complete 16-scene long-form storyboard.`)
   await firstScene.getByText(/Shot:/).waitFor()
   await firstScene.getByText(/Pattern interrupt:/).waitFor()
   await firstScene.getByText(/Typography:/).waitFor()
+  await firstScene.getByText(/Narration:/).waitFor()
+  await firstScene.getByText(/avatar on the left third, owned product capture on the right two-thirds/i).waitFor()
+  await firstScene.getByText(/Music \/ ducking:/).waitFor()
   await firstScene.scrollIntoViewIfNeeded()
   await page.waitForTimeout(500)
-  await firstScene.screenshot({ path: path.join(outputDir, `${label}-cinematography-and-type.png`) })
+  await firstScene.screenshot({ path: path.join(outputDir, `${label}-storyboard-opening.png`) })
+  const finalScene = panel.getByRole('heading', { name: 'Script-to-visual storyboard timing' }).locator('..').locator('ol > li').filter({ hasText: 'campaign-cta' }).first()
+  await finalScene.getByText(/Spoken close \/ CTA:/).waitFor()
+  await finalScene.scrollIntoViewIfNeeded()
+  await page.waitForTimeout(400)
+  await finalScene.screenshot({ path: path.join(outputDir, `${label}-storyboard-cta.png`) })
 
   const blocked = panel.getByLabel('Blocked visual candidates')
   await blocked.getByText('Page 1 of 3', { exact: true }).waitFor()
@@ -133,6 +143,7 @@ async function recordScenario(browser, storageState, { label, viewport }) {
 const browser = await chromium.launch({ headless: true })
 const storageState = await authenticatedStorageState(browser)
 const desktopVideo = await recordScenario(browser, storageState, { label: 'desktop-1440', viewport: { width: 1440, height: 1000 } })
+const tabletVideo = await recordScenario(browser, storageState, { label: 'tablet-768', viewport: { width: 768, height: 1024 } })
 const mobileVideo = await recordScenario(browser, storageState, { label: 'mobile-390', viewport: { width: 390, height: 844 } })
 await browser.close()
 
@@ -141,7 +152,7 @@ await execFileAsync('ffmpeg', [
   '-i', desktopVideo,
   '-i', mobileVideo,
   '-filter_complex',
-  '[0:v]scale=1440:1000:force_original_aspect_ratio=decrease,pad=1440:1000:(ow-iw)/2:(oh-ih)/2:black,setsar=1[v0];[1:v]scale=1440:1000:force_original_aspect_ratio=decrease,pad=1440:1000:(ow-iw)/2:(oh-ih)/2:black,setsar=1[v1];[v0][v1]concat=n=2:v=1:a=0[outv]',
+  '[0:v]scale=1440:1000:force_original_aspect_ratio=decrease,pad=1440:1000:(ow-iw)/2:(oh-ih)/2:black,setsar=1[v0];[1:v]scale=1440:1000:force_original_aspect_ratio=decrease,pad=1440:1000:(ow-iw)/2:(oh-ih)/2:black,setsar=1[v1];[2:v]scale=1440:1000:force_original_aspect_ratio=decrease,pad=1440:1000:(ow-iw)/2:(oh-ih)/2:black,setsar=1[v2];[v0][v1][v2]concat=n=3:v=1:a=0[outv]',
   '-map', '[outv]',
   '-c:v', 'libx264',
   '-pix_fmt', 'yuv420p',
@@ -152,21 +163,25 @@ await execFileAsync('ffmpeg', [
 const result = {
   revision,
   route: `${baseUrl}${route}`,
-  viewports: [{ width: 1440, height: 1000 }, { width: 390, height: 844 }],
+  viewports: [{ width: 1440, height: 1000 }, { width: 768, height: 1024 }, { width: 390, height: 844 }],
   screenshots: [
     'desktop-1440-clean-assets.png',
     'desktop-1440-trace-and-evaluation.png',
     'desktop-1440-benchmark-receipt.png',
-    'desktop-1440-cinematography-and-type.png',
+    'desktop-1440-storyboard-opening.png',
+    'desktop-1440-storyboard-cta.png',
     'desktop-1440-blocked-recovery.png',
+    'tablet-768-storyboard-opening.png',
+    'tablet-768-storyboard-cta.png',
     'mobile-390-clean-assets.png',
     'mobile-390-trace-and-evaluation.png',
     'mobile-390-benchmark-receipt.png',
-    'mobile-390-cinematography-and-type.png',
+    'mobile-390-storyboard-opening.png',
+    'mobile-390-storyboard-cta.png',
     'mobile-390-blocked-recovery.png',
   ],
   video: path.basename(mp4Path),
-  batch: { total: 12, scanned: 12, prepared: 1, blocked: 11, remaining: 0 },
+  batch: { total: 12, scanned: 12, prepared: 0, blocked: 12, remaining: 0 },
   scoring: {
     dimensions: 12,
     formulas_visible: true,

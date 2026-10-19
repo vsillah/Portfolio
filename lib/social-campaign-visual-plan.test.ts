@@ -53,6 +53,33 @@ describe('evidence-backed social visual plan', () => {
     expect(projection.evaluation.dimensions.find((dimension) => dimension.key === 'typography_style_evidence')).toMatchObject({ status: 'unscored', score: null })
     expect(projection.evaluation.dimensions.find((dimension) => dimension.key === 'typography_style_evidence')).toMatchObject({ calculation: { formula: expect.stringContaining('zero-weight comparables are context-only') }, explanation: expect.stringContaining('approval requires the scored matched-style cohort') })
     expect(projection.evaluation.blockers.map((item) => item.code)).toContain('visual_typography_style_unscored')
+    expect(projection.plan?.version).toBe('social-campaign-visual-plan/v4')
+  })
+
+  it('binds every YouTube scene to script, source, proof, title/thumbnail, outlier, privacy, and originality receipts', () => {
+    const plan = passingPlan()
+    const scenes = plan.beats.filter((beat) => beat.channel === 'youtube_long_form')
+    expect(scenes).toHaveLength(16)
+    expect(scenes.every((beat) => beat.storyboard_traceability?.approved_script_segment_id === beat.copy_section_id)).toBe(true)
+    expect(scenes.every((beat) => beat.storyboard_traceability?.owned_artifact_href === beat.asset_href)).toBe(true)
+    expect(scenes.every((beat) => beat.source_ids.includes(beat.storyboard_traceability!.product_proof_receipt_id))).toBe(true)
+    expect(scenes.every((beat) => beat.storyboard_traceability?.title_thumbnail_distinct)).toBe(true)
+    expect(scenes.every((beat) => beat.storyboard_traceability?.audience_research_receipt_id === plan.typography_style_receipt?.receipt_id && beat.storyboard_traceability.audience_source_urls.every((href) => href.startsWith('https://')))).toBe(true)
+    expect(scenes.every((beat) => beat.layout.includes('avatar on the left') && beat.layout.includes('right two-thirds'))).toBe(true)
+    expect(scenes.every((beat) => beat.presenter_placement && beat.music_ducking_cue)).toBe(true)
+    expect(scenes.some((beat) => beat.product_broll_timing?.end_seconds === beat.end_seconds)).toBe(true)
+    expect(scenes.at(-1)?.spoken_conclusion_or_cta).toMatch(/subscrib/i)
+    expect(evaluateCampaignVisualPlan(plan, NOW).blockers.map((item) => item.code)).not.toContain('visual_storyboard_incomplete')
+  })
+
+  it('fails closed when a YouTube scene loses a required trace or spoken CTA', () => {
+    const plan = passingPlan()
+    const scenes = plan.beats.filter((beat) => beat.channel === 'youtube_long_form')
+    scenes[2].storyboard_traceability!.privacy_receipt_id = 'missing-privacy-receipt'
+    scenes[3].storyboard_traceability!.audience_source_urls = []
+    scenes.at(-1)!.spoken_conclusion_or_cta = null
+    const evaluation = evaluateCampaignVisualPlan(plan, NOW)
+    expect(evaluation.blockers.map((item) => item.code)).toContain('visual_storyboard_incomplete')
   })
 
   it('uses only a scored matched-style cohort for typography approval', () => {
@@ -158,6 +185,13 @@ describe('evidence-backed social visual plan', () => {
     video[1].start_seconds = video[1].end_seconds
     video[1].asset_href = video[0].asset_href
     video[1].repeated_asset_rationale = null
+    expect(evaluateCampaignVisualPlan(plan, NOW).blockers.map((item) => item.code)).toContain('visual_motion_sync')
+  })
+
+  it('blocks overlapping scene windows even when each scene has a positive duration', () => {
+    const plan = passingPlan()
+    const video = plan.beats.filter((beat) => beat.channel === 'youtube_long_form')
+    video[1].start_seconds = video[0].end_seconds! - 1
     expect(evaluateCampaignVisualPlan(plan, NOW).blockers.map((item) => item.code)).toContain('visual_motion_sync')
   })
 
