@@ -1,0 +1,18 @@
+{
+  "revision": "b9fcbac3",
+  "route": "http://127.0.0.1:3098/admin/social-content?campaignQa=campaign-package-preparation-v1&rev=b9fcbac3",
+  "screenshots": [
+    "desktop-1440-ready-sealed.png",
+    "desktop-1440-reversr-blocked.png",
+    "desktop-1440-prepared-receipt.png",
+    "mobile-390-ready-sealed.png",
+    "mobile-390-reversr-blocked.png",
+    "mobile-390-prepared-receipt.png"
+  ],
+  "video": "social-campaign-package-preparation-walkthrough.mp4",
+  "external_requests": [],
+  "blocked_development_telemetry": [
+    "https://va.vercel-scripts.com/v1/speed-insights/script.debug.js"
+  ],
+  "protected_actions_exercised": []
+}
