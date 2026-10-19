@@ -22,7 +22,7 @@ The walkthrough shows:
 
 ## Evidence
 
-- `social-campaign-visual-management-walkthrough.mp4` — playable H.264 MP4, 1440×1000, 25 fps, 15.84 seconds.
+- `social-campaign-visual-management-walkthrough.mp4` — playable H.264 MP4, 1440×1000, 25 fps, 21.48 seconds.
 - `desktop-1440-clean-assets.png`
 - `desktop-1440-trace-and-evaluation.png`
 - `desktop-1440-blocked-recovery.png`
