@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { NextRequest } from 'next/server'
-import { SOCIAL_CAMPAIGN_PACKAGE_QA_FIXTURE } from '@/lib/social-campaign-package-qa-fixture'
+import { SOCIAL_CAMPAIGN_APPROVED_ADAPTATION_QA_FIXTURE, SOCIAL_CAMPAIGN_PACKAGE_QA_FIXTURE } from '@/lib/social-campaign-package-qa-fixture'
 import { campaignPreparationAttemptKey, campaignPreparationIdempotencyKey, SOCIAL_CAMPAIGN_RETRY_EXHAUSTED_MESSAGE } from '@/lib/social-campaign-package-preparation'
 import { socialCampaignLongFormBatchQaCandidates, socialCampaignPackageQaCandidates } from '@/lib/social-campaign-package-qa-fixture'
 import { campaignLongFormBatchIdempotencyKey, projectCampaignLongFormBatch } from '@/lib/social-campaign-long-form-batch'
@@ -15,6 +15,7 @@ import { GET, POST } from './route'
 
 const url = `http://localhost/api/admin/social-content/campaign-packages?qa_fixture=${SOCIAL_CAMPAIGN_PACKAGE_QA_FIXTURE}`
 const productionUrl = 'http://localhost/api/admin/social-content/campaign-packages'
+const approvedReviewUrl = `${productionUrl}?qa_fixture=${SOCIAL_CAMPAIGN_APPROVED_ADAPTATION_QA_FIXTURE}`
 function post(candidateId: string) {
   return new NextRequest(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ candidate_id: candidateId }) })
 }
@@ -64,6 +65,28 @@ describe('campaign review package route', () => {
     const response = await GET(new NextRequest(url))
     expect(response.status).toBe(401)
     expect(mocks.from).not.toHaveBeenCalled()
+  })
+
+  it('projects approved source storyboards and exact blockers locally without production reads or writes', async () => {
+    const response = await GET(new NextRequest(approvedReviewUrl))
+    expect(response.status).toBe(200)
+    const body = await response.json()
+    expect(body.approved_adaptation_review.adaptations.map((item: any) => [item.social_content_id, item.current_content_version, item.source_input_version, item.status])).toEqual([
+      ['939b01e3-d1af-42c8-805e-0379f09efd60', 'sha256:392b3e2a92c5ab65e4cc93706571df761bac7ea38631bf06002fd6b89f3302a2', 'sha256:e6fc9ae4aadd61e3a871e8f7af2dd0a2d424d5c20ae6a8d0eac861b16e796bd5', 'human_qa_rereview_required'],
+      ['21c492c2-9279-4e08-afc9-49207935a681', 'sha256:4d3bc63ebaeb1aed344d64ed15ebb0ff865772de48b48249526ccce0b2c02e9e', 'sha256:4d3bc63ebaeb1aed344d64ed15ebb0ff865772de48b48249526ccce0b2c02e9e', 'ready_for_human_review'],
+    ])
+    expect(body.approved_adaptation_review.adaptations.every((item: any) => item.source_readiness.ready && item.scenes.length >= 9 && item.evidence_assets.length > 0)).toBe(true)
+    expect(body.approved_adaptation_review.blocked_items).toHaveLength(3)
+    expect(body.approved_adaptation_review.human_qa).toEqual({ status: 'pending_new_capture_artifacts', screenshots: [], mp4: null })
+    expect(new Set(Object.values(body.approved_adaptation_review.external_gates))).toEqual(new Set([false]))
+    expect(mocks.from).not.toHaveBeenCalled()
+  })
+
+  it('rejects all POST actions on the approved adaptation projection', async () => {
+    const response = await POST(batchPost(approvedReviewUrl, 'prepare_visual_batch'))
+    expect(response.status).toBe(405)
+    expect(mocks.from).not.toHaveBeenCalled()
+    expect(mocks.startAgentRun).not.toHaveBeenCalled()
   })
 
   it('projects ready, blocked, and closed-side-effect states without production reads', async () => {

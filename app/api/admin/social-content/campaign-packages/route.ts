@@ -14,7 +14,8 @@ import {
   type CampaignPreparationCandidate,
   type CampaignPreparationRunSummary,
 } from '@/lib/social-campaign-package-preparation'
-import { SOCIAL_CAMPAIGN_PACKAGE_QA_FIXTURE, socialCampaignLongFormBatchQaCandidates, socialCampaignPackageQaCandidates } from '@/lib/social-campaign-package-qa-fixture'
+import { SOCIAL_CAMPAIGN_APPROVED_ADAPTATION_QA_FIXTURE, SOCIAL_CAMPAIGN_PACKAGE_QA_FIXTURE, socialCampaignLongFormBatchQaCandidates, socialCampaignPackageQaCandidates } from '@/lib/social-campaign-package-qa-fixture'
+import { socialCampaignApprovedAdaptationQaProjection } from '@/lib/social-campaign-approved-adaptation-qa-fixture'
 import {
   SOCIAL_CAMPAIGN_LONG_FORM_BATCH_KIND,
   campaignLongFormBatchIdempotencyKey,
@@ -87,6 +88,11 @@ function qaMode(request: NextRequest) {
     && request.nextUrl.searchParams.get('qa_fixture') === SOCIAL_CAMPAIGN_PACKAGE_QA_FIXTURE
 }
 
+function approvedAdaptationQaMode(request: NextRequest) {
+  return process.env.NODE_ENV !== 'production'
+    && request.nextUrl.searchParams.get('qa_fixture') === SOCIAL_CAMPAIGN_APPROVED_ADAPTATION_QA_FIXTURE
+}
+
 function candidateProjection(candidate: CampaignPreparationCandidate, now: Date) {
   const evaluation = evaluateCampaignPreparationCandidate(candidate, now)
   return {
@@ -107,7 +113,8 @@ export async function GET(request: NextRequest) {
   const auth = await verifyAdmin(request)
   if (isAuthError(auth)) return NextResponse.json({ error: auth.error }, { status: auth.status })
   try {
-    const fixtureMode = qaMode(request)
+    const reviewOnlyMode = approvedAdaptationQaMode(request)
+    const fixtureMode = qaMode(request) || reviewOnlyMode
     const candidates: CampaignPreparationCandidate[] = fixtureMode ? socialCampaignPackageQaCandidates() : await loadCandidates()
     const longFormCandidates = fixtureMode ? socialCampaignLongFormBatchQaCandidates() : candidates
     const now = new Date('2026-10-19T12:00:00.000Z')
@@ -122,11 +129,14 @@ export async function GET(request: NextRequest) {
         const projection = projectCampaignVisualPlan(candidate, evaluationTime)
         return { ...projection, plan: null }
       }),
-      runs: qaMode(request) ? [] : await loadRuns(),
+      runs: fixtureMode ? [] : await loadRuns(),
       retry_policy: { maximum_attempts_per_input_version: SOCIAL_CAMPAIGN_MAX_ATTEMPTS, retry_limit: SOCIAL_CAMPAIGN_MAX_ATTEMPTS - 1, duplicate_records_allowed: false, source_change_requires_new_input_version: true },
       external_gates: SOCIAL_CAMPAIGN_EXTERNAL_GATES,
-      fixture: qaMode(request),
-      integration_note: qaMode(request) ? 'Synthetic development-only operator workflow. No shared record, provider call, paid generation, upload, platform draft, schedule, publication, credential, migration, spend, production release, or external send occurs.' : null,
+      approved_adaptation_review: reviewOnlyMode ? socialCampaignApprovedAdaptationQaProjection() : null,
+      fixture: fixtureMode,
+      integration_note: reviewOnlyMode
+        ? 'Local approved-source projection for the existing campaign preparation surface. Read-only: no production data is queried or changed, and no render, provider, upload, platform draft, schedule, publication, credential, migration, deployment, merge, spend, or external send occurs.'
+        : qaMode(request) ? 'Synthetic development-only operator workflow. No shared record, provider call, paid generation, upload, platform draft, schedule, publication, credential, migration, spend, production release, or external send occurs.' : null,
     })
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : 'Campaign preparation is unavailable.' }, { status: 503 })
@@ -136,6 +146,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   const auth = await verifyAdmin(request)
   if (isAuthError(auth)) return NextResponse.json({ error: auth.error }, { status: auth.status })
+  if (approvedAdaptationQaMode(request)) return NextResponse.json({ error: 'This approved-adaptation projection is read-only.' }, { status: 405 })
   try {
     const body = record(await request.json())
     const action = typeof body.action === 'string' ? body.action : 'prepare_candidate'

@@ -7,6 +7,7 @@ import {
 import { LONG_FORM_FRAMEWORK_LIBRARY, LONG_FORM_FRAMEWORK_LIBRARY_VERSION } from '@/lib/long-form-script-intelligence'
 
 export const SOCIAL_CAMPAIGN_PACKAGE_QA_FIXTURE = 'campaign-package-preparation-v1'
+export const SOCIAL_CAMPAIGN_APPROVED_ADAPTATION_QA_FIXTURE = 'campaign-package-preparation-review-v1'
 
 function receipt(product: string, name: string, overrides: Partial<CampaignPreparationCandidate['receipts']['evidence']> = {}) {
   return {

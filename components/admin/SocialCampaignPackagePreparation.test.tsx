@@ -1,10 +1,11 @@
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import SocialCampaignPackagePreparation from './SocialCampaignPackagePreparation'
-import { SOCIAL_CAMPAIGN_PACKAGE_QA_FIXTURE, socialCampaignLongFormBatchQaCandidates, socialCampaignPackageQaCandidates } from '@/lib/social-campaign-package-qa-fixture'
+import { SOCIAL_CAMPAIGN_APPROVED_ADAPTATION_QA_FIXTURE, SOCIAL_CAMPAIGN_PACKAGE_QA_FIXTURE, socialCampaignLongFormBatchQaCandidates, socialCampaignPackageQaCandidates } from '@/lib/social-campaign-package-qa-fixture'
 import { evaluateCampaignPreparationCandidate } from '@/lib/social-campaign-package-preparation'
 import { projectCampaignLongFormBatch, projectCampaignLongFormDraft } from '@/lib/social-campaign-long-form-batch'
 import { projectCampaignVisualBatch, projectCampaignVisualPlan } from '@/lib/social-campaign-visual-plan'
+import { socialCampaignApprovedAdaptationQaProjection } from '@/lib/social-campaign-approved-adaptation-qa-fixture'
 
 vi.mock('@/lib/auth', () => ({ getCurrentSession: vi.fn(async () => ({ access_token: 'staff-token' })) }))
 
@@ -125,6 +126,24 @@ describe('SocialCampaignPackagePreparation', () => {
     expect(screen.getAllByText(/Pattern interrupt:/i).length).toBeGreaterThan(0)
     expect(screen.getAllByText(/Typography:/i).length).toBeGreaterThan(0)
     await waitFor(() => expect(fetch).toHaveBeenCalledWith(expect.stringContaining('qa_fixture'), expect.objectContaining({ method: 'POST', body: JSON.stringify({ action: 'prepare_visual_batch' }) })))
+  })
+
+  it('shows exact Jev and Dark Castle bindings, full source storyboards, and blocked recovery in read-only review mode', async () => {
+    const review = socialCampaignApprovedAdaptationQaProjection()
+    vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, json: async () => ({ ...responseBody(), approved_adaptation_review: review, integration_note: 'Local read-only projection.' }) }) as Response))
+    render(<SocialCampaignPackagePreparation qaFixture={SOCIAL_CAMPAIGN_APPROVED_ADAPTATION_QA_FIXTURE} reviewOnly />)
+    expect(await screen.findByRole('heading', { name: 'Upcoming YouTube campaign review' })).toBeVisible()
+    expect(screen.getByRole('heading', { name: 'Jev · YouTube storyboard' })).toBeVisible()
+    expect(screen.getByRole('heading', { name: 'Dark Castle Chess · YouTube storyboard' })).toBeVisible()
+    expect(screen.getByText(/Human QA re-review required/i)).toBeVisible()
+    expect(screen.getByText('sha256:392b3e2a92c5ab65e4cc93706571df761bac7ea38631bf06002fd6b89f3302a2')).toBeVisible()
+    expect(screen.getAllByText(/sha256:e6fc9ae4aadd61e3a871e8f7af2dd0a2d424d5c20ae6a8d0eac861b16e796bd5/).length).toBeGreaterThan(1)
+    expect(screen.getAllByText(/sha256:4d3bc63ebaeb1aed344d64ed15ebb0ff865772de48b48249526ccce0b2c02e9e/).length).toBeGreaterThan(1)
+    expect(screen.getAllByText(/Only 0 fresh, attributable same-topic outlier description\(s\) qualified; 3 are required\./i)).toHaveLength(2)
+    expect(screen.getByText(/Source, script, title, thumbnail, and final-video readiness are missing/i)).toBeVisible()
+    expect(screen.getByText(/pending new screenshots and MP4/i)).toBeVisible()
+    expect(screen.queryByRole('button', { name: /Prepare eligible/i })).not.toBeInTheDocument()
+    expect(fetch).toHaveBeenCalledWith(expect.stringContaining(SOCIAL_CAMPAIGN_APPROVED_ADAPTATION_QA_FIXTURE), expect.anything())
   })
 })
 

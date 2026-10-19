@@ -8,6 +8,7 @@ import { getCurrentSession } from '@/lib/auth'
 import type { CampaignPreparationCandidate, CampaignPreparationResult, CampaignReviewPackage } from '@/lib/social-campaign-package-preparation'
 import type { CampaignLongFormBatch, CampaignLongFormDraftPacket, CampaignLongFormProjection } from '@/lib/social-campaign-long-form-batch'
 import type { CampaignVisualBatch, CampaignVisualPlan, CampaignVisualProjection } from '@/lib/social-campaign-visual-plan'
+import type { socialCampaignApprovedAdaptationQaProjection } from '@/lib/social-campaign-approved-adaptation-qa-fixture'
 
 type CandidateProjection = { candidate: CampaignPreparationCandidate; evaluation: CampaignPreparationResult }
 type Run = {
@@ -33,6 +34,47 @@ type Payload = {
   external_gates: Record<string, false>
   fixture: boolean
   integration_note: string | null
+  approved_adaptation_review?: ReturnType<typeof socialCampaignApprovedAdaptationQaProjection> | null
+}
+
+type ApprovedAdaptationReview = ReturnType<typeof socialCampaignApprovedAdaptationQaProjection>
+
+function ApprovedAdaptationReviewDetails({ review }: { review: ApprovedAdaptationReview }) {
+  return (
+    <div className="mt-4 space-y-4" data-testid="approved-adaptation-review">
+      {review.adaptations.map((adaptation) => (
+        <article key={adaptation.adaptation_id} className="rounded-lg border border-border bg-background p-4">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div><h3 className="text-base font-semibold text-foreground">{adaptation.product_label} · YouTube storyboard</h3><p className="mt-1 break-all font-mono text-[10px] text-muted-foreground">Calendar {adaptation.calendar_item_id} · Social Content {adaptation.social_content_id}</p></div>
+            <span className={`rounded-full border px-2.5 py-1 text-xs font-semibold ${adaptation.status === 'ready_for_human_review' ? 'border-emerald-500/35 bg-emerald-500/10 text-emerald-800 dark:text-emerald-100' : 'border-amber-500/35 bg-amber-500/10 text-amber-900 dark:text-amber-100'}`}>{adaptation.status === 'ready_for_human_review' ? 'Ready for Human QA' : 'Human QA re-review required'}</span>
+          </div>
+          <p className="mt-3 text-xs leading-5 text-muted-foreground">{adaptation.binding_note}</p>
+          <div className="mt-3 grid gap-2 sm:grid-cols-2">
+            <p className="break-all rounded-md border border-border p-2 text-[11px] text-muted-foreground"><strong className="block text-foreground">Current Social Content version</strong>{adaptation.current_content_version}</p>
+            <p className="break-all rounded-md border border-border p-2 text-[11px] text-muted-foreground"><strong className="block text-foreground">Approved adaptation input</strong>{adaptation.source_input_version} · {adaptation.adaptation_id}</p>
+          </div>
+          <section className="mt-4" aria-label={`${adaptation.product_label} distinct title options`}>
+            <h4 className="text-sm font-semibold text-foreground">Distinct title options · thumbnail promise kept separate</h4>
+            <div className="mt-2 grid gap-2 sm:grid-cols-2">{adaptation.title_options.map((option) => <div key={option.title} className="rounded-md border border-border p-3"><p className="text-xs font-semibold text-foreground">{option.title}</p><p className="mt-1 text-xs text-muted-foreground">Thumbnail promise: {option.promise}</p></div>)}</div>
+          </section>
+          <section className="mt-4" aria-label={`${adaptation.product_label} format scripts`}>
+            <h4 className="text-sm font-semibold text-foreground">Format-specific spoken scripts</h4>
+            <div className="mt-2 grid gap-2 lg:grid-cols-2">{adaptation.formats.map((format) => <details key={format.target} className="rounded-md border border-border p-3"><summary className="cursor-pointer text-xs font-semibold text-foreground">{format.target === 'youtube_long_form' ? 'YouTube long form' : 'YouTube Shorts'} · {format.target === 'youtube_shorts' ? `${format.target_duration_seconds}s target` : `${Math.round(format.target_duration_seconds / 60 * 10) / 10} min target`}</summary><p className="mt-2 whitespace-pre-wrap text-xs leading-5 text-foreground">{format.full_spoken_script}</p><p className="mt-2 text-[11px] leading-5 text-muted-foreground">{format.adaptation_rationale}</p></details>)}</div>
+          </section>
+          <section className="mt-4" aria-label={`${adaptation.product_label} time-coded story beats`}>
+            <h4 className="text-sm font-semibold text-foreground">Source-bound scene and shot plan</h4>
+            <div className="mt-2 grid gap-2 lg:grid-cols-2">{adaptation.scenes.map((scene) => <article key={scene.scene_id} className="rounded-md border border-border p-3"><div className="flex flex-wrap items-center justify-between gap-2"><h5 className="text-xs font-semibold text-foreground">{scene.scene_id} · {scene.target === 'youtube_long_form' ? 'Long form' : 'Shorts'}</h5><span className="text-[10px] text-muted-foreground">{scene.purpose}</span></div><p className="mt-2 text-xs leading-5 text-foreground">{scene.narration}</p><p className="mt-2 text-[11px] text-muted-foreground">On-screen text: {scene.on_screen_text.join(' · ')}</p><p className="mt-1 text-[11px] leading-5 text-muted-foreground">Motion: {scene.motion_direction}</p>{scene.shots.map((shot) => <div key={shot.shot_id} className="mt-2 rounded border border-violet-500/20 bg-violet-500/5 p-2 text-[10px] leading-4 text-muted-foreground"><strong className="text-foreground">{adaptation.evidence_assets.find((asset) => asset.asset_id === shot.artifact_id)?.label ?? shot.artifact_id}</strong> · {shot.framing} {shot.action}<span className="mt-1 block break-all">Asset reference: {adaptation.evidence_assets.find((asset) => asset.asset_id === shot.artifact_id)?.reference}</span><span className="mt-1 block">Receipt: {shot.source_receipt_ids.join(', ')} · {shot.privacy_boundary}</span></div>)}</article>)}</div>
+          </section>
+          <details className="mt-4 rounded-md border border-border p-3"><summary className="cursor-pointer text-xs font-semibold text-foreground">Source, rights, privacy, and quality receipts</summary><div className="mt-2 grid gap-2 sm:grid-cols-2">{adaptation.receipts.map((receipt) => <p key={receipt.kind} className="break-all rounded border border-border p-2 text-[10px] text-muted-foreground"><strong className="text-foreground">{receipt.kind} · {receipt.status}</strong><br />{receipt.receipt_id}<br />{receipt.input_version}</p>)}</div><p className="mt-2 text-[10px] text-muted-foreground">Source packet readiness: {adaptation.source_readiness.ready ? 'passed' : 'blocked'} · {adaptation.source_readiness.blockers.join(' ') || 'all required source receipts passed'}</p></details>
+        </article>
+      ))}
+      <section className="rounded-lg border border-amber-500/35 bg-amber-500/5 p-4" aria-label="Blocked upcoming items">
+        <h3 className="text-sm font-semibold text-foreground">Blocked upcoming items · exact recovery</h3>
+        <div className="mt-2 grid gap-2 lg:grid-cols-3">{review.blocked_items.map((item) => <article key={item.calendar_item_id} className="rounded-md border border-border bg-background p-3"><h4 className="text-xs font-semibold text-foreground">{item.label} · Blocked</h4><p className="mt-2 text-xs leading-5 text-muted-foreground">{item.reason}</p><p className="mt-2 break-all font-mono text-[10px] text-muted-foreground">Calendar {item.calendar_item_id}</p><Link href={item.recovery_href} className="mt-2 inline-flex text-xs font-semibold text-blue-700 underline dark:text-blue-200">{item.recovery_label}</Link></article>)}</div>
+      </section>
+      <p className="rounded-lg border border-slate-500/35 bg-slate-500/5 p-3 text-xs leading-5 text-muted-foreground">Human QA capture status: pending new screenshots and MP4. This source projection does not satisfy the capture gate. Provider generation, rendering, upload, platform drafts, scheduling, publishing, sends, credentials, spending, migrations, deployment, and merge are closed.</p>
+    </div>
+  )
 }
 
 function VisualPlanDetails({ plan, projection }: { plan: CampaignVisualPlan; projection: CampaignVisualProjection }) {
@@ -201,7 +243,7 @@ function LongFormPacketDetails({ packet }: { packet: CampaignLongFormDraftPacket
   )
 }
 
-export default function SocialCampaignPackagePreparation({ qaFixture }: { qaFixture?: string }) {
+export default function SocialCampaignPackagePreparation({ qaFixture, reviewOnly = false }: { qaFixture?: string; reviewOnly?: boolean }) {
   const [data, setData] = useState<Payload | null>(null)
   const [selectedId, setSelectedId] = useState('')
   const [busy, setBusy] = useState(false)
@@ -300,6 +342,15 @@ export default function SocialCampaignPackagePreparation({ qaFixture }: { qaFixt
   }
 
   if (!data && !error) return <section aria-label="Campaign package preparation" className="admin-console-card rounded-xl border p-5"><p className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" /> Loading eligible campaigns…</p></section>
+
+  if (reviewOnly) return (
+    <section aria-label="Campaign package preparation" className="admin-console-card rounded-xl border p-4 sm:p-5" data-testid="campaign-package-preparation">
+      <div className="flex flex-wrap items-start justify-between gap-3"><div><div className="admin-console-eyebrow mb-2">Social Content · approved-source projection</div><h2 className="text-xl font-semibold text-foreground">Upcoming YouTube campaign review</h2><p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">Two locally resolved adaptation packets, exact content bindings, and fail-closed recovery for three blocked items. This route is read-only; it prepares no new drafts or external work.</p></div><span className="inline-flex items-center gap-2 rounded-full border border-slate-500/35 bg-slate-500/10 px-3 py-1 text-xs font-semibold text-foreground"><LockKeyhole className="h-3.5 w-3.5" /> External gates closed</span></div>
+      {data?.integration_note ? <p className="mt-3 rounded-lg border border-violet-500/30 bg-violet-500/10 p-3 text-xs leading-5 text-muted-foreground">{data.integration_note}</p> : null}
+      {error ? <div role="alert" className="mt-3 rounded-lg border border-red-500/35 bg-red-500/10 p-3 text-sm text-red-800 dark:text-red-100">{error} <button type="button" onClick={() => void load()} className="ml-1 underline">Refresh</button></div> : null}
+      {data?.approved_adaptation_review ? <ApprovedAdaptationReviewDetails review={data.approved_adaptation_review} /> : null}
+    </section>
+  )
 
   return (
     <section aria-label="Campaign package preparation" className="admin-console-card rounded-xl border p-4 sm:p-5" data-testid="campaign-package-preparation">
