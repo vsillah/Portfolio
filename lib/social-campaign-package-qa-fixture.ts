@@ -129,6 +129,10 @@ export function socialCampaignLongFormBatchQaCandidates() {
     candidate.social_content_id = `qa-${identity}-campaign`
     candidate.calendar_item_ids = [`calendar:${identity}:linkedin`, `calendar:${identity}:youtube`]
     candidate.input_version = `input:${identity}:campaign:v1`
+    candidate.deliverables.youtube.title = `${candidate.product_label}: What the Product Proof Actually Shows`
+    candidate.deliverables.youtube.description = `A synthetic ${candidate.product_label} campaign description for complete-backlog QA.`
+    candidate.deliverables.linkedin.copy = `${candidate.product_label} makes the complete-backlog test visible without claiming an unsupported outcome.`
+    candidate.deliverables.linkedin.visual_alt = `${candidate.product_label} synthetic product visual.`
     candidate.long_form_script_input!.receipt_id = `receipt:${identity}:long-form-framework:20261018`
     candidate.long_form_script_input!.campaign_identity = identity
     candidate.long_form_script_input!.candidate_id = candidate.candidate_id
