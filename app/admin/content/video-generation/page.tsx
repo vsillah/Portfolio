@@ -13,6 +13,7 @@ import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import AssetPicker from '@/components/admin/AssetPicker'
 import AgenticContentReviewPacketCard from '@/components/admin/AgenticContentReviewPacketCard'
+import LongFormScriptIntelligenceReview from '@/components/admin/LongFormScriptIntelligenceReview'
 import { ExtractionStatusChip } from '@/components/admin/ExtractionStatusChip'
 import { useWorkflowStatus } from '@/lib/hooks/useWorkflowStatus'
 import ProgressPanel, { type ProgressStep } from '@/components/admin/ProgressPanel'
@@ -29,6 +30,7 @@ import {
   getAgenticVideoRenderReadinessPackets,
   type AgenticVideoRenderReadinessPacket,
 } from '@/lib/agentic-video-render-readiness-packets'
+import type { LongFormScriptReview } from '@/lib/long-form-script-intelligence'
 
 /* ───────────── Types ───────────── */
 
@@ -69,6 +71,7 @@ interface RenderReadinessReport {
     heygenMode: 'template' | 'avatar_voice' | 'missing'
     approvalBoundary: string
     scriptScorecard: ScriptScorecard
+    longFormScriptReview: LongFormScriptReview | null
   }
 }
 
@@ -429,11 +432,20 @@ export default function VideoGenerationPage() {
   const [activeWorkspaceTab, setActiveWorkspaceTab] = useState<WorkspaceTab>('script')
   const [reviewQueuePage, setReviewQueuePage] = useState(1)
   const [evidencePackets, setEvidencePackets] = useState<Record<string, EvidencePacketState>>({})
+  const [qaScriptIntelligenceState, setQaScriptIntelligenceState] = useState<'ready' | 'stale' | 'missing' | 'originality_blocked' | null>(null)
   const [productionToolsOpen, setProductionToolsOpen] = useState(false)
   const [activeSection, setActiveSection] = useState<'plan' | 'decide' | 'review'>('plan')
   const planRef = useRef<HTMLDivElement>(null)
   const decideRef = useRef<HTMLDivElement>(null)
   const reviewRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'production') return
+    const value = new URLSearchParams(window.location.search).get('qa_script_intelligence')
+    if (value === 'ready' || value === 'stale' || value === 'missing' || value === 'originality_blocked') {
+      setQaScriptIntelligenceState(value)
+    }
+  }, [])
 
   /* --- Review: Jobs --- */
   const [jobs, setJobs] = useState<VideoJob[]>([])
@@ -1272,54 +1284,6 @@ export default function VideoGenerationPage() {
     { id: 'saving', label: 'Creating job record', status: 'pending' },
   ]
 
-  const checkRenderReadiness = async (draftId: string) => {
-    setCheckingReadinessDraftId(draftId)
-    try {
-      const token = await getToken()
-      if (!token) return
-      const draft = drafts.find(d => d.id === draftId)
-      const brollIds = draft ? getDraftBroll(draft) : undefined
-      const res = await fetch(`/api/admin/video-generation/ideas-queue/${draftId}/render-readiness`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({
-          channel,
-          aspectRatio,
-          useTemplate,
-          templateId: useTemplate ? selectedTemplateId || undefined : undefined,
-          brandVoiceId: useTemplate ? selectedBrandVoiceId || undefined : undefined,
-          avatarId: !useTemplate ? selectedAvatarId || undefined : undefined,
-          brollAssetIds: brollIds && brollIds.length > 0 ? brollIds : undefined,
-        }),
-      })
-      const data = await res.json().catch(() => ({}))
-      if (!res.ok) {
-        setRenderReadinessDrafts(prev => ({
-          ...prev,
-          [draftId]: {
-            ready: false,
-            blockingIssues: [data?.error ?? 'Readiness check failed.'],
-            warnings: [],
-            details: {
-              scriptCharacters: draft?.script_text.length ?? 0,
-              storyboardScenes: draft?.storyboard_json?.scenes?.length ?? 0,
-              brollAssetIds: brollIds ?? [],
-              heygenMode: 'missing',
-              approvalBoundary: 'Readiness failed before approval could be evaluated.',
-              scriptScorecard: draft?.script_scorecard ?? emptyScriptScorecard(),
-            },
-          },
-        }))
-        return
-      }
-      if (data?.report) {
-        setRenderReadinessDrafts(prev => ({ ...prev, [draftId]: data.report as RenderReadinessReport }))
-      }
-    } finally {
-      setCheckingReadinessDraftId(null)
-    }
-  }
-
   const generateFromDraft = async (draftId: string) => {
     setGeneratingDraftId(draftId)
     const steps = heygenStepsDef.map(s => ({ ...s }))
@@ -1632,6 +1596,56 @@ export default function VideoGenerationPage() {
     return autoMatchBroll(draft)
   }, [draftBroll, autoMatchBroll])
 
+  const checkRenderReadiness = useCallback(async (draftId: string) => {
+    setCheckingReadinessDraftId(draftId)
+    try {
+      const token = await getToken()
+      if (!token) return
+      const draft = drafts.find(d => d.id === draftId)
+      const brollIds = draft ? getDraftBroll(draft) : undefined
+      const res = await fetch(`/api/admin/video-generation/ideas-queue/${draftId}/render-readiness`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          channel,
+          aspectRatio,
+          useTemplate,
+          templateId: useTemplate ? selectedTemplateId || undefined : undefined,
+          brandVoiceId: useTemplate ? selectedBrandVoiceId || undefined : undefined,
+          avatarId: !useTemplate ? selectedAvatarId || undefined : undefined,
+          brollAssetIds: brollIds && brollIds.length > 0 ? brollIds : undefined,
+          qaScriptIntelligenceState: qaScriptIntelligenceState ?? undefined,
+        }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        setRenderReadinessDrafts(prev => ({
+          ...prev,
+          [draftId]: {
+            ready: false,
+            blockingIssues: [data?.error ?? 'Readiness check failed.'],
+            warnings: [],
+            details: {
+              scriptCharacters: draft?.script_text.length ?? 0,
+              storyboardScenes: draft?.storyboard_json?.scenes?.length ?? 0,
+              brollAssetIds: brollIds ?? [],
+              heygenMode: 'missing',
+              approvalBoundary: 'Readiness failed before approval could be evaluated.',
+              scriptScorecard: draft?.script_scorecard ?? emptyScriptScorecard(),
+              longFormScriptReview: data?.longFormScriptReview ?? null,
+            },
+          },
+        }))
+        return
+      }
+      if (data?.report) {
+        setRenderReadinessDrafts(prev => ({ ...prev, [draftId]: data.report as RenderReadinessReport }))
+      }
+    } finally {
+      setCheckingReadinessDraftId(null)
+    }
+  }, [aspectRatio, channel, drafts, getDraftBroll, getToken, qaScriptIntelligenceState, selectedAvatarId, selectedBrandVoiceId, selectedTemplateId, useTemplate])
+
   const workspaceItems = useMemo<ReviewWorkspaceItem[]>(() => {
     const readinessBySource = new Map(
       AGENTIC_VIDEO_RENDER_READINESS_PACKETS.map(packet => [packet.sourceAssetId, packet]),
@@ -1734,12 +1748,24 @@ export default function VideoGenerationPage() {
   }
 
   useEffect(() => {
+    const qaDraft = qaScriptIntelligenceState ? workspaceItems.find(item => item.kind === 'draft') : null
+    if (qaDraft && activeWorkspaceItemId !== qaDraft.id) {
+      setActiveWorkspaceItemId(qaDraft.id)
+      setActiveWorkspaceTab('script')
+      return
+    }
     if (activeWorkspaceItemId && workspaceItems.some(item => item.id === activeWorkspaceItemId)) return
     const nextItem = workspaceItems.find(item => item.statusTone === 'ready')
       ?? workspaceItems.find(item => item.statusTone === 'blocked')
       ?? workspaceItems[0]
     setActiveWorkspaceItemId(nextItem?.id ?? null)
-  }, [activeWorkspaceItemId, workspaceItems])
+  }, [activeWorkspaceItemId, qaScriptIntelligenceState, workspaceItems])
+
+  useEffect(() => {
+    const draftId = selectedWorkspaceItem?.draftId
+    if (!draftId || renderReadinessDrafts[draftId] || checkingReadinessDraftId === draftId) return
+    void checkRenderReadiness(draftId)
+  }, [checkRenderReadiness, checkingReadinessDraftId, renderReadinessDrafts, selectedWorkspaceItem?.draftId])
 
   useEffect(() => {
     if (reviewQueuePage <= totalReviewQueuePages) return
@@ -2015,7 +2041,7 @@ export default function VideoGenerationPage() {
               </span>
             </div>
 
-            <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(16rem,0.85fr)_minmax(0,1.45fr)]">
+                <div className="mt-4 grid min-w-0 grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-[minmax(16rem,0.85fr)_minmax(0,1.45fr)]">
               <div className="rounded-lg border border-silicon-slate bg-background/40">
                 <div className="flex items-center justify-between border-b border-silicon-slate px-3 py-2">
                   <h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-300">Review Queue</h3>
@@ -2183,6 +2209,11 @@ export default function VideoGenerationPage() {
                                   <div><span className="text-gray-500">CTA:</span> {selectedWorkspaceItem.draft.script_outline?.cta || 'Not captured'}</div>
                                 </div>
                               </div>
+                              <LongFormScriptIntelligenceReview
+                                review={renderReadinessDrafts[selectedWorkspaceItem.draft.id]?.details.longFormScriptReview ?? null}
+                                loading={checkingReadinessDraftId === selectedWorkspaceItem.draft.id}
+                                subjectLabel={selectedWorkspaceItem.draft.title || 'Selected draft'}
+                              />
                               <pre className="max-h-80 overflow-auto whitespace-pre-wrap rounded-lg border border-silicon-slate bg-background/60 p-3 text-xs leading-5 text-gray-300">
                                 {selectedWorkspaceItem.draft.script_text}
                               </pre>
@@ -3139,6 +3170,7 @@ export default function VideoGenerationPage() {
                     const draftScorecard = draft.script_scorecard ?? emptyScriptScorecard()
                     const draftOutline = draft.script_outline ?? {}
                     const scriptBlocked = (draftScorecard.blockers?.length ?? 0) > 0
+                    const longFormBlocked = channel === 'youtube' && !renderReadiness?.details.longFormScriptReview?.approval_ready
 
                     return (
                       <div key={draft.id} className={`bg-silicon-slate/50 rounded-lg border ${isSelected ? 'border-radiant-gold/50' : isExpanded ? 'border-radiant-gold/30' : 'border-silicon-slate'} transition-colors`}>
@@ -3502,15 +3534,16 @@ export default function VideoGenerationPage() {
 	                                              type="checkbox"
 	                                              checked={renderApprovalConfirmed}
 	                                              onChange={e => setRenderApprovalDrafts(prev => ({ ...prev, [draft.id]: e.target.checked }))}
+	                                              disabled={longFormBlocked}
 	                                              className="mt-0.5"
 	                                            />
 	                                            <span>
 	                                              Shaka render approval confirmed from <code className="text-radiant-gold">{VIDEO_RENDER_APPROVAL_PACKET_PATH}</code>. One internal HeyGen review render only; publishing, ElevenLabs, n8n audio, and social queues remain separate approvals.
 	                                            </span>
 	                                          </label>
-	                                          <button onClick={() => generateFromDraft(draft.id)} disabled={scriptBlocked || overLimit || isEditing || !renderApprovalConfirmed || !!generatingDraftId || !!generatingBatch || generatingGamma} className={btnPrimary + ' text-xs' + (scriptBlocked || overLimit || isEditing || !renderApprovalConfirmed ? ' opacity-50 cursor-not-allowed' : '')}>
+	                                          <button onClick={() => generateFromDraft(draft.id)} disabled={scriptBlocked || longFormBlocked || overLimit || isEditing || !renderApprovalConfirmed || !!generatingDraftId || !!generatingBatch || generatingGamma} className={btnPrimary + ' text-xs' + (scriptBlocked || longFormBlocked || overLimit || isEditing || !renderApprovalConfirmed ? ' opacity-50 cursor-not-allowed' : '')}>
 	                                            {generatingDraftId === draft.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Play className="w-3.5 h-3.5" />}
-	                                            {isEditing ? 'Save review first' : scriptBlocked ? 'Resolve script gate' : !renderApprovalConfirmed ? 'Confirm render gate' : generatingDraftId && generatingDraftId !== draft.id ? 'Busy...' : 'Generate Video'}
+	                                            {isEditing ? 'Save review first' : scriptBlocked || longFormBlocked ? 'Resolve script gate' : !renderApprovalConfirmed ? 'Confirm render gate' : generatingDraftId && generatingDraftId !== draft.id ? 'Busy...' : 'Generate Video'}
 	                                          </button>
                                           {heygenProgress && heygenProgress.draftId === draft.id && (
                                             <ProgressPanel title="Generating Video" steps={heygenProgress.steps} variant="inline" onCancel={() => setHeygenProgress(null)} />
