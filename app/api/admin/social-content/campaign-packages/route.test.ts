@@ -3,6 +3,7 @@ import { NextRequest } from 'next/server'
 import { SOCIAL_CAMPAIGN_PACKAGE_QA_FIXTURE } from '@/lib/social-campaign-package-qa-fixture'
 import { campaignPreparationAttemptKey, campaignPreparationIdempotencyKey, SOCIAL_CAMPAIGN_RETRY_EXHAUSTED_MESSAGE } from '@/lib/social-campaign-package-preparation'
 import { socialCampaignPackageQaCandidates } from '@/lib/social-campaign-package-qa-fixture'
+import { campaignLongFormBatchIdempotencyKey, projectCampaignLongFormBatch } from '@/lib/social-campaign-long-form-batch'
 
 const mocks = vi.hoisted(() => ({ verifyAdmin: vi.fn(), isAuthError: vi.fn(), from: vi.fn(), startAgentRun: vi.fn(), endAgentRun: vi.fn() }))
 vi.mock('@/lib/auth-server', () => ({ verifyAdmin: mocks.verifyAdmin, isAuthError: mocks.isAuthError }))
@@ -18,6 +19,9 @@ function post(candidateId: string) {
 }
 function productionPost(candidateId: string) {
   return new NextRequest(productionUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ candidate_id: candidateId }) })
+}
+function batchPost(target = url) {
+  return new NextRequest(target, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'prepare_long_form_batch' }) })
 }
 
 function mockProductionReads(history: any[], claimedRun?: (startInput: any) => any, savedRun?: (startInput: any) => any) {
@@ -71,6 +75,12 @@ describe('campaign review package route', () => {
       ['ReversR rebuild', 'blocked'],
       ['KinFlo', 'ready'],
     ])
+    expect(body.long_form_inventory.map((entry: any) => [entry.product_label, entry.state])).toEqual([
+      ['KickLab', 'ready'],
+      ['ReversR rebuild', 'blocked'],
+      ['KinFlo', 'ready'],
+    ])
+    expect(body.long_form_inventory.every((entry: any) => entry.packet === null)).toBe(true)
     expect(body.candidates[1].candidate.deliverables.youtube.title).toBe('')
     expect(body.candidates[0].candidate.deliverables.youtube.title).toBe('')
     expect(body.candidates[0].evaluation.package).toBeNull()
@@ -80,6 +90,35 @@ describe('campaign review package route', () => {
     expect(serialized).not.toContain('turns a product lesson into a practical')
     expect(new Set(Object.values(body.external_gates))).toEqual(new Set([false]))
     expect(mocks.from).not.toHaveBeenCalled()
+  })
+
+  it('prepares a bounded mixed long-form batch with canonical evaluation receipts and no provider crossing', async () => {
+    const response = await POST(batchPost())
+    expect(response.status).toBe(200)
+    const body = await response.json()
+    const batch = body.run.metadata.long_form_batch
+    expect(batch).toMatchObject({ limit: 10, scanned: 3 })
+    expect(batch.prepared.map((packet: any) => packet.campaign_identity)).toEqual(['kicklab', 'kinflo'])
+    expect(batch.blocked).toEqual([expect.objectContaining({ campaign_identity: 'reversr', packet: null })])
+    expect(batch.prepared.every((packet: any) => packet.evaluation_receipt.approval_ready)).toBe(true)
+    expect(batch.prepared.every((packet: any) => packet.evaluation_receipt.topic_evidence.status === 'passed')).toBe(true)
+    expect(batch.prepared.every((packet: any) => packet.evaluation_receipt.originality.status === 'passed')).toBe(true)
+    expect(new Set(Object.values(batch.external_gates))).toEqual(new Set([false]))
+    expect(mocks.startAgentRun).not.toHaveBeenCalled()
+    expect(mocks.endAgentRun).not.toHaveBeenCalled()
+  })
+
+  it('replays an existing production long-form batch receipt without a duplicate or external action', async () => {
+    const candidate = socialCampaignPackageQaCandidates()[0]
+    const batch = projectCampaignLongFormBatch([candidate], new Date('2026-10-19T12:00:00.000Z'))
+    const baseKey = campaignLongFormBatchIdempotencyKey(batch)
+    const existing = { id: 'long-form-batch-run', status: 'completed', idempotency_key: campaignPreparationAttemptKey(baseKey, 1), metadata: { attempt_number: 1, long_form_batch: batch } }
+    mockProductionReads([existing])
+    const response = await POST(batchPost(productionUrl))
+    expect(response.status).toBe(200)
+    await expect(response.json()).resolves.toMatchObject({ duplicate: true, run: { id: 'long-form-batch-run', status: 'completed' } })
+    expect(mocks.startAgentRun).not.toHaveBeenCalled()
+    expect(mocks.endAgentRun).not.toHaveBeenCalled()
   })
 
   it('fails closed on a stale ReversR candidate and returns its recovery action', async () => {

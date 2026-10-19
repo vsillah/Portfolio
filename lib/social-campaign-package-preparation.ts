@@ -1,8 +1,10 @@
 import { deterministicSha256Hex } from '@/lib/deterministic-sha256.mjs'
+import type { CreatorDistanceReceipt, TopicOutlierEvidence } from '@/lib/long-form-script-intelligence'
 
 export const SOCIAL_CAMPAIGN_PACKAGE_KIND = 'social_campaign_review_package'
 export const SOCIAL_CAMPAIGN_PACKAGE_VERSION = 'social-campaign-review-package/v1' as const
 export const SOCIAL_CAMPAIGN_CANDIDATE_VERSION = 'social-campaign-candidate/v1' as const
+export const SOCIAL_CAMPAIGN_LONG_FORM_INPUT_VERSION = 'campaign-long-form-script-input/v1' as const
 export const SOCIAL_CAMPAIGN_THUMBNAIL_CHECKLIST_VERSION = 'youtube-thumbnail-v6' as const
 export const SOCIAL_CAMPAIGN_MAX_ATTEMPTS = 2 as const
 export const SOCIAL_CAMPAIGN_RETRY_LIMIT = SOCIAL_CAMPAIGN_MAX_ATTEMPTS - 1
@@ -52,6 +54,25 @@ export type CampaignGateReceipt = {
   recovery_label?: string
 }
 
+export type CampaignLongFormScriptInputReceipt = {
+  version: typeof SOCIAL_CAMPAIGN_LONG_FORM_INPUT_VERSION
+  receipt_id: string
+  status: 'passed' | 'blocked' | 'unscored'
+  campaign_identity: string
+  candidate_id: string
+  content_updated_at: string
+  observed_at: string
+  fresh_until: string
+  source_href: string
+  framework_library_version: string
+  framework_rule_ids: string[]
+  topic: string
+  promise: string
+  expected_duration_seconds: number
+  topic_outlier_evidence: TopicOutlierEvidence[]
+  creator_distance: CreatorDistanceReceipt
+}
+
 export type CampaignPreparationCandidate = {
   version: typeof SOCIAL_CAMPAIGN_CANDIDATE_VERSION
   candidate_id: string
@@ -90,6 +111,7 @@ export type CampaignPreparationCandidate = {
       thumbnail_href: string
     }
   }
+  long_form_script_input?: CampaignLongFormScriptInputReceipt | null
 }
 
 export type CampaignPreparationBlocker = {

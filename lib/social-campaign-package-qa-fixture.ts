@@ -1,8 +1,10 @@
 import {
   SOCIAL_CAMPAIGN_CANDIDATE_VERSION,
+  SOCIAL_CAMPAIGN_LONG_FORM_INPUT_VERSION,
   SOCIAL_CAMPAIGN_THUMBNAIL_V6_CHECKLIST,
   type CampaignPreparationCandidate,
 } from '@/lib/social-campaign-package-preparation'
+import { LONG_FORM_FRAMEWORK_LIBRARY, LONG_FORM_FRAMEWORK_LIBRARY_VERSION } from '@/lib/long-form-script-intelligence'
 
 export const SOCIAL_CAMPAIGN_PACKAGE_QA_FIXTURE = 'campaign-package-preparation-v1'
 
@@ -29,6 +31,7 @@ function checklist(overrides: Partial<CampaignPreparationCandidate['thumbnail_ch
 }
 
 function base(product: 'kicklab' | 'reversr' | 'kinflo', label: string): CampaignPreparationCandidate {
+  const topic = `${label} product proof workflow`
   return {
     version: SOCIAL_CAMPAIGN_CANDIDATE_VERSION,
     candidate_id: `candidate:${product}:campaign:v1`,
@@ -62,6 +65,43 @@ function base(product: 'kicklab' | 'reversr' | 'kinflo', label: string): Campaig
     deliverables: {
       linkedin: { copy: `${label} turns a product lesson into a practical, receipt-backed story without claiming outcomes the evidence cannot support.`, visual_href: product === 'reversr' ? '/ReversR_app.png' : '/amadutown-logo-upscaled.png', visual_alt: `${label} review-only product visual.` },
       youtube: { title: `${label}: What the Product Proof Actually Shows`, thumbnail_teaser: 'SHOW THE WORK', description: `A review-only ${label} campaign description bound to approved evidence, product proof, and source limits.`, script: `Opening: name the real ${label} operator problem.\nProof: walk through the approved product evidence.\nBoundary: separate what is observed from what still needs measurement.\nClose: invite the viewer to inspect the workflow.`, storyboard: ['Human opening and tension', 'Owned product proof walkthrough', 'Evidence and limitation receipt', 'Practical close'], thumbnail_href: product === 'reversr' ? '/ReversR_app.webp' : '/amadutown-logo-upscaled.png' },
+    },
+    long_form_script_input: {
+      version: SOCIAL_CAMPAIGN_LONG_FORM_INPUT_VERSION,
+      receipt_id: `receipt:${product}:long-form-framework:20261018`,
+      status: 'passed',
+      campaign_identity: product,
+      candidate_id: `candidate:${product}:campaign:v1`,
+      content_updated_at: '2026-10-18T12:00:00.000Z',
+      observed_at: '2026-10-18T12:00:00.000Z',
+      fresh_until: '2026-10-25T12:00:00.000Z',
+      source_href: `/admin/content/video-generation?campaign=${product}&review=script-intelligence`,
+      framework_library_version: LONG_FORM_FRAMEWORK_LIBRARY_VERSION,
+      framework_rule_ids: LONG_FORM_FRAMEWORK_LIBRARY.rules.map((rule) => rule.id),
+      topic,
+      promise: `a clear ${label} product proof review built from current topic evidence`,
+      expected_duration_seconds: 180,
+      topic_outlier_evidence: [2.4, 1.8, 2].map((ratio, index) => ({
+        id: `topic:${product}:${index + 1}`,
+        label: `${label} current topic comparison ${index + 1}`,
+        source_url: `https://example.com/public-topic-evidence/${product}-${index + 1}`,
+        creator: `Attributed public creator ${index + 1}`,
+        topic,
+        observed_at: '2026-10-18T12:00:00.000Z',
+        published_at: '2026-10-10T12:00:00.000Z',
+        views: Math.round(10_000 * ratio),
+        channel_baseline_views: 10_000,
+        attribution_status: 'attributable',
+      })),
+      creator_distance: {
+        status: 'passed',
+        compared_source_ids: LONG_FORM_FRAMEWORK_LIBRARY.sources.map((source) => source.id),
+        longest_matching_phrase_words: 4,
+        maximum_allowed_phrase_words: 7,
+        copied_phrase_hits: [],
+        voice_profile: 'vambah-approved',
+        notes: 'Synthetic QA receipt for original, first-party product narration.',
+      },
     },
   }
 }

@@ -3,8 +3,10 @@ import { parseArtifactEvidenceManifest, validateYouTubePackagingEvidence } from 
 import { deterministicSha256Hex } from '@/lib/deterministic-sha256.mjs'
 import {
   SOCIAL_CAMPAIGN_CANDIDATE_VERSION,
+  SOCIAL_CAMPAIGN_LONG_FORM_INPUT_VERSION,
   SOCIAL_CAMPAIGN_THUMBNAIL_V6_CHECKLIST,
   type CampaignGateReceipt,
+  type CampaignLongFormScriptInputReceipt,
   type CampaignPreparationCandidate,
 } from '@/lib/social-campaign-package-preparation'
 import { isSocialReleaseLocked } from '@/lib/social-release-safety'
@@ -279,6 +281,13 @@ function emptyThumbnailChecklist() {
   return Object.fromEntries(SOCIAL_CAMPAIGN_THUMBNAIL_V6_CHECKLIST.map((label) => [label, false])) as CampaignPreparationCandidate['thumbnail_checklist']
 }
 
+function longFormScriptInput(value: unknown): CampaignLongFormScriptInputReceipt | null {
+  const receipt = record(value)
+  return receipt.version === SOCIAL_CAMPAIGN_LONG_FORM_INPUT_VERSION && text(receipt.receipt_id)
+    ? receipt as CampaignLongFormScriptInputReceipt
+    : null
+}
+
 function thumbnailChecklist(ragContext: Row, productProofReceiptId: string) {
   const receipt = record(ragContext.youtube_thumbnail_v6_receipt ?? ragContext.thumbnail_selection_receipt)
   const checks = record(receipt.checks ?? receipt.thumbnail_checklist)
@@ -373,6 +382,7 @@ export function projectCampaignPreparationCandidate(
   const decisionReceipts = record(youtubeDecisionPacket.receipts)
   const originality = passedVersionedReceipt(decisionReceipts.challenger, text(youtube.updated_at))
   const privacy = passedVersionedReceipt(decisionReceipts.privacy, text(youtube.updated_at))
+  const longFormInput = longFormScriptInput(youtubeContext.long_form_script_framework_receipt)
   if (!originality || !privacy) blockers.push('Current version-bound originality and privacy receipts are required.')
 
   const inputMaterial = {
@@ -387,6 +397,7 @@ export function projectCampaignPreparationCandidate(
     originality_receipt: decisionReceipts.challenger ?? null,
     privacy_receipt: decisionReceipts.privacy ?? null,
     thumbnail_receipt: record(youtubeContext.youtube_thumbnail_v6_receipt ?? youtubeContext.thumbnail_selection_receipt),
+    long_form_script_framework_receipt: youtubeContext.long_form_script_framework_receipt ?? null,
   }
   const inputVersion = hash(inputMaterial)
   const calendarIds = [text(linkedinCalendar.id), text(youtubeCalendar.id)].sort()
@@ -436,6 +447,7 @@ export function projectCampaignPreparationCandidate(
         linkedin: { copy: '', visual_href: '', visual_alt: '' },
         youtube: { title: '', thumbnail_teaser: '', description: '', script: '', storyboard: [], thumbnail_href: '' },
       },
+      long_form_script_input: longFormInput,
     }
     return { candidate, canonicalSocialContentId: canonicalId, inputVersion, blockers: [...new Set(blockers)], sealed: false }
   }
@@ -549,6 +561,7 @@ export function projectCampaignPreparationCandidate(
       linkedin: { copy: text(linkedinFields.post_text), visual_href: visualHref, visual_alt: text(record(linkedin.rag_context).image_alt) || `${text(snapshot.campaign.name)} review-only visual` },
       youtube: { title, thumbnail_teaser: teaser, description, script, storyboard, thumbnail_href: thumbnailHref },
     },
+    long_form_script_input: longFormInput,
   }
   return { candidate, canonicalSocialContentId: canonicalId, inputVersion, blockers: [...new Set(blockers)], sealed: false }
 }

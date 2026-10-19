@@ -21,6 +21,7 @@ vi.mock('@/lib/supabase', () => ({ supabaseAdmin: { from: database.from } }))
 
 import { evaluateCampaignPreparationCandidate, SOCIAL_CAMPAIGN_THUMBNAIL_V6_CHECKLIST } from './social-campaign-package-preparation'
 import { persistCampaignPreparationProjection, projectCampaignPreparationCandidate, type CampaignPreparationSnapshot } from './social-campaign-preparation-producer'
+import { socialCampaignPackageQaCandidates } from './social-campaign-package-qa-fixture'
 
 const VERSION = '2026-10-18T12:00:00.000Z'
 
@@ -65,6 +66,9 @@ function snapshot(): CampaignPreparationSnapshot {
   }
   const checklist = Object.fromEntries(SOCIAL_CAMPAIGN_THUMBNAIL_V6_CHECKLIST.map((label) => [label, true]))
   const sideEffects = { provider_generation: false, upload: false, platform_draft: false, schedule: false, publish: false, external_send: false }
+  const longFormInput = structuredClone(socialCampaignPackageQaCandidates()[0].long_form_script_input!)
+  longFormInput.campaign_identity = 'campaign-kicklab'
+  longFormInput.candidate_id = 'campaign-preparation:campaign-kicklab'
   const packet = (channel: 'linkedin' | 'youtube', contentId: string) => ({
     channel,
     approval_status: 'in_review',
@@ -87,6 +91,7 @@ function snapshot(): CampaignPreparationSnapshot {
         artifact_evidence_manifest: artifact.manifest,
         youtube_thumbnail_v6_receipt: { version: 'youtube-thumbnail-selection/v6', product_proof_receipt_id: proofReceiptId, final_quality_gate: { status: 'passed' }, checks: checklist },
         mobile_decision_review: { receipts: { challenger: { receipt_id: 'originality:kicklab:v1', status: 'passed', content_updated_at: VERSION }, privacy: { receipt_id: 'privacy:kicklab:v1', status: 'passed', content_updated_at: VERSION } } },
+        long_form_script_framework_receipt: longFormInput,
       } },
     ],
     workItems: [{ id: 'work-1', updated_at: VERSION, metadata: {
@@ -177,6 +182,19 @@ describe('campaign preparation candidate producer', () => {
     revisedStatus.workItems[0].metadata.receipt_lineage[0].approval_status = 'rejected'
     expect(projectCampaignPreparationCandidate(revisedExpiry).inputVersion).not.toBe(first.inputVersion)
     expect(projectCampaignPreparationCandidate(revisedStatus).inputVersion).not.toBe(first.inputVersion)
+  })
+
+  it('projects the version-bound canonical long-form framework receipt and fingerprints its material', () => {
+    const value = snapshot()
+    const first = projectCampaignPreparationCandidate(value)
+    expect(first.candidate?.long_form_script_input).toMatchObject({
+      receipt_id: 'receipt:kicklab:long-form-framework:20261018',
+      campaign_identity: 'campaign-kicklab',
+      candidate_id: 'campaign-preparation:campaign-kicklab',
+    })
+    const revised = structuredClone(value)
+    revised.socialContent[1].rag_context.long_form_script_framework_receipt.fresh_until = '2026-10-26T12:00:00.000Z'
+    expect(projectCampaignPreparationCandidate(revised).inputVersion).not.toBe(first.inputVersion)
   })
 
   it('creates the durable run receipt before updating a changed same-id projection', async () => {
