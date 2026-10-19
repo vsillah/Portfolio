@@ -110,7 +110,7 @@ async function recordScenario(browser, storageState, { label, viewport }) {
   await firstScene.scrollIntoViewIfNeeded()
   await page.waitForTimeout(500)
   await firstScene.screenshot({ path: path.join(outputDir, `${label}-storyboard-opening.png`) })
-  const finalScene = panel.getByRole('heading', { name: 'Script-to-visual storyboard timing' }).locator('..').locator('ol > li').filter({ hasText: 'campaign-cta' }).first()
+  const finalScene = panel.getByRole('heading', { name: 'Script-to-visual storyboard timing' }).locator('..').locator('ol > li').nth(15)
   await finalScene.getByText(/Spoken close \/ CTA:/).waitFor()
   await finalScene.scrollIntoViewIfNeeded()
   await page.waitForTimeout(400)
