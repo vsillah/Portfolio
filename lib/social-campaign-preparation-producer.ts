@@ -8,6 +8,7 @@ import {
   type CampaignPreparationCandidate,
 } from '@/lib/social-campaign-package-preparation'
 import { isSocialReleaseLocked } from '@/lib/social-release-safety'
+import { stableProductIdentity } from '@/lib/social-topic-source-receipts'
 import { supabaseAdmin } from '@/lib/supabase'
 
 export const SOCIAL_CAMPAIGN_CANDIDATE_PRODUCER_KIND = 'social_campaign_candidate_projection'
@@ -106,16 +107,17 @@ function receiptLineage(snapshot: CampaignPreparationSnapshot) {
   return [...receipts.values()]
 }
 
-function publicSignal(snapshot: CampaignPreparationSnapshot) {
+function publicSignals(snapshot: CampaignPreparationSnapshot) {
+  const signals = new Map<string, Row>()
   for (const work of snapshot.workItems) {
     const metadata = record(work.metadata)
     const insight = record(metadata.insight)
     for (const value of [metadata.public_signal, insight.public_signal]) {
       const signal = record(value)
-      if (text(signal.observed_at) && text(signal.expires_at)) return signal
+      if (Object.keys(signal).length) signals.set(stable(signal), signal)
     }
   }
-  return null
+  return [...signals.values()]
 }
 
 function validApprovedReceipt(receipt: Row) {
@@ -125,12 +127,83 @@ function validApprovedReceipt(receipt: Row) {
     && Boolean(text(receipt.receipt_id) && text(receipt.provenance) && normalizedTimestamp(receipt.observed_at))
 }
 
-function workReceipt(receipts: Row[]) {
-  return receipts.find((receipt) => receipt.source_group !== 'public_momentum' && validApprovedReceipt(receipt)) ?? null
+const ATTRIBUTABLE_WORK_SOURCE_GROUPS = new Set(['github_development', 'vercel_deployments', 'app_prototypes', 'amadutown_catalog'])
+const ATTRIBUTABLE_WORK_SOURCE_KINDS = new Set([
+  'approved_repository_document',
+  'approved_repository_implementation',
+  'agent_work_item_github',
+  'github_repository_activity',
+  'github_branch_activity',
+  'github_pull_request_activity',
+  'github_deployment_status_activity',
+  'vercel_preview_receipt',
+  'vercel_production_receipt',
+  'app_prototype',
+  'amadutown_product',
+  'convex_approved_product_record',
+  'supabase_approved_product_record',
+])
+
+function identity(value: unknown) {
+  const raw = text(value)
+  return raw ? stableProductIdentity(raw) : ''
 }
 
-function publicReceipt(receipts: Row[]) {
-  return receipts.find((receipt) => receipt.source_group === 'public_momentum' && validApprovedReceipt(receipt)) ?? null
+function campaignProductIdentity(campaign: Row) {
+  const metadata = record(campaign.metadata)
+  const values = [campaign.product_identity, campaign.product_id, metadata.product_identity, metadata.product_id]
+    .map(identity)
+    .filter(Boolean)
+  const unique = [...new Set(values)]
+  return { value: unique.length === 1 ? unique[0] : null, ambiguous: unique.length > 1 }
+}
+
+function selectIdentityEvidence(snapshot: CampaignPreparationSnapshot, receipts: Row[], signals: Row[]) {
+  const campaignIdentity = campaignProductIdentity(snapshot.campaign)
+  const productIdentity = campaignIdentity.value
+  const publicMatches = productIdentity
+    ? receipts.filter((receipt) => receipt.source_group === 'public_momentum' && identity(receipt.product_identity) === productIdentity && validApprovedReceipt(receipt))
+    : []
+  const workMatches = productIdentity
+    ? receipts.filter((receipt) => (
+      (ATTRIBUTABLE_WORK_SOURCE_GROUPS.has(text(receipt.source_group)) || ATTRIBUTABLE_WORK_SOURCE_KINDS.has(text(receipt.source_kind)))
+      && identity(receipt.product_identity) === productIdentity
+      && validApprovedReceipt(receipt)
+    ))
+    : []
+  const signalMatches = productIdentity
+    ? signals.filter((signal) => (
+      identity(signal.product_identity) === productIdentity
+      && Boolean(normalizedTimestamp(signal.observed_at))
+      && Boolean(normalizedTimestamp(signal.expires_at))
+    ))
+    : []
+  const conflicting = productIdentity ? [
+    ...receipts.filter((receipt) => receipt.source_group === 'public_momentum' && validApprovedReceipt(receipt)),
+    ...receipts.filter((receipt) => (
+      ATTRIBUTABLE_WORK_SOURCE_GROUPS.has(text(receipt.source_group)) || ATTRIBUTABLE_WORK_SOURCE_KINDS.has(text(receipt.source_kind))
+    ) && validApprovedReceipt(receipt)),
+    ...signals,
+  ].some((value) => identity(value.product_identity) && identity(value.product_identity) !== productIdentity) : false
+  return {
+    productIdentity,
+    publicEvidence: publicMatches.sort((left, right) => text(left.receipt_id).localeCompare(text(right.receipt_id)))[0] ?? null,
+    attributableWork: workMatches.sort((left, right) => text(left.receipt_id).localeCompare(text(right.receipt_id)))[0] ?? null,
+    signal: signalMatches.length === 1 ? signalMatches[0] : null,
+    ambiguous: campaignIdentity.ambiguous || conflicting || signalMatches.length > 1,
+  }
+}
+
+function materialWorkItem(work: Row) {
+  const metadata = record(work.metadata)
+  return {
+    id: text(work.id),
+    updated_at: text(work.updated_at),
+    version: text(work.version) || text(metadata.version) || text(metadata.insight_version),
+    receipt_lineage: metadata.receipt_lineage ?? record(metadata.insight).receipt_lineage ?? null,
+    public_signal: metadata.public_signal ?? record(metadata.insight).public_signal ?? null,
+    channel_lanes: metadata.channel_lanes ?? null,
+  }
 }
 
 function reviewPacket(snapshot: CampaignPreparationSnapshot, expectedChannel: 'linkedin' | 'youtube', socialContentId: string) {
@@ -170,6 +243,9 @@ function gateReceipt(input: {
   formula?: string | null
   sampleSize?: number | null
   status?: CampaignGateReceipt['status']
+  blockerCode?: string
+  blockerMessage?: string
+  recoveryLabel?: string
 }): CampaignGateReceipt {
   return {
     receipt_id: input.receiptId,
@@ -181,7 +257,26 @@ function gateReceipt(input: {
     required_value: input.requiredValue ?? 'passed',
     formula: input.formula ?? null,
     sample_size: input.sampleSize ?? null,
+    ...(input.blockerCode ? { blocker_code: input.blockerCode } : {}),
+    ...(input.blockerMessage ? { blocker_message: input.blockerMessage } : {}),
+    ...(input.recoveryLabel ? { recovery_label: input.recoveryLabel } : {}),
   }
+}
+
+function blockedGate(name: string, message: string, href: string): CampaignGateReceipt {
+  return gateReceipt({
+    receiptId: '',
+    observedAt: '',
+    href,
+    status: 'blocked',
+    blockerCode: `${name}_missing`,
+    blockerMessage: message,
+    recoveryLabel: name === 'evidence' ? 'Refresh campaign evidence' : `Complete ${name.replaceAll('_', ' ')}`,
+  })
+}
+
+function emptyThumbnailChecklist() {
+  return Object.fromEntries(SOCIAL_CAMPAIGN_THUMBNAIL_V6_CHECKLIST.map((label) => [label, false])) as CampaignPreparationCandidate['thumbnail_checklist']
 }
 
 function thumbnailChecklist(ragContext: Row, productProofReceiptId: string) {
@@ -227,9 +322,14 @@ export function projectCampaignPreparationCandidate(
   const canonicalId = text(youtube?.id) || null
   const baseInput = {
     producer: SOCIAL_CAMPAIGN_CANDIDATE_PRODUCER_VERSION,
-    campaign_id: text(snapshot.campaign.id),
-    calendar: calendar.map((row) => ({ id: text(row.id), channel: channel(row.channel), social_content_id: text(row.social_content_id), updated_at: text(row.updated_at) })),
-    content: [linkedin, youtube].filter(Boolean).map((row) => ({ id: text(row!.id), updated_at: text(row!.updated_at) })),
+    campaign: {
+      id: text(snapshot.campaign.id),
+      updated_at: text(snapshot.campaign.updated_at),
+      product_identity: campaignProductIdentity(snapshot.campaign),
+      metadata: record(snapshot.campaign.metadata),
+    },
+    calendar: calendar.map((row) => ({ id: text(row.id), channel: channel(row.channel), social_content_id: text(row.social_content_id), updated_at: text(row.updated_at), metadata: record(row.metadata) })),
+    content: [linkedin, youtube].filter(Boolean).map((row) => ({ id: text(row!.id), updated_at: text(row!.updated_at), status: text(row!.status) })),
   }
   const blockers: string[] = []
   if (!linkedinCalendar || !youtubeCalendar || !linkedin || !youtube) blockers.push('Bind one current LinkedIn item and one current YouTube item to the same campaign calendar.')
@@ -249,11 +349,13 @@ export function projectCampaignPreparationCandidate(
   ].map((row) => [text(row.id), row])).values()]
   const scopedSnapshot = { ...snapshot, workItems: linkedWorkItems.length ? linkedWorkItems : snapshot.workItems }
   const lineage = receiptLineage(scopedSnapshot)
-  const publicEvidence = publicReceipt(lineage)
-  const attributableWork = workReceipt(lineage)
-  const signal = publicSignal(scopedSnapshot)
-  if (!publicEvidence || !attributableWork) blockers.push('No qualifying approved public-trend plus attributable product/work receipt pair exists.')
-  if (!signal) blockers.push('The approved public-trend receipt is missing its observed and expiry timestamps.')
+  const signals = publicSignals(scopedSnapshot)
+  const evidence = selectIdentityEvidence(scopedSnapshot, lineage, signals)
+  const { productIdentity, publicEvidence, attributableWork, signal } = evidence
+  if (!productIdentity) blockers.push('Campaign metadata must declare one unambiguous stable product identity before evidence can be joined.')
+  if (evidence.ambiguous) blockers.push('Public receipt, attributable work receipt, public signal, and campaign metadata contain ambiguous or conflicting product identities.')
+  if (!publicEvidence || !attributableWork) blockers.push('No qualifying approved public-trend plus attributable product/development/deployment/prototype receipt pair exists for the campaign product identity.')
+  if (!signal) blockers.push('Exactly one current public signal with observed time, expiry, and the same stable product identity is required.')
 
   const linkedinPacket = reviewPacket(snapshot, 'linkedin', text(linkedin.id))
   const youtubePacket = reviewPacket(snapshot, 'youtube', text(youtube.id))
@@ -273,17 +375,84 @@ export function projectCampaignPreparationCandidate(
   const privacy = passedVersionedReceipt(decisionReceipts.privacy, text(youtube.updated_at))
   if (!originality || !privacy) blockers.push('Current version-bound originality and privacy receipts are required.')
 
-  // Absence of the minimum receipt set yields no projection. Staleness is retained as a visible blocked candidate.
-  if (!publicEvidence || !attributableWork || !signal || !linkedinPacket || !youtubePacket || !manifest || !decision || !proofReceiptId || !originality || !privacy) return {
-    candidate: null,
-    canonicalSocialContentId: canonicalId,
-    inputVersion: hash({ ...baseInput, blockers }),
-    blockers: [...new Set(blockers)],
-    sealed: false,
+  const inputMaterial = {
+    ...baseInput,
+    lineage,
+    public_signals: signals,
+    linked_work_items: scopedSnapshot.workItems.map(materialWorkItem),
+    review_packets: { linkedin: linkedinPacket, youtube: youtubePacket },
+    artifact_manifest: manifest,
+    packaging: { ready: packaging.ready, blockers: packaging.blockers, title: packaging.title, thumbnail: packaging.thumbnail },
+    outlier_decision: decision,
+    originality_receipt: decisionReceipts.challenger ?? null,
+    privacy_receipt: decisionReceipts.privacy ?? null,
+    thumbnail_receipt: record(youtubeContext.youtube_thumbnail_v6_receipt ?? youtubeContext.thumbnail_selection_receipt),
+  }
+  const inputVersion = hash(inputMaterial)
+  const calendarIds = [text(linkedinCalendar.id), text(youtubeCalendar.id)].sort()
+  const recoveryHref = productIdentity ? sourceHref(productIdentity) : '/admin/agents/content-intelligence?section=calendar'
+  const minimumReady = Boolean(
+    productIdentity
+      && !evidence.ambiguous
+      && publicEvidence
+      && attributableWork
+      && signal
+      && linkedinPacket
+      && youtubePacket
+      && manifest
+      && decision
+      && proofReceiptId
+      && originality
+      && privacy,
+  )
+  if (!minimumReady) {
+    const primaryMessage = blockers[0] || 'Required campaign preparation evidence is missing.'
+    const candidate: CampaignPreparationCandidate = {
+      version: SOCIAL_CAMPAIGN_CANDIDATE_VERSION,
+      candidate_id: `campaign-preparation:${text(snapshot.campaign.id)}`,
+      campaign_identity: text(snapshot.campaign.id),
+      product_label: text(snapshot.campaign.name) || productIdentity || text(snapshot.campaign.id),
+      social_content_id: text(youtube.id),
+      calendar_item_ids: calendarIds,
+      content_version: text(youtube.updated_at),
+      input_version: inputVersion,
+      status: 'blocked',
+      source_trace: [],
+      receipts: {
+        evidence: blockedGate('evidence', primaryMessage, recoveryHref),
+        outlier: {
+          ...blockedGate('outlier', 'Record the canonical live outlier decision after campaign evidence is complete.', `/admin/social-content/${encodeURIComponent(text(youtube.id))}?step=visuals`),
+          route: 'social-content-outlier-decision/v1',
+          threshold: 0,
+          score: null,
+        },
+        product_proof: blockedGate('product_proof', 'Bind first-party product proof with the same stable product identity.', recoveryHref),
+        originality: blockedGate('originality', 'Record a current version-bound originality receipt.', `/admin/social-content/${encodeURIComponent(text(youtube.id))}?step=copy`),
+        privacy: blockedGate('privacy', 'Record a current version-bound privacy receipt.', `/admin/social-content/${encodeURIComponent(text(youtube.id))}?step=assets`),
+      },
+      playlist_calibration: [],
+      thumbnail_checklist: emptyThumbnailChecklist(),
+      deliverables: {
+        linkedin: { copy: '', visual_href: '', visual_alt: '' },
+        youtube: { title: '', thumbnail_teaser: '', description: '', script: '', storyboard: [], thumbnail_href: '' },
+      },
+    }
+    return { candidate, canonicalSocialContentId: canonicalId, inputVersion, blockers: [...new Set(blockers)], sealed: false }
   }
 
-  const linkedinFields = record(linkedinPacket.fields)
-  const youtubeFields = record(youtubePacket.fields)
+  // The readiness guard above narrows these values at runtime; aliases keep the
+  // subsequent deliverable projection explicit and isolated from blocked rows.
+  const readyPublicEvidence = publicEvidence!
+  const readySignal = signal!
+  const readyLinkedinPacket = linkedinPacket!
+  const readyYoutubePacket = youtubePacket!
+  const readyDecision = decision!
+  const readyOriginality = originality!
+  const readyPrivacy = privacy!
+  const readyProductIdentity = productIdentity!
+
+  const linkedinFields = record(readyLinkedinPacket.fields)
+  const youtubeFields = record(readyYoutubePacket.fields)
   const title = text(packaging.title?.input_excerpt) || strings(youtubeFields.title_variants)[0] || text(youtube.youtube_title)
   const teaser = text(packaging.thumbnail?.input_excerpt)
   const description = text(youtubeFields.description) || text(youtube.youtube_description)
@@ -297,12 +466,12 @@ export function projectCampaignPreparationCandidate(
     blockers.push('The prepared LinkedIn and YouTube review packets do not contain every sealed deliverable.')
   }
 
-  const included = decision.live_evidence.comparisons.filter((comparison) => comparison.decision === 'included')
+  const included = readyDecision.live_evidence.comparisons.filter((comparison) => comparison.decision === 'included')
   const score = included.reduce<number | null>((best, comparison) => {
     const value = comparison.normalized_performance_score
     return value == null ? best : best == null ? value : Math.max(best, value)
   }, null)
-  const comparisonTrace = decision.live_evidence.comparisons.map((comparison) => ({
+  const comparisonTrace = readyDecision.live_evidence.comparisons.map((comparison) => ({
     source_id: comparison.video_id,
     label: comparison.video_id,
     href: comparison.source_url,
@@ -321,56 +490,45 @@ export function projectCampaignPreparationCandidate(
   ]
   if (!sourceTrace.some((entry) => entry.decision === 'excluded')) blockers.push('The comparable-content trace is missing an explicit excluded source and reason.')
 
-  const productIdentity = text(publicEvidence.product_identity) || text(attributableWork.product_identity) || text(snapshot.campaign.id)
-  const recoveryHref = sourceHref(productIdentity)
   const evidenceReceipt = gateReceipt({
-    receiptId: text(publicEvidence.receipt_id),
-    observedAt: text(signal.observed_at),
-    freshUntil: text(signal.expires_at),
+    receiptId: text(readyPublicEvidence.receipt_id),
+    observedAt: text(readySignal.observed_at),
+    freshUntil: text(readySignal.expires_at),
     href: recoveryHref,
-    observedValue: typeof signal.relevance_score === 'number' ? signal.relevance_score : 'approved',
-    requiredValue: typeof signal.relevance_score === 'number' ? 0.6 : 'approved',
+    observedValue: typeof readySignal.relevance_score === 'number' ? readySignal.relevance_score : 'approved',
+    requiredValue: typeof readySignal.relevance_score === 'number' ? 0.6 : 'approved',
     formula: 'approved public momentum relevance score',
     sampleSize: 1,
   })
   const outlierReceipt = {
     ...gateReceipt({
-      receiptId: decision.receipt_id,
-      observedAt: decision.live_evidence.observed_at,
-      freshUntil: decision.live_evidence.fresh_until,
+      receiptId: readyDecision.receipt_id,
+      observedAt: readyDecision.live_evidence.observed_at,
+      freshUntil: readyDecision.live_evidence.fresh_until,
       href: `/admin/social-content/${encodeURIComponent(text(youtube.id))}?step=visuals`,
       observedValue: score,
-      requiredValue: decision.live_evidence.outlier_threshold,
-      formula: decision.live_evidence.normalization_formula.join(' + '),
+      requiredValue: readyDecision.live_evidence.outlier_threshold,
+      formula: readyDecision.live_evidence.normalization_formula.join(' + '),
       sampleSize: included.length,
-      status: decision.selection.status === 'ready' ? 'passed' : 'unscored',
+      status: readyDecision.selection.status === 'ready' ? 'passed' : 'unscored',
     }),
     route: 'social-content-outlier-decision/v1' as const,
-    threshold: decision.live_evidence.outlier_threshold,
+    threshold: readyDecision.live_evidence.outlier_threshold,
     score,
   }
   const checklist = thumbnailChecklist(youtubeContext, proofReceiptId)
   const receipts: CampaignPreparationCandidate['receipts'] = {
     evidence: evidenceReceipt,
     outlier: outlierReceipt,
-    product_proof: gateReceipt({ receiptId: proofReceiptId, observedAt: decision.live_evidence.observed_at, freshUntil: decision.live_evidence.fresh_until, href: `/admin/social-content/${encodeURIComponent(text(youtube.id))}?step=visuals` }),
-    originality: gateReceipt({ receiptId: text(originality.receipt_id), observedAt: text(originality.content_updated_at), href: `/admin/social-content/${encodeURIComponent(text(youtube.id))}?step=copy` }),
-    privacy: gateReceipt({ receiptId: text(privacy.receipt_id), observedAt: text(privacy.content_updated_at), href: `/admin/social-content/${encodeURIComponent(text(youtube.id))}?step=assets` }),
+    product_proof: gateReceipt({ receiptId: proofReceiptId, observedAt: readyDecision.live_evidence.observed_at, freshUntil: readyDecision.live_evidence.fresh_until, href: `/admin/social-content/${encodeURIComponent(text(youtube.id))}?step=visuals` }),
+    originality: gateReceipt({ receiptId: text(readyOriginality.receipt_id), observedAt: text(readyOriginality.content_updated_at), href: `/admin/social-content/${encodeURIComponent(text(youtube.id))}?step=copy` }),
+    privacy: gateReceipt({ receiptId: text(readyPrivacy.receipt_id), observedAt: text(readyPrivacy.content_updated_at), href: `/admin/social-content/${encodeURIComponent(text(youtube.id))}?step=assets` }),
   }
-  const calendarIds = [text(linkedinCalendar.id), text(youtubeCalendar.id)].sort()
-  const inputVersion = hash({
-    ...baseInput,
-    lineage: lineage.map((receipt) => text(receipt.receipt_id)).sort(),
-    decision_receipt: decision.receipt_id,
-    content_versions: [text(linkedin.updated_at), text(youtube.updated_at)],
-    deliverables: { linkedin: linkedinFields, youtube: youtubeFields },
-    thumbnail_receipt: record(youtubeContext.youtube_thumbnail_v6_receipt ?? youtubeContext.thumbnail_selection_receipt),
-  })
   const candidate: CampaignPreparationCandidate = {
     version: SOCIAL_CAMPAIGN_CANDIDATE_VERSION,
     candidate_id: `campaign-preparation:${text(snapshot.campaign.id)}`,
     campaign_identity: text(snapshot.campaign.id),
-    product_label: text(snapshot.campaign.name) || text(publicEvidence.label) || productIdentity,
+    product_label: text(snapshot.campaign.name) || text(readyPublicEvidence.label) || readyProductIdentity,
     social_content_id: text(youtube.id),
     calendar_item_ids: calendarIds,
     content_version: text(youtube.updated_at),
@@ -378,7 +536,7 @@ export function projectCampaignPreparationCandidate(
     status: candidateStatus(receipts, checklist, now),
     source_trace: sourceTrace,
     receipts,
-    playlist_calibration: decision.user_preference_signals.flatMap((signal) => signal.item_identities.map((item) => ({
+    playlist_calibration: readyDecision.user_preference_signals.flatMap((signal) => signal.item_identities.map((item) => ({
       item_id: item.video_id,
       source_href: item.source_url,
       traits: signal.applied_traits,
@@ -431,6 +589,79 @@ async function loadSnapshots(campaignIds?: string[]): Promise<CampaignPreparatio
   }))
 }
 
+export async function persistCampaignPreparationProjection(input: {
+  projection: CampaignPreparationProjection
+  target: Row
+  triggerSource: string
+}): Promise<'projected' | 'unchanged' | 'conflicted'> {
+  const candidate = input.projection.candidate
+  if (!candidate) throw new Error('Campaign preparation projection has no candidate to persist.')
+  const currentContext = record(input.target.rag_context)
+  const current = record(currentContext.campaign_preparation_candidate)
+  if (current.input_version === candidate.input_version && current.version === SOCIAL_CAMPAIGN_CANDIDATE_VERSION) return 'unchanged'
+
+  const runKey = `social-campaign-candidate:${candidate.campaign_identity}:${candidate.input_version}`
+  const run = await startAgentRun({
+    runtime: 'codex',
+    kind: SOCIAL_CAMPAIGN_CANDIDATE_PRODUCER_KIND,
+    title: `${candidate.product_label} campaign candidate reconciliation`,
+    status: 'running',
+    subject: { type: 'social_campaign_candidate', id: candidate.candidate_id, label: candidate.product_label },
+    triggerSource: input.triggerSource,
+    currentStep: 'Recording durable receipt before candidate projection',
+    idempotencyKey: runKey,
+    metadata: {
+      producer_version: SOCIAL_CAMPAIGN_CANDIDATE_PRODUCER_VERSION,
+      candidate_id: candidate.candidate_id,
+      input_version: candidate.input_version,
+      social_content_id: input.target.id,
+      calendar_item_ids: candidate.calendar_item_ids,
+      external_execution_enabled: false,
+    },
+  })
+
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('social_content_queue')
+      .update({ rag_context: { ...currentContext, campaign_preparation_candidate: candidate } })
+      .eq('id', input.target.id)
+      .eq('updated_at', input.target.updated_at)
+      .select('id')
+    if (error) throw new Error(`Campaign preparation projection failed: ${error.message}`)
+    if (!data?.length) {
+      await endAgentRun({
+        runId: run.id,
+        status: 'failed',
+        currentStep: 'Candidate projection rejected by optimistic concurrency guard',
+        errorMessage: 'social_content_queue changed after the producer snapshot; refresh before retrying.',
+        outcome: { projected: false, conflict: true, candidate_id: candidate.candidate_id, input_version: candidate.input_version, external_execution: false },
+      })
+      return 'conflicted'
+    }
+    await endAgentRun({
+      runId: run.id,
+      status: 'completed',
+      currentStep: 'Campaign candidate projection reconciled',
+      outcome: { projected: true, candidate_id: candidate.candidate_id, input_version: candidate.input_version, external_execution: false },
+    })
+    return 'projected'
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Campaign preparation projection failed.'
+    try {
+      await endAgentRun({
+        runId: run.id,
+        status: 'failed',
+        currentStep: 'Candidate projection failed after durable receipt creation',
+        errorMessage: message,
+        outcome: { projected: false, candidate_id: candidate.candidate_id, input_version: candidate.input_version, external_execution: false },
+      })
+    } catch (receiptError) {
+      console.warn('[social-campaign-preparation-producer] run receipt finalization failed:', receiptError)
+    }
+    throw error
+  }
+}
+
 export async function reconcileCampaignPreparationCandidates(options: {
   campaignIds?: string[]
   triggerSource: string
@@ -444,41 +675,13 @@ export async function reconcileCampaignPreparationCandidates(options: {
     if (!projection.candidate || !projection.canonicalSocialContentId) { result.blocked++; continue }
     const target = snapshot.socialContent.find((row) => text(row.id) === projection.canonicalSocialContentId)
     if (!target) { result.blocked++; continue }
-    const currentContext = record(target.rag_context)
-    const current = record(currentContext.campaign_preparation_candidate)
-    if (current.input_version === projection.candidate.input_version && current.version === SOCIAL_CAMPAIGN_CANDIDATE_VERSION) {
+    const persisted = await persistCampaignPreparationProjection({ projection, target, triggerSource: options.triggerSource })
+    if (persisted === 'unchanged') {
       result.unchanged++
       result.candidate_ids.push(projection.candidate.candidate_id)
       continue
     }
-    const { data, error } = await supabaseAdmin
-      .from('social_content_queue')
-      .update({ rag_context: { ...currentContext, campaign_preparation_candidate: projection.candidate } })
-      .eq('id', target.id)
-      .eq('updated_at', target.updated_at)
-      .select('id')
-    if (error) throw new Error(`Campaign preparation projection failed: ${error.message}`)
-    if (!data?.length) { result.conflicted++; continue }
-    const runKey = `social-campaign-candidate:${projection.candidate.campaign_identity}:${projection.candidate.input_version}`
-    const run = await startAgentRun({
-      runtime: 'codex',
-      kind: SOCIAL_CAMPAIGN_CANDIDATE_PRODUCER_KIND,
-      title: `${projection.candidate.product_label} campaign candidate reconciliation`,
-      status: 'running',
-      subject: { type: 'social_campaign_candidate', id: projection.candidate.candidate_id, label: projection.candidate.product_label },
-      triggerSource: options.triggerSource,
-      currentStep: 'Persisting version-bound review-only campaign candidate',
-      idempotencyKey: runKey,
-      metadata: {
-        producer_version: SOCIAL_CAMPAIGN_CANDIDATE_PRODUCER_VERSION,
-        candidate_id: projection.candidate.candidate_id,
-        input_version: projection.candidate.input_version,
-        social_content_id: target.id,
-        calendar_item_ids: projection.candidate.calendar_item_ids,
-        external_execution_enabled: false,
-      },
-    })
-    await endAgentRun({ runId: run.id, status: 'completed', currentStep: 'Campaign candidate projection reconciled', outcome: { projected: true, candidate_id: projection.candidate.candidate_id, input_version: projection.candidate.input_version, external_execution: false } })
+    if (persisted === 'conflicted') { result.conflicted++; continue }
     result.projected++
     result.candidate_ids.push(projection.candidate.candidate_id)
   }

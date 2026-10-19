@@ -4,16 +4,23 @@ const artifact = vi.hoisted(() => ({
   manifest: { version: 'artifact-evidence-manifest/v2', manifest_id: 'manifest-1', manifest_hash: `sha256:${'a'.repeat(64)}`, content_version: '2026-10-18T12:00:00.000Z', artifact_label: 'Campaign package', preview_url: '/review-assets/linkedin.png', preview_alt: 'Product proof', final_output_hashes: [{ label: 'thumbnail', sha256: 'b'.repeat(64) }], elements: [] } as any,
   packaging: null as any,
 }))
+const agentRuns = vi.hoisted(() => ({
+  start: vi.fn(),
+  end: vi.fn(),
+}))
+const database = vi.hoisted(() => ({
+  from: vi.fn(),
+}))
 
 vi.mock('@/lib/artifact-evidence-manifest', () => ({
   parseArtifactEvidenceManifest: vi.fn(() => artifact.manifest),
   validateYouTubePackagingEvidence: vi.fn(() => artifact.packaging),
 }))
-vi.mock('@/lib/agent-run', () => ({ startAgentRun: vi.fn(), endAgentRun: vi.fn() }))
-vi.mock('@/lib/supabase', () => ({ supabaseAdmin: { from: vi.fn() } }))
+vi.mock('@/lib/agent-run', () => ({ startAgentRun: agentRuns.start, endAgentRun: agentRuns.end }))
+vi.mock('@/lib/supabase', () => ({ supabaseAdmin: { from: database.from } }))
 
 import { evaluateCampaignPreparationCandidate, SOCIAL_CAMPAIGN_THUMBNAIL_V6_CHECKLIST } from './social-campaign-package-preparation'
-import { projectCampaignPreparationCandidate, type CampaignPreparationSnapshot } from './social-campaign-preparation-producer'
+import { persistCampaignPreparationProjection, projectCampaignPreparationCandidate, type CampaignPreparationSnapshot } from './social-campaign-preparation-producer'
 
 const VERSION = '2026-10-18T12:00:00.000Z'
 
@@ -69,7 +76,7 @@ function snapshot(): CampaignPreparationSnapshot {
   })
   const receipt = (id: string, group: string) => ({ receipt_id: id, source_group: group, source_kind: group === 'public_momentum' ? 'social_trend' : 'approved_repository_implementation', source_id: id, product_identity: 'kicklab', label: group === 'public_momentum' ? 'KickLab public trend' : 'KickLab product work', approval_status: 'approved', privacy_classification: 'public_safe', provenance: `fixture:${id}`, evidence_url: 'https://example.com/evidence', observed_at: VERSION, raw_content_included: false })
   return {
-    campaign: { id: 'campaign-kicklab', name: 'KickLab', status: 'active' },
+    campaign: { id: 'campaign-kicklab', name: 'KickLab', status: 'active', metadata: { product_identity: 'kicklab' }, updated_at: VERSION },
     calendar: [
       { id: 'calendar-linkedin', campaign_id: 'campaign-kicklab', channel: 'linkedin', social_content_id: 'linkedin-1', agent_work_item_id: 'work-1', updated_at: VERSION },
       { id: 'calendar-youtube', campaign_id: 'campaign-kicklab', channel: 'youtube', social_content_id: 'youtube-1', agent_work_item_id: 'work-1', updated_at: VERSION },
@@ -82,9 +89,9 @@ function snapshot(): CampaignPreparationSnapshot {
         mobile_decision_review: { receipts: { challenger: { receipt_id: 'originality:kicklab:v1', status: 'passed', content_updated_at: VERSION }, privacy: { receipt_id: 'privacy:kicklab:v1', status: 'passed', content_updated_at: VERSION } } },
       } },
     ],
-    workItems: [{ id: 'work-1', metadata: {
+    workItems: [{ id: 'work-1', updated_at: VERSION, metadata: {
       receipt_lineage: [receipt('trend:kicklab:20261018', 'public_momentum'), receipt('work:kicklab:20261018', 'github_development')],
-      public_signal: { observed_at: VERSION, expires_at: '2026-10-25T12:00:00.000Z', relevance_score: 0.9 },
+      public_signal: { product_identity: 'kicklab', observed_at: VERSION, expires_at: '2026-10-25T12:00:00.000Z', relevance_score: 0.9 },
       channel_lanes: { linkedin: { draft_packet: packet('linkedin', 'linkedin-1') }, youtube: { draft_packet: packet('youtube', 'youtube-1') } },
     } }],
   }
@@ -93,14 +100,48 @@ function snapshot(): CampaignPreparationSnapshot {
 describe('campaign preparation candidate producer', () => {
   beforeEach(() => {
     artifact.manifest.content_version = VERSION
+    agentRuns.start.mockReset()
+    agentRuns.end.mockReset()
+    database.from.mockReset()
+    agentRuns.start.mockResolvedValue({ id: 'run-1' })
+    agentRuns.end.mockResolvedValue({ id: 'run-1' })
   })
 
-  it('does not project when approved public trend plus attributable product/work evidence is absent', () => {
+  it('projects a sealed-output blocked candidate when approved identity-bound evidence is absent', () => {
     const value = snapshot()
     value.workItems[0].metadata.receipt_lineage = []
     const projection = projectCampaignPreparationCandidate(value, new Date('2026-10-19T12:00:00.000Z'))
-    expect(projection.candidate).toBeNull()
-    expect(projection.blockers).toContain('No qualifying approved public-trend plus attributable product/work receipt pair exists.')
+    expect(projection.candidate).not.toBeNull()
+    expect(projection.candidate?.status).toBe('blocked')
+    expect(projection.candidate?.deliverables).toEqual({
+      linkedin: { copy: '', visual_href: '', visual_alt: '' },
+      youtube: { title: '', thumbnail_teaser: '', description: '', script: '', storyboard: [], thumbnail_href: '' },
+    })
+    const result = evaluateCampaignPreparationCandidate(projection.candidate!, new Date('2026-10-19T12:00:00.000Z'))
+    expect(result.package).toBeNull()
+    expect(result.blockers).toContainEqual(expect.objectContaining({
+      code: 'evidence_missing',
+      recovery_href: '/admin/agents/content-intelligence?section=research&candidate=kicklab',
+    }))
+    expect(JSON.stringify(projection.candidate)).not.toContain('KickLab turns motion')
+  })
+
+  it('fails closed when campaign, receipt, and public-signal product identities do not agree', () => {
+    const value = snapshot()
+    value.workItems[0].metadata.public_signal.product_identity = 'kinflo'
+    const projection = projectCampaignPreparationCandidate(value)
+    expect(projection.candidate?.status).toBe('blocked')
+    expect(projection.blockers.join(' ')).toMatch(/ambiguous|conflicting product identities/i)
+    expect(projection.candidate?.deliverables.youtube.title).toBe('')
+  })
+
+  it('rejects generic non-public receipts that are not attributable product or delivery evidence', () => {
+    const value = snapshot()
+    value.workItems[0].metadata.receipt_lineage[1].source_group = 'generic_notes'
+    value.workItems[0].metadata.receipt_lineage[1].source_kind = 'meeting_summary'
+    const projection = projectCampaignPreparationCandidate(value)
+    expect(projection.candidate?.status).toBe('blocked')
+    expect(projection.blockers.join(' ')).toMatch(/attributable product\/development\/deployment\/prototype/i)
   })
 
   it('retains a stale source receipt as a blocked candidate with the exact refresh action', () => {
@@ -125,6 +166,56 @@ describe('campaign preparation candidate producer', () => {
     const revised = structuredClone(value)
     revised.workItems[0].metadata.receipt_lineage[0].receipt_id = 'trend:kicklab:20261019'
     expect(projectCampaignPreparationCandidate(revised).inputVersion).not.toBe(first.inputVersion)
+  })
+
+  it('changes the deterministic input version when same-id receipt or signal material changes', () => {
+    const value = snapshot()
+    const first = projectCampaignPreparationCandidate(value)
+    const revisedExpiry = structuredClone(value)
+    revisedExpiry.workItems[0].metadata.public_signal.expires_at = '2026-10-26T12:00:00.000Z'
+    const revisedStatus = structuredClone(value)
+    revisedStatus.workItems[0].metadata.receipt_lineage[0].approval_status = 'rejected'
+    expect(projectCampaignPreparationCandidate(revisedExpiry).inputVersion).not.toBe(first.inputVersion)
+    expect(projectCampaignPreparationCandidate(revisedStatus).inputVersion).not.toBe(first.inputVersion)
+  })
+
+  it('creates the durable run receipt before updating a changed same-id projection', async () => {
+    const first = projectCampaignPreparationCandidate(snapshot())
+    const revised = snapshot()
+    revised.workItems[0].metadata.public_signal.expires_at = '2026-10-26T12:00:00.000Z'
+    const next = projectCampaignPreparationCandidate(revised)
+    const order: string[] = []
+    agentRuns.start.mockImplementation(async () => { order.push('start'); return { id: 'run-1' } })
+    const query: any = {
+      eq: vi.fn(() => query),
+      select: vi.fn(async () => { order.push('update'); return { data: [{ id: 'youtube-1' }], error: null } }),
+    }
+    database.from.mockReturnValue({ update: vi.fn(() => query) })
+    const outcome = await persistCampaignPreparationProjection({
+      projection: next,
+      target: { id: 'youtube-1', updated_at: VERSION, rag_context: { campaign_preparation_candidate: first.candidate } },
+      triggerSource: 'test',
+    })
+    expect(outcome).toBe('projected')
+    expect(order).toEqual(['start', 'update'])
+    expect(agentRuns.end).toHaveBeenCalledWith(expect.objectContaining({ status: 'completed' }))
+  })
+
+  it('does not write when durable run creation fails', async () => {
+    const projection = projectCampaignPreparationCandidate(snapshot())
+    agentRuns.start.mockRejectedValue(new Error('receipt unavailable'))
+    const update = vi.fn()
+    database.from.mockReturnValue({ update })
+    await expect(persistCampaignPreparationProjection({ projection, target: { id: 'youtube-1', updated_at: VERSION, rag_context: {} }, triggerSource: 'test' })).rejects.toThrow('receipt unavailable')
+    expect(update).not.toHaveBeenCalled()
+  })
+
+  it('marks the durable run failed when the compare-and-swap write conflicts', async () => {
+    const projection = projectCampaignPreparationCandidate(snapshot())
+    const query: any = { eq: vi.fn(() => query), select: vi.fn(async () => ({ data: [], error: null })) }
+    database.from.mockReturnValue({ update: vi.fn(() => query) })
+    await expect(persistCampaignPreparationProjection({ projection, target: { id: 'youtube-1', updated_at: VERSION, rag_context: {} }, triggerSource: 'test' })).resolves.toBe('conflicted')
+    expect(agentRuns.end).toHaveBeenCalledWith(expect.objectContaining({ status: 'failed', outcome: expect.objectContaining({ conflict: true }) }))
   })
 
   it('leaves sealed deliverables untouched after scheduling or release evidence exists', () => {

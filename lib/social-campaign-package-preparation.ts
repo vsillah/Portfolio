@@ -47,6 +47,9 @@ export type CampaignGateReceipt = {
   required_value: string | number
   formula: string | null
   sample_size: number | null
+  blocker_code?: string
+  blocker_message?: string
+  recovery_label?: string
 }
 
 export type CampaignPreparationCandidate = {
@@ -152,15 +155,15 @@ function receiptBlockers(name: string, receipt: CampaignGateReceipt, now: Date):
   const recoveryHref = receipt.source_href || '/admin/agents/content-intelligence?section=research'
   const label = name.replaceAll('_', ' ')
   if (receipt.status === 'unscored') return [{
-    code: `${name}_unscored`,
-    message: `${label} is Unscored; no review package can be prepared.`,
-    recovery_label: `Complete ${label}`,
+    code: receipt.blocker_code || `${name}_unscored`,
+    message: receipt.blocker_message || `${label} is Unscored; no review package can be prepared.`,
+    recovery_label: receipt.recovery_label || `Complete ${label}`,
     recovery_href: recoveryHref,
   }]
   if (receipt.status !== 'passed') return [{
-    code: `${name}_blocked`,
-    message: `${label} has not passed its required threshold.`,
-    recovery_label: `Resolve ${label} blocker`,
+    code: receipt.blocker_code || `${name}_blocked`,
+    message: receipt.blocker_message || `${label} has not passed its required threshold.`,
+    recovery_label: receipt.recovery_label || `Resolve ${label} blocker`,
     recovery_href: recoveryHref,
   }]
   if (!receipt.receipt_id || !validTimestamp(receipt.observed_at)) return [{

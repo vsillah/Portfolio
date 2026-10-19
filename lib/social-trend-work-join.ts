@@ -16,6 +16,7 @@ export type PublicSignalSentiment = 'positive' | 'negative' | 'mixed'
 export type PublicSignalEvidenceState = 'corroborated' | 'attributable_single_source' | 'uncertain' | 'disputed'
 
 export type PublicSignalEvidence = {
+  product_identity: string
   signal_kind: PublicMomentumKind
   coverage_identity: string
   sentiment: PublicSignalSentiment
@@ -288,6 +289,7 @@ function publicSignalEvidence(receipt: SocialTopicSourceProjection): PublicSigna
     || !Number.isFinite(Date.parse(expiresAt))
   ) return null
   return {
+    product_identity: stableProductIdentity(receipt.product_identity),
     signal_kind: signalKind,
     coverage_identity: coverageIdentity,
     sentiment: sentiment as PublicSignalSentiment,
