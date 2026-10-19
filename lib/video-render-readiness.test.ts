@@ -32,6 +32,67 @@ describe('video render readiness', () => {
     expect(report.details.heygenMode).toBe('template')
   })
 
+  it('keeps YouTube render readiness closed when the long-form receipt is missing', () => {
+    const report = buildVideoRenderReadinessReport({
+      title: 'The Receipt Every Agent Needs',
+      status: 'pending',
+      scriptText:
+        'A receipt is the difference between motion and trust. The problem is that AI can produce polished work before anyone knows what decision it should improve. In the Portfolio workflow, AmaduTown keeps the proof visible through script scorecards, review gates, and render readiness checks. Join the workshop interest path when you want to build that loop in your own work.',
+      scriptOutline: {
+        pain_point: 'AI can produce polished work before the team knows what decision it should improve.',
+        hook: 'The video can look ready while the script is still missing the point.',
+        open_loop: 'By the end, the viewer should know why proof has to come before polish.',
+        proof_demo: 'Portfolio and AmaduTown use script scorecards, review gates, and render readiness checks as the receipt.',
+        cta: 'Join the workshop interest path when you want to build that loop in your own work.',
+      },
+      storyboardScenes: 5,
+      videoGenerationJobId: null,
+      templateId: 'template-1',
+      avatarId: null,
+      voiceId: null,
+      channel: 'youtube',
+      aspectRatio: '16:9',
+      brollAssetIds: ['asset-1'],
+    })
+
+    expect(report.ready).toBe(false)
+    expect(report.details.longFormScriptReview).toBeNull()
+    expect(report.blockingIssues).toEqual([
+      'Long-form script intelligence blocked render readiness: A current long-form script intelligence receipt is required.',
+    ])
+  })
+
+  it('uses the closed receipt sentence when a YouTube review is not approval-ready and has no blocker text', () => {
+    const review = evaluateLongFormScriptIntelligence(longFormScriptQaFixture('ready'))
+    const report = buildVideoRenderReadinessReport({
+      title: 'The Receipt Every Agent Needs',
+      status: 'pending',
+      scriptText:
+        'A receipt is the difference between motion and trust. The problem is that AI can produce polished work before anyone knows what decision it should improve. In the Portfolio workflow, AmaduTown keeps the proof visible through script scorecards, review gates, and render readiness checks. Join the workshop interest path when you want to build that loop in your own work.',
+      scriptOutline: {
+        pain_point: 'AI can produce polished work before the team knows what decision it should improve.',
+        hook: 'The video can look ready while the script is still missing the point.',
+        open_loop: 'By the end, the viewer should know why proof has to come before polish.',
+        proof_demo: 'Portfolio and AmaduTown use script scorecards, review gates, and render readiness checks as the receipt.',
+        cta: 'Join the workshop interest path when you want to build that loop in your own work.',
+      },
+      storyboardScenes: 5,
+      videoGenerationJobId: null,
+      templateId: 'template-1',
+      avatarId: null,
+      voiceId: null,
+      channel: 'youtube',
+      aspectRatio: '16:9',
+      brollAssetIds: ['asset-1'],
+      longFormScriptReview: { ...review, approval_ready: false, blockers: [] },
+    })
+
+    expect(report.ready).toBe(false)
+    expect(report.blockingIssues).toEqual([
+      'Long-form script intelligence blocked render readiness: A current long-form script intelligence receipt is required.',
+    ])
+  })
+
   it('fails closed when a YouTube draft has stale long-form evidence', () => {
     const report = buildVideoRenderReadinessReport({
       title: 'Stale evidence draft', status: 'pending', scriptText: 'A sufficiently reviewed draft.',
