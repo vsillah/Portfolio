@@ -39,7 +39,37 @@ describe('evidence-backed social visual plan', () => {
     expect(projection.plan?.typography_style_receipt).toMatchObject({ deterministic_verdict: 'unscored', performance_weight: 0, performance_evidence: { status: 'unscored', sample_size: 2, required_sample_size: 4, matched_style_sample_size: 0, channel_baseline_views: null, observed_normalized_performance: null } })
     expect(projection.plan?.typography_style_receipt).toEqual(JSON.parse(readFileSync('artifacts/research/kicklab-typography-style-receipt-2026-10-19/receipt.json', 'utf8')))
     expect(projection.evaluation.dimensions.find((dimension) => dimension.key === 'typography_style_evidence')).toMatchObject({ status: 'unscored', score: null })
+    expect(projection.evaluation.dimensions.find((dimension) => dimension.key === 'typography_style_evidence')).toMatchObject({ calculation: { formula: expect.stringContaining('zero-weight comparables are context-only') }, explanation: expect.stringContaining('approval requires the scored matched-style cohort') })
     expect(projection.evaluation.blockers.map((item) => item.code)).toContain('visual_typography_style_unscored')
+  })
+
+  it('uses only a scored matched-style cohort for typography approval', () => {
+    const plan = passingPlan()
+    const receipt = plan.typography_style_receipt!
+    const evidence = receipt.performance_evidence
+
+    evidence.status = 'scored'
+    evidence.sample_size = evidence.required_sample_size
+    evidence.matched_style_sample_size = evidence.required_sample_size
+    evidence.baseline_video_urls = ['https://www.youtube.com/watch?v=test-baseline']
+    evidence.channel_baseline_views = 100_000
+    evidence.observed_normalized_performance = evidence.normalized_threshold
+    receipt.performance_weight = 1
+    receipt.deterministic_verdict = 'approved'
+
+    const contextOnlyEvaluation = evaluateCampaignVisualPlan(plan, NOW)
+    expect(contextOnlyEvaluation.dimensions.find((dimension) => dimension.key === 'typography_style_evidence')?.status).toBe('unscored')
+
+    receipt.comparables = Array.from({ length: evidence.required_sample_size }, (_, index) => ({
+      ...receipt.comparables[index % receipt.comparables.length],
+      comparable_id: `synthetic-matched-style-${index + 1}`,
+      matched_style: true,
+      performance_weight: 1 as const,
+      channel_baseline_views: 100_000,
+      normalized_performance: evidence.normalized_threshold,
+    }))
+    const cohortEvaluation = evaluateCampaignVisualPlan(plan, NOW)
+    expect(cohortEvaluation.dimensions.find((dimension) => dimension.key === 'typography_style_evidence')?.status).toBe('passed')
   })
 
   it('uses a raster thumbnail bound to the owned gameplay capture and photographic provenance', () => {

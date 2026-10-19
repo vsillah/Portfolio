@@ -93,6 +93,8 @@ describe('SocialCampaignPackagePreparation', () => {
     expect(screen.getByText(/Typography Unscored · review direction only/i)).toBeVisible()
     expect(screen.getByText(/Ronaldo vs My Unbeatable Goalie Robot/i)).toBeVisible()
     expect(screen.getByText(/inspected thumbnails contain no display lettering/i)).toBeVisible()
+    expect(screen.getByText(/2 context-only comparables \(weight 0\)/i)).toBeVisible()
+    expect(screen.getByText(/Approval requires at least 4 matched-style examples at performance weight 1/i)).toBeVisible()
     expect(screen.getByText(/Collect at least four current topic\/audience-matched thumbnails/i)).toBeVisible()
     const blocked = screen.getByLabelText('Blocked visual candidates')
     expect(within(blocked).getByText('Page 1 of 3')).toBeVisible()
