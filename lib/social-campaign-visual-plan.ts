@@ -118,6 +118,7 @@ export type CampaignTypographyStyleReceipt = {
         topic_domain: string
         current_feed_size: string
         sample_size: number
+        baseline_disposition: string
         eligible_baseline_count?: number
         baseline_30_day_median_views?: number | null
         exact_search_exhaustion: string

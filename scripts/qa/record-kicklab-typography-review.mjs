@@ -48,10 +48,12 @@ await desktop.getByText('Typography evidence · unscored', { exact: true }).scro
 await desktop.screenshot({ path: path.join(outputDir, 'desktop-1440-typography-receipt.png') })
 await desktop.getByText(/Expanded public channel scan · 9 channels · 11 exact candidate videos/).click()
 await desktop.getByText(/Khan Academy · physics education \/ youth STEM/).waitFor({ state: 'visible' })
-await desktop.getByText(/rounded\/heavy white sentence-case lesson lettering/i).waitFor({ state: 'visible' })
+await desktop.getByText(/rounded\/heavy white sentence-case lesson lettering/i).first().waitFor({ state: 'visible' })
 await desktop.getByText(/30-day median 53,950 views/).waitFor({ state: 'visible' })
-await desktop.getByText(/0 of 4 exact-style matched examples/).waitFor({ state: 'visible' })
+await desktop.getByText(/matched sample remains 0 of 4/).waitFor({ state: 'visible' })
 await desktop.screenshot({ path: path.join(outputDir, 'desktop-1440-expanded-channel-scan.png') })
+await desktop.getByText(/Khan Academy: Conservation of electric energy/).scrollIntoViewIfNeeded()
+await desktop.screenshot({ path: path.join(outputDir, 'desktop-1440-expanded-candidate-examples.png') })
 
 const desktopOverflow = await desktop.evaluate(() => ({
   viewportWidth: window.innerWidth,
@@ -80,6 +82,10 @@ for (const viewport of [{ width: 768, height: 1024, label: 'tablet-768' }, { wid
   await page.screenshot({ path: path.join(outputDir, `${viewport.label}-kicklab-review.png`) })
   await page.getByText(/Typography performance: Unscored/).scrollIntoViewIfNeeded()
   await page.screenshot({ path: path.join(outputDir, `${viewport.label}-typography-receipt.png`) })
+  await page.getByText(/Expanded public channel scan · 9 channels · 11 exact candidate videos/).click()
+  await page.getByText(/30-day median 53,950 views/).waitFor({ state: 'visible' })
+  await page.getByText(/Khan Academy: Conservation of electric energy/).scrollIntoViewIfNeeded()
+  await page.screenshot({ path: path.join(outputDir, `${viewport.label}-expanded-candidate-examples.png`) })
   const overflow = await page.evaluate(() => ({
     viewportWidth: window.innerWidth,
     documentWidth: document.documentElement.scrollWidth,
@@ -131,10 +137,13 @@ const results = {
     'desktop-1440-kicklab-review.png',
     'desktop-1440-typography-receipt.png',
     'desktop-1440-expanded-channel-scan.png',
+    'desktop-1440-expanded-candidate-examples.png',
     'tablet-768-kicklab-review.png',
     'tablet-768-typography-receipt.png',
+    'tablet-768-expanded-candidate-examples.png',
     'mobile-390-kicklab-review.png',
     'mobile-390-typography-receipt.png',
+    'mobile-390-expanded-candidate-examples.png',
   ],
 }
 await writeFile(path.join(outputDir, 'results.json'), `${JSON.stringify(results, null, 2)}\n`)
