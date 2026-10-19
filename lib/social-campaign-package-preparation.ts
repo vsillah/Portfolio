@@ -4,6 +4,9 @@ export const SOCIAL_CAMPAIGN_PACKAGE_KIND = 'social_campaign_review_package'
 export const SOCIAL_CAMPAIGN_PACKAGE_VERSION = 'social-campaign-review-package/v1' as const
 export const SOCIAL_CAMPAIGN_CANDIDATE_VERSION = 'social-campaign-candidate/v1' as const
 export const SOCIAL_CAMPAIGN_THUMBNAIL_CHECKLIST_VERSION = 'youtube-thumbnail-v6' as const
+export const SOCIAL_CAMPAIGN_MAX_ATTEMPTS = 2 as const
+export const SOCIAL_CAMPAIGN_RETRY_LIMIT = SOCIAL_CAMPAIGN_MAX_ATTEMPTS - 1
+export const SOCIAL_CAMPAIGN_RETRY_EXHAUSTED_MESSAGE = 'Two preparation attempts already exist for this input version. Refresh the source evidence to create a new input version before preparing again.'
 
 export const SOCIAL_CAMPAIGN_EXTERNAL_GATES = Object.freeze({
   provider_calls: false,
@@ -121,6 +124,18 @@ export type CampaignPreparationResult = {
   package: CampaignReviewPackage | null
 }
 
+export type CampaignPreparationRunSummary = {
+  id: string
+  status: string
+  idempotency_key: string
+  metadata?: Record<string, unknown> | null
+}
+
+export type CampaignPreparationAttemptDecision =
+  | { action: 'create'; attempt_number: 1 | 2; retry_count: number; retry_limit: number; idempotency_key: string }
+  | { action: 'replay'; attempt_number: 1 | 2; retry_count: number; retry_limit: number; run: CampaignPreparationRunSummary }
+  | { action: 'blocked'; attempt_number: 2; retry_count: number; retry_limit: number; message: string }
+
 function stableHash(value: unknown) {
   return deterministicSha256Hex(JSON.stringify(value, (_key, entry) => (
     entry && typeof entry === 'object' && !Array.isArray(entry)
@@ -171,6 +186,58 @@ export function campaignPreparationIdempotencyKey(candidate: CampaignPreparation
     calendar_item_ids: [...candidate.calendar_item_ids].sort(),
     receipts: Object.values(candidate.receipts).map((receipt) => receipt.receipt_id).sort(),
   }).slice(0, 32)}`
+}
+
+export function campaignPreparationAttemptKey(baseKey: string, attemptNumber: 1 | 2) {
+  return `${baseKey}:attempt:${attemptNumber}`
+}
+
+function runAttemptNumber(run: CampaignPreparationRunSummary, baseKey: string): 1 | 2 | null {
+  const recorded = Number(run.metadata?.attempt_number)
+  if (recorded === 1 || recorded === 2) return recorded
+  if (run.idempotency_key === baseKey || run.idempotency_key === campaignPreparationAttemptKey(baseKey, 1)) return 1
+  if (run.idempotency_key === campaignPreparationAttemptKey(baseKey, 2)) return 2
+  return null
+}
+
+export function resolveCampaignPreparationAttempt(
+  baseKey: string,
+  runs: CampaignPreparationRunSummary[],
+): CampaignPreparationAttemptDecision {
+  const matching = runs
+    .map((run) => ({ run, attempt: runAttemptNumber(run, baseKey) }))
+    .filter((entry): entry is { run: CampaignPreparationRunSummary; attempt: 1 | 2 } => entry.attempt !== null)
+    .sort((left, right) => right.attempt - left.attempt)
+  const replayable = matching.find(({ run }) => ['queued', 'running', 'waiting_for_approval', 'completed'].includes(run.status))
+  if (replayable) return {
+    action: 'replay',
+    attempt_number: replayable.attempt,
+    retry_count: replayable.attempt - 1,
+    retry_limit: SOCIAL_CAMPAIGN_RETRY_LIMIT,
+    run: replayable.run,
+  }
+  const latest = matching[0]
+  if (!latest) return {
+    action: 'create',
+    attempt_number: 1,
+    retry_count: 0,
+    retry_limit: SOCIAL_CAMPAIGN_RETRY_LIMIT,
+    idempotency_key: campaignPreparationAttemptKey(baseKey, 1),
+  }
+  if (!['failed', 'stale', 'cancelled'].includes(latest.run.status) || latest.attempt >= SOCIAL_CAMPAIGN_MAX_ATTEMPTS) return {
+    action: 'blocked',
+    attempt_number: 2,
+    retry_count: SOCIAL_CAMPAIGN_RETRY_LIMIT,
+    retry_limit: SOCIAL_CAMPAIGN_RETRY_LIMIT,
+    message: SOCIAL_CAMPAIGN_RETRY_EXHAUSTED_MESSAGE,
+  }
+  return {
+    action: 'create',
+    attempt_number: 2,
+    retry_count: 1,
+    retry_limit: SOCIAL_CAMPAIGN_RETRY_LIMIT,
+    idempotency_key: campaignPreparationAttemptKey(baseKey, 2),
+  }
 }
 
 export function evaluateCampaignPreparationCandidate(

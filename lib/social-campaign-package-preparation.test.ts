@@ -1,9 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import {
   SOCIAL_CAMPAIGN_CANDIDATE_VERSION,
+  SOCIAL_CAMPAIGN_RETRY_EXHAUSTED_MESSAGE,
   SOCIAL_CAMPAIGN_THUMBNAIL_V6_CHECKLIST,
+  campaignPreparationAttemptKey,
   campaignPreparationIdempotencyKey,
   evaluateCampaignPreparationCandidate,
+  resolveCampaignPreparationAttempt,
   type CampaignPreparationCandidate,
 } from './social-campaign-package-preparation'
 
@@ -62,5 +65,31 @@ describe('social campaign package preparation', () => {
     expect(result.ready).toBe(false)
     expect(result.blockers.some((blocker) => blocker.code.startsWith('thumbnail_v6_'))).toBe(true)
     expect(result.blockers.map((blocker) => blocker.code)).toContain('thumbnail_title_duplicate')
+  })
+
+  it('replays completed and active attempts without creating a duplicate', () => {
+    const baseKey = campaignPreparationIdempotencyKey(candidate())
+    for (const status of ['completed', 'running', 'waiting_for_approval']) {
+      const run = { id: `run-${status}`, status, idempotency_key: campaignPreparationAttemptKey(baseKey, 1), metadata: { attempt_number: 1 } }
+      expect(resolveCampaignPreparationAttempt(baseKey, [run])).toMatchObject({ action: 'replay', attempt_number: 1, retry_count: 0, retry_limit: 1, run })
+    }
+  })
+
+  it('allows one immutable retry after a terminal first attempt', () => {
+    const baseKey = campaignPreparationIdempotencyKey(candidate())
+    for (const status of ['failed', 'stale', 'cancelled']) {
+      expect(resolveCampaignPreparationAttempt(baseKey, [{ id: `run-${status}`, status, idempotency_key: campaignPreparationAttemptKey(baseKey, 1), metadata: { attempt_number: 1 } }])).toEqual({
+        action: 'create', attempt_number: 2, retry_count: 1, retry_limit: 1, idempotency_key: campaignPreparationAttemptKey(baseKey, 2),
+      })
+    }
+  })
+
+  it('fails closed after the second terminal attempt with exact recovery guidance', () => {
+    const baseKey = campaignPreparationIdempotencyKey(candidate())
+    const decision = resolveCampaignPreparationAttempt(baseKey, [
+      { id: 'run-1', status: 'failed', idempotency_key: campaignPreparationAttemptKey(baseKey, 1), metadata: { attempt_number: 1 } },
+      { id: 'run-2', status: 'cancelled', idempotency_key: campaignPreparationAttemptKey(baseKey, 2), metadata: { attempt_number: 2 } },
+    ])
+    expect(decision).toEqual({ action: 'blocked', attempt_number: 2, retry_count: 1, retry_limit: 1, message: SOCIAL_CAMPAIGN_RETRY_EXHAUSTED_MESSAGE })
   })
 })
