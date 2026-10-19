@@ -92,11 +92,12 @@ async function recordScenario(browser, storageState, { label, viewport }) {
   await page.screenshot({ path: path.join(outputDir, `${label}-trace-and-evaluation.png`) })
 
   const blocked = panel.getByLabel('Blocked visual candidates')
-  await blocked.getByText('ReversR rebuild · Blocked', { exact: true }).scrollIntoViewIfNeeded()
+  const reversrBlockedCard = blocked.locator(':scope > div').filter({ hasText: 'ReversR rebuild · Blocked' }).first()
+  await reversrBlockedCard.scrollIntoViewIfNeeded()
   await blocked.getByText('Numerical visual scoring is withheld until the prerequisite evidence and script contract pass.', { exact: true }).first().waitFor()
   await blocked.getByRole('link', { name: 'Refresh evidence' }).waitFor()
   await assertNoOverflow(page, `${label} blocked recovery`)
-  await blocked.screenshot({ path: path.join(outputDir, `${label}-blocked-recovery.png`) })
+  await reversrBlockedCard.screenshot({ path: path.join(outputDir, `${label}-blocked-recovery.png`) })
 
   await panel.getByText('Closed in this workflow', { exact: true }).scrollIntoViewIfNeeded()
   await page.waitForTimeout(700)
