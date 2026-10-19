@@ -74,7 +74,8 @@ async function recordScenario(browser, storageState, { label, viewport }) {
   await prepare.click()
   await panel.getByText('12 total · 12 scanned · 1 prepared · 11 blocked · 0 remaining · 2 chunks', { exact: true }).waitFor()
   await panel.getByRole('heading', { name: 'KickLab · channel-native visual plan' }).waitFor()
-  await panel.getByText('FEEL THE MATH', { exact: true }).waitFor()
+  await panel.getByAltText(/art-directed FEEL THE MATH display type/i).waitFor()
+  await panel.getByText('YouTube thumbnail · premium integrated type', { exact: true }).waitFor()
   const cleanAssetView = panel.getByLabel('Clean customer-facing asset view')
   await cleanAssetView.scrollIntoViewIfNeeded()
   await page.waitForTimeout(400)
@@ -97,8 +98,13 @@ async function recordScenario(browser, storageState, { label, viewport }) {
   await benchmarkTrace.screenshot({ path: path.join(outputDir, `${label}-benchmark-receipt.png`) })
   await panel.getByText('Script-to-visual storyboard timing', { exact: true }).scrollIntoViewIfNeeded()
   await page.waitForTimeout(500)
-  await panel.getByText(/Fight, Race, and Kick turn momentum/).first().scrollIntoViewIfNeeded()
+  const firstScene = panel.getByRole('heading', { name: 'Script-to-visual storyboard timing' }).locator('..').locator('ol > li').first()
+  await firstScene.getByText(/Shot:/).waitFor()
+  await firstScene.getByText(/Pattern interrupt:/).waitFor()
+  await firstScene.getByText(/Typography:/).waitFor()
+  await firstScene.scrollIntoViewIfNeeded()
   await page.waitForTimeout(500)
+  await firstScene.screenshot({ path: path.join(outputDir, `${label}-cinematography-and-type.png`) })
 
   const blocked = panel.getByLabel('Blocked visual candidates')
   await blocked.getByText('Page 1 of 3', { exact: true }).waitFor()
@@ -151,18 +157,22 @@ const result = {
     'desktop-1440-clean-assets.png',
     'desktop-1440-trace-and-evaluation.png',
     'desktop-1440-benchmark-receipt.png',
+    'desktop-1440-cinematography-and-type.png',
     'desktop-1440-blocked-recovery.png',
     'mobile-390-clean-assets.png',
     'mobile-390-trace-and-evaluation.png',
     'mobile-390-benchmark-receipt.png',
+    'mobile-390-cinematography-and-type.png',
     'mobile-390-blocked-recovery.png',
   ],
   video: path.basename(mp4Path),
   batch: { total: 12, scanned: 12, prepared: 1, blocked: 11, remaining: 0 },
   scoring: {
-    dimensions: 10,
+    dimensions: 12,
     formulas_visible: true,
     playlist_similarity: 'unscored_no_attributable_receipt',
+    cinematography_contract: 'campaign-scene-cinematography/v1',
+    typography_contract: 'campaign-typography-compositing/v1',
   },
   blocked_backlog: {
     page_size: 4,

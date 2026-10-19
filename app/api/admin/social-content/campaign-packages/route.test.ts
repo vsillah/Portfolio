@@ -129,7 +129,11 @@ describe('campaign review package route', () => {
     expect(batch).toMatchObject({ total: 12, scanned: 12, prepared_count: 1, blocked_count: 11, remaining: 0, chunks_processed: 2 })
     expect(batch.prepared[0]).toMatchObject({ campaign_identity: 'kicklab', ready: true, evaluation: { status: 'passed', approval_ready: true } })
     expect(batch.prepared[0].plan.beats.map((beat: any) => beat.channel)).toEqual(expect.arrayContaining(['linkedin', 'youtube_thumbnail', 'youtube_long_form', 'short_form']))
-    expect(batch.prepared[0].evaluation.dimensions).toHaveLength(10)
+    expect(batch.prepared[0].evaluation.dimensions).toHaveLength(12)
+    expect(batch.prepared[0].evaluation.dimensions).toEqual(expect.arrayContaining([
+      expect.objectContaining({ key: 'scene_cinematography', status: 'passed' }),
+      expect.objectContaining({ key: 'typography_compositing', status: 'passed' }),
+    ]))
     expect(batch.blocked).toEqual(expect.arrayContaining([expect.objectContaining({ campaign_identity: 'reversr', ready: false })]))
     expect(new Set(Object.values(batch.external_gates))).toEqual(new Set([false]))
     expect(mocks.startAgentRun).not.toHaveBeenCalled()

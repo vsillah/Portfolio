@@ -122,7 +122,7 @@ export function socialCampaignPackageQaCandidates() {
   kicklab.deliverables.youtube.thumbnail_teaser = 'FEEL THE MATH'
   kicklab.deliverables.linkedin.visual_href = '/review-assets/kicklab-product-proof.svg'
   kicklab.deliverables.linkedin.visual_alt = 'KickLab Fight, Race, and Kick product evidence dashboard showing momentum, grip, and vector results.'
-  kicklab.deliverables.youtube.thumbnail_href = '/review-assets/kicklab-product-proof.svg'
+  kicklab.deliverables.youtube.thumbnail_href = '/review-assets/kicklab-youtube-thumbnail.svg'
   const reversr = base('reversr', 'ReversR rebuild')
   reversr.status = 'blocked'
   reversr.receipts.evidence.fresh_until = '2026-10-18T13:00:00.000Z'

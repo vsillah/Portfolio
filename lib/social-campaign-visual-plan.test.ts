@@ -19,7 +19,7 @@ function passingPlan() {
 }
 
 describe('evidence-backed social visual plan', () => {
-  it('builds a version-bound, channel-native KickLab plan with ten inspectable dimensions', () => {
+  it('builds a version-bound, channel-native KickLab plan with twelve inspectable dimensions', () => {
     const projection = projectCampaignVisualPlan(socialCampaignPackageQaCandidates()[0], NOW)
     expect(projection.ready).toBe(true)
     expect(projection.plan?.beats.map((beat) => beat.channel)).toEqual(expect.arrayContaining(['linkedin', 'youtube_thumbnail', 'youtube_long_form', 'short_form']))
@@ -27,11 +27,14 @@ describe('evidence-backed social visual plan', () => {
     expect(projection.plan?.exact_sources.some((source) => source.kind === 'owned_product_screenshot')).toBe(true)
     expect(projection.plan?.benchmark_logic).toMatchObject({ playlist_role: 'taste_only_zero_performance_weight', playlist_similarity: { status: 'unscored', score: null, receipt_id: null }, live_topic_score: 84, live_topic_threshold: 75 })
     expect(projection.evaluation).toMatchObject({ status: 'passed', approval_ready: true })
-    expect(projection.evaluation.dimensions).toHaveLength(10)
+    expect(projection.evaluation.dimensions).toHaveLength(12)
     expect(projection.evaluation.dimensions.every((dimension) => dimension.status === 'passed' && typeof dimension.score === 'number')).toBe(true)
     expect(projection.evaluation.dimensions.every((dimension) => dimension.score === Math.round((dimension.calculation.numerator! / dimension.calculation.denominator!) * 100))).toBe(true)
     expect(projection.evaluation.overall_score).toBe(Math.round(projection.evaluation.dimensions.reduce((sum, dimension) => sum + dimension.score!, 0) / projection.evaluation.dimensions.length))
     expect(new Set(Object.values(projection.plan!.external_gates))).toEqual(new Set([false]))
+    expect(projection.plan?.beats.filter((beat) => ['youtube_long_form', 'short_form'].includes(beat.channel)).every((beat) => beat.cinematography?.contract_version === 'campaign-scene-cinematography/v1')).toBe(true)
+    expect(projection.plan?.beats.every((beat) => beat.typography.contract_version === 'campaign-typography-compositing/v1')).toBe(true)
+    expect(projection.plan?.thumbnails[0]).toMatchObject({ href: '/review-assets/kicklab-youtube-thumbnail.svg', typography: { integrated_with_focal_subject: true } })
   })
 
   it('blocks a generic repeated template', () => {
@@ -68,6 +71,26 @@ describe('evidence-backed social visual plan', () => {
     video[1].asset_href = video[0].asset_href
     video[1].repeated_asset_rationale = null
     expect(evaluateCampaignVisualPlan(plan, NOW).blockers.map((item) => item.code)).toContain('visual_motion_sync')
+  })
+
+  it('blocks incomplete or generic repeated cinematography', () => {
+    const plan = passingPlan()
+    const video = plan.beats.filter((beat) => beat.channel === 'youtube_long_form' || beat.channel === 'short_form')
+    const repeated = structuredClone(video[0].cinematography!)
+    repeated.shot_type = 'generic standard shot'
+    video.forEach((beat) => { beat.cinematography = structuredClone(repeated) })
+    const evaluation = evaluateCampaignVisualPlan(plan, NOW)
+    expect(evaluation.blockers.map((item) => item.code)).toContain('visual_cinematography_contract')
+    expect(evaluation.dimensions.find((item) => item.key === 'scene_cinematography')?.status).toBe('blocked')
+  })
+
+  it('blocks default or visually detached typography', () => {
+    const plan = passingPlan()
+    plan.thumbnails[0].typography.type_system = 'plain default font'
+    plan.thumbnails[0].typography.composition_placement = 'pasted beside the image and detached from the focal subject'
+    const evaluation = evaluateCampaignVisualPlan(plan, NOW)
+    expect(evaluation.blockers.map((item) => item.code)).toContain('visual_typography_compositing')
+    expect(evaluation.dimensions.find((item) => item.key === 'typography_compositing')?.status).toBe('blocked')
   })
 
   it('blocks internal workflow copy leakage', () => {

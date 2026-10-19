@@ -6,14 +6,46 @@ import {
   type CampaignPreparationCandidate,
 } from '@/lib/social-campaign-package-preparation'
 
-export const SOCIAL_CAMPAIGN_VISUAL_PLAN_VERSION = 'social-campaign-visual-plan/v1' as const
-export const SOCIAL_CAMPAIGN_VISUAL_EVALUATION_VERSION = 'social-campaign-visual-evaluation/v1' as const
+export const SOCIAL_CAMPAIGN_VISUAL_PLAN_VERSION = 'social-campaign-visual-plan/v2' as const
+export const SOCIAL_CAMPAIGN_VISUAL_EVALUATION_VERSION = 'social-campaign-visual-evaluation/v2' as const
 export const SOCIAL_CAMPAIGN_VISUAL_BATCH_VERSION = 'social-campaign-visual-batch/v1' as const
 export const SOCIAL_CAMPAIGN_VISUAL_BATCH_KIND = 'social_campaign_visual_batch'
 export const SOCIAL_CAMPAIGN_VISUAL_CHUNK_SIZE = 10
 
 export type VisualChannel = 'linkedin' | 'youtube_thumbnail' | 'youtube_long_form' | 'short_form'
 export type VisualEvidenceKind = 'source_receipt' | 'owned_product_screenshot' | 'approved_public_evidence'
+
+export type CampaignVisualCinematography = {
+  contract_version: 'campaign-scene-cinematography/v1'
+  shot_type: string
+  framing: string
+  camera_angle: string
+  camera_movement: string
+  camera_movement_duration_seconds: number
+  environment: string
+  subject_position: string
+  product_broll_choreography: string
+  entrance_composition: string
+  exit_composition: string
+  transition_rationale: string
+  shot_duration_seconds: number
+  continuity_constraints: string[]
+  pattern_interrupt_intent: string
+  visual_signature: string
+}
+
+export type CampaignVisualTypography = {
+  contract_version: 'campaign-typography-compositing/v1'
+  type_system: string
+  scale_hierarchy: string
+  color_contrast: string
+  depth_treatment: string
+  shape_interaction: string
+  composition_placement: string
+  text_safe_area: string
+  compositing_rationale: string
+  integrated_with_focal_subject: boolean
+}
 
 export type CampaignVisualSource = {
   source_id: string
@@ -45,6 +77,8 @@ export type CampaignVisualBeat = {
   presenter_safe_area: string
   customer_facing_copy: string
   repeated_asset_rationale: string | null
+  cinematography: CampaignVisualCinematography | null
+  typography: CampaignVisualTypography
 }
 
 export type CampaignVisualPlan = {
@@ -70,6 +104,7 @@ export type CampaignVisualPlan = {
     face_text_overlap: boolean
     feed_size_legible: boolean
     composition: string
+    typography: CampaignVisualTypography
   }>
   rejected_alternatives: Array<{ alternative: string; reason: string; recovery_action: string }>
   benchmark_logic: {
@@ -102,6 +137,8 @@ export const CAMPAIGN_VISUAL_DIMENSIONS = [
   ['readability_contrast', 'Readability / feed-size contrast'],
   ['focal_hierarchy', 'Focal hierarchy'],
   ['motion_synchronization', 'Motion / synchronization'],
+  ['scene_cinematography', 'Scene cinematography / variation'],
+  ['typography_compositing', 'Typography / compositing'],
   ['privacy', 'Privacy'],
   ['copy_purity', 'Customer-facing copy purity'],
 ] as const
@@ -232,6 +269,64 @@ function kickLabTakeaway(beatId: string) {
   return 'The viewer leaves with one practical experiment to try in the product.'
 }
 
+function typographyContract(channel: VisualChannel, campaignIdentity: string): CampaignVisualTypography {
+  const isKickLab = campaignIdentity === 'kicklab'
+  const placement = channel === 'youtube_thumbnail'
+    ? 'Staggered display lockup follows the impact vector and overlaps the atmospheric field without covering the product result.'
+    : channel === 'short_form'
+      ? 'Captions occupy the center-safe lower third and step around the active product highlight.'
+      : channel === 'youtube_long_form'
+        ? 'Display callouts anchor beside the active evidence region; captions remain below the presenter eye line.'
+        : 'Headline, diagram, and proof form one editorial grid rather than separate text and image columns.'
+  return {
+    contract_version: 'campaign-typography-compositing/v1',
+    type_system: isKickLab ? 'KickLab Impact: condensed black display face paired with a neutral grotesk evidence label.' : 'Campaign Editorial: expressive display face paired with a neutral grotesk evidence label.',
+    scale_hierarchy: 'One dominant 1.0x display phrase, one 0.28x evidence label, and no competing headline tier.',
+    color_contrast: isKickLab ? 'Warm gold-to-orange display fill against midnight navy with white evidence copy at WCAG-readable contrast.' : 'Campaign brand display colors against a darkened or lightened proof field with WCAG-readable evidence copy.',
+    depth_treatment: 'Two-pixel midnight stroke, directional shadow, warm outer glow, and selective highlight edge.',
+    shape_interaction: 'The display lockup intersects the motion vector and energy ring so type belongs to the action plane.',
+    composition_placement: placement,
+    text_safe_area: channel === 'short_form' ? 'Keep 12% side gutters and the lower 20% clear of platform controls.' : 'Keep a 7% perimeter and preserve the focal product result and any face clearance.',
+    compositing_rationale: 'Typography carries the energy of the product action while the proof remains the first readable object.',
+    integrated_with_focal_subject: true,
+  }
+}
+
+function cinematographyContract(channel: 'youtube_long_form' | 'short_form', index: number, duration: number, role: string): CampaignVisualCinematography {
+  const longFormShots = [
+    ['impact macro', 'extreme close-up', 'low three-quarter', '18-frame push-in', 'product result centered; presenter enters lower-right'],
+    ['over-shoulder playthrough', 'medium-wide', 'eye-level', 'slow 6% parallax drift', 'player left third; result panel right third'],
+    ['split-depth evidence reveal', 'medium close-up', 'high three-quarter', '12-frame lateral slide', 'product foreground; presenter soft-focus rear plane'],
+    ['reaction-to-result match cut', 'tight close-up', 'slight Dutch return-to-level', 'handheld settle over 1.2 seconds', 'reaction on left eye line; result lands center'],
+    ['top-down experiment table', 'wide insert', 'overhead', 'clockwise 8-degree orbit', 'controls form lower triangle; outcome occupies upper apex'],
+  ] as const
+  const shortShots = [
+    ['vertical impact punch-in', 'tight 9:16 close-up', 'low angle', '10-frame snap zoom', 'active control above lower UI-safe zone'],
+    ['vertical handoff reveal', 'medium 9:16', 'eye-level', 'fast rack-focus simulation', 'result center; caption steps around the moving subject'],
+    ['vertical vector track', 'full-height insert', 'high three-quarter', 'upward 7% tracking move', 'motion path follows the central vertical axis'],
+    ['vertical payoff hold', 'tight reaction and result', 'slight low angle', '0.8-second decelerating push', 'result upper-middle; CTA stays center-safe'],
+  ] as const
+  const selected = (channel === 'short_form' ? shortShots : longFormShots)[index % (channel === 'short_form' ? shortShots.length : longFormShots.length)]
+  return {
+    contract_version: 'campaign-scene-cinematography/v1',
+    shot_type: selected[0],
+    framing: selected[1],
+    camera_angle: selected[2],
+    camera_movement: selected[3],
+    camera_movement_duration_seconds: Math.min(duration, channel === 'short_form' ? 1.2 : 2.4),
+    environment: channel === 'short_form' ? 'Full-bleed KickLab playfield with controlled edge falloff for vertical UI safety.' : 'Tactile dark studio-playfield hybrid using the exact owned product capture as the illuminated evidence surface.',
+    subject_position: selected[4],
+    product_broll_choreography: `Begin on the ${role.replaceAll('_', ' ')} evidence state, isolate the changing variable, then reveal the resulting motion without leaving the source timestamp.`,
+    entrance_composition: index % 2 ? 'Enter from an occluding foreground shape into the active evidence region.' : 'Enter on the visible result before revealing the input that caused it.',
+    exit_composition: index % 3 ? 'Exit on a directional vector that motivates the next camera axis.' : 'Exit on a two-beat hold with the result centered for comprehension.',
+    transition_rationale: index ? 'The outgoing motion direction hands visual energy to the next evidence region while changing scale or axis.' : 'The cold open prioritizes consequence before explanation to earn the first pattern interrupt.',
+    shot_duration_seconds: duration,
+    continuity_constraints: ['Preserve product-state chronology.', 'Keep screen direction consistent inside one explanation.', 'Never cover the active result with presenter or captions.'],
+    pattern_interrupt_intent: `Reset attention through a distinct ${selected[0]} composition tied to the ${role.replaceAll('_', ' ')} beat, not through a decorative cut.`,
+    visual_signature: `${selected[0]}|${selected[1]}|${selected[2]}|${selected[3]}`,
+  }
+}
+
 function planBeats(candidate: CampaignPreparationCandidate, script: CampaignLongFormDraftPacket): CampaignVisualBeat[] {
   const proof = sourceId(candidate, 'product-proof')
   const publicSource = candidate.source_trace.find((source) => source.decision === 'selected')?.source_id || candidate.receipts.outlier.receipt_id
@@ -257,6 +352,8 @@ function planBeats(candidate: CampaignPreparationCandidate, script: CampaignLong
       motion: 'None; diagram and product screenshot remain inspectable.',
       presenter_safe_area: 'No presenter; preserve clean diagram hierarchy.',
       customer_facing_copy: candidate.campaign_identity === 'kicklab' ? 'A choice. A result. A physics lesson you can feel.' : candidate.deliverables.linkedin.copy,
+      cinematography: null,
+      typography: typographyContract('linkedin', candidate.campaign_identity),
     },
     {
       ...shared,
@@ -274,6 +371,8 @@ function planBeats(candidate: CampaignPreparationCandidate, script: CampaignLong
       motion: 'None; field-level source trace remains behind the review toggle.',
       presenter_safe_area: 'No presenter; reserve the top third for one concise insight.',
       customer_facing_copy: 'See the move. Read the result. Try the idea again.',
+      cinematography: null,
+      typography: typographyContract('linkedin', candidate.campaign_identity),
     },
   ]
   const thumbnail: CampaignVisualBeat = {
@@ -292,6 +391,8 @@ function planBeats(candidate: CampaignPreparationCandidate, script: CampaignLong
     motion: 'None.',
     presenter_safe_area: 'Subject occupies the left two-thirds; teaser remains clear of the face and product result.',
     customer_facing_copy: candidate.deliverables.youtube.thumbnail_teaser,
+    cinematography: null,
+    typography: typographyContract('youtube_thumbnail', candidate.campaign_identity),
   }
   const longForm = script.beats.map((beat, index): CampaignVisualBeat => ({
     ...shared,
@@ -310,6 +411,8 @@ function planBeats(candidate: CampaignPreparationCandidate, script: CampaignLong
     presenter_safe_area: 'Presenter remains in the lower-right safe area and never obscures the active evidence region.',
     customer_facing_copy: beat.pattern_interrupt || '',
     repeated_asset_rationale: index ? 'Return to the same owned product capture at a different native timestamp because this spoken beat explains a different visible behavior.' : null,
+    cinematography: cinematographyContract('youtube_long_form', index, beat.end_seconds - beat.start_seconds, beat.role),
+    typography: typographyContract('youtube_long_form', candidate.campaign_identity),
   }))
   const shortForm = script.beats.filter((beat) => ['hook', 'proof', 'payoff', 'cta'].includes(beat.role)).slice(0, 4).map((beat, index): CampaignVisualBeat => ({
     ...shared,
@@ -328,6 +431,8 @@ function planBeats(candidate: CampaignPreparationCandidate, script: CampaignLong
     presenter_safe_area: 'Presenter is optional and stays above platform controls without covering proof.',
     customer_facing_copy: beat.pattern_interrupt || '',
     repeated_asset_rationale: index ? 'Reuse the owned product source only for a new vertical crop and a distinct script beat.' : null,
+    cinematography: cinematographyContract('short_form', index, 8, beat.role),
+    typography: typographyContract('short_form', candidate.campaign_identity),
   }))
   return [...linkedin, thumbnail, ...longForm, ...shortForm]
 }
@@ -358,7 +463,8 @@ export function buildCampaignVisualPlan(candidate: CampaignPreparationCandidate,
       text_words: candidate.deliverables.youtube.thumbnail_teaser.trim().split(/\s+/),
       face_text_overlap: false,
       feed_size_legible: candidate.thumbnail_checklist['Actual-feed-size legibility'] === true,
-      composition: 'One integrated, high-contrast product-led frame; no side-by-side pasted-image treatment.',
+      composition: 'One integrated, high-contrast action plane: product result, motion vector, energy ring, and staggered type lockup share depth and direction; no side-by-side pasted-image treatment.',
+      typography: typographyContract('youtube_thumbnail', candidate.campaign_identity),
     }],
     rejected_alternatives: [
       { alternative: 'Generic quote-card template', reason: 'It hides the owned product proof and repeats a standard social composition.', recovery_action: 'Lead with the exact product screenshot and rebuild the hierarchy around one takeaway.' },
@@ -469,6 +575,25 @@ export function evaluateCampaignVisualPlan(plan: CampaignVisualPlan, now = new D
   if (!thumbnail || !thumbnail.href || thumbnail.title.trim().toLowerCase() === thumbnail.teaser.trim().toLowerCase()) blockers.push(blocker('visual_thumbnail_copy_duplicate', 'The thumbnail needs a current asset and teaser copy distinct from the video title.', 'Rewrite thumbnail teaser', plan.recovery_actions.at(-1)?.href || '/admin/social-content'))
   if (thumbnail && (thumbnail.face_text_overlap || !thumbnail.feed_size_legible || thumbnail.text_words.length > 5 || /pasted side[- ]by[- ]side|split[- ]card layout/i.test(thumbnail.composition))) blockers.push(blocker('visual_thumbnail_composition', 'Thumbnail focal hierarchy, face clearance, feed-size readability, or integrated composition failed.', 'Revise thumbnail composition', plan.recovery_actions.at(-1)?.href || '/admin/social-content'))
 
+  const typographyPasses = (typography: CampaignVisualTypography | undefined) => Boolean(
+    typography
+      && typography.contract_version === 'campaign-typography-compositing/v1'
+      && typography.type_system
+      && !/plain default|default font|unstyled|ordinary block/i.test(typography.type_system)
+      && typography.scale_hierarchy
+      && typography.color_contrast
+      && typography.depth_treatment
+      && typography.shape_interaction
+      && typography.composition_placement
+      && !/side[- ]by[- ]side|pasted beside|detached from/i.test(typography.composition_placement)
+      && typography.text_safe_area
+      && typography.compositing_rationale
+      && typography.integrated_with_focal_subject,
+  )
+  const typographyRegions = [...plan.beats.map((beat) => ({ id: beat.beat_id, typography: beat.typography })), ...(thumbnail ? [{ id: thumbnail.variant_id, typography: thumbnail.typography }] : [])]
+  const passingTypographyRegions = typographyRegions.filter((region) => typographyPasses(region.typography))
+  if (passingTypographyRegions.length !== typographyRegions.length) blockers.push(blocker('visual_typography_compositing', 'Every customer-facing visual needs an expressive type system, deliberate hierarchy and contrast, depth treatment, composition-aware placement, and integration with the focal subject.', 'Art-direct typography and compositing', plan.recovery_actions.at(-1)?.href || '/admin/social-content'))
+
   const videoBeats = plan.beats.filter((beat) => beat.channel === 'youtube_long_form' || beat.channel === 'short_form')
   const timingFailure = videoBeats.some((beat) => beat.start_seconds == null || beat.end_seconds == null || beat.end_seconds <= beat.start_seconds || !beat.motion || !beat.transition || !beat.presenter_safe_area)
   const adjacentRepeat = videoBeats.some((beat, index) => index > 0
@@ -476,6 +601,33 @@ export function evaluateCampaignVisualPlan(plan: CampaignVisualPlan, now = new D
     && beat.asset_href === videoBeats[index - 1].asset_href
     && !beat.repeated_asset_rationale)
   if (timingFailure || adjacentRepeat) blockers.push(blocker('visual_motion_sync', 'Video regions need non-overlapping timing, synchronized motion, clear transitions, presenter-safe framing, and justified asset reuse.', 'Repair storyboard timing and assets', plan.recovery_actions.at(-1)?.href || '/admin/social-content'))
+
+  const cinematographyPasses = videoBeats.filter((beat) => {
+    const scene = beat.cinematography
+    return scene
+      && scene.contract_version === 'campaign-scene-cinematography/v1'
+      && scene.shot_type
+      && scene.framing
+      && scene.camera_angle
+      && scene.camera_movement
+      && scene.camera_movement_duration_seconds > 0
+      && scene.environment
+      && scene.subject_position
+      && scene.product_broll_choreography
+      && scene.entrance_composition
+      && scene.exit_composition
+      && scene.transition_rationale
+      && scene.shot_duration_seconds > 0
+      && scene.continuity_constraints.length >= 3
+      && scene.pattern_interrupt_intent
+      && scene.visual_signature
+      && !/generic|standard shot|same shot|repeat(?:ed)? scene|basic camera/i.test(Object.values(scene).flat().join(' '))
+  })
+  const uniqueVisualSignatures = new Set(videoBeats.map((beat) => beat.cinematography?.visual_signature).filter(Boolean))
+  const requiredVisualSignatures = Math.min(4, videoBeats.length)
+  const variationPasses = uniqueVisualSignatures.size >= requiredVisualSignatures
+    && videoBeats.every((beat, index) => index === 0 || beat.cinematography?.visual_signature !== videoBeats[index - 1].cinematography?.visual_signature)
+  if (cinematographyPasses.length !== videoBeats.length || !variationPasses) blockers.push(blocker('visual_cinematography_contract', 'Every long-form and short-form scene needs a complete shot/camera contract and the sequence must vary scale, axis, movement, and pattern-interrupt intent.', 'Repair scene cinematography', plan.recovery_actions.at(-1)?.href || '/admin/social-content'))
 
   const copiedTemplate = plan.beats.some((beat) => /generic|standard template|copied creator/i.test(`${beat.format} ${beat.originality_boundary}`))
   if (copiedTemplate) blockers.push(blocker('visual_template_repetition', 'A generic, repeated, or copied composition cannot pass as a channel-native visual decision.', 'Replace repeated template', plan.recovery_actions.at(-1)?.href || '/admin/social-content'))
@@ -528,6 +680,8 @@ export function evaluateCampaignVisualPlan(plan: CampaignVisualPlan, now = new D
     dimension({ key: 'readability_contrast', numerator: readabilityChecks.filter(Boolean).length, denominator: readabilityChecks.length, unit: 'checks', formula: 'passed asset + distinct copy + word-count + feed-size + integrated-composition checks / five required checks', evidenceIds: thumbnail ? [thumbnail.variant_id] : [], explanation: 'Feed-size copy, contrast, and integrated composition are checked before review.' }),
     dimension({ key: 'focal_hierarchy', numerator: focalChecks.filter(Boolean).length, denominator: focalChecks.length, unit: 'checks', formula: 'passed focal-subject + face-clearance + cohesive-composition checks / three required checks', evidenceIds: thumbnail ? [thumbnail.variant_id] : [], explanation: 'The focal subject must lead while teaser copy stays clear of the face and product result.' }),
     dimension({ key: 'motion_synchronization', numerator: motionPasses.length, denominator: videoBeats.length, unit: 'regions', formula: 'timed video regions with motion + transition + presenter clearance + justified reuse / all timed video regions', evidenceIds: videoBeats.map((beat) => beat.beat_id), explanation: 'Scene timing, native motion, transitions, and presenter-safe framing remain inspectable.' }),
+    dimension({ key: 'scene_cinematography', numerator: cinematographyPasses.length + (variationPasses ? 1 : 0), denominator: videoBeats.length + 1, unit: 'checks', formula: 'video scenes with complete non-generic shot contracts plus one sequence-level variation check / all video scenes plus variation check', evidenceIds: videoBeats.map((beat) => beat.beat_id), explanation: `Every scene records shot, framing, angle, movement, environment, blocking, choreography, entrance/exit, rationale, duration, continuity, and pattern-interrupt intent; ${uniqueVisualSignatures.size}/${requiredVisualSignatures} required visual signatures observed.` }),
+    dimension({ key: 'typography_compositing', numerator: passingTypographyRegions.length, denominator: typographyRegions.length, unit: 'regions', formula: 'customer-facing regions with approved type system + hierarchy + contrast + depth + shape interaction + safe placement + focal integration / all customer-facing regions', evidenceIds: typographyRegions.map((region) => region.id), explanation: 'Display text must be art-directed into the focal composition rather than pasted beside it as a default-font block.' }),
     dimension({ key: 'privacy', numerator: privacyChecks.filter(Boolean).length, denominator: privacyChecks.length, unit: 'checks', formula: 'visual regions and exact sources with a valid privacy boundary / all visual regions and exact sources', evidenceIds: plan.exact_sources.map((source) => source.source_id), explanation: 'Only public-safe, owned, or synthetic evidence is permitted.' }),
     dimension({ key: 'copy_purity', numerator: pureCopyBeats.length, denominator: plan.beats.length, unit: 'regions', formula: 'visual regions without internal workflow or implementation language / all visual regions', evidenceIds: plan.beats.map((beat) => beat.beat_id), explanation: 'Customer-facing copy is scanned for internal workflow and implementation language.' }),
   ]
