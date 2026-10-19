@@ -1,0 +1,293 @@
+{
+  "version": "youtube-thumbnail-hero-evidence/v1",
+  "receipt_id": "receipt:thumbnail-hero:jev:20261019:v1",
+  "generated_at": "2026-10-19T23:05:00.000Z",
+  "campaign_identity": "jev",
+  "content_version": "sha256:392b3e2a92c5ab65e4cc93706571df761bac7ea38631bf06002fd6b89f3302a2",
+  "title": "AI Scored It. Who Makes the Call?",
+  "review_only": true,
+  "provider_calls": 0,
+  "paid_media_generations": 0,
+  "external_writes": 0,
+  "outlier_evidence": {
+    "cohort_id": "cohort:youtube:ai-governance-human-decision:20261019:v1",
+    "decision_receipt_id": "decision:thumbnail:jev:20261019:v1",
+    "observed_at": "2026-10-19T22:30:00.000Z",
+    "fresh_until": "2026-11-02T22:30:00.000Z",
+    "minimum_sample_size": 6,
+    "included_video_ids": [
+      "WGDQoaoqR1U",
+      "BIPlhF0sXUc",
+      "mVD72s4hmIw",
+      "d-22oCIWSBQ",
+      "Q020C-Jw0o8",
+      "PUnCxppwDSs",
+      "zRMAvMSSSII",
+      "AyNe8KZYNGU",
+      "DI0wC2d5m0w"
+    ],
+    "qualified_outlier_video_ids": [
+      "WGDQoaoqR1U"
+    ],
+    "outlier_threshold": 75,
+    "curated_playlist_performance_weight": 0,
+    "curated_playlist_role": "taste_calibration_only"
+  },
+  "hero_asset": {
+    "asset_id": "hero:jev:vambah-curious:20261019:v1",
+    "campaign_identity": "jev",
+    "public_path": "/review-assets/social-content/jev-hero-thumbnail-review/source/vambah-curious-approved.jpg",
+    "source_sha256": "sha256:b74a933c73cdc1ee336d951b7e6d20ea7737c214c5390805ce3c149068ec9e90",
+    "width": 1024,
+    "height": 1024,
+    "focal_subject": "Vambah in an expressive curious pose, photographed and previously approved for AmaduTown YouTube thumbnail use.",
+    "safe_text_region": "Candidate-specific face-safe regions are recorded for left-copy and right-copy crops.",
+    "generic": false,
+    "digital_source_type": "trained_algorithmic_media",
+    "provenance_note": "The staged source retains XMP identifying Google AI-assisted media. It is a previously approved Vambah-specific AmaduTown thumbnail asset, not a newly generated or generic portrait.",
+    "source_receipt_ids": [
+      "thumbnail:jev:youtube-shorts:20261018:v5",
+      "source:jev:approved-composite-20261014"
+    ],
+    "rights_receipt_ids": [
+      "rights:jev:owned-public-assets-20261014"
+    ],
+    "privacy_receipt_id": "privacy:jev:public-safe-20261014"
+  },
+  "product_proof": {
+    "asset_id": "proof:jev:operator-field-guide:20261014",
+    "public_path": "/review-assets/social-content/source-proof/jev-operator-field-guide.png",
+    "sha256": "sha256:7e123f1c11a156e86b36e0d2306ad1f42d97d3c63dac335588e804f6bc74f8e9",
+    "source_receipt_ids": [
+      "source:jev:approved-composite-20261014"
+    ],
+    "rights_receipt_ids": [
+      "rights:jev:owned-public-assets-20261014"
+    ],
+    "privacy_receipt_id": "privacy:jev:public-safe-20261014",
+    "role": "Story and storyboard substantiation only. This proof does not replace or masquerade as the thumbnail hero."
+  },
+  "candidates": [
+    {
+      "candidate_id": "thumbnail:jev:hero-question:20261019:v1",
+      "campaign_identity": "jev",
+      "content_version": "sha256:392b3e2a92c5ab65e4cc93706571df761bac7ea38631bf06002fd6b89f3302a2",
+      "title": "AI Scored It. Who Makes the Call?",
+      "teaser": "WHEN SHOULD AI STOP?",
+      "direction": "Expressive human question",
+      "public_path": "/review-assets/social-content/jev-hero-thumbnail-review/jev-when-should-ai-stop-hero-v1.png",
+      "sha256": "sha256:cac2bc8c27dcd8ab64daf5189c2b4ff4cfabaf2bef83c481a9fe61f99cb105fc",
+      "width": 1280,
+      "height": 720,
+      "aspect_ratio": "16:9",
+      "feed_preview_path": "/review-assets/social-content/jev-hero-thumbnail-review/jev-when-should-ai-stop-hero-v1-feed-320x180.png",
+      "feed_preview_sha256": "sha256:24056449c7773e310f6fcf1604f01ffcf3497ec5acaed7d6ae95964ddea8f5f8",
+      "feed_preview_width": 320,
+      "feed_preview_height": 180,
+      "focal_subject": "Vambah in an approved curious, decision-making pose with visible eye direction and a clean face-safe field.",
+      "safe_text_region": {
+        "x": 66,
+        "y": 84,
+        "width": 570,
+        "height": 536
+      },
+      "crop": {
+        "source_asset_id": "hero:jev:vambah-curious:20261019:v1",
+        "x": 560,
+        "y": 0,
+        "width": 720,
+        "height": 720,
+        "fit": "cover-attention"
+      },
+      "face_text_overlap": false,
+      "feed_size_legible": true,
+      "text_word_count": 4,
+      "layout_family": "human-right-question-left",
+      "composition_signature": "jev-curious-human-right|question-left|yellow-coral-decision-line|hero-v1",
+      "typography": "Inter variable, 760–900 weight, two-level editorial hierarchy, no mechanical template text.",
+      "visual_style": "AmaduTown navy with high-energy yellow, coral, and cyan accents; one expressive human hero; no dashboard furniture.",
+      "hero_binding": {
+        "hero_asset_id": "hero:jev:vambah-curious:20261019:v1",
+        "hero_source_sha256": "sha256:b74a933c73cdc1ee336d951b7e6d20ea7737c214c5390805ce3c149068ec9e90",
+        "output_sha256": "sha256:cac2bc8c27dcd8ab64daf5189c2b4ff4cfabaf2bef83c481a9fe61f99cb105fc"
+      },
+      "evidence_trace": [
+        {
+          "decision_dimension": "hero_selection",
+          "cohort_id": "cohort:youtube:ai-governance-human-decision:20261019:v1",
+          "live_evidence_video_ids": [
+            "WGDQoaoqR1U",
+            "zRMAvMSSSII"
+          ],
+          "evidence_role": "informs_not_authorizes",
+          "rationale": "The qualified process-led outlier keeps one concrete governance idea visible, while the current human-oversight comparator shows that one expressive presenter can carry the decision tension. The owned Vambah source supplies the actual hero."
+        },
+        {
+          "decision_dimension": "composition",
+          "cohort_id": "cohort:youtube:ai-governance-human-decision:20261019:v1",
+          "live_evidence_video_ids": [
+            "WGDQoaoqR1U",
+            "zRMAvMSSSII"
+          ],
+          "evidence_role": "informs_not_authorizes",
+          "rationale": "One decision relationship, one hero, and one copy field replace the prior field-guide density."
+        },
+        {
+          "decision_dimension": "typography",
+          "cohort_id": "cohort:youtube:ai-governance-human-decision:20261019:v1",
+          "live_evidence_video_ids": [
+            "zRMAvMSSSII",
+            "Q020C-Jw0o8"
+          ],
+          "evidence_role": "informs_not_authorizes",
+          "rationale": "Large editorial type with short stacked lines remains readable at feed size; source wording and type styling are not copied."
+        },
+        {
+          "decision_dimension": "teaser",
+          "cohort_id": "cohort:youtube:ai-governance-human-decision:20261019:v1",
+          "live_evidence_video_ids": [
+            "zRMAvMSSSII",
+            "AyNe8KZYNGU"
+          ],
+          "evidence_role": "informs_not_authorizes",
+          "rationale": "The hook is a short governance-boundary question and stays distinct from the video title."
+        },
+        {
+          "decision_dimension": "contrast",
+          "cohort_id": "cohort:youtube:ai-governance-human-decision:20261019:v1",
+          "live_evidence_video_ids": [
+            "WGDQoaoqR1U",
+            "AyNe8KZYNGU"
+          ],
+          "evidence_role": "informs_not_authorizes",
+          "rationale": "Warm yellow and coral accents sit against navy with clear separation from the subject and no text over the face."
+        },
+        {
+          "decision_dimension": "visual_style",
+          "cohort_id": "cohort:youtube:ai-governance-human-decision:20261019:v1",
+          "live_evidence_video_ids": [
+            "WGDQoaoqR1U",
+            "zRMAvMSSSII"
+          ],
+          "evidence_role": "informs_not_authorizes",
+          "rationale": "The candidate uses one immediate decision idea and rejects generic robots, webinar grids, and dashboard furniture."
+        }
+      ]
+    },
+    {
+      "candidate_id": "thumbnail:jev:hero-contrast:20261019:v1",
+      "campaign_identity": "jev",
+      "content_version": "sha256:392b3e2a92c5ab65e4cc93706571df761bac7ea38631bf06002fd6b89f3302a2",
+      "title": "AI Scored It. Who Makes the Call?",
+      "teaser": "THE SCORE ISN'T THE CALL",
+      "direction": "Human ownership contrast",
+      "public_path": "/review-assets/social-content/jev-hero-thumbnail-review/jev-score-isnt-the-call-hero-v1.png",
+      "sha256": "sha256:e98144472d46a55b8d2c187c4a94fa348ee991a1a2cdf05bc6f3da77ac70540d",
+      "width": 1280,
+      "height": 720,
+      "aspect_ratio": "16:9",
+      "feed_preview_path": "/review-assets/social-content/jev-hero-thumbnail-review/jev-score-isnt-the-call-hero-v1-feed-320x180.png",
+      "feed_preview_sha256": "sha256:a0762bfdb52dc59a4708510939c6a2f0810aaa9d90068476b7ae0e17493de011",
+      "feed_preview_width": 320,
+      "feed_preview_height": 180,
+      "focal_subject": "Vambah in an approved curious pose looking toward the score-versus-decision contrast, with the face isolated from copy.",
+      "safe_text_region": {
+        "x": 668,
+        "y": 78,
+        "width": 540,
+        "height": 548
+      },
+      "crop": {
+        "source_asset_id": "hero:jev:vambah-curious:20261019:v1",
+        "x": 0,
+        "y": 0,
+        "width": 720,
+        "height": 720,
+        "fit": "cover-attention"
+      },
+      "face_text_overlap": false,
+      "feed_size_legible": true,
+      "text_word_count": 5,
+      "layout_family": "human-left-contrast-right",
+      "composition_signature": "jev-curious-human-left|contrast-right|cyan-yellow-boundary|hero-v1",
+      "typography": "Inter variable, 760–900 weight, two-level editorial hierarchy, no mechanical template text.",
+      "visual_style": "AmaduTown navy with high-energy yellow, coral, and cyan accents; one expressive human hero; no dashboard furniture.",
+      "hero_binding": {
+        "hero_asset_id": "hero:jev:vambah-curious:20261019:v1",
+        "hero_source_sha256": "sha256:b74a933c73cdc1ee336d951b7e6d20ea7737c214c5390805ce3c149068ec9e90",
+        "output_sha256": "sha256:e98144472d46a55b8d2c187c4a94fa348ee991a1a2cdf05bc6f3da77ac70540d"
+      },
+      "evidence_trace": [
+        {
+          "decision_dimension": "hero_selection",
+          "cohort_id": "cohort:youtube:ai-governance-human-decision:20261019:v1",
+          "live_evidence_video_ids": [
+            "WGDQoaoqR1U",
+            "zRMAvMSSSII"
+          ],
+          "evidence_role": "informs_not_authorizes",
+          "rationale": "The live gate favors one concrete governance relationship. The owned expressive human makes responsibility visible without borrowing a public likeness."
+        },
+        {
+          "decision_dimension": "composition",
+          "cohort_id": "cohort:youtube:ai-governance-human-decision:20261019:v1",
+          "live_evidence_video_ids": [
+            "WGDQoaoqR1U",
+            "PUnCxppwDSs"
+          ],
+          "evidence_role": "informs_not_authorizes",
+          "rationale": "The layout turns the decision boundary into one person facing one plain-language contrast, instead of a multi-panel system diagram."
+        },
+        {
+          "decision_dimension": "typography",
+          "cohort_id": "cohort:youtube:ai-governance-human-decision:20261019:v1",
+          "live_evidence_video_ids": [
+            "zRMAvMSSSII",
+            "AyNe8KZYNGU"
+          ],
+          "evidence_role": "informs_not_authorizes",
+          "rationale": "A condensed stacked contrast uses five large words and a single accent shift for actual-feed-size reading."
+        },
+        {
+          "decision_dimension": "teaser",
+          "cohort_id": "cohort:youtube:ai-governance-human-decision:20261019:v1",
+          "live_evidence_video_ids": [
+            "zRMAvMSSSII",
+            "Q020C-Jw0o8"
+          ],
+          "evidence_role": "informs_not_authorizes",
+          "rationale": "The teaser states the governing distinction rather than repeating the title or promising an unsupported product outcome."
+        },
+        {
+          "decision_dimension": "contrast",
+          "cohort_id": "cohort:youtube:ai-governance-human-decision:20261019:v1",
+          "live_evidence_video_ids": [
+            "WGDQoaoqR1U",
+            "Q020C-Jw0o8"
+          ],
+          "evidence_role": "informs_not_authorizes",
+          "rationale": "White, yellow, and cyan text on navy creates a bright decision hierarchy while keeping the face unobstructed."
+        },
+        {
+          "decision_dimension": "visual_style",
+          "cohort_id": "cohort:youtube:ai-governance-human-decision:20261019:v1",
+          "live_evidence_video_ids": [
+            "WGDQoaoqR1U",
+            "zRMAvMSSSII"
+          ],
+          "evidence_role": "informs_not_authorizes",
+          "rationale": "The candidate uses a restrained human-plus-principle scene and rejects synthetic office people, robots, grids, and decorative dashboards."
+        }
+      ]
+    }
+  ],
+  "rejected_patterns": [
+    "dashboard or field-guide density",
+    "text-first lecture cards",
+    "generic robot, circuit-board, or synthetic office imagery",
+    "multi-head webinar grids and crude split screens",
+    "dark flat treatments with weak expression or no campaign-specific hero",
+    "copied source likenesses, layouts, wording, or brand colors"
+  ],
+  "boundary": "Repository-local review assets only. Product proof remains a separate source-bound story asset. No provider generation, production binding, upload, platform draft, scheduling, publication, credentials, migration, spending, or external send occurred."
+}

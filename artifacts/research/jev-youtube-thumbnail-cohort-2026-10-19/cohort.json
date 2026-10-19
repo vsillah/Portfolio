@@ -1,0 +1,852 @@
+{
+  "version": "youtube-thumbnail-long-form-cohort/v1",
+  "cohort_id": "cohort:youtube:ai-governance-human-decision:20261019:v1",
+  "status": "approved",
+  "target": {
+    "channel": "youtube",
+    "format": "long_form",
+    "aspect_ratio": "16:9",
+    "output_dimensions": {
+      "width": 1280,
+      "height": 720
+    },
+    "topic_identity": "ai_governance_human_decision_ownership",
+    "qualifying_duration_seconds": {
+      "minimum": 180
+    },
+    "minimum_sample_size": 6,
+    "minimum_channel_baseline_size": 4,
+    "audience_normalization": "view_count / public subscriber_count",
+    "channel_normalization": "view_count / median exact view count for up to 10 recent long-form videos on the same channel"
+  },
+  "observed_at": "2026-10-19T22:30:00.000Z",
+  "fresh_until": "2026-11-02T22:30:00.000Z",
+  "formula": {
+    "channel_relative_ratio": "source exact views / same-channel recent long-form median exact views",
+    "audience_view_ratio": "source exact views / public channel subscriber count",
+    "recency_adjusted_views_per_day": "source exact views / max(age in days at observation, 1)",
+    "normalized_performance_score": "(channel-relative percentile × 0.50) + (audience-view percentile × 0.30) + (recency-rate percentile × 0.20)"
+  },
+  "selection_gate": {
+    "ready": true,
+    "qualified_sample_size": 9,
+    "minimum_sample_size": 6,
+    "decision": "qualifying_cohort_ready"
+  },
+  "outlier_qualification": {
+    "rule": "normalized_performance_score >= 75",
+    "threshold": 75,
+    "qualified_sample_size": 1,
+    "qualified_video_ids": [
+      "WGDQoaoqR1U"
+    ],
+    "role": "Performance context only. Public visual composition is not first-party brand authority."
+  },
+  "copy_pair_analysis": {
+    "status": "unscored",
+    "hypothesis": "Distinct complementary thumbnail hooks outperform duplicated or near-duplicated title wording for topic-matched YouTube long-form videos.",
+    "comparison_formula": "median normalized performance score for complementary_teaser + contrasting_question minus median normalized performance score for duplicate + near_duplicate",
+    "repeated_group": {
+      "relationships": [
+        "duplicate",
+        "near_duplicate"
+      ],
+      "sample_size": 6,
+      "minimum_sample_size": 3,
+      "median_normalized_performance_score": 49.445,
+      "video_ids": [
+        "zRMAvMSSSII",
+        "BIPlhF0sXUc",
+        "d-22oCIWSBQ",
+        "PUnCxppwDSs",
+        "DI0wC2d5m0w",
+        "mVD72s4hmIw"
+      ]
+    },
+    "distinct_group": {
+      "relationships": [
+        "complementary_teaser",
+        "contrasting_question"
+      ],
+      "sample_size": 2,
+      "minimum_sample_size": 3,
+      "median_normalized_performance_score": 35.56,
+      "video_ids": [
+        "Q020C-Jw0o8",
+        "AyNe8KZYNGU"
+      ]
+    },
+    "observed_difference": -13.88,
+    "conclusion": "unscored_insufficient_group_samples",
+    "limitation": "Unscored: both relationship groups require at least 3 attributable samples."
+  },
+  "candidate_copy_pair": {
+    "title": "AI Scored It. Who Makes the Call?",
+    "thumbnail_hook": "WHEN SHOULD AI STOP?",
+    "relationship": "contrasting_question",
+    "exact_strings_are_distinct": true,
+    "strategy_status": "review_only_unscored",
+    "support_scope": "editorial_hypothesis_only",
+    "performance_claim": "unscored",
+    "rationale": "The title names the scored event and decision owner. The thumbnail asks where model authority ends. Live examples support presenter-led decision tension and short governance hooks as bounded editorial patterns; they do not establish causal performance.",
+    "source_example_video_ids": [
+      "zRMAvMSSSII",
+      "Q020C-Jw0o8"
+    ]
+  },
+  "included": [
+    {
+      "video_id": "WGDQoaoqR1U",
+      "youtube_url": "https://www.youtube.com/watch?v=WGDQoaoqR1U",
+      "title": "AI Governance Explained: Ethical, Transparent & Accountable AI for the Future",
+      "creator": "wecite",
+      "channel_id": "UCWED9qeYErCQJCx-4qvOZvQ",
+      "view_count": 2699,
+      "subscriber_count": 66,
+      "published_at": "2025-10-27T21:15:02.000Z",
+      "duration_seconds": 423,
+      "source_thumbnail_url": "https://i.ytimg.com/vi/WGDQoaoqR1U/maxresdefault.jpg?sqp=-oaymwEmCIAKENAF8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGGIgYihiMA8=&rs=AOn4CLBccagzsFlO0hOrgSplhQbnQk-XWg",
+      "description_opening": "Artificial Intelligence (AI) is transforming industries—but who ensures it’s done ethically, safely, and transparently? 🌐 In this video, we break",
+      "description_opening_truncated": true,
+      "decision_reason": "Same-topic accountable AI governance explainer with a product-process visual.",
+      "channel_baseline": {
+        "sample_size": 10,
+        "video_ids": [
+          "X3i83_0cJ3E",
+          "lRMD0I0jQzA",
+          "eYaMLERjVy4",
+          "fmL-KayeqeE",
+          "xUSQ4Y-Z8QU",
+          "drtvnd87Vy0",
+          "Vb-TwG2-KlM",
+          "VariJ2QaF8k",
+          "SVuArnyC8tQ",
+          "Y_20RrR91U0"
+        ],
+        "exact_view_counts": [
+          24,
+          29,
+          25,
+          51,
+          13,
+          33,
+          8,
+          35,
+          352,
+          32
+        ],
+        "median_view_count": 30.5
+      },
+      "age_days": 357.05,
+      "channel_relative_ratio": 88.4918,
+      "audience_view_ratio": 40.8939,
+      "recency_adjusted_views_per_day": 7.5592,
+      "source_thumbnail_sha256": "sha256:d8c0fbbe1fae520bf7a1670d5cf241651befb9cb24224bb64395f61e989fcd5c",
+      "thumbnail_path": "/review-assets/social-content/jev-youtube-long-form-thumbnail-cohort/WGDQoaoqR1U.jpg",
+      "performance_components": {
+        "channel_relative_percentile": 94.44,
+        "audience_view_percentile": 94.44,
+        "recency_rate_percentile": 61.11
+      },
+      "normalized_performance_score": 87.77,
+      "outlier_qualified": true,
+      "observed_at": "2026-10-19T22:30:00.000Z",
+      "decision": "included",
+      "link_status": "verified_openable",
+      "channel_baseline_size": 10,
+      "thumbnail_text": [],
+      "thumbnail_text_transcription_status": "verified",
+      "title_thumbnail_relationship": "no_thumbnail_text",
+      "thumbnail_text_length": 0,
+      "hook_type": "human_policy_robot_process",
+      "transcription_provenance": {
+        "source_thumbnail_url": "https://i.ytimg.com/vi/WGDQoaoqR1U/maxresdefault.jpg?sqp=-oaymwEmCIAKENAF8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGGIgYihiMA8=&rs=AOn4CLBccagzsFlO0hOrgSplhQbnQk-XWg",
+        "captured_thumbnail_path": "/review-assets/social-content/jev-youtube-long-form-thumbnail-cohort/WGDQoaoqR1U.jpg",
+        "captured_thumbnail_sha256": "sha256:d8c0fbbe1fae520bf7a1670d5cf241651befb9cb24224bb64395f61e989fcd5c",
+        "method": "human transcription from the captured public source image; unreadable text is not inferred"
+      },
+      "supports_candidate_composition": false,
+      "composition_support_reason": "Public thumbnail is comparison context only. First-party evidence controls subject, product proof, and brand treatment.",
+      "visual_traits": {
+        "dominant_subject": true,
+        "short_hook": false,
+        "high_contrast_text": false,
+        "minimal_secondary_copy": true
+      }
+    },
+    {
+      "video_id": "BIPlhF0sXUc",
+      "youtube_url": "https://www.youtube.com/watch?v=BIPlhF0sXUc",
+      "title": "When AI Agents Make Decisions: Who Owns the Risk? | AI Governance & Accountability",
+      "creator": "AI Future Leaders | AI Leadership & Upskilling",
+      "channel_id": "UCNqe-9FdW9KFQ_7pwMQLvzg",
+      "view_count": 8047,
+      "subscriber_count": 10800,
+      "published_at": "2026-10-07T12:28:03.000Z",
+      "duration_seconds": 3539,
+      "source_thumbnail_url": "https://i.ytimg.com/vi/BIPlhF0sXUc/maxresdefault.jpg",
+      "description_opening": "As AI agents become capable of making decisions, executing tasks, orchestrating workflows, and interacting directly with enterprise systems, organizations face",
+      "description_opening_truncated": true,
+      "decision_reason": "Exact-topic AI-agent risk ownership and accountability discussion.",
+      "channel_baseline": {
+        "sample_size": 10,
+        "video_ids": [
+          "Kq01HFvdyGk",
+          "BIPlhF0sXUc",
+          "1QPovCFwO8I",
+          "_x9DOm_Fy8U",
+          "MRH4UDk1kBE",
+          "3u4-s1G95jk",
+          "t-GesPCeMrI",
+          "SRnx2luphAc",
+          "DCs5zn6qqEs",
+          "gx_gwB4cOSQ"
+        ],
+        "exact_view_counts": [
+          288,
+          8047,
+          9760,
+          10228,
+          10868,
+          39,
+          314,
+          325,
+          29,
+          94
+        ],
+        "median_view_count": 319.5
+      },
+      "age_days": 12.42,
+      "channel_relative_ratio": 25.1862,
+      "audience_view_ratio": 0.7451,
+      "recency_adjusted_views_per_day": 647.9066,
+      "source_thumbnail_sha256": "sha256:929a06fbee9f60edf650a1953a28cc118442c9d0c4233aac64e4b710724fe6d4",
+      "thumbnail_path": "/review-assets/social-content/jev-youtube-long-form-thumbnail-cohort/BIPlhF0sXUc.jpg",
+      "performance_components": {
+        "channel_relative_percentile": 83.33,
+        "audience_view_percentile": 50,
+        "recency_rate_percentile": 83.33
+      },
+      "normalized_performance_score": 73.33,
+      "outlier_qualified": false,
+      "observed_at": "2026-10-19T22:30:00.000Z",
+      "decision": "included",
+      "link_status": "verified_openable",
+      "channel_baseline_size": 10,
+      "thumbnail_text": [
+        "WHEN AI AGENTS MAKE DECISIONS: WHO OWNS THE RISKS, CONTROLS & ACCOUNTABILITY?"
+      ],
+      "thumbnail_text_transcription_status": "verified",
+      "title_thumbnail_relationship": "near_duplicate",
+      "thumbnail_text_length": 77,
+      "hook_type": "decision_ownership_question",
+      "transcription_provenance": {
+        "source_thumbnail_url": "https://i.ytimg.com/vi/BIPlhF0sXUc/maxresdefault.jpg",
+        "captured_thumbnail_path": "/review-assets/social-content/jev-youtube-long-form-thumbnail-cohort/BIPlhF0sXUc.jpg",
+        "captured_thumbnail_sha256": "sha256:929a06fbee9f60edf650a1953a28cc118442c9d0c4233aac64e4b710724fe6d4",
+        "method": "human transcription from the captured public source image; unreadable text is not inferred"
+      },
+      "supports_candidate_composition": false,
+      "composition_support_reason": "Public thumbnail is comparison context only. First-party evidence controls subject, product proof, and brand treatment.",
+      "visual_traits": {
+        "dominant_subject": true,
+        "short_hook": false,
+        "high_contrast_text": true,
+        "minimal_secondary_copy": true
+      }
+    },
+    {
+      "video_id": "mVD72s4hmIw",
+      "youtube_url": "https://www.youtube.com/watch?v=mVD72s4hmIw",
+      "title": "From AI Adoption to AI Governance | Automation, Human Oversight & Accountability",
+      "creator": "Flow AI Thailand",
+      "channel_id": "UC1B7JpqqleVYAAo_9J7wB0A",
+      "view_count": 101,
+      "subscriber_count": 19,
+      "published_at": "2026-09-09T13:00:39.000Z",
+      "duration_seconds": 816,
+      "source_thumbnail_url": "https://i.ytimg.com/vi/mVD72s4hmIw/maxresdefault.jpg?sqp=-oaymwEmCIAKENAF8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGDUgTihyMA8=&rs=AOn4CLASAbc1PVe9mtbJ1c9xjp-xKFZMoA",
+      "description_opening": "As AI becomes more capable, organizations need to move beyond asking what AI can do. A more important question is:",
+      "description_opening_truncated": true,
+      "decision_reason": "Same-topic AI adoption-to-governance explainer retained to test dense field-guide rejection.",
+      "channel_baseline": {
+        "sample_size": 10,
+        "video_ids": [
+          "WEInYXOz-7Q",
+          "oXsDW_XKNHI",
+          "P2rBRWmzpB0",
+          "lmxBxf7jPl0",
+          "R4mdVg7tBLE",
+          "XTgpCRYQZJw",
+          "cDFaRUgreSw",
+          "Tg0Cjdevayk",
+          "e6fH3SMM_FM",
+          "QU0FzS2ohqQ"
+        ],
+        "exact_view_counts": [
+          14,
+          12,
+          51,
+          17,
+          19,
+          37,
+          51,
+          20,
+          28,
+          25
+        ],
+        "median_view_count": 22.5
+      },
+      "age_days": 40.4,
+      "channel_relative_ratio": 4.4889,
+      "audience_view_ratio": 5.3158,
+      "recency_adjusted_views_per_day": 2.5,
+      "source_thumbnail_sha256": "sha256:013daba9cb3c6bf01d06a6d2801132bb392f045f0280abb2d281c764c9dee260",
+      "thumbnail_path": "/review-assets/social-content/jev-youtube-long-form-thumbnail-cohort/mVD72s4hmIw.jpg",
+      "performance_components": {
+        "channel_relative_percentile": 72.22,
+        "audience_view_percentile": 83.33,
+        "recency_rate_percentile": 50
+      },
+      "normalized_performance_score": 71.11,
+      "outlier_qualified": false,
+      "observed_at": "2026-10-19T22:30:00.000Z",
+      "decision": "included",
+      "link_status": "verified_openable",
+      "channel_baseline_size": 10,
+      "thumbnail_text": [
+        "From AI Adoption to AI Governance"
+      ],
+      "thumbnail_text_transcription_status": "verified",
+      "title_thumbnail_relationship": "near_duplicate",
+      "thumbnail_text_length": 33,
+      "hook_type": "dense_governance_field_guide",
+      "transcription_provenance": {
+        "source_thumbnail_url": "https://i.ytimg.com/vi/mVD72s4hmIw/maxresdefault.jpg?sqp=-oaymwEmCIAKENAF8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGDUgTihyMA8=&rs=AOn4CLASAbc1PVe9mtbJ1c9xjp-xKFZMoA",
+        "captured_thumbnail_path": "/review-assets/social-content/jev-youtube-long-form-thumbnail-cohort/mVD72s4hmIw.jpg",
+        "captured_thumbnail_sha256": "sha256:013daba9cb3c6bf01d06a6d2801132bb392f045f0280abb2d281c764c9dee260",
+        "method": "human transcription from the captured public source image; unreadable text is not inferred"
+      },
+      "supports_candidate_composition": false,
+      "composition_support_reason": "Public thumbnail is comparison context only. First-party evidence controls subject, product proof, and brand treatment.",
+      "visual_traits": {
+        "dominant_subject": true,
+        "short_hook": true,
+        "high_contrast_text": true,
+        "minimal_secondary_copy": true
+      }
+    },
+    {
+      "video_id": "d-22oCIWSBQ",
+      "youtube_url": "https://www.youtube.com/watch?v=d-22oCIWSBQ",
+      "title": "The importance of human oversight in AI decision-making [1.49.]",
+      "creator": "Survive AI",
+      "channel_id": "UCI97kM64w22txnY6eO6tfZg",
+      "view_count": 568,
+      "subscriber_count": 142,
+      "published_at": "2023-03-29T22:00:17.000Z",
+      "duration_seconds": 222,
+      "source_thumbnail_url": "https://i.ytimg.com/vi/d-22oCIWSBQ/maxresdefault.jpg",
+      "description_opening": "Artificial intelligence (AI) is transforming various industries, making them more efficient and convenient. It has shown remarkable results in healthcare,",
+      "description_opening_truncated": true,
+      "decision_reason": "Exact-topic human oversight in AI decision-making explainer.",
+      "channel_baseline": {
+        "sample_size": 10,
+        "video_ids": [
+          "bz2MyJzxO4Y",
+          "O_Z67RXiW5g",
+          "sQFR4hByP4c",
+          "iPqaRZ5VVg0",
+          "d-22oCIWSBQ",
+          "VTlJQHW3a40",
+          "oo6OyBRgVNA",
+          "adYUQa4rq7o",
+          "H2hPlo0egcY",
+          "Ai9tjszKHhY"
+        ],
+        "exact_view_counts": [
+          119,
+          55,
+          177,
+          319,
+          568,
+          65,
+          28,
+          349,
+          514,
+          207
+        ],
+        "median_view_count": 192
+      },
+      "age_days": 1300.02,
+      "channel_relative_ratio": 2.9583,
+      "audience_view_ratio": 4,
+      "recency_adjusted_views_per_day": 0.4369,
+      "source_thumbnail_sha256": "sha256:a5f66581ccc059dc8b7a8ec562a78b90a87b4c1b58d4050d312ad41e27926cb4",
+      "thumbnail_path": "/review-assets/social-content/jev-youtube-long-form-thumbnail-cohort/d-22oCIWSBQ.jpg",
+      "performance_components": {
+        "channel_relative_percentile": 61.11,
+        "audience_view_percentile": 72.22,
+        "recency_rate_percentile": 5.56
+      },
+      "normalized_performance_score": 53.33,
+      "outlier_qualified": false,
+      "observed_at": "2026-10-19T22:30:00.000Z",
+      "decision": "included",
+      "link_status": "verified_openable",
+      "channel_baseline_size": 10,
+      "thumbnail_text": [
+        "THE IMPORTANCE OF HUMAN OVERSIGHT IN AI DECISION-MAKING"
+      ],
+      "thumbnail_text_transcription_status": "verified",
+      "title_thumbnail_relationship": "near_duplicate",
+      "thumbnail_text_length": 55,
+      "hook_type": "human_oversight_label",
+      "transcription_provenance": {
+        "source_thumbnail_url": "https://i.ytimg.com/vi/d-22oCIWSBQ/maxresdefault.jpg",
+        "captured_thumbnail_path": "/review-assets/social-content/jev-youtube-long-form-thumbnail-cohort/d-22oCIWSBQ.jpg",
+        "captured_thumbnail_sha256": "sha256:a5f66581ccc059dc8b7a8ec562a78b90a87b4c1b58d4050d312ad41e27926cb4",
+        "method": "human transcription from the captured public source image; unreadable text is not inferred"
+      },
+      "supports_candidate_composition": false,
+      "composition_support_reason": "Public thumbnail is comparison context only. First-party evidence controls subject, product proof, and brand treatment.",
+      "visual_traits": {
+        "dominant_subject": true,
+        "short_hook": false,
+        "high_contrast_text": true,
+        "minimal_secondary_copy": true
+      }
+    },
+    {
+      "video_id": "Q020C-Jw0o8",
+      "youtube_url": "https://www.youtube.com/watch?v=Q020C-Jw0o8",
+      "title": "The Importance of AI Governance",
+      "creator": "IBM Technology",
+      "channel_id": "UCKWaEZ-_VweaEx1j62do_vQ",
+      "view_count": 99585,
+      "subscriber_count": 1820000,
+      "published_at": "2024-05-21T11:00:31.000Z",
+      "duration_seconds": 551,
+      "source_thumbnail_url": "https://i.ytimg.com/vi/Q020C-Jw0o8/maxresdefault.jpg",
+      "description_opening": "Get the guide to responsible AI governance → https://ibm.biz/Bdmv4i Just what is AI Governance and what does it do for",
+      "description_opening_truncated": true,
+      "decision_reason": "Same-topic AI governance explainer from a channel with an attributable long-form baseline.",
+      "channel_baseline": {
+        "sample_size": 10,
+        "video_ids": [
+          "DQBqh6gcx7U",
+          "4b6KpFN7Rio",
+          "0FBdWvkgNQE",
+          "BwXremQ-i6I",
+          "W6F4QZlknkc",
+          "wSuWuPUTC10",
+          "hTAWHgQI4xg",
+          "zRMAvMSSSII",
+          "IO6Bhs2iNfk",
+          "wZFseoVpSTM"
+        ],
+        "exact_view_counts": [
+          40366,
+          37610,
+          18366,
+          202943,
+          20910,
+          88696,
+          150440,
+          72260,
+          16739,
+          17532
+        ],
+        "median_view_count": 38988
+      },
+      "age_days": 881.48,
+      "channel_relative_ratio": 2.5542,
+      "audience_view_ratio": 0.0547,
+      "recency_adjusted_views_per_day": 112.9748,
+      "source_thumbnail_sha256": "sha256:2f45deb38763b30ee12e2e5bb19fb640a2ecba877bb088a0a0bc160d2e8fc671",
+      "thumbnail_path": "/review-assets/social-content/jev-youtube-long-form-thumbnail-cohort/Q020C-Jw0o8.jpg",
+      "performance_components": {
+        "channel_relative_percentile": 50,
+        "audience_view_percentile": 27.78,
+        "recency_rate_percentile": 72.22
+      },
+      "normalized_performance_score": 47.78,
+      "outlier_qualified": false,
+      "observed_at": "2026-10-19T22:30:00.000Z",
+      "decision": "included",
+      "link_status": "verified_openable",
+      "channel_baseline_size": 10,
+      "thumbnail_text": [
+        "Understanding AI Governance: Risks, Definitions and Regulations"
+      ],
+      "thumbnail_text_transcription_status": "verified",
+      "title_thumbnail_relationship": "complementary_teaser",
+      "thumbnail_text_length": 63,
+      "hook_type": "governance_scope",
+      "transcription_provenance": {
+        "source_thumbnail_url": "https://i.ytimg.com/vi/Q020C-Jw0o8/maxresdefault.jpg",
+        "captured_thumbnail_path": "/review-assets/social-content/jev-youtube-long-form-thumbnail-cohort/Q020C-Jw0o8.jpg",
+        "captured_thumbnail_sha256": "sha256:2f45deb38763b30ee12e2e5bb19fb640a2ecba877bb088a0a0bc160d2e8fc671",
+        "method": "human transcription from the captured public source image; unreadable text is not inferred"
+      },
+      "supports_candidate_composition": false,
+      "composition_support_reason": "Public thumbnail is comparison context only. First-party evidence controls subject, product proof, and brand treatment.",
+      "visual_traits": {
+        "dominant_subject": true,
+        "short_hook": false,
+        "high_contrast_text": true,
+        "minimal_secondary_copy": true
+      }
+    },
+    {
+      "video_id": "PUnCxppwDSs",
+      "youtube_url": "https://www.youtube.com/watch?v=PUnCxppwDSs",
+      "title": "Who Should Be the Human in the Loop? | AI Governance & Human Oversight",
+      "creator": "Flow AI Thailand",
+      "channel_id": "UC1B7JpqqleVYAAo_9J7wB0A",
+      "view_count": 46,
+      "subscriber_count": 19,
+      "published_at": "2026-09-28T04:00:04.000Z",
+      "duration_seconds": 917,
+      "source_thumbnail_url": "https://i.ytimg.com/vi/PUnCxppwDSs/maxresdefault.jpg",
+      "description_opening": "Human-in-the-loop is a familiar concept in AI Governance. But an equally important question is often overlooked: Who should that human",
+      "description_opening_truncated": true,
+      "decision_reason": "Exact-topic human-in-the-loop decision-owner explainer.",
+      "channel_baseline": {
+        "sample_size": 10,
+        "video_ids": [
+          "WEInYXOz-7Q",
+          "oXsDW_XKNHI",
+          "P2rBRWmzpB0",
+          "lmxBxf7jPl0",
+          "R4mdVg7tBLE",
+          "XTgpCRYQZJw",
+          "cDFaRUgreSw",
+          "Tg0Cjdevayk",
+          "e6fH3SMM_FM",
+          "QU0FzS2ohqQ"
+        ],
+        "exact_view_counts": [
+          14,
+          12,
+          51,
+          17,
+          19,
+          37,
+          51,
+          20,
+          28,
+          25
+        ],
+        "median_view_count": 22.5
+      },
+      "age_days": 21.77,
+      "channel_relative_ratio": 2.0444,
+      "audience_view_ratio": 2.4211,
+      "recency_adjusted_views_per_day": 2.113,
+      "source_thumbnail_sha256": "sha256:49007169f0bfeaeb38136a2cb397df728faefe6e157c3a2709c990cd3de85512",
+      "thumbnail_path": "/review-assets/social-content/jev-youtube-long-form-thumbnail-cohort/PUnCxppwDSs.jpg",
+      "performance_components": {
+        "channel_relative_percentile": 38.89,
+        "audience_view_percentile": 61.11,
+        "recency_rate_percentile": 38.89
+      },
+      "normalized_performance_score": 45.56,
+      "outlier_qualified": false,
+      "observed_at": "2026-10-19T22:30:00.000Z",
+      "decision": "included",
+      "link_status": "verified_openable",
+      "channel_baseline_size": 10,
+      "thumbnail_text": [
+        "Who Should Be the Human in the Loop?",
+        "Choosing the right human for each intervention point"
+      ],
+      "thumbnail_text_transcription_status": "verified",
+      "title_thumbnail_relationship": "near_duplicate",
+      "thumbnail_text_length": 89,
+      "hook_type": "decision_owner_question",
+      "transcription_provenance": {
+        "source_thumbnail_url": "https://i.ytimg.com/vi/PUnCxppwDSs/maxresdefault.jpg",
+        "captured_thumbnail_path": "/review-assets/social-content/jev-youtube-long-form-thumbnail-cohort/PUnCxppwDSs.jpg",
+        "captured_thumbnail_sha256": "sha256:49007169f0bfeaeb38136a2cb397df728faefe6e157c3a2709c990cd3de85512",
+        "method": "human transcription from the captured public source image; unreadable text is not inferred"
+      },
+      "supports_candidate_composition": false,
+      "composition_support_reason": "Public thumbnail is comparison context only. First-party evidence controls subject, product proof, and brand treatment.",
+      "visual_traits": {
+        "dominant_subject": true,
+        "short_hook": false,
+        "high_contrast_text": true,
+        "minimal_secondary_copy": true
+      }
+    },
+    {
+      "video_id": "zRMAvMSSSII",
+      "youtube_url": "https://www.youtube.com/watch?v=zRMAvMSSSII",
+      "title": "Human in the Loop Is Not a Governance Strategy for Agentic AI",
+      "creator": "IBM Technology",
+      "channel_id": "UCKWaEZ-_VweaEx1j62do_vQ",
+      "view_count": 72260,
+      "subscriber_count": 1820000,
+      "published_at": "2026-10-11T11:00:03.000Z",
+      "duration_seconds": 242,
+      "source_thumbnail_url": "https://i.ytimg.com/vi/zRMAvMSSSII/maxresdefault.jpg",
+      "description_opening": "Learn more about Responsible AI here → https://ibm.biz/~EYYcOfiMK Human review doesn't automatically mean AI governance. Phaedra Boinodiris explains why human-in-the-loop",
+      "description_opening_truncated": true,
+      "decision_reason": "Same-topic agentic AI governance and human-oversight argument with current public metadata.",
+      "channel_baseline": {
+        "sample_size": 10,
+        "video_ids": [
+          "DQBqh6gcx7U",
+          "4b6KpFN7Rio",
+          "0FBdWvkgNQE",
+          "BwXremQ-i6I",
+          "W6F4QZlknkc",
+          "wSuWuPUTC10",
+          "hTAWHgQI4xg",
+          "zRMAvMSSSII",
+          "IO6Bhs2iNfk",
+          "wZFseoVpSTM"
+        ],
+        "exact_view_counts": [
+          40366,
+          37610,
+          18366,
+          202943,
+          20871,
+          88696,
+          150440,
+          72260,
+          16739,
+          17532
+        ],
+        "median_view_count": 38988
+      },
+      "age_days": 8.48,
+      "channel_relative_ratio": 1.8534,
+      "audience_view_ratio": 0.0397,
+      "recency_adjusted_views_per_day": 8521.2264,
+      "source_thumbnail_sha256": "sha256:dd6ec56afa9e790f94ddd19f7f295d523c774b9c6d029a82cc02a6d94d292297",
+      "thumbnail_path": "/review-assets/social-content/jev-youtube-long-form-thumbnail-cohort/zRMAvMSSSII.jpg",
+      "performance_components": {
+        "channel_relative_percentile": 27.78,
+        "audience_view_percentile": 16.67,
+        "recency_rate_percentile": 94.44
+      },
+      "normalized_performance_score": 37.78,
+      "outlier_qualified": false,
+      "observed_at": "2026-10-19T22:30:00.000Z",
+      "decision": "included",
+      "link_status": "verified_openable",
+      "channel_baseline_size": 10,
+      "thumbnail_text": [
+        "Human In The Loop Isn't Enough"
+      ],
+      "thumbnail_text_transcription_status": "verified",
+      "title_thumbnail_relationship": "near_duplicate",
+      "thumbnail_text_length": 30,
+      "hook_type": "human_oversight_limit",
+      "transcription_provenance": {
+        "source_thumbnail_url": "https://i.ytimg.com/vi/zRMAvMSSSII/maxresdefault.jpg",
+        "captured_thumbnail_path": "/review-assets/social-content/jev-youtube-long-form-thumbnail-cohort/zRMAvMSSSII.jpg",
+        "captured_thumbnail_sha256": "sha256:dd6ec56afa9e790f94ddd19f7f295d523c774b9c6d029a82cc02a6d94d292297",
+        "method": "human transcription from the captured public source image; unreadable text is not inferred"
+      },
+      "supports_candidate_composition": false,
+      "composition_support_reason": "Public thumbnail is comparison context only. First-party evidence controls subject, product proof, and brand treatment.",
+      "visual_traits": {
+        "dominant_subject": true,
+        "short_hook": true,
+        "high_contrast_text": true,
+        "minimal_secondary_copy": true
+      }
+    },
+    {
+      "video_id": "AyNe8KZYNGU",
+      "youtube_url": "https://www.youtube.com/watch?v=AyNe8KZYNGU",
+      "title": "AI Governance: Why You Need Rules Before You Need Results",
+      "creator": "Centric Consulting",
+      "channel_id": "UCFmtoIKH1ijwpGpiJBxl4dw",
+      "view_count": 56,
+      "subscriber_count": 156,
+      "published_at": "2026-08-27T17:30:29.000Z",
+      "duration_seconds": 345,
+      "source_thumbnail_url": "https://i.ytimg.com/vi/AyNe8KZYNGU/maxresdefault.jpg",
+      "description_opening": "Learn why AI governance is the operating system for visible, accountable, and scalable AI decisions, not just a compliance checklist.",
+      "description_opening_truncated": true,
+      "decision_reason": "Same-topic rules-before-results governance explainer.",
+      "channel_baseline": {
+        "sample_size": 10,
+        "video_ids": [
+          "yJH9ZcwHndY",
+          "S_2LTE77q-o",
+          "mXvag72iYiw",
+          "AyNe8KZYNGU",
+          "IuqXDQ0EB1g",
+          "TxcbTeejvuY",
+          "GLGAr6FTMwY",
+          "ddZ92VNFGhs",
+          "hXFSUJaNgNQ",
+          "8dEOw8pdCkM"
+        ],
+        "exact_view_counts": [
+          7,
+          69,
+          28,
+          56,
+          31,
+          39,
+          74,
+          74,
+          68,
+          43
+        ],
+        "median_view_count": 49.5
+      },
+      "age_days": 53.21,
+      "channel_relative_ratio": 1.1313,
+      "audience_view_ratio": 0.359,
+      "recency_adjusted_views_per_day": 1.0524,
+      "source_thumbnail_sha256": "sha256:d0f50b80f12250ea22fb849e4c28c2bd8d942bb2939cde84cad85ee1114165de",
+      "thumbnail_path": "/review-assets/social-content/jev-youtube-long-form-thumbnail-cohort/AyNe8KZYNGU.jpg",
+      "performance_components": {
+        "channel_relative_percentile": 16.67,
+        "audience_view_percentile": 38.89,
+        "recency_rate_percentile": 16.67
+      },
+      "normalized_performance_score": 23.34,
+      "outlier_qualified": false,
+      "observed_at": "2026-10-19T22:30:00.000Z",
+      "decision": "included",
+      "link_status": "verified_openable",
+      "channel_baseline_size": 10,
+      "thumbnail_text": [
+        "RULES BEFORE RESULTS"
+      ],
+      "thumbnail_text_transcription_status": "verified",
+      "title_thumbnail_relationship": "complementary_teaser",
+      "thumbnail_text_length": 20,
+      "hook_type": "rules_before_results",
+      "transcription_provenance": {
+        "source_thumbnail_url": "https://i.ytimg.com/vi/AyNe8KZYNGU/maxresdefault.jpg",
+        "captured_thumbnail_path": "/review-assets/social-content/jev-youtube-long-form-thumbnail-cohort/AyNe8KZYNGU.jpg",
+        "captured_thumbnail_sha256": "sha256:d0f50b80f12250ea22fb849e4c28c2bd8d942bb2939cde84cad85ee1114165de",
+        "method": "human transcription from the captured public source image; unreadable text is not inferred"
+      },
+      "supports_candidate_composition": false,
+      "composition_support_reason": "Public thumbnail is comparison context only. First-party evidence controls subject, product proof, and brand treatment.",
+      "visual_traits": {
+        "dominant_subject": true,
+        "short_hook": true,
+        "high_contrast_text": true,
+        "minimal_secondary_copy": true
+      }
+    },
+    {
+      "video_id": "DI0wC2d5m0w",
+      "youtube_url": "https://www.youtube.com/watch?v=DI0wC2d5m0w",
+      "title": "Human Oversight in AI: Designing Accountability for High Stakes Decisions",
+      "creator": "DATAVERSITY",
+      "channel_id": "UCeTLK-PN9ZynubJ5UIxzk-Q",
+      "view_count": 217,
+      "subscriber_count": 19200,
+      "published_at": "2026-04-10T21:00:14.000Z",
+      "duration_seconds": 3722,
+      "source_thumbnail_url": "https://i.ytimg.com/vi/DI0wC2d5m0w/maxresdefault.jpg",
+      "description_opening": "Human oversight is often cited as the failsafe for AI – but what does effective oversight actually look like? This",
+      "description_opening_truncated": true,
+      "decision_reason": "Exact-topic high-stakes human oversight and accountability webinar.",
+      "channel_baseline": {
+        "sample_size": 10,
+        "video_ids": [
+          "6Ujlcbz4oes",
+          "2EXLNv31-r4",
+          "-kkua_4Wfao",
+          "9DKWCSSNkvE",
+          "whk2AAJoPs4",
+          "ZqecX7-Qeps",
+          "SCqIi8TtFig",
+          "ZnAzcG81HaY",
+          "7C9Y8GrmNc4",
+          "mX-fy-vEhQE"
+        ],
+        "exact_view_counts": [
+          200,
+          290,
+          340,
+          245,
+          445,
+          752,
+          360,
+          267,
+          348,
+          334
+        ],
+        "median_view_count": 337
+      },
+      "age_days": 192.06,
+      "channel_relative_ratio": 0.6439,
+      "audience_view_ratio": 0.0113,
+      "recency_adjusted_views_per_day": 1.1299,
+      "source_thumbnail_sha256": "sha256:07cc5fbf4b48df95e235cb0e1a83ee451c5fcea9f229c24f5ffd2027da360a29",
+      "thumbnail_path": "/review-assets/social-content/jev-youtube-long-form-thumbnail-cohort/DI0wC2d5m0w.jpg",
+      "performance_components": {
+        "channel_relative_percentile": 5.56,
+        "audience_view_percentile": 5.56,
+        "recency_rate_percentile": 27.78
+      },
+      "normalized_performance_score": 10,
+      "outlier_qualified": false,
+      "observed_at": "2026-10-19T22:30:00.000Z",
+      "decision": "included",
+      "link_status": "verified_openable",
+      "channel_baseline_size": 10,
+      "thumbnail_text": [
+        "Human Oversight in AI",
+        "Designing Accountability for High-Stakes Decisions"
+      ],
+      "thumbnail_text_transcription_status": "verified",
+      "title_thumbnail_relationship": "near_duplicate",
+      "thumbnail_text_length": 72,
+      "hook_type": "high_stakes_accountability",
+      "transcription_provenance": {
+        "source_thumbnail_url": "https://i.ytimg.com/vi/DI0wC2d5m0w/maxresdefault.jpg",
+        "captured_thumbnail_path": "/review-assets/social-content/jev-youtube-long-form-thumbnail-cohort/DI0wC2d5m0w.jpg",
+        "captured_thumbnail_sha256": "sha256:07cc5fbf4b48df95e235cb0e1a83ee451c5fcea9f229c24f5ffd2027da360a29",
+        "method": "human transcription from the captured public source image; unreadable text is not inferred"
+      },
+      "supports_candidate_composition": false,
+      "composition_support_reason": "Public thumbnail is comparison context only. First-party evidence controls subject, product proof, and brand treatment.",
+      "visual_traits": {
+        "dominant_subject": true,
+        "short_hook": false,
+        "high_contrast_text": true,
+        "minimal_secondary_copy": true
+      }
+    }
+  ],
+  "excluded": [],
+  "recurring_visual_traits": [
+    "one expressive human or one concrete decision-boundary object",
+    "large high-contrast governance tension readable before supporting detail",
+    "a visible relationship between the person and the decision system"
+  ],
+  "adopted_traits": [
+    "one dominant campaign-specific human hero",
+    "one-second topic comprehension",
+    "short large teaser copy distinct from the title",
+    "face-safe text placement with strong contrast",
+    "one simplified first-party Jev proof object subordinate to the hero"
+  ],
+  "rejected_traits": [
+    "dashboard or field-guide density",
+    "text-first lecture cards",
+    "generic robot, circuit-board, or synthetic office imagery",
+    "multi-head webinar grids and crude split screens",
+    "dark flat treatments with weak expression or no campaign-specific hero",
+    "copied source likenesses, layouts, wording, or brand colors"
+  ],
+  "composition_decision": "Use public examples only to bound the editorial pattern. Build the candidate from one first-party product idea, the exact distinct hook, AmaduTown treatment, and a 1280×720 16:9 canvas.",
+  "public_outlier_boundary": "Public thumbnails supply topic, copy-pair, recency, and normalized-performance context only. They do not authorize source likenesses, layouts, brand colors, or causal performance claims.",
+  "annotation_boundary": "Thumbnail text was transcribed from captured pixels. Unreadable text remains unreadable."
+}

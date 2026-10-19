@@ -11,31 +11,38 @@ function fileHash(publicPath: string) {
 describe('provider-free Social Content storyboard review', () => {
   const review = socialCampaignApprovedAdaptationQaProjection()
 
-  it('binds one provider-free 16:9 asset to each existing campaign identity and exact content inputs', () => {
+  it('binds exact provider-free 16:9 assets to each existing campaign identity and content input', () => {
     expect(review.adaptations).toHaveLength(2)
     for (const adaptation of review.adaptations) {
       const packet = adaptation.storyboard_review
-      expect(packet.assets).toHaveLength(1)
-      expect(packet.assets[0]).toMatchObject({
-        width: 1280,
-        height: 720,
-        aspect_ratio: '16:9',
-        provider: 'none',
-        review_only: true,
-        customer_facing: true,
-        approval_status: 'review_direction_only',
-        title_thumbnail_distinct: true,
-        logo_path: '/amadutown-logo-upscaled.png',
-        logo_aspect_ratio: 'natural_portrait',
-      })
-      expect(packet.assets[0].title).not.toBe(packet.assets[0].teaser)
-      expect(fileHash(packet.assets[0].public_path)).toBe(packet.assets[0].sha256)
+      expect(packet.assets).toHaveLength(packet.campaign_identity === 'jev' ? 2 : 1)
+      for (const asset of packet.assets) {
+        expect(asset).toMatchObject({
+          width: 1280,
+          height: 720,
+          aspect_ratio: '16:9',
+          provider: 'none',
+          review_only: true,
+          customer_facing: true,
+          approval_status: 'review_direction_only',
+          title_thumbnail_distinct: true,
+          logo_path: '/amadutown-logo-upscaled.png',
+          logo_aspect_ratio: 'natural_portrait',
+        })
+        expect(asset.title).not.toBe(asset.teaser)
+        expect(fileHash(asset.public_path)).toBe(asset.sha256)
+      }
       expect(packet.calendar_item_id).toBe(adaptation.calendar_item_id)
       expect(packet.social_content_id).toBe(adaptation.social_content_id)
       expect(packet.content_version).toBe(adaptation.current_content_version)
       expect(packet.script_input_version).toBe(adaptation.source_input_version)
       expect(new Set(Object.values(packet.external_gates))).toEqual(new Set([false]))
     }
+    const jev = review.adaptations.find((adaptation) => adaptation.storyboard_review.campaign_identity === 'jev')!.storyboard_review
+    expect(jev.hero_evidence).toMatchObject({ status: 'passed' })
+    expect(jev.assets.every((asset) => asset.hero_asset_id === jev.hero_evidence?.hero_asset.asset_id)).toBe(true)
+    expect(jev.assets.every((asset) => asset.feed_preview_path && asset.evidence_trace?.length === 6)).toBe(true)
+    expect(jev.assets.map((asset) => asset.teaser)).toEqual(['WHEN SHOULD AI STOP?', "THE SCORE ISN'T THE CALL"])
     expect(assetReceipt).toMatchObject({ provider_calls: 0, paid_media_generations: 0, external_writes: 0 })
   })
 
@@ -80,6 +87,7 @@ describe('provider-free Social Content storyboard review', () => {
     expect(jev.evidence_gates).toEqual(expect.arrayContaining([
       expect.objectContaining({ key: 'outlier', status: 'passed' }),
       expect.objectContaining({ key: 'description', status: 'blocked' }),
+      expect.objectContaining({ key: 'hero', status: 'passed' }),
       expect.objectContaining({ key: 'thumbnail', status: 'blocked' }),
       expect.objectContaining({ key: 'script', status: 'blocked' }),
       expect.objectContaining({ key: 'freshness', status: 'stale' }),
@@ -88,11 +96,12 @@ describe('provider-free Social Content storyboard review', () => {
     expect(darkCastle.evidence_gates).toEqual(expect.arrayContaining([
       expect.objectContaining({ key: 'outlier', status: 'passed' }),
       expect.objectContaining({ key: 'description', status: 'blocked' }),
+      expect.objectContaining({ key: 'hero', status: 'blocked' }),
       expect.objectContaining({ key: 'thumbnail', status: 'blocked' }),
       expect.objectContaining({ key: 'script', status: 'blocked' }),
       expect.objectContaining({ key: 'freshness', status: 'passed' }),
     ]))
     expect([...jev.recovery_actions, ...darkCastle.recovery_actions].every((action) => action.href.startsWith('/admin/social-content?workflow=evidence'))).toBe(true)
-    expect([...jev.evidence_gates, ...darkCastle.evidence_gates]).toHaveLength(20)
+    expect([...jev.evidence_gates, ...darkCastle.evidence_gates]).toHaveLength(22)
   })
 })

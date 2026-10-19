@@ -43,6 +43,73 @@ const userCuratedAiBusinessPreference = {
 
 const cohorts = [
   {
+    slug: 'jev-youtube-thumbnail-cohort-2026-10-19',
+    publicSlug: 'jev-youtube-long-form-thumbnail-cohort',
+    cohortId: 'cohort:youtube:ai-governance-human-decision:20261019:v1',
+    contentId: '939b01e3-d1af-42c8-805e-0379f09efd60',
+    contentVersion: 'sha256:392b3e2a92c5ab65e4cc93706571df761bac7ea38631bf06002fd6b89f3302a2',
+    decisionReceiptId: 'decision:thumbnail:jev:20261019:v1',
+    outputVersion: 'decision:jev:20261019:v1',
+    productProofReceiptId: 'sha256:7e123f1c11a156e86b36e0d2306ad1f42d97d3c63dac335588e804f6bc74f8e9',
+    compositionSignature: 'jev-curious-human|decision-boundary-card|short-question|hero-v1',
+    selectedComposition: 'expressive-human-decision-boundary',
+    preferenceSignals: [userCuratedAiBusinessPreference],
+    topicIdentity: 'ai_governance_human_decision_ownership',
+    candidates: [
+      ['zRMAvMSSSII', 'Same-topic agentic AI governance and human-oversight argument with current public metadata.'],
+      ['Q020C-Jw0o8', 'Same-topic AI governance explainer from a channel with an attributable long-form baseline.'],
+      ['BIPlhF0sXUc', 'Exact-topic AI-agent risk ownership and accountability discussion.'],
+      ['d-22oCIWSBQ', 'Exact-topic human oversight in AI decision-making explainer.'],
+      ['AyNe8KZYNGU', 'Same-topic rules-before-results governance explainer.'],
+      ['PUnCxppwDSs', 'Exact-topic human-in-the-loop decision-owner explainer.'],
+      ['WGDQoaoqR1U', 'Same-topic accountable AI governance explainer with a product-process visual.'],
+      ['DI0wC2d5m0w', 'Exact-topic high-stakes human oversight and accountability webinar.'],
+      ['mVD72s4hmIw', 'Same-topic AI adoption-to-governance explainer retained to test dense field-guide rejection.'],
+    ],
+    candidatePair: {
+      title: 'AI Scored It. Who Makes the Call?',
+      thumbnail_hook: 'WHEN SHOULD AI STOP?',
+      relationship: 'contrasting_question',
+      exact_strings_are_distinct: true,
+      strategy_status: 'review_only_unscored',
+      support_scope: 'editorial_hypothesis_only',
+      performance_claim: 'unscored',
+      rationale: 'The title names the scored event and decision owner. The thumbnail asks where model authority ends. Live examples support presenter-led decision tension and short governance hooks as bounded editorial patterns; they do not establish causal performance.',
+      source_example_video_ids: ['zRMAvMSSSII', 'Q020C-Jw0o8'],
+    },
+    annotations: {
+      zRMAvMSSSII: [["Human In The Loop Isn't Enough"], 'near_duplicate', 'human_oversight_limit'],
+      'Q020C-Jw0o8': [['Understanding AI Governance: Risks, Definitions and Regulations'], 'complementary_teaser', 'governance_scope'],
+      BIPlhF0sXUc: [['WHEN AI AGENTS MAKE DECISIONS: WHO OWNS THE RISKS, CONTROLS & ACCOUNTABILITY?'], 'near_duplicate', 'decision_ownership_question'],
+      'd-22oCIWSBQ': [['THE IMPORTANCE OF HUMAN OVERSIGHT IN AI DECISION-MAKING'], 'near_duplicate', 'human_oversight_label'],
+      AyNe8KZYNGU: [['RULES BEFORE RESULTS'], 'complementary_teaser', 'rules_before_results'],
+      PUnCxppwDSs: [['Who Should Be the Human in the Loop?', 'Choosing the right human for each intervention point'], 'near_duplicate', 'decision_owner_question'],
+      WGDQoaoqR1U: [[], 'no_thumbnail_text', 'human_policy_robot_process'],
+      DI0wC2d5m0w: [['Human Oversight in AI', 'Designing Accountability for High-Stakes Decisions'], 'near_duplicate', 'high_stakes_accountability'],
+      mVD72s4hmIw: [['From AI Adoption to AI Governance'], 'near_duplicate', 'dense_governance_field_guide'],
+    },
+    recurringVisualTraits: [
+      'one expressive human or one concrete decision-boundary object',
+      'large high-contrast governance tension readable before supporting detail',
+      'a visible relationship between the person and the decision system',
+    ],
+    adoptedTraits: [
+      'one dominant campaign-specific human hero',
+      'one-second topic comprehension',
+      'short large teaser copy distinct from the title',
+      'face-safe text placement with strong contrast',
+      'one simplified first-party Jev proof object subordinate to the hero',
+    ],
+    rejectedTraits: [
+      'dashboard or field-guide density',
+      'text-first lecture cards',
+      'generic robot, circuit-board, or synthetic office imagery',
+      'multi-head webinar grids and crude split screens',
+      'dark flat treatments with weak expression or no campaign-specific hero',
+      'copied source likenesses, layouts, wording, or brand colors',
+    ],
+  },
+  {
     slug: 'dark-castle-chess-youtube-thumbnail-cohort-2026-10-18',
     publicSlug: 'dark-castle-youtube-thumbnail-cohort',
     cohortId: 'cohort:youtube:chess-decision-learning:20261018:v1',
@@ -254,7 +321,7 @@ async function mapWithConcurrency(values, limit, mapper) {
   return output
 }
 
-for (const cohort of cohorts) {
+for (const cohort of cohorts.filter((candidate) => !process.env.COHORT_SLUG || candidate.slug === process.env.COHORT_SLUG)) {
   const outputRoot = path.resolve('artifacts/research', cohort.slug)
   const publicRoot = path.resolve('public/review-assets/social-content', cohort.publicSlug)
   await mkdir(outputRoot, { recursive: true })
@@ -466,7 +533,7 @@ for (const cohort of cohorts) {
     })),
   ]
   const decisionInput = {
-    content_version: contentVersion,
+    content_version: cohort.contentVersion ?? contentVersion,
     candidate_identity: {
       content_id: cohort.contentId,
       title: cohort.candidatePair.title,
@@ -492,7 +559,7 @@ for (const cohort of cohorts) {
     version: 'youtube-thumbnail-decision-receipt/v1',
     receipt_id: cohort.decisionReceiptId,
     route: 'social-content-outlier-decision/v1',
-    content_version: contentVersion,
+    content_version: cohort.contentVersion ?? contentVersion,
     input_version: `sha256:${deterministicSha256Hex(JSON.stringify(decisionInput))}`,
     output_version: cohort.outputVersion,
     ...decisionInput,

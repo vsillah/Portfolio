@@ -106,7 +106,7 @@ export function socialCampaignApprovedAdaptationQaProjection() {
       conclusion: 'A model score becomes useful when the surrounding system makes authority, exceptions, and evidence visible.',
       spoken_cta: 'Subscribe to AmaduTown for practical ways to decide where AI should stop and people should step in.',
       recovery_href: '/admin/social-content?workflow=evidence&campaign=jev',
-      value_summary: 'A source-bound storyboard turns the Jev field guide into a paced decision story: score, policy, human ownership, and a retained record. The provider-free thumbnail keeps the product proof dominant and the customer promise readable in one second.',
+      value_summary: 'A source-bound storyboard turns the Jev field guide into a paced decision story: score, policy, human ownership, and a retained record. The provider-free thumbnail gives the campaign a specific human hero, while the separate product proof substantiates the story.',
     },
   })
   const darkCastle = projectedAdaptation(darkCastleSource as SocialVideoAdaptationInput, {
