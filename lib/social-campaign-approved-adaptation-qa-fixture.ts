@@ -23,8 +23,9 @@ function projectedAdaptation(input: SocialVideoAdaptationInput, bindings: {
   calendar_item_id: string
   social_content_id: string
   current_content_version: string
-  binding_status: 'ready_for_human_review' | 'human_qa_rereview_required'
+  binding_status: 'source_ready_capture_pending' | 'human_qa_rereview_required'
   binding_note: string
+  timing_audio_note: string
 }) {
   const readiness = evaluateSocialVideoAdaptation(input)
   const packet = readiness.ready ? buildSocialVideoAdaptationPacket(input) : null
@@ -60,14 +61,16 @@ export function socialCampaignApprovedAdaptationQaProjection() {
     current_content_version: 'sha256:392b3e2a92c5ab65e4cc93706571df761bac7ea38631bf06002fd6b89f3302a2',
     binding_status: 'human_qa_rereview_required',
     binding_note: 'The current Social Content description is a different content version than this approved artifact adaptation. Keep the source storyboard visible for review, but require Human QA re-review against the current description before treating the campaign as ready.',
+    timing_audio_note: 'The prior 67-second motion and approved music/ducking receipts bind to the older adaptation input shown here. They do not transfer to the current Social Content hash; re-review timing, motion, and audio against the current description before any rendering decision.',
   })
   const darkCastle = projectedAdaptation(darkCastleSource as SocialVideoAdaptationInput, {
     product_label: 'Dark Castle Chess',
     calendar_item_id: '4070755c-7c46-4c3e-ac9b-94d35921556e',
     social_content_id: '21c492c2-9279-4e08-afc9-49207935a681',
     current_content_version: 'sha256:4d3bc63ebaeb1aed344d64ed15ebb0ff865772de48b48249526ccce0b2c02e9e',
-    binding_status: 'ready_for_human_review',
+    binding_status: 'source_ready_capture_pending',
     binding_note: 'The Social Content item is bound to this exact approved adaptation input version. Product claims remain limited to the three public gameplay captures and the passed source, privacy, rights, framework, challenger, and script-quality receipts.',
+    timing_audio_note: 'This source adaptation provides approved scene order and shot references, but this review projection has no current scene-timecode or audio-cue sheet. Keep timing and music/ducking unscored until an exact-input cue receipt is available.',
   })
   return {
     fixture: SOCIAL_CAMPAIGN_APPROVED_ADAPTATION_QA_FIXTURE,

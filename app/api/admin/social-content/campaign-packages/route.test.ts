@@ -73,7 +73,7 @@ describe('campaign review package route', () => {
     const body = await response.json()
     expect(body.approved_adaptation_review.adaptations.map((item: any) => [item.social_content_id, item.current_content_version, item.source_input_version, item.status])).toEqual([
       ['939b01e3-d1af-42c8-805e-0379f09efd60', 'sha256:392b3e2a92c5ab65e4cc93706571df761bac7ea38631bf06002fd6b89f3302a2', 'sha256:e6fc9ae4aadd61e3a871e8f7af2dd0a2d424d5c20ae6a8d0eac861b16e796bd5', 'human_qa_rereview_required'],
-      ['21c492c2-9279-4e08-afc9-49207935a681', 'sha256:4d3bc63ebaeb1aed344d64ed15ebb0ff865772de48b48249526ccce0b2c02e9e', 'sha256:4d3bc63ebaeb1aed344d64ed15ebb0ff865772de48b48249526ccce0b2c02e9e', 'ready_for_human_review'],
+      ['21c492c2-9279-4e08-afc9-49207935a681', 'sha256:4d3bc63ebaeb1aed344d64ed15ebb0ff865772de48b48249526ccce0b2c02e9e', 'sha256:4d3bc63ebaeb1aed344d64ed15ebb0ff865772de48b48249526ccce0b2c02e9e', 'source_ready_capture_pending'],
     ])
     expect(body.approved_adaptation_review.adaptations.every((item: any) => item.source_readiness.ready && item.scenes.length >= 9 && item.evidence_assets.length > 0)).toBe(true)
     expect(body.approved_adaptation_review.blocked_items).toHaveLength(3)
