@@ -1,7 +1,7 @@
 {
   "version": "kicklab-typography-review-evidence/v1",
-  "reviewed_commit": "fdc0cf75",
-  "route": "http://127.0.0.1:3210/admin/social-content?campaignQa=campaign-package-preparation-v1&rev=fdc0cf75",
+  "reviewed_commit": "3c2c1d72",
+  "route": "http://127.0.0.1:3210/admin/social-content?campaignQa=campaign-package-preparation-v1&rev=3c2c1d72",
   "fixture": "campaign-package-preparation-v1 (synthetic local fixture)",
   "visual_batch": {
     "total": 12,
@@ -13,17 +13,19 @@
   "observed_states": [
     "Raster thumbnail is visible as a review direction only.",
     "Typography style evidence is Unscored; zero-weight topic/audience comparables are context-only, while approval requires at least four performance-weight-1 matched-style examples and a normalized cohort result.",
-    "Public audit inspected seven exact How Ridiculous videos: zero of four style matches and zero eligible baseline videos in the inspected sample; the normalized result remains null.",
-    "Nearest lettering examples use outlined/condensed display type and include sponsorship/ad promotion; recent baseline candidates include paid, gifted-product, hosted-travel, or out-of-window exclusions.",
+    "Expanded read-only public audit screened nine channels across sports science, physics education, youth STEM, and gameplay learning; zero of four exact-style matches and the normalized result remains null.",
+    "Five current Khan Academy AP Physics uploads are eligible as same-channel baseline candidates; their rounded/heavy sentence-case lesson lettering is recorded as a style non-match, so no candidate cohort is inferred.",
+    "Eleven exact candidate records include public watch URLs, thumbnail URLs, publish/capture dates, views, duration, promotion status, type observations, and exclusion reasons; the original How Ridiculous exclusions remain preserved.",
     "Recovery action is visible; package readiness warning explicitly separates package inputs from thumbnail approval.",
     "Visual and external provider gates remain closed; no production, platform, upload, scheduling, publishing, external write, or external-send action was performed."
   ],
   "public_evidence_audit": {
-    "channel": "How Ridiculous",
-    "channel_sample_size": 7,
+    "channels_screened": 9,
+    "candidate_videos": 11,
+    "eligible_same_channel_baseline_observed": 5,
+    "eligible_same_channel_baseline_median_30_day_views": 53950,
     "matched_style_observed": 0,
     "matched_style_required": 4,
-    "eligible_same_channel_baseline_observed": 0,
     "eligible_same_channel_baseline_required": 4,
     "normalization_result": null,
     "verdict": "unscored",
@@ -58,17 +60,19 @@
   ],
   "permitted_external_use": "Portfolio Supabase Auth session validation only; provider, campaign, and publishing origins remain blocked.",
   "external_writes": 0,
-  "desktop_video_source": "artifacts/human-qa/social-campaign-typography-review-2026-10-19/71da63755186f78422594936a62c7454.webm",
+  "desktop_video_source": "artifacts/human-qa/social-campaign-typography-review-2026-10-19/2d08ede9538cf1ffa1f8a4d0184cc2f4.webm",
   "desktop_video_mp4": "artifacts/human-qa/social-campaign-typography-review-2026-10-19/social-campaign-typography-review.mp4",
   "screenshots": [
     "desktop-1440-initial.png",
     "desktop-1440-kicklab-review.png",
     "desktop-1440-typography-receipt.png",
-    "desktop-1440-public-evidence-audit.png",
-    "desktop-1440-public-evidence-audit-conclusion.png",
+    "desktop-1440-expanded-channel-scan.png",
+    "desktop-1440-expanded-candidate-examples.png",
     "tablet-768-kicklab-review.png",
     "tablet-768-typography-receipt.png",
+    "tablet-768-expanded-candidate-examples.png",
     "mobile-390-kicklab-review.png",
-    "mobile-390-typography-receipt.png"
+    "mobile-390-typography-receipt.png",
+    "mobile-390-expanded-candidate-examples.png"
   ]
 }
