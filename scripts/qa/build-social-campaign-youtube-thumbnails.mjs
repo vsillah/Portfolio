@@ -8,7 +8,8 @@ const root = process.cwd()
 const outputRoot = path.resolve(root, 'public/review-assets/social-content/youtube-packaging')
 const sourceProofRoot = path.resolve(root, 'public/review-assets/social-content/source-proof')
 const logoPath = path.resolve(root, 'public/amadutown-logo-upscaled.png')
-const batchIdentity = 'social-campaign-youtube:20261018:v5'
+const displayFontPath = path.resolve(root, 'public/fonts/inter-latin-variable.ttf')
+const batchIdentity = 'social-campaign-youtube:20261018:v6'
 const tasteReceiptPath = path.resolve(root, 'artifacts/research/youtube-thumbnail-taste-reference-2026-10-18/receipt.json')
 
 function requiredIdentityRemix(prefix, campaignKey, publicFilename) {
@@ -53,11 +54,11 @@ const jobs = [
   {
     id: 'dark-castle',
     decisionReceiptPath: path.resolve(root, 'artifacts/research/dark-castle-chess-youtube-thumbnail-cohort-2026-10-18/thumbnail-decision-receipt.json'),
-    briefPath: path.resolve(root, 'artifacts/research/dark-castle-chess-youtube-thumbnail-cohort-2026-10-18/thumbnail-generation-brief-v5.json'),
-    preflightPath: path.resolve(root, 'artifacts/research/dark-castle-chess-youtube-thumbnail-cohort-2026-10-18/thumbnail-generation-preflight-v5.json'),
-    qualityReceiptPath: path.resolve(root, 'artifacts/research/dark-castle-chess-youtube-thumbnail-cohort-2026-10-18/thumbnail-final-quality-v5.json'),
-    inspectionReceiptPath: path.resolve(root, 'artifacts/research/dark-castle-chess-youtube-thumbnail-cohort-2026-10-18/thumbnail-post-generation-inspection-v5.json'),
-    expectedDecisionReceiptId: 'decision:thumbnail:dark-castle:20261018:v4',
+    briefPath: path.resolve(root, 'artifacts/research/dark-castle-chess-youtube-thumbnail-cohort-2026-10-18/thumbnail-generation-brief-v6.json'),
+    preflightPath: path.resolve(root, 'artifacts/research/dark-castle-chess-youtube-thumbnail-cohort-2026-10-18/thumbnail-generation-preflight-v6.json'),
+    qualityReceiptPath: path.resolve(root, 'artifacts/research/dark-castle-chess-youtube-thumbnail-cohort-2026-10-18/thumbnail-final-quality-v6.json'),
+    inspectionReceiptPath: path.resolve(root, 'artifacts/research/dark-castle-chess-youtube-thumbnail-cohort-2026-10-18/thumbnail-post-generation-inspection-v6.json'),
+    expectedDecisionReceiptId: 'decision:thumbnail:dark-castle:20261018:v5',
     expectedCohortId: 'cohort:youtube:chess-decision-learning:20261018:v1',
     sourcePath: path.resolve(root, 'public/review-assets/social-content/dark-castle-customer-facing-poster.png'),
     sourcePublicPath: '/review-assets/social-content/dark-castle-customer-facing-poster.png',
@@ -68,16 +69,16 @@ const jobs = [
     hook: ['REMEMBER THE WHY'],
     hookExact: 'REMEMBER THE WHY',
     accent: '#F5C518',
-    output: 'dark-castle-remember-the-why-v5.png',
+    output: 'dark-castle-remember-the-why-v6.png',
     receipt: 'dark-castle-thumbnail-selection-receipt.json',
     composition: {
       version: 'youtube-thumbnail-composition/v1',
-      layout_family: 'navy-teacher-gold-decision',
-      dominant_subject: 'Expressive Vambah teacher in a clean bordered card pointing toward one gold-framed owned chess decision',
-      focal_hierarchy: ['expressive pointing teacher', 'three-word near-white and gold hook', 'gold-framed owned board proof'],
-      text_placement: 'upper right on a solid ink field outside the inspected face-clearance box',
+      layout_family: 'integrated-chess-decision-scene',
+      dominant_subject: 'Expressive Vambah teacher inside one shared studio atmosphere, pointing along a curved gold path to the owned chess decision',
+      focal_hierarchy: ['expressive pointing teacher', 'treated WHY display hook', 'integrated owned board proof'],
+      text_placement: 'upper right within the shared atmosphere and outside the inspected face-clearance box',
       batch_identity: batchIdentity,
-      composition_signature: 'teacher-card-left|navy-hook-top-right|gold-board-proof-bottom-right|polished-v5',
+      composition_signature: 'shared-chess-studio|gesture-arc-to-board|display-hook-depth|cohesive-v6',
       exception_basis: 'none',
       exception_receipt_ids: [],
     },
@@ -85,11 +86,11 @@ const jobs = [
   {
     id: 'ai-audit',
     decisionReceiptPath: path.resolve(root, 'artifacts/research/ai-audit-calculator-youtube-thumbnail-cohort-2026-10-18/thumbnail-decision-receipt.json'),
-    briefPath: path.resolve(root, 'artifacts/research/ai-audit-calculator-youtube-thumbnail-cohort-2026-10-18/thumbnail-generation-brief-v5.json'),
-    preflightPath: path.resolve(root, 'artifacts/research/ai-audit-calculator-youtube-thumbnail-cohort-2026-10-18/thumbnail-generation-preflight-v5.json'),
-    qualityReceiptPath: path.resolve(root, 'artifacts/research/ai-audit-calculator-youtube-thumbnail-cohort-2026-10-18/thumbnail-final-quality-v5.json'),
-    inspectionReceiptPath: path.resolve(root, 'artifacts/research/ai-audit-calculator-youtube-thumbnail-cohort-2026-10-18/thumbnail-post-generation-inspection-v5.json'),
-    expectedDecisionReceiptId: 'decision:thumbnail:ai-audit:20261018:v4',
+    briefPath: path.resolve(root, 'artifacts/research/ai-audit-calculator-youtube-thumbnail-cohort-2026-10-18/thumbnail-generation-brief-v6.json'),
+    preflightPath: path.resolve(root, 'artifacts/research/ai-audit-calculator-youtube-thumbnail-cohort-2026-10-18/thumbnail-generation-preflight-v6.json'),
+    qualityReceiptPath: path.resolve(root, 'artifacts/research/ai-audit-calculator-youtube-thumbnail-cohort-2026-10-18/thumbnail-final-quality-v6.json'),
+    inspectionReceiptPath: path.resolve(root, 'artifacts/research/ai-audit-calculator-youtube-thumbnail-cohort-2026-10-18/thumbnail-post-generation-inspection-v6.json'),
+    expectedDecisionReceiptId: 'decision:thumbnail:ai-audit:20261018:v5',
     expectedCohortId: 'cohort:youtube:ai-cost-audit-roi:20261018:v1',
     sourcePath: path.resolve(root, 'public/audit_calculator_img.png'),
     sourcePublicPath: '/review-assets/social-content/source-proof/ai-audit-calculator.png',
@@ -100,17 +101,17 @@ const jobs = [
     hook: ['WHO OWNS', 'THE CLEANUP?'],
     hookExact: 'WHO OWNS THE CLEANUP?',
     accent: '#E0B52F',
-    output: 'ai-audit-who-owns-the-cleanup-v5.png',
+    output: 'ai-audit-who-owns-the-cleanup-v6.png',
     receipt: 'ai-audit-thumbnail-selection-receipt.json',
     stageSourceAs: path.resolve(sourceProofRoot, 'ai-audit-calculator.png'),
     composition: {
       version: 'youtube-thumbnail-composition/v1',
-      layout_family: 'ink-auditor-cyan-score',
-      dominant_subject: 'Wide-eyed Vambah audit reaction in a cyan-bordered card facing one gold-framed owned 5/10 result',
-      focal_hierarchy: ['four-word near-white accountability question', 'expressive audit reaction', 'gold-framed owned 5/10 score proof'],
-      text_placement: 'upper left on a solid ink field',
+      layout_family: 'integrated-audit-cleanup-scene',
+      dominant_subject: 'Wide-eyed Vambah reaction inside one shared office atmosphere, presenting the integrated owned 5/10 result',
+      focal_hierarchy: ['expressive audit reaction', 'treated CLEANUP display question', 'integrated owned 5/10 score proof'],
+      text_placement: 'upper left within the shared atmosphere and outside the inspected face-clearance box',
       batch_identity: batchIdentity,
-      composition_signature: 'dark-copy-left|gold-score-left|cyan-reaction-right|polished-v5',
+      composition_signature: 'shared-audit-office|gesture-curve-to-score|display-question-depth|cohesive-v6',
       exception_basis: 'none',
       exception_receipt_ids: [],
     },
@@ -147,42 +148,57 @@ function assertCanonicalInputs(job, decision) {
 
 function darkCastleOverlay(job) {
   return Buffer.from(`<svg width="1280" height="720" xmlns="http://www.w3.org/2000/svg">
-    <rect width="1280" height="720" fill="#061426"/>
-    <rect x="656" y="0" width="624" height="720" fill="#0B3D91"/>
-    <rect x="24" y="24" width="608" height="672" rx="28" fill="none" stroke="${job.accent}" stroke-width="8"/>
-    <rect x="696" y="54" width="118" height="12" rx="6" fill="${job.accent}"/>
-    <text x="696" y="146" fill="#F8FAFC" font-family="Arial, Helvetica, sans-serif" font-size="70" font-weight="900" letter-spacing="-3">REMEMBER</text>
-    <text x="696" y="230" fill="${job.accent}" font-family="Arial, Helvetica, sans-serif" font-size="82" font-weight="900" letter-spacing="-4">THE WHY</text>
-    <rect x="696" y="316" width="520" height="336" rx="24" fill="#F8FAFC" stroke="${job.accent}" stroke-width="10"/>
-    <rect x="720" y="340" width="472" height="288" rx="14" fill="none" stroke="#061426" stroke-width="6"/>
-    <circle cx="1004" cy="466" r="55" fill="none" stroke="${job.accent}" stroke-width="12"/>
+    <defs>
+      <linearGradient id="shade" x1="0" x2="1"><stop offset="0" stop-color="#061426" stop-opacity=".08"/><stop offset=".52" stop-color="#061426" stop-opacity=".42"/><stop offset="1" stop-color="#061426" stop-opacity=".96"/></linearGradient>
+      <filter id="shadow"><feGaussianBlur stdDeviation="8"/></filter>
+      <style>@font-face{font-family:PortfolioDisplay;src:url('file://${displayFontPath}') format('truetype');font-weight:100 900}.display{font-family:PortfolioDisplay,sans-serif;font-weight:900}</style>
+    </defs>
+    <rect width="1280" height="720" fill="url(#shade)"/>
+    <ellipse cx="1005" cy="535" rx="250" ry="142" fill="${job.accent}" opacity=".18" filter="url(#shadow)"/>
+    <path d="M575 438 C705 420 710 540 845 515" fill="none" stroke="#061426" stroke-width="24" opacity=".62"/>
+    <path d="M575 438 C705 420 710 540 845 515" fill="none" stroke="${job.accent}" stroke-width="11" stroke-linecap="round"/>
+    <path d="M823 494 L856 514 L824 533" fill="none" stroke="${job.accent}" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="678" y="134" fill="#061426" opacity=".55" class="display" font-size="72" letter-spacing="-4" transform="translate(5 7)">REMEMBER</text>
+    <text x="678" y="134" fill="#F8FAFC" class="display" font-size="72" letter-spacing="-4">REMEMBER</text>
+    <rect x="672" y="160" width="430" height="102" rx="20" fill="#061426" opacity=".72" transform="rotate(-2 672 160)"/>
+    <text x="694" y="240" fill="${job.accent}" class="display" font-size="92" letter-spacing="-6" transform="rotate(-2 694 240)">THE WHY</text>
+    <path d="M700 260 Q892 282 1080 252" fill="none" stroke="${job.accent}" stroke-width="10" stroke-linecap="round"/>
   </svg>`)
 }
 
 function aiAuditOverlay(job) {
-  const lines = job.hook.map((line, index) => `<tspan x="58" dy="${index === 0 ? 0 : 76}">${escapeXml(line)}</tspan>`).join('')
   return Buffer.from(`<svg width="1280" height="720" xmlns="http://www.w3.org/2000/svg">
-    <rect width="1280" height="720" fill="#061426"/>
-    <rect x="704" y="0" width="576" height="720" fill="#00B8D9"/>
-    <rect x="720" y="22" width="538" height="676" rx="28" fill="none" stroke="${job.accent}" stroke-width="8"/>
-    <rect x="58" y="62" width="118" height="12" rx="6" fill="${job.accent}"/>
-    <text x="58" y="178" fill="#F8FAFC" font-family="Arial, Helvetica, sans-serif" font-size="76" font-weight="900" letter-spacing="-3">${lines}</text>
-    <text x="62" y="464" fill="${job.accent}" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="900" letter-spacing="2">REAL AUDIT RESULT</text>
-    <rect x="54" y="484" width="600" height="182" rx="22" fill="#F8FAFC" stroke="${job.accent}" stroke-width="10"/>
-    <rect x="76" y="506" width="556" height="138" rx="12" fill="none" stroke="#061426" stroke-width="5"/>
+    <defs>
+      <linearGradient id="shade" x1="0" x2="1"><stop offset="0" stop-color="#061426" stop-opacity=".9"/><stop offset=".55" stop-color="#061426" stop-opacity=".5"/><stop offset="1" stop-color="#00B8D9" stop-opacity=".06"/></linearGradient>
+      <filter id="shadow"><feGaussianBlur stdDeviation="9"/></filter>
+      <style>@font-face{font-family:PortfolioDisplay;src:url('file://${displayFontPath}') format('truetype');font-weight:100 900}.display{font-family:PortfolioDisplay,sans-serif;font-weight:900}</style>
+    </defs>
+    <rect width="1280" height="720" fill="url(#shade)"/>
+    <ellipse cx="382" cy="550" rx="290" ry="130" fill="#00B8D9" opacity=".2" filter="url(#shadow)"/>
+    <path d="M834 544 C735 612 688 548 600 548" fill="none" stroke="#061426" stroke-width="24" opacity=".64"/>
+    <path d="M834 544 C735 612 688 548 600 548" fill="none" stroke="${job.accent}" stroke-width="11" stroke-linecap="round"/>
+    <path d="M624 525 L590 548 L623 570" fill="none" stroke="${job.accent}" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="63" y="166" fill="#000" opacity=".55" class="display" font-size="78" letter-spacing="-4" transform="translate(5 7)">${escapeXml(job.hook[0])}</text>
+    <text x="58" y="166" fill="#F8FAFC" class="display" font-size="78" letter-spacing="-4">${escapeXml(job.hook[0])}</text>
+    <rect x="48" y="178" width="585" height="92" rx="18" fill="#00B8D9" opacity=".88" transform="rotate(-2 48 178)"/>
+    <text x="58" y="250" fill="#061426" class="display" font-size="82" letter-spacing="-5" transform="rotate(-2 58 250)">THE CLEANUP?</text>
+    <path d="M60 274 Q310 302 566 268" fill="none" stroke="${job.accent}" stroke-width="10" stroke-linecap="round"/>
+    <text x="84" y="444" fill="${job.accent}" class="display" font-size="22" letter-spacing="2">REAL AUDIT RESULT</text>
   </svg>`)
 }
 
 async function renderThumbnail(job, outputPath) {
   const logo = await sharp(logoPath).resize({ height: job.id === 'dark-castle' ? 76 : 68 }).png().toBuffer()
   if (job.id === 'dark-castle') {
-    const identity = await sharp(job.identityRemix.imagePath).resize(600, 664, { fit: 'cover', position: 'attention' }).modulate({ brightness: 1.06, saturation: 1.16 }).sharpen().png().toBuffer()
-    const board = await sharp(job.sourcePath).extract({ left: 238, top: 298, width: 505, height: 505 }).resize(472, 288, { fit: 'cover' }).modulate({ brightness: 1.02, saturation: 1.35 }).sharpen().png().toBuffer()
-    await sharp({ create: { width: 1280, height: 720, channels: 4, background: '#061426' } })
+    const background = await sharp(job.identityRemix.imagePath).resize(1280, 720, { fit: 'cover' }).blur(16).modulate({ brightness: .62, saturation: 1.35 }).png().toBuffer()
+    const identityMask = Buffer.from('<svg width="760" height="720"><defs><linearGradient id="f"><stop offset="0" stop-color="white"/><stop offset=".78" stop-color="white"/><stop offset="1" stop-color="white" stop-opacity="0"/></linearGradient></defs><rect width="760" height="720" fill="url(#f)"/></svg>')
+    const identity = await sharp(job.identityRemix.imagePath).resize(760, 720, { fit: 'cover', position: 'attention' }).modulate({ brightness: 1.05, saturation: 1.12 }).sharpen().ensureAlpha().composite([{ input: identityMask, blend: 'dest-in' }]).png().toBuffer()
+    const board = await sharp(job.sourcePath).extract({ left: 238, top: 298, width: 505, height: 505 }).resize(410, 250, { fit: 'cover' }).modulate({ brightness: 1.02, saturation: 1.35 }).extend({ top: 12, bottom: 12, left: 12, right: 12, background: job.accent }).rotate(-5, { background: { r: 0, g: 0, b: 0, alpha: 0 } }).sharpen().png().toBuffer()
+    await sharp(background)
       .composite([
+        { input: identity, left: 0, top: 0 },
         { input: darkCastleOverlay(job), left: 0, top: 0 },
-        { input: identity, left: 28, top: 28 },
-        { input: board, left: 720, top: 340 },
+        { input: board, left: 820, top: 390 },
         { input: logo, left: 1180, top: 620 },
       ])
       .png({ compressionLevel: 9 })
@@ -190,13 +206,15 @@ async function renderThumbnail(job, outputPath) {
     return
   }
 
-  const portrait = await sharp(job.identityRemix.imagePath).resize(530, 668, { fit: 'cover', position: 'attention' }).modulate({ brightness: 1.07, saturation: 1.15 }).sharpen().png().toBuffer()
-  const calculator = await sharp(job.sourcePath).extract({ left: 35, top: 410, width: 650, height: 150 }).resize(556, 138, { fit: 'cover' }).modulate({ saturation: 1.18 }).sharpen().png().toBuffer()
-  await sharp({ create: { width: 1280, height: 720, channels: 4, background: '#061426' } })
+  const background = await sharp(job.identityRemix.imagePath).resize(1280, 720, { fit: 'cover' }).blur(18).modulate({ brightness: .78, saturation: 1.3 }).png().toBuffer()
+  const portraitMask = Buffer.from('<svg width="700" height="720"><defs><linearGradient id="f"><stop offset="0" stop-color="white" stop-opacity="0"/><stop offset=".2" stop-color="white"/><stop offset="1" stop-color="white"/></linearGradient></defs><rect width="700" height="720" fill="url(#f)"/></svg>')
+  const portrait = await sharp(job.identityRemix.imagePath).resize(700, 720, { fit: 'cover', position: 'attention' }).modulate({ brightness: 1.06, saturation: 1.12 }).sharpen().ensureAlpha().composite([{ input: portraitMask, blend: 'dest-in' }]).png().toBuffer()
+  const calculator = await sharp(job.sourcePath).extract({ left: 35, top: 410, width: 650, height: 150 }).resize(500, 116, { fit: 'cover' }).modulate({ saturation: 1.18 }).extend({ top: 12, bottom: 12, left: 12, right: 12, background: job.accent }).rotate(3, { background: { r: 0, g: 0, b: 0, alpha: 0 } }).sharpen().png().toBuffer()
+  await sharp(background)
     .composite([
+      { input: portrait, left: 580, top: 0 },
       { input: aiAuditOverlay(job), left: 0, top: 0 },
-      { input: portrait, left: 724, top: 26 },
-      { input: calculator, left: 76, top: 506 },
+      { input: calculator, left: 74, top: 478 },
       { input: logo, left: 1180, top: 622 },
     ])
     .png({ compressionLevel: 9 })
@@ -236,9 +254,9 @@ for (const job of jobs) {
     continue
   }
   const receipt = {
-    version: 'youtube-thumbnail-selection/v5',
-    receipt_id: `thumbnail:${job.id}:youtube-long-form:20261018:v5`,
-    supersedes_failed_receipt_id: `thumbnail:${job.id}:youtube-long-form:20261018:v4`,
+    version: 'youtube-thumbnail-selection/v6',
+    receipt_id: `thumbnail:${job.id}:youtube-long-form:20261018:v6`,
+    supersedes_failed_receipt_id: `thumbnail:${job.id}:youtube-long-form:20261018:v5`,
     decision_receipt_id: decision.receipt_id,
     decision_input_version: decision.input_version,
     decision_output_version: decision.output_version,
@@ -261,8 +279,8 @@ for (const job of jobs) {
       performance_status: signal.performance_status,
     })),
     selection_rationale: job.id === 'dark-castle'
-      ? 'A crisp cobalt and ink composition separates the expressive teacher, three-word hook, and gold-framed owned board proof. Public examples bind taste only and carry zero performance weight.'
-      : 'A crisp ink and cyan composition separates the near-white ownership question, expressive audit reaction, and gold-framed owned score proof. Public examples bind taste only and carry zero performance weight.',
+      ? 'One shared chess-studio atmosphere connects the expressive teacher, treated WHY hook, curved gesture path, and overlapping owned board proof. Public examples bind taste only and carry zero performance weight.'
+      : 'One shared audit-office atmosphere connects the expressive reaction, treated CLEANUP question, curved presenting path, and overlapping owned score proof. Public examples bind taste only and carry zero performance weight.',
     first_party_source: { label: job.sourceLabel, artifact_url: job.sourcePublicPath, receipt_id: job.sourceReceipt, rights_status: 'owned_product_proof' },
     first_party_supporting_sources: [{
       label: `Fresh HeyGen Pro identity remix for ${job.id === 'dark-castle' ? 'Dark Castle Chess' : 'AI Audit Calculator'}`,

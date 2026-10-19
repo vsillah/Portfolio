@@ -21,6 +21,8 @@ function baseEvidence() {
     face_prominence: { target_area_ratio: 0.2 }, dominant_focal_point: 'expressive person', title_copy_contrast: { title: 'A Different Long Title', thumbnail: 'LOOK HERE', relationship: 'adds tension' },
     product_proof: { receipt_id: 'sha256:proof' }, one_second_read: { status: 'pass' }, feed_size_plan: { width: 320, height: 180, minimum_font_px_at_1280: 60 },
     color_polish_plan: { dominant_field: 'cyan', accent_family: 'gold', contrast_field: 'ink', subject_separation: 'peach against cyan', product_separation: 'cream against ink', background_complexity: 'solid field' },
+    cohesive_composition_plan: { background_model: 'shared_atmosphere', hard_full_height_divider: false, isolated_card_pair: false, mechanisms: ['gesture_to_proof', 'overlap_depth'], spatial_relationship: 'gesture connects subject and proof' },
+    typography_polish_plan: { font_asset: 'public/fonts/inter-latin-variable.ttf', treatment: 'heavy display shadow', emphasized_keyword: 'HERE', emphasis_treatment: 'gold slab', feed_contrast_target: 4.5 },
     evidence_bindings: { decision_receipt_id: 'decision:test:v4', decision_input_version: 'sha256:decision', decision_output_version: 'decision:test:v4', live_cohort_id: 'cohort:test', playlist_receipt_id: 'taste:test', playlist_input_version: 'sha256:taste' },
     provider: { name: 'heygen_pro', model: 'heygen-image-1', mode: 'identity_remix', identity_url: 'https://example.com/id', reference_url: 'https://example.com/ref', new_call_authorized: false },
   }
@@ -43,13 +45,15 @@ async function finalReceipt(overrides: Record<string, unknown> = {}, variant: Va
   const { decision, brief } = baseEvidence()
   const metrics = await analyzeThumbnailRaster(outputPath)
   const spatial = await analyzeSpatialLayout(outputPath)
-  const tasteReceipt = { receipt_id: 'taste:test', input_version: 'sha256:taste', status: 'ready', references: [{ metrics, spatial_layout: spatial }] }
+  const tasteReceipt = { receipt_id: 'taste:test', input_version: 'sha256:taste', status: 'ready', references: [{ metrics, spatial_layout: spatial, composition_typography_coding: { overall_cohesion_decision: 'cohesive' } }] }
   const inspection = {
     version: 'youtube-thumbnail-post-generation-inspection/v1', receipt_id: 'inspection:test:v5', status: 'passed', inspection_source: 'independent_post_render_visual_inspection', campaign_id: 'test', content_version: 'v5',
     source_image_sha256: sha256(readFileSync(sourceImagePath)), final_output_sha256: sha256(readFileSync(outputPath)), feed_preview_sha256: sha256(readFileSync(feedPreviewPath)),
     face_assessment: { method: 'post_render_visual_inspection/v1', area_ratio: 0.2, visible_eye_count: 2, eyes_unobstructed: true, expression_label: 'wide-eyed expressive surprise', campaign_relevance: 'The reaction explains the decision tension.' },
     feed_copy_inspection: { method: 'rendered_320x180_visual_transcription', legible: true, transcribed_text: 'LOOK HERE' },
     feed_focal_hierarchy: { status: 'passed', ordered_roles: ['hook', 'subject', 'proof'] },
+    cohesive_composition_assessment: { status: 'passed', background_model: 'shared_atmosphere', equal_split: false, hard_full_height_divider: false, isolated_card_pair: false, mechanisms: ['gesture_to_proof', 'overlap_depth'], spatial_relationship_mechanism: 'gesture connects subject and proof' },
+    typography_polish_assessment: { status: 'passed', font_asset_sha256: 'sha256:font', display_treatment: 'heavy display shadow', hierarchy: ['LOOK', 'HERE'], emphasized_keyword: 'HERE', emphasis_treatment: 'gold slab', feed_size_contrast_passed: true },
     color_polish_regions: {
       foreground: { x: 820, y: 120, width: 100, height: 100 }, background: { x: 200, y: 300, width: 220, height: 100 },
       text_foreground: { x: 80, y: 100, width: 100, height: 100 }, text_panel_background: { x: 200, y: 250, width: 100, height: 40 },
@@ -76,9 +80,15 @@ describe('YouTube thumbnail v5 fail-closed color-polish contract', () => {
   it('rejects weak text contrast', async () => expect((await finalReceipt({}, 'weak-text')).failures).toContain('text-panel contrast is too weak'))
   it('rejects low subject separation', async () => expect((await finalReceipt({}, 'low-subject')).failures).toContain('subject/background separation is too weak'))
   it('rejects a busy background', async () => expect((await finalReceipt({}, 'busy')).failures).toContain('background is visually busy'))
+  it('rejects a rigid equal split', async () => expect((await finalReceipt({ cohesive_composition_assessment: { status: 'passed', background_model: 'shared_atmosphere', equal_split: true, hard_full_height_divider: false, isolated_card_pair: false, mechanisms: ['gesture_to_proof', 'overlap_depth'], spatial_relationship_mechanism: 'gesture' } })).failures).toContain('cohesive-composition gate is missing, rigid, or unsupported'))
+  it('rejects a full-height divider', async () => expect((await finalReceipt({ cohesive_composition_assessment: { status: 'passed', background_model: 'shared_atmosphere', equal_split: false, hard_full_height_divider: true, isolated_card_pair: false, mechanisms: ['gesture_to_proof', 'overlap_depth'], spatial_relationship_mechanism: 'gesture' } })).status).toBe('blocked'))
+  it('rejects disconnected backgrounds', async () => expect((await finalReceipt({ cohesive_composition_assessment: { status: 'passed', background_model: 'disconnected_panels', equal_split: false, hard_full_height_divider: false, isolated_card_pair: false, mechanisms: ['gesture_to_proof', 'overlap_depth'], spatial_relationship_mechanism: 'gesture' } })).status).toBe('blocked'))
+  it('rejects no cohesion mechanism', async () => expect((await finalReceipt({ cohesive_composition_assessment: { status: 'passed', background_model: 'shared_atmosphere', equal_split: false, hard_full_height_divider: false, isolated_card_pair: false, mechanisms: [], spatial_relationship_mechanism: null } })).status).toBe('blocked'))
+  it('rejects plain default typography', async () => expect((await finalReceipt({ typography_polish_assessment: { status: 'passed', font_asset_sha256: 'sha256:font', display_treatment: 'plain default', hierarchy: ['LOOK'], emphasized_keyword: 'HERE', emphasis_treatment: 'gold', feed_size_contrast_passed: true } })).status).toBe('blocked'))
+  it('rejects absent keyword emphasis', async () => expect((await finalReceipt({ typography_polish_assessment: { status: 'passed', font_asset_sha256: 'sha256:font', display_treatment: 'heavy display', hierarchy: ['LOOK'], emphasized_keyword: '', emphasis_treatment: '', feed_size_contrast_passed: true } })).status).toBe('blocked'))
   it('blocks stale live topic evidence before generation', () => {
     const { decision, brief } = baseEvidence(); decision.live_evidence.fresh_until = '2020-01-01T00:00:00.000Z'
-    const tasteReceipt = { receipt_id: 'taste:test', input_version: 'sha256:taste', status: 'ready', references: [{}] }
+    const tasteReceipt = { receipt_id: 'taste:test', input_version: 'sha256:taste', status: 'ready', references: [{ composition_typography_coding: { overall_cohesion_decision: 'cohesive' } }] }
     expect(validateGenerationBrief({ brief, decision, tasteReceipt }).failures).toContain('live topic outlier evidence is missing or stale')
   })
 })

@@ -111,7 +111,8 @@ function summarizePixels(sample) {
     const l = (0.2126 * linear[0]) + (0.7152 * linear[1]) + (0.0722 * linear[2])
     luminance[index] = l
     luminanceTotal += l
-    saturationTotal += Math.max(r, g, b) - Math.min(r, g, b)
+    const maximum = Math.max(r, g, b)
+    saturationTotal += maximum === 0 ? 0 : (maximum - Math.min(r, g, b)) / maximum
   }
   let edgeTotal = 0
   for (let y = 1; y < height; y += 1) {
@@ -161,7 +162,7 @@ export async function analyzeColorPolish(input, regions) {
     const key = `${data[offset] >> 5}-${data[offset + 1] >> 5}-${data[offset + 2] >> 5}`
     quantized.set(key, (quantized.get(key) ?? 0) + 1)
   }
-  const minimumCount = (data.length / info.channels) * 0.01
+  const minimumCount = (data.length / info.channels) * 0.015
   const controlledPaletteCount = [...quantized.values()].filter((count) => count >= minimumCount).length
   return {
     region_summaries: summaries,
@@ -205,6 +206,8 @@ export function validateGenerationBrief({ brief, decision, tasteReceipt, now = D
     ['title-copy contrast', brief.title_copy_contrast?.relationship],
     ['product proof', brief.product_proof?.receipt_id],
     ['color polish plan', brief.color_polish_plan?.dominant_field],
+    ['cohesive composition plan', brief.cohesive_composition_plan?.background_model],
+    ['typography polish plan', brief.typography_polish_plan?.font_asset],
   ]
   for (const [label, value] of requiredText) if (!value) failures.push(`missing ${label}`)
   const words = String(brief.teaser_copy ?? '').trim().split(/\s+/).filter(Boolean)
@@ -222,9 +225,14 @@ export function validateGenerationBrief({ brief, decision, tasteReceipt, now = D
   const preference = decision.user_preference_signals?.[0]
   if (!preference || preference.performance_weight !== 0 || preference.evidence_role !== 'taste_calibration_only' || preference.performance_status !== 'unscored') failures.push('playlist crossed the taste-calibration-only boundary')
   if (binding.playlist_receipt_id !== tasteReceipt.receipt_id || binding.playlist_input_version !== tasteReceipt.input_version || tasteReceipt.status !== 'ready' || tasteReceipt.references?.length !== preference?.item_identities?.length) failures.push('playlist visual reference receipt is missing or stale')
+  if ((tasteReceipt.references ?? []).some((reference) => !reference.composition_typography_coding?.overall_cohesion_decision)) failures.push('playlist composition and typography coding is incomplete')
   if (brief.provider?.name !== 'heygen_pro' || brief.provider?.model !== 'heygen-image-1' || brief.provider?.mode !== 'identity_remix' || !brief.provider?.identity_url || !brief.provider?.reference_url) failures.push('HeyGen provider binding is incomplete')
   if (brief.provider?.new_call_authorized !== false) failures.push('provider-call gate is not explicitly closed')
   if (!brief.color_polish_plan?.accent_family || !brief.color_polish_plan?.contrast_field || !brief.color_polish_plan?.subject_separation || !brief.color_polish_plan?.product_separation || !brief.color_polish_plan?.background_complexity) failures.push('color-polish plan is incomplete')
+  const cohesion = brief.cohesive_composition_plan
+  if (cohesion?.background_model !== 'shared_atmosphere' || cohesion?.hard_full_height_divider !== false || cohesion?.isolated_card_pair !== false || cohesion?.mechanisms?.length < 2 || !cohesion?.spatial_relationship) failures.push('cohesive-composition plan is incomplete or rigid')
+  const typography = brief.typography_polish_plan
+  if (!typography?.font_asset || /Arial|Helvetica|system/i.test(typography?.font_asset) || !typography?.treatment || !typography?.emphasized_keyword || !typography?.emphasis_treatment || typography?.feed_contrast_target < 4.5) failures.push('typography-polish plan is incomplete or basic')
   return { status: failures.length === 0 ? 'passed' : 'blocked', failures, teaser_word_count: words.length }
 }
 
@@ -263,6 +271,10 @@ export async function buildFinalQualityReceipt({ brief, decision, tasteReceipt, 
   if (colorPolish.controlled_palette_count < QUALITY_THRESHOLDS.controlled_palette_min || colorPolish.controlled_palette_count > QUALITY_THRESHOLDS.controlled_palette_max) failures.push('palette is not sufficiently controlled')
   if (colorPolish.background_edge_density > QUALITY_THRESHOLDS.background_edge_density_max) failures.push('background is visually busy')
   if (inspectionReceipt?.feed_focal_hierarchy?.status !== 'passed' || inspectionReceipt?.feed_focal_hierarchy?.ordered_roles?.length < 3) failures.push('feed-size focal hierarchy inspection is missing or failed')
+  const cohesion = inspectionReceipt?.cohesive_composition_assessment
+  if (cohesion?.status !== 'passed' || cohesion?.background_model !== 'shared_atmosphere' || cohesion?.equal_split !== false || cohesion?.hard_full_height_divider !== false || cohesion?.isolated_card_pair !== false || cohesion?.mechanisms?.length < 2 || !cohesion?.spatial_relationship_mechanism) failures.push('cohesive-composition gate is missing, rigid, or unsupported')
+  const typography = inspectionReceipt?.typography_polish_assessment
+  if (typography?.status !== 'passed' || !typography?.font_asset_sha256 || /plain|default|basic/i.test(typography?.display_treatment ?? '') || !typography?.hierarchy?.length || !typography?.emphasized_keyword || !typography?.emphasis_treatment || typography?.feed_size_contrast_passed !== true) failures.push('typography-polish gate is missing or basic')
   if (faceAssessment?.area_ratio < QUALITY_THRESHOLDS.face_area_ratio_min || faceAssessment?.area_ratio > QUALITY_THRESHOLDS.face_area_ratio_max) failures.push('face prominence is outside the accepted range')
   if (faceAssessment?.visible_eye_count !== QUALITY_THRESHOLDS.visible_eye_count || faceAssessment?.eyes_unobstructed !== true) failures.push('both eyes are not clearly visible')
   if (!faceAssessment?.expression_label || /neutral|calm|reserved/i.test(faceAssessment.expression_label) || faceAssessment?.campaign_relevance?.length < 12) failures.push('facial expression is neutral or not campaign-relevant')

@@ -1,13 +1,13 @@
 {
-  "version": "youtube-thumbnail-selection/v5",
-  "receipt_id": "thumbnail:ai-audit:youtube-long-form:20261018:v5",
-  "supersedes_failed_receipt_id": "thumbnail:ai-audit:youtube-long-form:20261018:v4",
-  "decision_receipt_id": "decision:thumbnail:ai-audit:20261018:v4",
-  "decision_input_version": "sha256:4a0a679572287fffb6503bb92eb7e27ee018714faf8ac8d82b079da417fdb53e",
+  "version": "youtube-thumbnail-selection/v6",
+  "receipt_id": "thumbnail:ai-audit:youtube-long-form:20261018:v6",
+  "supersedes_failed_receipt_id": "thumbnail:ai-audit:youtube-long-form:20261018:v5",
+  "decision_receipt_id": "decision:thumbnail:ai-audit:20261018:v5",
+  "decision_input_version": "sha256:6be5f1163e68d6ebf36326da7b1cae08ebbee92c8fe5798a7339e5292153ec8c",
   "decision_output_version": "decision:ai-audit:20261018:v4",
-  "content_version": "2026-10-18T22:42:00.000Z",
+  "content_version": "2026-10-18T23:57:00.000Z",
   "cohort_id": "cohort:youtube:ai-cost-audit-roi:20261018:v1",
-  "observed_at": "2026-10-18T22:42:00.000Z",
+  "observed_at": "2026-10-18T23:57:00.000Z",
   "title": "The AI Cost That Never Appears on the Invoice",
   "thumbnail_hook": "WHO OWNS THE CLEANUP?",
   "target": {
@@ -63,7 +63,7 @@
       "performance_status": "unscored"
     }
   ],
-  "selection_rationale": "A crisp ink and cyan composition separates the near-white ownership question, expressive audit reaction, and gold-framed owned score proof. Public examples bind taste only and carry zero performance weight.",
+  "selection_rationale": "One shared audit-office atmosphere connects the expressive reaction, treated CLEANUP question, curved presenting path, and overlapping owned score proof. Public examples bind taste only and carry zero performance weight.",
   "first_party_source": {
     "label": "AI Audit Calculator result screen",
     "artifact_url": "/review-assets/social-content/source-proof/ai-audit-calculator.png",
@@ -99,217 +99,217 @@
   },
   "composition": {
     "version": "youtube-thumbnail-composition/v1",
-    "layout_family": "ink-auditor-cyan-score",
-    "dominant_subject": "Wide-eyed Vambah audit reaction in a cyan-bordered card facing one gold-framed owned 5/10 result",
+    "layout_family": "integrated-audit-cleanup-scene",
+    "dominant_subject": "Wide-eyed Vambah reaction inside one shared office atmosphere, presenting the integrated owned 5/10 result",
     "focal_hierarchy": [
-      "four-word near-white accountability question",
       "expressive audit reaction",
-      "gold-framed owned 5/10 score proof"
+      "treated CLEANUP display question",
+      "integrated owned 5/10 score proof"
     ],
-    "text_placement": "upper left on a solid ink field",
-    "batch_identity": "social-campaign-youtube:20261018:v5",
-    "composition_signature": "dark-copy-left|gold-score-left|cyan-reaction-right|polished-v5",
+    "text_placement": "upper left within the shared atmosphere and outside the inspected face-clearance box",
+    "batch_identity": "social-campaign-youtube:20261018:v6",
+    "composition_signature": "shared-audit-office|gesture-curve-to-score|display-question-depth|cohesive-v6",
     "exception_basis": "none",
     "exception_receipt_ids": []
   },
   "generation_preflight": {
-    "receipt_id": "preflight:ai-audit:youtube-thumbnail:2026-10-18T22:42:00.000Z:v1",
+    "receipt_id": "preflight:ai-audit:youtube-thumbnail:2026-10-18T23:57:00.000Z:v1",
     "status": "passed",
-    "brief_input_version": "sha256:2b8ea57b4b685e3fae3b0811d8395ebfef682d91e4357e64485c223020610847"
+    "brief_input_version": "sha256:1f72c7adee055d27c2f761372705bf5b70b8d8855462a6baf43d5f1784d6fbf1"
   },
   "final_quality_gate": {
-    "receipt_id": "quality:ai-audit:youtube-thumbnail:2026-10-18T22:42:00.000Z:v1",
+    "receipt_id": "quality:ai-audit:youtube-thumbnail:2026-10-18T23:57:00.000Z:v1",
     "status": "passed",
-    "output_sha256": "sha256:b6c040485fd01e31744accbf8094fc585c86e165f531667aecffcbac043812af",
-    "feed_preview_sha256": "sha256:3058ab8a1ac38f496a61a9c75c937d529aff68c4a00ce3c2a7101cb84d6d8ba0",
-    "inspection_receipt_id": "inspection:ai-audit:youtube-thumbnail:20261018:v5",
+    "output_sha256": "sha256:e05e215d55117ebddbe26e891a4f85479823ca41767126cb419b92405aa9755d",
+    "feed_preview_sha256": "sha256:30101ba4f22029ee1e63e07013b1cef09633e1a8c4c64e60886f2dd965ac75d4",
+    "inspection_receipt_id": "inspection:ai-audit:youtube-thumbnail:20261018:v6",
     "metrics": {
       "sample_width": 320,
       "sample_height": 180,
-      "brightness": 0.3695,
-      "saturation": 0.1913,
-      "local_contrast": 0.321,
-      "edge_density": 0.0404,
-      "vibrancy": 0.1762
+      "brightness": 0.3636,
+      "saturation": 0.1868,
+      "local_contrast": 0.2031,
+      "edge_density": 0.0318,
+      "vibrancy": 0.15
     },
     "playlist_visual_similarity": {
-      "score": 0.8849,
+      "score": 0.912,
       "method": "top_quartile_spatial_palette_similarity/v2",
       "sample_count": 14,
       "individual_scores": [
-        0.8479,
-        0.7818,
-        0.7243,
-        0.8917,
-        0.8183,
-        0.9123,
-        0.7396,
-        0.68,
-        0.7544,
-        0.8877,
-        0.7563,
-        0.7401,
-        0.7859,
-        0.7965
+        0.9299,
+        0.8979,
+        0.8458,
+        0.8421,
+        0.8924,
+        0.928,
+        0.8364,
+        0.8057,
+        0.8674,
+        0.7235,
+        0.8208,
+        0.8357,
+        0.6524,
+        0.8575
       ]
     },
     "color_polish": {
       "region_summaries": {
         "foreground": {
           "mean_rgb": [
-            0.9304,
-            0.6947,
-            0.5944
+            0.5959,
+            0.5397,
+            0.5094
           ],
-          "luminance": 0.5419,
-          "saturation": 0.3373,
-          "edge_density": 0.0375
+          "luminance": 0.2749,
+          "saturation": 0.1653,
+          "edge_density": 0.0199
         },
         "background": {
           "mean_rgb": [
-            0.0235,
-            0.0784,
-            0.149
+            0.1378,
+            0.1949,
+            0.2212
           ],
-          "luminance": 0.0068,
-          "saturation": 0.1255,
-          "edge_density": 0
+          "luminance": 0.0298,
+          "saturation": 0.3791,
+          "edge_density": 0.0003
         },
         "text_foreground": {
           "mean_rgb": [
-            0.5794,
-            0.6067,
-            0.6405
+            0.636,
+            0.6513,
+            0.6685
           ],
-          "luminance": 0.5455,
-          "saturation": 0.0612,
-          "edge_density": 0.0559
+          "luminance": 0.5844,
+          "saturation": 0.1715,
+          "edge_density": 0.0696
         },
         "text_panel_background": {
           "mean_rgb": [
-            0.0371,
-            0.0914,
-            0.1611
+            0.2494,
+            0.2309,
+            0.2494
           ],
-          "luminance": 0.0199,
-          "saturation": 0.1239,
-          "edge_density": 0.0015
+          "luminance": 0.0468,
+          "saturation": 0.2862,
+          "edge_density": 0.0005
         },
         "subject": {
           "mean_rgb": [
-            0.9304,
-            0.6947,
-            0.5944
+            0.5959,
+            0.5397,
+            0.5094
           ],
-          "luminance": 0.5419,
-          "saturation": 0.3373,
-          "edge_density": 0.0375
+          "luminance": 0.2749,
+          "saturation": 0.1653,
+          "edge_density": 0.0199
         },
         "subject_background": {
           "mean_rgb": [
-            0.251,
-            0.7182,
-            0.6605
+            0.2072,
+            0.5988,
+            0.4561
           ],
-          "luminance": 0.4209,
-          "saturation": 0.8062,
-          "edge_density": 0.0038
+          "luminance": 0.2745,
+          "saturation": 0.7217,
+          "edge_density": 0.0086
         },
         "product_proof": {
           "mean_rgb": [
-            0.087,
-            0.1321,
-            0.1947
+            0.0996,
+            0.1444,
+            0.2064
           ],
-          "luminance": 0.0357,
-          "saturation": 0.1077,
-          "edge_density": 0.0149
+          "luminance": 0.0451,
+          "saturation": 0.6313,
+          "edge_density": 0.0195
         },
         "product_background": {
           "mean_rgb": [
-            0.9524,
-            0.9224,
-            0.816
+            0.8902,
+            0.7059,
+            0
           ],
-          "luminance": 0.8544,
-          "saturation": 0.1611,
-          "edge_density": 0.0178
+          "luminance": 0.4897,
+          "saturation": 1,
+          "edge_density": 0
         },
         "dominant_field": {
           "mean_rgb": [
-            0.251,
-            0.7182,
-            0.6605
+            0.2072,
+            0.5988,
+            0.4561
           ],
-          "luminance": 0.4209,
-          "saturation": 0.8062,
-          "edge_density": 0.0038
+          "luminance": 0.2745,
+          "saturation": 0.7217,
+          "edge_density": 0.0086
         },
         "accent": {
           "mean_rgb": [
-            0.8784,
-            0.7098,
-            0.1843
+            0.8902,
+            0.7059,
+            0
           ],
-          "luminance": 0.491,
-          "saturation": 0.6941,
+          "luminance": 0.4897,
+          "saturation": 1,
           "edge_density": 0
         }
       },
-      "foreground_background_distance": 0.6833,
-      "text_panel_contrast_ratio": 8.52,
-      "subject_background_distance": 0.3943,
-      "product_background_distance": 0.7658,
-      "dominant_field_saturation": 0.8062,
-      "accent_saturation": 0.6941,
-      "background_edge_density": 0,
-      "controlled_palette_count": 13
+      "foreground_background_distance": 0.3705,
+      "text_panel_contrast_ratio": 6.55,
+      "subject_background_distance": 0.2291,
+      "product_background_distance": 0.5724,
+      "dominant_field_saturation": 0.7217,
+      "accent_saturation": 1,
+      "background_edge_density": 0.0003,
+      "controlled_palette_count": 15
     },
     "spatial_layout": {
       "quadrants": [
         {
           "mean_rgb": [
-            0.1308,
-            0.1776,
-            0.2376
+            0.2001,
+            0.3308,
+            0.3768
           ],
-          "luminance": 0.097,
-          "saturation": 0.115,
-          "edge_density": 0.0503
+          "luminance": 0.1334,
+          "saturation": 0.5003,
+          "edge_density": 0.0432
         },
         {
           "mean_rgb": [
-            0.5539,
-            0.6688,
-            0.6679
+            0.4291,
+            0.5772,
+            0.6082
           ],
-          "luminance": 0.5027,
-          "saturation": 0.2979,
-          "edge_density": 0.0434
+          "luminance": 0.3163,
+          "saturation": 0.336,
+          "edge_density": 0.0266
         },
         {
           "mean_rgb": [
-            0.1841,
-            0.217,
-            0.2414
+            0.1881,
+            0.2332,
+            0.2222
           ],
-          "luminance": 0.12,
-          "saturation": 0.1435,
-          "edge_density": 0.0343
+          "luminance": 0.0691,
+          "saturation": 0.5472,
+          "edge_density": 0.0208
         },
         {
           "mean_rgb": [
-            0.4108,
-            0.4655,
-            0.4106
+            0.3154,
+            0.3954,
+            0.3784
           ],
-          "luminance": 0.2211,
-          "saturation": 0.2089,
-          "edge_density": 0.0329
+          "luminance": 0.1304,
+          "saturation": 0.2992,
+          "edge_density": 0.0173
         }
       ],
-      "mean_adjacent_color_separation": 0.2279,
-      "luminance_range": 0.4057
+      "mean_adjacent_color_separation": 0.1681,
+      "luminance_range": 0.2472
     },
     "face_assessment": {
       "method": "post_render_visual_inspection/v1",
@@ -317,7 +317,7 @@
       "visible_eye_count": 2,
       "eyes_unobstructed": true,
       "expression_label": "wide-eyed open-mouth surprise with an emphatic presenting gesture",
-      "campaign_relevance": "The reaction makes the hidden cleanup cost feel immediate and points back to the owned score proof."
+      "campaign_relevance": "The reaction and presenting hand connect the ownership question to the hidden-work score."
     },
     "feed_copy_inspection": {
       "method": "rendered_320x180_visual_transcription",
@@ -326,17 +326,17 @@
     }
   },
   "output": {
-    "artifact_url": "/review-assets/social-content/youtube-packaging/ai-audit-who-owns-the-cleanup-v5.png",
+    "artifact_url": "/review-assets/social-content/youtube-packaging/ai-audit-who-owns-the-cleanup-v6.png",
     "width": 1280,
     "height": 720,
     "aspect_ratio": "16:9",
-    "sha256": "sha256:b6c040485fd01e31744accbf8094fc585c86e165f531667aecffcbac043812af"
+    "sha256": "sha256:e05e215d55117ebddbe26e891a4f85479823ca41767126cb419b92405aa9755d"
   },
   "feed_size_preview": {
-    "artifact_url": "/review-assets/social-content/youtube-packaging/ai-audit-who-owns-the-cleanup-v5-feed-320x180.png",
+    "artifact_url": "/review-assets/social-content/youtube-packaging/ai-audit-who-owns-the-cleanup-v6-feed-320x180.png",
     "width": 320,
     "height": 180,
-    "sha256": "sha256:3058ab8a1ac38f496a61a9c75c937d529aff68c4a00ce3c2a7101cb84d6d8ba0",
+    "sha256": "sha256:30101ba4f22029ee1e63e07013b1cef09633e1a8c4c64e60886f2dd965ac75d4",
     "status": "passed"
   },
   "provider_generation": {

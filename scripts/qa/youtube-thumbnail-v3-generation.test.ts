@@ -16,7 +16,7 @@ const selections = [
   JSON.parse(readFileSync(path.join(root, 'artifacts/research/ai-audit-calculator-youtube-thumbnail-cohort-2026-10-18/ai-audit-thumbnail-selection-receipt.json'), 'utf8')),
 ]
 
-describe('YouTube thumbnail v5 generation contract', () => {
+describe('YouTube thumbnail v6 generation contract', () => {
   it('keeps both live decisions canonically fingerprinted and playlist calibration at zero performance weight', () => {
     for (const decision of decisions) {
       const { version: _version, receipt_id: _receiptId, route: _route, input_version: inputVersion, output_version: _outputVersion, selection: _selection, ...canonicalInput } = decision
@@ -56,11 +56,11 @@ describe('YouTube thumbnail v5 generation contract', () => {
     expect(result.stderr).toContain('fresh preflight-approved HeyGen Pro identity remix is required')
   })
 
-  it('binds each final v5 output to a distinct fresh HeyGen primary and passing color-polish inspection', () => {
+  it('binds each final v6 output to a distinct fresh HeyGen primary and passing cohesive color-polish inspection', () => {
     for (const selection of selections) {
-      expect(selection.version).toBe('youtube-thumbnail-selection/v5')
-      expect(selection.receipt_id).toMatch(/^thumbnail:.+:youtube-long-form:20261018:v5$/)
-      expect(selection.supersedes_failed_receipt_id).toMatch(/:v4$/)
+      expect(selection.version).toBe('youtube-thumbnail-selection/v6')
+      expect(selection.receipt_id).toMatch(/^thumbnail:.+:youtube-long-form:20261018:v6$/)
+      expect(selection.supersedes_failed_receipt_id).toMatch(/:v5$/)
       expect(selection.identity_remix_rotation).toMatchObject({ provider: 'heygen_pro', included_credit_count: 1 })
       expect(selection.identity_remix_rotation.primary.source_url).toMatch(/^https:\/\/dynamic\.heygen\.ai\//)
       expect(selection.identity_remix_rotation.primary.role).toBe('selected_primary')

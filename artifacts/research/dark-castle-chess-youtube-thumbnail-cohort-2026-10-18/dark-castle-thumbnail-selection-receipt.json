@@ -1,13 +1,13 @@
 {
-  "version": "youtube-thumbnail-selection/v5",
-  "receipt_id": "thumbnail:dark-castle:youtube-long-form:20261018:v5",
-  "supersedes_failed_receipt_id": "thumbnail:dark-castle:youtube-long-form:20261018:v4",
-  "decision_receipt_id": "decision:thumbnail:dark-castle:20261018:v4",
-  "decision_input_version": "sha256:f8c45b1d0e4a369498b560489b576d7c4732a8e50518646a157a799a50bd4b20",
+  "version": "youtube-thumbnail-selection/v6",
+  "receipt_id": "thumbnail:dark-castle:youtube-long-form:20261018:v6",
+  "supersedes_failed_receipt_id": "thumbnail:dark-castle:youtube-long-form:20261018:v5",
+  "decision_receipt_id": "decision:thumbnail:dark-castle:20261018:v5",
+  "decision_input_version": "sha256:9edcf72d79d1216fda4c4d477b432fc2fe48ea8f62b9b3f5cdbfac088b8274a8",
   "decision_output_version": "decision:dark-castle:20261018:v4",
-  "content_version": "2026-10-18T22:42:00.000Z",
+  "content_version": "2026-10-18T23:57:00.000Z",
   "cohort_id": "cohort:youtube:chess-decision-learning:20261018:v1",
-  "observed_at": "2026-10-18T22:42:00.000Z",
+  "observed_at": "2026-10-18T23:57:00.000Z",
   "title": "I Rebuilt the Chess Lesson Around the Decision",
   "thumbnail_hook": "REMEMBER THE WHY",
   "target": {
@@ -62,7 +62,7 @@
       "performance_status": "unscored"
     }
   ],
-  "selection_rationale": "A crisp cobalt and ink composition separates the expressive teacher, three-word hook, and gold-framed owned board proof. Public examples bind taste only and carry zero performance weight.",
+  "selection_rationale": "One shared chess-studio atmosphere connects the expressive teacher, treated WHY hook, curved gesture path, and overlapping owned board proof. Public examples bind taste only and carry zero performance weight.",
   "first_party_source": {
     "label": "Dark Castle gameplay proof",
     "artifact_url": "/review-assets/social-content/dark-castle-customer-facing-poster.png",
@@ -98,217 +98,217 @@
   },
   "composition": {
     "version": "youtube-thumbnail-composition/v1",
-    "layout_family": "navy-teacher-gold-decision",
-    "dominant_subject": "Expressive Vambah teacher in a clean bordered card pointing toward one gold-framed owned chess decision",
+    "layout_family": "integrated-chess-decision-scene",
+    "dominant_subject": "Expressive Vambah teacher inside one shared studio atmosphere, pointing along a curved gold path to the owned chess decision",
     "focal_hierarchy": [
       "expressive pointing teacher",
-      "three-word near-white and gold hook",
-      "gold-framed owned board proof"
+      "treated WHY display hook",
+      "integrated owned board proof"
     ],
-    "text_placement": "upper right on a solid ink field outside the inspected face-clearance box",
-    "batch_identity": "social-campaign-youtube:20261018:v5",
-    "composition_signature": "teacher-card-left|navy-hook-top-right|gold-board-proof-bottom-right|polished-v5",
+    "text_placement": "upper right within the shared atmosphere and outside the inspected face-clearance box",
+    "batch_identity": "social-campaign-youtube:20261018:v6",
+    "composition_signature": "shared-chess-studio|gesture-arc-to-board|display-hook-depth|cohesive-v6",
     "exception_basis": "none",
     "exception_receipt_ids": []
   },
   "generation_preflight": {
-    "receipt_id": "preflight:dark-castle:youtube-thumbnail:2026-10-18T22:42:00.000Z:v1",
+    "receipt_id": "preflight:dark-castle:youtube-thumbnail:2026-10-18T23:57:00.000Z:v1",
     "status": "passed",
-    "brief_input_version": "sha256:46c4e5f3bee7963b55bf12e7e3c9232c07e700f2dc25ed718829d8fa69a8bc44"
+    "brief_input_version": "sha256:caa01e9bede13643ed2d4878ab8414bd2a86340a41a859f2345b4352b150f49b"
   },
   "final_quality_gate": {
-    "receipt_id": "quality:dark-castle:youtube-thumbnail:2026-10-18T22:42:00.000Z:v1",
+    "receipt_id": "quality:dark-castle:youtube-thumbnail:2026-10-18T23:57:00.000Z:v1",
     "status": "passed",
-    "output_sha256": "sha256:6469a126ba57a4d49d04f267ca8b53328fc20cc567c12743bec14f0bc9911d1f",
-    "feed_preview_sha256": "sha256:bc14397b61d65d4bec6f5e1ce0a67927ea8b2b4cc27a4d810233fee99f0d7851",
-    "inspection_receipt_id": "inspection:dark-castle:youtube-thumbnail:20261018:v5",
+    "output_sha256": "sha256:51ad6c02ca7b716e187e1629ad0f2e11de082fb8af7edb4e8dec393adc863eac",
+    "feed_preview_sha256": "sha256:9826e1418202109dae82106c841f8e851300a905c39e029eedc76d0c18417bfa",
+    "inspection_receipt_id": "inspection:dark-castle:youtube-thumbnail:20261018:v6",
     "metrics": {
       "sample_width": 320,
       "sample_height": 180,
-      "brightness": 0.474,
-      "saturation": 0.3311,
-      "local_contrast": 0.2874,
-      "edge_density": 0.0477,
-      "vibrancy": 0.2938
+      "brightness": 0.378,
+      "saturation": 0.219,
+      "local_contrast": 0.2726,
+      "edge_density": 0.0422,
+      "vibrancy": 0.1911
     },
     "playlist_visual_similarity": {
-      "score": 0.8957,
+      "score": 0.9262,
       "method": "top_quartile_spatial_palette_similarity/v2",
       "sample_count": 14,
       "individual_scores": [
-        0.8914,
-        0.9357,
-        0.8106,
-        0.8253,
-        0.8687,
-        0.868,
-        0.8278,
-        0.7315,
-        0.8568,
-        0.7301,
-        0.8064,
-        0.8223,
-        0.6274,
-        0.887
+        0.9299,
+        0.9175,
+        0.8691,
+        0.8323,
+        0.8999,
+        0.9512,
+        0.8291,
+        0.8229,
+        0.9045,
+        0.714,
+        0.8461,
+        0.8587,
+        0.6364,
+        0.9062
       ]
     },
     "color_polish": {
       "region_summaries": {
         "foreground": {
           "mean_rgb": [
-            0.9114,
-            0.6361,
-            0.553
+            0.6806,
+            0.4941,
+            0.4343
           ],
-          "luminance": 0.4826,
-          "saturation": 0.3711,
-          "edge_density": 0.045
+          "luminance": 0.2623,
+          "saturation": 0.3703,
+          "edge_density": 0.0191
         },
         "background": {
           "mean_rgb": [
-            0.0431,
-            0.2392,
-            0.5686
+            0.016,
+            0.0935,
+            0.228
           ],
-          "luminance": 0.0545,
-          "saturation": 0.5255,
+          "luminance": 0.0098,
+          "saturation": 0.9291,
           "edge_density": 0
         },
         "text_foreground": {
           "mean_rgb": [
-            0.7012,
-            0.7641,
-            0.8658
+            0.4705,
+            0.5334,
+            0.6556
           ],
-          "luminance": 0.68,
-          "saturation": 0.1646,
-          "edge_density": 0.0449
+          "luminance": 0.451,
+          "saturation": 0.4959,
+          "edge_density": 0.0497
         },
         "text_panel_background": {
           "mean_rgb": [
-            0.0431,
-            0.2392,
-            0.5686
+            0.0157,
+            0.098,
+            0.2372
           ],
-          "luminance": 0.0545,
-          "saturation": 0.5255,
+          "luminance": 0.0105,
+          "saturation": 0.9336,
           "edge_density": 0
         },
         "subject": {
           "mean_rgb": [
-            0.9114,
-            0.6361,
-            0.553
+            0.6806,
+            0.4941,
+            0.4343
           ],
-          "luminance": 0.4826,
-          "saturation": 0.3711,
-          "edge_density": 0.045
+          "luminance": 0.2623,
+          "saturation": 0.3703,
+          "edge_density": 0.0191
         },
         "subject_background": {
           "mean_rgb": [
-            0,
-            0.3096,
-            0.7619
+            0.0372,
+            0.23,
+            0.5141
           ],
-          "luminance": 0.0952,
-          "saturation": 0.7619,
-          "edge_density": 0.001
+          "luminance": 0.0481,
+          "saturation": 0.9255,
+          "edge_density": 0.0005
         },
         "product_proof": {
           "mean_rgb": [
-            0.8427,
-            0.735,
-            0.6073
+            0.8441,
+            0.7377,
+            0.6107
           ],
-          "luminance": 0.5753,
-          "saturation": 0.2353,
-          "edge_density": 0.0175
+          "luminance": 0.5788,
+          "saturation": 0.305,
+          "edge_density": 0.0189
         },
         "product_background": {
           "mean_rgb": [
-            0.0431,
-            0.2392,
-            0.5686
+            0.1565,
+            0.1904,
+            0.1507
           ],
-          "luminance": 0.0545,
-          "saturation": 0.5255,
-          "edge_density": 0
+          "luminance": 0.0301,
+          "saturation": 0.3779,
+          "edge_density": 0.0005
         },
         "dominant_field": {
           "mean_rgb": [
-            0.0431,
-            0.2392,
-            0.5686
+            0.016,
+            0.0935,
+            0.228
           ],
-          "luminance": 0.0545,
-          "saturation": 0.5255,
+          "luminance": 0.0098,
+          "saturation": 0.9291,
           "edge_density": 0
         },
         "accent": {
           "mean_rgb": [
-            0.9608,
-            0.7725,
-            0.0941
+            0.5065,
+            0.4448,
+            0.1547
           ],
-          "luminance": 0.5941,
-          "saturation": 0.8667,
-          "edge_density": 0
+          "luminance": 0.3059,
+          "saturation": 0.8935,
+          "edge_density": 0.0229
         }
       },
-      "foreground_background_distance": 0.5513,
-      "text_panel_contrast_ratio": 6.99,
-      "subject_background_distance": 0.5718,
-      "product_background_distance": 0.5437,
-      "dominant_field_saturation": 0.5255,
-      "accent_saturation": 0.8667,
+      "foreground_background_distance": 0.4636,
+      "text_panel_contrast_ratio": 8.28,
+      "subject_background_distance": 0.4042,
+      "product_background_distance": 0.5727,
+      "dominant_field_saturation": 0.9291,
+      "accent_saturation": 0.8935,
       "background_edge_density": 0,
-      "controlled_palette_count": 14
+      "controlled_palette_count": 16
     },
     "spatial_layout": {
       "quadrants": [
         {
           "mean_rgb": [
-            0.4872,
-            0.526,
-            0.5597
+            0.4209,
+            0.4601,
+            0.5041
           ],
-          "luminance": 0.3628,
-          "saturation": 0.3615,
-          "edge_density": 0.0683
+          "luminance": 0.2629,
+          "saturation": 0.4723,
+          "edge_density": 0.0404
         },
         {
           "mean_rgb": [
-            0.2163,
-            0.3523,
-            0.5556
+            0.1397,
+            0.2073,
+            0.3036
           ],
-          "luminance": 0.1761,
-          "saturation": 0.464,
-          "edge_density": 0.05
+          "luminance": 0.0929,
+          "saturation": 0.8318,
+          "edge_density": 0.0412
         },
         {
           "mean_rgb": [
-            0.4978,
-            0.4638,
-            0.3926
+            0.4059,
+            0.3941,
+            0.3686
           ],
-          "luminance": 0.251,
-          "saturation": 0.1844,
-          "edge_density": 0.0408
+          "luminance": 0.1689,
+          "saturation": 0.244,
+          "edge_density": 0.0225
         },
         {
           "mean_rgb": [
-            0.5783,
-            0.5703,
-            0.5694
+            0.5093,
+            0.4595,
+            0.3496
           ],
-          "luminance": 0.4077,
-          "saturation": 0.3145,
-          "edge_density": 0.0532
+          "luminance": 0.2996,
+          "saturation": 0.4323,
+          "edge_density": 0.0584
         }
       ],
-      "mean_adjacent_color_separation": 0.1652,
-      "luminance_range": 0.2316
+      "mean_adjacent_color_separation": 0.1664,
+      "luminance_range": 0.2067
     },
     "face_assessment": {
       "method": "post_render_visual_inspection/v1",
@@ -316,7 +316,7 @@
       "visible_eye_count": 2,
       "eyes_unobstructed": true,
       "expression_label": "animated confident smile with raised eyebrows and emphatic pointing gesture",
-      "campaign_relevance": "The expression and gesture make the learning decision the immediate reason to keep watching."
+      "campaign_relevance": "The expression and gesture visibly carry the viewer from the teacher to the learning decision."
     },
     "feed_copy_inspection": {
       "method": "rendered_320x180_visual_transcription",
@@ -325,17 +325,17 @@
     }
   },
   "output": {
-    "artifact_url": "/review-assets/social-content/youtube-packaging/dark-castle-remember-the-why-v5.png",
+    "artifact_url": "/review-assets/social-content/youtube-packaging/dark-castle-remember-the-why-v6.png",
     "width": 1280,
     "height": 720,
     "aspect_ratio": "16:9",
-    "sha256": "sha256:6469a126ba57a4d49d04f267ca8b53328fc20cc567c12743bec14f0bc9911d1f"
+    "sha256": "sha256:51ad6c02ca7b716e187e1629ad0f2e11de082fb8af7edb4e8dec393adc863eac"
   },
   "feed_size_preview": {
-    "artifact_url": "/review-assets/social-content/youtube-packaging/dark-castle-remember-the-why-v5-feed-320x180.png",
+    "artifact_url": "/review-assets/social-content/youtube-packaging/dark-castle-remember-the-why-v6-feed-320x180.png",
     "width": 320,
     "height": 180,
-    "sha256": "sha256:bc14397b61d65d4bec6f5e1ce0a67927ea8b2b4cc27a4d810233fee99f0d7851",
+    "sha256": "sha256:9826e1418202109dae82106c841f8e851300a905c39e029eedc76d0c18417bfa",
     "status": "passed"
   },
   "provider_generation": {

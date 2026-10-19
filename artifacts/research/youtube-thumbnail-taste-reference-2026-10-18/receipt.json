@@ -1,9 +1,9 @@
 {
-  "version": "youtube-thumbnail-taste-reference/v2",
-  "receipt_id": "taste:youtube-thumbnail:curated-playlist:20261018:v2",
+  "version": "youtube-thumbnail-taste-reference/v3",
+  "receipt_id": "taste:youtube-thumbnail:curated-playlist:20261018:v3",
   "source_url": "https://www.youtube.com/playlist?list=PLbfxkgOJ1hVc-9Gcleyt0iK7kW9MFpynh",
-  "captured_at": "2026-10-18T22:40:00.000Z",
-  "fresh_until": "2026-11-01T22:40:00.000Z",
+  "captured_at": "2026-10-18T23:55:00.000Z",
+  "fresh_until": "2026-11-01T23:55:00.000Z",
   "status": "ready",
   "evidence_role": "taste_calibration_only",
   "performance_weight": 0,
@@ -32,9 +32,9 @@
               0.4527,
               0.2901
             ],
-            "luminance": 0.4173,
+            "luminance": 0.3007,
             "saturation": 0.178,
-            "edge_density": 0.0766
+            "edge_density": 0.0707
           },
           {
             "mean_rgb": [
@@ -42,9 +42,9 @@
               0.3827,
               0.2726
             ],
-            "luminance": 0.3635,
+            "luminance": 0.1846,
             "saturation": 0.1817,
-            "edge_density": 0.0368
+            "edge_density": 0.0308
           },
           {
             "mean_rgb": [
@@ -52,9 +52,9 @@
               0.283,
               0.198
             ],
-            "luminance": 0.276,
+            "luminance": 0.1333,
             "saturation": 0.1695,
-            "edge_density": 0.03
+            "edge_density": 0.0231
           },
           {
             "mean_rgb": [
@@ -62,13 +62,28 @@
               0.4989,
               0.4845
             ],
-            "luminance": 0.4995,
+            "luminance": 0.3719,
             "saturation": 0.0672,
-            "edge_density": 0.0658
+            "edge_density": 0.0655
           }
         ],
         "mean_adjacent_color_separation": 0.1444,
-        "luminance_range": 0.2235
+        "luminance_range": 0.2386
+      },
+      "composition_typography_coding": {
+        "coding_source": "independent_visual_review_of_captured_reference",
+        "background_model": "shared_atmosphere",
+        "hard_full_height_divider": false,
+        "subject_overlap_crossing": true,
+        "text_face_proximity": "close",
+        "gaze_gesture_relationship": "gesture_to_proof",
+        "proof_object_integration": true,
+        "depth_layers": 4,
+        "connector_treatment": "curved_color_sweep",
+        "display_font_treatment": "heavy_display",
+        "highlighted_keyword_treatment": "BUSINESS",
+        "stroke_shadow_slab_treatment": "slab_shadow",
+        "overall_cohesion_decision": "cohesive"
       }
     },
     {
@@ -94,9 +109,9 @@
               0.3767,
               0.6556
             ],
-            "luminance": 0.4731,
+            "luminance": 0.3146,
             "saturation": 0.4747,
-            "edge_density": 0.0422
+            "edge_density": 0.0484
           },
           {
             "mean_rgb": [
@@ -104,9 +119,9 @@
               0.3212,
               0.3889
             ],
-            "luminance": 0.3842,
+            "luminance": 0.213,
             "saturation": 0.3471,
-            "edge_density": 0.0331
+            "edge_density": 0.0292
           },
           {
             "mean_rgb": [
@@ -114,9 +129,9 @@
               0.2536,
               0.3588
             ],
-            "luminance": 0.3104,
+            "luminance": 0.1498,
             "saturation": 0.3948,
-            "edge_density": 0.0266
+            "edge_density": 0.0227
           },
           {
             "mean_rgb": [
@@ -124,13 +139,28 @@
               0.2325,
               0.2489
             ],
-            "luminance": 0.2658,
+            "luminance": 0.1208,
             "saturation": 0.2898,
-            "edge_density": 0.0213
+            "edge_density": 0.0147
           }
         ],
         "mean_adjacent_color_separation": 0.1636,
-        "luminance_range": 0.2073
+        "luminance_range": 0.1938
+      },
+      "composition_typography_coding": {
+        "coding_source": "independent_visual_review_of_captured_reference",
+        "background_model": "shared_atmosphere",
+        "hard_full_height_divider": false,
+        "subject_overlap_crossing": true,
+        "text_face_proximity": "close",
+        "gaze_gesture_relationship": "hand_holds_proof",
+        "proof_object_integration": true,
+        "depth_layers": 4,
+        "connector_treatment": "none",
+        "display_font_treatment": "heavy_display",
+        "highlighted_keyword_treatment": "revenue_badges",
+        "stroke_shadow_slab_treatment": "shadow",
+        "overall_cohesion_decision": "cohesive"
       }
     },
     {
@@ -156,9 +186,9 @@
               0.6441,
               0.6363
             ],
-            "luminance": 0.6522,
+            "luminance": 0.4915,
             "saturation": 0.1011,
-            "edge_density": 0.0405
+            "edge_density": 0.0408
           },
           {
             "mean_rgb": [
@@ -166,9 +196,9 @@
               0.6581,
               0.6883
             ],
-            "luminance": 0.6525,
+            "luminance": 0.503,
             "saturation": 0.0771,
-            "edge_density": 0.0713
+            "edge_density": 0.0761
           },
           {
             "mean_rgb": [
@@ -176,9 +206,9 @@
               0.6268,
               0.686
             ],
-            "luminance": 0.6231,
+            "luminance": 0.4239,
             "saturation": 0.198,
-            "edge_density": 0.0304
+            "edge_density": 0.0332
           },
           {
             "mean_rgb": [
@@ -186,13 +216,28 @@
               0.7859,
               0.8317
             ],
-            "luminance": 0.7822,
+            "luminance": 0.6355,
             "saturation": 0.0797,
-            "edge_density": 0.0333
+            "edge_density": 0.0383
           }
         ],
         "mean_adjacent_color_separation": 0.1003,
-        "luminance_range": 0.1591
+        "luminance_range": 0.2116
+      },
+      "composition_typography_coding": {
+        "coding_source": "independent_visual_review_of_captured_reference",
+        "background_model": "shared_atmosphere",
+        "hard_full_height_divider": false,
+        "subject_overlap_crossing": true,
+        "text_face_proximity": "close",
+        "gaze_gesture_relationship": "gaze_to_proof",
+        "proof_object_integration": true,
+        "depth_layers": 3,
+        "connector_treatment": "none",
+        "display_font_treatment": "display_plus_italic",
+        "highlighted_keyword_treatment": "full guide",
+        "stroke_shadow_slab_treatment": "weight_contrast",
+        "overall_cohesion_decision": "cohesive"
       }
     },
     {
@@ -218,9 +263,9 @@
               0.6162,
               0.5886
             ],
-            "luminance": 0.6297,
+            "luminance": 0.4624,
             "saturation": 0.133,
-            "edge_density": 0.0412
+            "edge_density": 0.0407
           },
           {
             "mean_rgb": [
@@ -228,9 +273,9 @@
               0.7075,
               0.7479
             ],
-            "luminance": 0.7066,
+            "luminance": 0.5777,
             "saturation": 0.0614,
-            "edge_density": 0.0511
+            "edge_density": 0.0557
           },
           {
             "mean_rgb": [
@@ -238,9 +283,9 @@
               0.3659,
               0.4053
             ],
-            "luminance": 0.3794,
+            "luminance": 0.2343,
             "saturation": 0.1744,
-            "edge_density": 0.0317
+            "edge_density": 0.0251
           },
           {
             "mean_rgb": [
@@ -248,13 +293,28 @@
               0.6951,
               0.701
             ],
-            "luminance": 0.7243,
+            "luminance": 0.5999,
             "saturation": 0.1742,
-            "edge_density": 0.0422
+            "edge_density": 0.0524
           }
         ],
         "mean_adjacent_color_separation": 0.1951,
-        "luminance_range": 0.3449
+        "luminance_range": 0.3656
+      },
+      "composition_typography_coding": {
+        "coding_source": "independent_visual_review_of_captured_reference",
+        "background_model": "shared_atmosphere",
+        "hard_full_height_divider": false,
+        "subject_overlap_crossing": true,
+        "text_face_proximity": "close",
+        "gaze_gesture_relationship": "gaze_to_text",
+        "proof_object_integration": false,
+        "depth_layers": 3,
+        "connector_treatment": "curved_money_motion",
+        "display_font_treatment": "heavy_display",
+        "highlighted_keyword_treatment": "WRONG",
+        "stroke_shadow_slab_treatment": "shadow",
+        "overall_cohesion_decision": "cohesive"
       }
     },
     {
@@ -280,9 +340,9 @@
               0.3405,
               0.2292
             ],
-            "luminance": 0.3239,
+            "luminance": 0.1447,
             "saturation": 0.1663,
-            "edge_density": 0.0277
+            "edge_density": 0.0188
           },
           {
             "mean_rgb": [
@@ -290,9 +350,9 @@
               0.2671,
               0.2167
             ],
-            "luminance": 0.2614,
+            "luminance": 0.1547,
             "saturation": 0.0783,
-            "edge_density": 0.0457
+            "edge_density": 0.0404
           },
           {
             "mean_rgb": [
@@ -300,9 +360,9 @@
               0.3534,
               0.4163
             ],
-            "luminance": 0.3833,
+            "luminance": 0.1873,
             "saturation": 0.3027,
-            "edge_density": 0.0312
+            "edge_density": 0.0237
           },
           {
             "mean_rgb": [
@@ -310,13 +370,28 @@
               0.1611,
               0.1353
             ],
-            "luminance": 0.1663,
+            "luminance": 0.0711,
             "saturation": 0.1345,
-            "edge_density": 0.0346
+            "edge_density": 0.0255
           }
         ],
         "mean_adjacent_color_separation": 0.134,
-        "luminance_range": 0.217
+        "luminance_range": 0.1162
+      },
+      "composition_typography_coding": {
+        "coding_source": "independent_visual_review_of_captured_reference",
+        "background_model": "shared_atmosphere",
+        "hard_full_height_divider": false,
+        "subject_overlap_crossing": true,
+        "text_face_proximity": "close",
+        "gaze_gesture_relationship": "body_to_proof",
+        "proof_object_integration": true,
+        "depth_layers": 4,
+        "connector_treatment": "curved_process_path",
+        "display_font_treatment": "heavy_display",
+        "highlighted_keyword_treatment": "DO THIS",
+        "stroke_shadow_slab_treatment": "shadow",
+        "overall_cohesion_decision": "cohesive"
       }
     },
     {
@@ -342,9 +417,9 @@
               0.3755,
               0.3466
             ],
-            "luminance": 0.3875,
+            "luminance": 0.2593,
             "saturation": 0.1659,
-            "edge_density": 0.0384
+            "edge_density": 0.0357
           },
           {
             "mean_rgb": [
@@ -352,9 +427,9 @@
               0.2973,
               0.3271
             ],
-            "luminance": 0.2946,
+            "luminance": 0.2436,
             "saturation": 0.0542,
-            "edge_density": 0.0491
+            "edge_density": 0.0477
           },
           {
             "mean_rgb": [
@@ -362,9 +437,9 @@
               0.5671,
               0.6836
             ],
-            "luminance": 0.5467,
+            "luminance": 0.3471,
             "saturation": 0.3087,
-            "edge_density": 0.0379
+            "edge_density": 0.0358
           },
           {
             "mean_rgb": [
@@ -372,13 +447,28 @@
               0.2797,
               0.2764
             ],
-            "luminance": 0.2523,
+            "luminance": 0.1379,
             "saturation": 0.1554,
-            "edge_density": 0.0257
+            "edge_density": 0.0228
           }
         ],
         "mean_adjacent_color_separation": 0.1845,
-        "luminance_range": 0.2944
+        "luminance_range": 0.2092
+      },
+      "composition_typography_coding": {
+        "coding_source": "independent_visual_review_of_captured_reference",
+        "background_model": "shared_atmosphere",
+        "hard_full_height_divider": false,
+        "subject_overlap_crossing": true,
+        "text_face_proximity": "close",
+        "gaze_gesture_relationship": "gaze_to_headline",
+        "proof_object_integration": true,
+        "depth_layers": 3,
+        "connector_treatment": "repeating_depth_icons",
+        "display_font_treatment": "heavy_display",
+        "highlighted_keyword_treatment": "AI",
+        "stroke_shadow_slab_treatment": "shadow",
+        "overall_cohesion_decision": "cohesive"
       }
     },
     {
@@ -404,9 +494,9 @@
               0.7049,
               0.6395
             ],
-            "luminance": 0.7187,
+            "luminance": 0.5846,
             "saturation": 0.1577,
-            "edge_density": 0.0619
+            "edge_density": 0.0759
           },
           {
             "mean_rgb": [
@@ -414,9 +504,9 @@
               0.7869,
               0.7606
             ],
-            "luminance": 0.785,
+            "luminance": 0.6785,
             "saturation": 0.0364,
-            "edge_density": 0.0581
+            "edge_density": 0.0772
           },
           {
             "mean_rgb": [
@@ -424,9 +514,9 @@
               0.5759,
               0.5341
             ],
-            "luminance": 0.589,
+            "luminance": 0.4117,
             "saturation": 0.1408,
-            "edge_density": 0.0511
+            "edge_density": 0.0499
           },
           {
             "mean_rgb": [
@@ -434,13 +524,28 @@
               0.7978,
               0.7309
             ],
-            "luminance": 0.7964,
+            "luminance": 0.6899,
             "saturation": 0.099,
-            "edge_density": 0.0526
+            "edge_density": 0.0708
           }
         ],
         "mean_adjacent_color_separation": 0.1075,
-        "luminance_range": 0.2074
+        "luminance_range": 0.2782
+      },
+      "composition_typography_coding": {
+        "coding_source": "independent_visual_review_of_captured_reference",
+        "background_model": "shared_atmosphere",
+        "hard_full_height_divider": false,
+        "subject_overlap_crossing": true,
+        "text_face_proximity": "close",
+        "gaze_gesture_relationship": "gesture_to_proof",
+        "proof_object_integration": true,
+        "depth_layers": 4,
+        "connector_treatment": "dashed_process_path",
+        "display_font_treatment": "display_plus_script",
+        "highlighted_keyword_treatment": "process_labels",
+        "stroke_shadow_slab_treatment": "slab_badges",
+        "overall_cohesion_decision": "cohesive"
       }
     },
     {
@@ -466,9 +571,9 @@
               0.2265,
               0.0968
             ],
-            "luminance": 0.2163,
+            "luminance": 0.081,
             "saturation": 0.1343,
-            "edge_density": 0.0353
+            "edge_density": 0.0265
           },
           {
             "mean_rgb": [
@@ -476,9 +581,9 @@
               0.2399,
               0.1777
             ],
-            "luminance": 0.249,
+            "luminance": 0.1213,
             "saturation": 0.1295,
-            "edge_density": 0.0305
+            "edge_density": 0.0196
           },
           {
             "mean_rgb": [
@@ -486,9 +591,9 @@
               0.2768,
               0.1601
             ],
-            "luminance": 0.2665,
+            "luminance": 0.1789,
             "saturation": 0.1228,
-            "edge_density": 0.0744
+            "edge_density": 0.0657
           },
           {
             "mean_rgb": [
@@ -496,13 +601,28 @@
               0.1974,
               0.1508
             ],
-            "luminance": 0.2083,
+            "luminance": 0.0954,
             "saturation": 0.1167,
-            "edge_density": 0.028
+            "edge_density": 0.0191
           }
         ],
         "mean_adjacent_color_separation": 0.0508,
-        "luminance_range": 0.0582
+        "luminance_range": 0.0979
+      },
+      "composition_typography_coding": {
+        "coding_source": "independent_visual_review_of_captured_reference",
+        "background_model": "shared_atmosphere",
+        "hard_full_height_divider": false,
+        "subject_overlap_crossing": true,
+        "text_face_proximity": "close",
+        "gaze_gesture_relationship": "gaze_to_proof",
+        "proof_object_integration": true,
+        "depth_layers": 5,
+        "connector_treatment": "diagonal_card_stack",
+        "display_font_treatment": "condensed_display",
+        "highlighted_keyword_treatment": "THESE",
+        "stroke_shadow_slab_treatment": "stroke_shadow",
+        "overall_cohesion_decision": "cohesive"
       }
     },
     {
@@ -528,9 +648,9 @@
               0.6951,
               0.6925
             ],
-            "luminance": 0.7056,
+            "luminance": 0.5918,
             "saturation": 0.1423,
-            "edge_density": 0.0591
+            "edge_density": 0.0687
           },
           {
             "mean_rgb": [
@@ -538,9 +658,9 @@
               0.7895,
               0.832
             ],
-            "luminance": 0.7887,
+            "luminance": 0.6983,
             "saturation": 0.0676,
-            "edge_density": 0.0519
+            "edge_density": 0.0657
           },
           {
             "mean_rgb": [
@@ -548,9 +668,9 @@
               0.5925,
               0.4565
             ],
-            "luminance": 0.6386,
+            "luminance": 0.4709,
             "saturation": 0.4992,
-            "edge_density": 0.0355
+            "edge_density": 0.0395
           },
           {
             "mean_rgb": [
@@ -558,13 +678,28 @@
               0.7801,
               0.785
             ],
-            "luminance": 0.7801,
+            "luminance": 0.6758,
             "saturation": 0.1447,
-            "edge_density": 0.0489
+            "edge_density": 0.0642
           }
         ],
         "mean_adjacent_color_separation": 0.1278,
-        "luminance_range": 0.1501
+        "luminance_range": 0.2274
+      },
+      "composition_typography_coding": {
+        "coding_source": "independent_visual_review_of_captured_reference",
+        "background_model": "shared_atmosphere",
+        "hard_full_height_divider": false,
+        "subject_overlap_crossing": true,
+        "text_face_proximity": "close",
+        "gaze_gesture_relationship": "body_to_headline",
+        "proof_object_integration": true,
+        "depth_layers": 3,
+        "connector_treatment": "icon_rhythm",
+        "display_font_treatment": "display_plus_italic",
+        "highlighted_keyword_treatment": "AI BUSINESS",
+        "stroke_shadow_slab_treatment": "weight_contrast",
+        "overall_cohesion_decision": "cohesive"
       }
     },
     {
@@ -590,9 +725,9 @@
               0.5307,
               0.4768
             ],
-            "luminance": 0.5313,
+            "luminance": 0.4152,
             "saturation": 0.0923,
-            "edge_density": 0.0538
+            "edge_density": 0.0557
           },
           {
             "mean_rgb": [
@@ -600,9 +735,9 @@
               0.2929,
               0.2243
             ],
-            "luminance": 0.2981,
+            "luminance": 0.1553,
             "saturation": 0.1466,
-            "edge_density": 0.0334
+            "edge_density": 0.0256
           },
           {
             "mean_rgb": [
@@ -610,9 +745,9 @@
               0.8024,
               0.7361
             ],
-            "luminance": 0.7888,
+            "luminance": 0.7207,
             "saturation": 0.0734,
-            "edge_density": 0.0435
+            "edge_density": 0.0594
           },
           {
             "mean_rgb": [
@@ -620,13 +755,28 @@
               0.3781,
               0.3167
             ],
-            "luminance": 0.3655,
+            "luminance": 0.2433,
             "saturation": 0.1316,
-            "edge_density": 0.0366
+            "edge_density": 0.033
           }
         ],
         "mean_adjacent_color_separation": 0.2443,
-        "luminance_range": 0.4907
+        "luminance_range": 0.5654
+      },
+      "composition_typography_coding": {
+        "coding_source": "independent_visual_review_of_captured_reference",
+        "background_model": "shared_atmosphere",
+        "hard_full_height_divider": false,
+        "subject_overlap_crossing": true,
+        "text_face_proximity": "close",
+        "gaze_gesture_relationship": "connector_to_proof",
+        "proof_object_integration": true,
+        "depth_layers": 4,
+        "connector_treatment": "curved_red_arrow",
+        "display_font_treatment": "heavy_display",
+        "highlighted_keyword_treatment": "DO THIS",
+        "stroke_shadow_slab_treatment": "shadow",
+        "overall_cohesion_decision": "cohesive"
       }
     },
     {
@@ -652,9 +802,9 @@
               0.3387,
               0.3471
             ],
-            "luminance": 0.3529,
+            "luminance": 0.2292,
             "saturation": 0.0779,
-            "edge_density": 0.0489
+            "edge_density": 0.0425
           },
           {
             "mean_rgb": [
@@ -662,9 +812,9 @@
               0.4001,
               0.4204
             ],
-            "luminance": 0.4094,
+            "luminance": 0.3107,
             "saturation": 0.048,
-            "edge_density": 0.0326
+            "edge_density": 0.029
           },
           {
             "mean_rgb": [
@@ -672,9 +822,9 @@
               0.4646,
               0.4442
             ],
-            "luminance": 0.4999,
+            "luminance": 0.3483,
             "saturation": 0.1967,
-            "edge_density": 0.0408
+            "edge_density": 0.0425
           },
           {
             "mean_rgb": [
@@ -682,13 +832,28 @@
               0.4071,
               0.4102
             ],
-            "luminance": 0.4363,
+            "luminance": 0.3406,
             "saturation": 0.1407,
-            "edge_density": 0.0307
+            "edge_density": 0.0299
           }
         ],
         "mean_adjacent_color_separation": 0.0877,
-        "luminance_range": 0.147
+        "luminance_range": 0.1191
+      },
+      "composition_typography_coding": {
+        "coding_source": "independent_visual_review_of_captured_reference",
+        "background_model": "shared_atmosphere",
+        "hard_full_height_divider": false,
+        "subject_overlap_crossing": true,
+        "text_face_proximity": "close",
+        "gaze_gesture_relationship": "faces_frame_proof",
+        "proof_object_integration": true,
+        "depth_layers": 4,
+        "connector_treatment": "shared_red_glow",
+        "display_font_treatment": "embedded_social_display",
+        "highlighted_keyword_treatment": "AI agent",
+        "stroke_shadow_slab_treatment": "card_shadow",
+        "overall_cohesion_decision": "cohesive"
       }
     },
     {
@@ -714,9 +879,9 @@
               0.6221,
               0.6054
             ],
-            "luminance": 0.6289,
+            "luminance": 0.4496,
             "saturation": 0.1004,
-            "edge_density": 0.0385
+            "edge_density": 0.0382
           },
           {
             "mean_rgb": [
@@ -724,9 +889,9 @@
               0.6803,
               0.6561
             ],
-            "luminance": 0.6678,
+            "luminance": 0.4873,
             "saturation": 0.0914,
-            "edge_density": 0.0518
+            "edge_density": 0.0569
           },
           {
             "mean_rgb": [
@@ -734,9 +899,9 @@
               0.5558,
               0.5899
             ],
-            "luminance": 0.5553,
+            "luminance": 0.4056,
             "saturation": 0.0875,
-            "edge_density": 0.0273
+            "edge_density": 0.0304
           },
           {
             "mean_rgb": [
@@ -744,13 +909,28 @@
               0.7235,
               0.7381
             ],
-            "luminance": 0.7378,
+            "luminance": 0.5895,
             "saturation": 0.1154,
-            "edge_density": 0.0232
+            "edge_density": 0.0276
           }
         ],
         "mean_adjacent_color_separation": 0.1057,
-        "luminance_range": 0.1825
+        "luminance_range": 0.1839
+      },
+      "composition_typography_coding": {
+        "coding_source": "independent_visual_review_of_captured_reference",
+        "background_model": "shared_atmosphere",
+        "hard_full_height_divider": false,
+        "subject_overlap_crossing": true,
+        "text_face_proximity": "close",
+        "gaze_gesture_relationship": "gesture_holds_proof",
+        "proof_object_integration": true,
+        "depth_layers": 4,
+        "connector_treatment": "curved_red_arrow",
+        "display_font_treatment": "heavy_display",
+        "highlighted_keyword_treatment": "Contract",
+        "stroke_shadow_slab_treatment": "weight_color_contrast",
+        "overall_cohesion_decision": "cohesive"
       }
     },
     {
@@ -776,9 +956,9 @@
               0.7647,
               0.7642
             ],
-            "luminance": 0.7724,
+            "luminance": 0.6548,
             "saturation": 0.0671,
-            "edge_density": 0.0126
+            "edge_density": 0.0141
           },
           {
             "mean_rgb": [
@@ -786,9 +966,9 @@
               0.8609,
               0.8667
             ],
-            "luminance": 0.8625,
+            "luminance": 0.7487,
             "saturation": 0.0352,
-            "edge_density": 0.0083
+            "edge_density": 0.0121
           },
           {
             "mean_rgb": [
@@ -796,9 +976,9 @@
               0.2912,
               0.3129
             ],
-            "luminance": 0.294,
+            "luminance": 0.1641,
             "saturation": 0.0512,
-            "edge_density": 0.0152
+            "edge_density": 0.0111
           },
           {
             "mean_rgb": [
@@ -806,13 +986,28 @@
               0.6751,
               0.693
             ],
-            "luminance": 0.6716,
+            "luminance": 0.5012,
             "saturation": 0.0539,
-            "edge_density": 0.0136
+            "edge_density": 0.0157
           }
         ],
         "mean_adjacent_color_separation": 0.2828,
-        "luminance_range": 0.5685
+        "luminance_range": 0.5846
+      },
+      "composition_typography_coding": {
+        "coding_source": "independent_visual_review_of_captured_reference",
+        "background_model": "shared_atmosphere",
+        "hard_full_height_divider": false,
+        "subject_overlap_crossing": false,
+        "text_face_proximity": "none",
+        "gaze_gesture_relationship": "gaze_in_scene",
+        "proof_object_integration": false,
+        "depth_layers": 2,
+        "connector_treatment": "window_depth",
+        "display_font_treatment": "none",
+        "highlighted_keyword_treatment": "none",
+        "stroke_shadow_slab_treatment": "none",
+        "overall_cohesion_decision": "cohesive_reference_without_display_type"
       }
     },
     {
@@ -838,9 +1033,9 @@
               0.3963,
               0.4253
             ],
-            "luminance": 0.4238,
+            "luminance": 0.2681,
             "saturation": 0.1753,
-            "edge_density": 0.0448
+            "edge_density": 0.0399
           },
           {
             "mean_rgb": [
@@ -848,9 +1043,9 @@
               0.4282,
               0.467
             ],
-            "luminance": 0.4601,
+            "luminance": 0.3105,
             "saturation": 0.2054,
-            "edge_density": 0.0434
+            "edge_density": 0.042
           },
           {
             "mean_rgb": [
@@ -858,9 +1053,9 @@
               0.4235,
               0.4331
             ],
-            "luminance": 0.4477,
+            "luminance": 0.2508,
             "saturation": 0.1956,
-            "edge_density": 0.0444
+            "edge_density": 0.0328
           },
           {
             "mean_rgb": [
@@ -868,15 +1063,30 @@
               0.5815,
               0.6147
             ],
-            "luminance": 0.6117,
+            "luminance": 0.4009,
             "saturation": 0.2425,
-            "edge_density": 0.0389
+            "edge_density": 0.044
           }
         ],
         "mean_adjacent_color_separation": 0.0958,
-        "luminance_range": 0.1879
+        "luminance_range": 0.1501
+      },
+      "composition_typography_coding": {
+        "coding_source": "independent_visual_review_of_captured_reference",
+        "background_model": "shared_atmosphere",
+        "hard_full_height_divider": false,
+        "subject_overlap_crossing": true,
+        "text_face_proximity": "close",
+        "gaze_gesture_relationship": "gesture_projects_proof",
+        "proof_object_integration": true,
+        "depth_layers": 5,
+        "connector_treatment": "light_spill_projection",
+        "display_font_treatment": "numeric_display",
+        "highlighted_keyword_treatment": "$48,000",
+        "stroke_shadow_slab_treatment": "glow_shadow",
+        "overall_cohesion_decision": "cohesive"
       }
     }
   ],
-  "input_version": "sha256:2389b7b138281f3f0d9415d954779807cb91040c4eaef968059e2dfcbe0577fd"
+  "input_version": "sha256:417c4f0d90508e02b3df98bff8f838eb7f126ffb6393d414cdaa1f3d88493427"
 }

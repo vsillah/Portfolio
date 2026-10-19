@@ -1,0 +1,21 @@
+{
+  "version": "youtube-thumbnail-generation-preflight/v1",
+  "receipt_id": "preflight:dark-castle:youtube-thumbnail:2026-10-18T23:57:00.000Z:v1",
+  "status": "passed",
+  "failures": [],
+  "campaign_id": "dark-castle",
+  "content_version": "2026-10-18T23:57:00.000Z",
+  "brief_id": "brief:thumbnail:dark-castle:20261018:v6",
+  "brief_input_version": "sha256:caa01e9bede13643ed2d4878ab8414bd2a86340a41a859f2345b4352b150f49b",
+  "decision_receipt_id": "decision:thumbnail:dark-castle:20261018:v5",
+  "decision_input_version": "sha256:9edcf72d79d1216fda4c4d477b432fc2fe48ea8f62b9b3f5cdbfac088b8274a8",
+  "decision_output_version": "decision:dark-castle:20261018:v4",
+  "live_cohort_id": "cohort:youtube:chess-decision-learning:20261018:v1",
+  "live_evidence_fresh_until": "2026-11-01T23:57:00.000Z",
+  "playlist_receipt_id": "taste:youtube-thumbnail:curated-playlist:20261018:v3",
+  "playlist_input_version": "sha256:417c4f0d90508e02b3df98bff8f838eb7f126ffb6393d414cdaa1f3d88493427",
+  "playlist_performance_weight": 0,
+  "playlist_performance_status": "unscored",
+  "teaser_word_count": 3,
+  "heygen_generation_allowed": true
+}

@@ -1,6 +1,8 @@
 # YouTube thumbnail v5 Human QA
 
-Status: `PENDING VAMBAH HUMAN QA`
+Status: `REJECTED / SUPERSEDED`
+
+Vambah rejected this v5 round because its separation metrics rewarded rigid side-by-side panels and basic type instead of the shared atmosphere, depth, gesture/gaze relationships, integrated proof, and expressive display typography present in the curated references. The v5 packet is preserved as failure evidence and is not approval proof.
 
 Implementation commit: `23bae789f208c9e44f3f40b32f1664e79bb72188`
 

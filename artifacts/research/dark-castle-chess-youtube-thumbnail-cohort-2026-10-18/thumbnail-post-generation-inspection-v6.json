@@ -1,0 +1,30 @@
+{
+  "version": "youtube-thumbnail-post-generation-inspection/v1",
+  "receipt_id": "inspection:dark-castle:youtube-thumbnail:20261018:v6",
+  "status": "passed",
+  "inspection_source": "independent_post_render_visual_inspection",
+  "campaign_id": "dark-castle",
+  "content_version": "2026-10-18T23:57:00.000Z",
+  "source_image_sha256": "sha256:e8fb0f01adf17b8ae51a96b7affb89c2ecfc00436c0e05c83fe3ca0d75f8a109",
+  "final_output_sha256": "sha256:51ad6c02ca7b716e187e1629ad0f2e11de082fb8af7edb4e8dec393adc863eac",
+  "feed_preview_sha256": "sha256:9826e1418202109dae82106c841f8e851300a905c39e029eedc76d0c18417bfa",
+  "face_assessment": { "method": "post_render_visual_inspection/v1", "area_ratio": 0.2, "visible_eye_count": 2, "eyes_unobstructed": true, "expression_label": "animated confident smile with raised eyebrows and emphatic pointing gesture", "campaign_relevance": "The expression and gesture visibly carry the viewer from the teacher to the learning decision." },
+  "feed_copy_inspection": { "method": "rendered_320x180_visual_transcription", "legible": true, "transcribed_text": "REMEMBER THE WHY" },
+  "feed_focal_hierarchy": { "status": "passed", "method": "rendered_320x180_visual_inspection", "ordered_roles": ["expressive pointing teacher", "treated WHY display hook", "integrated owned board proof"] },
+  "cohesive_composition_assessment": { "status": "passed", "background_model": "shared_atmosphere", "equal_split": false, "hard_full_height_divider": false, "isolated_card_pair": false, "mechanisms": ["gesture_to_proof", "curved_connector", "shared_light_spill", "overlap_depth"], "spatial_relationship_mechanism": "The hand and curved gold path connect the dominant human to the overlapping owned board proof.", "live_topic_exception_used": false },
+  "typography_polish_assessment": { "status": "passed", "font_asset": "public/fonts/inter-latin-variable.ttf", "font_asset_sha256": "sha256:29160a80ff49ddcab2c97711247e08b1fab27a484a329ce8b813d820dc559031", "display_treatment": "heavy display with offset shadow, rotated dark slab, and curved underline", "hierarchy": ["REMEMBER", "THE WHY"], "emphasized_keyword": "WHY", "emphasis_treatment": "larger gold display line on a rotated depth slab", "feed_size_contrast_passed": true },
+  "color_polish_regions": {
+    "foreground": { "x": 330, "y": 110, "width": 110, "height": 100 }, "background": { "x": 1120, "y": 290, "width": 100, "height": 70 },
+    "text_foreground": { "x": 700, "y": 92, "width": 18, "height": 28 }, "text_panel_background": { "x": 1110, "y": 90, "width": 100, "height": 60 },
+    "subject": { "x": 330, "y": 110, "width": 110, "height": 100 }, "subject_background": { "x": 560, "y": 80, "width": 80, "height": 80 },
+    "product_proof": { "x": 900, "y": 450, "width": 260, "height": 160 }, "product_background": { "x": 760, "y": 560, "width": 50, "height": 90 },
+    "dominant_field": { "x": 1120, "y": 290, "width": 100, "height": 70 }, "accent": { "x": 724, "y": 184, "width": 120, "height": 30 }
+  },
+  "face_bounding_box": { "x": 272, "y": 42, "width": 290, "height": 330 }, "face_clearance_padding_px": 24,
+  "overlay_bounding_boxes": [
+    { "role": "teaser", "x": 672, "y": 72, "width": 440, "height": 210 },
+    { "role": "connector", "x": 575, "y": 420, "width": 285, "height": 125 },
+    { "role": "product_proof", "x": 820, "y": 390, "width": 450, "height": 310 },
+    { "role": "logo", "x": 1180, "y": 620, "width": 76, "height": 76 }
+  ]
+}
