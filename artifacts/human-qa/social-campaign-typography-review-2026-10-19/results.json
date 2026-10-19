@@ -1,7 +1,7 @@
 {
   "version": "kicklab-typography-review-evidence/v1",
-  "reviewed_commit": "0bf8f6e0",
-  "route": "http://127.0.0.1:3210/admin/social-content?campaignQa=campaign-package-preparation-v1&rev=0bf8f6e0",
+  "reviewed_commit": "fdc0cf75",
+  "route": "http://127.0.0.1:3210/admin/social-content?campaignQa=campaign-package-preparation-v1&rev=fdc0cf75",
   "fixture": "campaign-package-preparation-v1 (synthetic local fixture)",
   "visual_batch": {
     "total": 12,
@@ -58,7 +58,7 @@
   ],
   "permitted_external_use": "Portfolio Supabase Auth session validation only; provider, campaign, and publishing origins remain blocked.",
   "external_writes": 0,
-  "desktop_video_source": "artifacts/human-qa/social-campaign-typography-review-2026-10-19/4de5d1e68ea8f81afd475bc578f837e1.webm",
+  "desktop_video_source": "artifacts/human-qa/social-campaign-typography-review-2026-10-19/71da63755186f78422594936a62c7454.webm",
   "desktop_video_mp4": "artifacts/human-qa/social-campaign-typography-review-2026-10-19/social-campaign-typography-review.mp4",
   "screenshots": [
     "desktop-1440-initial.png",

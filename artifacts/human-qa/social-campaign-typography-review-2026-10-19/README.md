@@ -1,14 +1,14 @@
 # KickLab typography review evidence
 
-This packet reviews commit `0bf8f6e0` at:
+This packet reviews commit `fdc0cf75` at:
 
-`http://127.0.0.1:3210/admin/social-content?campaignQa=campaign-package-preparation-v1&rev=0bf8f6e0`
+`http://127.0.0.1:3210/admin/social-content?campaignQa=campaign-package-preparation-v1&rev=fdc0cf75`
 
 The route uses a synthetic local fixture. The evidence demonstrates the raster as a review direction, keeps typography performance **Unscored**, shows the public research audit and its exclusions, and leaves all visual plans blocked (0 prepared / 12 blocked). It does not approve the font treatment or establish that it performs well. The audit captured seven exact public videos from How Ridiculous: 0/4 matched-style examples and 0/4 eligible same-channel baseline videos in the inspected sample. Both closest lettering examples have outlined/condensed type and sponsorship/ad-promotion; recent baseline candidates are excluded for paid promotion, gifted products, hosted travel, or falling outside the 90-day window. The normalized result is null, so the receipt remains Unscored.
 
 ## Evidence
 
-- `social-campaign-typography-review.mp4` — 14.80-second H.264 walkthrough, 1440×1000 at 25 fps, including the expanded public audit and conclusion.
+- `social-campaign-typography-review.mp4` — 8.40-second H.264 walkthrough, 1440×1000 at 25 fps, including the expanded public audit and conclusion.
 - `desktop-1440-initial.png`, `desktop-1440-kicklab-review.png`, `desktop-1440-typography-receipt.png`
 - `desktop-1440-public-evidence-audit.png`, `desktop-1440-public-evidence-audit-conclusion.png`
 - `tablet-768-kicklab-review.png`, `tablet-768-typography-receipt.png`
