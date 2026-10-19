@@ -1,0 +1,29 @@
+{
+  "version": "youtube-thumbnail-generation-brief/v2",
+  "brief_id": "brief:thumbnail:dark-castle:20261018:v6",
+  "campaign_id": "dark-castle",
+  "content_version": "2026-10-18T23:57:00.000Z",
+  "title": "I Rebuilt the Chess Lesson Around the Decision",
+  "teaser_copy": "REMEMBER THE WHY",
+  "dominant_focal_point": "An expressive teacher inside one shared chess-studio atmosphere, pointing along a curved gold connector toward an integrated owned board decision",
+  "one_second_read": { "status": "pass", "idea": "The move matters because the learner must understand why it works." },
+  "lighting": { "direction": "High-key face with clean cobalt and ink color blocks", "brightness_target": 0.48 },
+  "palette": ["ink navy", "saturated cobalt", "near-white", "AmaduTown gold"],
+  "color_polish_plan": {
+    "dominant_field": "saturated cobalt",
+    "accent_family": "AmaduTown gold",
+    "contrast_field": "ink navy and near-white",
+    "subject_separation": "lit human silhouette against a shared deep-blue studio atmosphere",
+    "product_separation": "owned board crop overlaps the scene with a controlled gold glow",
+    "background_complexity": "one continuous vignetted studio field with no full-height divider"
+  },
+  "cohesive_composition_plan": { "background_model": "shared_atmosphere", "split_ratio_max": 0.58, "hard_full_height_divider": false, "isolated_card_pair": false, "mechanisms": ["gesture_to_proof", "curved_connector", "shared_light_spill", "overlap_depth"], "spatial_relationship": "The pointing gesture and curved gold path lead from the teacher to the owned board proof." },
+  "typography_polish_plan": { "font_asset": "public/fonts/inter-latin-variable.ttf", "treatment": "condensed heavy display with shadow and depth", "hierarchy": ["REMEMBER", "THE WHY"], "emphasized_keyword": "WHY", "emphasis_treatment": "gold slab underline and larger gold display line", "feed_contrast_target": 4.5 },
+  "expression": { "label": "animated confident smile with an emphatic pointing gesture", "campaign_relevance": "The teacher visibly directs attention to the decision square and invites the viewer into the lesson." },
+  "face_prominence": { "target_area_ratio": 0.2, "both_eyes_visible": true, "unobstructed": true },
+  "feed_size_plan": { "width": 320, "height": 180, "minimum_font_px_at_1280": 72, "maximum_teaser_words": 5 },
+  "title_copy_contrast": { "title": "I Rebuilt the Chess Lesson Around the Decision", "thumbnail": "REMEMBER THE WHY", "relationship": "The title explains the rebuild; the thumbnail supplies the learner-facing tension." },
+  "product_proof": { "label": "Owned Dark Castle board position", "receipt_id": "sha256:e15d744685990933555575d6a3c7bc18100af901a766c9a81d4ab9b1cc827d78" },
+  "provider": { "name": "heygen_pro", "model": "heygen-image-1", "mode": "identity_remix", "identity_url": "https://dynamic.heygen.ai/tr:ar-4-3,h-720,fo-auto,f-auto/talking_photo/ca6b407263b44786be20b9287406e6e0/e6cd073097f448bfbb57be9646283277.WEBP", "reference_page_url": "https://www.pexels.com/photo/ma-in-black-jacket-pointing-a-finger-12979668/", "reference_url": "https://images.pexels.com/photos/12979668/pexels-photo-12979668.jpeg?auto=compress&cs=tinysrgb&w=960&h=720&fit=crop", "reference_license": "Pexels free-to-use reference; likeness is not reused", "new_call_authorized": false },
+  "evidence_bindings": { "decision_receipt_id": "decision:thumbnail:dark-castle:20261018:v5", "decision_input_version": "sha256:9edcf72d79d1216fda4c4d477b432fc2fe48ea8f62b9b3f5cdbfac088b8274a8", "decision_output_version": "decision:dark-castle:20261018:v4", "live_cohort_id": "cohort:youtube:chess-decision-learning:20261018:v1", "playlist_receipt_id": "taste:youtube-thumbnail:curated-playlist:20261018:v3", "playlist_input_version": "sha256:417c4f0d90508e02b3df98bff8f838eb7f126ffb6393d414cdaa1f3d88493427" }
+}

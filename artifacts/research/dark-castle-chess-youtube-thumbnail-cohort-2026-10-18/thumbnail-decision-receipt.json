@@ -1,0 +1,255 @@
+{
+  "version": "youtube-thumbnail-decision-receipt/v1",
+  "receipt_id": "decision:thumbnail:dark-castle:20261018:v5",
+  "route": "social-content-outlier-decision/v1",
+  "content_version": "2026-10-18T00:00:00.000Z",
+  "input_version": "sha256:9edcf72d79d1216fda4c4d477b432fc2fe48ea8f62b9b3f5cdbfac088b8274a8",
+  "output_version": "decision:dark-castle:20261018:v4",
+  "candidate_identity": {
+    "content_id": "c12378f2-36de-4bf7-8c5d-0ce754e727eb",
+    "title": "I Rebuilt the Chess Lesson Around the Decision",
+    "thumbnail_hook": "REMEMBER THE WHY",
+    "product_proof_receipt_id": "sha256:e15d744685990933555575d6a3c7bc18100af901a766c9a81d4ab9b1cc827d78",
+    "composition_signature": "shared-chess-studio|gesture-arc-to-board|display-hook-depth|cohesive-v6"
+  },
+  "live_evidence": {
+    "cohort_id": "cohort:youtube:chess-decision-learning:20261018:v1",
+    "observed_at": "2026-10-18T23:57:00.000Z",
+    "fresh_until": "2026-11-01T23:57:00.000Z",
+    "minimum_sample_size": 6,
+    "normalization_formula": [
+      "source exact views / same-channel recent long-form median exact views",
+      "source exact views / public channel subscriber count",
+      "source exact views / max(age in days at observation, 1)",
+      "(channel-relative percentile × 0.50) + (audience-view percentile × 0.30) + (recency-rate percentile × 0.20)"
+    ],
+    "outlier_threshold": 75,
+    "comparisons": [
+      {
+        "video_id": "KbjRYez_me0",
+        "source_url": "https://www.youtube.com/watch?v=KbjRYez_me0",
+        "decision": "included",
+        "decision_reason": "Same-topic staged chess-learning explainer with current public metadata.",
+        "view_count": 883018,
+        "subscriber_count": 14600,
+        "published_at": "2025-12-17T13:49:14.000Z",
+        "observed_at": "2026-10-18T23:57:00.000Z",
+        "channel_baseline_size": 10,
+        "normalized_performance_score": 88.75,
+        "outlier_qualified": true
+      },
+      {
+        "video_id": "Reza8udb47Y",
+        "source_url": "https://www.youtube.com/watch?v=Reza8udb47Y",
+        "decision": "included",
+        "decision_reason": "Same-topic chess-tip explainer with current public metadata.",
+        "view_count": 4060677,
+        "subscriber_count": 87600,
+        "published_at": "2024-06-30T16:00:20.000Z",
+        "observed_at": "2026-10-18T23:57:00.000Z",
+        "channel_baseline_size": 10,
+        "normalized_performance_score": 83.75,
+        "outlier_qualified": true
+      },
+      {
+        "video_id": "8xrELvz0dCI",
+        "source_url": "https://www.youtube.com/watch?v=8xrELvz0dCI",
+        "decision": "included",
+        "decision_reason": "Recent same-topic first-person chess-improvement lesson.",
+        "view_count": 23606,
+        "subscriber_count": 722,
+        "published_at": "2026-10-09T18:15:03.000Z",
+        "observed_at": "2026-10-18T23:57:00.000Z",
+        "channel_baseline_size": 10,
+        "normalized_performance_score": 66.25,
+        "outlier_qualified": false
+      },
+      {
+        "video_id": "E97FVCRGCxU",
+        "source_url": "https://www.youtube.com/watch?v=E97FVCRGCxU",
+        "decision": "included",
+        "decision_reason": "Same-topic move-evaluation explainer with current public metadata.",
+        "view_count": 574075,
+        "subscriber_count": 19000,
+        "published_at": "2026-05-03T14:45:47.000Z",
+        "observed_at": "2026-10-18T23:57:00.000Z",
+        "channel_baseline_size": 10,
+        "normalized_performance_score": 48.75,
+        "outlier_qualified": false
+      },
+      {
+        "video_id": "XRNpz7fra9k",
+        "source_url": "https://www.youtube.com/watch?v=XRNpz7fra9k",
+        "decision": "included",
+        "decision_reason": "Same-topic decision-rule lesson with current public metadata.",
+        "view_count": 876688,
+        "subscriber_count": 992000,
+        "published_at": "2025-03-03T13:56:26.000Z",
+        "observed_at": "2026-10-18T23:57:00.000Z",
+        "channel_baseline_size": 10,
+        "normalized_performance_score": 42.5,
+        "outlier_qualified": false
+      },
+      {
+        "video_id": "ohSRdSZFnSQ",
+        "source_url": "https://www.youtube.com/watch?v=ohSRdSZFnSQ",
+        "decision": "included",
+        "decision_reason": "Same-topic chess-mistake explainer with current public metadata.",
+        "view_count": 70995,
+        "subscriber_count": 14600,
+        "published_at": "2025-10-01T05:44:50.000Z",
+        "observed_at": "2026-10-18T23:57:00.000Z",
+        "channel_baseline_size": 10,
+        "normalized_performance_score": 38.75,
+        "outlier_qualified": false
+      },
+      {
+        "video_id": "bstZmyzBZ0g",
+        "source_url": "https://www.youtube.com/watch?v=bstZmyzBZ0g",
+        "decision": "included",
+        "decision_reason": "Same-topic beginner-mistake explainer with current public metadata.",
+        "view_count": 60982,
+        "subscriber_count": 19000,
+        "published_at": "2026-04-24T19:22:04.000Z",
+        "observed_at": "2026-10-18T23:57:00.000Z",
+        "channel_baseline_size": 10,
+        "normalized_performance_score": 18.75,
+        "outlier_qualified": false
+      },
+      {
+        "video_id": "TGo2-JcjtOk",
+        "source_url": "https://www.youtube.com/watch?v=TGo2-JcjtOk",
+        "decision": "included",
+        "decision_reason": "Same-topic mistake-prevention lesson with current public metadata.",
+        "view_count": 71090,
+        "subscriber_count": 992000,
+        "published_at": "2025-07-04T13:45:07.000Z",
+        "observed_at": "2026-10-18T23:57:00.000Z",
+        "channel_baseline_size": 10,
+        "normalized_performance_score": 12.5,
+        "outlier_qualified": false
+      }
+    ]
+  },
+  "candidate_copy_pair": {
+    "title": "I Rebuilt the Chess Lesson Around the Decision",
+    "thumbnail_hook": "REMEMBER THE WHY",
+    "relationship": "complementary_teaser",
+    "exact_strings_are_distinct": true,
+    "strategy_status": "review_only_unscored",
+    "support_scope": "editorial_hypothesis_only",
+    "performance_claim": "unscored",
+    "rationale": "The title explains the rebuild. The thumbnail keeps one short learning tension. Public examples support the editorial pattern only; they do not establish causal performance.",
+    "source_example_video_ids": [
+      "8xrELvz0dCI",
+      "XRNpz7fra9k"
+    ]
+  },
+  "adopted_traits": [
+    "one dominant product proof object",
+    "one-second comprehension",
+    "short large teaser copy",
+    "clear title-thumbnail contrast",
+    "strong feed-size contrast"
+  ],
+  "rejected_traits": [
+    "dense icon grids",
+    "multi-panel report layouts",
+    "copied creator faces or source branding",
+    "claims that the public style caused performance"
+  ],
+  "user_preference_signals": [
+    {
+      "version": "youtube-thumbnail-user-preference/v1",
+      "signal_type": "user_curated_saved_playlist",
+      "source_url": "https://www.youtube.com/playlist?list=PLbfxkgOJ1hVc-9Gcleyt0iK7kW9MFpynh",
+      "captured_at": "2026-10-18T19:00:00.000Z",
+      "item_identities": [
+        {
+          "video_id": "1Rg9N6AC9Cs",
+          "source_url": "https://www.youtube.com/watch?v=1Rg9N6AC9Cs"
+        },
+        {
+          "video_id": "43MdhyYl2hY",
+          "source_url": "https://www.youtube.com/watch?v=43MdhyYl2hY"
+        },
+        {
+          "video_id": "h9Pk5iNDXMk",
+          "source_url": "https://www.youtube.com/watch?v=h9Pk5iNDXMk"
+        },
+        {
+          "video_id": "JSmGZ8vTEFQ",
+          "source_url": "https://www.youtube.com/watch?v=JSmGZ8vTEFQ"
+        },
+        {
+          "video_id": "fIWUAodAgJw",
+          "source_url": "https://www.youtube.com/watch?v=fIWUAodAgJw"
+        },
+        {
+          "video_id": "IGgg397XB90",
+          "source_url": "https://www.youtube.com/watch?v=IGgg397XB90"
+        },
+        {
+          "video_id": "C2NZs1fCLfo",
+          "source_url": "https://www.youtube.com/watch?v=C2NZs1fCLfo"
+        },
+        {
+          "video_id": "O8-UsCW3_1Y",
+          "source_url": "https://www.youtube.com/watch?v=O8-UsCW3_1Y"
+        },
+        {
+          "video_id": "GTWWNZyIsSc",
+          "source_url": "https://www.youtube.com/watch?v=GTWWNZyIsSc"
+        },
+        {
+          "video_id": "iXkfIS0dJqQ",
+          "source_url": "https://www.youtube.com/watch?v=iXkfIS0dJqQ"
+        },
+        {
+          "video_id": "j7CaMx2c56M",
+          "source_url": "https://www.youtube.com/watch?v=j7CaMx2c56M"
+        },
+        {
+          "video_id": "1L0ghc5ofLo",
+          "source_url": "https://www.youtube.com/watch?v=1L0ghc5ofLo"
+        },
+        {
+          "video_id": "-M_026Esvf0",
+          "source_url": "https://www.youtube.com/watch?v=-M_026Esvf0"
+        },
+        {
+          "video_id": "lDHrmDAD9y4",
+          "source_url": "https://www.youtube.com/watch?v=lDHrmDAD9y4"
+        }
+      ],
+      "extracted_visual_traits": [
+        "one dominant human or product anchor",
+        "large high-contrast hook readable before the supporting detail",
+        "visible proof prop such as a product screen, result, or revenue figure"
+      ],
+      "extracted_copy_traits": [
+        "specific how-to, full-course, pricing, or step-by-step promise",
+        "plain-language outcome or tension rather than an abstract category label",
+        "selective use of concrete numbers, timeframes, and result evidence"
+      ],
+      "applied_traits": [
+        "one dominant human or product focal object",
+        "one-second comprehension",
+        "short large teaser copy",
+        "clear title-thumbnail contrast",
+        "strong feed-size contrast",
+        "one simplified first-party proof object"
+      ],
+      "performance_weight": 0,
+      "evidence_role": "taste_calibration_only",
+      "performance_status": "unscored"
+    }
+  ],
+  "selection": {
+    "status": "ready",
+    "selected_composition": "integrated-chess-decision-scene",
+    "title_thumbnail_relationship": "complementary_teaser",
+    "product_proof_binding": "sha256:e15d744685990933555575d6a3c7bc18100af901a766c9a81d4ab9b1cc827d78",
+    "rationale": "Live topic evidence controls qualification and threshold status. The saved playlist contributes taste calibration only, with zero performance weight. First-party product proof controls the selected composition."
+  }
+}

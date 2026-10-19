@@ -1,0 +1,59 @@
+{
+  "version": "youtube-thumbnail-generation-brief/v1",
+  "brief_id": "brief:thumbnail:ai-audit:20261018:v4",
+  "campaign_id": "ai-audit",
+  "content_version": "2026-10-18T20:05:00.000Z",
+  "title": "The AI Cost That Never Appears on the Invoice",
+  "teaser_copy": "WHO OWNS THE CLEANUP?",
+  "dominant_focal_point": "An expressive auditor reacting to the owned AI Audit Calculator result while the 5/10 urgency score remains visible",
+  "one_second_read": {
+    "status": "pass",
+    "idea": "The hidden AI cost becomes urgent when nobody owns the cleanup."
+  },
+  "lighting": {
+    "direction": "Bright modern office daylight with a clean face key and vivid cyan-gold accents",
+    "brightness_target": 0.48
+  },
+  "palette": ["bright office white", "electric cyan", "AmaduTown gold", "navy blue"],
+  "expression": {
+    "label": "wide-eyed concerned surprise with visible open-mouth reaction",
+    "campaign_relevance": "The reaction makes the unexpected cleanup burden legible before the viewer reads the score."
+  },
+  "face_prominence": {
+    "target_area_ratio": 0.24,
+    "both_eyes_visible": true,
+    "unobstructed": true
+  },
+  "feed_size_plan": {
+    "width": 320,
+    "height": 180,
+    "minimum_font_px_at_1280": 68,
+    "maximum_teaser_words": 5
+  },
+  "title_copy_contrast": {
+    "title": "The AI Cost That Never Appears on the Invoice",
+    "thumbnail": "WHO OWNS THE CLEANUP?",
+    "relationship": "The title names the hidden cost; the thumbnail names the accountability question."
+  },
+  "product_proof": {
+    "label": "Owned AI Audit Calculator 5/10 urgency result",
+    "receipt_id": "sha256:bef9eeb1d8d15f7b4197bb03240c27a3b6b96fe114ce06f4c7027690c3e49b97"
+  },
+  "provider": {
+    "name": "heygen_pro",
+    "model": "heygen-image-1",
+    "mode": "identity_remix",
+    "identity_url": "https://dynamic.heygen.ai/tr:ar-4-3,h-720,fo-auto,f-auto/talking_photo/987bba1d07934e41af70f923d7b78e35/c13396578c9847e0b1956490f44ee4b7.WEBP",
+    "reference_page_url": "https://www.pexels.com/photo/surprised-businessman-viewing-laptop-data-in-office-39853103/",
+    "reference_url": "https://images.pexels.com/photos/39853103/pexels-photo-39853103.jpeg?auto=compress&cs=tinysrgb&w=1280&h=720&fit=crop",
+    "reference_license": "Pexels free-to-use reference; likeness is not reused"
+  },
+  "evidence_bindings": {
+    "decision_receipt_id": "decision:thumbnail:ai-audit:20261018:v3",
+    "decision_input_version": "sha256:3fbeb640d54ae863937434b615f824656ef5e3804c9bdfada5e16e5395c709c5",
+    "decision_output_version": "decision:ai-audit:20261018:v3",
+    "live_cohort_id": "cohort:youtube:ai-cost-audit-roi:20261018:v1",
+    "playlist_receipt_id": "taste:youtube-thumbnail:curated-playlist:20261018:v1",
+    "playlist_input_version": "sha256:aac2c0e884e504d69da84cb33e7574d43cebc848c5d8542c55adc412fd3152ae"
+  }
+}

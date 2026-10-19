@@ -4,6 +4,7 @@ import {
   type ArtifactEvaluationKind,
   type ArtifactEvaluationReceipt,
 } from '@/lib/artifact-evidence-evaluation'
+import { deterministicSha256Hex } from '@/lib/deterministic-sha256.mjs'
 
 export const ARTIFACT_EVIDENCE_MANIFEST_VERSION = 'artifact-evidence-manifest/v2' as const
 
@@ -137,6 +138,70 @@ export type ThumbnailCompositionDecision = {
   exception_receipt_ids: string[]
 }
 
+export type ThumbnailPreferenceSignal = {
+  version: 'youtube-thumbnail-user-preference/v1'
+  signal_type: 'user_curated_saved_playlist'
+  source_url: string
+  captured_at: string
+  item_identities: Array<{ video_id: string; source_url: string }>
+  extracted_visual_traits: string[]
+  extracted_copy_traits: string[]
+  applied_traits: string[]
+  performance_weight: 0
+  evidence_role: 'taste_calibration_only'
+  performance_status: 'unscored'
+}
+
+export type ThumbnailDecisionComparison = {
+  video_id: string
+  source_url: string
+  decision: 'included' | 'excluded'
+  decision_reason: string
+  view_count: number | null
+  subscriber_count: number | null
+  published_at: string | null
+  observed_at: string | null
+  channel_baseline_size: number | null
+  normalized_performance_score: number | null
+  outlier_qualified: boolean
+}
+
+export type ThumbnailDecisionReceipt = {
+  version: 'youtube-thumbnail-decision-receipt/v1'
+  receipt_id: string
+  route: 'social-content-outlier-decision/v1'
+  content_version: string
+  input_version: string
+  output_version: string
+  candidate_identity: {
+    content_id: string
+    title: string
+    thumbnail_hook: string
+    product_proof_receipt_id: string
+    composition_signature: string
+  }
+  live_evidence: {
+    cohort_id: string
+    observed_at: string
+    fresh_until: string
+    minimum_sample_size: number
+    normalization_formula: string[]
+    outlier_threshold: number
+    comparisons: ThumbnailDecisionComparison[]
+  }
+  candidate_copy_pair: ThumbnailCandidateCopyPair
+  adopted_traits: string[]
+  rejected_traits: string[]
+  user_preference_signals: ThumbnailPreferenceSignal[]
+  selection: {
+    status: 'ready' | 'unscored'
+    selected_composition: string
+    title_thumbnail_relationship: ThumbnailCopyRelationship
+    product_proof_binding: string
+    rationale: string
+  }
+}
+
 export type ThumbnailResearchCohort = {
   cohort_id: string
   target: string
@@ -158,6 +223,7 @@ export type ThumbnailResearchCohort = {
   copy_pair_analysis: ThumbnailCopyPairAnalysis
   candidate_copy_pair: ThumbnailCandidateCopyPair
   samples: ThumbnailResearchSample[]
+  decision_receipt?: ThumbnailDecisionReceipt
 }
 
 export type ArtifactEvidenceElement = {
@@ -327,6 +393,104 @@ function parseCopyPairGroup(value: unknown): ThumbnailCopyPairGroup {
   }
 }
 
+function parseThumbnailDecisionReceipt(value: unknown): ThumbnailDecisionReceipt | undefined {
+  const candidate = record(value)
+  if (!candidate || candidate.version !== 'youtube-thumbnail-decision-receipt/v1' || candidate.route !== 'social-content-outlier-decision/v1') return undefined
+  const rawIdentity = record(candidate.candidate_identity) ?? {}
+  const rawLiveEvidence = record(candidate.live_evidence) ?? {}
+  const rawCandidatePair = record(candidate.candidate_copy_pair) ?? {}
+  const rawSelection = record(candidate.selection) ?? {}
+  const comparisons = Array.isArray(rawLiveEvidence.comparisons) ? rawLiveEvidence.comparisons.map((value) => {
+    const comparison = record(value)
+    if (!comparison) return null
+    const sourceUrl = safeYouTubeUrl(comparison.source_url)
+    if (!text(comparison.video_id) || !sourceUrl) return null
+    return {
+      video_id: text(comparison.video_id),
+      source_url: sourceUrl,
+      decision: comparison.decision === 'excluded' ? 'excluded' as const : 'included' as const,
+      decision_reason: text(comparison.decision_reason),
+      view_count: nullableNumber(comparison.view_count),
+      subscriber_count: nullableNumber(comparison.subscriber_count),
+      published_at: text(comparison.published_at) || null,
+      observed_at: text(comparison.observed_at) || null,
+      channel_baseline_size: nullableNumber(comparison.channel_baseline_size),
+      normalized_performance_score: nullableNumber(comparison.normalized_performance_score),
+      outlier_qualified: comparison.outlier_qualified === true,
+    }
+  }).filter((comparison): comparison is ThumbnailDecisionComparison => Boolean(comparison)) : []
+  const userPreferenceSignals = Array.isArray(candidate.user_preference_signals) ? candidate.user_preference_signals.map((value) => {
+    const preference = record(value)
+    if (!preference || preference.version !== 'youtube-thumbnail-user-preference/v1' || preference.signal_type !== 'user_curated_saved_playlist') return null
+    const sourceUrl = safeYouTubeUrl(preference.source_url)
+    if (!sourceUrl) return null
+    const itemIdentities = Array.isArray(preference.item_identities) ? preference.item_identities.map((value) => {
+      const item = record(value)
+      if (!item) return null
+      const itemUrl = safeYouTubeUrl(item.source_url)
+      return text(item.video_id) && itemUrl ? { video_id: text(item.video_id), source_url: itemUrl } : null
+    }).filter((item): item is { video_id: string; source_url: string } => Boolean(item)) : []
+    return {
+      version: 'youtube-thumbnail-user-preference/v1' as const,
+      signal_type: 'user_curated_saved_playlist' as const,
+      source_url: sourceUrl,
+      captured_at: text(preference.captured_at),
+      item_identities: itemIdentities,
+      extracted_visual_traits: strings(preference.extracted_visual_traits),
+      extracted_copy_traits: strings(preference.extracted_copy_traits),
+      applied_traits: strings(preference.applied_traits),
+      performance_weight: 0 as const,
+      evidence_role: 'taste_calibration_only' as const,
+      performance_status: 'unscored' as const,
+    }
+  }).filter((preference): preference is ThumbnailPreferenceSignal => Boolean(preference)) : []
+  return {
+    version: 'youtube-thumbnail-decision-receipt/v1',
+    receipt_id: text(candidate.receipt_id),
+    route: 'social-content-outlier-decision/v1',
+    content_version: text(candidate.content_version),
+    input_version: text(candidate.input_version),
+    output_version: text(candidate.output_version),
+    candidate_identity: {
+      content_id: text(rawIdentity.content_id),
+      title: text(rawIdentity.title),
+      thumbnail_hook: text(rawIdentity.thumbnail_hook),
+      product_proof_receipt_id: text(rawIdentity.product_proof_receipt_id),
+      composition_signature: text(rawIdentity.composition_signature),
+    },
+    live_evidence: {
+      cohort_id: text(rawLiveEvidence.cohort_id),
+      observed_at: text(rawLiveEvidence.observed_at),
+      fresh_until: text(rawLiveEvidence.fresh_until),
+      minimum_sample_size: Number(rawLiveEvidence.minimum_sample_size),
+      normalization_formula: strings(rawLiveEvidence.normalization_formula),
+      outlier_threshold: Number(rawLiveEvidence.outlier_threshold),
+      comparisons,
+    },
+    candidate_copy_pair: {
+      title: text(rawCandidatePair.title),
+      thumbnail_hook: text(rawCandidatePair.thumbnail_hook),
+      relationship: copyRelationship(rawCandidatePair.relationship),
+      exact_strings_are_distinct: rawCandidatePair.exact_strings_are_distinct === true,
+      strategy_status: text(rawCandidatePair.strategy_status),
+      support_scope: rawCandidatePair.support_scope === 'performance_supported' ? 'performance_supported' : 'editorial_hypothesis_only',
+      performance_claim: rawCandidatePair.performance_claim === 'supported' ? 'supported' : 'unscored',
+      rationale: text(rawCandidatePair.rationale),
+      source_example_video_ids: strings(rawCandidatePair.source_example_video_ids),
+    },
+    adopted_traits: strings(candidate.adopted_traits),
+    rejected_traits: strings(candidate.rejected_traits),
+    user_preference_signals: userPreferenceSignals,
+    selection: {
+      status: rawSelection.status === 'ready' ? 'ready' : 'unscored',
+      selected_composition: text(rawSelection.selected_composition),
+      title_thumbnail_relationship: copyRelationship(rawSelection.title_thumbnail_relationship),
+      product_proof_binding: text(rawSelection.product_proof_binding),
+      rationale: text(rawSelection.rationale),
+    },
+  }
+}
+
 function parseResearchCohort(value: unknown): ThumbnailResearchCohort | undefined {
   const candidate = record(value)
   if (!candidate) return undefined
@@ -457,6 +621,7 @@ function parseResearchCohort(value: unknown): ThumbnailResearchCohort | undefine
       source_example_video_ids: strings(rawCandidatePair.source_example_video_ids),
     },
     samples,
+    ...(candidate.decision_receipt ? { decision_receipt: parseThumbnailDecisionReceipt(candidate.decision_receipt) } : {}),
   }
 }
 
@@ -539,6 +704,118 @@ function packagingElementIssues(
   }
   if (label === 'Thumbnail' && element.research_cohort) {
     const research = element.research_cohort
+    const decisionReceipt = research.decision_receipt
+    if (target === 'youtube' && !decisionReceipt) {
+      blockers.push('Thumbnail evidence is not bound to a versioned Social Content outlier decision receipt.')
+      recoveryActions.push('Route the candidate through the existing Social Content comparable-content scorecard and attach its version-bound decision receipt; a direct or manually assembled cohort cannot advance.')
+    } else if (target === 'youtube' && decisionReceipt) {
+      const liveEvidence = decisionReceipt.live_evidence
+      const includedComparisons = liveEvidence.comparisons.filter((comparison) => comparison.decision === 'included')
+      const qualifiedComparisons = includedComparisons.filter((comparison) => comparison.outlier_qualified)
+      const comparisonById = new Map(includedComparisons.map((comparison) => [comparison.video_id, comparison]))
+      const canonicalDecisionInput = {
+        content_version: decisionReceipt.content_version,
+        candidate_identity: decisionReceipt.candidate_identity,
+        live_evidence: decisionReceipt.live_evidence,
+        candidate_copy_pair: decisionReceipt.candidate_copy_pair,
+        adopted_traits: decisionReceipt.adopted_traits,
+        rejected_traits: decisionReceipt.rejected_traits,
+        user_preference_signals: decisionReceipt.user_preference_signals,
+      }
+      const expectedInputVersion = `sha256:${deterministicSha256Hex(JSON.stringify(canonicalDecisionInput))}`
+      const receiptIsVersionBound = decisionReceipt.content_version === currentVersion
+        && /^sha256:[a-f0-9]{64}$/.test(decisionReceipt.input_version)
+        && /^decision:[a-z0-9:-]+:v\d+$/.test(decisionReceipt.output_version)
+      if (!decisionReceipt.receipt_id || !receiptIsVersionBound) {
+        blockers.push('The Social Content thumbnail decision receipt is missing exact input/output versions or is stale for the current content.')
+        recoveryActions.push('Re-run candidate selection from the current versioned Social Content evidence packet and issue a fresh decision receipt.')
+      }
+      if (decisionReceipt.input_version !== expectedInputVersion) {
+        blockers.push('The Social Content thumbnail decision receipt input fingerprint does not match its canonical evidence payload.')
+        recoveryActions.push('Regenerate the input fingerprint from the exact candidate, live cohort, copy-pair, trait, and user-preference payload before review.')
+      }
+      if (
+        decisionReceipt.candidate_identity.title !== research.candidate_copy_pair.title
+        || decisionReceipt.candidate_identity.thumbnail_hook !== research.candidate_copy_pair.thumbnail_hook
+        || decisionReceipt.candidate_identity.composition_signature !== research.composition?.composition_signature
+      ) {
+        blockers.push('The decision receipt candidate identity does not match the current title, thumbnail hook, and selected composition.')
+        recoveryActions.push('Bind the exact selected candidate and composition to the decision receipt before rendering.')
+      }
+      const productProofIsBound = research.first_party_neighbors.some((neighbor) => neighbor.id === decisionReceipt.candidate_identity.product_proof_receipt_id)
+      if (!productProofIsBound || decisionReceipt.selection.product_proof_binding !== decisionReceipt.candidate_identity.product_proof_receipt_id) {
+        blockers.push('The decision receipt is not bound to the selected first-party product proof.')
+        recoveryActions.push('Bind the selected composition to an exact owned product-proof receipt.')
+      }
+      const liveObservedAt = timestamp(liveEvidence.observed_at)
+      const freshUntil = timestamp(liveEvidence.fresh_until)
+      const evaluationTime = timestamp(evaluationAsOf)
+      if (!liveObservedAt || !freshUntil || !evaluationTime || Date.parse(freshUntil) < Date.parse(evaluationTime)) {
+        blockers.push('The live comparable-content evidence is missing or stale for this decision receipt.')
+        recoveryActions.push('Refresh the live topic cohort through the Social Content evidence route before rendering.')
+      }
+      if (
+        liveEvidence.cohort_id !== research.cohort_id
+        || !Number.isFinite(liveEvidence.minimum_sample_size)
+        || includedComparisons.length < liveEvidence.minimum_sample_size
+        || liveEvidence.normalization_formula.length === 0
+      ) {
+        blockers.push('The decision receipt does not contain a qualifying normalized live cohort and declared minimum sample size.')
+        recoveryActions.push('Attach the complete live cohort identity, normalization formula, inclusion decisions, and minimum sample gate.')
+      }
+      const incompleteLiveComparisons = includedComparisons.filter((comparison) => (
+        !comparison.decision_reason
+        || comparison.view_count == null
+        || comparison.subscriber_count == null
+        || !comparison.published_at
+        || !comparison.observed_at
+        || comparison.channel_baseline_size == null
+        || comparison.normalized_performance_score == null
+      ))
+      if (incompleteLiveComparisons.length) {
+        blockers.push(`Decision-receipt live comparisons are missing source metrics or normalization evidence: ${incompleteLiveComparisons.map((comparison) => comparison.video_id).join(', ')}.`)
+        recoveryActions.push('Restore source URLs, observation times, observed metrics, same-channel baselines, normalized scores, and qualification reasons for every included comparison.')
+      }
+      const receiptMembersMatch = research.samples.length === includedComparisons.length && research.samples.every((sample) => {
+        const comparison = comparisonById.get(sample.video_id)
+        return comparison?.source_url === sample.youtube_url
+          && comparison.normalized_performance_score === sample.normalized_performance_score
+          && comparison.outlier_qualified === sample.outlier_qualified
+      })
+      if (!receiptMembersMatch) {
+        blockers.push('The displayed research cohort does not match the version-bound decision-receipt members and normalized scores.')
+        recoveryActions.push('Project the review cohort directly from the upstream decision receipt instead of injecting a manual cohort.')
+      }
+      if (
+        !Number.isFinite(liveEvidence.outlier_threshold)
+        || qualifiedComparisons.length === 0
+        || qualifiedComparisons.some((comparison) => comparison.normalized_performance_score == null || comparison.normalized_performance_score < liveEvidence.outlier_threshold)
+      ) {
+        blockers.push('The live decision receipt has no qualifying outlier at its declared numerical threshold.')
+        recoveryActions.push('Keep the candidate Unscored until live topic evidence meets the unchanged outlier threshold.')
+      }
+      const invalidPreferenceSignals = decisionReceipt.user_preference_signals.filter((signal) => (
+        !timestamp(signal.captured_at)
+        || signal.item_identities.length === 0
+        || signal.extracted_visual_traits.length + signal.extracted_copy_traits.length === 0
+        || signal.performance_weight !== 0
+        || signal.evidence_role !== 'taste_calibration_only'
+        || signal.performance_status !== 'unscored'
+      ))
+      if (invalidPreferenceSignals.length) {
+        blockers.push('A user-curated preference signal is missing item identity, capture time, extracted traits, or its zero-weight Unscored boundary.')
+        recoveryActions.push('Capture playlist item identities and traits, then keep the signal limited to taste calibration with zero performance weight.')
+      }
+      if (
+        decisionReceipt.selection.status !== 'ready'
+        || !decisionReceipt.selection.selected_composition
+        || !decisionReceipt.selection.rationale
+        || decisionReceipt.selection.title_thumbnail_relationship !== research.candidate_copy_pair.relationship
+      ) {
+        blockers.push('The upstream decision receipt has not selected this exact title-thumbnail composition as Ready.')
+        recoveryActions.push('Complete the existing Social Content evidence decision before rendering the thumbnail.')
+      }
+    }
     const candidate = research.candidate
     const requiredCandidate = target === 'youtube_shorts'
       ? { width: 1080, height: 1920, aspectRatio: '9:16', label: 'YouTube Short' }

@@ -51,6 +51,7 @@ export default function SocialCampaignReviewPacket({ packet }: { packet: SocialC
   const blocked = packet.status === 'blocked_missing_description_evidence'
   const thumbnailEvidence = packet.thumbnailEvidence
   const thumbnailResearch = thumbnailEvidence?.thumbnail?.research_cohort
+  const thumbnailDecision = thumbnailResearch?.decision_receipt
   const thumbnailScore = thumbnailEvidence?.thumbnail?.evaluation_receipt?.overall
   return (
     <section aria-label={`${packet.campaign} YouTube packaging packet`} className={`rounded-xl border p-4 text-card-foreground shadow-sm sm:p-5 ${blocked ? 'border-red-500/35 bg-red-500/5' : 'border-emerald-500/30 bg-card'}`}>
@@ -119,6 +120,50 @@ export default function SocialCampaignReviewPacket({ packet }: { packet: SocialC
           {thumbnailResearch ? (
             <details className="mt-3 rounded-lg border border-border bg-background p-3" open>
               <summary className="cursor-pointer text-sm font-semibold text-foreground">Cohort examples and selection boundaries</summary>
+              {thumbnailDecision ? (
+                <section aria-label="Thumbnail decision route" className="mt-3 rounded-lg border border-radiant-gold/30 bg-radiant-gold/5 p-3">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <p className="text-sm font-semibold text-foreground">Social Content decision route</p>
+                    <span className={`rounded-full border px-2 py-0.5 text-xs font-semibold ${thumbnailDecision.selection.status === 'ready' ? 'border-emerald-500/35 text-emerald-700 dark:text-emerald-200' : 'border-amber-500/35 text-amber-800 dark:text-amber-100'}`}>{thumbnailDecision.selection.status === 'ready' ? 'Receipt-backed Ready' : 'Unscored'}</span>
+                  </div>
+                  <dl className="mt-3 grid gap-2 text-xs sm:grid-cols-2 lg:grid-cols-4">
+                    <div><dt className="font-semibold text-foreground">Candidate</dt><dd className="mt-1 break-all text-muted-foreground">{thumbnailDecision.candidate_identity.content_id}</dd></div>
+                    <div><dt className="font-semibold text-foreground">Live cohort</dt><dd className="mt-1 break-all text-muted-foreground">{thumbnailDecision.live_evidence.cohort_id}</dd></div>
+                    <div><dt className="font-semibold text-foreground">Threshold</dt><dd className="mt-1 text-muted-foreground">Normalized score ≥ {thumbnailDecision.live_evidence.outlier_threshold}</dd></div>
+                    <div><dt className="font-semibold text-foreground">Selected composition</dt><dd className="mt-1 text-muted-foreground">{thumbnailDecision.selection.selected_composition}</dd></div>
+                    <div><dt className="font-semibold text-foreground">Title ↔ thumbnail</dt><dd className="mt-1 text-muted-foreground">{thumbnailDecision.selection.title_thumbnail_relationship.replaceAll('_', ' ')}</dd></div>
+                    <div><dt className="font-semibold text-foreground">Product proof</dt><dd className="mt-1 break-all text-muted-foreground">{thumbnailDecision.selection.product_proof_binding}</dd></div>
+                    <div><dt className="font-semibold text-foreground">Input version</dt><dd className="mt-1 break-all font-mono text-muted-foreground">{thumbnailDecision.input_version}</dd></div>
+                    <div><dt className="font-semibold text-foreground">Output version</dt><dd className="mt-1 break-all font-mono text-muted-foreground">{thumbnailDecision.output_version}</dd></div>
+                  </dl>
+                  <p className="mt-3 text-xs leading-5 text-muted-foreground">{thumbnailDecision.selection.rationale}</p>
+                  <ul className="mt-3 grid gap-2 lg:grid-cols-2" aria-label="Live comparison decisions">
+                    {thumbnailDecision.live_evidence.comparisons.map((comparison) => (
+                      <li key={`${comparison.video_id}:${comparison.decision}`} className="rounded-md border border-border bg-background p-3 text-xs">
+                        <div className="flex flex-wrap items-start justify-between gap-2">
+                          <Link href={comparison.source_url} target="_blank" rel="noreferrer" className="font-semibold text-foreground underline decoration-radiant-gold/60 underline-offset-4">{comparison.video_id}</Link>
+                          <span className={`rounded-full border px-2 py-0.5 font-semibold ${comparison.outlier_qualified ? 'border-emerald-500/35 text-emerald-700 dark:text-emerald-200' : comparison.decision === 'excluded' ? 'border-amber-500/35 text-amber-800 dark:text-amber-100' : 'border-border text-muted-foreground'}`}>
+                            {comparison.decision}{comparison.outlier_qualified ? ' · outlier qualified' : ''}
+                          </span>
+                        </div>
+                        <p className="mt-2 font-semibold text-foreground">Normalized: {comparison.normalized_performance_score ?? 'Unscored'}</p>
+                        <p className="mt-1 leading-5 text-muted-foreground">{comparison.decision_reason}</p>
+                      </li>
+                    ))}
+                  </ul>
+                  <p className="mt-3 rounded-md border border-border bg-background p-2 text-xs leading-5 text-muted-foreground">Normalization: {thumbnailDecision.live_evidence.normalization_formula.join(' · ')}</p>
+                  <div className="mt-3 space-y-2">
+                    <p className="text-xs font-semibold text-foreground">User-curated taste signals</p>
+                    {thumbnailDecision.user_preference_signals.length ? thumbnailDecision.user_preference_signals.map((signal) => (
+                      <div key={`${signal.source_url}:${signal.captured_at}`} className="rounded-md border border-border bg-background p-3 text-xs text-muted-foreground">
+                        <Link href={signal.source_url} target="_blank" rel="noreferrer" className="font-semibold text-foreground underline decoration-radiant-gold/60 underline-offset-4">Saved playlist · {signal.item_identities.length} captured items</Link>
+                        <p className="mt-1">Taste calibration only · performance weight {signal.performance_weight} · {signal.performance_status}</p>
+                        <p className="mt-1">Applied: {signal.applied_traits.length ? signal.applied_traits.join(' · ') : 'No preference traits applied.'}</p>
+                      </div>
+                    )) : <p className="rounded-md border border-border bg-background p-2 text-xs text-muted-foreground">No user-curated preference signal contributed to this selection.</p>}
+                  </div>
+                </section>
+              ) : null}
               <div className="mt-3 grid gap-3 md:grid-cols-2">
                 {thumbnailResearch.samples.map((sample) => (
                   <article key={sample.video_id} className="rounded-lg border border-border bg-card p-2">

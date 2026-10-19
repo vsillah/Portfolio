@@ -1,0 +1,116 @@
+{
+  "version": "youtube-thumbnail-final-quality/v1",
+  "receipt_id": "quality:ai-audit:youtube-thumbnail:2026-10-18T20:05:00.000Z:v1",
+  "status": "passed",
+  "failures": [],
+  "content_version": "2026-10-18T20:05:00.000Z",
+  "brief_id": "brief:thumbnail:ai-audit:20261018:v4",
+  "brief_input_version": "sha256:197d0c0031118695a1250b261c7c9719b22d205c729ddf2c8a933b2a5816505d",
+  "preflight_receipt_id": "preflight:ai-audit:youtube-thumbnail:2026-10-18T20:05:00.000Z:v1",
+  "decision_receipt_id": "decision:thumbnail:ai-audit:20261018:v3",
+  "decision_input_version": "sha256:3fbeb640d54ae863937434b615f824656ef5e3804c9bdfada5e16e5395c709c5",
+  "decision_output_version": "decision:ai-audit:20261018:v3",
+  "playlist_receipt_id": "taste:youtube-thumbnail:curated-playlist:20261018:v1",
+  "playlist_performance_weight": 0,
+  "playlist_performance_status": "unscored",
+  "output_sha256": "sha256:176590e0aa890367efe69065cba065b87ac6d3f8bb94c38f7a798e6b53bc4524",
+  "source_image_sha256": "sha256:c74e55c219b2c6e941bec39ef5de0b5f40aca7f1480796d61fd0d4f82da016d5",
+  "feed_preview_sha256": "sha256:83b4fca796a3adbc7caba53560e731ec9aa44006210da6492fbd28cd4b9efa76",
+  "metrics": {
+    "sample_width": 320,
+    "sample_height": 180,
+    "brightness": 0.6415,
+    "saturation": 0.2454,
+    "local_contrast": 0.2699,
+    "edge_density": 0.0463,
+    "vibrancy": 0.2135
+  },
+  "thresholds": {
+    "brightness_min": 0.36,
+    "saturation_min": 0.16,
+    "local_contrast_min": 0.12,
+    "vibrancy_min": 0.075,
+    "edge_density_min": 0.045,
+    "playlist_similarity_min": 0.52,
+    "face_area_ratio_min": 0.12,
+    "face_area_ratio_max": 0.46,
+    "visible_eye_count": 2,
+    "teaser_word_count_max": 5,
+    "feed_preview_width": 320,
+    "feed_preview_height": 180
+  },
+  "playlist_visual_similarity": {
+    "score": 0.7726,
+    "sample_count": 14,
+    "individual_scores": [
+      0.7724,
+      0.7294,
+      0.8559,
+      0.8447,
+      0.764,
+      0.7727,
+      0.8201,
+      0.7158,
+      0.9237,
+      0.7455,
+      0.7294,
+      0.838,
+      0.7462,
+      0.8844
+    ]
+  },
+  "face_assessment": {
+    "method": "post_render_visual_inspection/v1",
+    "area_ratio": 0.21,
+    "visible_eye_count": 2,
+    "eyes_unobstructed": true,
+    "expression_label": "wide-eyed open-mouth surprise with an emphatic presenting gesture",
+    "campaign_relevance": "The visible reaction makes the hidden cleanup cost feel immediate and points back to the owned score proof."
+  },
+  "post_generation_inspection_receipt_id": "inspection:ai-audit:youtube-thumbnail:20261018:v4",
+  "feed_copy_inspection": {
+    "method": "rendered_320x180_visual_transcription",
+    "legible": true,
+    "transcribed_text": "WHO OWNS THE CLEANUP?"
+  },
+  "face_clearance": {
+    "face_bounding_box": {
+      "x": 842,
+      "y": 45,
+      "width": 300,
+      "height": 310
+    },
+    "overlay_bounding_boxes": [
+      {
+        "role": "teaser",
+        "x": 58,
+        "y": 82,
+        "width": 500,
+        "height": 170
+      },
+      {
+        "role": "product_proof",
+        "x": 58,
+        "y": 510,
+        "width": 620,
+        "height": 160
+      },
+      {
+        "role": "divider",
+        "x": 765,
+        "y": 0,
+        "width": 8,
+        "height": 720
+      },
+      {
+        "role": "logo",
+        "x": 1180,
+        "y": 625,
+        "width": 68,
+        "height": 68
+      }
+    ],
+    "padding_px": 24
+  },
+  "human_qa_artifact_generation_allowed": true
+}

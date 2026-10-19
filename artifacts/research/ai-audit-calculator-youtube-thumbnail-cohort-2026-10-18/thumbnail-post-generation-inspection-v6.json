@@ -1,0 +1,30 @@
+{
+  "version": "youtube-thumbnail-post-generation-inspection/v1",
+  "receipt_id": "inspection:ai-audit:youtube-thumbnail:20261018:v6",
+  "status": "passed",
+  "inspection_source": "independent_post_render_visual_inspection",
+  "campaign_id": "ai-audit",
+  "content_version": "2026-10-18T23:57:00.000Z",
+  "source_image_sha256": "sha256:c74e55c219b2c6e941bec39ef5de0b5f40aca7f1480796d61fd0d4f82da016d5",
+  "final_output_sha256": "sha256:e05e215d55117ebddbe26e891a4f85479823ca41767126cb419b92405aa9755d",
+  "feed_preview_sha256": "sha256:30101ba4f22029ee1e63e07013b1cef09633e1a8c4c64e60886f2dd965ac75d4",
+  "face_assessment": { "method": "post_render_visual_inspection/v1", "area_ratio": 0.21, "visible_eye_count": 2, "eyes_unobstructed": true, "expression_label": "wide-eyed open-mouth surprise with an emphatic presenting gesture", "campaign_relevance": "The reaction and presenting hand connect the ownership question to the hidden-work score." },
+  "feed_copy_inspection": { "method": "rendered_320x180_visual_transcription", "legible": true, "transcribed_text": "WHO OWNS THE CLEANUP?" },
+  "feed_focal_hierarchy": { "status": "passed", "method": "rendered_320x180_visual_inspection", "ordered_roles": ["expressive audit reaction", "treated CLEANUP question", "integrated owned 5/10 proof"] },
+  "cohesive_composition_assessment": { "status": "passed", "background_model": "shared_atmosphere", "equal_split": false, "hard_full_height_divider": false, "isolated_card_pair": false, "mechanisms": ["gesture_to_proof", "curved_connector", "shared_light_spill", "overlap_depth"], "spatial_relationship_mechanism": "The presenting hand and curved gold path connect the dominant human to the overlapping score proof.", "live_topic_exception_used": false },
+  "typography_polish_assessment": { "status": "passed", "font_asset": "public/fonts/inter-latin-variable.ttf", "font_asset_sha256": "sha256:29160a80ff49ddcab2c97711247e08b1fab27a484a329ce8b813d820dc559031", "display_treatment": "heavy display with offset shadow, rotated cyan slab, and curved gold underline", "hierarchy": ["WHO OWNS", "THE CLEANUP?"], "emphasized_keyword": "CLEANUP?", "emphasis_treatment": "larger ink display line on a rotated cyan slab", "feed_size_contrast_passed": true },
+  "color_polish_regions": {
+    "foreground": { "x": 850, "y": 96, "width": 110, "height": 100 }, "background": { "x": 330, "y": 330, "width": 180, "height": 80 },
+    "text_foreground": { "x": 68, "y": 120, "width": 18, "height": 30 }, "text_panel_background": { "x": 500, "y": 100, "width": 80, "height": 60 },
+    "subject": { "x": 850, "y": 96, "width": 110, "height": 100 }, "subject_background": { "x": 1160, "y": 80, "width": 80, "height": 100 },
+    "product_proof": { "x": 120, "y": 520, "width": 400, "height": 80 }, "product_background": { "x": 100, "y": 480, "width": 400, "height": 8 },
+    "dominant_field": { "x": 1160, "y": 80, "width": 80, "height": 100 }, "accent": { "x": 100, "y": 480, "width": 400, "height": 8 }
+  },
+  "face_bounding_box": { "x": 804, "y": 30, "width": 285, "height": 330 }, "face_clearance_padding_px": 24,
+  "overlay_bounding_boxes": [
+    { "role": "teaser", "x": 48, "y": 94, "width": 590, "height": 210 },
+    { "role": "connector", "x": 590, "y": 510, "width": 260, "height": 110 },
+    { "role": "product_proof", "x": 74, "y": 478, "width": 540, "height": 170 },
+    { "role": "logo", "x": 1180, "y": 622, "width": 68, "height": 68 }
+  ]
+}

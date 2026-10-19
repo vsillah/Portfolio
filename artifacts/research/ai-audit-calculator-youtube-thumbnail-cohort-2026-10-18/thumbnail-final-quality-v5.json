@@ -1,0 +1,277 @@
+{
+  "version": "youtube-thumbnail-final-quality/v1",
+  "receipt_id": "quality:ai-audit:youtube-thumbnail:2026-10-18T22:42:00.000Z:v1",
+  "status": "passed",
+  "failures": [],
+  "content_version": "2026-10-18T22:42:00.000Z",
+  "brief_id": "brief:thumbnail:ai-audit:20261018:v5",
+  "brief_input_version": "sha256:2b8ea57b4b685e3fae3b0811d8395ebfef682d91e4357e64485c223020610847",
+  "preflight_receipt_id": "preflight:ai-audit:youtube-thumbnail:2026-10-18T22:42:00.000Z:v1",
+  "decision_receipt_id": "decision:thumbnail:ai-audit:20261018:v4",
+  "decision_input_version": "sha256:4a0a679572287fffb6503bb92eb7e27ee018714faf8ac8d82b079da417fdb53e",
+  "decision_output_version": "decision:ai-audit:20261018:v4",
+  "playlist_receipt_id": "taste:youtube-thumbnail:curated-playlist:20261018:v2",
+  "playlist_performance_weight": 0,
+  "playlist_performance_status": "unscored",
+  "output_sha256": "sha256:b6c040485fd01e31744accbf8094fc585c86e165f531667aecffcbac043812af",
+  "source_image_sha256": "sha256:c74e55c219b2c6e941bec39ef5de0b5f40aca7f1480796d61fd0d4f82da016d5",
+  "feed_preview_sha256": "sha256:3058ab8a1ac38f496a61a9c75c937d529aff68c4a00ce3c2a7101cb84d6d8ba0",
+  "metrics": {
+    "sample_width": 320,
+    "sample_height": 180,
+    "brightness": 0.3695,
+    "saturation": 0.1913,
+    "local_contrast": 0.321,
+    "edge_density": 0.0404,
+    "vibrancy": 0.1762
+  },
+  "thresholds": {
+    "brightness_min": 0.36,
+    "saturation_min": 0.16,
+    "local_contrast_min": 0.12,
+    "vibrancy_min": 0.075,
+    "playlist_similarity_min": 0.52,
+    "face_area_ratio_min": 0.12,
+    "face_area_ratio_max": 0.46,
+    "visible_eye_count": 2,
+    "teaser_word_count_max": 5,
+    "feed_preview_width": 320,
+    "feed_preview_height": 180,
+    "foreground_background_distance_min": 0.18,
+    "text_panel_contrast_ratio_min": 4.5,
+    "subject_background_distance_min": 0.16,
+    "product_background_distance_min": 0.14,
+    "accent_saturation_min": 0.42,
+    "dominant_field_saturation_min": 0.34,
+    "controlled_palette_min": 3,
+    "controlled_palette_max": 18,
+    "background_edge_density_max": 0.035,
+    "spatial_playlist_similarity_min": 0.56
+  },
+  "playlist_visual_similarity": {
+    "score": 0.8849,
+    "method": "top_quartile_spatial_palette_similarity/v2",
+    "sample_count": 14,
+    "individual_scores": [
+      0.8479,
+      0.7818,
+      0.7243,
+      0.8917,
+      0.8183,
+      0.9123,
+      0.7396,
+      0.68,
+      0.7544,
+      0.8877,
+      0.7563,
+      0.7401,
+      0.7859,
+      0.7965
+    ]
+  },
+  "spatial_layout": {
+    "quadrants": [
+      {
+        "mean_rgb": [
+          0.1308,
+          0.1776,
+          0.2376
+        ],
+        "luminance": 0.097,
+        "saturation": 0.115,
+        "edge_density": 0.0503
+      },
+      {
+        "mean_rgb": [
+          0.5539,
+          0.6688,
+          0.6679
+        ],
+        "luminance": 0.5027,
+        "saturation": 0.2979,
+        "edge_density": 0.0434
+      },
+      {
+        "mean_rgb": [
+          0.1841,
+          0.217,
+          0.2414
+        ],
+        "luminance": 0.12,
+        "saturation": 0.1435,
+        "edge_density": 0.0343
+      },
+      {
+        "mean_rgb": [
+          0.4108,
+          0.4655,
+          0.4106
+        ],
+        "luminance": 0.2211,
+        "saturation": 0.2089,
+        "edge_density": 0.0329
+      }
+    ],
+    "mean_adjacent_color_separation": 0.2279,
+    "luminance_range": 0.4057
+  },
+  "color_polish": {
+    "region_summaries": {
+      "foreground": {
+        "mean_rgb": [
+          0.9304,
+          0.6947,
+          0.5944
+        ],
+        "luminance": 0.5419,
+        "saturation": 0.3373,
+        "edge_density": 0.0375
+      },
+      "background": {
+        "mean_rgb": [
+          0.0235,
+          0.0784,
+          0.149
+        ],
+        "luminance": 0.0068,
+        "saturation": 0.1255,
+        "edge_density": 0
+      },
+      "text_foreground": {
+        "mean_rgb": [
+          0.5794,
+          0.6067,
+          0.6405
+        ],
+        "luminance": 0.5455,
+        "saturation": 0.0612,
+        "edge_density": 0.0559
+      },
+      "text_panel_background": {
+        "mean_rgb": [
+          0.0371,
+          0.0914,
+          0.1611
+        ],
+        "luminance": 0.0199,
+        "saturation": 0.1239,
+        "edge_density": 0.0015
+      },
+      "subject": {
+        "mean_rgb": [
+          0.9304,
+          0.6947,
+          0.5944
+        ],
+        "luminance": 0.5419,
+        "saturation": 0.3373,
+        "edge_density": 0.0375
+      },
+      "subject_background": {
+        "mean_rgb": [
+          0.251,
+          0.7182,
+          0.6605
+        ],
+        "luminance": 0.4209,
+        "saturation": 0.8062,
+        "edge_density": 0.0038
+      },
+      "product_proof": {
+        "mean_rgb": [
+          0.087,
+          0.1321,
+          0.1947
+        ],
+        "luminance": 0.0357,
+        "saturation": 0.1077,
+        "edge_density": 0.0149
+      },
+      "product_background": {
+        "mean_rgb": [
+          0.9524,
+          0.9224,
+          0.816
+        ],
+        "luminance": 0.8544,
+        "saturation": 0.1611,
+        "edge_density": 0.0178
+      },
+      "dominant_field": {
+        "mean_rgb": [
+          0.251,
+          0.7182,
+          0.6605
+        ],
+        "luminance": 0.4209,
+        "saturation": 0.8062,
+        "edge_density": 0.0038
+      },
+      "accent": {
+        "mean_rgb": [
+          0.8784,
+          0.7098,
+          0.1843
+        ],
+        "luminance": 0.491,
+        "saturation": 0.6941,
+        "edge_density": 0
+      }
+    },
+    "foreground_background_distance": 0.6833,
+    "text_panel_contrast_ratio": 8.52,
+    "subject_background_distance": 0.3943,
+    "product_background_distance": 0.7658,
+    "dominant_field_saturation": 0.8062,
+    "accent_saturation": 0.6941,
+    "background_edge_density": 0,
+    "controlled_palette_count": 13
+  },
+  "face_assessment": {
+    "method": "post_render_visual_inspection/v1",
+    "area_ratio": 0.21,
+    "visible_eye_count": 2,
+    "eyes_unobstructed": true,
+    "expression_label": "wide-eyed open-mouth surprise with an emphatic presenting gesture",
+    "campaign_relevance": "The reaction makes the hidden cleanup cost feel immediate and points back to the owned score proof."
+  },
+  "post_generation_inspection_receipt_id": "inspection:ai-audit:youtube-thumbnail:20261018:v5",
+  "feed_copy_inspection": {
+    "method": "rendered_320x180_visual_transcription",
+    "legible": true,
+    "transcribed_text": "WHO OWNS THE CLEANUP?"
+  },
+  "face_clearance": {
+    "face_bounding_box": {
+      "x": 842,
+      "y": 45,
+      "width": 300,
+      "height": 310
+    },
+    "overlay_bounding_boxes": [
+      {
+        "role": "teaser",
+        "x": 58,
+        "y": 102,
+        "width": 560,
+        "height": 164
+      },
+      {
+        "role": "product_proof",
+        "x": 54,
+        "y": 484,
+        "width": 600,
+        "height": 182
+      },
+      {
+        "role": "logo",
+        "x": 1180,
+        "y": 622,
+        "width": 68,
+        "height": 68
+      }
+    ],
+    "padding_px": 24
+  },
+  "human_qa_artifact_generation_allowed": true
+}

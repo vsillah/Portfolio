@@ -1,0 +1,32 @@
+{
+  "version": "youtube-thumbnail-post-generation-inspection/v1",
+  "receipt_id": "inspection:ai-audit:youtube-thumbnail:20261018:v4",
+  "status": "passed",
+  "inspection_source": "independent_post_render_visual_inspection",
+  "campaign_id": "ai-audit",
+  "content_version": "2026-10-18T20:05:00.000Z",
+  "source_image_sha256": "sha256:c74e55c219b2c6e941bec39ef5de0b5f40aca7f1480796d61fd0d4f82da016d5",
+  "final_output_sha256": "sha256:176590e0aa890367efe69065cba065b87ac6d3f8bb94c38f7a798e6b53bc4524",
+  "feed_preview_sha256": "sha256:83b4fca796a3adbc7caba53560e731ec9aa44006210da6492fbd28cd4b9efa76",
+  "face_assessment": {
+    "method": "post_render_visual_inspection/v1",
+    "area_ratio": 0.21,
+    "visible_eye_count": 2,
+    "eyes_unobstructed": true,
+    "expression_label": "wide-eyed open-mouth surprise with an emphatic presenting gesture",
+    "campaign_relevance": "The visible reaction makes the hidden cleanup cost feel immediate and points back to the owned score proof."
+  },
+  "feed_copy_inspection": {
+    "method": "rendered_320x180_visual_transcription",
+    "legible": true,
+    "transcribed_text": "WHO OWNS THE CLEANUP?"
+  },
+  "face_bounding_box": { "x": 842, "y": 45, "width": 300, "height": 310 },
+  "face_clearance_padding_px": 24,
+  "overlay_bounding_boxes": [
+    { "role": "teaser", "x": 58, "y": 82, "width": 500, "height": 170 },
+    { "role": "product_proof", "x": 58, "y": 510, "width": 620, "height": 160 },
+    { "role": "divider", "x": 765, "y": 0, "width": 8, "height": 720 },
+    { "role": "logo", "x": 1180, "y": 625, "width": 68, "height": 68 }
+  ]
+}

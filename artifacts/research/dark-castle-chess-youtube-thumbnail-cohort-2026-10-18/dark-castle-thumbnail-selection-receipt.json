@@ -1,8 +1,13 @@
 {
-  "version": "youtube-thumbnail-selection/v2",
-  "receipt_id": "thumbnail:dark-castle:youtube-long-form:20261018:v2",
+  "version": "youtube-thumbnail-selection/v6",
+  "receipt_id": "thumbnail:dark-castle:youtube-long-form:20261018:v6",
+  "supersedes_failed_receipt_id": "thumbnail:dark-castle:youtube-long-form:20261018:v5",
+  "decision_receipt_id": "decision:thumbnail:dark-castle:20261018:v5",
+  "decision_input_version": "sha256:9edcf72d79d1216fda4c4d477b432fc2fe48ea8f62b9b3f5cdbfac088b8274a8",
+  "decision_output_version": "decision:dark-castle:20261018:v4",
+  "content_version": "2026-10-18T23:57:00.000Z",
   "cohort_id": "cohort:youtube:chess-decision-learning:20261018:v1",
-  "observed_at": "2026-10-18T17:30:00.000Z",
+  "observed_at": "2026-10-18T23:57:00.000Z",
   "title": "I Rebuilt the Chess Lesson Around the Decision",
   "thumbnail_hook": "REMEMBER THE WHY",
   "target": {
@@ -27,9 +32,11 @@
     ]
   },
   "adopted_traits": [
-    "one dominant product or lesson idea",
-    "short high-contrast tension hook",
-    "clear 16:9 hierarchy"
+    "one dominant product proof object",
+    "one-second comprehension",
+    "short large teaser copy",
+    "clear title-thumbnail contrast",
+    "strong feed-size contrast"
   ],
   "rejected_traits": [
     "dense icon grids",
@@ -37,35 +44,305 @@
     "copied creator faces or source branding",
     "claims that the public style caused performance"
   ],
-  "selection_rationale": "The owned board is the first-read object. A highlighted decision square and consequence arrow make the lesson visible before the bottom-band hook. Public examples bound the editorial pattern; they do not supply the composition or a causal performance claim.",
+  "user_preference_contribution": [
+    {
+      "source_url": "https://www.youtube.com/playlist?list=PLbfxkgOJ1hVc-9Gcleyt0iK7kW9MFpynh",
+      "captured_at": "2026-10-18T19:00:00.000Z",
+      "item_count": 14,
+      "applied_traits": [
+        "one dominant human or product focal object",
+        "one-second comprehension",
+        "short large teaser copy",
+        "clear title-thumbnail contrast",
+        "strong feed-size contrast",
+        "one simplified first-party proof object"
+      ],
+      "evidence_role": "taste_calibration_only",
+      "performance_weight": 0,
+      "performance_status": "unscored"
+    }
+  ],
+  "selection_rationale": "One shared chess-studio atmosphere connects the expressive teacher, treated WHY hook, curved gesture path, and overlapping owned board proof. Public examples bind taste only and carry zero performance weight.",
   "first_party_source": {
     "label": "Dark Castle gameplay proof",
     "artifact_url": "/review-assets/social-content/dark-castle-customer-facing-poster.png",
     "receipt_id": "sha256:e15d744685990933555575d6a3c7bc18100af901a766c9a81d4ab9b1cc827d78",
     "rights_status": "owned_product_proof"
   },
-  "first_party_supporting_sources": [],
+  "first_party_supporting_sources": [
+    {
+      "label": "Fresh HeyGen Pro identity remix for Dark Castle Chess",
+      "artifact_url": "/review-assets/social-content/source-proof/dark-castle-heygen-identity-v4.png",
+      "source_url": "https://dynamic.heygen.ai/tr:ar-4-3,h-720,fo-auto,f-auto/talking_photo/ca6b407263b44786be20b9287406e6e0/e6cd073097f448bfbb57be9646283277.WEBP",
+      "receipt_id": "heygen:identity-remix:dark-castle:20261018:v4",
+      "rights_status": "approved_identity_remix_review_only",
+      "look_id": "talking_photo:e6cd073097f448bfbb57be9646283277",
+      "background_environment": "bright royal-blue chess learning studio",
+      "expression_label": "animated confident smile with raised eyebrows and emphatic pointing gesture",
+      "sha256": "sha256:e8fb0f01adf17b8ae51a96b7affb89c2ecfc00436c0e05c83fe3ca0d75f8a109"
+    }
+  ],
+  "identity_remix_rotation": {
+    "provider": "heygen_pro",
+    "generation_receipt_id": "heygen:identity-remix:dark-castle:20261018:v4",
+    "included_credit_count": 1,
+    "primary": {
+      "artifact_url": "/review-assets/social-content/source-proof/dark-castle-heygen-identity-v4.png",
+      "source_url": "https://dynamic.heygen.ai/tr:ar-4-3,h-720,fo-auto,f-auto/talking_photo/ca6b407263b44786be20b9287406e6e0/e6cd073097f448bfbb57be9646283277.WEBP",
+      "look_id": "talking_photo:e6cd073097f448bfbb57be9646283277",
+      "background_environment": "bright royal-blue chess learning studio",
+      "sha256": "sha256:e8fb0f01adf17b8ae51a96b7affb89c2ecfc00436c0e05c83fe3ca0d75f8a109",
+      "role": "selected_primary"
+    },
+    "alternates": []
+  },
   "composition": {
     "version": "youtube-thumbnail-composition/v1",
-    "layout_family": "full-bleed-decision-board-bottom-hook",
-    "dominant_subject": "Owned Dark Castle board position with the decision square highlighted",
+    "layout_family": "integrated-chess-decision-scene",
+    "dominant_subject": "Expressive Vambah teacher inside one shared studio atmosphere, pointing along a curved gold path to the owned chess decision",
     "focal_hierarchy": [
-      "board position",
-      "highlighted decision square and consequence arrow",
-      "bottom-band hook"
+      "expressive pointing teacher",
+      "treated WHY display hook",
+      "integrated owned board proof"
     ],
-    "text_placement": "bottom band spanning the board",
-    "batch_identity": "social-campaign-youtube:20261018:v2",
-    "composition_signature": "board-full-bleed|decision-ring|hook-bottom-band",
+    "text_placement": "upper right within the shared atmosphere and outside the inspected face-clearance box",
+    "batch_identity": "social-campaign-youtube:20261018:v6",
+    "composition_signature": "shared-chess-studio|gesture-arc-to-board|display-hook-depth|cohesive-v6",
     "exception_basis": "none",
     "exception_receipt_ids": []
   },
+  "generation_preflight": {
+    "receipt_id": "preflight:dark-castle:youtube-thumbnail:2026-10-18T23:57:00.000Z:v1",
+    "status": "passed",
+    "brief_input_version": "sha256:caa01e9bede13643ed2d4878ab8414bd2a86340a41a859f2345b4352b150f49b"
+  },
+  "final_quality_gate": {
+    "receipt_id": "quality:dark-castle:youtube-thumbnail:2026-10-18T23:57:00.000Z:v1",
+    "status": "passed",
+    "output_sha256": "sha256:51ad6c02ca7b716e187e1629ad0f2e11de082fb8af7edb4e8dec393adc863eac",
+    "feed_preview_sha256": "sha256:9826e1418202109dae82106c841f8e851300a905c39e029eedc76d0c18417bfa",
+    "inspection_receipt_id": "inspection:dark-castle:youtube-thumbnail:20261018:v6",
+    "metrics": {
+      "sample_width": 320,
+      "sample_height": 180,
+      "brightness": 0.378,
+      "saturation": 0.219,
+      "local_contrast": 0.2726,
+      "edge_density": 0.0422,
+      "vibrancy": 0.1911
+    },
+    "playlist_visual_similarity": {
+      "score": 0.9262,
+      "method": "top_quartile_spatial_palette_similarity/v2",
+      "sample_count": 14,
+      "individual_scores": [
+        0.9299,
+        0.9175,
+        0.8691,
+        0.8323,
+        0.8999,
+        0.9512,
+        0.8291,
+        0.8229,
+        0.9045,
+        0.714,
+        0.8461,
+        0.8587,
+        0.6364,
+        0.9062
+      ]
+    },
+    "color_polish": {
+      "region_summaries": {
+        "foreground": {
+          "mean_rgb": [
+            0.6806,
+            0.4941,
+            0.4343
+          ],
+          "luminance": 0.2623,
+          "saturation": 0.3703,
+          "edge_density": 0.0191
+        },
+        "background": {
+          "mean_rgb": [
+            0.016,
+            0.0935,
+            0.228
+          ],
+          "luminance": 0.0098,
+          "saturation": 0.9291,
+          "edge_density": 0
+        },
+        "text_foreground": {
+          "mean_rgb": [
+            0.4705,
+            0.5334,
+            0.6556
+          ],
+          "luminance": 0.451,
+          "saturation": 0.4959,
+          "edge_density": 0.0497
+        },
+        "text_panel_background": {
+          "mean_rgb": [
+            0.0157,
+            0.098,
+            0.2372
+          ],
+          "luminance": 0.0105,
+          "saturation": 0.9336,
+          "edge_density": 0
+        },
+        "subject": {
+          "mean_rgb": [
+            0.6806,
+            0.4941,
+            0.4343
+          ],
+          "luminance": 0.2623,
+          "saturation": 0.3703,
+          "edge_density": 0.0191
+        },
+        "subject_background": {
+          "mean_rgb": [
+            0.0372,
+            0.23,
+            0.5141
+          ],
+          "luminance": 0.0481,
+          "saturation": 0.9255,
+          "edge_density": 0.0005
+        },
+        "product_proof": {
+          "mean_rgb": [
+            0.8441,
+            0.7377,
+            0.6107
+          ],
+          "luminance": 0.5788,
+          "saturation": 0.305,
+          "edge_density": 0.0189
+        },
+        "product_background": {
+          "mean_rgb": [
+            0.1565,
+            0.1904,
+            0.1507
+          ],
+          "luminance": 0.0301,
+          "saturation": 0.3779,
+          "edge_density": 0.0005
+        },
+        "dominant_field": {
+          "mean_rgb": [
+            0.016,
+            0.0935,
+            0.228
+          ],
+          "luminance": 0.0098,
+          "saturation": 0.9291,
+          "edge_density": 0
+        },
+        "accent": {
+          "mean_rgb": [
+            0.5065,
+            0.4448,
+            0.1547
+          ],
+          "luminance": 0.3059,
+          "saturation": 0.8935,
+          "edge_density": 0.0229
+        }
+      },
+      "foreground_background_distance": 0.4636,
+      "text_panel_contrast_ratio": 8.28,
+      "subject_background_distance": 0.4042,
+      "product_background_distance": 0.5727,
+      "dominant_field_saturation": 0.9291,
+      "accent_saturation": 0.8935,
+      "background_edge_density": 0,
+      "controlled_palette_count": 16
+    },
+    "spatial_layout": {
+      "quadrants": [
+        {
+          "mean_rgb": [
+            0.4209,
+            0.4601,
+            0.5041
+          ],
+          "luminance": 0.2629,
+          "saturation": 0.4723,
+          "edge_density": 0.0404
+        },
+        {
+          "mean_rgb": [
+            0.1397,
+            0.2073,
+            0.3036
+          ],
+          "luminance": 0.0929,
+          "saturation": 0.8318,
+          "edge_density": 0.0412
+        },
+        {
+          "mean_rgb": [
+            0.4059,
+            0.3941,
+            0.3686
+          ],
+          "luminance": 0.1689,
+          "saturation": 0.244,
+          "edge_density": 0.0225
+        },
+        {
+          "mean_rgb": [
+            0.5093,
+            0.4595,
+            0.3496
+          ],
+          "luminance": 0.2996,
+          "saturation": 0.4323,
+          "edge_density": 0.0584
+        }
+      ],
+      "mean_adjacent_color_separation": 0.1664,
+      "luminance_range": 0.2067
+    },
+    "face_assessment": {
+      "method": "post_render_visual_inspection/v1",
+      "area_ratio": 0.2,
+      "visible_eye_count": 2,
+      "eyes_unobstructed": true,
+      "expression_label": "animated confident smile with raised eyebrows and emphatic pointing gesture",
+      "campaign_relevance": "The expression and gesture visibly carry the viewer from the teacher to the learning decision."
+    },
+    "feed_copy_inspection": {
+      "method": "rendered_320x180_visual_transcription",
+      "legible": true,
+      "transcribed_text": "REMEMBER THE WHY"
+    }
+  },
   "output": {
-    "artifact_url": "/review-assets/social-content/youtube-packaging/dark-castle-remember-the-why-v2.png",
+    "artifact_url": "/review-assets/social-content/youtube-packaging/dark-castle-remember-the-why-v6.png",
     "width": 1280,
     "height": 720,
     "aspect_ratio": "16:9",
-    "sha256": "sha256:80931c2387a251ed537e1ee0b769748ffeced72fc6b151c5ab6f0e22f4d90f64"
+    "sha256": "sha256:51ad6c02ca7b716e187e1629ad0f2e11de082fb8af7edb4e8dec393adc863eac"
+  },
+  "feed_size_preview": {
+    "artifact_url": "/review-assets/social-content/youtube-packaging/dark-castle-remember-the-why-v6-feed-320x180.png",
+    "width": 320,
+    "height": 180,
+    "sha256": "sha256:9826e1418202109dae82106c841f8e851300a905c39e029eedc76d0c18417bfa",
+    "status": "passed"
+  },
+  "provider_generation": {
+    "provider": "heygen_pro",
+    "occurred": true,
+    "receipt_id": "heygen:identity-remix:dark-castle:20261018:v4",
+    "future_calls_authorized": false
   },
   "external_gates": {
     "provider_generation": false,

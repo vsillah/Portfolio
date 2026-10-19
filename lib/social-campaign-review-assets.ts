@@ -1,8 +1,10 @@
 import type { ArtifactEvaluationDimension, ArtifactEvaluationDimensionKey, ArtifactEvaluationKind, ArtifactEvaluationReceipt } from '@/lib/artifact-evidence-evaluation'
 import { validateYouTubePackagingEvidence, validateYouTubeThumbnailBatchDiversity, type ArtifactEvidenceManifest, type ThumbnailResearchCohort, type YouTubePackagingEvidenceValidation, type YouTubePackagingTarget, type YouTubeThumbnailBatchDiversityValidation } from '@/lib/artifact-evidence-manifest'
 import darkCastleCohort from '@/artifacts/research/dark-castle-chess-youtube-thumbnail-cohort-2026-10-18/cohort.json'
+import darkCastleDecision from '@/artifacts/research/dark-castle-chess-youtube-thumbnail-cohort-2026-10-18/thumbnail-decision-receipt.json'
 import darkCastleSelection from '@/artifacts/research/dark-castle-chess-youtube-thumbnail-cohort-2026-10-18/dark-castle-thumbnail-selection-receipt.json'
 import aiAuditCohort from '@/artifacts/research/ai-audit-calculator-youtube-thumbnail-cohort-2026-10-18/cohort.json'
+import aiAuditDecision from '@/artifacts/research/ai-audit-calculator-youtube-thumbnail-cohort-2026-10-18/thumbnail-decision-receipt.json'
 import aiAuditSelection from '@/artifacts/research/ai-audit-calculator-youtube-thumbnail-cohort-2026-10-18/ai-audit-thumbnail-selection-receipt.json'
 
 export const SOCIAL_CAMPAIGN_REVIEW_IDS = {
@@ -85,21 +87,24 @@ const fixtureContentVersion = '2026-10-18T00:00:00.000Z'
 
 type CohortJson = typeof darkCastleCohort
 type SelectionJson = typeof darkCastleSelection | typeof aiAuditSelection
+type DecisionJson = typeof darkCastleDecision | typeof aiAuditDecision
 
 function packagingEvaluationReceipt(
   kind: ArtifactEvaluationKind,
   elementId: string,
   contentVersion: string,
   cohort: CohortJson,
+  decision: DecisionJson,
   selection: SelectionJson,
 ): ArtifactEvaluationReceipt {
   const cohortHref = `/admin/source-protocol?receipt=${encodeURIComponent(cohort.cohort_id)}`
   const selectionHref = `/admin/source-protocol?receipt=${encodeURIComponent(selection.receipt_id)}`
   const cohortLink = { receipt_id: cohort.cohort_id, href: cohortHref }
   const selectionLink = { receipt_id: selection.receipt_id, href: selectionHref }
+  const decisionLink = { receipt_id: decision.receipt_id, href: `/admin/source-protocol?receipt=${encodeURIComponent(decision.receipt_id)}` }
   const definitions: Record<ArtifactEvaluationDimensionKey, { score: number; weight: number; threshold: number; direction: ArtifactEvaluationDimension['direction']; basis: ArtifactEvaluationDimension['basis']; rationale: string; receipt: typeof cohortLink }> = {
     outlier_pattern_fit: { score: 80, weight: 25, threshold: 70, direction: 'higher_is_better', basis: 'measured', rationale: 'The candidate uses the cohort-supported one-idea, short-hook, high-contrast pattern. Public pixels and layouts contribute zero composition authority.', receipt: cohortLink },
-    source_support: { score: 100, weight: 20, threshold: 80, direction: 'higher_is_better', basis: 'measured', rationale: 'The cohort, first-party product source, exact copy pair, selection receipt, and output hash are all bound.', receipt: selectionLink },
+    source_support: { score: 100, weight: 20, threshold: 80, direction: 'higher_is_better', basis: 'measured', rationale: 'The Social Content decision receipt, live cohort, first-party product source, exact copy pair, selection receipt, and output hash are all bound.', receipt: decisionLink },
     core_audience_fit: { score: 90, weight: 15, threshold: 70, direction: 'higher_is_better', basis: 'heuristic', rationale: 'The 16:9 candidate has one product idea and one concise tension hook sized for small-screen recognition.', receipt: selectionLink },
     timeliness: { score: 100, weight: 10, threshold: 65, direction: 'higher_is_better', basis: 'measured', rationale: 'The public cohort was captured and evaluated inside its declared fourteen-day freshness window.', receipt: cohortLink },
     product_work_evidence_fit: { score: 100, weight: 20, threshold: 80, direction: 'higher_is_better', basis: 'measured', rationale: 'The visible subject is owned product evidence with an exact source receipt and no unsupported outcome claim.', receipt: selectionLink },
@@ -144,12 +149,12 @@ function packagingEvaluationReceipt(
       confidence_score: 90,
       confidence_label: 'high',
       rationale: 'Advance the version-bound candidate to review. Public examples remain comparison evidence; first-party sources control the composition.',
-      source_receipts: [cohortLink, selectionLink],
+      source_receipts: [cohortLink, decisionLink, selectionLink],
     },
   }
 }
 
-function packagingResearchCohort(cohort: CohortJson, selection: SelectionJson): ThumbnailResearchCohort {
+function packagingResearchCohort(cohort: CohortJson, decision: DecisionJson, selection: SelectionJson): ThumbnailResearchCohort {
   const candidate = {
     id: selection.receipt_id,
     label: `${selection.thumbnail_hook} candidate`,
@@ -222,10 +227,11 @@ function packagingResearchCohort(cohort: CohortJson, selection: SelectionJson): 
     copy_pair_analysis: cohort.copy_pair_analysis as ThumbnailResearchCohort['copy_pair_analysis'],
     candidate_copy_pair: cohort.candidate_copy_pair as ThumbnailResearchCohort['candidate_copy_pair'],
     samples: cohort.included as unknown as ThumbnailResearchCohort['samples'],
+    decision_receipt: decision as unknown as ThumbnailResearchCohort['decision_receipt'],
   }
 }
 
-function packagingManifest(contentVersion: string, cohort: CohortJson, selection: SelectionJson): ArtifactEvidenceManifest {
+function packagingManifest(contentVersion: string, cohort: CohortJson, decision: DecisionJson, selection: SelectionJson): ArtifactEvidenceManifest {
   const sourceHref = `/admin/source-protocol?receipt=${encodeURIComponent(selection.receipt_id)}`
   const common = {
     customer_facing: true,
@@ -255,10 +261,10 @@ function packagingManifest(contentVersion: string, cohort: CohortJson, selection
         category: 'title',
         label: 'Title',
         input_excerpt: selection.title,
-        evidence_receipt_ids: [selection.receipt_id, cohort.cohort_id],
+        evidence_receipt_ids: [decision.receipt_id, selection.receipt_id, cohort.cohort_id],
         version_hash: selection.output.sha256,
         evaluation_kind: 'title_subject',
-        evaluation_receipt: packagingEvaluationReceipt('title_subject', 'title', contentVersion, cohort, selection),
+        evaluation_receipt: packagingEvaluationReceipt('title_subject', 'title', contentVersion, cohort, decision, selection),
       },
       {
         ...common,
@@ -267,18 +273,18 @@ function packagingManifest(contentVersion: string, cohort: CohortJson, selection
         label: 'Thumbnail',
         input_excerpt: selection.thumbnail_hook,
         artifact_url: selection.output.artifact_url,
-        evidence_receipt_ids: [selection.receipt_id, cohort.cohort_id, selection.first_party_source.receipt_id, ...selection.first_party_supporting_sources.map((source) => source.receipt_id)],
+        evidence_receipt_ids: [decision.receipt_id, selection.receipt_id, cohort.cohort_id, selection.first_party_source.receipt_id, ...selection.first_party_supporting_sources.map((source) => source.receipt_id)],
         version_hash: selection.output.sha256,
         evaluation_kind: 'thumbnail',
-        evaluation_receipt: packagingEvaluationReceipt('thumbnail', 'thumbnail', contentVersion, cohort, selection),
-        research_cohort: packagingResearchCohort(cohort, selection),
+        evaluation_receipt: packagingEvaluationReceipt('thumbnail', 'thumbnail', contentVersion, cohort, decision, selection),
+        research_cohort: packagingResearchCohort(cohort, decision, selection),
       },
     ],
   }
 }
 
-const darkCastleManifest = packagingManifest(fixtureContentVersion, darkCastleCohort, darkCastleSelection)
-const aiAuditManifest = packagingManifest(fixtureContentVersion, aiAuditCohort as CohortJson, aiAuditSelection as SelectionJson)
+const darkCastleManifest = packagingManifest(fixtureContentVersion, darkCastleCohort, darkCastleDecision, darkCastleSelection)
+const aiAuditManifest = packagingManifest(fixtureContentVersion, aiAuditCohort as CohortJson, aiAuditDecision as DecisionJson, aiAuditSelection as SelectionJson)
 export const SOCIAL_CAMPAIGN_YOUTUBE_THUMBNAIL_DIVERSITY = validateYouTubeThumbnailBatchDiversity([
   { id: 'dark-castle', manifest: darkCastleManifest },
   { id: 'ai-audit', manifest: aiAuditManifest },

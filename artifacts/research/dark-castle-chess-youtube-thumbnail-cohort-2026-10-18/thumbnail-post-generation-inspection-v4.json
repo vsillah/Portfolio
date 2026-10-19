@@ -1,0 +1,31 @@
+{
+  "version": "youtube-thumbnail-post-generation-inspection/v1",
+  "receipt_id": "inspection:dark-castle:youtube-thumbnail:20261018:v4",
+  "status": "passed",
+  "inspection_source": "independent_post_render_visual_inspection",
+  "campaign_id": "dark-castle",
+  "content_version": "2026-10-18T20:05:00.000Z",
+  "source_image_sha256": "sha256:e8fb0f01adf17b8ae51a96b7affb89c2ecfc00436c0e05c83fe3ca0d75f8a109",
+  "final_output_sha256": "sha256:0dce72cbd47d3a7a57ea1c358b16d74b2f44f72ab2f005c4a3a5318dfc83f0e9",
+  "feed_preview_sha256": "sha256:c1de2c5e6504a3e94488e9d22c6973d040742fb5d81380fae57112a49112465d",
+  "face_assessment": {
+    "method": "post_render_visual_inspection/v1",
+    "area_ratio": 0.2,
+    "visible_eye_count": 2,
+    "eyes_unobstructed": true,
+    "expression_label": "animated confident smile with raised eyebrows and emphatic pointing gesture",
+    "campaign_relevance": "The expression and gesture direct attention toward the highlighted learning decision."
+  },
+  "feed_copy_inspection": {
+    "method": "rendered_320x180_visual_transcription",
+    "legible": true,
+    "transcribed_text": "REMEMBER THE WHY"
+  },
+  "face_bounding_box": { "x": 270, "y": 42, "width": 290, "height": 325 },
+  "face_clearance_padding_px": 24,
+  "overlay_bounding_boxes": [
+    { "role": "teaser", "x": 790, "y": 34, "width": 440, "height": 194 },
+    { "role": "decision_focus_ring", "x": 945, "y": 283, "width": 124, "height": 124 },
+    { "role": "logo", "x": 1180, "y": 620, "width": 76, "height": 76 }
+  ]
+}

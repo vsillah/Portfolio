@@ -1,0 +1,284 @@
+{
+  "version": "youtube-thumbnail-final-quality/v1",
+  "receipt_id": "quality:dark-castle:youtube-thumbnail:2026-10-18T23:57:00.000Z:v1",
+  "status": "passed",
+  "failures": [],
+  "content_version": "2026-10-18T23:57:00.000Z",
+  "brief_id": "brief:thumbnail:dark-castle:20261018:v6",
+  "brief_input_version": "sha256:caa01e9bede13643ed2d4878ab8414bd2a86340a41a859f2345b4352b150f49b",
+  "preflight_receipt_id": "preflight:dark-castle:youtube-thumbnail:2026-10-18T23:57:00.000Z:v1",
+  "decision_receipt_id": "decision:thumbnail:dark-castle:20261018:v5",
+  "decision_input_version": "sha256:9edcf72d79d1216fda4c4d477b432fc2fe48ea8f62b9b3f5cdbfac088b8274a8",
+  "decision_output_version": "decision:dark-castle:20261018:v4",
+  "playlist_receipt_id": "taste:youtube-thumbnail:curated-playlist:20261018:v3",
+  "playlist_performance_weight": 0,
+  "playlist_performance_status": "unscored",
+  "output_sha256": "sha256:51ad6c02ca7b716e187e1629ad0f2e11de082fb8af7edb4e8dec393adc863eac",
+  "source_image_sha256": "sha256:e8fb0f01adf17b8ae51a96b7affb89c2ecfc00436c0e05c83fe3ca0d75f8a109",
+  "feed_preview_sha256": "sha256:9826e1418202109dae82106c841f8e851300a905c39e029eedc76d0c18417bfa",
+  "metrics": {
+    "sample_width": 320,
+    "sample_height": 180,
+    "brightness": 0.378,
+    "saturation": 0.219,
+    "local_contrast": 0.2726,
+    "edge_density": 0.0422,
+    "vibrancy": 0.1911
+  },
+  "thresholds": {
+    "brightness_min": 0.36,
+    "saturation_min": 0.16,
+    "local_contrast_min": 0.12,
+    "vibrancy_min": 0.075,
+    "playlist_similarity_min": 0.52,
+    "face_area_ratio_min": 0.12,
+    "face_area_ratio_max": 0.46,
+    "visible_eye_count": 2,
+    "teaser_word_count_max": 5,
+    "feed_preview_width": 320,
+    "feed_preview_height": 180,
+    "foreground_background_distance_min": 0.18,
+    "text_panel_contrast_ratio_min": 4.5,
+    "subject_background_distance_min": 0.16,
+    "product_background_distance_min": 0.14,
+    "accent_saturation_min": 0.42,
+    "dominant_field_saturation_min": 0.34,
+    "controlled_palette_min": 3,
+    "controlled_palette_max": 18,
+    "background_edge_density_max": 0.035,
+    "spatial_playlist_similarity_min": 0.56
+  },
+  "playlist_visual_similarity": {
+    "score": 0.9262,
+    "method": "top_quartile_spatial_palette_similarity/v2",
+    "sample_count": 14,
+    "individual_scores": [
+      0.9299,
+      0.9175,
+      0.8691,
+      0.8323,
+      0.8999,
+      0.9512,
+      0.8291,
+      0.8229,
+      0.9045,
+      0.714,
+      0.8461,
+      0.8587,
+      0.6364,
+      0.9062
+    ]
+  },
+  "spatial_layout": {
+    "quadrants": [
+      {
+        "mean_rgb": [
+          0.4209,
+          0.4601,
+          0.5041
+        ],
+        "luminance": 0.2629,
+        "saturation": 0.4723,
+        "edge_density": 0.0404
+      },
+      {
+        "mean_rgb": [
+          0.1397,
+          0.2073,
+          0.3036
+        ],
+        "luminance": 0.0929,
+        "saturation": 0.8318,
+        "edge_density": 0.0412
+      },
+      {
+        "mean_rgb": [
+          0.4059,
+          0.3941,
+          0.3686
+        ],
+        "luminance": 0.1689,
+        "saturation": 0.244,
+        "edge_density": 0.0225
+      },
+      {
+        "mean_rgb": [
+          0.5093,
+          0.4595,
+          0.3496
+        ],
+        "luminance": 0.2996,
+        "saturation": 0.4323,
+        "edge_density": 0.0584
+      }
+    ],
+    "mean_adjacent_color_separation": 0.1664,
+    "luminance_range": 0.2067
+  },
+  "color_polish": {
+    "region_summaries": {
+      "foreground": {
+        "mean_rgb": [
+          0.6806,
+          0.4941,
+          0.4343
+        ],
+        "luminance": 0.2623,
+        "saturation": 0.3703,
+        "edge_density": 0.0191
+      },
+      "background": {
+        "mean_rgb": [
+          0.016,
+          0.0935,
+          0.228
+        ],
+        "luminance": 0.0098,
+        "saturation": 0.9291,
+        "edge_density": 0
+      },
+      "text_foreground": {
+        "mean_rgb": [
+          0.4705,
+          0.5334,
+          0.6556
+        ],
+        "luminance": 0.451,
+        "saturation": 0.4959,
+        "edge_density": 0.0497
+      },
+      "text_panel_background": {
+        "mean_rgb": [
+          0.0157,
+          0.098,
+          0.2372
+        ],
+        "luminance": 0.0105,
+        "saturation": 0.9336,
+        "edge_density": 0
+      },
+      "subject": {
+        "mean_rgb": [
+          0.6806,
+          0.4941,
+          0.4343
+        ],
+        "luminance": 0.2623,
+        "saturation": 0.3703,
+        "edge_density": 0.0191
+      },
+      "subject_background": {
+        "mean_rgb": [
+          0.0372,
+          0.23,
+          0.5141
+        ],
+        "luminance": 0.0481,
+        "saturation": 0.9255,
+        "edge_density": 0.0005
+      },
+      "product_proof": {
+        "mean_rgb": [
+          0.8441,
+          0.7377,
+          0.6107
+        ],
+        "luminance": 0.5788,
+        "saturation": 0.305,
+        "edge_density": 0.0189
+      },
+      "product_background": {
+        "mean_rgb": [
+          0.1565,
+          0.1904,
+          0.1507
+        ],
+        "luminance": 0.0301,
+        "saturation": 0.3779,
+        "edge_density": 0.0005
+      },
+      "dominant_field": {
+        "mean_rgb": [
+          0.016,
+          0.0935,
+          0.228
+        ],
+        "luminance": 0.0098,
+        "saturation": 0.9291,
+        "edge_density": 0
+      },
+      "accent": {
+        "mean_rgb": [
+          0.5065,
+          0.4448,
+          0.1547
+        ],
+        "luminance": 0.3059,
+        "saturation": 0.8935,
+        "edge_density": 0.0229
+      }
+    },
+    "foreground_background_distance": 0.4636,
+    "text_panel_contrast_ratio": 8.28,
+    "subject_background_distance": 0.4042,
+    "product_background_distance": 0.5727,
+    "dominant_field_saturation": 0.9291,
+    "accent_saturation": 0.8935,
+    "background_edge_density": 0,
+    "controlled_palette_count": 16
+  },
+  "face_assessment": {
+    "method": "post_render_visual_inspection/v1",
+    "area_ratio": 0.2,
+    "visible_eye_count": 2,
+    "eyes_unobstructed": true,
+    "expression_label": "animated confident smile with raised eyebrows and emphatic pointing gesture",
+    "campaign_relevance": "The expression and gesture visibly carry the viewer from the teacher to the learning decision."
+  },
+  "post_generation_inspection_receipt_id": "inspection:dark-castle:youtube-thumbnail:20261018:v6",
+  "feed_copy_inspection": {
+    "method": "rendered_320x180_visual_transcription",
+    "legible": true,
+    "transcribed_text": "REMEMBER THE WHY"
+  },
+  "face_clearance": {
+    "face_bounding_box": {
+      "x": 272,
+      "y": 42,
+      "width": 290,
+      "height": 330
+    },
+    "overlay_bounding_boxes": [
+      {
+        "role": "teaser",
+        "x": 672,
+        "y": 72,
+        "width": 440,
+        "height": 210
+      },
+      {
+        "role": "connector",
+        "x": 575,
+        "y": 420,
+        "width": 285,
+        "height": 125
+      },
+      {
+        "role": "product_proof",
+        "x": 820,
+        "y": 390,
+        "width": 450,
+        "height": 310
+      },
+      {
+        "role": "logo",
+        "x": 1180,
+        "y": 620,
+        "width": 76,
+        "height": 76
+      }
+    ],
+    "padding_px": 24
+  },
+  "human_qa_artifact_generation_allowed": true
+}

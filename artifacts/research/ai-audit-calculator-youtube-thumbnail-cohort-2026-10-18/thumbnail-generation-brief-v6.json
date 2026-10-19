@@ -1,0 +1,29 @@
+{
+  "version": "youtube-thumbnail-generation-brief/v2",
+  "brief_id": "brief:thumbnail:ai-audit:20261018:v6",
+  "campaign_id": "ai-audit",
+  "content_version": "2026-10-18T23:57:00.000Z",
+  "title": "The AI Cost That Never Appears on the Invoice",
+  "teaser_copy": "WHO OWNS THE CLEANUP?",
+  "dominant_focal_point": "A wide-eyed auditor inside one shared cyan-and-ink office atmosphere, presenting an integrated 5/10 proof object connected to the ownership question",
+  "one_second_read": { "status": "pass", "idea": "The visible tool cost hides an ownerless cleanup burden." },
+  "lighting": { "direction": "High-key face against a clean cyan subject field with an ink copy block", "brightness_target": 0.5 },
+  "palette": ["ink navy", "electric cyan", "near-white", "AmaduTown gold"],
+  "color_polish_plan": {
+    "dominant_field": "ink navy",
+    "accent_family": "AmaduTown gold",
+    "contrast_field": "near-white type and electric cyan subject field",
+    "subject_separation": "lit human silhouette against one continuous cyan-and-ink office atmosphere",
+    "product_separation": "owned score proof floats within the scene with a controlled gold glow",
+    "background_complexity": "one continuous vignetted field with no full-height divider"
+  },
+  "cohesive_composition_plan": { "background_model": "shared_atmosphere", "split_ratio_max": 0.58, "hard_full_height_divider": false, "isolated_card_pair": false, "mechanisms": ["gesture_to_proof", "curved_connector", "shared_light_spill", "overlap_depth"], "spatial_relationship": "The presenting hand and curved cyan-gold path connect the reaction, headline, and owned 5/10 proof." },
+  "typography_polish_plan": { "font_asset": "public/fonts/inter-latin-variable.ttf", "treatment": "heavy display with shadow and compressed line rhythm", "hierarchy": ["WHO OWNS", "THE CLEANUP?"], "emphasized_keyword": "CLEANUP?", "emphasis_treatment": "cyan-gold highlight slab behind the emphasized line", "feed_contrast_target": 4.5 },
+  "expression": { "label": "wide-eyed open-mouth surprise with an emphatic presenting gesture", "campaign_relevance": "The visible reaction makes the hidden cleanup cost feel immediate and points back to the owned score proof." },
+  "face_prominence": { "target_area_ratio": 0.21, "both_eyes_visible": true, "unobstructed": true },
+  "feed_size_plan": { "width": 320, "height": 180, "minimum_font_px_at_1280": 72, "maximum_teaser_words": 5 },
+  "title_copy_contrast": { "title": "The AI Cost That Never Appears on the Invoice", "thumbnail": "WHO OWNS THE CLEANUP?", "relationship": "The title names the hidden cost; the thumbnail asks who absorbs it." },
+  "product_proof": { "label": "Owned AI Audit Calculator result screen", "receipt_id": "sha256:bef9eeb1d8d15f7b4197bb03240c27a3b6b96fe114ce06f4c7027690c3e49b97" },
+  "provider": { "name": "heygen_pro", "model": "heygen-image-1", "mode": "identity_remix", "identity_url": "https://dynamic.heygen.ai/tr:ar-4-3,h-720,fo-auto,f-auto/talking_photo/2c476f009ca94d8ea8a93d15cb101a00/57a5544fceac45c6b8f3d5043b0e3e47.WEBP", "reference_page_url": "https://www.pexels.com/photo/surprised-businessman-viewing-laptop-data-in-office-39853103/", "reference_url": "https://images.pexels.com/photos/39853103/pexels-photo-39853103.jpeg?auto=compress&cs=tinysrgb&w=1280&h=720&fit=crop", "reference_license": "Pexels free-to-use reference; likeness is not reused", "new_call_authorized": false },
+  "evidence_bindings": { "decision_receipt_id": "decision:thumbnail:ai-audit:20261018:v5", "decision_input_version": "sha256:6be5f1163e68d6ebf36326da7b1cae08ebbee92c8fe5798a7339e5292153ec8c", "decision_output_version": "decision:ai-audit:20261018:v4", "live_cohort_id": "cohort:youtube:ai-cost-audit-roi:20261018:v1", "playlist_receipt_id": "taste:youtube-thumbnail:curated-playlist:20261018:v3", "playlist_input_version": "sha256:417c4f0d90508e02b3df98bff8f838eb7f126ffb6393d414cdaa1f3d88493427" }
+}
