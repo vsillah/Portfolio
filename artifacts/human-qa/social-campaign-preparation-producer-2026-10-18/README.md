@@ -2,11 +2,11 @@
 
 Status: `PENDING VAMBAH HUMAN QA`
 
-Implementation commit: `fa6c5900eb10550593739f97bb24e2c4641949f3`
+Implementation commit: `80a8767bf2300553c19c88b178fbeb5aaeb6c331`
 
 Exact localhost route:
 
-`http://127.0.0.1:5327/admin/social-content?campaignQa=campaign-package-preparation-v1&rev=fa6c5900eb10550593739f97bb24e2c4641949f3`
+`http://127.0.0.1:5327/admin/social-content?campaignQa=campaign-package-preparation-v1&rev=80a8767bf2300553c19c88b178fbeb5aaeb6c331`
 
 ## Scope shown
 
@@ -20,7 +20,7 @@ Exact localhost route:
 
 - Desktop screenshots: ready/sealed, ReversR blocked, prepared receipt at 1440 x 1000.
 - Mobile screenshots: ready/sealed, ReversR blocked, prepared receipt at 390 x 844.
-- `social-campaign-package-preparation-walkthrough.mp4`: H.264, 1440 x 1000, yuv420p, 25 fps, 10.52 seconds.
+- `social-campaign-package-preparation-walkthrough.mp4`: H.264, 1440 x 1000, yuv420p, 25 fps, 12.92 seconds.
 - `results.json`: revision, exact route, screenshot inventory, and no-egress receipt.
 
 All evidence is localhost-only and uses the existing synthetic development fixture. External requests were blocked or absent. No shared record, provider call, paid generation, upload, platform draft, schedule, publication, credential change, migration, spend, production release, or external send occurred.
