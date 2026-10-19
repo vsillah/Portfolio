@@ -117,3 +117,32 @@ export function socialCampaignPackageQaCandidates() {
   return [kicklab, reversr, kinflo]
 }
 
+export function socialCampaignLongFormBatchQaCandidates() {
+  const candidates = socialCampaignPackageQaCandidates()
+  const template = candidates[2]
+  for (let index = 4; index <= 12; index += 1) {
+    const candidate = structuredClone(template)
+    const identity = `kinflo-proof-${String(index).padStart(2, '0')}`
+    candidate.candidate_id = `candidate:${identity}:campaign:v1`
+    candidate.campaign_identity = identity
+    candidate.product_label = `KinFlo proof ${String(index).padStart(2, '0')}`
+    candidate.social_content_id = `qa-${identity}-campaign`
+    candidate.calendar_item_ids = [`calendar:${identity}:linkedin`, `calendar:${identity}:youtube`]
+    candidate.input_version = `input:${identity}:campaign:v1`
+    candidate.long_form_script_input!.receipt_id = `receipt:${identity}:long-form-framework:20261018`
+    candidate.long_form_script_input!.campaign_identity = identity
+    candidate.long_form_script_input!.candidate_id = candidate.candidate_id
+    candidate.long_form_script_input!.topic = `${candidate.product_label} product proof workflow`
+    candidate.long_form_script_input!.promise = `a clear ${candidate.product_label} product proof review built from current topic evidence`
+    candidate.long_form_script_input!.topic_outlier_evidence = candidate.long_form_script_input!.topic_outlier_evidence.map((entry, evidenceIndex) => ({
+      ...entry,
+      id: `topic:${identity}:${evidenceIndex + 1}`,
+      label: `${candidate.product_label} current topic comparison ${evidenceIndex + 1}`,
+      source_url: `https://example.com/public-topic-evidence/${identity}-${evidenceIndex + 1}`,
+      topic: candidate.long_form_script_input!.topic,
+    }))
+    candidates.push(candidate)
+  }
+  return candidates
+}
+

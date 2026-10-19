@@ -14,7 +14,7 @@ import {
   type CampaignPreparationCandidate,
   type CampaignPreparationRunSummary,
 } from '@/lib/social-campaign-package-preparation'
-import { SOCIAL_CAMPAIGN_PACKAGE_QA_FIXTURE, socialCampaignPackageQaCandidates } from '@/lib/social-campaign-package-qa-fixture'
+import { SOCIAL_CAMPAIGN_PACKAGE_QA_FIXTURE, socialCampaignLongFormBatchQaCandidates, socialCampaignPackageQaCandidates } from '@/lib/social-campaign-package-qa-fixture'
 import {
   SOCIAL_CAMPAIGN_LONG_FORM_BATCH_KIND,
   campaignLongFormBatchIdempotencyKey,
@@ -45,14 +45,22 @@ function isCandidate(value: unknown): value is CampaignPreparationCandidate {
 }
 
 async function loadCandidates() {
-  const { data, error } = await supabaseAdmin
-    .from('social_content_queue')
-    .select('id, rag_context, updated_at')
-    .not('rag_context->campaign_preparation_candidate', 'is', null)
-    .order('updated_at', { ascending: false })
-    .limit(100)
-  if (error) throw new Error('Campaign candidates are unavailable.')
-  return (data ?? [])
+  const rows: Array<{ rag_context?: unknown }> = []
+  const pageSize = 100
+  for (let from = 0; ; from += pageSize) {
+    const { data, error } = await supabaseAdmin
+      .from('social_content_queue')
+      .select('id, rag_context, updated_at')
+      .not('rag_context->campaign_preparation_candidate', 'is', null)
+      .order('updated_at', { ascending: false })
+      .order('id', { ascending: true })
+      .range(from, from + pageSize - 1)
+    if (error) throw new Error('Campaign candidates are unavailable.')
+    const page = data ?? []
+    rows.push(...page)
+    if (page.length < pageSize) break
+  }
+  return rows
     .map((row: { rag_context?: unknown }) => record(row.rag_context).campaign_preparation_candidate)
     .filter(isCandidate)
 }
@@ -93,12 +101,14 @@ export async function GET(request: NextRequest) {
   const auth = await verifyAdmin(request)
   if (isAuthError(auth)) return NextResponse.json({ error: auth.error }, { status: auth.status })
   try {
-    const candidates: CampaignPreparationCandidate[] = qaMode(request) ? socialCampaignPackageQaCandidates() : await loadCandidates()
+    const fixtureMode = qaMode(request)
+    const candidates: CampaignPreparationCandidate[] = fixtureMode ? socialCampaignPackageQaCandidates() : await loadCandidates()
+    const longFormCandidates = fixtureMode ? socialCampaignLongFormBatchQaCandidates() : candidates
     const now = new Date('2026-10-19T12:00:00.000Z')
     const evaluationTime = qaMode(request) ? now : new Date()
     return NextResponse.json({
       candidates: candidates.map((candidate: CampaignPreparationCandidate) => candidateProjection(candidate, evaluationTime)),
-      long_form_inventory: candidates.slice(0, 10).map((candidate) => {
+      long_form_inventory: longFormCandidates.map((candidate) => {
         const projection = projectCampaignLongFormDraft(candidate, evaluationTime)
         return { ...projection, packet: null }
       }),
@@ -120,11 +130,13 @@ export async function POST(request: NextRequest) {
     const body = record(await request.json())
     const action = typeof body.action === 'string' ? body.action : 'prepare_candidate'
     const candidateId = typeof body.candidate_id === 'string' ? body.candidate_id : ''
-    const candidates: CampaignPreparationCandidate[] = qaMode(request) ? socialCampaignPackageQaCandidates() : await loadCandidates()
+    const fixtureMode = qaMode(request)
+    const candidates: CampaignPreparationCandidate[] = fixtureMode ? socialCampaignPackageQaCandidates() : await loadCandidates()
     if (action === 'prepare_long_form_batch') {
-      const batch = projectCampaignLongFormBatch(candidates, qaMode(request) ? new Date('2026-10-19T12:00:00.000Z') : new Date())
+      const batchCandidates = fixtureMode ? socialCampaignLongFormBatchQaCandidates() : candidates
+      const batch = projectCampaignLongFormBatch(batchCandidates, fixtureMode ? new Date('2026-10-19T12:00:00.000Z') : new Date())
       const baseKey = campaignLongFormBatchIdempotencyKey(batch)
-      if (qaMode(request)) return NextResponse.json({
+      if (fixtureMode) return NextResponse.json({
         run: {
           id: `qa-run-${batch.batch_id}`,
           status: 'completed',
@@ -132,7 +144,7 @@ export async function POST(request: NextRequest) {
           subject_label: 'Current campaign backlog',
           current_step: 'Prepared eligible long-form scripts for human review',
           metadata: { long_form_batch: batch, base_idempotency_key: baseKey, attempt_number: 1, retry_count: 0, retry_limit: 1, maximum_attempts: SOCIAL_CAMPAIGN_MAX_ATTEMPTS },
-          outcome: { prepared: batch.prepared.length, blocked: batch.blocked.length, external_gates: SOCIAL_CAMPAIGN_EXTERNAL_GATES },
+          outcome: { total: batch.total, scanned: batch.scanned, prepared: batch.prepared_count, blocked: batch.blocked_count, deferred: batch.deferred_count, remaining: batch.remaining, external_gates: SOCIAL_CAMPAIGN_EXTERNAL_GATES },
           idempotency_key: campaignPreparationAttemptKey(baseKey, 1),
           created_at: '2026-10-19T12:00:00.000Z',
           updated_at: '2026-10-19T12:00:00.000Z',
@@ -165,7 +177,7 @@ export async function POST(request: NextRequest) {
       const claimed = await supabaseAdmin.from('agent_runs').select(RUN_RECEIPT_COLUMNS).eq('id', started.id).single()
       if (claimed.error || !claimed.data) throw new Error('Long-form batch started but its durable receipt could not be re-read.')
       if (record(claimed.data.metadata).preparation_claim !== preparationClaim) return NextResponse.json({ run: claimed.data, duplicate: true, fixture: false, retry_count: decision.retry_count, retry_limit: decision.retry_limit })
-      await endAgentRun({ runId: started.id, status: 'completed', currentStep: 'Prepared eligible long-form scripts for human review', outcome: { prepared: batch.prepared.length, blocked: batch.blocked.length, batch_id: batch.batch_id, external_gates: SOCIAL_CAMPAIGN_EXTERNAL_GATES } })
+      await endAgentRun({ runId: started.id, status: 'completed', currentStep: 'Prepared eligible long-form scripts for human review', outcome: { total: batch.total, scanned: batch.scanned, prepared: batch.prepared_count, blocked: batch.blocked_count, deferred: batch.deferred_count, remaining: batch.remaining, batch_id: batch.batch_id, external_gates: SOCIAL_CAMPAIGN_EXTERNAL_GATES } })
       const saved = await supabaseAdmin.from('agent_runs').select(RUN_RECEIPT_COLUMNS).eq('id', started.id).single()
       if (saved.error || !saved.data) throw new Error('Long-form batch completed but its durable receipt could not be re-read.')
       return NextResponse.json({ run: saved.data, duplicate: false, fixture: false, retry_count: decision.retry_count, retry_limit: decision.retry_limit })

@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { NextRequest } from 'next/server'
 import { SOCIAL_CAMPAIGN_PACKAGE_QA_FIXTURE } from '@/lib/social-campaign-package-qa-fixture'
 import { campaignPreparationAttemptKey, campaignPreparationIdempotencyKey, SOCIAL_CAMPAIGN_RETRY_EXHAUSTED_MESSAGE } from '@/lib/social-campaign-package-preparation'
-import { socialCampaignPackageQaCandidates } from '@/lib/social-campaign-package-qa-fixture'
+import { socialCampaignLongFormBatchQaCandidates, socialCampaignPackageQaCandidates } from '@/lib/social-campaign-package-qa-fixture'
 import { campaignLongFormBatchIdempotencyKey, projectCampaignLongFormBatch } from '@/lib/social-campaign-long-form-batch'
 
 const mocks = vi.hoisted(() => ({ verifyAdmin: vi.fn(), isAuthError: vi.fn(), from: vi.fn(), startAgentRun: vi.fn(), endAgentRun: vi.fn() }))
@@ -29,7 +29,7 @@ function mockProductionReads(history: any[], claimedRun?: (startInput: any) => a
   let agentRead = 0
   mocks.from.mockImplementation((table: string) => {
     if (table === 'social_content_queue') {
-      const query: any = { select: () => query, not: () => query, order: () => query, limit: async () => ({ data: [{ rag_context: { campaign_preparation_candidate: candidate } }], error: null }) }
+      const query: any = { select: () => query, not: () => query, order: () => query, range: async () => ({ data: [{ rag_context: { campaign_preparation_candidate: candidate } }], error: null }) }
       return query
     }
     agentRead += 1
@@ -75,11 +75,12 @@ describe('campaign review package route', () => {
       ['ReversR rebuild', 'blocked'],
       ['KinFlo', 'ready'],
     ])
-    expect(body.long_form_inventory.map((entry: any) => [entry.product_label, entry.state])).toEqual([
+    expect(body.long_form_inventory.slice(0, 3).map((entry: any) => [entry.product_label, entry.state])).toEqual([
       ['KickLab', 'ready'],
       ['ReversR rebuild', 'blocked'],
       ['KinFlo', 'ready'],
     ])
+    expect(body.long_form_inventory).toHaveLength(12)
     expect(body.long_form_inventory.every((entry: any) => entry.packet === null)).toBe(true)
     expect(body.candidates[1].candidate.deliverables.youtube.title).toBe('')
     expect(body.candidates[0].candidate.deliverables.youtube.title).toBe('')
@@ -97,12 +98,13 @@ describe('campaign review package route', () => {
     expect(response.status).toBe(200)
     const body = await response.json()
     const batch = body.run.metadata.long_form_batch
-    expect(batch).toMatchObject({ limit: 10, scanned: 3 })
-    expect(batch.prepared.map((packet: any) => packet.campaign_identity)).toEqual(['kicklab', 'kinflo'])
+    expect(batch).toMatchObject({ total: 12, scanned: 12, chunk_size: 10, chunks_processed: 2, prepared_count: 11, blocked_count: 1, deferred_count: 0, remaining: 0 })
+    expect(batch.prepared.map((packet: any) => packet.campaign_identity)).toEqual(projectCampaignLongFormBatch(socialCampaignLongFormBatchQaCandidates(), new Date('2026-10-19T12:00:00.000Z')).prepared.map((packet) => packet.campaign_identity))
     expect(batch.blocked).toEqual([expect.objectContaining({ campaign_identity: 'reversr', packet: null })])
     expect(batch.prepared.every((packet: any) => packet.evaluation_receipt.approval_ready)).toBe(true)
     expect(batch.prepared.every((packet: any) => packet.evaluation_receipt.topic_evidence.status === 'passed')).toBe(true)
     expect(batch.prepared.every((packet: any) => packet.evaluation_receipt.originality.status === 'passed')).toBe(true)
+    expect(batch.prepared.every((packet: any) => packet.customer_facing_copy_receipt.status === 'passed')).toBe(true)
     expect(new Set(Object.values(batch.external_gates))).toEqual(new Set([false]))
     expect(mocks.startAgentRun).not.toHaveBeenCalled()
     expect(mocks.endAgentRun).not.toHaveBeenCalled()

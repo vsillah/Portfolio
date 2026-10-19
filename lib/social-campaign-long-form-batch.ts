@@ -18,9 +18,22 @@ import {
 } from '@/lib/social-campaign-package-preparation'
 
 export const SOCIAL_CAMPAIGN_LONG_FORM_BATCH_KIND = 'social_campaign_long_form_batch'
-export const SOCIAL_CAMPAIGN_LONG_FORM_DRAFT_VERSION = 'campaign-long-form-draft-packet/v1' as const
-export const SOCIAL_CAMPAIGN_LONG_FORM_BATCH_VERSION = 'campaign-long-form-batch/v1' as const
-export const SOCIAL_CAMPAIGN_LONG_FORM_BATCH_LIMIT = 10
+export const SOCIAL_CAMPAIGN_LONG_FORM_DRAFT_VERSION = 'campaign-long-form-draft-packet/v2' as const
+export const SOCIAL_CAMPAIGN_LONG_FORM_BATCH_VERSION = 'campaign-long-form-batch/v2' as const
+export const SOCIAL_CAMPAIGN_LONG_FORM_CHUNK_SIZE = 10
+
+export type CustomerFacingCopyFinding = {
+  beat_id: string
+  code: string
+  matched_text: string
+}
+
+export type CustomerFacingCopyReceipt = {
+  version: 'customer-facing-copy-check/v1'
+  status: 'passed' | 'blocked'
+  scanned_beat_ids: string[]
+  findings: CustomerFacingCopyFinding[]
+}
 
 export type CampaignLongFormDraftPacket = {
   version: typeof SOCIAL_CAMPAIGN_LONG_FORM_DRAFT_VERSION
@@ -48,6 +61,7 @@ export type CampaignLongFormDraftPacket = {
   title: string
   script_text: string
   beats: LongFormScriptBeat[]
+  customer_facing_copy_receipt: CustomerFacingCopyReceipt
   evaluation_receipt: LongFormScriptReview
   external_gates: typeof SOCIAL_CAMPAIGN_EXTERNAL_GATES
 }
@@ -66,8 +80,22 @@ export type CampaignLongFormBatch = {
   version: typeof SOCIAL_CAMPAIGN_LONG_FORM_BATCH_VERSION
   batch_id: string
   input_fingerprint: string
-  limit: number
+  total: number
   scanned: number
+  chunk_size: number
+  chunks_processed: number
+  chunks: Array<{
+    chunk_index: number
+    chunk_id: string
+    candidate_ids: string[]
+    scanned: number
+    prepared: number
+    blocked: number
+  }>
+  prepared_count: number
+  blocked_count: number
+  deferred_count: number
+  remaining: number
   prepared: CampaignLongFormDraftPacket[]
   blocked: CampaignLongFormProjection[]
   external_gates: typeof SOCIAL_CAMPAIGN_EXTERNAL_GATES
@@ -91,6 +119,28 @@ function timestamp(value: unknown) {
 
 function blocker(code: string, message: string, recoveryLabel: string, recoveryHref: string): CampaignPreparationBlocker {
   return { code, message, recovery_label: recoveryLabel, recovery_href: recoveryHref }
+}
+
+const CUSTOMER_FACING_CONTAMINATION_RULES: Array<{ code: string; pattern: RegExp }> = [
+  { code: 'review_workflow', pattern: /\b(?:review[- ]only|decision queue|approval workflow|before approval|approved script)\b/i },
+  { code: 'operator_blocker', pattern: /\b(?:exact blocker|return it with|recovery path)\b/i },
+  { code: 'production_gate', pattern: /\b(?:render|provider|production|publishing|external) gates?\b/i },
+  { code: 'receipt_language', pattern: /\b(?:receipt|input fingerprint|source trace)\b/i },
+  { code: 'calibration_mechanics', pattern: /\b(?:unscored|zero[- ]weight|performance weight|channel baseline|outlier threshold|observation date|creator distance)\b/i },
+  { code: 'selection_mechanics', pattern: /\b(?:included|excluded|selected) sources?\b/i },
+]
+
+export function inspectCustomerFacingScript(beats: LongFormScriptBeat[]): CustomerFacingCopyReceipt {
+  const findings = beats.flatMap((beat) => CUSTOMER_FACING_CONTAMINATION_RULES.flatMap(({ code, pattern }) => {
+    const match = beat.text.match(pattern)
+    return match ? [{ beat_id: beat.id, code, matched_text: match[0] }] : []
+  }))
+  return {
+    version: 'customer-facing-copy-check/v1',
+    status: findings.length ? 'blocked' : 'passed',
+    scanned_beat_ids: beats.map((beat) => beat.id),
+    findings,
+  }
 }
 
 function frameworkBlockers(candidate: CampaignPreparationCandidate, receipt: CampaignLongFormScriptInputReceipt | null, now: Date) {
@@ -118,7 +168,6 @@ function scriptBeats(candidate: CampaignPreparationCandidate, receipt: CampaignL
   const topic = receipt.topic
   const promise = receipt.promise
   const product = candidate.product_label
-  const proof = candidate.deliverables.youtube.description || candidate.deliverables.linkedin.copy
   const storyboard = candidate.deliverables.youtube.storyboard
   const visual = (index: number, fallback: string) => storyboard[index] || fallback
   const beat = (
@@ -131,18 +180,18 @@ function scriptBeats(candidate: CampaignPreparationCandidate, receipt: CampaignL
     interrupt: string | null = null,
   ): LongFormScriptBeat => ({ id, start_seconds: start, end_seconds: end, role, text, broll_cue: broll, pattern_interrupt: interrupt })
   return [
-    beat('campaign-hook', 0, 7, 'hook', `If you are trying to understand ${topic}, the hardest part is separating a strong story from a claim the evidence cannot carry. ${product} gives us a practical way to examine that problem through visible product proof, current source evidence, and a review path that keeps every conclusion honest.`, visual(0, `Open on the approved ${product} product view.`), `On-screen question: What can ${product} actually prove?`),
-    beat('campaign-open-loop', 7, 27, 'open_loop', `By the end, I will show you ${promise}. We will inspect the problem, walk through the approved ${product} evidence, test the lesson against current topic comparisons, and close with the exact boundary between what the product demonstrates and what still needs measurement.`, visual(0, `Move from the viewer problem into the ${product} interface.`), 'Chapter card: Problem, proof, boundary.'),
+    beat('campaign-hook', 0, 7, 'hook', `If you are trying to understand ${topic}, the hardest part is separating a strong story from a claim the evidence cannot carry. ${product} gives us a practical way to examine that problem through visible product behavior, current public examples, and clear limits.`, visual(0, `Open on the ${product} product view.`), `On-screen question: What can ${product} actually prove?`),
+    beat('campaign-open-loop', 7, 27, 'open_loop', `By the end, I will show you ${promise}. We will inspect the problem, walk through ${product} in action, compare the lesson with what people are discussing now, and name the boundary between what the product demonstrates and what still needs measurement.`, visual(0, `Move from the viewer problem into the ${product} interface.`), 'Chapter card: Problem, proof, boundary.'),
     beat('campaign-frame', 27, 43, 'frame', `The starting point is simple: access and operating reality shape outcomes. A useful product story must show what someone can see, what action becomes easier, and which burden is reduced. It also has to name the limit, because confidence without a visible basis creates more work instead of less.`, visual(1, 'Show the workflow before-and-after state.'), 'Pull quote emphasizing visible evidence.'),
-    beat('campaign-proof', 43, 63, 'proof', `Here is the first-party proof for ${product}. ${proof} I am using the approved product view and its bound evidence receipt, so the claim stays next to the screen, interaction, or artifact that supports it. Nothing in this walkthrough depends on a generic illustration or an unverified outcome.`, visual(1, `Walk through the approved ${product} product evidence.`), 'Zoom to the exact control or result being discussed.'),
-    beat('campaign-teaching-one', 63, 86, 'teaching', `The first lesson is alignment. The opening promise, the product evidence, and the practical takeaway must describe the same problem. When those pieces drift apart, the script may sound polished while the viewer is left carrying the work of connecting them. The review receipt makes that drift visible before approval.`, visual(2, 'Show the evidence-to-claim binding and source trace.'), 'Switch from product view to evidence receipt.'),
-    beat('campaign-rehook-one', 86, 101, 'rehook', `But alignment alone is not enough. The next question is whether current public attention supports this exact topic, or whether we are borrowing momentum from a different conversation. That distinction decides whether the idea is timely, merely interesting, or still Unscored.`, visual(2, 'Show included and excluded live topic comparisons.'), 'On-screen label: Same topic or borrowed attention?'),
-    beat('campaign-teaching-two', 101, 126, 'teaching', `The live comparison set answers that question with attributable sources, observation dates, channel baselines, and declared outlier thresholds. Included sources must match the topic and remain fresh. Excluded sources stay visible with a reason. Saved playlist examples can shape taste, but they carry zero performance weight and cannot manufacture confidence.`, visual(2, 'Walk through current topic evidence and exclusions.'), 'Change layout to selected versus excluded sources.'),
-    beat('campaign-teaching-three', 126, 145, 'teaching', `Originality creates the next boundary. The framework can teach structure: open a loop, place proof beside the claim, renew attention, and earn the call to action. The final words, examples, moral frame, and product lesson must remain original. Creator distance is checked as evidence, not assumed from good intentions.`, visual(3, 'Show the creator-distance and originality receipt.'), 'Highlight structure versus copied language.'),
-    beat('campaign-rehook-two', 145, 151, 'rehook', `So the final test is practical: did this script deliver ${promise}, with proof the viewer can inspect and limits the viewer can understand?`, visual(3, 'Return to the approved product proof.'), 'On-screen return to the opening promise.'),
+    beat('campaign-proof', 43, 63, 'proof', `Here is what ${product} shows. The interface makes the workflow visible, so the claim stays next to the screen, interaction, or artifact that supports it. Nothing in this walkthrough depends on a generic illustration or an outcome we cannot verify.`, visual(1, `Walk through the ${product} product evidence.`), 'Zoom to the exact control or result being discussed.'),
+    beat('campaign-teaching-one', 63, 86, 'teaching', `The first lesson is alignment. The opening promise, the product behavior, and the practical takeaway must describe the same problem. When those pieces drift apart, the story may sound polished while the viewer is left carrying the work of connecting them. Keeping the claim beside the demonstration makes that drift easier to see.`, visual(2, 'Show the claim beside the product behavior.'), 'Switch from the problem to the demonstrated result.'),
+    beat('campaign-rehook-one', 86, 101, 'rehook', `But alignment alone is not enough. The next question is whether people are discussing this exact topic now, or whether we are borrowing momentum from a different conversation. That distinction helps us decide whether the idea is timely, useful later, or simply unrelated.`, visual(2, 'Show recent public examples from the same topic.'), 'On-screen label: Same topic or borrowed attention?'),
+    beat('campaign-teaching-two', 101, 126, 'teaching', `Recent public examples help us compare the questions people are asking and the problems they are trying to solve. They can inform timing, but they cannot prove a product claim. That proof still has to come from what the product visibly does and where its limits are clear.`, visual(2, 'Walk through recent public examples, then return to the product.'), 'Move from public conversation back to demonstrated behavior.'),
+    beat('campaign-teaching-three', 126, 145, 'teaching', `Originality creates the next boundary. Other creators can teach structure: open a loop, place proof beside the claim, renew attention, and earn the call to action. The final words, examples, moral frame, and product lesson still have to be our own.`, visual(3, 'Show structural inspiration beside original product examples.'), 'Highlight structure versus original language.'),
+    beat('campaign-rehook-two', 145, 151, 'rehook', `So the final test is practical: did this explanation deliver ${promise}, with proof the viewer can inspect and limits the viewer can understand?`, visual(3, 'Return to the product proof.'), 'On-screen return to the opening promise.'),
     beat('campaign-payoff', 151, 160, 'payoff', `The result is ${promise}. ${product} becomes a demonstrated practice rather than an abstract claim: the viewer can see the product, follow the reasoning, inspect the evidence, and understand the boundary before deciding what to do next.`, null, null),
     beat('campaign-conclusion', 160, 170, 'conclusion', `A trustworthy product story does not ask confidence to outrun proof. It connects the problem, the visible product behavior, the current evidence, and the limitation in one clear line. That is how technology can reduce burden while preserving the dignity and judgment of the person using it.`, null, null),
-    beat('campaign-cta', 170, 180, 'cta', `Open the source trace and inspect one ${product} proof decision for yourself. If the evidence and promise match, send this review-only script to the separate Decision Queue. If they do not, return it with the exact blocker before any render or provider gate opens.`, null, null),
+    beat('campaign-cta', 170, 180, 'cta', `Explore the public ${product} link, compare what you see with the sources in the description, and tell me which part would reduce the most friction in your own work. If this kind of practical product breakdown is useful, subscribe for the next one.`, null, null),
   ]
 }
 
@@ -169,6 +218,21 @@ export function projectCampaignLongFormDraft(candidate: CampaignPreparationCandi
     packet: null,
   }
   const beats = scriptBeats(candidate, receipt)
+  const customerFacingCopyReceipt = inspectCustomerFacingScript(beats)
+  if (customerFacingCopyReceipt.status !== 'passed') return {
+    candidate_id: candidate.candidate_id,
+    campaign_identity: candidate.campaign_identity,
+    product_label: candidate.product_label,
+    state: 'blocked',
+    ready: false,
+    blockers: customerFacingCopyReceipt.findings.map((finding) => blocker(
+      `customer_facing_contamination_${finding.code}`,
+      `Spoken beat ${finding.beat_id} contains internal workflow language: ${finding.matched_text}.`,
+      'Rewrite customer-facing spoken copy',
+      receipt.source_href,
+    )),
+    packet: null,
+  }
   const scriptVersion = hash({
     candidate_id: candidate.candidate_id,
     candidate_input_version: candidate.input_version,
@@ -237,6 +301,7 @@ export function projectCampaignLongFormDraft(candidate: CampaignPreparationCandi
       title: candidate.deliverables.youtube.title,
       script_text: beats.map((beat) => beat.text).join('\n\n'),
       beats,
+      customer_facing_copy_receipt: customerFacingCopyReceipt,
       evaluation_receipt: evaluation,
       external_gates: SOCIAL_CAMPAIGN_EXTERNAL_GATES,
     },
@@ -244,21 +309,44 @@ export function projectCampaignLongFormDraft(candidate: CampaignPreparationCandi
 }
 
 export function projectCampaignLongFormBatch(candidates: CampaignPreparationCandidate[], now = new Date()): CampaignLongFormBatch {
-  const bounded = candidates.slice(0, SOCIAL_CAMPAIGN_LONG_FORM_BATCH_LIMIT)
-  const projections = bounded.map((candidate) => projectCampaignLongFormDraft(candidate, now))
-  const inputFingerprint = hash(bounded.map((candidate) => ({
+  const ordered = [...candidates].sort((left, right) => left.campaign_identity.localeCompare(right.campaign_identity) || left.candidate_id.localeCompare(right.candidate_id))
+  const chunkInputs = Array.from({ length: Math.ceil(ordered.length / SOCIAL_CAMPAIGN_LONG_FORM_CHUNK_SIZE) }, (_, index) => ordered.slice(index * SOCIAL_CAMPAIGN_LONG_FORM_CHUNK_SIZE, (index + 1) * SOCIAL_CAMPAIGN_LONG_FORM_CHUNK_SIZE))
+  const projections = chunkInputs.flatMap((chunk) => chunk.map((candidate) => projectCampaignLongFormDraft(candidate, now)))
+  const inputFingerprint = hash(ordered.map((candidate) => ({
     candidate_id: candidate.candidate_id,
+    campaign_identity: candidate.campaign_identity,
     input_version: candidate.input_version,
     long_form_receipt: candidate.long_form_script_input ?? null,
   })))
+  const chunks = chunkInputs.map((chunk, index) => {
+    const chunkProjections = projections.slice(index * SOCIAL_CAMPAIGN_LONG_FORM_CHUNK_SIZE, index * SOCIAL_CAMPAIGN_LONG_FORM_CHUNK_SIZE + chunk.length)
+    const candidateIds = chunk.map((candidate) => candidate.candidate_id)
+    return {
+      chunk_index: index + 1,
+      chunk_id: `campaign-long-form-chunk-${hash({ index: index + 1, candidate_ids: candidateIds }).slice(7, 31)}`,
+      candidate_ids: candidateIds,
+      scanned: chunk.length,
+      prepared: chunkProjections.filter((projection) => projection.ready).length,
+      blocked: chunkProjections.filter((projection) => !projection.ready).length,
+    }
+  })
+  const prepared = projections.flatMap((projection) => projection.packet ? [projection.packet] : [])
+  const blocked = projections.filter((projection) => !projection.ready)
   return {
     version: SOCIAL_CAMPAIGN_LONG_FORM_BATCH_VERSION,
     batch_id: `campaign-long-form-batch-${inputFingerprint.slice(7, 31)}`,
     input_fingerprint: inputFingerprint,
-    limit: SOCIAL_CAMPAIGN_LONG_FORM_BATCH_LIMIT,
-    scanned: bounded.length,
-    prepared: projections.flatMap((projection) => projection.packet ? [projection.packet] : []),
-    blocked: projections.filter((projection) => !projection.ready),
+    total: ordered.length,
+    scanned: ordered.length,
+    chunk_size: SOCIAL_CAMPAIGN_LONG_FORM_CHUNK_SIZE,
+    chunks_processed: chunks.length,
+    chunks,
+    prepared_count: prepared.length,
+    blocked_count: blocked.length,
+    deferred_count: 0,
+    remaining: 0,
+    prepared,
+    blocked,
     external_gates: SOCIAL_CAMPAIGN_EXTERNAL_GATES,
   }
 }

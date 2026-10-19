@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { socialCampaignPackageQaCandidates } from '@/lib/social-campaign-package-qa-fixture'
+import { socialCampaignLongFormBatchQaCandidates, socialCampaignPackageQaCandidates } from '@/lib/social-campaign-package-qa-fixture'
 import {
   campaignLongFormBatchIdempotencyKey,
+  inspectCustomerFacingScript,
   projectCampaignLongFormBatch,
   projectCampaignLongFormDraft,
 } from '@/lib/social-campaign-long-form-batch'
@@ -22,12 +23,30 @@ describe('campaign long-form script batch', () => {
   })
 
   it('returns the same packet and batch identities for a duplicate replay', () => {
-    const first = projectCampaignLongFormBatch(socialCampaignPackageQaCandidates(), NOW)
-    const replay = projectCampaignLongFormBatch(structuredClone(socialCampaignPackageQaCandidates()), NOW)
+    const first = projectCampaignLongFormBatch(socialCampaignLongFormBatchQaCandidates(), NOW)
+    const replay = projectCampaignLongFormBatch(structuredClone(socialCampaignLongFormBatchQaCandidates()).reverse(), NOW)
     expect(replay.batch_id).toBe(first.batch_id)
     expect(replay.input_fingerprint).toBe(first.input_fingerprint)
     expect(replay.prepared.map((packet) => packet.packet_id)).toEqual(first.prepared.map((packet) => packet.packet_id))
     expect(campaignLongFormBatchIdempotencyKey(replay)).toBe(campaignLongFormBatchIdempotencyKey(first))
+  })
+
+  it('processes every item beyond the first chunk and reports complete backlog coverage', () => {
+    const batch = projectCampaignLongFormBatch(socialCampaignLongFormBatchQaCandidates(), NOW)
+    expect(batch).toMatchObject({ total: 12, scanned: 12, chunk_size: 10, chunks_processed: 2, prepared_count: 11, blocked_count: 1, deferred_count: 0, remaining: 0 })
+    expect(batch.chunks.map((chunk) => chunk.scanned)).toEqual([10, 2])
+    expect(new Set([...batch.prepared.map((packet) => packet.candidate_id), ...batch.blocked.map((entry) => entry.candidate_id)]).size).toBe(12)
+    expect(batch.chunks.flatMap((chunk) => chunk.candidate_ids)).toHaveLength(12)
+  })
+
+  it('blocks internal workflow vocabulary from customer-facing spoken beats', () => {
+    const receipt = inspectCustomerFacingScript([{
+      id: 'bad-cta', start_seconds: 0, end_seconds: 10, role: 'cta',
+      text: 'Send this review-only script to the Decision Queue before any provider gate opens.',
+      broll_cue: null, pattern_interrupt: null,
+    }])
+    expect(receipt.status).toBe('blocked')
+    expect(receipt.findings.map((finding) => finding.code)).toEqual(expect.arrayContaining(['review_workflow', 'production_gate']))
   })
 
   it('blocks a stale framework receipt with an exact recovery action and no draft', () => {
@@ -67,5 +86,7 @@ describe('campaign long-form script batch', () => {
       claim_beat_ids: ['campaign-proof'],
       privacy_receipt_id: projection.packet!.privacy_receipt_id,
     })])
+    expect(projection.packet!.customer_facing_copy_receipt).toMatchObject({ status: 'passed', findings: [] })
+    expect(inspectCustomerFacingScript(projection.packet!.beats).status).toBe('passed')
   })
 })
