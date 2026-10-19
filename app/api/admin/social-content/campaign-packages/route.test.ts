@@ -76,8 +76,19 @@ describe('campaign review package route', () => {
       ['21c492c2-9279-4e08-afc9-49207935a681', 'sha256:4d3bc63ebaeb1aed344d64ed15ebb0ff865772de48b48249526ccce0b2c02e9e', 'sha256:4d3bc63ebaeb1aed344d64ed15ebb0ff865772de48b48249526ccce0b2c02e9e', 'source_ready_capture_pending'],
     ])
     expect(body.approved_adaptation_review.adaptations.every((item: any) => item.source_readiness.ready && item.scenes.length >= 9 && item.evidence_assets.length > 0)).toBe(true)
+    expect(body.approved_adaptation_review.adaptations.every((item: any) => item.storyboard_review.assets.length === 1 && item.storyboard_review.scenes.length === 9)).toBe(true)
+    expect(body.approved_adaptation_review.adaptations.every((item: any) => item.storyboard_review.status === 'review_direction_blocked')).toBe(true)
+    expect(body.approved_adaptation_review.adaptations.every((item: any) => new Set(Object.values(item.storyboard_review.external_gates)).size === 1 && Object.values(item.storyboard_review.external_gates)[0] === false)).toBe(true)
+    expect(body.approved_adaptation_review.adaptations[0].storyboard_review.evidence_gates).toEqual(expect.arrayContaining([
+      expect.objectContaining({ key: 'freshness', status: 'stale' }),
+      expect.objectContaining({ key: 'thumbnail', status: 'blocked' }),
+    ]))
+    expect(body.approved_adaptation_review.adaptations[1].storyboard_review.evidence_gates).toEqual(expect.arrayContaining([
+      expect.objectContaining({ key: 'freshness', status: 'passed' }),
+      expect.objectContaining({ key: 'description', status: 'blocked' }),
+    ]))
     expect(body.approved_adaptation_review.blocked_items).toHaveLength(3)
-    expect(body.approved_adaptation_review.human_qa).toEqual({ status: 'pending_new_capture_artifacts', screenshots: [], mp4: null })
+    expect(body.approved_adaptation_review.human_qa).toEqual({ status: 'pending_human_qa', screenshots: [], mp4: null })
     expect(new Set(Object.values(body.approved_adaptation_review.external_gates))).toEqual(new Set([false]))
     expect(mocks.from).not.toHaveBeenCalled()
   })
