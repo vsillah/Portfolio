@@ -1,0 +1,48 @@
+{
+  "revision": "865fd29e",
+  "route": "http://127.0.0.1:3210/admin/content/video-generation?qa_script_intelligence=ready&rev=865fd29e",
+  "states_reviewed": [
+    "passing",
+    "stale evidence",
+    "originality blocked"
+  ],
+  "viewports": [
+    "1440x1000",
+    "390x844"
+  ],
+  "interactions": [
+    "dimension drill-in",
+    "topic evidence trace",
+    "framework source receipts"
+  ],
+  "screenshots": [
+    "desktop-1440-passing.png",
+    "desktop-1440-stale.png",
+    "mobile-390-passing.png",
+    "mobile-390-stale.png",
+    "mobile-390-originality-blocked.png"
+  ],
+  "video": "long-form-script-intelligence-walkthrough.mp4",
+  "video_probe": {
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "width": 1440,
+        "height": 1000,
+        "avg_frame_rate": "25/1",
+        "nb_frames": "867"
+      }
+    ],
+    "format": {
+      "duration": "34.680000",
+      "size": "2740384"
+    }
+  },
+  "external_requests": [],
+  "blocked_development_telemetry": [
+    "https://va.vercel-scripts.com/**"
+  ],
+  "protected_actions_exercised": []
+}

@@ -73,8 +73,16 @@ export const DEFAULT_CONTENT_FRAMEWORKS: ContentFramework[] = [
     category: 'offer_strategy',
     summary: 'Frame value through dream outcome, perceived likelihood, time delay, and effort or sacrifice.',
     usageGuidance: 'Use when an idea needs an offer, proof stack, guarantee, or business case.',
-    sourceUrls: ['https://www.acquisition.com/'],
-    metadata: { defaultVisual: 'equation' },
+    sourceUrls: [
+      'https://www.youtube.com/watch?v=joF2fMj3XKk',
+      'https://www.acquisition.com/hubfs/%24100M%20Journal.pdf',
+    ],
+    metadata: {
+      defaultVisual: 'equation',
+      frameworkLibraryVersion: 'youtube-creation-framework-library-v1',
+      sourceObservedAt: '2026-10-18T23:00:00.000Z',
+      evidenceBoundary: 'Use the creator-published equation as an abstract value lens. Do not imitate creator phrasing, delivery, examples, or offer language.',
+    },
   },
   {
     id: 'nick-saraev-ai-content-engine',
@@ -83,10 +91,13 @@ export const DEFAULT_CONTENT_FRAMEWORKS: ContentFramework[] = [
     category: 'content_systems',
     summary: 'Frame content production as a repeatable AI-assisted system from raw idea to platform-specific assets.',
     usageGuidance: 'Use when one source idea should become posts, decks, scripts, audio, and short-form clips.',
-    sourceUrls: ['https://nicksaraev.com/', 'https://makerschoolcommunity.com/'],
+    sourceUrls: ['https://nicksaraev.com/', 'https://nicksaraev.com/the-next-leg/'],
     metadata: {
       defaultVisual: 'cycle',
       nameNote: 'User referenced Nick Saerev; public sources indicate Nick Saraev is the likely intended creator.',
+      frameworkLibraryVersion: 'youtube-creation-framework-library-v1',
+      sourceObservedAt: '2026-10-18T23:00:00.000Z',
+      evidenceBoundary: 'Public evidence supports systematic topic selection and durable long-form content, not a transcript-derived script formula. Keep the framework at the system level.',
     },
   },
 ]

@@ -93,6 +93,7 @@ describe('POST /api/admin/video-generation/ideas-queue/[id]/render-readiness', (
         channel: 'youtube',
         aspectRatio: '16:9',
         templateId: 'template-1',
+        qaScriptIntelligenceState: 'ready',
       }),
       { params: { id: 'draft-1' } }
     )
@@ -102,6 +103,7 @@ describe('POST /api/admin/video-generation/ideas-queue/[id]/render-readiness', (
     expect(response.status).toBe(200)
     expect(body.report.ready).toBe(true)
     expect(body.report.details.brollAssetIds).toEqual(['asset-1'])
+    expect(body.report.details.longFormScriptReview.approval_ready).toBe(true)
     expect(body.report.details.approvalBoundary).toContain('does not start a render')
     expect(mocks.from).toHaveBeenCalledTimes(2)
   })
@@ -111,7 +113,7 @@ describe('POST /api/admin/video-generation/ideas-queue/[id]/render-readiness', (
       .mockReturnValueOnce(queueFetchBuilder({ storyboard_json: { scenes: [] } }))
 
     const response = await POST(
-      makeRequest({ channel: 'youtube', aspectRatio: '16:9' }),
+      makeRequest({ channel: 'youtube', aspectRatio: '16:9', qaScriptIntelligenceState: 'ready' }),
       { params: { id: 'draft-1' } }
     )
 
@@ -131,7 +133,7 @@ describe('POST /api/admin/video-generation/ideas-queue/[id]/render-readiness', (
       .mockReturnValueOnce(queueFetchBuilder({ storyboard_json: { scenes: [] } }))
 
     const response = await POST(
-      makeRequest({ channel: 'youtube', aspectRatio: '16:9' }),
+      makeRequest({ channel: 'youtube', aspectRatio: '16:9', qaScriptIntelligenceState: 'ready' }),
       { params: { id: 'draft-1' } }
     )
 
@@ -141,5 +143,25 @@ describe('POST /api/admin/video-generation/ideas-queue/[id]/render-readiness', (
     expect(body.report.ready).toBe(true)
     expect(body.report.details.avatarId).toBe('db-avatar-1')
     expect(body.report.details.voiceId).toBe('db-voice-1')
+  })
+
+  it('blocks canonical readiness when live topic evidence is stale', async () => {
+    mocks.from.mockReturnValueOnce(queueFetchBuilder({ storyboard_json: { scenes: [] } }))
+
+    const response = await POST(
+      makeRequest({
+        channel: 'youtube',
+        aspectRatio: '16:9',
+        templateId: 'template-1',
+        qaScriptIntelligenceState: 'stale',
+      }),
+      { params: { id: 'draft-1' } },
+    )
+    const body = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(body.report.ready).toBe(false)
+    expect(body.report.details.longFormScriptReview.status).toBe('unscored')
+    expect(body.report.blockingIssues.join(' ')).toContain('Long-form script intelligence blocked render readiness')
   })
 })

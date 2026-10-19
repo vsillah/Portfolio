@@ -1,4 +1,5 @@
 import { evaluateVideoScript, type VideoScriptScorecard, type VideoScriptTemplateOutline } from './video-script-intelligence'
+import type { LongFormScriptReview } from './long-form-script-intelligence'
 
 export const VIDEO_RENDER_SCRIPT_MAX = 5000
 
@@ -17,6 +18,7 @@ export interface VideoRenderReadinessInput {
   channel: string
   aspectRatio: string
   brollAssetIds: string[]
+  longFormScriptReview?: LongFormScriptReview | null
 }
 
 export interface VideoRenderReadinessReport {
@@ -36,7 +38,12 @@ export interface VideoRenderReadinessReport {
     aspectRatio: string
     approvalBoundary: string
     scriptScorecard: VideoScriptScorecard
+    longFormScriptReview: LongFormScriptReview | null
   }
+}
+
+function isCurrentScriptScorecard(value: VideoScriptScorecard | null | undefined): value is VideoScriptScorecard {
+  return Boolean(value && Array.isArray(value.blockers) && Array.isArray(value.warnings))
 }
 
 export function buildVideoRenderReadinessReport(input: VideoRenderReadinessInput): VideoRenderReadinessReport {
@@ -64,13 +71,20 @@ export function buildVideoRenderReadinessReport(input: VideoRenderReadinessInput
     blockingIssues.push('HeyGen template or avatar and voice must be configured before render.')
   }
 
-  const scriptScorecard = input.scriptScorecard ?? evaluateVideoScript({
+  const scriptScorecard = isCurrentScriptScorecard(input.scriptScorecard) ? input.scriptScorecard : evaluateVideoScript({
     scriptText,
     outline: input.scriptOutline,
     researchPacketCount: input.researchPacketIds?.length ?? 0,
   })
   blockingIssues.push(...scriptScorecard.blockers)
   warnings.push(...scriptScorecard.warnings)
+
+  const longFormScriptReview = input.longFormScriptReview ?? null
+  if (input.channel === 'youtube' && !longFormScriptReview?.approval_ready) {
+    const reason = longFormScriptReview?.blockers[0]
+      ?? 'A current long-form script intelligence receipt is required.'
+    blockingIssues.push(`Long-form script intelligence blocked render readiness: ${reason}`)
+  }
 
   if (input.storyboardScenes === 0) {
     warnings.push('No storyboard scenes are attached for visual direction.')
@@ -99,6 +113,7 @@ export function buildVideoRenderReadinessReport(input: VideoRenderReadinessInput
       aspectRatio: input.aspectRatio,
       approvalBoundary: 'Readiness does not start a render. Shaka render approval is still required before HeyGen is called.',
       scriptScorecard,
+      longFormScriptReview,
     },
   }
 }

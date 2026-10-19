@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { buildVideoRenderReadinessReport, VIDEO_RENDER_SCRIPT_MAX } from './video-render-readiness'
+import { evaluateLongFormScriptIntelligence, longFormScriptQaFixture } from './long-form-script-intelligence'
 
 describe('video render readiness', () => {
   it('marks a pending draft with template config as ready', () => {
@@ -23,11 +24,38 @@ describe('video render readiness', () => {
       channel: 'youtube',
       aspectRatio: '16:9',
       brollAssetIds: ['asset-1'],
+      longFormScriptReview: evaluateLongFormScriptIntelligence(longFormScriptQaFixture('ready')),
     })
 
     expect(report.ready).toBe(true)
     expect(report.blockingIssues).toEqual([])
     expect(report.details.heygenMode).toBe('template')
+  })
+
+  it('fails closed when a YouTube draft has stale long-form evidence', () => {
+    const report = buildVideoRenderReadinessReport({
+      title: 'Stale evidence draft', status: 'pending', scriptText: 'A sufficiently reviewed draft.',
+      storyboardScenes: 1, videoGenerationJobId: null, templateId: 'template-1', avatarId: null, voiceId: null,
+      channel: 'youtube', aspectRatio: '16:9', brollAssetIds: ['asset-1'],
+      longFormScriptReview: evaluateLongFormScriptIntelligence(longFormScriptQaFixture('stale')),
+    })
+
+    expect(report.ready).toBe(false)
+    expect(report.blockingIssues).toEqual(expect.arrayContaining([
+      expect.stringContaining('Long-form script intelligence blocked render readiness'),
+    ]))
+  })
+
+  it('re-evaluates a legacy persisted scorecard instead of throwing', () => {
+    const report = buildVideoRenderReadinessReport({
+      title: 'Legacy scorecard draft', status: 'pending', scriptText: 'A sufficiently reviewed draft.',
+      scriptScorecard: { overall_score: 92 } as never,
+      storyboardScenes: 1, videoGenerationJobId: null, templateId: 'template-1', avatarId: null, voiceId: null,
+      channel: 'linkedin', aspectRatio: '16:9', brollAssetIds: ['asset-1'],
+    })
+
+    expect(report.details.scriptScorecard.blockers).toEqual(expect.any(Array))
+    expect(report.details.scriptScorecard.warnings).toEqual(expect.any(Array))
   })
 
   it('blocks render when the script exceeds HeyGen limits', () => {

@@ -3,6 +3,7 @@ import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import VideoGenerationPage from './page'
+import { evaluateLongFormScriptIntelligence, longFormScriptQaFixture } from '@/lib/long-form-script-intelligence'
 
 const mocks = vi.hoisted(() => ({
   getCurrentSession: vi.fn(),
@@ -196,17 +197,24 @@ function stubVideoGenerationFetch(drafts: Array<typeof draft>) {
     if (url.startsWith('/api/admin/contacts-search?')) {
       return jsonResponse({ contacts: [] })
     }
-    if (url === '/api/admin/video-generation/ideas-queue/draft-actual-123/render-readiness') {
+    const readinessMatch = url.match(/^\/api\/admin\/video-generation\/ideas-queue\/([^/]+)\/render-readiness$/)
+    if (readinessMatch) {
       expect(init?.method).toBe('POST')
-      expect(JSON.parse(String(init?.body))).toMatchObject({
+      const requestBody = JSON.parse(String(init?.body))
+      if (readinessMatch[1] === 'draft-actual-123') expect(requestBody).toMatchObject({
         channel: 'youtube',
         aspectRatio: '16:9',
         brollAssetIds: ['broll-dashboard'],
       })
+      const state = requestBody.qaScriptIntelligenceState === 'stale' || requestBody.qaScriptIntelligenceState === 'originality_blocked'
+        ? requestBody.qaScriptIntelligenceState
+        : 'ready'
+      const longFormScriptReview = evaluateLongFormScriptIntelligence(longFormScriptQaFixture(state))
+      longFormScriptReview.input_fingerprint = `fnv1a:${readinessMatch[1]}`
       return jsonResponse({
         report: {
-          ready: true,
-          blockingIssues: [],
+          ready: longFormScriptReview.approval_ready,
+          blockingIssues: longFormScriptReview.approval_ready ? [] : ['Long-form script intelligence blocked render readiness.'],
           warnings: [],
           details: {
             scriptCharacters: draft.script_text.length,
@@ -215,6 +223,7 @@ function stubVideoGenerationFetch(drafts: Array<typeof draft>) {
             heygenMode: 'avatar_voice',
             approvalBoundary: 'Readiness check passed.',
             scriptScorecard: draft.script_scorecard,
+            longFormScriptReview,
           },
         },
       })
@@ -238,6 +247,7 @@ describe('VideoGenerationPage review workspace', () => {
     vi.clearAllMocks()
     mocks.getCurrentSession.mockResolvedValue({ access_token: 'admin-token' })
     mocks.useWorkflowStatus.mockReturnValue(emptyWorkflowStatus)
+    window.history.replaceState({}, '', '/admin/content/video-generation')
 
     Object.defineProperty(window.HTMLElement.prototype, 'scrollIntoView', {
       configurable: true,
@@ -260,7 +270,7 @@ describe('VideoGenerationPage review workspace', () => {
 
     const draftQueueButton = await screen.findByRole('button', { name: /Regression Draft/i })
     await userEvent.click(draftQueueButton)
-    await userEvent.click(screen.getByRole('button', { name: /Render Readiness/i }))
+    await userEvent.click(screen.getByRole('button', { name: /^Render Readiness$/ }))
     await userEvent.click(screen.getByRole('button', { name: /Check readiness/i }))
 
     await waitFor(() => {
@@ -274,6 +284,34 @@ describe('VideoGenerationPage review workspace', () => {
       expect.stringContaining('[object Object]'),
       expect.anything(),
     )
+  })
+
+  it('automatically evaluates the selected draft, switches receipts with the selected item, and mounts one panel', async () => {
+    stubVideoGenerationFetch([
+      draftWith({ id: 'draft-one', title: 'Draft One' }),
+      draftWith({ id: 'draft-two', title: 'Draft Two' }),
+    ])
+
+    render(<VideoGenerationPage />)
+
+    await userEvent.click(await screen.findByRole('button', { name: /Draft One/i }))
+    await waitFor(() => expect(screen.getByTestId('long-form-script-intelligence-review')).toHaveAttribute('data-input-fingerprint', 'fnv1a:draft-one'))
+    expect(screen.getAllByTestId('long-form-script-intelligence-review')).toHaveLength(1)
+
+    await userEvent.click(screen.getByRole('button', { name: /Next/i }))
+    await waitFor(() => expect(screen.getByTestId('long-form-script-intelligence-review')).toHaveAttribute('data-input-fingerprint', 'fnv1a:draft-two'))
+    expect(screen.getAllByTestId('long-form-script-intelligence-review')).toHaveLength(1)
+  })
+
+  it('shows stale fixture evidence as approval-closed through the server readiness contract', async () => {
+    window.history.replaceState({}, '', '/admin/content/video-generation?qa_script_intelligence=stale')
+    stubVideoGenerationFetch([draft])
+
+    render(<VideoGenerationPage />)
+
+    expect(await screen.findByText('Approval closed')).toBeVisible()
+    expect(screen.getByRole('alert')).toHaveTextContent('Evidence remains Unscored')
+    expect(screen.getAllByTestId('long-form-script-intelligence-review')).toHaveLength(1)
   })
 
   it('paginates the review queue and selects the first item on the next page', async () => {
