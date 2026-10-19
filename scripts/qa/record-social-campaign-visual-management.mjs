@@ -75,8 +75,10 @@ async function recordScenario(browser, storageState, { label, viewport }) {
   await panel.getByText('12 total · 12 scanned · 1 prepared · 11 blocked · 0 remaining · 2 chunks', { exact: true }).waitFor()
   await panel.getByRole('heading', { name: 'KickLab · channel-native visual plan' }).waitFor()
   await panel.getByText('FEEL THE MATH', { exact: true }).waitFor()
+  await panel.getByRole('heading', { name: 'KickLab · channel-native visual plan' }).scrollIntoViewIfNeeded()
+  await page.waitForTimeout(400)
   await assertNoOverflow(page, `${label} clean asset view`)
-  await page.screenshot({ path: path.join(outputDir, `${label}-clean-assets.png`), fullPage: true })
+  await page.screenshot({ path: path.join(outputDir, `${label}-clean-assets.png`) })
 
   await panel.getByText('Show field-level source trace and visual decisions', { exact: true }).click()
   await panel.getByText('Exact source deep links', { exact: true }).waitFor()
@@ -86,14 +88,14 @@ async function recordScenario(browser, storageState, { label, viewport }) {
   await page.waitForTimeout(500)
   await panel.getByText(/Fight, Race, and Kick turn momentum/).first().scrollIntoViewIfNeeded()
   await page.waitForTimeout(500)
-  await page.screenshot({ path: path.join(outputDir, `${label}-trace-and-evaluation.png`), fullPage: true })
+  await page.screenshot({ path: path.join(outputDir, `${label}-trace-and-evaluation.png`) })
 
   const blocked = panel.getByLabel('Blocked visual candidates')
   await blocked.getByText('ReversR rebuild · Blocked', { exact: true }).scrollIntoViewIfNeeded()
   await blocked.getByText('Numerical visual scoring is withheld until the prerequisite evidence and script contract pass.', { exact: true }).first().waitFor()
   await blocked.getByRole('link', { name: 'Refresh evidence' }).waitFor()
   await assertNoOverflow(page, `${label} blocked recovery`)
-  await page.screenshot({ path: path.join(outputDir, `${label}-blocked-recovery.png`), fullPage: true })
+  await page.screenshot({ path: path.join(outputDir, `${label}-blocked-recovery.png`) })
 
   await panel.getByText('Closed in this workflow', { exact: true }).scrollIntoViewIfNeeded()
   await page.waitForTimeout(700)
