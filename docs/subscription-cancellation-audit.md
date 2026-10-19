@@ -10,6 +10,20 @@ no meaningful usage signal, or after clear redundancy plus a lower-risk
 replacement path. Production changes require explicit approval in the form
 `Cancel <tool/vendor> for Portfolio`.
 
+## 2026-10-19 Weekly Subscription Report
+
+Status: YELLOW
+
+Raw findings: n8n remains active (85 workflows, 68 active; 18 of the latest 25 executions succeeded) but has recurring staging Apify-monitor and Drive-to-Pinecone ingest failures. Supabase activity and both Vercel deployment contexts remain current. Gmail and Read AI metadata confirm recent HeyGen video activity/capacity notices and an October Read AI meeting record; no private content was read. BuiltWith was intentionally not queried to avoid lookup-credit use, and Fireflies showed no paid-plan restart evidence.
+
+Derived movement since 2026-10-12: HeyGen and Read AI move from quiet/uncertain value review to current-use watch evidence. Vapi remains the strongest deprecation-review item after repeated quiet/absent-key signals, but billing and the near-term voice-UX decision are still missing. No vendor reached the approval-ready cancellation threshold.
+
+Current buckets: active keep — Supabase, n8n Cloud, Vercel, Stripe, OpenAI, Gemini/Google AI, Slack, Gmail/Google metadata, Apify, Hunter.io, Printful, Google Cloud, and BuiltWith during the outreach ramp. Watch — Vapi, Resend, Calendly, Gamma, ElevenLabs, HeyGen, OpenRouter, Pinecone, Read AI, Apify actor pruning, Anthropic billing/API scope, and design/media billing. Unresolved owner review — Vapi billing/voice scope; Calendly, Gamma, Read AI, HeyGen, Pinecone, OpenRouter, Printful, Stripe, Vercel, Google, and design/media account evidence. Resolved/canceled — Fireflies.ai. Candidate cancellations — none.
+
+Recommendations and exact next actions: keep core services; inspect the n8n failures without changing workflows; review HeyGen quota/campaign need/API-v3 migration; confirm Vapi billing and voice-UX intent before any deprecation packet; review Calendly, Read AI, Gamma, Pinecone, and Apify account value using owner-authorized dashboard evidence. Keep BuiltWith as a protected outreach-ramp watch item. Reopen Fireflies only on a paid receipt, dashboard proof, or explicit restart.
+
+Action-tracker feedback: no feedback file was available, so no tracked action was closed or dismissed. No cancellation, provider setting, secret, data, code-deprecation, billing, or production change was performed. Any cancellation remains gated by `Cancel <tool/vendor> for Portfolio`.
+
 ## 2026-09-02 Daily Monitor Run
 
 Status: YELLOW

@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-09-02T12:37:37Z",
+  "generatedAt": "2026-10-19T13:02:52Z",
   "sourceDocument": "/docs/subscription-cancellation-audit.md",
-  "latestMonitorArtifact": "/docs/subscription-monitor-runs/2026-09-02.md",
+  "latestMonitorArtifact": "/docs/subscription-monitor-runs/2026-10-19.md",
   "monitorRunArtifactPattern": "/docs/subscription-monitor-runs/YYYY-MM-DD.md",
   "weeklyReportAutomationId": "portfolio-subscription-weekly-report",
   "dailyMonitorAutomationId": "portfolio-subscription-cancellation-monitor",
@@ -406,25 +406,13 @@
   },
   "summary": {
     "status": "yellow",
-    "headline": "Daily refresh: core Portfolio platforms remain active/readable, n8n drift-key access is still broken, and no vendor reached the approval-ready cancellation threshold.",
+    "headline": "Weekly refresh: core services remain active; HeyGen and Read AI show current use, Vapi remains review-only, and no vendor is approval-ready for cancellation.",
     "nextReviewFocus": [
-      "Follow the 51 open daily action-tracker items; no completed, blocked, dismissed, or in-progress feedback was present.",
-      "Repair the n8n credential split: N8N_CLOUD_API_KEY reads workflow/execution status, while N8N_API_KEY still returns 401 in the drift checker.",
-      "Keep Vercel under active keep posture; deploy watcher passed both Portfolio contexts, but connector project reads still need repair.",
-      "Verify Vapi dashboard billing and decide whether production voice UX should stay enabled.",
-      "Verify Resend production env, billing, and deliverability need before removing code paths.",
-      "Refresh Calendly token/dashboard evidence and confirm public scheduling link value after zero recent Calendar metadata matches.",
-      "Restore or replace Read AI dashboard/connector evidence after zero recent Calendar metadata matches and absent local direct key.",
-      "Verify Gamma dashboard credits and report/deck workflow need despite readable themes and stale gamma_reports rows.",
-      "Verify HeyGen quota/billing and campaign need despite readable catalog endpoints and stale app video rows.",
-      "Investigate ElevenLabs key/subscription state after the current probe returned HTTP 400.",
-      "Check Pinecone billing/API traffic against actual RAG usage.",
-      "Confirm whether OpenRouter still has a current n8n or bakeoff role before renewal decisions.",
-      "Continue Apify actor-level pruning before any account-level decision.",
-      "Check Printful dashboard order history and store strategy before deprecation decisions.",
-      "Keep BuiltWith active during the outreach ramp and judge it against lead-prep, proposal, strategy, and conversion evidence.",
-      "Keep Fireflies out of the active queue unless new paid-plan evidence appears.",
-      "Ask account-owner/manual billing review for Figma, Paper, Excalidraw, Canva, and other design/media tools where safe probes cannot see plan state."
+      "Inspect the recurring n8n staging Apify-monitor and Drive-to-Pinecone ingest failures without changing workflows.",
+      "Review HeyGen quota, campaign need, and API-v3 migration exposure; current activity rules out cancellation.",
+      "Confirm Vapi billing and whether Portfolio voice UX remains in near-term scope before any deprecation packet.",
+      "Use owner-authorized dashboard evidence to review Calendly, Read AI, Gamma, Pinecone, and Apify value.",
+      "Keep BuiltWith protected during the outreach ramp and Fireflies outside the active queue unless paid-plan evidence appears."
     ]
   },
   "buckets": {
