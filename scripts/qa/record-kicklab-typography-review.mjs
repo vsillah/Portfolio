@@ -49,6 +49,8 @@ await desktop.screenshot({ path: path.join(outputDir, 'desktop-1440-typography-r
 await desktop.getByText(/Public evidence audit · How Ridiculous/).click()
 await desktop.getByText(/0\/4 matched-style examples · normalization result not calculable/).waitFor({ state: 'visible' })
 await desktop.screenshot({ path: path.join(outputDir, 'desktop-1440-public-evidence-audit.png') })
+await desktop.getByText(/Public evidence located in the nearest topic\/audience channel/).scrollIntoViewIfNeeded()
+await desktop.screenshot({ path: path.join(outputDir, 'desktop-1440-public-evidence-audit-conclusion.png') })
 
 const desktopOverflow = await desktop.evaluate(() => ({
   viewportWidth: window.innerWidth,
@@ -112,6 +114,7 @@ const results = {
     'desktop-1440-kicklab-review.png',
     'desktop-1440-typography-receipt.png',
     'desktop-1440-public-evidence-audit.png',
+    'desktop-1440-public-evidence-audit-conclusion.png',
     'tablet-768-kicklab-review.png',
     'tablet-768-typography-receipt.png',
     'mobile-390-kicklab-review.png',
