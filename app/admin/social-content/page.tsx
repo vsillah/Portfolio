@@ -41,6 +41,7 @@ import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import AgenticContentReviewPacketPager from '@/components/admin/AgenticContentReviewPacketPager'
 import SocialSourceCoverageEvidence from '@/components/admin/SocialSourceCoverageEvidence'
+import SocialCampaignPackagePreparation from '@/components/admin/SocialCampaignPackagePreparation'
 import { ExtractionStatusChip } from '@/components/admin/ExtractionStatusChip'
 import MobileWorkflowSummary from '@/components/admin/MobileWorkflowSummary'
 import { useSearchParams } from 'next/navigation'
@@ -57,6 +58,7 @@ import {
 import type { SocialContentItem, ContentStatus, SocialPlatform } from '@/lib/social-content'
 import Link from 'next/link'
 import { SOCIAL_CANDIDATE_PROJECTION_QA_FIXTURE } from '@/lib/social-candidate-projection-qa-contract'
+import { SOCIAL_CAMPAIGN_PACKAGE_QA_FIXTURE } from '@/lib/social-campaign-package-qa-fixture'
 
 interface Stats {
   draft: number
@@ -1247,6 +1249,9 @@ function SocialContentQueuePage() {
       {activeWorkflowView === 'evidence' && (
       <>
       <SocialSourceCoverageEvidence active={activeWorkflowView === 'evidence'} />
+      <div className="mb-6">
+        <SocialCampaignPackagePreparation />
+      </div>
       <div className="mb-6 rounded-lg border border-border bg-card p-4 text-card-foreground shadow-sm" data-testid="social-challenger-packets">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
@@ -2127,10 +2132,21 @@ function SocialContentQueuePage() {
 export default function SocialContentPage() {
   const searchParams = useSearchParams()
   const candidateQaFixture = initialQueryValue(searchParams, 'candidateQa') === SOCIAL_CANDIDATE_PROJECTION_QA_FIXTURE
+  const campaignPackageQaFixture = initialQueryValue(searchParams, 'campaignQa') === SOCIAL_CAMPAIGN_PACKAGE_QA_FIXTURE
 
   return (
     <ProtectedRoute requireAdmin>
-      {candidateQaFixture ? (
+      {campaignPackageQaFixture ? (
+        <div className="min-h-screen bg-background p-4 text-foreground sm:p-6 lg:p-8" data-testid="social-campaign-package-qa-page">
+          <Breadcrumbs items={[{ label: 'Admin', href: '/admin' }, { label: 'Social Content', href: '/admin/social-content?workflow=evidence' }, { label: 'Campaign preparation QA' }]} />
+          <div className="mb-6 mt-5 rounded-xl border border-accent/40 bg-card p-5 text-card-foreground shadow-sm">
+            <div className="admin-console-eyebrow mb-2">Social Content operator QA</div>
+            <h1 className="text-2xl font-bold text-foreground">Evidence-backed campaign preparation</h1>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">A privacy-safe localhost projection of candidate selection, fail-closed recovery, idempotent review-package preparation, receipt history, and closed external gates.</p>
+          </div>
+          <SocialCampaignPackagePreparation qaFixture={SOCIAL_CAMPAIGN_PACKAGE_QA_FIXTURE} />
+        </div>
+      ) : candidateQaFixture ? (
         <div className="min-h-screen bg-background p-4 text-foreground sm:p-6 lg:p-8" data-testid="social-candidate-qa-page">
           <Breadcrumbs items={[{ label: 'Admin', href: '/admin' }, { label: 'Social Content', href: '/admin/social-content?workflow=evidence' }, { label: 'Synthetic candidate QA' }]} />
           <div className="mb-6 mt-5 rounded-xl border border-accent/40 bg-card p-5 text-card-foreground shadow-sm">
