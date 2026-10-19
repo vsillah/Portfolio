@@ -81,21 +81,37 @@ async function recordScenario(browser, storageState, { label, viewport }) {
   await assertNoOverflow(page, `${label} clean asset view`)
   await cleanAssetView.screenshot({ path: path.join(outputDir, `${label}-clean-assets.png`) })
 
+  const evaluationDimensions = panel.getByLabel('Visual evaluation dimensions')
+  await evaluationDimensions.scrollIntoViewIfNeeded()
+  await page.waitForTimeout(500)
+  await evaluationDimensions.screenshot({ path: path.join(outputDir, `${label}-trace-and-evaluation.png`) })
+
   await panel.getByText('Show field-level source trace and visual decisions', { exact: true }).click()
   await panel.getByText('Exact source deep links', { exact: true }).waitFor()
   await panel.getByText('Script-to-visual storyboard timing', { exact: true }).waitFor()
-  await panel.getByText(/Playlist similarity 82\/100/).waitFor()
+  await panel.getByText(/Playlist similarity Unscored/).waitFor()
+  await panel.getByText(/No attributable similarity receipt supplied/).waitFor()
+  const benchmarkTrace = panel.getByRole('heading', { name: 'Benchmark logic' }).locator('..')
+  await benchmarkTrace.scrollIntoViewIfNeeded()
+  await page.waitForTimeout(500)
+  await benchmarkTrace.screenshot({ path: path.join(outputDir, `${label}-benchmark-receipt.png`) })
   await panel.getByText('Script-to-visual storyboard timing', { exact: true }).scrollIntoViewIfNeeded()
   await page.waitForTimeout(500)
   await panel.getByText(/Fight, Race, and Kick turn momentum/).first().scrollIntoViewIfNeeded()
   await page.waitForTimeout(500)
-  await page.screenshot({ path: path.join(outputDir, `${label}-trace-and-evaluation.png`) })
 
   const blocked = panel.getByLabel('Blocked visual candidates')
+  await blocked.getByText('Page 1 of 3', { exact: true }).waitFor()
+  if (await blocked.locator('details[open]').count()) throw new Error(`${label} blocked details were not collapsed by default.`)
+  await blocked.getByRole('button', { name: 'Next blocked page' }).click()
+  await blocked.getByText('Page 2 of 3', { exact: true }).waitFor()
+  await blocked.getByRole('textbox', { name: 'Search blocked visual candidates' }).fill('ReversR')
+  await blocked.getByText('Page 1 of 1', { exact: true }).waitFor()
   const reversrBlockedCard = blocked.locator(':scope > div').filter({ hasText: 'ReversR rebuild · Blocked' }).first()
   await reversrBlockedCard.scrollIntoViewIfNeeded()
-  await blocked.getByText('Numerical visual scoring is withheld until the prerequisite evidence and script contract pass.', { exact: true }).first().waitFor()
   await blocked.getByRole('link', { name: 'Refresh evidence' }).waitFor()
+  await reversrBlockedCard.getByText(/View \d+ exact blocker/).click()
+  await reversrBlockedCard.getByText('evidence_stale', { exact: false }).waitFor()
   await assertNoOverflow(page, `${label} blocked recovery`)
   await reversrBlockedCard.screenshot({ path: path.join(outputDir, `${label}-blocked-recovery.png`) })
 
@@ -134,13 +150,27 @@ const result = {
   screenshots: [
     'desktop-1440-clean-assets.png',
     'desktop-1440-trace-and-evaluation.png',
+    'desktop-1440-benchmark-receipt.png',
     'desktop-1440-blocked-recovery.png',
     'mobile-390-clean-assets.png',
     'mobile-390-trace-and-evaluation.png',
+    'mobile-390-benchmark-receipt.png',
     'mobile-390-blocked-recovery.png',
   ],
   video: path.basename(mp4Path),
   batch: { total: 12, scanned: 12, prepared: 1, blocked: 11, remaining: 0 },
+  scoring: {
+    dimensions: 10,
+    formulas_visible: true,
+    playlist_similarity: 'unscored_no_attributable_receipt',
+  },
+  blocked_backlog: {
+    page_size: 4,
+    searchable: true,
+    grouped: true,
+    collapsed_by_default: true,
+    pagination_pages: 3,
+  },
   external_requests: [],
   blocked_development_telemetry: ['https://va.vercel-scripts.com/v1/speed-insights/script.debug.js'],
   protected_actions_exercised: [],

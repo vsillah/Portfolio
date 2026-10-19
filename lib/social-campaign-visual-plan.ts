@@ -74,7 +74,16 @@ export type CampaignVisualPlan = {
   rejected_alternatives: Array<{ alternative: string; reason: string; recovery_action: string }>
   benchmark_logic: {
     playlist_role: 'taste_only_zero_performance_weight'
-    playlist_similarity_score: number
+    playlist_similarity: {
+      status: 'scored' | 'unscored'
+      score: number | null
+      receipt_id: string | null
+      observed_at: string | null
+      fresh_until: string | null
+      numerator: number | null
+      denominator: number | null
+      formula: string
+    }
     live_topic_outlier_receipt_id: string
     live_topic_score: number
     live_topic_threshold: number
@@ -103,6 +112,14 @@ export type CampaignVisualDimension = {
   label: string
   status: 'passed' | 'blocked' | 'unscored'
   score: number | null
+  calculation: {
+    formula: string
+    numerator: number | null
+    denominator: number | null
+    observed: number | null
+    required: number | null
+    unit: 'checks' | 'channels' | 'sources' | 'regions'
+  }
   evidence_ids: string[]
   explanation: string
 }
@@ -350,7 +367,16 @@ export function buildCampaignVisualPlan(candidate: CampaignPreparationCandidate,
     ],
     benchmark_logic: {
       playlist_role: 'taste_only_zero_performance_weight',
-      playlist_similarity_score: 82,
+      playlist_similarity: {
+        status: 'unscored',
+        score: null,
+        receipt_id: null,
+        observed_at: null,
+        fresh_until: null,
+        numerator: null,
+        denominator: null,
+        formula: 'No attributable similarity receipt supplied; taste references carry zero performance weight.',
+      },
       live_topic_outlier_receipt_id: candidate.receipts.outlier.receipt_id,
       live_topic_score: candidate.receipts.outlier.score ?? 0,
       live_topic_threshold: candidate.receipts.outlier.threshold,
@@ -367,9 +393,36 @@ export function buildCampaignVisualPlan(candidate: CampaignPreparationCandidate,
 
 const INTERNAL_COPY = /\b(?:fixture|sample data|review[- ]only|receipt|source trace|decision queue|provider|input version|system prompt|implementation|unscored|external gates?)\b/i
 
-function dimension(key: CampaignVisualDimensionKey, status: CampaignVisualDimension['status'], score: number | null, evidenceIds: string[], explanation: string): CampaignVisualDimension {
+function dimension(input: {
+  key: CampaignVisualDimensionKey
+  numerator: number
+  denominator: number
+  unit: CampaignVisualDimension['calculation']['unit']
+  formula: string
+  evidenceIds: string[]
+  explanation: string
+  unscored?: boolean
+}): CampaignVisualDimension {
+  const { key, numerator, denominator, unit, formula, evidenceIds, explanation, unscored = false } = input
   const label = CAMPAIGN_VISUAL_DIMENSIONS.find(([candidate]) => candidate === key)?.[1] ?? key
-  return { key, label, status, score, evidence_ids: [...new Set(evidenceIds.filter(Boolean))], explanation }
+  const status = unscored || denominator <= 0 ? 'unscored' : numerator >= denominator ? 'passed' : 'blocked'
+  const score = status === 'unscored' ? null : Math.round((numerator / denominator) * 100)
+  return {
+    key,
+    label,
+    status,
+    score,
+    calculation: {
+      formula,
+      numerator: status === 'unscored' ? null : numerator,
+      denominator: status === 'unscored' ? null : denominator,
+      observed: status === 'unscored' ? null : numerator,
+      required: status === 'unscored' ? null : denominator,
+      unit,
+    },
+    evidence_ids: [...new Set(evidenceIds.filter(Boolean))],
+    explanation,
+  }
 }
 
 export function evaluateCampaignVisualPlan(plan: CampaignVisualPlan, now = new Date()): CampaignVisualEvaluation {
@@ -380,6 +433,26 @@ export function evaluateCampaignVisualPlan(plan: CampaignVisualPlan, now = new D
   const staleSources = plan.exact_sources.filter((source) => !source.href || source.approval_status !== 'approved' || !Number.isFinite(Date.parse(source.observed_at)) || (source.fresh_until ? Date.parse(source.fresh_until) <= now.getTime() : false))
   const evidenceUnscored = missingSources.length > 0 || staleSources.length > 0
   if (evidenceUnscored) blockers.push(blocker('visual_evidence_unscored', 'Visual evidence is missing, stale, or cannot be opened; the plan is Unscored and cannot advance.', 'Refresh visual evidence', plan.recovery_actions[0]?.href || '/admin/agents/content-intelligence?section=research'))
+
+  const similarity = plan.benchmark_logic.playlist_similarity
+  const similarityFormulaScore = similarity.numerator != null && similarity.denominator != null && similarity.denominator > 0
+    ? Math.round((similarity.numerator / similarity.denominator) * 100)
+    : null
+  const similarityReceiptCurrent = Boolean(
+    similarity.receipt_id
+      && (plan.source_receipt_ids.includes(similarity.receipt_id) || plan.exact_sources.some((source) => source.source_id === similarity.receipt_id))
+      && similarity.observed_at
+      && Number.isFinite(Date.parse(similarity.observed_at))
+      && similarity.fresh_until
+      && Date.parse(similarity.fresh_until) > now.getTime(),
+  )
+  const invalidSimilarityScore = similarity.status === 'scored' && (
+    !similarityReceiptCurrent
+      || similarity.score == null
+      || similarityFormulaScore == null
+      || similarity.score !== similarityFormulaScore
+  )
+  if (invalidSimilarityScore) blockers.push(blocker('visual_playlist_similarity_unscored', 'Playlist similarity is Unscored because no current attributable similarity receipt supports the asserted number.', 'Record attributable similarity evidence', plan.recovery_actions.at(-1)?.href || '/admin/social-content'))
 
   const channels = new Set(plan.beats.map((beat) => beat.channel))
   const missingChannel = (['linkedin', 'youtube_thumbnail', 'youtube_long_form', 'short_form'] as VisualChannel[]).filter((channel) => !channels.has(channel))
@@ -412,31 +485,53 @@ export function evaluateCampaignVisualPlan(plan: CampaignVisualPlan, now = new D
   const privacyFailure = plan.beats.some((beat) => !beat.privacy_boundary || /private message|raw contact|credential/i.test(beat.customer_facing_copy))
   if (privacyFailure) blockers.push(blocker('visual_privacy', 'A visual region is missing its privacy boundary or exposes private material.', 'Repair privacy boundary', plan.recovery_actions[0]?.href || '/admin/social-content'))
 
-  const statusFor = (codes: string[], unscored = false) => unscored ? 'unscored' as const : blockers.some((item) => codes.includes(item.code)) ? 'blocked' as const : 'passed' as const
-  const scored = (status: CampaignVisualDimension['status'], passed = 94) => status === 'unscored' ? null : status === 'blocked' ? 35 : passed
-  const evidenceStatus = statusFor(['visual_evidence_unscored'], evidenceUnscored)
-  const alignmentStatus = statusFor(['visual_alignment_missing'])
-  const proofStatus = statusFor(['visual_product_proof_missing'])
-  const channelStatus = statusFor(['visual_channel_native_missing'])
-  const originalityStatus = statusFor(['visual_template_repetition'])
-  const readabilityStatus = statusFor(['visual_thumbnail_copy_duplicate', 'visual_thumbnail_composition'])
-  const focalStatus = statusFor(['visual_thumbnail_composition'])
-  const motionStatus = statusFor(['visual_motion_sync'])
-  const privacyStatus = statusFor(['visual_privacy'])
-  const copyStatus = statusFor(['visual_customer_copy_leak'])
-  const dimensions = [
-    dimension('evidence_coverage', evidenceStatus, scored(evidenceStatus, 96), linkedSourceIds, evidenceStatus === 'passed' ? 'Every region resolves to current exact-source evidence.' : 'At least one exact source is missing or stale.'),
-    dimension('script_visual_alignment', alignmentStatus, scored(alignmentStatus, 95), plan.beats.map((beat) => beat.copy_section_id), 'Each region is measured against its exact copy or script section and intended takeaway.'),
-    dimension('product_proof_coverage', proofStatus, scored(proofStatus, 96), [...proofSources], 'Owned product proof must support both the LinkedIn and YouTube narratives.'),
-    dimension('channel_nativeness', channelStatus, scored(channelStatus, 93), [...channels], 'LinkedIn, thumbnail, long-form, and vertical derivatives use distinct native formats.'),
-    dimension('originality_risk', originalityStatus, scored(originalityStatus, 92), plan.rejected_alternatives.map((entry) => entry.alternative), 'Composition reuse and creator-distance boundaries are explicit.'),
-    dimension('readability_contrast', readabilityStatus, scored(readabilityStatus, 95), thumbnail ? [thumbnail.variant_id] : [], 'Feed-size copy, contrast, and integrated composition are checked before review.'),
-    dimension('focal_hierarchy', focalStatus, scored(focalStatus, 94), thumbnail ? [thumbnail.variant_id] : [], 'The focal subject leads; teaser copy cannot cover the face or product result.'),
-    dimension('motion_synchronization', motionStatus, scored(motionStatus, 91), videoBeats.map((beat) => beat.beat_id), 'Scene timing, native motion, transitions, and presenter-safe framing remain inspectable.'),
-    dimension('privacy', privacyStatus, scored(privacyStatus, 100), plan.exact_sources.map((source) => source.source_id), 'Only public-safe, owned, or synthetic evidence is permitted.'),
-    dimension('copy_purity', copyStatus, scored(copyStatus, 100), plan.beats.map((beat) => beat.beat_id), 'Customer-facing copy is scanned for internal workflow and implementation language.'),
+  const currentSources = plan.exact_sources.filter((source) => source.href && source.approval_status === 'approved' && Number.isFinite(Date.parse(source.observed_at)) && (!source.fresh_until || Date.parse(source.fresh_until) > now.getTime()))
+  const alignmentPasses = plan.beats.filter((beat) => beat.copy_section_id && beat.copy_excerpt && beat.intended_takeaway && beat.source_ids.length)
+  const requiredProofChannels: VisualChannel[] = ['linkedin', 'youtube_long_form']
+  const proofChannels = requiredProofChannels.filter((channel) => proofBeats.some((beat) => beat.channel === channel))
+  const requiredChannels: VisualChannel[] = ['linkedin', 'youtube_thumbnail', 'youtube_long_form', 'short_form']
+  const originalBeats = plan.beats.filter((beat) => beat.originality_boundary && !/generic|standard template|copied creator/i.test(`${beat.format} ${beat.originality_boundary}`))
+  const readabilityChecks = thumbnail ? [
+    Boolean(thumbnail.href),
+    Boolean(thumbnail.title && thumbnail.teaser && thumbnail.title.trim().toLowerCase() !== thumbnail.teaser.trim().toLowerCase()),
+    thumbnail.text_words.length > 0 && thumbnail.text_words.length <= 5,
+    thumbnail.feed_size_legible,
+    !/pasted side[- ]by[- ]side|split[- ]card layout/i.test(thumbnail.composition),
+  ] : [false, false, false, false, false]
+  const focalChecks = thumbnail ? [
+    Boolean(thumbnail.focal_subject),
+    !thumbnail.face_text_overlap,
+    Boolean(thumbnail.composition) && !/pasted side[- ]by[- ]side|split[- ]card layout/i.test(thumbnail.composition),
+  ] : [false, false, false]
+  const motionPasses = videoBeats.filter((beat, index) => {
+    const repeatedWithoutRationale = index > 0
+      && beat.channel === videoBeats[index - 1].channel
+      && beat.asset_href === videoBeats[index - 1].asset_href
+      && !beat.repeated_asset_rationale
+    return beat.start_seconds != null
+      && beat.end_seconds != null
+      && beat.end_seconds > beat.start_seconds
+      && Boolean(beat.motion && beat.transition && beat.presenter_safe_area)
+      && !repeatedWithoutRationale
+  })
+  const privacyChecks = [
+    ...plan.beats.map((beat) => Boolean(beat.privacy_boundary) && !/private message|raw contact|credential/i.test(beat.customer_facing_copy)),
+    ...plan.exact_sources.map((source) => Boolean(source.privacy_boundary)),
   ]
-  const status = evidenceUnscored ? 'unscored' : blockers.length ? 'blocked' : 'passed'
+  const pureCopyBeats = plan.beats.filter((beat) => !INTERNAL_COPY.test(beat.customer_facing_copy))
+  const dimensions = [
+    dimension({ key: 'evidence_coverage', numerator: currentSources.length, denominator: plan.exact_sources.length + missingSources.length, unit: 'sources', formula: 'current attributable exact sources / required exact sources and referenced bindings', evidenceIds: linkedSourceIds, explanation: evidenceUnscored ? 'At least one exact source is missing or stale.' : 'Every region resolves to a current attributable exact source.', unscored: evidenceUnscored }),
+    dimension({ key: 'script_visual_alignment', numerator: alignmentPasses.length, denominator: plan.beats.length, unit: 'regions', formula: 'regions with copy section + excerpt + takeaway + source binding / all visual regions', evidenceIds: plan.beats.map((beat) => beat.copy_section_id), explanation: 'Each region is checked against its exact copy or script section and intended takeaway.' }),
+    dimension({ key: 'product_proof_coverage', numerator: proofChannels.length, denominator: requiredProofChannels.length, unit: 'channels', formula: 'required product-proof channels with an owned screenshot binding / required product-proof channels', evidenceIds: [...proofSources], explanation: 'Owned product proof must support both the LinkedIn and YouTube narratives.' }),
+    dimension({ key: 'channel_nativeness', numerator: requiredChannels.filter((channel) => channels.has(channel)).length, denominator: requiredChannels.length, unit: 'channels', formula: 'required channels with a native visual format / required channels', evidenceIds: [...channels], explanation: 'LinkedIn, thumbnail, long-form, and vertical derivatives must each use a native format.' }),
+    dimension({ key: 'originality_risk', numerator: originalBeats.length, denominator: plan.beats.length, unit: 'regions', formula: 'regions with explicit originality boundary and no generic/copied template marker / all visual regions', evidenceIds: plan.rejected_alternatives.map((entry) => entry.alternative), explanation: 'Every visual region is checked for an explicit originality boundary and template-repetition risk.' }),
+    dimension({ key: 'readability_contrast', numerator: readabilityChecks.filter(Boolean).length, denominator: readabilityChecks.length, unit: 'checks', formula: 'passed asset + distinct copy + word-count + feed-size + integrated-composition checks / five required checks', evidenceIds: thumbnail ? [thumbnail.variant_id] : [], explanation: 'Feed-size copy, contrast, and integrated composition are checked before review.' }),
+    dimension({ key: 'focal_hierarchy', numerator: focalChecks.filter(Boolean).length, denominator: focalChecks.length, unit: 'checks', formula: 'passed focal-subject + face-clearance + cohesive-composition checks / three required checks', evidenceIds: thumbnail ? [thumbnail.variant_id] : [], explanation: 'The focal subject must lead while teaser copy stays clear of the face and product result.' }),
+    dimension({ key: 'motion_synchronization', numerator: motionPasses.length, denominator: videoBeats.length, unit: 'regions', formula: 'timed video regions with motion + transition + presenter clearance + justified reuse / all timed video regions', evidenceIds: videoBeats.map((beat) => beat.beat_id), explanation: 'Scene timing, native motion, transitions, and presenter-safe framing remain inspectable.' }),
+    dimension({ key: 'privacy', numerator: privacyChecks.filter(Boolean).length, denominator: privacyChecks.length, unit: 'checks', formula: 'visual regions and exact sources with a valid privacy boundary / all visual regions and exact sources', evidenceIds: plan.exact_sources.map((source) => source.source_id), explanation: 'Only public-safe, owned, or synthetic evidence is permitted.' }),
+    dimension({ key: 'copy_purity', numerator: pureCopyBeats.length, denominator: plan.beats.length, unit: 'regions', formula: 'visual regions without internal workflow or implementation language / all visual regions', evidenceIds: plan.beats.map((beat) => beat.beat_id), explanation: 'Customer-facing copy is scanned for internal workflow and implementation language.' }),
+  ]
+  const status = evidenceUnscored || invalidSimilarityScore || dimensions.some((item) => item.status === 'unscored') ? 'unscored' : blockers.length ? 'blocked' : 'passed'
   const numeric = dimensions.flatMap((item) => item.score == null ? [] : [item.score])
   return {
     version: SOCIAL_CAMPAIGN_VISUAL_EVALUATION_VERSION,
@@ -459,7 +554,15 @@ function unavailableEvaluation(candidate: CampaignPreparationCandidate, blockers
     status: state,
     approval_ready: false,
     overall_score: null,
-    dimensions: CAMPAIGN_VISUAL_DIMENSIONS.map(([key, label]) => ({ key, label, status: 'unscored', score: null, evidence_ids: [], explanation: 'Visual scoring is withheld until the prerequisite evidence and script contract pass.' })),
+    dimensions: CAMPAIGN_VISUAL_DIMENSIONS.map(([key, label]) => ({
+      key,
+      label,
+      status: 'unscored',
+      score: null,
+      calculation: { formula: 'Prerequisite evidence and script inputs unavailable.', numerator: null, denominator: null, observed: null, required: null, unit: 'checks' as const },
+      evidence_ids: [],
+      explanation: 'Visual scoring is withheld until the prerequisite evidence and script contract pass.',
+    })),
     blockers,
     evaluated_at: now.toISOString(),
   }

@@ -25,10 +25,12 @@ describe('evidence-backed social visual plan', () => {
     expect(projection.plan?.beats.map((beat) => beat.channel)).toEqual(expect.arrayContaining(['linkedin', 'youtube_thumbnail', 'youtube_long_form', 'short_form']))
     expect(projection.plan?.beats.every((beat) => beat.copy_section_id && beat.copy_excerpt && beat.source_ids.length && beat.intended_takeaway)).toBe(true)
     expect(projection.plan?.exact_sources.some((source) => source.kind === 'owned_product_screenshot')).toBe(true)
-    expect(projection.plan?.benchmark_logic).toMatchObject({ playlist_role: 'taste_only_zero_performance_weight', live_topic_score: 84, live_topic_threshold: 75 })
+    expect(projection.plan?.benchmark_logic).toMatchObject({ playlist_role: 'taste_only_zero_performance_weight', playlist_similarity: { status: 'unscored', score: null, receipt_id: null }, live_topic_score: 84, live_topic_threshold: 75 })
     expect(projection.evaluation).toMatchObject({ status: 'passed', approval_ready: true })
     expect(projection.evaluation.dimensions).toHaveLength(10)
     expect(projection.evaluation.dimensions.every((dimension) => dimension.status === 'passed' && typeof dimension.score === 'number')).toBe(true)
+    expect(projection.evaluation.dimensions.every((dimension) => dimension.score === Math.round((dimension.calculation.numerator! / dimension.calculation.denominator!) * 100))).toBe(true)
+    expect(projection.evaluation.overall_score).toBe(Math.round(projection.evaluation.dimensions.reduce((sum, dimension) => sum + dimension.score!, 0) / projection.evaluation.dimensions.length))
     expect(new Set(Object.values(projection.plan!.external_gates))).toEqual(new Set([false]))
   })
 
@@ -81,6 +83,23 @@ describe('evidence-backed social visual plan', () => {
     expect(evaluation).toMatchObject({ status: 'unscored', approval_ready: false, overall_score: null })
     expect(evaluation.blockers.map((item) => item.code)).toContain('visual_evidence_unscored')
     expect(evaluation.dimensions.find((item) => item.key === 'evidence_coverage')).toMatchObject({ status: 'unscored', score: null })
+  })
+
+  it('does not pass a fabricated playlist similarity number without an attributable current receipt', () => {
+    const plan = passingPlan()
+    plan.benchmark_logic.playlist_similarity = {
+      status: 'scored',
+      score: 82,
+      receipt_id: null,
+      observed_at: null,
+      fresh_until: null,
+      numerator: 82,
+      denominator: 100,
+      formula: 'asserted constant',
+    }
+    const evaluation = evaluateCampaignVisualPlan(plan, NOW)
+    expect(evaluation).toMatchObject({ status: 'unscored', approval_ready: false })
+    expect(evaluation.blockers.map((item) => item.code)).toContain('visual_playlist_similarity_unscored')
   })
 
   it('scans the complete backlog deterministically without truncation and keeps weak candidates blocked', () => {

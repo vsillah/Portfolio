@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import SocialCampaignPackagePreparation from './SocialCampaignPackagePreparation'
 import { SOCIAL_CAMPAIGN_PACKAGE_QA_FIXTURE, socialCampaignLongFormBatchQaCandidates, socialCampaignPackageQaCandidates } from '@/lib/social-campaign-package-qa-fixture'
@@ -88,13 +88,24 @@ describe('SocialCampaignPackagePreparation', () => {
     expect(screen.getByRole('heading', { name: /KickLab · channel-native visual plan/i })).toBeVisible()
     expect(screen.getByLabelText('Clean customer-facing asset view')).toBeVisible()
     expect(screen.getByText('FEEL THE MATH')).toBeVisible()
-    expect(screen.getAllByText(/ReversR rebuild · Blocked/i).length).toBeGreaterThan(0)
+    const blocked = screen.getByLabelText('Blocked visual candidates')
+    expect(within(blocked).getByText('Page 1 of 3')).toBeVisible()
+    expect(within(blocked).getAllByText(/View \d+ exact blockers?/)).toHaveLength(4)
+    fireEvent.click(within(blocked).getByRole('button', { name: 'Next blocked page' }))
+    expect(within(blocked).getByText('Page 2 of 3')).toBeVisible()
+    fireEvent.change(within(blocked).getByRole('textbox', { name: 'Search blocked visual candidates' }), { target: { value: 'ReversR' } })
+    expect(within(blocked).getByText('Page 1 of 1')).toBeVisible()
+    expect(within(blocked).getByText('ReversR rebuild · Blocked')).toBeVisible()
+    expect(within(blocked).getAllByRole('link', { name: 'Refresh evidence' })[0]).toHaveAttribute('href', expect.stringContaining('content-intelligence'))
+    fireEvent.change(within(blocked).getByRole('textbox', { name: 'Search blocked visual candidates' }), { target: { value: '' } })
+    expect(within(blocked).getByText('Page 1 of 3')).toBeVisible()
     const trace = screen.getByText('Show field-level source trace and visual decisions')
     fireEvent.click(trace)
     expect(screen.getByText('Exact source deep links')).toBeVisible()
     expect(screen.getByText('Script-to-visual storyboard timing')).toBeVisible()
-    expect(screen.getByText(/Playlist similarity 82\/100/i)).toBeVisible()
-    expect(screen.getAllByText(/Numerical visual scoring is withheld/i).length).toBeGreaterThan(0)
+    expect(screen.getByText(/Playlist similarity Unscored/i)).toBeVisible()
+    expect(screen.getByText(/No attributable similarity receipt supplied/i)).toBeVisible()
+    expect(screen.getAllByText(/Observed \d+ \/ \d+ required/i).length).toBe(10)
     await waitFor(() => expect(fetch).toHaveBeenCalledWith(expect.stringContaining('qa_fixture'), expect.objectContaining({ method: 'POST', body: JSON.stringify({ action: 'prepare_visual_batch' }) })))
   })
 })

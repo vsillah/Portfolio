@@ -65,19 +65,57 @@ function VisualPlanDetails({ plan, projection }: { plan: CampaignVisualPlan; pro
       </section>
 
       <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-5" aria-label="Visual evaluation dimensions">
-        {projection.evaluation.dimensions.map((item) => <div key={item.key} className="rounded-md border border-border bg-background p-2"><div className="flex items-start justify-between gap-2"><strong className="text-[11px] leading-4 text-foreground">{item.label}</strong><span className="text-xs font-bold text-emerald-700 dark:text-emerald-200">{item.score}</span></div><p className="mt-1 text-[10px] leading-4 text-muted-foreground">{item.explanation}</p></div>)}
+        {projection.evaluation.dimensions.map((item) => <div key={item.key} className="rounded-md border border-border bg-background p-2"><div className="flex items-start justify-between gap-2"><strong className="text-[11px] leading-4 text-foreground">{item.label}</strong><span className="text-xs font-bold text-emerald-700 dark:text-emerald-200">{item.score ?? 'Unscored'}</span></div><p className="mt-1 text-[10px] leading-4 text-muted-foreground">Observed {item.calculation.observed ?? 'Unscored'} / {item.calculation.required ?? 'Unscored'} required {item.calculation.unit}</p><p className="mt-1 text-[10px] leading-4 text-muted-foreground">{item.calculation.formula}</p><p className="mt-1 text-[10px] leading-4 text-muted-foreground">{item.explanation}</p></div>)}
       </div>
 
       <details className="mt-3 rounded-md border border-border bg-background p-3">
         <summary className="cursor-pointer text-sm font-semibold text-foreground">Show field-level source trace and visual decisions</summary>
         <div className="mt-3 grid gap-3 lg:grid-cols-2">
           <div><h5 className="text-xs font-semibold text-foreground">Exact source deep links</h5><ul className="mt-2 space-y-2">{plan.exact_sources.map((source) => <li key={source.source_id} className="rounded border border-border p-2 text-xs leading-5"><a href={source.href} className="font-semibold text-blue-700 underline dark:text-blue-200">{source.label}</a><p className="text-muted-foreground">{pretty(source.kind)} · {source.privacy_boundary}</p><p className="break-all font-mono text-[10px] text-muted-foreground">{source.source_id}</p></li>)}</ul></div>
-          <div><h5 className="text-xs font-semibold text-foreground">Benchmark logic</h5><p className="mt-2 text-xs leading-5 text-muted-foreground">Playlist similarity {plan.benchmark_logic.playlist_similarity_score}/100 · taste only, zero performance weight. Live topic score {plan.benchmark_logic.live_topic_score} / {plan.benchmark_logic.live_topic_threshold} required.</p><p className="mt-2 text-xs leading-5 text-muted-foreground">{plan.benchmark_logic.explanation}</p><h5 className="mt-4 text-xs font-semibold text-foreground">Rejected alternatives</h5><ul className="mt-2 space-y-2">{plan.rejected_alternatives.map((entry) => <li key={entry.alternative} className="rounded border border-border p-2 text-xs leading-5"><strong className="text-foreground">{entry.alternative}</strong><p className="text-muted-foreground">{entry.reason}</p><p className="text-muted-foreground"><strong>Recovery:</strong> {entry.recovery_action}</p></li>)}</ul></div>
+          <div><h5 className="text-xs font-semibold text-foreground">Benchmark logic</h5><p className="mt-2 text-xs leading-5 text-muted-foreground">Playlist similarity {plan.benchmark_logic.playlist_similarity.status === 'scored' ? `${plan.benchmark_logic.playlist_similarity.score}/100` : 'Unscored'} · taste only, zero performance weight.</p><p className="mt-1 text-xs leading-5 text-muted-foreground">{plan.benchmark_logic.playlist_similarity.formula}</p><p className="mt-2 text-xs leading-5 text-muted-foreground">Live topic score {plan.benchmark_logic.live_topic_score} observed / {plan.benchmark_logic.live_topic_threshold} required · receipt {plan.benchmark_logic.live_topic_outlier_receipt_id}</p><p className="mt-2 text-xs leading-5 text-muted-foreground">{plan.benchmark_logic.explanation}</p><h5 className="mt-4 text-xs font-semibold text-foreground">Rejected alternatives</h5><ul className="mt-2 space-y-2">{plan.rejected_alternatives.map((entry) => <li key={entry.alternative} className="rounded border border-border p-2 text-xs leading-5"><strong className="text-foreground">{entry.alternative}</strong><p className="text-muted-foreground">{entry.reason}</p><p className="text-muted-foreground"><strong>Recovery:</strong> {entry.recovery_action}</p></li>)}</ul></div>
         </div>
         <h5 className="mt-4 text-xs font-semibold text-foreground">Script-to-visual storyboard timing</h5>
         <ol className="mt-2 space-y-2">{timed.map((beat) => <li key={beat.beat_id} className="rounded border border-border p-2 text-xs leading-5"><div className="flex flex-wrap justify-between gap-2"><strong className="text-foreground">{pretty(beat.channel)} · {beat.copy_section_id}</strong><span className="font-mono text-[10px] text-muted-foreground">{beat.start_seconds}s-{beat.end_seconds}s</span></div><p className="mt-1 text-foreground">{beat.intended_takeaway}</p><p className="mt-1 text-muted-foreground"><strong>Copy:</strong> {beat.copy_excerpt}</p><p className="mt-1 text-muted-foreground"><strong>Motion:</strong> {beat.motion} <strong>Transition:</strong> {beat.transition}</p><p className="mt-1 break-all font-mono text-[10px] text-muted-foreground">Sources: {beat.source_ids.join(' · ')}</p></li>)}</ol>
       </details>
     </article>
+  )
+}
+
+const BLOCKED_VISUAL_PAGE_SIZE = 4
+
+function BlockedVisualBacklog({ entries }: { entries: CampaignVisualProjection[] }) {
+  const [query, setQuery] = useState('')
+  const [page, setPage] = useState(1)
+  const normalizedQuery = query.trim().toLowerCase()
+  const filtered = useMemo(() => entries.filter((entry) => !normalizedQuery || [
+    entry.product_label,
+    entry.campaign_identity,
+    ...entry.evaluation.blockers.flatMap((item) => [item.code, item.message, item.recovery_label]),
+  ].some((value) => value.toLowerCase().includes(normalizedQuery))), [entries, normalizedQuery])
+  const pageCount = Math.max(1, Math.ceil(filtered.length / BLOCKED_VISUAL_PAGE_SIZE))
+  const currentPage = Math.min(page, pageCount)
+  const visible = filtered.slice((currentPage - 1) * BLOCKED_VISUAL_PAGE_SIZE, currentPage * BLOCKED_VISUAL_PAGE_SIZE)
+  const groups = visible.reduce<Map<string, CampaignVisualProjection[]>>((result, entry) => {
+    const key = entry.evaluation.blockers[0]?.code || 'prerequisite_unscored'
+    result.set(key, [...(result.get(key) ?? []), entry])
+    return result
+  }, new Map())
+
+  useEffect(() => { setPage(1) }, [normalizedQuery])
+  useEffect(() => { if (page > pageCount) setPage(pageCount) }, [page, pageCount])
+
+  return (
+    <section aria-label="Blocked visual candidates" className="rounded-lg border border-amber-500/25 bg-amber-500/5 p-3">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+        <label className="min-w-0 flex-1 text-xs font-semibold text-foreground">Search blocked visual candidates<input aria-label="Search blocked visual candidates" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Product, blocker, or recovery" className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-sm font-normal text-foreground outline-none focus:ring-2 focus:ring-radiant-gold" /></label>
+        <p className="text-xs text-muted-foreground">{filtered.length} match{filtered.length === 1 ? '' : 'es'} · four per page</p>
+      </div>
+      {!visible.length ? <p className="mt-3 rounded-md border border-border bg-background p-3 text-sm text-muted-foreground">No blocked candidates match this search.</p> : <div className="mt-3 space-y-3">{[...groups.entries()].map(([code, group]) => <section key={code} aria-label={`${pretty(code)} blocked group`} className="rounded-md border border-border bg-background p-2"><h5 className="text-xs font-semibold text-foreground">{pretty(code)} · {group.length} on this page</h5><div className="mt-2 space-y-2">{group.map((entry) => {
+        const primary = entry.evaluation.blockers[0]
+        return <div key={entry.candidate_id} className="rounded-md border border-amber-500/30 bg-amber-500/5 p-3"><div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between"><div><p className="text-sm font-semibold text-foreground">{entry.product_label} · {entry.state === 'unscored' ? 'Unscored' : 'Blocked'}</p><p className="mt-1 text-xs text-muted-foreground">{entry.evaluation.blockers.length} blocker{entry.evaluation.blockers.length === 1 ? '' : 's'} · numerical scoring withheld</p></div>{primary ? <Link href={primary.recovery_href} className="w-fit text-xs font-semibold text-blue-700 underline dark:text-blue-200">{primary.recovery_label}</Link> : null}</div><details className="mt-2 rounded border border-border bg-background p-2"><summary className="cursor-pointer text-xs font-semibold text-foreground">View {entry.evaluation.blockers.length} exact blocker{entry.evaluation.blockers.length === 1 ? '' : 's'}</summary><ul className="mt-2 space-y-2">{entry.evaluation.blockers.map((item) => <li key={item.code} className="text-xs leading-5 text-muted-foreground"><p><span className="font-mono text-[10px] text-foreground">{item.code}</span> · {item.message}</p><Link href={item.recovery_href} className="font-semibold text-blue-700 underline dark:text-blue-200">{item.recovery_label}</Link></li>)}</ul></details></div>
+      })}</div></section>)}</div>}
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-2"><p className="text-xs text-muted-foreground">Page {currentPage} of {pageCount}</p><div className="flex gap-2"><button type="button" aria-label="Previous blocked page" onClick={() => setPage((value) => Math.max(1, value - 1))} disabled={currentPage <= 1} className="admin-console-button-secondary disabled:cursor-not-allowed disabled:opacity-50">Previous</button><button type="button" aria-label="Next blocked page" onClick={() => setPage((value) => Math.min(pageCount, value + 1))} disabled={currentPage >= pageCount} className="admin-console-button-secondary disabled:cursor-not-allowed disabled:opacity-50">Next</button></div></div>
+    </section>
   )
 }
 
@@ -252,7 +290,7 @@ export default function SocialCampaignPackagePreparation({ qaFixture }: { qaFixt
         {!latestVisualBatch ? <p className="mt-3 text-xs leading-5 text-muted-foreground">Visual plans remain sealed until the batch action binds every region to approved copy, exact sources, owned product proof, timing, privacy, originality, and channel-native quality checks.</p> : <div className="mt-3 space-y-3">
           <p className="text-xs font-semibold text-foreground">{latestVisualBatch.total} total · {latestVisualBatch.scanned} scanned · {latestVisualBatch.prepared_count} prepared · {latestVisualBatch.blocked_count} blocked · {latestVisualBatch.remaining} remaining · {latestVisualBatch.chunks_processed} chunks</p>
           <div className="grid gap-3 md:grid-cols-2">{latestVisualBatch.prepared.map((projection) => projection.plan ? <VisualPlanDetails key={projection.plan.plan_id} plan={projection.plan} projection={projection} /> : null)}</div>
-          {latestVisualBatch.blocked.length ? <div className="space-y-2" aria-label="Blocked visual candidates">{latestVisualBatch.blocked.map((entry) => <div key={entry.candidate_id} className="rounded-md border border-amber-500/30 bg-amber-500/5 p-3"><p className="text-sm font-semibold text-foreground">{entry.product_label} · {entry.state === 'unscored' ? 'Unscored' : 'Blocked'}</p><p className="mt-1 text-xs text-muted-foreground">Numerical visual scoring is withheld until the prerequisite evidence and script contract pass.</p>{entry.evaluation.blockers.slice(0, 3).map((item) => <p key={item.code} className="mt-1 text-xs leading-5 text-muted-foreground">{item.message} <Link href={item.recovery_href} className="font-semibold text-blue-700 underline dark:text-blue-200">{item.recovery_label}</Link></p>)}</div>)}</div> : null}
+          {latestVisualBatch.blocked.length ? <BlockedVisualBacklog entries={latestVisualBatch.blocked} /> : null}
         </div>}
       </section>
 
