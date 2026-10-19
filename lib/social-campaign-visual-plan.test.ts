@@ -69,6 +69,9 @@ describe('evidence-backed social visual plan', () => {
     expect(scenes.every((beat) => beat.presenter_placement && beat.music_ducking_cue)).toBe(true)
     expect(scenes.some((beat) => beat.product_broll_timing?.end_seconds === beat.end_seconds)).toBe(true)
     expect(scenes.at(-1)?.spoken_conclusion_or_cta).toMatch(/subscrib/i)
+    const shortFormScenes = plan.beats.filter((beat) => beat.channel === 'short_form')
+    expect(shortFormScenes.every((beat) => beat.storyboard_traceability?.source_receipt_ids.includes(beat.storyboard_traceability.product_proof_receipt_id))).toBe(true)
+    expect(shortFormScenes.every((beat) => !beat.product_broll_timing || (beat.product_broll_timing.start_seconds === beat.start_seconds && beat.product_broll_timing.end_seconds === beat.end_seconds))).toBe(true)
     expect(evaluateCampaignVisualPlan(plan, NOW).blockers.map((item) => item.code)).not.toContain('visual_storyboard_incomplete')
   })
 

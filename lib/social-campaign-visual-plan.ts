@@ -765,7 +765,7 @@ function planBeats(candidate: CampaignPreparationCandidate, script: CampaignLong
     customer_facing_copy: beat.pattern_interrupt || '',
     layout: 'Vertical 9:16 crop; product result stays central with captions in padded UI-safe areas.',
     presenter_placement: 'Presenter optional; if present, stays above platform controls and outside the product result.',
-    product_broll_timing: beat.broll_cue ? { cue: beat.broll_cue, start_seconds: beat.start_seconds, end_seconds: beat.end_seconds } : null,
+    product_broll_timing: beat.broll_cue ? { cue: beat.broll_cue, start_seconds: index * 8, end_seconds: (index + 1) * 8 } : null,
     music_ducking_cue: 'Low, lyric-free instrumental bed; duck 6 dB under narration and 9 dB during product-proof explanation; no music asset is selected in this review plan.',
     spoken_conclusion_or_cta: beat.role === 'conclusion' || beat.role === 'cta' ? beat.text : null,
     storyboard_traceability: {
@@ -967,7 +967,7 @@ export function evaluateCampaignVisualPlan(plan: CampaignVisualPlan, now = new D
   if (timingFailure || overlappingScenes || adjacentRepeat) blockers.push(blocker('visual_motion_sync', 'Video regions need non-overlapping timing, synchronized motion, clear transitions, presenter-safe framing, and justified asset reuse.', 'Repair storyboard timing and assets', plan.recovery_actions.at(-1)?.href || '/admin/social-content'))
 
   const longFormScenes = plan.beats.filter((beat) => beat.channel === 'youtube_long_form')
-  const traceabilityComplete = longFormScenes.every((beat) => {
+  const traceabilityComplete = videoBeats.every((beat) => {
     const trace = beat.storyboard_traceability
     return Boolean(
       beat.layout && beat.presenter_placement && beat.music_ducking_cue
