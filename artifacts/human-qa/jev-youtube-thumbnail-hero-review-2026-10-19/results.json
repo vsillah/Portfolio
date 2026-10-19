@@ -1,0 +1,77 @@
+{
+  "revision": "3a66e2b3",
+  "route": "http://127.0.0.1:3218/admin/social-content?campaignQa=campaign-package-preparation-review-v1&rev=3a66e2b3",
+  "contract": "youtube-thumbnail-hero-evidence/v1 + social-campaign-storyboard-review/v1",
+  "scenarios": [
+    {
+      "label": "desktop-1440-dark",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "colorScheme": "dark"
+    },
+    {
+      "label": "tablet-768-light",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "colorScheme": "light"
+    },
+    {
+      "label": "mobile-390-dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "colorScheme": "dark"
+    }
+  ],
+  "screenshots": [
+    "desktop-1440-dark-overview.jpg",
+    "desktop-1440-dark-jev-asset.jpg",
+    "desktop-1440-dark-jev-candidate-comparison.jpg",
+    "desktop-1440-dark-jev-candidate-b.jpg",
+    "desktop-1440-dark-jev-gates.jpg",
+    "desktop-1440-dark-jev-conclusion.jpg",
+    "desktop-1440-dark-dark-castle-asset.jpg",
+    "desktop-1440-dark-closed-gates.jpg",
+    "tablet-768-light-overview.jpg",
+    "tablet-768-light-jev-asset.jpg",
+    "tablet-768-light-jev-candidate-comparison.jpg",
+    "tablet-768-light-jev-candidate-b.jpg",
+    "tablet-768-light-jev-gates.jpg",
+    "tablet-768-light-jev-conclusion.jpg",
+    "tablet-768-light-dark-castle-asset.jpg",
+    "tablet-768-light-closed-gates.jpg",
+    "mobile-390-dark-overview.jpg",
+    "mobile-390-dark-jev-asset.jpg",
+    "mobile-390-dark-jev-candidate-comparison.jpg",
+    "mobile-390-dark-jev-candidate-b.jpg",
+    "mobile-390-dark-jev-gates.jpg",
+    "mobile-390-dark-jev-conclusion.jpg",
+    "mobile-390-dark-dark-castle-asset.jpg",
+    "mobile-390-dark-closed-gates.jpg"
+  ],
+  "video": "jev-youtube-thumbnail-hero-review-walkthrough.mp4",
+  "recovery_actions_exercised": [
+    "Complete description evidence: /admin/social-content?workflow=evidence&campaign=jev",
+    "Complete description evidence: /admin/social-content?workflow=evidence&campaign=dark-castle-chess",
+    "Repair hero evidence: /admin/social-content?workflow=evidence&campaign=dark-castle-chess",
+    "Evaluate the exact thumbnail: /admin/social-content?workflow=evidence&campaign=jev",
+    "Evaluate the exact thumbnail: /admin/social-content?workflow=evidence&campaign=dark-castle-chess",
+    "Review the exact script and CTA: /admin/social-content?workflow=evidence&campaign=jev",
+    "Review the exact script and CTA: /admin/social-content?workflow=evidence&campaign=dark-castle-chess",
+    "Rebind the current version: /admin/social-content?workflow=evidence&campaign=jev"
+  ],
+  "external_requests": [],
+  "blocked_development_telemetry": [
+    "https://va.vercel-scripts.com/v1/speed-insights/script.debug.js"
+  ],
+  "protected_actions_exercised": [],
+  "provider_calls": 0,
+  "paid_media_calls": 0,
+  "production_reads": 0,
+  "production_writes": 0
+}
