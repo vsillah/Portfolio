@@ -13,6 +13,7 @@ import {
 } from '@/lib/social-trend-work-join'
 import { collectDirectGitHubActivityProjections } from '@/lib/social-github-activity'
 import { approvedRepositoryEvidenceProjections } from '@/lib/social-repository-evidence'
+import { collectOfficialLiveSignalPackets, persistPendingOfficialSignalPackets } from '@/lib/social-official-live-signals'
 
 export type CoverageSourceKey =
   | 'public_momentum'
@@ -474,7 +475,7 @@ async function readPersistedCoverage() {
 export async function collectLiveSocialTopicCoverage(options: { persist?: boolean } = {}) {
   const generatedAt = new Date().toISOString()
   const collectorFailures: Partial<Record<CoverageSourceKey, string>> = {}
-  const [persisted, socialResult, workItemResult, githubResult, momentumResult] = await Promise.all([
+  const [persisted, socialResult, workItemResult, githubResult, momentumResult, officialResult] = await Promise.all([
     readPersistedCoverage(),
     collectSocialTopicSignals().catch((error) => {
       collectorFailures.meeting_summaries = error instanceof Error ? error.message : 'approved_summary_collection_failed'
@@ -493,6 +494,10 @@ export async function collectLiveSocialTopicCoverage(options: { persist?: boolea
       collectorFailures.public_momentum = error instanceof Error ? error.message : 'approved_public_momentum_collection_failed'
       return { projections: [], blockers: [], approved_records_scanned: 0, read_only: true as const }
     }),
+    collectOfficialLiveSignalPackets({ observedAt: generatedAt }).catch((error) => ({
+      packets: [], blockers: [error instanceof Error ? error.message : 'official_signal_collection_failed'],
+      read_only: true as const, review_only: true as const,
+    })),
   ])
 
   for (const collection of socialResult.sourceCollections) {
@@ -516,6 +521,9 @@ export async function collectLiveSocialTopicCoverage(options: { persist?: boolea
   }
   if (githubResult.blockers.length > 0) collectorFailures.github_development = githubResult.blockers.join(' ')
   if (momentumResult.blockers.length > 0) collectorFailures.public_momentum = momentumResult.blockers.join(' ')
+  if (officialResult.blockers.length > 0) collectorFailures.public_momentum = [
+    collectorFailures.public_momentum, ...officialResult.blockers,
+  ].filter(Boolean).join(' ')
 
   const liveReceipts = socialResult.signals.flatMap(sourceSignalProjection)
   const workReceipts = workItemResult.error ? [] : workItemCoverageProjections((workItemResult.data ?? []) as Record<string, unknown>[], generatedAt)
@@ -533,6 +541,9 @@ export async function collectLiveSocialTopicCoverage(options: { persist?: boolea
   })
 
   if (options.persist) {
+    // Pending packets are stored in the existing research inbox. They are never
+    // projected as approved momentum until an operator reviews them.
+    await persistPendingOfficialSignalPackets(officialResult.packets)
     if (liveReceipts.length > 0 || workReceipts.length > 0 || collectedReceipts.length > 0) {
       const { error } = await supabaseAdmin.from('social_topic_source_receipts')
         .upsert(dedupeReceipts([...liveReceipts, ...workReceipts, ...collectedReceipts]), { onConflict: 'receipt_id' })

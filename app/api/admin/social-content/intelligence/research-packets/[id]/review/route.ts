@@ -5,6 +5,8 @@ import {
   normalizePractitionerEvidence,
   practitionerEvidenceValidation,
 } from '@/lib/research-practitioner-evidence'
+import { OFFICIAL_LIVE_SIGNAL_SOURCES } from '@/lib/social-official-live-signals'
+import { buildApprovedPublicMomentumProjection } from '@/lib/social-trend-work-join'
 
 function hasValidSourceUrl(value: unknown) {
   if (typeof value !== 'string' || !value.trim()) return false
@@ -114,27 +116,89 @@ export async function POST(request: NextRequest, context: { params: Promise<{ id
   if (packet.status !== 'review_ready' || packet.updated_at !== body.updated_at) {
     return NextResponse.json({ error: 'Packet changed or was already reviewed. Refresh before reviewing.' }, { status: 409 })
   }
-  if (body.decision === 'approved' && (
+  const metadata = packet.actor_metadata && typeof packet.actor_metadata === 'object' && !Array.isArray(packet.actor_metadata)
+    ? packet.actor_metadata as Record<string, unknown> : {}
+  const official = metadata.official_signal && typeof metadata.official_signal === 'object' && !Array.isArray(metadata.official_signal)
+    ? metadata.official_signal as Record<string, unknown> : null
+  const officialSource = official && OFFICIAL_LIVE_SIGNAL_SOURCES.find((source) => (
+    source.url === packet.source_url && source.url === official.source_url
+    && source.publisher === official.publisher
+    && source.published_at === official.published_at
+    && source.key.replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '') === official.coverage_identity
+    && JSON.stringify(source.topics) === JSON.stringify(official.topic_identities)
+    && JSON.stringify(source.entities) === JSON.stringify(official.entity_identities)
+    && /^[a-f0-9]{64}$/.test(String(official.source_fingerprint ?? ''))
+  ))
+  if (official && !officialSource) return NextResponse.json({ error: 'Official source attribution changed. Recollect before review.' }, { status: 422 })
+  if (body.decision === 'approved' && !official && (
     packet.pattern_status !== 'usable_framework'
     || !hasValidSourceUrl(packet.source_url)
     || !hasPatternPacket(packet.pattern_packet)
   )) {
     return NextResponse.json({ error: 'Approval requires a usable framework, a valid public source URL, and a nonempty pattern packet.' }, { status: 422 })
   }
-  const metadata = packet.actor_metadata && typeof packet.actor_metadata === 'object' && !Array.isArray(packet.actor_metadata)
-    ? packet.actor_metadata : {}
+  let validatedOfficialReceipt: Record<string, unknown> | null = null
   if (body.decision === 'approved') {
-    const validation = practitionerEvidenceValidation((metadata as Record<string, unknown>).practitioner_evidence, packet.pattern_packet)
-    if (!validation.valid) {
-      return NextResponse.json({
-        error: 'Complete the evidence boundary, privacy, and framework review before approval.',
-        issues: validation.issues,
-      }, { status: 422 })
+    if (official) {
+      const receipt = metadata.topic_momentum_receipt && typeof metadata.topic_momentum_receipt === 'object'
+        ? metadata.topic_momentum_receipt as Record<string, unknown> : {}
+      const review = body.signal_review && typeof body.signal_review === 'object' ? body.signal_review as Record<string, unknown> : {}
+      const observedAt = String(official.observed_at ?? '')
+      const expiresAt = String(official.expires_at ?? '')
+      if (Date.parse(expiresAt) < Date.now() || !Number.isFinite(Date.parse(observedAt))
+        || receipt.approval_status !== 'pending' || receipt.raw_content_included !== false
+        || receipt.privacy_classification !== 'public_safe'
+        || receipt.product_identity !== 'portfolio'
+        || JSON.stringify(receipt.topic_identities) !== JSON.stringify(officialSource?.topics)
+        || JSON.stringify(receipt.entity_identities) !== JSON.stringify(officialSource?.entities)
+        || receipt.approved_summary !== officialSource?.summary
+        || typeof review.public_attention_score !== 'number' || review.public_attention_score < 0.65
+        || typeof review.relevance_score !== 'number' || review.relevance_score < 0.65
+        || !['positive', 'negative', 'mixed'].includes(String(review.sentiment))
+        || review.materiality !== 'material'
+        || !['corroborated', 'attributable_single_source'].includes(String(review.evidence_state))
+        || typeof review.context_summary !== 'string' || review.context_summary.trim().length < 12) {
+        return NextResponse.json({ error: 'Approve only fresh, attributable, material signals with reviewed sentiment, context and measured attention/relevance.' }, { status: 422 })
+      }
+      try {
+        const projection = buildApprovedPublicMomentumProjection({
+          sourceId: `research_packet:${packet.id}`, momentumKind: 'public_news', productIdentity: 'portfolio',
+          label: 'Portfolio', approvedSummary: String(receipt.approved_summary ?? ''),
+          canonicalUrl: packet.source_url, publisher: String(official.publisher),
+          topicIdentities: receipt.topic_identities as string[], entityIdentities: receipt.entity_identities as string[],
+          coverageIdentity: String(official.coverage_identity), sentiment: review.sentiment as 'positive' | 'negative' | 'mixed',
+          contextSummary: review.context_summary, relevanceScore: review.relevance_score,
+          publicAttentionScore: review.public_attention_score, materiality: 'material',
+          evidenceState: review.evidence_state as 'corroborated' | 'attributable_single_source',
+          publishedAt: String(official.published_at), observedAt, expiresAt,
+          approvedAt: new Date().toISOString(), approvedBy: auth.user.id,
+        })
+        validatedOfficialReceipt = {
+          ...receipt, ...projection.metadata, product_identity: 'portfolio', product_label: 'Portfolio',
+          approval_status: 'approved', approved_at: new Date().toISOString(), approved_by: auth.user.id,
+        }
+      } catch {
+        return NextResponse.json({ error: 'Official signal receipt is incomplete or malformed.' }, { status: 422 })
+      }
+    } else {
+      const validation = practitionerEvidenceValidation(metadata.practitioner_evidence, packet.pattern_packet)
+      if (!validation.valid) {
+        return NextResponse.json({
+          error: 'Complete the evidence boundary, privacy, and framework review before approval.',
+          issues: validation.issues,
+        }, { status: 422 })
+      }
     }
   }
   const reviewedAt = new Date().toISOString()
+  const reviewedMetadata = official && validatedOfficialReceipt
+    ? { ...metadata,
+        official_signal: { ...official, evidence_status: 'approved' },
+        topic_momentum_receipt: { ...validatedOfficialReceipt, approved_at: reviewedAt },
+      }
+    : metadata
   const { data: updated, error: updateError } = await supabaseAdmin.from('social_content_research_packets')
-    .update({ status: body.decision, actor_metadata: { ...metadata, operator_review: {
+    .update({ status: body.decision, actor_metadata: { ...reviewedMetadata, operator_review: {
       decision: body.decision, note: body.note.trim(), reviewed_by: auth.user.id,
       reviewed_at: reviewedAt, previous_status: packet.status, packet_version: packet.updated_at,
       pattern_status: packet.pattern_status, source_url: packet.source_url,

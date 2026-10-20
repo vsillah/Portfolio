@@ -4,6 +4,7 @@ const mocks = vi.hoisted(() => ({ auth: vi.fn(), from: vi.fn(), single: vi.fn(),
 vi.mock('@/lib/auth-server', () => ({ verifyAdmin: mocks.auth, isAuthError: (v: { error?: string }) => !!v.error }))
 vi.mock('@/lib/supabase', () => ({ supabaseAdmin: { from: mocks.from } }))
 import { PATCH, POST } from './route'
+import { OFFICIAL_LIVE_SIGNAL_SOURCES, officialSignalPacketFromPage } from '@/lib/social-official-live-signals'
 const id = '11111111-1111-4111-8111-111111111111'
 const version = '2026-10-06T12:00:00.000Z'
 const frameworkOnlyEvidence = {
@@ -117,6 +118,29 @@ describe('research packet review', () => {
     expect((await request()).status).toBe(409)
   })
   it('returns not found', async () => { mocks.single.mockReset().mockResolvedValue({ data: null }); expect((await request()).status).toBe(404) })
+  it('keeps official release signals pending until a current, explicit operator classification is supplied', async () => {
+    const source = OFFICIAL_LIVE_SIGNAL_SOURCES[0]
+    const intake = officialSignalPacketFromPage({
+      sourceUrl: source.url,
+      html: `<html>${source.proof.join(' ')} ${'official page '.repeat(20)}</html>`,
+      observedAt: '2026-10-20T12:00:00.000Z',
+    })
+    const officialPacket = { ...packet, ...intake, id, updated_at: version }
+    mocks.single.mockReset().mockResolvedValueOnce({ data: officialPacket }).mockResolvedValue({ data: officialPacket })
+    expect((await request()).status).toBe(422)
+    expect(mocks.update).not.toHaveBeenCalled()
+    mocks.single.mockReset().mockResolvedValueOnce({ data: officialPacket }).mockResolvedValue({ data: officialPacket })
+    const response = await request({ decision: 'approved', note: 'Verified against the official changelog', updated_at: version,
+      signal_review: { sentiment: 'positive', materiality: 'material', evidence_state: 'attributable_single_source',
+        context_summary: 'The official changelog documents the two Agents API capabilities.', relevance_score: 0.9, public_attention_score: 0.75 },
+    })
+    expect(response.status).toBe(200)
+    expect(mocks.update).toHaveBeenCalledWith(expect.objectContaining({
+      status: 'approved', actor_metadata: expect.objectContaining({
+        topic_momentum_receipt: expect.objectContaining({ approval_status: 'approved', product_identity: 'portfolio', public_attention_score: 0.75 }),
+      }),
+    }))
+  })
   it('reports save failure', async () => {
     mocks.single.mockReset().mockResolvedValueOnce({ data: packet }).mockResolvedValue({ error: { message: 'private database detail' } })
     const res = await request(); expect(res.status).toBe(500); expect(JSON.stringify(await res.json())).not.toContain('private database detail')
