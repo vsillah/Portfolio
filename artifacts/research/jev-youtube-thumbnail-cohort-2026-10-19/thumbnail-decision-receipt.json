@@ -1,0 +1,270 @@
+{
+  "version": "youtube-thumbnail-decision-receipt/v1",
+  "receipt_id": "decision:thumbnail:jev:20261019:v1",
+  "route": "social-content-outlier-decision/v1",
+  "content_version": "sha256:392b3e2a92c5ab65e4cc93706571df761bac7ea38631bf06002fd6b89f3302a2",
+  "input_version": "sha256:29501b6a4fac549daac4b6c342699c63f6b75a9b889d16af09307b8aa403587a",
+  "output_version": "decision:jev:20261019:v1",
+  "candidate_identity": {
+    "content_id": "939b01e3-d1af-42c8-805e-0379f09efd60",
+    "title": "AI Scored It. Who Makes the Call?",
+    "thumbnail_hook": "WHEN SHOULD AI STOP?",
+    "product_proof_receipt_id": "sha256:7e123f1c11a156e86b36e0d2306ad1f42d97d3c63dac335588e804f6bc74f8e9",
+    "composition_signature": "jev-curious-human|decision-boundary-card|short-question|hero-v1"
+  },
+  "live_evidence": {
+    "cohort_id": "cohort:youtube:ai-governance-human-decision:20261019:v1",
+    "observed_at": "2026-10-19T22:30:00.000Z",
+    "fresh_until": "2026-11-02T22:30:00.000Z",
+    "minimum_sample_size": 6,
+    "normalization_formula": [
+      "source exact views / same-channel recent long-form median exact views",
+      "source exact views / public channel subscriber count",
+      "source exact views / max(age in days at observation, 1)",
+      "(channel-relative percentile × 0.50) + (audience-view percentile × 0.30) + (recency-rate percentile × 0.20)"
+    ],
+    "outlier_threshold": 75,
+    "comparisons": [
+      {
+        "video_id": "WGDQoaoqR1U",
+        "source_url": "https://www.youtube.com/watch?v=WGDQoaoqR1U",
+        "decision": "included",
+        "decision_reason": "Same-topic accountable AI governance explainer with a product-process visual.",
+        "view_count": 2699,
+        "subscriber_count": 66,
+        "published_at": "2025-10-27T21:15:02.000Z",
+        "observed_at": "2026-10-19T22:30:00.000Z",
+        "channel_baseline_size": 10,
+        "normalized_performance_score": 87.77,
+        "outlier_qualified": true
+      },
+      {
+        "video_id": "BIPlhF0sXUc",
+        "source_url": "https://www.youtube.com/watch?v=BIPlhF0sXUc",
+        "decision": "included",
+        "decision_reason": "Exact-topic AI-agent risk ownership and accountability discussion.",
+        "view_count": 8047,
+        "subscriber_count": 10800,
+        "published_at": "2026-10-07T12:28:03.000Z",
+        "observed_at": "2026-10-19T22:30:00.000Z",
+        "channel_baseline_size": 10,
+        "normalized_performance_score": 73.33,
+        "outlier_qualified": false
+      },
+      {
+        "video_id": "mVD72s4hmIw",
+        "source_url": "https://www.youtube.com/watch?v=mVD72s4hmIw",
+        "decision": "included",
+        "decision_reason": "Same-topic AI adoption-to-governance explainer retained to test dense field-guide rejection.",
+        "view_count": 101,
+        "subscriber_count": 19,
+        "published_at": "2026-09-09T13:00:39.000Z",
+        "observed_at": "2026-10-19T22:30:00.000Z",
+        "channel_baseline_size": 10,
+        "normalized_performance_score": 71.11,
+        "outlier_qualified": false
+      },
+      {
+        "video_id": "d-22oCIWSBQ",
+        "source_url": "https://www.youtube.com/watch?v=d-22oCIWSBQ",
+        "decision": "included",
+        "decision_reason": "Exact-topic human oversight in AI decision-making explainer.",
+        "view_count": 568,
+        "subscriber_count": 142,
+        "published_at": "2023-03-29T22:00:17.000Z",
+        "observed_at": "2026-10-19T22:30:00.000Z",
+        "channel_baseline_size": 10,
+        "normalized_performance_score": 53.33,
+        "outlier_qualified": false
+      },
+      {
+        "video_id": "Q020C-Jw0o8",
+        "source_url": "https://www.youtube.com/watch?v=Q020C-Jw0o8",
+        "decision": "included",
+        "decision_reason": "Same-topic AI governance explainer from a channel with an attributable long-form baseline.",
+        "view_count": 99585,
+        "subscriber_count": 1820000,
+        "published_at": "2024-05-21T11:00:31.000Z",
+        "observed_at": "2026-10-19T22:30:00.000Z",
+        "channel_baseline_size": 10,
+        "normalized_performance_score": 47.78,
+        "outlier_qualified": false
+      },
+      {
+        "video_id": "PUnCxppwDSs",
+        "source_url": "https://www.youtube.com/watch?v=PUnCxppwDSs",
+        "decision": "included",
+        "decision_reason": "Exact-topic human-in-the-loop decision-owner explainer.",
+        "view_count": 46,
+        "subscriber_count": 19,
+        "published_at": "2026-09-28T04:00:04.000Z",
+        "observed_at": "2026-10-19T22:30:00.000Z",
+        "channel_baseline_size": 10,
+        "normalized_performance_score": 45.56,
+        "outlier_qualified": false
+      },
+      {
+        "video_id": "zRMAvMSSSII",
+        "source_url": "https://www.youtube.com/watch?v=zRMAvMSSSII",
+        "decision": "included",
+        "decision_reason": "Same-topic agentic AI governance and human-oversight argument with current public metadata.",
+        "view_count": 72260,
+        "subscriber_count": 1820000,
+        "published_at": "2026-10-11T11:00:03.000Z",
+        "observed_at": "2026-10-19T22:30:00.000Z",
+        "channel_baseline_size": 10,
+        "normalized_performance_score": 37.78,
+        "outlier_qualified": false
+      },
+      {
+        "video_id": "AyNe8KZYNGU",
+        "source_url": "https://www.youtube.com/watch?v=AyNe8KZYNGU",
+        "decision": "included",
+        "decision_reason": "Same-topic rules-before-results governance explainer.",
+        "view_count": 56,
+        "subscriber_count": 156,
+        "published_at": "2026-08-27T17:30:29.000Z",
+        "observed_at": "2026-10-19T22:30:00.000Z",
+        "channel_baseline_size": 10,
+        "normalized_performance_score": 23.34,
+        "outlier_qualified": false
+      },
+      {
+        "video_id": "DI0wC2d5m0w",
+        "source_url": "https://www.youtube.com/watch?v=DI0wC2d5m0w",
+        "decision": "included",
+        "decision_reason": "Exact-topic high-stakes human oversight and accountability webinar.",
+        "view_count": 217,
+        "subscriber_count": 19200,
+        "published_at": "2026-04-10T21:00:14.000Z",
+        "observed_at": "2026-10-19T22:30:00.000Z",
+        "channel_baseline_size": 10,
+        "normalized_performance_score": 10,
+        "outlier_qualified": false
+      }
+    ]
+  },
+  "candidate_copy_pair": {
+    "title": "AI Scored It. Who Makes the Call?",
+    "thumbnail_hook": "WHEN SHOULD AI STOP?",
+    "relationship": "contrasting_question",
+    "exact_strings_are_distinct": true,
+    "strategy_status": "review_only_unscored",
+    "support_scope": "editorial_hypothesis_only",
+    "performance_claim": "unscored",
+    "rationale": "The title names the scored event and decision owner. The thumbnail asks where model authority ends. Live examples support presenter-led decision tension and short governance hooks as bounded editorial patterns; they do not establish causal performance.",
+    "source_example_video_ids": [
+      "zRMAvMSSSII",
+      "Q020C-Jw0o8"
+    ]
+  },
+  "adopted_traits": [
+    "one dominant campaign-specific human hero",
+    "one-second topic comprehension",
+    "short large teaser copy distinct from the title",
+    "face-safe text placement with strong contrast",
+    "one simplified first-party Jev proof object subordinate to the hero"
+  ],
+  "rejected_traits": [
+    "dashboard or field-guide density",
+    "text-first lecture cards",
+    "generic robot, circuit-board, or synthetic office imagery",
+    "multi-head webinar grids and crude split screens",
+    "dark flat treatments with weak expression or no campaign-specific hero",
+    "copied source likenesses, layouts, wording, or brand colors"
+  ],
+  "user_preference_signals": [
+    {
+      "version": "youtube-thumbnail-user-preference/v1",
+      "signal_type": "user_curated_saved_playlist",
+      "source_url": "https://www.youtube.com/playlist?list=PLbfxkgOJ1hVc-9Gcleyt0iK7kW9MFpynh",
+      "captured_at": "2026-10-18T19:00:00.000Z",
+      "item_identities": [
+        {
+          "video_id": "1Rg9N6AC9Cs",
+          "source_url": "https://www.youtube.com/watch?v=1Rg9N6AC9Cs"
+        },
+        {
+          "video_id": "43MdhyYl2hY",
+          "source_url": "https://www.youtube.com/watch?v=43MdhyYl2hY"
+        },
+        {
+          "video_id": "h9Pk5iNDXMk",
+          "source_url": "https://www.youtube.com/watch?v=h9Pk5iNDXMk"
+        },
+        {
+          "video_id": "JSmGZ8vTEFQ",
+          "source_url": "https://www.youtube.com/watch?v=JSmGZ8vTEFQ"
+        },
+        {
+          "video_id": "fIWUAodAgJw",
+          "source_url": "https://www.youtube.com/watch?v=fIWUAodAgJw"
+        },
+        {
+          "video_id": "IGgg397XB90",
+          "source_url": "https://www.youtube.com/watch?v=IGgg397XB90"
+        },
+        {
+          "video_id": "C2NZs1fCLfo",
+          "source_url": "https://www.youtube.com/watch?v=C2NZs1fCLfo"
+        },
+        {
+          "video_id": "O8-UsCW3_1Y",
+          "source_url": "https://www.youtube.com/watch?v=O8-UsCW3_1Y"
+        },
+        {
+          "video_id": "GTWWNZyIsSc",
+          "source_url": "https://www.youtube.com/watch?v=GTWWNZyIsSc"
+        },
+        {
+          "video_id": "iXkfIS0dJqQ",
+          "source_url": "https://www.youtube.com/watch?v=iXkfIS0dJqQ"
+        },
+        {
+          "video_id": "j7CaMx2c56M",
+          "source_url": "https://www.youtube.com/watch?v=j7CaMx2c56M"
+        },
+        {
+          "video_id": "1L0ghc5ofLo",
+          "source_url": "https://www.youtube.com/watch?v=1L0ghc5ofLo"
+        },
+        {
+          "video_id": "-M_026Esvf0",
+          "source_url": "https://www.youtube.com/watch?v=-M_026Esvf0"
+        },
+        {
+          "video_id": "lDHrmDAD9y4",
+          "source_url": "https://www.youtube.com/watch?v=lDHrmDAD9y4"
+        }
+      ],
+      "extracted_visual_traits": [
+        "one dominant human or product anchor",
+        "large high-contrast hook readable before the supporting detail",
+        "visible proof prop such as a product screen, result, or revenue figure"
+      ],
+      "extracted_copy_traits": [
+        "specific how-to, full-course, pricing, or step-by-step promise",
+        "plain-language outcome or tension rather than an abstract category label",
+        "selective use of concrete numbers, timeframes, and result evidence"
+      ],
+      "applied_traits": [
+        "one dominant human or product focal object",
+        "one-second comprehension",
+        "short large teaser copy",
+        "clear title-thumbnail contrast",
+        "strong feed-size contrast",
+        "one simplified first-party proof object"
+      ],
+      "performance_weight": 0,
+      "evidence_role": "taste_calibration_only",
+      "performance_status": "unscored"
+    }
+  ],
+  "selection": {
+    "status": "ready",
+    "selected_composition": "expressive-human-decision-boundary",
+    "title_thumbnail_relationship": "contrasting_question",
+    "product_proof_binding": "sha256:7e123f1c11a156e86b36e0d2306ad1f42d97d3c63dac335588e804f6bc74f8e9",
+    "rationale": "Live topic evidence controls qualification and threshold status. The saved playlist contributes taste calibration only, with zero performance weight. First-party product proof controls the selected composition."
+  }
+}

@@ -11,12 +11,13 @@ const execFileAsync = promisify(execFile)
 const baseUrl = process.env.QA_BASE_URL || 'http://127.0.0.1:3218'
 const revision = process.env.QA_REVISION || 'working'
 const authState = process.env.PLAYWRIGHT_AUTH_STATE || '/Users/vambahsillah/Projects/Portfolio/.auth/portfolio-admin-storage-state.json'
-const outputDir = path.resolve(process.env.QA_OUTPUT_DIR || 'artifacts/human-qa/social-campaign-provider-free-storyboards-2026-10-19')
+const outputDir = path.resolve(process.env.QA_OUTPUT_DIR || 'artifacts/human-qa/jev-youtube-thumbnail-hero-review-2026-10-19')
 const rawVideoDir = path.join(outputDir, 'raw-video')
-const mp4Path = path.join(outputDir, 'social-campaign-storyboard-review-walkthrough.mp4')
+const mp4Path = path.join(outputDir, 'jev-youtube-thumbnail-hero-review-walkthrough.mp4')
 const route = `/admin/social-content?campaignQa=campaign-package-preparation-review-v1&rev=${encodeURIComponent(revision)}`
 const recoveryLabels = [
   'Complete description evidence',
+  'Repair hero evidence',
   'Evaluate the exact thumbnail',
   'Review the exact script and CTA',
   'Rebind the current version',
@@ -50,10 +51,7 @@ async function authenticatedStorageState(browser) {
   const context = await browser.newContext({ storageState: authState })
   const page = await context.newPage()
   await page.goto(`${baseUrl}${route}`, { waitUntil: 'domcontentloaded', timeout: 60_000 })
-  await Promise.race([
-    page.getByTestId('campaign-package-preparation').waitFor({ state: 'visible', timeout: 30_000 }),
-    page.getByLabel('Email', { exact: true }).waitFor({ state: 'visible', timeout: 30_000 }),
-  ])
+  await page.locator('[data-testid="campaign-package-preparation"], input[type="email"]').first().waitFor({ state: 'visible', timeout: 60_000 })
   if (await page.getByLabel('Email', { exact: true }).isVisible()) {
     if (!process.env.ADMIN_E2E_EMAIL || !process.env.ADMIN_E2E_PASSWORD) {
       throw new Error('Local QA admin credentials are unavailable.')
@@ -112,8 +110,8 @@ async function recordScenario(browser, storageState, { label, viewport, colorSch
   let panel = await reopenReview(page)
 
   await panel.getByText('External gates closed', { exact: true }).first().waitFor()
-  if (await panel.getByRole('heading', { name: 'Provider-free visual assets and complete storyboard' }).count() !== 2) {
-    throw new Error(`${label} did not render both provider-free storyboard packets.`)
+  if (await panel.getByRole('heading', { name: 'Hero-led thumbnail candidates and complete storyboard' }).count() !== 2) {
+    throw new Error(`${label} did not render both review-only storyboard packets.`)
   }
   if (await panel.getByText(/YouTube long-form scene board · 6 scenes · 4:00/).count() !== 2) {
     throw new Error(`${label} did not render both six-scene long-form boards.`)
@@ -124,14 +122,37 @@ async function recordScenario(browser, storageState, { label, viewport, colorSch
   await assertNoOverflow(page, `${label} overview`)
   await page.screenshot({ path: path.join(outputDir, `${label}-overview.jpg`), type: 'jpeg', quality: 82 })
 
-  const providerHeadings = panel.getByRole('heading', { name: 'Provider-free visual assets and complete storyboard' })
+  const providerHeadings = panel.getByRole('heading', { name: 'Hero-led thumbnail candidates and complete storyboard' })
   await providerHeadings.nth(0).scrollIntoViewIfNeeded()
   await page.waitForTimeout(450)
   await assertNoOverflow(page, `${label} Jev asset`)
   await page.screenshot({ path: path.join(outputDir, `${label}-jev-asset.jpg`), type: 'jpeg', quality: 82 })
 
+  const comparison = panel.getByLabel('Jev thumbnail candidate comparison')
+  if (await comparison.getByRole('article').count() !== 2) throw new Error(`${label} did not render two Jev hero candidates.`)
+  if (await comparison.getByAltText(/actual-feed-size preview/).count() !== 2) throw new Error(`${label} did not render both 320x180 feed previews.`)
+  const evidenceDetails = comparison.getByText('Inspect live-evidence creative decisions').first()
+  await evidenceDetails.click()
+  await comparison.getByText(/campaign-specific Vambah likeness makes the human decision owner concrete/).first().waitFor()
+  if (await comparison.getByText('New campaign-specific generation · review only', { exact: true }).count() !== 2) {
+    throw new Error(`${label} did not label both generated review candidates outside the exported pixels.`)
+  }
+  await comparison.getByText('Selected · sole final output', { exact: true }).waitFor()
+  await comparison.getByText('Rejected · ineligible for output', { exact: true }).waitFor()
+  await comparison.getByText('Pointing-hand treatment reads as if the hand was severed.', { exact: true }).waitFor()
+  await comparison.getByText(/The pointed finger, skeptical gaze, cyan product glow/).waitFor()
+  await comparison.getByText(/Both hands visibly grip the product edge/).waitFor()
+  await comparison.scrollIntoViewIfNeeded()
+  await page.waitForTimeout(450)
+  await assertNoOverflow(page, `${label} Jev comparison`)
+  await page.screenshot({ path: path.join(outputDir, `${label}-jev-candidate-comparison.jpg`), type: 'jpeg', quality: 82 })
+  await comparison.getByRole('article').nth(1).scrollIntoViewIfNeeded()
+  await page.waitForTimeout(450)
+  await assertNoOverflow(page, `${label} Jev candidate B`)
+  await page.screenshot({ path: path.join(outputDir, `${label}-jev-candidate-b.jpg`), type: 'jpeg', quality: 82 })
+
   const jevGates = panel.getByLabel('Jev evidence gates')
-  if (await jevGates.getByRole('article').count() !== 10) throw new Error(`${label} Jev gate matrix is incomplete.`)
+  if (await jevGates.getByRole('article').count() !== 11) throw new Error(`${label} Jev gate matrix is incomplete.`)
   await jevGates.scrollIntoViewIfNeeded()
   await page.waitForTimeout(450)
   await page.screenshot({ path: path.join(outputDir, `${label}-jev-gates.jpg`), type: 'jpeg', quality: 82 })
@@ -150,7 +171,7 @@ async function recordScenario(browser, storageState, { label, viewport, colorSch
   await page.screenshot({ path: path.join(outputDir, `${label}-dark-castle-asset.jpg`), type: 'jpeg', quality: 82 })
 
   const darkCastleGates = panel.getByLabel('Dark Castle Chess evidence gates')
-  if (await darkCastleGates.getByRole('article').count() !== 10) throw new Error(`${label} Dark Castle gate matrix is incomplete.`)
+  if (await darkCastleGates.getByRole('article').count() !== 11) throw new Error(`${label} Dark Castle gate matrix is incomplete.`)
   await darkCastleGates.scrollIntoViewIfNeeded()
   await page.waitForTimeout(450)
 
@@ -205,6 +226,8 @@ await rm(rawVideoDir, { recursive: true, force: true })
 const screenshots = scenarios.flatMap(({ label }) => [
   `${label}-overview.jpg`,
   `${label}-jev-asset.jpg`,
+  `${label}-jev-candidate-comparison.jpg`,
+  `${label}-jev-candidate-b.jpg`,
   `${label}-jev-gates.jpg`,
   `${label}-jev-conclusion.jpg`,
   `${label}-dark-castle-asset.jpg`,
@@ -213,7 +236,7 @@ const screenshots = scenarios.flatMap(({ label }) => [
 const result = {
   revision,
   route: `${baseUrl}${route}`,
-  contract: 'social-campaign-storyboard-review/v1',
+  contract: 'youtube-thumbnail-hero-evidence/v2 + social-campaign-storyboard-review/v1',
   scenarios: scenarios.map(({ label, viewport, colorScheme }) => ({ label, viewport, colorScheme })),
   screenshots,
   video: path.basename(mp4Path),
@@ -221,7 +244,10 @@ const result = {
   external_requests: [],
   blocked_development_telemetry: ['https://va.vercel-scripts.com/v1/speed-insights/script.debug.js'],
   protected_actions_exercised: [],
-  provider_calls: 0,
+  qa_provider_calls: 0,
+  generation_provider_calls: 2,
+  successful_generation_jobs: 2,
+  separate_observed_charge_usd: 0,
   paid_media_calls: 0,
   production_reads: 0,
   production_writes: 0,
