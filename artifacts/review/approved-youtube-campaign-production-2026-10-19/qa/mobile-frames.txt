@@ -1,0 +1,7 @@
+file 'final-mobile-dark-castle.jpg'
+duration 4
+file 'final-mobile-source-cards.jpg'
+duration 4
+file 'final-mobile-ai-campaign.jpg'
+duration 4
+file 'final-mobile-ai-campaign.jpg'

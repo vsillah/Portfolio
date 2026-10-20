@@ -3,6 +3,7 @@ import darkCastleSource from '@/artifacts/human-qa/artifact-video-review-2026-10
 import { buildSocialVideoAdaptationPacket, evaluateSocialVideoAdaptation, type SocialVideoAdaptationInput } from '@/lib/social-video-adaptation'
 import { SOCIAL_CAMPAIGN_APPROVED_ADAPTATION_QA_FIXTURE } from '@/lib/social-campaign-package-qa-fixture'
 import { buildCampaignHeroThumbnailReview, buildCampaignStoryboardReview, type CampaignStoryboardReviewConfig } from '@/lib/social-campaign-storyboard-review'
+import { approvedYouTubeCampaignProductionReview } from '@/lib/approved-youtube-campaign-production'
 
 const PRODUCTION_EXTERNAL_GATES = {
   provider_generation: false,
@@ -57,7 +58,7 @@ function projectedAdaptation(input: SocialVideoAdaptationInput, bindings: {
   }
 }
 
-export function socialCampaignApprovedAdaptationQaProjection() {
+export function socialCampaignApprovedAdaptationQaProjection(now = new Date()) {
   const primaryThumbnailReviews = [
     buildCampaignHeroThumbnailReview({
       campaign_identity: 'dark-castle-chess',
@@ -134,7 +135,7 @@ export function socialCampaignApprovedAdaptationQaProjection() {
     current_content_version: 'sha256:4d3bc63ebaeb1aed344d64ed15ebb0ff865772de48b48249526ccce0b2c02e9e',
     binding_status: 'source_ready_capture_pending',
     binding_note: 'The Social Content item is bound to this exact approved adaptation input version. Product claims remain limited to the three public gameplay captures and the passed source, privacy, rights, framework, challenger, and script-quality receipts.',
-    timing_audio_note: 'This source adaptation provides approved scene order and shot references, but this review projection has no current scene-timecode or audio-cue sheet. Keep timing and music/ducking unscored until an exact-input cue receipt is available.',
+    timing_audio_note: 'This earlier source adaptation provides approved scene order and shot references. The separate internal production packet below now has current timecodes and audio cues; its description cohort remains Unscored.',
     storyboard: {
       campaign_identity: 'dark-castle-chess',
       product_label: 'Dark Castle Chess',
@@ -181,6 +182,7 @@ export function socialCampaignApprovedAdaptationQaProjection() {
   return {
     fixture: SOCIAL_CAMPAIGN_APPROVED_ADAPTATION_QA_FIXTURE,
     review_only: true,
+    internal_production_review: approvedYouTubeCampaignProductionReview(now),
     external_gates: PRODUCTION_EXTERNAL_GATES,
     primary_thumbnail_reviews: primaryThumbnailReviews,
     adaptations: [jev, darkCastle],

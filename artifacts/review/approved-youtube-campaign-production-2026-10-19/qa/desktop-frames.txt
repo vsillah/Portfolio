@@ -1,0 +1,15 @@
+file 'final-desktop-campaign-overview.jpg'
+duration 4
+file 'final-desktop-dark-castle.jpg'
+duration 4
+file 'final-desktop-dark-castle-script-cues.jpg'
+duration 4
+file 'final-desktop-dark-castle-sources.jpg'
+duration 4
+file 'final-desktop-ai-campaign.jpg'
+duration 4
+file 'final-desktop-ai-script.jpg'
+duration 4
+file 'final-desktop-ai-sources.jpg'
+duration 4
+file 'final-desktop-ai-sources.jpg'
