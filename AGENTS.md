@@ -125,6 +125,15 @@ When developing Portfolio admin, agent-ops, content, outreach, review, or approv
 - During captain review, treat excessive static copy, unclear call-to-action placement, hidden recovery paths, repeated explanatory cards, non-actionable pseudo-controls, clipped pills, label bleed-through, line-height collisions, or evidence-recorder layout artifacts as UX defects that must be resolved before Human QA.
 - Public-facing copy written in Vambah's voice must not refer to Vambah by name or in the third person. Normalize authored messaging to first person or fail messaging QA before Human QA. Internal provenance, audit, and reviewer-trace fields may retain the original source wording.
 
+## Automatic Social Content Calendar Preparation Rule
+
+Treat `scheduled_for` as the deadline by which an evidenced, version-bound Social Content candidate must already be ready for Human QA. It must never start source discovery or package preparation at the event time. The existing campaign review backlog and calendar due-gate cron own this preparation path; do not create a second inbox.
+
+- Derive `preparation_deadline` from the event time using a configurable lead of 4–30 days, defaulting to six days. An earlier explicit review trigger remains earlier. This leaves at least one full intended three-day scheduler interval for recovery before the event.
+- Scan far enough ahead of `scheduled_for` to include rows when their preparation deadline arrives. At that deadline, require current, attributable source and outlier evidence plus all existing voice, framework, privacy, visual, challenger, duplication, and version gates before entering Human QA.
+- When a requirement is missing, stale, or ambiguous, record observed versus required evidence, the owner, the version and bounded retry count, and an actionable research or replacement path on the existing calendar/review record. Keep external execution disabled. Never move the event silently, lower a threshold, fabricate evidence, or queue an incomplete candidate for Human QA.
+- Repeated sweeps over unchanged evidence must make no additional attempt, notification, or retry increment. One materially changed evidence version may cause one deterministic recheck. At event time an unresolved item remains blocked.
+
 ## First-Party Product Evidence Rule
 
 When social posts or videos discuss Vambah's products, applications, books, prototypes, or active project work, ground the customer-facing explanation in approved first-party visual evidence.

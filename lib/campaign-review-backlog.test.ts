@@ -41,7 +41,7 @@ function approvedPractitionerPattern() {
 }
 function seed(count = 12) {
   db.writes = []; db.fail = false; db.race = false
-  db.tables = { attraction_campaigns: [{ id: 'campaign', name: 'Synthetic campaign', status: 'active' }], social_content_calendar_items: [], agent_work_items: [], social_content_queue: [], social_content_research_packets: [{ id: 'evidence', title: 'Approved synthetic practitioner source', updated_at: '2026-10-04T12:00:00Z', status: 'approved', pattern_status: 'usable_framework', source_url: 'https://example.test/research', privacy_notes: 'Synthetic anonymized operator evidence approved for public-use testing.', pattern_packet: approvedPractitionerPattern() }] }
+  db.tables = { attraction_campaigns: [{ id: 'campaign', name: 'Synthetic campaign', status: 'active' }], social_content_calendar_items: [], agent_work_items: [], social_content_queue: [], social_content_research_packets: [{ id: 'evidence', title: 'Approved synthetic practitioner source', updated_at: '2026-10-04T12:00:00Z', status: 'approved', pattern_status: 'usable_framework', outlier_score: 80, source_url: 'https://example.test/research', privacy_notes: 'Synthetic anonymized operator evidence approved for public-use testing.', pattern_packet: approvedPractitionerPattern() }] }
   for (let i = 0; i < count; i++) {
     const c = { id: `calendar-${i}`, campaign_id: 'campaign', title: `Review ${i}`, channel: 'linkedin', campaign_phase: 'teach', social_content_id: `draft-${i}`, authorization_status: 'authorized', due_status: 'planned', scheduled_for: '2026-10-10T12:00:00Z', updated_at: 'v1', metadata: { platform_draft_handoff: { work_item_id: `work-${i}` } } }
     db.tables.social_content_calendar_items.push(c)
@@ -101,6 +101,13 @@ describe('campaign rolling review persistence', () => {
       }),
     ]))
     expect(db.tables.agent_work_items[0].metadata.channel_lanes?.youtube).toBeUndefined()
+  })
+  it('fails closed when linked source evidence has no outlier score', async () => {
+    seed(1)
+    delete db.tables.social_content_research_packets[0].outlier_score
+    const result = await getCampaignReviewBacklog('campaign', now)
+    expect(result.rows[0]).toMatchObject({ state: 'blocked', reason: expect.stringContaining('Unscored packets observed: 1; required: 0') })
+    expect((await prepareCampaignReviewBatch('campaign', { now })).prepared_count).toBe(0)
   })
   it('prepares at most five existing channel packets, keeps provenance, and dedupes repeated/concurrent refill', async () => {
     const [a, b] = await Promise.all([prepareCampaignReviewBatch('campaign', { now }), prepareCampaignReviewBatch('campaign', { now })])
@@ -191,7 +198,7 @@ describe('campaign rolling review persistence', () => {
     db.tables.social_content_research_packets[0].pattern_packet = { changed: true }
     expect((await getCampaignReviewBacklog('campaign', now)).ready).toBe(0)
     db.tables.social_content_calendar_items[0].metadata.review_due_at = '2026-12-01T00:00:00Z'
-    expect((await getCampaignReviewBacklog('campaign', now)).rows).toEqual([])
+    expect((await getCampaignReviewBacklog('campaign', now)).rows[0].trigger_at).toBe('2026-10-04T12:00:00.000Z')
     seed(2); const result = await prepareCampaignReviewBatch('campaign', { now, dryRun: true })
     expect(result.gap).toBe(10); expect(db.writes).toEqual([])
     expect((await prepareCampaignReviewBatch('campaign', { now })).gap).toBe(8)
@@ -239,7 +246,7 @@ describe('campaign rolling review persistence', () => {
     expect((await getCampaignReviewBacklog('campaign', now)).rows).toEqual([])
   })
 
-  it('claims due items in priority order and leaves future trigger times untouched', async () => {
+  it('claims due items in priority order and does not let a future trigger defer preparation', async () => {
     seed(3)
     db.tables.social_content_calendar_items[0].metadata.review_priority = 'low'
     db.tables.social_content_calendar_items[0].metadata.review_trigger_at = now.toISOString()
@@ -254,9 +261,9 @@ describe('campaign rolling review persistence', () => {
       calendarItemIds: ['calendar-0', 'calendar-1', 'calendar-2'],
     })
 
-    expect(result.prepared_items.map(item => item.calendar_item_id)).toEqual(['calendar-1', 'calendar-0'])
+    expect(result.prepared_items.map(item => item.calendar_item_id)).toEqual(['calendar-1', 'calendar-2', 'calendar-0'])
     expect(result.prepared_items.every(item => /^[a-f0-9]{64}$/.test(item.content_version))).toBe(true)
-    expect(db.tables.agent_work_items[2].metadata.rolling_review).toBeUndefined()
+    expect(db.tables.agent_work_items[2].metadata.rolling_review).toBeDefined()
   })
 
   it('builds a complete receipt-backed practitioner record when the marker is omitted and approved inputs are sufficient', async () => {

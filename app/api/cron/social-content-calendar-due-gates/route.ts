@@ -11,7 +11,8 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { prepareCampaignReviewBatch } from '@/lib/campaign-review-backlog'
+import { getCampaignReviewBacklog, prepareCampaignReviewBatch } from '@/lib/campaign-review-backlog'
+import { preparationAttempt, preparationDeadline, PREPARATION_SCAN_LEAD_DAYS } from '@/lib/social-calendar-preparation-deadline'
 import { getSlackAgentSource } from '@/lib/slack-agent-environment'
 import { createAgentWorkItem } from '@/lib/agent-work-items'
 import { runAgentSlackNotificationSweep } from '@/lib/agent-slack-notification-sweep'
@@ -113,13 +114,7 @@ function preparationAlreadyRecorded(item: SocialContentCalendarItem) {
 }
 
 function preparationTriggerAt(item: SocialContentCalendarItem) {
-  const metadata = parseMetadata(item.metadata)
-  const value = typeof metadata.review_trigger_at === 'string'
-    ? metadata.review_trigger_at
-    : typeof metadata.review_due_at === 'string'
-      ? metadata.review_due_at
-      : item.scheduled_for
-  return new Date(value).getTime()
+  return Date.parse(preparationDeadline(item) || '')
 }
 
 function preparationPriority(item: SocialContentCalendarItem) {
@@ -346,7 +341,8 @@ async function runDueGateSweep(request: NextRequest) {
     const dryRun = isDryRun(request, body)
     const now = new Date()
     const windowStart = new Date(now.getTime() - CALENDAR_LOOKBACK_HOURS * 60 * 60 * 1000)
-    const windowEnd = new Date(now.getTime() + 24 * 60 * 60 * 1000)
+    // Rows are indexed by scheduled_for, so include the largest allowed lead.
+    const windowEnd = new Date(now.getTime() + PREPARATION_SCAN_LEAD_DAYS * 86400000 + 24 * 60 * 60 * 1000)
 
     const {
       error,
@@ -413,6 +409,7 @@ async function runDueGateSweep(request: NextRequest) {
             id: item.id,
             title: item.title,
             scheduled_for: item.scheduled_for,
+            preparation_deadline: preparationDeadline(item),
             gate_type: 'publish_preparation',
             social_content_id: item.social_content_queue?.id ?? item.social_content_id,
             campaign_id: item.campaign_id,
@@ -514,9 +511,13 @@ async function runDueGateSweep(request: NextRequest) {
 
     for (const item of preparationCandidates) {
       const metadata = parseMetadata(item.metadata)
+      const previousPreparation = parseMetadata(metadata.publish_preparation)
       const socialContentId = item.social_content_queue?.id ?? item.social_content_id
       if (!item.campaign_id) {
-        const blocker = 'Link this prioritized calendar item to an active campaign before automatic preparation.'
+        const evidenceVersion = `missing-campaign:${item.id}:${item.scheduled_for}`
+        const attempt = preparationAttempt({ previous: previousPreparation, evidenceVersion, ready: false })
+        if (!attempt.shouldCheck) continue
+        const blocker = 'Campaign link observed: none; required: one active campaign. Link this calendar item to an active campaign before automatic preparation.'
         const recoveryAction = `/admin/agents/content-intelligence?section=calendar&calendar_item=${encodeURIComponent(item.id)}#content-calendar-gate`
         const updateResult = await supabaseAdmin
           .from('social_content_calendar_items')
@@ -529,6 +530,13 @@ async function runDueGateSweep(request: NextRequest) {
                 trigger_at: new Date(preparationTriggerAt(item)).toISOString(),
                 blocker,
                 recovery_action: recoveryAction,
+                evidence_version: evidenceVersion,
+                retry_count: attempt.retryCount,
+                rechecks_per_evidence_version: 1,
+                next_recheck_condition: 'evidence_version_change',
+                owner: 'chief-of-staff',
+                scheduled_for: item.scheduled_for,
+                preparation_deadline: preparationDeadline(item),
               },
               external_execution_enabled: false,
             },
@@ -539,14 +547,24 @@ async function runDueGateSweep(request: NextRequest) {
         continue
       }
 
-      const result = await prepareCampaignReviewBatch(item.campaign_id, {
-        now,
-        calendarItemIds: [item.id],
-        dueOnly: true,
-      })
-      const completed = result.prepared_items?.find(row => row.calendar_item_id === item.id)
-      const projected = result.rows.find(row => row.id === item.id)
-      const blocked = result.blocked_items?.find(row => row.calendar_item_id === item.id)
+      const before = await getCampaignReviewBacklog(item.campaign_id, now)
+      const current = before.rows.find(row => row.id === item.id)
+      const evidenceVersion = current?.lineage ?? `missing:${item.id}`
+      const attempt = preparationAttempt({ previous: previousPreparation, evidenceVersion, ready: current?.state === 'ready' })
+      if (!attempt.shouldCheck && previousPreparation.status === 'blocked' && current?.state !== 'ready') continue
+      const result = current?.state === 'ready' || !attempt.shouldCheck
+        ? null
+        : await prepareCampaignReviewBatch(item.campaign_id, {
+            now,
+            calendarItemIds: [item.id],
+            dueOnly: true,
+          })
+      const completed = result?.prepared_items?.find(row => row.calendar_item_id === item.id)
+        ?? (current?.state === 'ready' && current.content_version && current.work_item_id
+          ? { calendar_item_id: item.id, work_item_id: current.work_item_id, review_path: current.href, content_version: current.content_version, lineage: current.lineage }
+          : undefined)
+      const projected = result?.rows.find(row => row.id === item.id) ?? current
+      const blocked = result?.blocked_items?.find(row => row.calendar_item_id === item.id)
       if (!completed) {
         const blocker = blocked?.reason
           || projected?.reason
@@ -569,6 +587,13 @@ async function runDueGateSweep(request: NextRequest) {
                 blocker,
                 recovery_action: recoveryAction,
                 source_lineage: projected?.lineage ?? null,
+                evidence_version: evidenceVersion,
+                retry_count: attempt.retryCount,
+                rechecks_per_evidence_version: 1,
+                next_recheck_condition: 'evidence_version_change',
+                owner: 'chief-of-staff',
+                scheduled_for: item.scheduled_for,
+                preparation_deadline: preparationDeadline(item),
               },
               external_execution_enabled: false,
             },
@@ -595,6 +620,10 @@ async function runDueGateSweep(request: NextRequest) {
               review_path: completed.review_path,
               content_version: completed.content_version,
               source_lineage: completed.lineage,
+              evidence_version: completed.lineage,
+              retry_count: attempt.retryCount,
+              scheduled_for: item.scheduled_for,
+              preparation_deadline: preparationDeadline(item),
               notification_key: `social-calendar-review-ready:${item.id}:${completed.content_version}`,
             },
             external_execution_enabled: false,
