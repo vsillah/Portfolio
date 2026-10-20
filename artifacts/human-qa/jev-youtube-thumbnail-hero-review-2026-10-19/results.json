@@ -1,6 +1,6 @@
 {
-  "revision": "460023b6",
-  "route": "http://127.0.0.1:3218/admin/social-content?campaignQa=campaign-package-preparation-review-v1&rev=460023b6",
+  "revision": "2e217204",
+  "route": "http://127.0.0.1:3218/admin/social-content?campaignQa=campaign-package-preparation-review-v1&rev=2e217204",
   "contract": "youtube-thumbnail-hero-evidence/v2 + social-campaign-storyboard-review/v1",
   "scenarios": [
     {
@@ -59,7 +59,6 @@
     "Complete description evidence: /admin/social-content?workflow=evidence&campaign=jev",
     "Complete description evidence: /admin/social-content?workflow=evidence&campaign=dark-castle-chess",
     "Repair hero evidence: /admin/social-content?workflow=evidence&campaign=dark-castle-chess",
-    "Evaluate the exact thumbnail: /admin/social-content?workflow=evidence&campaign=jev",
     "Evaluate the exact thumbnail: /admin/social-content?workflow=evidence&campaign=dark-castle-chess",
     "Review the exact script and CTA: /admin/social-content?workflow=evidence&campaign=jev",
     "Review the exact script and CTA: /admin/social-content?workflow=evidence&campaign=dark-castle-chess",
