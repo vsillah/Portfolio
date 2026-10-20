@@ -13,6 +13,7 @@ import {
 } from '@/lib/social-trend-work-join'
 import { collectDirectGitHubActivityProjections } from '@/lib/social-github-activity'
 import { approvedRepositoryEvidenceProjections } from '@/lib/social-repository-evidence'
+import { collectOfficialLiveSignalPackets, persistPendingOfficialSignalPackets } from '@/lib/social-official-live-signals'
 
 export type CoverageSourceKey =
   | 'public_momentum'
@@ -68,6 +69,11 @@ export type SocialTopicLiveCoverage = {
   blockers: string[]
   boundaries: string[]
   trend_work_relevance?: TrendWorkRelevanceReport
+  official_signal_intake?: {
+    pending_packet_count: number
+    excluded: Array<{ source_url: string; reason: string; observed_at: string }>
+    blockers: string[]
+  }
 }
 
 const SOURCE_LABELS: Record<CoverageSourceKey, string> = {
@@ -474,7 +480,7 @@ async function readPersistedCoverage() {
 export async function collectLiveSocialTopicCoverage(options: { persist?: boolean } = {}) {
   const generatedAt = new Date().toISOString()
   const collectorFailures: Partial<Record<CoverageSourceKey, string>> = {}
-  const [persisted, socialResult, workItemResult, githubResult, momentumResult] = await Promise.all([
+  const [persisted, socialResult, workItemResult, githubResult, momentumResult, officialResult] = await Promise.all([
     readPersistedCoverage(),
     collectSocialTopicSignals().catch((error) => {
       collectorFailures.meeting_summaries = error instanceof Error ? error.message : 'approved_summary_collection_failed'
@@ -493,6 +499,10 @@ export async function collectLiveSocialTopicCoverage(options: { persist?: boolea
       collectorFailures.public_momentum = error instanceof Error ? error.message : 'approved_public_momentum_collection_failed'
       return { projections: [], blockers: [], approved_records_scanned: 0, read_only: true as const }
     }),
+    collectOfficialLiveSignalPackets({ observedAt: generatedAt }).catch((error) => ({
+      packets: [], excluded: [], blockers: [error instanceof Error ? error.message : 'official_signal_collection_failed'],
+      read_only: true as const, review_only: true as const,
+    })),
   ])
 
   for (const collection of socialResult.sourceCollections) {
@@ -516,6 +526,9 @@ export async function collectLiveSocialTopicCoverage(options: { persist?: boolea
   }
   if (githubResult.blockers.length > 0) collectorFailures.github_development = githubResult.blockers.join(' ')
   if (momentumResult.blockers.length > 0) collectorFailures.public_momentum = momentumResult.blockers.join(' ')
+  if (officialResult.blockers.length > 0) collectorFailures.public_momentum = [
+    collectorFailures.public_momentum, ...officialResult.blockers,
+  ].filter(Boolean).join(' ')
 
   const liveReceipts = socialResult.signals.flatMap(sourceSignalProjection)
   const workReceipts = workItemResult.error ? [] : workItemCoverageProjections((workItemResult.data ?? []) as Record<string, unknown>[], generatedAt)
@@ -525,12 +538,20 @@ export async function collectLiveSocialTopicCoverage(options: { persist?: boolea
     ...momentumResult.projections,
     ...repositoryReceipts,
   ]
+  // Intake lands in the existing research inbox before any candidate report is
+  // projected. Pending packets cannot enter the approved-momentum query.
+  if (options.persist) await persistPendingOfficialSignalPackets(officialResult.packets)
   const report = buildLiveCoverage({
     generatedAt,
     receipts: [...persisted.receipts, ...liveReceipts, ...workReceipts, ...collectedReceipts],
     collectorFailures,
     persistedScans: persisted.scans,
   })
+  report.official_signal_intake = {
+    pending_packet_count: officialResult.packets.length,
+    excluded: officialResult.excluded,
+    blockers: officialResult.blockers,
+  }
 
   if (options.persist) {
     if (liveReceipts.length > 0 || workReceipts.length > 0 || collectedReceipts.length > 0) {
@@ -547,7 +568,8 @@ export async function collectLiveSocialTopicCoverage(options: { persist?: boolea
       product_count: source.product_count,
       collector_failure: source.collector_failure,
       recovery_action: source.recovery_action,
-      metadata: { freshness: source.freshness, coverage_version: report.version },
+      metadata: { freshness: source.freshness, coverage_version: report.version,
+        ...(source.key === 'public_momentum' ? { official_signal_intake: report.official_signal_intake } : {}) },
       updated_at: generatedAt,
     }))
     const { error } = await supabaseAdmin.from('social_topic_source_scans')

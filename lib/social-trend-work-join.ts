@@ -7,6 +7,7 @@ import {
 } from '@/lib/social-topic-source-receipts'
 import { collectDirectGitHubActivityProjections } from '@/lib/social-github-activity'
 import { approvedRepositoryEvidenceProjections } from '@/lib/social-repository-evidence'
+import { validatePublicSignalMeasurement } from '@/lib/social-public-signal-measurement'
 
 export const PUBLIC_MOMENTUM_SOURCE_GROUP = 'public_momentum'
 
@@ -32,6 +33,8 @@ export type PublicSignalEvidence = {
   observed_at: string
   expires_at: string
   provenance: string
+  measurement_receipt_id?: string
+  measurement_source_receipt_ids?: string[]
 }
 
 export type SocialCandidateReceiptClass =
@@ -305,6 +308,10 @@ function publicSignalEvidence(receipt: SocialTopicSourceProjection): PublicSigna
     observed_at: receipt.observed_at,
     expires_at: expiresAt,
     provenance: receipt.provenance,
+    ...(asString(metadata.measurement_receipt_id) ? {
+      measurement_receipt_id: asString(metadata.measurement_receipt_id),
+      measurement_source_receipt_ids: strings(metadata.measurement_source_receipt_ids),
+    } : {}),
   }
 }
 
@@ -506,6 +513,8 @@ export function buildApprovedPublicMomentumProjection(input: {
   approvedAt: string
   approvedBy: string
   observedAt: string
+  measurementReceiptId?: string
+  measurementSourceReceiptIds?: string[]
 }): SocialTopicSourceProjection {
   const url = new URL(input.canonicalUrl)
   if (url.protocol !== 'https:') throw new Error('Public momentum receipts require an HTTPS canonical URL.')
@@ -558,6 +567,10 @@ export function buildApprovedPublicMomentumProjection(input: {
       published_at: input.publishedAt,
       expires_at: input.expiresAt,
       ingestion_boundary: 'approved_public_summary_only',
+      ...(input.measurementReceiptId ? {
+        measurement_receipt_id: input.measurementReceiptId,
+        measurement_source_receipt_ids: input.measurementSourceReceiptIds ?? [],
+      } : {}),
     },
   })
 }
@@ -588,6 +601,23 @@ export function approvedPublicMomentumProjectionsFromResearchPackets(rows: Recor
       && receipt.raw_content_included === false
       && receipt.privacy_classification === 'public_safe'
       && operatorReview.decision === 'approved'
+    const officialSignal = asRecord(actorMetadata.official_signal)
+    if (Object.keys(officialSignal).length > 0) {
+      const measured = validatePublicSignalMeasurement({
+        stored: actorMetadata.public_signal_measurement_receipt,
+        submitted: actorMetadata.public_signal_measurement_receipt,
+        coverageIdentity: asString(officialSignal.coverage_identity),
+        officialSourceUrl: sourceUrl,
+        now: new Date().toISOString(),
+      })
+      if (!measured.valid || officialSignal.evidence_status !== 'approved'
+        || receipt.measurement_receipt_id !== (measured.valid ? measured.receipt.receipt_id : null)
+        || receipt.public_attention_score !== (measured.valid ? measured.receipt.public_attention_score : null)
+        || receipt.relevance_score !== (measured.valid ? measured.receipt.relevance_score : null)) {
+        blockers.push(`[official_signal_measurement_invalid:${sourceId || 'unknown'}] A current, source-bound measurement receipt must support the approved score.`)
+        continue
+      }
+    }
     if (!sourceId || !momentum || !approvedSummary || productIdentity === 'unassigned_product' || topicIdentities.length === 0 || !sourceUrl || !approvedAt || !approvedBy || !isApproved) {
       blockers.push(`[public_momentum_receipt_invalid:${sourceId || 'unknown'}] Approved research records require an explicit public-safe momentum receipt, operator approval, stable product/topic identities, summary, reviewer, timestamp, and HTTPS source.`)
       continue
@@ -615,6 +645,8 @@ export function approvedPublicMomentumProjectionsFromResearchPackets(rows: Recor
         approvedAt,
         approvedBy,
         observedAt: asString(receipt.observed_at) || asString(row.retrieved_at) || asString(row.updated_at) || approvedAt,
+        measurementReceiptId: asString(receipt.measurement_receipt_id) || undefined,
+        measurementSourceReceiptIds: strings(receipt.measurement_source_receipt_ids),
       }))
     } catch (error) {
       blockers.push(`[public_momentum_projection_failed:${sourceId}] ${error instanceof Error ? error.message : 'Approved public momentum projection failed.'}`)
