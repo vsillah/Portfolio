@@ -538,6 +538,9 @@ export async function collectLiveSocialTopicCoverage(options: { persist?: boolea
     ...momentumResult.projections,
     ...repositoryReceipts,
   ]
+  // Intake lands in the existing research inbox before any candidate report is
+  // projected. Pending packets cannot enter the approved-momentum query.
+  if (options.persist) await persistPendingOfficialSignalPackets(officialResult.packets)
   const report = buildLiveCoverage({
     generatedAt,
     receipts: [...persisted.receipts, ...liveReceipts, ...workReceipts, ...collectedReceipts],
@@ -551,9 +554,6 @@ export async function collectLiveSocialTopicCoverage(options: { persist?: boolea
   }
 
   if (options.persist) {
-    // Pending packets are stored in the existing research inbox. They are never
-    // projected as approved momentum until an operator reviews them.
-    await persistPendingOfficialSignalPackets(officialResult.packets)
     if (liveReceipts.length > 0 || workReceipts.length > 0 || collectedReceipts.length > 0) {
       const { error } = await supabaseAdmin.from('social_topic_source_receipts')
         .upsert(dedupeReceipts([...liveReceipts, ...workReceipts, ...collectedReceipts]), { onConflict: 'receipt_id' })
