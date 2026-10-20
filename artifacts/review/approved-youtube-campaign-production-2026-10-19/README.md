@@ -1,0 +1,9 @@
+# Approved YouTube campaigns: internal production review
+
+This packet is a provider-free, review-only continuation of the existing Social Content campaign preparation view. It contains two 8-minute, first-person scripts, eight timed scenes per campaign, cue and proof lineage, selected Candidate A thumbnails, and a public description cohort receipt. No content or evidence was changed in production.
+
+The description cohorts remain **Unscored**. The source packets contain eight chess and six AI audit topic comparisons. On this capture, one full description in each campaign meets the recorded outlier threshold of 75; three are required. The other descriptions remain visible as excluded comparisons. Neither description pattern nor publication readiness is asserted.
+
+`storyboard-preview.mp4` is a 15-second silent overview of the two selected thumbnails and existing first-party visuals. It is **supplemental**, not a recording of the authenticated Social Content route. Rebuild it with `bash artifacts/review/approved-youtube-campaign-production-2026-10-19/render-preview.sh`. The exact local review route is `/admin/social-content?campaignQa=campaign-package-preparation-review-v1`; it requires Portfolio staff sign-in. Route screenshots, responsive inspection, and the required route MP4 remain pending at that authentication gate.
+
+The customer-facing narration is in `dark-castle-script.md` and `ai-audit-script.md`. `receipt.json` binds each spoken scene to edit cues, source proof, privacy and rights receipts, title, teaser, and thumbnail decision. Public description wording is represented by opening excerpts, structure observations, and hashes in the research receipt; direct source URLs allow inspection without copying full third-party descriptions into this packet.
