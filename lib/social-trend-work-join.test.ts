@@ -437,12 +437,12 @@ describe('trend-to-work relevance joining', () => {
   it('flags separate OpenAI and Meta agent-platform releases against Portfolio itself', () => {
     const openAiRelease = momentum({
       sourceId: 'openai-agent-platform-release', productIdentity: 'openai_agent_platform', label: 'OpenAI agent platform release',
-      summary: 'OpenAI released new developer infrastructure for long-running agents, tools, and managed execution.',
+      summary: 'OpenAI expanded the Agents API with document-creation skills, the Artifact SDK, and an Ultrafast execution tier.',
       topics: ['agentic operating systems'], entities: ['openai', 'agent_platforms'],
       coverageIdentity: 'openai-agent-platform-developer-release', sentiment: 'positive',
       contextSummary: 'The official release expands the developer operating layer around long-running agents.',
       relevanceScore: 0.96, publicAttentionScore: 0.91, evidenceState: 'corroborated',
-      url: 'https://openai.com/index/introducing-the-agents-api/',
+      url: 'https://developers.openai.com/api/docs/changelog',
     })
     const metaRelease = momentum({
       sourceId: 'meta-muse-wonder-release', productIdentity: 'meta_muse_wonder', label: 'Meta Muse Wonder release',
