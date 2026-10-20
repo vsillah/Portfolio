@@ -64,7 +64,7 @@ export type CampaignStoryboardReviewAsset = {
   focal_hierarchy: string[]
   product_proof_path: string
   source_receipt_ids: string[]
-  provider: 'none'
+  provider: 'none' | 'openai-imagegen'
   review_only: true
   sha256: string
   direction?: string
@@ -79,8 +79,8 @@ export type CampaignStoryboardReviewAsset = {
     evidence_role: string
     rationale: string
   }>
-  fixture_label?: 'Synthetic contract fixture · not final artwork'
-  final_use_eligible?: false
+  fixture_label?: 'Synthetic contract fixture · not final artwork' | 'New campaign-specific generation · review only'
+  final_use_eligible?: boolean
   composition_intent?: string
   customer_facing: true
   approval_status: 'review_direction_only'
@@ -321,9 +321,11 @@ function heroGate(config: CampaignStoryboardReviewConfig): GateSeed {
   )
   return {
     status: validation.ready ? 'passed' : 'blocked',
-    detail: validation.fixture_ready
-      ? `${jevHeroReceipt.candidates.length} integrated synthetic contract fixtures pass the local evidence contract. Real campaign-specific likeness generation remains blocked pending explicit provider authorization.`
-      : validation.blockers.join(' '),
+    detail: validation.ready
+      ? `${jevHeroReceipt.candidates.length} newly generated, campaign-specific integrated scenes pass provenance, likeness, freshness, repetition, feed-size, and product-interaction checks.`
+      : validation.fixture_ready
+        ? `${jevHeroReceipt.candidates.length} integrated synthetic contract fixtures pass the local evidence contract. Real campaign-specific likeness generation remains blocked pending explicit provider authorization.`
+        : validation.blockers.join(' '),
     receipt_ids: [jevHeroReceipt.receipt_id, jevHeroReceipt.outlier_evidence.decision_receipt_id],
     observed_at: jevHeroReceipt.outlier_evidence.observed_at,
     fresh_until: jevHeroReceipt.outlier_evidence.fresh_until,
@@ -457,7 +459,7 @@ function reviewAssets(config: CampaignStoryboardReviewConfig): CampaignStoryboar
     focal_hierarchy: ['Campaign-specific human hero', 'Short decision-boundary hook', 'Natural-aspect-ratio AmaduTown mark'],
     product_proof_path: jevHeroReceipt.product_proof.public_path,
     source_receipt_ids: [jevHeroReceipt.receipt_id, jevHeroReceipt.outlier_evidence.decision_receipt_id],
-    provider: 'none' as const,
+    provider: 'openai-imagegen' as const,
     review_only: true as const,
     sha256: asset.sha256,
     direction: asset.direction,
@@ -465,8 +467,10 @@ function reviewAssets(config: CampaignStoryboardReviewConfig): CampaignStoryboar
     feed_preview_sha256: asset.feed_preview_sha256,
     safe_text_region: asset.safe_text_region,
     hero_asset_id: asset.hero_binding.hero_asset_id,
-    fixture_label: 'Synthetic contract fixture · not final artwork' as const,
-    final_use_eligible: false as const,
+    fixture_label: jevHeroReceipt.generation_request.real_generation_completed
+      ? 'New campaign-specific generation · review only' as const
+      : 'Synthetic contract fixture · not final artwork' as const,
+    final_use_eligible: jevHeroReceipt.generation_request.real_generation_completed,
     composition_intent: asset.integration.pose_gaze_gesture_relationship,
     evidence_trace: asset.evidence_trace,
     customer_facing: true as const,

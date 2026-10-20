@@ -7,10 +7,9 @@ const AS_OF = '2026-10-20T12:00:00.000Z'
 const receipt = () => structuredClone(heroReceipt) as any
 
 describe('YouTube thumbnail hero evidence', () => {
-  it('accepts the local contract fixtures while keeping real provider generation blocked', () => {
+  it('accepts the two authorized campaign-specific integrated generations', () => {
     const result = validateYouTubeThumbnailHeroEvidence(receipt(), CONTENT_VERSION, AS_OF)
-    expect(result).toMatchObject({ ready: false, fixture_ready: true })
-    expect(result.blockers).toEqual(['Real campaign-specific likeness generation remains blocked pending explicit provider authorization; the displayed images are synthetic contract fixtures and are not final-use artwork.'])
+    expect(result).toEqual({ ready: true, fixture_ready: true, blockers: [], recovery_actions: [] })
   })
 
   it('fails closed when a candidate-specific generated hero is missing', () => {

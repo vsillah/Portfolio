@@ -1,23 +1,25 @@
 {
   "version": "youtube-thumbnail-hero-evidence/v2",
-  "receipt_id": "receipt:thumbnail-hero:jev:20261019:v2",
-  "generated_at": "2026-10-20T15:00:00.000Z",
+  "receipt_id": "receipt:thumbnail-hero:jev:20261019:v3",
+  "generated_at": "2026-10-20T20:30:00.000Z",
   "campaign_identity": "jev",
   "content_version": "sha256:392b3e2a92c5ab65e4cc93706571df761bac7ea38631bf06002fd6b89f3302a2",
   "title": "AI Scored It. Who Makes the Call?",
   "review_only": true,
-  "provider_calls": 0,
+  "provider_calls": 2,
+  "successful_generation_jobs": 2,
   "paid_media_generations": 0,
   "external_writes": 0,
   "generation_request": {
-    "request_id": "generation-request:thumbnail-hero:jev:20261019:v2",
+    "request_id": "generation-request:thumbnail-hero:jev:20261019:v3",
     "campaign_identity": "jev",
     "content_version": "sha256:392b3e2a92c5ab65e4cc93706571df761bac7ea38631bf06002fd6b89f3302a2",
-    "approved_path": "Portfolio approval-gated image-generation provider adapter",
-    "authorization_status": "blocked_pending_explicit_provider_authorization",
-    "real_generation_completed": false,
-    "provider_id": null,
-    "model_id": null,
+    "approved_path": "Portfolio/Codex integrated image_gen.imagegen path",
+    "authorization_status": "authorized",
+    "real_generation_completed": true,
+    "provider_id": "openai-integrated-image-generation",
+    "model_id": "managed-current-image-model",
+    "model_disclosure": "The integrated tool did not expose a more specific model identifier.",
     "identity_reference": {
       "public_path": "/review-assets/social-content/jev-hero-thumbnail-review/source/vambah-curious-approved.jpg",
       "sha256": "sha256:b74a933c73cdc1ee336d951b7e6d20ea7737c214c5390805ce3c149068ec9e90",
@@ -34,7 +36,17 @@
       "gesture",
       "artifact_interaction"
     ],
-    "boundary": "No provider call, spending, upload, production read/write, credential change, or external send is authorized."
+    "cost": {
+      "currency": "USD",
+      "hard_ceiling": 9,
+      "observed_separate_charge": 0,
+      "billing_note": "The approved integrated path exposed no separate metered charge or checkout."
+    },
+    "output_rights": {
+      "status": "approved_path_unchanged",
+      "scope": "review-only generated campaign assets"
+    },
+    "boundary": "Exactly two successful jobs. No retry. Review-only output. Production mutation, upload, platform draft, schedule, publish, credential change, migration, and external send remain closed."
   },
   "outlier_evidence": {
     "cohort_id": "cohort:youtube:ai-governance-human-decision:20261019:v1",
@@ -62,80 +74,88 @@
   },
   "hero_assets": [
     {
-      "asset_id": "hero:jev:override-point:20261019:v2",
+      "asset_id": "hero:jev:override-point:20261019:v3",
       "campaign_identity": "jev",
       "content_version": "sha256:392b3e2a92c5ab65e4cc93706571df761bac7ea38631bf06002fd6b89f3302a2",
-      "public_path": "/review-assets/social-content/jev-hero-thumbnail-review/source/jev-override-point-synthetic-v2.png",
-      "output_sha256": "sha256:e2361da4c806c13fb1ac577ee940b5d74b662b0867d650cc876ba9937c102cbb",
-      "perceptual_hash": "00028e06a7af7f3f",
-      "width": 650,
-      "height": 720,
-      "source_type": "locally_rendered_synthetic_identity_placeholder",
-      "generation_status": "synthetic_fixture",
-      "final_use_eligible": false,
-      "generator_id": "portfolio-local-synthetic-fixture-renderer",
-      "model_id": "deterministic-svg-portrait-fixture/v2",
-      "generated_at": "2026-10-20T15:00:00.000Z",
+      "public_path": "/review-assets/social-content/jev-hero-thumbnail-review/source/jev-override-generated-v3.png",
+      "output_sha256": "sha256:60c6666d41405b7b15b448dada783587259e83eef7b694dd455abe68e2d0d27c",
+      "perceptual_hash": "58599bb89a9aba1d",
+      "width": 1672,
+      "height": 941,
+      "source_type": "newly_generated_campaign_specific_likeness",
+      "generation_status": "newly_generated",
+      "final_use_eligible": true,
+      "review_only": true,
+      "generator_id": "openai.image_gen.imagegen",
+      "model_id": "managed-current-image-model",
+      "generator_job_id": "imagegen:exec-8c46178c-aa13-48cb-ac4b-86b8329803de",
+      "generated_at": "2026-10-20T20:30:00.000Z",
       "fresh_until": "2026-11-02T22:30:00.000Z",
-      "focal_subject": "skeptical concern with one raised eyebrow",
+      "focal_subject": "skeptical concern with one raised eyebrow and tense lips",
       "prompt_intent": {
-        "expression": "skeptical concern with one raised eyebrow",
-        "pose": "three-quarter standing lean into the product evidence",
-        "wardrobe": "deep teal blazer over a warm coral crew neck",
-        "lighting": "warm key from the product card with cyan rim light",
-        "camera": "low three-quarter medium portrait, 52mm equivalent",
-        "environment": "dim decision room sharing the product card light",
-        "gaze": "eyes fixed on the highlighted AI score",
-        "gesture": "extended hand points at the handoff between score and decision",
-        "artifact_interaction": "finger, gaze, and cast light converge on the highlighted product result"
+        "expression": "skeptical concern with one raised eyebrow and tense lips",
+        "pose": "low three-quarter waist-up lean into the product evidence",
+        "wardrobe": "deep teal tailored blazer over a warm coral crew neck",
+        "lighting": "cyan interface practical key and rim light with warm coral edge light",
+        "camera": "low three-quarter 52mm-equivalent medium portrait",
+        "environment": "dim modern decision room with architectural depth",
+        "gaze": "eyes fixed on the score-to-human-decision region",
+        "gesture": "extended index finger points into the human review handoff",
+        "artifact_interaction": "finger, gaze, cast light, perspective, and depth converge on the highlighted handoff"
       },
-      "provenance_note": "Locally rendered synthetic identity placeholder created to prove the contract. It is not a photorealistic likeness, not provider output, and not final artwork.",
+      "provenance_note": "New campaign-specific integrated-scene image generated through the authorized Portfolio/Codex image path. The approved photo was used only as an identity reference; its pixels were not reused as output.",
       "source_receipt_ids": [
-        "source:jev:approved-composite-20261014"
+        "source:jev:approved-composite-20261014",
+        "decision:thumbnail:jev:20261019:v1"
       ],
-      "likeness_receipt_id": "likeness:jev:reference-only-20261019:v2",
+      "likeness_receipt_id": "likeness:jev:reference-only-authorized-20261019:v3",
       "rights_receipt_ids": [
-        "rights:jev:owned-public-assets-20261014"
+        "rights:jev:owned-public-assets-20261014",
+        "rights:openai-integrated-generation-approved-path-20261019:v3"
       ],
-      "privacy_receipt_id": "privacy:jev:public-safe-20261014"
+      "privacy_receipt_id": "privacy:jev:public-safe-review-only-20261019:v3"
     },
     {
-      "asset_id": "hero:jev:reveal-hold:20261019:v2",
+      "asset_id": "hero:jev:reveal-hold:20261019:v3",
       "campaign_identity": "jev",
       "content_version": "sha256:392b3e2a92c5ab65e4cc93706571df761bac7ea38631bf06002fd6b89f3302a2",
-      "public_path": "/review-assets/social-content/jev-hero-thumbnail-review/source/jev-reveal-hold-synthetic-v2.png",
-      "output_sha256": "sha256:a2d5a25e8b43c4310f2e2c7eac6761208824a983564bd1b7f7def2f0a392bae9",
-      "perceptual_hash": "00048e8a32336f7f",
-      "width": 650,
-      "height": 720,
-      "source_type": "locally_rendered_synthetic_identity_placeholder",
-      "generation_status": "synthetic_fixture",
-      "final_use_eligible": false,
-      "generator_id": "portfolio-local-synthetic-fixture-renderer",
-      "model_id": "deterministic-svg-portrait-fixture/v2",
-      "generated_at": "2026-10-20T15:00:00.000Z",
+      "public_path": "/review-assets/social-content/jev-hero-thumbnail-review/source/jev-reveal-generated-v3.png",
+      "output_sha256": "sha256:dee1136d7d9b31056552d13f9155989474103908c245c9a796046a9df56eb228",
+      "perceptual_hash": "cfe7df5d7b793535",
+      "width": 1672,
+      "height": 941,
+      "source_type": "newly_generated_campaign_specific_likeness",
+      "generation_status": "newly_generated",
+      "final_use_eligible": true,
+      "review_only": true,
+      "generator_id": "openai.image_gen.imagegen",
+      "model_id": "managed-current-image-model",
+      "generator_job_id": "imagegen:exec-e2469ed3-e5da-49e6-948c-8f548f1b86ff",
+      "generated_at": "2026-10-20T20:30:00.000Z",
       "fresh_until": "2026-11-02T22:30:00.000Z",
       "focal_subject": "decisive calm with a slight knowing smile",
       "prompt_intent": {
         "expression": "decisive calm with a slight knowing smile",
-        "pose": "crouched forward lean around an oversized product surface",
-        "wardrobe": "sunflower overshirt over a navy knit",
-        "lighting": "broad cool window light with amber bounce from the interface",
-        "camera": "eye-level wide-medium portrait, 35mm equivalent",
-        "environment": "bright workshop with layered interface depth",
-        "gaze": "direct eye contact before glancing toward the decision result",
+        "pose": "eye-level wide-medium lean around an oversized product surface",
+        "wardrobe": "sunflower-yellow textured overshirt over a dark navy knit",
+        "lighting": "broad cool window key with warm amber interface bounce",
+        "camera": "eye-level 35mm-equivalent wide-medium portrait",
+        "environment": "bright creative workshop with layered architectural depth",
+        "gaze": "direct eye contact with a subtle eye-line toward the result",
         "gesture": "both hands grip and reveal the product surface edge",
-        "artifact_interaction": "body occludes one edge while both hands make the interface feel physically revealed"
+        "artifact_interaction": "body occlusion, two-hand grip, and amber bounce make the interface physically held"
       },
-      "provenance_note": "Locally rendered synthetic identity placeholder created to prove the contract. It is not a photorealistic likeness, not provider output, and not final artwork.",
+      "provenance_note": "New campaign-specific integrated-scene image generated through the authorized Portfolio/Codex image path. The approved photo was used only as an identity reference; its pixels were not reused as output.",
       "source_receipt_ids": [
-        "source:jev:approved-composite-20261014"
+        "source:jev:approved-composite-20261014",
+        "decision:thumbnail:jev:20261019:v1"
       ],
-      "likeness_receipt_id": "likeness:jev:reference-only-20261019:v2",
+      "likeness_receipt_id": "likeness:jev:reference-only-authorized-20261019:v3",
       "rights_receipt_ids": [
-        "rights:jev:owned-public-assets-20261014"
+        "rights:jev:owned-public-assets-20261014",
+        "rights:openai-integrated-generation-approved-path-20261019:v3"
       ],
-      "privacy_receipt_id": "privacy:jev:public-safe-20261014"
+      "privacy_receipt_id": "privacy:jev:public-safe-review-only-20261019:v3"
     }
   ],
   "product_proof": {
@@ -149,71 +169,83 @@
       "rights:jev:owned-public-assets-20261014"
     ],
     "privacy_receipt_id": "privacy:jev:public-safe-20261014",
-    "role": "Owned product evidence integrated into each scene while retaining a separate proof identity and receipt."
+    "role": "Owned product evidence integrated into each generated scene while retaining a separately receipted proof identity."
   },
   "recent_thumbnail_history": [
     {
       "asset_id": "thumbnail:jev:hero-question:20261019:v1",
       "hero_perceptual_hash": "8e232b2b13131333",
-      "composition_perceptual_hash": "1311795911614101",
-      "layout_family": "human-right-question-left",
-      "palette": "navy-yellow-coral"
+      "composition_perceptual_hash": "1311795911614101"
     },
     {
       "asset_id": "thumbnail:jev:hero-contrast:20261019:v1",
       "hero_perceptual_hash": "8e232b2b13131333",
-      "composition_perceptual_hash": "3273757761717678",
-      "layout_family": "human-left-contrast-right",
-      "palette": "navy-cyan-yellow"
+      "composition_perceptual_hash": "3273757761717678"
+    },
+    {
+      "asset_id": "thumbnail:jev:override-scene:20261019:v2",
+      "hero_perceptual_hash": "00028e06a7af7f3f",
+      "composition_perceptual_hash": "601b5b639b9b3777"
+    },
+    {
+      "asset_id": "thumbnail:jev:reveal-scene:20261019:v2",
+      "hero_perceptual_hash": "00048e8a32336f7f",
+      "composition_perceptual_hash": "70f4f4f0f0de767a"
     }
   ],
+  "synthetic_fixture_archive": {
+    "status": "contract_evidence_only",
+    "final_art": false,
+    "assets": [
+      "/review-assets/social-content/jev-hero-thumbnail-review/source/jev-override-point-synthetic-v2.png",
+      "/review-assets/social-content/jev-hero-thumbnail-review/source/jev-reveal-hold-synthetic-v2.png"
+    ]
+  },
   "candidates": [
     {
-      "candidate_id": "thumbnail:jev:override-scene:20261019:v2",
+      "candidate_id": "thumbnail:jev:override-scene:20261019:v3",
       "campaign_identity": "jev",
       "content_version": "sha256:392b3e2a92c5ab65e4cc93706571df761bac7ea38631bf06002fd6b89f3302a2",
       "title": "AI Scored It. Who Makes the Call?",
       "teaser": "WHO OVERRIDES AI?",
       "customer_facing_copy": [
         "WHO OVERRIDES AI?",
-        "SCORE",
-        "HUMAN CALL",
         "AMADUTOWN"
       ],
       "direction": "The Override",
       "public_path": "/review-assets/social-content/jev-hero-thumbnail-review/jev-when-should-ai-stop-hero-v1.png",
-      "sha256": "sha256:96414fb5857970fa39eaba4ff0a82b7852e327549be87ce8cdf69ad818957d67",
-      "perceptual_hash": "601b5b639b9b3777",
+      "sha256": "sha256:6ae8dce146cfa348ee296bd7a5d84dc2bd1116221f1d3e3ecd3aa28220228975",
+      "perceptual_hash": "58599bb89a9aba1c",
       "width": 1280,
       "height": 720,
       "aspect_ratio": "16:9",
       "feed_preview_path": "/review-assets/social-content/jev-hero-thumbnail-review/jev-when-should-ai-stop-hero-v1-feed-320x180.png",
-      "feed_preview_sha256": "sha256:457038655e9418970a402e9be86c53e4f46a0bb14f8816fd6009dbcf260ad4ab",
+      "feed_preview_sha256": "sha256:4d0db7a0b632c302dcf7343e805302ce04d416ff29a02b080d79d4ca1c857a93",
       "feed_preview_width": 320,
       "feed_preview_height": 180,
-      "focal_subject": "A skeptical decision owner points into the exact score-to-human-call handoff, with the product surface and hero sharing light and depth.",
+      "focal_subject": "Vambah’s skeptical gaze and pointing hand terminate at the exact review handoff inside the Jev product surface.",
       "safe_text_region": {
-        "x": 50,
-        "y": 45,
-        "width": 630,
+        "x": 34,
+        "y": 24,
+        "width": 430,
         "height": 150
       },
       "crop": {
-        "source_asset_id": "hero:jev:override-point:20261019:v2",
-        "x": 610,
+        "source_asset_id": "hero:jev:override-point:20261019:v3",
+        "x": 0,
         "y": 0,
-        "width": 650,
-        "height": 720,
-        "fit": "transparent-medium-portrait"
+        "width": 1672,
+        "height": 941,
+        "fit": "cover-16:9"
       },
       "face_text_overlap": false,
       "feed_size_legible": true,
       "product_legible": true,
       "text_word_count": 3,
       "layout_family": "diagonal-intervention-scene",
-      "composition_signature": "jev-override|diagonal-depth|point-to-handoff|cool-control-room|v2",
-      "typography": "Inter variable; one short editorial hook; face-safe and product-safe placement.",
-      "visual_style": "Campaign-specific integrated scene with shared depth, light, grade, gaze, gesture, and product evidence.",
+      "composition_signature": "jev-override|generated-diagonal-depth|point-to-handoff|cool-control-room|v3",
+      "typography": "Inter variable; one short editorial hook; face-, hand-, and product-safe placement.",
+      "visual_style": "New campaign-specific generated likeness and owned product evidence share depth, light, grade, gaze, gesture, and perspective.",
       "integration": {
         "cohesive_scene": true,
         "hard_split_panel": false,
@@ -228,12 +260,12 @@
         "face_overlap_harm": false,
         "text_overlap_harm": false,
         "product_overlap_harm": false,
-        "pose_gaze_gesture_relationship": "The extended finger and gaze terminate at the highlighted score-to-human-call bridge; the interface supplies the face rim light."
+        "pose_gaze_gesture_relationship": "The pointed finger, skeptical gaze, cyan product glow, and shared diagonal perspective converge on the human-review threshold."
       },
       "hero_binding": {
-        "hero_asset_id": "hero:jev:override-point:20261019:v2",
-        "hero_output_sha256": "sha256:e2361da4c806c13fb1ac577ee940b5d74b662b0867d650cc876ba9937c102cbb",
-        "output_sha256": "sha256:96414fb5857970fa39eaba4ff0a82b7852e327549be87ce8cdf69ad818957d67"
+        "hero_asset_id": "hero:jev:override-point:20261019:v3",
+        "hero_output_sha256": "sha256:60c6666d41405b7b15b448dada783587259e83eef7b694dd455abe68e2d0d27c",
+        "output_sha256": "sha256:6ae8dce146cfa348ee296bd7a5d84dc2bd1116221f1d3e3ecd3aa28220228975"
       },
       "evidence_trace": [
         {
@@ -244,7 +276,7 @@
             "zRMAvMSSSII"
           ],
           "evidence_role": "informs_not_authorizes",
-          "rationale": "The current outlier evidence favors one visible governance relationship; the campaign-specific hero makes the human decision owner concrete."
+          "rationale": "Current same-topic evidence favors one visible governance relationship; a new campaign-specific Vambah likeness makes the human decision owner concrete."
         },
         {
           "decision_dimension": "composition",
@@ -254,7 +286,7 @@
             "PUnCxppwDSs"
           ],
           "evidence_role": "informs_not_authorizes",
-          "rationale": "A diagonal intervention joins pointing hand, gaze, glowing evidence, and copy on one depth axis; there is no split-panel boundary."
+          "rationale": "A generated diagonal intervention joins finger, gaze, interface glow, and the human-review region on one depth axis."
         },
         {
           "decision_dimension": "typography",
@@ -264,7 +296,7 @@
             "AyNe8KZYNGU"
           ],
           "evidence_role": "informs_not_authorizes",
-          "rationale": "Three large words carry one-second comprehension while remaining clear of face and product evidence."
+          "rationale": "One short editorial hook provides feed-size comprehension while preserving the face, hands, and product result."
         },
         {
           "decision_dimension": "teaser",
@@ -274,7 +306,7 @@
             "Q020C-Jw0o8"
           ],
           "evidence_role": "informs_not_authorizes",
-          "rationale": "The hook names the decision tension without repeating the title or claiming unsupported performance."
+          "rationale": "The hook names the decision tension without repeating the title or promising unsupported performance."
         },
         {
           "decision_dimension": "contrast",
@@ -284,7 +316,7 @@
             "AyNe8KZYNGU"
           ],
           "evidence_role": "informs_not_authorizes",
-          "rationale": "The product glow, hero rim light, and type share one controlled contrast system."
+          "rationale": "The product light, wardrobe, skin, environment, and hook share one controlled contrast system."
         },
         {
           "decision_dimension": "visual_style",
@@ -294,55 +326,54 @@
             "zRMAvMSSSII"
           ],
           "evidence_role": "informs_not_authorizes",
-          "rationale": "A cinematic cool decision room uses the product as a practical light source and makes the human override gesture the story."
+          "rationale": "A cool cinematic decision room uses the Jev interface as a practical light source; no portrait-plus-screenshot boundary remains."
         }
       ]
     },
     {
-      "candidate_id": "thumbnail:jev:reveal-scene:20261019:v2",
+      "candidate_id": "thumbnail:jev:reveal-scene:20261019:v3",
       "campaign_identity": "jev",
       "content_version": "sha256:392b3e2a92c5ab65e4cc93706571df761bac7ea38631bf06002fd6b89f3302a2",
       "title": "AI Scored It. Who Makes the Call?",
       "teaser": "SCORE ≠ DECISION",
       "customer_facing_copy": [
         "SCORE ≠ DECISION",
-        "THE CALL STAYS HUMAN",
         "AMADUTOWN"
       ],
       "direction": "The Reveal",
       "public_path": "/review-assets/social-content/jev-hero-thumbnail-review/jev-score-isnt-the-call-hero-v1.png",
-      "sha256": "sha256:a45ae63daeafe18c684546c5ff5561c9f6ce9d210b20d35b4de6060804d9786a",
-      "perceptual_hash": "70f4f4f0f0de767a",
+      "sha256": "sha256:0c350b50ef58de2d60e6f5e990e76a5945f8b0348b36d5cbfb27f69087bc9598",
+      "perceptual_hash": "cfe7df5d7d7d3232",
       "width": 1280,
       "height": 720,
       "aspect_ratio": "16:9",
       "feed_preview_path": "/review-assets/social-content/jev-hero-thumbnail-review/jev-score-isnt-the-call-hero-v1-feed-320x180.png",
-      "feed_preview_sha256": "sha256:99811df40d9d4f2593a5481390535cfbf21a6d90d6d588513f57bd73fc6b5cba",
+      "feed_preview_sha256": "sha256:153c3febd408bc8070e2a4c42954c8441a6c5f755b958699fdb4040bf865232c",
       "feed_preview_width": 320,
       "feed_preview_height": 180,
-      "focal_subject": "A calm decision owner physically reveals an oversized product surface, making the human-versus-score distinction inseparable from the artifact.",
+      "focal_subject": "Vambah physically grips and reveals the oversized Jev surface while the amber interface bounce ties his expression and hands to the product.",
       "safe_text_region": {
-        "x": 650,
-        "y": 515,
-        "width": 540,
-        "height": 140
+        "x": 748,
+        "y": 544,
+        "width": 470,
+        "height": 125
       },
       "crop": {
-        "source_asset_id": "hero:jev:reveal-hold:20261019:v2",
-        "x": 15,
-        "y": 75,
-        "width": 650,
-        "height": 645,
-        "fit": "transparent-wide-medium"
+        "source_asset_id": "hero:jev:reveal-hold:20261019:v3",
+        "x": 0,
+        "y": 0,
+        "width": 1672,
+        "height": 941,
+        "fit": "cover-16:9"
       },
       "face_text_overlap": false,
       "feed_size_legible": true,
       "product_legible": true,
       "text_word_count": 2,
       "layout_family": "layered-product-reveal-scene",
-      "composition_signature": "jev-reveal|oversized-interface-depth|two-hand-hold|warm-workshop|v2",
-      "typography": "Inter variable; one short editorial hook; face-safe and product-safe placement.",
-      "visual_style": "Campaign-specific integrated scene with shared depth, light, grade, gaze, gesture, and product evidence.",
+      "composition_signature": "jev-reveal|generated-held-interface|two-hand-grip|warm-workshop|v3",
+      "typography": "Inter variable; one short editorial hook; face-, hand-, and product-safe placement.",
+      "visual_style": "New campaign-specific generated likeness and owned product evidence share depth, light, grade, gaze, gesture, and perspective.",
       "integration": {
         "cohesive_scene": true,
         "hard_split_panel": false,
@@ -357,12 +388,12 @@
         "face_overlap_harm": false,
         "text_overlap_harm": false,
         "product_overlap_harm": false,
-        "pose_gaze_gesture_relationship": "Both hands hold the oversized interface edge while the body wraps around it; amber screen bounce ties skin, wardrobe, and artifact into one scene."
+        "pose_gaze_gesture_relationship": "Both hands visibly grip the product edge while the body wraps around it; amber product bounce unifies skin, wardrobe, and environment."
       },
       "hero_binding": {
-        "hero_asset_id": "hero:jev:reveal-hold:20261019:v2",
-        "hero_output_sha256": "sha256:a2d5a25e8b43c4310f2e2c7eac6761208824a983564bd1b7f7def2f0a392bae9",
-        "output_sha256": "sha256:a45ae63daeafe18c684546c5ff5561c9f6ce9d210b20d35b4de6060804d9786a"
+        "hero_asset_id": "hero:jev:reveal-hold:20261019:v3",
+        "hero_output_sha256": "sha256:dee1136d7d9b31056552d13f9155989474103908c245c9a796046a9df56eb228",
+        "output_sha256": "sha256:0c350b50ef58de2d60e6f5e990e76a5945f8b0348b36d5cbfb27f69087bc9598"
       },
       "evidence_trace": [
         {
@@ -373,7 +404,7 @@
             "zRMAvMSSSII"
           ],
           "evidence_role": "informs_not_authorizes",
-          "rationale": "The current outlier evidence favors one visible governance relationship; the campaign-specific hero makes the human decision owner concrete."
+          "rationale": "Current same-topic evidence favors one visible governance relationship; a new campaign-specific Vambah likeness makes the human decision owner concrete."
         },
         {
           "decision_dimension": "composition",
@@ -383,7 +414,7 @@
             "PUnCxppwDSs"
           ],
           "evidence_role": "informs_not_authorizes",
-          "rationale": "An oversized product surface sits between foreground hero and workshop background; the hands reveal it rather than placing a screenshot beside a portrait."
+          "rationale": "A generated layered reveal makes the interface a held physical surface between foreground hero and workshop depth."
         },
         {
           "decision_dimension": "typography",
@@ -393,7 +424,7 @@
             "AyNe8KZYNGU"
           ],
           "evidence_role": "informs_not_authorizes",
-          "rationale": "Three large words carry one-second comprehension while remaining clear of face and product evidence."
+          "rationale": "One short editorial hook provides feed-size comprehension while preserving the face, hands, and product result."
         },
         {
           "decision_dimension": "teaser",
@@ -403,7 +434,7 @@
             "Q020C-Jw0o8"
           ],
           "evidence_role": "informs_not_authorizes",
-          "rationale": "The hook names the decision tension without repeating the title or claiming unsupported performance."
+          "rationale": "The hook names the decision tension without repeating the title or promising unsupported performance."
         },
         {
           "decision_dimension": "contrast",
@@ -413,7 +444,7 @@
             "AyNe8KZYNGU"
           ],
           "evidence_role": "informs_not_authorizes",
-          "rationale": "The product glow, hero rim light, and type share one controlled contrast system."
+          "rationale": "The product light, wardrobe, skin, environment, and hook share one controlled contrast system."
         },
         {
           "decision_dimension": "visual_style",
@@ -423,7 +454,7 @@
             "zRMAvMSSSII"
           ],
           "evidence_role": "informs_not_authorizes",
-          "rationale": "A bright amber workshop, direct eye contact, and physical reveal create a different family from the cool diagonal intervention."
+          "rationale": "A bright amber workshop, two-hand grip, direct gaze, and wide camera form a different family from the cool diagonal intervention."
         }
       ]
     }
@@ -438,12 +469,12 @@
     "exact-photo reuse",
     "mirrored left/right variants",
     "hard split panels",
-    "generic portrait beside screenshot",
-    "inconsistent lighting or perspective",
+    "portrait beside screenshot",
+    "inconsistent lighting, perspective, or grade",
     "floating product assets",
     "blur used to disguise repetition",
-    "hero or asset removable without changing the story",
-    "face, text, or product overlap that harms legibility"
+    "removable hero or asset",
+    "harmful face, text, hand, or product overlap"
   ],
-  "boundary": "Synthetic contract fixtures only. Real campaign-specific likeness generation, production binding, upload, platform draft, schedule, publish, credentials, migration, spending, and external send remain closed."
+  "boundary": "Two newly generated campaign-specific review candidates only. Production binding, upload, platform draft, schedule, publish, credentials, migration, spending, and external send remain closed."
 }
