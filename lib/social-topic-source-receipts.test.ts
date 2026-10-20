@@ -7,6 +7,8 @@ import {
 
 describe('social topic source receipts', () => {
   it('deduplicates known product names into stable identities', () => {
+    expect(stableProductIdentity('Portfolio Agent Ops')).toBe('portfolio')
+    expect(stableProductIdentity('portfolio_agent_ops')).toBe('portfolio')
     expect(stableProductIdentity('Dark-Castle-Chess preview')).toBe('dark_castle_chess')
     expect(stableProductIdentity('Agentified book launch')).toBe('agentified')
     expect(stableProductIdentity('ReversR CAD')).toBe('reversr')

@@ -6,6 +6,7 @@ import {
   buildTrendWorkRelevanceReport,
   sourceReceiptsForTrendWorkCandidates,
 } from './social-trend-work-join'
+import { approvedRepositoryEvidenceProjections } from './social-repository-evidence'
 
 const generatedAt = '2026-10-12T16:00:00.000Z'
 const approvedAt = '2026-10-12T12:00:00.000Z'
@@ -433,6 +434,43 @@ describe('trend-to-work relevance joining', () => {
     expect(candidate?.content_angle).toContain('evidence-bound angle for Agentified')
   })
 
+  it('flags separate OpenAI and Meta agent-platform releases against Portfolio itself', () => {
+    const openAiRelease = momentum({
+      sourceId: 'openai-agent-platform-release', productIdentity: 'openai_agent_platform', label: 'OpenAI agent platform release',
+      summary: 'OpenAI released new developer infrastructure for long-running agents, tools, and managed execution.',
+      topics: ['agentic operating systems'], entities: ['openai', 'agent_platforms'],
+      coverageIdentity: 'openai-agent-platform-developer-release', sentiment: 'positive',
+      contextSummary: 'The official release expands the developer operating layer around long-running agents.',
+      relevanceScore: 0.96, publicAttentionScore: 0.91, evidenceState: 'corroborated',
+      url: 'https://openai.com/index/introducing-the-agents-api/',
+    })
+    const metaRelease = momentum({
+      sourceId: 'meta-muse-wonder-release', productIdentity: 'meta_muse_wonder', label: 'Meta Muse Wonder release',
+      summary: 'Meta released Muse Wonder for developers with active memory, sustained focus, and agentic work capabilities.',
+      topics: ['agentic operating systems'], entities: ['meta', 'muse_wonder', 'agent_platforms'],
+      coverageIdentity: 'meta-muse-wonder-developer-release', sentiment: 'positive',
+      contextSummary: 'The official release advances persistent, developer-accessible agents that operate across real work.',
+      relevanceScore: 0.95, publicAttentionScore: 0.89, evidenceState: 'corroborated',
+      url: 'https://about.fb.com/news/2026/10/introducing-muse-wonder-models/',
+    })
+
+    const report = buildTrendWorkRelevanceReport([
+      openAiRelease,
+      metaRelease,
+      ...approvedRepositoryEvidenceProjections(approvedAt),
+    ], generatedAt)
+    const portfolioCandidates = report.candidates.filter((item) => item.product_identity === 'portfolio')
+
+    expect(portfolioCandidates).toHaveLength(2)
+    expect(portfolioCandidates.map((item) => item.public_signal?.coverage_identity)).toEqual(expect.arrayContaining([
+      'openai_agent_platform_developer_release',
+      'meta_muse_wonder_developer_release',
+    ]))
+    expect(portfolioCandidates.every((item) => item.candidate_class === 'public_theme_owned_capability')).toBe(true)
+    expect(portfolioCandidates.every((item) => item.relevant_owned_capability?.label === 'Portfolio')).toBe(true)
+    expect(portfolioCandidates.every((item) => item.status === 'review_only' && item.side_effects.content_generation === false)).toBe(true)
+  })
+
   it('qualifies attributable social momentum and deduplicates recurring coverage identity', () => {
     const current = momentum({
       sourceId: 'operator-social-pattern-current', momentumKind: 'social_trend', productIdentity: 'agentic_work_community', label: 'Agentic work community pattern',
@@ -457,7 +495,7 @@ describe('trend-to-work relevance joining', () => {
     })
 
     const report = buildTrendWorkRelevanceReport([duplicate, current, ownedCapability], generatedAt)
-    const candidate = report.candidates.find((item) => item.product_identity === 'portfolio_agent_ops')
+    const candidate = report.candidates.find((item) => item.product_identity === 'portfolio')
 
     expect(report.deduplicated_momentum_count).toBe(1)
     expect(candidate).toMatchObject({
