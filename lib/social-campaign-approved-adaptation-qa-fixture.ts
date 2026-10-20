@@ -91,7 +91,7 @@ export function socialCampaignApprovedAdaptationQaProjection() {
       },
       thumbnail_gate: {
         status: 'blocked',
-        detail: 'The new provider-free 16:9 candidate is rendered for review, but its exact output hash has not passed topic-specific thumbnail evaluation.',
+        detail: 'The new generated 16:9 candidate is rendered for review, but its exact output hash has not passed topic-specific thumbnail evaluation.',
         receipt_ids: ['receipt:social-campaign-storyboard-assets:20261019:v1', 'thumbnail:jev:youtube-shorts:20261018:v5'],
         observed_at: '2026-10-19T20:30:00.000Z',
         fresh_until: null,
@@ -106,7 +106,7 @@ export function socialCampaignApprovedAdaptationQaProjection() {
       conclusion: 'A model score becomes useful when the surrounding system makes authority, exceptions, and evidence visible.',
       spoken_cta: 'Subscribe to AmaduTown for practical ways to decide where AI should stop and people should step in.',
       recovery_href: '/admin/social-content?workflow=evidence&campaign=jev',
-      value_summary: 'A source-bound storyboard turns the Jev field guide into a paced decision story: score, policy, human ownership, and a retained record. The provider-free thumbnail gives the campaign a specific human hero, while the separate product proof substantiates the story.',
+      value_summary: 'A source-bound storyboard turns the Jev field guide into a paced decision story: score, policy, human ownership, and a retained record. The newly generated thumbnail gives the campaign a specific human hero, while the separately receipted product proof substantiates the story.',
     },
   })
   const darkCastle = projectedAdaptation(darkCastleSource as SocialVideoAdaptationInput, {
