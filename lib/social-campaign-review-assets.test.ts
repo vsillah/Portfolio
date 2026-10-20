@@ -44,12 +44,14 @@ describe('social campaign review asset projection', () => {
   it.each([
     SOCIAL_CAMPAIGN_REVIEW_IDS.darkCastleYouTube,
     SOCIAL_CAMPAIGN_REVIEW_IDS.auditYouTube,
-  ])('fails closed when qualifying YouTube description evidence is absent for %s', (id) => {
+  ])('fails closed while fewer than three YouTube descriptions qualify for %s', (id) => {
     const packet = getSocialCampaignReviewPacket(id)
     expect(packet?.kind).toBe('youtube_packaging')
     if (!packet || packet.kind !== 'youtube_packaging') return
     expect(packet.status).toBe('blocked_missing_description_evidence')
-    expect(packet.descriptionEvidence).toMatchObject({ state: 'unscored', qualified: 0, required: 3, attribution: [] })
+    expect(packet.descriptionEvidence).toMatchObject({ state: 'unscored', qualified: 1, required: 3 })
+    expect(packet.descriptionEvidence.attribution).toHaveLength(1)
+    expect(packet.descriptionEvidence.attribution[0].href).toMatch(/^https:\/\/www\.youtube\.com\/watch\?v=/)
     expect(packet.title).not.toBe(packet.thumbnailTeaser)
     expect(packet.thumbnailPath).toMatch(/^\/review-assets\/social-content\/youtube-packaging\/.+\.png$/)
     expect(packet.thumbnailReceipt).toMatch(/^thumbnail:.+:youtube-long-form:20261018:v6$/)
@@ -172,7 +174,7 @@ describe('social campaign review asset projection', () => {
       selection: { status: 'ready' },
       user_preference_signals: [{ evidence_role: 'taste_calibration_only', performance_weight: 0, performance_status: 'unscored' }],
     })
-    expect(packet.descriptionEvidence).toMatchObject({ state: 'unscored', qualified: 0, required: 3 })
+    expect(packet.descriptionEvidence).toMatchObject({ state: 'unscored', qualified: 1, required: 3 })
   })
 
   it('reuses the exact approved Jev title-thumbnail pair without changing its Unscored performance boundary', () => {

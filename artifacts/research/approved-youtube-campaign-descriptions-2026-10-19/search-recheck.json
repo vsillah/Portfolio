@@ -1,0 +1,474 @@
+{
+  "version": "youtube-description-search-recheck/v1",
+  "observation_window_ended_at": "2026-10-20T16:44:08.288Z",
+  "method": "Read-only public YouTube search, watch metadata, and same-channel recent long-form baselines. These candidates are not promoted into the approved description cohort; full descriptions and final combined-cohort scores were not captured.",
+  "searches": [
+    {
+      "campaign_identity": "dark-castle-chess",
+      "query": "chess learn from mistakes improve decisions",
+      "candidate_ids": [
+        "SXrKRA_KZ5k",
+        "YUbNcneVKv4",
+        "ylpAHvPlafc",
+        "Vlpx04FeELI",
+        "iShC1_I9Mf0"
+      ]
+    },
+    {
+      "campaign_identity": "ai-audit-calculator",
+      "query": "AI audit business workflow ROI hidden costs",
+      "candidate_ids": [
+        "noivN2hIXLY",
+        "pAnhtr7tHvU",
+        "HPGSE4LXaQA",
+        "AG_L5ecwXkU",
+        "G1FM1hAZdtw"
+      ]
+    }
+  ],
+  "candidates": [
+    {
+      "video_id": "SXrKRA_KZ5k",
+      "url": "https://www.youtube.com/watch?v=SXrKRA_KZ5k",
+      "title": "7 MOST COMMON Chess Mistakes",
+      "creator": "GothamChess",
+      "channel_id": "UCQHX6ViZmPsWiYSFAyS0a3Q",
+      "published_at": "2021-09-14T10:00:27-07:00",
+      "view_count_at_search": 4997517,
+      "subscriber_count_at_search": 8270000,
+      "duration_seconds": 2236,
+      "description_characters_observed": 1660,
+      "full_description_status": "not_captured_for_promotion",
+      "baseline_sample_size": 10,
+      "baseline_median_views": 926214,
+      "baseline_video_ids": [
+        "ilHK_p6_KWA",
+        "TLs4mBOblfQ",
+        "dpyaXf4Y3yk",
+        "qT_tTWOCb-Y",
+        "sskvj1_ehx4",
+        "ulLBRyVrI1Y",
+        "PVVA-_wvKks",
+        "zgCufRpSVV8",
+        "0kjmdJ6W56Q",
+        "QjpeTWcyz7Y"
+      ],
+      "baseline_exact_view_counts": [
+        21110,
+        903133,
+        1287371,
+        896202,
+        1375809,
+        2834714,
+        2227286,
+        729561,
+        949295,
+        859296
+      ],
+      "provisional_ratios": {
+        "channel_relative": 5.395639668586309,
+        "audience_view": 0.6042946795646916,
+        "recency_rate": 2683.967456035655
+      },
+      "normalized_performance_score": null,
+      "qualification_status": "unscored_not_in_approved_cohort"
+    },
+    {
+      "video_id": "YUbNcneVKv4",
+      "url": "https://www.youtube.com/watch?v=YUbNcneVKv4",
+      "title": "1 Key Rule to Prevent 50% of Your Chess Mistakes",
+      "creator": "Remote Chess Academy",
+      "channel_id": "UCsKZ2yOsgfNxln8xH5WkGvg",
+      "published_at": "2024-04-17T09:00:23-07:00",
+      "view_count_at_search": 804637,
+      "subscriber_count_at_search": 993000,
+      "duration_seconds": 873,
+      "description_characters_observed": 1166,
+      "full_description_status": "not_captured_for_promotion",
+      "baseline_sample_size": 10,
+      "baseline_median_views": 67808.5,
+      "baseline_video_ids": [
+        "6hObCAIzsCE",
+        "riKHCBZdRik",
+        "f1a9J61NpQ4",
+        "NNtKb8rsc6A",
+        "LYCHmbcZAwg",
+        "0M_7HCpDvAg",
+        "tY037Q71w5A",
+        "5TDZ4UzUqdA",
+        "j4552B_-9cY",
+        "TzUBh2iEU30"
+      ],
+      "baseline_exact_view_counts": [
+        34668,
+        69782,
+        54992,
+        56199,
+        45185,
+        148603,
+        77183,
+        65835,
+        391345,
+        119745
+      ],
+      "provisional_ratios": {
+        "channel_relative": 11.866314695060353,
+        "audience_view": 0.8103091641490433,
+        "recency_rate": 878.3955346153733
+      },
+      "normalized_performance_score": null,
+      "qualification_status": "unscored_not_in_approved_cohort"
+    },
+    {
+      "video_id": "ylpAHvPlafc",
+      "url": "https://www.youtube.com/watch?v=ylpAHvPlafc",
+      "title": "How To Analyze Your Chess Games",
+      "creator": "GothamChess",
+      "channel_id": "UCQHX6ViZmPsWiYSFAyS0a3Q",
+      "published_at": "2021-01-08T04:00:32-08:00",
+      "view_count_at_search": 1999208,
+      "subscriber_count_at_search": 8270000,
+      "duration_seconds": 1978,
+      "description_characters_observed": 1772,
+      "full_description_status": "not_captured_for_promotion",
+      "baseline_sample_size": 10,
+      "baseline_median_views": 926214,
+      "baseline_video_ids": [
+        "ilHK_p6_KWA",
+        "TLs4mBOblfQ",
+        "dpyaXf4Y3yk",
+        "qT_tTWOCb-Y",
+        "sskvj1_ehx4",
+        "ulLBRyVrI1Y",
+        "PVVA-_wvKks",
+        "zgCufRpSVV8",
+        "0kjmdJ6W56Q",
+        "QjpeTWcyz7Y"
+      ],
+      "baseline_exact_view_counts": [
+        21110,
+        903133,
+        1287371,
+        896202,
+        1375809,
+        2834714,
+        2227286,
+        729561,
+        949295,
+        859296
+      ],
+      "provisional_ratios": {
+        "channel_relative": 2.158473095850419,
+        "audience_view": 0.24174220072551392,
+        "recency_rate": 946.954760475731
+      },
+      "normalized_performance_score": null,
+      "qualification_status": "unscored_not_in_approved_cohort"
+    },
+    {
+      "video_id": "Vlpx04FeELI",
+      "url": "https://www.youtube.com/watch?v=Vlpx04FeELI",
+      "title": "How to Actually Get Better at Chess No-BS Guide",
+      "creator": "Rise Above Reality",
+      "channel_id": "UCsguRUxh-0DiryIdPPWFeCQ",
+      "published_at": "2025-05-12T08:49:30-07:00",
+      "view_count_at_search": 1690006,
+      "subscriber_count_at_search": 141000,
+      "duration_seconds": 664,
+      "description_characters_observed": 288,
+      "full_description_status": "not_captured_for_promotion",
+      "baseline_sample_size": 10,
+      "baseline_median_views": 25590.5,
+      "baseline_video_ids": [
+        "hIFhUhsBTi8",
+        "J4v1uCfJ9gg",
+        "-K1FO2TLvqY",
+        "OjCQ1ID7IdA",
+        "P0jP5zq-biI",
+        "5EWbTOfC__w",
+        "JM7vYnLDdEQ",
+        "mHZwR9TUAxA",
+        "-NbySyxqdwM",
+        "Cn_-Lm7sym4"
+      ],
+      "baseline_exact_view_counts": [
+        23199,
+        170709,
+        27982,
+        14855,
+        6573,
+        30348,
+        6901,
+        1111350,
+        341189,
+        5676
+      ],
+      "provisional_ratios": {
+        "channel_relative": 66.04036654227154,
+        "audience_view": 11.98585815602837,
+        "recency_rate": 3212.7074140050067
+      },
+      "normalized_performance_score": null,
+      "qualification_status": "unscored_not_in_approved_cohort"
+    },
+    {
+      "video_id": "iShC1_I9Mf0",
+      "url": "https://www.youtube.com/watch?v=iShC1_I9Mf0",
+      "title": "This Concept Will Help You Make Better Positional Decisions in Chess!",
+      "creator": "Critical Chess",
+      "channel_id": "UCCiDl-BIpfG3p6t7BwYA1tA",
+      "published_at": "2025-12-16T04:45:56-08:00",
+      "view_count_at_search": 4589,
+      "subscriber_count_at_search": 16100,
+      "duration_seconds": 1186,
+      "description_characters_observed": 1702,
+      "full_description_status": "not_captured_for_promotion",
+      "baseline_sample_size": 10,
+      "baseline_median_views": 12176.5,
+      "baseline_video_ids": [
+        "l8pMbWsdTIQ",
+        "sp9GT2aw-1E",
+        "2Wdk4ndJ0Gw",
+        "kC8WmHrPViI",
+        "hagcTW2QXEE",
+        "pLAIua23Jk4",
+        "xB-8VHLcIiY",
+        "jAt84J-IsLI",
+        "lkMFz9ip3rE",
+        "Y7wTk6ItK34"
+      ],
+      "baseline_exact_view_counts": [
+        7111,
+        3008,
+        12589,
+        7671,
+        13122,
+        27408,
+        11764,
+        10585,
+        13448,
+        40598
+      ],
+      "provisional_ratios": {
+        "channel_relative": 0.3768734858128362,
+        "audience_view": 0.2850310559006211,
+        "recency_rate": 14.891352832514434
+      },
+      "normalized_performance_score": null,
+      "qualification_status": "unscored_not_in_approved_cohort"
+    },
+    {
+      "video_id": "noivN2hIXLY",
+      "url": "https://www.youtube.com/watch?v=noivN2hIXLY",
+      "title": "How to Perform a $60,000 AI Audit (Beginner’s Guide)",
+      "creator": "Liam Ottley",
+      "channel_id": "UCui4jxDaMb53Gdh-AZUTPAg",
+      "published_at": "2025-07-05T04:40:09-07:00",
+      "view_count_at_search": 80113,
+      "subscriber_count_at_search": 861000,
+      "duration_seconds": 1517,
+      "description_characters_observed": 2050,
+      "full_description_status": "not_captured_for_promotion",
+      "baseline_sample_size": 10,
+      "baseline_median_views": 37789.5,
+      "baseline_video_ids": [
+        "skpYjEGOdCs",
+        "HvjHt25RGyU",
+        "9C5hLJ1bIzk",
+        "1P5xtV-Kf0o",
+        "IXDYEF22CG8",
+        "nQz6sMBSK4A",
+        "T2v2pf_uypE",
+        "ulJqlCPNGKI",
+        "8Hu2s7sMWZg",
+        "BMSvmzJuMiM"
+      ],
+      "baseline_exact_view_counts": [
+        15433,
+        18447,
+        34981,
+        40598,
+        100303,
+        16510,
+        128915,
+        54998,
+        46765,
+        20895
+      ],
+      "provisional_ratios": {
+        "channel_relative": 2.1199804178409347,
+        "audience_view": 0.09304645760743321,
+        "recency_rate": 169.65505366779215
+      },
+      "normalized_performance_score": null,
+      "qualification_status": "unscored_not_in_approved_cohort"
+    },
+    {
+      "video_id": "pAnhtr7tHvU",
+      "url": "https://www.youtube.com/watch?v=pAnhtr7tHvU",
+      "title": "How to go from $0 to $10,000/mo with AI Audits",
+      "creator": "Jack Roberts",
+      "channel_id": "UCxVxcTULO9cFU6SB9qVaisQ",
+      "published_at": "2025-11-09T03:20:32-08:00",
+      "view_count_at_search": 15736,
+      "subscriber_count_at_search": 286000,
+      "duration_seconds": 2864,
+      "description_characters_observed": 908,
+      "full_description_status": "not_captured_for_promotion",
+      "baseline_sample_size": 10,
+      "baseline_median_views": 52098,
+      "baseline_video_ids": [
+        "nkg3cquwKiw",
+        "xq6S6g6BWnc",
+        "8rBiTpcoTrM",
+        "zwQmodmp1To",
+        "DwEz1JXNajA",
+        "IYNAyRkUsjI",
+        "fq3wx-AR6B0",
+        "moOBIaIb4a8",
+        "bE0XcTv3tKg",
+        "lQU5RX8EyWw"
+      ],
+      "baseline_exact_view_counts": [
+        69981,
+        58591,
+        53902,
+        106047,
+        49494,
+        50294,
+        46689,
+        45581,
+        38509,
+        106040
+      ],
+      "provisional_ratios": {
+        "channel_relative": 0.3020461438059043,
+        "audience_view": 0.05502097902097902,
+        "recency_rate": 45.58190313476742
+      },
+      "normalized_performance_score": null,
+      "qualification_status": "unscored_not_in_approved_cohort"
+    },
+    {
+      "video_id": "HPGSE4LXaQA",
+      "url": "https://www.youtube.com/watch?v=HPGSE4LXaQA",
+      "title": "Don't Sell AI Workflows, Sell AI Audits (Massive Opportunity)",
+      "creator": "Andrew Dunn | AI Consulting",
+      "channel_id": "UCqdm-0hVz-IOAxqR2tmJQEg",
+      "published_at": "2026-02-09T06:54:16-08:00",
+      "view_count_at_search": 6550,
+      "subscriber_count_at_search": 10700,
+      "duration_seconds": 927,
+      "description_characters_observed": 390,
+      "full_description_status": "not_captured_for_promotion",
+      "baseline_sample_size": 10,
+      "baseline_median_views": 1151,
+      "baseline_video_ids": [
+        "1uRN8czxe7I",
+        "LSmxwtNHu4k",
+        "9_uAsOdcn1A",
+        "WGRQJUkMy68",
+        "sRh4buNYuMw",
+        "oh9bYiWrCS4",
+        "lGZ2b_JqH_Y",
+        "X6_HVnhnNlw",
+        "anbi6d2CM1M",
+        "DcXXfKuIqK8"
+      ],
+      "baseline_exact_view_counts": [
+        32499,
+        2326,
+        3746,
+        929,
+        1267,
+        564,
+        372,
+        2808,
+        974,
+        1035
+      ],
+      "provisional_ratios": {
+        "channel_relative": 5.690703735881842,
+        "audience_view": 0.6121495327102804,
+        "recency_rate": 25.881522724908454
+      },
+      "normalized_performance_score": null,
+      "qualification_status": "unscored_not_in_approved_cohort"
+    },
+    {
+      "video_id": "AG_L5ecwXkU",
+      "url": "https://www.youtube.com/watch?v=AG_L5ecwXkU",
+      "title": "How to Perform a $15,000 AI Audit (Beginner’s Guide)",
+      "creator": "Andrew Dunn | AI Consulting",
+      "channel_id": "UCqdm-0hVz-IOAxqR2tmJQEg",
+      "published_at": "2026-04-05T07:00:00-07:00",
+      "view_count_at_search": 4726,
+      "subscriber_count_at_search": 10700,
+      "duration_seconds": 903,
+      "description_characters_observed": 826,
+      "full_description_status": "not_captured_for_promotion",
+      "baseline_sample_size": 10,
+      "baseline_median_views": 1151,
+      "baseline_video_ids": [
+        "1uRN8czxe7I",
+        "LSmxwtNHu4k",
+        "9_uAsOdcn1A",
+        "WGRQJUkMy68",
+        "sRh4buNYuMw",
+        "oh9bYiWrCS4",
+        "lGZ2b_JqH_Y",
+        "X6_HVnhnNlw",
+        "anbi6d2CM1M",
+        "DcXXfKuIqK8"
+      ],
+      "baseline_exact_view_counts": [
+        32499,
+        2326,
+        3746,
+        929,
+        1267,
+        564,
+        372,
+        2808,
+        974,
+        1035
+      ],
+      "provisional_ratios": {
+        "channel_relative": 4.105994787141616,
+        "audience_view": 0.44168224299065423,
+        "recency_rate": 23.854954027690596
+      },
+      "normalized_performance_score": null,
+      "qualification_status": "unscored_not_in_approved_cohort"
+    },
+    {
+      "video_id": "G1FM1hAZdtw",
+      "url": "https://www.youtube.com/watch?v=G1FM1hAZdtw",
+      "title": "WHAT AN AI AUDIT REALLY IS (And Why Most Businesses Don't Need More Tools)",
+      "creator": "Crystel Cortez",
+      "channel_id": "UChiwgeSMqb5hXOgMHK9hg9Q",
+      "published_at": "2025-12-15T05:00:29-08:00",
+      "view_count_at_search": 1016,
+      "subscriber_count_at_search": 2820,
+      "duration_seconds": 400,
+      "description_characters_observed": 1085,
+      "full_description_status": "not_captured_for_promotion",
+      "baseline_sample_size": 1,
+      "baseline_median_views": 1016,
+      "baseline_video_ids": [
+        "G1FM1hAZdtw"
+      ],
+      "baseline_exact_view_counts": [
+        1016
+      ],
+      "provisional_ratios": {
+        "channel_relative": 1,
+        "audience_view": 0.36028368794326243,
+        "recency_rate": 3.2863740261471968
+      },
+      "normalized_performance_score": null,
+      "qualification_status": "unscored_not_in_approved_cohort"
+    }
+  ],
+  "decision": "No candidate is added to the approved score inventory. The current coherent cohorts remain 1/3 each; adding selected search results would require a new complete, source-bound combined-cohort capture and recomputation. No readiness or causal claim is inferred."
+}
