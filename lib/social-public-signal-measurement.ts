@@ -22,6 +22,10 @@ export type PublicSignalMeasurementReceipt = {
     observed_at: string
     public_attention_score: number
     relevance_score: number
+    source_packet_id?: string
+    source_fingerprint?: string
+    observed_values?: { public_attention: number; relevance: number }
+    required_values?: { public_attention: number; relevance: number }
   }>
 }
 
@@ -85,6 +89,21 @@ export function validatePublicSignalMeasurement(input: {
       || !Number.isFinite(Date.parse(source.observed_at))
       || Date.parse(source.observed_at) > observed || Date.parse(source.observed_at) < observed - 7 * 86400000) {
       return { valid: false, reason: 'measurement_source_unattributable' }
+    }
+    if (source.observed_values || source.required_values || source.source_packet_id || source.source_fingerprint) {
+      const observedValues = source.observed_values
+      const requiredValues = source.required_values
+      const normalized = (observedValue: number, requiredValue: number) => Number(Math.min(1, observedValue / requiredValue).toFixed(4))
+      if (!source.source_packet_id || !/^[a-f0-9]{64}$/.test(source.source_fingerprint ?? '')
+        || !observedValues || !requiredValues
+        || !Number.isFinite(observedValues.public_attention) || observedValues.public_attention < 0
+        || !Number.isFinite(observedValues.relevance) || observedValues.relevance < 0
+        || !Number.isFinite(requiredValues.public_attention) || requiredValues.public_attention <= 0
+        || !Number.isFinite(requiredValues.relevance) || requiredValues.relevance <= 0
+        || source.public_attention_score !== normalized(observedValues.public_attention, requiredValues.public_attention)
+        || source.relevance_score !== normalized(observedValues.relevance, requiredValues.relevance)) {
+        return { valid: false, reason: 'measurement_source_values_mismatched' }
+      }
     }
     urls.add(source.source_url)
     ids.add(source.receipt_id)
