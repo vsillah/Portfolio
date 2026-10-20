@@ -14,6 +14,7 @@ import {
 import { collectDirectGitHubActivityProjections } from '@/lib/social-github-activity'
 import { approvedRepositoryEvidenceProjections } from '@/lib/social-repository-evidence'
 import { collectOfficialLiveSignalPackets, persistPendingOfficialSignalPackets } from '@/lib/social-official-live-signals'
+import { persistPendingPublicSignalMeasurements } from '@/lib/social-public-signal-producer'
 
 export type CoverageSourceKey =
   | 'public_momentum'
@@ -73,6 +74,7 @@ export type SocialTopicLiveCoverage = {
     pending_packet_count: number
     excluded: Array<{ source_url: string; reason: string; observed_at: string }>
     blockers: string[]
+    measurement?: { packets_scanned: number; receipts_ready: number; outcomes: Array<{ packet_id: string; receipt_id: string | null; reason: string | null; owner: string }>; review_only: true }
   }
 }
 
@@ -541,6 +543,7 @@ export async function collectLiveSocialTopicCoverage(options: { persist?: boolea
   // Intake lands in the existing research inbox before any candidate report is
   // projected. Pending packets cannot enter the approved-momentum query.
   if (options.persist) await persistPendingOfficialSignalPackets(officialResult.packets)
+  const measurement = options.persist ? await persistPendingPublicSignalMeasurements(generatedAt) : undefined
   const report = buildLiveCoverage({
     generatedAt,
     receipts: [...persisted.receipts, ...liveReceipts, ...workReceipts, ...collectedReceipts],
@@ -551,6 +554,7 @@ export async function collectLiveSocialTopicCoverage(options: { persist?: boolea
     pending_packet_count: officialResult.packets.length,
     excluded: officialResult.excluded,
     blockers: officialResult.blockers,
+    ...(measurement ? { measurement } : {}),
   }
 
   if (options.persist) {
