@@ -1,6 +1,6 @@
 {
-  "revision": "3a66e2b3",
-  "route": "http://127.0.0.1:3218/admin/social-content?campaignQa=campaign-package-preparation-review-v1&rev=3a66e2b3",
+  "revision": "4eca0719",
+  "route": "http://127.0.0.1:3218/admin/social-content?campaignQa=campaign-package-preparation-review-v1&rev=4eca0719",
   "contract": "youtube-thumbnail-hero-evidence/v1 + social-campaign-storyboard-review/v1",
   "scenarios": [
     {
