@@ -69,6 +69,11 @@ export type SocialTopicLiveCoverage = {
   blockers: string[]
   boundaries: string[]
   trend_work_relevance?: TrendWorkRelevanceReport
+  official_signal_intake?: {
+    pending_packet_count: number
+    excluded: Array<{ source_url: string; reason: string; observed_at: string }>
+    blockers: string[]
+  }
 }
 
 const SOURCE_LABELS: Record<CoverageSourceKey, string> = {
@@ -495,7 +500,7 @@ export async function collectLiveSocialTopicCoverage(options: { persist?: boolea
       return { projections: [], blockers: [], approved_records_scanned: 0, read_only: true as const }
     }),
     collectOfficialLiveSignalPackets({ observedAt: generatedAt }).catch((error) => ({
-      packets: [], blockers: [error instanceof Error ? error.message : 'official_signal_collection_failed'],
+      packets: [], excluded: [], blockers: [error instanceof Error ? error.message : 'official_signal_collection_failed'],
       read_only: true as const, review_only: true as const,
     })),
   ])
@@ -539,6 +544,11 @@ export async function collectLiveSocialTopicCoverage(options: { persist?: boolea
     collectorFailures,
     persistedScans: persisted.scans,
   })
+  report.official_signal_intake = {
+    pending_packet_count: officialResult.packets.length,
+    excluded: officialResult.excluded,
+    blockers: officialResult.blockers,
+  }
 
   if (options.persist) {
     // Pending packets are stored in the existing research inbox. They are never
@@ -558,7 +568,8 @@ export async function collectLiveSocialTopicCoverage(options: { persist?: boolea
       product_count: source.product_count,
       collector_failure: source.collector_failure,
       recovery_action: source.recovery_action,
-      metadata: { freshness: source.freshness, coverage_version: report.version },
+      metadata: { freshness: source.freshness, coverage_version: report.version,
+        ...(source.key === 'public_momentum' ? { official_signal_intake: report.official_signal_intake } : {}) },
       updated_at: generatedAt,
     }))
     const { error } = await supabaseAdmin.from('social_topic_source_scans')

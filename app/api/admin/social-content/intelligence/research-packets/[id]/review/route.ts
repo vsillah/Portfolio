@@ -5,7 +5,7 @@ import {
   normalizePractitionerEvidence,
   practitionerEvidenceValidation,
 } from '@/lib/research-practitioner-evidence'
-import { OFFICIAL_LIVE_SIGNAL_SOURCES } from '@/lib/social-official-live-signals'
+import { validOfficialSignalAttribution } from '@/lib/social-official-live-signals'
 import { buildApprovedPublicMomentumProjection } from '@/lib/social-trend-work-join'
 
 function hasValidSourceUrl(value: unknown) {
@@ -120,16 +120,9 @@ export async function POST(request: NextRequest, context: { params: Promise<{ id
     ? packet.actor_metadata as Record<string, unknown> : {}
   const official = metadata.official_signal && typeof metadata.official_signal === 'object' && !Array.isArray(metadata.official_signal)
     ? metadata.official_signal as Record<string, unknown> : null
-  const officialSource = official && OFFICIAL_LIVE_SIGNAL_SOURCES.find((source) => (
-    source.url === packet.source_url && source.url === official.source_url
-    && source.publisher === official.publisher
-    && source.published_at === official.published_at
-    && source.key.replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '') === official.coverage_identity
-    && JSON.stringify(source.topics) === JSON.stringify(official.topic_identities)
-    && JSON.stringify(source.entities) === JSON.stringify(official.entity_identities)
-    && /^[a-f0-9]{64}$/.test(String(official.source_fingerprint ?? ''))
-  ))
-  if (official && !officialSource) return NextResponse.json({ error: 'Official source attribution changed. Recollect before review.' }, { status: 422 })
+  if (official && !validOfficialSignalAttribution({ source_url: packet.source_url, title: packet.title, actor_metadata: metadata })) {
+    return NextResponse.json({ error: 'Official source attribution changed. Recollect before review.' }, { status: 422 })
+  }
   if (body.decision === 'approved' && !official && (
     packet.pattern_status !== 'usable_framework'
     || !hasValidSourceUrl(packet.source_url)
@@ -149,9 +142,7 @@ export async function POST(request: NextRequest, context: { params: Promise<{ id
         || receipt.approval_status !== 'pending' || receipt.raw_content_included !== false
         || receipt.privacy_classification !== 'public_safe'
         || receipt.product_identity !== 'portfolio'
-        || JSON.stringify(receipt.topic_identities) !== JSON.stringify(officialSource?.topics)
-        || JSON.stringify(receipt.entity_identities) !== JSON.stringify(officialSource?.entities)
-        || receipt.approved_summary !== officialSource?.summary
+        || typeof receipt.approved_summary !== 'string' || receipt.approved_summary.length < 12
         || typeof review.public_attention_score !== 'number' || review.public_attention_score < 0.65
         || typeof review.relevance_score !== 'number' || review.relevance_score < 0.65
         || !['positive', 'negative', 'mixed'].includes(String(review.sentiment))

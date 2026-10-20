@@ -4,7 +4,7 @@ const mocks = vi.hoisted(() => ({ auth: vi.fn(), from: vi.fn(), single: vi.fn(),
 vi.mock('@/lib/auth-server', () => ({ verifyAdmin: mocks.auth, isAuthError: (v: { error?: string }) => !!v.error }))
 vi.mock('@/lib/supabase', () => ({ supabaseAdmin: { from: mocks.from } }))
 import { PATCH, POST } from './route'
-import { OFFICIAL_LIVE_SIGNAL_SOURCES, officialSignalPacketFromPage } from '@/lib/social-official-live-signals'
+import { discoverOfficialLiveSignals, officialSignalPacketFromPage } from '@/lib/social-official-live-signals'
 const id = '11111111-1111-4111-8111-111111111111'
 const version = '2026-10-06T12:00:00.000Z'
 const frameworkOnlyEvidence = {
@@ -119,10 +119,14 @@ describe('research packet review', () => {
   })
   it('returns not found', async () => { mocks.single.mockReset().mockResolvedValue({ data: null }); expect((await request()).status).toBe(404) })
   it('keeps official release signals pending until a current, explicit operator classification is supplied', async () => {
-    const source = OFFICIAL_LIVE_SIGNAL_SOURCES[0]
+    const changelog = `<html><div class="mb-12"><h3>October, 2026</h3><div class="mt-5"><div class="grid"><div>Oct 16</div><div>Feature v1/agents <p>Agents API includes the Artifact SDK and Ultrafast mode.</p></div></div></div></div></html>`
+    const discovery = discoverOfficialLiveSignals({
+      indexUrl: 'https://developers.openai.com/api/docs/changelog', observedAt: '2026-10-20T12:00:00.000Z',
+      body: changelog,
+    }).discovered[0]
     const intake = officialSignalPacketFromPage({
-      sourceUrl: source.url,
-      html: `<html>${source.proof.join(' ')} ${'official page '.repeat(20)}</html>`,
+      discovery,
+      html: changelog,
       observedAt: '2026-10-20T12:00:00.000Z',
     })
     const officialPacket = { ...packet, ...intake, id, updated_at: version }
