@@ -497,7 +497,7 @@ function reviewAssets(config: CampaignStoryboardReviewConfig): CampaignStoryboar
       : 'Synthetic contract fixture · not final artwork' as const,
     final_use_eligible: asset.final_use_eligible,
     selection_status: asset.selection_status as 'selected' | 'rejected' | 'pending_human_qa',
-    selection_reason: asset.selection_reason,
+    selection_reason: asset.selection_reason ?? undefined,
     rejection_reason_code: 'rejection_reason_code' in asset ? asset.rejection_reason_code ?? undefined : undefined,
     rejection_reason: 'rejection_reason' in asset ? asset.rejection_reason ?? undefined : undefined,
     composition_intent: asset.integration.pose_gaze_gesture_relationship,

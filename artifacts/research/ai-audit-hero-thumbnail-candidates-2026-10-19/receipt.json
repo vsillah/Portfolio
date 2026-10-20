@@ -261,14 +261,20 @@
     }
   ],
   "selection_decision": {
-    "receipt_id": "human-qa:ai-audit-calculator:thumbnail-selection:20261019:pending:v1",
-    "status": "pending_human_qa",
-    "decided_at": null,
+    "receipt_id": "human-qa:ai-audit-calculator:thumbnail-selection:20261019:v1",
+    "status": "human_qa_approved",
+    "decided_at": "2026-10-20T02:14:20.000Z",
     "content_version": "2026-10-18T00:00:00.000Z",
-    "selected_candidate_id": null,
-    "selected_teaser": null,
-    "rejected_candidates": [],
-    "decision_logic": "Select exactly one candidate only after reviewing the full 1280×720 output, the actual 320×180 feed preview, product-proof legibility, likeness, anatomy, and campaign-level distinctness. Every non-selected candidate must then receive a concise rejection receipt."
+    "selected_candidate_id": "thumbnail:ai-audit-calculator:receipt-pull:20261019:v1",
+    "selected_teaser": "WHO OWNS THE CLEANUP?",
+    "rejected_candidates": [
+      {
+        "candidate_id": "thumbnail:ai-audit-calculator:ledger-lift:20261019:v1",
+        "reason_code": "concept_clarity_preference",
+        "reason": "Candidate A presents the clearer integrated receipt-pull concept."
+      }
+    ],
+    "decision_logic": "Human QA selected Candidate A, The Receipt Pull / WHO OWNS THE CLEANUP?, as the sole final AI Audit Calculator thumbnail output for this content version. Candidate B remains preserved as rejected evidence because Candidate A presents the clearer integrated receipt-pull concept."
   },
   "candidates": [
     {
@@ -314,9 +320,9 @@
       "composition_signature": "ai-audit|warm-receipt-scurve|two-hand-pull|sunlit-studio|v1",
       "typography": "Inter variable; one short art-directed editorial hook; face-, hand-, and product-safe placement.",
       "visual_style": "New campaign-specific generated likeness and owned product evidence share depth, light, grade, gaze, gesture, and perspective.",
-      "selection_status": "pending_human_qa",
-      "final_use_eligible": false,
-      "selection_reason": "Human QA has not selected a final campaign output. This candidate remains review-only and ineligible for downstream packaging.",
+      "selection_status": "selected",
+      "final_use_eligible": true,
+      "selection_reason": "Human QA approved Candidate A as the sole final AI Audit Calculator thumbnail output for this content version because its integrated receipt-pull concept is clearer.",
       "anatomy_quality": {
         "status": "passed",
         "visible_hands": 2,
@@ -450,9 +456,11 @@
       "composition_signature": "ai-audit|cool-ledger-triangle|two-hand-lift|indigo-archive|v1",
       "typography": "Inter variable; one short art-directed editorial hook; face-, hand-, and product-safe placement.",
       "visual_style": "New campaign-specific generated likeness and owned product evidence share depth, light, grade, gaze, gesture, and perspective.",
-      "selection_status": "pending_human_qa",
+      "selection_status": "rejected",
       "final_use_eligible": false,
-      "selection_reason": "Human QA has not selected a final campaign output. This candidate remains review-only and ineligible for downstream packaging.",
+      "selection_reason": null,
+      "rejection_reason_code": "concept_clarity_preference",
+      "rejection_reason": "Candidate A presents the clearer integrated receipt-pull concept.",
       "anatomy_quality": {
         "status": "passed",
         "visible_hands": 2,
@@ -559,5 +567,5 @@
     "removable hero or asset",
     "harmful face, text, hand, or product overlap"
   ],
-  "boundary": "Both candidates are review-only and final-use ineligible until Human QA selects exactly one and records every non-selected candidate as rejected. Production binding, upload, platform draft, schedule, publish, credentials, migration, deployment, merge, spending, and external send remain closed."
+  "boundary": "Candidate A is the sole Human-QA-selected AI Audit Calculator thumbnail output for this content version. Candidate B remains preserved as rejected evidence and is never final-use eligible. Production binding, upload, platform draft, schedule, publish, credentials, migration, deployment, merge, spending, and external send remain closed."
 }

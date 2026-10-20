@@ -21,11 +21,13 @@ const campaigns = [
     label: 'Dark Castle Chess',
     slug: 'dark-castle',
     teasers: ['REMEMBER THE WHY', 'SEE THE CONSEQUENCE'],
+    rejection: 'The rook piece is visibly disfigured.',
   },
   {
     label: 'AI Audit Calculator',
     slug: 'ai-audit',
     teasers: ['WHO OWNS THE CLEANUP?', 'THE BILL HIDES HERE'],
+    rejection: 'Candidate A presents the clearer integrated receipt-pull concept.',
   },
 ]
 
@@ -94,7 +96,9 @@ async function validateCampaign(panel, campaign) {
   const comparison = panel.getByLabel(`${campaign.label} thumbnail candidate comparison`)
   if (await comparison.getByRole('article').count() !== 2) throw new Error(`${campaign.label} did not render exactly two candidates.`)
   if (await comparison.getByAltText(/actual-feed-size preview/).count() !== 2) throw new Error(`${campaign.label} did not render two feed previews.`)
-  if (await comparison.getByText('Human QA pending · output ineligible', { exact: true }).count() !== 2) throw new Error(`${campaign.label} exposed an eligible output before Human QA.`)
+  if (await comparison.getByText('Selected · sole final output', { exact: true }).count() !== 1) throw new Error(`${campaign.label} did not expose exactly one selected output.`)
+  if (await comparison.getByText('Rejected · ineligible for output', { exact: true }).count() !== 1) throw new Error(`${campaign.label} did not preserve exactly one rejected alternative.`)
+  await comparison.getByText(campaign.rejection, { exact: true }).waitFor()
   for (const teaser of campaign.teasers) await comparison.getByAltText(new RegExp(`thumbnail reading ${teaser.replace(/[?]/g, '\\?')}`, 'i')).waitFor()
   const decisions = comparison.getByText('Inspect live-evidence creative decisions')
   if (await decisions.count() !== 2) throw new Error(`${campaign.label} did not render both evidence controls.`)
@@ -117,7 +121,7 @@ async function recordScenario(browser, storageState, scenario) {
 
   await panel.getByRole('heading', { name: 'Primary campaign hero thumbnails' }).waitFor()
   await panel.getByText(/4 provider calls · 4 successful jobs · 0 retries · 0 uncertain results/).waitFor()
-  await panel.getByText('2 campaigns · selection pending', { exact: true }).waitFor()
+  await panel.getByText('2 campaigns · selections recorded', { exact: true }).waitFor()
   const primaryReview = panel.getByTestId('primary-thumbnail-reviews')
   await primaryReview.locator('img').first().scrollIntoViewIfNeeded()
   await waitForImages(primaryReview)
@@ -145,27 +149,19 @@ async function recordScenario(browser, storageState, scenario) {
     await page.screenshot({ path: path.join(outputDir, `${scenario.label}-${campaign.slug}-evidence.jpg`), type: 'jpeg', quality: 84 })
   }
 
-  const decisionGates = panel.getByRole('heading', { name: 'Decision gate' })
-  if (await decisionGates.count() !== 2) throw new Error(`${scenario.label} did not render both pending decision gates.`)
-  await decisionGates.first().scrollIntoViewIfNeeded()
+  const decisionReceipts = panel.getByRole('heading', { name: 'Decision receipt' })
+  if (await decisionReceipts.count() !== 2) throw new Error(`${scenario.label} did not render both approved decision receipts.`)
+  await decisionReceipts.first().scrollIntoViewIfNeeded()
   await page.waitForTimeout(450)
   await page.screenshot({ path: path.join(outputDir, `${scenario.label}-decision-gates.jpg`), type: 'jpeg', quality: 84 })
 
   const recoveryActions = []
   if (scenario.exerciseLinks) {
     const links = panel.getByRole('link', { name: /Review the full-size and 320×180 candidates/ })
-    if (await links.count() !== 2) throw new Error('Both campaign recovery controls were not present.')
-    for (let index = 0; index < 2; index += 1) {
-      const href = await links.nth(index).getAttribute('href')
-      if (!href?.startsWith('/admin/social-content?workflow=evidence&campaign=')) throw new Error(`Recovery link is not campaign-scoped: ${href}`)
-      recoveryActions.push(href)
-      await links.nth(index).click()
-      await page.waitForURL((url) => url.pathname === '/admin/social-content' && url.searchParams.get('workflow') === 'evidence', { timeout: 30_000 })
-      panel = await reopenReview(page)
-    }
+    if (await links.count() !== 0) throw new Error('Resolved thumbnail decisions still expose a pending-selection recovery control.')
   }
 
-  await panel.getByText(/Human QA status: review pending\./).scrollIntoViewIfNeeded()
+  await panel.getByText(/Human QA status: primary thumbnail selections recorded\./).scrollIntoViewIfNeeded()
   await panel.getByText(/Upload, platform draft, scheduling, publishing, deployment, merge, credentials, migrations, and external sends remain closed\./).waitFor()
   await page.waitForTimeout(500)
   await assertNoOverflow(page, `${scenario.label} closed gates`)
@@ -219,7 +215,7 @@ const result = {
   revision,
   route: `${baseUrl}${route}`,
   contract: 'youtube-thumbnail-hero-evidence/v2 + social-campaign-storyboard-review/v1',
-  campaigns: campaigns.map(({ label, teasers }) => ({ label, teasers, candidates: 2, final_use_eligible: false })),
+  campaigns: campaigns.map(({ label, teasers, rejection }) => ({ label, teasers, candidates: 2, selected_candidate: 'A', final_use_eligible_outputs: 1, rejected_candidate: 'B', rejection })),
   scenarios: scenarios.map(({ label, viewport, colorScheme }) => ({ label, viewport, colorScheme })),
   screenshots,
   video: path.basename(mp4Path),

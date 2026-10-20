@@ -92,22 +92,40 @@ describe('YouTube thumbnail hero evidence', () => {
   })
 })
 
-const pendingCampaigns = [
-  { label: 'Dark Castle Chess', receipt: darkCastleReceipt, contentVersion: 'sha256:4d3bc63ebaeb1aed344d64ed15ebb0ff865772de48b48249526ccce0b2c02e9e' },
-  { label: 'AI Audit Calculator', receipt: aiAuditReceipt, contentVersion: '2026-10-18T00:00:00.000Z' },
+const approvedCampaigns = [
+  {
+    label: 'Dark Castle Chess',
+    receipt: darkCastleReceipt,
+    contentVersion: 'sha256:4d3bc63ebaeb1aed344d64ed15ebb0ff865772de48b48249526ccce0b2c02e9e',
+    selectedId: 'thumbnail:dark-castle-chess:decision-table:20261019:v1',
+    rejectedId: 'thumbnail:dark-castle-chess:rook-reveal:20261019:v1',
+    rejectionCode: 'artifact_quality_failure',
+    rejectionReason: 'The rook piece is visibly disfigured.',
+  },
+  {
+    label: 'AI Audit Calculator',
+    receipt: aiAuditReceipt,
+    contentVersion: '2026-10-18T00:00:00.000Z',
+    selectedId: 'thumbnail:ai-audit-calculator:receipt-pull:20261019:v1',
+    rejectedId: 'thumbnail:ai-audit-calculator:ledger-lift:20261019:v1',
+    rejectionCode: 'concept_clarity_preference',
+    rejectionReason: 'Candidate A presents the clearer integrated receipt-pull concept.',
+  },
 ] as const
 
-describe.each(pendingCampaigns)('$label pending Human QA evidence', ({ receipt: campaignReceipt, contentVersion }) => {
+describe.each(approvedCampaigns)('$label approved Human QA evidence', ({ receipt: campaignReceipt, contentVersion, selectedId, rejectedId, rejectionCode, rejectionReason }) => {
   const value = () => structuredClone(campaignReceipt) as any
 
-  it('keeps both generated candidates review-ready but final-use ineligible', () => {
+  it('binds Candidate A as the sole final output and preserves Candidate B as rejected evidence', () => {
     const candidate = value()
     const result = validateYouTubeThumbnailHeroEvidence(candidate, contentVersion, AS_OF)
-    expect(result.ready).toBe(false)
+    expect(result.ready).toBe(true)
     expect(result.review_ready).toBe(true)
-    expect(result.blockers).toEqual(['Human QA has not selected the sole final thumbnail output or recorded the rejected alternatives.'])
+    expect(result.blockers).toEqual([])
     expect(candidate.candidates).toHaveLength(2)
-    expect(candidate.candidates.every((entry: any) => entry.selection_status === 'pending_human_qa' && entry.final_use_eligible === false)).toBe(true)
+    expect(candidate.selection_decision).toMatchObject({ status: 'human_qa_approved', selected_candidate_id: selectedId })
+    expect(candidate.candidates[0]).toMatchObject({ candidate_id: selectedId, selection_status: 'selected', final_use_eligible: true })
+    expect(candidate.candidates[1]).toMatchObject({ candidate_id: rejectedId, selection_status: 'rejected', final_use_eligible: false, rejection_reason_code: rejectionCode, rejection_reason: rejectionReason })
   })
 
   it('rejects cross-campaign hero inheritance', () => {
@@ -153,10 +171,10 @@ describe.each(pendingCampaigns)('$label pending Human QA evidence', ({ receipt: 
     expect(result.blockers).toEqual(expect.arrayContaining(['The topic-specific YouTube outlier evidence is missing or stale.', `${candidate.hero_assets[0].asset_id} is stale or missing generation freshness.`]))
   })
 
-  it('rejects output eligibility before Human QA selection', () => {
+  it('rejects output eligibility for the preserved non-selected candidate', () => {
     const candidate = value()
-    candidate.candidates[0].final_use_eligible = true
-    expect(validateYouTubeThumbnailHeroEvidence(candidate, contentVersion, AS_OF).blockers).toContain(`${candidate.candidates[0].candidate_id} is awaiting Human QA but is incorrectly final-use eligible.`)
+    candidate.candidates[1].final_use_eligible = true
+    expect(validateYouTubeThumbnailHeroEvidence(candidate, contentVersion, AS_OF).blockers).toContain(`${candidate.candidates[1].candidate_id} does not preserve a fail-closed rejection state.`)
   })
 
   it('keeps internal workflow labels out of customer-facing pixels', () => {

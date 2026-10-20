@@ -53,31 +53,36 @@ describe('review-only Social Content storyboard review', () => {
     expect(jev.assets[1]).toMatchObject({ approval_status: 'human_qa_selected', selection_status: 'selected', final_use_eligible: true })
     const darkCastle = review.adaptations.find((adaptation) => adaptation.storyboard_review.campaign_identity === 'dark-castle-chess')!.storyboard_review
     expect(darkCastle.selection_decision).toMatchObject({
-      status: 'pending_human_qa',
-      selected_asset_id: null,
-      selected_asset_path: null,
-      rejected_asset_ids: [],
+      receipt_id: 'human-qa:dark-castle-chess:thumbnail-selection:20261019:v1',
+      status: 'human_qa_approved',
+      selected_asset_id: 'thumbnail:dark-castle-chess:decision-table:20261019:v1',
+      selected_asset_path: '/review-assets/social-content/dark-castle-hero-thumbnail-review/dark-castle-remember-the-why-hero-v1.png',
+      rejected_asset_ids: ['thumbnail:dark-castle-chess:rook-reveal:20261019:v1'],
     })
-    expect(darkCastle.assets.every((asset) => asset.approval_status === 'human_qa_pending' && asset.selection_status === 'pending_human_qa' && asset.final_use_eligible === false)).toBe(true)
+    expect(darkCastle.assets[0]).toMatchObject({ approval_status: 'human_qa_selected', selection_status: 'selected', final_use_eligible: true })
+    expect(darkCastle.assets[1]).toMatchObject({ approval_status: 'human_qa_rejected', selection_status: 'rejected', final_use_eligible: false, rejection_reason_code: 'artifact_quality_failure', rejection_reason: 'The rook piece is visibly disfigured.' })
     expect(jev.assets.map((asset) => asset.teaser)).toEqual(['WHO OVERRIDES AI?', 'SCORE ≠ DECISION'])
   })
 
-  it('projects exactly two pending generated candidates per primary campaign with fresh evidence and closed side effects', () => {
+  it('projects one selected and one rejected candidate per primary campaign with fresh evidence and closed side effects', () => {
     expect(review.primary_thumbnail_reviews).toHaveLength(2)
     expect(review.primary_thumbnail_reviews.map((item) => [item.campaign_identity, item.assets.length, item.status])).toEqual([
-      ['dark-castle-chess', 2, 'pending_human_qa'],
-      ['ai-audit-calculator', 2, 'pending_human_qa'],
+      ['dark-castle-chess', 2, 'ready'],
+      ['ai-audit-calculator', 2, 'ready'],
     ])
     expect(review.primary_thumbnail_reviews.flatMap((item) => item.assets)).toHaveLength(4)
     for (const item of review.primary_thumbnail_reviews) {
-      expect(item.assets.every((asset) => asset.selection_status === 'pending_human_qa' && asset.final_use_eligible === false)).toBe(true)
+      expect(item.assets[0]).toMatchObject({ selection_status: 'selected', final_use_eligible: true, approval_status: 'human_qa_selected' })
+      expect(item.assets[1]).toMatchObject({ selection_status: 'rejected', final_use_eligible: false, approval_status: 'human_qa_rejected' })
       expect(item.assets.every((asset) => asset.feed_preview_path && fileHash(asset.feed_preview_path) === asset.feed_preview_sha256)).toBe(true)
       expect(item.hero_evidence.outlier_evidence.included_video_ids.length).toBeGreaterThanOrEqual(6)
       expect(item.hero_evidence.outlier_evidence.qualified_outlier_video_ids.length).toBeGreaterThan(0)
-      expect(item.selection_decision).toMatchObject({ status: 'pending_human_qa', selected_asset_id: null, rejected_asset_ids: [] })
+      expect(item.selection_decision).toMatchObject({ status: 'human_qa_approved', selected_asset_id: item.assets[0].asset_id, rejected_asset_ids: [item.assets[1].asset_id] })
       expect(item.generation.cost).toMatchObject({ provider_calls: 4, successful_generation_jobs: 4, retries: 0, uncertain_results: 0, hard_ceiling: 9, ceiling_relation: 'strictly_below' })
       expect(new Set(Object.values(item.external_gates))).toEqual(new Set([false]))
     }
+    expect(review.primary_thumbnail_reviews[0].assets[1]).toMatchObject({ rejection_reason_code: 'artifact_quality_failure', rejection_reason: 'The rook piece is visibly disfigured.' })
+    expect(review.primary_thumbnail_reviews[1].assets[1]).toMatchObject({ rejection_reason_code: 'concept_clarity_preference', rejection_reason: 'Candidate A presents the clearer integrated receipt-pull concept.' })
   })
 
   it('provides complete, non-overlapping long-form and Shorts scene contracts', () => {
@@ -131,7 +136,7 @@ describe('review-only Social Content storyboard review', () => {
       expect.objectContaining({ key: 'outlier', status: 'passed' }),
       expect.objectContaining({ key: 'description', status: 'blocked' }),
       expect.objectContaining({ key: 'hero', status: 'passed' }),
-      expect.objectContaining({ key: 'thumbnail', status: 'blocked' }),
+      expect.objectContaining({ key: 'thumbnail', status: 'passed' }),
       expect.objectContaining({ key: 'script', status: 'blocked' }),
       expect.objectContaining({ key: 'freshness', status: 'passed' }),
     ]))

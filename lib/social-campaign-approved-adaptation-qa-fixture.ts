@@ -159,10 +159,10 @@ export function socialCampaignApprovedAdaptationQaProjection() {
         fresh_until: null,
       },
       thumbnail_gate: {
-        status: 'blocked',
-        detail: 'Two exact 1280×720 outputs and their 320×180 feed previews pass the evidence contract. Human QA must select one sole final output and reject the alternative before either can advance.',
-        receipt_ids: ['receipt:thumbnail-hero:dark-castle-chess:20261019:v1', 'decision:thumbnail:dark-castle:20261018:v5'],
-        observed_at: '2026-10-19T20:30:00.000Z',
+        status: 'passed',
+        detail: 'Human QA selected Candidate A, REMEMBER THE WHY, as the sole final thumbnail output for this content version. Candidate B remains rejected evidence because the rook piece is visibly disfigured.',
+        receipt_ids: ['receipt:thumbnail-hero:dark-castle-chess:20261019:v1', 'human-qa:dark-castle-chess:thumbnail-selection:20261019:v1', 'decision:thumbnail:dark-castle:20261018:v5'],
+        observed_at: '2026-10-20T02:14:20.000Z',
         fresh_until: null,
       },
       script_gate: {
@@ -194,14 +194,6 @@ export function socialCampaignApprovedAdaptationQaProjection() {
         recovery_href: '/admin/social-content?workflow=evidence',
       },
       {
-        calendar_item_id: '3dad4cca-72b7-4705-8fb6-273bf7500ce6',
-        label: 'AI Audit item',
-        status: 'blocked',
-        reason: 'Two generated hero candidates pass the review evidence contract, but Human QA has not selected the sole final output or rejected the alternative.',
-        recovery_label: 'Review both exact thumbnail candidates',
-        recovery_href: '/admin/social-content?workflow=evidence&campaign=ai-audit-calculator',
-      },
-      {
         calendar_item_id: '21516fc8-08a5-489c-9a69-478d3f88828f',
         label: 'Agentified short',
         status: 'blocked',
@@ -210,6 +202,16 @@ export function socialCampaignApprovedAdaptationQaProjection() {
         recovery_href: '/admin/social-content?workflow=evidence',
       },
     ],
-    human_qa: { status: 'pending_human_qa', screenshots: [], mp4: null },
+    human_qa: {
+      status: 'pending_human_qa',
+      primary_thumbnail_status: 'approved',
+      decided_at: '2026-10-20T02:14:20.000Z',
+      selection_receipt_ids: [
+        'human-qa:dark-castle-chess:thumbnail-selection:20261019:v1',
+        'human-qa:ai-audit-calculator:thumbnail-selection:20261019:v1',
+      ],
+      screenshots: [],
+      mp4: null,
+    },
   }
 }
