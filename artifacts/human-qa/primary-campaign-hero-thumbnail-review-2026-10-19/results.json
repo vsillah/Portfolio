@@ -1,6 +1,6 @@
 {
-  "revision": "ad0d0c5a0499c895b126539b26e69510fca57064",
-  "route": "http://127.0.0.1:3218/admin/social-content?campaignQa=campaign-package-preparation-review-v1&rev=ad0d0c5a0499c895b126539b26e69510fca57064",
+  "revision": "852ffa3379b849aa018a92b30b04adb0b9da7e79",
+  "route": "http://127.0.0.1:3218/admin/social-content?campaignQa=campaign-package-preparation-review-v1&rev=852ffa3379b849aa018a92b30b04adb0b9da7e79",
   "contract": "youtube-thumbnail-hero-evidence/v2 + social-campaign-storyboard-review/v1",
   "campaigns": [
     {
@@ -10,7 +10,10 @@
         "SEE THE CONSEQUENCE"
       ],
       "candidates": 2,
-      "final_use_eligible": false
+      "selected_candidate": "A",
+      "final_use_eligible_outputs": 1,
+      "rejected_candidate": "B",
+      "rejection": "The rook piece is visibly disfigured."
     },
     {
       "label": "AI Audit Calculator",
@@ -19,7 +22,10 @@
         "THE BILL HIDES HERE"
       ],
       "candidates": 2,
-      "final_use_eligible": false
+      "selected_candidate": "A",
+      "final_use_eligible_outputs": 1,
+      "rejected_candidate": "B",
+      "rejection": "Candidate A presents the clearer integrated receipt-pull concept."
     }
   ],
   "scenarios": [
@@ -78,10 +84,7 @@
     "mobile-390-dark-closed-gates.jpg"
   ],
   "video": "primary-campaign-hero-thumbnail-review-walkthrough.mp4",
-  "recovery_actions_exercised": [
-    "/admin/social-content?workflow=evidence&campaign=dark-castle-chess",
-    "/admin/social-content?workflow=evidence&campaign=ai-audit-calculator"
-  ],
+  "recovery_actions_exercised": [],
   "external_requests": [],
   "blocked_development_telemetry": [
     "https://va.vercel-scripts.com/v1/speed-insights/script.debug.js"
