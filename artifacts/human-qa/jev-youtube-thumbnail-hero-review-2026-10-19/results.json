@@ -1,6 +1,6 @@
 {
-  "revision": "04ae10b1",
-  "route": "http://127.0.0.1:3218/admin/social-content?campaignQa=campaign-package-preparation-review-v1&rev=04ae10b1",
+  "revision": "4ee1e63c",
+  "route": "http://127.0.0.1:3218/admin/social-content?campaignQa=campaign-package-preparation-review-v1&rev=4ee1e63c",
   "contract": "youtube-thumbnail-hero-evidence/v2 + social-campaign-storyboard-review/v1",
   "scenarios": [
     {
@@ -58,7 +58,6 @@
   "recovery_actions_exercised": [
     "Complete description evidence: /admin/social-content?workflow=evidence&campaign=jev",
     "Complete description evidence: /admin/social-content?workflow=evidence&campaign=dark-castle-chess",
-    "Repair hero evidence: /admin/social-content?workflow=evidence&campaign=jev",
     "Repair hero evidence: /admin/social-content?workflow=evidence&campaign=dark-castle-chess",
     "Evaluate the exact thumbnail: /admin/social-content?workflow=evidence&campaign=jev",
     "Evaluate the exact thumbnail: /admin/social-content?workflow=evidence&campaign=dark-castle-chess",
@@ -71,7 +70,10 @@
     "https://va.vercel-scripts.com/v1/speed-insights/script.debug.js"
   ],
   "protected_actions_exercised": [],
-  "provider_calls": 0,
+  "qa_provider_calls": 0,
+  "generation_provider_calls": 2,
+  "successful_generation_jobs": 2,
+  "separate_observed_charge_usd": 0,
   "paid_media_calls": 0,
   "production_reads": 0,
   "production_writes": 0

@@ -51,10 +51,7 @@ async function authenticatedStorageState(browser) {
   const context = await browser.newContext({ storageState: authState })
   const page = await context.newPage()
   await page.goto(`${baseUrl}${route}`, { waitUntil: 'domcontentloaded', timeout: 60_000 })
-  await Promise.race([
-    page.getByTestId('campaign-package-preparation').waitFor({ state: 'visible', timeout: 30_000 }),
-    page.getByLabel('Email', { exact: true }).waitFor({ state: 'visible', timeout: 30_000 }),
-  ])
+  await page.locator('[data-testid="campaign-package-preparation"], input[type="email"]').first().waitFor({ state: 'visible', timeout: 60_000 })
   if (await page.getByLabel('Email', { exact: true }).isVisible()) {
     if (!process.env.ADMIN_E2E_EMAIL || !process.env.ADMIN_E2E_PASSWORD) {
       throw new Error('Local QA admin credentials are unavailable.')
@@ -140,8 +137,8 @@ async function recordScenario(browser, storageState, { label, viewport, colorSch
   if (await comparison.getByText('New campaign-specific generation · review only', { exact: true }).count() !== 2) {
     throw new Error(`${label} did not label both generated review candidates outside the exported pixels.`)
   }
-  await comparison.getByText(/The extended finger and gaze terminate at the highlighted score-to-human-call bridge/).waitFor()
-  await comparison.getByText(/Both hands hold the oversized interface edge/).waitFor()
+  await comparison.getByText(/The pointed finger, skeptical gaze, cyan product glow/).waitFor()
+  await comparison.getByText(/Both hands visibly grip the product edge/).waitFor()
   await comparison.scrollIntoViewIfNeeded()
   await page.waitForTimeout(450)
   await assertNoOverflow(page, `${label} Jev comparison`)
@@ -244,7 +241,10 @@ const result = {
   external_requests: [],
   blocked_development_telemetry: ['https://va.vercel-scripts.com/v1/speed-insights/script.debug.js'],
   protected_actions_exercised: [],
-  provider_calls: 0,
+  qa_provider_calls: 0,
+  generation_provider_calls: 2,
+  successful_generation_jobs: 2,
+  separate_observed_charge_usd: 0,
   paid_media_calls: 0,
   production_reads: 0,
   production_writes: 0,
