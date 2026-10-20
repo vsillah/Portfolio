@@ -1,0 +1,101 @@
+{
+  "revision": "ad0d0c5a0499c895b126539b26e69510fca57064",
+  "route": "http://127.0.0.1:3218/admin/social-content?campaignQa=campaign-package-preparation-review-v1&rev=ad0d0c5a0499c895b126539b26e69510fca57064",
+  "contract": "youtube-thumbnail-hero-evidence/v2 + social-campaign-storyboard-review/v1",
+  "campaigns": [
+    {
+      "label": "Dark Castle Chess",
+      "teasers": [
+        "REMEMBER THE WHY",
+        "SEE THE CONSEQUENCE"
+      ],
+      "candidates": 2,
+      "final_use_eligible": false
+    },
+    {
+      "label": "AI Audit Calculator",
+      "teasers": [
+        "WHO OWNS THE CLEANUP?",
+        "THE BILL HIDES HERE"
+      ],
+      "candidates": 2,
+      "final_use_eligible": false
+    }
+  ],
+  "scenarios": [
+    {
+      "label": "desktop-1440-dark",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "colorScheme": "dark"
+    },
+    {
+      "label": "tablet-768-light",
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "colorScheme": "light"
+    },
+    {
+      "label": "mobile-390-dark",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "colorScheme": "dark"
+    }
+  ],
+  "screenshots": [
+    "desktop-1440-dark-overview.jpg",
+    "desktop-1440-dark-dark-castle-comparison.jpg",
+    "desktop-1440-dark-dark-castle-candidate-b.jpg",
+    "desktop-1440-dark-dark-castle-evidence.jpg",
+    "desktop-1440-dark-ai-audit-comparison.jpg",
+    "desktop-1440-dark-ai-audit-candidate-b.jpg",
+    "desktop-1440-dark-ai-audit-evidence.jpg",
+    "desktop-1440-dark-decision-gates.jpg",
+    "desktop-1440-dark-closed-gates.jpg",
+    "tablet-768-light-overview.jpg",
+    "tablet-768-light-dark-castle-comparison.jpg",
+    "tablet-768-light-dark-castle-candidate-b.jpg",
+    "tablet-768-light-dark-castle-evidence.jpg",
+    "tablet-768-light-ai-audit-comparison.jpg",
+    "tablet-768-light-ai-audit-candidate-b.jpg",
+    "tablet-768-light-ai-audit-evidence.jpg",
+    "tablet-768-light-decision-gates.jpg",
+    "tablet-768-light-closed-gates.jpg",
+    "mobile-390-dark-overview.jpg",
+    "mobile-390-dark-dark-castle-comparison.jpg",
+    "mobile-390-dark-dark-castle-candidate-b.jpg",
+    "mobile-390-dark-dark-castle-evidence.jpg",
+    "mobile-390-dark-ai-audit-comparison.jpg",
+    "mobile-390-dark-ai-audit-candidate-b.jpg",
+    "mobile-390-dark-ai-audit-evidence.jpg",
+    "mobile-390-dark-decision-gates.jpg",
+    "mobile-390-dark-closed-gates.jpg"
+  ],
+  "video": "primary-campaign-hero-thumbnail-review-walkthrough.mp4",
+  "recovery_actions_exercised": [
+    "/admin/social-content?workflow=evidence&campaign=dark-castle-chess",
+    "/admin/social-content?workflow=evidence&campaign=ai-audit-calculator"
+  ],
+  "external_requests": [],
+  "blocked_development_telemetry": [
+    "https://va.vercel-scripts.com/v1/speed-insights/script.debug.js"
+  ],
+  "protected_actions_exercised": [],
+  "qa_provider_calls": 0,
+  "generation_provider_calls": 4,
+  "successful_generation_jobs": 4,
+  "retries": 0,
+  "uncertain_results": 0,
+  "separate_observed_charge_usd": 0,
+  "combined_hard_ceiling_usd": 9,
+  "combined_hard_ceiling_relation": "strictly_below",
+  "paid_media_calls": 0,
+  "production_reads": 0,
+  "production_writes": 0
+}
