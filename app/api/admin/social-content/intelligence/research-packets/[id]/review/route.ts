@@ -7,6 +7,7 @@ import {
 } from '@/lib/research-practitioner-evidence'
 import { validOfficialSignalAttribution } from '@/lib/social-official-live-signals'
 import { buildApprovedPublicMomentumProjection } from '@/lib/social-trend-work-join'
+import { validatePublicSignalMeasurement } from '@/lib/social-public-signal-measurement'
 
 function hasValidSourceUrl(value: unknown) {
   if (typeof value !== 'string' || !value.trim()) return false
@@ -138,13 +139,23 @@ export async function POST(request: NextRequest, context: { params: Promise<{ id
       const review = body.signal_review && typeof body.signal_review === 'object' ? body.signal_review as Record<string, unknown> : {}
       const observedAt = String(official.observed_at ?? '')
       const expiresAt = String(official.expires_at ?? '')
+      const measurement = validatePublicSignalMeasurement({
+        stored: metadata.public_signal_measurement_receipt,
+        submitted: review.measurement_receipt,
+        coverageIdentity: String(official.coverage_identity),
+        officialSourceUrl: packet.source_url,
+        now: new Date().toISOString(),
+      })
+      if (!measurement.valid) {
+        return NextResponse.json({ error: `Official signal needs a current source-bound measurement receipt: ${measurement.reason}` }, { status: 422 })
+      }
       if (Date.parse(expiresAt) < Date.now() || !Number.isFinite(Date.parse(observedAt))
         || receipt.approval_status !== 'pending' || receipt.raw_content_included !== false
         || receipt.privacy_classification !== 'public_safe'
         || receipt.product_identity !== 'portfolio'
         || typeof receipt.approved_summary !== 'string' || receipt.approved_summary.length < 12
-        || typeof review.public_attention_score !== 'number' || review.public_attention_score < 0.65
-        || typeof review.relevance_score !== 'number' || review.relevance_score < 0.65
+        || review.public_attention_score !== measurement.receipt.public_attention_score
+        || review.relevance_score !== measurement.receipt.relevance_score
         || !['positive', 'negative', 'mixed'].includes(String(review.sentiment))
         || review.materiality !== 'material'
         || !['corroborated', 'attributable_single_source'].includes(String(review.evidence_state))
@@ -163,9 +174,13 @@ export async function POST(request: NextRequest, context: { params: Promise<{ id
           evidenceState: review.evidence_state as 'corroborated' | 'attributable_single_source',
           publishedAt: String(official.published_at), observedAt, expiresAt,
           approvedAt: new Date().toISOString(), approvedBy: auth.user.id,
+          measurementReceiptId: measurement.receipt.receipt_id,
+          measurementSourceReceiptIds: measurement.receipt.source_receipts.map((source) => source.receipt_id),
         })
         validatedOfficialReceipt = {
           ...receipt, ...projection.metadata, product_identity: 'portfolio', product_label: 'Portfolio',
+          measurement_receipt_id: measurement.receipt.receipt_id,
+          measurement_source_receipt_ids: measurement.receipt.source_receipts.map((source) => source.receipt_id),
           approval_status: 'approved', approved_at: new Date().toISOString(), approved_by: auth.user.id,
         }
       } catch {

@@ -5,6 +5,7 @@ vi.mock('@/lib/auth-server', () => ({ verifyAdmin: mocks.auth, isAuthError: (v: 
 vi.mock('@/lib/supabase', () => ({ supabaseAdmin: { from: mocks.from } }))
 import { PATCH, POST } from './route'
 import { discoverOfficialLiveSignals, officialSignalPacketFromPage } from '@/lib/social-official-live-signals'
+import { publicSignalMeasurementReceiptId } from '@/lib/social-public-signal-measurement'
 const id = '11111111-1111-4111-8111-111111111111'
 const version = '2026-10-06T12:00:00.000Z'
 const frameworkOnlyEvidence = {
@@ -119,6 +120,9 @@ describe('research packet review', () => {
   })
   it('returns not found', async () => { mocks.single.mockReset().mockResolvedValue({ data: null }); expect((await request()).status).toBe(404) })
   it('keeps official release signals pending until a current, explicit operator classification is supplied', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-10-20T13:00:00.000Z'))
+    try {
     const changelog = `<html><div class="mb-12"><h3>October, 2026</h3><div class="mt-5"><div class="grid"><div>Oct 16</div><div>Feature v1/agents <p>Agents API includes the Artifact SDK and Ultrafast mode.</p></div></div></div></div></html>`
     const discovery = discoverOfficialLiveSignals({
       indexUrl: 'https://developers.openai.com/api/docs/changelog', observedAt: '2026-10-20T12:00:00.000Z',
@@ -133,17 +137,37 @@ describe('research packet review', () => {
     mocks.single.mockReset().mockResolvedValueOnce({ data: officialPacket }).mockResolvedValue({ data: officialPacket })
     expect((await request()).status).toBe(422)
     expect(mocks.update).not.toHaveBeenCalled()
-    mocks.single.mockReset().mockResolvedValueOnce({ data: officialPacket }).mockResolvedValue({ data: officialPacket })
+    const sourceReceipts = [intake.source_url, 'https://example.org/public-signal/a', 'https://example.net/public-signal/b']
+      .map((source_url, index) => ({ receipt_id: `public-source:fixture-observation-${index}`, source_url,
+        observed_at: '2026-10-20T12:00:00.000Z', public_attention_score: 0.8, relevance_score: 0.9 }))
+    const measurementContents = {
+      version: 'public_signal_measurement_v1' as const,
+      coverage_identity: (intake.actor_metadata.official_signal as { coverage_identity: string }).coverage_identity,
+      observed_at: '2026-10-20T12:00:00.000Z', fresh_until: '2026-10-25T12:00:00.000Z',
+      sample_size: 3, formula: 'mean_normalized_public_observations_v1' as const,
+      public_attention_score: 0.8, public_attention_threshold: 0.65 as const,
+      relevance_score: 0.9, relevance_threshold: 0.65 as const, source_receipts: sourceReceipts,
+    }
+    const measurementReceipt = { ...measurementContents, receipt_id: publicSignalMeasurementReceiptId(measurementContents) }
+    const measuredPacket = { ...officialPacket, actor_metadata: { ...officialPacket.actor_metadata,
+      public_signal_measurement_receipt: measurementReceipt } }
+    mocks.single.mockReset().mockResolvedValueOnce({ data: measuredPacket }).mockResolvedValue({ data: measuredPacket })
+    expect((await request({ decision: 'approved', note: 'Manual score only', updated_at: version,
+      signal_review: { public_attention_score: 0.8, relevance_score: 0.9 } })).status).toBe(422)
+    mocks.single.mockReset().mockResolvedValueOnce({ data: measuredPacket }).mockResolvedValue({ data: measuredPacket })
     const response = await request({ decision: 'approved', note: 'Verified against the official changelog', updated_at: version,
       signal_review: { sentiment: 'positive', materiality: 'material', evidence_state: 'attributable_single_source',
-        context_summary: 'The official changelog documents the two Agents API capabilities.', relevance_score: 0.9, public_attention_score: 0.75 },
+        context_summary: 'The official changelog documents the two Agents API capabilities.', relevance_score: 0.9, public_attention_score: 0.8,
+        measurement_receipt: measurementReceipt },
     })
     expect(response.status).toBe(200)
     expect(mocks.update).toHaveBeenCalledWith(expect.objectContaining({
       status: 'approved', actor_metadata: expect.objectContaining({
-        topic_momentum_receipt: expect.objectContaining({ approval_status: 'approved', product_identity: 'portfolio', public_attention_score: 0.75 }),
+        topic_momentum_receipt: expect.objectContaining({ approval_status: 'approved', product_identity: 'portfolio', public_attention_score: 0.8,
+          measurement_receipt_id: measurementReceipt.receipt_id }),
       }),
     }))
+    } finally { vi.useRealTimers() }
   })
   it('reports save failure', async () => {
     mocks.single.mockReset().mockResolvedValueOnce({ data: packet }).mockResolvedValue({ error: { message: 'private database detail' } })

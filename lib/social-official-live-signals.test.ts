@@ -20,6 +20,7 @@ import {
 } from './social-official-live-signals'
 import { approvedPublicMomentumProjectionsFromResearchPackets, buildTrendWorkRelevanceReport } from './social-trend-work-join'
 import { approvedRepositoryEvidenceProjections } from './social-repository-evidence'
+import { publicSignalMeasurementReceiptId } from './social-public-signal-measurement'
 
 const observedAt = '2026-10-20T12:00:00.000Z'
 const openai = OFFICIAL_LIVE_SIGNAL_INDEXES[0].url
@@ -74,7 +75,7 @@ describe('official live-signal discovery and review boundary', () => {
     expect(await persistPendingOfficialSignalPackets(retry.packets)).toBe(0)
     expect(database.rows).toHaveLength(5)
 
-    const reviewed = first.packets.map((packet, index) => ({ ...packet, id: `official-${index}`, status: 'approved',
+    const reviewedWithoutMeasurement = first.packets.map((packet, index) => ({ ...packet, id: `official-${index}`, status: 'approved',
       actor_metadata: { ...packet.actor_metadata,
         operator_review: { decision: 'approved', reviewed_at: observedAt, reviewed_by: 'fixture-reviewer' },
         topic_momentum_receipt: { ...(packet.actor_metadata.topic_momentum_receipt as Record<string, unknown>),
@@ -82,6 +83,25 @@ describe('official live-signal discovery and review boundary', () => {
           relevance_score: 0.9, public_attention_score: 0.8 },
       },
     }))
+    expect(approvedPublicMomentumProjectionsFromResearchPackets(reviewedWithoutMeasurement).projections).toEqual([])
+    const reviewed = reviewedWithoutMeasurement.map((packet, index) => {
+      const sourceReceipts = [packet.source_url, `https://example.org/observed/${index}`, `https://example.net/observed/${index}`]
+        .map((source_url, sourceIndex) => ({ receipt_id: `public-source:fixture-${index}-${sourceIndex}-receipt`, source_url,
+          observed_at: observedAt, public_attention_score: 0.8, relevance_score: 0.9 }))
+      const contents = { version: 'public_signal_measurement_v1' as const,
+        coverage_identity: ((packet.actor_metadata as Record<string, unknown>).official_signal as { coverage_identity: string }).coverage_identity,
+        observed_at: observedAt, fresh_until: '2026-10-25T12:00:00.000Z', sample_size: 3,
+        formula: 'mean_normalized_public_observations_v1' as const,
+        public_attention_score: 0.8, public_attention_threshold: 0.65 as const,
+        relevance_score: 0.9, relevance_threshold: 0.65 as const, source_receipts: sourceReceipts }
+      const measurement = { ...contents, receipt_id: publicSignalMeasurementReceiptId(contents) }
+      return { ...packet, actor_metadata: { ...packet.actor_metadata,
+        official_signal: { ...((packet.actor_metadata as Record<string, unknown>).official_signal as Record<string, unknown>), evidence_status: 'approved' },
+        public_signal_measurement_receipt: measurement,
+        topic_momentum_receipt: { ...(packet.actor_metadata.topic_momentum_receipt as Record<string, unknown>),
+          measurement_receipt_id: measurement.receipt_id, measurement_source_receipt_ids: sourceReceipts.map((source) => source.receipt_id) },
+      } }
+    })
     const projected = approvedPublicMomentumProjectionsFromResearchPackets(reviewed)
     expect(projected.projections).toHaveLength(5)
     const report = buildTrendWorkRelevanceReport([
