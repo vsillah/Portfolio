@@ -12,6 +12,30 @@ describe('YouTube thumbnail hero evidence', () => {
     expect(result).toEqual({ ready: true, fixture_ready: true, blockers: [], recovery_actions: [] })
   })
 
+  it('binds Candidate B as the sole final output and keeps Candidate A fail-closed as rejected anatomy evidence', () => {
+    const value = receipt()
+    expect(value.selection_decision).toMatchObject({
+      receipt_id: 'human-qa:jev:thumbnail-selection:20261019:v1',
+      status: 'human_qa_approved',
+      content_version: CONTENT_VERSION,
+      selected_candidate_id: 'thumbnail:jev:reveal-scene:20261019:v3',
+    })
+    expect(value.candidates[0]).toMatchObject({ selection_status: 'rejected', final_use_eligible: false, rejection_reason_code: 'anatomy_quality_failure', rejection_reason: 'Pointing-hand treatment reads as if the hand was severed.' })
+    expect(value.candidates[1]).toMatchObject({ selection_status: 'selected', final_use_eligible: true })
+    expect(validateYouTubeThumbnailHeroEvidence(value, CONTENT_VERSION, AS_OF).ready).toBe(true)
+  })
+
+  it('rejects packaging that makes the rejected Candidate A eligible or selects more than one output', () => {
+    const value = receipt()
+    value.candidates[0].final_use_eligible = true
+    value.candidates[0].selection_status = 'selected'
+    const result = validateYouTubeThumbnailHeroEvidence(value, CONTENT_VERSION, AS_OF)
+    expect(result.blockers).toEqual(expect.arrayContaining([
+      'Exactly one candidate must be selected and bound as the sole final-use output.',
+      'Every non-selected candidate must remain fail-closed rejected evidence.',
+    ]))
+  })
+
   it('fails closed when a candidate-specific generated hero is missing', () => {
     const value = receipt(); value.hero_assets.splice(0, 1)
     const result = validateYouTubeThumbnailHeroEvidence(value, CONTENT_VERSION, AS_OF)

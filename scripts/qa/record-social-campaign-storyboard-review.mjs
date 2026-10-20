@@ -111,7 +111,7 @@ async function recordScenario(browser, storageState, { label, viewport, colorSch
 
   await panel.getByText('External gates closed', { exact: true }).first().waitFor()
   if (await panel.getByRole('heading', { name: 'Hero-led thumbnail candidates and complete storyboard' }).count() !== 2) {
-    throw new Error(`${label} did not render both provider-free storyboard packets.`)
+    throw new Error(`${label} did not render both review-only storyboard packets.`)
   }
   if (await panel.getByText(/YouTube long-form scene board · 6 scenes · 4:00/).count() !== 2) {
     throw new Error(`${label} did not render both six-scene long-form boards.`)
@@ -137,6 +137,9 @@ async function recordScenario(browser, storageState, { label, viewport, colorSch
   if (await comparison.getByText('New campaign-specific generation · review only', { exact: true }).count() !== 2) {
     throw new Error(`${label} did not label both generated review candidates outside the exported pixels.`)
   }
+  await comparison.getByText('Selected · sole final output', { exact: true }).waitFor()
+  await comparison.getByText('Rejected · ineligible for output', { exact: true }).waitFor()
+  await comparison.getByText('Pointing-hand treatment reads as if the hand was severed.', { exact: true }).waitFor()
   await comparison.getByText(/The pointed finger, skeptical gaze, cyan product glow/).waitFor()
   await comparison.getByText(/Both hands visibly grip the product edge/).waitFor()
   await comparison.scrollIntoViewIfNeeded()

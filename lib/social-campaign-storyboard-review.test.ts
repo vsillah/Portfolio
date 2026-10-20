@@ -24,7 +24,6 @@ describe('review-only Social Content storyboard review', () => {
           provider: packet.campaign_identity === 'jev' ? 'openai-imagegen' : 'none',
           review_only: true,
           customer_facing: true,
-          approval_status: 'review_direction_only',
           title_thumbnail_distinct: true,
           logo_path: '/amadutown-logo-upscaled.png',
           logo_aspect_ratio: 'natural_portrait',
@@ -40,9 +39,20 @@ describe('review-only Social Content storyboard review', () => {
     }
     const jev = review.adaptations.find((adaptation) => adaptation.storyboard_review.campaign_identity === 'jev')!.storyboard_review
     expect(jev.hero_evidence).toMatchObject({ status: 'passed' })
+    expect(jev.selection_decision).toMatchObject({
+      receipt_id: 'human-qa:jev:thumbnail-selection:20261019:v1',
+      status: 'human_qa_approved',
+      content_version: jev.content_version,
+      selected_asset_id: 'thumbnail:jev:reveal-scene:20261019:v3',
+      selected_asset_path: '/review-assets/social-content/jev-hero-thumbnail-review/jev-score-isnt-the-call-hero-v1.png',
+      rejected_asset_ids: ['thumbnail:jev:override-scene:20261019:v3'],
+    })
     expect(new Set(jev.assets.map((asset) => asset.hero_asset_id))).toEqual(new Set(jev.hero_evidence?.hero_assets.map((hero) => hero.asset_id)))
     expect(jev.assets.every((asset) => asset.feed_preview_path && asset.evidence_trace?.length === 6)).toBe(true)
-    expect(jev.assets.every((asset) => asset.fixture_label === 'New campaign-specific generation · review only' && asset.final_use_eligible === true && asset.composition_intent)).toBe(true)
+    expect(jev.assets.every((asset) => asset.fixture_label === 'New campaign-specific generation · review only' && asset.composition_intent)).toBe(true)
+    expect(jev.assets[0]).toMatchObject({ approval_status: 'human_qa_rejected', selection_status: 'rejected', final_use_eligible: false, rejection_reason_code: 'anatomy_quality_failure' })
+    expect(jev.assets[1]).toMatchObject({ approval_status: 'human_qa_selected', selection_status: 'selected', final_use_eligible: true })
+    expect(review.adaptations.find((adaptation) => adaptation.storyboard_review.campaign_identity === 'dark-castle-chess')!.storyboard_review.selection_decision).toBeNull()
     expect(jev.assets.map((asset) => asset.teaser)).toEqual(['WHO OVERRIDES AI?', 'SCORE ≠ DECISION'])
     expect(assetReceipt).toMatchObject({ provider_calls: 0, paid_media_generations: 0, external_writes: 0 })
   })
@@ -89,7 +99,7 @@ describe('review-only Social Content storyboard review', () => {
       expect.objectContaining({ key: 'outlier', status: 'passed' }),
       expect.objectContaining({ key: 'description', status: 'blocked' }),
       expect.objectContaining({ key: 'hero', status: 'passed' }),
-      expect.objectContaining({ key: 'thumbnail', status: 'blocked' }),
+      expect.objectContaining({ key: 'thumbnail', status: 'passed' }),
       expect.objectContaining({ key: 'script', status: 'blocked' }),
       expect.objectContaining({ key: 'freshness', status: 'stale' }),
     ]))

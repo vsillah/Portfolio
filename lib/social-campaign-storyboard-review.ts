@@ -81,9 +81,13 @@ export type CampaignStoryboardReviewAsset = {
   }>
   fixture_label?: 'Synthetic contract fixture · not final artwork' | 'New campaign-specific generation · review only'
   final_use_eligible?: boolean
+  selection_status?: 'selected' | 'rejected' | 'review_direction'
+  selection_reason?: string
+  rejection_reason_code?: string
+  rejection_reason?: string
   composition_intent?: string
   customer_facing: true
-  approval_status: 'review_direction_only'
+  approval_status: 'review_direction_only' | 'human_qa_selected' | 'human_qa_rejected'
   title_thumbnail_distinct: true
   logo_path: '/amadutown-logo-upscaled.png'
   logo_aspect_ratio: 'natural_portrait'
@@ -173,6 +177,15 @@ export type CampaignStoryboardReviewPacket = {
       curated_playlist_role: 'taste_calibration_only'
       curated_playlist_performance_weight: 0
     }
+  } | null
+  selection_decision: {
+    receipt_id: string
+    status: 'human_qa_approved'
+    decided_at: string
+    content_version: string
+    selected_asset_id: string
+    selected_asset_path: string
+    rejected_asset_ids: string[]
   } | null
   assets: CampaignStoryboardReviewAsset[]
   evidence_gates: StoryboardEvidenceGate[]
@@ -470,11 +483,15 @@ function reviewAssets(config: CampaignStoryboardReviewConfig): CampaignStoryboar
     fixture_label: jevHeroReceipt.generation_request.real_generation_completed
       ? 'New campaign-specific generation · review only' as const
       : 'Synthetic contract fixture · not final artwork' as const,
-    final_use_eligible: jevHeroReceipt.generation_request.real_generation_completed,
+    final_use_eligible: asset.final_use_eligible,
+    selection_status: asset.selection_status as 'selected' | 'rejected',
+    selection_reason: asset.selection_reason,
+    rejection_reason_code: asset.rejection_reason_code,
+    rejection_reason: asset.rejection_reason,
     composition_intent: asset.integration.pose_gaze_gesture_relationship,
     evidence_trace: asset.evidence_trace,
     customer_facing: true as const,
-    approval_status: 'review_direction_only' as const,
+    approval_status: asset.selection_status === 'selected' ? 'human_qa_selected' as const : 'human_qa_rejected' as const,
     title_thumbnail_distinct: true as const,
     logo_path: '/amadutown-logo-upscaled.png' as const,
     logo_aspect_ratio: 'natural_portrait' as const,
@@ -489,6 +506,8 @@ function reviewAssets(config: CampaignStoryboardReviewConfig): CampaignStoryboar
       aspect_ratio: '16:9' as const,
       provider: 'none' as const,
       review_only: true as const,
+      selection_status: 'review_direction' as const,
+      final_use_eligible: false,
       customer_facing: true as const,
       approval_status: 'review_direction_only' as const,
       title_thumbnail_distinct: true as const,
@@ -560,6 +579,15 @@ export function buildCampaignStoryboardReview(
         curated_playlist_role: 'taste_calibration_only' as const,
         curated_playlist_performance_weight: 0 as const,
       },
+    } : null,
+    selection_decision: config.campaign_identity === 'jev' ? {
+      receipt_id: jevHeroReceipt.selection_decision.receipt_id,
+      status: 'human_qa_approved' as const,
+      decided_at: jevHeroReceipt.selection_decision.decided_at,
+      content_version: jevHeroReceipt.selection_decision.content_version,
+      selected_asset_id: jevHeroReceipt.selection_decision.selected_candidate_id,
+      selected_asset_path: jevHeroReceipt.candidates.find((candidate) => candidate.candidate_id === jevHeroReceipt.selection_decision.selected_candidate_id)!.public_path,
+      rejected_asset_ids: jevHeroReceipt.selection_decision.rejected_candidates.map((candidate) => candidate.candidate_id),
     } : null,
     assets,
     evidence_gates: gates,

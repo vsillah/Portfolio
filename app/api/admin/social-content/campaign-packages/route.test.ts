@@ -85,8 +85,12 @@ describe('campaign review package route', () => {
     expect(body.approved_adaptation_review.adaptations[0].storyboard_review.evidence_gates).toEqual(expect.arrayContaining([
       expect.objectContaining({ key: 'freshness', status: 'stale' }),
       expect.objectContaining({ key: 'hero', status: 'passed' }),
-      expect.objectContaining({ key: 'thumbnail', status: 'blocked' }),
+      expect.objectContaining({ key: 'thumbnail', status: 'passed' }),
     ]))
+    expect(body.approved_adaptation_review.adaptations[0].storyboard_review.selection_decision).toMatchObject({
+      selected_asset_id: 'thumbnail:jev:reveal-scene:20261019:v3',
+      rejected_asset_ids: ['thumbnail:jev:override-scene:20261019:v3'],
+    })
     expect(body.approved_adaptation_review.adaptations[1].storyboard_review.evidence_gates).toEqual(expect.arrayContaining([
       expect.objectContaining({ key: 'freshness', status: 'passed' }),
       expect.objectContaining({ key: 'hero', status: 'blocked' }),

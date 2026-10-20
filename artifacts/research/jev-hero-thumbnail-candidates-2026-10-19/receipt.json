@@ -201,6 +201,21 @@
       "/review-assets/social-content/jev-hero-thumbnail-review/source/jev-reveal-hold-synthetic-v2.png"
     ]
   },
+  "selection_decision": {
+    "receipt_id": "human-qa:jev:thumbnail-selection:20261019:v1",
+    "status": "human_qa_approved",
+    "decided_at": "2026-10-19T21:15:00.000Z",
+    "content_version": "sha256:392b3e2a92c5ab65e4cc93706571df761bac7ea38631bf06002fd6b89f3302a2",
+    "selected_candidate_id": "thumbnail:jev:reveal-scene:20261019:v3",
+    "selected_teaser": "SCORE ≠ DECISION",
+    "rejected_candidates": [
+      {
+        "candidate_id": "thumbnail:jev:override-scene:20261019:v3",
+        "reason_code": "anatomy_quality_failure",
+        "reason": "Pointing-hand treatment reads as if the hand was severed."
+      }
+    ]
+  },
   "candidates": [
     {
       "candidate_id": "thumbnail:jev:override-scene:20261019:v3",
@@ -246,6 +261,10 @@
       "composition_signature": "jev-override|generated-diagonal-depth|point-to-handoff|cool-control-room|v3",
       "typography": "Inter variable; one short editorial hook; face-, hand-, and product-safe placement.",
       "visual_style": "New campaign-specific generated likeness and owned product evidence share depth, light, grade, gaze, gesture, and perspective.",
+      "selection_status": "rejected",
+      "final_use_eligible": false,
+      "rejection_reason_code": "anatomy_quality_failure",
+      "rejection_reason": "Pointing-hand treatment reads as if the hand was severed.",
       "integration": {
         "cohesive_scene": true,
         "hard_split_panel": false,
@@ -374,6 +393,9 @@
       "composition_signature": "jev-reveal|generated-held-interface|two-hand-grip|warm-workshop|v3",
       "typography": "Inter variable; one short editorial hook; face-, hand-, and product-safe placement.",
       "visual_style": "New campaign-specific generated likeness and owned product evidence share depth, light, grade, gaze, gesture, and perspective.",
+      "selection_status": "selected",
+      "final_use_eligible": true,
+      "selection_reason": "Human QA approved Candidate B as the sole final Jev thumbnail output for this content version.",
       "integration": {
         "cohesive_scene": true,
         "hard_split_panel": false,
@@ -476,5 +498,5 @@
     "removable hero or asset",
     "harmful face, text, hand, or product overlap"
   ],
-  "boundary": "Two newly generated campaign-specific review candidates only. Production binding, upload, platform draft, schedule, publish, credentials, migration, spending, and external send remain closed."
+  "boundary": "Candidate B is the sole Human-QA-selected Jev thumbnail output for this content version. Candidate A is rejected evidence and is never final-use eligible. Production binding, upload, platform draft, schedule, publish, credentials, migration, spending, and external send remain closed."
 }

@@ -4,6 +4,8 @@
 
 Two new campaign-specific Jev likeness images were generated through the authorized Portfolio/Codex integrated image path. They are review-only. Provider generation calls: 2. Successful jobs: 2. Retries: 0. Separate observed charge: US$0. External writes: 0.
 
+Human QA selected Candidate B as the sole final Jev thumbnail output for this content version. Candidate A is retained only as rejected review evidence.
+
 ## Identity and generation binding
 
 - Identity reference: `/Users/vambahsillah/Library/CloudStorage/GoogleDrive-vsillah@gmail.com/My Drive/2. AmaduTown Advisory Solutions/Artifacts /Promotional /1. ATAS YouTube Channel/Assets/Thumbnails/V Subject/V YT Thumbnail Curious.jpg`
@@ -16,8 +18,8 @@ Two new campaign-specific Jev likeness images were generated through the authori
 
 ## Generated concepts
 
-- **The Override:** `sha256:60c6666d41405b7b15b448dada783587259e83eef7b694dd455abe68e2d0d27c`; skeptical diagonal intervention, pointing hand, cool decision-room depth, and product-cast light converge on the human-review threshold.
-- **The Reveal:** `sha256:dee1136d7d9b31056552d13f9155989474103908c245c9a796046a9df56eb228`; calm two-hand reveal, warm workshop depth, and amber product bounce make the oversized interface physically held.
+- **The Override — Rejected:** `sha256:60c6666d41405b7b15b448dada783587259e83eef7b694dd455abe68e2d0d27c`; preserved as review evidence only. Human QA rejected the pointing-hand anatomy because it reads as if the hand was severed. It is never final-use eligible.
+- **The Reveal — Selected:** `sha256:dee1136d7d9b31056552d13f9155989474103908c245c9a796046a9df56eb228`; sole Human-QA-selected Jev thumbnail output for this content version. Calm two-hand reveal, warm workshop depth, and amber product bounce make the oversized interface physically held.
 
 The v2 synthetic illustrations remain contract evidence only and are not final art.
 
