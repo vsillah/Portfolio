@@ -136,7 +136,7 @@ async function recordScenario(browser, storageState, { label, viewport, colorSch
   if (await comparison.getByAltText(/actual-feed-size preview/).count() !== 2) throw new Error(`${label} did not render both 320x180 feed previews.`)
   const evidenceDetails = comparison.getByText('Inspect live-evidence creative decisions').first()
   await evidenceDetails.click()
-  await comparison.getByText(/campaign-specific hero makes the human decision owner concrete/).waitFor()
+  await comparison.getByText(/campaign-specific hero makes the human decision owner concrete/).first().waitFor()
   if (await comparison.getByText('Synthetic contract fixture · not final artwork', { exact: true }).count() !== 2) {
     throw new Error(`${label} did not label both synthetic fixtures outside the exported pixels.`)
   }
