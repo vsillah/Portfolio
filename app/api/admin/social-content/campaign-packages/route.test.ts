@@ -78,7 +78,7 @@ describe('campaign review package route', () => {
     expect(body.approved_adaptation_review.adaptations.every((item: any) => item.source_readiness.ready && item.scenes.length >= 9 && item.evidence_assets.length > 0)).toBe(true)
     expect(body.approved_adaptation_review.adaptations.map((item: any) => [item.storyboard_review.campaign_identity, item.storyboard_review.assets.length, item.storyboard_review.scenes.length])).toEqual([
       ['jev', 2, 9],
-      ['dark-castle-chess', 1, 9],
+      ['dark-castle-chess', 2, 9],
     ])
     expect(body.approved_adaptation_review.adaptations.every((item: any) => item.storyboard_review.status === 'review_direction_blocked')).toBe(true)
     expect(body.approved_adaptation_review.adaptations.every((item: any) => new Set(Object.values(item.storyboard_review.external_gates)).size === 1 && Object.values(item.storyboard_review.external_gates)[0] === false)).toBe(true)
@@ -93,11 +93,25 @@ describe('campaign review package route', () => {
     })
     expect(body.approved_adaptation_review.adaptations[1].storyboard_review.evidence_gates).toEqual(expect.arrayContaining([
       expect.objectContaining({ key: 'freshness', status: 'passed' }),
-      expect.objectContaining({ key: 'hero', status: 'blocked' }),
+      expect.objectContaining({ key: 'hero', status: 'passed' }),
       expect.objectContaining({ key: 'description', status: 'blocked' }),
     ]))
-    expect(body.approved_adaptation_review.blocked_items).toHaveLength(3)
-    expect(body.approved_adaptation_review.human_qa).toEqual({ status: 'pending_human_qa', screenshots: [], mp4: null })
+    expect(body.approved_adaptation_review.primary_thumbnail_reviews.map((item: any) => [item.campaign_identity, item.assets.length, item.status])).toEqual([
+      ['dark-castle-chess', 2, 'ready'],
+      ['ai-audit-calculator', 2, 'ready'],
+    ])
+    expect(body.approved_adaptation_review.primary_thumbnail_reviews.flatMap((item: any) => item.assets)).toHaveLength(4)
+    expect(body.approved_adaptation_review.primary_thumbnail_reviews.every((item: any) => item.assets[0].final_use_eligible === true && item.assets[0].selection_status === 'selected' && item.assets[1].final_use_eligible === false && item.assets[1].selection_status === 'rejected')).toBe(true)
+    expect(body.approved_adaptation_review.primary_thumbnail_reviews.every((item: any) => new Set(Object.values(item.external_gates)).size === 1 && Object.values(item.external_gates)[0] === false)).toBe(true)
+    expect(body.approved_adaptation_review.blocked_items).toHaveLength(2)
+    expect(body.approved_adaptation_review.human_qa).toMatchObject({
+      status: 'pending_human_qa',
+      primary_thumbnail_status: 'approved',
+      selection_receipt_ids: [
+        'human-qa:dark-castle-chess:thumbnail-selection:20261019:v1',
+        'human-qa:ai-audit-calculator:thumbnail-selection:20261019:v1',
+      ],
+    })
     expect(new Set(Object.values(body.approved_adaptation_review.external_gates))).toEqual(new Set([false]))
     expect(mocks.from).not.toHaveBeenCalled()
   })

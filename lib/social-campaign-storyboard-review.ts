@@ -1,5 +1,7 @@
 import storyboardAssetReceipt from '@/artifacts/research/social-campaign-storyboard-assets-2026-10-19/receipt.json'
 import jevHeroReceipt from '@/artifacts/research/jev-hero-thumbnail-candidates-2026-10-19/receipt.json'
+import darkCastleHeroReceipt from '@/artifacts/research/dark-castle-hero-thumbnail-candidates-2026-10-19/receipt.json'
+import aiAuditHeroReceipt from '@/artifacts/research/ai-audit-hero-thumbnail-candidates-2026-10-19/receipt.json'
 import type {
   SocialVideoAdaptationInput,
   SocialVideoAdaptationReceipt,
@@ -81,13 +83,13 @@ export type CampaignStoryboardReviewAsset = {
   }>
   fixture_label?: 'Synthetic contract fixture · not final artwork' | 'New campaign-specific generation · review only'
   final_use_eligible?: boolean
-  selection_status?: 'selected' | 'rejected' | 'review_direction'
+  selection_status?: 'selected' | 'rejected' | 'pending_human_qa' | 'review_direction'
   selection_reason?: string
   rejection_reason_code?: string
   rejection_reason?: string
   composition_intent?: string
   customer_facing: true
-  approval_status: 'review_direction_only' | 'human_qa_selected' | 'human_qa_rejected'
+  approval_status: 'review_direction_only' | 'human_qa_pending' | 'human_qa_selected' | 'human_qa_rejected'
   title_thumbnail_distinct: true
   logo_path: '/amadutown-logo-upscaled.png'
   logo_aspect_ratio: 'natural_portrait'
@@ -180,12 +182,13 @@ export type CampaignStoryboardReviewPacket = {
   } | null
   selection_decision: {
     receipt_id: string
-    status: 'human_qa_approved'
-    decided_at: string
+    status: 'human_qa_approved' | 'pending_human_qa'
+    decided_at: string | null
     content_version: string
-    selected_asset_id: string
-    selected_asset_path: string
+    selected_asset_id: string | null
+    selected_asset_path: string | null
     rejected_asset_ids: string[]
+    decision_logic?: string
   } | null
   assets: CampaignStoryboardReviewAsset[]
   evidence_gates: StoryboardEvidenceGate[]
@@ -318,8 +321,16 @@ function proofGate(input: SocialVideoAdaptationInput): GateSeed {
   }
 }
 
+function heroReceiptFor(campaignIdentity: string) {
+  if (campaignIdentity === 'jev') return jevHeroReceipt
+  if (campaignIdentity === 'dark-castle-chess') return darkCastleHeroReceipt
+  if (campaignIdentity === 'ai-audit-calculator') return aiAuditHeroReceipt
+  return null
+}
+
 function heroGate(config: CampaignStoryboardReviewConfig): GateSeed {
-  if (config.campaign_identity !== 'jev') return {
+  const receipt = heroReceiptFor(config.campaign_identity)
+  if (!receipt) return {
     status: 'blocked',
     detail: 'This YouTube campaign has no current campaign-specific hero evidence receipt. A product screenshot or text-first template cannot substitute for the hero.',
     receipt_ids: [],
@@ -328,20 +339,20 @@ function heroGate(config: CampaignStoryboardReviewConfig): GateSeed {
   }
 
   const validation = validateYouTubeThumbnailHeroEvidence(
-    jevHeroReceipt,
+    receipt,
     config.current_content_version,
     config.evaluated_at,
   )
   return {
-    status: validation.ready ? 'passed' : 'blocked',
-    detail: validation.ready
-      ? `${jevHeroReceipt.candidates.length} newly generated, campaign-specific integrated scenes pass provenance, likeness, freshness, repetition, feed-size, and product-interaction checks.`
+    status: validation.review_ready ? 'passed' : 'blocked',
+    detail: validation.review_ready
+      ? `${receipt.candidates.length} newly generated, campaign-specific integrated scenes pass provenance, likeness, anatomy, freshness, repetition, feed-size, and product-interaction checks.${validation.ready ? '' : ' Final-use eligibility remains closed until Human QA selects one candidate.'}`
       : validation.fixture_ready
-        ? `${jevHeroReceipt.candidates.length} integrated synthetic contract fixtures pass the local evidence contract. Real campaign-specific likeness generation remains blocked pending explicit provider authorization.`
+        ? `${receipt.candidates.length} integrated synthetic contract fixtures pass the local evidence contract. Real campaign-specific likeness generation remains blocked pending explicit provider authorization.`
         : validation.blockers.join(' '),
-    receipt_ids: [jevHeroReceipt.receipt_id, jevHeroReceipt.outlier_evidence.decision_receipt_id],
-    observed_at: jevHeroReceipt.outlier_evidence.observed_at,
-    fresh_until: jevHeroReceipt.outlier_evidence.fresh_until,
+    receipt_ids: [receipt.receipt_id, receipt.outlier_evidence.decision_receipt_id],
+    observed_at: receipt.outlier_evidence.observed_at,
+    fresh_until: receipt.outlier_evidence.fresh_until,
   }
 }
 
@@ -458,7 +469,8 @@ function timedScenes(input: SocialVideoAdaptationInput, config: CampaignStoryboa
 }
 
 function reviewAssets(config: CampaignStoryboardReviewConfig): CampaignStoryboardReviewAsset[] {
-  if (config.campaign_identity === 'jev') return jevHeroReceipt.candidates.map((asset) => ({
+  const receipt = heroReceiptFor(config.campaign_identity)
+  if (receipt) return receipt.candidates.map((asset) => ({
     asset_id: asset.candidate_id,
     campaign_identity: asset.campaign_identity,
     role: 'youtube_thumbnail_review' as const,
@@ -470,8 +482,8 @@ function reviewAssets(config: CampaignStoryboardReviewConfig): CampaignStoryboar
     teaser: asset.teaser,
     focal_subject: asset.focal_subject,
     focal_hierarchy: ['Campaign-specific human hero', 'Short decision-boundary hook', 'Natural-aspect-ratio AmaduTown mark'],
-    product_proof_path: jevHeroReceipt.product_proof.public_path,
-    source_receipt_ids: [jevHeroReceipt.receipt_id, jevHeroReceipt.outlier_evidence.decision_receipt_id],
+    product_proof_path: receipt.product_proof.public_path,
+    source_receipt_ids: [receipt.receipt_id, receipt.outlier_evidence.decision_receipt_id],
     provider: 'openai-imagegen' as const,
     review_only: true as const,
     sha256: asset.sha256,
@@ -480,18 +492,22 @@ function reviewAssets(config: CampaignStoryboardReviewConfig): CampaignStoryboar
     feed_preview_sha256: asset.feed_preview_sha256,
     safe_text_region: asset.safe_text_region,
     hero_asset_id: asset.hero_binding.hero_asset_id,
-    fixture_label: jevHeroReceipt.generation_request.real_generation_completed
+    fixture_label: receipt.generation_request.real_generation_completed
       ? 'New campaign-specific generation · review only' as const
       : 'Synthetic contract fixture · not final artwork' as const,
     final_use_eligible: asset.final_use_eligible,
-    selection_status: asset.selection_status as 'selected' | 'rejected',
-    selection_reason: asset.selection_reason,
-    rejection_reason_code: asset.rejection_reason_code,
-    rejection_reason: asset.rejection_reason,
+    selection_status: asset.selection_status as 'selected' | 'rejected' | 'pending_human_qa',
+    selection_reason: asset.selection_reason ?? undefined,
+    rejection_reason_code: 'rejection_reason_code' in asset ? asset.rejection_reason_code ?? undefined : undefined,
+    rejection_reason: 'rejection_reason' in asset ? asset.rejection_reason ?? undefined : undefined,
     composition_intent: asset.integration.pose_gaze_gesture_relationship,
     evidence_trace: asset.evidence_trace,
     customer_facing: true as const,
-    approval_status: asset.selection_status === 'selected' ? 'human_qa_selected' as const : 'human_qa_rejected' as const,
+    approval_status: asset.selection_status === 'selected'
+      ? 'human_qa_selected' as const
+      : asset.selection_status === 'rejected'
+        ? 'human_qa_rejected' as const
+        : 'human_qa_pending' as const,
     title_thumbnail_distinct: true as const,
     logo_path: '/amadutown-logo-upscaled.png' as const,
     logo_aspect_ratio: 'natural_portrait' as const,
@@ -516,10 +532,88 @@ function reviewAssets(config: CampaignStoryboardReviewConfig): CampaignStoryboar
     }))
 }
 
+function heroEvidenceProjection(receipt: NonNullable<ReturnType<typeof heroReceiptFor>>, config: CampaignStoryboardReviewConfig) {
+  return {
+    receipt_id: receipt.receipt_id,
+    status: heroGate(config).status === 'passed' ? 'passed' as const : 'blocked' as const,
+    hero_assets: receipt.hero_assets.map((hero) => ({
+      asset_id: hero.asset_id,
+      public_path: hero.public_path,
+      focal_subject: hero.focal_subject,
+      digital_source_type: hero.source_type,
+      provenance_note: hero.provenance_note,
+    })),
+    product_proof: {
+      asset_id: receipt.product_proof.asset_id,
+      public_path: receipt.product_proof.public_path,
+      role: receipt.product_proof.role,
+    },
+    outlier_evidence: {
+      cohort_id: receipt.outlier_evidence.cohort_id,
+      decision_receipt_id: receipt.outlier_evidence.decision_receipt_id,
+      observed_at: receipt.outlier_evidence.observed_at,
+      fresh_until: receipt.outlier_evidence.fresh_until,
+      included_video_ids: receipt.outlier_evidence.included_video_ids,
+      qualified_outlier_video_ids: receipt.outlier_evidence.qualified_outlier_video_ids,
+      curated_playlist_role: 'taste_calibration_only' as const,
+      curated_playlist_performance_weight: 0 as const,
+    },
+  }
+}
+
+function selectionDecisionProjection(receipt: NonNullable<ReturnType<typeof heroReceiptFor>>) {
+  const selected = receipt.candidates.find((candidate) => candidate.candidate_id === receipt.selection_decision.selected_candidate_id)
+  return {
+    receipt_id: receipt.selection_decision.receipt_id,
+    status: receipt.selection_decision.status as 'human_qa_approved' | 'pending_human_qa',
+    decided_at: receipt.selection_decision.decided_at,
+    content_version: receipt.selection_decision.content_version,
+    selected_asset_id: receipt.selection_decision.selected_candidate_id,
+    selected_asset_path: selected?.public_path ?? null,
+    rejected_asset_ids: receipt.selection_decision.rejected_candidates.map((candidate) => candidate.candidate_id),
+    decision_logic: 'decision_logic' in receipt.selection_decision ? receipt.selection_decision.decision_logic : undefined,
+  }
+}
+
+export function buildCampaignHeroThumbnailReview(config: Pick<CampaignStoryboardReviewConfig, 'campaign_identity' | 'product_label' | 'current_content_version' | 'evaluated_at' | 'recovery_href'> & { calendar_item_id: string }) {
+  const receipt = heroReceiptFor(config.campaign_identity)
+  if (!receipt) throw new Error(`No campaign-specific hero receipt exists for ${config.campaign_identity}.`)
+  const validation = validateYouTubeThumbnailHeroEvidence(receipt, config.current_content_version, config.evaluated_at)
+  const storyboardConfig = {
+    ...config,
+    social_content_id: config.calendar_item_id,
+    title: receipt.candidates[0]?.title ?? config.product_label,
+    teaser: receipt.candidates[0]?.teaser ?? '',
+    description_gate: { status: 'blocked' as const, detail: '', receipt_ids: [], observed_at: null, fresh_until: null },
+    outlier_gate: { status: 'passed' as const, detail: '', receipt_ids: [], observed_at: null, fresh_until: null },
+    thumbnail_gate: { status: 'blocked' as const, detail: '', receipt_ids: [], observed_at: null, fresh_until: null },
+    script_gate: { status: 'blocked' as const, detail: '', receipt_ids: [], observed_at: null, fresh_until: null },
+    conclusion: '',
+    spoken_cta: '',
+    value_summary: '',
+  }
+  return {
+    campaign_identity: config.campaign_identity,
+    product_label: config.product_label,
+    calendar_item_id: config.calendar_item_id,
+    content_version: config.current_content_version,
+    receipt_id: receipt.receipt_id,
+    status: validation.ready ? 'ready' as const : validation.review_ready ? 'pending_human_qa' as const : 'blocked' as const,
+    blockers: validation.blockers,
+    recovery_actions: validation.recovery_actions.map((label) => ({ label, href: config.recovery_href })),
+    assets: reviewAssets(storyboardConfig),
+    hero_evidence: heroEvidenceProjection(receipt, storyboardConfig),
+    selection_decision: selectionDecisionProjection(receipt),
+    generation: receipt.generation_request,
+    external_gates: SOCIAL_CAMPAIGN_STORYBOARD_EXTERNAL_GATES,
+  }
+}
+
 export function buildCampaignStoryboardReview(
   input: SocialVideoAdaptationInput,
   config: CampaignStoryboardReviewConfig,
 ): CampaignStoryboardReviewPacket {
+  const heroReceipt = heroReceiptFor(config.campaign_identity)
   const source = input.receipts.source
   const privacy = input.receipts.privacy
   const rights = input.receipts.rights
@@ -553,42 +647,9 @@ export function buildCampaignStoryboardReview(
     script_input_version: input.input_version,
     adaptation_id: input.adaptation_id,
     source_receipt_ids: [...new Set(Object.values(input.receipts).flatMap((receipt) => receipt?.receipt_id ? [receipt.receipt_id] : []))],
-    asset_receipt_id: config.campaign_identity === 'jev' ? jevHeroReceipt.receipt_id : storyboardAssetReceipt.receipt_id,
-    hero_evidence: config.campaign_identity === 'jev' ? {
-      receipt_id: jevHeroReceipt.receipt_id,
-      status: heroGate(config).status === 'passed' ? 'passed' : 'blocked',
-      hero_assets: jevHeroReceipt.hero_assets.map((hero) => ({
-        asset_id: hero.asset_id,
-        public_path: hero.public_path,
-        focal_subject: hero.focal_subject,
-        digital_source_type: hero.source_type,
-        provenance_note: hero.provenance_note,
-      })),
-      product_proof: {
-        asset_id: jevHeroReceipt.product_proof.asset_id,
-        public_path: jevHeroReceipt.product_proof.public_path,
-        role: jevHeroReceipt.product_proof.role,
-      },
-      outlier_evidence: {
-        cohort_id: jevHeroReceipt.outlier_evidence.cohort_id,
-        decision_receipt_id: jevHeroReceipt.outlier_evidence.decision_receipt_id,
-        observed_at: jevHeroReceipt.outlier_evidence.observed_at,
-        fresh_until: jevHeroReceipt.outlier_evidence.fresh_until,
-        included_video_ids: jevHeroReceipt.outlier_evidence.included_video_ids,
-        qualified_outlier_video_ids: jevHeroReceipt.outlier_evidence.qualified_outlier_video_ids,
-        curated_playlist_role: 'taste_calibration_only' as const,
-        curated_playlist_performance_weight: 0 as const,
-      },
-    } : null,
-    selection_decision: config.campaign_identity === 'jev' ? {
-      receipt_id: jevHeroReceipt.selection_decision.receipt_id,
-      status: 'human_qa_approved' as const,
-      decided_at: jevHeroReceipt.selection_decision.decided_at,
-      content_version: jevHeroReceipt.selection_decision.content_version,
-      selected_asset_id: jevHeroReceipt.selection_decision.selected_candidate_id,
-      selected_asset_path: jevHeroReceipt.candidates.find((candidate) => candidate.candidate_id === jevHeroReceipt.selection_decision.selected_candidate_id)!.public_path,
-      rejected_asset_ids: jevHeroReceipt.selection_decision.rejected_candidates.map((candidate) => candidate.candidate_id),
-    } : null,
+    asset_receipt_id: heroReceipt?.receipt_id ?? storyboardAssetReceipt.receipt_id,
+    hero_evidence: heroReceipt ? heroEvidenceProjection(heroReceipt, config) : null,
+    selection_decision: heroReceipt ? selectionDecisionProjection(heroReceipt) : null,
     assets,
     evidence_gates: gates,
     scenes: timedScenes(input, config),

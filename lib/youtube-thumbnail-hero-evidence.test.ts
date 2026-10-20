@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import heroReceipt from '@/artifacts/research/jev-hero-thumbnail-candidates-2026-10-19/receipt.json'
+import darkCastleReceipt from '@/artifacts/research/dark-castle-hero-thumbnail-candidates-2026-10-19/receipt.json'
+import aiAuditReceipt from '@/artifacts/research/ai-audit-hero-thumbnail-candidates-2026-10-19/receipt.json'
 import { validateYouTubeThumbnailHeroEvidence } from '@/lib/youtube-thumbnail-hero-evidence'
 
 const CONTENT_VERSION = 'sha256:392b3e2a92c5ab65e4cc93706571df761bac7ea38631bf06002fd6b89f3302a2'
@@ -9,7 +11,7 @@ const receipt = () => structuredClone(heroReceipt) as any
 describe('YouTube thumbnail hero evidence', () => {
   it('accepts the two authorized campaign-specific integrated generations', () => {
     const result = validateYouTubeThumbnailHeroEvidence(receipt(), CONTENT_VERSION, AS_OF)
-    expect(result).toEqual({ ready: true, fixture_ready: true, blockers: [], recovery_actions: [] })
+    expect(result).toEqual({ ready: true, review_ready: true, fixture_ready: true, blockers: [], recovery_actions: [] })
   })
 
   it('binds Candidate B as the sole final output and keeps Candidate A fail-closed as rejected anatomy evidence', () => {
@@ -87,5 +89,97 @@ describe('YouTube thumbnail hero evidence', () => {
   it.each(['REVIEW ONLY', 'draft', 'fixture', 'sample data', 'operator', 'internal', 'prompt', 'QA'])('rejects internal marker %s from exported pixels', (marker) => {
     const value = receipt(); value.candidates[0].customer_facing_copy.push(marker)
     expect(validateYouTubeThumbnailHeroEvidence(value, CONTENT_VERSION, AS_OF).blockers).toContain(`${value.candidates[0].candidate_id} contains internal workflow language in customer-facing pixels.`)
+  })
+})
+
+const approvedCampaigns = [
+  {
+    label: 'Dark Castle Chess',
+    receipt: darkCastleReceipt,
+    contentVersion: 'sha256:4d3bc63ebaeb1aed344d64ed15ebb0ff865772de48b48249526ccce0b2c02e9e',
+    selectedId: 'thumbnail:dark-castle-chess:decision-table:20261019:v1',
+    rejectedId: 'thumbnail:dark-castle-chess:rook-reveal:20261019:v1',
+    rejectionCode: 'artifact_quality_failure',
+    rejectionReason: 'The rook piece is visibly disfigured.',
+  },
+  {
+    label: 'AI Audit Calculator',
+    receipt: aiAuditReceipt,
+    contentVersion: '2026-10-18T00:00:00.000Z',
+    selectedId: 'thumbnail:ai-audit-calculator:receipt-pull:20261019:v1',
+    rejectedId: 'thumbnail:ai-audit-calculator:ledger-lift:20261019:v1',
+    rejectionCode: 'concept_clarity_preference',
+    rejectionReason: 'Candidate A presents the clearer integrated receipt-pull concept.',
+  },
+] as const
+
+describe.each(approvedCampaigns)('$label approved Human QA evidence', ({ receipt: campaignReceipt, contentVersion, selectedId, rejectedId, rejectionCode, rejectionReason }) => {
+  const value = () => structuredClone(campaignReceipt) as any
+
+  it('binds Candidate A as the sole final output and preserves Candidate B as rejected evidence', () => {
+    const candidate = value()
+    const result = validateYouTubeThumbnailHeroEvidence(candidate, contentVersion, AS_OF)
+    expect(result.ready).toBe(true)
+    expect(result.review_ready).toBe(true)
+    expect(result.blockers).toEqual([])
+    expect(candidate.candidates).toHaveLength(2)
+    expect(candidate.selection_decision).toMatchObject({ status: 'human_qa_approved', selected_candidate_id: selectedId })
+    expect(candidate.candidates[0]).toMatchObject({ candidate_id: selectedId, selection_status: 'selected', final_use_eligible: true })
+    expect(candidate.candidates[1]).toMatchObject({ candidate_id: rejectedId, selection_status: 'rejected', final_use_eligible: false, rejection_reason_code: rejectionCode, rejection_reason: rejectionReason })
+  })
+
+  it('rejects cross-campaign hero inheritance', () => {
+    const candidate = value()
+    candidate.hero_assets[0].campaign_identity = 'jev'
+    expect(validateYouTubeThumbnailHeroEvidence(candidate, contentVersion, AS_OF).blockers.join(' ')).toMatch(/version-bound/)
+  })
+
+  it('rejects exact identity-photo reuse', () => {
+    const candidate = value()
+    candidate.hero_assets[0].output_sha256 = candidate.generation_request.identity_reference.sha256
+    candidate.candidates[0].hero_binding.hero_output_sha256 = candidate.hero_assets[0].output_sha256
+    expect(validateYouTubeThumbnailHeroEvidence(candidate, contentVersion, AS_OF).blockers).toContain(`${candidate.hero_assets[0].asset_id} reuses the exact identity-reference photo as output.`)
+  })
+
+  it('fails closed on recorded anatomy defects', () => {
+    const candidate = value()
+    candidate.hero_assets[0].anatomy_quality.status = 'failed'
+    candidate.hero_assets[0].anatomy_quality.visible_fingers_consistent = false
+    expect(validateYouTubeThumbnailHeroEvidence(candidate, contentVersion, AS_OF).blockers).toContain(`${candidate.hero_assets[0].asset_id} failed the recorded anatomy-quality inspection.`)
+  })
+
+  it('rejects repetitive layouts and perceptually duplicated outputs', () => {
+    const candidate = value()
+    candidate.candidates[1].layout_family = candidate.candidates[0].layout_family
+    candidate.candidates[1].composition_signature = candidate.candidates[0].composition_signature
+    candidate.candidates[1].perceptual_hash = candidate.candidates[0].perceptual_hash
+    const result = validateYouTubeThumbnailHeroEvidence(candidate, contentVersion, AS_OF)
+    expect(result.blockers).toEqual(expect.arrayContaining(['The candidate set does not contain materially distinct integrated scene directions.', 'The candidate compositions are perceptually too similar.']))
+  })
+
+  it('rejects missing provenance receipts', () => {
+    const candidate = value()
+    candidate.hero_assets[0].rights_receipt_ids = []
+    expect(validateYouTubeThumbnailHeroEvidence(candidate, contentVersion, AS_OF).blockers).toContain(`${candidate.hero_assets[0].asset_id} lacks provenance, likeness, rights, or privacy evidence.`)
+  })
+
+  it('rejects stale outlier and generation evidence', () => {
+    const candidate = value()
+    candidate.outlier_evidence.fresh_until = '2026-10-20T11:59:59.000Z'
+    candidate.hero_assets[0].fresh_until = '2026-10-20T11:59:59.000Z'
+    const result = validateYouTubeThumbnailHeroEvidence(candidate, contentVersion, AS_OF)
+    expect(result.blockers).toEqual(expect.arrayContaining(['The topic-specific YouTube outlier evidence is missing or stale.', `${candidate.hero_assets[0].asset_id} is stale or missing generation freshness.`]))
+  })
+
+  it('rejects output eligibility for the preserved non-selected candidate', () => {
+    const candidate = value()
+    candidate.candidates[1].final_use_eligible = true
+    expect(validateYouTubeThumbnailHeroEvidence(candidate, contentVersion, AS_OF).blockers).toContain(`${candidate.candidates[1].candidate_id} does not preserve a fail-closed rejection state.`)
+  })
+
+  it('keeps internal workflow labels out of customer-facing pixels', () => {
+    const candidate = value()
+    candidate.candidates[0].customer_facing_copy.push('REVIEW ONLY')
+    expect(validateYouTubeThumbnailHeroEvidence(candidate, contentVersion, AS_OF).blockers).toContain(`${candidate.candidates[0].candidate_id} contains internal workflow language in customer-facing pixels.`)
   })
 })

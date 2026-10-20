@@ -1,0 +1,574 @@
+{
+  "version": "youtube-thumbnail-hero-evidence/v2",
+  "receipt_id": "receipt:thumbnail-hero:dark-castle-chess:20261019:v1",
+  "generated_at": "2026-10-20T01:35:00.000Z",
+  "campaign_identity": "dark-castle-chess",
+  "content_version": "sha256:4d3bc63ebaeb1aed344d64ed15ebb0ff865772de48b48249526ccce0b2c02e9e",
+  "title": "I Rebuilt the Chess Lesson Around the Decision",
+  "review_only": true,
+  "provider_calls": 2,
+  "successful_generation_jobs": 2,
+  "paid_media_generations": 0,
+  "external_writes": 0,
+  "generation_request": {
+    "request_id": "generation-request:thumbnail-hero:dark-castle-chess:20261019:v1",
+    "campaign_identity": "dark-castle-chess",
+    "content_version": "sha256:4d3bc63ebaeb1aed344d64ed15ebb0ff865772de48b48249526ccce0b2c02e9e",
+    "approved_path": "Portfolio/Codex integrated image_gen.imagegen path",
+    "authorization_status": "authorized",
+    "provider_id": "openai-integrated-image-generation",
+    "model_id": "managed-current-image-model",
+    "model_disclosure": "The integrated tool did not expose a more specific model identifier.",
+    "required_prompt_fields": [
+      "expression",
+      "pose",
+      "wardrobe",
+      "lighting",
+      "camera",
+      "environment",
+      "gaze",
+      "gesture",
+      "artifact_interaction"
+    ],
+    "cost": {
+      "currency": "USD",
+      "hard_ceiling": 9,
+      "ceiling_relation": "strictly_below",
+      "scope": "combined_dark_castle_and_ai_audit_batch",
+      "provider_calls": 4,
+      "successful_generation_jobs": 4,
+      "retries": 0,
+      "uncertain_results": 0,
+      "observed_separate_charge": 0,
+      "billing_note": "The approved integrated path exposed no separate metered charge or checkout. This is not a general billing claim."
+    },
+    "output_rights": {
+      "status": "approved_path_unchanged",
+      "scope": "review-only generated campaign assets"
+    },
+    "boundary": "Exactly four successful jobs across the two-campaign batch. No retry. Review-only output. Production mutation, upload, platform draft, schedule, publish, credential change, migration, deployment, merge, and external send remain closed.",
+    "real_generation_completed": true,
+    "identity_reference": {
+      "public_path": "/review-assets/social-content/source-proof/vambah-approved-profile.jpg",
+      "sha256": "sha256:2731bee4ee0b356fcb957ae84142d89cc0b6a35f49778aef5fb0f19a8d45c6ed",
+      "usage": "identity_reference_only"
+    },
+    "supporting_identity_reference": {
+      "public_path": "/review-assets/social-content/jev-hero-thumbnail-review/source/vambah-curious-approved.jpg",
+      "sha256": "sha256:b74a933c73cdc1ee336d951b7e6d20ea7737c214c5390805ce3c149068ec9e90",
+      "usage": "identity_reference_only"
+    }
+  },
+  "outlier_evidence": {
+    "cohort_id": "cohort:youtube:chess-decision-learning:20261018:v1",
+    "decision_receipt_id": "decision:thumbnail:dark-castle:20261018:v5",
+    "observed_at": "2026-10-18T23:57:00.000Z",
+    "fresh_until": "2026-11-01T23:57:00.000Z",
+    "minimum_sample_size": 6,
+    "included_video_ids": [
+      "KbjRYez_me0",
+      "Reza8udb47Y",
+      "8xrELvz0dCI",
+      "E97FVCRGCxU",
+      "XRNpz7fra9k",
+      "ohSRdSZFnSQ",
+      "bstZmyzBZ0g",
+      "TGo2-JcjtOk"
+    ],
+    "qualified_outlier_video_ids": [
+      "KbjRYez_me0",
+      "Reza8udb47Y"
+    ],
+    "outlier_threshold": 75,
+    "curated_playlist_performance_weight": 0,
+    "curated_playlist_role": "taste_calibration_only"
+  },
+  "hero_assets": [
+    {
+      "asset_id": "hero:dark-castle-chess:decision-table:20261019:v1",
+      "campaign_identity": "dark-castle-chess",
+      "content_version": "sha256:4d3bc63ebaeb1aed344d64ed15ebb0ff865772de48b48249526ccce0b2c02e9e",
+      "public_path": "/review-assets/social-content/dark-castle-hero-thumbnail-review/source/dark-castle-decision-table-generated-v1.png",
+      "output_sha256": "sha256:f9f0f15a71f7f377a1d3453a1e8630f4f08758223890fc99302b43b854df0f5c",
+      "perceptual_hash": "66d6445cb6381b3b",
+      "width": 1672,
+      "height": 941,
+      "source_type": "newly_generated_campaign_specific_likeness",
+      "generation_status": "newly_generated",
+      "final_use_eligible": false,
+      "review_only": true,
+      "generator_id": "openai.image_gen.imagegen",
+      "model_id": "managed-current-image-model",
+      "generator_job_id": "imagegen:exec-fb7f637f-2177-4466-8931-f9c95b896e79",
+      "generated_at": "2026-10-20T01:35:00.000Z",
+      "fresh_until": "2026-11-03T01:35:00.000Z",
+      "focal_subject": "focused concern",
+      "prompt_intent": {
+        "expression": "focused concern",
+        "pose": "seated forward lean over a diagonal decision table",
+        "wardrobe": "burgundy knit polo and charcoal tailored jacket",
+        "lighting": "warm tungsten key with gold product bounce and navy fill",
+        "camera": "eye-level 50mm wide-medium frame",
+        "environment": "amber castle strategy room with stone, walnut, and architectural depth",
+        "gaze": "eyes follow the e4 move toward the guidance rail",
+        "gesture": "right index finger traces the move while the left hand anchors the table",
+        "artifact_interaction": "the gameplay surface is built into the table and lights the subject, hands, and surrounding wood"
+      },
+      "anatomy_quality": {
+        "status": "passed",
+        "visible_hands": 2,
+        "visible_fingers_consistent": true,
+        "note": "Both connected hands are visible; the right index finger makes believable contact with the e4 square and the left hand rests naturally on the table edge."
+      },
+      "provenance_note": "New campaign-specific integrated-scene image generated through the authorized Portfolio/Codex image path. Approved photos were used only as identity references; their pixels were not reused as output.",
+      "source_receipt_ids": [
+        "source:dark-castle-chess:public-gameplay-captures-20261014",
+        "decision:thumbnail:dark-castle:20261018:v5"
+      ],
+      "likeness_receipt_id": "likeness:dark-castle-chess:reference-only-authorized-20261019:v1",
+      "rights_receipt_ids": [
+        "rights:dark-castle-chess:owned-public-assets-20261014",
+        "rights:openai-integrated-generation-approved-path-20261019:v1"
+      ],
+      "privacy_receipt_id": "privacy:dark-castle-chess:public-safe-review-only-20261019:v1"
+    },
+    {
+      "asset_id": "hero:dark-castle-chess:rook-reveal:20261019:v1",
+      "campaign_identity": "dark-castle-chess",
+      "content_version": "sha256:4d3bc63ebaeb1aed344d64ed15ebb0ff865772de48b48249526ccce0b2c02e9e",
+      "public_path": "/review-assets/social-content/dark-castle-hero-thumbnail-review/source/dark-castle-rook-reveal-generated-v1.png",
+      "output_sha256": "sha256:96002304ed075953df52a0b9fdb183ba09547fc6ed3daaac0b6d3943fe0a73b4",
+      "perceptual_hash": "13a5c1338386868d",
+      "width": 1672,
+      "height": 941,
+      "source_type": "newly_generated_campaign_specific_likeness",
+      "generation_status": "newly_generated",
+      "final_use_eligible": false,
+      "review_only": true,
+      "generator_id": "openai.image_gen.imagegen",
+      "model_id": "managed-current-image-model",
+      "generator_job_id": "imagegen:exec-003b0dce-a96f-4890-b515-309635dc0e12",
+      "generated_at": "2026-10-20T01:35:00.000Z",
+      "fresh_until": "2026-11-03T01:35:00.000Z",
+      "focal_subject": "energized discovery",
+      "prompt_intent": {
+        "expression": "energized discovery",
+        "pose": "deep crouch while lifting a brass rook mechanism",
+        "wardrobe": "cobalt utility overshirt over black knit",
+        "lighting": "cool cyan moonlight with gold evidence glow",
+        "camera": "high three-quarter 28mm frame with a subtle Dutch angle",
+        "environment": "moonlit castle observatory with circular glass-floor mechanism",
+        "gaze": "eyes follow the rook reveal toward the consequence path",
+        "gesture": "one visible hand lifts the rook handle while the body coils around the reveal",
+        "artifact_interaction": "the gameplay interface is discovered beneath the glass floor and drives the scene light and spiral composition"
+      },
+      "anatomy_quality": {
+        "status": "passed",
+        "visible_hands": 1,
+        "visible_fingers_consistent": true,
+        "note": "The visible hand forms a complete connected grip around the brass rook; the second arm is occluded by the body and mechanism rather than malformed."
+      },
+      "provenance_note": "New campaign-specific integrated-scene image generated through the authorized Portfolio/Codex image path. Approved photos were used only as identity references; their pixels were not reused as output.",
+      "source_receipt_ids": [
+        "source:dark-castle-chess:public-gameplay-captures-20261014",
+        "decision:thumbnail:dark-castle:20261018:v5"
+      ],
+      "likeness_receipt_id": "likeness:dark-castle-chess:reference-only-authorized-20261019:v1",
+      "rights_receipt_ids": [
+        "rights:dark-castle-chess:owned-public-assets-20261014",
+        "rights:openai-integrated-generation-approved-path-20261019:v1"
+      ],
+      "privacy_receipt_id": "privacy:dark-castle-chess:public-safe-review-only-20261019:v1"
+    }
+  ],
+  "likeness_receipt": {
+    "receipt_id": "likeness:dark-castle-chess:reference-only-authorized-20261019:v1",
+    "status": "passed",
+    "reference_hashes": [
+      "sha256:2731bee4ee0b356fcb957ae84142d89cc0b6a35f49778aef5fb0f19a8d45c6ed",
+      "sha256:b74a933c73cdc1ee336d951b7e6d20ea7737c214c5390805ce3c149068ec9e90"
+    ],
+    "exact_photo_reuse": false
+  },
+  "rights_receipt": {
+    "receipt_id": "rights:dark-castle-chess:generated-review-assets-20261019:v1",
+    "status": "passed",
+    "scope": "review_only",
+    "provider_path_unchanged": true
+  },
+  "privacy_receipt": {
+    "receipt_id": "privacy:dark-castle-chess:public-safe-review-only-20261019:v1",
+    "status": "passed",
+    "customer_data": false,
+    "synthetic_or_public_safe_inputs_only": true
+  },
+  "freshness_receipt": {
+    "receipt_id": "freshness:dark-castle-chess:20261019:v1",
+    "status": "passed",
+    "generated_at": "2026-10-20T01:35:00.000Z",
+    "fresh_until": "2026-11-03T01:35:00.000Z"
+  },
+  "anatomy_quality_receipt": {
+    "receipt_id": "anatomy:dark-castle-chess:20261019:v1",
+    "status": "passed",
+    "inspections": [
+      {
+        "asset_id": "hero:dark-castle-chess:decision-table:20261019:v1",
+        "status": "passed",
+        "visible_hands": 2,
+        "visible_fingers_consistent": true,
+        "note": "Both connected hands are visible; the right index finger makes believable contact with the e4 square and the left hand rests naturally on the table edge."
+      },
+      {
+        "asset_id": "hero:dark-castle-chess:rook-reveal:20261019:v1",
+        "status": "passed",
+        "visible_hands": 1,
+        "visible_fingers_consistent": true,
+        "note": "The visible hand forms a complete connected grip around the brass rook; the second arm is occluded by the body and mechanism rather than malformed."
+      }
+    ]
+  },
+  "product_proof": {
+    "asset_id": "proof:dark-castle:gameplay-board:20261014",
+    "public_path": "/review-assets/social-content/dark-castle-customer-facing-poster.png",
+    "source_receipt_ids": [
+      "source:dark-castle-chess:public-gameplay-captures-20261014"
+    ],
+    "rights_receipt_ids": [
+      "rights:dark-castle-chess:owned-public-assets-20261014"
+    ],
+    "privacy_receipt_id": "privacy:dark-castle-chess:public-safe-20261014",
+    "role": "Owned gameplay evidence integrated into each generated scene while retaining a separately receipted product-proof identity.",
+    "sha256": "sha256:e15d744685990933555575d6a3c7bc18100af901a766c9a81d4ab9b1cc827d78"
+  },
+  "recent_thumbnail_history": [
+    {
+      "asset_id": "thumbnail:jev:override-scene:20261019:v3",
+      "hero_perceptual_hash": "58599bb89a9aba1d",
+      "composition_perceptual_hash": "58599bb89a9aba1c"
+    },
+    {
+      "asset_id": "thumbnail:jev:reveal-scene:20261019:v3",
+      "hero_perceptual_hash": "cfe7df5d7b793535",
+      "composition_perceptual_hash": "cfe7df5d7d7d3232"
+    },
+    {
+      "asset_id": "thumbnail:dark-castle:youtube-long-form:20261018:v6",
+      "hero_perceptual_hash": "f8d8d9d2c8cddd34",
+      "composition_perceptual_hash": "e7b3b7ffd991b17b"
+    },
+    {
+      "asset_id": "thumbnail:ai-audit:youtube-long-form:20261018:v6",
+      "hero_perceptual_hash": "b2b2ba7868dadc8c",
+      "composition_perceptual_hash": "2421602460404212"
+    }
+  ],
+  "selection_decision": {
+    "receipt_id": "human-qa:dark-castle-chess:thumbnail-selection:20261019:v1",
+    "status": "human_qa_approved",
+    "decided_at": "2026-10-20T02:14:20.000Z",
+    "content_version": "sha256:4d3bc63ebaeb1aed344d64ed15ebb0ff865772de48b48249526ccce0b2c02e9e",
+    "selected_candidate_id": "thumbnail:dark-castle-chess:decision-table:20261019:v1",
+    "selected_teaser": "REMEMBER THE WHY",
+    "rejected_candidates": [
+      {
+        "candidate_id": "thumbnail:dark-castle-chess:rook-reveal:20261019:v1",
+        "reason_code": "artifact_quality_failure",
+        "reason": "The rook piece is visibly disfigured."
+      }
+    ],
+    "decision_logic": "Human QA selected Candidate A, The Decision Table / REMEMBER THE WHY, as the sole final Dark Castle Chess thumbnail output for this content version. Candidate B remains preserved as rejected evidence because the rook piece is visibly disfigured."
+  },
+  "candidates": [
+    {
+      "candidate_id": "thumbnail:dark-castle-chess:decision-table:20261019:v1",
+      "campaign_identity": "dark-castle-chess",
+      "content_version": "sha256:4d3bc63ebaeb1aed344d64ed15ebb0ff865772de48b48249526ccce0b2c02e9e",
+      "title": "I Rebuilt the Chess Lesson Around the Decision",
+      "teaser": "REMEMBER THE WHY",
+      "customer_facing_copy": [
+        "REMEMBER THE WHY"
+      ],
+      "direction": "The Decision Table",
+      "public_path": "/review-assets/social-content/dark-castle-hero-thumbnail-review/dark-castle-remember-the-why-hero-v1.png",
+      "sha256": "sha256:239390d19e531c5230fe709b9459c10ab019241bedd43a4049340bcf934cc7d6",
+      "perceptual_hash": "66664c5cb6381b3b",
+      "width": 1280,
+      "height": 720,
+      "aspect_ratio": "16:9",
+      "feed_preview_path": "/review-assets/social-content/dark-castle-hero-thumbnail-review/dark-castle-remember-the-why-hero-v1-feed-320x180.png",
+      "feed_preview_sha256": "sha256:3933d2eb602a05cfa13c998f878c589e80bfccd74b391cc8e73ad3bf761cbe78",
+      "feed_preview_width": 320,
+      "feed_preview_height": 180,
+      "focal_subject": "Vambah traces the e4 move inside a luminous decision table while the board and guidance rail cast one coherent light.",
+      "safe_text_region": {
+        "x": 34,
+        "y": 30,
+        "width": 468,
+        "height": 166
+      },
+      "crop": {
+        "source_asset_id": "hero:dark-castle-chess:decision-table:20261019:v1",
+        "x": 0,
+        "y": 0,
+        "width": 1672,
+        "height": 941,
+        "fit": "cover-16:9"
+      },
+      "face_text_overlap": false,
+      "feed_size_legible": true,
+      "product_legible": true,
+      "text_word_count": 3,
+      "layout_family": "diagonal-decision-table-scene",
+      "composition_signature": "dark-castle|warm-diagonal-table|trace-e4|amber-strategy-room|v1",
+      "typography": "Inter variable; one short art-directed editorial hook; face-, hand-, and product-safe placement.",
+      "visual_style": "New campaign-specific generated likeness and owned product evidence share depth, light, grade, gaze, gesture, and perspective.",
+      "selection_status": "selected",
+      "final_use_eligible": true,
+      "selection_reason": "Human QA approved Candidate A as the sole final Dark Castle Chess thumbnail output for this content version.",
+      "anatomy_quality": {
+        "status": "passed",
+        "visible_hands": 2,
+        "visible_fingers_consistent": true,
+        "note": "Both connected hands are visible; the right index finger makes believable contact with the e4 square and the left hand rests naturally on the table edge."
+      },
+      "integration": {
+        "cohesive_scene": true,
+        "hard_split_panel": false,
+        "pasted_boundary": false,
+        "lighting_consistent": true,
+        "perspective_consistent": true,
+        "color_grade_consistent": true,
+        "asset_floats_independently": false,
+        "blur_masks_reuse": false,
+        "hero_removal_breaks_story": true,
+        "asset_removal_breaks_story": true,
+        "face_overlap_harm": false,
+        "text_overlap_harm": false,
+        "product_overlap_harm": false,
+        "pose_gaze_gesture_relationship": "The pointing hand, gaze, diagonal board, and gold interface light converge on the exact decision evidence."
+      },
+      "hero_binding": {
+        "hero_asset_id": "hero:dark-castle-chess:decision-table:20261019:v1",
+        "hero_output_sha256": "sha256:f9f0f15a71f7f377a1d3453a1e8630f4f08758223890fc99302b43b854df0f5c",
+        "output_sha256": "sha256:239390d19e531c5230fe709b9459c10ab019241bedd43a4049340bcf934cc7d6"
+      },
+      "evidence_trace": [
+        {
+          "decision_dimension": "hero_selection",
+          "cohort_id": "cohort:youtube:chess-decision-learning:20261018:v1",
+          "live_evidence_video_ids": [
+            "KbjRYez_me0",
+            "Reza8udb47Y"
+          ],
+          "evidence_role": "informs_not_authorizes",
+          "rationale": "Current same-topic evidence favors one immediately legible human or product relationship; the new campaign-specific likeness makes the owner of the decision concrete."
+        },
+        {
+          "decision_dimension": "composition",
+          "cohort_id": "cohort:youtube:chess-decision-learning:20261018:v1",
+          "live_evidence_video_ids": [
+            "8xrELvz0dCI",
+            "XRNpz7fra9k"
+          ],
+          "evidence_role": "informs_not_authorizes",
+          "rationale": "The pointing hand, gaze, diagonal board, and gold interface light converge on the exact decision evidence."
+        },
+        {
+          "decision_dimension": "typography",
+          "cohort_id": "cohort:youtube:chess-decision-learning:20261018:v1",
+          "live_evidence_video_ids": [
+            "8xrELvz0dCI",
+            "XRNpz7fra9k"
+          ],
+          "evidence_role": "informs_not_authorizes",
+          "rationale": "One large editorial hook remains readable at 320×180 while preserving the face, hands, and product evidence."
+        },
+        {
+          "decision_dimension": "teaser",
+          "cohort_id": "cohort:youtube:chess-decision-learning:20261018:v1",
+          "live_evidence_video_ids": [
+            "8xrELvz0dCI",
+            "XRNpz7fra9k"
+          ],
+          "evidence_role": "informs_not_authorizes",
+          "rationale": "The hook adds tension without repeating the title or making a causal performance promise."
+        },
+        {
+          "decision_dimension": "contrast",
+          "cohort_id": "cohort:youtube:chess-decision-learning:20261018:v1",
+          "live_evidence_video_ids": [
+            "8xrELvz0dCI",
+            "XRNpz7fra9k"
+          ],
+          "evidence_role": "informs_not_authorizes",
+          "rationale": "Subject, product light, wardrobe, environment, and typography use one controlled contrast system."
+        },
+        {
+          "decision_dimension": "visual_style",
+          "cohort_id": "cohort:youtube:chess-decision-learning:20261018:v1",
+          "live_evidence_video_ids": [
+            "KbjRYez_me0",
+            "Reza8udb47Y"
+          ],
+          "evidence_role": "informs_not_authorizes",
+          "rationale": "The Decision Table uses a campaign-specific environment, camera, palette, pose, wardrobe, and product interaction."
+        }
+      ]
+    },
+    {
+      "candidate_id": "thumbnail:dark-castle-chess:rook-reveal:20261019:v1",
+      "campaign_identity": "dark-castle-chess",
+      "content_version": "sha256:4d3bc63ebaeb1aed344d64ed15ebb0ff865772de48b48249526ccce0b2c02e9e",
+      "title": "I Rebuilt the Chess Lesson Around the Decision",
+      "teaser": "SEE THE CONSEQUENCE",
+      "customer_facing_copy": [
+        "SEE THE CONSEQUENCE"
+      ],
+      "direction": "The Rook Reveal",
+      "public_path": "/review-assets/social-content/dark-castle-hero-thumbnail-review/dark-castle-see-the-consequence-hero-v1.png",
+      "sha256": "sha256:e4758c197fe61c142f5a31e1fecd2d697667aff2bf941be1e085448037050b8f",
+      "perceptual_hash": "03a3c13383868685",
+      "width": 1280,
+      "height": 720,
+      "aspect_ratio": "16:9",
+      "feed_preview_path": "/review-assets/social-content/dark-castle-hero-thumbnail-review/dark-castle-see-the-consequence-hero-v1-feed-320x180.png",
+      "feed_preview_sha256": "sha256:36558034c249581823657d2e5fca67374c6732363d83946f82dd88fc2e3f314b",
+      "feed_preview_width": 320,
+      "feed_preview_height": 180,
+      "focal_subject": "Vambah lifts a brass rook mechanism and reveals the gameplay consequence beneath the observatory floor.",
+      "safe_text_region": {
+        "x": 844,
+        "y": 44,
+        "width": 390,
+        "height": 154
+      },
+      "crop": {
+        "source_asset_id": "hero:dark-castle-chess:rook-reveal:20261019:v1",
+        "x": 0,
+        "y": 0,
+        "width": 1672,
+        "height": 941,
+        "fit": "cover-16:9"
+      },
+      "face_text_overlap": false,
+      "feed_size_legible": true,
+      "product_legible": true,
+      "text_word_count": 3,
+      "layout_family": "circular-consequence-reveal-scene",
+      "composition_signature": "dark-castle|cool-circular-reveal|rook-lift|moonlit-observatory|v1",
+      "typography": "Inter variable; one short art-directed editorial hook; face-, hand-, and product-safe placement.",
+      "visual_style": "New campaign-specific generated likeness and owned product evidence share depth, light, grade, gaze, gesture, and perspective.",
+      "selection_status": "rejected",
+      "final_use_eligible": false,
+      "selection_reason": null,
+      "rejection_reason_code": "artifact_quality_failure",
+      "rejection_reason": "The rook piece is visibly disfigured.",
+      "anatomy_quality": {
+        "status": "passed",
+        "visible_hands": 1,
+        "visible_fingers_consistent": true,
+        "note": "The visible hand forms a complete connected grip around the brass rook; the second arm is occluded by the body and mechanism rather than malformed."
+      },
+      "integration": {
+        "cohesive_scene": true,
+        "hard_split_panel": false,
+        "pasted_boundary": false,
+        "lighting_consistent": true,
+        "perspective_consistent": true,
+        "color_grade_consistent": true,
+        "asset_floats_independently": false,
+        "blur_masks_reuse": false,
+        "hero_removal_breaks_story": true,
+        "asset_removal_breaks_story": true,
+        "face_overlap_harm": false,
+        "text_overlap_harm": false,
+        "product_overlap_harm": false,
+        "pose_gaze_gesture_relationship": "The rook lift, circular floor opening, face direction, cyan moonlight, and gold product glow form one discovery spiral."
+      },
+      "hero_binding": {
+        "hero_asset_id": "hero:dark-castle-chess:rook-reveal:20261019:v1",
+        "hero_output_sha256": "sha256:96002304ed075953df52a0b9fdb183ba09547fc6ed3daaac0b6d3943fe0a73b4",
+        "output_sha256": "sha256:e4758c197fe61c142f5a31e1fecd2d697667aff2bf941be1e085448037050b8f"
+      },
+      "evidence_trace": [
+        {
+          "decision_dimension": "hero_selection",
+          "cohort_id": "cohort:youtube:chess-decision-learning:20261018:v1",
+          "live_evidence_video_ids": [
+            "KbjRYez_me0",
+            "Reza8udb47Y"
+          ],
+          "evidence_role": "informs_not_authorizes",
+          "rationale": "Current same-topic evidence favors one immediately legible human or product relationship; the new campaign-specific likeness makes the owner of the decision concrete."
+        },
+        {
+          "decision_dimension": "composition",
+          "cohort_id": "cohort:youtube:chess-decision-learning:20261018:v1",
+          "live_evidence_video_ids": [
+            "TGo2-JcjtOk",
+            "ohSRdSZFnSQ"
+          ],
+          "evidence_role": "informs_not_authorizes",
+          "rationale": "The rook lift, circular floor opening, face direction, cyan moonlight, and gold product glow form one discovery spiral."
+        },
+        {
+          "decision_dimension": "typography",
+          "cohort_id": "cohort:youtube:chess-decision-learning:20261018:v1",
+          "live_evidence_video_ids": [
+            "TGo2-JcjtOk",
+            "8xrELvz0dCI"
+          ],
+          "evidence_role": "informs_not_authorizes",
+          "rationale": "One large editorial hook remains readable at 320×180 while preserving the face, hands, and product evidence."
+        },
+        {
+          "decision_dimension": "teaser",
+          "cohort_id": "cohort:youtube:chess-decision-learning:20261018:v1",
+          "live_evidence_video_ids": [
+            "TGo2-JcjtOk",
+            "8xrELvz0dCI"
+          ],
+          "evidence_role": "informs_not_authorizes",
+          "rationale": "The hook adds tension without repeating the title or making a causal performance promise."
+        },
+        {
+          "decision_dimension": "contrast",
+          "cohort_id": "cohort:youtube:chess-decision-learning:20261018:v1",
+          "live_evidence_video_ids": [
+            "TGo2-JcjtOk",
+            "ohSRdSZFnSQ"
+          ],
+          "evidence_role": "informs_not_authorizes",
+          "rationale": "Subject, product light, wardrobe, environment, and typography use one controlled contrast system."
+        },
+        {
+          "decision_dimension": "visual_style",
+          "cohort_id": "cohort:youtube:chess-decision-learning:20261018:v1",
+          "live_evidence_video_ids": [
+            "KbjRYez_me0",
+            "Reza8udb47Y"
+          ],
+          "evidence_role": "informs_not_authorizes",
+          "rationale": "The Rook Reveal uses a campaign-specific environment, camera, palette, pose, wardrobe, and product interaction."
+        }
+      ]
+    }
+  ],
+  "rejected_patterns": [
+    "dense icon grids",
+    "multi-panel report layouts",
+    "copied creator faces or source branding",
+    "claims that the public style caused performance",
+    "exact-photo reuse",
+    "mirrored left/right variants",
+    "hard split panels",
+    "portrait beside screenshot",
+    "inconsistent lighting, perspective, or grade",
+    "floating product assets",
+    "blur used to disguise repetition",
+    "removable hero or asset",
+    "harmful face, text, hand, or product overlap"
+  ],
+  "boundary": "Candidate A is the sole Human-QA-selected Dark Castle Chess thumbnail output for this content version. Candidate B remains preserved as rejected evidence and is never final-use eligible. Production binding, upload, platform draft, schedule, publish, credentials, migration, deployment, merge, spending, and external send remain closed."
+}

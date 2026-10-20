@@ -2,7 +2,7 @@ import jevSource from '@/artifacts/human-qa/artifact-video-review-2026-10-14/inp
 import darkCastleSource from '@/artifacts/human-qa/artifact-video-review-2026-10-14/inputs/dark_castle_chess.json'
 import { buildSocialVideoAdaptationPacket, evaluateSocialVideoAdaptation, type SocialVideoAdaptationInput } from '@/lib/social-video-adaptation'
 import { SOCIAL_CAMPAIGN_APPROVED_ADAPTATION_QA_FIXTURE } from '@/lib/social-campaign-package-qa-fixture'
-import { buildCampaignStoryboardReview, type CampaignStoryboardReviewConfig } from '@/lib/social-campaign-storyboard-review'
+import { buildCampaignHeroThumbnailReview, buildCampaignStoryboardReview, type CampaignStoryboardReviewConfig } from '@/lib/social-campaign-storyboard-review'
 
 const PRODUCTION_EXTERNAL_GATES = {
   provider_generation: false,
@@ -58,6 +58,24 @@ function projectedAdaptation(input: SocialVideoAdaptationInput, bindings: {
 }
 
 export function socialCampaignApprovedAdaptationQaProjection() {
+  const primaryThumbnailReviews = [
+    buildCampaignHeroThumbnailReview({
+      campaign_identity: 'dark-castle-chess',
+      product_label: 'Dark Castle Chess',
+      calendar_item_id: '4070755c-7c46-4c3e-ac9b-94d35921556e',
+      current_content_version: 'sha256:4d3bc63ebaeb1aed344d64ed15ebb0ff865772de48b48249526ccce0b2c02e9e',
+      evaluated_at: '2026-10-19T20:30:00.000Z',
+      recovery_href: '/admin/social-content?workflow=evidence&campaign=dark-castle-chess',
+    }),
+    buildCampaignHeroThumbnailReview({
+      campaign_identity: 'ai-audit-calculator',
+      product_label: 'AI Audit Calculator',
+      calendar_item_id: '3dad4cca-72b7-4705-8fb6-273bf7500ce6',
+      current_content_version: '2026-10-18T00:00:00.000Z',
+      evaluated_at: '2026-10-19T20:30:00.000Z',
+      recovery_href: '/admin/social-content?workflow=evidence&campaign=ai-audit-calculator',
+    }),
+  ]
   const jev = projectedAdaptation(jevSource as SocialVideoAdaptationInput, {
     product_label: 'Jev',
     calendar_item_id: 'bb1d68b7-cef7-44a0-b907-5e6431167a0f',
@@ -128,7 +146,7 @@ export function socialCampaignApprovedAdaptationQaProjection() {
       teaser: 'REMEMBER THE WHY',
       outlier_gate: {
         status: 'passed',
-        detail: 'The current chess decision-learning cohort passed the numerical topic-specific outlier rule. Public examples remain zero-weight taste guidance for this provider-free composition.',
+        detail: 'The current chess decision-learning cohort passed the numerical topic-specific outlier rule. Public examples remain zero-weight taste guidance for this review-only composition.',
         receipt_ids: ['decision:thumbnail:dark-castle:20261018:v5', 'cohort:youtube:chess-decision-learning:20261018:v1'],
         observed_at: '2026-10-18T00:00:00.000Z',
         fresh_until: '2026-11-01T00:00:00.000Z',
@@ -141,10 +159,10 @@ export function socialCampaignApprovedAdaptationQaProjection() {
         fresh_until: null,
       },
       thumbnail_gate: {
-        status: 'blocked',
-        detail: 'The new provider-free 16:9 candidate is rendered for review, but its exact output hash has not passed topic-specific thumbnail evaluation.',
-        receipt_ids: ['receipt:social-campaign-storyboard-assets:20261019:v1', 'decision:thumbnail:dark-castle:20261018:v5'],
-        observed_at: '2026-10-19T20:30:00.000Z',
+        status: 'passed',
+        detail: 'Human QA selected Candidate A, REMEMBER THE WHY, as the sole final thumbnail output for this content version. Candidate B remains rejected evidence because the rook piece is visibly disfigured.',
+        receipt_ids: ['receipt:thumbnail-hero:dark-castle-chess:20261019:v1', 'human-qa:dark-castle-chess:thumbnail-selection:20261019:v1', 'decision:thumbnail:dark-castle:20261018:v5'],
+        observed_at: '2026-10-20T02:14:20.000Z',
         fresh_until: null,
       },
       script_gate: {
@@ -164,19 +182,12 @@ export function socialCampaignApprovedAdaptationQaProjection() {
     fixture: SOCIAL_CAMPAIGN_APPROVED_ADAPTATION_QA_FIXTURE,
     review_only: true,
     external_gates: PRODUCTION_EXTERNAL_GATES,
+    primary_thumbnail_reviews: primaryThumbnailReviews,
     adaptations: [jev, darkCastle],
     blocked_items: [
       {
         calendar_item_id: 'c12378f2-36de-4bf7-8c5d-0ce754e727eb',
         label: 'Later Dark Castle Chess item',
-        status: 'blocked',
-        reason: 'Only 0 fresh, attributable same-topic outlier description(s) qualified; 3 are required.',
-        recovery_label: 'Refresh the outlier-description evidence',
-        recovery_href: '/admin/social-content?workflow=evidence',
-      },
-      {
-        calendar_item_id: '3dad4cca-72b7-4705-8fb6-273bf7500ce6',
-        label: 'AI Audit item',
         status: 'blocked',
         reason: 'Only 0 fresh, attributable same-topic outlier description(s) qualified; 3 are required.',
         recovery_label: 'Refresh the outlier-description evidence',
@@ -191,6 +202,16 @@ export function socialCampaignApprovedAdaptationQaProjection() {
         recovery_href: '/admin/social-content?workflow=evidence',
       },
     ],
-    human_qa: { status: 'pending_human_qa', screenshots: [], mp4: null },
+    human_qa: {
+      status: 'pending_human_qa',
+      primary_thumbnail_status: 'approved',
+      decided_at: '2026-10-20T02:14:20.000Z',
+      selection_receipt_ids: [
+        'human-qa:dark-castle-chess:thumbnail-selection:20261019:v1',
+        'human-qa:ai-audit-calculator:thumbnail-selection:20261019:v1',
+      ],
+      screenshots: [],
+      mp4: null,
+    },
   }
 }

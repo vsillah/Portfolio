@@ -1,0 +1,571 @@
+{
+  "version": "youtube-thumbnail-hero-evidence/v2",
+  "receipt_id": "receipt:thumbnail-hero:ai-audit-calculator:20261019:v1",
+  "generated_at": "2026-10-20T01:35:00.000Z",
+  "campaign_identity": "ai-audit-calculator",
+  "content_version": "2026-10-18T00:00:00.000Z",
+  "title": "The AI Cost That Never Appears on the Invoice",
+  "review_only": true,
+  "provider_calls": 2,
+  "successful_generation_jobs": 2,
+  "paid_media_generations": 0,
+  "external_writes": 0,
+  "generation_request": {
+    "request_id": "generation-request:thumbnail-hero:ai-audit-calculator:20261019:v1",
+    "campaign_identity": "ai-audit-calculator",
+    "content_version": "2026-10-18T00:00:00.000Z",
+    "approved_path": "Portfolio/Codex integrated image_gen.imagegen path",
+    "authorization_status": "authorized",
+    "provider_id": "openai-integrated-image-generation",
+    "model_id": "managed-current-image-model",
+    "model_disclosure": "The integrated tool did not expose a more specific model identifier.",
+    "required_prompt_fields": [
+      "expression",
+      "pose",
+      "wardrobe",
+      "lighting",
+      "camera",
+      "environment",
+      "gaze",
+      "gesture",
+      "artifact_interaction"
+    ],
+    "cost": {
+      "currency": "USD",
+      "hard_ceiling": 9,
+      "ceiling_relation": "strictly_below",
+      "scope": "combined_dark_castle_and_ai_audit_batch",
+      "provider_calls": 4,
+      "successful_generation_jobs": 4,
+      "retries": 0,
+      "uncertain_results": 0,
+      "observed_separate_charge": 0,
+      "billing_note": "The approved integrated path exposed no separate metered charge or checkout. This is not a general billing claim."
+    },
+    "output_rights": {
+      "status": "approved_path_unchanged",
+      "scope": "review-only generated campaign assets"
+    },
+    "boundary": "Exactly four successful jobs across the two-campaign batch. No retry. Review-only output. Production mutation, upload, platform draft, schedule, publish, credential change, migration, deployment, merge, and external send remain closed.",
+    "real_generation_completed": true,
+    "identity_reference": {
+      "public_path": "/review-assets/social-content/source-proof/vambah-approved-profile.jpg",
+      "sha256": "sha256:2731bee4ee0b356fcb957ae84142d89cc0b6a35f49778aef5fb0f19a8d45c6ed",
+      "usage": "identity_reference_only"
+    },
+    "supporting_identity_reference": {
+      "public_path": "/review-assets/social-content/jev-hero-thumbnail-review/source/vambah-curious-approved.jpg",
+      "sha256": "sha256:b74a933c73cdc1ee336d951b7e6d20ea7737c214c5390805ce3c149068ec9e90",
+      "usage": "identity_reference_only"
+    }
+  },
+  "outlier_evidence": {
+    "cohort_id": "cohort:youtube:ai-cost-audit-roi:20261018:v1",
+    "decision_receipt_id": "decision:thumbnail:ai-audit:20261018:v5",
+    "observed_at": "2026-10-18T23:57:00.000Z",
+    "fresh_until": "2026-11-01T23:57:00.000Z",
+    "minimum_sample_size": 6,
+    "included_video_ids": [
+      "fSAazWLuDyQ",
+      "oGaSfa3lJ8o",
+      "axNuaPmBjLg",
+      "wIcw0T9NhZM",
+      "qf31-dcBeE4",
+      "w8dvgEOh3tc"
+    ],
+    "qualified_outlier_video_ids": [
+      "fSAazWLuDyQ"
+    ],
+    "outlier_threshold": 75,
+    "curated_playlist_performance_weight": 0,
+    "curated_playlist_role": "taste_calibration_only"
+  },
+  "hero_assets": [
+    {
+      "asset_id": "hero:ai-audit-calculator:receipt-pull:20261019:v1",
+      "campaign_identity": "ai-audit-calculator",
+      "content_version": "2026-10-18T00:00:00.000Z",
+      "public_path": "/review-assets/social-content/ai-audit-hero-thumbnail-review/source/ai-audit-receipt-pull-generated-v1.png",
+      "output_sha256": "sha256:f48c7ff38aad1f27816fb12534ab67c031e4cc563f00656b35d6476b6c352b99",
+      "perceptual_hash": "a5a561ac9e9c86a7",
+      "width": 1672,
+      "height": 941,
+      "source_type": "newly_generated_campaign_specific_likeness",
+      "generation_status": "newly_generated",
+      "final_use_eligible": false,
+      "review_only": true,
+      "generator_id": "openai.image_gen.imagegen",
+      "model_id": "managed-current-image-model",
+      "generator_job_id": "imagegen:exec-456d18f8-470c-409b-a0e0-8f4264466e17",
+      "generated_at": "2026-10-20T01:35:00.000Z",
+      "fresh_until": "2026-11-03T01:35:00.000Z",
+      "focal_subject": "skeptical raised eyebrow and closed-mouth half smile",
+      "prompt_intent": {
+        "expression": "skeptical raised eyebrow and closed-mouth half smile",
+        "pose": "standing two-hand pull across a workbench",
+        "wardrobe": "olive unstructured suit and cream open-collar shirt",
+        "lighting": "late-afternoon sun with green-gold product bounce",
+        "camera": "eye-level 35mm editorial frame",
+        "environment": "bright tactile audit studio with walnut bench and paper rolls",
+        "gaze": "eyes connect the receipt ribbon to the 5/10 scores",
+        "gesture": "both hands pull one translucent receipt from the built-in calculator",
+        "artifact_interaction": "the calculator is embedded in the bench and physically emits the receipt while lighting the hands and jacket"
+      },
+      "anatomy_quality": {
+        "status": "passed",
+        "visible_hands": 2,
+        "visible_fingers_consistent": true,
+        "note": "Both connected hands are visible and grip the same receipt ribbon with believable paper contact."
+      },
+      "provenance_note": "New campaign-specific integrated-scene image generated through the authorized Portfolio/Codex image path. Approved photos were used only as identity references; their pixels were not reused as output.",
+      "source_receipt_ids": [
+        "source:ai-audit-calculator:owned-result-screen-20261018",
+        "decision:thumbnail:ai-audit:20261018:v5"
+      ],
+      "likeness_receipt_id": "likeness:ai-audit-calculator:reference-only-authorized-20261019:v1",
+      "rights_receipt_ids": [
+        "rights:ai-audit-calculator:owned-public-assets-20261018",
+        "rights:openai-integrated-generation-approved-path-20261019:v1"
+      ],
+      "privacy_receipt_id": "privacy:ai-audit-calculator:public-safe-review-only-20261019:v1"
+    },
+    {
+      "asset_id": "hero:ai-audit-calculator:ledger-lift:20261019:v1",
+      "campaign_identity": "ai-audit-calculator",
+      "content_version": "2026-10-18T00:00:00.000Z",
+      "public_path": "/review-assets/social-content/ai-audit-hero-thumbnail-review/source/ai-audit-ledger-lift-generated-v1.png",
+      "output_sha256": "sha256:e7b4249fd59913c3c5a2a6c1e68036e3c2ed670bc703b7eb99aac4d962e6ace0",
+      "perceptual_hash": "8e123b3631319916",
+      "width": 1672,
+      "height": 941,
+      "source_type": "newly_generated_campaign_specific_likeness",
+      "generation_status": "newly_generated",
+      "final_use_eligible": false,
+      "review_only": true,
+      "generator_id": "openai.image_gen.imagegen",
+      "model_id": "managed-current-image-model",
+      "generator_job_id": "imagegen:exec-64ab35b8-c38b-4d13-b8fe-92377475b7d1",
+      "generated_at": "2026-10-20T01:35:00.000Z",
+      "fresh_until": "2026-11-03T01:35:00.000Z",
+      "focal_subject": "calm realization with widened eyes and slightly parted lips",
+      "prompt_intent": {
+        "expression": "calm realization with widened eyes and slightly parted lips",
+        "pose": "leaning over an archive drawer while lifting a glass ledger",
+        "wardrobe": "cream textured sweater and navy quilted vest",
+        "lighting": "indigo ambient light with cyan glass edge and restrained gold score bounce",
+        "camera": "low 28mm angle from inside the archive drawer",
+        "environment": "night evidence archive with translucent drawers and metal rails",
+        "gaze": "eyes meet the embedded 5/10 scores",
+        "gesture": "both hands raise one transparent ledger panel from the drawer",
+        "artifact_interaction": "the audit result is embedded in the glass ledger and drives the reflections, hand light, and reveal story"
+      },
+      "anatomy_quality": {
+        "status": "passed",
+        "visible_hands": 2,
+        "visible_fingers_consistent": true,
+        "note": "Both connected hands hold opposite edges of one glass ledger; fingers and wrists remain complete and physically consistent."
+      },
+      "provenance_note": "New campaign-specific integrated-scene image generated through the authorized Portfolio/Codex image path. Approved photos were used only as identity references; their pixels were not reused as output.",
+      "source_receipt_ids": [
+        "source:ai-audit-calculator:owned-result-screen-20261018",
+        "decision:thumbnail:ai-audit:20261018:v5"
+      ],
+      "likeness_receipt_id": "likeness:ai-audit-calculator:reference-only-authorized-20261019:v1",
+      "rights_receipt_ids": [
+        "rights:ai-audit-calculator:owned-public-assets-20261018",
+        "rights:openai-integrated-generation-approved-path-20261019:v1"
+      ],
+      "privacy_receipt_id": "privacy:ai-audit-calculator:public-safe-review-only-20261019:v1"
+    }
+  ],
+  "likeness_receipt": {
+    "receipt_id": "likeness:ai-audit-calculator:reference-only-authorized-20261019:v1",
+    "status": "passed",
+    "reference_hashes": [
+      "sha256:2731bee4ee0b356fcb957ae84142d89cc0b6a35f49778aef5fb0f19a8d45c6ed",
+      "sha256:b74a933c73cdc1ee336d951b7e6d20ea7737c214c5390805ce3c149068ec9e90"
+    ],
+    "exact_photo_reuse": false
+  },
+  "rights_receipt": {
+    "receipt_id": "rights:ai-audit-calculator:generated-review-assets-20261019:v1",
+    "status": "passed",
+    "scope": "review_only",
+    "provider_path_unchanged": true
+  },
+  "privacy_receipt": {
+    "receipt_id": "privacy:ai-audit-calculator:public-safe-review-only-20261019:v1",
+    "status": "passed",
+    "customer_data": false,
+    "synthetic_or_public_safe_inputs_only": true
+  },
+  "freshness_receipt": {
+    "receipt_id": "freshness:ai-audit-calculator:20261019:v1",
+    "status": "passed",
+    "generated_at": "2026-10-20T01:35:00.000Z",
+    "fresh_until": "2026-11-03T01:35:00.000Z"
+  },
+  "anatomy_quality_receipt": {
+    "receipt_id": "anatomy:ai-audit-calculator:20261019:v1",
+    "status": "passed",
+    "inspections": [
+      {
+        "asset_id": "hero:ai-audit-calculator:receipt-pull:20261019:v1",
+        "status": "passed",
+        "visible_hands": 2,
+        "visible_fingers_consistent": true,
+        "note": "Both connected hands are visible and grip the same receipt ribbon with believable paper contact."
+      },
+      {
+        "asset_id": "hero:ai-audit-calculator:ledger-lift:20261019:v1",
+        "status": "passed",
+        "visible_hands": 2,
+        "visible_fingers_consistent": true,
+        "note": "Both connected hands hold opposite edges of one glass ledger; fingers and wrists remain complete and physically consistent."
+      }
+    ]
+  },
+  "product_proof": {
+    "asset_id": "proof:ai-audit-calculator:result-screen:20261018",
+    "public_path": "/audit_calculator_img.png",
+    "source_receipt_ids": [
+      "source:ai-audit-calculator:owned-result-screen-20261018"
+    ],
+    "rights_receipt_ids": [
+      "rights:ai-audit-calculator:owned-public-assets-20261018"
+    ],
+    "privacy_receipt_id": "privacy:ai-audit-calculator:synthetic-public-safe-20261018",
+    "role": "Owned synthetic calculator evidence integrated into each generated scene while retaining a separately receipted product-proof identity.",
+    "sha256": "sha256:bef9eeb1d8d15f7b4197bb03240c27a3b6b96fe114ce06f4c7027690c3e49b97"
+  },
+  "recent_thumbnail_history": [
+    {
+      "asset_id": "thumbnail:jev:override-scene:20261019:v3",
+      "hero_perceptual_hash": "58599bb89a9aba1d",
+      "composition_perceptual_hash": "58599bb89a9aba1c"
+    },
+    {
+      "asset_id": "thumbnail:jev:reveal-scene:20261019:v3",
+      "hero_perceptual_hash": "cfe7df5d7b793535",
+      "composition_perceptual_hash": "cfe7df5d7d7d3232"
+    },
+    {
+      "asset_id": "thumbnail:dark-castle:youtube-long-form:20261018:v6",
+      "hero_perceptual_hash": "f8d8d9d2c8cddd34",
+      "composition_perceptual_hash": "e7b3b7ffd991b17b"
+    },
+    {
+      "asset_id": "thumbnail:ai-audit:youtube-long-form:20261018:v6",
+      "hero_perceptual_hash": "b2b2ba7868dadc8c",
+      "composition_perceptual_hash": "2421602460404212"
+    }
+  ],
+  "selection_decision": {
+    "receipt_id": "human-qa:ai-audit-calculator:thumbnail-selection:20261019:v1",
+    "status": "human_qa_approved",
+    "decided_at": "2026-10-20T02:14:20.000Z",
+    "content_version": "2026-10-18T00:00:00.000Z",
+    "selected_candidate_id": "thumbnail:ai-audit-calculator:receipt-pull:20261019:v1",
+    "selected_teaser": "WHO OWNS THE CLEANUP?",
+    "rejected_candidates": [
+      {
+        "candidate_id": "thumbnail:ai-audit-calculator:ledger-lift:20261019:v1",
+        "reason_code": "concept_clarity_preference",
+        "reason": "Candidate A presents the clearer integrated receipt-pull concept."
+      }
+    ],
+    "decision_logic": "Human QA selected Candidate A, The Receipt Pull / WHO OWNS THE CLEANUP?, as the sole final AI Audit Calculator thumbnail output for this content version. Candidate B remains preserved as rejected evidence because Candidate A presents the clearer integrated receipt-pull concept."
+  },
+  "candidates": [
+    {
+      "candidate_id": "thumbnail:ai-audit-calculator:receipt-pull:20261019:v1",
+      "campaign_identity": "ai-audit-calculator",
+      "content_version": "2026-10-18T00:00:00.000Z",
+      "title": "The AI Cost That Never Appears on the Invoice",
+      "teaser": "WHO OWNS THE CLEANUP?",
+      "customer_facing_copy": [
+        "WHO OWNS THE CLEANUP?"
+      ],
+      "direction": "The Receipt Pull",
+      "public_path": "/review-assets/social-content/ai-audit-hero-thumbnail-review/ai-audit-who-owns-cleanup-hero-v1.png",
+      "sha256": "sha256:dbd13d46487511e1c1734d90a837a4ca295ef451ba515cd89215079ff8d04f3f",
+      "perceptual_hash": "a2a261ac9e9c86a7",
+      "width": 1280,
+      "height": 720,
+      "aspect_ratio": "16:9",
+      "feed_preview_path": "/review-assets/social-content/ai-audit-hero-thumbnail-review/ai-audit-who-owns-cleanup-hero-v1-feed-320x180.png",
+      "feed_preview_sha256": "sha256:a2395c6a348db91c7c05f8a3386707d53ee2be9517fc31207e0867f6542eb434",
+      "feed_preview_width": 320,
+      "feed_preview_height": 180,
+      "focal_subject": "Vambah pulls a translucent receipt directly from the built-in calculator while studying the real 5/10 result.",
+      "safe_text_region": {
+        "x": 910,
+        "y": 36,
+        "width": 340,
+        "height": 180
+      },
+      "crop": {
+        "source_asset_id": "hero:ai-audit-calculator:receipt-pull:20261019:v1",
+        "x": 0,
+        "y": 0,
+        "width": 1672,
+        "height": 941,
+        "fit": "cover-16:9"
+      },
+      "face_text_overlap": false,
+      "feed_size_legible": true,
+      "product_legible": true,
+      "text_word_count": 4,
+      "layout_family": "receipt-ribbon-investigation-scene",
+      "composition_signature": "ai-audit|warm-receipt-scurve|two-hand-pull|sunlit-studio|v1",
+      "typography": "Inter variable; one short art-directed editorial hook; face-, hand-, and product-safe placement.",
+      "visual_style": "New campaign-specific generated likeness and owned product evidence share depth, light, grade, gaze, gesture, and perspective.",
+      "selection_status": "selected",
+      "final_use_eligible": true,
+      "selection_reason": "Human QA approved Candidate A as the sole final AI Audit Calculator thumbnail output for this content version because its integrated receipt-pull concept is clearer.",
+      "anatomy_quality": {
+        "status": "passed",
+        "visible_hands": 2,
+        "visible_fingers_consistent": true,
+        "note": "Both connected hands are visible and grip the same receipt ribbon with believable paper contact."
+      },
+      "integration": {
+        "cohesive_scene": true,
+        "hard_split_panel": false,
+        "pasted_boundary": false,
+        "lighting_consistent": true,
+        "perspective_consistent": true,
+        "color_grade_consistent": true,
+        "asset_floats_independently": false,
+        "blur_masks_reuse": false,
+        "hero_removal_breaks_story": true,
+        "asset_removal_breaks_story": true,
+        "face_overlap_harm": false,
+        "text_overlap_harm": false,
+        "product_overlap_harm": false,
+        "pose_gaze_gesture_relationship": "The two-hand receipt pull, gaze, workbench depth, and green-gold product bounce create one investigative S-curve."
+      },
+      "hero_binding": {
+        "hero_asset_id": "hero:ai-audit-calculator:receipt-pull:20261019:v1",
+        "hero_output_sha256": "sha256:f48c7ff38aad1f27816fb12534ab67c031e4cc563f00656b35d6476b6c352b99",
+        "output_sha256": "sha256:dbd13d46487511e1c1734d90a837a4ca295ef451ba515cd89215079ff8d04f3f"
+      },
+      "evidence_trace": [
+        {
+          "decision_dimension": "hero_selection",
+          "cohort_id": "cohort:youtube:ai-cost-audit-roi:20261018:v1",
+          "live_evidence_video_ids": [
+            "axNuaPmBjLg",
+            "oGaSfa3lJ8o"
+          ],
+          "evidence_role": "informs_not_authorizes",
+          "rationale": "Current same-topic evidence favors one immediately legible human or product relationship; the new campaign-specific likeness makes the owner of the decision concrete."
+        },
+        {
+          "decision_dimension": "composition",
+          "cohort_id": "cohort:youtube:ai-cost-audit-roi:20261018:v1",
+          "live_evidence_video_ids": [
+            "oGaSfa3lJ8o",
+            "w8dvgEOh3tc"
+          ],
+          "evidence_role": "informs_not_authorizes",
+          "rationale": "The two-hand receipt pull, gaze, workbench depth, and green-gold product bounce create one investigative S-curve."
+        },
+        {
+          "decision_dimension": "typography",
+          "cohort_id": "cohort:youtube:ai-cost-audit-roi:20261018:v1",
+          "live_evidence_video_ids": [
+            "qf31-dcBeE4",
+            "w8dvgEOh3tc"
+          ],
+          "evidence_role": "informs_not_authorizes",
+          "rationale": "One large editorial hook remains readable at 320×180 while preserving the face, hands, and product evidence."
+        },
+        {
+          "decision_dimension": "teaser",
+          "cohort_id": "cohort:youtube:ai-cost-audit-roi:20261018:v1",
+          "live_evidence_video_ids": [
+            "qf31-dcBeE4",
+            "w8dvgEOh3tc"
+          ],
+          "evidence_role": "informs_not_authorizes",
+          "rationale": "The hook adds tension without repeating the title or making a causal performance promise."
+        },
+        {
+          "decision_dimension": "contrast",
+          "cohort_id": "cohort:youtube:ai-cost-audit-roi:20261018:v1",
+          "live_evidence_video_ids": [
+            "oGaSfa3lJ8o",
+            "w8dvgEOh3tc"
+          ],
+          "evidence_role": "informs_not_authorizes",
+          "rationale": "Subject, product light, wardrobe, environment, and typography use one controlled contrast system."
+        },
+        {
+          "decision_dimension": "visual_style",
+          "cohort_id": "cohort:youtube:ai-cost-audit-roi:20261018:v1",
+          "live_evidence_video_ids": [
+            "axNuaPmBjLg",
+            "oGaSfa3lJ8o"
+          ],
+          "evidence_role": "informs_not_authorizes",
+          "rationale": "The Receipt Pull uses a campaign-specific environment, camera, palette, pose, wardrobe, and product interaction."
+        }
+      ]
+    },
+    {
+      "candidate_id": "thumbnail:ai-audit-calculator:ledger-lift:20261019:v1",
+      "campaign_identity": "ai-audit-calculator",
+      "content_version": "2026-10-18T00:00:00.000Z",
+      "title": "The AI Cost That Never Appears on the Invoice",
+      "teaser": "THE BILL HIDES HERE",
+      "customer_facing_copy": [
+        "THE BILL HIDES HERE"
+      ],
+      "direction": "The Hidden Ledger",
+      "public_path": "/review-assets/social-content/ai-audit-hero-thumbnail-review/ai-audit-bill-hides-here-hero-v1.png",
+      "sha256": "sha256:ee2230dca5b236b990fee2a0f5655888845876c8dbd8fe1fe52ac380602f165e",
+      "perceptual_hash": "6c723a3631319916",
+      "width": 1280,
+      "height": 720,
+      "aspect_ratio": "16:9",
+      "feed_preview_path": "/review-assets/social-content/ai-audit-hero-thumbnail-review/ai-audit-bill-hides-here-hero-v1-feed-320x180.png",
+      "feed_preview_sha256": "sha256:9fbdf89a0ebbcf7781ccff58c2328f1008f120f7e6234dcb7d48ac731def1c43",
+      "feed_preview_width": 320,
+      "feed_preview_height": 180,
+      "focal_subject": "Vambah raises the transparent 5/10 ledger from a deep archive drawer as the score lights his hands and face.",
+      "safe_text_region": {
+        "x": 42,
+        "y": 40,
+        "width": 412,
+        "height": 170
+      },
+      "crop": {
+        "source_asset_id": "hero:ai-audit-calculator:ledger-lift:20261019:v1",
+        "x": 0,
+        "y": 0,
+        "width": 1672,
+        "height": 941,
+        "fit": "cover-16:9"
+      },
+      "face_text_overlap": false,
+      "feed_size_legible": true,
+      "product_legible": true,
+      "text_word_count": 4,
+      "layout_family": "low-angle-ledger-reveal-scene",
+      "composition_signature": "ai-audit|cool-ledger-triangle|two-hand-lift|indigo-archive|v1",
+      "typography": "Inter variable; one short art-directed editorial hook; face-, hand-, and product-safe placement.",
+      "visual_style": "New campaign-specific generated likeness and owned product evidence share depth, light, grade, gaze, gesture, and perspective.",
+      "selection_status": "rejected",
+      "final_use_eligible": false,
+      "selection_reason": null,
+      "rejection_reason_code": "concept_clarity_preference",
+      "rejection_reason": "Candidate A presents the clearer integrated receipt-pull concept.",
+      "anatomy_quality": {
+        "status": "passed",
+        "visible_hands": 2,
+        "visible_fingers_consistent": true,
+        "note": "Both connected hands hold opposite edges of one glass ledger; fingers and wrists remain complete and physically consistent."
+      },
+      "integration": {
+        "cohesive_scene": true,
+        "hard_split_panel": false,
+        "pasted_boundary": false,
+        "lighting_consistent": true,
+        "perspective_consistent": true,
+        "color_grade_consistent": true,
+        "asset_floats_independently": false,
+        "blur_masks_reuse": false,
+        "hero_removal_breaks_story": true,
+        "asset_removal_breaks_story": true,
+        "face_overlap_harm": false,
+        "text_overlap_harm": false,
+        "product_overlap_harm": false,
+        "pose_gaze_gesture_relationship": "The low camera, two-hand ledger lift, eye line, archive rails, and gold score light create one triangular reveal."
+      },
+      "hero_binding": {
+        "hero_asset_id": "hero:ai-audit-calculator:ledger-lift:20261019:v1",
+        "hero_output_sha256": "sha256:e7b4249fd59913c3c5a2a6c1e68036e3c2ed670bc703b7eb99aac4d962e6ace0",
+        "output_sha256": "sha256:ee2230dca5b236b990fee2a0f5655888845876c8dbd8fe1fe52ac380602f165e"
+      },
+      "evidence_trace": [
+        {
+          "decision_dimension": "hero_selection",
+          "cohort_id": "cohort:youtube:ai-cost-audit-roi:20261018:v1",
+          "live_evidence_video_ids": [
+            "axNuaPmBjLg",
+            "fSAazWLuDyQ"
+          ],
+          "evidence_role": "informs_not_authorizes",
+          "rationale": "Current same-topic evidence favors one immediately legible human or product relationship; the new campaign-specific likeness makes the owner of the decision concrete."
+        },
+        {
+          "decision_dimension": "composition",
+          "cohort_id": "cohort:youtube:ai-cost-audit-roi:20261018:v1",
+          "live_evidence_video_ids": [
+            "w8dvgEOh3tc",
+            "qf31-dcBeE4"
+          ],
+          "evidence_role": "informs_not_authorizes",
+          "rationale": "The low camera, two-hand ledger lift, eye line, archive rails, and gold score light create one triangular reveal."
+        },
+        {
+          "decision_dimension": "typography",
+          "cohort_id": "cohort:youtube:ai-cost-audit-roi:20261018:v1",
+          "live_evidence_video_ids": [
+            "wIcw0T9NhZM",
+            "w8dvgEOh3tc"
+          ],
+          "evidence_role": "informs_not_authorizes",
+          "rationale": "One large editorial hook remains readable at 320×180 while preserving the face, hands, and product evidence."
+        },
+        {
+          "decision_dimension": "teaser",
+          "cohort_id": "cohort:youtube:ai-cost-audit-roi:20261018:v1",
+          "live_evidence_video_ids": [
+            "wIcw0T9NhZM",
+            "w8dvgEOh3tc"
+          ],
+          "evidence_role": "informs_not_authorizes",
+          "rationale": "The hook adds tension without repeating the title or making a causal performance promise."
+        },
+        {
+          "decision_dimension": "contrast",
+          "cohort_id": "cohort:youtube:ai-cost-audit-roi:20261018:v1",
+          "live_evidence_video_ids": [
+            "w8dvgEOh3tc",
+            "qf31-dcBeE4"
+          ],
+          "evidence_role": "informs_not_authorizes",
+          "rationale": "Subject, product light, wardrobe, environment, and typography use one controlled contrast system."
+        },
+        {
+          "decision_dimension": "visual_style",
+          "cohort_id": "cohort:youtube:ai-cost-audit-roi:20261018:v1",
+          "live_evidence_video_ids": [
+            "axNuaPmBjLg",
+            "fSAazWLuDyQ"
+          ],
+          "evidence_role": "informs_not_authorizes",
+          "rationale": "The Hidden Ledger uses a campaign-specific environment, camera, palette, pose, wardrobe, and product interaction."
+        }
+      ]
+    }
+  ],
+  "rejected_patterns": [
+    "generic synthetic business people",
+    "neon robot or circuit-board filler",
+    "dashboard grids and proof-chip rows",
+    "copied creator faces or source branding",
+    "exact-photo reuse",
+    "mirrored left/right variants",
+    "hard split panels",
+    "portrait beside screenshot",
+    "inconsistent lighting, perspective, or grade",
+    "floating product assets",
+    "blur used to disguise repetition",
+    "removable hero or asset",
+    "harmful face, text, hand, or product overlap"
+  ],
+  "boundary": "Candidate A is the sole Human-QA-selected AI Audit Calculator thumbnail output for this content version. Candidate B remains preserved as rejected evidence and is never final-use eligible. Production binding, upload, platform draft, schedule, publish, credentials, migration, deployment, merge, spending, and external send remain closed."
+}
