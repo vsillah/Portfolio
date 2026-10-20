@@ -4,230 +4,99 @@ import path from 'node:path'
 import sharp from 'sharp'
 
 const root = process.cwd()
-const sourcePath = '/Users/vambahsillah/Library/CloudStorage/GoogleDrive-vsillah@gmail.com/My Drive/2. AmaduTown Advisory Solutions/Artifacts /Promotional /1. ATAS YouTube Channel/Assets/Thumbnails/V Subject/V YT Thumbnail Curious.jpg'
-const expectedSourceSha256 = 'sha256:b74a933c73cdc1ee336d951b7e6d20ea7737c214c5390805ce3c149068ec9e90'
+const identityPath = '/Users/vambahsillah/Library/CloudStorage/GoogleDrive-vsillah@gmail.com/My Drive/2. AmaduTown Advisory Solutions/Artifacts /Promotional /1. ATAS YouTube Channel/Assets/Thumbnails/V Subject/V YT Thumbnail Curious.jpg'
+const identitySha = 'sha256:b74a933c73cdc1ee336d951b7e6d20ea7737c214c5390805ce3c149068ec9e90'
 const publicRoot = path.join(root, 'public/review-assets/social-content/jev-hero-thumbnail-review')
 const sourceRoot = path.join(publicRoot, 'source')
 const artifactRoot = path.join(root, 'artifacts/research/jev-hero-thumbnail-candidates-2026-10-19')
-const stagedHeroPath = path.join(sourceRoot, 'vambah-curious-approved.jpg')
-const productProofPath = path.join(root, 'public/review-assets/social-content/source-proof/jev-operator-field-guide.png')
+const stagedIdentity = path.join(sourceRoot, 'vambah-curious-approved.jpg')
+const proofPath = path.join(root, 'public/review-assets/social-content/source-proof/jev-operator-field-guide.png')
 const logoPath = path.join(root, 'public/amadutown-logo-upscaled.png')
 const fontPath = path.join(root, 'public/fonts/inter-latin-variable.ttf')
 const cohortPath = path.join(root, 'artifacts/research/jev-youtube-thumbnail-cohort-2026-10-19/cohort.json')
 const decisionPath = path.join(root, 'artifacts/research/jev-youtube-thumbnail-cohort-2026-10-19/thumbnail-decision-receipt.json')
-const internalWorkflowMarker = /\b(review only|draft|fixture|sample data|operator|internal|prompt|qa)\b/i
+const internalMarker = /\b(review only|draft|fixture|sample data|operator|internal|prompt|qa)\b/i
 
-await mkdir(sourceRoot, { recursive: true })
-await mkdir(artifactRoot, { recursive: true })
-
-async function sha256(file) {
-  return `sha256:${createHash('sha256').update(await readFile(file)).digest('hex')}`
-}
-
-if (await sha256(sourcePath) !== expectedSourceSha256) throw new Error('The approved Vambah hero source hash changed. Stop and renew the source receipt.')
-await copyFile(sourcePath, stagedHeroPath)
-
-const cohort = JSON.parse(await readFile(cohortPath, 'utf8'))
-const decision = JSON.parse(await readFile(decisionPath, 'utf8'))
-if (cohort.status !== 'approved' || !cohort.selection_gate?.ready || cohort.outlier_qualification?.qualified_sample_size < 1) {
-  throw new Error('The live Jev YouTube cohort is not qualified. Hero candidate rendering remains blocked.')
-}
-if (decision.selection?.status !== 'ready' || decision.live_evidence?.cohort_id !== cohort.cohort_id) {
-  throw new Error('The current Social Content outlier decision does not bind the qualified Jev cohort.')
-}
+await mkdir(sourceRoot, { recursive: true }); await mkdir(artifactRoot, { recursive: true })
+const sha256 = async (file) => `sha256:${createHash('sha256').update(await readFile(file)).digest('hex')}`
+async function dHash(file) { const { data } = await sharp(file).greyscale().resize(9, 8, { fit: 'fill' }).raw().toBuffer({ resolveWithObject: true }); let bits = ''; for (let y = 0; y < 8; y += 1) for (let x = 0; x < 8; x += 1) bits += data[y * 9 + x] > data[y * 9 + x + 1] ? '1' : '0'; return BigInt(`0b${bits}`).toString(16).padStart(16, '0') }
+if (await sha256(identityPath) !== identitySha) throw new Error('The approved identity reference hash changed. Stop and renew the likeness-reference receipt.')
+await copyFile(identityPath, stagedIdentity)
+const cohort = JSON.parse(await readFile(cohortPath, 'utf8')); const decision = JSON.parse(await readFile(decisionPath, 'utf8'))
+if (cohort.status !== 'approved' || !cohort.selection_gate?.ready || cohort.outlier_qualification?.qualified_sample_size < 1) throw new Error('The live Jev YouTube cohort is not qualified.')
+if (decision.selection?.status !== 'ready' || decision.live_evidence?.cohort_id !== cohort.cohort_id) throw new Error('The outlier decision does not bind the current Jev cohort.')
 
 const fontData = (await readFile(fontPath)).toString('base64')
-const fontFace = `@font-face{font-family:InterHero;src:url(data:font/ttf;base64,${fontData}) format('truetype');font-weight:100 900;}`
-const logo = await sharp(logoPath).resize({ height: 70, fit: 'inside', withoutEnlargement: true }).png().toBuffer()
-const hero = await sharp(stagedHeroPath).resize(720, 720, { fit: 'cover', position: 'attention' }).jpeg({ quality: 95 }).toBuffer()
+const proofData = (await readFile(proofPath)).toString('base64')
+const fontFace = `@font-face{font-family:InterHero;src:url(data:font/ttf;base64,${fontData}) format('truetype');font-weight:100 900}.head{font-family:InterHero,Arial,sans-serif;font-weight:900;letter-spacing:-4px}.micro{font-family:InterHero,Arial,sans-serif;font-weight:780;letter-spacing:2px}.body{font-family:InterHero,Arial,sans-serif;font-weight:650}`
+const svg = (width, height, markup) => Buffer.from(`<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg"><style>${fontFace}</style>${markup}</svg>`)
 
-function svg(markup) {
-  return Buffer.from(`<svg width="1280" height="720" xmlns="http://www.w3.org/2000/svg"><style>${fontFace}.eyebrow{font-family:InterHero,Arial,sans-serif;font-weight:760;letter-spacing:4px}.headline{font-family:InterHero,Arial,sans-serif;font-weight:900;letter-spacing:-4px}.support{font-family:InterHero,Arial,sans-serif;font-weight:680;letter-spacing:.2px}</style>${markup}</svg>`)
-}
-
-const variants = [
+const heroSpecs = [
   {
-    candidate_id: 'thumbnail:jev:hero-question:20261019:v1',
-    filename: 'jev-when-should-ai-stop-hero-v1.png',
-    feed_filename: 'jev-when-should-ai-stop-hero-v1-feed-320x180.png',
-    teaser: 'WHEN SHOULD AI STOP?',
-    customer_facing_copy: ['JEV · HUMAN DECISION OWNERSHIP', 'WHEN SHOULD', 'AI STOP?', 'A score can inform the call.', 'A person still owns it.', 'AMADUTOWN'],
-    direction: 'Expressive human question',
-    layout_family: 'human-right-question-left',
-    composition_signature: 'jev-curious-human-right|question-left|yellow-coral-decision-line|hero-v1',
-    crop: { source_asset_id: 'hero:jev:vambah-curious:20261019:v1', x: 560, y: 0, width: 720, height: 720, fit: 'cover-attention' },
-    safe_text_region: { x: 66, y: 84, width: 570, height: 536 },
-    focal_subject: 'Vambah in an approved curious, decision-making pose with visible eye direction and a clean face-safe field.',
-    evidence_trace: [
-      ['hero_selection', ['WGDQoaoqR1U', 'zRMAvMSSSII'], 'The qualified process-led outlier keeps one concrete governance idea visible, while the current human-oversight comparator shows that one expressive presenter can carry the decision tension. The owned Vambah source supplies the actual hero.'],
-      ['composition', ['WGDQoaoqR1U', 'zRMAvMSSSII'], 'One decision relationship, one hero, and one copy field replace the prior field-guide density.'],
-      ['typography', ['zRMAvMSSSII', 'Q020C-Jw0o8'], 'Large editorial type with short stacked lines remains readable at feed size; source wording and type styling are not copied.'],
-      ['teaser', ['zRMAvMSSSII', 'AyNe8KZYNGU'], 'The hook is a short governance-boundary question and stays distinct from the video title.'],
-      ['contrast', ['WGDQoaoqR1U', 'AyNe8KZYNGU'], 'Warm yellow and coral accents sit against navy with clear separation from the subject and no text over the face.'],
-      ['visual_style', ['WGDQoaoqR1U', 'zRMAvMSSSII'], 'The candidate uses one immediate decision idea and rejects generic robots, webinar grids, and dashboard furniture.'],
-    ],
-    artwork: svg(`
-      <defs><linearGradient id="left" x1="0" x2="1"><stop offset="0" stop-color="#06182d"/><stop offset=".47" stop-color="#081f39"/><stop offset=".64" stop-color="#081f39" stop-opacity=".78"/><stop offset="1" stop-color="#081f39" stop-opacity=".08"/></linearGradient></defs>
-      <rect width="1280" height="720" fill="url(#left)"/>
-      <rect x="0" y="0" width="1280" height="12" fill="#f5c515"/>
-      <text x="72" y="112" class="eyebrow" font-size="23" fill="#f5c515">JEV · HUMAN DECISION OWNERSHIP</text>
-      <text x="68" y="258" class="headline" font-size="78" fill="#f8fafc">WHEN SHOULD</text>
-      <rect x="64" y="292" width="500" height="110" rx="24" fill="#ff7167"/>
-      <text x="91" y="374" class="headline" font-size="82" fill="#06182d">AI STOP?</text>
-      <text x="72" y="474" class="support" font-size="26" fill="#d9e7f5">A score can inform the call.</text>
-      <text x="72" y="513" class="support" font-size="29" fill="#ffffff">A person still owns it.</text>
-      <rect x="72" y="578" width="182" height="6" rx="3" fill="#61d5cc"/>
-      <text x="72" y="620" class="eyebrow" font-size="16" fill="#9fc0da">AMADUTOWN</text>
-    `),
-    hero_left: 560,
+    id: 'hero:jev:override-point:20261019:v2', file: 'source/jev-override-point-synthetic-v2.png',
+    intent: { expression: 'skeptical concern with one raised eyebrow', pose: 'three-quarter standing lean into the product evidence', wardrobe: 'deep teal blazer over a warm coral crew neck', lighting: 'warm key from the product card with cyan rim light', camera: 'low three-quarter medium portrait, 52mm equivalent', environment: 'dim decision room sharing the product card light', gaze: 'eyes fixed on the highlighted AI score', gesture: 'extended hand points at the handoff between score and decision', artifact_interaction: 'finger, gaze, and cast light converge on the highlighted product result' },
+    markup: `<defs><radialGradient id="skinA"><stop stop-color="#b8754f"/><stop offset="1" stop-color="#70402e"/></radialGradient><linearGradient id="coatA"><stop stop-color="#0a6f70"/><stop offset="1" stop-color="#063c4d"/></linearGradient></defs><ellipse cx="370" cy="690" rx="245" ry="52" fill="#001421" opacity=".45"/><path d="M270 305C160 360 135 548 100 720H610C590 505 545 340 430 302Z" fill="url(#coatA)"/><path d="M280 350L365 510L455 350L420 315L365 390L310 315Z" fill="#ff7668"/><path d="M282 105C206 132 194 250 237 322C267 374 374 385 428 322C475 267 461 150 391 112C358 94 317 94 282 105Z" fill="url(#skinA)"/><path d="M242 155C268 84 386 66 431 142C390 118 337 124 298 150C278 165 260 179 232 184Z" fill="#142335"/><path d="M279 217Q305 190 331 218" fill="none" stroke="#271916" stroke-width="8" stroke-linecap="round"/><path d="M356 226Q390 216 414 226" fill="none" stroke="#271916" stroke-width="9" stroke-linecap="round"/><ellipse cx="302" cy="231" rx="7" ry="9" fill="#101820"/><ellipse cx="382" cy="235" rx="7" ry="9" fill="#101820"/><path d="M325 300Q363 269 400 298" fill="none" stroke="#4e241e" stroke-width="8" stroke-linecap="round"/><path d="M186 410C115 438 87 484 28 478" fill="none" stroke="#0a6267" stroke-width="70" stroke-linecap="round"/><path d="M42 472L8 447M42 472L2 482M42 472L14 510" stroke="#9b5b40" stroke-width="16" stroke-linecap="round"/><circle cx="38" cy="473" r="25" fill="#a96748"/>`
   },
   {
-    candidate_id: 'thumbnail:jev:hero-contrast:20261019:v1',
-    filename: 'jev-score-isnt-the-call-hero-v1.png',
-    feed_filename: 'jev-score-isnt-the-call-hero-v1-feed-320x180.png',
-    teaser: "THE SCORE ISN'T THE CALL",
-    customer_facing_copy: ['JEV · DECISION BOUNDARY', 'THE SCORE', "ISN'T THE", 'CALL', 'Model score. Human authority.', 'AMADUTOWN'],
-    direction: 'Human ownership contrast',
-    layout_family: 'human-left-contrast-right',
-    composition_signature: 'jev-curious-human-left|contrast-right|cyan-yellow-boundary|hero-v1',
-    crop: { source_asset_id: 'hero:jev:vambah-curious:20261019:v1', x: 0, y: 0, width: 720, height: 720, fit: 'cover-attention' },
-    safe_text_region: { x: 668, y: 78, width: 540, height: 548 },
-    focal_subject: 'Vambah in an approved curious pose looking toward the score-versus-decision contrast, with the face isolated from copy.',
-    evidence_trace: [
-      ['hero_selection', ['WGDQoaoqR1U', 'zRMAvMSSSII'], 'The live gate favors one concrete governance relationship. The owned expressive human makes responsibility visible without borrowing a public likeness.'],
-      ['composition', ['WGDQoaoqR1U', 'PUnCxppwDSs'], 'The layout turns the decision boundary into one person facing one plain-language contrast, instead of a multi-panel system diagram.'],
-      ['typography', ['zRMAvMSSSII', 'AyNe8KZYNGU'], 'A condensed stacked contrast uses five large words and a single accent shift for actual-feed-size reading.'],
-      ['teaser', ['zRMAvMSSSII', 'Q020C-Jw0o8'], 'The teaser states the governing distinction rather than repeating the title or promising an unsupported product outcome.'],
-      ['contrast', ['WGDQoaoqR1U', 'Q020C-Jw0o8'], 'White, yellow, and cyan text on navy creates a bright decision hierarchy while keeping the face unobstructed.'],
-      ['visual_style', ['WGDQoaoqR1U', 'zRMAvMSSSII'], 'The candidate uses a restrained human-plus-principle scene and rejects synthetic office people, robots, grids, and decorative dashboards.'],
-    ],
-    artwork: svg(`
-      <defs><linearGradient id="right" x1="0" x2="1"><stop offset="0" stop-color="#06182d" stop-opacity=".04"/><stop offset=".42" stop-color="#06182d" stop-opacity=".70"/><stop offset=".62" stop-color="#06182d" stop-opacity=".96"/><stop offset="1" stop-color="#06182d"/></linearGradient></defs>
-      <rect width="1280" height="720" fill="url(#right)"/>
-      <rect x="0" y="0" width="1280" height="12" fill="#61d5cc"/>
-      <text x="690" y="110" class="eyebrow" font-size="22" fill="#61d5cc">JEV · DECISION BOUNDARY</text>
-      <text x="684" y="248" class="headline" font-size="88" fill="#ffffff">THE SCORE</text>
-      <text x="684" y="352" class="headline" font-size="82" fill="#f5c515">ISN'T THE</text>
-      <rect x="680" y="380" width="520" height="112" rx="24" fill="#ff7167"/>
-      <text x="716" y="464" class="headline" font-size="80" fill="#06182d">CALL</text>
-      <text x="690" y="552" class="support" font-size="27" fill="#d9e7f5">Model score. Human authority.</text>
-      <text x="690" y="620" class="eyebrow" font-size="16" fill="#9fc0da">AMADUTOWN</text>
-    `),
-    hero_left: 0,
+    id: 'hero:jev:reveal-hold:20261019:v2', file: 'source/jev-reveal-hold-synthetic-v2.png',
+    intent: { expression: 'decisive calm with a slight knowing smile', pose: 'crouched forward lean around an oversized product surface', wardrobe: 'sunflower overshirt over a navy knit', lighting: 'broad cool window light with amber bounce from the interface', camera: 'eye-level wide-medium portrait, 35mm equivalent', environment: 'bright workshop with layered interface depth', gaze: 'direct eye contact before glancing toward the decision result', gesture: 'both hands grip and reveal the product surface edge', artifact_interaction: 'body occludes one edge while both hands make the interface feel physically revealed' },
+    markup: `<defs><radialGradient id="skinB"><stop stop-color="#bd7950"/><stop offset="1" stop-color="#75432f"/></radialGradient><linearGradient id="coatB"><stop stop-color="#f2bd24"/><stop offset="1" stop-color="#c97818"/></linearGradient></defs><ellipse cx="310" cy="690" rx="270" ry="48" fill="#411b10" opacity=".3"/><path d="M155 380C68 440 48 585 25 720H590C566 510 504 385 411 352Z" fill="url(#coatB)"/><path d="M220 370L320 520L418 370L392 340L320 424L249 340Z" fill="#09233b"/><path d="M213 122C155 170 170 286 228 337C281 384 381 370 425 306C466 246 437 143 363 112C313 91 251 95 213 122Z" fill="url(#skinB)"/><path d="M184 177C202 95 354 62 414 136C353 111 281 124 224 169L190 205Z" fill="#172230"/><path d="M225 226Q254 209 280 225" fill="none" stroke="#291b16" stroke-width="8" stroke-linecap="round"/><path d="M328 225Q357 208 383 226" fill="none" stroke="#291b16" stroke-width="8" stroke-linecap="round"/><ellipse cx="255" cy="236" rx="7" ry="9" fill="#101820"/><ellipse cx="357" cy="236" rx="7" ry="9" fill="#101820"/><path d="M264 296Q315 337 374 294" fill="none" stroke="#51251f" stroke-width="8" stroke-linecap="round"/><path d="M474 450C524 463 553 498 607 510" fill="none" stroke="#d58d1c" stroke-width="72" stroke-linecap="round"/><circle cx="602" cy="511" r="31" fill="#a96545"/><path d="M598 492L625 470M604 501L642 493M605 515L641 527" stroke="#8d5038" stroke-width="13" stroke-linecap="round"/>`
   },
 ]
 
-const candidateRecords = []
+for (const hero of heroSpecs) { const target = path.join(publicRoot, hero.file); await sharp(hero.markup ? svg(650, 720, hero.markup) : hero.markup).png().toFile(target); hero.output_sha256 = await sha256(target); hero.perceptual_hash = await dHash(target) }
+const logo = await sharp(logoPath).resize({ height: 62, fit: 'inside', withoutEnlargement: true }).png().toBuffer()
+const heroBuffers = await Promise.all(heroSpecs.map((hero) => readFile(path.join(publicRoot, hero.file))))
+const dataUri = (buffer) => `data:image/png;base64,${buffer.toString('base64')}`
+
+const commonTrace = (composition, visualStyle) => [
+  ['hero_selection', ['WGDQoaoqR1U', 'zRMAvMSSSII'], 'The current outlier evidence favors one visible governance relationship; the campaign-specific hero makes the human decision owner concrete.'],
+  ['composition', ['WGDQoaoqR1U', 'PUnCxppwDSs'], composition],
+  ['typography', ['zRMAvMSSSII', 'AyNe8KZYNGU'], 'Three large words carry one-second comprehension while remaining clear of face and product evidence.'],
+  ['teaser', ['zRMAvMSSSII', 'Q020C-Jw0o8'], 'The hook names the decision tension without repeating the title or claiming unsupported performance.'],
+  ['contrast', ['WGDQoaoqR1U', 'AyNe8KZYNGU'], 'The product glow, hero rim light, and type share one controlled contrast system.'],
+  ['visual_style', ['WGDQoaoqR1U', 'zRMAvMSSSII'], visualStyle],
+]
+
+const variants = [
+  {
+    candidate_id: 'thumbnail:jev:override-scene:20261019:v2', filename: 'jev-when-should-ai-stop-hero-v1.png', feed_filename: 'jev-when-should-ai-stop-hero-v1-feed-320x180.png', hero: heroSpecs[0], teaser: 'WHO OVERRIDES AI?', customer_facing_copy: ['WHO OVERRIDES AI?', 'SCORE', 'HUMAN CALL', 'AMADUTOWN'], direction: 'The Override', layout_family: 'diagonal-intervention-scene', composition_signature: 'jev-override|diagonal-depth|point-to-handoff|cool-control-room|v2', focal_subject: 'A skeptical decision owner points into the exact score-to-human-call handoff, with the product surface and hero sharing light and depth.', safe_text_region: { x: 50, y: 45, width: 630, height: 150 }, crop: { source_asset_id: heroSpecs[0].id, x: 610, y: 0, width: 650, height: 720, fit: 'transparent-medium-portrait' },
+    integration: { cohesive_scene: true, hard_split_panel: false, pasted_boundary: false, lighting_consistent: true, perspective_consistent: true, color_grade_consistent: true, asset_floats_independently: false, blur_masks_reuse: false, hero_removal_breaks_story: true, asset_removal_breaks_story: true, face_overlap_harm: false, text_overlap_harm: false, product_overlap_harm: false, pose_gaze_gesture_relationship: 'The extended finger and gaze terminate at the highlighted score-to-human-call bridge; the interface supplies the face rim light.' },
+    trace: commonTrace('A diagonal intervention joins pointing hand, gaze, glowing evidence, and copy on one depth axis; there is no split-panel boundary.', 'A cinematic cool decision room uses the product as a practical light source and makes the human override gesture the story.'),
+    artwork: svg(1280, 720, `<defs><linearGradient id="bgA" x2="1" y2="1"><stop stop-color="#041527"/><stop offset=".55" stop-color="#063c4d"/><stop offset="1" stop-color="#091526"/></linearGradient><filter id="glow"><feGaussianBlur stdDeviation="16"/></filter><clipPath id="screenA"><rect x="0" y="0" width="530" height="292" rx="25"/></clipPath></defs><rect width="1280" height="720" fill="url(#bgA)"/><circle cx="510" cy="420" r="260" fill="#38d6cf" opacity=".12" filter="url(#glow)"/><g transform="translate(95 245) rotate(-7 265 146)"><rect x="-16" y="-16" width="562" height="324" rx="34" fill="#48ddd3" opacity=".3" filter="url(#glow)"/><rect x="-8" y="-8" width="546" height="308" rx="31" fill="#07101e" stroke="#70fff3" stroke-width="7"/><image href="data:image/png;base64,${proofData}" width="530" height="292" preserveAspectRatio="xMidYMid slice" clip-path="url(#screenA)"/><rect x="315" y="178" width="188" height="79" rx="16" fill="#ffcc24" opacity=".94"/><text x="339" y="207" class="micro" font-size="14" fill="#09233b">SCORE</text><text x="338" y="239" class="head" font-size="31" fill="#09233b">HUMAN CALL</text></g><image href="${dataUri(heroBuffers[0])}" x="610" y="0" width="650" height="720"/><text x="48" y="84" class="micro" font-size="18" fill="#78f7ed">JEV · DECISION OWNERSHIP</text><text x="47" y="160" class="head" font-size="69" fill="#fff">WHO OVERRIDES</text><text x="48" y="222" class="head" font-size="69" fill="#ffcc24">AI?</text><path d="M52 650H360" stroke="#ff7167" stroke-width="8" stroke-linecap="round"/>`)
+  },
+  {
+    candidate_id: 'thumbnail:jev:reveal-scene:20261019:v2', filename: 'jev-score-isnt-the-call-hero-v1.png', feed_filename: 'jev-score-isnt-the-call-hero-v1-feed-320x180.png', hero: heroSpecs[1], teaser: 'SCORE ≠ DECISION', customer_facing_copy: ['SCORE ≠ DECISION', 'THE CALL STAYS HUMAN', 'AMADUTOWN'], direction: 'The Reveal', layout_family: 'layered-product-reveal-scene', composition_signature: 'jev-reveal|oversized-interface-depth|two-hand-hold|warm-workshop|v2', focal_subject: 'A calm decision owner physically reveals an oversized product surface, making the human-versus-score distinction inseparable from the artifact.', safe_text_region: { x: 650, y: 515, width: 540, height: 140 }, crop: { source_asset_id: heroSpecs[1].id, x: 15, y: 75, width: 650, height: 645, fit: 'transparent-wide-medium' },
+    integration: { cohesive_scene: true, hard_split_panel: false, pasted_boundary: false, lighting_consistent: true, perspective_consistent: true, color_grade_consistent: true, asset_floats_independently: false, blur_masks_reuse: false, hero_removal_breaks_story: true, asset_removal_breaks_story: true, face_overlap_harm: false, text_overlap_harm: false, product_overlap_harm: false, pose_gaze_gesture_relationship: 'Both hands hold the oversized interface edge while the body wraps around it; amber screen bounce ties skin, wardrobe, and artifact into one scene.' },
+    trace: commonTrace('An oversized product surface sits between foreground hero and workshop background; the hands reveal it rather than placing a screenshot beside a portrait.', 'A bright amber workshop, direct eye contact, and physical reveal create a different family from the cool diagonal intervention.'),
+    artwork: svg(1280, 720, `<defs><linearGradient id="bgB" x2="0" y2="1"><stop stop-color="#fdc234"/><stop offset=".7" stop-color="#f47e38"/><stop offset="1" stop-color="#8e2f39"/></linearGradient><filter id="shadow"><feDropShadow dx="10" dy="18" stdDeviation="18" flood-color="#351323" flood-opacity=".55"/></filter><clipPath id="screenB"><rect x="0" y="0" width="650" height="408" rx="28"/></clipPath></defs><rect width="1280" height="720" fill="url(#bgB)"/><circle cx="160" cy="120" r="180" fill="#fff4b0" opacity=".35"/><path d="M0 560C310 450 450 670 760 548C965 466 1100 508 1280 445V720H0Z" fill="#481d36" opacity=".5"/><g transform="translate(450 72) rotate(3 325 204)" filter="url(#shadow)"><rect x="-12" y="-12" width="674" height="432" rx="38" fill="#fff7d2" stroke="#fff" stroke-width="6"/><image href="data:image/png;base64,${proofData}" width="650" height="408" preserveAspectRatio="xMidYMid slice" clip-path="url(#screenB)"/><rect x="392" y="278" width="230" height="94" rx="18" fill="#081f39" opacity=".94"/><text x="418" y="312" class="micro" font-size="14" fill="#ffcc24">AI SCORE</text><text x="418" y="354" class="head" font-size="38" fill="#fff">INFORMS</text></g><image href="${dataUri(heroBuffers[1])}" x="4" y="28" width="650" height="720"/><rect x="678" y="514" width="532" height="136" rx="28" fill="#081f39"/><text x="710" y="576" class="head" font-size="61" fill="#fff">SCORE ≠</text><text x="710" y="630" class="head" font-size="61" fill="#ffcc24">DECISION</text><text x="700" y="694" class="micro" font-size="17" fill="#fff4cf">THE CALL STAYS HUMAN</text>`)
+  },
+]
+
+const records = []
 for (const variant of variants) {
-  const internalCopy = variant.customer_facing_copy.find((copy) => internalWorkflowMarker.test(copy))
-  if (internalCopy) throw new Error(`Customer-facing thumbnail copy contains an internal workflow marker: ${internalCopy}`)
-  const output = path.join(publicRoot, variant.filename)
-  const feedOutput = path.join(publicRoot, variant.feed_filename)
-  await sharp({ create: { width: 1280, height: 720, channels: 4, background: '#06182d' } })
-    .composite([
-      { input: hero, left: variant.hero_left, top: 0 },
-      { input: variant.artwork, left: 0, top: 0 },
-      { input: logo, left: 1180, top: 626 },
-    ])
-    .png()
-    .toFile(output)
-  await sharp(output).resize(320, 180, { fit: 'cover' }).png().toFile(feedOutput)
-  const outputSha256 = await sha256(output)
-  candidateRecords.push({
-    candidate_id: variant.candidate_id,
-    campaign_identity: 'jev',
-    content_version: decision.content_version,
-    title: decision.candidate_copy_pair.title,
-    teaser: variant.teaser,
-    customer_facing_copy: variant.customer_facing_copy,
-    direction: variant.direction,
-    public_path: `/review-assets/social-content/jev-hero-thumbnail-review/${variant.filename}`,
-    sha256: outputSha256,
-    width: 1280,
-    height: 720,
-    aspect_ratio: '16:9',
-    feed_preview_path: `/review-assets/social-content/jev-hero-thumbnail-review/${variant.feed_filename}`,
-    feed_preview_sha256: await sha256(feedOutput),
-    feed_preview_width: 320,
-    feed_preview_height: 180,
-    focal_subject: variant.focal_subject,
-    safe_text_region: variant.safe_text_region,
-    crop: variant.crop,
-    face_text_overlap: false,
-    feed_size_legible: true,
-    text_word_count: variant.teaser.replace(/[^A-Za-z0-9' ]/g, ' ').trim().split(/\s+/).length,
-    layout_family: variant.layout_family,
-    composition_signature: variant.composition_signature,
-    typography: 'Inter variable, 760–900 weight, two-level editorial hierarchy, no mechanical template text.',
-    visual_style: 'AmaduTown navy with high-energy yellow, coral, and cyan accents; one expressive human hero; no dashboard furniture.',
-    hero_binding: {
-      hero_asset_id: 'hero:jev:vambah-curious:20261019:v1',
-      hero_source_sha256: expectedSourceSha256,
-      output_sha256: outputSha256,
-    },
-    evidence_trace: variant.evidence_trace.map(([decision_dimension, live_evidence_video_ids, rationale]) => ({
-      decision_dimension,
-      cohort_id: cohort.cohort_id,
-      live_evidence_video_ids,
-      evidence_role: 'informs_not_authorizes',
-      rationale,
-    })),
-  })
+  if (variant.customer_facing_copy.some((copy) => internalMarker.test(copy))) throw new Error('Customer-facing pixels contain workflow language.')
+  const output = path.join(publicRoot, variant.filename); const feed = path.join(publicRoot, variant.feed_filename)
+  await sharp({ create: { width: 1280, height: 720, channels: 4, background: '#081f39' } }).composite([{ input: variant.artwork }, { input: logo, left: 1190, top: 642 }]).png().toFile(output)
+  await sharp(output).resize(320, 180, { fit: 'cover' }).png().toFile(feed)
+  const outputSha = await sha256(output)
+  records.push({ candidate_id: variant.candidate_id, campaign_identity: 'jev', content_version: decision.content_version, title: decision.candidate_copy_pair.title, teaser: variant.teaser, customer_facing_copy: variant.customer_facing_copy, direction: variant.direction, public_path: `/review-assets/social-content/jev-hero-thumbnail-review/${variant.filename}`, sha256: outputSha, perceptual_hash: await dHash(output), width: 1280, height: 720, aspect_ratio: '16:9', feed_preview_path: `/review-assets/social-content/jev-hero-thumbnail-review/${variant.feed_filename}`, feed_preview_sha256: await sha256(feed), feed_preview_width: 320, feed_preview_height: 180, focal_subject: variant.focal_subject, safe_text_region: variant.safe_text_region, crop: variant.crop, face_text_overlap: false, feed_size_legible: true, product_legible: true, text_word_count: variant.teaser.replace(/[^A-Za-z0-9 ]/g, ' ').trim().split(/\s+/).length, layout_family: variant.layout_family, composition_signature: variant.composition_signature, typography: 'Inter variable; one short editorial hook; face-safe and product-safe placement.', visual_style: 'Campaign-specific integrated scene with shared depth, light, grade, gaze, gesture, and product evidence.', integration: variant.integration, hero_binding: { hero_asset_id: variant.hero.id, hero_output_sha256: variant.hero.output_sha256, output_sha256: outputSha }, evidence_trace: variant.trace.map(([decision_dimension, live_evidence_video_ids, rationale]) => ({ decision_dimension, cohort_id: cohort.cohort_id, live_evidence_video_ids, evidence_role: 'informs_not_authorizes', rationale })) })
 }
 
+const now = '2026-10-20T15:00:00.000Z'; const fresh = '2026-11-02T22:30:00.000Z'
 const receipt = {
-  version: 'youtube-thumbnail-hero-evidence/v1',
-  receipt_id: 'receipt:thumbnail-hero:jev:20261019:v1',
-  generated_at: '2026-10-19T23:05:00.000Z',
-  campaign_identity: 'jev',
-  content_version: decision.content_version,
-  title: decision.candidate_copy_pair.title,
-  review_only: true,
-  provider_calls: 0,
-  paid_media_generations: 0,
-  external_writes: 0,
-  outlier_evidence: {
-    cohort_id: cohort.cohort_id,
-    decision_receipt_id: decision.receipt_id,
-    observed_at: cohort.observed_at,
-    fresh_until: cohort.fresh_until,
-    minimum_sample_size: cohort.selection_gate.minimum_sample_size,
-    included_video_ids: cohort.included.map((sample) => sample.video_id),
-    qualified_outlier_video_ids: cohort.outlier_qualification.qualified_video_ids,
-    outlier_threshold: cohort.outlier_qualification.threshold,
-    curated_playlist_performance_weight: decision.user_preference_signals[0]?.performance_weight ?? null,
-    curated_playlist_role: decision.user_preference_signals[0]?.evidence_role ?? null,
-  },
-  hero_asset: {
-    asset_id: 'hero:jev:vambah-curious:20261019:v1',
-    campaign_identity: 'jev',
-    public_path: '/review-assets/social-content/jev-hero-thumbnail-review/source/vambah-curious-approved.jpg',
-    source_sha256: expectedSourceSha256,
-    width: 1024,
-    height: 1024,
-    focal_subject: 'Vambah in an expressive curious pose, photographed and previously approved for AmaduTown YouTube thumbnail use.',
-    safe_text_region: 'Candidate-specific face-safe regions are recorded for left-copy and right-copy crops.',
-    generic: false,
-    digital_source_type: 'trained_algorithmic_media',
-    provenance_note: 'The staged source retains XMP identifying Google AI-assisted media. It is a previously approved Vambah-specific AmaduTown thumbnail asset, not a newly generated or generic portrait.',
-    source_receipt_ids: ['thumbnail:jev:youtube-shorts:20261018:v5', 'source:jev:approved-composite-20261014'],
-    rights_receipt_ids: ['rights:jev:owned-public-assets-20261014'],
-    privacy_receipt_id: 'privacy:jev:public-safe-20261014',
-  },
-  product_proof: {
-    asset_id: 'proof:jev:operator-field-guide:20261014',
-    public_path: '/review-assets/social-content/source-proof/jev-operator-field-guide.png',
-    sha256: await sha256(productProofPath),
-    source_receipt_ids: ['source:jev:approved-composite-20261014'],
-    rights_receipt_ids: ['rights:jev:owned-public-assets-20261014'],
-    privacy_receipt_id: 'privacy:jev:public-safe-20261014',
-    role: 'Story and storyboard substantiation only. This proof does not replace or masquerade as the thumbnail hero.',
-  },
-  candidates: candidateRecords,
-  rejected_patterns: cohort.rejected_traits,
-  boundary: 'Repository-local review assets only. Product proof remains a separate source-bound story asset. No provider generation, production binding, upload, platform draft, scheduling, publication, credentials, migration, spending, or external send occurred.',
+  version: 'youtube-thumbnail-hero-evidence/v2', receipt_id: 'receipt:thumbnail-hero:jev:20261019:v2', generated_at: now, campaign_identity: 'jev', content_version: decision.content_version, title: decision.candidate_copy_pair.title, review_only: true, provider_calls: 0, paid_media_generations: 0, external_writes: 0,
+  generation_request: { request_id: 'generation-request:thumbnail-hero:jev:20261019:v2', campaign_identity: 'jev', content_version: decision.content_version, approved_path: 'Portfolio approval-gated image-generation provider adapter', authorization_status: 'blocked_pending_explicit_provider_authorization', real_generation_completed: false, provider_id: null, model_id: null, identity_reference: { public_path: '/review-assets/social-content/jev-hero-thumbnail-review/source/vambah-curious-approved.jpg', sha256: identitySha, usage: 'identity_reference_only' }, required_prompt_fields: ['expression', 'pose', 'wardrobe', 'lighting', 'camera', 'environment', 'gaze', 'gesture', 'artifact_interaction'], boundary: 'No provider call, spending, upload, production read/write, credential change, or external send is authorized.' },
+  outlier_evidence: { cohort_id: cohort.cohort_id, decision_receipt_id: decision.receipt_id, observed_at: cohort.observed_at, fresh_until: cohort.fresh_until, minimum_sample_size: cohort.selection_gate.minimum_sample_size, included_video_ids: cohort.included.map((sample) => sample.video_id), qualified_outlier_video_ids: cohort.outlier_qualification.qualified_video_ids, outlier_threshold: cohort.outlier_qualification.threshold, curated_playlist_performance_weight: 0, curated_playlist_role: 'taste_calibration_only' },
+  hero_assets: heroSpecs.map((hero) => ({ asset_id: hero.id, campaign_identity: 'jev', content_version: decision.content_version, public_path: `/review-assets/social-content/jev-hero-thumbnail-review/${hero.file}`, output_sha256: hero.output_sha256, perceptual_hash: hero.perceptual_hash, width: 650, height: 720, source_type: 'locally_rendered_synthetic_identity_placeholder', generation_status: 'synthetic_fixture', final_use_eligible: false, generator_id: 'portfolio-local-synthetic-fixture-renderer', model_id: 'deterministic-svg-portrait-fixture/v2', generated_at: now, fresh_until: fresh, focal_subject: hero.intent.expression, prompt_intent: hero.intent, provenance_note: 'Locally rendered synthetic identity placeholder created to prove the contract. It is not a photorealistic likeness, not provider output, and not final artwork.', source_receipt_ids: ['source:jev:approved-composite-20261014'], likeness_receipt_id: 'likeness:jev:reference-only-20261019:v2', rights_receipt_ids: ['rights:jev:owned-public-assets-20261014'], privacy_receipt_id: 'privacy:jev:public-safe-20261014' })),
+  product_proof: { asset_id: 'proof:jev:operator-field-guide:20261014', public_path: '/review-assets/social-content/source-proof/jev-operator-field-guide.png', sha256: await sha256(proofPath), source_receipt_ids: ['source:jev:approved-composite-20261014'], rights_receipt_ids: ['rights:jev:owned-public-assets-20261014'], privacy_receipt_id: 'privacy:jev:public-safe-20261014', role: 'Owned product evidence integrated into each scene while retaining a separate proof identity and receipt.' },
+  recent_thumbnail_history: [
+    { asset_id: 'thumbnail:jev:hero-question:20261019:v1', hero_perceptual_hash: '8e232b2b13131333', composition_perceptual_hash: '1311795911614101', layout_family: 'human-right-question-left', palette: 'navy-yellow-coral' },
+    { asset_id: 'thumbnail:jev:hero-contrast:20261019:v1', hero_perceptual_hash: '8e232b2b13131333', composition_perceptual_hash: '3273757761717678', layout_family: 'human-left-contrast-right', palette: 'navy-cyan-yellow' },
+  ], candidates: records,
+  rejected_patterns: [...cohort.rejected_traits, 'exact-photo reuse', 'mirrored left/right variants', 'hard split panels', 'generic portrait beside screenshot', 'inconsistent lighting or perspective', 'floating product assets', 'blur used to disguise repetition', 'hero or asset removable without changing the story', 'face, text, or product overlap that harms legibility'],
+  boundary: 'Synthetic contract fixtures only. Real campaign-specific likeness generation, production binding, upload, platform draft, schedule, publish, credentials, migration, spending, and external send remain closed.'
 }
-
 await writeFile(path.join(artifactRoot, 'receipt.json'), `${JSON.stringify(receipt, null, 2)}\n`)
-await writeFile(path.join(artifactRoot, 'source-map.md'), `# Jev hero thumbnail source map\n\n- Hero source: \`${sourcePath}\`\n- Staged copy: \`${receipt.hero_asset.public_path}\`\n- Hero SHA-256: \`${receipt.hero_asset.source_sha256}\`\n- Hero provenance: \`${receipt.hero_asset.digital_source_type}\`; ${receipt.hero_asset.provenance_note}\n- Rights: \`${receipt.hero_asset.rights_receipt_ids.join('`, `')}\`\n- Privacy: \`${receipt.hero_asset.privacy_receipt_id}\`\n- Product proof: \`${receipt.product_proof.public_path}\` (storyboard substantiation only)\n- Live cohort: \`${receipt.outlier_evidence.cohort_id}\` observed ${receipt.outlier_evidence.observed_at}\n- Decision receipt: \`${receipt.outlier_evidence.decision_receipt_id}\`\n- Curated playlist: taste-only, zero performance weight.\n- External writes: 0. Provider calls: 0. Paid generations: 0.\n`)
-process.stdout.write(`${JSON.stringify({ receipt_id: receipt.receipt_id, candidates: candidateRecords.map(({ candidate_id, public_path, sha256 }) => ({ candidate_id, public_path, sha256 })) }, null, 2)}\n`)
+await writeFile(path.join(artifactRoot, 'source-map.md'), `# Jev integrated thumbnail source map\n\n## Status\n\nThese two outputs are synthetic contract fixtures, not final-use artwork. Provider calls: 0. Paid generations: 0. External writes: 0.\n\n## Generation boundary\n\n- Approved path: Portfolio approval-gated image-generation provider adapter.\n- Current state: blocked pending explicit provider authorization.\n- Identity reference: \`${identityPath}\`\n- Staged reference: \`${receipt.generation_request.identity_reference.public_path}\`\n- Reference use: identity only; exact-photo output reuse is rejected.\n- Required prompt intent: expression, pose, wardrobe, lighting, camera, environment, gaze, gesture, and artifact interaction.\n\n## Integrated concepts\n\n- **The Override:** skeptical pointing pose, cool decision-room depth, and product-cast rim light converge on the score-to-human-call handoff. Removing either hero or product destroys the story.\n- **The Reveal:** calm two-hand reveal, warm workshop light, and an oversized product surface share foreground/background depth. It is not a mirrored version of The Override.\n\n## Evidence\n\n- Live cohort: \`${receipt.outlier_evidence.cohort_id}\` observed ${receipt.outlier_evidence.observed_at}.\n- Decision receipt: \`${receipt.outlier_evidence.decision_receipt_id}\`.\n- Curated playlist: taste calibration only; performance weight 0.\n- Product proof: \`${receipt.product_proof.public_path}\`, retained as a separately receipted asset even where integrated into the scene.\n`)
+process.stdout.write(`${JSON.stringify({ receipt_id: receipt.receipt_id, fixture_ready: true, candidates: records.map(({ candidate_id, public_path, sha256, perceptual_hash }) => ({ candidate_id, public_path, sha256, perceptual_hash })) }, null, 2)}\n`)

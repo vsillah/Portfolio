@@ -1,77 +1,24 @@
-export const YOUTUBE_THUMBNAIL_HERO_EVIDENCE_VERSION = 'youtube-thumbnail-hero-evidence/v1' as const
+export const YOUTUBE_THUMBNAIL_HERO_EVIDENCE_VERSION = 'youtube-thumbnail-hero-evidence/v2' as const
 
-export const YOUTUBE_THUMBNAIL_CREATIVE_DECISIONS = [
-  'hero_selection',
-  'composition',
-  'typography',
-  'teaser',
-  'contrast',
-  'visual_style',
-] as const
+export const YOUTUBE_THUMBNAIL_CREATIVE_DECISIONS = ['hero_selection', 'composition', 'typography', 'teaser', 'contrast', 'visual_style'] as const
+export const YOUTUBE_THUMBNAIL_INTERNAL_WORKFLOW_MARKERS = ['review only', 'draft', 'fixture', 'sample data', 'operator', 'internal', 'prompt', 'qa'] as const
 
-export const YOUTUBE_THUMBNAIL_INTERNAL_WORKFLOW_MARKERS = [
-  'review only',
-  'draft',
-  'fixture',
-  'sample data',
-  'operator',
-  'internal',
-  'prompt',
-  'qa',
-] as const
-
-export type YouTubeThumbnailCreativeDecision = (typeof YOUTUBE_THUMBNAIL_CREATIVE_DECISIONS)[number]
-
-export type YouTubeThumbnailHeroEvidenceValidation = {
-  ready: boolean
-  blockers: string[]
-  recovery_actions: string[]
-}
-
+export type YouTubeThumbnailHeroEvidenceValidation = { ready: boolean; fixture_ready: boolean; blockers: string[]; recovery_actions: string[] }
 type UnknownRecord = Record<string, unknown>
+const record = (value: unknown): UnknownRecord | null => value && typeof value === 'object' && !Array.isArray(value) ? value as UnknownRecord : null
+const text = (value: unknown) => typeof value === 'string' ? value.trim() : ''
+const values = (value: unknown) => Array.isArray(value) ? value : []
+const strings = (value: unknown) => values(value).map(text).filter(Boolean)
+const sha256 = (value: unknown) => /^sha256:[a-f0-9]{64}$/i.test(text(value))
+const pHash = (value: unknown) => /^[a-f0-9]{16}$/i.test(text(value))
+const validDate = (value: unknown) => Number.isFinite(Date.parse(text(value))) ? Date.parse(text(value)) : null
+const positive = (value: unknown) => Number.isFinite(Number(value)) && Number(value) > 0
 
-function record(value: unknown): UnknownRecord | null {
-  return value && typeof value === 'object' && !Array.isArray(value) ? value as UnknownRecord : null
-}
-
-function text(value: unknown) {
-  return typeof value === 'string' ? value.trim() : ''
-}
-
-function values(value: unknown) {
-  return Array.isArray(value) ? value : []
-}
-
-function strings(value: unknown) {
-  return values(value).map(text).filter(Boolean)
-}
-
-function sha256(value: unknown) {
-  return /^sha256:[a-f0-9]{64}$/i.test(text(value))
-}
-
-function validDate(value: unknown) {
-  const parsed = Date.parse(text(value))
-  return Number.isFinite(parsed) ? parsed : null
-}
-
-function positive(value: unknown) {
-  return Number.isFinite(Number(value)) && Number(value) > 0
-}
-
-function candidateLooksGeneric(candidate: UnknownRecord) {
-  const signature = `${text(candidate.layout_family)} ${text(candidate.composition_signature)}`.toLowerCase()
-  return [
-    'generic-fallback',
-    'shared-template',
-    'dashboard',
-    'field-guide',
-    'text-first',
-    'multi-panel',
-    'split-screen',
-    'synthetic-office',
-    'generic-portrait',
-  ].some((token) => signature.includes(token))
+function hamming(a: string, b: string) {
+  if (!pHash(a) || !pHash(b)) return 0
+  let distance = 0
+  for (let index = 0; index < a.length; index += 1) { let xor = Number.parseInt(a[index], 16) ^ Number.parseInt(b[index], 16); while (xor) { distance += xor & 1; xor >>= 1 } }
+  return distance
 }
 
 function containsInternalWorkflowMarker(copy: string[]) {
@@ -79,158 +26,77 @@ function containsInternalWorkflowMarker(copy: string[]) {
   return YOUTUBE_THUMBNAIL_INTERNAL_WORKFLOW_MARKERS.some((marker) => new RegExp(`\\b${marker.replace(' ', '\\s+')}\\b`, 'i').test(normalized))
 }
 
-export function validateYouTubeThumbnailHeroEvidence(
-  value: unknown,
-  currentContentVersion: string,
-  evaluationAsOf = new Date().toISOString(),
-): YouTubeThumbnailHeroEvidenceValidation {
-  const receipt = record(value)
-  const blockers: string[] = []
-  const recoveryActions: string[] = []
-  const block = (message: string, recovery: string) => {
-    blockers.push(message)
-    recoveryActions.push(recovery)
-  }
+function genericOrSplit(candidate: UnknownRecord) {
+  const signature = `${text(candidate.layout_family)} ${text(candidate.composition_signature)}`.toLowerCase()
+  return ['generic-fallback', 'shared-template', 'dashboard', 'field-guide', 'text-first', 'multi-panel', 'split-screen', 'side-by-side', 'left-right-split', 'portrait-plus-screenshot'].some((token) => signature.includes(token))
+}
 
-  if (!receipt || receipt.version !== YOUTUBE_THUMBNAIL_HERO_EVIDENCE_VERSION) {
-    return {
-      ready: false,
-      blockers: ['The YouTube thumbnail hero evidence receipt is missing or malformed.'],
-      recovery_actions: ['Rebuild the candidate through the existing Social Content thumbnail evidence route.'],
-    }
-  }
+export function validateYouTubeThumbnailHeroEvidence(value: unknown, currentContentVersion: string, evaluationAsOf = new Date().toISOString()): YouTubeThumbnailHeroEvidenceValidation {
+  const receipt = record(value); const blockers: string[] = []; const recoveryActions: string[] = []
+  const block = (message: string, recovery: string) => { blockers.push(message); recoveryActions.push(recovery) }
+  if (!receipt || receipt.version !== YOUTUBE_THUMBNAIL_HERO_EVIDENCE_VERSION) return { ready: false, fixture_ready: false, blockers: ['The YouTube thumbnail hero evidence receipt is missing or malformed.'], recovery_actions: ['Rebuild the campaign-specific generation request and evidence receipt.'] }
 
   const campaignIdentity = text(receipt.campaign_identity)
-  if (!text(receipt.receipt_id) || !campaignIdentity || text(receipt.content_version) !== currentContentVersion) {
-    block('The hero evidence receipt is missing its campaign identity or is stale for the current content version.', 'Rebind the hero packet to the exact current Social Content version.')
-  }
+  if (!text(receipt.receipt_id) || !campaignIdentity || text(receipt.content_version) !== currentContentVersion) block('The hero evidence receipt is missing its campaign identity or is stale for the current content version.', 'Rebind the hero packet to the exact current Social Content version.')
+  const outlier = record(receipt.outlier_evidence); const includedVideoIds = new Set(strings(outlier?.included_video_ids)); const qualifiedVideoIds = strings(outlier?.qualified_outlier_video_ids); const evaluationTime = validDate(evaluationAsOf); const freshUntil = validDate(outlier?.fresh_until)
+  if (!outlier || !text(outlier.cohort_id) || !text(outlier.decision_receipt_id) || !validDate(outlier.observed_at) || freshUntil == null || evaluationTime == null || freshUntil < evaluationTime) block('The topic-specific YouTube outlier evidence is missing or stale.', 'Refresh the live same-topic cohort and issue a new version-bound decision receipt.')
+  if (!positive(outlier?.minimum_sample_size) || includedVideoIds.size < Number(outlier?.minimum_sample_size)) block('The live YouTube cohort does not meet its declared minimum sample size.', 'Collect enough attributable same-topic long-form examples before review.')
+  if (!positive(outlier?.outlier_threshold) || qualifiedVideoIds.length === 0 || qualifiedVideoIds.some((id) => !includedVideoIds.has(id))) block('The live YouTube cohort has no attributable outlier at the declared threshold.', 'Keep creative decisions blocked until an included comparison qualifies numerically.')
+  if (Number(outlier?.curated_playlist_performance_weight) !== 0 || outlier?.curated_playlist_role !== 'taste_calibration_only') block('The curated playlist is not constrained to zero-weight taste calibration.', 'Set playlist performance weight to zero and require independent live comparable evidence.')
 
-  const outlier = record(receipt.outlier_evidence)
-  const includedVideoIds = new Set(strings(outlier?.included_video_ids))
-  const qualifiedVideoIds = strings(outlier?.qualified_outlier_video_ids)
-  const evaluationTime = validDate(evaluationAsOf)
-  const freshUntil = validDate(outlier?.fresh_until)
-  if (
-    !outlier
-    || !text(outlier.cohort_id)
-    || !text(outlier.decision_receipt_id)
-    || !validDate(outlier.observed_at)
-    || freshUntil == null
-    || evaluationTime == null
-    || freshUntil < evaluationTime
-  ) {
-    block('The topic-specific YouTube outlier evidence is missing or stale.', 'Refresh the live same-topic cohort and issue a new version-bound decision receipt.')
-  }
-  if (!positive(outlier?.minimum_sample_size) || includedVideoIds.size < Number(outlier?.minimum_sample_size)) {
-    block('The live YouTube cohort does not meet its declared minimum sample size.', 'Collect enough attributable same-topic long-form examples before review.')
-  }
-  if (!positive(outlier?.outlier_threshold) || qualifiedVideoIds.length === 0 || qualifiedVideoIds.some((id) => !includedVideoIds.has(id))) {
-    block('The live YouTube cohort has no attributable outlier at the declared threshold.', 'Keep hero selection and creative decisions blocked until at least one included comparison qualifies numerically.')
-  }
-  if (Number(outlier?.curated_playlist_performance_weight) !== 0 || outlier?.curated_playlist_role !== 'taste_calibration_only') {
-    block('The curated playlist is not constrained to zero-weight taste calibration.', 'Set playlist performance weight to zero and require independent live comparable evidence.')
-  }
+  const request = record(receipt.generation_request)
+  if (!request || !text(request.request_id) || text(request.campaign_identity) !== campaignIdentity || text(request.content_version) !== currentContentVersion || !text(request.approved_path) || !text(request.authorization_status)) block('The campaign-specific generation request is missing or not version-bound.', 'Create a version-bound request with the approved generator path, authorization state, and prompt intent.')
+  const identity = record(request?.identity_reference)
+  if (!identity || !sha256(identity.sha256) || identity.usage !== 'identity_reference_only') block('The likeness reference is missing or can be reused as output.', 'Bind an exact likeness reference hash and constrain it to identity reference use only.')
+  const requiredPromptFields = ['expression', 'pose', 'wardrobe', 'lighting', 'camera', 'environment', 'gaze', 'gesture', 'artifact_interaction']
+  if (!requiredPromptFields.every((field) => strings(request?.required_prompt_fields).includes(field))) block('The generation request does not require the complete campaign-specific visual intent.', 'Require expression, pose, wardrobe, lighting, camera, environment, gaze, gesture, and artifact interaction.')
 
-  const hero = record(receipt.hero_asset)
-  if (!hero) {
-    block('A campaign-specific thumbnail hero asset is required.', 'Attach an exact hero source with provenance, rights, privacy, crop, focal-subject, and safe-text evidence.')
-  } else {
-    if (!text(hero.asset_id) || text(hero.campaign_identity) !== campaignIdentity || !text(hero.public_path) || !sha256(hero.source_sha256)) {
-      block('The hero asset is not exactly bound to this campaign and source hash.', 'Bind one staged campaign-specific hero asset and its exact SHA-256 source hash.')
-    }
-    if (hero.generic !== false) {
-      block('Generic or unclassified hero imagery cannot advance.', 'Use a truthful campaign-specific human, product, or environment hero and mark generic imagery rejected.')
-    }
-    if (!positive(hero.width) || !positive(hero.height) || !text(hero.focal_subject) || !text(hero.safe_text_region)) {
-      block('The hero asset is missing source dimensions, focal subject, or safe-text guidance.', 'Record the hero dimensions, focal subject, and face-safe text region before composition.')
-    }
-    if (!text(hero.digital_source_type) || !text(hero.provenance_note)) {
-      block('The hero asset is missing its digital-source disclosure.', 'Record whether the hero is photographed, generated, or AI-assisted without inventing provenance.')
-    }
-    if (!strings(hero.source_receipt_ids).length || !strings(hero.rights_receipt_ids).length || !text(hero.privacy_receipt_id)) {
-      block('The hero asset lacks source, rights, or privacy receipts.', 'Attach exact source, rights, and privacy receipts for the selected hero asset.')
-    }
+  const heroAssets = values(receipt.hero_assets).map(record).filter((item): item is UnknownRecord => Boolean(item))
+  if (heroAssets.length < 2) block('Every candidate needs its own newly generated campaign-specific hero asset.', 'Generate a distinct hero for every candidate; never inherit a prior campaign portrait.')
+  const heroById = new Map(heroAssets.map((hero) => [text(hero.asset_id), hero])); const heroHashes = new Set<string>(); const heroPHashes = new Set<string>()
+  for (const hero of heroAssets) {
+    const id = text(hero.asset_id) || 'hero'; const intent = record(hero.prompt_intent)
+    if (text(hero.campaign_identity) !== campaignIdentity || text(hero.content_version) !== currentContentVersion || !text(hero.public_path) || !sha256(hero.output_sha256) || !pHash(hero.perceptual_hash)) block(`${id} is not exactly version-bound with cryptographic and perceptual output hashes.`, 'Regenerate and bind the exact hero output to this campaign and content version.')
+    if (text(hero.output_sha256) === text(identity?.sha256) || hero.source_type === 'reused_exact_photo') block(`${id} reuses the exact identity-reference photo as output.`, 'Generate a new campaign-specific image; use the photo only as a likeness reference.')
+    if (!['newly_generated', 'synthetic_fixture'].includes(text(hero.generation_status)) || !text(hero.generator_id) || !text(hero.model_id)) block(`${id} is missing a truthful generator, model, or generation-status record.`, 'Record the exact generator path, model identity, and whether the output is real or synthetic fixture evidence.')
+    if (text(hero.generation_status) === 'synthetic_fixture' && hero.final_use_eligible !== false) block(`${id} incorrectly marks a synthetic fixture as final-use eligible.`, 'Keep synthetic fixtures visibly non-final until an authorized real generation succeeds.')
+    if (!intent || requiredPromptFields.some((key) => !text(intent[key]))) block(`${id} lacks complete visual intent.`, 'Specify expression, pose, wardrobe, lighting, camera, environment, gaze, gesture, and product interaction.')
+    if (!strings(hero.source_receipt_ids).length || !strings(hero.rights_receipt_ids).length || !text(hero.privacy_receipt_id) || !text(hero.likeness_receipt_id)) block(`${id} lacks provenance, likeness, rights, or privacy evidence.`, 'Attach source, likeness, rights, and privacy receipts.')
+    if (!validDate(hero.generated_at) || !validDate(hero.fresh_until) || (validDate(hero.fresh_until) ?? 0) < (evaluationTime ?? 0)) block(`${id} is stale or missing generation freshness.`, 'Regenerate the hero and renew its freshness receipt.')
+    heroHashes.add(text(hero.output_sha256)); heroPHashes.add(text(hero.perceptual_hash))
   }
+  if (heroAssets.length >= 2 && (heroHashes.size !== heroAssets.length || heroPHashes.size !== heroAssets.length)) block('The candidate set reuses the same hero output or perceptual likeness.', 'Generate materially different expressions, poses, wardrobe, camera, and environments for each candidate.')
 
   const proof = record(receipt.product_proof)
-  if (!proof || !text(proof.asset_id) || !text(proof.public_path) || !sha256(proof.sha256)) {
-    block('The separate product-proof binding is missing or malformed.', 'Bind the exact Jev product proof separately from the attention-earning hero.')
-  } else {
-    if (text(proof.asset_id) === text(hero?.asset_id)) block('The thumbnail hero and product proof must remain separate assets.', 'Keep the hero as the attention source and bind product proof to the video or storyboard substantiation layer.')
-    if (!strings(proof.source_receipt_ids).length || !strings(proof.rights_receipt_ids).length || !text(proof.privacy_receipt_id) || !text(proof.role)) {
-      block('The product-proof asset lacks source, rights, privacy, or role boundaries.', 'Restore the exact source-bound product proof and its story-only role.')
-    }
-  }
-
-  const candidates = values(receipt.candidates).map(record).filter((candidate): candidate is UnknownRecord => Boolean(candidate))
-  if (candidates.length < 2) block('At least two hero-led 1280×720 candidates are required.', 'Prepare two materially distinct review candidates from the same validated hero contract.')
-  const layoutFamilies = new Set<string>()
-  const signatures = new Set<string>()
+  if (!proof || !text(proof.asset_id) || !text(proof.public_path) || !sha256(proof.sha256) || !strings(proof.source_receipt_ids).length || !strings(proof.rights_receipt_ids).length || !text(proof.privacy_receipt_id)) block('The separate product-proof binding is missing or malformed.', 'Bind exact owned product proof with source, rights, privacy, and role boundaries.')
+  const history = values(receipt.recent_thumbnail_history).map(record).filter((item): item is UnknownRecord => Boolean(item))
+  const candidates = values(receipt.candidates).map(record).filter((item): item is UnknownRecord => Boolean(item))
+  if (candidates.length < 2) block('At least two integrated 1280×720 candidates are required.', 'Prepare two materially distinct integrated scene concepts.')
+  const families = new Set<string>(); const signatures = new Set<string>(); const candidatePHashes = new Set<string>()
   for (const candidate of candidates) {
-    const candidateId = text(candidate.candidate_id) || 'candidate'
-    const layoutFamily = text(candidate.layout_family)
-    const signature = text(candidate.composition_signature)
-    layoutFamilies.add(layoutFamily)
-    signatures.add(signature)
-    if (
-      text(candidate.campaign_identity) !== campaignIdentity
-      || text(candidate.content_version) !== currentContentVersion
-      || !text(candidate.public_path)
-      || !sha256(candidate.sha256)
-      || Number(candidate.width) !== 1280
-      || Number(candidate.height) !== 720
-      || candidate.aspect_ratio !== '16:9'
-    ) {
-      block(`${candidateId} is not an exact version-bound 1280×720 output.`, 'Rebuild the candidate at 1280×720 and record its exact output SHA-256.')
-    }
-    if (!text(candidate.feed_preview_path) || !sha256(candidate.feed_preview_sha256) || Number(candidate.feed_preview_width) !== 320 || Number(candidate.feed_preview_height) !== 180) {
-      block(`${candidateId} lacks an exact actual-feed-size preview.`, 'Render and hash a 320×180 feed preview for the exact candidate output.')
-    }
+    const id = text(candidate.candidate_id) || 'candidate'; const heroBinding = record(candidate.hero_binding); const hero = heroById.get(text(heroBinding?.hero_asset_id)); const integration = record(candidate.integration)
+    families.add(text(candidate.layout_family)); signatures.add(text(candidate.composition_signature)); candidatePHashes.add(text(candidate.perceptual_hash))
+    if (text(candidate.campaign_identity) !== campaignIdentity || text(candidate.content_version) !== currentContentVersion || !text(candidate.public_path) || !sha256(candidate.sha256) || !pHash(candidate.perceptual_hash) || Number(candidate.width) !== 1280 || Number(candidate.height) !== 720 || candidate.aspect_ratio !== '16:9') block(`${id} is not an exact version-bound 1280×720 output.`, 'Rebuild at 1280×720 and record cryptographic and perceptual hashes.')
+    if (!text(candidate.feed_preview_path) || !sha256(candidate.feed_preview_sha256) || Number(candidate.feed_preview_width) !== 320 || Number(candidate.feed_preview_height) !== 180) block(`${id} lacks an exact actual-feed-size preview.`, 'Render and hash the exact 320×180 feed preview.')
     const teaserWords = Number(candidate.text_word_count)
-    if (!text(candidate.title) || !text(candidate.teaser) || text(candidate.title).toLowerCase() === text(candidate.teaser).toLowerCase() || teaserWords < 1 || teaserWords > 5) {
-      block(`${candidateId} does not keep a short thumbnail teaser distinct from the title.`, 'Use one to five large teaser words that add tension without repeating the title.')
-    }
-    const customerFacingCopy = strings(candidate.customer_facing_copy)
-    if (!customerFacingCopy.length || containsInternalWorkflowMarker(customerFacingCopy)) {
-      block(`${candidateId} is missing a clean customer-facing copy manifest or contains an internal workflow marker.`, 'Remove review, draft, fixture, sample-data, operator, internal, prompt, and QA labels from exported pixels; keep workflow state in UI chrome and evidence metadata.')
-    }
-    if (!text(candidate.focal_subject) || candidate.face_text_overlap !== false || candidate.feed_size_legible !== true) {
-      block(`${candidateId} fails focal-subject, face-clearance, or feed-legibility requirements.`, 'Restore one dominant focal subject, keep text off the face, and verify the 320×180 preview.')
-    }
-    const safeRegion = record(candidate.safe_text_region)
-    const crop = record(candidate.crop)
-    if (!safeRegion || !positive(safeRegion.width) || !positive(safeRegion.height) || !crop || text(crop.source_asset_id) !== text(hero?.asset_id) || !positive(crop.width) || !positive(crop.height)) {
-      block(`${candidateId} is missing its exact hero crop or safe-text region.`, 'Bind the candidate crop to the validated hero asset and record a positive face-safe text rectangle.')
-    }
-    const heroBinding = record(candidate.hero_binding)
-    if (
-      !heroBinding
-      || text(heroBinding.hero_asset_id) !== text(hero?.asset_id)
-      || text(heroBinding.hero_source_sha256) !== text(hero?.source_sha256)
-      || text(heroBinding.output_sha256) !== text(candidate.sha256)
-    ) {
-      block(`${candidateId} is not bound to the exact hero source and output hash.`, 'Rebuild the candidate binding from the exact hero source hash and rendered output hash.')
-    }
-    if (!layoutFamily || !signature || candidateLooksGeneric(candidate)) {
-      block(`${candidateId} uses a missing or prohibited generic composition identity.`, 'Replace dashboard, field-guide, text-first, split-screen, or shared-template output with a campaign-specific hero composition.')
-    }
-    const traces = values(candidate.evidence_trace).map(record).filter((trace): trace is UnknownRecord => Boolean(trace))
-    const traceByDecision = new Map(traces.map((trace) => [text(trace.decision_dimension), trace]))
-    for (const decision of YOUTUBE_THUMBNAIL_CREATIVE_DECISIONS) {
-      const trace = traceByDecision.get(decision)
-      const sourceIds = strings(trace?.live_evidence_video_ids)
-      if (!trace || text(trace.cohort_id) !== text(outlier?.cohort_id) || trace.evidence_role !== 'informs_not_authorizes' || !text(trace.rationale) || sourceIds.length === 0 || sourceIds.some((id) => !includedVideoIds.has(id))) {
-        block(`${candidateId} lacks an attributable live-evidence trace for ${decision.replaceAll('_', ' ')}.`, 'Trace hero selection, composition, typography, teaser, contrast, and visual style to current included comparisons without copying public source artwork.')
-      }
+    if (!text(candidate.title) || !text(candidate.teaser) || text(candidate.title).toLowerCase() === text(candidate.teaser).toLowerCase() || teaserWords < 1 || teaserWords > 5) block(`${id} does not keep a short teaser distinct from the title.`, 'Use one to five readable teaser words that add tension.')
+    if (!strings(candidate.customer_facing_copy).length || containsInternalWorkflowMarker(strings(candidate.customer_facing_copy))) block(`${id} contains internal workflow language in customer-facing pixels.`, 'Keep fixture and workflow labels in review chrome, never in exported pixels.')
+    if (!text(candidate.focal_subject) || candidate.face_text_overlap !== false || candidate.feed_size_legible !== true || candidate.product_legible !== true) block(`${id} fails focal hierarchy, face clearance, product legibility, or feed-size comprehension.`, 'Restore one dominant focal point and keep face, type, and product evidence legible.')
+    if (!hero || text(heroBinding?.hero_output_sha256) !== text(hero.output_sha256) || text(heroBinding?.output_sha256) !== text(candidate.sha256)) block(`${id} is not bound to its own generated hero and exact output hash.`, 'Bind each candidate to its own generated hero output and final thumbnail hash.')
+    if (!text(candidate.layout_family) || !text(candidate.composition_signature) || genericOrSplit(candidate)) block(`${id} uses a prohibited generic, split-panel, or side-by-side composition.`, 'Use a cohesive integrated scene with no pasted-together boundary.')
+    if (!integration || integration.cohesive_scene !== true || integration.hard_split_panel !== false || integration.pasted_boundary !== false || integration.lighting_consistent !== true || integration.perspective_consistent !== true || integration.color_grade_consistent !== true || integration.asset_floats_independently !== false || integration.blur_masks_reuse !== false || integration.hero_removal_breaks_story !== true || integration.asset_removal_breaks_story !== true || integration.face_overlap_harm !== false || integration.text_overlap_harm !== false || integration.product_overlap_harm !== false || !text(integration.pose_gaze_gesture_relationship)) block(`${id} does not prove an integrated hero-and-product scene.`, 'Make pose, gaze, gesture, depth, lighting, and product evidence tell one inseparable story without harmful overlap.')
+    const traces = values(candidate.evidence_trace).map(record).filter((trace): trace is UnknownRecord => Boolean(trace)); const traceByDecision = new Map(traces.map((trace) => [text(trace.decision_dimension), trace]))
+    for (const decision of YOUTUBE_THUMBNAIL_CREATIVE_DECISIONS) { const trace = traceByDecision.get(decision); const sourceIds = strings(trace?.live_evidence_video_ids); if (!trace || text(trace.cohort_id) !== text(outlier?.cohort_id) || trace.evidence_role !== 'informs_not_authorizes' || !text(trace.rationale) || sourceIds.length === 0 || sourceIds.some((sourceId) => !includedVideoIds.has(sourceId))) block(`${id} lacks attributable live evidence for ${decision.replaceAll('_', ' ')}.`, 'Trace each creative choice to current comparisons without copying public artwork.') }
+    for (const prior of history) {
+      if (hamming(text(candidate.perceptual_hash), text(prior.composition_perceptual_hash)) < 10) block(`${id} is perceptually too close to a recent full composition.`, 'Change composition family, depth, palette, typography, asset placement, and hero interaction.')
+      if (hamming(text(hero?.perceptual_hash), text(prior.hero_perceptual_hash)) < 10) block(`${id} is perceptually too close to a recent hero treatment.`, 'Generate a new expression, pose, wardrobe, crop, camera, lighting, and environment.')
     }
   }
-  if (candidates.length >= 2 && (layoutFamilies.size !== candidates.length || signatures.size !== candidates.length)) {
-    block('The candidate set does not contain materially distinct creative directions.', 'Give each candidate a distinct layout family and composition signature.')
-  }
+  if (candidates.length >= 2 && (families.size !== candidates.length || signatures.size !== candidates.length || candidatePHashes.size !== candidates.length)) block('The candidate set does not contain materially distinct integrated scene directions.', 'Use different scene geometry, depth, palette, type placement, pose, gaze, and artifact interaction—not mirrored variants.')
+  if (candidates.length >= 2 && hamming(text(candidates[0].perceptual_hash), text(candidates[1].perceptual_hash)) < 14) block('The candidate compositions are perceptually too similar.', 'Rebuild one candidate in a different integrated composition family.')
 
-  return {
-    ready: blockers.length === 0,
-    blockers: [...new Set(blockers)],
-    recovery_actions: [...new Set(recoveryActions)],
-  }
+  const finalGateBlocked = request?.authorization_status !== 'authorized' || request?.real_generation_completed !== true || heroAssets.some((hero) => hero.generation_status !== 'newly_generated' || hero.final_use_eligible !== true)
+  const uniqueBlockers = [...new Set(blockers)]
+  if (finalGateBlocked) { uniqueBlockers.push('Real campaign-specific likeness generation remains blocked pending explicit provider authorization; the displayed images are synthetic contract fixtures and are not final-use artwork.'); recoveryActions.push('Authorize the approved Portfolio image-generation provider and record a successful, version-bound generation receipt without changing any other protected gate.') }
+  return { ready: uniqueBlockers.length === 0, fixture_ready: blockers.length === 0, blockers: uniqueBlockers, recovery_actions: [...new Set(recoveryActions)] }
 }

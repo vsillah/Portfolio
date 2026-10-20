@@ -4,70 +4,65 @@ import { validateYouTubeThumbnailHeroEvidence } from '@/lib/youtube-thumbnail-he
 
 const CONTENT_VERSION = 'sha256:392b3e2a92c5ab65e4cc93706571df761bac7ea38631bf06002fd6b89f3302a2'
 const AS_OF = '2026-10-20T12:00:00.000Z'
-
-function receipt() {
-  return structuredClone(heroReceipt)
-}
+const receipt = () => structuredClone(heroReceipt) as any
 
 describe('YouTube thumbnail hero evidence', () => {
-  it('accepts the exact current Jev hero-led review batch', () => {
+  it('accepts the local contract fixtures while keeping real provider generation blocked', () => {
     const result = validateYouTubeThumbnailHeroEvidence(receipt(), CONTENT_VERSION, AS_OF)
-    expect(result).toEqual({ ready: true, blockers: [], recovery_actions: [] })
+    expect(result).toMatchObject({ ready: false, fixture_ready: true })
+    expect(result.blockers).toEqual(['Real campaign-specific likeness generation remains blocked pending explicit provider authorization; the displayed images are synthetic contract fixtures and are not final-use artwork.'])
   })
 
-  it('fails closed when the campaign-specific hero asset is missing', () => {
-    const value = receipt() as any
-    delete value.hero_asset
+  it('fails closed when a candidate-specific generated hero is missing', () => {
+    const value = receipt(); value.hero_assets.splice(0, 1)
     const result = validateYouTubeThumbnailHeroEvidence(value, CONTENT_VERSION, AS_OF)
-    expect(result.ready).toBe(false)
-    expect(result.blockers).toContain('A campaign-specific thumbnail hero asset is required.')
+    expect(result.fixture_ready).toBe(false)
+    expect(result.blockers).toContain('Every candidate needs its own newly generated campaign-specific hero asset.')
   })
 
-  it('fails closed when live outlier evidence is stale', () => {
-    const value = receipt() as any
-    value.outlier_evidence.fresh_until = '2026-10-19T11:59:59.000Z'
+  it('rejects exact-photo output reuse', () => {
+    const value = receipt(); value.hero_assets[0].output_sha256 = value.generation_request.identity_reference.sha256; value.candidates[0].hero_binding.hero_output_sha256 = value.hero_assets[0].output_sha256
+    expect(validateYouTubeThumbnailHeroEvidence(value, CONTENT_VERSION, AS_OF).blockers).toContain(`${value.hero_assets[0].asset_id} reuses the exact identity-reference photo as output.`)
+  })
+
+  it('fails closed when live outlier evidence or generated heroes are stale', () => {
+    const value = receipt(); value.outlier_evidence.fresh_until = '2026-10-19T11:59:59.000Z'; value.hero_assets[0].fresh_until = '2026-10-19T11:59:59.000Z'
     const result = validateYouTubeThumbnailHeroEvidence(value, CONTENT_VERSION, AS_OF)
-    expect(result.ready).toBe(false)
-    expect(result.blockers).toContain('The topic-specific YouTube outlier evidence is missing or stale.')
+    expect(result.blockers).toEqual(expect.arrayContaining(['The topic-specific YouTube outlier evidence is missing or stale.', `${value.hero_assets[0].asset_id} is stale or missing generation freshness.`]))
   })
 
-  it('fails closed when no included comparison qualifies at the declared threshold', () => {
-    const value = receipt() as any
-    value.outlier_evidence.qualified_outlier_video_ids = []
+  it('rejects cross-campaign inheritance and missing generator provenance', () => {
+    const value = receipt(); value.hero_assets[0].campaign_identity = 'other'; value.hero_assets[0].generator_id = ''
     const result = validateYouTubeThumbnailHeroEvidence(value, CONTENT_VERSION, AS_OF)
-    expect(result.ready).toBe(false)
-    expect(result.blockers).toContain('The live YouTube cohort has no attributable outlier at the declared threshold.')
+    expect(result.fixture_ready).toBe(false)
+    expect(result.blockers.join(' ')).toMatch(/version-bound|generator/)
   })
 
-  it('fails closed for generic hero or template signals', () => {
-    const value = receipt() as any
-    value.hero_asset.generic = true
-    value.candidates[0].layout_family = 'generic-fallback-dashboard'
+  it('rejects perceptually repeated heroes and full compositions', () => {
+    const value = receipt(); value.hero_assets[1].perceptual_hash = value.hero_assets[0].perceptual_hash; value.candidates[1].perceptual_hash = value.candidates[0].perceptual_hash
     const result = validateYouTubeThumbnailHeroEvidence(value, CONTENT_VERSION, AS_OF)
-    expect(result.ready).toBe(false)
-    expect(result.blockers).toEqual(expect.arrayContaining([
-      'Generic or unclassified hero imagery cannot advance.',
-      expect.stringContaining('prohibited generic composition identity'),
-    ]))
+    expect(result.blockers).toEqual(expect.arrayContaining(['The candidate set reuses the same hero output or perceptual likeness.', 'The candidate set does not contain materially distinct integrated scene directions.', 'The candidate compositions are perceptually too similar.']))
   })
 
-  it('fails closed when a candidate is not bound to the exact hero or output hash', () => {
-    const value = receipt() as any
-    value.candidates[0].hero_binding.hero_asset_id = 'hero:unbound'
-    value.candidates[0].hero_binding.output_sha256 = 'sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+  it('rejects generic side-by-side and hard split layouts', () => {
+    const value = receipt(); value.candidates[0].layout_family = 'portrait-plus-screenshot-side-by-side'; value.candidates[0].integration.hard_split_panel = true
     const result = validateYouTubeThumbnailHeroEvidence(value, CONTENT_VERSION, AS_OF)
-    expect(result.ready).toBe(false)
-    expect(result.blockers).toContain('thumbnail:jev:hero-question:20261019:v1 is not bound to the exact hero source and output hash.')
+    expect(result.blockers).toEqual(expect.arrayContaining([expect.stringContaining('prohibited generic, split-panel, or side-by-side'), expect.stringContaining('integrated hero-and-product scene')]))
   })
 
-  it.each(['REVIEW ONLY', 'draft', 'fixture', 'sample data', 'operator', 'internal', 'prompt', 'QA'])(
-    'fails closed when exported customer-facing copy contains the internal marker %s',
-    (marker) => {
-      const value = receipt() as any
-      value.candidates[0].customer_facing_copy.push(marker)
-      const result = validateYouTubeThumbnailHeroEvidence(value, CONTENT_VERSION, AS_OF)
-      expect(result.ready).toBe(false)
-      expect(result.blockers).toContain('thumbnail:jev:hero-question:20261019:v1 is missing a clean customer-facing copy manifest or contains an internal workflow marker.')
-    },
-  )
+  it('rejects floating assets, mismatched visual treatment, blur reuse, removable story parts, and harmful overlap', () => {
+    const value = receipt(); Object.assign(value.candidates[0].integration, { lighting_consistent: false, perspective_consistent: false, color_grade_consistent: false, asset_floats_independently: true, blur_masks_reuse: true, hero_removal_breaks_story: false, asset_removal_breaks_story: false, face_overlap_harm: true })
+    expect(validateYouTubeThumbnailHeroEvidence(value, CONTENT_VERSION, AS_OF).blockers).toContain(`${value.candidates[0].candidate_id} does not prove an integrated hero-and-product scene.`)
+  })
+
+  it('rejects missing generation request or candidate provenance', () => {
+    const value = receipt(); delete value.generation_request; delete value.hero_assets[0].likeness_receipt_id
+    const result = validateYouTubeThumbnailHeroEvidence(value, CONTENT_VERSION, AS_OF)
+    expect(result.blockers).toEqual(expect.arrayContaining(['The campaign-specific generation request is missing or not version-bound.', `${value.hero_assets[0].asset_id} lacks provenance, likeness, rights, or privacy evidence.`]))
+  })
+
+  it.each(['REVIEW ONLY', 'draft', 'fixture', 'sample data', 'operator', 'internal', 'prompt', 'QA'])('rejects internal marker %s from exported pixels', (marker) => {
+    const value = receipt(); value.candidates[0].customer_facing_copy.push(marker)
+    expect(validateYouTubeThumbnailHeroEvidence(value, CONTENT_VERSION, AS_OF).blockers).toContain(`${value.candidates[0].candidate_id} contains internal workflow language in customer-facing pixels.`)
+  })
 })

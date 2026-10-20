@@ -136,7 +136,12 @@ async function recordScenario(browser, storageState, { label, viewport, colorSch
   if (await comparison.getByAltText(/actual-feed-size preview/).count() !== 2) throw new Error(`${label} did not render both 320x180 feed previews.`)
   const evidenceDetails = comparison.getByText('Inspect live-evidence creative decisions').first()
   await evidenceDetails.click()
-  await comparison.getByText(/The owned Vambah source supplies the actual hero/).waitFor()
+  await comparison.getByText(/campaign-specific hero makes the human decision owner concrete/).waitFor()
+  if (await comparison.getByText('Synthetic contract fixture · not final artwork', { exact: true }).count() !== 2) {
+    throw new Error(`${label} did not label both synthetic fixtures outside the exported pixels.`)
+  }
+  await comparison.getByText(/The extended finger and gaze terminate at the highlighted score-to-human-call bridge/).waitFor()
+  await comparison.getByText(/Both hands hold the oversized interface edge/).waitFor()
   await comparison.scrollIntoViewIfNeeded()
   await page.waitForTimeout(450)
   await assertNoOverflow(page, `${label} Jev comparison`)
@@ -231,7 +236,7 @@ const screenshots = scenarios.flatMap(({ label }) => [
 const result = {
   revision,
   route: `${baseUrl}${route}`,
-  contract: 'youtube-thumbnail-hero-evidence/v1 + social-campaign-storyboard-review/v1',
+  contract: 'youtube-thumbnail-hero-evidence/v2 + social-campaign-storyboard-review/v1',
   scenarios: scenarios.map(({ label, viewport, colorScheme }) => ({ label, viewport, colorScheme })),
   screenshots,
   video: path.basename(mp4Path),

@@ -84,7 +84,7 @@ describe('campaign review package route', () => {
     expect(body.approved_adaptation_review.adaptations.every((item: any) => new Set(Object.values(item.storyboard_review.external_gates)).size === 1 && Object.values(item.storyboard_review.external_gates)[0] === false)).toBe(true)
     expect(body.approved_adaptation_review.adaptations[0].storyboard_review.evidence_gates).toEqual(expect.arrayContaining([
       expect.objectContaining({ key: 'freshness', status: 'stale' }),
-      expect.objectContaining({ key: 'hero', status: 'passed' }),
+      expect.objectContaining({ key: 'hero', status: 'blocked' }),
       expect.objectContaining({ key: 'thumbnail', status: 'blocked' }),
     ]))
     expect(body.approved_adaptation_review.adaptations[1].storyboard_review.evidence_gates).toEqual(expect.arrayContaining([

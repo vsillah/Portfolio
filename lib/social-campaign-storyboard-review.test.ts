@@ -39,10 +39,11 @@ describe('provider-free Social Content storyboard review', () => {
       expect(new Set(Object.values(packet.external_gates))).toEqual(new Set([false]))
     }
     const jev = review.adaptations.find((adaptation) => adaptation.storyboard_review.campaign_identity === 'jev')!.storyboard_review
-    expect(jev.hero_evidence).toMatchObject({ status: 'passed' })
-    expect(jev.assets.every((asset) => asset.hero_asset_id === jev.hero_evidence?.hero_asset.asset_id)).toBe(true)
+    expect(jev.hero_evidence).toMatchObject({ status: 'blocked' })
+    expect(new Set(jev.assets.map((asset) => asset.hero_asset_id))).toEqual(new Set(jev.hero_evidence?.hero_assets.map((hero) => hero.asset_id)))
     expect(jev.assets.every((asset) => asset.feed_preview_path && asset.evidence_trace?.length === 6)).toBe(true)
-    expect(jev.assets.map((asset) => asset.teaser)).toEqual(['WHEN SHOULD AI STOP?', "THE SCORE ISN'T THE CALL"])
+    expect(jev.assets.every((asset) => asset.fixture_label === 'Synthetic contract fixture · not final artwork' && asset.final_use_eligible === false && asset.composition_intent)).toBe(true)
+    expect(jev.assets.map((asset) => asset.teaser)).toEqual(['WHO OVERRIDES AI?', 'SCORE ≠ DECISION'])
     expect(assetReceipt).toMatchObject({ provider_calls: 0, paid_media_generations: 0, external_writes: 0 })
   })
 
@@ -87,7 +88,7 @@ describe('provider-free Social Content storyboard review', () => {
     expect(jev.evidence_gates).toEqual(expect.arrayContaining([
       expect.objectContaining({ key: 'outlier', status: 'passed' }),
       expect.objectContaining({ key: 'description', status: 'blocked' }),
-      expect.objectContaining({ key: 'hero', status: 'passed' }),
+      expect.objectContaining({ key: 'hero', status: 'blocked' }),
       expect.objectContaining({ key: 'thumbnail', status: 'blocked' }),
       expect.objectContaining({ key: 'script', status: 'blocked' }),
       expect.objectContaining({ key: 'freshness', status: 'stale' }),

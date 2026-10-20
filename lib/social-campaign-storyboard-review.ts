@@ -79,6 +79,9 @@ export type CampaignStoryboardReviewAsset = {
     evidence_role: string
     rationale: string
   }>
+  fixture_label?: 'Synthetic contract fixture · not final artwork'
+  final_use_eligible?: false
+  composition_intent?: string
   customer_facing: true
   approval_status: 'review_direction_only'
   title_thumbnail_distinct: true
@@ -148,13 +151,13 @@ export type CampaignStoryboardReviewPacket = {
   hero_evidence: {
     receipt_id: string
     status: 'passed' | 'blocked'
-    hero_asset: {
+    hero_assets: Array<{
       asset_id: string
       public_path: string
       focal_subject: string
       digital_source_type: string
       provenance_note: string
-    }
+    }>
     product_proof: {
       asset_id: string
       public_path: string
@@ -318,8 +321,8 @@ function heroGate(config: CampaignStoryboardReviewConfig): GateSeed {
   )
   return {
     status: validation.ready ? 'passed' : 'blocked',
-    detail: validation.ready
-      ? `${jevHeroReceipt.candidates.length} exact hero-led candidates are bound to ${jevHeroReceipt.hero_asset.asset_id}, a current topic cohort, feed-size previews, and separate product proof.`
+    detail: validation.fixture_ready
+      ? `${jevHeroReceipt.candidates.length} integrated synthetic contract fixtures pass the local evidence contract. Real campaign-specific likeness generation remains blocked pending explicit provider authorization.`
       : validation.blockers.join(' '),
     receipt_ids: [jevHeroReceipt.receipt_id, jevHeroReceipt.outlier_evidence.decision_receipt_id],
     observed_at: jevHeroReceipt.outlier_evidence.observed_at,
@@ -462,6 +465,9 @@ function reviewAssets(config: CampaignStoryboardReviewConfig): CampaignStoryboar
     feed_preview_sha256: asset.feed_preview_sha256,
     safe_text_region: asset.safe_text_region,
     hero_asset_id: asset.hero_binding.hero_asset_id,
+    fixture_label: 'Synthetic contract fixture · not final artwork' as const,
+    final_use_eligible: false as const,
+    composition_intent: asset.integration.pose_gaze_gesture_relationship,
     evidence_trace: asset.evidence_trace,
     customer_facing: true as const,
     approval_status: 'review_direction_only' as const,
@@ -528,13 +534,13 @@ export function buildCampaignStoryboardReview(
     hero_evidence: config.campaign_identity === 'jev' ? {
       receipt_id: jevHeroReceipt.receipt_id,
       status: heroGate(config).status === 'passed' ? 'passed' : 'blocked',
-      hero_asset: {
-        asset_id: jevHeroReceipt.hero_asset.asset_id,
-        public_path: jevHeroReceipt.hero_asset.public_path,
-        focal_subject: jevHeroReceipt.hero_asset.focal_subject,
-        digital_source_type: jevHeroReceipt.hero_asset.digital_source_type,
-        provenance_note: jevHeroReceipt.hero_asset.provenance_note,
-      },
+      hero_assets: jevHeroReceipt.hero_assets.map((hero) => ({
+        asset_id: hero.asset_id,
+        public_path: hero.public_path,
+        focal_subject: hero.focal_subject,
+        digital_source_type: hero.source_type,
+        provenance_note: hero.provenance_note,
+      })),
       product_proof: {
         asset_id: jevHeroReceipt.product_proof.asset_id,
         public_path: jevHeroReceipt.product_proof.public_path,
