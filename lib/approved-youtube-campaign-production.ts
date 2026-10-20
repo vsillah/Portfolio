@@ -2,6 +2,7 @@ import production from '@/artifacts/review/approved-youtube-campaign-production-
 import descriptions from '@/artifacts/research/approved-youtube-campaign-descriptions-2026-10-19/receipt.json'
 import darkCastleThumbnail from '@/artifacts/research/dark-castle-hero-thumbnail-candidates-2026-10-19/receipt.json'
 import aiAuditThumbnail from '@/artifacts/research/ai-audit-hero-thumbnail-candidates-2026-10-19/receipt.json'
+import darkCastleSource from '@/artifacts/human-qa/artifact-video-review-2026-10-14/inputs/dark_castle_chess.json'
 
 export const APPROVED_YOUTUBE_CAMPAIGN_PRODUCTION_VERSION = 'approved-youtube-campaign-production/v1' as const
 
@@ -55,6 +56,18 @@ export function evaluateApprovedYouTubeCampaign(packet: Packet, cohort: Cohort, 
   if (packet.scenes.some((scene) => INTERNAL_SPEECH.test(scene.narration) || /\([^)]*\)/.test(scene.narration))) blockers.push('Customer-facing narration contains internal production language or a parenthetical aside.')
   if (!/subscribe to AmaduTown/i.test(packet.scenes.at(-1)?.narration ?? '') || !packet.spoken_conclusion || !packet.spoken_cta) blockers.push('A spoken conclusion and channel CTA are required.')
   if (packet.scenes.some((scene) => !scene.proof_asset_id || !scene.proof_href || !scene.source_receipt_id || !scene.privacy_receipt_id || !scene.rights_receipt_id)) blockers.push('Every scene must bind first-party proof and privacy and rights receipts.')
+  const lineageValid = packet.scenes.every((scene) => {
+    if (packet.campaign_identity === 'dark-castle-chess') {
+      const proof = darkCastleSource.evidence_assets.find((asset) => asset.asset_id === scene.proof_asset_id)
+      return Boolean(proof && scene.proof_href === proof.reference && proof.source_receipt_ids.includes(scene.source_receipt_id) && scene.privacy_receipt_id === proof.privacy_receipt_id && scene.rights_receipt_id === proof.rights_receipt_id)
+    }
+    const proof = aiAuditThumbnail.product_proof
+    return scene.proof_href === proof.public_path
+      && proof.source_receipt_ids.includes(scene.source_receipt_id)
+      && scene.privacy_receipt_id === proof.privacy_receipt_id
+      && proof.rights_receipt_ids.includes(scene.rights_receipt_id)
+  })
+  if (!lineageValid) blockers.push('Scene proof lineage does not match the approved product evidence receipts.')
   if (packet.campaign_identity === 'dark-castle-chess' && packet.scenes.filter((scene) => scene.visual_role === 'first_party_product_capture' && scene.proof_href.includes('/welcome/media/')).length < 3) blockers.push('Dark Castle requires three real gameplay captures.')
   if (packet.campaign_identity === 'ai-audit-calculator' && !packet.scenes.some((scene) => scene.visual_role === 'first_party_product_capture' && scene.visual_asset === '/audit_calculator_img.png')) blockers.push('AI Audit requires the actual calculator screen.')
   if (Object.values(packet.external_gates).some(Boolean)) blockers.push('An excluded external action is enabled.')

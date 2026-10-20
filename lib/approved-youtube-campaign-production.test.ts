@@ -73,9 +73,11 @@ describe('approved YouTube campaign production review', () => {
   it('requires real product proof with privacy, rights and source lineage', () => {
     const { packet, cohort } = fixture()
     packet.scenes[1].proof_href = ''
+    packet.scenes[1].rights_receipt_id = 'invented-rights-receipt'
     packet.scenes[2].visual_role = 'internal_storyboard_card'
     const result = evaluateApprovedYouTubeCampaign(packet, cohort, NOW)
     expect(result.blockers).toContain('Every scene must bind first-party proof and privacy and rights receipts.')
+    expect(result.blockers).toContain('Scene proof lineage does not match the approved product evidence receipts.')
     expect(result.blockers).toContain('Dark Castle requires three real gameplay captures.')
     const audit = approvedYouTubeCampaignProductionReview(NOW).packets[1]
     const auditPacket = structuredClone(audit)
