@@ -3339,6 +3339,12 @@ function SocialContentDetailPage() {
   const contextSourcePacketPath = asString(ragContext?.launch_packet_path)
     || asString(ragContext?.source_packet_path)
     || asString(ragContext?.source_packet)
+    || asString(ragContext?.approved_packet_path)
+  const contextSourceLineage = asStringArray(ragContext?.source_lineage)
+  const contextProvenanceEntries = Array.from(new Set([
+    ...agentPilotProvenance,
+    ...contextSourceLineage,
+  ]))
   const contextSourceRecorded = Boolean(
     contextSourcePacketPath
     || agentPilotPacketId
@@ -3347,6 +3353,7 @@ function SocialContentDetailPage() {
     || channelVideoPacket?.sourceIds.length
     || asString(ragContext?.launch_draft_asset_id)
     || asString(ragContext?.calendar_item_id)
+    || contextSourceLineage.length
   )
   const contextCalibrationRecorded = Boolean(
     agentPilotCalibration
@@ -4401,13 +4408,13 @@ function SocialContentDetailPage() {
                     </p>
                   )}
                   <ul className="mt-3 space-y-2 text-sm text-gray-300">
-                    {agentPilotProvenance.slice(0, 4).map((entry) => (
+                    {contextProvenanceEntries.slice(0, 4).map((entry) => (
                       <li key={entry} className="flex gap-2">
                         <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-300" />
                         <span>{entry}</span>
                       </li>
                     ))}
-                    {agentPilotProvenance.length === 0 && (
+                    {agentPilotProvenance.length === 0 && contextSourceLineage.length === 0 && (
                       <li className="text-gray-500">No provenance checklist attached.</li>
                     )}
                   </ul>
