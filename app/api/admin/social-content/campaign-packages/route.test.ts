@@ -78,7 +78,7 @@ describe('campaign review package route', () => {
     expect(body.approved_adaptation_review.adaptations.every((item: any) => item.source_readiness.ready && item.scenes.length >= 9 && item.evidence_assets.length > 0)).toBe(true)
     expect(body.approved_adaptation_review.adaptations.map((item: any) => [item.storyboard_review.campaign_identity, item.storyboard_review.assets.length, item.storyboard_review.scenes.length])).toEqual([
       ['jev', 2, 9],
-      ['dark-castle-chess', 1, 9],
+      ['dark-castle-chess', 2, 9],
     ])
     expect(body.approved_adaptation_review.adaptations.every((item: any) => item.storyboard_review.status === 'review_direction_blocked')).toBe(true)
     expect(body.approved_adaptation_review.adaptations.every((item: any) => new Set(Object.values(item.storyboard_review.external_gates)).size === 1 && Object.values(item.storyboard_review.external_gates)[0] === false)).toBe(true)
@@ -93,9 +93,16 @@ describe('campaign review package route', () => {
     })
     expect(body.approved_adaptation_review.adaptations[1].storyboard_review.evidence_gates).toEqual(expect.arrayContaining([
       expect.objectContaining({ key: 'freshness', status: 'passed' }),
-      expect.objectContaining({ key: 'hero', status: 'blocked' }),
+      expect.objectContaining({ key: 'hero', status: 'passed' }),
       expect.objectContaining({ key: 'description', status: 'blocked' }),
     ]))
+    expect(body.approved_adaptation_review.primary_thumbnail_reviews.map((item: any) => [item.campaign_identity, item.assets.length, item.status])).toEqual([
+      ['dark-castle-chess', 2, 'pending_human_qa'],
+      ['ai-audit-calculator', 2, 'pending_human_qa'],
+    ])
+    expect(body.approved_adaptation_review.primary_thumbnail_reviews.flatMap((item: any) => item.assets)).toHaveLength(4)
+    expect(body.approved_adaptation_review.primary_thumbnail_reviews.every((item: any) => item.assets.every((asset: any) => asset.final_use_eligible === false && asset.selection_status === 'pending_human_qa'))).toBe(true)
+    expect(body.approved_adaptation_review.primary_thumbnail_reviews.every((item: any) => new Set(Object.values(item.external_gates)).size === 1 && Object.values(item.external_gates)[0] === false)).toBe(true)
     expect(body.approved_adaptation_review.blocked_items).toHaveLength(3)
     expect(body.approved_adaptation_review.human_qa).toEqual({ status: 'pending_human_qa', screenshots: [], mp4: null })
     expect(new Set(Object.values(body.approved_adaptation_review.external_gates))).toEqual(new Set([false]))
