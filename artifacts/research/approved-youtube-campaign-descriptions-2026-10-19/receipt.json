@@ -44,7 +44,10 @@
           "description_has_links": false,
           "description_has_subscribe_cta": false,
           "qualified": true,
-          "exclusion_reason": null
+          "exclusion_reason": null,
+          "description_text": "This video goes over some chess tips in every stage of the game. This chess video goes over some tips you probably know and some you dont idk and again in all chess stages. Hope you like this oneeeeeeeee!! \n#chess #chesstips #chessimprovement",
+          "description_source_field": "ytInitialPlayerResponse.videoDetails.shortDescription",
+          "description_retrieved_at": "2026-10-20T16:35:53.071Z"
         },
         {
           "source_id": "Reza8udb47Y",
@@ -65,7 +68,7 @@
           },
           "normalized_performance_score": 83.75,
           "topic_match": "Same-topic chess-tip explainer with current public metadata.",
-          "description_capture": "full_public_watch_metadata",
+          "description_capture": "unavailable_public_watch_metadata",
           "description_fingerprint": null,
           "description_characters": 0,
           "description_paragraphs": 0,
@@ -74,7 +77,10 @@
           "description_has_links": false,
           "description_has_subscribe_cta": false,
           "qualified": false,
-          "exclusion_reason": "full_description_unavailable"
+          "exclusion_reason": "full_description_unavailable",
+          "description_text": null,
+          "description_source_field": null,
+          "description_retrieved_at": "2026-10-20T16:35:53.071Z"
         },
         {
           "source_id": "8xrELvz0dCI",
@@ -104,7 +110,10 @@
           "description_has_links": false,
           "description_has_subscribe_cta": false,
           "qualified": false,
-          "exclusion_reason": "below_recorded_outlier_threshold"
+          "exclusion_reason": "below_recorded_outlier_threshold",
+          "description_text": "I've been playing chess for decades, and there are quite a few things I wish I'd understood much earlier.\n\nIn this video, I share 5 chess mistakes that took me years to fix, from spending too much time studying openings to attacking when the position simply doesn't justify it.\n\nThese aren't just common beginner mistakes. They're habits that can hold back club players for years, even when they're studying hard and trying to improve.\n\nI'll explain what I used to do, why I got it wrong, and what I've learned along the way. Hopefully, you can avoid making some of the same mistakes!\n\nWhat chess mistake took you the longest to fix? Let me know in the comments. I'd love to hear your experiences.\n\n#chess #chessimprovement #chesstips",
+          "description_source_field": "ytInitialPlayerResponse.videoDetails.shortDescription",
+          "description_retrieved_at": "2026-10-20T16:35:53.071Z"
         },
         {
           "source_id": "E97FVCRGCxU",
@@ -134,7 +143,10 @@
           "description_has_links": false,
           "description_has_subscribe_cta": false,
           "qualified": false,
-          "exclusion_reason": "below_recorded_outlier_threshold"
+          "exclusion_reason": "below_recorded_outlier_threshold",
+          "description_text": "A complete breakdown of every move classification on chess.com, from Brilliant to Blunder and everything in between. Whether you just started using game review or want to understand what each symbol actually means, this video covers it all!\n\nMoves covered:\n\n0:00 Brilliant\n1:00 Blunder\n2:10 Book\n2:42 Forced\n3:44 Miss\n4:42 Missed Win\n5:27 Inaccuracy\n6:16 Mistake\n7:10 Good\n7:36 Excellent\n8:15 Best\n8:54 Great",
+          "description_source_field": "ytInitialPlayerResponse.videoDetails.shortDescription",
+          "description_retrieved_at": "2026-10-20T16:35:53.071Z"
         },
         {
           "source_id": "XRNpz7fra9k",
@@ -164,7 +176,10 @@
           "description_has_links": true,
           "description_has_subscribe_cta": false,
           "qualified": false,
-          "exclusion_reason": "below_recorded_outlier_threshold"
+          "exclusion_reason": "below_recorded_outlier_threshold",
+          "description_text": "🚫 Fischer’s rules are simple, but they work only when they become habits. Level Up Your Chess helps train better decisions and fewer mistakes: https://online.chess-teacher.com/levelupcta\n\nTake Your Chess Skills To The Next Level With High-Quality Courses\nLearn here ► https://online.chess-teacher.com/shopyd\n\n💰💲 Join the RCA Affiliate Program, promote our courses, and get 50% commission - https://chess-teacher.com/partnership/\n\n♛ Find the complete chess game of Bobby Fischer shown in the video in this blog-post - https://chess-teacher.com/fischer-chess-strategy/\n\nThese 3 powerful chess principles from Bobby Fischer will help you reduce blunders and find the best moves in ANY position with ease.\n\nYou'll learn these strategies by analyzing an instructive game between Bobby Fischer and Laszlo Barczay. Over 15 years of coaching, GM Igor Smirnov has found that his students grasp these positional principles best through this brilliant game.\n\nAnd here’s the best part: these concepts are universal—meaning they apply in ANY stage of the game and in ANY position. By adopting Bobby Fischer’s thinking system, you’ll be able to consistently find strong moves and improve your overall gameplay!\n\n▬▬▬▬▬▬\n► Chapters\n\n00:00 3 Golden Chess Rules of Bobby Fischer to Avoid Blunders\n01:21 Fischer's confusing move\n02:20 Rule-1\n03:43 Rule-2\n05:28 Very critical moment (best principle)\n08:21 Test your knowledge\n09:12 How to counterattack in chess?\n09:49 Rule-3\n\n► Follow RCA on social media \nFacebook: https://www.facebook.com/RemoteChessAcademy/\nInstagram: https://www.instagram.com/gm.igorsmirnov/\nTikTok: https://www.tiktok.com/@gmigorsmirnov/\nX (Twitter): https://x.com/GMIgorSmirnov/\n\n#IgorNation #ChessRules #BobbyFischer #ChessTips #ChessStrategy",
+          "description_source_field": "ytInitialPlayerResponse.videoDetails.shortDescription",
+          "description_retrieved_at": "2026-10-20T16:35:53.071Z"
         },
         {
           "source_id": "ohSRdSZFnSQ",
@@ -194,7 +209,10 @@
           "description_has_links": false,
           "description_has_subscribe_cta": false,
           "qualified": false,
-          "exclusion_reason": "below_recorded_outlier_threshold"
+          "exclusion_reason": "below_recorded_outlier_threshold",
+          "description_text": "So this video discusses some common chess mistakes (usualy below 2000 elo) that playeres make and also how to fix them to get better at the game.\nSO yeah I hope you enjoy this chess video.\n(had to reupload due to some copyright problems) #chess #chessimprovement #howtogetbetteratchess",
+          "description_source_field": "ytInitialPlayerResponse.videoDetails.shortDescription",
+          "description_retrieved_at": "2026-10-20T16:35:53.071Z"
         },
         {
           "source_id": "bstZmyzBZ0g",
@@ -224,7 +242,10 @@
           "description_has_links": false,
           "description_has_subscribe_cta": false,
           "qualified": false,
-          "exclusion_reason": "below_recorded_outlier_threshold"
+          "exclusion_reason": "below_recorded_outlier_threshold",
+          "description_text": "A complete breakdown of the most common mistakes beginner chess players make, from opening errors to endgame neglect and everything in between. Whether you're just starting out or looking to clean up your game, this video covers it all.\n\nChapters:\n\n0:00 Pushing Pawns\n0:38 Early Queen\n1:10 Unsafe King\n1:40 Useless Trades\n2:11 Missing Threats\n2:41 Playing Too Fast\n3:11 Grabbing Pawns\n3:44 Repeating Moves\n4:10 Bad Squares\n4:44 No Plan\n5:17 Ignoring Endgames\n5:48 Bad Mental",
+          "description_source_field": "ytInitialPlayerResponse.videoDetails.shortDescription",
+          "description_retrieved_at": "2026-10-20T16:35:53.071Z"
         },
         {
           "source_id": "TGo2-JcjtOk",
@@ -254,7 +275,10 @@
           "description_has_links": true,
           "description_has_subscribe_cta": false,
           "qualified": false,
-          "exclusion_reason": "below_recorded_outlier_threshold"
+          "exclusion_reason": "below_recorded_outlier_threshold",
+          "description_text": "🔥 *Wanna stop blundering and start winning?  Learn GM Smirnov’s step-by-step system to break through 2000+ ELO* ► https://chess-teacher.net/masterclassyt/\n\n⌛ *GM Smirnov has spent years mastering chess—so you don’t have to. Study his courses* 👉 https://online.chess-teacher.com/shopyd\n\n▬▬▬▬▬▬▬▬▬▬▬▬▬\n📺 Recommended Videos:\n\n🔹Fischer's 3 Rules to Prevent 90% of Your Chess Mistakes - https://youtu.be/XRNpz7fra9k\n\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n📚 Games & Other Resources:\n\nFind the examples shown in the video in this blog-post - https://chess-teacher.com/stop-blundering/\n\n🧠 *ONE Rule That Will Prevent 90% of Your Mistakes | Stop Blundering in Chess*\n\nMost chess players don’t lose because they’re outplayed… They lose because of blunders—one move, one oversight, and a winning position turns into a painful defeat.\n\nIn this video, GM Igor Smirnov reveals the single most important rule that can prevent the majority of your chess mistakes. It’s not about memorizing opening lines or calculating 10 moves ahead — it’s about using a smart, practical thinking system that strong players follow instinctively.\n\n👉 *What You’ll Learn in This Video:*\n\n✅ The #1 habit that will stop you from making blunders\n✅ A simple mindset shift that works in blitz, rapid, and classical games\n✅ Why even strong players lose to avoidable mistakes — and how to fix it\n✅ A step-by-step decision-making process to improve consistency\n✅ How to play with confidence and protect your rating from silly errors\n\nThis lesson is perfect for beginners and intermediate players who feel stuck, frustrated, or inconsistent. Whether you’re dropping pieces, falling into traps, or just losing to yourself — this rule is the antidote.\n\n▬▬▬▬▬▬▬▬\n⏱️ Timestamps\n\n00:00 Important Chess Tip for Beginners [Break 1500 ELO]\n00:12 Example-1\n00:36 Do this BEFORE attacking your opponent (Bite or Flight)\n01:52 Example-2\n02:31 Example-3\n03:16 Puzzle of the Day\n03:30 Example-4\n03:51 🔸GOLDEN RULE TO AVOID BLUNDERS🔸\n\n► Follow RCA on social media \nFacebook: https://www.facebook.com/RemoteChessAcademy\nInstagram: https1://www.instagram.com/gm.igorsmirnov/\nTikTok: https://www.tiktok.com/@gmigorsmirnov\nX (Twitter): https://x.com/GMIgorSmirnov/\n\n#IgorNation #ChessRules #ChessTips #ChessBlunders #ChessMistakes",
+          "description_source_field": "ytInitialPlayerResponse.videoDetails.shortDescription",
+          "description_retrieved_at": "2026-10-20T16:35:53.071Z"
         }
       ]
     },
@@ -285,7 +309,7 @@
             "audience_view_percentile": 91.67,
             "recency_rate_percentile": 58.33
           },
-          "normalized_performance_score": 85.0,
+          "normalized_performance_score": 85,
           "topic_match": "Same-topic AI audit product example with current public metadata.",
           "description_capture": "full_public_watch_metadata",
           "description_fingerprint": "sha256:cf14ab9d8f420fa2e6d1a94a602d6efe032554770693858d01719a2385657465",
@@ -296,7 +320,10 @@
           "description_has_links": true,
           "description_has_subscribe_cta": true,
           "qualified": true,
-          "exclusion_reason": null
+          "exclusion_reason": null,
+          "description_text": "Most companies know they should be using AI.\n\nVery few know where to start.\n\nThat's exactly why I built Orcas.\n\nIn this video, I walk through the AI transformation platform I've been building to help companies assess their AI readiness, identify their biggest opportunities, generate implementation plans, and actually execute on them.\n\nTraditional AI consulting engagements can cost anywhere from $2,500 to $100,000+ before implementation even begins. I wanted to see if we could make that process dramatically more accessible without sacrificing quality.\n\nInside this video, you'll see:\n\n✅ How our AI Readiness Audit works\n✅ How we automatically generate implementation plans\n✅ How those plans become actionable project boards\n✅ How companies can measure AI ROI over time\n✅ How AI consultants can use the platform with their own clients\n\nWhether you're a founder, operator, consultant, or business leader trying to understand how AI fits into your organization, I hope this gives you a practical framework for thinking about AI adoption.\n\nIn this episode\n\n1. Why I built Orcas\n2. Why AI consulting is changing\n3. Self-serve vs consultant-led AI audits\n4. Inside the AI Readiness Audit\n5. Automatically generating an implementation plan\n6. Turning strategy into projects and tasks\n7. Measuring ROI and AI impact\n8. Using Orcas as an AI consulting firm\n9. Final thoughts\n\nAbout Company in Progress\n\nCompany in Progress documents what it's actually like to build software, products, and companies in public.\n\nNo fake success stories.\nNo \"10x founder\" advice.\n\nJust honest lessons, product breakdowns, strategy, mistakes, wins, and everything I'm learning while building.\n\nIf that's your kind of content, subscribe.\n\nConnect\n\n💼 LinkedIn: https://www.linkedin.com/in/zachary-wright-mba/\n\n🌐 Website: https://orqis.base44.app/\n\nTags related:\nAI Audit, AI Consulting, Artificial Intelligence, AI Transformation, AI Strategy, AI Readiness Assessment, AI Implementation, Business AI, Workflow Automation, AI Automation, AI for Business, Startup Founder, SaaS, Product Management, Product Strategy, Building in Public, Company in Progress",
+          "description_source_field": "ytInitialPlayerResponse.videoDetails.shortDescription",
+          "description_retrieved_at": "2026-10-20T16:35:53.071Z"
         },
         {
           "source_id": "oGaSfa3lJ8o",
@@ -315,7 +342,7 @@
             "audience_view_percentile": 58.33,
             "recency_rate_percentile": 75
           },
-          "normalized_performance_score": 70.0,
+          "normalized_performance_score": 70,
           "topic_match": "Same-topic AI audit workflow example with current public metadata.",
           "description_capture": "full_public_watch_metadata",
           "description_fingerprint": "sha256:a32e724d5d3a6447b3ca2e0b616340ffea819f1d6a5111f248b0b4cf998b0849",
@@ -326,7 +353,10 @@
           "description_has_links": true,
           "description_has_subscribe_cta": false,
           "qualified": false,
-          "exclusion_reason": "below_recorded_outlier_threshold"
+          "exclusion_reason": "below_recorded_outlier_threshold",
+          "description_text": "Stop guessing which AI tools to build. Most AI initiatives fail because they aren't tied to KPIs, lack accountability, or solve the wrong problems. In this video, I reveal the automated framework I use to audit companies, identify high-impact bottlenecks, and convert them into a 12-month AI roadmap—in minutes, not weeks.\n\nI walk you through the 3 Pillars of AI Workflows:\n\n1. Direction: Tying every automation back to a specific KPI.\n2. Accountability: Ensuring every initiative has an owner.\n3. Trust: Building workflows that employees and customers actually rely on.\n\nWhat you’ll see in this demo:\n\nThe AI Interview: How I use Claude \"Agent Skills\" to turn raw meeting notes into technical specs.\n\nThe Scoring Matrix: How to automatically calculate Complexity vs. Impact for every potential project.\n\nThe Perplexity Integration: Using real-world data to predict KPI uplift (e.g., \"Will this increase bookings by 80%?\").\n\nThe Automated Roadmap: Watch a Google Apps Script convert a backlog into a visual timeline based on your team’s actual capacity.\n\nThe Example: Watch as I audit a real UK-based commercial cleaning business and turn a simple \"inbound call\" problem into a fully-specced Voice Agent automation.\n\nRESOURCES:\n📥 Download the FULL Blueprint (Claude Skills + Sheets Template): https://elementsagents.kit.com/88c7c4164c\n📆 Book an AI Strategy Session: https://cal.com/vladimirelements/intro-call\n\nTimestamps:\n0:00 - The 3 Pillars of AI Strategy\n1:15 - How to Surface High-Impact Problems\n2:45 - Live Demo: Turning Meeting Notes into a Solution\n4:30 - Defining Complexity vs. Impact (The Matrix)\n6:15 - Calculating ROI with Perplexity AI\n7:50 - Generating the 12-Month Roadmap (Google Apps Script)\n9:30 - Governance & Accountability Framework\n\n#AIAutomations #AIBusinessAudit #AIForBusiness #ProcessAutomation #AIAgents",
+          "description_source_field": "ytInitialPlayerResponse.videoDetails.shortDescription",
+          "description_retrieved_at": "2026-10-20T16:35:53.071Z"
         },
         {
           "source_id": "axNuaPmBjLg",
@@ -356,7 +386,10 @@
           "description_has_links": true,
           "description_has_subscribe_cta": true,
           "qualified": false,
-          "exclusion_reason": "below_recorded_outlier_threshold"
+          "exclusion_reason": "below_recorded_outlier_threshold",
+          "description_text": "Can one AI workflow actually save money after we count software cost, review time, and revisions?\n\nIn this CreatorOS experiment, I compare a repeatable five-output content workflow against a manual process. The walkthrough measures time, usable outputs, human review, and an illustrative capacity-value calculation.\n\nThe calculator in this video is an example—not Synapse-X AI’s financial statement and not a guarantee of savings. It uses these clearly stated assumptions: 150 minutes manually, 55 minutes with the workflow including review, 95 minutes recovered, and an illustrative $30 hourly value. Capacity value is not the same as cash savings; your result depends on your real baseline, usage volume, hourly value, quality, revisions, integration costs, and how you use the recovered time.\n\nOfficial pricing references shown in the video can change. ChatGPT Plus is listed by OpenAI at $20/month; ChatGPT Business standard seats are listed at $20/month when billed annually or $25/month when billed monthly. API usage is separate. Check the official pages before making a purchase.\n\nSources:\nJPMorganChase Institute — https://www.jpmorganchase.com/institute/all-topics/business-growth-and-entrepreneurship/understanding-ai-use-by-small-businesses\nStanford SIEPR — https://siepr.stanford.edu/publications/policy-brief/what-really-happening-jobs-separating-ai-hype-reality\nOpenAI Help Center — https://help.openai.com/en/articles/6950777-what-is-chatgpt-plus\nOpenAI Business Pricing — https://openai.com/business/pricing/\nPwC 2026 AI Business Predictions — https://www.pwc.com/us/en/tech-effect/ai-analytics/ai-predictions.html\n\nChapters:\n00:00 The real AI ROI question\n00:28 The hidden cost of fast AI\n00:58 One brief to five deliverables\n01:28 The workflow and human approval\n01:58 What the research says\n02:17 The illustrative baseline\n02:46 Turning time into capacity value\n03:14 Counting software cost\n03:43 The sensitivity check\n04:01 The verdict and your test\n\nSubscribe for practical AI workflows measured without hype. CreatorOS is shown as a concept/demo workflow. No guaranteed views, earnings, savings, monetization, or business outcomes are promised.",
+          "description_source_field": "ytInitialPlayerResponse.videoDetails.shortDescription",
+          "description_retrieved_at": "2026-10-20T16:35:53.071Z"
         },
         {
           "source_id": "wIcw0T9NhZM",
@@ -386,7 +419,10 @@
           "description_has_links": true,
           "description_has_subscribe_cta": false,
           "qualified": false,
-          "exclusion_reason": "below_recorded_outlier_threshold"
+          "exclusion_reason": "below_recorded_outlier_threshold",
+          "description_text": "My FREE AI OS Course: https://www.skool.com/ai-automation-society/about?el=how-to-price-ai-workflows-without-losing-clients&hcategory=youtube-videos&utm_campaign=free-group\nFull courses + unlimited support: https://www.skool.com/ai-automation-society-plus/about?el=how-to-price-ai-workflows-without-losing-clients&hcategory=youtube-videos&utm_campaign=ais-plus\nApply for my YT podcast: https://podcast.nateherk.com/apply\nWork with me: https://uppitai.com/\n\nMy Tools💻\nFREE MONTH voice to text: https://get.glaido.com/nate\nCode NATEHERK for 10% off VPS (annual plan): https://www.hostinger.com/vps/claude-code-hosting\n\n\nHow to price AI workflows without losing clients or undercharging. \n\nIn this video I'll be giving you guys a full guide on how to price AI workflows in 2026. \n\nPricing your AI workflows is one of the most important parts of your business, because if you price too high, you miss out on a lot of money...and if you price too low, you miss out on a lot of money. \n\nSo here's my full guide to help make sure that doesn't happen to you! Hope you enjoy!\n\nTIMESTAMPS \n00:00 Pricing Mindset \n01:33 Pricing Models\n05:32 Pricing Calculation\n06:29 10x Return Rule \n07:41 Pricing for Retainers \n09:33 How to Present Your Price \n13:37 Recurring Income\n15:56 The PRICE Framework\n20:05 Want to build your AI automation business?\n\nSponsorship Inquiries:\n📧 nate@smoothmedia.co\n\nConnect with me:\nhttps://www.linkedin.com/in/nateherkelman/\nhttps://x.com/nateherk\nhttps://www.instagram.com/nateherk/",
+          "description_source_field": "ytInitialPlayerResponse.videoDetails.shortDescription",
+          "description_retrieved_at": "2026-10-20T16:35:53.071Z"
         },
         {
           "source_id": "qf31-dcBeE4",
@@ -416,7 +452,10 @@
           "description_has_links": false,
           "description_has_subscribe_cta": true,
           "qualified": false,
-          "exclusion_reason": "below_recorded_outlier_threshold"
+          "exclusion_reason": "below_recorded_outlier_threshold",
+          "description_text": "The honest part. Asked whether the monthly AI token cost is reasonable, he gives the unvarnished answer: after three months at roughly RM4K a month, he does not see a high ROI yet — what he sees is less mental stress and faster turnaround. Plus why boss-only subscriptions fail, why USD20 a seat never works for a team, and how to roll out at company level first.\n\n⏱ Chapters\n0:00 Q&A — the Files and Presentations modules\n1:58 HTML vs PowerPoint for client decks\n2:24 Can I use MiniMax for browser use?\n2:45 Is the monthly AI token cost reasonable?\n3:32 Why USD100 is the realistic starting tier\n3:53 Why boss-only AI subscriptions fail\n5:02 An honest ROI read after three months\n5:50 Subscribe at company level first, then individuals\n7:00 Productivity takes time to show on the P&L\n7:46 Monetising the skill as a new revenue stream\n8:30 The real monthly cost at his firm, and whether it's justified\n9:15 Staff retention as the long-term payoff\n10:25 Why \"everyone gets ChatGPT\" is a waste of money\n11:15 Closing — build the fun part, let the tech team maintain it\n\n#AIROI #AIforAccountants #SuperAgentK #AIAdoption #AccountingTech\n\nwww.superagentk.com",
+          "description_source_field": "ytInitialPlayerResponse.videoDetails.shortDescription",
+          "description_retrieved_at": "2026-10-20T16:35:53.071Z"
         },
         {
           "source_id": "w8dvgEOh3tc",
@@ -446,9 +485,31 @@
           "description_has_links": false,
           "description_has_subscribe_cta": false,
           "qualified": false,
-          "exclusion_reason": "below_recorded_outlier_threshold"
+          "exclusion_reason": "below_recorded_outlier_threshold",
+          "description_text": "The Hidden Costs Affecting Your AI ROI explores Identifying the unseen costs associated with AI implementations that impact ROI.\n\nIn this video, we break down the main factors behind this topic, explain what to look for, and walk through practical ways to make better decisions or solve the problem.\n\nWhat you'll learn:\n• The key ideas behind the hidden costs affecting your ai roi\n• The main factors that can affect the outcome\n• Practical ways to evaluate the situation\n• What to consider before making changes\n\nChapters:\n00:00 - Understanding the Hidden Costs of AI Implementation\n00:49 - Understanding the Hidden Costs of AI Implementations\n01:40 - Uncovering Hidden Costs in AI Implementations\n02:36 - Identifying Hidden Costs in AI Implementation\n03:32 - Understanding Hidden Costs in AI Investments\n\nThe goal is to give you a clear, practical understanding of identifying the unseen costs associated with ai implementations that impact roi without unnecessary jargon.\n\nIf this guide was useful, share your experience or question in the comments.\n\n#Marketing",
+          "description_source_field": "ytInitialPlayerResponse.videoDetails.shortDescription",
+          "description_retrieved_at": "2026-10-20T16:35:53.071Z"
         }
       ]
     }
-  ]
+  ],
+  "description_recheck": {
+    "retrieved_at": "2026-10-20T16:35:53.071Z",
+    "method": "Read-only public YouTube watch page; ytInitialPlayerResponse.videoDetails.shortDescription; exact video identity and prior description SHA-256 verified before writing.",
+    "pages_observed": 14,
+    "campaign_results": [
+      {
+        "campaign_identity": "dark-castle-chess",
+        "qualified": 1,
+        "required": 3,
+        "status": "unscored"
+      },
+      {
+        "campaign_identity": "ai-audit-calculator",
+        "qualified": 1,
+        "required": 3,
+        "status": "unscored"
+      }
+    ]
+  }
 }

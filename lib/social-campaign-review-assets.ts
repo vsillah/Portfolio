@@ -397,7 +397,11 @@ export const SOCIAL_CAMPAIGN_REVIEW_PACKETS: Record<string, SocialCampaignReview
     thumbnailEvidence: darkCastlePackagingEvidence.validation,
     thumbnailDiversity: SOCIAL_CAMPAIGN_YOUTUBE_THUMBNAIL_DIVERSITY,
     openingHook: 'A player can land on the right square by accident. The board position alone cannot tell you whether they learned.',
-    descriptionEvidence: { state: 'unscored', qualified: 0, required: 3, requirement: 'Capture three fresh, attributable, same-topic public YouTube descriptions that pass the existing outlier benchmark. Internal packet summaries and unrelated chess videos do not qualify.', attribution: [] },
+    descriptionEvidence: {
+      state: 'unscored', qualified: 1, required: 3,
+      requirement: 'Observed 1/3 qualifying full descriptions on 2026-10-18 (score 88.75; threshold 75; evidence expires after 2026-11-01). Capture two more distinct, same-topic public YouTube descriptions with reproducible cohort scores and current observations. Internal packet summaries and unrelated chess videos do not qualify.',
+      attribution: [{ label: 'Every Chess Tip - Explained!(in stages) · youraveragechessguy1', href: 'https://www.youtube.com/watch?v=KbjRYez_me0', receipt: 'sha256:fa8fed6276ec15009b9f515b1bb24107ad818eb4439cefa80463441ba764b647', supports: 'Full public description, exact video identity, and 88.75 outlier score in the current eight-video cohort.', limitation: 'One qualifying source of three required. Editorial comparison only; no causal performance claim.' }],
+    },
     storyboard: [
       { time: '0:00-0:15', beat: 'Show the same correct move reached through guessing and understanding.', proof: 'Owned gameplay position.' },
       { time: '0:15-0:45', beat: 'Follow position, choice, and consequence.', proof: 'Decision guidance and notation.' },
@@ -422,7 +426,11 @@ export const SOCIAL_CAMPAIGN_REVIEW_PACKETS: Record<string, SocialCampaignReview
     thumbnailEvidence: aiAuditPackagingEvidence.validation,
     thumbnailDiversity: SOCIAL_CAMPAIGN_YOUTUBE_THUMBNAIL_DIVERSITY,
     openingHook: 'The subscription price is easy to find. The expensive part is the work that appears after the tool answers.',
-    descriptionEvidence: { state: 'unscored', qualified: 0, required: 3, requirement: 'Capture three fresh, attributable, same-topic public YouTube descriptions that pass the existing outlier benchmark. Pricing pages, internal summaries, and general AI-cost commentary do not qualify.', attribution: [] },
+    descriptionEvidence: {
+      state: 'unscored', qualified: 1, required: 3,
+      requirement: 'Observed 1/3 qualifying full descriptions on 2026-10-18 (score 85.00; threshold 75; evidence expires after 2026-11-01). Capture two more distinct, same-topic public YouTube descriptions with reproducible cohort scores and current observations. Pricing pages, internal summaries, and general AI-cost commentary do not qualify.',
+      attribution: [{ label: 'I Built an AI Audit That Replaces a $50,000 Consultant · company in progress', href: 'https://www.youtube.com/watch?v=fSAazWLuDyQ', receipt: 'sha256:cf14ab9d8f420fa2e6d1a94a602d6efe032554770693858d01719a2385657465', supports: 'Full public description, exact video identity, and 85.00 outlier score in the current six-video cohort.', limitation: 'One qualifying source of three required. The source title is attribution, not a validated product or savings claim.' }],
+    },
     storyboard: [
       { time: '0:00-0:15', beat: 'Put the invoice beside the hidden work.', proof: 'Review, cleanup, escalation, and duplicate-tool map.' },
       { time: '0:15-0:50', beat: 'Change the unit from licenses to accountable capacity.', proof: 'Owned calculator capture categories.' },
