@@ -27,6 +27,7 @@ import {
 import { nextReviewWindow, reviewCadence, reviewWindows, REVIEW_SIDE_EFFECTS, type ReviewProjection, type ReviewRow, type ReviewWindow } from '@/lib/campaign-review-cadence'
 import { validateYouTubeDescriptionReviewPacket } from '@/lib/youtube-outlier-description-library'
 import { reconcileCampaignPreparationCandidatesSafely } from '@/lib/social-campaign-preparation-producer'
+import { preparationDeadline } from '@/lib/social-calendar-preparation-deadline'
 
 type Row = Record<string, any> // Database JSON records are validated before preparing a packet.
 const record = parseMetadata
@@ -380,8 +381,7 @@ function reviewPriority(value: unknown): ReviewRow['priority'] {
 }
 
 function reviewTriggerAt(calendar: Row) {
-  const metadata = record(calendar.metadata)
-  return text(metadata.review_trigger_at) || text(metadata.review_due_at) || text(calendar.scheduled_for)
+  return preparationDeadline({ scheduled_for: text(calendar.scheduled_for), metadata: calendar.metadata }) || ''
 }
 
 function claimIsActive(value: unknown, lineage: string, now: Date) {
@@ -526,16 +526,17 @@ type Snapshot = Awaited<ReturnType<typeof load>>
 function project(s: Snapshot, now: Date): ReviewProjection {
   const anchor = s.calendar[0]
   const config = reviewCadence(record(anchor?.metadata).campaign_review_cadence)
-  const horizonStart = Math.max(now.getTime() - REVIEW_LOOKBACK_MS, Date.parse(s.campaign.starts_at) || 0)
+  const horizonStart = now.getTime() - REVIEW_LOOKBACK_MS
   const end = new Date(Math.min(now.getTime() + config.horizon_days * 86400000, Date.parse(s.campaign.ends_at) || Infinity)).toISOString()
   const rows: ReviewRow[] = []
   const seen = new Set<string>()
   for (const c of s.calendar) {
     if (['completed', 'cancelled'].includes(c.due_status)) continue
     const cm = record(c.metadata)
-    // An explicit preparation trigger takes precedence over the review date and release milestone.
+    // The calendar event is the delivery deadline. Preparation starts earlier.
     const due = reviewTriggerAt(c)
     if (!Number.isFinite(Date.parse(due)) || Date.parse(due) < horizonStart || Date.parse(due) > Date.parse(end)) continue
+    if (Number.isFinite(Date.parse(s.campaign.ends_at)) && Date.parse(c.scheduled_for) > Date.parse(s.campaign.ends_at)) continue
     const wid = text(record(cm.platform_draft_handoff).work_item_id)
     const w = s.works.find(w => w.id === wid), wm = record(w?.metadata), insight = record(wm.insight)
     const ids = (Array.isArray(wm.research_packet_ids) ? wm.research_packet_ids.filter(id => typeof id === 'string') as string[] : []).sort()
@@ -575,7 +576,12 @@ function project(s: Snapshot, now: Date): ReviewProjection {
     else if (!isSocialContentIntelligenceChannel(c.channel)) reason = 'This channel needs a manual Social Content review.'
     else if (!c.social_content_id || !draft) reason = 'Recover the linked Social Content draft.'
     else if (!['draft', 'approved', 'scheduled', 'published'].includes(draft.status)) reason = 'Recover the rejected Social Content draft before preparing.'
-    else if (!ids.length || evidence.some(e => !e || e.status !== 'approved' || e.pattern_status !== 'usable_framework' || !text(e.source_url) || !Object.keys(record(e.pattern_packet)).length || (e.expires_at && (!Number.isFinite(Date.parse(e.expires_at)) || Date.parse(e.expires_at) <= now.getTime())))) reason = 'Link current approved, usable research evidence.'
+    else if (!ids.length || evidence.some(e => !e || e.status !== 'approved' || e.pattern_status !== 'usable_framework' || !text(e.source_url) || !Number.isFinite(e.outlier_score) || !Object.keys(record(e.pattern_packet)).length || (e.expires_at && (!Number.isFinite(Date.parse(e.expires_at)) || Date.parse(e.expires_at) <= now.getTime())))) {
+      const usable = evidence.filter(e => e && e.status === 'approved' && e.pattern_status === 'usable_framework' && text(e.source_url) && Number.isFinite(e.outlier_score) && Object.keys(record(e.pattern_packet)).length && (!e.expires_at || (Number.isFinite(Date.parse(e.expires_at)) && Date.parse(e.expires_at) > now.getTime()))).length
+      const stale = evidence.filter(e => e && e.expires_at && (!Number.isFinite(Date.parse(e.expires_at)) || Date.parse(e.expires_at) <= now.getTime())).length
+      const unscored = evidence.filter(e => e && !Number.isFinite(e.outlier_score)).length
+      reason = `Current approved, attributable, outlier-scored usable-framework research packets observed: ${usable}; required: ${Math.max(1, ids.length)}. Stale packets observed: ${stale}; required: 0. Unscored packets observed: ${unscored}; required: 0. Refresh or replace the linked research evidence in Social Insights.`
+    }
     else if (!Object.keys(insight).length) reason = 'Link approved evidence to complete the insight.'
     else if (['approved', 'published', 'scheduled'].includes(draft.status) || lane.status === 'approved') state = 'reviewed'
     else if (lane.status === 'blocked' && !text(lane.decision_note)) reason = 'Add revision feedback in the existing review panel.'
@@ -615,7 +621,7 @@ function project(s: Snapshot, now: Date): ReviewProjection {
       title: c.title,
       channel: c.channel,
       phase: c.campaign_phase,
-      scheduled_for: due,
+      scheduled_for: text(c.scheduled_for),
       trigger_at: due,
       priority: reviewPriority(cm.review_priority),
       state,

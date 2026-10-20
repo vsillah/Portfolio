@@ -4,6 +4,7 @@ const mocks = vi.hoisted(() => ({
   from: vi.fn(),
   createAgentWorkItem: vi.fn(),
   prepareCampaignReviewBatch: vi.fn(),
+  getCampaignReviewBacklog: vi.fn(),
   runAgentSlackNotificationSweep: vi.fn(),
 }))
 
@@ -17,6 +18,7 @@ vi.mock('@/lib/agent-work-items', () => ({
 
 vi.mock('@/lib/campaign-review-backlog', () => ({
   prepareCampaignReviewBatch: mocks.prepareCampaignReviewBatch,
+  getCampaignReviewBacklog: mocks.getCampaignReviewBacklog,
 }))
 
 vi.mock('@/lib/agent-slack-notification-sweep', () => ({
@@ -56,6 +58,7 @@ describe('/api/cron/social-content-calendar-due-gates', () => {
       blocked_items: [],
       prepared_count: 0,
     })
+    mocks.getCampaignReviewBacklog.mockResolvedValue({ rows: [] })
   })
 
   afterEach(() => {
@@ -114,6 +117,59 @@ describe('/api/cron/social-content-calendar-due-gates', () => {
       })],
       side_effects: { publish: false, external_post: false },
     })
+  })
+
+  it('selects an authorized draft before its calendar event at the preparation deadline', async () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-10-14T12:00:00Z'))
+    mockDueGateQuery([{
+      id: 'calendar-early', title: 'Early review', campaign_id: 'campaign-1',
+      social_content_id: 'social-early', channel: 'linkedin', campaign_phase: 'teach',
+      scheduled_for: '2026-10-20T12:00:00Z', authorization_status: 'authorized', metadata: {},
+      social_content_queue: { id: 'social-early', status: 'draft', social_content_publishes: [] },
+    }])
+    const response = await GET(request('http://localhost/api/cron/social-content-calendar-due-gates?dry_run=1') as never)
+    expect(response.status).toBe(200)
+    expect(await response.json()).toMatchObject({
+      preparation_count: 0,
+      candidates: [expect.objectContaining({ id: 'calendar-early', gate_type: 'publish_preparation' })],
+    })
+  })
+
+  it('does not retry or write an unchanged blocked evidence version at event time', async () => {
+    const lineage = 'evidence-v1'
+    mockDueGateQuery([{
+      id: 'calendar-unchanged', title: 'Blocked review', campaign_id: 'campaign-1',
+      social_content_id: 'social-unchanged', channel: 'linkedin', campaign_phase: 'teach',
+      scheduled_for: new Date(Date.now()).toISOString(), authorization_status: 'authorized',
+      metadata: { publish_preparation: { status: 'blocked', evidence_version: lineage, retry_count: 2 } },
+      social_content_queue: { id: 'social-unchanged', status: 'draft', social_content_publishes: [] },
+    }])
+    mocks.getCampaignReviewBacklog.mockResolvedValue({ rows: [{ id: 'calendar-unchanged', state: 'blocked', lineage, reason: 'Source evidence observed: 0; required: 1.' }] })
+    const response = await POST(request('http://localhost/api/cron/social-content-calendar-due-gates', 'POST') as never)
+    expect(response.status).toBe(200)
+    expect(mocks.prepareCampaignReviewBatch).not.toHaveBeenCalled()
+    expect(mocks.from).toHaveBeenCalledTimes(1)
+    expect(mocks.runAgentSlackNotificationSweep).not.toHaveBeenCalled()
+  })
+
+  it('checks a changed blocked evidence version once and records its bounded retry', async () => {
+    const item = {
+      id: 'calendar-changed', title: 'Changed review', campaign_id: 'campaign-1',
+      social_content_id: 'social-changed', channel: 'linkedin', campaign_phase: 'teach',
+      scheduled_for: new Date(Date.now()).toISOString(), authorization_status: 'authorized',
+      metadata: { publish_preparation: { status: 'blocked', evidence_version: 'evidence-v1', retry_count: 1 } },
+      social_content_queue: { id: 'social-changed', status: 'draft', social_content_publishes: [] },
+    }
+    const query = mockDueGateQuery([item])
+    const update = vi.fn(() => ({ eq: vi.fn(async () => ({ error: null })) }))
+    mocks.from.mockReturnValueOnce({ select: vi.fn(() => query) }).mockReturnValue({ update })
+    mocks.getCampaignReviewBacklog.mockResolvedValue({ rows: [{ id: item.id, state: 'blocked', lineage: 'evidence-v2', reason: 'Approved packets observed: 0; required: 1.', href: '/admin/social-content/social-changed?step=copy' }] })
+    mocks.prepareCampaignReviewBatch.mockResolvedValue({ rows: [{ id: item.id, state: 'blocked', lineage: 'evidence-v2', reason: 'Approved packets observed: 0; required: 1.', href: '/admin/social-content/social-changed?step=copy' }], prepared_items: [], blocked_items: [] })
+    const response = await POST(request('http://localhost/api/cron/social-content-calendar-due-gates', 'POST') as never)
+    expect(response.status).toBe(200)
+    expect(mocks.prepareCampaignReviewBatch).toHaveBeenCalledTimes(1)
+    expect(update).toHaveBeenCalledWith(expect.objectContaining({ metadata: expect.objectContaining({ publish_preparation: expect.objectContaining({ evidence_version: 'evidence-v2', retry_count: 2, status: 'blocked' }) }) }))
   })
 
   it('creates a deduped Agent Ops work item for due authorization without publishing', async () => {
