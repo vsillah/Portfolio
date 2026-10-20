@@ -332,12 +332,14 @@ export function hasSocialContentContextEvidence(item: LifecycleItem) {
     asString(ragContext?.launch_packet_path)
     || asString(ragContext?.source_packet_path)
     || asString(ragContext?.source_packet)
+    || asString(ragContext?.approved_packet_path)
     || asString(ragContext?.content_packet_id)
     || asString(ragContext?.goal_id)
     || asString(ragContext?.launch_draft_asset_id)
     || asString(ragContext?.calendar_item_id)
     || asArray(ragContext?.provenance).length
     || asArray(ragContext?.source_ids).length
+    || asArray(ragContext?.source_lineage).length
   )
   const calibrationRecorded = Boolean(
     asRecord(ragContext?.calibration)

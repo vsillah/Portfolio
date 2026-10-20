@@ -33,6 +33,7 @@ export type SocialTopicSourceProjection = {
 }
 
 const PRODUCT_ALIASES: Array<[RegExp, string]> = [
+  [/\bportfolio(?:[\s_-]*agent[\s_-]*ops)?\b/i, 'portfolio'],
   [/\bdark[\s_-]*castle[\s_-]*chess\b/i, 'dark_castle_chess'],
   [/\baccelerated\b/i, 'accelerated'],
   [/\bagentified\b/i, 'agentified'],
@@ -41,6 +42,10 @@ const PRODUCT_ALIASES: Array<[RegExp, string]> = [
   [/\bwealthscape\b/i, 'wealthscape'],
   [/\bkinflo\b/i, 'kinflo'],
 ]
+
+const EXPLICIT_PRODUCT_IDENTITY_ALIASES: Record<string, string> = {
+  portfolio_agent_ops: 'portfolio',
+}
 
 function compact(value: unknown, max = 700) {
   const text = typeof value === 'string' ? value.replace(/\s+/g, ' ').trim() : ''
@@ -56,7 +61,9 @@ export function sanitizeApprovedSourceSummary(value: unknown) {
 
 export function stableProductIdentity(...values: unknown[]) {
   const explicitIdentity = compact(values[0], 80).toLowerCase()
-  if (/^[a-z0-9]+(?:_[a-z0-9]+)*$/.test(explicitIdentity)) return explicitIdentity
+  if (/^[a-z0-9]+(?:_[a-z0-9]+)*$/.test(explicitIdentity)) {
+    return EXPLICIT_PRODUCT_IDENTITY_ALIASES[explicitIdentity] ?? explicitIdentity
+  }
   const text = values.map((value) => compact(value, 240)).filter(Boolean).join(' ')
   for (const [pattern, identity] of PRODUCT_ALIASES) {
     if (pattern.test(text)) return identity

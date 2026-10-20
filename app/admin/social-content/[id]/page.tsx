@@ -3339,6 +3339,12 @@ function SocialContentDetailPage() {
   const contextSourcePacketPath = asString(ragContext?.launch_packet_path)
     || asString(ragContext?.source_packet_path)
     || asString(ragContext?.source_packet)
+    || asString(ragContext?.approved_packet_path)
+  const contextSourceLineage = asStringArray(ragContext?.source_lineage)
+  const contextProvenanceEntries = Array.from(new Set([
+    ...agentPilotProvenance,
+    ...contextSourceLineage,
+  ]))
   const contextSourceRecorded = Boolean(
     contextSourcePacketPath
     || agentPilotPacketId
@@ -3347,6 +3353,7 @@ function SocialContentDetailPage() {
     || channelVideoPacket?.sourceIds.length
     || asString(ragContext?.launch_draft_asset_id)
     || asString(ragContext?.calendar_item_id)
+    || contextSourceLineage.length
   )
   const contextCalibrationRecorded = Boolean(
     agentPilotCalibration
@@ -4219,6 +4226,76 @@ function SocialContentDetailPage() {
       <div data-social-detail-content className="mx-auto w-full max-w-[90rem] space-y-6 px-4 py-6 sm:px-6 lg:px-8">
         <SocialGateDeepLinkLanding routeId={id} itemId={item.id} gateId={activeStepAnchor} completed={completedGateLandings} />
 
+	        {activeApprovalStep === 'context' && !isAgentSocialPilot && (
+	          <section
+	            id="social-supporting-context-gate"
+	            aria-label="Recorded context and source basis"
+	            className="admin-console-card scroll-mt-64 rounded-xl border border-border p-4 sm:p-5"
+	          >
+	            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+	              <div className="min-w-0">
+	                <p className="admin-console-eyebrow">Source basis</p>
+	                <h2 className="mt-2 text-lg font-semibold text-foreground">Recorded context and source basis</h2>
+	                <p className="mt-1 max-w-3xl text-sm leading-6 text-muted-foreground">
+	                  This record is bound to the approved campaign packet and attributable source receipts below.
+	                </p>
+	              </div>
+	              <span className={`w-fit rounded-full border px-2 py-0.5 text-[10px] font-semibold ${GATE_STATE_CONFIG[supportingContextGateState].className}`}>
+	                Context: {contextRecorded ? 'Recorded' : GATE_STATE_CONFIG[supportingContextGateState].label}
+	              </span>
+	            </div>
+
+	            <div className="mt-4 grid gap-3 lg:grid-cols-[minmax(0,1.4fr)_minmax(16rem,0.6fr)]">
+	              <div className="rounded-lg border border-border bg-muted/35 p-4">
+	                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">Provenance</p>
+	                {contextSourcePacketPath && (
+	                  <p className="mt-2 break-all rounded-md border border-border bg-background/45 px-3 py-2 text-xs text-foreground">
+	                    Source packet: {contextSourcePacketPath}
+	                  </p>
+	                )}
+	                <ul className="mt-3 space-y-2 text-sm text-foreground">
+	                  {contextProvenanceEntries.map((entry) => {
+	                    const isPublicSource = /^https?:\/\//i.test(entry)
+	                    return (
+	                      <li key={entry} className="flex min-w-0 gap-2">
+	                        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-300" />
+	                        {isPublicSource ? (
+	                          <a href={entry} target="_blank" rel="noreferrer" className="min-w-0 break-all text-blue-700 underline-offset-2 hover:underline dark:text-blue-300">
+	                            {entry}
+	                          </a>
+	                        ) : (
+	                          <span className="min-w-0 break-all">{entry}</span>
+	                        )}
+	                      </li>
+	                    )
+	                  })}
+	                  {contextProvenanceEntries.length === 0 && (
+	                    <li className="text-muted-foreground">No attributable source receipts attached.</li>
+	                  )}
+	                </ul>
+	              </div>
+
+	              <div className="rounded-lg border border-border bg-muted/35 p-4">
+	                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">Binding</p>
+	                <dl className="mt-3 space-y-3 text-sm">
+	                  <div>
+	                    <dt className="text-xs text-muted-foreground">Channel</dt>
+	                    <dd className="mt-1 font-medium text-foreground">
+	                      {asString(ragContext?.channel) || asString(ragContext?.platform) || item.platform}
+	                    </dd>
+	                  </div>
+	                  <div>
+	                    <dt className="text-xs text-muted-foreground">Approval boundary</dt>
+	                    <dd className="mt-1 leading-5 text-foreground">
+	                      {asString(ragContext?.approval_boundary) || 'Internal review only.'}
+	                    </dd>
+	                  </div>
+	                </dl>
+	              </div>
+	            </div>
+	          </section>
+	        )}
+
 	        {activeApprovalStep === 'copy' && !mobileDecisionMode && (
 	          <section
 	            id="social-copy-gate"
@@ -4401,13 +4478,13 @@ function SocialContentDetailPage() {
                     </p>
                   )}
                   <ul className="mt-3 space-y-2 text-sm text-gray-300">
-                    {agentPilotProvenance.slice(0, 4).map((entry) => (
+                    {contextProvenanceEntries.slice(0, 4).map((entry) => (
                       <li key={entry} className="flex gap-2">
                         <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-300" />
                         <span>{entry}</span>
                       </li>
                     ))}
-                    {agentPilotProvenance.length === 0 && (
+                    {agentPilotProvenance.length === 0 && contextSourceLineage.length === 0 && (
                       <li className="text-gray-500">No provenance checklist attached.</li>
                     )}
                   </ul>

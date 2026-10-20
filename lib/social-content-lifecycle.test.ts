@@ -9,6 +9,7 @@ import {
   socialContentFinalCopyQualityFailure,
   validateSocialContentFinalCopyQuality,
   validateSocialPublicCopyFields,
+  hasSocialContentContextEvidence,
 } from './social-content-lifecycle'
 
 const completeRagContext = {
@@ -44,6 +45,20 @@ const completeTextOnlyXRagContext = {
 }
 
 describe('social content lifecycle projection', () => {
+  it('recognizes approved JIT packet paths and source lineage as durable context evidence', () => {
+    expect(hasSocialContentContextEvidence({
+      status: 'draft',
+      target_platforms: ['linkedin'],
+      rag_context: {
+        source: 'human_qa_approved_jit_campaign_packet',
+        approved_packet_path: 'artifacts/human-qa/next-week-campaign-batch/index.html',
+        source_lineage: ['https://example.com/public-source'],
+        channel: 'linkedin',
+        approval_boundary: 'Internal review only.',
+      },
+    })).toBe(true)
+  })
+
   it('projects a published legacy record with complete canonical evidence as sequentially approved', () => {
     const projection = deriveSocialContentLifecycleProjection({
       item: {

@@ -168,6 +168,46 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(screen.getByRole('button', { name: /Product evidence/ })).toHaveTextContent(/\d+/)
   })
 
+  it('shows JIT campaign packet provenance for non-pilot calendar records', async () => {
+    const jitItem = {
+      ...baseItem,
+      status: 'draft' as const,
+      rag_context: {
+        source: 'human_qa_approved_jit_campaign_packet',
+        approved_packet_path: 'artifacts/human-qa/next-week-campaign-batch-2026-10-17/index.html',
+        source_lineage: [
+          'https://example.com/dark-castle-proof',
+          'https://example.com/current-product-activity',
+        ],
+        channel: 'linkedin',
+        approval_boundary: 'Internal review only. No provider, upload, scheduling, publishing, or external send.',
+        human_qa_status: 'approved',
+        stable_campaign_identity: 'campaign:dark-castle:remember-the-decision:v1',
+      },
+    }
+    mocks.search = 'step=context'
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => ({
+      ok: true,
+      json: async () => String(input).includes('/topic-backlog') ? { items: [] } : { item: jitItem },
+    } as Response)))
+
+    render(<SocialContentDetailRoute />)
+
+    const contextRegion = await screen.findByRole('region', { name: 'Recorded context and source basis' })
+    expect(contextRegion).toBeVisible()
+    expect(within(contextRegion).getByText('Context: Recorded')).toBeVisible()
+    expect(screen.getByText(/Source packet: artifacts\/human-qa\/next-week-campaign-batch-2026-10-17\/index.html/)).toBeVisible()
+    expect(screen.getByRole('link', { name: 'https://example.com/dark-castle-proof' })).toHaveAttribute(
+      'href',
+      'https://example.com/dark-castle-proof',
+    )
+    expect(screen.getByRole('link', { name: 'https://example.com/current-product-activity' })).toHaveAttribute(
+      'href',
+      'https://example.com/current-product-activity',
+    )
+    expect(screen.getByText('Internal review only. No provider, upload, scheduling, publishing, or external send.')).toBeVisible()
+  })
+
   it('renders a YouTube Shorts review packet with channel-native copy guidance and no LinkedIn preview', async () => {
     mocks.search = 'step=copy&qa_fixture=channel_native_video_v2'
     const youtubeItem = {
