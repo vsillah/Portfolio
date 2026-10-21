@@ -11,12 +11,29 @@ describe('social campaign review asset projection', () => {
     expect(generator).not.toContain('youtubeOverlaySvg')
     const expected = new Map([
       ['jev-linkedin-decision-system.png', '5927f3b90b7895145464fb3c95d3c0d962214c2257379766bc892e43aa7bb141'],
-      ['dark-castle-linkedin-remember-why.png', 'f31f4dd07484c769c7dfd3b43c95269540facd387ca82a02fea2a15ff19c8334'],
+      ['dark-castle-linkedin-remember-why.png', '8744666b8e38d71862088b08baebc63c39eafc4b50cacfa56944c29d30a09683'],
       ['ai-audit-linkedin-hidden-bill.png', '73263abe49dc749383050e91cf10cab3266451eba866bf0b661d8bb88aa9efd5'],
     ])
     for (const [name, digest] of expected) {
       expect(createHash('sha256').update(readFileSync(`public/review-assets/social-content/campaign-review/${name}`)).digest('hex')).toBe(digest)
     }
+  })
+
+  it('keeps the Dark Castle JIT decision blocked on the expired exact content version', () => {
+    const packet = getSocialCampaignReviewPacket(SOCIAL_CAMPAIGN_REVIEW_IDS.darkCastleLinkedIn)
+    expect(packet?.kind).toBe('linkedin_visual')
+    if (!packet || packet.kind !== 'linkedin_visual') return
+    expect(packet.jit).toMatchObject({
+      contentVersion: 'sha256:585addaef15349ec135a57dd67308492110f6e97aecac2585e5936737d21918b',
+      expiresAt: '2026-10-20T15:08:19Z',
+      status: 'blocked_stale_jit',
+    })
+    expect(packet.sources.map((source) => source.receipt)).toContain('sha256:896dce9162e815c1138dfbecacd24e0a63d05e99901f98b89022ddeee225f9df')
+    const fixture = socialCampaignReviewQaFixture(SOCIAL_CAMPAIGN_REVIEW_IDS.darkCastleLinkedIn)
+    expect(fixture.post_text).toContain('A player opens with e4.')
+    expect(fixture.post_text).toContain('Those are visible product states, not a measured result.')
+    expect(fixture.cta_text).toBe('What does your product give people after they get an answer right?')
+    expect(packet.externalGates).toBe('closed')
   })
 
   it('renders YouTube thumbnails only from version-bound upstream decision receipts', () => {

@@ -1,0 +1,22 @@
+[
+  {
+    "name": "desktop",
+    "width": 1440,
+    "height": 900,
+    "approvalDisabled": true,
+    "rejectDisabled": true,
+    "visualLoaded": true,
+    "noOverflow": true,
+    "url": "http://127.0.0.1:5218/admin/social-content/9817a689-0565-48ed-8c97-c2db40c1ec45?qa_fixture=social_campaign_review_assets_v1&rev=03178d07"
+  },
+  {
+    "name": "mobile",
+    "width": 390,
+    "height": 844,
+    "approvalDisabled": true,
+    "rejectDisabled": true,
+    "visualLoaded": true,
+    "noOverflow": true,
+    "url": "http://127.0.0.1:5218/admin/social-content/9817a689-0565-48ed-8c97-c2db40c1ec45?qa_fixture=social_campaign_review_assets_v1&rev=03178d07"
+  }
+]

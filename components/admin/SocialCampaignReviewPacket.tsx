@@ -37,6 +37,13 @@ export default function SocialCampaignReviewPacket({ packet }: { packet: SocialC
         </div>
         <Image src={packet.visual.publicPath} alt={packet.visual.alt} width={1200} height={1500} className="mt-4 aspect-[4/5] w-full rounded-lg border border-border bg-[#071426] object-contain" priority />
         <p className="mt-3 rounded-lg border border-border bg-muted/35 p-3 text-sm font-semibold text-foreground">{packet.visual.proofLine}</p>
+        {packet.jit?.status === 'blocked_stale_jit' ? (
+          <div role="status" className="mt-3 rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-sm leading-6 text-foreground">
+            <p className="font-semibold">JIT refresh required before a current content decision</p>
+            <p>The approved source receipt expired on October 20, 2026. The October 22, 11:30 AM ET target remains review only until source lineage is refreshed and the proposed visual and copy are bound to a new decision.</p>
+            <p className="mt-1 break-all font-mono text-[11px] text-muted-foreground">Persisted draft version: {packet.jit.contentVersion}</p>
+          </div>
+        ) : null}
         <details className="mt-3 rounded-lg border border-border bg-background p-3">
           <summary className="cursor-pointer text-sm font-semibold text-foreground">Trace every visible claim</summary>
           <div className="mt-3"><ReceiptList sources={packet.sources} /></div>

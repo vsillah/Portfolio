@@ -8,8 +8,10 @@ describe('SocialCampaignReviewPacket', () => {
     const packet = getSocialCampaignReviewPacket(SOCIAL_CAMPAIGN_REVIEW_IDS.darkCastleLinkedIn)!
     render(<SocialCampaignReviewPacket packet={packet} />)
 
-    expect(screen.getByRole('img', { name: /real gameplay board/i })).toHaveAttribute('src', expect.stringContaining('dark-castle-linkedin-remember-why.png'))
-    expect(screen.getByText('Position -> choice -> consequence -> retained lesson')).toBeVisible()
+    expect(screen.getByRole('img', { name: /approved gameplay captures/i })).toHaveAttribute('src', expect.stringContaining('dark-castle-linkedin-remember-why.png'))
+    expect(screen.getByText('Explore the position; inspect the response; explain the next choice.')).toBeVisible()
+    expect(screen.getByRole('status')).toHaveTextContent('JIT refresh required before a current content decision')
+    expect(screen.getByRole('status')).toHaveTextContent('sha256:585addaef15349ec135a57dd67308492110f6e97aecac2585e5936737d21918b')
     expect(screen.getByText(/Provider, upload, platform-draft, scheduling, publishing/)).toBeVisible()
   })
 
