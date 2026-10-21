@@ -31,6 +31,9 @@ export type LinkedInReviewPacket = {
   calendarItemId: string
   campaign: string
   practicalValue: string
+  reviewCaption?: string
+  reviewCta?: string
+  reviewHashtags?: string[]
   visual: {
     publicPath: string
     alt: string
@@ -39,6 +42,13 @@ export type LinkedInReviewPacket = {
     sha256: string
   }
   sources: ReviewSource[]
+  jit?: {
+    contentVersion: string
+    observedAt: string
+    expiresAt: string
+    targetAt: string
+    status: 'blocked_stale_jit'
+  }
   externalGates: 'closed'
 }
 
@@ -328,18 +338,35 @@ export const SOCIAL_CAMPAIGN_REVIEW_PACKETS: Record<string, SocialCampaignReview
   [SOCIAL_CAMPAIGN_REVIEW_IDS.darkCastleLinkedIn]: {
     kind: 'linkedin_visual', channel: 'linkedin', socialContentId: SOCIAL_CAMPAIGN_REVIEW_IDS.darkCastleLinkedIn,
     calendarItemId: '433f1ee0-6764-4b95-8745-8418e6498446', campaign: 'Dark Castle Chess: Remember the Decision',
-    practicalValue: 'Shows why a learning product must preserve the position, choice, consequence, and lesson instead of recording completion alone.',
+    practicalValue: 'Shows a concrete product-design check: can the player inspect the position and response, then explain the next choice?',
+    reviewCaption: `A player opens with e4. The board remembers the move. What will help that player make the next decision?
+
+In Dark Castle Chess, Explore keeps the position, move guidance, and notation together. After the computer responds, the player can inspect candidate moves alongside the board. Those are visible product states, not a measured result.
+
+I think learning products should let people revisit the context of a choice. A completion marker tells us where someone stopped. A useful feedback loop helps the player see what changed and ask why. The next test is whether they can explain their next decision, without assuming that a correct move proves understanding.
+
+The practical check is simple: show the position, show the response, and invite the learner to say what they would try next. Then test that explanation with actual learners.`,
+    reviewCta: 'What does your product give people after they get an answer right?',
+    reviewHashtags: ['ProductDesign', 'LearningDesign', 'DarkCastleChess'],
     visual: {
       publicPath: '/review-assets/social-content/campaign-review/dark-castle-linkedin-remember-why.png',
-      alt: 'Dark Castle Chess LinkedIn visual showing a real gameplay board and the position, choice, consequence, lesson learning path.',
-      headline: 'A move can be right by accident. Learning needs the why.',
-      proofLine: 'Position -> choice -> consequence -> retained lesson',
-      sha256: 'sha256:f31f4dd07484c769c7dfd3b43c95269540facd387ca82a02fea2a15ff19c8334',
+      alt: 'Dark Castle Chess LinkedIn visual with approved gameplay captures showing an explored board, computer response, notation, and move guidance.',
+      headline: 'A right move can be an accident.',
+      proofLine: 'Explore the position; inspect the response; explain the next choice.',
+      sha256: 'sha256:8744666b8e38d71862088b08baebc63c39eafc4b50cacfa56944c29d30a09683',
     },
     sources: [
-      { label: 'Dark Castle gameplay proof', href: '/review-assets/social-content/dark-castle-customer-facing-poster.png', receipt: 'sha256:e15d744685990933555575d6a3c7bc18100af901a766c9a81d4ab9b1cc827d78', supports: 'Owned gameplay board, decision guidance, and coaching state.', limitation: 'Product-state proof only; it does not claim learning outcomes.' },
+      { label: 'Explore position capture', href: '/review-assets/social-content/storyboard-review/explore-position.jpg', receipt: 'sha256:896dce9162e815c1138dfbecacd24e0a63d05e99901f98b89022ddeee225f9df', supports: 'The owned board, open line, move guidance, and notation.', limitation: 'Shows a product state; no learner outcome is measured.' },
+      { label: 'Computer response capture', href: '/review-assets/social-content/storyboard-review/explore-computer.jpg', receipt: 'sha256:27d79426c04fa984569dc337623d1eb4a514392bf2e067563d9982d43d77dcdf', supports: 'The owned response, notation, and candidate-move guidance.', limitation: 'Candidate scores are in-product estimates, not measured learning gains.' },
       { label: 'Calendar review receipt', href: '#social-asset-packet-gate', receipt: '433f1ee0-6764-4b95-8745-8418e6498446', supports: 'Review-only campaign binding and closed side-effect gates.', limitation: externalGateNote },
     ],
+    jit: {
+      contentVersion: 'sha256:585addaef15349ec135a57dd67308492110f6e97aecac2585e5936737d21918b',
+      observedAt: '2026-10-17T15:08:19Z',
+      expiresAt: '2026-10-20T15:08:19Z',
+      targetAt: '2026-10-22T11:30:20-04:00',
+      status: 'blocked_stale_jit',
+    },
     externalGates: 'closed',
   },
   [SOCIAL_CAMPAIGN_REVIEW_IDS.auditLinkedIn]: {
@@ -458,7 +485,7 @@ export function socialCampaignReviewQaFixture(id: string): SocialContentItem {
   const isYouTube = packet.kind === 'youtube_packaging'
   const postText = isYouTube
     ? [packet.openingHook, ...packet.storyboard.map(({ beat }) => beat), packet.conclusion, packet.spokenCta].join('\n\n')
-    : [packet.visual.headline, packet.practicalValue, packet.visual.proofLine].join('\n\n')
+    : packet.reviewCaption ?? [packet.visual.headline, packet.practicalValue, packet.visual.proofLine].join('\n\n')
 
   return {
     id,
@@ -466,9 +493,9 @@ export function socialCampaignReviewQaFixture(id: string): SocialContentItem {
     platform: packet.channel,
     status: 'draft',
     post_text: postText,
-    cta_text: isYouTube ? packet.spokenCta : 'Review the decision system behind the result.',
+    cta_text: isYouTube ? packet.spokenCta : packet.reviewCta ?? 'Review the decision system behind the result.',
     cta_url: null,
-    hashtags: [],
+    hashtags: isYouTube ? [] : packet.reviewHashtags ?? [],
     image_url: packet.kind === 'linkedin_visual' ? packet.visual.publicPath : packet.thumbnailPath ?? null,
     image_prompt: isYouTube ? packet.thumbnailConcept : packet.visual.alt,
     framework_visual_type: null,
