@@ -1,10 +1,12 @@
 import { createHash } from 'crypto'
+import { isIP } from 'net'
 import {
   PUBLIC_SIGNAL_MEASUREMENT_VERSION, PUBLIC_SIGNAL_MIN_SAMPLE_SIZE, PUBLIC_SIGNAL_SCORE_THRESHOLD,
   publicSignalMeasurementReceiptId, validatePublicSignalMeasurement,
   type PublicSignalMeasurementReceipt,
 } from '@/lib/social-public-signal-measurement'
 import { validOfficialSignalAttribution } from '@/lib/social-official-live-signals'
+import { publicObservationIdentity, validPublicObservation } from '@/lib/social-public-signal-observation'
 
 const MAX_ATTEMPTS = 3
 const OWNER = 'social_content_research'
@@ -35,7 +37,7 @@ function validUrl(value: string) {
   try {
     const url = new URL(value)
     return url.protocol === 'https:' && !url.username && !url.password && url.hostname.includes('.')
-      && !['localhost', '127.0.0.1'].includes(url.hostname) && !url.hostname.endsWith('.local')
+      && !isIP(url.hostname) && !['.local', '.internal', '.invalid', '.test'].some((suffix) => url.hostname.endsWith(suffix))
   } catch { return false }
 }
 function normalized(value: { observed: number; required: number }) {
@@ -89,9 +91,14 @@ export function preparePublicSignalMeasurement(input: { packet: Row; evidence: R
   let rejected = 0
   for (const row of candidateEvidence) {
     const observation = object(row.actor_metadata.public_signal_observation) as Partial<Observation>
+    const review = object(row.actor_metadata.operator_review)
     const observedMs = Date.parse(String(observation.observed_at))
     const expiresMs = Date.parse(String(observation.expires_at))
     if (row.status !== 'approved' || observation.version !== 'public_signal_observation_v1'
+      || !validPublicObservation(observation, now)
+      || object(row.actor_metadata.public_signal_observation).observation_identity !== publicObservationIdentity(observation as Parameters<typeof publicObservationIdentity>[0])
+      || object(row.actor_metadata.public_signal_observation).official_packet_id !== packet.id
+      || review.decision !== 'approved' || !Number.isFinite(Date.parse(String(review.reviewed_at)))
       || observation.excluded === true || observation.source_url !== row.source_url || !validUrl(row.source_url)
       || !Number.isFinite(observedMs) || observedMs > nowMs || observedMs < nowMs - 7 * DAY
       || !Number.isFinite(expiresMs) || expiresMs <= nowMs || expiresMs > observedMs + 7 * DAY
@@ -138,7 +145,7 @@ export function preparePublicSignalMeasurement(input: { packet: Row; evidence: R
 
 // Called by the existing coverage intake. Never changes approval, scores on the
 // pending momentum receipt, or any source observation. Writes only preparation metadata.
-export async function persistPendingPublicSignalMeasurements(now: string) {
+export async function persistPendingPublicSignalMeasurements(now: string, packetId?: string) {
   const { supabaseAdmin } = await import('@/lib/supabase')
   const [packetResult, evidenceResult] = await Promise.all([
     supabaseAdmin.from('social_content_research_packets')
@@ -154,8 +161,9 @@ export async function persistPendingPublicSignalMeasurements(now: string) {
   }
   const packets = (packetResult.data ?? []) as Row[]
   const evidence = (evidenceResult.data ?? []) as Row[]
+  if (packetId && !packets.some((packet) => packet.id === packetId)) throw new Error('official_packet_not_pending_or_outside_bounded_window')
   const outcomes: Array<{ packet_id: string; receipt_id: string | null; reason: string | null; owner: string }> = []
-  for (const packet of packets) {
+  for (const packet of packetId ? packets.filter((item) => item.id === packetId) : packets) {
     const prepared = preparePublicSignalMeasurement({ packet, evidence, now })
     outcomes.push({ packet_id: packet.id, receipt_id: prepared.receipt?.receipt_id ?? null,
       reason: prepared.state?.reason ?? null, owner: OWNER })
@@ -171,6 +179,6 @@ export async function persistPendingPublicSignalMeasurements(now: string) {
     if (result.error) throw new Error(`public_signal_measurement_write_failed:${result.error.message}`)
     if (!result.data?.length) throw new Error('public_signal_measurement_concurrent_change')
   }
-  return { packets_scanned: packets.length, receipts_ready: outcomes.filter((item) => item.receipt_id).length,
+  return { packets_scanned: outcomes.length, receipts_ready: outcomes.filter((item) => item.receipt_id).length,
     outcomes, review_only: true as const }
 }

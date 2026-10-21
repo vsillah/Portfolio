@@ -64,6 +64,23 @@ export function ResearchPacketReview({ packet, onReview, onSaveEvidence }: {
     catch (err) { setError(err instanceof Error ? err.message : 'Review failed. Try again.') }
     finally { setBusy(false) }
   }
+  const observation = packet.actor_metadata?.public_signal_observation as Record<string, unknown> | undefined
+  if (observation) return <div className="mt-2 text-xs">
+    <button type="button" className="agent-ops-button-secondary" aria-expanded={open} onClick={() => setOpen(!open)}>{open ? 'Close observation review' : 'Review public observation'}</button>
+    {open && <div className="mt-2 space-y-2 rounded-lg border border-border p-3">
+      <p>Verify the exact public page, both observed values and required denominators, freshness, and the official packet binding before approving this source. Approval only makes the source eligible for a later measurement.</p>
+      <a href={packet.source_url ?? '#'} target="_blank" rel="noreferrer" className="break-all underline">{packet.source_url}</a>
+      <p className="break-all">Coverage {String(observation.coverage_identity)} · identity {String(observation.observation_identity)} · official packet {String(observation.official_packet_id)}</p>
+      <p>Observed {String(observation.observed_at)} · expires {String(observation.expires_at)}</p>
+      <p>Attention {String((observation.public_attention as { observed?: number })?.observed)}/{String((observation.public_attention as { required?: number })?.required)} · relevance {String((observation.relevance as { observed?: number })?.observed)}/{String((observation.relevance as { required?: number })?.required)}</p>
+      <p>{String(observation.evidence_note ?? '')}</p>
+      {packet.status === 'review_ready' ? <><label className="block">Source review reason<textarea className="mt-1 block w-full rounded border border-border bg-background p-2" rows={2} maxLength={2000} value={note} onChange={event => setNote(event.target.value)} disabled={busy} /></label>
+        <div className="flex gap-2"><button type="button" className="agent-ops-button-primary disabled:opacity-50" disabled={busy || !note.trim()} onClick={() => void submit('approved')}>Approve observation</button>
+          <button type="button" className="agent-ops-button-secondary disabled:opacity-50" disabled={busy || !note.trim()} onClick={() => void submit('rejected')}>Reject observation</button></div></>
+        : <p>{review?.note ?? 'No operator review note recorded.'}</p>}
+      {error && <p role="alert">{error}</p>}
+    </div>}
+  </div>
   return <div className="mt-2 min-w-0 max-w-full overflow-hidden text-xs">
     <div className="flex flex-wrap items-center gap-2">
       <span className="capitalize">{(packet.status ?? 'unknown').replace(/_/g, ' ')}</span>

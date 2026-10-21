@@ -20,6 +20,7 @@ import {
 } from 'lucide-react'
 import { getCurrentSession } from '@/lib/auth'
 import AdminMetricCard from '@/components/admin/AdminMetricCard'
+import OfficialSignalOperations from '@/components/admin/OfficialSignalOperations'
 import type { CoverageSourceKey, ProductLifecycleCoverage, SocialTopicLiveCoverage } from '@/lib/social-topic-source-coverage'
 import { SOCIAL_CANDIDATE_PROJECTION_QA_FIXTURE } from '@/lib/social-candidate-projection-qa-contract'
 
@@ -198,6 +199,7 @@ export default function SocialSourceCoverageEvidence({
 
   return (
     <section className="mb-6 rounded-lg border border-border bg-card p-4 text-card-foreground shadow-sm" aria-labelledby="source-coverage-heading" data-testid="source-coverage-section">
+      {!qaFixture && <div className="mb-4"><OfficialSignalOperations active={active} /></div>}
       {qaFixture && (
         <div className="mb-4 rounded-lg border border-accent/50 bg-accent/10 p-3" data-testid="synthetic-candidate-qa-banner">
           <div className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-[0.13em] text-foreground">

@@ -1,4 +1,5 @@
 import { createHash } from 'crypto'
+import { isIP } from 'net'
 
 export const PUBLIC_SIGNAL_MEASUREMENT_VERSION = 'public_signal_measurement_v1' as const
 export const PUBLIC_SIGNAL_MIN_SAMPLE_SIZE = 3
@@ -40,8 +41,8 @@ function publicUrl(value: unknown): value is string {
   try {
     const url = new URL(value)
     return url.protocol === 'https:' && !url.username && !url.password
-      && !['localhost', '127.0.0.1'].includes(url.hostname)
-      && !url.hostname.endsWith('.local') && url.hostname.includes('.')
+      && !isIP(url.hostname)
+      && !['.local', '.internal', '.invalid', '.test'].some((suffix) => url.hostname.endsWith(suffix)) && url.hostname.includes('.')
   } catch { return false }
 }
 function mean(values: number[]) {

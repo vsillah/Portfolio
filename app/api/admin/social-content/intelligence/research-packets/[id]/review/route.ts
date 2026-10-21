@@ -8,6 +8,7 @@ import {
 import { validOfficialSignalAttribution } from '@/lib/social-official-live-signals'
 import { buildApprovedPublicMomentumProjection } from '@/lib/social-trend-work-join'
 import { validatePublicSignalMeasurement } from '@/lib/social-public-signal-measurement'
+import { publicObservationIdentity, validPublicObservation } from '@/lib/social-public-signal-observation'
 
 function hasValidSourceUrl(value: unknown) {
   if (typeof value !== 'string' || !value.trim()) return false
@@ -121,10 +122,31 @@ export async function POST(request: NextRequest, context: { params: Promise<{ id
     ? packet.actor_metadata as Record<string, unknown> : {}
   const official = metadata.official_signal && typeof metadata.official_signal === 'object' && !Array.isArray(metadata.official_signal)
     ? metadata.official_signal as Record<string, unknown> : null
+  const observation = metadata.public_signal_observation && typeof metadata.public_signal_observation === 'object'
+    ? metadata.public_signal_observation as Record<string, unknown> : null
   if (official && !validOfficialSignalAttribution({ source_url: packet.source_url, title: packet.title, actor_metadata: metadata })) {
     return NextResponse.json({ error: 'Official source attribution changed. Recollect before review.' }, { status: 422 })
   }
-  if (body.decision === 'approved' && !official && (
+  if (body.decision === 'approved' && observation && (
+    !validPublicObservation(observation, new Date().toISOString())
+    || observation.source_url !== packet.source_url
+    || observation.observation_identity !== publicObservationIdentity(observation as Parameters<typeof publicObservationIdentity>[0])
+    || observation.excluded !== false
+  )) return NextResponse.json({ error: 'Observation is stale, excluded, or source/value identity changed. Re-enter reviewed public evidence.' }, { status: 422 })
+  if (body.decision === 'approved' && observation) {
+    const officialId = String(observation.official_packet_id ?? '')
+    if (!/^[0-9a-f-]{36}$/i.test(officialId))
+      return NextResponse.json({ error: 'Observation has no exact official packet binding.' }, { status: 422 })
+    const linked = await supabaseAdmin.from('social_content_research_packets').select('id, source_url, title, status, actor_metadata')
+      .eq('id', officialId).maybeSingle()
+    const linkedSignal = linked.data?.actor_metadata?.official_signal
+    if (linked.error || !linked.data || linked.data.status !== 'review_ready'
+      || linkedSignal?.coverage_identity !== observation.coverage_identity
+      || !validOfficialSignalAttribution({ source_url: linked.data.source_url, title: linked.data.title,
+        actor_metadata: linked.data.actor_metadata }))
+      return NextResponse.json({ error: 'Matching pending official packet is unavailable or changed.' }, { status: 422 })
+  }
+  if (body.decision === 'approved' && !official && !observation && (
     packet.pattern_status !== 'usable_framework'
     || !hasValidSourceUrl(packet.source_url)
     || !hasPatternPacket(packet.pattern_packet)
@@ -186,7 +208,7 @@ export async function POST(request: NextRequest, context: { params: Promise<{ id
       } catch {
         return NextResponse.json({ error: 'Official signal receipt is incomplete or malformed.' }, { status: 422 })
       }
-    } else {
+    } else if (!observation) {
       const validation = practitionerEvidenceValidation(metadata.practitioner_evidence, packet.pattern_packet)
       if (!validation.valid) {
         return NextResponse.json({
@@ -202,7 +224,10 @@ export async function POST(request: NextRequest, context: { params: Promise<{ id
         official_signal: { ...official, evidence_status: 'approved' },
         topic_momentum_receipt: { ...validatedOfficialReceipt, approved_at: reviewedAt },
       }
-    : metadata
+    : observation && body.decision === 'approved'
+      ? { ...metadata, public_signal_observation: { ...observation,
+          confidence: 'source_verified_by_human', reviewed_at: reviewedAt, reviewed_by: auth.user.id } }
+      : metadata
   const { data: updated, error: updateError } = await supabaseAdmin.from('social_content_research_packets')
     .update({ status: body.decision, actor_metadata: { ...reviewedMetadata, operator_review: {
       decision: body.decision, note: body.note.trim(), reviewed_by: auth.user.id,
