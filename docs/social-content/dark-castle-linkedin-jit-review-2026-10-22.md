@@ -48,6 +48,10 @@ The persisted draft has different text. This caption is a **new review candidate
 
 The Portfolio repository and configured AmaduTown Google Drive were searched. The Drive project folder contains the Dark Castle release APK; Drive search also found project exports, but no additional image with a clearer approved-use receipt for this LinkedIn item. The repository's three public gameplay captures are the qualified image sources.
 
+## Rendered review evidence
+
+The [local Human QA evidence folder](../../artifacts/human-qa/dark-castle-linkedin-jit-2026-10-21/README.md) contains a playable MP4, desktop and mobile screenshots, the exact route, capture script, and result flags. The existing Social Content route was exercised at 1440 × 900 and 390 × 844. The image loaded, no horizontal overflow was observed, the claim trace expanded, and Approve/Reject stayed disabled. This is a repository-bound fixture, not a production-record smoke.
+
 ## Challenger pass
 
 - **Voice:** The caption starts with the visible e4 moment, uses plain product language, and ends with a practical design question. The final copy removes the persisted draft's unverified first-person rebuilding claim and unsupported statement that a retained lesson is already proven.
