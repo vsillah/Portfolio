@@ -6,6 +6,7 @@ vi.mock('@/lib/supabase', () => ({ supabaseAdmin: { from: mocks.from } }))
 import { PATCH, POST } from './route'
 import { discoverOfficialLiveSignals, officialSignalPacketFromPage } from '@/lib/social-official-live-signals'
 import { publicSignalMeasurementReceiptId } from '@/lib/social-public-signal-measurement'
+import { publicObservationIdentity } from '@/lib/social-public-signal-observation'
 const id = '11111111-1111-4111-8111-111111111111'
 const version = '2026-10-06T12:00:00.000Z'
 const frameworkOnlyEvidence = {
@@ -167,6 +168,37 @@ describe('research packet review', () => {
           measurement_receipt_id: measurementReceipt.receipt_id }),
       }),
     }))
+    } finally { vi.useRealTimers() }
+  })
+  it('approves only an exact, fresh, official-bound public observation', async () => {
+    vi.useFakeTimers(); vi.setSystemTime(new Date('2026-10-20T13:00:00.000Z'))
+    try {
+      const changelog = `<html><div class="mb-12"><h3>October, 2026</h3><div class="mt-5"><div class="grid">Oct 19 Feature v1/agents subagents</div></div></div>${'detail '.repeat(20)}</html>`
+      const discovery = discoverOfficialLiveSignals({ indexUrl: 'https://developers.openai.com/api/docs/changelog',
+        observedAt: '2026-10-20T12:00:00.000Z', body: changelog }).discovered[0]
+      const officialId = '22222222-2222-4222-8222-222222222222'
+      const official = { ...packet, ...officialSignalPacketFromPage({ discovery, html: changelog,
+        observedAt: '2026-10-20T12:00:00.000Z' }), id: officialId }
+      const values = { coverage_identity: discovery.coverage_identity, source_url: 'https://example.org/public-observation',
+        observed_at: '2026-10-20T12:00:00.000Z', expires_at: '2026-10-25T12:00:00.000Z',
+        public_attention: { observed: 80, required: 100 }, relevance: { observed: 9, required: 10 },
+        evidence_note: 'Exact public numerator and denominator verified at the linked page.' }
+      const observation = { ...packet, source_url: values.source_url, pattern_status: 'needs_brand_translation',
+        actor_metadata: { public_signal_observation: { version: 'public_signal_observation_v1', ...values,
+          observation_identity: publicObservationIdentity(values), official_packet_id: officialId, excluded: false } } }
+      mocks.single.mockReset().mockResolvedValueOnce({ data: observation }).mockResolvedValueOnce({ data: official })
+        .mockResolvedValue({ data: { ...observation, status: 'approved' } })
+      expect((await request({ decision: 'approved', note: 'Verified exact public figures', updated_at: version })).status).toBe(200)
+      expect(mocks.update).toHaveBeenCalledWith(expect.objectContaining({ status: 'approved',
+        actor_metadata: expect.objectContaining({ public_signal_observation: expect.objectContaining({
+          confidence: 'source_verified_by_human', reviewed_by: 'admin',
+        }) }) }))
+      mocks.update.mockClear()
+      mocks.single.mockReset().mockResolvedValueOnce({ data: { ...observation,
+        actor_metadata: { public_signal_observation: { ...observation.actor_metadata.public_signal_observation,
+          relevance: { observed: 2, required: 10 } } } } })
+      expect((await request()).status).toBe(422)
+      expect(mocks.update).not.toHaveBeenCalled()
     } finally { vi.useRealTimers() }
   })
   it('reports save failure', async () => {

@@ -41,6 +41,7 @@ import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import AgenticContentReviewPacketPager from '@/components/admin/AgenticContentReviewPacketPager'
 import SocialSourceCoverageEvidence from '@/components/admin/SocialSourceCoverageEvidence'
+import OfficialSignalOperations from '@/components/admin/OfficialSignalOperations'
 import SocialCampaignPackagePreparation from '@/components/admin/SocialCampaignPackagePreparation'
 import { ExtractionStatusChip } from '@/components/admin/ExtractionStatusChip'
 import MobileWorkflowSummary from '@/components/admin/MobileWorkflowSummary'
@@ -2132,10 +2133,19 @@ function SocialContentQueuePage() {
 
 export default function SocialContentPage() {
   const searchParams = useSearchParams()
+  const officialQaFixture = process.env.NODE_ENV !== 'production' && initialQueryValue(searchParams, 'officialQa') === 'public-signal-v1'
   const candidateQaFixture = initialQueryValue(searchParams, 'candidateQa') === SOCIAL_CANDIDATE_PROJECTION_QA_FIXTURE
   const campaignQaValue = initialQueryValue(searchParams, 'campaignQa')
   const campaignPackageReviewQaFixture = campaignQaValue === SOCIAL_CAMPAIGN_APPROVED_ADAPTATION_QA_FIXTURE
   const campaignPackageQaFixture = campaignQaValue === SOCIAL_CAMPAIGN_PACKAGE_QA_FIXTURE || campaignPackageReviewQaFixture
+
+  if (officialQaFixture) return (
+    <div className="min-h-screen bg-background p-4 text-foreground sm:p-6 lg:p-8" data-testid="official-signal-qa-page">
+      <Breadcrumbs items={[{ label: 'Admin', href: '/admin' }, { label: 'Social Content', href: '/admin/social-content?workflow=evidence' }, { label: 'Official public signal QA' }]} />
+      <div className="mb-6 mt-5"><h1 className="text-2xl font-bold">Official public signal preparation</h1><p className="mt-2 text-sm text-muted-foreground">Synthetic review of the existing Launch evidence operator control. No live reads or writes.</p></div>
+      <OfficialSignalOperations active qaFixture />
+    </div>
+  )
 
   return (
     <ProtectedRoute requireAdmin>

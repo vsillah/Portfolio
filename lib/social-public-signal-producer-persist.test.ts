@@ -30,6 +30,7 @@ vi.mock('@/lib/supabase', () => ({ supabaseAdmin: { from: () => ({
 import { persistPendingPublicSignalMeasurements } from './social-public-signal-producer'
 import { officialSignalPacketFromPage, OFFICIAL_LIVE_SIGNAL_INDEXES, type OfficialSignalDiscovery } from './social-official-live-signals'
 import { stableTopicIdentity } from './social-trend-work-join'
+import { publicObservationIdentity } from './social-public-signal-observation'
 
 const now = '2026-10-20T12:00:00.000Z'
 const url = OFFICIAL_LIVE_SIGNAL_INDEXES[0].url
@@ -46,14 +47,20 @@ describe('pending public signal persistence', () => {
   it('writes preparation only once and leaves approval and pending scores unchanged', async () => {
     db.writes = 0
     db.rows = [{ id: 'official-1', updated_at: now, ...officialSignalPacketFromPage({ discovery, html, observedAt: now }) },
-      ...[url, 'https://example.org/agents', 'https://example.net/agents'].map((source_url, index) => ({
-        id: `source-${index}`, source_url, title: 'Public observation', status: 'approved', updated_at: now,
-        actor_metadata: { public_signal_observation: {
+      ...[url, 'https://example.org/agents', 'https://example.net/agents'].map((source_url, index) => {
+        const observation = {
           version: 'public_signal_observation_v1', coverage_identity: discovery.coverage_identity,
           source_url, observed_at: now, expires_at: '2026-10-25T12:00:00.000Z',
           public_attention: { observed: 80, required: 100 }, relevance: { observed: 9, required: 10 },
-        } },
-      }))]
+          evidence_note: 'Exact numerator and denominator shown on the linked public source.',
+        }
+        return {
+        id: `source-${index}`, source_url, title: 'Public observation', status: 'approved', updated_at: now,
+        actor_metadata: { public_signal_observation: { ...observation,
+          observation_identity: publicObservationIdentity(observation), official_packet_id: 'official-1' },
+          operator_review: { decision: 'approved', reviewed_at: now } },
+      }
+      })]
     const first = await persistPendingPublicSignalMeasurements(now)
     expect(first).toMatchObject({ packets_scanned: 1, receipts_ready: 1, review_only: true })
     expect(db.writes).toBe(1)
