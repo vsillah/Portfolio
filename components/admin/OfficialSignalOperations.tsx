@@ -10,17 +10,60 @@ type Source = { id: string; status: string; source_url: string; observed_at: str
 type Packet = { id: string; title: string; source_url: string; status: string; coverage_identity: string;
   published_at: string; expires_at: string; packet_identity: string; attribution_valid: boolean;
   measurement_status: string; blocked_reason: string | null; owner: string; attempt_count: number; max_attempts: number;
+  observed_value: number | null; required_value: number | null;
   measurement_receipt: { receipt_id: string; source_receipts: Array<{ receipt_id: string; source_url: string;
     observed_values: { public_attention: number; relevance: number }; required_values: { public_attention: number; relevance: number } }> } | null;
   observations: Source[] }
 type State = { packets: Packet[]; review_only: boolean; release_ready: false; exclusions: string[] }
 const ENDPOINT = '/api/admin/social-content/source-coverage/official-signals'
 const button = 'admin-console-button-secondary min-h-9 px-3 disabled:cursor-not-allowed disabled:opacity-50'
+export function measurementBlockerCopy(reason: string | null, observed: number | null, required: number | null) {
+  const sourceCount = Number.isFinite(observed) && Number.isFinite(required)
+    ? `${observed} source observation ${observed === 1 ? 'row' : 'rows'} passed initial checks; at least ${required} are required. ` : ''
+  switch (reason) {
+    case 'measurement_not_attempted':
+      return { explanation: 'No measurement has been prepared for this official packet yet.',
+        recovery: 'Add exact public observations below, approve them in Content Intelligence, then use Prepare measurement for this packet here.' }
+    case 'insufficient_attributable_public_sources':
+      return { explanation: `${sourceCount}This packet needs three approved, current public observations on unique URLs across at least two hosts, including the official release.`,
+        recovery: 'Add the missing exact-source observations below, approve them in Content Intelligence, then prepare measurement again.' }
+    case 'insufficient_or_excluded_attributable_public_sources':
+      return { explanation: `${sourceCount}At least one observation is excluded, stale, unapproved, or does not match its source or packet.`,
+        recovery: 'Expand source observations and exact receipts here. Replace invalid evidence below, approve the replacement in Content Intelligence, then retry measurement.' }
+    case 'measured_score_below_threshold':
+      return { explanation: `The lowest measured score is ${observed ?? 'unknown'}; both attention and relevance must reach ${required ?? 0.65}.`,
+        recovery: 'Review the exact numerators and denominators in source receipts here. If they are wrong, add corrected evidence for Content Intelligence review; otherwise leave this packet Unscored.' }
+    case 'official_packet_stale_or_not_pending':
+    case 'official_packet_not_pending_or_outside_bounded_window':
+      return { explanation: 'The official release packet is expired, changed, or no longer pending review.',
+        recovery: 'Use Check official public sources above, then inspect the fresh pending packet in Content Intelligence before measuring.' }
+    case 'retry_limit_reached_owner_review_required':
+      return { explanation: 'Three changed-evidence attempts have been used. Automatic preparation is closed for this packet.',
+        recovery: 'Ask social_content_research to inspect the exact receipts here and resolve the packet in Content Intelligence. Do not retry unchanged evidence.' }
+    case 'existing_measurement_immutable_review_required':
+    case 'measurement_receipt_missing_or_mismatched':
+    case 'measurement_receipt_identity_mismatched':
+    case 'measurement_receipt_stale_or_wrong_version':
+      return { explanation: 'The stored measurement receipt is missing, expired, changed, or does not match this packet.',
+        recovery: 'Ask social_content_research to inspect the immutable receipt here and the packet in Content Intelligence. A new source check cannot overwrite it.' }
+    case 'measurement_sample_insufficient':
+    case 'measurement_source_unattributable':
+    case 'measurement_source_values_mismatched':
+    case 'measurement_score_insufficient_or_mismatched':
+      return { explanation: 'The stored receipt lacks enough valid sources or its source values and scores do not reconcile.',
+        recovery: 'Expand source observations and exact receipts here, then ask social_content_research to resolve the packet in Content Intelligence.' }
+    default:
+      return { explanation: reason ? 'Measurement evidence cannot be verified for this packet.' : 'The source-bound measurement receipt is ready for human review.',
+        recovery: reason ? 'Inspect the technical reason and source receipts here, then route the packet to social_content_research in Content Intelligence.'
+          : 'Review the pending packet in Content Intelligence. No approval occurs here.' }
+  }
+}
 const QA_STATE: State = { review_only: true, release_ready: false, exclusions: ['No packet approval', 'No provider or media action', 'No platform draft, schedule, publication, or external send'],
   packets: [{ id: '11111111-1111-1111-1111-111111111111', title: 'Synthetic OpenAI Agents API update',
     source_url: 'https://developers.openai.com/api/docs/changelog', status: 'review_ready', coverage_identity: 'openai_agents_api_qa',
     published_at: '2026-10-20T12:00:00.000Z', expires_at: '2026-10-25T12:00:00.000Z', packet_identity: 'synthetic-source-fingerprint',
     attribution_valid: true, measurement_status: 'Unscored', blocked_reason: 'insufficient_attributable_public_sources',
+    observed_value: 1, required_value: 3,
     owner: 'social_content_research', attempt_count: 1, max_attempts: 3, measurement_receipt: null,
     observations: [{ id: 'synthetic-observation-1', status: 'approved', source_url: 'https://example.org/public-observation',
       observed_at: '2026-10-20T12:00:00.000Z', expires_at: '2026-10-25T12:00:00.000Z',
@@ -44,6 +87,10 @@ export default function OfficialSignalOperations({ active, qaFixture = false }: 
   const [evidenceNote, setEvidenceNote] = useState('')
   const selectedPacket = state?.packets.find((packet) => packet.id === selected)
   const pendingObservationId = selectedPacket?.observations.find((item) => item.status === 'review_ready')?.id
+  const blockedCopy = selectedPacket && !selectedPacket.attribution_valid
+    ? { explanation: 'The official source binding no longer matches this packet.',
+      recovery: 'Use Check official public sources above, then inspect the fresh pending packet in Content Intelligence.' }
+    : measurementBlockerCopy(selectedPacket?.blocked_reason ?? null, selectedPacket?.observed_value ?? null, selectedPacket?.required_value ?? null)
   const authFetch = useCallback(async (init?: RequestInit) => {
     const session = await getCurrentSession()
     if (!session?.access_token) throw new Error('Admin session is unavailable.')
@@ -105,13 +152,17 @@ export default function OfficialSignalOperations({ active, qaFixture = false }: 
       </label>
       {selectedPacket && <div className="mt-3 space-y-2 rounded border border-border p-3 text-xs">
         <p className="font-semibold">{selectedPacket.measurement_status} · owner {selectedPacket.owner} · attempt {selectedPacket.attempt_count}/{selectedPacket.max_attempts}</p>
-        <p>{selectedPacket.blocked_reason || 'Current receipt is source-bound. Human review remains separate.'}</p>
+        <div className="rounded border border-amber-500/30 bg-amber-500/5 p-2" role={selectedPacket.blocked_reason ? 'status' : undefined}>
+          <p className="font-medium">{blockedCopy.explanation}</p>
+          <p className="mt-1">Next: {blockedCopy.recovery}</p>
+        </div>
         <p className="break-all">Coverage {selectedPacket.coverage_identity} · packet {selectedPacket.id} · source fingerprint {selectedPacket.packet_identity}</p>
         <p>Published {selectedPacket.published_at} · expires {selectedPacket.expires_at} · attribution {selectedPacket.attribution_valid ? 'valid' : 'blocked'}</p>
         <a className="break-all underline" href={selectedPacket.source_url} target="_blank" rel="noreferrer">Official source: {selectedPacket.source_url}</a>
         <button type="button" className={button} disabled={busy || qaFixture || !selectedPacket.attribution_valid || selectedPacket.attempt_count >= selectedPacket.max_attempts}
           onClick={() => void operate('measure')}>Prepare measurement for this packet</button>
         <details><summary className="cursor-pointer font-semibold">Source observations and exact receipts ({selectedPacket.observations.length})</summary>
+          {selectedPacket.blocked_reason && <p className="mt-2 break-all font-mono text-[10px]">Technical reason: {selectedPacket.blocked_reason}</p>}
           <ul className="mt-2 space-y-2">{selectedPacket.observations.map((item) => <li key={item.id} className="break-all rounded border border-border p-2">
             {item.status} · {item.source_url}<br />Observed {item.observed_at} · expires {item.expires_at}<br />
             Attention {item.public_attention?.observed}/{item.public_attention?.required} · relevance {item.relevance?.observed}/{item.relevance?.required}<br />

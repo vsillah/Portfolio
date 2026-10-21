@@ -37,6 +37,7 @@ export async function GET(request: NextRequest) {
       const receipt = metadata.public_signal_measurement_receipt
       const check = validatePublicSignalMeasurement({ stored: receipt, submitted: receipt,
         coverageIdentity: String(signal.coverage_identity ?? ''), officialSourceUrl: packet.source_url, now })
+      const priorState = record(metadata.public_signal_measurement_state)
       const matching = observations.filter((row) =>
         record(record(row.actor_metadata).public_signal_observation).coverage_identity === signal.coverage_identity)
       return {
@@ -47,9 +48,12 @@ export async function GET(request: NextRequest) {
           source_url: packet.source_url, title: packet.title, actor_metadata: metadata,
         }),
         measurement_status: check.valid ? 'Receipt ready' : 'Unscored',
-        blocked_reason: check.valid ? null : record(metadata.public_signal_measurement_state).reason ?? check.reason,
-        owner: record(metadata.public_signal_measurement_state).owner ?? 'social_content_research',
-        attempt_count: record(metadata.public_signal_measurement_state).attempt_count ?? 0,
+        blocked_reason: check.valid ? null : typeof priorState.reason === 'string' ? priorState.reason
+          : receipt ? check.reason : 'measurement_not_attempted',
+        observed_value: check.valid ? null : priorState.observed_value ?? null,
+        required_value: check.valid ? null : priorState.required_value ?? null,
+        owner: priorState.owner ?? 'social_content_research',
+        attempt_count: priorState.attempt_count ?? 0,
         max_attempts: 3, measurement_receipt: check.valid ? check.receipt : null,
         observations: matching.map((row) => ({ id: row.id, status: row.status, source_url: row.source_url,
           updated_at: row.updated_at, ...record(record(row.actor_metadata).public_signal_observation) })),

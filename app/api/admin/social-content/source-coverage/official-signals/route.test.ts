@@ -48,7 +48,7 @@ describe('official public signal operator route', () => {
   it('projects pending evidence without making release ready and scopes measurement to one packet', async () => {
     const read = await (await GET(request('GET'))).json()
     expect(read).toMatchObject({ review_only: true, release_ready: false, packets: [{ id: official.id,
-      measurement_status: 'Unscored', attempt_count: 0, owner: 'social_content_research' }] })
+      measurement_status: 'Unscored', blocked_reason: 'measurement_not_attempted', attempt_count: 0, owner: 'social_content_research' }] })
     const measured = await (await POST(request('POST', { action: 'measure', packet_id: official.id }))).json()
     expect(measured).toMatchObject({ packets_scanned: 1, release_ready: false })
     expect(mocks.measure).toHaveBeenCalledWith(expect.any(String), official.id)
