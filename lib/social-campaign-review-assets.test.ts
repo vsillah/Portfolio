@@ -210,6 +210,31 @@ describe('social campaign review asset projection', () => {
     expect(packet.descriptionEvidence.attribution[0]?.limitation).toContain('no comparative performance claim')
   })
 
+  it('blocks canonical copy approval only for the expired Dark Castle LinkedIn JIT receipt', () => {
+    const stale = getSocialCampaignReviewPacket(SOCIAL_CAMPAIGN_REVIEW_IDS.darkCastleLinkedIn)
+    const current = [
+      SOCIAL_CAMPAIGN_REVIEW_IDS.jevLinkedIn,
+      SOCIAL_CAMPAIGN_REVIEW_IDS.auditLinkedIn,
+    ].map((id) => getSocialCampaignReviewPacket(id))
+    const video = [
+      SOCIAL_CAMPAIGN_REVIEW_IDS.jevYouTube,
+      SOCIAL_CAMPAIGN_REVIEW_IDS.darkCastleYouTube,
+      SOCIAL_CAMPAIGN_REVIEW_IDS.auditYouTube,
+    ].map((id) => getSocialCampaignReviewPacket(id))
+
+    expect(stale?.kind).toBe('linkedin_visual')
+    if (!stale || stale.kind !== 'linkedin_visual') return
+    expect(stale.jit?.status).toBe('blocked_stale_jit')
+    expect(Date.parse(stale.jit?.expiresAt ?? '')).toBeLessThan(Date.parse(stale.jit?.targetAt ?? ''))
+    expect(current.every((packet) => packet?.kind === 'linkedin_visual' && packet.jit == null)).toBe(true)
+    expect(video.every((packet) => packet?.kind === 'youtube_packaging' && !('jit' in packet))).toBe(true)
+    expect(getSocialCampaignReviewPacket(null)).toBeNull()
+    expect(getSocialCampaignReviewPacket('')).toBeNull()
+    expect(getSocialCampaignReviewPacket(' ')).toBeNull()
+    expect(getSocialCampaignReviewPacket('not-a-campaign-id')).toBeNull()
+    expect(() => socialCampaignReviewQaFixture('not-a-campaign-id')).toThrow('Unknown social campaign review fixture: not-a-campaign-id')
+  })
+
   it.each(Object.values(SOCIAL_CAMPAIGN_REVIEW_IDS))('builds a read-only repository fixture for %s', (id) => {
     const fixture = socialCampaignReviewQaFixture(id)
     expect(fixture.id).toBe(id)
