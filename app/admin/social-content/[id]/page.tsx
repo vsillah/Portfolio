@@ -3092,6 +3092,8 @@ function SocialContentDetailPage() {
       ? engagementLatest.likes
       : 0
   const isDraftOnlyPilot = isDraftOnlyReviewContext(ragContext)
+  const campaignJitBlocksApproval = campaignReviewPacket?.kind === 'linkedin_visual'
+    && campaignReviewPacket.jit?.status === 'blocked_stale_jit'
   const canMarkGoldStandardCalibrationReference = isAgentSocialPilot
     && ['approved', 'published'].includes(item.status)
     && (item.platform === 'linkedin' || targetPlatforms.includes('linkedin'))
@@ -3123,8 +3125,11 @@ function SocialContentDetailPage() {
     && !copyHasBlockingAcronymIssues
     && !copyQualityBlocksReview
     && !practitionerQualityBlocksReview
+    && !campaignJitBlocksApproval
   const approveBlockedTitle = videoPrivacyBlocked
     ? 'Video privacy review required before publish readiness'
+    : campaignJitBlocksApproval
+      ? 'Refresh the expired JIT evidence and bind it to this copy version before approval'
     : copyQualityBlocksReview
       ? 'Final copy quality gate found internal or production-note leakage'
     : practitionerQualityBlocksReview

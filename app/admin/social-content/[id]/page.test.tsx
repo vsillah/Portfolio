@@ -993,6 +993,33 @@ describe('SocialContentDetailRoute visual production review', () => {
     expect(screen.getByText('Compare approved campaign copy')).toBeEnabled()
   })
 
+  it('keeps canonical copy approval fail closed when the bound campaign JIT receipt is stale', async () => {
+    const staleJitItem = {
+      ...baseItem,
+      id: '9817a689-0565-48ed-8c97-c2db40c1ec45',
+      status: 'draft',
+      reviewed_by: null,
+      image_url: '/review-assets/social-content/campaign-review/dark-castle-linkedin-remember-why.png',
+    }
+    mocks.id = staleJitItem.id
+    mocks.search = 'step=copy'
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input)
+      if (url.includes('/topic-backlog')) return { ok: true, json: async () => ({ items: [] }) } as Response
+      if (url.includes('/config')) return { ok: true, json: async () => ({ configs: [] }) } as Response
+      if (url.includes('?status=all')) return { ok: true, json: async () => ({ items: [staleJitItem] }) } as Response
+      return { ok: true, json: async () => ({ item: staleJitItem }) } as Response
+    }))
+
+    render(<SocialContentDetailRoute />)
+
+    expect(await screen.findByRole('status')).toHaveTextContent('JIT refresh required before a current content decision')
+    expect(screen.getByRole('button', { name: /Approve Copy/ })).toBeDisabled()
+    expect(screen.getAllByText('Refresh the expired JIT evidence and bind it to this copy version before approval')
+      .some((message) => !message.closest('details'))).toBe(true)
+    expect(screen.getByRole('button', { name: /^Reject$/i })).toBeEnabled()
+  })
+
   it('gives only post and voiceover script editors a content-aware responsive canvas', async () => {
     const view = renderAtStep('copy')
 
