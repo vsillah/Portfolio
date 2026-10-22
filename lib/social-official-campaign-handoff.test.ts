@@ -80,6 +80,10 @@ describe('three-source Portfolio campaign handoff', () => {
     expect(first.channel_reviews).toEqual([])
     expect(first.blockers.filter((entry) => entry.code === 'official_review_pending')).toHaveLength(3)
     expect(first.blockers.filter((entry) => entry.code === 'source_measurement_unscored')).toHaveLength(3)
+    for (const id of OFFICIAL_CAMPAIGN_PACKET_IDS) {
+      expect(first.blockers.filter((entry) => entry.code === 'official_review_pending' && entry.href.includes(`packet=${encodeURIComponent(id)}`))
+        .some((entry) => entry.href === `/admin/agents/content-intelligence?section=research&packet=${encodeURIComponent(id)}`)).toBe(true)
+    }
     expect(first.source_lineage.map((entry) => entry.packet_id)).toEqual([...OFFICIAL_CAMPAIGN_PACKET_IDS])
     expect(officialCampaignBacklogRow(first, now)).toMatchObject({ candidate_key: OFFICIAL_CAMPAIGN_CANDIDATE_KEY, source_type: 'portfolio_work', metadata: { review_state: 'blocked', external_execution_enabled: false } })
   })

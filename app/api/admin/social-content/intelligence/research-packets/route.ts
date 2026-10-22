@@ -50,10 +50,14 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const status = searchParams.get('status')
   const platform = searchParams.get('platform')
+  const packetId = searchParams.get('packet_id')
   const limit = Math.min(Math.max(parseInt(searchParams.get('limit') || '20', 10), 1), 50)
 
   if (platform && !PLATFORMS.has(platform)) {
     return NextResponse.json({ error: 'Invalid platform' }, { status: 400 })
+  }
+  if (packetId && !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(packetId)) {
+    return NextResponse.json({ error: 'Invalid packet identity' }, { status: 400 })
   }
 
   try {
@@ -63,6 +67,7 @@ export async function GET(request: NextRequest) {
 
     if (status) query = query.eq('status', status)
     if (platform) query = query.eq('platform', platform)
+    if (packetId) query = query.eq('id', packetId)
 
     const { data, error } = await query
       .order('outlier_score', { ascending: false })

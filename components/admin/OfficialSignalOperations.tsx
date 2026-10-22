@@ -164,7 +164,7 @@ export default function OfficialSignalOperations({ active, qaFixture = false }: 
     try {
       const observation = action === 'intake_observation' && selectedPacket ? {
         coverage_identity: selectedPacket.coverage_identity, source_url: sourceUrl.trim(),
-        observed_at: new Date(observedAt).toISOString(), expires_at: new Date(expiresAt).toISOString(),
+        observed_at: observedAt ? new Date(observedAt).toISOString() : '', expires_at: expiresAt ? new Date(expiresAt).toISOString() : '',
         public_attention: { observed: Number(attentionObserved), required: Number(attentionRequired) },
         relevance: { observed: Number(relevanceObserved), required: Number(relevanceRequired) },
         evidence_note: evidenceNote.trim(),
@@ -178,7 +178,7 @@ export default function OfficialSignalOperations({ active, qaFixture = false }: 
     finally { setBusy(false) }
   }
   if (!active) return null
-  return <section aria-label="Official public signal preparation" className="rounded-lg border border-border bg-card p-3 text-foreground">
+  return <section id="official-public-signal-preparation" aria-label="Official public signal preparation" className="scroll-mt-8 rounded-lg border border-border bg-card p-3 text-foreground">
     <div className="flex flex-wrap items-start justify-between gap-3">
       <div><h3 className="text-sm font-semibold">Official public signal preparation</h3>
         <p className="mt-1 text-xs text-muted-foreground">Review-only OpenAI and Meta release intake, source observations, and measurement receipts. Release readiness stays closed.</p></div>
@@ -216,7 +216,7 @@ export default function OfficialSignalOperations({ active, qaFixture = false }: 
           </li>)}</ul>
           {selectedPacket.measurement_receipt && <p className="mt-2 break-all">Measurement receipt {selectedPacket.measurement_receipt.receipt_id}; sources {selectedPacket.measurement_receipt.source_receipts.map((item) => item.receipt_id).join(', ')}</p>}
         </details>
-        <Link className="underline" href={`/admin/agents/content-intelligence${pendingObservationId ? `?packet=${encodeURIComponent(pendingObservationId)}` : ''}`}>Review pending observations in Content Intelligence</Link>
+        <Link className="underline" href={`/admin/agents/content-intelligence?section=research&packet=${encodeURIComponent(pendingObservationId ?? selectedPacket.id)}`}>{pendingObservationId ? 'Review pending observation' : 'Review official packet'} in Content Intelligence</Link>
       </div>}
       <details className="mt-3 rounded border border-border p-3 text-xs"><summary className="cursor-pointer font-semibold">Add a public source observation for review</summary>
         <p className="mt-2 text-muted-foreground">Record exact visible values and denominators from one public HTTPS page. A separate reviewer must verify the source before measurement can use it.</p>

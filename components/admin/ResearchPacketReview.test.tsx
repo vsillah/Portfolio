@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { fireEvent, render, screen, waitFor, cleanup } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+vi.mock('@/lib/auth', () => ({ getCurrentSession: vi.fn() }))
 import { ResearchPacketReview } from './ResearchPacketReview'
 afterEach(cleanup)
 const evidence = {
