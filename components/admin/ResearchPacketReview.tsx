@@ -13,6 +13,7 @@ export type ReviewableResearchPacket = {
   status: string
   updated_at: string
   pattern_status: string
+  title?: string | null
   source_url?: string | null
   pattern_packet?: Record<string, unknown>
   privacy_notes?: string | null
