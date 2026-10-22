@@ -136,7 +136,7 @@ export default function OfficialSignalResearchReview({ packet, onReview }: {
       {error && <p role="alert" className="text-red-300">{error}</p>}
       <details className="rounded border border-border p-2"><summary className="cursor-pointer font-semibold">Technical evidence</summary>
         <div className="mt-2 space-y-2 break-all">
-          <p>Packet {packet.id} · coverage {String(signal.coverage_identity)} · fingerprint {String(signal.source_fingerprint)}</p>
+          <p>Packet {packet.id} · record version {packet.updated_at} · coverage {String(signal.coverage_identity)} · fingerprint {String(signal.source_fingerprint)}</p>
           <p>Published {String(signal.published_at)} · observed {String(signal.observed_at)} · expires {String(signal.expires_at)}</p>
           {state && <p>Owner {state.owner} · attempt {state.attempt_count}/{state.max_attempts} · {state.attribution_valid ? 'Attribution valid' : 'Attribution blocked'}</p>}
           {state?.blocked_reason && <p>Technical blocker {state.blocked_reason} · observed {state.observed_value ?? 'unknown'} · required {state.required_value ?? 'current receipt'}</p>}
