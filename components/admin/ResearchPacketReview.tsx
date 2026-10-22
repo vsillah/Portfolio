@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import OfficialSignalResearchReview, { type OfficialSignalReviewPayload } from './OfficialSignalResearchReview'
 import {
   normalizePractitionerEvidence,
   practitionerEvidenceValidation,
@@ -20,7 +21,7 @@ export type ReviewableResearchPacket = {
 
 export function ResearchPacketReview({ packet, onReview, onSaveEvidence }: {
   packet: ReviewableResearchPacket
-  onReview: (decision: 'approved' | 'rejected', note: string) => Promise<void>
+  onReview: (decision: 'approved' | 'rejected', note: string, signalReview?: OfficialSignalReviewPayload) => Promise<void>
   onSaveEvidence?: (evidence: PractitionerEvidenceAuthoring) => Promise<void>
 }) {
   const [open, setOpen] = useState(false)
@@ -65,6 +66,7 @@ export function ResearchPacketReview({ packet, onReview, onSaveEvidence }: {
     finally { setBusy(false) }
   }
   const observation = packet.actor_metadata?.public_signal_observation as Record<string, unknown> | undefined
+  if (packet.actor_metadata?.official_signal) return <OfficialSignalResearchReview packet={packet} onReview={onReview} />
   if (observation) return <div className="mt-2 text-xs">
     <button type="button" className="agent-ops-button-secondary" aria-expanded={open} onClick={() => setOpen(!open)}>{open ? 'Close observation review' : 'Review public observation'}</button>
     {open && <div className="mt-2 space-y-2 rounded-lg border border-border p-3">

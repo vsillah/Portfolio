@@ -105,7 +105,7 @@ export function projectOfficialCampaignHandoff(input: {
   for (let index = 0; index < packets.length; index += 1) {
     const id = OFFICIAL_CAMPAIGN_PACKET_IDS[index]
     const packet = packets[index]
-    if (!packet) { blockers.push(block('official_packet_missing', id, 'one exact packet', 'social_content_research', 'Restore the named official packet in Content Intelligence.', '/admin/agents/content-intelligence?section=research')); continue }
+    if (!packet) { blockers.push(block('official_packet_missing', id, 'one exact packet', 'social_content_research', 'Restore the named official packet in Content Intelligence.', `/admin/agents/content-intelligence?section=research&packet=${encodeURIComponent(id)}`)); continue }
     const metadata = obj(packet.actor_metadata)
     const official = obj(metadata.official_signal)
     const momentum = obj(metadata.topic_momentum_receipt)
@@ -116,17 +116,17 @@ export function projectOfficialCampaignHandoff(input: {
     const attributable = validOfficialSignalAttribution({ source_url: str(packet.source_url), title: str(packet.title), actor_metadata: attributionMetadata })
       && str(official.source_fingerprint) === sourceHash(`${packet.source_url}|${official.coverage_identity}|${packet.title}`)
     if (!attributable || official.raw_content_included !== false || momentum.raw_content_included !== false)
-      blockers.push(block('official_attribution_invalid', id, 'exact attributable public source', 'social_content_research', 'Recheck the official source and packet lineage.', '/admin/social-content?workflow=evidence'))
+      blockers.push(block('official_attribution_invalid', id, 'exact attributable public source', 'social_content_research', 'Recheck the official source and packet lineage.', `/admin/agents/content-intelligence?section=research&packet=${encodeURIComponent(id)}`))
     if (!Number.isFinite(nowMs) || Date.parse(str(official.expires_at)) <= nowMs || Date.parse(str(official.published_at)) > nowMs)
-      blockers.push(block('official_packet_stale', str(official.expires_at) || 'missing', 'current source window', 'social_content_research', 'Refresh the official source and review the replacement packet.', '/admin/social-content?workflow=evidence'))
+      blockers.push(block('official_packet_stale', str(official.expires_at) || 'missing', 'current source window', 'social_content_research', 'Refresh the official source and review the replacement packet.', `/admin/agents/content-intelligence?section=research&packet=${encodeURIComponent(id)}`))
     if (packet.status !== 'approved' || official.evidence_status !== 'approved' || momentum.approval_status !== 'approved' || momentum.privacy_classification !== 'public_safe')
-      blockers.push(block('official_review_pending', `${packet.status}/${momentum.approval_status}`, 'approved/approved, public safe', 'content_reviewer', 'Review the exact public claim and privacy receipt in Content Intelligence.', `/admin/agents/content-intelligence?packet=${id}`))
+      blockers.push(block('official_review_pending', `${packet.status}/${momentum.approval_status}`, 'approved/approved, public safe', 'content_reviewer', 'Review the exact public claim and privacy receipt in Content Intelligence.', `/admin/agents/content-intelligence?section=research&packet=${encodeURIComponent(id)}`))
     const measurement = metadata.public_signal_measurement_receipt
     const measured = validatePublicSignalMeasurement({ stored: measurement, submitted: measurement,
       coverageIdentity: str(official.coverage_identity), officialSourceUrl: str(packet.source_url), now: input.now })
-    if (!measured.valid) blockers.push(block('source_measurement_unscored', measured.reason, '3 approved unique sources across 2 hosts; attention and relevance >= 0.65', 'social_content_research', 'Add exact public observations, approve them, and prepare a source-bound measurement.', '/admin/social-content?workflow=evidence'))
+    if (!measured.valid) blockers.push(block('source_measurement_unscored', measured.reason, '3 approved unique sources across 2 hosts; attention and relevance >= 0.65', 'social_content_research', 'Add exact public observations, approve them, and prepare a source-bound measurement.', `/admin/agents/content-intelligence?section=research&packet=${encodeURIComponent(id)}`))
     else if (packet.status === 'approved' && momentum.measurement_receipt_id !== measured.receipt.receipt_id)
-      blockers.push(block('measurement_lineage_mismatch', str(momentum.measurement_receipt_id) || 'none', measured.receipt.receipt_id, 'social_content_research', 'Reconcile the approved momentum receipt with the exact source-bound measurement.', `/admin/agents/content-intelligence?packet=${id}`))
+      blockers.push(block('measurement_lineage_mismatch', str(momentum.measurement_receipt_id) || 'none', measured.receipt.receipt_id, 'social_content_research', 'Reconcile the approved momentum receipt with the exact source-bound measurement.', `/admin/agents/content-intelligence?section=research&packet=${encodeURIComponent(id)}`))
   }
   for (let index = 0; index < productReceipts.length; index += 1) {
     const receipt = productReceipts[index]

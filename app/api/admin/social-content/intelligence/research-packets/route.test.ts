@@ -6,6 +6,7 @@ const mocks = vi.hoisted(() => ({
   isAuthError: vi.fn(),
   from: vi.fn(),
   selectLimit: vi.fn(),
+  selectEq: vi.fn(),
   insertSingle: vi.fn(),
 }))
 
@@ -49,7 +50,7 @@ describe('/api/admin/social-content/intelligence/research-packets', () => {
       error: null,
     })
     const selectChain = {
-      eq: vi.fn(() => selectChain),
+      eq: mocks.selectEq.mockImplementation(() => selectChain),
       order: vi.fn(() => selectChain),
       limit: mocks.selectLimit,
     }
@@ -81,6 +82,14 @@ describe('/api/admin/social-content/intelligence/research-packets', () => {
         },
       ],
     })
+  })
+
+  it('loads one exact packet outside the top-50 list for a recovery link', async () => {
+    const id = '11111111-1111-1111-1111-111111111111'
+    const response = await GET(new NextRequest(`http://localhost/api/admin/social-content/intelligence/research-packets?packet_id=${id}`))
+    expect(response.status).toBe(200)
+    expect(mocks.selectEq).toHaveBeenCalledWith('id', id)
+    expect((await GET(new NextRequest('http://localhost/api/admin/social-content/intelligence/research-packets?packet_id=bad'))).status).toBe(400)
   })
 
   it('stores research packets with actor metadata and no publishing side effects', async () => {

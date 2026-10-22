@@ -1344,24 +1344,31 @@ function ContentIntelligenceContent() {
     if (!background) setLoading(true)
     setError(null)
     try {
-      const [packetResponse, insightResponse, digestResponse, calendarResponse, campaignResponse] = await Promise.all([
+      const [packetResponse, focusedPacketResponse, insightResponse, digestResponse, calendarResponse, campaignResponse] = await Promise.all([
         authedFetch('/api/admin/social-content/intelligence/research-packets?limit=50'),
+        focusedResearchPacketId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(focusedResearchPacketId)
+          ? authedFetch(`/api/admin/social-content/intelligence/research-packets?packet_id=${encodeURIComponent(focusedResearchPacketId)}`) : Promise.resolve(null),
         authedFetch('/api/admin/agents/work-items?source_type=social_topic_trigger&limit=12'),
         authedFetch('/api/admin/social-content/intelligence/daily-digest?lookback_days=5&limit=12'),
         authedFetch('/api/admin/social-content/calendar?limit=50'),
         authedFetch('/api/admin/campaigns?limit=50'),
       ])
       const packetBody = recordValue(await readJsonResponse(packetResponse))
+      const focusedPacketBody = focusedPacketResponse ? recordValue(await readJsonResponse(focusedPacketResponse)) : null
       const insightBody = recordValue(await readJsonResponse(insightResponse))
       const digestBody = recordValue(await readJsonResponse(digestResponse))
       const calendarBody = recordValue(await readJsonResponse(calendarResponse))
       const campaignBody = recordValue(await readJsonResponse(campaignResponse))
       if (!packetResponse.ok) throw new Error(errorMessage(packetBody.error, `Research packets HTTP ${packetResponse.status}`))
+      if (focusedPacketResponse && !focusedPacketResponse.ok) throw new Error(errorMessage(focusedPacketBody?.error, `Focused research packet HTTP ${focusedPacketResponse.status}`))
       if (!insightResponse.ok) throw new Error(errorMessage(insightBody.error, `Insights HTTP ${insightResponse.status}`))
       if (!digestResponse.ok) throw new Error(errorMessage(digestBody.error, `Digest HTTP ${digestResponse.status}`))
       if (!calendarResponse.ok) throw new Error(errorMessage(calendarBody.error, `Calendar HTTP ${calendarResponse.status}`))
       if (!campaignResponse.ok) throw new Error(errorMessage(campaignBody.error, `Campaigns HTTP ${campaignResponse.status}`))
-      setPackets(Array.isArray(packetBody.packets) ? packetBody.packets : [])
+      const listedPackets = Array.isArray(packetBody.packets) ? packetBody.packets : []
+      const focusedPacket = focusedPacketBody && Array.isArray(focusedPacketBody.packets) ? focusedPacketBody.packets[0] : null
+      setPackets(focusedPacket && !listedPackets.some((item: { id: string }) => item.id === focusedPacket.id)
+        ? [...listedPackets, focusedPacket] : listedPackets)
       setInsights(Array.isArray(insightBody.work_items) ? insightBody.work_items : [])
       setDigest(digestBody.digest ? digestBody.digest as DailyDigest : null)
       setCalendarItems(Array.isArray(calendarBody.items) ? calendarBody.items : [])
@@ -1376,7 +1383,7 @@ function ContentIntelligenceContent() {
     } finally {
       setLoading(false)
     }
-  }, [authedFetch])
+  }, [authedFetch, focusedResearchPacketId])
 
   useEffect(() => {
     load()
@@ -3303,10 +3310,11 @@ function ContentIntelligenceContent() {
                         </tr>
                         <tr className="block w-full sm:table-row">
                           <td colSpan={5} className="block w-full px-3 pb-3 sm:table-cell">
-                            <ResearchPacketReview packet={packet} onReview={async (decision, note) => {
+                            <ResearchPacketReview packet={packet} onReview={async (decision, note, signalReview) => {
                               const response = await authedFetch(`/api/admin/social-content/intelligence/research-packets/${packet.id}/review`, {
                                 method: 'POST',
-                                body: JSON.stringify({ decision, note, updated_at: packet.updated_at }),
+                                body: JSON.stringify({ decision, note, updated_at: packet.updated_at,
+                                  ...(signalReview ? { signal_review: signalReview } : {}) }),
                               })
                               const body = await response.json()
                               if (!response.ok) throw new Error(body.error || 'Unable to save review.')
