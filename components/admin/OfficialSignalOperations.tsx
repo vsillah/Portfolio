@@ -15,7 +15,13 @@ type Packet = { id: string; title: string; source_url: string; status: string; c
     observed_values: { public_attention: number; relevance: number }; required_values: { public_attention: number; relevance: number } }> } | null;
   observations: Source[] }
 type State = { packets: Packet[]; review_only: boolean; release_ready: false; exclusions: string[] }
+type Handoff = { candidate_key: string; status: 'blocked' | 'review_ready'; input_version: string;
+  source_lineage: Array<{ packet_id: string; title: string; source_url: string; coverage_identity: string; measurement_receipt_id: string | null }>;
+  blockers: Array<{ code: string; observed: string | number; required: string | number; owner: string; next_action: string; href: string }>;
+  channel_reviews: Array<{ channel: 'linkedin' | 'youtube'; title: string; thumbnail_teaser: string | null; content_id: string; calendar_item_id: string }> }
+type HandoffState = { projection: Handoff; persistence: string }
 const ENDPOINT = '/api/admin/social-content/source-coverage/official-signals'
+const HANDOFF_ENDPOINT = '/api/admin/social-content/source-coverage/campaign-handoff'
 const button = 'admin-console-button-secondary min-h-9 px-3 disabled:cursor-not-allowed disabled:opacity-50'
 export function measurementBlockerCopy(reason: string | null, observed: number | null, required: number | null) {
   const sourceCount = Number.isFinite(observed) && Number.isFinite(required)
@@ -70,9 +76,23 @@ const QA_STATE: State = { review_only: true, release_ready: false, exclusions: [
       public_attention: { observed: 80, required: 100 }, relevance: { observed: 9, required: 10 },
       observation_identity: 'synthetic-observation-fingerprint', evidence_note: 'Synthetic exact public values for review only.' }],
   }] }
+const QA_HANDOFF: HandoffState = { persistence: 'not_saved', projection: {
+  candidate_key: 'topic-portfolio-agentic-operating-system-official-signals-v1', status: 'blocked', input_version: 'sha256:synthetic-preview-only',
+  source_lineage: [
+    { packet_id: 'synthetic-openai', title: 'OpenAI Agents API', source_url: 'https://developers.openai.com/api/docs/changelog', coverage_identity: 'openai_agents_api_qa', measurement_receipt_id: null },
+    { packet_id: 'synthetic-forum', title: 'Meta Forum engineering', source_url: 'https://engineering.fb.com/', coverage_identity: 'meta_forum_qa', measurement_receipt_id: null },
+    { packet_id: 'synthetic-muse', title: 'Meta Muse Wonder', source_url: 'https://about.fb.com/', coverage_identity: 'meta_muse_qa', measurement_receipt_id: null },
+  ], channel_reviews: [], blockers: [
+    { code: 'official_review_pending', observed: '3 public packets pending', required: '3 approved public packets', owner: 'content_reviewer', next_action: 'Review the exact public claims in Content Intelligence.', href: '/admin/agents/content-intelligence?section=research' },
+    { code: 'source_measurement_unscored', observed: '0 verified measurements', required: '3 current source-bound measurements', owner: 'social_content_research', next_action: 'Approve exact public observations and prepare measurements for each packet.', href: '/admin/social-content?workflow=evidence' },
+    { code: 'product_visual_proof_missing', observed: 'no approved visual', required: 'owned Portfolio screenshot with route, hash, privacy and rights receipt', owner: 'portfolio_product_owner', next_action: 'Capture a redacted Portfolio route that shows the governed agent decision.', href: '/admin/social-content?workflow=evidence' },
+  ],
+} }
 
 export default function OfficialSignalOperations({ active, qaFixture = false }: { active: boolean; qaFixture?: boolean }) {
   const [state, setState] = useState<State | null>(qaFixture ? QA_STATE : null)
+  const [handoff, setHandoff] = useState<HandoffState | null>(qaFixture ? QA_HANDOFF : null)
+  const [handoffError, setHandoffError] = useState('')
   const [error, setError] = useState('')
   const [result, setResult] = useState('')
   const [busy, setBusy] = useState(false)
@@ -101,6 +121,17 @@ export default function OfficialSignalOperations({ active, qaFixture = false }: 
     if (!response.ok) throw new Error(payload.error || 'Official signal operation failed.')
     return payload
   }, [])
+  const refreshHandoff = useCallback(async () => {
+    if (qaFixture) { setHandoff(QA_HANDOFF); return }
+    try {
+      const session = await getCurrentSession()
+      if (!session?.access_token) throw new Error('Admin session is unavailable.')
+      const response = await fetch(HANDOFF_ENDPOINT, { cache: 'no-store', headers: { Authorization: `Bearer ${session.access_token}` } })
+      const payload = await response.json()
+      if (!response.ok || !payload.projection || !Array.isArray(payload.projection.blockers)) throw new Error(payload.error || 'Campaign handoff read failed.')
+      setHandoff(payload); setHandoffError('')
+    } catch (cause) { setHandoff(null); setHandoffError(cause instanceof Error ? cause.message : 'Campaign handoff read failed.') }
+  }, [qaFixture])
   const refresh = useCallback(async () => {
     if (qaFixture) { setState(QA_STATE); return }
     setError('')
@@ -111,7 +142,22 @@ export default function OfficialSignalOperations({ active, qaFixture = false }: 
       setState(payload)
     } catch (cause) { setState(null); setError(cause instanceof Error ? cause.message : 'Official signal read failed.') }
   }, [authFetch, qaFixture])
-  useEffect(() => { if (active) void refresh() }, [active, refresh])
+  useEffect(() => { if (active) { void refresh(); void refreshHandoff() } }, [active, refresh, refreshHandoff])
+  async function prepareHandoff() {
+    if (busy || qaFixture) return
+    setBusy(true); setHandoffError('')
+    try {
+      const session = await getCurrentSession()
+      if (!session?.access_token) throw new Error('Admin session is unavailable.')
+      const response = await fetch(HANDOFF_ENDPOINT, { method: 'POST', headers: {
+        Authorization: `Bearer ${session.access_token}`, 'Content-Type': 'application/json',
+      }, body: JSON.stringify({ action: 'prepare_review_only' }) })
+      const payload = await response.json()
+      if (!response.ok || !payload.projection) throw new Error(payload.error || 'Campaign handoff persistence failed.')
+      setHandoff(payload)
+    } catch (cause) { setHandoffError(cause instanceof Error ? cause.message : 'Campaign handoff persistence failed.') }
+    finally { setBusy(false) }
+  }
   async function operate(action: 'collect_official' | 'measure' | 'intake_observation') {
     if (busy || qaFixture) return
     setBusy(true); setError(''); setResult('')
@@ -189,5 +235,39 @@ export default function OfficialSignalOperations({ active, qaFixture = false }: 
       </details>
       <p className="mt-3 text-xs text-muted-foreground">Excluded: {state.exclusions.join(' · ')}. All packets remain review only; aggregate release readiness is blocked.</p>
     </>}
+    <div id="official-campaign-handoff" className="mt-4 scroll-mt-8 rounded-lg border border-border bg-muted/20 p-3" data-testid="official-campaign-handoff">
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <div><h3 className="text-sm font-semibold">Portfolio agent systems campaign handoff</h3>
+          <p className="mt-1 text-xs text-muted-foreground">One source-bound candidate across the three official packets. LinkedIn, YouTube, and calendar records stay closed until every gate passes.</p></div>
+        <span className={`rounded-full border px-2 py-1 text-xs font-semibold ${handoff?.projection.status === 'review_ready' ? 'border-emerald-500/50 bg-emerald-500/10' : 'border-amber-500/50 bg-amber-500/10'}`}>{handoff?.projection.status === 'review_ready' ? 'Review ready' : 'Blocked'}</span>
+      </div>
+      {handoffError && <p role="alert" className="mt-2 rounded border border-red-500/40 p-2 text-xs">{handoffError} Candidate preparation remains closed.</p>}
+      {!handoff && !handoffError && <p role="status" className="mt-2 text-xs">Reading the exact campaign evidence…</p>}
+      {handoff && <>
+        <p className="mt-2 break-all text-[11px] text-muted-foreground">Candidate {handoff.projection.candidate_key} · {handoff.persistence === 'saved' || handoff.persistence === 'unchanged' ? 'blocker or review state saved' : 'state not yet saved'}</p>
+        <details className="mt-1 text-[11px] text-muted-foreground"><summary className="cursor-pointer">Evidence version</summary><p className="mt-1 break-all font-mono">{handoff.projection.input_version}</p></details>
+        <div className="mt-2 grid gap-2 sm:grid-cols-3">{handoff.projection.source_lineage.map((source) =>
+          <div key={source.packet_id} className="min-w-0 rounded border border-border bg-card p-2 text-xs">
+            <p className="font-medium break-words">{source.title}</p>
+            <p className="mt-1 text-muted-foreground">{source.measurement_receipt_id ? 'Measurement linked' : 'Measurement pending'}</p>
+            <a className="mt-1 block break-all underline" href={source.source_url} target="_blank" rel="noreferrer">Open public source</a>
+          </div>)}</div>
+        {handoff.projection.blockers.length > 0 && <details className="mt-2 rounded border border-amber-500/30 bg-amber-500/5 p-2 text-xs" open>
+          <summary className="cursor-pointer font-semibold">{handoff.projection.blockers.length} evidence gates to resolve</summary>
+          <ul className="mt-2 space-y-2">{handoff.projection.blockers.map((item, index) => <li key={`${item.code}-${index}`} className="rounded border border-border bg-card p-2">
+            <p className="font-medium">{item.code.replaceAll('_', ' ')}</p>
+            <p className="mt-1 break-words">Observed: {item.observed}. Required: {item.required}.</p>
+            <p className="mt-1">Owner: {item.owner}. Next: {item.next_action}</p>
+            <Link className="mt-1 inline-block underline" href={item.href}>Open recovery path</Link>
+          </li>)}</ul>
+        </details>}
+        {handoff.projection.channel_reviews.length > 0 && <div className="mt-2 grid gap-2 sm:grid-cols-2">{handoff.projection.channel_reviews.map((review) =>
+          <div key={review.channel} className="rounded border border-border bg-card p-2 text-xs"><p className="font-semibold capitalize">{review.channel} review</p>
+            <p className="mt-1">{review.title}</p>{review.thumbnail_teaser && <p className="mt-1">Thumbnail teaser: {review.thumbnail_teaser}</p>}
+            <p className="mt-1 break-all text-muted-foreground">Content {review.content_id} · calendar {review.calendar_item_id}</p></div>)}</div>}
+        <div className="mt-3 flex flex-wrap items-center gap-2"><button type="button" className={button} disabled={busy || qaFixture} onClick={() => void prepareHandoff()}>Prepare exact review handoff</button>
+          <span className="text-xs text-muted-foreground">No approval, provider call, media render, platform draft, external schedule, publication, or send.</span></div>
+      </>}
+    </div>
   </section>
 }

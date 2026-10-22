@@ -2133,7 +2133,9 @@ function SocialContentQueuePage() {
 
 export default function SocialContentPage() {
   const searchParams = useSearchParams()
-  const officialQaFixture = process.env.NODE_ENV !== 'production' && initialQueryValue(searchParams, 'officialQa') === 'public-signal-v1'
+  const officialQaValue = initialQueryValue(searchParams, 'officialQa')
+  const officialQaFixture = process.env.NODE_ENV !== 'production' && ['public-signal-v1', 'campaign-handoff-v1'].includes(officialQaValue ?? '')
+  const campaignHandoffQaFixture = officialQaValue === 'campaign-handoff-v1'
   const candidateQaFixture = initialQueryValue(searchParams, 'candidateQa') === SOCIAL_CANDIDATE_PROJECTION_QA_FIXTURE
   const campaignQaValue = initialQueryValue(searchParams, 'campaignQa')
   const campaignPackageReviewQaFixture = campaignQaValue === SOCIAL_CAMPAIGN_APPROVED_ADAPTATION_QA_FIXTURE
@@ -2142,7 +2144,7 @@ export default function SocialContentPage() {
   if (officialQaFixture) return (
     <div className="min-h-screen bg-background p-4 text-foreground sm:p-6 lg:p-8" data-testid="official-signal-qa-page">
       <Breadcrumbs items={[{ label: 'Admin', href: '/admin' }, { label: 'Social Content', href: '/admin/social-content?workflow=evidence' }, { label: 'Official public signal QA' }]} />
-      <div className="mb-6 mt-5"><h1 className="text-2xl font-bold">Official public signal preparation</h1><p className="mt-2 text-sm text-muted-foreground">Synthetic review of the existing Launch evidence operator control. No live reads or writes.</p></div>
+      <div className="mb-6 mt-5"><h1 className="text-2xl font-bold">{campaignHandoffQaFixture ? 'Official signals to campaign review' : 'Official public signal preparation'}</h1><p className="mt-2 text-sm text-muted-foreground">Synthetic review of the existing Launch evidence operator control. No live reads or writes.</p></div>
       <OfficialSignalOperations active qaFixture />
     </div>
   )
