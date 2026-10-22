@@ -70,8 +70,36 @@ describe('official signal operations in Social Content', () => {
   it('shows an actionable blocked state when the status response is incomplete', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, json: async () => ({ coverage: {} }) })))
     render(<OfficialSignalOperations active />)
-    expect(await screen.findByRole('alert')).toHaveTextContent('Official signal status is incomplete')
+    expect(await screen.findByText(/Official signal status is incomplete/)).toHaveTextContent('Official signal status is incomplete')
     expect(screen.queryByRole('button', { name: 'Prepare measurement for this packet' })).not.toBeInTheDocument()
+  })
+
+  it('shows the one-candidate campaign blocker on the existing synthetic evidence surface with writes closed', async () => {
+    render(<OfficialSignalOperations active qaFixture />)
+    const handoff = screen.getByTestId('official-campaign-handoff')
+    expect(handoff).toHaveTextContent('topic-portfolio-agentic-operating-system-official-signals-v1')
+    expect(handoff).toHaveTextContent('3 evidence gates to resolve')
+    expect(handoff).toHaveTextContent('Measurement pending')
+    expect(handoff).toHaveTextContent('Capture a redacted Portfolio route')
+    expect(handoff).toHaveTextContent('state not yet saved')
+    expect(screen.getByRole('button', { name: 'Prepare exact review handoff' })).toBeDisabled()
+    expect(fetch).not.toHaveBeenCalled()
+  })
+
+  it('prepares only the exact review-only handoff action and shows persisted blockers', async () => {
+    vi.stubGlobal('fetch', vi.fn(async (url: string, init?: RequestInit) => ({ ok: true, json: async () =>
+      url.includes('campaign-handoff')
+        ? { projection: { candidate_key: 'topic-portfolio-agentic-operating-system-official-signals-v1', status: 'blocked',
+            input_version: 'sha256:fixture', source_lineage: [], channel_reviews: [], blockers: [{ code: 'official_review_pending', observed: 'pending', required: 'approved', owner: 'content_reviewer', next_action: 'Review source.', href: '/admin/agents/content-intelligence' }] },
+          persistence: init?.method === 'POST' ? 'saved' : 'not_saved' }
+        : status })))
+    render(<OfficialSignalOperations active />)
+    await screen.findByText(/state not yet saved/)
+    fireEvent.click(screen.getByRole('button', { name: 'Prepare exact review handoff' }))
+    await screen.findByText(/blocker or review state saved/)
+    const write = vi.mocked(fetch).mock.calls.find(([url, init]) => String(url).includes('campaign-handoff') && init?.method === 'POST')
+    expect(JSON.parse(String(write?.[1]?.body))).toEqual({ action: 'prepare_review_only' })
+    expect(screen.queryByText(/YouTube review/)).not.toBeInTheDocument()
   })
 
   it.each([
