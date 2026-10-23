@@ -1,6 +1,8 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import type { LucideIcon } from 'lucide-react'
+import ShowcaseCarousel from './ShowcaseCarousel'
+import type { ShowcaseFrame } from '@/lib/showcase-preview'
 
 interface CatalogCardProps {
   title: string
@@ -9,6 +11,7 @@ interface CatalogCardProps {
   imageUrl?: string | null
   imageAlt?: string
   showcasePresentation?: boolean
+  gallery?: readonly ShowcaseFrame[]
   badges: string[]
   cornerLabel: string
   ctaLabel: string
@@ -23,6 +26,7 @@ export default function CatalogCard({
   imageUrl,
   imageAlt = title,
   showcasePresentation = false,
+  gallery,
   badges,
   cornerLabel,
   ctaLabel,
@@ -55,12 +59,13 @@ export default function CatalogCard({
     </div>
   )
 
-  return (
-    <Link
-      href={href}
-      className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-[#121E31]/10 bg-white/[0.88] shadow-[0_18px_42px_rgba(18,30,49,0.10)] backdrop-blur-md transition-all duration-500 hover:-translate-y-1 hover:border-radiant-gold/35 hover:shadow-[0_22px_54px_rgba(18,30,49,0.14)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-radiant-gold focus-visible:ring-offset-4 focus-visible:ring-offset-[#eef2f7] dark:border-radiant-gold/5 dark:bg-silicon-slate/40 dark:shadow-none dark:hover:border-radiant-gold/20 dark:focus-visible:ring-offset-imperial-navy reveal-on-scroll is-visible"
-      style={{ transitionDelay: `${index * 0.1}s` }}
-    >
+  const interactiveGallery = Boolean(gallery && gallery.length > 1)
+  const cardClass = "group relative flex h-full flex-col overflow-hidden rounded-2xl border border-[#121E31]/10 bg-white/[0.88] shadow-[0_18px_42px_rgba(18,30,49,0.10)] backdrop-blur-md transition-all duration-500 hover:-translate-y-1 hover:border-radiant-gold/35 hover:shadow-[0_22px_54px_rgba(18,30,49,0.14)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-radiant-gold focus-visible:ring-offset-4 focus-visible:ring-offset-[#eef2f7] dark:border-radiant-gold/5 dark:bg-silicon-slate/40 dark:shadow-none dark:hover:border-radiant-gold/20 dark:focus-visible:ring-offset-imperial-navy reveal-on-scroll is-visible"
+  const content = (
+    <>
+      {gallery && gallery.length > 0 ? (
+        <ShowcaseCarousel frames={gallery} title={title} fallbackUrl={imageUrl} imageHref={interactiveGallery ? href : undefined} />
+      ) : (
       <div className={showcasePresentation
         ? 'relative aspect-[5/3] w-full flex-shrink-0 overflow-hidden bg-[#101c2d]'
         : 'relative h-64 flex-shrink-0 overflow-hidden'}>
@@ -83,6 +88,7 @@ export default function CatalogCard({
         {!showcasePresentation && <div className="absolute inset-0 bg-gradient-to-t from-[#121E31]/20 via-transparent to-transparent dark:from-imperial-navy/50" />}
         {!showcasePresentation && metadata}
       </div>
+      )}
 
       {showcasePresentation && metadata}
 
@@ -101,6 +107,17 @@ export default function CatalogCard({
           <span className="font-heading text-[10px] uppercase tracking-widest">{ctaLabel}</span>
         </div>
       </div>
+    </>
+  )
+
+  return interactiveGallery ? (
+    <div className={cardClass} style={{ transitionDelay: `${index * 0.1}s` }}>
+      <Link href={href} aria-label={`View ${title}`} className="absolute inset-0 z-10 focus-visible:outline-2 focus-visible:outline-radiant-gold" />
+      {content}
+    </div>
+  ) : (
+    <Link href={href} className={cardClass} style={{ transitionDelay: `${index * 0.1}s` }}>
+      {content}
     </Link>
   )
 }

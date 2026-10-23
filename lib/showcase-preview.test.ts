@@ -1,7 +1,7 @@
 import { readFileSync, existsSync } from 'node:fs'
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { resolveShowcasePreview, SHOWCASE_PREVIEW_VISUALS } from './showcase-preview'
+import { resolveShowcaseGallery, resolveShowcasePreview, SHOWCASE_PREVIEW_VISUALS } from './showcase-preview'
 
 type AuditRow = {
   entity: string
@@ -11,11 +11,37 @@ type AuditRow = {
   proposed_visual: string | null
   source_evidence: string
   blocker_recovery: string
+  carousel_items?: Array<{ visual: string; role: string; status: string; provenance: string }>
+  carousel_gap?: string
+  video_preview_state?: string
 }
 
 const audit = JSON.parse(readFileSync(path.join(process.cwd(), 'docs/showcase-audit/public-offerings-2026-10-22.json'), 'utf8')) as { rows: AuditRow[] }
 
 describe('public showcase preview contract', () => {
+  it('binds gallery roles to reviewed visuals and keeps one-source cards static', () => {
+    const rows = audit.rows.filter((row) => row.entity === 'product' || row.entity === 'service')
+    expect(rows).toHaveLength(15)
+    for (const row of rows) {
+      const frames = resolveShowcaseGallery(row.entity as 'product' | 'service', row.id, row.current_visual)
+      if (frames.length) {
+        expect(row.carousel_items?.map((item) => item.visual)).toEqual(frames.map((frame) => frame.imageUrl))
+        expect(row.carousel_items?.map((item) => item.role)).toEqual(frames.map((frame) => frame.role))
+      } else {
+        expect(row.carousel_items).toHaveLength(1)
+      }
+      for (const item of row.carousel_items || []) {
+        expect(item.status).toMatch(/source capture|illustrative concept/)
+        expect(item.provenance.length).toBeGreaterThan(12)
+        expect(existsSync(path.join(process.cwd(), 'public', item.visual))).toBe(true)
+      }
+      if (row.carousel_items?.length === 1) expect(row.carousel_gap).toContain('Only one distinct')
+    }
+    expect(rows.filter((row) => row.carousel_items?.length === 2)).toHaveLength(7)
+    const course = rows.find((row) => row.id === 'e5c198bd-1276-45ee-abe3-9d9f85e1e3d2')
+    expect(course?.carousel_items?.[1].role).toBe('course-preview poster')
+    expect(course?.video_preview_state).toContain('Poster is not a playable video')
+  })
   it('accounts for every card in the observed public snapshot', () => {
     expect(audit.rows).toHaveLength(32)
     expect(audit.rows.filter((row) => row.entity === 'product')).toHaveLength(6)

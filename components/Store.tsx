@@ -9,7 +9,7 @@ import { formatPriceOrFree } from '@/lib/pricing-model'
 import { resolveThemeImageUrl } from '@/lib/visual-asset-variants'
 import ActiveCampaigns from './ActiveCampaigns'
 import CatalogCard from './CatalogCard'
-import { resolveShowcasePreview } from '@/lib/showcase-preview'
+import { resolveShowcaseGallery, resolveShowcasePreview } from '@/lib/showcase-preview'
 
 const TYPE_LABELS: Record<string, string> = {
   ebook: 'E-Book',
@@ -42,6 +42,7 @@ function ProductCard({
     theme: resolvedTheme,
   })
   const showcase = product.type === 'merchandise' ? null : resolveShowcasePreview('product', product.id, product.image_url)
+  const gallery = product.type === 'merchandise' ? [] : resolveShowcaseGallery('product', product.id, product.image_url)
 
   return (
     <CatalogCard
@@ -51,6 +52,7 @@ function ProductCard({
       imageUrl={showcase?.previewUrl || imageUrl}
       imageAlt={showcase?.alt || product.title}
       showcasePresentation={Boolean(showcase)}
+      gallery={gallery}
       badges={[
         TYPE_LABELS[product.type] || product.type,
         ...(product.is_featured ? ['Featured'] : []),

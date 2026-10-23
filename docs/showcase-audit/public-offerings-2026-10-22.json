@@ -21,7 +21,16 @@
       "source_evidence": "Repository screenshot /audit_calculator_img.png",
       "rights_provenance": "Portfolio repo capture, owner review",
       "capture_date": "2026-10-22",
-      "blocker_recovery": "Confirm source capture remains representative before merge"
+      "blocker_recovery": "Confirm source capture remains representative before merge",
+      "carousel_items": [
+        {
+          "role": "hero",
+          "visual": "/showcases/product-ai-audit-capture.png",
+          "status": "source capture",
+          "provenance": "Repository screenshot /audit_calculator_img.png"
+        }
+      ],
+      "carousel_gap": "Only one distinct, defensible visual is currently available; keep the static image until a separately sourced product-in-use, workflow, or proof frame is reviewed."
     },
     {
       "surface": "Home · Products",
@@ -35,7 +44,16 @@
       "source_evidence": "Repository screenshot /Chatbot_N8N_img.png",
       "rights_provenance": "Portfolio repo capture, owner review",
       "capture_date": "2026-10-22",
-      "blocker_recovery": "Confirm source capture remains representative before merge"
+      "blocker_recovery": "Confirm source capture remains representative before merge",
+      "carousel_items": [
+        {
+          "role": "hero",
+          "visual": "/showcases/product-chatbot-capture.png",
+          "status": "source capture",
+          "provenance": "Repository screenshot /Chatbot_N8N_img.png"
+        }
+      ],
+      "carousel_gap": "Only one distinct, defensible visual is currently available; keep the static image until a separately sourced product-in-use, workflow, or proof frame is reviewed."
     },
     {
       "surface": "Home · Products",
@@ -49,7 +67,21 @@
       "source_evidence": "Repository n8n workflow screenshot /Leadgen_N8N_img.png; five-stage sequence redrawn for card scale without severed source headings or nodes",
       "rights_provenance": "Original concept art based on Portfolio repo workflow capture; no account data",
       "capture_date": "2026-10-22",
-      "blocker_recovery": "Confirm illustrated steps match the current template before merge"
+      "blocker_recovery": "Confirm illustrated steps match the current template before merge",
+      "carousel_items": [
+        {
+          "role": "hero",
+          "visual": "/showcases/product-leadgen-workflow-v2.png",
+          "status": "source capture",
+          "provenance": "Repository n8n workflow screenshot /Leadgen_N8N_img.png; five-stage sequence redrawn for card scale without severed source headings or nodes"
+        },
+        {
+          "role": "product-in-use",
+          "visual": "/showcases/gallery-leadgen-in-use.svg",
+          "status": "illustrative concept",
+          "provenance": "Original privacy-safe intake and human-review concept based on the public product listing; not a screenshot or claimed live feature"
+        }
+      ]
     },
     {
       "surface": "Home · Products",
@@ -63,7 +95,16 @@
       "source_evidence": "Repository screenshot /Eval_Template_SS.png",
       "rights_provenance": "Portfolio repo capture, owner review",
       "capture_date": "2026-10-22",
-      "blocker_recovery": "Confirm source capture remains representative before merge"
+      "blocker_recovery": "Confirm source capture remains representative before merge",
+      "carousel_items": [
+        {
+          "role": "hero",
+          "visual": "/showcases/product-eval-capture.png",
+          "status": "source capture",
+          "provenance": "Repository screenshot /Eval_Template_SS.png"
+        }
+      ],
+      "carousel_gap": "Only one distinct, defensible visual is currently available; keep the static image until a separately sourced product-in-use, workflow, or proof frame is reviewed."
     },
     {
       "surface": "Home · Products",
@@ -77,7 +118,16 @@
       "source_evidence": "Public product listing informs a synthetic intake diagram; original /Chatbot_diagnostic_img.png is excluded because it contains operator and account fields",
       "rights_provenance": "Original AmaduTown concept art; no private form data in preview",
       "capture_date": "2026-10-22",
-      "blocker_recovery": "Confirm illustrative flow matches the current diagnostic offer before merge"
+      "blocker_recovery": "Confirm illustrative flow matches the current diagnostic offer before merge",
+      "carousel_items": [
+        {
+          "role": "hero",
+          "visual": "/showcases/product-diagnostic-concept-v2.png",
+          "status": "illustrative concept",
+          "provenance": "Public product listing informs a synthetic intake diagram; original /Chatbot_diagnostic_img.png is excluded because it contains operator and account fields"
+        }
+      ],
+      "carousel_gap": "Only one distinct, defensible visual is currently available; keep the static image until a separately sourced product-in-use, workflow, or proof frame is reviewed."
     },
     {
       "surface": "Home · Products",
@@ -91,7 +141,16 @@
       "source_evidence": "Repository screenshot /FB_WarmLead_Pack.png",
       "rights_provenance": "Portfolio repo capture, owner review",
       "capture_date": "2026-10-22",
-      "blocker_recovery": "Confirm source capture remains representative before merge"
+      "blocker_recovery": "Confirm source capture remains representative before merge",
+      "carousel_items": [
+        {
+          "role": "hero",
+          "visual": "/showcases/product-warm-lead-capture.png",
+          "status": "source capture",
+          "provenance": "Repository screenshot /FB_WarmLead_Pack.png"
+        }
+      ],
+      "carousel_gap": "Only one distinct, defensible visual is currently available; keep the static image until a separately sourced product-in-use, workflow, or proof frame is reviewed."
     },
     {
       "surface": "Home · Services",
@@ -105,7 +164,16 @@
       "source_evidence": "Existing repository image /Chatbot_app_img.png",
       "rights_provenance": "Existing public listing; owner review",
       "capture_date": "Existing public listing; date not established",
-      "blocker_recovery": "Confirm existing capture represents current offer"
+      "blocker_recovery": "Confirm existing capture represents current offer",
+      "carousel_items": [
+        {
+          "role": "hero",
+          "visual": "/Chatbot_app_img.png",
+          "status": "source capture",
+          "provenance": "Existing repository image /Chatbot_app_img.png"
+        }
+      ],
+      "carousel_gap": "Only one distinct, defensible visual is currently available; keep the static image until a separately sourced product-in-use, workflow, or proof frame is reviewed."
     },
     {
       "surface": "Home · Services",
@@ -119,7 +187,21 @@
       "source_evidence": "Original concept based on public service listing",
       "rights_provenance": "Original AmaduTown concept; external trademarks omitted",
       "capture_date": "2026-10-22",
-      "blocker_recovery": "Confirm concept matches deliverable before merge"
+      "blocker_recovery": "Confirm concept matches deliverable before merge",
+      "carousel_items": [
+        {
+          "role": "hero",
+          "visual": "/showcases/service-inbound-chatbot-concept.svg",
+          "status": "illustrative concept",
+          "provenance": "Original concept based on public service listing"
+        },
+        {
+          "role": "workflow",
+          "visual": "/showcases/gallery-inbound-chatbot-workflow.svg",
+          "status": "illustrative concept",
+          "provenance": "Original concept based on public service listing; no customer data"
+        }
+      ]
     },
     {
       "surface": "Home · Services",
@@ -133,7 +215,16 @@
       "source_evidence": "Existing repository image /VF_Chatbot_img.png",
       "rights_provenance": "Existing public listing; owner review",
       "capture_date": "Existing public listing; date not established",
-      "blocker_recovery": "Confirm existing capture represents current offer"
+      "blocker_recovery": "Confirm existing capture represents current offer",
+      "carousel_items": [
+        {
+          "role": "hero",
+          "visual": "/VF_Chatbot_img.png",
+          "status": "source capture",
+          "provenance": "Existing repository image /VF_Chatbot_img.png"
+        }
+      ],
+      "carousel_gap": "Only one distinct, defensible visual is currently available; keep the static image until a separately sourced product-in-use, workflow, or proof frame is reviewed."
     },
     {
       "surface": "Home · Services",
@@ -147,7 +238,21 @@
       "source_evidence": "Original concept based on public service listing",
       "rights_provenance": "Original AmaduTown concept; external trademarks omitted",
       "capture_date": "2026-10-22",
-      "blocker_recovery": "Confirm concept matches deliverable before merge"
+      "blocker_recovery": "Confirm concept matches deliverable before merge",
+      "carousel_items": [
+        {
+          "role": "hero",
+          "visual": "/showcases/service-lead-workflow-concept.svg",
+          "status": "illustrative concept",
+          "provenance": "Original concept based on public service listing"
+        },
+        {
+          "role": "proof/outcome",
+          "visual": "/showcases/gallery-lead-workflow-outcome.svg",
+          "status": "illustrative concept",
+          "provenance": "Original illustrative outcome based on public service listing; no claimed client result"
+        }
+      ]
     },
     {
       "surface": "Home · Services",
@@ -161,7 +266,16 @@
       "source_evidence": "Existing repository image /ReversR_app.png",
       "rights_provenance": "Existing public listing; owner review",
       "capture_date": "Existing public listing; date not established",
-      "blocker_recovery": "Confirm existing capture represents current offer"
+      "blocker_recovery": "Confirm existing capture represents current offer",
+      "carousel_items": [
+        {
+          "role": "hero",
+          "visual": "/ReversR_app.png",
+          "status": "source capture",
+          "provenance": "Existing repository image /ReversR_app.png"
+        }
+      ],
+      "carousel_gap": "Only one distinct, defensible visual is currently available; keep the static image until a separately sourced product-in-use, workflow, or proof frame is reviewed."
     },
     {
       "surface": "Home · Services",
@@ -175,7 +289,22 @@
       "source_evidence": "Original concept based on public service listing",
       "rights_provenance": "Original AmaduTown concept; external trademarks omitted",
       "capture_date": "2026-10-22",
-      "blocker_recovery": "Confirm concept matches deliverable before merge"
+      "blocker_recovery": "Confirm concept matches deliverable before merge",
+      "carousel_items": [
+        {
+          "role": "hero",
+          "visual": "/showcases/service-self-paced-course-concept.svg",
+          "status": "illustrative concept",
+          "provenance": "Original concept based on public service listing"
+        },
+        {
+          "role": "course-preview poster",
+          "visual": "/showcases/gallery-self-paced-course-poster.svg",
+          "status": "illustrative concept",
+          "provenance": "Original poster based on local Module 0 title-card, script, and thumbnail brief; no rendered video exists"
+        }
+      ],
+      "video_preview_state": "Pending: Module 0 script-intelligence review, render authorization, playable MP4 validation, and video_url binding. Poster is not a playable video."
     },
     {
       "surface": "Home · Services",
@@ -189,7 +318,21 @@
       "source_evidence": "Original concept based on public service listing",
       "rights_provenance": "Original AmaduTown concept; external trademarks omitted",
       "capture_date": "2026-10-22",
-      "blocker_recovery": "Confirm concept matches deliverable before merge"
+      "blocker_recovery": "Confirm concept matches deliverable before merge",
+      "carousel_items": [
+        {
+          "role": "hero",
+          "visual": "/showcases/service-masterclass-concept.svg",
+          "status": "illustrative concept",
+          "provenance": "Original concept based on public service listing"
+        },
+        {
+          "role": "proof/outcome",
+          "visual": "/showcases/gallery-masterclass-outcome.svg",
+          "status": "illustrative concept",
+          "provenance": "Original illustrative outcome based on public masterclass listing; no claimed client result"
+        }
+      ]
     },
     {
       "surface": "Home · Services",
@@ -203,7 +346,21 @@
       "source_evidence": "Original concept based on public service listing",
       "rights_provenance": "Original AmaduTown concept; external trademarks omitted",
       "capture_date": "2026-10-22",
-      "blocker_recovery": "Confirm concept matches deliverable before merge"
+      "blocker_recovery": "Confirm concept matches deliverable before merge",
+      "carousel_items": [
+        {
+          "role": "hero",
+          "visual": "/showcases/service-website-ux-concept.svg",
+          "status": "illustrative concept",
+          "provenance": "Original concept based on public service listing"
+        },
+        {
+          "role": "workflow",
+          "visual": "/showcases/gallery-website-ux-workflow.svg",
+          "status": "illustrative concept",
+          "provenance": "Original concept based on public Website UX Refresh listing"
+        }
+      ]
     },
     {
       "surface": "Home · Services",
@@ -217,7 +374,21 @@
       "source_evidence": "Original concept based on public service listing",
       "rights_provenance": "Original AmaduTown concept; external trademarks omitted",
       "capture_date": "2026-10-22",
-      "blocker_recovery": "Confirm concept matches deliverable before merge"
+      "blocker_recovery": "Confirm concept matches deliverable before merge",
+      "carousel_items": [
+        {
+          "role": "hero",
+          "visual": "/showcases/service-accelerated-cohort-concept.svg",
+          "status": "illustrative concept",
+          "provenance": "Original concept based on public service listing"
+        },
+        {
+          "role": "proof/outcome",
+          "visual": "/showcases/gallery-accelerated-cohort-outcome.svg",
+          "status": "illustrative concept",
+          "provenance": "Original illustrative deliverables based on public cohort listing; no claimed graduate result"
+        }
+      ]
     },
     {
       "surface": "Home · Merchandise",

@@ -4,7 +4,15 @@
  * Database image fields stay unchanged. Later record-backed replacements use
  * the existing visual-assets approval workflow.
  */
-export const SHOWCASE_PREVIEW_REVISION = '2026-10-22-b' as const
+export const SHOWCASE_PREVIEW_REVISION = '2026-10-22-c' as const
+
+export type ShowcaseRole = 'hero' | 'product-in-use' | 'workflow' | 'proof/outcome' | 'course-preview poster'
+export interface ShowcaseFrame {
+  imageUrl: string
+  alt: string
+  role: ShowcaseRole
+  status: 'source capture' | 'illustrative concept'
+}
 
 type Entity = 'project' | 'prototype' | 'service' | 'product'
 type Kind = 'live_capture' | 'source_capture_composition' | 'illustrative_concept'
@@ -46,4 +54,30 @@ export function resolveShowcasePreview(entity: Entity, id: string | number, curr
   return SHOWCASE_PREVIEW_VISUALS.find((visual) =>
     visual.entity === entity && visual.id === String(id) && visual.expectedCurrentUrl === current
   ) || null
+}
+
+const SERVICE_GALLERY_EXTRAS: Record<string, readonly ShowcaseFrame[]> = {
+  'a479ce70-4856-4d3f-917b-c37bfff1f0a2': [{ imageUrl: '/showcases/gallery-inbound-chatbot-workflow.svg', alt: 'Illustrative workflow from inbound question to reviewed lead', role: 'workflow', status: 'illustrative concept' }],
+  'f463891c-e703-403b-97c2-e122aca42f29': [{ imageUrl: '/showcases/gallery-lead-workflow-outcome.svg', alt: 'Illustrative lead handoff and follow-up outcome', role: 'proof/outcome', status: 'illustrative concept' }],
+  'a34b8a0a-d65c-42c8-970b-9a77e043e329': [{ imageUrl: '/showcases/gallery-website-ux-workflow.svg', alt: 'Illustrative website UX review and revision workflow', role: 'workflow', status: 'illustrative concept' }],
+  'cd2c086a-26ec-4637-b7a3-129021c0bc19': [{ imageUrl: '/showcases/gallery-accelerated-cohort-outcome.svg', alt: 'Illustrative cohort outcome with a scoped build and review log', role: 'proof/outcome', status: 'illustrative concept' }],
+  'e5c198bd-1276-45ee-abe3-9d9f85e1e3d2': [{ imageUrl: '/showcases/gallery-self-paced-course-poster.svg', alt: 'Illustrative Module 0 course preview poster; no playable lesson is bound', role: 'course-preview poster', status: 'illustrative concept' }],
+  '1d797450-f350-457e-b7c4-d75164a76654': [{ imageUrl: '/showcases/gallery-masterclass-outcome.svg', alt: 'Illustrative masterclass outcome: a reviewed prototype and next decision', role: 'proof/outcome', status: 'illustrative concept' }],
+}
+
+const PRODUCT_GALLERY_EXTRAS: Record<string, readonly ShowcaseFrame[]> = {
+  '18': [{ imageUrl: '/showcases/gallery-leadgen-in-use.svg', alt: 'Illustrative product-in-use view showing a blank contact intake and human lead review queue', role: 'product-in-use', status: 'illustrative concept' }],
+}
+
+export function resolveShowcaseGallery(entity: Entity, id: string | number, currentUrl: string | null | undefined): ShowcaseFrame[] {
+  const preview = resolveShowcasePreview(entity, id, currentUrl)
+  if (!preview) return []
+  const first: ShowcaseFrame = {
+    imageUrl: preview.previewUrl,
+    alt: preview.alt,
+    role: 'hero',
+    status: preview.kind === 'illustrative_concept' ? 'illustrative concept' : 'source capture',
+  }
+  const extras = entity === 'service' ? SERVICE_GALLERY_EXTRAS[String(id)] || [] : entity === 'product' ? PRODUCT_GALLERY_EXTRAS[String(id)] || [] : []
+  return [first, ...extras]
 }
