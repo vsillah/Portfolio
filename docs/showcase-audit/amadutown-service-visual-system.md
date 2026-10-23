@@ -1,5 +1,7 @@
 # AmaduTown service visual system — calibration, 2026-10-23
 
+For subsequent service-gallery additions, apply `docs/showcase-audit/service-showcase-premium-gate.md` before binding or requesting Human QA.
+
 This is the art direction for a three-pair review, not approval of the 41-service raster-v3 gallery. The first pair represents the **Monthly Advisory Retainer within Management Consulting**. The other pairs represent the **AI Inbound Lead Chatbot** and **AI Training Course — Self-Paced**. Nothing in a concept frame is customer proof, a delivered product screenshot, or a promise of a particular result.
 
 ## Source audit

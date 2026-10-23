@@ -19,35 +19,35 @@
   },
   "a479ce70-4856-4d3f-917b-c37bfff1f0a2": {
     "expectedCurrentUrl": null,
-    "calibration": "2026-10-23-brand-reset",
+    "calibration": "2026-10-23-premium-splash-review",
     "frames": [
       {
-        "imageUrl": "/showcases/service-calibration/inbound-lead-chatbot-hero-product-calibration-r2.webp",
-        "alt": "Friendly humanoid chatbot receptionist at a desktop with headset, introducing configured website lead intake",
+        "imageUrl": "/showcases/service-premium-review/inbound-lead-chatbot-hero-r1.webp",
+        "alt": "AI Inbound Lead Chatbot: receptionist-led marketing page for a configured website inquiry and human handoff",
         "role": "hero",
         "status": "illustrative concept"
       },
       {
-        "imageUrl": "/showcases/service-calibration/inbound-lead-chatbot-artifact-product-calibration-r2.webp",
-        "alt": "Illustrative inbound lead workspace showing website inquiry, qualification, summary, human handoff, and consent-bound follow-up",
-        "role": "workflow",
+        "imageUrl": "/showcases/service-premium-review/inbound-lead-chatbot-experience-r1.webp",
+        "alt": "AI Inbound Lead Chatbot: illustrative website conversation and review brief",
+        "role": "product-in-use",
         "status": "illustrative concept"
       }
     ]
   },
   "e5c198bd-1276-45ee-abe3-9d9f85e1e3d2": {
     "expectedCurrentUrl": null,
-    "calibration": "2026-10-23-brand-reset",
+    "calibration": "2026-10-23-premium-splash-review",
     "frames": [
       {
-        "imageUrl": "/showcases/service-calibration/self-paced-ai-course-hero-product-calibration-r2.webp",
-        "alt": "Vambah-led roundtable training scene introducing the AmaduTown self-paced AI course concept",
+        "imageUrl": "/showcases/service-premium-review/self-paced-course-hero-r1.webp",
+        "alt": "AI Training Course — Self-Paced: Accelerated: Building Smarter Products with AI course cover concept",
         "role": "hero",
         "status": "illustrative concept"
       },
       {
-        "imageUrl": "/showcases/service-calibration/self-paced-ai-course-artifact-product-calibration-r2.webp",
-        "alt": "Illustrative self-paced course platform with modules, lesson-video poster, workbook exercise, progress, and implementation-plan output",
+        "imageUrl": "/showcases/service-premium-review/self-paced-course-experience-r1.webp",
+        "alt": "AI Training Course — Self-Paced: illustrative named course player, proposed modules, workbook, progress, and first-test output",
         "role": "course-preview poster",
         "status": "illustrative concept"
       }
@@ -182,17 +182,17 @@
   },
   "cd2c086a-26ec-4637-b7a3-129021c0bc19": {
     "expectedCurrentUrl": null,
-    "calibration": "2026-10-23-captain-approved-review",
+    "calibration": "2026-10-23-premium-splash-review",
     "frames": [
       {
-        "imageUrl": "/showcases/service-learning-review/accelerated-cohort-workshop-hero-review-r1.webp",
-        "alt": "Accelerated Cohort Workshop: illustrative accelerated cohort working session",
+        "imageUrl": "/showcases/service-premium-review/accelerated-cohort-hero-r1.webp",
+        "alt": "Accelerated Cohort Workshop: editorial workshop splash page for a shared first test",
         "role": "hero",
         "status": "illustrative concept"
       },
       {
-        "imageUrl": "/showcases/service-learning-review/accelerated-cohort-workshop-artifact-review-r1.webp",
-        "alt": "Accelerated Cohort Workshop: illustrative cohort work product and next action",
+        "imageUrl": "/showcases/service-premium-review/accelerated-cohort-experience-r1.webp",
+        "alt": "Accelerated Cohort Workshop: illustrative live workshop exercise and decision handoff",
         "role": "product-in-use",
         "status": "illustrative concept"
       }
@@ -344,17 +344,17 @@
   },
   "1d797450-f350-457e-b7c4-d75164a76654": {
     "expectedCurrentUrl": null,
-    "calibration": "2026-10-23-captain-approved-review",
+    "calibration": "2026-10-23-premium-splash-review",
     "frames": [
       {
-        "imageUrl": "/showcases/service-learning-review/premium-ai-masterclass-hero-review-r1.webp",
-        "alt": "Premium AI Masterclass: illustrative AI masterclass build session",
+        "imageUrl": "/showcases/service-premium-review/premium-masterclass-hero-r1.webp",
+        "alt": "Premium AI Masterclass: editorial casework splash page for advanced AI judgment",
         "role": "hero",
         "status": "illustrative concept"
       },
       {
-        "imageUrl": "/showcases/service-learning-review/premium-ai-masterclass-artifact-review-r1.webp",
-        "alt": "Premium AI Masterclass: illustrative masterclass work product and review",
+        "imageUrl": "/showcases/service-premium-review/premium-masterclass-experience-r1.webp",
+        "alt": "Premium AI Masterclass: illustrative case curriculum with evidence critique and decision brief",
         "role": "product-in-use",
         "status": "illustrative concept"
       }
@@ -578,18 +578,18 @@
   },
   "f463891c-e703-403b-97c2-e122aca42f29": {
     "expectedCurrentUrl": null,
-    "calibration": "2026-10-23-captain-approved-review",
+    "calibration": "2026-10-23-premium-splash-review",
     "frames": [
       {
-        "imageUrl": "/showcases/service-engagement-review/lead-generation-workflow-hero-review-r1.webp",
-        "alt": "Lead Generation Workflow Agent: illustrative lead intake with transparent fit and review path",
+        "imageUrl": "/showcases/service-premium-review/lead-generation-workflow-hero-r1.webp",
+        "alt": "Lead Generation Workflow Agent: storefront-inspired marketing page for a reviewable lead path",
         "role": "hero",
         "status": "illustrative concept"
       },
       {
-        "imageUrl": "/showcases/service-engagement-review/lead-generation-workflow-artifact-review-r1.webp",
-        "alt": "Lead Generation Workflow Agent: illustrative lead qualification and routing map",
-        "role": "workflow",
+        "imageUrl": "/showcases/service-premium-review/lead-generation-workflow-experience-r1.webp",
+        "alt": "Lead Generation Workflow Agent: illustrative source, fit-check, and human-owner workflow",
+        "role": "product-in-use",
         "status": "illustrative concept"
       }
     ]

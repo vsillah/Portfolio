@@ -64,14 +64,20 @@ describe('active service gallery coverage', () => {
     expect(resolveServiceGallery(course.id, course.image_url).map((frame) => frame.role)).toEqual(['hero', 'course-preview poster'])
   })
 
-  it('binds the revised chatbot and course visuals to product-specific descriptions and local sources', () => {
-    const chatbot = resolveServiceGallery('a479ce70-4856-4d3f-917b-c37bfff1f0a2', null)
+  it('binds five distinct premium service pairs with specific experiences', () => {
+    const slugs = ['inbound-lead-chatbot', 'lead-generation-workflow', 'accelerated-cohort', 'premium-masterclass', 'self-paced-course']
+    const titles = ['AI Inbound Lead Chatbot', 'Lead Generation Workflow Agent', 'Accelerated Cohort Workshop', 'Premium AI Masterclass', 'AI Training Course — Self-Paced']
+    for (let index = 0; index < titles.length; index++) {
+      const row = catalog.rows.find((item) => item.title === titles[index])!
+      const [hero, experience] = resolveServiceGallery(row.id, row.image_url)
+      expect(hero.imageUrl).toBe(`/showcases/service-premium-review/${slugs[index]}-hero-r1.webp`)
+      expect(experience.imageUrl).toBe(`/showcases/service-premium-review/${slugs[index]}-experience-r1.webp`)
+      expect(hero.status).toBe('illustrative concept')
+      expect(experience.status).toBe('illustrative concept')
+    }
     const course = resolveServiceGallery('e5c198bd-1276-45ee-abe3-9d9f85e1e3d2', null)
-    expect([...chatbot, ...course].every((frame) => frame.imageUrl.endsWith('-product-calibration-r2.webp'))).toBe(true)
-    expect(chatbot[0].alt).toMatch(/receptionist.*headset/i)
-    expect(chatbot[1].alt).toMatch(/qualification.*human handoff.*follow-up/i)
-    expect(course[0].alt).toMatch(/roundtable training/i)
-    expect(course[1].alt).toMatch(/modules.*workbook.*progress.*implementation-plan/i)
+    expect(course[0].alt).toMatch(/Building Smarter Products with AI/i)
+    expect(course[1].alt).toMatch(/modules.*workbook.*progress.*first-test output/i)
     for (const source of ['chatbot-receptionist-source.png', 'training-roundtable-source.png']) {
       expect(readFileSync(path.join(process.cwd(), 'public/showcases/service-calibration/sources', source)).length).toBeGreaterThan(0)
     }

@@ -82,5 +82,22 @@ for(const [title,family,slug,heroDescription,artifactDescription,artifactRole] o
 }
 if(Object.keys(manifest).length!==41) throw new Error('Active gallery coverage must be 41')
 for(const id of calibrationIds) if(JSON.stringify(manifest[id])!==JSON.stringify(current[id])) throw new Error(`Calibration changed: ${id}`)
+const premium=[
+  ['AI Inbound Lead Chatbot','inbound-lead-chatbot','receptionist-led marketing page for a configured website inquiry and human handoff','illustrative website conversation and review brief'],
+  ['Lead Generation Workflow Agent','lead-generation-workflow','storefront-inspired marketing page for a reviewable lead path','illustrative source, fit-check, and human-owner workflow'],
+  ['Accelerated Cohort Workshop','accelerated-cohort','editorial workshop splash page for a shared first test','illustrative live workshop exercise and decision handoff'],
+  ['Premium AI Masterclass','premium-masterclass','editorial casework splash page for advanced AI judgment','illustrative case curriculum with evidence critique and decision brief'],
+  ['AI Training Course — Self-Paced','self-paced-course','Accelerated: Building Smarter Products with AI course cover concept','illustrative named course player, proposed modules, workbook, progress, and first-test output'],
+]
+for(const [title,slug,heroAlt,experienceAlt] of premium){
+  const row=byTitle.get(title)
+  if(!row?.is_active) throw new Error(`Premium binding missing active service: ${title}`)
+  const frames=[
+    {imageUrl:`/showcases/service-premium-review/${slug}-hero-r1.webp`,alt:`${title}: ${heroAlt}`,role:'hero',status:'illustrative concept'},
+    {imageUrl:`/showcases/service-premium-review/${slug}-experience-r1.webp`,alt:`${title}: ${experienceAlt}`,role:title==='AI Training Course — Self-Paced'?'course-preview poster':'product-in-use',status:'illustrative concept'},
+  ]
+  for(const frame of frames) if(!fs.existsSync(path.join(root,'public',frame.imageUrl))) throw new Error(`Missing premium frame: ${frame.imageUrl}`)
+  manifest[row.id]={expectedCurrentUrl:row.image_url,calibration:'2026-10-23-premium-splash-review',frames}
+}
 fs.writeFileSync(manifestPath,JSON.stringify(manifest,null,2)+'\n')
-console.log('Bound 38 Captain-approved review pairs alongside 3 unchanged calibrations, exact-ID and exact-source.')
+console.log('Bound 41 exact-ID/current-image pairs, including five premium splash review pairs and the unchanged KinFlo example.')
