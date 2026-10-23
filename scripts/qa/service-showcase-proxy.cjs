@@ -27,7 +27,14 @@ http.createServer((request, response) => {
     response.writeHead(upstreamResponse.statusCode || 502, upstreamResponse.headers)
     upstreamResponse.pipe(response)
   })
-  upstream.on('error', () => { response.writeHead(502); response.end('Local QA server unavailable') })
+  upstream.on('error', () => {
+    if (response.headersSent) {
+      response.destroy()
+      return
+    }
+    response.writeHead(502)
+    response.end('Local QA server unavailable')
+  })
   request.pipe(upstream)
 }).listen(listenPort, '127.0.0.1', () => {
   process.stdout.write(`Service QA proxy listening on http://127.0.0.1:${listenPort}\n`)
