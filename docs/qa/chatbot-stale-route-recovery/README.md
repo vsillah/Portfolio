@@ -12,7 +12,7 @@ The fallback names the two active public catalog offers, describes their listed 
 - `mobile-walkthrough.mp4`: continuous, cropped screen recording of the phone interaction.
 - `desktop-walkthrough.mp4`: three captured desktop panel states in sequence. Chromium's desktop recording on this host scaled the 1440px viewport into a small corner, so this MP4 uses the readable screenshots. It is a captured-state walkthrough, not a continuous desktop recording.
 
-Both MP4s were decoded with FFprobe: H.264, 590 × 524 at 7.56 seconds for desktop and 370 × 500 at 7.40 seconds for mobile. The reviewed route was `http://127.0.0.1:5317/#contact`, with fixture-only API responses and browser requests restricted to that local origin.
+Both MP4s were decoded with FFprobe: H.264, 590 × 524 at 7.56 seconds for desktop and 370 × 500 at 5.48 seconds for mobile. The reviewed route was `http://127.0.0.1:5317/#contact`, with fixture-only API responses and browser requests restricted to that local origin.
 
 ## Reproduce
 
