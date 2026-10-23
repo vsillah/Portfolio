@@ -119,7 +119,26 @@ base('Premium AI masterclass','Turn a working idea into a reviewed build',purple
     txt(788,386,'Working prototype',26,'#292746',700) + txt(788,430,'Clear decision log',20,'#534c70') + txt(788,467,'Next iteration scoped',20,'#534c70'),
     'service-masterclass-concept.svg','Service concept')
 
-print('Generated 9 illustrative concepts in', OUT)
+manifest_scene = (
+    '<defs><linearGradient id="visionA" x2="1" y2="1"><stop stop-color="#7f69bd"/><stop offset="1" stop-color="#283854"/></linearGradient>'
+    '<linearGradient id="visionB" x2="1" y2="1"><stop stop-color="#5ca6bd"/><stop offset="1" stop-color="#33406e"/></linearGradient>'
+    '<linearGradient id="visionC" x2="1" y2="1"><stop stop-color="#c4a678"/><stop offset="1" stop-color="#554b77"/></linearGradient></defs>' +
+    rect(85,263,309,327,'#111b32',21,'#6864a0') + txt(112,305,'STUDIO',18,'#b6a0f8',700) +
+    txt(112,341,'Curate experiences',24,'#fff',700) +
+    rect(112,365,255,55,'#293450',11) + rect(126,378,29,29,'#8b79c6',7) + txt(171,399,'Lifestyle',18,'#e9e7fb',700) +
+    rect(112,432,255,55,'#293450',11) + rect(126,445,29,29,'#71aac3',7) + txt(171,466,'Travel',18,'#e9e7fb',700) +
+    rect(112,499,255,55,'#293450',11) + rect(126,512,29,29,'#c4a678',7) + txt(171,533,'Transportation',18,'#e9e7fb',700) +
+    rect(424,385,37,37,'#263754',18,'#8481bf') + txt(442,411,'›',28,'#b6a0f8',700,'middle') +
+    rect(489,263,625,327,'#101b32',21,'#6864a0') + txt(518,305,'CANVAS',18,'#b6a0f8',700) +
+    txt(518,341,'A vision board in motion',24,'#fff',700) +
+    rect(518,364,179,188,'url(#visionA)',15) + '<circle cx="608" cy="437" r="52" fill="#ac99df" opacity="0.32"/>' + txt(539,524,'A place to grow',17,'#fff',700) +
+    rect(710,364,179,188,'url(#visionB)',15) + '<circle cx="798" cy="425" r="54" fill="#82d4d4" opacity="0.26"/>' + txt(731,524,'A journey ahead',17,'#fff',700) +
+    rect(902,364,179,188,'url(#visionC)',15) + '<circle cx="990" cy="435" r="52" fill="#f7d697" opacity="0.24"/>' + txt(923,524,'Room to move',17,'#fff',700)
+)
+base('ManifestR','Curate experiences, then shape a personal vision board',purple,
+    manifest_scene,'manifestr-vision-concept.svg','Vision board concept')
+
+print('Generated 10 illustrative concepts in', OUT)
 
 
 def capture_frame(filename, title, message, source, accent, image_side='right'):

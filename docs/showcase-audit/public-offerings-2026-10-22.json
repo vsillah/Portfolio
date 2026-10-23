@@ -421,13 +421,13 @@
       "id": "cbba8f12-9257-4320-a361-f3f7455dafe2",
       "title": "ManifestR",
       "current_visual": "https://byoriebhtbysanjhimlu.supabase.co/storage/v1/object/public/prototypes/prototypes/temp/thumbnails/1768591544116-yhihqf.png",
-      "proposed_visual": "https://byoriebhtbysanjhimlu.supabase.co/storage/v1/object/public/prototypes/prototypes/temp/thumbnails/1768591544116-yhihqf.png",
-      "classification": "Blocked because identity, rights, or product status is ambiguous",
-      "product_state": "QA stage in public record; live behavior not fully qualified",
-      "source_evidence": "AI Studio preview linked from public record; preview unlaunched and internal text says GriotR",
-      "rights_provenance": "Existing public listing; owner review",
-      "capture_date": "Existing public listing; date not established",
-      "blocker_recovery": "Resolve ManifestR/GriotR identity and launch a privacy-safe build before replacement"
+      "proposed_visual": "/showcases/manifestr-vision-concept.svg",
+      "classification": "Active product with source-grounded illustrative concept",
+      "product_state": "QA stage in public record; owner-controlled private repo confirms active ManifestR-branded Welcome, Studio, and Canvas views; provider-backed generation not qualified",
+      "source_evidence": "Read-only inspection of owner-controlled ManifestR repo metadata and product context; local provider-free Studio render observed on 2026-10-22",
+      "rights_provenance": "Original illustrative SVG derived from verified product capabilities; no private code, sample media, user data, or generated output reused",
+      "capture_date": "2026-10-22 source inspection; concept created 2026-10-22",
+      "blocker_recovery": "Confirm concept reflects the offer before merge; legacy AI Studio preview identity and live generation remain unqualified"
     },
     {
       "surface": "Work · Prototypes",

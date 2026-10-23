@@ -110,19 +110,28 @@ export default function PrototypeCard({ prototype, user, index, onEnrollmentSucc
             src={showcase?.previewUrl || toAbsoluteImageUrl(prototype.thumbnail_url) || 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800'}
             alt={showcase?.alt || prototype.title}
             fill
-            className="object-cover transition-transform duration-700 group-hover:scale-110 grayscale-[30%] group-hover:grayscale-0"
+            className={showcase?.kind === 'illustrative_concept'
+              ? 'object-contain bg-[#101c2d]'
+              : 'object-cover transition-transform duration-700 group-hover:scale-110 grayscale-[30%] group-hover:grayscale-0'}
             sizes="(max-width: 768px) 100vw, 400px"
           />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-silicon-slate via-transparent to-transparent opacity-60" />
+        {showcase?.kind !== 'illustrative_concept' && <div className="absolute inset-0 bg-gradient-to-t from-silicon-slate via-transparent to-transparent opacity-60" />}
         
         {/* Stage Badge */}
-        <div className={`absolute top-6 left-6 px-3 py-1 rounded-full text-[10px] font-heading tracking-widest uppercase border ${getStageColor(prototype.production_stage)} backdrop-blur-md`}>
-          {prototype.production_stage}
-        </div>
+        {showcase?.kind !== 'illustrative_concept' && (
+          <div className={`absolute top-6 left-6 px-3 py-1 rounded-full text-[10px] font-heading tracking-widest uppercase border ${getStageColor(prototype.production_stage)} backdrop-blur-md`}>
+            {prototype.production_stage}
+          </div>
+        )}
       </div>
 
       <div className="p-8 flex flex-col flex-grow relative z-10">
+        {showcase?.kind === 'illustrative_concept' && (
+          <div className={`mb-4 w-fit rounded-full border px-3 py-1 font-heading text-[10px] uppercase tracking-widest ${getStageColor(prototype.production_stage)}`}>
+            {prototype.production_stage}
+          </div>
+        )}
         <div className="flex items-start justify-between mb-4">
           <h3 className="font-premium text-2xl text-foreground group-hover:text-radiant-gold transition-colors">
             {prototype.title}

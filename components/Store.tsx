@@ -50,6 +50,7 @@ function ProductCard({
       href={`/store/${product.id}`}
       imageUrl={showcase?.previewUrl || imageUrl}
       imageAlt={showcase?.alt || product.title}
+      showcasePresentation={Boolean(showcase)}
       badges={[
         TYPE_LABELS[product.type] || product.type,
         ...(product.is_featured ? ['Featured'] : []),

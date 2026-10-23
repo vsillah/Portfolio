@@ -1,10 +1,10 @@
 /**
- * Review-only card visuals. A replacement is used only while the public record
- * still points at the audited source URL (or still has no image). The canonical
- * database fields and the existing visual-assets approval workflow stay intact.
- * Merging this branch is a separate captain/Human QA decision.
+ * Version-bound card visuals. In this branch they are review previews; after
+ * Human QA, merge, and deployment they render publicly for matching records.
+ * Database image fields stay unchanged. Later record-backed replacements use
+ * the existing visual-assets approval workflow.
  */
-export const SHOWCASE_PREVIEW_REVISION = '2026-10-22-a' as const
+export const SHOWCASE_PREVIEW_REVISION = '2026-10-22-b' as const
 
 type Entity = 'project' | 'prototype' | 'service' | 'product'
 type Kind = 'live_capture' | 'source_capture_composition' | 'illustrative_concept'
@@ -30,6 +30,7 @@ export const SHOWCASE_PREVIEW_VISUALS: readonly PreviewVisual[] = [
   { entity: 'project', id: '3', expectedCurrentUrl: 'https://www.fidelity.com/bin-public/600_Fidelity_Com_English/images/homepage/at/jpeg_at/Trader-HP-self-directed-new.jpg', previewUrl: '/showcases/fidelity-portfolio-summary-concept.svg', kind: 'illustrative_concept', alt: 'Illustrative concept of configurable portfolio summary cards' },
   { entity: 'project', id: '4', expectedCurrentUrl: 'https://byoriebhtbysanjhimlu.supabase.co/storage/v1/object/public/projects/project-4/dark-castle-welcome-poster.png', previewUrl: '/showcases/dark-castle-live-20261022.png', kind: 'live_capture', alt: 'Live Dark Castle Chess welcome page with chess board and Play free action' },
   { entity: 'prototype', id: '448d2fc4-6aac-404d-9f69-cd6056341ba2', expectedCurrentUrl: 'https://byoriebhtbysanjhimlu.supabase.co/storage/v1/object/public/projects/project-4/dark-castle-welcome-poster.png', previewUrl: '/showcases/dark-castle-live-20261022.png', kind: 'live_capture', alt: 'Live Dark Castle Chess welcome page with chess board and Play free action' },
+  { entity: 'prototype', id: 'cbba8f12-9257-4320-a361-f3f7455dafe2', expectedCurrentUrl: 'https://byoriebhtbysanjhimlu.supabase.co/storage/v1/object/public/prototypes/prototypes/temp/thumbnails/1768591544116-yhihqf.png', previewUrl: '/showcases/manifestr-vision-concept.svg', kind: 'illustrative_concept', alt: 'Illustrative concept for ManifestR showing curated experiences in Studio and a vision board in Canvas' },
   { entity: 'prototype', id: 'fba647d5-0431-4097-9cfd-72dc1e9f8b58', expectedCurrentUrl: 'https://byoriebhtbysanjhimlu.supabase.co/storage/v1/object/public/prototypes/prototypes/fba647d5-0431-4097-9cfd-72dc1e9f8b58/thumbnails/1768590541747-sbb5dx.png', previewUrl: '/showcases/reversr-drive-capture-20261022.png', kind: 'live_capture', alt: 'ReversR app capture showing the Design step and product concept drawing' },
   { entity: 'prototype', id: 'ea1505af-2ddf-43ff-a6fd-015ac8445ad6', expectedCurrentUrl: 'https://byoriebhtbysanjhimlu.supabase.co/storage/v1/object/public/prototypes/prototypes/ea1505af-2ddf-43ff-a6fd-015ac8445ad6/thumbnails/1768590641469-p18cts.png', previewUrl: '/showcases/inclusivo-live-20261022.png', kind: 'live_capture', alt: 'Live InclusivO landing page with document style extraction steps' },
   { entity: 'service', id: 'a479ce70-4856-4d3f-917b-c37bfff1f0a2', expectedCurrentUrl: null, previewUrl: '/showcases/service-inbound-chatbot-concept.svg', kind: 'illustrative_concept', alt: 'Illustrative concept of an inbound chat inquiry becoming a reviewed lead' },

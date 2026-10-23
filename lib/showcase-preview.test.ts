@@ -42,11 +42,15 @@ describe('public showcase preview contract', () => {
     }
   })
 
-  it('keeps blocked identity and merchandise out of the replacement map', () => {
-    const blocked = audit.rows.filter((row) => row.classification.startsWith('Blocked'))
-    expect(blocked.map((row) => row.id)).toEqual(['cbba8f12-9257-4320-a361-f3f7455dafe2'])
-    expect(blocked[0].blocker_recovery).toContain('ManifestR/GriotR')
-    expect(SHOWCASE_PREVIEW_VISUALS.every((v) => v.id !== blocked[0].id)).toBe(true)
+  it('binds ManifestR to a labeled concept based on the verified product identity', () => {
+    const manifest = audit.rows.find((row) => row.id === 'cbba8f12-9257-4320-a361-f3f7455dafe2')
+    expect(manifest?.classification).toContain('source-grounded illustrative concept')
+    expect(manifest?.proposed_visual).toBe('/showcases/manifestr-vision-concept.svg')
+    expect(manifest?.source_evidence).toContain('provider-free Studio render')
+    expect(SHOWCASE_PREVIEW_VISUALS.some((visual) => visual.id === manifest?.id)).toBe(true)
+    const svg = readFileSync(path.join(process.cwd(), 'public/showcases/manifestr-vision-concept.svg'), 'utf8')
+    expect(svg).toContain('ILLUSTRATIVE CONCEPT')
+    expect(svg).not.toContain('<image')
   })
 
   it('labels every concept in the asset and in metadata', () => {
