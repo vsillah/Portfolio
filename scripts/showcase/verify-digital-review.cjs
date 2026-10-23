@@ -16,6 +16,11 @@ const pairs = [
 async function verify(){
   if (pairs.length !== 7 || new Set(pairs.map(([title])=>title)).size !== 7) throw new Error('Digital review title coverage changed')
   const dir=path.join(root,'public/showcases/service-digital-review')
+  const evidence=path.join(dir,'julies-public-home-evidence.webp')
+  const evidenceMeta=await sharp(evidence).metadata()
+  if(evidenceMeta.width!==1280||evidenceMeta.height!==458||evidenceMeta.format!=='webp') throw new Error('Julie public evidence geometry changed')
+  const renderer=fs.readFileSync(path.join(root,'scripts/showcase/render-digital-review.cjs'),'utf8')
+  for(const label of ['OBSERVED PUBLIC HOMEPAGE','ILLUSTRATIVE UX PROPOSAL','not a shipped Julie’s page']) if(!renderer.includes(label)) throw new Error(`Julie source/proposal label missing: ${label}`)
   for(const [title,slug] of pairs){
     if(!catalog.some(row=>row.title===title)) throw new Error(`No exact active catalog row: ${title}`)
     const files=['hero','artifact'].map(kind=>path.join(dir,`${slug}-${kind}-review-r1.webp`))
