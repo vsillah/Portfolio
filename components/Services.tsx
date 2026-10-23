@@ -8,6 +8,10 @@ import { useRouter } from 'next/navigation'
 import { useTheme } from 'next-themes'
 import { formatPriceOrFree } from '@/lib/pricing-model'
 import { resolveThemeImageUrl } from '@/lib/visual-asset-variants'
+import { resolveShowcaseGallery, resolveShowcasePreview } from '@/lib/showcase-preview'
+import ShowcaseCarousel from './ShowcaseCarousel'
+
+const SELF_PACED_COURSE_ID = 'e5c198bd-1276-45ee-abe3-9d9f85e1e3d2'
 
 interface Service {
   id: string
@@ -142,28 +146,31 @@ export default function Services() {
       <div className="mb-16 last:mb-0">
         <h3 className="text-lg font-heading uppercase tracking-wider text-muted-foreground mb-6">{title}</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-          {items.map((service, index) => (
+          {items.map((service, index) => {
+            const showcase = resolveShowcasePreview('service', service.id, service.image_url)
+            const gallery = resolveShowcaseGallery('service', service.id, service.image_url)
+            const imageUrl = showcase?.previewUrl || resolveThemeImageUrl({
+              imageUrl: service.image_url,
+              imageVariants: service.image_variants,
+              theme: resolvedTheme,
+            })
+            return (
             <div
               key={service.id}
               onClick={() => handleCardClick(service.id)}
               className={`group relative overflow-hidden rounded-2xl border border-[#121E31]/10 bg-white/85 shadow-[0_24px_70px_rgba(18,30,49,0.08)] backdrop-blur-md transition-all duration-500 cursor-pointer reveal-on-scroll is-visible dark:border-radiant-gold/5 dark:bg-silicon-slate/40 dark:shadow-none ${accent.border}`}
               style={{ transitionDelay: `${index * 0.08}s` }}
             >
+              {gallery.length > 0 ? (
+                <ShowcaseCarousel frames={gallery} title={service.title} fallbackUrl={imageUrl} />
+              ) : (
               <div className="relative h-64 overflow-hidden">
-                {resolveThemeImageUrl({
-                  imageUrl: service.image_url,
-                  imageVariants: service.image_variants,
-                  theme: resolvedTheme,
-                }) ? (
+                {imageUrl ? (
                   <Image
-                    src={resolveThemeImageUrl({
-                      imageUrl: service.image_url,
-                      imageVariants: service.image_variants,
-                      theme: resolvedTheme,
-                    })!}
-                    alt={service.title}
+                    src={imageUrl}
+                    alt={showcase?.alt || service.title}
                     fill
-                    className="object-cover transition-transform duration-700 group-hover:scale-110"
+                    className={`${showcase?.kind === 'illustrative_concept' ? 'object-contain bg-[#142339]' : 'object-cover'} transition-transform duration-700 group-hover:scale-105`}
                     sizes="(max-width: 768px) 100vw, 320px"
                   />
                 ) : (
@@ -173,7 +180,7 @@ export default function Services() {
                     </span>
                   </div>
                 )}
-                <div className="absolute top-6 left-6 flex flex-col gap-2">
+                <div className={`${showcase?.kind === 'illustrative_concept' ? 'hidden' : 'absolute top-6 left-6 flex flex-col gap-2'}`}>
                   <span className={`px-3 py-1 bg-background/80 backdrop-blur-md rounded-full text-[10px] font-heading tracking-widest uppercase ${accent.badge}`}>
                     {TYPE_LABELS[service.service_type] || service.service_type}
                   </span>
@@ -191,7 +198,14 @@ export default function Services() {
                       : 'Free'}
                 </div>
               </div>
+              )}
               <div className="bg-white/90 p-8 dark:bg-transparent">
+                {gallery.length > 0 && (
+                  <div className="mb-4 flex flex-wrap items-center justify-between gap-2 text-[10px] font-heading uppercase tracking-widest text-muted-foreground">
+                    <span>{TYPE_LABELS[service.service_type] || service.service_type}{service.is_featured ? ' · Featured' : ''}</span>
+                    <span className="text-[#80641b] dark:text-radiant-gold">{service.is_quote_based ? 'Quote' : service.price !== null ? formatPriceOrFree(service.price) : 'Free'}</span>
+                  </div>
+                )}
                 <div className="flex flex-wrap gap-2 mb-2">
                   <span className="text-[10px] font-heading text-muted-foreground uppercase tracking-wider">
                     {DELIVERY_LABELS[service.delivery_method] || service.delivery_method}
@@ -223,8 +237,16 @@ export default function Services() {
                       className={`inline-flex items-center gap-2 px-4 py-2 border rounded-full text-[10px] font-heading tracking-widest uppercase transition-all ${accent.border} ${accent.badge.split(' ')[1] || 'text-radiant-gold'} hover:opacity-90`}
                     >
                       <Play size={12} />
-                      Watch video
+                      {service.id === SELF_PACED_COURSE_ID ? 'Watch course preview' : 'Watch video'}
                     </a>
+                  )}
+                  {service.id === SELF_PACED_COURSE_ID && !service.video_url && (
+                    <div className="w-full" onClick={(event) => event.stopPropagation()}>
+                      <button type="button" disabled aria-describedby={`course-preview-status-${service.id}`} title="Course preview awaiting review and render" className="inline-flex cursor-not-allowed items-center gap-2 rounded-full border border-radiant-gold/20 px-4 py-2 font-heading text-[10px] uppercase tracking-widest text-muted-foreground/80">
+                        <Play size={12} aria-hidden="true" /> Watch course preview
+                      </button>
+                      <p id={`course-preview-status-${service.id}`} className="mt-2 text-xs leading-5 text-muted-foreground">Module 0 awaits script review, an approved render, and a bound video. Open details for the current course.</p>
+                    </div>
                   )}
                   <div
                     className={`w-full flex items-center justify-center gap-3 py-3 border rounded-full transition-all duration-300 cursor-pointer ${category === 'build' ? 'border-radiant-gold/20 group-hover:bg-radiant-gold/10 group-hover:border-radiant-gold/40' : category === 'advisory' ? 'border-gold-light/20 group-hover:bg-gold-light/10 group-hover:border-gold-light/40' : 'border-silicon-slate/20 group-hover:bg-silicon-slate/10 group-hover:border-silicon-slate/40'}`}
@@ -237,7 +259,8 @@ export default function Services() {
                 </div>
               </div>
             </div>
-          ))}
+            )
+          })}
         </div>
       </div>
     )

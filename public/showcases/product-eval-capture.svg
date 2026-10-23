@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720" role="img" aria-label="Eval Template product UI capture composition">
+<defs><clipPath id="screen"><rect x="68" y="66" width="518" height="588" rx="22"/></clipPath></defs>
+<rect x="0" y="0" width="1200" height="720" rx="0" fill="#101c2d" stroke="none" stroke-width="1"/>
+<rect x="63" y="61" width="528" height="598" rx="28" fill="#2e4660" stroke="#b6a0f8" stroke-width="3"/>
+<image href="/Eval_Template_SS.png" x="68" y="66" width="518" height="588" preserveAspectRatio="xMidYMid slice" clip-path="url(#screen)"/>
+<rect x="622" y="115" width="12" height="12" rx="6" fill="#b6a0f8" stroke="none" stroke-width="1"/>
+<text x="622" y="176" fill="#fff" font-family="Arial,Helvetica,sans-serif" font-size="39" font-weight="700" text-anchor="start">Eval Template</text>
+<rect x="622" y="213" width="442" height="4" rx="2" fill="#b6a0f8" stroke="none" stroke-width="1"/>
+<text x="622" y="285" fill="#fff" font-family="Arial,Helvetica,sans-serif" font-size="37" font-weight="700" text-anchor="start">Make answer quality</text>
+<text x="622" y="332" fill="#b6a0f8" font-family="Arial,Helvetica,sans-serif" font-size="37" font-weight="700" text-anchor="start">visible.</text>
+<text x="622" y="589" fill="#adc0d0" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" text-anchor="start">SOURCE CAPTURE · PUBLIC PRODUCT UI</text>
+<text x="622" y="621" fill="#7d94a9" font-family="Arial,Helvetica,sans-serif" font-size="17" font-weight="500" text-anchor="start">AmaduTown product showcase</text>
+</svg>
