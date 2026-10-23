@@ -13,8 +13,8 @@ const calibrationIds=[
 ]
 for(const id of calibrationIds) if(!current[id]?.frames || current[id].frames.length!==2) throw new Error(`Approved calibration missing: ${id}`)
 const entries=[
-  // Digital systems: Julie's first frame is public evidence; its second frame is a proposal.
-  ['Website UX Refresh','digital','website-ux-refresh','Julie’s public homepage and donation notice shown in an AmaduTown UX review','Julie’s public homepage beside an illustrative AmaduTown learner, supporter, and registration proposal','workflow'],
+  // Digital systems: Julie's first frame is the local KinFlo-built example; its second frame is a proposal.
+  ['Website UX Refresh','digital','website-ux-refresh','KinFlo-built Julie’s Family Learning homepage with the learning support headline','illustrative AmaduTown learner, supporter, and registration proposal for Julie’s Family Learning','workflow'],
   ['Mobile App Generation','digital','mobile-app-generation','illustrative mobile service request with a three-step intake','illustrative mobile request preview and human handoff journey','product-in-use'],
   ['RAG Knowledge Base System','digital','rag-knowledge-base','illustrative sourced answer beside approved knowledge documents','illustrative answer review with citation, held source, and human approval state','workflow'],
   ['Data Migration & Onboarding','digital','data-migration-onboarding','illustrative source-to-target field map with a held exception','illustrative migration reconciliation board with source counts and review decision','workflow'],
@@ -24,12 +24,12 @@ const entries=[
   // Learning and facilitation.
   ['Accelerated Cohort Workshop','learning','accelerated-cohort-workshop','illustrative accelerated cohort working session','illustrative cohort work product and next action','product-in-use'],
   ['Product Innovation Workshop','learning','product-innovation-workshop','illustrative product innovation working session','illustrative product opportunity work product','product-in-use'],
-  ['Speaking Engagement','learning','speaking-engagement','approved illustrative facilitator scene for a speaking engagement','illustrative talk arc and audience handoff','product-in-use'],
+  ['Speaking Engagement','learning','speaking-engagement','illustrative speaking stage and audience question','illustrative talk arc and audience handoff','product-in-use'],
   ['Management Consulting','learning','management-consulting','illustrative management consulting decision scene','illustrative consulting decision and ownership work product','product-in-use'],
   ['AI Strategy Workshop — Half-Day','learning','ai-strategy-half-day','illustrative half-day AI strategy working session','illustrative half-day AI strategy output','product-in-use'],
   ['AI Strategy Workshop — Full-Day','learning','ai-strategy-full-day','illustrative full-day AI strategy working session','illustrative full-day AI strategy output','product-in-use'],
   ['1-on-1 AI Coaching','learning','one-on-one-ai-coaching','illustrative individual AI coaching scene','illustrative individual coaching action plan','product-in-use'],
-  ['Group AI Coaching','learning','group-ai-coaching','approved illustrative roundtable scene for group AI coaching','illustrative group coaching work product','product-in-use'],
+  ['Group AI Coaching','learning','group-ai-coaching','illustrative group coaching question board and peer evidence check','illustrative group coaching work product','product-in-use'],
   ['Team AI Training — 3-Session Program','learning','team-ai-training-three-session','illustrative team AI training session','illustrative three-session team training plan','product-in-use'],
   ['Premium AI Masterclass','learning','premium-ai-masterclass','illustrative AI masterclass build session','illustrative masterclass work product and review','product-in-use'],
   ['AI Strategy Workshop — Recorded (Self-Paced)','learning','recorded-ai-strategy-workshop','illustrative recorded AI strategy workshop poster','illustrative self-paced strategy workbook; no playable recording is bound','course-preview poster'],
@@ -68,11 +68,13 @@ for(const [title,family,slug,heroDescription,artifactDescription,artifactRole] o
     return {imageUrl,alt:`${title}: ${description}`,role,status}
   }
   const julie=title==='Website UX Refresh'
+  const julieHero='/showcases/service-digital-review/website-ux-refresh-kinflo-built-example-r1.jpg'
+  if(julie&&!fs.existsSync(path.join(root,'public',julieHero))) throw new Error('Missing KinFlo-built Julie source capture')
   manifest[row.id]={
     expectedCurrentUrl:row.image_url,
     calibration:'2026-10-23-captain-approved-review',
     frames:[
-      frame('hero',heroDescription,'hero',julie?'public source review':'illustrative concept'),
+      julie?{imageUrl:julieHero,alt:`${title}: ${heroDescription}`,role:'hero',status:'built example',label:"Example: Julie's Family Learning"}:frame('hero',heroDescription,'hero','illustrative concept'),
       frame('artifact',artifactDescription,artifactRole,julie?'illustrative proposal':'illustrative concept'),
     ],
   }

@@ -13,7 +13,8 @@ export interface ShowcaseFrame {
   imageUrl: string
   alt: string
   role: ShowcaseRole
-  status: 'source capture' | 'illustrative concept' | 'public source review' | 'illustrative proposal'
+  status: 'source capture' | 'built example' | 'illustrative concept' | 'public source review' | 'illustrative proposal'
+  label?: string
 }
 
 type Entity = 'project' | 'prototype' | 'service' | 'product'

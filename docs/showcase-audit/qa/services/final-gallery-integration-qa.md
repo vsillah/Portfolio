@@ -7,7 +7,7 @@
 - The GET-only QA proxy serves the captured 41-service public catalog to the branch at port 3211. It does not write provider or production data.
 - All 41 active catalog IDs resolve to two distinct local frames. Each binding checks the current listing image URL. Unmatched sources fall back to the current listing image.
 - The three prior calibration pairs are unchanged. The other 38 pairs are the Captain-approved review frames.
-- Julie's first frame is labeled `public source review`; its second is labeled `illustrative proposal`. The self-paced course poster remains separate from playable video.
+- Superseded by the correction below: Julie's first frame now shows the local KinFlo-built page, labeled `Example: Julie's Family Learning` and `built example`; its second remains an `illustrative proposal`. The self-paced course poster remains separate from playable video.
 
 ## Local checks
 
@@ -36,3 +36,9 @@
 ## Gate
 
 Draft PR #1128 remains unmerged. Captain review of the new live captures and latest Vercel previews remains pending before requesting Vambah's Human QA.
+
+## KinFlo source and hero correction
+
+- The first Website UX Refresh frame now uses `public/showcases/service-digital-review/website-ux-refresh-kinflo-built-example-r1.jpg`, captured from the rendered KinFlo fixture at `http://127.0.0.1:5320/kinflo-sites/julies-family?source=portfolio-service-showcase`. The page heading is “Learning support that meets families where they are.” The screenshot was cropped by 70 pixels at the top to exclude the local admin preview controls. SHA-256: `a199fe1597b3bc6589fc217ed6b897757b660599ce4ce45150de5a8c8d85e5fe`.
+- Source repository: `/Users/vambahsillah/Documents/KinFlo CRM`, branch `codex/kinflo-admin-foundation`, source HEAD `d0d2484d72df76a72207d393b0eefdcda148c362`. The source checkout was dirty at capture, including `client/src/lib/kinfloPublicSitePreview.ts` and `client/src/pages/KinfloPublicSitePreview.tsx`, so the frame is evidence of this local build state, not a clean commit or public deployment. No KinFlo file was edited for this correction.
+- `Speaking Engagement` now uses a service-specific stage illustration, and `Group AI Coaching` uses a question-and-peer-review work-product view. The Vambah roundtable image remains with the self-paced AI course calibration. A gallery regression test checks unique hero assignments and rendered file hashes, and prevents the learning renderer from assigning its photo hero again.

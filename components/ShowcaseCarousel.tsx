@@ -95,7 +95,7 @@ export default function ShowcaseCarousel({ frames, title, fallbackUrl, imageHref
         </div>
       )}
       {hasControls && <p className="sr-only" aria-live="polite">{current.role}, image {index + 1} of {frames.length}</p>}
-      {current && <p className="border-b border-radiant-gold/10 bg-[#17263d] px-3 py-2 text-xs text-white/80" aria-live="polite">{current.role} · {current.status}</p>}
+      {current && <p className="border-b border-radiant-gold/10 bg-[#17263d] px-3 py-2 text-xs text-white/80" aria-live="polite">{current.label ? `${current.label} · ` : ''}{current.role} · {current.status}</p>}
     </div>
   )
 }

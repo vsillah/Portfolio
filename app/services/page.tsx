@@ -106,7 +106,8 @@ function ServicesContent() {
       filtered = filtered.filter(
         (s) =>
           s.title.toLowerCase().includes(query) ||
-          (s.description && s.description.toLowerCase().includes(query))
+          (s.description && s.description.toLowerCase().includes(query)) ||
+          (s.id === 'a34b8a0a-d65c-42c8-970b-9a77e043e329' && "julie's family learning".includes(query))
       )
     }
     filtered.sort((a, b) => {

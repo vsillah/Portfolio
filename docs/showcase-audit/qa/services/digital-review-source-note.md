@@ -19,6 +19,10 @@ The requested list names seven distinct catalog titles when Custom Reporting and
 - Local project material inspected: `/Users/vambahsillah/Library/CloudStorage/GoogleDrive-vsillah@gmail.com/My Drive/2. AmaduTown Advisory Solutions/Client Projects /Julie's Family Learning Program/Assets/Website Priorities (1).docx` (2025-10-23). It informed the focus on learner paths, donation clarity, and easier navigation. The private source is not quoted in the public-facing frames.
 - The AmaduTown refinement panel is a proposal for review only. It is not presented as a shipped Julie's page, a client-approved deliverable, or a measured outcome.
 
+### Gallery binding correction
+
+The public-site assessment above remains archived review material. The bound Website UX Refresh hero now shows the local KinFlo-built Julie's Family Learning homepage, captured from `/Users/vambahsillah/Documents/KinFlo CRM` at `http://127.0.0.1:5320/kinflo-sites/julies-family?source=portfolio-service-showcase` with source HEAD `d0d2484d72df76a72207d393b0eefdcda148c362`. The KinFlo checkout had uncommitted changes, including the public-site preview source, when captured. The bound frame is labeled `Example: Julie's Family Learning` and `built example`; it does not claim the local fixture is live on the public domain. The second frame remains a proposal. See `final-gallery-integration-qa.md` for image hash and capture details.
+
 The frames are deliberately service-specific: Julie's public-site assessment, phone flow, attributed answer workspace, reconciliation board, event trace, metric drill-down, and a distinct team scorecard. Apart from the labeled public-site screenshot, they do not claim a live app, verified result, production dashboard, or completed migration.
 
 ## Review gate
