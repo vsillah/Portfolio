@@ -894,8 +894,11 @@ async function applyCandidate(candidate: VisualAssetCandidate, client: SupabaseL
   if (!candidate.candidate_url) throw new Error('Candidate has no candidate_url')
   const variantPatch = { [candidate.theme]: candidate.candidate_url }
   if (candidate.entity_type === 'product') {
-    const { data: row, error: readError } = await db(client).from('products').select('image_variants').eq('id', candidate.entity_id).maybeSingle()
+    const { data: row, error: readError } = await db(client).from('products').select('image_url, image_variants').eq('id', candidate.entity_id).maybeSingle()
     if (readError) throw readError
+    if (!row) throw new Error('Product no longer exists')
+    const currentUrl = getThemeVariant(row.image_variants, candidate.theme).url ?? (safeText(row.image_url) || null)
+    if (currentUrl !== candidate.current_url) throw new Error('Source image changed after candidate review')
     const { error } = await db(client)
       .from('products')
       .update({
@@ -905,8 +908,11 @@ async function applyCandidate(candidate: VisualAssetCandidate, client: SupabaseL
       .eq('id', candidate.entity_id)
     if (error) throw error
   } else if (candidate.entity_type === 'service') {
-    const { data: row, error: readError } = await db(client).from('services').select('image_variants').eq('id', candidate.entity_id).maybeSingle()
+    const { data: row, error: readError } = await db(client).from('services').select('image_url, image_variants').eq('id', candidate.entity_id).maybeSingle()
     if (readError) throw readError
+    if (!row) throw new Error('Service no longer exists')
+    const currentUrl = getThemeVariant(row.image_variants, candidate.theme).url ?? (safeText(row.image_url) || null)
+    if (currentUrl !== candidate.current_url) throw new Error('Source image changed after candidate review')
     const { error } = await db(client)
       .from('services')
       .update({
@@ -916,8 +922,11 @@ async function applyCandidate(candidate: VisualAssetCandidate, client: SupabaseL
       .eq('id', candidate.entity_id)
     if (error) throw error
   } else {
-    const { data: row, error: readError } = await db(client).from('app_prototypes').select('thumbnail_variants').eq('id', candidate.entity_id).maybeSingle()
+    const { data: row, error: readError } = await db(client).from('app_prototypes').select('thumbnail_url, thumbnail_variants').eq('id', candidate.entity_id).maybeSingle()
     if (readError) throw readError
+    if (!row) throw new Error('Prototype no longer exists')
+    const currentUrl = getThemeVariant(row.thumbnail_variants, candidate.theme).url ?? (safeText(row.thumbnail_url) || null)
+    if (currentUrl !== candidate.current_url) throw new Error('Source image changed after candidate review')
     const { error } = await db(client)
       .from('app_prototypes')
       .update({
@@ -958,6 +967,7 @@ export async function applyApprovedVisualAssetCandidates(input: {
           updated_at: new Date().toISOString(),
         })
         .eq('id', candidate.id)
+        .eq('status', 'approved')
         .select('*')
         .single()
       if (markError) throw markError

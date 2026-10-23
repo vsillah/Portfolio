@@ -6,6 +6,7 @@ import { ExternalLink, Code2, Download } from 'lucide-react'
 import { useState, useEffect, useRef } from 'react'
 import { analytics } from '@/lib/analytics'
 import ExpandableText from '@/components/ui/ExpandableText'
+import { resolveShowcasePreview } from '@/lib/showcase-preview'
 
 interface Project {
   id: number
@@ -23,6 +24,7 @@ interface Project {
 }
 
 const ProjectCard = ({ project, index }: { project: Project, index: number }) => {
+  const showcase = resolveShowcasePreview('project', project.id, project.image)
   const cardRef = useRef<HTMLDivElement>(null)
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
 
@@ -53,13 +55,16 @@ const ProjectCard = ({ project, index }: { project: Project, index: number }) =>
       {/* Project Image */}
       <div className="relative h-56 overflow-hidden flex-shrink-0">
         <Image
-          src={project.image || 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800'}
-          alt={project.title}
+          src={showcase?.previewUrl || project.image || 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800'}
+          alt={showcase?.alt || project.title}
           fill
-          className="object-cover transition-transform duration-700 group-hover:scale-110 grayscale-[40%] group-hover:grayscale-0"
+          className={`${showcase?.kind === 'illustrative_concept' ? 'object-contain bg-[#142339]' : 'object-cover'} transition-transform duration-700 group-hover:scale-105`}
           sizes="(max-width: 768px) 100vw, 400px"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-silicon-slate via-transparent to-transparent opacity-60" />
+        {showcase?.kind === 'illustrative_concept' && (
+          <span className="absolute bottom-4 left-4 rounded-full bg-imperial-navy/90 px-3 py-1 text-[10px] font-heading uppercase tracking-widest text-radiant-gold">Illustrative concept</span>
+        )}
       </div>
 
       {/* Project Content */}

@@ -682,7 +682,7 @@ describe('visual asset helpers', () => {
         entity_id: '42',
         title: 'Product',
         theme: 'light',
-        current_url: null,
+        current_url: 'https://example.com/dark.png',
         candidate_url: 'https://example.com/light.png',
         candidate_storage_path: 'products/visual-candidates/product-42/light/candidate-1.png',
         capture_route: '/store',
@@ -713,5 +713,25 @@ describe('visual asset helpers', () => {
       }),
     ]))
     expect(client.updates.some((update: any) => update.patch.image_url === 'https://example.com/light.png')).toBe(false)
+
+    const second = await applyApprovedVisualAssetCandidates({ client })
+    expect(second).toMatchObject({ applied: 0, failed: 0 })
+    expect(client.updates.filter((update: any) => update.table === 'products')).toHaveLength(1)
+  })
+
+  it('refuses an approved candidate when the reviewed source image has changed', async () => {
+    const client = createTableClient({
+      visual_asset_candidates: [{
+        id: 'stale-candidate', entity_type: 'product', entity_id: '42', title: 'Product', theme: 'dark',
+        current_url: 'https://example.com/old.png', candidate_url: 'https://example.com/new.png',
+        status: 'approved', metadata: {},
+      }],
+      products: [{ id: '42', image_url: 'https://example.com/another-review.png', image_variants: {} }],
+    }) as any
+
+    const result = await applyApprovedVisualAssetCandidates({ client })
+    expect(result).toMatchObject({ applied: 0, failed: 1 })
+    expect(result.failures[0].error).toContain('Source image changed')
+    expect(client.updates.some((update: any) => update.table === 'products')).toBe(false)
   })
 })

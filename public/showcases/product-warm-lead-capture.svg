@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720" role="img" aria-label="Warm Lead Pack product UI capture composition">
+<defs><clipPath id="screen"><rect x="68" y="66" width="518" height="588" rx="22"/></clipPath></defs>
+<rect x="0" y="0" width="1200" height="720" rx="0" fill="#101c2d" stroke="none" stroke-width="1"/>
+<rect x="63" y="61" width="528" height="598" rx="28" fill="#2e4660" stroke="#58d9c5" stroke-width="3"/>
+<image href="/FB_WarmLead_Pack.png" x="68" y="66" width="518" height="588" preserveAspectRatio="xMidYMid slice" clip-path="url(#screen)"/>
+<rect x="622" y="115" width="12" height="12" rx="6" fill="#58d9c5" stroke="none" stroke-width="1"/>
+<text x="622" y="176" fill="#fff" font-family="Arial,Helvetica,sans-serif" font-size="39" font-weight="700" text-anchor="start">Warm Lead Pack</text>
+<rect x="622" y="213" width="442" height="4" rx="2" fill="#58d9c5" stroke="none" stroke-width="1"/>
+<text x="622" y="285" fill="#fff" font-family="Arial,Helvetica,sans-serif" font-size="37" font-weight="700" text-anchor="start">Three workflows.</text>
+<text x="622" y="332" fill="#58d9c5" font-family="Arial,Helvetica,sans-serif" font-size="37" font-weight="700" text-anchor="start">One handoff.</text>
+<text x="622" y="589" fill="#adc0d0" font-family="Arial,Helvetica,sans-serif" font-size="16" font-weight="700" text-anchor="start">SOURCE CAPTURE · PUBLIC PRODUCT UI</text>
+<text x="622" y="621" fill="#7d94a9" font-family="Arial,Helvetica,sans-serif" font-size="17" font-weight="500" text-anchor="start">AmaduTown product showcase</text>
+</svg>

@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation'
 import { useTheme } from 'next-themes'
 import { formatPriceOrFree } from '@/lib/pricing-model'
 import { resolveThemeImageUrl } from '@/lib/visual-asset-variants'
+import { resolveShowcasePreview } from '@/lib/showcase-preview'
 
 interface Service {
   id: string
@@ -142,7 +143,14 @@ export default function Services() {
       <div className="mb-16 last:mb-0">
         <h3 className="text-lg font-heading uppercase tracking-wider text-muted-foreground mb-6">{title}</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-          {items.map((service, index) => (
+          {items.map((service, index) => {
+            const showcase = resolveShowcasePreview('service', service.id, service.image_url)
+            const imageUrl = showcase?.previewUrl || resolveThemeImageUrl({
+              imageUrl: service.image_url,
+              imageVariants: service.image_variants,
+              theme: resolvedTheme,
+            })
+            return (
             <div
               key={service.id}
               onClick={() => handleCardClick(service.id)}
@@ -150,20 +158,12 @@ export default function Services() {
               style={{ transitionDelay: `${index * 0.08}s` }}
             >
               <div className="relative h-64 overflow-hidden">
-                {resolveThemeImageUrl({
-                  imageUrl: service.image_url,
-                  imageVariants: service.image_variants,
-                  theme: resolvedTheme,
-                }) ? (
+                {imageUrl ? (
                   <Image
-                    src={resolveThemeImageUrl({
-                      imageUrl: service.image_url,
-                      imageVariants: service.image_variants,
-                      theme: resolvedTheme,
-                    })!}
-                    alt={service.title}
+                    src={imageUrl}
+                    alt={showcase?.alt || service.title}
                     fill
-                    className="object-cover transition-transform duration-700 group-hover:scale-110"
+                    className={`${showcase?.kind === 'illustrative_concept' ? 'object-contain bg-[#142339]' : 'object-cover'} transition-transform duration-700 group-hover:scale-105`}
                     sizes="(max-width: 768px) 100vw, 320px"
                   />
                 ) : (
@@ -173,7 +173,7 @@ export default function Services() {
                     </span>
                   </div>
                 )}
-                <div className="absolute top-6 left-6 flex flex-col gap-2">
+                <div className={`${showcase?.kind === 'illustrative_concept' ? 'hidden' : 'absolute top-6 left-6 flex flex-col gap-2'}`}>
                   <span className={`px-3 py-1 bg-background/80 backdrop-blur-md rounded-full text-[10px] font-heading tracking-widest uppercase ${accent.badge}`}>
                     {TYPE_LABELS[service.service_type] || service.service_type}
                   </span>
@@ -237,7 +237,8 @@ export default function Services() {
                 </div>
               </div>
             </div>
-          ))}
+            )
+          })}
         </div>
       </div>
     )
