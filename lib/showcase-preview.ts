@@ -1,17 +1,20 @@
+import serviceConceptGallery from './service-concept-gallery.json'
+
 /**
  * Version-bound card visuals. In this branch they are review previews; after
  * Human QA, merge, and deployment they render publicly for matching records.
  * Database image fields stay unchanged. Later record-backed replacements use
  * the existing visual-assets approval workflow.
  */
-export const SHOWCASE_PREVIEW_REVISION = '2026-10-22-c' as const
+export const SHOWCASE_PREVIEW_REVISION = '2026-10-23-services-approved-gallery' as const
 
 export type ShowcaseRole = 'hero' | 'product-in-use' | 'workflow' | 'proof/outcome' | 'course-preview poster'
 export interface ShowcaseFrame {
   imageUrl: string
   alt: string
   role: ShowcaseRole
-  status: 'source capture' | 'illustrative concept'
+  status: 'source capture' | 'built example' | 'illustrative concept' | 'public source review' | 'illustrative proposal'
+  label?: string
 }
 
 type Entity = 'project' | 'prototype' | 'service' | 'product'
@@ -80,4 +83,12 @@ export function resolveShowcaseGallery(entity: Entity, id: string | number, curr
   }
   const extras = entity === 'service' ? SERVICE_GALLERY_EXTRAS[String(id)] || [] : entity === 'product' ? PRODUCT_GALLERY_EXTRAS[String(id)] || [] : []
   return [first, ...extras]
+}
+
+/** Exact-ID and exact-source bound service concepts; unknown records stay fail-closed. */
+export function resolveServiceGallery(id: string, imageUrl: string | null | undefined): ShowcaseFrame[] {
+  const concept = (serviceConceptGallery as Record<string, { expectedCurrentUrl: string | null; frames: ShowcaseFrame[] }>)[id]
+  if (concept && concept.expectedCurrentUrl === (imageUrl || null)) return concept.frames
+  if (!imageUrl) return []
+  return [{ imageUrl, alt: 'Current service listing image', role: 'hero', status: 'source capture' }]
 }

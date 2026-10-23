@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>AmaduTown digital service concept review</title>
+  <style>
+    :root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;background:#101d30;color:#f8f6ee;font-family:Arial,sans-serif}header{padding:28px clamp(18px,4vw,58px);border-bottom:1px solid #4d5d6d}h1{font-family:Georgia,serif;font-size:clamp(30px,4vw,52px);font-weight:400;letter-spacing:-.04em;margin:8px 0}p{max-width:850px;line-height:1.5;color:#cfdae1}.badge{color:#d4af37;font-size:12px;letter-spacing:.16em;font-weight:800}main{padding:24px clamp(18px,4vw,58px)}section{padding:22px 0 30px;border-bottom:1px solid #4d5d6d}h2{font-family:Georgia,serif;font-size:27px;font-weight:400;margin:0 0 16px}.pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.pair a{display:block;background:#20334a;padding:8px;text-decoration:none;color:#f8f6ee}.pair img{display:block;width:100%;height:auto;aspect-ratio:5/3;object-fit:contain}.pair span{display:block;padding:10px 4px 3px;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:#d4af37}@media(max-width:700px){.pair{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<header><div class="badge">DRAFT CONCEPT REVIEW · 7 EXPLICITLY NAMED OFFERS</div><h1>Digital services, shown in use.</h1><p>Website UX Refresh pairs a public Julie’s homepage screenshot with an illustrative AmaduTown assessment. The other six pairs use synthetic screens and records. These assets are not active in the service catalog and do not claim a deployed integration, customer result, or production dashboard.</p></header>
+<main id="pairs"></main>
+<script>
+const offers=[
+ ['Website UX Refresh','website-ux-refresh'],
+ ['Mobile App Generation','mobile-app-generation'],
+ ['RAG Knowledge Base System','rag-knowledge-base'],
+ ['Data Migration & Onboarding','data-migration-onboarding'],
+ ['Custom API / ERP Integrations','custom-api-erp-integrations'],
+ ['Custom Reporting & Analytics Dashboard','custom-reporting-dashboard'],
+ ['Shared Analytics Dashboard','shared-analytics-dashboard']
+]
+const root=document.getElementById('pairs')
+for(const [title,slug] of offers){
+  const section=document.createElement('section')
+  const heading=document.createElement('h2');heading.textContent=title;section.append(heading)
+  const pair=document.createElement('div');pair.className='pair'
+  for(const kind of ['hero','artifact']){
+    const url=`./${slug}-${kind}-review-r1.webp`
+    const link=document.createElement('a');link.href=url;link.target='_blank';link.rel='noopener noreferrer'
+    const img=document.createElement('img');img.src=url;img.alt=slug==='website-ux-refresh'?`${title}: ${kind==='hero'?'public page evidence with review notes':'public page evidence with illustrative UX proposal'}`:`${title}: ${kind==='hero'?'illustrative service view':'illustrative buyer deliverable'}`
+    const label=document.createElement('span');label.textContent=slug==='website-ux-refresh'?(kind==='hero'?'Public page review':'Illustrative UX proposal'):(kind==='hero'?'Service view':'Buyer deliverable')
+    link.append(img,label);pair.append(link)
+  }
+  section.append(pair);root.append(section)
+}
+</script>
+</body>
+</html>

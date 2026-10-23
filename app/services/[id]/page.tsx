@@ -23,6 +23,8 @@ import Link from 'next/link'
 import Navigation from '@/components/Navigation'
 import Breadcrumbs from '@/components/Breadcrumbs'
 import PortfolioVisualMockup from '@/components/visual-assets/PortfolioVisualMockup'
+import ShowcaseCarousel from '@/components/ShowcaseCarousel'
+import { resolveServiceGallery } from '@/lib/showcase-preview'
 
 interface Service {
   id: string
@@ -132,7 +134,7 @@ export default function ServiceDetailPage() {
   }
 
   const handleAction = () => {
-    if (service?.is_quote_based) {
+    if (service?.is_quote_based || service?.price === null) {
       handleRequestQuote()
     } else {
       handleAddToCart()
@@ -171,6 +173,8 @@ export default function ServiceDetailPage() {
   }
 
   const delivery = DELIVERY_ICONS[service.delivery_method] || DELIVERY_ICONS.virtual
+  const gallery = resolveServiceGallery(service.id, service.image_url)
+  const quoteRequired = service.is_quote_based || service.price === null
   const deliverablesList = Array.isArray(service.deliverables) ? service.deliverables : []
   const topicsList = Array.isArray(service.topics) ? service.topics : []
   const breadcrumbItems: { label: string; href?: string }[] = [
@@ -180,11 +184,11 @@ export default function ServiceDetailPage() {
 
   if (visualCapture) {
     const typeLabel = TYPE_LABELS[service.service_type] || service.service_type || 'Service'
-    const priceLabel = service.is_quote_based
+    const priceLabel = quoteRequired
       ? 'Custom scope'
       : service.price !== null
         ? formatCurrency(service.price)
-        : 'Free'
+        : 'Price on request'
     const deliveryLabel = delivery.label
     const durationLabel = service.duration_description || (
       service.duration_hours ? `${service.duration_hours} hours` : 'Scoped delivery'
@@ -365,23 +369,14 @@ export default function ServiceDetailPage() {
             transition={{ duration: 0.5 }}
             className="bg-gray-900/50 border border-gray-800 rounded-2xl overflow-hidden"
           >
-            {/* Hero */}
-            <div className="relative h-64 md:h-80 bg-gradient-to-br from-cyan-900/20 to-blue-900/20">
-              {service.image_url ? (
-                <Image
-                  src={service.image_url}
-                  alt={service.title}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 768px) 100vw, 800px"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center">
-                  <Building className="text-cyan-500/40" size={80} />
+            {/* Service visual and title */}
+            <div className="bg-gradient-to-br from-cyan-900/20 to-blue-900/20">
+              {gallery.length > 0 ? <ShowcaseCarousel frames={gallery} title={service.title} /> : (
+                <div className="flex aspect-[5/3] items-center justify-center bg-[#101c2d] text-center text-sm text-gray-300">
+                  A reviewed service visual is not available yet.
                 </div>
               )}
-              <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-transparent" />
-              <div className="absolute bottom-6 left-6 right-6">
+              <div className="px-6 pb-6 pt-5">
                 <span className="px-3 py-1 bg-gray-900/80 rounded-full text-xs font-heading tracking-wider text-cyan-400 uppercase">
                   {TYPE_LABELS[service.service_type] || service.service_type}
                 </span>
@@ -488,9 +483,9 @@ export default function ServiceDetailPage() {
               {/* Price and CTA */}
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 pt-6 border-t border-gray-800">
                 <div>
-                  {service.is_quote_based ? (
+                  {quoteRequired ? (
                     <span className="text-xl font-semibold text-yellow-400">
-                      Contact for Pricing
+                      Price on request
                     </span>
                   ) : service.price !== null ? (
                     <span className="text-3xl font-bold text-white">
@@ -505,12 +500,12 @@ export default function ServiceDetailPage() {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   className={`px-8 py-4 font-semibold rounded-xl flex items-center justify-center gap-2 transition-colors ${
-                    service.is_quote_based
+                    quoteRequired
                       ? 'bg-gradient-to-r from-yellow-600 to-orange-600 text-white hover:from-yellow-700 hover:to-orange-700'
                       : 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white hover:from-cyan-700 hover:to-blue-700'
                   }`}
                 >
-                  {service.is_quote_based ? (
+                  {quoteRequired ? (
                     <>
                       <MessageSquare size={20} />
                       Request Quote
