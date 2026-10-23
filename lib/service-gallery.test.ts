@@ -7,17 +7,25 @@ type CatalogRow = { id: string; title: string; image_url: string | null; video_u
 const catalog = JSON.parse(readFileSync(path.join(process.cwd(), 'docs/showcase-audit/services-catalog-2026-10-23.json'), 'utf8')) as { count: number; rows: CatalogRow[] }
 
 describe('active service gallery coverage', () => {
-  it('gives every active service two distinct source-bound frames', () => {
+  it('limits the active concepts to three source-bound calibration pairs', () => {
     expect(catalog.count).toBe(41)
     expect(catalog.rows).toHaveLength(41)
     expect(new Set(catalog.rows.map((row) => row.id)).size).toBe(41)
+    const calibrationIds = new Set([
+      'd1d32ad7-5cb6-4d6c-8f15-d9ccf24f9e78',
+      'a479ce70-4856-4d3f-917b-c37bfff1f0a2',
+      'e5c198bd-1276-45ee-abe3-9d9f85e1e3d2',
+    ])
     for (const row of catalog.rows) {
       const frames = resolveServiceGallery(row.id, row.image_url)
-      expect(frames).toHaveLength(2)
-      expect(new Set(frames.map((frame) => frame.imageUrl)).size).toBe(2)
-      expect(frames.some((frame) => frame.status === 'illustrative concept')).toBe(true)
+      expect(frames).toHaveLength(calibrationIds.has(row.id) ? 2 : row.image_url ? 1 : 0)
+      if (calibrationIds.has(row.id)) {
+        expect(new Set(frames.map((frame) => frame.imageUrl)).size).toBe(2)
+        expect(frames.every((frame) => frame.status === 'illustrative concept')).toBe(true)
+      }
       for (const frame of frames) {
         expect(frame.status).toMatch(/source capture|illustrative concept/)
+        expect(frame.imageUrl).not.toContain('service-gallery-v3')
         if (frame.imageUrl.startsWith('/')) {
           expect(readFileSync(path.join(process.cwd(), 'public', frame.imageUrl)).length).toBeGreaterThan(0)
         }

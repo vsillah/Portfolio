@@ -6,7 +6,7 @@ import serviceConceptGallery from './service-concept-gallery.json'
  * Database image fields stay unchanged. Later record-backed replacements use
  * the existing visual-assets approval workflow.
  */
-export const SHOWCASE_PREVIEW_REVISION = '2026-10-23-services-raster' as const
+export const SHOWCASE_PREVIEW_REVISION = '2026-10-23-services-calibration' as const
 
 export type ShowcaseRole = 'hero' | 'product-in-use' | 'workflow' | 'proof/outcome' | 'course-preview poster'
 export interface ShowcaseFrame {
@@ -88,8 +88,6 @@ export function resolveShowcaseGallery(entity: Entity, id: string | number, curr
 export function resolveServiceGallery(id: string, imageUrl: string | null | undefined): ShowcaseFrame[] {
   const concept = (serviceConceptGallery as Record<string, { expectedCurrentUrl: string | null; frames: ShowcaseFrame[] }>)[id]
   if (concept && concept.expectedCurrentUrl === (imageUrl || null)) return concept.frames
-  const reviewed = resolveShowcaseGallery('service', id, imageUrl)
-  if (reviewed.length > 0) return reviewed
   if (!imageUrl) return []
   return [{ imageUrl, alt: 'Current service listing image', role: 'hero', status: 'source capture' }]
 }

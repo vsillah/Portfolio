@@ -1,0 +1,47 @@
+# AmaduTown service visual system — calibration, 2026-10-23
+
+This is the art direction for a three-pair review, not approval of the 41-service raster-v3 gallery. The first pair represents the **Monthly Advisory Retainer within Management Consulting**. The other pairs represent the **AI Inbound Lead Chatbot** and **AI Training Course — Self-Paced**. Nothing in a concept frame is customer proof, a delivered product screenshot, or a promise of a particular result.
+
+## Source audit
+
+| Source | What it establishes | Use in this calibration |
+|---|---|---|
+| `app/globals.css`, `tailwind.config.ts`, `docs/design/amadutown-color-palette-audit.md` | The current Portfolio standard is imperial navy `#121E31`, radiant gold `#D4AF37`, silicon slate `#2C3E50`, platinum white `#EAECEE`, bronze `#8B6914`, and gold light `#F5D060`. Public work should stay recognizably navy/gold. | Canonical color and hierarchy. The lavender, coral, pastel, and teal variation in raster-v3 is rejected. |
+| `app/layout.tsx` and `public/fonts/inter-latin-variable.ttf` | Site typography pairs Cormorant Garamond, Inter, and Orbitron; Inter is bundled locally. | Editorial serif for a decisive headline, Inter for body and data. Use a local system serif fallback for offline rendering. Orbitron belongs in small technical labels only. |
+| `public/amadutown-logo-upscaled.png` | The current AmaduTown shield is a portrait-format gold and navy mark. | Place the full mark at its native 2048:2556 ratio with clear space. Never stretch, crop, recolor, or use it as a faint decorative pattern. |
+| `public/prototypes/portfolio-pipeline-hero/amadutown-storefront-pipeline-hero-approved-20260617.png` and `docs/design/portfolio-homepage-higgsfield-production-brief.md` | An approved visual connects a real small-business setting to a warm gold infrastructure metaphor. The brief calls for controlled light, material depth, and no fake interface text or noisy neon. | An approved, rights-cleared image may anchor one offer cover. Avoid repeating it as wallpaper across all three offers. |
+| `public/Chatbot_app_img.png`, `docs/chatbot-products-and-services-overview.md` | The site has an actual navy/gold AI assistant surface and public service categories. | Use as a UI and palette reference only. It does not prove that the distinct inbound lead chatbot is deployed. |
+| `docs/showcase-audit/services-catalog-2026-10-23.json`, `docs/pricing-model.md`, `docs/scheduling-consultation-overview.md` | Stable service titles, IDs, delivery methods, quote status, and the discovery-call description. The Monthly Advisory Retainer and Management Consulting records are quote based; the course has no video URL. | Keep offer names and product state accurate. Do not put a made-up price, guarantee, booked call, or playable course preview inside a visual. |
+| `/Users/vambahsillah/Library/CloudStorage/GoogleDrive-vsillah@gmail.com/My Drive/2. AmaduTown Advisory Solutions/Artifacts /Company Materials/ATAS Pitch Deck_Final.pptx` | The 17-slide company deck names the AI lead chatbot and positions the work around access, operational capacity, and growth-oriented owners. Its Arial and mixed blue/green theme is older than the current Portfolio design standard. | Offer context only. Do not reuse its unverified statistics, old palette, or broad “seamless end-to-end” claims. |
+| `/Users/vambahsillah/Library/CloudStorage/GoogleDrive-vsillah@gmail.com/My Drive/2. AmaduTown Advisory Solutions/Artifacts /Company Materials/AI Driven Strategy.png` | An older offer map connects inbound interest, learning, and ongoing support. | Conceptual scope cue only. Its blue funnel style is not the visual template. |
+| `/Users/vambahsillah/Library/CloudStorage/GoogleDrive-vsillah@gmail.com/My Drive/2. AmaduTown Advisory Solutions/Artifacts /Company Materials/amadutown_context_diagram.pdf` and `Amadutown Sales Trigger Cheat Sheet.pdf` in the same folder | Company materials exist, but their contents and rights are not a basis for public client proof in this calibration. | Keep out of customer-facing visuals until inspected and explicitly approved for that use. |
+| `/Users/vambahsillah/Documents/Codex/2026-04-30/i-have-quite-a-bit-of/personality-corpus/voice_and_style_guide.md`, `personality_profile.md`, `corpus_index.jsonl`, and `agent-exports/core/personality_pack.md` | The voice moves from a real operator problem to a useful decision and concrete action. It values access, dignity, and systems that make work lighter. Some inputs are private-derived summaries. | Shape rhythm and framing. Do not quote private chats, manuscripts, or personal history in collateral. |
+| `/Users/vambahsillah/.hermes/hermes-agent/skills/creative/humanizer/SKILL.md` | Flags filler, inflated claims, repetitive rule-of-three phrasing, and generic AI language. | Final copy pass on every headline, caption, and deliverable page. |
+
+The source search covered the Portfolio `docs`, `public`, and `design-files` directories and the AmaduTown Drive root and `Artifacts /Company Materials/`. No client-project image, private contact, or old deck statistic was promoted into these frames. The current 41-service raster-v3 set failed Human QA and is not an approved brand source.
+
+## Design rules
+
+**Logo.** Use the full upscaled shield once per frame, sized for recognition rather than decoration. Preserve its portrait ratio and a clear margin at least half the shield width. On light paper, give it a navy field; on dark ground, let the existing transparent edges breathe.
+
+**Palette.** Navy is the field; platinum white carries most type; gold marks the decision, active connection, or next action. Bronze and silicon slate add depth. Warm paper may support a sample memo or workbook spread. Do not rotate through unrelated pastel themes to create variety.
+
+**Typography.** Use an editorial serif headline with a deliberate line break, then short Inter copy. Keep offer names and deliverable labels plain. A small Orbitron-like technical label may identify a chapter or section; body copy must remain readable at card size. No tiny dashboard chrome masquerading as substance.
+
+**Imagery.** Prefer approved AmaduTown photography/rendered art and honest, composed collateral: a cover, decision brief, lead handoff sheet, or learning page. Avoid fake chat transcripts, invented client names, outcome charts, arbitrary metrics, stock-office scenes, generic SaaS windows, wireframe arrows, and visual noise. One frame can use the approved storefront pipeline image; the others must earn distinction through a different physical or editorial form.
+
+**Composition.** Each first frame sells one clear offer promise. Each second frame opens a believable finished artifact from that offer. Frame pairs share the shield, color discipline, grid, and type but should not repeat the same template. Use strong margins, one focal point, and an obvious reading order. The card crop must preserve headline and focal content at mobile width.
+
+**Copy.** Name the operator tension, the decision the service helps make, and the actual handoff the buyer could receive. Write as Vambah speaks: direct, specific, practical. Do not say “revolutionize,” “unlock,” “seamless,” “AI-powered transformation,” or “sample dashboard.” Do not invent conversion lifts, time savings, testimonials, implementation status, a complete course, or a deployed chatbot. When the product is still conceptual, put a quiet disclosure in the footer: “Illustrative offer view” or “Course concept; syllabus and video pending.”
+
+## Three calibration pairs
+
+| Pair | Cover promise | Second frame | Proof boundary |
+|---|---|---|---|
+| Monthly Advisory Retainer (Management Consulting) | “Keep the decisions moving.” A monthly working rhythm for leaders who need priorities, owners, and a path through the next decision. | A designed **Monthly Decision Brief** with a specific handoff question, a decision to make, named work roles rather than fictional people, and the next review point. | Illustrative brief; no client name, result, or unverified service-level promise. |
+| AI Inbound Lead Chatbot | “A lead should not disappear while your team is doing the work.” Capture the question, qualify the need, and hand it to a person who can respond. | A designed **Lead Handoff Sheet** showing consent state, need, owner role, and next action using invented non-personal scenario data. | No claim that the chatbot is live or that leads converted. |
+| AI Training Course — Self-Paced | “Learn where AI helps your work, then decide what deserves review.” A course promise about judgment and practical use, without a play button. | A designed **Lesson 01 Workbook Page** asking learners to choose one workflow, identify a decision, and mark the human review point. | Course concept only; syllabus and playable video remain pending approval and binding. |
+
+## Review gate
+
+Render only these three pairs with local tools and the listed rights-cleared assets. Inspect the six frames together, then inspect each at full size and inside the exact `/services` card and detail routes at phone, tablet, and desktop widths. A privacy-safe MP4 must show the six live gallery states. Captain review and Human QA decide whether this direction may extend to the other services. Until then, the rejected raster-v3 assets stay out of the active gallery.
